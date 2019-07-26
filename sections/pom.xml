@@ -15,24 +15,11 @@
 
 
   <modules>
-    <module>sections-app-util</module>
     <module>sections-app</module>
   </modules>
 
   <dependencyManagement>
     <dependencies>
-      <dependency>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-sections-app-util</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <!-- TODO fix IMPL dependency - https://jira.sakaiproject.org/browse/SAK-23918 -->
-      <dependency>
-        <groupId>org.sakaiproject.edu-services.sections</groupId>
-        <artifactId>sections-impl-standalone</artifactId>
-        <version>${sakai.version}</version>
-        <scope>provided</scope>
-      </dependency>
       <dependency>
         <groupId>org.sakaiproject.edu-services.sections</groupId>
         <artifactId>sections-impl</artifactId>

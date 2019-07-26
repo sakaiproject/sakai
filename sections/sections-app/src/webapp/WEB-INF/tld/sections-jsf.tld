@@ -8,14 +8,14 @@
 	<tlib-version>1.0</tlib-version>
 	<jsp-version>1.2</jsp-version>
 	<short-name>sec</short-name>
-	<uri>http://sakaiproject.org/jsf/sections</uri>
+	<uri>http://sakaiproject.org/jsf/section</uri>
 	<description>Sakai Section Info Tags</description>
-	<tag>
-		<name>sectionTable</name>
-		<tag-class>org.sakaiproject.tool.section.jsf.SectionTableTag</tag-class>
-		<body-content>JSP</body-content>
+    <tag>
+        <name>rowGroupTable</name>
+        <tag-class>org.sakaiproject.tool.section.jsf.RowGroupDataTableTag</tag-class>
+        <body-content>JSP</body-content>
 
-	<!-- All attributes copied from dataTable in Myfaces 1.1.1 TLD -->
+        <!-- All attributes copied from dataTable in Myfaces 1.1.1 TLD -->
         <attribute>
             <name>id</name>
             <required>false</required>
@@ -40,10 +40,26 @@
 
 
         <!-- HTML 4.0 universal attributes -->
-        <attribute><name>dir</name>     <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
-        <attribute><name>lang</name>    <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
-        <attribute><name>style</name>   <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
-        <attribute><name>title</name>   <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
+        <attribute>
+            <name>dir</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>lang</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>style</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>title</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
         <attribute>
             <name>styleClass</name>
             <required>false</required>
@@ -52,30 +68,118 @@
         </attribute>
 
         <!-- HTML 4.0 event-handler attributes -->
-        <attribute><name>onclick</name>    <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
-        <attribute><name>ondblclick</name> <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
-        <attribute><name>onmousedown</name><required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
-        <attribute><name>onmouseup</name>  <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
-        <attribute><name>onmouseover</name><required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
-        <attribute><name>onmousemove</name><required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
-        <attribute><name>onmouseout</name> <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
-        <attribute><name>onkeypress</name> <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
-        <attribute><name>onkeydown</name>  <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
-        <attribute><name>onkeyup</name>    <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
+        <attribute>
+            <name>onclick</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>ondblclick</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>onmousedown</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>onmouseup</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>onmouseover</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>onmousemove</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>onmouseout</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>onkeypress</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>onkeydown</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>onkeyup</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
 
         <!-- HTML 4.0 table attributes -->
-        <attribute><name>align</name>           <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
-        <attribute><name>border</name>          <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
-        <attribute><name>bgcolor</name>         <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
-        <attribute><name>cellpadding</name>     <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
-        <attribute><name>cellspacing</name>     <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
-        <attribute><name>datafld</name>         <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
-        <attribute><name>datasrc</name>         <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
-        <attribute><name>dataformatas</name>    <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
-        <attribute><name>frame</name>           <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
-        <attribute><name>rules</name>           <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
-        <attribute><name>summary</name>         <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
-        <attribute><name>width</name>           <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
+        <attribute>
+            <name>align</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>border</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>bgcolor</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>cellpadding</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>cellspacing</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>datafld</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>datasrc</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>dataformatas</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>frame</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>rules</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>summary</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>width</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
 
         <!-- UIData attributes -->
         <attribute>
@@ -122,22 +226,22 @@
         </attribute>
 
         <!-- MyFaces extensions -->
-                <!-- 
-        This attribute indicates that the component should be forced to use the specified id instead of 
-        using the one that faces generates.  Components contained within a "list" will include a '[n]'  
-        suffix where 'n' is the row index (unless the forceIdIndex attribute is set to false).
-        -->
+        <!--
+This attribute indicates that the component should be forced to use the specified id instead of
+using the one that faces generates.  Components contained within a "list" will include a '[n]'
+suffix where 'n' is the row index (unless the forceIdIndex attribute is set to false).
+-->
         <attribute>
             <name>forceId</name>
             <required>false</required>
             <rtexprvalue>false</rtexprvalue>
             <type>java.lang.String</type>
             <description>If true, this component will force the use of the specified id when rendering.</description>
-        </attribute>        
+        </attribute>
 
-        <!-- 
-        If the component is contained within an "list" (such as dataTable), this attribute indicates whether or not a 
-        '[n]' suffix should be added where 'n' is the row index.  Default is true.  The attribute is ignored if forceId 
+        <!--
+        If the component is contained within an "list" (such as dataTable), this attribute indicates whether or not a
+        '[n]' suffix should be added where 'n' is the row index.  Default is true.  The attribute is ignored if forceId
         is false (or not specified)
         -->
         <attribute>
@@ -146,11 +250,11 @@
             <rtexprvalue>false</rtexprvalue>
             <type>java.lang.String</type>
             <description>
-                If false, this component will not append a '[n]' suffix (where 'n' is the row index) to components 
-                that are contained within a "list."  This value will be true by default and the value will be ignored if 
+                If false, this component will not append a '[n]' suffix (where 'n' is the row index) to components
+                that are contained within a "list." This value will be true by default and the value will be ignored if
                 the value of forceId is false (or not specified.)
             </description>
-        </attribute>        
+        </attribute>
 
         <!-- MyFaces extension: user role attributes -->
         <attribute>
@@ -189,10 +293,10 @@
             <required>false</required>
             <rtexprvalue>false</rtexprvalue>
             <description>
-				A formula that overrides the defaut row index in the construction of table's
-				body components.
-				Example : #{myRowVar.key}
-				Warning, the EL should evaluate to a unique value for each row !
+                A formula that overrides the defaut row index in the construction of table's
+                body components.
+                Example : #{myRowVar.key}
+                Warning, the EL should evaluate to a unique value for each row !
             </description>
         </attribute>
         <attribute>
@@ -354,7 +458,7 @@
             <description>
                 The id to use for &lt;tr&gt; elements that are generated by the table.
             </description>
-        </attribute>        
+        </attribute>
         <attribute>
             <name>rowStyleClass</name>
             <required>false</required>
@@ -368,6 +472,5 @@
             <description>Corresponds to the HTML style attribute for the row tr tag.</description>
         </attribute>
 
-	</tag>
-
+    </tag>
 </taglib>

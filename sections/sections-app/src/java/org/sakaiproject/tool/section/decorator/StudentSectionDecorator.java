@@ -26,7 +26,6 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
-import org.sakaiproject.tool.section.jsf.JsfUtil;
 
 /**
  * Decorates a CourseSection for use in the students' UI.
