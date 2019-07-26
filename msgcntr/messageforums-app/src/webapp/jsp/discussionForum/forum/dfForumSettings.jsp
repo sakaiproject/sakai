@@ -243,7 +243,7 @@ if (thisId == null)
           <h:commandButton id="cancel" immediate="true" action="#{ForumTool.processReturnToOriginatingPage}" 
                            value="#{msgs.cdfm_button_bar_cancel}" accesskey="x" />
          
-         <h:outputText styleClass="messageProgress" style="display:none" value="#{msgs.cdfm_processing_submit_message}" />
+         <h:outputText styleClass="sak-banner-info" style="display:none" value="#{msgs.cdfm_processing_submit_message}" />
        </div>
 	 </h:form>
     </sakai:view>
