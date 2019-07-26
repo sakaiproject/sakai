@@ -515,18 +515,21 @@ function resizeFrame(){
 			var defaultText = "$tlang.getString("revise.notify_high")";
 			var groupsText  = "$tlang.getString("revise.notify_high_groups")";
 
-			var options = document.getElementById('notify').children;
-			for (var i = 0; i < options.length; i++) {
-				if (options[i].text == defaultText || options[i].text == groupsText) {
-					var highOption = options[i];
-					break;
-				}
-			}
+			//Checks for #notify to prevent errors on MOTD
+			if (document.getElementById('notify') !== null) {
 
-			if (theAnnouncementIsForGroups()) {
-				highOption.text = groupsText;
-			} else {
-				highOption.text = defaultText;
+				var options = document.getElementById('notify').children;
+				for (var i = 0; i < options.length; i++) {
+					if (options[i].text == defaultText || options[i].text == groupsText) {
+						var highOption = options[i];
+						break;
+					}
+				}
+				if (theAnnouncementIsForGroups()) {
+					highOption.text = groupsText;
+				} else {
+					highOption.text = defaultText;
+				}
 			}
 		}
 
