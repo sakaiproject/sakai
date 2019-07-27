@@ -281,7 +281,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 
 		byte[] bytesEncoded = Base64.encodeBase64(login_hint.getBytes());
 		String encoded_login_hint = new String(bytesEncoded);
-		String redirect = oidc_endpoint;
+		String redirect = oidc_endpoint.trim();
 		redirect += "?iss=" + java.net.URLEncoder.encode(SakaiBLTIUtil.getOurServerUrl());
 		redirect += "&login_hint=" + encoded_login_hint;
 		if ( StringUtils.isNotEmpty(launch_url)) {
