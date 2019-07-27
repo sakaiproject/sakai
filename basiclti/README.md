@@ -17,9 +17,9 @@ and Sakai's particular extensions.  I make this tool available online at
 
 Aditional Documentation
 
-* [Configuring LTI 2.0](docs/LTI2.md)
-* [Using Sakai with CASA](docs/CASA.md)
-* [Using LTI Provider ContentItem](docs/CONTENTITEM.md)
+* [Using LTI ContentItem](docs/CONTENTITEM.md)
+* [Using Tsugi in Sakai with LTI Advantage](https://www.tsugi.org/md/ADVANTAGE.md)
+* [Windows PostMessage in Sakai](docs/POSTMESSAGE.md)
 
 # ######################################################
 # SAK-30601 - Upgraded BasicLTI dashboard
