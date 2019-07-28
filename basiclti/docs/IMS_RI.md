@@ -33,13 +33,15 @@ to anyone so you can edit any tool - but be cool and only edit your tools.  Folk
 put their name of the name of the software they are testing as the title of the tool.
 
 If you need to add a tool just set it up with the minimum fields:
+(<a href="IMG_IMS_RI/01-TI-Tool-Partial.png" target="_blank">Image</a>)
 
     Name: Chuck dev1.sakaicloud.org
     Client: 12345  (will change later)
     Deployment: 1
 
 Once you save the tool go back to https://lti-ri.imsglobal.org/lti/tools and find your
-tool and copy these values (exmamples shown):
+tool and copy these values (examples shown):
+(<a href="IMG_IMS_RI/02-RI-Tool-View.png" target="_blank">Image</a>)
 
     Tool end-point to receive launches:
     https://lti-ri.imsglobal.org/lti/tools/362/launches
@@ -88,6 +90,7 @@ the RI:
     Private key <- Tool Private Key (Must toggle at the bottom to show)
 
 Update the tool.
+(<a href="IMG_IMS_RI/03-RI-Data-Copied.png" target="_blank">Image</a>)
 
 Go back to https://lti-ri.imsglobal.org/lti/tools and find your entry again - I like to
 keep this open in a separate tab.
@@ -98,13 +101,16 @@ Testing Normal Launch in Sakai
 Back in Sakai - find/make a site and find/add Lessons.
 
 Lessons -> Add Content -> Add External Tool (way at the bottom of the pop up menu)
+(<a href="IMG_IMS_RI/11-Lessons-Add-External.png" target="_blank">Image</a>)
 
 Find and install the tool you installed above - it should plug into Sakai and you should
 be able to launch the tool.  
+(<a href="IMG_IMS_RI/12-Lessons-Installed.png" target="_blank">Image</a>)
 
 You should see a page in the RI that says something like "Make Authentication Request
 back to Platform" - you may need to scroll down - press
 the "Proceed with LTI 1.3 Launch" button to "Continue".
+(<a href="IMG_IMS_RI/13-Lessons-OIDC.png" target="_blank">Image</a>)
 
 You actually need to press this button pretty quickly - this is part of
 the OIDC Connect Flow and Sakai has a pretty short window of time that
@@ -112,6 +118,7 @@ it allows the OIDC Connect flow to come back.
 
 After you press the button to continue through the Sakai debug screen, you should 
 add "Lauch Status - Valid".
+(<a href="IMG_IMS_RI/14-Lessons-Launched.png" target="_blank">Image</a>)
 
 *When you are done, remove launch link from Lessons since we are going to switch our
 tool entry to Deep Linking which wil break normal launches.*
@@ -134,6 +141,7 @@ Edit the tool you installed and make the following changes:
     Don't check any other placements
 
 Save the Tool.
+(<a href="IMG_IMS_RI/21-Sakai-Tool-Checkboxes.png" target="_blank">Image</a>)
 
 Testing Deep Link Launch
 ------------------------
