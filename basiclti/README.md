@@ -2,15 +2,16 @@ Sakai's Support for IMS Standards
 ---------------------------------
 
 This folder holds the Sakai code for IMS Learning Tools Interoperability and other standards.
-This area has many different contributors.  
+This area has many different contributors.
 
-There are several internal documents that you might find useful ranging from test plans to developer/configuration
+There are several internal documents that you might find useful ranging from
+ test plans to developer/configuration
 documentation.  These documents are stored here in github:
 
 * [Sakai LTI Documentation](https://github.com/sakaiproject/sakai/tree/master/basiclti/basiclti-docs/resources/docs)
 
-Sakai has a unit test that we keep up-to-date with the latest LTI specifications.  The 
-test harness functions as both Consumer and Provider and exercises both standard services 
+Sakai has a unit test that we keep up-to-date with the latest LTI specifications.  The
+test harness functions as both Consumer and Provider and exercises both standard services
 and Sakai's particular extensions.  I make this tool available online at
 
 * https://www.tsugi.org/lti-test
@@ -18,6 +19,7 @@ and Sakai's particular extensions.  I make this tool available online at
 Aditional Documentation
 
 * [Using LTI ContentItem](docs/CONTENTITEM.md)
+* [Using the IMS Refence Implementation with Sakai](docs/IMS_RI.md)
 * [Using Tsugi in Sakai with LTI Advantage](https://www.tsugi.org/md/ADVANTAGE.md)
 * [Windows PostMessage in Sakai](docs/POSTMESSAGE.md)
 
