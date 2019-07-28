@@ -1206,29 +1206,4 @@ public class BasicLTIUtil {
 		return null;
 	}
 
-	/**
-	 * Parse a string and reliably return a JSONObject or null
-	 * 
-	 * @param String toolProfileString - The string representation tool_profile.
-	 * This has a single resource_handler object since this is scoped to a single
-	 * tool.
-	 */
-	public static JSONObject parseJSONObject(String toolProfileString)
-	{
-		if ( toolProfileString == null || toolProfileString.length() < 1 ) {
-			return null;
-		}
-		Object tp = JSONValue.parse(toolProfileString);
-		if ( tp == null || ! (tp instanceof JSONObject) ) return null;
-		return (JSONObject) tp;
-	}
-
-	public static JSONObject parseSettings(String settings)
-	{
-		if ( settings == null || settings.length() < 1 ) {
-			settings = EMPTY_JSON_OBJECT;
-		}
-		return (JSONObject) JSONValue.parse(settings);
-	}
-
 }
