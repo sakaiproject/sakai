@@ -131,14 +131,14 @@ Edit the tool you installed and make the following changes:
     Leave Checked: Send Names, Send Email, All four services,
     Un-Check: Allow the tool to be launched as a link
     Check: Allow tool to configure and Allow use in rich text editor
-    Don't check any pther placements
+    Don't check any other placements
 
 Save the Tool.
 
 Testing Deep Link Launch
 ------------------------
 
-Back in Lessons, use Add Content -> Add
+Back in Lessons, use Add Content -> Add Learning App
 
 You should see the Reference Implementation tool you just edited in Sakai - choose it.
 It should launch in a modal.  If there are debug buttons - just continue.

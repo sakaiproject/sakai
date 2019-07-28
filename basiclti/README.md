@@ -18,9 +18,10 @@ and Sakai's particular extensions.  I make this tool available online at
 
 Aditional Documentation
 
-* [Using LTI ContentItem](docs/CONTENTITEM.md)
-* [Using the IMS Refence Implementation with Sakai](docs/IMS_RI.md)
 * [Using Tsugi in Sakai with LTI Advantage](https://www.tsugi.org/md/ADVANTAGE.md)
+* [Using LTI ContentItem](docs/CONTENTITEM.md)
+* [Using the IMS Reference Implementation with Sakai](docs/IMS_RI.md)
+* [Setting up Tsugi in Sakai for Testing](docs/TSUGI.md)
 * [Windows PostMessage in Sakai](docs/POSTMESSAGE.md)
 
 # ######################################################
