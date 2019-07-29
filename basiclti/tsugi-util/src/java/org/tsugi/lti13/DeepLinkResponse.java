@@ -22,31 +22,14 @@ package org.tsugi.lti13;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.Properties;
-
-import java.net.URLEncoder;
 import java.security.Key;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.oauth.OAuthAccessor;
-import net.oauth.OAuthConsumer;
-import net.oauth.OAuthMessage;
-import net.oauth.OAuthValidator;
-import net.oauth.SimpleOAuthValidator;
-import net.oauth.server.OAuthServlet;
-import net.oauth.signature.OAuthSignatureMethod;
-
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
 
-import org.tsugi.lti2.LTI2Util;
-import org.tsugi.lti2.LTI2Constants;
-
-
+import org.tsugi.basiclti.BasicLTIUtil;
 
 /* {
     "https:\/\/purl.imsglobal.org\/spec\/lti\/claim\/deployment_id": "07940580-b309-415e-a37c-914d387c1150",
@@ -115,7 +98,6 @@ public class DeepLinkResponse {
 	public static final String MEDIA_CC_1_3 = "application/vnd.ims.imsccv1p3";
 	public static final String MEDIA_CC = MEDIA_CC_1_3+","+MEDIA_CC_1_2+","+MEDIA_CC_1_3;
 
-	// TYPE is in LTI2Constants.TYPE (since it is JSON_LD really)
 	public static final String TYPE_LINKITEM = "link";
 	public static final String TYPE_LTILINKITEM = "ltiResourceLink";
 	public static final String TYPE_CONTENTITEM = "html";
@@ -153,7 +135,7 @@ public class DeepLinkResponse {
 			throw new java.lang.RuntimeException("Incorrect MESSAGE_TYPE");
 		}
 		
-		deep_links = LTI2Util.getArray(body, DEEP_LINKS);
+		deep_links = BasicLTIUtil.getArray(body, DEEP_LINKS);
 		if ( deep_links == null || deep_links.size() < 1 ) {
 			throw new java.lang.RuntimeException("A deep link response must include at least one content_item");
 		}
@@ -233,7 +215,7 @@ public class DeepLinkResponse {
 		for ( Object i : deep_links ) {
 			if ( ! (i instanceof JSONObject) ) continue;
 			JSONObject item = (JSONObject) i;
-			String type = LTI2Util.getString(item,"type");
+			String type = BasicLTIUtil.getString(item,"type");
 			if ( type == null ) continue;
 			if ( type.equals(itemType) ) return item;
 		}

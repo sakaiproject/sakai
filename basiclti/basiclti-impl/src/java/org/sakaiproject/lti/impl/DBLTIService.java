@@ -105,8 +105,6 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
 			foorm.autoDDL("lti_content", LTIService.CONTENT_MODEL, m_sql, m_autoDdl, doReset);
 			foorm.autoDDL("lti_tools", LTIService.TOOL_MODEL, m_sql, m_autoDdl, doReset);
-			foorm.autoDDL("lti_deploy", LTIService.DEPLOY_MODEL, m_sql, m_autoDdl, doReset);
-			foorm.autoDDL("lti_binding", LTIService.BINDING_MODEL, m_sql, m_autoDdl, doReset);
 			foorm.autoDDL("lti_memberships_jobs", LTIService.MEMBERSHIPS_JOBS_MODEL, m_sql, m_autoDdl, doReset);
 			super.init();
 		} catch (Exception t) {
@@ -313,13 +311,6 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			newProps.put(LTI_FA_ICON, fa_icon);
 		}
 
-		// If resource_handler is not in content and is in the tool, copy it
-		if ( newProps.getProperty(LTI_RESOURCE_HANDLER) == null && tool.get(LTI_RESOURCE_HANDLER) != null ) {
-			newProps.put(LTI_RESOURCE_HANDLER, (String) tool.get(LTI_RESOURCE_HANDLER));
-			contentModelList.add(LTI_RESOURCE_HANDLER + ":text");
-			contentModel = contentModelList.toArray(new String[contentModelList.size()]);
-		}
-		
 		if (contentModel == null)
 			return rb.getString("error.invalid.toolid");
 		return insertThingDao("lti_content", contentModel, LTIService.CONTENT_MODEL, newProps, siteId, isAdminRole, isMaintainRole);
@@ -461,137 +452,6 @@ public class DBLTIService extends BaseLTIService implements LTIService {
         search = foorm.searchCheck(search, "lti_content", fields);
         return countThingsDao("lti_content", LTIService.CONTENT_MODEL, joinClause, search, null, siteId, isAdminRole);
     }
-
-	/**
-	 * 
-	 */
-	public Object insertDeployDao(Properties newProps, String siteId, boolean isAdminRole, boolean isMaintainRole) {
-		if ( ! isAdminRole ) throw new IllegalArgumentException("Currently we support admins/Dao access");
-		return insertThingDao("lti_deploy", LTIService.DEPLOY_MODEL, null, newProps, siteId, isAdminRole, isMaintainRole);
-	}
-
-	public boolean deleteDeployDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole) {
-		if ( ! isAdminRole ) throw new IllegalArgumentException("Currently we support admins/Dao access");
-		return deleteThingDao("lti_deploy", LTIService.DEPLOY_MODEL, key, siteId, isAdminRole, isMaintainRole);
-	}
-
-	public Object updateDeployDao(Long key, Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole) {
-		if ( ! isAdminRole ) throw new IllegalArgumentException("Currently we support admins/Dao access");
-		return updateThingDao("lti_deploy", LTIService.DEPLOY_MODEL, null, key, newProps, siteId, isAdminRole, isMaintainRole);
-	}
-
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * 
-	 * @see org.sakaiproject.lti.api.LTIService#getDeployDao(java.lang.Long, java.lang.String, boolean)
-	 */
-	public Map<String, Object> getDeployDao(Long key, String siteId, boolean isAdminRole) 
-	{
-		if ( ! isAdminRole ) throw new IllegalArgumentException("Currently we support admins/Dao access");
-		return getThingDao("lti_deploy", LTIService.DEPLOY_MODEL, key, siteId, isAdminRole);
-	}
-
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * 
-	 * @see org.sakaiproject.lti.api.LTIService#getDeploysDao(java.lang.String, java.lang.String,
-	 *      int, int, java.lang.String, boolean)
-	 */
-	public List<Map<String, Object>> getDeploysDao(String search, String order, int first,
-			int last, String siteId, boolean isAdminRole) {
-		if ( ! isAdminRole ) throw new IllegalArgumentException("Currently we support admins/Dao access");
-
-		String extraSelect = null;
-		String joinClause = null;
-		String groupBy = null;
-
-		if ( order != null ) {
-			order = foorm.orderCheck(order, "lti_deploy", LTIService.DEPLOY_MODEL);
-			if ( order == null ) {
-				throw new IllegalArgumentException("order must be [table.]field [asc|desc]");
-			}
-		} else {
-			extraSelect = "COUNT(DISTINCT lti_tools.id) AS lti_tool_count, COUNT(DISTINCT lti_content.SITE_ID) AS lti_site_count, COUNT(DISTINCT lti_content.id) AS lti_content_count";
-			joinClause = "LEFT OUTER JOIN lti_tools ON lti_tools.deployment_id = lti_deploy.id LEFT OUTER JOIN lti_content ON lti_content.tool_id = lti_tools.id";
-			groupBy = "lti_deploy.id";
-                        order = "lti_deploy.id";
-                }
-
-		// Oracle needs all the selected values in the GROUP_BY
-		if ("mysql".equals(m_sql.getVendor())) {
-			return getThingsDao("lti_deploy", LTIService.DEPLOY_MODEL, extraSelect, joinClause, search, groupBy, order, first, last, siteId, isAdminRole);
-		} else {
-			List<Map<String, Object>> mainList = getThingsDao("lti_deploy",LTIService.DEPLOY_MODEL, null, null, search, null, order, first, last, siteId, isAdminRole);
-			String[] id_model = { "id:key", "visible:radio" } ; 
-			groupBy = "lti_tools.id, lti_tools.visible";
-			List<Map<String, Object>> countList = getThingsDao("lti_deploy", id_model, extraSelect, joinClause, search, groupBy, order, first, last, siteId, isAdminRole);
-
-			// Merge the lists...
-			Map<Object, Map<String, Object>> countMap = new HashMap<Object, Map<String, Object>> ();
-			for (Map<String, Object> count : countList) {
-				Object id = count.get("id");
-				countMap.put(id, count);
-			}
-
-			for (Map<String, Object> row : mainList) {
-				Object id = row.get("id");
-				if ( id == null ) continue;
-				Map<String, Object> count = countMap.get(id);
-				if ( count == null ) continue;
-				Object contentCount = count.get("LTI_CONTENT_COUNT");
-				row.put("lti_content_count", contentCount);
-				Object toolCount = count.get("LTI_TOOL_COUNT");
-				row.put("lti_tool_count", toolCount);
-				Object siteCount = count.get("LTI_SITE_COUNT");
-				row.put("lti_site_count", siteCount);
-			}
-			return mainList;
-		}
-	}
-
-	public Object insertProxyBindingDao(Properties newProps) {
-		return insertThingDao("lti_binding", LTIService.BINDING_MODEL, null, newProps, null, true, true);
-	}
-
-	public Object updateProxyBindingDao(Long key, Object newProps) {
-		return updateThingDao("lti_binding", LTIService.BINDING_MODEL, null, key, newProps, null, true, true);
-	}
-	public boolean deleteProxyBindingDao(Long key) {
-		return deleteThingDao("lti_binding", LTIService.BINDING_MODEL, key, null, true, true);
-	}
-	public Map<String, Object> getProxyBindingDao(Long key) {
-		return getThingDao("lti_binding", LTIService.BINDING_MODEL, key, null, true);
-	}
-
-	public Map<String, Object> getProxyBindingDao(Long tool_id, String siteId) {
-		if (tool_id == null || siteId == null) {
-			throw new IllegalArgumentException("tool_id and siteId must be non-null");
-		}
-
-		String[] model = LTIService.BINDING_MODEL;
-		String[] columns = foorm.getFields(model);
-
-		String statement = "SELECT " + foorm.formSelect(model) + " FROM lti_binding WHERE " + 
-			LTI_SITE_ID + " = ? AND " + LTI_TOOL_ID + " = ?";
-
-		Object [] fields = new Object[2];
-		fields[0] = siteId;
-		fields[1] = tool_id;
-
-		log.debug(statement);
-		List rv = getResultSet(statement, fields, columns);
-
-		if ((rv != null) && (rv.size() > 0)) {
-			if ( rv.size() > 1 ) {
-				log.warn("Warning more than one row returned: {}", statement);
-			}
-			return (Map<String, Object>) rv.get(0);
-		}
-		return null;
-	}
-
 
 	/**
 	 * @param table
@@ -973,59 +833,6 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
 	/*-- Straight-up API methods ------------------------*/
 
-	public Map<String, Object> getToolForResourceHandlerDao(String resourceType)
-	{
-		if (resourceType == null ) {
-			throw new IllegalArgumentException("resourceType must be non-null");
-		}
-
-		String[] model = LTIService.TOOL_MODEL;
-		String[] columns = foorm.getFields(model);
-		String statement = "SELECT " + foorm.formSelect(model) + " FROM lti_tools WHERE " + 
-			LTI_RESOURCE_HANDLER + " = ? ";
-
-		Object [] fields = new Object[1];
-		fields[0] = resourceType;
-
-		log.debug(statement);
-		List rv = getResultSet(statement, fields, columns);
-
-		if ((rv != null) && (rv.size() > 0)) {
-			if ( rv.size() > 1 ) {
-				log.warn("Warning more than one row returned: {}", statement);
-			}
-			return (Map<String, Object>) rv.get(0);
-		}
-		return null;
-	}
-
-	public Map<String, Object> getDeployForConsumerKeyDao(String consumerKey)
-	{
-		if (consumerKey == null ) {
-			throw new IllegalArgumentException("consumerKey must be non-null");
-		}
-
-		String[] model = LTIService.DEPLOY_MODEL;
-		String[] columns = foorm.getFields(model);
-		String statement = "SELECT " + foorm.formSelect(model) + " FROM lti_deploy WHERE " + 
-			LTI_CONSUMERKEY + " = ? ";
-
-		Object [] fields = new Object[1];
-		fields[0] = consumerKey;
-
-		log.debug(statement);
-		List rv = getResultSet(statement, fields, columns);
-
-		if ((rv != null) && (rv.size() > 0)) {
-			if ( rv.size() > 1 ) {
-				log.warn("Warning more than one row returned: {}", statement);
-			}
-			return (Map<String, Object>) rv.get(0);
-		}
-		return null;
-	}
-
-
 	// Utility to return a resultset
 	public List<Map<String, Object>> getResultSet(String statement, Object[] fields,
 			final String[] columns) {
@@ -1035,7 +842,5 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
 		return (List<Map<String, Object>>) rv;
 	}
-
-
 
 }

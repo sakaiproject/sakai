@@ -23,18 +23,8 @@
   </servlet>
 
   <servlet>
-    <servlet-name>LTI2Service</servlet-name>
-    <servlet-class>org.sakaiproject.lti2.LTI2Service</servlet-class>
-  </servlet>
-
-  <servlet>
     <servlet-name>LTI13Service</servlet-name>
     <servlet-class>org.sakaiproject.lti13.LTI13Servlet</servlet-class>
-  </servlet>
-
-  <servlet>
-    <servlet-name>SampleServlet</servlet-name>
-    <servlet-class>org.tsugi.lti2.LTI2Servlet</servlet-class>
   </servlet>
 
   <servlet-mapping>
@@ -43,21 +33,10 @@
   </servlet-mapping>
 
   <servlet-mapping>
-    <servlet-name>LTI2Service</servlet-name>
-    <url-pattern>/lti2/*</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
     <servlet-name>LTI13Service</servlet-name>
     <url-pattern>/lti13/*</url-pattern>
   </servlet-mapping>
 
-
-  <servlet-mapping>
-    <servlet-name>SampleServlet</servlet-name>
-    <url-pattern>/sample/*</url-pattern>
-  </servlet-mapping>
-  
   <listener>
     <listener-class>org.sakaiproject.util.SakaiContextLoaderListener</listener-class>
   </listener>

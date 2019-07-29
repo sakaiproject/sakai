@@ -53,7 +53,6 @@ import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.linktool.LinkToolUtil;
 import org.sakaiproject.lti.api.LTIService;
-import org.sakaiproject.lti2.SakaiLTI2Config;
 import org.sakaiproject.portal.util.CSSUtils;
 import org.sakaiproject.portal.util.ToolUtils;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
@@ -89,15 +88,7 @@ import org.tsugi.lti13.objects.NamesAndRoles;
 import org.tsugi.lti13.objects.ResourceLink;
 import org.tsugi.lti13.objects.ToolPlatform;
 import org.tsugi.lti13.objects.LTI11Transition;
-import org.tsugi.lti2.ContentItem;
-import org.tsugi.lti2.LTI2Caps;
-import org.tsugi.lti2.LTI2Config;
-import org.tsugi.lti2.LTI2Constants;
-import org.tsugi.lti2.LTI2Messages;
-import org.tsugi.lti2.LTI2Util;
-import org.tsugi.lti2.LTI2Vars;
-import org.tsugi.lti2.ToolProxy;
-import org.tsugi.lti2.ToolProxyBinding;
+import org.tsugi.basiclti.ContentItem;
 
 import io.jsonwebtoken.Jwts;
 import lombok.extern.slf4j.Slf4j;
@@ -151,7 +142,6 @@ public class SakaiBLTIUtil {
 	public static final String SVC_Result = "Result";
 
 	public static final String LTI1_PATH = "/imsblis/service/";
-	public static final String LTI2_PATH = "/imsblis/lti2/";
 	public static final String LTI13_PATH = "/imsblis/lti13/";
 
 	// Enable the Sakai "ext_" parameters in LTI 2.x Launches
@@ -355,6 +345,52 @@ public class SakaiBLTIUtil {
 		return customstr.replace(';', '\n');
 	}
 
+    /**
+     * For LTI 2.x launches we do not support the semicolon-separated launches
+    */
+    public static boolean mergeLTI1Custom(Properties custom, String customstr)
+    {
+        if ( customstr == null || customstr.length() < 1 ) return true;
+
+        String splitChar = "\n";
+        String [] params = customstr.split(splitChar);
+        for (int i = 0 ; i < params.length; i++ ) {
+            String param = params[i];
+            if ( param == null ) continue;
+            if ( param.length() < 1 ) continue;
+
+            int pos = param.indexOf("=");
+            if ( pos < 1 ) continue;
+            if ( pos+1 > param.length() ) continue;
+            String key = BasicLTIUtil.mapKeyName(param.substring(0,pos));
+            if ( key == null ) continue;
+
+            if ( custom.containsKey(key) ) continue;
+
+            String value = param.substring(pos+1);
+            if ( value == null ) continue;
+            value = value.trim();
+            if ( value.length() < 1 ) continue;
+            setProperty(custom, key, value);
+        }
+        return true;
+    }
+
+	// Place the custom values into the launch
+    public static void addCustomToLaunch(Properties ltiProps, Properties custom)
+    {
+        Enumeration<?> e = custom.propertyNames();
+        while (e.hasMoreElements()) {
+            String keyStr = (String) e.nextElement();
+            String value =  custom.getProperty(keyStr);
+            setProperty(ltiProps,"custom_"+keyStr,value);
+            String mapKeyStr = BasicLTIUtil.mapKeyName(keyStr);
+            if ( ! mapKeyStr.equals(keyStr) ) {
+                setProperty(ltiProps,"custom_"+mapKeyStr,value);
+            }
+        }
+    }
+
 	public static String encryptSecret(String orig) {
 		String encryptionKey = ServerConfigurationService.getString(BASICLTI_ENCRYPTION_KEY, null);
 		return encryptSecret(orig, encryptionKey);
@@ -405,39 +441,27 @@ public class SakaiBLTIUtil {
 		return sakaiInfo(props, context, placement.getId(), rb);
 	}
 
-	public static void addSiteInfo(Properties props, Properties lti2subst, Site site) {
+	public static void addSiteInfo(Properties props, Site site) {
 		if (site != null) {
 			String context_type = site.getType();
 			if (context_type != null && context_type.toLowerCase().contains("course")) {
 				setProperty(props, BasicLTIConstants.CONTEXT_TYPE, BasicLTIConstants.CONTEXT_TYPE_COURSE_SECTION);
-				setProperty(lti2subst, LTI2Vars.CONTEXT_TYPE, LTI2Vars.CONTEXT_TYPE_DEFAULT);
 			} else {
 				setProperty(props, BasicLTIConstants.CONTEXT_TYPE, BasicLTIConstants.CONTEXT_TYPE_GROUP);
-				setProperty(lti2subst, LTI2Vars.CONTEXT_TYPE, BasicLTIConstants.CONTEXT_TYPE_GROUP);
 			}
 			setProperty(props, BasicLTIConstants.CONTEXT_ID, site.getId());
-			setProperty(lti2subst, LTI2Vars.COURSESECTION_SOURCEDID, site.getId());
-			setProperty(lti2subst, LTI2Vars.CONTEXT_ID, site.getId());
 
 			setProperty(props, BasicLTIConstants.CONTEXT_LABEL, site.getTitle());
-			setProperty(lti2subst, LTI2Vars.COURSESECTION_LABEL, site.getTitle());
-			setProperty(lti2subst, LTI2Vars.CONTEXT_LABEL, site.getTitle());
 
 			setProperty(props, BasicLTIConstants.CONTEXT_TITLE, site.getTitle());
-			setProperty(lti2subst, LTI2Vars.COURSESECTION_LONGDESCRIPTION, site.getTitle());
-			setProperty(lti2subst, LTI2Vars.CONTEXT_TITLE, site.getTitle());
 
 			String courseRoster = getExternalRealmId(site.getId());
 			if (courseRoster != null) {
 				setProperty(props, BasicLTIConstants.LIS_COURSE_OFFERING_SOURCEDID, courseRoster);
 				setProperty(props, BasicLTIConstants.LIS_COURSE_SECTION_SOURCEDID, courseRoster);
-				setProperty(lti2subst, LTI2Vars.COURSESECTION_SOURCEDID, courseRoster);
-				setProperty(lti2subst, LTI2Vars.COURSEOFFERING_SOURCEDID, courseRoster);
 			} else {
 				setProperty(props, BasicLTIConstants.LIS_COURSE_OFFERING_SOURCEDID, site.getId());
 				setProperty(props, BasicLTIConstants.LIS_COURSE_SECTION_SOURCEDID, site.getId());
-				setProperty(lti2subst, LTI2Vars.COURSESECTION_SOURCEDID, site.getId());
-				setProperty(lti2subst, LTI2Vars.COURSEOFFERING_SOURCEDID, site.getId());
 			}
 
 			// SAK-31282 - Add the Academic Session (ext_sakai_academic_session) to LTI launches
@@ -471,28 +495,21 @@ public class SakaiBLTIUtil {
 
 	}
 
-	public static void addUserInfo(Properties ltiProps, Properties lti2subst, Map<String, Object> tool) {
+	public static void addUserInfo(Properties ltiProps, Map<String, Object> tool) {
 		int releasename = getInt(tool.get(LTIService.LTI_SENDNAME));
 		int releaseemail = getInt(tool.get(LTIService.LTI_SENDEMAILADDR));
 		User user = UserDirectoryService.getCurrentUser();
 		if (user != null) {
 			setProperty(ltiProps, BasicLTIConstants.USER_ID, user.getId());
-			setProperty(lti2subst, LTI2Vars.USER_ID, user.getId());
 			setProperty(ltiProps, BasicLTIConstants.LIS_PERSON_SOURCEDID, user.getEid());
-			setProperty(lti2subst, LTI2Vars.USER_USERNAME, user.getEid());
-			setProperty(lti2subst, LTI2Vars.PERSON_SOURCEDID, user.getEid());
 
 			if (releasename == 1) {
 				setProperty(ltiProps, BasicLTIConstants.LIS_PERSON_NAME_GIVEN, user.getFirstName());
 				setProperty(ltiProps, BasicLTIConstants.LIS_PERSON_NAME_FAMILY, user.getLastName());
 				setProperty(ltiProps, BasicLTIConstants.LIS_PERSON_NAME_FULL, user.getDisplayName());
-				setProperty(lti2subst, LTI2Vars.PERSON_NAME_GIVEN, user.getFirstName());
-				setProperty(lti2subst, LTI2Vars.PERSON_NAME_FAMILY, user.getLastName());
-				setProperty(lti2subst, LTI2Vars.PERSON_NAME_FULL, user.getDisplayName());
 			}
 			if (releaseemail == 1) {
 				setProperty(ltiProps, BasicLTIConstants.LIS_PERSON_CONTACT_EMAIL_PRIMARY, user.getEmail());
-				setProperty(lti2subst, LTI2Vars.PERSON_EMAIL_PRIMARY, user.getEmail());
 				// Only send the display ID if it's different to the EID.
 				// the anonymous user has a null EID.
 				if (user.getEid() != null && !user.getEid().equals(user.getDisplayId())) {
@@ -503,20 +520,19 @@ public class SakaiBLTIUtil {
 	}
 
 	public static String getRoleString(String context) {
-		String theRole = LTI2Vars.MEMBERSHIP_ROLE_LEARNER;
+		String theRole = BasicLTIConstants.MEMBERSHIP_ROLE_LEARNER;
 		if (SecurityService.isSuperUser()) {
-			theRole = LTI2Vars.MEMBERSHIP_ROLE_INSTRUCTOR + ",Administrator,urn:lti:instrole:ims/lis/Administrator,urn:lti:sysrole:ims/lis/Administrator";
+			theRole = BasicLTIConstants.MEMBERSHIP_ROLE_INSTRUCTOR + ",Administrator,urn:lti:instrole:ims/lis/Administrator,urn:lti:sysrole:ims/lis/Administrator";
 		} else if (SiteService.allowUpdateSite(context)) {
-			theRole = LTI2Vars.MEMBERSHIP_ROLE_INSTRUCTOR;
+			theRole = BasicLTIConstants.MEMBERSHIP_ROLE_INSTRUCTOR;
 		}
 		return theRole;
 	}
 
-	public static void addRoleInfo(Properties props, Properties lti2subst, String context, String roleMapProp) {
+	public static void addRoleInfo(Properties props, String context, String roleMapProp) {
 		String theRole = getRoleString(context);
 
 		setProperty(props, BasicLTIConstants.ROLES, theRole);
-		setProperty(lti2subst, LTI2Vars.MEMBERSHIP_ROLE, theRole);
 
 		String realmId = SiteService.siteReference(context);
 		User user = null;
@@ -538,7 +554,6 @@ public class SakaiBLTIUtil {
 				}
 				if (roleMap.containsKey(roleId)) {
 					setProperty(props, BasicLTIConstants.ROLES, roleMap.get(roleId));
-					setProperty(lti2subst, LTI2Vars.MEMBERSHIP_ROLE, roleMap.get(roleId));
 				}
 			}
 		} catch (GroupNotDefinedException e) {
@@ -581,12 +596,12 @@ public class SakaiBLTIUtil {
 		}
 
 		// Add the generic information
-		addGlobalData(site, props, null, rb);
+		addGlobalData(site, props, rb);
 		ToolConfiguration placement = SiteService.findTool(placementId);
 		Properties config = placement.getConfig();
 		String roleMapProp = toNull(getCorrectProperty(config, "rolemap", placement));
-		addRoleInfo(props, null, context, roleMapProp);
-		addSiteInfo(props, null, site);
+		addRoleInfo(props, context, roleMapProp);
+		addSiteInfo(props, site);
 
 		// Add Placement Information
 		addPlacementInfo(props, placementId);
@@ -688,11 +703,10 @@ public class SakaiBLTIUtil {
 
 			String theRole = getRoleString(context);
 
-			// if ( result_sourcedid != null && theRole.indexOf(LTI2Vars.MEMBERSHIP_ROLE_LEARNER) >= 0 ) {
 			if (result_sourcedid != null) {
 
 				if ("true".equals(allowOutcomes) && assignment != null) {
-					if (theRole.contains(LTI2Vars.MEMBERSHIP_ROLE_LEARNER)) {
+					if (theRole.contains(BasicLTIConstants.MEMBERSHIP_ROLE_LEARNER)) {
 						setProperty(props, BasicLTIConstants.LIS_RESULT_SOURCEDID, result_sourcedid);
 					}
 					setProperty(props, "ext_outcome_data_values_accepted", "text");  // SAK-25696
@@ -777,17 +791,11 @@ public class SakaiBLTIUtil {
 		}
 	}
 
-	public static void addGlobalData(Site site, Properties props, Properties custom, ResourceLoader rb) {
+	public static void addGlobalData(Site site, Properties props, ResourceLoader rb) {
 		if (rb != null) {
 			String locale = rb.getLocale().toString();
 			setProperty(props, BasicLTIConstants.LAUNCH_PRESENTATION_LOCALE, locale);
-			setProperty(custom, LTI2Vars.MESSAGE_LOCALE, locale);
 		}
-
-		// Add information about the Tool Consumer for LTI 1.x
-		LTI2Config cnf = new SakaiLTI2Config();
-		setProperty(props, "tool_consumer_info_product_family_code", cnf.getProduct_family_product_code());  // Test 2.4
-		setProperty(props, "tool_consumer_info_version", cnf.getProduct_info_product_version());  // Test 2.5
 
 		// Get the organizational information
 		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INSTANCE_GUID,
@@ -822,8 +830,6 @@ public class SakaiBLTIUtil {
 		setProperty(props, "ext_lms", "sakai-" + sakaiVersion);
 		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INFO_PRODUCT_FAMILY_CODE, "sakai");
 		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INFO_VERSION, sakaiVersion);
-		setProperty(custom, LTI2Vars.TOOLCONSUMERINFO_PRODUCTFAMILYCODE, "sakai");
-		setProperty(custom, LTI2Vars.TOOLCONSUMERINFO_VERSION, sakaiVersion);
 
 		// We pass this along in the Sakai world - it might
 		// might be useful to the external tool
@@ -889,18 +895,6 @@ public class SakaiBLTIUtil {
 			return postError("<p>" + getRB(rb, "error.site.missing", "Cannot load site.") + context + "</p>");
 		}
 
-		// Percolate up to get the other objects...
-		Map<String, Object> proxyBinding;
-		Map<String, Object> deploy = null;
-
-		Long deployKey = getLongKey(tool.get(LTIService.LTI_DEPLOYMENT_ID));
-		if (deployKey >= 0) {
-			deploy = ltiService.getDeployDao(deployKey);
-		}
-
-		Long toolKey = getLongKey(tool.get(LTIService.LTI_ID));
-		proxyBinding = ltiService.getProxyBindingDao(toolKey, context);
-
 		// See if there are the necessary items
 		String secret = getSecret(tool, content);
 		String key = getKey(tool, content);
@@ -909,88 +903,24 @@ public class SakaiBLTIUtil {
 			return postError("<p>" + getRB(rb, "error.tool.partial", "Tool item is incomplete, missing a key and secret.") + "</p>");
 		}
 
-		// Picking the launch is a little tricky...
-		Long toolVersion = getLongNull(tool.get(LTIService.LTI_VERSION));  // LTI 1.x OR 2.x
-
-		boolean isLTI1 = toolVersion == null || (!toolVersion.equals(LTIService.LTI_VERSION_2));
-		boolean isLTI2 = !isLTI1;  // In case there is an LTI 3
 		boolean isLTI13 = isLTI13(tool, content);
 
-		log.debug("toolVersion={} isLTI1={} isLTI13={}", toolVersion, isLTI1, isLTI13);
+		log.debug("isLTI13={}", isLTI13);
 
-		// If we are doing LTI2, We will need a ToolProxyBinding
-		ToolProxyBinding toolProxyBinding = null;
 		JSONArray enabledCapabilities = null;
-		if (isLTI2) {
-			String tool_proxy_binding = (String) tool.get(LTI2Constants.TOOL_PROXY_BINDING);
-			if (tool_proxy_binding != null && tool_proxy_binding.trim().length() > 0) {
-				toolProxyBinding = new ToolProxyBinding(tool_proxy_binding);
-				enabledCapabilities = toolProxyBinding.enabledCapabilities(LTI2Messages.BASIC_LTI_LAUNCH_REQUEST);
-			}
-		}
 
-		/*              As of 2017-03-25, The LTI 2.0 test has morphed into the LTI 2.1 test in many ways
-                even though LTI 2.1 is not yet approved.  Bummer that things morph under your feet
-                but the 2017 version is probably better than the 2016 version - but tool folks will
-                feel a "stinging sensation" as fields vanish when LMS's re-certify the same spec
-                a while later.
-
-		// As of 2016-02, LTI 2.0 certification fails these:
-		//    5.8: Send a lis_person_sourcedid
-		//    6.9: Send a lis_course_offering_sourcedid
-		//    6.10: Send a lis_course_section_sourcedid
-		// Unless we include the fields below (generally needed by consumers)
-
-		// LTI 2.1 fails "12.5: Launch parameters are consistent with tool proxy"
-		// If we do include them or any of the "launch_presentation_*" fields
-
-		// The normal case is to include these fields to help out the provider
-		// The special certification case is for LTI 2.1 (unless we can get the
-		// certification fixed by the time it is final).
-
-		if ( enabledCapabilities != null && ! checkStrictVersion("02.01.00","02.01.00") ) {
-			addEnabledCapability(enabledCapabilities, LTI2Vars.PERSON_SOURCEDID);
-			addEnabledCapability(enabledCapabilities, LTI2Vars.RESULT_SOURCEDID);
-			// It looks like as of 2017-03-25, LTI 2.0 finds this distasteful
-			// addEnabledCapability(enabledCapabilities, LTI2Vars.BASICOUTCOME_SOURCEDID);
-			addEnabledCapability(enabledCapabilities, LTI2Vars.COURSEOFFERING_SOURCEDID);
-			addEnabledCapability(enabledCapabilities, LTI2Vars.COURSESECTION_SOURCEDID);
-
-			addEnabledCapability(enabledCapabilities, BasicLTIConstants.LAUNCH_PRESENTATION_DOCUMENT_TARGET);
-			addEnabledCapability(enabledCapabilities, BasicLTIConstants.LAUNCH_PRESENTATION_HEIGHT);
-			addEnabledCapability(enabledCapabilities, BasicLTIConstants.LAUNCH_PRESENTATION_LOCALE);
-			addEnabledCapability(enabledCapabilities, BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL);
-			addEnabledCapability(enabledCapabilities, BasicLTIConstants.LAUNCH_PRESENTATION_WIDTH);
-			addEnabledCapability(enabledCapabilities, BasicLTIConstants.LAUNCH_PRESENTATION_CSS_URL);
-			addEnabledCapability(enabledCapabilities, BasicLTIConstants.LIS_COURSE_OFFERING_SOURCEDID);
-			addEnabledCapability(enabledCapabilities, BasicLTIConstants.LIS_COURSE_SECTION_SOURCEDID);
-		}
-		 */
+		//
 		// Start building up the properties
 		Properties ltiProps = new Properties();
 		Properties toolProps = new Properties();
-		Properties lti2subst = new Properties();
-		if (isLTI1) {
-			setProperty(ltiProps, BasicLTIConstants.LTI_VERSION, BasicLTIConstants.LTI_VERSION_1);
-		} else {
-			setProperty(ltiProps, BasicLTIConstants.LTI_VERSION, BasicLTIConstants.LTI_VERSION_2);
-		}
-		addGlobalData(site, ltiProps, lti2subst, rb);
-		addSiteInfo(ltiProps, lti2subst, site);
-		addRoleInfo(ltiProps, lti2subst, context, (String) tool.get("rolemap"));
-		addUserInfo(ltiProps, lti2subst, tool);
-
-		// This is for 1.2 - Not likely to be used
-		// http://www.imsglobal.org/lti/ltiv1p2/ltiIMGv1p2.html
-		if (deploy != null) {
-			setProperty(lti2subst, LTI2Vars.TOOLCONSUMERPROFILE_URL, getOurServerUrl()
-					+ LTI2_PATH + SVC_tc_profile + "/"
-					+ (String) deploy.get(LTIService.LTI_CONSUMERKEY));
-		}
+		setProperty(ltiProps, BasicLTIConstants.LTI_VERSION, BasicLTIConstants.LTI_VERSION_1);
+		addGlobalData(site, ltiProps, rb);
+		addSiteInfo(ltiProps, site);
+		addRoleInfo(ltiProps, context, (String) tool.get("rolemap"));
+		addUserInfo(ltiProps, tool);
 
 		String resource_link_id = "content:" + content.get(LTIService.LTI_ID);
 		setProperty(ltiProps, BasicLTIConstants.RESOURCE_LINK_ID, resource_link_id);
-		setProperty(lti2subst, "ResourceLink.id", resource_link_id);
 
 		setProperty(toolProps, "launch_url", launch_url);
 		setProperty(toolProps, "state", state);  // So far LTI 1.3 only
@@ -1032,8 +962,6 @@ public class SakaiBLTIUtil {
 		if (title != null) {
 			setProperty(ltiProps, BasicLTIConstants.RESOURCE_LINK_TITLE, title);
 			setProperty(ltiProps, BasicLTIConstants.RESOURCE_LINK_DESCRIPTION, title);
-			setProperty(lti2subst, LTI2Vars.RESOURCELINK_TITLE, title);
-			setProperty(lti2subst, LTI2Vars.RESOURCELINK_DESCRIPTION, title);
 		}
 
 		User user = UserDirectoryService.getCurrentUser();
@@ -1060,14 +988,9 @@ public class SakaiBLTIUtil {
 					outcome_url = getOurServerUrl() + LTI1_PATH;
 				}
 				setProperty(ltiProps, BasicLTIConstants.LIS_OUTCOME_SERVICE_URL, outcome_url);
-				setProperty(lti2subst, LTI2Vars.BASICOUTCOME_URL, outcome_url);
 
-				if (theRole.contains(LTI2Vars.MEMBERSHIP_ROLE_LEARNER)) {
+				if (theRole.contains(BasicLTIConstants.MEMBERSHIP_ROLE_LEARNER)) {
 					setProperty(ltiProps, BasicLTIConstants.LIS_RESULT_SOURCEDID, result_sourcedid);
-					setProperty(lti2subst, LTI2Vars.RESULT_SOURCEDID, result_sourcedid);
-					setProperty(lti2subst, LTI2Vars.BASICOUTCOME_SOURCEDID, result_sourcedid);
-					String result_url = getOurServerUrl() + LTI2_PATH + SVC_Result + "/" + result_sourcedid;
-					setProperty(lti2subst, LTI2Vars.RESULT_URL, result_url);
 				}
 			}
 
@@ -1080,12 +1003,6 @@ public class SakaiBLTIUtil {
 					service_url = getOurServerUrl() + LTI1_PATH;
 				}
 				setProperty(ltiProps, "ext_ims_lti_tool_setting_url", service_url);
-				if (!isLTI1) {
-					String settings_url = getOurServerUrl() + LTI2_PATH + SVC_Settings + "/";
-					setProperty(lti2subst, LTI2Vars.LTILINK_CUSTOM_URL, settings_url + LTI2Util.SCOPE_LtiLink + "/" + resource_link_id);
-					setProperty(lti2subst, LTI2Vars.TOOLPROXYBINDING_CUSTOM_URL, settings_url + LTI2Util.SCOPE_ToolProxyBinding + "/" + resource_link_id);
-					setProperty(lti2subst, LTI2Vars.TOOLPROXY_CUSTOM_URL, settings_url + LTI2Util.SCOPE_ToolProxy + "/" + key);
-				}
 			}
 
 			if (allowroster == 1) {
@@ -1100,48 +1017,16 @@ public class SakaiBLTIUtil {
 
 		}
 
-		// Merge all the sources of properties according to the arcane precedence for launch
 		Properties custom = new Properties();
-
-		LTI2Util.mergeLTI2Custom(custom, (String) content.get(LTIService.LTI_SETTINGS));
-		LTI2Util.mergeLTI2Custom(custom, (String) tool.get(LTIService.LTI_SETTINGS));
-		LTI2Util.mergeLTI2Parameters(custom, (String) tool.get(LTIService.LTI_PARAMETER));
-		if (proxyBinding != null) {
-			LTI2Util.mergeLTI2Custom(custom, (String) proxyBinding.get(LTIService.LTI_SETTINGS));
-		}
-		if (deploy != null) {
-			LTI2Util.mergeLTI2Custom(custom, (String) deploy.get(LTIService.LTI_SETTINGS));
-		}
-
-		int allowCustom = getInt(tool.get(LTIService.LTI_ALLOWCUSTOM));
-		if (allowCustom == 1) {
-			String contentCustom = (String) content.get(LTIService.LTI_CUSTOM);
-			contentCustom = adjustCustom(contentCustom);
-			LTI2Util.mergeLTI1Custom(custom, contentCustom);
-		}
-
 		String toolCustom = (String) tool.get(LTIService.LTI_CUSTOM);
 		toolCustom = adjustCustom(toolCustom);
-		LTI2Util.mergeLTI1Custom(custom, toolCustom);
-
-		if (isLTI2) {
-			log.debug("before ltiProps={}", ltiProps);
-			log.debug("enabledCapabilities={}", enabledCapabilities);
-			boolean allowExt = enabledCapabilities.contains(SAKAI_EXTENSIONS_ALL);
-			LTI2Util.filterLTI1LaunchProperties(ltiProps, enabledCapabilities, allowExt);
-		}
-
-		// See if there are any locally deployed substitutions
-		ltiService.filterCustomSubstitutions(lti2subst, tool, site);
+		mergeLTI1Custom(custom, toolCustom);
 
 		log.debug("ltiProps={}", ltiProps);
-		log.debug("lti2subst={}", lti2subst);
-		log.debug("before custom={}", custom);
-		LTI2Util.substituteCustom(custom, lti2subst);
-		log.debug("after custom={}", custom);
+		log.debug("custom={}", custom);
 
 		// Place the custom values into the launch
-		LTI2Util.addCustomToLaunch(ltiProps, custom, isLTI1);
+		addCustomToLaunch(ltiProps, custom);
 
 		// Check which kind of signing we are supposed to do
 		Long toolSHA256 = getLong(tool.get(LTIService.LTI_SHA256));
@@ -1149,176 +1034,12 @@ public class SakaiBLTIUtil {
 		if (toolSHA256.equals(1L) || (toolSHA256.equals(2L) && contentSHA256.equals(1L))) {
 			ltiProps.put(OAuth.OAUTH_SIGNATURE_METHOD, "HMAC-SHA256");
 			log.debug("Launching with SHA256 Signing");
-		} else if (toolProxyBinding != null) {
-			if (toolProxyBinding.enabledCapability(LTI2Messages.BASIC_LTI_LAUNCH_REQUEST,
-					LTI2Caps.OAUTH_HMAC256)) {
-
-				ltiProps.put(OAuth.OAUTH_SIGNATURE_METHOD, "HMAC-SHA256");
-				log.debug("Launching with SHA256 Signing");
-			}
 		}
 
-		log.debug("LAUNCH TYPE {}", (isLTI1 ? "LTI 1" : "LTI 2"));
 		if (isLTI13) {
 			return postLaunchJWT(toolProps, ltiProps, tool, content, rb);
 		}
 		return postLaunchHTML(toolProps, ltiProps, rb);
-	}
-
-	/**
-	 * An LTI 2.0 Registration launch
-	 *
-	 * This must return an HTML message as the [0] in the array If things are
-	 * successful - the launch URL is in [1]
-	 */
-	public static String[] postRegisterHTML(Long deployKey, Map<String, Object> tool, ResourceLoader rb, String placementId) {
-		if (tool == null) {
-			return postError("<p>" + getRB(rb, "error.tool.missing", "Tool item is missing or improperly configured.") + "</p>");
-		}
-
-		int status = getInt(tool.get(LTIService.LTI_REG_STATE));
-		if (status != 0) {
-			return postError("<p>" + getRB(rb, "error.lti2.badstate", "Tool is in the wrong state to register") + "</p>");
-		}
-
-		String launch_url = (String) tool.get(LTIService.LTI_REG_LAUNCH);
-		if (launch_url == null) {
-			return postError("<p>" + getRB(rb, "error.lti2.noreg", "This tool is has no registration url.") + "</p>");
-		}
-
-		String password = (String) tool.get(LTIService.LTI_REG_PASSWORD);
-		String key = (String) tool.get(LTIService.LTI_REG_KEY);
-		String consumerkey = (String) tool.get(LTIService.LTI_CONSUMERKEY);
-
-		if (password == null || key == null || consumerkey == null) {
-			return postError("<p>" + getRB(rb, "error.lti2.partial", "Tool item is incomplete, missing a key and password.") + "</p>");
-		}
-
-		// Start building up the properties
-		Properties ltiProps = new Properties();
-
-		setProperty(ltiProps, BasicLTIConstants.LTI_VERSION, LTI2Constants.LTI2_VERSION_STRING);
-		setProperty(ltiProps, LTI2Constants.REG_KEY, key);
-		// Also duplicate reg_key as the proposed Tool Proxy GUID
-		setProperty(ltiProps, LTI2Constants.TOOL_PROXY_GUID, key);
-		// TODO: Lets show off and encrypt this secret too...
-		setProperty(ltiProps, LTI2Constants.REG_PASSWORD, password);
-		setProperty(ltiProps, BasicLTIConstants.LTI_MESSAGE_TYPE, BasicLTIConstants.LTI_MESSAGE_TYPE_TOOLPROXYREGISTRATIONREQUEST);
-
-		String serverUrl = getOurServerUrl();
-		setProperty(ltiProps, LTI2Constants.TC_PROFILE_URL, serverUrl + LTI2_PATH + SVC_tc_profile + "/" + consumerkey);
-		setProperty(ltiProps, BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, serverUrl + "/portal/tool/" + placementId + "?panel=PostRegister&id=" + deployKey);
-
-		int debug = getInt(tool.get(LTIService.LTI_DEBUG));
-
-		log.debug("ltiProps={}", ltiProps);
-
-		boolean dodebug = debug == 1;
-		if (log.isDebugEnabled()) {
-			dodebug = true;
-		}
-		String launchtext = getRB(rb, "launch.button", "Press to Launch External Tool");
-		String postData = BasicLTIUtil.postLaunchHTML(ltiProps, launch_url, launchtext, dodebug, null);
-
-		String[] retval = {postData, launch_url};
-		return retval;
-	}
-
-	/**
-	 * An LTI 2.0 Reregistration launch
-	 *
-	 * This must return an HTML message as the [0] in the array If things are
-	 * successful - the launch URL is in [1]
-	 */
-	public static String[] postReregisterHTML(Long deployKey, Map<String, Object> deploy, ResourceLoader rb, String placementId) {
-		if (deploy == null) {
-			return postError("<p>" + getRB(rb, "error.deploy.missing", "Deployment is missing or improperly configured.") + "</p>");
-		}
-
-		int status = getInt(deploy.get("reg_state"));
-		if (status == 0) {
-			return postError("<p>" + getRB(rb, "error.deploy.badstate", "Deployment is in the wrong state to register") + "</p>");
-		}
-
-		// Figure out the launch URL to use unless we have been told otherwise
-		String launch_url = (String) deploy.get("reg_launch");
-
-		// Find the global message for Reregistration
-		String reg_profile = (String) deploy.get("reg_profile");
-
-		ToolProxy toolProxy = null;
-		try {
-			toolProxy = new ToolProxy(reg_profile);
-		} catch (Throwable t) {
-			return postError("<p>" + getRB(rb, "error.deploy.badproxy", "This deployment has a broken reg_profile.") + "</p>");
-		}
-
-		JSONObject proxy_message = toolProxy.getMessageOfType("ToolProxyReregistrationRequest");
-		String re_path = toolProxy.getPathFromMessage(proxy_message);
-		if (re_path != null) {
-			launch_url = re_path;
-		}
-
-		if (launch_url == null) {
-			return postError("<p>" + getRB(rb, "error.deploy.noreg", "This deployment is has no registration url.") + "</p>");
-		}
-
-		String consumerkey = (String) deploy.get(LTIService.LTI_CONSUMERKEY);
-		String secret = (String) deploy.get(LTIService.LTI_SECRET);
-
-		// If secret is encrypted, decrypt it
-		secret = decryptSecret(secret);
-
-		if (secret == null || consumerkey == null) {
-			return postError("<p>" + getRB(rb, "error.deploy.partial", "Deployment is incomplete, missing a key and secret.") + "</p>");
-		}
-
-		// Start building up the properties
-		Properties ltiProps = new Properties();
-
-		setProperty(ltiProps, BasicLTIConstants.LTI_VERSION, LTI2Constants.LTI2_VERSION_STRING);
-		setProperty(ltiProps, BasicLTIConstants.LTI_MESSAGE_TYPE, BasicLTIConstants.LTI_MESSAGE_TYPE_TOOLPROXY_RE_REGISTRATIONREQUEST);
-
-		String serverUrl = getOurServerUrl();
-		setProperty(ltiProps, LTI2Constants.TC_PROFILE_URL, serverUrl + LTI2_PATH + SVC_tc_profile + "/" + consumerkey);
-		setProperty(ltiProps, BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, serverUrl + "/portal/tool/" + placementId + "?panel=PostRegister&id=" + deployKey);
-
-		int debug = getInt(deploy.get(LTIService.LTI_DEBUG));
-
-		// Handle any substution variables from the message
-		Properties lti2subst = new Properties();
-		addGlobalData(null, ltiProps, lti2subst, rb);
-		setProperty(lti2subst, LTI2Vars.TOOLCONSUMERPROFILE_URL, getOurServerUrl()
-				+ LTI2_PATH + SVC_tc_profile + "/"
-				+ (String) deploy.get(LTIService.LTI_CONSUMERKEY));
-
-		Properties custom = new Properties();
-		JSONArray parameter = toolProxy.getParameterFromMessage(proxy_message);
-		if (parameter != null) {
-			LTI2Util.mergeLTI2Parameters(custom, parameter.toString());
-			log.debug("lti2subst={}", lti2subst);
-			log.debug("before custom={}", custom);
-			LTI2Util.substituteCustom(custom, lti2subst);
-			log.debug("after custom={}", custom);
-			// Merge the custom values into the launch
-			LTI2Util.addCustomToLaunch(ltiProps, custom, false);
-		}
-
-		Map<String, String> extra = new HashMap<String, String>();
-		ltiProps = BasicLTIUtil.signProperties(ltiProps, launch_url, "POST",
-				consumerkey, secret, null, null, null, extra);
-
-		log.debug("signed ltiProps={}", ltiProps);
-
-		boolean dodebug = debug == 1;
-		if (log.isDebugEnabled()) {
-			dodebug = true;
-		}
-		String launchtext = getRB(rb, "launch.button", "Press to Launch External Tool");
-		String postData = BasicLTIUtil.postLaunchHTML(ltiProps, launch_url, launchtext, dodebug, extra);
-
-		String[] retval = {postData, launch_url};
-		return retval;
 	}
 
 	/**
@@ -1444,12 +1165,9 @@ public class SakaiBLTIUtil {
 		// If secret is encrypted, decrypt it
 		secret = decryptSecret(secret);
 
-		Long toolVersion = getLongNull(tool.get(LTIService.LTI_VERSION));
-		boolean isLTI1 = toolVersion == null || (!toolVersion.equals(LTIService.LTI_VERSION_2));
-		boolean isLTI2 = !isLTI1;  // In case there is an LTI 3
 		boolean isLTI13 = isLTI13(tool, null);
 
-		log.debug("toolVersion={} isLTI1={} isLTI13={}", toolVersion, isLTI1, isLTI13);
+		log.debug("isLTI13={}", isLTI13);
 
 		if (!isLTI13 && (secret == null || consumerkey == null)) {
 			return postError("<p>" + getRB(rb, "error.tool.partial", "Tool is incomplete, missing a key and secret.") + "</p>");
@@ -1459,7 +1177,7 @@ public class SakaiBLTIUtil {
 		Properties ltiProps = new Properties();
 
 		setProperty(ltiProps, BasicLTIConstants.LTI_VERSION, BasicLTIConstants.LTI_VERSION_1);
-		setProperty(ltiProps, BasicLTIConstants.LTI_MESSAGE_TYPE, LTI2Messages.CONTENT_ITEM_SELECTION_REQUEST);
+		setProperty(ltiProps, BasicLTIConstants.LTI_MESSAGE_TYPE, BasicLTIConstants.CONTENT_ITEM_SELECTION_REQUEST);
 
 		setProperty(ltiProps, ContentItem.ACCEPT_MEDIA_TYPES, ContentItem.MEDIA_LTILINKITEM);
 		setProperty(ltiProps, BasicLTIConstants.ACCEPT_PRESENTATION_DOCUMENT_TARGETS, "iframe,window"); // Nice to add overlay
@@ -1522,19 +1240,17 @@ public class SakaiBLTIUtil {
 			return postError("<p>" + getRB(rb, "error.site.missing", "Cannot load site.") + context + "</p>");
 		}
 
-		Properties lti2subst = new Properties();
-
-		addGlobalData(site, ltiProps, lti2subst, rb);
-		addSiteInfo(ltiProps, lti2subst, site);
-		addRoleInfo(ltiProps, lti2subst, context, (String) tool.get("rolemap"));
+		addGlobalData(site, ltiProps, rb);
+		addSiteInfo(ltiProps, site);
+		addRoleInfo(ltiProps, context, (String) tool.get("rolemap"));
 
 		int releasename = getInt(tool.get(LTIService.LTI_SENDNAME));
 		int releaseemail = getInt(tool.get(LTIService.LTI_SENDEMAILADDR));
-		addUserInfo(ltiProps, lti2subst, tool);
+		addUserInfo(ltiProps, tool);
 
 		// Don't sent the normal return URL when we are doing ContentItem launch
 		// Certification Issue
-		if (LTI2Messages.CONTENT_ITEM_SELECTION_REQUEST.equals(ltiProps.getProperty(BasicLTIConstants.LTI_MESSAGE_TYPE))) {
+		if (BasicLTIConstants.CONTENT_ITEM_SELECTION_REQUEST.equals(ltiProps.getProperty(BasicLTIConstants.LTI_MESSAGE_TYPE))) {
 
 			ltiProps.remove(BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL);
 		}
@@ -1558,29 +1274,13 @@ public class SakaiBLTIUtil {
 			return postLaunchJWT(toolProps, ltiProps, tool, content, rb);
 		}
 
-		// If we are doing LTI2, We will need a ToolProxyBinding
-		ToolProxyBinding toolProxyBinding = null;
 		JSONArray enabledCapabilities = null;
-		if (isLTI2) {
-			String tool_proxy_binding = (String) tool.get(LTI2Constants.TOOL_PROXY_BINDING);
-			if (tool_proxy_binding != null && tool_proxy_binding.trim().length() > 0) {
-				toolProxyBinding = new ToolProxyBinding(tool_proxy_binding);
-				enabledCapabilities = toolProxyBinding.enabledCapabilities(LTI2Messages.CONTENT_ITEM_SELECTION_REQUEST);
-			}
-		}
 
 		// Check which kind of signing we are supposed to do
 		Long toolSHA256 = getLong(tool.get(LTIService.LTI_SHA256));
 		if (toolSHA256.equals(1L)) {
 			ltiProps.put(OAuth.OAUTH_SIGNATURE_METHOD, "HMAC-SHA256");
 			log.debug("Launching with SHA256 Signing");
-		} else if (toolProxyBinding != null) {
-			if (toolProxyBinding.enabledCapability(LTI2Messages.BASIC_LTI_LAUNCH_REQUEST,
-					LTI2Caps.OAUTH_HMAC256)) {
-
-				ltiProps.put(OAuth.OAUTH_SIGNATURE_METHOD, "HMAC-SHA256");
-				log.debug("Launching with SHA256 Signing");
-			}
 		}
 
 		// LTI 1.1.2
@@ -1720,7 +1420,6 @@ public class SakaiBLTIUtil {
 		return retval;
 	}
 
-	// In case this gets more complex later
 	public static String getDeploymentId(String site_id) {
 		String deployment_id = ServerConfigurationService.getString(LTI13_DEPLOYMENT_ID, LTI13_DEPLOYMENT_ID_DEFAULT);
 		return deployment_id;

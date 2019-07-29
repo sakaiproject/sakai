@@ -66,7 +66,6 @@ public interface LTIService extends LTISubstitutionsFilter {
             "launch:url:label=bl_launch:maxlength=1024:allowed=true",
             "consumerkey:text:label=bl_consumerkey:allowed=true:maxlength=1024",
             "secret:text:label=bl_secret:allowed=true:maxlength=1024",
-            "resource_handler:text:label=bl_resource_handler:maxlength=1024:role=admin:only=lti2",
             "xmlimport:text:hidden=true:maxlength=1M",
             // LTI 2.x settings
             "settings:text:hidden=true:maxlength=1M",
@@ -98,7 +97,6 @@ public interface LTIService extends LTISubstitutionsFilter {
      */
     String[] TOOL_MODEL = {
             "id:key",
-            "version:radio:label=bl_version:choices=lti1,lti2:hidden=true",
             "SITE_ID:text:maxlength=99:role=admin",
             "title:text:label=bl_title:required=true:maxlength=1024",
             "allowtitle:radio:label=bl_allowtitle:choices=disallow,allow",
@@ -109,9 +107,7 @@ public interface LTIService extends LTISubstitutionsFilter {
             "description:textarea:label=bl_description:maxlength=4096",
             "status:radio:label=bl_status:choices=enable,disable",
             "visible:radio:label=bl_visible:choices=visible,stealth:role=admin",
-            "resource_handler:text:label=bl_resource_handler:maxlength=1024:role=admin:only=lti2",
             "deployment_id:integer:hidden=true",
-            "lti2_launch:header:fields=launch,consumerkey,secret:only=lti2",
             "launch:url:label=bl_launch:maxlength=1024:required=true",
             "allowlaunch:radio:label=bl_allowlaunch:choices=disallow,allow:only=lti1",
             "consumerkey:text:label=bl_consumerkey:maxlength=1024",
@@ -143,11 +139,7 @@ public interface LTIService extends LTISubstitutionsFilter {
             // LTI 1.x user-entered custom
             "custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=16384",
             "rolemap:textarea:label=bl_rolemap:rows=5:cols=25:maxlength=16384:role=admin",
-            // LTI 2.x settings from web services
-            "settings:text:hidden=true:maxlength=1M",
-            // LTI 2.x tool-registration time parameters
-            "parameter:textarea:label=bl_parameter:rows=5:cols=25:maxlength=16384:only=lti2",
-            "tool_proxy_binding:textarea:label=bl_tool_proxy_binding:maxlength=2M:only=lti2:hide=insert:role=admin",
+            // Tool declared settings from web services (formerly in LTI 2.x)
             "allowcustom:checkbox:label=bl_allowcustom",
             "splash:textarea:label=bl_splash:rows=5:cols=25:maxlength=16384",
             // LTI 1.3 expansion space (See SAK-33772)
@@ -171,47 +163,7 @@ public interface LTIService extends LTISubstitutionsFilter {
             "xmlimport:textarea:hidden=true:maxlength=1M",
             "created_at:autodate",
             "updated_at:autodate"};
-    /**
-     *
-     */
-    String[] DEPLOY_MODEL = {
-            "id:key",
-            "reg_state:radio:label=bl_reg_state:choices=lti2_ready,lti2_received,lti2_complete:hidden=true",
-            "title:text:label=bl_title:required=true:maxlength=1024",
-            "pagetitle:text:label=bl_pagetitle:required=true:maxlength=1024",
-            "description:textarea:label=bl_description:maxlength=4096",
-            "lti2_status:header:fields=status,visible",
-            "status:radio:label=bl_status:choices=enable,disable",
-            "visible:radio:label=bl_visible:choices=visible,stealth:role=admin",
-            "privacy:header:fields=sendname,sendemailaddr",
-            "sendname:checkbox:label=bl_sendname",
-            "sendemailaddr:checkbox:label=bl_sendemailaddr",
-            "services:header:fields=allowoutcomes,allowroster,allowlineitems",
-            "allowoutcomes:checkbox:label=bl_allowoutcomes",
-            "allowroster:checkbox:label=bl_allowroster",
-            "allowsettings:checkbox:label=bl_allowsettings",
-            "allowcontentitem:checkbox:label=bl_allowcontentitem",
-            "allowlineitems:checkbox:label=bl_allowlineitems",
-            "lti2_internal:header:fields=reg_launch,reg_key,reg_secret,reg_password,consumerkey,secret,reg_profile:hide=insert",
-            "reg_launch:url:label=bl_reg_launch:maxlength=1024:role=admin",
-            "reg_key:text:label=bl_reg_key:maxlength=1024:hide=insert:role=admin",
-            "reg_password:text:label=bl_reg_password:maxlength=1024:hide=insert:role=admin",
-            "reg_ack:text:label=bl_reg_ack:maxlength=4096:hide=insert:role=admin",
-            "consumerkey:text:label=bl_consumerkey:maxlength=1024:hide=insert",
-            "secret:text:label=bl_secret:maxlength=1024:hide=insert",
-            "new_secret:text:label=bl_secret:maxlength=1024:hide=insert",
-            "reg_profile:textarea:label=bl_reg_profile:maxlength=2M:hide=insert:role=admin",
-            "settings:text:hidden=true:maxlength=1M",   // This is "custom" in the JSON
-            "created_at:autodate",
-            "updated_at:autodate"};
-    // The model for the ToolProxy Binding (LTI 2.0)
-    String[] BINDING_MODEL = {
-            "id:key",
-            "tool_id:integer:hidden=true",
-            "SITE_ID:text:maxlength=99:role=admin",
-            "settings:text:hidden=true:maxlength=1M",
-            "created_at:autodate",
-            "updated_at:autodate"};
+
     String[] MEMBERSHIPS_JOBS_MODEL = {
             "SITE_ID:text:maxlength=99:required=true",
             "memberships_id:text:maxlength=256:required=true",
@@ -268,25 +220,26 @@ public interface LTIService extends LTISubstitutionsFilter {
     String LTI_NOTE = "note";
     String LTI_PLACEMENTSECRET = "placementsecret";
     String LTI_OLDPLACEMENTSECRET = "oldplacementsecret";
-    String LTI_DEPLOYMENT_ID = "deployment_id";
     // SHA256 Support (See SAK-33898)
     String LTI_SHA256 = "sha256";
-    // BLTI-230 - LTI 2.0
-    String LTI_VERSION = "version";
-    Long LTI_VERSION_1 = 0L;
-    Long LTI_VERSION_2 = new Long(1);
-    String LTI_RESOURCE_HANDLER = "resource_handler";
-    String LTI_REG_STATE = "reg_state";
-    String LTI_REG_STATE_REGISTERED = "1";
-    String LTI_REG_LAUNCH = "reg_launch";
-    String LTI_REG_KEY = "reg_key";
-    String LTI_REG_ACK = "reg_ack";
-    String LTI_REG_PASSWORD = "reg_password";
-    String LTI_PARAMETER = "parameter";
-    String LTI_REG_PROFILE = "reg_profile"; // A.k.a tool_proxy
+
+	// Removed LTI 2.0 - SAK-40065
+    // SAK-40065 String LTI_RESOURCE_HANDLER = "resource_handler";
+    // SAK-40065 String LTI_VERSION = "version";
+    // SAK-40065 Long LTI_VERSION_1 = 0L;
+    // SAK-40065 String LTI_DEPLOYMENT_ID = "deployment_id";
+    // SAK-40065 Long LTI_VERSION_2 = new Long(1);
+    // SAK-40065 String LTI_REG_STATE = "reg_state";
+    // SAK-40065 String LTI_REG_STATE_REGISTERED = "1";
+    // SAK-40065 String LTI_REG_LAUNCH = "reg_launch";
+    // SAK-40065 String LTI_REG_KEY = "reg_key";
+    // SAK-40065 String LTI_REG_ACK = "reg_ack";
+    // SAK-40065 String LTI_REG_PASSWORD = "reg_password";
+    // SAK-40065 String LTI_PARAMETER = "parameter";
+    // SAK-40065 String LTI_REG_PROFILE = "reg_profile"; // A.k.a tool_proxy
     // A subset of a tool_proxy with only a single resource_handler
-    String LTI_TOOL_PROXY_BINDING = "tool_proxy_binding";
-    // End of BLTI-230 - LTI 2.0
+    // SAK-40065 String LTI_TOOL_PROXY_BINDING = "tool_proxy_binding";
+
     String LTI_PL_LAUNCH = "pl_launch";
     String LTI_SITEINFOCONFIG = "siteinfoconfig";
     String LTI_PL_LINKSELECTION = "pl_linkselection";
@@ -364,9 +317,6 @@ public interface LTIService extends LTISubstitutionsFilter {
 
     String[] getContentModel(Map<String, Object> tool, String siteId);
 
-    String[] getDeployModel();
-
-
     // ---Tool
 
     Object insertTool(Properties newProps, String siteId);
@@ -398,19 +348,10 @@ public interface LTIService extends LTISubstitutionsFilter {
 
     Object updateToolDao(Long key, Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
 
-
-
-
     // -- Tool Content
     Object insertToolContent(String id, String toolId, Properties reqProps, String siteId);
 
     Object insertToolSiteLink(String id, String title, String siteId);
-
-
-
-    Map<String, Object> getToolForResourceHandlerDao(String resourceType);
-
-
 
     String getToolLaunch(Map<String, Object> tool, String siteId);
 
@@ -515,39 +456,6 @@ public interface LTIService extends LTISubstitutionsFilter {
     String getContentLaunch(Map<String, Object> content);
 
     void filterContent(Map<String, Object> content, Map<String, Object> tool);
-
-
-    // --- Deploy
-    Object insertDeployDao(Properties newProps);
-
-    Object insertDeployDao(Properties newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
-
-    Object updateDeployDao(Long key, Object newProps);
-
-    Object updateDeployDao(Long key, Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
-
-    boolean deleteDeployDao(Long key);
-
-    boolean deleteDeployDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole);
-
-    Map<String, Object> getDeployDao(Long key);
-
-    Map<String, Object> getDeployDao(Long key, String siteId, boolean isAdminRole);
-
-    Map<String, Object> getDeployForConsumerKeyDao(String consumerKey);
-
-    List<Map<String, Object>> getDeploysDao(String search, String order, int first, int last);
-
-    List<Map<String, Object>> getDeploysDao(String search, String order, int first, int last, String siteId, boolean isAdminRole);
-
-    // -- Proxy binding
-    boolean deleteProxyBindingDao(Long key);
-
-    Object insertProxyBindingDao(Properties newProps);
-
-    Object updateProxyBindingDao(Long key, Object newProps);
-
-    Map<String, Object> getProxyBindingDao(Long tool_id, String siteId);
 
 
     // These can be static and moved to the tool, or at least split off into a Foorm UI

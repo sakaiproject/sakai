@@ -19,19 +19,12 @@
 
 package org.tsugi.basiclti;
 
-import static org.tsugi.basiclti.BasicLTIConstants.LTI_MESSAGE_TYPE;
-import static org.tsugi.basiclti.BasicLTIConstants.LTI_MESSAGE_TYPE_TOOLPROXYREGISTRATIONREQUEST;
-import static org.tsugi.basiclti.BasicLTIConstants.LTI_MESSAGE_TYPE_TOOLPROXY_RE_REGISTRATIONREQUEST;
 import static org.tsugi.basiclti.BasicLTIConstants.LTI_MESSAGE_TYPE_BASICLTILAUNCHREQUEST;
 import static org.tsugi.basiclti.BasicLTIConstants.LTI_MESSAGE_TYPE_CONTENTITEMSELECTIONREQUEST;
 import static org.tsugi.basiclti.BasicLTIConstants.LTI_VERSION;
 import static org.tsugi.basiclti.BasicLTIConstants.LTI_VERSION_1;
-import static org.tsugi.basiclti.BasicLTIConstants.LTI_VERSION_2;
 import static org.tsugi.basiclti.BasicLTIConstants.CUSTOM_PREFIX;
-import static org.tsugi.basiclti.BasicLTIConstants.EXTENSION_PREFIX;
 import static org.tsugi.basiclti.BasicLTIConstants.LTI_MESSAGE_TYPE;
-import static org.tsugi.basiclti.BasicLTIConstants.LTI_VERSION;
-import static org.tsugi.basiclti.BasicLTIConstants.OAUTH_PREFIX;
 import static org.tsugi.basiclti.BasicLTIConstants.TOOL_CONSUMER_INSTANCE_CONTACT_EMAIL;
 import static org.tsugi.basiclti.BasicLTIConstants.TOOL_CONSUMER_INSTANCE_DESCRIPTION;
 import static org.tsugi.basiclti.BasicLTIConstants.TOOL_CONSUMER_INSTANCE_GUID;
@@ -67,11 +60,14 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
 import lombok.extern.slf4j.Slf4j;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 
 /* Leave out until we have JTidy 0.8 in the repository 
  import org.w3c.tidy.Tidy;
@@ -129,14 +125,14 @@ public class BasicLTIUtil {
 	private static final Pattern CUSTOM_REGEX = Pattern.compile("[^A-Za-z0-9]");
 	private static final String UNDERSCORE = "_";
 
+	private static final String EMPTY_JSON_OBJECT = "{\n}\n";
+
 	// Returns true if this is a Basic LTI message with minimum values to meet the protocol
 	public static boolean isRequest(HttpServletRequest request) {
 
 		String message_type = request.getParameter(LTI_MESSAGE_TYPE);
 		if ( message_type == null ) return false;
 		if ( message_type.equals(LTI_MESSAGE_TYPE_BASICLTILAUNCHREQUEST) ||
-		     message_type.equals(LTI_MESSAGE_TYPE_TOOLPROXYREGISTRATIONREQUEST) ||
-		     message_type.equals(LTI_MESSAGE_TYPE_TOOLPROXY_RE_REGISTRATIONREQUEST) ||
 		     message_type.equals(LTI_MESSAGE_TYPE_CONTENTITEMSELECTIONREQUEST) ) {
 			// Seems plausible
 		} else {
@@ -145,11 +141,7 @@ public class BasicLTIUtil {
 
 		String version = request.getParameter(LTI_VERSION);
 		if ( version == null ) return true;
-		if ( version.equals(LTI_VERSION_1) || version.equals(LTI_VERSION_2) ) {
-			// Another pass
-		} else {
-			return false;
-		}
+		if ( !version.equals(LTI_VERSION_1) ) return false;
 
 		return true;
 	}
@@ -1158,6 +1150,60 @@ public class BasicLTIUtil {
 		String timestamp = isoFormat.format(date);
 		timestamp = timestamp.replace("GMT", "Z");
 		return timestamp;
+	}
+
+
+	// Parse a provider profile with lots of error checking...
+	public static JSONArray forceArray(Object obj) 
+	{
+		if ( obj == null ) return null;
+		if ( obj instanceof JSONArray ) return (JSONArray) obj;
+		JSONArray retval = new JSONArray();
+		retval.add(obj);
+		return retval;
+	}
+
+	// Return a JSONArray or null. Promote a JSONObject to an array
+	public static JSONArray getArray(JSONObject obj, String key)
+	{
+		if ( obj == null ) return null;
+		Object o = obj.get(key);
+		if ( o == null ) return null;
+		if ( o instanceof JSONArray ) return (JSONArray) o;
+		if ( o instanceof JSONObject ) {
+			JSONArray retval = new JSONArray();
+			retval.add(o);
+			return retval;
+		}
+
+		// If this is a java.lang (i.e. String, Long, etc)
+		String className = o.getClass().getName();
+		if ( className.startsWith("java.lang") ) {
+			JSONArray retval = new JSONArray();
+			retval.add(o);
+			return retval;
+		}
+		return null;
+	}
+
+	// Return a JSONObject or null
+	public static JSONObject getObject(JSONObject obj, String key)
+	{
+		if ( obj == null ) return null;
+		Object o = obj.get(key);
+		if ( o == null ) return null;
+		if ( o instanceof JSONObject ) return (JSONObject) o;
+		return null;
+	}
+
+	// Return a String or null
+	public static String getString(JSONObject obj, String key)
+	{
+		if ( obj == null ) return null;
+		Object o = obj.get(key);
+		if ( o == null ) return null;
+		if ( o instanceof String ) return (String) o;
+		return null;
 	}
 
 }
