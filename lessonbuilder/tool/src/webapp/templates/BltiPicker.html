@@ -39,14 +39,25 @@
 			</div>
 		</div>
 
-		<div rsf:id="app-store-container:" class="col-md-11 col-md-offset-1">
-			<div rsf:id="blti-create:">
-				<a rsf:id="blti-create-link" href="#" class="btn btn-primary" target="sakai-basiclti-admin-iframe" onclick="showIframe(this.title);">
-					<i class="fa fa-shopping-cart lessons-shopping-cart" rsf:id="blti-search-icon"></i>
-					<i class="" rsf:id="blti-create-icon"></i>
-					<span rsf:id="blti-create-text"></span>
-				</a>
-			</div>
+		<div class="table-responsive">
+			<table class="externalToolContainerClass table table-striped table-bordered" rsf:id="app-store-container:">
+				<thead>
+				<tr>
+					<th><span rsf:id="blti-name-header"></span></th>
+					<th><span rsf:id="blti-description-header"></span></th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr rsf:id="blti-create:">
+					<td><a rsf:id="blti-create-link" href="#" target="sakai-basiclti-admin-iframe" onclick="showIframe(this.title);">
+						<i class="fa fa-shopping-cart lessons-shopping-cart" rsf:id="blti-search-icon"></i>
+						<i class="" rsf:id="blti-create-icon"></i>
+						<span rsf:id="blti-create-text"></span>
+					</a></td>
+					<td><span rsf:id="blti-create-description"></span></td>
+				</tr>
+				</tbody>
+			</table>
 		</div>
 
 		<div class="table-responsive">
