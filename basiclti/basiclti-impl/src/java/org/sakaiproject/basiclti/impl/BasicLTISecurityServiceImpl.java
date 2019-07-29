@@ -28,8 +28,6 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.Properties;
 import java.util.Enumeration;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -283,7 +281,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 
 		byte[] bytesEncoded = Base64.encodeBase64(login_hint.getBytes());
 		String encoded_login_hint = new String(bytesEncoded);
-		String redirect = oidc_endpoint;
+		String redirect = oidc_endpoint.trim();
 		redirect += "?iss=" + java.net.URLEncoder.encode(SakaiBLTIUtil.getOurServerUrl());
 		redirect += "&login_hint=" + encoded_login_hint;
 		if ( StringUtils.isNotEmpty(launch_url)) {
@@ -351,33 +349,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 
 				String refId = ref.getId();
 				String [] retval = null;
-				if ( refId.startsWith("deploy:") && refId.length() > 7 )
-				{
-					if ("!admin".equals(ref.getContext()) )
-					{
-						throw new EntityPermissionException(SessionManager.getCurrentSessionUserId(), "basiclti", ref.getReference());
-					}
-					Map<String,Object> deploy = null;
-					String deployStr = refId.substring(7);
-					Long deployKey = SakaiBLTIUtil.getLongKey(deployStr);
-					if ( deployKey >= 0 ) deploy = ltiService.getDeployDao(deployKey);
-					if ( deploy == null ) {
-						throw new EntityNotDefinedException("Could not load deployment");
-					}
-					String placementId = req.getParameter("placement");
-					log.debug("deployStr={} deployKey={} placementId={}", deployStr, deployKey, placementId);
-					log.debug(deploy.toString());
-					Long reg_state = SakaiBLTIUtil.getLongKey(deploy.get(LTIService.LTI_REG_STATE));
-					if ( reg_state == 0 )
-					{
-						retval = SakaiBLTIUtil.postRegisterHTML(deployKey, deploy, rb, placementId);
-					}
-					else
-					{
-						retval = SakaiBLTIUtil.postReregisterHTML(deployKey, deploy, rb, placementId);
-					}
-				}
-				else if ( refId.startsWith("tool:") && refId.length() > 5 )
+				if ( refId.startsWith("tool:") && refId.length() > 5 )
 				{
 					Map<String,Object> tool;
 

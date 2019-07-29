@@ -126,8 +126,7 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 
 import org.springframework.web.multipart.MultipartFile;
-
-import org.tsugi.lti2.ContentItem;
+import org.tsugi.basiclti.ContentItem;
 
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.components.UIContainer;

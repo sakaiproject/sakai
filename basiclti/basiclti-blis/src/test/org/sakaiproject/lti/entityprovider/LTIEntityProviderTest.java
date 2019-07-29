@@ -55,10 +55,8 @@ public class LTIEntityProviderTest {
     public void testAdjustMapIsNotAdmin() {
         map.put(LTIService.LTI_ID, "1");
         map.put(LTI_SECRET, "secret");
-        map.put(LTI_REG_PASSWORD, "password");
         provider.adjustMap(map, false, "siteId", "kind");
         assertThat(map, not(hasEntry(LTI_SECRET, "secret")));
-        assertThat(map, not(hasEntry(LTI_REG_PASSWORD, "password")));
     }
 
     @Test

@@ -60,7 +60,7 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 
-import org.tsugi.lti2.ContentItem;
+import org.tsugi.basiclti.ContentItem;
 
 /**
  * Creates a list of LTI Content Items for the user to choose from. Their choice will be added
