@@ -1128,7 +1128,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			//Append the LTI item description to the URL so Lessons can use it.
 			String ltiToolDescription = reqProps.getProperty(LTIService.LTI_DESCRIPTION);
 			if(StringUtils.isNotEmpty(ltiToolDescription)){
-				returnUrl += "&ltiItemDescription=" + StringEscapeUtils.escapeHtml4​(ltiToolDescription);
+				returnUrl += "&ltiItemDescription=" + URLEncoder.encode(ltiToolDescription);
 			}
 
 			state.setAttribute(STATE_REDIRECT_URL, returnUrl);
@@ -1808,7 +1808,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		context.put("tool_title", tool.get(LTIService.LTI_TITLE));
 		context.put("tool_launch", tool.get(LTIService.LTI_LAUNCH));
 
-		String toolDescription = StringEscapeUtils.escapeHtml4​((String) tool.get(LTIService.LTI_DESCRIPTION));
+		String toolDescription = StringEscapeUtils.escapeHtml4((String) tool.get(LTIService.LTI_DESCRIPTION));
 		Optional<String> descriptionField = Arrays.stream(LTIService.TOOL_MODEL).filter(e -> e.startsWith("description")).findFirst();
 		if(descriptionField.isPresent()){
 			String descriptionFormInput = foorm.formInput(null, descriptionField.get(), rb);
