@@ -116,8 +116,8 @@ public class FormattedTextTest {
     @Test
     public void testProcessAnchor() {
         // Check we add the target attribute
-    	Assert.assertEquals("<a  href=\"http://sakaiproject.org/\" target=\"_blank\" rel=\"noopener\">", formattedText
-                .processAnchor("<a href=\"http://sakaiproject.org/\">"));
+    	Assert.assertEquals("<a  href=\"https://www.sakailms.org/\" target=\"_blank\" rel=\"noopener\">", formattedText
+                .processAnchor("<a href=\"https://www.sakailms.org/\">"));
     }
 
     @Test
@@ -864,8 +864,8 @@ public class FormattedTextTest {
     public void testEscapeHrefUrl() {
         // https://jira.sakaiproject.org/browse/KNL-1105
         String output = null;
-        output = formattedText.sanitizeHrefURL("http://www.sakaiproject.org/?x=Hello World&y=12");
-        Assert.assertTrue(output,"http://www.sakaiproject.org/?x=Hello%20World&y=12".equals(output));
+        output = formattedText.sanitizeHrefURL("https://www.sakailms.org/?x=Hello World&y=12");
+        Assert.assertTrue(output,"https://www.sakailms.org/?x=Hello%20World&y=12".equals(output));
         output = formattedText.sanitizeHrefURL("http://www.abc.es#\"><script>");
         Assert.assertTrue(output,"http://www.abc.es#%22%3E%3Cscript%3E".equals(output));
         output = formattedText.sanitizeHrefURL("http://www.abc.es/page#anchor");
@@ -911,22 +911,22 @@ public class FormattedTextTest {
 
     @Test
     public void testCanDoSsl() {
-        Assert.assertEquals("<a href=\"https://sakaiproject.org\">https://sakaiproject.org</a>", formattedText.encodeUrlsAsHtml("https://sakaiproject.org"));
+        Assert.assertEquals("<a href=\"https://www.sakailms.org\">https://www.sakailms.org</a>", formattedText.encodeUrlsAsHtml("https://www.sakailms.org"));
     }
 
     @Test
     public void testCanIgnoreTrailingExclamation() {
-        Assert.assertEquals("Hey, it's <a href=\"http://sakaiproject.org\">http://sakaiproject.org</a>!", formattedText.encodeUrlsAsHtml("Hey, it's http://sakaiproject.org!"));
+        Assert.assertEquals("Hey, it's <a href=\"https://www.sakailms.org/\">https://www.sakailms.org/</a>!", formattedText.encodeUrlsAsHtml("Hey, it's https://www.sakailms.org/!"));
     }
 
     @Test
     public void testCanIgnoreTrailingQuestion() {
-        Assert.assertEquals("Have you ever seen <a href=\"http://sakaiproject.org\">http://sakaiproject.org</a>? Just wondering.", formattedText.encodeUrlsAsHtml("Have you ever seen http://sakaiproject.org? Just wondering."));
+        Assert.assertEquals("Have you ever seen <a href=\"https://www.sakailms.org/\">https://www.sakailms.org/</a>? Just wondering.", formattedText.encodeUrlsAsHtml("Have you ever seen https://www.sakailms.org/? Just wondering."));
     }
 
     @Test
     public void testCanEncodeQueryString() {
-        Assert.assertEquals("See <a href=\"http://sakaiproject.org/index.php?task=blogcategory&id=181\">http://sakaiproject.org/index.php?task=blogcategory&amp;id=181</a> for more info.", formattedText.encodeUrlsAsHtml(formattedText.escapeHtml("See http://sakaiproject.org/index.php?task=blogcategory&id=181 for more info.")));
+        Assert.assertEquals("See <a href=\"https://www.sakailms.org/index.php?task=blogcategory&id=181\">https://www.sakailms.org/index.php?task=blogcategory&amp;id=181</a> for more info.", formattedText.encodeUrlsAsHtml(formattedText.escapeHtml("See https://www.sakailms.org/index.php?task=blogcategory&id=181 for more info.")));
     }
 
     @Test
@@ -941,7 +941,7 @@ public class FormattedTextTest {
 
     @Test
     public void testCanIgnoreExistingHref() {
-        Assert.assertEquals("<a href=\"http://sakaiproject.org\">Sakai Project</a>", formattedText.encodeUrlsAsHtml("<a href=\"http://sakaiproject.org\">Sakai Project</a>"));
+        Assert.assertEquals("<a href=\"https://www.sakailms.org/\">Sakai Project</a>", formattedText.encodeUrlsAsHtml("<a href=\"https://www.sakailms.org/\">Sakai Project</a>"));
     }
 
     @Test
@@ -1145,8 +1145,8 @@ public class FormattedTextTest {
         String result = null;
         StringBuilder errorMessages = new StringBuilder();
 
-        String anchor = "<a href=\"http://sakaiproject.org/\">sakaiproject</a>";
-        String expectedAnchor = "<a href=\"http://sakaiproject.org/\" target=\"_blank\" rel=\"noopener\">sakaiproject</a>";
+        String anchor = "<a href=\"https://www.sakailms.org/\">sakaiproject</a>";
+        String expectedAnchor = "<a href=\"https://www.sakailms.org/\" target=\"_blank\" rel=\"noopener\">sakaiproject</a>";
 
         //Process the anchor, there shouldn't be any error messages or changes, but it does insert target and noopener which should pass
         result = formattedText.processFormattedText(anchor,errorMessages);

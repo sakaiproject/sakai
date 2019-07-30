@@ -13,11 +13,6 @@
     <groupId>org.sakaiproject.mailsender</groupId>
     <artifactId>mailsender-api</artifactId>
     <description>Mail Sender Interfaces (API)</description>
-    <organization>
-        <name>Sakai Project</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2007</inceptionYear>
     <packaging>jar</packaging>
 
     <properties>

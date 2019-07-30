@@ -12,11 +12,6 @@
     <name>sakai-portal (charon)</name>
     <groupId>org.sakaiproject.portal</groupId>
     <artifactId>portal-charon</artifactId>
-    <organization>
-        <name>Sakai Project</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2003</inceptionYear>
     <packaging>war</packaging>
 
     <dependencies>

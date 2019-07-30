@@ -12,11 +12,6 @@
     <name>sakai-message-tool</name>
     <groupId>org.sakaiproject.message</groupId>
     <artifactId>sakai-message-tool</artifactId>
-    <organization>
-        <name>The Sakai Foundation</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2003</inceptionYear>
     <packaging>war</packaging>
 
     <dependencies>

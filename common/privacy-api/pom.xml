@@ -10,11 +10,6 @@
   <name>Sakai Privacy API</name>
   <groupId>org.sakaiproject.common</groupId>
   <artifactId>sakai-privacy-api</artifactId>
-  <organization>
-    <name>Sakai Project</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2004</inceptionYear>
   <packaging>jar</packaging>
   <properties>
     <deploy.target>shared</deploy.target>

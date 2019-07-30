@@ -16,11 +16,6 @@
 
     <name>OAuth Base</name>
     <description>Add OAuth capabilities to an instance of Sakai CLE.</description>
-    <organization>
-        <name>The Sakai Foundation</name>
-        <url>http://www.sakaiproject.org/sakai-foundation</url>
-    </organization>
-    <inceptionYear>2009</inceptionYear>
 
     <developers>
         <developer>

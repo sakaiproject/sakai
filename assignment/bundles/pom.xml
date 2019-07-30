@@ -12,11 +12,6 @@
     <name>sakai-assignment-bundles</name>
     <groupId>org.sakaiproject.assignment</groupId>
     <artifactId>sakai-assignment-bundles</artifactId>
-    <organization>
-        <name>The Sakai Foundation</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2003</inceptionYear>
     <packaging>jar</packaging>
 
     <build>

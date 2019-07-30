@@ -10,11 +10,6 @@
   <name>content-types</name>
   <groupId>org.sakaiproject.content</groupId>
   <artifactId>content-types</artifactId>
-  <organization>
-    <name>The Sakai Foundation</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2003</inceptionYear>
   <packaging>sakai-component</packaging>
   <properties>
     <deploy.target>components</deploy.target>

@@ -11,11 +11,6 @@
     <name>sakai-calendar-bundles</name>
     <groupId>org.sakaiproject.calendar</groupId>
     <artifactId>sakai-calendar-bundles</artifactId>
-    <organization>
-        <name>The Sakai Foundation</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2011</inceptionYear>
     <packaging>jar</packaging>
 
     <build>

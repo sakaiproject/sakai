@@ -3,11 +3,6 @@
    <name>Sakai AccountValidator API</name>
    <groupId>org.sakaiproject.accountvalidator</groupId>
    <artifactId>accountvalidator-api</artifactId>
-   <organization>
-      <name>Sakai Project</name>
-      <url>http://sakaiproject.org/</url>
-   </organization>
-   <inceptionYear>2007</inceptionYear>
    <description>Account Validator API</description>
    <packaging>jar</packaging>
    <properties>

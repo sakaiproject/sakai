@@ -14,10 +14,6 @@
     <artifactId>pack-demo</artifactId>
     <packaging>pom</packaging>
 
-    <organization>
-        <name>Sakai Project</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
 
     <prerequisites>
         <maven>${maven.prereq.version}</maven>

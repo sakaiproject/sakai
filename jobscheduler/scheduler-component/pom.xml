@@ -12,11 +12,6 @@
     <name>Sakai Job Scheduler Component (scheduler-component)</name>
     <groupId>org.sakaiproject.scheduler</groupId>
     <artifactId>scheduler-component</artifactId>
-    <organization>
-        <name>University of Michigan</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2003</inceptionYear>
     <packaging>sakai-component</packaging>
 
     <properties>

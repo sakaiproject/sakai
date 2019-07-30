@@ -12,11 +12,6 @@
 	<artifactId>profile2</artifactId>
 	<packaging>pom</packaging>
 	<!-- ProjectVersion -->
-	<organization>
-		<name>The Sakai Foundation</name>
-		<url>http://www.sakaiproject.org</url>
-	</organization>
-	<inceptionYear>2008</inceptionYear>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<wicket.version>6.30.0</wicket.version>

@@ -12,11 +12,6 @@
     <name>sakai-taggable-impl</name>
     <groupId>org.sakaiproject.taggable</groupId>
     <artifactId>sakai-taggable-impl</artifactId>
-    <organization>
-        <name>The Sakai Foundation</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2003</inceptionYear>
     <packaging>sakai-component</packaging>
     <properties>
         <deploy.target>components</deploy.target>

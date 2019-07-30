@@ -10,11 +10,6 @@
   <name>login-render-engine-impl</name>
   <groupId>org.sakaiproject.login</groupId>
   <artifactId>login-render-engine-impl</artifactId>
-  <organization>
-    <name>Sakai Foundation</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2003</inceptionYear>
   <packaging>war</packaging>
   <dependencies>
     <dependency>

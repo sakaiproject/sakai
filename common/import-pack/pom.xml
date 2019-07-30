@@ -9,11 +9,6 @@
   <name>Sakai Import Components Package</name>
   <groupId>org.sakaiproject.common</groupId>
   <artifactId>import-pack</artifactId>
-  <organization>
-    <name>Sakai Foundation</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2005</inceptionYear>
   <packaging>sakai-component</packaging>
   <properties>
     <deploy.target>components</deploy.target>

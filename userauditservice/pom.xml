@@ -11,12 +11,6 @@
   <groupId>org.sakaiproject.userauditservice</groupId>
   <artifactId>userauditservice</artifactId>
   <packaging>pom</packaging>
-  <organization>
-    <name>Sakai Project</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2013</inceptionYear>
-
   <properties>
     <sakai.simple-xml.version>2.6</sakai.simple-xml.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

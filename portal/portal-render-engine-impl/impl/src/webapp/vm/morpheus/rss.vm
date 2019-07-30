@@ -7,7 +7,7 @@
                 <link>${currentSite.siteUrl}</link>
             #else
                 Sakai RSS Feed
-                <link>http://www.sakaiproject.org/</link> 
+                <link>https://www.sakailms.org/</link> 
             #end
         </title> 
         <ttl>60</ttl>

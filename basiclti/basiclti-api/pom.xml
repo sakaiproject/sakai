@@ -11,11 +11,6 @@
     <name>BasicLTI API (basiclti-api)</name>
     <groupId>org.sakaiproject.basiclti</groupId>
     <artifactId>basiclti-api</artifactId>
-    <organization>
-        <name>University of Michigan</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2011</inceptionYear>
     <packaging>jar</packaging>
     
     <properties>

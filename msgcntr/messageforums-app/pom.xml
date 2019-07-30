@@ -9,11 +9,6 @@
 	<name>Sakai Message Forums Tool</name>
 	<groupId>org.sakaiproject.msgcntr</groupId>
 	<artifactId>messageforums-tool</artifactId>
-	<organization>
-		<name>Sakai Project</name>
-		<url>http://sakaiproject.org/</url>
-	</organization>
-	<inceptionYear>2003</inceptionYear>
 	<packaging>war</packaging>
 	<dependencies>
 		<dependency>

@@ -12,11 +12,6 @@
     <name>sakai-velocity-tool-api</name>
     <groupId>org.sakaiproject.velocity</groupId>
     <artifactId>sakai-velocity-tool-api</artifactId>
-    <organization>
-        <name>The Sakai Foundation</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2006</inceptionYear>
     <packaging>jar</packaging>
 
     <properties>

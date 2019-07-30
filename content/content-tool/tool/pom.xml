@@ -10,11 +10,6 @@
   <name>content-tool</name>
   <groupId>org.sakaiproject.content</groupId>
   <artifactId>sakai-content-tool</artifactId>
-  <organization>
-    <name>The Sakai Foundation</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2003</inceptionYear>
   <packaging>war</packaging>
   <dependencies>
   <dependency>

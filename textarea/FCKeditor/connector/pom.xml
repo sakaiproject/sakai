@@ -10,11 +10,6 @@
   <name>sakai-fck-connector</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-fck-connector</artifactId>
-  <organization>
-    <name>Sakai Foundation</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2005</inceptionYear>
   <packaging>war</packaging>
   <dependencies>
     <dependency>

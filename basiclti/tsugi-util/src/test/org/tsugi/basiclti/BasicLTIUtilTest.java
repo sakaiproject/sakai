@@ -139,7 +139,7 @@ public class BasicLTIUtilTest {
 		HttpServletRequest req = Mockito.mock(HttpServletRequest.class);
 		Mockito.when(req.getParameterMap()).thenReturn(paramMap);
 
-		String url = "https://www.sakaiproject.org/";
+		String url = "https://www.sakailms.org/";
 		String secret = "shhh";
 		String key = "zuul2";
 
@@ -156,7 +156,7 @@ public class BasicLTIUtilTest {
 		HttpServletRequest req = Mockito.mock(HttpServletRequest.class);
 		Mockito.when(req.getParameterMap()).thenReturn(paramMap);
 
-		String url = "https://www.sakaiproject.org/";
+		String url = "https://www.sakailms.org/";
 		String secret = "shhh";
 		String key = "zuul";
 
@@ -168,7 +168,7 @@ public class BasicLTIUtilTest {
 	public void validateGoodMessage() {
 		Map<String, String> paramMap = new HashMap<>();
 
-		String url = "https://www.sakaiproject.org/";
+		String url = "https://www.sakailms.org/";
 		String secret = "shhh";
 		String key = "zuul";
 
@@ -480,11 +480,11 @@ public class BasicLTIUtilTest {
 	@Test
 	public void checkProperties() {
 		Map<String, String> props = new HashMap<>();
-		boolean checkedProperties = BasicLTIUtil.checkProperties(props, "http://sakaiproject.org", "POST",
+		boolean checkedProperties = BasicLTIUtil.checkProperties(props, "https://www.sakailms.org/", "POST",
 				"key", "secret");
 		assertFalse(checkedProperties);
 
-		String url = "http://sakaiproject.org";
+		String url = "https://www.sakailms.org/";
 		String key = "key";
 		String secret = "secret";
 		Map<String, String> signedParams = BasicLTIUtil.signProperties(props, url, OAuthMessage.POST, key, secret,
@@ -500,7 +500,7 @@ public class BasicLTIUtilTest {
 		Map<String, String> props = new HashMap<>();
 		Map<String, String> extra = new HashMap<>();
 
-		String url = "http://sakaiproject.org";
+		String url = "https://www.sakailms.org/";
 		String key = "key";
 		String secret = "secret";
 		Map<String, String> signedParams = BasicLTIUtil.signProperties(props, url, OAuthMessage.POST, key, secret,

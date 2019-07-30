@@ -8,11 +8,6 @@
     <relativePath>../master/pom.xml</relativePath>
   </parent>
   <artifactId>admin-tool-su</artifactId>
-  <organization>
-    <name>Sakai Foundation</name>
-    <url>http://sakaiproject.org</url>
-  </organization>
-  <inceptionYear>2005</inceptionYear>
   <packaging>war</packaging>
   <dependencies>
     <dependency>

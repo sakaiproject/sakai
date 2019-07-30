@@ -10,11 +10,6 @@
   <name>Sakai Postem Tool</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-postem-tool</artifactId>
-  <organization>
-    <name>Sakai Project</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2004</inceptionYear>
   <packaging>war</packaging>
 
     <!-- profiles added for WAS support -->

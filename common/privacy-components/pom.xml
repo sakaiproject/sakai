@@ -10,11 +10,6 @@
   <name>Sakai Privacy Pack</name>
   <groupId>org.sakaiproject.common</groupId>
   <artifactId>sakai-privacy-pack</artifactId>
-  <organization>
-    <name>Sakai Project</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2004</inceptionYear>
   <packaging>sakai-component</packaging>
   <properties>
     <deploy.target>components</deploy.target>
