@@ -31,6 +31,7 @@ import org.json.simple.JSONObject;
 
 import org.tsugi.basiclti.BasicLTIUtil;
 
+// https://www.imsglobal.org/spec/lti-dl/v2p0
 /* {
     "https:\/\/purl.imsglobal.org\/spec\/lti\/claim\/deployment_id": "07940580-b309-415e-a37c-914d387c1150",
     "https:\/\/purl.imsglobal.org\/spec\/lti\/claim\/message_type": "LtiDeepLinkingResponse",
@@ -98,6 +99,7 @@ public class DeepLinkResponse {
 	public static final String MEDIA_CC_1_3 = "application/vnd.ims.imsccv1p3";
 	public static final String MEDIA_CC = MEDIA_CC_1_3+","+MEDIA_CC_1_2+","+MEDIA_CC_1_3;
 
+	public static final String TYPE = "type";
 	public static final String TYPE_LINKITEM = "link";
 	public static final String TYPE_LTILINKITEM = "ltiResourceLink";
 	public static final String TYPE_CONTENTITEM = "html";
