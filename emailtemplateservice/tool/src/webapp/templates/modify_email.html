@@ -17,10 +17,8 @@
   </div>
 
 
-			<div rsf:id="message-for:*" class="alertMessage">
-				<ul style="margin:0px;">
-					<li>Message for user here</li>
-				</ul>
+			<div rsf:id="message-for:*" class="sak-banner-error">
+				<span>Message for user here</span>
 			</div>
 
 		<div class="page-header">
@@ -30,7 +28,7 @@
 			<form rsf:id="emailTemplateForm" name="emailTemplateForm" method="post">
 				<input rsf:id="csrfToken" name="csrfToken" id="csrfToken" type="hidden"/>
 					<p rsf:id="msg=modifyemail.modify.text.instructions" class="text-info">Modify the suggested text or enter new text for the reminder email. Please note when sending the email the bracketed values will be substituted with actual values. You may use these values in your reminder email.</p>
-					<div rsf:id="email_templates_fieldhints" class="bs-callout-info">
+					<div rsf:id="email_templates_fieldhints" class="sak-banner-info">
 ${EvalTitle} - the title of this evaluation <br/>
 ${EvalStartDate} - the start date of this evaluation <br/>
 ${EvalDueDate} - the due date of this evaluation <br/>
