@@ -10,7 +10,9 @@
             $tlang.getString('confirm.savesubmission.title')
         #end
     </h3>
-    #progressBar($!service.getProgressBarStatus($!submission))
+    #if (!$!allowAddAssignment)
+        #progressBar($!service.getProgressBarStatus($!submission))
+    #end
     <div class="success">
         #if ($!submission.Submitted)
             $tlang.getString('confirm.submission.success')
