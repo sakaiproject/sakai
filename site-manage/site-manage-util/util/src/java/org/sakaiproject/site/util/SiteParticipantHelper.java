@@ -188,8 +188,7 @@ public class SiteParticipantHelper {
 									participant.removeable = true;
 								}
 								// get contextual user display id
-								String regId = cus != null ? cus.getUserDisplayId(user, "Site Info"):"";
-								participant.regId = regId != null?regId:"";
+								participant.regId = cus != null ? cus.getUserDisplayId(user, "Site Info") : user.getDisplayId();
 								participant.role = member.getRole()!=null?member.getRole().getId():"";
 								participant.addSectionEidToList(sectionTitle);
 								participant.uniqname = userId;
@@ -344,7 +343,7 @@ public class SiteParticipantHelper {
 								participant.providerRole = member.getRole()!=null?member.getRole().getId():"";
 								participant.removeable = false;
 							}
-							participant.regId = "";
+							participant.regId = user.getDisplayId();
 							participant.role = member.getRole()!=null?member.getRole().getId():"";
 							participant.addSectionEidToList(sectionTitle);
 							participant.uniqname = userId;
@@ -425,6 +424,7 @@ public class SiteParticipantHelper {
 						participant = new Participant();
 					}
 					participant.name = user.getSortName();
+					participant.regId = user.getDisplayId();
 					participant.uniqname = userId;
 					participant.role = g.getRole()!=null?g.getRole().getId():"";
 					participant.removeable = true;
@@ -667,7 +667,7 @@ public class SiteParticipantHelper {
 									participant.providerRole = member.getRole()!=null?member.getRole().getId():"";
 									participant.removeable = false;
 								}
-								participant.regId = "";
+								participant.regId = user.getDisplayId();
 								participant.removeable = false;
 								participant.role = member.getRole()!=null?member.getRole().getId():"";
 								participant.section = sectionTitle;
