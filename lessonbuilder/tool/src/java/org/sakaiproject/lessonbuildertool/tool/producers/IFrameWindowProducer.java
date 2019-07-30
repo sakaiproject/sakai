@@ -24,6 +24,8 @@
 
 package org.sakaiproject.lessonbuildertool.tool.producers;
 
+import java.util.Optional;
+
 import lombok.extern.slf4j.Slf4j;
 
 import uk.org.ponder.localeutil.LocaleGetter;
@@ -81,7 +83,9 @@ public class IFrameWindowProducer implements ViewComponentProducer, ViewParamsRe
 			iframe.decorate(new UIFreeAttributeDecorator("src", ((GeneralViewParameters) params).getSource()));
 			iframe.decorate(new UIFreeAttributeDecorator("name", ((GeneralViewParameters) params).getId()));
 			iframe.decorate(new UIFreeAttributeDecorator("id", ((GeneralViewParameters) params).getId()));
-			iframe.decorate(new UIFreeAttributeDecorator("allow", String.join(";", ServerConfigurationService.getStrings("browser.feature.allow"))));
+			iframe.decorate(new UIFreeAttributeDecorator("allow", String.join(";",
+					Optional.ofNullable(ServerConfigurationService.getStrings("browser.feature.allow"))
+							.orElseGet(() -> new String[]{}))));
 		}
 	}
 
