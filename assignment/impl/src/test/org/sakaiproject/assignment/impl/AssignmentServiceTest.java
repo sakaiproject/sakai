@@ -655,6 +655,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
             when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
             submission.setSubmitted(true);
+            submission.setUserSubmission(true);
             submission.setDateSubmitted(Instant.now());
             submission.setSubmittedText("submittedText");
             assignmentService.updateSubmission(submission);
