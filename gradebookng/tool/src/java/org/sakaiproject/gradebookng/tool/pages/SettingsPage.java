@@ -16,6 +16,7 @@
 package org.sakaiproject.gradebookng.tool.pages;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.List;
 
 import org.apache.wicket.Page;
@@ -129,12 +130,26 @@ public class SettingsPage extends BasePage {
 				if (model.getGradebookInformation().getCategoryType() == GbCategoryType.WEIGHTED_CATEGORY.getValue()) {
 
 					BigDecimal totalWeight = BigDecimal.ZERO;
+					HashSet<String> catNames = new HashSet<String>();
 					for (final CategoryDefinition cat : categories) {
 
 						BigDecimal catWeight = (cat.getWeight() == null) ? null : new BigDecimal(cat.getWeight());
-						if (catWeight == null || catWeight.compareTo(BigDecimal.ZERO) == 0) {
+						catNames.add(cat.getName());
+						if (catWeight == null) {
 							error(getString("settingspage.update.failure.categorymissingweight"));
-						} else {
+						}
+						else if (catWeight.compareTo(BigDecimal.ZERO) == 0) {
+							error(getString("settingspage.update.failure.categoryweightzero"));
+						}
+						else if (catWeight.signum() == -1) {
+							totalWeight = totalWeight.add(BigDecimal.valueOf(cat.getWeight()));
+							error(getString("settingspage.update.failure.categoryweightnegative"));
+						}
+						else if (catWeight.doubleValue() > 1) {
+							totalWeight = totalWeight.add(BigDecimal.valueOf(cat.getWeight()));
+							error(getString("settingspage.update.failure.categoryweightonehundred"));
+						}
+						else {
 							// extra credit items do not participate in the weightings, so exclude from the tally
 							if (!cat.getExtraCredit()) {
 								totalWeight = totalWeight.add(BigDecimal.valueOf(cat.getWeight()));
@@ -151,6 +166,10 @@ public class SettingsPage extends BasePage {
 
 					if (totalWeight.compareTo(BigDecimal.ONE) != 0) {
 						error(getString("settingspage.update.failure.categoryweighttotals"));
+					}
+
+					if (catNames.size() < categories.size()) {
+						error(getString("settingspage.update.failure.categorysamename"));
 					}
 				}
 
