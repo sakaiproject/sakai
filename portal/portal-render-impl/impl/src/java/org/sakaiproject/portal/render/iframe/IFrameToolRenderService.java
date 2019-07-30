@@ -23,6 +23,7 @@ package org.sakaiproject.portal.render.iframe;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -115,7 +116,7 @@ public class IFrameToolRenderService implements ToolRenderService
 				.append("\n").append("	marginwidth=\"0\"").append("\n").append(
 						"	marginheight=\"0\"").append("\n").append("	scrolling=\"auto\"")
 				.append(" allowfullscreen=\"allowfullscreen\"")
-				.append(" allow=\"").append(String.join(";", serverConfigurationService.getStrings("browser.feature.allow"))).append("\"")
+				.append(" allow=\"").append(String.join(";", Optional.ofNullable(serverConfigurationService.getStrings("browser.feature.allow")).orElseGet(() -> new String[]{}))).append("\"")
 				.append("\n").append("	src=\"").append(toolUrl);
 
 				boolean isFirstParam = (toolUrl.indexOf('?') >=0 ? false : true);
