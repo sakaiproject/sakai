@@ -3694,7 +3694,10 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 					log.debug("currentGrade: {}, scaledGrade: {}", currentGrade, scaledGrade);
 
 					gr.setPointsEarned(scaledGrade.doubleValue());
-					eventsToAdd.add(new GradingEvent(assignment, currentUserUid, gr.getStudentId(), scaledGrade));
+					DecimalFormat df = (DecimalFormat)NumberFormat.getNumberInstance((new ResourceLoader()).getLocale());
+					df.setGroupingUsed(false);
+					String pointsLocale = df.format(scaledGrade);
+					eventsToAdd.add(new GradingEvent(assignment, currentUserUid, gr.getStudentId(), pointsLocale));
 				}
 			}
 		}
