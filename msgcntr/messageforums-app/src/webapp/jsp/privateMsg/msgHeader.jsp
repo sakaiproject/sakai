@@ -83,14 +83,14 @@
 			  <f:verbatim><span class="labeled"></f:verbatim>
 			  <h:outputText value="#{msgs.pvt_beg_date}"/>
 			  <f:verbatim></span></f:verbatim>
-              <h:inputText value="#{PrivateMessagesTool.searchFromDateString}" size="20" id="searchFromDate"/>
+			  <h:inputText value="#{PrivateMessagesTool.searchFromDateString}" size="20" id="searchFromDate"/>
 			</h:panelGroup>
 			
 			<h:panelGroup styleClass="shorttext" id="pvt_end_date">
 			  <f:verbatim><span class="labeled"></f:verbatim>
 			  <h:outputText value="#{msgs.pvt_end_date}"/>
 			  <f:verbatim></span></f:verbatim>
-              <h:inputText value="#{PrivateMessagesTool.searchToDateString}" size="20" id="searchToDate"/>
+			  <h:inputText value="#{PrivateMessagesTool.searchToDateString}" size="20" id="searchToDate"/>
 			</h:panelGroup>	
 		
 
