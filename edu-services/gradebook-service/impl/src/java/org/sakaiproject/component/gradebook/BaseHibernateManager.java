@@ -484,7 +484,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
                     .uniqueResult();
 
             if(numNameConflicts.intValue() > 0) {
-                throw new ConflictingCategoryNameException("You can not save multiple catetories in a gradebook with the same name");
+                throw new ConflictingCategoryNameException("You can not save multiple categories in a gradebook with the same name");
             }
             if(weight > 1 || weight < 0) {
                 throw new IllegalArgumentException("weight for category is greater than 1 or less than 0 in createCategory of BaseHibernateManager");
