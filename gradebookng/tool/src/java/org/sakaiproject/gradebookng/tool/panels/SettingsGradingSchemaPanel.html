@@ -28,7 +28,7 @@
 							</div>
 							
 							<!--  message about duplicates -->
-							<div class="messageError" wicket:id="duplicateEntries">Duplicates found.</div>
+							<div class="sak-banner-error" wicket:id="duplicateEntries">Duplicates found.</div>
 						
 							<!--  schema table -->
 							<div wicket:id="schemaWrap">
@@ -60,7 +60,7 @@
 													
 							<!-- chart -->
 							<div>
-								<div wicket:id="noStudentsWithGradesMessage" class="messageInstruction">There are no students with grades</div>
+								<div wicket:id="noStudentsWithGradesMessage" class="sak-banner-info">There are no students with grades</div>
 								<canvas wicket:id="gradingSchemaChart" id="gradingSchemaChart"></canvas>
 							</div>
 			
@@ -81,8 +81,8 @@
 						</div>
 					</div>
 				</div>
-				<div class="messageWarning" wicket:id="modifiedSchema">Schema has been modified from default</div>
-				<div class="messageError" wicket:id="unsavedSchema">There are unsaved changes</div>
+				<div class="sak-banner-warn" wicket:id="modifiedSchema">Schema has been modified from default</div>
+				<div class="sak-banner-error" wicket:id="unsavedSchema">There are unsaved changes</div>
 				
 			</div>
 		</div>
