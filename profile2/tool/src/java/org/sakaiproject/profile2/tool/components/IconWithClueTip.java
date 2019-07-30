@@ -38,25 +38,12 @@ public class IconWithClueTip extends Panel{
 	public IconWithClueTip(String id, String iconUrl, IModel textModel) {
 		super(id);
 			
-		//tooltip text
-		Label text = new Label("text", textModel);
-		text.setOutputMarkupId(true);
-		add(text);
-		
-		//we need to id of the text span so that we can map it to the link.
-		//the cluetip functions automatically hide it for us.
-		StringBuilder textId = new StringBuilder();
-		textId.append("#");
-		textId.append(text.getMarkupId());
-		
 		//link
 		AjaxFallbackLink link = new AjaxFallbackLink("link") {
 			public void onClick(AjaxRequestTarget target) {
 				//nothing
 			}
 		};
-		link.add(new AttributeModifier("rel", true, new Model(textId)));
-		link.add(new AttributeModifier("href", true, new Model(textId)));
 		link.add(new AttributeModifier("title", true, textModel));
 		
 		//image

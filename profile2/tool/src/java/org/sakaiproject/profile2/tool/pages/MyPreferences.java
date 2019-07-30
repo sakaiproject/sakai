@@ -318,7 +318,6 @@ public class MyPreferences extends BasePage{
 		//gravatar
 		//checkbox
 		WebMarkupContainer gravatarContainer = new WebMarkupContainer("gravatarContainer");
-		gravatarContainer.add(new Label("gravatarLabel", new ResourceModel("preferences.image.gravatar")));
 		gravatarImage = new CheckBox("gravatarImage", new PropertyModel<Boolean>(preferencesModel, "useGravatar"));
 		gravatarImage.setMarkupId("gravatarimageinput");
 		gravatarImage.setOutputMarkupId(true);
