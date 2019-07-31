@@ -157,13 +157,7 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.onedrive</groupId>
-            <artifactId>sakai-onedrive-api</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
+      </dependency>
     </dependencies>
 
     <build>

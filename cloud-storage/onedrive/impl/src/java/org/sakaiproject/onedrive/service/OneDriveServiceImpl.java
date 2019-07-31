@@ -60,7 +60,7 @@ public class OneDriveServiceImpl implements OneDriveService {
 		
 		clientId = serverConfigurationService.getString(ONEDRIVE_PREFIX + ONEDRIVE_CLIENT_ID, null);
 		clientSecret = serverConfigurationService.getString(ONEDRIVE_PREFIX + ONEDRIVE_CLIENT_SECRET, null);
-		redirectUri = serverConfigurationService.getString(ONEDRIVE_PREFIX + ONEDRIVE_REDIRECT_URI, "http://localhost:8080/portal/onedrive");
+		redirectUri = serverConfigurationService.getString(ONEDRIVE_PREFIX + ONEDRIVE_REDIRECT_URI, "http://localhost:8080/sakai-onedrive-tool");
 
 		tokenCache = memoryService.<String, String>getCache("org.sakaiproject.onedrive.service.tokenCache");
 		driveRootItemsCache = memoryService.<String, List<OneDriveItem>>getCache("org.sakaiproject.onedrive.service.driveRootItemsCache");

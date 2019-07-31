@@ -2093,6 +2093,10 @@ public class FilePickerAction extends PagedResourceHelperAction
 				cleanup(state);
 				log.debug("Requesting OneDrive access data for this user");
 				String onedriveUrl = onedriveService.formAuthenticationUrl();
+				//Add the picker URL to the session to go back after setting the credentials
+				sessionManager.getCurrentSession().setAttribute(onedriveService.ONEDRIVE_REDIRECT_URI, req.getRequestURL());
+				state.setAttribute(STATE_NAVIGATING_ONEDRIVE, true);
+				state.removeAttribute(STATE_NAVIGATING_RESOURCES);
 				res.sendRedirect(onedriveUrl);
 			} catch (IOException e) {
 				log.warn("IOException: ", e);

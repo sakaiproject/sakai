@@ -18,7 +18,7 @@ In order to make this integration work, you'll have to register an APP via Micro
 	1. Access https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationsListBlade using your Microsoft account login.
 	2. On the App registrations menu, click on "New registration".
 	3. Introduce a unique name for your application.
-	4. The redirect uri (Web) must match the one you add on your sakai.properties files, by default it is "https://YOUR-SERVER-URL/portal/onedrive".
+	4. The redirect uri (Web) must match the one you add on your sakai.properties files, by default it is "https://YOUR-SERVER-URL/sakai-onedrive-tool".
 	5. Click on "Register". Get the Application (client) ID, as you'll have to set it on your sakai.properties (onedrive.client_id).
 	6. Under Call APIs, click on "View Api Permissions".
 	7. Click on "Add a permission". You'll need to allow two Microsoft Graph delegated permissions: "User.Read" and "Files.Read.All".
@@ -34,4 +34,4 @@ Once you have your App successfully registered, you can make use of the related 
 	onedrive.enabled=true
 	onedrive.client_id=--CLIENT_ID--
 	onedrive.client_secret=--SECRET--
-	onedrive.redirect_uri=${serverUrl}/portal/onedrive
+	onedrive.redirect_uri=${serverUrl}/sakai-onedrive-tool
