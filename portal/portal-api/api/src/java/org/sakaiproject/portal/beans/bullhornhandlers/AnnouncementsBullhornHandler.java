@@ -135,7 +135,7 @@ public class AnnouncementsBullhornHandler extends AbstractBullhornHandler {
                         = ((AnnouncementMessageHeader) message.getHeader()).getSubject();
 
                     List<BullhornData> bhEvents = new ArrayList<>();
-                    Set<String> usersList = new HashSet<String>();
+                    Set<String> usersList = new HashSet<>();
 
                     if (message.getHeader().getGroups().isEmpty()) {
                         // Get all the members of the site with read ability if the announcement is not for groups
