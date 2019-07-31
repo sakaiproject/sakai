@@ -51,6 +51,25 @@ public class LTI13UtilTest {
 	}
 
 	@Test
+	public void testNullAndBlank() {
+		Key x = LTI13Util.string2PublicKey(null);
+		x = LTI13Util.string2PublicKey("");
+		assertNull(x);
+		x = LTI13Util.string2PublicKey(" ");
+		assertNull(x);
+		x = LTI13Util.string2PublicKey("\n");
+		assertNull(x);
+
+		x = LTI13Util.string2PrivateKey(null);
+		x = LTI13Util.string2PrivateKey("");
+		assertNull(x);
+		x = LTI13Util.string2PrivateKey(" ");
+		assertNull(x);
+		x = LTI13Util.string2PrivateKey("\n");
+		assertNull(x);
+	}
+
+	@Test
 	public void testSHA256() {
 		String hash = LTI13Util.sha256("Yada");
 		assertNotNull(hash);
