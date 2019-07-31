@@ -2,9 +2,28 @@
 <script type="text/javascript">includeLatestJQuery("msgcntr");</script>
 <script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
 <script type="text/javascript" src="/messageforums-tool/js/bulkops.js"></script>
-<script type="text/javascript" src="/jsf-resource/inputDate/inputDate.js"></script>
-<script type="text/javascript" src="/jsf-resource/inputDate/calendar1.js"></script>
-<script type="text/javascript" src="/jsf-resource/inputDate/calendar2.js"></script>
+<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+     localDatePicker({
+      input: '#prefs_pvt_form\\:searchFromDate',
+      useTime: 0,
+      parseFormat: 'YYYY-MM-DD',
+      allowEmptyDate: true,
+      val: '<h:outputText value="#{PrivateMessagesTool.searchFromDate}"><f:convertDateTime pattern="yyyy-MM-dd"/></h:outputText>',
+      ashidden: { iso8601: 'searchFromDateISO8601' }
+    });
+     localDatePicker({
+      input: '#prefs_pvt_form\\:searchToDate',
+      useTime: 0,
+      parseFormat: 'YYYY-MM-DD',
+      allowEmptyDate: true,
+      val: '<h:outputText value="#{PrivateMessagesTool.searchToDate}"><f:convertDateTime pattern="yyyy-MM-dd"/></h:outputText>',
+      ashidden: { iso8601: 'searchToDateISO8601' }
+    });
+    });
+  </script>
 
   <h:panelGroup>
   <f:verbatim><div class="searchNav specialLink space_mobile"></f:verbatim>
@@ -64,14 +83,14 @@
 			  <f:verbatim><span class="labeled"></f:verbatim>
 			  <h:outputText value="#{msgs.pvt_beg_date}"/>
 			  <f:verbatim></span></f:verbatim>
-			  <sakai:input_date  value="#{PrivateMessagesTool.searchFromDate}" showDate="true" id="beg_date" />
+			  <h:inputText value="#{PrivateMessagesTool.searchFromDateString}" size="20" id="searchFromDate"/>
 			</h:panelGroup>
 			
 			<h:panelGroup styleClass="shorttext" id="pvt_end_date">
 			  <f:verbatim><span class="labeled"></f:verbatim>
 			  <h:outputText value="#{msgs.pvt_end_date}"/>
 			  <f:verbatim></span></f:verbatim>
-			  <sakai:input_date  value="#{PrivateMessagesTool.searchToDate}" showDate="true" id="end_date" />
+			  <h:inputText value="#{PrivateMessagesTool.searchToDateString}" size="20" id="searchToDate"/>
 			</h:panelGroup>	
 		
 
