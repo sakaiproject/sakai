@@ -300,7 +300,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 	*/
 	private void handleLTI112(HttpServletRequest req, HttpServletResponse res, Map<String, Object> tool)
 	{
-		String default_launch_type = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_LTI11_LAUNCH_TYPE, 
+		String default_launch_type = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_LTI11_LAUNCH_TYPE,
 				SakaiBLTIUtil.BASICLTI_LTI11_LAUNCH_TYPE_DEFAULT);
 		Long lti11_launch_type = SakaiBLTIUtil.getLongKey(tool.get(LTIService.LTI11_LAUNCH_TYPE));
 
@@ -327,6 +327,23 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 				tool.put("tool_state", tool_state);
 			}
 		}
+	}
+
+	/**
+	 * Do some sanity checking on the aunch data to make sure we have enough to accomplish the launch
+	 */
+	private boolean sanityCheck(HttpServletRequest req, HttpServletResponse res,
+		Map<String, Object> content, Map<String, Object> tool, ResourceLoader rb)
+	{
+
+		String oidc_endpoint = (String) tool.get(LTIService.LTI13_OIDC_ENDPOINT);
+		if (SakaiBLTIUtil.isLTI13(tool, content) && StringUtils.isBlank(oidc_endpoint) ) {
+			String errorMessage = "<p>" + SakaiBLTIUtil.getRB(rb, "error.no.oidc_endpoint", "Missing oidc_endpoint value for LTI 1.3 launch") + "</p>";
+			sendHTMLPage(res, errorMessage);
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -387,6 +404,9 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 
 					String oidc_endpoint = (String) tool.get(LTIService.LTI13_OIDC_ENDPOINT);
 					log.debug("State={} nonce={} oidc_endpoint={}",state, nonce, oidc_endpoint);
+
+					// Sanity check for missing config data
+					if ( ! sanityCheck(req, res, null, tool, rb) ) return;
 
 					if (SakaiBLTIUtil.isLTI13(tool, null) && StringUtils.isNotBlank(oidc_endpoint) &&
 							( StringUtils.isEmpty(state) || StringUtils.isEmpty(state) ) ) {
@@ -454,6 +474,10 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 					if ( tool != null ) {
 						String oidc_endpoint = (String) tool.get(LTIService.LTI13_OIDC_ENDPOINT);
 						log.debug("State={} nonce={} oidc_endpoint={}",state, nonce, oidc_endpoint);
+
+						// Sanity check for missing config data
+						if ( ! sanityCheck(req, res, content, tool, rb) ) return;
+
 						if (SakaiBLTIUtil.isLTI13(tool, content) && StringUtils.isNotBlank(oidc_endpoint) &&
 								(StringUtils.isEmpty(state) || StringUtils.isEmpty(nonce) ) ) {
 							redirectOIDC(req, res, content, tool, oidc_endpoint, rb);

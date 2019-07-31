@@ -163,6 +163,7 @@ public class LTI13Util {
 	}
 
 	public static Key string2PrivateKey(String keyString) {
+		if ( keyString == null ) return null;
 		try {
 			KeyFactory kf = KeyFactory.getInstance("RSA");
 
@@ -177,6 +178,7 @@ public class LTI13Util {
 	}
 
 	public static Key string2PublicKey(String keyString) {
+		if ( keyString == null ) return null;
 		try {
 			KeyFactory kf = KeyFactory.getInstance("RSA");
 
