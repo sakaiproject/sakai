@@ -28,7 +28,9 @@ import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
+import org.sakaiproject.service.gradebook.shared.SortType;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -59,6 +61,11 @@ public class SortGradeItemsByCategoryPanel extends Panel {
 				.filter(c -> !c.getAssignmentList().isEmpty()).collect(Collectors.toList());
 		Collections.sort(categories, CategoryDefinition.orderComparator);
 
+		// Use a stream to add all of the individual assignment points
+		final List<Assignment> allAssignments = this.businessService.getGradebookAssignments(SortType.SORT_BY_SORTING);
+		BigDecimal totalPoints = allAssignments.stream().map(Assignment::getPoints).map(x -> BigDecimal.valueOf(x)).reduce(BigDecimal.ZERO, BigDecimal::add);
+		add(new Label("totalPoints", totalPoints));
+
 		add(new ListView<CategoryDefinition>("categoriesList", categories) {
 			@Override
 			protected void populateItem(final ListItem<CategoryDefinition> categoryItem) {
@@ -74,6 +81,7 @@ public class SortGradeItemsByCategoryPanel extends Panel {
 					protected void populateItem(final ListItem<Assignment> assignmentItem) {
 						final Assignment assignment = assignmentItem.getModelObject();
 						assignmentItem.add(new Label("name", assignment.getName()));
+						assignmentItem.add(new Label("points", assignment.getPoints()));
 						assignmentItem.add(new HiddenField<>("id",
 								Model.of(assignment.getId())).add(
 										new AttributeModifier("name",

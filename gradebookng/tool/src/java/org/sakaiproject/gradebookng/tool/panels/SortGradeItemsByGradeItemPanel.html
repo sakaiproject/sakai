@@ -6,12 +6,17 @@
 
 		<div id="gradebookSorter" class="by-grade-item">
 			<input type="hidden" name="orderby" value="item"/>
+      <div class="total-points">
+        <wicket:message key="total.points"/>
+        <span class="pull-right" wicket:id="totalPoints"></span>
+      </div>
 			<ul>
 				<li wicket:id="gradeItemList" class="gb-sorter-sortable">
 					<input wicket:id="id" type="hidden"/>
 					<input wicket:id="order" type="hidden"/>
 					<input wicket:id="current_order" type="hidden"/>
-					<span wicket:id="name"></span>
+					<span class="gbname" wicket:id="name"></span>
+					<span class="gbpoints pull-right" wicket:id="points"></span>
 
 					<button class="gb-sort-up"></button>
 					<button class="gb-sort-down"></button>

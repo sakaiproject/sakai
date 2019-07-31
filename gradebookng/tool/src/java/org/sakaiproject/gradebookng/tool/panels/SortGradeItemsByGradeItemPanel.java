@@ -27,6 +27,7 @@ import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.SortType;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public class SortGradeItemsByGradeItemPanel extends Panel {
@@ -46,11 +47,17 @@ public class SortGradeItemsByGradeItemPanel extends Panel {
 
 		final List<Assignment> assignments = this.businessService.getGradebookAssignments(SortType.SORT_BY_SORTING);
 
+		// Use a stream to add all of the individual assignment points
+		BigDecimal totalPoints = assignments.stream().map(Assignment::getPoints).map(x -> BigDecimal.valueOf(x)).reduce(BigDecimal.ZERO, BigDecimal::add);
+		add(new Label("totalPoints", totalPoints));
+
 		add(new ListView<Assignment>("gradeItemList", assignments) {
 			@Override
 			protected void populateItem(final ListItem<Assignment> assignmentItem) {
 				final Assignment assignment = assignmentItem.getModelObject();
+
 				assignmentItem.add(new Label("name", assignment.getName()));
+				assignmentItem.add(new Label("points", assignment.getPoints()));
 				assignmentItem.add(new HiddenField<Long>("id",
 						Model.of(assignment.getId())).add(
 								new AttributeModifier("name",

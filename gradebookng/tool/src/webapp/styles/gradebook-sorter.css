@@ -81,3 +81,10 @@
   list-style: none;
   padding: 0;
 }
+
+#gradebookSorter .total-points {
+  font-weight: bold;
+  font-size: 1.2em;
+  margin-right: 50px;
+  margin-bottom: 16px;
+}

@@ -57,7 +57,7 @@ public class SortGradeItemsPanel extends Panel {
 	public void onInitialize() {
 		super.onInitialize();
 
-		final List tabs = new ArrayList();
+		final List<AbstractTab> tabs = new ArrayList<>();
 
 		final Map<String, Object> model = (Map<String, Object>) getDefaultModelObject();
 		final boolean categoriesEnabled = (boolean) model.get("categoriesEnabled");
