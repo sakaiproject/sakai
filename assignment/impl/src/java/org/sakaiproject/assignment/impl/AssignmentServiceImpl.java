@@ -1634,7 +1634,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.SUBMITTED, ""), false);
         }
         if (latestSubmitTime != null && submission.getReturned() && returnTime != null && returnTime.isBefore(latestSubmitTime)) {
-            statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.RESUBMITTED, ""), true);
+            if (submission.getSubmitted()) {
+                statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.RESUBMITTED, ""), true);
+            } else {
+                statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.RESUBMITTED, ""), false);
+            }
             statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.SUBMITTED, ""), true);
             if (latestSubmitTime.isAfter(assignment.getDueDate())) {
                 statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.LATE, ""), true);
