@@ -11,7 +11,7 @@
 		#if ($alertMessage)
 			<div class="sak-banner-error">  <strong>$tlang.getString("gen.alert")</strong>  $alertMessage</div>
 		#else
-			<div class="sak-banner-error">
+			<div class="sak-banner-warn">
 				$confirmMessage
 			</div>
 		#end
