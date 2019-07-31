@@ -46,7 +46,7 @@
 <div class="tier1">
 
   <!-- Error publishing assessment -->
-  <h:messages globalOnly="true"  styleClass="sak-banner-info" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+  <h:messages globalOnly="true"  styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
 <h:panelGrid border="0" width="100%">
   <h:outputText value=" " />
   <h:panelGroup rendered="#{author.isEditPendingAssessmentFlow}">

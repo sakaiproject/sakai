@@ -159,7 +159,7 @@
 
   <f:verbatim><br /></f:verbatim>
   <f:verbatim><div class="tier1"></f:verbatim>
-  <h:messages infoClass="sak-banner-error" warnClass="sak-banner-error" errorClass="sak-banner-error" fatalClass="sak-banner-error"/>
+  <h:messages infoClass="sak-banner-info" warnClass="sak-banner-warn" errorClass="sak-banner-error" fatalClass="sak-banner-error"/>
   
   <h:outputText value="#{evaluationMessages.download_responses_to}" escape="false"/>
   <f:verbatim></div></f:verbatim>
