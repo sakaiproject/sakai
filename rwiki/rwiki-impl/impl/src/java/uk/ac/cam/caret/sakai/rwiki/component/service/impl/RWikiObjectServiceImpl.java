@@ -200,7 +200,6 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 			// set functions
 			edit.setFunction(RWikiObjectService.EVENT_RESOURCE_ADD);
 			edit.addFunction(RWikiObjectService.EVENT_RESOURCE_WRITE);
-			edit.addFunction(RWikiObjectService.EVENT_RESOURCE_READ);
 
 			// set the filter to any site related resource
 			edit.setResourceFilter(RWikiObjectService.REFERENCE_ROOT);
