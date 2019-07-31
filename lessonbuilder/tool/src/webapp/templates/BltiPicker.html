@@ -8,6 +8,11 @@
 <link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
 <link rsf:id="scr=portal-matter" href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
 <title rsf:id="msg=simplepage.blti.chooser"></title>
+<style>
+.ui-widget-overlay.ui-front {
+    opacity:.75;
+}
+</style>
 </head>
 <body rsf:id="scr=sakai-body">
 	<div class="portletBody" id="portletBody">
@@ -102,8 +107,9 @@
 			<input type="hidden" rsf:id="cancel2"/>
 			<input type="submit" rsf:id="cancel" class='cancelButton'/>
 		</form>
+
 		<div id="modal-iframe-div" style="display:none">
-			<iframe name="sakai-basiclti-admin-iframe" id="sakai-basiclti-admin-iframe" src="/library/image/sakai/spinner.gif" style="height:400px"></iframe>
+			<iframe name="sakai-basiclti-admin-iframe" id="sakai-basiclti-admin-iframe" src="/library/image/sakai/spinner.gif"></iframe>
 		</div>
 	</div>
 
@@ -117,10 +123,14 @@ function showIframe(title) {
 	$("#modal-iframe-div").dialog({
 		title: title,
 		width: modalDialogWidth(),
+		height: modalDialogHeight(),
 		modal: true,
 		draggable: false,
 		open: function() {
+		    $("#modal-iframe-div").dialog("option", "width", modalDialogWidth());
+		    $("#modal-iframe-div").dialog("option", "height", modalDialogHeight());
 			$('#sakai-basiclti-admin-iframe').attr('width', '100%');
+			$('#sakai-basiclti-admin-iframe').attr('height', '100%');
 		},
 		close: function() {
 			$('#sakai-basiclti-admin-iframe').attr('src','/library/image/sakai/spinner.gif');
@@ -129,11 +139,17 @@ function showIframe(title) {
 
 	$(window).resize(function() {
 		$("#modal-iframe-div").dialog("option", "width", modalDialogWidth());
+		$("#modal-iframe-div").dialog("option", "height", modalDialogHeight());
 		$('#sakai-basiclti-admin-iframe').attr('width', '100%');
+		$('#sakai-basiclti-admin-iframe').attr('height', '100%');
 	});
 }
+/* We don't need this - the within iframe content gets a scroll bar
+   and we are in a modal - so that is the best we can do.
 
-// Make sure to be careful to use .style.height or .height sepending on the iframe 
+   Removed in SAK-42243
+
+// Make sure to be careful to use .style.height or .height depending on the iframe
 // tag you are working with.
 window.addEventListener('message', function(e) {
 	try {
@@ -150,6 +166,7 @@ window.addEventListener('message', function(e) {
 		console.debug(e.data);
 	}
 });
+*/
 
 // See if we are supposed to launch the shortcut link
 var shortcut_tag = document.getElementById('app-store-shortcut::blti-create::blti-create-link');

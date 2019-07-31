@@ -858,6 +858,14 @@ function modalDialogWidth() {
 	if ( dWidth < 300 ) dWidth = 300; // Should not happen
 	return Math.round(dWidth);
 }
+//
+// Return the correct height for a modal dialog.
+function modalDialogHeight() {
+	var wHeight = $(window).height();
+	var dHeight = wHeight * 0.8;
+	if ( dHeight < 300 ) dHeight = 300; // Should not happen
+	return Math.round(dHeight);
+}
 
 // Figure out the maximum z-index
 // http://stackoverflow.com/questions/1118198/how-can-you-figure-out-the-highest-z-index-in-your-document
