@@ -167,7 +167,9 @@
 			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>      			
 				
 			<h:form id="meeting">
-			 	<sakai:view_title value="#{msgs.event_view_userDefined_Timeslot_page_title}"/>
+				<div class="page-header">
+					<sakai:view_title value="#{msgs.event_view_userDefined_Timeslot_page_title}"/>
+				</div>
 
 					<h:outputText value="#{msgs.warn_reschedule_event}" styleClass="alertMessage" style="width:85%" escape="false" rendered="#{UserDefineTimeslotBean.someoneSignedUp}"/>
 					

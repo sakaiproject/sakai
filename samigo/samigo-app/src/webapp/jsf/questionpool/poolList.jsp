@@ -116,9 +116,11 @@
     </li>
 </ul>
 
-<h1>
-  <h:outputText value="#{generalMessages.questionPool}"/>
-</h1>
+<div class="page-header">
+    <h1>
+      <h:outputText value="#{generalMessages.questionPool}"/>
+    </h1>
+</div>
 
 <h:outputText rendered="#{questionpool.importToAuthoring == 'true'}" value="#{questionPoolMessages.msg_imp_poolmanager}"/>
 

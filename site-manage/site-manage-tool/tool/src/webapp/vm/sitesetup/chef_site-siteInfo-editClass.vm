@@ -3,6 +3,11 @@
 <div class ="portletBody">
 	#if($menu)#toolbar($menu)#end
 
+	## header for edit class roster(s) page
+	<div class="page-header">
+		<h1>$tlang.getString("java.editc")</h1>
+	</div>
+
 	<div class="siteInfoContent">
 		#if ($alertMessage)
 			<div class="alertMessage">$tlang.getString("sitedicla.alert") $alertMessage</div>

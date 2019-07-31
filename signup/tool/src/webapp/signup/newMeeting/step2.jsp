@@ -50,7 +50,9 @@
 			<h:outputText value="#{messageUIBean.infoMessage}" styleClass="information" escape="false" rendered="#{messageUIBean.info}"/>      			
 				
 			<h:form id="meeting">
-			 	<sakai:view_title value="#{msgs.event_step5_page_title}"/>
+				<div class="page-header">
+			 		<sakai:view_title value="#{msgs.event_step5_page_title}"/>
+				</div>
 			 	<div class="form">
 					<%-- title --%>
 					<div class="row">

@@ -168,10 +168,12 @@
 		<sakai:view_content>
 			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/> 
 			<h:form id="items">
-			 	<sakai:view_title value="#{msgs.signup_download}"/>
-				
+				<div class="page-header">
+					<sakai:view_title value="#{msgs.signup_download}"/>
+				</div>
+
 				<h:outputText value="&nbsp;" escape="false"/>
-				
+
 				<h:panelGrid columns="1">
 					<h:outputText value="#{msgs.events_organizer_download_instruction}"  rendered="#{DownloadEventBean.allowedToUpdate && DownloadEventBean.meetingsAvailable}" escape="false"/>
 					<h:outputText value="#{msgs.events_attendee_download_instruction}" rendered="#{!DownloadEventBean.allowedToUpdate && DownloadEventBean.meetingsAvailable}" escape="false"/>

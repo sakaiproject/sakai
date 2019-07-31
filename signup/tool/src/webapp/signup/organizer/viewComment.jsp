@@ -26,7 +26,9 @@
 			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>      			
 				
 			<h:form id="meeting">
-			 	<sakai:view_title value="#{msgs.event_view_comment_page_title}"/>
+				<div class="page-header">
+			 		<sakai:view_title value="#{msgs.event_view_comment_page_title}"/>
+				</div>
 				<div class="table-responsive">
 				<h:panelGrid columns="2" columnClasses="titleColumn,valueColumn">
 				

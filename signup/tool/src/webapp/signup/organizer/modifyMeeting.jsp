@@ -112,7 +112,9 @@
 		<sakai:view_content>
 			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>      			
 			<h:form id="meeting">
-			 	<sakai:view_title value="#{msgs.event_modify_meeting_page_title}"/>
+				<div class="page-header">
+					<sakai:view_title value="#{msgs.event_modify_meeting_page_title}"/>
+				</div>
 			 	<sakai:doc_section> 
 					<h:panelGrid columns="1" styleClass="instruction">						
 						<h:panelGroup>
