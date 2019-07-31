@@ -55,7 +55,6 @@ public class SortGradeItemsByGradeItemPanel extends Panel {
 			@Override
 			protected void populateItem(final ListItem<Assignment> assignmentItem) {
 				final Assignment assignment = assignmentItem.getModelObject();
-
 				assignmentItem.add(new Label("name", assignment.getName()));
 				assignmentItem.add(new Label("points", assignment.getPoints()));
 				assignmentItem.add(new HiddenField<Long>("id",
