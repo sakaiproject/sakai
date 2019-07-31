@@ -81,15 +81,17 @@ function renderChart(gbChartData) {
 					},
 					label: function() {},
 					afterTitle: function(tooltipItem) {
-						switch(chartType) {
-						case 'bar':
-							if (studentGradeRange != null && studentGradeRange == tooltipItem[0].xLabel) {
-								return 'Your grade';
-							}
-							break;
-						case 'horizontalBar':
-							if (studentGradeRange != null && studentGradeRange == tooltipItem[0].yLabel) {
-								return 'Your grade';
+						if (typeof(window.studentGradeRange) !== "undefined") {
+							switch(chartType) {
+							case 'bar':
+								if (window.studentGradeRange != null && window.studentGradeRange == tooltipItem[0].xLabel) {
+									return 'Your grade';
+								}
+								break;
+							case 'horizontalBar':
+								if (window.studentGradeRange != null && window.studentGradeRange == tooltipItem[0].yLabel) {
+									return 'Your grade';
+								}
 							}
 						}
 					}
@@ -106,6 +108,9 @@ function renderChartData(gbChartData) {
 	var dataset = chartData.dataset;
 	var chartId = chartData.chartId;
 	var studentGradeRange = chartData.studentGradeRange;
+	if ( typeof(studentGradeRange) !== undefined ) {
+		window.studentGradeRange = studentGradeRange;
+	}
 	var backgroundColour = [];
 
 	var data = $.map(dataset, function(value, index) {
