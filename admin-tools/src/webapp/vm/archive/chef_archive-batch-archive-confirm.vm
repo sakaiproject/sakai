@@ -20,7 +20,7 @@ ul.sitelist li {
 		$tlang.getString("archive.batch.term.heading.confirm")
 	</h3>
 	
-	#if ($alertMessage)<br /><div class="alertMessage">$alertMessage</div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$alertMessage</div>#end
 	
 	<p>$confirmString</p>
 	<ul class="sitelist">

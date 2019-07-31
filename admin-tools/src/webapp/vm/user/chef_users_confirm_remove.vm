@@ -8,8 +8,8 @@
 	<h3>	$tlang.getString("useact.remuse")
 </h3>	
 
-		#if ($alertMessage)<div class="alertMessage">$tlang.getString("useconrem.alert") $validator.escapeHtml($alertMessage)</div>#end
-		<div class="alertMessage">
+		#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("useconrem.alert") $validator.escapeHtml($alertMessage)</div>#end
+		<div class="sak-banner-error">
 			$permDelWarning
 		</div>
 		<table class="listHier" cellspacing="0" summary ="$tlang.getString("useact.remuse.list.summary")">

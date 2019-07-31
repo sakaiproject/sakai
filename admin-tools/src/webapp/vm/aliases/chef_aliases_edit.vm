@@ -10,7 +10,7 @@
 			<h3>
 				$tlang.getString("alias.alias")
 			</h3>	
-		#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("alias.alert.message", $validator.escapeHtml($alertMessage))</div>#end
+		#if ($alertMessage)<div class="sak-banner-error">$tlang.getFormattedMessage("alias.alert.message", $validator.escapeHtml($alertMessage))</div>#end
 			<div class="instruction">
 				$tlang.getString("alias.edit.review")
 			</div>

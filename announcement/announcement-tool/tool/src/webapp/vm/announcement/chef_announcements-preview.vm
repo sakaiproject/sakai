@@ -3,7 +3,7 @@
 	<h3>
 		$tlang.getString("pre.preview")
 	</h3>	
-	#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div>#end
 	<table cellspacing="0" class="itemSummary indnt1" summary="">
 		<tr>
 			<th>$tlang.getString("gen.subject")</th>
