@@ -101,6 +101,7 @@ import org.sakaiproject.tool.messageforums.ui.PrivateTopicDecoratedBean;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.DateFormatterUtil;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
@@ -163,7 +164,10 @@ public class PrivateMessagesTool
   private static final String MESSAGECENTER_HELPER_TOOL_ID = "sakai.messageforums.helper";
   private static final String MESSAGES_TOOL_ID = "sakai.messages";
   private static final String FORUMS_TOOL_ID = "sakai.forums";
-  
+
+  private static final String HIDDEN_SEARCH_FROM_ISO_DATE = "searchFromDateISO8601";
+  private static final String HIDDEN_SEARCH_TO_ISO_DATE = "searchToDateISO8601";
+
   /**
    *Dependency Injected 
    */
@@ -3767,7 +3771,20 @@ public void processChangeSelectView(ValueChangeEvent eve)
 
     List newls = new ArrayList() ;
     List tempPvtMsgLs= new ArrayList();
-    
+
+    // If the hidden values contain valid ISO dates set them
+    Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+    String searchFromISODate = params.get(HIDDEN_SEARCH_FROM_ISO_DATE);
+    String searchToISODate = params.get(HIDDEN_SEARCH_TO_ISO_DATE);
+
+    if(DateFormatterUtil.isValidISODate(searchFromISODate)){
+        setSearchFromDate(DateFormatterUtil.parseISODate(searchFromISODate));
+    }
+
+    if(DateFormatterUtil.isValidISODate(searchToISODate)){
+        setSearchToDate(DateFormatterUtil.parseISODate(searchToISODate));
+    }
+
     if(searchOnDate && searchFromDate == null && searchToDate==null) {
        setErrorMessage(getResourceBundleString(MISSING_BEG_END_DATE));
     }
@@ -3817,6 +3834,8 @@ public void processChangeSelectView(ValueChangeEvent eve)
     searchOnDate=false;
     searchFromDate=null;
     searchToDate=null;
+    searchFromDateString=null;
+    searchToDateString=null;
     
     return DISPLAY_MESSAGES_PG;
   }
@@ -3834,7 +3853,11 @@ public void processChangeSelectView(ValueChangeEvent eve)
   @Getter @Setter
   public Date searchFromDate;
   @Getter @Setter
-  public Date searchToDate; 
+  public Date searchToDate;
+  @Getter @Setter
+  public String searchFromDateString;
+  @Getter @Setter
+  public String searchToDateString; 
 
   //////////////        HELPER      //////////////////////////////////
   /**
