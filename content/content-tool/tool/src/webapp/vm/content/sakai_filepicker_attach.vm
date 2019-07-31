@@ -570,5 +570,4 @@ if ( $(window).width() > portalSmallBreakPoint() ) { ## Don't go modal when mobi
 	$(window).resize(function() {
 		$("#portletBody").dialog("option", "width", modalDialogWidth());
 	});
-}
-</script>
+}</script>
