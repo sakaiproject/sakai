@@ -96,7 +96,7 @@ public class ICalRecurrence
 			return null;
 		}
 
-		String extendedFrequency = recur.getFrequency();
+		String extendedFrequency = recur.getFrequency().toString();
 		WeekDayList dayList = recur.getDayList();
 		String dayListAsString = dayList.toString();
 		

@@ -22,6 +22,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAmount;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -133,12 +135,12 @@ public class IcalendarReader extends Reader
 				for (Iterator j = list.iterator(); j.hasNext();) 
 				{
 					Period period = (Period) j.next();
-					Dur duration = period.getDuration();
-					int durationminutes = duration.getMinutes();
-					int durationhours = duration.getHours();
+					TemporalAmount duration = period.getDuration();
+					long durationminutes = duration.get(ChronoUnit.MINUTES);
+					long durationhours = duration.get(ChronoUnit.HOURS);
 					//todo investiage ical4j's handling of 'days'
 
-					if (durationminutes < 10)
+					if (durationminutes < 10L)
 					{
 					durationformat = "0"+durationminutes;
 					}
@@ -147,7 +149,7 @@ public class IcalendarReader extends Reader
 					durationformat = ""+durationminutes;
 					}
 
-					if (durationhours != 0)
+					if (durationhours != 0L)
 					{
 						durationformat = durationhours+":"+durationformat;
 					}
