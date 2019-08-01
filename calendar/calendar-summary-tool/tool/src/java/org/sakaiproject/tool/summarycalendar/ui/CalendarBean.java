@@ -772,6 +772,9 @@ public class CalendarBean {
 					}
 					
 				}catch(EntityNotFoundException e){
+					final String openDateErrorDescription = msgs.getFormattedMessage("java.alert.opendatedescription",
+									event.getField(CalendarUtil.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED));
+					selectedEvent.setOpenDateErrorDescription(openDateErrorDescription);
 					selectedEvent.setOpenDateError(true);
 				}				
 				

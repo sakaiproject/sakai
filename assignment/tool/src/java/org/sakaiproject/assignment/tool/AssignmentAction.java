@@ -8911,6 +8911,7 @@ public class AssignmentAction extends PagedResourceActionII {
             CalendarEventEdit edit = c.getEditEvent(e.getId(), org.sakaiproject.calendar.api.CalendarService.EVENT_ADD_CALENDAR);
 
             edit.setField(AssignmentConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID, assignment.getId());
+            edit.setField(AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED, assignmentService.getUsersLocalDateTimeString(assignment.getOpenDate()));
 
             c.commitEvent(edit);
         }
