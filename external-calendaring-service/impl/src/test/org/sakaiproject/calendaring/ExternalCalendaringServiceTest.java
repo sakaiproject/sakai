@@ -51,6 +51,7 @@ import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.property.CalScale;
 import net.fortuna.ical4j.model.property.Version;
+import net.fortuna.ical4j.util.MapTimeZoneCache;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -120,7 +121,9 @@ public class ExternalCalendaringServiceTest {
 	
 	@Before
 	public void setupData() {
-		
+
+		System.setProperty("net.fortuna.ical4j.timezone.cache.impl", MapTimeZoneCache.class.getName());
+
 		MockitoAnnotations.initMocks(this);
 		//Needs these for timeService
 		when(timeService.newTime()).thenReturn(Mockito.<Time>mock(Time.class));
