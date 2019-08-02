@@ -12,25 +12,32 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @Generated("com.googlecode.jsonschema2pojo")
 
 /*
-  "https://purl.imsglobal.org/spec/lti-dl/claim/deep_linking_settings": {
-    "deep_link_return_url": "https://platform.example/deep_links",
-    "accept_types": ["link", "file", "html", "ltiResourceLink", "image"],
-    "accept_media_types": "image/:::asterisk:::,text/html",
-    "accept_presentation_document_targets": ["iframe", "window", "embed"],
-    "accept_multiple": true,
-    "auto_create": true,
-    "title": "This is the default title",
-    "text": "This is the default text",
-    "data": "csrftoken:c7fbba78-7b75-46e3-9201-11e6d5f36f53"
+ * Specification:
+ * https://www.imsglobal.org/spec/lti-dl/v2p0
+
+ "https://purl.imsglobal.org/spec/lti-dl/claim/deep_linking_settings": {
+	"accept_types": ["link", "file", "html", "ltiResourceLink", "image"],
+	"accept_media_types": "image/*,text/html",
+	"accept_presentation_document_targets": ["iframe", "window", "embed"],
+	"accept_multiple": true,
+	"auto_create": true,
+	"title": "This is the default title",
+	"text": "This is the default text",
+	"data": "Some random opaque data that MUST be sent back",
+	"deep_link_return_url": "https://platform.example/deep_links"
   }
  */
+
 public class DeepLink {
 
 	// TODO: What do these mean?
-	public static String ACCEPT_TYPE_LINK = "link";
-	public static String ACCEPT_TYPE_FILE = "file";
-	public static String ACCEPT_TYPE_LTILINK = "ltiResourceLink";
-	public static String ACCEPT_TYPE_IMAGE = "image";
+	public static final String ACCEPT_TYPE_LINK = "link";
+	public static final String ACCEPT_TYPE_FILE = "file";
+	public static final String ACCEPT_TYPE_HTML = "html";
+	public static final String ACCEPT_TYPE_LTILINK = "ltiResourceLink";
+	public static final String ACCEPT_TYPE_IMAGE = "image";
+	public static String[] ACCEPT_TYPE_ALL = {ACCEPT_TYPE_LINK, ACCEPT_TYPE_FILE,
+	   ACCEPT_TYPE_HTML, ACCEPT_TYPE_LTILINK, ACCEPT_TYPE_IMAGE};
 
 
 	public static String TARGET_IFRAME = "iframe";

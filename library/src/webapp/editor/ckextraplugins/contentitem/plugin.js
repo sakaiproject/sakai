@@ -37,6 +37,7 @@ CKEDITOR.plugins.add( 'contentitem',
                             var item = items[i];
                             console.log(item['@type']);
 /*
+                            // Deep Link 1.0
                             { "@type" : "LtiLinkItem", ...
                                 "placementAdvice" : {
                                     "displayWidth" : 800,
@@ -44,23 +45,64 @@ CKEDITOR.plugins.add( 'contentitem',
                                         "displayHeight" : 600
                                 }}
                             }
+
+                            // Deep Link 2.0 - Thanks for being different :)
+                            {
+                                "type": "ltiResourceLink",
+                                "title": "A title",
+                                "url": "https://lti.example.com/launchMe",
+
+                                "iframe": {
+                                    "width": 400,
+                                    "height": 890
+                                }
+
 */
 
                             try {
-                                if ( item['@type'] == 'LtiLinkItem') {
-                                    if ( item.placementAdvice && item.placementAdvice.displayWidth && item.placementAdvice.displayWidth > 10 &&
+                                if ( item['@type'] == 'LtiLinkItem' || item['type'] == 'ltiResourceLink' ) {
+                                    var iframeString;
+                                    // Deep Link 1.0
+                                    if ( item.launch && item.placementAdvice && item.placementAdvice.displayWidth && item.placementAdvice.displayWidth > 10 &&
                                         item.placementAdvice.displayHeight && item.placementAdvice.displayHeight > 10 &&
                                         item.placementAdvice.presentationDocumentTarget &&
                                         item.placementAdvice.presentationDocumentTarget == 'iframe' ) {
-				                        editor.insertHtml( '<br/><iframe src="' + CKEDITOR.tools.htmlEncode(item.launch) + '" height="'+item.placementAdvice.displayHeight+
-                                                '" width="'+item.placementAdvice.displayWidth+
-                                                '" title="'+CKEDITOR.tools.htmlEncode(item.title)+
-                                                ' allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" '+
-                                                ' allow="camera; microphone" ' +
-                                                '" class="lti-iframe"></iframe><br/>' );
+				                        iframeString = '<br/><iframe src="' + CKEDITOR.tools.htmlEncode(item.launch) + '" '+
+                                                'height="'+CKEDITOR.tools.htmlEncode(item.placementAdvice.displayHeight)+'" '+
+                                                'width="'+CKEDITOR.tools.htmlEncode(item.placementAdvice.displayWidth)+'" '+
+                                                'title="'+CKEDITOR.tools.htmlEncode(item.title)+'" '+
+                                                'allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" '+
+                                                'allow="camera; microphone" ' +
+                                                'class="lti-iframe"></iframe><br/>' ;
+                                    // Deep Link 2.0
+                                    } else if ( item.launch && item.presentation && item.presentation.documentTarget &&
+                                        item.presentation.documentTarget == 'iframe' &&
+                                        item.presentation.width && item.presentation.height &&
+                                        item.presentation.width > 10 && item.presentation.height > 10 ) {
+				                        iframeString = '<br/><iframe src="' + CKEDITOR.tools.htmlEncode(item.launch) + '" '+
+                                                'height="'+CKEDITOR.tools.htmlEncode(item.iframe.height)+'" '+
+                                                'width="'+CKEDITOR.tools.htmlEncode(item.iframe.width)+'" '+
+                                                'title="'+CKEDITOR.tools.htmlEncode(item.title)+'" '+
+                                                'allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" '+
+                                                'allow="camera; microphone" ' +
+                                                'class="lti-iframe"></iframe><br/>' ;
+
+                                    // ContentItem 2.0 B
+                                    } else if ( item.launch && item.iframe && item.iframe.width && item.iframe.height &&
+                                        item.iframe.width > 10 && item.iframe.height > 10 ) {
+				                        iframeString = '<br/><iframe src="' + CKEDITOR.tools.htmlEncode(item.launch) + '" '+
+                                                'height="'+CKEDITOR.tools.htmlEncode(item.iframe.height)+'" '+
+                                                'width="'+CKEDITOR.tools.htmlEncode(item.iframe.width)+'" '+
+                                                'title="'+CKEDITOR.tools.htmlEncode(item.title)+'" '+
+                                                'allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" '+
+                                                'allow="camera; microphone" ' +
+                                                'class="lti-iframe"></iframe><br/>' ;
+
                                     } else {
-				                        editor.insertHtml( '<a href="' + CKEDITOR.tools.htmlEncode(item.launch) + '" target="_blank" class="lti-launch">'+CKEDITOR.tools.htmlEncode(item.title)+'</a><br/>' );
+				                        iframeString = '<a href="' + CKEDITOR.tools.htmlEncode(item.launch) + '" target="_blank" class="lti-launch">'+CKEDITOR.tools.htmlEncode(item.title)+'</a><br/>' ;
                                     }
+                                    console.log(iframeString);
+			                        editor.insertHtml(iframeString, 'unfiltered_html');
                                 } else if ( item['@type'] == 'ContentItem') {
 				    editor.insertHtml( '<a href="' + CKEDITOR.tools.htmlEncode(item.url) + '" target="_blank" class="lti-contentitem">'+CKEDITOR.tools.htmlEncode(item.title)+'</a><br/>' );
                                 } else if ( item['@type'] == 'FileItem' && item['mediaType'].startsWith('image/') ) {
