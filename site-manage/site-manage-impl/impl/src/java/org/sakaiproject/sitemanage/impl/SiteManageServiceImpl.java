@@ -218,10 +218,11 @@ public class SiteManageServiceImpl implements SiteManageService {
                 toolsCopied.forEach(t -> updateEntityReferences(t, nSiteId, transversalMap, site));
             }
         } catch (Exception e) {
+            log.warn("Error during tool import for site {}, {}", nSiteId, e.getMessage());
+        } finally {
             if (bypassSecurity) {
                 securityService.popAdvisor(securityAdvisor);
             }
-            log.warn("Error during tool import for site {}, {}", nSiteId, e.getMessage());
         }
     }
 
