@@ -1481,7 +1481,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 Map<String, String> properties = assignment.getProperties();
 
                 // Indicate that the student's submission is going to Turnitin, and whether their submission will be indexed to be compared against by other submissions
-                boolean isSubmissionIndexed = "true".equals(properties.get("store_inst_index"));
+                boolean isSubmissionIndexed = "true".equalsIgnoreCase(properties.get("store_inst_index"));
                 String plagiarismNoteKey = isSubmissionIndexed ? "gen.yoursubwill.indexed" : "gen.yoursubwill";
                 state.setAttribute("plagiarismNote", rb.getFormattedMessage(plagiarismNoteKey, contentReviewService.getServiceName()));
                 context.put("plagiarismNote", state.getAttribute("plagiarismNote"));
