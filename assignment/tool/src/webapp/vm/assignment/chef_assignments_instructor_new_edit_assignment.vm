@@ -119,6 +119,7 @@
 				lblUseReview.style.display = 'none';
 			#end
 			document.getElementById('tempAllowRes').parentNode.parentNode.style.display = 'none';
+			document.getElementById('allowResToggle').checked = false;
 			document.getElementById('allowResubmitNumber').style.display = 'none';
 			document.getElementById('allowResubmitTime').style.display = 'none';
 			document.getElementById('resubmitNotification').style.display = 'none';
@@ -628,12 +629,12 @@
 			#set($resubmitStyle="display:none")
 		#end
 
-		<div class="form-group row">
+		<div class="form-group row" #if ($value_SubmissionType == 4) style = "display:none"#end>
 			<label class="col-sm-2 control-label" for="allowResToggle">
 				$tlang.getString("allowResubmit")
 			</label>
 			<div class="col-sm-10">
-				<div id="tempAllowRes" #if ($value_SubmissionType == 4) style = "display:none"#end>
+				<div id="tempAllowRes">
 					<input type="checkbox" id="allowResToggle" name ="allowResToggle" #if($!value_allowResubmitNumber) checked="checked"#end onclick="if(checked){document.getElementById('allowResubmitNumber').style.display = 'block';document.getElementById('allowResubmitTime').style.display = 'block';document.getElementById('resubmitNotification').style.display = 'block';ASN.resizeFrame();}else{document.getElementById('allowResubmitNumber').style.display = 'none';document.getElementById('allowResubmitTime').style.display = 'none';document.getElementById('resubmitNotification').style.display = 'none';}" />
 				</div>
 			</div>
