@@ -442,7 +442,6 @@ public class AssignmentAction extends PagedResourceActionII {
      */
     private static final String GRADE_ASSIGNMENT_EXPAND_FLAG = "grade_assignment_expand_flag";
     private static final String GRADE_SUBMISSION_EXPAND_FLAG = "grade_submission_expand_flag";
-    private static final String GRADE_NO_SUBMISSION_DEFAULT_GRADE = "grade_no_submission_default_grade";
     /**
      * ****************** instructor's grade submission *****************************
      */
@@ -548,6 +547,8 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String VIEW_GRADE_SUBMISSION_ID = "view_grade_submission_id";
     // alert for grade exceeds max grade setting
     private static final String GRADE_GREATER_THAN_MAX_ALERT = "grade_greater_than_max_alert";
+
+    private static final String DEFAULT_GRADE = "defaultGrade";
     /**
      * The list view of assignments
      */
@@ -4184,11 +4185,6 @@ public class AssignmentAction extends PagedResourceActionII {
 
             // put creator information into context
             putCreatorIntoContext(context, assignment);
-
-            String defaultGrade = assignment.getProperties().get(GRADE_NO_SUBMISSION_DEFAULT_GRADE);
-            if (defaultGrade != null) {
-                context.put("defaultGrade", defaultGrade);
-            }
 
             initViewSubmissionListOption(state);
 
@@ -13030,7 +13026,7 @@ public class AssignmentAction extends PagedResourceActionII {
         SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
         ParameterParser params = data.getParameters();
 
-        String grade = StringUtils.trimToNull(params.getString("defaultGrade"));
+        String grade = StringUtils.trimToNull(params.getString(DEFAULT_GRADE));
         if (grade == null) {
             addAlert(state, rb.getString("plespethe2"));
         }
@@ -13051,6 +13047,7 @@ public class AssignmentAction extends PagedResourceActionII {
                                 // alert user first when he enters grade bigger than max scale
                                 addAlert(state, rb.getFormattedMessage("grad2", grade, displayGrade(state, String.valueOf(maxGrade), a.getScaleFactor())));
                                 state.setAttribute(GRADE_GREATER_THAN_MAX_ALERT, Boolean.TRUE);
+                                state.setAttribute(DEFAULT_GRADE, grade);
                             } else {
                                 // remove the alert once user confirms he wants to give student higher grade
                                 state.removeAttribute(GRADE_GREATER_THAN_MAX_ALERT);
@@ -13066,9 +13063,8 @@ public class AssignmentAction extends PagedResourceActionII {
                 if (state.getAttribute(STATE_MESSAGE) == null) {
 
                     try {
-                        // Save value as input by user, not scaled
-                        a.getProperties().put(GRADE_NO_SUBMISSION_DEFAULT_GRADE, grade);
                         assignmentService.updateAssignment(a);
+                        state.setAttribute(DEFAULT_GRADE, StringUtils.EMPTY);
                     } catch (PermissionException e) {
                         log.warn("Could not update assignment: {}, {}", a.getId(), e.getMessage());
                     }
@@ -13114,7 +13110,7 @@ public class AssignmentAction extends PagedResourceActionII {
         SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
         ParameterParser params = data.getParameters();
 
-        String grade = StringUtils.trimToNull(params.getString("defaultGrade"));
+        String grade = StringUtils.trimToNull(params.getString(DEFAULT_GRADE));
         if (grade == null) {
             addAlert(state, rb.getString("plespethe2"));
         }
@@ -13135,6 +13131,7 @@ public class AssignmentAction extends PagedResourceActionII {
                                 // alert user first when he enters grade bigger than max scale
                                 addAlert(state, rb.getFormattedMessage("grad2", grade, displayGrade(state, String.valueOf(maxGrade), a.getScaleFactor())));
                                 state.setAttribute(GRADE_GREATER_THAN_MAX_ALERT, Boolean.TRUE);
+                                state.setAttribute(DEFAULT_GRADE, grade);
                             } else {
                                 // remove the alert once user confirms he wants to give student higher grade
                                 state.removeAttribute(GRADE_GREATER_THAN_MAX_ALERT);
@@ -13149,9 +13146,8 @@ public class AssignmentAction extends PagedResourceActionII {
                 // Only record the default grade setting for no-submission if there were no errors produced
                 if (state.getAttribute(STATE_MESSAGE) == null) {
                     try {
-                        // Save value as input by user, not scaled
-                        a.getProperties().put(GRADE_NO_SUBMISSION_DEFAULT_GRADE, grade);
                         assignmentService.updateAssignment(a);
+                        state.setAttribute(DEFAULT_GRADE, StringUtils.EMPTY);
                     } catch (PermissionException e) {
                         log.warn("Could not update assignment: {}, {}", a.getId(), e.getMessage());
                     }
