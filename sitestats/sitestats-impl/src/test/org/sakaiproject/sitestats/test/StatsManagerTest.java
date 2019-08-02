@@ -250,8 +250,8 @@ public class StatsManagerTest extends AbstractJUnit4SpringContextTests {
 		smi.setVisitsInfoAvailable(null);
 		smi.setEnableSitePresences(null);
 		smi.checkAndSetDefaultPropertiesIfNotSet();
-		Assert.assertEquals(false, M_sm.getEnableSiteVisits());
-		Assert.assertEquals(false, M_sm.getVisitsInfoAvailable());
+		Assert.assertEquals(true, M_sm.getEnableSiteVisits());
+		Assert.assertEquals(true, M_sm.getVisitsInfoAvailable());
 		Assert.assertEquals(false, M_sm.getEnableSitePresences()); // off, by default
 		
 		// revert
