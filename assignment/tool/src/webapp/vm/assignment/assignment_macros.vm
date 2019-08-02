@@ -384,4 +384,68 @@
 		</div>
 	#end
 #end
+
+## macro to display content review results; assumes they're visible (caller must do the required checks / provide appropriate messaging)
+#macro(contentReviewReports $submission $inTable $displayUrkundOptOut)
+	#set($reviewResults=$!service.getContentReviewResults($!submission))
+	#if ($reviewResults.size() >= 3)
+		#if (!$inTable)
+			<div class="contentReviewDisclosure discTria">
+		#else
+			<div class="contentReviewDisclosure">
+		#end
+			<a href="#" class="contentReviewDisclosure" onclick="ASN.handleReportsTriangleDisclosure(this, this.children[0], this.parentNode.parentNode.children[1], '$tlang.getString('review.report.expand')', '$tlang.getString('review.report.collapse')'); return false;" aria-label="$tlang.getString('review.report.expand')" aria-expanded="false" aria-controls="reportsDiv_$submission.id" >
+				<img class="disclosureTriangle" src="#imageLink("sakai/expand.gif")" alt="" />
+				$tlang.getFormattedMessage("review.reports", $reviewResults.size())
+			</a>
+		</div>
+		<div id="reportsDiv_$submission.id" style="display:none;">
+	#end
+	#foreach($reviewResult in $reviewResults)
+	<div>
+		<div class="contentReviewDisclosure">
+			#set ($props = $reviewResult.getContentResource().Properties)
+			#set ($hasScore = !$reviewResult.getReviewReport().equals("Error"))
+			<span class="reportIcon">
+				#if ($hasScore)
+					<a href="$reviewResult.getReviewReport()" target="_blank">
+				#end
+				<span class="$reviewResult.getReviewIconCssClass()" title="#if(!$hasScore)$reviewResult.getReviewError()#{else}$reviewResult.getReviewScore()#end"></span>
+				#if ($hasScore)
+					</a>
+				#end
+			</span>
+			#if ($hasScore)
+				$tlang.getFormattedMessage("content_review.score.display", $reviewResult.getReviewScore())
+			#else
+				<a href="#" class="contentReviewDisclosure" onclick="ASN.handleReportsTriangleDisclosure(this, this.children[0], this.parentNode.parentNode.children[1], '$tlang.getString('review.report.error.expand')', '$tlang.getString('review.report.error.collapse')'); return false;" aria-label="$tlang.getString('review.report.error.expand')" aria-expanded="false" aria-controls="contentReviewMessage_$reviewResult.id">
+					<img class="disclosureTriangle" src="#imageLink("sakai/expand.gif")" alt="" />
+					#if ($reviewResult.isPending())
+						$tlang.getString("content_review.disclosure.pending")
+					#else
+						$tlang.getString("content_review.disclosure.error")
+					#end
+				</a>
+			#end
+			$tlang.getString("content_review.delimiter")
+			#if ($reviewResult.isInline())
+				$tlang.getString("submission.inline")
+			#else
+				$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))
+			#end
+			#if ($displayUrkundOptOut && $hasScore && $reviewResult.contentReviewItem.Properties.get($NamePropContentReviewOptoutUrl))
+					(<a href="$!reviewResult.contentReviewItem.Properties.get($NamePropContentReviewOptoutUrl)" target="_blank">$tlang.getString("review.report.urkund.optoutlink")</a>)
+			#end
+		</div>
+	#if (!$hasScore)
+		<div id="contentReviewMessage_$reviewResult.id" class="contentReviewMessage" style="display:none;">
+			$reviewResult.getReviewError()
+		</div>
+	#end
+	</div>
+	#end
+	#if ($reviewResults.size() >= 3)
+		</div>
+	#end
+#end
 <!-- end: assignment_macros.vm -->

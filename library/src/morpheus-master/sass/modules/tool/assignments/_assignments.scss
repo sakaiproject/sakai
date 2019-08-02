@@ -1,3 +1,5 @@
+@import "_assignments_variables.scss";
+
 .#{$namespace}sakai-assignment-grades {
 	#req-new_assignment_grade_points{
 		color: $error-color;
@@ -58,7 +60,7 @@
 	#sendFeedbackPanel, #allowResubmissionPanel{
 		.discTria{
 			font-weight: bold;
-			background-color: #cef;
+			background-color: $assignments-disclosure-bg;
 		}
 	}
 
@@ -115,8 +117,8 @@
 	}
 
 	.toggleAnchor {
-	  border: 1px solid #cef;
-	  background: #cef  !important;
+	  border: 1px solid $assignments-disclosure-bg;
+	  background: $assignments-disclosure-bg  !important;
 	  padding: 5px !important;
 	  cursor: pointer;
 	  margin-bottom: 0;
@@ -129,8 +131,8 @@
 	  &:hover {
 	    border: 1px solid #9cf;
 	  }
-	  border: 1px solid #cef;
-	  background: #cef !important;
+	  border: 1px solid $assignments-disclosure-bg;
+	  background: $assignments-disclosure-bg !important;
 	  padding: 5px !important;
 	  cursor: pointer;
 	}
@@ -151,7 +153,7 @@
 
 	.toggledContent {
 	  margin: 0;
-	  border: 2px solid #cef;
+	  border: 2px solid $assignments-disclosure-bg;
 	  border-top: none;
 	  padding: 1em;
 	  h4 {
@@ -191,6 +193,7 @@
 	.reportIcon {
 	  display: inline-block;
 	  width: 20px;
+	  text-align: center;
 	}
 
 	.disclosureTriangle {
@@ -382,6 +385,10 @@
 	  }
 	}
 
+	.contentReviewColumn {
+		width: 320px;
+	}
+
 	.contentReviewIcon {
 		@extend .fa, .fa-flag;
 	}
@@ -463,6 +470,40 @@
 	.contentReviewIconThreshold-6-draft {
 		@extend .contentReviewIconDraft;
 		color: #9E9E9E;
+	}
+
+	.contentReviewDisclosure {
+		position: relative;
+		display: flex;
+		margin-right: $standard-space;
+		align-items: baseline;
+	}
+
+	.contentReviewDisclosure:focus {
+		outline-offset: -1px;
+	}
+
+	.contentReviewMessage {
+		background-color:#fff;
+		position: relative;
+		border: 1px solid;
+		border-radius: 5px;
+		margin: 7px 24px 4px 24px;
+		padding: 4px 8px;
+		background-color: $assignments-disclosure-bg;
+		border-color: $assignments-disclosure-bg;
+		color: $primary-color;
+
+		&::before {
+			content: "";
+			position: absolute;
+			top: -14px; // -2 x the border
+			left: 5px;
+			width: $standard-spacing;
+			height: $standard-spacing;
+			border: 7px solid transparent;
+			border-bottom-color: $primary-color;
+		}
 	}
 
 	div#pagingHeader {

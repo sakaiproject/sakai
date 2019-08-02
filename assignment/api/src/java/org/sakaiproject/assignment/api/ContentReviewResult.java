@@ -55,12 +55,26 @@ public class ContentReviewResult {
 	 */
 	private String reviewError;
 
-	
+	/**
+	 * Gets the ID from the associated ContentReviewItem
+	 */
+	public Long getId() {
+		return contentReviewItem.getId();
+	}
+
 	/**
 	 * Get status directly from ContentReviewItem
 	 */
 	public Long getStatus(){
 		return contentReviewItem.getStatus();
+	}
+
+	/**
+	 * Determines if the paper is pending to be submitted, or pending for the report to be returned. If an error occurs, this returns false - even if the service is going retry this paper
+	 */
+	public boolean isPending(){
+		Long status = getStatus();
+		return status != null && (status.equals(ContentReviewConstants.CONTENT_REVIEW_NOT_SUBMITTED_CODE) || status.equals(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE));
 	}
 
 	public int getReviewScore() {

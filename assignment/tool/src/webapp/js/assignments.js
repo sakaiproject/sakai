@@ -979,22 +979,33 @@ ASN.submitPeerReviewAttachment = function(id, action)
     }
 };
 
-
-ASN.handleReportsTriangleDisclosure = function (header, content)
+/* Header: element user interacts with
+ * Icon: disclosure triangle
+ * Content: element that expands / collapses when the header is interacted with
+ * expandText: accessibility text on the header for the expand action
+ * collapseText: accessibility text on the header for the collapse action */
+ASN.handleReportsTriangleDisclosure = function (header, icon, content, expandText, collapseText)
 {
-    var headerSrc = header.src;
     var expand = "/library/image/sakai/expand.gif";
     var collapse = "/library/image/sakai/collapse.gif";
-    if (headerSrc.indexOf(expand) !== -1)
+
+    var expanded = header.getAttribute("aria-expanded");
+    if (expanded === "true")
     {
-        header.src = collapse;
+        header.setAttribute("aria-expanded", "false");
+        header.setAttribute("aria-label", expandText);
+
+        icon.src = expand;
+        content.style.display = "none";
+    }
+    else
+    {
+        header.setAttribute("aria-expanded", "true");
+        header.setAttribute("aria-label", collapseText);
+
+        icon.src = collapse;
         content.removeAttribute("style");
         ASN.resizeFrame();
-    }
-    else if (headerSrc.indexOf(collapse) !== -1)
-    {
-        header.src = expand;
-        content.style.display = "none";
     }
 }
 
