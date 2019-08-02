@@ -128,7 +128,7 @@ $(document).ready(function(){
 			</p>	
 		#end
 	#end
-	#if (!$!allowAddAssignment)
+	#if (!$!allowAddAssignment && !$!nonElectronicType)
 		#progressBar($!service.getProgressBarStatus($!submission))
 	#end
 ##		<h4>$tlang.getString("gen.assdet")</h4>
