@@ -54,8 +54,9 @@ org.sakaiproject.tool.cover.SessionManager.getCurrentToolSession().
   </sakai:tool_bar>
 
 	<h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" />
- 	<h1><h:outputText value="#{msgs.cdfm_discussion_forums}" /></h1>
- 	
+        <div class="page-header">
+            <h1><h:outputText value="#{msgs.cdfm_discussion_forums}" /></h1>
+        </div>
 	<%@ include file="/jsp/discussionForum/includes/dfAreaInclude.jsp"%>
 	
  	<%

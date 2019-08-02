@@ -2,9 +2,9 @@
 <script type="text/javascript">includeLatestJQuery('content_dropbox_multiple');</script>
 
 <div class="portletBody specialLink">
-	<h3>
-		$tlang.getString("multiple.file.upload")
-	</h3>
+	<div class="page-header">
+		<h1>$tlang.getString("multiple.file.upload")</h1>
+	</div>
 	#if ($alertMessage)
 		<br /><div class="sak-banner-error">$clang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
 	#end

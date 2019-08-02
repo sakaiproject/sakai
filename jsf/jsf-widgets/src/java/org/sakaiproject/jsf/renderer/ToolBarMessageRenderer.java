@@ -44,7 +44,7 @@ public class ToolBarMessageRenderer extends Renderer
   public void encodeBegin(FacesContext context, UIComponent component) throws IOException
   {
     ResponseWriter writer = context.getResponseWriter();
-    writer.write("<h3>");
+    writer.write("<h1>");
   }
 
   /**
@@ -63,7 +63,7 @@ public class ToolBarMessageRenderer extends Renderer
       writer.write(txt);
     }
 
-    writer.write("</h3>");
+    writer.write("</h1>");
   }
 }
 

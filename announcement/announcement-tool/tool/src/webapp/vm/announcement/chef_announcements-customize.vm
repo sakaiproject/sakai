@@ -19,7 +19,9 @@
 		#end
 	#end
 
-	<div class="page-header"><h3>$tlang.getString("custom.options")</h3></div>
+	<div class="page-header">
+		<h1>$tlang.getString("custom.options")</h1>
+	</div>
 
 	#if ($alertMessage)<div class="sak-banner-error">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div>#end
 	<p class="instruction indnt2">

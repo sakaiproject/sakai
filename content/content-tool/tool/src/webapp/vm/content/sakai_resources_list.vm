@@ -99,6 +99,9 @@
 			#end
 		</ul>
 		</ul>
+	<div class="page-header">
+		<h1>$tlang.getString("list.site.dropbox")</h1>
+	</div>
 	#if ($alertMessage)
 		<br /><div class="sak-banner-warn">$alertMessage</div>
 	#end

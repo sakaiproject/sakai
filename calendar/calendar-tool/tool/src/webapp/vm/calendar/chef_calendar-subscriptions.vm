@@ -2,9 +2,9 @@
 
 <div class="portletBody">
 	#if($menu)#toolbar($menu)#end
-	<h3>
-		$tlang.getString('subs.subscriptions')
-	</h3>
+	<div class="page-header">
+		<h1>$tlang.getString('subs.subscriptions')</h1>
+	</div>
 	<script type="text/javascript"> var a = document.MyCalendar; </script>
 	#if ($alertMessage)
 		<div class="sak-banner-error">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>

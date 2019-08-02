@@ -5,7 +5,9 @@
 <!-- First table -->
 	<div class="clear"></div>
 
-<h3>$tlang.getString("view.calmonth")</h3>
+<div class="page-header">
+	<h1>$tlang.getString("view.calmonth")</h1>
+</div>
 
 <!-- drop down menu for different views -->
 	<div class="navPanel">

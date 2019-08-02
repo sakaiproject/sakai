@@ -4,7 +4,9 @@
 
 		#if ($alertMessage)<div class="sak-banner-error">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>#end
 
-<h3>$tlang.getString("view.calyear")</h3>
+<div class="page-header">
+	<h1>$tlang.getString("view.calyear")</h1>
+</div>
 	<div class="navPanel">
 		<div class="viewNav">
 		<!-- drop down menu for different views -->
