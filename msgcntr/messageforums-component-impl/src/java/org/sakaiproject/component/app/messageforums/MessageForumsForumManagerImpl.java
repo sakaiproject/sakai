@@ -1052,29 +1052,21 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     public void deleteDiscussionForum(DiscussionForum forum) {
         long id = forum.getId().longValue();
         eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_FORUM_REMOVE, getEventMessage(forum), false));
-        try {
-            getSessionFactory().getCurrentSession().evict(forum);
-        } catch (Exception e) {
-            log.error("could not evict forum: " + forum.getId(), e);
-        }
-        
-        // re-retrieve the forum with the area populated so we don't have to
-        // rely on "current context"
-        forum = (DiscussionForum)getForumById(true, id);
+
+        forum = (DiscussionForum) getForumById(true, id);
         List<Topic> topics = getTopicsByIdWithMessages(id);
         for (Topic topic : topics) {
             // remove rubric association if there is one
             rubricsService.deleteRubricAssociation(RubricsConstants.RBCS_TOOL_FORUMS, RubricsConstants.RBCS_TOPIC_ENTITY_PREFIX + topic.getId());
             forum.removeTopic(topic);
+            getSessionFactory().getCurrentSession().merge(topic);
         }
         
-        //Area area = getAreaByContextIdAndTypeId(typeManager.getDiscussionForumType());
         Area area = forum.getArea();
         area.removeDiscussionForum(forum);
-        getHibernateTemplate().saveOrUpdate(area);
-        
-       
-        //getHibernateTemplate().delete(forum);
+        getHibernateTemplate().merge(forum);
+        getHibernateTemplate().merge(area);
+
         log.debug("deleteDiscussionForum executed with forumId: " + id);
     }
 

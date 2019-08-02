@@ -41,6 +41,7 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.sitemanage.api.SiteManageConstants;
 import org.sakaiproject.sitemanage.api.SiteManageService;
 import org.sakaiproject.sitemanage.api.UserNotificationProvider;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
@@ -50,6 +51,7 @@ import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ArrayUtil;
+import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.util.api.LinkMigrationHelper;
 import org.springframework.transaction.TransactionStatus;
@@ -70,6 +72,7 @@ public class SiteManageServiceImpl implements SiteManageService {
     @Setter private SessionManager sessionManager;
     @Setter private ShortenedUrlService shortenedUrlService;
     @Setter private SiteService siteService;
+    @Setter private ThreadLocalManager threadLocalManager;
     @Setter private ToolManager toolManager;
     @Setter private TransactionTemplate transactionTemplate;
     @Setter private UserDirectoryService userDirectoryService;
@@ -110,6 +113,7 @@ public class SiteManageServiceImpl implements SiteManageService {
         final String id = site.getId();
 
         Runnable siteImportTask = () -> {
+            // capture the previous session info to this thread
             sessionManager.setCurrentSession(session);
             sessionManager.setCurrentToolSession(toolSession);
             
@@ -139,6 +143,9 @@ public class SiteManageServiceImpl implements SiteManageService {
                 userNotificationProvider.notifySiteImportCompleted(user.getEmail(), locale, id, site.getTitle());
             }
             eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_END, importSites, id, false, NotificationService.NOTI_OPTIONAL));
+
+            // clear any sakai related state from the thread before returning it
+            threadLocalManager.clear();
         };
 
         // only if the siteId was added to the list do we start the task
@@ -159,59 +166,62 @@ public class SiteManageServiceImpl implements SiteManageService {
         SecurityAdvisor securityAdvisor = null;
         String nSiteId = site.getId();
 
-        // import tool content
-        if (bypassSecurity) {
-            // importing from template, bypass the permission checking:
-            // temporarily allow the user to read and write from assignments (asn.revise permission)
-            securityAdvisor = (userId, function, reference) -> SecurityAdvisor.SecurityAdvice.ALLOWED;
-            securityService.pushAdvisor(securityAdvisor);
-        }
+        try {
+            // import tool content
+            if (bypassSecurity) {
+                // importing from template, bypass the permission checking:
+                // temporarily allow the user to read and write from assignments (asn.revise permission)
+                securityAdvisor = (userId, function, reference) -> SecurityAdvisor.SecurityAdvice.ALLOWED;
+                securityService.pushAdvisor(securityAdvisor);
+            }
 
-        List<SitePage> pageList = site.getPages();
-        Set<String> toolsCopied = new HashSet<>();
+            List<SitePage> pageList = site.getPages();
+            Set<String> toolsCopied = new HashSet<>();
 
-        Map<String, String> transversalMap = new HashMap<>();
+            Map<String, String> transversalMap = new HashMap<>();
 
-        if (pageList != null) {
-            for (SitePage page : pageList) {
-                List<ToolConfiguration> pageToolList = page.getTools();
-                if ((pageToolList != null) && !pageToolList.isEmpty()) {
-                    Tool tool = pageToolList.get(0).getTool();
-                    if (tool != null) { // ignore page if the tool can't be retrieved
-                        String toolId = tool.getId();
-                        if (StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.RESOURCES_TOOL_ID)) {
-                            // special handleling for resources
-                            transversalMap.putAll(
-                                    transferCopyEntities(toolId,
-                                            contentHostingService.getSiteCollection(oSiteId),
-                                            contentHostingService.getSiteCollection(nSiteId),
-                                            false));
-                            transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, oSiteId, nSiteId));
-
-                        } else if (StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.SITE_INFO_TOOL_ID)) {
-                            // handle Home tool specially, need to update the site infomration display url if needed
-                            String newSiteInfoUrl = transferSiteResource(oSiteId, nSiteId, site.getInfoUrl());
-                            site.setInfoUrl(newSiteInfoUrl);
-                            saveSite(site);
-                        } else if (StringUtils.isNotBlank(toolId)) {
-                            // all other tools
-                            if (!toolsCopied.contains(toolId)) {
-                                transversalMap.putAll(transferCopyEntities(toolId, oSiteId, nSiteId, false));
+            if (pageList != null) {
+                for (SitePage page : pageList) {
+                    List<ToolConfiguration> pageToolList = page.getTools();
+                    if ((pageToolList != null) && !pageToolList.isEmpty()) {
+                        Tool tool = pageToolList.get(0).getTool();
+                        if (tool != null) { // ignore page if the tool can't be retrieved
+                            String toolId = tool.getId();
+                            if (StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.RESOURCES_TOOL_ID)) {
+                                // special handleling for resources
+                                transversalMap.putAll(
+                                        transferCopyEntities(toolId,
+                                                contentHostingService.getSiteCollection(oSiteId),
+                                                contentHostingService.getSiteCollection(nSiteId),
+                                                false));
                                 transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, oSiteId, nSiteId));
-                                toolsCopied.add(toolId);
+
+                            } else if (StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.SITE_INFO_TOOL_ID)) {
+                                // handle Home tool specially, need to update the site infomration display url if needed
+                                String newSiteInfoUrl = transferSiteResource(oSiteId, nSiteId, site.getInfoUrl());
+                                site.setInfoUrl(newSiteInfoUrl);
+                                saveSite(site);
+                            } else if (StringUtils.isNotBlank(toolId)) {
+                                // all other tools
+                                if (!toolsCopied.contains(toolId)) {
+                                    transversalMap.putAll(transferCopyEntities(toolId, oSiteId, nSiteId, false));
+                                    transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, oSiteId, nSiteId));
+                                    toolsCopied.add(toolId);
+                                }
                             }
+                        } else {
+                            log.warn("Skipping page {}, because the tool could not be retrieved", page.getId());
                         }
-                    } else {
-                        log.warn("Skipping page {}, because the tool could not be retrieved", page.getId());
                     }
                 }
+                // after all site pages have been processed time to update references for each tool copied
+                toolsCopied.forEach(t -> updateEntityReferences(t, nSiteId, transversalMap, site));
             }
-            // after all site pages have been processed time to update references for each tool copied
-            toolsCopied.forEach(t -> updateEntityReferences(t, nSiteId, transversalMap, site));
-        }
-
-        if (bypassSecurity) {
-            securityService.popAdvisor(securityAdvisor);
+        } catch (Exception e) {
+            if (bypassSecurity) {
+                securityService.popAdvisor(securityAdvisor);
+            }
+            log.warn("Error during tool import for site {}, {}", nSiteId, e.getMessage());
         }
     }
 

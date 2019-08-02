@@ -1257,25 +1257,23 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 		Map<String, String> transversalMap = new HashMap<>();
 		try
 		{
-			if(cleanup == true)
+			if (cleanup == true)
 			{
 				try 
 				{
 					List existingForums = dfManager.getDiscussionForumsByContextId(toContext);
-				
-					if (existingForums != null && !existingForums.isEmpty()) 
+					if (existingForums != null && !existingForums.isEmpty())
 					{
 						for (int currForum = 0; currForum < existingForums.size(); currForum++) 
 						{
 							DiscussionForum fromForum = (DiscussionForum)existingForums.get(currForum);
-						
 							forumManager.deleteDiscussionForum(fromForum);
 						}
 					}
 				}
-				catch(Exception e)
+				catch (Exception e)
 				{
-					log.debug ("Remove Forums from Site Import failed" + e);
+					log.debug("Remove Forums from Site Import failed, {}", e.getMessage());
 				}
 			}
 			transversalMap.putAll(transferCopyEntitiesRefMigrator(fromContext, toContext, ids));
