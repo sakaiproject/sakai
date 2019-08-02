@@ -58,7 +58,7 @@ public class ConfirmProducer implements ViewComponentProducer {
 		if (!validatingAccounts) {
 			UIMessage.make(tofill,"message","confirm",parms);
 		} else {
-			UIMessage.make(tofill,"message","confirm.validate",parms);
+			UIMessage.make(tofill,"message","confirm.validate");
 		}
 		// Get the instructions from the tool placement.
 		Placement placement = toolManager.getCurrentPlacement();
