@@ -56,8 +56,6 @@ Boolean allowSettings = (Boolean) rReq.getAttribute("allowSettings");
 
 Boolean allowRoster = (Boolean) rReq.getAttribute("allowRoster");
 
-Boolean allowContentLink = (Boolean) rReq.getAttribute("allowContentLink");
-
 %>
 <portlet:defineObjects/>
 <div class="portletBody">
@@ -71,8 +69,7 @@ Boolean allowContentLink = (Boolean) rReq.getAttribute("allowContentLink");
         allow(sp, "sha256") ||
 		allow(sp,"custom") || 
 		allow(sp,"allowsettings") || allow(sp, "allowroster") || 
-        allow(sp, "allowoutcomes") || 
-		allow(sp, "contentlink") || allow(sp, "splash") ||
+        allow(sp, "allowoutcomes") || allow(sp, "splash") ||
         allow(sp, "fa_icon")
 ) { 
 
@@ -317,16 +314,6 @@ if ( document.getElementById("UISwitcher") ) switchui();
 <% } %>
 
 <% } %>
-
-<% if ( allow(sp,"contentlink") && allowContentLink ) { %>
-<h3><%=rb.getString("contentlink.legend") %></h3>
-<p class="shorttext" style="clear:none">
-<label for="imsti.contentlink"><%=rb.getString("contentlink.label") %></label><br/>
-<input type="text" name="imsti.contentlink" size="80" id="imsti.contentlink" value="<%=ov.getProperty("imsti.contentlink","")%>"> 
-<span class="textPanelFooter"><%=rb.getString("contentlink.detail") %></span>
-</p>
-<% } %>
-
 
 <% if ( allow(sp,"allowsettings") && allowSettings ) { %>
 <h3><%=rb.getString("allowsettings.information") %></h3>
