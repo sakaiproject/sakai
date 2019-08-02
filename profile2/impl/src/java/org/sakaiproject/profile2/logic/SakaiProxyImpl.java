@@ -608,32 +608,16 @@ public class SakaiProxyImpl implements SakaiProxy {
 	 */
 	@Override
 	public boolean removeResource(final String resourceId) {
-
-		boolean result = false;
-
 		try {
 			enableSecurityAdvisor();
-
-			try{
-				this.contentHostingService.checkResource(resourceId);
-			} catch(final Exception e){
-				return false;
-			} finally {
-				disableSecurityAdvisor();
-			}
-
 			this.contentHostingService.removeResource(resourceId);
-
-			result = true;
-		} catch (final Exception e) {
-			log.error("SakaiProxy.removeResource() failed for resourceId "
-					+ resourceId + ": " + e.getMessage());
+			return true;
+		} catch (Exception e) {
+			log.debug("Could not retrieve resource {}, {}", resourceId, e.getMessage());
 			return false;
 		} finally {
 			disableSecurityAdvisor();
 		}
-
-		return result;
 	}
 
 	/**
