@@ -328,7 +328,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
    */
   public void savePrivateMessage(Message message)
   {
-    messageManager.saveMessage(message);
+    messageManager.saveOrUpdateMessage(message);
   }
 
   /**
@@ -336,7 +336,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
    */
   public void savePrivateMessage(Message message, boolean logEvent)
   {
-	  messageManager.saveMessage(message, logEvent);
+	  messageManager.saveOrUpdateMessage(message, logEvent);
   }
   
   public Message getMessageById(Long id)

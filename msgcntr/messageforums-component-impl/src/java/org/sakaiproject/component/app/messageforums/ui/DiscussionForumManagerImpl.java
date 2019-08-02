@@ -486,7 +486,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     }
 
     // save the message first to ensure we have a valid message id
-    Message persistedMessage = messageManager.saveMessage(message, false, ignoreLockedTopicForum);
+    Message persistedMessage = messageManager.saveOrUpdateMessage(message, false, ignoreLockedTopicForum);
     if (params != null) {
         Event event = eventTrackingService.newEvent(params.event.type, getEventMessage(persistedMessage), null, params.event.modification,
                 NotificationService.NOTI_OPTIONAL, params.lrsStatement);

@@ -8859,7 +8859,7 @@ public class DiscussionForumTool
 			if (log.isDebugEnabled()) log.debug("processMoveThread messageId = " + mes.getId());
 			if (log.isDebugEnabled()) log.debug("processMoveThread message title = " + mes.getTitle());
 			mes.setTopic(desttopic);
-			messageManager.saveMessage(mes);
+			messageManager.saveOrUpdateMessage(mes);
 
 			// mfr_move_history_t stores only records that are used to display reminder links. Not all moves are recorded in this
 			// table.
@@ -8879,7 +8879,7 @@ public class DiscussionForumTool
 				if (log.isDebugEnabled()) log.debug("processMoveThread messageId = " + childMsg.getId());
 				if (log.isDebugEnabled()) log.debug("processMoveThread message title = " + childMsg.getTitle());
 				childMsg.setTopic(desttopic);
-				messageManager.saveMessage(childMsg);
+				messageManager.saveOrUpdateMessage(childMsg);
 				messageManager.saveMessageMoveHistory(childMsg.getId(), desttopicId, sourceTopicId, checkReminder);
 				eventmsg = "Moving message " + childMsg.getId() + " from topic " + sourceTopicId + " to topic " + desttopicId;
 				eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_MOVE_THREAD, eventmsg, true));
