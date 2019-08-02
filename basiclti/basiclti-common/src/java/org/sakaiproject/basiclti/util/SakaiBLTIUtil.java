@@ -1696,6 +1696,10 @@ user_id: admin
 			String accept_media_types = ltiProps.getProperty("accept_media_types");
 			if ( ContentItem.MEDIA_LTILINKITEM.equals(accept_media_types) ) {
 				ci.accept_types.add(DeepLink.ACCEPT_TYPE_LTILINK);
+			} else if ( "*/*".equals(accept_media_types) ) {
+				for (String s: DeepLink.ACCEPT_TYPE_ALL) {
+					ci.accept_types.add(s);
+				}
 			} else {
 				ci.accept_media_types = ltiProps.getProperty("accept_media_types");
 			}

@@ -1228,7 +1228,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			return;
 		}
 
-		// Come up with the new content item from the DeepLinkRespons or ContentItem
+		// Come up with the new content item from the DeepLinkResponse or ContentItem
 		Properties reqProps;
 
 		String id_token = data.getParameters().getString(LTI13JwtUtil.JWT);
@@ -1352,79 +1352,171 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			return;
 		}
 
-		// Parse and validate the incoming ContentItem
-		ContentItem contentItem = null;
-		try {
-			contentItem = SakaiBLTIUtil.getContentItemFromRequest(tool);
-		} catch (Exception e) {
-			addAlert(state, rb.getString("error.contentitem.bad") + " (" + e.getMessage() + ")");
-			switchPanel(state, "Error");
-			return;
-		}
-
-		// Loop through the array of returned items
-		// LTI LinkItems need to be inserted
-		JSONArray graph = contentItem.getGraph();
+		Properties reqProps;
 		JSONArray new_content = new JSONArray();
 		int goodcount = 0;
 		List<String> failures = new ArrayList<String>();
-		for (Object i : graph) {
-			if (!(i instanceof JSONObject)) {
-				continue;
-			}
-			JSONObject item = (JSONObject) i;
-			String type = getString(item, BasicLTIConstants.TYPE);
-			if (!ContentItem.TYPE_LTILINKITEM.equals(type)) {
-				goodcount++;
-				new_content.add(item);
-				continue;
-			}
 
-			// We need to establish resource link ids for the LTILinkItems
-			Properties reqProps = extractLTIContentItem(item, tool, toolKey);
-
-			String title = reqProps.getProperty(LTIService.LTI_TITLE);
-			if (title == null) {
-				reqProps.setProperty(LTIService.LTI_TITLE, rb.getString("contentitem.generic.title"));
+		// Check if this is Deep Link 1.0 or 2.0
+		String id_token = data.getParameters().getString(LTI13JwtUtil.JWT);
+		if ( DeepLinkResponse.isRequest(id_token) ) {
+			// Parse and validate the incoming DeepLink
+			String pubkey = (String) tool.get(LTIService.LTI13_TOOL_PUBLIC);
+			if (pubkey == null) {
+				addAlert(state, rb.getString("error.tool.missing.pubkey"));
+				switchPanel(state, "Error");
+				return;
 			}
 
-			String url = reqProps.getProperty("launch");
-			if (url == null) {
-				log.error("LTILink Item missing launch url {}", toolKey);
-				log.debug("{}", item);
-				failures.add(rb.getString("error.contentitem.missing.url"));
-				continue;
+			DeepLinkResponse dlr;
+			try {
+				dlr = SakaiBLTIUtil.getDeepLinkFromToken(tool, id_token);  // Also checks security
+			} catch (Exception e) {
+				addAlert(state, rb.getString("error.deeplink.bad") + " (" + e.getMessage() + ")");
+				switchPanel(state, "Error");
+				return;
 			}
 
-			// Time to store our content item
-			log.debug("Inserting LTILinkItem toolKey={}", toolKey);
-
-			// Does an insert when id is null and update when is is not null
-			Object retval = ltiService.insertContent(reqProps, getSiteId(state));
-			if (retval instanceof String) {
-				log.error("Unable to insert LTILinkItem tool={}", toolKey);
-				log.debug("{}", item);
-				failures.add(rb.getString("error.contentitem.content.insert"));
-				continue;
+			JSONArray links = dlr.getDeepLinks();
+			if (links == null) {
+				addAlert(state, rb.getString("error.deeplink.no.ltilinks"));
+				switchPanel(state, "Error");
+				return;
 			}
-			Long contentKey = (Long) retval;
-			String contentUrl = null;
-			Map<String, Object> content = ltiService.getContent(contentKey, getSiteId(state));
-			if (content != null) {
-				contentUrl = ltiService.getContentLaunch(content);
-				if (contentUrl != null && contentUrl.startsWith("/")) {
-					contentUrl = SakaiBLTIUtil.getOurServerUrl() + contentUrl;
+
+			for (Object obj : links) {
+				if ( ! (obj instanceof JSONObject) ) continue;
+				JSONObject item = (JSONObject) obj;
+				reqProps = extractLTIDeepLink(item, tool, toolKey);
+				reqProps.setProperty(LTIService.LTI_CONTENTITEM, dlr.toString());
+
+				String type = getString(item, DeepLinkResponse.TYPE);
+				if (!DeepLinkResponse.TYPE_LTILINKITEM.equals(type)) {
+					goodcount++;
+					new_content.add(item);
+					continue;
 				}
+
+				// We need to establish resource link ids for the LTILinkItems
+				reqProps = extractLTIContentItem(item, tool, toolKey);
+
+				String title = reqProps.getProperty(LTIService.LTI_TITLE);
+				if (title == null) {
+					reqProps.setProperty(LTIService.LTI_TITLE, rb.getString("contentitem.generic.title"));
+				}
+
+				String url = reqProps.getProperty("launch");
+				if (url == null) {
+					log.error("LTILink Item missing launch url {}", toolKey);
+					log.debug("{}", item);
+					failures.add(rb.getString("error.contentitem.missing.url"));
+					continue;
+				}
+
+				// Time to store our content item
+				log.debug("Inserting LTILinkItem toolKey={}", toolKey);
+
+				// Does an insert when id is null and update when is is not null
+				Object retval = ltiService.insertContent(reqProps, getSiteId(state));
+				if (retval instanceof String) {
+					log.error("Unable to insert LTILinkItem tool={}", toolKey);
+					log.debug("{}", item);
+					failures.add(rb.getString("error.contentitem.content.insert"));
+					continue;
+				}
+				Long contentKey = (Long) retval;
+				String contentUrl = null;
+				Map<String, Object> content = ltiService.getContent(contentKey, getSiteId(state));
+				if (content != null) {
+					contentUrl = ltiService.getContentLaunch(content);
+					if (contentUrl != null && contentUrl.startsWith("/")) {
+						contentUrl = SakaiBLTIUtil.getOurServerUrl() + contentUrl;
+					}
+				}
+				if (contentUrl == null) {
+					log.error("Unable to get launch url from contentitem content={}", contentKey);
+					log.debug("{}", item);
+					failures.add(rb.getString("error.contentitem.content.launch"));
+					continue;
+				}
+				item.put("launch", contentUrl);
+				new_content.add(item);
+				goodcount++;
 			}
-			if (contentUrl == null) {
-				log.error("Unable to get launch url from contentitem content={}", contentKey);
-				log.debug("{}", item);
-				failures.add(rb.getString("error.contentitem.content.launch"));
-				continue;
+
+		} else {
+
+			// Parse and validate the incoming ContentItem
+			ContentItem contentItem = null;
+			try {
+				contentItem = SakaiBLTIUtil.getContentItemFromRequest(tool);
+			} catch (Exception e) {
+				addAlert(state, rb.getString("error.contentitem.bad") + " (" + e.getMessage() + ")");
+				switchPanel(state, "Error");
+				return;
 			}
-			item.put("launch", contentUrl);
-			new_content.add(item);
-			goodcount++;
+
+			JSONArray graph = contentItem.getGraph();
+			// Loop through the array of returned items
+			// LTI LinkItems need to be inserted
+			for (Object i : graph) {
+				if (!(i instanceof JSONObject)) {
+					continue;
+				}
+				JSONObject item = (JSONObject) i;
+				String type = getString(item, BasicLTIConstants.TYPE);
+				if (!ContentItem.TYPE_LTILINKITEM.equals(type)) {
+					goodcount++;
+					new_content.add(item);
+					continue;
+				}
+
+				// We need to establish resource link ids for the LTILinkItems
+				reqProps = extractLTIContentItem(item, tool, toolKey);
+
+				String title = reqProps.getProperty(LTIService.LTI_TITLE);
+				if (title == null) {
+					reqProps.setProperty(LTIService.LTI_TITLE, rb.getString("contentitem.generic.title"));
+				}
+
+				String url = reqProps.getProperty("launch");
+				if (url == null) {
+					log.error("LTILink Item missing launch url {}", toolKey);
+					log.debug("{}", item);
+					failures.add(rb.getString("error.contentitem.missing.url"));
+					continue;
+				}
+
+				// Time to store our content item
+				log.debug("Inserting LTILinkItem toolKey={}", toolKey);
+
+				// Does an insert when id is null and update when is is not null
+				Object retval = ltiService.insertContent(reqProps, getSiteId(state));
+				if (retval instanceof String) {
+					log.error("Unable to insert LTILinkItem tool={}", toolKey);
+					log.debug("{}", item);
+					failures.add(rb.getString("error.contentitem.content.insert"));
+					continue;
+				}
+				Long contentKey = (Long) retval;
+				String contentUrl = null;
+				Map<String, Object> content = ltiService.getContent(contentKey, getSiteId(state));
+				if (content != null) {
+					contentUrl = ltiService.getContentLaunch(content);
+					if (contentUrl != null && contentUrl.startsWith("/")) {
+						contentUrl = SakaiBLTIUtil.getOurServerUrl() + contentUrl;
+					}
+				}
+				if (contentUrl == null) {
+					log.error("Unable to get launch url from contentitem content={}", contentKey);
+					log.debug("{}", item);
+					failures.add(rb.getString("error.contentitem.content.launch"));
+					continue;
+				}
+				item.put("launch", contentUrl);
+				new_content.add(item);
+				goodcount++;
+			}
 		}
 		log.debug("Forwarding to EditorDone");
 		state.setAttribute(STATE_CONTENT_ITEM, new_content);
@@ -1624,6 +1716,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		if (custom_str.length() > 0) {
 			reqProps.setProperty(LTIService.LTI_CUSTOM, custom_str);
 		}
+
 		return reqProps;
 	}
 
