@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.text.DecimalFormat;
 import java.text.Normalizer;
 import java.text.NumberFormat;
@@ -1631,6 +1633,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 } else if (token.contains("contextString")) {
                     // context
                     contextString = token.contains("=") ? token.substring(token.indexOf("=") + 1) : "";
+                    try {
+                        // The siteId comes encoded in a URL.
+                        // If the siteId contains encoded symbols (like spaces) the siteService may not get the site properly resulting in an invalid ZIP file, it needs to be decoded.
+                        contextString = URLDecoder.decode(contextString, "UTF-8");
+                    } catch (UnsupportedEncodingException e) {
+                        log.warn("The site {} cannot be decoded {}.", e);
+                    }
                 } else if (token.contains("viewString")) {
                     // view
                     viewString = token.contains("=") ? token.substring(token.indexOf("=") + 1) : "";
