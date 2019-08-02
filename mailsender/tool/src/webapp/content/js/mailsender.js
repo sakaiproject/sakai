@@ -111,7 +111,7 @@ var Dirty = function()
 	{
 		var fossilex =  /^(.*)-fossil$/;
 		var fossils = {};
-		if (elements)
+		if (typeof elements !== 'undefined' && elements)
 		{
 			jQuery(':input').each(function()
 			{
