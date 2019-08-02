@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.Duration;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -5217,10 +5218,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			DateTime icalStartDate = new DateTime(event.getRange().firstTime().getTime());
 			
 			long seconds = event.getRange().duration() / 1000;
-			String timeString = "PT" + String.valueOf(seconds) + "S";
-			net.fortuna.ical4j.model.Dur duration = new net.fortuna.ical4j.model.Dur( timeString );
-			
-			VEvent icalEvent = new VEvent(icalStartDate, duration, event.getDisplayName() );
+			VEvent icalEvent = new VEvent(icalStartDate, Duration.ofSeconds(seconds), event.getDisplayName() );
 			
 			net.fortuna.ical4j.model.parameter.TzId tzId = new net.fortuna.ical4j.model.parameter.TzId( m_timeService.getLocalTimeZone().getID() );
 			icalEvent.getProperty(Property.DTSTART).getParameters().add(tzId);

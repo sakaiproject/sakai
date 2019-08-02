@@ -74,7 +74,7 @@ Boolean allowRoster = (Boolean) rReq.getAttribute("allowRoster");
 ) { 
 
     if ( errorMsg != null ) { %>
-		<div class="alertMessage"><%= errorMsg %></div>
+		<div class="sak-banner-error"><%= errorMsg %></div>
 	<% } %>
 
 <script type="text/javascript" src="/library/js/headscripts.js"></script>
@@ -350,7 +350,7 @@ if ( document.getElementById("UISwitcher") ) switchui();
 <textarea rows="10" cols="60"  name="imsti.custom" id="imsti.custom" >
 <%=ov.getProperty("imsti.custom","")%>
 </textarea>
-
+	
 </p>
 <% } %>
 <p class="act">
@@ -361,7 +361,7 @@ if ( document.getElementById("UISwitcher") ) switchui();
 </form>
 <% } else { 
     if ( errorMsg != null ) { %>
-		<div class="alertMessage"><%= errorMsg %></div>
+		<div class="sak-banner-error"><%= errorMsg %></div>
 	<% } %>
 
 <ul class="navIntraTool actionToolBar">

@@ -3016,7 +3016,9 @@ extends VelocityPortletStateAction
 						context.put("assignmenturl", (String) assignData.get("assignmentUrl"));
 						context.put("assignmentTitle", (String) assignData.get("assignmentTitle"));
 					}catch(SecurityException e){
-						context.put(ALERT_MSG_KEY,rb.getString("java.alert.opendate"));
+						final String openDateErrorDescription = rb.getFormattedMessage("java.alert.opendatedescription",
+								calEvent.getField(CalendarUtil.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED));
+						context.put(ALERT_MSG_KEY, rb.getString("java.alert.opendate") + " " + openDateErrorDescription);
 						context.put(NOT_OPEN_EVENT_FLAG_CONTEXT_VAR, TRUE_STRING);
 						return;
  					}

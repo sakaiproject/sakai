@@ -17,9 +17,11 @@ package org.sakaiproject.portal.beans.bullhornhandlers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -133,9 +135,20 @@ public class AnnouncementsBullhornHandler extends AbstractBullhornHandler {
                         = ((AnnouncementMessageHeader) message.getHeader()).getSubject();
 
                     List<BullhornData> bhEvents = new ArrayList<>();
+                    Set<String> usersList = new HashSet<>();
 
-                    // Get all the members of the site with read ability
-                    for (String  to : site.getUsersIsAllowed(AnnouncementService.SECURE_ANNC_READ)) {
+                    if (message.getHeader().getGroups().isEmpty()) {
+                        // Get all the members of the site with read ability if the announcement is not for groups
+                        usersList = site.getUsersIsAllowed(AnnouncementService.SECURE_ANNC_READ);
+                    }
+                    else {
+                        // Otherwise get the members of the groups
+                        for (String group : message.getHeader().getGroups()) {
+                            usersList.addAll(site.getGroup(group).getUsersIsAllowed(AnnouncementService.SECURE_ANNC_READ));
+                        }
+                    }
+
+                    for (String  to : usersList) {
                         if (!from.equals(to) && !securityService.isSuperUser(to)) {
                             bhEvents.add(new BullhornData(from, to, siteId, title, url, false));
                             countCache.remove(to);

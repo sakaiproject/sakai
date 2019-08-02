@@ -276,9 +276,6 @@ $Id$
           <h:outputText value=" - #{evaluationMessages.q_cq} (#{questionScores.maxPoint})"/>
       </small>
     </h:panelGroup>
-      </h2>
-    </div>
-  </t:dataList>
      <h:panelGroup rendered="#{question.isExtraCredit == true}">
         <h:outputText styleClass="extraCreditLabel" value=" #{deliveryMessages.extra_credit_preview}" />
      </h:panelGroup>
