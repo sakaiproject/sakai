@@ -151,7 +151,10 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private static final String SIMILARITY = "similarity";
 	private static final String SAVE_CHANGES = "save_changes";
 	private static final String VIEW_SETTINGS = "view_settings";
-	private static final String VIEWER_DEFAULT_PERMISSIONS = "viewer_default_permissions_set";
+	private static final String VIEWER_PERMISSIONS = "viewer_permissions";
+	private static final String VIEWER_PERMISSION_MAY_VIEW_SUBMISSIONS_FULL_SOURCE = "may_view_submission_full_source";
+	private static final String VIEWER_PERMISSION_MAY_VIEW_MATCH_SUBMISSION_INFO = "may_view_match_submission_info";
+	private static final String VIEWER_DEFAULT_PERMISSIONS = "viewer_default_permission_set";
 	private static final String INSTRUCTOR = "INSTRUCTOR";
 	private static final String LEARNER = "LEARNER";
 	
@@ -264,6 +267,10 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private final String KEY_FILE_TYPE_PREFIX = "file.type";
 	
 	private String autoExcludeSelfMatchingScope;
+	private Boolean mayViewSubmissionFullSourceOverrideStudent = null;
+	private Boolean mayViewMatchSubmissionInfoOverrideStudent = null;
+	private Boolean mayViewSubmissionFullSourceOverrideInstructor = null;
+	private Boolean mayViewMatchSubmissionInfoOverrideInstructor = null;
 
 	public void init() {
 		EULA_CACHE = memoryService.createCache("org.sakaiproject.contentreview.turnitin.oc.ContentReviewServiceTurnitinOC.LATEST_EULA_CACHE", new SimpleConfiguration<>(10000, 24 * 60 * 60, -1));
@@ -284,6 +291,20 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				.filter(e -> e.name().equalsIgnoreCase(serverConfigurationService.getString("turnitin.oc.auto_exclude_self_matching_scope")))
 				.findAny().orElse(AUTO_EXCLUDE_SELF_MATCHING_SCOPE.GROUP).name();
 		log.info("Exclude Scope: " + autoExcludeSelfMatchingScope);
+		
+		// Find any permission overrides, if not set, set value to null to skip overrides
+		mayViewSubmissionFullSourceOverrideStudent = StringUtils.isNotEmpty(serverConfigurationService.getString("turnitin.oc2.may_view_submission_full_source.student")) 
+				? serverConfigurationService.getBoolean("turnitin.oc2.may_view_submission_full_source.student", false)
+				: null;
+		mayViewMatchSubmissionInfoOverrideStudent = StringUtils.isNotEmpty(serverConfigurationService.getString("turnitin.oc2.may_view_match_submission_info.student")) 
+				? serverConfigurationService.getBoolean("turnitin.oc2.may_view_match_submission_info.student", false)
+				: null;
+		mayViewSubmissionFullSourceOverrideInstructor = StringUtils.isNotEmpty(serverConfigurationService.getString("turnitin.oc2.may_view_submission_full_source.instructor")) 
+				? serverConfigurationService.getBoolean("turnitin.oc2.may_view_submission_full_source.instructor", false)
+				: null;
+		mayViewMatchSubmissionInfoOverrideInstructor = StringUtils.isNotEmpty(serverConfigurationService.getString("turnitin.oc2.may_view_match_submission_info.instructor")) 
+				? serverConfigurationService.getBoolean("turnitin.oc2.may_view_match_submission_info.instructor", false)
+				: null;
 
 		// Populate base headers that are needed for all calls to TCA
 		BASE_HEADERS.put(HEADER_NAME, INTEGRATION_FAMILY);
@@ -524,6 +545,23 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				similarity.put(VIEW_SETTINGS, viewSettings);
 				data.put(SIMILARITY, similarity);
 				data.put(VIEWER_DEFAULT_PERMISSIONS, isInstructor ? INSTRUCTOR : LEARNER);
+				//Check if there are any sakai.properties overrides for the default permissions
+				Map<String, Object> viewerPermissionsOverride = new HashMap<String, Object>();
+				if(!isInstructor && mayViewSubmissionFullSourceOverrideStudent != null) {
+					viewerPermissionsOverride.put(VIEWER_PERMISSION_MAY_VIEW_SUBMISSIONS_FULL_SOURCE, mayViewSubmissionFullSourceOverrideStudent);
+				}
+				if(!isInstructor && mayViewMatchSubmissionInfoOverrideStudent != null) {
+					viewerPermissionsOverride.put(VIEWER_PERMISSION_MAY_VIEW_MATCH_SUBMISSION_INFO, mayViewMatchSubmissionInfoOverrideStudent);
+				}
+				if(isInstructor && mayViewSubmissionFullSourceOverrideInstructor != null) {
+					viewerPermissionsOverride.put(VIEWER_PERMISSION_MAY_VIEW_SUBMISSIONS_FULL_SOURCE, mayViewSubmissionFullSourceOverrideInstructor);
+				}
+				if(isInstructor && mayViewMatchSubmissionInfoOverrideInstructor != null) {
+					viewerPermissionsOverride.put(VIEWER_PERMISSION_MAY_VIEW_MATCH_SUBMISSION_INFO, mayViewMatchSubmissionInfoOverrideInstructor);
+				}
+				if(viewerPermissionsOverride.size() > 0) {
+					data.put(VIEWER_PERMISSIONS, viewerPermissionsOverride);
+				}
 
 				// Check user preference for locale			
 				// If user has no preference set - get the system default
