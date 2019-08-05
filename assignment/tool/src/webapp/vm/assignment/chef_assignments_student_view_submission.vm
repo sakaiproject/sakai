@@ -45,7 +45,7 @@ $(document).ready(function(){
 		#set($closeDate = $submission.CloseDate)
 	#end
 	#set ($submissionType = $assignment.TypeOfSubmission.ordinal())
-	#if ($allowSubmit && !$submission && $closeDate && $currentTime.isAfter($closeDate) )
+	#if ($allowSubmit && !$submission && $closeDate && $currentTime.isAfter($closeDate) && !$!nonElectronicType)
 		<div class="alertMessage">$tlang.getString("stuviewsubm.theclodat")</div><div class="clear"></div>
 	#end
 
@@ -442,7 +442,7 @@ $(document).ready(function(){
 		#if ($returned)
 			<h3>$tlang.getString("gen.resubmission")</h3> 
 		#else
-				<h3>$tlang.getString("gen.submission")</h3> 
+			<h3>$tlang.getString("gen.submission")</h3> 
 		#end	
 
 		#set($notes = [])
