@@ -55,24 +55,16 @@ public class HTTPConnectionUtil {
 			CloseableHttpResponse response = null;
 			log.debug(request.toString());
 			InputStream stream = null;
-			CloseableHttpClient client = HttpClients.createDefault();
-			try {
+			try (CloseableHttpClient client = HttpClients.createDefault()) {
 				response = client.execute(request);
 				HttpEntity entity = response.getEntity();
 				if (entity != null) {
 					stream = entity.getContent();
-				 	String streamString = IOUtils.toString(stream, "UTF-8");
-				   	return streamString;
+					String streamString = IOUtils.toString(stream, "UTF-8");
+					return streamString;
 				}
 			} catch (Exception e) {
 				log.warn("Could not fetch results from OneDrive API." + e.getMessage());
-			} finally {
-				try {
-					response.close();
-					stream.close();
-				} catch (Exception e) {
-					log.warn("Error while closing HttpResponse." + e.getMessage());
-				}
 			}
 		
 		} catch (URISyntaxException e) {
@@ -96,26 +88,17 @@ public class HTTPConnectionUtil {
 			CloseableHttpResponse response = null;
 			log.debug(request.toString());
 			InputStream stream = null;
-			try {
-				CloseableHttpClient client = HttpClients.createDefault();
+			try (CloseableHttpClient client = HttpClients.createDefault()) {
 				response = client.execute(request);
 				HttpEntity entity = response.getEntity();
-					if (entity != null) {
-						stream = entity.getContent();
-					   	String streamString = IOUtils.toString(stream, "UTF-8");
-					   	return streamString;
-					}
-				} catch (Exception e) {
-					log.warn("Could not fetch results from OneDrive API." + e.getMessage());
-				} finally {
-					try {
-						response.close();
-						stream.close();
-					} catch (Exception e) {
-						log.warn("Error while closing HttpResponse." + e.getMessage());
-					}
+				if (entity != null) {
+					stream = entity.getContent();
+					String streamString = IOUtils.toString(stream, "UTF-8");
+					return streamString;
 				}
-			
+			} catch (Exception e) {
+				log.warn("Could not fetch results from OneDrive API." + e.getMessage());
+			}
 		} catch (URISyntaxException e) {
 			log.error("Incorrect OneDrive API url syntax.", e);
 		}

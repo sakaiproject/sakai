@@ -1375,8 +1375,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 					item.setIconLocation(typedef.getIconLocation(attachment));
 					item.setIconClass(typedef.getIconClass(attachment));
 					new_items.add(item);
-					disableSecurityAdvisors();
-					
+
 					toolSession.setAttribute(STATE_HELPER_CHANGED, Boolean.TRUE.toString());
 				}
 				catch (VirusFoundException vfe)
@@ -1419,6 +1418,8 @@ public class FilePickerAction extends PagedResourceHelperAction
 						log.debug("ResourcesAction.doAttachupload ***** Unknown Exception ***** " + e.getMessage());
 						addAlert(state, crb.getString("failed"));
 					}
+				} finally{
+					disableSecurityAdvisors();
 				}
 			}
 			else
