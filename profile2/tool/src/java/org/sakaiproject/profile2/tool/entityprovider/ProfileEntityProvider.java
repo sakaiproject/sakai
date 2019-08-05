@@ -16,14 +16,18 @@
 package org.sakaiproject.profile2.tool.entityprovider;
 
 import java.io.IOException;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.ServletOutputStream;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -469,23 +473,76 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		MimeTypeByteArray mtba = profileLogic.getUserNamePronunciation(uuid);
 		if(mtba != null && mtba.getBytes() != null) {
 			final byte[] bytes = mtba.getBytes();
+			int fileSize = bytes.length;
 			//check for binary
-			if(bytes != null && bytes.length > 0) {
+			if(bytes != null && fileSize > 0) {
 				try {
+					requestGetter.getResponse().reset();
+					requestGetter.getResponse().setHeader("Expires", "0");
+					requestGetter.getResponse().setHeader("Pragma", "no-cache");
+					requestGetter.getResponse().setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+
 					// Set mime type here before header is sent
-					requestGetter.getResponse().setContentType("audio/ogg");
-					out.write(bytes);
-					ActionReturn actionReturn = new ActionReturn(StandardCharsets.UTF_8.name(), "audio/ogg", out);
+					requestGetter.getResponse().setContentType(mtba.getMimeType());
+					//Set the content disposition
+					requestGetter.getResponse().setHeader("Content-Disposition", String.format("attachment; filename=\"%s.wav\"; filename*=UTF-8''%s.wav", uuid, uuid));
 
-					Map<String,String> headers = new HashMap<>();
-					headers.put("Expires", "0");
-					headers.put("Cache-Control","no-cache, no-store, must-revalidate");
-					headers.put("Pragma", "no-cache");
-					actionReturn.setHeaders(headers);
+					//iOS and MacOS always send a range request for the file, we should return the requested part of the recording.
+					String range = requestGetter.getRequest().getHeader("range");
+					int start = 0;
+					int end = fileSize - 1;
+					int rangeContentLength = end - start + 1;
+					if(StringUtils.isNotBlank(range)) {
+						Pattern httpRangePattern = Pattern.compile("bytes=(?<start>\\d*)-(?<end>\\d*)");
+						Matcher matcher = httpRangePattern.matcher(range);
+						if(matcher.matches()) {
+							String startMatch = matcher.group(1);
+							start = startMatch.isEmpty() ? start : Integer.valueOf(startMatch);
+							start = start < 0 ? 0 : start;
+							String endMatch = matcher.group(2);
+							end = endMatch.isEmpty() ? end : Integer.valueOf(endMatch);
+							end = end > fileSize - 1 ? fileSize - 1 : end;
+							rangeContentLength = end - start + 1;
+						}
 
+						//Set the headers to specify that we're serving a partial content and establish the ranges.
+						requestGetter.getResponse().setHeader("Accept-Ranges", "bytes");
+						requestGetter.getResponse().setHeader("Content-Range", String.format("bytes %s-%s/%s", start, end, fileSize));
+						requestGetter.getResponse().setHeader("Content-Length", String.format("%s", rangeContentLength));
+						requestGetter.getResponse().setStatus(requestGetter.getResponse().SC_PARTIAL_CONTENT);
+
+						//Write the partial content in the response, only the requested bytes.
+						try(ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
+							ServletOutputStream outputStream = requestGetter.getResponse().getOutputStream();
+							BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream)) {
+
+							int byteIndex=0;
+							if (inputStream != null)  {
+								// skip to the start of the possible range request
+								inputStream.skip(start); 
+								int bytesLeft = rangeContentLength;
+								byte[] buffer = new byte[1024];
+								while ( (byteIndex = inputStream.read(buffer)) != -1 && bytesLeft > 0){
+									bufferedOutputStream.write(buffer);
+									bytesLeft -= byteIndex;
+								}
+							}
+
+							//Flush the stream in the response
+							requestGetter.getResponse().flushBuffer();
+						} catch(Exception e){
+							log.warn(e.getMessage());
+						}
+					} else {
+						//Write the entire file because is not a range request.
+						requestGetter.getResponse().setContentLength(fileSize);
+						out.write(bytes);
+					}
+
+					ActionReturn actionReturn = new ActionReturn(Formats.UTF_8, mtba.getMimeType(), out);
 					return actionReturn;
 
-				} catch (IOException e) {
+				} catch (Exception e) {
 					throw new EntityException("Error retrieving name pronunciation for " + uuid + " : " + e.getMessage(), ref.getReference());
 				}
 			}

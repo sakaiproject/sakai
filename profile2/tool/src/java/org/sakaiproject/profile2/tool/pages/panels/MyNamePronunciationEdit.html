@@ -124,7 +124,7 @@
                 $btnReleaseMicrophone.click();
             }
 
-            var fileObject = new File([recorder.getBlob()], "audio.ogg", {type: 'audio/ogg'});
+            var fileObject = new File([recorder.getBlob()], "audio.wav", {type: 'audio/wav'});
             getBase64(fileObject).then(
                 data => document.getElementById('audioBase64').value = data
             );
@@ -168,9 +168,12 @@
             audio.srcObject = microphone;
             var options = {
                 type: 'audio',
+                mimeType: 'audio/wav',
                 numberOfAudioChannels: isEdge ? 1 : 2,
                 checkForInactiveTracks: true,
-                bufferSize: 16384
+                bufferSize: 16384,
+                audio: true,
+                recorderType: StereoAudioRecorder
             };
             if(isSafari || isEdge) {
                 options.recorderType = StereoAudioRecorder;
