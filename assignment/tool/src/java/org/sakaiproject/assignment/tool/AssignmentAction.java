@@ -10404,9 +10404,6 @@ public class AssignmentAction extends PagedResourceActionII {
         // whether the user can access the Submission object
         if (s != null) {
             String status = assignmentService.getSubmissionStatus(s.getId());
-            if ("Not Started".equals(status) || (rb.getString("gen.notsta").equals(status))) {
-                addAlert(state, rb.getString("stuviewsubm.theclodat"));
-            }
 
             // show submission view unless group submission with group error
             Assignment a = s.getAssignment();
