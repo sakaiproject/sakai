@@ -27,3 +27,22 @@
 .cke_inner.cke_reset.cke_maximized {
 	position: fixed !important;
 }
+.cke_button_label.cke_button__templates_label {
+	display: inline;
+}
+.cke_dialog_contents_body .cke_tpl_list {
+	height: 430px !important;
+}
+.cke_tpl_preview .cke_tpl_preview_img {
+	width: 50px !important;
+}
+.cke_tpl_preview span{
+	&.template-icon{
+		font-family: FontAwesome;
+		font-size: 3em;
+		width: 50px;
+		float: left;
+		padding: 0px 5px 10px 0px;
+		text-align: center;
+	}
+}
