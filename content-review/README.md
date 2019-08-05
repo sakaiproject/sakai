@@ -7,6 +7,7 @@ The content-review project adds plagiarism integrations to sakai that can be use
 Currently there are 4 integrations with built in support:
 - [VeriCite](impl/vericite/README.md)
 - [Turnitin](impl/turnitin/README.md)
+- [TurnitinOC](impl/turnitin-oc/README.md)
 - [Urkund](impl/urkund/readme.md)
 - [Compilatio](impl/compilatio/README.md)
 
