@@ -125,6 +125,14 @@ public class PopupForm extends BaseForm {
             errors.addError("template", "template_was_missing");
         }
 
+        List<String> acceptedTemplateMimetypes = new ArrayList<String>();
+        acceptedTemplateMimetypes.add("text/html");
+        acceptedTemplateMimetypes.add("text/plain");
+        acceptedTemplateMimetypes.add("text/xml");
+        if (templateItem.isPresent() && !acceptedTemplateMimetypes.contains(templateItem.get().getContentType())) {
+            errors.addError("template", "template_wrong_mimetype");
+        }
+
         Errors modelErrors = toPopup().validate();
 
         return errors.merge(modelErrors);
