@@ -23,6 +23,7 @@ $PBJQ(document).ready(function(){
 
 var setup_timeout_config = function(){
 
+  if ( ! portal || ! portal.timeoutDialog ) return; // SAK-42250
   timeoutDialogEnabled = portal.timeoutDialog.enabled;
   timeoutDialogWarningTime = portal.timeoutDialog.seconds;
   timeoutLoggedoutUrl = portal.loggedOutUrl;
