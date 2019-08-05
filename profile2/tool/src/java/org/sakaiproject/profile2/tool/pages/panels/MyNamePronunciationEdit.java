@@ -242,7 +242,7 @@ public class MyNamePronunciationEdit extends Panel {
             String path = profileLogic.getUserNamePronunciationResourceId(userId);
             byte[] bytes = Base64.getDecoder().decode(audioStr.getBytes(StandardCharsets.UTF_8));
             sakaiProxy.removeResource(path);
-            sakaiProxy.saveFile(path, userId, userId+".ogg", "audio/ogg", bytes);
+            sakaiProxy.saveFile(path, userId, userId+".wav", "audio/wav", bytes);
         }
 
         if(profileLogic.saveUserProfile(sakaiPerson)) {

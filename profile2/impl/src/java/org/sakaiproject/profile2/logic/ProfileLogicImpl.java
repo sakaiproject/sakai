@@ -517,8 +517,8 @@ public class ProfileLogicImpl implements ProfileLogic {
 		path.append("namePronunciation");
 		path.append(slash);
 		path.append(uuid);
-		path.append(".ogg");
-                return path.toString();
+		path.append(".wav");
+		return path.toString();
 	}
 
 	@Override
