@@ -90,8 +90,8 @@ public interface PermissionLevelManager {
 	public List<PermissionLevel> getDefaultPermissionLevels();
 	
     public DBMembershipItem createDBMembershipItem(String name, String permissionLevelName, Integer type);
-    public void saveDBMembershipItem(DBMembershipItem item);
-    public void savePermissionLevel(PermissionLevel level);
+    public DBMembershipItem saveDBMembershipItem(DBMembershipItem item);
+    public PermissionLevel savePermissionLevel(PermissionLevel level);
     
     /**
      * 

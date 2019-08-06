@@ -548,7 +548,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 
 									DBMembershipItem newItem = getMembershipItemCopy(oldItem);
 									if (newItem != null) {
-										permissionManager.saveDBMembershipItem(newItem);
+										newItem = permissionManager.saveDBMembershipItem(newItem);
 										newForum.addMembershipItem(newItem);
 									}
 								}
@@ -629,7 +629,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 										if(allowedPermNames.contains(oldItem.getName())) {
 											DBMembershipItem newItem = getMembershipItemCopy(oldItem);
 											if (newItem != null) {
-												permissionManager.saveDBMembershipItem(newItem);
+												newItem = permissionManager.saveDBMembershipItem(newItem);
 												newTopic.addMembershipItem(newItem);
 											}
 										}
@@ -680,6 +680,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 				mergeMessageForumElements(siteId, fromSiteId, attachmentNames, messageForumElementList.get(0));
 			} catch (Exception e) {
 				results.append("merging ").append(getLabel()).append(" failed.\n");
+				log.error(e.getMessage(), e);
 			}
 		}
 		return results.toString();
@@ -806,11 +807,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		final Set<DBMembershipItem> membershipItemSet = getMembershipItemSetFromPermissionElement(permissionElement,
 				siteId);
 		if (CollectionUtils.isNotEmpty(membershipItemSet)) {
-			for (DBMembershipItem oldItem : membershipItemSet) {
-				final DBMembershipItem newItem = getMembershipItemCopy(oldItem);
-				permissionManager.saveDBMembershipItem(newItem);
-				discussionForum.addMembershipItem(newItem);
-			}
+			discussionForum.setMembershipItemSet(membershipItemSet);
 		}
 	}
 
@@ -899,6 +896,8 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		// Discussion topic have to be saved before its messages
 		discussionTopic = forumManager.saveDiscussionForumTopic(discussionTopic, discussionForum.getDraft());
 
+		discussionTopic.setBaseForum(discussionForum);
+
 		// Messages have to be merged after the topic in order to control the ids of the
 		// "onReplyTo" attribute
 		final List<Element> messagesElementList = getMessagesElementList(elements);
@@ -951,11 +950,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		final Set<DBMembershipItem> membershipItemSet = getMembershipItemSetFromPermissionElement(permissionElement,
 				siteId);
 		if (CollectionUtils.isNotEmpty(membershipItemSet)) {
-			for (DBMembershipItem oldItem : membershipItemSet) {
-				final DBMembershipItem newItem = getMembershipItemCopy(oldItem);
-				permissionManager.saveDBMembershipItem(newItem);
-				discussionTopic.addMembershipItem(newItem);
-			}
+			discussionTopic.setMembershipItemSet(membershipItemSet);
 		}
 	}
 
@@ -966,7 +961,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 			final Node messageNode = messagesNodeList.item(m);
 			final Element messageElement = (Element) messageNode;
 
-			final Message message = createMessage(discussionTopic, messageIdInReplyTo, messageElement);
+			Message message = createMessage(discussionTopic, messageIdInReplyTo, messageElement);
 
 			// Merge messages in reply to this message once the new id is known
 			final List<Element> elements = getChildElementList(messageElement);
@@ -982,7 +977,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 			}
 
 			// Save the message to get the new id
-			final String messageId = messageManager.saveMessage(message);
+			String messageId = messageManager.saveMessage(message);
 
 			final List<Element> messagesElementList = getMessagesElementList(elements);
 			for (Element messagesChildElement : messagesElementList) {
@@ -1257,7 +1252,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 									}
 								}
 								// save DBMembershipItem here to get an id so we can add to the set
-								permissionManager.saveDBMembershipItem(membershipItem);
+								membershipItem = permissionManager.saveDBMembershipItem(membershipItem);
 								membershipItemSet.add(membershipItem);
 							}
 						}

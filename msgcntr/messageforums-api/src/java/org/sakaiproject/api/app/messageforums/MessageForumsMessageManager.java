@@ -50,8 +50,7 @@ public interface MessageForumsMessageManager {
      * @return 
      *
      */
-	public Message saveOrUpdateMessage(Message message, boolean logEvent, String toolId, String userId, String contextId);
-
+    public Message saveOrUpdateMessage(Message message, boolean logEvent, String toolId, String userId, String contextId);
     /**
      * 
      * @param message

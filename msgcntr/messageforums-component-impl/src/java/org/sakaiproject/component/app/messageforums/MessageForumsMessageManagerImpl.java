@@ -1263,21 +1263,21 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     }
 
     public Message saveOrUpdateMessage(Message message) {
-    	return saveMessage(message, true);
+        return saveOrUpdateMessage(message, true);
     }
 
     public Message saveOrUpdateMessage(Message message, boolean logEvent) {
-    	return saveOrUpdateMessage(message, logEvent, toolManager.getCurrentTool().getId(), getCurrentUser(), getContextId());
+        return saveOrUpdateMessage(message, logEvent, toolManager.getCurrentTool().getId(), getCurrentUser(), getContextId());
     }
-    
+
     public Message saveOrUpdateMessage(Message message, boolean logEvent, boolean ignoreLockedTopicForum) {
         return saveOrUpdateMessage(message, logEvent, toolManager.getCurrentTool().getId(), getCurrentUser(), getContextId(), ignoreLockedTopicForum);
     }
-    
+
     public Message saveOrUpdateMessage(Message message, boolean logEvent, String toolId, String userId, String contextId){
-    	return saveOrUpdateMessage(message, logEvent, toolId, userId, contextId, false);
+        return saveOrUpdateMessage(message, logEvent, toolId, userId, contextId, false);
     }
-    
+
     public Message saveOrUpdateMessage(Message message, boolean logEvent, String toolId, String userId, String contextId, boolean ignoreLockedTopicForum){
         boolean isNew = message.getId() == null;
 
@@ -1396,7 +1396,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
             }
         }
 
-        Serializable id = getHibernateTemplate().save(message);
+        message = getHibernateTemplate().merge(message);
 
         if (logEvent) {
             if (isMessageFromForums(message)) {
@@ -1408,8 +1408,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
             }
         }
 
-        log.debug("new message with id " + id.toString() + " saved successfully");
-        return id.toString();
+        log.debug("new message with id " + message.getId().toString() + " saved successfully");
+        return message.getId().toString();
     }
 
     public void deleteMessage(Message message) {

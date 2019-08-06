@@ -934,19 +934,10 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         if (isNew) {
             DiscussionForum discussionForum = (DiscussionForum) getForumByIdWithTopics(topic.getBaseForum().getId());
             discussionForum.addTopic(topic);
-            discussionForum = saveDiscussionForum(discussionForum, parentForumDraftStatus, logEvent, currentUser);
         } else {
             topic = getHibernateTemplate().merge(topic);
         }
-        //now schedule any jobs that are needed for the open/close dates
-        //this will require having the ID of the topic (if its a new one)
-        if(topic.getId() == null){
-        	Topic topicTmp = getTopicByUuid(topic.getUuid());
-        	if(topicTmp != null){
-        		//set the ID so that the forum scheduler can schedule any needed jobs
-        		topic.setId(topicTmp.getId());
-        	}
-        }
+
         if(topic.getId() != null){
         	ForumScheduleNotificationCover.scheduleAvailability(topic);
         }
