@@ -53,6 +53,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
@@ -81,12 +82,17 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.Xml;
 import org.sakaiproject.util.api.FormattedText;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.github.javafaker.Faker;
 
@@ -1016,6 +1022,64 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         nf.setMinimumFractionDigits(dec);
         nf.setGroupingUsed(false);
         when(formattedText.getNumberFormat(dec, dec, false)).thenReturn(nf);
+    }
+
+    @Test
+    public void mergeAssignmentFromXML() throws PermissionException {
+        log.info("mergeAssignmentFromXML begins");
+        final String siteId = "SITE_ID";
+        final String fileName = getClass().getClassLoader().getResource("importAssignment.xml").getPath();
+        final Document doc = Xml.readDocument(fileName);
+        final String idAssignment = "12345678-abcd-1234-abcd-123456789abc";
+
+        final Collection<Assignment> assignmentBeforeMerge = assignmentService.getAssignmentsForContext(siteId);
+
+        if (doc != null) {
+            // Mock everything needed to have permission
+            mockingForPermissionsArchiveMerge(siteId);
+
+            // verify the root element
+            final Element root = doc.getDocumentElement();
+            // the children
+            final NodeList children = root.getChildNodes();
+            final int length = children.getLength();
+
+            for (int i = 0; i < length; i++) {
+                Node child = children.item(i);
+                if (child.getNodeType() != Node.ELEMENT_NODE)
+                    continue;
+                Element element = (Element) child;
+                log.info("mergeAssignmentFromXML element: " + element.getTagName());
+                // look for site stuff
+                if ("org.sakaiproject.assignment.api.AssignmentService".equals(element.getTagName())) {
+                    assignmentService.merge(siteId, element, null, null, null, null, null);
+                    final Collection<Assignment> assignmentAfterMerge = assignmentService.getAssignmentsForContext(siteId);
+                    Assert.assertEquals(assignmentBeforeMerge.size(), assignmentAfterMerge.size() - 1 );
+                }
+            }
+        }
+    }
+
+    private void mockingForPermissionsArchiveMerge(String siteId) {
+        final Site siteMock = Mockito.mock(Site.class);
+        final Collection<Group> groupCollection = new ArrayList<>();
+        final Group groupMock = Mockito.mock(Group.class);
+        Mockito.when(groupMock.getReference()).thenReturn("reference");
+        groupCollection.add(groupMock);
+        Mockito.when(siteMock.getGroups()).thenReturn(groupCollection);
+        final Set<String> references = new HashSet<>();
+        references.add("reference");
+        Mockito.when(authzGroupService.getAuthzGroupsIsAllowed(Mockito.anyString(), Mockito.anyString(),
+                Mockito.anyCollection())).thenReturn(references);
+        try {
+            Mockito.when(siteService.getSite(siteId)).thenReturn(siteMock);
+        } catch (IdUnusedException e) {
+            log.error("error in mergeAssignmentFromXML", e);
+        }
+
+        Mockito.when(securityService.unlock("asn.new", "/assignment/a/SITE_ID")).thenReturn(true);
+        Mockito.when(securityService.unlock("asn.revise", "/assignment/a/SITE_ID")).thenReturn(true);
+        Mockito.when(securityService.unlock("asn.read", "/assignment/a/SITE_ID")).thenReturn(true);
     }
 
     private AssignmentSubmission duplicateSubmission(AssignmentSubmission submission) {

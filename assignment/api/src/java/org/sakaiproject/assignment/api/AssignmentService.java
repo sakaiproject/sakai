@@ -25,6 +25,8 @@ import java.io.OutputStream;
 import java.time.Instant;
 import java.util.*;
 
+import javax.xml.transform.TransformerException;
+
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
@@ -282,8 +284,9 @@ public interface AssignmentService extends EntityProducer {
      * @throws IdInvalidException  if the assignment id is invalid.
      * @throws IdUsedException     if the assignment id is already used.
      * @throws PermissionException if the current user does not have permission to add an assignnment.
+     * @throws TransformerException if the element is wrong
      */
-    public Assignment mergeAssignment(Element el) throws IdInvalidException, IdUsedException, PermissionException;
+    public Assignment mergeAssignment(Element el) throws IdInvalidException, IdUsedException, PermissionException, TransformerException;
 
     /**
      * Creates and adds a new Assignment to the service which is a copy of an existing Assignment.

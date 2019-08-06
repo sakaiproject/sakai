@@ -53,10 +53,13 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.StringTokenizer;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.TransformerException;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -178,6 +181,7 @@ import org.springframework.util.Assert;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import lombok.Setter;
@@ -190,7 +194,8 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional(readOnly = true)
 public class AssignmentServiceImpl implements AssignmentService, EntityTransferrer, ApplicationContextAware {
 
-    @Setter private AnnouncementService announcementService;
+	private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+	@Setter private AnnouncementService announcementService;
     @Setter private ApplicationContext applicationContext;
     @Setter private AssignmentActivityProducer assignmentActivityProducer;
     @Setter private AssignmentDueReminderService assignmentDueReminderService;
@@ -283,7 +288,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     public String archive(String siteId, Document doc, Stack<Element> stack, String archivePath, List<Reference> attachments) {
-        String message = "archiving " + getLabel() + " context " + Entity.SEPARATOR + siteId + Entity.SEPARATOR + SiteService.MAIN_CONTAINER + ".\n";
+        String message = "archiving " + getLabel() + " context " + Entity.SEPARATOR + siteId + Entity.SEPARATOR + SiteService.MAIN_CONTAINER + LINE_SEPARATOR;
         log.debug(message);
 
         // start with an element with our very own (service) name
@@ -292,6 +297,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         stack.push(element);
 
         Collection<Assignment> assignments = getAssignmentsForContext(siteId);
+        message += " Assignments to archive: " + assignments.size() + "." + LINE_SEPARATOR;
+        int assignmentsArchived = 0;
         for (Assignment assignment : assignments) {
             String xml = assignmentRepository.toXML(assignment);
 
@@ -301,6 +308,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 Element assignmentElement = assignmentDocument.getDocumentElement();
                 Node assignmentNode = doc.importNode(assignmentElement, true);
                 element.appendChild(assignmentNode);
+                assignmentsArchived++;
             } catch (Exception e) {
                 log.warn("could not append assignment {} to archive, {}", assignment.getId(), e.getMessage());
             }
@@ -308,12 +316,34 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         stack.pop();
 
+        message += " Assignments successfully archived: " + assignmentsArchived + "." + LINE_SEPARATOR;
         return message;
     }
 
     @Override
+    @Transactional
     public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map<String, String> attachmentNames, Map<String, String> userIdTrans, Set<String> userListAllowImport) {
-        return null;
+    	
+    	final StringBuilder results = new StringBuilder();
+    	results.append("merging ").append(getLabel()).append(" context " + Entity.SEPARATOR).append(siteId).append(Entity.SEPARATOR).append(SiteService.MAIN_CONTAINER).append(".").append(LINE_SEPARATOR);
+    	final NodeList allChildrenNodeList = root.getChildNodes();
+    	final Stream<Node> allChildrenNodes = IntStream.range(0, allChildrenNodeList.getLength()).mapToObj(allChildrenNodeList::item);
+    	final List<Element> assignmentElements = allChildrenNodes.filter(node -> node.getNodeType() == Node.ELEMENT_NODE).map(element -> (Element) element).collect(Collectors.toList());
+    	results.append("Assignments to merge: " + assignmentElements.size() + "." + LINE_SEPARATOR);
+    	int assignmentsMerged = 0;
+
+    	for (Element assignmentElement : assignmentElements) {
+            try {
+    			mergeAssignment(assignmentElement);
+    			assignmentsMerged++;
+    		} catch (Exception e) {
+    			final String error = "could not merge assignment with id: " + assignmentElement.getFirstChild().getFirstChild().getNodeValue() + LINE_SEPARATOR;
+    			log.error(error, e);
+    			results.append(error);
+            }
+        }
+    	results.append("Assignments successfully merged: " + assignmentsMerged + "." + LINE_SEPARATOR);
+    	return results.toString();
     }
 
     @Override
@@ -769,12 +799,24 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     @Transactional
-    public Assignment mergeAssignment(Element el) throws IdInvalidException, IdUsedException, PermissionException {
-        // TODO need to write a test for this
+    public Assignment mergeAssignment(final Element element) throws IdInvalidException, IdUsedException, PermissionException, TransformerException {
         // this may also need to handle submission serialization?
-        Assignment assignmentFromXml = assignmentRepository.fromXML(el.toString());
-
-        return addAssignment(assignmentFromXml.getContext());
+    	final String xml = NodeToStringUtility.toString(element);
+    	final Assignment assignmentFromXml = assignmentRepository.fromXML(xml);
+    	if (assignmentFromXml != null) {
+            assignmentFromXml.setId(null);
+            CollectionUtils.emptyIfNull(assignmentFromXml.getSubmissions()).stream().forEach(submission -> {
+	            submission.setId(null);
+	            CollectionUtils.emptyIfNull(submission.getSubmitters()).stream().forEach(submitter -> submitter.setId(null));
+	        });
+            // security check
+            if (!allowAddAssignment(assignmentFromXml.getContext())) {
+	    		throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT, null);
+	        }
+            assignmentRepository.persist(assignmentFromXml);
+            log.debug("Created new assignment {}", assignmentFromXml.getId());
+    	}
+    	return assignmentFromXml;
     }
 
     @Override
