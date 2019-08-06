@@ -20,10 +20,10 @@
 	#if($menu)#toolbar($menu)#end
 
 	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
-	
-	<h3>
-		$tlang.getString("ical.title")
-	</h3>
+
+	<div class="page-header">
+		<h1>$tlang.getString("ical.title")</h1>
+	</div>
 	
 	<p class="sak-banner-info">
 		$icalInfoStr $tlang.getString("ical.info.public")<br/>

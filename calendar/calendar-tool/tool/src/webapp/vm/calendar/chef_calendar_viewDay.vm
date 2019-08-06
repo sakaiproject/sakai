@@ -5,7 +5,9 @@
 
 		#if ($alertMessage)<div class="sak-banner-error">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>#end
 
-	<h3>$tlang.getString("view.calday")</h3>
+		<div class="page-header">
+			<h1>$tlang.getString("view.calday")</h1>
+		</div>
 		<div class="alertPanel">
 			<div class="viewNav">
 				<form name="viewForm" class="inlineForm" method="post" action="#toolForm("CalendarAction")">

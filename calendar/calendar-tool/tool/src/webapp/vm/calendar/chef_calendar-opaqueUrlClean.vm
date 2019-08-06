@@ -1,9 +1,9 @@
 ## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/calendar/chef_calendar-opaqueUrl1.vm,v 1.5 2005/05/28 03:04:35 ggolden.umich.edu Exp $
 <div class="portletBody"> 
 	#if($menu)#toolbar($menu)#end
-	<h3>
-		$tlang.getString('ical_opaqueurl_header')
-	</h3>
+	<div class="page-header">
+		<h1>$tlang.getString('ical_opaqueurl_header')</h1>
+	</div>
 	<p class="instruction">
 		$tlang.getString('ical_opaqueurl_explanation')
 	</p>

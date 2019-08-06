@@ -2,8 +2,10 @@
 <div class="portletBody">
 	#if($menu)#toolbar($menu)#end
 	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>#end
-	<h3>$tlang.getString("view.calweek")</h3>
-		
+	<div class="page-header">
+		<h1>$tlang.getString("view.calweek")</h1>
+	</div>
+
 <!-- drop down menu for different views -->
 	<div class="navPanel">
 		<div class="viewNav">

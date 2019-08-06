@@ -14,19 +14,21 @@
        		<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/msgcntr_statistics.css" />
   		<h:panelGrid columns="2" width="100%" styleClass="navPanel  specialLink">
           <h:panelGroup>
-          	 <f:verbatim><h3></f:verbatim>
-			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"
-			      		rendered="#{ForumTool.messagesandForums}" />
-			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_discussion_forums}" title=" #{msgs.cdfm_discussion_forums}"
-			      		rendered="#{ForumTool.forumsTool}" />
-			      <h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
-			      <h:outputText value="#{msgs.stat_list}" />
-			    <f:verbatim></h3></f:verbatim>
+			  <div class="page-header">
+			 	<f:verbatim><h1></f:verbatim>
+				  <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"
+						rendered="#{ForumTool.messagesandForums}" />
+				  <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_discussion_forums}" title=" #{msgs.cdfm_discussion_forums}"
+						rendered="#{ForumTool.forumsTool}" />
+				  <h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
+				  <h:outputText value="#{msgs.stat_list}" />
+				<f:verbatim></h1></f:verbatim>
+			  </div>
           </h:panelGroup>
-          <h:panelGroup styleClass="itemNav specialLink">     
+          <h:panelGroup styleClass="itemNav specialLink">
 			<h:outputText value="#{msgs.cdfm_statistics} #{msgs.stat_byUser} " />
 			<h:outputText value="#{msgs.cdfm_toolbar_separator} " />
-			<h:commandLink action="#{mfStatisticsBean.processActionStatisticsByAllTopics}" value="#{msgs.cdfm_statistics} #{msgs.stat_byTopic}" title="#{msgs.cdfm_statistics} #{msgs.stat_byTopic}"/>				
+			<h:commandLink action="#{mfStatisticsBean.processActionStatisticsByAllTopics}" value="#{msgs.cdfm_statistics} #{msgs.stat_byTopic}" title="#{msgs.cdfm_statistics} #{msgs.stat_byTopic}"/>
 		  </h:panelGroup>
         </h:panelGrid>
   	

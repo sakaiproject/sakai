@@ -1,8 +1,8 @@
 <div class="portletBody"> 
 	#if($menu)#toolbar($menu)#end
-	<h3>
-		$tlang.getString('merge.merge')
-	</h3>
+	<div class="page-header">
+		<h1>$tlang.getString('merge.merge')</h1>
+	</div>
 	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>#end
 	<p class="instruction">
 		$tlang.getString('merge.select')

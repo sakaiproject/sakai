@@ -108,7 +108,9 @@
 				 updateGradeAssignment();
 			 });				 
         </script>
-        <h1><h:outputText value="#{msgs.cdfm_discussion_forum_settings}" /></h1>
+		<div class="page-header">
+			<h1><h:outputText value="#{msgs.cdfm_discussion_forum_settings}" /></h1>
+		</div>
 		<div class="instruction">
 		  <h:outputText id="instruction"  value="#{msgs.cdfm_settings_instruction}"/>
 		  <h:outputText value="#{msgs.cdfm_info_required_sign}" styleClass="reqStarInline" />

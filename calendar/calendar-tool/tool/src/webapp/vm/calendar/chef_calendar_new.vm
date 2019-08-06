@@ -38,7 +38,7 @@ function hourChange(FieldName)
         case 'startHour':
         case 'startMinute':
         {
-       
+
             startHour = parseInt(document.getElementById('startHour').value);
             if (startHour != 100)
                 minuteChange(FieldName);
@@ -73,8 +73,8 @@ function minuteChange(FieldName)
         {
         case 'startMinute':
         case 'duMinute':
-        case 'startHour': 
-        case 'duHour': 
+        case 'startHour':
+        case 'duHour':
         {
         startHour = parseInt(document.getElementById('startHour').value);
         if (startHour != 100)
@@ -120,7 +120,7 @@ function minuteChange(FieldName)
                 var em = sm + dm;
                 var halfdaym = 12 * 60;
                 var wholedaym = 24 * 60;
-                if ((em < halfdaym) || (em >= wholedaym)) 
+                if ((em < halfdaym) || (em >= wholedaym))
                 {
                     <!-- endHour still falls in the same half day -->
                     startAmpmIndex = document.getElementById('startAmpm').selectedIndex;
@@ -170,8 +170,8 @@ function minuteChange(FieldName)
 				{
 					endHour = 0;
 				}
-               if (startHour==12) 
-               {   
+               if (startHour==12)
+               {
                    startHour = 0;
                }
                 startAmpmIndex = document.getElementById('startAmpm').selectedIndex;
@@ -183,10 +183,10 @@ function minuteChange(FieldName)
 
                 if (em == sm)
                 { <!-- set duTime to be zero -->
-                    duHour = 0; 
+                    duHour = 0;
                     duMinute =0;
                 }
-                else if (em < sm) 
+                else if (em < sm)
                 { <!-- end time is earlier than start time -->
                     dm = em - sm + 24 * 60;
                     duMinute = dm % 60;
@@ -198,7 +198,7 @@ function minuteChange(FieldName)
                     duMinute = dm % 60;
                     duHour = Math.floor(dm / 60);
                 }
-                document.getElementById('duHour').selectedIndex = duHour; 
+                document.getElementById('duHour').selectedIndex = duHour;
                 document.getElementById('duMinute').selectedIndex = duMinute/5;
             }
         } break;
@@ -220,16 +220,16 @@ function ampmChange(FieldName)
     {
         case 'startAmpm':
         {
-            
+
             startHour = parseInt(document.getElementById('startHour').value);
             if (startHour != 100)
             {
                 startAmpm = document.getElementById('startAmpm').value;
                 endAmpmIndex = document.getElementById('endAmpm').selectedIndex;
-                document.getElementById('endAmpm').selectedIndex = Math.abs(endAmpmIndex - 1);           
+                document.getElementById('endAmpm').selectedIndex = Math.abs(endAmpmIndex - 1);
             }
         } break;
-        case 'endAmpm': 
+        case 'endAmpm':
         {
             minuteChange(FieldName);
         } break;
@@ -324,9 +324,9 @@ $(function() {
 
 <div class="portletBody">
 	#if($menu)#toolbar($menu)#end
-	<h3>
-		$tlang.getString("new.adding")
-	</h3>
+	<div class="page-header">
+		<h1>$tlang.getString("new.adding")</h1>
+	</div>
 	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<p class="instruction">
 		$tlang.getString("new.toadd")<br />
@@ -549,7 +549,7 @@ $(function() {
 				#if($dmi == 55) <option selected="selected" value="55">55</option> #else <option value="55">55</option> #end
 			</select>
 			$tlang.getString("new.minutes")
-            
+
 		</p>	
 		<p class="shorttext">
 			<label>

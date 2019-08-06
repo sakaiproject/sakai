@@ -74,7 +74,7 @@
 	#if ($isOnWorkspaceTab.equals("true")) ##in workspace
 		
 		<div class="page-header">
-		  <h3>$tlang.getString("gen.announcements") <br /><small>$tlang.getFormattedMessage("gen.viewing.days.phrase.brackets", $daysList.toArray())</small></h3>
+			<h1>$tlang.getString("gen.announcements") <br /><small>$tlang.getFormattedMessage("gen.viewing.days.phrase.brackets", $daysList.toArray())</small></h1>
 		</div>
 
 		#if ($alertMessage)<div class="sak-banner-error">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div>#end
@@ -356,7 +356,7 @@
 			#if ($alertMessage)<div class="sak-banner-error">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div>#end
 
 			<div class="page-header">
-			  <h3>$tlang.getString("gen.announcements") <br /><small>$tlang.getFormattedMessage("gen.viewing.days.phrase.brackets", $daysList.toArray())</small></h3>
+				<h1>$tlang.getString("gen.announcements") <br /><small>$tlang.getFormattedMessage("gen.viewing.days.phrase.brackets", $daysList.toArray())</small></h1>
 			</div>
 			
 			<form name="announcementListForm" action="#toolForm("AnnouncementAction")" method="post">
@@ -420,7 +420,7 @@
 
 				#if ($displayOptions.isShowAllColumns())
 					<div class="page-header">
-					  <h3>$tlang.getString("gen.announcements") <br /><small>$tlang.getFormattedMessage("gen.viewing.days.phrase.brackets", $daysList.toArray())</small></h3>
+						<h1>$tlang.getString("gen.announcements") <br /><small>$tlang.getFormattedMessage("gen.viewing.days.phrase.brackets", $daysList.toArray())</small></h1>
 					</div>
 
 					#if ($alertMessage)<div class="sak-banner-error">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div>#end

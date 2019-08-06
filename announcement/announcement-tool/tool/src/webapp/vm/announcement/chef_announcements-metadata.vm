@@ -15,7 +15,7 @@
 	#if ($alertMessage)<div class="sak-banner-error">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div>#end
 	
 	<div class="page-header">
-	  <h2>$validator.escapeHtml($message.Header.subject)</h2>
+	  <h1>$validator.escapeHtml($message.Header.subject)</h1>
 	</div>
 
 	<div class="form-horizontal">
@@ -75,9 +75,7 @@
 	</div>
 
 	<div class="page-header">
-		<h4>
-			$tlang.getString("meta.message")
-		</h4>
+		<h1>$tlang.getString("meta.message")</h1>
 	</div>
 	
 	<div class="message-body">

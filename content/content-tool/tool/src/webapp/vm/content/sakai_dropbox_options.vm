@@ -21,9 +21,10 @@
 		<input type="hidden" name="sakai_action" id="sakai_action" value="doUpdateDropboxOptions" />
 		<input type="hidden" name="siteId" id="siteId" value="$siteId" />
 		######################## ================ Title Bar for Item ================ ########################
-		<h4>
-			$title
-		</h4>
+		<div class="page-header">
+			<h1>$title</h1>
+		</div>
+
 		#if ($itemAlertMessage)
 			<div class="sak-banner-error">$tlang.getString("label.alert") $validator.escapeHtml($itemAlertMessage)</div>
 		#end

@@ -126,10 +126,12 @@
       <h:form id="revise">
 		
 			<!--jsp/discussionForum/area/dfTemplateOrganize.jsp-->
-        <sakai:tool_bar_message value="#{msgs.cdfm_default_template_organize}" />
-		 		<div class="instruction">
-		  		  <h:outputText id="instruction" value="#{msgs.cdfm_default_template_organize_instruction}"/>
-				</div>
+			<div class="page-header">
+				<h1><sakai:tool_bar_message value="#{msgs.cdfm_default_template_organize}"/></h1>
+			</div>
+			<div class="instruction">
+				<h:outputText id="instruction" value="#{msgs.cdfm_default_template_organize_instruction}"/>
+			</div>
 			<h:dataTable id="forums" binding="#{ForumTool.forumTable}" value="#{ForumTool.forums}" width="100%" var="forum" cellpadding="0" cellspacing="0" >
     <h:column>
         <h:panelGroup rendered="#{! forum.nonePermission}" layout="block">

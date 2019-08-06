@@ -70,13 +70,13 @@ function resizeFrame(){
 	#end
 
 	<div class="page-header">
-		<h3>
+		<h1>
 		#if ( $newAnn =="true")
 			$tlang.getString("revise.add")
 		#else
 			$tlang.getString("revise.revise")
 		#end
-		</h3>
+		</h1>
 	</div>
 	
 	#if ($alertMessage)<div class="sak-banner-error">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div>#end

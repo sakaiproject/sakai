@@ -8,6 +8,9 @@
 	#if($menu)#toolbar($menu)#end
 	<form name="toolbar" action="#toolForm("$action")" method="post">
 		<div class="navPanel">
+			<div class="page-header">
+				<h1>$tlang.getString("multipleTools.email")</h1>
+			</div>
 			<div class="viewNav" style="width:50%">
 			#if ($validFrom)
 				<div class="instruction">
@@ -21,8 +24,8 @@
 					#else
 						$tlang.getString("lis.emasen2")
 					#end
-				</div>	
-	
+				</div>
+
 				<ul  class="attachList indnt3">
 					#foreach ($alias in $aliases)
 						<li><a href="mailto:${alias.getId()}@${serverName}" title="$tlang.getString("lis.sendmailto") ${alias.getId()}@${serverName}">${alias.getId()}@${serverName}</a></li>
@@ -32,11 +35,11 @@
 					#end
 				</ul>
 			#else
-				<p class="instruction"> $tlang.getString("lis.youarenot")</p>	
+				<p class="instruction"> $tlang.getString("lis.youarenot")</p>
 			#end
 		</div>
 			#if (${allow-search})
-			<div class="searchNav"> 
+			<div class="searchNav">
 				<label for="search" class="skip">$tlang.getString('lis.search')</label>
 				<input size="15" value="$validator.escapeHtml($!search)" name="search" id="search" type="text" class="searchField"  />
 				<input type="hidden" name="eventSubmit_doSearch" id="eventSubmit_doSearch" value="Search for emails" />
@@ -44,12 +47,12 @@
 				#if (($!search) && (!$search.equals("")))
 					<a href="#" title="$tlang.getString('lis.clear')" onclick="location = '#toolLink("$action" "doSearch_clear")';return false;" style="text-decoration:none !important" ><input type="button" value="$tlang.getString('lis.clear')" /></a>
 				#end
-				<div id="submitnotifwrap" style="padding:6px 0;visibility:hidden"><span id="submitnotif">$tlang.getString("lis.searchnotif")</span></div>								
+				<div id="submitnotifwrap" style="padding:6px 0;visibility:hidden"><span id="submitnotif">$tlang.getString("lis.searchnotif")</span></div>
 			</div>
 			#end
-		</div>	
+		</div>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-	</form>	
+	</form>
 
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	#if ($sort-order)
@@ -121,10 +124,10 @@
 							<input type="submit" name="eventSubmit_doList_last" value="&gt;|" disabled="disabled" />
 							<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 						</form>
-	
+
 					#end
 				#end
-	
+
 			</div>
 
 		<table class ="listHier lines nolines specialLink" cellspacing="0" summary ="$tlang.getString("lis.summary")">
@@ -156,8 +159,8 @@
 				<tr>
 					<td headers="from">$validator.escapeHtml($item.Header.FromAddress)</td>
 					<td headers="subject">
-						<h4><a href="#" 
-						onclick="location = '#toolLinkParam($action "doView" "$view-id=$validator.escapeUrl($item.Header.Id)&amp;item_number=$msgPos")';return false;" 
+						<h4><a href="#"
+						onclick="location = '#toolLinkParam($action "doView" "$view-id=$validator.escapeUrl($item.Header.Id)&amp;item_number=$msgPos")';return false;"
 						title="$tlang.getString("lis.viewmessage") $validator.escapeHtml($item.Header.Subject)">
 							$validator.escapeHtml($item.Header.Subject)
 
@@ -182,7 +185,7 @@
 					<td headers="date">$item.Header.DateSent.toStringLocalFullZ()</td>
 				</tr>
 				#set($msgPos=$msgPos+1)
-			#end		
+			#end
 		</table>
 	#else
 		<p class="instruction">
@@ -192,5 +195,5 @@
 				$tlang.getString("lis.noema")
 			#end
 		</p>
-	#end	
+	#end
 </div>	

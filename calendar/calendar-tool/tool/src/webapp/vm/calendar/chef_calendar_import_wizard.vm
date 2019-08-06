@@ -5,9 +5,9 @@
 </script>
 <div class="portletBody"> 
 	#if($menu)#toolbar($menu)#end
-	<h3>
-		$tlang.getString("java.importcal")
-	</h3>
+	<div class="page-header">
+		<h1>$tlang.getString("java.importcal")</h1>
+	</div>
 	<p class="step">
 		#if ($importWizardState == "SELECT_TYPE")
 		$tlang.getString("imp.step1")

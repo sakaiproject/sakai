@@ -5,7 +5,8 @@
 		<input name="sakai_action" id="sakai_action" value="doRestore" type="hidden" />
 		<input name="flow" id="flow" value="save" type="hidden" />
 		#set($rootFolderId="")
-			<h3>
+		<div class="page-header">
+			<h1>
 				$tlang.getString("restore.title")
 				$rootFolderId
                 #*
@@ -14,7 +15,8 @@
 					$validator.escapeHtml("$item.name")
 				#end
                 *#
-			</h3>
+			</h1>
+		</div>
 			## set the base collection ID
 			#set($currentFolderId=$rootFolderId)
 		
