@@ -8806,23 +8806,19 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	
 
 	/**
- 	* SAK 23029 -  iterate through changed partiants to see how many would have maintain role if all roles, status and deletion changes went through
- 	*
- 	*/ 
+	* SAK-23029 -  iterate through changed participants to see how many would have maintain role if all roles, status and deletion changes went through
+	*
+	*/ 
 	private List<Participant> testProposedUpdates(List<Participant> participants, ParameterParser params, String maintainRole) {
-		List<Participant> maintainersAfterUpdates = new ArrayList<Participant>();
-		// create list of all partcipants that have been 'Charles Bronson-ed'
+
+		// create list of all partcipants that have been removed
 		Set<String> removedParticipantIds = new HashSet();
-		Set<String> deactivatedParticipants = new HashSet();
 		if (params.getStrings("selectedUser") != null) {
-			List removals = new ArrayList(Arrays.asList(params.getStrings("selectedUser")));
-			for (int i = 0; i < removals.size(); i++) {
-				String rId = (String) removals.get(i);
-				removedParticipantIds.add(rId);
-			}
+			removedParticipantIds.addAll(new ArrayList(Arrays.asList(params.getStrings("selectedUser"))));
 		}
 
-		// create list of all participants that have been deactivated
+		// create list of all participants that have been inactivated
+		Set<String> inactivatedParticipants = new HashSet();
 		for(Participant statusParticipant : participants ) {
 			String activeGrantId = statusParticipant.getUniqname();
 			String activeGrantField = "activeGrant" + activeGrantId;
@@ -8830,31 +8826,33 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			if (params.getString(activeGrantField) != null) { 
 				boolean activeStatus = params.getString(activeGrantField).equalsIgnoreCase("true") ? true : false;
 				if (activeStatus == false) {
-					deactivatedParticipants.add(activeGrantId);
+					inactivatedParticipants.add(activeGrantId);
 				}
 			}
 		}
 
-
-		// now add only those partcipants whose new/current role is maintainer, is (still) active, and not marked for deletion
+		// now add only those partcipants whose new/current role is maintainer, is (still) active, and not marked for removal
+		List<Participant> maintainersAfterUpdates = new ArrayList<Participant>();
 		for(Participant roleParticipant : participants ) {
 			String id = roleParticipant.getUniqname();
 			String roleId = "role" + id;
 			String newRole = params.getString(roleId);
-			if ((deactivatedParticipants.contains(id)==false) && roleParticipant.isActive() != false) { // skip any that are not already inactive or are not  candidates for deactivation
-				 if (removedParticipantIds.contains(id) == false) {
-					if (newRole != null){
+
+			// skip any that are not already inactive or are not candidates for inactivation
+			if (!inactivatedParticipants.contains(id) && roleParticipant.isActive()) {
+				 if (!removedParticipantIds.contains(id)) {
+					if (StringUtils.isNotBlank(newRole)){
 						if (newRole.equals(maintainRole)) {
 							maintainersAfterUpdates.add(roleParticipant);
 						}
-					} else { 
+					} else {
 						// participant has no new role; was participant already maintainer?
 						if (roleParticipant.getRole().equals(maintainRole)) {
 							maintainersAfterUpdates.add(roleParticipant);
 						}
 					}
 				}
-			}	
+			}
 		}
 		return maintainersAfterUpdates;
 	}
@@ -8885,22 +8883,23 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				// init variables useful for actual edits and mainainersAfterProposedChanges check
 				AuthzGroup realmEdit = authzGroupService.getAuthzGroup(realmId);
 				String maintainRoleString = realmEdit.getMaintainRole();
-				List participants;
+				List<Participant> participants;
 				//Check for search term
 				String search = (String)state.getAttribute(SITE_USER_SEARCH);
 				if(StringUtils.isNotBlank(search)) {
-					//search is true, get the complete list of participants from the other attribute.
-					participants = collectionToList((Collection) state.getAttribute(STATE_SITE_PARTICIPANT_LIST));
+					// search term is provided, get the search-filtered list of participants from the other attribute.
+					participants = new ArrayList<>((Collection) state.getAttribute(STATE_SITE_PARTICIPANT_LIST));
 				} else {
-					participants = collectionToList((Collection) state.getAttribute(STATE_PARTICIPANT_LIST));
+					// search term not provided, get the list (either full list or filtered by 'view' drop down)
+					participants = new ArrayList<>((Collection) state.getAttribute(STATE_PARTICIPANT_LIST));
 				}
 
-				// SAK 23029 Test proposed removals/updates; reject all where activeMainainer count would = 0 if all proposed changes were made
-				List<Participant> maintainersAfterProposedChanges = testProposedUpdates(participants, params, maintainRoleString);
-
+				// SAK-23029 Test proposed removals/updates; reject all where activeMainainer count would = 0 if all proposed changes were made
+				// SAK-42185 need to provide full list of participants to test proposed updates, not filtered/search list
+				List<Participant> allParticipants = new ArrayList<>(SiteParticipantHelper.prepareParticipants(s.getId(), SiteParticipantHelper.getProviderCourseList(s.getId())));
+				List<Participant> maintainersAfterProposedChanges = testProposedUpdates(allParticipants, params, maintainRoleString);
 				if (maintainersAfterProposedChanges.size() == 0) {
-					addAlert(state, 
-						rb.getFormattedMessage("sitegen.siteinfolist.lastmaintainuseractive", new Object[]{maintainRoleString} ));
+					addAlert(state, rb.getFormattedMessage("sitegen.siteinfolist.lastmaintainuseractive", new Object[] {maintainRoleString}));
 					return;
 				}
 
@@ -8913,11 +8912,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				List<String[]> userAuditList = new ArrayList<String[]>();
 
 				// remove all roles and then add back those that were checked
-				for (int i = 0; i < participants.size(); i++) {
+				for (Participant participant : participants) {
 					String id = null;
 
 					// added participant
-					Participant participant = (Participant) participants.get(i);
 					id = participant.getUniqname();
 
 					if (id != null) {
@@ -8991,7 +8989,6 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 								
 								// add to the list for all participants that have role changes
 								userUpdated.add(userUpdatedString);
-
 						}
 					}
 				}
@@ -9039,7 +9036,6 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				}
 
 				// if user doesn't have update, don't let them add or remove any role with site.upd in it.
-
 				if (!authzGroupService.allowUpdate(realmId)) {
 					// see if any changed have site.upd
 					for (String rolename: roles) {
