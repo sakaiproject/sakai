@@ -8,21 +8,35 @@ There are several internal documents that you might find useful ranging from
  test plans to developer/configuration
 documentation.  These documents are stored here in github:
 
-* [Sakai LTI Documentation](https://github.com/sakaiproject/sakai/tree/master/basiclti/basiclti-docs/resources/docs)
-
-Sakai has a unit test that we keep up-to-date with the latest LTI specifications.  The
-test harness functions as both Consumer and Provider and exercises both standard services
-and Sakai's particular extensions.  I make this tool available online at
-
-* https://www.tsugi.org/lti-test
-
 Aditional Documentation
 
 * [Using Tsugi in Sakai with LTI Advantage](https://www.tsugi.org/md/ADVANTAGE.md)
 * [Using LTI ContentItem](docs/CONTENTITEM.md)
 * [Using the IMS Reference Implementation with Sakai](docs/IMS_RI.md)
 * [Setting up Tsugi in Sakai for Testing](docs/TSUGI.md)
-* [Windows PostMessage in Sakai](docs/POSTMESSAGE.md)
+* [Windows PostMessage Support in Sakai](docs/POSTMESSAGE.md)
+* [Sakai API Documentation Including API Extensions](docs/sakai_basiclti_api.md)
+Sakai has API extensions for Membership/Roster, Learning Object Repository Integration, and a Settings service.
+* [Configuring the Sakai External Tools Portlet](docs/sakai_basiclti_portlet.md)
+It is possible to make multiple pre-configured placements of the LTI Tool in a way that they are placeable as tools.
+* [Configuring the Sakai LTI Provider](docs/sakai_basiclti_provider)
+It is possible to use Sakai tools as LTI tools that can be used in an LTI Consumer like a portal or other LMS.
+* [Documentation for Vendors of Sakai Tools](docs/sakai_basiclti_vendor.md)
+This is CC0 licensed documenation that can be used to quickly develop vendor documnation showing how to configure a vendor's LTI
+tool in Sakai.
+
+Sakai QA Tests are available at:
+
+* [Sakai LTI Documentation](https://github.com/sakaiproject/sakai/tree/master/basiclti/basiclti-docs/resources/docs)
+
+Sakai has an LTI 1.1 unit test that we keep up-to-date with the latest LTI specifications.  The
+test harness functions as both Consumer and Provider and exercises both standard services
+and Sakai's particular extensions.  I make this tool available online at
+
+* https://www.tsugi.org/lti-test
+
+Internal Documentation
+----------------------
 
 # ######################################################
 # SAK-30601 - Upgraded BasicLTI dashboard
