@@ -1368,7 +1368,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
             //When a user changes the name pronunciation, the changes need to be reflected in roster
             if(ProfileConstants.EVENT_PROFILE_NAME_PRONUN_UPDATE.equals(eventName)){
-                StopWatch watch;
+                StopWatch watch = null;
                 if (log.isDebugEnabled()){
                     watch = new StopWatch();
                     watch.start();
