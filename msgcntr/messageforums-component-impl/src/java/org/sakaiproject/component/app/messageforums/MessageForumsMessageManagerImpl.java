@@ -1320,7 +1320,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         }
 
 
-        getHibernateTemplate().saveOrUpdate(message);
+        getHibernateTemplate().merge(message);
 
         if (logEvent) {
         	if (isNew) {

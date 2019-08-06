@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
@@ -45,6 +46,8 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.sakaiproject.api.app.messageforums.Area;
@@ -70,7 +73,6 @@ import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.app.messageforums.MembershipItem;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.HiddenGroupImpl;
-import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -1829,6 +1831,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
   private String returnDraftPage(){
 	  return processPvtMsgComposeCancel();
   }
+
   // created separate method as to be used with processPvtMsgSend() and processPvtMsgSaveDraft()
   public PrivateMessage constructMessage(boolean clearAttachments, PrivateMessage aMsg)
   {
@@ -1930,10 +1933,19 @@ public void processChangeSelectView(ValueChangeEvent eve)
       }
 
     }
-    //Add attachments
-    for(DecoratedAttachment attachment : (List<DecoratedAttachment>) attachments) {
-      prtMsgManager.addAttachToPvtMsg(aMsg, attachment.getAttachment());
-    }    
+
+    // Remove attachments from the message that are not in the bean
+    for (Attachment attachment : (List<Attachment>) aMsg.getAttachments()) {
+      if (attachments.stream().map(DecoratedAttachment::getAttachment).noneMatch(a -> a.getAttachmentId().equals(attachment.getAttachmentId()))) {
+        prtMsgManager.removePvtMsgAttachment(attachment);
+      }
+    }
+
+    // Add attachments to the message that are in the bean
+    for (DecoratedAttachment decoratedAttachment : attachments) {
+      prtMsgManager.addAttachToPvtMsg(aMsg, decoratedAttachment.getAttachment());
+    }
+
     if(clearAttachments){
     	//clear
     	attachments.clear();
@@ -3051,7 +3063,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
   }
   
   //////////////////////////////   ATTACHMENT PROCESSING        //////////////////////////
-  private ArrayList attachments = new ArrayList();
+  private ArrayList<DecoratedAttachment> attachments = new ArrayList();
   
   private String removeAttachId = null;
   private ArrayList prepareRemoveAttach = new ArrayList();
@@ -3066,22 +3078,13 @@ public void processChangeSelectView(ValueChangeEvent eve)
     if (session.getAttribute(FilePickerHelper.FILE_PICKER_CANCEL) == null &&
         session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS) != null) 
     {
-      List refs = (List)session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
-      if(refs != null && refs.size()>0)
+      final List<Reference> refs = (List<Reference>) session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
+      if(CollectionUtils.isNotEmpty(refs))
       {
-        Reference ref = (Reference)refs.get(0);
-        
-        for(int i=0; i<refs.size(); i++)
-        {
-          ref = (Reference) refs.get(i);
+        for(Reference ref : refs) {
           Attachment thisAttach = prtMsgManager.createPvtMsgAttachment(
               ref.getId(), ref.getProperties().getProperty(ref.getProperties().getNamePropDisplayName()));
-          
-          //TODO - remove this as being set for test only  
-          //thisAttach.setPvtMsgAttachId(Long.valueOf(1));
-          
           attachments.add(new DecoratedAttachment(thisAttach));
-          
         }
       }
     }
@@ -3097,30 +3100,18 @@ public void processChangeSelectView(ValueChangeEvent eve)
     if (session.getAttribute(FilePickerHelper.FILE_PICKER_CANCEL) == null &&
         session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS) != null) 
     {
-      List refs = (List)session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
-      if(refs != null && refs.size()>0)
+      final List<Reference> refs = (List<Reference>) session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
+      if(CollectionUtils.isNotEmpty(refs))
       {
-        Reference ref = (Reference)refs.get(0);
-        
-        for(int i=0; i<refs.size(); i++)
-        {
-          ref = (Reference) refs.get(i);
+        for(Reference ref : refs) {
           Attachment thisAttach = prtMsgManager.createPvtMsgAttachment(
               ref.getId(), ref.getProperties().getProperty(ref.getProperties().getNamePropDisplayName()));
-          
-          //TODO - remove this as being set for test only
-          //thisAttach.setPvtMsgAttachId(Long.valueOf(1));
           allAttachments.add(new DecoratedAttachment(thisAttach));
         }
       }
     }
     session.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
     session.removeAttribute(FilePickerHelper.FILE_PICKER_CANCEL);
-    
-//    if( allAttachments == null || (allAttachments.size()<1))
-//    {
-//      allAttachments.addAll(this.getDetailMsg().getMsg().getAttachments()) ;
-//    }
     return allAttachments;
   }
   
@@ -3171,45 +3162,22 @@ public void processChangeSelectView(ValueChangeEvent eve)
   }
   
   //Process remove attachment 
-  public String processDeleteAttach()
-  {
+  public String processDeleteAttach() {
     log.debug("processDeleteAttach()");
-    
-    ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
-    String attachId = null;
-    
-    Map paramMap = context.getRequestParameterMap();
-    Iterator<Entry<Object, String>> itr = paramMap.entrySet().iterator();
-    while(itr.hasNext())
-    {
-      Entry<Object, String> entry = itr.next();
-      Object key = entry.getKey();
-      if( key instanceof String)
-      {
-        String name =  (String)key;
-        int pos = name.lastIndexOf("pvmsg_current_attach");
-        
-        if(pos>=0 && name.length()==pos+"pvmsg_current_attach".length())
-        {
-          attachId = entry.getValue();
-          break;
-        }
-      }
-    }
-    
-    if (StringUtils.isNotEmpty(attachId)) {
-      for (int i = 0; i < attachments.size(); i++)
-      {
-        if (attachId.equalsIgnoreCase(((DecoratedAttachment) attachments.get(i)).getAttachment()
-            .getAttachmentId()))
-        {
-          attachments.remove(i);
-          break;
-        }
-      }
-    }
 
-    return null ;
+    ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+
+    Map<String, String> paramMap = context.getRequestParameterMap();
+
+    if(paramMap != null) {
+        final String attachId = paramMap.entrySet().stream().
+                filter(entry -> entry.getKey().contains("pvmsg_current_attach")).
+                collect(Collectors.collectingAndThen(Collectors.toList(), list -> list.isEmpty() ? null : list.get(0).getValue()));
+        if (StringUtils.isNotEmpty(attachId)) {
+            attachments.removeIf(da -> attachId.equalsIgnoreCase(da.getAttachment().getAttachmentId()));
+        }
+    }
+    return null;
   }
  
   
@@ -3266,7 +3234,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
       
       for(int i=0; i<attachments.size(); i++)
       {
-      	DecoratedAttachment thisAttach = (DecoratedAttachment)attachments.get(i);
+        DecoratedAttachment thisAttach = attachments.get(i);
         if(((Long)thisAttach.getAttachment().getPvtMsgAttachId()).toString().equals(removeAttachId))
         {
           attachments.remove(i);
@@ -4605,5 +4573,9 @@ public void processChangeSelectView(ValueChangeEvent eve)
         descMap.put("en-US", "User sent a private message with subject: " + subject);
         lrsObject.setDescription(descMap);
         return new LRS_Statement(student, verb, lrsObject);
+    }
+
+    public String getAttachmentReadableSize(final String attachmentSize) {
+      return FileUtils.byteCountToDisplaySize(Long.parseLong(attachmentSize));
     }
 }
