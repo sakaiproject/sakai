@@ -46,22 +46,22 @@ public class MainController {
 
 	@RequestMapping(value = {"/", "/index"}, method = RequestMethod.GET)
 	public String showIndex(@RequestParam String code, Model model) {
-		log.info("OneDriveServlet : Called the main servlet.");
+		log.debug("OneDriveServlet : Called the main servlet.");
 		String userId = sessionManager.getCurrentSessionUserId();
 		Object pickerRedirectUrlObject = sessionManager.getCurrentSession().getAttribute(oneDriveService.ONEDRIVE_REDIRECT_URI);
 		sessionManager.getCurrentSession().removeAttribute(oneDriveService.ONEDRIVE_REDIRECT_URI);
 		String pickerRedirectUrl = pickerRedirectUrlObject != null ? pickerRedirectUrlObject.toString() : null;
-		log.info("OneDriveServlet : request code {}", code);
-		log.info("OneDriveServlet : sakai user {}", userId);
-		log.info("OneDriveServlet : pickerRedirectUrl {}", pickerRedirectUrl);
+		log.debug("OneDriveServlet : request code {}", code);
+		log.debug("OneDriveServlet : sakai user {}", userId);
+		log.debug("OneDriveServlet : pickerRedirectUrl {}", pickerRedirectUrl);
 		boolean configured = false;
 		if(code != null && userId != null) {
 			configured = oneDriveService.token(userId, code);
 		}
-		log.info("OneDriveServlet : configured token {} ", configured);
+		log.debug("OneDriveServlet : configured token {} ", configured);
 		model.addAttribute("pickerRedirectUrl", pickerRedirectUrl != null ? pickerRedirectUrl : "/portal");
 		model.addAttribute("onedriveConfigured", configured);
-		log.info("OneDriveServlet : Finished action and returning.");
+		log.debug("OneDriveServlet : Finished action and returning.");
 		return "index";
 	}
 
