@@ -12844,6 +12844,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		if (state.getAttribute(STATE_LTITOOL_SELECTED_LIST) != null)
 		{
 			Site site = getStateSite(state);
+			if (site == null)
+			{
+				return;
+			}
 			Properties reqProps = params.getProperties();
 			// remember the reqProps may contain multiple lti inputs, so we need to differentiate those inputs and store one tool specific input into the map
 			HashMap<String, Map<String, Object>> ltiTools = (HashMap<String, Map<String, Object>>) state.getAttribute(STATE_LTITOOL_SELECTED_LIST);
