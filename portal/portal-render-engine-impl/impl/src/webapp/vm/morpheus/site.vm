@@ -139,8 +139,8 @@
         </script>
         <script src="/library/js/jquery/jquery.clearsearch.js$!{portalCDNQuery}"></script>
         <script src="${pageSkinRepo}/${pageSkin}/js/morpheus.scripts.min.js$!{portalCDNQuery}"></script>
-        <script src="${pageWebjarsPath}/pnotify/3.2.1/pnotify.js$!{portalCDNQuery}"></script>
-        <script src="${pageWebjarsPath}/pnotify/3.2.1/pnotify.buttons.js$!{portalCDNQuery}"></script>
+        <script src="${pageWebjarsPath}/pnotify/4.0.0/dist/iife/PNotify.js$!{portalCDNQuery}"></script>
+        <script src="${pageWebjarsPath}/pnotify/4.0.0/dist/iife/PNotifyButtons.js$!{portalCDNQuery}"></script>
         <script src="${pageWebjarsPath}/qtip2/3.0.3/jquery.qtip.min.js$!{portalCDNQuery}"></script>
         <script src="${pageScriptPath}jquery/qtip/tutorial.js$!{portalCDNQuery}"></script>
         <script src="${pageWebjarsPath}cropper/4.0.0/dist/cropper.min.js$!{portalCDNQuery}"></script>
@@ -193,14 +193,13 @@
         </script>
 
         <script>
-        PNotify.prototype.options.styling = "jqueryui";
         function portal_check_pnotify() {
             ${d}PBJQ.getJSON( "/direct/portal/notify.json", function( data ) {
                 for(i=0; i<data.error.length; i++ ) {
                      ${d}PBJQ(function(){
-                        PNotify.prototype.options.styling = "bootstrap3";
-                        PNotify.prototype.options.styling = "fontawesome";
-                        new PNotify({
+                        PNotify.defaults.styling = 'bootstrap3';
+                        PNotify.defaults.icons = 'fontawesome4';
+                        PNotify.alert({
                             title: '${rloader.getString("pnotify_notice")}',
                             text: data.error[i],
                             type: 'notice'
