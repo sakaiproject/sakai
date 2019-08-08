@@ -803,7 +803,7 @@ function includeWebjarLibrary(library) {
 		document.write('\x3Cscript type="text/javascript" src="' + webjars + 'awesomplete/' + libraryVersion + '/awesomplete.min.js' + ver + '">' + '\x3C/script>');
 		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'awesomplete/' + libraryVersion + '/awesomplete.css' + ver + '"/>');
 	} else if (library == 'mathjs') {
-		libraryVersion = "6.0.2";
+		libraryVersion = "6.0.3";
 		document.write('\x3Cscript src="' + webjars + 'mathjs/' + libraryVersion + '/dist/math.min.js' + ver + '">' + '\x3C/script>');
 	} else {
 		if (library.endsWith(".js")) {
