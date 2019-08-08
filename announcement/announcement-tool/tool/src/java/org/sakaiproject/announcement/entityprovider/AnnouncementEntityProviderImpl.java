@@ -224,7 +224,6 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 			try {
 				announcements.addAll(announcementService.getMessages(channel, new ViewableFilter(null, t, numberOfAnnouncements), true, false));
 			} catch (PermissionException | IdUnusedException | NullPointerException ex) {
-				log.warn("User: {} does not have access to view the announcement channel: {}. Skipping...", currentUserId, channel);
 				//user may not have access to view the channel but get all public messages in this channel
 				AnnouncementChannel announcementChannel = (AnnouncementChannel)announcementService.getChannelPublic(channel);
 				if(announcementChannel != null){
