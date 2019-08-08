@@ -789,7 +789,7 @@ function includeWebjarLibrary(library) {
 		document.write('\x3Cscript type="text/javascript" src="' + webjars + 'dropzone/'+libraryVersion + '/min/dropzone.min.js' + ver + '">' + '\x3C/script>');
 		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'dropzone/'+libraryVersion + '/min/dropzone.min.css' + ver + '"/>');
 	} else if (library == 'select2') {
-		libraryVersion = "4.0.5";
+		libraryVersion = "4.0.8";
 		document.write('\x3Cscript type="text/javascript" src="' + webjars + 'select2/' + libraryVersion + '/js/select2.full.min.js' + ver + '">' + '\x3C/script>');
 		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'select2/' + libraryVersion + '/css/select2.min.css' + ver + '"/>');
 	} else if (library == 'datatables') {
