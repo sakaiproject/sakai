@@ -16,18 +16,14 @@
 package org.sakaiproject.profile2.tool.entityprovider;
 
 import java.io.IOException;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletOutputStream;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -66,6 +62,14 @@ import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.util.Messages;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.ResourceRegion;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpRange;
+import org.springframework.http.converter.ResourceRegionHttpMessageConverter;
+import org.springframework.http.server.ServletServerHttpRequest;
+import org.springframework.http.server.ServletServerHttpResponse;
 
 /**
  * This is the entity provider for a user's profile.
@@ -472,86 +476,53 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		
 		MimeTypeByteArray mtba = profileLogic.getUserNamePronunciation(uuid);
 		if(mtba != null && mtba.getBytes() != null) {
-			final byte[] bytes = mtba.getBytes();
-			int fileSize = bytes.length;
-			//check for binary
-			if(bytes != null && fileSize > 0) {
-				try {
-					requestGetter.getResponse().reset();
-					requestGetter.getResponse().setHeader("Expires", "0");
-					requestGetter.getResponse().setHeader("Pragma", "no-cache");
-					requestGetter.getResponse().setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+			try {
+				HttpServletResponse response = requestGetter.getResponse();
+				HttpServletRequest request = requestGetter.getRequest();
+				response.setHeader("Expires", "0");
+				response.setHeader("Pragma", "no-cache");
+				response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+				response.setContentType(mtba.getMimeType());
 
-					// Set mime type here before header is sent
-					requestGetter.getResponse().setContentType(mtba.getMimeType());
-					//Set the content disposition
-					requestGetter.getResponse().setHeader("Content-Disposition", String.format("attachment; filename=\"%s.wav\"; filename*=UTF-8''%s.wav", uuid, uuid));
+				// Are we processing a Range request
+				if (request.getHeader(HttpHeaders.RANGE) == null) {
+					// Not a Range request
+					byte[] bytes = mtba.getBytes();
+					response.setContentLengthLong(bytes.length);
+					out.write(bytes);
+					return new ActionReturn(Formats.UTF_8, mtba.getMimeType() , out);
+ 				} else {
+					// A Range request - we use springs HttpRange class
+					Resource resource = new ByteArrayResource(mtba.getBytes());
+					response.setHeader(HttpHeaders.ACCEPT_RANGES, "bytes");
+					response.setContentLengthLong(resource.contentLength());
+					response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
+					try {
+						ServletServerHttpRequest inputMessage = new ServletServerHttpRequest(request);
+						ServletServerHttpResponse outputMessage = new ServletServerHttpResponse(response);
 
-					//iOS and MacOS always send a range request for the file, we should return the requested part of the recording.
-					String range = requestGetter.getRequest().getHeader("range");
-					int start = 0;
-					int end = fileSize - 1;
-					int rangeContentLength = end - start + 1;
-					if(StringUtils.isNotBlank(range)) {
-						Pattern httpRangePattern = Pattern.compile("bytes=(?<start>\\d*)-(?<end>\\d*)");
-						Matcher matcher = httpRangePattern.matcher(range);
-						if(matcher.matches()) {
-							String startMatch = matcher.group(1);
-							start = startMatch.isEmpty() ? start : Integer.valueOf(startMatch);
-							start = start < 0 ? 0 : start;
-							String endMatch = matcher.group(2);
-							end = endMatch.isEmpty() ? end : Integer.valueOf(endMatch);
-							end = end > fileSize - 1 ? fileSize - 1 : end;
-							rangeContentLength = end - start + 1;
+						List<HttpRange> httpRanges = inputMessage.getHeaders().getRange();
+						ResourceRegionHttpMessageConverter messageConverter = new ResourceRegionHttpMessageConverter();
+
+						if (httpRanges.size() == 1) {
+							ResourceRegion resourceRegion = httpRanges.get(0).toResourceRegion(resource);
+							messageConverter.write(resourceRegion, null, outputMessage);
+						} else {
+							messageConverter.write(HttpRange.toResourceRegions(httpRanges, resource), null, outputMessage);
 						}
-
-						//Set the headers to specify that we're serving a partial content and establish the ranges.
-						requestGetter.getResponse().setHeader("Accept-Ranges", "bytes");
-						requestGetter.getResponse().setHeader("Content-Range", String.format("bytes %s-%s/%s", start, end, fileSize));
-						requestGetter.getResponse().setHeader("Content-Length", String.format("%s", rangeContentLength));
-						requestGetter.getResponse().setStatus(requestGetter.getResponse().SC_PARTIAL_CONTENT);
-
-						//Write the partial content in the response, only the requested bytes.
-						try(ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
-							ServletOutputStream outputStream = requestGetter.getResponse().getOutputStream();
-							BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream)) {
-
-							int byteIndex=0;
-							if (inputStream != null)  {
-								// skip to the start of the possible range request
-								inputStream.skip(start); 
-								int bytesLeft = rangeContentLength;
-								byte[] buffer = new byte[1024];
-								while ( (byteIndex = inputStream.read(buffer)) != -1 && bytesLeft > 0){
-									bufferedOutputStream.write(buffer);
-									bytesLeft -= byteIndex;
-								}
-							}
-
-							//Flush the stream in the response
-							requestGetter.getResponse().flushBuffer();
-						} catch(Exception e){
-							log.warn(e.getMessage());
-						}
-					} else {
-						//Write the entire file because is not a range request.
-						requestGetter.getResponse().setContentLength(fileSize);
-						out.write(bytes);
+					} catch (IllegalArgumentException iae) {
+						response.setHeader("Content-Range", "bytes */" + resource.contentLength());
+						response.sendError(HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE);
+						log.warn("Name pronunciation request failed to send the requested range for {}, {}", ref.getReference(), iae.getMessage());
 					}
-
-					ActionReturn actionReturn = new ActionReturn(Formats.UTF_8, mtba.getMimeType(), out);
-					return actionReturn;
-
-				} catch (Exception e) {
-					throw new EntityException("Error retrieving name pronunciation for " + uuid + " : " + e.getMessage(), ref.getReference());
 				}
+			} catch (Exception e) {
+				throw new EntityException("Name pronunciation request failed, " + e.getMessage(), ref.getReference());
 			}
 		}
-
 		return null;
 	}
 
-	
 	/**
 	 * {@inheritDoc}
 	 */
