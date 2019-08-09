@@ -115,41 +115,41 @@ assignment.useContentReview=true
 # GROUP_CONTEXT (Exclude all self matching submissions in current course from Similarity Report)
 # default: GROUP
 
-# turnitin.oc2.may_view_submission_full_source.student
+# turnitin.oc.may_view_submission_full_source.student
 # Allows you to customize the default student role permission for being able to view the full source for a matching student paper in the report.
 # If left null, the default role permissions will apply.
 # FERPA Warning: These permissions provide access to data that is governed by federal and state laws. By altering these settings, you are certifying (1)
 # that all changes made to the permission settings comply fully with all of your organisation's policies regarding access to student records, and (2) that
 # the institution takes full and exclusive responsibility for access which the resulting permission settings control.
 # default: null
-# example: turnitin.oc2.may_view_submission_full_source.student=true
+# example: turnitin.oc.may_view_submission_full_source.student=true
 
-#turnitin.oc2.may_view_match_submission_info.student
+#turnitin.oc.may_view_match_submission_info.student
 # Allows you to customize the default student role permission for being able to view the user information for a matching student paper in the report.
 # If left null, the default role permissions will apply.
 # FERPA Warning: These permissions provide access to data that is governed by federal and state laws. By altering these settings, you are certifying (1)
 # that all changes made to the permission settings comply fully with all of your organisation's policies regarding access to student records, and (2) that
 # the institution takes full and exclusive responsibility for access which the resulting permission settings control.
 # default: null
-# example: turnitin.oc2.may_view_match_submission_info.student=true
+# example: turnitin.oc.may_view_match_submission_info.student=true
 
-#turnitin.oc2.may_view_submission_full_source.instructor
+#turnitin.oc.may_view_submission_full_source.instructor
 # Allows you to customize the default instructor role permission for being able to view the full source for a matching student paper in the report.
 # If left null, the default role permissions will apply.
 # FERPA Warning: These permissions provide access to data that is governed by federal and state laws. By altering these settings, you are certifying (1)
 # that all changes made to the permission settings comply fully with all of your organisation's policies regarding access to student records, and (2) that
 # the institution takes full and exclusive responsibility for access which the resulting permission settings control.
 # default: null
-# example: turnitin.oc2.may_view_submission_full_source.instructor=true
+# example: turnitin.oc.may_view_submission_full_source.instructor=true
 
-#turnitin.oc2.may_view_match_submission_info.instructor
+#turnitin.oc.may_view_match_submission_info.instructor
 # Allows you to customize the default instructor role permission for being able to view the user information for a matching student paper in the report.
 # If left null, the default role permissions will apply.
 # FERPA Warning: These permissions provide access to data that is governed by federal and state laws. By altering these settings, you are certifying (1)
 # that all changes made to the permission settings comply fully with all of your organisation's policies regarding access to student records, and (2) that
 # the institution takes full and exclusive responsibility for access which the resulting permission settings control.
 # default: null
-# example: turnitin.oc2.may_view_match_submission_info.instructor=true
+# example: turnitin.oc.may_view_match_submission_info.instructor=true
 
 
 # Please make sure the property 'version.sakai' is set correctly
