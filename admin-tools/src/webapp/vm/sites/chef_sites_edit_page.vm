@@ -21,7 +21,7 @@
 			<h4>
 				$tlang.getString("sitedipag.pag")
 			</h4>	
-			<table  class="itemSummary" summary="$tlang.getString("sitedipag.revandmod")">
+			<table class="itemSummary" summary="$tlang.getString("sitedipag.revandmod")">
 				<tr>
 					<th>$tlang.getString("sitedipag.pag2")</th>
 					<td>
@@ -73,12 +73,11 @@
 					</td>
 				</tr>				
 			</table>
-			#if ($page)
+			#if ($page && $page.Properties.PropertyNames.hasNext())
 				<h4>
 					$tlang.getString("sitedi.pro")
 				</h4>
-				<table class="itemSummary" summary="$tlang.getString("sitedi.pro")">
-					<tr><td></td><td></td></tr>
+				<table class="table table-striped table-bordered" summary="$tlang.getString("sitedi.pro")">
 					#set ($paramNames = $page.Properties.PropertyNames)
 					#foreach ($paramName in $paramNames)
 						#set ($paramValue = $page.Properties.getPropertyFormatted($paramName))

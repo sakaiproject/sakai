@@ -19,7 +19,7 @@
 		<h4>
 			$tlang.getString("sitedi.pro")
 		</h4>
-		<table class="itemSummary" summary="$tlang.getString("sitedi.pro")">
+		<table class="table table-striped table-bordered" summary="$tlang.getString("sitedi.pro")">
 			#set ($paramNames = $site.Properties.PropertyNames)
 			#foreach ($paramName in $paramNames)
 				#set ($paramValue = $site.Properties.getPropertyFormatted($paramName))
@@ -38,7 +38,7 @@
 		<div class="instruction">
 			$tlang.getString("sitedi.newpropinst")
 		</div>
-		<table summary="$tlang.getString("sitedi.pro")">
+		<table class="table table-striped table-bordered" summary="$tlang.getString("sitedi.pro")">
 			<tr>
 				<td>
 					<label for="new_name">
