@@ -292,17 +292,17 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		log.info("Exclude Scope: " + autoExcludeSelfMatchingScope);
 		
 		// Find any permission overrides, if not set, set value to null to skip overrides
-		mayViewSubmissionFullSourceOverrideStudent = StringUtils.isNotEmpty(serverConfigurationService.getString("turnitin.oc2.may_view_submission_full_source.student")) 
-				? serverConfigurationService.getBoolean("turnitin.oc2.may_view_submission_full_source.student", false)
+		mayViewSubmissionFullSourceOverrideStudent = StringUtils.isNotEmpty(serverConfigurationService.getString("turnitin.oc.may_view_submission_full_source.student")) 
+				? serverConfigurationService.getBoolean("turnitin.oc.may_view_submission_full_source.student", false)
 				: null;
-		mayViewMatchSubmissionInfoOverrideStudent = StringUtils.isNotEmpty(serverConfigurationService.getString("turnitin.oc2.may_view_match_submission_info.student")) 
-				? serverConfigurationService.getBoolean("turnitin.oc2.may_view_match_submission_info.student", false)
+		mayViewMatchSubmissionInfoOverrideStudent = StringUtils.isNotEmpty(serverConfigurationService.getString("turnitin.oc.may_view_match_submission_info.student")) 
+				? serverConfigurationService.getBoolean("turnitin.oc.may_view_match_submission_info.student", false)
 				: null;
-		mayViewSubmissionFullSourceOverrideInstructor = StringUtils.isNotEmpty(serverConfigurationService.getString("turnitin.oc2.may_view_submission_full_source.instructor")) 
-				? serverConfigurationService.getBoolean("turnitin.oc2.may_view_submission_full_source.instructor", false)
+		mayViewSubmissionFullSourceOverrideInstructor = StringUtils.isNotEmpty(serverConfigurationService.getString("turnitin.oc.may_view_submission_full_source.instructor")) 
+				? serverConfigurationService.getBoolean("turnitin.oc.may_view_submission_full_source.instructor", false)
 				: null;
-		mayViewMatchSubmissionInfoOverrideInstructor = StringUtils.isNotEmpty(serverConfigurationService.getString("turnitin.oc2.may_view_match_submission_info.instructor")) 
-				? serverConfigurationService.getBoolean("turnitin.oc2.may_view_match_submission_info.instructor", false)
+		mayViewMatchSubmissionInfoOverrideInstructor = StringUtils.isNotEmpty(serverConfigurationService.getString("turnitin.oc.may_view_match_submission_info.instructor")) 
+				? serverConfigurationService.getBoolean("turnitin.oc.may_view_match_submission_info.instructor", false)
 				: null;
 
 		// Populate base headers that are needed for all calls to TCA
