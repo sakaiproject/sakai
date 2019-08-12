@@ -1,4 +1,34 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_sites_edit_tool.vm,v 1.3 2005/05/19 19:53:01 gsilver.umich.edu Exp $ -->
+<script>
+    includeLatestJQuery('chef_sites_edit_tool.vm');
+</script>
+<script>
+
+    includeWebjarLibrary('bootstrap-multiselect');
+
+    <!-- Initialize the plugin: -->
+    $(document).ready(function() {
+        $('#feature').multiselect({
+            filterPlaceholder: '$tlang.getString("siteditoo.search")',
+            enableFiltering: true,
+            enableCaseInsensitiveFiltering: true
+        });
+    });
+
+    $('#feature').change(function(){
+        document.getElementById('thisOne').submit();
+    });
+</script>
+
+<style>
+button.btn.btn-default.multiselect-clear-filter{
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.42857143;
+    background-color: #eee;
+}
+</style>
+
 #if($tool && $tool.Tool && $tool.Tool.Id)
 <script type="text/javascript">
 ##  focus_path = [ "title" ]; no focus - title field is at bottom
@@ -30,16 +60,14 @@
 				</tr>
 				<tr>
 					<th>
-						$tlang.getString("siteditoo.fea")
+						<label for="feature">$tlang.getString("siteditoo.fea")</label>
 					</th>
 					<td>
+						<select id="feature" name="feature">
 						#foreach ($reg in $features)
-							<p class="checkbox">
-							<input type="radio" name="feature" id="feature$velocityCount" value="$reg.Id" #if($reg.Id==$tool.Tool.Id)checked="checked"#end
-									onclick="document.getElementById('thisOne').submit();" />
-							<label for="feature$velocityCount">$reg.Title ($reg.Id)</label>
-							</p>
-						#end							
+							<option value="$reg.Id" #if($reg.Id==$tool.Tool.Id) selected #end>$validator.escapeHtml($reg.Title) ($reg.Id)</option>
+						#end
+						</select>
 					</td>
 				</tr>
 			</table>
