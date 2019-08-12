@@ -111,7 +111,8 @@
 }
 
 .instruction{
-	@include bs-callout($instruction-color, $instruction-background-color);
+	font-size: $instruction-size;
+	color: $instruction-color;
 }
 
 .listNav{

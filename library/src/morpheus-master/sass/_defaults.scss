@@ -28,6 +28,7 @@ $font-family-url: "https://fonts.googleapis.com/css?family=Open+Sans:400,500,700
 $font-family: "Open Sans",sans-serif;
 $default-font-size: 14px !default;
 $default-font-weight: 400 !default;										// 400 or 700 as you wish
+$default-font-size-small: 12px;
 $header-font-family: $font-family;
 $header-font-weight: 700 !default;										// 400 or 700 as you wish
 
@@ -136,6 +137,8 @@ $warn-background-color:     #F6ECB7 !default;
 $warn-color:                darken($warn-background-color, 35%) !default;
 $error-background-color:    #f2dede !default;
 $error-color:               darken($error-background-color, 30%) !default;
+$instruction-size:          $default-font-size-small;
+$instruction-color:         #555;
 
 /* Sakai Banners */
 // Information (info) banner
