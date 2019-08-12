@@ -166,6 +166,11 @@ table{
 		{
 			margin-right: $standard-space;
 		}
+		
+		&.act 
+		{
+			margin: 0;	// remove margins added with .act
+		}
 	}
 
 	.sakai-table-searchFilterControls
@@ -176,6 +181,11 @@ table{
 		input:last-of-type, button:last-of-type
 		{
 			margin-right: 0;
+		}
+		
+		&.act 
+		{
+			margin: 0;	// remove margins added with .act
 		}
 	}
 
@@ -190,6 +200,11 @@ table{
 
 		input[type=button], input[type=submit], button {
 			margin: 0 calc(#{$standard-spacing} / 2) $standard-spacing 0 !important;
+		}
+		
+		&.act 
+		{
+			margin: 0;	// remove margins added with .act
 		}
 	}
 
