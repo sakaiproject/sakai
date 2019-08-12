@@ -1827,25 +1827,19 @@ $(document).ready(function() {
 	                    $(".reqCheckbox").hide();
 
 				var sbpgreleasedate = row.find(".subpagereleasedate").text();
+				localDatePicker({
+					input: '#release_date2',
+					useTime: 1,
+					parseFormat: 'YYYY-MM-DD HH:mm:ss',
+					val: sbpgreleasedate,
+					ashidden: { iso8601: 'releaseDate2ISO8601' }
+				});
 				if(sbpgreleasedate === '') {
 					$("#page-releasedate2").prop('checked', false);
-					localDatePicker({
-						input: '#release_date2',
-						useTime: 1,
-						parseFormat: 'YYYY-MM-DD HH:mm:ss',
-						val: sbpgreleasedate,
-						ashidden: { iso8601: 'releaseDate2ISO8601' }
-					});
-				}
-				else {
+				} else {
 					$("#page-releasedate2").prop('checked', true);
-					localDatePicker({
-						input: '#release_date2',
-						useTime: 1,
-						parseFormat: 'YYYY-MM-DD HH:mm:ss',
-						val: sbpgreleasedate,
-						ashidden: { iso8601: 'releaseDate2ISO8601' }
-					});
+					$("#releaseDate2ISO8601").val(sbpgreleasedate);
+					$("#release_date2").val(moment(sbpgreleasedate).format('MM/DD/YYYY h:mm a'));
 				}
 
 			    var pagenext = row.find(".page-next").text();
@@ -3004,6 +2998,11 @@ function closeEditItemDialog() {
 	$("#edit-item-dialog").dialog("close");
 	$('#edit-item-error-container').hide();
 	$("#select-resource-group").hide();
+	if (!$("#page-releasedate2").prop('checked')){	// if the date-release option isn't checked, we should clear out the date-related values on close.
+		$("#release_date2").val('');
+		$("#releaseDate2ISO8601").val('');
+		$("#release_date_string").val('')
+	}
 	oldloc.focus();
 }
 

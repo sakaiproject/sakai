@@ -920,8 +920,11 @@ public class SimplePageBean {
 	    try {
 		//  if (date.substring(22,23).equals(":"))
 		//    date = date.substring(0,22) + date.substring(23,25);
-		date = date.substring(0,19);
-		this.releaseDate = isoDateFormat.parse(date);
+			if(date.charAt(10) == ' '){	//the raw date that arrives from the datepicker's ISO8601 field might be missing a char [ex. "2019-08-03T13:45:00" is correct, "2019-08-03 13:45:00" is incorrect], so we will force it in here.
+				date = date.replace(' ', 'T');
+			}
+			date = date.substring(0,19);
+			this.releaseDate = isoDateFormat.parse(date);
 	    } catch (Exception e) {
 		log.info("{}bad format releasedate {}", e, date);
 	    }
