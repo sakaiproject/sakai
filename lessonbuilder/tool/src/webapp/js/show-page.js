@@ -2060,6 +2060,7 @@ $(document).ready(function() {
 			oldloc = $(".dropdown a");
 			closeDropdowns();
 			mm_test_reset();
+			$('#mm-name-section').addClass('fileTitles');
 			$("#mm-name-section").show();
 			$("#mm-name").val('');
 			$("#mm-prerequisite").prop('checked',false);
