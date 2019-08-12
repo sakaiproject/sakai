@@ -21,7 +21,7 @@
 			<h4>
 				$tlang.getString("sitedigrp.grp")
 			</h4>	
-			<table  summary="$tlang.getString("sitedigrp.revandmod")">
+			<table summary="$tlang.getString("sitedigrp.revandmod")">
 				<tr>
 					<td>$tlang.getString("sitedigrp.grp2")</td>
 					<td>
@@ -50,11 +50,11 @@
 				</tr>
 			</table>
 
-			#if ($group)
+			#if ($group && $group.Properties.PropertyNames)
 				<h4>
 					$tlang.getString("sitedi.pro")
 				</h4>
-				<table class="itemSummary" summary="$tlang.getString("sitedi.pro")">
+				<table class="table table-striped table-bordered" summary="$tlang.getString("sitedi.pro")">
 					#set ($paramNames = $group.Properties.PropertyNames)
 					#foreach ($paramName in $paramNames)
 						#set ($paramValue = $group.Properties.getPropertyFormatted($paramName))
