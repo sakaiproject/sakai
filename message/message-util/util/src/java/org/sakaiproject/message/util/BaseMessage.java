@@ -25,17 +25,22 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.time.Instant;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Observable;
+import java.util.Properties;
+import java.util.Set;
+import java.util.Stack;
+import java.util.Vector;
+
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import lombok.extern.slf4j.Slf4j;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -44,16 +49,35 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.entity.api.*;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.EntityNotDefinedException;
+import org.sakaiproject.entity.api.EntityPermissionException;
+import org.sakaiproject.entity.api.HttpAccess;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.entity.api.Summary;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.exception.*;
+import org.sakaiproject.exception.IdInvalidException;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.IdUsedException;
+import org.sakaiproject.exception.InUseException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.javax.Filter;
 import org.sakaiproject.javax.PagingPosition;
+import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.message.api.*;
+import org.sakaiproject.message.api.Message;
+import org.sakaiproject.message.api.MessageChannel;
+import org.sakaiproject.message.api.MessageChannelEdit;
+import org.sakaiproject.message.api.MessageEdit;
+import org.sakaiproject.message.api.MessageHeader;
+import org.sakaiproject.message.api.MessageHeaderEdit;
+import org.sakaiproject.message.api.MessageService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -61,14 +85,27 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
-import org.sakaiproject.tool.api.*;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionBindingEvent;
+import org.sakaiproject.tool.api.SessionBindingListener;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.util.*;
+import org.sakaiproject.util.BaseResourcePropertiesEdit;
+import org.sakaiproject.util.DoubleStorageUser;
+import org.sakaiproject.util.EntityCollections;
+import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.Validator;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * BaseMessage is...
@@ -91,6 +128,9 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	/** added to allow for scheduled notifications */
 	private static final String SCHED_INV_UUID = "schInvUuid";
 	//private static final String SCHINV_DELETE_EVENT = "schInv.delete";
+
+	private Cache<String, List<Message>> messagesCache;
+
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Constructors, Dependencies and their setter methods
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -162,7 +202,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			// construct a storage helper and read
 			m_storage = newStorage();
 			m_storage.open();
-
+			messagesCache = m_memoryService.getCache("org.sakaiproject.announcement.tool.messages.cache");
 			log.info("init()");
 		}
 		catch (Throwable t)
@@ -3006,18 +3046,15 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		 * 
 		 * @return a List of all messages in the channel.
 		 */
-		protected List findMessages()
-		{
-			// if we have done this already in this thread, use that
-			List msgs = (List) m_threadLocalManager.get(getReference() + ".msgs");
-			if (msgs == null)
-			{
+		protected List findMessages() {
+			List msgs;
+			final List<Message> cachedMessages = messagesCache.get(getReference());
+			if (cachedMessages != null) {
+				msgs = cachedMessages;
+			} else {
 				msgs = m_storage.getMessages(this);
-
-				// "cache" the mesasge in the current service in case they are needed again in this thread...
-				m_threadLocalManager.set(getReference() + ".msgs", msgs);
+				messagesCache.put(getReference(), msgs);
 			}
-
 			return msgs;
 		} // findMessages
 
