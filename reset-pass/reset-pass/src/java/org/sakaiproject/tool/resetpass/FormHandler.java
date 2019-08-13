@@ -88,6 +88,13 @@ public class FormHandler {
 			return resetPassClassic();
 		}
 
+		// If the user is null at this point, it means we hit one of the error cases (wrong type, super user, invalid email, multiple accounts tied to email)
+		// We return 'success' here so that we're transferred to the confirmation page, so that no information is leaked about if the account exists or not.
+		if (userBean.getUser() == null ) {
+			// Don't send any email, just transfer to the confirmation page
+			return "Success";
+		}
+
 		//otherwise lets we need some info on the user.
 		//is the user validated?
 		String userId = userBean.getUser().getId().trim();
@@ -107,8 +114,6 @@ public class FormHandler {
 				log.debug("resending validation");
 				validationLogic.resendValidation(va.getValidationToken());
 			}
-			
-			
 			return "Success";
 		} else {
 			//there may be a pending VA that needs to be verified
