@@ -24,13 +24,11 @@ public class AnnouncementObserver implements Observer {
     private Cache<String, List<Message>> messagesCache;
 
     public void init() {
-        log.info("init()");
         eventTrackingService.addLocalObserver(this);
         messagesCache = memoryService.getCache("org.sakaiproject.announcement.tool.messages.cache");
     }
 
     public void destroy() {
-        log.info("destroy");
         eventTrackingService.deleteObserver(this);
     }
 
@@ -43,20 +41,15 @@ public class AnnouncementObserver implements Observer {
         final String eventType = event.getEvent();
 
         if (eventType != null) {
-            switch (eventType) {
+            String channelName = getChannel(event);
+            switch(eventType) {
                 case AnnouncementService.SECURE_ANNC_ADD:
-                    log.debug("New Announcement Event");
-                    messagesCache.remove(getChannel(event));
-                    break;
                 case AnnouncementService.SECURE_ANNC_UPDATE_ANY:
                 case AnnouncementService.SECURE_ANNC_UPDATE_OWN:
-                    log.debug("Update Announcement Event");
-                    messagesCache.remove(getChannel(event));
-                    break;
                 case AnnouncementService.SECURE_ANNC_REMOVE_ANY:
                 case AnnouncementService.SECURE_ANNC_REMOVE_OWN:
-                    log.debug("Remove Announcement Event");
-                    messagesCache.remove(getChannel(event));
+                    log.debug("Announcement event: {}", eventType);
+                    messagesCache.remove(channelName);
                     break;
                 default:
                     break;

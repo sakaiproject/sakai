@@ -3052,15 +3052,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			if (cachedMessages != null) {
 				msgs = cachedMessages;
 			} else {
-				// if we have done this already in this thread, use that
-				msgs = (List) m_threadLocalManager.get(getReference() + ".msgs");
-				if (msgs == null) {
-					msgs = m_storage.getMessages(this);
-
-					// "cache" the mesasge in the current service in case they are needed again in
-					// this thread...
-					m_threadLocalManager.set(getReference() + ".msgs", msgs);
-				}
+				msgs = m_storage.getMessages(this);
 				messagesCache.put(getReference(), msgs);
 			}
 			return msgs;
