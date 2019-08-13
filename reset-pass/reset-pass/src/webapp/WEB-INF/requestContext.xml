@@ -5,44 +5,33 @@
 
 	<bean id="formHandler"
 		class="org.sakaiproject.tool.resetpass.FormHandler">
-		<property name="userDirectoryService"
-			ref="org.sakaiproject.user.api.UserDirectoryService" />
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 		<property name="userBean" ref="userBean" />
-		<property name="serverConfigurationService"
-			ref="org.sakaiproject.component.api.ServerConfigurationService" />
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
 		<property name="messageLocator" ref="messageLocator" />
-		<property name="emailService"
-			ref="org.sakaiproject.email.api.EmailService" />
-		<property name="eventService"
-			ref="org.sakaiproject.event.api.EventTrackingService" />
-		<property name="securityService"
-			ref="org.sakaiproject.authz.api.SecurityService" />
+		<property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
+		<property name="eventService" ref="org.sakaiproject.event.api.EventTrackingService" />
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
 		<property name="validationLogic" ref="org.sakaiproject.accountvalidator.logic.ValidationLogic"/>
 	</bean>
 
 	<bean id="formProducer"
 		class="org.sakaiproject.tool.resetpass.FormProducer">
-		<property name="targettedMessageList"
-			ref="targettedMessageList" />
-		<property name="serverConfigurationService"
-			ref="org.sakaiproject.component.api.ServerConfigurationService" />
+		<property name="targettedMessageList" ref="targettedMessageList" />
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
 		<property name="messageLocator" ref="messageLocator" />
-		<property name="toolManager"
-			ref="org.sakaiproject.tool.api.ToolManager"/>
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
 		<property name="localeGetter" ref="requestLocaleProxy"/>
-
 	</bean>
+
 	<bean id="confirmProducer"
 		class="org.sakaiproject.tool.resetpass.ConfirmProducer">
 		<property name="userBean" ref="userBean" />
-		<property name="serverConfigurationService"
-			ref="org.sakaiproject.component.api.ServerConfigurationService" />
-		<property name="toolManager"
-			ref="org.sakaiproject.tool.api.ToolManager"/>
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
 	</bean>
 
 	<bean id="userBean"
 		class="org.sakaiproject.tool.resetpass.RetUser">
-
 	</bean>
 </beans>
