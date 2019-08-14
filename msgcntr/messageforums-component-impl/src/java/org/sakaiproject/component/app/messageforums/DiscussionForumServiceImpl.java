@@ -60,7 +60,6 @@ import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
@@ -71,7 +70,6 @@ import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -778,17 +776,18 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 			mergeDiscussionForumPermissionsElement(siteId, discussionForum, permissionsElement);
 		}
 
+		DiscussionForum discussionForumReturn = discussionForum;
 		// Save the discussion forum before saving discussion topic
 		if (!getImportAsDraft()) {
-			discussionForum = forumManager.saveDiscussionForum(discussionForum, discussionForum.getDraft());
+			discussionForumReturn = forumManager.saveDiscussionForum(discussionForum, discussionForum.getDraft());
 		} else {
-			discussionForum.setDraft(Boolean.TRUE);
-			discussionForum = forumManager.saveDiscussionForum(discussionForum, true);
+			discussionForumReturn.setDraft(Boolean.TRUE);
+			discussionForumReturn = forumManager.saveDiscussionForum(discussionForum, Boolean.TRUE);
 		}
 
 		final List<Element> discussionTopicElementList = getDiscussionTopicElementList(elements);
 		for (Element discussionTopicElement : discussionTopicElementList) {
-			mergeDiscussionTopicElement(siteId, fromSiteId, attachmentNames, discussionForum, discussionTopicElement);
+			mergeDiscussionTopicElement(siteId, fromSiteId, attachmentNames, discussionForumReturn, discussionTopicElement);
 		}
 	}
 
@@ -834,6 +833,44 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 
 		DiscussionTopic discussionTopic = forumManager.createDiscussionForumTopic(discussionForum);
 
+		setDiscussionTopicValues(discussionTopicElement, discussionTopic);
+
+		final List<Element> elements = getChildElementList(discussionTopicElement);
+
+		final List<Element> propertiesElementList = elements.stream().filter(e -> PROPERTIES.equals(e.getTagName()))
+				.collect(Collectors.toList());
+		for (Element propertiesElement : propertiesElementList) {
+			mergeDiscussionTopicPropertiesNodes(discussionTopic, propertiesElement);
+		}
+
+		final List<Element> attachmentElementList = getAttachmentElementList(elements);
+		for (Element attachmentElement : attachmentElementList) {
+			final Attachment newAttachment = mergeAttachmentElement(siteId, fromSiteId, attachmentNames,
+					attachmentElement);
+			if (newAttachment != null) {
+				discussionTopic.addAttachment(newAttachment);
+			}
+		}
+
+		final List<Element> permissionsElementList = getPermissionsElements(elements);
+		for (Element permissionsElement : permissionsElementList) {
+			mergeDiscussionTopicPermissionsElement(siteId, discussionTopic, permissionsElement);
+		}
+
+		// Discussion topic have to be saved before its messages
+		discussionTopic = forumManager.saveDiscussionForumTopic(discussionTopic, discussionForum.getDraft());
+
+		discussionTopic.setBaseForum(discussionForum);
+
+		// Messages have to be merged after the topic in order to control the ids of the
+		// "onReplyTo" attribute
+		final List<Element> messagesElementList = getMessagesElementList(elements);
+		for (Element messagesElement : messagesElementList) {
+			mergeDiscussionTopicMessagesElement(siteId, fromSiteId, attachmentNames, discussionTopic, messagesElement, null);
+		}
+	}
+
+	private void setDiscussionTopicValues(Element discussionTopicElement, DiscussionTopic discussionTopic) {
 		final String topicTitle = discussionTopicElement.getAttribute(TOPIC_TITLE);
 		discussionTopic.setTitle(topicTitle);
 
@@ -869,40 +906,6 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 			} catch (NumberFormatException nfe) {
 				discussionTopic.setSortIndex(null);
 			}
-		}
-
-		final List<Element> elements = getChildElementList(discussionTopicElement);
-
-		final List<Element> propertiesElementList = elements.stream().filter(e -> PROPERTIES.equals(e.getTagName()))
-				.collect(Collectors.toList());
-		for (Element propertiesElement : propertiesElementList) {
-			mergeDiscussionTopicPropertiesNodes(discussionTopic, propertiesElement);
-		}
-
-		final List<Element> attachmentElementList = getAttachmentElementList(elements);
-		for (Element attachmentElement : attachmentElementList) {
-			final Attachment newAttachment = mergeAttachmentElement(siteId, fromSiteId, attachmentNames,
-					attachmentElement);
-			if (newAttachment != null) {
-				discussionTopic.addAttachment(newAttachment);
-			}
-		}
-
-		final List<Element> permissionsElementList = getPermissionsElements(elements);
-		for (Element permissionsElement : permissionsElementList) {
-			mergeDiscussionTopicPermissionsElement(siteId, discussionTopic, permissionsElement);
-		}
-
-		// Discussion topic have to be saved before its messages
-		discussionTopic = forumManager.saveDiscussionForumTopic(discussionTopic, discussionForum.getDraft());
-
-		discussionTopic.setBaseForum(discussionForum);
-
-		// Messages have to be merged after the topic in order to control the ids of the
-		// "onReplyTo" attribute
-		final List<Element> messagesElementList = getMessagesElementList(elements);
-		for (Element messagesElement : messagesElementList) {
-			mergeDiscussionTopicMessagesElement(siteId, fromSiteId, attachmentNames, discussionTopic, messagesElement, null);
 		}
 	}
 

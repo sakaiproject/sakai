@@ -901,49 +901,51 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     public DiscussionTopic saveDiscussionForumTopic(DiscussionTopic topic, boolean parentForumDraftStatus, String currentUser, boolean logEvent) {
         boolean isNew = topic.getId() == null;
 
+        topic.setModified(new Date());
+
+        transformNullsToFalse(topic, currentUser);
+
+        //make sure availability is set properly
+        topic.setAvailability(ForumScheduleNotificationCover.makeAvailableHelper(topic.getAvailabilityRestricted(), topic.getOpenDate(), topic.getCloseDate()));
+
+        DiscussionTopic topicReturn = topic;
+        if (isNew) {
+            DiscussionForum discussionForum = (DiscussionForum) getForumByIdWithTopics(topic.getBaseForum().getId());
+            discussionForum.addTopic(topic);
+        } else {
+            topicReturn = getHibernateTemplate().merge(topic);
+        }
+
+        if(topicReturn.getId() != null){
+        	ForumScheduleNotificationCover.scheduleAvailability(topicReturn);
+        }
+
+        log.debug("saveDiscussionForumTopic executed with topicId: " + topicReturn.getId());
+        return topicReturn;
+    }
+
+    private void transformNullsToFalse(DiscussionTopic topic, String currentUser) {
         if (topic.getMutable() == null) {
             topic.setMutable(Boolean.FALSE);
         }
         if (topic.getSortIndex() == null) {
             topic.setSortIndex(Integer.valueOf(0));
         }
-        topic.setModified(new Date());
         if(currentUser!=null){
-        topic.setModifiedBy(currentUser);
+            topic.setModifiedBy(currentUser);
         }
-        
         if (topic.getModerated() == null) {
         	topic.setModerated(Boolean.FALSE);
         }
-        
         if (topic.getPostFirst() == null) {
         	topic.setPostFirst(Boolean.FALSE);
         }
-
         if (topic.getPostAnonymous() == null) {
         	topic.setPostAnonymous(Boolean.FALSE);
         }
-
         if (topic.getRevealIDsToRoles() == null) {
         	topic.setRevealIDsToRoles(Boolean.FALSE);
         }
-
-        //make sure availability is set properly
-        topic.setAvailability(ForumScheduleNotificationCover.makeAvailableHelper(topic.getAvailabilityRestricted(), topic.getOpenDate(), topic.getCloseDate()));
-        
-        if (isNew) {
-            DiscussionForum discussionForum = (DiscussionForum) getForumByIdWithTopics(topic.getBaseForum().getId());
-            discussionForum.addTopic(topic);
-        } else {
-            topic = getHibernateTemplate().merge(topic);
-        }
-
-        if(topic.getId() != null){
-        	ForumScheduleNotificationCover.scheduleAvailability(topic);
-        }
-
-        log.debug("saveDiscussionForumTopic executed with topicId: " + topic.getId());
-        return topic;
     }
 
     public Message createMessage(final DiscussionTopic topic) {
