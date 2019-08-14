@@ -13,10 +13,11 @@
             enableFiltering: true,
             enableCaseInsensitiveFiltering: true
         });
-    });
 
-    $('#feature').change(function(){
-        document.getElementById('thisOne').submit();
+        $('#feature').change(function(){
+            document.getElementById('thisOne').submit();
+        });
+
     });
 </script>
 
