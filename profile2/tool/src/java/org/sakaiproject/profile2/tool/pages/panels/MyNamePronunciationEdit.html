@@ -49,6 +49,9 @@
                             <button type="button" id="btn-stop-recording" class="recordButton hidden">
                                 <span><wicket:message key="button.stop" /></span>
                             </button>
+                            <button type="button" id="btn-release-microphone" class="hidden">
+                                <span><wicket:message key="button.release.microphone" /></span>
+                            </button>
                             <div id="prev-audio-player"><audio wicket:id="audioPlayer" controls playsinline controlsList='nodownload'></audio></div>
                             <div id="audio-player" class="audioPlayer hidden"><audio controls autoplay playsinline controlsList='nodownload'></audio></div>
                             <input wicket:id="audioBase64" type="hidden" id="audioBase64" aria-hidden="true" />
