@@ -113,10 +113,6 @@
 			{
 				tag.onclick = handleAccessIsGroup;
 			}
-			else if(tag.id && tag.id.match(/^selectall${DOT}\d+$/))
-			{
-				tag.onclick = handleSelectAllChange;
-			}
 #end
 		}
 		
@@ -464,15 +460,6 @@
 			if(inheritedChoice)
 			{
 				inheritedChoice.checked = true;
-				var selectAllGroups = document.getElementById("selectall${DOT}" + index);
-				if(selectAllGroups)
-				{
-					if(selectAllGroups.checked)
-					{
-						toggleAllGroups(index);
-					}
-					hideGroupsTable(index);
-				}
 			}
 			// hide the properties div by default
 			var propertiesDiv = document.getElementById("propertiesDiv$DOT" + index);
@@ -1449,40 +1436,7 @@
 			use_condition.checked = false;
 		}	
 	}
-	function handleSelectAllChange(evt)
-	{
-		evt = (evt) ? evt : ((event) ? event : null);
-		if(evt)
-		{
-			evt.cancelBubble = true;
-			var element = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null)
-			if(element)
-			{
-				element = (element.nodeType == 1 || element.nodeType == 9) ? element : element.parentNode;
-				if(element.id)
-				{
-					var dot = element.id.lastIndexOf("$DOT");
-					if(dot >= 0)
-					{
-						var index = element.id.substr(dot + 1);
-						toggleAllGroups(index);
-					}
-				}
-			}
-		}
-	}
-	
-	function toggleAllGroups(index)
-	{
-		var selectAll = document.getElementById("selectall${DOT}" + index);
-		var newSetting = selectAll.checked;
-		var checkboxes = document.getElementsByName("access_groups$DOT" + index);
-		for(var i = 0; i < checkboxes.length; i++)
-		{
-			checkboxes[i].checked = newSetting;
-		}
-	}
-	
+
 	function changeCondition(selectValue,dotSuffix)
 	{
 		selectIndex = Number(selectValue.substring(0, selectValue.indexOf("|")));

@@ -53,6 +53,36 @@ function resizeFrame(){
 		
 	});
 </script>	
+<script>
+    includeLatestJQuery('chef_announcements-revise.vm');
+</script>
+<script>
+
+    includeWebjarLibrary('bootstrap-multiselect');
+
+    <!-- Initialize the plugin: -->
+    $(document).ready(function() {
+        $('#selectedGroups').multiselect({
+        	selectAllText: '$tlang.getString("announcement.edit.selectall")',
+            nonSelectedText: '$tlang.getString("announcement.edit.selectone")',
+            allSelectedText: '$tlang.getString("announcement.edit.allselected")',
+            nSelectedText: ' $tlang.getString("announcement.edit.groupsselected")',
+            filterPlaceholder: '$tlang.getString("announcement.edit.searchgroup")',
+            enableFiltering: true,
+            enableCaseInsensitiveFiltering: true
+        });
+    });
+</script>
+
+<style>
+button.btn.btn-default.multiselect-clear-filter{
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.42857143;
+    background-color: #eee;
+}
+</style>
+
 <div class="portletBody container-fluid">
     #if ($isOnWorkspaceTab.equals("false"))
 		#if($menu && $EnabledMenuItemExists)
@@ -204,52 +234,29 @@ function resizeFrame(){
 						#else
 							#set ($listDisplay="none")
 						#end
-						<div class="table-responsive">
-							<table id="groupTable" style="display:$listDisplay" class="table table-hover table-striped table-bordered" summary="$tlang.getString("revise.group.list.summary")">
-							<caption class="skip" style="display:none">$tlang.getString("displayto.selected")</caption>
-								<tr>
-									<th id ="selectAllGroups" class="attach">
-										<input type="checkbox" name="selectall" value="" id="selectall" title="$tlang.getString("revise.group.list.toggle")" onclick="javascript:toggleSelectAll(this, 'selectedGroups')"  />
-									</th>
-							 		<th id ="groupname">
-										$tlang.getString("revise.group.list.title")
-									</th>
-									<th id ="groupdescription">
-										$tlang.getString("revise.group.list.desc")
-									</th>
-								</tr>
+						<div id="groupTable" style="display:$listDisplay">
+							<caption class="skip" style="display:none">$tlang.getString("displayto.selected")</caption></br>
+							<select id="selectedGroups" name="selectedGroups" multiple="multiple">
 								#foreach ($group in $!groups)
-									<tr>
-										<td headers="selectAllGroups" class="attach">
-											#set($selected=false)
-											#foreach($aGroupRef in $announceToGroups)
-												#set($aGroup = $!site.getGroup($!aGroupRef))
-												#if ($!group.Id == $!aGroup.Id)
-													#set($selected = true)
-												#end
-											#end
-											#if($groups.size() == 1) #set($selected=true) #end
-											#set($disabled=true)	
-											<input type="checkbox" name="selectedGroups" id="group-$group.Id" title="$validator.escapeHtml($group.title)" value="$group.Id" #if($selected) checked="checked"#end />
-										</td>
-										<td headers="groupname" nowrap="nowrap">
-											<label for="group-$group.Id">
-												$validator.escapeHtml($group.Title)
-											</label>	
-										</td>
-										<td headers="groupdescription" width="100%"> ##mozilla does not resize table children dynamically , so set here
-											#set($description = "")
-											#set($description = $group.Description)
-											$validator.escapeHtml($!description)
-										</td>
-									</tr>
+									#set($selected=false)
+									#foreach($aGroupRef in $announceToGroups)
+										#set($aGroup = $!site.getGroup($!aGroupRef))
+										#if ($!group.Id == $!aGroup.Id)
+											#set($selected = true)
+										#end
+									#end
+									#if($groups.size() == 1) #set($selected=true) #end								
+									#set($disabled=true)	
+									#set($description = "")
+									#set($description = $validator.escapeHtml($group.Description))
+
+									<option id="group-$group.Id" value="$group.Id" #if($selected) selected #end>$validator.escapeHtml($group.Title) #if("$!description" != "") ($!description) #end</option>
 								#end
-							</table>
+							</select>
 						</div>
 					#end
 				#end
 		        </fieldset>
-				
 				</div>			
 			</div>
 ##
@@ -323,8 +330,6 @@ function resizeFrame(){
 			                    <input type="text" id="closedate">
 							</div>
 						</div>
-
-
 		        </fieldset>
 		        </div>
 		    </div>
