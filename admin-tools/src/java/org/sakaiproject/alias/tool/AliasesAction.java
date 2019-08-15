@@ -193,7 +193,7 @@ public class AliasesAction extends PagedResourceActionII
 		pagingInfoToContext(state, context);
 		
 		// add the search commands
-		addSearchMenus(bar, state);
+		addSearchMenus(bar, state, rb.getString("alias.list.search.acc"));
 
 		// add the refresh commands
 		addRefreshMenus(bar, state);
