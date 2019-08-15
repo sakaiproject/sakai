@@ -18,6 +18,8 @@ package org.sakaiproject.sitestats.tool.entityproviders;
 import org.sakaiproject.sitestats.api.Stat;
 
 import lombok.Getter;
+import org.sakaiproject.sitestats.api.EventStat;
+import org.sakaiproject.sitestats.api.ResourceStat;
 
 /**
  * Wraps a Stat for the purpose of providing a less verbose JSON feed.
@@ -31,6 +33,8 @@ public class StrippedStat {
     private String siteId;
     private long count = 0L;
     private long date = 0L;
+    private String eventId;
+    private String resourceId;
 
     public StrippedStat(Stat stat) {
 
@@ -38,5 +42,14 @@ public class StrippedStat {
         this.siteId = stat.getSiteId();
         this.count = stat.getCount();
         this.date = stat.getDate().getTime();
+        if (stat instanceof EventStat) {
+            EventStat eventStat = (EventStat) stat;
+            this.eventId = eventStat.getEventId();
+        }
+        else if (stat instanceof ResourceStat) {
+            ResourceStat resourceStat = (ResourceStat) stat;
+            this.eventId = "content." + resourceStat.getResourceAction();
+            this.resourceId = resourceStat.getResourceRef();
+        }
     }
 }
