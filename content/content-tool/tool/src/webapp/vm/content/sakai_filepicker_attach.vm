@@ -117,7 +117,7 @@
 			<div class="form-inline">
 				<div class="form-group">
 					<label for="url">$tlang.getString("addi.or.url")</label>
-					<input type="text" size="40" name="url" id="url" onkeypress="document.getElementById('add_url').disabled=false;" onchange="document.getElementById('add_url').disabled=true;document.getElementById('attachForm').action='#toolLinkParam("FilePickerAction" "doAttachurl" "special=upload")';submitform('attachForm');" #if($disable_attach_links) disabled="disabled"#end />
+					<input type="text" size="40" name="url" id="url" oninput="document.getElementById('add_url').disabled=false;" onchange="document.getElementById('add_url').disabled=true;document.getElementById('attachForm').action='#toolLinkParam("FilePickerAction" "doAttachurl" "special=upload")';submitform('attachForm');" #if($disable_attach_links) disabled="disabled"#end />
 				</div>	
 				<div class="form-group">
 					<span class="act"><input type="button" class="button" name="add_url" id="add_url" value="$tlang.getString("gen.add")" onclick="document.getElementById('attachForm').action='#toolLinkParam("FilePickerAction" "doAttachurl" "special=upload")';submitform('attachForm');" disabled="disabled" /></span>
