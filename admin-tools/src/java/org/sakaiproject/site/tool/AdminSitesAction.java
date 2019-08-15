@@ -510,13 +510,13 @@ public class AdminSitesAction extends PagedResourceActionII
 		pagingInfoToContext(state, context);
 
 		// add the search commands
-		addSearchMenus(bar, state);
+		addSearchMenus(bar, state, rb.getString("sitlis.stit.acc"));
 
 		// more search
 		bar.add(new MenuDivider());
 		bar
 				.add(new MenuField(FORM_SEARCH_SITEID, "toolbar2", "doSearch_site_id", (String) state
-						.getAttribute(STATE_SEARCH_SITE_ID)));
+						.getAttribute(STATE_SEARCH_SITE_ID), rb.getString("sitlis.sid.acc")));
 		bar.add(new MenuEntry(rb.getString("sitlis.sid"), null, true, MenuItem.CHECKED_NA, "doSearch_site_id", "toolbar2"));
 		if (state.getAttribute(STATE_SEARCH_SITE_ID) != null)
 		{
@@ -525,7 +525,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		bar.add(new MenuDivider());
 		bar
 				.add(new MenuField(FORM_SEARCH_USERID, "toolbar3", "doSearch_user_id", (String) state
-						.getAttribute(STATE_SEARCH_USER_ID)));
+						.getAttribute(STATE_SEARCH_USER_ID), rb.getString("sitlis.uid.acc")));
 		bar.add(new MenuEntry(rb.getString("sitlis.uid"), null, true, MenuItem.CHECKED_NA, "doSearch_user_id", "toolbar3"));
 		if (state.getAttribute(STATE_SEARCH_USER_ID) != null)
 		{

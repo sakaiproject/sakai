@@ -256,7 +256,7 @@ public class RealmsAction extends PagedResourceActionII
 		//addListPagingMenus(bar, state);
 
 		// add the search commands
-		addSearchMenus(bar, state);
+		addSearchMenus(bar, state, rb.getString("realm.list.search.acc"));
 
 		// add the refresh commands
 		addRefreshMenus(bar, state);
