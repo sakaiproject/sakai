@@ -563,4 +563,57 @@
   #submissionList sakai-rubric-student-button {
     float: right;
   }
+
+  #msgNoMembersInCommonError {
+	  max-height: 300px;
+	  overflow-y: auto;
+  }
+
+  #checkNowButton {
+	  margin-top: $standard-spacing;
+  }
+
+  #groupTableContainer .multiselect-native-select::after
+  {
+	  content: "*";
+	  color: #990000;
+	  position: relative;
+	  top: 3px;
+	  margin-left: 4px;
+  }
+
+  #categoryList label {
+	  margin-bottom: 0; /* kill off bootstrap margin to reduce jitter during animation transitions */
+  }
+
+  #assignmentGradingPointsPanel label {
+	  font-weight: normal;
+  }
+
+  #assignmentGradingPointsPanel .radio, #assignmentGradingPointsPanel .checkbox {
+	  margin-top: 0;
+	  margin-bottom: 0;
+  }
+
+  #assignmentGradingPointsPanel sakai-rubric-association {
+	  display: block;
+  }
+
+  #assignmentGradingPointsPanel sakai-rubric-association h4 {
+	  display: none;
+  }
+
+  #assignmentGradingPointsPanel sakai-rubric-association .rubrics-list {
+	  margin-left: 3em; /* match indnt3 */
+	  padding-left: 0;
+  }
+
+  #msgNoMembersInCommon.is-hidden,
+  #msgNoMembersInCommonSuccess.is-hidden,
+  #msgNoMembersInCommonError.is-hidden,
+  #checkGroupsError.is-hidden,
+  #checkGroupFailed.is-hidden,
+  #checkGroupsErrorReport.is-hidden {
+	  display: none;
+  }
 }

@@ -332,85 +332,6 @@ ASN.setupToggleAreas = function(toggler, togglee, openInit, speed){
     });
 };
 
-// SAK-26349
-ASN.showOrHideAccessMessages = function(groupRadioSelected) {
-    
-    // Get the elements
-    var container = document.getElementById("messages");
-    var groupMsg = document.getElementById("msgSelectGroups");
-    var children = container.getElementsByTagName("div");
-    
-    // Show/hide the messages
-    ASN.showOrHideSelectGroupsMessage();
-    if (groupRadioSelected) {
-        for (i = 0; i < children.length; i++) {
-            if (children[i].id !== groupMsg.id) {
-                children[i].style.display = "none";
-            }
-        }
-    } 
-    else {
-        for (i = 0; i < children.length; i++) {
-            if (children[i].id !== groupMsg.id) {
-                children[i].style.display = "block";
-            }
-        }
-    }
-};
-
-ASN.showOrHideSelectGroupsMessage = function() {
-    
-    // Get the elements
-    var groupMsg = document.getElementById("msgSelectGroups");
-    var groupsRadio = document.getElementById("groups");
-    var checkboxes = document.getElementById("selectedGroups");
-    
-    // Determine if groups are selected
-    var groupsSelected = false;
-    checkboxes = checkboxes && checkboxes.options;
-    
-    for (i = 0; i < checkboxes.length; i++) {
-        if (checkboxes[i].selected) {
-            groupsSelected = true;
-        }
-    }
-    
-    // Get the form submission buttons
-    var postButtons = document.getElementsByName( "post" );
-    var previewButtons = document.getElementsByName( "preview" );
-    var saveButtons = document.getElementsByName( "save" );
-
-    // Show/hide the groups message
-    if (groupsRadio.checked && !groupsSelected) {
-        groupMsg.style.display = "block";
-        
-        // Disable the post, save and preview buttons
-        for (i = 0; i < postButtons.length; i++) {
-            postButtons[i].disabled = true;
-        }
-        for (i = 0; i < previewButtons.length; i++) {
-            previewButtons[i].disabled = true;
-        }
-        for (i = 0; i < saveButtons.length; i++) {
-            saveButtons[i].disabled = true;
-        }
-    } 
-    else {
-        groupMsg.style.display = "none";
-        
-        // Enable the post, save and preview buttons
-        for (i = 0; i < postButtons.length; i++) {
-            postButtons[i].disabled = false;
-        }
-        for (i = 0; i < previewButtons.length; i++) {
-            previewButtons[i].disabled = false;
-        }
-        for (i = 0; i < saveButtons.length; i++) {
-            saveButtons[i].disabled = false;
-        }
-    }
-};
-
 ASN.toggleGroups = function(clickedElement) {
 
     // Get the elements
@@ -631,23 +552,6 @@ ASN.togglePeerAssessmentOptions = function(checked){
         ASN.resizeFrame('shrink');
     }
 };
-
-ASN.toggleAddOptions = function(checked){
-        //Disable the peer review area and renable the site property unless this is selected 
-        var section = document.getElementById("peerAssessmentOptions");
-        section.style.display="none";
-        ASN.resizeFrame('shrink');
-        $("#site").prop("disabled", false);
-        //When Peer Assement options is selected
-        if(checked == "peerreview"){
-            section.style.display="block";
-            ASN.resizeFrame('grow');
-        //When Group Submission is checked
-        }else if (checked=="GROUP"){
-            $("#site").prop("disabled", true);
-            $("#groups").prop("checked", true).trigger("click");
-        }
-    }
     
 ASN.toggleReviewServiceOptions = function(checked){
     var section = document.getElementById("reviewServiceOptions");

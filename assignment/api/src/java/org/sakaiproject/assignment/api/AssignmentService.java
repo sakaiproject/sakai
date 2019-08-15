@@ -760,4 +760,23 @@ public interface AssignmentService extends EntityProducer {
      * @return true if content review results for the given submission can be displayed.
      */
     public boolean isContentReviewVisibleForSubmission(AssignmentSubmission submission);
+
+    /**
+     * Returns a list of users that belong to multiple groups, if the user is considered a "student" in the group
+     * by the standards of the Assignments tool.
+     * @param siteId the site id
+     * @param asnGroups the assignment groups to check membership in
+     * @return list of users with multiple group memberships and the groups they belong to
+     */
+    public List<MultiGroupRecord> checkAssignmentForUsersInMultipleGroups(String siteId, Collection<Group> asnGroups);
+
+    /**
+     * Returns a list of users in the submission group that also belong to other assignment groups, if the user is considered
+     * a "student" in the group by the standards of the Assignments tool.
+     * @param siteId the site id
+     * @param submissionGroup the group the submission is from
+     * @param asnGroups the assignment groups to check membership in
+     * @return list of submission group users with multiple group memberships and the groups they belong to
+     */
+    public List<MultiGroupRecord> checkSubmissionForUsersInMultipleGroups(String siteId, Group submissionGroup, Collection<Group> asnGroups);
 }
