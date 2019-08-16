@@ -158,7 +158,10 @@
               roles: roster.site.userRoles.sort(),
               checkOfficialPicturesButton: roster.officialPictureMode,
               viewGroup : roster.currentUserPermissions.viewGroup,
-              viewOfficialPhoto: roster.currentUserPermissions.viewOfficialPhoto },
+              viewOfficialPhoto: roster.currentUserPermissions.viewOfficialPhoto,
+              defaultOverviewModeCards: ('cards' === roster.defaultOverviewMode),
+              defaultOverviewModeSpreadsheet: ('spreadsheet' === roster.defaultOverviewMode),
+              defaultOverviewModePhotogrid: ('photogrid' === roster.defaultOverviewMode)},
           'roster_content');
 
       $(function () {
@@ -171,7 +174,15 @@
         roster.addHideOptionHandlers();
         roster.addViewModeHandlers();
         roster.addExportHandler();
-        roster.clickViewCardRadio(false);
+
+        if (roster.defaultOverviewMode === 'spreadsheet') {
+          roster.clickViewSpreadsheetRadio();
+        } else if (roster.defaultOverviewMode === 'photogrid') {
+          roster.clickViewPhotogridRadio();
+        } else {
+          roster.clickViewCardRadio(false);
+        }
+
         roster.setupPrintButton();
         roster.readySearchButton();
         roster.readySearchField();
@@ -328,6 +339,8 @@
       roster.pageSize = roster.cardsPageSize;
     } else if ($('#roster_content').hasClass('view_mode_photogrid')) {
       roster.pageSize = roster.gridPageSize;
+    } else {
+      roster.pageSize = 50;
     }
 
     url += '&pageSize=' + roster.pageSize;

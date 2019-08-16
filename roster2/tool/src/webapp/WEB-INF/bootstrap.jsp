@@ -34,6 +34,7 @@
                 siteId: '${siteId}',
                 language: '${language}',
                 defaultSortColumn: '${defaultSortColumn}',
+                defaultOverviewMode: '${defaultOverviewMode}',
                 firstNameLastName: ${firstNameLastName},
                 hideSingleGroupFilter: ${hideSingleGroupFilter},
                 viewUserDisplayId: ${viewUserDisplayId},
@@ -61,7 +62,8 @@
             <ul id="roster_navbar" class="navIntraTool actionToolBar" role="menu"></ul>
 
             <div id="rosterMainContainer">
-                <div id="roster_content" class="view_mode_cards"></div>
+
+                <div id="roster_content" class="view_mode_${defaultOverviewMode}"></div>
             </div>
 
         </div> <!-- portletBody -->
