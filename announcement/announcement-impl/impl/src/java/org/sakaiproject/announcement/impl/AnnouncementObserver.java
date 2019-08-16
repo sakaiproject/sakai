@@ -41,13 +41,13 @@ public class AnnouncementObserver implements Observer {
         final String eventType = event.getEvent();
 
         if (eventType != null) {
-            String channelName = getChannel(event);
             switch(eventType) {
                 case AnnouncementService.SECURE_ANNC_ADD:
                 case AnnouncementService.SECURE_ANNC_UPDATE_ANY:
                 case AnnouncementService.SECURE_ANNC_UPDATE_OWN:
                 case AnnouncementService.SECURE_ANNC_REMOVE_ANY:
                 case AnnouncementService.SECURE_ANNC_REMOVE_OWN:
+                    String channelName = getChannel(event);
                     log.debug("Announcement event: {}", eventType);
                     messagesCache.remove(channelName);
                     break;
