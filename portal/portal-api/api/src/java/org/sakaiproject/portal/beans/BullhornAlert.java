@@ -26,9 +26,6 @@ public class BullhornAlert {
     @EqualsAndHashCode.Include
     private Long id;
 
-    @Column(name = "ALERT_TYPE", length = 8, nullable = false)
-    private String alertType;
-
     @Column(name = "FROM_USER", length = 99, nullable = false)
     private String fromUser;
 

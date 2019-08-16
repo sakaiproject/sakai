@@ -12,12 +12,8 @@
     line-height: 1.5em;
 }
 
-.bullhorn-counter-red {
+.bullhorn-counter {
     background-color: #a20000;
-}
-
-.bullhorn-counter-blue {
-    background-color: #2a94c0;
 }
 
 .portal-bullhorns.qtip {
@@ -37,7 +33,7 @@
     }
 }
 
-.portal-bullhorn-social-alerts, .portal-bullhorn-academic-alerts {
+.portal-bullhorn-alerts {
     padding-bottom: 5px;
 
     button {

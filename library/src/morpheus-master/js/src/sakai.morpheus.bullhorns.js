@@ -7,8 +7,7 @@
 
   moment.locale(portal.locale);
 
-  portal.socialBullhorn = $('#Mrphs-social-bullhorn');
-  portal.academicBullhorn = $('#Mrphs-academic-bullhorn');
+  portal.bullhorn = $('#Mrphs-bullhorn');
 
   var formatDate = function (instant) {
 
@@ -20,7 +19,7 @@
     return '<div class="portal-bullhorn-no-alerts">' + noAlertsString + '</div>';
   };
 
-  portal.clearBullhornAlert = function (type, id, noAlerts) {
+  portal.clearBullhornAlert = function (id, noAlerts) {
 
     $.get('/direct/portal/clearBullhornAlert', { id: id })
       .done(function () {
@@ -30,28 +29,28 @@
         // Get the ancestor bunch and, if this is the last child, remove it.
         var bunch = alertDiv.closest(".portal-bullhorn-bunch");
         var removeBunch = bunch.find(".portal-bullhorn-alert").length === 1;
-        var empty = $('.portal-bullhorn-' + type + '-alert').length === 1;
+        var empty = $('.portal-bullhorn-alert').length === 1;
         alertDiv.remove();
         if (empty) {
-            $('.portal-bullhorn-' + type +'-alerts').html(portal.wrapNoAlertsString(noAlerts));
+            $('.portal-bullhorn-alerts').html(portal.wrapNoAlertsString(noAlerts));
         }
 
         if (removeBunch) {
           bunch.remove();
         }
 
-        var count = $('.portal-bullhorn-' + type + '-alert').length;
-        portal.setCounter(type, count);
+        var count = $('.portal-bullhorn-alert').length;
+        portal.setCounter(count);
       });
   };
 
-  portal.clearAllAlerts = function (type, noAlerts) {
+  portal.clearAllBullhornAlerts = function (noAlerts) {
 
-    $.ajax({url: '/direct/portal/clearAll' + type + 'Alerts', cache: false})
+    $.ajax({url: '/direct/portal/clearAllBullhornAlerts', cache: false})
       .done(function () {
 
-        $('.portal-bullhorn-' + type.toLowerCase() + '-alerts').html(portal.wrapNoAlertsString(noAlerts));
-        portal.setCounter(type.toLowerCase(), 0);
+        $('.portal-bullhorn-alerts').html(portal.wrapNoAlertsString(noAlerts));
+        portal.setCounter(0);
       });
   };
 
@@ -185,153 +184,17 @@
 
   $(function () {
 
-    portal.socialBullhorn.qtip({
+    portal.bullhorn.qtip({
       suppress: false,
-      position: { adjust: { scroll: false }, my: 'top right', at: 'bottom left', target: portal.socialBullhorn },
-      show: { event: 'click', delay: 0, solo: portal.academicBullhorn },
+      position: { adjust: { scroll: false }, my: 'top right', at: 'bottom left' },
+      show: { event: 'click', delay: 0},
       style: { classes: 'portal-bullhorns' },
       hide: { event: 'click unfocus' },
       content: {
         text: function (event, api) {
 
           return $.ajax({
-            url: '/direct/portal/socialAlerts.json',
-            cache: false,
-          }).then(function (data) {
-
-            if (data.message && data.message === 'NO_ALERTS') {
-              return portal.wrapNoAlertsString(data.i18n.noAlerts);
-            } else {
-              var markup = '<div class="portal-bullhorn-social-alerts">';
-              data.alerts.sort((a,b) => { return b.eventDate.epochSecond - a.eventDate.epochSecond; });
-              data.alerts.forEach(function (alert) {
-
-                switch (alert.event) {
-                  case "profile.friend.request":
-                    markup += '<a href="javascript:;" class="portal-bullhorn-connectionmanager-pending">';
-                    break;
-                  case "profile.friend.confirm":
-                    markup += '<a href="javascript:;" class="portal-bullhorn-connectionmanager-current">';
-                    break;
-                  default:
-                    markup += `<a href="${alert.url}">`;
-                }
-
-                markup += `
-                  <div id="portal-bullhorn-alert-${alert.id}" class="portal-bullhorn-alert portal-bullhorn-social-alert">
-                    <div class="portal-bullhorn-photo" style="background-image:url(/direct/profile/${alert.fromUser}/image/thumb)"></div>
-                    <div class="portal-bullhorn-message">`;
-
-                switch (alert.event) {
-                  case "profile.friend.request":
-                    markup += '<a href="javascript:;" class="portal-bullhorn-connectionmanager-pending">';
-                    break;
-                  case "profile.friend.confirm":
-                    markup += '<a href="javascript:;" class="portal-bullhorn-connectionmanager-current">';
-                    break;
-                  default:
-                    markup += `<a href="${alert.url}">`;
-                }
-
-                markup += `
-                    <div>
-                      <span class="portal-bullhorn-display-name">${alert.fromDisplayName}</span>
-                  `;
-
-                switch (alert.event) {
-                  case "profile.wall.item.new":
-                    markup += data.i18n.wallPost;
-                    break;
-                  case "profile.status.update":
-                    markup += data.i18n.statusUpdate;
-                    break;
-                  case "profile.wall.item.comment.new":
-                    markup += data.i18n.postComment;
-                    break;
-                  case "profile.friend.request":
-                    markup += data.i18n.friendRequest;
-                    break;
-                  case "profile.friend.confirm":
-                    markup += data.i18n.friendConfirm;
-                    break;
-                  case "profile.message.sent":
-                    markup += data.i18n.message;
-                    break;
-                  default:
-                    markup += data.i18n.unrecognisedAlert;
-                }
-
-                var time = formatDate(alert.eventDate);
-
-                markup += `
-                      </div>
-                      </a>
-                      <div class="portal-bullhorn-time">${time}</div>
-                      <div class="portal-bullhorn-options">
-                  `;
-
-                if (alert.event === 'profile.friend.request') {
-                  markup += `<a href="javascript:;" onclick="portal.acceptFriendRequest('${alert.from}','${alert.to}','${alert.id}','${data.i18n.noAlerts}');">${data.i18n.accept}</a>`;
-                  markup += `<a href="javascript:;" onclick="portal.ignoreFriendRequest('${alert.from}','${alert.to}','${alert.id}','${data.i18n.noAlerts}');">${data.i18n.ignore}</a>`;
-                }
-
-                markup += "</div>";
-                markup += `
-                      </div>
-                      <div class="portal-bullhorn-clear">
-                        <a href="javascript:;" onclick="portal.clearBullhornAlert('social', '${alert.id}','${data.i18n.noAlerts}');" title="${data.i18n.clear}">
-                          <i class="fa fa-times" aria-hidden="true"></i>
-                        </a>
-                      </div>
-                    </div>
-                `;
-              });
-
-              markup += `
-                  <div id="portal-bullhorn-clear-all">
-                    <a href="javascript:;" onclick="portal.clearAllAlerts(\'Social\','${data.i18n.noAlerts}');">${data.i18n.clearAll}</a></div>`;
-
-              markup += "</div>";
-
-              return markup;
-            }
-          }, function (xhr, status, error) { api.set('content.text', status + ': ' + error); }); // then
-        }
-      },
-      events: {
-        visible: function (event, api) {
-
-          var firstAlert = event.target.querySelector(".portal-bullhorn-social-alerts a");
-          if (firstAlert) {
-            firstAlert.focus();
-          }
-
-          $('.portal-bullhorn-connectionmanager-pending').click(function (e) {
-
-            portal.connectionManager.show({state: 'pending'});
-            api.hide();
-          });
-
-          $('.portal-bullhorn-connectionmanager-current').click(function (e) {
-
-            portal.connectionManager.show();
-            api.hide();
-          });
-        }
-      }
-    });
-
-    portal.academicBullhorn.qtip({
-      suppress: false,
-      position: { adjust: { scroll: false }, my: 'top right', at: 'bottom left', target: portal.socialBullhorn },
-      show: { event: 'click', delay: 0, solo: portal.socialBullhorn },
-      style: { classes: 'portal-bullhorns' },
-      hide: { event: 'click unfocus' },
-      content: {
-        text: function (event, api) {
-
-          return $.ajax({
-            url: '/direct/portal/academicAlerts.json',
+            url: '/direct/portal/bullhornAlerts.json',
             dataType: 'json',
             cache: false,
           }).then(function (data) {
@@ -339,7 +202,7 @@
             if (data.message && data.message === 'NO_ALERTS') {
               return portal.wrapNoAlertsString(data.i18n.noAlerts);
             } else {
-              var markup = '<div id="academic-alerts" class="accordion portal-bullhorn-academic-alerts">';
+              var markup = '<div id="bullhorn-alerts" class="accordion portal-bullhorn-alerts">';
 
               var allBunches = [];
               createBunches(data.alerts, "annc").forEach(alerts => allBunches.push({ type: "announcements", alerts: alerts }));
@@ -357,7 +220,7 @@
 
               markup += `
                   <div id="portal-bullhorn-clear-all">
-                    <a href="javascript:;" onclick="portal.clearAllAlerts('Academic','${data.i18n.noAlerts}');">${data.i18n.clearAll}</a>
+                    <a href="javascript:;" onclick="portal.clearAllBullhornAlerts('${data.i18n.noAlerts}');">${data.i18n.clearAll}</a>
                   </div>
                 </div>
               `;
@@ -370,7 +233,7 @@
       events: {
         visible: function (event, api) {
 
-          var firstBunch = document.querySelector("#academic-alerts button");
+          var firstBunch = document.querySelector("#bullhorn-alerts button");
           if (firstBunch) {
             firstBunch.focus();
           }
@@ -379,18 +242,17 @@
     });
   });
 
-  portal.setCounter = function (type, count) {
+  portal.setCounter = function (count) {
 
-    var horn = $('#Mrphs-' + type + '-bullhorn');
-    var colour = (type === 'social') ? 'blue' : 'red';
+    var horn = $('#Mrphs-bullhorn');
     horn.find('.bullhorn-counter').remove();
-    horn.append('<span class="bullhorn-counter bullhorn-counter-' + colour + '">' + count + '</span>');
+    horn.append('<span class="bullhorn-counter">' + count + '</span>');
   };
 
-  var updateCounts = function () {
+  var updateCount = function () {
 
     $.ajax({
-      url: '/direct/portal/bullhornCounts.json',
+      url: '/direct/portal/bullhornAlertCount.json',
       cache: false,
       data: {
         auto: true // indicates that this request is not a user action
@@ -399,16 +261,10 @@
 
       portal.failedBullhornCounts = 0;
 
-      if (data.academic > 0) {
-        portal.setCounter('academic', data.academic);
+      if (data > 0) {
+        portal.setCounter(data);
       } else {
-        portal.academicBullhorn.find('.bullhorn-counter').remove();
-      }
-
-      if (data.social > 0) {
-        portal.setCounter('social', data.social);
-      } else {
-        portal.socialBullhorn.find('.bullhorn-counter').remove();
+        portal.bullhorn.find('.bullhorn-counter').remove();
       }
     }).fail(function (xhr, status, error) {
       if (console) console.log('Failed to get the bullhorn counts. Status: ' + status);
@@ -422,7 +278,7 @@
   };
 
   if (portal.loggedIn && portal.bullhorns && portal.bullhorns.enabled) {
-    updateCounts();
-    portal.bullhornCountIntervalId = setInterval(updateCounts, portal.bullhorns.pollInterval);
+    updateCount();
+    portal.bullhornCountIntervalId = setInterval(updateCount, portal.bullhorns.pollInterval);
   }
 }) ($PBJQ);
