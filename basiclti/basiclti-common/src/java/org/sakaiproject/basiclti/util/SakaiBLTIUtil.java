@@ -1141,7 +1141,7 @@ public class SakaiBLTIUtil {
 
 			setProperty(ltiProps, ContentItem.ACCEPT_MEDIA_TYPES, ContentItem.MEDIA_LTILINKITEM);
 			setProperty(ltiProps, BasicLTIConstants.ACCEPT_PRESENTATION_DOCUMENT_TARGETS, "iframe,window"); // Nice to add overlay
-			setProperty(ltiProps, BasicLTIConstants.ACCEPT_UNSIGNED, "true");
+			setProperty(ltiProps, BasicLTIConstants.ACCEPT_UNSIGNED, "false");
 			setProperty(ltiProps, BasicLTIConstants.ACCEPT_MULTIPLE, "false");
 			setProperty(ltiProps, BasicLTIConstants.ACCEPT_COPY_ADVICE, "false"); // ???
 			setProperty(ltiProps, BasicLTIConstants.AUTO_CREATE, "true");
@@ -1162,6 +1162,9 @@ public class SakaiBLTIUtil {
 				// Allow overrides
 				if (BasicLTIConstants.ACCEPT_MEDIA_TYPES.equals(key)) {
 					setProperty(ltiProps, BasicLTIConstants.ACCEPT_MEDIA_TYPES, value);
+					continue;
+				} else if (BasicLTIConstants.ACCEPT_MULTIPLE.equals(key)) {
+					setProperty(ltiProps, BasicLTIConstants.ACCEPT_MULTIPLE, value);
 					continue;
 				} else if (BasicLTIConstants.ACCEPT_PRESENTATION_DOCUMENT_TARGETS.equals(key)) {
 					setProperty(ltiProps, BasicLTIConstants.ACCEPT_PRESENTATION_DOCUMENT_TARGETS, value);
@@ -1657,9 +1660,15 @@ public class SakaiBLTIUtil {
 				DeepLink ci = new DeepLink();
 				// accept_copy_advice is not in deep linking - files are to be copied - images maybe
 				String accept_media_types = ltiProps.getProperty("accept_media_types");
+System.out.println("accept_media_types="+accept_media_types);
 				if ( ContentItem.MEDIA_LTILINKITEM.equals(accept_media_types) ) {
 					ci.accept_types.add(DeepLink.ACCEPT_TYPE_LTILINK);
+				} else if ( ContentItem.MEDIA_ALL.equals(accept_media_types) ) {
+					ci.accept_types.add(DeepLink.ACCEPT_TYPE_LTILINK);
+					ci.accept_types.add(DeepLink.ACCEPT_TYPE_LINK);
+					ci.accept_types.add(DeepLink.ACCEPT_TYPE_IMAGE);
 				} else {
+					ci.accept_types.add(DeepLink.ACCEPT_TYPE_FILE);
 					ci.accept_media_types = ltiProps.getProperty("accept_media_types");
 				}
 				ci.accept_multiple = "true".equals(ltiProps.getProperty("accept_multiple"));

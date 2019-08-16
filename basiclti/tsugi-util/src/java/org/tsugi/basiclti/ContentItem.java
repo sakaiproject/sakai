@@ -62,6 +62,10 @@ public class ContentItem {
 
 	public static final String ACCEPT_MEDIA_TYPES = "accept_media_types";
 	public static String MEDIA_LTILINKITEM = "application/vnd.ims.lti.v1.ltilink";
+	public static String MEDIA_ALL = "*/*";
+
+	public static String ACCEPT_MULTIPLE = "accept_multiple";
+
 	// http://www.iana.org/assignments/media-types/media-types.xhtml
 	public static final String MEDIA_CC_1_1 = "application/vnd.ims.imsccv1p1";
 	public static final String MEDIA_CC_1_2 = "application/vnd.ims.imsccv1p2";
