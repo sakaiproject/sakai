@@ -2035,7 +2035,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		Properties contentData = new Properties();
 
 		// TODO: Expand the MIME type
-		contentData.setProperty(ContentItem.ACCEPT_MEDIA_TYPES, "*/*");
+		contentData.setProperty(ContentItem.ACCEPT_MEDIA_TYPES, ContentItem.MEDIA_ALL);
+		contentData.setProperty(ContentItem.ACCEPT_MULTIPLE, "true");
 		contentData.setProperty("remember", "the answer is 42");  // An example
 
 		contentLaunch = ContentItem.buildLaunch(contentLaunch, contentReturn, contentData);
