@@ -1660,7 +1660,6 @@ public class SakaiBLTIUtil {
 				DeepLink ci = new DeepLink();
 				// accept_copy_advice is not in deep linking - files are to be copied - images maybe
 				String accept_media_types = ltiProps.getProperty("accept_media_types");
-System.out.println("accept_media_types="+accept_media_types);
 				if ( ContentItem.MEDIA_LTILINKITEM.equals(accept_media_types) ) {
 					ci.accept_types.add(DeepLink.ACCEPT_TYPE_LTILINK);
 				} else if ( ContentItem.MEDIA_ALL.equals(accept_media_types) ) {

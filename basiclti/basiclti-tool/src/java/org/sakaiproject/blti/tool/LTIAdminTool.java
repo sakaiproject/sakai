@@ -989,6 +989,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 			// Edit
 		} else {
+			context.put("oldContentId", contentId);
 			Long contentKey = new Long(contentId);
 			Map<String, Object> content = ltiService.getContent(contentKey, getSiteId(state));
 			if (content == null) {
@@ -1016,6 +1017,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		// We will handle the tool_id field ourselves in the Velocity code
 		String[] contentForm = foorm.filterForm(null, ltiService.getContentModel(key, getSiteId(state)), null, "^tool_id:.*");
 		if (contentForm == null || key == null) {
+			if ( contentId != null) {
+				return "lti_content_insert";
+			}
 			addAlert(state, rb.getString("error.tool.not.found"));
 			return "lti_error";
 		}

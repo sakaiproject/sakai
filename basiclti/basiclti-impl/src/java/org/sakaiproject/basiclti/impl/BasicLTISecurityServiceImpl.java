@@ -485,7 +485,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 						}
 					}
 
-					handleLTI112(req, res, tool);
+					if ( tool != null ) handleLTI112(req, res, tool);
 
 					retval = SakaiBLTIUtil.postLaunchHTML(content, tool, state, nonce, ltiService, rb);
 				}
