@@ -10,10 +10,10 @@
 	<packaging>pom</packaging>
 	
 	<parent>
-		<groupId>org.sakaiproject</groupId>
-		<artifactId>master</artifactId>
+		<groupId>org.sakaiproject.site</groupId>
+		<artifactId>site</artifactId>
 		<version>20-SNAPSHOT</version>
-		<relativePath />
+		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<properties>
