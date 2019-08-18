@@ -96,9 +96,9 @@
 						$tlang.getString("sitedi.pub")
 					</label>
 				</th>
-				<td class="checkbox">
-					<input type="radio" value="false" name="published" id="publishedfalse" #if ((!$site) || (!$site.isPublished())) checked="checked" #end /><label for="publishedfalse"> $tlang.getString("sitedi.unpub") </label>
-					<input type="radio" value="true" name="published" id="publishedtrue" #if ($site.isPublished()) checked="checked" #end /><label for="publishedtrue"> $tlang.getString("sitedi.pub2") </label>
+				<td>
+					<label class="radio-inline"><input type="radio" value="false" name="published" id="publishedfalse" #if ((!$site) || (!$site.isPublished())) checked="checked" #end />$tlang.getString("sitedi.unpub") </label>
+					<label class="radio-inline"><input type="radio" value="true" name="published" id="publishedtrue" #if ($site.isPublished()) checked="checked" #end />$tlang.getString("sitedi.pub2") </label>
 				</td>
 			</tr>
 			<tr>
@@ -107,9 +107,9 @@
 						$tlang.getString("sitedi.deleted")
 					</label>
 				</th>
-				<td   class="checkbox">
-					<input type="radio" value="true" name="softlyDeleted" id="softlyDeletedtrue" #if ($site.isSoftlyDeleted()) checked="checked" #end /><label for="SoftlyDeletedtrue">  $tlang.getString("sitedi.yes")</label>
-					<input type="radio" value="false" name="softlyDeleted" id="softlyDeletedfalse" #if (!$site || !$site.isSoftlyDeleted()) checked="checked" #end /><label for="SoftlyDeletedfalse"> $tlang.getString("sitedi.no") </label>
+				<td>
+					<label class="radio-inline"><input type="radio" value="true" name="softlyDeleted" id="softlyDeletedtrue" #if ($site.isSoftlyDeleted()) checked="checked" #end />$tlang.getString("sitedi.yes")</label>
+					<label class="radio-inline"><input type="radio" value="false" name="softlyDeleted" id="softlyDeletedfalse" #if (!$site || !$site.isSoftlyDeleted()) checked="checked" #end />$tlang.getString("sitedi.no") </label>
 				</td>
 			</tr>
 			<tr>
@@ -118,9 +118,9 @@
 						$tlang.getString("sitedi.joi")
 					</label>
 				</th>
-				<td  class="checkbox">
-					<input type="radio" value="true" name="joinable" id="opentrue" #if ($site.isJoinable()) checked="checked" #end /><label for="opentrue"> $tlang.getString("sitedi.yes") </label>
-					<input type="radio" value="false" name="joinable" id="openfalse" #if (!$site || !$site.isJoinable()) checked="checked" #end /><label for="openfalse"> $tlang.getString("sitedi.no")</label>
+				<td>
+					<label class="radio-inline"><input type="radio" value="true" name="joinable" id="opentrue" #if ($site.isJoinable()) checked="checked" #end />$tlang.getString("sitedi.yes") </label>
+					<label class="radio-inline"><input type="radio" value="false" name="joinable" id="openfalse" #if (!$site || !$site.isJoinable()) checked="checked" #end />$tlang.getString("sitedi.no")</label>
 				</td>
 			</tr>
 			<tr>
@@ -169,9 +169,9 @@
 						$tlang.getString("sitedi.pubvie")
 					</label>
 				</th>
-				<td   class="checkbox">
-					<input type="radio" value="true" name="pubView" id="pubViewtrue" #if ($site.isPubView()) checked="checked" #end /><label for="pubViewtrue">  $tlang.getString("sitedi.yes")</label>
-					<input type="radio" value="false" name="pubView" id="pubViewfalse" #if (!$site || !$site.isPubView()) checked="checked" #end /><label for="pubViewfalse"> $tlang.getString("sitedi.no") </label>
+				<td>
+					<label class="radio-inline"><input type="radio" value="true" name="pubView" id="pubViewtrue" #if ($site.isPubView()) checked="checked" #end />$tlang.getString("sitedi.yes")</label>
+					<label class="radio-inline"><input type="radio" value="false" name="pubView" id="pubViewfalse" #if (!$site || !$site.isPubView()) checked="checked" #end />$tlang.getString("sitedi.no") </label>
 				</td>
 			</tr>
 			<tr>
@@ -180,9 +180,9 @@
 						$tlang.getString("sitedi.custom")
 					</label>
 				</th>
-				<td   class="checkbox">
-					<input type="radio" value="true" name="customOrder" id="customOrdertrue" #if ($site.isCustomPageOrdered()) checked="checked" #end /><label for="customOrdertrue">  $tlang.getString("sitedi.yes")</label>
-					<input type="radio" value="false" name="customOrder" id="customOrderfalse" #if (!$site || !$site.isCustomPageOrdered()) checked="checked" #end /><label for="customOrderfalse"> $tlang.getString("sitedi.no") </label>
+				<td>
+					<label class="radio-inline"><input type="radio" value="true" name="customOrder" id="customOrdertrue" #if ($site.isCustomPageOrdered()) checked="checked" #end />$tlang.getString("sitedi.yes")</label>
+					<label class="radio-inline"><input type="radio" value="false" name="customOrder" id="customOrderfalse" #if (!$site || !$site.isCustomPageOrdered()) checked="checked" #end />$tlang.getString("sitedi.no") </label>
 				</td>
 			</tr>
 		</table>
