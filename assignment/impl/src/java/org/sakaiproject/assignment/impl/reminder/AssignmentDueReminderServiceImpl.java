@@ -57,7 +57,6 @@ import java.util.Set;
  */
 @Slf4j
 public class AssignmentDueReminderServiceImpl implements AssignmentDueReminderService {
-    private static final String DATE_FORMAT = "MMM dd, yyyy '@' hh:mm aa";
     private List<String> additionalHeaders = new ArrayList<>();
     @Setter
     private EmailService emailService;
@@ -149,6 +148,8 @@ public class AssignmentDueReminderServiceImpl implements AssignmentDueReminderSe
     private void sendEmailReminder(Site site, Assignment assignment, Member submitter) {
         log.debug("SendEmailReminder: '" + assignment.getTitle() + "' to " + submitter.getUserDisplayId());
 
+        ResourceLoader rl = new ResourceLoader(submitter.getUserId(), "assignment");
+
         String assignmentTitle = assignment.getTitle();
         if (assignment.getTitle().length() > 11) {
             assignmentTitle = assignment.getTitle().substring(0, 11) + "[...]";
@@ -157,8 +158,9 @@ public class AssignmentDueReminderServiceImpl implements AssignmentDueReminderSe
         String courseName = site.getTitle();
 
         Locale locale = new ResourceLoader().getLocale(submitter.getUserId());
+        String dateFormat = rl.getString("email.reminder.dateformat");
         SimpleDateFormat sdf = (locale != null)
-                                    ? new SimpleDateFormat(DATE_FORMAT, locale) : new SimpleDateFormat(DATE_FORMAT);
+                                    ? new SimpleDateFormat(dateFormat, locale) : new SimpleDateFormat(dateFormat);
         Instant dueDate = assignment.getDueDate();
         String formattedDateDue = sdf.format(Date.from(dueDate));
 
@@ -178,25 +180,24 @@ public class AssignmentDueReminderServiceImpl implements AssignmentDueReminderSe
         String replyToStr = getReplyTo(instructors);
         log.debug("Reply to string: " + replyToStr);
 
-        String subject = "Assignment '" + assignmentTitle + "' Due on " + formattedDateDue;
+        String subject = rl.getFormattedMessage("email.reminder.subject", assignmentTitle, formattedDateDue);
 
         StringBuilder body = new StringBuilder();
-        body.append("Hello ");
-        body.append(getUserFirstName(submitter.getUserId()));
+        body.append(rl.getFormattedMessage("email.reminder.hello", getUserFirstName(submitter.getUserId())));
         body.append(",<br />");
         body.append("<br />");
         int totalHours = serverConfigurationService.getInt("assignment.reminder.hours", 24);
-        String hoursMod = (totalHours % 24 == 0) ? "." : " and " + (totalHours % 24) + " hours.";
-        String timeText = (totalHours < 25) ? totalHours + " hours." : (totalHours / 24) + " days" + hoursMod;
-        body.append(String.format("Reminder: An assignment of yours is due within %s", timeText));
+        String hoursMod = (totalHours % 24 == 0) ? "." : " " + rl.getFormattedMessage("email.reminder.andhours", (totalHours % 24));
+        String timeText = (totalHours < 25) ? rl.getFormattedMessage("email.reminder.hours", totalHours) : rl.getFormattedMessage("email.reminder.days", (totalHours / 24)) + hoursMod;
+        body.append(rl.getFormattedMessage("email.reminder.duewithin", timeText));
         body.append("<br />");
         body.append("<ul>");
-        body.append("<li> Assignment : ").append(assignment.getTitle()).append("</li>");
-        body.append("<li> Due        : ").append(formattedDateDue).append("</li>");
-        body.append("<li> Class      : ").append(courseName).append("</li>");
+        body.append("<li> ").append(rl.getFormattedMessage("email.reminder.assignment", assignment.getTitle())).append("</li>");
+        body.append("<li> ").append(rl.getFormattedMessage("email.reminder.duedate", formattedDateDue)).append("</li>");
+        body.append("<li> ").append(rl.getFormattedMessage("email.reminder.class", courseName)).append("</li>");
         body.append("</ul>");
         body.append("<br />");
-        body.append("Have a nice day!");
+        body.append(rl.getString("email.reminder.niceday"));
         body.append("<br />");
         body.append("- ").append(getServiceName());
 
