@@ -216,7 +216,7 @@
 				</span>
 			</label>
 			<div class="col-sm-6">
-				<textarea  name="short_description" id="short_description" tabindex="2" rows="2" cols="45" onkeyup="LimitText(this,80)">$validator.escapeHtmlTextarea($!short_description)</textarea>
+				<textarea  name="short_description" id="short_description" rows="2" cols="45" onkeyup="LimitText(this,80)">$validator.escapeHtmlTextarea($!short_description)</textarea>
 			</div>
 		</div>	
 		## Skin & Site Icon ##
