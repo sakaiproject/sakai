@@ -108,19 +108,19 @@
     <dependency>
       <groupId>jmock</groupId>
       <artifactId>jmock</artifactId>
-      <version>1.1.0</version>
+      <version>1.2.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>jmock</groupId>
       <artifactId>jmock-cglib</artifactId>
-      <version>1.1.0</version>
+      <version>1.2.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>cglib</groupId>
-      <artifactId>cglib-full</artifactId>
-      <version>2.0.2</version>
+      <artifactId>cglib</artifactId>
+      <version>3.3.0</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
