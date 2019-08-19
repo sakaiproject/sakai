@@ -12803,6 +12803,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					
 					if (attributes != null)
 					{
+						//Only need to add the alert once, but keep processing
+						boolean alerted = false;
 						for(Iterator<String> e = attributes.keySet().iterator(); e.hasNext();)
 						{
 							String attribute = e.next();
@@ -12812,8 +12814,12 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 								// save the attribute input if valid, otherwise generate alert
 								if ( FormattedText.validateURL(attributeInput) )
 									attributes.put(attribute, attributeInput);
-								else
-									addAlert(state, rb.getString("java.invurl"));
+								else {
+									if (!alerted) {
+										addAlert(state, rb.getString("java.invurl"));
+										alerted = true;
+									}
+								}
 							}
 						}
 						multipleToolConfiguration.put(id, attributes);
