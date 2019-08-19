@@ -571,6 +571,8 @@ public class SiteAction extends PagedResourceActionII {
 
 	private static final String STATE_IMPORT_SITE_TOOL = "state_import_site_tool";
 
+	private static final String STATE_IMPORT_SITE_TOOL_OPTIONS = "state_import_site_tool_options";
+
 	/** for navigating between sites in site list */
 	private static final String STATE_SITES = "state_sites";
 
@@ -2845,7 +2847,7 @@ public class SiteAction extends PagedResourceActionII {
 			 * 
 			 */
 			boolean existingSite = site != null;
-			
+
 			// define the tools available for import. defaults to those tools in the 'destination' site
 			List<String> importableToolsIdsInDestinationSite = (List) state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
 			if (existingSite) {
@@ -5338,12 +5340,28 @@ public class SiteAction extends PagedResourceActionII {
 				}
 			}
 		}
-		
-		log.debug("tools to import: " + importTools);
+
+		if (log.isDebugEnabled()) {
+			log.debug("tools to import: " + importTools);
+		}
 		state.setAttribute(STATE_IMPORT_SITE_TOOL, importTools);
 
-		return anyToolSelected;
+		Map<String, List<String>> toolOptions = new HashMap<>();
+		for (Iterator<String> iter = params.getNames(); iter.hasNext();) {
+			String name = iter.next();
+			if (name.startsWith("import-option-")) {
+				String option = name.substring(14, name.indexOf("-tool-"));
+				String toolId = name.substring(name.indexOf("-tool-") + 6);
+				if (toolOptions.get(toolId) == null) {
+					toolOptions.put(toolId, new ArrayList<>());
+				}
+				toolOptions.get(toolId).add(option);
+			}
+		}
 
+		state.setAttribute(STATE_IMPORT_SITE_TOOL_OPTIONS, toolOptions);
+
+		return anyToolSelected;
 	} // select_import_tools
 
 	/**
@@ -9622,11 +9640,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					if (select_import_tools(params, state)) {
 						// list of tools that were selected for import
 						Map<String, List<String>> importTools = (Map<String, List<String>>) state.getAttribute(STATE_IMPORT_SITE_TOOL);
+						Map<String, List<String>> toolOptions = (Map<String, List<String>>) state.getAttribute(STATE_IMPORT_SITE_TOOL_OPTIONS);
 
 						//list of existing tools in the destination site
 						List<String> existingTools = getOriginalToolIds((List<String>) state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST), state);
-
-						Map<String, List<String>> toolOptions = getToolOptionsFromParams(params);
 
 						boolean importTaskStarted = siteManageService.importToolsIntoSiteThread(existingSite, existingTools, importTools, toolOptions, false);
 						if (importTaskStarted) {
@@ -9665,11 +9682,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					if (select_import_tools(params, state)) {
 						// list of tools that were selected for import
 						Map<String, List<String>> importTools = (Map<String, List<String>>) state.getAttribute(STATE_IMPORT_SITE_TOOL);
+						Map<String, List<String>> toolOptions = (Map<String, List<String>>) state.getAttribute(STATE_IMPORT_SITE_TOOL_OPTIONS);
 
 						//list of existing tools in the destination site
 						List<String> existingTools = getOriginalToolIds((List<String>) state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST), state);
-
-						Map<String, List<String>> toolOptions = getToolOptionsFromParams(params);
 
 						boolean importTaskStarted = siteManageService.importToolsIntoSiteThread(existingSite, existingTools, importTools, toolOptions, true);
 
@@ -11583,8 +11599,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		
 		site = refreshSiteObject(site);
 
+		Map<String, List<String>> toolOptions = (Map<String, List<String>>) state.getAttribute(STATE_IMPORT_SITE_TOOL_OPTIONS);
+
 		// import
-		siteManageService.importToolsIntoSite(site, chosenList, importTools, null, false);
+		siteManageService.importToolsIntoSite(site, chosenList, importTools, toolOptions, false);
 		
 		// SAK-22384 add LaTeX (MathJax) support
 		if (MathJaxEnabler.prepareMathJaxToolSettingsForSave(site, state))
@@ -16177,23 +16195,5 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		tools.removeAll(removedTools);
 
 		state.setAttribute("tools", tools);
-	}
-
-	private Map<String, List<String>> getToolOptionsFromParams(ParameterParser params) {
-
-		Map<String, List<String>> toolOptions = new HashMap<>();
-		for (Iterator<String> iter = params.getNames(); iter.hasNext();) {
-			String name = iter.next();
-			if (name.startsWith("import-option-")) {
-				String option = name.substring(14, name.indexOf("-tool-"));
-				String toolId = name.substring(name.indexOf("-tool-") + 6);
-				if (toolOptions.get(toolId) == null) {
-					toolOptions.put(toolId, new ArrayList<>());
-				}
-				toolOptions.get(toolId).add(option);
-			}
-		}
-
-		return toolOptions;
 	}
 }

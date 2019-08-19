@@ -495,9 +495,11 @@ public class SiteManageServiceImpl implements SiteManageService {
                             @Override
                             protected void doInTransactionWithoutResult(TransactionStatus status) {
 
+                                List<String> options = (toolOptions != null) ? toolOptions.get(toolId) : null;
+
                                 Map<String, String> entityMap
                                     = et.transferCopyEntities(
-                                        fromContext, toContext, new ArrayList<>(), toolOptions.get(toolId), cleanup);
+                                        fromContext, toContext, new ArrayList<>(), options, cleanup);
                                 if (entityMap != null) {
                                     transversalMap.putAll(entityMap);
                                 }
