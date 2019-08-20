@@ -52,7 +52,7 @@ public class LTI13JwtUtil {
 		if (parts.length != 2 && parts.length != 3) {
 			return null;
 		}
-		byte[] bytes = Base64.getDecoder().decode(parts[0]);
+		byte[] bytes = Base64.getUrlDecoder().decode(parts[0]);
 		return new String(bytes);
 	}
 
@@ -71,7 +71,7 @@ public class LTI13JwtUtil {
 		if (parts.length != 2 && parts.length != 3) {
 			return null;
 		}
-		byte[] bytes = Base64.getDecoder().decode(parts[1]);
+		byte[] bytes = Base64.getUrlDecoder().decode(parts[1]);
 		return new String(bytes);
 	}
 
