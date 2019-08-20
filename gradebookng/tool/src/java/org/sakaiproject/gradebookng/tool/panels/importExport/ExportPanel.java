@@ -372,7 +372,7 @@ public class ExportPanel extends BasePanel {
 						line.add(studentGradeInfo.getStudentEid());
 					}
 					if (!isCustomExport || this.includeStudentName) {
-						line.add(studentGradeInfo.getStudentLastName() + ", " + studentGradeInfo.getStudentFirstName());
+						line.add(FormatHelper.htmlUnescape(studentGradeInfo.getStudentLastName()) + ", " + FormatHelper.htmlUnescape(studentGradeInfo.getStudentFirstName()));
 					}
 					if (isCustomExport && this.includeStudentDisplayId) {
 						line.add(studentGradeInfo.getStudentDisplayId());
