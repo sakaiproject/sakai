@@ -93,6 +93,16 @@
             <artifactId>fop</artifactId>
             <version>1.0</version>
         </dependency>
+
+        <!-- This old version of xmlgraphics-commons is needed to support Manage Participants > Printable View.
+             With the newer (2.3) version (provided by master's pom.xml), you'll get a runtime NoSuchMethodError on org.apache.xmlgraphics.xmp.Metadata.mergeInto(Lorg/apache/xmlgraphics/xmp/Metadata;)V.
+             Until the code in SiteInfoToolServlet.generatePDF() is updated to use FOP v2.0+, this needs to stay here. -->
+        <dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>xmlgraphics-commons</artifactId>
+            <version>1.5</version>
+        </dependency>
+
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
