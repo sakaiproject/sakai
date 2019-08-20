@@ -2206,7 +2206,13 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		state.setAttribute(STATE_CONTENT_ITEM, new_content);
 		state.setAttribute(STATE_CONTENT_ITEM_FAILURES, failures);
 		state.setAttribute(STATE_CONTENT_ITEM_SUCCESSES, new Integer(goodcount));
-		switchPanel(state, "EditorDone");
+
+		String sakaiSession = data.getParameters().getString(RequestFilter.ATTR_SESSION);
+		if (sakaiSession == null) {
+			switchPanel(state, "EditorDone");
+		} else {
+			switchPanel(state, "EditorDone&" + RequestFilter.ATTR_SESSION + "=" + sakaiSession);
+		}
 	}
 
 	public Properties extractLTIContentItem(JSONObject item, Map<String, Object> tool, Long toolKey) {
