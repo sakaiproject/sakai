@@ -1236,7 +1236,16 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		Properties reqProps;
 
 		String id_token = data.getParameters().getString(LTI13JwtUtil.JWT);
-		if ( DeepLinkResponse.isRequest(id_token) ) {
+		boolean isDeepLink;
+		try {
+			isDeepLink = DeepLinkResponse.isRequest(id_token);
+		} catch (Exception e) {
+			addAlert(state, rb.getString("error.deeplink.bad") + " (" + e.getMessage() + ")");
+			switchPanel(state, "Error");
+			return;
+		}
+
+		if ( isDeepLink ) {
 			// Parse and validate the incoming DeepLink
 			String pubkey = (String) tool.get(LTIService.LTI13_TOOL_PUBLIC);
 			if (pubkey == null) {
@@ -1363,7 +1372,16 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		// Check if this is Deep Link 1.0 or 2.0
 		String id_token = data.getParameters().getString(LTI13JwtUtil.JWT);
-		if ( DeepLinkResponse.isRequest(id_token) ) {
+		boolean isDeepLink;
+		try {
+			isDeepLink = DeepLinkResponse.isRequest(id_token);
+		} catch (Exception e) {
+			addAlert(state, rb.getString("error.deeplink.bad") + " (" + e.getMessage() + ")");
+			switchPanel(state, "Error");
+			return;
+		}
+
+		if ( isDeepLink ) {
 			// Parse and validate the incoming DeepLink
 			String pubkey = (String) tool.get(LTIService.LTI13_TOOL_PUBLIC);
 			if (pubkey == null) {
