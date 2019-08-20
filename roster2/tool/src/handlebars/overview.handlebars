@@ -76,17 +76,17 @@
             <fieldset class="roundedBorder">
                 <legend>{{translate 'layout_group'}}</legend>
                 <span>
-                    <input type="radio" id="roster-card-view-radio" name="roster_view_type" checked />
+                    <input type="radio" id="roster-card-view-radio" name="roster_view_type" {{#if defaultOverviewModeCards}}checked{{/if}} />
                     <label for="roster-card-view-radio">{{translate 'roster_card_view'}}</label>
                 </span>
 
                 <span>
-                    <input type="radio" id="roster-photo-view-radio" name="roster_view_type" />
+                    <input type="radio" id="roster-photo-view-radio" name="roster_view_type" {{#if defaultOverviewModePhotogrid}}checked{{/if}}/>
                     <label for="roster-photo-view-radio">{{translate 'roster_photo_view'}}</label>
                 </span>
 
                 <span>
-                    <input type="radio" id="roster-spreadsheet-view-radio" name="roster_view_type" />
+                    <input type="radio" id="roster-spreadsheet-view-radio" name="roster_view_type" {{#if defaultOverviewModeSpreadsheet}}checked{{/if}}/>
                     <label for="roster-spreadsheet-view-radio">{{translate 'roster_spreadsheet_view'}}</label>
                 </span>
             </fieldset>
