@@ -1,5 +1,6 @@
 import {SakaiElement} from "/webcomponents/sakai-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
+import {tr} from "./sakai-rubrics-language.js";
 
 export class SakaiRubricCriteriaReadonly extends SakaiElement {
 
@@ -28,7 +29,7 @@ export class SakaiRubricCriteriaReadonly extends SakaiElement {
                 <div class="cr-table">
                   <div class="cr-table-row">
                   ${c.ratings.map(r => html`
-                    <div tabindex="0" title="Rating Title: ${r.title}. Rating Description: ${r.description}. Point Value: ${r.points}" class="rating-item" id="rating_item_${r.id}" on-save-ratings="saveRatings" @on-delete-rating="${this.deleteCriterionRating}">
+                    <div tabindex="0" title="${tr("rating_title")}: ${r.title}. ${tr("rating_description")}: ${r.description}. ${tr("point_value")}: ${r.points}" class="rating-item" id="rating_item_${r.id}" on-save-ratings="saveRatings" @on-delete-rating="${this.deleteCriterionRating}">
                       <h5 class="criterion-item-title">${r.title}</h5>
                       <p>${r.description}</p>
                       <span class="points">${r.points} Points</span>
