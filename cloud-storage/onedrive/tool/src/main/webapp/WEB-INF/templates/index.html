@@ -12,7 +12,7 @@
 		<div id="Mrphs-choice" class="Mrphs-portalWrapper">
 			<fieldset>
 				<h1 th:if="${onedriveConfigured == true}" th:text="#{onedrive_configured}" class="fa fa-windows" aria-hidden="true">ONE_DRIVE_INTEGRATED</h1>
-				<h1 th:if="${onedriveConfigured == false}" class="fa fa-windows" aria-hidden="true">ONE_DRIVE_ERROR</h1>
+				<h1 th:if="${onedriveConfigured == false}" th:text="#{onedrive_error}" class="fa fa-windows" aria-hidden="true">ONE_DRIVE_ERROR</h1>
 				<p class="buttons">
 					<span th:text="#{onedrive_button_msg}">BACK_BUTTON_MESSAGE</span>
 					<a th:text="#{onedrive_back}" th:href="${pickerRedirectUrl}" th:title="#{onedrive_button_msg}"></a>
