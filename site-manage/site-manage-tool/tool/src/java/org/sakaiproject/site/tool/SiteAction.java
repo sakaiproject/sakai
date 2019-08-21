@@ -11338,21 +11338,17 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			state.removeAttribute(STATE_TOOL_EMAIL_ADDRESS);
 		}
 
-		// commit
 		commitSite(site);
 		
+		siteManageService.importToolsIntoSite(site, chosenList, importTools, false);
+
+		// after importing content we need to refresh the site
 		site = refreshSiteObject(site);
 
-		// import
-		siteManageService.importToolsIntoSite(site, chosenList, importTools, false);
-		
-		// SAK-22384 add LaTeX (MathJax) support
-		if (MathJaxEnabler.prepareMathJaxToolSettingsForSave(site, state))
-		{
-			commitSite(site);
-		}
-
-		if (LessonsSubnavEnabler.prepareSiteForSave(site, state)) {
+		boolean updateSite;
+		updateSite = MathJaxEnabler.prepareMathJaxToolSettingsForSave(site, state);
+		updateSite = LessonsSubnavEnabler.prepareSiteForSave(site, state) || updateSite;
+		if (updateSite) {
 			commitSite(site);
 		}
 	} // saveFeatures
