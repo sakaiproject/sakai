@@ -5,6 +5,65 @@
        });
 </script>
 
+#macro(toolListControl $tool $toolRegistrationSelectedList $ltiTools $allowPageOrderHelper $toolRegistrationTitleList)
+    #set($toolId = $tool.id)
+    <div class="toolListControl" id="$toolId.replace(".","_")_wrap">
+        <input type="checkbox" name="selectedTools" value="$toolId" id="$toolId" aria-describedby="${toolId}.desc"
+            #if ($tool.required)
+               checked="checked"
+               disabled="disabled"
+            #else
+                #if ($toolRegistrationSelectedList)
+                    #foreach ($t in $toolRegistrationSelectedList)
+                        #if ($t == $toolId)
+                            checked="checked"
+                        #end
+                    #end
+                #end
+                #if ($ltiTools)
+                    #foreach($t in $ltiTools.keySet())
+                        #if ($t == $toolId)
+                            checked="checked"
+                        #end
+                    #end
+                #end
+            #end
+        />
+        <label for="$toolId">
+            #set($title = $validator.escapeHtml($tool.title))
+            $title
+            #if ($allowPageOrderHelper && $toolRegistrationTitleList)
+                #set($currentTitle = $validator.escapeHtml($toolRegistrationTitleList.get($toolId)))
+                #if (!$currentTitle.equals($title) && !$currentTitle.isEmpty())
+                    ($currentTitle)
+                #end
+            #end
+        </label>
+    </div>
+#end
+
+#macro(toolListDescription $tool $multipleToolIdTitleMap $multipleToolConfiguration)
+    #set($toolId = $tool.id)
+    <div class="toolListDesc textPanelFooter specialLink" id="${toolId}.desc">
+        #if (!$tool.getDescription().isEmpty())
+            $tool.description
+        #end
+        #if ($multipleToolIdTitleMap.containsKey($toolId))
+            #set($properties = $multipleToolConfiguration.get($toolId))
+            #if ($properties && !$properties.isEmpty())
+                (
+                #foreach ($property in $properties.keySet())
+                    $validator.escapeHtml($properties.get($property))
+                #end
+                )
+            #end
+        #end
+        #if (!$tool.getMoreInfo().isEmpty())
+            &nbsp;(<a class="moreInfoTool" title='$tool.title' href="$tool.moreInfo" target="_blank">$tlang.getString("feat.more.info")</a>)
+        #end
+    </div>
+#end
+
 <div id="toolHolderWW" class="container-fluid">
   <div class="row">
     <div id="toolHolderW" class="col-md-8">
@@ -37,91 +96,75 @@
                                 <input type="hidden" name="selectedTools" value="$tool" />
                             #end
                             ## generate list of all tools in groups
+                            #set($rowCount = 0)
                             #foreach($tool in $mapEntry.value)
-                                #set ($rowCount=0)
-                                #set($toolId = $tool.getId())                                    
+                                #set($toolId = $tool.id)
                                 #if (!$toolId.equals("sakai.web.168"))
-                                     ## SAK-22108: exclude the Basic LTI tools, since they would be listed separately down the list
-                                     #set ($rowCount=$rowCount + 1)
-                                     #if ($!tool.isRequired())
-                                            <li style="display:none">
-                                                <input type="hidden" name="selectedTools" value="$toolId" />
-                                            </li>
-                                     #end
-                                     #if ($!toolId.equals($!homeToolId))
-                                             #parse("/vm/sitesetup/toolGroupHomeDisplay.vm")
-                                     ## SAK-29132 - Don't do anything if this is an instance of a multi-tool, it's handled down below
-                                     #elseif ($multipleToolIdTitleMap.containsKey($toolId))
-                                       <!-- Multi tool $toolId is handled below -->
-                                     #else 
-                                     	<li id="row-$rowCount">
-                                            <div class="toolListControl" id="$toolId.replace(".","_")_wrap">
-                                                <input type="checkbox" name="selectedTools" value="$toolId" id="$toolId" aria-describedby="${toolId}.desc"
-                                                #if ($tool.isRequired())
-                                                    checked="checked" 
-                                                    disabled="disabled"
-                                                #else
-                                                    #if($toolRegistrationSelectedList)
-                                                        #foreach($tId in $toolRegistrationSelectedList)
-                                                            #if ($tId == $toolId)
-                                                                checked="checked"
-                                                            #end
-                                                        #end
+                                    ## exclude the Basic LTI tools, since they would be listed separately down the list
+                                    #set ($rowCount = $rowCount + 1)
+                                    #if ($tool.required)
+                                        <li style="display:none">
+                                            <input type="hidden" name="selectedTools" value="$toolId" aria-hidden="true" />
+                                        </li>
+                                    #end
+                                    #if ($toolId == $!homeToolId)
+                                        <li id="row-home">
+                                            <div class="toolListControl">
+                                                <input type="checkbox" name="selectedTools" value="$toolId" id="sakai.home" aria-describedby="sakai.home.desc"
+                                                    #if ($tool.selected)
+                                                       checked="checked"
                                                     #end
-                                                    ## for LTI tools
-                                                    #if ($ltiTools)
-                                                    	#foreach($tId in $ltiTools.keySet())
-                                                    		#if ($tId == $toolId)
-                                                                checked="checked"
-                                                            #end
-                                                    	#end
+                                                    #if ($tool.required)
+                                                       checked="checked" disabled="disabled"
                                                     #end
-                                                #end
                                                 />
-                                                <label for="$toolId">
-                                                    #set($title=$validator.escapeHtml($tool.getTitle()))
-                                                    $title
-                                                    ## only shown then title is customized
-                                                    #if ($!allowPageOrderHelper)
-                                                        #set($currentTitle = $validator.escapeHtml($!toolRegistrationTitleList.get($toolId)))
-                                                        #if (!$currentTitle.equals($title) && !$currentTitle.isEmpty())
+                                                <label for="sakai.home">
+                                                    $tlang.getString("java.home")
+                                                    #if ($allowPageOrderHelper && $toolRegistrationTitleList)
+                                                        #set($currentTitle = $validator.escapeHtml($toolRegistrationTitleList.get($toolId)))
+                                                        #if (!$currentTitle.equals($tlang.getString("java.home")))
                                                             ($currentTitle)
                                                         #end
                                                     #end
                                                 </label>
                                             </div>
-                                            <div class="toolListDesc textPanelFooter specialLink" id="${toolId}.desc">
-                                              		## in case that a tool does not have description defined
-                                              		#set($description="")
-                                              		#set($description=$tool.getDescription())
-                                              		$description
-                                                    #if ($!multipleToolIdTitleMap.containsKey($toolId))
-                                                        #set($properties = $!multipleToolConfiguration.get($toolId))
-                                                        #if (!$properties.isEmpty())
-                                                            ## show configurations
-                                                            (#foreach ($property in $!properties.keySet())
-                                                                $property = $validator.escapeHtml($properties.get($property)) 
-                                                            #end)
+                                            <div class="toolListDesc textPanelFooter specialLink" id="sakai.home.desc">
+                                                $tlang.getString("feat.forv")
+                                            </div>
+                                        </li>
+                                    #elseif ($multipleToolIdTitleMap.containsKey($toolId) || $!toolGroupMultiples.containsKey($toolId))
+                                        #if ($tool.hasMultiples())
+                                            <li id="row-${rowCount}">
+                                                #toolListControl ($tool $toolRegistrationSelectedList $ltiTools $allowPageOrderHelper $toolRegistrationTitleList)
+                                                #toolListDescription ($tool $multipleToolIdTitleMap $multipleToolConfiguration)
+                                                #foreach($key in $!toolGroupMultiples.keySet())
+                                                    #if ($key == $toolId)
+                                                        #set($toolMultipleList = $!toolGroupMultiples.get($key))
+                                                        #if ($toolMultipleList && $toolMultipleList.size() > 0)
+                                                            #foreach ($toolMultiple in $toolMultipleList)
+                                                                #set($toolMultipleId = $toolMultiple.id)
+                                                                #set ($rowCount = $rowCount + 1)
+                                                                <li id="row-${rowCount}" class="indnt3">
+                                                                    <div class="toolListControl">
+                                                                        <input type="checkbox" name="selectedTools" value="$toolMultipleId" id="$toolMultipleId" aria-describedby="${toolMultipleId}.desc" checked="checked" />
+                                                                        <label for="$toolMultipleId">
+                                                                            $validator.escapeHtml($toolMultiple.title)
+                                                                        </label>
+                                                                    </div>
+                                                                    #toolListDescription ($toolMultiple $multipleToolIdTitleMap $multipleToolConfiguration)
+                                                                </li>
+                                                            #end
                                                         #end
                                                     #end
-                                                    #if ($tool.getMoreInfo() && ($tool.getMoreInfo() != ""))
-                                                        &nbsp;(<a class="moreInfoTool" title='$tool.getTitle()' href="$tool.getMoreInfo()" target="_blank">$tlang.getString("feat.more.info")</a>)
-                                                     #end
-                                            </div>
-                                     #end
-                                        </li>
-                                     ## add multi if required
-                                     #if ($tool.hasMultiples())
-                                        #foreach($key in $toolGroupMultiples.keySet() )
-                                           #if ($key==$toolId)
-                                              #set($toolMultipleList=$toolGroupMultiples.get($key))
-                                              #set($multiListSize = $toolMultipleList.size())
-                                              #if($multiListSize > 0)
-                                                 #parse("/vm/sitesetup/toolGroupMultiples.vm")
-                                              #end
-                                           #end
+                                                #end
+                                            </li>
                                         #end
-                                     #end 
+                                    #else
+                                        <li id="row-${rowCount}">
+                                            #toolListControl ($tool $toolRegistrationSelectedList $ltiTools $allowPageOrderHelper $toolRegistrationTitleList)
+                                            #toolListDescription ($tool $multipleToolIdTitleMap $multipleToolConfiguration)
+                                        </li>
+                                     #end
                                 #end
                             #end
                         </ul> 
