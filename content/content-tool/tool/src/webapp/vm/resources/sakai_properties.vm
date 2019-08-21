@@ -1,5 +1,30 @@
 <!-- sakai_properties.vm -->
+
 <script type="text/javascript">includeLatestJQuery('sakai_properties');</script>
+<script>
+    includeWebjarLibrary('bootstrap-multiselect');
+
+    <!-- Initialize the plugin: -->
+    $(document).ready(function() {
+        $('#access_groups${DOT}$i').multiselect({
+            selectAllText: '$tlang.getString("access.edit.selectall")',
+            nonSelectedText: '$tlang.getString("access.edit.selectone")',
+            allSelectedText: '$tlang.getString("access.edit.allselected")',
+            nSelectedText: ' $tlang.getString("access.edit.groupsselected")',
+            filterPlaceholder: '$tlang.getString("access.edit.searchgroup")',
+            enableFiltering: true,
+            enableCaseInsensitiveFiltering: true
+        });
+    });
+</script>
+<style>
+button.btn.btn-default.multiselect-clear-filter{
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.42857143;
+    background-color: #eee;
+}
+</style>
 #javascript("/library/js/lang-datepicker/lang-datepicker.js")
 #if($calendarcounter)<!-- calendarcounter == $calendarcounter -->#else#set($calendarcounter = 0)#end
 #if($item && !$model)#set($model = $item)#end
@@ -60,7 +85,6 @@
 		#if($hour == 12) <option selected="selected" value="12">12</option> #else <option value="12">12</option> #end
 	</select>
      <label for="${prefix}_minute${DOT}${suffix}" class="skip">$tlang.getString("dateselectionwidget.minute")</label>
-
 	<select name="${prefix}_minute${DOT}${suffix}" id="${prefix}_minute${DOT}${suffix}">
 		#if($minute == 0) <option selected="selected" value="0">00</option> #else <option value="0">00</option> #end
 		#if($minute == 5) <option selected="selected" value="5">05</option> #else <option value="5">05</option> #end
@@ -136,7 +160,6 @@
 	</select>
 	
 #end
-
 <p class="form-group">
 	<label for="description${DOT}$i">
 		$tlang.getString("edit.descr")
@@ -489,50 +512,26 @@
 					</div>
 					
 					#if($model.isGroupPossible())		
-						<table id="groupTable${DOT}$i" class="table table-condensed table-hover" border="0" style="display:$listDisplay" cellspacing="0" summary="$tlang.getString("edit.group3")">
-							<caption class="skip" style="display:none">$tlang.getString("edit.access4")</caption>
-							<tr>
-								<th id="selected${DOT}$i" style="width:2em;padding-left:.4em">
-									<input type="checkbox" id="selectall${DOT}$i" name="selectall${DOT}$i" title="$tlang.getString("group.select.title")" />
-								</th>
-								<th id="groupname${DOT}$i">
-									$tlang.getString("edit.group1")
-								</th>
-								<th id ="groupdescription${DOT}$i">
-									$tlang.getString("edit.group2")
-								</th>
-							</tr>
-							#set($theGroups = $model.possibleGroups)
-							#foreach ($group in $!{theGroups})
-								#if($model.isPossible($group))
-									<tr>
-										<td headers="selected${DOT}$i" style="padding-bottom:0;" style="width:2em">
-											#if($model.isLocal($group) && $model.allowedRemove($group))
-												<input type="checkbox" name="access_groups${DOT}$i" id="access_groups_${group.Id}${DOT}$i" title="$validator.escapeHtml($group.title)" value="$group.Id" checked="checked" />
-											#elseif($model.isLocal($group))
-												<span class="fa fa-check" aria-hidden="true"></span>
-											#else
-												<input type="checkbox" name="access_groups${DOT}$i" id="access_groups_${group.Id}${DOT}$i" title="$validator.escapeHtml($group.title)" value="$group.Id" />
-											#end
-										</td>
-										<td headers="groupname${DOT}$i" style="padding-bottom:0;" class="checkbox">
-											<label for="access_groups_${group.Id}${DOT}$i">
-												$validator.escapeHtml($group.title)
-											</label>
-										</td>
-										<td headers="groupdescription${DOT}$i" width="100%"> ##mozilla does not resize table children dynamically , so set here
-											#set($description = "")
-											#if($group.description)
-												#set($description = $group.Description)
-											#end
-											$validator.escapeHtml($!description)
-										</td>
-									</tr>
+						#set($theGroups = $model.possibleGroups)
+						<div id="groupTable${DOT}$i" style="display:$listDisplay">
+							<caption class="skip" style="display:none">$tlang.getString("edit.access4")</caption></br>
+							<select id="access_groups${DOT}$i" name="access_groups${DOT}$i" multiple="multiple">
+								#foreach ($group in $!{theGroups})
+									#set($selected=false)
+									#if ($model.isLocal($group) && $model.allowedRemove($group))
+										#set($selected = true)
+									#end
+									#set($description = "")
+									#set($description = $validator.escapeHtml($group.Description))
+									#if($model.isPossible($group))
+										<option id="access_groups_${group.Id}${DOT}$i" name="access_groups${DOT}$i" value="$group.Id" #if($selected) selected #end>
+									    	$validator.escapeHtml($group.title) #if("$!description" != "") ($!description) #end
+										</option>
+									#end
 								#end
-							#end
-						</table>
+							</select>
+						</div>
 					#end
-
 					#if($model.groupsAreMissing())
 						<div class="labelindnt">
 							<p class="sak-banner-error-inline">
