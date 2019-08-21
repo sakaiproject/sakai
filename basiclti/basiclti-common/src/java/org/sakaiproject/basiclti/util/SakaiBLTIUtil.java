@@ -937,6 +937,7 @@ public class SakaiBLTIUtil {
 				String theRole = getRoleString(context);
 				log.debug("theRole={}", theRole);
 				if (allowoutcomes == 1) {
+					setProperty(ltiProps, "ext_outcome_data_values_accepted", "text");  // SAK-25696
 					// New Basic Outcomes URL
 					String outcome_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lis_basic_outcome_url", null);
 					if (outcome_url == null) {
