@@ -108,7 +108,7 @@
 			<input type="submit" rsf:id="cancel" class='cancelButton'/>
 		</form>
 
-		<div id="modal-iframe-div" style="display:none">
+		<div id="modal-iframe-div" style="display:none" tabindex="-1" role="dialog">
 			<iframe name="sakai-basiclti-admin-iframe" id="sakai-basiclti-admin-iframe" src="/library/image/sakai/spinner.gif"></iframe>
 		</div>
 	</div>
@@ -131,6 +131,8 @@ function showIframe(title) {
 		    $("#modal-iframe-div").dialog("option", "height", modalDialogHeight());
 			$('#sakai-basiclti-admin-iframe').attr('width', '100%');
 			$('#sakai-basiclti-admin-iframe').attr('height', '100%');
+			// https://stackoverflow.com/questions/1202079/prevent-jquery-ui-dialog-from-setting-focus-to-first-textbox
+			$(this).parent().focus();
 		},
 		close: function() {
 			$('#sakai-basiclti-admin-iframe').attr('src','/library/image/sakai/spinner.gif');
