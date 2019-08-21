@@ -6312,14 +6312,6 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			}
 		}
 	}
-	
-	List toolRegistrationSelectedList = (List) state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
-	
-	//If this is the first time through add these selected tools as the default otherwise don't touch this
-	if (toolRegistrationSelectedList==null) {
-		state.setAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST, selectedTools);
-	}
-
 	return toolGroup;
 }
 
