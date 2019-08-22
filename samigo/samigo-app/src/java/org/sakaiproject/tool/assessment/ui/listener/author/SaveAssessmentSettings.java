@@ -125,6 +125,10 @@ public class SaveAssessmentSettings
         control.setRetractDate(assessmentSettings.getRetractDate());
     }
     control.setFeedbackDate(assessmentSettings.getFeedbackDate());
+    control.setFeedbackEndDate(assessmentSettings.getFeedbackEndDate());
+    //Set the value if the checkbox is selected, wipe the value otherwise.
+    String feedbackScoreThreshold = StringUtils.replace(assessmentSettings.getFeedbackScoreThreshold(), ",", ".");
+    control.setFeedbackScoreThreshold(assessmentSettings.getFeedbackScoreThresholdEnabled() ? new Double(feedbackScoreThreshold) : null);
     control.setReleaseTo(assessmentSettings.getReleaseTo());
 
     // b. set Timed Assessment

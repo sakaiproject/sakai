@@ -1897,6 +1897,8 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		newAccessControl.setAssessmentBase(p);
 		newAccessControl.setMarkForReview(a.getMarkForReview());
 		newAccessControl.setHonorPledge(a.getHonorPledge());
+		newAccessControl.setFeedbackEndDate(a.getFeedbackEndDate());
+		newAccessControl.setFeedbackScoreThreshold(a.getFeedbackScoreThreshold());
 		return newAccessControl;
 	}
 

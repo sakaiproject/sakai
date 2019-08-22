@@ -198,8 +198,25 @@
 		<h:outputText value=" #{assessmentSettingsMessages.receive_immediate}" rendered="#{assessmentSettings.feedbackDelivery eq '1'}" escape="false"/>
 		<h:outputText value=" #{assessmentSettingsMessages.receive_feedback_on_submission}" rendered="#{assessmentSettings.feedbackDelivery eq '4'}" escape="false"/>
 		<h:outputText value=" #{assessmentSettingsMessages.receive_no_feedback}" rendered="#{assessmentSettings.feedbackDelivery eq '3'}" escape="false"/>
-		<h:outputFormat value=" #{assessmentSettingsMessages.feedback_available_on}" rendered="#{assessmentSettings.feedbackDelivery eq '2'}" escape="false">
+		<%-- No ranged no threshold--%>
+		<h:outputFormat value=" #{assessmentSettingsMessages.feedback_available_on}" rendered="#{assessmentSettings.feedbackDelivery eq '2' && empty assessmentSettings.feedbackEndDateString && empty assessmentSettings.feedbackScoreThreshold}" escape="false">
 			<f:param value="#{assessmentSettings.feedbackDateString}" />
+		</h:outputFormat>
+		<%-- Ranged no threshold--%>
+		<h:outputFormat value=" #{assessmentSettingsMessages.feedback_available_ranges}" rendered="#{assessmentSettings.feedbackDelivery eq '2' && not empty assessmentSettings.feedbackEndDateString && empty assessmentSettings.feedbackScoreThreshold }" escape="false">
+			<f:param value="#{assessmentSettings.feedbackDateString}" />
+			<f:param value="#{assessmentSettings.feedbackEndDateString}" />
+		</h:outputFormat>
+		<%-- No ranged no threshold--%>
+		<h:outputFormat value=" #{assessmentSettingsMessages.feedback_available_on_threshold}" rendered="#{assessmentSettings.feedbackDelivery eq '2' && empty assessmentSettings.feedbackEndDateString && not empty assessmentSettings.feedbackScoreThreshold }" escape="false">
+			<f:param value="#{assessmentSettings.feedbackScoreThreshold}" />
+			<f:param value="#{assessmentSettings.feedbackDateString}" />
+		</h:outputFormat>
+		<%-- No ranged no threshold--%>
+		<h:outputFormat value=" #{assessmentSettingsMessages.feedback_available_ranges_threshold}" rendered="#{assessmentSettings.feedbackDelivery eq '2' && not empty assessmentSettings.feedbackEndDateString && not empty assessmentSettings.feedbackScoreThreshold }" escape="false">
+			<f:param value="#{assessmentSettings.feedbackScoreThreshold}" />
+			<f:param value="#{assessmentSettings.feedbackDateString}" />
+			<f:param value="#{assessmentSettings.feedbackEndDateString}" />
 		</h:outputFormat>
 	</h:panelGroup>
 
@@ -260,8 +277,25 @@
 		<h:outputText value=" #{assessmentSettingsMessages.receive_immediate}" rendered="#{publishedSettings.feedbackDelivery eq '1'}" escape="false"/>
 		<h:outputText value=" #{assessmentSettingsMessages.receive_feedback_on_submission}" rendered="#{publishedSettings.feedbackDelivery eq '4'}" escape="false"/>
 		<h:outputText value=" #{assessmentSettingsMessages.receive_no_feedback}" rendered="#{publishedSettings.feedbackDelivery eq '3'}" escape="false"/>
-		<h:outputFormat value=" #{assessmentSettingsMessages.feedback_available_on}" rendered="#{publishedSettings.feedbackDelivery eq '2'}" escape="false">
-			<f:param value="#{publishedSettings.feedbackDateString}" />
+		<%-- No ranged no threshold--%>
+		<h:outputFormat value=" #{assessmentSettingsMessages.feedback_available_on}" rendered="#{assessmentSettings.feedbackDelivery eq '2' && empty assessmentSettings.feedbackEndDateString && empty assessmentSettings.feedbackScoreThreshold}" escape="false">
+			<f:param value="#{assessmentSettings.feedbackDateString}" />
+		</h:outputFormat>
+		<%-- Ranged no threshold--%>
+		<h:outputFormat value=" #{assessmentSettingsMessages.feedback_available_ranges}" rendered="#{assessmentSettings.feedbackDelivery eq '2' && not empty assessmentSettings.feedbackEndDateString && empty assessmentSettings.feedbackScoreThreshold }" escape="false">
+			<f:param value="#{assessmentSettings.feedbackDateString}" />
+			<f:param value="#{assessmentSettings.feedbackEndDateString}" />
+		</h:outputFormat>
+		<%-- No ranged no threshold--%>
+		<h:outputFormat value=" #{assessmentSettingsMessages.feedback_available_on_threshold}" rendered="#{assessmentSettings.feedbackDelivery eq '2' && empty assessmentSettings.feedbackEndDateString && not empty assessmentSettings.feedbackScoreThreshold }" escape="false">
+			<f:param value="#{assessmentSettings.feedbackScoreThreshold}" />
+			<f:param value="#{assessmentSettings.feedbackDateString}" />
+		</h:outputFormat>
+		<%-- No ranged no threshold--%>
+		<h:outputFormat value=" #{assessmentSettingsMessages.feedback_available_ranges_threshold}" rendered="#{assessmentSettings.feedbackDelivery eq '2' && not empty assessmentSettings.feedbackEndDateString && not empty assessmentSettings.feedbackScoreThreshold }" escape="false">
+			<f:param value="#{assessmentSettings.feedbackScoreThreshold}" />
+			<f:param value="#{assessmentSettings.feedbackDateString}" />
+			<f:param value="#{assessmentSettings.feedbackEndDateString}" />
 		</h:outputFormat>
 	</h:panelGroup>
 

@@ -386,19 +386,19 @@ function applyMenuListener(pulldown, feedbackContainerID, noFeedbackMsgID) {
 //consolidate common used functions here for assessment settings
 //improve feedback UI, get rid of page reload bugid:5574 -Qu 10/31/2013
 
-// If we select "No Feedback will be displayed to the student"
-// it will disable and uncheck feedback as well as blank out text, otherwise,
-// if a different radio button is selected, we reenable feedback checkboxes & text.
+// Display the date selectors when the feedback is showed by date.
 function disableAllFeedbackCheck(feedbackType)
 {
-	var noFeedback = 3;
-	
-    if (feedbackType == noFeedback){
+    var feedbackByDate = 2;
+
+    if (feedbackType != feedbackByDate){
+     	$("#feedbackByDatePanel").hide();
      	$("#assessmentSettingsAction\\:feedbackComponentOption input").prop("disabled", true);
 		$(".respChoice input").prop({disabled:true, checked:false});
 	}
     else
 	{
+    	$("#feedbackByDatePanel").show();
     	$("#assessmentSettingsAction\\:feedbackComponentOption input").prop("disabled", false);
     	if ($("input[name=assessmentSettingsAction\\:feedbackComponentOption]:checked").val() == 1) {
     		$(".respChoice input").prop({disabled:true, checked:false});
@@ -414,11 +414,14 @@ function disableFeedbackDateCheck(feedbackType) {
 
     if (feedbackType == dateFeedback) {
     	$("input#assessmentSettingsAction\\:feedbackDate.hasDatepicker").prop("disabled", false);
+    	$("input#assessmentSettingsAction\\:feedbackEndDate.hasDatepicker").prop("disabled", false);
     	$("td.feedbackColumn1 > img.ui-datepicker-trigger").prop("hidden", false);
         $("td.feedbackColumn2").prop("hidden", false);
     } else {
     	$("input#assessmentSettingsAction\\:feedbackDate.hasDatepicker").prop("disabled", true);
         $("input#assessmentSettingsAction\\:feedbackDate.hasDatepicker").val( "" );
+    	$("input#assessmentSettingsAction\\:feedbackEndDate.hasDatepicker").prop("disabled", true);
+        $("input#assessmentSettingsAction\\:feedbackEndDate.hasDatepicker").val( "" );
     	$("td.feedbackColumn1 > img.ui-datepicker-trigger").prop("hidden", true);
         $("td.feedbackColumn2").prop("hidden", true);
     }
@@ -472,11 +475,15 @@ $(window).load( function() {
 
 function checkNoFeedbackOnLoad(){
 	var noFeedback = 3;
+	var feedbackByDate = 2;
 	var feedbackType = $("input[name=assessmentSettingsAction\\:feedbackDelivery]:checked").val();
 
 	if(feedbackType == noFeedback) {
 		$("#assessmentSettingsAction\\:feedbackComponentOption input").prop("disabled", true);
 		$(".respChoice input").prop('disabled', true);
+	}
+	if(feedbackType == feedbackByDate) {
+		$("#feedbackByDatePanel").show();
 	}
 	disableFeedbackDateCheck(feedbackType);
 }
