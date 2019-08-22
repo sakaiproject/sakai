@@ -1834,8 +1834,10 @@ $(document).ready(function() {
 					val: sbpgreleasedate,
 					ashidden: { iso8601: 'releaseDate2ISO8601' }
 				});
-				if(sbpgreleasedate === '') {
+				if(sbpgreleasedate === '') {	//if there is no release date set, don't check the box and se the date-related fields blank
 					$("#page-releasedate2").prop('checked', false);
+					$("#release_date2").val('');
+					$("#releaseDate2ISO8601").val('');
 				} else {
 					$("#page-releasedate2").prop('checked', true);
 					$("#releaseDate2ISO8601").val(sbpgreleasedate);
