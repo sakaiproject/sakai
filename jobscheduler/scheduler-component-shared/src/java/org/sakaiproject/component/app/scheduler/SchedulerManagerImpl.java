@@ -84,6 +84,8 @@ public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory,
 
   private static final String JOB_INTERFACE = "org.quartz.Job";
   private static final String STATEFULJOB_INTERFACE = "org.quartz.StatefulJob";
+
+  private int startSchedulerDelayMinutes = 5;
   
 
   // Service dependencies
@@ -762,11 +764,16 @@ public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory,
        this.startScheduler = startScheduler;
    }
 
+   public void setStartSchedulerDelayMinutes(int startSchedulerDelayMinutes) {
+       this.startSchedulerDelayMinutes = startSchedulerDelayMinutes;
+   }
+
     @Override
     public void start() {
         if (isStartScheduler()) {
             try {
-                scheduler.start();
+                scheduler.startDelayed(startSchedulerDelayMinutes * 60);
+                log.info("Scheduler will start in {} minutes", startSchedulerDelayMinutes);
             } catch (SchedulerException e) {
                 log.error("Failed to start the scheduler.", e);
             }
