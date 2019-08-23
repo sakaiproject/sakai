@@ -45,8 +45,9 @@ import org.springframework.test.context.junit4.AbstractTransactionalJUnit4Spring
  */
 @ContextConfiguration(locations={
         "/hibernate-test.xml",
-         "/spring-hibernate.xml"})
-public class HierarchyServiceImplTest extends AbstractTransactionalJUnit4SpringContextTests {
+        "/spring-hibernate.xml"})
+public class HierarchyServiceImplTest 
+         extends AbstractTransactionalJUnit4SpringContextTests {
 
     protected HierarchyServiceImpl hierarchyService;
 
