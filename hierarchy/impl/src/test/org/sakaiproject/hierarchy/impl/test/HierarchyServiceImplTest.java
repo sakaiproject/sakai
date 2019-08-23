@@ -11,10 +11,19 @@
 
 package org.sakaiproject.hierarchy.impl.test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.util.Map;
 import java.util.Set;
 
 import org.easymock.EasyMock;
+import org.junit.Before;
+import org.junit.Test;
 import org.sakaiproject.genericdao.api.search.Search;
 import org.sakaiproject.hierarchy.dao.HierarchyDao;
 import org.sakaiproject.hierarchy.dao.model.HierarchyNodeMetaData;
@@ -22,57 +31,39 @@ import org.sakaiproject.hierarchy.impl.HierarchyServiceImpl;
 import org.sakaiproject.hierarchy.impl.test.data.TestDataPreload;
 import org.sakaiproject.hierarchy.model.HierarchyNode;
 import org.sakaiproject.memory.api.Cache;
-import org.springframework.test.AbstractTransactionalSpringContextTests;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
+
+
 
 /**
  * Testing the hierarchy service
  * 
  * @author Aaron Zeckoski (aaronz@vt.edu)
  */
-public class HierarchyServiceImplTest extends AbstractTransactionalSpringContextTests {
+@ContextConfiguration(locations={
+        "/hibernate-test.xml",
+         "/spring-hibernate.xml"})
+public class HierarchyServiceImplTest extends AbstractTransactionalJUnit4SpringContextTests {
 
     protected HierarchyServiceImpl hierarchyService;
 
+    @Autowired
+    @Qualifier("org.sakaiproject.hierarchy.dao.HierarchyDao")
     private HierarchyDao dao;
+    @Autowired
+    @Qualifier("org.sakaiproject.hierarchy.test.data.TestDataPreload")
     private TestDataPreload tdp;
     private Cache cache;
 
     // private SessionManager sessionManager;
     // private MockControl sessionManagerControl;
 
-
-    protected String[] getConfigLocations() {
-        // point to the needed spring config files, must be on the classpath
-        // (add component/src/webapp/WEB-INF to the build path in Eclipse),
-        // they also need to be referenced in the project.xml file
-        return new String[] {"hibernate-test.xml", "spring-hibernate.xml"};
-    }
-
     // run this before each test starts
-    protected void onSetUpBeforeTransaction() throws Exception {
-        // load the spring created dao class bean from the Spring Application Context
-        dao = (HierarchyDao) applicationContext.getBean("org.sakaiproject.hierarchy.dao.HierarchyDao");
-        if (dao == null) {
-            throw new NullPointerException("Dao could not be retrieved from spring context");
-        }
-
-        // load up the test data preloader from spring
-        tdp = (TestDataPreload) applicationContext.getBean("org.sakaiproject.hierarchy.test.data.TestDataPreload");
-        if (tdp == null) {
-            throw new NullPointerException("TestDatePreload could not be retrieved from spring context");
-        }
-
-        // load up any other needed spring beans
-
-        //    // setup the mock objects if needed
-        //    sessionManagerControl = MockControl.createControl(SessionManager.class);
-        //    sessionManager = (SessionManager) sessionManagerControl.getMock();
-
-        //    //this mock object is simply keeping us from getting a null when getCurrentSessionUserId is called 
-        //    sessionManager.getCurrentSessionUserId(); // expect this to be called
-        //    sessionManagerControl.setDefaultMatcher(MockControl.ALWAYS_MATCHER);
-        //    sessionManagerControl.setReturnValue(TestDataPreload.USER_ID, MockControl.ZERO_OR_MORE);
-        //    sessionManagerControl.replay();
+    @Before
+    public void onSetUp()  {
 
         //create and setup the object to be tested
         hierarchyService = new HierarchyServiceImpl();
@@ -80,17 +71,13 @@ public class HierarchyServiceImplTest extends AbstractTransactionalSpringContext
         //    hierarchyService.setSessionManager(sessionManager);
     }
 
-    // run this before each test starts and as part of the transaction
-    protected void onSetUpInTransaction() {
-        // preload additional data if desired
-    }
 
     /**
      * ADD unit tests below here, use testMethod as the name of the unit test,
      * Note that if a method is overloaded you should include the arguments in the
      * test name like so: testMethodClassInt (for method(Class, int);
      */
-
+    @Test
     public void testValidTestData() {
         // ensure the test data is setup the way we think
         assertEquals(new Long(1), tdp.pNode1.getId());
@@ -101,6 +88,7 @@ public class HierarchyServiceImplTest extends AbstractTransactionalSpringContext
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#createHierarchy(java.lang.String)}.
      */
+    @Test
     public void testCreateHierarchy() {
         // test creating a valid hierarchy
         HierarchyNode node = hierarchyService.createHierarchy("hierarchyC");
