@@ -113,6 +113,28 @@ export class SakaiRubricEdit extends SakaiElement {
     var popover = $(`#edit_rubric_${this.rubric.id}`);
     popover.find("input[type='text']")[0].value = this.rubric.title;
     popover.hide();
+    
+    //remove rubric 
+
+    if(this.rubric.new){
+      $(`#rubric_item_${this.rubric.id}`).remove();
+
+      e.stopPropagation();
+      var url = "/rubrics-service/rest/rubrics/";
+
+      if ("criterion" === this.type) {
+        url += `${this.rubricId}/criterions/${this.criterion.id}`;
+      } else {
+        url += this.rubric.id;
+      }
+
+      $.ajax({
+        url: url,
+        method: "DELETE",
+        headers: {"authorization": this.token},
+        contentType: "application/json"
+      })
+    }
   }
 
   saveEdit(e) {

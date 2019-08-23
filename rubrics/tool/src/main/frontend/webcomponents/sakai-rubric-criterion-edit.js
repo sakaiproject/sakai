@@ -135,6 +135,9 @@ export class SakaiRubricCriterionEdit extends SakaiElement {
     this.hideToolTip();
     this.dispatchEvent(new CustomEvent('hide-tooltip', {details: this.criterion}));
     $(`#edit_criterion_${this.criterion.id}`).hide();
+
+    //remove criterion
+    $(`#criterion_row_${this.criterion.id}`).remove();
   }
 
   saveEdit(e) {
