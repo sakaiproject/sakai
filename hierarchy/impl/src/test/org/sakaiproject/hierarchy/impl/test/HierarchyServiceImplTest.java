@@ -121,6 +121,7 @@ public class HierarchyServiceImplTest
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#setHierarchyRootNode(java.lang.String, java.lang.String)}.
      */
+    @Test
     public void testSetHierarchyRootNode() {
         HierarchyNode node = null;
 
@@ -158,6 +159,7 @@ public class HierarchyServiceImplTest
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#destroyHierarchy(java.lang.String)}.
      */
+    @Test
     public void testDestroyHierarchy() {
         hierarchyService.destroyHierarchy(TestDataPreload.HIERARCHYB);
         long count = dao.countBySearch(HierarchyNodeMetaData.class, 
@@ -176,6 +178,7 @@ public class HierarchyServiceImplTest
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#getRootLevelNode(java.lang.String)}.
      */
+    @Test
     public void testGetRootLevelNode() {
         HierarchyNode node = null;
 
@@ -198,6 +201,7 @@ public class HierarchyServiceImplTest
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#getNodeById(java.lang.String)}.
      */
+    @Test
     public void testGetNodeById() {
         HierarchyNode node = null;
 
@@ -225,6 +229,7 @@ public class HierarchyServiceImplTest
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#getChildNodes(java.lang.String, boolean)}.
      */
+    @Test
     public void testGetChildNodes() {
         Set<HierarchyNode> nodes;
 
@@ -285,6 +290,7 @@ public class HierarchyServiceImplTest
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#getParentNodes(java.lang.String, boolean)}.
      */
+    @Test
     public void testGetParentNodes() {
         Set<HierarchyNode> nodes;
 
@@ -340,6 +346,7 @@ public class HierarchyServiceImplTest
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#addNode(java.lang.String, java.lang.String)}.
      */
+    @Test
     public void testAddNode() {
         HierarchyNode node = null;
         String newNodeId = null;
@@ -500,6 +507,7 @@ public class HierarchyServiceImplTest
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#removeNode(java.lang.String)}.
      */
+    @Test
     public void testRemoveNode() {
         HierarchyNode node = null;
 
@@ -606,6 +614,7 @@ public class HierarchyServiceImplTest
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#saveNodeMetaData(java.lang.String, java.lang.String, java.lang.String)}.
      */
+    @Test
     public void testSaveNodeMetaData() {
         HierarchyNode node = null;
 
@@ -661,6 +670,7 @@ public class HierarchyServiceImplTest
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#setNodeDisabled(java.lang.String, java.lang.Boolean)}.
      */
+    @Test
     public void testSetNodeDisabled() {
     	
     	HierarchyNode node = null;
@@ -688,6 +698,7 @@ public class HierarchyServiceImplTest
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#addChildRelation(java.lang.String, java.lang.String)}.
      */
+    @Test
     public void testAddChildRelation() {
         HierarchyNode node = null;
 
@@ -789,6 +800,8 @@ public class HierarchyServiceImplTest
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#removeChildRelation(java.lang.String, java.lang.String)}.
      */
+    
+    @Test
     public void testRemoveChildRelation() {
         HierarchyNode node = null;
 
@@ -875,45 +888,10 @@ public class HierarchyServiceImplTest
         //    fail("Not yet implemented");
     }
 
-
-    /**
-     * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#addParentRelation(java.lang.String, java.lang.String)}.
-     *//**
-    public void testAddParentRelation() {
-        // add new parents
-
-        // add parents which are already there
-
-        // cannot remove all parents (must leave at least one)
-
-        // cannot add parents to the root node
-
-        // cannot create a cycle by adding a parent which is already a child or parent of this node
-
-        // cannot add parents nodes which do not exist (should fail)
-
-        // cannot use invalid node id (exception)
-
-        // cannot use invalid parent node id (exception)
-
-        // cannot use null node id (exception)
-
-        fail("Not yet implemented");
-    }**/
-
-    /**
-     * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#removeParentRelation(java.lang.String, java.lang.String)}.
-     *//**
-    public void testRemoveParentRelation() {
-        // cannot remove all parents (must leave at least one)
-
-        fail("Not yet implemented");
-    }**/
-
-
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#getNodesWithToken(java.lang.String)}.
      */
+    @Test
     public void testGetNodesWithToken() {
         Set<String> nodeIds;
 
@@ -960,6 +938,7 @@ public class HierarchyServiceImplTest
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#getNodesWithTokens(java.lang.String[])}.
      */
+    @Test
     public void testGetNodesWithTokens() {
         Set<String> nodeIds;
         Map<String, Set<String>> tokenNodes;
@@ -1018,6 +997,7 @@ public class HierarchyServiceImplTest
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#checkUserNodePerm(java.lang.String, java.lang.String, java.lang.String)}.
      */
+    @Test
     public void testCheckUserNodePerm() {
         assertFalse( hierarchyService.checkUserNodePerm(TestDataPreload.USER_ID, tdp.node1.id, TestDataPreload.PERM_ONE) );
         assertFalse( hierarchyService.checkUserNodePerm(TestDataPreload.USER_ID, tdp.node2.id, TestDataPreload.PERM_ONE) );
@@ -1091,6 +1071,7 @@ public class HierarchyServiceImplTest
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#getNodesForUserPerm(java.lang.String, java.lang.String)}.
      */
+     @Test
     public void testGetNodesForUserPerm() {
         Set<HierarchyNode> nodes = null;
 
@@ -1159,6 +1140,7 @@ public class HierarchyServiceImplTest
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#getUserIdsForNodesPerm(java.lang.String[], java.lang.String)}.
      */
+     @Test
     public void testGetUserIdsForNodesPerm() {
         Set<String> userIds = null;
 
@@ -1280,6 +1262,7 @@ public class HierarchyServiceImplTest
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#getPermsForUserNodes(java.lang.String, java.lang.String[])}.
      */
+     @Test
     public void testGetPermsForUserNodes() {
         Set<String> perms = null;
 
@@ -1358,7 +1341,8 @@ public class HierarchyServiceImplTest
         }
     }
 
-    public void testGetUsersAndPermsForNodes() {
+     @Test
+     public void testGetUsersAndPermsForNodes() {
         Map<String, Map<String, Set<String>>> map = null;
 
         map = hierarchyService.getUsersAndPermsForNodes(tdp.node3.id);
@@ -1383,7 +1367,8 @@ public class HierarchyServiceImplTest
         }
     }
 
-    public void testGetNodesAndPermsForUser() {
+     @Test
+     public void testGetNodesAndPermsForUser() {
         Map<String, Map<String, Set<String>>> map = null;
 
         map = hierarchyService.getNodesAndPermsForUser(TestDataPreload.ACCESS_USER_ID);
@@ -1408,6 +1393,7 @@ public class HierarchyServiceImplTest
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#assignUserNodePerm(java.lang.String, java.lang.String, java.lang.String, boolean)}.
      */
+     @Test
     public void testAssignUserNodePerm() {
         Set<HierarchyNode> nodes = hierarchyService.getNodesForUserPerm(TestDataPreload.MAINT_USER_ID, TestDataPreload.PERM_ONE);
         assertEquals(5, nodes.size());
@@ -1472,6 +1458,7 @@ public class HierarchyServiceImplTest
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#removeUserNodePerm(java.lang.String, java.lang.String, java.lang.String, boolean)}.
      */
+     @Test
     public void testRemoveUserNodePerm() {
         Set<HierarchyNode> nodes = hierarchyService.getNodesForUserPerm(TestDataPreload.MAINT_USER_ID, TestDataPreload.PERM_ONE);
         assertEquals(5, nodes.size());
@@ -1522,136 +1509,4 @@ public class HierarchyServiceImplTest
         EasyMock.expectLastCall().anyTimes();
         EasyMock.replay(mock);
     }
-
-    /*
-      HierarchyNode node = null;
-      Set<String> children = new HashSet<String>();;
-
-      // add new children
-      children.add(tdp.node6.id);
-      node = hierarchyService.updateChildren(tdp.node2.id, children);
-      assertNotNull(node);
-      assertNotNull(node.directChildNodeIds);
-      assertEquals(1, node.directChildNodeIds.size());
-      assertTrue(node.directChildNodeIds.contains(tdp.node6.id));
-
-      children.add(tdp.node7.id);
-      children.add(tdp.node8.id);
-      node = hierarchyService.updateChildren(tdp.node2.id, children);
-      assertNotNull(node);
-      assertNotNull(node.directChildNodeIds);
-      assertEquals(3, node.directChildNodeIds.size());
-      assertTrue(node.directChildNodeIds.contains(tdp.node6.id));
-      assertTrue(node.directChildNodeIds.contains(tdp.node7.id));
-      assertTrue(node.directChildNodeIds.contains(tdp.node8.id));
-
-      // remove some children
-      children.clear();
-      children.add(tdp.node7.id);
-      children.add(tdp.node8.id);
-      node = hierarchyService.updateChildren(tdp.node4.id, children);
-      assertNotNull(node);
-      assertNotNull(node.directChildNodeIds);
-      assertEquals(2, node.directChildNodeIds.size());
-      assertTrue(node.directChildNodeIds.contains(tdp.node7.id));
-      assertTrue(node.directChildNodeIds.contains(tdp.node8.id));
-
-      // remove all children
-      children.clear();
-      node = hierarchyService.updateChildren(tdp.node4.id, children);
-      assertNotNull(node);
-      assertNotNull(node.directChildNodeIds);
-      assertEquals(0, node.directChildNodeIds.size());
-
-      // update children to the identical set
-      children.clear();
-      children.add(tdp.node5.id);
-      node = hierarchyService.updateChildren(tdp.node3.id, children);
-      assertNotNull(node);
-      assertNotNull(node.directChildNodeIds);
-      assertEquals(1, node.directChildNodeIds.size());
-      assertTrue(node.directChildNodeIds.contains(tdp.node5.id));
-
-      // cannot add children nodes which do not exist (even if some are valid)
-      children.add(TestDataPreload.INVALID_NODE_ID);
-      try {
-         node = hierarchyService.updateChildren(tdp.node3.id, children);
-         fail("Should have thrown exception");
-      } catch (IllegalArgumentException e) {
-         assertNotNull(e.getMessage());
-      }
-
-      // cannot add child node which is equal to this node
-      children.clear();
-      children.add(tdp.node5.id);
-      children.add(tdp.node3.id);
-      try {
-         node = hierarchyService.updateChildren(tdp.node3.id, children);
-         fail("Should have thrown exception");
-      } catch (IllegalArgumentException e) {
-         assertNotNull(e.getMessage());
-      }
-
-      children.clear();
-      children.add(tdp.node3.id);
-      try {
-         node = hierarchyService.updateChildren(tdp.node3.id, children);
-         fail("Should have thrown exception");
-      } catch (IllegalArgumentException e) {
-         assertNotNull(e.getMessage());
-      }
-
-      // cannot remove child node so that it becomes orphaned
-      children.clear();
-      children.add(tdp.node2.id);
-      children.add(tdp.node4.id);
-      try {
-         node = hierarchyService.updateChildren(tdp.node1.id, children);
-         fail("Should have thrown exception");
-      } catch (IllegalArgumentException e) {
-         assertNotNull(e.getMessage());
-      }
-
-      children.clear();
-      children.add(tdp.node3.id);
-      children.add(tdp.node4.id);
-      try {
-         node = hierarchyService.updateChildren(tdp.node1.id, children);
-         fail("Should have thrown exception");
-      } catch (IllegalArgumentException e) {
-         assertNotNull(e.getMessage());
-      }
-
-      // cannot use invalid node id (exception)
-      children.clear();
-      children.add(tdp.node6.id);
-      try {
-         node = hierarchyService.updateChildren(TestDataPreload.INVALID_NODE_ID, children);
-         fail("Should have thrown exception");
-      } catch (IllegalArgumentException e) {
-         assertNotNull(e.getMessage());
-      }
-
-      // cannot use invalid child node id (exception)
-      children.clear();
-      children.add(tdp.node6.id);
-      children.add(TestDataPreload.INVALID_NODE_ID);
-      try {
-         node = hierarchyService.updateChildren(tdp.node2.id, children);
-         fail("Should have thrown exception");
-      } catch (IllegalArgumentException e) {
-         assertNotNull(e.getMessage());
-      }
-
-      // cannot use null node id (exception)
-      children.clear();
-      try {
-         node = hierarchyService.updateChildren(null, children);
-         fail("Should have thrown exception");
-      } catch (NullPointerException e) {
-         assertNotNull(e.getMessage());
-      }
-
-     */
-
 }
