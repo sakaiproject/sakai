@@ -50,7 +50,6 @@ public class HierarchyServiceImpl2Test extends AbstractTransactionalJUnit4Spring
     @Autowired
     @Qualifier("org.sakaiproject.hierarchy.test.data.TestDataPreload")
     private TestDataPreload tdp;
-    private Cache cache;
 
     // run this before each test starts
     @Before
@@ -395,44 +394,51 @@ public class HierarchyServiceImpl2Test extends AbstractTransactionalJUnit4Spring
         assertNotNull(userIds);
         assertEquals(1, userIds.size());
         assertTrue(userIds.contains(TestDataPreload.ACCESS_USER_ID));
-
-        // multiple
-
-        userIds = hierarchyService.getUserIdsForNodesPerm(new String[] {tdp.node2.id, tdp.node3.id, tdp.node4.id, tdp.node5.id}, TestDataPreload.PERM_ONE);
-        assertNotNull(userIds);
-        assertEquals(2, userIds.size());
-        assertTrue(userIds.contains(TestDataPreload.ACCESS_USER_ID));
-        assertTrue(userIds.contains(TestDataPreload.MAINT_USER_ID));
-
-        userIds = hierarchyService.getUserIdsForNodesPerm(new String[] {tdp.node2.id, tdp.node3.id, tdp.node4.id, tdp.node5.id}, TestDataPreload.PERM_TWO);
-        assertNotNull(userIds);
-        assertEquals(2, userIds.size());
-        assertTrue(userIds.contains(TestDataPreload.USER_ID));
-        assertTrue(userIds.contains(TestDataPreload.MAINT_USER_ID));
-
-        // invalids
-        userIds = hierarchyService.getUserIdsForNodesPerm(new String[] {}, TestDataPreload.PERM_ONE);
-        assertNotNull(userIds);
-        assertEquals(0, userIds.size());
-
-        userIds = hierarchyService.getUserIdsForNodesPerm(new String[] {}, TestDataPreload.PERM_TWO);
-        assertNotNull(userIds);
-        assertEquals(0, userIds.size());
-
-        try {
-            hierarchyService.getUserIdsForNodesPerm(null, "XXXXXXXXX");
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
-
-        try {
-            hierarchyService.getUserIdsForNodesPerm(new String[] {"XXXXXXXX"}, null);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
     }
+     @Test
+     public void testGetUserIdsForNodesPermMultiple() {
+         
+         Set<String> userIds = null;
+         // multiple
+
+         userIds = hierarchyService.getUserIdsForNodesPerm(new String[] {tdp.node2.id, tdp.node3.id, tdp.node4.id, tdp.node5.id}, TestDataPreload.PERM_ONE);
+         assertNotNull(userIds);
+         assertEquals(2, userIds.size());
+         assertTrue(userIds.contains(TestDataPreload.ACCESS_USER_ID));
+         assertTrue(userIds.contains(TestDataPreload.MAINT_USER_ID));
+
+         userIds = hierarchyService.getUserIdsForNodesPerm(new String[] {tdp.node2.id, tdp.node3.id, tdp.node4.id, tdp.node5.id}, TestDataPreload.PERM_TWO);
+         assertNotNull(userIds);
+         assertEquals(2, userIds.size());
+         assertTrue(userIds.contains(TestDataPreload.USER_ID));
+         assertTrue(userIds.contains(TestDataPreload.MAINT_USER_ID));
+     }
+     @Test
+     public void testGetUserIdsForNodesPermInvalids() {
+         Set<String> userIds = null;
+         // invalids
+         userIds = hierarchyService.getUserIdsForNodesPerm(new String[] {}, TestDataPreload.PERM_ONE);
+         assertNotNull(userIds);
+         assertEquals(0, userIds.size());
+
+         userIds = hierarchyService.getUserIdsForNodesPerm(new String[] {}, TestDataPreload.PERM_TWO);
+         assertNotNull(userIds);
+         assertEquals(0, userIds.size());
+
+         try {
+             hierarchyService.getUserIdsForNodesPerm(null, "XXXXXXXXX");
+             fail("Should have thrown exception");
+         } catch (IllegalArgumentException e) {
+             assertNotNull(e.getMessage());
+         }
+
+         try {
+             hierarchyService.getUserIdsForNodesPerm(new String[] {"XXXXXXXX"}, null);
+             fail("Should have thrown exception");
+         } catch (IllegalArgumentException e) {
+             assertNotNull(e.getMessage());
+         }
+     }
 
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#getPermsForUserNodes(java.lang.String, java.lang.String[])}.
