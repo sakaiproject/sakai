@@ -32,6 +32,7 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.persister.collection.CollectionPropertyNames;
+import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
@@ -290,7 +291,7 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
         return String.valueOf(startCriteriaQuery()
                 .createAlias("properties", "p")
                 .add(Restrictions.eq("context", context))
-                .add(Restrictions.eq("p." + CollectionPropertyNames.COLLECTION_INDICES, AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT))
+                .add(Restrictions.eq("p." + CollectionPropertyNames.COLLECTION_INDICES, AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT))
                 .add(Restrictions.eq("p." + CollectionPropertyNames.COLLECTION_ELEMENTS, linkId))
                 .setProjection(Projections.property("id"))
                 .uniqueResult());

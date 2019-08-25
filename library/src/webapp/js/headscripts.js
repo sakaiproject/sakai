@@ -896,4 +896,3 @@ function maxZIndex(elems)
 
     return maxIndex;
 }
-

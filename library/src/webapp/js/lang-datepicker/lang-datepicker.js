@@ -1550,6 +1550,9 @@ if(c&&c._defaults.timeOnly&&b.input.val()!==b.lastVal)try{$.datepicker._updateDa
 		// on select, runs our custom method for setting dates
 		cfg.onSelect = function(dtObj, dpInst) {
 			setHiddenFields($(this).datepicker("getDate"), options, dpInst);
+      if (options.onDateTimeSelected) {
+        options.onDateTimeSelected(moment($(this).datepicker("getDate")).valueOf());
+      }
 		};
 
 		// When the picker allows empty dates, it should detect when the date is removed from the input, and update the hidden value.
@@ -1840,6 +1843,6 @@ if(c&&c._defaults.timeOnly&&b.input.val()!==b.lastVal)try{$.datepicker._updateDa
 
 // wrapper function for sakaidatepicker plugin. keeps the $ off the page
 var localDatePicker = function(opts) {
-	$(opts.input).sakaiDateTimePicker(opts);
+	return $(opts.input).sakaiDateTimePicker(opts);
 }
 

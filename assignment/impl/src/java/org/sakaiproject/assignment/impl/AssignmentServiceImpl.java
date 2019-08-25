@@ -15,7 +15,9 @@
  */
 package org.sakaiproject.assignment.impl;
 
+import static org.sakaiproject.assignment.api.AssignmentConstants.*;
 import static org.sakaiproject.assignment.api.AssignmentServiceConstants.*;
+import static org.sakaiproject.assignment.api.model.Assignment.GradeType.*;
 import static org.sakaiproject.assignment.api.model.Assignment.Access.*;
 
 import java.io.BufferedInputStream;
@@ -156,6 +158,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.taggable.api.TaggingManager;
 import org.sakaiproject.taggable.api.TaggingProvider;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
@@ -229,12 +232,15 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Setter private ServerConfigurationService serverConfigurationService;
     @Setter private SiteService siteService;
     @Setter private TaggingManager taggingManager;
+    @Setter private TimeService timeService;
     @Setter private ToolManager toolManager;
     @Setter private UserDirectoryService userDirectoryService;
     @Setter private UserTimeService userTimeService;
 
     private boolean allowSubmitByInstructor;
     private boolean exposeContentReviewErrorsToUI;
+
+    private static ResourceLoader rb = new ResourceLoader("assignment");
 
     public void init() {
         allowSubmitByInstructor = serverConfigurationService.getBoolean("assignments.instructor.submit.for.student", true);
@@ -2798,7 +2804,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     private void removeAssociatedGradebookItem(Assignment assignment) {
 
         String context = assignment.getContext();
-        String associatedGradebookAssignment = assignment.getProperties().get(AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+        String associatedGradebookAssignment = assignment.getProperties().get(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
         if (StringUtils.isNotBlank(associatedGradebookAssignment)) {
             try {
                 boolean isExternalAssignmentDefined = gradebookExternalAssessmentService.isExternalAssignmentDefined(context, associatedGradebookAssignment);

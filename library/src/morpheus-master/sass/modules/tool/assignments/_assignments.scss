@@ -1,6 +1,10 @@
 @import "_assignments_variables.scss";
 
 .#{$namespace}sakai-assignment-grades {
+
+  .checkbox-label {
+    margin-left: 20px;
+  }
 	#req-new_assignment_grade_points{
 		color: $error-color;
 	    margin: 9px 0 0 -13px;

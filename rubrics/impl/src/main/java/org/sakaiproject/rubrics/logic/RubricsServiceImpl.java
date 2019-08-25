@@ -200,6 +200,10 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         String token = null;
         String userId = sessionManager.getCurrentSessionUserId();
 
+        if (StringUtils.isBlank(siteId)) {
+            siteId = getCurrentSiteId("generateJsonWebToken");
+        }
+
         try {
             DateTime now = DateTime.now();
 
@@ -357,6 +361,8 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
             Evaluation existingEvaluation = null;
             String rubricEvaluationId = null;
 
+            String siteId = params.get("siteId");
+
             try {
                 TypeReferences.ResourcesType<Resource<Evaluation>> resourceParameterizedTypeReference =
                         new TypeReferences.ResourcesType<Resource<Evaluation>>() {};
@@ -368,7 +374,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                         "by-tool-item-and-associated-item-and-evaluated-item-ids");
 
                 HttpHeaders headers = new HttpHeaders();
-                headers.add("Authorization", String.format("Bearer %s", generateJsonWebToken(toolId)));
+                headers.add("Authorization", String.format("Bearer %s", generateJsonWebToken(toolId, siteId)));
                 builder.withHeaders(headers);
 
                 Map<String, Object> parameters = new HashMap<>();
@@ -398,7 +404,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
             // Get the actual association (necessary to get the rubrics association resource for persisting the evaluation)
             Resource<ToolItemRubricAssociation> rubricToolItemAssociationResource = getRubricAssociationResource(
-                    toolId, associatedItemId, null).get();
+                    toolId, associatedItemId, siteId).get();
 
             String criterionJsonData = createCriterionJsonPayload(associatedItemId, evaluatedItemId, params, rubricToolItemAssociationResource);
 
@@ -413,7 +419,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                         rubricToolItemAssociationResource.getLink(Link.REL_SELF).getHref(), criterionJsonData);
 
                 String requestUri = serverConfigurationService.getServerUrl() + RBCS_SERVICE_URL_PREFIX + "evaluations/";
-                String resultPost = postRubricResource(requestUri, input, toolId, null);
+                String resultPost = postRubricResource(requestUri, input, toolId, siteId);
                 log.debug("resultPost: " +  resultPost);
 
             } else { // Update existing evaluation
@@ -450,12 +456,14 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         String points = null;
         String selectedRatingId = null;
 
+        String siteId = formPostParameters.get("siteId");
+
         String inlineRubricUri = String.format("%s?%s", association.getLink("rubric").getHref(), "projection=inlineRubric");
 
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.add("Authorization", String.format("Bearer %s", generateJsonWebToken(association.getContent().getToolId())));
+        headers.add("Authorization", String.format("Bearer %s", generateJsonWebToken(association.getContent().getToolId(), siteId)));
         HttpEntity<?> requestEntity = new HttpEntity<>(headers);
         ResponseEntity<Rubric> rubricEntity = restTemplate.exchange(inlineRubricUri, HttpMethod.GET, requestEntity, Rubric.class);
 
@@ -685,7 +693,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
             conn.setRequestMethod("POST");
             String cookie = buildCookieString();
             conn.setRequestProperty("Cookie", cookie);
-            if(siteId != null){
+            if (siteId != null){
                 conn.setRequestProperty("Authorization", "Bearer " + generateJsonWebToken(toolId, siteId));
             } else {
                 conn.setRequestProperty("Authorization", "Bearer " + generateJsonWebToken(toolId));
