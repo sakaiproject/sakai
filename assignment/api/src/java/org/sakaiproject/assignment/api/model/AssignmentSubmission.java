@@ -161,6 +161,10 @@ public class AssignmentSubmission {
     @Column(name = "GROUP_ID", length = 36)
     private String groupId;
 
+    @Lob
+    @Column(name = "PRIVATE_NOTES", length = 65535)
+    private String privateNotes;
+
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ElementCollection
     @MapKeyColumn(name = "NAME")

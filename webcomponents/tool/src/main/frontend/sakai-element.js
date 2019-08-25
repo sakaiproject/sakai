@@ -22,6 +22,36 @@ class SakaiElement extends LitElement {
     // Pass the call on to the imported function
     return loadProperties(options);
   }
+
+  messageReceived(message) {
+    console.debug(`Message received ${message}`);
+  }
+
+  setSetting(component, name, value) {
+
+    console.log(value);
+
+    var currentString = localStorage.getItem(`${component}-settings`);
+    if (!currentString) {
+      var settings = {};
+      settings[name] = value;
+    } else {
+      var settings = JSON.parse(currentString);
+      settings[name] = value;
+    }
+    localStorage.setItem(`${component}-settings`, JSON.stringify(settings));
+  }
+
+  getSetting(component, name) {
+
+    var currentString = localStorage.getItem(`${component}-settings`);
+    if (!currentString) {
+      return null;
+    } else {
+      var settings = JSON.parse(currentString);
+      return settings[name];
+    }
+  }
 }
 
 

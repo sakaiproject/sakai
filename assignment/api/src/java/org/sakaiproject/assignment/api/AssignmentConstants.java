@@ -255,4 +255,5 @@ public final class AssignmentConstants {
     public static final String SUBMISSION_OPTION_SAVE = "save";
     public static final String SUBMISSION_OPTION_RETRACT = "retract";
 
+    public static final String STATE_CONTEXT_STRING = "Assignment.context_string";
 }

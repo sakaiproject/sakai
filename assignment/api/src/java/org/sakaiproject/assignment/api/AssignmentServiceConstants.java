@@ -115,6 +115,30 @@ public final class AssignmentServiceConstants {
     // SAK-33971 Property for enable/disable the group filter
     public static final String PROP_ASSIGNMENT_GROUP_FILTER_ENABLED = "assignment.group.filter.enabled";
 
+
+    /**
+     * The configuration choice of with grading option or not
+     */
+    public static final String WITH_GRADES = "with_grades";
+
+    public static final String GRADE_SUBMISSION_SUBMISSION_ID = "grade_submission_submission_id";
+    public static final String GRADE_SUBMISSION_ASSIGNMENT_ID = "grade_submission_assignment_id";
+    public static final String GRADE_SUBMISSION_GRADE = "grade_submission_grade";
+
+    public static final String GRADE_SUBMISSION_FEEDBACK_COMMENT = "grade_submission_feedback_comment";
+    public static final String GRADE_SUBMISSION_FEEDBACK_TEXT = "grade_submission_feedback_text";
+    public static final String GRADE_SUBMISSION_PRIVATE_NOTES = "grade_submission_private_notes";
+    public static final String GRADE_SUBMISSION_FEEDBACK_ATTACHMENT = "grade_submission_feedback_attachment";
+
+    public static final String GRADE_SUBMISSION_DONT_CLEAR_CURRENT_ATTACHMENTS = "grade_submission_dont_clear_current_attachments";
+
+    // submission level of resubmit due time
+    public static final String ALLOW_RESUBMIT_CLOSEYEAR = "allow_resubmit_closeYear";
+    public static final String ALLOW_RESUBMIT_CLOSEMONTH = "allow_resubmit_closeMonth";
+    public static final String ALLOW_RESUBMIT_CLOSEDAY = "allow_resubmit_closeDay";
+    public static final String ALLOW_RESUBMIT_CLOSEHOUR = "allow_resubmit_closeHour";
+    public static final String ALLOW_RESUBMIT_CLOSEMIN = "allow_resubmit_closeMin";
+
     public static final Set<String> PROPERTIES_EXCLUDED_FROM_DUPLICATE_ASSIGNMENTS =
             Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
                     AssignmentConstants.NEW_ASSIGNMENT_DUE_DATE_SCHEDULED,

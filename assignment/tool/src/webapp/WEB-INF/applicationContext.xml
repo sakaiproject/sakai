@@ -8,7 +8,9 @@
 		parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
 		class="org.sakaiproject.assignment.entityproviders.AssignmentEntityProvider">
 		<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService" />
+		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
         <property name="entityBroker" ref="org.sakaiproject.entitybroker.EntityBroker" />
+        <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
@@ -16,6 +18,7 @@
 		<property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
 		<property name="gradebookExternalService" ref="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService" />
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 	</bean>
 	
 </beans>
