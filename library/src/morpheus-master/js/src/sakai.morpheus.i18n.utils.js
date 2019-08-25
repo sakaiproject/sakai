@@ -17,7 +17,8 @@
     var defaults = {
       resourceClass: "org.sakaiproject.i18n.InternationalizedMessages",
       resourceBundle: "org.sakaiproject.".concat(options.namespace).concat(".bundle.Messages"),
-      namespace: options.namespace
+      namespace: options.namespace,
+      cache: true,
     };
 
     options = Object.assign(defaults, options);
@@ -26,12 +27,13 @@
       console.log('resourceClass: ' + options.resourceClass);
       console.log('resourceBundle: ' + options.resourceBundle);
       console.log('namespace: ' + options.namespace);
+      console.log('cache: ' + options.cache);
     }
 
     portal.i18n.translations[options.namespace] = portal.i18n.translations[options.namespace] || {};
 
     var storageKey = portal.locale + options.resourceClass + options.resourceBundle;
-    if (sessionStorage.getItem(storageKey) !== null) {
+    if (options.cache && sessionStorage.getItem(storageKey) !== null) {
       if (options.debug) {
         console.log("Returning " + storageKey + " from sessions storage ...");
       }
@@ -63,7 +65,10 @@
             console.log(portal.i18n.translations[options.namespace]);
           }
         });
-        sessionStorage[storageKey] = JSON.stringify(portal.i18n.translations[options.namespace]);
+
+        if (options.cache) {
+          sessionStorage[storageKey] = JSON.stringify(portal.i18n.translations[options.namespace]);
+        }
 
           if (options.callback) {
             options.callback();

@@ -9,10 +9,17 @@ class SakaiToolPermissions extends SakaiElement {
     super();
 
     this.available;
-    this.i18n;
     this.on;
     this.roles;
     this.roleNameMappings;
+
+    this.loadTranslations({namespace: "webcomponents.permissions"}).then(i18n => {
+      this.loadTranslations({namespace: this.tool}).then(tool => {
+        Object.keys(tool).filter(k => k.startsWith("perm-")).forEach(k => i18n[k.substring(5)] = tool[k]);
+        this.i18n = i18n;
+        this.requestUpdate();
+      });
+    });
   }
 
   static get properties() {
@@ -33,6 +40,10 @@ class SakaiToolPermissions extends SakaiElement {
 
   updated(changedProperties) {
     this.attachHandlers();
+  }
+
+  shouldUpdate(changed) {
+    return this.i18n;
   }
 
   render() {
@@ -89,7 +100,6 @@ class SakaiToolPermissions extends SakaiElement {
 
         this.on = data.on;
         this.available = data.available;
-        this.i18n = data.i18n;
         this.roles = Object.keys(this.on);
         this.roleNameMappings = data.roleNameMappings;
       })

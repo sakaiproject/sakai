@@ -4,21 +4,17 @@
 
     <parent>
         <groupId>org.sakaiproject</groupId>
-        <artifactId>master</artifactId>
+        <artifactId>webcomponents-parent</artifactId>
         <version>20-SNAPSHOT</version>
-		<relativePath>../master/pom.xml</relativePath>
     </parent>
 
-    <name>Sakai Web Components</name>
+    <name>Sakai Web Components Bundle</name>
     <groupId>org.sakaiproject</groupId>
-    <artifactId>webcomponents-parent</artifactId>
+    <artifactId>webcomponents-bundle</artifactId>
 
-    <packaging>pom</packaging>
-
-    <modules>
-        <module>tool</module>
-        <module>bundle</module>
-    </modules>
+    <properties>
+        <deploy.target>shared</deploy.target>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -34,5 +30,13 @@
             <artifactId>sakai-kernel-util</artifactId>
         </dependency>
     </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/bundle</directory>
+            </resource>
+        </resources>
+    </build>
 
 </project>

@@ -20,14 +20,9 @@
 
 package org.sakaiproject.webcomponents.permissions;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Properties;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -43,9 +38,7 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
-import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entitybroker.exception.EntityException;
@@ -55,23 +48,12 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.site.api.SiteService.SelectionType;
-import org.sakaiproject.site.api.SiteService.SortType;
-import org.sakaiproject.thread_local.cover.ThreadLocalManager;
-import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.util.FormattedText;
-import org.sakaiproject.util.Resource;
-import org.sakaiproject.util.ResourceLoader;
 
 /**
  * Creates a provider for dealing with permissions
@@ -129,14 +111,6 @@ public class PermissionsEntityProvider extends AbstractEntityProvider implements
             on.put(role.getId(), filteredFunctions);
         }
 
-        ResourceBundle mainRB = ResourceBundle.getBundle("org.sakaiproject.webcomponents.permissions.bundle.Messages");
-        Map<String, String> i18n = new HashMap<>();
-        mainRB.keySet().forEach(k -> i18n.put(k, mainRB.getString(k)));
-
-        String toolBundle = String.format("org.sakaiproject.%s.bundle.Messages", tool);
-        ResourceBundle toolRB = ResourceBundle.getBundle(toolBundle);
-        toolRB.keySet().stream().filter(k -> k.startsWith("perm-")).forEach(k -> i18n.put(k.substring(5), toolRB.getString(k)));
-
         Map<String, String> roleNameMappings
             = roles.stream().collect(
                 Collectors.toMap(Role::getId, r -> authzGroupService.getRoleName(r.getId())));
@@ -145,7 +119,6 @@ public class PermissionsEntityProvider extends AbstractEntityProvider implements
         Map<String, Object> data = new HashMap<>();
         data.put("on", on);
         data.put("available", available);
-        data.put("i18n", i18n);
         data.put("roleNameMappings", roleNameMappings);
 
         return new ActionReturn(data, null, Formats.JSON);
