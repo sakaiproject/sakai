@@ -21,7 +21,7 @@ ${includeLatestJQuery}
 
 	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("useconrem.alert") $validator.escapeHtml($alertMessage)</div>#end
 
-	<form name="user-create_edit" id="user-create_edit" action="#toolForm("$action")" method="post" autocomplete="on">
+	<form class="form-horizontal" name="user-create_edit" id="user-create_edit" action="#toolForm("$action")" method="post" autocomplete="on">
 		<fieldset>
 			<legend>
 				$tlang.getString("usecre.creaco")
@@ -32,65 +32,136 @@ ${includeLatestJQuery}
 				#end
 				<span class="reqStarInline">*</span> $tlang.getString("usecre.instruc")
 			</div>
+
 			#if ($displayEid)
-				<div class="shorttext required">
-					<label #if(!$user) for="user_eid" #end>
-						#if(!$user)<span class="reqStar">*</span>#end $tlang.getString("useconrem.useid")
+				<div class="form-group">
+					<label class="control-label col-sm-2" for="user_eid">
+						#if(!$user)<span class="red">*</span>#end $tlang.getString("useconrem.useid")
 					</label>
-					#if(!$user)<input type="text" name="eid" id="user_eid" oninput="USER.validateUserId();" onkeyup="USER.validateUserId();" autocomplete="off" #if($valueEid)value="$validator.escapeHtml($valueEid)"#end />#else$validator.escapeHtml($user.Eid)#end
+					<div class="col-sm-3">
+						#if(!$user)<input class="form-control sakai-glow" type="text" name="eid" id="user_eid" placeholder="$tlang.getString("useconrem.useid.placeholder")" oninput="USER.validateUserId();" onkeyup="USER.validateUserId();" autocomplete="off" #if($valueEid)value="$validator.escapeHtml($valueEid)"#end />#else$validator.escapeHtml($user.Eid)#end
+					</div>
 				</div>
 			#end
+
 			#if (!$isValidatedWithAccountValidator)
-				<div class="shorttext">
-					<label for="first-name">
+				<div class="form-group">
+					<label class="control-label col-sm-2" for="first-name">
 						$tlang.getString("usecre.firnam")
 					</label>
-					<input type="text" name="first-name" id="first-name" #if($user)value="$validator.escapeHtml($user.FirstName)"#elseif($valueFirstName)value="$validator.escapeHtml($valueFirstName)"#end/>
+					<div class="col-sm-3">
+						<input class="form-control sakai-glow" type="text" name="first-name" id="first-name" placeholder="$tlang.getString("usecre.firnam.placeholder")" #if($user)value="$validator.escapeHtml($user.FirstName)"#elseif($valueFirstName)value="$validator.escapeHtml($valueFirstName)"#end/>
+					</div>
 				</div>
-				<div class="shorttext">
-					<label for="last-name">
+
+				<div class="form-group">
+					<label class="control-label col-sm-2" for="last-name">
 						$tlang.getString("usecre.lasnam")
 					</label>
-					<input type="text" name="last-name" id="last-name" #if($user)value="$validator.escapeHtml($user.LastName)"#elseif($valueLastName)value="$validator.escapeHtml($valueLastName)"#end/>
+					<div class="col-sm-3">
+						<input class="form-control sakai-glow" type="text" name="last-name" id="last-name" placeholder="$tlang.getString("usecre.lasnam.placeholder")" #if($user)value="$validator.escapeHtml($user.LastName)"#elseif($valueLastName)value="$validator.escapeHtml($valueLastName)"#end/>
+					</div>
 				</div>
 			#end
-			<div class="shorttext required">
-				<label for="email">
-					#if ($emailRequired) <span class="reqStar">*</span> #end $tlang.getString("useconrem.ema")
+
+			<div class="form-group">
+				<label class="control-label col-sm-2" for="email">
+					#if ($emailRequired) <span class="red">*</span> #end $tlang.getString("useconrem.ema")
 				</label>
-				<input type="text" name="email" id="email" oninput="USER.validateEmail();" onkeyup="USER.validateEmail();" autocomplete="off"#if($user)value="$validator.escapeHtml($user.Email)"#elseif($valueEmail)value="$validator.escapeHtml($valueEmail)"#end #if ($emailRequired) required='required' #end/>
-				<div id="emailWarningMsg" style="display:none">$tlang.getString("useact.invemail")</div>
-			</div>
-			#if (!$isValidatedWithAccountValidator)
-				<div class="shorttext required">
-					<label for="user_pw">
-						#if ($pwRequired) <span class="reqStar">*</span> #end $tlang.getString("usecre.crenewpass")
-					</label>
-					<input type="password" name="pw" id="user_pw" oninput="USER.validatePassword();" oninput="USER.hideAllElements();USER.validateForm();" onblur="USER.displayStrengthInfo();USER.validatePassword();" onfocus="USER.displayStrengthInfo();" autocomplete="off" />
-					<div id="strongMsg" style="display:none">$tlang.getString("pw.strong")</div>
-					<div id="moderateMsg" style="display:none">$tlang.getString("pw.moderate")</div>
-					<div id="weakMsg" style="display:none">$tlang.getString("pw.weak")</div>
-					<div id="failMsg" style="display:none">$tlang.getString("pw.fail")</div>
-					<div id="strengthBar" style="display:none">
-						<span id="strengthBarMeter" style="display:none"></span>
+				<div class="col-sm-3">
+					<input class="form-control sakai-glow" type="text" name="email" id="email" placeholder="$tlang.getString("useconrem.ema.placeholder")" oninput="USER.validateEmail();" onkeyup="USER.validateEmail();" autocomplete="off"#if($user)value="$validator.escapeHtml($user.Email)"#elseif($valueEmail)value="$validator.escapeHtml($valueEmail)"#end #if ($emailRequired) required='required' #end/>
+				</div>
+				<div class="col-sm-offset-2 col-sm-10" id="emailWarningMsg" style="display:none">
+					<div class="validationAlert sak-banner-error">
+						$tlang.getString("useact.invemail")
 					</div>
-					<div id="strengthInfo" style="display:none">$tlang.getString("pw.strengthInfo")</div>
 				</div>
-				<div class="shorttext required">
-					<label for="user_pw0">
-						#if ($pwRequired) <span class="reqStar">*</span> #end $tlang.getString("usecre.vernewpass")
+			</div>
+
+			#if (!$isValidatedWithAccountValidator)
+				<div class="form-group">
+					<label class="control-label col-sm-2" for="user_pw">
+						#if ($pwRequired) <span class="red">*</span>#end $tlang.getString("usecre.crenewpass")
 					</label>
-					<input type="password" name="pw0" id="user_pw0" oninput="USER.hideAllElements();USER.validateForm();" onblur="USER.verifyPasswordsMatch();" autocomplete="off" />
-					<div id="matchMsg" style="display:none">$tlang.getString("pw.match")</div>
-					<div id="noMatchMsg" style="display:none">$tlang.getString("pw.noMatch")</div>
+					<div class="col-sm-3">
+						<input class="form-control sakai-glow" type="password" name="pw" id="user_pw" placeholder="$tlang.getString("usecre.crenewpass.placeholder")" oninput="USER.validatePassword();" oninput="USER.hideAllElements();USER.validateForm();" onblur="USER.displayStrengthInfo();USER.validatePassword();" onfocus="USER.displayStrengthInfo();" autocomplete="off" />
+					</div>
 				</div>
-				<div class="shorttext">
-					<label for="dtype">
+
+				<div class="form-group forPopover" id="strengthBar" style="display:none;" >
+					<div class="row status-row">
+						<label class="control-label col-sm-2" for="strengthBarMeter">
+							 <span class="red">*</span> $tlang.getString("pw.strength")
+						</label>
+						<div class="status-display col-sm-3">
+							<div class="sak-banner-success" id="strongMsg" style="display:none">
+								<strong>$tlang.getString("pw.strong")</strong>
+								<i class="fa fa-question-circle" aria-hidden="true"></i>
+							</div>
+							<div class="sak-banner-warn" id="moderateMsg" style="display:none">
+								<strong>$tlang.getString("pw.moderate")</strong>
+								<i class="fa fa-question-circle" aria-hidden="true"></i>
+							</div>
+							<div class="sak-banner-error" id="weakMsg" style="display:none">
+								<strong>$tlang.getString("pw.weak")</strong>
+								<i class="fa fa-question-circle" aria-hidden="true"></i>
+							</div>
+							<div class="sak-banner-error" id="failMsg" style="display:none;">
+								<strong>$tlang.getString("pw.fail")</strong>
+								<i class="fa fa-question-circle" aria-hidden="true"></i>
+							</div>
+						</div>
+					</div>
+					<div class="row status-row">
+						<script>
+							$(document).ready(function(){
+								$('.status-display').popover({
+									placement:"bottom",
+									container: ".forPopover",
+									content: "$tlang.getString("pw.strengthInfo")"
+								}); 
+							});
+						</script>
+					<div class="col-sm-2">
+					</div>
+					<div class="col-sm-3">
+						<div class="progress" style="height:3rem; margin:0;">
+							<div class="progress-bar" id="strengthBarMeter" role="progressbar" style="width:0%;background-color:#900;">
+							</div>
+						</div> 
+					</div>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label class="control-label col-sm-2" for="user_pw0">
+						#if ($pwRequired) <span class="red">*</span>#end $tlang.getString("usecre.vernewpass")
+					</label>
+					<div class="col-sm-3">
+						<input class="form-control sakai-glow" type="password" name="pw0" id="user_pw0"  placeholder="$tlang.getString("usecre.vernewpass.placeholder")" oninput="USER.hideAllElements();USER.validateForm();" onblur="USER.verifyPasswordsMatch();" autocomplete="off" />
+					</div>
+					<div class="col-sm-offset-2 col-sm-10" id="matchMsg" style="display:none">
+						<div class="validationAlert sak-banner-success" id="matchMsg" style="display:block">
+							$tlang.getString("pw.match")
+						</div>
+					</div>
+					<div class="col-sm-offset-2 col-sm-10" id="noMatchMsg" style="display:none">
+						<div class="validationAlert sak-banner-error"  style="display:block">
+							$tlang.getString("pw.noMatch")
+						</div>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label class="control-label col-sm-2" for="dtype">
 						$tlang.getString("usecre.typ")
 					</label>
-					<input disabled type="text" name="dtype" id="dtype" value="$type"/>
-					<input type="hidden" name="type" id="type" value="$type"/>
+					<div class="col-sm-3">
+						<input class="form-control sakai-glow" type="text" name="dtype" id="dtype" value="$type" disabled/>
+						<input type="hidden" name="type" id="type" value="$type"/>
+					</div>
 				</div>
+
 			#end
 			$!recaptchaScript
 			<div class="act">
