@@ -39,16 +39,14 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.PortalHandlerException;
-import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.SiteService.SelectionType;
-import org.sakaiproject.site.api.SiteService.SortType;
-import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesEdit;
+import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.cover.PreferencesService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -67,14 +65,17 @@ public class FavoritesHandler extends BasePortalHandler
 	private static final String AUTO_FAVORITE_ENABLED_PROPERTY = "autoFavoriteEnabled";
 	private static final String SEEN_SITES_PROPERTY = "autoFavoritesSeenSites";
 	private static final String FIRST_TIME_PROPERTY = "firstTime";
+	private PreferencesService preferencesService;
 	private ServerConfigurationService serverConfigurationService;
+	private SiteService siteService;
 	private UserDirectoryService userDirectoryService;
 
 	public FavoritesHandler()
 	{
 		setUrlFragment(URL_FRAGMENT);
-		serverConfigurationService = (ServerConfigurationService) 
-				ComponentManager.get(ServerConfigurationService.class);
+		preferencesService = (PreferencesService) ComponentManager.get(PreferencesService.class);
+		serverConfigurationService = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class);
+		siteService = (SiteService) ComponentManager.get(SiteService.class);
 		userDirectoryService = (UserDirectoryService) ComponentManager.get(UserDirectoryService.class);
 	}
 
@@ -129,7 +130,7 @@ public class FavoritesHandler extends BasePortalHandler
 			return result;
 		}
 
-		Preferences prefs = PreferencesService.getPreferences(userId);
+		Preferences prefs = preferencesService.getPreferences(userId);
 		ResourceProperties props = prefs.getProperties(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
 
 		// Find any sites that this user was added to since we last looked
@@ -173,7 +174,7 @@ public class FavoritesHandler extends BasePortalHandler
 		return result;
 	}
 
-	private static Set<String> applyAutoFavorites(String userId, ResourceProperties existingProps, Set<String> existingFavorites)
+	private Set<String> applyAutoFavorites(String userId, ResourceProperties existingProps, Set<String> existingFavorites)
 		throws PermissionException, PortalHandlerException, InUseException, IdUnusedException {
 
 		// The site list as when we last checked
@@ -193,12 +194,12 @@ public class FavoritesHandler extends BasePortalHandler
 		}
 
 		// This should not call getUserSites(boolean, boolean) because the property is variable, while the call is cacheable otherwise
-		List<Site> userSites = SiteService.getSites(SelectionType.MEMBER, null, null, null, SortType.TITLE_ASC, null, false);
+		List<String> userSites = siteService.getSiteIds(SelectionType.MEMBER, null, null, null, null, null);
 		Set<String> newFavorites = new LinkedHashSet<String>();
 
-		for (Site userSite : userSites) {
-			if (!oldSiteSet.contains(userSite.getId()) && !existingFavorites.contains(userSite.getId()) && !firstTimeFavs) {
-				newFavorites.add(userSite.getId());
+		for (String userSite : userSites) {
+			if (!oldSiteSet.contains(userSite) && !existingFavorites.contains(userSite) && !firstTimeFavs) {
+				newFavorites.add(userSite);
 			}
 		}
 		newFavorites.addAll(existingFavorites);
@@ -208,26 +209,26 @@ public class FavoritesHandler extends BasePortalHandler
 			// We will not lock database if it's not neccessary
 			PreferencesEdit edit = null;
 			try {
-				edit = PreferencesService.edit(userId);
+				edit = preferencesService.edit(userId);
 				ResourcePropertiesEdit props = edit.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
 				if (firstTimeFavs) {
 					props.removeProperty(FIRST_TIME_PROPERTY);
 					props.addProperty(FIRST_TIME_PROPERTY, String.valueOf(false));
 				}
 				props.removeProperty(SEEN_SITES_PROPERTY);
-				for (Site userSite : userSites) {
-					props.addPropertyToList(SEEN_SITES_PROPERTY, userSite.getId());
+				for (String userSite : userSites) {
+					props.addPropertyToList(SEEN_SITES_PROPERTY, userSite);
 				}
 				props.removeProperty(FAVORITES_PROPERTY);
 				for (String siteId : newFavorites) {
 					props.addPropertyToList(FAVORITES_PROPERTY, siteId);
 				}
 
-				PreferencesService.commit(edit);
+				preferencesService.commit(edit);
 			}
 			catch (PermissionException | InUseException | IdUnusedException e) {
 				log.info("Exception editing user preferences", e);
-				PreferencesService.cancel(edit);
+				preferencesService.cancel(edit);
 			}
 		}
 
@@ -241,7 +242,7 @@ public class FavoritesHandler extends BasePortalHandler
 
 		PreferencesEdit edit = null;
 		try {
-			edit = PreferencesService.edit(userId);
+			edit = preferencesService.edit(userId);
 			ResourcePropertiesEdit props = edit.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
 
 			// Replace all existing values
@@ -254,11 +255,11 @@ public class FavoritesHandler extends BasePortalHandler
 			props.removeProperty(AUTO_FAVORITE_ENABLED_PROPERTY);
 			props.addProperty(AUTO_FAVORITE_ENABLED_PROPERTY, String.valueOf(favorites.autoFavoritesEnabled));
 
-			PreferencesService.commit(edit);
+			preferencesService.commit(edit);
 		}
 		catch (PermissionException | InUseException | IdUnusedException e) {
 			log.info("Exception editing user preferences", e);
-			PreferencesService.cancel(edit);
+			preferencesService.cancel(edit);
 		}
 	}
 
