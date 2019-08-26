@@ -15,7 +15,7 @@
 		#end
 		<form name="removeClassForm" id="removeClassForm" action="#toolForm("$action")" method="post">
 			#if ($!providerCourseList && !$!providerCourseList.isEmpty()|| $!manualCourseList && !$!manualCourseList.isEmpty() || $!cmRequestedCourseList && !$!cmRequestedCourseList.isEmpty())
-				#if ($allowAddSite)
+				#if ($allowAddRoster)
 					<a href="#" onclick="location = '#toolLink($action "doMenu_siteInfo_addClass")'; return false;">$tlang.getString('java.addclasses')</a>
 				#end
 				<div class="table-responsive">
@@ -85,7 +85,7 @@
 				</p>
 			#else
 				$tlang.getString("sitedicla.theis") $!siteTitle $tlang.getString("sitedicla.yet")
-				#if ($allowAddSite)
+				#if ($allowAddRoster)
 					<a href="#" onclick="location = '#toolLink($action "doMenu_siteInfo_addClass")'; return false;">$tlang.getString('java.addclasses')</a>
 				#end
 				<p class="act">
