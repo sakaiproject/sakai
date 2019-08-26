@@ -1559,8 +1559,10 @@ public class AnnouncementAction extends PagedResourceActionII
 								if ( siteDD!=null && siteDD.isPublished()) {
 									channelIdStrArray.add(channeIDD);
 								}
+							} catch(IdUnusedException e) {
+								log.debug("No announcement channel for ID: {}", channeIDD);
 							} catch(Exception e) {
-								log.warn(e.getMessage());
+								log.warn("ChannelID: {}", channeIDD, e);
 							}
 						}
 						if (channelIdStrArray.size()>0) {
