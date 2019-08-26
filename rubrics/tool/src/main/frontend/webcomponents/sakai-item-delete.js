@@ -52,7 +52,7 @@ export class SakaiItemDelete extends SakaiElement {
   render() {
 
     return html`
-      <span role="button" aria-haspopup="true" aria-expanded="${this.popoverOpen}" aria-controls="delete_${this.type}_${this.item.id}" tabindex="0" title="${tr("remove", [this.item.title])}" class="delete fa fa-times" @click="${this.deleteItem}"></span>
+      <span @focus="${this.onFocus}" @focusout="${this.focusOut}" role="button" aria-haspopup="true" aria-expanded="${this.popoverOpen}" aria-controls="delete_${this.type}_${this.item.id}" tabindex="0" title="${tr("remove", [this.item.title])}" class="delete fa fa-times" @click="${this.deleteItem}"></span>
       <div id="delete_${this.type}_${this.item.id}" class="popover rubric-delete-popover left">
         <div class="arrow"></div>
         <div class="popover-title" tabindex="0">${tr("confirm_remove")} ${this.item.title}</div>
@@ -68,6 +68,15 @@ export class SakaiItemDelete extends SakaiElement {
         </div>
       </div>
     `;
+  }
+
+  onFocus(e){
+    var criterionRow= e.target.closest('.criterion-row');
+    if(criterionRow!=undefined) criterionRow.classList.add("focused");
+  }
+  focusOut(e){
+    var criterionRow= e.target.closest('.criterion-row');
+    if(criterionRow!=undefined) criterionRow.classList.remove("focused");
   }
 
   closeOpen() {

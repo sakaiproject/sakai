@@ -38,7 +38,7 @@ export class SakaiRubricCriterionEdit extends SakaiElement {
   render() {
 
     return html`
-      <span tabindex="0" role="button" class="edit fa fa-edit" @click="${this.editCriterion}" title="${tr("edit_criterion")} ${this.criterion.title}"></span>
+      <span tabindex="0" role="button" class="edit fa fa-edit" @focus="${this.onFocus}" @click="${this.editCriterion}" title="${tr("edit_criterion")} ${this.criterion.title}"></span>
 
       <div id="edit_criterion_${this.criterion.id}" class="popover criterion-edit-popover bottom">
         <div class="arrow"></div>
@@ -68,6 +68,10 @@ export class SakaiRubricCriterionEdit extends SakaiElement {
         </div>
       </div>
     `;
+  }
+
+  onFocus(e){
+    e.target.closest('.criterion-row').classList.add("focused");
   }
 
   hostEventCatch(e) {

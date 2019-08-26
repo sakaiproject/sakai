@@ -167,6 +167,15 @@
             display: table;
             border: $rubrics-crit-border-size solid $rubrics-crit-border-color;
             border-width: $rubrics-crit-border-size 0 0 0;
+            
+            &.focused{
+                .add-criterion-item {
+                    display: block;
+                    .fa-plus{
+                        display: block;
+                    }     
+                }
+            }
 
             &.sortable-ghost, .sortable-ghost {
                 opacity: 0.25;
