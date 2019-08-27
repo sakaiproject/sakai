@@ -4,11 +4,18 @@
     xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
   <display-name>IMS Services Servlet</display-name>
 
-  <!-- This does not use the request filter because all its URLs are web service endpoints and
-       never function in the context of a user's session (even return-url) so there is no need
-       to read a cookie, create a session, or set a cookie - and in the case of return-url,
-       making a session and setting a cookie logs the user out.
-   -->
+  <filter>
+    <filter-name>sakai.request</filter-name>
+    <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+  </filter>
+
+  <filter-mapping>
+    <filter-name>sakai.request</filter-name>
+    <url-pattern>/*</url-pattern>
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
+    <dispatcher>INCLUDE</dispatcher>
+  </filter-mapping>
 
   <servlet>
     <servlet-name>ServiceServlet</servlet-name>
