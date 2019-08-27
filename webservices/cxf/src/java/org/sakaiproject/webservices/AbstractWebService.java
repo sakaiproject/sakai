@@ -34,6 +34,7 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.event.api.ActivityService;
+import org.sakaiproject.messagebundle.api.MessageBundleService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.SiteService;
@@ -79,6 +80,7 @@ public class AbstractWebService {
     protected ContentHostingService contentHostingService;
     protected EntityManager entityManager;
     protected DiscussionForumManager discussionForumManager;
+    protected MessageBundleService messageBundleService;
     protected MessageForumsForumManager messageForumsForumManager;
     protected MessageForumsMessageManager messageForumsMessageManager;
     protected MessageForumsTypeManager messageForumsTypeManager;
@@ -92,11 +94,6 @@ public class AbstractWebService {
     protected ActivityService activityService;
     protected QuestionPoolServiceAPI questionPoolServiceImpl;
     protected LessonBuilderAccessAPI lessonBuilderAccessAPI;
-
-    
-    @WebMethod(exclude = true)
-    public void init() {
-    }
 
     /**
      * Get the Session related to the given sessionid
@@ -216,7 +213,12 @@ public class AbstractWebService {
     public void setMessageForumsForumManager(MessageForumsForumManager messageForumsForumManager) {
         this.messageForumsForumManager = messageForumsForumManager;
     }
-    
+
+    @WebMethod(exclude = true)
+    public void setMessageBundleService(MessageBundleService messageBundleService) {
+        this.messageBundleService = messageBundleService;
+    }
+
     @WebMethod(exclude = true)
     public void setMessageForumsMessageManager(MessageForumsMessageManager messageForumsMessageManager) {
         this.messageForumsMessageManager = messageForumsMessageManager;
