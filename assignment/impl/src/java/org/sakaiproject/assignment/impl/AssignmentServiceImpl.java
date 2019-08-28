@@ -1807,7 +1807,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     public boolean canSubmit(Assignment a, String userId) {
-        if (a == null) return false;
+        if (a == null || BooleanUtils.isTrue(a.getDeleted())) return false;
         // submissions are never allowed to non-electronic assignments
         if (a.getTypeOfSubmission() == Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) {
             return false;
