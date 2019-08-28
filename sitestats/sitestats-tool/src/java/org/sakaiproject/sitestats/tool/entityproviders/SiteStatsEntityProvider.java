@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.EntityView;
@@ -150,7 +151,9 @@ public class SiteStatsEntityProvider extends AbstractEntityProvider implements A
             throw new EntityException("Report with id '" + reportId + "' doesn't exist.", "", HttpServletResponse.SC_BAD_REQUEST);
         }
         
-        if (reportDef.getReportParams().getSiteId() == null || reportDef.getReportParams().getSiteId().length() == 0) {
+        // system-wide reports will not have siteID set, and will try to run across all sites--which is bad
+        //if (reportDef.getReportParams().getSiteId() == null || reportDef.getReportParams().getSiteId().length() == 0) {
+        if (StringUtils.isBlank(reportDef.getReportParams().getSiteId())) {
             reportDef.getReportParams().setSiteId(siteId);
         }
         
