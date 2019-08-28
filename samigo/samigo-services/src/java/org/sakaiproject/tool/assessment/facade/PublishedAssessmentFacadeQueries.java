@@ -253,6 +253,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 				.getUnlimitedSubmissions());
 		publishedAccessControl.setMarkForReview(a.getMarkForReview());
 		publishedAccessControl.setHonorPledge(a.getHonorPledge());
+		publishedAccessControl.setFeedbackEndDate(a.getFeedbackEndDate());
+		publishedAccessControl.setFeedbackScoreThreshold(a.getFeedbackScoreThreshold());
 		publishedAccessControl.setAssessmentBase(p);
 		return publishedAccessControl;
 	}
@@ -1320,7 +1322,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 			query = "select distinct new PublishedAssessmentData(p.publishedAssessmentId, p.title, "
 				+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate, "
 				+ " c.feedbackDate, f.feedbackDelivery, f.feedbackComponentOption, f.feedbackAuthoring, c.lateHandling, "
-				+ " c.unlimitedSubmissions, c.submissionsAllowed, em.scoringType, p.status, p.lastModifiedDate, c.timeLimit) "
+				+ " c.unlimitedSubmissions, c.submissionsAllowed, em.scoringType, p.status, p.lastModifiedDate, c.timeLimit, c.feedbackEndDate, c.feedbackScoreThreshold) "
 				+ " from PublishedAssessmentData as p, PublishedAccessControl as c,"
 				+ " PublishedFeedback as f, AuthorizationData as az, PublishedEvaluationModel as em"
 				+ " where c.assessment.publishedAssessmentId=p.publishedAssessmentId "
@@ -1334,7 +1336,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 			query = "select new PublishedAssessmentData(p.publishedAssessmentId, p.title, "
 				+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate, "
 				+ " c.feedbackDate, f.feedbackDelivery, f.feedbackComponentOption, f.feedbackAuthoring, c.lateHandling, "
-				+ " c.unlimitedSubmissions, c.submissionsAllowed, em.scoringType, p.status, p.lastModifiedDate, c.timeLimit) "
+				+ " c.unlimitedSubmissions, c.submissionsAllowed, em.scoringType, p.status, p.lastModifiedDate, c.timeLimit, c.feedbackEndDate, c.feedbackScoreThreshold) "
 				+ " from PublishedAssessmentData as p, PublishedAccessControl as c,"
 				+ " PublishedFeedback as f, AuthorizationData as az, PublishedEvaluationModel as em"
 				+ " where c.assessment.publishedAssessmentId=p.publishedAssessmentId "
@@ -1379,7 +1381,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 							.getRetractDate(), p.getFeedbackDate(), p
 							.getFeedbackDelivery(), p.getFeedbackComponentOption(), p.getFeedbackAuthoring(), p
 							.getLateHandling(), p.getUnlimitedSubmissions(), p
-							.getSubmissionsAllowed(), p.getScoringType(), p.getStatus(), p.getLastModifiedDate(), p.getTimeLimit());
+							.getSubmissionsAllowed(), p.getScoringType(), p.getStatus(), p.getLastModifiedDate(), p.getTimeLimit(), p.getFeedbackEndDate(), p.getFeedbackScoreThreshold());
 			pubList.add(f);
 		}
 		return pubList;
@@ -2075,7 +2077,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 					"select new PublishedAssessmentData(p.publishedAssessmentId, p.title, "
 							+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate, "
 							+ " c.feedbackDate, f.feedbackDelivery, f.feedbackComponentOption, f.feedbackAuthoring, c.lateHandling, "
-							+ " c.unlimitedSubmissions, c.submissionsAllowed) "
+							+ " c.unlimitedSubmissions, c.submissionsAllowed, c.feedbackEndDate, c.feedbackScoreThreshold) "
 							+ " from PublishedAssessmentData as p, PublishedAccessControl as c,"
 							+ " PublishedFeedback as f"
 							+ " where c.assessment.publishedAssessmentId=p.publishedAssessmentId "

@@ -41,6 +41,8 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
@@ -129,6 +131,9 @@ public class PublishedAssessmentSettingsBean
   private Date dueDate;
   private Date retractDate;
   private Date feedbackDate;
+  @Getter @Setter private Date feedbackEndDate;
+  private boolean feedbackScoreThresholdEnabled = false;
+  @Getter @Setter private String feedbackScoreThreshold;
   private Integer timeLimit; // in seconds, calculated from timedHours & timedMinutes
   private Integer timedHours;
   private Integer timedMinutes;
@@ -190,11 +195,13 @@ public class PublishedAssessmentSettingsBean
   private boolean isValidDueDate = true;
   private boolean isValidRetractDate = true;
   private boolean isValidFeedbackDate = true;
+  private boolean isValidFeedbackEndDate = true;
   
   private String originalStartDateString;
   private String originalDueDateString;
   private String originalRetractDateString;
   private String originalFeedbackDateString;
+  @Getter @Setter private String originalFeedbackEndDateString;
   private boolean updateMostCurrentSubmission = false;
   
   private boolean isMarkForReview;
@@ -222,6 +229,7 @@ public class PublishedAssessmentSettingsBean
   private final String HIDDEN_END_DATE_FIELD = "endDateISO8601";
   private final String HIDDEN_RETRACT_DATE_FIELD = "retractDateISO8601";
   private final String HIDDEN_FEEDBACK_DATE_FIELD = "feedbackDateISO8601";
+  private final String HIDDEN_FEEDBACK_END_DATE_FIELD = "feedbackEndDateISO8601";
 
   private ResourceLoader assessmentSettingMessages;
 
@@ -297,6 +305,9 @@ public class PublishedAssessmentSettingsBean
         this.dueDate = accessControl.getDueDate();
         this.retractDate = accessControl.getRetractDate();
         this.feedbackDate = accessControl.getFeedbackDate();
+        this.feedbackEndDate = accessControl.getFeedbackEndDate();
+        this.feedbackScoreThreshold = accessControl.getFeedbackScoreThreshold() != null ? String.valueOf(accessControl.getFeedbackScoreThreshold()) : StringUtils.EMPTY;
+        this.feedbackScoreThresholdEnabled = StringUtils.isNotBlank(this.feedbackScoreThreshold);
 
         // deal with releaseTo
         this.releaseTo = accessControl.getReleaseTo(); // list of String
@@ -1239,7 +1250,42 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
       }
     }
   }
-  
+
+  public String getFeedbackEndDateString() {
+    if (!this.isValidFeedbackEndDate) {
+      return this.originalFeedbackEndDateString;
+    } else {
+      return getDisplayFormatFromDate(feedbackEndDate);
+    }
+  }
+
+  public void setFeedbackEndDateString(String feedbackEndDateString) {
+    if (StringUtils.isBlank(feedbackEndDateString)) {
+      this.isValidFeedbackEndDate = true;
+      this.feedbackEndDate = null;
+    } else {
+
+      Date tempDate = tu.parseISO8601String(ContextUtil.lookupParam(HIDDEN_FEEDBACK_END_DATE_FIELD));
+
+      if (tempDate != null) {
+        this.isValidFeedbackEndDate = true;
+        this.feedbackEndDate = tempDate;
+      } else {
+        log.error("setFeedbackEndDateString could not parse hidden date field {}.", ContextUtil.lookupParam(HIDDEN_FEEDBACK_DATE_FIELD));
+        this.isValidFeedbackEndDate = false;
+        this.originalFeedbackEndDateString = feedbackEndDateString;
+      }
+    }
+  }
+
+  public boolean getFeedbackScoreThresholdEnabled() {
+    return feedbackScoreThresholdEnabled;
+  }
+
+  public void setFeedbackScoreThresholdEnabled(boolean feedbackScoreThresholdEnabled) {
+    this.feedbackScoreThresholdEnabled = feedbackScoreThresholdEnabled;
+  }
+
   public String getPublishedUrl() {
     return this.publishedUrl;
   }
@@ -1356,12 +1402,17 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 	public boolean getIsValidFeedbackDate() {
 		return this.isValidFeedbackDate;
 	}
-	
+
+	public boolean getIsValidFeedbackEndDate() {
+		return this.isValidFeedbackEndDate;
+	}
+
 	public void resetIsValidDate() {
 		this.isValidStartDate = true;
 		this.isValidDueDate = true;
 		this.isValidRetractDate = true;
 		this.isValidFeedbackDate = true;
+		this.isValidFeedbackEndDate = true;
 	}
 	  
 	public void resetOriginalDateString() {
@@ -1369,6 +1420,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 		this.originalDueDateString = "";
 		this.originalRetractDateString = "";
 		this.originalFeedbackDateString = "";
+		this.originalFeedbackEndDateString = "";
 	 }
 
 	public boolean getupdateMostCurrentSubmission() {

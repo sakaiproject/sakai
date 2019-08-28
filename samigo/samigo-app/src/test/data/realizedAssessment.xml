@@ -270,6 +270,10 @@
         <fieldlabel>FEEDBACK_DELIVERY_DATE</fieldlabel>
         <fieldentry>0000-00-00T00:00:00</fieldentry>
       </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>FEEDBACK_DELIVERY_END_DATE</fieldlabel>
+        <fieldentry>0000-00-00T00:00:00</fieldentry>
+      </qtimetadatafield>
       <!--Possible Values -->
       <!-- ISO8601 Date Format ex 2003-12-12T09:20:00-->
       <qtimetadatafield>

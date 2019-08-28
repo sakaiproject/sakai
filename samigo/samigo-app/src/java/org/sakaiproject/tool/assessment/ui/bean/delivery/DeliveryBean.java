@@ -41,6 +41,8 @@ import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -215,6 +217,7 @@ public class DeliveryBean
   private AssessmentGradingData adata;
   private PublishedAssessmentFacade publishedAssessment;
   private java.util.Date feedbackDate;
+  @Getter @Setter private Date feedbackEndDate;
   private String feedbackDelivery;
   private String showScore;
   private boolean hasTimeLimit;
@@ -2815,6 +2818,24 @@ public class DeliveryBean
   public void setFeedbackDate(java.util.Date feedbackDate)
   {
     this.feedbackDate = feedbackDate;
+  }
+
+  public String getFeedbackEndDateString()
+  {
+    String dateString = "";
+    if (feedbackEndDate== null) {
+      return dateString;
+    }
+
+    try {
+      TimeUtil tu = new TimeUtil();
+      dateString = tu.getDisplayDateTime(displayFormat, feedbackEndDate, true);
+    }
+    catch (Exception ex) {
+      // we will leave it as an empty string
+      log.warn("Unable to format date.", ex);
+    }
+    return dateString;
   }
 
   public String getFeedbackDelivery()

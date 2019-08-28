@@ -144,6 +144,14 @@
               ashidden: { iso8601: 'feedbackDateISO8601' }
           });
           localDatePicker({
+              input: '#assessmentSettingsAction\\:feedbackEndDate',
+              useTime: 1,
+              parseFormat: 'YYYY-MM-DD HH:mm:ss',
+              allowEmptyDate: true,
+              val: '<h:outputText value="#{publishedSettings.feedbackEndDate}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
+              ashidden: { iso8601: 'feedbackEndDateISO8601' }
+          });
+          localDatePicker({
               input: '#assessmentSettingsAction\\:newEntry-start_date',
               useTime: 1,
               parseFormat: 'YYYY-MM-DD HH:mm:ss',
@@ -619,12 +627,13 @@
           <li><t:radio renderLogicalId="true" for="feedbackDelivery" index="0" /></li>
           <li><t:radio renderLogicalId="true" for="feedbackDelivery" index="1" /></li>
           <li><t:radio renderLogicalId="true" for="feedbackDelivery" index="2" /></li>
-	  <li>
-	    <t:radio renderLogicalId="true" for="feedbackDelivery" index="3" />
-            <h:outputText value="&#160;" escape="false" />
-            <h:inputText value="#{publishedSettings.feedbackDateString}" size="25" id="feedbackDate" />
-	  </li>
+          <li><t:radio renderLogicalId="true" for="feedbackDelivery" index="3" /></li>
         </ul>
+        <div id="feedbackByDatePanel" style="display:none;">
+            <h:outputLabel for="feedbackDate" value="#{assessmentSettingsMessages.feedback_start_date}"/> <h:inputText value="#{publishedSettings.feedbackDateString}" size="25" id="feedbackDate" /></br>
+            <h:outputLabel for="feedbackEndDate" value="#{assessmentSettingsMessages.feedback_end_date}"/> <h:inputText value="#{publishedSettings.feedbackEndDateString}" size="25" id="feedbackEndDate" /></br>
+            <h:selectBooleanCheckbox value="#{publishedSettings.feedbackScoreThresholdEnabled}" id="feedbackScoreThresholdEnabled"/> <h:outputLabel for="feedbackScoreThresholdEnabled" value="#{assessmentSettingsMessages.feedback_score_threshold}"/> <h:inputText id="feedbackScoreThreshold" size="4" value="#{publishedSettings.feedbackScoreThreshold}"/>&#37;
+        </div>
       </div>
     </h:panelGroup>
 

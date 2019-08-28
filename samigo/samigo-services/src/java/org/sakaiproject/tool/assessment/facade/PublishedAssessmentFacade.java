@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
@@ -93,6 +95,8 @@ public class PublishedAssessmentFacade
   private Integer feedbackComponentOption;
   private Integer feedbackAuthoring;
   private Date feedbackDate;
+  @Getter @Setter private Date feedbackEndDate;
+  @Getter @Setter private Double feedbackScoreThreshold;
   private String ownerSiteName;
   private Set publishedAssessmentAttachmentSet;
   private boolean hasAssessmentGradingData;
@@ -160,29 +164,29 @@ public class PublishedAssessmentFacade
                                  Date startDate, Date dueDate, Date retractDate,
                                  Date feedbackDate, Integer feedbackDelivery, Integer feedbackComponentOption, Integer feedbackAuthoring,
                                  Integer lateHandling, Boolean unlimitedSubmissions,
-                                 Integer submissionsAllowed){
+                                 Integer submissionsAllowed, Date feedbackEndDate, Double feedbackScoreThreshold){
     
 	  this(id, title, releaseTo, startDate, dueDate, retractDate, feedbackDate,
-			  feedbackDelivery, feedbackComponentOption, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, null, null, null);  
+			  feedbackDelivery, feedbackComponentOption, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, null, null, null, feedbackEndDate, feedbackScoreThreshold);  
   }
   
   public PublishedAssessmentFacade(Long id, String title, String releaseTo,
           Date startDate, Date dueDate, Date retractDate,
           Date feedbackDate, Integer feedbackDelivery,  Integer feedbackComponentOption,Integer feedbackAuthoring,
           Integer lateHandling, Boolean unlimitedSubmissions,
-          Integer submissionsAllowed, Integer scoringType){
+          Integer submissionsAllowed, Integer scoringType, Date feedbackEndDate, Double feedbackScoreThreshold){
 
 	  this(id, title, releaseTo, startDate, dueDate, retractDate, feedbackDate,
-			  feedbackDelivery, feedbackComponentOption, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, null, null);  
+			  feedbackDelivery, feedbackComponentOption, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, null, null, feedbackEndDate, feedbackScoreThreshold);  
   }
   
   public PublishedAssessmentFacade(Long id, String title, String releaseTo,
 			Date startDate, Date dueDate, Date retractDate, Date feedbackDate,
 			Integer feedbackDelivery, Integer feedbackComponentOption, Integer feedbackAuthoring,
 			Integer lateHandling, Boolean unlimitedSubmissions,
-			Integer submissionsAllowed, Integer scoringType, Integer status) {
+			Integer submissionsAllowed, Integer scoringType, Integer status, Date feedbackEndDate, Double feedbackScoreThreshold) {
 	  this(id, title, releaseTo, startDate, dueDate, retractDate, feedbackDate,
-			  feedbackDelivery,feedbackComponentOption, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, status, null);  
+			  feedbackDelivery,feedbackComponentOption, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, status, null, feedbackEndDate, feedbackScoreThreshold);  
 	  
   }
   
@@ -190,16 +194,16 @@ public class PublishedAssessmentFacade
 			Date startDate, Date dueDate, Date retractDate, Date feedbackDate,
 			Integer feedbackDelivery,  Integer feedbackComponentOption,Integer feedbackAuthoring,
 			Integer lateHandling, Boolean unlimitedSubmissions,
-			Integer submissionsAllowed, Integer scoringType, Integer status, Date lastModifiedDate) {
+			Integer submissionsAllowed, Integer scoringType, Integer status, Date lastModifiedDate, Date feedbackEndDate, Double feedbackScoreThreshold) {
 	  this(id, title, releaseTo, startDate, dueDate, retractDate, feedbackDate,
-			  feedbackDelivery,feedbackComponentOption, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, status, lastModifiedDate, null);  
+			  feedbackDelivery,feedbackComponentOption, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, status, lastModifiedDate, null, feedbackEndDate, feedbackScoreThreshold);  
 	  
   }
   public PublishedAssessmentFacade(Long id, String title, String releaseTo,
 			Date startDate, Date dueDate, Date retractDate, Date feedbackDate,
 			Integer feedbackDelivery,  Integer feedbackComponentOption,Integer feedbackAuthoring,
 			Integer lateHandling, Boolean unlimitedSubmissions,
-			Integer submissionsAllowed, Integer scoringType, Integer status, Date lastModifiedDate, Integer timeLimit) {
+			Integer submissionsAllowed, Integer scoringType, Integer status, Date lastModifiedDate, Integer timeLimit, Date feedbackEndDate, Double feedbackScoreThreshold) {
 		this.publishedAssessmentId = id;
 		this.title = title;
 		this.releaseTo = releaseTo;
@@ -223,6 +227,8 @@ public class PublishedAssessmentFacade
 		this.status = status;
 		this.lastModifiedDate = lastModifiedDate;
 	    this.timeLimit = timeLimit;
+	    this.feedbackEndDate = feedbackEndDate;
+	    this.feedbackScoreThreshold = feedbackScoreThreshold;
 	}
 
 

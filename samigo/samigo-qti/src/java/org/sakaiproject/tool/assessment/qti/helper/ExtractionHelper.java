@@ -607,6 +607,9 @@ public class ExtractionHelper
     if (
         this.notNullOrEmpty(assessment.getAssessmentMetaDataByLabel(
         "FEEDBACK_DELIVERY_DATE") )  ||
+        (this.notNullOrEmpty(assessment.getAssessmentMetaDataByLabel(
+        "FEEDBACK_DELIVERY_END_DATE") ) && this.notNullOrEmpty(assessment.getAssessmentMetaDataByLabel(
+        "FEEDBACK_DELIVERY_DATE") )) ||
         "DATED".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
         "FEEDBACK_DELIVERY")))
     {
@@ -761,6 +764,8 @@ public class ExtractionHelper
     String retractDate = assessment.getAssessmentMetaDataByLabel("RETRACT_DATE");
     String feedbackDate = assessment.getAssessmentMetaDataByLabel(
         "FEEDBACK_DELIVERY_DATE");
+    String feedbackEndDate = assessment.getAssessmentMetaDataByLabel(
+        "FEEDBACK_DELIVERY_END_DATE");
 
     try
     {
@@ -794,6 +799,7 @@ public class ExtractionHelper
     try
     {
       control.setFeedbackDate(iso.parse(feedbackDate).getTime());
+      control.setFeedbackEndDate(iso.parse(feedbackEndDate).getTime());
       assessment.getData().addAssessmentMetaData("FEEDBACK_DELIVERY","DATED");
     }
     catch (Iso8601FormatException ex)
