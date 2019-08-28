@@ -8,10 +8,10 @@
             <link rel="alternate" type="text/html">${currentSite.siteTitle}</link>
         #else
             <title>Sakai RSS Feed</title>
-            <link rel="alternate" type="text/html">http://www.sakaiproject.org/</link>
+            <link rel="alternate" type="text/html">https://www.sakailms.org/</link>
         #end ## END of IF ($currentSite)
 
-        <generator uri="http://www.sakaiproject.org">
+        <generator uri="https://www.sakailms.org/">
             Sakai Collaboration and Learning Environment
         </generator>
 

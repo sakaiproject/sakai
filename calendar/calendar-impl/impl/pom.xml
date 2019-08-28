@@ -12,11 +12,6 @@
     <name>sakai-calendar-impl</name>
     <groupId>org.sakaiproject.calendar</groupId>
     <artifactId>sakai-calendar-impl</artifactId>
-    <organization>
-        <name>The Sakai Foundaation</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2003</inceptionYear>
     <packaging>sakai-component</packaging>
     <properties>
         <deploy.target>components</deploy.target>

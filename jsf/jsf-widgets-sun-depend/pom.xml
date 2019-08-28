@@ -11,11 +11,6 @@
     <name>Sakai JSF widget dependencies for Sun's RI (sakai-depend-jsf-widgets-sun)</name>
     <groupId>org.sakaiproject.jsf</groupId>
     <artifactId>jsf-widgets-sun-depend</artifactId>
-    <organization>
-        <name>University of Michigan</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2003</inceptionYear>
     <packaging>pom</packaging>
 
     <description>

@@ -960,7 +960,7 @@ public class BasicLTIUtil {
      * @param extUrl
      *   The url that the external world sees us as responding to.  This needs to be
      *   up to but not including the last slash like and not include any path information
-     *   http://www.sakaiproject.org - although we do compensate for extra stuff at the end.
+     *   https://www.sakailms.org/ - although we do compensate for extra stuff at the end.
 	 * @return
      *   The full path of the request with extUrl in place of whatever the request
      *   thinks is the current URL.

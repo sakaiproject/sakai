@@ -11,11 +11,6 @@
     <name>ROSTER2 TOOL</name>
     <groupId>org.sakaiproject.roster2</groupId>
     <artifactId>sakai-roster2-tool</artifactId>
-    <organization>
-        <name>Sakai Project</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2010</inceptionYear>
     <packaging>war</packaging>
 
     <properties>

@@ -12,11 +12,6 @@
     <name>sakai-portal-util</name>
     <groupId>org.sakaiproject.portal</groupId>
     <artifactId>sakai-portal-util</artifactId>
-    <organization>
-        <name>University of Michigan</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2003</inceptionYear>
     <packaging>jar</packaging>
 
     <dependencies>

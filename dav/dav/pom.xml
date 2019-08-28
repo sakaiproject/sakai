@@ -10,11 +10,6 @@
     <name>dav</name>
     <groupId>org.sakaiproject</groupId>
     <artifactId>dav</artifactId>
-    <organization>
-        <name>University of Michigan</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2002</inceptionYear>
     <packaging>war</packaging>
     <dependencies>
         <dependency>

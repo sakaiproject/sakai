@@ -10,11 +10,6 @@
   <name>sakai-citations-web2bridge</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-citations-web2bridge</artifactId>
-  <organization>
-    <name>Indiana University Library Information Technology</name>
-    <url>http://libraries.iub.edu/</url>
-  </organization>
-  <inceptionYear>2004</inceptionYear>
   <packaging>jar</packaging>
 <!--
   <properties>

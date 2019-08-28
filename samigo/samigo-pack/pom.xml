@@ -11,11 +11,6 @@
 	<name>Sakai Samigo Component Package (samigo-pack)</name>
 	<groupId>org.sakaiproject.samigo</groupId>
 	<artifactId>samigo-pack</artifactId>
-	<organization>
-		<name>Sakai Project</name>
-		<url>http://sakaiproject.org/</url>
-	</organization>
-	<inceptionYear>2004</inceptionYear>
 	<packaging>sakai-component</packaging>
     
 	<properties>

@@ -11,11 +11,6 @@
     <name>Sakai JSF Tool Using Sun's RI (jsf-myfaces-tool)</name>
     <groupId>org.sakaiproject.jsf</groupId>
     <artifactId>myfaces-tool</artifactId>
-    <organization>
-        <name>Sakai Project</name>
-        <url>http://www.sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2005</inceptionYear>
     <packaging>pom</packaging>
 
     <description>This is an include file used to express the common

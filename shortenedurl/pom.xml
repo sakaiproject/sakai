@@ -14,12 +14,6 @@
 	<artifactId>shortenedurl</artifactId>
     <packaging>pom</packaging>
 
-	<organization>
-        <name>Sakai Project</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    
-    <inceptionYear>2009</inceptionYear>
 	
 	<developers>
 		<developer>

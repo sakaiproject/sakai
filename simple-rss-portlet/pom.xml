@@ -16,8 +16,6 @@
 		<version>20-SNAPSHOT</version>
 		<relativePath>../master/pom.xml</relativePath>
   	</parent>
-  	
-    <inceptionYear>2011</inceptionYear>
 	
 	<licenses>
 		<license>

@@ -12,7 +12,7 @@
 	<artifactId>coursemanagement-hibernate-model</artifactId>
 	<organization>
 		<name>Sakai Project</name>
-		<url>http://sakaiproject.org/</url>
+		<url>https://www.sakailms.org/</url>
 	</organization>
 	<inceptionYear>2006</inceptionYear>
 	<packaging>jar</packaging>

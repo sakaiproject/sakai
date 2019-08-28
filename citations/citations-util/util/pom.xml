@@ -10,11 +10,6 @@
   <name>sakai-citations-util</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-citations-util</artifactId>
-  <organization>
-    <name>Sakaibrary</name>
-    <url>http://dlib.indiana.edu/projects/sakai/</url>
-  </organization>
-  <inceptionYear>2003</inceptionYear>
   <packaging>jar</packaging>
   <dependencies>
     <dependency>

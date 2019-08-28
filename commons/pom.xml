@@ -16,10 +16,6 @@
         <relativePath>../master/pom.xml</relativePath>
     </parent>
 
-    <organization>
-        <name>Noodle Partners, Inc.</name>
-        <url>http://noodle-partners.com</url>
-    </organization>
 
     <developers>
         <developer>

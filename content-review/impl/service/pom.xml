@@ -6,7 +6,7 @@
 	<artifactId>content-review-service-impl</artifactId>
 	<organization>
 		<name>Sakai Project</name>
-		<url>http://www.sakaiproject.org/</url>
+		<url>https://www.sakailms.org/</url>
 	</organization>
 	<packaging>jar</packaging>
 

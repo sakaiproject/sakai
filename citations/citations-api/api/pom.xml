@@ -13,11 +13,6 @@
   <description>
     This project creates the general APIs used by the Sakai Citations Helper
   </description>
-  <organization>
-    <name>University of Michigan</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2003</inceptionYear>
   <packaging>jar</packaging>
   <properties>
     <deploy.target>shared</deploy.target>

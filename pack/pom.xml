@@ -14,10 +14,6 @@
     <artifactId>pack</artifactId>
     <packaging>pom</packaging>
 
-    <organization>
-        <name>Sakai Project</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
 
     <properties>
         <maven.prereq.version>2.0.10</maven.prereq.version>

@@ -13,13 +13,7 @@
 		<version>20-SNAPSHOT</version>
 		<relativePath>../master/pom.xml</relativePath>
 	</parent>
-  	
-  	<organization>
-    	<name>Sakai Foundation</name>
-    	<url>http://sakaiproject.org/</url>
-  	</organization>
-  	
-  	<inceptionYear>2005</inceptionYear>
+
   	
     <developers>
         <developer>

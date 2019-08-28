@@ -10,11 +10,6 @@
   <name>sakai-calendar-connector</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-calendar-connector</artifactId>
-  <organization>
-    <name>Sakai Foundation</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2005</inceptionYear>
   <packaging>war</packaging>
   <dependencies>
     <dependency>

@@ -12,11 +12,6 @@
     <name>sakai-taggable-hbm</name>
     <groupId>org.sakaiproject.taggable</groupId>
     <artifactId>sakai-taggable-hbm</artifactId>
-    <organization>
-        <name>The Sakai Foundation</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2003</inceptionYear>
     <packaging>jar</packaging>
 
     <properties>

@@ -10,11 +10,6 @@
   <name>sakai-sample-provider</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-sample-provider</artifactId>
-  <organization>
-    <name>University of Michigan</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2003</inceptionYear>
   <packaging>jar</packaging>
   <properties>
     <deploy.target />

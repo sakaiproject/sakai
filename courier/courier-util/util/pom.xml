@@ -12,11 +12,6 @@
     <name>sakai-courier-util</name>
     <groupId>org.sakaiproject.courier</groupId>
     <artifactId>sakai-courier-util</artifactId>
-    <organization>
-        <name>The Sakai Foundation</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2003</inceptionYear>
     <packaging>jar</packaging>
     
     <dependencies>

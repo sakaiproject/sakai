@@ -12,11 +12,6 @@
     <name>sakai-site-manage-group-section-role-helper-pack</name>
     <groupId>org.sakaiproject.sitemanage</groupId>
     <artifactId>sakai-site-manage-group-section-role-helper-pack</artifactId>
-    <organization>
-        <name>University of Michigan</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2003</inceptionYear>
     <packaging>sakai-component</packaging>
 
     <properties>

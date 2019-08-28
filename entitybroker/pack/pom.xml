@@ -4,11 +4,6 @@
   <name>Sakai Entity Broker Components Pack</name>
   <groupId>org.sakaiproject.entitybroker</groupId>
   <artifactId>entitybroker-pack</artifactId>
-  <organization>
-    <name>Sakai Project</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2007</inceptionYear>
   <packaging>sakai-component</packaging>
 <!-- the base is parent -->
   <parent>

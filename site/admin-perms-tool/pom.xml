@@ -12,11 +12,6 @@
   <name>Sakai AdminSitePerms</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>adminsiteperms</artifactId>
-  <organization>
-    <name>Sakai Project</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2008</inceptionYear>
   <packaging>war</packaging>
   <properties>
     <maven.deploy.skip>true</maven.deploy.skip>

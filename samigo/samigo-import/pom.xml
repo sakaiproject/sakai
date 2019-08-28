@@ -11,11 +11,6 @@
 	<name>Sakai Samigo Import Handlers (samigo-import)</name>
 	<groupId>org.sakaiproject.samigo</groupId>
 	<artifactId>samigo-import</artifactId>
-	<organization>
-		<name>Sakai Foundation</name>
-		<url>http://sakaiproject.org/</url>
-	</organization>
-	<inceptionYear>2005</inceptionYear>
 	<packaging>jar</packaging>
     
 	<dependencies>

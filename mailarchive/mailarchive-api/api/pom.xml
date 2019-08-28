@@ -12,11 +12,6 @@
     <name>sakai-mailarchive-api</name>
     <groupId>org.sakaiproject.mailarchive</groupId>
     <artifactId>sakai-mailarchive-api</artifactId>
-    <organization>
-        <name>The Sakai Foundation</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2003</inceptionYear>
     <packaging>jar</packaging>
 
     <properties>

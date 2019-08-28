@@ -4,11 +4,6 @@
     <name>Sakai Entity Broker Utilities</name>
     <groupId>org.sakaiproject.entitybroker</groupId>
     <artifactId>entitybroker-utils</artifactId>
-    <organization>
-        <name>CARET, University of Cambridge</name>
-        <url>http://www.caret.cam.ac.uk/</url>
-    </organization>
-    <inceptionYear>2007</inceptionYear>
     <packaging>jar</packaging>
     <parent>
         <artifactId>entitybroker</artifactId>

@@ -94,7 +94,7 @@ BSD License:
     * Sample markup and stylesheets from uPortal v2.6 (http://www.uportal.org/)
 
 ECL 2.0:
-    * Sample markup and stylesheets from Sakai v2.5 (http://sakaiproject.org)
+    * Sample markup and stylesheets from Sakai v2.5 (https://www.sakailms.org/)
 
 Other licenses:
     * Douglas Crockford's JSON.js (from 2007-11-06): http://www.json.org/ (Public Domain)

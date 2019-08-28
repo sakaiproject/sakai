@@ -10,11 +10,6 @@
   <name>sakai-web-portlet</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-web-portlet</artifactId>
-  <organization>
-    <name>The Sakai Foundation</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2013</inceptionYear>
   <packaging>war</packaging>
   <dependencies>
         <dependency>

@@ -10,11 +10,6 @@
     <name>Sakai Userauditservice API (userauditservice-api)</name>
     <groupId>org.sakaiproject.userauditservice</groupId>
     <artifactId>userauditservice-api</artifactId>
-    <organization>
-        <name>Sakai Project</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2013</inceptionYear>
     <description>Userauditservice interfaces (API)</description>
     <packaging>jar</packaging>
 

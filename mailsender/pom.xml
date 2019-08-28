@@ -12,11 +12,6 @@
   <artifactId>mailsender</artifactId>
   <name>Sakai Mail Sender Project</name>
   <description>Mail Sender base pom.</description>
-  <organization>
-    <name>Sakai Project</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2007</inceptionYear>
   <packaging>pom</packaging>
 
   <modules>

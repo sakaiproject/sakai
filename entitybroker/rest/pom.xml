@@ -4,11 +4,6 @@
     <name>Sakai Entity Broker REST Implementation</name>
     <groupId>org.sakaiproject.entitybroker</groupId>
     <artifactId>entitybroker-restimpl</artifactId>
-    <organization>
-        <name>Sakai Project</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2007</inceptionYear>
     <packaging>jar</packaging>
 <!-- the base is parent -->
     <parent>
