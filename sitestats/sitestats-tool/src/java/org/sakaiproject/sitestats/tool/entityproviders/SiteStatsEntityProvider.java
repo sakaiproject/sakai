@@ -152,7 +152,6 @@ public class SiteStatsEntityProvider extends AbstractEntityProvider implements A
         }
         
         // system-wide reports will not have siteID set, and will try to run across all sites--which is bad
-        //if (reportDef.getReportParams().getSiteId() == null || reportDef.getReportParams().getSiteId().length() == 0) {
         if (StringUtils.isBlank(reportDef.getReportParams().getSiteId())) {
             reportDef.getReportParams().setSiteId(siteId);
         }
