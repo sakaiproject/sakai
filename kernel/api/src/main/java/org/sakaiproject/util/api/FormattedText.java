@@ -250,7 +250,6 @@ public interface FormattedText {
      * @param value
      *        The text containing entity references (e.g., a News item description).
      * @return The HTML, ready for processing.
-     * @see https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/util/HtmlUtils.html#htmlUnescape-java.lang.String-
      */
     public String unEscapeHtml(String value);
 
@@ -459,14 +458,5 @@ public interface FormattedText {
       * @return the all contents within the HTML body
       */
      public String getHtmlBody(String text);
-
-    /**
-     * Sanitizes the user input to prevent XSS attacks.
-     *
-     * @param userInput The value to sanitize.
-     * @return A sanitized user input.
-     * @see https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/util/HtmlUtils.html#htmlEscape-java.lang.String-java.lang.String-
-     */
-     public String sanitizeUserInput(final String userInput);
 
 }
