@@ -76,7 +76,7 @@
 							<h:outputText value="#{msgs.event_owner}" styleClass="titleText" escape="false"/>
 						</h:panelGroup>
 						<h:panelGroup styleClass="col-xs-12 col-md-9 valueColumn" layout="block">
-							<h:outputText value="#{NewSignupMeetingBean.instructorName}" styleClass="longtext" escape="false"/>
+							<h:outputText value="#{NewSignupMeetingBean.instructorName}" styleClass="longtext"/>
 						</h:panelGroup>
 					</div>
 
@@ -419,7 +419,7 @@
 							<h:dataTable id="meeting_coordinators" value="#{NewSignupMeetingBean.allPossibleCoordinators}" var="coUser" styleClass="coordinatorTab">
 								<h:column>
 									<h:selectBooleanCheckbox id="meetingcoord" value="#{coUser.checked}"/>
-									<h:outputLabel for="meetingcoord" value="&nbsp;#{coUser.displayName}" escape="false" styleClass="longtext"/>
+									<h:outputLabel for="meetingcoord" value="#{coUser.displayName}" styleClass="longtext"/>
 								</h:column>
 							</h:dataTable>
 						</h:panelGroup>

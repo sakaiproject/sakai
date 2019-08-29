@@ -55,7 +55,9 @@
 	      	  </h:commandLink>
 	      </h:panelGroup> 
 	    <h:outputText value=" / "/>
-		<h:commandLink action="#{mfStatisticsBean.processActionBackToUser}" value="#{mfStatisticsBean.selectedSiteUser}" />
+		<h:commandLink action="#{mfStatisticsBean.processActionBackToUser}" >
+			<h:outputText value="#{mfStatisticsBean.selectedSiteUser}" />
+		</h:commandLink>
 		<h:outputText value=" / "/>
 		<h:commandLink action="#{ForumTool.processActionShowFullTextForAll}" value="#{msgs.stat_authored}" />
 		<h:outputText value=" / "/>

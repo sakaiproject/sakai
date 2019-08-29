@@ -39,10 +39,10 @@
 					<h:outputText value="#{EditCommentSignupMBean.meetingWrapper.meeting.location}" styleClass="longtext"/>
 					
 					<h:outputText value="#{msgs.event_attendee_name}" styleClass="titleText" escape="false"/>
-					<h:outputText value="#{EditCommentSignupMBean.attendeeWrapper.displayName}" styleClass="longtext" escape="false"/>
+					<h:outputText value="#{EditCommentSignupMBean.attendeeWrapper.displayName}" styleClass="longtext"/>
 					
 					<h:outputText value="#{msgs.event_attendee_eid}" styleClass="titleText" escape="false"/>
-					<h:outputText value="#{EditCommentSignupMBean.attendeeEid}" styleClass="longtext" escape="false"/>
+					<h:outputText value="#{EditCommentSignupMBean.attendeeEid}" styleClass="longtext"/>
 					
 					<h:outputText value="#{msgs.event_attendee_role}" styleClass="titleText" escape="false"/>
 					<h:outputText value="#{EditCommentSignupMBean.attendeeRole}" styleClass="longtext" escape="false"/>
