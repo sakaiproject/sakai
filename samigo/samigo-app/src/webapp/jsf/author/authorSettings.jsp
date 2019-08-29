@@ -457,10 +457,9 @@
   <!-- AUTOMATIC SUBMISSION -->
   <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.automaticSubmission_isInstructorEditable==true}">
     <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.auto_submit}" />
-    <div class="col-md-4">
+    <div class="col-md-10 samigo-checkbox">
       <h:selectBooleanCheckbox id="automaticSubmission" value="#{assessmentSettings.autoSubmit}" />
-      <h:outputText value="&#160;" escape="false" />
-      <h:outputLabel styleClass="info-text small" value="#{assessmentSettingsMessages.auto_submit_help}" />
+      <h:outputLabel for="automaticSubmission" value="#{assessmentSettingsMessages.auto_submit_help}" />
     </div>
   </h:panelGroup>
 
