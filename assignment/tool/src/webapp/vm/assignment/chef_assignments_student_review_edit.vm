@@ -52,7 +52,7 @@
 					#end
 					#if($view_only)
 						<br/>
-						$tlang.getFormattedMessage("gen.reviewer.who", $reviewer.getDisplayName(), $reviewer.getDisplayId())
+						$tlang.getFormattedMessage("gen.reviewer.who", $validator.escapeHtml($reviewer.getDisplayName()), $validator.escapeHtml($reviewer.getDisplayId()))
 					#else
 						($reviewNumber $tlang.getString("gen.of") $totalReviews)
 						<br/>

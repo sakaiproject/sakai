@@ -245,7 +245,7 @@
 ##                    <th>$tlang.getString('gen.history')</th>
 ##                    <td>
 ##                        #foreach ($entry in $submission.getSubmissionLog())
-##                            $entry<br/>
+##                            $validator.escapeHtml($entry)<br/>
 ##                        #end
 ##                    </td>
 ##                </tr>
@@ -592,7 +592,7 @@
                                 #set ($group_value_grade = $value_grades.get($submitter.getSubmitter()))
                                 #if ($gradeType == 2)
                                     <div class="row-override">
-                                        <label>$!submitterName</label>
+                                        <label>$validator.escapeHtml($!submitterName)</label>
                                         <div class="shorttext">
                                             <span$tlang.getString("gen.grade.override")</span>
                                             <select name="$group_name_grade" id="grade">
@@ -612,7 +612,7 @@
                                     </div>
                                 #elseif ($gradeType == 3)
                                     <div class="row-override">
-                                        <label>$!submitterName</label>
+                                        <label>$validator.escapeHtml($!submitterName)</label>
                                         <div class="shorttext">
                                             <span>$tlang.getString("gen.grade.override")</span> <input type="text"
                                                 name="$group_name_grade"
@@ -626,7 +626,7 @@
                                     </div>
                                 #elseif ($gradeType == 4)
                                     <div class="row-override">
-                                        <label>$!submitterName</label>
+                                        <label>$validator.escapeHtml($!submitterName)</label>
                                         <div class="shorttext">
                                             <span>$tlang.getString("gen.grade.override")</span>
                                             <select name="$group_name_grade" id="grade">
@@ -653,7 +653,7 @@
                                     </div>
                                 #elseif ($gradeType == 5)
                                     <div class="row-override">
-                                        <label>$!submitterName</label>
+                                        <label>$validator.escapeHtml($!submitterName)</label>
                                         <div class="assignment-checkbox-inline">
                                             <span>$tlang.getString("gen.grade.override")</span>
                                             <label for="$group_name_grade">

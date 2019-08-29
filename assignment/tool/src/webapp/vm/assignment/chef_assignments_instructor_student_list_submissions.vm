@@ -80,7 +80,7 @@
 											title="$tlang.getString("stulistsunbm.hidstuass")" name="studentLink" >
 										<img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("stulistsunbm.hidstuass")" width="13" height="13" border="0" />
 								#end
-										$submitterName
+										$validator.escapeHtml($submitterName)
 										</a>
 										<div id="$userSpinnerID" class="allocatedSpinPlaceholder"></div>
 									</div>

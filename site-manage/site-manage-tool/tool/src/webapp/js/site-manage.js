@@ -79,7 +79,10 @@ sakai.getGroupInfo = function(trigger, dialogTarget, memberstr, printstr, tables
         
         jQuery.getJSON(groupURL, function(data){
             $.each(data.membership_collection, function(i, item){
-                list = list + "<tr><td>" + count + ")&nbsp;" + item.userSortName + "</td><td>" + item.memberRole + "</td><td><a href=\'mailto:" + item.userEmail + "\'>" + item.userEmail + "</a></td></tr>";
+                var sortName = $('<div>').text(item.userSortName).html();
+                var role = $('<div>').text(item.memberRole).html();
+                var email = $('<div>').text(item.userEmail).html();
+                list = list + "<tr><td>" + count + ")&nbsp;" + sortName + "</td><td>" + role + "</td><td><a href=\'mailto:" + email + "\'>" + email + "</a></td></tr>";
                 count = count + 1;
             });
             content = ("<h4>(<a  href=\"#\" id=\'printme\' class=\'print-window\' onclick=\'printPreview(\"/direct/membership/group/" + id + ".json\")\'>" + printstr + "</a>)</h4>" + "<p class=\'textPanelFooter\'></p>" + "<div class=\'textPanel\'><div id=\'groupListContent\'><table class=\'listHier lines nolines\' border=\'0\'><tr><th>" + tablestr1 + "</th><th>" + tablestr2 + "</th><th>" + tablestr3 + "</th>" + list + "</table></div>");

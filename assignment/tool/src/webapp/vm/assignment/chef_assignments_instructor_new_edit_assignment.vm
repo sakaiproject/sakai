@@ -1516,7 +1516,7 @@
 			<div class="text-warning">
 			#foreach($duser in $!multipleGroupUsers)
 				#if ($velocityCount > 1), #end
-				$duser
+				$validator.escapeHtml($duser)
 			#end
 		</div>
 		</p>

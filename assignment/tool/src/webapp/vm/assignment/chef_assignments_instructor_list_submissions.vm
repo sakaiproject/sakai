@@ -648,9 +648,9 @@ function printView(url) {
 												<span>
 											#end
 											#if($reviewersMap.containsKey($item.getId().getAssessorUserId()))
-												$!reviewersMap.get($item.getId().getAssessorUserId()).sortName
+												$validator.escapeHtml($!reviewersMap.get($item.getId().getAssessorUserId()).sortName)
 											#else
-												$!item.getId().getAssessorUserId()
+												$validator.escapeHtml($!item.getId().getAssessorUserId())
 											#end
 											</span>
 											</a>
