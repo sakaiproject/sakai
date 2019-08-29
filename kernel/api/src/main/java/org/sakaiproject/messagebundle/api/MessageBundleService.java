@@ -61,6 +61,11 @@ public interface MessageBundleService {
     public int SORT_FIELD_BASENAME = 5;
 
     /**
+     * If the service should store bundle info in the database
+     */
+    public boolean isEnabled();
+
+    /**
      *
      * @param search - text to search for
      * @param module - module name to search within, null means search all modules

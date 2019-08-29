@@ -108,7 +108,7 @@ public class MainController {
 	
 	@ModelAttribute("isLoadBundlesFromDb")
 	public boolean isLoadBundlesFromDb() {
-		return serverConfigurationService.getBoolean("load.bundles.from.db", false);
+		return messageBundleService.isEnabled();
 	}
 
 	@ModelAttribute("isAdmin")

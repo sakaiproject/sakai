@@ -25,13 +25,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import org.hibernate.SessionFactory;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sakaiproject.messagebundle.api.MessageBundleProperty;
 import org.sakaiproject.messagebundle.api.MessageBundleService;
-import org.sakaiproject.messagebundle.impl.MessageBundleServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
@@ -47,21 +45,19 @@ import org.springframework.util.Assert;
  * To change this template use File | Settings | File Templates.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"/spring-hibernate.xml"})
+@ContextConfiguration(classes = {MessageBundleTestConfiguration.class})
 @FixMethodOrder(NAME_ASCENDING)
 public class MessageBundleTest extends AbstractTransactionalJUnit4SpringContextTests {
 
     @Autowired
     private MessageBundleService messageBundleService;
 
-    static ResourceBundle resourceBundleEN;
-    static ResourceBundle resourceBundleFr;
-
-    static Locale localeEn;
-    static Locale localeFr;
-
-    static String baseName;
-    static String moduleName;
+    private static ResourceBundle resourceBundleEN;
+    private static ResourceBundle resourceBundleFr;
+    private static Locale localeEn;
+    private static Locale localeFr;
+    private static String baseName;
+    private static String moduleName;
 
     @BeforeTransaction
     public void beforeTransaction()  {
