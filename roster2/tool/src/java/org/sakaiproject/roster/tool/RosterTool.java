@@ -96,10 +96,10 @@ public class RosterTool extends HttpServlet {
             } else if (parts.length == 3) {
                 locale = new Locale(parts[0], parts[1], parts[2]);
             }
-            rl = new ResourceLoader("org.sakaiproject.roster.bundle.Messages");
+            rl = new ResourceLoader("roster");
             rl.setContextLocale(locale);
         } else {
-            rl = new ResourceLoader(userId, "org.sakaiproject.roster.bundle.Messages");
+            rl = new ResourceLoader(userId, "roster");
             locale = rl.getLocale();
         }
 

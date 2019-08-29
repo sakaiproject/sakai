@@ -161,7 +161,7 @@
     <build>
         <plugins>
             <!-- compress CSS and JS -->
-            <plugin>
+            <!--plugin>
                 <groupId>com.samaxes.maven</groupId>
                 <artifactId>minify-maven-plugin</artifactId>
                 <version>1.7.6</version>
@@ -180,7 +180,7 @@
                         <goals><goal>minify</goal></goals>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin-->
             <plugin>
                 <groupId>com.github.jknack</groupId>
                 <artifactId>handlebars-maven-plugin</artifactId>

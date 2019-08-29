@@ -26,7 +26,7 @@
         <link rel="stylesheet" type="text/css" href="/profile2-tool/css/profile2-profile-entity.css" media="all" />
         <link rel="stylesheet" media="print" type="text/css" href="/sakai-roster2-tool/css/print.css" />
 
-        <script type="text/javascript">
+        <script>
 
             var roster = {
                 userId: '${userId}',
@@ -68,13 +68,13 @@
 
         </div> <!-- portletBody -->
 
-    <script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
-    <script type="text/javascript" src="/library/webjars/jquery-migrate/1.4.1/jquery-migrate.min.js"></script>
-    <script type="text/javascript" src="/sakai-roster2-tool/lib/jquery.waitforimages.min.js"></script>
-    <script type="text/javascript" src="/profile2-tool/javascript/profile2-eb.js"></script>
-    <script type="text/javascript" src="/library/webjars/handlebars/4.0.6/handlebars.runtime.min.js"></script>
-    <script type="text/javascript" src="/sakai-roster2-tool/templates.js"></script>
-    <script type="text/javascript" src="/sakai-roster2-tool/js/roster.min.js"></script>
+    <script src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
+    <script src="/library/webjars/jquery-migrate/1.4.1/jquery-migrate.min.js"></script>
+    <script src="/sakai-roster2-tool/lib/jquery.waitforimages.min.js"></script>
+    <script src="/profile2-tool/javascript/profile2-eb.js"></script>
+    <script src="/library/webjars/handlebars/4.0.6/handlebars.runtime.min.js"></script>
+    <script src="/sakai-roster2-tool/templates.js"></script>
+    <script src="/sakai-roster2-tool/js/roster.js"></script>
 
     </body>
 </html>

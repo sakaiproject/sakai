@@ -87,10 +87,10 @@ public class CommonsTool extends HttpServlet {
             } else if (parts.length == 3) {
                 locale = new Locale(parts[0], parts[1], parts[2]);
             }
-            rl = new ResourceLoader("org.sakaiproject.commons.bundle");
+            rl = new ResourceLoader("commons");
             rl.setContextLocale(locale);
         } else {
-            rl = new ResourceLoader(userId, "org.sakaiproject.commons.bundle");
+            rl = new ResourceLoader(userId, "commons");
             locale = rl.getLocale();
         }
 

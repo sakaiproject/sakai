@@ -15,6 +15,8 @@ Handlebars.registerPartial('comment', Handlebars.partials['comment']);
 Handlebars.registerPartial('wrapped_comment', Handlebars.partials['wrapped_comment']);
 Handlebars.registerPartial('inplace_comment_editor', Handlebars.partials['inplace_comment_editor']);
 
+var commonsHelpers = {};
+
 commons.states = {
         POSTS: 'posts',
         POST: 'post',
@@ -304,8 +306,6 @@ commons.switchState = function (state, arg) {
 
     var languagesLoaded = function () {
 
-        commons.i18n = portal.i18n.translations['commons'];
-
         if (commons.embedder === 'SITE') {
             commons.utils.renderTemplate('toolbar', {} ,'commons-toolbar');
 
@@ -342,10 +342,15 @@ commons.switchState = function (state, arg) {
 
     $(document).ready(function () {
 
-        portal.i18n.loadProperties({
-            namespace: 'commons',
-            callback: function () { languagesLoaded(); }
+      import("/webcomponents/sakai-i18n.js").then(m => {
+
+        m.loadProperties({bundle: 'commons'}).then(i18n => {
+
+          commons.i18n = i18n;
+          commonsHelpers["tr"] =  (key, options) => new Handlebars.SafeString(m.tr("commons", key, options.hash));
+          languagesLoaded();
         });
+      });
     });
 
     if (CKEDITOR) {
