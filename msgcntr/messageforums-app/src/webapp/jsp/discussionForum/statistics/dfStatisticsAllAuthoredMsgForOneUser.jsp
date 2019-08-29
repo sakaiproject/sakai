@@ -203,7 +203,9 @@
 		          	  </h:commandLink>
 		          </h:panelGroup> 
 			      <h:outputText value=" / "/>
-			      <h:commandLink action="#{mfStatisticsBean.processActionBackToUser}" value="#{mfStatisticsBean.selectedSiteUser}"/>
+			      <h:commandLink action="#{mfStatisticsBean.processActionBackToUser}" >
+					  <h:outputText value="#{mfStatisticsBean.selectedSiteUser}" />
+			      </h:commandLink>
 			      <h:outputText value=" / "/>
 			      <h:outputText value="#{msgs.stat_authored}" />
 			  <f:verbatim></h3></div></f:verbatim>

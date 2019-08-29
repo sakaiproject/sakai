@@ -313,10 +313,11 @@ function toPoint(id)
 
 <h:panelGroup rendered="#{totalScores.anonymous eq 'false' && studentScores.email != null && studentScores.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}">
   <h:outputText value="<a href=\"mailto:" escape="false" />
-  <h:outputText value="#{studentScores.email}" escape="false" />
+  <h:outputText value="#{studentScores.email}" />
   <h:outputText value="?subject=" escape="false" />
   <h:outputText value="#{totalScores.assessmentName} #{commonMessages.feedback}\">" escape="false" />
-  <h:outputText value="  #{evaluationMessages.email} #{studentScores.firstName}" escape="false"/>
+  <h:outputText value="  #{evaluationMessages.email} " escape="false"/>
+  <h:outputText value="#{studentScores.firstName}" />
   <h:outputText value="</a>" escape="false" />
 </h:panelGroup>
 

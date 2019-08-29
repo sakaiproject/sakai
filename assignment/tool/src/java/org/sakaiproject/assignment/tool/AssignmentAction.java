@@ -35,7 +35,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -6951,8 +6950,8 @@ public class AssignmentAction extends PagedResourceActionII {
         if (groupAssignment) {
             Collection<String> users = usersInMultipleGroups(state, Assignment.Access.GROUP.toString().equals(range), (Assignment.Access.GROUP.toString().equals(range) ? data.getParameters().getStrings("selectedGroups") : null), false, null);
             if (!users.isEmpty()) {
-                String usersString = rb.getString("group.user.multiple.warning") + " " + String.join(",", users);
-                log.warn("{}", usersString);
+                String usersString = rb.getString("group.user.multiple.warning") + " " + formattedText.escapeHtml(String.join(",", users));
+                log.warn("at least one user in multiple groups: {}", usersString);
                 addAlert(state, usersString);
             }
         }
@@ -12949,7 +12948,7 @@ public class AssignmentAction extends PagedResourceActionII {
             while (_it.hasNext()) {
                 _sb.append(", " + _it.next());
             }
-            addAlert(state, _sb.toString());
+            addAlert(state, formattedText.escapeHtml(_sb.toString(), false));
         }
         return _dupUsers;
     }

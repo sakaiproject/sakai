@@ -52,11 +52,7 @@
 							<span style="font-size: smaller; color: blue;">	
 								#set($gusers = $assignmentService.getSortedGroupUsers($group))
 								#foreach ($user in $gusers)
-                                                                        ##if ($!alertMessage.indexOf($user.getDisplayName() > 0)
-                                                                        ##    <span style="color: #B11;">$user.getDisplayName()</span>
-                                                                        ##else
-                                                                            $user.getDisplayName()
-                                                                        ##end
+									$validator.escapeHtml($user.getDisplayName())
 									#if ($velocityCount < $gusers.size()),#end
 								#end
 							</span>	
