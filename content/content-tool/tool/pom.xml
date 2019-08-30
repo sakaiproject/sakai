@@ -92,6 +92,12 @@
       <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.googledrive</groupId>
+      <artifactId>sakai-googledrive-api</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
   <build>
     <resources>
