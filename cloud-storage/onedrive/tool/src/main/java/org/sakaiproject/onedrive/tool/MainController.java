@@ -16,6 +16,7 @@ package org.sakaiproject.onedrive.tool;
 import javax.inject.Inject;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.onedrive.service.OneDriveService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.springframework.context.MessageSource;
@@ -45,7 +46,7 @@ public class MainController {
 	private MessageSource messageSource;
 
 	@RequestMapping(value = {"/", "/index"}, method = RequestMethod.GET)
-	public String showIndex(@RequestParam String code, Model model) {
+	public String showIndex(@RequestParam(required=false) String code, Model model) {
 		log.debug("OneDriveServlet : Called the main servlet.");
 		String userId = sessionManager.getCurrentSessionUserId();
 		Object pickerRedirectUrlObject = sessionManager.getCurrentSession().getAttribute(oneDriveService.ONEDRIVE_REDIRECT_URI);
@@ -55,7 +56,7 @@ public class MainController {
 		log.debug("OneDriveServlet : sakai user {}", userId);
 		log.debug("OneDriveServlet : pickerRedirectUrl {}", pickerRedirectUrl);
 		boolean configured = false;
-		if(code != null && userId != null) {
+		if(StringUtils.isNotEmpty(code) && StringUtils.isNotEmpty(userId)) {
 			configured = oneDriveService.token(userId, code);
 		}
 		log.debug("OneDriveServlet : configured token {} ", configured);
