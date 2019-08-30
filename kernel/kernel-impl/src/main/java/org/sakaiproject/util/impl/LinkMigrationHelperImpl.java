@@ -15,6 +15,9 @@
  */
 package org.sakaiproject.util.impl;
 
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -22,6 +25,11 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.util.api.LinkMigrationHelper;
@@ -29,6 +37,7 @@ import org.sakaiproject.util.api.LinkMigrationHelper;
 @Slf4j
 public class LinkMigrationHelperImpl implements LinkMigrationHelper {
 	private static final String ESCAPED_SPACE= "%"+"20";
+	private static final String[] shortenerDomainsToExpand = {"/x/", "bit.ly"};
 
 	private ServerConfigurationService serverConfigurationService;
 
@@ -112,10 +121,12 @@ public class LinkMigrationHelperImpl implements LinkMigrationHelper {
 	public String migrateOneLink(String fromContextRef, String targetContextRef, String msgBody){
 		fromContextRef=fromContextRef.replace(" ",ESCAPED_SPACE);
 		targetContextRef = targetContextRef.replace(" ",ESCAPED_SPACE);
-		if(msgBody.contains(fromContextRef)){
-			msgBody = msgBody.replace(fromContextRef, targetContextRef);
+		//Expands all the shortened URLs before replacing the context
+		String expandedMsgBody = this.expandShortenedUrls(msgBody);
+		if(expandedMsgBody.contains(fromContextRef)){
+			expandedMsgBody = expandedMsgBody.replace(fromContextRef, targetContextRef);
 		}
-		return msgBody;
+		return expandedMsgBody;
 	}
 
 	private List<String> findLinks(String msgBody) throws Exception {
@@ -148,6 +159,68 @@ public class LinkMigrationHelperImpl implements LinkMigrationHelper {
 		int contentStart = link.indexOf(">");
 		int contentEnd = link.indexOf("</a>", contentStart);
 		return link.substring(contentStart+1, contentEnd);
+	}
+
+	/**
+	 * Parses an HTML content, extracts the URLs and expands the shortened ones.
+	 * This method is used mostly when importing content from other sites
+	 * @param msgBody
+	 * @return String the msgBody with the expanded URLs
+	 */
+	private String expandShortenedUrls(String msgBody){
+		String replacedBody = msgBody;
+		if(StringUtils.isNotEmpty(msgBody)){
+			Document doc = Jsoup.parse(msgBody);
+
+			Elements links = doc.select("a[href]");
+			Elements media = doc.select("[src]");
+			Elements imports = doc.select("link[href]");
+			List<String> references = new ArrayList<String>();
+			// href ...
+			for (Element link : links) {
+				references.add(link.attr("abs:href"));
+			}
+
+			// img ...
+			for (Element src : media) {
+				references.add(src.attr("abs:src"));
+			}
+
+			// js, css, ...
+			for (Element link : imports) {
+				references.add(link.attr("abs:href"));
+			}
+
+			for(String reference : references){
+				//If doesn't contain the prefix /x/, should ignore the URL.
+				if(referenceContainsShortenerDomains(reference)){
+					String longUrl = this.expandShortenedUrl(reference);
+					replacedBody = StringUtils.replace(replacedBody, reference, longUrl);
+				}
+			}
+		}
+		return replacedBody;
+	}
+
+	private boolean referenceContainsShortenerDomains(String reference) {
+		return Arrays.stream(shortenerDomainsToExpand).anyMatch(reference::contains);
+	}
+
+	private String expandShortenedUrl(String shortenedUrl){
+		String expandedURL = StringUtils.EMPTY;
+		try{
+			URL url = new URL(shortenedUrl);
+			// open connection
+			HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+			// stop following browser redirect
+			httpURLConnection.setInstanceFollowRedirects(false);
+			// extract location header containing the actual destination URL
+			expandedURL = httpURLConnection.getHeaderField("Location");
+			httpURLConnection.disconnect();
+		}catch(Exception ex){
+			log.warn("LinkMigrationHelper: Unable to expand URL {}.", shortenedUrl);
+		}
+		return expandedURL;
 	}
 
 }
