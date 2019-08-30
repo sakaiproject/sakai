@@ -37,6 +37,7 @@ import java.util.Map.Entry;
 import java.util.Stack;
 import java.util.Set;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
@@ -94,6 +95,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.util.api.LinkMigrationHelper;
 import org.sakaiproject.util.MergedList;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
@@ -124,6 +126,8 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	
 	private ContentHostingService contentHostingService;
 	private SiteEmailNotificationAnnc siteEmailNotificationAnnc;
+	@Resource(name="org.sakaiproject.util.api.LinkMigrationHelper")
+	private LinkMigrationHelper linkMigrationHelper;
 
 	/**
 	 * Dependency: contentHostingService.
@@ -1403,10 +1407,11 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 							while(entryItr.hasNext()) {
 								Entry<String, String> entry = (Entry<String, String>) entryItr.next();
 								String fromContextRef = entry.getKey();
-								if(msgBody.contains(fromContextRef)){									
-									msgBody = msgBody.replace(fromContextRef, entry.getValue());
+								String targetContextRef = entry.getValue();
+								if(msgBody.contains(fromContextRef)){
 									updated = true;
-								}								
+								}
+								msgBody = linkMigrationHelper.migrateOneLink(fromContextRef, targetContextRef, msgBody);
 							}	
 							if(updated){
 								AnnouncementMessageEdit editMsg = aChannel.editAnnouncementMessage(msg.getId());
