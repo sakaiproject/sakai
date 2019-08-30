@@ -1,5 +1,7 @@
 (function ($) {
 
+  var helpers = {};
+
   roster.setupPrintButton = function () {
 
     $('.roster-print-button').click(function (e) {
@@ -49,7 +51,7 @@
   roster.render = function (template, data, outputId) {
 
     var t = Handlebars.templates[template];
-    document.getElementById(outputId).innerHTML = t(data);
+    document.getElementById(outputId).innerHTML = t(data, {helpers: helpers});
   };
 
   roster.addViewModeHandlers = function () {
@@ -558,7 +560,7 @@
         $(window).off('scroll.roster.rendered').on('scroll.roster.rendered', roster.checkScroll);
     }
     var t = Handlebars.templates['members'];
-    target.append(t(templateData));
+    target.append(t(templateData, {helpers: helpers}));
     if (!renderAll) {
         $(window).trigger('scroll.roster.rendered');
     }
@@ -784,8 +786,6 @@
 
   roster.init = function () {
 
-    roster.i18n = portal.i18n.translations["roster"];
-
     roster.i18n.months = roster.i18n.months.split(',');
 
     roster.ADMIN = 'admin';
@@ -937,11 +937,14 @@
 
   $(function () {
 
-    portal.i18n.loadProperties({
-      namespace: 'roster',
-      callback: function () {
-        roster.loadSiteDataAndInit();
-      }
+    import("/webcomponents/sakai-i18n.js")
+      .then((module) => {
+        module.loadProperties({bundle: "roster"}).then(i18n => {
+
+          roster.i18n = i18n;
+          helpers["tr"] =  key => roster.i18n[key];
+          roster.loadSiteDataAndInit();
+        });
     });
   });
 

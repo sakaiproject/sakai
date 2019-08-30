@@ -5,7 +5,7 @@
         {{#if ../viewProfile}}
             <a href="javascript:;" class="profile" data-user-id="{{userId}}">
         {{/if}}
-            <img class="roster-picture" src="{{profileImageUrl}}" title="{{translate 'profile_picture_alt'}} {{displayName}}" alt="{{translate 'profile_picture_alt'}} {{displayName}}" />
+            <img class="roster-picture" src="{{profileImageUrl}}" title="{{tr 'profile_picture_alt'}} {{displayName}}" alt="{{tr 'profile_picture_alt'}} {{displayName}}" />
         {{#if ../viewProfile}}
             </a>
         {{/if}}
@@ -14,7 +14,7 @@
 
     {{#unless ../hideNames}}
         <div class="roster-table-cell roster-name-cell">
-            <div class="roster-mobile-label">{{translate 'facet_name'}}</div>
+            <div class="roster-mobile-label">{{tr 'facet_name'}}</div>
         {{#if ../../viewProfile}}
             <a href="javascript:;" class="profile" data-user-id="{{userId}}">
         {{/if}}
@@ -27,19 +27,19 @@
 
     {{#if ../viewUserNamePronunciation}}
         <div class="roster-table-cell roster-user-name-pronunciation-cell">
-            <div class="roster-mobile-label">{{translate 'facet_user_name_pronunciation'}}</div>
+            <div class="roster-mobile-label">{{tr 'facet_user_name_pronunciation'}}</div>
                 <span class="namePronunciation">
                 {{#if pronunciation}}
                     {{{pronunciation}}}
                 {{else}}
                     {{#ifCond ../currentUserId userId}}
                         {{#if ../profileNamePronunciationLink}}
-                            <a href="{{../profileNamePronunciationLink}}">{{translate 'name_pronunciation_profile_link'}}</a>
+                            <a href="{{../profileNamePronunciationLink}}">{{tr 'name_pronunciation_profile_link'}}</a>
                         {{else}}
-                            {{{translate 'name_pronunciation_not_provided'}}}
+                            {{{tr 'name_pronunciation_not_provided'}}}
                         {{/if}}
                     {{else}}
-                        {{{translate 'name_pronunciation_not_provided'}}}
+                        {{{tr 'name_pronunciation_not_provided'}}}
                     {{/ifCond}}
                 {{/if}}
                 </span>
@@ -48,7 +48,7 @@
 
     {{#if ../viewUserDisplayId}}
         <div class="roster-table-cell roster-userId-cell">
-            <div class="roster-mobile-label">{{translate 'facet_userId'}}</div>
+            <div class="roster-mobile-label">{{tr 'facet_userId'}}</div>
                 <span class="roster-userId">
                 {{#if ../../viewProfile}}
                     <a href="javascript:;" class="profile" data-user-id="{{userId}}">
@@ -63,16 +63,16 @@
 
     {{#if ../enrollmentsMode}}
         <div class="roster-table-cell roster-status-cell">
-            <div class="roster-mobile-label">{{translate 'facet_status'}}</div>
+            <div class="roster-mobile-label">{{tr 'facet_status'}}</div>
             <span class="roster-status">{{enrollmentStatusText}}</span>
         </div>
         <div class="roster-table-cell roster-credits-cell">
-            <div class="roster-mobile-label">{{translate 'facet_credits'}}</div>
+            <div class="roster-mobile-label">{{tr 'facet_credits'}}</div>
             <span class="roster-credits">{{credits}}</span>
         </div>
     {{else}}
         <div class="roster-table-cell roster-role-cell">
-            <div class="roster-mobile-label">{{translate 'facet_role'}}</div>
+            <div class="roster-mobile-label">{{tr 'facet_role'}}</div>
             <span class="roster-role">{{role}}</span>
         </div>
     {{/if}}
@@ -80,12 +80,12 @@
     {{#if ../showVisits}}
         {{#if ../../viewSiteVisits}}
         <div class="roster-table-cell roster-total-visits-cell">
-            <div class="roster-mobile-label">{{translate 'total_visits'}}</div>
+            <div class="roster-mobile-label">{{tr 'total_visits'}}</div>
             <span class="roster-total-visits">{{totalSiteVisits}}</span>
         </div>
             {{#if formattedLastVisitTime}}
         <div class="roster-table-cell roster-last-visit-cell">
-            <div class="roster-mobile-label">{{translate 'last_visit'}}</div>
+            <div class="roster-mobile-label">{{tr 'last_visit'}}</div>
             <span class="roster-last-visit">{{formattedLastVisitTime}}</span>
         </div>
             {{/if}}
@@ -94,15 +94,15 @@
 
     {{#if ../viewGroup}}
     <div class="roster-table-cell roster-groups-cell">
-        <div class="roster-mobile-label">{{translate 'facet_groups'}}</div>
+        <div class="roster-mobile-label">{{tr 'facet_groups'}}</div>
         {{#if hasGroups}}
             <div class="roster-group-cell">
                 {{#if singleGroup}}
                 <a href="javascript:;" class="roster-group-link" data-groupid="{{singleGroup.id}}">{{singleGroup.title}}</a>
                 {{else}}
-                <span class="skip">{{translate 'screenreader_comboBox'}}</span>
+                <span class="skip">{{tr 'screenreader_comboBox'}}</span>
                 <select class="roster-groups-selector">
-                    <option value="all">{{translate 'member_group_all_option'}}</option>
+                    <option value="all">{{tr 'member_group_all_option'}}</option>
                     {{#each groups}}
                     <option value="{{id}}">{{title}}</option>
                     {{/each}}
@@ -110,21 +110,21 @@
                 {{/if}}
             </div>
         {{else}}
-        <span class="roster-no-groups-label">{{translate 'roster_group_ungrouped'}}</span>
+        <span class="roster-no-groups-label">{{tr 'roster_group_ungrouped'}}</span>
         {{/if}}
     </div>
     {{/if}}
 
     {{#if ../viewEmail}}
         <div class="roster-table-cell roster-email-cell">
-            <div class="roster-mobile-label">{{translate 'facet_email'}}</div>
-            <a href="mailto:{{email}}" title="{{translate 'profile_email'}} {{email}}">{{email}}</a>
+            <div class="roster-mobile-label">{{tr 'facet_email'}}</div>
+            <a href="mailto:{{email}}" title="{{tr 'profile_email'}} {{email}}">{{email}}</a>
         </div>
     {{/if}}
 
     {{#if ../viewUserProperty}}
         <div class="roster-table-cell roster-user-props-cell">
-            <div class="roster-mobile-label">{{translate 'facet_userProperties'}}</div>
+            <div class="roster-mobile-label">{{tr 'facet_userProperties'}}</div>
             <ul class="roster-user-properties">
             {{#each userProperties}}
                 <li>{{@key}}: {{this}}</li>
