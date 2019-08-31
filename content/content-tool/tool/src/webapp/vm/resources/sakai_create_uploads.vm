@@ -181,6 +181,7 @@ Dropzone.options.fileUploader = {
     uploadMultiple: false,
     addRemoveLinks: true,
     maxFilesize: $uploadMaxSize, // MB
+    timeout: 0, // Dropzone 4.4.0 introduced a 30sec default timeout
     previewTemplate: document.getElementById('preview-template').innerHTML,
     dictFallbackMessage: "$tlang.getString("dragndrop.dictFallbackMessage")",
     dictFallbackText: "$tlang.getString("dragndrop.dictFallbackText")",
