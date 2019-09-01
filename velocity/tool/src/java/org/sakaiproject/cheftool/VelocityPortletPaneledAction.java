@@ -190,6 +190,12 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 
 	} // titlePanelUpdateId
 
+	// Backward compatible default for removing duplicates in addAlert
+	public static void addAlert(SessionState state, String message) {
+		
+		addAlert(state, message, false);
+	}
+
 	/**
 	 * Add another string to the alert message.
 	 * 
@@ -197,13 +203,17 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 	 *        The session state.
 	 * @param message
 	 *        The string to add.
+	 * @param removeDuplicates
+	 * 		  Remove duplicates from the alert
 	 */
-	public static void addAlert(SessionState state, String message)
+	public static void addAlert(SessionState state, String message, boolean removeDuplicates)
 	{
 		String soFar = (String) state.getAttribute(STATE_MESSAGE);
 		if (soFar != null)
 		{
-			soFar = soFar + "<br/>" + message;
+			if (!(removeDuplicates == true && soFar.contains(message))) {
+				soFar = soFar + "<br/>" + message;
+			}
 		}
 		else
 		{
