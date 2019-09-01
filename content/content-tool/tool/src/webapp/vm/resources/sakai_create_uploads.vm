@@ -1,6 +1,6 @@
 <!-- resources/sakai_create_uploads.vm, use with org.sakaiproject.tool.content.ResourcesHelperAction.java -->
-<script type="text/javascript">
-    includeWebjarLibrary('dropzone');
+<script>
+    includeWebjarLibrary("dropzone");
 </script>
 
 <div class="portletBody specialLink">
@@ -172,7 +172,7 @@
     </div>
 </div>
 
-<script type="text/javascript">
+<script>
 
 Dropzone.options.fileUploader = {
     // do not change these values as the dropzone logic depends on these values
@@ -192,6 +192,7 @@ Dropzone.options.fileUploader = {
     dictRemoveFile: "$tlang.getString("dragndrop.dictRemoveFile")",
     dictMaxFilesExceeded: "$tlang.getString("dragndrop.dictMaxFilesExceeded")",
     dictFolderUploadError: "$tlang.getString("dragndrop.dictFolderUploadError")",
+    timeout: $uploadTimeout,
 
     init: function() {
         var dz = this;

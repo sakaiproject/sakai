@@ -25,6 +25,7 @@ public class ResourcesConstants
 {
 	// SAK-29332
 	public static final String SAK_PROP_MAX_UPLOAD_FILE_SIZE = "content.upload.max";
+	public static final String SAK_PROP_UPLOAD_TIMEOUT = "content.upload.timeout";
 	public static final String SAK_PROP_MASTER_SITE_QUOTA = "content.quota";
 	public static final String DEFAULT_MAX_FILE_SIZE_STRING = "20";
 	public static final String DEFAULT_SITE_QUOTA_STRING = "0";

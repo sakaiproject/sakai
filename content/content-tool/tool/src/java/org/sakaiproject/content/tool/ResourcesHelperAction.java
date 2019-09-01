@@ -649,7 +649,10 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			max_file_size_mb = "20";
 		}
 		context.put("uploadMaxSize", max_file_size_mb);
-		
+
+		context.put("uploadTimeout"
+            , ServerConfigurationService.getString(ResourcesConstants.SAK_PROP_UPLOAD_TIMEOUT, "240000"));
+
 		String uploadMax = ServerConfigurationService.getString(ResourcesConstants.SAK_PROP_MAX_UPLOAD_FILE_SIZE);
 		String instr_uploads = rb.getFormattedMessage("instr.uploads", new String[]{ uploadMax });
 		context.put("instr_uploads", instr_uploads);
