@@ -58,6 +58,8 @@ public interface MessageForumsMessageManager {
      * @param ignoreLockedTopicForum set true if you want to allow the message
      * to be updated even if the topic or forum is locked (ie marking as read or
      * commenting on a moderated message)
+     * @return Message saved or updated, with the assigned id. Different object
+     * that the one passed as parameter.
      */
     public Message saveOrUpdateMessage(Message message, boolean logEvent, boolean ignoreLockedTopicForum);
 

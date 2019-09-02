@@ -928,8 +928,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 				.collect(Collectors.toList());
 	}
 
-	private void mergeDiscussionTopicPropertiesNodes(final DiscussionTopic discussionTopic,
-													 final Element propertiesElement) {
+	private void mergeDiscussionTopicPropertiesNodes(final DiscussionTopic discussionTopic, final Element propertiesElement) {
 		final NodeList propertyList = propertiesElement.getChildNodes();
 		for (int n = 0; n < propertyList.getLength(); n++) {
 			final Node propertyNode = propertyList.item(n);
@@ -1099,7 +1098,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 
 	private Integer nullSafeToInteger(String stringToConvert) {
 		Integer integerToReturn = null;
-		if (StringUtils.isNotBlank(stringToConvert)) {
+		if (StringUtils.isNumeric(stringToConvert)) {
 			integerToReturn = Integer.valueOf(stringToConvert);
 		}
 		return integerToReturn;
@@ -1435,10 +1434,11 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 	}
 
 	private String replaceAllRefs(String msgBody, Set<Entry<String, String>> entrySet) {
+		String msgBodyToReturn = msgBody;
 		if (msgBody != null) {
-			msgBody = LinkMigrationHelper.migrateAllLinks(entrySet, msgBody);
+			msgBodyToReturn = LinkMigrationHelper.migrateAllLinks(entrySet, msgBody);
 		}
-		return msgBody;
+		return msgBodyToReturn;
 	}
 
 	private Boolean getImportAsDraft() {

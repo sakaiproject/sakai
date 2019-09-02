@@ -303,11 +303,11 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 	}
   
   public DBMembershipItem saveDBMembershipItem(DBMembershipItem item){
-		return getHibernateTemplate().merge(item);
+		return (DBMembershipItem) getSessionFactory().getCurrentSession().merge(item);
   }
   
   public PermissionLevel savePermissionLevel(PermissionLevel level) {
-		return getHibernateTemplate().merge(level);
+		return (PermissionLevel) getSessionFactory().getCurrentSession().merge(level);
   }
 	
   public PermissionLevel getDefaultOwnerPermissionLevel(){

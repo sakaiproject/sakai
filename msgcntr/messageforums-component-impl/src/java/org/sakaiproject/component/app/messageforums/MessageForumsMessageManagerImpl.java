@@ -1281,7 +1281,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         boolean isNew = message.getId() == null;
 
         if (!ignoreLockedTopicForum && !(message instanceof PrivateMessage) && isForumOrTopicLocked(message.getTopic().getBaseForum().getId(), message.getTopic().getId())) {
-            log.info("saveOrUpdateMessage executed [messageId: " + (isNew ? "new" : message.getId().toString()) + "] but forum is locked -- save aborted");
+            log.warn("Forum or Topic is locked for [messageId: {}] not saving", (isNew ? "new" : message.getId().toString()));
             throw new LockedException("Message could not be saved [messageId: " + (isNew ? "new" : message.getId().toString()) + "]");
         }
 
@@ -1304,7 +1304,10 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
         manageThreadId(message, logEvent, isNew);
 
-        final Message persistedMessage = getHibernateTemplate().merge(message);
+        final Message persistedMessage = (Message) getSessionFactory().getCurrentSession().merge(message);
+
+        handleEvent(message, logEvent, toolId, userId, contextId, isNew, persistedMessage);
+
         log.debug("message " + persistedMessage.getId() + " saved successfully");
         return persistedMessage;
     }
@@ -1361,7 +1364,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
         if (!ignoreLockedTopicForum && !(message instanceof PrivateMessage)
                 && isForumOrTopicLocked(message.getTopic().getBaseForum().getId(), message.getTopic().getId())) {
-            log.info("saveMessage executed [messageId: new] but forum is locked -- save aborted");
+            log.warn("saveMessage executed [messageId: new] but forum is locked -- save aborted");
             throw new LockedException("Message could not be saved [messageId: new]");
         }
 
@@ -1383,7 +1386,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         }
         manageThreadId(message, logEvent);
 
-        final Message messageReturn = getHibernateTemplate().merge(message);
+        final Message messageReturn = (Message) getSessionFactory().getCurrentSession().merge(message);
 
         handleEvent(messageReturn, logEvent, toolId, userId, contextId);
 

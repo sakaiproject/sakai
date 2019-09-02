@@ -913,7 +913,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
             DiscussionForum discussionForum = (DiscussionForum) getForumByIdWithTopics(topic.getBaseForum().getId());
             discussionForum.addTopic(topic);
         } else {
-            topicReturn = getHibernateTemplate().merge(topic);
+            topicReturn = (DiscussionTopic) getSessionFactory().getCurrentSession().merge(topic);
         }
 
         if(topicReturn.getId() != null){
@@ -1329,7 +1329,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 		if (typeUuid == null || contextId == null) {
 			throw new IllegalArgumentException("Null Argument");
 		}
-		final HibernateCallback<List> hcb = session -> {
+		final HibernateCallback<List<BaseForum>> hcb = session -> {
 			Query q = session.getNamedQuery(QUERY_BY_TYPE_AND_CONTEXT_WITH_ALL_TOPICS_MEMBERSHIP);
 			q.setString("typeUuid", typeUuid);
 			q.setString("contextId", contextId);
