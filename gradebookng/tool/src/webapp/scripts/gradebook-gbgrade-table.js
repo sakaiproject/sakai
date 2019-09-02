@@ -3150,7 +3150,7 @@ GbGradeTable.focusColumnForAssignmentId = function(assignmentId, showPopupForNew
             $selectedField.attr('data-content',GbGradeTable.templates['newGradeItemPopoverMessage'].process());
             $selectedField.attr('data-title',GbGradeTable.templates['newGradeItemPopoverTitle'].process());
 
-            $('body').on('click', function (e) {
+            $('body').on('click keyup touchend', function (e) {
               if ($(e.target).data('toggle') !== 'popover'
                   && $(e.target).parents('.popover.in').length === 0) { 
                   $('[data-toggle="popover"]').popover('hide');
