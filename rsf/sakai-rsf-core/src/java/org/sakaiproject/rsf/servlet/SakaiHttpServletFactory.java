@@ -141,38 +141,6 @@ public class SakaiHttpServletFactory extends StaticHttpServletFactory {
 		if (extrapath.startsWith(FACES_PATH)) {
 			extrapath = extrapath.substring(FACES_PATH.length());
 		}
-		// The Websphere dispatching environment is entirely broken, and never
-		// gives us
-		// any information on pathinfo. Make our best attempt to guess what it
-		// should be
-		// in certain common situations.
-		if ("websphere".equals(ServerConfigurationService.getString("servlet.container"))) {
-			try { // Resolve RSF-129. Override all previous decisions if we can
-					// detect a global
-					// /portal/tool request
-				URL url = new URL(requesturl);
-				String path = url.getPath();
-				if (path.startsWith(PORTAL_TOOL)) {
-					int nextslashpos = path.indexOf('/', PORTAL_TOOL.length() + 1);
-					if (nextslashpos != -1) {
-						extrapath = path.substring(nextslashpos + 1);
-						int furtherslashpos = extrapath.indexOf('/');
-						int helperpos = extrapath.indexOf(".helper");
-						if (helperpos != -1) {
-							if (helperpos < furtherslashpos) {
-								extrapath = extrapath.substring(furtherslashpos + 1);
-							} else if (furtherslashpos == -1) {
-								extrapath = "";
-							}
-						}
-					} else {
-						extrapath = "";
-					}
-				}
-			} catch (MalformedURLException e) {
-				Logger.log.info("Malformed input request URL", e);
-			}
-		}
 
 		Logger.log.info("Beginning ToolSinkTunnelServlet service with requestURL of " + requesturl
 				+ " and extra path of " + extrapath);

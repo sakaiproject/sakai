@@ -933,16 +933,6 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 			}
 
 			Properties p = OutputPropertiesFactory.getDefaultMethodProperties("xml");
-		
-			// SAK-14388 - use the alternate XHTMLSerializer2 for Websphere environments
-			if ("websphere".equals(ServerConfigurationService.getString("servlet.container")))
-			{
-				// SAK-16712: null in java.util.Properties causes NullPointerException
-				if (getXalan270ContentHandler() != null )
-				{
-					outputProperties.put("{http://xml.apache.org/xalan}content-handler", getXalan270ContentHandler());
-				}
-			}
 			p.putAll(outputProperties);
 			
 			/*
