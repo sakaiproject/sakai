@@ -256,21 +256,10 @@ public class RWikiServlet extends HttpServlet
 	// functionality.
 	private boolean isPageToolDefault(HttpServletRequest request)
 	{
-		// SAK-13408 - Tomcat and WAS have different URL structures; Attempting to add a 
-		// link or image would lead to site unavailable errors in websphere if the tomcat
-		// URL structure is used.
-		if("websphere".equals(ServerConfigurationService.getString("servlet.container"))){
-			String tid = org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
-			if ( request.getPathInfo() != null && request.getPathInfo().startsWith("/tool/" + tid + "/helper/") ) {
-				return false;
-			}
+		if ( request.getPathInfo() != null && request.getPathInfo().startsWith("/helper/") ) {
+			return false;
 		}
-		else {
-			if ( request.getPathInfo() != null && request.getPathInfo().startsWith("/helper/") ) {
-				return false;
-			}
-		}
-		
+
 		String action = request.getParameter(RequestHelper.ACTION);
 		if (action != null && action.length() > 0) {
 			return false;
