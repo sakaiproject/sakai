@@ -75,7 +75,7 @@ public class AnnouncementsBullhornHandler extends AbstractBullhornHandler {
 
     @Override
     public List<String> getHandledEvents() {
-        return Arrays.asList(AnnouncementService.SECURE_ANNC_ADD, AnnouncementService.EVENT_ANNC_UPDATE_AVAILABILITY);
+        return Arrays.asList(AnnouncementService.SECURE_ANNC_ADD, AnnouncementService.EVENT_ANNC_UPDATE_AVAILABILITY, AnnouncementService.SECURE_ANNC_REMOVE_OWN, AnnouncementService.SECURE_ANNC_REMOVE_ANY);
     }
 
     @Override
@@ -89,13 +89,17 @@ public class AnnouncementsBullhornHandler extends AbstractBullhornHandler {
         String siteId = pathParts[3];
 
         SecurityAdvisor sa = unlock(new String[] {AnnouncementService.SECURE_ANNC_READ, AnnouncementService.SECURE_ANNC_READ_DRAFT});
+        AnnouncementMessage message = null;
         try {
-            AnnouncementMessage message
-                = (AnnouncementMessage) announcementService.getMessage(
-                                                entityManager.newReference(ref));
-
-            // If the announcement has just been hidden, remove any existing alerts for it
-            if (e.getEvent().equals(AnnouncementService.EVENT_ANNC_UPDATE_AVAILABILITY) && message.getHeader().getDraft()) {
+            message = (AnnouncementMessage) announcementService.getMessage(entityManager.newReference(ref));
+        } catch (Exception ex) {
+            log.debug("No announcement with id {}", ref);
+        }
+        // TODO: the following code could be simplified. Lots of try catches.
+        try {
+            // If the announcement has just been hidden or removed, remove any existing alerts for it
+            if ((AnnouncementService.SECURE_ANNC_REMOVE_OWN.equals(e.getEvent()) || AnnouncementService.SECURE_ANNC_REMOVE_ANY.equals(e.getEvent()))
+                        || (AnnouncementService.EVENT_ANNC_UPDATE_AVAILABILITY.equals(e.getEvent()) && message.getHeader().getDraft())) {
                 try {
                     TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
 
@@ -120,6 +124,7 @@ public class AnnouncementsBullhornHandler extends AbstractBullhornHandler {
                 } catch (Exception e1) {
                     log.error("Failed to delete bullhorn add announcement event", e1);
                 }
+                return Optional.empty();
             }
 
             if (!message.getHeader().getDraft() && announcementService.isMessageViewable(message)) {
