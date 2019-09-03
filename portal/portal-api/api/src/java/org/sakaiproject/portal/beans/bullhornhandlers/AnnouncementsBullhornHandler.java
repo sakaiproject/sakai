@@ -93,6 +93,7 @@ public class AnnouncementsBullhornHandler extends AbstractBullhornHandler {
         } catch (Exception ex) {
             log.debug("No announcement with id {}", ref);
         }
+        // TODO: the following code could be simplified. Lots of try catches.
         try {
             // If the announcement has just been hidden or removed, remove any existing alerts for it
             if ((AnnouncementService.SECURE_ANNC_REMOVE_OWN.equals(e.getEvent()) || AnnouncementService.SECURE_ANNC_REMOVE_ANY.equals(e.getEvent()))
