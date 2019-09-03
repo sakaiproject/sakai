@@ -762,6 +762,16 @@ public interface AssignmentService extends EntityProducer {
     public boolean isContentReviewVisibleForSubmission(AssignmentSubmission submission);
 
     /**
+     * Get an assignment that is linked with a gradebook item
+     * @param context the context (site id)
+     * @param linkId the link id of the gradebook item, usually the gradebook item name or id
+     * @return the matching assignment if found or null if none
+     * @throws IdUnusedException if the assignment doesn't exist
+     * @throws PermissionException if the current user is not allowed to access the assignment
+     */
+    Assignment getAssignmentForGradebookLink(String context, String linkId) throws IdUnusedException, PermissionException;
+
+    /**
      * Returns a list of users that belong to multiple groups, if the user is considered a "student" in the group
      * by the standards of the Assignments tool.
      * @param siteId the site id

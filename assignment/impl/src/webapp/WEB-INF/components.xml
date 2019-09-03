@@ -272,4 +272,13 @@
         <property name="overrideBySite"><value>false</value></property>
         <property name="expandByDefault"><value>true</value></property>
     </bean>
+
+    <bean id="org.sakaiproject.assignment.impl.AssignmentEventObserver"
+          class="org.sakaiproject.assignment.impl.AssignmentEventObserver"
+          init-method="init"
+          destroy-method="destroy">
+        <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
+        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+        <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService"/>
+    </bean>
 </beans>
