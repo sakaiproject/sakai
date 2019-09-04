@@ -67,6 +67,8 @@ public class UserPrefsEntityProvider extends AbstractEntityProvider implements C
 	/** * Resource bundle messages */
 	ResourceLoader msgs = new ResourceLoader("user-tool-prefs");
 
+	private final Object mutex = new Object();
+
 	public void init() {
 		log.info("init()");
 	}
@@ -340,10 +342,10 @@ public class UserPrefsEntityProvider extends AbstractEntityProvider implements C
 	public void updateKeyProperties(EntityView view) {
 		
 		// get all params
-		String userId = view.getPathSegment(2);
-		String key = view.getPathSegment(3);
-		Map<String, Object> params = requestStorage.getStorageMapCopy();
-	
+		final String userId = view.getPathSegment(2);
+		final String key = view.getPathSegment(3);
+		final Map<String, Object> params = requestStorage.getStorageMapCopy();
+
 		log.debug("updateKeyProperties for userId={} key={}", userId, key);
 		
 		String queryString = (String) params.get("queryString");
@@ -356,20 +358,20 @@ public class UserPrefsEntityProvider extends AbstractEntityProvider implements C
 			if (pairs != null && pairs.length> 0)
 			{
 				// get the edit object
-				PreferencesEdit m_edit = getPreferencesEdit(userId);
-				ResourcePropertiesEdit props = m_edit.getPropertiesEdit(key);
-				for (String pair : pairs)
-				{
-					String[] parts = pair.split("=");
-					if (parts != null && parts.length==2)
-					{
-						String name = parts[0];
-						String val = parts[1];
-						props.addProperty(name, val); // save the name-value pair
+				synchronized(mutex) {
+					PreferencesEdit m_edit = getPreferencesEdit(userId);
+					ResourcePropertiesEdit props = m_edit.getPropertiesEdit(key);
+					for (String pair : pairs) {
+						String[] parts = pair.split("=");
+						if (parts != null && parts.length == 2) {
+							String name = parts[0];
+							String val = parts[1];
+							props.addProperty(name, val); // save the name-value pair
+						}
 					}
+
+					preferencesService.commit(m_edit);
 				}
-				
-				preferencesService.commit(m_edit);
 			}
 		}
 	}

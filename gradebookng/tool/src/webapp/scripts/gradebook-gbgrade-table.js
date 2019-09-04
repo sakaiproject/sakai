@@ -1,6 +1,38 @@
+GB_HIDDEN_ITEMS_KEY = portal.user.id + "#gradebook#hiddenitems";
+
 GbGradeTable = {};
 
+let hiddenItems = JSON.parse(sessionStorage.getItem(GB_HIDDEN_ITEMS_KEY));
+
 GbGradeTable._onReadyCallbacks = [];
+
+var addHiddenGbItemsCallback = function () {
+
+  GbGradeTable._onReadyCallbacks.push(function () {
+
+    hiddenItems.forEach(i => {
+      $(".gb-item-filter :input:checked[value='" + i + "']").trigger("click", [true]);
+    });
+  });
+};
+
+if (hiddenItems == null) {
+  // No hidden items in session storage. Try and get it from server.
+  console.debug("NO hidden items found in session storage. Trying server ...");
+
+  import("/library/js/view-preferences.js").then(module => {
+
+    module.getViewPreferences("gradebook").then(hiddenItemsString => {
+
+      hiddenItems = JSON.parse(hiddenItemsString);
+      sessionStorage.setItem(GB_HIDDEN_ITEMS_KEY, hiddenItemsString);
+      addHiddenGbItemsCallback();
+    });
+  });
+} else {
+  console.debug("Hidden items found in session storage.");
+  addHiddenGbItemsCallback();
+}
 
 var sakaiReminder = new SakaiReminder();
 
@@ -10,7 +42,7 @@ GbGradeTable.unpack = function (s, rowCount, columnCount) {
   } else if (/^json:/.test(s)) {
       return GbGradeTable.unpackJsonScores(s, rowCount, columnCount);
   } else {
-      console.log("Unknown data format");
+      console.warn("Unknown data format");
   }
 };
 
@@ -583,6 +615,8 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   GbGradeTable.domElement = $('#' + elementId);
   GbGradeTable.students = tableData.students;
   GbGradeTable.columns = tableData.columns;
+  let hiddenItems = JSON.parse(sessionStorage.getItem(GB_HIDDEN_ITEMS_KEY)) || [];
+  GbGradeTable.columns.filter(c => hiddenItems.includes(c.assignmentId)).forEach(c => c.hidden = true);
   GbGradeTable.settings = tableData.settings;
 
   GbGradeTable._fixedColumns.push({
@@ -1395,7 +1429,7 @@ GbGradeTable.editExcuse = function(studentId, assignmentId) {
         } else if (status == "nochange") {
             GbGradeTable.clearCellState(row, col);
         } else {
-            console.log("Unhandled saveValue response: " + status);
+            console.warn("Unhandled saveValue response: " + status);
         }
 
         GbGradeTable.instance.setDataAtCell(row, GbGradeTable.STUDENT_COLUMN_INDEX, GbGradeTable.modelForStudent(studentId));
@@ -1724,7 +1758,6 @@ GbGradeTable.setupToggleGradeItems = function() {
     }
   };
 
-
   function handleCategoryFilterStateChange(event) {
     var $input = $(event.target);
     var $label = $input.closest("label");
@@ -1744,7 +1777,6 @@ GbGradeTable.setupToggleGradeItems = function() {
     updateCategoryFilterState($input);
   };
 
-
   function handleGradeItemFilterStateChange(event, suppressRedraw) {
     var $input = $(event.target);
     var $label = $input.closest("label");
@@ -1754,13 +1786,26 @@ GbGradeTable.setupToggleGradeItems = function() {
 
     var column = GbGradeTable.colModelForAssignment(assignmentId);
 
+    let hiddenItems = JSON.parse(sessionStorage.getItem(GB_HIDDEN_ITEMS_KEY)) || [];
+
     if ($input.is(":checked")) {
       $filter.removeClass("off");
       column.hidden = false;
+      hiddenItems.splice(hiddenItems.findIndex(i => i === parseInt(assignmentId)), 1);
     } else {
       $filter.addClass("off");
       column.hidden = true;
+      if (!hiddenItems.includes(parseInt(assignmentId))) {
+        hiddenItems.push(parseInt(assignmentId));
+      }
     }
+
+    var hiddenItemsString = JSON.stringify(hiddenItems);
+    sessionStorage.setItem(GB_HIDDEN_ITEMS_KEY, hiddenItemsString);
+
+    import("/library/js/view-preferences.js").then(module => {
+      module.updateViewPreferences("gradebook", hiddenItemsString);
+    });
 
     updateCategoryFilterState($input);
 
@@ -3107,7 +3152,7 @@ GbGradeTable.setScore = function(studentId, assignmentId, oldScore, newScore) {
       } else if (status == "nochange") {
         GbGradeTable.clearCellState(row, col);
       } else {
-        console.log("Unhandled saveValue response: " + status);
+        console.warn("Unhandled saveValue response: " + status);
       }
 
       GbGradeTable.instance.setDataAtCell(row, GbGradeTable.STUDENT_COLUMN_INDEX, GbGradeTable.modelForStudent(studentId));
