@@ -8,10 +8,20 @@
 </jsp:useBean>
 
 <f:view> 
-	<sakai:view title="#{msgs.podcast_home_title}" toolCssHref="css/podcaster.css"> 
-	<script type="text/javascript" src="scripts/popupscripts.js"></script>
+	<sakai:view title="#{msgs.podcast_home_title}" toolCssHref="css/podcaster.css">
+	<script src="/library/js/headscripts.js"></script>
+	<script src="scripts/popupscripts.js"></script>
 
-	<h:form>
+<script>
+    includeLatestJQuery('podMain.jsp');
+</script>
+<script>
+    $(document).ready(function(){
+        initializePopover("podMainForm\\:popover", "<h:outputText value="#{msgs.popup_text}" />"); 
+    });
+</script>
+
+<h:form id="podMainForm">
 
     <%-- if Resources tool not exist, if instructor, display error message
       		if student, display no podcasts exists --%>
@@ -29,88 +39,98 @@
 		<h:outputText value="#{msgs.no_access}" styleClass="validation" rendered="#{! podHomeBean.hasAllGroups && ! podHomeBean.hasReadPerm }" />
       
 		<h:panelGroup rendered="#{podHomeBean.hasReadPerm || podHomeBean.hasAllGroups}"> 
-			<h:panelGrid>
- 	  	  		<h:messages styleClass="alertMessage" id="errorMessages" rendered="#{!empty facesContext.maximumSeverity}"/>
-				<h:panelGroup>
-					<div class="page-header">
-						<h1><h:outputText value="#{msgs.podcast_home_title}" /></h1>
-					</div>
- 	      		</h:panelGroup>
- 	  		</h:panelGrid>
+			<h:outputText styleClass="sak-banner-error" id="errorMessages" rendered="#{!empty facesContext.maximumSeverity}"/>
  	    </h:panelGroup>
 
-			<h:panelGroup styleClass="instruction indnt1" rendered="#{podHomeBean.hasReadPerm || podHomeBean.hasAllGroups}">
-		  		<h:outputText value="#{msgs.podcast_home_sub} " />
-	 	   		<h:outputLink styleClass="active" onclick="showPopupHere(this,'podcatcher'); return false;"
-            		onmouseover="this.style.cursor='pointer'; return false;" onmouseout="hidePopup('podcatcher');" >
-						<h:outputText value="#{msgs.podcatcher}#{msgs.colon}" />
-	      		</h:outputLink>
-	  		</h:panelGroup>
-
-		<h:panelGroup rendered="#{podHomeBean.hasReadPerm || podHomeBean.hasAllGroups}" styleClass="indnt1"> 
-			<h:outputText value="#{podHomeBean.URL}" />
-			<h:outputLink value="#{podHomeBean.URL}" styleClass="active indnt2 rssIcon fa fa-rss" target="_blank" />
-	  		<f:verbatim><br /></f:verbatim> 
-
-			<h:commandLink action="podfeedRevise" styleClass="indnt2" rendered="#{podHomeBean.canUpdateSite}" >
- 	      		<h:outputText value="#{msgs.revise}" />
-	 		</h:commandLink>
- 	  		<f:verbatim><br /></f:verbatim>
-
-          	<h:outputText  styleClass="instruction" value="#{msgs.no_podcasts}" rendered="#{!podHomeBean.actPodcastsExist}" />
-			<f:verbatim><br /></f:verbatim>
- 		  </h:panelGroup>
-      </h:panelGroup>
+		<h:panelGroup rendered="#{podHomeBean.hasReadPerm || podHomeBean.hasAllGroups}">
+			<h:panelGroup style="display:block;" styleClass="pod-box">
+				<h:panelGroup style="display:block;" styleClass="sak-banner-info">
+						<h:outputText value="#{msgs.podcast_home_sub} " />
+						<h:outputLink id="popover" onclick="return false;">
+							<h:outputText value="#{msgs.podcatcher}." />
+						</h:outputLink>
+				</h:panelGroup>
+				<h:panelGroup style="display:block;" styleClass="row">
+					<h:panelGroup styleClass="col-lg-6 col-sm-4 col-xs-12">
+						<h:inputText readonly="true" styleClass="form-control" id="rssLink" value="#{podHomeBean.URL}">
+						</h:inputText>
+					</h:panelGroup>
+					<h:panelGroup style="display:block;" styleClass="col-lg-3 col-sm-4 col-xs-12">
+						<h:commandButton onclick="copyToClipboard('podMainForm\\:rssLink'); return false;" styleClass="btn btn-default copyButton" value="#{msgs.copy_to_clipboard}">
+						</h:commandButton>
+					</h:panelGroup>
+					<h:panelGroup style="display:block;" styleClass="col-lg-3 col-sm-4 col-xs-12">
+						<h:commandButton action="podfeedRevise" styleClass="btn btn-default editButton" rendered="#{podHomeBean.canUpdateSite}" value="#{msgs.revise}">
+						</h:commandButton>
+					</h:panelGroup>
+				</h:panelGroup>
+			</h:panelGroup>
+			<h:outputText styleClass="sak-banner-warn" value="#{msgs.no_podcasts}" rendered="#{!podHomeBean.actPodcastsExist}" />
+		</h:panelGroup>
+	</h:panelGroup>
  	 
 	<!-- if there are podcasts, display their information here -->
-      	  <h:dataTable value="#{podHomeBean.contents}" var="eachPodcast" rendered="#{podHomeBean.actPodcastsExist}" styleClass="indnt1" >
-          <h:column>
-          	<h:panelGrid rendered="#{! eachPodcast.hidden || podHomeBean.hasHidden}" styleClass="#{eachPodcast.styleClass}" >
-	            <h:outputText value="#{eachPodcast.displayDate}" styleClass="podDateFormat" />
+	<h:dataTable value="#{podHomeBean.contents}" var="eachPodcast" rendered="#{podHomeBean.actPodcastsExist}" styleClass="table table-hover table-striped table-bordered" headerClass="hidden-xs" columnClasses="hidden-xs,,hidden-xs,,,,">
+		<h:column>
+			<f:facet name="header"><h:outputText value="#{msgs.date_prompt}"/></f:facet>
+			<h:outputText value="#{eachPodcast.displayDate}" />
+		</h:column>
 
-	            <h:outputText value="#{eachPodcast.title}" styleClass="podTitleFormat" />
+		<h:column>
+			<f:facet name="header"><h:outputText value="#{msgs.title_prompt}"/></f:facet>
+			<h:outputText value="#{eachPodcast.title}" />
+		</h:column>
 
-	            <h:outputText value="#{eachPodcast.description}" />
-            
-    	        <h:panelGroup>
-	 	           <%--  Download link --%>
-	 				<h:outputLink value="#{eachPodcast.fileURL}" styleClass="active" target="#{eachPodcast.newWindow}">
-			 			 <h:outputText value="#{msgs.download}" />
-					</h:outputLink>
- 
-	              <h:outputText value=" #{msgs.open_paren}#{eachPodcast.size} #{eachPodcast.type}#{msgs.close_paren}" />
+		<h:column>
+			<f:facet name="header"><h:outputText value="#{msgs.description_prompt}"/></f:facet>
+			<h:outputText value="#{eachPodcast.description}" />
+		</h:column>
 
-	              <%--  go to Revise page --%>
-        	      <h:outputText value=" #{msgs.spacer_bar}" rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasReviseAnyPerm || (podHomeBean.hasReviseOwnPerm && eachPodcast.author == podHomeBean.userName)}" />
-            	  <h:commandLink action="podcastRevise" actionListener="#{podHomeBean.podMainListener}" value="#{msgs.revise}" styleClass="active" 
-                	    rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasReviseAnyPerm || (podHomeBean.hasReviseOwnPerm && eachPodcast.author == podHomeBean.userName)}" >
-	                <f:param name="resourceId" value="#{eachPodcast.resourceId}" />
-    	          </h:commandLink>
-                 
-	              <%--  go to Delete page --%> 
-    	          <h:outputText value=" #{msgs.spacer_bar}" rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasDelAnyPerm || (podHomeBean.hasDelOwnPerm && eachPodcast.author == podHomeBean.userName)}" />
-        	      <h:commandLink action="podcastDelete" actionListener="#{podHomeBean.podMainListener}" value="#{msgs.delete}" styleClass="active" 
-            	        rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasDelAnyPerm || (podHomeBean.hasDelOwnPerm && eachPodcast.author == podHomeBean.userName)}" >
-                	<f:param name="resourceId" value="#{eachPodcast.resourceId}" />
-	              </h:commandLink>
-    	        </h:panelGroup>
+		<h:column>
+			<f:facet name="header"><h:outputText value="#{msgs.posted_by}"/></f:facet>
+			<h:outputText value="#{eachPodcast.author} " />
+		</h:column>
 
-	            <h:panelGroup>
-    	          <h:outputText value="#{msgs.posted_by}" />
-        	      <h:outputText value="#{eachPodcast.author} " />
-            	  <h:outputText value="#{msgs.at}" />
-	              <h:outputText value="#{eachPodcast.postedDatetime} " />
-            	</h:panelGroup>
-              </h:panelGrid>
-            </h:column>
-      	  </h:dataTable>
-      </h:form> 
- 
-    <!-- This is the div for the popup definition. It is not displayed until the element is moused over -->
-    <div id="podcatcher" class="podcatcher_popup" 
-        style="position:absolute; top: -1000px; left: -1000px;" >
-  	  <h:outputText value="#{msgs.popup_text}" />
-    </div>
+		<h:column>
+			<f:facet name="header"><h:outputText value="#{msgs.at}"/></f:facet>
+			<h:outputText value="#{eachPodcast.postedDatetime}" />
+		</h:column>
+
+		<h:column>
+			<f:facet name="header"><h:outputText value="#{msgs.actions}"/></f:facet>
+			<f:verbatim><i class="fa fa-download" aria-hidden="true"></i></f:verbatim>
+			<h:outputLink value="#{eachPodcast.fileURL}" styleClass="active" target="#{eachPodcast.newWindow}">
+				 <h:outputText value="#{msgs.download}" />
+			</h:outputLink>
+			<h:outputText value=" #{msgs.open_paren}#{eachPodcast.size} #{eachPodcast.type}#{msgs.close_paren}" />
+			<f:verbatim></br></f:verbatim>
+			<%--  go to Revise page --%>
+			<h:panelGroup rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasReviseAnyPerm || (podHomeBean.hasReviseOwnPerm && eachPodcast.author == podHomeBean.userName)}">
+				<f:verbatim><i class="fa fa-pencil-square-o" aria-hidden="true"></i></f:verbatim>
+				<h:commandLink action="podcastRevise" actionListener="#{podHomeBean.podMainListener}" value="#{msgs.revise}" styleClass="active" 
+					rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasReviseAnyPerm || (podHomeBean.hasReviseOwnPerm && eachPodcast.author == podHomeBean.userName)}" >
+				<f:param name="resourceId" value="#{eachPodcast.resourceId}" />
+				</h:commandLink>
+				<f:verbatim></br></f:verbatim>
+			</h:panelGroup>
+			<%--  go to Delete page --%> 
+			<h:panelGroup rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasDelAnyPerm || (podHomeBean.hasDelOwnPerm && eachPodcast.author == podHomeBean.userName)}">
+				<f:verbatim><i class="fa fa-trash" aria-hidden="true"></i></f:verbatim>
+				<h:commandLink action="podcastDelete" actionListener="#{podHomeBean.podMainListener}" value="#{msgs.delete}" styleClass="active" 
+					rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasDelAnyPerm || (podHomeBean.hasDelOwnPerm && eachPodcast.author == podHomeBean.userName)}" >
+				<f:param name="resourceId" value="#{eachPodcast.resourceId}" />
+				</h:commandLink>
+				<f:verbatim></br></f:verbatim>
+			</h:panelGroup>
+		</h:column>
+
+		<h:column>
+			<f:facet name="header"><h:outputText value="#{msgs.status}"/></f:facet>
+			<h:outputText value="#{msgs.hidden}" rendered="#{eachPodcast.hidden}"/>
+			<h:outputText value="#{msgs.published}" rendered="#{!eachPodcast.hidden}"/>
+		</h:column>
+	</h:dataTable>
+</h:form>
    </sakai:view> 
   </f:view>
  
