@@ -159,8 +159,8 @@ public class AnnouncementsBullhornHandler extends AbstractBullhornHandler {
                             countCache.remove(to);
                         }
                     }
+                    return Optional.of(bhEvents);
                 }
-                return Optional.of(bhEvents);
             }
         } catch (Exception ex) {
             log.error("No site with id '" + siteId + "'", ex);
