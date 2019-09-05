@@ -1,11 +1,11 @@
-import {SakaiElement} from "/webcomponents/sakai-element.js";
+import {RubricsElement} from "./rubrics-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
 import {SakaiRubricsLanguage, tr} from "./sakai-rubrics-language.js";
 import {SakaiRubricsList} from "./sakai-rubrics-list.js";
 import {SakaiRubricsSharedList} from "./sakai-rubrics-shared-list.js";
 import {loadProperties} from "/webcomponents/sakai-i18n.js";
 
-class SakaiRubricsManager extends SakaiElement {
+class SakaiRubricsManager extends RubricsElement {
 
   constructor() {
 
