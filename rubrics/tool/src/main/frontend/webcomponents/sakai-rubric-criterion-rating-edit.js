@@ -1,8 +1,8 @@
-import {SakaiElement} from "/webcomponents/sakai-element.js";
+import {RubricsElement} from "./rubrics-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
 import {tr} from "./sakai-rubrics-language.js";
 
-export class SakaiRubricCriterionRatingEdit extends SakaiElement {
+export class SakaiRubricCriterionRatingEdit extends RubricsElement {
 
   static get properties() {
 
@@ -29,7 +29,7 @@ export class SakaiRubricCriterionRatingEdit extends SakaiElement {
   render() {
 
     return html`
-      <span tabindex="0" role="button" class="edit fa fa-edit" @click="${this.editRating}" title="${tr("edit_rating")} ${this.rating.title}"></span>
+      <span tabindex="0" role="button" class="edit fa fa-edit" @focus="${this.onFocus}" @click="${this.editRating}" title="${tr("edit_rating")} ${this.rating.title}"></span>
 
       <div id="edit_criterion_rating_${this.rating.id}" class="popover rating-edit-popover bottom">
         <div class="arrow"></div>
@@ -64,6 +64,10 @@ export class SakaiRubricCriterionRatingEdit extends SakaiElement {
     `;
   }
 
+  onFocus(e){
+    e.target.closest('.criterion-row').classList.add("focused");
+  }
+
   closeOpen() {
     $('.show-tooltip .cancel').click();
   }
@@ -77,7 +81,7 @@ export class SakaiRubricCriterionRatingEdit extends SakaiElement {
       this.classList.add("show-tooltip");
       var popover = $(`#edit_criterion_rating_${this.rating.id}`);
 
-      rubrics.css(popover[0], {
+      this.rubricsUtils.css(popover[0], {
         'top': e.target.offsetTop + 20 + "px",
         'left': (e.target.offsetLeft - popover.width()/2) + "px",
       });

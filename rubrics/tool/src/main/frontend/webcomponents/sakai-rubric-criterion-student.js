@@ -1,9 +1,9 @@
-import {SakaiElement} from "/webcomponents/sakai-element.js";
+import {RubricsElement} from "./rubrics-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
 import {repeat} from "/webcomponents/assets/lit-html/directives/repeat.js";
 import {SakaiRubricStudentComment} from "./sakai-rubric-student-comment.js";
 
-export class SakaiRubricCriterionStudent extends SakaiElement {
+export class SakaiRubricCriterionStudent extends RubricsElement {
 
   static get properties() {
 
@@ -26,7 +26,7 @@ export class SakaiRubricCriterionStudent extends SakaiElement {
       if (!c.selectedvalue) {
         c.selectedvalue = 0;
       }
-      c.pointrange = rubrics.getHighLow(c.ratings, "points");
+      c.pointrange = this.rubricsUtils.getHighLow(c.ratings, "points");
     });
 
     if (this.evaluationDetails) {

@@ -1,9 +1,9 @@
-import {SakaiElement} from "/webcomponents/sakai-element.js";
+import {RubricsElement} from "./rubrics-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
 import {SakaiRubricsLanguage, tr} from "./sakai-rubrics-language.js";
 import {SakaiRubricsHelpers} from "./sakai-rubrics-helpers.js";
 
-class SakaiRubricStudentButton extends SakaiElement {
+class SakaiRubricStudentButton extends RubricsElement {
 
   constructor() {
 
@@ -39,7 +39,7 @@ class SakaiRubricStudentButton extends SakaiElement {
   set token(newValue) {
 
     this._token = newValue;
-    rubrics.initLightbox(this._token, true);
+    this.rubricsUtils.initLightbox(this._token, true);
   }
 
   get token() { return this._token; }
@@ -54,7 +54,7 @@ class SakaiRubricStudentButton extends SakaiElement {
 
   showRubric() {
 
-    rubrics.showRubric(undefined, {"tool-id": this.toolId, "entity-id": this.entityId, "evaluated-item-id": this.evaluatedItemId, "instructor": this.instructor});
+    this.rubricsUtils.showRubric(undefined, {"tool-id": this.toolId, "entity-id": this.entityId, "evaluated-item-id": this.evaluatedItemId, "instructor": this.instructor});
   }
 
   setHidden() {

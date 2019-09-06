@@ -1,8 +1,8 @@
-import {SakaiElement} from "/webcomponents/sakai-element.js";
+import {RubricsElement} from "./rubrics-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
 import {tr} from "./sakai-rubrics-language.js";
 
-export class SakaiRubricCriteriaReadonly extends SakaiElement {
+export class SakaiRubricCriteriaReadonly extends RubricsElement {
 
   constructor() {
 

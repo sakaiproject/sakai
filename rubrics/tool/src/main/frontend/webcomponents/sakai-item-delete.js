@@ -1,8 +1,8 @@
-import {SakaiElement} from "/webcomponents/sakai-element.js";
+import {RubricsElement} from "./rubrics-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
 import {tr} from "./sakai-rubrics-language.js";
 
-export class SakaiItemDelete extends SakaiElement {
+export class SakaiItemDelete extends RubricsElement {
 
   constructor() {
 
@@ -52,7 +52,7 @@ export class SakaiItemDelete extends SakaiElement {
   render() {
 
     return html`
-      <span role="button" aria-haspopup="true" aria-expanded="${this.popoverOpen}" aria-controls="delete_${this.type}_${this.item.id}" tabindex="0" title="${tr("remove", [this.item.title])}" class="delete fa fa-times" @click="${this.deleteItem}"></span>
+      <span @focus="${this.onFocus}" @focusout="${this.focusOut}" role="button" aria-haspopup="true" aria-expanded="${this.popoverOpen}" aria-controls="delete_${this.type}_${this.item.id}" tabindex="0" title="${tr("remove", [this.item.title])}" class="delete fa fa-times" @click="${this.deleteItem}"></span>
       <div id="delete_${this.type}_${this.item.id}" class="popover rubric-delete-popover left">
         <div class="arrow"></div>
         <div class="popover-title" tabindex="0">${tr("confirm_remove")} ${this.item.title}</div>
@@ -70,6 +70,15 @@ export class SakaiItemDelete extends SakaiElement {
     `;
   }
 
+  onFocus(e){
+    var criterionRow= e.target.closest('.criterion-row');
+    if(criterionRow!=undefined) criterionRow.classList.add("focused");
+  }
+  focusOut(e){
+    var criterionRow= e.target.closest('.criterion-row');
+    if(criterionRow!=undefined) criterionRow.classList.remove("focused");
+  }
+
   closeOpen() {
 
     $('.show-tooltip .cancel').click();
@@ -82,7 +91,7 @@ export class SakaiItemDelete extends SakaiElement {
     if (!this.classList.contains("show-tooltip")) {
       this.closeOpen();
       this.popoverOpen = "true";
-      var triggerPosition = rubrics.altOffset(e.target);
+      var triggerPosition = this.rubricsUtils.altOffset(e.target);
 
       this.classList.add("show-tooltip");
 
@@ -90,7 +99,7 @@ export class SakaiItemDelete extends SakaiElement {
 
       var target = this.querySelector(".fa-times");
 
-      rubrics.css(popover[0], {
+      this.rubricsUtils.css(popover[0], {
         'left': target.offsetLeft - 280 + "px",
         'top': (target.offsetTop - this.offsetHeight*2 - 10) + "px",
       });
