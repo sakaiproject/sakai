@@ -1,9 +1,9 @@
-import {SakaiElement} from "/webcomponents/sakai-element.js";
+import {RubricsElement} from "./rubrics-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
 import {SakaiRubricCriteriaGrading} from "./sakai-rubric-criteria-grading.js";
 import {SakaiRubricsLanguage} from "./sakai-rubrics-language.js";
 
-export class SakaiRubricGrading extends SakaiElement {
+export class SakaiRubricGrading extends RubricsElement {
 
   constructor() {
 

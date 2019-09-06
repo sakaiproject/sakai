@@ -1,5 +1,7 @@
+#module("/rubrics-service/webcomponents/sakai-rubric-student-preview-button.js")
+
 <!-- start: chef_assignments_student_view_submission.vm  -->
-<script type="text/javascript">
+<script>
 $(document).ready(function(){
     ASN.setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
     $('#submissionFileCount').val(1);

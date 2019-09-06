@@ -591,7 +591,15 @@ ${extra}")
 #  ------------------------------------------------------------------
 *#
 #macro (javascript $url)
-	<script type="text/javascript" src="${url}$!{portalCdnQuery}"></script>
+	<script src="${url}$!{portalCdnQuery}"></script>
+#end
+
+#* ------------------------------------------------------------------
+# This allows you to link to a JavaScript module and have it automatically version the URLs
+#  ------------------------------------------------------------------
+*#
+#macro (module $url)
+	<script type="module" src="${url}$!{portalCdnQuery}"></script>
 #end
 
 #* ------------------------------------------------------------------

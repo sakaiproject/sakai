@@ -1,4 +1,4 @@
-import {SakaiElement} from "/webcomponents/sakai-element.js";
+import {RubricsElement} from "./rubrics-element.js";
 import {css,html} from "/webcomponents/assets/lit-element/lit-element.js";
 import {repeat} from "/webcomponents/assets/lit-html/directives/repeat.js";
 import {SakaiRubricEdit} from "./sakai-rubric-edit.js";
@@ -9,7 +9,7 @@ import {SharingChangeEvent} from "./sharing-change-event.js";
 import * as Unused from "/webcomponents/assets/sortablejs/Sortable.js";
 import {tr} from "./sakai-rubrics-language.js";
 
-export class SakaiRubricCriteria extends SakaiElement {
+export class SakaiRubricCriteria extends RubricsElement {
 
   static get properties() {
 
@@ -51,7 +51,7 @@ export class SakaiRubricCriteria extends SakaiElement {
         <div id="criterion_row_${c.id}" data-criterion-id="${c.id}" class="criterion-row">
           <div class="criterion-detail">
             <h4 class="criterion-title">
-              <span tabindex="0" role="button" title="${tr("drag_order")}" class="reorder-icon fa fa-bars"></span>
+              <span @focus="${this.onFocus}" @focusout="${this.focusOut}" tabindex="0" role="button" title="${tr("drag_order")}" class="reorder-icon fa fa-bars"></span>
               ${c.title}
               <sakai-rubric-criterion-edit @criterion-edited="${this.criterionEdited}" criterion="${JSON.stringify(c)}" token="${this.token}"></sakai-rubric-criterion-edit>
             </h4>
@@ -81,13 +81,13 @@ export class SakaiRubricCriteria extends SakaiElement {
                   <span tabindex="0" role="button" title="${tr("add_rating")} ${c.title}" data-criterion-id="${c.id}" class="fa fa-plus" @click="${this.addRating}" data-rating-pos="${i+1}"></span>
                 </div>
 
-                <span tabindex="0" role="button" title="${tr("drag_order")}" class="reorder-icon sideways fa fa-bars"></span>
+                <span @focus="${this.onFocus}" @focusout="${this.focusOut}" tabindex="0" role="button" title="${tr("drag_order")}" class="reorder-icon sideways fa fa-bars"></span>
               </div>
             `)}
             </div>
           </div>
           <div class="criterion-actions">
-            <span tabindex="0" role="button" data-criterion-id="${c.id}" title="${tr("copy")} ${c.title}" class="clone fa fa-copy" @click="${this.cloneCriterion}"></span>
+            <span @focus="${this.onFocus}" @focusout="${this.focusOut}" tabindex="0" role="button" data-criterion-id="${c.id}" title="${tr("copy")} ${c.title}" class="clone fa fa-copy" @click="${this.cloneCriterion}"></span>
             <sakai-item-delete criterion-id="${c.id}" criterion="${JSON.stringify(c)}" rubric-id="${this.rubricId}" @delete-item="${this.deleteCriterion}" token="${this.token}"></sakai-item-delete>
           </div>
         </div>
@@ -99,6 +99,13 @@ export class SakaiRubricCriteria extends SakaiElement {
         <sr-lang key="add_criterion">Add Criterion</sr-lang>
       </button>
     `;
+  }
+
+  onFocus(e){
+    e.target.closest('.criterion-row').classList.add("focused");
+  }
+  focusOut(e){
+    e.target.closest('.criterion-row').classList.remove("focused");
   }
 
   handleSortedCriteria(e) {

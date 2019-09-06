@@ -1,4 +1,4 @@
-import {SakaiElement} from "/webcomponents/sakai-element.js";
+import {RubricsElement} from "./rubrics-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
 import {SakaiRubricCriteria} from "./sakai-rubric-criteria.js";
 import {SakaiRubricCriteriaReadonly} from "./sakai-rubric-criteria-readonly.js";
@@ -10,7 +10,7 @@ import {SakaiRubricCreatorName} from "./sakai-rubric-creator-name.js";
 import {tr} from "./sakai-rubrics-language.js";
 import {SharingChangeEvent} from "./sharing-change-event.js";
 
-export class SakaiRubric extends SakaiElement {
+export class SakaiRubric extends RubricsElement {
 
   constructor() {
 

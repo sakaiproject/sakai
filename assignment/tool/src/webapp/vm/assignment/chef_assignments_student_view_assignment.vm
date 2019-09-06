@@ -1,5 +1,5 @@
 <!-- start: chef_assignments_student_view_assignment.vm -->
-<script type="text/javascript">
+<script>
     $(document).ready(function(){
         ASN.setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
     });

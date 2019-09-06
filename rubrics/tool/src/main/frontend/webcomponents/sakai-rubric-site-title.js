@@ -1,7 +1,7 @@
-import {SakaiElement} from "/webcomponents/sakai-element.js";
+import {RubricsElement} from "./rubrics-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
 
-export class SakaiRubricSiteTitle extends SakaiElement {
+export class SakaiRubricSiteTitle extends RubricsElement {
 
   constructor() {
 

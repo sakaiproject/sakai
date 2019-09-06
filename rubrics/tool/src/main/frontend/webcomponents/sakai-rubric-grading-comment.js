@@ -1,8 +1,8 @@
-import {SakaiElement} from "/webcomponents/sakai-element.js";
+import {RubricsElement} from "./rubrics-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
 import {tr} from "./sakai-rubrics-language.js";
 
-export class SakaiRubricGradingComment extends SakaiElement {
+export class SakaiRubricGradingComment extends RubricsElement {
 
   constructor() {
 
@@ -75,7 +75,7 @@ export class SakaiRubricGradingComment extends SakaiElement {
 
       var popover = $(`#criterion-editor-${this.criterion.id}-${this.randombit}`);
 
-      rubrics.css(popover[0], {
+      this.rubricsUtils.css(popover[0], {
         'left': e.target.offsetLeft - 270 + "px",
         'top': ((e.target.offsetTop + e.target.offsetHeight/2 + 20) - popover.height()/2) + "px",
       });

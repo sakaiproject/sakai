@@ -1,8 +1,8 @@
-import {SakaiElement} from "/webcomponents/sakai-element.js";
+import {RubricsElement} from "./rubrics-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
 import {loadProperties} from "/webcomponents/sakai-i18n.js";
 
-export class SakaiRubricsLanguage extends SakaiElement {
+export class SakaiRubricsLanguage extends RubricsElement {
 
   static get properties() {
 
