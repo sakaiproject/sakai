@@ -330,6 +330,40 @@ public class GoogleDriveServiceImpl implements GoogleDriveService {
 		return items;
 	}
 
+	public GoogleDriveItem getDriveItem(String userId, String itemId) {
+		if(!isConfigured()){
+			return null;
+		}
+		/*List<GoogleDriveItem> cachedItems = driveRootItemsCache.get(userId);
+		if(cachedItems != null) {
+			log.debug("getDriveRootItems : Returning cached items {} ", cachedItems);
+			return cachedItems;
+		}*/
+		GoogleDriveItem gdi = new GoogleDriveItem();
+		try {
+			service = refreshToken(userId);
+			if(service == null){
+				return null;
+			}
+			File file = service.files().get(itemId).setFields(String.join(",", fileFieldsToRequest)).execute();
+			log.debug("Google data : {}", file);
+			gdi.setGoogleDriveItemId(file.getId());
+			gdi.setName(file.getName());
+			gdi.setDownloadUrl(file.getWebContentLink());
+			gdi.setViewUrl(file.getWebViewLink());
+			gdi.setSize(file.getSize());
+			gdi.setMimeType(file.getMimeType());
+			//gdi.setParentId("root");
+			//gdi.setIcon(file.getIconLink());
+			//gdi.setThumbnail(file.getThumbnailLink());
+			log.debug("Processed data : {}", gdi);
+			//driveRootItemsCache.put(userId, items);
+		} catch(Exception e) {
+			log.error("getDriveItem: item id {} - error {}", itemId, e.getMessage());
+		}
+		return gdi;
+	}
+
 	private boolean isConfigured(){
 		if (StringUtils.isBlank(clientId) || StringUtils.isBlank(clientSecret) || StringUtils.isBlank(redirectUri) || clientSecrets == null || flow == null) {
 			log.warn("GOOGLEDRIVE CONFIGURATION IS MISSING");
