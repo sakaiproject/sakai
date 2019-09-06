@@ -152,7 +152,7 @@ function SaveFormContentAsync(toUrl, formId, buttonName, updateVar, updateVar2, 
         $("[id$=\\:submitNoCheck]")[0].click();
     }
 
-    if (d != -1) {
+    if (d !== -1) {
         var timeNow = Date.now();
         var i = text.indexOf("retractDate");
         if (i >= 0) {
