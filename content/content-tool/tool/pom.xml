@@ -98,6 +98,11 @@
       <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>com.googlecode.json-simple</groupId>
+      <artifactId>json-simple</artifactId>
+      <version>${json.simple.version}</version>
+    </dependency>
   </dependencies>
   <build>
     <resources>

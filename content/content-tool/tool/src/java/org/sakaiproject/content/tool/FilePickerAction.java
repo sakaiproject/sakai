@@ -250,6 +250,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 	public static final String STATE_ONEDRIVE_ITEMS = PREFIX + "state_onedrive_items";
 	public static final String STATE_GOOGLEDRIVE_CHILDREN = PREFIX + "state_googledrive_children";
 	public static final String STATE_GOOGLEDRIVE_ITEMS = PREFIX + "state_googledrive_items";
+	public static final String STATE_GOOGLEDRIVE_JSON = PREFIX + "state_googledrive_json";
 
 	/** The sort ascending or decending */
 	private static final String STATE_SORT_ASC = PREFIX + "sort_asc";
@@ -565,6 +566,9 @@ public class FilePickerAction extends PagedResourceHelperAction
 		context.put("stlang",srb);
 
 		ToolSession toolSession = sessionManager.getCurrentToolSession();
+
+		context.put("googledriveJson", toolSession.getAttribute(STATE_GOOGLEDRIVE_JSON));
+		toolSession.removeAttribute(STATE_GOOGLEDRIVE_JSON);
 
 		// find the ContentHosting service
 		org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) toolSession.getAttribute (STATE_CONTENT_SERVICE);
@@ -1277,6 +1281,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 			}
 		} else if (googledriveOn && StringUtils.isNotBlank(googledriveItemId)) {
 			boolean googledriveItemClone = params.getBoolean("googledriveItemClone");
+			String googledriveJson = params.getString("googledriveJson");
 			List<GoogleDriveItem> items = (List<GoogleDriveItem>) toolSession.getAttribute(STATE_GOOGLEDRIVE_ITEMS);
 			GoogleDriveItem oi = null;
 			for(GoogleDriveItem off : items) {
@@ -1286,7 +1291,10 @@ public class FilePickerAction extends PagedResourceHelperAction
 				}
 			}
 			if(oi != null) {
-				doAttachGoogleDrive(oi, state, googledriveItemClone);
+				doAttachGoogleDrive(oi, state, googledriveItemClone, googledriveJson);
+			}else{
+				oi = googledriveService.getDriveItem(userDirectoryService.getCurrentUser().getId(), googledriveItemId);
+				doAttachGoogleDrive(oi, state, googledriveItemClone, googledriveJson);
 			}
 		}
 
@@ -1837,7 +1845,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 	}
 
 	@SuppressWarnings("unchecked")
-	public void doAttachGoogleDrive(GoogleDriveItem googledriveItem, SessionState state, boolean googledriveItemClone) {
+	public void doAttachGoogleDrive(GoogleDriveItem googledriveItem, SessionState state, boolean googledriveItemClone, String googledriveJson) {
 		ToolSession toolSession = sessionManager.getCurrentToolSession();
 		ContentHostingService contentService = (ContentHostingService) toolSession.getAttribute (STATE_CONTENT_SERVICE);
 		ResourceTypeRegistry registry = (ResourceTypeRegistry) toolSession.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
@@ -1896,6 +1904,8 @@ public class FilePickerAction extends PagedResourceHelperAction
 			item.setIconClass(typedef.getIconClass(attachment));
 			new_items.add(item);
 			toolSession.setAttribute(STATE_HELPER_CHANGED, Boolean.TRUE.toString());
+			toolSession.setAttribute(STATE_GOOGLEDRIVE_JSON, googledriveJson);
+			state.setAttribute(STATE_NAVIGATING_GOOGLEDRIVE, true);
 			state.removeAttribute(STATE_NAVIGATING_ONEDRIVE);
 		} catch(Exception e) {
 			log.error("doAttachGoogleDrive : {}", e.getMessage());
