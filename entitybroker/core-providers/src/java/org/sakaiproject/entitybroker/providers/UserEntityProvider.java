@@ -578,8 +578,8 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
         // If config, internal request or admin, give full access
         if (developerHelperService.getConfigurationSetting("entity.users.viewall", false) ||
                 developerHelperService.isEntityRequestInternal(ref.toString()) ||
-                developerHelperService.isUserAdmin(developerHelperService.getCurrentUserReference()) ||
-                user.getId().equals(developerHelperService.getCurrentUserId())) {
+                user.getId().equals(developerHelperService.getCurrentUserId()) ||
+                developerHelperService.isUserAllowedInEntityReference(developerHelperService.getCurrentUserReference(), UserDirectoryService.SECURE_VIEW_USER_ANY, user.getReference())) {
             EntityUser eu = new EntityUser(user);
             return eu;
         } else if (hasProfile) {

@@ -50,6 +50,9 @@ public interface UserDirectoryService extends EntityProducer
 	/** Name for the event of updating any user info. */
 	static final String SECURE_UPDATE_USER_ANY = "user.upd.any";
 
+	/** Name for the ability for read access to any user's details. */
+	static final String SECURE_VIEW_USER_ANY = "user.view.any";
+
 	/** Name for the event of updating one's own user info. */
 	static final String SECURE_UPDATE_USER_OWN = "user.upd.own";
 	

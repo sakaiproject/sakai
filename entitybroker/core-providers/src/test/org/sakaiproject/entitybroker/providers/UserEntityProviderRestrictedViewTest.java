@@ -34,6 +34,7 @@ import org.sakaiproject.util.BaseResourceProperties;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -115,7 +116,7 @@ public class UserEntityProviderRestrictedViewTest {
         when(developerHelperService.isEntityRequestInternal("/user/1")).thenReturn(false);
         when(developerHelperService.getCurrentUserReference()).thenReturn("/user/admin");
         when(developerHelperService.getCurrentUserId()).thenReturn("admin");
-        when(developerHelperService.isUserAdmin("/user/admin")).thenReturn(true);
+        when(developerHelperService.isUserAllowedInEntityReference(eq("/user/admin"), eq(UserDirectoryService.SECURE_VIEW_USER_ANY), any())).thenReturn(true);
 
         when(adminSite.getToolForCommonId("sakai.profile2")).thenReturn(toolConfiguration);
 
@@ -148,9 +149,7 @@ public class UserEntityProviderRestrictedViewTest {
         when(developerHelperService.getConfigurationSetting("entity.users.viewall", false)).thenReturn(false);
         when(developerHelperService.getConfigurationSetting("user.explicit.id.only", false)).thenReturn(false);
         when(developerHelperService.isEntityRequestInternal("/user/1")).thenReturn(false);
-        when(developerHelperService.getCurrentUserReference()).thenReturn("/user/1");
         when(developerHelperService.getCurrentUserId()).thenReturn("1");
-        when(developerHelperService.isUserAdmin("/user/1")).thenReturn(false);
 
         when(userSite.getToolForCommonId("sakai.profile2")).thenReturn(toolConfiguration);
 

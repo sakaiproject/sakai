@@ -606,6 +606,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			functionManager().registerFunction(SECURE_UPDATE_USER_OWN_PASSWORD);
 			functionManager().registerFunction(SECURE_UPDATE_USER_OWN_TYPE);
 			functionManager().registerFunction(SECURE_UPDATE_USER_ANY);
+			functionManager().registerFunction(SECURE_VIEW_USER_ANY);
 			functionManager().registerFunction("user.studentnumber.visible");
 			
 
