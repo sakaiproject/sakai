@@ -209,15 +209,13 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 	public static void addAlert(SessionState state, String message, boolean removeDuplicates)
 	{
 		String soFar = (String) state.getAttribute(STATE_MESSAGE);
-		if (soFar != null)
-		{
-			if (!(removeDuplicates == true && soFar.contains(message))) {
-				soFar = soFar + "<br/>" + message;
-			}
-		}
-		else
+		if (soFar == null)
 		{
 			soFar = message;
+		}
+		else if (!removeDuplicates || !soFar.contains(message))
+		{
+			soFar += "<br/>" + message;
 		}
 		state.setAttribute(STATE_MESSAGE, soFar);
 
