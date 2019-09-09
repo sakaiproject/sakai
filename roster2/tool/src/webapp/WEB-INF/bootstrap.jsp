@@ -23,8 +23,8 @@
       xml:lang="${language}"
       lang="${language}">
     <head>
-        <link rel="stylesheet" type="text/css" href="/profile2-tool/css/profile2-profile-entity.css" media="all" />
-        <link rel="stylesheet" media="print" type="text/css" href="/sakai-roster2-tool/css/print.css" />
+        <link rel="stylesheet" type="text/css" href="/profile2-tool/css/profile2-profile-entity.css${portalCDNQuery}" media="all" />
+        <link rel="stylesheet" media="print" type="text/css" href="/sakai-roster2-tool/css/print.css${portalCDNQuery}" />
 
         <script>
 
@@ -68,13 +68,12 @@
 
         </div> <!-- portletBody -->
 
-    <script src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
-    <script src="/library/webjars/jquery-migrate/1.4.1/jquery-migrate.min.js"></script>
-    <script src="/sakai-roster2-tool/lib/jquery.waitforimages.min.js"></script>
-    <script src="/profile2-tool/javascript/profile2-eb.js"></script>
-    <script src="/library/webjars/handlebars/4.0.6/handlebars.runtime.min.js"></script>
-    <script src="/sakai-roster2-tool/templates.js"></script>
-    <script src="/sakai-roster2-tool/js/roster.js"></script>
+        <script>includeLatestJQuery("roster");</script>
+        <script src="/sakai-roster2-tool/lib/jquery.waitforimages.min.js${portalCDNQuery}"></script>
+        <script src="/profile2-tool/javascript/profile2-eb.js${portalCDNQuery}"></script>
+        <script>includeWebjarLibrary("handlebars");</script>
+        <script src="/sakai-roster2-tool/templates.js${portalCDNQuery}"></script>
+        <script src="/sakai-roster2-tool/js/roster.js${portalCDNQuery}"></script>
 
     </body>
 </html>
