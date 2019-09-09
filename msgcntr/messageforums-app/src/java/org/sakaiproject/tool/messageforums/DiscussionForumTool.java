@@ -3761,11 +3761,11 @@ public class DiscussionForumTool
     	return gotoMain();
     }
     
-    Message dMsg = constructMessage();
+    Message newMessage = constructMessage();
     try{
-    	LRS_Statement statement = forumManager.getStatementForUserPosted(dMsg.getTitle(), SAKAI_VERB.responded).orElse(null);
+    	LRS_Statement statement = forumManager.getStatementForUserPosted(newMessage.getTitle(), SAKAI_VERB.responded).orElse(null);
     	ForumsMessageEventParams params = new ForumsMessageEventParams(ForumsMessageEventParams.MessageEvent.ADD, statement);
-    	forumManager.saveMessage(dMsg, params);
+    	Message dMsg = forumManager.saveMessage(newMessage, params);
 
     	DiscussionTopic dSelectedTopic = (DiscussionTopic) forumManager.getTopicWithAttachmentsById(selectedTopic.getTopic().getId());
     	setSelectedForumForCurrentTopic(dSelectedTopic);

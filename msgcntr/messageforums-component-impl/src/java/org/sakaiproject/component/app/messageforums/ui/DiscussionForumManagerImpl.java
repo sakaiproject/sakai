@@ -457,17 +457,17 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
    * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#saveMessage(org.sakaiproject.api.app.messageforums.Message)
    */
   @Override
-  public void saveMessage(Message message) {
-      saveMessage(message, null, false);
+  public Message saveMessage(Message message) {
+      return saveMessage(message, null, false);
   }
 
   @Override
-  public void saveMessage(Message message, ForumsMessageEventParams params) {
-      saveMessage(message, params, false);
+  public Message saveMessage(Message message, ForumsMessageEventParams params) {
+      return saveMessage(message, params, false);
   }
 
   @Override
-  public void saveMessage(Message message, ForumsMessageEventParams params, boolean ignoreLockedTopicForum) {
+  public Message saveMessage(Message message, ForumsMessageEventParams params, boolean ignoreLockedTopicForum) {
     if (log.isDebugEnabled())
     {
       log.debug("saveMessage(Message " + message + ")");
@@ -486,12 +486,14 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     }
 
     // save the message first to ensure we have a valid message id
-    messageManager.saveMessage(message, false, ignoreLockedTopicForum);
+    Message persistedMessage = messageManager.saveMessage(message, false, ignoreLockedTopicForum);
     if (params != null) {
-        Event event = eventTrackingService.newEvent(params.event.type, getEventMessage(message), null, params.event.modification,
+        Event event = eventTrackingService.newEvent(params.event.type, getEventMessage(persistedMessage), null, params.event.modification,
                 NotificationService.NOTI_OPTIONAL, params.lrsStatement);
         eventTrackingService.post(event);
     }
+
+    return persistedMessage;
   }
 
   /*

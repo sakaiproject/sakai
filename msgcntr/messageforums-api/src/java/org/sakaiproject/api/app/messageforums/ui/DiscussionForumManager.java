@@ -111,14 +111,14 @@ public interface DiscussionForumManager
   /**
    * @param message the message to save
    */
-  void saveMessage(Message message);
+  Message saveMessage(Message message);
 
   /**
    * Saves the message and fires an event using the given parameters
    * @param message the message to save
    * @param params event details to post when saving message
    */
-  void saveMessage(Message message, ForumsMessageEventParams params);
+  Message saveMessage(Message message, ForumsMessageEventParams params);
 
   /**
    * 
@@ -127,7 +127,7 @@ public interface DiscussionForumManager
    * @param ignoreLockedTopicForum set true if you want to allow the message
      * to be updated even if the topic or forum is locked
    */
-  public void saveMessage(Message message, ForumsMessageEventParams params, boolean ignoreLockedTopicForum);
+  public Message saveMessage(Message message, ForumsMessageEventParams params, boolean ignoreLockedTopicForum);
   /**
    * @param message
    */
