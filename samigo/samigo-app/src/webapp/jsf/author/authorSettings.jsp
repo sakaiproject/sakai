@@ -42,14 +42,15 @@
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{assessmentSettingsMessages.sakai_assessment_manager} #{assessmentSettingsMessages.dash} #{assessmentSettingsMessages.settings}" /></title>
-      <script type="text/javascript" src="/samigo-app/jsf/widget/hideDivision/hideDivision.js"></script>
-      <script type="text/javascript" src="/samigo-app/jsf/widget/colorpicker/colorpicker.js"></script>
-      <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
-      <script type="text/javascript" src="/samigo-app/js/authoring.js"></script>
+      <script src="/samigo-app/jsf/widget/hideDivision/hideDivision.js"></script>
+      <script src="/samigo-app/jsf/widget/colorpicker/colorpicker.js"></script>
+      <script>includeWebjarLibrary('momentjs');</script>
+      <script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+      <script src="/samigo-app/js/authoring.js"></script>
 
-      <script type="text/JavaScript">includeWebjarLibrary('bootstrap-multiselect');</script>
+      <script>includeWebjarLibrary('bootstrap-multiselect');</script>
 
-      <script type="text/javascript">
+      <script>
         $(document).ready(function() {
           // set up the accordion for settings
           var accordionPanel = 1;
