@@ -190,10 +190,19 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 
 	} // titlePanelUpdateId
 
-	// Backward compatible default for removing duplicates in addAlert
+	/**
+	 * Add another string to the alert message.
+	 * Defaults to removing duplicates from the alert message
+	 * 
+	 * @param state
+	 *        The session state.
+	 * @param message
+	 *        The string to add.
+	 */
+
 	public static void addAlert(SessionState state, String message) {
 		
-		addAlert(state, message, false);
+		addAlert(state, message, true);
 	}
 
 	/**

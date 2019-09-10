@@ -12816,7 +12816,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 								if ( FormattedText.validateURL(attributeInput) )
 									attributes.put(attribute, attributeInput);
 								else {
-									addAlert(state, rb.getString("java.invurl"), true);
+									addAlert(state, rb.getString("java.invurl"));
 								}
 							}
 						}
