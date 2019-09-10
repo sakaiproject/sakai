@@ -203,7 +203,7 @@ function removeOptionalAttributeBlock(elem) {
 								<input class="form-control sakai-glow" type="password" name="pw0" id="user_pw0" placeholder="$tlang.getString("usecre.vernewpass.placeholder")" onkeyup="USER.verifyPasswordsMatch()" onblur="USER.verifyPasswordsMatch();" autocomplete="new-password" />
 							</div>
 							<div class="col-sm-offset-2 col-sm-10" id="matchMsg" style="display:none">
-								<div class="validationAlert sak-banner-error" id="matchMsg" style="display:block">
+								<div class="validationAlert sak-banner-success" id="matchMsg" style="display:block">
 									$tlang.getString("pw.match")
 								</div>
 							</div>
