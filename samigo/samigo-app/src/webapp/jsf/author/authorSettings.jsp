@@ -236,12 +236,11 @@
 
 <div class="tier1" id="jqueryui-tabs">
     <ul>
-        <li><a href="#about-tab"><h:outputText value="#{assessmentSettingsMessages.heading_about} " /><span class="fa fa-arrow-circle-o-right" aria-hidden="true"></span></a></li>
-        <li><a href="#submissions-tab"><h:outputText value="#{assessmentSettingsMessages.heading_availability} " /><span class="fa fa-arrow-circle-o-right" aria-hidden="true"></span></a></li>
-        <li><a href="#extendedtime-tab"><h:outputText value="#{assessmentSettingsMessages.heading_extended_time} " /><span class="fa fa-arrow-circle-o-right" aria-hidden="true"></span></a></li>
-        <li><a href="#feedback-tab"><h:outputText value="#{assessmentSettingsMessages.heading_grading_feedback} " /><span class="fa fa-arrow-circle-o-right" aria-hidden="true"></span></a></li>
-        <li><a href="#layout-tab"><h:outputText value="#{assessmentSettingsMessages.heading_layout} " /><span class="fa fa-arrow-circle-o-right" aria-hidden="true"></span></a></li>
-        <li><a href="#publish-tab"><h:outputText value="#{assessmentSettingsMessages.heading_publish}" /></a></li>
+        <li><a href="#about-tab"><h:outputText value="#{assessmentSettingsMessages.heading_about} " /></a></li>
+        <li><a href="#submissions-tab"><h:outputText value="#{assessmentSettingsMessages.heading_availability} " /></a></li>
+        <li><a href="#extendedtime-tab"><h:outputText value="#{assessmentSettingsMessages.heading_extended_time} " /></a></li>
+        <li><a href="#feedback-tab"><h:outputText value="#{assessmentSettingsMessages.heading_grading_feedback} " /></a></li>
+        <li><a href="#layout-tab"><h:outputText value="#{assessmentSettingsMessages.heading_layout} " /></a></li>
     </ul>
 <div id="about-tab">
     <h3>
@@ -794,32 +793,21 @@
   </h:panelGroup>
 
 </div><!-- END Layout and Appearance Category -->
-<div id="publish-tab">
-    <!-- Publish -->
-    <h:panelGroup styleClass="form-group row" layout="block">
-        <h:panelGroup styleClass="col-md-12" layout="block">
-            <!-- save & publish -->
-            <h4><h:outputText value="#{assessmentSettingsMessages.ready_to_publish_heading}" /></h4>
-            <p><h:outputText value="#{assessmentSettingsMessages.ready_to_publish_text1}" /></p>
-            <p><h:outputText value="#{assessmentSettingsMessages.ready_to_publish_text2}" /></p>
-            <p class="act">
-                <!-- save & publish -->
-                <h:commandButton  value="#{assessmentSettingsMessages.button_unique_save_and_publish}" type="submit" styleClass="active" rendered="#{assessmentSettings.hasQuestions}"
-                                  action="#{assessmentSettings.getOutcomePublish}" onclick="setBlockDivs();updateItemNavigation(false);" >
-                    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmPublishAssessmentListener" />
-                    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.PublishAssessmentListener" />
-                </h:commandButton>
-
-                <h:commandButton  value="#{assessmentSettingsMessages.button_unique_save_and_publish}" type="submit" rendered="#{not assessmentSettings.hasQuestions}"
-                                  action="#{assessmentSettings.getOutcomePublish}" disabled="true" />
-            </p>
-        </h:panelGroup>
-    </h:panelGroup>
-</div>
 </div>
  <p class="act">
+
+ <!-- save & publish -->
+  <h:commandButton  value="#{assessmentSettingsMessages.button_unique_save_and_publish}" type="submit" styleClass="active" rendered="#{assessmentSettings.hasQuestions}"
+      action="#{assessmentSettings.getOutcomePublish}" onclick="setBlockDivs();updateItemNavigation(false);" >
+      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmPublishAssessmentListener" />
+      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.PublishAssessmentListener" />
+  </h:commandButton>
+
+  <h:commandButton  value="#{assessmentSettingsMessages.button_unique_save_and_publish}" type="submit" rendered="#{not assessmentSettings.hasQuestions}"
+      action="#{assessmentSettings.getOutcomePublish}" disabled="true" />
+
   <!-- Save button -->
-  <h:commandButton type="submit" value="#{commonMessages.action_save_and_exit}" action="#{assessmentSettings.getOutcomeSave}"  onclick="setBlockDivs();updateItemNavigation(false);">
+  <h:commandButton type="submit" value="#{commonMessages.action_save}" action="#{assessmentSettings.getOutcomeSave}"  onclick="setBlockDivs();updateItemNavigation(false);">
       <f:param name="assessmentId" value="#{assessmentSettings.assessmentId}"/>
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SaveAssessmentSettingsListener"/>
   </h:commandButton>

@@ -202,10 +202,10 @@
 
 <div class="tier1" id="jqueryui-tabs">
     <ul>
-        <li><a href="#about-tab"><h:outputText value="#{assessmentSettingsMessages.heading_about} " /><span class="fa fa-arrow-circle-o-right" aria-hidden="true"></span></a></li>
-        <li><a href="#submissions-tab"><h:outputText value="#{assessmentSettingsMessages.heading_availability} " /><span class="fa fa-arrow-circle-o-right" aria-hidden="true"></span></a></li>
-        <li><a href="#extendedtime-tab"><h:outputText value="#{assessmentSettingsMessages.heading_extended_time} " /><span class="fa fa-arrow-circle-o-right" aria-hidden="true"></span></a></li>
-        <li><a href="#feedback-tab"><h:outputText value="#{assessmentSettingsMessages.heading_grading_feedback} " /><span class="fa fa-arrow-circle-o-right" aria-hidden="true"></span></a></li>
+        <li><a href="#about-tab"><h:outputText value="#{assessmentSettingsMessages.heading_about} " /></a></li>
+        <li><a href="#submissions-tab"><h:outputText value="#{assessmentSettingsMessages.heading_availability} " /></a></li>
+        <li><a href="#extendedtime-tab"><h:outputText value="#{assessmentSettingsMessages.heading_extended_time} " /></a></li>
+        <li><a href="#feedback-tab"><h:outputText value="#{assessmentSettingsMessages.heading_grading_feedback} " /></a></li>
         <li><a href="#layout-tab"><h:outputText value="#{assessmentSettingsMessages.heading_layout} " /></a></li>
     </ul>
 <div id="about-tab">
