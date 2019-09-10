@@ -3761,11 +3761,11 @@ public class DiscussionForumTool
     	return gotoMain();
     }
     
-    Message dMsg = constructMessage();
+    Message newMessage = constructMessage();
     try{
-    	LRS_Statement statement = forumManager.getStatementForUserPosted(dMsg.getTitle(), SAKAI_VERB.responded).orElse(null);
+    	LRS_Statement statement = forumManager.getStatementForUserPosted(newMessage.getTitle(), SAKAI_VERB.responded).orElse(null);
     	ForumsMessageEventParams params = new ForumsMessageEventParams(ForumsMessageEventParams.MessageEvent.ADD, statement);
-    	forumManager.saveMessage(dMsg, params);
+    	Message dMsg = forumManager.saveMessage(newMessage, params);
 
     	DiscussionTopic dSelectedTopic = (DiscussionTopic) forumManager.getTopicWithAttachmentsById(selectedTopic.getTopic().getId());
     	setSelectedForumForCurrentTopic(dSelectedTopic);
@@ -3824,7 +3824,7 @@ public class DiscussionForumTool
   			m.setThreadLastPost(message.getId());
   			m.setDateThreadlastUpdated(new Date());
 			LRS_Statement statement = forumManager.getStatementForUserPosted(m.getTitle(), SAKAI_VERB.responded).orElse(null);
-			forumManager.saveMessage(m, new ForumsMessageEventParams(ForumsMessageEventParams.MessageEvent.RESPONSE, statement));
+			Message persistedMessage = forumManager.saveMessage(m, new ForumsMessageEventParams(ForumsMessageEventParams.MessageEvent.RESPONSE, statement));
   		}
   	}catch (HibernateOptimisticLockingFailureException holfe) {
   	// failed, so wait and try again
@@ -4543,11 +4543,11 @@ public class DiscussionForumTool
   			return null;
   		}
 
-  		Message dMsg = constructMessage();
+  		Message newMessage = constructMessage();
 
-  		dMsg.setInReplyTo(selectedMessage.getMessage());
-		LRS_Statement statement = forumManager.getStatementForUserPosted(dMsg.getTitle(), SAKAI_VERB.responded).orElse(null);
-		forumManager.saveMessage(dMsg, new ForumsMessageEventParams(ForumsMessageEventParams.MessageEvent.ADD, statement));
+  		newMessage.setInReplyTo(selectedMessage.getMessage());
+		LRS_Statement statement = forumManager.getStatementForUserPosted(newMessage.getTitle(), SAKAI_VERB.responded).orElse(null);
+		Message dMsg = forumManager.saveMessage(newMessage, new ForumsMessageEventParams(ForumsMessageEventParams.MessageEvent.ADD, statement));
 
   		//update synoptic tool info
   		incrementSynopticToolInfo(dMsg, true);
@@ -4745,18 +4745,18 @@ public class DiscussionForumTool
 		}
 
 		LRS_Statement statement = forumManager.getStatementForUserPosted(dMsg.getTitle(), SAKAI_VERB.responded).orElse(null);
-		forumManager.saveMessage(dMsg, new ForumsMessageEventParams(ForumsMessageEventParams.MessageEvent.REVISE, statement));
+		Message persistedMessage = forumManager.saveMessage(dMsg, new ForumsMessageEventParams(ForumsMessageEventParams.MessageEvent.REVISE, statement));
 		
-		messageManager.markMessageReadForUser(dfTopic.getId(), dMsg.getId(), true);
+		messageManager.markMessageReadForUser(dfTopic.getId(), persistedMessage.getId(), true);
 
 		List messageList = selectedTopic.getMessages();
 		for (int i = 0; i < messageList.size(); i++)
 		{
 			DiscussionMessageBean dmb = (DiscussionMessageBean) messageList.get(i);
-			if (dmb.getMessage().getId().equals(dMsg.getId()))
+			if (dmb.getMessage().getId().equals(persistedMessage.getId()))
 			{
 				selectedTopic.getMessages().set(i,
-						new DiscussionMessageBean(dMsg, messageManager));
+						new DiscussionMessageBean(persistedMessage, messageManager));
 			}
 		}
 
@@ -4911,7 +4911,7 @@ public class DiscussionForumTool
 			  .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
 
 	  // does the actual save to 'delete' this message
-	  forumManager.saveMessage(message);
+	  Message persistedMessage = forumManager.saveMessage(message);
 
 	  // reload the topic, forum and reset the topic's base forum
 	  selectedTopic = getDecoratedTopic(selectedTopic.getTopic());
@@ -4928,8 +4928,8 @@ public class DiscussionForumTool
 	    	updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), forumId, topicId, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
 	  
 	  // TODO: document it was done for tracking purposes
-	  eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_REMOVE, getEventReference(message), true));
-	  log.info("Forum message " + message.getId() + " has been deleted by " + getUserId());
+	  eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_REMOVE, getEventReference(persistedMessage), true));
+	  log.info("Forum message {} has been deleted by {}", persistedMessage.getId(), getUserId());
 
 	  // go to thread view or all messages depending on
 	  // where come from
@@ -5375,7 +5375,7 @@ public class DiscussionForumTool
 	  currMessage.setTopic((DiscussionTopic) forumManager
               .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
 	  LRS_Statement statement = forumManager.getStatementForUserPosted(currMessage.getTitle(), SAKAI_VERB.responded).orElse(null);
-	  forumManager.saveMessage(currMessage, new ForumsMessageEventParams(ForumsMessageEventParams.MessageEvent.REVISE, statement), true);
+	  Message persistedMessage = forumManager.saveMessage(currMessage, new ForumsMessageEventParams(ForumsMessageEventParams.MessageEvent.REVISE, statement), true);
 	  
 	  if (displayDeniedMsg) // only displayed if from Deny & Comment path
 	  {
@@ -5385,7 +5385,7 @@ public class DiscussionForumTool
 	  
 	  // we also must mark this message as unread for the author to let them
 	  // know there is a comment
-	  forumManager.markMessageReadStatusForUser(currMessage, false, currMessage.getCreatedBy());
+	  forumManager.markMessageReadStatusForUser(persistedMessage, false, persistedMessage.getCreatedBy());
 	  
 	  return MESSAGE_VIEW;
   }
@@ -6130,7 +6130,7 @@ public class DiscussionForumTool
         	msg.setGradeAssignmentName(Long.toString(gbItemId));
         	msg.setTopic((DiscussionTopic) forumManager
         			.getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
-        	forumManager.saveMessage(msg);
+        	Message persistedMessage = forumManager.saveMessage(msg);
         }
         
         setSuccessMessage(getResourceBundleString(GRADE_SUCCESSFUL));

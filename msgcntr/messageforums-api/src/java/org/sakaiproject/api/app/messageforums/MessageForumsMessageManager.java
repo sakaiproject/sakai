@@ -37,9 +37,9 @@ public interface MessageForumsMessageManager {
 
     public Message createOpenMessage();
 
-    public void saveMessage(Message message);
+    public Message saveMessage(Message message);
 
-    public void saveMessage(Message message, boolean logEvent);
+    public Message saveMessage(Message message, boolean logEvent);
     /**
      * 
      * @param message message
@@ -47,9 +47,10 @@ public interface MessageForumsMessageManager {
      * @param toolId id of the forums tool 
      * @param userId user id
      * @param contextId context id
+     * @return 
      *
      */
-	public void saveMessage(Message message, boolean logEvent, String toolId, String userId, String contextId);
+	public Message saveMessage(Message message, boolean logEvent, String toolId, String userId, String contextId);
 	
     /**
      * 
@@ -59,7 +60,7 @@ public interface MessageForumsMessageManager {
      * to be updated even if the topic or forum is locked (ie marking as read or
      * commenting on a moderated message)
      */
-    public void saveMessage(Message message, boolean logEvent, boolean ignoreLockedTopicForum);
+    public Message saveMessage(Message message, boolean logEvent, boolean ignoreLockedTopicForum);
 
     public void deleteMessage(Message message);
 
