@@ -1873,9 +1873,8 @@ public class ExtractionHelper
 		  itemText.setItem(item.getData());
 		  itemText.setSequence( Long.valueOf(i + 1));
 
-		  List answerScoreList = new ArrayList(); //--mustansar
-		  List sList = (List) itemMap.get("answerScore"); //--mustansar
-		  answerScoreList = sList == null ? answerScoreList : sList; //--mustansar
+		  List<String> sList = (List) itemMap.get("answerScore");
+		  List<String> answerScoreList = sList == null ? new ArrayList<>() : sList;
 		  HashSet answerSet = new HashSet();
 		  char answerLabel = 'A';
 		  for (int a = 0; a < answerList.size(); a++)
@@ -1945,7 +1944,7 @@ public class ExtractionHelper
 						  long index = answer.getSequence().longValue(); 
 						  index = index - 1L;
 						  int indexInteger = Long.valueOf(index).intValue();
-						  String strPCredit = (String) answerScoreList.get(indexInteger);
+						  String strPCredit = answerScoreList.contains(indexInteger) ? answerScoreList.get(indexInteger) : "0";
 						  double fltPCredit = Double.parseDouble(strPCredit);
 						  Double pCredit = (fltPCredit/(item.getScore().doubleValue()))*100;
 						  if (pCredit.isNaN()){
