@@ -1261,23 +1261,23 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         return attachment;        
     }
 
-    public void saveMessage(Message message) {
-    	saveMessage(message, true);
+    public Message saveMessage(Message message) {
+    	return saveMessage(message, true);
     }
 
-    public void saveMessage(Message message, boolean logEvent) {
-    	saveMessage(message, logEvent, toolManager.getCurrentTool().getId(), getCurrentUser(), getContextId());
+    public Message saveMessage(Message message, boolean logEvent) {
+    	return saveMessage(message, logEvent, toolManager.getCurrentTool().getId(), getCurrentUser(), getContextId());
     }
     
-    public void saveMessage(Message message, boolean logEvent, boolean ignoreLockedTopicForum) {
-        saveMessage(message, logEvent, toolManager.getCurrentTool().getId(), getCurrentUser(), getContextId(), ignoreLockedTopicForum);
+    public Message saveMessage(Message message, boolean logEvent, boolean ignoreLockedTopicForum) {
+        return saveMessage(message, logEvent, toolManager.getCurrentTool().getId(), getCurrentUser(), getContextId(), ignoreLockedTopicForum);
     }
     
-    public void saveMessage(Message message, boolean logEvent, String toolId, String userId, String contextId){
-    	saveMessage(message, logEvent, toolId, userId, contextId, false);
+    public Message saveMessage(Message message, boolean logEvent, String toolId, String userId, String contextId){
+    	return saveMessage(message, logEvent, toolId, userId, contextId, false);
     }
     
-    public void saveMessage(Message message, boolean logEvent, String toolId, String userId, String contextId, boolean ignoreLockedTopicForum){
+    public Message saveMessage(Message message, boolean logEvent, String toolId, String userId, String contextId, boolean ignoreLockedTopicForum){
         boolean isNew = message.getId() == null;
         
         if (!ignoreLockedTopicForum && !(message instanceof PrivateMessage)){                  
@@ -1320,18 +1320,18 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         }
 
 
-        getHibernateTemplate().merge(message);
+        Message persistedMessage = getHibernateTemplate().merge(message);
 
-        if (logEvent && !isMessageFromForums(message)) { // Forums handles events itself
+        if (logEvent && !isMessageFromForums(persistedMessage)) { // Forums handles events itself
         	if (isNew) {
-        		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_ADD, getEventMessage(message, toolId, userId, contextId), false));
+        		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_ADD, getEventMessage(persistedMessage, toolId, userId, contextId), false));
         	} else {
-        		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_RESPONSE, getEventMessage(message, toolId, userId, contextId), false));
+        		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_RESPONSE, getEventMessage(persistedMessage, toolId, userId, contextId), false));
         	}
         }
         
-        log.debug("message " + message.getId() + " saved successfully");
-        
+        log.debug("message " + persistedMessage.getId() + " saved successfully");
+        return persistedMessage;
     }
 
     public void deleteMessage(Message message) {
