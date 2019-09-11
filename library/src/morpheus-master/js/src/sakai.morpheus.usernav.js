@@ -3,6 +3,7 @@
  */
 
 function userNavEscHandler(e){
+
   if (e.keyCode === 27) { // esc keycode
     toggleUserNav(e);
   }
@@ -12,8 +13,10 @@ function userNavEscHandler(e){
  * Toggle user nav in header: 
  */
 
-function toggleUserNav(event){
+function toggleUserNav(event) {
+
   event.preventDefault();
+
   $PBJQ('.Mrphs-userNav__subnav').toggleClass('is-hidden');
 
   if (!$PBJQ('.Mrphs-userNav__subnav').hasClass('is-hidden')) {
@@ -25,7 +28,7 @@ function toggleUserNav(event){
     $PBJQ('body').prepend(overlay);
 
     // ESC key also closes it
-    $PBJQ(document).on('keyup',userNavEscHandler);
+    $PBJQ(document).on('keyup.usernav',userNavEscHandler);
 
   } else {
     $PBJQ('.user-dropdown-overlay').remove();
@@ -285,11 +288,47 @@ $PBJQ(document).ready( function(){
   
   currentHeaderWidth = $PBJQ(".Mrphs-mainHeader").width();
 
-
 	$PBJQ('.Mrphs-headerLogo').on('click', function() {
 		// scroll to top on banner click/touch
 		document.body.scrollTop = 0;
 		document.body.scrollLeft = 0;
 		$PBJQ(window).trigger('scroll');
 	});
+
+  var minimiseTool = () => {
+
+    $PBJQ(document).off("keypress.maximise");
+
+    $PBJQ(".Mrphs-topHeader").show();
+    $PBJQ("#Mrphs-sites-nav").show();
+    $PBJQ(".Mrphs-siteHierarchy").show();
+    $PBJQ("#toolMenuWrap").show();
+    $PBJQ("#footer").show();
+    $PBJQ("#presenceToggle").show();
+  };
+
+  $PBJQ("body").on("maximise-tool", e => {
+
+    $PBJQ(document).off('keyup.usernav');
+
+    $PBJQ(".Mrphs-topHeader").hide();
+    $PBJQ("#Mrphs-sites-nav").hide();
+    $PBJQ(".Mrphs-siteHierarchy").hide();
+    $PBJQ("#toolMenuWrap").hide();
+    $PBJQ("#footer").hide();
+    $PBJQ("#presenceToggle").hide();
+
+    $PBJQ(document).on("keyup.maximise", e => {
+
+      // Exit fullscreen mode on escape
+      if (e.keyCode === 27) {
+        minimiseTool();
+        e.stopPropagation();
+        $PBJQ(document).on('keyup.usernav',userNavEscHandler);
+        $PBJQ("sakai-maximise-button").each((i ,e) => e.setMinimised());
+      }
+    });
+  });
+
+  $PBJQ("body").on("minimise-tool", e => minimiseTool());
 });
