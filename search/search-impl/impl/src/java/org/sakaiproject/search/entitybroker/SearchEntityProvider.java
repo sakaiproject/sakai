@@ -33,6 +33,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.InvalidSearchQueryException;
 import org.sakaiproject.search.api.SearchIndexBuilder;
@@ -42,7 +43,9 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.UserDirectoryService;
 
+import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
 import java.util.List;
@@ -56,6 +59,7 @@ import java.util.stream.Collectors;
  * @author Colin Hebert
  */
 @Setter
+@Slf4j
 public class SearchEntityProvider extends AbstractEntityProvider implements ActionsExecutable, Outputable, Describeable {
 
     private static final int DEFAULT_RESULT_COUNT = 10;
@@ -109,7 +113,7 @@ public class SearchEntityProvider extends AbstractEntityProvider implements Acti
             //Transforms SearchResult in a SearchResultEntity to avoid conflicts with the getId() method (see SRCH-85)
             List<SearchResultEntity> results = 
                 searchService.search(query, contexts, (int) search.getStart(), (int) search.getLimit())
-                    .stream().map(r -> new SearchResultEntity(r)).collect(Collectors.toList());;
+                    .stream().map(r -> new SearchResultEntity(r)).collect(Collectors.toList());
 
             return new ActionReturn(results);
         } catch (InvalidSearchQueryException e) {
@@ -181,10 +185,22 @@ public class SearchEntityProvider extends AbstractEntityProvider implements Acti
      * </p>
      */
     public class SearchResultEntity {
+
         private final SearchResult searchResult;
+        @Getter private String siteTitle;
+        @Getter private String siteUrl;
 
         private SearchResultEntity(SearchResult searchResult) {
             this.searchResult = searchResult;
+
+            String siteId = searchResult.getSiteId();
+            try {
+                Site site = siteService.getSite(siteId);
+                this.siteTitle = site.getTitle();
+                this.siteUrl = site.getUrl();
+            } catch (IdUnusedException e) {
+                log.error("No site found for id {}", siteId);
+            }
         }
 
         public String getReference() {

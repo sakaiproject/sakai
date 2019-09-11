@@ -1,7 +1,11 @@
 import {LitElement} from "./assets/lit-element/lit-element.js";
-import {loadProperties} from "./sakai-i18n.js";
+import {loadProperties, tr} from "./sakai-i18n.js";
 
 class SakaiElement extends LitElement {
+
+  tr(key, options) {
+    return tr(this.bundle, key, options);
+  }
 
   createRenderRoot() {
 
@@ -12,6 +16,8 @@ class SakaiElement extends LitElement {
   }
 
   loadTranslations(options) {
+
+    this.bundle = options.bundle;
 
     // Pass the call on to the imported function
     return loadProperties(options);

@@ -1,0 +1,52 @@
+.sakai-search-input {
+  margin-right: 5px;
+  border-right: 1px solid #9c9c9c;
+  padding-right: 10px;
+
+  input, a {
+    display: inline-block;
+  }
+}
+
+.sakai-search-results {
+  position: absolute;
+  right: 0;
+  background-color: white;
+  color: black;
+  border: 1px solid black;
+  padding: 5px;
+  z-index: 100;
+
+  a {
+    color: black;
+    text-decoration: none;
+  }
+
+  .search-result-container {
+
+    padding-bottom: 9px;
+    border-bottom: 1px solid black;
+
+    text-align: left;
+
+    a { display: inline-block; }
+
+    .search-result-title {
+      font-size: larger;
+    }
+
+    .search-result-tool-icon {
+      font-size: 1.5em;
+      margin-right: 10px;
+    }
+
+    margin-bottom: 15px;
+    .search-result {
+      width: 600px;
+      @media #{$phone} {
+        width: 400px;
+      }
+    }
+  }
+
+}
