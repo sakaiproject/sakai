@@ -315,3 +315,20 @@
 		clear: both;
 	}
 }
+
+/* this belongs to resources but it is accessed out of its namespace */
+.googlethumbnail {
+	float: right;
+	width: 5%;
+	border: 1.0px dashed;
+	border-color: #9c9c9c;
+	border-radius: 5px;
+}
+
+.googlethumbnailbig {
+	width: 15%;
+}
+
+.googlethumbnailsmall {
+	width: 5%;
+}

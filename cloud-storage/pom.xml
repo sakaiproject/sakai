@@ -15,6 +15,7 @@
 
     <modules>
         <module>onedrive</module>
+        <module>googledrive</module>
     </modules>
 
 </project>

@@ -92,7 +92,7 @@ public class OneDriveServiceImpl implements OneDriveService {
 		}
 		String prevToken = tokenCache.get(userId);
 		if(prevToken != null) {
-			log.debug("token : Reusing previous token " + prevToken);
+			log.debug("token : Reusing previous token {}", prevToken);
 			return true;
 		}
 		
@@ -136,7 +136,7 @@ public class OneDriveServiceImpl implements OneDriveService {
 		}
 		OneDriveUser onedriveUser = onedriveUserCache.get(userId);
 		if(onedriveUser != null) {
-			log.debug("refreshToken : Reusing previous user data " + onedriveUser);
+			log.debug("refreshToken : Reusing previous user data {}", onedriveUser);
 			return onedriveUser;
 		}
 		
@@ -201,7 +201,7 @@ public class OneDriveServiceImpl implements OneDriveService {
 		}
 		List<OneDriveItem> cachedItems = driveRootItemsCache.get(userId);
 		if(cachedItems != null) {
-			log.debug("getDriveRootItems : Returning cached items " + cachedItems);
+			log.debug("getDriveRootItems : Returning cached items {}", cachedItems);
 			return cachedItems;
 		}
 		try {
