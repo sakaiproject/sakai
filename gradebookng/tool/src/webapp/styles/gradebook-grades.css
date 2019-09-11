@@ -88,7 +88,6 @@
   line-height: 1em;
   max-width: 80%;
   max-width: calc(100% - 50px);
-  margin-top: 10px;
   font-size: 12px;
 }
 #gradebookGradesToolbar .gb-item-summary.warn-items-hidden .gb-item-summary-counts {
@@ -641,6 +640,11 @@ div.wicket-modal div.w_right > div {
   margin-left: auto;
 }
 
+.captionToggleContainer {
+    display: flex;
+    align-items: center;
+}
+
 .gradesToolbar2
 {
   -ms-grid-row: 2;
@@ -735,4 +739,9 @@ div.wicket-mask-transparent, div.wicket-mask-dark {
 .form-vertical div.awesomplete {
   width: 100%;
   margin-bottom: 15px;
+}
+
+sakai-maximise-button {
+  padding-top: 5px;
+  margin-left: 10px;
 }

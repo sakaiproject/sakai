@@ -16,6 +16,7 @@
   "author": "",
   "license": "ECL-2.0",
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.10.2",
     "@webcomponents/webcomponentsjs": "^2.2.10",
     "lit-element": "^2.1.0",
     "sortablejs": "^1.9.0"
