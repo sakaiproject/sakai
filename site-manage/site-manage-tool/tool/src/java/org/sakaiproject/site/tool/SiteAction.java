@@ -4402,7 +4402,11 @@ public class SiteAction extends PagedResourceActionII {
 		// launch the helper
 		startHelper(data.getRequest(), "sakai-site-pageorder-helper");
 	}
-	
+
+	public void doDateManagerHelper(RunData data) {
+		startHelper(data.getRequest(), "sakai.datemanager");
+	}
+
 	/**
 	 * Launch the participant Helper Tool -- for adding participant
 	 * 
