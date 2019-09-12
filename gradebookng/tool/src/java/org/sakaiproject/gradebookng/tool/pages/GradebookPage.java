@@ -26,9 +26,11 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.Session;
+import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.behavior.AttributeAppender;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
@@ -214,6 +216,8 @@ public class GradebookPage extends BasePage {
 		this.bulkEditItemsWindow.setPositionAtTop(true);
 		this.bulkEditItemsWindow.showUnloadConfirmation(false);
 		this.form.add(this.bulkEditItemsWindow);
+
+		add(new CloseOnESCBehavior(bulkEditItemsWindow));
 
 		// first get any settings data from the session
 		final GradebookUiSettings settings = getUiSettings();
@@ -656,4 +660,29 @@ public class GradebookPage extends BasePage {
 			return businessService.isUserAbleToEditAssessments() && GradebookPage.this.hasGradebookItems;
 		}
 	}
+
+	
+	private static class CloseOnESCBehavior extends AbstractDefaultAjaxBehavior {
+        private final ModalWindow modal;
+        public CloseOnESCBehavior(ModalWindow modal) {
+            this.modal = modal;
+        }    
+        @Override
+        protected void respond(AjaxRequestTarget target) {
+            modal.close(target);
+        }    
+        @Override
+        public void renderHead(Component component, IHeaderResponse response) {
+            String aux = "" +
+                "$(document).ready(function() {\n" +
+                "  $(document).bind('keyup', function(evt) {\n" +
+                "    if (evt.keyCode == 27) {\n" +
+                getCallbackScript() + "\n" +
+                "        evt.preventDefault();\n" +
+                "    }\n" +
+                "  });\n" +
+                "});";
+            response.render(JavaScriptHeaderItem.forScript(aux, "closeModal"));
+        }
+    }
 }
