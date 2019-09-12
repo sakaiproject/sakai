@@ -220,6 +220,8 @@
 
         <script src="${pageScriptPath}caps-lock-checker.js$!{portalCDNQuery}"></script>
 
+        <script src="$!{portalCDNPath}/portal/scripts/jumptotop.js$!{portalCDNQuery}"></script>
+
         #parse("/vm/morpheus/includeAnalytics.vm")
         #parse("/vm/morpheus/includePASystem.vm")
 
