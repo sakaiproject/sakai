@@ -12,6 +12,14 @@
 
     .rubric-item {
         position: relative;
+        .div-description{
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .cr-table{
+            table-layout: fixed;
+        }
     }
 
     .rubric-title {
@@ -167,7 +175,16 @@
             display: table;
             border: $rubrics-crit-border-size solid $rubrics-crit-border-color;
             border-width: $rubrics-crit-border-size 0 0 0;
-
+            
+            .div-description{
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+    
+            .cr-table{
+                table-layout: fixed;
+            }
+            
             &.sortable-ghost, .sortable-ghost {
                 opacity: 0.25;
             }
