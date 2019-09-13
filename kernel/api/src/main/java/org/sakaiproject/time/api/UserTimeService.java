@@ -26,8 +26,7 @@ public interface UserTimeService {
      * @param userId
      * @return The user's local TimeZone.
      */
-
-	TimeZone getLocalTimeZone(String userId);
+     TimeZone getLocalTimeZone(String userId);
 
     /**
      * Clear local time zone for specified user. Should be called when locale or timezone for user is changed.
