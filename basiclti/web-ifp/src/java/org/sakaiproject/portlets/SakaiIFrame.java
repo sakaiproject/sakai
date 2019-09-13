@@ -181,21 +181,21 @@ public class SakaiIFrame extends GenericPortlet {
 			// Retrieve the corresponding content item and tool to check the launch
 			Map<String, Object> content = null;
 			Map<String, Object> tool = null;
-			Long key = getContentIdFromSource(source);
-			if ( key == null ) {
+			Long contentId = getContentIdFromSource(source);
+			if ( contentId == null ) {
 				out.println(rb.getString("get.info.notconfig"));
 				log.warn("Cannot find content id placement={} source={}", placement.getId(), source);
 				return;
 			}
 			try {
-				content = m_ltiService.getContent(key, placement.getContext());
+				content = m_ltiService.getContent(contentId, placement.getContext());
 				// SAK-32665 - We get null when an LTI tool is added to a template
 				// like !user because the content item points at !user and not the
 				// current site.
 				if ( content == null ) {
-					content = patchContentItem(key, placement);
+					content = patchContentItem(contentId, placement);
 					source = placement.getPlacementConfig().getProperty(SOURCE);
-					key = getContentIdFromSource(source);
+					contentId = getContentIdFromSource(source);
 				}
 
 				// If content is still null after patching, let the NPE happen
@@ -251,12 +251,12 @@ public class SakaiIFrame extends GenericPortlet {
 	 * we either make a new content item from the tool or we empty the
 	 * source property.
 	 */
-	private Map<String, Object> patchContentItem(Long key, Placement placement)
+	private Map<String, Object> patchContentItem(Long contentId, Placement placement)
 	{
 		final boolean isSuperUser = SecurityService.isSuperUser();
 
 		// Look up the content item, bypassing authz checks
-		Map<String, Object> content = m_ltiService.getContentDao(key);
+		Map<String, Object> content = m_ltiService.getContentDao(contentId);
 		if ( content == null ) return null;
 		Long tool_id = getLongNull(content.get("tool_id"));
 
@@ -267,7 +267,7 @@ public class SakaiIFrame extends GenericPortlet {
 
 		// If this is an admin action, create a new copy of the tool
 		if ( tool == null && isSuperUser ) {
-			tool = m_ltiService.getToolDao(key, null, true);
+			tool = m_ltiService.getToolDao(tool_id, null, true);
 			if (tool != null) {
 				// Clean up the tool before attempting to duplicate it
 				tool.remove(LTIService.LTI_CREATED_AT);
