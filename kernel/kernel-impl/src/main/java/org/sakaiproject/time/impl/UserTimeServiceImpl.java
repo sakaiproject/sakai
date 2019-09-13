@@ -60,8 +60,11 @@ public class UserTimeServiceImpl implements UserTimeService {
     }
 
     protected String getUserTimezone() {
-        // Check if we already cached this user's timezone
         String userId = sessionManager.getCurrentSessionUserId();
+        return getUserTimezone(userId);
+    }
+
+    protected String getUserTimezone(String userId) {
         if (userId == null) return defaultTimezone;
 
         String timeZoneLocale = M_userTzCache.get(userId);
@@ -89,6 +92,15 @@ public class UserTimeServiceImpl implements UserTimeService {
     public TimeZone getLocalTimeZone() {
         String tz = getUserTimezone();
         // Not holding a cache can be slow.
+        return tzCache.computeIfAbsent(tz, TimeZone::getTimeZone);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public TimeZone getLocalTimeZone(String userId) {
+        String tz = getUserTimezone(userId);
         return tzCache.computeIfAbsent(tz, TimeZone::getTimeZone);
     }
 

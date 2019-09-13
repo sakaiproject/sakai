@@ -326,6 +326,14 @@ public class BasicTimeService implements TimeService
 	 * {@inheritDoc}
 	 */
 	@Override
+	public TimeZone getLocalTimeZone(String userId) {
+		return userTimeService.getLocalTimeZone(userId);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public boolean clearLocalTimeZone(String userId)
 	{
 		// Must not use && as need to clear them both.
