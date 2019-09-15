@@ -73,9 +73,6 @@ public class ConversionTimeService implements TimeService
 		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.time.api.TimeService#getLocalTimeZone()
-	 */
 	public TimeZone getLocalTimeZone(String userId)
 	{
 		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
