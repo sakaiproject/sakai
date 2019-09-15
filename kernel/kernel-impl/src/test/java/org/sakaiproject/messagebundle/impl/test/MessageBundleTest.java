@@ -87,7 +87,7 @@ public class MessageBundleTest extends AbstractTransactionalJUnit4SpringContextT
 
     @Test
     public void testUpdateMessageBundleProperty(){
-        List<MessageBundleProperty> list = messageBundleService.getAllProperties(null, null);
+        List<MessageBundleProperty> list = messageBundleService.getAllProperties(null, null, null);
         MessageBundleProperty prop = list.get(0);
         prop.setValue("newvalue");
         messageBundleService.updateMessageBundleProperty(prop);
@@ -107,9 +107,9 @@ public class MessageBundleTest extends AbstractTransactionalJUnit4SpringContextT
 
     @Test
     public void testGetAllProperties(){
-        List<MessageBundleProperty> props = messageBundleService.getAllProperties(localeEn.toString(), moduleName);
+        List<MessageBundleProperty> props = messageBundleService.getAllProperties(localeEn.toString(), null, moduleName);
         Assert.isTrue(4 == props.size());
-        props = messageBundleService.getAllProperties(localeFr.toString(), moduleName);
+        props = messageBundleService.getAllProperties(localeFr.toString(), null, moduleName);
         Assert.isTrue(4 == props.size());
     }
 
@@ -137,7 +137,7 @@ public class MessageBundleTest extends AbstractTransactionalJUnit4SpringContextT
 
     @Test
     public void testRevert(){
-        List<MessageBundleProperty> list = messageBundleService.getAllProperties(localeEn.toString(), moduleName);
+        List<MessageBundleProperty> list = messageBundleService.getAllProperties(localeEn.toString(), null, moduleName);
         MessageBundleProperty prop = list.get(0);
         prop.setValue("newvalue");
         messageBundleService.updateMessageBundleProperty(prop);
