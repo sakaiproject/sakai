@@ -36,19 +36,19 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 
-import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -66,6 +66,8 @@ public class AssignmentDueReminderServiceImpl implements AssignmentDueReminderSe
     private SiteService siteService;
     @Setter
     private UserDirectoryService userDirectoryService;
+    @Setter
+    private UserTimeService userTimeService;
     @Setter
     private PreferencesService preferencesService;
     @Setter
@@ -146,30 +148,40 @@ public class AssignmentDueReminderServiceImpl implements AssignmentDueReminderSe
     }
 
     private void sendEmailReminder(Site site, Assignment assignment, Member submitter) {
-        log.debug("SendEmailReminder: '" + assignment.getTitle() + "' to " + submitter.getUserDisplayId());
+        log.debug("SendEmailReminder: '{}' to {}", assignment.getTitle(), submitter.getUserDisplayId());
 
-        ResourceLoader rl = new ResourceLoader(submitter.getUserId(), "assignment");
+        String submitterUserId = submitter.getUserId();
+        ResourceLoader rl = new ResourceLoader(submitterUserId, "assignment");
 
         String assignmentTitle = assignment.getTitle();
         if (assignment.getTitle().length() > 11) {
             assignmentTitle = assignment.getTitle().substring(0, 11) + "[...]";
         }
 
-        String courseName = site.getTitle();
+        String siteTitleWithLink = "<a href=\"" + site.getUrl() + "\">" + site.getTitle() + "</a>";
 
-        Locale locale = new ResourceLoader().getLocale(submitter.getUserId());
-        String dateFormat = rl.getString("email.reminder.dateformat");
-        SimpleDateFormat sdf = (locale != null)
-                                    ? new SimpleDateFormat(dateFormat, locale) : new SimpleDateFormat(dateFormat);
+        DateTimeFormatter dtfForBody = DateTimeFormatter
+            .ofLocalizedDateTime(FormatStyle.FULL, FormatStyle.LONG)
+            .withLocale(rl.getLocale())
+            .withZone(userTimeService.getLocalTimeZone(submitterUserId).toZoneId());
+
+        DateTimeFormatter dtfForSubject = DateTimeFormatter
+            .ofLocalizedDateTime(FormatStyle.SHORT, FormatStyle.LONG)
+            .withLocale(rl.getLocale())
+            .withZone(userTimeService.getLocalTimeZone(submitterUserId).toZoneId());
+
         Instant dueDate = assignment.getDueDate();
-        String formattedDateDue = sdf.format(Date.from(dueDate));
+        String localizedDateForSubject = dtfForSubject
+            .format(dueDate)
+            .replaceFirst(":00 ", " "); // Get rid of the seconds as subject length is limited
+        String localizedDateForBody = dtfForBody.format(dueDate);
 
-        String toStr = getUserEmail(submitter.getUserId());
+        String toStr = getUserEmail(submitterUserId);
         if (StringUtils.isEmpty(toStr)) {
             return;
         }
-        String headerToStr = getUserDisplayName(submitter.getUserId()) + " <" + getUserEmail(submitter.getUserId()) + ">";
-        String fromStr = "\"" + courseName + "\" <" + getSetupRequest() + ">";
+        String headerToStr = getUserDisplayName(submitterUserId) + " <" + toStr + ">";
+        String fromStr = "\"" + site.getTitle() + "\" <" + getSetupRequest() + ">";
 
         Set<Member> instructors = new HashSet<>();
         for (Member member : site.getMembers()) {
@@ -178,12 +190,12 @@ public class AssignmentDueReminderServiceImpl implements AssignmentDueReminderSe
             }
         }
         String replyToStr = getReplyTo(instructors);
-        log.debug("Reply to string: " + replyToStr);
+        log.debug("Reply to string: {}", replyToStr);
 
-        String subject = rl.getFormattedMessage("email.reminder.subject", assignmentTitle, formattedDateDue);
+        String subject = rl.getFormattedMessage("email.reminder.subject", assignmentTitle, localizedDateForSubject);
 
         StringBuilder body = new StringBuilder();
-        body.append(rl.getFormattedMessage("email.reminder.hello", getUserFirstName(submitter.getUserId())));
+        body.append(rl.getFormattedMessage("email.reminder.hello", getUserFirstName(submitterUserId)));
         body.append(",<br />");
         body.append("<br />");
         int totalHours = serverConfigurationService.getInt("assignment.reminder.hours", 24);
@@ -193,15 +205,13 @@ public class AssignmentDueReminderServiceImpl implements AssignmentDueReminderSe
         body.append("<br />");
         body.append("<ul>");
         body.append("<li> ").append(rl.getFormattedMessage("email.reminder.assignment", assignment.getTitle())).append("</li>");
-        body.append("<li> ").append(rl.getFormattedMessage("email.reminder.duedate", formattedDateDue)).append("</li>");
-        body.append("<li> ").append(rl.getFormattedMessage("email.reminder.class", courseName)).append("</li>");
+        body.append("<li> ").append(rl.getFormattedMessage("email.reminder.duedate", localizedDateForBody)).append("</li>");
+        body.append("<li> ").append(rl.getFormattedMessage("email.reminder.site", siteTitleWithLink)).append("</li>");
         body.append("</ul>");
-        body.append("<br />");
-        body.append(rl.getString("email.reminder.niceday"));
         body.append("<br />");
         body.append("- ").append(getServiceName());
 
-        log.debug("Email To: '" + toStr + "' body: " + body.toString());
+        log.debug("Email To: '{}' body: {}", toStr, body.toString());
 
         emailService.send(fromStr, toStr, subject, body.toString(), headerToStr, replyToStr, additionalHeaders);
     }

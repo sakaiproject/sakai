@@ -15,11 +15,18 @@ import java.util.TimeZone;
 public interface UserTimeService {
 
     /**
-     * Access the users preferred local TimeZone.
+     * Access the current user's preferred local TimeZone.
      *
      * @return The user's local TimeZone.
      */
     TimeZone getLocalTimeZone();
+
+    /**
+     * Access the user's preferred local TimeZone.
+     * @param userId
+     * @return The user's local TimeZone.
+     */
+     TimeZone getLocalTimeZone(String userId);
 
     /**
      * Clear local time zone for specified user. Should be called when locale or timezone for user is changed.

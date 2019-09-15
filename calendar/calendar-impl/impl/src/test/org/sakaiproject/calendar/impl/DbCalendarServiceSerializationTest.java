@@ -338,6 +338,11 @@ public class DbCalendarServiceSerializationTest extends TestCase
 				return null;
 			}
 
+			@Override
+			public TimeZone getLocalTimeZone(String userId) {
+				return null;
+			}
+
 			public Time newTime()
 			{
 				// TODO Auto-generated method stub

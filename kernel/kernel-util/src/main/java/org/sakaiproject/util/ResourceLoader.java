@@ -340,7 +340,7 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	    }
 
 	    if (loc == null) {
-	        log.info("getLocale() Locale not found in preferences or session, returning default");
+	        log.debug("getLocale() Locale not found in preferences or session, returning default");
 	        loc = Locale.getDefault();
 	    } 
 	    	

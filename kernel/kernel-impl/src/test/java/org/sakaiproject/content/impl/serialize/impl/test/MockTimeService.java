@@ -77,6 +77,11 @@ public class MockTimeService implements TimeService
 		return null;
 	}
 
+	@Override
+	public TimeZone getLocalTimeZone(String userId) {
+		return null;
+	}
+
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.time.api.TimeService#newTime()
 	 */

@@ -322,6 +322,11 @@ public class BasicTimeService implements TimeService
 		return userTimeService.getLocalTimeZone();
 	}
 
+	@Override
+	public TimeZone getLocalTimeZone(String userId) {
+		return userTimeService.getLocalTimeZone(userId);
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */

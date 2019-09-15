@@ -242,6 +242,7 @@
         <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+        <property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
         <property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService" />
         <property name="scheduledInvocationManager" ref="org.sakaiproject.api.app.scheduler.ScheduledInvocationManager"/>
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
