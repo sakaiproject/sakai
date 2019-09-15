@@ -17,7 +17,6 @@ package org.sakaiproject.webservices;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.messagebundle.api.MessageBundleProperty;
-import org.sakaiproject.messagebundle.api.MessageBundleService;
 import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.webservices.interceptor.NoIPRestriction;
@@ -30,13 +29,9 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
