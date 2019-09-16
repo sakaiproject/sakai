@@ -35,6 +35,7 @@ import javax.servlet.ServletContextListener;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.api.ActiveToolManager;
@@ -85,8 +86,7 @@ public class ToolListener implements ServletContextListener
 
 	public ToolListener()
 	{
-		activeToolManager = ComponentManager.get(ActiveToolManager.class);
-		serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
+		this(ComponentManager.get(ActiveToolManager.class), ComponentManager.get(ServerConfigurationService.class));
 	}
 
 	public ToolListener(ActiveToolManager activeToolManager, ServerConfigurationService serverConfigurationService)
@@ -103,6 +103,7 @@ public class ToolListener implements ServletContextListener
 		final String sakaiHomePath = serverConfigurationService.getSakaiHomePath();
 		// The the location of resource and registration files.
 		ServletContext context = event.getServletContext();
+		String contextName = context.getServletContextName();
 		Set<String> paths = getToolsPaths(context);
 		if (paths == null) return;
 		int registered = 0;
@@ -152,6 +153,20 @@ public class ToolListener implements ServletContextListener
 				String msg = context.getRealPath(path.substring(0, path.lastIndexOf('.')) + ".properties");
 				activeToolManager.setResourceBundle(tid, msg);
 				log.info("Added localization " + tn + "resources for " + tid);
+			}
+		}
+
+		// only set context param javax.faces.STATE_SAVING_METHOD if it's not already configured in the web.xml,
+		// always respecting when its declared in the web.xml
+		if (StringUtils.isBlank(context.getInitParameter("javax.faces.STATE_SAVING_METHOD"))) {
+			String defaultStateSavingMethod = serverConfigurationService.getString("jsf.state_saving_method", "client");
+			String stateSavingMethod = serverConfigurationService.getString("jsf.state_saving_method." + contextName, defaultStateSavingMethod);
+			try {
+				context.setInitParameter("javax.faces.STATE_SAVING_METHOD", stateSavingMethod);
+				log.debug("Adding context param [javax.faces.STATE_SAVING_METHOD => {}] for context {}", stateSavingMethod, contextName);
+			} catch (UnsupportedOperationException uoe) {
+				// Tomcat does not permit this if you don't declare the listener, aka spring web apps as they use ServletContextInitializer
+				log.debug("Could not add context param [javax.faces.STATE_SAVING_METHOD] for context {}, {}", context, uoe.getMessage());
 			}
 		}
 	}

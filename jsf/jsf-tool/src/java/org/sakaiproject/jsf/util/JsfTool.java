@@ -278,15 +278,6 @@ public class JsfTool extends HttpServlet
 	public void init(ServletConfig config) throws ServletException
 	{
 		super.init(config);
-		ServerConfigurationService scs = ComponentManager.get(ServerConfigurationService.class);
-		ServletContext context = config.getServletContext();
-		String customJsfState = scs.getString("jsf.state_saving_method."+config.getServletName(), null);
-		String defaultJsfState = scs.getString("jsf.state_saving_method", "client");
-		if (customJsfState != null) {
-			context.setInitParameter("javax.faces.STATE_SAVING_METHOD", customJsfState);
-		} else if (defaultJsfState != null) {
-			context.setInitParameter("javax.faces.STATE_SAVING_METHOD", defaultJsfState);
-		}
 		m_default = config.getInitParameter("default");
 		m_path = config.getInitParameter("path");
 		m_defaultToLastView = "true".equals(config.getInitParameter("default.last.view"));
@@ -296,8 +287,7 @@ public class JsfTool extends HttpServlet
 		{
 			m_path = m_path.substring(0, m_path.length() - 1);
 		}
-
-		log.info("init: "+config.getServletName()+"["+context.getInitParameter("javax.faces.STATE_SAVING_METHOD")+"]"+" default: " + m_default + " path: " + m_path);
+		log.info("Servlet {} configured with default: {} path: {}", config.getServletName(), m_default, m_path);
 	}
 
 	/**
