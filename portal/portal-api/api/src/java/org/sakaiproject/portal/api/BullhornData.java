@@ -11,5 +11,4 @@ public class BullhornData {
     private String siteId;
     private String title;
     private String url;
-    private boolean social;
 }

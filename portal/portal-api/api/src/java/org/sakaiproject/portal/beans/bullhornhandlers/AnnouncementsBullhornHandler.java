@@ -79,7 +79,7 @@ public class AnnouncementsBullhornHandler extends AbstractBullhornHandler {
     }
 
     @Override
-    public Optional<List<BullhornData>> handleEvent(Event e, Cache<String, Map> countCache) {
+    public Optional<List<BullhornData>> handleEvent(Event e, Cache<String, Long> countCache) {
 
         String from = e.getUserId();
 
@@ -155,7 +155,7 @@ public class AnnouncementsBullhornHandler extends AbstractBullhornHandler {
 
                     for (String  to : usersList) {
                         if (!from.equals(to) && !securityService.isSuperUser(to)) {
-                            bhEvents.add(new BullhornData(from, to, siteId, title, url, false));
+                            bhEvents.add(new BullhornData(from, to, siteId, title, url));
                             countCache.remove(to);
                         }
                     }

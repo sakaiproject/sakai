@@ -61,7 +61,7 @@ public class AddAssignmentBullhornHandler extends AbstractBullhornHandler {
     }
 
     @Override
-    public Optional<List<BullhornData>> handleEvent(Event e, Cache<String, Map> countCache) {
+    public Optional<List<BullhornData>> handleEvent(Event e, Cache<String, Long> countCache) {
 
         String from = e.getUserId();
 
@@ -87,7 +87,7 @@ public class AddAssignmentBullhornHandler extends AbstractBullhornHandler {
                     if (groupIds.size() == 0 || groupsUsers.contains(to)) {
                         if (!from.equals(to) && !securityService.isSuperUser(to)) {
                             String url = assignmentService.getDeepLink(siteId, assignmentId, to);
-                            bhEvents.add(new BullhornData(from, to, siteId, title, url, false));
+                            bhEvents.add(new BullhornData(from, to, siteId, title, url));
                             countCache.remove(to);
                         }
                     }

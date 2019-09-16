@@ -52,7 +52,7 @@ public class FriendMessageBullhornHandler extends AbstractBullhornHandler {
     }
 
     @Override
-    public Optional<List<BullhornData>> handleEvent(Event e, Cache<String, Map> countCache) {
+    public Optional<List<BullhornData>> handleEvent(Event e, Cache<String, Long> countCache) {
 
         String from = e.getUserId();
 
@@ -68,7 +68,7 @@ public class FriendMessageBullhornHandler extends AbstractBullhornHandler {
             String url = serverConfigurationService.getPortalUrl() + "/site/" + siteId
                                                         + "/tool/" + toolId + "/messages";
             countCache.remove(to);
-            return Optional.of(Collections.singletonList(new BullhornData(from, to, siteId, "", url, true)));
+            return Optional.of(Collections.singletonList(new BullhornData(from, to, siteId, "", url)));
         } catch (IdUnusedException idue) {
             log.error("No site for id: " + siteId);
         }
