@@ -990,14 +990,14 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 								referenceItem.setNextRetryTime(new Date());
 								crqs.update(referenceItem);
 								// Report regenerated for reference item, placeholder item is no longer needed
-								crqs.delete(item);
+								crqs.removeFromQueue(getProviderId(), item.getContentId());
 								success++;
 								continue;
 							}
 							else {
 								// Reference item no longer exists
 								// Placeholder item is no longer needed
-								crqs.delete(item);
+								crqs.removeFromQueue(getProviderId(), item.getContentId());
 								errors++;
 								continue;
 							}
@@ -1006,13 +1006,13 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 							// Reset retry count to zero
 							item.setRetryCount(Long.valueOf(0));
 							item.setNextRetryTime(getDueDateRetryTime(assignmentDueDate));
-							crqs.update(item);
+							crqs.removeFromQueue(getProviderId(), item.getContentId());
 							continue;
 						}
 					}else {
 						// Assignment or due date no longer exist
 						// placeholder item is no longer needed
-						crqs.delete(item);
+						crqs.removeFromQueue(getProviderId(), item.getContentId());
 						errors++;
 						continue;
 					}
