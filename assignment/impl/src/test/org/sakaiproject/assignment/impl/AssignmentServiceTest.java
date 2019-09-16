@@ -518,6 +518,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
         try {
             AssignmentSubmission fetchSubmission = assignmentService.getSubmission(assignment.getId(), submitterId);
+            Assert.assertNotNull(fetchSubmission);
             Assert.assertEquals(submission.getId(), fetchSubmission.getId());
             Assert.assertTrue(fetchSubmission.getUserSubmission());
         } catch (Exception e) {
@@ -534,10 +535,11 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         }
 
         try {
-            assignmentService.getSubmission(assignment.getId(), submitterId);
-            Assert.fail("NonUniqueResultException expected");
+            AssignmentSubmission finalSubmission = assignmentService.getSubmission(assignment.getId(), submitterId);
+            Assert.assertNotNull(finalSubmission);
+            Assert.assertEquals(submission.getId(), finalSubmission.getId());
         } catch (Exception e) {
-            Assert.assertEquals(NonUniqueResultException.class, e.getClass());
+            Assert.fail("No exception should be thrown\n" + e.toString());
         }
     }
 
