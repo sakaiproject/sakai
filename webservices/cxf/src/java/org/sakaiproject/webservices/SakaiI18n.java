@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.webservices;
 
+import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.messagebundle.api.MessageBundleProperty;
 import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.webservices.interceptor.NoIPRestriction;
@@ -27,9 +29,8 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -43,7 +44,6 @@ import lombok.extern.slf4j.Slf4j;
 @WebService
 @SOAPBinding(style = SOAPBinding.Style.RPC, use = SOAPBinding.Use.LITERAL)
 public class SakaiI18n extends AbstractWebService {
-
     /**
      *Returns the content of the specified properties file in a defined language
      * and returns the default value if the key doesn't exists in that lanaguage.
@@ -68,25 +68,37 @@ public class SakaiI18n extends AbstractWebService {
         log.debug("resourceClass: {}", resourceClass);
         log.debug("resourceBundle: {}", resourceBundle);
 
-        try {
-            ResourceLoader rb = new Resource().getLoader(resourceClass, resourceBundle);
-            if (rb == null) {
-                // Try and load the resources directly using the class, not via Spring.
-                rb = new ResourceLoader(resourceBundle, Class.forName(resourceClass).getClassLoader());
+        StringBuilder i18n = new StringBuilder();
+        ResourceLoader rb = null;
+
+        if (StringUtils.isNotBlank(locale)) {
+            if (StringUtils.isNotBlank(resourceClass) && StringUtils.isNotBlank(resourceBundle)) {
+                try {
+                    // load from spring using SakaiApplicationContext
+                    rb = new Resource().getLoader(resourceClass, resourceBundle);
+                    if (rb == null) {
+                        // load from shared lib
+                        rb = new ResourceLoader(resourceBundle, Class.forName(resourceClass).getClassLoader());
+                    }
+                } catch (Exception e) {
+                    log.debug("Could not load i18n bundle: [{}|{}|{}], {}", resourceBundle, resourceClass, locale, e.getMessage());
+                }
             }
-            rb.setContextLocale(Locale.forLanguageTag(locale));
-            Iterator keys = rb.keySet().iterator();
-            StringBuilder lines = new StringBuilder();
-            while (keys.hasNext()){
-                String key = keys.next().toString();
-                lines.append(key + "=" + rb.getString(key) + "\n");
+
+            if (rb != null) {
+                rb.setContextLocale(Locale.forLanguageTag(locale));
+                rb.forEach((k, v) -> i18n.append(k).append("=").append(v).append("\n"));
+            } else {
+                // load from MessageBundleManager service
+                if (StringUtils.isNotBlank(resourceClass) && messageBundleService.getAllBaseNames().contains(resourceClass)) {
+                    // ensure that the requested bundle matches before performing a larger query
+                    List<MessageBundleProperty> bundle = messageBundleService.getAllProperties(Locale.forLanguageTag(locale).toString(), resourceClass, null);
+                    if (bundle != null && !bundle.isEmpty()) {
+                        bundle.forEach(p -> i18n.append(p.getPropertyName()).append("=").append(p.getValue() != null ? p.getValue() : p.getDefaultValue()).append("\n"));
+                    }
+                }
             }
-            return lines.toString();
-        } catch (Exception e) {
-            log.warn("WS getI18nProperties(): {} : {}", e.getClass().getName(), e.getMessage());
-            return "";
         }
-
+        return i18n.toString();
     }
-
 }

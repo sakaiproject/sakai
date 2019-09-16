@@ -327,13 +327,16 @@ public class MessageBundleServiceImpl implements MessageBundleService {
     }
 
     @Transactional(readOnly = true)
-    public List<MessageBundleProperty> getAllProperties(String locale, String module) {
+    public List<MessageBundleProperty> getAllProperties(String locale, String basename, String module) {
 
         Criteria query = sessionFactory.getCurrentSession().createCriteria(MessageBundleProperty.class);
         query.setCacheable(true);
 
         if (StringUtils.isNotEmpty(locale)) {
             query.add(Restrictions.eq("locale", locale));
+        }
+        if (StringUtils.isNotEmpty(basename)) {
+            query.add(Restrictions.eq("baseName", basename));
         }
         if (StringUtils.isNotEmpty(module)) {
             query.add(Restrictions.eq("moduleName", module));
