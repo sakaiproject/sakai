@@ -1063,7 +1063,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
             	if (message.getTopic().getBaseForum()==null && message.getTopic().getOpenForum() != null) 	 
                     message.getTopic().setBaseForum((BaseForum) message.getTopic().getOpenForum()); 	 
 	 
-            	this.saveMessage(message, false, toolId, userId, context, true);
+            	this.saveOrUpdateMessage(message, false, toolId, userId, context, true);
 
         	if (isMessageFromForums)
         		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_READ, getEventMessage(message, toolId, userId, context), false));
@@ -1261,35 +1261,33 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         return attachment;        
     }
 
-    public Message saveMessage(Message message) {
-    	return saveMessage(message, true);
+    public Message saveOrUpdateMessage(Message message) {
+        return saveOrUpdateMessage(message, true);
     }
 
-    public Message saveMessage(Message message, boolean logEvent) {
-    	return saveMessage(message, logEvent, toolManager.getCurrentTool().getId(), getCurrentUser(), getContextId());
+    public Message saveOrUpdateMessage(Message message, boolean logEvent) {
+        return saveOrUpdateMessage(message, logEvent, toolManager.getCurrentTool().getId(), getCurrentUser(), getContextId());
     }
-    
-    public Message saveMessage(Message message, boolean logEvent, boolean ignoreLockedTopicForum) {
-        return saveMessage(message, logEvent, toolManager.getCurrentTool().getId(), getCurrentUser(), getContextId(), ignoreLockedTopicForum);
+
+    public Message saveOrUpdateMessage(Message message, boolean logEvent, boolean ignoreLockedTopicForum) {
+        return saveOrUpdateMessage(message, logEvent, toolManager.getCurrentTool().getId(), getCurrentUser(), getContextId(), ignoreLockedTopicForum);
     }
-    
-    public Message saveMessage(Message message, boolean logEvent, String toolId, String userId, String contextId){
-    	return saveMessage(message, logEvent, toolId, userId, contextId, false);
+
+    public Message saveOrUpdateMessage(Message message, boolean logEvent, String toolId, String userId, String contextId){
+        return saveOrUpdateMessage(message, logEvent, toolId, userId, contextId, false);
     }
-    
-    public Message saveMessage(Message message, boolean logEvent, String toolId, String userId, String contextId, boolean ignoreLockedTopicForum){
+
+    public Message saveOrUpdateMessage(Message message, boolean logEvent, String toolId, String userId, String contextId, boolean ignoreLockedTopicForum){
         boolean isNew = message.getId() == null;
-        
-        if (!ignoreLockedTopicForum && !(message instanceof PrivateMessage)){                  
-          if (isForumOrTopicLocked(message.getTopic().getBaseForum().getId(), message.getTopic().getId())) {
-              log.info("saveMessage executed [messageId: " + (isNew ? "new" : message.getId().toString()) + "] but forum is locked -- save aborted");
-              throw new LockedException("Message could not be saved [messageId: " + (isNew ? "new" : message.getId().toString()) + "]");
-          }
+
+        if (!ignoreLockedTopicForum && !(message instanceof PrivateMessage) && isForumOrTopicLocked(message.getTopic().getBaseForum().getId(), message.getTopic().getId())) {
+            log.warn("Forum or Topic is locked for [messageId: {}] not saving", (isNew ? "new" : message.getId().toString()));
+            throw new LockedException("Message could not be saved [messageId: " + (isNew ? "new" : message.getId().toString()) + "]");
         }
-        
+
         message.setModified(new Date());
         if(getCurrentUser()!=null){
-        message.setModifiedBy(getCurrentUser());
+            message.setModifiedBy(getCurrentUser());
         }
         if(message.getUuid() == null || message.getCreated() == null
         	|| message.getCreatedBy() == null || message.getModified() == null
@@ -1303,25 +1301,19 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
         if (message.getNumReaders() == null)
         	message.setNumReaders(0);
-        
-        //MSGCNTR-448 if this is a top new top level message make sure the thread date is set
-        if (logEvent) {
-        	if (isNew && message.getDateThreadlastUpdated() == null) { 	                 
-        		//we don't need to do this on non log events
-        		message.setDateThreadlastUpdated(new Date()); 	                 
-        		if (message.getInReplyTo() != null) {
-        			if (message.getInReplyTo().getThreadId() != null) {
-        				message.setThreadId(message.getInReplyTo().getThreadId());
-        			} else {
-        				message.setThreadId(message.getInReplyTo().getId());
-        			}
-        		}
-        	}
-        }
 
+        manageThreadId(message, logEvent, isNew);
 
-        Message persistedMessage = getHibernateTemplate().merge(message);
+        final Message persistedMessage = (Message) getSessionFactory().getCurrentSession().merge(message);
 
+        handleEvent(message, logEvent, toolId, userId, contextId, isNew, persistedMessage);
+
+        log.debug("message " + persistedMessage.getId() + " saved successfully");
+        return persistedMessage;
+    }
+
+    private void handleEvent(Message message, boolean logEvent, String toolId, String userId, String contextId,
+                             boolean isNew, Message persistedMessage) {
         if (logEvent && !isMessageFromForums(persistedMessage)) { // Forums handles events itself
         	if (isNew) {
         		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_ADD, getEventMessage(persistedMessage, toolId, userId, contextId), false));
@@ -1329,9 +1321,105 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_RESPONSE, getEventMessage(persistedMessage, toolId, userId, contextId), false));
         	}
         }
-        
-        log.debug("message " + persistedMessage.getId() + " saved successfully");
-        return persistedMessage;
+    }
+
+    private void manageThreadId(Message message, boolean logEvent, boolean isNew) {
+        //MSGCNTR-448 if this is a top new top level message make sure the thread date is set
+        if (logEvent && isNew && message.getDateThreadlastUpdated() == null) {
+        	//we don't need to do this on non log events
+        	message.setDateThreadlastUpdated(new Date());
+        	if (message.getInReplyTo() != null) {
+        		if (message.getInReplyTo().getThreadId() != null) {
+        			message.setThreadId(message.getInReplyTo().getThreadId());
+        		} else {
+        			message.setThreadId(message.getInReplyTo().getId());
+        		}
+        	}
+        }
+    }
+
+    @Override
+    public String saveMessage(Message message) {
+        return saveMessage(message, true);
+    }
+
+    @Override
+    public String saveMessage(Message message, boolean logEvent) {
+        return saveMessage(message, logEvent, toolManager.getCurrentTool().getId(), getCurrentUser(), getContextId());
+    }
+
+    @Override
+    public String saveMessage(Message message, boolean logEvent, String toolId, String userId, String contextId) {
+        return saveMessage(message, logEvent, toolId, userId, contextId, false);
+    }
+
+    @Override
+    public String saveMessage(Message message, boolean logEvent, boolean ignoreLockedTopicForum) {
+        return saveMessage(message, logEvent, toolManager.getCurrentTool().getId(), getCurrentUser(), getContextId(), ignoreLockedTopicForum);
+    }
+
+    @Override
+    public String saveMessage(Message message, boolean logEvent, String toolId, String userId, String contextId,
+                              boolean ignoreLockedTopicForum) {
+
+        if (!ignoreLockedTopicForum && !(message instanceof PrivateMessage)
+                && isForumOrTopicLocked(message.getTopic().getBaseForum().getId(), message.getTopic().getId())) {
+            log.warn("saveMessage executed [messageId: new] but forum is locked -- save aborted");
+            throw new LockedException("Message could not be saved [messageId: new]");
+        }
+
+        if (message.getModified() == null) {
+            message.setModified(new Date());
+        }
+        if (message.getModifiedBy() == null && getCurrentUser() != null) {
+            message.setModifiedBy(getCurrentUser());
+        }
+        if (message.getUuid() == null || message.getCreated() == null || message.getCreatedBy() == null
+                || message.getModified() == null || message.getModifiedBy() == null || message.getTitle() == null
+                || message.getAuthor() == null || message.getHasAttachments() == null || message.getTypeUuid() == null
+                || message.getDraft() == null) {
+            log.error("null attribute(s) for saving message in MessageForumsMessageManagerImpl.saveMessage");
+        }
+
+        if (message.getNumReaders() == null) {
+            message.setNumReaders(0);
+        }
+        manageThreadId(message, logEvent);
+
+        final Message messageReturn = (Message) getSessionFactory().getCurrentSession().merge(message);
+
+        handleEvent(messageReturn, logEvent, toolId, userId, contextId);
+
+        log.debug("new message with id " + messageReturn.getId().toString() + " saved successfully");
+        return messageReturn.getId().toString();
+    }
+
+    private void handleEvent(Message message, boolean logEvent, String toolId, String userId, String contextId) {
+        if (logEvent) {
+            if (isMessageFromForums(message)) {
+                eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_ADD,
+                        getEventMessage(message, toolId, userId, contextId), false));
+            } else {
+                eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_ADD,
+                        getEventMessage(message, toolId, userId, contextId), false));
+            }
+        }
+    }
+
+    private void manageThreadId(Message message, boolean logEvent) {
+        // MSGCNTR-448 if this is a top new top level message make sure the thread date
+        // is set
+        if (logEvent && message.getDateThreadlastUpdated() == null) {
+            // we don't need to do this on non log events
+            message.setDateThreadlastUpdated(new Date());
+            if (message.getInReplyTo() != null) {
+                if (message.getInReplyTo().getThreadId() != null) {
+                    message.setThreadId(message.getInReplyTo().getThreadId());
+                } else {
+                    message.setThreadId(message.getInReplyTo().getId());
+                }
+            }
+        }
     }
 
     public void deleteMessage(Message message) {
@@ -2002,5 +2090,5 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 		return getHibernateTemplate().execute(hcb);
 
 	}
-	   
+
 }
