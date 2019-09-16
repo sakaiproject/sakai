@@ -23,6 +23,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
@@ -195,26 +196,32 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
             default:
                 log.info("Duplicate submissions detected for assignment {} and user {} attempting to clean", assignmentId, userId);
                 // when more than 1 was found it is considered a duplicate submission
-                // filter out user submissions and those that were submitted
-                List<AssignmentSubmission> canRemove = submissions.stream()
-                        .filter(s -> !s.getGraded() && !s.getReturned() && !s.getUserSubmission() && s.getDateSubmitted() == null)
+
+                // find non user submissions with no text or submitted date
+                List<AssignmentSubmission> removable = submissions.stream()
+                        .filter(s -> !s.getUserSubmission() && StringUtils.isBlank(s.getSubmittedText()) && s.getDateSubmitted() == null)
                         .collect(Collectors.toList());
-                int sizeDiff = submissions.size() - canRemove.size();
-                switch (sizeDiff) {
-                    case 0:
-                        // we can remove any so lets keep the first one created and remove the rest
-                        canRemove.sort(Comparator.comparing(AssignmentSubmission::getDateCreated));
-                        submissions.subList(1, submissions.size()).forEach(s -> deleteSubmission(s.getId()));
-                        return submissions.get(0);
-                    case 1:
-                        submissions.removeAll(canRemove);
-                        canRemove.forEach(s -> deleteSubmission(s.getId()));
-                        return submissions.get(0);
-                    default:
-                        log.warn("For assignment {} {} submissions found for user: {}, can only remove {} which is not enough to create a unique submission.", assignmentId, submissions.size(), userId, canRemove.size());
-                        canRemove.forEach(s -> deleteSubmission(s.getId()));
-                        throw new NonUniqueResultException(sizeDiff);
+                if  (submissions.size() - removable.size() > 1) {
+                    log.debug("{} to many submissions, trying more agressively", submissions.size() - removable.size());
+                    // still to many lets be a little more aggressive finding those that are not returned and no grade
+                    submissions.removeAll(removable);
+                    submissions.stream().filter(s -> !s.getReturned() && s.getGrade() == null).forEach(removable::add);
                 }
+                if ((submissions.size() - removable.size()) > 1) {
+                    log.debug("{} to many submissions, take the first submission and remove the rest", submissions.size() - removable.size());
+                    // if we get here it's likely there is no easy decision, so lets just take the first created submission
+                    submissions.removeAll(removable);
+                    submissions.sort(Comparator.comparing(AssignmentSubmission::getDateCreated));
+                    removable.addAll(submissions.subList(1, submissions.size()));
+                }
+                if (submissions.size() > 1 && (submissions.size() - removable.size()) == 0) {
+                    // if we have to many submissions for removal select the first
+                    submissions.sort(Comparator.comparing(AssignmentSubmission::getDateCreated));
+                    removable.remove(submissions.get(0));
+                }
+                submissions.removeAll(removable);
+                removable.forEach(s -> deleteSubmission(s.getId()));
+                return submissions.get(0);
         }
     }
 
