@@ -327,7 +327,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                     String input = "{\"toolId\" : \""+tool+"\",\"itemId\" : \"" + id + "\",\"rubricId\" : " + params.get(RubricsConstants.RBCS_LIST) + ",\"metadata\" : {\"created\" : \"" + created + /*"\",\"modified\" : \"" + nowTime +*/ "\",\"ownerId\" : \"" + owner +
 					"\",\"ownerType\" : \"" + ownerType + "\",\"creatorId\" : \"" + creatorId + "\"},\"parameters\" : {" + setConfigurationParameters(params, oldParams) + "}}";
                     log.debug("Existing association update {}", input);
-                    if(Long.valueOf(params.get(RubricsConstants.RBCS_LIST)) != oldRubricId){
+                    if (!Long.valueOf(params.get(RubricsConstants.RBCS_LIST)).equals(oldRubricId)) {
                         deleteRubricEvaluationsForAssociation(associationHref, tool);
                     }
                     String resultPut = putRubricResource(associationHref, input, tool);
