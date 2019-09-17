@@ -22,8 +22,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalAmount;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -44,6 +42,7 @@ import net.fortuna.ical4j.model.Period;
 import net.fortuna.ical4j.model.PeriodList;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.util.CompatibilityHints;
+import net.fortuna.ical4j.util.MapTimeZoneCache;
 
 /**
  * This class parses an import file from iCalendar.
@@ -65,6 +64,7 @@ public class IcalendarReader extends Reader
 	public IcalendarReader()
 	{
 		super();
+		System.setProperty("net.fortuna.ical4j.timezone.cache.impl", MapTimeZoneCache.class.getName());
 	}
 
 	/* (non-Javadoc)
@@ -135,10 +135,9 @@ public class IcalendarReader extends Reader
 				for (Iterator j = list.iterator(); j.hasNext();) 
 				{
 					Period period = (Period) j.next();
-					TemporalAmount duration = period.getDuration();
-					long durationminutes = duration.get(ChronoUnit.MINUTES);
-					long durationhours = duration.get(ChronoUnit.HOURS);
-					//todo investiage ical4j's handling of 'days'
+					Duration duration = Duration.from(period.getDuration());
+					long durationminutes = duration.toMinutes();
+					long durationhours =  duration.toHours();
 
 					if (durationminutes < 10L)
 					{
