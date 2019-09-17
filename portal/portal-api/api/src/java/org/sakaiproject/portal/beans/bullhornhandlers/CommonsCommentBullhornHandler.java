@@ -58,7 +58,7 @@ public class CommonsCommentBullhornHandler extends AbstractBullhornHandler {
     }
 
     @Override
-    public Optional<List<BullhornData>> handleEvent(Event e, Cache<String, Map> countCache) {
+    public Optional<List<BullhornData>> handleEvent(Event e, Cache<String, Long> countCache) {
 
         String commentCreator = e.getUserId();
 
@@ -95,7 +95,7 @@ public class CommonsCommentBullhornHandler extends AbstractBullhornHandler {
 
             // First, send an alert to the post author
             if (!commentCreator.equals(postCreator)) {
-                bhEvents.add(new BullhornData(commentCreator, postCreator, siteId, siteTitle, url, false));
+                bhEvents.add(new BullhornData(commentCreator, postCreator, siteId, siteTitle, url));
                 countCache.remove(postCreator);
             }
 
@@ -112,7 +112,7 @@ public class CommonsCommentBullhornHandler extends AbstractBullhornHandler {
                 }
 
                 if (!sentAlready.contains(to)) {
-                    bhEvents.add(new BullhornData(commentCreator, to, siteId, siteTitle, url, false));
+                    bhEvents.add(new BullhornData(commentCreator, to, siteId, siteTitle, url));
                     countCache.remove(to);
                     sentAlready.add(to);
                 }

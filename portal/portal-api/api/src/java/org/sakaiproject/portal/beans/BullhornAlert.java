@@ -17,7 +17,7 @@ import lombok.EqualsAndHashCode;
 
 @Entity
 @Table(name = "BULLHORN_ALERTS", indexes = {
-    @Index(name = "IDX_BULLHORN_ALERTS_ALERT_TYPE_TO_USER", columnList = "ALERT_TYPE, TO_USER")
+    @Index(name = "IDX_BULLHORN_ALERTS_TO_USER", columnList = "TO_USER")
 })
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -28,9 +28,6 @@ public class BullhornAlert {
     @GeneratedValue
     @EqualsAndHashCode.Include
     private Long id;
-
-    @Column(name = "ALERT_TYPE", length = 8, nullable = false)
-    private String alertType;
 
     @Column(name = "FROM_USER", length = 99, nullable = false)
     private String fromUser;
