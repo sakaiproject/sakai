@@ -525,7 +525,7 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
 };
 
 
-GbGradeTable.headerRenderer = function (col, column) {
+GbGradeTable.headerRenderer = function (col, column, $th) {
   if (col < GbGradeTable.getFixedColumns().length) {
     var colDef = GbGradeTable.getFixedColumns()[col];
     return colDef.headerTemplate.process({col: col, settings: GbGradeTable.settings});
@@ -542,6 +542,7 @@ GbGradeTable.headerRenderer = function (col, column) {
   if (column.type === "assignment") {
     return GbGradeTable.templates.assignmentHeader.process(templateData);
   } else if (column.type === "category") {
+    $th.addClass("gb-item-category");
     return GbGradeTable.templates.categoryScoreHeader.process(templateData);
   } else {
     return "Unknown column type for column: " + col + " (" + column.type+ ")";
@@ -597,6 +598,7 @@ GbGradeTable.mergeColumns = function (data, fixedColumns) {
 }
 
 var nextRequestId = 0;
+
 GbGradeTable.ajaxCallbacks = {}
 
 GbGradeTable.ajaxComplete = function (requestId, status, data) {
@@ -741,9 +743,9 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       // Calculate the HTML that we need to show
       var html = '';
       if (col < GbGradeTable.FIXED_COLUMN_OFFSET) {
-        html = GbGradeTable.headerRenderer(col);
+        html = GbGradeTable.headerRenderer(col, $th);
       } else {
-        html = GbGradeTable.headerRenderer(col, this.view.settings.columns[col]._data_);
+        html = GbGradeTable.headerRenderer(col, this.view.settings.columns[col]._data_, $th);
       }
 
       // If we haven't got a cached parse of it, do that now
@@ -969,10 +971,11 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     // SAK-40644 Hide move left for the leftmost, move right for the rightmost.
     var $header = $link.closest("th.gb-item");
     if ($header.length) {
-      if (!$header.prev("th.gb-item").length) {
+      if (!$header.prev("th.gb-item").length || $header.prev("th").hasClass("gb-item-category")) {
         $dropdownMenu.find(".gb-move-left").hide();
       }
-      if (!$header.next("th.gb-item").length) {
+
+      if (!$header.next("th.gb-item").length || $header.next("th").hasClass("gb-item-category")) {
         $dropdownMenu.find(".gb-move-right").hide();
       }
     }
@@ -2519,7 +2522,7 @@ GbGradeTable.setupDragAndDrop = function () {
       if (candidateTarget.is(dragTarget) ||
           (candidateTarget.is(dragTarget.prev()) && dropTargetSide == RIGHT_POSITION) ||
           (candidateTarget.is(dragTarget.next()) && dropTargetSide == LEFT_POSITION)) {
-
+          
             /* If our drop target would put us right back where we started,
                don't show the drop indicator. */
             return true;
