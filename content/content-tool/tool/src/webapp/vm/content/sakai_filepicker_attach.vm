@@ -698,7 +698,7 @@
 												#end
 												$validator.escapeHtml(${googledriveItem.name})
 												#if (!$googledriveItem.isFolder() && $googledriveItem.thumbnail)
-													<img id="$googledriveItem.googleDriveItemId" class="googlethumbnail" src="$googledriveItem.thumbnail"/>
+													<img id="$googledriveItem.googleDriveItemId" class="googlethumbnail" src="$googledriveItem.thumbnail" onerror="this.style.display='none'"/>
 												#end
 												</a>
 												
