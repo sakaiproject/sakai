@@ -560,18 +560,20 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 					// We have a match. Now make sure that the grades are as expected.
 					final Map<String, Double> inputGradePercents = gradebookInformation.getSelectedGradingScaleBottomPercents();
 					final Set<String> gradeCodes = inputGradePercents.keySet();
-					if (gradeCodes.containsAll(gradeMapping.getGradeMap().keySet())) {
-						// Modify the existing grade-to-percentage map.
-						for (final String gradeCode : gradeCodes) {
-							gradeMapping.getGradeMap().put(gradeCode, inputGradePercents.get(gradeCode));
-						}
-						gradebook.setSelectedGradeMapping(gradeMapping);
-						updateGradebook(gradebook);
-						log.info("Merge to gradebook {} updated grade mapping", toGradebookUid);
-					} else {
-						log.info("Merge to gradebook {} skipped grade mapping change because the {} grade codes did not match",
-								toGradebookUid, fromGradingScaleUid);
+
+					// If the grades dont map one-to-one, clear out the destination site's existing map
+					if (!gradeCodes.containsAll(gradeMapping.getGradeMap().keySet())) {
+						gradeMapping.getGradeMap().clear();
 					}
+
+					// Modify the existing grade-to-percentage map.
+					for (final String gradeCode : gradeCodes) {
+						gradeMapping.getGradeMap().put(gradeCode, inputGradePercents.get(gradeCode));
+					}
+					gradebook.setSelectedGradeMapping(gradeMapping);
+					updateGradebook(gradebook);
+					log.info("Merge to gradebook {} updated grade mapping", toGradebookUid);
+
 					break MERGE_GRADE_MAPPING;
 				}
 			}
