@@ -240,7 +240,7 @@ public class GoogleDriveServiceImpl implements GoogleDriveService {
 			Drive.Files.List list = service.files().list();
 			list.setFields(String.format("nextPageToken, files(%s)", String.join(",", fileFieldsToRequest)));
 			list.setOrderBy("folder,name");
-			String queryString = "'root' in parents";
+			String queryString = "'root' in parents and trashed = false";
 			list.setQ(queryString);
 			FileList result = list.execute();
 			List<File> files = result.getFiles();
@@ -296,7 +296,7 @@ public class GoogleDriveServiceImpl implements GoogleDriveService {
 			Drive.Files.List list = service.files().list();
 			list.setFields(String.format("nextPageToken, files(%s)", String.join(",", fileFieldsToRequest)));
 			list.setOrderBy("folder,name");
-			String queryString = "'"+itemId+"' in parents";
+			String queryString = "'"+itemId+"' in parents and trashed = false";
 			list.setQ(queryString);
 			FileList result = list.execute();
 			List<File> files = result.getFiles();
@@ -314,6 +314,8 @@ public class GoogleDriveServiceImpl implements GoogleDriveService {
 				gdi.setMimeType(file.getMimeType());
 				gdi.setParentId(itemId);
 				gdi.setDepth(depth+1);
+				gdi.setIcon(file.getIconLink());
+				gdi.setThumbnail(file.getThumbnailLink());
 				List<GoogleDriveItem> children = getDriveChildrenItems(userId, file.getId(), depth+1);
 				if(children != null && !children.isEmpty()) { 
 					gdi.setChildren(true);
