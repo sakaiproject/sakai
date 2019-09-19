@@ -155,6 +155,9 @@ public class GradebookNgBusinessService {
 	@Setter
 	private RubricsService rubricsService;
 
+	@Setter @Getter
+	private boolean clearUiSettingsAfterImport = false;
+
 	public static final String ASSIGNMENT_ORDER_PROP = "gbng_assignment_order";
 	public static final String ICON_SAKAI = "icon-sakai--";
 	public static final String ALL = "all";
