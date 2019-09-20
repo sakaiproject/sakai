@@ -444,6 +444,13 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 		gradebook.setCategory_type(gradebookInformation.getCategoryType());
 		gradebook.setGrade_type(gradebookInformation.getGradeType());
+		gradebook.setAssignmentStatsDisplayed(gradebookInformation.isAssignmentStatsDisplayed());
+		gradebook.setCourseGradeStatsDisplayed(gradebookInformation.isCourseGradeStatsDisplayed());
+		gradebook.setAssignmentsDisplayed(gradebookInformation.isDisplayReleasedGradeItemsToStudents());
+		gradebook.setCourseGradeDisplayed(gradebookInformation.isCourseGradeDisplayed());
+		gradebook.setCourseLetterGradeDisplayed(gradebookInformation.isCourseLetterGradeDisplayed());
+		gradebook.setCoursePointsDisplayed(gradebookInformation.isCoursePointsDisplayed());
+		gradebook.setCourseAverageDisplayed(gradebookInformation.isCourseAverageDisplayed());
 
 		updateGradebook(gradebook);
 
