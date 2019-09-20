@@ -33,7 +33,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.sakaiproject.tool.api.Tool;
 import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 

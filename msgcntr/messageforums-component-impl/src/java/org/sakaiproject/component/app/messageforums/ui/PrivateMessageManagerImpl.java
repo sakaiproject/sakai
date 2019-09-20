@@ -326,17 +326,17 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   /**
    * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#savePrivateMessage(org.sakaiproject.api.app.messageforums.Message)
    */
-  public void savePrivateMessage(Message message)
+  public Message savePrivateMessage(Message message)
   {
-    messageManager.saveOrUpdateMessage(message);
+    return messageManager.saveOrUpdateMessage(message);
   }
 
   /**
    * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#savePrivateMessage(org.sakaiproject.api.app.messageforums.Message, boolean logEvent)
    */
-  public void savePrivateMessage(Message message, boolean logEvent)
+  public Message savePrivateMessage(Message message, boolean logEvent)
   {
-	  messageManager.saveOrUpdateMessage(message, logEvent);
+	  return messageManager.saveOrUpdateMessage(message, logEvent);
   }
   
   public Message getMessageById(Long id)
