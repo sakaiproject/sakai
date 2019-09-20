@@ -474,7 +474,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		final Map<String, Long> categoriesCreated = new HashMap<>();
 		final List<String> assignmentsCreated = new ArrayList<>();
 
-		if (!categories.isEmpty()) {
+		if (!categories.isEmpty() && gradebookInformation.getCategoryType() != CATEGORY_TYPE_NO_CATEGORY) {
 
 			// migrate the categories with assignments
 			categories.forEach(c -> {
