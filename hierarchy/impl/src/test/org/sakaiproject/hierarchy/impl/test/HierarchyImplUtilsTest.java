@@ -14,18 +14,19 @@ package org.sakaiproject.hierarchy.impl.test;
 import java.util.HashSet;
 import java.util.Set;
 
-import junit.framework.TestCase;
-
 import org.sakaiproject.hierarchy.dao.model.HierarchyNodeMetaData;
 import org.sakaiproject.hierarchy.dao.model.HierarchyPersistentNode;
 import org.sakaiproject.hierarchy.impl.utils.HierarchyImplUtils;
 import org.sakaiproject.hierarchy.model.HierarchyNode;
+
+import junit.framework.TestCase;
 
 /**
  * Testing the utils class to make sure we can count on it
  * 
  * @author Aaron Zeckoski (aaronz@vt.edu)
  */
+
 public class HierarchyImplUtilsTest extends TestCase {
 
     private char s = HierarchyImplUtils.SEPERATOR;
