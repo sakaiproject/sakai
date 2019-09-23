@@ -54,7 +54,7 @@ body.is-logged-out{
 						&:hover, &:focus {
 							position: relative;
 							.#{$namespace}toolsNav__menuitem--title{
-								display: block;
+								display: inline-block;
 								position: absolute;
 								top: -1px;
 								bottom: -1px;
@@ -116,6 +116,7 @@ body.is-logged-out{
 							@include transform( scaleX(-1) ); // flip horizontally
 						}
 					}
+          .activity-count { display: inline-block; }
 				}
 			}
 			// Properties for portal.showSubsitesAsFlyout=true
@@ -973,4 +974,8 @@ body {
 			}
 		}
 	}
+}
+
+.activity-count {
+  display: inline-block;
 }

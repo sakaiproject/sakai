@@ -39,7 +39,7 @@
 								<span class="Mrphs-toolsNav__menuitem--icon ${page.menuClass} $!{page.menuClassOverride} icon-active"></span>
 								<span class="Mrphs-toolsNav__menuitem--title">${page.pageTitle}</span>
 							</a>
-                            <span id="activity-count-${siteId}-${page.wellKnownToolId}" class="activity-count">1</span>
+							<span id="activity-count-${siteId}-${page.wellKnownToolId}" class="activity-count"></span>
 						</li>
 	
 					#else
@@ -51,7 +51,7 @@
 									<span class="Mrphs-toolsNav__menuitem--icon ${page.menuClass} $!{page.menuClassOverride}"></span>
 									<span class="Mrphs-toolsNav__menuitem--title">${page.pageTitle}</span>
 								</a>
-                                <span id="activity-count-${siteId}-${page.wellKnownToolId}" class="activity-count">1</span>
+								<span style="display: inline-block;" id="activity-count-${siteId}-${page.wellKnownToolId}" class="activity-count"></span>
 							</li>
 	
 						#else
@@ -72,7 +72,7 @@
 										<span class="Mrphs-toolsNav__menuitem--icon ${page.menuClass} $!{page.menuClassOverride}"></span>
 										<span class="Mrphs-toolsNav__menuitem--title">${page.pageTitle}</span>
 									</a>
-                                    <span id="activity-count-${siteId}-${page.wellKnownToolId}" class="activity-count">1</span>
+									<span style="display: inline-block;" id="activity-count-${siteId}-${page.wellKnownToolId}" class="activity-count"></span>
 								</li>
 	
 							#end ## END of IF (${page.ispopup})

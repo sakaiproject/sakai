@@ -291,6 +291,10 @@
 
   var updateCounts = function () {
 
+    var i = Math.floor(Math.random() * Math.floor(20));
+
+    document.getElementById(`activity-count-21681667-4b30-4c25-a91e-47ee75145295-sakai.chat`).innerHTML = i;
+
     $.ajax({
       url: '/direct/portal/bullhornAlertCount.json',
       cache: false,
