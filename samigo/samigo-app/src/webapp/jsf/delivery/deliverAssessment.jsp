@@ -231,8 +231,11 @@ document.links[newindex].onclick();
 	}
 	
 	function serializeImagePoints(){
-		for(var key in dynamicListMap)
-			dynamicListMap[key].serializeElements();
+		for(var key in dynamicListMap) {
+			if (typeof dynamicListMap[key].serializeElements === 'function') {
+				dynamicListMap[key].serializeElements();
+			}
+		}
 	}
 
 </script>
