@@ -106,6 +106,7 @@ function SaveFormContentAsync(toUrl, formId, buttonName, updateVar, updateVar2, 
 	if (i >= 0) {
 	    j = text.indexOf('"', i+7);
 	}
+	var d = -1;
 	if (j >= 0) {
 	    var d = text.substring(i+7, j);
 	    if (document.forms[0].elements[updateVar] != null) {
@@ -142,6 +143,38 @@ function SaveFormContentAsync(toUrl, formId, buttonName, updateVar, updateVar2, 
 	    //alert("Attempt to save your work automatically failed. One common cause is that you have a second window open on Tests and Quizes. We strongly suggest that you not continue working in this window. If you go to the top level of Tests and Quizes, you can restart this test or quiz.");
 	}
 	window.status = "";
+
+    //check noLateSubmission or isRetracted controlled by pastDueDate()
+    var noLateSubmission = text.indexOf("noLateSubmission");
+    var isRetracted = text.indexOf("isRetracted");
+    if (noLateSubmission >= 0 || isRetracted >= 0) {
+        timeExpired();
+        $("[id$=\\:submitNoCheck]")[0].click();
+    }
+
+    if (d !== -1) {
+        var timeNow = Date.now();
+        var i = text.indexOf("retractDate");
+        if (i >= 0) {
+            i = text.indexOf("value=", i);
+        }
+        else {
+            i = text.indexOf("dueDate");
+            if (i >= 0) {
+                i = text.indexOf("value=", i);
+            }
+        }
+        var j = -1;
+        if (i >= 0) {
+            j = text.indexOf('"', i+7);
+        }
+        if (j >= 0) {
+            var dueDateorRetractDate = text.substring(i+7, j);
+            if (dueDateorRetractDate - timeNow <= repeatMilliseconds) {
+                timeLeft();
+            }
+        }
+    }
 
         // when the request is done the scope of the function can be garbage collected...
     }
