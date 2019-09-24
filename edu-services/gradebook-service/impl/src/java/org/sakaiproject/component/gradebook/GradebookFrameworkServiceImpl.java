@@ -364,11 +364,14 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
         toBeDeleted = hibTempl.findByNamedParam("from GradableObject as go where go.gradebook.id = :gradebookid", "gradebookid", gradebookId);
         numberDeleted = toBeDeleted.size();
         hibTempl.deleteAll(toBeDeleted);
-        if (log.isDebugEnabled()) {
-			log.debug("Deleted {} gradable objects", numberDeleted);
-		}
+        log.debug("Deleted {} gradable objects", numberDeleted);
 
-		final Gradebook gradebook = hibTempl.load(Gradebook.class, gradebookId);
+        toBeDeleted = hibTempl.findByNamedParam("from Category as cg where cg.gradebook.id = :gradebookid", "gradebookid", gradebookId);
+        numberDeleted = toBeDeleted.size();
+        hibTempl.deleteAll(toBeDeleted);
+        log.debug("Deleted {} gradable categories", numberDeleted);
+
+        final Gradebook gradebook = hibTempl.load(Gradebook.class, gradebookId);
         gradebook.setSelectedGradeMapping(null);
 
         toBeDeleted = hibTempl.findByNamedParam("from GradeMapping as gm where gm.gradebook.id = :gradebookid", "gradebookid", gradebookId);
