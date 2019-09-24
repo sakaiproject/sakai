@@ -20,14 +20,11 @@ if (hiddenItems == null) {
   // No hidden items in session storage. Try and get it from server.
   console.debug("NO hidden items found in session storage. Trying server ...");
 
-  import("/library/js/view-preferences.js").then(module => {
+  getViewPreferences("gradebook").then(hiddenItemsString => {
 
-    module.getViewPreferences("gradebook").then(hiddenItemsString => {
-
-      hiddenItems = JSON.parse(hiddenItemsString);
-      sessionStorage.setItem(GB_HIDDEN_ITEMS_KEY, hiddenItemsString);
-      addHiddenGbItemsCallback();
-    });
+    hiddenItems = JSON.parse(hiddenItemsString);
+    sessionStorage.setItem(GB_HIDDEN_ITEMS_KEY, hiddenItemsString);
+    addHiddenGbItemsCallback();
   });
 } else {
   console.debug("Hidden items found in session storage.");
@@ -1859,9 +1856,7 @@ GbGradeTable.setupToggleGradeItems = function() {
     var hiddenItemsString = JSON.stringify(hiddenItems);
     sessionStorage.setItem(GB_HIDDEN_ITEMS_KEY, hiddenItemsString);
 
-    import("/library/js/view-preferences.js").then(module => {
-      module.updateViewPreferences("gradebook", hiddenItemsString);
-    });
+    updateViewPreferences("gradebook", hiddenItemsString);
 
     updateCategoryFilterState($input);
 
