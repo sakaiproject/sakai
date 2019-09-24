@@ -110,6 +110,7 @@ public class GbGradeTable extends Panel implements IHeaderContributor {
 
 		final String version = PortalUtils.getCDNQuery();
 
+		response.render(JavaScriptHeaderItem.forUrl("/library/js/view-preferences.js"));
 		response.render(JavaScriptHeaderItem.forUrl("/library/js/sakai-reminder.js"));
 
 		response.render(
