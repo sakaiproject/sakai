@@ -736,20 +736,7 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 								<span aria-hidden="true"> $tlang.getFormattedMessage('googledrive.configured', $!googledriveUserAccount)</span>
 								<input type="button" name="refreshGoogleDriveButton" id="refreshGoogleDriveButton" class="refreshGoogleDriveButton" onclick="SPNR.insertSpinnerAfter( this, null, 'pickerGoogleDrive' );document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doRefreshGoogleDrive")'; submitform('attachForm');" value="$tlang.getString('cloudstorage.refresh')" />
 								<input type="button" name="revokeGoogleDriveButton" id="revokeGoogleDriveButton" class="revokeGoogleDriveButton" onclick="document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doRevokeGoogleDrive")'; submitform('attachForm');" value="$tlang.getString('cloudstorage.revoke')" />
-								<table class="listHier lines" cellspacing="0" border="0" summary="$tlang.getString("googledrive.table_summary")">
-									<tr>
-										<th id="title">
-											$tlang.getString("cloudstorage.title")
-										</th>
-										<th id="action-clone">
-											$tlang.getString("cloudstorage.clone")
-										</th>
-										<th id="action-link">
-											$tlang.getString("cloudstorage.link")
-										</th>
-									</tr>
-									<div id="container-jstree"></div>
-								</table>
+								<div id="container-jstree"></div>
 							#end
 						#end
 					</div>
