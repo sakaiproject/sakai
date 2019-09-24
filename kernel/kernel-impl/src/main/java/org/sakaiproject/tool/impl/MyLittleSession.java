@@ -47,10 +47,14 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.SessionStore;
 import org.sakaiproject.tool.api.ToolSession;
 
+import com.carrotsearch.sizeof.ObjectTree;
+import com.carrotsearch.sizeof.RamUsageEstimator;
+import lombok.extern.slf4j.Slf4j;
+
 /**********************************************************************************************************************************************************************************************************************************************************
  * Entity: ToolSession, ContextSession (and even HttpSession)
  *********************************************************************************************************************************************************************************************************************************************************/
-
+@Slf4j
 public class MyLittleSession implements ToolSession, ContextSession, HttpSession, Serializable
 {
     public static final String TYPE_TOOL = "tool";
@@ -308,6 +312,32 @@ public class MyLittleSession implements ToolSession, ContextSession, HttpSession
 
 		else
 		{
+			if (log.isDebugEnabled()) {
+				// DO NOT USE this in a production system as calculating object sizes is very
+				// CPU intensive and is for debugging only. YOU HAVE BEEN WARNED.
+				try {
+					long size = RamUsageEstimator.sizeOf(value);
+					StringBuilder msg = new StringBuilder("sizeOf [tool context = ");
+					msg.append(this.m_littleId).append("]");
+					msg.append(":[").append(name).append(" => ").append(value.getClass().getName()).append("]");
+					msg.append(" size is ").append(RamUsageEstimator.humanReadableUnits(size));
+
+					if (log.isTraceEnabled()) {
+						// to get a dump of the object tree turn on trace level logging
+						// don't dump anything over 1MB
+						if (size <= 1048576 ) {
+							msg.append(", dumping object tree:\n");
+							msg.append(ObjectTree.dump(value));
+						} else {
+							msg.append(", object is over 1MB skipping dump\n");
+						}
+					}
+					log.debug("{}", msg);
+				} catch(Exception e) {
+					log.error("sizeOf could not calculate the size of [toolSession => attribute]:[{} => {}]",this.m_id, name, e);
+				}
+			}
+
 			Object old = null;
 			
 			// If this is not a terracotta clustered environment then immediately
