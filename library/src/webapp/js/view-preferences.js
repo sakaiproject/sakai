@@ -6,8 +6,16 @@ function getViewPreferences(tool) {
 
     fetch(url, { cache: "no-cache", headers: { "Content-Type": "application/json" },})
     .then(d => d.json())
-    .then(json => resolve(decodeURIComponent(json.data[tool])))
-    .catch(error => { console.error(error); reject(); });
+    .then(json => {
+
+      var preferencesString = decodeURIComponent(json.data[tool]);
+      if (preferencesString && preferencesString !== "undefined") {
+        resolve(preferencesString);
+      } else {
+        resolve(null);
+      }
+    })
+    .catch(error => { console.error(error); resolve(null); });
   });
 }
 
