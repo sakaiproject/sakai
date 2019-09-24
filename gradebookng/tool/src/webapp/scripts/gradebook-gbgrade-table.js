@@ -22,9 +22,11 @@ if (hiddenItems == null) {
 
   getViewPreferences("gradebook").then(hiddenItemsString => {
 
-    hiddenItems = JSON.parse(hiddenItemsString);
-    sessionStorage.setItem(GB_HIDDEN_ITEMS_KEY, hiddenItemsString);
-    addHiddenGbItemsCallback();
+    if (hiddenItemsString) {
+      hiddenItems = JSON.parse(hiddenItemsString);
+      sessionStorage.setItem(GB_HIDDEN_ITEMS_KEY, hiddenItemsString);
+      addHiddenGbItemsCallback();
+    }
   });
 } else {
   console.debug("Hidden items found in session storage.");
