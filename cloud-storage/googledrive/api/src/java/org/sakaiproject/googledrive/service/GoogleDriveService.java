@@ -34,5 +34,6 @@ public interface GoogleDriveService {
 	public boolean token(String userId, String code);
 	public boolean revokeGoogleDriveConfiguration(String userId);
 	public void cleanGoogleDriveCacheForUser(String userId);
+	public GoogleDriveItem getDriveItem(String userId, String itemId);
 
 }

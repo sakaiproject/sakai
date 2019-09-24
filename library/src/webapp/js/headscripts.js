@@ -812,6 +812,10 @@ function includeWebjarLibrary(library) {
 		libraryVersion = "3.0.3";
 		document.write('\x3Cscript src="' + webjars + 'qtip2/' + libraryVersion + '/jquery.qtip.min.js' + ver + '">' + '\x3C/script>');
 		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'qtip2/' + libraryVersion + '/jquery.qtip.min.css' + ver + '"/>');
+	} else if (library == 'jstree') {
+		libraryVersion = "3.3.8";
+		document.write('\x3Cscript src="' + webjars + 'jstree/' + libraryVersion + '/jstree.min.js' + ver + '">' + '\x3C/script>');
+		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'jstree/' + libraryVersion + '/themes/default/style.min.css' + ver + '"/>');
 	} else {
 		if (library.endsWith(".js")) {
 			document.write('\x3Cscript src="' + webjars + library + ver + '">' + '\x3C/script>');
