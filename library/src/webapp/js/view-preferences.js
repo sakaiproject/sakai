@@ -19,4 +19,5 @@ function updateViewPreferences(tool, value) {
                     `Failed to update view preferences for tool '${tool}'. Take a look at the server logs?`));
 }
 
-export {getViewPreferences, updateViewPreferences};
+// Until Chrome Edge comes out, we will be pulling this in old school. Later though ...
+//export {getViewPreferences, updateViewPreferences};
