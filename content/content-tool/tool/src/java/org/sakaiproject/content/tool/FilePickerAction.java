@@ -1817,6 +1817,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 			item.setIconClass(typedef.getIconClass(attachment));
 			new_items.add(item);
 			toolSession.setAttribute(STATE_HELPER_CHANGED, Boolean.TRUE.toString());
+			state.setAttribute(STATE_NAVIGATING_ONEDRIVE, true);
 			state.removeAttribute(STATE_NAVIGATING_GOOGLEDRIVE);
 		} catch(Exception e) {
 			log.error("doAttachOneDrive : {}", e.getMessage());
