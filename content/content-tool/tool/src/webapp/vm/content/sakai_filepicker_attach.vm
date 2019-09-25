@@ -17,8 +17,6 @@
 <script> ## This needs to be closed in order for the loads to happen before we use "$"
 includeLatestJQuery('sakai_filepicker_attach.vm');
 </script>
-<script>includeWebjarLibrary("jstree");</script>
-<script src="/sakai-content-tool/js/jstree/dist/jstreeButtons.js"></script>
 
 <script type="text/javascript">
 	<!--
@@ -42,75 +40,15 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 	//-->
 </script>
 
-<script>
-	jQuery(function() {
-		var firstTime = true;
-		var mytree = jQuery('#container-jstree').jstree({
-			'core' : {
-				data : function (node, cb) {
-					var url = '/direct/contentajax/doNavigateGoogleDrive.json';
-					if (node.id !== '#') url += '?googledriveCollectionId=' + node.id;
-					jQuery.ajax({
-						url: url,
-						data: function (node) {
-							return {'id' : node.id};
-						}
-					}).done(function (data) {
-						if (firstTime) {
-							#if ($googledriveJson)
-								var json = '$googledriveJson';
-								var jsonData = JSON.parse(json);
-								cb(jsonData);
-							#else
-								cb(data.contentajax_collection[0].data);
-							#end
-							firstTime = false;
-						} else {
-							cb(data.contentajax_collection[0].data);
-						}
-					});
-				}
-			},
-			plugins: ['actions']
-		});
-		mytree.on('changed.jstree', function (e, data) {
-				if(data.node.li_attr['data-view'].includes('/edit')){
-					var urleditable= data.node.li_attr['data-view'];
-					var win2 = window.open(urleditable, '_blank');
-				}
-				if(data.node.li_attr['data-url'] != null){
-					var urlImages=data.node.li_attr['data-url'];
-					var urlNotReady= urlImages.indexOf("=download");
-					var urlReady= urlImages.substring(0, urlNotReady);
-					var win = window.open(urlReady, '_blank');
-				}
-			});
-		mytree.jstree(true).add_action("all", {
-			"id": "action_link",
-			"class": "fa fa-link",
-			"title": "Attach a link",
-			"text": "",
-			"after": true,
-			"selector": "a",
-			"event": "click",
-			"callback": function(node_id, node, action_id, action_el){
-				return doattachsubmitgoogledrive(node.id, false);
-			}
-		});
-		mytree.jstree(true).add_action("all", {
-			"id": "action_copy",
-			"class": "fa fa-files-o",
-			"title": "Attach a copy",
-			"text": "",
-			"after": true,
-			"selector": "a",
-			"event": "click",
-			"callback": function(node_id, node, action_id, action_el){
-				return doattachsubmitgoogledrive(node.id, true);
-			}
-		});
-	});
-</script>
+#if($!googledriveOn && $!googledriveUserAccount)
+	## Load the Google Drive dependencies only when the Google Drive integration is enabled.
+	#parse("/vm/content/cloudstorage_googledrive_libraries.vm")
+#end
+
+#if($!onedriveOn)
+	## Load the One Drive dependencies only when the One Drive integration is enabled.
+	#parse("/vm/content/cloudstorage_onedrive_libraries.vm")
+#end
 
 <script src="/library/js/spinner.js" type="text/javascript"></script>
 
@@ -140,36 +78,21 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 	<form name="doattachitem" style="display:none" id="doattachitem" action="#toolForm("FilePickerAction" "Main")" method=post enctype="multipart/form-data">
 	<input type="hidden" name="sakai_action" value="doAttachitem">
 	<input type="hidden" name="itemId" id="doattachitemid" />
+	<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+#if($!onedriveOn)
 	<input type="hidden" name="onedriveItemId" id="doattachonedriveitemid" />
 	<input type="hidden" name="onedriveItemClone" id="onedriveitemidclone" />
+#end
+#if($!googledriveOn)
 	<input type="hidden" name="googledriveItemId" id="doattachgoogledriveitemid" />
 	<input type="hidden" name="googledriveItemClone" id="googledriveitemidclone" />
 	<input type="hidden" name="googledriveJson" id="googledrivejson" />
-	<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+#end
 	</form>
 
 	<script type="text/javascript">
 	function doattachsubmit(itemId) {
 	   document.getElementById('doattachitemid').setAttribute('value',itemId);
-	   var f = document.getElementById('doattachitem');
-	   f.submit();
-	   return false;
-	}
-
-	function doattachsubmitonedrive(itemId, cloneObject) {
-	   document.getElementById('doattachonedriveitemid').setAttribute('value',itemId);
-	   document.getElementById('onedriveitemidclone').setAttribute('value',cloneObject);
-	   var f = document.getElementById('doattachitem');
-	   f.submit();
-	   return false;
-	}
-
-	function doattachsubmitgoogledrive(itemId, cloneObject) {
-	   document.getElementById('doattachgoogledriveitemid').setAttribute('value',itemId);
-	   document.getElementById('googledriveitemidclone').setAttribute('value',cloneObject);
-	   var json = jQuery('#container-jstree').jstree(true).get_json('#', {flat:false});
-	   var jsonStr = JSON.stringify(json);
-	   document.getElementById('googledrivejson').setAttribute('value',jsonStr);
 	   var f = document.getElementById('doattachitem');
 	   f.submit();
 	   return false;
@@ -649,96 +572,18 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 				############################################# Begin OneDrive section
 				<div role="tabpanel" class="tab-pane panel-body #if($!navigating_onedrive) active #end" id="pickerOneDrive">
 					<div class="form-inline">
-						#if($!onedriveOn)
-							<h4>
-								<span class="fa fa-windows" aria-hidden="true"></span>
-								$tlang.getString('onedrive.integration')
-							</h4>
-							#if(!$!onedriveUserAccount)
-								<span aria-hidden="true"> $tlang.getString('onedrive.set_account')</span>
-								<a href="#toolLink("FilePickerAction" "doOneDrive")" title= "$tlang.getString('onedrive.set_account')">
-									<input type="button" aria-hidden="true" value="$tlang.getString('cloudstorage.configure')" />
-								</a>
-							#else
-								<span aria-hidden="true"> $tlang.getFormattedMessage('onedrive.configured', $!onedriveUserAccount)</span>
-								<input type="button" name="refreshOneDriveButton" id="refreshOneDriveButton" class="refreshOneDriveButton" onclick="SPNR.insertSpinnerAfter( this, null, 'pickerGoogleDrive' );document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doRefreshOneDrive")'; submitform('attachForm');" value="$tlang.getString('cloudstorage.refresh')" />
-								<input type="button" name="revokeOneDriveButton" id="revokeOneDriveButton" class="revokeOneDriveButton" onclick="document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doRevokeOneDrive")'; submitform('attachForm');" value="$tlang.getString('cloudstorage.revoke')" />
-								<table class="listHier lines" cellspacing="0" border="0" summary="$tlang.getString("onedrive.table_summary")">
-									<tr>
-										<th id="title">
-											$tlang.getString("cloudstorage.title")
-										</th>
-										<th id="action-clone">
-											$tlang.getString("cloudstorage.clone")
-										</th>
-										<th id="action-link">
-											$tlang.getString("cloudstorage.link")
-										</th>
-									</tr>
-									#foreach($onedriveItem in $onedriveItems)
-										#set($itemcount = $itemcount + 1)
-										#set ($width = "$!{onedriveItem.depth}${unit}")
-										<tr
-											#if ($itemcount % 2==0)
-												class="odd"
-											#else
-												class="even"
-											#end>
-											<td headers="title" style="text-indent: $width" class="specialLink">
-												#if ($onedriveItem.isFolder())
-													#set($folderClass = "fa fa-folder-o")
-													#if($onedriveItem.hasChildren() && !$onedriveItem.isExpanded())
-														#set($folderClass = "fa fa-folder")
-													#elseif($onedriveItem.hasChildren() && $onedriveItem.isExpanded())
-														#set($folderClass = "fa fa-folder-open")
-													#end
-													<a	#if($onedriveItem.hasChildren() && !$onedriveItem.isExpanded()) href="#toolLinkParam("FilePickerAction" "doNavigate" "onedriveCollectionId=${validator.escapeUrl(${onedriveItem.oneDriveItemId})}&onedriveCollectionDepth=${onedriveItem.depth}")" title="$tlang.getString('sh.go')" #end
-													><span class="$folderClass" aria-hidden="true"></span>
-													<span class="sr-only">$tlang.getString('gen.folder1')</span>
-												#else
-													##$onedriveItem.file.mimeType
-													<a href="$onedriveItem.downloadUrl"><span class="$contentTypeImageService.getContentTypeImageClass($onedriveItem.file.mimeType)" aria-hidden="true"></span>
-												#end
-												$validator.escapeHtml(${onedriveItem.name})</a>
-											</td>
-											<td headers="action-clone">
-												#if (!$onedriveItem.isFolder())
-													<a href="#" onclick="return doattachsubmitonedrive('$validator.escapeUrl(${onedriveItem.oneDriveItemId})',true)" title ="$tlang.getString('att.copy')">$tlang.getString("att.copy") <span class="skip">$validator.escapeHtml($onedriveItem.name)</span></a>
-												#end
-											<td headers="action-link">
-												#if (!$onedriveItem.isFolder())
-													<a href="#" onclick="return doattachsubmitonedrive('$validator.escapeUrl(${onedriveItem.oneDriveItemId})',false)" title ="$tlang.getString('cloudstorage.attach_link')">$tlang.getString('cloudstorage.attach_link') <span class="skip">$validator.escapeHtml($onedriveItem.name)</span></a>
-												#end
-											</td>
-										</tr>
-									#end
-								</table>
-							#end
-						#end
-
+					#if($!onedriveOn)
+						#parse("/vm/content/cloudstorage_onedrive_picker.vm")
+					#end
 					</div>
 				</div>
 				############################################# end of OneDrive section
 				############################################# Begin GoogleDrive section
 				<div role="tabpanel" class="tab-pane panel-body #if($!navigating_googledrive) active #end" id="pickerGoogleDrive">
-					<div class="form-inline">									
-						#if($!googledriveOn)
-							<h4>
-								<span class="fa fa-google" aria-hidden="true"></span>
-								$tlang.getString('googledrive.integration')
-							</h4>
-							#if(!$!googledriveUserAccount)
-								<span aria-hidden="true"> $tlang.getString('googledrive.set_account')</span>
-								<a href="#toolLink("FilePickerAction" "doGoogleDrive")" title= "$tlang.getString('googledrive.set_account')">
-									<input type="button" aria-hidden="true" value="$tlang.getString('cloudstorage.configure')" />
-								</a>
-							#else
-								<span aria-hidden="true"> $tlang.getFormattedMessage('googledrive.configured', $!googledriveUserAccount)</span>
-								<input type="button" name="refreshGoogleDriveButton" id="refreshGoogleDriveButton" class="refreshGoogleDriveButton" onclick="SPNR.insertSpinnerAfter( this, null, 'pickerGoogleDrive' );document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doRefreshGoogleDrive")'; submitform('attachForm');" value="$tlang.getString('cloudstorage.refresh')" />
-								<input type="button" name="revokeGoogleDriveButton" id="revokeGoogleDriveButton" class="revokeGoogleDriveButton" onclick="document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doRevokeGoogleDrive")'; submitform('attachForm');" value="$tlang.getString('cloudstorage.revoke')" />
-								<div id="container-jstree"></div>
-							#end
-						#end
+					<div class="form-inline">
+					#if($!googledriveOn)
+						#parse("/vm/content/cloudstorage_googledrive_picker.vm")
+					#end
 					</div>
 				</div>
 				############################################# end of GoogleDrive section
