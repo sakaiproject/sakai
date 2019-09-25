@@ -26,6 +26,8 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.form.OnChangeAjaxBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.StringHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
@@ -39,6 +41,7 @@ import org.apache.wicket.validation.IValidationError;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.model.UiMode;
+import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
@@ -351,5 +354,12 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 		if (assignment.isExternallyMaintained()) {
 			warn(MessageFormat.format(getString("info.edit_assignment_external_items"), assignment.getExternalAppName()));
 		}
+	}
+
+	public void renderHead(final IHeaderResponse response) {
+
+		final String version = PortalUtils.getCDNQuery();
+		response.render(StringHeaderItem.forString(
+			"<script type=\"module\" src=\"/rubrics-service/webcomponents/rubric-association-requirements.js" + version + "\" />"));
 	}
 }

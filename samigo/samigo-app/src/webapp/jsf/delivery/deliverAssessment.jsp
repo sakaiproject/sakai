@@ -35,10 +35,11 @@
       <head><%= request.getAttribute("html.head") %>
       <title> <h:outputText value="#{delivery.assessmentTitle}"/> </title>
       <%@ include file="/jsf/delivery/deliveryjQuery.jsp" %>
-      <script type="text/javascript" src="/sakai-editor/editor-bootstrap.js"></script>
-      <script type="text/javascript" src="/sakai-editor/editor.js"></script>
-      <script type="text/javascript" src="/sakai-editor/editor-launch.js"></script>
-      <script type="text/javascript" src="/samigo-app/js/saveForm.js"></script>
+      <script src="/sakai-editor/editor-bootstrap.js"></script>
+      <script src="/sakai-editor/editor.js"></script>
+      <script src="/sakai-editor/editor-launch.js"></script>
+      <script src="/samigo-app/js/saveForm.js"></script>
+      <script type="module" src="/rubrics-service/webcomponents/rubric-association-requirements.js<h:outputText value="#{questionScores.CDNQuery}" />"></script>
 
     <h:panelGroup rendered="#{delivery.actionString == 'reviewAssessment'}">
       <script>

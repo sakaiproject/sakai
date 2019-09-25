@@ -36,18 +36,19 @@ $Id$
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{commonMessages.total_scores}" /></title>
 
-    <script type="text/javascript" src="/samigo-app/jsf/widget/hideDivision/hideDivision.js"></script>
-    <script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
-    <script type="text/javascript" src="/samigo-app/js/jquery.dynamiclist.student.preview.js"></script>
-    <script type="text/javascript" src="/samigo-app/js/selection.student.preview.js"></script>
-    <script type="text/javascript" src="/samigo-app/js/selection.author.preview.js"></script>
+    <script src="/samigo-app/jsf/widget/hideDivision/hideDivision.js"></script>
+    <script src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
+    <script src="/samigo-app/js/jquery.dynamiclist.student.preview.js"></script>
+    <script src="/samigo-app/js/selection.student.preview.js"></script>
+    <script src="/samigo-app/js/selection.author.preview.js"></script>
+    <script type="module" src="/rubrics-service/webcomponents/rubric-association-requirements.js<h:outputText value="#{studentScores.CDNQuery}" />"></script>
 
     <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.student.css">
     <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
-    <script type="text/javascript">includeWebjarLibrary('awesomplete')</script>
-    <script type="text/javascript" src="/library/js/sakai-reminder.js"></script>
+    <script>includeWebjarLibrary('awesomplete')</script>
+    <script src="/library/js/sakai-reminder.js"></script>
     
-    <script type="text/JavaScript">   
+    <script>
       jQuery(window).load(function(){
         
         $('div[id^=sectionImageMap_]').each(function(){

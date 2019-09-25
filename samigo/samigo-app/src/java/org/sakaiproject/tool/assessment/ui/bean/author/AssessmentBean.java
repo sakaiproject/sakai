@@ -32,6 +32,7 @@ import javax.faces.model.SelectItem;
 
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
@@ -344,5 +345,9 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 		  result =  assessmentService.isExportable(assessment);
 	  }
 	  return result;
+  }
+
+  public String getCDNQuery() {
+		return PortalUtils.getCDNQuery();
   }
 }
