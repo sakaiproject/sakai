@@ -295,7 +295,7 @@ public class SiteService
 		org.sakaiproject.site.api.SiteService service = getInstance();
 		if (service == null) return;
 
-		service.removeSite(param0, true);
+		service.removeSite(param0, param1);
 	}
 	
 	public static java.lang.String siteReference(java.lang.String param0)

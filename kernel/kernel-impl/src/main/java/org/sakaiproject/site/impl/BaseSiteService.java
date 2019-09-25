@@ -1437,13 +1437,13 @@ public abstract class BaseSiteService implements SiteService, Observer
 	/**
 	 * @inheritDoc
 	 */
-	public void removeSite(Site site, boolean hardDelete) throws PermissionException, IdUnusedException
+	public void removeSite(Site site, boolean isHardDelete) throws PermissionException, IdUnusedException
 	{
 		// check security (throws if not permitted)
 		unlock(SECURE_REMOVE_SITE, site.getReference());
 
 		// if soft site deletes are active
-		if (!hardDelete && serverConfigurationService().getBoolean("site.soft.deletion", true)) {
+		if (!isHardDelete && serverConfigurationService().getBoolean("site.soft.deletion", true)) {
 			
 			log.debug("Soft site deletes are enabled.");
 			
@@ -1489,7 +1489,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 		disableRelated(site);
 
 		// Use the HardDelete interface to purge content from database
-		if (hardDelete) {
+		if (isHardDelete) {
 			hardDelete(site);
 		}
 	}
@@ -2747,15 +2747,15 @@ public abstract class BaseSiteService implements SiteService, Observer
 			return;
 		}
 
-	    // leverage the entityproducer registration system
-	    for (EntityProducer ep : entityManager().getEntityProducers()) {
-	      //if a registered service implements hard delete, then ask it to delete itself
-	      if (ep instanceof HardDeleteAware) {
-	        HardDeleteAware hd = (HardDeleteAware) ep;
-	        log.info("Requesting hard delete for site: {}, tool: {}", site.getId(), ep.getLabel());
-	        hd.hardDelete(site.getId());
-	      }
-	    }
+		// leverage the entityproducer registration system
+		for (EntityProducer ep : entityManager().getEntityProducers()) {
+			//if a registered service implements hard delete, then ask it to delete itself
+			if (ep instanceof HardDeleteAware) {
+				HardDeleteAware hd = (HardDeleteAware) ep;
+				log.info("Requesting hard delete for site: {}, tool: {}", site.getId(), ep.getLabel());
+				hd.hardDelete(site.getId());
+			}
+		}
 	}
 
 	/**
