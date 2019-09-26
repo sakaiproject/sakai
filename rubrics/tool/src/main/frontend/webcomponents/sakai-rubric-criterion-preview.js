@@ -26,7 +26,9 @@ export class SakaiRubricCriterionPreview extends RubricsElement {
                 ${c.ratings.map(r => html`
                   <div class="rating-item" id="rating_item_${r.id}" >
                     <h5 class="criterion-item-title">${r.title}</h5>
-                    <p>${r.description}</p>
+                    <div class="div-description">
+                      <p>${r.description}</p>
+                    </div>
                     <span class="points">
                       ${r.points} <sr-lang key="points">Points</sr-lang>
                     </span>
