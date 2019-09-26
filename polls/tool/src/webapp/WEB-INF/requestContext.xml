@@ -36,6 +36,7 @@
 		<property name="messages" ref="targettedMessageList" />
 		<property name="messageLocator" ref="messageLocator" />
 		<property name="externalLogic" ref="org.sakaiproject.poll.logic.ExternalLogic"/>
+		<property name="multipartMap" ref="multipartMap" />
 	</bean>
 
 
@@ -88,6 +89,14 @@
 		<property name="externalLogic" ref="org.sakaiproject.poll.logic.ExternalLogic"/>
 	</bean>
 
+	<bean id="pollOptionBatchProducer"
+		class="org.sakaiproject.poll.tool.producers.PollOptionBatchProducer">
+		<property name="messageLocator" ref="messageLocator" />
+		<property name="localeGetter" ref="requestLocaleProxy" />
+		<property name="pollListManager" ref="org.sakaiproject.poll.logic.PollListManager" />
+		<property name="targettedMessageList" ref="targettedMessageList" />
+	</bean>
+
 	<bean id="pollOptionDeleteProducer"
 		class="org.sakaiproject.poll.tool.producers.PollOptionDeleteProducer">
 		<property name="messageLocator" ref="messageLocator" />
@@ -113,7 +122,6 @@
 			ref="org.sakaiproject.tool.poll.api.PollVoteManager" />
 		<property name="externalLogic" ref="org.sakaiproject.poll.logic.ExternalLogic"/>
 	</bean>
-
 
 	<bean id="pollVoteProducer"
 		class="org.sakaiproject.poll.tool.producers.PollVoteProducer">

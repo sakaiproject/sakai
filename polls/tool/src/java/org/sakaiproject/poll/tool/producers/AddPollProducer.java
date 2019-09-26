@@ -35,6 +35,7 @@ import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Vote;
 import org.sakaiproject.poll.tool.params.OptionViewParameters;
+import org.sakaiproject.poll.tool.params.OptionBatchViewParameters;
 import org.sakaiproject.poll.tool.params.PollViewParameters;
 import org.sakaiproject.poll.tool.params.VoteBean;
 import org.sakaiproject.util.FormattedText;
@@ -202,6 +203,8 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 			UIMessage.make(actionBlock,"options-title","new_poll_option_title");
 			UIInternalLink.make(actionBlock,"option-add",UIMessage.make("new_poll_option_add"),
 					new OptionViewParameters(PollOptionProducer.VIEW_ID, null, poll.getPollId().toString()));
+			UIInternalLink.make(actionBlock,"option-add-batch",UIMessage.make("new_poll_option_add_batch"),
+					new OptionBatchViewParameters(PollOptionBatchProducer.VIEW_ID, poll.getPollId().toString()));
 
 			List<Vote> votes = pollVoteManager.getAllVotesForPoll(poll);
 			if (votes != null && votes.size() > 0 ) {
@@ -355,6 +358,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 		togo.add(new NavigationCase(null, new SimpleViewParameters(VIEW_ID)));
 		togo.add(new NavigationCase("added", new SimpleViewParameters(PollToolProducer.VIEW_ID)));
 		togo.add(new NavigationCase("option", new OptionViewParameters(PollOptionProducer.VIEW_ID, null, null)));
+		togo.add(new NavigationCase("option_batch", new OptionViewParameters(PollOptionBatchProducer.VIEW_ID, null, null)));
 		togo.add(new NavigationCase("cancel", new SimpleViewParameters(PollToolProducer.VIEW_ID)));
 		return togo;
 	}

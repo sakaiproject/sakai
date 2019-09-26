@@ -51,8 +51,8 @@ public class OptionValidator implements Validator {
 			stripText = FormattedText.convertFormattedTextToPlaintext(option.getText()).trim();
 		}
 		
-		log.debug("validating Option with id:" + option.getOptionId());
-		if (option.getStatus()!=null && (option.getStatus().equals("cancel") || option.getStatus().equals("delete")))
+		log.debug("validating Option with id {} and status {}.", option.getOptionId(), option.getStatus());
+		if (option.getStatus()!=null && (option.getStatus().equals("cancel") || option.getStatus().equals("delete") || option.getStatus().equals("batch")))
 			return;
 
 		if (option.getText() == null || option.getText().trim().length()==0 ||
