@@ -70,9 +70,11 @@ export class SakaiRubricCriteria extends RubricsElement {
                   ${r.title}
                   <sakai-rubric-criterion-rating-edit criterion-id="${c.id}" @save-rating="${this.saveRating}" @delete-rating="${this.deleteRating}" minpoints="${c.pointrange ? c.pointrange.low : 0}" maxpoints="${c.pointrange ? c.pointrange.high : 0}" rating="${JSON.stringify(r)}"></sakai-rubric-criterion-rating-edit>
                 </h5>
-                <p>
+                <div class="div-description">
+                  <p>
                   ${r.description}
-                </p>
+                  </p>
+                </div>
                 <span class="points">
                   ${r.points} <sr-lang key="points">Points</sr-lang>
                 </span>
