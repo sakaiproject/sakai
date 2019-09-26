@@ -97,7 +97,6 @@ import org.sakaiproject.entity.api.ContentExistsAware;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
-import org.sakaiproject.entity.api.HardDeleteAware;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
@@ -5525,16 +5524,9 @@ public class SiteAction extends PagedResourceActionII {
 					try {
 						Site site = SiteService.getSite(id);
 						site_title = site.getTitle();
-						
-						if(hardDelete) {
-							//hard delete. call upon all implementing services to hard delete their own content
-							doHardDelete(site.getId());
-							// the service never deletes the site unless its already softly deleted
-							site.setSoftlyDeleted(true);
-						}
-						
+
 						//now delete the site
-						SiteService.removeSite(site);
+						SiteService.removeSite(site, hardDelete);
 						log.debug("Removed site: " + site.getId());
 					} catch (IdUnusedException e) {
 						log.error(this +".doSite_delete_confirmed - IdUnusedException " + id, e);
@@ -10264,13 +10256,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			};
 			SecurityService.pushAdvisor(yesMan);
 
-			// Hard delete. Call upon all implementing services to hard delete their own content
-			doHardDelete(tempDupSite.getId());
-			// The service never deletes the site unless its already softly deleted
-			tempDupSite.setSoftlyDeleted(true);
-
 			// Now hard delete the site
-			SiteService.removeSite(tempDupSite);
+			SiteService.removeSite(tempDupSite, true);
 		} catch (Exception e) {
 		} finally {
 			SecurityService.popAdvisor();
@@ -15563,27 +15550,6 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		
 	}
 	
-	/**
-	 * Helper to hard delete all implementing services
-	 * @param siteId siteId that we want to delete the content for
-	 * @return
-	 */
-	private void doHardDelete(String siteId) {
-				
-		// leverage the entityproducer registration system
-		for (Iterator i = EntityManager.getEntityProducers().iterator(); i.hasNext();) {
-			EntityProducer ep = (EntityProducer) i.next();
-			
-			//if a registered service implements hard delete, then ask it to delete itself
-			if (ep instanceof HardDeleteAware) {
-				HardDeleteAware hd = (HardDeleteAware) ep;
-				log.info("Requesting hard delete for site:" + siteId + ", tool: " + ep.getLabel());
-				hd.hardDelete(siteId);
-			}
-		}
-		
-	}
-
 	/**
 	 * Get the list of tools that are in a list of sites that are available for import.
 	 * 
