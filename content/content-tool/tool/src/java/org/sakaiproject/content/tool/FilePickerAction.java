@@ -248,8 +248,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 	public static final String STATE_ONEDRIVE_CHILDREN = PREFIX + "state_onedrive_children";
 	public static final String STATE_ONEDRIVE_ITEMS = PREFIX + "state_onedrive_items";
-	public static final String STATE_GOOGLEDRIVE_CHILDREN = PREFIX + "state_googledrive_children";
-	public static final String STATE_GOOGLEDRIVE_ITEMS = PREFIX + "state_googledrive_items";
 	public static final String STATE_GOOGLEDRIVE_JSON = PREFIX + "state_googledrive_json";
 
 	/** The sort ascending or decending */
@@ -945,28 +943,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 				context.put("onedriveItems", onedriveItems);
 			}
 		}
-		// GOOGLEDRIVE
-		if(googledriveOn) {
-			List<GoogleDriveItem> googledriveItems = new ArrayList<>();
-			if(toolSession.getAttribute(STATE_GOOGLEDRIVE_ITEMS) == null) {
-				googledriveItems = googledriveService.getDriveRootItems(userDirectoryService.getCurrentUser().getId());
-			} else {
-				googledriveItems = (List<GoogleDriveItem>) toolSession.getAttribute(STATE_GOOGLEDRIVE_ITEMS);
-			}
-			if(state.getAttribute(STATE_GOOGLEDRIVE_CHILDREN) != null) {
-				List<GoogleDriveItem> childrenIt = (List<GoogleDriveItem>) state.getAttribute(STATE_GOOGLEDRIVE_CHILDREN);
-				for(GoogleDriveItem oi : childrenIt) {
-					if(!googledriveItems.contains(oi)) {
-						googledriveItems.add(oi);
-					}
-				}
-			}
-			if(googledriveItems != null) {
-				Collections.sort(googledriveItems, new GoogleDriveItemComparator());
-				toolSession.setAttribute(STATE_GOOGLEDRIVE_ITEMS, googledriveItems);
-				context.put("googledriveItems", googledriveItems);
-			}
-		}
 
 		return template;
     }
@@ -1282,20 +1258,8 @@ public class FilePickerAction extends PagedResourceHelperAction
 		} else if (googledriveOn && StringUtils.isNotBlank(googledriveItemId)) {
 			boolean googledriveItemClone = params.getBoolean("googledriveItemClone");
 			String googledriveJson = params.getString("googledriveJson");
-			List<GoogleDriveItem> items = (List<GoogleDriveItem>) toolSession.getAttribute(STATE_GOOGLEDRIVE_ITEMS);
-			GoogleDriveItem oi = null;
-			for(GoogleDriveItem off : items) {
-				if(googledriveItemId.equals(off.getGoogleDriveItemId())) {
-					oi = off;
-					break;
-				}
-			}
-			if(oi != null) {
-				doAttachGoogleDrive(oi, state, googledriveItemClone, googledriveJson);
-			}else{
-				oi = googledriveService.getDriveItem(userDirectoryService.getCurrentUser().getId(), googledriveItemId);
-				doAttachGoogleDrive(oi, state, googledriveItemClone, googledriveJson);
-			}
+			GoogleDriveItem oi = googledriveService.getDriveItem(userDirectoryService.getCurrentUser().getId(), googledriveItemId);
+			doAttachGoogleDrive(oi, state, googledriveItemClone, googledriveJson);
 		}
 
 		List<AttachItem> removed = (List<AttachItem>) toolSession.getAttribute(STATE_REMOVED_ITEMS);
@@ -1884,7 +1848,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 					addAlert(state, trb.getFormattedMessage("size.exceeded", new Object[]{ max_file_size_mb }));
 					return;
 				}
-				InputStream contentStream = new URL(googledriveItem.getDownloadUrl()).openStream();
+				InputStream contentStream = googledriveService.downloadDriveFile(userDirectoryService.getCurrentUser().getId(), googledriveItem.getGoogleDriveItemId());
 				attachment = contentService.addAttachmentResource(resourceId, siteId, toolName, contentType, contentStream, newprops);
 			} else {
 				contentType = ResourceProperties.TYPE_URL;
@@ -1927,8 +1891,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 	public void doRefreshGoogleDrive(RunData data) {
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		state.setAttribute(STATE_NAVIGATING_GOOGLEDRIVE, true);
-		state.removeAttribute(STATE_GOOGLEDRIVE_ITEMS);
-		state.removeAttribute(STATE_GOOGLEDRIVE_CHILDREN);
+		state.removeAttribute(STATE_GOOGLEDRIVE_JSON);
 		state.removeAttribute(STATE_NAVIGATING_RESOURCES);
 		state.removeAttribute(STATE_NAVIGATING_ONEDRIVE);
 		googledriveService.cleanGoogleDriveCacheForUser(userDirectoryService.getCurrentUser().getId());
@@ -3569,7 +3532,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 		String collectionId = data.getParameters().getString ("collectionId");		
 		String onedriveCollectionId = data.getParameters().getString ("onedriveCollectionId");
-		String googledriveCollectionId = data.getParameters().getString ("googledriveCollectionId");
 		String navRoot = data.getParameters().getString("navRoot");
 		state.setAttribute(STATE_NAVIGATION_ROOT, navRoot);
 
@@ -3624,19 +3586,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 			List<OneDriveItem> items = (List<OneDriveItem>) toolSession.getAttribute(STATE_ONEDRIVE_ITEMS);
 			items.forEach( it -> { 
 				if (onedriveCollectionId.equals(it.getOneDriveItemId())) {
-					it.setExpanded(true);
-				}
-			});
-		} else if (googledriveOn && googledriveCollectionId != null){
-			int depth = data.getParameters().getInt("googledriveCollectionDepth");
-			List<GoogleDriveItem> children = googledriveService.getDriveChildrenItems(userDirectoryService.getCurrentUser().getId(), googledriveCollectionId, depth);
-			state.setAttribute(STATE_NAVIGATING_GOOGLEDRIVE, true);
-			state.removeAttribute(STATE_NAVIGATING_RESOURCES);
-			state.removeAttribute(STATE_NAVIGATING_ONEDRIVE);
-			state.setAttribute(STATE_GOOGLEDRIVE_CHILDREN, children);
-			List<GoogleDriveItem> items = (List<GoogleDriveItem>) toolSession.getAttribute(STATE_GOOGLEDRIVE_ITEMS);
-			items.forEach( it -> { 
-				if (googledriveCollectionId.equals(it.getGoogleDriveItemId())) {
 					it.setExpanded(true);
 				}
 			});
