@@ -363,6 +363,7 @@ public class GoogleDriveServiceImpl implements GoogleDriveService {
 		}
 
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		InputStream in = null;
 		try {
 			service = refreshToken(userId);
 			if(service == null) {
@@ -370,14 +371,17 @@ public class GoogleDriveServiceImpl implements GoogleDriveService {
 			}
 			log.debug("Downloading : {}", itemId);
 			service.files().get(itemId).executeMediaAndDownloadTo(outputStream);
-			InputStream in = new ByteArrayInputStream(outputStream.toByteArray());
+			in = new ByteArrayInputStream(outputStream.toByteArray());
 			return in;
 		} catch(Exception e) {
 			log.error("downloadDriveFile: item {} - error {}", itemId, e.getMessage());
 		} finally {
-			in.close();
+			if(in != null) {
+				in.close();
+			}
 			outputStream.close();
 		}
+
 		return null;
 	}
 
