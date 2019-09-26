@@ -362,24 +362,18 @@ public class GoogleDriveServiceImpl implements GoogleDriveService {
 			return null;
 		}
 
-		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		InputStream in = null;
-		try {
+		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 			service = refreshToken(userId);
 			if(service == null) {
 				return null;
 			}
 			log.debug("Downloading : {}", itemId);
 			service.files().get(itemId).executeMediaAndDownloadTo(outputStream);
-			in = new ByteArrayInputStream(outputStream.toByteArray());
-			return in;
+			try(InputStream in = new ByteArrayInputStream(outputStream.toByteArray())){
+				return in;
+			}
 		} catch(Exception e) {
 			log.error("downloadDriveFile: item {} - error {}", itemId, e.getMessage());
-		} finally {
-			if(in != null) {
-				in.close();
-			}
-			outputStream.close();
 		}
 
 		return null;
