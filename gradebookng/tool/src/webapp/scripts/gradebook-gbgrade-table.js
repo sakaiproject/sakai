@@ -255,10 +255,6 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
   var index = col - GbGradeTable.FIXED_COLUMN_OFFSET;
   var student = instance.getDataAtCell(row, GbGradeTable.STUDENT_COLUMN_INDEX);
 
-  if (!instance.view.settings.columns[col]) {
-    return;
-  }
-
   var column = instance.view.settings.columns[col]._data_;
 
   // key needs to contain all values the cell requires for render
@@ -843,8 +839,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     cells: function (row, col, prop) {
       var cellProperties = {};
 
-      var column = GbGradeTable.instance.view.settings.columns[col] ?
-                    GbGradeTable.instance.view.settings.columns[col]._data_ : null;
+      var column = GbGradeTable.instance.view.settings.columns[col]._data_;
       var student = GbGradeTable.instance.getDataAtCell(row, GbGradeTable.STUDENT_COLUMN_INDEX);
 
       if (column == null) {
@@ -1486,10 +1481,10 @@ GbGradeTable.redrawTable = function(force) {
     GbGradeTable.currentSortColumn = 0;
     GbGradeTable.currentSortDirection = 'desc';
 
-    GbGradeTable.instance.loadData(GbGradeTable.getFilteredData());
     GbGradeTable.instance.updateSettings({
       columns: GbGradeTable.getFilteredColumns()
     });
+    GbGradeTable.instance.loadData(GbGradeTable.getFilteredData());
     GbGradeTable.refreshSummaryLabels();
     GbGradeTable.forceRedraw = false;
   }, 100);
