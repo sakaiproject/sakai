@@ -11,7 +11,7 @@ var addHiddenGbItemsCallback = function () {
   GbGradeTable._onReadyCallbacks.push(function () {
 
     hiddenItems.forEach(i => {
-      $(".gb-item-filter :input:checked[value='" + i + "']").trigger("click", [true]);
+      $(".gb-filter :input:checked[value='" + i + "']").trigger("click", [true]);
     });
   });
 };
@@ -1833,26 +1833,27 @@ GbGradeTable.setupToggleGradeItems = function() {
     updateCategoryFilterState($input);
   };
 
-  function handleGradeItemFilterStateChange(event, suppressRedraw) {
+  function handleGradeFilter(event, type, suppressRedraw) {
+
     var $input = $(event.target);
     var $label = $input.closest("label");
-    var $filter = $input.closest(".gb-item-filter");
+    var $filter = $input.closest(".gb-filter");
 
-    var assignmentId = $input.val();
+    var id = $input.val();
 
-    var column = GbGradeTable.colModelForAssignment(assignmentId);
+    var column = (type === "assignment") ? GbGradeTable.colModelForAssignment(id) : GbGradeTable.colModelForCategoryScore(id);
 
     let hiddenItems = JSON.parse(sessionStorage.getItem(GB_HIDDEN_ITEMS_KEY)) || [];
 
     if ($input.is(":checked")) {
       $filter.removeClass("off");
       column.hidden = false;
-      hiddenItems.splice(hiddenItems.findIndex(i => i === parseInt(assignmentId)), 1);
+      hiddenItems.splice(hiddenItems.findIndex(i => i == id), 1);
     } else {
       $filter.addClass("off");
       column.hidden = true;
-      if (!hiddenItems.includes(parseInt(assignmentId))) {
-        hiddenItems.push(parseInt(assignmentId));
+      if (!hiddenItems.includes(id)) {
+        hiddenItems.push(id);
       }
     }
 
@@ -1869,29 +1870,14 @@ GbGradeTable.setupToggleGradeItems = function() {
   };
 
 
+  function handleGradeItemFilterStateChange(event, suppressRedraw) {
+    handleGradeFilter(event, "assignment", suppressRedraw);
+  };
+
+
   function handleCategoryScoreFilterStateChange(event, suppressRedraw) {
-    var $input = $(event.target);
-    var $label = $input.closest("label");
-    var $filter = $input.closest(".gb-item-category-score-filter");
-
-    var category = $input.val();
-
-    var column = GbGradeTable.colModelForCategoryScore(category);
-
-    if ($input.is(":checked")) {
-      $filter.removeClass("off");
-      column.hidden = false;
-    } else {
-      $filter.addClass("off");
-      column.hidden = true;
-    }
-
-    updateCategoryFilterState($input);
-    if (!suppressRedraw) {
-      GbGradeTable.redrawTable(true);
-    }
+    handleGradeFilter(event, "category", suppressRedraw);
   }
-
 
   function handleShowAll() {
     $panel.find(".gb-item-filter :input:not(:checked), .gb-item-category-score-filter :input:not(:checked)").trigger("click");
