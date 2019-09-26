@@ -12,14 +12,14 @@
 		$tlang.getString("gen.custom")
 	</h3>
 	#if ($alertMessage)
-	<div class="sak-banner-error">
+	<div class="alertMessage">
 	$tlang.getString("gen.alert") $alertMessage
 	</div>
-
+	<div class="clear"></div>
 	#end
 	<form action="$actionUrl" method="post" name="customizeForm" >
 		#if ($noCustomizations)
-			<span class="sak-banner-info">$noCustomizations</span>
+			<span class="messageInformation">$noCustomizations</span>
 		#elseif ($formInput)
 			$formInput
 		#end

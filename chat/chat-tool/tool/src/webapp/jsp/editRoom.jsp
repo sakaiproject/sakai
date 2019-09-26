@@ -28,7 +28,7 @@
         </script>
 		<sakai:view_title value="#{msgs.edit_channel_title}" rendered="#{!ChatTool.currentChannelEdit.newChannel}" />
 		<sakai:view_title value="#{msgs.add_channel_title}" rendered="#{ChatTool.currentChannelEdit.newChannel}" />
-		<h:messages globalOnly="false" styleClass="sak-banner-warn"
+		<h:messages globalOnly="false" styleClass="alertMessage" 
 			showDetail="true" showSummary="false" rendered="#{not empty facesContext.maximumSeverity}" />
 		<h:form id="editRoomForm" styleClass="edit-room">
 
