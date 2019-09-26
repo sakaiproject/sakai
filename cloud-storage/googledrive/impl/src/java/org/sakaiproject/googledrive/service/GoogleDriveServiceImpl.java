@@ -3,7 +3,6 @@ package org.sakaiproject.googledrive.service;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -362,7 +361,7 @@ public class GoogleDriveServiceImpl implements GoogleDriveService {
 		if(!isConfigured()) {
 			return null;
 		}
-		GoogleDriveItem gdi = new GoogleDriveItem();
+
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		try {
 			service = refreshToken(userId);
@@ -375,6 +374,9 @@ public class GoogleDriveServiceImpl implements GoogleDriveService {
 			return in;
 		} catch(Exception e) {
 			log.error("downloadDriveFile: item {} - error {}", itemId, e.getMessage());
+		} finally {
+			in.close();
+			outputStream.close();
 		}
 		return null;
 	}
