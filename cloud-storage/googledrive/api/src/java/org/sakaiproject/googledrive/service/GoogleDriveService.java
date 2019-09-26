@@ -1,5 +1,6 @@
 package org.sakaiproject.googledrive.service;
 
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 
@@ -35,5 +36,5 @@ public interface GoogleDriveService {
 	public boolean revokeGoogleDriveConfiguration(String userId);
 	public void cleanGoogleDriveCacheForUser(String userId);
 	public GoogleDriveItem getDriveItem(String userId, String itemId);
-
+	public InputStream downloadDriveFile(String userId, String itemId);
 }

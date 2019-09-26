@@ -1,6 +1,9 @@
 package org.sakaiproject.googledrive.service;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -67,6 +70,7 @@ public class GoogleDriveServiceImpl implements GoogleDriveService {
 	private Cache<String, Drive> googledriveUserCache;
 	private Cache<String, List<GoogleDriveItem>> driveRootItemsCache;
 	private Cache<String, List<GoogleDriveItem>> driveChildrenItemsCache;
+	private Cache<String, GoogleDriveItem> driveItemsCache;
 
 	private String clientId = null;
 	private String clientSecret = null;
@@ -116,6 +120,7 @@ public class GoogleDriveServiceImpl implements GoogleDriveService {
 		driveRootItemsCache = memoryService.<String, List<GoogleDriveItem>>getCache("org.sakaiproject.googledrive.service.driveRootItemsCache");
 		driveChildrenItemsCache = memoryService.<String, List<GoogleDriveItem>>getCache("org.sakaiproject.googledrive.service.driveChildrenItemsCache");
 		googledriveUserCache = memoryService.<String, Drive>getCache("org.sakaiproject.googledrive.service.googledriveUserCache");
+		driveItemsCache = memoryService.<String, GoogleDriveItem>getCache("org.sakaiproject.googledrive.service.driveItemsCache");
 	}
 
 	public String formAuthenticationUrl() {
@@ -260,11 +265,6 @@ public class GoogleDriveServiceImpl implements GoogleDriveService {
 				gdi.setParentId("root");
 				gdi.setIcon(file.getIconLink());
 				gdi.setThumbnail(file.getThumbnailLink());
-				//loading all the root subfolders could be slow
-				/*List<GoogleDriveItem> children = getDriveChildrenItems(userId, file.getId(), 0);
-				if(children != null && !children.isEmpty()) { 
-					gdi.setChildren(true);
-				}*/
 				log.debug("Processed data : {}", gdi);
 				items.add(gdi);
 			}
@@ -282,7 +282,7 @@ public class GoogleDriveServiceImpl implements GoogleDriveService {
 		String cacheId = userId + "#" + itemId;
 		List<GoogleDriveItem> cachedItems = driveChildrenItemsCache.get(cacheId);
 		if(cachedItems != null) {
-			log.debug("getDriveChildrenItems : Returning cached items " + cachedItems);
+			log.debug("getDriveChildrenItems : Returning cached items {}", cachedItems);
 			return cachedItems;
 		}
 
@@ -310,16 +310,13 @@ public class GoogleDriveServiceImpl implements GoogleDriveService {
 				gdi.setSize(file.getSize());
 				if("application/vnd.google-apps.folder".equals(file.getMimeType())) {
 					gdi.setFolder(true);
+					gdi.setChildren(true);
 				}
 				gdi.setMimeType(file.getMimeType());
 				gdi.setParentId(itemId);
 				gdi.setDepth(depth+1);
 				gdi.setIcon(file.getIconLink());
 				gdi.setThumbnail(file.getThumbnailLink());
-				List<GoogleDriveItem> children = getDriveChildrenItems(userId, file.getId(), depth+1);
-				if(children != null && !children.isEmpty()) { 
-					gdi.setChildren(true);
-				}
 				log.debug("Processed data : {}", gdi);
 				items.add(gdi);
 			}
@@ -334,11 +331,11 @@ public class GoogleDriveServiceImpl implements GoogleDriveService {
 		if(!isConfigured()){
 			return null;
 		}
-		/*List<GoogleDriveItem> cachedItems = driveRootItemsCache.get(userId);
-		if(cachedItems != null) {
-			log.debug("getDriveRootItems : Returning cached items {} ", cachedItems);
-			return cachedItems;
-		}*/
+		GoogleDriveItem cachedItem = driveItemsCache.get(itemId);
+		if(cachedItem != null){
+			log.debug("getDriveItem : Returning cached gdi {}", cachedItem);
+			return cachedItem;
+		}
 		GoogleDriveItem gdi = new GoogleDriveItem();
 		try {
 			service = refreshToken(userId);
@@ -353,15 +350,33 @@ public class GoogleDriveServiceImpl implements GoogleDriveService {
 			gdi.setViewUrl(file.getWebViewLink());
 			gdi.setSize(file.getSize());
 			gdi.setMimeType(file.getMimeType());
-			//gdi.setParentId("root");
-			//gdi.setIcon(file.getIconLink());
-			//gdi.setThumbnail(file.getThumbnailLink());
 			log.debug("Processed data : {}", gdi);
-			//driveRootItemsCache.put(userId, items);
+			driveItemsCache.put(itemId, gdi);
 		} catch(Exception e) {
 			log.error("getDriveItem: item id {} - error {}", itemId, e.getMessage());
 		}
 		return gdi;
+	}
+
+	public InputStream downloadDriveFile(String userId, String itemId) {
+		if(!isConfigured()) {
+			return null;
+		}
+		GoogleDriveItem gdi = new GoogleDriveItem();
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		try {
+			service = refreshToken(userId);
+			if(service == null) {
+				return null;
+			}
+			log.debug("Downloading : {}", itemId);
+			service.files().get(itemId).executeMediaAndDownloadTo(outputStream);
+			InputStream in = new ByteArrayInputStream(outputStream.toByteArray());
+			return in;
+		} catch(Exception e) {
+			log.error("downloadDriveFile: item {} - error {}", itemId, e.getMessage());
+		}
+		return null;
 	}
 
 	private boolean isConfigured(){
@@ -390,6 +405,7 @@ public class GoogleDriveServiceImpl implements GoogleDriveService {
 		googledriveUserCache.remove(userId);
 		driveRootItemsCache.remove(userId);
 		driveChildrenItemsCache.clear();
+		driveItemsCache.clear();		
 	}
 
 }
