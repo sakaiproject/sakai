@@ -1892,13 +1892,8 @@ public class AssessmentSettingsBean
         this.transitoryExtendedTime = newExTime;
     }
 
-    //From the form
-    public void addExtendedTime() {
-  	  addExtendedTime(true);
-    }
-
     //Internal to be able to supress error easier
-    public void addExtendedTime(boolean needAdding) {
+    public void addExtendedTime() {
         ExtendedTime entry = this.extendedTime;
         if (StringUtils.isBlank(entry.getUser()) && StringUtils.isBlank(entry.getGroup())) {
             FacesContext context = FacesContext.getCurrentInstance();
@@ -1906,11 +1901,9 @@ public class AssessmentSettingsBean
             context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, errorString, null));
         }
         else {
-            if (needAdding) {
-                this.extendedTime.syncDates();
-                this.extendedTimes.add(this.extendedTime);
-                resetExtendedTime();
-            }
+            this.extendedTime.syncDates();
+            this.extendedTimes.add(this.extendedTime);
+            resetExtendedTime();
         }
     }
 
