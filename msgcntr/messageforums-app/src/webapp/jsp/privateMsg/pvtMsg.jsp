@@ -42,7 +42,6 @@
         $(document).ready(function() {
 
             var notEmptyTableTd = $("#prefs_pvt_form\\:pvtmsgs td:not(:empty)").length;
-
             if (notEmptyTableTd > 0) {
                 var table = $("#prefs_pvt_form\\:pvtmsgs").DataTable({
                     "paging": false,
@@ -75,6 +74,38 @@
                     }
                 });
             }
+            var notEmptyTableTdThread = $("#prefs_pvt_form\\:threaded_pvtmsgs td:not(:empty)").length;
+            if (notEmptyTableTdThread > 0) {
+                var tableThread = $("#prefs_pvt_form\\:threaded_pvtmsgs").DataTable({
+                    "paging": false,
+                    "aaSorting": [[6, "desc"]],
+                    "columns": [
+                        {"bSortable": false, "bSearchable": false},
+                        {"bSortable": true, "bSearchable": false},
+                        {"bSortable": false, "bSearchable": false},
+                        {"bSortable": true, "bSearchable": true},
+                        {"bSortable": true, "bSearchable": true},
+                        <h:outputText value="{\"bSortable\": true, \"bSearchable\": false}," rendered="#{PrivateMessagesTool.selectedTopic.topic.title != 'pvt_sent' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_received' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_drafts' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_deleted' }"/>
+                        {"bSortable": true, "bSearchable": false},
+                        {"bSortable": true, "bSearchable": false}
+                    ],
+                    "language": {
+                        "search": <h:outputText value="'#{msgs.datatables_sSearch}'" />,
+                        "zeroRecords": <h:outputText value="'#{msgs.datatables_zeroRecords}'" />,
+                        "info": <h:outputText value="'#{msgs.datatables_info}'" />,
+                        "infoEmpty": <h:outputText value="'#{msgs.datatables_infoEmpty}'" />,
+                        "infoFiltered": <h:outputText value="'#{msgs.datatables_infoFiltered}'" />,
+                        "emptyTable": <h:outputText value="'#{msgs.datatables_infoEmpty}'" />,
+                        "paginate": {
+                            "next": <h:outputText value="'#{msgs.datatables_paginate_next}'" />,
+                            "previous": <h:outputText value="'#{msgs.datatables_paginate_previous}'" />,
+                        },
+                        "aria": {
+                            "sortAscending": <h:outputText value="'#{msgs.datatables_aria_sortAscending}'" />,
+                            "sortDescending": <h:outputText value="'#{msgs.datatables_aria_sortDescending}'" />,
+                        }
+                    }
+                });
     });
     </script>
 
