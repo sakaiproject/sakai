@@ -608,10 +608,10 @@ public class SchedulerManagerImpl implements ApplicationContextAware, Lifecycle,
     @Override
     public void start() {
         if (startScheduler) {
+            log.info("Scheduler will start in {} minutes", startSchedulerDelayMinutes);
             try {
-                scheduler.startDelayed(startSchedulerDelayMinutes * 60);
-                log.info("Scheduler will start in {} minutes", startSchedulerDelayMinutes);
-            } catch (SchedulerException e) {
+                startScheduler();
+            } catch (SchedulerException | RuntimeException e) {
                 log.error("Failed to start the scheduler.", e);
             }
         } else {
@@ -639,5 +639,30 @@ public class SchedulerManagerImpl implements ApplicationContextAware, Lifecycle,
             log.debug("Failed to find if the scheduler is running", e);
         }
         return false;
+    }
+
+    private void startScheduler() throws SchedulerException {
+        if (startSchedulerDelayMinutes <= 0) {
+            log.info("Scheduler starting now");
+            scheduler.start();
+        } else {
+            log.info("Scheduler will start in {} minutes", startSchedulerDelayMinutes);
+            Thread schedulerThread = new Thread(() -> {
+                try {
+                    Thread.sleep(startSchedulerDelayMinutes * 1000 * 60);
+                } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                }
+                log.info("Scheduler starting now, after delay of {} minutes", startSchedulerDelayMinutes);
+                try {
+                    scheduler.start();
+                } catch (SchedulerException ex) {
+                    throw new RuntimeException("Job Scheduler could not start after delay", ex);
+                }
+            });
+            schedulerThread.setName(scheduler.getSchedulerName());
+            schedulerThread.setDaemon(true);
+            schedulerThread.start();
+        }
     }
 }
