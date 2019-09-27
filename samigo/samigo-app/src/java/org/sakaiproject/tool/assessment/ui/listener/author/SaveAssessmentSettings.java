@@ -307,7 +307,7 @@ public class SaveAssessmentSettings
     updateMetaWithValueMap(assessment, h);
 
     //Update with any settings that are unsaved
-    assessmentSettings.addExtendedTime(false);
+    //assessmentSettings.addExtendedTime(false);
 
     ExtendedTimeFacade extendedTimeFacade = PersistenceService.getInstance().getExtendedTimeFacade();
     extendedTimeFacade.saveEntries(assessment, assessmentSettings.getExtendedTimes());
