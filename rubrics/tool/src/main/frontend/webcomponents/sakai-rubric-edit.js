@@ -35,7 +35,7 @@ export class SakaiRubricEdit extends SakaiElement {
   render() {
 
     return html`
-      <span class="edit fa fa-edit" role="button" aria-haspopup="true" aria-expanded="${this.popoverOpen}" aria-controls="edit_rubric_${this.rubric.id}" tabindex="0" @click="${this.editRubric}" title="${tr("edit_rubric")} ${this.rubric.title}" ></span>
+      <a class="linkStyle edit fa fa-edit" role="button" aria-haspopup="true" aria-expanded="${this.popoverOpen}" aria-controls="edit_rubric_${this.rubric.id}" tabindex="0" @keyup="${this.openEditWithKeyboard}" @click="${this.editRubric}" title="${tr("edit_rubric")} ${this.rubric.title}" href="#"></a>
 
       <div id="edit_rubric_${this.rubric.id}" @click="${this.eatEvent}" class="popover rubric-edit-popover bottom">
         <div class="arrow"></div>
@@ -61,12 +61,39 @@ export class SakaiRubricEdit extends SakaiElement {
     `;
   }
 
+  firstUpdated(changedProperties) {
+    $(this).find(".popover.rubric-edit-popover input").on('keydown', function(event) {
+      if(event.keyCode == 9){
+        event.preventDefault();
+        $(this).parents('.popover.rubric-edit-popover').find('.save').focus();
+      }
+    });
+    $(this).find(".popover.rubric-edit-popover .save").on('keydown', function(event) {
+      if(event.keyCode == 9){
+        event.preventDefault();
+        $(this).parents('.popover.rubric-edit-popover').find('.cancel').focus();
+      }
+    });
+    $(this).find(".popover.rubric-edit-popover .cancel").on('keydown', function(event) {
+      if(event.keyCode == 9){
+        event.preventDefault();
+        $(this).parents('.popover.rubric-edit-popover').find('input').focus();
+      }
+    });
+  }
+
   eatEvent(e) {
     e.stopPropagation();
   }
 
-  editRubric(e) {
+  openEditWithKeyboard(e){
+    if(e.keyCode == 32 || e.keyCode == 32 ){
+      this.editRubric(e)
+    }
+  }
 
+  editRubric(e) {
+    e.preventDefault();
     e.stopPropagation();
     this.dispatchEvent(new CustomEvent("show-tooltip", {detail: this.rubric}));
 
@@ -87,7 +114,8 @@ export class SakaiRubricEdit extends SakaiElement {
       popover.show();
       var input =  popover.find("input[type='text']")[0];
       input.setSelectionRange(0, input.value.length);
-      input.focus();
+      popover.find("button")[0].focus();
+
     } else {
       this.popoverOpen = "false";
       this.hideToolTip();
