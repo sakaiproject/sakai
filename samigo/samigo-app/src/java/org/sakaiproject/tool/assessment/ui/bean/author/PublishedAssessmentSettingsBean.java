@@ -1638,20 +1638,13 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
     this.transitoryExtendedTime = newExTime;
   }
 
-  //From the form
-  public void addExtendedTime() {
-	  addExtendedTime(true);
-  }
-
   //Internal to be able to supress error easier
-  public void addExtendedTime(boolean errorToContext) {
+  public void addExtendedTime() {
       ExtendedTime entry = this.extendedTime;
       if (StringUtils.isBlank(entry.getUser()) && StringUtils.isBlank(entry.getGroup())) {
-          if (errorToContext) {
-              FacesContext context = FacesContext.getCurrentInstance();
-              String errorString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "extended_time_user_and_group_set");
-              context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, errorString, null));
-          }
+          FacesContext context = FacesContext.getCurrentInstance();
+          String errorString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "extended_time_user_and_group_set");
+          context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, errorString, null));
       }
       else {
           this.extendedTime.syncDates();
