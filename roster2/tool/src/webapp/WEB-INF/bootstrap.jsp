@@ -69,6 +69,8 @@
         <script src="/profile2-tool/javascript/profile2-eb.js${portalCDNQuery}"></script>
         <script>includeWebjarLibrary("handlebars");</script>
         <script src="/sakai-roster2-tool/templates.js${portalCDNQuery}"></script>
+        <script src="/sakai-roster2-tool/lib/sakai_utils.js${portalCDNQuery}"></script>
+        <script src="/sakai-roster2-tool/js/roster_permissions.js${portalCDNQuery}"></script>
         <script src="/sakai-roster2-tool/js/roster.js${portalCDNQuery}"></script>
 
     </body>
