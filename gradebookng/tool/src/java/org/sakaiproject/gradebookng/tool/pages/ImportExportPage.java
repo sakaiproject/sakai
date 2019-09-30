@@ -26,6 +26,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 
 import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
 import org.sakaiproject.gradebookng.tool.panels.importExport.GradeImportUploadStep;
+import org.sakaiproject.portal.util.PortalUtils;
 
 /**
  * Import Export page
@@ -72,14 +73,14 @@ public class ImportExportPage extends BasePage {
 	public void renderHead(final IHeaderResponse response) {
 		super.renderHead(response);
 
-		final String version = serverConfigService.getString("portal.cdn.version", "");
+		final String version = PortalUtils.getCDNQuery();
 
 		// Include Sakai Date Picker
-		response.render(JavaScriptHeaderItem.forUrl(String.format("/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js?version=%s", version)));
-		response.render(JavaScriptHeaderItem.forUrl(String.format("/library/js/lang-datepicker/lang-datepicker.js?version=%s", version)));
+		response.render(JavaScriptHeaderItem.forUrl(String.format("/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js%s", version)));
+		response.render(JavaScriptHeaderItem.forUrl(String.format("/library/js/lang-datepicker/lang-datepicker.js%s", version)));
 
 		// Gradebook Import/Export styles
-		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-importexport.css?version=%s", version)));
+		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-importexport.css%s", version)));
 	}
 
 	@Override

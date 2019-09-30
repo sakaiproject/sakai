@@ -1,8 +1,8 @@
-import {SakaiElement} from "/webcomponents/sakai-element.js";
+import {RubricsElement} from "./rubrics-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
 import {tr} from "./sakai-rubrics-language.js";
 
-export class SakaiRubricEdit extends SakaiElement {
+export class SakaiRubricEdit extends RubricsElement {
 
   constructor() {
 
@@ -79,7 +79,7 @@ export class SakaiRubricEdit extends SakaiElement {
 
       var popover = $(`#edit_rubric_${this.rubric.id}`);
 
-      rubrics.css(popover[0], {
+      this.rubricsUtils.css(popover[0], {
         'top': target.offsetTop + 20 + "px",
         'left': (target.offsetLeft - 125) + "px",
       });

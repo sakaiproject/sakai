@@ -10,11 +10,6 @@
   <name>sakai-syllabus-tool</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-syllabus-tool</artifactId>
-  <organization>
-    <name>University of Michigan</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2003</inceptionYear>
   <packaging>war</packaging>
 
   <dependencies>

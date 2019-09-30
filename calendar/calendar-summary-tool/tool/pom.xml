@@ -12,11 +12,6 @@
     <name>sakai-calendar-summary-tool</name>
     <groupId>org.sakaiproject.calendar</groupId>
     <artifactId>sakai-calendar-summary-tool</artifactId>
-    <organization>
-        <name>Sakai Foundation</name>
-        <url>http://sakaiproject.org</url>
-    </organization>
-    <inceptionYear>2006</inceptionYear>
     <packaging>war</packaging>
 
     <dependencies>

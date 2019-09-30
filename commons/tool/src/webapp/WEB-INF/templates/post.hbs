@@ -8,23 +8,23 @@
                 <div class="commons-post-content"><a id="commons-author-name-{{id}}" class="commons-post-author-name profile-popup-trigger" data-user-id="{{creatorId}}" href="javascript:;">{{creatorDisplayName}}</a><span id="commons-post-content-{{id}}">{{{content}}}<span></div>
                 <div id="commons-post-options-{{id}}" class="commons-post-options">
                     {{#if canComment}}
-                    <a href="javascript:;" id="commons-create-comment-link-{{id}}" class="commons-create-comment-link" data-post-id="{{id}}">{{tr 'commons' 'comment'}}</a>
+                    <a href="javascript:;" id="commons-create-comment-link-{{id}}" class="commons-create-comment-link" data-post-id="{{id}}">{{tr 'comment'}}</a>
                     {{/if}}
                     {{#if canEdit}}
-                    <a href="javascript:;" id="commons-post-edit-link-{{id}}" class="commons-post-edit-link" data-post-id="{{id}}">{{tr 'commons' 'edit'}}</a>
+                    <a href="javascript:;" id="commons-post-edit-link-{{id}}" class="commons-post-edit-link" data-post-id="{{id}}">{{tr 'edit'}}</a>
                     {{/if}}
                     {{#if canDelete}}
-                    <a href="javascript:;" id="commons-post-delete-link-{{id}}" class="commons-post-delete-link" data-post-id="{{id}}">{{tr 'commons' 'del'}}</a>
+                    <a href="javascript:;" id="commons-post-delete-link-{{id}}" class="commons-post-delete-link" data-post-id="{{id}}">{{tr 'del'}}</a>
                     {{/if}}
                     {{#if isModified}}
-                    <span class="commons-date">{{tr 'commons' 'modified_at'}} {{formattedModifiedDate}}</span>
+                    <span class="commons-date">{{tr 'modified_at'}} {{formattedModifiedDate}}</span>
                     {{else}}
                     <span class="commons-date">{{formattedReleaseDate}}</span>
                     {{/if}}
                 </div>
                 <div id="commons-post-edit-buttons-{{id}}" class="commons-post-edit-buttons">
-                    <button id="commons-inplace-post-editor-post-button-{{id}}">{{tr 'commons' 'post'}}</button>
-                    <button onclick="commons.utils.cancelPostEdit('{{id}}');">{{tr 'commons' 'cancel'}}</button>
+                    <button id="commons-inplace-post-editor-post-button-{{id}}">{{tr 'post'}}</button>
+                    <button onclick="commons.utils.cancelPostEdit('{{id}}');">{{tr 'cancel'}}</button>
                 </div>
             </div>
         </div> <!-- commons-post-text-container -->
@@ -33,8 +33,8 @@
 
     <div id="commons-comments-{{id}}" class="commons-comments">
         <div id="commons-comments-container-{{id}}">
-        <div class="commons-comment-expander"><a href="javascript:;" id="commons-show-comments-link-{{id}}">{{tr 'commons' 'show_comments'}}</a></div>
-        <div class="commons-comment-expander"><a href="javascript:;" id="commons-hide-comments-link-{{id}}" style="display: none;">{{tr 'commons' 'hide_comments'}}</a></div>
+        <div class="commons-comment-expander"><a href="javascript:;" id="commons-show-comments-link-{{id}}">{{tr 'show_comments'}}</a></div>
+        <div class="commons-comment-expander"><a href="javascript:;" id="commons-hide-comments-link-{{id}}" style="display: none;">{{tr 'hide_comments'}}</a></div>
         {{#each comments}}
             {{> wrapped_comment}}
         {{/each}}

@@ -1,4 +1,4 @@
-import {SakaiElement} from "/webcomponents/sakai-element.js";
+import {RubricsElement} from "./rubrics-element.js";
 import {css,html} from "/webcomponents/assets/lit-element/lit-element.js";
 import {repeat} from "/webcomponents/assets/lit-html/directives/repeat.js";
 import {SakaiRubricEdit} from "./sakai-rubric-edit.js";
@@ -9,7 +9,7 @@ import {SharingChangeEvent} from "./sharing-change-event.js";
 import * as Unused from "/webcomponents/assets/sortablejs/Sortable.js";
 import {tr} from "./sakai-rubrics-language.js";
 
-export class SakaiRubricCriteria extends SakaiElement {
+export class SakaiRubricCriteria extends RubricsElement {
 
   static get properties() {
 
@@ -70,9 +70,11 @@ export class SakaiRubricCriteria extends SakaiElement {
                   ${r.title}
                   <sakai-rubric-criterion-rating-edit criterion-id="${c.id}" @save-rating="${this.saveRating}" @delete-rating="${this.deleteRating}" minpoints="${c.pointrange ? c.pointrange.low : 0}" maxpoints="${c.pointrange ? c.pointrange.high : 0}" rating="${JSON.stringify(r)}"></sakai-rubric-criterion-rating-edit>
                 </h5>
-                <p>
+                <div class="div-description">
+                  <p>
                   ${r.description}
-                </p>
+                  </p>
+                </div>
                 <span class="points">
                   ${r.points} <sr-lang key="points">Points</sr-lang>
                 </span>

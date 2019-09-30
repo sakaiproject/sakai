@@ -1,8 +1,8 @@
-import {SakaiElement} from "/webcomponents/sakai-element.js";
+import {RubricsElement} from "./rubrics-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
 import {tr} from "./sakai-rubrics-language.js";
 
-export class SakaiRubricCriterionRatingEdit extends SakaiElement {
+export class SakaiRubricCriterionRatingEdit extends RubricsElement {
 
   static get properties() {
 
@@ -81,7 +81,7 @@ export class SakaiRubricCriterionRatingEdit extends SakaiElement {
       this.classList.add("show-tooltip");
       var popover = $(`#edit_criterion_rating_${this.rating.id}`);
 
-      rubrics.css(popover[0], {
+      this.rubricsUtils.css(popover[0], {
         'top': e.target.offsetTop + 20 + "px",
         'left': (e.target.offsetLeft - popover.width()/2) + "px",
       });

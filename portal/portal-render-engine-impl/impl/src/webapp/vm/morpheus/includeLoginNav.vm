@@ -5,17 +5,19 @@
     #if (!${loginTopLogin})
 
         #if (${userIsLoggedIn})
+
+            #if (${usePortalSearch})
+            <sakai-search page-size="${portalSearchPageSize}"></sakai-search>
+            #end
+
             #if ($viewAsStudentLink)
                 #parse("/vm/morpheus/snippets/roleSwitch-snippet.vm")
             #end ## END of IF ($viewAsStudentLink)
 
             #if (${useBullhornAlerts})
             <div class="Mrphs-sitesNav__menuitem portal-bullhorns-buttons">
-                <a id="Mrphs-academic-bullhorn" href="javascript:void(0);" title="${rloader.sit_academic_bullhorn_title}" aria-haspopup="true">
+                <a id="Mrphs-bullhorn" href="javascript:void(0);" title="${rloader.sit_academic_bullhorn_title}" aria-haspopup="true">
                     <span class="icon-sakai--academic-bullhorn"></span>
-                </a>
-                <a id="Mrphs-social-bullhorn" href="javascript:void(0);" title="${rloader.sit_social_bullhorn_title}" aria-haspopup="true">
-                    <span class="icon-sakai--social-bullhorn"></span>
                 </a>
             </div>
             #end

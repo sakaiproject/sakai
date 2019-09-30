@@ -78,7 +78,7 @@ public class MainController {
 
 	@ModelAttribute("listMessageProperties")
 	public List<MessageBundleProperty> listMessageProperties() {
-		return messageBundleService.getAllProperties(null, null);
+		return messageBundleService.getAllProperties(null, null, null);
 	}
 
 	@ModelAttribute("listModifiedMessageProperties")
@@ -108,7 +108,7 @@ public class MainController {
 	
 	@ModelAttribute("isLoadBundlesFromDb")
 	public boolean isLoadBundlesFromDb() {
-		return serverConfigurationService.getBoolean("load.bundles.from.db", false);
+		return messageBundleService.isEnabled();
 	}
 
 	@ModelAttribute("isAdmin")
@@ -174,7 +174,7 @@ public class MainController {
 	        return "modules";
 	    }
 	    log.debug("processModules(): ModulesFilteredEntity = " + modulesFilterEntity);
-	    model.addAttribute("properties", messageBundleService.getAllProperties(modulesFilterEntity.getLocale(), modulesFilterEntity.getModule()));
+	    model.addAttribute("properties", messageBundleService.getAllProperties(modulesFilterEntity.getLocale(), null, modulesFilterEntity.getModule()));
 
 	    return "modules";
 	}

@@ -430,10 +430,11 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 	{
 		// get the message
 		final Reference ref = entityManager.newReference(opaqueContext);
+
+		// needed to access the message
+		SecurityAdvisor sa = enableSecurityAdvisorToGetAnnouncement();
+
 		try {
-			// needed to access the message
-			enableSecurityAdvisorToGetAnnouncement();
-			
 			final AnnouncementMessage msg = (AnnouncementMessage) ref.getEntity();
 			if (msg!=null) {
 				final AnnouncementMessageHeader hdr = (AnnouncementMessageHeader) msg.getAnnouncementHeader();
@@ -464,7 +465,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 			// message within the super class, can't remove the
 			// SecurityAdvisor until this point
 			// done with access, need to remove from stack
-			disableSecurityAdvisor();
+			disableSecurityAdvisor(sa);
 		}
 	}
 
@@ -472,10 +473,10 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 	 * Establish a security advisor to allow the "embedded" azg work to occur
 	 * with no need for additional security permissions.
 	 */
-	protected void enableSecurityAdvisorToGetAnnouncement() {
+	protected SecurityAdvisor enableSecurityAdvisorToGetAnnouncement() {
 		// put in a security advisor so we can do our podcast work without need
 		// of further permissions
-		securityService.pushAdvisor(new SecurityAdvisor() {
+		SecurityAdvisor sa = new SecurityAdvisor() {
 			public SecurityAdvice isAllowed(String userId, String function,
 					String reference) {
 				if (function.equals(AnnouncementService.SECURE_ANNC_READ) || function.equals(ContentHostingService.AUTH_RESOURCE_READ)) // SAK-23300
@@ -483,14 +484,16 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 				else
 					return SecurityAdvice.PASS;
 			}
-		});
+		};
+		securityService.pushAdvisor(sa);
+		return sa;
 	}
 
 	/**
 	 * remove recent add SecurityAdvisor from stack
 	 */
-	protected void disableSecurityAdvisor() {
-		securityService.popAdvisor();
+	protected void disableSecurityAdvisor(SecurityAdvisor sa) {
+		securityService.popAdvisor(sa);
 	}
 
 

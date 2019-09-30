@@ -12,11 +12,6 @@
   <groupId>org.sakaiproject.content</groupId>
   <artifactId>cloud-content</artifactId>
   <packaging>pom</packaging>
-  <organization>
-    <name>Sakai Foundation</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2003</inceptionYear>
 
   <modules>
     <module>impl</module>

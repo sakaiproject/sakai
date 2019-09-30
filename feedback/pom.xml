@@ -17,11 +17,7 @@
         <relativePath>../master/pom.xml</relativePath>
     </parent>
 
-  	<organization>
-    	<name>University of Oxford</name>
-    	<url>http://www.ox.ax.uk</url>
-  	</organization>
-    <inceptionYear>2005</inceptionYear>
+
 
   	<developers>
     	<developer>
@@ -106,7 +102,7 @@
         </dependency>
         <dependency>
             <groupId>com.sun.mail</groupId>
-            <artifactId>javax.mail</artifactId>
+            <artifactId>jakarta.mail</artifactId>
         </dependency>
         <dependency>
             <groupId>net.tanesha.recaptcha4j</groupId>

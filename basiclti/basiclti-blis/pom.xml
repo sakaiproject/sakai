@@ -11,11 +11,6 @@
     <name>BasicLIS Implementation (imsblis)</name>
     <groupId>org.sakaiproject.basiclti</groupId>
     <artifactId>imsblis</artifactId>
-    <organization>
-        <name>Sakai Project</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2010</inceptionYear>
     <packaging>war</packaging>
 
     <dependencies>

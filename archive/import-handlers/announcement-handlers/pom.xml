@@ -10,11 +10,6 @@
   <name>Sakai Announcement Import Handlers</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-import-announcement</artifactId>
-  <organization>
-    <name>Sakai Foundation</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2005</inceptionYear>
   <packaging>jar</packaging>
   <properties>
     <deploy.target />

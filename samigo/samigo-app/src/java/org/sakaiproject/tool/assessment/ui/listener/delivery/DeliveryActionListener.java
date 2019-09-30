@@ -2558,14 +2558,16 @@ public class DeliveryActionListener
             }
             break;
     case 3: // review assessment
-            if (delivery.getFeedbackComponent()!=null 
-                && (delivery.getFeedbackComponent().getShowImmediate() 
-                	|| delivery.getFeedbackComponent().getShowOnSubmission()
-                    || (delivery.getFeedbackComponent().getShowDateFeedback())
-                        && delivery.getSettings()!=null
-                        && delivery.getSettings().getFeedbackDate()!=null
-                        && delivery.getSettings().getFeedbackDate().before(new Date()))) {
-              delivery.setFeedback("true");
+            if (delivery.getFeedbackComponent()!=null) { 
+                if(delivery.getFeedbackComponent().getShowImmediate() || delivery.getFeedbackComponent().getShowOnSubmission()){
+                    delivery.setFeedback("true");
+                } else if(delivery.getFeedbackComponent().getShowDateFeedback() && delivery.getSettings()!= null) {
+                    if(delivery.getSettings().getFeedbackDate()!=null && delivery.getSettings().getFeedbackEndDate()==null){
+                        delivery.setFeedback(delivery.getSettings().getFeedbackDate().after(new Date()) ? "true" : "false");
+                    } else if(delivery.getSettings().getFeedbackDate()!=null && delivery.getSettings().getFeedbackEndDate()!=null){
+                        delivery.setFeedback(delivery.getSettings().getFeedbackDate().after(new Date()) && delivery.getSettings().getFeedbackEndDate().before(new Date()) ? "true" : "false");
+                    }
+                }
             }
             break;
     case 4: // grade assessment

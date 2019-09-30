@@ -10,11 +10,6 @@
   <name>Sakai Import Blackboard 6.x</name>
   <groupId>org.sakaiproject.common</groupId>
   <artifactId>sakai-import-bb6</artifactId>
-  <organization>
-    <name>Sakai Foundation</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2005</inceptionYear>
   <packaging>jar</packaging>
   <properties>
     <deploy.target/>

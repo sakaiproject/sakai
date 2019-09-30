@@ -1,8 +1,8 @@
-import {SakaiElement} from "/webcomponents/sakai-element.js";
+import {RubricsElement} from "./rubrics-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
-import {loadProperties} from "/webcomponents/sakai-i18n.js";
+import {loadProperties, tr as translate} from "/webcomponents/sakai-i18n.js";
 
-export class SakaiRubricsLanguage extends SakaiElement {
+export class SakaiRubricsLanguage extends RubricsElement {
 
   static get properties() {
 
@@ -21,18 +21,11 @@ export class SakaiRubricsLanguage extends SakaiElement {
     return tr(key, this.values);
   }
 
-  static loadTranslations(getFromSessionCache) {
-    return loadProperties({ namespace: "rubrics", getFromSessionCache, lang: parent.portal.locale });
+  static loadTranslations(cache) {
+    return loadProperties({ bundle: "rubrics", cache });
   }
 }
 
-export function tr(key, values) {
-
-  var translation = window.sakai.translations["rubrics"][key];
-  for (var i in values) {
-    translation = translation.replace("{}", typeof values[i] === "string" ? values[i] : "" );
-  }
-  return translation;
-}
+export function tr(key, values) { return translate("rubrics", key, values); }
 
 customElements.define("sr-lang", SakaiRubricsLanguage);

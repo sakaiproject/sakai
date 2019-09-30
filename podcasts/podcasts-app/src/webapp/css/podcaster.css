@@ -19,14 +19,6 @@ body {
 	margin-left: 30px;
 }
 
-.podDateFormat {
-	font-size: 13pt;
-}
-
-.podTitleFormat {
-	font-size: 11pt;
-}
-
 .rssIcon {
 	position: relative;
 	top: 6px;
@@ -58,3 +50,54 @@ url {
 	left: 15px;
 	margin: .5em 0;
 }
+
+.pod-box {
+  margin-bottom: 1rem;
+}
+
+.pod-box p {
+  font-size: 12pt;
+}
+
+.pod-box input {
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+.pod-box button {
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+.button-box {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.button-box .btn{
+  width: 100%;
+}
+
+.btn-pad {
+  padding-bottom: 0.25rem;
+}
+
+.inline {
+  display: inline;
+}
+
+.mid {
+  text-align: center;
+}
+
+.podmodal .text-body {
+  font-size: 12pt;
+}
+
+.podmodal .text-footer {
+  font-size: 11pt;
+  text-align: center;
+}
+

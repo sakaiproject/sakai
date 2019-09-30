@@ -315,3 +315,61 @@
 		clear: both;
 	}
 }
+
+/* this belongs to resources but it is accessed out of its namespace */
+.googlethumbnail {
+	float: right;
+	width: 5%;
+	border: 1.0px dashed;
+	border-color: #9c9c9c;
+	border-radius: 5px;
+}
+
+.googlethumbnailbig {
+	width: 15%;
+}
+
+.googlethumbnailsmall {
+	width: 5%;
+}
+
+.jstree-container-ul.jstree-children{
+	li{
+		.fa-link{
+			margin: 0 10px 0 10px;
+		}
+		.fa-files-o{
+			margin-left: 10px;
+		}
+	}
+}
+
+.jstree-node {
+	&:not(.jstree-leaf) > .fa {
+		display: none;
+	}
+}
+
+.jstree-closed{
+	.fa-files-o, .fa-link{
+		display: none !important;
+	}
+}
+
+.no-attach 	> .fa-files-o{
+	display: none !important;
+}
+
+.is-folder {
+	> .fa-files-o, > .fa-link{
+		display: none;
+	}
+}
+
+.no-attach,.fa-files-o{
+	cursor:pointer;
+}
+
+.jstree-node a[href]:focus{
+	outline: 1px solid #5b9dd9;
+}

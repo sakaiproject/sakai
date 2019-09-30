@@ -11,11 +11,6 @@
     <name>Sakai Job Scheduler Tool (scheduler-tool)</name>
     <groupId>org.sakaiproject.scheduler</groupId>
     <artifactId>scheduler-tool</artifactId>
-    <organization>
-        <name>Sakai</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2003</inceptionYear>
     <packaging>war</packaging>
 
     <dependencies>

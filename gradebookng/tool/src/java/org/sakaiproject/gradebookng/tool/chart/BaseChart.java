@@ -9,6 +9,7 @@ import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.model.GbChartData;
+import org.sakaiproject.portal.util.PortalUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -40,15 +41,16 @@ public abstract class BaseChart extends WebComponent {
 
 	@Override
 	public void renderHead(final IHeaderResponse response) {
-		final String version = serverConfigService.getString("portal.cdn.version", "");
+
+		final String version = PortalUtils.getCDNQuery();
 
 		// chart requires ChartJS
 		response.render(
-				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/webjars/chartjs/2.7.0/Chart.min.js?version=%s", version)));
+				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/webjars/chartjs/2.7.0/Chart.min.js%s", version)));
 
 		// our chart functions
 		response.render(
-				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-chart.js?version=%s", version)));
+				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-chart.js%s", version)));
 
 		// render immediately (for all subclasses)
 		final GbChartData data = getData();

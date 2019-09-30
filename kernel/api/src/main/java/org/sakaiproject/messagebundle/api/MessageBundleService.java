@@ -61,6 +61,11 @@ public interface MessageBundleService {
     public int SORT_FIELD_BASENAME = 5;
 
     /**
+     * If the service should store bundle info in the database
+     */
+    public boolean isEnabled();
+
+    /**
      *
      * @param search - text to search for
      * @param module - module name to search within, null means search all modules
@@ -114,10 +119,11 @@ public interface MessageBundleService {
     /**
      *
      * @param locale - locale to match, null means all locales
-     * @param module - module to match, null means all modules
+     * @param basename -  matches on the bundles basename, null means all basenames
+     * @param modulename - module to match, null means all modules
      * @return list of MessageBundleProperty for the given locale and module
      */
-    public List<MessageBundleProperty> getAllProperties(String locale, String module);
+    public List<MessageBundleProperty> getAllProperties(String locale, String basename, String modulename);
 
     /**
      * reverts any changed values for properties back to their original values

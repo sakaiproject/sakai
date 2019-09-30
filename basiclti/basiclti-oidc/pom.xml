@@ -11,11 +11,6 @@
     <name>LTI OIDC Servlet (imsoidc)</name>
     <groupId>org.sakaiproject.basiclti</groupId>
     <artifactId>imsoidc</artifactId>
-    <organization>
-        <name>Sakai Project</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2018</inceptionYear>
     <packaging>war</packaging>
 
     <dependencies>

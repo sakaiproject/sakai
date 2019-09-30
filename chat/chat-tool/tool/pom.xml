@@ -10,11 +10,6 @@
   <name>sakai-chat-tool</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-chat-tool</artifactId>
-  <organization>
-    <name>The Sakai Foundation</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2003</inceptionYear>
   <packaging>war</packaging>
   <dependencies>
     <dependency>

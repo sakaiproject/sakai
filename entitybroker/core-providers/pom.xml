@@ -4,11 +4,6 @@
     <name>Sakai Entity Broker Core Providers</name>
     <groupId>org.sakaiproject.entitybroker</groupId>
     <artifactId>providers</artifactId>
-    <organization>
-        <name>Sakai Project</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2007</inceptionYear>
     <packaging>war</packaging>
 
     <!-- the base is parent -->
@@ -50,7 +45,7 @@
         </dependency>
          <dependency>
              <groupId>com.sun.mail</groupId>
-             <artifactId>javax.mail</artifactId>
+             <artifactId>jakarta.mail</artifactId>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.jaxrs</groupId>

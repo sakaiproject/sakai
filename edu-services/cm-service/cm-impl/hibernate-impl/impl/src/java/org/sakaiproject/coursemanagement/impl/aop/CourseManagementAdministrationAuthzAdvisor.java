@@ -27,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.MethodBeforeAdvice;
 
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.impl.exception.PermissionException;
 
 @Slf4j
@@ -40,11 +41,11 @@ public class CourseManagementAdministrationAuthzAdvisor implements MethodBeforeA
 	public void before(Method method, Object[] oa, Object obj) throws Throwable {
 		if(log.isDebugEnabled()) log.debug("Checking authorization for CM Administration actions");
 
-		// We can't check the standard site- or group- or resource-based authorization for modifying CM data,
-		// since CM isn't scoped by sakai references.  So we allow only the super user.
-		if(!securityService.isSuperUser()) {
+		// Check the special cm.admin and /cm/admin permission and entity reference. This check will allow
+		// the super user to modify CM data, or code which uses a SecurityAdvisor to permit this security check.
+		if(!securityService.unlock(CourseManagementService.SECURE_CM_ADMIN, CourseManagementService.ENTITY_CM_ADMIN)) {
 			if(log.isDebugEnabled()) log.debug("Denying access to CM Administration on method " + method);
-			throw new PermissionException("Only Sakai super-users (admins) can modify CM data");
+			throw new PermissionException("No permission to modify CM data");
 		}
 
 		if(log.isDebugEnabled()) log.debug("This user is permitted to use the CM Admin service");

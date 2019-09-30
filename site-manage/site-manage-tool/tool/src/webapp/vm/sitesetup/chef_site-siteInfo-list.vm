@@ -208,7 +208,7 @@
 					$tlang.getString("sitegen.siteinfolist.usermodify")
 				</th>
 				<td>
-					$!siteModifiedBy
+					$validator.escapeHtml($!siteModifiedBy)
 				</td>
 			</tr>
 			<tr>

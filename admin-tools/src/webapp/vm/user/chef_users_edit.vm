@@ -47,7 +47,7 @@ function removeOptionalAttributeBlock(elem) {
 		</h3>
 		
 		#if ($alertMessage)<div class="sak-banner-error" id="alertMsg">$tlang.getString("useconrem.alert") $validator.escapeHtml($alertMessage)</div>#end
-		<form name="$form-name" id="useredit" action="#toolForm("$action")" method="post" autocomplete="on">
+		<form class="form-horizontal" name="$form-name" id="useredit" action="#toolForm("$action")" method="post" autocomplete="on">
 			<fieldset>
 				<legend>
  					#if($user) $tlang.getString("useedi.edit") #else $tlang.getString("usecre.creaco")#end 
@@ -55,150 +55,231 @@ function removeOptionalAttributeBlock(elem) {
                 <div class="instruction">
                     <span class="reqStarInline">*</span> $tlang.getString("usecre.instruc")
                 </div>
-			<div class="shorttext required">
-				<label #if(!$user) for="user_eid" #end>
-					#if(!$user)<span id="userIdRequired" class="reqStar">*</span>#end $tlang.getString("useconrem.useid")
-				</label>
-				#if($!user && !$valueEid)
-					#set($valueEid=$user.Eid)
-				#end
-				#if(!$user)
-					## creating new account
-					<input type="text" name="eid" id="user_eid" oninput="USER.validateUserId();" onkeyup="USER.validateUserId();" autocomplete="username" #if($!valueEid)value="$validator.escapeHtml($!valueEid)"#end/>
-				#else
-					## modifying existing account
-					#if($!superUser)
-						## only admin type user can modify the eid field
-						<input type="text" name="eid" id="user_eid" oninput="USER.validateUserId();" onkeyup="USER.validateUserId();" autocomplete="off" #if($!valueEid)value="$validator.escapeHtml($!valueEid)"#end/>
-					#else
-						<span id="eidValue">$validator.escapeHtml($!valueEid)</span>
+
+				<div class="form-group">
+					<label class="control-label col-sm-2" #if(!$user) for="user_eid" #end>
+						<span class="red">*</span> $tlang.getString("useconrem.useid")
+					</label>
+					#if($!user && !$valueEid)
+						#set($valueEid=$user.Eid)
 					#end
-				#end
-			</div>	
-			<div class="shorttext">
-				<label for="first-name">
-					$tlang.getString("usecre.firnam")
-				</label>	
-			#if ($service.allowUpdateUserName($user.Id) || !$user)
-				<input type="text" name="first-name" id="first-name" autocomplete="given-name" #if($user)value="$validator.escapeHtml($user.FirstName)"#elseif($valueFirstName)value="$validator.escapeHtml($valueFirstName)"#end />
-			#else
-				#if($user)$validator.escapeHtml($user.FirstName)#elseif($valueFirstName)$validator.escapeHtml($valueFirstName)#end
-			#end
-			</div>
-			<div class="shorttext">
-				<label for="last-name">
-					$tlang.getString("usecre.lasnam")
-				</label>
-			#if ($service.allowUpdateUserName($user.Id) || !$user)
-				<input type="text" name="last-name" id="last-name" autocomplete="family-name" #if($user)value="$validator.escapeHtml($user.LastName)"#elseif($valueLastName)value="$validator.escapeHtml($valueLastName)"#end />
-			#else
-				#if($user)$validator.escapeHtml($user.LastName)#elseif($valueLastName)$validator.escapeHtml($valueLastName)#end
-			#end
-			</div>
-			<div class="shorttext">
-				<label for="email">
-					$tlang.getString("useconrem.ema")
-				</label>
-			#if ($service.allowUpdateUserEmail($user.Id) || !$user)
-				<input type="text" name="email" id="email" oninput="USER.validateEmail();" onkeyup="USER.validateEmail();" autocomplete="email" #if($user)value="$validator.escapeHtml($user.Email)"#elseif($valueEmail)value="$validator.escapeHtml($valueEmail)"#end />
-                <div id="emailWarningMsg" style="display:none">$tlang.getString("useact.invemail")</div>
-			#else
-				#if($user)$validator.escapeHtml($user.Email)#elseif($valueEmail)$validator.escapeHtml($valueEmail)#end
-			#end
-			</div>	
-#if ($incPw && !$providedUserType)
-  #if(!$!superUser)
-    #if ($service.allowUpdateUserName($user.Id) || $service.allowUpdateUserEmail($user.Id) || $service.allowUpdateUserPassword($user.Id) || !$user)
-        <div class="shorttext">
-            <label for="user_pwcur">
-                <span class="reqStar">*</span> $tlang.getString("usecre.vercurpass")
-            </label>
-            <input type="password" name="pwcur" id="user_pwcur" oninput="USER.validateCurrentPassword();" onkeyup="USER.validateCurrentPassword();" autocomplete="current-password" />
-        </div>
-    #else
-        &nbsp;
-    #end
-  #end
-		#if ($service.allowUpdateUserPassword($user.Id) || !$user)
-			<div class="shorttext">
-				<label for="user_pw">
-					$tlang.getString("usecre.crenewpass")
-				</label>
-				<input type="password" name="pw" id="user_pw" onkeyup="USER.verifyPasswordsMatch()" onblur="USER.displayStrengthInfo();USER.validatePassword();" onfocus="USER.displayStrengthInfo();" autocomplete="new-password" />
-                <div id="strongMsg" style="display:none">$tlang.getString("pw.strong")</div>
-                <div id="moderateMsg" style="display:none">$tlang.getString("pw.moderate")</div>
-				<div id="weakMsg" style="display:none">$tlang.getString("pw.weak")</div>
-                <div id="failMsg" style="display:none">$tlang.getString("pw.fail")</div>
-                <div id="strengthBar" style="display:none">
-                	<span id="strengthBarMeter" style="display:none"></span>
+					<div class="col-sm-3">
+						#if(!$user)
+							## creating new account
+							<input class="form-control sakai-glow" type="text" name="eid" id="user_eid" placeholder="$tlang.getString("useconrem.useid.placeholder")" oninput="USER.validateUserId();" onkeyup="USER.validateUserId();" autocomplete="username" #if($!valueEid)value="$validator.escapeHtml($!valueEid)"#end/>
+						#else
+							## modifying existing account
+							#if($!superUser)
+								## only admin type user can modify the eid field
+								<input class="form-control sakai-glow" type="text" name="eid" id="user_eid" placeholder="$tlang.getString("useconrem.useid.placeholder")" oninput="USER.validateUserId();" onkeyup="USER.validateUserId();" autocomplete="off" #if($!valueEid)value="$validator.escapeHtml($!valueEid)"#end/>
+							#else
+								<span id="eidValue">$validator.escapeHtml($!valueEid)</span>
+							#end
+						#end
+					</div>
 				</div>
-                <div id="strengthInfo" style="display:none">$tlang.getString("pw.strengthInfo")</div>
-			</div>
-			<div class="shorttext">
-				<label for="user_pw0">
-					$tlang.getString("usecre.vernewpass")
-				</label>
-				<input type="password" name="pw0" id="user_pw0" onkeyup="USER.verifyPasswordsMatch()" onblur="USER.verifyPasswordsMatch();" autocomplete="new-password" />
-                <div id="matchMsg" style="display:none">$tlang.getString("pw.match")</div>
-                <div id="noMatchMsg" style="display:none">$tlang.getString("pw.noMatch")</div>
-			</div>
-		#else
-			&nbsp;
-		#end
-#end
-#if ($incType)
-			<div class="shorttext">
-				<label for="type">
-					$tlang.getString("usecre.typ")
-				</label>
-			#if ($service.allowUpdateUserType($user.Id) || !$user)
-				#if($userTypes)
-					<select name="type" id="type">
-					#foreach ( $userType in $userTypes )
-						<option value="$validator.escapeHtml($userType)" #if($user.Type==$userType)selected#end>$validator.escapeHtml($userType)</option>
+
+				<div class="form-group">
+					<label class="control-label col-sm-2" for="first-name">
+						$tlang.getString("usecre.firnam")
+					</label>
+					<div class="col-sm-3">
+						#if ($service.allowUpdateUserName($user.Id) || !$user)
+							<input class="form-control sakai-glow" type="text" name="first-name" id="first-name" placeholder="$tlang.getString("usecre.firnam.placeholder")" autocomplete="given-name" #if($user)value="$validator.escapeHtml($user.FirstName)"#elseif($valueFirstName)value="$validator.escapeHtml($valueFirstName)"#end />
+						#else
+							#if($user)$validator.escapeHtml($user.FirstName)#elseif($valueFirstName)$validator.escapeHtml($valueFirstName)#end
+						#end
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label class="control-label col-sm-2" for="last-name">
+						$tlang.getString("usecre.lasnam")
+					</label>
+					<div class="col-sm-3">
+						#if ($service.allowUpdateUserName($user.Id) || !$user)
+							<input class="form-control sakai-glow" type="text" name="last-name" id="last-name" placeholder="$tlang.getString("usecre.lasnam.placeholder")" autocomplete="family-name" #if($user)value="$validator.escapeHtml($user.LastName)"#elseif($valueLastName)value="$validator.escapeHtml($valueLastName)"#end />
+						#else
+							#if($user)$validator.escapeHtml($user.LastName)#elseif($valueLastName)$validator.escapeHtml($valueLastName)#end
+						#end
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label class="control-label col-sm-2" for="email">
+						$tlang.getString("useconrem.ema")
+					</label>
+					<div class="col-sm-3">
+						#if ($service.allowUpdateUserEmail($user.Id) || !$user)
+							<input class="form-control sakai-glow" type="text" name="email" id="email" placeholder="$tlang.getString("useconrem.ema.placeholder")"  oninput="USER.validateEmail();" onkeyup="USER.validateEmail();" autocomplete="email" #if($user)value="$validator.escapeHtml($user.Email)"#elseif($valueEmail)value="$validator.escapeHtml($valueEmail)"#end />
+						#else
+							#if($user)$validator.escapeHtml($user.Email)#elseif($valueEmail)$validator.escapeHtml($valueEmail)#end
+						#end
+					</div>
+
+					<div class="col-sm-offset-2 col-sm-10" id="emailWarningMsg" style="display:none">
+						<div class="validationAlert sak-banner-error">
+							$tlang.getString("useact.invemail")
+						</div>
+					</div>
+				</div>
+
+				#if ($incPw && !$providedUserType)
+					#if(!$!superUser)
+							#if ($service.allowUpdateUserName($user.Id) || $service.allowUpdateUserEmail($user.Id) || $service.allowUpdateUserPassword($user.Id) || !$user)
+								<div class="form-group">
+									<label class="control-label col-sm-2" for="user_pwcur">
+										<span class="red">*</span> $tlang.getString("usecre.vercurpass")
+									</label>
+									<div class="col-sm-3">
+										<input class="form-control sakai-glow" type="password" name="pwcur" id="user_pwcur" placeholder="$tlang.getString("usecre.vercurpass.placeholder")" oninput="USER.validateCurrentPassword();" onkeyup="USER.validateCurrentPassword();" autocomplete="current-password" />
+									</div>
+								</div>
+							#else
+								&nbsp;
+							#end
 					#end
-				</select>
-				#else
-					<input type="text" name="type" id="type" #if($user)value="$validator.escapeHtml($user.Type)"#elseif($valueType)value="$validator.escapeHtml($valueType)"#end />
+
+					#if ($service.allowUpdateUserPassword($user.Id) || !$user)
+						<div class="form-group">
+							<label class="control-label col-sm-2" for="user_pw">
+								$tlang.getString("usecre.crenewpass")
+							</label>
+							<div class="col-sm-3">
+								<input class="form-control sakai-glow" type="password" name="pw" id="user_pw" placeholder="$tlang.getString("usecre.crenewpass.placeholder")" oninput="USER.validatePassword();" onkeyup="USER.verifyPasswordsMatch()" onblur="USER.displayStrengthInfo();USER.validatePassword();" onfocus="USER.displayStrengthInfo();" autocomplete="new-password" />
+							</div>
+						</div>
+
+						<div class="form-group forPopover" id="strengthBar" style="display:none;" >
+							<div class="row status-row">
+								<label class="control-label col-sm-2" for="strengthBarMeter">
+									 <span class="red">*</span> $tlang.getString("pw.strength")
+								</label>
+								<div class="status-display col-sm-3">
+									<div class="sak-banner-success" id="strongMsg" style="display:none">
+										<strong>$tlang.getString("pw.strong")</strong>
+										<i class="fa fa-question-circle" aria-hidden="true"></i>
+									</div>
+									<div class="sak-banner-warn" id="moderateMsg" style="display:none">
+										<strong>$tlang.getString("pw.moderate")</strong>
+										<i class="fa fa-question-circle" aria-hidden="true"></i>
+									</div>
+									<div class="sak-banner-error" id="weakMsg" style="display:none">
+										<strong>$tlang.getString("pw.weak")</strong>
+										<i class="fa fa-question-circle" aria-hidden="true"></i>
+									</div>
+									<div class="sak-banner-error" id="failMsg" style="display:none;">
+										<strong>$tlang.getString("pw.fail")</strong>
+										<i class="fa fa-question-circle" aria-hidden="true"></i>
+									</div>
+								</div>
+							</div>
+							<div class="row status-row">
+								<script>
+									$(document).ready(function(){
+										$('.status-display').popover({
+											placement:"bottom",
+											container: ".forPopover",
+											content: "$tlang.getString("pw.strengthInfo")"
+										}); 
+									});
+								</script>
+							<div class="col-sm-2">
+							</div>
+							<div class="col-sm-3">
+								<div class="progress" style="height:3rem; margin:0;">
+									<div class="progress-bar" id="strengthBarMeter" role="progressbar" style="width:0%;background-color:#900;">
+									</div>
+								</div> 
+							</div>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="control-label col-sm-2" for="user_pw0">
+								$tlang.getString("usecre.vernewpass")
+							</label>
+							<div class="col-sm-3">
+								<input class="form-control sakai-glow" type="password" name="pw0" id="user_pw0" placeholder="$tlang.getString("usecre.vernewpass.placeholder")" onkeyup="USER.verifyPasswordsMatch()" onblur="USER.verifyPasswordsMatch();" autocomplete="new-password" />
+							</div>
+							<div class="col-sm-offset-2 col-sm-10" id="matchMsg" style="display:none">
+								<div class="validationAlert sak-banner-success" id="matchMsg" style="display:block">
+									$tlang.getString("pw.match")
+								</div>
+							</div>
+							<div class="col-sm-offset-2 col-sm-10" id="noMatchMsg" style="display:none">
+								<div class="validationAlert sak-banner-error"  style="display:block">
+									$tlang.getString("pw.noMatch")
+								</div>
+							</div>
+						</div>
+					#else
+						&nbsp;
+					#end
 				#end
-			#else
-				#if($user)$validator.escapeHtml($user.Type)#elseif($valueType)$validator.escapeHtml($valueType)#end
-			#end
-			</div>	
-#end
 
- 			<div class="shorttext">
- 				<label>$tlang.getString("disable.user")</label>
- 				#set($disabled = $user.Properties.getProperty("disabled"))
- #if(!$!superUser)
- 				#if ($disabled != 'true')$tlang.getString("false") #else $tlang.getString("true") #end 
- #else
-                 <input type="checkbox" name="disabled" id="disabled" #if($disabled == 'true')CHECKED#end>$tlang.getString("disable")</>
- #end
- 			</div>
+				#if ($incType)
+					<div class="form-group">
+						<label class="control-label col-sm-2" for="type">
+							$tlang.getString("usecre.typ")
+						</label>
+						<div class="col-sm-3">
+							#if ($service.allowUpdateUserType($user.Id) || !$user)
+								#if($userTypes)
+									<select name="type" id="type">
+									#foreach ( $userType in $userTypes )
+										<option value="$validator.escapeHtml($userType)" #if($user.Type==$userType)selected#end>$validator.escapeHtml($userType)</option>
+									#end
+								</select>
+								#else
+									<input class="form-control sakai-glow" type="text" name="type" id="type" #if($user)value="$validator.escapeHtml($user.Type)"#elseif($valueType)value="$validator.escapeHtml($valueType)"#end />
+								#end
+							#else
+								#if($user)$validator.escapeHtml($user.Type)#elseif($valueType)$validator.escapeHtml($valueType)#end
+							#end
+						</div>
+					</div>
+				#end
 
+				<div class="form-group">
+					<label class="control-label col-sm-2" for="disabled">
+						$tlang.getString("disable.user")
+					</label>
+					#set($disabled = $user.Properties.getProperty("disabled"))
+					<div class="col-sm-3">
+						#if(!$!superUser)
+							#if ($disabled != 'true')$tlang.getString("false") #else $tlang.getString("true") #end 
+						 #else
+							<input class="form-control sakai-glow" type="checkbox" name="disabled" id="disabled" #if($disabled == 'true')CHECKED#end>$tlang.getString("disable")</>
+						 #end
+					</div>
+				</div>
 
 #if ($user)
-			<div class="shorttext">
-				<label>$tlang.getString("useedi.creby")</label>
-				$validator.escapeHtml($user.CreatedBy.DisplayName)
-			</div>
-			<div class="shorttext">
-				<label>$tlang.getString("useedi.cre")</label>
-				$validator.escapeHtml($userCreated)
-			</div>
-			<div class="shorttext">
-				<label>$tlang.getString("useedi.modby")</label>
-				$validator.escapeHtml($user.ModifiedBy.DisplayName)
-			</div>	
-			<div class="shorttext">
-				<label>$tlang.getString("useedi.mod")</label>
-				$validator.escapeHtml($userModifiedDate)
-			</div>	
-			<div class="shorttext">
-				<label>$tlang.getString("useconrem.useuid")</label>
-				$validator.escapeHtml($user.Id)
-			</div>
+	<table class="table table-striped table-hover table-bordered">
+		<tbody>
+			<tr>
+				<td><label>$tlang.getString("useedi.creby")</label></td>
+				<td>$validator.escapeHtml($user.CreatedBy.DisplayName)</td>
+			</tr>
+			<tr>
+				<td><label>$tlang.getString("useedi.cre")</label></td>
+				<td>$validator.escapeHtml($userCreated)</td>
+			</tr>
+			<tr>
+				<td><label>$tlang.getString("useedi.modby")</label></td>
+				<td>$validator.escapeHtml($user.ModifiedBy.DisplayName)</td>
+			</tr>
+			<tr>
+				<td><label>$tlang.getString("useedi.mod")</label></td>
+				<td>$validator.escapeHtml($userModifiedDate)</td>
+			</tr>
+			<tr>
+				<td><label>$tlang.getString("useconrem.useuid")</label></td>
+				<td>$validator.escapeHtml($user.Id)</td>
+			</tr>
+		</tbody>
+	</table>
 #end
 
 		## optional attributes block
@@ -216,7 +297,7 @@ function removeOptionalAttributeBlock(elem) {
 						#if ($optionalAttributes.containsKey($c_entry.key))
 							<p class="shorttext">
 								#optionalAttributesSelectList($optionalAttributes, $c_entry.key, $c_entry.value)
-							</p>						
+							</p>
 							#set($attrNum = $attrNum+1)
 						#end
 					#end

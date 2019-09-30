@@ -10,11 +10,6 @@
   <name>sakai-content-copyright-impl</name>
   <groupId>org.sakaiproject.content</groupId>
   <artifactId>content-copyright-impl</artifactId>
-  <organization>
-    <name>Sakai Spanish Universities</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2011</inceptionYear>
   <packaging>sakai-component</packaging>
   <properties>
     <deploy.target>component</deploy.target>

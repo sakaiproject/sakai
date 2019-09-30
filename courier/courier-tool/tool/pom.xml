@@ -12,11 +12,6 @@
     <name>courier</name>
     <groupId>org.sakaiproject.courier</groupId>
     <artifactId>courier-tool</artifactId>
-    <organization>
-        <name>University of Michigan</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2003</inceptionYear>
     <packaging>war</packaging>
     
     <dependencies>

@@ -47,6 +47,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
+import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.roster.api.SakaiProxy;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -96,10 +97,10 @@ public class RosterTool extends HttpServlet {
             } else if (parts.length == 3) {
                 locale = new Locale(parts[0], parts[1], parts[2]);
             }
-            rl = new ResourceLoader("org.sakaiproject.roster.bundle.Messages");
+            rl = new ResourceLoader("roster");
             rl.setContextLocale(locale);
         } else {
-            rl = new ResourceLoader(userId, "org.sakaiproject.roster.bundle.Messages");
+            rl = new ResourceLoader(userId, "roster");
             locale = rl.getLocale();
         }
 
@@ -134,6 +135,7 @@ public class RosterTool extends HttpServlet {
         request.setAttribute("viewConnections", sakaiProxy.getViewConnections());
         request.setAttribute("showVisits", sakaiProxy.getShowVisits());
         request.setAttribute("profileNamePronunciationLink", sakaiProxy.getProfileToolLink());
+        request.setAttribute("portalCDNQuery", PortalUtils.getCDNQuery());
 
         response.setContentType("text/html");
         request.getRequestDispatcher("/WEB-INF/bootstrap.jsp").include(request, response);

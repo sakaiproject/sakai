@@ -10,11 +10,6 @@
   <name>sakai-podcasts-impl</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-podcasts-impl</artifactId>
-  <organization>
-    <name>Sakai Project</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2004</inceptionYear>
   <packaging>sakai-component</packaging>
   <properties>
     <deploy.target>components</deploy.target>
@@ -46,14 +41,14 @@
     </dependency>
 <!--		Needed to construct the actual feed -->
     <dependency>
-      <groupId>rome</groupId>
+      <groupId>com.rometools</groupId>
       <artifactId>rome</artifactId>
-      <version>1.0-sakai</version>
+      <version>1.12.1</version>
     </dependency>
     <dependency>
-      <groupId>rome</groupId>
-      <artifactId>modules</artifactId>
-      <version>0.3.2</version>
+      <groupId>com.rometools</groupId>
+      <artifactId>rome-modules</artifactId>
+      <version>1.12.1</version>
     </dependency>
   </dependencies>
 </project>

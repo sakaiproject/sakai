@@ -13,11 +13,6 @@
     <name>sakai-assignment-tool</name>
     <groupId>org.sakaiproject.assignment</groupId>
     <artifactId>sakai-assignment-tool</artifactId>
-    <organization>
-        <name>The Sakai Foundation</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2003</inceptionYear>
     <packaging>war</packaging>
 
     <dependencies>

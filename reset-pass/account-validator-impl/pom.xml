@@ -4,11 +4,6 @@
 	<groupId>org.sakaiproject.accountvalidator
 	</groupId>
 	<artifactId>accountvalidator-impl</artifactId>
-	<organization>
-		<name>Sakai Project</name>
-		<url>http://sakaiproject.org/</url>
-	</organization>
-	<inceptionYear>2007</inceptionYear>
 	<description>Account Validator implementation</description>
 	<packaging>sakai-component</packaging>
 	<properties>
@@ -34,7 +29,7 @@
 	  <!-- email dependencies -->
 		<dependency>
 			<groupId>com.sun.mail</groupId>
-			<artifactId>javax.mail</artifactId>
+			<artifactId>jakarta.mail</artifactId>
 		</dependency>
 
       <!-- generic DAO -->

@@ -19,7 +19,7 @@ import java.util.Locale;
 
 public class LTI13JJWTTest {
 
-	public static final String LTI_13_ISSUER = "https://sakaiproject.org/";
+	public static final String LTI_13_ISSUER = "https://www.sakailms.org/";
 	public static final String LTI_13_KEY_NONCE = "nonce";
 
 	// Close to a base64 pattern

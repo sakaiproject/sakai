@@ -13,11 +13,6 @@
   <artifactId>sitestats</artifactId>
   <description>SiteStats is a tool for Sakai for showing site usage statistics.</description>
   <url>http://confluence.sakaiproject.org/confluence/display/STAT</url>
-  <inceptionYear>2006</inceptionYear>
-  <organization>
-    <name>Sakai Project</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
   <packaging>pom</packaging>
 
   <!-- Project versions -->

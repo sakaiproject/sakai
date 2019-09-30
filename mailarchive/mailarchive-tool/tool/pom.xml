@@ -12,11 +12,6 @@
     <name>sakai-mailarchive-tool</name>
     <groupId>org.sakaiproject.mailarchive</groupId>
     <artifactId>sakai-mailarchive-tool</artifactId>
-    <organization>
-        <name>The Sakai Foundation</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2003</inceptionYear>
     <packaging>war</packaging>
 
     <dependencies>

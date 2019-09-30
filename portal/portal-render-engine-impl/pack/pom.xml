@@ -12,11 +12,6 @@
     <name>sakai-portal-render</name>
     <groupId>org.sakaiproject.portal</groupId>
     <artifactId>portal-render</artifactId>
-    <organization>
-        <name>University of Michigan</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2003</inceptionYear>
     <packaging>war</packaging>
 
     <dependencies>

@@ -11,11 +11,6 @@
   <name>sakai-chat-impl</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-chat-impl</artifactId>
-  <organization>
-    <name>University of Michigan</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2003</inceptionYear>
   <packaging>sakai-component</packaging>
   <properties>
     <deploy.target>components</deploy.target>

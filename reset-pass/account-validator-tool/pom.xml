@@ -3,11 +3,6 @@
    <name>Sakai Account Validator Tool</name>
   <groupId>org.sakaiproject.accountvalidator</groupId>
    <artifactId>accountvalidator</artifactId>
-   <organization>
-      <name>Sakai Project</name>
-      <url>http://sakaiproject.org/</url>
-   </organization>
-   <inceptionYear>2007</inceptionYear>
    <description>Account Validator Tool</description>
    <packaging>war</packaging>
 

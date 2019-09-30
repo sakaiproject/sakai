@@ -221,7 +221,7 @@ public class SaveAssessmentSettingsListener
 		
     //check feedback - if at specific time then time should be defined.
     if((assessmentSettings.getFeedbackDelivery()).equals("2")) {
-    	if (assessmentSettings.getFeedbackDateString()==null || assessmentSettings.getFeedbackDateString().equals("")) {
+    	if (StringUtils.isBlank(assessmentSettings.getFeedbackDateString())) {
     		error=true;
     		String  date_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","date_error");
     		context.addMessage(null,new FacesMessage(date_err));
@@ -231,6 +231,27 @@ public class SaveAssessmentSettingsListener
         	context.addMessage(null,new FacesMessage(feedbackDateErr));
         	error=true;
         }
+		boolean scoreThresholdEnabled = assessmentSettings.getFeedbackScoreThresholdEnabled();
+		//Check if the value is empty
+		boolean scoreThresholdError = StringUtils.isBlank(assessmentSettings.getFeedbackScoreThreshold());
+		//If the threshold value is not empty, check if is a valid percentage
+		if (!scoreThresholdError) {
+			String submittedScoreThreshold = StringUtils.replace(assessmentSettings.getFeedbackScoreThreshold(), ",", ".");
+			try {
+				Double doubleInput = new Double(submittedScoreThreshold);
+				if(doubleInput.compareTo(new Double("0.0")) == -1 || doubleInput.compareTo(new Double("100.0")) == 1){
+					throw new Exception();
+				}
+			} catch(Exception ex) {
+				scoreThresholdError = true;
+			}
+		}
+		//If the threshold is enabled and is not valid, display an error.
+		if(scoreThresholdEnabled && scoreThresholdError){
+			error = true;
+			String str_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","feedback_score_threshold_required");
+			context.addMessage(null,new FacesMessage(str_err));
+		}
     }
     
     // check secure delivery exit password

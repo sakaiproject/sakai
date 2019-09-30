@@ -22,7 +22,6 @@ package org.sakaiproject.tool.messageforums;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -1285,7 +1284,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	replyText.append(getResourceBundleString("pvt_msg_at"));
 	replyText.append(" " +formattedCreateTime);
 	replyText.append(getResourceBundleString("pvt_msg_comma"));
-    replyText.append(" " + pm.getAuthor() + " ");
+    replyText.append(" " + FormattedText.escapeHtml(pm.getAuthor(), false) + " ");
     replyText.append(getResourceBundleString("pvt_msg_wrote")); 
 	replyText.append("</span>");
     	
@@ -1346,7 +1345,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	    
 	    // populate replyToBody with the forwarded text
 		forwardedText.append(getResourceBundleString("pvt_msg_fwd_heading") + "<br /><br />" +
-	    	getResourceBundleString("pvt_msg_fwd_authby", new Object[] {pm.getAuthor(), formattedCreateDate}) +  "<br />" +
+	    	getResourceBundleString("pvt_msg_fwd_authby", new Object[] {FormattedText.escapeHtml(pm.getAuthor(), false), formattedCreateDate}) +  "<br />" +
 	    	getResourceBundleString("pvt_msg_fwd_to", new Object[] {pm.getRecipientsAsText()}) + "<br />" +
 	    	getResourceBundleString("pvt_msg_fwd_subject", new Object[] {pm.getTitle()}) + "<br />" +
 	    	getResourceBundleString("pvt_msg_fwd_label", new Object[] {getDetailMsg().getLabel()}) + "<br />");
@@ -1443,7 +1442,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 		replyallText.append(getResourceBundleString("pvt_msg_at"));
 		replyallText.append(" " +formattedCreateTime);
 		replyallText.append(getResourceBundleString("pvt_msg_comma"));
-		replyallText.append(" " + pm.getAuthor() + " ");
+		replyallText.append(" " + FormattedText.escapeHtml(pm.getAuthor(), false) + " ");
 		replyallText.append(getResourceBundleString("pvt_msg_wrote")); 
 		replyallText.append("</span>");
 	    	

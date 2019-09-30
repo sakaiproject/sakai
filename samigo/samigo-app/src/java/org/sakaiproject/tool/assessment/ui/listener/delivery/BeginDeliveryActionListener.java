@@ -118,6 +118,7 @@ public class BeginDeliveryActionListener implements ActionListener
     }
     else {
     	delivery.setIsFromPrint(false);
+        delivery.calculateMinutesAndSecondsLeft();
     }
     
     int action = delivery.getActionMode();
@@ -235,10 +236,14 @@ public class BeginDeliveryActionListener implements ActionListener
     
     // important: set feedbackOnDate last
     Date currentDate = new Date();
-    if (component.getShowDateFeedback() && control.getFeedbackDate()!= null && currentDate.after(control.getFeedbackDate())) {
-      delivery.setFeedbackOnDate(true); 
+    if (component.getShowDateFeedback()) {
+        if(control.getFeedbackDate()!= null && control.getFeedbackEndDate() == null ) {
+            delivery.setFeedbackOnDate(currentDate.after(control.getFeedbackDate()));
+        } else if(control.getFeedbackDate()!= null && control.getFeedbackEndDate() != null ) {
+            delivery.setFeedbackOnDate(currentDate.after(control.getFeedbackDate()) && currentDate.before(control.getFeedbackEndDate()));
+        }
     }
-    
+
     EvaluationModelIfc eval = (EvaluationModelIfc) pubAssessment.getEvaluationModel();
     delivery.setScoringType(eval.getScoringType());
     

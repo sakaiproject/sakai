@@ -12,11 +12,6 @@
   <groupId>org.sakaiproject</groupId>
   <artifactId>entitybroker</artifactId>
   <packaging>pom</packaging>
-  <organization>
-    <name>Sakai Project</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2007</inceptionYear>
   <url>http://confluence.sakaiproject.org/confluence/x/F7M</url>
   <description>The Sakai Entity Broker is an entity system for use in Sakai. Ideally we
         want flexible entities which make development of integrated Sakai tools easier and

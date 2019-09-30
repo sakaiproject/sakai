@@ -25,13 +25,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import org.hibernate.SessionFactory;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sakaiproject.messagebundle.api.MessageBundleProperty;
 import org.sakaiproject.messagebundle.api.MessageBundleService;
-import org.sakaiproject.messagebundle.impl.MessageBundleServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
@@ -47,21 +45,19 @@ import org.springframework.util.Assert;
  * To change this template use File | Settings | File Templates.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"/spring-hibernate.xml"})
+@ContextConfiguration(classes = {MessageBundleTestConfiguration.class})
 @FixMethodOrder(NAME_ASCENDING)
 public class MessageBundleTest extends AbstractTransactionalJUnit4SpringContextTests {
 
     @Autowired
     private MessageBundleService messageBundleService;
 
-    static ResourceBundle resourceBundleEN;
-    static ResourceBundle resourceBundleFr;
-
-    static Locale localeEn;
-    static Locale localeFr;
-
-    static String baseName;
-    static String moduleName;
+    private static ResourceBundle resourceBundleEN;
+    private static ResourceBundle resourceBundleFr;
+    private static Locale localeEn;
+    private static Locale localeFr;
+    private static String baseName;
+    private static String moduleName;
 
     @BeforeTransaction
     public void beforeTransaction()  {
@@ -87,7 +83,7 @@ public class MessageBundleTest extends AbstractTransactionalJUnit4SpringContextT
 
     @Test
     public void testUpdateMessageBundleProperty(){
-        List<MessageBundleProperty> list = messageBundleService.getAllProperties(null, null);
+        List<MessageBundleProperty> list = messageBundleService.getAllProperties(null, null, null);
         MessageBundleProperty prop = list.get(0);
         prop.setValue("newvalue");
         messageBundleService.updateMessageBundleProperty(prop);
@@ -107,9 +103,9 @@ public class MessageBundleTest extends AbstractTransactionalJUnit4SpringContextT
 
     @Test
     public void testGetAllProperties(){
-        List<MessageBundleProperty> props = messageBundleService.getAllProperties(localeEn.toString(), moduleName);
+        List<MessageBundleProperty> props = messageBundleService.getAllProperties(localeEn.toString(), null, moduleName);
         Assert.isTrue(4 == props.size());
-        props = messageBundleService.getAllProperties(localeFr.toString(), moduleName);
+        props = messageBundleService.getAllProperties(localeFr.toString(), null, moduleName);
         Assert.isTrue(4 == props.size());
     }
 
@@ -137,7 +133,7 @@ public class MessageBundleTest extends AbstractTransactionalJUnit4SpringContextT
 
     @Test
     public void testRevert(){
-        List<MessageBundleProperty> list = messageBundleService.getAllProperties(localeEn.toString(), moduleName);
+        List<MessageBundleProperty> list = messageBundleService.getAllProperties(localeEn.toString(), null, moduleName);
         MessageBundleProperty prop = list.get(0);
         prop.setValue("newvalue");
         messageBundleService.updateMessageBundleProperty(prop);

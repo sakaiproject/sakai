@@ -1,0 +1,27 @@
+{
+  "name": "webcomponents",
+  "version": "1.0.0",
+  "description": "Sakai Element",
+  "main": "sakai-element.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sakaiproject/sakai.git"
+  },
+  "scripts": {
+    "postinstall": "empathy install",
+    "webpack": "webpack",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ECL-2.0",
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.10.2",
+    "@webcomponents/webcomponentsjs": "^2.2.10",
+    "lit-element": "^2.1.0",
+    "sortablejs": "^1.9.0"
+  },
+  "devDependencies": {
+    "@0xcda7a/empathy": "0.0.9"
+  }
+}

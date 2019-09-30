@@ -20,55 +20,61 @@
             <fieldset>
             	<legend>
 					$tlang.getString("usevie.use")
-				</legend>	
-                <div class="shorttext">
-                    <label>$tlang.getString("useconrem.useid")</label>
-                    $validator.escapeHtml($user.Eid)
-                </div>
-                <div class="shorttext">
-                    <label>$tlang.getString("usecre.firnam")</label>
-                    $validator.escapeHtml($user.FirstName)
-                </div>
-                <div class="shorttext">
-                    <label>$tlang.getString("usecre.lasnam")</label>
-                    $validator.escapeHtml($user.LastName)
-                </div>
-                <div class="shorttext">
-                    <label>$tlang.getString("usevie.ema")</label>
-                    $validator.escapeHtml($user.Email)
-                </div>
-                <div class="shorttext">
-                    <label>$tlang.getString("usecre.typ")</label>
-                    $validator.escapeHtml($user.Type)
-                </div>
-			
-#if($enableEdit)
-               	<div class="shorttext">
-                    <label>$tlang.getString("disabled")</label>
-                    #set($disabled = $user.Properties.getProperty("disabled"))
-   					#if ($disabled != 'true')$tlang.getString("false") #else $tlang.getString("true") #end
-                </div>
-		        <div class="shorttext">
-                    <label>$tlang.getString("useedi.creby")</label>
-                    $validator.escapeHtml($user.CreatedBy.DisplayName)
-                </div>
-                <div class="shorttext">
-                    <label>$tlang.getString("useedi.cre")</label>
-                   	$userTimeService.dateTimeFormatLong($user.CreatedDate, $tlang.Locale)
-                </div>
-                <div class="shorttext">
-                    <label>$tlang.getString("useedi.modby")</label>
-                    $validator.escapeHtml($user.ModifiedBy.DisplayName)
-                </div>
-                <div class="shorttext">
-                    <label>$tlang.getString("useedi.mod")</label>
-                    $userTimeService.dateTimeFormatLong($user.ModifiedDate, $tlang.Locale)
-                </div>
-                           
+				</legend>
+                <table class="table table-striped table-hover table-bordered">
+                    <tbody>
+                        <tr>
+                            <td><label>$tlang.getString("useconrem.useid")</label></td>
+                            <td>$validator.escapeHtml($user.Eid)</td>
+                        </tr>
+                        <tr>
+                            <td><label>$tlang.getString("usecre.firnam")</label></td>
+                            <td>$validator.escapeHtml($user.FirstName)</td>
+                        </tr>
+                        <tr>
+                            <td><label>$tlang.getString("usecre.lasnam")</label></td>
+                            <td>$validator.escapeHtml($user.LastName)</td>
+                        </tr>
+                        <tr>
+                            <td><label>$tlang.getString("usevie.ema")</label></td>
+                            <td>$validator.escapeHtml($user.Email)</td>
+                        </tr>
+                        <tr>
+                            <td><label>$tlang.getString("usecre.typ")</label></td>
+                            <td>$validator.escapeHtml($user.Type)</td>
+                        </tr>
+                        #if($enableEdit)
+                            <tr>
+                                <td><label>$tlang.getString("disabled")</label></td>
+                                #set($disabled = $user.Properties.getProperty("disabled"))
+                                <td>#if ($disabled != 'true')$tlang.getString("false") #else $tlang.getString("true") #end</td>
+                            </tr>
+                            <tr>
+                                <td><label>$tlang.getString("useedi.creby")</label></td>
+                                <td>$validator.escapeHtml($user.CreatedBy.DisplayName)</td>
+                            </tr>
+                            <tr>
+                                <td><label>$tlang.getString("useedi.cre")</label></td>
+                                <td>$userTimeService.dateTimeFormatLong($user.CreatedDate, $tlang.Locale)</td>
+                            </div>
+                            <tr>
+                                <td><label>$tlang.getString("useedi.modby")</label></td>
+                                <td>$validator.escapeHtml($user.ModifiedBy.DisplayName)</td>
+                            </tr>
+                            <tr>
+                                <td><label>$tlang.getString("useedi.mod")</label></td>
+                                <td>$userTimeService.dateTimeFormatLong($user.ModifiedDate, $tlang.Locale)</td>
+                            </tr>
+                        #end
+                    </tbody>
+                </table>
+
+			#if($enableEdit)
 				<div class="act">
 					<input type="submit" id="eventSubmit_doModify" name="eventSubmit_doModify" class="active" value="$tlang.getString("usevie.mod2")" accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" />
 				</div>
-#end
+			#end
+
 				<input type="hidden" id="id" name="id" value="$validator.escapeHtml($user.Id)" />
 				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
             </fieldset>

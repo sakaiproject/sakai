@@ -9,11 +9,6 @@
   <name>Sakai Message Forums Component Implementation</name>
   <groupId>org.sakaiproject.msgcntr</groupId>
   <artifactId>messageforums-component-impl</artifactId>
-  <organization>
-    <name>Sakai Project</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2005</inceptionYear>
   <packaging>sakai-component</packaging>
   <properties>
     <deploy.target>components</deploy.target>
@@ -85,7 +80,7 @@
     </dependency>
     <dependency>
       <groupId>com.sun.mail</groupId>
-      <artifactId>javax.mail</artifactId>
+      <artifactId>jakarta.mail</artifactId>
     </dependency>
     <dependency>
     	<groupId>org.sakaiproject.search</groupId>
@@ -107,6 +102,10 @@
     <dependency>
       <groupId>org.sakaiproject.rubrics</groupId>
       <artifactId>rubrics-service-api</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
     </dependency>
   </dependencies>
   <build>

@@ -11,11 +11,6 @@
     <name>ROSTER2 TOOL</name>
     <groupId>org.sakaiproject.roster2</groupId>
     <artifactId>sakai-roster2-tool</artifactId>
-    <organization>
-        <name>Sakai Project</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2010</inceptionYear>
     <packaging>war</packaging>
 
     <properties>
@@ -113,6 +108,10 @@
             <artifactId>sitestats-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.portal</groupId>
+            <artifactId>sakai-portal-util</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <scope>provided</scope>
@@ -166,7 +165,7 @@
     <build>
         <plugins>
             <!-- compress CSS and JS -->
-            <plugin>
+            <!--plugin>
                 <groupId>com.samaxes.maven</groupId>
                 <artifactId>minify-maven-plugin</artifactId>
                 <version>1.7.6</version>
@@ -185,7 +184,7 @@
                         <goals><goal>minify</goal></goals>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin-->
             <plugin>
                 <groupId>com.github.jknack</groupId>
                 <artifactId>handlebars-maven-plugin</artifactId>

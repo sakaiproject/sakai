@@ -13,11 +13,6 @@
   some more information about the design on.
   https://confluence.sakaiproject.org/display/PROD/A+Tour+of+Sakai+Import
   </description>
-  <organization>
-    <name>Sakai Foundation</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2003</inceptionYear>
   <packaging>jar</packaging>
   <properties>
     <deploy.target>shared</deploy.target>

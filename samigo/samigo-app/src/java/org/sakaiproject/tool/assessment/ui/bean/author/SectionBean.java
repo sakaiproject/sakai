@@ -39,6 +39,8 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.entity.api.Reference;
@@ -371,6 +373,7 @@ private List attachmentList;
     // SAM-2463: Fetch the count of questions for each pool in one query instead of hundreds
     Map<Long, Integer> poolQuestionCounts = delegate.getCountItemsForUser(agentId);
 
+    boolean currentPoolAlreadyAdded = false;
     Iterator pooliter = allPoolsMap.keySet().iterator();
     while (pooliter.hasNext()) {
       QuestionPoolFacade pool = (QuestionPoolFacade) allPoolsMap.get(pooliter.next());
@@ -378,10 +381,13 @@ private List attachmentList;
       int items = poolQuestionCounts.containsKey(poolId) ? poolQuestionCounts.get(poolId) : 0;
       if(items>0){
     	  resultPoolList.add(new SelectItem((poolId.toString()), getPoolTitleValueForRandomDrawDropDown(pool, items, allpoollist, delegate)));
+    	  if(StringUtils.isNotBlank(this.getSelectedPool()) && poolId.compareTo(new Long(this.getSelectedPool())) == 0){
+    	      currentPoolAlreadyAdded = true;
+    	  }
       }
     }
     //  add pool which is currently used in current Part for modify part
-    if (!("".equals(this.getSelectedPool())) && (this.getSelectedPool() !=null)){
+    if (StringUtils.isNotBlank(this.getSelectedPool()) && !currentPoolAlreadyAdded){
 
     //now we need to get the poolid and displayName
      

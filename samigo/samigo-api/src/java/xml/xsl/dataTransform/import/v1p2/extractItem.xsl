@@ -31,7 +31,10 @@
     <!-- Respondus single correct answer -->
     <xsl:for-each select="//respcondition">
       <xsl:if test="setvar/@varname='que_score' and setvar/@action='Set'">
-      <xsl:value-of select="setvar"/><!--  if not single adds innocuous '0' -->
+        <xsl:value-of select="setvar"/><!--  if not single adds innocuous '0' -->
+      </xsl:if>
+      <xsl:if test="setvar/@varname='SCORE' and setvar/@action='Set'">
+        <xsl:value-of select="setvar"/>
       </xsl:if>
     </xsl:for-each>
   </score>
@@ -128,6 +131,19 @@
     <xsl:if test="displayfeedback/@linkrefid='Correct'">
       <itemAnswerCorrectLabel type="list"><xsl:value-of select="conditionvar/varequal"/></itemAnswerCorrectLabel>
     </xsl:if>
+    <!-- Found in SAK-34033 Cognero -->
+    <xsl:if test="setvar/@varname='SCORE' and setvar/@action='Set'">
+      <xsl:variable name="tempIdentVal">
+        <xsl:value-of select="conditionvar/varequal"/>
+      </xsl:variable>
+      <itemAnswerCorrectLabel type="list">
+        <xsl:for-each select="//response_lid//flow_label/response_label">
+          <xsl:if test="@ident = $tempIdentVal">
+            <xsl:number value="position()" format="A" />
+          </xsl:if>
+        </xsl:for-each>
+      </itemAnswerCorrectLabel>
+    </xsl:if>
   </xsl:for-each>
   <!-- alternate for Respondus questions -->
   <xsl:for-each select="//respcondition">
@@ -153,7 +169,7 @@
   </xsl:for-each>
 
   <!-- answers -->
-  <xsl:for-each select="//presentation//response_lid/render_choice/response_label/material/mattext" >
+  <xsl:for-each select="//presentation//response_lid/render_choice//response_label/material/mattext" >
       <itemAnswer type="list"><xsl:apply-templates mode="itemRichText" /></itemAnswer>
   </xsl:for-each>
   <xsl:for-each select="//respcondition/conditionvar/*[name()='or']/varequal">
@@ -166,6 +182,9 @@
     	</xsl:when>
   	</xsl:choose>
   </xsl:for-each>
+  <xsl:if test="//itemmetadata/qmd_renderingtype='Text entry' and //itemmetadata/qmd_responsetype='Single'">
+    <itemFibAnswer type="list"><xsl:value-of select="//respcondition/conditionvar/varequal"/></itemFibAnswer>
+  </xsl:if>
   <!-- feedback -->
 
   <xsl:for-each select="//itemfeedback">
@@ -283,6 +302,8 @@
         <xsl:when test=".//render_choice and @title='Multiple Correct Single Selection'">Multiple Correct Single Selection</xsl:when>
         <xsl:when test=".//render_choice and @title='Multiple Choice'">Multiple Choice</xsl:when>
         <xsl:when test=".//render_choice and @title='Matrix Choices Survey'">Matrix Choice</xsl:when>
+        <xsl:when test=".//qmd_renderingtype='Choice' and .//qmd_responsetype='Single'">Multiple Choice</xsl:when>
+        <xsl:when test=".//qmd_renderingtype='Choice' and .//qmd_responsetype='Multiple'">Multiple Correct Answer</xsl:when>
         <xsl:otherwise>Short Answers/Essay</xsl:otherwise>
       </xsl:choose>
     </itemIntrospect>

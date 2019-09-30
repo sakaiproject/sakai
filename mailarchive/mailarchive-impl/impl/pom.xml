@@ -12,11 +12,6 @@
     <name>sakai-mailarchive-impl</name>
     <groupId>org.sakaiproject.mailarchive</groupId>
     <artifactId>sakai-mailarchive-impl</artifactId>
-    <organization>
-        <name>Sakai Foundation</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2003</inceptionYear>
     <packaging>sakai-component</packaging>
 
     <properties>
@@ -66,7 +61,7 @@
         </dependency>
         <dependency>
             <groupId>com.sun.mail</groupId>
-            <artifactId>javax.mail</artifactId>
+            <artifactId>jakarta.mail</artifactId>
         </dependency>
     </dependencies>
 

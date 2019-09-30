@@ -14,11 +14,11 @@
     <packaging>pom</packaging>
 
     <organization>
-        <name>The Sakai Foundation</name>
-        <url>http://www.sakaiproject.org/</url>
+        <name>Sakai Community and the Apereo Foundation</name>
+        <url>https://www.sakailms.org/</url>
     </organization>
 
-    <url>http://www.sakaiproject.org/</url>
+    <inceptionYear>2003</inceptionYear>
 
     <licenses>
         <license>
@@ -30,7 +30,7 @@
 
     <issueManagement>
         <system>Jira</system>
-        <url>http://issues.sakaiproject.org/jira/browse/SAK</url>
+        <url>https://jira.sakaiproject.org/projects/SAK/issues</url>
     </issueManagement>
 
     <profiles>

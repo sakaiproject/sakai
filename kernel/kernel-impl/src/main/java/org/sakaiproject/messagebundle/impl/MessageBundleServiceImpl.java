@@ -44,6 +44,7 @@ import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.messagebundle.api.MessageBundleProperty;
 import org.sakaiproject.messagebundle.api.MessageBundleService;
 import org.springframework.beans.BeanUtils;
@@ -52,6 +53,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -89,18 +91,23 @@ public class MessageBundleServiceImpl implements MessageBundleService {
      */
     private List<SaveOrUpdateCall> queue = Collections.synchronizedList(new ArrayList<>());
 
-    @Setter
-    private TransactionTemplate transactionTemplate;
+    @Getter private boolean enabled = false;
 
-    @Setter
-    private SessionFactory sessionFactory;
+    @Setter private ServerConfigurationService serverConfigurationService;
+    @Setter private SessionFactory sessionFactory;
+    @Setter private TransactionTemplate transactionTemplate;
 
     public void init() {
-        timer.schedule(new SaveOrUpdateTask(), 0, scheduleDelay);
+        if (serverConfigurationService.getBoolean("load.bundles.from.db", true)) {
+            enabled = true;
+            timer.schedule(new SaveOrUpdateTask(), 0, scheduleDelay);
+        }
     }
 
     public void destroy() {
-        timer.cancel();
+        if (enabled) {
+            timer.cancel();
+        }
     }
 
     @Transactional(readOnly = true)
@@ -150,14 +157,12 @@ public class MessageBundleServiceImpl implements MessageBundleService {
      */
     @Transactional
     public void saveOrUpdate(String baseName, String moduleName, ResourceBundle newBundle, Locale loc) {
-        if (StringUtils.isBlank(baseName) || StringUtils.isBlank(moduleName) || loc == null || newBundle == null) {
-            return;
-        }
-
-        if (scheduleSaves) {
-            queueBundle(baseName, moduleName, convertResourceBundleToMap(newBundle), loc);
-        } else {
-            saveOrUpdateInternal(baseName, moduleName, convertResourceBundleToMap(newBundle), loc);
+        if (enabled && newBundle != null && loc != null && (StringUtils.isNotBlank(baseName) && StringUtils.isNotBlank(moduleName))) {
+            if (scheduleSaves) {
+                queueBundle(baseName, moduleName, convertResourceBundleToMap(newBundle), loc);
+            } else {
+                saveOrUpdateInternal(baseName, moduleName, convertResourceBundleToMap(newBundle), loc);
+            }
         }
     }
 
@@ -287,22 +292,20 @@ public class MessageBundleServiceImpl implements MessageBundleService {
     public Map<String, String> getBundle(String baseName, String moduleName, Locale loc) {
         Map<String, String> map = new HashMap<>();
 
-        if (StringUtils.isBlank(baseName) || StringUtils.isBlank(moduleName) || loc == null) {
-            return map;
+        if (enabled && loc != null && StringUtils.isNotBlank(baseName) && StringUtils.isNotBlank(moduleName)) {
+            Query query = sessionFactory.getCurrentSession().getNamedQuery("findPropertyWithNullValue");
+            query.setString("basename", baseName);
+            query.setString("module", moduleName);
+            query.setString("locale", loc.toString());
+            List<MessageBundleProperty> results = (List<MessageBundleProperty>) query.list();
+
+            for (MessageBundleProperty mbp : results) {
+                map.put(mbp.getPropertyName(), mbp.getValue());
+            }
+
+            if (map.isEmpty() && log.isDebugEnabled())
+                log.debug("can't find any values for: " + getIndexKeyName(baseName, moduleName, loc.toString()));
         }
-
-        Query query = sessionFactory.getCurrentSession().getNamedQuery("findPropertyWithNullValue");
-        query.setString("basename", baseName);
-        query.setString("module", moduleName);
-        query.setString("locale", loc.toString());
-        List<MessageBundleProperty> results = (List<MessageBundleProperty>) query.list();
-
-        for (MessageBundleProperty mbp : results) {
-            map.put(mbp.getPropertyName(), mbp.getValue());
-        }
-
-        if (map.isEmpty() && log.isDebugEnabled())
-            log.debug("can't find any values for: " + getIndexKeyName(baseName, moduleName, loc.toString()));
         return map;
     }
 
@@ -324,12 +327,16 @@ public class MessageBundleServiceImpl implements MessageBundleService {
     }
 
     @Transactional(readOnly = true)
-    public List<MessageBundleProperty> getAllProperties(String locale, String module) {
+    public List<MessageBundleProperty> getAllProperties(String locale, String basename, String module) {
 
         Criteria query = sessionFactory.getCurrentSession().createCriteria(MessageBundleProperty.class);
+        query.setCacheable(true);
 
         if (StringUtils.isNotEmpty(locale)) {
             query.add(Restrictions.eq("locale", locale));
+        }
+        if (StringUtils.isNotEmpty(basename)) {
+            query.add(Restrictions.eq("baseName", basename));
         }
         if (StringUtils.isNotEmpty(module)) {
             query.add(Restrictions.eq("moduleName", module));
@@ -373,9 +380,9 @@ public class MessageBundleServiceImpl implements MessageBundleService {
         Criteria query = sessionFactory.getCurrentSession().createCriteria(MessageBundleProperty.class)
                 .setProjection(Projections.distinct(Projections.property("moduleName")))
                 .addOrder(Order.asc("moduleName"));
+        query.setCacheable(true);
 
         List<String> results = (List<String>) query.list();
-        Hibernate.initialize(results);
         return results;
     }
 
@@ -385,7 +392,6 @@ public class MessageBundleServiceImpl implements MessageBundleService {
                 .setProjection(Projections.distinct(Projections.property("baseName")))
                 .addOrder(Order.asc("baseName"));
         List<String> results = (List<String>) query.list();
-        Hibernate.initialize(results);
         return results;
 
     }

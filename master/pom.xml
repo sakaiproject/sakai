@@ -26,7 +26,7 @@
     <sakai.commons.lang3.version>3.9</sakai.commons.lang3.version>
     <sakai.commons.fileupload.version>1.4</sakai.commons.fileupload.version>
     <sakai.commons-math3.version>3.6.1</sakai.commons-math3.version>
-    <sakai.commons-text.version>1.7</sakai.commons-text.version>
+    <sakai.commons-text.version>1.8</sakai.commons-text.version>
     <sakai.commons-validator.version>1.6</sakai.commons-validator.version>
     <sakai.commons-logging.version>1.2</sakai.commons-logging.version>
     <sakai.commons.configuration.version>1.6</sakai.commons.configuration.version>
@@ -40,7 +40,7 @@
     <sakai.httpclient.version>4.5.8</sakai.httpclient.version>
     <sakai.httpcore.version>4.4.11</sakai.httpcore.version>
     <sakai.httpmime.version>4.5.8</sakai.httpmime.version>
-    <sakai.jackson.version>2.10.0.pr1</sakai.jackson.version>
+    <sakai.jackson.version>2.9.10</sakai.jackson.version>
     <sakai.jsoup.version>1.12.1</sakai.jsoup.version>
     <sakai.woodstox.version>5.2.1</sakai.woodstox.version>
     <sakai.stax2.version>4.2</sakai.stax2.version>
@@ -67,7 +67,7 @@
     <sakai.spring.test.artifactId>spring-test</sakai.spring.test.artifactId>
     <sakai.spring.test.version>4.3.25.RELEASE</sakai.spring.test.version>
     <sakai.tika.version>1.22</sakai.tika.version>
-    <sakai.tomcat.version>9.0.24</sakai.tomcat.version>
+    <sakai.tomcat.version>9.0.26</sakai.tomcat.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.xerces.impl.version>2.12.0</sakai.xerces.impl.version>
     <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
@@ -77,7 +77,7 @@
     <sakai.mockito.version>2.28.2</sakai.mockito.version>
     <sakai.powermock.version>2.0.2</sakai.powermock.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
-    <joda.time.version>2.10.3</joda.time.version>
+    <joda.time.version>2.10.4</joda.time.version>
     <sakai.weld.shaded.version>3.1.2.Final</sakai.weld.shaded.version>
     <jayway.jsonpath.version>2.4.0</jayway.jsonpath.version>
     <sakai.genericdao.version>0.11.0</sakai.genericdao.version>
@@ -286,6 +286,22 @@
       <snapshots>
         <enabled>false</enabled>
         <checksumPolicy>ignore</checksumPolicy>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>repository.spring.release</id>
+      <name>Spring GA Repository</name>
+      <url>http://repo.spring.io/release</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>repository.spring.libs.release</id>
+      <name>Spring Lib Repository</name>
+      <url>http://repo.spring.io/libs-release</url>
+      <snapshots>
+        <enabled>false</enabled>
       </snapshots>
     </repository>
     <repository>
@@ -737,10 +753,6 @@
         <scope>provided</scope>
         <exclusions>
           <exclusion>
-            <groupId>com.sun.mail</groupId>
-            <artifactId>javax.mail</artifactId>
-          </exclusion>
-          <exclusion>
             <groupId>javax.jms</groupId>
             <artifactId>jms</artifactId>
           </exclusion>
@@ -903,6 +915,18 @@
         <groupId>javax.transaction</groupId>
         <artifactId>jta</artifactId>
         <version>1.1</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.sun.mail</groupId>
+        <artifactId>jakarta.mail</artifactId>
+        <version>1.6.4</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>javax.mail</groupId>
+        <artifactId>mail</artifactId>
+        <version>1.5.0-b01</version>
         <scope>provided</scope>
       </dependency>
       <dependency>

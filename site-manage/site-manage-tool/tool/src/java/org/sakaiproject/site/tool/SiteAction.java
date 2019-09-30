@@ -97,7 +97,6 @@ import org.sakaiproject.entity.api.ContentExistsAware;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
-import org.sakaiproject.entity.api.HardDeleteAware;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
@@ -3466,7 +3465,7 @@ public class SiteAction extends PagedResourceActionII {
 			// Add the menus to vm
 			MenuBuilder.buildMenuForSiteInfo(portlet, data, state, context, site, rb, siteTypeProvider, SiteInfoActiveTab.EDIT_CLASS_ROSTERS);
 
-			context.put("allowAddSite", SiteService.allowAddSite(site.getId()));
+			context.put("allowAddRoster", SecurityService.unlock(SiteService.SECURE_UPDATE_SITE_MEMBERSHIP, site.getReference()));
 			context.put("siteTitle", site.getTitle());
 			coursesIntoContext(state, context, site);
 
@@ -5525,16 +5524,9 @@ public class SiteAction extends PagedResourceActionII {
 					try {
 						Site site = SiteService.getSite(id);
 						site_title = site.getTitle();
-						
-						if(hardDelete) {
-							//hard delete. call upon all implementing services to hard delete their own content
-							doHardDelete(site.getId());
-							// the service never deletes the site unless its already softly deleted
-							site.setSoftlyDeleted(true);
-						}
-						
+
 						//now delete the site
-						SiteService.removeSite(site);
+						SiteService.removeSite(site, hardDelete);
 						log.debug("Removed site: " + site.getId());
 					} catch (IdUnusedException e) {
 						log.error(this +".doSite_delete_confirmed - IdUnusedException " + id, e);
@@ -10264,13 +10256,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			};
 			SecurityService.pushAdvisor(yesMan);
 
-			// Hard delete. Call upon all implementing services to hard delete their own content
-			doHardDelete(tempDupSite.getId());
-			// The service never deletes the site unless its already softly deleted
-			tempDupSite.setSoftlyDeleted(true);
-
 			// Now hard delete the site
-			SiteService.removeSite(tempDupSite);
+			SiteService.removeSite(tempDupSite, true);
 		} catch (Exception e) {
 		} finally {
 			SecurityService.popAdvisor();
@@ -12806,8 +12793,6 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					
 					if (attributes != null)
 					{
-						//Only need to add the alert once, but keep processing
-						boolean alerted = false;
 						for(Iterator<String> e = attributes.keySet().iterator(); e.hasNext();)
 						{
 							String attribute = e.next();
@@ -12818,10 +12803,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 								if ( FormattedText.validateURL(attributeInput) )
 									attributes.put(attribute, attributeInput);
 								else {
-									if (!alerted) {
-										addAlert(state, rb.getString("java.invurl"));
-										alerted = true;
-									}
+									addAlert(state, rb.getString("java.invurl"));
 								}
 							}
 						}
@@ -15568,27 +15550,6 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		
 	}
 	
-	/**
-	 * Helper to hard delete all implementing services
-	 * @param siteId siteId that we want to delete the content for
-	 * @return
-	 */
-	private void doHardDelete(String siteId) {
-				
-		// leverage the entityproducer registration system
-		for (Iterator i = EntityManager.getEntityProducers().iterator(); i.hasNext();) {
-			EntityProducer ep = (EntityProducer) i.next();
-			
-			//if a registered service implements hard delete, then ask it to delete itself
-			if (ep instanceof HardDeleteAware) {
-				HardDeleteAware hd = (HardDeleteAware) ep;
-				log.info("Requesting hard delete for site:" + siteId + ", tool: " + ep.getLabel());
-				hd.hardDelete(siteId);
-			}
-		}
-		
-	}
-
 	/**
 	 * Get the list of tools that are in a list of sites that are available for import.
 	 * 

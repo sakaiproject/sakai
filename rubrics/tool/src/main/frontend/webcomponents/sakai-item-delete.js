@@ -1,8 +1,8 @@
-import {SakaiElement} from "/webcomponents/sakai-element.js";
+import {RubricsElement} from "./rubrics-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
 import {tr} from "./sakai-rubrics-language.js";
 
-export class SakaiItemDelete extends SakaiElement {
+export class SakaiItemDelete extends RubricsElement {
 
   constructor() {
 
@@ -91,7 +91,7 @@ export class SakaiItemDelete extends SakaiElement {
     if (!this.classList.contains("show-tooltip")) {
       this.closeOpen();
       this.popoverOpen = "true";
-      var triggerPosition = rubrics.altOffset(e.target);
+      var triggerPosition = this.rubricsUtils.altOffset(e.target);
 
       this.classList.add("show-tooltip");
 
@@ -99,7 +99,7 @@ export class SakaiItemDelete extends SakaiElement {
 
       var target = this.querySelector(".fa-times");
 
-      rubrics.css(popover[0], {
+      this.rubricsUtils.css(popover[0], {
         'left': target.offsetLeft - 280 + "px",
         'top': (target.offsetTop - this.offsetHeight*2 - 10) + "px",
       });

@@ -6,6 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -15,7 +16,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Entity
-@Table(name = "BULLHORN_ALERTS")
+@Table(name = "BULLHORN_ALERTS", indexes = {
+    @Index(name = "IDX_BULLHORN_ALERTS_TO_USER", columnList = "TO_USER")
+})
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class BullhornAlert {
@@ -25,9 +28,6 @@ public class BullhornAlert {
     @GeneratedValue
     @EqualsAndHashCode.Include
     private Long id;
-
-    @Column(name = "ALERT_TYPE", length = 8, nullable = false)
-    private String alertType;
 
     @Column(name = "FROM_USER", length = 99, nullable = false)
     private String fromUser;

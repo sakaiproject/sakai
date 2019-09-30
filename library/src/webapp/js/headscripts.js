@@ -730,23 +730,23 @@ function includeLatestJQuery(where) {
 	if ( window.jQuery ) {
 		window.console && console.log('jQuery already loaded '+jQuery.fn.jquery+' in '+where);
 		if (typeof jQuery.migrateWarnings == 'undefined') { 
-			document.write('\x3Cscript type="text/javascript" src="'+webjars+'jquery-migrate/1.4.1/jquery-migrate.min.js'+ver+'">'+'\x3C/script>')
+			document.write('\x3Cscript src="'+webjars+'jquery-migrate/1.4.1/jquery-migrate.min.js'+ver+'">'+'\x3C/script>')
 			window.console && console.log('Adding jQuery migrate');
 		}
 		if ( typeof jQuery.fn.popover == 'undefined') {
-			document.write('\x3Cscript type="text/javascript" src="'+webjars+'bootstrap/3.3.7/js/bootstrap.min.js'+ver+'">'+'\x3C/script>')
+			document.write('\x3Cscript src="'+webjars+'bootstrap/3.3.7/js/bootstrap.min.js'+ver+'">'+'\x3C/script>')
 			window.console && console.log('Adding Bootstrap');
 		}
 		if (typeof jQuery.ui == 'undefined') {
-			document.write('\x3Cscript type="text/javascript" src="'+webjars+'jquery-ui/1.12.1/jquery-ui.min.js'+ver+'">'+'\x3C/script>')
+			document.write('\x3Cscript src="'+webjars+'jquery-ui/1.12.1/jquery-ui.min.js'+ver+'">'+'\x3C/script>')
 			document.write('\x3Clink rel="stylesheet" href="'+webjars+'jquery-ui/1.12.1/jquery-ui.min.css'+ver+'"/>');
 			window.console && console.log('Adding jQuery UI');
 		}
 	} else {
-		document.write('\x3Cscript type="text/javascript" src="'+webjars+'jquery/1.12.4/jquery.min.js'+ver+'">'+'\x3C/script>')
-		document.write('\x3Cscript type="text/javascript" src="'+webjars+'jquery-migrate/1.4.1/jquery-migrate.min.js'+ver+'">'+'\x3C/script>')
-		document.write('\x3Cscript type="text/javascript" src="'+webjars+'bootstrap/3.3.7/js/bootstrap.min.js'+ver+'">'+'\x3C/script>')
-		document.write('\x3Cscript type="text/javascript" src="'+webjars+'jquery-ui/1.12.1/jquery-ui.min.js'+ver+'">'+'\x3C/script>')
+		document.write('\x3Cscript src="'+webjars+'jquery/1.12.4/jquery.min.js'+ver+'">'+'\x3C/script>')
+		document.write('\x3Cscript src="'+webjars+'jquery-migrate/1.4.1/jquery-migrate.min.js'+ver+'">'+'\x3C/script>')
+		document.write('\x3Cscript src="'+webjars+'bootstrap/3.3.7/js/bootstrap.min.js'+ver+'">'+'\x3C/script>')
+		document.write('\x3Cscript src="'+webjars+'jquery-ui/1.12.1/jquery-ui.min.js'+ver+'">'+'\x3C/script>')
 		document.write('\x3Clink rel="stylesheet" href="'+webjars+'jquery-ui/1.12.1/jquery-ui.min.css'+ver+'"/>');
 		window.console && console.log("jQuery+migrate+BootStrap+UI Loaded by "+where+" from "+webjars);
 	}
@@ -764,50 +764,61 @@ function includeWebjarLibrary(library) {
 
 	if (library == 'bootstrap') {
 		libraryVersion = "3.3.7";
-		document.write('\x3Cscript type="text/javascript" src="' + webjars + 'bootstrap/' + libraryVersion + '/js/bootstrap.min.js' + ver + '">' + '\x3C/script>');
+		document.write('\x3Cscript src="' + webjars + 'bootstrap/' + libraryVersion + '/js/bootstrap.min.js' + ver + '">' + '\x3C/script>');
 		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'bootstrap/' + libraryVersion + '/css/bootstrap.min.css' + ver + '"/>');
 	} else if (library == 'bootstrap-multiselect') {
     libraryVersion = "0.9.15";
-    document.write('\x3Cscript type="text/javascript" src="' + webjars + 'bootstrap-multiselect/' + libraryVersion + '/js/bootstrap-multiselect.js' + ver + '">' + '\x3C/script>');
+    document.write('\x3Cscript src="' + webjars + 'bootstrap-multiselect/' + libraryVersion + '/js/bootstrap-multiselect.js' + ver + '">' + '\x3C/script>');
     document.write('\x3Clink rel="stylesheet" href="' + webjars + 'bootstrap-multiselect/' + libraryVersion + '/css/bootstrap-multiselect.css' + ver + '"/>');
   } else if (library == 'jquery.tablesorter') {
 		libraryVersion = "2.27.7";
-    document.write('\x3Cscript type="text/javascript" src="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/js/jquery.tablesorter.combined.min.js' + ver + '">' + '\x3C/script>');
-    document.write('\x3Cscript type="text/javascript" src="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/js/extras/jquery.tablesorter.pager.min.js' + ver + '">' + '\x3C/script>');
-    document.write('\x3Cscript type="text/javascript" src="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/js/extras/jquery.metadata.min.js' + ver + '">' + '\x3C/script>');
+    document.write('\x3Cscript src="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/js/jquery.tablesorter.combined.min.js' + ver + '">' + '\x3C/script>');
+    document.write('\x3Cscript src="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/js/extras/jquery.tablesorter.pager.min.js' + ver + '">' + '\x3C/script>');
+    document.write('\x3Cscript src="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/js/extras/jquery.metadata.min.js' + ver + '">' + '\x3C/script>');
     document.write('\x3Clink rel="stylesheet" href="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/css/theme.jui.min.css' + ver + '"/>');
     document.write('\x3Clink rel="stylesheet" href="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/css/jquery.tablesorter.pager.min.css' + ver + '"/>');
 	} else if (library == 'featherlight') {
 		libraryVersion = "1.7.13";
-		document.write('\x3Cscript type="text/javascript" src="' + webjars + 'featherlight/src/featherlight.js' + ver + '">' + '\x3C/script>');
+		document.write('\x3Cscript src="' + webjars + 'featherlight/src/featherlight.js' + ver + '">' + '\x3C/script>');
 		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'featherlight/src/featherlight.css' + ver + '"/>');
 	} else if (library == 'momentjs') {
 		libraryVersion = "2.24.0";
-		document.write('\x3Cscript type="text/javascript" src="' + webjars + 'momentjs/' + libraryVersion + '/min/moment-with-locales.min.js' + ver + '">' + '\x3C/script>');
+		document.write('\x3Cscript src="' + webjars + 'momentjs/' + libraryVersion + '/min/moment-with-locales.min.js' + ver + '">' + '\x3C/script>');
 	} else if (library == 'dropzone') {
 		libraryVersion = "5.5.0";
-		document.write('\x3Cscript type="text/javascript" src="' + webjars + 'dropzone/'+libraryVersion + '/min/dropzone.min.js' + ver + '">' + '\x3C/script>');
+		document.write('\x3Cscript src="' + webjars + 'dropzone/'+libraryVersion + '/min/dropzone.min.js' + ver + '">' + '\x3C/script>');
 		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'dropzone/'+libraryVersion + '/min/dropzone.min.css' + ver + '"/>');
 	} else if (library == 'select2') {
 		libraryVersion = "4.0.8";
-		document.write('\x3Cscript type="text/javascript" src="' + webjars + 'select2/' + libraryVersion + '/js/select2.full.min.js' + ver + '">' + '\x3C/script>');
+		document.write('\x3Cscript src="' + webjars + 'select2/' + libraryVersion + '/js/select2.full.min.js' + ver + '">' + '\x3C/script>');
 		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'select2/' + libraryVersion + '/css/select2.min.css' + ver + '"/>');
 	} else if (library == 'datatables') {
 		libraryVersion = "1.10.19";
-		document.write('\x3Cscript type="text/javascript" src="' + webjars + 'datatables/' + libraryVersion + '/js/jquery.dataTables.min.js' + ver + '">' + '\x3C/script>');
+		document.write('\x3Cscript src="' + webjars + 'datatables/' + libraryVersion + '/js/jquery.dataTables.min.js' + ver + '">' + '\x3C/script>');
 	} else if (library == 'ckeditor') {
 		libraryVersion = "4.12.1";
-		document.write('\x3Cscript type="text/javascript" src="' + webjars + 'ckeditor/' + libraryVersion + '/full/ckeditor.js' + ver + '">' + '\x3C/script>');
+		document.write('\x3Cscript src="' + webjars + 'ckeditor/' + libraryVersion + '/full/ckeditor.js' + ver + '">' + '\x3C/script>');
 	} else if (library == 'awesomplete') {
 		libraryVersion = "1.1.4";
-		document.write('\x3Cscript type="text/javascript" src="' + webjars + 'awesomplete/' + libraryVersion + '/awesomplete.min.js' + ver + '">' + '\x3C/script>');
+		document.write('\x3Cscript src="' + webjars + 'awesomplete/' + libraryVersion + '/awesomplete.min.js' + ver + '">' + '\x3C/script>');
 		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'awesomplete/' + libraryVersion + '/awesomplete.css' + ver + '"/>');
 	} else if (library == 'mathjs') {
 		libraryVersion = "6.0.3";
 		document.write('\x3Cscript src="' + webjars + 'mathjs/' + libraryVersion + '/dist/math.min.js' + ver + '">' + '\x3C/script>');
+	} else if (library == 'handlebars') {
+		libraryVersion = "4.0.6";
+		document.write('\x3Cscript src="' + webjars + 'handlebars/' + libraryVersion + '/handlebars.runtime.min.js' + ver + '">' + '\x3C/script>');
+	} else if (library == 'qtip2') {
+		libraryVersion = "3.0.3";
+		document.write('\x3Cscript src="' + webjars + 'qtip2/' + libraryVersion + '/jquery.qtip.min.js' + ver + '">' + '\x3C/script>');
+		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'qtip2/' + libraryVersion + '/jquery.qtip.min.css' + ver + '"/>');
+	} else if (library == 'jstree') {
+		libraryVersion = "3.3.8";
+		document.write('\x3Cscript src="' + webjars + 'jstree/' + libraryVersion + '/jstree.min.js' + ver + '">' + '\x3C/script>');
+		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'jstree/' + libraryVersion + '/themes/default/style.min.css' + ver + '"/>');
 	} else {
 		if (library.endsWith(".js")) {
-			document.write('\x3Cscript type="text/javascript" src="' + webjars + library + ver + '">' + '\x3C/script>');
+			document.write('\x3Cscript src="' + webjars + library + ver + '">' + '\x3C/script>');
 		} else if (library.endsWith(".css")) {
 			document.write('\x3Clink rel="stylesheet" type="text/css" href="' + webjars + library + ver + '" />');
 		}

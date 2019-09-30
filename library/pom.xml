@@ -45,6 +45,12 @@
 			<artifactId>urlrewritefilter</artifactId>
 			<version>4.0.3</version>
 		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>jstree</artifactId>
+			<version>3.3.8</version>
+		</dependency>
+		
 		<!-- At the moment we're unpacking the webjars, so we don't want them bundled into the WAR
 		     but we still need them as dependencies so the plugin unpacks them, that's why they
 		     have a scope of runtime -->

@@ -10,11 +10,6 @@
   <name>sakai-postem-hbm</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-postem-hbm</artifactId>
-  <organization>
-    <name>Sakai Project</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2004</inceptionYear>
   <packaging>jar</packaging>
   <properties>
     <deploy.target>shared</deploy.target>

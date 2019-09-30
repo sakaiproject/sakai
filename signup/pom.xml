@@ -13,11 +13,6 @@
 	<groupId>org.sakaiproject.signup</groupId>
 	<artifactId>signup</artifactId>
 
-	<organization>
-		<name>Sakai Project</name>
-		<url>http://sakaiproject.org/</url>
-	</organization>
-	<inceptionYear>2007</inceptionYear>
 	<packaging>pom</packaging>
 
 	<developers>

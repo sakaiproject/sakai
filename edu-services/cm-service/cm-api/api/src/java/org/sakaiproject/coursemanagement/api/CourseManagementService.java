@@ -34,6 +34,13 @@ import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
 public interface CourseManagementService {
+
+        /**
+         * Security function and entity reference for use in SecurityAdivsors to permit
+         * CM admin functions without setting a session to admin
+         */
+	public static final String SECURE_CM_ADMIN = "cm.admin";
+	public static final String ENTITY_CM_ADMIN = "/cm/admin";
 	
 	/**
 	 * Gets a CourseSet by its eid.

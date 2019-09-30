@@ -1,9 +1,9 @@
-import {SakaiElement} from "/webcomponents/sakai-element.js";
+import {RubricsElement} from "./rubrics-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
 import {SakaiRubricGradingComment} from "./sakai-rubric-grading-comment.js";
 import {tr} from "./sakai-rubrics-language.js";
 
-export class SakaiRubricCriteriaGrading extends SakaiElement {
+export class SakaiRubricCriteriaGrading extends RubricsElement {
 
   static get properties() {
 
@@ -38,7 +38,7 @@ export class SakaiRubricCriteriaGrading extends SakaiElement {
       if (!c.selectedvalue) {
         c.selectedvalue = 0;
       }
-      c.pointrange = rubrics.getHighLow(c.ratings, "points");
+      c.pointrange = this.rubricsUtils.getHighLow(c.ratings, "points");
     });
 
     if (this.evaluationDetails) this.decorateCriteria();

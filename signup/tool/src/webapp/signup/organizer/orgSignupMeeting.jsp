@@ -861,7 +861,7 @@
 																	<h:outputText value="&nbsp;" escape="false"/>
 															</h:panelGroup>
 									   						<h:panelGroup>
-									   							<h:outputText value="#{waiterWrapper.displayName}" escape="false"/>
+									   							<h:outputText value="#{waiterWrapper.displayName}"/>
 									   							<br />
 									   							<h:outputText id="waiterInscriptionTime" rendered="#{OrganizerSignupMBean.getDisplayTimeFromInstant(waiterWrapper.signupAttendee.inscriptionTime) != ''}"
 									   								style="font-size: 90%;" value="(#{OrganizerSignupMBean.getDisplayTimeFromInstant(waiterWrapper.signupAttendee.inscriptionTime)})" escape="false"/>

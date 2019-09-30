@@ -10,11 +10,6 @@
   <name>sakai-user-tool-prefs</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-user-tool-prefs</artifactId>
-  <organization>
-    <name>Sakai Project</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2003</inceptionYear>
   <packaging>war</packaging>
   <dependencies>
     <dependency>

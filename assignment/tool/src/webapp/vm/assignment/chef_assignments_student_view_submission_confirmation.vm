@@ -116,7 +116,7 @@
 ##                  <th>$tlang.getString('gen.history')</th>
 ##                  <td>
 ##                      #foreach ($entry in $submission.getSubmissionLog())
-##                          $entry<br>
+##                          $validator.escapeHtml($entry)<br>
 ##                      #end
 ##                  </td>
 ##              </tr>

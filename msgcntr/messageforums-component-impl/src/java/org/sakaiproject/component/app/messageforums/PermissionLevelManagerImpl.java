@@ -302,12 +302,12 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		return newDBMembershipItem;		
 	}
   
-  public void saveDBMembershipItem(DBMembershipItem item){
-  	getHibernateTemplate().saveOrUpdate(item);
+  public DBMembershipItem saveDBMembershipItem(DBMembershipItem item){
+		return (DBMembershipItem) getSessionFactory().getCurrentSession().merge(item);
   }
   
-  public void savePermissionLevel(PermissionLevel level) {
-	  getHibernateTemplate().saveOrUpdate(level);
+  public PermissionLevel savePermissionLevel(PermissionLevel level) {
+		return (PermissionLevel) getSessionFactory().getCurrentSession().merge(level);
   }
 	
   public PermissionLevel getDefaultOwnerPermissionLevel(){
@@ -716,42 +716,42 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 				PermissionsMask mask = getDefaultOwnerPermissionsMask();
 				PermissionLevel permLevel = createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_OWNER, ownerType, mask);
 
-				savePermissionLevel(permLevel);
+				permLevel = savePermissionLevel(permLevel);
 			}
 
 			if (getDefaultPermissionLevel(authorType) == null) {
 				PermissionsMask mask = getDefaultAuthorPermissionsMask();
 				PermissionLevel permLevel = createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_AUTHOR, authorType, mask);
 
-				savePermissionLevel(permLevel);
+				permLevel = savePermissionLevel(permLevel);
 			}
 
 			if (getDefaultPermissionLevel(contributorType) == null) {
 				PermissionsMask mask = getDefaultContributorPermissionsMask();
 				PermissionLevel permLevel = createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_CONTRIBUTOR, contributorType, mask);
 
-				savePermissionLevel(permLevel);
+				permLevel = savePermissionLevel(permLevel);
 			}
 
 			if (getDefaultPermissionLevel(reviewerType) == null) {
 				PermissionsMask mask = getDefaultReviewerPermissionsMask();
 				PermissionLevel permLevel = createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_REVIEWER, reviewerType, mask);
 
-				savePermissionLevel(permLevel);
+				permLevel = savePermissionLevel(permLevel);
 			}
 
 			if (getDefaultPermissionLevel(noneditingAuthorType) == null) {
 				PermissionsMask mask = getDefaultNoneditingAuthorPermissionsMask();
 				PermissionLevel permLevel = createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_NONEDITING_AUTHOR, noneditingAuthorType, mask);
 
-				savePermissionLevel(permLevel);
+				permLevel = savePermissionLevel(permLevel);
 			}
 
 			if (getDefaultPermissionLevel(noneType) == null) {
 				PermissionsMask mask = getDefaultNonePermissionsMask();
 				PermissionLevel permLevel = createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE, noneType, mask);
 
-				savePermissionLevel(permLevel);
+				permLevel = savePermissionLevel(permLevel);
 			}
 		} catch (Exception e) {
 			log.warn("Error loading initial default types and/or permissions", e);

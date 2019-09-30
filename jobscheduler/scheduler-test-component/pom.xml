@@ -11,11 +11,6 @@
     <name>Sakai Job Scheduler Test Component (scheduler-test-component)</name>
     <groupId>org.sakaiproject.scheduler</groupId>
     <artifactId>scheduler-test-component</artifactId>
-    <organization>
-        <name>The Sakai Foundation</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2003</inceptionYear>
     <packaging>sakai-component</packaging>
 
     <properties>

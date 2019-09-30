@@ -3,6 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
 <%@ taglib uri="http://java.sun.com/upload" prefix="corejsf" %>
+<%@ taglib uri='http://java.sun.com/jsp/jstl/core' prefix="c" %>
 <!DOCTYPE html
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -231,8 +232,11 @@ document.links[newindex].onclick();
 	}
 	
 	function serializeImagePoints(){
-		for(var key in dynamicListMap)
-			dynamicListMap[key].serializeElements();
+		for(var key in dynamicListMap) {
+			if (typeof dynamicListMap[key].serializeElements === 'function') {
+				dynamicListMap[key].serializeElements();
+			}
+		}
 	}
 
 </script>
@@ -248,6 +252,18 @@ document.links[newindex].onclick();
 <h:inputHidden id="hasTimeLimit" value="#{delivery.hasTimeLimit}"/>   
 <h:inputHidden id="showTimeWarning" value="#{delivery.showTimeWarning}"/>
 <h:inputHidden id="showTimer" value="#{delivery.showTimer}"/>
+<c:if test="${not empty delivery.dueDate}">
+	<h:inputHidden id="dueDate" value="#{delivery.dueDate.time}"/>
+</c:if>
+<c:if test="${not empty delivery.retractDate}">
+	<h:inputHidden id="retractDate" value="#{delivery.retractDate.time}"/>
+</c:if>
+<c:if test="${not empty delivery.minutesLeft}">
+	<h:inputHidden id="minutesLeft" value="#{delivery.minutesLeft}"/>
+</c:if>
+<c:if test="${not empty delivery.secondsLeft}">
+	<h:inputHidden id="secondsLeft" value="#{delivery.secondsLeft}"/>
+</c:if>
 
 <!-- DONE BUTTON FOR PREVIEW -->
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
@@ -518,7 +534,7 @@ document.links[newindex].onclick();
     />
   </h:panelGrid>
 
-  <h:panelGrid columns="1" width="100%" border="0" columnClasses="act">
+  <h:panelGrid columns="2" width="100%" border="0" columnClasses="act">
   <%-- SUBMIT FOR GRADE --%>
   <h:commandButton id="submitForGrade" type="submit" value="#{deliveryMessages.button_submit_grading}"
     action="#{delivery.confirmSubmit}" styleClass="active"
@@ -541,6 +557,9 @@ document.links[newindex].onclick();
 				   || delivery.actionString=='previewAssessment')
 				   && delivery.navigation eq '1' && !delivery.doContinue}" 
       />
+
+  <%-- SUBMIT FOR DUE OR RETRACT DATE --%>
+  <h:commandButton id="submitNoCheck" type="submit" styleClass="hidden active" action="#{delivery.submitFromTimeoutPopup}" value="" />
 
   </h:panelGrid>
 </h:panelGrid>

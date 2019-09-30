@@ -11,11 +11,6 @@
 	<name>Sakai Samigo Tool (samigo-app)</name>
 	<groupId>org.sakaiproject.samigo</groupId>
 	<artifactId>samigo-app</artifactId>
-	<organization>
-		<name>Sakai Project</name>
-		<url>http://www.sakaiproject.org/</url>
-	</organization>
-	<inceptionYear>2005</inceptionYear>
 	<packaging>war</packaging>
     
 	<dependencies>
@@ -147,7 +142,7 @@
         </dependency>
         <dependency>
             <groupId>com.sun.mail</groupId>
-            <artifactId>javax.mail</artifactId>
+            <artifactId>jakarta.mail</artifactId>
         </dependency>
 	    <dependency>
             <groupId>javax.servlet.jsp</groupId>

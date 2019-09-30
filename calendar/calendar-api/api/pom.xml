@@ -12,11 +12,6 @@
     <name>sakai-calendar-api</name>
     <groupId>org.sakaiproject.calendar</groupId>
     <artifactId>sakai-calendar-api</artifactId>
-    <organization>
-        <name>The Sakai Foundation</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2003</inceptionYear>
     <packaging>jar</packaging>
 
     <properties>

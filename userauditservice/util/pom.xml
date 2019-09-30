@@ -11,11 +11,6 @@
     <name>Sakai Userauditservice Util (userauditservice-util)</name>
     <groupId>org.sakaiproject.userauditservice</groupId>
     <artifactId>userauditservice-util</artifactId>
-    <organization>
-        <name>Sakai Project</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2013</inceptionYear>
     <description>Userauditservice utility</description>
     <packaging>jar</packaging>
 

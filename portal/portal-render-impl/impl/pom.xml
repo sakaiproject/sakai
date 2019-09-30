@@ -12,11 +12,6 @@
     <name>sakai-portal-render-impl</name>
     <groupId>org.sakaiproject.portal</groupId>
     <artifactId>sakai-portal-render-impl</artifactId>
-    <organization>
-        <name>Sakai Project</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2003</inceptionYear>
     <packaging>sakai-component</packaging>
     <properties>
         <deploy.target>components</deploy.target>

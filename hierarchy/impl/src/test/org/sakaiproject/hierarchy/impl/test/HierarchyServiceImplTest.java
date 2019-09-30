@@ -11,10 +11,19 @@
 
 package org.sakaiproject.hierarchy.impl.test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.util.Map;
 import java.util.Set;
 
 import org.easymock.EasyMock;
+import org.junit.Before;
+import org.junit.Test;
 import org.sakaiproject.genericdao.api.search.Search;
 import org.sakaiproject.hierarchy.dao.HierarchyDao;
 import org.sakaiproject.hierarchy.dao.model.HierarchyNodeMetaData;
@@ -22,57 +31,36 @@ import org.sakaiproject.hierarchy.impl.HierarchyServiceImpl;
 import org.sakaiproject.hierarchy.impl.test.data.TestDataPreload;
 import org.sakaiproject.hierarchy.model.HierarchyNode;
 import org.sakaiproject.memory.api.Cache;
-import org.springframework.test.AbstractTransactionalSpringContextTests;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
+
+
 
 /**
  * Testing the hierarchy service
  * 
  * @author Aaron Zeckoski (aaronz@vt.edu)
  */
-public class HierarchyServiceImplTest extends AbstractTransactionalSpringContextTests {
+@ContextConfiguration(locations={
+        "/hibernate-test.xml",
+        "/spring-hibernate.xml"})
+public class HierarchyServiceImplTest extends AbstractTransactionalJUnit4SpringContextTests {
 
     protected HierarchyServiceImpl hierarchyService;
 
+    @Autowired
+    @Qualifier("org.sakaiproject.hierarchy.dao.HierarchyDao")
     private HierarchyDao dao;
+    @Autowired
+    @Qualifier("org.sakaiproject.hierarchy.test.data.TestDataPreload")
     private TestDataPreload tdp;
     private Cache cache;
 
-    // private SessionManager sessionManager;
-    // private MockControl sessionManagerControl;
-
-
-    protected String[] getConfigLocations() {
-        // point to the needed spring config files, must be on the classpath
-        // (add component/src/webapp/WEB-INF to the build path in Eclipse),
-        // they also need to be referenced in the project.xml file
-        return new String[] {"hibernate-test.xml", "spring-hibernate.xml"};
-    }
-
     // run this before each test starts
-    protected void onSetUpBeforeTransaction() throws Exception {
-        // load the spring created dao class bean from the Spring Application Context
-        dao = (HierarchyDao) applicationContext.getBean("org.sakaiproject.hierarchy.dao.HierarchyDao");
-        if (dao == null) {
-            throw new NullPointerException("Dao could not be retrieved from spring context");
-        }
-
-        // load up the test data preloader from spring
-        tdp = (TestDataPreload) applicationContext.getBean("org.sakaiproject.hierarchy.test.data.TestDataPreload");
-        if (tdp == null) {
-            throw new NullPointerException("TestDatePreload could not be retrieved from spring context");
-        }
-
-        // load up any other needed spring beans
-
-        //    // setup the mock objects if needed
-        //    sessionManagerControl = MockControl.createControl(SessionManager.class);
-        //    sessionManager = (SessionManager) sessionManagerControl.getMock();
-
-        //    //this mock object is simply keeping us from getting a null when getCurrentSessionUserId is called 
-        //    sessionManager.getCurrentSessionUserId(); // expect this to be called
-        //    sessionManagerControl.setDefaultMatcher(MockControl.ALWAYS_MATCHER);
-        //    sessionManagerControl.setReturnValue(TestDataPreload.USER_ID, MockControl.ZERO_OR_MORE);
-        //    sessionManagerControl.replay();
+    @Before
+    public void onSetUp()  {
 
         //create and setup the object to be tested
         hierarchyService = new HierarchyServiceImpl();
@@ -80,17 +68,13 @@ public class HierarchyServiceImplTest extends AbstractTransactionalSpringContext
         //    hierarchyService.setSessionManager(sessionManager);
     }
 
-    // run this before each test starts and as part of the transaction
-    protected void onSetUpInTransaction() {
-        // preload additional data if desired
-    }
 
     /**
      * ADD unit tests below here, use testMethod as the name of the unit test,
      * Note that if a method is overloaded you should include the arguments in the
      * test name like so: testMethodClassInt (for method(Class, int);
      */
-
+    @Test
     public void testValidTestData() {
         // ensure the test data is setup the way we think
         assertEquals(new Long(1), tdp.pNode1.getId());
@@ -101,6 +85,7 @@ public class HierarchyServiceImplTest extends AbstractTransactionalSpringContext
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#createHierarchy(java.lang.String)}.
      */
+    @Test
     public void testCreateHierarchy() {
         // test creating a valid hierarchy
         HierarchyNode node = hierarchyService.createHierarchy("hierarchyC");
@@ -132,6 +117,7 @@ public class HierarchyServiceImplTest extends AbstractTransactionalSpringContext
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#setHierarchyRootNode(java.lang.String, java.lang.String)}.
      */
+    @Test
     public void testSetHierarchyRootNode() {
         HierarchyNode node = null;
 
@@ -169,6 +155,7 @@ public class HierarchyServiceImplTest extends AbstractTransactionalSpringContext
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#destroyHierarchy(java.lang.String)}.
      */
+    @Test
     public void testDestroyHierarchy() {
         hierarchyService.destroyHierarchy(TestDataPreload.HIERARCHYB);
         long count = dao.countBySearch(HierarchyNodeMetaData.class, 
@@ -187,6 +174,7 @@ public class HierarchyServiceImplTest extends AbstractTransactionalSpringContext
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#getRootLevelNode(java.lang.String)}.
      */
+    @Test
     public void testGetRootLevelNode() {
         HierarchyNode node = null;
 
@@ -209,6 +197,7 @@ public class HierarchyServiceImplTest extends AbstractTransactionalSpringContext
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#getNodeById(java.lang.String)}.
      */
+    @Test
     public void testGetNodeById() {
         HierarchyNode node = null;
 
@@ -236,6 +225,7 @@ public class HierarchyServiceImplTest extends AbstractTransactionalSpringContext
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#getChildNodes(java.lang.String, boolean)}.
      */
+    @Test
     public void testGetChildNodes() {
         Set<HierarchyNode> nodes;
 
@@ -296,6 +286,7 @@ public class HierarchyServiceImplTest extends AbstractTransactionalSpringContext
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#getParentNodes(java.lang.String, boolean)}.
      */
+    @Test
     public void testGetParentNodes() {
         Set<HierarchyNode> nodes;
 
@@ -351,6 +342,7 @@ public class HierarchyServiceImplTest extends AbstractTransactionalSpringContext
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#addNode(java.lang.String, java.lang.String)}.
      */
+    @Test
     public void testAddNode() {
         HierarchyNode node = null;
         String newNodeId = null;
@@ -511,6 +503,7 @@ public class HierarchyServiceImplTest extends AbstractTransactionalSpringContext
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#removeNode(java.lang.String)}.
      */
+    @Test
     public void testRemoveNode() {
         HierarchyNode node = null;
 
@@ -617,6 +610,7 @@ public class HierarchyServiceImplTest extends AbstractTransactionalSpringContext
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#saveNodeMetaData(java.lang.String, java.lang.String, java.lang.String)}.
      */
+    @Test
     public void testSaveNodeMetaData() {
         HierarchyNode node = null;
 
@@ -668,37 +662,11 @@ public class HierarchyServiceImplTest extends AbstractTransactionalSpringContext
             assertNotNull(e.getMessage());
         }
     }
-    
-    /**
-     * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#setNodeDisabled(java.lang.String, java.lang.Boolean)}.
-     */
-    public void testSetNodeDisabled() {
-    	
-    	HierarchyNode node = null;
-    	
-    	// basic node creation, default is enabled (i.e. isDisabled is false)
-        node = hierarchyService.saveNodeMetaData(tdp.node2.id, "Node TWO", "this is a description!", "TOKEN2");
-        assertNotNull(node);
-        assertEquals(node.id, tdp.node2.id);
-        assertEquals(node.isDisabled, Boolean.FALSE);
-        
-        // disabling a node
-        node = hierarchyService.setNodeDisabled(tdp.node2.id, Boolean.TRUE);
-        assertNotNull(node);
-        assertEquals(node.id, tdp.node2.id);
-        assertEquals(node.isDisabled, Boolean.TRUE);
-        
-        // disabling an already-disabled node
-        node = hierarchyService.setNodeDisabled(tdp.node2.id, Boolean.TRUE);
-        assertNotNull(node);
-        assertEquals(node.id, tdp.node2.id);
-        assertEquals(node.isDisabled, Boolean.TRUE);
-        
-    }
 
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#addChildRelation(java.lang.String, java.lang.String)}.
      */
+    @Test
     public void testAddChildRelation() {
         HierarchyNode node = null;
 
@@ -800,6 +768,8 @@ public class HierarchyServiceImplTest extends AbstractTransactionalSpringContext
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#removeChildRelation(java.lang.String, java.lang.String)}.
      */
+    
+    @Test
     public void testRemoveChildRelation() {
         HierarchyNode node = null;
 
@@ -885,46 +855,10 @@ public class HierarchyServiceImplTest extends AbstractTransactionalSpringContext
 
         //    fail("Not yet implemented");
     }
-
-
-    /**
-     * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#addParentRelation(java.lang.String, java.lang.String)}.
-     *//**
-    public void testAddParentRelation() {
-        // add new parents
-
-        // add parents which are already there
-
-        // cannot remove all parents (must leave at least one)
-
-        // cannot add parents to the root node
-
-        // cannot create a cycle by adding a parent which is already a child or parent of this node
-
-        // cannot add parents nodes which do not exist (should fail)
-
-        // cannot use invalid node id (exception)
-
-        // cannot use invalid parent node id (exception)
-
-        // cannot use null node id (exception)
-
-        fail("Not yet implemented");
-    }**/
-
-    /**
-     * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#removeParentRelation(java.lang.String, java.lang.String)}.
-     *//**
-    public void testRemoveParentRelation() {
-        // cannot remove all parents (must leave at least one)
-
-        fail("Not yet implemented");
-    }**/
-
-
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#getNodesWithToken(java.lang.String)}.
      */
+    @Test
     public void testGetNodesWithToken() {
         Set<String> nodeIds;
 
@@ -971,6 +905,7 @@ public class HierarchyServiceImplTest extends AbstractTransactionalSpringContext
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#getNodesWithTokens(java.lang.String[])}.
      */
+    @Test
     public void testGetNodesWithTokens() {
         Set<String> nodeIds;
         Map<String, Set<String>> tokenNodes;
@@ -1029,6 +964,7 @@ public class HierarchyServiceImplTest extends AbstractTransactionalSpringContext
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#checkUserNodePerm(java.lang.String, java.lang.String, java.lang.String)}.
      */
+    @Test
     public void testCheckUserNodePerm() {
         assertFalse( hierarchyService.checkUserNodePerm(TestDataPreload.USER_ID, tdp.node1.id, TestDataPreload.PERM_ONE) );
         assertFalse( hierarchyService.checkUserNodePerm(TestDataPreload.USER_ID, tdp.node2.id, TestDataPreload.PERM_ONE) );
@@ -1102,6 +1038,7 @@ public class HierarchyServiceImplTest extends AbstractTransactionalSpringContext
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#getNodesForUserPerm(java.lang.String, java.lang.String)}.
      */
+     @Test
     public void testGetNodesForUserPerm() {
         Set<HierarchyNode> nodes = null;
 
@@ -1170,6 +1107,7 @@ public class HierarchyServiceImplTest extends AbstractTransactionalSpringContext
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#getUserIdsForNodesPerm(java.lang.String[], java.lang.String)}.
      */
+     @Test
     public void testGetUserIdsForNodesPerm() {
         Set<String> userIds = null;
 
@@ -1249,48 +1187,56 @@ public class HierarchyServiceImplTest extends AbstractTransactionalSpringContext
         assertNotNull(userIds);
         assertEquals(1, userIds.size());
         assertTrue(userIds.contains(TestDataPreload.ACCESS_USER_ID));
-
-        // multiple
-
-        userIds = hierarchyService.getUserIdsForNodesPerm(new String[] {tdp.node2.id, tdp.node3.id, tdp.node4.id, tdp.node5.id}, TestDataPreload.PERM_ONE);
-        assertNotNull(userIds);
-        assertEquals(2, userIds.size());
-        assertTrue(userIds.contains(TestDataPreload.ACCESS_USER_ID));
-        assertTrue(userIds.contains(TestDataPreload.MAINT_USER_ID));
-
-        userIds = hierarchyService.getUserIdsForNodesPerm(new String[] {tdp.node2.id, tdp.node3.id, tdp.node4.id, tdp.node5.id}, TestDataPreload.PERM_TWO);
-        assertNotNull(userIds);
-        assertEquals(2, userIds.size());
-        assertTrue(userIds.contains(TestDataPreload.USER_ID));
-        assertTrue(userIds.contains(TestDataPreload.MAINT_USER_ID));
-
-        // invalids
-        userIds = hierarchyService.getUserIdsForNodesPerm(new String[] {}, TestDataPreload.PERM_ONE);
-        assertNotNull(userIds);
-        assertEquals(0, userIds.size());
-
-        userIds = hierarchyService.getUserIdsForNodesPerm(new String[] {}, TestDataPreload.PERM_TWO);
-        assertNotNull(userIds);
-        assertEquals(0, userIds.size());
-
-        try {
-            hierarchyService.getUserIdsForNodesPerm(null, "XXXXXXXXX");
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
-
-        try {
-            hierarchyService.getUserIdsForNodesPerm(new String[] {"XXXXXXXX"}, null);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
     }
+     @Test
+     public void testGetUserIdsForNodesPermMultiple() {
+         
+         Set<String> userIds = null;
+         // multiple
+
+         userIds = hierarchyService.getUserIdsForNodesPerm(new String[] {tdp.node2.id, tdp.node3.id, tdp.node4.id, tdp.node5.id}, TestDataPreload.PERM_ONE);
+         assertNotNull(userIds);
+         assertEquals(2, userIds.size());
+         assertTrue(userIds.contains(TestDataPreload.ACCESS_USER_ID));
+         assertTrue(userIds.contains(TestDataPreload.MAINT_USER_ID));
+
+         userIds = hierarchyService.getUserIdsForNodesPerm(new String[] {tdp.node2.id, tdp.node3.id, tdp.node4.id, tdp.node5.id}, TestDataPreload.PERM_TWO);
+         assertNotNull(userIds);
+         assertEquals(2, userIds.size());
+         assertTrue(userIds.contains(TestDataPreload.USER_ID));
+         assertTrue(userIds.contains(TestDataPreload.MAINT_USER_ID));
+     }
+     @Test
+     public void testGetUserIdsForNodesPermInvalids() {
+         Set<String> userIds = null;
+         // invalids
+         userIds = hierarchyService.getUserIdsForNodesPerm(new String[] {}, TestDataPreload.PERM_ONE);
+         assertNotNull(userIds);
+         assertEquals(0, userIds.size());
+
+         userIds = hierarchyService.getUserIdsForNodesPerm(new String[] {}, TestDataPreload.PERM_TWO);
+         assertNotNull(userIds);
+         assertEquals(0, userIds.size());
+
+         try {
+             hierarchyService.getUserIdsForNodesPerm(null, "XXXXXXXXX");
+             fail("Should have thrown exception");
+         } catch (IllegalArgumentException e) {
+             assertNotNull(e.getMessage());
+         }
+
+         try {
+             hierarchyService.getUserIdsForNodesPerm(new String[] {"XXXXXXXX"}, null);
+             fail("Should have thrown exception");
+         } catch (IllegalArgumentException e) {
+             assertNotNull(e.getMessage());
+         }
+     }
 
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#getPermsForUserNodes(java.lang.String, java.lang.String[])}.
      */
+     @Test
     public void testGetPermsForUserNodes() {
         Set<String> perms = null;
 
@@ -1369,7 +1315,8 @@ public class HierarchyServiceImplTest extends AbstractTransactionalSpringContext
         }
     }
 
-    public void testGetUsersAndPermsForNodes() {
+     @Test
+     public void testGetUsersAndPermsForNodes() {
         Map<String, Map<String, Set<String>>> map = null;
 
         map = hierarchyService.getUsersAndPermsForNodes(tdp.node3.id);
@@ -1394,7 +1341,8 @@ public class HierarchyServiceImplTest extends AbstractTransactionalSpringContext
         }
     }
 
-    public void testGetNodesAndPermsForUser() {
+     @Test
+     public void testGetNodesAndPermsForUser() {
         Map<String, Map<String, Set<String>>> map = null;
 
         map = hierarchyService.getNodesAndPermsForUser(TestDataPreload.ACCESS_USER_ID);
@@ -1419,6 +1367,7 @@ public class HierarchyServiceImplTest extends AbstractTransactionalSpringContext
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#assignUserNodePerm(java.lang.String, java.lang.String, java.lang.String, boolean)}.
      */
+     @Test
     public void testAssignUserNodePerm() {
         Set<HierarchyNode> nodes = hierarchyService.getNodesForUserPerm(TestDataPreload.MAINT_USER_ID, TestDataPreload.PERM_ONE);
         assertEquals(5, nodes.size());
@@ -1483,6 +1432,7 @@ public class HierarchyServiceImplTest extends AbstractTransactionalSpringContext
     /**
      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#removeUserNodePerm(java.lang.String, java.lang.String, java.lang.String, boolean)}.
      */
+     @Test
     public void testRemoveUserNodePerm() {
         Set<HierarchyNode> nodes = hierarchyService.getNodesForUserPerm(TestDataPreload.MAINT_USER_ID, TestDataPreload.PERM_ONE);
         assertEquals(5, nodes.size());
@@ -1523,6 +1473,34 @@ public class HierarchyServiceImplTest extends AbstractTransactionalSpringContext
             assertNotNull(e.getMessage());
         }
     }
+     
+     /**
+      * Test method for {@link org.sakaiproject.hierarchy.impl.HierarchyServiceImpl#setNodeDisabled(java.lang.String, java.lang.Boolean)}.
+      */
+     @Test
+     public void testSetNodeDisabled() {
+     	
+     	HierarchyNode node = null;
+     	
+     	// basic node creation, default is enabled (i.e. isDisabled is false)
+         node = hierarchyService.saveNodeMetaData(tdp.node2.id, "Node TWO", "this is a description!", "TOKEN2");
+         assertNotNull(node);
+         assertEquals(node.id, tdp.node2.id);
+         assertEquals(node.isDisabled, Boolean.FALSE);
+         
+         // disabling a node
+         node = hierarchyService.setNodeDisabled(tdp.node2.id, Boolean.TRUE);
+         assertNotNull(node);
+         assertEquals(node.id, tdp.node2.id);
+         assertEquals(node.isDisabled, Boolean.TRUE);
+         
+         // disabling an already-disabled node
+         node = hierarchyService.setNodeDisabled(tdp.node2.id, Boolean.TRUE);
+         assertNotNull(node);
+         assertEquals(node.id, tdp.node2.id);
+         assertEquals(node.isDisabled, Boolean.TRUE);
+         
+     }
 
     private void initializeMockCache(){
         Cache mock = EasyMock.createMock(Cache.class);
@@ -1533,136 +1511,4 @@ public class HierarchyServiceImplTest extends AbstractTransactionalSpringContext
         EasyMock.expectLastCall().anyTimes();
         EasyMock.replay(mock);
     }
-
-    /*
-      HierarchyNode node = null;
-      Set<String> children = new HashSet<String>();;
-
-      // add new children
-      children.add(tdp.node6.id);
-      node = hierarchyService.updateChildren(tdp.node2.id, children);
-      assertNotNull(node);
-      assertNotNull(node.directChildNodeIds);
-      assertEquals(1, node.directChildNodeIds.size());
-      assertTrue(node.directChildNodeIds.contains(tdp.node6.id));
-
-      children.add(tdp.node7.id);
-      children.add(tdp.node8.id);
-      node = hierarchyService.updateChildren(tdp.node2.id, children);
-      assertNotNull(node);
-      assertNotNull(node.directChildNodeIds);
-      assertEquals(3, node.directChildNodeIds.size());
-      assertTrue(node.directChildNodeIds.contains(tdp.node6.id));
-      assertTrue(node.directChildNodeIds.contains(tdp.node7.id));
-      assertTrue(node.directChildNodeIds.contains(tdp.node8.id));
-
-      // remove some children
-      children.clear();
-      children.add(tdp.node7.id);
-      children.add(tdp.node8.id);
-      node = hierarchyService.updateChildren(tdp.node4.id, children);
-      assertNotNull(node);
-      assertNotNull(node.directChildNodeIds);
-      assertEquals(2, node.directChildNodeIds.size());
-      assertTrue(node.directChildNodeIds.contains(tdp.node7.id));
-      assertTrue(node.directChildNodeIds.contains(tdp.node8.id));
-
-      // remove all children
-      children.clear();
-      node = hierarchyService.updateChildren(tdp.node4.id, children);
-      assertNotNull(node);
-      assertNotNull(node.directChildNodeIds);
-      assertEquals(0, node.directChildNodeIds.size());
-
-      // update children to the identical set
-      children.clear();
-      children.add(tdp.node5.id);
-      node = hierarchyService.updateChildren(tdp.node3.id, children);
-      assertNotNull(node);
-      assertNotNull(node.directChildNodeIds);
-      assertEquals(1, node.directChildNodeIds.size());
-      assertTrue(node.directChildNodeIds.contains(tdp.node5.id));
-
-      // cannot add children nodes which do not exist (even if some are valid)
-      children.add(TestDataPreload.INVALID_NODE_ID);
-      try {
-         node = hierarchyService.updateChildren(tdp.node3.id, children);
-         fail("Should have thrown exception");
-      } catch (IllegalArgumentException e) {
-         assertNotNull(e.getMessage());
-      }
-
-      // cannot add child node which is equal to this node
-      children.clear();
-      children.add(tdp.node5.id);
-      children.add(tdp.node3.id);
-      try {
-         node = hierarchyService.updateChildren(tdp.node3.id, children);
-         fail("Should have thrown exception");
-      } catch (IllegalArgumentException e) {
-         assertNotNull(e.getMessage());
-      }
-
-      children.clear();
-      children.add(tdp.node3.id);
-      try {
-         node = hierarchyService.updateChildren(tdp.node3.id, children);
-         fail("Should have thrown exception");
-      } catch (IllegalArgumentException e) {
-         assertNotNull(e.getMessage());
-      }
-
-      // cannot remove child node so that it becomes orphaned
-      children.clear();
-      children.add(tdp.node2.id);
-      children.add(tdp.node4.id);
-      try {
-         node = hierarchyService.updateChildren(tdp.node1.id, children);
-         fail("Should have thrown exception");
-      } catch (IllegalArgumentException e) {
-         assertNotNull(e.getMessage());
-      }
-
-      children.clear();
-      children.add(tdp.node3.id);
-      children.add(tdp.node4.id);
-      try {
-         node = hierarchyService.updateChildren(tdp.node1.id, children);
-         fail("Should have thrown exception");
-      } catch (IllegalArgumentException e) {
-         assertNotNull(e.getMessage());
-      }
-
-      // cannot use invalid node id (exception)
-      children.clear();
-      children.add(tdp.node6.id);
-      try {
-         node = hierarchyService.updateChildren(TestDataPreload.INVALID_NODE_ID, children);
-         fail("Should have thrown exception");
-      } catch (IllegalArgumentException e) {
-         assertNotNull(e.getMessage());
-      }
-
-      // cannot use invalid child node id (exception)
-      children.clear();
-      children.add(tdp.node6.id);
-      children.add(TestDataPreload.INVALID_NODE_ID);
-      try {
-         node = hierarchyService.updateChildren(tdp.node2.id, children);
-         fail("Should have thrown exception");
-      } catch (IllegalArgumentException e) {
-         assertNotNull(e.getMessage());
-      }
-
-      // cannot use null node id (exception)
-      children.clear();
-      try {
-         node = hierarchyService.updateChildren(null, children);
-         fail("Should have thrown exception");
-      } catch (NullPointerException e) {
-         assertNotNull(e.getMessage());
-      }
-
-     */
-
 }

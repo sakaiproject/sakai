@@ -192,22 +192,39 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 
 	/**
 	 * Add another string to the alert message.
+	 * Defaults to removing duplicates from the alert message
 	 * 
 	 * @param state
 	 *        The session state.
 	 * @param message
 	 *        The string to add.
 	 */
-	public static void addAlert(SessionState state, String message)
+
+	public static void addAlert(SessionState state, String message) {
+		
+		addAlert(state, message, true);
+	}
+
+	/**
+	 * Add another string to the alert message.
+	 * 
+	 * @param state
+	 *        The session state.
+	 * @param message
+	 *        The string to add.
+	 * @param removeDuplicates
+	 * 		  Remove duplicates from the alert
+	 */
+	public static void addAlert(SessionState state, String message, boolean removeDuplicates)
 	{
 		String soFar = (String) state.getAttribute(STATE_MESSAGE);
-		if (soFar != null)
-		{
-			soFar = soFar + "<br/>" + message;
-		}
-		else
+		if (soFar == null)
 		{
 			soFar = message;
+		}
+		else if (!removeDuplicates || !soFar.contains(message))
+		{
+			soFar += "<br/>" + message;
 		}
 		state.setAttribute(STATE_MESSAGE, soFar);
 

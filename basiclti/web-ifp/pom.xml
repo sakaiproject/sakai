@@ -9,11 +9,6 @@
   <name>sakai-web-portlet-basiclti</name>
   <groupId>org.sakaiproject.basiclti</groupId>
   <artifactId>sakai-web-portlet-basiclti</artifactId>
-  <organization>
-    <name>The Sakai Foundation</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2007</inceptionYear>
   <packaging>war</packaging>
   <dependencies>
   		<dependency>

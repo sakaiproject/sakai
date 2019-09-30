@@ -88,7 +88,7 @@ public class BullhornServiceImpl implements BullhornService, Observer {
     @Resource(name = "org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
     private SessionFactory sessionFactory;
 
-    private Cache<String, Map> countCache = null;
+    private Cache<String, Long> countCache = null;
 
     @Autowired
     private List<BullhornHandler> handlers;
@@ -135,12 +135,8 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                         if (result.isPresent()) {
                             result.get().forEach(bd -> {
 
-                                if (bd.isSocial()) {
-                                    doSocialInsert(bd.getFrom(), bd.getTo(), event, ref, e.getEventTime(), bd.getUrl());
-                                } else {
-                                    doAcademicInsert(from, bd.getTo(), event, ref, bd.getTitle(),
-                                                    bd.getSiteId(), e.getEventTime(), bd.getUrl());
-                                }
+                                doInsert(from, bd.getTo(), event, ref, bd.getTitle(),
+                                                bd.getSiteId(), e.getEventTime(), bd.getUrl());
                             });
                         }
                     } else if (LessonBuilderEvents.COMMENT_CREATE.equals(event)) {
@@ -158,7 +154,7 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                                 for (User receiver : receivers) {
                                     String to = receiver.getId();
                                     if (!to.equals(from)) {
-                                        doAcademicInsert(from, to, event, ref, "title", context, e.getEventTime(), url);
+                                        doInsert(from, to, event, ref, "title", context, e.getEventTime(), url);
                                         done.add(to);
                                         countCache.remove(to);
                                     }
@@ -174,7 +170,7 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                                     for (SimplePageComment c : comments) {
                                         String to = c.getAuthor();
                                         if (!to.equals(from) && !done.contains(to)) {
-                                            doAcademicInsert(from, to, event, ref, "title", context, e.getEventTime(), url);
+                                            doInsert(from, to, event, ref, "title", context, e.getEventTime(), url);
                                             done.add(to);
                                             countCache.remove(to);
                                         }
@@ -215,7 +211,7 @@ public class BullhornServiceImpl implements BullhornService, Observer {
         }
     }
 
-    private void doAcademicInsert(String from, String to, String event, String ref
+    private void doInsert(String from, String to, String event, String ref
                                             , String title, String siteId, Date eventDate, String url) {
 
         TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
@@ -225,7 +221,6 @@ public class BullhornServiceImpl implements BullhornService, Observer {
             protected void doInTransactionWithoutResult(TransactionStatus status) {
 
                 BullhornAlert ba = new BullhornAlert();
-                ba.setAlertType(ACADEMIC);
                 ba.setFromUser(from);
                 ba.setToUser(to);
                 ba.setEvent(event);
@@ -245,78 +240,8 @@ public class BullhornServiceImpl implements BullhornService, Observer {
         });
     }
 
-    private void doSocialInsert(String from, String to, String event, String ref, Date eventDate, String url) {
-
-        TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
-
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
-
-                BullhornAlert ba = new BullhornAlert();
-                ba.setAlertType(SOCIAL);
-                ba.setFromUser(from);
-                ba.setToUser(to);
-                ba.setEvent(event);
-                ba.setRef(ref);
-                ba.setTitle("");
-                ba.setSiteId("");
-                ba.setEventDate(eventDate.toInstant());
-                ba.setUrl(url);
-                ba.setDeferred(false);
-
-                sessionFactory.getCurrentSession().persist(ba);
-            }
-        });
-    }
-
-    @Transactional
-    public List<BullhornAlert> getSocialAlerts(String userId) {
-
-        List<BullhornAlert> alerts = sessionFactory.getCurrentSession().createCriteria(BullhornAlert.class)
-                                .add(Restrictions.eq("alertType", SOCIAL))
-                                .add(Restrictions.eq("toUser", userId)).list();
-
-        for (BullhornAlert alert : alerts) {
-            try {
-                User fromUser = userDirectoryService.getUser(alert.getFromUser());
-                alert.setFromDisplayName(fromUser.getDisplayName());
-            } catch (UserNotDefinedException unde) {
-                alert.setFromDisplayName(alert.getFromUser());
-            }
-        }
-
-        return alerts;
-    }
-
-    @Transactional
-    public long getSocialAlertCount(String userId) {
-
-        Map<String, Long> cachedCounts = (Map<String, Long>) countCache.get(userId);
-
-        if (cachedCounts == null) { cachedCounts = new HashMap<>(); }
-
-        Long count = cachedCounts.get("social");
-
-        if (count != null) {
-            log.debug("bullhorn_alert_count_cache hit");
-            return count;
-        } else {
-            log.debug("bullhorn_alert_count_cache miss");
-
-            count = (Long) sessionFactory.getCurrentSession().createCriteria(BullhornAlert.class)
-                .add(Restrictions.eq("alertType", SOCIAL))
-                .add(Restrictions.eq("toUser", userId))
-                .setProjection(Projections.rowCount()).uniqueResult();
-
-            cachedCounts.put("social", count);
-            countCache.put(userId, cachedCounts);
-            return count;
-        }
-    }
-
     @Transactional  
-    public boolean clearBullhornAlert(String userId, long alertId) {
+    public boolean clearAlert(String userId, long alertId) {
 
         sessionFactory.getCurrentSession().createQuery("delete BullhornAlert where id = :id and toUser = :toUser")
                     .setLong("id", alertId).setString("toUser", userId)
@@ -326,10 +251,9 @@ public class BullhornServiceImpl implements BullhornService, Observer {
     }
 
     @Transactional
-    public List<BullhornAlert> getAcademicAlerts(String userId) {
+    public List<BullhornAlert> getAlerts(String userId) {
 
         List<BullhornAlert> alerts = sessionFactory.getCurrentSession().createCriteria(BullhornAlert.class)
-                .add(Restrictions.eq("alertType", ACADEMIC))
                 .add(Restrictions.eq("deferred", false))
                 .add(Restrictions.eq("toUser", userId)).list();
 
@@ -351,13 +275,9 @@ public class BullhornServiceImpl implements BullhornService, Observer {
     }
 
     @Transactional
-    public long getAcademicAlertCount(String userId) {
+    public long getAlertCount(String userId) {
 
-        Map<String, Long> cachedCounts = (Map<String, Long>) countCache.get(userId);
-
-        if (cachedCounts == null) { cachedCounts = new HashMap<>(); }
-
-        Long count = cachedCounts.get("academic");
+        Long count = (Long) countCache.get(userId);
 
         if (count != null) {
             log.debug("bullhorn_alert_count_cache hit");
@@ -366,31 +286,20 @@ public class BullhornServiceImpl implements BullhornService, Observer {
             log.debug("bullhorn_alert_count_cache miss");
 
             count = (Long) sessionFactory.getCurrentSession().createCriteria(BullhornAlert.class)
-                .add(Restrictions.eq("alertType", ACADEMIC))
                 .add(Restrictions.eq("toUser", userId))
                 .add(Restrictions.eq("deferred", false))
                 .setProjection(Projections.rowCount()).uniqueResult();
-            cachedCounts.put("academic", count);
-            countCache.put(userId, cachedCounts);
+            countCache.put(userId, count);
             return count;
         }
     }
 
     @Transactional
-    public boolean clearAllSocialAlerts(String userId) {
-        return clearAllAlerts(SOCIAL, userId);
-    }
-
-    @Transactional
-    public boolean clearAllAcademicAlerts(String userId) {
-        return clearAllAlerts(ACADEMIC, userId);
-    }
-
-    private boolean clearAllAlerts(String alertType, String userId) {
+    public boolean clearAllAlerts(String userId) {
 
         sessionFactory.getCurrentSession().createQuery(
-                "delete BullhornAlert where alertType = :alertType and toUser = :toUser and deferred = :deferred")
-                .setString("alertType", alertType).setString("toUser", userId).setBoolean("deferred", false)
+                "delete BullhornAlert where toUser = :toUser and deferred = :deferred")
+                .setString("toUser", userId).setBoolean("deferred", false)
                 .executeUpdate();
         countCache.remove(userId);
         return true;

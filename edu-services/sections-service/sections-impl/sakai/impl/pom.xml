@@ -10,11 +10,6 @@
     <name>sakai-sections-impl</name>
     <groupId>org.sakaiproject.edu-services.sections</groupId>
     <artifactId>sections-impl</artifactId>
-    <organization>
-        <name>Sakai Project</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2005</inceptionYear>
     <packaging>sakai-component</packaging>
     <properties>
         <deploy.target>components</deploy.target>

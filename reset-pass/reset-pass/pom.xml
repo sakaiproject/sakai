@@ -10,11 +10,6 @@
   <name>Reset pass</name>
   <groupId>org.sakaiproject.reset-pass</groupId>
   <artifactId>sakai-reset-pass</artifactId>
-  <organization>
-    <name>Sakai Foundation</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2006</inceptionYear>
   <properties>
   </properties>
   <packaging>war</packaging>

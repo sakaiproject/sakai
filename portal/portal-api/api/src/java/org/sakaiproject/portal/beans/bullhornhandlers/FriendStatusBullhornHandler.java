@@ -51,7 +51,7 @@ public class FriendStatusBullhornHandler extends AbstractBullhornHandler {
     }
 
     @Override
-    public Optional<List<BullhornData>> handleEvent(Event e, Cache<String, Map> countCache) {
+    public Optional<List<BullhornData>> handleEvent(Event e, Cache<String, Long> countCache) {
 
         String from = e.getUserId();
 
@@ -65,7 +65,7 @@ public class FriendStatusBullhornHandler extends AbstractBullhornHandler {
         for (User connection : connections) {
             String to = connection.getId();
             String url = profileLinkLogic.getInternalDirectUrlToUserProfile(to, from);
-            bhEvents.add(new BullhornData(from, to, "", "", url, true));
+            bhEvents.add(new BullhornData(from, to, "", "", url));
             countCache.remove(to);
         }
 

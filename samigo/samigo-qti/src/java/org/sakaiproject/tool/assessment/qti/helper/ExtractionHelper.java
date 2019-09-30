@@ -607,6 +607,9 @@ public class ExtractionHelper
     if (
         this.notNullOrEmpty(assessment.getAssessmentMetaDataByLabel(
         "FEEDBACK_DELIVERY_DATE") )  ||
+        (this.notNullOrEmpty(assessment.getAssessmentMetaDataByLabel(
+        "FEEDBACK_DELIVERY_END_DATE") ) && this.notNullOrEmpty(assessment.getAssessmentMetaDataByLabel(
+        "FEEDBACK_DELIVERY_DATE") )) ||
         "DATED".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
         "FEEDBACK_DELIVERY")))
     {
@@ -761,6 +764,8 @@ public class ExtractionHelper
     String retractDate = assessment.getAssessmentMetaDataByLabel("RETRACT_DATE");
     String feedbackDate = assessment.getAssessmentMetaDataByLabel(
         "FEEDBACK_DELIVERY_DATE");
+    String feedbackEndDate = assessment.getAssessmentMetaDataByLabel(
+        "FEEDBACK_DELIVERY_END_DATE");
 
     try
     {
@@ -794,6 +799,7 @@ public class ExtractionHelper
     try
     {
       control.setFeedbackDate(iso.parse(feedbackDate).getTime());
+      control.setFeedbackEndDate(iso.parse(feedbackEndDate).getTime());
       assessment.getData().addAssessmentMetaData("FEEDBACK_DELIVERY","DATED");
     }
     catch (Iso8601FormatException ex)
@@ -1873,9 +1879,8 @@ public class ExtractionHelper
 		  itemText.setItem(item.getData());
 		  itemText.setSequence( Long.valueOf(i + 1));
 
-		  List answerScoreList = new ArrayList(); //--mustansar
-		  List sList = (List) itemMap.get("answerScore"); //--mustansar
-		  answerScoreList = sList == null ? answerScoreList : sList; //--mustansar
+		  List<String> sList = (List) itemMap.get("answerScore");
+		  List<String> answerScoreList = sList == null ? new ArrayList<>() : sList;
 		  HashSet answerSet = new HashSet();
 		  char answerLabel = 'A';
 		  for (int a = 0; a < answerList.size(); a++)
@@ -1945,7 +1950,7 @@ public class ExtractionHelper
 						  long index = answer.getSequence().longValue(); 
 						  index = index - 1L;
 						  int indexInteger = Long.valueOf(index).intValue();
-						  String strPCredit = (String) answerScoreList.get(indexInteger);
+						  String strPCredit = answerScoreList.contains(indexInteger) ? answerScoreList.get(indexInteger) : "0";
 						  double fltPCredit = Double.parseDouble(strPCredit);
 						  Double pCredit = (fltPCredit/(item.getScore().doubleValue()))*100;
 						  if (pCredit.isNaN()){

@@ -11,11 +11,6 @@
     <name>Basic LTI Admin Tool (basiclti-tool)</name>
     <groupId>org.sakaiproject.basiclti</groupId>
     <artifactId>basiclti-admin-tool</artifactId>
-    <organization>
-        <name>The Sakai Foundation</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2011</inceptionYear>
     <packaging>war</packaging>
     
     <dependencies>

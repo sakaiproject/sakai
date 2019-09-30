@@ -141,8 +141,11 @@ public class SakaiBLTIUtil {
 	public static final String BASICLTI_LTI11_LAUNCH_TYPE_LTI112 = "lti112";
 	public static final String BASICLTI_LTI11_LAUNCH_TYPE_DEFAULT = BASICLTI_LTI11_LAUNCH_TYPE_LEGACY;
 
-	public static final String LTI1_PATH = "/imsblis/service/";
+	public static final String LTI11_SERVICE_PATH = "/imsblis/service/";
 	public static final String LTI13_PATH = "/imsblis/lti13/";
+
+	// The path for servlet bits that neither sets nor uses cookies
+	public static final String LTI1_ANON_PATH = "/imsoidc/lti11/";
 
 		public static boolean rosterEnabled() {
 			String allowRoster = ServerConfigurationService.getString(BASICLTI_ROSTER_ENABLED, BASICLTI_ROSTER_ENABLED_DEFAULT);
@@ -452,7 +455,7 @@ public class SakaiBLTIUtil {
 			// Fix up the return Url
 			String returnUrl = ServerConfigurationService.getString("basiclti.consumer_return_url", null);
 			if (returnUrl == null) {
-				returnUrl = getOurServerUrl() + LTI1_PATH + "return-url";
+				returnUrl = getOurServerUrl() + LTI1_ANON_PATH + "return-url";
 				Session s = SessionManager.getCurrentSession();
 				if (s != null) {
 					String controllingPortal = (String) s.getAttribute("sakai-controlling-portal");
@@ -676,12 +679,12 @@ public class SakaiBLTIUtil {
 						// New Basic Outcomes URL
 						String outcome_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lis_basic_outcome_url", null);
 						if (outcome_url == null) {
-							outcome_url = getOurServerUrl() + LTI1_PATH;
+							outcome_url = getOurServerUrl() + LTI11_SERVICE_PATH;
 						}
 						setProperty(props, "ext_ims_lis_basic_outcome_url", outcome_url);
 						outcome_url = ServerConfigurationService.getString("basiclti.consumer." + BasicLTIConstants.LIS_OUTCOME_SERVICE_URL, null);
 						if (outcome_url == null) {
-							outcome_url = getOurServerUrl() + LTI1_PATH;
+							outcome_url = getOurServerUrl() + LTI11_SERVICE_PATH;
 						}
 						setProperty(props, BasicLTIConstants.LIS_OUTCOME_SERVICE_URL, outcome_url);
 					}
@@ -691,7 +694,7 @@ public class SakaiBLTIUtil {
 
 						String service_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lti_tool_setting_url", null);
 						if (service_url == null) {
-							service_url = getOurServerUrl() + LTI1_PATH;
+							service_url = getOurServerUrl() + LTI11_SERVICE_PATH;
 						}
 						setProperty(props, "ext_ims_lti_tool_setting_url", service_url);
 					}
@@ -701,7 +704,7 @@ public class SakaiBLTIUtil {
 
 						String roster_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lis_memberships_url", null);
 						if (roster_url == null) {
-							roster_url = getOurServerUrl() + LTI1_PATH;
+							roster_url = getOurServerUrl() + LTI11_SERVICE_PATH;
 						}
 						setProperty(props, "ext_ims_lis_memberships_url", roster_url);
 					}
@@ -941,12 +944,12 @@ public class SakaiBLTIUtil {
 					// New Basic Outcomes URL
 					String outcome_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lis_basic_outcome_url", null);
 					if (outcome_url == null) {
-						outcome_url = getOurServerUrl() + LTI1_PATH;
+						outcome_url = getOurServerUrl() + LTI11_SERVICE_PATH;
 					}
 					setProperty(ltiProps, "ext_ims_lis_basic_outcome_url", outcome_url);
 					outcome_url = ServerConfigurationService.getString("basiclti.consumer." + BasicLTIConstants.LIS_OUTCOME_SERVICE_URL, null);
 					if (outcome_url == null) {
-						outcome_url = getOurServerUrl() + LTI1_PATH;
+						outcome_url = getOurServerUrl() + LTI11_SERVICE_PATH;
 					}
 					setProperty(ltiProps, BasicLTIConstants.LIS_OUTCOME_SERVICE_URL, outcome_url);
 
@@ -961,7 +964,7 @@ public class SakaiBLTIUtil {
 
 					String service_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lti_tool_setting_url", null);
 					if (service_url == null) {
-						service_url = getOurServerUrl() + LTI1_PATH;
+						service_url = getOurServerUrl() + LTI11_SERVICE_PATH;
 					}
 					setProperty(ltiProps, "ext_ims_lti_tool_setting_url", service_url);
 				}
@@ -971,7 +974,7 @@ public class SakaiBLTIUtil {
 
 					String roster_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lis_memberships_url", null);
 					if (roster_url == null) {
-						roster_url = getOurServerUrl() + LTI1_PATH;
+						roster_url = getOurServerUrl() + LTI11_SERVICE_PATH;
 					}
 					setProperty(ltiProps, "ext_ims_lis_memberships_url", roster_url);
 				}

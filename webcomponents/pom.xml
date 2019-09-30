@@ -11,92 +11,12 @@
 
     <name>Sakai Web Components</name>
     <groupId>org.sakaiproject</groupId>
-    <artifactId>webcomponents</artifactId>
-    <packaging>war</packaging>
-    <dependencies>
-        <dependency>
-            <groupId>org.sakaiproject.kernel</groupId>
-            <artifactId>sakai-kernel-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.kernel</groupId>
-            <artifactId>sakai-component-manager</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.kernel</groupId>
-            <artifactId>sakai-kernel-util</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.entitybroker</groupId>
-            <artifactId>entitybroker-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.entitybroker</groupId>
-            <artifactId>entitybroker-utils</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-beans</artifactId>
-        </dependency>
-    </dependencies>
+    <artifactId>webcomponents-parent</artifactId>
+    <packaging>pom</packaging>
 
-    <build>
-        <sourceDirectory>src/main/java</sourceDirectory>
-        <resources>
-            <resource>
-                <directory>src/main/bundle</directory>
-            </resource>
-        </resources>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <configuration>
-                    <warSourceDirectory>src/main/webapp</warSourceDirectory>
-                    <packagingExcludes>
-                        node_modules/**,
-                        package.json,
-                        package-lock.json,
-                        webpack.config.js
-                    </packagingExcludes>
-                    <webResources>
-                        <resource>
-                            <directory>src/main/frontend</directory>
-                        </resource>
-                    </webResources>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>com.github.eirslett</groupId>
-                <artifactId>frontend-maven-plugin</artifactId>
-                <version>1.7.6</version>
-                <configuration>
-                    <installDirectory>target</installDirectory>
-                    <workingDirectory>src/main/frontend</workingDirectory>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>install node and npm</id>
-                        <goals>
-                            <goal>install-node-and-npm</goal>
-                        </goals>
-                        <configuration>
-                            <nodeVersion>v8.12.0</nodeVersion>
-                            <npmVersion>6.4.1</npmVersion>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>npm install</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <configuration>
-                            <arguments>install --unsafe-perm</arguments>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+    <modules>
+        <module>bundle</module>
+        <module>tool</module>
+    </modules>
 
 </project>

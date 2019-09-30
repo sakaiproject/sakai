@@ -1,9 +1,9 @@
-import {SakaiElement} from "/webcomponents/sakai-element.js";
+import {RubricsElement} from "./rubrics-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
 import {SakaiRubricsLanguage, tr} from "./sakai-rubrics-language.js";
 import {SakaiRubricsHelpers} from "./sakai-rubrics-helpers.js";
 
-export class SakaiRubricStudentPreviewButton extends SakaiElement {
+export class SakaiRubricStudentPreviewButton extends RubricsElement {
 
   constructor() {
 
@@ -27,7 +27,7 @@ export class SakaiRubricStudentPreviewButton extends SakaiElement {
 
   set token(newValue) {
 
-    rubrics.initLightbox(newValue);
+    this.rubricsUtils.initLightbox(newValue);
     this._token = "Bearer " + newValue;
   }
 
@@ -73,9 +73,13 @@ export class SakaiRubricStudentPreviewButton extends SakaiElement {
 
     e.preventDefault();
 
-    rubrics.showRubric(this.rubricId);
+    this.rubricsUtils.showRubric(this.rubricId);
     return false;
   }
 }
 
-customElements.define("sakai-rubric-student-preview-button", SakaiRubricStudentPreviewButton);
+try {
+  customElements.define("sakai-rubric-student-preview-button", SakaiRubricStudentPreviewButton);
+} catch (error) {
+  // Can happen when using the same component in a page then a frame.
+}

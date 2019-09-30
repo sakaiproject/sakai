@@ -705,13 +705,13 @@ body.is-logged-out{
 .portal-bullhorns-buttons{
 	position: relative;
 	display: inline-block;
+	padding-left: $standard-spacing;
 	padding-right: $standard-spacing;
 	border-right: 1px solid $topNav-alt-color;
     white-space: nowrap;
 }
 
-##{$namespace}academic-bullhorn,
-##{$namespace}social-bullhorn {
+##{$namespace}bullhorn {
 	display: inline-block; /* Sakai 11.1 makes it flex, which is wrong */
 
 	&:hover {

@@ -10,11 +10,6 @@
   <name>savecite</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-citations-servlet</artifactId>
-  <organization>
-    <name>University of Michigan</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2003</inceptionYear>
   <packaging>war</packaging>
   <dependencies>
     <dependency>

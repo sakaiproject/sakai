@@ -10,11 +10,6 @@
   <name>archive-impl2</name>
   <groupId>org.sakaiproject.common</groupId>
   <artifactId>archive-impl2</artifactId>
-  <organization>
-    <name>Sakai Project</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2006</inceptionYear>
   <packaging>sakai-component</packaging>
   <properties>
     <deploy.target>components</deploy.target>
