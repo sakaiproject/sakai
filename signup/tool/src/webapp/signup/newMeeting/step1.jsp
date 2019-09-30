@@ -91,10 +91,7 @@
                 <sakai:doc_section>
                     <h:panelGrid columns="1" styleClass="instruction" style="background:#fff;">
                         <h:outputText value="#{msgs.create_instruction} " escape="false" />                      
-                        <h:panelGroup>                           site-manage/site-manage-tool/tool/src/webapp/vm/sitesetup/chef_site-editToolGroupFeatures.vm
-
-
-
+                        <h:panelGroup>
                             <h:outputText value="#{msgs.star_character}" style="color:#B11;" />
                             <h:outputText value="&nbsp;#{msgs.required2}" escape="false" />
                         </h:panelGroup>
