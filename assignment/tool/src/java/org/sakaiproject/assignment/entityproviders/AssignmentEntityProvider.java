@@ -212,7 +212,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                                                     + "/directtool/"
                                                     + fromTool.getId()
                                                     + "?assignmentId="
-                                                    + a.getId()
+                                                    + AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference()
                                                     + "&panel=Main&sakai_action=doView_assignment");
                         } else if (allowSubmitAssignment) {
                             assignData
