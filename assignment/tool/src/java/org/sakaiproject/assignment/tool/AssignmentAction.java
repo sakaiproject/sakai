@@ -50,6 +50,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -10073,8 +10074,14 @@ public class AssignmentAction extends PagedResourceActionII {
                     if (a != null) {
                         a.setDeleted(false);
                         assignmentService.updateAssignment(a);
-                    }
 
+                        // restore email reminder only if reminder is set and the due date is after 1 day
+                        if (BooleanUtils.toBoolean(a.getProperties().get(NEW_ASSIGNMENT_REMINDER_EMAIL))
+                                && a.getDueDate() != null
+                                && Instant.now().plus(1, ChronoUnit.DAYS).isBefore(a.getDueDate())) {
+                            assignmentDueReminderService.scheduleDueDateReminder(a.getId());
+                        }
+                    }
                 } catch (IdUnusedException | PermissionException e) {
                     addAlert(state, rb.getFormattedMessage("youarenot_editAssignment", id));
                     log.warn(e.getMessage());
