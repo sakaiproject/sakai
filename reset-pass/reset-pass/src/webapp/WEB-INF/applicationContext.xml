@@ -18,6 +18,7 @@
                 <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
                 <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
                 <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+                <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
             </bean>
         </property>
    </bean>
