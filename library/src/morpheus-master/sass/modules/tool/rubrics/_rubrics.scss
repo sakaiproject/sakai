@@ -39,6 +39,7 @@
         .rubric-name {
             cursor: default;
             color: $rubrics-link-color;
+            text-decoration: none;
         }
 
         &:hover, &.active, &:focus {

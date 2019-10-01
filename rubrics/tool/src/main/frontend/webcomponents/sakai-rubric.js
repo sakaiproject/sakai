@@ -61,10 +61,10 @@ export class SakaiRubric extends RubricsElement {
     return html`
       <div class="rubric-title" @click="${this.toggleRubric}">
         <div>
-          <span class="rubric-name" id="rubric_toggle_${this.rubric.id}" aria-expanded="${this.rubricExpanded}" role="tab" title="${tr("toggle_details")} ${this.rubric.title}" tabindex="0" >
+          <a href="#" class="rubric-name" id="rubric_toggle_${this.rubric.id}" aria-expanded="${this.rubricExpanded}" role="tab" title="${tr("toggle_details")} ${this.rubric.title}" tabindex="0" >
             <span class="fa fa-chevron-right"></span>
             ${this.rubric.title}
-          </span>
+          </a>
 
           ${this.rubric.metadata.locked ?
             html`<span tabindex="0" role="display" title="${this.rubric.title} ${tr("is_locked")}" class="locked fa fa-lock"></span>`
