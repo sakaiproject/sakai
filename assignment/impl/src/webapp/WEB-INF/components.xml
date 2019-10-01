@@ -17,6 +17,7 @@
           init-method="init">
         <property name="announcementService" ref="org.sakaiproject.announcement.api.AnnouncementService"/>
         <property name="assignmentActivityProducer" ref="org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer"/>
+        <property name="assignmentDueReminderService" ref="org.sakaiproject.assignment.api.reminder.AssignmentDueReminderService"/>
         <property name="assignmentEntityFactory" ref="org.sakaiproject.assignment.api.AssignmentEntity.factory"/>
         <property name="assignmentRepository" ref="org.sakaiproject.assignment.api.persistence.AssignmentRepository"/>
         <property name="assignmentSupplementItemService" ref="org.sakaiproject.assignment.api.model.AssignmentSupplementItemService"/>
