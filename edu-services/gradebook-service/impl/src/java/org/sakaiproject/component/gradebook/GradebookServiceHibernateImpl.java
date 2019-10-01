@@ -1943,6 +1943,12 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		gradeDef.setGrade(grade);
 		gradeDef.setExcused(excuse);
 
+		// Lookup any existing comments and set the text so that they don't get wiped out on a save
+		CommentDefinition gradeComment = getAssignmentScoreComment(gradebookUid, gradableObjectId, studentUid);
+		if (gradeComment != null) {
+			gradeDef.setGradeComment(gradeComment.getCommentText());
+		}
+
 		final List<GradeDefinition> gradeDefList = new ArrayList<>();
 		gradeDefList.add(gradeDef);
 
