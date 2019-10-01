@@ -1,6 +1,5 @@
-#module("/rubrics-service/webcomponents/sakai-rubric-student-preview-button.js")
-
 <!-- start: chef_assignments_student_view_submission.vm  -->
+#module("/rubrics-service/webcomponents/rubric-association-requirements.js")
 <script>
 $(document).ready(function(){
     ASN.setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');

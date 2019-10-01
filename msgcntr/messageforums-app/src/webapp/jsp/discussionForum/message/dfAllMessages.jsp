@@ -14,15 +14,16 @@
 
 <!-- messageforums-app/src/webapp/jsp/discussionForum/message-->
 
-<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-<script type="text/javascript" src="/messageforums-tool/js/json2.js"></script>
-<script type="text/javascript" src="/messageforums-tool/js/fluidframework-min.js"></script>
-<script type="text/javascript" src="/messageforums-tool/js/Scroller.js"></script>
-<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
-<script type="text/javascript" src="/messageforums-tool/js/frameAdjust.js"></script>
-<script type="text/javascript" src="/messageforums-tool/js/forum_movethread.js"></script>
+<script>includeLatestJQuery("msgcntr");</script>
+<script src="/messageforums-tool/js/json2.js"></script>
+<script src="/messageforums-tool/js/fluidframework-min.js"></script>
+<script src="/messageforums-tool/js/Scroller.js"></script>
+<script src="/messageforums-tool/js/forum.js"></script>
+<script src="/messageforums-tool/js/frameAdjust.js"></script>
+<script src="/messageforums-tool/js/forum_movethread.js"></script>
 
-<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
+<script src="/messageforums-tool/js/sak-10625.js"></script>
+<script type="module" src="/rubrics-service/webcomponents/rubric-association-requirements.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 
 <!--jsp/discussionForum/message/dfAllMessages.jsp-->
 		<link rel="stylesheet" type="text/css" href="../../css/TableSorter.css" />

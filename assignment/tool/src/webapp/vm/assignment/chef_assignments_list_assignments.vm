@@ -1,5 +1,6 @@
 <!-- start: chef_assignments_list_assignments.vm  -->
-<script type="text/javascript">
+#module("/rubrics-service/webcomponents/rubric-association-requirements.js")
+<script>
 	focus_path = ["search"];
 	var linkFlag = true;
 

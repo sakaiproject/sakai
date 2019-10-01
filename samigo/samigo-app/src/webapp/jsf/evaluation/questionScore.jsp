@@ -34,6 +34,7 @@ $Id$
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{evaluationMessages.title_question}" /></title>
+      <script type="module" src="/rubrics-service/webcomponents/rubric-association-requirements.js<h:outputText value="#{questionScores.CDNQuery}" />"></script>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 

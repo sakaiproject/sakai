@@ -70,6 +70,7 @@ import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
@@ -1627,5 +1628,9 @@ public class ItemAuthorBean
 
     public void setRubricStateDetails(String rubricStateDetails) {
         this.rubricStateDetails = rubricStateDetails;
+    }
+
+    public String getCDNQuery() {
+        return PortalUtils.getCDNQuery();
     }
 }

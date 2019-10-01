@@ -10,14 +10,15 @@
 </jsp:useBean>
 <f:view>
 	<sakai:view title="#{msgs.cdfm_discussion_topic_settings}" toolCssHref="/messageforums-tool/css/msgcntr.css">
-	<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-	<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>      
-	<script type="text/javascript" src="/messageforums-tool/js/jquery.charcounter.js"> </script>
-	<script type="text/javascript" src="/messageforums-tool/js/permissions_header.js"></script>
-	<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
-	<script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
-	<script type="text/javascript" src="/messageforums-tool/js/datetimepicker.js"></script>
-	<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+	<script>includeLatestJQuery("msgcntr");</script>
+	<script src="/messageforums-tool/js/sak-10625.js"></script>
+	<script src="/messageforums-tool/js/jquery.charcounter.js"> </script>
+	<script src="/messageforums-tool/js/permissions_header.js"></script>
+	<script src="/messageforums-tool/js/forum.js"></script>
+	<script src="/messageforums-tool/js/messages.js"></script>
+	<script src="/messageforums-tool/js/datetimepicker.js"></script>
+	<script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+	<script type="module" src="/rubrics-service/webcomponents/rubric-association-requirements.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 	<link href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" rel="stylesheet" type="text/css" />
 	
 	<%
@@ -27,12 +28,12 @@
     		thisId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
   		}
 	%>
-	<script type="text/javascript">
+	<script>
 		function resize(){
   			mySetMainFrameHeight('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
   		}
 	</script> 
-	<script type="text/javascript">
+	<script>
 	function setDatesEnabled(radioButton){
 		$(".calWidget").fadeToggle('slow');
 	}
@@ -292,7 +293,7 @@
 
 			</div>
 
-			<script type="text/javascript">
+			<script>
 			      localDatePicker({
 			      	input:'[id="revise:openDate"]', 
 			      	allowEmptyDate: true, 
@@ -447,7 +448,7 @@
 				</h:panelGroup>
 				</div>
 				
-<script type="text/javascript">
+<script>
 setPanelId('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
 $(function () {
 	if (<h:outputText value="#{ForumTool.selectedTopic.topic.id==null && !empty ForumTool.siteGroups && ForumTool.selectedTopic.restrictPermissionsForGroups}" />) {
@@ -485,7 +486,7 @@ $(function () {
        </div>
        
 	 </h:form>
-			  <script type="text/javascript">
+			  <script>
             $(document).ready(function(){
 							$('.displayMore').click(function(e){
 									e.preventDefault();

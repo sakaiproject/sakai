@@ -30,6 +30,7 @@ import javax.faces.context.FacesContext;
 
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.content.api.FilePickerHelper;
+import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
@@ -191,5 +192,9 @@ public class StudentScoresBean implements Serializable
 		  log.error("fail to redirect to attachment page: " + e.getMessage());
 	  }
 	  return "studentScores";
+  }
+
+  public String getCDNQuery() {
+	  return PortalUtils.getCDNQuery();
   }
 }

@@ -145,13 +145,6 @@
         <script src="${pageScriptPath}jquery/qtip/tutorial.js$!{portalCDNQuery}"></script>
         <script src="${pageWebjarsPath}cropper/4.0.0/dist/cropper.min.js$!{portalCDNQuery}"></script>
 
-        <!-- RUBRICS CODE AND MODULES -->
-        <script type="module" src="/rubrics-service/webcomponents/sakai-rubric-student.js$!{portalCDNQuery}"></script>
-        <script type="module" src="/rubrics-service/webcomponents/sakai-rubric-grading.js$!{portalCDNQuery}"></script>
-        <script type="module" src="/rubrics-service/webcomponents/sakai-rubric-association.js$!{portalCDNQuery}"></script>
-        <script type="module" src="/rubrics-service/webcomponents/sakai-rubric-student-preview-button.js$!{portalCDNQuery}"></script>
-        <script type="module" src="/rubrics-service/webcomponents/sakai-rubric-student-button.js$!{portalCDNQuery}"></script>
-
         #if ( $tutorial && $loggedIn )
             <script>$(document).ready(function(){startTutorial({'showTutorialLocationOnHide': 'true'});});</script>
         #end ## END of IF ( $tutorial && $loggedIn )

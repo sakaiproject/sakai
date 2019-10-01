@@ -1,4 +1,5 @@
 <!-- start: chef_assignments_instructor_list_submissions.vm  -->
+#module("/rubrics-service/webcomponents/rubric-association-requirements.js")
 #set( $H = '-' )
 <script type="text/javascript">includeLatestJQuery('assignments');</script>
 #javascript("/library/js/lang-datepicker/lang-datepicker.js")

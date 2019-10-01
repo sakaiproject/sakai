@@ -8,9 +8,10 @@
 <f:view>
 <sakai:view toolCssHref="/messageforums-tool/css/msgcntr.css">
     <h:form id="msgForum" rendered="#{!ForumTool.selectedForum.forum.draft || ForumTool.selectedForum.forum.createdBy == ForumTool.userId}">
-		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-		<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
-		<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
+		<script>includeLatestJQuery("msgcntr");</script>
+		<script src="/messageforums-tool/js/sak-10625.js"></script>
+		<script src="/messageforums-tool/js/forum.js"></script>
+		<script type="module" src="/rubrics-service/webcomponents/rubric-association-requirements.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 <!--jsp/discussionForum/forum/dfForumDetail.jsp-->
 
 			<h:outputText styleClass="showMoreText"  style="display:none" value="#{msgs.cdfm_show_more_full_description}"  />
