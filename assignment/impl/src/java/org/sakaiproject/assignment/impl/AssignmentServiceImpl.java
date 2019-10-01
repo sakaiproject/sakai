@@ -2367,7 +2367,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     return serverConfigurationService.getPortalUrl()
                             + "/directtool/"
                             + fromTool.getId()
-                            + "?assignmentId=" + assignmentId + "&assignmentReference="
+                            + "?assignmentId="
                             + AssignmentReferenceReckoner.reckoner().context(context).id(assignmentId).reckon().getReference()
                             + "&panel=Main&sakai_action=doView_assignment";
                 } else if (allowSubmitAssignment) {

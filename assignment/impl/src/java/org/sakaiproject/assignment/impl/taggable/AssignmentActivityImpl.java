@@ -21,6 +21,7 @@
 
 package org.sakaiproject.assignment.impl.taggable;
 
+import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.taggable.api.TaggableActivity;
@@ -71,9 +72,8 @@ public class AssignmentActivityImpl implements TaggableActivity {
     }
 
     public String getActivityDetailUrl() {
-        //String url = assignment.getUrl();
         String url = producer.serverConfigurationService.getServerUrl() +
-                "/direct/assignment/" + assignment.getId() + "/doView_assignment";
+                "/direct/assignment/" + AssignmentReferenceReckoner.reckoner().context(assignment.getContext()).id(assignment.getId()).reckon().getReference() + "/doView_assignment";
         return url;
     }
 
