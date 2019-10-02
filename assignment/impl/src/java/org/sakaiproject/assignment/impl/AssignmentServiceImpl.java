@@ -532,9 +532,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     public boolean allowAllGroups(String context) {
-        String resourceString = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
-        if (permissionCheck(SECURE_ALL_GROUPS, resourceString, null)) return true;
-        return false;
+        String resourceString = siteService.siteReference(context);
+        return permissionCheck(SECURE_ALL_GROUPS, resourceString, null);
     }
 
     @Override
@@ -620,7 +619,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     public boolean allowAddSubmissionCheckGroups(Assignment assignment) {
-        return permissionCheckWithGroups(SECURE_ADD_ASSIGNMENT_SUBMISSION, assignment);
+        return permissionCheckWithGroups(SECURE_ADD_ASSIGNMENT_SUBMISSION, assignment, null);
     }
 
     @Override
@@ -1008,7 +1007,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             // check permissions - allow the user to add a submission to the assignment
             // if they have the permission asn.submit or asn.grade
             if (a.getTypeOfAccess() == GROUP) {
-                if (!(permissionCheckWithGroups(SECURE_ADD_ASSIGNMENT_SUBMISSION, a) || allowGradeSubmission(assignmentReference))) {
+                if (!(allowAddSubmissionCheckGroups(a) || allowGradeSubmission(assignmentReference))) {
                     throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT_SUBMISSION, assignmentReference);
                 }
             } else {
@@ -1309,7 +1308,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     assignments.add(assignment);
                 }
             } else if (assignment.getTypeOfAccess() == GROUP) {
-                if (permissionCheckWithGroups(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, assignment)) {
+                if (permissionCheckWithGroups(SECURE_ACCESS_ASSIGNMENT, assignment, null)) {
                     assignments.add(assignment);
                 }
             } else if (allowGetAssignment(context)) {
@@ -1806,41 +1805,37 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    public boolean canSubmit(Assignment a, String userId) {
-        if (a == null || BooleanUtils.isTrue(a.getDeleted())) return false;
+    public boolean canSubmit(Assignment assignment, String userId) {
+        if (assignment == null || BooleanUtils.isTrue(assignment.getDeleted())) return false;
+
         // submissions are never allowed to non-electronic assignments
-        if (a.getTypeOfSubmission() == Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) {
+        if (assignment.getTypeOfSubmission() == Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) {
             return false;
         }
 
-        // return false only if the user is not allowed to submit and not allowed to add to the assignment
-        if (!allowAddSubmissionCheckGroups(a) && !allowAddAssignment(a.getContext())) return false;
-
-        //If userId is not defined look it up
-        if (userId == null) {
-            userId = sessionManager.getCurrentSessionUserId();
-        }
-
         try {
-            // if user the user can access this assignment
-            checkAssignmentAccessibleForUser(a, userId);
+            // return false only if the user is not allowed to submit and not allowed to add to the assignment
+            if (!permissionCheckWithGroups(SECURE_ADD_ASSIGNMENT_SUBMISSION, assignment, userId) // check asn.submit for user on assignment consulting groups
+                    && !permissionCheck(SECURE_ADD_ASSIGNMENT, siteService.siteReference(assignment.getContext()), userId)) return false; // check asn.new for user in site not consulting groups
 
-            // get user
-            User u = userDirectoryService.getUser(userId);
+            // if user the user can access this assignment
+            checkAssignmentAccessibleForUser(assignment, userId);
 
             Instant currentTime = Instant.now();
 
             // return false if the assignment is draft or is not open yet
-            Instant openTime = a.getOpenDate();
-            if (a.getDraft() || openTime.isAfter(currentTime)) {
+            Instant openTime = assignment.getOpenDate();
+            if (assignment.getDraft() || openTime.isAfter(currentTime)) {
                 return false;
             }
 
             // whether the current time is after the assignment close date inclusive
-            boolean isBeforeAssignmentCloseDate = !currentTime.isAfter(a.getCloseDate());
+            boolean isBeforeAssignmentCloseDate = !currentTime.isAfter(assignment.getCloseDate());
 
-            // get user's submission
-            AssignmentSubmission submission = getSubmission(AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getId(), u);
+            AssignmentSubmission submission = null;
+            if (StringUtils.isNotBlank(userId)) {
+                submission = getSubmission(AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getId(), userId);
+            }
 
             if (submission != null) {
                 // check for allow resubmission or not first
@@ -1858,7 +1853,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                             resubmitCloseTime = Instant.ofEpochMilli(Long.parseLong(allowResubmitCloseTime));
                         } else {
                             // otherwise, use assignment close time as the resubmission close time
-                            resubmitCloseTime = a.getCloseDate();
+                            resubmitCloseTime = assignment.getCloseDate();
                         }
                         return (allowResubmitNumber > 0 || allowResubmitNumber == -1) && !currentTime.isAfter(resubmitCloseTime);
                     } catch (NumberFormatException e) {
@@ -1876,17 +1871,15 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 // there is no submission yet so only check if before assignment close date
                 return isBeforeAssignmentCloseDate;
             }
-        } catch (UserNotDefinedException e) {
-            log.warn("The user {} could not be found while checking if they can submit to assignment {}, {}", userId, a.getId(), e.getMessage());
         } catch (PermissionException e) {
-            log.warn("The user {} cannot submit to assignment {}, {}", userId, a.getId(), e.getMessage());
+            log.warn("The user {} cannot submit to assignment {}, {}", userId, assignment.getId(), e.getMessage());
         }
         return false;
     }
 
     @Override
-    public boolean canSubmit(Assignment a) {
-        return canSubmit(a, null);
+    public boolean canSubmit(Assignment assignment) {
+        return canSubmit(assignment, null);
     }
 
     @Override
@@ -2520,7 +2513,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             Collection<Group> groups = site.getGroups();
             // if the user has SECURE_ALL_GROUPS in the context (site), select all site groups
             if (securityService.unlock(userId, SECURE_ALL_GROUPS, siteService.siteReference(context))
-                    && permissionCheck(function, siteService.siteReference(context), null)) {
+                    && permissionCheck(function, siteService.siteReference(context), userId)) {
                 rv.addAll(groups);
             } else {
                 // get a list of the group refs, which are authzGroup ids
@@ -2598,31 +2591,54 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         if (!StringUtils.isAnyBlank(resource, permission)) {
             if (StringUtils.isBlank(user)) {
                 access = securityService.unlock(permission, resource);
-                log.debug("checking permission [{}] in context [{}] for current user: {}", permission, resource, access);
             } else {
                 access = securityService.unlock(user, permission, resource);
-                log.debug("checking permission [{}] in context [{}] for user [{}]: {}", permission, resource, user, access);
             }
         }
+        log.debug("checking permission [{}] in context [{}] for user [{}]: {}", permission, resource, user, access);
         return access;
     }
 
-    private boolean permissionCheckWithGroups(String permission, Assignment assignment) {
+    private boolean permissionCheckWithGroups(final String permission, final Assignment assignment, final String user) {
+        if (StringUtils.isBlank(permission) || assignment == null) return false;
+        String siteReference = siteService.siteReference(assignment.getContext());
+
+        boolean access = false;
         if (GROUP == assignment.getTypeOfAccess()) {
-            // check the permission in the groups
+            // assignment access is group
             for (String groupId : assignment.getGroups()) {
-                if (securityService.unlock(permission, groupId)) {
-                    return true;
+                if (StringUtils.isBlank(user)) { // check permission for current user
+                    if (securityService.unlock(permission, groupId)) { // check permission for group
+                        access = true;
+                        break;
+                    }
+                } else { // check permission for the specified user
+                    if (securityService.unlock(user, permission, groupId)) { // check permission for group
+                        access = true;
+                        break;
+                    }
                 }
             }
             // lastly if the user has permission asn.all.groups and has permission for the site
-            if (allowAllGroups(assignment.getContext()) && securityService.unlock(permission, siteService.siteReference(assignment.getContext()))) {
-                return true;
+            if (!access) {
+                if (StringUtils.isBlank(user)) { // check permission for current user
+                    if (securityService.unlock(permission, siteReference) // check permission for user in site
+                            && securityService.unlock(SECURE_ALL_GROUPS, siteReference)) { // check asn.all.groups for user in site
+                        access = true;
+                    }
+                } else { // check permission for the specified user
+                    if (securityService.unlock(user, permission, siteReference) // check permission for user in site
+                            && securityService.unlock(user, SECURE_ALL_GROUPS, siteReference)) { // check asn.all.groups for user in site
+                        access = true;
+                    }
+                }
             }
         } else {
-            return permissionCheck(permission, siteService.siteReference(assignment.getContext()), null);
+            // assignment access is non group or site
+            access = permissionCheck(permission, siteReference, user);
         }
-        return false;
+        log.debug("checking permission with groups [{}] in context [{}] for user [{}]: {}", permission, siteReference, user, access);
+        return access;
     }
 
     // /////////////////////////////////////////////////////////////
