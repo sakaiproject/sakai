@@ -136,7 +136,7 @@
                             <h:outputText value="#{msgs.pvt_group}"/>
                         </th>
                         <td>
-                            <h:outputText value="#{PrivateMessagesTool.rolAndGroupsOfSender} "/>
+                            <h:outputText value="#{PrivateMessagesTool.senderRoleAndGroups} "/>
                         </td>
                     </tr>
                     <tr>

@@ -27,7 +27,23 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
-import org.sakaiproject.api.app.messageforums.*;
+import org.sakaiproject.api.app.messageforums.Area;
+import org.sakaiproject.api.app.messageforums.Attachment;
+import org.sakaiproject.api.app.messageforums.DefaultPermissionsManager;
+import org.sakaiproject.api.app.messageforums.DiscussionForumService;
+import org.sakaiproject.api.app.messageforums.HiddenGroup;
+import org.sakaiproject.api.app.messageforums.MembershipManager;
+import org.sakaiproject.api.app.messageforums.Message;
+import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
+import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
+import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
+import org.sakaiproject.api.app.messageforums.PrivateForum;
+import org.sakaiproject.api.app.messageforums.PrivateMessage;
+import org.sakaiproject.api.app.messageforums.PrivateMessageRecipient;
+import org.sakaiproject.api.app.messageforums.PrivateTopic;
+import org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager;
+import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.api.app.messageforums.UserPreferencesManager;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Member;
@@ -80,8 +96,19 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -235,7 +262,7 @@ public class PrivateMessagesTool
   
   private Area area;
   private PrivateForum forum;
-  private List<PrivateTopic> pvtTopics=new ArrayList<PrivateTopic>();
+  private List<PrivateTopic> pvtTopics=new ArrayList<>();
   private List decoratedPvtMsgs;
 
   @Getter @Setter
@@ -4520,7 +4547,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
       return FileUtils.byteCountToDisplaySize(Long.parseLong(attachmentSize));
     }
 
-    public String getRolAndGroupsOfSender() {
+    public String getSenderRoleAndGroups() {
       if (totalComposeToList == null) {
         initializeComposeToLists();
       }
