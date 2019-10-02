@@ -1078,7 +1078,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
   }
   
   public String getReceivedTopicForMessage(String msgId) {
-	  if (msgId!=null && getPvtAreaEnabled()) {
+	  if (StringUtils.isNotBlank(msgId) && getPvtAreaEnabled()) {
 		  for (Topic topic : pvtTopics) {
 			  String typeUuid = getPrivateMessageTypeFromContext(topic.getTitle());
 			  List<Message> topicMessages = prtMsgManager.getMessagesByType(typeUuid, PrivateMessageManager.SORT_COLUMN_DATE,PrivateMessageManager.SORT_DESC);
