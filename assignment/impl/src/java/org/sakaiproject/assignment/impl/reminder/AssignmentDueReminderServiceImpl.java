@@ -20,12 +20,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.assignment.api.AssignmentService;
-import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.reminder.AssignmentDueReminderService;
 import org.sakaiproject.authz.api.Member;
-import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
@@ -37,6 +34,8 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.UserTimeService;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -57,25 +56,17 @@ import java.util.Set;
  */
 @Slf4j
 public class AssignmentDueReminderServiceImpl implements AssignmentDueReminderService {
+    @Setter private AssignmentService assignmentService;
+    @Setter private EmailService emailService;
+    @Setter private PreferencesService preferencesService;
+    @Setter private ScheduledInvocationManager scheduledInvocationManager;
+    @Setter private ServerConfigurationService serverConfigurationService;
+    @Setter private SessionManager sessionManager;
+    @Setter private SiteService siteService;
+    @Setter private UserDirectoryService userDirectoryService;
+    @Setter private UserTimeService userTimeService;
+
     private List<String> additionalHeaders = new ArrayList<>();
-    @Setter
-    private EmailService emailService;
-    @Setter
-    private AssignmentService assignmentService;
-    @Setter
-    private SiteService siteService;
-    @Setter
-    private UserDirectoryService userDirectoryService;
-    @Setter
-    private UserTimeService userTimeService;
-    @Setter
-    private PreferencesService preferencesService;
-    @Setter
-    private ScheduledInvocationManager scheduledInvocationManager;
-    @Setter
-    private SecurityService securityService;
-    @Setter
-    private ServerConfigurationService serverConfigurationService;
 
     public void init() {
         log.debug("AssignmentDueReminderService init()");
@@ -112,38 +103,29 @@ public class AssignmentDueReminderServiceImpl implements AssignmentDueReminderSe
         scheduledInvocationManager.deleteDelayedInvocation("org.sakaiproject.assignment.api.reminder.AssignmentDueReminderService", assignmentId);
     }
 
-    public void execute(String opaqueContext) {
-        log.debug("AssignmentDueReminderService execute");
+    public void execute(String assignmentId) {
+        log.debug("Assignment email reminder job starting");
+
+        Session sakaiSession = sessionManager.getCurrentSession();
+        sakaiSession.setUserId("admin");
+        sakaiSession.setUserEid("admin");
 
         try {
-            Assignment assignment = assignmentService.getAssignment(opaqueContext);
+            Assignment assignment = assignmentService.getAssignment(assignmentId);
             Site site = siteService.getSite(assignment.getContext());
 
             // Do not send reminders if the site is unpublished or softly deleted
             if (site.isPublished() && !site.isSoftlyDeleted()) {
-                SecurityAdvisor advisor = (userId, function, reference) -> {
-
-                    if (function.equals(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT)
-                        || function.equals(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION)
-                        || function.equals(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT)) {
-                        return SecurityAdvisor.SecurityAdvice.ALLOWED;
-                    } else {
-                        return SecurityAdvisor.SecurityAdvice.NOT_ALLOWED;
+                for (Member member : site.getMembers()) {
+                    if (member.isActive() && assignmentService.canSubmit(assignment, member.getUserId()) && checkEmailPreference(member)) {
+                        sendEmailReminder(site, assignment, member);
                     }
-                };
-                securityService.pushAdvisor(advisor);
-                try {
-                    for (Member member : site.getMembers()) {
-                        if (member.isActive() && assignmentService.canSubmit(assignment, member.getUserId()) && checkEmailPreference(member)) {
-                            sendEmailReminder(site, assignment, member);
-                        }
-                    }
-                } finally {
-                    securityService.popAdvisor(advisor);
                 }
             }
         } catch (IdUnusedException | PermissionException e) {
-            log.error(e.getMessage(), e);
+            log.warn("Assignment email reminder job failed, {}", e.getMessage(), e);
+        } finally {
+            sakaiSession.invalidate();
         }
     }
 

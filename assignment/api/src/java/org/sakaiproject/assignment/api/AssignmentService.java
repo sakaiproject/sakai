@@ -560,19 +560,25 @@ public interface AssignmentService extends EntityProducer {
     public String submissionReference(String context, String id, String assignmentId);
 
     /**
-     * Whether a specific user can submit
-     * @param a
-     * @param userId
-     * @return
+     * Whether a specific user can submit to this assignment thereby creating a submission
+     * <p>
+     * Of particular importance is whether <b>userId</b> is <b>blank</b> or <b>not</b>,
+     * a blank userId will perform all security checks against the current user
+     * while a non blank userId will perform all security checks against the specified user.
+     *
+     * @param assignment the Assignment to check for allowing to submit to
+     * @param userId the specified user is checked vs the current user
+     * @return true if the specified user or the current user can submit to the assignment, otherwise false
      */
-    public boolean canSubmit(Assignment a, String userId);
+    public boolean canSubmit(Assignment assignment, String userId);
 
     /**
-     * Whether the current user can submit
-     * @param a
-     * @return
+     * Whether the current user can submit to this assignment thereby creating a submission
+     *
+     * @param assignment the Assignment to check for allowing to submit to
+     * @return true if the current user can submit to the assignment, otherwise false
      */
-    public boolean canSubmit(Assignment a);
+    public boolean canSubmit(Assignment assignment);
 
 
     /**

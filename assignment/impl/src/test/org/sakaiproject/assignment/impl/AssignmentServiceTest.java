@@ -774,12 +774,13 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     public void allowAddSubmissionCheckGroups() {
         String context = UUID.randomUUID().toString();
         String contextReference = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
+        String siteReference = "/site/" + context;
         Assignment assignment = createNewAssignment(context);
         // permissions
         when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, contextReference)).thenReturn(false);
         when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, contextReference)).thenReturn(false);
         when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, "/site/" + context)).thenReturn(true);
-        when(siteService.siteReference(context)).thenReturn("/site/" + context);
+        when(siteService.siteReference(context)).thenReturn(siteReference);
 
         // test with no groups
         Assert.assertTrue(assignmentService.allowAddSubmissionCheckGroups(assignment));
@@ -802,7 +803,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Assert.assertFalse(assignmentService.allowAddSubmissionCheckGroups(assignment));
 
         // give group B asn.all.groups and should be allowed now
-        when(securityService.unlock(AssignmentServiceConstants.SECURE_ALL_GROUPS, contextReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ALL_GROUPS, siteReference)).thenReturn(true);
         Assert.assertTrue(assignmentService.allowAddSubmissionCheckGroups(assignment));
     }
 
@@ -907,6 +908,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         String groupRef = "/site/" + context + "/group/" + groupSubmitter;
         assignment.getGroups().add(groupRef);
         String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        when(siteService.siteReference(context)).thenReturn("/site/" + context);
         when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, assignmentReference)).thenReturn(true);
         when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference())).thenReturn(true);
         assignmentService.updateAssignment(assignment);
