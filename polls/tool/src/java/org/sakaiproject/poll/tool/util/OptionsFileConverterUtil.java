@@ -80,7 +80,9 @@ public class OptionsFileConverterUtil {
                     Cell currentCell = cellIterator.next();
                     switch(currentCell.getCellType()) {
                         case STRING:
-                            optionsList.add(HtmlUtils.htmlEscape(currentCell.getStringCellValue(), "UTF-8"));
+                            if (StringUtils.isNotBlank(currentCell.getStringCellValue())) {
+                                optionsList.add(HtmlUtils.htmlEscape(currentCell.getStringCellValue(), "UTF-8"));
+                            }
                             break;
                         case NUMERIC:
                              optionsList.add(String.valueOf(currentCell.getNumericCellValue()));
