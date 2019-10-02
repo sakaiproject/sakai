@@ -80,9 +80,7 @@
  	}
  	
  	#prefs_pvt_form{
- 		&\:pvtmsgs{
- 			max-width: 1200px;
- 			
+ 		&\:pvtmsgs, &\:threaded_pvtmsgs{
  			th{
  				min-width: 32px;
  			}

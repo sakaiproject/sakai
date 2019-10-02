@@ -633,6 +633,11 @@
             <property-name>toolManager</property-name>
             <value>#{Components["org.sakaiproject.tool.api.ToolManager"]}</value>
         </managed-property>
+        <managed-property>
+            <description>Authz Group Service</description>
+            <property-name>authzGroupService</property-name>
+            <value>#{Components["org.sakaiproject.authz.api.AuthzGroupService"]}</value>
+        </managed-property>
     </managed-bean>
     
     <!-- =================== Synoptic Managed Bean ============== -->

@@ -123,12 +123,20 @@
                             <h:outputText value="#{msgs.pvt_authby}"/>
                         </th>
                         <td>
-                            <h:outputText value="#{PrivateMessagesTool.detailMsg.msg.author}" />  
-                            <h:outputText value="#{msgs.pvt_openb}" />  
+                            <h:outputText value="#{PrivateMessagesTool.detailMsg.msg.author}" />
+                            <h:outputText value=" #{msgs.pvt_openb}" />
                             <h:outputText value="#{PrivateMessagesTool.detailMsg.msg.created}" >
-                                <f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{PrivateMessagesTool.userTimeZone}" locale="#{PrivateMessagesTool.userLocale}"/>  
+                                <f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{PrivateMessagesTool.userTimeZone}" locale="#{PrivateMessagesTool.userLocale}"/>
                             </h:outputText>
-                            <h:outputText value=" #{msgs.pvt_closeb}" /> 
+                            <h:outputText value=" #{msgs.pvt_closeb}" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <h:outputText value="#{msgs.pvt_group}"/>
+                        </th>
+                        <td>
+                            <h:outputText value="#{PrivateMessagesTool.senderRoleAndGroups} "/>
                         </td>
                     </tr>
                     <tr>
