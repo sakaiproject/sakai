@@ -192,7 +192,7 @@ public abstract class ScormContentServiceImpl implements ScormContentService
 		List<ContentPackage> allPackages = contentPackageDao().find( context );
 		List<ContentPackage> releasedPackages = new LinkedList<>();
 
-		if( lms().canModify( siteID ) )
+		if( lms().canModify( context ) )
 		{
 			return allPackages;
 		}
