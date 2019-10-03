@@ -71,9 +71,9 @@ public class PackageListPage extends ConsoleBasePage
 
 	public PackageListPage(PageParameters params)
 	{
-		List<ContentPackage> contentPackages = contentService.getContentPackages();
-
 		final String context = lms.currentContext();
+		List<ContentPackage> contentPackages = contentService.getContentPackages(context);
+
 		final boolean canConfigure = lms.canConfigure(context);
 		final boolean canGrade = lms.canGrade(context);
 		final boolean canViewResults = lms.canViewResults(context);
