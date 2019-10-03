@@ -8,25 +8,27 @@
 <link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="/library/js/jquery/featherlight/0.4.0/featherlight.min.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="/library/js/jquery/featherlight/0.4.0/featherlight.min.js" type="text/javascript" charset="utf-8"></script><script type="text/javascript" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    includeWebjarLibrary('featherlight');
     $(document).ready(function(){
-      $("a[rel^='featherlight']").featherlight({
+      $("a.screensteps-image-zoom").featherlight({
         type: { image:true },
-    closeOnClick: 'anywhere'
+        closeOnClick: 'anywhere'
       }); 
     });   
-  </script>
+</script>
 </head>
 <body>
-  <div id="wrapper"><div id="article-content">
-<div id="article-header"><h1 class="article-title">How do I publish an assessment (i.e. test or quiz)? </h1></div>
-<div id="article-description">  <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+  <div><div>
+<div><h1 class="article-title">How do I publish an assessment (i.e. test or quiz)? </h1></div>
+<div>  <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
   <p>After you have created an assessment, you must publish it before students can view and submit it.  </p>
 </div>
  
-    <div class="step screensteps-section screensteps-depth-1" id="go-to-tests-quizzes">
-    <h2 id="go-to-tests-quizzes" class="step-title screensteps-heading">Go to Tests &amp; Quizzes.</h2>
+    <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Go to Tests &amp; Quizzes.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/193/139/original/aa7b20fc-57f4-444c-bb59-2f250bad2249.png" alt="" height="124" width="201">
 </div>
@@ -38,19 +40,19 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="publish-with-current-settings">
-    <h2 id="publish-with-current-settings" class="step-title screensteps-heading">Publish with current settings.</h2>
+    <h2 class="step-title screensteps-heading">Publish with current settings.</h2>
       <div class="step-instructions screensteps-textblock">
   <p>If you are sure that the default or current settings are appropriate, you can publish from either the action menu or the edit assessment screen.</p>
 </div>
  
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/002/193/125/original/b635ccf6-935a-4523-ba6a-62c762e590cf.png" class="screensteps-image-zoom">
+    <a href="https://media.screensteps.com/image_assets/assets/002/193/125/original/b635ccf6-935a-4523-ba6a-62c762e590cf.png" class="screensteps-image-zoom">
       <img src="https://media.screensteps.com/image_assets/assets/002/193/125/medium/b635ccf6-935a-4523-ba6a-62c762e590cf.png" alt="" height="425" width="855">
     </a>
 </div>
  
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/002/193/127/original/28b489b4-00e8-46d2-85e6-d7f302e4ef39.png" class="screensteps-image-zoom">
+    <a href="https://media.screensteps.com/image_assets/assets/002/193/127/original/28b489b4-00e8-46d2-85e6-d7f302e4ef39.png" class="screensteps-image-zoom">
       <img src="https://media.screensteps.com/image_assets/assets/002/193/127/medium/28b489b4-00e8-46d2-85e6-d7f302e4ef39.png" alt="" height="517" width="855">
     </a>
 </div>
@@ -58,9 +60,9 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="edit-the-settings-and-then-publish">
-    <h2 id="edit-the-settings-and-then-publish" class="step-title screensteps-heading">Edit the settings and then publish.</h2>
+    <h2 class="step-title screensteps-heading">Edit the settings and then publish.</h2>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/002/193/133/original/99a11a13-9b4b-47bc-b60f-4cc8e4084a9b.png" class="screensteps-image-zoom">
+    <a href="https://media.screensteps.com/image_assets/assets/002/193/133/original/99a11a13-9b4b-47bc-b60f-4cc8e4084a9b.png" class="screensteps-image-zoom">
       <img src="https://media.screensteps.com/image_assets/assets/002/193/133/medium/99a11a13-9b4b-47bc-b60f-4cc8e4084a9b.png" alt="" height="426" width="855">
     </a>
 </div>
@@ -70,9 +72,9 @@
 </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="alternately-you-can-access-assessment-settings-from-the-edit-assessment-screen">
-    <h3 id="alternately-you-can-access-assessment-settings-from-the-edit-assessment-screen" class="step-title screensteps-heading">Alternately, you can access assessment settings from the edit assessment screen.</h3>
+    <h3 class="step-title screensteps-heading">Alternately, you can access assessment settings from the edit assessment screen.</h3>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/002/193/131/original/fa5d2050-b955-49ef-be3b-51b34d2036ef.png" class="screensteps-image-zoom">
+    <a href="https://media.screensteps.com/image_assets/assets/002/193/131/original/fa5d2050-b955-49ef-be3b-51b34d2036ef.png" class="screensteps-image-zoom">
       <img src="https://media.screensteps.com/image_assets/assets/002/193/131/medium/fa5d2050-b955-49ef-be3b-51b34d2036ef.png" alt="" height="506" width="855">
     </a>
 </div>
@@ -84,16 +86,16 @@
   </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="adjust-the-settings-as-desired">
-    <h3 id="adjust-the-settings-as-desired" class="step-title screensteps-heading">Adjust the settings as desired.</h3>
+    <h3 class="step-title screensteps-heading">Adjust the settings as desired.</h3>
       <div class="step-instructions screensteps-textblock">
-  <p>See the article <a rel="nofollow" href="../../81161/l/954723-how-do-i-view-and-modify-the-settings-of-an-assessment" target="_blank">How do I view and modify the settings of an assessment?</a>  </p>
+  <p>See the article <a href="../../81161/l/954723-how-do-i-view-and-modify-the-settings-of-an-assessment" target="_blank">How do I view and modify the settings of an assessment?</a>  </p>
 <p><em>Note: Settings are typically adjusted fully on the Draft before publishing.</em></p>
 </div>
  
   </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="save-settings-and-publish">
-    <h3 id="save-settings-and-publish" class="step-title screensteps-heading">Save settings and publish.</h3>
+    <h3 class="step-title screensteps-heading">Save settings and publish.</h3>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/193/129/original/4a0d2dcb-7f24-4e9b-9604-6ee894d18649.png" alt="" height="53" width="331">
 </div>
@@ -108,7 +110,7 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="review-and-confirm-publishing-of-assessment">
-    <h2 id="review-and-confirm-publishing-of-assessment" class="step-title screensteps-heading">Review and confirm publishing of assessment.</h2>
+    <h2 class="step-title screensteps-heading">Review and confirm publishing of assessment.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/193/135/original/02f0bd67-cc74-4fdc-bd25-50a73815a176.png" alt="" height="379" width="750">
 </div>
@@ -123,9 +125,9 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="view-published-assessment">
-    <h2 id="view-published-assessment" class="step-title screensteps-heading">View published assessment.</h2>
+    <h2 class="step-title screensteps-heading">View published assessment.</h2>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/002/193/137/original/751fa4af-0392-4fe2-973c-e060f09ce333.png" class="screensteps-image-zoom">
+    <a href="https://media.screensteps.com/image_assets/assets/002/193/137/original/751fa4af-0392-4fe2-973c-e060f09ce333.png" class="screensteps-image-zoom">
       <img src="https://media.screensteps.com/image_assets/assets/002/193/137/medium/751fa4af-0392-4fe2-973c-e060f09ce333.png" alt="" height="381" width="855">
     </a>
 </div>

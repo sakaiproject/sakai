@@ -8,25 +8,27 @@
 <link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="/library/js/jquery/featherlight/0.4.0/featherlight.min.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="/library/js/jquery/featherlight/0.4.0/featherlight.min.js" type="text/javascript" charset="utf-8"></script><script type="text/javascript" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    includeWebjarLibrary('featherlight');
     $(document).ready(function(){
-      $("a[rel^='featherlight']").featherlight({
+      $("a.screensteps-image-zoom").featherlight({
         type: { image:true },
-    closeOnClick: 'anywhere'
+        closeOnClick: 'anywhere'
       }); 
     });   
-  </script>
+</script>
 </head>
 <body>
-  <div id="wrapper"><div id="article-content">
-<div id="article-header"><h1 class="article-title">How do I add items to the Calendar?</h1></div>
-<div id="article-description">  <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+  <div><div>
+<div><h1 class="article-title">How do I add items to the Calendar?</h1></div>
+<div>  <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
   <p>The Calendar tool allows instructors to post items to the class calendar. You may use the Calendar to post reminders about class activities and due dates.  This lesson will show you how to add items to your class calendar.</p>
 </div>
  
-    <div class="step screensteps-section screensteps-depth-1" id="go-to-calendar">
-    <h2 id="go-to-calendar" class="step-title screensteps-heading">Go to Calendar.</h2>
+    <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Go to Calendar.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/152/504/original/2a75efed-9a1d-40d9-94e5-ced8c68e6974.png" alt="" height="122" width="198">
 </div>
@@ -38,9 +40,9 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="click-add-event">
-    <h2 id="click-add-event" class="step-title screensteps-heading">Click Add Event.</h2>
+    <h2 class="step-title screensteps-heading">Click Add Event.</h2>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/001/152/513/original/2a36f547-8efa-4092-aff1-f1bc41606a24.png" class="screensteps-image-zoom">
+    <a href="https://media.screensteps.com/image_assets/assets/001/152/513/original/2a36f547-8efa-4092-aff1-f1bc41606a24.png" class="screensteps-image-zoom">
       <img src="https://media.screensteps.com/image_assets/assets/001/152/513/medium/2a36f547-8efa-4092-aff1-f1bc41606a24.png" alt="" height="513" width="855">
     </a>
 </div>
@@ -54,9 +56,9 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="add-event-content">
-    <h2 id="add-event-content" class="step-title screensteps-heading">Add event content.</h2>
+    <h2 class="step-title screensteps-heading">Add event content.</h2>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/001/152/506/original/1c7f446f-8f56-400d-a4a6-581b8cc5d512.png" class="screensteps-image-zoom">
+    <a href="https://media.screensteps.com/image_assets/assets/001/152/506/original/1c7f446f-8f56-400d-a4a6-581b8cc5d512.png" class="screensteps-image-zoom">
       <img src="https://media.screensteps.com/image_assets/assets/001/152/506/medium/1c7f446f-8f56-400d-a4a6-581b8cc5d512.png" alt="" height="629" width="855">
     </a>
 </div>
@@ -79,7 +81,7 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="display-options">
-    <h2 id="display-options" class="step-title screensteps-heading">Display Options.</h2>
+    <h2 class="step-title screensteps-heading">Display Options.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/152/501/original/afbc4a50-819b-4351-9629-5994226ed55b.png" alt="" height="58" width="270">
 </div>
@@ -90,7 +92,7 @@
 </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="display-to-selected-groups">
-    <h3 id="display-to-selected-groups" class="step-title screensteps-heading">Display to selected groups.</h3>
+    <h3 class="step-title screensteps-heading">Display to selected groups.</h3>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/152/510/original/1de7274d-50c6-431e-b8a7-480fb73d148e.png" alt="" height="176" width="800">
 </div>
@@ -105,7 +107,7 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="recurring-events">
-    <h2 id="recurring-events" class="step-title screensteps-heading">Recurring events.</h2>
+    <h2 class="step-title screensteps-heading">Recurring events.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/152/493/original/b061dff3-19aa-4bfc-a1b4-8694a8e25e19.png" alt="" height="90" width="307">
 </div>
@@ -116,7 +118,7 @@
 </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="select-event-frequency">
-    <h3 id="select-event-frequency" class="step-title screensteps-heading">Select event frequency.</h3>
+    <h3 class="step-title screensteps-heading">Select event frequency.</h3>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/152/499/original/18e2aec2-fc69-4ccf-af77-418ae1baec29.png" alt="" height="347" width="475">
 </div>
@@ -128,7 +130,7 @@
   </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="specify-interval-and-end-date">
-    <h3 id="specify-interval-and-end-date" class="step-title screensteps-heading">Specify interval and end date.</h3>
+    <h3 class="step-title screensteps-heading">Specify interval and end date.</h3>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/152/491/original/83842a00-85ca-4a40-b6b6-49f9868ba4a9.png" alt="" height="449" width="569">
 </div>
@@ -145,7 +147,7 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="event-type">
-    <h2 id="event-type" class="step-title screensteps-heading">Event type.</h2>
+    <h2 class="step-title screensteps-heading">Event type.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/152/497/original/6bf71411-d367-42ac-91d9-caa4bbcfc1dc.png" alt="" height="385" width="391">
 </div>
@@ -155,9 +157,9 @@
 </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="selecting-a-different-event-type">
-    <h3 id="selecting-a-different-event-type" class="step-title screensteps-heading">Selecting a different event type.</h3>
+    <h3 class="step-title screensteps-heading">Selecting a different event type.</h3>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/001/152/508/original/c06c37cf-da88-4b0d-9a6d-86bf0da8cfcc.png" class="screensteps-image-zoom">
+    <a href="https://media.screensteps.com/image_assets/assets/001/152/508/original/c06c37cf-da88-4b0d-9a6d-86bf0da8cfcc.png" class="screensteps-image-zoom">
       <img src="https://media.screensteps.com/image_assets/assets/001/152/508/medium/c06c37cf-da88-4b0d-9a6d-86bf0da8cfcc.png" alt="" height="220" width="855">
     </a>
 </div>
@@ -172,7 +174,7 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="event-location">
-    <h2 id="event-location" class="step-title screensteps-heading">Event location.</h2>
+    <h2 class="step-title screensteps-heading">Event location.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/152/511/original/8851f61e-6006-42f6-be5d-ad3417b1d528.png" alt="" height="66" width="607">
 </div>
@@ -185,7 +187,7 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="file-attachments">
-    <h2 id="file-attachments" class="step-title screensteps-heading">File attachments</h2>
+    <h2 class="step-title screensteps-heading">File attachments</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/152/495/original/2a797941-bdca-4d3a-b858-d794a8af5e3f.png" alt="" height="180" width="299">
 </div>
@@ -199,7 +201,7 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="save-your-event">
-    <h2 id="save-your-event" class="step-title screensteps-heading">Save your event.</h2>
+    <h2 class="step-title screensteps-heading">Save your event.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/152/502/original/a343a5eb-8f8b-4e7f-acbf-e80a2a62d62b.png" alt="" height="51" width="179">
 </div>

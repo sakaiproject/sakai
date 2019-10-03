@@ -8,21 +8,23 @@
 <link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="/library/js/jquery/featherlight/0.4.0/featherlight.min.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="/library/js/jquery/featherlight/0.4.0/featherlight.min.js" type="text/javascript" charset="utf-8"></script><script type="text/javascript" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    includeWebjarLibrary('featherlight');
     $(document).ready(function(){
-      $("a[rel^='featherlight']").featherlight({
+      $("a.screensteps-image-zoom").featherlight({
         type: { image:true },
-    closeOnClick: 'anywhere'
+        closeOnClick: 'anywhere'
       }); 
     });   
-  </script>
+</script>
 </head>
 <body>
-  <div id="wrapper"><div id="article-content">
-<div id="article-header"><h1 class="article-title">How do I search for and add connections?</h1></div>
-<div id="article-description">    <div class="step screensteps-section screensteps-depth-1" id="go-to-profile">
-    <h2 id="go-to-profile" class="step-title screensteps-heading">Go to Profile.</h2>
+  <div><div>
+<div><h1 class="article-title">How do I search for and add connections?</h1></div>
+<div>    <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Go to Profile.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/189/570/original/e91d5791-86a9-41d1-a95c-f34bc0f92e93.png" alt="Go to Profile." height="124" width="196">
 </div>
@@ -34,13 +36,13 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="click-search">
-    <h2 id="click-search" class="step-title screensteps-heading">Click Search.</h2>
+    <h2 class="step-title screensteps-heading">Click Search.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/189/559/original/fb1d01fa-c449-467e-bcc7-96fc1c8ec696.png" alt="Click Search." height="94" width="498">
 </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="or-you-can-also-go-to-connections-to-view-search-from-there">
-    <h3 id="or-you-can-also-go-to-connections-to-view-search-from-there" class="step-title screensteps-heading">Or, you can also go to Connections to view/search from there.</h3>
+    <h3 class="step-title screensteps-heading">Or, you can also go to Connections to view/search from there.</h3>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/189/561/original/4ac73f46-e6f9-4999-ad89-3502d1f35e29.png" alt="Or, you can also go to Connections to view/search from there." height="198" width="490">
 </div>
@@ -57,9 +59,9 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="enter-your-search-terms">
-    <h2 id="enter-your-search-terms" class="step-title screensteps-heading">Enter your search terms.</h2>
+    <h2 class="step-title screensteps-heading">Enter your search terms.</h2>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/001/189/563/original/d6a035c4-5f57-47cc-823e-04eeca7f1e6d.png" class="screensteps-image-zoom">
+    <a href="https://media.screensteps.com/image_assets/assets/001/189/563/original/d6a035c4-5f57-47cc-823e-04eeca7f1e6d.png" class="screensteps-image-zoom">
       <img src="https://media.screensteps.com/image_assets/assets/001/189/563/medium/d6a035c4-5f57-47cc-823e-04eeca7f1e6d.png" alt="Enter your search terms." height="630" width="855">
     </a>
 </div>
@@ -72,7 +74,7 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="view-search-results">
-    <h2 id="view-search-results" class="step-title screensteps-heading">View search results.</h2>
+    <h2 class="step-title screensteps-heading">View search results.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/189/569/original/3398c94e-19ff-4ced-a792-5c01f3827e14.png" alt="View search results." height="256" width="545">
 </div>
@@ -84,7 +86,7 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="add-connections">
-    <h2 id="add-connections" class="step-title screensteps-heading">Add connections.</h2>
+    <h2 class="step-title screensteps-heading">Add connections.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/189/567/original/9aa4cfc4-2d0c-4a6e-9054-ab0d560d889c.png" alt="Add connections." height="183" width="537">
 </div>
@@ -94,7 +96,7 @@
 </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="connection-request-confirmation">
-    <h3 id="connection-request-confirmation" class="step-title screensteps-heading">Connection request confirmation.</h3>
+    <h3 class="step-title screensteps-heading">Connection request confirmation.</h3>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/189/565/original/807b4f19-cc21-4572-98cd-f77f675686fe.png" alt="Connection request confirmation." height="193" width="499">
 </div>
@@ -106,7 +108,7 @@
   </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="pending-requests">
-    <h3 id="pending-requests" class="step-title screensteps-heading">Pending requests.</h3>
+    <h3 class="step-title screensteps-heading">Pending requests.</h3>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/189/572/original/8d67ac6f-5ba4-438c-a033-c4fb97077db2.png" alt="Pending requests." height="182" width="529">
 </div>

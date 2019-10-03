@@ -8,20 +8,22 @@
 <link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="/library/js/jquery/featherlight/0.4.0/featherlight.min.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="/library/js/jquery/featherlight/0.4.0/featherlight.min.js" type="text/javascript" charset="utf-8"></script><script type="text/javascript" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    includeWebjarLibrary('featherlight');
     $(document).ready(function(){
-      $("a[rel^='featherlight']").featherlight({
+      $("a.screensteps-image-zoom").featherlight({
         type: { image:true },
-    closeOnClick: 'anywhere'
+        closeOnClick: 'anywhere'
       }); 
     });   
-  </script>
+</script>
 </head>
 <body>
-  <div id="wrapper"><div id="article-content">
-<div id="article-header"><h1 class="article-title">What is Gradebook?</h1></div>
-<div id="article-description">  <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+  <div><div>
+<div><h1 class="article-title">What is Gradebook?</h1></div>
+<div>  <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
   <p>The <em>Gradebook</em> allows instructors to:</p>
 <ul>
 <li>Enter grades and comments in an easy-to-use spreadsheet view.</li>
@@ -45,15 +47,15 @@
 </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="to-access-this-tool-select-gradebook-from-the-tool-menu-of-your-site">
-    <h2 id="to-access-this-tool-select-gradebook-from-the-tool-menu-of-your-site" class="step-title screensteps-heading">To access this tool, select Gradebook from the Tool Menu of your site.</h2>
+    <h2 class="step-title screensteps-heading">To access this tool, select Gradebook from the Tool Menu of your site.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/310/670/original/cc66d50a-67e1-44f6-a6fa-3dde1e0a2989.png" alt="" height="143" width="200">
 </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="gradebook_tool_main_page_instructor_view">
-    <h3 id="gradebook_tool_main_page_instructor_view" class="step-title screensteps-heading">Gradebook tool main page (Instructor View)</h3>
+    <h3 class="step-title screensteps-heading">Gradebook tool main page (Instructor View)</h3>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/002/265/293/original/a0826ae4-8b1b-45e4-85cf-65c919351422.png" class="screensteps-image-zoom">
+    <a href="https://media.screensteps.com/image_assets/assets/002/265/293/original/a0826ae4-8b1b-45e4-85cf-65c919351422.png" class="screensteps-image-zoom">
       <img src="https://media.screensteps.com/image_assets/assets/002/265/293/medium/a0826ae4-8b1b-45e4-85cf-65c919351422.png" alt="" height="424" width="855">
     </a>
 </div>
@@ -97,9 +99,9 @@
   </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="gradebook_tool_main_page_student_view">
-    <h3 id="gradebook_tool_main_page_student_view" class="step-title screensteps-heading">Gradebook tool main page (Student View)</h3>
+    <h3 class="step-title screensteps-heading">Gradebook tool main page (Student View)</h3>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/002/265/295/original/460f2298-ba14-4d52-a146-c5e6722ed68f.png" class="screensteps-image-zoom">
+    <a href="https://media.screensteps.com/image_assets/assets/002/265/295/original/460f2298-ba14-4d52-a146-c5e6722ed68f.png" class="screensteps-image-zoom">
       <img src="https://media.screensteps.com/image_assets/assets/002/265/295/medium/460f2298-ba14-4d52-a146-c5e6722ed68f.png" alt="" height="274" width="855">
     </a>
 </div>

@@ -8,41 +8,43 @@
 <link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="/library/js/jquery/featherlight/0.4.0/featherlight.min.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="/library/js/jquery/featherlight/0.4.0/featherlight.min.js" type="text/javascript" charset="utf-8"></script><script type="text/javascript" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    includeWebjarLibrary('featherlight');
     $(document).ready(function(){
-      $("a[rel^='featherlight']").featherlight({
+      $("a.screensteps-image-zoom").featherlight({
         type: { image:true },
-    closeOnClick: 'anywhere'
+        closeOnClick: 'anywhere'
       }); 
     });   
-  </script>
+</script>
 </head>
 <body>
-  <div id="wrapper"><div id="article-content">
-<div id="article-header"><h1 class="article-title">How do I set up a Gradebook with categories for organization and/or dropping grades?</h1></div>
-<div id="article-description">  <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+  <div><div>
+<div><h1 class="article-title">How do I set up a Gradebook with categories for organization and/or dropping grades?</h1></div>
+<div>  <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
   <p>In this scenario, you are setting up a gradebook with categories but no weighting. It provides a straightforward calculation of total points earned in the course. However, the addition of categories allows you to use the Group by Category option to organize the visual layout of your gradebook items. In addition, you have the option to drop grades within categories if desired.  </p>
 </div>
  
-    <div class="step screensteps-section screensteps-depth-1" id="go-to-gradebook">
-    <h2 id="go-to-gradebook" class="step-title screensteps-heading">Go to Gradebook.</h2>
+    <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Go to Gradebook.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/314/716/original/85760e71-8c92-4f76-b687-dd4cbe5aa2e8.png" alt="Go to Gradebook." height="125" width="200">
 </div>
  
   </div>
  
-    <div class="step screensteps-section screensteps-depth-1" id="click-the-settings-tab">
-    <h2 id="click-the-settings-tab" class="step-title screensteps-heading">Click the Settings tab.</h2>
+    <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Click the Settings tab.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/314/711/original/c4de6132-7d95-4423-8b09-5df4eaa6bc6c.png" alt="Click the Settings tab." height="205" width="420">
 </div>
  
   </div>
  
-    <div class="step screensteps-section screensteps-depth-1" id="click-to-expand-the-categories-and-weighting-section">
-    <h2 id="click-to-expand-the-categories-and-weighting-section" class="step-title screensteps-heading">Click to expand the Categories and Weighting section.</h2>
+    <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Click to expand the Categories and Weighting section.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/314/718/original/f9e10ad2-d48a-4cb5-8fb6-a71b128d9e34.png" alt="Click to expand the Categories and Weighting section." height="366" width="400">
 </div>
@@ -50,9 +52,9 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="select-the-categories-only-radio-button">
-    <h2 id="select-the-categories-only-radio-button" class="step-title screensteps-heading">Select the Categories only radio button.</h2>
+    <h2 class="step-title screensteps-heading">Select the Categories only radio button.</h2>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/001/314/732/original/e21a770f-98e8-4f11-9c1a-27ea64e18afb.png" class="screensteps-image-zoom">
+    <a href="https://media.screensteps.com/image_assets/assets/001/314/732/original/e21a770f-98e8-4f11-9c1a-27ea64e18afb.png" class="screensteps-image-zoom">
       <img src="https://media.screensteps.com/image_assets/assets/001/314/732/medium/e21a770f-98e8-4f11-9c1a-27ea64e18afb.png" alt="Select the Categories only radio button." height="680" width="855">
     </a>
 </div>
@@ -64,9 +66,9 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="enter-categories">
-    <h2 id="enter-categories" class="step-title screensteps-heading">Enter categories.</h2>
+    <h2 class="step-title screensteps-heading">Enter categories.</h2>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/001/314/720/original/4c70ddb4-ecac-4eba-be31-fc5800ba2dcc.png" class="screensteps-image-zoom">
+    <a href="https://media.screensteps.com/image_assets/assets/001/314/720/original/4c70ddb4-ecac-4eba-be31-fc5800ba2dcc.png" class="screensteps-image-zoom">
       <img src="https://media.screensteps.com/image_assets/assets/001/314/720/medium/4c70ddb4-ecac-4eba-be31-fc5800ba2dcc.png" alt="Enter categories." height="611" width="855">
     </a>
 </div>
@@ -81,9 +83,9 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="enable-drop-highest-drop-lowest-and-or-keep-highest-optional">
-    <h2 id="enable-drop-highest-drop-lowest-and-or-keep-highest-optional" class="step-title screensteps-heading">Enable drop highest, drop lowest, and/or keep highest. (Optional)</h2>
+    <h2 class="step-title screensteps-heading">Enable drop highest, drop lowest, and/or keep highest. (Optional)</h2>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/001/314/708/original/6654608c-c231-4c72-9f7f-1553969dd599.png" class="screensteps-image-zoom">
+    <a href="https://media.screensteps.com/image_assets/assets/001/314/708/original/6654608c-c231-4c72-9f7f-1553969dd599.png" class="screensteps-image-zoom">
       <img src="https://media.screensteps.com/image_assets/assets/001/314/708/medium/6654608c-c231-4c72-9f7f-1553969dd599.png" alt="(Optional) Enable drop highest, drop lowest, and/or keep highest." height="588" width="855">
     </a>
 </div>
@@ -94,9 +96,9 @@
 </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="indicate-the-number-of-items-to-be-dropped-or-kept-within-each-category">
-    <h3 id="indicate-the-number-of-items-to-be-dropped-or-kept-within-each-category" class="step-title screensteps-heading">Indicate the number of items to be dropped or kept within each category.</h3>
+    <h3 class="step-title screensteps-heading">Indicate the number of items to be dropped or kept within each category.</h3>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/001/314/713/original/8728ac3a-4f01-4f62-961b-0533386fcbb6.png" class="screensteps-image-zoom">
+    <a href="https://media.screensteps.com/image_assets/assets/001/314/713/original/8728ac3a-4f01-4f62-961b-0533386fcbb6.png" class="screensteps-image-zoom">
       <img src="https://media.screensteps.com/image_assets/assets/001/314/713/medium/8728ac3a-4f01-4f62-961b-0533386fcbb6.png" alt="Indicate the number of items to be dropped or kept within each category." height="596" width="855">
     </a>
 </div>
@@ -106,15 +108,15 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="click-save-changes">
-    <h2 id="click-save-changes" class="step-title screensteps-heading">Click Save Changes.</h2>
+    <h2 class="step-title screensteps-heading">Click Save Changes.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/314/725/original/6a49250f-5365-4b48-bf79-fb515dc5c6ad.png" alt="Click Save Changes." height="56" width="201">
 </div>
  
   </div>
  
-    <div class="step screensteps-section screensteps-depth-1" id="click-the-grades-tab">
-    <h2 id="click-the-grades-tab" class="step-title screensteps-heading">Click the Grades tab.</h2>
+    <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Click the Grades tab.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/314/727/original/28f65e3e-764d-4f9c-aeaf-9f284d448c38.png" alt="Click the Grades tab." height="188" width="370">
 </div>
@@ -122,7 +124,7 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="click-add-gradebook-item-to-create-items-and-associate-them-with-the-appropriate-categories">
-    <h2 id="click-add-gradebook-item-to-create-items-and-associate-them-with-the-appropriate-categories" class="step-title screensteps-heading">Click Add Gradebook Item to create items and associate them with the appropriate categories.</h2>
+    <h2 class="step-title screensteps-heading">Click Add Gradebook Item to create items and associate them with the appropriate categories.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/314/723/original/dc81c171-b8f5-44e0-af84-56e4ea300544.png" alt="Click Add Gradebook Item to create items and associate them with the appropriate categories." height="600" width="593">
 </div>
@@ -140,10 +142,10 @@
  
   </div>
  
-    <div class="step screensteps-section screensteps-depth-1" id="to-test-our-scenario">
-    <h2 id="to-test-our-scenario" class="step-title screensteps-heading">To test our scenario:</h2>
+    <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">To test our scenario:</h2>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/001/314/729/original/0aee4f6f-ef34-4e12-99d8-6689efdef610.png" class="screensteps-image-zoom">
+    <a href="https://media.screensteps.com/image_assets/assets/001/314/729/original/0aee4f6f-ef34-4e12-99d8-6689efdef610.png" class="screensteps-image-zoom">
       <img src="https://media.screensteps.com/image_assets/assets/001/314/729/medium/0aee4f6f-ef34-4e12-99d8-6689efdef610.png" alt="To test our scenario:" height="692" width="855">
     </a>
 </div>

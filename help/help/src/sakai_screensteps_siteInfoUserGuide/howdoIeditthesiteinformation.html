@@ -8,21 +8,23 @@
 <link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="/library/js/jquery/featherlight/0.4.0/featherlight.min.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="/library/js/jquery/featherlight/0.4.0/featherlight.min.js" type="text/javascript" charset="utf-8"></script><script type="text/javascript" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    includeWebjarLibrary('featherlight');
     $(document).ready(function(){
-      $("a[rel^='featherlight']").featherlight({
+      $("a.screensteps-image-zoom").featherlight({
         type: { image:true },
-    closeOnClick: 'anywhere'
+        closeOnClick: 'anywhere'
       }); 
     });   
-  </script>
+</script>
 </head>
 <body>
-  <div id="wrapper"><div id="article-content">
-<div id="article-header"><h1 class="article-title">How do I edit the site information?</h1></div>
-<div id="article-description">    <div class="step screensteps-section screensteps-depth-1" id="go-to-site-info">
-    <h2 id="go-to-site-info" class="step-title screensteps-heading">Go to Site Info.</h2>
+  <div><div>
+<div><h1 class="article-title">How do I edit the site information?</h1></div>
+<div>    <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Go to Site Info.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/330/268/original/d2240452-6356-4fc0-b7db-0eb6a78b6dc4.png" alt="" height="129" width="193">
 </div>
@@ -34,7 +36,7 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="click-edit-site-information">
-    <h2 id="click-edit-site-information" class="step-title screensteps-heading">Select Edit Site Information.</h2>
+    <h2 class="step-title screensteps-heading">Select Edit Site Information.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/333/861/original/5362b983-5acf-4d43-a6b3-89dd7fbdc853.png" alt="" height="124" width="825">
 </div>
@@ -46,15 +48,15 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="view-site-title-and-term">
-    <h2 id="view-site-title-and-term" class="step-title screensteps-heading">View Site Title and Term</h2>
+    <h2 class="step-title screensteps-heading">View Site Title and Term</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/323/075/original/664ff59b-254a-4402-bbb3-7c854450d735.png" alt="" height="83" width="437">
 </div>
  
   </div>
  
-    <div class="step screensteps-section screensteps-depth-1" id="select-site-language">
-    <h2 id="select-site-language" class="step-title screensteps-heading">Select site language.</h2>
+    <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Select site language.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/323/064/original/635aec5d-31a2-456b-b080-4388a72ba5e8.png" alt="" height="219" width="601">
 </div>
@@ -66,8 +68,8 @@
  
   </div>
  
-    <div class="step screensteps-section screensteps-depth-1" id="enter-a-site-description">
-    <h2 id="enter-a-site-description" class="step-title screensteps-heading">Enter a site description.</h2>
+    <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Enter a site description.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/323/065/original/1bd8095d-675c-4232-abc4-58ba3471c92c.png" alt="" height="388" width="745">
 </div>
@@ -78,8 +80,8 @@
  
   </div>
  
-    <div class="step screensteps-section screensteps-depth-1" id="enter-a-short-description">
-    <h2 id="enter-a-short-description" class="step-title screensteps-heading">Enter a short description.</h2>
+    <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Enter a short description.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/323/069/original/54726918-5cab-4728-b201-4db1c2a68a62.png" alt="" height="96" width="515">
 </div>
@@ -90,8 +92,8 @@
  
   </div>
  
-    <div class="step screensteps-section screensteps-depth-1" id="select-a-theme">
-    <h2 id="select-a-theme" class="step-title screensteps-heading">(Optional) Set a site Icon.</h2>
+    <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">(Optional) Set a site Icon.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/333/863/original/ac016204-7f36-44f3-a1d4-ae99fb885b57.png" alt="" height="56" width="460">
 </div>
@@ -102,8 +104,8 @@
  
   </div>
  
-    <div class="step screensteps-section screensteps-depth-1" id="enter-the-site-contact-information">
-    <h2 id="enter-the-site-contact-information" class="step-title screensteps-heading">Enter the site contact information.</h2>
+    <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Enter the site contact information.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/323/071/original/bfa678da-b445-4f46-a1bf-6995e1efd99a.png" alt="" height="93" width="345">
 </div>
@@ -114,8 +116,8 @@
  
   </div>
  
-    <div class="step screensteps-section screensteps-depth-1" id="click-continue">
-    <h2 id="click-continue" class="step-title screensteps-heading">Click Continue.</h2>
+    <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Click Continue.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/323/060/original/3679b763-294f-494c-b22e-0b32f2175202.png" alt="" height="43" width="153">
 </div>

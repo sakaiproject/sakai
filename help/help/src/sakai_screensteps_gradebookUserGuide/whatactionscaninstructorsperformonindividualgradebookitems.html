@@ -8,21 +8,23 @@
 <link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="/library/js/jquery/featherlight/0.4.0/featherlight.min.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="/library/js/jquery/featherlight/0.4.0/featherlight.min.js" type="text/javascript" charset="utf-8"></script><script type="text/javascript" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    includeWebjarLibrary('featherlight');
     $(document).ready(function(){
-      $("a[rel^='featherlight']").featherlight({
+      $("a.screensteps-image-zoom").featherlight({
         type: { image:true },
-    closeOnClick: 'anywhere'
+        closeOnClick: 'anywhere'
       }); 
     });   
-  </script>
+</script>
 </head>
 <body>
-  <div id="wrapper"><div id="article-content">
-<div id="article-header"><h1 class="article-title">What actions can instructors perform on individual gradebook items?</h1></div>
-<div id="article-description">    <div class="step screensteps-section screensteps-depth-1" id="gradebook-item-actions">
-    <h2 id="gradebook-item-actions" class="step-title screensteps-heading">Gradebook item actions.</h2>
+  <div><div>
+<div><h1 class="article-title">What actions can instructors perform on individual gradebook items?</h1></div>
+<div>    <div class="step screensteps-section screensteps-depth-1" id="gradebook-item-actions">
+    <h2 class="step-title screensteps-heading">Gradebook item actions.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/315/462/original/a96239f5-873c-49ff-9bf7-2fc9794f3e10.png" alt="" height="298" width="411">
 </div>
@@ -45,7 +47,7 @@
 </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="edit-item-details">
-    <h3 id="edit-item-details" class="step-title screensteps-heading">Edit Item Details</h3>
+    <h3 class="step-title screensteps-heading">Edit Item Details</h3>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/295/341/original/1d4c1332-9f47-4704-8d4e-b516c962ba73.png" alt="" height="631" width="491">
 </div>
@@ -58,7 +60,7 @@
   </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="view-grade-statistics">
-    <h3 id="view-grade-statistics" class="step-title screensteps-heading">View Grade Statistics.</h3>
+    <h3 class="step-title screensteps-heading">View Grade Statistics.</h3>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/295/343/original/6b89f2cc-91c5-4de1-a744-5e6ba4f409a3.png" alt="" height="421" width="472">
 </div>
@@ -70,7 +72,7 @@
   </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="move-left">
-    <h3 id="move-left" class="step-title screensteps-heading">Move Left.</h3>
+    <h3 class="step-title screensteps-heading">Move Left.</h3>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/315/476/original/7b503165-2bf7-4960-946d-ea67e1cda425.png" alt="" height="270" width="364">
 </div>
@@ -82,7 +84,7 @@
   </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="move-right">
-    <h3 id="move-right" class="step-title screensteps-heading">Move Right.</h3>
+    <h3 class="step-title screensteps-heading">Move Right.</h3>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/315/468/original/def07586-c535-4a7f-8f2e-bd98e4435c0e.png" alt="" height="276" width="361">
 </div>
@@ -94,7 +96,7 @@
   </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="hide-item">
-    <h3 id="hide-item" class="step-title screensteps-heading">Hide Item.</h3>
+    <h3 class="step-title screensteps-heading">Hide Item.</h3>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/315/507/original/aacc4b5b-84f9-4422-bd0d-4bfdaf1fc581.png" alt="" height="287" width="368">
 </div>
@@ -106,8 +108,8 @@
  
   </div>
  
-        <div class="step screensteps-section screensteps-depth-2" id="set-score-for-empty-cells">
-    <h3 id="set-score-for-empty-cells" class="step-title screensteps-heading">Set Score for Empty Cells.</h3>
+        <div class="step screensteps-section screensteps-depth-2">
+    <h3 class="step-title screensteps-heading">Set Score for Empty Cells.</h3>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/315/470/original/41b8709c-68af-42d3-9320-62ceba500984.png" alt="" height="336" width="587">
 </div>
@@ -119,7 +121,7 @@
   </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="delete-item">
-    <h3 id="delete-item" class="step-title screensteps-heading">Delete Item.</h3>
+    <h3 class="step-title screensteps-heading">Delete Item.</h3>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/315/472/original/def16d00-9164-4e7b-8fae-88c04e4c25a4.png" alt="" height="223" width="589">
 </div>

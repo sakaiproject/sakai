@@ -8,27 +8,29 @@
 <link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="/library/js/jquery/featherlight/0.4.0/featherlight.min.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="/library/js/jquery/featherlight/0.4.0/featherlight.min.js" type="text/javascript" charset="utf-8"></script><script type="text/javascript" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    includeWebjarLibrary('featherlight');
     $(document).ready(function(){
-      $("a[rel^='featherlight']").featherlight({
+      $("a.screensteps-image-zoom").featherlight({
         type: { image:true },
-    closeOnClick: 'anywhere'
+        closeOnClick: 'anywhere'
       }); 
     });   
-  </script>
+</script>
 </head>
 <body>
-  <div id="wrapper"><div id="article-content">
-<div id="article-header"><h1 class="article-title">How can I structure my document to make it more accessible?</h1></div>
-<div id="article-description">  <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+  <div><div>
+<div><h1 class="article-title">How can I structure my document to make it more accessible?</h1></div>
+<div>  <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
   <p><span style="color: rgb(33,34,36);">Organizing your page with helpful titles and headings creates an outline that helps your audience access the most important information more quickly and easily.</span></p>
 <p>Assistive technology users rely heavily on page titles and headings to navigate complex content. Structuring complex content will help all users parse it as well.  Headings allow users to jump from one part of a document to another, without using a mouse.  Screen readers will interpret headings for those who use them.</p>
 <p>Note that for this reason, you should not use headings for typographical effects.  If you need to increase or decrease the font size of large blocks of text, please use the <strong>Normal</strong> Paragraph Format and select a new <strong>Font size</strong> from the <strong>Size</strong> menu, or use <strong>Styles</strong>.</p>
 </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="use-unique-and-descriptive-page-titles">
-    <h2 id="use-unique-and-descriptive-page-titles" class="step-title screensteps-heading">Use Unique and Descriptive Page Titles</h2>
+    <h2 class="step-title screensteps-heading">Use Unique and Descriptive Page Titles</h2>
       <div class="step-instructions screensteps-textblock">
   <p>Assistive technology users rely on page titles. You will run across the need to specify this when you are creating a page in the <em>Lessons</em> tool or an HTML page in the <em>Resources</em> tool. The title of the new document will be the same as the name of the item as it shows on the left-hand tool menu or the list in <em>Resources</em>.</p>
 </div>
@@ -36,7 +38,7 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="do-not-use-color-or-spatial-position-to-convey-information">
-    <h2 id="do-not-use-color-or-spatial-position-to-convey-information" class="step-title screensteps-heading">Do Not Use Color or Spatial Position to Convey Information</h2>
+    <h2 class="step-title screensteps-heading">Do Not Use Color or Spatial Position to Convey Information</h2>
       <div class="step-instructions screensteps-textblock">
   <p>Using color or spatial position to convey important information can be problematic.  For example, if you were to say, "click the green button on the left," color blind users may not be able to distinguish the button. Screen reader users may have difficulty interpreting "left" because a screen reader reads from the top of the page to the bottom, as well as left to right - the best solution is to quote the target label, for example: <em>"Click on <strong>Start Assignment</strong>," or, "Click the <strong>Save</strong> button."</em></p>
 </div>
@@ -44,7 +46,7 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="Add-Structure-with-Headings.">
-    <h2 id="Add-Structure-with-Headings." class="step-title screensteps-heading">Add Structure with Headings.</h2>
+    <h2 class="step-title screensteps-heading">Add Structure with Headings.</h2>
       <div class="step-instructions screensteps-textblock">
   <p>If a document can be outlined or you have an outline in mind when writing it, then adding headings will convey its structure. Use short title-like headings that describe content which follows.</p>
 <p>Nest headings appropriately: </p>
@@ -59,7 +61,7 @@
 </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="steps-to-add-headings">
-    <h3 id="steps-to-add-headings" class="step-title screensteps-heading">Steps to add Headings</h3>
+    <h3 class="step-title screensteps-heading">Steps to add Headings</h3>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/310/640/original/6589ff69-d26a-4069-9309-247b2af6ecc4.png" alt="" height="582" width="818">
 </div>
@@ -82,7 +84,7 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="use-inline-styles">
-    <h2 id="use-inline-styles" class="step-title screensteps-heading">Use inline Styles.</h2>
+    <h2 class="step-title screensteps-heading">Use inline Styles.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/310/638/original/7c474c21-b7d5-4826-818b-c93bbaaaae84.png" alt="" height="288" width="771">
 </div>

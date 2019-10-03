@@ -8,25 +8,27 @@
 <link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="/library/js/jquery/featherlight/0.4.0/featherlight.min.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="/library/js/jquery/featherlight/0.4.0/featherlight.min.js" type="text/javascript" charset="utf-8"></script><script type="text/javascript" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    includeWebjarLibrary('featherlight');
     $(document).ready(function(){
-      $("a[rel^='featherlight']").featherlight({
+      $("a.screensteps-image-zoom").featherlight({
         type: { image:true },
-    closeOnClick: 'anywhere'
+        closeOnClick: 'anywhere'
       }); 
     });   
-  </script>
+</script>
 </head>
 <body>
-  <div id="wrapper"><div id="article-content">
-<div id="article-header"><h1 class="article-title">How do students view their assignment feedback?</h1></div>
-<div id="article-description">  <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+  <div><div>
+<div><h1 class="article-title">How do students view their assignment feedback?</h1></div>
+<div>  <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
   <p>Once your instructor has graded your assignment, you can view the feedback on your work in the Assignments tool.</p>
 </div>
  
-    <div class="step screensteps-section screensteps-depth-1" id="go-to-assignments">
-    <h2 id="go-to-assignments" class="step-title screensteps-heading">Go to Assignments.</h2>
+    <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Go to Assignments.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/313/739/original/eddcc7e7-4764-4cdd-aebf-3acbc31c7d29.png" alt="Go to Assignments." height="122" width="196">
 </div>
@@ -38,9 +40,9 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="click-on-an-assignment">
-    <h2 id="click-on-an-assignment" class="step-title screensteps-heading">Click on an assignment.</h2>
+    <h2 class="step-title screensteps-heading">Click on an assignment.</h2>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/001/313/746/original/85cd741e-0916-4ccb-8dd5-aa6d9b98f5d7.png" class="screensteps-image-zoom">
+    <a href="https://media.screensteps.com/image_assets/assets/001/313/746/original/85cd741e-0916-4ccb-8dd5-aa6d9b98f5d7.png" class="screensteps-image-zoom">
       <img src="https://media.screensteps.com/image_assets/assets/001/313/746/medium/85cd741e-0916-4ccb-8dd5-aa6d9b98f5d7.png" alt="Click on an assignment." height="426" width="855">
     </a>
 </div>
@@ -53,7 +55,7 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="view-assignment-feedback">
-    <h2 id="view-assignment-feedback" class="step-title screensteps-heading">View assignment feedback.</h2>
+    <h2 class="step-title screensteps-heading">View assignment feedback.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/313/742/original/fe19ae7b-57c4-4216-b8db-3199b3b21ec6.png" alt="View assignment feedback." height="598" width="630">
 </div>
@@ -71,7 +73,7 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="peer-review-feedback">
-    <h2 id="peer-review-feedback" class="step-title screensteps-heading">Peer review feedback.</h2>
+    <h2 class="step-title screensteps-heading">Peer review feedback.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/313/736/original/19afee94-0767-496d-9c58-be6a575cb87c.png" alt="Peer review feedback." height="706" width="643">
 </div>

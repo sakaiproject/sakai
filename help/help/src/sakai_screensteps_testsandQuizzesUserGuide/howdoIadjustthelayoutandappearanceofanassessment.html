@@ -8,35 +8,37 @@
 <link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="/library/js/jquery/featherlight/0.4.0/featherlight.min.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="/library/js/jquery/featherlight/0.4.0/featherlight.min.js" type="text/javascript" charset="utf-8"></script><script type="text/javascript" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    includeWebjarLibrary('featherlight');
     $(document).ready(function(){
-      $("a[rel^='featherlight']").featherlight({
+      $("a.screensteps-image-zoom").featherlight({
         type: { image:true },
-    closeOnClick: 'anywhere'
+        closeOnClick: 'anywhere'
       }); 
     });   
-  </script>
+</script>
 </head>
 <body>
-  <div id="wrapper"><div id="article-content">
-<div id="article-header"><h1 class="article-title">How do I adjust the layout and appearance of an assessment?</h1></div>
-<div id="article-description">  <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
-  <p><strong>Layout and Appearance</strong> options control the overall look and feel of the test for students, such as how they navigate from one question to another, and how the assessment questions are numbered if the assessment has <a rel="nofollow" href="../../81161/l/954710-how-to-i-add-multiple-parts-to-an-assessment" target="_blank">multiple parts</a>. For more information on additional assessment settings, see <a rel="nofollow" href="../../81161/l/954723-how-do-i-view-and-modify-the-settings-of-an-assessment" target="_blank">How do I inspect and adjust the settings of an assessment?</a></p>
+  <div><div>
+<div><h1 class="article-title">How do I adjust the layout and appearance of an assessment?</h1></div>
+<div>  <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+  <p><strong>Layout and Appearance</strong> options control the overall look and feel of the test for students, such as how they navigate from one question to another, and how the assessment questions are numbered if the assessment has <a href="../../81161/l/954710-how-to-i-add-multiple-parts-to-an-assessment" target="_blank">multiple parts</a>. For more information on additional assessment settings, see <a href="../../81161/l/954723-how-do-i-view-and-modify-the-settings-of-an-assessment" target="_blank">How do I inspect and adjust the settings of an assessment?</a></p>
 </div>
  
-    <div class="step screensteps-section screensteps-depth-1" id="in-the-assessment-settings-page-click-availability-and-submissions">
-    <h2 id="in-the-assessment-settings-page-click-availability-and-submissions" class="step-title screensteps-heading">In the assessment Settings page, click Layout and Appearance.</h2>
+    <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">In the assessment Settings page, click Layout and Appearance.</h2>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/002/193/113/original/c0e39fc5-f47a-4978-9967-e6c1ce95ff17.png" class="screensteps-image-zoom">
+    <a href="https://media.screensteps.com/image_assets/assets/002/193/113/original/c0e39fc5-f47a-4978-9967-e6c1ce95ff17.png" class="screensteps-image-zoom">
       <img src="https://media.screensteps.com/image_assets/assets/002/193/113/medium/c0e39fc5-f47a-4978-9967-e6c1ce95ff17.png" alt="" height="290" width="855">
     </a>
 </div>
  
   </div>
  
-    <div class="step screensteps-section screensteps-depth-1" id="the-availability-and-submissions-section-will-expand-to-show-the-following-options">
-    <h2 id="the-availability-and-submissions-section-will-expand-to-show-the-following-options" class="step-title screensteps-heading">The Layout and Appearance section will expand to show the following options:</h2>
+    <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">The Layout and Appearance section will expand to show the following options:</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/193/108/original/ad2bb0a1-719a-40c5-9332-f039c844cdbc.png" alt="" height="548" width="846">
 </div>
@@ -44,7 +46,7 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="navigation">
-    <h2 id="navigation" class="step-title screensteps-heading">Navigation</h2>
+    <h2 class="step-title screensteps-heading">Navigation</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/193/106/original/cdb29e3b-6592-437e-bd94-dc21650e24e0.png" alt="" height="136" width="805">
 </div>
@@ -56,7 +58,7 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="question-layout">
-    <h2 id="question-layout" class="step-title screensteps-heading">Question Layout</h2>
+    <h2 class="step-title screensteps-heading">Question Layout</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/193/111/original/fac337ea-7f23-4c2e-bf56-e1110e665481.png" alt="" height="97" width="561">
 </div>
@@ -70,19 +72,19 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="numbering">
-    <h2 id="numbering" class="step-title screensteps-heading">Numbering</h2>
+    <h2 class="step-title screensteps-heading">Numbering</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/193/117/original/abc1a994-47c7-4372-a3f6-77c61068f2f1.png" alt="" height="77" width="441">
 </div>
  
       <div class="step-instructions screensteps-textblock">
-  <p>If your assessment has <a rel="nofollow" href="../../81161/l/954710-how-to-i-add-multiple-parts-to-an-assessment" target="_blank">multiple parts</a>, choose the numbering pattern here.  <strong>Continuous numbering between parts</strong> presents the questions in continuous, sequential order.  If you choose to <strong>Restart numbering for each part</strong>, questions are numbered with the part number, then the question number.</p>
+  <p>If your assessment has <a href="../../81161/l/954710-how-to-i-add-multiple-parts-to-an-assessment" target="_blank">multiple parts</a>, choose the numbering pattern here.  <strong>Continuous numbering between parts</strong> presents the questions in continuous, sequential order.  If you choose to <strong>Restart numbering for each part</strong>, questions are numbered with the part number, then the question number.</p>
 </div>
  
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="add-checkboxes-next-to-questions-so-they-can-be-marked-for-review-optional">
-    <h2 id="add-checkboxes-next-to-questions-so-they-can-be-marked-for-review-optional" class="step-title screensteps-heading">Add checkboxes next to questions so they can be marked for review. (Optional)</h2>
+    <h2 class="step-title screensteps-heading">Add checkboxes next to questions so they can be marked for review. (Optional)</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/193/115/original/32e0f18e-8a38-4884-992e-c969ed1b1353.png" alt="" height="64" width="609">
 </div>
@@ -92,7 +94,7 @@
 </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="student-view-of-mark-for-review">
-    <h3 id="student-view-of-mark-for-review" class="step-title screensteps-heading">Student view of mark for review.</h3>
+    <h3 class="step-title screensteps-heading">Student view of mark for review.</h3>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/193/123/original/92e981ec-438a-40fe-9bed-fb59c028d474.png" alt="" height="518" width="624">
 </div>
@@ -111,7 +113,7 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="background">
-    <h2 id="background" class="step-title screensteps-heading">Background</h2>
+    <h2 class="step-title screensteps-heading">Background</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/193/121/original/da018d7e-11c9-4c09-814a-a501306a9d5f.png" alt="" height="120" width="775">
 </div>
