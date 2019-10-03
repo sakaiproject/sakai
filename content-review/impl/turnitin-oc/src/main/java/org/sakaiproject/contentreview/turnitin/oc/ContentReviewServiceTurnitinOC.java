@@ -58,6 +58,7 @@ import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
+import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -851,10 +852,13 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		String submitterID = null;
 		List<User> submissionOwners = new ArrayList<User>();
 		try {
-			AssignmentSubmission currentSubmission = assignmentService.getSubmission(assignment.getId(), item.getUserId());
-			String submittedById = currentSubmission.getProperties().get(AssignmentConstants.SUBMITTER_USER_ID);
-			if(StringUtils.isNotEmpty(submittedById) && !submittedById.equals(userID)) {
-				submitterID = submittedById;
+			AssignmentSubmission currentSubmission = assignmentService.getSubmission(assignment.getId(), userID);
+			//find submitter by filtering submittee=true, if not found, then use the assignment property SUBMITTER_USER_ID
+			Optional<AssignmentSubmissionSubmitter> submitter = currentSubmission.getSubmitters().stream().filter(AssignmentSubmissionSubmitter::getSubmittee).findFirst();
+			submitterID = submitter.isPresent() ? submitter.get().getSubmitter() : currentSubmission.getProperties().get(AssignmentConstants.SUBMITTER_USER_ID);
+			if(userID.equals(submitterID) || StringUtils.isEmpty(submitterID)) {
+				//no need to keep track of the submitterID if it is the same as the ownerID
+				submitterID = null;
 			}
 			//find owner metadata:
 			Set<String> ownerIds = currentSubmission.getSubmitters().stream()

@@ -3491,7 +3491,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             Optional<AssignmentSubmissionSubmitter> submitter = submission.getSubmitters().stream().filter(AssignmentSubmissionSubmitter::getSubmittee).findFirst();
             if (!submitter.isPresent() && contentReviewService.allowSubmissionsOnBehalf()) {
             	//no submittee was found but the CRS allows submissions on behalf, grab the first submitter:
-            	submitter = submission.getSubmitters().stream().findFirst();
+            	submitter = submission.getSubmitters().stream().findAny();
             }
             if (submitter.isPresent()) {
                 Assignment assignment = submission.getAssignment();
