@@ -322,6 +322,7 @@ public class PackageConfigurationPage extends ConsoleBasePage
 				target.add(feedback);
 				target.add(this);
 				target.add(btnCancel);
+				target.appendJavaScript(JS_RESIZE_IFRAME);
 			}
 
 			@Override

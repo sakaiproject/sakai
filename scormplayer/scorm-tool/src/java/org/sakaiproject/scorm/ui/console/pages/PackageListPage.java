@@ -19,6 +19,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.core.util.lang.PropertyResolver;
@@ -36,6 +37,7 @@ import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.PackageResourceReference;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.apache.wicket.util.string.StringValue;
 
 import org.sakaiproject.scorm.api.ScormConstants;
 import org.sakaiproject.scorm.model.api.ContentPackage;
@@ -78,6 +80,12 @@ public class PackageListPage extends ConsoleBasePage
 		final boolean canGrade = lms.canGrade(context);
 		final boolean canViewResults = lms.canViewResults(context);
 		final boolean canDelete = lms.canDelete(context);
+
+		StringValue uploadSuccessMessage = params.get("uploadSuccess");
+		if (uploadSuccessMessage != null && StringUtils.isNotBlank(uploadSuccessMessage.toString()))
+		{
+			success(uploadSuccessMessage);
+		}
 
 		List<IColumn> columns = new LinkedList<>();
 		ActionColumn actionColumn = new ActionColumn(new StringResourceModel("column.header.content.package.name", this, null), "title", "title");

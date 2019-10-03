@@ -30,11 +30,10 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.ui.console.components.BreadcrumbPanel;
 import org.sakaiproject.scorm.ui.console.components.SakaiFeedbackPanel;
-import org.sakaiproject.scorm.ui.upload.pages.UploadPage;
+import org.sakaiproject.scorm.ui.upload.UploadPage;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.wicket.markup.html.SakaiPortletWebPage;
 import org.sakaiproject.wicket.markup.html.navigation.NavLink;
-
 
 public class ConsoleBasePage extends SakaiPortletWebPage implements IHeaderContributor {
 

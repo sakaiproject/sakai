@@ -38,8 +38,11 @@ public class SakaiPortletWebPage extends WebPage implements IHeaderContributor
 	private static final SessionManager sessionManager = (SessionManager) ComponentManager.get(SessionManager.class);
 	private static final ServerConfigurationService serverConfigService = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class);
 
-	protected static final String HEADSCRIPTS = "/library/js/headscripts.js";
-	protected static final String BODY_ONLOAD_ADDTL="setMainFrameHeight( window.name )";
+	protected static final String JS_HEADSCRIPTS = "/library/js/headscripts.js";
+
+	// This is needed to resize the iframe so that we don't get internal scroll bars when the page content changes (ie, AJAX feedback messages making the page longer)
+	// We can't target the parent iframe from SCORM's CSS files because... iframes
+	protected static final String JS_RESIZE_IFRAME = "setMainFrameHeightNow(window.name, -1);";
 
 	@Override
 	public void renderHead(IHeaderResponse response)
@@ -48,10 +51,10 @@ public class SakaiPortletWebPage extends WebPage implements IHeaderContributor
 		String toolCSS = getToolSkinCSS(skinRepo);
 		String toolBaseCSS = skinRepo + "/tool_base.css";
 
-		response.render(JavaScriptHeaderItem.forUrl(HEADSCRIPTS));
+		response.render(JavaScriptHeaderItem.forUrl(JS_HEADSCRIPTS));
 		response.render(CssHeaderItem.forUrl(toolBaseCSS));
 		response.render(CssHeaderItem.forUrl(toolCSS));
-		response.render(OnDomReadyHeaderItem.forScript(BODY_ONLOAD_ADDTL));
+		response.render(OnDomReadyHeaderItem.forScript(JS_RESIZE_IFRAME));
 	}
 
 	protected String getToolSkinCSS(String skinRepo)
