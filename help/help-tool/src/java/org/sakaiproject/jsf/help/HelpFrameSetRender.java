@@ -102,8 +102,8 @@ public class HelpFrameSetRender extends Renderer
     writer.write("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Frameset//EN\" \"http://www.w3.org/TR/html4/frameset.dtd\">\n");
     writer.write("<html><head><title>" + helpWindowTitle + "</title></head>\n");
     writer.write("<FRAMESET cols=\"20%, 80%\"><FRAMESET rows=\"150, 450\">");
-    writer.write("<FRAME src=\"" + searchToolUrl + "\" name=\"search\">");
-    writer.write("<FRAME src=\"" + tocToolUrl + "\" name=\"toc\">");
+    writer.write("<FRAME src=\"" + searchToolUrl + "\" name=\"search\" title=\"Search\">");
+    writer.write("<FRAME src=\"" + tocToolUrl + "\" name=\"toc\" title=\"Table of Contents\">");
     writer.write("</FRAMESET>\n");
     
     Application app = context.getApplication();
@@ -112,14 +112,14 @@ public class HelpFrameSetRender extends Renderer
                   
     if(manager.getWelcomePage() == null) {
         if (welcomepage == DEFAULT_WELCOME_PAGE) {
-      	  writer.write("<FRAME src=\"content.hlp?docId=" + welcomepage + "\" name=\"content\">");
+      	  writer.write("<FRAME src=\"content.hlp?docId=" + welcomepage + "\" name=\"content\" title=\"Help Content\">");
         } else {
-          writer.write("<FRAME src=\"" + welcomepage + "\" name=\"content\">");
+          writer.write("<FRAME src=\"" + welcomepage + "\" name=\"content\" title=\"Help Content\">");
         }
 
     }
     else {
-      writer.write("<FRAME src=\"content.hlp?docId=" + manager.getWelcomePage() + "\" name=\"content\">");             
+      writer.write("<FRAME src=\"content.hlp?docId=" + manager.getWelcomePage() + "\" name=\"content\" title=\"Help Content\">");
     }
                                         
     writer.write("</FRAMESET></html>\n");
