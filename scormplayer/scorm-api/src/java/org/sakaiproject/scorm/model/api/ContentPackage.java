@@ -43,6 +43,7 @@ public class ContentPackage implements Serializable
 	@Getter @Setter private Date modifiedOn;
 	@Getter @Setter private int numberOfTries = NUMBER_OF_TRIES_UNLIMITED;
 	@Getter @Setter private boolean isDeleted;
+	@Getter @Setter private boolean hideTOC = false; // default is to always show the table of contents
 
 	public boolean isReleased()
 	{

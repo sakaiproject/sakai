@@ -10,14 +10,29 @@ function onResize() {
 		var mainHeight = windowHeight - (headerHeight + footerHeight) -4;
 		
 		var windowWidth = getInnerWidth();
-		var navWidth = document.getElementById("scormNavPanel").offsetWidth;
-		var mainWidth = windowWidth - navWidth;
-	
-		document.getElementById("scormNavPanel").style.height = mainHeight+"px";
+		var navPanel = document.getElementById("scormNavPanel");
+		var navWidth = navPanel.offsetWidth;
+
+		// Hide the tree panel container if it doesn't contain any child nodes
+		if( isEmpty( navPanel ) )
+		{
+			var mainWidth = windowWidth;
+			navPanel.style.display = "none";
+		}
+		else
+		{
+			var mainWidth = windowWidth - navWidth;
+			navPanel.style.height = mainHeight+"px";
+		}
+
 		document.getElementById("scormContentPanel").style.height = mainHeight+"px";
 		document.getElementById("scormContent").style.height = mainHeight+"px";
 		document.getElementById("scormContent").style.width = mainWidth + "px";
 	}
+}
+
+function isEmpty(node) {
+	return node.textContent.trim() === "";
 }
 
 function getInnerHeight() {
