@@ -21,6 +21,8 @@
 
 package org.sakaiproject.poll.tool.producers;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -135,9 +137,11 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 		
 		//get the number of votes
 		int voters = pollVoteManager.getDisctinctVotersForPoll(poll);
-		//Object[] args = new Object[] { Integer.valueOf(voters).toString()};
-		if (poll.getMaxOptions()>1)
-			UIOutput.make(tofill,"poll-size",messageLocator.getMessage("results_poll_size",Integer.valueOf(voters).toString()));
+		int totalVoters = externalLogic.getNumberUsersCanVote();
+		BigDecimal percentVoters = new BigDecimal(voters).divide(new BigDecimal(totalVoters),4, RoundingMode.HALF_UP).multiply(new BigDecimal(100));
+		String statsVoters = String.format("%d / %d (%.02f %%)",voters,totalVoters,percentVoters);
+
+		UIOutput.make(tofill,"poll-size",messageLocator.getMessage("results_poll_size",statsVoters));
 
 		log.debug(voters + " have voted on this poll");
 

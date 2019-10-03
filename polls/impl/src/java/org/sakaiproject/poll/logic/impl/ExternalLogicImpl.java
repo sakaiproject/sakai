@@ -515,5 +515,12 @@ public class ExternalLogicImpl implements ExternalLogic {
             eventTrackingService.post(event);
         }
     }
+    
+    @Override
+    public int getNumberUsersCanVote() {
+    	ArrayList<String> siteGroupRefs = new ArrayList<>();
+    	siteGroupRefs.add(siteService.siteReference(developerHelperService.getCurrentLocationId()));
+    	return (authzGroupService.getUsersIsAllowed(PollListManager.PERMISSION_VOTE, siteGroupRefs).size());
+    }
 
 }
