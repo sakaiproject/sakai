@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -1152,7 +1153,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 						}
 						else {
 							// Add filename to content upload headers
-							CONTENT_UPLOAD_HEADERS.put(HEADER_DISP, "inline; filename=\"" + fileName + "\"");
+							CONTENT_UPLOAD_HEADERS.put(HEADER_DISP, "inline; filename=\"" + URLEncoder.encode(fileName, "UTF-8") + "\"");
 							// Upload submission contents of to TCA
 							uploadExternalContent(externalId, resource.getContent());
 							// Set item externalId to externalId
