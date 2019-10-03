@@ -8,8 +8,7 @@
 <body>
 	<wicket:extend>
 		<form wicket:id="configurationForm">
-			<p class="shorttext">
-				<span class="reqStar">*</span>
+			<p class="shorttext form-required">
 				<label for="packageName">
 					<wicket:message key="form.label.package.name"></wicket:message>
 				</label>
@@ -18,8 +17,7 @@
 			<p class="instruction labelindnt">
 				<wicket:message key="form.instructions.open.date"></wicket:message>
 			</p>
-			<p class="shorttext">
-				<span class="reqStar">*</span>
+			<p class="shorttext form-required">
 				<label for="releaseOnDTF">
 					<wicket:message key="form.label.open.date"></wicket:message>
 				</label>
@@ -90,7 +88,7 @@
 				<p style="clear:both;"/>
 			</div>
 			<div class="act">
-				<input type="submit" wicket:message="value:page.submit" class="active" />
+				<input wicket:id="save" type="submit" wicket:message="value:page.submit" class="active" />
 				<input wicket:id="cancel" type="submit" wicket:message="value:page.cancel" />
 			</div>
 		</form>

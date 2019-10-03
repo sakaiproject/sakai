@@ -15,18 +15,37 @@
  */
 package org.sakaiproject.scorm.ui.console.components;
 
+import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.feedback.IFeedbackMessageFilter;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 
 public class SakaiFeedbackPanel extends FeedbackPanel
 {
-	public SakaiFeedbackPanel(String id, IFeedbackMessageFilter filter)
+	private static final long serialVersionUID = 1L;
+
+	public SakaiFeedbackPanel( String id, IFeedbackMessageFilter filter )
 	{
-		super(id, filter);
+		super( id, filter );
 	}
 
-	public SakaiFeedbackPanel(String id)
+	public SakaiFeedbackPanel( String id )
 	{
-		super(id);
+		super( id );
+	}
+
+	@Override
+	protected String getCSSClass( final FeedbackMessage message )
+	{
+		switch( message.getLevel() )
+		{
+			case FeedbackMessage.SUCCESS:
+				return "sak-banner-success";
+			case FeedbackMessage.INFO:
+				return "sak-banner-info";
+			case FeedbackMessage.WARNING:
+				return "sak-banner-warn";
+			default:
+				return "sak-banner-error";
+		}
 	}
 }
