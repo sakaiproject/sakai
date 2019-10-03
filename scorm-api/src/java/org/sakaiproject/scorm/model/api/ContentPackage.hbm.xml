@@ -25,6 +25,17 @@
 		<property name="modifiedBy" column="MODIFIED_BY" />
 		<property name="numberOfTries" column="NUMBER_OF_TRIES" />
 		<property name="deleted" column="IS_DELETED" />
+
+        <!-- For some reason if I add the 'default="0"' stipulation, we get the following test error on compilation:
+
+            [ERROR] Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.536 s <<< FAILURE! - in org.sakaiproject.scorm.dao.hibernate.DataManagerDaoImplTest
+            [ERROR] testSimple(org.sakaiproject.scorm.dao.hibernate.DataManagerDaoImplTest)  Time elapsed: 0.004 s  <<< ERROR!
+            java.lang.IllegalStateException: Failed to load ApplicationContext
+            Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory' defined in class path resource [hibernate-test.xml]: Invocation of init method failed; nested exception is org.hibernate.InvalidMappingException: Unable to read XML
+            Caused by: org.hibernate.InvalidMappingException: Unable to read XML
+            Caused by: org.xml.sax.SAXParseException: Attribute "default" must be declared for element type "property".
+        -->
+		<property name="hideTOC" column="HIDE_TOC" not-null="true" />
 	</class>
 
 </hibernate-mapping>

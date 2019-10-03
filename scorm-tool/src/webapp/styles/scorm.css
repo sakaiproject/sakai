@@ -31,21 +31,18 @@ div.my-tree div.wicket-tree {
 }
 
 #scormMainPanel {
-    width: 100%;
+    display: flex;
 }
 #scormNavPanel {
-    position: absolute;
-    top: 40px;
-    left: 0px;
-    width: 280px;
-    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    padding-right: 10px;
+    width: 250px;
 }
 
 #scormContentPanel {
-    position: absolute;
-    top: 40px;
-    left: 280px;
-    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
 #scormContentPanel iframe {
