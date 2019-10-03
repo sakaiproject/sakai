@@ -179,3 +179,10 @@
     height:2px;
     margin:0 1px;
 }
+
+.form-required label::before {
+    content: "*";
+    color: #c77070;
+    position: relative;
+    top: 3px;
+}

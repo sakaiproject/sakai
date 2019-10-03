@@ -20,7 +20,6 @@ import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -51,7 +50,7 @@ public class ConsoleBasePage extends SakaiPortletWebPage implements IHeaderContr
 	public ToolManager toolManager;
 
 	// The feedback panel component displays dynamic messages to the user
-	protected FeedbackPanel feedback;
+	protected SakaiFeedbackPanel feedback;
 	private BreadcrumbPanel breadcrumbs;
 
 	public NavLink listLink;
@@ -89,8 +88,15 @@ public class ConsoleBasePage extends SakaiPortletWebPage implements IHeaderContr
 		// add the toolbar container
 		add(navBar);
 
+		// page title
 		add(newPageTitleLabel(params));
-		add(feedback = new SakaiFeedbackPanel("feedback"));
+
+		// feedback panel
+		feedback = new SakaiFeedbackPanel("feedback");
+		feedback.setOutputMarkupId(true);
+		add(feedback);
+
+		// breadcrumbs
 		add(breadcrumbs = new BreadcrumbPanel("breadcrumbs"));
 	}
 
@@ -108,8 +114,6 @@ public class ConsoleBasePage extends SakaiPortletWebPage implements IHeaderContr
 	protected void onBeforeRender()
 	{
 		super.onBeforeRender();
-		// If a feedback message exists, then make the feedback panel visible, otherwise, hide it.
-		feedback.setVisible(hasFeedbackMessage());
 		breadcrumbs.setVisible(breadcrumbs.getNumberOfCrumbs() > 0);
 	}
 

@@ -24,9 +24,13 @@ import lombok.Getter;
 import lombok.Setter;
 
 import org.adl.validator.contentpackage.LaunchData;
+import org.apache.wicket.Component;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.attributes.AjaxCallListener;
+import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.yui.calendar.DateTimeField;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -182,6 +186,7 @@ public class PackageConfigurationPage extends ConsoleBasePage
 	{
 		super(params);
 		long contentPackageId = params.get("contentPackageId").toLong();
+		this.unlimitedMessage = getLocalizer().getString("unlimited", this);
 
 		final ContentPackage contentPackage = contentService.getContentPackage(contentPackageId);
 		final GradebookSetup gradebookSetup = getAssessmentSetup(contentPackage);
@@ -203,64 +208,14 @@ public class PackageConfigurationPage extends ConsoleBasePage
 			pageCancel = PackageListPage.class;
 		}
 
-		Form form = new Form("configurationForm")
-		{
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onSubmit()
-			{
-				if (gradebookSetup.isGradebookDefined())
-				{
-					List<AssessmentSetup> assessments = gradebookSetup.getAssessments();
-					for (AssessmentSetup assessmentSetup : assessments)
-					{
-						boolean on = assessmentSetup.isSynchronizeSCOWithGradebook();
-						String assessmentExternalId = getAssessmentExternalId(gradebookSetup, assessmentSetup);
-						String context = getContext();
-						boolean has = gradebookExternalAssessmentService.isExternalAssignmentDefined(context, assessmentExternalId);
-						String fixedTitle = getItemTitle(assessmentSetup, context);
-						if (has && on)
-						{
-							gradebookExternalAssessmentService.updateExternalAssessment(context, assessmentExternalId, null, null, fixedTitle, assessmentSetup.numberOffPoints, gradebookSetup.getContentPackage().getDueOn());
-						}
-						else if (!has && on)
-						{
-							gradebookExternalAssessmentService.addExternalAssessment(context, assessmentExternalId, null, fixedTitle, assessmentSetup.numberOffPoints, gradebookSetup.getContentPackage().getDueOn(), "SCORM player", null);
-						}
-						else if (has && !on)
-						{
-							gradebookExternalAssessmentService.removeExternalAssessment(context, assessmentExternalId);
-						}
-					}
-				}
-
-				contentService.updateContentPackage(contentPackage);
-				setResponsePage(pageSubmit);
-			}
-
-			protected String getItemTitle(AssessmentSetup assessmentSetup, String context)
-			{
-				String fixedTitle = assessmentSetup.getItemTitle();
-				int count = 1;
-				while (gradebookExternalAssessmentService.isAssignmentDefined(context, fixedTitle))
-				{
-					fixedTitle = assessmentSetup.getItemTitle() + " (" + count++ + ")";
-				}
-
-				return fixedTitle;
-			}
-		};
-
 		List<Integer> tryList = new LinkedList<>();
-
 		tryList.add(-1);
 		for (int i = 1; i <= 10; i++)
 		{
 			tryList.add(i);
 		}
 
-		this.unlimitedMessage = getLocalizer().getString("unlimited", this);
+		Form form = new Form("configurationForm");
 
 		TextField nameField = new TextField("packageName", new PropertyModel(contentPackage, "title"));
 		nameField.setRequired(true);
@@ -313,7 +268,79 @@ public class PackageConfigurationPage extends ConsoleBasePage
 		});
 		scos.setVisible(gradebookSetup.isGradebookDefined() && !gradebookSetup.getAssessments().isEmpty());
 
-		form.add(new CancelButton("cancel", pageCancel));
+		final CancelButton btnCancel = new CancelButton("cancel", pageCancel);
+		btnCancel.setOutputMarkupId(true);
+		form.add(btnCancel);
+
+		final IndicatingAjaxButton btnSave = new IndicatingAjaxButton("save", form)
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onSubmit( AjaxRequestTarget target )
+			{
+				// Verify due date is after open date
+				if (contentPackage.getDueOn() != null && contentPackage.getReleaseOn() != null && contentPackage.getDueOn().before(contentPackage.getReleaseOn()))
+				{
+					error(getLocalizer().getString("form.error.dueDateBeforeOpenDate", this));
+					onError(target);
+				}
+
+				// Only continue to update/save if there are no validation errors
+				if (!feedback.anyErrorMessage() && gradebookSetup.isGradebookDefined())
+				{
+					String context = getContext();
+					List<AssessmentSetup> assessments = gradebookSetup.getAssessments();
+					for (AssessmentSetup assessmentSetup : assessments)
+					{
+						boolean on = assessmentSetup.isSynchronizeSCOWithGradebook();
+						String assessmentExternalId = getAssessmentExternalId(gradebookSetup, assessmentSetup);
+						boolean has = gradebookExternalAssessmentService.isExternalAssignmentDefined(context, assessmentExternalId);
+						String fixedTitle = getItemTitle(assessmentSetup, context);
+						if (has && on)
+						{
+							gradebookExternalAssessmentService.updateExternalAssessment(context, assessmentExternalId, null, null, fixedTitle, assessmentSetup.numberOffPoints, gradebookSetup.getContentPackage().getDueOn());
+						}
+						else if (!has && on)
+						{
+							gradebookExternalAssessmentService.addExternalAssessment(context, assessmentExternalId, null, fixedTitle, assessmentSetup.numberOffPoints, gradebookSetup.getContentPackage().getDueOn(), "SCORM player", null);
+						}
+						else if (has && !on)
+						{
+							gradebookExternalAssessmentService.removeExternalAssessment(context, assessmentExternalId);
+						}
+					}
+
+					contentService.updateContentPackage(contentPackage);
+					setResponsePage(pageSubmit);
+				}
+			}
+
+			@Override
+			protected void onError(AjaxRequestTarget target)
+			{
+				target.add(feedback);
+				target.add(this);
+				target.add(btnCancel);
+			}
+
+			@Override
+			protected void updateAjaxAttributes(AjaxRequestAttributes attributes)
+			{
+				super.updateAjaxAttributes(attributes);
+				AjaxCallListener listener = new AjaxCallListener()
+				{
+					@Override
+					public CharSequence getAfterHandler(Component component)
+					{
+						return "this.disabled = true; document.getElementsByName( \"cancel\" )[0].disabled = true;";
+					}
+				};
+				attributes.getAjaxCallListeners().add(listener);
+			}
+		};
+		btnSave.setOutputMarkupId(true);
+		form.add(btnSave);
 		add(form);
 	}
 
@@ -352,5 +379,17 @@ public class PackageConfigurationPage extends ConsoleBasePage
 	{
 		String assessmentExternalId = "" + gradebook.getContentPackageId() + ":" + assessment.getLaunchData().getItemIdentifier();
 		return assessmentExternalId;
+	}
+
+	private String getItemTitle(AssessmentSetup assessmentSetup, String context)
+	{
+		String fixedTitle = assessmentSetup.getItemTitle();
+		int count = 1;
+		while (gradebookExternalAssessmentService.isAssignmentDefined(context, fixedTitle))
+		{
+			fixedTitle = assessmentSetup.getItemTitle() + " (" + count++ + ")";
+		}
+
+		return fixedTitle;
 	}
 }
