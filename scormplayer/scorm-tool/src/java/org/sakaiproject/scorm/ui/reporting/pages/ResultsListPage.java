@@ -32,8 +32,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
-import org.apache.wicket.markup.head.IHeaderResponse;
-import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.DownloadLink;
@@ -89,16 +87,6 @@ public class ResultsListPage extends ConsoleBasePage
 	private static final String INTERACTION_INDENT	= SUMMARY_INDENT + SUMMARY_INDENT;
 	private static final String OBJECTIVE_INDENT	= INTERACTION_INDENT + INTERACTION_INDENT + EMPTY_CELL;
 	private static		 String CSV_HEADERS;
-
-	@Override
-	public void renderHead(IHeaderResponse response)
-	{
-		super.renderHead(response);
-
-		// For some reason calling setMainFrameHeightNow() on this page doesn't scroll to the top, because it thinks the coordinates are already 0,0
-		// So for this page, we just force to scroll to parent's top
-		response.render(OnDomReadyHeaderItem.forScript("parent.window.scrollTo(0,0);"));
-	}
 
 	public ResultsListPage(PageParameters pageParams)
 	{

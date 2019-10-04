@@ -1,8 +1,10 @@
 ## Installation notes:
 
-For Sakai 11+, the following sakai.property needs to be set (as a result of Sakai going frameless):
+For Sakai 11-19, the following sakai.property needs to be set (as a result of Sakai going frameless):
 
 portal.iframesuppress=:all:sakai.scorm.singlepackage.tool:sakai.scorm.tool
+
+As of Sakai 20, the above sakai.property is no longer needed. See SCO-161 for technical details.
 
 ## Historical Info
 

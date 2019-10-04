@@ -39,7 +39,7 @@ import org.sakaiproject.scorm.ui.player.components.ButtonForm;
 import org.sakaiproject.scorm.ui.player.components.LaunchPanel;
 import org.sakaiproject.scorm.ui.player.components.LazyLaunchPanel;
 
-public class PlayerPage extends BaseToolPage
+public class ScormPlayerPage extends BaseToolPage
 {
 	private static final long serialVersionUID = 1L;
 
@@ -57,12 +57,12 @@ public class PlayerPage extends BaseToolPage
 	private ActivityAjaxEventBehavior closeWindowBehavior;
 	@Getter private ButtonForm buttonForm;
 
-	public PlayerPage()
+	public ScormPlayerPage()
 	{
 		this(new PageParameters());
 	}
 
-	public PlayerPage(final PageParameters pageParams)
+	public ScormPlayerPage(final PageParameters pageParams)
 	{
 		super();
 
@@ -89,7 +89,7 @@ public class PlayerPage extends BaseToolPage
 
 		if (lms.canLaunchNewWindow())
 		{
-			pageClass = CompletionPage.class;
+			pageClass = ScormCompletionPage.class;
 		}
 
 		String completionUrl = getRequestCycle().urlFor(pageClass, null).toString();

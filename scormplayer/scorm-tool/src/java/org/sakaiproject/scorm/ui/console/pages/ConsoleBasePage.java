@@ -44,6 +44,9 @@ public class ConsoleBasePage extends SakaiPortletWebPage implements IHeaderContr
 	@SpringBean
 	public ToolManager toolManager;
 
+	// This JavaScript snippet is used to scroll to the top of a given page after form submission onError(), so that feedback messages are immediately visible to the user
+	protected static final String JS_SCROLL_TO_TOP = "window.scrollTo(0,0);";
+
 	// The feedback panel component displays dynamic messages to the user
 	protected SakaiFeedbackPanel feedback;
 	private BreadcrumbPanel breadcrumbs;

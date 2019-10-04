@@ -122,13 +122,13 @@ public class UploadPage extends ConsoleBasePage
                     target.add( feedback );
                     target.add( btnCancel );
                     target.add( this );
-                    target.appendJavaScript( JS_RESIZE_IFRAME );
+                    target.appendJavaScript( JS_SCROLL_TO_TOP );
                 }
 
                 @Override
                 protected void onSubmit( AjaxRequestTarget target )
                 {
-                    target.appendJavaScript( JS_RESIZE_IFRAME );
+                    target.appendJavaScript( JS_SCROLL_TO_TOP );
 
                     final List<FileUpload> uploads = fileUploadField.getFileUploads();
                     if( uploads != null )

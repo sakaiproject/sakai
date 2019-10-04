@@ -71,7 +71,7 @@ public class ScormEntityProviderImpl implements ScormEntityProvider, CoreEntityP
 {
 	// Class members
 	private static final String TOOL_REG_NAME               = "sakai.scorm.tool";
-	private static final String SCORM_PLAYER_PAGE_URL_PART  = "wicket:bookmarkablePage=ScormPlayer:org.sakaiproject.scorm.ui.player.pages.PlayerPage";
+	private static final String SCORM_PLAYER_PAGE_URL_PART  = "wicket:bookmarkablePage=ScormPlayer:org.sakaiproject.scorm.ui.player.pages.ScormPlayerPage";
 	private static final String URL_CHARACTER_ENCODING      = "UTF-8";
 
 	// Instance members

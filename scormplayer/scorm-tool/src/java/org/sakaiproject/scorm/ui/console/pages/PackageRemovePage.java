@@ -25,8 +25,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
-import org.apache.wicket.markup.head.IHeaderResponse;
-import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
@@ -59,25 +57,9 @@ public class PackageRemovePage extends ConsoleBasePage
 
 	public PackageRemovePage( final PageParameters params )
 	{
-		// SCO-98 - disable buttons and add spinner on submit
 		add( new FileRemoveForm( "removeForm", params ) );
 	}
 
-	@Override
-	public void renderHead(IHeaderResponse response)
-	{
-		super.renderHead(response);
-
-		// For some reason calling setMainFrameHeightNow() on this page doesn't scroll to the top, because it thinks the coordinates are already 0,0
-		// So for this page, we just force to scroll to parent's top
-		response.render(OnDomReadyHeaderItem.forScript("parent.window.scrollTo(0,0);"));
-	}
-
-	/**
-	 * SCO-98 - disable buttons and add spinner on submit
-	 * 
-	 * @author bjones86
-	 */
 	public class FileRemoveForm extends Form
 	{
 		private static final long serialVersionUID = 1L;

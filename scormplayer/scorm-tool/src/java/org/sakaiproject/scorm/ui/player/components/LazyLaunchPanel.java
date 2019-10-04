@@ -39,7 +39,7 @@ import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.service.api.ScormResultService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
 import org.sakaiproject.scorm.ui.ResourceNavigator;
-import org.sakaiproject.scorm.ui.player.pages.PlayerPage;
+import org.sakaiproject.scorm.ui.player.pages.ScormPlayerPage;
 import org.sakaiproject.scorm.ui.player.util.ContentPackageWebResource;
 
 @Slf4j
@@ -59,7 +59,7 @@ public class LazyLaunchPanel extends LazyLoadPanel
 	@SpringBean(name = "org.sakaiproject.scorm.service.api.LearningManagementSystem")
 	LearningManagementSystem learningManagementSystem;
 
-	private PlayerPage view;
+	private ScormPlayerPage view;
 	@Getter private LaunchPanel launchPanel;
 	private final LocalResourceNavigator navigator;
 	private final int userNavRequest;
@@ -67,7 +67,7 @@ public class LazyLaunchPanel extends LazyLoadPanel
 	private static final String NAV_RESULT_INVALID_REQ = "_INVALIDNAVREQ_";
 	private static final String NAV_RESULT_END_SESSION = "_ENDSESSION_";
 
-	public LazyLaunchPanel(String id, SessionBean sessionBean, int userNavRequest, PlayerPage view)
+	public LazyLaunchPanel(String id, SessionBean sessionBean, int userNavRequest, ScormPlayerPage view)
 	{
 		super(id, new Model(sessionBean), view.getPageParameters());
 		this.navigator = new LocalResourceNavigator();
@@ -203,7 +203,7 @@ public class LazyLaunchPanel extends LazyLoadPanel
 		{
 			String resourceName = cpResource.getPath();
 
-			ContentPackageWebResource resource = (ContentPackageWebResource) getApplication().getSharedResources().get(PlayerPage.class, resourceName, null, null, null, false);
+			ContentPackageWebResource resource = (ContentPackageWebResource) getApplication().getSharedResources().get(ScormPlayerPage.class, resourceName, null, null, null, false);
 			if (resource == null || resource.lastModifiedTime().getMilliseconds() != cpResource.getLastModified())
 			{
 				ContentPackageWebResource webResource = new ContentPackageWebResource(cpResource);
