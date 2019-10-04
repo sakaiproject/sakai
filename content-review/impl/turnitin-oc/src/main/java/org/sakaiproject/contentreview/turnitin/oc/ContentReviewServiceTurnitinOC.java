@@ -849,42 +849,40 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 
 	private String getSubmissionId(ContentReviewItem item, String fileName, Site site, Assignment assignment) {
 		String userID = item.getUserId();
+		List<User> submissionOwners = new ArrayList<>();
 		String submitterID = null;
-		List<User> submissionOwners = new ArrayList<User>();
+
 		try {
 			AssignmentSubmission currentSubmission = assignmentService.getSubmission(assignment.getId(), userID);
+
+			Set<String> ownerIds = currentSubmission.getSubmitters().stream()
+				.map(AssignmentSubmissionSubmitter::getSubmitter)
+				.collect(Collectors.toSet());
+
 			//find submitter by filtering submittee=true, if not found, then use the assignment property SUBMITTER_USER_ID
-			Optional<AssignmentSubmissionSubmitter> submitter = currentSubmission.getSubmitters().stream().filter(AssignmentSubmissionSubmitter::getSubmittee).findFirst();
-			submitterID = submitter.isPresent() ? submitter.get().getSubmitter() : currentSubmission.getProperties().get(AssignmentConstants.SUBMITTER_USER_ID);
-			if(userID.equals(submitterID) || StringUtils.isEmpty(submitterID)) {
+			submitterID = currentSubmission.getSubmitters().stream().filter(AssignmentSubmissionSubmitter::getSubmittee).findAny()
+					.map(AssignmentSubmissionSubmitter::getSubmitter)
+					.orElseGet(() -> currentSubmission.getProperties().get(AssignmentConstants.SUBMITTER_USER_ID));
+
+			if (userID.equals(submitterID) || StringUtils.isBlank(submitterID)) {
 				//no need to keep track of the submitterID if it is the same as the ownerID
 				submitterID = null;
-			}
-			//find owner metadata:
-			Set<String> ownerIds = currentSubmission.getSubmitters().stream()
-				.map(s -> s.getSubmitter())
-				.collect(Collectors.toSet());
-			ownerIds.add(userID);
-			if(StringUtils.isNotEmpty(submitterID)) {
+			} else {
 				ownerIds.add(submitterID);
 			}
-			for(String ownerId : ownerIds) {
-				try {
-					submissionOwners.add(userDirectoryService.getUser(ownerId));
-				}catch(Exception e) {
-					log.error(e.getMessage(), e);
-				}
-			}
-		}catch(Exception e) {
-			log.error(e.getMessage(), e);
+
+			submissionOwners.addAll(userDirectoryService.getUsers(ownerIds));
+		} catch (Exception e) {
+			log.warn(e.getMessage(), e);
 		}
+
 		String submissionId = null;
 		try {
 
 			// Build header maps
 			Map<String, Object> data = new HashMap<String, Object>();
 			data.put("owner", userID);
-			if(StringUtils.isNotEmpty(submitterID)) {
+			if (StringUtils.isNotBlank(submitterID)) {
 				data.put("submitter", submitterID);	
 			}
 			data.put("title", fileName);
@@ -898,30 +896,30 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				eulaVersion = getEndUserLicenseAgreementVersion();
 				log.warn("EULA not found for user: " + eulaUserId + ", contentId: " + item.getId());
 			}
-			Map<String, Object> eula = new HashMap<String, Object>();
+			Map<String, Object> eula = new HashMap<>();
 			eula.put("accepted_timestamp", eulaTimestamp.toString());
 			eula.put("language", getUserEulaLocale(eulaUserId));
 			eula.put("version", eulaVersion);
 			data.put("eula", eula);
-			Map<String, Object> metadata = new HashMap<String, Object>();
+			Map<String, Object> metadata = new HashMap<>();
 			if(assignment != null) {				
-				Map<String, Object> group = new HashMap<String, Object>();
+				Map<String, Object> group = new HashMap<>();
 				group.put("id", assignment.getId());
 				group.put("name", assignment.getTitle());
 				group.put("type", "ASSIGNMENT");
 				metadata.put("group", group);
 				if(site != null) {
-					Map<String, Object> groupContext = new HashMap<String, Object>();
+					Map<String, Object> groupContext = new HashMap<>();
 					groupContext.put("id", site.getId());
 					groupContext.put("name", site.getTitle());
 					metadata.put("group_context", groupContext);
 				}
 			}
 			//set submission owner metadata
-			if(submissionOwners != null && submissionOwners.size() > 0) {
-				List<Map<String, Object>> submissionOwnersMetedata = new ArrayList<Map<String, Object>>();
+			if (submissionOwners.size() > 0) {
+				List<Map<String, Object>> submissionOwnersMetedata = new ArrayList<>();
 				for(User owner : submissionOwners) {
-					Map<String, Object> ownerMetadata = new HashMap<String, Object>();
+					Map<String, Object> ownerMetadata = new HashMap<>();
 					ownerMetadata.put("id", owner.getId());
 					if(StringUtils.isNotEmpty(owner.getFirstName())) {
 						ownerMetadata.put("given_name", owner.getFirstName());	
