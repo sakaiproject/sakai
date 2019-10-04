@@ -8,23 +8,25 @@
 <link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="/library/js/jquery/featherlight/0.4.0/featherlight.min.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="/library/js/jquery/featherlight/0.4.0/featherlight.min.js" type="text/javascript" charset="utf-8"></script><script type="text/javascript" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    includeWebjarLibrary('featherlight');
     $(document).ready(function(){
-      $("a[rel^='featherlight']").featherlight({
+      $("a.screensteps-image-zoom").featherlight({
         type: { image:true },
-    closeOnClick: 'anywhere'
+        closeOnClick: 'anywhere'
       }); 
     });   
-  </script>
+</script>
 </head>
 <body>
-  <div id="wrapper"><div id="article-content">
-<div id="article-header"><h1 class="article-title">How do I control site access?</h1></div>
-<div id="article-description">    <div class="step screensteps-section screensteps-depth-1" id="go-to-site-info">
-    <h2 id="go-to-site-info" class="step-title screensteps-heading">Go to Site Info.</h2>
+  <div><div>
+<div><h1 class="article-title">How do I control site access?</h1></div>
+<div>    <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Go to Site Info.</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/001/322/820/original/e962983c-d48d-4d53-8c42-cdcbe6338ab0.png" alt="Site Info tool highlighted in the site Tool Menu." height="126" width="197">
+    <img src="https://media.screensteps.com/image_assets/assets/001/322/820/original/e962983c-d48d-4d53-8c42-cdcbe6338ab0.png" alt="" height="126" width="197">
 </div>
  
       <div class="step-instructions screensteps-textblock">
@@ -34,21 +36,23 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="click-manage-access">
-    <h2 id="click-manage-access" class="step-title screensteps-heading">Click Manage Access.</h2>
+    <h2 class="step-title screensteps-heading">Click Manage Access.</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/001/322/816/original/50fd60a4-51c5-4d00-8bfd-5df71749dd1e.png" alt="Manage Access tab highlighted in Site Info tabs.." height="68" width="834">
+    <a href="https://media.screensteps.com/image_assets/assets/002/360/041/original/df1a2e66-9f77-4de9-914e-9e6e1b2b81e3.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/002/360/041/medium/df1a2e66-9f77-4de9-914e-9e6e1b2b81e3.png" alt="" height="100" width="855">
+    </a>
 </div>
  
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="select-your-site-status-i-e-published-or-unpublished">
-    <h2 id="select-your-site-status-i-e-published-or-unpublished" class="step-title screensteps-heading">Select your Site Status (i.e published or unpublished).</h2>
+    <h2 class="step-title screensteps-heading">Select your Site Status (i.e published or unpublished).</h2>
         <div class="step screensteps-section screensteps-depth-2" id="published">
-    <h3 id="published" class="step-title screensteps-heading">Published</h3>
+    <h3 class="step-title screensteps-heading">Published</h3>
   </div>
  
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/001/322/860/original/888b5df8-6a4a-4c8d-9366-aa2e4cd53862.png" alt='Site Status (i.e published or unpublished) with "Publish site" radio button selected.' height="134" width="480">
+    <img src="https://media.screensteps.com/image_assets/assets/002/360/046/original/e06b6523-698d-4554-8b58-0a342346bfd5.png" alt="" height="144" width="405">
 </div>
  
       <div class="step-instructions screensteps-textblock">
@@ -56,13 +60,15 @@
 </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="unpublished">
-    <h3 id="unpublished" class="step-title screensteps-heading">Unpublished</h3>
+    <h3 class="step-title screensteps-heading">Unpublished</h3>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/001/322/857/original/a3468a8b-f351-47af-bb5c-ad83723244a7.png" alt='Site Status with "Leave as Draft" radio button selected. Unpublished Site note at top and Publish Now button highlighted.' height="309" width="824">
+    <a href="https://media.screensteps.com/image_assets/assets/002/360/044/original/9e1cd552-4574-41ba-bde8-3a70c7bc1883.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/002/360/044/medium/9e1cd552-4574-41ba-bde8-3a70c7bc1883.png" alt="" height="308" width="855">
+    </a>
 </div>
  
       <div class="step-instructions screensteps-textblock">
-  <p>if the site is left as draft, or <a rel="nofollow" href="content.hlp?docId=whatdoesunpublishedsitemean">unpublished</a>, only instructors/site owners may access it and students will not see the site in their list of sites. Throughout the site, instructors are presented with an <strong>Unpublished Site</strong> note and can use the <strong>Publish Now</strong> button to quickly publish a site, without going through Site Info. </p>
+  <p>If the site is left as draft, or <a href="../../81161/l/954402-what-does-unpublished-site-mean" target="_blank">unpublished</a>, only instructors/site owners may access it and students will not see the site in their list of sites. Throughout the site, instructors will see the <strong>Unpublished Site</strong> banner and can use the <strong>Publish Now</strong> button to quickly publish a site, without going through Site Info.</p>
 </div>
  
   </div>
@@ -70,9 +76,9 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="designate-additional-access">
-    <h2 id="designate-additional-access" class="step-title screensteps-heading">Designate additional access.</h2>
+    <h2 class="step-title screensteps-heading">Designate additional access.</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/001/322/861/original/5dcc0570-a1ef-45bb-b242-658daa74ea99.png" alt='Additional access settings with "Anyone" and "Logged in Users" boxes checked.' height="206" width="702">
+    <img src="https://media.screensteps.com/image_assets/assets/002/360/050/original/307382cd-6ed9-4645-bb66-42182f0605e0.png" alt="" height="206" width="702">
 </div>
  
       <div class="step-instructions screensteps-textblock">
@@ -88,21 +94,21 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="site-visibility">
-    <h2 id="site-visibility" class="step-title screensteps-heading">Site Visibility.</h2>
+    <h2 class="step-title screensteps-heading">Site Visibility.</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/001/322/859/original/f1bb6cc6-dcee-45d9-bf4f-ac066ef9528f.png" alt="Site Visibility setting." height="70" width="660">
+    <img src="https://media.screensteps.com/image_assets/assets/002/360/048/original/5baf408a-7fa0-4e79-b6ff-d46dd6f6aedd.png" alt="" height="80" width="341">
 </div>
  
       <div class="step-instructions screensteps-textblock">
-  <p>If site visibility is set to <strong>Display in Site Browser</strong>, all people with access to the Sakai system may search for your site from the <a rel="nofollow" href="content.hlp?docId=whatisworksitesetup">Worksite Setup</a> tool.  If set to <strong>Private</strong>, your site will not show up in a search. </p>
+  <p>If site visibility is set to <strong>Display in Site Browser</strong>, all people with access to the Sakai system may search for your site from the <a href="../../81161/l/954481-what-is-worksite-setup" target="_blank">Worksite Setup</a> tool.  If set to <strong>Private</strong>, your site will not show up in a search.</p>
 </div>
  
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="select-your-global-access-setting">
-    <h2 id="select-your-global-access-setting" class="step-title screensteps-heading">Select your Global Access setting.</h2>
+    <h2 class="step-title screensteps-heading">Select your Global Access setting (optional).</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/001/322/856/original/7b51cfe9-52ad-4c39-8ae4-9f63ad2a41a1.png" alt='Global Access setting with "Allow any Sakai user to join site" radio button selected and role dropdown showing choices..' height="357" width="727">
+    <img src="https://media.screensteps.com/image_assets/assets/002/360/052/original/dd1b783c-0e9a-4bea-8c23-2464fa4acc12.png" alt="" height="357" width="808">
 </div>
  
       <div class="step-instructions screensteps-textblock">

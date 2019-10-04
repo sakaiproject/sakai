@@ -8,33 +8,35 @@
 <link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="/library/js/jquery/featherlight/0.4.0/featherlight.min.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="/library/js/jquery/featherlight/0.4.0/featherlight.min.js" type="text/javascript" charset="utf-8"></script><script type="text/javascript" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    includeWebjarLibrary('featherlight');
     $(document).ready(function(){
-      $("a[rel^='featherlight']").featherlight({
+      $("a.screensteps-image-zoom").featherlight({
         type: { image:true },
-    closeOnClick: 'anywhere'
+        closeOnClick: 'anywhere'
       }); 
     });   
-  </script>
+</script>
 </head>
 <body>
-  <div id="wrapper"><div id="article-content">
-<div id="article-header"><h1 class="article-title">How do I give specific students different time or date settings for an assessment?</h1></div>
-<div id="article-description">  <div class="step-instructions screensteps-textblock">
+  <div><div>
+<div><h1 class="article-title">How do I give specific students different time or date settings for an assessment?</h1></div>
+<div>  <div class="step-instructions screensteps-textblock">
   <p>Some students in your class may need different assessment settings from others. For example, a student could require extra time on a timed assessment, or multiple rosters or sections in the same course site could be administered the same assessment on different dates. The <strong>Exceptions to Time Limit and Delivery Date</strong> settings allow instructors to create exceptions for specific students, without having to create separate copies of the assessment. </p>
 </div>
  
-    <div class="step screensteps-section screensteps-depth-1" id="in-the-assessment-settings-page-click-availability-and-submissions">
-    <h2 id="in-the-assessment-settings-page-click-availability-and-submissions" class="step-title screensteps-heading">In the assessment Settings page, click Exceptions to Time Limit and Delivery Date.</h2>
+    <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">In the assessment Settings page, click Exceptions to Time Limit and Delivery Date.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/174/451/original/b6264a8b-c0cd-4f76-bdaa-3786bdf36ed6.png" alt="" height="287" width="686">
 </div>
  
   </div>
  
-    <div class="step screensteps-section screensteps-depth-1" id="the-availability-and-submissions-section-will-expand-to-show-the-following-options">
-    <h2 id="the-availability-and-submissions-section-will-expand-to-show-the-following-options" class="step-title screensteps-heading">The Exceptions to Time Limit and Delivery Date section will expand to show the following options:</h2>
+    <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">The Exceptions to Time Limit and Delivery Date section will expand to show the following options:</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/174/455/original/477bac27-9321-4416-90b2-3df28aeed80f.png" alt="" height="508" width="714">
 </div>
@@ -42,7 +44,7 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="select-the-user-from-the-drop-down-list-of-enrolled-students">
-    <h2 id="select-the-user-from-the-drop-down-list-of-enrolled-students" class="step-title screensteps-heading">Select the user from the drop-down list of enrolled students. </h2>
+    <h2 class="step-title screensteps-heading">Select the user from the drop-down list of enrolled students. </h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/174/463/original/c87b6eba-a146-4e7b-bdda-c52e8298f112.png" alt="" height="61" width="143">
 </div>
@@ -50,7 +52,7 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="or-select-the-group-from-the-drop-down-list-of-groups-in-the-site">
-    <h2 id="or-select-the-group-from-the-drop-down-list-of-groups-in-the-site" class="step-title screensteps-heading">Or, select the group from the drop-down list of groups in the site.</h2>
+    <h2 class="step-title screensteps-heading">Or, select the group from the drop-down list of groups in the site.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/174/453/original/6c23e2bd-4894-498e-bf2d-1d52ab199fe5.png" alt="" height="67" width="158">
 </div>
@@ -61,8 +63,8 @@
  
   </div>
  
-    <div class="step screensteps-section screensteps-depth-1" id="availability-dates">
-    <h2 id="availability-dates" class="step-title screensteps-heading">Availability Dates Exception</h2>
+    <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Availability Dates Exception</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/174/465/original/5b77a830-c3cc-4a13-a914-7c9d9496b2ac.png" alt="" height="603" width="569">
 </div>
@@ -81,8 +83,8 @@
  
   </div>
  
-    <div class="step screensteps-section screensteps-depth-1" id="timed-assessment">
-    <h2 id="timed-assessment" class="step-title screensteps-heading">Time limit exception</h2>
+    <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Time limit exception</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/174/457/original/d7068a14-1963-402a-a253-3373dd100947.png" alt="" height="71" width="539">
 </div>
@@ -94,7 +96,7 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="click-add-exception">
-    <h2 id="click-add-exception" class="step-title screensteps-heading">Click Add Exception.</h2>
+    <h2 class="step-title screensteps-heading">Click Add Exception.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/174/449/original/de3508a8-d4a0-41f5-8fa1-334408e961b6.png" alt="" height="105" width="694">
 </div>
@@ -102,7 +104,7 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="existing-exceptions-will-display">
-    <h2 id="existing-exceptions-will-display" class="step-title screensteps-heading">Existing exceptions will display.</h2>
+    <h2 class="step-title screensteps-heading">Existing exceptions will display.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/174/459/original/dbdf4fc7-4938-49af-90b1-2083fccd6ea3.png" alt="" height="187" width="727">
 </div>

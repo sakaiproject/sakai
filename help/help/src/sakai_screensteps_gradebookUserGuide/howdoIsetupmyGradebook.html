@@ -8,25 +8,27 @@
 <link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="/library/js/jquery/featherlight/0.4.0/featherlight.min.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="/library/js/jquery/featherlight/0.4.0/featherlight.min.js" type="text/javascript" charset="utf-8"></script><script type="text/javascript" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    includeWebjarLibrary('featherlight');
     $(document).ready(function(){
-      $("a[rel^='featherlight']").featherlight({
+      $("a.screensteps-image-zoom").featherlight({
         type: { image:true },
-    closeOnClick: 'anywhere'
+        closeOnClick: 'anywhere'
       }); 
     });   
-  </script>
+</script>
 </head>
 <body>
-  <div id="wrapper"><div id="article-content">
-<div id="article-header"><h1 class="article-title">How do I set up my Gradebook?</h1></div>
-<div id="article-description">  <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+  <div><div>
+<div><h1 class="article-title">How do I set up my Gradebook?</h1></div>
+<div>  <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
   <p>The Gradebook is the hub for all graded activities and points earned in your site. There are several settings you can set up for your site, such as Grade Entry in points/percentages, Grade Release Rules, Categories and Weighting, and Grading Schema. </p>
 </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="go-to-gradebook">
-    <h2 id="go-to-gradebook" class="step-title screensteps-heading">Go to Gradebook.</h2>
+    <h2 class="step-title screensteps-heading">Go to Gradebook.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/279/082/original/16497b23-9319-47f2-82af-8588f435f4df.png" alt="" height="122" width="200">
 </div>
@@ -38,15 +40,15 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="click-settings">
-    <h2 id="click-settings" class="step-title screensteps-heading">Click Settings.</h2>
+    <h2 class="step-title screensteps-heading">Click Settings.</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/002/279/077/original/bbe7d487-7b39-4dc4-b437-632671aa3625.png" alt="" height="399" width="788">
+    <img src="https://media.screensteps.com/image_assets/assets/002/710/451/original/1393d1a4-1a03-4037-84c8-6e50198bc25f.png" alt="" height="445" width="842">
 </div>
  
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="grade-entry">
-    <h2 id="grade-entry" class="step-title screensteps-heading">Grade Entry.</h2>
+    <h2 class="step-title screensteps-heading">Grade Entry.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/279/075/original/3f3d72d5-da2b-4968-a1dc-81cb47afee75.png" alt="" height="159" width="772">
 </div>
@@ -58,7 +60,7 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="grade-release-rules">
-    <h2 id="grade-release-rules" class="step-title screensteps-heading">Grade Release Rules.</h2>
+    <h2 class="step-title screensteps-heading">Grade Release Rules.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/279/099/original/4405d619-aa82-4022-86be-0641b6a9799e.png" alt="" height="436" width="814">
 </div>
@@ -73,8 +75,26 @@
  
   </div>
  
+    <div class="step screensteps-section screensteps-depth-1" id="statistics">
+    <h2 class="step-title screensteps-heading">Statistics.</h2>
+      <div class="image screensteps-image">
+    <a href="https://media.screensteps.com/image_assets/assets/002/710/453/original/df0b2b30-ca5e-4781-a393-f1c2b26bb9ea.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/002/710/453/medium/df0b2b30-ca5e-4781-a393-f1c2b26bb9ea.png" alt="" height="525" width="855">
+    </a>
+</div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <ol>
+<li>Check the <strong>Display assignment statistics to students</strong> box to allow students to view the distribution of grades for individual assignments. </li>
+<li>Check the <strong>Display course grade statistics to students</strong> box to allow students to view the distribution of overall course grades for the class.</li>
+</ol>
+<p><em>Note: These options are typically selected by default. (Your system administrator may configure the default to be de-selected by setting the appropriate property in the Sakai system configuration file.)</em></p>
+</div>
+ 
+  </div>
+ 
     <div class="step screensteps-section screensteps-depth-1" id="categories-and-weighting">
-    <h2 id="categories-and-weighting" class="step-title screensteps-heading">Categories and Weighting.</h2>
+    <h2 class="step-title screensteps-heading">Categories and Weighting.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/279/104/original/20ed0a83-9a3c-47d5-8b22-89b16ed085ba.png" alt="" height="248" width="765">
 </div>
@@ -89,7 +109,7 @@
 </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="adding-categories">
-    <h3 id="adding-categories" class="step-title screensteps-heading">Adding categories.</h3>
+    <h3 class="step-title screensteps-heading">Adding categories.</h3>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/279/086/original/ebf1af30-fd7f-40a4-a742-d448c384c25c.png" alt="" height="590" width="812">
 </div>
@@ -105,7 +125,7 @@
   </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="adding-weighting">
-    <h3 id="adding-weighting" class="step-title screensteps-heading">Adding weighting.</h3>
+    <h3 class="step-title screensteps-heading">Adding weighting.</h3>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/279/089/original/a42ffc65-ec62-4bec-933b-148016772c0e.png" alt="" height="622" width="799">
 </div>
@@ -122,9 +142,9 @@
   </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="enabling-drop-lowest-and-or-keep-highest">
-    <h3 id="enabling-drop-lowest-and-or-keep-highest" class="step-title screensteps-heading">Enabling drop lowest and/or keep highest.</h3>
+    <h3 class="step-title screensteps-heading">Enabling drop lowest and/or keep highest.</h3>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/002/279/101/original/d2c58700-b736-4521-9015-e52d8da927d8.png" class="screensteps-image-zoom">
+    <a href="https://media.screensteps.com/image_assets/assets/002/279/101/original/d2c58700-b736-4521-9015-e52d8da927d8.png" class="screensteps-image-zoom">
       <img src="https://media.screensteps.com/image_assets/assets/002/279/101/medium/d2c58700-b736-4521-9015-e52d8da927d8.png" alt="" height="630" width="855">
     </a>
 </div>
@@ -149,20 +169,20 @@
   </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="extra-credit-category">
-    <h3 id="extra-credit-category" class="step-title screensteps-heading">Extra credit category.</h3>
+    <h3 class="step-title screensteps-heading">Extra credit category.</h3>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/279/092/original/0a005728-5596-4e78-a0ec-20c3b2f672f4.png" alt="" height="680" width="831">
 </div>
  
       <div class="step-instructions screensteps-textblock">
-  <p>If you would like to designate a category as extra credit, select the check box in the <strong>Extra Credit </strong>column next to the category.  Extra credit items add to the student's total grade, but points do not detract from the overall grade if not completed. For more information on extra credit, see <a rel="nofollow" href="../../81161/l/954441-how-does-extra-credit-work-in-gradebook" target="_blank">How does extra credit work?</a></p>
+  <p>If you would like to designate a category as extra credit, select the check box in the <strong>Extra Credit </strong>column next to the category.  Extra credit items add to the student's total grade, but points do not detract from the overall grade if not completed. For more information on extra credit, see <a href="../../81161/l/954441-how-does-extra-credit-work-in-gradebook">How does extra credit work?</a></p>
 <p><em>Tip: Both entire categories and individual gradebook items may be designated as extra credit. However, you cannot have an extra credit item within an extra credit category.  </em></p>
 </div>
  
   </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="reordering-categories">
-    <h3 id="reordering-categories" class="step-title screensteps-heading">Reordering categories.</h3>
+    <h3 class="step-title screensteps-heading">Reordering categories.</h3>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/279/079/original/7cbe18a3-0d9b-41fc-80fb-0bd7b90afc1c.png" alt="Reordering categories." height="271" width="833">
 </div>
@@ -174,7 +194,7 @@
   </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="deleting-categories">
-    <h3 id="deleting-categories" class="step-title screensteps-heading">Deleting categories.</h3>
+    <h3 class="step-title screensteps-heading">Deleting categories.</h3>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/279/097/original/3241ac83-9cef-43a7-8296-c060be6c264e.png" alt="" height="278" width="830">
 </div>
@@ -188,9 +208,9 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="grading-schema">
-    <h2 id="grading-schema" class="step-title screensteps-heading">Grading Schema.</h2>
+    <h2 class="step-title screensteps-heading">Grading Schema.</h2>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/002/279/084/original/c017cb73-f713-49e6-9de9-5559f62c654b.png" class="screensteps-image-zoom">
+    <a href="https://media.screensteps.com/image_assets/assets/002/279/084/original/c017cb73-f713-49e6-9de9-5559f62c654b.png" class="screensteps-image-zoom">
       <img src="https://media.screensteps.com/image_assets/assets/002/279/084/medium/c017cb73-f713-49e6-9de9-5559f62c654b.png" alt="" height="423" width="855">
     </a>
 </div>
@@ -205,7 +225,7 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="save-your-changes">
-    <h2 id="save-your-changes" class="step-title screensteps-heading">Save your changes.</h2>
+    <h2 class="step-title screensteps-heading">Save your changes.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/279/095/original/9a1cc7ff-1224-4986-a707-501310d251dd.png" alt="" height="54" width="198">
 </div>

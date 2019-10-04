@@ -8,21 +8,23 @@
 <link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="/library/js/jquery/featherlight/0.4.0/featherlight.min.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="/library/js/jquery/featherlight/0.4.0/featherlight.min.js" type="text/javascript" charset="utf-8"></script><script type="text/javascript" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    includeWebjarLibrary('featherlight');
     $(document).ready(function(){
-      $("a[rel^='featherlight']").featherlight({
+      $("a.screensteps-image-zoom").featherlight({
         type: { image:true },
-    closeOnClick: 'anywhere'
+        closeOnClick: 'anywhere'
       }); 
     });   
-  </script>
+</script>
 </head>
 <body>
-  <div id="wrapper"><div id="article-content">
-<div id="article-header"><h1 class="article-title">How do I add a rubric to a forum topic?</h1></div>
-<div id="article-description">    <div class="step screensteps-section screensteps-depth-1" id="go-to-the-forum-tool">
-    <h2 id="go-to-the-forum-tool" class="step-title screensteps-heading">Go to Forums.</h2>
+  <div><div>
+<div><h1 class="article-title">How do I add a rubric to a forum topic?</h1></div>
+<div>    <div class="step screensteps-section screensteps-depth-1" id="go-to-the-forum-tool">
+    <h2 class="step-title screensteps-heading">Go to Forums.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/328/345/original/5fb66e65-1415-44b6-8e0e-815b27c7551a.png" alt="" height="122" width="201">
 </div>
@@ -34,7 +36,7 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="select-the-topic-settings">
-    <h2 id="select-the-topic-settings" class="step-title screensteps-heading">Go to Topic Settings for a new or existing forum topic.</h2>
+    <h2 class="step-title screensteps-heading">Go to Topic Settings for a new or existing forum topic.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/328/320/original/312c37bf-ac47-44af-bf61-5eb4eb8721ba.png" alt="" height="226" width="492">
 </div>
@@ -42,7 +44,7 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="scroll-to-the-grading-rubric-area">
-    <h2 id="scroll-to-the-grading-rubric-area" class="step-title screensteps-heading">In the Grading section, choose the gradebook item to associate with this topic.</h2>
+    <h2 class="step-title screensteps-heading">In the Grading section, choose the gradebook item to associate with this topic.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/328/338/original/8e6e3027-eafb-4e6c-8163-6edf4b80d1e3.png" alt="" height="119" width="775">
 </div>
@@ -53,8 +55,8 @@
  
   </div>
  
-    <div class="step screensteps-section screensteps-depth-1" id="scroll-down-until-you-reach-the-grading-options-which-has-now-been-added">
-    <h2 id="scroll-down-until-you-reach-the-grading-options-which-has-now-been-added" class="step-title screensteps-heading">Configure the rubric options.</h2>
+    <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Configure the rubric options.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/328/330/original/d28fff73-0cb9-4b5b-b660-7c69ffd4f488.png" alt="" height="217" width="412">
 </div>
@@ -72,18 +74,18 @@
  
   </div>
  
-    <div class="step screensteps-section screensteps-depth-1" id="click-use-the-following-rubric-to-grade-this-assignment">
-    <h2 id="click-use-the-following-rubric-to-grade-this-assignment" class="step-title screensteps-heading">Select Save when you have finished setting up the topic.</h2>
+    <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Select Save when you have finished setting up the topic.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/328/334/original/d56ef81b-8620-4e9a-8526-6a0875bf79e8.png" alt="" height="47" width="528">
 </div>
  
   </div>
  
-    <div class="step screensteps-section screensteps-depth-1" id="enter-a-rubric-title">
-    <h2 id="enter-a-rubric-title" class="step-title screensteps-heading">Your forum topic now has a rubric attached.</h2>
+    <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Your forum topic now has a rubric attached.</h2>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/002/328/325/original/fc305cfb-7e11-4c4f-855e-edec0ee5df5a.png" class="screensteps-image-zoom">
+    <a href="https://media.screensteps.com/image_assets/assets/002/328/325/original/fc305cfb-7e11-4c4f-855e-edec0ee5df5a.png" class="screensteps-image-zoom">
       <img src="https://media.screensteps.com/image_assets/assets/002/328/325/medium/fc305cfb-7e11-4c4f-855e-edec0ee5df5a.png" alt="" height="190" width="855">
     </a>
 </div>

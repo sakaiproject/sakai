@@ -8,20 +8,22 @@
 <link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="/library/js/jquery/featherlight/0.4.0/featherlight.min.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="/library/js/jquery/featherlight/0.4.0/featherlight.min.js" type="text/javascript" charset="utf-8"></script><script type="text/javascript" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    includeWebjarLibrary('featherlight');
     $(document).ready(function(){
-      $("a[rel^='featherlight']").featherlight({
+      $("a.screensteps-image-zoom").featherlight({
         type: { image:true },
-    closeOnClick: 'anywhere'
+        closeOnClick: 'anywhere'
       }); 
     });   
-  </script>
+</script>
 </head>
 <body>
-  <div id="wrapper"><div id="article-content">
-<div id="article-header"><h1 class="article-title">How can I make videos and audio files more accessible?</h1></div>
-<div id="article-description">
+  <div><div>
+<div><h1 class="article-title">How can I make videos and audio files more accessible?</h1></div>
+<div>
   <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
   <p>When you include video or audio content in your document, you must provide an alternative method for your audience to understand the content if they cannot hear the audio or see the images in the video.  You can improve video and audio accessibility by providing transcripts and captions, and descriptions of video images.</p>
 <p>Please contact your institution's office for Disability Student Services and/or Information Technology Services for students to get help with accessibility issues and instructors to get help with adapting their course content for accessibility.</p>
@@ -29,8 +31,8 @@
 
 
   
-  <div class="step screensteps-section screensteps-depth-1" id="">
-    <h2 id="" class="step-title screensteps-heading">Provide a transcript.</h2>
+  <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Provide a transcript.</h2>
     
       <div class="image screensteps-image">
   
@@ -53,8 +55,8 @@
 
 
   
-  <div class="step screensteps-section screensteps-depth-1" id="">
-    <h2 id="" class="step-title screensteps-heading">Use video with captions.</h2>
+  <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Use video with captions.</h2>
     
       <div class="image screensteps-image">
   
@@ -76,8 +78,8 @@
 
 
   
-  <div class="step screensteps-section screensteps-depth-1" id="">
-    <h2 id="" class="step-title screensteps-heading">Include an audio description for video.</h2>
+  <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Include an audio description for video.</h2>
     
       <div class="step-instructions screensteps-textblock">
   <p>Audio descriptions are required for important visual elements of a video that aren't already described in spoken text.  For example, if a graph or chart is displayed in a lecture video, and the instructor does not describe it when speaking, an audio description would be needed to supplement the video.</p>

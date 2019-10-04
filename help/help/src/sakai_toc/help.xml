@@ -557,7 +557,71 @@
       <value>Bullhorns</value>
     </property>
     <property name="resources">
-      <list/>
+      <list>
+        <ref bean="whatareBullhorns"/>
+        <ref bean="howareAcademicBullhornalertscreated"/>
+        <ref bean="howareSocialBullhornalertscreated"/>
+        <ref bean="howdoIclearmyBullhornalerts"/>
+        <ref bean="howdoIviewthecontentofanBullhornalert"/>
+      </list>
+    </property>
+  </bean>
+  <bean id="whatareBullhorns" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whatareBullhorns</value>
+    </property>
+    <property name="name">
+      <value>What are Bullhorns?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_bullhornsUserGuide/whatareBullhorns.html</value>
+    </property>
+    <property name="defaultForTool">
+      <value>sakai.bullhorns</value>
+    </property>
+  </bean>
+  <bean id="howareAcademicBullhornalertscreated" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howareAcademicBullhornalertscreated</value>
+    </property>
+    <property name="name">
+      <value>How are Academic Bullhorn alerts created?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_bullhornsUserGuide/howareAcademicBullhornalertscreated.html</value>
+    </property>
+  </bean>
+  <bean id="howareSocialBullhornalertscreated" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howareSocialBullhornalertscreated</value>
+    </property>
+    <property name="name">
+      <value>How are Social Bullhorn alerts created?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_bullhornsUserGuide/howareSocialBullhornalertscreated.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIclearmyBullhornalerts" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIclearmyBullhornalerts</value>
+    </property>
+    <property name="name">
+      <value>How do I clear my Bullhorn alerts?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_bullhornsUserGuide/howdoIclearmyBullhornalerts.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIviewthecontentofanBullhornalert" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIviewthecontentofanBullhornalert</value>
+    </property>
+    <property name="name">
+      <value>How do I view the content of an Bullhorn alert?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_bullhornsUserGuide/howdoIviewthecontentofanBullhornalert.html</value>
     </property>
   </bean>
   <bean id="calendarUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
@@ -1967,7 +2031,7 @@
         <ref bean="howdoIdeleteaLessonssubpage"/>
         <ref bean="howdoIexportLessonscontent"/>
         <ref bean="howdoIimportLessonscontent"/>
-        <ref bean="howdostudentaddcontenttoStudentPagesinLessons"/>
+        <ref bean="howdostudentsaddcontenttoStudentPagesinLessons"/>
         <ref bean="howdoIcreatemultiplesectionsonaLessonspage"/>
         <ref bean="howdoIcreatetwocolumnsonaLessonspage"/>
         <ref bean="howdoIcreatetwocolumnsinsideablockonaLessonspage"/>
@@ -2286,15 +2350,15 @@
       <value>/sakai_screensteps_lessonsUserGuide/howdoIimportLessonscontent.html</value>
     </property>
   </bean>
-  <bean id="howdostudentaddcontenttoStudentPagesinLessons" class="org.sakaiproject.component.app.help.model.ResourceBean">
+  <bean id="howdostudentsaddcontenttoStudentPagesinLessons" class="org.sakaiproject.component.app.help.model.ResourceBean">
     <property name="docId">
-      <value>howdostudentaddcontenttoStudentPagesinLessons</value>
+      <value>howdostudentsaddcontenttoStudentPagesinLessons</value>
     </property>
     <property name="name">
-      <value>How do student add content to Student Pages in Lessons?</value>
+      <value>How do students add content to Student Pages in Lessons?</value>
     </property>
     <property name="location">
-      <value>/sakai_screensteps_lessonsUserGuide/howdostudentaddcontenttoStudentPagesinLessons.html</value>
+      <value>/sakai_screensteps_lessonsUserGuide/howdostudentsaddcontenttoStudentPagesinLessons.html</value>
     </property>
   </bean>
   <bean id="howdoIcreatemultiplesectionsonaLessonspage" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -2467,7 +2531,119 @@
       <value>Messages</value>
     </property>
     <property name="resources">
-      <list/>
+      <list>
+        <ref bean="whatistheMessagestool"/>
+        <ref bean="howdoIviewmymessages"/>
+        <ref bean="howdoIsendamessage"/>
+        <ref bean="howdoIreplytoamessage"/>
+        <ref bean="howdoIcreateaMessagesfolder"/>
+        <ref bean="howdoImoveamessage"/>
+        <ref bean="howdoIdeleteamessage"/>
+        <ref bean="howdoImodifythesettingsforMessages"/>
+        <ref bean="howdoIdeterminewhositeparticipantscansendamessageto"/>
+      </list>
+    </property>
+  </bean>
+  <bean id="whatistheMessagestool" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whatistheMessagestool</value>
+    </property>
+    <property name="name">
+      <value>What is the Messages tool?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_messagesUserGuide/whatistheMessagestool.html</value>
+    </property>
+    <property name="defaultForTool">
+      <value>sakai.messages</value>
+    </property>
+  </bean>
+  <bean id="howdoIviewmymessages" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIviewmymessages</value>
+    </property>
+    <property name="name">
+      <value>How do I view my messages?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_messagesUserGuide/howdoIviewmymessages.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIsendamessage" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIsendamessage</value>
+    </property>
+    <property name="name">
+      <value>How do I send a message?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_messagesUserGuide/howdoIsendamessage.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIreplytoamessage" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIreplytoamessage</value>
+    </property>
+    <property name="name">
+      <value>How do I reply to a message?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_messagesUserGuide/howdoIreplytoamessage.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIcreateaMessagesfolder" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIcreateaMessagesfolder</value>
+    </property>
+    <property name="name">
+      <value>How do I create a Messages folder?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_messagesUserGuide/howdoIcreateaMessagesfolder.html</value>
+    </property>
+  </bean>
+  <bean id="howdoImoveamessage" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoImoveamessage</value>
+    </property>
+    <property name="name">
+      <value>How do I move a message?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_messagesUserGuide/howdoImoveamessage.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIdeleteamessage" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIdeleteamessage</value>
+    </property>
+    <property name="name">
+      <value>How do I delete a message?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_messagesUserGuide/howdoIdeleteamessage.html</value>
+    </property>
+  </bean>
+  <bean id="howdoImodifythesettingsforMessages" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoImodifythesettingsforMessages</value>
+    </property>
+    <property name="name">
+      <value>How do I modify the settings for Messages?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_messagesUserGuide/howdoImodifythesettingsforMessages.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIdeterminewhositeparticipantscansendamessageto" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIdeterminewhositeparticipantscansendamessageto</value>
+    </property>
+    <property name="name">
+      <value>How do I determine who site participants can send a message to?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_messagesUserGuide/howdoIdeterminewhositeparticipantscansendamessageto.html</value>
     </property>
   </bean>
   <bean id="newsUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
@@ -2550,6 +2726,7 @@
       <list>
         <ref bean="whatisOverview"/>
         <ref bean="howdoIedittheOverviewsiteinformationdisplay"/>
+        <ref bean="howdoIchangethelayoutoftheOverviewpage"/>
       </list>
     </property>
   </bean>
@@ -2576,6 +2753,17 @@
     </property>
     <property name="location">
       <value>/sakai_screensteps_overviewUserGuide/howdoIedittheOverviewsiteinformationdisplay.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIchangethelayoutoftheOverviewpage" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIchangethelayoutoftheOverviewpage</value>
+    </property>
+    <property name="name">
+      <value>How do I change the layout of the Overview page?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_overviewUserGuide/howdoIchangethelayoutoftheOverviewpage.html</value>
     </property>
   </bean>
   <bean id="permissionsandRolesUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
@@ -2619,7 +2807,107 @@
       <value>Podcasts</value>
     </property>
     <property name="resources">
-      <list/>
+      <list>
+        <ref bean="whatisthePodcaststool"/>
+        <ref bean="howdoIaddapodcast"/>
+        <ref bean="howdoIsubscribetoapodcast"/>
+        <ref bean="howdoIallowstudentstouploadpodcastfiles"/>
+        <ref bean="howdoIviewordownloadanindividualpodcast"/>
+        <ref bean="howdoIdeleteapodcast"/>
+        <ref bean="howdoIeditapodcast"/>
+        <ref bean="howdoIeditapodcastfeed"/>
+      </list>
+    </property>
+  </bean>
+  <bean id="whatisthePodcaststool" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whatisthePodcaststool</value>
+    </property>
+    <property name="name">
+      <value>What is the Podcasts tool?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_podcastsUserGuide/whatisthePodcaststool.html</value>
+    </property>
+    <property name="defaultForTool">
+      <value>sakai.podcasts</value>
+    </property>
+  </bean>
+  <bean id="howdoIaddapodcast" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIaddapodcast</value>
+    </property>
+    <property name="name">
+      <value>How do I add a podcast?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_podcastsUserGuide/howdoIaddapodcast.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIsubscribetoapodcast" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIsubscribetoapodcast</value>
+    </property>
+    <property name="name">
+      <value>How do I subscribe to a podcast?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_podcastsUserGuide/howdoIsubscribetoapodcast.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIallowstudentstouploadpodcastfiles" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIallowstudentstouploadpodcastfiles</value>
+    </property>
+    <property name="name">
+      <value>How do I allow students to upload podcast files?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_podcastsUserGuide/howdoIallowstudentstouploadpodcastfiles.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIviewordownloadanindividualpodcast" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIviewordownloadanindividualpodcast</value>
+    </property>
+    <property name="name">
+      <value>How do I view or download an individual podcast?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_podcastsUserGuide/howdoIviewordownloadanindividualpodcast.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIdeleteapodcast" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIdeleteapodcast</value>
+    </property>
+    <property name="name">
+      <value>How do I delete a podcast?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_podcastsUserGuide/howdoIdeleteapodcast.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIeditapodcast" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIeditapodcast</value>
+    </property>
+    <property name="name">
+      <value>How do I edit a podcast?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_podcastsUserGuide/howdoIeditapodcast.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIeditapodcastfeed" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIeditapodcastfeed</value>
+    </property>
+    <property name="name">
+      <value>How do I edit a podcast feed?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_podcastsUserGuide/howdoIeditapodcastfeed.html</value>
     </property>
   </bean>
   <bean id="pollsUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
@@ -3352,7 +3640,6 @@
         <ref bean="howdoIembedanmp4videoinatextbox"/>
         <ref bean="howdoIembedanmp3audioinatextbox"/>
         <ref bean="howdoIsetmypreferencefortheRichTextEditormode"/>
-        <ref bean="howdoIchangetherighttoleftlanguagedirection"/>
       </list>
     </property>
   </bean>
@@ -3533,17 +3820,6 @@
     </property>
     <property name="location">
       <value>/sakai_screensteps_richTextEditorUserGuide/howdoIsetmypreferencefortheRichTextEditormode.html</value>
-    </property>
-  </bean>
-  <bean id="howdoIchangetherighttoleftlanguagedirection" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoIchangetherighttoleftlanguagedirection</value>
-    </property>
-    <property name="name">
-      <value>How do I change the right to left language direction?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_richTextEditorUserGuide/howdoIchangetherighttoleftlanguagedirection.html</value>
     </property>
   </bean>
   <bean id="rosterUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
@@ -4190,7 +4466,7 @@
         <ref bean="howdoIcontrolsiteaccess"/>
         <ref bean="howdoImakemysitepubliclyavailable"/>
         <ref bean="howdoIduplicateasite"/>
-        <ref bean="howdoIcopymycontentfromonesitetoanother"/>
+        <ref bean="howdoIcopymycontentfromonesitetoanotherieimportfromsite"/>
         <ref bean="howdoIimportcontentfromanarchivefile"/>
         <ref bean="whatistheUserAuditLog"/>
         <ref bean="howdoIaddLaTeXlanguagetomycoursesite"/>
@@ -4357,15 +4633,15 @@
       <value>/sakai_screensteps_siteInfoUserGuide/howdoIduplicateasite.html</value>
     </property>
   </bean>
-  <bean id="howdoIcopymycontentfromonesitetoanother" class="org.sakaiproject.component.app.help.model.ResourceBean">
+  <bean id="howdoIcopymycontentfromonesitetoanotherieimportfromsite" class="org.sakaiproject.component.app.help.model.ResourceBean">
     <property name="docId">
-      <value>howdoIcopymycontentfromonesitetoanother</value>
+      <value>howdoIcopymycontentfromonesitetoanotherieimportfromsite</value>
     </property>
     <property name="name">
-      <value>How do I copy my content from one site to another?</value>
+      <value>How do I copy my content from one site to another (i.e. import from site)?</value>
     </property>
     <property name="location">
-      <value>/sakai_screensteps_siteInfoUserGuide/howdoIcopymycontentfromonesitetoanother.html</value>
+      <value>/sakai_screensteps_siteInfoUserGuide/howdoIcopymycontentfromonesitetoanotherieimportfromsite.html</value>
     </property>
   </bean>
   <bean id="howdoIimportcontentfromanarchivefile" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -6722,8 +6998,71 @@
     </property>
     <property name="resources">
       <list>
+        <ref bean="whatistheSitestool"/>
+        <ref bean="howdoIsearchforasiteusingtheSitestool"/>
+        <ref bean="howdoIaddasiteusingtheSitestool"/>
+        <ref bean="howdoIeditasiteusingtheSitestool"/>
+        <ref bean="howdoISoftDeleteasitefromtheSitestool"/>
         <ref bean="howdoIaddastealthedtooltoasite"/>
       </list>
+    </property>
+  </bean>
+  <bean id="whatistheSitestool" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whatistheSitestool</value>
+    </property>
+    <property name="name">
+      <value>What is the Sites tool?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_sitesAdministratorGuide/whatistheSitestool.html</value>
+    </property>
+    <property name="defaultForTool">
+      <value>sakai.sites</value>
+    </property>
+  </bean>
+  <bean id="howdoIsearchforasiteusingtheSitestool" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIsearchforasiteusingtheSitestool</value>
+    </property>
+    <property name="name">
+      <value>How do I search for a site using the Sites tool?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_sitesAdministratorGuide/howdoIsearchforasiteusingtheSitestool.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIaddasiteusingtheSitestool" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIaddasiteusingtheSitestool</value>
+    </property>
+    <property name="name">
+      <value>How do I add a site using the Sites tool?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_sitesAdministratorGuide/howdoIaddasiteusingtheSitestool.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIeditasiteusingtheSitestool" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIeditasiteusingtheSitestool</value>
+    </property>
+    <property name="name">
+      <value>How do I edit a site using the Sites tool?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_sitesAdministratorGuide/howdoIeditasiteusingtheSitestool.html</value>
+    </property>
+  </bean>
+  <bean id="howdoISoftDeleteasitefromtheSitestool" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoISoftDeleteasitefromtheSitestool</value>
+    </property>
+    <property name="name">
+      <value>How do I Soft Delete a site from the Sites tool?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_sitesAdministratorGuide/howdoISoftDeleteasitefromtheSitestool.html</value>
     </property>
   </bean>
   <bean id="howdoIaddastealthedtooltoasite" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -6735,9 +7074,6 @@
     </property>
     <property name="location">
       <value>/sakai_screensteps_sitesAdministratorGuide/howdoIaddastealthedtooltoasite.html</value>
-    </property>
-    <property name="defaultForTool">
-      <value>sakai.sites</value>
     </property>
   </bean>
   <bean id="sitestatsAdminAdministratorGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">

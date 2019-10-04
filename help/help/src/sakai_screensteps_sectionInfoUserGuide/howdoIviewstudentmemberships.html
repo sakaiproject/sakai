@@ -8,25 +8,27 @@
 <link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="/library/js/jquery/featherlight/0.4.0/featherlight.min.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="/library/js/jquery/featherlight/0.4.0/featherlight.min.js" type="text/javascript" charset="utf-8"></script><script type="text/javascript" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    includeWebjarLibrary('featherlight');
     $(document).ready(function(){
-      $("a[rel^='featherlight']").featherlight({
+      $("a.screensteps-image-zoom").featherlight({
         type: { image:true },
-    closeOnClick: 'anywhere'
+        closeOnClick: 'anywhere'
       }); 
     });   
-  </script>
+</script>
 </head>
 <body>
-  <div id="wrapper"><div id="article-content">
-<div id="article-header"><h1 class="article-title">How do I view student memberships?</h1></div>
-<div id="article-description">  <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+  <div><div>
+<div><h1 class="article-title">How do I view student memberships?</h1></div>
+<div>  <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
   <p>If you would like to view a list of all the students in the class which also displays the sections in which each student is a member, you can do so by viewing student memberships in the Section Info tool.</p>
 </div>
  
-    <div class="step screensteps-section screensteps-depth-1" id="go-to-section-info">
-    <h2 id="go-to-section-info" class="step-title screensteps-heading">Go to Section Info.</h2>
+    <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Go to Section Info.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/212/981/original/e7069082-13ca-449b-af94-40d9673e9ade.png" alt="Go to Section Info." height="121" width="199">
 </div>
@@ -38,7 +40,7 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="click-student-memberships">
-    <h2 id="click-student-memberships" class="step-title screensteps-heading">Click Student Memberships.</h2>
+    <h2 class="step-title screensteps-heading">Click Student Memberships.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/212/976/original/3608915c-fa9c-46c1-a63b-68a0d838d108.png" alt="Click Student Memberships." height="77" width="360">
 </div>
@@ -46,7 +48,7 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="the-list-of-students-and-their-section-membership-will-display">
-    <h2 id="the-list-of-students-and-their-section-membership-will-display" class="step-title screensteps-heading">The list of students and their section membership will display.</h2>
+    <h2 class="step-title screensteps-heading">The list of students and their section membership will display.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/212/980/original/e6255ca0-4e90-4e8e-81b4-2b7740804e88.png" alt="The list of students and their section membership will display." height="412" width="401">
 </div>
@@ -54,7 +56,7 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="find-specific-students">
-    <h2 id="find-specific-students" class="step-title screensteps-heading">Find specific students.</h2>
+    <h2 class="step-title screensteps-heading">Find specific students.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/212/978/original/b26ef56a-9db7-40cd-964b-39f6ec55cc73.png" alt="Find specific students." height="325" width="414">
 </div>

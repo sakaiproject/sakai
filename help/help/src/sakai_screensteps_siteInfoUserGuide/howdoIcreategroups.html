@@ -8,20 +8,22 @@
 <link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="/library/js/jquery/featherlight/0.4.0/featherlight.min.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="/library/js/jquery/featherlight/0.4.0/featherlight.min.js" type="text/javascript" charset="utf-8"></script><script type="text/javascript" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    includeWebjarLibrary('featherlight');
     $(document).ready(function(){
-      $("a[rel^='featherlight']").featherlight({
+      $("a.screensteps-image-zoom").featherlight({
         type: { image:true },
-    closeOnClick: 'anywhere'
+        closeOnClick: 'anywhere'
       }); 
     });   
-  </script>
+</script>
 </head>
 <body>
-  <div id="wrapper"><div id="article-content">
-<div id="article-header"><h1 class="article-title">How do I create groups?</h1></div>
-<div id="article-description">  <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+  <div><div>
+<div><h1 class="article-title">How do I create groups?</h1></div>
+<div>  <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
   <p>You may create groups in your site in several different ways:</p>
 <ul>
 <li>Manually create and assign users to a group.</li>
@@ -32,8 +34,8 @@
 <p>Once groups are created, group aware tools such as Assignments, Email, Resources, or Tests &amp; Quizzes have options for restricting access by group. </p>
 </div>
  
-    <div class="step screensteps-section screensteps-depth-1" id="go-to-site-info">
-    <h2 id="go-to-site-info" class="step-title screensteps-heading">Go to Site Info.</h2>
+    <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Go to Site Info.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/335/139/original/df864b80-7716-4f2b-adc8-9a752b5eccaa.png" alt="" height="129" width="193">
 </div>
@@ -45,7 +47,7 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="click-on-manage-groups">
-    <h2 id="click-on-manage-groups" class="step-title screensteps-heading">Click on Manage Groups.</h2>
+    <h2 class="step-title screensteps-heading">Click on Manage Groups.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/334/564/original/98d453ce-305f-4ee1-8230-3915705ceae0.png" alt="" height="77" width="787">
 </div>
@@ -53,7 +55,7 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="manually-create-a-group">
-    <h2 id="manually-create-a-group" class="step-title screensteps-heading">Manually create a group.</h2>
+    <h2 class="step-title screensteps-heading">Manually create a group.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/334/557/original/9b7fdd7d-fa9f-4e1a-b1f1-8c3388980940.png" alt="" height="46" width="464">
 </div>
@@ -63,9 +65,9 @@
 </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="enter-group-information">
-    <h3 id="enter-group-information" class="step-title screensteps-heading">Enter group information.</h3>
+    <h3 class="step-title screensteps-heading">Enter group information.</h3>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/002/334/566/original/22fb729a-a52c-4776-b590-897bfbc94c37.png" class="screensteps-image-zoom">
+    <a href="https://media.screensteps.com/image_assets/assets/002/334/566/original/22fb729a-a52c-4776-b590-897bfbc94c37.png" class="screensteps-image-zoom">
       <img src="https://media.screensteps.com/image_assets/assets/002/334/566/medium/22fb729a-a52c-4776-b590-897bfbc94c37.png" alt="" height="1190" width="855">
     </a>
 </div>
@@ -93,7 +95,7 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="create-a-joinable-group">
-    <h2 id="create-a-joinable-group" class="step-title screensteps-heading">Create a joinable group.</h2>
+    <h2 class="step-title screensteps-heading">Create a joinable group.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/334/571/original/5ee67423-3b82-44f7-b5d2-ffca3660c1c1.png" alt="" height="46" width="464">
 </div>
@@ -103,9 +105,9 @@
 </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="specify-the-joinable-set-details">
-    <h3 id="specify-the-joinable-set-details" class="step-title screensteps-heading">Specify the joinable set details.</h3>
+    <h3 class="step-title screensteps-heading">Specify the joinable set details.</h3>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/002/334/562/original/9766f959-5ba5-49ac-98d8-49062b05b88f.png" class="screensteps-image-zoom">
+    <a href="https://media.screensteps.com/image_assets/assets/002/334/562/original/9766f959-5ba5-49ac-98d8-49062b05b88f.png" class="screensteps-image-zoom">
       <img src="https://media.screensteps.com/image_assets/assets/002/334/562/medium/9766f959-5ba5-49ac-98d8-49062b05b88f.png" alt="" height="409" width="855">
     </a>
 </div>
@@ -132,7 +134,7 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="automatically-generate-groups">
-    <h2 id="automatically-generate-groups" class="step-title screensteps-heading">Automatically generate groups.</h2>
+    <h2 class="step-title screensteps-heading">Automatically generate groups.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/334/569/original/25001966-58c6-4767-b753-41fe246b8a1f.png" alt="" height="46" width="464">
 </div>
@@ -142,9 +144,9 @@
 </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="create-groups-by-role">
-    <h3 id="create-groups-by-role" class="step-title screensteps-heading">Create groups by role.</h3>
+    <h3 class="step-title screensteps-heading">Create groups by role.</h3>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/001/335/413/original/a1cc1234-9e68-4585-9c58-ba008089f5da.png" class="screensteps-image-zoom">
+    <a href="https://media.screensteps.com/image_assets/assets/001/335/413/original/a1cc1234-9e68-4585-9c58-ba008089f5da.png" class="screensteps-image-zoom">
       <img src="https://media.screensteps.com/image_assets/assets/001/335/413/medium/a1cc1234-9e68-4585-9c58-ba008089f5da.png" alt="" height="407" width="855">
     </a>
 </div>
@@ -160,9 +162,9 @@
   </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="create-random-groups-by-number-of-groups">
-    <h3 id="create-random-groups-by-number-of-groups" class="step-title screensteps-heading">Create random groups by number of groups.</h3>
+    <h3 class="step-title screensteps-heading">Create random groups by number of groups.</h3>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/001/335/408/original/8031d667-dee8-4158-b616-2bd2edbb4c89.png" class="screensteps-image-zoom">
+    <a href="https://media.screensteps.com/image_assets/assets/001/335/408/original/8031d667-dee8-4158-b616-2bd2edbb4c89.png" class="screensteps-image-zoom">
       <img src="https://media.screensteps.com/image_assets/assets/001/335/408/medium/8031d667-dee8-4158-b616-2bd2edbb4c89.png" alt="" height="512" width="855">
     </a>
 </div>
@@ -181,9 +183,9 @@
   </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="create-random-groups-by-number-of-users-per-group">
-    <h3 id="create-random-groups-by-number-of-users-per-group" class="step-title screensteps-heading">Create random groups by number of users per group.</h3>
+    <h3 class="step-title screensteps-heading">Create random groups by number of users per group.</h3>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/001/335/406/original/899869d4-05aa-4d76-8d54-ce6284cf3ff8.png" class="screensteps-image-zoom">
+    <a href="https://media.screensteps.com/image_assets/assets/001/335/406/original/899869d4-05aa-4d76-8d54-ce6284cf3ff8.png" class="screensteps-image-zoom">
       <img src="https://media.screensteps.com/image_assets/assets/001/335/406/medium/899869d4-05aa-4d76-8d54-ce6284cf3ff8.png" alt="" height="491" width="855">
     </a>
 </div>
@@ -204,7 +206,7 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="import-from-file">
-    <h2 id="import-from-file" class="step-title screensteps-heading">Bulk Creation.</h2>
+    <h2 class="step-title screensteps-heading">Bulk Creation.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/334/555/original/82f315fe-0e18-4a14-8420-2a1036aa41fa.png" alt="" height="46" width="464">
 </div>
@@ -214,7 +216,7 @@
 </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="choose-file">
-    <h3 id="choose-file" class="step-title screensteps-heading">Provide group information.</h3>
+    <h3 class="step-title screensteps-heading">Provide group information.</h3>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/334/560/original/dc293a2b-7e31-488c-80b4-9b88184b02b7.png" alt="" height="602" width="775">
 </div>
@@ -232,7 +234,7 @@
 </div>
  
         <div class="step screensteps-section screensteps-depth-3" id="example-csv-file-for-importing-groups">
-    <h4 id="example-csv-file-for-importing-groups" class="step-title screensteps-heading">Example: CSV file for importing groups</h4>
+    <h4 class="step-title screensteps-heading">Example: CSV file for importing groups</h4>
   </div>
  
       <div class="image screensteps-image">

@@ -8,25 +8,27 @@
 <link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="/library/js/jquery/featherlight/0.4.0/featherlight.min.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="/library/js/jquery/featherlight/0.4.0/featherlight.min.js" type="text/javascript" charset="utf-8"></script><script type="text/javascript" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    includeWebjarLibrary('featherlight');
     $(document).ready(function(){
-      $("a[rel^='featherlight']").featherlight({
+      $("a.screensteps-image-zoom").featherlight({
         type: { image:true },
-    closeOnClick: 'anywhere'
+        closeOnClick: 'anywhere'
       }); 
     });   
-  </script>
+</script>
 </head>
 <body>
-  <div id="wrapper"><div id="article-content">
-<div id="article-header"><h1 class="article-title">What Resources are specific to admin users?</h1></div>
-<div id="article-description">  <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+  <div><div>
+<div><h1 class="article-title">What Resources are specific to admin users?</h1></div>
+<div>  <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
   <p>The Resources tool within the Administration Workspace functions the same way as the Resources tool in other sites. However, within the Administration Workspace, Resources also provides access to files and directories in the system that non-admin users do not see. </p>
 </div>
  
-    <div class="step screensteps-section screensteps-depth-1" id="go-to-resources">
-    <h2 id="go-to-resources" class="step-title screensteps-heading">Go to Resources.</h2>
+    <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Go to Resources.</h2>
       <div class="step-instructions screensteps-textblock">
   <p>Select <strong>Resources</strong> from the Tool Menu in the Administration Workspace.</p>
 </div>
@@ -38,9 +40,9 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="view-available-directories">
-    <h2 id="view-available-directories" class="step-title screensteps-heading">View available directories.</h2>
+    <h2 class="step-title screensteps-heading">View available directories.</h2>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/000/998/531/original/1814e249-b849-4959-9ac1-c90aa18baf81.png" class="screensteps-image-zoom">
+    <a href="https://media.screensteps.com/image_assets/assets/000/998/531/original/1814e249-b849-4959-9ac1-c90aa18baf81.png" class="screensteps-image-zoom">
       <img src="https://media.screensteps.com/image_assets/assets/000/998/531/medium/1814e249-b849-4959-9ac1-c90aa18baf81.png" alt="View available directories." height="522" width="855">
     </a>
 </div>

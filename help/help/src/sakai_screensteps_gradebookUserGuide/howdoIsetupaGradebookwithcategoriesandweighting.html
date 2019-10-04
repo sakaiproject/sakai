@@ -8,20 +8,22 @@
 <link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="/library/js/jquery/featherlight/0.4.0/featherlight.min.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="/library/js/jquery/featherlight/0.4.0/featherlight.min.js" type="text/javascript" charset="utf-8"></script><script type="text/javascript" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    includeWebjarLibrary('featherlight');
     $(document).ready(function(){
-      $("a[rel^='featherlight']").featherlight({
+      $("a.screensteps-image-zoom").featherlight({
         type: { image:true },
-    closeOnClick: 'anywhere'
+        closeOnClick: 'anywhere'
       }); 
     });   
-  </script>
+</script>
 </head>
 <body>
-  <div id="wrapper"><div id="article-content">
-<div id="article-header"><h1 class="article-title">How do I set up a Gradebook with categories and weighting?</h1></div>
-<div id="article-description">  <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+  <div><div>
+<div><h1 class="article-title">How do I set up a Gradebook with categories and weighting?</h1></div>
+<div>  <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
   <p>In this scenario we will pretend that you have homework, projects, a midterm, and a final to grade. You would like the weighting to be as follows:</p>
 <ul>
 <li>3 Homework assignments - 24% of the total grade</li>
@@ -33,24 +35,24 @@
 <p>It is easiest to set up your gradebook first, and then create or add items to the gradebook. But don’t worry, if you have already set up your gradebook items (homework assignments, projects,etc), you can come back and do this setup later and then assign the gradebook items to the appropriate categories. It is also easy to add categories and even change the weighting of grades at any time.</p>
 </div>
  
-    <div class="step screensteps-section screensteps-depth-1" id="go-to-gradebook">
-    <h2 id="go-to-gradebook" class="step-title screensteps-heading">Go to Gradebook.</h2>
+    <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Go to Gradebook.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/314/847/original/3fc05ab8-8f65-450b-bb78-323acccc6f2c.png" alt="Go to Gradebook." height="125" width="200">
 </div>
  
   </div>
  
-    <div class="step screensteps-section screensteps-depth-1" id="click-the-settings-tab">
-    <h2 id="click-the-settings-tab" class="step-title screensteps-heading">Click the Settings tab.</h2>
+    <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Click the Settings tab.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/314/860/original/abba9342-f77b-443b-a67f-89e19079ed7b.png" alt="Click the Settings tab." height="206" width="422">
 </div>
  
   </div>
  
-    <div class="step screensteps-section screensteps-depth-1" id="click-to-expand-the-categories-and-weighting-section">
-    <h2 id="click-to-expand-the-categories-and-weighting-section" class="step-title screensteps-heading">Click to expand the Categories and Weighting section.</h2>
+    <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Click to expand the Categories and Weighting section.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/314/855/original/c240939f-b70c-46a6-971a-5b2886347705.png" alt="Click to expand the Categories and Weighting section." height="365" width="353">
 </div>
@@ -58,9 +60,9 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="select-the-categories-weighting-radio-button">
-    <h2 id="select-the-categories-weighting-radio-button" class="step-title screensteps-heading">Select the Categories &amp; weighting radio button.</h2>
+    <h2 class="step-title screensteps-heading">Select the Categories &amp; weighting radio button.</h2>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/001/314/844/original/1d6b314d-7952-4b5a-8038-c655bda240ba.png" class="screensteps-image-zoom">
+    <a href="https://media.screensteps.com/image_assets/assets/001/314/844/original/1d6b314d-7952-4b5a-8038-c655bda240ba.png" class="screensteps-image-zoom">
       <img src="https://media.screensteps.com/image_assets/assets/001/314/844/medium/1d6b314d-7952-4b5a-8038-c655bda240ba.png" alt="Select the Categories &amp;amp; weighting radio button." height="531" width="855">
     </a>
 </div>
@@ -72,9 +74,9 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="enter-categories-and-percentage-weighting">
-    <h2 id="enter-categories-and-percentage-weighting" class="step-title screensteps-heading">Enter categories and percentage weighting.</h2>
+    <h2 class="step-title screensteps-heading">Enter categories and percentage weighting.</h2>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/001/314/849/original/866b507b-3911-46cb-afcb-b14ed527c3f1.png" class="screensteps-image-zoom">
+    <a href="https://media.screensteps.com/image_assets/assets/001/314/849/original/866b507b-3911-46cb-afcb-b14ed527c3f1.png" class="screensteps-image-zoom">
       <img src="https://media.screensteps.com/image_assets/assets/001/314/849/medium/866b507b-3911-46cb-afcb-b14ed527c3f1.png" alt="Enter categories and percentage weighting." height="659" width="855">
     </a>
 </div>
@@ -89,16 +91,16 @@
  
   </div>
  
-    <div class="step screensteps-section screensteps-depth-1" id="click-the-grades-tab">
-    <h2 id="click-the-grades-tab" class="step-title screensteps-heading">Click the Grades tab.</h2>
+    <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Click the Grades tab.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/314/854/original/27949e0e-375f-4804-a9ab-db4b249fb005.png" alt="Click the Grades tab." height="190" width="391">
 </div>
  
   </div>
  
-    <div class="step screensteps-section screensteps-depth-1" id="click-add-gradebook-item-to-create-items-and-associate-them-with-the-appropriate-categories">
-    <h2 id="click-add-gradebook-item-to-create-items-and-associate-them-with-the-appropriate-categories" class="step-title screensteps-heading">Click Add Gradebook Item to create items and associate them with the appropriate categories.</h2>
+    <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Click Add Gradebook Item to create items and associate them with the appropriate categories.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/314/852/original/87cac7d4-67aa-4a4d-ad7f-a909cc960a54.png" alt="Click Add Gradebook Item to create items and associate them with the appropriate categories." height="653" width="585">
 </div>
@@ -116,10 +118,10 @@
  
   </div>
  
-    <div class="step screensteps-section screensteps-depth-1" id="to-test-our-scenario">
-    <h2 id="to-test-our-scenario" class="step-title screensteps-heading">To test our scenario:</h2>
+    <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">To test our scenario:</h2>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/001/314/857/original/9aad937f-d231-4f50-bb04-8e826e3d88f5.png" class="screensteps-image-zoom">
+    <a href="https://media.screensteps.com/image_assets/assets/001/314/857/original/9aad937f-d231-4f50-bb04-8e826e3d88f5.png" class="screensteps-image-zoom">
       <img src="https://media.screensteps.com/image_assets/assets/001/314/857/medium/9aad937f-d231-4f50-bb04-8e826e3d88f5.png" alt="To test our scenario:" height="697" width="855">
     </a>
 </div>

@@ -8,27 +8,29 @@
 <link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="/library/js/jquery/featherlight/0.4.0/featherlight.min.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="/library/js/jquery/featherlight/0.4.0/featherlight.min.js" type="text/javascript" charset="utf-8"></script><script type="text/javascript" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    includeWebjarLibrary('featherlight');
     $(document).ready(function(){
-      $("a[rel^='featherlight']").featherlight({
+      $("a.screensteps-image-zoom").featherlight({
         type: { image:true },
-    closeOnClick: 'anywhere'
+        closeOnClick: 'anywhere'
       }); 
     });   
-  </script>
+</script>
 </head>
 <body>
-  <div id="wrapper"><div id="article-content">
-<div id="article-header"><h1 class="article-title">How do I add LaTeX language to my course site?</h1></div>
-<div id="article-description">  <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+  <div><div>
+<div><h1 class="article-title">How do I add LaTeX language to my course site?</h1></div>
+<div>  <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
   <p>Sakai can display LaTeX equations as mathematical notation in the rich text editor. Using LaTeX options, instructors and students can simply write LaTeX in an enabled tool and the resulting equation will be displayed beautifully.</p>
 </div>
  
-    <div class="step screensteps-section screensteps-depth-1" id="go-to-site-info">
-    <h2 id="go-to-site-info" class="step-title screensteps-heading">Go to Site Info. </h2>
+    <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Go to Site Info. </h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/001/340/851/original/55e688b1-8a30-489c-a872-0459e35daf4a.png" alt="Site Info tool highlighted in the site Tool Menu." height="129" width="193">
+    <img src="https://media.screensteps.com/image_assets/assets/002/366/141/original/ce10e3e1-a1d7-4615-9294-9afd2b1fc00c.png" alt="Site Info tool highlighted in the site Tool Menu." height="109" width="168">
 </div>
  
       <div class="step-instructions screensteps-textblock">
@@ -38,9 +40,9 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="click-on-edit-site-information">
-    <h2 id="click-on-edit-site-information" class="step-title screensteps-heading">Click on Manage Tools</h2>
+    <h2 class="step-title screensteps-heading">Click on Manage Tools</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/001/356/218/original/b7f0d7f5-49cf-410c-915e-37eb246fe5bf.png" alt="Click on Manage Tools" height="68" width="730">
+    <img src="https://media.screensteps.com/image_assets/assets/002/366/145/original/cc0b950f-2488-4b5d-9a15-ccdc1ad2b6bc.png" alt="Click on Manage Tools" height="68" width="792">
 </div>
  
       <div class="step-instructions screensteps-textblock">
@@ -50,10 +52,10 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="select-allow-the-display-of-latex-math-in-this-site-click-continue">
-    <h2 id="select-allow-the-display-of-latex-math-in-this-site-click-continue" class="step-title screensteps-heading">Select the check box to enable MathJax.</h2>
+    <h2 class="step-title screensteps-heading">Select the check box to enable MathJax.</h2>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/001/356/219/original/47b0dd7a-9ea9-4d8b-a666-f0ef0928b2d6.png" class="screensteps-image-zoom">
-      <img src="https://media.screensteps.com/image_assets/assets/001/356/219/medium/47b0dd7a-9ea9-4d8b-a666-f0ef0928b2d6.png" alt="Select &amp;quot;Allow the display of LaTex math in this site.&amp;quot; Click Continue." height="350" width="855">
+    <a href="https://media.screensteps.com/image_assets/assets/002/366/139/original/4f29882f-b95b-478d-b2d2-949aa5cfd866.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/002/366/139/medium/4f29882f-b95b-478d-b2d2-949aa5cfd866.png" alt="Select &amp;quot;Allow the display of LaTex math in this site.&amp;quot; Click Continue." height="333" width="855">
     </a>
 </div>
  
@@ -64,23 +66,23 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="click-finish-to-confirm">
-    <h2 id="click-finish-to-confirm" class="step-title screensteps-heading">Scroll down and click Continue.</h2>
+    <h2 class="step-title screensteps-heading">Scroll down and click Continue.</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/001/356/216/original/f595b97a-7a7c-4d83-8252-e37bb184beab.png" alt="Click Finish to confirm." height="138" width="554">
+    <img src="https://media.screensteps.com/image_assets/assets/002/366/137/original/b917f28f-8c13-4537-8087-2fe2452bc8a1.png" alt="Click Finish to confirm." height="117" width="335">
 </div>
  
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="click-continue-then-finish">
-    <h2 id="click-continue-then-finish" class="step-title screensteps-heading">Click Finish to confirm the change.</h2>
+    <h2 class="step-title screensteps-heading">Click Finish to confirm the change.</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/001/356/214/original/9c4369e4-5e3e-4e85-8378-7cf847330a2c.png" alt="Click Continue, then Finish." height="414" width="570">
+    <img src="https://media.screensteps.com/image_assets/assets/002/366/143/original/6964df86-9ab8-4888-91ab-1b12f4068bb8.png" alt="Click Continue, then Finish." height="325" width="500">
 </div>
  
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="enter-latex-equation-in-rich-text-editor-of-selected-tools">
-    <h2 id="enter-latex-equation-in-rich-text-editor-of-selected-tools" class="step-title screensteps-heading">Enter LaTeX equation in rich text editor.</h2>
+    <h2 class="step-title screensteps-heading">Enter LaTeX equation in rich text editor.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/356/213/original/c0d08cba-afc2-4f9d-86d9-e899c1a54982.png" alt="Enter LaTex equation in rich text editor of selected tools." height="348" width="751">
 </div>
@@ -92,7 +94,7 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="equation-displays-as-expected-in-student-view">
-    <h2 id="equation-displays-as-expected-in-student-view" class="step-title screensteps-heading">Equation displays as expected when viewed.</h2>
+    <h2 class="step-title screensteps-heading">Equation displays as expected when viewed.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/356/212/original/5660268f-c72a-4548-88ff-9b5071ecde9a.png" alt="Equation displays as expected in student view." height="146" width="754">
 </div>

@@ -8,21 +8,23 @@
 <link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="/library/js/jquery/featherlight/0.4.0/featherlight.min.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="/library/js/jquery/featherlight/0.4.0/featherlight.min.js" type="text/javascript" charset="utf-8"></script><script type="text/javascript" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    includeWebjarLibrary('featherlight');
     $(document).ready(function(){
-      $("a[rel^='featherlight']").featherlight({
+      $("a.screensteps-image-zoom").featherlight({
         type: { image:true },
-    closeOnClick: 'anywhere'
+        closeOnClick: 'anywhere'
       }); 
     });   
-  </script>
+</script>
 </head>
 <body>
-  <div id="wrapper"><div id="article-content">
-<div id="article-header"><h1 class="article-title">How do I add a rubric to my site?</h1></div>
-<div id="article-description">    <div class="step screensteps-section screensteps-depth-1" id="go-to-the-rubrics-tool">
-    <h2 id="go-to-the-rubrics-tool" class="step-title screensteps-heading">Go to the Rubrics tool.</h2>
+  <div><div>
+<div><h1 class="article-title">How do I add a rubric to my site?</h1></div>
+<div>    <div class="step screensteps-section screensteps-depth-1" id="go-to-the-rubrics-tool">
+    <h2 class="step-title screensteps-heading">Go to the Rubrics tool.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/308/039/original/252d28f1-4b34-4789-b6e2-51bf2d1704a9.png" alt="" height="127" width="201">
 </div>
@@ -34,7 +36,7 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="click-add-rubric">
-    <h2 id="click-add-rubric" class="step-title screensteps-heading">Select Add Rubric.</h2>
+    <h2 class="step-title screensteps-heading">Select Add Rubric.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/308/047/original/a15d50ab-f100-4bf4-9eeb-ce4b69a40b1b.png" alt="" height="234" width="232">
 </div>
@@ -42,9 +44,9 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="enter-a-rubric-title">
-    <h2 id="enter-a-rubric-title" class="step-title screensteps-heading">Enter a Rubric Title.</h2>
+    <h2 class="step-title screensteps-heading">Enter a Rubric Title.</h2>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/002/322/362/original/6820ec52-79f2-4af3-b86d-2e7a4b7c8609.png" class="screensteps-image-zoom">
+    <a href="https://media.screensteps.com/image_assets/assets/002/322/362/original/6820ec52-79f2-4af3-b86d-2e7a4b7c8609.png" class="screensteps-image-zoom">
       <img src="https://media.screensteps.com/image_assets/assets/002/322/362/medium/6820ec52-79f2-4af3-b86d-2e7a4b7c8609.png" alt="" height="178" width="855">
     </a>
 </div>
@@ -52,9 +54,9 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="add-as-many-criteria-as-needed">
-    <h2 id="add-as-many-criteria-as-needed" class="step-title screensteps-heading">Edit the existing criteria.</h2>
+    <h2 class="step-title screensteps-heading">Edit the existing criteria.</h2>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/002/322/366/original/b86d366c-ffb1-4393-8009-d262cf137d0e.png" class="screensteps-image-zoom">
+    <a href="https://media.screensteps.com/image_assets/assets/002/322/366/original/b86d366c-ffb1-4393-8009-d262cf137d0e.png" class="screensteps-image-zoom">
       <img src="https://media.screensteps.com/image_assets/assets/002/322/366/medium/b86d366c-ffb1-4393-8009-d262cf137d0e.png" alt="" height="169" width="855">
     </a>
 </div>
@@ -78,7 +80,7 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="edit-the-rating-titles-and-points">
-    <h2 id="edit-the-rating-titles-and-points" class="step-title screensteps-heading">Edit the Rating Titles and Points.</h2>
+    <h2 class="step-title screensteps-heading">Edit the Rating Titles and Points.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/322/370/original/799ab05e-efe3-4870-8290-3e417c77cf4c.png" alt="" height="75" width="231">
 </div>
@@ -101,7 +103,7 @@
 </div>
  
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/002/322/372/original/6c7e7b77-5529-42db-900c-1c3f205c414f.png" class="screensteps-image-zoom">
+    <a href="https://media.screensteps.com/image_assets/assets/002/322/372/original/6c7e7b77-5529-42db-900c-1c3f205c414f.png" class="screensteps-image-zoom">
       <img src="https://media.screensteps.com/image_assets/assets/002/322/372/medium/6c7e7b77-5529-42db-900c-1c3f205c414f.png" alt="" height="76" width="855">
     </a>
 </div>
@@ -113,9 +115,9 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="add-as-many-criteria-as-needed_1">
-    <h2 id="add-as-many-criteria-as-needed_1" class="step-title screensteps-heading">Add as many new criteria as needed.</h2>
+    <h2 class="step-title screensteps-heading">Add as many new criteria as needed.</h2>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/002/322/354/original/40578649-9bc4-4fb2-8ecf-094116ddb3c9.png" class="screensteps-image-zoom">
+    <a href="https://media.screensteps.com/image_assets/assets/002/322/354/original/40578649-9bc4-4fb2-8ecf-094116ddb3c9.png" class="screensteps-image-zoom">
       <img src="https://media.screensteps.com/image_assets/assets/002/322/354/medium/40578649-9bc4-4fb2-8ecf-094116ddb3c9.png" alt="" height="247" width="855">
     </a>
 </div>
@@ -127,9 +129,9 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="or-copy-an-existing-criterion">
-    <h2 id="or-copy-an-existing-criterion" class="step-title screensteps-heading">Or, copy an existing criterion.</h2>
+    <h2 class="step-title screensteps-heading">Or, copy an existing criterion.</h2>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/002/322/356/original/79b7adc5-7fee-495f-a78f-8718de9834e3.png" class="screensteps-image-zoom">
+    <a href="https://media.screensteps.com/image_assets/assets/002/322/356/original/79b7adc5-7fee-495f-a78f-8718de9834e3.png" class="screensteps-image-zoom">
       <img src="https://media.screensteps.com/image_assets/assets/002/322/356/medium/79b7adc5-7fee-495f-a78f-8718de9834e3.png" alt="" height="247" width="855">
     </a>
 </div>
@@ -144,10 +146,10 @@
  
   </div>
  
-    <div class="step screensteps-section screensteps-depth-1" id="drag-and-drop-to-reorder">
-    <h2 id="drag-and-drop-to-reorder" class="step-title screensteps-heading">Drag and drop to reorder.</h2>
+    <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Drag and drop to reorder.</h2>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/002/322/739/original/d0aff4ce-1055-4685-9094-57d02775b86a.png" class="screensteps-image-zoom">
+    <a href="https://media.screensteps.com/image_assets/assets/002/322/739/original/d0aff4ce-1055-4685-9094-57d02775b86a.png" class="screensteps-image-zoom">
       <img src="https://media.screensteps.com/image_assets/assets/002/322/739/medium/d0aff4ce-1055-4685-9094-57d02775b86a.png" alt="" height="247" width="855">
     </a>
 </div>
@@ -159,9 +161,9 @@
   </div>
  
     <div class="step screensteps-section screensteps-depth-1" id="delete-any-criteria-you-don-t-need">
-    <h2 id="delete-any-criteria-you-don-t-need" class="step-title screensteps-heading">Delete any criteria you don't need.</h2>
+    <h2 class="step-title screensteps-heading">Delete any criteria you don't need.</h2>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/002/322/360/original/42fea531-b557-4747-bdcb-492e9933a789.png" class="screensteps-image-zoom">
+    <a href="https://media.screensteps.com/image_assets/assets/002/322/360/original/42fea531-b557-4747-bdcb-492e9933a789.png" class="screensteps-image-zoom">
       <img src="https://media.screensteps.com/image_assets/assets/002/322/360/medium/42fea531-b557-4747-bdcb-492e9933a789.png" alt="" height="247" width="855">
     </a>
 </div>
