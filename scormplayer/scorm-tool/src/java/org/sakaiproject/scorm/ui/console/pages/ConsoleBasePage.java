@@ -26,10 +26,9 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.PackageResourceReference;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
-import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.ui.console.components.BreadcrumbPanel;
-import org.sakaiproject.scorm.ui.console.components.SakaiFeedbackPanel;
+import org.sakaiproject.wicket.markup.html.feedback.SakaiFeedbackPanel;
 import org.sakaiproject.scorm.ui.upload.UploadPage;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.wicket.markup.html.SakaiPortletWebPage;
@@ -38,9 +37,6 @@ import org.sakaiproject.wicket.markup.html.navigation.NavLink;
 public class ConsoleBasePage extends SakaiPortletWebPage implements IHeaderContributor {
 
 	private static PackageResourceReference CONSOLE_CSS = new PackageResourceReference(ConsoleBasePage.class, "res/scorm_console.css");
-
-	@SpringBean( name = "org.sakaiproject.component.api.ServerConfigurationService" )
-	ServerConfigurationService serverConfigurationService;
 
 	@SpringBean
 	private LearningManagementSystem lms;

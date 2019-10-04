@@ -18,6 +18,7 @@ package org.sakaiproject.scorm.service.api;
 import org.sakaiproject.scorm.exceptions.LearnerNotDefinedException;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.Learner;
+import org.sakaiproject.time.api.UserTimeService;
 
 public interface LearningManagementSystem
 {
@@ -52,4 +53,6 @@ public interface LearningManagementSystem
 	public String getLearnerName(String learnerId);
 
 	public boolean isOwner();
+
+	public UserTimeService getUserTimeService();
 }

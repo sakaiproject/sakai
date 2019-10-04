@@ -16,6 +16,8 @@
 package org.sakaiproject.scorm.model.api;
 
 import java.io.Serializable;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 import lombok.Getter;
@@ -44,6 +46,62 @@ public class ContentPackage implements Serializable
 	@Getter @Setter private int numberOfTries = NUMBER_OF_TRIES_UNLIMITED;
 	@Getter @Setter private boolean isDeleted;
 	@Getter @Setter private boolean hideTOC = false; // default is to always show the table of contents
+
+	// This is not persisted to the database. It is only used in the context of configuring a content package, and thus
+	// only stores the session user's time zone id for display and getter/setter purposes.
+	@Getter @Setter
+	ZoneId sessionUserZoneID;
+
+	public ZonedDateTime getZonedReleaseOn()
+	{
+		return releaseOn == null ? null : ZonedDateTime.ofInstant(releaseOn.toInstant(), sessionUserZoneID);
+	}
+
+	public ZonedDateTime getZonedDueOn()
+	{
+		return dueOn == null ? null : ZonedDateTime.ofInstant(dueOn.toInstant(), sessionUserZoneID);
+	}
+
+	public ZonedDateTime getZonedAcceptUntil()
+	{
+		return acceptUntil == null ? null : ZonedDateTime.ofInstant(acceptUntil.toInstant(), sessionUserZoneID);
+	}
+
+	public void setZonedReleaseOn(ZonedDateTime releaseOn)
+	{
+		if (releaseOn == null)
+		{
+			this.releaseOn = null;
+		}
+		else
+		{
+			this.releaseOn = Date.from(releaseOn.toInstant());
+		}
+	}
+
+	public void setZonedDueOn(ZonedDateTime dueOn)
+	{
+		if (dueOn == null)
+		{
+			this.dueOn = null;
+		}
+		else
+		{
+			this.dueOn = Date.from(dueOn.toInstant());
+		}
+	}
+
+	public void setZonedAcceptUntil(ZonedDateTime acceptUntil)
+	{
+		if (acceptUntil == null)
+		{
+			this.acceptUntil = null;
+		}
+		else
+		{
+			this.acceptUntil = Date.from(acceptUntil.toInstant());
+		}
+	}
 
 	public boolean isReleased()
 	{

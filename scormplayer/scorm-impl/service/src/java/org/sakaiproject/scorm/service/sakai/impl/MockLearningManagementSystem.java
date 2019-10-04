@@ -15,11 +15,13 @@
  */
 package org.sakaiproject.scorm.service.sakai.impl;
 
+
 import org.sakaiproject.scorm.api.ScormConstants;
 import org.sakaiproject.scorm.exceptions.LearnerNotDefinedException;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.Learner;
 import org.sakaiproject.scorm.service.api.LearningManagementSystem;
+import org.sakaiproject.time.api.UserTimeService;
 
 public class MockLearningManagementSystem implements LearningManagementSystem
 {
@@ -103,6 +105,12 @@ public class MockLearningManagementSystem implements LearningManagementSystem
 	public String getLearnerName(String learnerId)
 	{
 		return "Scott Scorm";
+	}
+
+	@Override
+	public UserTimeService getUserTimeService()
+	{
+		return null;
 	}
 
 	protected boolean hasPermission(String context, String lock)

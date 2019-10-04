@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.wicket.markup.html.form;
+package org.sakaiproject.wicket.ajax.markup.html.form;
 
 import org.apache.wicket.Page;
-import org.apache.wicket.markup.html.form.Button;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 
-public class CancelButton extends Button
+public class SakaiAjaxCancelButton extends SakaiAjaxButton
 {
 	private static final long serialVersionUID = 1L;
 
 	private Class<? extends Page> destination;
 
-	public CancelButton(String id, Class<? extends Page> destination)
+	public SakaiAjaxCancelButton(String id, Class<? extends Page> destination)
 	{
 		super(id);
 		this.destination = destination;
@@ -32,7 +32,7 @@ public class CancelButton extends Button
 	}
 
 	@Override
-	public void onSubmit()
+	public void onSubmit(AjaxRequestTarget target)
 	{
 		setResponsePage(destination);
 	}
