@@ -21,7 +21,7 @@ import java.util.Properties;
 import lombok.Getter;
 import lombok.Setter;
 
-public class Learner implements Serializable
+public class Learner implements Serializable, Comparable<Learner>
 {
 	private static final long serialVersionUID = 1L;
 
@@ -41,5 +41,11 @@ public class Learner implements Serializable
 		this.id = id;
 		this.displayName = displayName;
 		this.displayId = displayId;
+	}
+
+	@Override
+	public int compareTo(Learner learner)
+	{
+		return sortName.compareTo(learner.sortName);
 	}
 }
