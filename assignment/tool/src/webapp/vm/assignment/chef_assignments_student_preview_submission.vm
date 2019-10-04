@@ -113,6 +113,14 @@
 
     <p></p>
     <form id="addSubmissionForm" name="addSubmissionForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
+    	## We are allowing the instructor to submit as long as assignment is not non-electronic and not deleted
+		#if (!$submissionType != 4 && !$!deleted.equalsIgnoreCase("true") && $!allowAddAssignment && $!allowSubmitByInstructor && $!student) 
+			<h4>$tlang.getString("submitforstudent")</h4>
+			<p class="instruction">
+				$validator.escapeHtml($student.getDisplayName())
+				<input type="hidden" name="submit_on_behalf_of" id="submit_on_behalf_of" value="$student.id" />		
+			</p>
+		#end
 	    #if ($plagiarismNote)
 			<p>
 				<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" class="assignmentRosette"/>
