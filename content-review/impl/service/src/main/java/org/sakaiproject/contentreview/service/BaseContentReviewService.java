@@ -274,4 +274,9 @@ public abstract class BaseContentReviewService implements ContentReviewService{
 	protected String getResourceLoaderName() {
 		return getServiceName().toLowerCase();
 	}
+	
+	@Override
+	public boolean allowSubmissionsOnBehalf() {
+		return false;
+	}
 }
