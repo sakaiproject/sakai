@@ -211,5 +211,10 @@ public class ExternalLogicStubb implements ExternalLogic {
     public void registerStatement(String pollText, boolean newPoll, String pollId) {
         // TODO Auto-generated method stub
     }
+    
+    @Override
+    public int getNumberUsersCanVote() {
+    	return 0;
+    }
 
 }
