@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.scorm.service.impl;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -436,6 +437,7 @@ public abstract class ScormResultServiceImpl implements ScormResultService
 			// We just have the above ids
 			String context = lms().currentContext();
 			List<Learner> learners = learnerDao().find(context);
+			Collections.sort(learners);
 
 			for (int i = 0; i < learners.size(); i++)
 			{
