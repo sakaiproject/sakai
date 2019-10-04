@@ -180,9 +180,9 @@ public class ContextSensitiveTreeRender extends Renderer
           {
             writer.write("<h2>");
             writer.write("<img src=\"../image/topic.gif\" alt=\"\"/>");            
-            writer.write("<a id=\"" + resource.getDocId()
+            writer.write("<a id=\"toc-" + resource.getDocId()
                 + "\" href=\"content.hlp?docId=" + resource.getDocId()
-                + "\" target = \"content\">" + resource.getName() + "</a>");            
+                + "\" target=\"content\">" + resource.getName() + "</a>");            
             writer.write("</h2></li>\n");
           }
         }
