@@ -17,5 +17,7 @@
 		<lookup-method name="scormContentService" bean="org.sakaiproject.scorm.service.api.ScormContentService" />
 		<lookup-method name="scormResultService" bean="org.sakaiproject.scorm.service.api.ScormResultService" />
 		<lookup-method name="learnerDao" bean="org.sakaiproject.scorm.dao.LearnerDao" />
+
+		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService" />
 	</bean>
 </beans>

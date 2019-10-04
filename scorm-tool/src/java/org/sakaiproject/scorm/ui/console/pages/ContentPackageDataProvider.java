@@ -29,7 +29,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
 import org.sakaiproject.scorm.model.api.ContentPackage;
-import org.sakaiproject.scorm.ui.player.util.Utils;
+import org.sakaiproject.wicket.util.Utils;
 
 /**
  * @author bjones86

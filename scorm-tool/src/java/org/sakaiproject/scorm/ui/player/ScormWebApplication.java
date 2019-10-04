@@ -25,19 +25,18 @@ import org.sakaiproject.scorm.ui.player.pages.PlayerPage;
 import org.sakaiproject.wicket.protocol.http.SakaiWebApplication;
 
 /**
- *
  * @author bjones86
  */
 public abstract class ScormWebApplication extends SakaiWebApplication
 {
-	@Getter @Setter private ScormResourceService resourceService;
+    @Getter @Setter private ScormResourceService resourceService;
 
     @Override
-	public void init()
+    public void init()
     {
         super.init();
         mountPage( "playerPage", PlayerPage.class );
-		mountPage( "completionPage", CompletionPage.class );
-		mountResource("/contentpackages/resourceName/private/scorm/${resourceID}/${resourceName}", new ContentPackageResourceReference());
+        mountPage( "completionPage", CompletionPage.class );
+        mountResource("/contentpackages/resourceName/private/scorm/${resourceID}/${resourceName}", new ContentPackageResourceReference());
     }
 }

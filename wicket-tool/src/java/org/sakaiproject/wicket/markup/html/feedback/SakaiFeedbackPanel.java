@@ -13,12 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.scorm.ui.console.components;
+package org.sakaiproject.wicket.markup.html.feedback;
 
 import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.feedback.IFeedbackMessageFilter;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 
+/**
+ * Wrapper for the Wicket FeedbackPanel to apply Sakai CSS banner classes as appropriate.
+ * 
+ * @author bjones86
+ */
 public class SakaiFeedbackPanel extends FeedbackPanel
 {
 	private static final long serialVersionUID = 1L;

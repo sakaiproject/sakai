@@ -16,16 +16,13 @@
 package org.sakaiproject.scorm.ui.upload;
 
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.attributes.AjaxCallListener;
-import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.behavior.AttributeAppender;
-import org.apache.wicket.Component;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.form.Form;
@@ -49,7 +46,8 @@ import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.ui.console.pages.ConsoleBasePage;
 import org.sakaiproject.scorm.ui.console.pages.PackageListPage;
-import org.sakaiproject.wicket.markup.html.form.CancelButton;
+import org.sakaiproject.wicket.ajax.markup.html.form.SakaiAjaxButton;
+import org.sakaiproject.wicket.ajax.markup.html.form.SakaiAjaxCancelButton;
 
 @Slf4j
 public class UploadPage extends ConsoleBasePage 
@@ -81,7 +79,7 @@ public class UploadPage extends ConsoleBasePage
     public void renderHead( IHeaderResponse response )
     {
         super.renderHead( response );
-        String javascript = "document.getElementsByName( \"btnSubmit\" )[0].disabled = true;";
+        String javascript = "document.getElementById( \"btnUpload\" ).disabled = true;";
         response.render( OnDomReadyHeaderItem.forScript( javascript ) );
     }
 
@@ -107,13 +105,14 @@ public class UploadPage extends ConsoleBasePage
             fileUploadField = new FileUploadField( "fileInput" );
 
             // Add JavaScript to enable the submit button only when there is a file selected (this cannot be done via Wicket/Java code)
-            fileUploadField.add( new AttributeAppender( "onchange", new Model( "document.getElementsByName( \"btnSubmit\" )[0].disabled = this.value === '';" ), ";" ) );
+            fileUploadField.add( new AttributeAppender( "onchange", new Model( "document.getElementById( \"btnUpload\" ).disabled = this.value === '';" ), ";" ) );
             add( fileUploadField );
 
             // SCO-98 - disable buttons on submit, add spinner
-            final CancelButton btnCancel = new CancelButton( "btnCancel", PackageListPage.class );
+            final SakaiAjaxCancelButton btnCancel = new SakaiAjaxCancelButton( "btnCancel", PackageListPage.class );
+            btnCancel.setElementsToDisableOnClick( Arrays.asList( new String[] {"btnUpload"} ) );
             btnCancel.setOutputMarkupId( true );
-            IndicatingAjaxButton btnSubmit = new IndicatingAjaxButton( "btnSubmit", this )
+            SakaiAjaxButton btnUpload = new SakaiAjaxButton( "btnUpload", this )
             {
                 private static final long serialVersionUID = 1L;
 
@@ -127,23 +126,10 @@ public class UploadPage extends ConsoleBasePage
                 }
 
                 @Override
-                protected void updateAjaxAttributes( AjaxRequestAttributes attributes )
-                {
-                    super.updateAjaxAttributes( attributes );
-                    AjaxCallListener listener = new AjaxCallListener()
-                    {
-                        @Override
-                        public CharSequence getAfterHandler( Component component )
-                        {
-                            return "this.disabled = true; document.getElementsByName( \"btnCancel\" )[0].disabled = true;";
-                        }
-                    };
-                    attributes.getAjaxCallListeners().add( listener );
-                }
-
-                @Override
                 protected void onSubmit( AjaxRequestTarget target )
                 {
+                    target.appendJavaScript( JS_RESIZE_IFRAME );
+
                     final List<FileUpload> uploads = fileUploadField.getFileUploads();
                     if( uploads != null )
                     {
@@ -184,10 +170,11 @@ public class UploadPage extends ConsoleBasePage
                     }
                 }
             };
-            btnSubmit.setOutputMarkupId( true );
+            btnUpload.setOutputMarkupId( true );
+            btnUpload.setElementsToDisableOnClick( Arrays.asList( new String[] {"btnCancel"} ) );
 
             add( btnCancel );
-            add( btnSubmit );
+            add( btnUpload );
         }
     }
 

@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.scorm.service.sakai.impl;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.authz.api.SecurityService;
@@ -28,6 +30,7 @@ import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.scorm.service.api.ScormResultService;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
@@ -46,6 +49,9 @@ public abstract class SakaiStatefulService implements LearningManagementSystem
 	protected abstract SiteService siteService();
 	protected abstract ToolManager toolManager();
 	protected abstract UserDirectoryService userDirectoryService();
+
+	@Getter @Setter
+	private UserTimeService userTimeService;
 
 	@Override
 	public boolean canConfigure(String context)

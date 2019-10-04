@@ -24,6 +24,7 @@ import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.IRequestHandler;
 import org.apache.wicket.request.cycle.AbstractRequestCycleListener;
 import org.apache.wicket.request.cycle.RequestCycle;
+import org.apache.wicket.request.resource.PackageResourceReference;
 import org.apache.wicket.settings.ExceptionSettings;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 
@@ -64,5 +65,8 @@ public abstract class SakaiWebApplication extends WebApplication
 				return new RenderPageRequestHandler(new PageProvider(new ErrorPage(e)));
 			}
 		});
+
+		// Disable Wicket's loading of jQuery - we load Sakai's preferred version in SakaiPortletWebPage.java
+		getJavaScriptLibrarySettings().setJQueryReference(new PackageResourceReference(SakaiWebApplication.class, "empty.js"));
 	}
 }

@@ -15,24 +15,25 @@
  */
 package org.sakaiproject.scorm.ui.player.pages;
 
+/**
+ * This is the base page for the player window pop-up (player page, notification page).
+ */
 import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.html.IHeaderContributor;
-import org.apache.wicket.markup.html.WebPage;
 
-public class BaseToolPage extends WebPage implements IHeaderContributor
+import org.sakaiproject.wicket.markup.html.SakaiPortletWebPage;
+
+public class BaseToolPage extends SakaiPortletWebPage implements IHeaderContributor
 {
 	private static final long serialVersionUID = 2L;
 
-	protected static final String TOOLBASE_CSS = "/library/skin/tool_base.css";
-	protected static final String TOOL_CSS = "/library/skin/default/tool.css";
 	protected static final String SCORM_CSS = "styles/scorm.css";
 
 	@Override
 	public void renderHead(IHeaderResponse response)
 	{
-		response.render(CssHeaderItem.forUrl(TOOLBASE_CSS));
-		response.render(CssHeaderItem.forUrl(TOOL_CSS));
+		super.renderHead(response);
 		response.render(CssHeaderItem.forUrl(SCORM_CSS));
 	}
 }

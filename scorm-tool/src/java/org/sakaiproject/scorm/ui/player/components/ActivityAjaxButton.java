@@ -35,8 +35,8 @@ import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
 import org.sakaiproject.scorm.ui.ResourceNavigator;
-import org.sakaiproject.scorm.ui.player.util.Utils;
 import org.sakaiproject.wicket.ajax.markup.html.form.AjaxRolloverImageButton;
+import org.sakaiproject.wicket.util.Utils;
 
 @Slf4j
 public class ActivityAjaxButton extends AjaxRolloverImageButton

@@ -186,3 +186,7 @@
     position: relative;
     top: 3px;
 }
+
+span.bold {
+    font-weight: bold;
+}
