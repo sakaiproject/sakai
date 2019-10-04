@@ -22,7 +22,7 @@ import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
-import org.sakaiproject.scorm.ui.player.pages.PlayerPage;
+import org.sakaiproject.scorm.ui.player.pages.ScormPlayerPage;
 
 public class ChoicePanel extends Panel
 {
@@ -50,6 +50,6 @@ public class ChoicePanel extends Panel
 		params.add("resourceId", resourceId);
 		params.add("navRequest", "" + request);
 
-		add(new BookmarkablePageLink(requestId, PlayerPage.class, params));
+		add(new BookmarkablePageLink(requestId, ScormPlayerPage.class, params));
 	}
 }

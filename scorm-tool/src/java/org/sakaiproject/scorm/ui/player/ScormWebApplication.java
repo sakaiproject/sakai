@@ -20,8 +20,8 @@ import lombok.Setter;
 
 import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.ui.ContentPackageResourceReference;
-import org.sakaiproject.scorm.ui.player.pages.CompletionPage;
-import org.sakaiproject.scorm.ui.player.pages.PlayerPage;
+import org.sakaiproject.scorm.ui.player.pages.ScormCompletionPage;
+import org.sakaiproject.scorm.ui.player.pages.ScormPlayerPage;
 import org.sakaiproject.wicket.protocol.http.SakaiWebApplication;
 
 /**
@@ -29,14 +29,15 @@ import org.sakaiproject.wicket.protocol.http.SakaiWebApplication;
  */
 public abstract class ScormWebApplication extends SakaiWebApplication
 {
-    @Getter @Setter private ScormResourceService resourceService;
+    @Getter @Setter
+    private ScormResourceService resourceService;
 
     @Override
     public void init()
     {
         super.init();
-        mountPage( "playerPage", PlayerPage.class );
-        mountPage( "completionPage", CompletionPage.class );
-        mountResource("/contentpackages/resourceName/private/scorm/${resourceID}/${resourceName}", new ContentPackageResourceReference());
+        mountPage( "scormPlayerPage", ScormPlayerPage.class );
+        mountPage( "scormCompletionPage", ScormCompletionPage.class );
+        mountResource( "/contentpackages/resourceName/private/scorm/${resourceID}/${resourceName}", new ContentPackageResourceReference() );
     }
 }

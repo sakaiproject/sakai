@@ -44,7 +44,7 @@ import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.scorm.ui.console.components.DecoratedDatePropertyColumn;
-import org.sakaiproject.scorm.ui.player.pages.PlayerPage;
+import org.sakaiproject.scorm.ui.player.pages.ScormPlayerPage;
 import org.sakaiproject.scorm.ui.reporting.pages.LearnerResultsPage;
 import org.sakaiproject.scorm.ui.reporting.pages.ResultsListPage;
 import org.sakaiproject.wicket.ajax.markup.html.table.SakaiDataTable;
@@ -91,7 +91,7 @@ public class PackageListPage extends ConsoleBasePage
 		ActionColumn actionColumn = new ActionColumn(new StringResourceModel("column.header.content.package.name", this, null), "title", "title");
 		String[] paramPropertyExpressions = {"contentPackageId", "resourceId", "title"};
 
-		Action launchAction = new Action("title", PlayerPage.class, paramPropertyExpressions)
+		Action launchAction = new Action("title", ScormPlayerPage.class, paramPropertyExpressions)
 		{
 			private static final long serialVersionUID = 1L;
 

@@ -25,7 +25,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 
 import org.sakaiproject.scorm.model.api.SessionBean;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
-import org.sakaiproject.scorm.ui.player.pages.PlayerPage;
+import org.sakaiproject.scorm.ui.player.pages.ScormPlayerPage;
 
 public class ButtonForm extends Form
 {
@@ -42,12 +42,12 @@ public class ButtonForm extends Form
 	private ActivityAjaxButton startButton;
 	@Getter private ActivityAjaxButton quitButton;
 	private ActivityAjaxButton suspendButton;
-	private PlayerPage view;
+	private ScormPlayerPage view;
 
 	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormSequencingService")
 	ScormSequencingService sequencingService;
 
-	public ButtonForm(String id, final SessionBean sessionBean, PlayerPage view)
+	public ButtonForm(String id, final SessionBean sessionBean, ScormPlayerPage view)
 	{
 		super(id);
 		this.view = view;

@@ -22,7 +22,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 
 import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 
-public class CompletionPage extends NotificationPage
+public class ScormCompletionPage extends NotificationPage
 {
 	private static final String CLOSE_ON_LOAD = "setTimeout('window.close()', 5000);";
 
@@ -31,12 +31,12 @@ public class CompletionPage extends NotificationPage
 	@SpringBean
 	LearningManagementSystem lms;
 
-	public CompletionPage()
+	public ScormCompletionPage()
 	{
 		this(new PageParameters());
 	}
 
-	public CompletionPage(PageParameters pageParams)
+	public ScormCompletionPage(PageParameters pageParams)
 	{
 		super();
 	}

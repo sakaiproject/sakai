@@ -36,7 +36,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormContentService;
-import org.sakaiproject.scorm.ui.player.pages.PlayerPage;
+import org.sakaiproject.scorm.ui.player.pages.ScormPlayerPage;
 import org.sakaiproject.scorm.ui.reporting.pages.LearnerResultsPage;
 import org.sakaiproject.scorm.ui.reporting.pages.ResultsListPage;
 import org.sakaiproject.tool.api.ToolManager;
@@ -144,7 +144,7 @@ public class DisplayDesignatedPackage extends SakaiPortletWebPage implements IHe
 	@SuppressWarnings("deprecation")
 	protected void addActionLinksForPackage(final ContentPackage pkg)
 	{
-		PlayerPage playerPage = new PlayerPage(getParametersForPackage(pkg));
+		ScormPlayerPage playerPage = new ScormPlayerPage(getParametersForPackage(pkg));
 		Link lnkGo = new Link("lnk_go")
 		{
 			@Override

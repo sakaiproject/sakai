@@ -29,8 +29,6 @@ import org.adl.validator.contentpackage.LaunchData;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
-import org.apache.wicket.markup.head.IHeaderResponse;
-import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
@@ -183,16 +181,6 @@ public class PackageConfigurationPage extends ConsoleBasePage
 
 	private String unlimitedMessage;
 
-	@Override
-	public void renderHead(IHeaderResponse response)
-	{
-		super.renderHead(response);
-
-		// For some reason calling setMainFrameHeightNow() on this page doesn't scroll to the top, because it thinks the coordinates are already 0,0
-		// So for this page, we just force to scroll to parent's top
-		response.render(OnDomReadyHeaderItem.forScript("parent.window.scrollTo(0,0);"));
-	}
-
 	public PackageConfigurationPage(PageParameters params)
 	{
 		super(params);
@@ -337,7 +325,7 @@ public class PackageConfigurationPage extends ConsoleBasePage
 				target.add(feedback);
 				target.add(this);
 				target.add(btnCancel);
-				target.appendJavaScript(JS_RESIZE_IFRAME);
+				target.appendJavaScript(JS_SCROLL_TO_TOP);
 			}
 		};
 		btnSave.setOutputMarkupId(true);

@@ -29,16 +29,15 @@ import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
 import org.sakaiproject.scorm.ui.UISynchronizerPanel;
-import org.sakaiproject.scorm.ui.player.pages.PlayerPage;
+import org.sakaiproject.scorm.ui.player.pages.ScormPlayerPage;
 
 public class LaunchPanel extends UISynchronizerPanel implements IHeaderContributor
 {
 	private static final long serialVersionUID = 1L;
 
-	protected static final String HEADSCRIPTS = "/library/js/headscripts.js";
 	protected static final String RESIZESCRIPT = "scripts/resize.js";
 
-	private PlayerPage view;
+	private ScormPlayerPage view;
 	private ActivityTreePanel treePanel;
 	private WebMarkupContainer contentPanel;
 
@@ -51,7 +50,7 @@ public class LaunchPanel extends UISynchronizerPanel implements IHeaderContribut
 	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormSequencingService")
 	ScormSequencingService sequencingService;
 
-	public LaunchPanel(String id, final SessionBean sessionBean, PlayerPage view)
+	public LaunchPanel(String id, final SessionBean sessionBean, ScormPlayerPage view)
 	{
 		super(id, new Model(sessionBean));
 		this.view = view;
@@ -81,7 +80,7 @@ public class LaunchPanel extends UISynchronizerPanel implements IHeaderContribut
 		}
 	}
 
-	public PlayerPage getView()
+	public ScormPlayerPage getView()
 	{
 		return view;
 	}
@@ -100,7 +99,6 @@ public class LaunchPanel extends UISynchronizerPanel implements IHeaderContribut
 	@Override
 	public void renderHead(IHeaderResponse response)
 	{
-		response.render(JavaScriptHeaderItem.forUrl(HEADSCRIPTS));
 		response.render(JavaScriptHeaderItem.forUrl(RESIZESCRIPT));
 		response.render(OnDomReadyHeaderItem.forScript("initResizing()"));
 		response.render(JavaScriptHeaderItem.forScript("window.resize = function() { onResize(); }", null));

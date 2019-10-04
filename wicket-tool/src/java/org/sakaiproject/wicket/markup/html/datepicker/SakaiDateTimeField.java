@@ -25,7 +25,6 @@ import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
@@ -59,7 +58,6 @@ public class SakaiDateTimeField extends TextField<ZonedDateTime>
 
 	// JavaScript references
 	private static final String						JS_JQUERY_UI	= "/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js";
-	private static final String						CSS_JQUERY_UI	= "/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css";
 	private static final String						JS_MOMENT		= "/library/webjars/momentjs/2.24.0/min/moment-with-locales.min.js";
 	private static final String						JS_DATEPICKER	= "/library/js/lang-datepicker/lang-datepicker.js";
 	private static final PackageResourceReference	JS_FIELD		= new PackageResourceReference(SakaiDateTimeField.class, "res/SakaiDateTimeField.js");
@@ -105,7 +103,6 @@ public class SakaiDateTimeField extends TextField<ZonedDateTime>
 		super.renderHead(response);
 
 		String portalCdnVersion = StringUtils.trimToEmpty(serverConfigurationService.getString("portal.cdn.version"));
-		response.render(CssHeaderItem.forUrl(Utils.setCdnVersion(CSS_JQUERY_UI, portalCdnVersion)));
 		response.render(JavaScriptHeaderItem.forUrl(Utils.setCdnVersion(JS_JQUERY_UI, portalCdnVersion)));
 		response.render(JavaScriptHeaderItem.forUrl(Utils.setCdnVersion(JS_MOMENT, portalCdnVersion)));
 		response.render(JavaScriptHeaderItem.forUrl(Utils.setCdnVersion(JS_DATEPICKER, portalCdnVersion)));
