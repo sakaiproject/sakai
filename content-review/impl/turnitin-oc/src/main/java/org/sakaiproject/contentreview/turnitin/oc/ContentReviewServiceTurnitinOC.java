@@ -39,11 +39,13 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -57,6 +59,7 @@ import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
+import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -846,6 +849,32 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 
 	private String getSubmissionId(ContentReviewItem item, String fileName, Site site, Assignment assignment) {
 		String userID = item.getUserId();
+		List<User> submissionOwners = new ArrayList<>();
+		String submitterID = null;
+
+		try {
+			AssignmentSubmission currentSubmission = assignmentService.getSubmission(assignment.getId(), userID);
+
+			Set<String> ownerIds = currentSubmission.getSubmitters().stream()
+				.map(AssignmentSubmissionSubmitter::getSubmitter)
+				.collect(Collectors.toSet());
+
+			//find submitter by filtering submittee=true, if not found, then use the assignment property SUBMITTER_USER_ID
+			submitterID = currentSubmission.getSubmitters().stream().filter(AssignmentSubmissionSubmitter::getSubmittee).findAny()
+					.map(AssignmentSubmissionSubmitter::getSubmitter)
+					.orElseGet(() -> currentSubmission.getProperties().get(AssignmentConstants.SUBMITTER_USER_ID));
+
+			if (userID.equals(submitterID) || StringUtils.isBlank(submitterID)) {
+				//no need to keep track of the submitterID if it is the same as the ownerID
+				submitterID = null;
+			} else {
+				ownerIds.add(submitterID);
+			}
+
+			submissionOwners.addAll(userDirectoryService.getUsers(ownerIds));
+		} catch (Exception e) {
+			log.warn(e.getMessage(), e);
+		}
 
 		String submissionId = null;
 		try {
@@ -853,29 +882,63 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			// Build header maps
 			Map<String, Object> data = new HashMap<String, Object>();
 			data.put("owner", userID);
-			data.put("title", fileName);
-			Instant eulaTimestamp = getUserEULATimestamp(userID);
-			String eulaVersion = getUserEULAVersion(userID);
-			if(eulaTimestamp != null && StringUtils.isNotEmpty(eulaVersion)) {
-				Map<String, Object> eula = new HashMap<String, Object>();
-				eula.put("accepted_timestamp", eulaTimestamp.toString());
-				eula.put("language", getUserEulaLocale(userID));
-				eula.put("version", eulaVersion);
-				data.put("eula", eula);
+			if (StringUtils.isNotBlank(submitterID)) {
+				data.put("submitter", submitterID);	
 			}
-			if(assignment != null) {
-				Map<String, Object> metadata = new HashMap<String, Object>();
-				Map<String, Object> group = new HashMap<String, Object>();
+			data.put("title", fileName);
+			String eulaUserId = StringUtils.isNotEmpty(submitterID) ? submitterID : userID;
+			Instant eulaTimestamp = getUserEULATimestamp(eulaUserId);
+			String eulaVersion = getUserEULAVersion(eulaUserId);
+			if(eulaTimestamp == null || StringUtils.isEmpty(eulaVersion)) {
+				//best effort to make sure the user has a EULA acceptance timestamp, but if not
+				//add a warning in the logs and continue so that the report will still generate
+				eulaTimestamp = Instant.now();
+				eulaVersion = getEndUserLicenseAgreementVersion();
+				log.warn("EULA not found for user: " + eulaUserId + ", contentId: " + item.getId());
+			}
+			Map<String, Object> eula = new HashMap<>();
+			eula.put("accepted_timestamp", eulaTimestamp.toString());
+			eula.put("language", getUserEulaLocale(eulaUserId));
+			eula.put("version", eulaVersion);
+			data.put("eula", eula);
+			Map<String, Object> metadata = new HashMap<>();
+			if(assignment != null) {				
+				Map<String, Object> group = new HashMap<>();
 				group.put("id", assignment.getId());
 				group.put("name", assignment.getTitle());
 				group.put("type", "ASSIGNMENT");
 				metadata.put("group", group);
 				if(site != null) {
-					Map<String, Object> groupContext = new HashMap<String, Object>();
+					Map<String, Object> groupContext = new HashMap<>();
 					groupContext.put("id", site.getId());
 					groupContext.put("name", site.getTitle());
 					metadata.put("group_context", groupContext);
 				}
+			}
+			//set submission owner metadata
+			if (submissionOwners.size() > 0) {
+				List<Map<String, Object>> submissionOwnersMetedata = new ArrayList<>();
+				for(User owner : submissionOwners) {
+					Map<String, Object> ownerMetadata = new HashMap<>();
+					ownerMetadata.put("id", owner.getId());
+					if(StringUtils.isNotEmpty(owner.getFirstName())) {
+						ownerMetadata.put("given_name", owner.getFirstName());	
+					}
+					if(StringUtils.isNotEmpty(owner.getLastName())) {
+						ownerMetadata.put("family_name", owner.getLastName());	
+					}
+					if(StringUtils.isNotEmpty(owner.getEmail())) {
+						ownerMetadata.put("email", owner.getEmail());	
+					}
+					if(ownerMetadata.size() > 1) {
+						submissionOwnersMetedata.add(ownerMetadata);
+					}
+				}
+				if(submissionOwnersMetedata.size() > 0) {
+					metadata.put("owners", submissionOwnersMetedata);
+				}
+			}
+			if(metadata.size() > 0) {
 				data.put("metadata", metadata);
 			}
 			HashMap<String, Object> response = makeHttpCall("POST",
@@ -972,8 +1035,9 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				if (PLACEHOLDER_ITEM_REVIEW_SCORE.equals(item.getReviewScore())) {	
 					// Get assignment associated with current item's task Id
 					Assignment assignment = assignmentService.getAssignment(entityManager.newReference(item.getTaskId()));
-					Date assignmentDueDate = Date.from(assignment.getDueDate());
-					if(assignment != null && assignmentDueDate != null ) {
+					if(assignment != null && assignment.getDueDate() != null ) {
+						Date assignmentDueDate = Date.from(assignment.getDueDate());
+
 						// Make sure due date is past						
 						if (assignmentDueDate.before(new Date())) {
 							//Lookup reference item
@@ -1759,5 +1823,10 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private class Webhook {
 		private String id;
 		private String url;
+	}
+	
+	@Override
+	public boolean allowSubmissionsOnBehalf() {
+		return true;
 	}
 }

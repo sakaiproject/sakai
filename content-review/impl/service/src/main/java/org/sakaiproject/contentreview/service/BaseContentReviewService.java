@@ -134,4 +134,9 @@ public abstract class BaseContentReviewService implements ContentReviewService{
 		}
 		return String.format(WEBHOOK_URL_TEMPLATE, sb.toString(), getProviderId()) + (customParam.isPresent() ? "&custom=" + customParam.get() : "");
 	}
+	
+	@Override
+	public boolean allowSubmissionsOnBehalf() {
+		return false;
+	}
 }

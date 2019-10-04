@@ -317,4 +317,10 @@ public class ContentReviewFederatedServiceImpl extends BaseContentReviewService 
 	public void webhookEvent(HttpServletRequest request, int providerId, Optional<String> customParam) {
 		providers.stream().filter(crs -> crs.getProviderId().intValue() == providerId).collect(Collectors.toList()).get(0).webhookEvent(request, providerId, customParam);		
 	}
+	
+	@Override
+	public boolean allowSubmissionsOnBehalf() {
+		return getSelectedProvider().allowSubmissionsOnBehalf();
+	}
+
 }

@@ -414,4 +414,9 @@ public interface ContentReviewService {
 	 * @param providerId
 	 */
 	public void webhookEvent(HttpServletRequest request, int providerId, Optional<String> customParam);
+
+	/**
+	 * Flag to determine whether the service accepts submissions on behalf of users
+	 */
+	public boolean allowSubmissionsOnBehalf();
 }
