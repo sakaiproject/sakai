@@ -863,6 +863,12 @@ public abstract class DbSiteService extends BaseSiteService
 				{
 					fields[pos++] =  "%" + criteria + "%";
 				}
+
+				if (type == SelectionType.JOINABLE)
+				{
+					fields[pos++] = getCurrentUserIdIfNull(userId);
+				}
+
 				if ((propertyCriteria != null) && (propertyCriteria.size() > 0))
 				{
 					for (Iterator i = propertyCriteria.entrySet().iterator(); i.hasNext();)
@@ -873,10 +879,6 @@ public abstract class DbSiteService extends BaseSiteService
 						fields[pos++] = name;
 						fields[pos++] = "%" + value + "%";
 					}
-				}
-				if (type == SelectionType.JOINABLE)
-				{
-					fields[pos++] = getCurrentUserIdIfNull(userId);
 				}
 
 				if (propertyRestrictions != null && propertyRestrictions.size() > 0)
