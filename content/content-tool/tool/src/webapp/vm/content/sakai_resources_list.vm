@@ -52,11 +52,6 @@
 <div class="portletBody specialLink">
 	#set($itemsOnLine = 0)
 		<ul class="navIntraTool actionToolBar">
-            #if("$!dropboxMode" == "true")
-			<li class="firstToolBarItem"><span class="current">$clang.getString("list.site.dropbox")</span></li>
-            #else
-			<li class="firstToolBarItem"><span class="current">$clang.getString("list.site")</span></li>
-            #end
 			#if($canDeleteResource)
 				## view restore deleted resources area if the user has revise permission
 				<li><span><a href="#toolLinkParam("ResourcesAction" "doViewTrash" "siteId=$validator.escapeUrl(${site.id})")" title="$clang.getString('trash')">$clang.getString("trash")</a></span></li>
@@ -100,7 +95,11 @@
 		</ul>
 		</ul>
 	<div class="page-header">
-		<h1>$tlang.getString("list.site.dropbox")</h1>
+		#if("$!dropboxMode" == "true")
+			<h1>$clang.getString("list.site.dropbox")</h1>
+		#else
+			<h1>$clang.getString("list.site")</h1>
+		#end
 	</div>
 	#if ($alertMessage)
 		<br /><div class="sak-banner-warn">$alertMessage</div>
