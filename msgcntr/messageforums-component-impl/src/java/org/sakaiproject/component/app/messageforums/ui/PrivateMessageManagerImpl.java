@@ -1186,7 +1186,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 
     message.setRecipients(recipientList);
 
-    savePrivateMessage(message, false);
+    Message savedMessage = savePrivateMessage(message, false);
+    message.setId(savedMessage.getId());
 
     String bodyString = buildMessageBody(message);
 
