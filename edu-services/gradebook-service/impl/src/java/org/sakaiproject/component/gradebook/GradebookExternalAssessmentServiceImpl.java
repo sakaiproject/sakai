@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.OptionalLong;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -988,5 +989,15 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 	public boolean isCategoriesEnabled(String gradebookUid) {
 		final Gradebook gradebook = getGradebook(gradebookUid);
 		return gradebook.getCategory_type() != GradebookService.CATEGORY_TYPE_NO_CATEGORY;
+	}
+
+	@Override
+	public OptionalLong getInternalAssessmentID(final String gradebookUUID, final String externalID) throws GradebookNotFoundException, AssessmentNotFoundException {
+
+		final GradebookAssignment asn = getExternalAssignment(gradebookUUID, externalID);
+		if (asn == null) {
+			throw new AssessmentNotFoundException("There is no assessment id=" + gradebookUUID + " in gradebook uid=" + externalID);
+		}
+		return asn == null || asn.getId() == null ? OptionalLong.empty() : OptionalLong.of(asn.getId());
 	}
 }
