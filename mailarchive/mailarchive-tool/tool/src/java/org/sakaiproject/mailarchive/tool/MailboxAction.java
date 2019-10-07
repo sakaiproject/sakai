@@ -62,6 +62,7 @@ import org.sakaiproject.mailarchive.api.MailArchiveMessage;
 import org.sakaiproject.mailarchive.cover.MailArchiveService;
 import org.sakaiproject.message.api.Message;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -482,6 +483,13 @@ public class MailboxAction extends PagedResourceActionII
 		context.put("tlang", rb);
 		List messages = prepPage(state);
 		context.put("messages", messages);
+
+		String toolTitle = "";
+		Tool tool = ToolManager.getCurrentPlacement().getTool();
+		if (tool != null) {
+			toolTitle = tool.getTitle();
+		}
+		context.put("mailarchive_title", toolTitle);
 
 		// build the menu
 		Menu bar = new MenuImpl(portlet, rundata, (String) state.getAttribute(STATE_ACTION));
