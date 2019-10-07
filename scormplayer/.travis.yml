@@ -10,7 +10,7 @@ before_install:
   
 language: java
 jdk:
-  - oraclejdk8
+  - openjdk8
 sudo: false
 cache:
  directories:
