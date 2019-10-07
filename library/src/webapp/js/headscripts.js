@@ -710,6 +710,11 @@ function disableBackButton(message) {
 	if (supports_history_api()) {
 		history.pushState(null, null, '');
 		window.addEventListener('popstate', function(event) {
+			// If there is a hash in the URL don't do anything.
+			// These are used in a11y jumps and on some Samigo features
+			if (window.location.hash) {
+				return;
+			}
 			history.pushState(null, null, '');
 			window.alert(message);
 		});
