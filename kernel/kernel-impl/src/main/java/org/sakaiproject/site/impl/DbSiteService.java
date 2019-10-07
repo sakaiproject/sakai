@@ -863,9 +863,9 @@ public abstract class DbSiteService extends BaseSiteService
 				{
 					fields[pos++] =  "%" + criteria + "%";
 				}
-				if (propertyRestrictions != null && propertyRestrictions.size() > 0)
+				if ((propertyCriteria != null) && (propertyCriteria.size() > 0))
 				{
-					for (Iterator i = propertyRestrictions.entrySet().iterator(); i.hasNext();)
+					for (Iterator i = propertyCriteria.entrySet().iterator(); i.hasNext();)
 					{
 						Map.Entry entry = (Map.Entry) i.next();
 						String name = (String) entry.getKey();
@@ -878,9 +878,10 @@ public abstract class DbSiteService extends BaseSiteService
 				{
 					fields[pos++] = getCurrentUserIdIfNull(userId);
 				}
-				if ((propertyCriteria != null) && (propertyCriteria.size() > 0))
+
+				if (propertyRestrictions != null && propertyRestrictions.size() > 0)
 				{
-					for (Iterator i = propertyCriteria.entrySet().iterator(); i.hasNext();)
+					for (Iterator i = propertyRestrictions.entrySet().iterator(); i.hasNext();)
 					{
 						Map.Entry entry = (Map.Entry) i.next();
 						String name = (String) entry.getKey();
@@ -1109,6 +1110,8 @@ public abstract class DbSiteService extends BaseSiteService
 			{
 				sql = getResourceSql(fieldList(m_siteIdFieldArray, null), where, order, values, join);
 			}
+
+			log.debug("getSiteIds SQL: {}, values: {}", sql, java.util.Arrays.toString(values));
 
 			@SuppressWarnings("unchecked")
 			List<String> siteIds = (List<String>) sqlService().dbRead(sql, values, siteIdReader);
