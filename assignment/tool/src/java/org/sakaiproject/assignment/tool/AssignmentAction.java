@@ -10438,8 +10438,6 @@ public class AssignmentAction extends PagedResourceActionII {
 
         ParameterParser params = data.getParameters();
 
-        //Context context = (Context) data.getRequest().getAttribute("sakai.wrapper.context");
-
         String submissionReference = params.getString("submissionId");
 
         prepareStudentViewGrade(state, submissionReference);
