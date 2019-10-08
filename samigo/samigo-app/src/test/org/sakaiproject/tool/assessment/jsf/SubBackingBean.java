@@ -23,17 +23,13 @@ package org.sakaiproject.tool.assessment.jsf;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
-/**
- * <p> </p>
- * <p>Description: A Test Baking Bean</p>
- * <p>Copyright: Copyright (c) 2004</p>
- * <p>Organization: Sakai Project</p>
- * @author Ed Smiley
- * @version $id: $
- */
 
-public class SubBackingBean implements Serializable
-{
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
+
+@ManagedBean(name="subbean")
+@SessionScoped
+public class SubBackingBean implements Serializable {
   private String title;
   private String name;
   private String address;

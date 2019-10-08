@@ -30,10 +30,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.faces.event.ValueChangeEvent;
 import javax.faces.application.FacesMessage;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.SessionScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import javax.faces.event.ValueChangeEvent;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
@@ -68,9 +71,9 @@ import org.w3c.dom.Document;
  * <p>Bean for QTI Import Data</p>
  */
 @Slf4j
-public class XMLImportBean implements Serializable
-{
-	
+@ManagedBean(name="xmlImport")
+@SessionScoped
+public class XMLImportBean implements Serializable {
 	  /** Use serialVersionUID for interoperability. */
 	  private final static long serialVersionUID = 418920360211039758L;
 	  
@@ -78,10 +81,15 @@ public class XMLImportBean implements Serializable
   private String uploadFileName;
   private String importType;
   private String pathToData;
+  @ManagedProperty(value="#{author}")
   private AuthorBean authorBean;
+  @ManagedProperty(value="#{assessmentBean}")
   private AssessmentBean assessmentBean;
+  @ManagedProperty(value="#{itemauthor}")
   private ItemAuthorBean itemAuthorBean;
+  @ManagedProperty(value="#{authorization}")
   private AuthorizationBean authorizationBean;
+  @ManagedProperty(value="#{questionpool}")
   private QuestionPoolBean questionPoolBean;
   private boolean isCP;
   private String importType2;

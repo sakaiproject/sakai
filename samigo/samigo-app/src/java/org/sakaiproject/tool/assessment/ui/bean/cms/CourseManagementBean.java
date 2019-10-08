@@ -25,19 +25,16 @@ package org.sakaiproject.tool.assessment.ui.bean.cms;
 
 import java.util.ArrayList;
 import java.io.Serializable;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
+
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 
-/**
- * <p>Course Management Bean </p>
- * <p>Stub for now. </p>
- * <p>Copyright: Copyright (c) 2004 Sakai</p>
- * <p> </p>
- * @author Ed Smiley
- * @version $Id$
- */
-
-public class CourseManagementBean implements Serializable
-{
+/* Course Management Info.  Dummy data for now. */
+@ManagedBean(name="course")
+@SessionScoped
+public class CourseManagementBean implements Serializable {
   private String courseName;
   private String courseIdString;
   private String instructor;

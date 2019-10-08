@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.Map;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.faces.model.SelectItem;
 
 import lombok.extern.slf4j.Slf4j;
@@ -62,17 +64,12 @@ import org.sakaiproject.tool.assessment.util.AttachmentUtil;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 
-/**
- * <p>
- * This bean represents an item
- * </p>
- */
-
+/* For delivery: ItemContents backing bean. */
 @Slf4j
+@ManagedBean(name="itemContents")
+@SessionScoped
 public class ItemContentsBean implements Serializable {
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 6270034338280029897L;
 
 	private static ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");

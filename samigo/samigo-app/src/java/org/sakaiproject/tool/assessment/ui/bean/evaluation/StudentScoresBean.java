@@ -25,6 +25,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
@@ -38,13 +40,11 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.AttachmentUtil;
 import org.sakaiproject.tool.cover.SessionManager;
 
-/**
- * <p>Description: class form for evaluating student scores</p>
- *
- */
+/* For evaluation: Student Scores backing bean. */
 @Slf4j
-public class StudentScoresBean implements Serializable
-{
+@ManagedBean(name="studentScores")
+@SessionScoped
+public class StudentScoresBean implements Serializable {
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 5517587781720762296L;

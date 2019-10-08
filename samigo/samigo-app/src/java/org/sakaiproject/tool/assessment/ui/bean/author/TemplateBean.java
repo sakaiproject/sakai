@@ -29,6 +29,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
+
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.samigo.util.SamigoConstants;
@@ -39,13 +42,14 @@ import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
- * <p>  JSF backing bean for Template pages
+ * <p> For author: Template editor backing bean
  * </p>
  *
  */
 @Slf4j
- public class TemplateBean implements Serializable
-{
+@ManagedBean(name="template")
+@SessionScoped
+ public class TemplateBean implements Serializable {
   private static final long serialVersionUID = 7526471155622776147L;
   private Map values = new HashMap();
   private String newName;

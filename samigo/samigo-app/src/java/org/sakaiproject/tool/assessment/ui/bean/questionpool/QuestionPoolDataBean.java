@@ -19,8 +19,6 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.bean.questionpool;
 
 //import org.sakaiproject.tool.assessment.business.entity.questionpool.*;
@@ -33,17 +31,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
+
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.util.FormattedText;
 
-/**
- * This holds question pool information.
- *
- * Used to be org.navigoproject.ui.web.form.questionpool.QuestionPoolBean
- *
- * @author Rachel Gollub <rgollub@stanford.edu>
- */
+/* For questionpool: Question Pool Data backing bean. */
+@Slf4j
+@ManagedBean(name="questionpooldata")
+@SessionScoped
 public class QuestionPoolDataBean implements Serializable {
 
   /** Use serialVersionUID for interoperability. */

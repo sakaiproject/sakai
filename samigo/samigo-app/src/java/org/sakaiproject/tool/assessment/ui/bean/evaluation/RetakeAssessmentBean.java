@@ -24,14 +24,16 @@ package org.sakaiproject.tool.assessment.ui.bean.evaluation;
 import java.io.Serializable;
 import java.util.Map;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
+
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.assessment.data.dao.grading.StudentGradingSummaryData;
 
-/**
- * <p>Description: class form for evaluating total scores</p>
- *
- */
+/* For evaluation: Retake Assessment backing bean. */
 @Slf4j
+@ManagedBean(name="retakeAssessment")
+@SessionScoped
 public class RetakeAssessmentBean implements Serializable {
 
 	private Long publishedAssessmentId;
