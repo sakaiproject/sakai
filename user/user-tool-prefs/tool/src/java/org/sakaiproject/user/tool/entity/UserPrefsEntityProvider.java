@@ -356,10 +356,16 @@ public class UserPrefsEntityProvider extends AbstractEntityProvider implements C
 				if (propsToSet.size() > 0) {
 					log.debug("We have some props to set. Getting edit lock ...");
 					PreferencesEdit editPrefs = getPreferencesEdit(userId);
-					ResourcePropertiesEdit editProps = editPrefs.getPropertiesEdit(key);
-					propsToSet.forEach((k ,v) -> editProps.addProperty(k, v));
-					log.debug("Props set! Committing preferences edit ...");
-					preferencesService.commit(editPrefs);
+
+					if (editPrefs != null) {
+						ResourcePropertiesEdit editProps = editPrefs.getPropertiesEdit(key);
+						propsToSet.forEach((k ,v) -> editProps.addProperty(k, v));
+						log.debug("Props set! Committing preferences edit ...");
+						preferencesService.commit(editPrefs);
+					} else {
+						log.warn("Could not get a lock on prefs to update for user: {}", userId);
+					}
+
 				} else {
 					log.debug("No new props to set");
 				}
