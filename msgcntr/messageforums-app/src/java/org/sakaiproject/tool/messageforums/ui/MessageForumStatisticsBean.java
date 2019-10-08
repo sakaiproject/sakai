@@ -36,6 +36,9 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import javax.faces.application.FacesMessage;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.SessionScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
@@ -78,6 +81,8 @@ import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 
 @Slf4j
+@ManagedBean(name="mfStatisticsBean")
+@SessionScoped
 public class MessageForumStatisticsBean {
 	
 	/**
@@ -450,24 +455,30 @@ public class MessageForumStatisticsBean {
 	private boolean m_displayAnonIds; // this will be true in a pure-anon scenario
 
 	/** Needed if within a site so we only need stats for this site */
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.MessageForumsMessageManager\"]}")
 	private MessageForumsMessageManager messageManager;
-	
 	/** Needed to get topics if tool within a site */
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager\"]}")
 	private DiscussionForumManager forumManager;
-	
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.MembershipManager\"]}")
 	private MembershipManager membershipManager;
-
 	/** Manages anonymous IDs */
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.AnonymousManager\"]}")
 	private AnonymousManager anonymousManager;
-
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.tool.api.ToolManager\"]}")
 	private ToolManager toolManager;
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.user.api.UserDirectoryService\"]}")
 	private UserDirectoryService userDirectoryService;
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.authz.api.SecurityService\"]}")
 	private SecurityService securityService;
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.event.api.EventTrackingService\"]}")
 	private EventTrackingService eventTrackingService;
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.site.api.SiteService\"]}")
 	private SiteService siteService;
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.tool.api.SessionManager\"]}")
 	private SessionManager sessionManager;
-	
 	/** Needed to determine if user has read permission of topic */
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager\"]}")
 	private UIPermissionsManager uiPermissionsManager;
 	
 	public void setMessageManager(MessageForumsMessageManager messageManager){
