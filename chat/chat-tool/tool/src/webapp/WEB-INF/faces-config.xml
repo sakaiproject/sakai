@@ -17,33 +17,6 @@
 
   <!-- =================== Tool Beans ============== -->
     <managed-bean>
-
-        <description>ChatTool</description>
-        <managed-bean-name>ChatTool</managed-bean-name>
-        <managed-bean-class>org.sakaiproject.chat2.tool.ChatTool</managed-bean-class>
-        <managed-bean-scope>session</managed-bean-scope>
-
-        <managed-property>
-            <description>chatManager</description>
-            <property-name>chatManager</property-name>
-            <value>#{Components["org.sakaiproject.chat2.model.ChatManager"]}</value>
-        </managed-property>
-
-        <managed-property>
-           <description>Service Dependency: serverConfigurationService</description>
-           <property-name>serverConfigurationService</property-name>
-           <value>#{Components["org.sakaiproject.component.api.ServerConfigurationService"]}</value>
-        </managed-property>
-
-      	<managed-property>
-      	   <description>Service Dependency: toolManager</description>
-           <property-name>toolManager</property-name>
-           <value>#{Components["org.sakaiproject.tool.api.ActiveToolManager"]}</value>
-        </managed-property>
-
-    </managed-bean>
-
-    <managed-bean>
         <description>
             JSF Portal Object
         </description>
