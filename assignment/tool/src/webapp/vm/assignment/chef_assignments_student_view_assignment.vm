@@ -17,18 +17,16 @@
 			 $tlang.getString("gen.settfor") "$validator.escapeHtml($assignment.title)"
 		</p>
 		<table class="itemSummary" border="0">
-			<tr>
-				<th>	
-					$tlang.getString('gen.createdBy')
-				</th>	
-				<td>
-					#if ($assignment.Modifier)
-						$!userDirectoryService.getUser($assignment.Modifier).getDisplayName() ($!userDirectoryService.getUser($assignment.Modifier).getEmail())
-					#else
-						$!userDirectoryService.getUser($assignment.Author).getDisplayName() ($!userDirectoryService.getUser($assignment.Author).getEmail())
-					#end
-				</td>
-			</tr>
+			#if ($createdBy_enabled)
+		        <tr>
+		            <th>
+		                $tlang.getString('gen.createdBy')
+		            </th>
+		            <td>
+		                $validator.escapeHtml($!assignment.CreatorOrModifier)
+		            </td>
+		        </tr>
+			#end
 			<tr> 
 				<th>
 					$tlang.getString("gen.open")

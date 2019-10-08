@@ -41,6 +41,7 @@ import javax.persistence.Lob;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -151,6 +152,9 @@ public class Assignment {
 
     @Column(name = "AUTHOR", length = 99)
     private String author;
+
+    @Transient
+    private String creatorOrModifier;
 
     @Column(name = "DRAFT", nullable = false)
     private Boolean draft = Boolean.FALSE;

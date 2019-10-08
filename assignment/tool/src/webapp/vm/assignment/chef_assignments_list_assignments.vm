@@ -439,11 +439,7 @@
 							</td>
 							#if ($createdBy_enabled)
 								<td headers="createdBy">
-									#if ($assignment.Modifier)
-										$!userDirectoryService.getUser($assignment.Modifier).getDisplayName()
-									#else
-										$!userDirectoryService.getUser($assignment.Author).getDisplayName()
-									#end
+									$validator.escapeHtml($assignment.CreatorOrModifier)
 								</td>
 							#end
 						#if ($!allowGradeSubmission)
@@ -575,11 +571,7 @@
 								</td>
 								#if ($createdBy_enabled)
 									<td headers="createdBy">
-										#if ($assignment.Modifier)
-											$!userDirectoryService.getUser($assignment.Modifier).getDisplayName()
-										#else
-											$!userDirectoryService.getUser($assignment.Author).getDisplayName()
-										#end
+										$validator.escapeHtml($!assignment.CreatorOrModifier)
 									</td>
 								#end
 								#if ($!allowGradeSubmission)

@@ -35,6 +35,16 @@
 				$validator.escapeHtml($assignment.Title)
             </td>
         </tr>
+        #if ($createdBy_enabled)
+            <tr>
+	            <th>
+	                $tlang.getString("gen.createdBy")
+	            </th>
+	            <td>
+	                $validator.escapeHtml($assignment.CreatorOrModifier)
+	            </td>
+            </tr>
+        #end
         <tr>
             <th>
                 $tlang.getString("gen.due.header"):
