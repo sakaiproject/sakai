@@ -157,7 +157,6 @@ function saveTime()
 <h:inputHidden id="assessTitle" value="#{delivery.assessmentTitle}" />
 <h:inputHidden id="elapsed" value="#{delivery.timeElapse}" />
 <h:inputHidden id="outoftime" value="#{delivery.timeOutSubmission}"/>
-<h:commandLink id="submitforgrade" action="#{delivery.submitForGrade}" value="" />
 
     <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
     <p style="margin-bottom:0"><h:outputText value="#{deliveryMessages.seeOrHide}" /> </p>
