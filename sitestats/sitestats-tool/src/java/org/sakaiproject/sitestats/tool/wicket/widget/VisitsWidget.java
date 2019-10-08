@@ -485,7 +485,7 @@ public class VisitsWidget extends Panel {
 				totalsBy.add(StatsManager.T_SITE);
 				rp.setHowTotalsBy(totalsBy);
 				r.setReportParams(rp);
-				Report report = Locator.getFacade().getReportManager().getReport(r, true, null);
+				Report report = Locator.getFacade().getReportManager().getReport(r, true);
 				double duration = 0;;
 				if(report.getReportData().size() > 0) {
 					duration = (double) ((SitePresence)(report.getReportData().get(0))).getDuration();
@@ -509,7 +509,7 @@ public class VisitsWidget extends Panel {
 				rp.setHowSortBy(StatsManager.T_DATE);
 				r.setReportParams(rp);
 				PagingPosition paging = new PagingPosition();
-				Report report = Locator.getFacade().getReportManager().getReport(r, true, paging, false, null);
+				Report report = Locator.getFacade().getReportManager().getReport(r, true, paging, false);
 				Date firstDate = new Date();
 				if(report.getReportData().size() > 0) {
 					firstDate = ((SitePresence)(report.getReportData().get(0))).getDate();
@@ -602,14 +602,15 @@ public class VisitsWidget extends Panel {
 				ReportParams rp = new ReportParams(siteId);
 				rp.setWhat(ReportManager.WHAT_PRESENCES);
 				rp.setWhen(ReportManager.WHEN_ALL);
-				rp.setWho(ReportManager.WHO_ALL);
+				rp.setWho(ReportManager.WHO_CUSTOM);
 				List<String> totalsBy = new ArrayList<String>();
 				totalsBy.add(StatsManager.T_SITE);
 				rp.setHowTotalsBy(totalsBy);
 				r.setReportParams(rp);
 				List<String> userList = new ArrayList<>();
 				userList.add(currentUserId);
-				Report report = Locator.getFacade().getReportManager().getReport(r, true, userList);
+				rp.setWhoUserIds(userList);
+				Report report = Locator.getFacade().getReportManager().getReport(r, true);
 				long duration = 0;
 				if(report.getReportData().size() > 0) {
 					duration = ((SitePresence)(report.getReportData().get(0))).getDuration();

@@ -63,7 +63,7 @@ public interface ReportManager {
 
 
 	/** Produce a report based on supplied parameters. */
-	public Report getReport(ReportDef reportDef, boolean restrictToToolsInSite, List<String> userIds);
+	public Report getReport(ReportDef reportDef, boolean restrictToToolsInSite);
 	
 	/**
 	 * Produce a report based on supplied parameters (paged results).
@@ -71,19 +71,17 @@ public interface ReportManager {
 	 * @param restrictToToolsInSite Whether to limit report to events from tools available in site
 	 * @param page Paging information (see {@link PagingPosition})
 	 * @param log If true, an event will be logged
-	 * @param userIds Filter the report by some user ids
 	 * @return The report (see {@link Report})
 	 */
-	public Report getReport(ReportDef reportDef, boolean restrictToToolsInSite, PagingPosition page, boolean log, List<String> userIds);
+	public Report getReport(ReportDef reportDef, boolean restrictToToolsInSite, PagingPosition page, boolean log);
 	
 	/**
 	 * Get row count for a report based on supplied parameters (paged results).
 	 * @param params Object containing specific report parameters (see {@link ReportDef})
 	 * @param restrictToToolsInSite Whether to limit report to events from tools available in site
-	 * @param userIds Filter the report row count by some user ids
 	 * @return The report row count
 	 */
-	public int getReportRowCount(ReportDef reportDef, boolean restrictToToolsInSite, List<String> userIds);
+	public int getReportRowCount(ReportDef reportDef, boolean restrictToToolsInSite);
 	
 	/** Return utility class to retrieve formatted report parameters. */
 	public ReportFormattedParams getReportFormattedParams();
