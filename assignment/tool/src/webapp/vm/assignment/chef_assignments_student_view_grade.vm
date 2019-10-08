@@ -75,7 +75,7 @@
 	                $tlang.getString('gen.createdBy')
 	            </th>
 	            <td>
-	                --$validator.escapeHtml($!assignment.CreatorOrModifier)--
+	                $validator.escapeHtml($!assignment.CreatorOrModifier)
 	            </td>
 	        </tr>
         #end

@@ -1916,6 +1916,9 @@ public class AssignmentAction extends PagedResourceActionII {
         Assignment currentAssignment = getAssignment(currentAssignmentReference, "build_student_view_submission_confirmation_context", state);
         if (currentAssignment != null) {
             context.put("assignment", currentAssignment);
+            
+            // put creator information
+            putCreatorOrModifier(currentAssignment);
 
             // differenciate submission type
             Assignment.SubmissionType submissionType = currentAssignment.getTypeOfSubmission();
@@ -2065,6 +2068,10 @@ public class AssignmentAction extends PagedResourceActionII {
         Assignment assignment = getAssignment(aReference, "build_student_confirm_submission_context", state);
         if (assignment != null) {
             context.put("assignment", assignment);
+            
+            // put creator information
+            putCreatorOrModifier(assignment);
+            
             context.put("assignmentReference", AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference());
             context.put("typeOfGradeString", getTypeOfGradeString(assignment.getTypeOfGrade()));
             context.put("canSubmit", assignmentService.canSubmit(assignment));
@@ -2293,15 +2300,9 @@ public class AssignmentAction extends PagedResourceActionII {
         if (submission != null) {
             assignment = submission.getAssignment();
             context.put("assignment", assignment);
-            
-            //List<Assignment> assignments = prepPage(state);
-            
+
             // put creator information
-            //assignments.forEach(a -> putCreatorOrModifier(a));
-            //Assignment a = assignments.get(0);
-            
-            //getContext(data)
-            //context.put("assignment", a);
+            putCreatorOrModifier(assignment);
 
             context.put("typeOfGradeString", getTypeOfGradeString(assignment.getTypeOfGrade()));
             if (assignment.getTypeOfSubmission() == Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) {
@@ -2540,8 +2541,6 @@ public class AssignmentAction extends PagedResourceActionII {
         // clear out peer_attachment list just in case
         state.setAttribute(PEER_ATTACHMENTS, entityManager.newReferenceList());
         context.put(PEER_ATTACHMENTS, entityManager.newReferenceList());
-
-        //putCreatorOrModifierIntoContext(context, assignment);
 
         String template = (String) getContext(data).get("template");
         return template + TEMPLATE_LIST_ASSIGNMENTS;
@@ -6336,9 +6335,6 @@ public class AssignmentAction extends PagedResourceActionII {
             // retrieve the submission text (as formatted text)
             boolean checkForFormattingErrors = true; // check formatting error whether the student is posting or saving
             String text = processFormattedTextFromBrowser(state, params.getCleanString(VIEW_SUBMISSION_TEXT), checkForFormattingErrors);
-
-            // put creator information
-            putCreatorOrModifier(a);
 
             if (text == null) {
                 text = (String) state.getAttribute(VIEW_SUBMISSION_TEXT);
@@ -10464,20 +10460,6 @@ public class AssignmentAction extends PagedResourceActionII {
 
             // show submission view unless group submission with group error
             Assignment a = s.getAssignment();
-            
-            //List<Assignment> assignments = prepPage(state);
-            
-            // put creator information
-            //assignments.forEach(a -> putCreatorOrModifier(a));
-            //Assignment a = assignments.get(0);
-            
-            //getContext(data)
-            //context.put("assignment", a);
-            //state.getAttribute("Assignment.context_string")
-            //state.getAttributeNames()
-            //a.getTitle()
-            // put creator information
-            putCreatorOrModifier(a);
 
             User u = (User) state.getAttribute(STATE_USER);
             if (a.getIsGroup()) {
