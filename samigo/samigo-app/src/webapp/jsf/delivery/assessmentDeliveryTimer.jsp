@@ -56,9 +56,6 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 
 <h:inputHidden id="elapsed" value="#{delivery.timeElapse}" />
 <h:inputHidden id="outoftime" value="#{delivery.timeOutSubmission}"/>
-<h:commandLink title="#{deliveryMessages.t_submit}" id="submitforgrade" action="#{delivery.submitForGradeFromTimer}" value="" />
-<h:commandLink id="saveNoCheck" action="#{delivery.saveNoCheck}" value="" />
-<h:commandLink id="submitNoCheck" action="#{delivery.submitFromTimeoutPopup}" value="" />
 
 <script type="text/JavaScript">
 function isFromLink() {
