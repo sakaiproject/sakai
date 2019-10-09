@@ -1885,10 +1885,6 @@ public class DeliveryBean
 	  return saveAndExit(true);
   }
   
-  public String saveNoCheck() {
-	  return saveAndExit(false);
-  }
-  
   public String saveAndExit(boolean needToCheck)
   {
 	  if (needToCheck) {  
