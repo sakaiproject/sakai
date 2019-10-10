@@ -46,7 +46,7 @@
     <sakai.stax2.version>4.2</sakai.stax2.version>
     <sakai.java.jwt.version>3.1.0</sakai.java.jwt.version>
     <sakai.jstl.version>1.2</sakai.jstl.version>
-    <sakai.lombok.version>1.18.8</sakai.lombok.version>
+    <sakai.lombok.version>1.18.10</sakai.lombok.version>
     <sakai.lucene.version>4.10.4</sakai.lucene.version>
     <sakai.org.json.version>20180813</sakai.org.json.version>
     <sakai.pluto.version>1.1.7</sakai.pluto.version>
