@@ -113,8 +113,31 @@ public abstract class AjaxLazyLoadImage extends Panel {
 		form.add(new HiddenField("maxWidth"));
 		form.add(new HiddenField("maxHeight"));
 		add(form);
+
 	}
-	
+
+	@Override
+	public void renderHead(IHeaderResponse response) {
+		super.renderHead(response);
+		StringBuilder script = new StringBuilder("var fullscreenWidth = 0;")
+				.append(" var fullscreenHeight = 0;")
+				.append(" var obj = document.body;")
+				.append(" if (document.all) {")
+				// IE
+				.append("   fullscreenHeight = obj.scrollHeight;")
+				.append("   fullscreenWidth = obj.scrollWidth;")
+				.append(" } else {")
+				// Other browsers
+				.append("   fullscreenHeight = obj.clientHeight;")
+				.append("   fullscreenWidth = obj.clientWidth;")
+				.append(" }")
+				.append(" jQuery('.maxWidth').val(fullscreenWidth);")
+				.append(" jQuery('.maxHeight').val(fullscreenHeight);");
+
+		OnDomReadyHeaderItem onDomReady = OnDomReadyHeaderItem.forScript(script);
+		response.render(onDomReady);
+	}
+
 	@Override
 	protected void onBeforeRender() {
 		if(state == 0){
