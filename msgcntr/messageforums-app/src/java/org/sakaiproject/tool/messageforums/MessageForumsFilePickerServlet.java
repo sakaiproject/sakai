@@ -182,17 +182,18 @@ public class MessageForumsFilePickerServlet extends JsfTool  implements HttpServ
      * main page of Private Messages Tool
      */
     private String checkUrlRequirements(HttpServletRequest req, String target) {
+        String newTarget = target;
         if ("/privateMsg/pvtMsgDetail".equals(target) && (req.getSession().getAttribute("PrivateMessagesTool") == null ||
                 ((PrivateMessagesTool) req.getSession().getAttribute("PrivateMessagesTool")).getDetailMsg() == null)) {
-            target = "/privateMsg/pvtMsgHpView";
+            newTarget = "/privateMsg/pvtMsgHpView";
         } else if ("/privateMsg/pvtMsgDirectAccess".equals(target)) {
             final String[] currentMsgDetail = req.getParameterMap().get("current_msg_detail");
             // Sometimes the param is not a null String but the word "null"
             if (currentMsgDetail == null || currentMsgDetail.length == 0 || "null".equals(currentMsgDetail[0])) {
-                target = "/privateMsg/pvtMsgHpView";
+                newTarget = "/privateMsg/pvtMsgHpView";
             }
         }
-        return target;
+        return newTarget;
     }
 
     protected boolean sendToHelper(HttpServletRequest req, HttpServletResponse res, String target) 
