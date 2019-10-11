@@ -48,7 +48,14 @@
 								<bean class="org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService"/>
 							</property>
 							<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+						</bean>
 
+						<bean class="org.sakaiproject.elfinder.sakai.scorm.ScormSiteVolumeFactory">
+							<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+							<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+							<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+							<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+							<property name="scormContentService" ref="org.sakaiproject.scorm.service.api.ScormContentService" />
 						</bean>
 					</set>
 				</property>
