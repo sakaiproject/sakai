@@ -1,3 +1,5 @@
+@import "_navigation_mixins";
+
 body.is-logged-out{
 	.#{$namespace}loginUser{
 		li{
@@ -784,58 +786,14 @@ body.is-logged-out{
 		li.#{$namespace}sitesNav__menuitem{
 			@include display-flex;
 			@include align-items(center);
+			position: relative;
 			margin: 0 $standard-spacing $standard-spacing 0;	// space the items apart, and space vertically if wrapped
 			padding: 0;
-			position: relative;
 
-			> a.link-container{
+			.link-container{
 				@include display-flex;
 				@include align-items( center );
-
-				border-top: $sites-nav-menu-item-border-top;
-				border-right: $sites-nav-menu-item-border-right;
-				border-bottom: $sites-nav-menu-item-border-bottom;
-				border-left: $sites-nav-menu-item-border-left;
-				background: $sites-nav-menu-item-background;
-				padding: ($standard-space * 2);
-				color: $sites-nav-menu-item-color;
-				text-decoration: none;
-
-				i.fa {
-					color: $sites-nav-menu-item-icon-color;
-				}
-				
-				&:hover, &:focus {
-					border-top: $sites-nav-menu-item-hover-border-top;
-					border-right: $sites-nav-menu-item-hover-border-right;
-					border-bottom: $sites-nav-menu-item-hover-border-bottom;
-					border-left: $sites-nav-menu-item-hover-border-left;
-					background: $sites-nav-menu-item-hover-background;
-					
-					~ .#{$namespace}sitesNav__drop, ~ .#{$namespace}sitesNav__dropdown {
-						border-left: $sites-nav-menu-item-hover-border-left; 		// so the right border of the .link-container will show through the overlapping box
-					}
-				}
-				
-				&:focus {
-					outline-offset: -#{$focus-outline-width};	// to match the width of the default link focus to fit in the link container
-				}
-				
-				&:active {
-					outline: 0 none;	// hiding on click
-				}
-			}
-
-			/* hover for sites when tool quick-menu isn't open */
-			&:not(.dropdown-is-visible){
-				> .link-container:hover,
-				> .link-container:active {
-					color: $sites-nav-menu-item-hover-color;
-
-					i.fa {
-						color: $sites-nav-menu-item-hover-icon-color;
-					}
-				}
+				@include sitesNavStyling();
 			}
 
 			&.dropdown-is-visible {
@@ -850,7 +808,7 @@ body.is-logged-out{
 					z-index: 100;
 				}
 				
-				.link-container{
+				.link-container, .#{$namespace}sitesNav__dropdown, .#{$namespace}sitesNav__favbtn {
 					border-top: $sites-nav-menu-item-hover-border-top;
 					border-right: $sites-nav-menu-item-hover-border-right;
 					border-bottom: $sites-nav-menu-item-hover-border-bottom;
@@ -859,30 +817,23 @@ body.is-logged-out{
 				}
 			}
 
-			span
-			{
+			span {
 				line-height: 1;
 			}
-			.#{$namespace}sitesNav__drop, .#{$namespace}sitesNav__dropdown{
-				text-align: center;
-				text-decoration: none;
-				color: $sites-nav-menu-item-icon-color;
-				margin-left: -#{$sites-nav-menu-item-border-thickness}; 					// to overlap the left border with the site title's border, so border thickness will remain 1px and hover will still work
-				padding: ($standard-space * 2);
+			
+			.#{$namespace}sitesNav__dropdown, .#{$namespace}sitesNav__favbtn {
+				@include sitesNavStyling();
+				box-sizing: content-box;			// to allow width and height control the size to match the site title link text
 				width: $default-font-size; 			// to match the height
 				height: $default-font-size;			// to match the link text size
-				box-sizing: content-box;			// to allow width and height control the size to match the site title link text
-				border-top: $sites-nav-menu-item-border-top;
-				border-right: $sites-nav-menu-item-border-right;
-				border-bottom: $sites-nav-menu-item-border-bottom;
-				border-left: $sites-nav-menu-item-border-left;
-				background: $sites-nav-menu-item-background;
-
+			}
+			
+			.#{$namespace}sitesNav__dropdown{
 				@extend .fa-angle-down;
 				@extend .fa;
 				@extend .fa-lg;
-				@extend .sitesNav__drop;
-
+				margin-left: -#{$sites-nav-menu-item-border-thickness}; 					// to overlap the left border with the site title's border, so border thickness will remain 1px and hover will still work				
+				
 				&.is-clicked{
 					@include transform( rotate(180deg) );
 					top: 40%;
@@ -891,36 +842,31 @@ body.is-logged-out{
 					border-left: $sites-nav-menu-item-hover-border-right;	// using the right variable because of the item rotation (left is right)
 					background: $sites-nav-menu-item-hover-background;
 				}
+			}
+			
+			.#{$namespace}sitesNav__favbtn {
+				@extend .fa-star;
+				@extend .fa;
+				margin-right: -#{$sites-nav-menu-item-border-thickness}; 					// to overlap the right border with the site title's border, so border thickness will remain 1px and hover will still work				
 
-				&:hover, &:focus {
-					border-top: $sites-nav-menu-item-hover-border-top;
-					border-right: $sites-nav-menu-item-hover-border-right;
-					border-bottom: $sites-nav-menu-item-hover-border-bottom;
-					border-left: $sites-nav-menu-item-hover-border-left;
-					background: $sites-nav-menu-item-hover-background;
-					color: $sites-nav-menu-item-hover-icon-color;
-				}
-				
-				&:focus {
-					outline-offset: -#{$focus-outline-width};	// to match the width of the default link focus to fit in the link container
-				}
-				
-				&:active {
-					outline: 0 none;	// hiding on click
+				&.non-fav {
+					@extend .fa-star-o;
+					@extend .fa;
 				}
 			}
-			ul{
-				background: $sites-nav-menu-item-background;
-				display: none;
-				font-family: $header-font-family;
+			
+			.#{$namespace}sitesNav__submenu {
 				position: absolute;
-				border: $sites-nav-menu-item-border-thickness solid $sites-nav-submenu-border-color;
 				top: calc( #{$default-font-size} + ( #{$standard-space} * 2) - #{$sites-nav-menu-item-border-thickness});	// 1px for item border
 				left: 0;
-				width: 17em;
 				z-index: 99;
+				display: none;
+				width: 100%;
+				border: $sites-nav-menu-item-border-thickness solid $sites-nav-submenu-border-color;
 				box-shadow: 0 3px 2px rgba( $text-color, 0.35);
-				li{
+				background: $sites-nav-menu-item-background;
+				
+				.#{$namespace}sitesNav__submenuitem {
 					display: block;
 					border: 0px none;
 					@include border-radius( 0 );
@@ -928,7 +874,7 @@ body.is-logged-out{
 					padding: 0 0 0 0;
 					min-height: 15px;
 
-					a{
+					.#{$namespace}sitesNav__submenuitem-link, a {
 						@include display-flex;
 						@include align-items(center);
 						padding: $standard-spacing;
@@ -936,8 +882,7 @@ body.is-logged-out{
 						color: $sites-nav-submenu-item-color;
 						font-size: $sites-nav-submenu-item-text-size;
 						line-height: 1em;
-						&:hover, &:active
-						{
+						&:hover, &:active {
 							color: $sites-nav-submenu-item-color; /* to override default link hover color */
 						}
 						.toolMenuIcon{
@@ -961,11 +906,11 @@ body.is-logged-out{
 				&.is-hidden{
 					display: none;
 				}
-
 			}
-			&.is-selected{
-				
-				a.link-container{
+			
+			// Current site is selected:
+			&.is-selected {
+				.link-container, .#{$namespace}sitesNav__dropdown, .#{$namespace}sitesNav__favbtn {
 					background: $sites-nav-menu-item-selected-background;
 					border-top: $sites-nav-menu-item-selected-border-top;
 					border-right: $sites-nav-menu-item-selected-border-right;
@@ -973,31 +918,12 @@ body.is-logged-out{
 					border-left: $sites-nav-menu-item-selected-border-left;
 					color: $sites-nav-menu-item-selected-color;
 					
-					i.fa {
-						color: $sites-nav-menu-item-selected-icon-color;
-					}
-					
-					&:hover {
+					&:hover, &:focus {
 						border-top: $sites-nav-menu-item-selected-hover-border-top;
 						border-right: $sites-nav-menu-item-selected-hover-border-right;
 						border-bottom: $sites-nav-menu-item-selected-hover-border-bottom;
 						border-left: $sites-nav-menu-item-selected-hover-border-left;
 						background: $sites-nav-menu-item-selected-hover-background;
-						
-						~ .#{$namespace}sitesNav__drop, ~ .#{$namespace}sitesNav__dropdown {
-							border-left: $sites-nav-menu-item-selected-hover-border-left; 		// so the right border of the .link-container will show through the overlapping box
-						}
-					}
-				}
-				/* hover for sites when tool quick-menu isn't open */
-				&:not(.dropdown-is-visible) {
-					> .link-container:hover,
-					> .link-container:active {
-						color: $sites-nav-menu-item-selected-hover-color;
-
-						i.fa {
-							color: $sites-nav-menu-item-selected-hover-icon-color;
-						}
 					}
 				}
 
@@ -1007,7 +933,7 @@ body.is-logged-out{
 						border-bottom: $sites-nav-menu-item-border-thickness solid $sites-nav-selected-submenu-topleft-border-color;
 					}
 					
-					.link-container, .#{$namespace}sitesNav__drop, .#{$namespace}sitesNav__dropdown{
+					.link-container, .#{$namespace}sitesNav__dropdown, .#{$namespace}sitesNav__favbtn {
 						border-top: $sites-nav-menu-item-selected-hover-border-top;
 						border-right: $sites-nav-menu-item-selected-hover-border-right;
 						border-bottom: $sites-nav-menu-item-selected-hover-border-bottom;
@@ -1016,37 +942,27 @@ body.is-logged-out{
 					}
 				}
 
-				.#{$namespace}sitesNav__drop, .#{$namespace}sitesNav__dropdown{
-					background: $sites-nav-menu-item-selected-background;
-					border-top: $sites-nav-menu-item-selected-border-top;
-					border-right: $sites-nav-menu-item-selected-border-right;
-					border-bottom: $sites-nav-menu-item-selected-border-bottom;
-					border-left: $sites-nav-menu-item-selected-border-left;
-					color: $sites-nav-menu-item-selected-icon-color;
-					
-					&:hover {
-						border-top: $sites-nav-menu-item-selected-hover-border-top;
-						border-right: $sites-nav-menu-item-selected-hover-border-right;
-						border-bottom: $sites-nav-menu-item-selected-hover-border-bottom;
-						border-left: $sites-nav-menu-item-selected-hover-border-left;
-						background: $sites-nav-menu-item-selected-hover-background;
-						color: $sites-nav-menu-item-selected-hover-icon-color;
-					}
-				}
-
-				ul{
+				.#{$namespace}sitesNav__submenu {
 					border-color: $sites-nav-selected-submenu-border-color;
 				}
 			}
 
-			&.#{$namespace}sitesNav__menuitem--myworkspace .fa-home{
+			&.#{$namespace}sitesNav__menuitem--myworkspace .fa-home {
+				margin-right: $standard-space;
+			}
+			
+			.#{$namespace}sitesNav__gateway {
+				@extend .fa-university;
+				@extend .fa;
+				
 				margin-right: $standard-space;
 			}
 
-			ul.#{$namespace}sitesNav__submenu{
+			.#{$namespace}sitesNav__submenu {
 				background: $sites-nav-submenu-background;
-				li.#{$namespace}sitesNav__submenuitem{
-					a {
+				
+				.#{$namespace}sitesNav__submenuitem {
+					.#{$namespace}sitesNav__submenuitem-link, a {
 						position: relative;
 						background: $sites-nav-submenu-item-background;
 						color: $sites-nav-submenu-item-color;
@@ -1055,14 +971,14 @@ body.is-logged-out{
 							color: $sites-nav-submenu-item-icon-color;
 						}
 
-						&:before{
-							border-left: 4px solid $sites-nav-submenu-item-left-border-color;
+						&:before {
 							content: '';
-							height: 100%;
-							display: inline-block;
 							position: absolute;
 							top: 0;
 							left: 0;
+							display: inline-block;
+							height: 100%;
+							border-left: 4px solid $sites-nav-submenu-item-left-border-color;
 						}
 
 						&:hover, &:active, &:focus {
@@ -1117,23 +1033,15 @@ body.is-logged-out{
 	}
 }
 
-.sitenav-dropdown-overlay{
-	height: 100%;
+.sitenav-dropdown-overlay {
 	position: fixed;
 	width: 100%;
+	height: 100%;
 	z-index: 20;
 }
 
-body.is-logged-out{
-	#linkNav{
-		ul{
-			li.#{$namespace}sitesNav__menuitem{
-				.#{$namespace}sitesNav__drop, .#{$namespace}sitesNav__dropdown{
-					display: none;
-				}
-			}
-		}
-	}
+body.is-logged-out #linkNav .#{$namespace}sitesNav__menuitem .#{$namespace}sitesNav__dropdown {
+	display: none;
 }
 
 #show-all-sites{

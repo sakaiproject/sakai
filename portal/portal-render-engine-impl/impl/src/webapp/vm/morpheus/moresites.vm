@@ -86,7 +86,7 @@
                                     #end
                                 </a>
                             </div>
-                            <a href="#" id="${site.siteId}" class="toolMenus" aria-haspopup="true" aria-label="${site.siteTitleTrunc} - ${rloader.sit_open_menu}">
+                            <a href="#" id="${site.siteId}" class="toolMenus" aria-haspopup="true" aria-label="$rloader.getFormattedMessage("sit_open_menu", $site.siteTitleTrunc)">
                                 <span class="fa fa-chevron-down" aria-hidden="true"></span>
                             </a>
                         </li>

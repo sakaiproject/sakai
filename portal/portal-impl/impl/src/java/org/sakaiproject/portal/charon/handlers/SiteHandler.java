@@ -545,6 +545,9 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("isUserSite", false);
 		}
 		
+		rcontext.put("showFavStarsInSitesBar",ServerConfigurationService.getBoolean("portal.favoriteSitesBar.showFavoriteStars", true));
+		rcontext.put("showFavStarsOnAllFavSites",ServerConfigurationService.getBoolean("portal.favoriteSitesBar.showFavStarsOnAllSites", true));
+		
 		addLocale(rcontext, site, session.getUserId());
 		
 		includeSiteNav(rcontext, req, session, siteId);
