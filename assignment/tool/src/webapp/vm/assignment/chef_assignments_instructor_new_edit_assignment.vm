@@ -1256,6 +1256,19 @@
 							}" >
 						$tlang.getString("grading.add")</label>
 						<span id="gradebookListWarnAssoc" class="alertMessageInline" style="display:none;border:none">$tlang.getString("grading.associate.warn")</span>
+						#if ($!value_totalCategories > 0)
+							## show the "Category list" choices or not
+							<p id="categoryList" class="checkbox  indnt4" #if($!gradebookChoice.equals("$!gradebookChoice_add"))style="display:block" #else style="display:none" #end>
+								<label for="category">
+									$tlang.getString("grading.categorylist")
+								</label>
+								<select name="$name_Category" id="category">
+									#foreach ($i in $categoryKeys)
+										<option value="$i" #if ($i == $!value_Category)selected="selected"#end>$categoryTable.get($i)</option>
+									#end
+								</select>
+							</p>
+						#end
 					</div>
 					#end
 					## if there exists properiate assignment entries in Gradebook
@@ -1322,19 +1335,6 @@
 						#end
 					</select>
 				</div>
-			#end
-			#if ($!value_totalCategories > 0)
-				## show the "Category list" choices or not
-				<p id="categoryList" class="checkbox  indnt4" #if($!gradebookChoice.equals("$!gradebookChoice_add"))style="display:block" #else style="display:none" #end>
-					<label for="category">
-						$tlang.getString("grading.categorylist")
-					</label>
-					<select name="$name_Category" id="category">
-						#foreach ($i in $categoryKeys)
-							<option value="$i" #if ($i == $!value_Category)selected="selected"#end>$categoryTable.get($i)</option>
-						#end
-					</select>
-				</p>
 			#end
 		#end
 
