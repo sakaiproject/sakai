@@ -10,6 +10,7 @@
 <f:view>
 	<sakai:view title="#{msgs.cdfm_discussion_forum_settings}" toolCssHref="/messageforums-tool/css/msgcntr.css">
 	<script>includeLatestJQuery("msgcntr");</script>
+	<script>includeWebjarLibrary("momentjs");</script>
 	<script src="/messageforums-tool/js/jquery.charcounter.js"> </script>
 	<script src="/messageforums-tool/js/sak-10625.js"></script>
 	<script src="/messageforums-tool/js/forum.js"></script>
@@ -46,7 +47,8 @@
 
 	function updateGradeAssignment(){
 		var elems = document.getElementsByTagName('sakai-rubric-association');
-		if( document.getElementById("revise:forum_assignments").value != null && document.getElementById("revise:forum_assignments").value != 'Default_0'){
+		var forumAssignments = document.getElementById("revise:forum_assignments");
+		if( forumAssignments != null && forumAssignments.value != null && forumAssignments.value != 'Default_0'){
 			for (var i = 0; i<elems.length; i++) {
 				elems[i].style.display = 'inline';
 			}
