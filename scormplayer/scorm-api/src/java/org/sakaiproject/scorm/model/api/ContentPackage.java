@@ -20,9 +20,11 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Date;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
+@EqualsAndHashCode
 public class ContentPackage implements Serializable
 {
 	private static final long serialVersionUID = 1L;
@@ -30,27 +32,26 @@ public class ContentPackage implements Serializable
 	private static final int NUMBER_OF_TRIES_UNLIMITED = -1;
 
 	@Getter @Setter private Long contentPackageId;
-	@Getter @Setter private String context;
-	@Getter @Setter private String title;
-	@Getter @Setter private String resourceId;
-	@Getter @Setter private String manifestResourceId;
-	@Getter @Setter private String url;
-	@Getter @Setter private String createdBy;
-	@Getter @Setter private String modifiedBy;
-	@Getter @Setter private Serializable manifestId;
-	@Getter @Setter private Date releaseOn;
-	@Getter @Setter private Date dueOn;
-	@Getter @Setter private Date acceptUntil;
-	@Getter @Setter private Date createdOn;
-	@Getter @Setter private Date modifiedOn;
-	@Getter @Setter private int numberOfTries = NUMBER_OF_TRIES_UNLIMITED;
-	@Getter @Setter private boolean isDeleted;
-	@Getter @Setter private boolean hideTOC = false; // default is to always show the table of contents
+	@EqualsAndHashCode.Exclude @Getter @Setter private String context;
+	@EqualsAndHashCode.Exclude @Getter @Setter private String title;
+	@EqualsAndHashCode.Exclude @Getter @Setter private String resourceId;
+	@EqualsAndHashCode.Exclude @Getter @Setter private String manifestResourceId;
+	@EqualsAndHashCode.Exclude @Getter @Setter private String url;
+	@EqualsAndHashCode.Exclude @Getter @Setter private String createdBy;
+	@EqualsAndHashCode.Exclude @Getter @Setter private String modifiedBy;
+	@EqualsAndHashCode.Exclude @Getter @Setter private Serializable manifestId;
+	@EqualsAndHashCode.Exclude @Getter @Setter private Date releaseOn;
+	@EqualsAndHashCode.Exclude @Getter @Setter private Date dueOn;
+	@EqualsAndHashCode.Exclude @Getter @Setter private Date acceptUntil;
+	@EqualsAndHashCode.Exclude @Getter @Setter private Date createdOn;
+	@EqualsAndHashCode.Exclude @Getter @Setter private Date modifiedOn;
+	@EqualsAndHashCode.Exclude @Getter @Setter private int numberOfTries = NUMBER_OF_TRIES_UNLIMITED;
+	@EqualsAndHashCode.Exclude @Getter @Setter private boolean isDeleted;
+	@EqualsAndHashCode.Exclude @Getter @Setter private boolean hideTOC = false; // default is to always show the table of contents
 
 	// This is not persisted to the database. It is only used in the context of configuring a content package, and thus
 	// only stores the session user's time zone id for display and getter/setter purposes.
-	@Getter @Setter
-	ZoneId sessionUserZoneID;
+	@EqualsAndHashCode.Exclude @Getter @Setter ZoneId sessionUserZoneID;
 
 	public ZonedDateTime getZonedReleaseOn()
 	{
@@ -109,11 +110,6 @@ public class ContentPackage implements Serializable
 		return now.after(releaseOn);
 	}
 
-	public String getStatus()
-	{
-		return "Open";
-	}
-
 	public ContentPackage()
 	{
 		this.isDeleted = false;
@@ -131,48 +127,5 @@ public class ContentPackage implements Serializable
 		this();
 		this.title = title;
 		this.resourceId = resourceId;
-	}
-
-	@Override
-	public boolean equals(Object obj)
-	{
-		if (this == obj)
-		{
-			return true;
-		}
-
-		if (obj == null)
-		{
-			return false;
-		}
-
-		if (getClass() != obj.getClass())
-		{
-			return false;
-		}
-
-		ContentPackage other = (ContentPackage) obj;
-		if (contentPackageId == null)
-		{
-			if (other.contentPackageId != null)
-			{
-				return false;
-			}
-		}
-		else if (!contentPackageId.equals(other.contentPackageId))
-		{
-			return false;
-		}
-
-		return true;
-	}
-
-	@Override
-	public int hashCode()
-	{
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((contentPackageId == null) ? 0 : contentPackageId.hashCode());
-		return result;
 	}
 }

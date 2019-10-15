@@ -110,4 +110,13 @@ public class ScormConstants
 
 	/** SCORM Player permission: view results */
 	public static final String PERM_VIEW_RESULTS = "scorm.view.results";
+
+	/** SCORM Player tool registration ID */
+	public static final String SCORM_TOOL_ID = "sakai.scorm.tool";
+
+	/** SCORM Player default tool name */
+	public static final String SCORM_DFLT_TOOL_NAME = "SCORM Player";
+
+	/** SCORM Player root directory in Resources */
+	public static final String ROOT_DIRECTORY = "/private/scorm/";
 }

@@ -18,56 +18,22 @@ package org.sakaiproject.scorm.model.api;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
 import org.adl.sequencer.ISeqActivityTree;
 import org.adl.validator.contentpackage.LaunchData;
 
+@EqualsAndHashCode
 public class ContentPackageManifest implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 
-	@Getter @Setter private Long id;
+	@EqualsAndHashCode.Include @Getter @Setter private Long id;
 	@Getter @Setter private ISeqActivityTree actTreePrototype;
 	@Getter private List launchDataList;
 	private HashMap<String, LaunchData> launchDataMap;
-
-	public ContentPackageManifest() {}
-
-	@Override
-	public boolean equals(Object obj)
-	{
-		if (this == obj)
-		{
-			return true;
-		}
-
-		if (obj == null)
-		{
-			return false;
-		}
-
-		if (getClass() != obj.getClass())
-		{
-			return false;
-		}
-
-		ContentPackageManifest other = (ContentPackageManifest) obj;
-		if (id == null)
-		{
-			if (other.id != null)
-			{
-				return false;
-			}
-		}
-		else if (!id.equals(other.id))
-		{
-			return false;
-		}
-
-		return true;
-	}
 
 	public List getLaunchData()
 	{
@@ -77,15 +43,6 @@ public class ContentPackageManifest implements Serializable
 	public LaunchData getLaunchData(String identifier)
 	{
 		return launchDataMap.get(identifier);
-	}
-
-	@Override
-	public int hashCode()
-	{
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		return result;
 	}
 
 	public void setLaunchData(List launchDataList)

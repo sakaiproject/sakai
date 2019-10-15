@@ -54,13 +54,14 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.Validator;
 
+import static org.sakaiproject.scorm.api.ScormConstants.ROOT_DIRECTORY;
+
 @Slf4j
 public abstract class SakaiResourceService extends AbstractResourceService
 {
 	private static final int MAXIMUM_ATTEMPTS_FOR_UNIQUENESS = 100;
 	private static final String FILE_UPLOAD_MAX_SIZE_CONFIG_KEY = "content.upload.max";
-	private static final String ROOT_DIRECTORY = "/private/scorm/";
-	private static final String ROOT_DIRECTORY_RESOURCE = "/content/private/scorm/";
+	private static final String ROOT_DIRECTORY_RESOURCE = "/content" + ROOT_DIRECTORY;
 
 	protected abstract ServerConfigurationService configurationService();
 	protected abstract ContentHostingService contentService();
