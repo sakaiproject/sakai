@@ -42,10 +42,11 @@ public class GradebookNgContextObserver extends GradebookNgEntityProducer implem
 	public void contextUpdated(final String context, final boolean toolPlacement) {
 		if (toolPlacement) {
 			// Site has been edited and this tool has been added
-			log.debug("Gradebook NG added to site " + context + ". Bootstrapping a gradebook.");
+			log.debug("Gradebook NG updated to site " + context + ". Bootstrapping a gradebook.");
 			if (!this.gradebookFrameworkService.isGradebookDefined(context)) {
 				this.gradebookFrameworkService.addGradebook(context, context);
 			}
+			this.businessService.setClearUiSettingsAfterImport(true);
 		} else {
 			// Site has been edited and this tool has been removed
 			// Do nothing, this may have been an error and we don't want to lose the gradebook data

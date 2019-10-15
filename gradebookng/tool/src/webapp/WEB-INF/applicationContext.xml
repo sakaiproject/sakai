@@ -32,6 +32,7 @@
 		id="org.sakaiproject.gradebookng.framework.GradebookNgEntityProducer"
 		class="org.sakaiproject.gradebookng.framework.GradebookNgEntityProducer"
 		init-method="init">
+		<property name="businessService" ref="org.sakaiproject.gradebookng.business.GradebookNgBusinessService" />
 		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
 		<property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
 		<property name="gradebookFrameworkService" ref="org.sakaiproject.service.gradebook.GradebookFrameworkService" />	

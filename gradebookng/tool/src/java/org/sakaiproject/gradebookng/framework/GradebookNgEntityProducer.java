@@ -28,6 +28,7 @@ import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
@@ -55,6 +56,9 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 	 */
 	@Setter
 	protected EntityManager entityManager;
+
+	@Setter
+	protected GradebookNgBusinessService businessService;
 
 	@Setter
 	protected GradebookService gradebookService;

@@ -232,6 +232,9 @@ public class SettingsPage extends BasePage {
 				try {
 					SettingsPage.this.businessService.updateGradebookSettings(model.getGradebookInformation());
 					getSession().success(getString("settingspage.update.success"));
+
+					// Clear out the UI Settings for example if we just moved to categories
+					SettingsPage.this.businessService.setClearUiSettingsAfterImport(true);
 				} catch (final ConflictingCategoryNameException e) {
 					getSession().error(getString("settingspage.update.failure.categorynameconflict"));
 					responsePage = getPage();

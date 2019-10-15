@@ -542,6 +542,12 @@ public class GradebookPage extends BasePage {
 
 		GradebookUiSettings settings = (GradebookUiSettings) Session.get().getAttribute("GBNG_UI_SETTINGS");
 
+		// User just did an import, let's start fresh instead of using their old UI settings
+		if (this.businessService.isClearUiSettingsAfterImport()) {
+			settings = null;
+			this.businessService.setClearUiSettingsAfterImport(false);
+		}
+
 		if (settings == null) {
 			settings = new GradebookUiSettings();
 			settings.setCategoriesEnabled(this.businessService.categoriesAreEnabled());
