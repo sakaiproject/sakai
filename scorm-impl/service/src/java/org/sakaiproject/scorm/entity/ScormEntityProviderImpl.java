@@ -20,6 +20,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,6 +61,8 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 
+import static org.sakaiproject.scorm.api.ScormConstants.SCORM_TOOL_ID;
+
 /**
  * Allows some basic functions on SCORM module instances via the EntityBroker.
  * 
@@ -70,9 +73,10 @@ public class ScormEntityProviderImpl implements ScormEntityProvider, CoreEntityP
 												PropertyProvideable, Resolvable, Outputable, RESTful, Redirectable, ActionsExecutable
 {
 	// Class members
-	private static final String TOOL_REG_NAME               = "sakai.scorm.tool";
-	private static final String SCORM_PLAYER_PAGE_URL_PART  = "wicket:bookmarkablePage=ScormPlayer:org.sakaiproject.scorm.ui.player.pages.ScormPlayerPage";
 	private static final String URL_CHARACTER_ENCODING      = "UTF-8";
+
+	// Full URL to module format: <domain><port>/portal/site/<siteID>/tool/<toolID>/scormPlayerPage?contentPackageId=<cpID>&resourceId=<rID>&title=<title>
+	private static final String URL_FORMAT = "%s/portal/site/%s/tool/%s/scormPlayerPage?contentPackageId=%s&resourceId=%s&title=%s";
 
 	// Instance members
 	private final ResourceLoader resourceLoader = new ResourceLoader( "messages" );
@@ -180,7 +184,7 @@ public class ScormEntityProviderImpl implements ScormEntityProvider, CoreEntityP
 
 						// Get the tool ID
 						String toolID = "";
-						Collection<ToolConfiguration> toolConfigs = site.getTools( TOOL_REG_NAME );
+						Collection<ToolConfiguration> toolConfigs = site.getTools( SCORM_TOOL_ID );
 						for( ToolConfiguration toolConfig : toolConfigs )
 						{
 							toolID = toolConfig.getId();
@@ -363,7 +367,7 @@ public class ScormEntityProviderImpl implements ScormEntityProvider, CoreEntityP
 		// Get the properties; if they're not null, get the named property requested
 		String property = null;
 		Map<String, String> properties = getProperties( reference );
-		if( properties != null && properties.containsKey( name ) )
+		if( properties != null )
 		{
 			property = properties.get( name );
 		}
@@ -464,13 +468,13 @@ public class ScormEntityProviderImpl implements ScormEntityProvider, CoreEntityP
 		}
 
 		// Return the generated HTML string
-		sb.append(  resourceLoader.getString( "htmlFooter" ) );
+		sb.append( resourceLoader.getString( "htmlFooter" ) );
 		return sb.toString();
 	}
 
 	/**
-	 * Generates the final URL for a SCORM module entity, which includes the tool ID,
-	 * content package ID, resource ID and title.
+	 * Generates the final URL for a SCORM module entity, which includes the site ID,
+	 * tool ID, content package ID, resource ID and title.
 	 *
 	 * @param entity the specific SCORM module the requester wants a link to
 	 * @return
@@ -480,13 +484,7 @@ public class ScormEntityProviderImpl implements ScormEntityProvider, CoreEntityP
 		log.debug( "generateFinalScormURL()" );
 
 		// Build and return the full URL to the specified SCORM module
-		String url = serverConfigurationService.getServerUrl() + "/portal/tool/" +
-					 entity.getToolID() + "?" +
-					 SCORM_PLAYER_PAGE_URL_PART + "&contentPackageId=" +
-					 entity.getContentPackageID() + "&resourceId=" +
-					 entity.getResourceID() + "&title=" +
-					 entity.getTitleEncoded();
-		return url;
+		return String.format(URL_FORMAT, serverConfigurationService.getServerUrl(), entity.getSiteID(), entity.getToolID(), entity.getContentPackageID(), entity.getResourceID(), entity.getTitleEncoded());
 	}
 
 	// *************************************************************
@@ -494,7 +492,7 @@ public class ScormEntityProviderImpl implements ScormEntityProvider, CoreEntityP
 	// *************************************************************
 
 	@Override public String     createEntity( EntityReference ref, Object entity, Map<String, Object> params )  { return null; }
-	@Override public List<?>    getEntities ( EntityReference ref, Search search )                              { return null; }
+	@Override public List<?>    getEntities ( EntityReference ref, Search search )                              { return Collections.emptyList(); }
 	@Override public String[]   getHandledInputFormats()                                                        { return null; }
 	@Override public void       updateEntity( EntityReference ref, Object entity, Map<String, Object> params )  {}
 	@Override public void       deleteEntity( EntityReference ref, Map<String, Object> params )                 {}

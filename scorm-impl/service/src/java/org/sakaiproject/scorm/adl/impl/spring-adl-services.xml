@@ -5,18 +5,18 @@
 
 	<bean id="org.sakaiproject.scorm.adl.ADLConsultant" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
-		<property name="target" ref="org.sakaiproject.scorm.adl.ADLConsultantTarget" />
+		<property name="target">
+			<bean class="org.sakaiproject.scorm.adl.impl.ADLConsultantImpl">
+				<lookup-method name="contentPackageManifestDao" bean="org.sakaiproject.scorm.dao.api.ContentPackageManifestDao" />
+				<lookup-method name="dataManagerDao" bean="org.sakaiproject.scorm.dao.api.DataManagerDao" />
+				<lookup-method name="activityTreeHolderDao" bean="org.sakaiproject.scorm.dao.api.ActivityTreeHolderDao" />
+			</bean>
+		</property>
 		<property name="transactionAttributes">
 			<props>
 				<prop key="*">PROPAGATION_REQUIRED</prop>
 			</props>
 		</property>
-	</bean>
-
-	<bean id="org.sakaiproject.scorm.adl.ADLConsultantTarget" class="org.sakaiproject.scorm.adl.impl.ADLConsultantImpl">
-		<lookup-method name="contentPackageManifestDao" bean="org.sakaiproject.scorm.dao.api.ContentPackageManifestDao" />
-		<lookup-method name="dataManagerDao" bean="org.sakaiproject.scorm.dao.api.DataManagerDao" />
-		<lookup-method name="activityTreeHolderDao" bean="org.sakaiproject.scorm.dao.api.ActivityTreeHolderDao" />
 	</bean>
 
 	<bean id="org.sakaiproject.scorm.entity.ScormEntityProvider" class="org.sakaiproject.scorm.entity.ScormEntityProviderImpl">

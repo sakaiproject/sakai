@@ -22,17 +22,20 @@ import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.request.HttpHeaderCollection;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.resource.AbstractResource;
-import static org.apache.wicket.request.resource.AbstractResource.CONTENT_RANGE_ENDBYTE;
-import static org.apache.wicket.request.resource.AbstractResource.CONTENT_RANGE_STARTBYTE;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.request.resource.PartWriterCallback;
 import org.apache.wicket.request.resource.ResourceReference;
 import org.apache.wicket.util.resource.IResourceStream;
+
 import org.sakaiproject.scorm.service.sakai.impl.ContentPackageSakaiResource;
 import org.sakaiproject.scorm.ui.player.util.CompressingContentPackageResourceStream;
-
 import org.sakaiproject.scorm.ui.player.util.ContentPackageWebResource;
 import org.sakaiproject.scorm.ui.player.util.ContentPackageWebResource.WicketContentPackageWebResource;
+
+import static org.apache.wicket.request.resource.AbstractResource.CONTENT_RANGE_ENDBYTE;
+import static org.apache.wicket.request.resource.AbstractResource.CONTENT_RANGE_STARTBYTE;
+
+import static org.sakaiproject.scorm.api.ScormConstants.ROOT_DIRECTORY;
 
 /**
  *
@@ -57,7 +60,7 @@ public class ContentPackageResourceReference extends ResourceReference
         @Override
         protected ResourceResponse newResourceResponse( Attributes attributes )
         {
-            StringBuilder b = new StringBuilder( "/private/scorm/" + attributes.getParameters().get( "resourceID" ).toString() + "/" + attributes.getParameters().get( "resourceName" ).toString() );
+            StringBuilder b = new StringBuilder( ROOT_DIRECTORY + attributes.getParameters().get( "resourceID" ).toString() + "/" + attributes.getParameters().get( "resourceName" ).toString() );
             for( int i = 0; i < attributes.getParameters().getIndexedCount(); i++ )
             {
                 if (attributes.getParameters().get( i ).toString().equals( "contentpackages"))
