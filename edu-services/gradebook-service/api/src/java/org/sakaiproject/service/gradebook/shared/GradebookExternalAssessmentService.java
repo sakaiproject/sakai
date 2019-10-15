@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.OptionalLong;
 
 /**
  * This service is designed for use by external assessment engines. These use
@@ -337,4 +338,14 @@ public interface GradebookExternalAssessmentService {
 	 * @return Whether the gradebook has categories enabled
 	 */
 	public boolean isCategoriesEnabled(String gradebookUid);
+
+	/**
+	 * Get the internal ID of an externally managed assessment (gradebook item) by it's external ID
+	 * @param gradebookUUID the UUID of the gradebook to check
+	 * @param externalID the external ID of the assessment (gradebook item) in question
+	 * @return Long value of the internal ID of the assessment (gradebook item) in question
+	 * @throws GradebookNotFoundException
+	 * @throws AssessmentNotFoundException
+	 */
+	public OptionalLong getInternalAssessmentID(String gradebookUUID, String externalID) throws GradebookNotFoundException, AssessmentNotFoundException;
 }
