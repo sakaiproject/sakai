@@ -42,13 +42,16 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.scorm.dao.api.ContentPackageManifestDao;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.ContentPackageManifest;
 import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormContentService;
+import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
+import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
+import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.wicket.ajax.markup.html.form.SakaiAjaxButton;
@@ -179,6 +182,9 @@ public class PackageConfigurationPage extends ConsoleBasePage
 	@SpringBean(name = "org.sakaiproject.scorm.dao.api.ContentPackageManifestDao")
 	ContentPackageManifestDao contentPackageManifestDao;
 
+	@SpringBean(name = "org.sakaiproject.tool.api.ToolManager")
+	ToolManager toolManager;
+
 	private String unlimitedMessage;
 
 	public PackageConfigurationPage(PageParameters params)
@@ -299,18 +305,43 @@ public class PackageConfigurationPage extends ConsoleBasePage
 						boolean on = assessmentSetup.isSynchronizeSCOWithGradebook();
 						String assessmentExternalId = getAssessmentExternalId(gradebookSetup, assessmentSetup);
 						boolean has = gradebookExternalAssessmentService.isExternalAssignmentDefined(context, assessmentExternalId);
-						String fixedTitle = getItemTitle(assessmentSetup, context);
-						if (has && on)
+
+						try
 						{
-							gradebookExternalAssessmentService.updateExternalAssessment(context, assessmentExternalId, null, null, fixedTitle, assessmentSetup.numberOffPoints, gradebookSetup.getContentPackage().getDueOn());
+							if (has && on)
+							{
+								gradebookExternalAssessmentService.updateExternalAssessment(context, assessmentExternalId, null, null, assessmentSetup.getItemTitle(), assessmentSetup.numberOffPoints,
+																							gradebookSetup.getContentPackage().getDueOn(), false);
+							}
+							else if (!has && on)
+							{
+								gradebookExternalAssessmentService.addExternalAssessment(context, assessmentExternalId, null, assessmentSetup.getItemTitle(), assessmentSetup.numberOffPoints,
+																							gradebookSetup.getContentPackage().getDueOn(), "SCORM player", null, false);
+							}
+							else if (has && !on)
+							{
+								gradebookExternalAssessmentService.removeExternalAssessment(context, assessmentExternalId);
+							}
 						}
-						else if (!has && on)
+						catch (GradebookNotFoundException ex)
 						{
-							gradebookExternalAssessmentService.addExternalAssessment(context, assessmentExternalId, null, fixedTitle, assessmentSetup.numberOffPoints, gradebookSetup.getContentPackage().getDueOn(), "SCORM player", null);
+							error(getLocalizer().getString("form.error.gradebook.noGradebook", this));
+							onError(target);
 						}
-						else if (has && !on)
+						catch (AssessmentNotFoundException ex)
 						{
-							gradebookExternalAssessmentService.removeExternalAssessment(context, assessmentExternalId);
+							error(getLocalizer().getString("form.error.gradebook.assessmentNotFound", this));
+							onError(target);
+						}
+						catch (ConflictingAssignmentNameException ex)
+						{
+							error(getLocalizer().getString("form.error.gradebook.conflictingName", this));
+							onError(target);
+						}
+						catch (AssignmentHasIllegalPointsException ex)
+						{
+							error(getLocalizer().getString("form.error.gradebook.noGradebook", this));
+							onError(target);
 						}
 					}
 
@@ -359,8 +390,7 @@ public class PackageConfigurationPage extends ConsoleBasePage
 
 	protected String getContext()
 	{
-		ToolManager tm = (ToolManager) ComponentManager.get(ToolManager.class);
-		Placement placement = tm.getCurrentPlacement();
+		Placement placement = toolManager.getCurrentPlacement();
 		String context = placement.getContext();
 		return context;
 	}
@@ -369,17 +399,5 @@ public class PackageConfigurationPage extends ConsoleBasePage
 	{
 		String assessmentExternalId = "" + gradebook.getContentPackageId() + ":" + assessment.getLaunchData().getItemIdentifier();
 		return assessmentExternalId;
-	}
-
-	private String getItemTitle(AssessmentSetup assessmentSetup, String context)
-	{
-		String fixedTitle = assessmentSetup.getItemTitle();
-		int count = 1;
-		while (gradebookExternalAssessmentService.isAssignmentDefined(context, fixedTitle))
-		{
-			fixedTitle = assessmentSetup.getItemTitle() + " (" + count++ + ")";
-		}
-
-		return fixedTitle;
 	}
 }

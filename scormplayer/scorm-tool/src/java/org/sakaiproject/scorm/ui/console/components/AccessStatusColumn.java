@@ -21,8 +21,7 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 
-import org.sakaiproject.scorm.api.ScormConstants;
-
+import static org.sakaiproject.scorm.api.ScormConstants.*;
 import org.sakaiproject.scorm.model.api.LearnerExperience;
 
 public class AccessStatusColumn extends AbstractColumn
@@ -51,16 +50,16 @@ public class AccessStatusColumn extends AbstractColumn
 
 			switch (experience.getStatus())
 			{
-				case ScormConstants.NOT_ACCESSED:
+				case NOT_ACCESSED:
 					resourceId = "access.status.not.accessed";
 					break;
-				case ScormConstants.INCOMPLETE:
+				case INCOMPLETE:
 					resourceId = "access.status.incomplete";
 					break;
-				case ScormConstants.COMPLETED:
+				case COMPLETED:
 					resourceId = "access.status.completed";
 					break;
-				case ScormConstants.GRADED:
+				case GRADED:
 					resourceId = "access.status.graded";
 					break;
 			};

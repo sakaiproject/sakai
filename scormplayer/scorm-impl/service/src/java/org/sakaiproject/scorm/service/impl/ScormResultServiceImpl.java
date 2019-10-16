@@ -28,9 +28,8 @@ import org.adl.datamodels.DMInterface;
 import org.adl.datamodels.DMProcessingInfo;
 import org.adl.datamodels.IDataManager;
 
+import static org.sakaiproject.scorm.api.ScormConstants.*;
 import org.apache.commons.lang.StringUtils;
-
-import org.sakaiproject.scorm.api.ScormConstants;
 import org.sakaiproject.scorm.dao.LearnerDao;
 import org.sakaiproject.scorm.dao.api.AttemptDao;
 import org.sakaiproject.scorm.dao.api.DataManagerDao;
@@ -52,7 +51,7 @@ import org.sakaiproject.scorm.service.api.ScormResultService;
 @Slf4j
 public abstract class ScormResultServiceImpl implements ScormResultService
 {
-	private static String[] fields = { "cmi.completion_status", "cmi.score.scaled", "cmi.success_status" };
+	private static String[] fields = { CMI_COMPLETION_STATUS, CMI_SCORE_SCALED, CMI_SUCCESS_STATUS };
 
 	// Daos (also depedency injected)
 	protected abstract AttemptDao attemptDao();
@@ -263,37 +262,37 @@ public abstract class ScormResultServiceImpl implements ScormResultService
 		CMIFieldGroup group = new CMIFieldGroup();
 
 		List<CMIField> list = group.getList();
-		list.add(new CMIField("cmi.completion_status", "Completion Status"));
-		list.add(new CMIField("cmi.completion_threshold", "Completion Threshold"));
-		list.add(new CMIField("cmi.credit", "Will credit be given?"));
-		list.add(new CMIField("cmi.entry", "Has user previously accessed this sco?"));
-		list.add(new CMIField("cmi.exit", "Exit Type"));
+		list.add(new CMIField(CMI_COMPLETION_STATUS, "Completion Status"));
+		list.add(new CMIField(CMI_COMPLETION_THRESHOLD, "Completion Threshold"));
+		list.add(new CMIField(CMI_CREDIT, "Will credit be given?"));
+		list.add(new CMIField(CMI_ENTRY, "Has user previously accessed this sco?"));
+		list.add(new CMIField(CMI_EXIT, "Exit Type"));
 
 		// Interactions?
-		list.add(new CMIField("cmi.launch_data", "Initialization launch data"));
-		list.add(new CMIField("cmi.learner_id", "Learner Id"));
-		list.add(new CMIField("cmi.learner_name", "Learner Name"));
+		list.add(new CMIField(CMI_LAUNCH_DATA, "Initialization launch data"));
+		list.add(new CMIField(CMI_LEARNER_ID, "Learner Id"));
+		list.add(new CMIField(CMI_LEARNER_NAME, "Learner Name"));
 
 		// Learner preferences?
-		list.add(new CMIField("cmi.location", "Current location in the sco"));
-		list.add(new CMIField("cmi.max_time_allowed", "Maximum time allowed to use sco"));
-		list.add(new CMIField("cmi.mode", "Mode"));
-		list.add(new CMIField("cmi.progress_measure", "Progress Measure"));
-		list.add(new CMIField("cmi.scaled_passing_score", "Scaled passing score required"));
-		list.add(new CMIField("cmi.score.scaled", "Overall Scaled Score"));
-		list.add(new CMIField("cmi.score.raw", "Overall Raw Score"));
-		list.add(new CMIField("cmi.score.min", "Minimum Raw Score"));
-		list.add(new CMIField("cmi.score.max", "Maximum Raw Score"));
-		list.add(new CMIField("cmi.session_time", "Current learner session time"));
-		list.add(new CMIField("cmi.success_status", "Success Status"));
-		list.add(new CMIField("cmi.suspend_data", "Suspend data"));
-		list.add(new CMIField("cmi.time_limit_action", "Action when time expires"));
-		list.add(new CMIField("cmi.total_time", "Sum of learner's session times in attempt"));
+		list.add(new CMIField(CMI_LOCATION, "Current location in the sco"));
+		list.add(new CMIField(CMI_MAX_TIME_ALLOWED, "Maximum time allowed to use sco"));
+		list.add(new CMIField(CMI_MODE, "Mode"));
+		list.add(new CMIField(CMI_PROGRESS_MEASURE, "Progress Measure"));
+		list.add(new CMIField(CMI_SCALED_PASSING_SCORE, "Scaled passing score required"));
+		list.add(new CMIField(CMI_SCORE_SCALED, "Overall Scaled Score"));
+		list.add(new CMIField(CMI_SCORE_RAW, "Overall Raw Score"));
+		list.add(new CMIField(CMI_SCORE_MIN, "Minimum Raw Score"));
+		list.add(new CMIField(CMI_SCORE_MAX, "Maximum Raw Score"));
+		list.add(new CMIField(CMI_SESSION_TIME, "Current learner session time"));
+		list.add(new CMIField(CMI_SUCCESS_STATUS, "Success Status"));
+		list.add(new CMIField(CMI_SUSPEND_DATA, "Suspend data"));
+		list.add(new CMIField(CMI_TIME_LIMIT_ACTION, "Action when time expires"));
+		list.add(new CMIField(CMI_TOTAL_TIME, "Sum of learner's session times in attempt"));
 
-		list.add(new CMIField("cmi.timestamp", "Timestamp"));
-		list.add(new CMIField("cmi.comments_from_learner", "Comments from Learner"));
-		list.add(new CMIField("cmi.objectives._count", "Objective count"));
-		list.add(new CMIField("cmi.interactions._count", "Interaction count"));
+		list.add(new CMIField(CMI_TIMESTAMP, "Timestamp"));
+		list.add(new CMIField(CMI_COMMENTS_FROM_LEARNER, "Comments from Learner"));
+		list.add(new CMIField(CMI_OBJECTIVES_COUNT, "Objective count"));
+		list.add(new CMIField(CMI_INTERACTIONS_COUNT, "Interaction count"));
 
 		CMIField objectives = new CMIField("cmi.objectives", "Objectives");
 		objectives.addChild(new CMIField("id", "Objective Id"));
@@ -351,7 +350,7 @@ public abstract class ScormResultServiceImpl implements ScormResultService
 			Learner learner = learners.get(i);
 			LearnerExperience experience = new LearnerExperience(learner, contentPackageId);
 			List<Attempt> attempts = getAttempts(contentPackageId, learner.getId());
-			int status = ScormConstants.NOT_ACCESSED;
+			int status = NOT_ACCESSED;
 
 			if (attempts != null)
 			{
@@ -362,7 +361,7 @@ public abstract class ScormResultServiceImpl implements ScormResultService
 
 					//List<CMIData> data = getSummaryCMIData(latestAttempt);
 					experience.setLastAttemptDate(latestAttempt.getBeginDate());
-					status = ScormConstants.COMPLETED;
+					status = COMPLETED;
 				}
 
 				experience.setNumberOfAttempts(attempts.size());
@@ -535,11 +534,11 @@ public abstract class ScormResultServiceImpl implements ScormResultService
 	{
 		CMIFieldGroup group = new CMIFieldGroup();
 		List<CMIField> list = group.getList();
-		list.add(new CMIField("cmi.score.scaled", "Overall Scaled Score"));
-		list.add(new CMIField("cmi.completion_status", "Completion Status"));
-		list.add(new CMIField("cmi.success_status", "Success Status"));
-		list.add(new CMIField("cmi.completion_threshold", "Completion Threshold"));
-		list.add(new CMIField("cmi.progress_measure", "Progress Measure"));
+		list.add(new CMIField(CMI_SCORE_SCALED, "Overall Scaled Score"));
+		list.add(new CMIField(CMI_COMPLETION_STATUS, "Completion Status"));
+		list.add(new CMIField(CMI_SUCCESS_STATUS, "Success Status"));
+		list.add(new CMIField(CMI_COMPLETION_THRESHOLD, "Completion Threshold"));
+		list.add(new CMIField(CMI_PROGRESS_MEASURE, "Progress Measure"));
 		return group;
 	}
 
@@ -600,7 +599,7 @@ public abstract class ScormResultServiceImpl implements ScormResultService
 
 	private void mapInteractions(List<Interaction> interactions, IDataManager dataManager, long contentPackageId, String learnerId, long attemptNumber, boolean onlyIds)
 	{
-		int numberOfInteractions = getValueAsInt("cmi.interactions._count", dataManager);
+		int numberOfInteractions = getValueAsInt(CMI_INTERACTIONS_COUNT, dataManager);
 		for (int i = 0; i < numberOfInteractions; i++)
 		{
 			Interaction interaction = new Interaction();
@@ -610,7 +609,7 @@ public abstract class ScormResultServiceImpl implements ScormResultService
 			interaction.setLearnerId(learnerId);
 			interaction.setScoId(dataManager.getScoId());
 
-			String interactionName = new StringBuilder("cmi.interactions.").append(i).append(".").toString();
+			String interactionName = new StringBuilder(CMI_INTERACTIONS_ROOT).append(i).append(".").toString();
 			String interactionIdName = new StringBuilder(interactionName).append("id").toString();
 			interaction.setInteractionId(getValueAsString(interactionIdName, dataManager));
 
@@ -665,11 +664,11 @@ public abstract class ScormResultServiceImpl implements ScormResultService
 
 	private void mapObjectives(Map<String, Objective> objectives, IDataManager dataManager, long contentPackageId, String learnerId, long attemptNumber)
 	{
-		int numberOfObjectives = getValueAsInt("cmi.objectives._count", dataManager);
+		int numberOfObjectives = getValueAsInt(CMI_OBJECTIVES_COUNT, dataManager);
 		for (int i = 0; i < numberOfObjectives; i++)
 		{
 			Objective objective = new Objective();
-			String objectiveName = new StringBuilder("cmi.objectives.").append(i).append(".").toString();
+			String objectiveName = new StringBuilder(CMI_OBJECTIVES_ROOT).append(i).append(".").toString();
 
 			String objectiveIdName = new StringBuilder(objectiveName).append("id").toString();
 			objective.setId(getValueAsString(objectiveIdName, dataManager));
@@ -711,21 +710,21 @@ public abstract class ScormResultServiceImpl implements ScormResultService
 	private void mapValues(ActivityReport report, IDataManager dataManager, long contentPackageId, String learnerId, long attemptNumber)
 	{
 		Progress progress = new Progress();
-		progress.setProgressMeasure(getRealValue("cmi.progress_measure", dataManager));
-		progress.setCompletionThreshold(getRealValue("cmi.completion_threshold", dataManager));
-		progress.setLearnerLocation(getValueAsString("cmi.location", dataManager));
-		progress.setSuccessStatus(getValueAsString("cmi.success_status", dataManager));
-		progress.setCompletionStatus(getValueAsString("cmi.completion_status", dataManager));
-		progress.setMaxSecondsAllowed(getRealValueAsInt("cmi.max_time_allowed", dataManager));
-		progress.setTotalSessionSeconds(getValueAsString("cmi.total_time", dataManager));
+		progress.setProgressMeasure(getRealValue(CMI_PROGRESS_MEASURE, dataManager));
+		progress.setCompletionThreshold(getRealValue(CMI_COMPLETION_THRESHOLD, dataManager));
+		progress.setLearnerLocation(getValueAsString(CMI_LOCATION, dataManager));
+		progress.setSuccessStatus(getValueAsString(CMI_SUCCESS_STATUS, dataManager));
+		progress.setCompletionStatus(getValueAsString(CMI_COMPLETION_STATUS, dataManager));
+		progress.setMaxSecondsAllowed(getRealValueAsInt(CMI_MAX_TIME_ALLOWED, dataManager));
+		progress.setTotalSessionSeconds(getValueAsString(CMI_TOTAL_TIME, dataManager));
 		report.setProgress(progress);
 
 		Score score = new Score();
-		score.setScaled(getRealValue("cmi.score.scaled", dataManager));
-		score.setRaw(getRealValue("cmi.score.raw", dataManager));
-		score.setMin(getRealValue("cmi.score.min", dataManager));
-		score.setMax(getRealValue("cmi.score.max", dataManager));
-		score.setScaledToPass(getRealValue("cmi.score.scaled_passing_score", dataManager));
+		score.setScaled(getRealValue(CMI_SCORE_SCALED, dataManager));
+		score.setRaw(getRealValue(CMI_SCORE_RAW, dataManager));
+		score.setMin(getRealValue(CMI_SCORE_MIN, dataManager));
+		score.setMax(getRealValue(CMI_SCORE_MAX, dataManager));
+		score.setScaledToPass(getRealValue(CMI_SCORE_SCALED + "_passing_score", dataManager));
 		report.setScore(score);
 
 		List<Interaction> interactions = report.getInteractions();
@@ -751,19 +750,19 @@ public abstract class ScormResultServiceImpl implements ScormResultService
 
 	private void mapValues(ActivitySummary summary, IDataManager dataManager)
 	{
-		summary.setProgressMeasure(getRealValue("cmi.progress_measure", dataManager));
-		summary.setCompletionThreshold(getRealValue("cmi.completion_threshold", dataManager));
-		summary.setLearnerLocation(getValueAsString("cmi.location", dataManager));
-		summary.setSuccessStatus(getValueAsString("cmi.success_status", dataManager));
-		summary.setCompletionStatus(getValueAsString("cmi.completion_status", dataManager));
-		summary.setMaxSecondsAllowed(getRealValueAsInt("cmi.max_time_allowed", dataManager));
-		summary.setTotalSessionSeconds(getValueAsString("cmi.total_time", dataManager));
+		summary.setProgressMeasure(getRealValue(CMI_PROGRESS_MEASURE, dataManager));
+		summary.setCompletionThreshold(getRealValue(CMI_COMPLETION_THRESHOLD, dataManager));
+		summary.setLearnerLocation(getValueAsString(CMI_LOCATION, dataManager));
+		summary.setSuccessStatus(getValueAsString(CMI_SUCCESS_STATUS, dataManager));
+		summary.setCompletionStatus(getValueAsString(CMI_COMPLETION_STATUS, dataManager));
+		summary.setMaxSecondsAllowed(getRealValueAsInt(CMI_MAX_TIME_ALLOWED, dataManager));
+		summary.setTotalSessionSeconds(getValueAsString(CMI_TOTAL_TIME, dataManager));
 
-		summary.setScaled(getRealValue("cmi.score.scaled", dataManager));
-		summary.setRaw(getRealValue("cmi.score.raw", dataManager));
-		summary.setMin(getRealValue("cmi.score.min", dataManager));
-		summary.setMax(getRealValue("cmi.score.max", dataManager));
-		summary.setScaledToPass(getRealValue("cmi.score.scaled_passing_score", dataManager));
+		summary.setScaled(getRealValue(CMI_SCORE_SCALED, dataManager));
+		summary.setRaw(getRealValue(CMI_SCORE_RAW, dataManager));
+		summary.setMin(getRealValue(CMI_SCORE_MIN, dataManager));
+		summary.setMax(getRealValue(CMI_SCORE_MAX, dataManager));
+		summary.setScaledToPass(getRealValue(CMI_SCORE_SCALED + "_passing_score", dataManager));
 	}
 
 	private List<CMIData> populateData(CMIField field, IDataManager dataManager)

@@ -33,6 +33,7 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.lang.Bytes;
 
+import static org.sakaiproject.scorm.api.ScormConstants.*;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdInvalidException;
@@ -41,7 +42,6 @@ import org.sakaiproject.exception.IdUniquenessException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.scorm.api.ScormConstants;
 import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.ui.console.pages.ConsoleBasePage;
@@ -149,7 +149,7 @@ public class UploadPage extends ConsoleBasePage
                                 String resourceId = resourceService.putArchive( upload.getInputStream(), upload.getClientFileName(), upload.getContentType(), false, NotificationService.NOTI_NONE );
                                 int status = contentService.storeAndValidate( resourceId, false, serverConfigurationService.getString( "scorm.zip.encoding", "UTF-8" ) );
 
-                                if( status == ScormConstants.VALIDATION_SUCCESS )
+                                if( status == VALIDATION_SUCCESS )
                                 {
                                     PageParameters params = new PageParameters();
                                     params.add( "uploadSuccess", MessageFormat.format( getString( "upload.success" ), upload.getClientFileName() ) );
@@ -231,21 +231,21 @@ public class UploadPage extends ConsoleBasePage
     {
         switch( status )
         {
-            case ScormConstants.VALIDATION_WRONGMIMETYPE:
+            case VALIDATION_WRONGMIMETYPE:
                 return "validate.wrong.mime.type";
-            case ScormConstants.VALIDATION_NOFILE:
+            case VALIDATION_NOFILE:
                 return "validate.no.file";
-            case ScormConstants.VALIDATION_NOMANIFEST:
+            case VALIDATION_NOMANIFEST:
                 return "validate.no.manifest";
-            case ScormConstants.VALIDATION_NOTWELLFORMED:
+            case VALIDATION_NOTWELLFORMED:
                 return "validate.not.well.formed";
-            case ScormConstants.VALIDATION_NOTVALIDROOT:
+            case VALIDATION_NOTVALIDROOT:
                 return "validate.not.valid.root";
-            case ScormConstants.VALIDATION_NOTVALIDSCHEMA:
+            case VALIDATION_NOTVALIDSCHEMA:
                 return "validate.not.valid.schema";
-            case ScormConstants.VALIDATION_NOTVALIDPROFILE:
+            case VALIDATION_NOTVALIDPROFILE:
                 return "validate.not.valid.profile";
-            case ScormConstants.VALIDATION_MISSINGREQUIREDFILES:
+            case VALIDATION_MISSINGREQUIREDFILES:
                 return "validate.missing.files";
             default:
                 return "upload.failed";

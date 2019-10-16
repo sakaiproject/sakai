@@ -35,7 +35,7 @@ import org.adl.validator.contentpackage.CPValidator;
 
 import org.apache.commons.lang.StringUtils;
 
-import org.sakaiproject.scorm.api.ScormConstants;
+import static org.sakaiproject.scorm.api.ScormConstants.*;
 import org.sakaiproject.scorm.dao.LearnerDao;
 import org.sakaiproject.scorm.dao.api.ContentPackageDao;
 import org.sakaiproject.scorm.dao.api.ContentPackageManifestDao;
@@ -215,31 +215,31 @@ public abstract class ScormContentServiceImpl implements ScormContentService
 	@Override
 	public int getContentPackageStatus(ContentPackage contentPackage)
 	{
-		int status = ScormConstants.CONTENT_PACKAGE_STATUS_UNKNOWN;
+		int status = CONTENT_PACKAGE_STATUS_UNKNOWN;
 		Date now = new Date();
 
 		if (now.after(contentPackage.getReleaseOn()))
 		{
 			if (contentPackage.getDueOn() == null || contentPackage.getAcceptUntil() == null)
 			{
-				status = ScormConstants.CONTENT_PACKAGE_STATUS_OPEN;
+				status = CONTENT_PACKAGE_STATUS_OPEN;
 			}
 			else if (now.before(contentPackage.getDueOn()))
 			{
-				status = ScormConstants.CONTENT_PACKAGE_STATUS_OPEN;
+				status = CONTENT_PACKAGE_STATUS_OPEN;
 			}
 			else if (now.before(contentPackage.getAcceptUntil()))
 			{
-				status = ScormConstants.CONTENT_PACKAGE_STATUS_OVERDUE;
+				status = CONTENT_PACKAGE_STATUS_OVERDUE;
 			}
 			else
 			{
-				status = ScormConstants.CONTENT_PACKAGE_STATUS_CLOSED;
+				status = CONTENT_PACKAGE_STATUS_CLOSED;
 			}
 		}
 		else
 		{
-			status = ScormConstants.CONTENT_PACKAGE_STATUS_NOTYETOPEN;
+			status = CONTENT_PACKAGE_STATUS_NOTYETOPEN;
 		}
 
 		return status;
@@ -345,10 +345,10 @@ public abstract class ScormContentServiceImpl implements ScormContentService
 	public int validate(String resourceId, boolean isManifestOnly, boolean isValidateToSchema, String encoding, boolean createContentPackage) throws ResourceStorageException
 	{
 		File file = createFile(resourceService().getArchiveStream(resourceId));
-		int result = ScormConstants.VALIDATION_SUCCESS;
+		int result = VALIDATION_SUCCESS;
 		if (!file.exists())
 		{
-			return ScormConstants.VALIDATION_NOFILE;
+			return VALIDATION_NOFILE;
 		}
 
 		IValidator validator = validate(file, isManifestOnly, isValidateToSchema, encoding);
@@ -356,34 +356,34 @@ public abstract class ScormContentServiceImpl implements ScormContentService
 
 		if (!validatorOutcome.getDoesIMSManifestExist())
 		{
-			return ScormConstants.VALIDATION_NOMANIFEST;
+			return VALIDATION_NOMANIFEST;
 		}
 
 		if (!validatorOutcome.getIsWellformed())
 		{
-			result = ScormConstants.VALIDATION_NOTWELLFORMED;
+			result = VALIDATION_NOTWELLFORMED;
 		}
 
 		if (!validatorOutcome.getIsValidRoot())
 		{
-			result = ScormConstants.VALIDATION_NOTVALIDROOT;
+			result = VALIDATION_NOTVALIDROOT;
 		}
 
 		if (isValidateToSchema)
 		{
 			if (!validatorOutcome.getIsValidToSchema())
 			{
-				result = ScormConstants.VALIDATION_NOTVALIDSCHEMA;
+				result = VALIDATION_NOTVALIDSCHEMA;
 			}
 
 			if (!validatorOutcome.getIsValidToApplicationProfile())
 			{
-				result = ScormConstants.VALIDATION_NOTVALIDPROFILE;
+				result = VALIDATION_NOTVALIDPROFILE;
 			}
 
 			if (!validatorOutcome.getDoRequiredCPFilesExist())
 			{
-				result = ScormConstants.VALIDATION_MISSINGREQUIREDFILES;
+				result = VALIDATION_MISSINGREQUIREDFILES;
 			}
 		}
 
@@ -395,12 +395,12 @@ public abstract class ScormContentServiceImpl implements ScormContentService
 			}
 			catch (InvalidArchiveException iae)
 			{
-				return ScormConstants.VALIDATION_WRONGMIMETYPE;
+				return VALIDATION_WRONGMIMETYPE;
 			}
 			catch (Exception e)
 			{
 				log.error("Failed to convert content package for resourceId: {}", resourceId, e);
-				return ScormConstants.VALIDATION_CONVERTFAILED;
+				return VALIDATION_CONVERTFAILED;
 			}
 		}
 

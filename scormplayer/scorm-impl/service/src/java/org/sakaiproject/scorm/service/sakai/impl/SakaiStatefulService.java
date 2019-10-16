@@ -19,9 +19,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import static org.sakaiproject.scorm.api.ScormConstants.*;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.scorm.api.ScormConstants;
 import org.sakaiproject.scorm.dao.LearnerDao;
 import org.sakaiproject.scorm.exceptions.LearnerNotDefinedException;
 import org.sakaiproject.scorm.model.api.ContentPackage;
@@ -56,19 +56,19 @@ public abstract class SakaiStatefulService implements LearningManagementSystem
 	@Override
 	public boolean canConfigure(String context)
 	{
-		return hasPermission(context, ScormConstants.PERM_CONFIG);
+		return hasPermission(context, PERM_CONFIG);
 	}
 
 	@Override
 	public boolean canDelete(String context)
 	{
-		return hasPermission(context, ScormConstants.PERM_DELETE);
+		return hasPermission(context, PERM_DELETE);
 	}
 
 	@Override
 	public boolean canGrade(String context)
 	{
-		return hasPermission(context, ScormConstants.PERM_GRADE);
+		return hasPermission(context, PERM_GRADE);
 	}
 
 	@Override
@@ -95,10 +95,10 @@ public abstract class SakaiStatefulService implements LearningManagementSystem
 		{
 			return true;
 		}
-		else if (hasPermission(context, ScormConstants.PERM_LAUNCH))
+		else if (hasPermission(context, PERM_LAUNCH))
 		{
 			int status = scormContentService().getContentPackageStatus(contentPackage);
-			if (status != ScormConstants.CONTENT_PACKAGE_STATUS_OPEN && status != ScormConstants.CONTENT_PACKAGE_STATUS_OVERDUE)
+			if (status != CONTENT_PACKAGE_STATUS_OPEN && status != CONTENT_PACKAGE_STATUS_OVERDUE)
 			{
 				return false;
 			}
@@ -137,7 +137,7 @@ public abstract class SakaiStatefulService implements LearningManagementSystem
 	@Override
 	public boolean canUpload(String context)
 	{
-		return hasPermission(context, ScormConstants.PERM_UPLOAD);
+		return hasPermission(context, PERM_UPLOAD);
 	}
 
 	@Override
@@ -149,13 +149,13 @@ public abstract class SakaiStatefulService implements LearningManagementSystem
 	@Override
 	public boolean canValidate(String context)
 	{
-		return hasPermission(context, ScormConstants.PERM_VALIDATE);
+		return hasPermission(context, PERM_VALIDATE);
 	}
 
 	@Override
 	public boolean canViewResults(String context)
 	{
-		return hasPermission(context, ScormConstants.PERM_VIEW_RESULTS);
+		return hasPermission(context, PERM_VIEW_RESULTS);
 	}
 
 	@Override

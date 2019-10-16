@@ -18,6 +18,8 @@ package org.sakaiproject.scorm.service.impl;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.Properties;
 
 import lombok.extern.slf4j.Slf4j;
@@ -45,8 +47,8 @@ import org.adl.validator.contentpackage.ILaunchData;
 
 import org.apache.commons.lang.StringUtils;
 
+import static org.sakaiproject.scorm.api.ScormConstants.*;
 import org.sakaiproject.scorm.adl.ADLConsultant;
-import org.sakaiproject.scorm.api.ScormConstants;
 import org.sakaiproject.scorm.dao.LearnerDao;
 import org.sakaiproject.scorm.dao.api.AttemptDao;
 import org.sakaiproject.scorm.dao.api.DataManagerDao;
@@ -64,6 +66,8 @@ import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormApplicationService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.util.ResourceLoader;
 
 @Slf4j
 public abstract class ScormApplicationServiceImpl implements ScormApplicationService
@@ -94,10 +98,13 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 
 	protected abstract DataManagerDao dataManagerDao();
 	public abstract GradebookExternalAssessmentService gradebookExternalAssessmentService();
+	public abstract GradebookService gradebookService();
 	protected abstract LearnerDao learnerDao();
 	protected abstract LearningManagementSystem lms();
 
 	IValidatorFactory validatorFactory = new ValidatorFactory();
+
+	private final ResourceLoader resourceLoader = new ResourceLoader("messages");
 
 	private IValidRequests commit(SessionBean sessionBean, IDataManager dm, ISequencer sequencer)
 	{
@@ -115,10 +122,10 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 
 			if (sessionBean.isSuspended())
 			{
-				setValue("cmi.exit", "suspend", sessionBean, sessionBean.getDisplayingSco());
+				setValue(CMI_EXIT, "suspend", sessionBean, sessionBean.getDisplayingSco());
 			}
 			else if (sessionBean.isEnded()) {
-				setValue("cmi.exit", "normal", sessionBean, sessionBean.getDisplayingSco());
+				setValue(CMI_EXIT, "normal", sessionBean, sessionBean.getDisplayingSco());
 			}
 
 			// Call terminate on the data manager to ensure that we're in the appropriate state
@@ -328,22 +335,22 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 		return result;
 	}
 
-	private double getRealValue(String element, IDataManager dataManager)
+	private OptionalDouble getRealValue(String element, IDataManager dataManager)
 	{
 		String result = getValue(element, dataManager);
 		if (StringUtils.isBlank(result) || result.equals("unknown"))
 		{
-			return -1.0;
+			return OptionalDouble.empty();
 		}
 
-		double d = -1.0;
+		OptionalDouble d = OptionalDouble.empty();
 		try
 		{
-			d = Double.parseDouble(result);
+			d = OptionalDouble.of(Double.parseDouble(result));
 		}
-		catch (NumberFormatException nfe)
+		catch (Exception ex)
 		{
-			log.error("Unable to parse {} as a double!", result, nfe);
+			log.error("Unable to parse {} as a double!", result, ex);
 		}
 
 		return d;
@@ -516,12 +523,12 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 					mObjStatus = (ADLObjStatus) mStatusVector.get(i);
 
 					// Set the objectives id
-					obj = "cmi.objectives." + i + ".id";
+					obj = CMI_OBJECTIVES_ROOT + i + ".id";
 
 					err = DMInterface.processSetValue(obj, mObjStatus.mObjID, true, dm, validatorFactory);
 
 					// Set the objectives success status
-					obj = "cmi.objectives." + i + ".success_status";
+					obj = CMI_OBJECTIVES_ROOT + i + ".success_status";
 
 					if (mObjStatus.mStatus.equalsIgnoreCase("satisfied"))
 					{
@@ -533,7 +540,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 					}
 
 					// Set the objectives scaled score
-					obj = "cmi.objectives." + i + ".score.scaled";
+					obj = CMI_OBJECTIVES_ROOT + i + ".score.scaled";
 
 					if (mObjStatus.mHasMeasure)
 					{
@@ -553,14 +560,14 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 
 					// get the count of current objectives
 					DMProcessingInfo pi = new DMProcessingInfo();
-					int result = DMInterface.processGetValue("cmi.objectives._count", true, dm, pi);
+					int result = DMInterface.processGetValue(CMI_OBJECTIVES_COUNT, true, dm, pi);
 					int objCount = (Integer.valueOf(pi.mValue));
 
 					// Find the current index for this objective
 					for (int j = 0; j < objCount; j++)
 					{
 						pi = new DMProcessingInfo();
-						obj = "cmi.objectives." + j + ".id";
+						obj = CMI_OBJECTIVES_ROOT + j + ".id";
 						result = DMInterface.processGetValue(obj, true, dm, pi);
 						if (pi.mValue.equals(mObjStatus.mObjID))
 						{
@@ -572,7 +579,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 					if (idx != -1)
 					{
 						// Set the objectives success status
-						obj = "cmi.objectives." + idx + ".success_status";
+						obj = CMI_OBJECTIVES_ROOT + idx + ".success_status";
 
 						if (mObjStatus.mStatus.equalsIgnoreCase("satisfied"))
 						{
@@ -584,7 +591,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 						}
 
 						// Set the objectives scaled score
-						obj = "cmi.objectives." + idx + ".score.scaled";
+						obj = CMI_OBJECTIVES_ROOT + idx + ".score.scaled";
 
 						if (mObjStatus.mHasMeasure)
 						{
@@ -670,10 +677,10 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 			String completionThreshold = "";
 
 			// User preferences
-			String audLev = ScormConstants.DEFAULT_USER_AUDIO_LEVEL;
-			String audCap = ScormConstants.DEFAULT_USER_AUDIO_CAPTIONING;
-			String delSpd = ScormConstants.DEFAULT_USER_DELIVERY_SPEED;
-			String lang = ScormConstants.DEFAULT_USER_LANGUAGE;
+			String audLev = DEFAULT_USER_AUDIO_LEVEL;
+			String audCap = DEFAULT_USER_AUDIO_CAPTIONING;
+			String delSpd = DEFAULT_USER_DELIVERY_SPEED;
+			String lang = DEFAULT_USER_LANGUAGE;
 
 			// Get the learner preference values from Sakai
 			Properties props = null;
@@ -684,21 +691,21 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 
 			if (props != null)
 			{
-				if (null != props.getProperty(ScormConstants.PREF_USER_AUDIO_LEVEL))
+				if (null != props.getProperty(PREF_USER_AUDIO_LEVEL))
 				{
-					audLev = props.getProperty(ScormConstants.PREF_USER_AUDIO_LEVEL);
+					audLev = props.getProperty(PREF_USER_AUDIO_LEVEL);
 				}
-				if (null != props.getProperty(ScormConstants.PREF_USER_AUDIO_CAPTIONING))
+				if (null != props.getProperty(PREF_USER_AUDIO_CAPTIONING))
 				{
-					audCap = props.getProperty(ScormConstants.PREF_USER_AUDIO_CAPTIONING);
+					audCap = props.getProperty(PREF_USER_AUDIO_CAPTIONING);
 				}
-				if (null != props.getProperty(ScormConstants.PREF_USER_DELIVERY_SPEED))
+				if (null != props.getProperty(PREF_USER_DELIVERY_SPEED))
 				{
-					delSpd = props.getProperty(ScormConstants.PREF_USER_DELIVERY_SPEED);
+					delSpd = props.getProperty(PREF_USER_DELIVERY_SPEED);
 				}
-				if (null != props.getProperty(ScormConstants.PREF_USER_LANGUAGE))
+				if (null != props.getProperty(PREF_USER_LANGUAGE))
 				{
-					lang = props.getProperty(ScormConstants.PREF_USER_LANGUAGE);
+					lang = props.getProperty(PREF_USER_LANGUAGE);
 				}
 			}
 
@@ -713,54 +720,54 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 			if (null != learner)
 			{
 				// Initialize the learner id
-				element = "cmi.learner_id";
+				element = CMI_LEARNER_ID;
 				DMInterface.processSetValue(element, learner.getId(), true, ioSCOData, validatorFactory);
 
 				// Initialize the learner name
-				element = "cmi.learner_name";
+				element = CMI_LEARNER_NAME;
 				DMInterface.processSetValue(element, learner.getDisplayName(), true, ioSCOData, validatorFactory);
 			}
 
 			// Initialize the cmi.credit value
-			element = "cmi.credit";
+			element = CMI_CREDIT;
 			DMInterface.processSetValue(element, "credit", true, ioSCOData, validatorFactory);
 
 			// Initialize the mode
-			element = "cmi.mode";
+			element = CMI_MODE;
 			DMInterface.processSetValue(element, "normal", true, ioSCOData, validatorFactory);
 
 			// Initialize any launch data
 			if (dataFromLMS != null && !dataFromLMS.isEmpty())
 			{
-				element = "cmi.launch_data";
+				element = CMI_LAUNCH_DATA;
 				DMInterface.processSetValue(element, dataFromLMS, true, ioSCOData, validatorFactory);
 			}
 
 			// Initialize the scaled passing score
 			if (masteryScore != null && !masteryScore.isEmpty())
 			{
-				element = "cmi.scaled_passing_score";
+				element = CMI_SCALED_PASSING_SCORE;
 				DMInterface.processSetValue(element, masteryScore, true, ioSCOData, validatorFactory);
 			}
 
 			// Initialize the time limit action
 			if (timeLimitAction != null && !timeLimitAction.isEmpty())
 			{
-				element = "cmi.time_limit_action";
+				element = CMI_TIME_LIMIT_ACTION;
 				DMInterface.processSetValue(element, timeLimitAction, true, ioSCOData, validatorFactory);
 			}
 
 			// Initialize the completion_threshold
 			if (completionThreshold != null && !completionThreshold.isEmpty())
 			{
-				element = "cmi.completion_threshold";
+				element = CMI_COMPLETION_THRESHOLD;
 				DMInterface.processSetValue(element, completionThreshold, true, ioSCOData, validatorFactory);
 			}
 
 			// Initialize the max time allowed
 			if (maxTime != null && !maxTime.isEmpty())
 			{
-				element = "cmi.max_time_allowed";
+				element = CMI_MAX_TIME_ALLOWED;
 				DMInterface.processSetValue(element, maxTime, true, ioSCOData, validatorFactory);
 			}
 
@@ -819,7 +826,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 		status.activityId = activityId;
 
 		// Get the current completion_status
-		status.completionStatus = retrieveValue(ScormConstants.CMI_COMPLETION_STATUS, "unknown", dm);
+		status.completionStatus = retrieveValue(CMI_COMPLETION_STATUS, "unknown", dm);
 
 		if (status.completionStatus.equals("not attempted"))
 		{
@@ -827,16 +834,16 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 		}
 
 		// Get the current success_status
-		status.masteryStatus = retrieveValue(ScormConstants.CMI_SUCCESS_STATUS, "unknown", dm);
+		status.masteryStatus = retrieveValue(CMI_SUCCESS_STATUS, "unknown", dm);
 
 		// Get the current entry
-		status.SCOEntry = retrieveValueAsAdmin(ScormConstants.CMI_ENTRY, "unknown", dm);
+		status.SCOEntry = retrieveValueAsAdmin(CMI_ENTRY, "unknown", dm);
 
 		// Get the current scaled score
-		status.score = retrieveValueAsAdmin(ScormConstants.CMI_SCORE_SCALED, "", dm);
+		status.score = retrieveValueAsAdmin(CMI_SCORE_SCALED, "", dm);
 
 		// Get the current session time
-		status.sessionTime = retrieveValueAsAdmin(ScormConstants.CMI_SESSION_TIME, "unknown", dm);
+		status.sessionTime = retrieveValueAsAdmin(CMI_SESSION_TIME, "unknown", dm);
 		return status;
 	}
 
@@ -866,13 +873,13 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 		for (int i = 0; i < numObjs; i++)
 		{
 			// Get this objectives id
-			String objIdRequest = new StringBuilder(ScormConstants.CMI_OBJECTIVES_ROOT).append(i).append(".id").toString();
+			String objIdRequest = new StringBuilder(CMI_OBJECTIVES_ROOT).append(i).append(".id").toString();
 			String objID = retrieveValue(objIdRequest, "", dm);
 
 			foundPrimaryObj = cmiData.primaryObjectiveId != null && objID.equals(cmiData.primaryObjectiveId);
 
 			// Get this objectives mastery
-			String objMsRequest = new StringBuilder(ScormConstants.CMI_OBJECTIVES_ROOT).append(i).append(".success_status").toString();
+			String objMsRequest = new StringBuilder(CMI_OBJECTIVES_ROOT).append(i).append(".success_status").toString();
 			String objMS = retrieveValue(objMsRequest, "", dm);
 
 			// Report the success status
@@ -900,7 +907,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 			}
 
 			// Get this objectives measure
-			String objScoreRequest = new StringBuilder(ScormConstants.CMI_OBJECTIVES_ROOT).append(i).append(".score.scaled").toString();
+			String objScoreRequest = new StringBuilder(CMI_OBJECTIVES_ROOT).append(i).append(".score.scaled").toString();
 			String objScore = retrieveValue(objScoreRequest, "unknown", dm);
 
 			// Report the measure
@@ -977,7 +984,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 
 			// Get the activities objective list
 			// Map the DM to the TM
-			String size = retrieveValue("cmi.objectives._count", "none", dm);
+			String size = retrieveValue(CMI_OBJECTIVES_COUNT, "none", dm);
 			if (!size.equals("none"))
 			{
 				try
@@ -1194,23 +1201,25 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 		IDataManager dataManager = getDataManager(displayingSco);
 
 		// passed, failed, unknown
-		String mode = getValueAsString("cmi.mode", dataManager);
+		String mode = getValueAsString(CMI_MODE, dataManager);
 
 		// credit, no_credit
-		String credit = getValueAsString("cmi.credit", dataManager);
+		String credit = getValueAsString(CMI_CREDIT, dataManager);
 
 		// (completed, incomplete, not_attempted, unknown)
-		String completionStatus = getValueAsString("cmi.completion_status", dataManager);
-
-		// A real number with values that is accurate to seven significant decimal figures. The value shall be in the range of �1.0 to 1.0, inclusive.
-		double score = getRealValue("cmi.score.scaled", dataManager) * 100d;
+		String completionStatus = getValueAsString(CMI_COMPLETION_STATUS, dataManager);
 
 		if ("normal".equals(mode) && "completed".equals(completionStatus) && "credit".equals(credit))
 		{
 			String context = lms().currentContext();
-			long contentPackageId = sessionBean.getContentPackage().getContentPackageId();
-			String assessmentExternalId = "" + contentPackageId + ":" + dataManager.getScoId();
-			updateGradeBook(score, context, sessionBean.getLearnerId(), assessmentExternalId);
+			String learnerID = sessionBean.getLearnerId();
+			String assessmentExternalId = "" + sessionBean.getContentPackage().getContentPackageId() + ":" + dataManager.getScoId();
+
+			// A real number with values that is accurate to seven significant decimal figures. The value shall be in the range of -1.0 to +1.0, inclusive.
+			OptionalDouble score = getRealValue(CMI_SCORE_SCALED, dataManager);
+
+			// Logic to update score and/or comment lives in below method, pass the necessary data
+			updateGradebook(score, context, learnerID, assessmentExternalId);
 		}
 	}
 
@@ -1267,12 +1276,12 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 			{
 				// Before we change the cmi.exit, make sure the SCO didn't set it to log-out.
 				DMProcessingInfo pi = new DMProcessingInfo();
-				int check = DMInterface.processGetValue("cmi.exit", true, dataManager, pi);
+				int check = DMInterface.processGetValue(CMI_EXIT, true, dataManager, pi);
 
 				if (check != 0 || !pi.mValue.equals("log-out"))
 				{
 					// Process 'SET' on cmi.exit
-					DMInterface.processSetValue("cmi.exit", "suspend", true, dataManager, validatorFactory);
+					DMInterface.processSetValue(CMI_EXIT, "suspend", true, dataManager, validatorFactory);
 				}
 			}
 
@@ -1296,7 +1305,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 				// get value of "exit"
 				DMProcessingInfo dmInfo = new DMProcessingInfo();
 				int dmErrorCode = 0;
-				dmErrorCode = DMInterface.processGetValue("cmi.exit", true, true, dataManager, dmInfo);
+				dmErrorCode = DMInterface.processGetValue(CMI_EXIT, true, true, dataManager, dmInfo);
 				String exitValue = dmInfo.mValue;
 
 				if (dmErrorCode == APIErrorCodes.NO_ERROR)
@@ -1362,12 +1371,49 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 		}
 	}
 
-	protected void updateGradeBook(double score, String context, String learnerId, String assessmentExternalId)
+	/**
+	 * Handles all aspects of updating the gradebook when a user completes a module.
+	 * @param score contains the scaled score if one was recorded, otherwise empty Optional
+	 * @param context the current site ID/gradebook ID
+	 * @param learnerID the ID of the user who completed the module
+	 * @param externalAssessmentID the ID of the gradebook item to sync with
+	 */
+	protected void updateGradebook(OptionalDouble score, String context, String learnerID, String externalAssessmentID)
 	{
-		GradebookExternalAssessmentService service = gradebookExternalAssessmentService();
-		if (service.isGradebookDefined(context) && service.isExternalAssignmentDefined(context, assessmentExternalId))
+		GradebookExternalAssessmentService gbeService = gradebookExternalAssessmentService();
+
+		// Gradebook and gradebook item exist, carry on...
+		if (gbeService.isGradebookDefined(context) && gbeService.isExternalAssignmentDefined(context, externalAssessmentID))
 		{
-			service.updateExternalAssessmentScore(context, assessmentExternalId, learnerId, "" + score);
+			GradebookService gbService = gradebookService();
+			long internalAssessmentID = gbeService.getInternalAssessmentID(context, externalAssessmentID).orElse(-1l);
+			String existingComment = Optional.ofNullable(gbService.getAssignmentScoreComment(context, internalAssessmentID, learnerID).getCommentText()).filter(c -> !c.isEmpty()).orElse("");
+			String moduleNoScoreRecorded = resourceLoader.getString("moduleNoScoreRecorded");
+
+			if (score.isPresent()) // Module recorded a score...
+			{
+				// A real number with values that is accurate to seven significant decimal figures. The value shall be in the range of -1.0 to 1.0, inclusive.
+				double rawScore = score.getAsDouble() * 100d;
+
+				// We don't care about the presence of an existing grade; push the new/updated one
+				gbeService.updateExternalAssessmentScore(context, externalAssessmentID, learnerID, "" + rawScore);
+
+				// If there's an existing comment, we need to scan it for the presence of the "no grade recorded" message and remove it, but preserve any instructor added comments
+				if (existingComment.contains(moduleNoScoreRecorded))
+				{
+					String comment = existingComment.replaceAll(moduleNoScoreRecorded, "");
+					gbeService.updateExternalAssessmentComment(context, externalAssessmentID, learnerID, comment);
+				}
+			}
+			else // Module did not record a score...
+			{
+				// If there isn't already a comment indicating that this module didn't record grading data, add it
+				if (!existingComment.contains(moduleNoScoreRecorded))
+				{
+					String comment = moduleNoScoreRecorded + " " + existingComment;
+					gbeService.updateExternalAssessmentComment(context, externalAssessmentID, learnerID, comment);
+				}
+			}
 		}
 	}
 }

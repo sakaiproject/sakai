@@ -26,6 +26,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.sakaiproject.scorm.api.ScormConstants.CMI_INTERACTIONS_ROOT;
 import org.sakaiproject.scorm.dao.api.DataManagerDao;
 
 public class DataManagerDaoImplTest extends AbstractServiceTest
@@ -48,11 +49,11 @@ public class DataManagerDaoImplTest extends AbstractServiceTest
 		dataManager.addDM(DMFactory.DM_SSP, validatorFactory);
 		dataManager.setScoId("sco01");
 		dataManagerDao.save(dataManager);
-		dataManager.setValue(new DMRequest("cmi.interactions.0.id", "1"), validatorFactory);
+		dataManager.setValue(new DMRequest(CMI_INTERACTIONS_ROOT + "0.id", "1"), validatorFactory);
 
 		dataManagerDao.update(dataManager);
 
-		Assert.assertEquals(0, dataManager.getValue(new DMRequest("cmi.interactions.0.id"), new DMProcessingInfo()));
-		Assert.assertEquals(DMErrorCodes.OUT_OF_RANGE, dataManager.getValue(new DMRequest("cmi.interactions.1.id"), new DMProcessingInfo()));
+		Assert.assertEquals(0, dataManager.getValue(new DMRequest(CMI_INTERACTIONS_ROOT + "0.id"), new DMProcessingInfo()));
+		Assert.assertEquals(DMErrorCodes.OUT_OF_RANGE, dataManager.getValue(new DMRequest(CMI_INTERACTIONS_ROOT + "1.id"), new DMProcessingInfo()));
 	}
 }

@@ -51,6 +51,8 @@ import org.adl.datamodels.datatypes.URIValidator;
 import org.adl.datamodels.datatypes.VocabularyValidator;
 import org.adl.util.MessageCollection;
 
+import static org.sakaiproject.scorm.api.ScormConstants.*;
+
 /**
  * <strong>Filename:</strong> SCORM_2004_DM.java<br><br>
  *
@@ -1092,7 +1094,7 @@ public class SCORM_2004_DM extends DataModel implements Serializable {
 
 		int err = DMErrorCodes.NO_ERROR;
 
-		req = new DMRequest("cmi.total_time");
+		req = new DMRequest(CMI_TOTAL_TIME);
 		req.getNextToken();
 
 		dmInfo = new DMProcessingInfo();
@@ -1100,7 +1102,7 @@ public class SCORM_2004_DM extends DataModel implements Serializable {
 
 		String totalTime = dmInfo.mValue;
 
-		req = new DMRequest("cmi.session_time", true, false);
+		req = new DMRequest(CMI_SESSION_TIME, true, false);
 		req.getNextToken();
 
 		dmInfo = new DMProcessingInfo();
@@ -1108,13 +1110,13 @@ public class SCORM_2004_DM extends DataModel implements Serializable {
 		if (err == DMErrorCodes.NO_ERROR) {
 			String sessionTime = dmInfo.mValue;
 			String addedTime = DMTimeUtility.add(totalTime, sessionTime);
-			req = new DMRequest("cmi.total_time", addedTime, true);
+			req = new DMRequest(CMI_TOTAL_TIME, addedTime, true);
 			req.getNextToken();
 			err = setValue(req, validatorFactory);
 		}
 
 		// Update completion status
-		req = new DMRequest("cmi.progress_measure");
+		req = new DMRequest(CMI_PROGRESS_MEASURE);
 		req.getNextToken();
 
 		dmInfo = new DMProcessingInfo();
@@ -1122,7 +1124,7 @@ public class SCORM_2004_DM extends DataModel implements Serializable {
 
 		String progress = dmInfo.mValue;
 
-		req = new DMRequest("cmi.completion_threshold");
+		req = new DMRequest(CMI_COMPLETION_THRESHOLD);
 		req.getNextToken();
 
 		dmInfo = new DMProcessingInfo();
@@ -1132,12 +1134,12 @@ public class SCORM_2004_DM extends DataModel implements Serializable {
 
 		if (progress != null && threshold != null && (!progress.isEmpty()) && (!threshold.isEmpty())) {
 			if (Double.parseDouble(progress) >= Double.parseDouble(threshold)) {
-				req = new DMRequest("cmi.completion_status", "completed", true);
+				req = new DMRequest(CMI_COMPLETION_STATUS, "completed", true);
 				req.getNextToken();
 
 				err = setValue(req, validatorFactory);
 			} else if (Double.parseDouble(progress) < Double.parseDouble(threshold)) {
-				req = new DMRequest("cmi.completion_status", "incomplete", true);
+				req = new DMRequest(CMI_COMPLETION_STATUS, "incomplete", true);
 				req.getNextToken();
 
 				err = setValue(req, validatorFactory);
@@ -1153,7 +1155,7 @@ public class SCORM_2004_DM extends DataModel implements Serializable {
 
 		progress = dmInfo.mValue;
 
-		req = new DMRequest("cmi.scaled_passing_score");
+		req = new DMRequest(CMI_SCALED_PASSING_SCORE);
 		req.getNextToken();
 
 		dmInfo = new DMProcessingInfo();
@@ -1164,19 +1166,19 @@ public class SCORM_2004_DM extends DataModel implements Serializable {
 		if (threshold != null && !threshold.isEmpty()) {
 			if (progress != null && !progress.isEmpty()) {
 				if (Double.parseDouble(progress) >= Double.parseDouble(threshold)) {
-					req = new DMRequest("cmi.success_status", "passed", true);
+					req = new DMRequest(CMI_SUCCESS_STATUS, "passed", true);
 					req.getNextToken();
 
 					err = setValue(req, validatorFactory);
 				} else {
-					req = new DMRequest("cmi.success_status", "failed", true);
+					req = new DMRequest(CMI_SUCCESS_STATUS, "failed", true);
 					req.getNextToken();
 
 					err = setValue(req, validatorFactory);
 				}
 			} else {
 				// Reset success_status to unknown
-				req = new DMRequest("cmi.success_status", "unknown", true);
+				req = new DMRequest(CMI_SUCCESS_STATUS, "unknown", true);
 				req.getNextToken();
 
 				err = setValue(req, validatorFactory);
@@ -1184,7 +1186,7 @@ public class SCORM_2004_DM extends DataModel implements Serializable {
 		}
 
 		// Set the entry flag based on the exit value
-		req = new DMRequest("cmi.exit", true, false);
+		req = new DMRequest(CMI_EXIT, true, false);
 		req.getNextToken();
 
 		dmInfo = new DMProcessingInfo();
@@ -1194,7 +1196,7 @@ public class SCORM_2004_DM extends DataModel implements Serializable {
 		if (dmInfo.mValue.equals("suspend") || dmInfo.mValue.equals("logout")) {
 			// The next time this SCO is experienced, the current
 			// Learner Session will be "resumed"
-			req = new DMRequest("cmi.entry", "resume", true);
+			req = new DMRequest(CMI_ENTRY, "resume", true);
 			req.getNextToken();
 
 			err = setValue(req, validatorFactory);
@@ -1206,14 +1208,14 @@ public class SCORM_2004_DM extends DataModel implements Serializable {
 			SCORM_2004_DMElement element = new SCORM_2004_DMElement(desc, null, this);
 			mElements.put(desc.mBinding, element);
 		} else {
-			req = new DMRequest("cmi.entry", "", true);
+			req = new DMRequest(CMI_ENTRY, "", true);
 			req.getNextToken();
 
 			err = setValue(req, validatorFactory);
 		}
 
 		// This Learner Session is over, clear cmi.exit
-		req = new DMRequest("cmi.exit", "", true);
+		req = new DMRequest(CMI_EXIT, "", true);
 		req.getNextToken();
 
 		err = setValue(req, validatorFactory);

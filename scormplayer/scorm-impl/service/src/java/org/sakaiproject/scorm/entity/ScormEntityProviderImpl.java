@@ -31,6 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang.StringUtils;
 
+import static org.sakaiproject.scorm.api.ScormConstants.*;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entitybroker.EntityReference;
@@ -51,7 +52,6 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.scorm.api.ScormConstants;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.site.api.Site;
@@ -175,10 +175,10 @@ public class ScormEntityProviderImpl implements ScormEntityProvider, CoreEntityP
 					if( site != null )
 					{
 						// Check to make sure the current user has the 'scorm.configure' permission for the site
-						if( !securityService.unlock( userID, ScormConstants.PERM_CONFIG, siteService.siteReference( siteID ) ) )
+						if( !securityService.unlock( userID, PERM_CONFIG, siteService.siteReference( siteID ) ) )
 						{
 							// Log the message that this user doesn't have the permision for the site, return an empty list
-							log.error( "User ({}) does not have permission ({}) for site: {}", userID, ScormConstants.PERM_CONFIG, siteID );
+							log.error( "User ({}) does not have permission ({}) for site: {}", userID, PERM_CONFIG, siteID );
 							return entityRefs;
 						}
 
@@ -391,7 +391,7 @@ public class ScormEntityProviderImpl implements ScormEntityProvider, CoreEntityP
 		log.debug( "isCurrentUserLaunchAuth()" );
 
 		String userID = userDirectoryService.getCurrentUser().getId();
-		return securityService.unlock( userID, ScormConstants.PERM_LAUNCH, siteService.siteReference( siteID ) );
+		return securityService.unlock( userID, PERM_LAUNCH, siteService.siteReference( siteID ) );
 	}
 
 	/**

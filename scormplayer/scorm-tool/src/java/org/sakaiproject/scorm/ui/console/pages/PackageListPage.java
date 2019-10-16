@@ -39,7 +39,7 @@ import org.apache.wicket.request.resource.PackageResourceReference;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.string.StringValue;
 
-import org.sakaiproject.scorm.api.ScormConstants;
+import static org.sakaiproject.scorm.api.ScormConstants.*;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormContentService;
@@ -189,16 +189,16 @@ public class PackageListPage extends ConsoleBasePage
 
 				switch (status)
 				{
-					case ScormConstants.CONTENT_PACKAGE_STATUS_OPEN:
+					case CONTENT_PACKAGE_STATUS_OPEN:
 						resourceId = "status.open";
 						break;
-					case ScormConstants.CONTENT_PACKAGE_STATUS_OVERDUE:
+					case CONTENT_PACKAGE_STATUS_OVERDUE:
 						resourceId = "status.overdue";
 						break;
-					case ScormConstants.CONTENT_PACKAGE_STATUS_CLOSED:
+					case CONTENT_PACKAGE_STATUS_CLOSED:
 						resourceId = "status.closed";
 						break;
-					case ScormConstants.CONTENT_PACKAGE_STATUS_NOTYETOPEN:
+					case CONTENT_PACKAGE_STATUS_NOTYETOPEN:
 						resourceId = "status.notyetopen";
 						break;
 				}

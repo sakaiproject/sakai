@@ -16,7 +16,7 @@
 package org.sakaiproject.scorm.service.sakai.impl;
 
 
-import org.sakaiproject.scorm.api.ScormConstants;
+import static org.sakaiproject.scorm.api.ScormConstants.*;
 import org.sakaiproject.scorm.exceptions.LearnerNotDefinedException;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.Learner;
@@ -28,24 +28,24 @@ public class MockLearningManagementSystem implements LearningManagementSystem
 	@Override
 	public boolean canConfigure(String context)
 	{
-		return hasPermission(context, ScormConstants.PERM_CONFIG);
+		return hasPermission(context, PERM_CONFIG);
 	}
 
 	@Override
 	public boolean canDelete(String context)
 	{
-		return hasPermission(context, ScormConstants.PERM_DELETE);
+		return hasPermission(context, PERM_DELETE);
 	}
 
 	@Override
 	public boolean canGrade(String context)
 	{
-		return hasPermission(context, ScormConstants.PERM_GRADE);
+		return hasPermission(context, PERM_GRADE);
 	}
 
 	public boolean canLaunch(String context)
 	{
-		return hasPermission(context, ScormConstants.PERM_LAUNCH);
+		return hasPermission(context, PERM_LAUNCH);
 	}
 
 	@Override
@@ -63,7 +63,7 @@ public class MockLearningManagementSystem implements LearningManagementSystem
 	@Override
 	public boolean canUpload(String context)
 	{
-		return hasPermission(context, ScormConstants.PERM_UPLOAD);
+		return hasPermission(context, PERM_UPLOAD);
 	}
 
 	@Override
@@ -74,13 +74,13 @@ public class MockLearningManagementSystem implements LearningManagementSystem
 	@Override
 	public boolean canValidate(String context)
 	{
-		return hasPermission(context, ScormConstants.PERM_VALIDATE);
+		return hasPermission(context, PERM_VALIDATE);
 	}
 
 	@Override
 	public boolean canViewResults(String context)
 	{
-		return hasPermission(context, ScormConstants.PERM_VIEW_RESULTS);
+		return hasPermission(context, PERM_VIEW_RESULTS);
 	}
 
 	@Override
