@@ -42,7 +42,7 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.file.Files;
 
-import org.sakaiproject.scorm.api.ScormConstants;
+import static org.sakaiproject.scorm.api.ScormConstants.*;
 import org.sakaiproject.scorm.model.api.ActivityReport;
 import org.sakaiproject.scorm.model.api.ActivitySummary;
 import org.sakaiproject.scorm.model.api.ContentPackage;
@@ -311,19 +311,19 @@ public class ResultsListPage extends ConsoleBasePage
 	{
 		switch( status )
 		{
-			case ScormConstants.NOT_ACCESSED:
+			case NOT_ACCESSED:
 			{
 				return getLocalizer().getString( "access.status.not.accessed", this );
 			}
-			case ScormConstants.INCOMPLETE:
+			case INCOMPLETE:
 			{
 				return getLocalizer().getString( "access.status.incomplete", this );
 			}
-			case ScormConstants.COMPLETED:
+			case COMPLETED:
 			{
 				return getLocalizer().getString( "access.status.completed", this );
 			}
-			case ScormConstants.GRADED:
+			case GRADED:
 			{
 				return getLocalizer().getString( "access.status.graded", this );
 			}

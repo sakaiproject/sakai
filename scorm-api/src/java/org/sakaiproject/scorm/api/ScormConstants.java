@@ -17,9 +17,6 @@ package org.sakaiproject.scorm.api;
 
 public class ScormConstants
 {
-	/** This string starts the references to resources in this service. */
-	public static final String REFERENCE_ROOT = "/scorm";
-
 	public static String IS_CONTENT_PACKAGE_PROPERTY = "scorm:is_content_package";
 
 	public static String CONTENT_PACKAGE_TITLE_PROPERTY = "CONTENT_PACKAGE_TITLE";
@@ -44,13 +41,57 @@ public class ScormConstants
 
 	public final static String CMI_OBJECTIVES_ROOT = "cmi.objectives.";
 
+    public final static String CMI_OBJECTIVES_COUNT = CMI_OBJECTIVES_ROOT + "_count";
+
+    public final static String CMI_INTERACTIONS_ROOT = "cmi.interactions.";
+
+    public final static String CMI_INTERACTIONS_COUNT = CMI_INTERACTIONS_ROOT + "_count";
+
 	public final static String CMI_COMPLETION_STATUS = "cmi.completion_status";
+
+    public final static String CMI_COMPLETION_THRESHOLD = "cmi.completion_threshold";
 
 	public final static String CMI_SUCCESS_STATUS = "cmi.success_status";
 
+    public final static String CMI_SUSPEND_DATA = "cmi.suspend_data";
+
 	public final static String CMI_ENTRY = "cmi.entry";
 
+    public final static String CMI_CREDIT = "cmi.credit";
+
+    public final static String CMI_EXIT = "cmi.exit";
+
+    public final static String CMI_LAUNCH_DATA = "cmi.launch_data";
+
+    public final static String CMI_LEARNER_ID = "cmi.learner_id";
+
+    public final static String CMI_LEARNER_NAME = "cmi.learner_name";
+
+    public final static String CMI_LOCATION = "cmi.location";
+
+    public final static String CMI_MAX_TIME_ALLOWED = "cmi.max_time_allowed";
+
+    public final static String CMI_TIME_LIMIT_ACTION = "cmi.time_limit_action";
+
+    public final static String CMI_TOTAL_TIME = "cmi.total_time";
+
+    public final static String CMI_TIMESTAMP = "cmi.timestamp";
+
+    public final static String CMI_COMMENTS_FROM_LEARNER = "cmi.comments_from_learner";
+
+    public final static String CMI_MODE = "cmi.mode";
+
+    public final static String CMI_PROGRESS_MEASURE = "cmi.progress_measure";
+
+    public final static String CMI_SCALED_PASSING_SCORE = "cmi.scaled_passing_score";
+
 	public final static String CMI_SCORE_SCALED = "cmi.score.scaled";
+
+    public final static String CMI_SCORE_RAW = "cmi.score.raw";
+
+    public final static String CMI_SCORE_MIN = "cmi.score.min";
+
+    public final static String CMI_SCORE_MAX = "cmi.score.max";
 
 	public final static String CMI_SESSION_TIME = "cmi.session_time";
 

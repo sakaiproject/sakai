@@ -9,6 +9,7 @@
     </parent>
 
     <name>SCORM Player</name>
+    <groupId>org.sakaiproject.scorm</groupId>
     <artifactId>scorm-base</artifactId>
     <version>20-SNAPSHOT</version>
     <packaging>pom</packaging>
@@ -153,4 +154,12 @@
             </plugin>
         </plugins>
     </build>
+
+    <distributionManagement>
+        <site>
+            <id>sakai-site</id>
+            <name>Sakai Release Site</name>
+            <url>scpexe://source.sakaiproject.org/var/www/html/release/scorm/${project.version}</url>
+        </site>
+    </distributionManagement>
 </project>

@@ -23,6 +23,7 @@ import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
 
+import static org.sakaiproject.scorm.api.ScormConstants.*;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingHandlerResolver;
@@ -30,7 +31,6 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.scorm.api.ScormConstants;
 import org.sakaiproject.scorm.service.api.ScormContentService;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -237,11 +237,11 @@ public class ScormCHH extends FastZipCHH
 			virtualCollection.setContentHandler(this);
 			ce.setVirtualContentEntity(virtualCollection);
 
-			if (realProperties.getProperty(ScormConstants.CONTENT_PACKAGE_TITLE_PROPERTY) != null)
+			if (realProperties.getProperty(CONTENT_PACKAGE_TITLE_PROPERTY) != null)
 			{
 				ResourcePropertiesEdit virtualProps = virtualCollection.getPropertiesEdit();
-				virtualProps.addProperty(ScormConstants.CONTENT_PACKAGE_TITLE_PROPERTY, realProperties.getProperty(ScormConstants.CONTENT_PACKAGE_TITLE_PROPERTY));
-				virtualProps.addProperty(ScormConstants.IS_CONTENT_PACKAGE_PROPERTY, "true");
+				virtualProps.addProperty(CONTENT_PACKAGE_TITLE_PROPERTY, realProperties.getProperty(CONTENT_PACKAGE_TITLE_PROPERTY));
+				virtualProps.addProperty(IS_CONTENT_PACKAGE_PROPERTY, "true");
 			}
 
 			virtualEntity = virtualCollection;
