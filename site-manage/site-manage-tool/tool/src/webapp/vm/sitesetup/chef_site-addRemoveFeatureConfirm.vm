@@ -6,8 +6,7 @@
 		$tlang.getString("addrc.confirming") <span class="highlight">$validator.escapeHtml($title)</span>
 	</h3>
 		#if ($alertMessage)
-			<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>
-			<div class="clear"></div>
+			<div class="sak-banner-error">$tlang.getString("gen.alert") $alertMessage</div>
 		#end
 ## (gsilver) should check what has happened - if tools have been removed output the following block, if not not. Same with added tools (and change the language to suit)	
 ##  (gsilver) the removed tools do not show up consistently in the removed tools list - also - if you remove an email archive tool it reads "Email Archive: @localhost"

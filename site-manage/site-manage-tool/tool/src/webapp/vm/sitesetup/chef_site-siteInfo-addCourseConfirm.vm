@@ -6,8 +6,7 @@
 		$tlang.getString("sitegen.addcourse.adding") $validator.escapeHtml($siteTitle)...
 	</h3>
 	#if ($alertMessage)
-		<div class="alertMessage">$tlang.getString("sitegen.addcourse.alert") $alertMessage</div>
-		<div class="clear"></div>
+		<div class="sak-banner-error">$tlang.getString("sitegen.addcourse.alert") $alertMessage</div>
 	#end
 	<p class="instruction">
 		$tlang.getString("sitegen.addcourse.please")

@@ -60,10 +60,10 @@ function printView(url) {
 		</h1>
 	</div>
 
-	#if ($alertMessage)<div class="alertMessage"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div><div class="clear"></div>#end
+	#if ($alertMessage)<div class="sak-banner-error"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>#end
 	## reminder of submission download url
 	#if ($download_url_reminder) 
-		<div class="messageInformation">
+		<div class="sak-banner-info">
 			<h4>$download_url_reminder</h4>
 			<p>
 				<a target="_blank" href="$download_url_link">$download_url_link_label</a>
