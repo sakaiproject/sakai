@@ -3842,8 +3842,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     AssignmentModelAnswerItem oModelAnswerItem = assignmentSupplementItemService.getModelAnswer(oAssignmentId);
                     if (oModelAnswerItem != null) {
                         AssignmentModelAnswerItem nModelAnswerItem = assignmentSupplementItemService.newModelAnswer();
-                        assignmentSupplementItemService.saveModelAnswer(nModelAnswerItem);
                         nModelAnswerItem.setAssignmentId(nAssignmentId);
+                        assignmentSupplementItemService.saveModelAnswer(nModelAnswerItem);
                         nModelAnswerItem.setText(oModelAnswerItem.getText());
                         nModelAnswerItem.setShowTo(oModelAnswerItem.getShowTo());
                         Set<AssignmentSupplementItemAttachment> oModelAnswerItemAttachments = oModelAnswerItem.getAttachmentSet();
