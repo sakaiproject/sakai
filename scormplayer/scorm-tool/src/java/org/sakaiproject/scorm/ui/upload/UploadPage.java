@@ -35,6 +35,8 @@ import org.apache.wicket.util.lang.Bytes;
 
 import static org.sakaiproject.scorm.api.ScormConstants.*;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentCollection;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdLengthException;
@@ -60,6 +62,9 @@ public class UploadPage extends ConsoleBasePage
 
     @SpringBean( name = "org.sakaiproject.scorm.service.api.ScormResourceService" )
     ScormResourceService resourceService;
+
+    @SpringBean( name="org.sakaiproject.content.api.ContentHostingService" )
+    ContentHostingService contentHostingService;
 
     @Override
     protected void onInitialize()
@@ -135,6 +140,7 @@ public class UploadPage extends ConsoleBasePage
                     {
                         for( FileUpload upload : uploads )
                         {
+                            String resourceId = "";
                             try
                             {
                                 // Check if file size exceeds allowed threshold - defined in sakai.properties as "content.upload.max", measured in megabytes
@@ -146,7 +152,7 @@ public class UploadPage extends ConsoleBasePage
                                     return;
                                 }
 
-                                String resourceId = resourceService.putArchive( upload.getInputStream(), upload.getClientFileName(), upload.getContentType(), false, NotificationService.NOTI_NONE );
+                                resourceId = resourceService.putArchive( upload.getInputStream(), upload.getClientFileName(), upload.getContentType(), false, NotificationService.NOTI_NONE );
                                 int status = contentService.storeAndValidate( resourceId, false, serverConfigurationService.getString( "scorm.zip.encoding", "UTF-8" ) );
 
                                 if( status == VALIDATION_SUCCESS )
@@ -160,6 +166,20 @@ public class UploadPage extends ConsoleBasePage
                                     error( getNotification( status ) );
                                     onError( target );
                                 }
+                            }
+                            catch( OverQuotaException e )
+                            {
+                                int quotaInMB = 20;
+                                try
+                                {
+                                    ContentCollection collection = contentHostingService.getCollection( resourceId );
+                                    long collectionQuota = contentHostingService.getQuota( collection ); // size in kb
+                                    quotaInMB = (int) collectionQuota / 1024;
+                                }
+                                catch( Exception ex ) { /* ignore */ }
+
+                                error( MessageFormat.format( getString( "upload.OverQuotaException" ), quotaInMB ) );
+                                log.error( "File puts user over quota: {}", upload.getClientFileName() );
                             }
                             catch( Exception e )
                             {
@@ -206,10 +226,6 @@ public class UploadPage extends ConsoleBasePage
         {
             errorKey = "upload.IdInvalidException";
         }
-        else if( ex instanceof OverQuotaException )
-        {
-            errorKey = "upload.OverQuotaException";
-        }
         else if( ex instanceof PermissionException )
         {
             errorKey = "upload.PermissionException";
@@ -218,7 +234,7 @@ public class UploadPage extends ConsoleBasePage
         // Generate the user facing error message, and print info to logs
         error( getLocalizer().getString( errorKey, UploadPage.this ) );
         log.error( "Failed to upload file: {}", fileName );
-        log.debug( "Exception occured while uploading module", ex);
+        log.debug( "Exception occured while uploading module", ex );
     }
 
     private String getNotification( int status )
