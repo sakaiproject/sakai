@@ -17,6 +17,13 @@ package org.sakaiproject.scorm.service.api;
 
 import java.io.InputStream;
 import java.util.List;
+import org.sakaiproject.exception.IdInvalidException;
+import org.sakaiproject.exception.IdLengthException;
+import org.sakaiproject.exception.IdUniquenessException;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.OverQuotaException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.ServerOverloadException;
 
 import org.sakaiproject.scorm.exceptions.InvalidArchiveException;
 import org.sakaiproject.scorm.exceptions.ResourceNotDeletedException;
@@ -40,7 +47,8 @@ public interface ScormResourceService
 
 	public List<Archive> getUnvalidatedArchives() throws ResourceStorageException;
 
-	public String putArchive(InputStream stream, String name, String mimeType, boolean isHidden, int priority) throws ResourceStorageException;
+	public String putArchive(InputStream stream, String name, String mimeType, boolean isHidden, int priority) throws PermissionException, IdUniquenessException, IdLengthException,
+                                                                                                                IdInvalidException, IdUnusedException, OverQuotaException, ServerOverloadException;
 
 	public void removeResources(String collectionId) throws ResourceNotDeletedException;
 }
