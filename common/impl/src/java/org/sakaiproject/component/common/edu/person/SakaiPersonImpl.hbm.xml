@@ -6,8 +6,7 @@
     table="SAKAI_PERSON_T" optimistic-lock="version"
     discriminator-value="P">
 
-    <!-- Hibernate cannot cache BLOB types :( -->
-    <!--     <cache usage="read-write" /> -->
+    <cache usage="read-write" />
 
     <id name="id">
       <column name="ID" not-null="true" length="19" />
@@ -76,8 +75,9 @@
         <property name="homePhone" column="HOME_PHONE" />
         <property name="homePostalAddress" column="HOME_POSTAL_ADDRESS" />
         <property name="initials" column="INITIALS" />
-        <!-- blobImage is a workaround for Oracle and BLOB handling with jpegPhoto byte[] property -->
-	    <property name="blobImage" type="blob" column="JPEG_PHOTO" />
+        <property name="jpegPhoto" type="binary">
+          <column name="JPEG_PHOTO" length="4194304"/>
+        </property>
         <property name="labeledURI" column="LABELED_URI" />
         <property name="mail" column="MAIL" />
         <property name="manager" column="MANAGER" />

@@ -23,20 +23,12 @@ package org.sakaiproject.component.common.edu.person;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.Blob;
-import java.sql.SQLException;
-
-import javax.sql.rowset.serial.SerialBlob;
-
-import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.api.common.edu.person.InetOrgPerson;
 import org.sakaiproject.api.common.edu.person.OrganizationalPerson;
 import org.sakaiproject.api.common.edu.person.Person;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author <a href="mailto:lance@indiana.edu">Lance Speelmon </a>
@@ -537,108 +529,4 @@ public class InetOrgPersonImpl extends OrganizationalPersonImpl implements Perso
 	{
 		this.secretary = secretary;
 	}
-
-	public Blob getBlobImage()
-	{
-		if (this.jpegPhoto == null || jpegPhoto.length < 1 || ServerConfigurationService.getString("profile.photoRepositoryPath", null) != null)
-		{
-			return null;
-		}
-		try {
-			return new SerialBlob(this.jpegPhoto);
-		} catch (SQLException e) {
-			log.warn(e.getMessage(), e);
-			return null;
-		}
-	}
-
-	public void setBlobImage(Blob blobImage)
-	{
-		this.jpegPhoto = toByteArray(blobImage);
-	}
-
-	private byte[] toByteArray(Blob fromBlob)
-	{
-		if (log.isDebugEnabled())
-		{
-			log.debug("toByteArray(Blob " + fromBlob + ")");
-		}
-
-		try
-		{
-			if (fromBlob == null || fromBlob.length() < 1)
-			{
-				return null;
-			}
-		}
-		catch (SQLException e1)
-		{
-			log.error(e1.getMessage(), e1);
-		}
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		try
-		{
-			return toByteArray(fromBlob, baos);
-		}
-		catch (Exception e)
-		{
-			log.error(e.getMessage(), e);
-			throw new RuntimeException(e);
-		}
-		finally
-		{
-			if (baos != null)
-			{
-				try
-				{
-					baos.close();
-				}
-				catch (IOException ex)
-				{
-					log.error(ex.getMessage(), ex);
-				}
-			}
-		}
-	}
-
-	private byte[] toByteArray(Blob fromBlob, ByteArrayOutputStream baos) throws SQLException, IOException
-	{
-		if (log.isDebugEnabled())
-		{
-			log.debug("toByteArray(Blob " + fromBlob + ", ByteArrayOutputStream " + baos + ")");
-		}
-
-		if (fromBlob == null || fromBlob.length() < 1 || ServerConfigurationService.getString("profile.photoRepositoryPath", null) != null)
-		{
-			return null;
-		}
-		byte[] buf = new byte[4000];
-		InputStream is = fromBlob.getBinaryStream();
-		try
-		{
-			for (;;)
-			{
-				int dataSize = is.read(buf);
-
-				if (dataSize == -1) break;
-				baos.write(buf, 0, dataSize);
-			}
-		}
-		finally
-		{
-			if (is != null)
-			{
-				try
-				{
-					is.close();
-				}
-				catch (IOException ex)
-				{
-					log.error(ex.getMessage(), ex);
-				}
-			}
-		}
-		return baos.toByteArray();
-	}
-
 }
