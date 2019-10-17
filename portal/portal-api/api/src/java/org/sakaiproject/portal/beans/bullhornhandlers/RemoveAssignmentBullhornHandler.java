@@ -59,9 +59,9 @@ public class RemoveAssignmentBullhornHandler extends AbstractBullhornHandler {
         String[] pathParts = ref.split("/");
         String assignmentId = pathParts[pathParts.length - 1];
         try {
-	    users = sessionFactory.getCurrentSession().createQuery("select toUser from BullhornAlert where event = :event and ref = :ref")
-            	.setString("event", AssignmentConstants.EVENT_ADD_ASSIGNMENT)
-                .setString("ref", ref).list();
+	       users = sessionFactory.getCurrentSession().createQuery("select toUser from BullhornAlert where event = :event and ref = :ref")
+            	  .setString("event", AssignmentConstants.EVENT_ADD_ASSIGNMENT)
+                  .setString("ref", ref).list();
             TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
