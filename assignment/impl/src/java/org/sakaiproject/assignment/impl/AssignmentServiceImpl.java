@@ -2326,7 +2326,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Override
     public String escapeInvalidCharsEntry(String accentedString) {
         String decomposed = Normalizer.normalize(accentedString, Normalizer.Form.NFD);
-        return decomposed.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+        decomposed = decomposed.replaceAll("\\p{InCombiningDiacriticalMarks}+", StringUtils.EMPTY);
+        decomposed = decomposed.replaceAll("\\?", StringUtils.EMPTY);
+        return decomposed;
     }
 
     @Override
