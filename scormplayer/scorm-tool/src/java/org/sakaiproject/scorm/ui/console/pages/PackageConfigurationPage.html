@@ -8,79 +8,84 @@
 	<body>
 		<wicket:extend>
 			<form wicket:id="configurationForm">
-				<p class="shorttext form-required">
-					<label for="packageName">
+				<div class="form form-required">
+					<label for="packageName" class="form-control-label">
 						<wicket:message key="form.label.package.name"></wicket:message>
 					</label>
-					<input type="text" wicket:id="packageName" id="packageName" size="50" maxlength="200" />
-				</p>
-				<p class="instruction labelindnt">
-					<wicket:message key="form.instructions.open.date"></wicket:message>
-				</p>
-				<p class="shorttext form-required">
-					<label for="releaseOnDTF">
+				</div>
+				<input type="text" wicket:id="packageName" id="packageName" size="50" maxlength="200" />
+
+				<h2 class="formSectionHeading"><wicket:message key="form.heading.availability"></wicket:message></h2>
+				<div class="form form-group row form-required">
+					<label for="releaseOnDTF" class="col-sm-2 form-control-label">
 						<wicket:message key="form.label.open.date"></wicket:message>
 					</label>
-					<input type="text" wicket:id="releaseOnDTF" id="releaseOnDTF" />
-				</p>
-				<p class="shorttext">
-					<label for="dueOnDTF">
+					<div class="col-sm-6 form-inline">
+						<input type="text" wicket:id="releaseOnDTF" id="releaseOnDTF" />
+						<p class="text-muted small">
+							<wicket:message key="form.instructions.open.date"></wicket:message>
+						</p>
+					</div>
+				</div>
+				<div class="form form-group row">
+					<label for="dueOnDTF" class="col-sm-2 form-control-label">
 						<wicket:message key="form.label.due.date"></wicket:message>
 					</label>
-					<input type="text" wicket:id="dueOnDTF" id="dueOnDTF" />
-				</p>
-				<p class="instruction labelindnt">
-					<wicket:message key="form.instructions.accept.until"></wicket:message>
-				</p>
-				<p class="shorttext">
-					<label for="acceptUntilDTF">
+					<div class="col-sm-6 form-inline">
+						<input type="text" wicket:id="dueOnDTF" id="dueOnDTF" />
+					</div>
+				</div>
+				<div class="form form-group row">
+					<label for="acceptUntilDTF" class="col-sm-2 form-control-label">
 						<wicket:message key="form.label.accept.until"></wicket:message>
 					</label>
-					<input type="text" wicket:id="acceptUntilDTF" id="acceptUntilDTF"  />
-				</p>
-				<p class="shorttext">
-					<label for="numberOfTries">
+					<div class="col-sm-6 form-inline">
+						<input type="text" wicket:id="acceptUntilDTF" id="acceptUntilDTF" />
+						<p class="text-muted small">
+							<wicket:message key="form.instructions.accept.until"></wicket:message>
+						</p>
+					</div>
+				</div>
+				<div>
+					<label for="numberOfTries" class="form-control-label">
 						<wicket:message key="form.label.number.of.tries"></wicket:message>
 					</label>
 					<select wicket:id="numberOfTries" id="numberOfTries" />
-				</p>
-				<p class="shorttext">
-					<label for="hideTOC">
-						<wicket:message key="form.label.hide.toc"></wicket:message>
-					</label>
-					<input type="checkbox" wicket:id="hideTOC" id="hideTOC" />
-				</p>
-				<p class="shorttext">
-					<span class="bold"><wicket:message key="form.label.created.by"></wicket:message></span>
-					<span wicket:id="createdBy"></span>
-				</p>
-				<p class="shorttext">
-					<span class="bold"><wicket:message key="form.label.created.on"></wicket:message></span>
-					<span wicket:id="createdOn"></span>
-				</p>
-				<p class="shorttext">
-					<span class="bold"><wicket:message key="form.label.last.changed.by"></wicket:message></span>
-					<span wicket:id="modifiedBy"></span>
-				</p>
-				<p class="shorttext">
-					<span class="bold"><wicket:message key="form.label.last.changed.on"></wicket:message></span>
-					<span wicket:id="modifiedOn"></span>
-				</p>
-				<div wicket:id="scos">
-					<h3><span wicket:id="itemTitle"></span></h3>
-					<p class="shorttext">
-						<div wicket:id="verifySyncWithGradebook" class="sak-banner-warn">
-							<wicket:message key="verify.synchronizeWithGradebook"></wicket:message>
-						</div>
-						<label wicket:for="synchronizeSCOWithGradebook">
-							<wicket:message key="form.label.synchronyse.with.gradebook"></wicket:message>
-						</label>
-						<input type="checkbox" wicket:id="synchronizeSCOWithGradebook"></input>
-					</p>
-					<p style="clear:both;"/>
 				</div>
+
+				<h2 class="formSectionHeading"><wicket:message key="form.heading.displayOptions"></wicket:message></h2>
+				<div class="form">
+					<label for="showTOC" class="form-control-label">
+						<input type="checkbox" wicket:id="showTOC" id="showTOC" />
+						<wicket:message key="form.label.show.toc"></wicket:message>
+					</label>
+				</div>
+
+				<h2 class="formSectionHeading"><wicket:message key="form.heading.grading"></wicket:message></h2>
+				<table id="gradeSyncTable" class="table table-hover table-striped" cellspacing="0">
+					<thead>
+						<tr>
+							<th><wicket:message key="form.gradingTable.itemTitle"></wicket:message></th>
+							<th class="checkboxColumn"><wicket:message key="form.gradingTable.enableGradebook"></wicket:message></th>
+						</tr>
+					</thead>
+					<tr wicket:id="scos">
+						<td>
+							<label wicket:for="synchronizeSCOWithGradebook">
+								<span wicket:id="itemTitle"></span>
+							</label>
+							<div wicket:id="verifySyncWithGradebook" class="sak-banner-warn">
+								<wicket:message key="verify.synchronizeWithGradebook"></wicket:message>
+							</div>
+						</td>
+						<td class="checkboxColumn">
+							<input type="checkbox" wicket:id="synchronizeSCOWithGradebook"></input>
+						</td>
+					</tr>
+				</table>
+
 				<div class="act">
-					<button wicket:id="btnSave" id="btnSave" type="submit" class="active"><wicket:message key="page.submit">Submit</wicket:message></button>
+					<button wicket:id="btnUpdate" id="btnUpdate" type="submit" class="active"><wicket:message key="page.update">Submit</wicket:message></button>
 					<button wicket:id="btnCancel" id="btnCancel" type="submit"><wicket:message key="page.cancel">Cancel</wicket:message></button>
 				</div>
 			</form>

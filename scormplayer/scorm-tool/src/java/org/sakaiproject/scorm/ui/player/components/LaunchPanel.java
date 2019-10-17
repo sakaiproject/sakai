@@ -62,9 +62,9 @@ public class LaunchPanel extends UISynchronizerPanel implements IHeaderContribut
 		contentPanel.setMarkupId("scormContent");
 		add(contentPanel);
 
-		// Tree is hidden if hideTOC is true or there are no nodes in the tree
+		// Tree is hidden if showTOC is false or there are no nodes in the tree
 		treePanel = new ActivityTreePanel("tree", sessionBean, sequencingService, this);
-		if (sessionBean.getContentPackage().isHideTOC() || !new SeqActivityProvider(sessionBean, sequencingService).getRoots().hasNext())
+		if (!sessionBean.getContentPackage().isShowTOC() || !new SeqActivityProvider(sessionBean, sequencingService).getRoots().hasNext())
 		{
 			treePanel.setVisible(false);
 		}

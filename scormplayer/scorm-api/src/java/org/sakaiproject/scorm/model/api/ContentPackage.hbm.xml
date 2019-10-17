@@ -35,7 +35,7 @@
             Caused by: org.hibernate.InvalidMappingException: Unable to read XML
             Caused by: org.xml.sax.SAXParseException: Attribute "default" must be declared for element type "property".
         -->
-		<property name="hideTOC" column="HIDE_TOC" not-null="true" />
+		<property name="showTOC" column="SHOW_TOC" not-null="true" />
 	</class>
 
 </hibernate-mapping>
