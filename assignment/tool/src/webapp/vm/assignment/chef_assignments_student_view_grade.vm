@@ -341,12 +341,24 @@
         #parse ("/vm/assignment/chef_assignments_tags_list.vm")
     #end
     <hr class="itemSeparator"/>
-    ## show instructor feedback if the submission is (1) graded and release or (2) returned
-    #if (($submission.Graded && $submission.GradeReleased) || $submission.Returned)
-        ## show feedback text when submission is released or returned
-        #if ($!submission.FeedbackText && ($submission.FeedbackText.length() > 0))
-            <h5>$tlang.getString("gen.orisub2")</h5>
-            <div class="textPanel borderPanel">$cheffeedbackhelper.escapeAssignmentFeedback($submission.FeedbackText)</div>
+	#if ($!nonElectronicType)
+		<p class="instruction">
+			$tlang.getString("nonelec_instruction")
+		</p>
+	#else
+        ## show instructor feedback if the submission is (1) graded and release or (2) returned
+        #if (($submission.Graded && $submission.GradeReleased) || $submission.Returned)
+            ## show feedback text when submission is released or returned
+            #if ($!submission.FeedbackText && ($submission.FeedbackText.length() > 0))
+                <h5>$tlang.getString("gen.orisub2")</h5>
+                <div class="textPanel borderPanel">$cheffeedbackhelper.escapeAssignmentFeedback($submission.FeedbackText)</div>
+            #else
+                #set ($text = $submission.SubmittedText)
+                #if ($!text && $text.length() > 0)
+                    <h4>$tlang.getString("gen.orisub")</h4>
+                    <div class="textPanel borderPanel">$submission.SubmittedText</div>
+                #end
+            #end
         #else
             #set ($text = $submission.SubmittedText)
             #if ($!text && $text.length() > 0)
@@ -354,54 +366,48 @@
                 <div class="textPanel borderPanel">$submission.SubmittedText</div>
             #end
         #end
-    #else
-        #set ($text = $submission.SubmittedText)
-        #if ($!text && $text.length() > 0)
-            <h4>$tlang.getString("gen.orisub")</h4>
-            <div class="textPanel borderPanel">$submission.SubmittedText</div>
-        #end
-    #end
 
-    ## Submission Attachments
-    #set ($attachments = $submission.Attachments)
-    #if ($attachments)
-        #set ($size = $attachments.size())
-        #if ($size < 1)
-            $tlang.getString("gen.noattsubmitted")
-        #else
-            <h4>
-                #if ($assignment.TypeOfSubmission.ordinal() == 5)
-                    $tlang.getString("gen.stuatt.single")
-                #else
-                    $tlang.getString("gen.stuatt")
-                #end
-            </h4>
-            <div class="textPanel borderPanel">
-                <ul class="attachList indnt1">
-                    #foreach ($attachmentReference in $attachments)
-                        #set ($reference = $submissionAttachmentReferences.get($attachmentReference))
-                        #if ($reference)
-                            #set ($props = false)
-                            #set ($props = $reference.Properties)
-                            #if ($!props)
-                                <li>
-                                    #if ($props.getBooleanProperty($props.NamePropIsCollection))
-                                        <img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
-                                    #else
-                                        <img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
-                                    #end
-                                    #if ($decoratedUrlMap)
-                                        <a href="$decoratedUrlMap.get($reference.Url)" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
-                                    #else
-                                        <a href="$reference.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
-                                    #end
-                                    #propertyDetails($props)
-                                </li>
+        ## Submission Attachments
+        #set ($attachments = $submission.Attachments)
+        #if ($attachments)
+            #set ($size = $attachments.size())
+            #if ($size < 1)
+                $tlang.getString("gen.noattsubmitted")
+            #else
+                <h4>
+                    #if ($assignment.TypeOfSubmission.ordinal() == 5)
+                        $tlang.getString("gen.stuatt.single")
+                    #else
+                        $tlang.getString("gen.stuatt")
+                    #end
+                </h4>
+                <div class="textPanel borderPanel">
+                    <ul class="attachList indnt1">
+                        #foreach ($attachmentReference in $attachments)
+                            #set ($reference = $submissionAttachmentReferences.get($attachmentReference))
+                            #if ($reference)
+                                #set ($props = false)
+                                #set ($props = $reference.Properties)
+                                #if ($!props)
+                                    <li>
+                                        #if ($props.getBooleanProperty($props.NamePropIsCollection))
+                                                <img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+                                        #else
+                                            <img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+                                        #end
+                                        #if ($decoratedUrlMap)
+                                            <a href="$decoratedUrlMap.get($reference.Url)" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+                                        #else
+                                            <a href="$reference.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+                                        #end
+                                        #propertyDetails($props)
+                                    </li>
+                                #end
                             #end
                         #end
-                    #end
-                </ul>
-            </div>
+                    </ul>
+                </div>
+            #end
         #end
     #end
 
