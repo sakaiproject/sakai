@@ -215,6 +215,10 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                                                     + a.getId()
                                                     + "&panel=Main&sakai_action=doView_assignment");
                         } else if (allowSubmitAssignment) {
+                            String sakaiAction = "doView_submission";
+                            if(a.getHonorPledge()) {
+                                sakaiAction = "doView_assignment_honorPledge";
+                            }
                             assignData
                                     .put("assignmentUrl",
                                             serverConfigurationService
@@ -223,7 +227,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                                                     + fromTool.getId()
                                                     + "?assignmentReference="
                                                     + AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference()
-                                                    + "&panel=Main&sakai_action=doView_submission");
+                                                    + "&panel=Main&sakai_action=" + sakaiAction);
                         } else {
                             // user can read the assignment, but not submit, so
                             // render the appropriate url

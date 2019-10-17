@@ -2275,12 +2275,16 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                             + AssignmentReferenceReckoner.reckoner().context(context).id(assignmentId).reckon().getReference()
                             + "&panel=Main&sakai_action=doView_assignment";
                 } else if (allowSubmitAssignment) {
+                    String sakaiAction = "doView_submission";
+                    if(a.getHonorPledge()) {
+                        sakaiAction = "doView_assignment_honorPledge";
+                    }
                     return serverConfigurationService.getPortalUrl()
                             + "/directtool/"
                             + fromTool.getId()
                             + "?assignmentId=" + assignmentId + "&assignmentReference="
                             + AssignmentReferenceReckoner.reckoner().context(context).id(assignmentId).reckon().getReference()
-                            + "&panel=Main&sakai_action=doView_submission";
+                            + "&panel=Main&sakai_action=" + sakaiAction;
                 } else {
                     // user can read the assignment, but not submit, so
                     // render the appropriate url
