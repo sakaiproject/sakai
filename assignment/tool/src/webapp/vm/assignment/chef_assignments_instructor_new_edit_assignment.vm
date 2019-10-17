@@ -20,24 +20,31 @@
     });
 </script>
 <script type="text/javascript">
+	#if($turnitin_forceSingleAttachment)
+		function forceSingleAttachment(checked) {
+			if(checked){
+ 				$("#subType").val(5);
+ 			}
+			$("#subType > option").each(function(){
+ 				    if(checked){
+					if($(this).val() != 5){
+ 						$(this).prop('disabled', 'disabled');
+					}
+ 					}else{
+						$(this).removeProp('disabled');
+		 			}
+ 			});
+		}
+        #end
 	$(document).ready(function() {
 		ASN.setupAssignNew();
 		#if($turnitin_forceSingleAttachment)
+		   	if ($("#new_assignment_use_review_service").is(':checked')) {
+				forceSingleAttachment(true);
+			} 
 		 	$("#new_assignment_use_review_service").click(function (){
 		 		var checked = this.checked;
-		 		if(checked){
-		 			$("#subType").val(5);
-		 		}
-		 		$("#subType > option").each(function(){
-		 			if(checked){
-		 				if($(this).val() != 5){
-		 					$(this).prop('disabled', 'disabled');
-		 				}
-		 			}else{
-		 				$(this).removeProp('disabled');
-
-		 			}
-		 		});
+				forceSingleAttachment(checked);
 		 	});
 		#end
 		window.onload = function() {
