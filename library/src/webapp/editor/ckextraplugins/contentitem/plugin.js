@@ -23,6 +23,8 @@ CKEDITOR.plugins.add( 'contentitem',
                     // Iframe loaded callback.
                     var iframe = document.getElementById( this._.frameId );
                     ContentItemIFrameWindow = iframe.contentWindow;
+                    this.getDialog().addFocusable(this.getElement(), 0);
+                    this.focus();
                     // console.log(ContentItemIFrameWindow);
                },
 
