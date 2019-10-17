@@ -82,7 +82,6 @@ import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.sitestats.tool.wicket.components.CSSFeedbackPanel;
 import org.sakaiproject.sitestats.tool.wicket.components.FileSelectorPanel;
 import org.sakaiproject.sitestats.tool.wicket.components.IStylableOptionRenderer;
-import org.sakaiproject.sitestats.tool.wicket.components.IndicatingAjaxDropDownChoice;
 import org.sakaiproject.sitestats.tool.wicket.components.LastJobRun;
 import org.sakaiproject.sitestats.tool.wicket.components.Menus;
 import org.sakaiproject.sitestats.tool.wicket.components.StylableSelectOptions;
@@ -530,7 +529,7 @@ public class ReportsEditPage extends BasePage {
 			}
 			public String getIdValue(Object object, int index) {
 				return (String) object;
-			}		
+			}
 		};
 		DropDownChoice when = new DropDownChoice("reportParams.when", whenOptions, whenChoiceRenderer);
 		when.setMarkupId("when");
@@ -559,8 +558,8 @@ public class ReportsEditPage extends BasePage {
 	@SuppressWarnings("serial")
 	private void renderWhoUI(Form form) {		
 		List<String> groups = getGroups();
-		final RepeatingView selectOptionsRV = new RepeatingView("selectOptionsRV");
-		final Select whoUserIds = new MultipleSelect("reportParams.whoUserIds");
+		RepeatingView selectOptionsRV = new RepeatingView("selectOptionsRV");
+		Select whoUserIds = new Select("reportParams.whoUserIds");
 		
 		// who		
 		List<String> whoOptions = new ArrayList<String>();
@@ -594,47 +593,16 @@ public class ReportsEditPage extends BasePage {
 				return (String) object;
 			}		
 		};
-		final IndicatingAjaxDropDownChoice who = new IndicatingAjaxDropDownChoice("reportParams.who", whoOptions, whoChoiceRenderer);
-		who.add(new AjaxFormComponentUpdatingBehavior("onchange") {
-			@Override
-			protected void onUpdate(AjaxRequestTarget target) {
-				if(ReportManager.WHO_CUSTOM.equals(getReportParams().getWho())) {
-					addUsers(selectOptionsRV);
-					who.remove(this);
-					whoUserIds.add(new AttributeModifier("onchange", new Model("checkWhoSelection();")));
-					target.add(who);
-					target.add(whoUserIds);
-				}
-				target.appendJavaScript("checkWhoSelection();");
-			}
-			@Override
-			public CharSequence getCallbackScript() {
-				CharSequence ajaxScript =  super.getCallbackScript();
-				StringBuilder b = new StringBuilder();
-				b.append("checkWhoSelection();");
-				b.append("if(jQuery('#who').val() == 'who-custom') {;");
-				b.append(ajaxScript);
-				b.append("}");
-				return b.toString();
-			}
-		});
+		DropDownChoice who = new DropDownChoice("reportParams.who", whoOptions, whoChoiceRenderer);
 		who.setMarkupId("who");
 		who.setOutputMarkupId(true);
 		form.add(who);
 		
 		// users
-		selectOptionsRV.setRenderBodyOnly(true);
-		selectOptionsRV.setEscapeModelStrings(true);		
 		whoUserIds.add(selectOptionsRV);
 		whoUserIds.add(new AttributeModifier("title", new ResourceModel("report_multiple_sel_instruction")));
-		whoUserIds.setOutputMarkupId(true);
-		whoUserIds.setOutputMarkupPlaceholderTag(true);
-		whoUserIds.setEscapeModelStrings(true);
+		addUsers(selectOptionsRV);
 		form.add(whoUserIds);
-		boolean preloadData = ReportManager.WHO_CUSTOM.equals(getReportParams().getWho());
-		if(preloadData) {
-			addUsers(selectOptionsRV);
-		}
 		
 		// roles
 		List<String> roles = getRoles();
@@ -738,8 +706,7 @@ public class ReportsEditPage extends BasePage {
 				return (String) object;
 			}		
 		};
-		
-		
+
 		// site to report
 		WebMarkupContainer siteContainer = new WebMarkupContainer("siteContainer");		
 		siteContainer.setVisible(renderSiteSelectOption);
@@ -1224,7 +1191,7 @@ public class ReportsEditPage extends BasePage {
 				&& (getReportParams().getWhenFrom() == null || getReportParams().getWhenTo() == null)) {
 			error((String) new ResourceModel("report_err_nocustomdates").getObject());
 		}
-			
+
 		// check WHO
 		if(getReportParams().getWho().equals(ReportManager.WHO_ROLE)){
 			if(site.getUsersHasRole(getReportParams().getWhoRoleId()).isEmpty())
@@ -1238,7 +1205,7 @@ public class ReportsEditPage extends BasePage {
 				&& (getReportParams().getWhoUserIds() == null || getReportParams().getWhoUserIds().size() == 0)){
 			error((String) new ResourceModel("report_err_nousers").getObject());
 		}
-		
+
 		// check HOW
 		if(getReportParams().getHowTotalsBy() != null){
 			if(getReportParams().getHowSortBy().length() == 0) {
@@ -1297,29 +1264,6 @@ public class ReportsEditPage extends BasePage {
 
 	public ReportParams getReportParams() {
 		return getReportDef().getReportParams();
-	}
-	
-	/** Subclass of Select that fixes behavior when used with AjaxFormChoiceComponentUpdatingBehavior.*/
-	static class MultipleSelect extends Select {
-		private static final long	serialVersionUID	= 1L;
-		
-		public MultipleSelect(String id) {
-			super(id);
-		}
-
-		@Override
-		public void updateModel() {
-			Object converted = getConvertedInput();
-			Collection modelCollection = new ArrayList();
-			modelChanging();
-			if(converted != null){
-				modelCollection.addAll((Collection) converted);
-			}
-			modelChanged();
-			getModel().setObject(modelCollection);
-			
-		}
-		
 	}
 
 	private void setISODates(){
