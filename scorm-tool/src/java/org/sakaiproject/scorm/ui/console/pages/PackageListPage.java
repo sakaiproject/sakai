@@ -153,6 +153,12 @@ public class PackageListPage extends ConsoleBasePage
 		columns.add(new DecoratedDatePropertyColumn(new StringResourceModel("column.header.releaseOn", this, null), "releaseOn", "releaseOn"));
 		columns.add(new DecoratedDatePropertyColumn(new StringResourceModel("column.header.dueOn", this, null), "dueOn", "dueOn"));
 
+		if (canConfigure)
+		{
+			columns.add(new DisplayNameColumn(new StringResourceModel("column.header.lastModifiedBy", this, null), "modifiedBy"));
+			columns.add(new DecoratedDatePropertyColumn(new StringResourceModel("column.header.lastModifiedOn", this, null), "modifiedOn", "modifiedOn"));
+		}
+
 		if (canDelete)
 		{
 			columns.add(new ImageLinkColumn(new Model("Remove"), PackageRemovePage.class, paramPropertyExpressions, DELETE_ICON));
@@ -160,6 +166,34 @@ public class PackageListPage extends ConsoleBasePage
 
 		SakaiDataTable table = new SakaiDataTable("cpTable", columns, new ContentPackageDataProvider(contentPackages), true);
 		add(table);
+	}
+
+	public class DisplayNameColumn extends AbstractColumn<ContentPackage, String>
+	{
+		private static final long serialVersionUID = 1L;
+
+		public DisplayNameColumn(IModel<String> displayModel, String sortProperty)
+		{
+			super(displayModel, sortProperty);
+		}
+
+		@Override
+		public void populateItem(Item<ICellPopulator<ContentPackage>> item, String componentID, IModel<ContentPackage> model)
+		{
+			item.add(new Label(componentID, getLearnerName(model)));
+		}
+
+		protected String getLearnerName(IModel<ContentPackage> embeddedModel)
+		{
+			ContentPackage pkg = embeddedModel.getObject();
+			switch (getSortProperty())
+			{
+				case "modifiedBy":
+					return lms.getLearnerName(pkg.getModifiedBy());
+				default:
+					return lms.getLearnerName(pkg.getCreatedBy());
+			}
+		}
 	}
 
 	public class StatusColumn extends AbstractColumn<ContentPackage, String>

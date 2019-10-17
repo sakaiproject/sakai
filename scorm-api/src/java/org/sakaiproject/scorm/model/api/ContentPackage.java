@@ -47,7 +47,7 @@ public class ContentPackage implements Serializable
 	@EqualsAndHashCode.Exclude @Getter @Setter private Date modifiedOn;
 	@EqualsAndHashCode.Exclude @Getter @Setter private int numberOfTries = NUMBER_OF_TRIES_UNLIMITED;
 	@EqualsAndHashCode.Exclude @Getter @Setter private boolean isDeleted;
-	@EqualsAndHashCode.Exclude @Getter @Setter private boolean hideTOC = false; // default is to always show the table of contents
+	@EqualsAndHashCode.Exclude @Getter @Setter private boolean showTOC = false; // default is to not show the table of contents
 
 	// This is not persisted to the database. It is only used in the context of configuring a content package, and thus
 	// only stores the session user's time zone id for display and getter/setter purposes.

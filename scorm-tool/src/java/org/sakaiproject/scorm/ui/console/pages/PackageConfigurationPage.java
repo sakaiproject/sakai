@@ -57,8 +57,6 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.wicket.ajax.markup.html.form.SakaiAjaxButton;
 import org.sakaiproject.wicket.ajax.markup.html.form.SakaiAjaxCancelButton;
 import org.sakaiproject.wicket.markup.html.datepicker.SakaiDateTimeField;
-import org.sakaiproject.wicket.model.DecoratedPropertyModel;
-import org.sakaiproject.wicket.model.SimpleDateFormatPropertyModel;
 
 public class PackageConfigurationPage extends ConsoleBasePage
 {
@@ -88,23 +86,6 @@ public class PackageConfigurationPage extends ConsoleBasePage
 		public String getItemTitle()
 		{
 			return launchData.getItemTitle();
-		}
-	}
-
-	public class DisplayNamePropertyModel extends DecoratedPropertyModel implements Serializable
-	{
-		private static final long serialVersionUID = 1L;
-
-		public DisplayNamePropertyModel(Object modelObject, String expression)
-		{
-			super(modelObject, expression);
-		}
-
-		@Override
-		public Object convertObject(Object object)
-		{
-			String userId = String.valueOf(object);
-			return lms.getLearnerName(userId);
 		}
 	}
 
@@ -235,11 +216,7 @@ public class PackageConfigurationPage extends ConsoleBasePage
 		form.add(new SakaiDateTimeField("dueOnDTF", new PropertyModel(contentPackage, "zonedDueOn"), tz, true));
 		form.add(new SakaiDateTimeField("acceptUntilDTF", new PropertyModel(contentPackage, "zonedAcceptUntil"), tz, true));
 		form.add(new DropDownChoice("numberOfTries", new PropertyModel(contentPackage, "numberOfTries"), tryList, new TryChoiceRenderer()));
-		form.add(new CheckBox("hideTOC", new PropertyModel(contentPackage, "hideTOC")));
-		form.add(new Label("createdBy", new DisplayNamePropertyModel(contentPackage, "createdBy")));
-		form.add(new Label("createdOn", new SimpleDateFormatPropertyModel(contentPackage, "createdOn")));
-		form.add(new Label("modifiedBy", new DisplayNamePropertyModel(contentPackage, "modifiedBy")));
-		form.add(new Label("modifiedOn", new SimpleDateFormatPropertyModel(contentPackage, "modifiedOn")));
+		form.add(new CheckBox("showTOC", new PropertyModel(contentPackage, "showTOC")));
 
 		ListView scos;
 		form.add(scos = new ListView("scos", gradebookSetup.getAssessments())
@@ -278,10 +255,10 @@ public class PackageConfigurationPage extends ConsoleBasePage
 
 		final SakaiAjaxCancelButton btnCancel = new SakaiAjaxCancelButton("btnCancel", pageCancel);
 		btnCancel.setOutputMarkupId(true);
-		btnCancel.setElementsToDisableOnClick(Arrays.asList(new String[] {"btnSave"}));
+		btnCancel.setElementsToDisableOnClick(Arrays.asList(new String[] {"btnUpdate"}));
 		form.add(btnCancel);
 
-		final SakaiAjaxButton btnSave = new SakaiAjaxButton("btnSave", form)
+		final SakaiAjaxButton btnUpdate = new SakaiAjaxButton("btnUpdate", form)
 		{
 			private static final long serialVersionUID = 1L;
 
@@ -359,9 +336,9 @@ public class PackageConfigurationPage extends ConsoleBasePage
 				target.appendJavaScript(JS_SCROLL_TO_TOP);
 			}
 		};
-		btnSave.setOutputMarkupId(true);
-		btnSave.setElementsToDisableOnClick(Arrays.asList(new String[] {"btnCancel"}));
-		form.add(btnSave);
+		btnUpdate.setOutputMarkupId(true);
+		btnUpdate.setElementsToDisableOnClick(Arrays.asList(new String[] {"btnCancel"}));
+		form.add(btnUpdate);
 		add(form);
 	}
 
