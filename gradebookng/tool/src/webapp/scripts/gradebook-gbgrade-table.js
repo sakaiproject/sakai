@@ -634,6 +634,7 @@ GbGradeTable.ajax = function (params, callback) {
   GbGradeTable.domElement.trigger("gbgradetable.action", params);
 };
 
+
 GbGradeTable.renderTable = function (elementId, tableData) {
   GbGradeTable.domElement = $('#' + elementId);
   GbGradeTable.students = tableData.students;
@@ -975,6 +976,16 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   });
 
   $(".js-toggle-nav").on("click", function() {
+    $(window).trigger('resize');
+  });
+
+  $("#gb-maximise-button").on("maximise-tool", function () {
+
+    document.getElementById("gradebook-navbar").style.display = "none";
+    $(window).trigger('resize');
+  }).on("minimise-tool", function () {
+
+    document.getElementById("gradebook-navbar").style.display = "block";
     $(window).trigger('resize');
   });
 
