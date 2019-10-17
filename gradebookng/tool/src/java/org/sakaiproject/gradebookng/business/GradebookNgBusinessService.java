@@ -50,9 +50,13 @@ import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.IdUsedException;
+import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.exception.GbAccessDeniedException;
 import org.sakaiproject.gradebookng.business.exception.GbException;
@@ -99,6 +103,9 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.user.api.CandidateDetailProvider;
+import org.sakaiproject.user.api.Preferences;
+import org.sakaiproject.user.api.PreferencesEdit;
+import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -147,6 +154,9 @@ public class GradebookNgBusinessService {
 	private GradebookExternalAssessmentService gradebookExternalAssessmentService;
 
 	@Setter
+	private PreferencesService preferencesService;
+
+	@Setter
 	private SectionManager sectionManager;
 
 	@Setter
@@ -155,6 +165,7 @@ public class GradebookNgBusinessService {
 	@Setter
 	private RubricsService rubricsService;
 
+	public static final String GB_PREF_KEY = "GBNG-";
 	public static final String ASSIGNMENT_ORDER_PROP = "gbng_assignment_order";
 	public static final String ICON_SAKAI = "icon-sakai--";
 	public static final String ALL = "all";
@@ -2768,6 +2779,49 @@ public class GradebookNgBusinessService {
 	public Locale getUserPreferredLocale() {
 		final ResourceLoader rl = new ResourceLoader();
 		return rl.getLocale();
+	}
+
+	/**
+	 * Get the user's custom GbUiSettings from PreferencesService
+	 *
+	 * @return Boolean
+	 */
+	public String getUserGbPreference(final String prefName) {
+		final String siteId = getCurrentSiteId();
+		final String currentUserId = getCurrentUser().getId();
+		Preferences userPrefs = preferencesService.getPreferences(currentUserId);
+		ResourceProperties rp = userPrefs.getProperties(GB_PREF_KEY + siteId);
+		return rp.getProperty(prefName);
+	}
+
+	/**
+	 * Set the user's custom GbUiSettings in PreferencesService
+	 *
+	 * @return
+	 */
+	public void setUserGbPreference(final String prefName, final String prefValue) {
+		final String siteId = getCurrentSiteId();
+		final String currentUserId = getCurrentUser().getId();
+		PreferencesEdit prefsEdit = null;
+		try {
+			prefsEdit = preferencesService.edit(currentUserId);
+		}
+		catch (IdUnusedException e) {
+			try {
+				prefsEdit = preferencesService.add(currentUserId);
+			} catch (PermissionException e1) {
+				log.warn("setUserGbPreference PermissionException attempting to add prefs for user {}, prefName={}", currentUserId, prefName);
+			} catch (IdUsedException e1) {
+				log.warn("setUserGbPreference IdUsedException attempting to add prefs for user {}, prefName={}", currentUserId, prefName);
+			}
+		} catch (PermissionException e) {
+			log.warn("setUserGbPreference PermissionException attempting to edit prefs for user {}, prefName={}", currentUserId, prefName);
+		} catch (InUseException e) {
+			log.warn("setUserGbPreference InUseException attempting to edit prefs for user {}, prefName={}", currentUserId, prefName);
+		}
+		ResourcePropertiesEdit props = prefsEdit.getPropertiesEdit(GB_PREF_KEY + siteId);
+		props.addProperty(prefName, prefValue);
+		preferencesService.commit(prefsEdit);
 	}
 
 	/**
