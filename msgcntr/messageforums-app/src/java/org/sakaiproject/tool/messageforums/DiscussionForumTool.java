@@ -47,6 +47,9 @@ import java.util.TimeZone;
 import java.util.TreeSet;
 
 import javax.faces.application.FacesMessage;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.SessionScoped;
 import javax.faces.component.UIData;
 import javax.faces.component.UIInput;
 import javax.faces.context.ExternalContext;
@@ -156,8 +159,9 @@ import org.sakaiproject.api.app.messageforums.events.ForumsTopicEventParams;
  * @author Chen wen
  */
 @Slf4j
-public class DiscussionForumTool
-{
+@ManagedBean(name="ForumTool")
+@SessionScoped
+public class DiscussionForumTool {
 
   /**
    * List individual forum details
@@ -211,6 +215,7 @@ public class DiscussionForumTool
   private Map courseMemberMap;
   private List<PermissionBean> permissions;
   private List levels;
+  @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.AreaManager\"]}")
   private AreaManager areaManager;
   private int numPendingMessages = 0;
   private boolean refreshPendingMsgs = true;
@@ -308,6 +313,7 @@ public class DiscussionForumTool
   private boolean showProfileLink = false;
 
   // compose
+  @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.MessageForumsMessageManager\"]}")
   private MessageForumsMessageManager messageManager;
   private String composeTitle;
   private String composeBody;
@@ -371,25 +377,42 @@ public class DiscussionForumTool
   /**
    * Dependency Injected
    */
+  @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager\"]}")
   private DiscussionForumManager forumManager;
+  @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager\"]}")
   private UIPermissionsManager uiPermissionsManager;
+  @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.MessageForumsTypeManager\"]}")
   private MessageForumsTypeManager typeManager;
+  @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.MembershipManager\"]}")
   private MembershipManager membershipManager;
+  @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.PermissionLevelManager\"]}")
   private PermissionLevelManager permissionLevelManager; 
+  @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.EmailNotificationManager\"]}")
   private EmailNotificationManager emailNotificationManager;
+  @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager\"]}")
   private SynopticMsgcntrManager synopticMsgcntrManager;
+  @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.UserPreferencesManager\"]}")
   private UserPreferencesManager userPreferencesManager;
+  @ManagedProperty(value="#{Components[\"org.sakaiproject.content.api.ContentHostingService\"]}")
   private ContentHostingService contentHostingService;
+  @ManagedProperty(value="#{Components[\"org.sakaiproject.authz.api.AuthzGroupService\"]}")
   private AuthzGroupService authzGroupService;
+  @ManagedProperty(value="#{Components[\"org.sakaiproject.event.api.EventTrackingService\"]}")
   private EventTrackingService eventTrackingService;
+  @ManagedProperty(value="#{Components[\"org.sakaiproject.user.api.UserDirectoryService\"]}")
   private UserDirectoryService userDirectoryService;
+  @ManagedProperty(value="#{Components[\"org.sakaiproject.site.api.SiteService\"]}")
   private SiteService siteService;
+  @ManagedProperty(value="#{Components[\"org.sakaiproject.authz.api.SecurityService\"]}")
   private SecurityService securityService;
+  @ManagedProperty(value="#{Components[\"org.sakaiproject.tool.api.SessionManager\"]}")
   private SessionManager sessionManager;
+  @ManagedProperty(value="#{Components[\"org.sakaiproject.tool.api.ToolManager\"]}")
   private ToolManager toolManager;
+  @ManagedProperty(value="#{Components[\"org.sakaiproject.thread_local.api.ThreadLocalManager\"]}")
   private ThreadLocalManager threadLocalManager;
+  @ManagedProperty(value="#{Components[\"org.sakaiproject.rubrics.logic.RubricsService\"]}")
   private RubricsService rubricsService;
-
 
   private Boolean instructor = null;
   private Boolean sectionTA = null;
@@ -427,12 +450,13 @@ public class DiscussionForumTool
   private boolean needToPostFirst;
   
   // rank
+  @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.RankManager\"]}")
   private RankManager rankManager;
   private ForumRankBean forumRankBean;
 
+  @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.AnonymousManager\"]}")
   private AnonymousManager anonymousManager;
-  
-   
+
   public void setContentHostingService(ContentHostingService contentHostingService) {
 		this.contentHostingService = contentHostingService;
 	}
