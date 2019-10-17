@@ -165,7 +165,7 @@
 				
 		<sakai:view_content>
 			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>
-			<script src="/library/js/spinner.js" type="text/javascript"></script>
+			<script src="/library/js/spinner.js"></script>
 				
 			<h:form id="meeting">
 				<div class="page-header">
