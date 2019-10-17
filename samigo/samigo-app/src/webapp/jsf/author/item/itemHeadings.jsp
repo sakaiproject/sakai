@@ -166,7 +166,7 @@ function displayEMIHelp(){
   </small>
 </h3>
 
-<h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+<h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
 
 <!-- CHANGE TYPE -->
 <div class="form-group row">
@@ -204,8 +204,8 @@ listener set selectFromQuestionPool, eliminating the rendered attribute
     <h:outputText  value=" (#{authorMessages.example_emi_question})"/>
 </h:outputLink>
 
-<h:message rendered="#{questionpool.importToAuthoring == 'true' && itemauthor.target == 'assessment'}" for="changeQType1" infoClass="messageSamigo" warnClass="validation" errorClass="messageSamigo" fatalClass="messageSamigo"/>
-<h:message rendered="#{questionpool.importToAuthoring == 'false' && itemauthor.target == 'assessment'}" for="changeQType2" infoClass="messageSamigo" warnClass="messageSamigo" errorClass="messageSamigo" fatalClass="messageSamigo"/>
+<h:message rendered="#{questionpool.importToAuthoring == 'true' && itemauthor.target == 'assessment'}" for="changeQType1" infoClass="sak-banner-info" warnClass="sak-banner-warn" errorClass="sak-banner-error" fatalClass="sak-banner-error"/>
+<h:message rendered="#{questionpool.importToAuthoring == 'false' && itemauthor.target == 'assessment'}" for="changeQType2" infoClass="sak-banner-info" warnClass="sak-banner-warn" errorClass="sak-banner-error" fatalClass="sak-banner-error"/>
 </div>
 </div>
 </h:form>

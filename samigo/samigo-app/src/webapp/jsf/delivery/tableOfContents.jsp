@@ -158,7 +158,7 @@ function saveTime()
 <h:inputHidden id="elapsed" value="#{delivery.timeElapse}" />
 <h:inputHidden id="outoftime" value="#{delivery.timeOutSubmission}"/>
 
-    <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+    <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
     <p style="margin-bottom:0"><h:outputText value="#{deliveryMessages.seeOrHide}" /> </p>
     <h:dataTable value="#{delivery.tableOfContents.partsContents}" var="part">
       <h:column>

@@ -152,7 +152,7 @@ function toPoint(id)
     </h:commandLink>
    <h:outputText value="</span></li></ul>" escape="false"/>
 
-  <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+  <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
 
 <h2>
   <h:outputText value="#{totalScores.assessmentName}" escape="false"/>
@@ -204,7 +204,7 @@ function toPoint(id)
         </h4>
       </div>
 
-      <h:panelGroup layout="block" styleClass="bs-callout-error" rendered="#{part.noQuestions}">
+      <h:panelGroup layout="block" styleClass="sak-banner-error" rendered="#{part.noQuestions}">
         <h:outputText value="#{evaluationMessages.no_questions}" escape="false"/>
       </h:panelGroup>
 

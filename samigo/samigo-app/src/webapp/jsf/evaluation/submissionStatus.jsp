@@ -119,7 +119,7 @@ $Id$
 
   <h:outputText value="</span></li></ul>" escape="false"/>
 
-  <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+  <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
 
   <sakai:flowState bean="#{submissionStatus}" />
 

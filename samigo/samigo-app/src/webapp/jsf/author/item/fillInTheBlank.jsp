@@ -44,7 +44,7 @@
 <%@ include file="/jsf/author/item/itemHeadings.jsp" %>
 
 <%-- warning for editing FIB questions. SAM-2334 --%>
-<h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow}" styleClass="messageSamigo2">
+<h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow}" styleClass="sak-banner-warn">
 	<h:panelGrid  columns="1">
 		<h:outputText value="#{authorMessages.edit_fib_warning}" />
 	</h:panelGrid>
@@ -123,7 +123,7 @@
 
     <div class="mathjax-warning" style="display: none;">
       <h:outputText value="#{authorMessages.accepted_characters}" escape="false"/>
-      <div class="alert alert-warning">
+      <div class="sak-banner-warn">
           <h:outputText value="#{authorMessages.mathjax_usage_warning}" escape="false"/>
       </div>
     </div>

@@ -159,7 +159,7 @@
 
   <f:verbatim><br /></f:verbatim>
   <f:verbatim><div class="tier1"></f:verbatim>
-  <h:messages infoClass="messageSamigo" warnClass="messageSamigo" errorClass="messageSamigo" fatalClass="messageSamigo"/>
+  <h:messages infoClass="sak-banner-info" warnClass="sak-banner-warn" errorClass="sak-banner-error" fatalClass="sak-banner-error"/>
   
   <h:outputText value="#{evaluationMessages.download_responses_to}" escape="false"/>
   <f:verbatim></div></f:verbatim>

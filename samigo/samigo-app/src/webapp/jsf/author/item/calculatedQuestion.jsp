@@ -151,7 +151,7 @@ confirmation dialog
 		</ol>
 		<div class="mathjax-warning" style="display: none;">
 			<h:outputText value="#{authorMessages.accepted_characters}" escape="false"/>
-			<div class="alert alert-warning">
+			<div class="sak-banner-warn">
 				<h:outputText value="#{authorMessages.mathjax_usage_warning}" escape="false"/>
 			</div>
 		</div>

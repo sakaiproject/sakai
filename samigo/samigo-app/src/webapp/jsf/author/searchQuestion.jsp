@@ -202,7 +202,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 
                 </div>
             </div>
-            <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+            <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
 
             <h:panelGroup id="text_searched" rendered="#{searchQuestionBean.lastSearchType == 'text'}">
                 <h4><h:outputLabel value="#{authorMessages.searched_text}" />&nbsp;<small><h:outputLabel value="#{searchQuestionBean.textToSearch}" /></small></h4>

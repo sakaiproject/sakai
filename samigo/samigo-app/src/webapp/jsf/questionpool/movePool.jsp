@@ -48,7 +48,7 @@
 <!-- content... -->
  <div class="portletBody">
 <h:form id="movePool">
-<h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+<h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
 <h3>
 <h:outputText rendered="#{questionpool.actionType == 'pool'}" value="#{questionPoolMessages.mv_p}"/>
 <h:outputText rendered="#{questionpool.actionType == 'item'}" value="#{questionPoolMessages.mv_q}"/>

@@ -39,7 +39,7 @@ should be included in file importing DeliveryMessages
 	<f:verbatim><br /></f:verbatim>
 </h:panelGroup>
 
-<h:outputText value="#{deliveryMessages.fin_invalid_characters_error} " escape="false" rendered="#{question.isInvalidFinInput}" styleClass="messageSamigo3"/>
+<h:outputText value="#{deliveryMessages.fin_invalid_characters_error} " escape="false" rendered="#{question.isInvalidFinInput}" styleClass="sak-banner-error"/>
 <f:verbatim><br /></f:verbatim>
 
 <div class="sr-only">

@@ -35,7 +35,7 @@ should be included in file importing DeliveryMessages
 <h:outputText value="#{deliveryMessages.maxSAText}"/>
 </h:panelGrid>
 
-<h:outputText value="#{deliveryMessages.sa_invalid_length_error} " escape="false" rendered="#{question.isInvalidSALengthInput}" styleClass="messageSamigo3"/>
+<h:outputText value="#{deliveryMessages.sa_invalid_length_error} " escape="false" rendered="#{question.isInvalidSALengthInput}" styleClass="sak-banner-error"/>
 
 <%-- If studentRichText is true, show the rich text answer option --%>
 <h:panelGrid rendered="#{delivery.actionString!='reviewAssessment'

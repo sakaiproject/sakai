@@ -37,7 +37,7 @@
 <div class="portletBody">
 <h3><h:outputText value="#{deliveryMessages.assessment_not_available}"/></h3>
 <h:form id="redirectLoginForm">
- <div class="messageSamigo">
+ <div class="sak-banner-error">
 <h:outputText  value="#{deliveryMessages.assessment_no_longer_available_message}" rendered="#{delivery.actionString=='takeAssessment'}"/>
 <h:outputText  value="#{deliveryMessages.assessment_no_longer_available_message_viaURL}" rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"/>
  </div>

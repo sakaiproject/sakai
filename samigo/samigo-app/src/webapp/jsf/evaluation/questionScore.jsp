@@ -145,7 +145,7 @@ $Id$
 <br/>
 
 <div class="tier1">
-  <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+  <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
   
   <h:dataTable value="#{questionScores.sections}" var="partinit">
     <h:column>
