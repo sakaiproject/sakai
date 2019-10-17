@@ -33,7 +33,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -44,7 +43,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
-import javax.annotation.PostConstruct;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator;
@@ -114,8 +112,6 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
     private static final String RUBRICS_TOKEN_SIGNING_SHARED_SECRET_PROPERTY = "rubrics.integration.token-secret";
     private static final String SITE_CONTEXT_TYPE = "site";
 
-    private static final String SERVER_ID_PROPERTY = "sakai.serverId";
-
     private static final String JWT_ISSUER = "sakai";
     private static final String JWT_AUDIENCE = "rubrics";
     private static final String JWT_CUSTOM_CLAIM_TOOL_ID = "toolId";
@@ -169,24 +165,22 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         // register as an entity producer
         entityManager.registerEntityProducer(this, REFERENCE_ROOT);
 
-        setFunction(RBCS_PERMISSIONS_EVALUATOR);
-        setFunction(RBCS_PERMISSIONS_EDITOR);
-        setFunction(RBCS_PERMISSIONS_EVALUEE);
-        setFunction(RBCS_PERMISSIONS_ASSOCIATOR);
+        functionManager.registerFunction(RBCS_PERMISSIONS_EVALUATOR);
+        functionManager.registerFunction(RBCS_PERMISSIONS_EDITOR);
+        functionManager.registerFunction(RBCS_PERMISSIONS_EVALUEE);
+        functionManager.registerFunction(RBCS_PERMISSIONS_ASSOCIATOR);
 
         hasAssociatedRubricCache = memoryService.<String, Boolean>getCache("org.sakaiproject.rubrics.logic.hasAssociatedRubricCache");
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    private void setFunction(String function) {
-        functionManager.registerFunction(function);
-    }
-
-    @PostConstruct
-    private void postConstruct() {
-
+    private String buildCookieString() {
+        return new StringBuilder()
+            .append(serverConfigurationService.getString("sakai.cookieName", "JSESSIONID"))
+            .append("=")
+            .append(sessionManager.getCurrentSession().getId())
+            .append(".")
+            .append(serverConfigurationService.getServerId())
+            .toString();
     }
 
     private String getCurrentSiteId(String method){
@@ -689,7 +683,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
             conn.setDoOutput(true);
             conn.setDoInput(true);
             conn.setRequestMethod("POST");
-            String cookie = "JSESSIONID=" + sessionManager.getCurrentSession().getId() + "" + System.getProperty(SERVER_ID_PROPERTY);
+            String cookie = buildCookieString();
             conn.setRequestProperty("Cookie", cookie);
             if(siteId != null){
                 conn.setRequestProperty("Authorization", "Bearer " + generateJsonWebToken(toolId, siteId));
@@ -749,7 +743,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
             conn.setDoOutput(true);
             conn.setDoInput(true);
             conn.setRequestMethod("PUT");
-            String cookie = "JSESSIONID=" + sessionManager.getCurrentSession().getId() + "" + System.getProperty(SERVER_ID_PROPERTY);
+            String cookie = buildCookieString();
             conn.setRequestProperty("Cookie", cookie);
             conn.setRequestProperty("Authorization", "Bearer " + generateJsonWebToken(toolId));
 
@@ -858,7 +852,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         try{
             log.debug("Deleting rubric resource : {}", query);
             URL url = new URL(query);
-            String cookie = "JSESSIONID=" + sessionManager.getCurrentSession().getId() + System.getProperty(SERVER_ID_PROPERTY);
+            String cookie = buildCookieString();
             conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("DELETE");
             conn.setRequestProperty("Accept", "application/json");
@@ -898,7 +892,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         try{
             URL url = new URL(serverConfigurationService.getServerUrl() + RBCS_SERVICE_URL_PREFIX + "evaluations/search/by-tool-item-and-associated-item-and-evaluated-item-ids?toolId="+toolId+"&itemId="+associatedToolItemId+"&evaluatedItemId="+evaluatedItemId);
 
-            String cookie = "JSESSIONID=" + sessionManager.getCurrentSession().getId() + "" + System.getProperty(SERVER_ID_PROPERTY);
+            String cookie = buildCookieString();
 
             conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
