@@ -13,6 +13,7 @@
 		<property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
 		<property name="gradebookPermissionService" ref="org.sakaiproject.service.gradebook.GradebookPermissionService" />
 		<property name="gradebookFrameworkService" ref="org.sakaiproject.service.gradebook.GradebookFrameworkService"/>
+		<property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService"/>
 		<property name="sectionManager" ref="org.sakaiproject.section.api.SectionManager"/>
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
 		<property name="rubricsService" ref="org.sakaiproject.rubrics.logic.RubricsService" />
