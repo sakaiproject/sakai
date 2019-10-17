@@ -557,6 +557,12 @@ public class DeliveryActionListener
     	EventLogFacade eventLogFacade = new EventLogFacade();
     	EventLogData eventLogData = null;
 
+        if (delivery.getAssessmentGradingId() == null) {
+                // Probably an assessment preview
+                log.warn("No assessmentGradingId available for preview or delivery: this failure will not be recorded in the T&Q event log");
+                throw e;
+        }
+
     	List eventLogDataList = eventService.getEventLogData(delivery.getAssessmentGradingId());
     	if(eventLogDataList != null && eventLogDataList.size() > 0) {
     		eventLogData= (EventLogData) eventLogDataList.get(0);
