@@ -308,9 +308,25 @@
 												<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$validator.escapeUrl($submissionReference)")" title="$validator.escapeHtml($!assignment.Title)">
 											#end
 											$validator.escapeHtml($assignment.Title)</a>
+											#if ($rubricsService.hasAssociatedRubric("sakai.assignment", $assignment.getId()))
+												<sakai-rubric-student-button
+													token="$!rbcs-token"
+													tool-id="sakai.assignment"
+													evaluated-item-id="$submission.Id"
+													entity-id="$assignment.Id">
+												</sakai-rubric-student-button>
+											#end
 										#else
 											#assignmentTitleIcon($assignment)
 											$validator.escapeHtml($assignment.Title)
+											#if ($rubricsService.hasAssociatedRubric("sakai.assignment", $assignment.getId()))
+												<sakai-rubric-student-button
+													token="$!rbcs-token"
+													tool-id="sakai.assignment"
+													evaluated-item-id="$submission.Id"
+													entity-id="$assignment.Id">
+												</sakai-rubric-student-button>
+											#end
 											#if ($!allowSubmit)
 												<div class="itemAction">
 													<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignmentReference)&submitterIdInstructor=instructor")" onclick="SPNR.insertSpinnerInPreallocated( this, null, 'subAsStudentSpinnerPlaceholder_$validator.escapeUrl($assignmentReference)' );" title="$validator.escapeHtml($!assignment.Title)">
