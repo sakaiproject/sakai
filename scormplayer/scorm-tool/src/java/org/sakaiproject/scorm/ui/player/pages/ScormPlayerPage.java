@@ -23,6 +23,7 @@ import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.string.AppendingStringBuffer;
@@ -73,8 +74,15 @@ public class ScormPlayerPage extends BaseToolPage
 		final SessionBean sessionBean = scormSequencingService.newSessionBean(contentPackage);
 		sessionBean.setCompletionUrl(getCompletionUrl());
 
+		WebMarkupContainer container = new WebMarkupContainer("scormButtonPanel");
+		if (!contentPackage.isShowNavBar())
+		{
+			container.setVisible(false);
+		}
+
 		buttonForm = new ButtonForm("buttonForm", sessionBean, this);
-		add(buttonForm);
+		container.add(buttonForm);
+		add(container);
 		add(lazyLaunchPanel = new LazyLaunchPanel("actionPanel", sessionBean, userNavRequest, this));
 
 		closeWindowBehavior = new CloseWindowBehavior(sessionBean, lms.canUseRelativeUrls());

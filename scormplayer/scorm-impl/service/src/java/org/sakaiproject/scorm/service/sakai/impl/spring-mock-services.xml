@@ -12,4 +12,9 @@
 	<bean id="org.sakaiproject.scorm.entity.ScormEntityProvider" 
 		class="org.sakaiproject.scorm.entity.MockScormEntityProviderImpl">
 	</bean>
+
+	<!-- Mock SCS to enable tests to run -->
+	<bean id="org.sakaiproject.component.api.ServerConfigurationService"
+		class="org.sakaiproject.scorm.service.sakai.impl.MockServerConfigurationService">
+	</bean>
 </beans>

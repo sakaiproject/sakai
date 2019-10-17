@@ -36,6 +36,7 @@
             Caused by: org.xml.sax.SAXParseException: Attribute "default" must be declared for element type "property".
         -->
 		<property name="showTOC" column="SHOW_TOC" not-null="true" />
+		<property name="showNavBar" column="SHOW_NAV_BAR" not-null="true" />
 	</class>
 
 </hibernate-mapping>

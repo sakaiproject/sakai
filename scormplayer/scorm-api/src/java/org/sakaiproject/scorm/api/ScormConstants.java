@@ -160,4 +160,12 @@ public class ScormConstants
 
 	/** SCORM Player root directory in Resources */
 	public static final String ROOT_DIRECTORY = "/private/scorm/";
+
+	/** Sakai.property to control default setting for show/hide table of contents */
+	public static final String SAK_PROP_CONFIG_SHOW_TOC = "scorm.config.showTOC.default";
+	public static final boolean SAK_PROP_CONFIG_SHOW_TOC_DFLT = false;
+
+	/** Sakai.property to control default setting for show/hide nav bar controls */
+	public static final String SAK_PROP_CONFIG_SHOW_NAV_BAR = "scorm.config.showNavBar.default";
+	public static final boolean SAK_PROP_CONFIG_SHOW_NAV_BAR_DFLT = false;
 }
