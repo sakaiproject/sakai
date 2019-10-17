@@ -35,6 +35,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
+                <module>datemanager</module>
                 <module>pageorder/tool</module>
                 <module>site-manage-api/api</module>
                 <module>site-manage-hbm</module>

@@ -234,6 +234,8 @@ public class MenuBuilder
                     menu.add( buildMenuEntry( rl.getString( "java.orderpages" ), "doPageOrderHelper", activeTab.equals( SiteInfoActiveTab.TOOL_ORDER ) ) );
                 }
             }
+
+            menu.add( buildMenuEntry( rl.getString( "java.datemanager" ), "doDateManagerHelper", activeTab.equals( SiteInfoActiveTab.TOOL_ORDER ) ) );
         }
 
         // If the add participant helper is available, not stealthed and not hidden, show the tab

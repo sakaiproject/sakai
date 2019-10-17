@@ -508,6 +508,12 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
+        <groupId>com.googlecode.json-simple</groupId>
+        <artifactId>json-simple</artifactId>
+        <version>${json.simple.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
         <groupId>net.minidev</groupId>
         <artifactId>asm</artifactId>
         <scope>provided</scope>

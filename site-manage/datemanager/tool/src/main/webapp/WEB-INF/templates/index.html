@@ -1,0 +1,406 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	</head>
+	<body class="portalBody Mrphs-portalBody Mrphs-sakai-datemanager-tool">
+		<link media="all" href="/library/skin/tool_base.css" rel="stylesheet" type="text/css" />
+		<link href="/library/skin/morpheus-default/tool.css" type="text/css" rel="stylesheet" media="all" />
+		<script src="/library/js/headscripts.js" type="text/javascript"></script>
+		<script th:inline="javascript">
+			/*<![CDATA[*/
+				var sakai = sakai || {}; sakai.editor = sakai.editor || {};
+				sakai.locale = sakai.locale || {};
+				sakai.locale.userCountry = [[${userCountry}]];
+				sakai.locale.userLanguage = [[${userLanguage}]];
+				sakai.locale.userLocale = [[${userLocale}]];
+				includeLatestJQuery('datemanager/index.html');
+			/*]]>*/
+		</script>
+		<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+
+		<div class="page-header">
+			<h1 th:text="#{page.instructions}">Add/Edit Options in batch</h1>
+		</div>
+
+		<form class="panel-group" id="date-manager-form" method="POST">
+			<div class="sak-banner-error hidden" id="form-errors">
+				<span th:text="#{errors.instruction}">Your update could not be saved due to the following errors:</span>
+				<ul></ul>
+			</div>
+
+			<div class="sak-banner-success hidden" id="form-success">
+				<span th:text="#{success.message}">The dates were updated successfully.</span>
+			</div>
+
+			<div th:if="${assignments != null}" class="panel panel-default">
+				<div class="panel-heading">
+					<h4 class="panel-title">
+						<a data-toggle="collapse" data-parent="#accordion" href="#collapse-assignments" class="collapsed" aria-expanded="false"><span th:text="${assignmentsToolTitle}">Assignments</span></a>
+					</h4>
+				</div>
+				<div th:replace="tool_fragment :: tool_fragment(items=${assignments}, toolId='assignments', collapseId='collapse-assignments')"></div>
+			</div>
+			<div th:if="${assessments != null}" class="panel panel-default">
+				<div class="panel-heading">
+					<h4 class="panel-title">
+						<a data-toggle="collapse" data-parent="#accordion" href="#collapse-assessments" class="collapsed" aria-expanded="false"><span th:text="${assessmentsToolTitle}">Tests & Quizzes</span></a>
+					</h4>
+				</div>
+				<div th:replace="tool_fragment :: tool_fragment(items=${assessments}, toolId='assessments', collapseId='collapse-assessments')"></div>
+			</div>
+			<div th:if="${signupMeetings != null}" class="panel panel-default">
+				<div class="panel-heading">
+					<h4 class="panel-title">
+						<a data-toggle="collapse" data-parent="#accordion" href="#collapse-signup" class="collapsed" aria-expanded="false"><span th:text="${signupMeetingsToolTitle}">Sign up</span></a>
+					</h4>
+				</div>
+				<div th:replace="tool_fragment :: tool_fragment(items=${signupMeetings}, toolId='signupMeetings', collapseId='collapse-signup')"></div>
+			</div>
+			<div th:if="${gradebookItems != null}" class="panel panel-default">
+				<div class="panel-heading">
+					<h4 class="panel-title">
+						<a data-toggle="collapse" data-parent="#accordion" href="#collapse-gradebook" class="collapsed" aria-expanded="false"><span th:text="${gradebookItemsToolTitle}">Gradebook</span></a>
+					</h4>
+				</div>
+				<div th:replace="tool_fragment :: tool_fragment(items=${gradebookItems}, toolId='gradebookItems', collapseId='collapse-gradebook')"></div>
+			</div>
+			<div th:if="${resources != null}" class="panel panel-default">
+				<div class="panel-heading">
+					<h4 class="panel-title">
+						<a data-toggle="collapse" data-parent="#accordion" href="#collapse-resources" class="collapsed" aria-expanded="false"><span th:text="${resourcesToolTitle}">Resources</span></a>
+					</h4>
+				</div>
+				<div th:replace="tool_fragment :: tool_fragment(items=${resources}, toolId='resources', collapseId='collapse-resources')"></div>
+			</div>
+			<div th:if="${calendarEvents != null}" class="panel panel-default">
+				<div class="panel-heading">
+					<h4 class="panel-title">
+						<a data-toggle="collapse" data-parent="#accordion" href="#collapse-calendar" class="collapsed" aria-expanded="false"><span th:text="${calendarEventsToolTitle}">Calendar</span></a>
+					</h4>
+				</div>
+				<div th:replace="tool_fragment :: tool_fragment(items=${calendarEvents}, toolId='calendarEvents', collapseId='collapse-calendar')"></div>
+			</div>
+			<div th:if="${forums != null}" class="panel panel-default">
+				<div class="panel-heading">
+					<h4 class="panel-title">
+						<a data-toggle="collapse" data-parent="#accordion" href="#collapse-forums" class="collapsed" aria-expanded="false"><span th:text="${forumsToolTitle}">Forums</span></a>
+					</h4>
+				</div>
+				<div th:replace="tool_fragment :: tool_fragment(items=${forums}, toolId='forums', collapseId='collapse-forums')"></div>
+			</div>
+			<div th:if="${announcements != null}" class="panel panel-default">
+				<div class="panel-heading">
+					<h4 class="panel-title">
+						<a data-toggle="collapse" data-parent="#accordion" href="#collapse-announcements" class="collapsed" aria-expanded="false"><span th:text="${announcementsToolTitle}">Announcements</span></a>
+					</h4>
+				</div>
+				<div th:replace="tool_fragment :: tool_fragment(items=${announcements}, toolId='announcements', collapseId='collapse-announcements')"></div>
+			</div>
+			<div th:if="${lessons != null}" class="panel panel-default">
+				<div class="panel-heading">
+					<h4 class="panel-title">
+						<a data-toggle="collapse" data-parent="#accordion" href="#collapse-lessons" class="collapsed" aria-expanded="false"><span th:text="${lessonsToolTitle}">Lessons</span></a>
+					</h4>
+				</div>
+				<div th:replace="tool_fragment :: tool_fragment(items=${lessons}, toolId='lessons', collapseId='collapse-lessons')"></div>
+			</div>
+
+			<div class="act">
+				<input type="submit" class="active" th:value="#{button.save}" id="submit-form-button" disabled="disabled" />
+				<a href="#" id="datemanager-cancel" class="btn btn-default" th:text="#{button.cancel}">Cancel</a>
+			</div>
+
+			<div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" id="modal-confirm">
+				<div class="modal-dialog modal-md">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span class="fa fa-times" aria-hidden="true"></span></button>
+							<h4 th:text="#{modal.confirm}" class="modal-title">Confirm</h4>
+						</div>
+						<div class="modal-body">
+							<p th:text="#{modal.confirm.instruction}">You are about to modify the next course dates:</p>
+							<ul id="modified-dates"></ul>
+						</div>
+						<div class="modal-footer act">
+							<button type="button" class="active" id="modal-btn-confirm" th:text="#{button.save}">Save Changes</button>
+							<button type="button" class="btn btn-default" id="modal-btn-cancel" th:text="#{button.cancel}">Cancel</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</form>
+
+		<script th:inline="javascript">
+			/*<![CDATA[*/
+				document.addEventListener('DOMContentLoaded', function(e) {
+					var updates = [];
+					updates.assignments = [];
+					updates.assignmentsUpd = [];
+					updates.assessments = [];
+					updates.assessmentsUpd = [];
+					updates.gradebookItems = [];
+					updates.gradebookItemsUpd = [];
+					updates.signupMeetings = [];
+					updates.signupMeetingsUpd = [];
+					updates.resources = [];
+					updates.resourcesUpd = [];
+					updates.calendarEvents = [];
+					updates.calendarEventsUpd = [];
+					updates.forums = [];
+					updates.forumsUpd = [];
+					updates.announcements = [];
+					updates.announcementsUpd = [];
+					updates.lessons = [];
+					updates.lessonsUpd = [];
+					var errors = [];
+
+					/*[# th:each="assignment : ${assignments}"]*/
+						var assignmentJson = /*[[${assignment}]]*/;
+						assignmentJson.open_date_day_of_week = undefined;
+						assignmentJson.due_date_day_of_week = undefined;
+						assignmentJson.accept_until_day_of_week = undefined;
+						updates.assignments.push(assignmentJson);
+					/*[/]*/
+
+					/*[# th:each="assessment : ${assessments}"]*/
+						var assessmentJson = /*[[${assessment}]]*/;
+						assessmentJson.open_date_day_of_week = undefined;
+						assessmentJson.due_date_day_of_week = undefined;
+						assessmentJson.accept_until_day_of_week = undefined;
+						updates.assessments.push(assessmentJson);
+					/*[/]*/
+
+					/*[# th:each="gbitem : ${gradebookItems}"]*/
+						var itemJson = /*[[${gbitem}]]*/;
+						itemJson.open_date_day_of_week = undefined;
+						itemJson.due_date_day_of_week = undefined;
+						itemJson.accept_until_day_of_week = undefined;
+						updates.gradebookItems.push(itemJson);
+					/*[/]*/
+
+					/*[# th:each="meeting : ${signupMeetings}"]*/
+						var meetingJson = /*[[${meeting}]]*/;
+						meetingJson.open_date_day_of_week = undefined;
+						meetingJson.due_date_day_of_week = undefined;
+						meetingJson.accept_until_day_of_week = undefined;
+						updates.signupMeetings.push(meetingJson);
+					/*[/]*/
+
+					/*[# th:each="resource : ${resources}"]*/
+						var resourceJson = /*[[${resource}]]*/;
+						resourceJson.open_date_day_of_week = undefined;
+						resourceJson.due_date_day_of_week = undefined;
+						resourceJson.accept_until_day_of_week = undefined;
+						updates.resources.push(resourceJson);
+					/*[/]*/
+
+					/*[# th:each="calEvent : ${calendarEvents}"]*/
+						var calJson = /*[[${calEvent}]]*/;
+						calJson.open_date_day_of_week = undefined;
+						calJson.due_date_day_of_week = undefined;
+						calJson.accept_until_day_of_week = undefined;
+						updates.calendarEvents.push(calJson);
+					/*[/]*/
+
+					/*[# th:each="forum : ${forums}"]*/
+						var forumJson = /*[[${forum}]]*/;
+						forumJson.open_date_day_of_week = undefined;
+						forumJson.due_date_day_of_week = undefined;
+						forumJson.accept_until_day_of_week = undefined;
+						updates.forums.push(forumJson);
+					/*[/]*/
+
+					/*[# th:each="announcement : ${announcements}"]*/
+						var announcementJson = /*[[${announcement}]]*/;
+						announcementJson.open_date_day_of_week = undefined;
+						announcementJson.due_date_day_of_week = undefined;
+						announcementJson.accept_until_day_of_week = undefined;
+						updates.announcements.push(announcementJson);
+					/*[/]*/
+
+					/*[# th:each="lesson : ${lessons}"]*/
+						var lessonsJson = /*[[${lesson}]]*/;
+						lessonsJson.open_date_day_of_week = undefined;
+						lessonsJson.due_date_day_of_week = undefined;
+						lessonsJson.accept_until_day_of_week = undefined;
+						updates.lessons.push(lessonsJson);
+					/*[/]*/
+
+					var notModified = [];
+
+					$('.datepicker').each(function (idx, elt) {
+						var $td = $(elt).closest('td');
+						var $hidden = $td.find('input[type=hidden]');
+
+						var dataTool = $hidden.data('tool');
+						var dataField = $hidden.data('field');
+						var dataIdx = $hidden.data('idx');
+						$td.attr('id', 'cell_' + dataTool + '_' + dataField + '_' + dataIdx);
+
+						$hidden.on('change', function () {
+							var idx = $(this).data('idx');
+							var field = $(this).data('field');
+							var tool = $(this).data('tool');
+
+							updates[tool][idx][field] = $(this).val().split('+')[0];
+							updates[tool][idx][field + '_label'] = $(this).siblings('input.datepicker').val();
+							// Show day of the week in case there is a date selected
+							if ($(this).parent().find('.datepicker').val() !== '') {
+								updates[tool][idx][field + '_day_of_week'] = moment(updates[tool][idx][field]).locale(sakai.locale.userLocale).format('dddd');
+								$(this).parent().find('.day-of-week').text(updates[tool][idx][field + '_day_of_week']);
+							}
+
+							if (notModified.includes(tool + idx + field)) {
+								updates[tool][idx].idx = idx;
+								updates[tool + 'Upd'][idx] = updates[tool][idx];
+								$('#submit-form-button').prop('disabled', false);
+							}
+							notModified.push(tool + idx + field);
+						});
+
+						$hidden.attr('id', 'hidden_datepicker_' + idx);
+						var dateFormat = 'YYYY-MM-DD HH:mm:ss';
+						var toolTime = 1;
+						if(dataTool == 'gradebookItems') {
+							dateFormat = 'YYYY-MM-DD';
+							toolTime = 0;
+						}
+						var datepickerOpts = {
+							input: elt,
+							useTime: toolTime,
+							parseFormat: dateFormat,
+							allowEmptyDate: false,
+							ashidden: {
+								iso8601: 'hidden_datepicker_' + idx,
+							}
+						};
+						if ($hidden.val() != '') datepickerOpts.val = $hidden.val();
+						localDatePicker(datepickerOpts);
+
+						// Disable accept_until date input if no late submissions (assessments) allowed
+						if (dataTool == 'assessments' && dataField == 'accept_until') {
+							var disabled = !updates[dataTool][dataIdx].late_handling;
+							$(elt).prop('disabled', disabled);
+							$td.find('.ui-datepicker-trigger').prop('disabled', disabled);
+						}
+						if (dataTool == 'forums' && (dataField == 'open_date' || dataField == 'due_date')) {
+							var disabled = !updates[dataTool][dataIdx].restricted;
+							$(elt).prop('disabled', disabled);
+							$td.find('.ui-datepicker-trigger').prop('disabled', disabled);
+						}
+					});
+
+					function printErrors() {
+						$('.errors').empty();
+						$('.ajax-error').removeClass('ajax-error');
+						$('#form-errors').removeClass('hidden');
+						$('#form-errors').find('ul').empty();
+						$('#form-success').addClass('hidden');
+						$(errors).each(function (idx, elt) {
+							var id = ['cell', elt.toolId, elt.field, elt.idx].join('_');
+							var $cell = $('#' + id);
+							$cell.addClass('ajax-error');
+							$cell.find('.errors').text(elt.msg);
+							$('#form-errors').find('ul').append('<li>' + elt.toolTitle + ' - ' + updates[elt.toolId][elt.idx].title + ' - ' + elt.msg + '</li>');
+						});
+						$('html, body').animate({ scrollTop: 0 }, 'slow');
+					}
+
+					function printSuccess() {
+						$('#form-success').removeClass('hidden').css('display', '');
+						$('#form-errors').addClass('hidden');
+						$('.ajax-error').removeClass('ajax-error');
+						$('.errors').each(function(idx, elt) {
+							$(elt).text('');
+						});
+						$('html, body').animate({ scrollTop: 0 }, 'slow');
+
+						setTimeout(function() {
+							$('#form-success').fadeOut(400);
+						}, 5000);
+
+						updates.assignmentsUpd = [];
+						updates.assessmentsUpd = [];
+						updates.gradebookItemsUpd = [];
+						updates.signupMeetingsUpd = [];
+						updates.resourcesUpd = [];
+						updates.calendarEventsUpd = [];
+						updates.forumsUpd = [];
+						updates.announcementsUpd = [];
+						updates.lessonsUpd = [];
+						$('#submit-form-button').prop('disabled', true);
+					}
+
+					var modalConfirm = function(callback){
+						$('#date-manager-form').on('submit', function(e){
+							e.preventDefault();
+							$('#modal-confirm').modal('show');
+							$('#modified-dates').empty();
+							$.each([updates.assignmentsUpd.filter(el=>el), updates.assessmentsUpd.filter(el=>el), updates.gradebookItemsUpd.filter(el=>el), updates.signupMeetingsUpd.filter(el=>el), 
+							updates.resourcesUpd.filter(el=>el), updates.calendarEventsUpd.filter(el=>el), updates.forumsUpd.filter(el=>el), updates.announcementsUpd.filter(el=>el), updates.lessonsUpd.filter(el=>el)], function(idx, elt) {
+								$.each(elt, function(idx, elt) {
+									$('#modified-dates').append('<li>' + elt.tool_title + ' - ' + elt.title + '</li>');
+								});
+							});
+						});
+
+						$('#modal-btn-confirm').on('click', function(){
+							callback(true);
+							$('#modal-confirm').modal('hide');
+						});
+
+						$('#modal-btn-cancel').on('click', function(){
+							callback(false);
+							$('#modal-confirm').modal('hide');
+						});
+					};
+
+					modalConfirm(function(confirm){
+						if (confirm) confirmFormSubmit();
+					});
+
+					function confirmFormSubmit() {
+						var $form = $('#date-manager-form');
+						var assignmentsStr = JSON.stringify(updates.assignmentsUpd.filter(el=>el));
+						var assessmentsStr = JSON.stringify(updates.assessmentsUpd.filter(el=>el));
+						var gradebookStr = JSON.stringify(updates.gradebookItemsUpd.filter(el=>el));
+						var signupStr = JSON.stringify(updates.signupMeetingsUpd.filter(el=>el));
+						var resourcesStr = JSON.stringify(updates.resourcesUpd.filter(el=>el));
+						var calendarStr = JSON.stringify(updates.calendarEventsUpd.filter(el=>el));
+						var forumsStr = JSON.stringify(updates.forumsUpd.filter(el=>el));
+						var announcementsStr = JSON.stringify(updates.announcementsUpd.filter(el=>el));
+						var lessonsStr = JSON.stringify(updates.lessonsUpd.filter(el=>el));
+						var json = '{"assignments": ' + assignmentsStr + ', "assessments": ' + assessmentsStr + ', "gradebookItems": ' + gradebookStr + ', "signupMeetings": ' + signupStr + ', "resources": ' + resourcesStr + ', "calendarEvents": ' + calendarStr + ', "forums": ' + forumsStr + ', "announcements": ' + announcementsStr + ', "lessons": ' + lessonsStr + '}';
+
+						$.ajax({
+							url: window.location + '/date-manager/update',
+							processData: false,
+							dataType : 'json',
+							contentType: 'application/json; charset=utf-8',
+							cache: false,
+							data: json,
+							method: $form.attr('method'),
+							success: function(response){
+								if (response.status === 'ERROR') {
+									errors = response.errors;
+									printErrors();
+
+								} else {
+									printSuccess();
+								}
+							}
+						});
+					}
+
+					$('#datemanager-cancel').click(function(e) {
+						e.preventDefault;
+						window.location = window.location.href.replace('/sakai.datemanager.helper', '');
+					});
+				});
+			/*]]>*/
+		</script>
+	</body>
+</html>
