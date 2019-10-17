@@ -6,6 +6,18 @@ portal.iframesuppress=:all:sakai.scorm.singlepackage.tool:sakai.scorm.tool
 
 As of Sakai 20, the above sakai.property is no longer needed. See SCO-161 for technical details.
 
+## Sakai.properties (for Sakai 20+)
+
+### Control the default setting for "Show Content Package Structure in Player" (table of contents) when uploading new modules:
+
+scorm.config.showTOC.default=true/false
+**Default is false**
+
+### Control the default setting for "Show Player Controls (e.g. Start, Next, Back, Suspend, Quit buttons)" when uploading new modules:
+
+scorm.config.showNavBar.default=true/false
+**Default is false**
+
 ## Historical Info
 
 This project was originally developed and maintained by UC Davis and made available on an ECL 1 license.

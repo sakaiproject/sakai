@@ -5,22 +5,22 @@ function initResizing() {
 function onResize() {
 	if (document.getElementById("scormContent")) {
 		var windowHeight = getInnerHeight();
-		var headerHeight = document.getElementById("scormButtonPanel").offsetHeight;
+		var headerHeight = 0;
+		if (document.getElementById("scormButtonPanel")) {
+			headerHeight = document.getElementById("scormButtonPanel").offsetHeight;
+		}
 		var footerHeight = document.getElementById("scormFooter").offsetHeight;
 		var mainHeight = windowHeight - (headerHeight + footerHeight) -4;
-		
+
 		var windowWidth = getInnerWidth();
 		var navPanel = document.getElementById("scormNavPanel");
 		var navWidth = navPanel.offsetWidth;
 
 		// Hide the tree panel container if it doesn't contain any child nodes
-		if( isEmpty( navPanel ) )
-		{
+		if (isEmpty(navPanel)) {
 			var mainWidth = windowWidth;
 			navPanel.style.display = "none";
-		}
-		else
-		{
+		} else {
 			var mainWidth = windowWidth - navWidth;
 			navPanel.style.height = mainHeight+"px";
 		}

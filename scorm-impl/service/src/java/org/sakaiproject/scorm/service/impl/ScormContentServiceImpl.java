@@ -35,6 +35,7 @@ import org.adl.validator.contentpackage.CPValidator;
 
 import org.apache.commons.lang.StringUtils;
 
+import org.sakaiproject.component.api.ServerConfigurationService;
 import static org.sakaiproject.scorm.api.ScormConstants.*;
 import org.sakaiproject.scorm.dao.LearnerDao;
 import org.sakaiproject.scorm.dao.api.ContentPackageDao;
@@ -65,6 +66,7 @@ public abstract class ScormContentServiceImpl implements ScormContentService
 
 	// Dependency injected lookup methods
 	protected abstract ScormResourceService resourceService();
+	protected abstract ServerConfigurationService serverConfigurationService();
 
 	/**
 	 * Takes the identifier for a content package that's been stored in the
@@ -101,6 +103,9 @@ public abstract class ScormContentServiceImpl implements ScormContentService
 		cp.setCreatedOn(now);
 		cp.setModifiedOn(now);
 
+		// Defaults controlled by sakai.properties
+		cp.setShowTOC(serverConfigurationService().getBoolean(SAK_PROP_CONFIG_SHOW_TOC, SAK_PROP_CONFIG_SHOW_TOC_DFLT));
+		cp.setShowNavBar(serverConfigurationService().getBoolean(SAK_PROP_CONFIG_SHOW_NAV_BAR, SAK_PROP_CONFIG_SHOW_NAV_BAR_DFLT));
 		contentPackageDao().save(cp);
 		return cp;
 	}
