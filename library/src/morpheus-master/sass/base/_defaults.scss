@@ -5,7 +5,7 @@ body{
 	font-family: $font-family;
 	font-size: 	 $default-font-size !important; // Bootstrap Tool error
 	font-weight: $default-font-weight;
-	line-height: 1.55;					// http://practicaltypography.com/line-spacing.html
+	line-height: $default-line-height;
 	&.#{$namespace}portalBody{
 		background-color: $body-background-color;
 		@media #{$phone}{

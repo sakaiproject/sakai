@@ -2,10 +2,10 @@
 <script>includeLatestJQuery('chef_calendar_setFrequency.vm');</script>
 #javascript("/library/js/lang-datepicker/lang-datepicker.js")
 <div class="portletBody">
-	<h3>
-		$tlang.getString("set.setting")
-	</h3>
-	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+	<div class="page-header">
+		<h1>$tlang.getString("set.setting")</h1>
+	</div>
+	#if ($alertMessage)<div class="sak-banner-warn">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<div class="instruction">
 		$tlang.getString("set.toset") <span class="reqStarInline">*</span>
 	</div>
@@ -33,7 +33,7 @@
 	<form name="setFrequencyFormII" id="setFrequencyFormII" action="#toolForm("$action")" method="post">
 		<input type="hidden" name="frequencySelect" value="$freq" />
 		#if ($freq == "once")
-			<p class="instruction">
+			<p class="sak-banner-info">
 				$tlang.getString("set.theonly")
 				$freqOnceDate
 			</p>

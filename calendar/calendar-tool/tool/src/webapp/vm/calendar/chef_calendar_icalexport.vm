@@ -19,28 +19,26 @@
 <div class="portletBody">
 	#if($menu)#toolbar($menu)#end
 
-	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
-
 	<div class="page-header">
 		<h1>$tlang.getString("ical.title")</h1>
 	</div>
-	
-	<p class="sak-banner-info">
-		$icalInfoStr $tlang.getString("ical.info.public")<br/>
-	</p>
-	
-   <p/>
 
+	#if ($alertMessage)<div class="sak-banner-warn">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+
+	<p class="instruction">$icalInfoStr</p>
+
+	<p class="sak-banner-warn">$tlang.getString("ical.info.public")</p>
+	
 #if ($allow_export == "true")
 	<form action="#toolForm($action)" method="post">
-		<p class="shorttext indnt2">
+		<p class="shorttext">
 			<label for ="$form-alias">
 				$tlang.getString("ical.schedname")
 			</label>
 			<input type="text" name="$form-alias" id="$form-alias" value="$!alias" /> .ics
 		</p>
 		
-		<p class="shorttext indnt2">
+		<p class="shorttext">
 			<label for ="$form-ical-enable">
 				$tlang.getString("ical.option")
 			</label>
@@ -49,14 +47,14 @@
 		</p>
 
 		#if ($enable_export == "true")
-		<p class="shorttext indnt2">
+		<p class="shorttext">
 			<label for ="this-ical-url">
 				$tlang.getString("ical.url")
 			</label>
 		<a id="this-ical-url" href="$!icalUrl" target="_new_">$icalUrl</a>
 		</p>
 		#end
-      
+
 		<p class="act">
 			<input type="submit" accesskey="s" class="active" name="$form-submit" value="$tlang.getString("gen.save")" />
 			<input type="submit" accesskey="x" name="$form-cancel" value="$tlang.getString("gen.cancel")" />

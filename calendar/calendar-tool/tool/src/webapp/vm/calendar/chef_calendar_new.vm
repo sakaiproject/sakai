@@ -315,8 +315,8 @@ function resizeFrame(){
 
 
 $(function() {
-    if($('.alertMessage').length ===1){
-        $('.alertMessage').attr('tabindex',-1).focus();
+    if($('.sak-banner-warn').length ===1){
+        $('.sak-banner-warn').attr('tabindex',-1).focus();
     };
 });
 
@@ -327,16 +327,12 @@ $(function() {
 	<div class="page-header">
 		<h1>$tlang.getString("new.adding")</h1>
 	</div>
-	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
-	<p class="instruction">
-		$tlang.getString("new.toadd")<br />
+	#if ($alertMessage)<div class="sak-banner-warn">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+	<p class="sak-banner-info">
 		$tlang.getString("new.a") <span class="reqStarInline"> * </span>
 	</p>
 	
 	<form name="inputForm" id="inputForm" action="#toolForm("$action")" method="post">
-		<h4>
-			$tlang.getString("new.scheduleitem")
-		</h4>	
 		<p class="shorttext">
 			<span class="reqStar">*</span>
 			<label for="activitytitle">$tlang.getString("new.title")</label>
@@ -620,7 +616,7 @@ $(function() {
 		</p>
 		<div class="itemSummary">
 			
-			<label for="body" class="block" style="margin-bottom:0;important!">$tlang.getString("new.descr")</label>
+			<label for="body" class="block">$tlang.getString("new.descr")</label>
 			#if ($savedData.getDescription().length() !=0)
 				<textarea name="description" id="description" wrap="virtual" rows="10">$validator.escapeHtmlFormattedTextarea($savedData.getDescription())</textarea>
 				#chef_setupformattedtextarea("description")
@@ -645,7 +641,7 @@ $(function() {
 					value="groups" 
 					#if($!scheduleTo == "groups" || $!event.Access == $groupAccess)checked="checked"#end 
 					onclick="$('#groupTable').fadeIn('slow');resizeFrame()"  />
-##					onclick="document.getElementById('groupTable').style.display = 'block';document.getElementById('groupTable').style.width = '80%';"  />
+##					onclick="document.getElementById('groupTable').style.display = 'block';" />
 				<label for="groups">$tlang.getString("displayto.selected")</label>
 			</p>	
 			#if($!scheduleTo == "groups" || $!event.Access == $groupAccess)
@@ -653,7 +649,7 @@ $(function() {
 			#else
 				#set ($listDisplay="none")
 			#end
-			<table id="groupTable" style="width:80%;display:$listDisplay" class="listHier lines indnt3" border="0" cellspacing="0" summary="$tlang.getString("group.list.summary")">
+			<table id="groupTable" style="display:$listDisplay" class="listHier lines indnt3" border="0" cellspacing="0" summary="$tlang.getString("group.list.summary")">
 				<tr>
 					<th id ="selectAllGroups" class="attach">
 						<input type="checkbox" name="selectall" id="selectall" title="$tlang.getString("group.list.toggle")"  onclick="javascript:toggleSelectAll(this, 'selectedGroups')"  />
@@ -706,7 +702,7 @@ $(function() {
 					$tlang.getString("new.oneocc")
 				#end
 		</p>
-		<p class="act labelindnt" style="padding:0;">
+		<p class="act labelindnt">
 			<input type="submit" name="eventSubmit_doEditfrequency" value="$tlang.getString("new.setfreq")" />
 		</p>
 

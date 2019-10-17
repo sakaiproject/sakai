@@ -530,15 +530,6 @@ hr.itemSeparator{
 	min-width: 19.5em;
 }
 
-.shorttext input[type="text"]{
-	padding: .1em .3em;
-	border: 1px solid #888;
-}
-.shorttext input[type="password"]{
-	padding: .1em .3em;
-	border: 1px solid #888;
-}
-
 .shorttext input.disabled{
 	background:#eee
 }
@@ -834,17 +825,6 @@ blockquote:after {
 }
 blockquote p {
   display: inline;
-}
-
-ul.calendarLegend{
-	padding:10px 0;
-}
-ul.calendarLegend li{
-  list-style: none;
-  width:200px;
-  float:left;
-  margin:3px;
-  line-height: 25px;
 }
 
 /*From https://github.com/trentrichardson/jQuery-Timepicker-Addon/blob/master/src/jquery-ui-timepicker-addon.css for lang-datepicker.js*/

@@ -1,42 +1,44 @@
 <!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/calendar/chef_calendar_viewWeek.vm,v 1.8 2005/06/07 18:47:22 gsilver.umich.edu Exp $ -->
 <div class="portletBody">
 	#if($menu)#toolbar($menu)#end
-	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>#end
+
+#set ($i=0)
+#set ($todayIsVisible = false)
+#set($todayIndex = -1)
+#foreach ($dayName in $dayOfWeekNames)
+    ## --- get the local date of today
+    #set ($today = $realDate.breakdownLocal())
+    
+    ## --- if the current date is today's date:
+    #if ($today.Day == $week.getWeek($i).Day && $today.Month == $week.getWeek($i).Month && $today.Year == $week.getWeek($i).Year)
+		#set ($todayIsVisible = true)
+        #set ($todayIndex = $i)
+    #end
+
+    #set ($i=$i+1)
+#end
 	<div class="page-header">
 		<h1>$tlang.getString("view.calweek")</h1>
+		<div class="sakai-sideHeading">
+			<a href="$printableVersionUrl" title="$!tlang.getString('java.print')" target="_blank" rel="noreferrer">$!tlang.getString('java.print')</a>
+		</div>
 	</div>
-
-<!-- drop down menu for different views -->
-	<div class="navPanel">
-		<div class="viewNav">
-		<form name="viewForm"  method="post" action="#toolForm("CalendarAction")" class="inlineForm">
-				<input type="hidden" name="eventSubmit_doView" value="view" />
-				<label for="view">$tlang.getString("view.view")</label>
-				<span class="skip">$tlang.getString("view.listnavselect")</span>
-				<select name="view" id="view" size="1" onchange="document.viewForm.submit(this);">
-					#foreach ($view in ["$tlang.getString('java.byday')", "$tlang.getString('java.byweek')", "$tlang.getString('java.bymonth')", "$tlang.getString('java.byyear')", "$tlang.getString('java.listeve')"])
-						#if ($selectedView.equals($view))
-							<option value="$view" selected="selected" >$view</option>
-						#else
-							<option value="$view" >$view</option>
-						#end
-					#end
-				</select>
-				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-			</form>
-		</div>				
-		<div class="listNav">
-			<div class="instruction">$beginWeek - $endWeek $timezone</div>
+	#if ($alertMessage)<div class="sak-banner-warn">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>#end
+	<div class="sakai-table-toolBar">
+		<div class="sakai-table-filterContainer">
+			#calendarView()
+		</div>
+		<div class="sakai-table-pagerContainer">
+			<div class="sakai-table-pagerLabel">$beginWeek - $endWeek $timezone</div>
 			<form name="weekform" action="#toolForm("$action")" method="post" class="inlineForm">
 				<input type="submit" name="eventSubmit_doPrev" value="$tlang.getString('vieww.laswk')" title="$tlang.getString('vieww.gotop')" />
-				<input type="submit" name="eventSubmit_doToday" value="$tlang.getString('view.today')" title ="$tlang.getString('view.gotoday')"/>
-			 	<input type="submit" name="eventSubmit_doNext" value="$tlang.getString('vieww.nexwk')" title="$tlang.getString('vieww.goton')" />
+				<input type="submit" name="eventSubmit_doToday" value="$tlang.getString('view.today')" title ="$tlang.getString('view.gotoday')" #if ($todayIsVisible) disabled="disabled" #end />
+				<input type="submit" name="eventSubmit_doNext" value="$tlang.getString('vieww.nexwk')" title="$tlang.getString('vieww.goton')" />
 				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 			</form>
 		</div>
 	</div>
-	<div class="clear"></div>
-		#toolbar($menu_PDF)
+
 	## the same part in 3 pages for calendar rendering
 	#macro (same)
 
@@ -46,7 +48,7 @@
     #set ($k=$n*2+1)
     #if ($hm.put($n, 0)) #end ##to record how many sub-columns filled for each cell
 
-    #if($m.isEmpty()) ## if this cell has no any event
+    #if($m.isEmpty()) ## if this cell has no event
         #if ($n==$todayIndex)
             #if ($nx==$numberOfSections)
                 <td class="borderTodayBottom" colspan="$vec.elementAt($k)">&nbsp;</td>
@@ -90,29 +92,24 @@
 
                             ## to calculate how many rows should be spanned
                             #rowspans($event)
-                            #set ($heightPct = 5 * $rowspan)
-                            #set ($divHeight = ($numberOfSections - 1) * $rowspan)
-
                             #if ($event.getRange().isSingleTime())
-                                    <td height="$heightPct%" rowspan="1" colspan="1" align="left" class="borderGrayToday$LeftRight$BottomCenter">                                    
-                                    <div style="position: relative; overflow: hidden; height: 18px; border-style: solid; border-width: 0; background-color: white">
+                                    <td rowspan="1" colspan="1" class="borderGrayToday$LeftRight$BottomCenter event">
+                                    <div class="calendarWeekView-event">
                             #else  
-                                    <td height="$heightPct%" rowspan="$rowspan" colspan="1" align="left" class="borderGrayToday$LeftRight$BottomCenter event">
-                                    <div style="position: relative; overflow: hidden; height: ${divHeight}px; border-style: solid; border-width: 0;">
+                                    <td rowspan="$rowspan" colspan="1" class="borderGrayToday$LeftRight$BottomCenter event">
+                                    <div class="calendarWeekView-event">
                             #end
                             #if ($hm.put($n, $tempCol)) #end
                         #else ## if ($n==$todayIndex) -> n != today
                             #set ($colspan = 1)
                             #if ($event.getRange().isSingleTime())
-                                <td height="5%" rowspan="1" colspan="1" align="center" class="borderGrayDayWeek">
-                                <div style="position: relative; overflow: hidden; height: 18px; border-style: solid; border-width: 0; background-color: white">
-                            #else                                                            
+                                <td rowspan="1" colspan="1" class="borderGrayDayWeek event">
+                                <div class="calendarWeekView-event">
+                            #else
                                 ## to calculate how many rows should be spanned
                                 #rowspans($event)
-                                #set ($heightPct = 5 * $rowspan)
-                                #set ($divHeight = ($numberOfSections - 1) * $rowspan)
-                                <td height="$heightPct%" rowspan="$rowspan" colspan="$colspan" align="center" class="borderGrayBackground">
-                                <div style="position: relative; overflow: hidden; height: ${divHeight}px; border-style: solid; border-width: 0; background-color: transparent">
+                                <td rowspan="$rowspan" colspan="$colspan" class="borderGrayBackground event">
+                                <div class="calendarWeekView-event">
                             #end
                             #set ($tempCol = $hm.get($n) + $colspan)
                             #if ($hm.put($n, $tempCol)) #end
@@ -136,7 +133,7 @@
                                     #set ($LeftRight="Middle")
                                     #end
                                     #if ($nx==$numberOfSections) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
-                                    <td class="borderGrayToday$LeftRight$BottomCenter" bgcolor="white">&nbsp;</td>
+                                    <td class="borderGrayToday$LeftRight$BottomCenter">&nbsp;</td>
                                 #else
                                     ## no cell to be rendered 
                                 #end
@@ -164,18 +161,15 @@
                                         #set ($LeftRight="Middle")
                                         #end
                                         #if ($nx==$numberOfSections) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
-                                        <td valign="top" class="borderGrayToday$LeftRight$BottomCenter" bgcolor="white">&nbsp;</td>
+                                        <td class="borderGrayToday$LeftRight$BottomCenter">&nbsp;</td>
                                     #else
                                         #if ($eventD.Flag == false)
                                             #if ($event.getRange().isSingleTime())
-                                                <td height="5%" rowspan="1" colspan="$colspan" valign="top" class="borderGrayDayWeek">
-                                                <div style="position: relative; overflow: hidden; top: 0px; left: 0px; height: 18px; border-style: solid; border-width: 0; background-color: white">&nbsp;</td>
+                                                <td rowspan="1" colspan="$colspan" class="borderGrayDayWeek">&nbsp;</td>
                                             #else
                                                 ## to calculate how many rows should be spanned
                                                 #rowspans($event)
-                                                #set ($heightPct = 5 * $rowspan)
-                                                <td height="$heightPct%" rowspan="$rowspan" colspan="1" align="center">
-                                                <div style="position: relative; overflow: hidden; top: 0px; left: 0px; height: 18px; border-style: solid; border-width: 0; background-color: transparent">&nbsp;</td>
+                                                <td rowspan="$rowspan" colspan="1">&nbsp;</td>
                                             #end  ## if ($event.getRange().isSingleTime())
                                         #else   
                                             ## no cell to be rendered, because of the above rowspan. but counter++
@@ -193,15 +187,11 @@
                                     #else
                                         #if ($eventD.Flag == false)
                                             #if ($event.getRange().isSingleTime())
-                                                <td height="100%" rowspan="1" colspan="$colspan" valign="top" class="borderGrayDayWeek">
-                                                <div style="position: relative; overflow: hidden; top: 0px; left: 0px; height: 18px; border-style: solid; border-width: 0; background-color: white">&nbsp;</td>
+                                                <td rowspan="1" colspan="$colspan" class="borderGrayDayWeek">&nbsp;</td>
                                             #else
                                                 ## to calculate how many rows should be spanned
                                                 #rowspans($event)
-                                                #set ($heightPct = 5 * $rowspan)
-                                                <td height="$heightPct%" rowspan="$rowspan" colspan="1" align="center">
-                                                #set ($divHeight = ($numberOfSections - 1) * $rowspan)
-                                                <div style="position: relative; overflow: hidden; height: ${divHeight}px; border-style: solid; border-width: 0; background-color: transparent">&nbsp;</td>
+                                                <td rowspan="$rowspan" colspan="1">&nbsp;</td>
                                             #end  ## if ($event.getRange().isSingleTime())
                                         #else
                                             ## no cell rendered, but counter++
@@ -238,8 +228,8 @@
                         #if ($n==$todayIndex)
                             #if ($event.getRange().isSingleTime())
                                     #if ($nx==$numberOfSections) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
-                                    <td height="5%" rowspan="1" colspan="$colspan" valign="top" class="borderGrayToday$BottomCenter">
-                                    <div style="position: relative; overflow: hidden; height: 18px; border-style: solid; border-width: 0; background-color: white">
+                                    <td rowspan="1" colspan="$colspan" class="borderGrayToday$BottomCenter event">
+                                    <div class="calendarWeekView-event">
                             #else
                                     #if ($noConflict == "true")
                                             #set ($LeftRight = "")
@@ -254,23 +244,19 @@
 
                                     ## to calculate how many rows should be spanned
                                     #rowspans($event)
-                                    #set ($heightPct = 5 * $rowspan)
-                                    #set ($divHeight = ($numberOfSections - 1) * $rowspan)
-                                    <td height="$heightPct%" rowspan="$rowspan" colspan="$colspan" align="left" class="borderGrayToday$LeftRight$BottomCenter event">
-                                    <div style="position: relative; overflow: hidden; height: ${divHeight}px; border-style: solid; border-width: 0; background-color: transparent">
+                                    <td rowspan="$rowspan" colspan="$colspan" class="borderGrayToday$LeftRight$BottomCenter event">
+                                    <div class="calendarWeekView-event">
                             #end
 
                         #else
                             #if ($event.getRange().isSingleTime())
-                                <td height="5%" rowspan="1" colspan="$colspan" valign="top" class="borderGrayDayWeek">
-                                <div style="position: relative; overflow: hidden; height: 18px; border-style: solid; border-width: 0; background-color: white"> 
+                                <td rowspan="1" colspan="$colspan" class="borderGrayDayWeek event">
+                                <div class="calendarWeekView-event"> 
                             #else
                                 ## to calculate how many rows should be spanned
                                 #rowspans($event)
-                                #set ($heightPct = 5 * $rowspan)
-                                #set ($divHeight = ($numberOfSections - 1) * $rowspan)
-                                <td height="$heightPct%" rowspan="$rowspan" colspan="$colspan" align="center" class="borderGrayBackground">
-                                <div style="position: relative; overflow: hidden; height: ${divHeight}px; border-style: solid; border-width: 0; background-color: transparent">
+                                <td rowspan="$rowspan" colspan="$colspan" class="borderGrayBackground event">
+                                <div class="calendarWeekView-event">
                             #end
                         #end
                         #if ($hm.put($n, $tempCol)) #end
@@ -307,7 +293,7 @@
                 #if ($ii == $left) ## rightmost subcell
                 #set ($LeftRight = "Right")
                 #else ## middle subcell
-                #set ($LeftRight = "middle")
+                #set ($LeftRight = "Middle")
                 #end
                 #if ($nx==$numberOfSections) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
                 <td class="borderGrayTodayEmpty$LeftRight$BottomCenter">&nbsp;</td>
@@ -395,11 +381,6 @@
 #if ($hm.put($n, $tempCol)) #end
 #end
 
-#if($page != "first")
-	<div class="viewLinkControl">
-		<a href="#" onclick="location='#toolLink("$action" "doPpagew")';return false;" title="$tlang.getString('vieww.gotoe')">$tlang.getString("vieww.gotoe")</a>
-	</div>
-#end
 #set ($weekCopy = $week)
 #foreach($day_span in [0..6])
     #set ($colspan = 1)
@@ -443,47 +424,31 @@
 #end
 
 <!-- how to draw a week-->
-#set($todayIndex = -1)
-<table cellpadding="2" width="100%"  cellspacing="0" class="calendar" summary="$tlang.getString("vieww.summary")" style="height:370px">
+<table class="calendar calendar-week" summary="$tlang.getString("vieww.summary")">
 <tr>
-<th align="left" height="20" width="7%">&nbsp;</th>
+<th class="timeCellsHeading">
+    <div class="viewLinkControl">
+    #if($page != "first")
+        <button onclick="location='#toolLink("$action" "doPpagew")';return false;" title="$tlang.getString('vieww.gotoe')">$tlang.getString("vieww.gotoe")</a>
+    #end
+    </div>
+</th>
 #set ($i=0)
 #foreach ($dayName in $dayOfWeekNames)
-    ## --- suppose the current date in schedule is not today, then all set as 0
-    #set ($dayEqual = 0)
-    #set ($monthEqual = 0)
-    #set ($yearEqual = 0)
-
-    ## --- get the local date of today
-    #set ($today = $realDate.breakdownLocal())
-    #if ($today.Day == $week.getWeek($i).Day)
-        #set ($dayEqual = 1)
-    #end
-    #if ($today.Month == $week.getWeek($i).Month)
-        #set ($monthEqual = 1)
-    #end
-    #if ($today.Year == $week.getWeek($i).Year)
-        #set ($yearEqual = 1)
-    #end
-
     ## --- if the current date is today's date, 
-    ## --- then bold the date to indicate
-    #set ($dayMonthYear = $dayEqual + $monthEqual + $yearEqual)
-    #if ($dayMonthYear == 3)
+    ## --- then indicate the date
+    #if ($todayIndex == $i)
         #set ($border = "borderTodayTop" )
-        #set ($todayIndex = $i)
     #else
         #set ($border = "borderWhite")
     #end
 
     #set ($j=2*$i+1) 
-    <th align="right" height="20" width="13%" class="$border" colspan="$vec.elementAt($j)" scope="col">$dayName
-    <a href="#toolLinkParam("$action" "doDay" "day=$week.getWeek($i).getDay()&month=$week.getWeek($i).getMonth()&year=$week.getWeek($i).getYear()")">
-    $week.getWeek($i).getDay()</a>
-	</th>
+    <th class="$border" colspan="$vec.elementAt($j)" scope="col">
+        <a href="#toolLinkParam("$action" "doDay" "day=$week.getWeek($i).getDay()&month=$week.getWeek($i).getMonth()&year=$week.getWeek($i).getYear()")">$dayName $week.getWeek($i).getDay()</a>
+    </th>
     #set ($i=$i+1)
 #end
-
 </tr>
 
 #if($page== "second")
@@ -495,12 +460,12 @@
         #set($e = $e + 4)
 
         #foreach($nx in [0..$numberOfSections])
-            <tr valign="top" bgcolor="#FFFFFF" >
+            <tr>
             #if($fractiontime == "false")
                 #set($temp = $timer)
                 #set($temp2 = $timer % 24)
                 #set($timer = $temp2 % 12)
-                <th align="right" bgcolor="#eeeeee" rowspan="2" class="borderWhite" scope="row">
+                <th class="timeCells" rowspan="2" scope="row">
                 #foreach ($format in $timeFormat)
                     #if ($format == "h")
                         #if ($timer == 0) #set($timer=12) #end
@@ -527,7 +492,7 @@
     #set ($k=$n*2+1)
     #if ($hm.put($n, 0)) #end ##to record how many sub-columns filled for each cell
 
-    #if($m.isEmpty()) ## if this cell has no any event
+    #if($m.isEmpty()) ## if this cell has no event
         #if ($n==$todayIndex)
             #if ($nx==$numberOfSections)
                 <td class="borderTodayBottom" colspan="$vec.elementAt($k)">&nbsp;</td>
@@ -571,29 +536,24 @@
 
                             ## to calculate how many rows should be spanned
                             #rowspans($event)
-                            #set ($heightPct = 5 * $rowspan)
-                            #set ($divHeight = ($numberOfSections - 1) * $rowspan)
-
                             #if ($event.getRange().isSingleTime())
-                                    <td height="$heightPct%" rowspan="1" colspan="1" align="left" class="borderGrayToday$LeftRight$BottomCenter">                                    
-                                    <div style="position: relative; overflow: hidden; height: 18px; border-style: solid; border-width: 0; background-color: white">
+                                    <td rowspan="1" colspan="1" class="borderGrayToday$LeftRight$BottomCenter event">
+                                    <div class="calendarWeekView-event">
                             #else  
-                                    <td height="$heightPct%" rowspan="$rowspan" colspan="1" align="left" class="borderGrayToday$LeftRight$BottomCenter event">
-                                    <div style="position: relative; overflow: hidden; height: ${divHeight}px; border-style: solid; border-width: 0; background-color: transparent">
+                                    <td rowspan="$rowspan" colspan="1" class="borderGrayToday$LeftRight$BottomCenter event">
+                                    <div class="calendarWeekView-event">
                             #end
                             #if ($hm.put($n, $tempCol)) #end
                         #else ## if ($n==$todayIndex) -> n != today
                             #set ($colspan = 1)
                             #if ($event.getRange().isSingleTime())
-                                <td height="5%" rowspan="1" colspan="1" align="center" class="borderGrayDayWeek">
-                                <div style="position: relative; overflow: hidden; height: 18px; border-style: solid; border-width: 0; background-color: white">
-                            #else                                                            
+                                <td rowspan="1" colspan="1" class="borderGrayDayWeek event">
+                                <div class="calendarWeekView-event">
+                            #else
                                 ## to calculate how many rows should be spanned
                                 #rowspans($event)
-                                #set ($heightPct = 5 * $rowspan)
-                                #set ($divHeight = ($numberOfSections - 1) * $rowspan)
-                                <td height="$heightPct%" rowspan="$rowspan" colspan="$colspan" align="center" class="borderGrayBackground">
-                                <div style="position: relative; overflow: hidden; height: ${divHeight}px; border-style: solid; border-width: 0; background-color: transparent">
+                                <td rowspan="$rowspan" colspan="$colspan" class="borderGrayBackground event">
+                                <div class="calendarWeekView-event">
                             #end
                             #set ($tempCol = $hm.get($n) + $colspan)
                             #if ($hm.put($n, $tempCol)) #end
@@ -617,7 +577,7 @@
                                     #set ($LeftRight="Middle")
                                     #end
                                     #if ($nx==$numberOfSections) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
-                                    <td class="borderGrayToday$LeftRight$BottomCenter" bgcolor="white">&nbsp; </td>
+                                    <td class="borderGrayToday$LeftRight$BottomCenter">&nbsp;</td>
                                 #else
                                     ## no cell to be rendered 
                                 #end
@@ -645,18 +605,16 @@
                                         #set ($LeftRight="Middle")
                                         #end
                                         #if ($nx==$numberOfSections) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
-                                        <td valign="top" class="borderGrayToday$LeftRight$BottomCenter" bgcolor="white">&nbsp;</td>
+                                        <td class="borderGrayToday$LeftRight$BottomCenter">&nbsp;</td>
                                     #else
                                         #if ($eventD.Flag == false)
                                             #if ($event.getRange().isSingleTime())
-                                                <td height="5%" rowspan="1" colspan="$colspan" valign="top" class="borderGrayDayWeek">
-                                                <div style="position: relative; overflow: hidden; top: 0px; left: 0px; height: 18px; border-style: solid; border-width: 0; background-color: white">&nbsp;</td>
+                                                <td rowspan="1" colspan="$colspan" class="borderGrayDayWeek">&nbsp;</td>
                                             #else
                                                 ## to calculate how many rows should be spanned
                                                 #rowspans($event)
                                                 #set ($heightPct = 5 * $rowspan)
-                                                <td height="$heightPct%" rowspan="$rowspan" colspan="1" align="center">
-                                                <div style="position: relative; overflow: hidden; top: 0px; left: 0px; height: 18px; border-style: solid; border-width: 0; background-color: transparent">&nbsp;</td>
+                                                <td rowspan="$rowspan" colspan="1">&nbsp;</td>
                                             #end  ## if ($event.getRange().isSingleTime())
                                         #else   
                                             ## no cell to be rendered, because of the above rowspan. but counter++
@@ -674,15 +632,11 @@
                                     #else
                                         #if ($eventD.Flag == false)
                                             #if ($event.getRange().isSingleTime())
-                                                <td height="100%" rowspan="1" colspan="$colspan" valign="top" class="borderGrayDayWeek">
-                                                <div style="position: relative; overflow: hidden; top: 0px; left: 0px; height: 18px; border-style: solid; border-width: 0; background-color: white">&nbsp;</td>
+                                                <td rowspan="1" colspan="$colspan" class="borderGrayDayWeek">&nbsp;</td>
                                             #else
                                                 ## to calculate how many rows should be spanned
                                                 #rowspans($event)
-                                                #set ($heightPct = 5 * $rowspan)
-                                                <td height="$heightPct%" rowspan="$rowspan" colspan="1" align="center">
-                                                #set ($divHeight = ($numberOfSections - 1) * $rowspan)
-                                                <div style="position: relative; overflow: hidden; height: ${divHeight}px; border-style: solid; border-width: 0; background-color: transparent">&nbsp;</td>
+                                                <td rowspan="$rowspan" colspan="1"&nbsp;</td>
                                             #end  ## if ($event.getRange().isSingleTime())
                                         #else
                                             ## no cell rendered, but counter++
@@ -719,8 +673,8 @@
                         #if ($n==$todayIndex)
                             #if ($event.getRange().isSingleTime())
                                     #if ($nx==$numberOfSections) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
-                                    <td height="5%" rowspan="1" colspan="$colspan" valign="top" class="borderGrayToday$BottomCenter">
-                                    <div style="position: relative; overflow: hidden; height: 18px; border-style: solid; border-width: 0; background-color: white">
+                                    <td rowspan="1" colspan="$colspan" class="borderGrayToday$BottomCenter event">
+                                    <div class="calendarWeekView-event">
                             #else
                                     #if ($noConflict == "true")
                                             #set ($LeftRight = "")
@@ -735,24 +689,19 @@
 
                                     ## to calculate how many rows should be spanned
                                     #rowspans($event)
-                                    #set ($heightPct = 5 * $rowspan)
-                                    #set ($divHeight = ($numberOfSections - 1) * $rowspan)
-                                    <td height="$heightPct%" rowspan="$rowspan" colspan="$colspan" align="left" class="borderGrayToday$LeftRight$BottomCenter event">
-                                    <div style="position: relative; overflow: hidden; height: ${divHeight}px; border-style: solid; border-width: 0; background-color: transparent">
+                                    <td rowspan="$rowspan" colspan="$colspan" class="borderGrayToday$LeftRight$BottomCenter event">
+                                    <div class="calendarWeekView-event">
                             #end
 
                         #else
                             #if ($event.getRange().isSingleTime())
-                                <td height="5%" rowspan="1" colspan="$colspan" valign="top" class="borderGrayDayWeek">
-                                <div style="position: relative; overflow: hidden; height: 18px; border-style: solid; border-width: 0; background-color: white">
+                                <td rowspan="1" colspan="$colspan" class="borderGrayDayWeek event">
+                                <div class="calendarWeekView-event">
                             #else
                                 ## to calculate how many rows should be spanned
                                 #rowspans($event)
-                                #set ($heightPct = 5 * $rowspan)
-                                #set ($divHeight = ($numberOfSections - 1) * $rowspan)
-                                <td height="$heightPct%" rowspan="$rowspan" colspan="$colspan" align="center" class="borderGrayBackground">
-                                ##<td height="$heightPct%" rowspan="$rowspan" colspan="1" align="center" class="borderGrayBackground">
-                                <div style="position: relative; overflow: hidden; height: ${divHeight}px; border-style: solid; border-width: 0; background-color: transparent">
+                                <td rowspan="$rowspan" colspan="$colspan" class="borderGrayBackground event">
+                                <div class="calendarWeekView-event">
                             #end
                         #end
                         #if ($hm.put($n, $tempCol)) #end
@@ -814,12 +763,12 @@
         #set($e = $e + 4)
 
         #foreach($nx in [0..$numberOfSections])
-            <tr valign="top" bgcolor="#FFFFFF"> 
+            <tr>
             #if($fractiontime == "false")
                 #set($temp = $timer)
                 #set($temp2 = $timer % 24)
                 #set($timer = $temp2 % 12)
-                <th align="right" bgcolor="#eeeeee" rowspan="2" class="borderWhite" scope="row">
+                <th align="right" rowspan="2" class="borderWhite timeCells" scope="row">
                 #foreach ($format in $timeFormat)
                     #if ($format == "h")
                         #if ($timer == 0) #set($timer=12) #end
@@ -852,12 +801,12 @@
         #set($fractiontime ="false")
 
         #foreach($nx in [0..$numberOfSections])
-            <tr valign="top" bgcolor="#FFFFFF"> 
+            <tr>
             #if($fractiontime == "false")
                 #set($temp = $timer)
                 #set($temp2 = $timer % 24)
                 #set($timer = $temp2 % 12)
-                <th align="right" bgcolor="#eeeeee" rowspan="2" class="borderWhite" scope="row">
+                <th align="right" rowspan="2" class="borderWhite timeCells" scope="row">
                 #foreach ($format in $timeFormat)
                     #if ($format == "h")
                         #if ($timer == 0) #set($timer=12) #end
@@ -889,16 +838,11 @@
 </table>
 #if($page != "third")
 <div class="viewLinkControl">
-		<a href="#" onclick="location='#toolLink("$action" "doNpagew")';return false;" title="$tlang.getString('vieww.gotol')">$tlang.getString("vieww.gotol")</a>
+		<button onclick="location='#toolLink("$action" "doNpagew")';return false;" title="$tlang.getString('vieww.gotol')">$tlang.getString("vieww.gotol")</a>
 </div>
 #end
 
-<h4>$tlang.getString('view.legend')</h4>
-<ul class="calendarLegend">
-    #foreach ($key in $iconsAndLocalizedEventTypes.keySet())
-        <li><span class="icon $iconsAndLocalizedEventTypes.get($key)"></span> $key</li>
-    #end
-</ul>
-<div class="clear"></div>
+## include the Legend:
+#calendarLegend()
 
 </div>

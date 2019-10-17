@@ -673,7 +673,7 @@
       }
     }
 
-    @media all and (max-width: 400px) {
+    @media #{$smallPhone} {
       @include flex-direction(column);
       @include align-items(center);
 

@@ -735,7 +735,7 @@ extends VelocityPortletStateAction
 			eVector = eventVector;
 		}
 		
-		public Vector getEventsBerDay(int index)
+		public Vector getEventsPerDay(int index)
 		{
 			Vector dayVector = new Vector();
 
@@ -3122,6 +3122,8 @@ extends VelocityPortletStateAction
 		int stateYear = b.getYear();
 		int stateMonth = b.getMonth();
 		int stateDay = b.getDay();
+		context.put("todayYear", Integer.valueOf(stateYear));
+
 		if ((sstate.getAttribute(STATE_YEAR) != null) && (sstate.getAttribute(STATE_MONTH) != null) && (sstate.getAttribute(STATE_DAY) != null))
 		{
 			stateYear = ((Integer)sstate.getAttribute(STATE_YEAR)).intValue();
@@ -3199,8 +3201,9 @@ extends VelocityPortletStateAction
 		
 		context.put("selectedView", rb.getString("java.byyear"));
 		
-		context.put("dayOfWeekNames", calObj.getCalendarDaysOfWeekNames(false));
+		context.put("isDefaultView", isDefaultView(state, ToolManager.getCurrentPlacement()));
 		
+		context.put("dayOfWeekNames", calObj.getCalendarDaysOfWeekNames(false));
 	} // buildYearContext
 	
 	
@@ -3229,6 +3232,9 @@ extends VelocityPortletStateAction
 		int stateYear = b.getYear();
 		int stateMonth = b.getMonth();
 		int stateDay = b.getDay();
+		context.put("todayYear", Integer.valueOf(stateYear));
+		context.put("todayMonth", Integer.valueOf(stateMonth));
+		
 		if ((sstate.getAttribute(STATE_YEAR) != null) && (sstate.getAttribute(STATE_MONTH) != null) && (sstate.getAttribute(STATE_DAY) != null))
 		{
 			stateYear = ((Integer)sstate.getAttribute(STATE_YEAR)).intValue();
@@ -3279,9 +3285,21 @@ extends VelocityPortletStateAction
 		
 		context.put("selectedView", rb.getString("java.bymonth"));
 		
+		context.put("isDefaultView", isDefaultView(state, ToolManager.getCurrentPlacement()));
+		
 		context.put("dayOfWeekNames", calObj.getCalendarDaysOfWeekNames(false));
 		
+		context.put("monthInt", Integer.valueOf(calObj.getMonthInteger()));
 	} // buildMonthContext
+
+
+	protected boolean isDefaultView(CalendarActionState state, Placement currentPlacement)
+	{
+		String currentView = state.getState();
+		String defaultView = currentPlacement.getPlacementConfig().getProperty( PORTLET_CONFIG_DEFAULT_VIEW);
+		
+		return StringUtils.equals(defaultView, currentView);
+	}
 	
 	
 	protected Vector getNewEvents(int year, int month, int day, CalendarActionState state, RunData rundata, int time, int numberofcycles,Context context,CalendarEventVector CalendarEventVectorObj)
@@ -3583,6 +3601,8 @@ extends VelocityPortletStateAction
 
 		context.put("selectedView", rb.getString("java.byday"));
 		
+		context.put("isDefaultView", isDefaultView(state, ToolManager.getCurrentPlacement()));
+		
 		context.put("dayName", calendarUtilGetDay(calObj.getDay_Of_Week(true)));
 
 	} // buildDayContext
@@ -3794,6 +3814,8 @@ extends VelocityPortletStateAction
 		context.put("pageEndTime", pageEndTime);
 		
 		context.put("selectedView", rb.getString("java.byweek"));
+		
+		context.put("isDefaultView", isDefaultView(state, ToolManager.getCurrentPlacement()));
 
 		context.put("dayOfWeekNames", calObj.getCalendarDaysOfWeekNames(false));
 		
@@ -5090,12 +5112,10 @@ extends VelocityPortletStateAction
 			addAlert(sstate, rb.getString("java.alert.youcreate"));
 		}
 		
-		
 		String returnState = state.getReturnState();
 		state.setState(returnState);
 		
 	}	 // doBack
-	
 	
 	
 	/**
@@ -5298,7 +5318,7 @@ extends VelocityPortletStateAction
 	
 	
 	/**
-	 * Action doToday is requested when the user click on "Go to today" button
+	 * Action doToday is requested when the user click on "Go to today" button; goes to today's date in the current view
 	 */
 	public void doToday(RunData data, Context context)
 	{
@@ -5315,12 +5335,6 @@ extends VelocityPortletStateAction
 		sstate.setAttribute(STATE_YEAR, Integer.valueOf(b.getYear()));
 		sstate.setAttribute(STATE_MONTH, Integer.valueOf(b.getMonth()));
 		sstate.setAttribute(STATE_DAY, Integer.valueOf(b.getDay()));
-		
-		state.setState("day");
-		
-		//for dropdown menu display purpose
-		sstate.setAttribute(STATE_SELECTED_VIEW, rb.getString("java.byday"));
-		
 	}	 // doToday
 	
 	
@@ -7369,6 +7383,9 @@ extends VelocityPortletStateAction
 		context.put("realDate", TimeService.newTime());
 		
 		context.put("selectedView", rb.getString("java.listeve"));
+		
+		context.put("isDefaultView", isDefaultView(state, ToolManager.getCurrentPlacement()));
+		
 		context.put("tlang",rb);
 
 		context.put("calendarFormattedText", new CalendarFormattedText());
@@ -7379,10 +7396,10 @@ extends VelocityPortletStateAction
 
 	}	 // buildListContext
 	
-	private void buildPrintMenu( VelocityPortlet portlet,
+	private void buildPrintLink( VelocityPortlet portlet,
 								 RunData runData,
 								 CalendarActionState state,
-								 Menu bar_print )
+								 Context context )
 	{
 		String stateName = state.getState();
 		
@@ -7519,8 +7536,8 @@ extends VelocityPortletStateAction
 			
 			Reference calendarRef = EntityManager.newReference(state.getPrimaryCalendarReference());
 			
-			// Add PDF print menu option				
-			String accessPointUrl = ServerConfigurationService.getAccessUrl()
+			// Create the PDF print version URL
+			String printableVersionUrl = ServerConfigurationService.getAccessUrl()
 			+ CalendarService.calendarPdfReference(calendarRef.getContext(), 
 														calendarRef.getId(),
 														printType,
@@ -7529,7 +7546,7 @@ extends VelocityPortletStateAction
 														dailyStartTime,
 														dateDesc);
 			
-			bar_print.add(new MenuEntry(rb.getString("java.print"), "").setUrl(accessPointUrl));
+			context.put("printableVersionUrl", printableVersionUrl);
 		}
 	}
 	/**
@@ -7618,7 +7635,7 @@ extends VelocityPortletStateAction
 		
 		//2nd menu bar for the PDF print only
 		Menu bar_print = new MenuImpl(portlet, runData, "CalendarAction");
-		buildPrintMenu( portlet, runData, state, bar_print );	
+		buildPrintLink( portlet, runData, state, context );	
       
 		if (SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()))
 		{
@@ -7642,7 +7659,6 @@ extends VelocityPortletStateAction
 		stateForMenus.setAttribute(MenuItem.STATE_MENU, bar);
 		context.put("tlang",rb);
 		context.put(Menu.CONTEXT_MENU, bar);
-		context.put("menu_PDF", bar_print);
 		context.put(Menu.CONTEXT_ACTION, "CalendarAction");
 		
 	}	 // buildMenu
@@ -7704,10 +7720,8 @@ extends VelocityPortletStateAction
 		SessionState sstate = ((JetspeedRunData) rundata).getPortletSessionState(((JetspeedRunData) rundata).getJs_peid());
 		String view = state.getState();
 		Placement placement = ToolManager.getCurrentPlacement();
-		placement.getPlacementConfig().setProperty(
-																 PORTLET_CONFIG_DEFAULT_VIEW, view );
+		placement.getPlacementConfig().setProperty( PORTLET_CONFIG_DEFAULT_VIEW, view );
 		saveOptions();
-		addAlert(sstate, rb.getString("java.alert.default_view"));
 	}
 	
 	/**
@@ -8115,7 +8129,7 @@ extends VelocityPortletStateAction
 	{
 		// get the index for the month. Note, the index is increased by 1, u need to deduct 1 first
 		CalendarUtil calUtil = new CalendarUtil();
-		String[] months = calUtil.getCalendarMonthNames(false);
+		String[] months = calUtil.getCalendarMonthNames(true);
 
 		if (l_month >12) 
 		{
@@ -8257,6 +8271,3 @@ extends VelocityPortletStateAction
 	} 
 		
 }	 // CalendarAction
-
-
-

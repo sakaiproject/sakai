@@ -1,3 +1,4 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h"%>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f"%>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai"%>
@@ -16,8 +17,8 @@
 	<sakai:instruction_message rendered="#{!SubscribeBean.opaqueUrlExists}" 
 		value="#{msgs.ical_opaqueurl_explanation}" />
 	
-	<em><sakai:instruction_message rendered="#{!SubscribeBean.myWorkspace}" 
-		value="#{msgs.ical_opaqueurl_myworkspace}" /></em>
+	<sakai:instruction_message rendered="#{!SubscribeBean.myWorkspace}" 
+		value="#{msgs.ical_opaqueurl_myworkspace}" />
 	
 	<%/* We render the URL(s) itself around about here... */%>
 	<h:panelGroup rendered="#{SubscribeBean.opaqueUrlExists}">
@@ -32,35 +33,31 @@
 	</h:panelGroup>
 	
 	<h:form id="subscribeForm">
-		<%/* BUTTONS */%>
-		<h:panelGrid rendered="#{!SubscribeBean.opaqueUrlExists}" styleClass="act" columns="2">
+		<div class="act">
 			<h:commandButton
 				action="#{SubscribeBean.generate}"
 				value="#{msgs.ical_opaqueurl_generate}"
 				styleClass="active"
 				immediate="true"
-				/>        
-			<h:commandButton
-				action="#{SubscribeBean.cancel}"
-				value="#{msgs.cancel}"/>
-		</h:panelGrid>
-		
-		<h:panelGrid rendered="#{SubscribeBean.opaqueUrlExists}" styleClass="act" columns="3">
+				rendered="#{!SubscribeBean.opaqueUrlExists}"
+				/>
 			<h:commandButton
 				action="#{SubscribeBean.regenerate}"
 				value="#{msgs.ical_opaqueurl_regenerate}"
 				styleClass="active"
 				immediate="true"
+				rendered="#{SubscribeBean.opaqueUrlExists}"
 				/>
 			<h:commandButton
 				action="#{SubscribeBean.delete}"
 				value="#{msgs.ical_opaqueurl_delete}"
 				immediate="true"
-				/>        
+				rendered="#{SubscribeBean.opaqueUrlExists}"
+				/>
 			<h:commandButton
 				action="#{SubscribeBean.cancel}"
-				value="#{msgs.back}"/>
-		</h:panelGrid>
+				value="#{msgs.cancel}"/>
+		</div>
 	</h:form>
 </sakai:view>
 </f:view>

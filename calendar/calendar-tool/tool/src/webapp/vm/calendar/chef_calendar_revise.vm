@@ -302,24 +302,22 @@ function resizeFrame(){
 }
 
 $(function() {
-    if($('.alertMessage').length ===1){
-        $('.alertMessage').attr('tabindex',-1).focus();
+    if($('.sak-banner-warn').length ===1){
+        $('.sak-banner-warn').attr('tabindex',-1).focus();
     };
 });
 </script>
 
 
 <div class="portletBody">
-	<h3>
-		$tlang.getString("rev.revising")
-	</h3>
-	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
-	<p class="instruction">
-		$tlang.getString("rev.torev")<br />
+	<div class="page-header">
+		<h1>$tlang.getString("rev.revising")</h1>
+	</div>
+	#if ($alertMessage)<div class="sak-banner-warn">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+	<p class="sak-banner-info">
 		$tlang.getString("new.a") <span class="reqStarInline">*</span>
 	</p>
-	<form action="#toolForm("$action")" method="post">                                        
-		<h4>$tlang.getString("new.scheduleitem")</h4>
+	<form action="#toolForm("$action")" method="post">
 		<p class="shorttext">
 			<span class="reqStar">*</span>
 			<label for="activitytitle">$tlang.getString("new.title")</label>
@@ -653,7 +651,6 @@ $(function() {
 			<p class="checkbox indnt1">
 				<input type="radio" name="scheduleTo" id="groups" value="groups" #if($!scheduleTo == "groups" || $!event.Access == $groupAccess)checked="checked"#end 
 				onclick="$('#groupTable').fadeIn('slow');resizeFrame()"  />
-					## onclick="document.getElementById('groupTable').style.display = 'block';document.getElementById('groupTable').style.width = '80%';"  />
 				<label for="groups">$tlang.getString("displayto.selected")</label>
 			</p>	
 			#if($!scheduleTo == "groups" || $!event.Access == $groupAccess)
@@ -661,7 +658,7 @@ $(function() {
 			#else
 				#set ($listDisplay="none")
 			#end
-			<table id="groupTable" style="width:80%;display:$listDisplay" class="listHier lines indnt3" border="0" cellspacing="0" summary="$tlang.getString("group.list.summary")">
+			<table id="groupTable" style="display:$listDisplay" class="listHier lines indnt3" border="0" cellspacing="0" summary="$tlang.getString("group.list.summary")">
 			<caption class="skip" style="display:none">$tlang.getString("displayto.selected")</caption>
 				<tr>
 					<th id ="selectAllGroups" class="attach">
@@ -723,10 +720,10 @@ $(function() {
 					$tlang.getString("new.oneocc")
 				#end
 			#end
-			<div class="act labelindnt" style="padding:0;">
-				<input type="submit"  name="eventSubmit_doEditfrequency" value="$tlang.getString('new.setfreq') " />
-			</div>
 			</p>
+			<p class="act">
+				<input type="submit"  name="eventSubmit_doEditfrequency" value="$tlang.getString('new.setfreq') " />
+		</p>
 		<p class="shorttext">
 			<label for="eventType">
 				$tlang.getString("new.itemtype")
