@@ -317,7 +317,7 @@ public class GradebookPage extends BasePage {
 			@Override
 			public void onSubmit() {
 				settings.setGroupedByCategory(!settings.isGroupedByCategory());
-				setUiSettings(settings);
+				setUiSettings(settings, true);
 
 				// refresh
 				setResponsePage(GradebookPage.class);
@@ -531,7 +531,7 @@ public class GradebookPage extends BasePage {
 	}
 
 	/**
-	 * Getter for the GradebookUiSettings. Used to store a few UI related settings for the current session only.
+	 * Getter for the GradebookUiSettings. Used to store a few UI related settings in the PreferencesService (serialized to db)
 	 *
 	 */
 	public GradebookUiSettings getUiSettings() {
@@ -540,17 +540,34 @@ public class GradebookPage extends BasePage {
 
 		if (settings == null) {
 			settings = new GradebookUiSettings();
-			settings.setCategoriesEnabled(this.businessService.categoriesAreEnabled());
 			settings.initializeCategoryColors(this.businessService.getGradebookCategories());
 			settings.setCategoryColor(getString(GradebookPage.UNCATEGORISED), GradebookUiSettings.generateRandomRGBColorString(null));
 			setUiSettings(settings);
 		}
 
+		// See if the user has a database-persisted preference for Group by Category
+		String userGbUiCatPref = this.businessService.getUserGbPreference("GROUP_BY_CAT");
+		if (StringUtils.isNotBlank(userGbUiCatPref)) {
+			settings.setCategoriesEnabled(new Boolean(userGbUiCatPref));
+		}
+		else {
+			settings.setCategoriesEnabled(this.businessService.categoriesAreEnabled());
+		}
+ 
 		return settings;
 	}
 
 	public void setUiSettings(final GradebookUiSettings settings) {
+		setUiSettings(settings, false);
+	}
+
+	public void setUiSettings(final GradebookUiSettings settings, final boolean persistToUserPrefs) {
 		Session.get().setAttribute("GBNG_UI_SETTINGS", settings);
+
+		// Save the setting to PreferencesService (database)
+		if (persistToUserPrefs) {
+			this.businessService.setUserGbPreference("GROUP_BY_CAT", settings.isGroupedByCategory() + "");
+		}
 	}
 
 	@Override
