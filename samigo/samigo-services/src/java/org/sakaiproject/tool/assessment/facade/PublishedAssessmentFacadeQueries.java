@@ -2748,4 +2748,29 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 				.list();
 		return getHibernateTemplate().execute(hcb);
 	}
+
+
+    public List<PublishedAssessmentData> getPublishedDeletedAssessments(final String siteAgentId) {
+        final HibernateCallback<List<PublishedAssessmentData>> hcb = session -> session.createQuery(
+            "select new PublishedAssessmentData(p.publishedAssessmentId, p.title, p.lastModifiedDate) " +
+                "from PublishedAssessmentData p, AuthorizationData z " +
+                "where p.publishedAssessmentId=z.qualifierId and z.functionId=:functionId " +
+                "and z.agentIdString=:siteId and p.status=:inactiveStatus ")
+                .setString("functionId", "OWN_PUBLISHED_ASSESSMENT")
+                .setString("siteId", siteAgentId)
+                .setInteger("inactiveStatus", AssessmentIfc.DEAD_STATUS)
+                .list();
+        return getHibernateTemplate().execute(hcb);
+    }
+
+    public void restorePublishedAssessment(Long publishedAssessmentId) {
+        final String recoverQuery = "update PublishedAssessmentData set status = :status WHERE publishedAssessmentId = :id";
+        getHibernateTemplate().execute(session -> {
+            Query q = session.createQuery(recoverQuery);
+            q.setInteger("status", AssessmentIfc.ACTIVE_STATUS);
+            q.setLong("id", publishedAssessmentId);
+            return q.executeUpdate();
+        });
+    }
+
 }

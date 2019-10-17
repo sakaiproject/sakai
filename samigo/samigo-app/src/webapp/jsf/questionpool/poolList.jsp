@@ -114,6 +114,16 @@
             </h:commandLink>
         </span>
     </li>
+    <h:panelGroup rendered="#{authorization.adminAssessment}">
+        <li role="menuitem">
+            <span>
+                <h:commandLink id="restoreAssessments" accesskey="#{generalMessages.a_restore_assessments}" title="#{generalMessages.t_restore_assessments}" action="restoreAssessments" immediate="true">
+                    <h:outputText value="#{generalMessages.restore_assessments}" />
+                    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.RestoreAssessmentsListener" />
+                </h:commandLink>
+            </span>
+        </li>
+    </h:panelGroup>
 </ul>
 
 <h1>

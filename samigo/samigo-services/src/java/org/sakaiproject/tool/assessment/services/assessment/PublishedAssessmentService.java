@@ -732,4 +732,13 @@ public class PublishedAssessmentService extends AssessmentService{
 		return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries()
 				.getQuestionsIdList(publishedAssessmentId);
 	}
+
+	public List<PublishedAssessmentData> getPublishedDeletedAssessments(String siteId) {
+		return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().getPublishedDeletedAssessments(siteId);
+	}
+
+	public void restorePublishedAssessment(Long publishedAssessmentId) {
+		PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().restorePublishedAssessment(publishedAssessmentId);
+	}
+
 }

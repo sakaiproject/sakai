@@ -244,4 +244,7 @@ public interface AssessmentFacadeQueriesAPI {
 	public Set prepareItemAttachmentSet(ItemData newItem,
 										Set itemAttachmentSet, String protocol, String toContext);
 
+    public List<AssessmentData> getDeletedAssessments(String siteId);
+
+    public void restoreAssessment(Long assessmentId);
 }
