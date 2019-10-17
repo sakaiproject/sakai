@@ -37,6 +37,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.faces.application.FacesMessage;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.SessionScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
@@ -76,6 +79,8 @@ import org.sakaiproject.util.Validator;
 
 @Slf4j
 @Getter @Setter
+@ManagedBean(name="ChatTool")
+@SessionScoped
 public class ChatTool {
 
    private static final String IFRAME_ROOM_USERS = "Presence";
@@ -116,9 +121,12 @@ public class ChatTool {
    
    private static final String HIDDEN_START_ISO_DATE = "chatStartDateISO8601";
    private static final String HIDDEN_END_ISO_DATE = "chatEndDateISO8601";
-   
+
+   @ManagedProperty(value="#{Components[\"org.sakaiproject.chat2.model.ChatManager\"]}")
    private ChatManager chatManager;
+   @ManagedProperty(value="#{Components[\"org.sakaiproject.component.api.ServerConfigurationService\"]}")
    private ServerConfigurationService serverConfigurationService;
+   @ManagedProperty(value="#{Components[\"org.sakaiproject.tool.api.ActiveToolManager\"]}")
    private ToolManager toolManager;
    
    /** The current channel the user is in */
