@@ -1,4 +1,4 @@
-<!-- $Id: questionpoolHeadings.jsp 7641 2006-04-11 21:38:28Z hquinn@stanford.edu $
+<!-- $Id: assessmentHeading.jsp 11254 2006-06-28 03:38:28Z daisyf@stanford.edu $
 <%--
 ***********************************************************************************
 *
@@ -24,7 +24,7 @@
         <h:panelGroup rendered="#{authorization.createAssessment}">
             <li role="menuitem">
                 <span>
-                    <h:commandLink title="#{generalMessages.add}" action="#{author.getOutcome}" immediate="true">
+                    <h:commandLink title="#{generalMessages.add}" action="author" immediate="true">
                         <f:param name="action" value="create_assessment_title" />
                         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorAssessmentListener" />
                         <h:outputText value="#{generalMessages.add}" />
@@ -35,9 +35,9 @@
         <h:panelGroup rendered="#{authorization.createAssessment or authorization.editAnyAssessment or authorization.editOwnAssessment or authorization.gradeAnyAssessment or authorization.gradeOwnAssessment}">
             <li role="menuitem">
                 <span>
-                    <h:commandLink title="#{generalMessages.t_assessment}" action="author" id="authorlink" immediate="true">
-                        <h:outputText value="#{generalMessages.assessment}"/>
+                    <h:commandLink title="#{generalMessages.t_assessment}" action="author" immediate="true">
                         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
+                        <h:outputText value="#{generalMessages.assessment}" />
                     </h:commandLink>
                 </span>
             </li>
@@ -52,14 +52,16 @@
                 </span>
             </li>
         </h:panelGroup>
-        <li role="menuitem">
-            <span>
-                <h:commandLink title=" #{generalMessages.t_questionPool} " action="poolList" immediate="true">
-                    <h:outputText value="#{generalMessages.questionPool}" />
-                    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.QuestionPoolListener" />
-                </h:commandLink>
-            </span>
-        </li>
+        <h:panelGroup rendered="#{authorization.adminQuestionPool}">
+            <li role="menuitem">
+                <span>
+                    <h:commandLink id="questionPoolsLink"  title="#{generalMessages.t_questionPool}" action="poolList" immediate="true">
+                        <h:outputText value="#{generalMessages.questionPool}" />
+                        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.QuestionPoolListener" />
+                    </h:commandLink>
+                </span>
+            </li>
+        </h:panelGroup>
         <h:panelGroup rendered="#{authorization.adminQuestionPool}">
             <li role="menuitem">
                 <span>
@@ -73,7 +75,7 @@
         <h:panelGroup rendered="#{authorization.adminQuestionPool}">
             <li role="menuitem">
                 <span>
-                    <h:commandLink id="sectionActivity" accesskey="#{generalMessages.a_section_activity}" title="#{generalMessages.section_activity}" action="sectionActivity" immediate="true">
+                    <h:commandLink id="sectionActivity" accesskey="#{generalMessages.a_section_activity}" title="#{generalMessages.t_section_activity}" action="sectionActivity" immediate="true">
                         <h:outputText value="#{generalMessages.section_activity}" />
                         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SectionActivityListener" />
                     </h:commandLink>
@@ -82,11 +84,8 @@
         </h:panelGroup>
         <h:panelGroup rendered="#{authorization.adminAssessment}">
             <li role="menuitem">
-                <span>
-                    <h:commandLink id="restoreAssessments" accesskey="#{generalMessages.a_restore_assessments}" title="#{generalMessages.t_restore_assessments}" action="restoreAssessments" immediate="true">
-                        <h:outputText value="#{generalMessages.restore_assessments}" />
-                        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.RestoreAssessmentsListener" />
-                    </h:commandLink>
+                <span class="current">
+                    <h:outputText value="#{generalMessages.restore_assessments}" />
                 </span>
             </li>
         </h:panelGroup>

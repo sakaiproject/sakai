@@ -2362,4 +2362,28 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		}
 		return sortedGroups;
 	}
+
+    public List<AssessmentData> getDeletedAssessments(final String siteAgentId) {
+        final HibernateCallback<List<AssessmentData>> hcb = session -> session.createQuery(
+            "select new AssessmentData(a.assessmentBaseId, a.title, a.lastModifiedDate) " +
+                "from AssessmentData a, AuthorizationData z " +
+                "where a.assessmentBaseId=z.qualifierId and z.functionId=:functionId " +
+                "and z.agentIdString=:siteId and a.status=:inactiveStatus ")
+                .setString("functionId", "EDIT_ASSESSMENT")
+                .setString("siteId", siteAgentId)
+                .setInteger("inactiveStatus", AssessmentIfc.DEAD_STATUS)
+                .list();
+        return getHibernateTemplate().execute(hcb);
+    }
+
+    public void restoreAssessment(Long assessmentId) {
+        final String recoverQuery = "update AssessmentData set status = :status WHERE assessmentBaseId = :id";
+        getHibernateTemplate().execute(session -> {
+            Query q = session.createQuery(recoverQuery);
+            q.setInteger("status", AssessmentIfc.ACTIVE_STATUS);
+            q.setLong("id", assessmentId);
+            return q.executeUpdate();
+        });
+    }
+
 }

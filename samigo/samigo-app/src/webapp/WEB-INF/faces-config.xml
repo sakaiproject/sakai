@@ -1037,6 +1037,12 @@
       <to-view-id>/jsf/author/item/calculatedQuestion.jsp</to-view-id>
     </navigation-case>
 
+    <!-- RESTORE PUBLISHED ASSESSMENTS -->
+    <navigation-case>
+      <from-outcome>restoreAssessments</from-outcome>
+      <to-view-id>/jsf/author/restoreAssessments.jsp</to-view-id>
+    </navigation-case>
+
   <!-- ITEM AUTHORING -->
     <navigation-case>
       <from-outcome>trueFalseItem</from-outcome>
