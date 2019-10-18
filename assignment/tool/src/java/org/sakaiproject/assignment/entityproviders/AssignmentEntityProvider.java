@@ -17,6 +17,7 @@ package org.sakaiproject.assignment.entityproviders;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,6 +29,7 @@ import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
+import org.sakaiproject.assignment.api.MultiGroupRecord;
 import org.sakaiproject.assignment.api.model.*;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
@@ -49,6 +51,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -589,6 +592,43 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
      */
     public void setPropertyValue(String reference, String name, String value) {
         // TODO: add ability to set properties of an assignment
+    }
+
+    @EntityCustomAction(action ="checkForUsersInMultipleGroups", viewKey = EntityView.VIEW_LIST)
+    public List<MultiGroupRecord> checkForUsersInMultipleGroups(final EntityView view, final Map<String, Object> params) {
+        final String siteId = StringUtils.trimToEmpty((String) params.get("siteId"));
+        final String asnRef = StringUtils.trimToEmpty((String) params.get("asnRef"));
+
+        if (siteId.isEmpty()) {
+            throw new IllegalArgumentException("Site Id must be provided.");
+        }
+
+        // Permission check to avoid revealing group memberships, user must be able to edit the given assignment,
+        // or if none given, add assignments in the site
+        if (!asnRef.isEmpty() && !assignmentService.allowUpdateAssignment(asnRef)) {
+            throw new SecurityException(new PermissionException(sessionManager.getCurrentSessionUserId(), AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, null));
+        }
+        if (asnRef.isEmpty() && !assignmentService.allowAddAssignment(siteId)) {
+            throw new SecurityException(new PermissionException(sessionManager.getCurrentSessionUserId(), AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, null));
+        }
+
+        final List<String> groupIds;
+        Object groups = params.get("selectedGroups[]");
+        if (groups != null && groups instanceof String[]) {
+            groupIds = Arrays.asList((String[]) groups);
+        } else if (groups != null && groups instanceof String) {
+            groupIds = Collections.singletonList((String) groups);
+        } else {
+            throw new IllegalArgumentException("Selected groups must be provided.");
+        }
+
+        try {
+            List<Group> selectedGroups = siteService.getSite(siteId).getGroups().stream()
+                .filter(g -> groupIds.contains(g.getId())).collect(Collectors.toList());
+            return assignmentService.checkAssignmentForUsersInMultipleGroups(siteId, selectedGroups);
+        } catch (IdUnusedException e) {
+            throw new IllegalArgumentException("Site Id must be provided.");
+        }
     }
 
     @AllArgsConstructor

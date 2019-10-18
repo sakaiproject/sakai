@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -73,6 +74,9 @@ import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.ContentReviewResult;
+import org.sakaiproject.assignment.api.MultiGroupRecord;
+import org.sakaiproject.assignment.api.MultiGroupRecord.AsnGroup;
+import org.sakaiproject.assignment.api.MultiGroupRecord.AsnUser;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentAllPurposeItem;
 import org.sakaiproject.assignment.api.model.AssignmentAllPurposeItemAccess;
@@ -4376,5 +4380,74 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         } else {
             return Optional.empty();
         }
+    }
+
+    @Override
+    public List<MultiGroupRecord> checkAssignmentForUsersInMultipleGroups(String siteId, Collection<Group> asnGroups) {
+        Collection<String> checkUsers = asnGroups.stream().flatMap(g -> g.getUsers().stream()).distinct().collect(Collectors.toList());
+        return usersInMultipleGroups(siteId, checkUsers, asnGroups);
+    }
+
+    @Override
+    public List<MultiGroupRecord> checkSubmissionForUsersInMultipleGroups(String siteId, Group submissionGroup, Collection<Group> asnGroups) {
+        return usersInMultipleGroups(siteId, submissionGroup.getUsers(), asnGroups);
+    }
+
+     /**
+      * A utility method to determine users listed in multiple groups
+      * eligible to submit an assignment.  This is a bad situation.
+      * Current mechanism is to error out assignments with this situation
+      * to prevent affected groups from submitting and viewing feedback
+      * and prevent instructors from grading or sending feedback to
+      * affected groups until the conflict is resolved (by altering
+      * membership or perhaps by designating a resolution).
+      * @param siteId the site id
+      * @param checkUsers the users to check for multiple group memberships
+      * @param groups the groups to check
+      * @return a list of records (each user that appears in multiple groups and the groups they are in)
+      */
+    private List<MultiGroupRecord> usersInMultipleGroups(String siteId, Collection<String> checkUsers, Collection<Group> groups) {
+        List<MultiGroupRecord> dupes = new ArrayList<>();
+        Site site;
+        try {
+            site = siteService.getSite(siteId);
+        } catch (IdUnusedException e) {
+            log.warn("Could not find site with id: " + siteId);
+            return dupes;  // technically this should be some kind of error, but the chances of this actually happening are minuscule
+        }
+
+        for (String userid : checkUsers) {
+            Collection<Group> userGroups = site.getGroupsWithMember(userid);
+            List<Group> filteredUserGroups = userGroups.stream().filter(ug -> groups.contains(ug)).collect(Collectors.toList());
+
+            if (filteredUserGroups.size() < 2) {
+                continue; // not in multiple groups, skip this user
+            }
+
+            AsnUser user;
+            try {
+                User u = userDirectoryService.getUser(userid);
+                /*
+                * SAK-23697 Allow user to be in multiple groups if
+                * no SECURE_ADD_ASSIGNMENT_SUBMISSION permission or
+                * if user has both SECURE_ADD_ASSIGNMENT_SUBMISSION
+                * and SECURE_GRADE_ASSIGNMENT_SUBMISSION permission (TAs and Instructors)
+                */
+                if (!securityService.unlock(u, SECURE_ADD_ASSIGNMENT_SUBMISSION, site.getReference())
+                        || securityService.unlock(u, SECURE_GRADE_ASSIGNMENT_SUBMISSION, site.getReference())) {
+                    continue; // INS/TA, skip
+                }
+                user = new AsnUser(userid, u.getDisplayId(siteId), u.getDisplayName(siteId));
+            } catch (UserNotDefinedException e) {
+                user = new AsnUser(userid, "", ""); // assume to be a student and report it
+            }
+
+            List<AsnGroup> groupList = filteredUserGroups.stream().map(g -> new AsnGroup(g.getId(), g.getTitle())).collect(Collectors.toList());
+            groupList.sort(Comparator.comparing(g -> g.getTitle()));
+            dupes.add(new MultiGroupRecord(user, groupList));
+        }
+
+        dupes.sort(Comparator.comparing(r -> r.user.getDisplayName()));
+        return dupes;
     }
 }
