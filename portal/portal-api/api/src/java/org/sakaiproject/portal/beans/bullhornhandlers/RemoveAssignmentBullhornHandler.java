@@ -60,9 +60,13 @@ public class RemoveAssignmentBullhornHandler extends AbstractBullhornHandler {
         String[] pathParts = ref.split("/");
         String assignmentId = pathParts[pathParts.length - 1];
         try {
-	       users = sessionFactory.getCurrentSession().createQuery("select toUser from BullhornAlert where event = :event and ref = :ref")
-            	  .setString("event", AssignmentConstants.EVENT_ADD_ASSIGNMENT)
-                  .setString("ref", ref).list();
+            users = sessionFactory.getCurrentSession().createQuery("select toUser from BullhornAlert where event = :event and ref = :ref")
+                    .setString("event", AssignmentConstants.EVENT_ADD_ASSIGNMENT)
+                    .setString("ref", ref).list();
+            // every graded user has probably received the addition event too, but it might have been added after creation
+            users.addAll(sessionFactory.getCurrentSession().createQuery("select toUser from BullhornAlert where event = :event and ref like :ref")
+                .setString("event", AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION)
+                .setString("ref", ref.replace("/a/","/s/")+"%").list());
             TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
@@ -71,13 +75,18 @@ public class RemoveAssignmentBullhornHandler extends AbstractBullhornHandler {
                         .setString("ref", ref).executeUpdate();
                 }
             });
+            transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+                protected void doInTransactionWithoutResult(TransactionStatus status) {
+                    sessionFactory.getCurrentSession().createQuery("delete BullhornAlert where event = :event and ref like :ref")
+                        .setString("event", AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION)
+                        .setString("ref", ref.replace("/a/","/s/")+"%").executeUpdate();
+                }
+            });
         } catch (Exception e1) {
             log.error("Failed to delete bullhorn request event", e1);
         }
 
-        for(String to : users) {
-            countCache.remove(to);
-        }
+        users.forEach(countCache::remove);
         countCache.remove(from);
         return Optional.empty();
     }
