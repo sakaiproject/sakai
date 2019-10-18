@@ -18,7 +18,6 @@ package org.sakaiproject.scorm.service.impl;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.Properties;
 
@@ -65,6 +64,7 @@ import org.sakaiproject.scorm.navigation.impl.NavigationEvent;
 import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormApplicationService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
+import org.sakaiproject.service.gradebook.shared.CommentDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.util.ResourceLoader;
@@ -1387,7 +1387,8 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 		{
 			GradebookService gbService = gradebookService();
 			long internalAssessmentID = gbeService.getInternalAssessmentID(context, externalAssessmentID).orElse(-1l);
-			String existingComment = Optional.ofNullable(gbService.getAssignmentScoreComment(context, internalAssessmentID, learnerID).getCommentText()).filter(c -> !c.isEmpty()).orElse("");
+			CommentDefinition cd = gbService.getAssignmentScoreComment(context, internalAssessmentID, learnerID);
+			String existingComment = cd != null ? StringUtils.trimToEmpty(cd.getCommentText()) : "";
 			String moduleNoScoreRecorded = resourceLoader.getString("moduleNoScoreRecorded");
 
 			if (score.isPresent()) // Module recorded a score...
