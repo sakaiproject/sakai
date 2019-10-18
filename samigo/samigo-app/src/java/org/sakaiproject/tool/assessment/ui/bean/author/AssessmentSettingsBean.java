@@ -30,6 +30,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import javax.annotation.Resource;
 import javax.faces.application.FacesMessage;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
@@ -86,15 +88,12 @@ import org.springframework.web.context.ContextLoader;
 import org.springframework.web.context.WebApplicationContext;
 
 /**
- *
- * To change the template for this generated type comment go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
- *
- * Used to be org.navigoproject.ui.web.asi.author.assessment.AssessmentActionForm.java
+ * For author: Assessment Settings backing bean.
  */
 @Slf4j
-public class AssessmentSettingsBean
-    implements Serializable {
+@ManagedBean(name="assessmentSettings")
+@SessionScoped
+public class AssessmentSettingsBean implements Serializable {
 
     private static final IntegrationContextFactory integrationContextFactory =
       IntegrationContextFactory.getInstance();

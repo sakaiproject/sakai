@@ -17,11 +17,12 @@ package org.sakaiproject.tool.assessment.ui.bean.print.settings;
 
 import java.io.Serializable;
 
-/**
- * Holds the users settings for assessment print out
- *
- * @author Joshua Ryan  joshua.ryan@asu.edu  alt^I
- */
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
+
+/* Print settings bean. */
+@ManagedBean(name="printSettings")
+@SessionScoped
 public class PrintSettingsBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;

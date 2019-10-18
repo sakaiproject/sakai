@@ -20,6 +20,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.SessionScoped;
+
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
@@ -38,6 +42,8 @@ import org.sakaiproject.util.ResourceLoader;
 import org.w3c.dom.Document;
 
 @Slf4j
+@ManagedBean(name="samLiteBean")
+@SessionScoped
 public class SamLiteBean implements Serializable {
 	private static final long serialVersionUID = -3122436861866172596L;
 	public static final String DEFAULT_CHARSET = "ascii-us";
@@ -49,8 +55,10 @@ public class SamLiteBean implements Serializable {
 	private String outcome;
 	
 	private boolean isVisible = true;
-	
+
+	@ManagedProperty(value="#{author}")
 	private AuthorBean authorBean;
+	@ManagedProperty(value="#{authorization}")
 	private AuthorizationBean authorizationBean;
 
 	private ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.SamLite");
@@ -64,6 +72,7 @@ public class SamLiteBean implements Serializable {
 	}
 
 	private QuestionGroup questionGroup;
+	@ManagedProperty(value="#{org_sakaiproject_tool_assessment_services_samlite_SamLiteService}")
 	private SamLiteService samLiteService;
 
 	public void setSamLiteService(SamLiteService samLiteService) {

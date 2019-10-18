@@ -41,6 +41,8 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.faces.application.FacesMessage;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.model.ListDataModel;
 import javax.faces.model.SelectItem;
@@ -94,14 +96,11 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 
-/**
- * This holds question pool information.
- *
- * $Id$
- */
+/* Question Pool backing bean. */
 @Slf4j
-public class QuestionPoolBean implements Serializable
-{
+@ManagedBean(name="questionpool")
+@SessionScoped
+public class QuestionPoolBean implements Serializable {
 	
 	  /** Use serialVersionUID for interoperability. */
 	  private final static long serialVersionUID = 418920360211039758L;

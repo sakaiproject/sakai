@@ -25,6 +25,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.faces.model.SelectItem;
 
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
@@ -35,14 +37,11 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * <p>Description: Backing bean for Published Assessment</p>
- *
- *
- */
+/* For author: Published Assessment backing bean. */
 @Slf4j
-public class PublishedAssessmentBeanie
-    implements Serializable {
+@ManagedBean(name="publishedAssessmentBean")
+@SessionScoped
+public class PublishedAssessmentBeanie implements Serializable {
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = -630950053380808339L;

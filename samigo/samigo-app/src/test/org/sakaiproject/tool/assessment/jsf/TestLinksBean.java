@@ -23,17 +23,12 @@ package org.sakaiproject.tool.assessment.jsf;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-/**
- * <p> </p>
- * <p> </p>
- * <p>Copyright: Copyright (c) 2004 Sakai</p>
- * <p> </p>
- * @author Ed Smiley esmiley@stanford.edu
- * @version $Id$
- */
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 
-public class TestLinksBean implements Serializable
-{
+@ManagedBean(name="testlinks")
+@SessionScoped
+public class TestLinksBean implements Serializable {
   public TestLinksBean()
   {
     String[] actions = { "select", "author", "template" };

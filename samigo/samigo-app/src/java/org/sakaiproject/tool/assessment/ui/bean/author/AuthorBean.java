@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
@@ -52,15 +54,11 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.component.cover.ComponentManager;
 
-/**
- * General authoring information.
- * @author Ed Smiley
- *
- * @version $Id$
- */
+/* For author: Assessment Authoring backing bean. */
 @Slf4j
-public class AuthorBean implements Serializable
-{
+@ManagedBean(name="author")
+@SessionScoped
+public class AuthorBean implements Serializable {
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 4216587136245498157L;

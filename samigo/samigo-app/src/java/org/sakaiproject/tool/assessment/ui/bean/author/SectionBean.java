@@ -33,6 +33,8 @@ import java.text.ParseException;
 import java.text.RuleBasedCollator;
 import java.util.Map;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
@@ -64,9 +66,11 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 
+/* For author: Section backing bean. */
 @Slf4j
-public class SectionBean implements Serializable
-{
+@ManagedBean(name="sectionBean")
+@SessionScoped
+public class SectionBean implements Serializable {
 
 /** Use serialVersionUID for interoperability. */
 private final static long serialVersionUID = 4216587136245498157L;

@@ -28,6 +28,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.faces.event.ActionEvent;
 
 import lombok.extern.slf4j.Slf4j;
@@ -41,15 +43,11 @@ import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
-/**
- * <p>Description: class form for evaluating submission status</p>
- *
- *
- */
+/* For evaluation: Submission Status backing bean. */
 @Slf4j
-public class SubmissionStatusBean
-  implements Serializable, PhaseAware
-{
+@ManagedBean(name="submissionStatus")
+@SessionScoped
+public class SubmissionStatusBean implements Serializable, PhaseAware {
   private String assessmentId;
   private String publishedId;
 

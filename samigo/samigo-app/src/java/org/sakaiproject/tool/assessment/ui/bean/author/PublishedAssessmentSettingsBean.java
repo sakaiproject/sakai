@@ -37,6 +37,8 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 import javax.faces.application.FacesMessage;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
@@ -97,9 +99,11 @@ import org.sakaiproject.util.FormattedText;
 import org.springframework.web.context.ContextLoader;
 import org.springframework.web.context.WebApplicationContext;
 
+/* For author: Assessment Settings backing bean.*/
 @Slf4j
-public class PublishedAssessmentSettingsBean
-  implements Serializable {
+@ManagedBean(name="publishedSettings")
+@SessionScoped
+public class PublishedAssessmentSettingsBean implements Serializable {
   
   private static final IntegrationContextFactory integrationContextFactory =
     IntegrationContextFactory.getInstance();

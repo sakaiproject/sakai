@@ -19,23 +19,17 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.bean.evaluation;
 
 import java.io.Serializable;
 
-/**
- * @author palcasi
- *
- * To change the template for this generated type comment go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
- *
- * Used to be org.navigoproject.ui.web.asi.result.GradeResultsForm.java
- */
-public class EvaluationResultBean
-  implements Serializable
-{
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
+
+/* For evaluation: Evaluation Result backing bean. */
+@ManagedBean(name="evaluationresult")
+@SessionScoped
+public class EvaluationResultBean implements Serializable {
   private String assessmentId;
 
   /** Use serialVersionUID for interoperability. */

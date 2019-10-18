@@ -25,6 +25,10 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.util.StringTokenizer;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.SessionScoped;
+
 import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Document;
 
@@ -36,21 +40,18 @@ import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 /**
  * <p>Bean for QTI XML or XML fragments and descriptive information. </p>
  * <p>Used to maintain information or to dump XML to client.</p>
- * <p>Copyright: Copyright (c) 2004 Sakai</p>
- * @author Ed Smiley esmiley@stanford.edu
-   * @version $Id$
  */
 @Slf4j
-public class XMLController implements Serializable
-{
-  /**
-	 * 
-	 */
+@ManagedBean(name="xmlController")
+@SessionScoped
+public class XMLController implements Serializable {
+
 	private static final long serialVersionUID = 7064783681056628447L;
 
   private static final String XML_DECL =
     "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>" + "\n";
 
+  @ManagedProperty(value="#{xml}")
   private XMLDisplay xmlBean;
   private String documentType;
   private String id;

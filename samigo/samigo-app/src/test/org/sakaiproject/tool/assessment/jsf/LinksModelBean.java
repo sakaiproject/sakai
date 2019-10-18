@@ -21,14 +21,12 @@
 package org.sakaiproject.tool.assessment.jsf;
 import java.io.Serializable;
 
-/**
- * <p> test bean</p>
- * @author Ed Smiley esmiley@stanford.edu
- * @version $Id$
- */
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 
-public class LinksModelBean implements Serializable
-{
+@ManagedBean(name="multilinks")
+@SessionScoped
+public class LinksModelBean implements Serializable {
   private java.util.ArrayList linkListList;
 
   public LinksModelBean()

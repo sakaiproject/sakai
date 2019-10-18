@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.servlet.http.HttpServletRequest;
@@ -63,13 +65,12 @@ import org.sakaiproject.util.api.FormattedText;
 import org.springframework.web.context.ContextLoader;
 import org.springframework.web.context.WebApplicationContext;
 
-/**
- * <p>Description: class form for evaluating total scores</p>
- *
- */
+/* For evaluation: Export Responses backing bean. */
 @Slf4j
+@ManagedBean(name="exportResponses")
+@SessionScoped
 public class ExportResponsesBean implements Serializable, PhaseAware {
-	
+
 	private static final long serialVersionUID = 2854656853283125977L;
 
 	// Marks the beginning of each new sheet. If absent, treat as a single-sheet workbook.

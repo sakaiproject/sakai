@@ -25,10 +25,14 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import java.io.Serializable;
 import java.util.Date;
 
-public class AttachmentBean implements Serializable{
-  /**
-	 * 
-	 */
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
+
+/* For author: Item Attachment backing bean. */
+@ManagedBean(name="attachmentBean")
+@SessionScoped
+public class AttachmentBean implements Serializable {
+
 	private static final long serialVersionUID = 4912478649252175081L;
 private Long attachmentId;
   private String resourceId;

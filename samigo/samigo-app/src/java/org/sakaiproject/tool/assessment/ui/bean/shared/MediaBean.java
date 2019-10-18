@@ -24,21 +24,14 @@ package org.sakaiproject.tool.assessment.ui.bean.shared;
 
 import java.io.Serializable;
 
-/**
- * <p> </p>
- * <p>Description: Media Bean with some properties</p>
- * <p>Copyright: Copyright (c) 2004</p>
- * <p>Organization: Sakai Project</p>
- * @author Ed Smiley
- * @version $id: $
- */
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 
-public class MediaBean
-  implements Serializable
-{
-  /**
-	 * 
-	 */
+/* For media: Media bean. */
+@ManagedBean(name="mediaBean")
+@SessionScoped
+public class MediaBean implements Serializable {
+
 	private static final long serialVersionUID = 3080542880089498490L;
 private String mediaId;
   private String mediaUrl;

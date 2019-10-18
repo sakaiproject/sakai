@@ -44,6 +44,8 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.faces.application.FacesMessage;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
@@ -100,14 +102,11 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 
-/**
- * Backing bean for Item Authoring, uses ItemBean for UI
- * $Id$
- */
+/* For author: Item Author backing bean. */
 @Slf4j
-public class ItemAuthorBean
-  implements Serializable
-{
+@ManagedBean(name="itemauthor")
+@SessionScoped
+public class ItemAuthorBean implements Serializable {
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 8266438770394956874L;

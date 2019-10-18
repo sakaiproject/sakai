@@ -33,6 +33,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletResponse;
@@ -74,15 +76,10 @@ import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 import org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter;
 
-/**
- * 
- * @author Joshua Ryan <a href="mailto:joshua.ryan@asu.edu">joshua.ryan@asu.edu</a>
- *
- * This class is basically just a conveinceince class for abstracting the creation of
- * PDF's from assessments
- * 
- */
+/* Print to PDF backing bean. */
 @Slf4j
+@ManagedBean(name="pdfAssessment")
+@SessionScoped
 public class PDFAssessmentBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;

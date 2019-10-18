@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.faces.event.ActionEvent;
 
 import lombok.Getter;
@@ -52,14 +54,11 @@ import org.sakaiproject.tool.assessment.util.AttachmentUtil;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.util.ResourceLoader;
 
-/**
- * <p>Description: class form for evaluating question scores</p>
- *
- */
+/* For evaluation: Question Scores backing bean. */
 @Slf4j
-public class QuestionScoresBean
-  implements Serializable, PhaseAware
-{
+@ManagedBean(name="questionScores")
+@SessionScoped
+public class QuestionScoresBean implements Serializable, PhaseAware {
   @Setter
   private String assessmentId;
   @Setter

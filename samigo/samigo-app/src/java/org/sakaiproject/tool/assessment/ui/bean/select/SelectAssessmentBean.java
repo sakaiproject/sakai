@@ -24,18 +24,16 @@ package org.sakaiproject.tool.assessment.ui.bean.select;
 import java.io.Serializable;
 import java.util.List;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 
-/**
- * @author <a href="mailto:lance@indiana.edu">Lance Speelmon</a>
- * @version $Id$
- *
- * Used to be org.navigoproject.ui.web.asi.select.SelectAssessmentForm.java
- */
-public class SelectAssessmentBean
-implements Serializable
-{
+/* For select: Select Assessment backing bean. */
+@ManagedBean(name="select")
+@SessionScoped
+public class SelectAssessmentBean implements Serializable {
 	private List takeableAssessments;
 
 	/** Use serialVersionUID for interoperability. */

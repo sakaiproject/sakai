@@ -24,21 +24,16 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
+
 import org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener;
 
-/**
- * <p> </p>
- * <p>Description: Test Bean with some properties</p>
- * <p>Copyright: Copyright (c) 2004</p>
- * @author Ed Smiley
- * @version $Id$
- */
-
-public class TestBackingBean
-  implements Serializable
-{
+@ManagedBean(name="bean")
+@SessionScoped
+public class TestBackingBean implements Serializable {
   private String prop1;
   private String prop2;
   private String prop3;
