@@ -37,7 +37,7 @@ should be included in file importing DeliveryMessages
 <h:outputText value="</script>" escape="false" />
 
 <h:outputText value="<fieldset>" escape="false"/>
-<h:outputText value="<legend class='samigo-legend'> #{question.text} </legend>" escape="false"/>
+<h:outputText value="#{question.text}" escape="false"/>
 
   <!-- ATTACHMENTS -->
   <%@ include file="/jsf/delivery/item/attachment.jsp" %>
