@@ -45,7 +45,7 @@
 #macro(toolListDescription $tool $multipleToolIdTitleMap $multipleToolConfiguration)
     #set($toolId = $tool.id)
     <div class="toolListDesc textPanelFooter specialLink" id="${toolId}.desc">
-        #if (!$tool.getDescription().isEmpty())
+        #if ($tool.description)
             $tool.description
         #end
         #if ($multipleToolIdTitleMap.containsKey($toolId))
