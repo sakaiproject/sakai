@@ -77,7 +77,7 @@ public class ItemBean
   private String itemScoreDisplayFlag= "true";
   private Double itemMinScore;
   private double itemDiscount = 0.0d;
-  private String partialCreditFlag = "Defualt";
+  private String partialCreditFlag = "Default";
   private String[] answers;
   private String[] answerLabels;  //  such as A, B, C
   private String[] corrAnswers;  // store checkbox values(labels) for multiple correct answers, as in mcmc type
@@ -1619,6 +1619,7 @@ public class ItemBean
 		for(AnswerBean answerBean : getMultipleChoiceAnswers()){
 			answerBean.setPartialCredit("0");
 		}
+		itemDiscount = 0.0d;
 		return null;
 	}
 
