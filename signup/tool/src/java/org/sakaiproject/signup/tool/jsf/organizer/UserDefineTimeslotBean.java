@@ -527,7 +527,7 @@ public class UserDefineTimeslotBean implements SignupBeanConstants {
 	}
 
 	public List<TimeslotWrapper> getTimeSlotWrpList() {
-		return timeSlotWrpList;
+		return Collections.synchronizedList(timeSlotWrpList);
 	}
 
 	public void setTimeSlotWrpList(List<TimeslotWrapper> timeSlotWrpList) {
