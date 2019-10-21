@@ -4,38 +4,52 @@ import {html} from "./assets/lit-element/lit-element.js";
 class SakaiEditor extends SakaiElement {
     static get properties() {
         return {
-            textAreaId: { type: String },
-            text: { type: String }
+            editorId: { type: String },
+            text: { type: String },
+            mode: { type: String}
         };
     }
 
     constructor() {
         super();
         console.log("Sakai Editor constructor");
-        this.textAreaId = 'editor';
+        this.editorId = 'editor';
         this.text = 'Add your content here';
+        this.mode = 'classic';
     }
 
     render() {
         console.log("Sakai Editor render");
 
         return html`
-            <textarea id="${this.textAreaId}">${this.text}</textarea>
+            <div id="${this.editorId}">
+                <h2>${this.text}</h2>
+            </div>
         `;
     }
 
     firstUpdated(changedProperties) {
         console.log("Sakai Editor firstUpdated");
-        const textArea = this.querySelector(`#${this.textAreaId}`);
-        textArea.focus();
+        const element = this.querySelector(`#${this.editorId}`);
 
-        CKEDITOR.ClassicEditor.create(textArea)
-            .then(editor => {
-                console.log(editor);
-            })
-            .catch(error => {
-                console.error(error.stack);
-            });
+        if (this.mode === 'inline') {
+            CKEDITOR.InlineEditor.create(element)
+                .then(editor => {
+                    console.log(editor);
+                })
+                .catch(error => {
+                    console.error(error.stack);
+                });
+        } else {
+            // classic editor is the default
+            CKEDITOR.ClassicEditor.create(element)
+                .then(editor => {
+                    console.log(editor);
+                })
+                .catch(error => {
+                    console.error(error.stack);
+                });
+        }
     }
 }
 
