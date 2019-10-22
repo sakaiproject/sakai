@@ -29,6 +29,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
 import java.net.URLEncoder;
 
 import java.security.*;
@@ -946,6 +948,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 				systemTools.add(tool);
 			}
 		}
+
+		systemTools = systemTools.stream().sorted((m1, m2) -> String.valueOf(m1.get("title")).compareTo(String.valueOf(m2.get("title")))).collect(Collectors.toList());
 		context.put("tools", systemTools);
 
 		Object previousData = null;
