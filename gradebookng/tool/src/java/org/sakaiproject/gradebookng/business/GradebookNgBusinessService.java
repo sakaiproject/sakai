@@ -282,7 +282,7 @@ public class GradebookNgBusinessService {
 																// are visible
 																// to this TA
 					} else {
-						userUuids.clear(); // TA can't view anyone
+						userUuids.removeAll(sectionManager.getSectionEnrollmentsForStudents(givenSiteId, userUuids).getStudentUuids()); // TA can view/grade students without section
 					}
 				}
 			}
