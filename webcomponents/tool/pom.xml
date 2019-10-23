@@ -123,17 +123,6 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>npm build</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <configuration>
-                            <arguments>
-                                run build
-                            </arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
                         <id>npm install</id>
                         <goals>
                             <goal>npm</goal>
@@ -141,6 +130,17 @@
                         <configuration>
                             <arguments>
                                 install --unsafe-perm
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm build</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>
+                                run build
                             </arguments>
                         </configuration>
                     </execution>

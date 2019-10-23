@@ -40,6 +40,14 @@ class SakaiEditor extends SakaiElement {
                 .catch(error => {
                     console.error(error.stack);
                 });
+        } else if (this.mode === 'balloon') {
+            CKEDITOR.BalloonEditor.create(element)
+                .then(editor => {
+                    console.log(editor);
+                })
+                .catch(error => {
+                    console.error(error.stack);
+                });
         } else {
             // classic editor is the default
             CKEDITOR.ClassicEditor.create(element)

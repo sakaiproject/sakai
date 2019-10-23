@@ -6,6 +6,7 @@
 // The editor creator to use.
 import ClassicEditorBase from '@ckeditor/ckeditor5-editor-classic/src/classiceditor';
 import InlineEditorBase from '@ckeditor/ckeditor5-editor-inline/src/inlineeditor';
+import BalloonEditorBase from '@ckeditor/ckeditor5-editor-balloon/src/ballooneditor';
 
 import Essentials from '@ckeditor/ckeditor5-essentials/src/essentials';
 import UploadAdapter from '@ckeditor/ckeditor5-adapter-ckfinder/src/uploadadapter';
@@ -32,6 +33,7 @@ import TableToolbar from '@ckeditor/ckeditor5-table/src/tabletoolbar';
 
 export class ClassicEditor extends ClassicEditorBase {}
 export class InlineEditor extends InlineEditorBase {}
+export class BalloonEditor extends BalloonEditorBase {}
 
 // Plugins to include in the build.
 const plugins = [
@@ -96,6 +98,8 @@ const config = {
 	language: 'en'
 };
 
+BalloonEditor.builtinPlugins = plugins;
+BalloonEditor.defaultConfig = config;
 InlineEditor.builtinPlugins = plugins;
 InlineEditor.defaultConfig = config;
 ClassicEditor.builtinPlugins = plugins;
