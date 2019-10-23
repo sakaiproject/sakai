@@ -18,6 +18,7 @@ package org.sakaiproject.portal.beans.bullhornhandlers;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.annotation.Resource;
@@ -51,7 +52,7 @@ public class RemoveAssignmentBullhornHandler extends AbstractBullhornHandler {
     }
 
     @Override
-    public Optional<List<BullhornData>> handleEvent(Event e, Cache<String, Long> countCache) {
+    public Optional<List<BullhornData>> handleEvent(Event e, Cache<String, Map> countCache) {
         List<String> users = new ArrayList<>();
 
         String from = e.getUserId();
