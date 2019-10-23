@@ -23,7 +23,9 @@ package org.sakaiproject.tool.messageforums;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
@@ -183,8 +185,14 @@ public class MessageForumsFilePickerServlet extends JsfTool  implements HttpServ
      */
     private String checkUrlRequirements(HttpServletRequest req, String target) {
         String newTarget = target;
-        if ("/privateMsg/pvtMsgDetail".equals(target) && (req.getSession().getAttribute("PrivateMessagesTool") == null ||
-                ((PrivateMessagesTool) req.getSession().getAttribute("PrivateMessagesTool")).getDetailMsg() == null)) {
+        final List<String> pagesRequireMsgDetailInBean = new ArrayList<>();
+        pagesRequireMsgDetailInBean.add("/privateMsg/pvtMsgDetail");
+        pagesRequireMsgDetailInBean.add("/pvtMsgReply");
+        pagesRequireMsgDetailInBean.add("/pvtMsgReplyAll");
+        pagesRequireMsgDetailInBean.add("/pvtMsgForward");
+
+        final PrivateMessagesTool backingBean = (PrivateMessagesTool) req.getSession().getAttribute("PrivateMessagesTool");
+        if (pagesRequireMsgDetailInBean.contains(target) && (backingBean == null || backingBean.getDetailMsg() == null)) {
             newTarget = "/privateMsg/pvtMsgHpView";
         } else if ("/privateMsg/pvtMsgDirectAccess".equals(target)) {
             final String[] currentMsgDetail = req.getParameterMap().get("current_msg_detail");
