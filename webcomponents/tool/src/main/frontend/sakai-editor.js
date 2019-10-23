@@ -4,22 +4,22 @@ import {html} from "./assets/lit-element/lit-element.js";
 class SakaiEditor extends SakaiElement {
     static get properties() {
         return {
-            editorId: { type: String },
-            text: { type: String },
-            mode: { type: String}
+            editorId: { attribute: "editor-id", type: String },
+            text: String,
+            mode: String
         };
     }
 
     constructor() {
         super();
-        console.log("Sakai Editor constructor");
-        this.editorId = 'editor';
-        this.text = 'Add your content here';
-        this.mode = 'classic';
+        console.debug("Sakai Editor constructor");
+        this.editorId = "editor";
+        this.text = "Add your content here";
+        this.mode = "classic";
     }
 
     render() {
-        console.log("Sakai Editor render");
+        console.debug("Sakai Editor render");
 
         return html`
             <div id="${this.editorId}">
@@ -29,21 +29,21 @@ class SakaiEditor extends SakaiElement {
     }
 
     firstUpdated(changedProperties) {
-        console.log("Sakai Editor firstUpdated");
+        console.debug("Sakai Editor firstUpdated");
         const element = this.querySelector(`#${this.editorId}`);
 
-        if (this.mode === 'inline') {
+        if (this.mode === "inline") {
             CKEDITOR.InlineEditor.create(element)
                 .then(editor => {
-                    console.log(editor);
+                    console.debug(editor);
                 })
                 .catch(error => {
                     console.error(error.stack);
                 });
-        } else if (this.mode === 'balloon') {
+        } else if (this.mode === "balloon") {
             CKEDITOR.BalloonEditor.create(element)
                 .then(editor => {
-                    console.log(editor);
+                    console.debug(editor);
                 })
                 .catch(error => {
                     console.error(error.stack);
@@ -52,7 +52,7 @@ class SakaiEditor extends SakaiElement {
             // classic editor is the default
             CKEDITOR.ClassicEditor.create(element)
                 .then(editor => {
-                    console.log(editor);
+                    console.debug(editor);
                 })
                 .catch(error => {
                     console.error(error.stack);
