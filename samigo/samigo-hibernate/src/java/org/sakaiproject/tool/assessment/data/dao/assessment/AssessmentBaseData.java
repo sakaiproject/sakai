@@ -27,6 +27,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.apache.commons.collections4.CollectionUtils;
+
 import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
@@ -327,29 +329,25 @@ public class AssessmentBaseData
 
   public void setAssessmentMetaDataSet(Set assessmentMetaDataSet) {
     this.assessmentMetaDataSet = assessmentMetaDataSet;
-    this.assessmentMetaDataMap = getAssessmentMetaDataMap(assessmentMetaDataSet);
+    try{
+        this.assessmentMetaDataMap = this.getAssessmentMetaDataMap(assessmentMetaDataSet);
+    } catch (Exception ex) {
+        this.assessmentMetaDataMap = new HashMap();
+    }
   }
 
   public HashMap getAssessmentMetaDataMap(Set assessmentMetaDataSet) {
     HashMap assessmentMetaDataMap = new HashMap();
-    if (assessmentMetaDataSet != null){
-      for (Iterator i = assessmentMetaDataSet.iterator(); i.hasNext(); ) {
-        AssessmentMetaData assessmentMetaData = (AssessmentMetaData) i.next();
-        assessmentMetaDataMap.put(assessmentMetaData.getLabel(), assessmentMetaData.getEntry());
-      }
+    if (CollectionUtils.isNotEmpty(assessmentMetaDataSet)) {
+         for (AssessmentMetaData assessmentMetaData : (Set<AssessmentMetaData>) assessmentMetaDataSet) {
+             assessmentMetaDataMap.put(assessmentMetaData.getLabel(), assessmentMetaData.getEntry());
+         }
     }
     return assessmentMetaDataMap;
   }
 
   public HashMap getAssessmentMetaDataMap() {
-    HashMap assessmentMetaDataMap = new HashMap();
-    if (this.assessmentMetaDataSet != null){
-      for (Iterator i = this.assessmentMetaDataSet.iterator(); i.hasNext(); ) {
-        AssessmentMetaData assessmentMetaData = (AssessmentMetaData) i.next();
-        assessmentMetaDataMap.put(assessmentMetaData.getLabel(), assessmentMetaData.getEntry());
-      }
-    }
-    return assessmentMetaDataMap;
+    return this.getAssessmentMetaDataMap(this.assessmentMetaDataSet);
   }
 
   public String getAssessmentMetaDataByLabel(String label) {
