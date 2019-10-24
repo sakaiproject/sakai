@@ -2446,14 +2446,6 @@ public class AssignmentAction extends PagedResourceActionII {
         return submissions.stream().map(AssignmentSubmission::getSubmitters).flatMap(Set::stream).map(AssignmentSubmissionSubmitter::getSubmitter).collect(Collectors.toSet());
     }
 
-    private HashSet<String> getAllowAddSubmissionUsersIdSet(List users) {
-        HashSet<String> rv = new HashSet<String>();
-        for (Iterator iUsers = users.iterator(); iUsers.hasNext(); ) {
-            rv.add(((User) iUsers.next()).getId());
-        }
-        return rv;
-    }
-
     /**
      * build the view of assignments list
      */
