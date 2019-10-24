@@ -162,6 +162,11 @@
                 <artifactId>profile2-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
+	    <dependency>
+		    <groupId>com.nimbusds</groupId>
+		    <artifactId>nimbus-jose-jwt</artifactId>
+		    <version>8.2</version>
+	    </dependency>
         </dependencies>
     </dependencyManagement>
 </project>
