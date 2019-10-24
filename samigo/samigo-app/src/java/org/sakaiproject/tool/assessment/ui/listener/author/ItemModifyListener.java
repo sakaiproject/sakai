@@ -555,44 +555,6 @@ public class ItemModifyListener implements ActionListener
 		answerbeanlist.add(answerbean);
          }
 
-         
-/*         
-		  if ((Long.valueOf(itemauthorbean.getItemType()).equals(TypeFacade.MULTIPLE_CHOICE)) ||(Long.valueOf(itemauthorbean.getItemType()).equals(TypeFacade.MULTIPLE_CORRECT)) || (Long.valueOf(itemauthorbean.getItemType()).equals(TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION)) ) {
-			  Set answerobjlist = itemText.getAnswerSet();
-			  String afeedback =  "" ;
-			  Iterator iter1 = answerobjlist.iterator();
-			  ArrayList answerbeanlist = new ArrayList();
-			  ArrayList correctlist = new ArrayList();
-			  //need to check sequence no, since this answerSet returns answers in random order
-			  int count = answerobjlist.size();
-			  AnswerIfc[] answerArray = new AnswerIfc[count];
-			  while(iter1.hasNext())
-			  {
-				  AnswerIfc answerobj = (AnswerIfc) iter1.next();
-				  Long seq = answerobj.getSequence();
-				  answerArray[seq.intValue()-1] = answerobj;
-			  }
-			  for (int i=0; i<answerArray.length; i++) {
-				  Set feedbackSet = answerArray[i].getAnswerFeedbackSet();
-				  // contains only one element in the Set
-				  if (feedbackSet.size() == 1) {
-					  AnswerFeedbackIfc afbobj=(AnswerFeedbackIfc) feedbackSet.iterator().next();
-					  afeedback = afbobj.getText();
-				  }
-				  AnswerBean answerbean = new AnswerBean();
-				  answerbean.setText(answerArray[i].getText());
-				  answerbean.setSequence(answerArray[i].getSequence());
-				  answerbean.setLabel(answerArray[i].getLabel());
-				  answerbean.setFeedback(afeedback);
-				  answerbean.setIsCorrect(answerArray[i].getIsCorrect());
-				  if (answerbean.getIsCorrect() != null &&
-						  answerbean.getIsCorrect().booleanValue()) {
-					  correctlist.add(answerbean);
-				  }
-				  answerbeanlist.add(answerbean);
-			  }
-*/
-
 			  // set correct choice for single correct
 			  if (Long.valueOf(itemauthorbean.getItemType()).equals(TypeFacade.MULTIPLE_CHOICE)) {
 				  Iterator iter2 = correctlist.iterator();

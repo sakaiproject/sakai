@@ -423,12 +423,12 @@ public class ItemService
 	return h;
   }
 
-  public void deleteSet(Set s)
+  public void deleteSet(Long elemId, boolean isText)
   {
     try
     {
       PersistenceService.getInstance().getItemFacadeQueries().
-      deleteSet(s);
+      deleteSet(elemId, isText);
     }
     catch(Exception e)
     {
@@ -436,7 +436,7 @@ public class ItemService
       throw new RuntimeException(e);
     }
   }
-  
+
   public void removeItemAttachment(Long attachmentId) {
     try {
       PersistenceService.getInstance().getItemFacadeQueries().removeItemAttachment(attachmentId);
