@@ -274,7 +274,7 @@
 
 #if ( (!$neoChat) && ${loggedIn} && ${sitePages.pageNavShowPresenceLoggedIn} )
 
-    <div id="presenceArea" class="trayPopup hidden Mrphs-presence__area is-hidden">
+    <div id="presenceArea" class="trayPopup Mrphs-presence__area is-hidden">
         <div id="presenceWrapper" class="Mrphs-presence__area--wrapper">
             <div id="presenceTitle" class="Mrphs-presence__area--title">
                 ${rloader.sit_presencetitle}

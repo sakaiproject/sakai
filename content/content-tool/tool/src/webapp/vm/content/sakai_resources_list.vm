@@ -1,10 +1,7 @@
 ## version: $Id:  $
 <!-- sakai_resources_list.vm, use with org.sakaiproject.content.tool.ResourcesAction.java -->
 <!-- this is the new list template, which uses the resources type registry -->
-<script type="text/javascript">includeLatestJQuery('content');</script>
-
-<!-- // -->
-</script>
+<script>includeLatestJQuery('content');</script>
 
 <style>
   .table td, .table th {
@@ -33,9 +30,6 @@
 </style>
 
 #javascript("/sakai-content-tool/js/content.js")
-<!-- // -->
-</script>
-
 
 <script type="text/javascript">
     var jsLang = {
