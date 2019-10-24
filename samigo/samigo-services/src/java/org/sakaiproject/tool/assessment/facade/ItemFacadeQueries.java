@@ -37,8 +37,10 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.ItemAttachment;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.TagServiceHelper;
@@ -568,16 +570,28 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
 	    return itemTextId;
   }
 
-  public void deleteSet(Set s) {
+  public void deleteSet(Long elemId, boolean isText) {
 		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
 		while (retryCount > 0) {
 			try {
-				if (s != null) { // need to dissociate with item before deleting in Hibernate 3
-					getHibernateTemplate().deleteAll(s);
-					retryCount = 0;
+				List elements = new ArrayList();
+				if(isText) {
+					elements = getHibernateTemplate().findByNamedParam("from PublishedItemText t where t.item.itemId = :id", "id", elemId);
+					if (elements.size() > 0) {
+						ItemTextIfc t = (ItemTextIfc) elements.get(0);
+						ItemDataIfc i = (ItemDataIfc) t.getItem();
+						i.setItemTextSet(new HashSet());
+					}
 				} else {
-					retryCount = 0;
+					elements = getHibernateTemplate().findByNamedParam("from PublishedAnswer a where a.itemText.id = :id", "id", elemId);
+					if (elements.size() > 0) {
+						AnswerIfc a = (AnswerIfc) elements.get(0);
+						ItemTextIfc t = (ItemTextIfc) a.getItemText();
+						t.setAnswerSet(new HashSet());
+					}
 				}
+				getHibernateTemplate().deleteAll(elements);
+				retryCount = 0;
 			} catch (Exception e) {
 				log.warn("problem deleteSet: " + e.getMessage());
 				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e,

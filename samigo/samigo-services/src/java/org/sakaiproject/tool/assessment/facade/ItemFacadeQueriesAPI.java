@@ -87,7 +87,7 @@ public interface ItemFacadeQueriesAPI
 
   public Long getItemTextId(Long publishedItemId);
   
-  public void deleteSet(Set s);
+  public void deleteSet(Long elemId, boolean isText);
 
   public void updateItemTagBindingsHavingTag(TagServiceHelper.TagView tagView);
 
