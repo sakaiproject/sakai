@@ -174,6 +174,7 @@ import org.sakaiproject.util.Web;
 import org.sakaiproject.util.api.LinkMigrationHelper;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.math.NumberUtils;
 
 /**
  * <p>
@@ -6590,7 +6591,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				boolean allowedForSite = siteRestriction.isEmpty() || siteRestriction.equals(siteId);
 				try
 				{
-					// in Oracle, the lti tool id is returned as BigDecimal, which cannot be casted into Integer directly
+					// in Oracle, both the lti tool id and the toolorder are returned as BigDecimal, which cannot be cast into Integer directly
 					Integer ltiId = Integer.valueOf(toolIdString);
 					if (ltiId != null) {
 						String ltiToolId = ltiId.toString(); 
@@ -6602,8 +6603,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 							newTool.description = (String) tool.get("description");
 							newTool.group = groupName;
 							relativeWebPath = getMoreInfoUrl(moreInfoDir, ltiToolId);
-							Integer order = (Integer) tool.get("toolorder");
-							if (order != null) {
+							Integer order = NumberUtils.toInt(Objects.toString(tool.get("toolorder")), -1);
+							if (order >= 0) {
 								toolOrder.put(newTool.id, order);
 							}
 							if (relativeWebPath != null) {
