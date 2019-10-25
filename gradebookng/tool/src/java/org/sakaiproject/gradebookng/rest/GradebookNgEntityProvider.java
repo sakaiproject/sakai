@@ -15,15 +15,23 @@
  */
 package org.sakaiproject.gradebookng.rest;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.entitybroker.EntityReference;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.email.api.EmailService;
+import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.EntityView;
+import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
@@ -37,6 +45,14 @@ import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.exception.GbAccessDeniedException;
 import org.sakaiproject.gradebookng.business.model.GbGradeCell;
+import org.sakaiproject.service.gradebook.shared.GradeDefinition;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.tool.gradebook.facades.Authz;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
+
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 
@@ -57,6 +73,33 @@ import lombok.extern.slf4j.Slf4j;
 public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		AutoRegisterEntityProvider, ActionsExecutable,
 		Outputable, Describeable {
+
+	private static final String MESSAGE_UNGRADED = "1";
+	private static final String MESSAGE_GRADED = "2";
+
+	@Setter
+	private EmailService emailService;
+
+	@Setter
+	private SiteService siteService;
+
+	@Setter
+	private SessionManager sessionManager;
+
+	@Setter
+	private SecurityService securityService;
+
+	@Setter
+	private ServerConfigurationService serverConfigurationService;
+
+	@Setter
+	private GradebookNgBusinessService businessService;
+
+	@Setter
+	private GradebookService gradebookService;
+
+	@Setter
+	private UserDirectoryService userDirectoryService;
 
 	@Override
 	public String[] getHandledOutputFormats() {
@@ -187,6 +230,72 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		return this.businessService.getAssignmentGradeComment(siteId, assignmentId, studentUuid);
 	}
 
+	@EntityCustomAction(action = "messageStudents", viewKey = EntityView.VIEW_NEW)
+	public String messageStudents(final EntityView view, final Map<String, Object> params) {
+
+		final String siteId = (String) params.get("siteId");
+		final long assignmentId = NumberUtils.toLong((String) params.get("assignmentId"));
+		final String action = (String) params.get("action");
+		final String subject = (String) params.get("subject");
+		final String body = (String) params.get("body");
+
+		// check params supplied are valid
+		if (StringUtils.isBlank(siteId) || assignmentId == 0 || StringUtils.isBlank(subject) || StringUtils.isBlank(body)) {
+			throw new IllegalArgumentException("You must supply siteId, assignmentId, subject and body");
+		}
+
+		checkInstructorOrTA(siteId);
+
+		Site site = null;
+		try {
+			site = siteService.getSite(siteId);
+		} catch(IdUnusedException idue) {
+			throw new IllegalArgumentException("siteId " + siteId + " is invalid");
+		}
+
+		Set<String> students = site.getUsers();
+
+		// Remove the instructors
+		students.removeAll(site.getUsersIsAllowed(Authz.PERMISSION_GRADE_ALL));
+
+		List<GradeDefinition> grades
+			= gradebookService.getGradesForStudentsForItem(siteId, assignmentId, new ArrayList<String>(students));
+
+		Set<String> gradedStudents = grades.stream().filter(g -> g.getDateRecorded() != null)
+			.map(g -> g.getStudentUid()).collect(Collectors.toSet());
+
+		switch(action) {
+			case MESSAGE_UNGRADED:
+				students.removeAll(gradedStudents);
+				break;
+			case MESSAGE_GRADED:
+				students = gradedStudents;
+				break;
+			default:
+				 // Just default to all the students
+		}
+
+		List<String> headers = new ArrayList<>();
+		headers.add("Subject: " + subject);
+		headers.add("From: " + "\"" + serverConfigurationService.getString("ui.service", "Sakai") + "\" <" + serverConfigurationService.getString("setup.request", "no-reply@" + serverConfigurationService.getServerName()) + ">");
+		List<User> users = students.stream().map(s -> {
+			try {
+				return userDirectoryService.getUser(s);
+			} catch (UserNotDefinedException unde) {
+				return null;
+			}
+		}).collect(Collectors.toList());
+
+		if (users.contains(null)) {
+			String errorMsg = "At least one of the students to message is null. No messsages sent.";
+			log.warn(errorMsg);
+			throw new EntityException(errorMsg, "", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		} else {
+			emailService.sendToUsers(users, headers, body);
+			return "";
+		}
+	}
+
 	/**
 	 * Helper to check if the user is an instructor. Throws IllegalArgumentException if not. We don't currently need the value that this
 	 * produces so we don't return it.
@@ -271,17 +380,5 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		}
 		return role;
 	}
-
-	@Setter
-	private SiteService siteService;
-
-	@Setter
-	private SessionManager sessionManager;
-
-	@Setter
-	private SecurityService securityService;
-
-	@Setter
-	private GradebookNgBusinessService businessService;
 
 }
