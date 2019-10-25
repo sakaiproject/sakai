@@ -82,6 +82,9 @@
                 <!-- Allow multiple instances of this tool within one site -->
                 <configuration name="allowMultipleInstances" value="true" />
 
+                <!-- Allow this tool to be copied into a new site when a site is duplicated -->
+                <configuration name="allowToolDuplicate" value="true" />
+
         </tool>
 
         <!--Add New Tools Here -->

@@ -7933,6 +7933,65 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		return false;
 	}
 	
+	/**
+	 * Read from tool registration whether the tool may be duplicated across sites
+	 * @param toolId
+	 * @return
+	*/
+	private boolean isDuplicateAllowed(String toolId)
+	{
+		Tool tool = ToolManager.getTool(toolId);
+		if (tool != null) {
+			Properties tProperties = tool.getRegisteredConfig();
+			if (tProperties.containsKey("allowToolDuplicate") &&
+			    tProperties.getProperty("allowToolDuplicate").equalsIgnoreCase(Boolean.FALSE.toString())) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+
+	private void removeToolsNotForDuplication(Site site)
+	{
+
+		List<String> removePageIds = new ArrayList();
+
+		for (SitePage page : site.getPages()) {
+
+			boolean keepPage = false;
+
+			List<String> removeToolIds = new ArrayList();
+
+			for (ToolConfiguration t : page.getTools()) {
+				if (isDuplicateAllowed(t.getToolId())) {
+					keepPage = true;
+				} else {
+					removeToolIds.add(t.getId());
+				}
+			}
+
+			// Remove tool if it may not be duplicated
+			for (String removeId : removeToolIds) {
+				ToolConfiguration t = page.getTool(removeId);
+				page.removeTool(t);
+			}
+
+			if (!keepPage) {
+				removePageIds.add(page.getId());
+			}
+		}
+
+		// Remove page if it contains no tools that may be duplicated
+		for (String removeId : removePageIds) {
+			SitePage sitePage = site.getPage(removeId);
+			site.removePage(sitePage);
+		}
+
+		return;
+	}
+
+
 	private HashMap<String, String> getMultiToolConfiguration(String toolId, ToolConfiguration toolConfig)
 	{
 		HashMap<String, String> rv = new HashMap<String, String>();
@@ -9939,6 +9998,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 									try {
 										SiteService.save(site);
+
+										// Remove tools and pages that may not be duplicated
+										removeToolsNotForDuplication(site);
 
 										// import tool content
 										siteManageService.importToolContent(oldSiteId, site, null, false);
