@@ -44,14 +44,14 @@ public interface ExtendedTimeQueriesAPI {
      * @param ass
      * @return
      */
-    List<ExtendedTime>  getEntriesForAss        (AssessmentBaseIfc ass);
+    List<ExtendedTime> getEntriesForAss(AssessmentBaseIfc ass);
 
     /**
      *
      * @param pub
      * @return
      */
-    List<ExtendedTime>  getEntriesForPub        (PublishedAssessmentIfc pub);
+    List<ExtendedTime> getEntriesForPub(PublishedAssessmentIfc pub);
 
     /**
      *
@@ -59,7 +59,7 @@ public interface ExtendedTimeQueriesAPI {
      * @param userId
      * @return
      */
-    ExtendedTime        getEntryForPubAndUser   (PublishedAssessmentIfc pub, String userId);
+    ExtendedTime getEntryForPubAndUser(PublishedAssessmentIfc pub, String userId);
 
     /**
      *
@@ -67,26 +67,26 @@ public interface ExtendedTimeQueriesAPI {
      * @param groupId
      * @return
      */
-    ExtendedTime        getEntryForPubAndGroup  (PublishedAssessmentIfc pub, String groupId);
+    ExtendedTime getEntryForPubAndGroup(PublishedAssessmentIfc pub, String groupId);
 
     /**
      *
      * @param e
      * @return
      */
-    boolean             updateEntry             (ExtendedTime e);
+    boolean updateEntry(ExtendedTime e);
 
     /**
      *
      * @param entries
      * @return
      */
-    void                updateEntries           (List<ExtendedTime> entries);
+    void updateEntries(List<ExtendedTime> entries);
 
     /**
      *
      * @param e
      * @return
      */
-    boolean             deleteEntry             (ExtendedTime e);
+    boolean deleteEntry(ExtendedTime e);
 }

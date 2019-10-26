@@ -48,26 +48,26 @@ public class ExtendedTime implements Serializable {
     private                 Integer                 timeHours;
     private                 Integer                 timeMinutes;
 
-    public          ExtendedTime        (AssessmentBaseIfc ass) {
+    public ExtendedTime(AssessmentBaseIfc ass) {
         this.assessment = ass;
     }
 
-    public          ExtendedTime        (PublishedAssessmentIfc pub) {
+    public ExtendedTime(PublishedAssessmentIfc pub) {
         this.pubAssessment = pub;
     }
 
-    public          ExtendedTime        (ExtendedTime source) {
+    public ExtendedTime(ExtendedTime source) {
         this(source.id, source.assessment, source.pubAssessment, source.user, source.group, source.startDate, source.dueDate, source.retractDate, source.timeHours, source.timeMinutes);
     }
 
-    public Long     getAssessmentId     () {
+    public Long getAssessmentId() {
         if(assessment == null) {
             return null;
         }
         return assessment.getAssessmentBaseId();
     }
 
-    public Long     getPubAssessmentId  () {
+    public Long getPubAssessmentId() {
         if(pubAssessment == null) {
             return null;
         }
@@ -102,7 +102,7 @@ public class ExtendedTime implements Serializable {
     }
 
     @Override
-    public boolean  equals              (final Object obj) {
+    public boolean equals(final Object obj) {
         if(obj == this) return true;  // test for reference equality
         if(obj == null) return false; // test for null
         if(obj instanceof ExtendedTime) {
@@ -124,7 +124,7 @@ public class ExtendedTime implements Serializable {
     }
 
     @Override
-    public int      hashCode            () {
+    public int hashCode() {
         return new HashCodeBuilder()
                 .append(getAssessmentId())
                 .append(getPubAssessmentId())
