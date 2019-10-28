@@ -7996,34 +7996,34 @@ public class AssignmentAction extends PagedResourceActionII {
                         // log event if there is a title update
                         if (!StringUtils.equals(aOldTitle, title)) {
                             // title changed
-                            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_TITLE, assignmentId, true));
+                            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_TITLE, assignmentReference, true));
                         }
 
                         if (!aOldAccess.equals(a.getTypeOfAccess())) {
                             // site-group access setting changed
-                            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_ACCESS, assignmentId, true));
+                            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_ACCESS, assignmentReference, true));
                         } else {
                             Collection aGroups = a.getGroups();
                             if (!(aOldGroups == null && aGroups == null)
                                     && !(aOldGroups != null && aGroups != null && aGroups.containsAll(aOldGroups) && aOldGroups.containsAll(aGroups))) {
                                 //group changed
-                                eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_ACCESS, assignmentId, true));
+                                eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_ACCESS, assignmentReference, true));
                             }
                         }
 
                         if (oldOpenTime != null && !oldOpenTime.equals(a.getOpenDate())) {
                             // open time change
-                            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_OPENDATE, assignmentId, true));
+                            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_OPENDATE, assignmentReference, true));
                         }
 
                         if (oldDueTime != null && !oldDueTime.equals(a.getDueDate())) {
                             // due time change
-                            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_DUEDATE, assignmentId, true));
+                            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_DUEDATE, assignmentReference, true));
                         }
 
                         if (oldCloseTime != null && !oldCloseTime.equals(a.getCloseDate())) {
                             // due time change
-                            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_CLOSEDATE, assignmentId, true));
+                            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_CLOSEDATE, assignmentReference, true));
                         }
                     }
                 }
