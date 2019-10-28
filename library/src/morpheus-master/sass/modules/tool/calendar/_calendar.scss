@@ -73,12 +73,6 @@
 		}
 		
 		@media #{$smallPhone}{
-			input[name="eventSubmit_doDefaultview"] {
-				display: none;		// hide the button when there isn't any room
-			}
-		}
-		
-		@media #{$smallPhone}{
 			@include flex-direction(row);	// override tables default
 			@include align-items(center);	// override tables default
 		}
@@ -206,7 +200,8 @@
 
 		.borderGrayTodayEmptyMiddleBottom {
 			background-color: $calendar-day-background-color;
-			border: 1px solid $calendar-day-border-color;
+			border-top: 1px solid $calendar-day-border-color;
+			border-bottom: 1px solid $calendar-day-border-color;
 		}
 
 		.borderGrayTodayEmptyMiddleCenter {
@@ -362,7 +357,7 @@
 		.borderTodayBottom, .borderGrayTodayBottom, .borderOnlyLeftTodayBottom {
 			border-left: 1px double $calendar-day-today-border-color;	// using "double" here to resolve the border-collapse conflict
 			border-right: 1px double $calendar-day-today-border-color;
-			border-top: 1px solid $calendar-event-border-color;
+			border-top: 1px solid $calendar-day-today-border-color;
 			border-bottom: 1px double $calendar-day-today-border-color;
 		}
 
@@ -559,7 +554,7 @@
 		line-height: 1.4;
 		text-align: left;
 		
-		&:hover, &:focus {
+		&:hover {
 			border: 1px solid $link-color;
 		}
 
@@ -571,6 +566,10 @@
 			left: 0;
 			padding: 2px;
 			text-decoration: none;
+			
+			&:focus {
+				outline-offset: -#{$focus-outline-width};	// to provide enough space for the outline to appear with overflow:hidden
+			}
 		}
 	}
 	
@@ -587,7 +586,17 @@
 		border: 1px solid $calendar-day-border-color;
 		
 		@media #{$miniCalendarSize} {
-			&:hover {
+			&:hover, &:focus {
+				border: 1px solid $link-color;
+			}
+		}
+	}
+	
+	@media #{$miniCalendarSize} {
+		.calendarMonthView-notCurrentMonthDate > .squareCalendarDays {
+			border-color: transparent;		// to distinguish current month days from non-current month days
+			
+			&:hover, &:focus {
 				border: 1px solid $link-color;
 			}
 		}

@@ -104,6 +104,10 @@
 			height: 100%;
 			border: 1px solid $calendar-day-border-color;	// to style the cell borders
 			text-align: center;
+			
+			&.calOtherDayWithNoActivity, &.calOtherDayWithActivity {
+				border: 0 none;		// to distinguish current month days from non-current month days
+			}
 		}
 
 		.calToday 			// today without events
@@ -122,7 +126,7 @@
 			}
 		}
 
-		.calDayWithActivity
+		.calDayWithActivity, .calOtherDayWithActivity
 		{
 			// background-color will be overriden if:
 			// 1. colors specified for high/medium/low priority events in Options (user preferences)
@@ -173,6 +177,8 @@
 				&.calSelectedDay		//today selected with activity
 				{
 					border-color: $calendar-today-event-text-color;
+					border-left: 0 none;	// removing side borders to avoid double thickness caused by the -1px margin from above (.calSelectedDay a) not applying to the sides
+					border-right: 0 none;
 				}
 			}
 		}
