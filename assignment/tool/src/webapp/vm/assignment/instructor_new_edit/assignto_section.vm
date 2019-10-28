@@ -41,7 +41,7 @@ can be either all members of the site, all members of selected groups, or the se
 			#set($showGB = "if (document.getElementById('addToGradebook') !=null){$('#addToGradebook').fadeOut('slow'); ASN.resizeFrame()};")
 		#end
 		<input type="radio" name="$name_AssignTo" id="site" value="$value_AssignTo_Individuals"
-			onclick="$showGB$('#groupTableContainer').fadeOut('slow'); ASN_INE.handleAssignToChangeForPeerAssessment(); ASN.resizeFrame();"
+			onclick="$showGB$('#groupTableContainer').fadeOut('slow'); ASN_INE.validateGroupSelection();ASN_INE.handleAssignToChangeForPeerAssessment(); ASN.resizeFrame();"
 			#if( $value_AssignTo == $value_AssignTo_Individuals || $selectedGroupsNotFound ) checked="checked" #end
 			#if($disableIndividual) disabled="disabled" #end/>
 		$tlang.getString("displayto.site")
