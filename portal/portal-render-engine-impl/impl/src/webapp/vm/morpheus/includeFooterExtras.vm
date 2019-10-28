@@ -17,7 +17,7 @@
 
             #if (${sitePages.pageNavShowPresenceLoggedIn})
 
-                <h1 class="skip">${rloader.sit_presencehead}</h1>
+                <h2 class="skip">${rloader.sit_presencehead}</h2>
                 <div id="footerAppPresence" class="Mrphs-footerApp__presence">
                     <a href="#" id="presenceToggle" class="Mrphs-footerApp--toggle Mrphs-footerApp--toggle-users">
                         <span class="Mrphs-footerApp--icon icon-sakai-users"></span>
@@ -37,7 +37,7 @@
 
 #if ( $neoChat && ${loggedIn} )
 
-    <h1 class="skip">${rloader.sit_presencehead}</h1>
+    <h2 class="skip">${rloader.sit_presencehead}</h2>
 
     #if ($neoAvatar)
 
