@@ -547,6 +547,7 @@ public class PostemTool {
 		
 		Reference attachment = getAttachmentReference();
 		if (attachment == null){			
+			PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR, "missing_csv", new Object[] {});
 			return "create_gradebook";
 		}
 		
