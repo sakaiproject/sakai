@@ -99,7 +99,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ResourcesHelperAction extends VelocityPortletPaneledAction 
 {
-	 private static final ResourceConditionsHelper conditionsHelper = new ResourceConditionsHelper();
 	 
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("types");
@@ -156,9 +155,12 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	
 	/** The title of the new page to be created in the site */
 	protected static final String STATE_PAGE_TITLE = PREFIX + "page_title";
-	
+
 	/** We need to send a single email with every D&D upload reported in it */
 	private static final String DRAGNDROP_FILENAME_REFERENCE_LIST = "dragndrop_filename_reference_list";
+
+	private static NotificationEdit neDropbox;
+	private static NotificationEdit neResource;
 
 	private NotificationService notificationService = (NotificationService) ComponentManager.get(NotificationService.class);	
 	private EventTrackingService eventTrackingService = (EventTrackingService) ComponentManager.get(EventTrackingService.class);
@@ -175,7 +177,16 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		return template;
 	}
 
+	public void init()
+	{
+		neDropbox = notificationService.addTransientNotification();
+		neDropbox.setResourceFilter(ContentHostingService.REFERENCE_ROOT+org.sakaiproject.content.api.ContentHostingService.COLLECTION_DROPBOX);
+		neDropbox.setFunction(org.sakaiproject.content.api.ContentHostingService.EVENT_RESOURCE_AVAILABLE);
 
+		neResource = notificationService.addTransientNotification();
+		neResource.setResourceFilter(ContentHostingService.REFERENCE_ROOT+org.sakaiproject.content.api.ContentHostingService.COLLECTION_SITE);
+		neResource.setFunction(org.sakaiproject.content.api.ContentHostingService.EVENT_RESOURCE_ADD);
+	}
 	
 	public String buildCreateContext(VelocityPortlet portlet,
 			Context context,
@@ -2217,38 +2228,42 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		int notificationPriority = determineNotificationPriority(params, item.isDropbox());
 		
 		SessionState state = getState(request);
-		
+
+		SiteEmailNotificationDragAndDrop sendnd = null;
+
 		try
 		{
 			Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
-			
-			NotificationEdit ne = notificationService.addTransientNotification();
-			
-			String eventResource;
-			if (item.isDropbox)
-			{
-				eventResource=org.sakaiproject.content.api.ContentHostingService.EVENT_RESOURCE_AVAILABLE;
-				ne.setResourceFilter(ContentHostingService.REFERENCE_ROOT+org.sakaiproject.content.api.ContentHostingService.COLLECTION_DROPBOX);
-			}
-			else
-			{
-				eventResource=org.sakaiproject.content.api.ContentHostingService.EVENT_RESOURCE_ADD;
-				ne.setResourceFilter(ContentHostingService.REFERENCE_ROOT+org.sakaiproject.content.api.ContentHostingService.COLLECTION_SITE);
-			}
-			
-			ne.setFunction(eventResource);
-			SiteEmailNotificationDragAndDrop sendnd = new SiteEmailNotificationDragAndDrop(site.getId());
+			sendnd = new SiteEmailNotificationDragAndDrop(site.getId());
+
 			sendnd.setDropboxFolder(item.isDropbox());
 			sendnd.setFileList((ArrayList<String>)(state.getAttribute(DRAGNDROP_FILENAME_REFERENCE_LIST)));
 			// Notify when files were successfully added
-			if (sendnd.getFileList() != null && !sendnd.getFileList().isEmpty()) {			
-				ne.setAction(sendnd);
-				sendnd.notify(ne,eventTrackingService.newEvent(eventResource, ContentHostingService.REFERENCE_ROOT+item.getId(), true, notificationPriority));			
+			if (sendnd.getFileList() != null && !sendnd.getFileList().isEmpty()) {	
+				if (item.isDropbox()) {
+					neDropbox.setAction(sendnd);
+					sendnd.notify(neDropbox, 
+							eventTrackingService.newEvent(org.sakaiproject.content.api.ContentHostingService.EVENT_RESOURCE_AVAILABLE,
+									ContentHostingService.REFERENCE_ROOT + item.getId(), true, notificationPriority
+							)
+					);
+				}
+				else {
+					neResource.setAction(sendnd);
+					sendnd.notify(neResource, 
+							eventTrackingService.newEvent(org.sakaiproject.content.api.ContentHostingService.EVENT_RESOURCE_ADD,
+									ContentHostingService.REFERENCE_ROOT + item.getId(), true, notificationPriority
+							)
+					);
+				}
 			}
-			state.setAttribute(DRAGNDROP_FILENAME_REFERENCE_LIST, null);
-			sendnd.setFileList(null);
+			
 		} catch (IdUnusedException e) {
 			log.warn("Somehow we couldn't find the site.", e);
+		} finally {
+			state.setAttribute(DRAGNDROP_FILENAME_REFERENCE_LIST, null);
+			neDropbox.setAction(null);
+			neResource.setAction(null);
 		}
 	}
 
