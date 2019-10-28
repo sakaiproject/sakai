@@ -4867,8 +4867,6 @@ public class AssignmentAction extends PagedResourceActionII {
      * build the instructor view to download/upload information from archive file
      */
     private String build_instructor_download_upload_all(VelocityPortlet portlet, Context context, RunData data, SessionState state) {
-        String view = (String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
-
         context.put("download", MODE_INSTRUCTOR_DOWNLOAD_ALL.equals(state.getAttribute(STATE_MODE)));
         context.put("hasSubmissionText", state.getAttribute(UPLOAD_ALL_HAS_SUBMISSION_TEXT));
         context.put("hasSubmissionAttachment", state.getAttribute(UPLOAD_ALL_HAS_SUBMISSION_ATTACHMENT));
@@ -5308,10 +5306,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         ParameterParser params = data.getParameters();
         String option = params.getString("option");
-        if ("download".equals(option)) {
-            // go to download all page
-            doPrep_download_all(data);
-        } else if ("upload".equals(option)) {
+        if ("upload".equals(option)) {
             // go to upload all page
             doPrep_upload_all(data);
         } else if ("releaseGrades".equals(option)) {
