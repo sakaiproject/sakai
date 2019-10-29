@@ -126,7 +126,7 @@ function printView(url) {
 			#else
 				<div class="listNav">
 						## download all
-							<a href="" class="noPointers" id="downloadAll" onclick="SPNR.insertSpinnerAfter( this, escapeList, null ); ASN.submitForm( 'viewForm', 'download', null, null ); return false;" title="$!tlang.getString('downall')">$!tlang.getString('downall')</a>
+							<a href="#toolLinkParam("$action" "doPrep_download_all" "view=$view")" class="noPointers" id="downloadAll" onclick="SPNR.insertSpinnerAfter( this, escapeList, null );" title="$!tlang.getString('downall')">$!tlang.getString('downall')</a>
 						#if(!$disableGrade)
 							## upload all
 							|  <a href="" class="noPointers" id="uploadAll" onclick="SPNR.insertSpinnerAfter( this, escapeList, null ); ASN.submitForm( 'viewForm', 'upload', null, null ); return false;" title="$!tlang.getString('uploadall.title')">$!tlang.getString('uploadall.title')</a>
