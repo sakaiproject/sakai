@@ -61,14 +61,8 @@
 				<h:panelGrid columns="2" style="margin-top:20px;margin-bottom:20px;" columnClasses="titleColumn,valueColumn">
 					<h:outputText value="#{msgs.event_date}" styleClass="titleText" escape="false"/>
 					<h:panelGroup>
-						<h:outputText value="#{NewSignupMeetingBean.signupMeeting.startTime}" styleClass="longtext">
-							<f:convertDateTime pattern="EEEEEEEE, " timeZone="#{UserTimeZone.userTimeZone}"/>
-				 		</h:outputText>
-						<h:outputText value="#{NewSignupMeetingBean.signupMeeting.startTime}" styleClass="longtext">
-							<f:convertDateTime dateStyle="long" timeZone="#{UserTimeZone.userTimeZone}"/>
-				 		</h:outputText>
 				 		<h:outputText value="#{NewSignupMeetingBean.signupMeeting.startTime}" styleClass="longtext">
-							<f:convertDateTime pattern=", h:mm a" timeZone="#{UserTimeZone.userTimeZone}"/>
+							<f:convertDateTime pattern="#{UserLocale.fullDateTimeFormat}" timeZone="#{UserTimeZone.userTimeZone}"/>
 				 		</h:outputText>
 				 	</h:panelGroup>
 				 	
