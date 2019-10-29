@@ -161,6 +161,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
 	private static NotificationEdit neDropbox;
 	private static NotificationEdit neResource;
+	private static final Object notificationSyncLock = new Object();
 
 	private NotificationService notificationService = (NotificationService) ComponentManager.get(NotificationService.class);	
 	private EventTrackingService eventTrackingService = (EventTrackingService) ComponentManager.get(EventTrackingService.class);
@@ -2239,22 +2240,27 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			sendnd.setDropboxFolder(item.isDropbox());
 			sendnd.setFileList((ArrayList<String>)(state.getAttribute(DRAGNDROP_FILENAME_REFERENCE_LIST)));
 			// Notify when files were successfully added
-			if (sendnd.getFileList() != null && !sendnd.getFileList().isEmpty()) {	
-				if (item.isDropbox()) {
-					neDropbox.setAction(sendnd);
-					sendnd.notify(neDropbox, 
-							eventTrackingService.newEvent(org.sakaiproject.content.api.ContentHostingService.EVENT_RESOURCE_AVAILABLE,
-									ContentHostingService.REFERENCE_ROOT + item.getId(), true, notificationPriority
-							)
-					);
-				}
-				else {
-					neResource.setAction(sendnd);
-					sendnd.notify(neResource, 
-							eventTrackingService.newEvent(org.sakaiproject.content.api.ContentHostingService.EVENT_RESOURCE_ADD,
-									ContentHostingService.REFERENCE_ROOT + item.getId(), true, notificationPriority
-							)
-					);
+			if (sendnd.getFileList() != null && !sendnd.getFileList().isEmpty()) {
+				// TODO: this is not a good use of the transientNotification service. That service was meant to be init'ed
+				// and then any future events would receive the notification. This dynamic use of the transientNotification 
+				// service is problematic thus the synchronized block to avoid concurrent updates resulting in incorrect email.
+				synchronized (notificationSyncLock) {
+					if (item.isDropbox()) {
+						neDropbox.setAction(sendnd);
+						sendnd.notify(neDropbox, 
+								eventTrackingService.newEvent(org.sakaiproject.content.api.ContentHostingService.EVENT_RESOURCE_AVAILABLE,
+										ContentHostingService.REFERENCE_ROOT + item.getId(), true, notificationPriority
+								)
+						);
+					}
+					else {
+						neResource.setAction(sendnd);
+						sendnd.notify(neResource, 
+								eventTrackingService.newEvent(org.sakaiproject.content.api.ContentHostingService.EVENT_RESOURCE_ADD,
+										ContentHostingService.REFERENCE_ROOT + item.getId(), true, notificationPriority
+								)
+						);
+					}
 				}
 			}
 			
