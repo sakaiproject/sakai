@@ -1936,7 +1936,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             // whether the current time is after the assignment close date inclusive
             boolean isBeforeAssignmentCloseDate = !currentTime.isAfter(assignment.getCloseDate());
 
-            if (userId == null) {	
+            if (StringUtils.isBlank(userId)) {	
                 userId = sessionManager.getCurrentSessionUserId();	
             }
 
