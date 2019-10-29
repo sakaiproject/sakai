@@ -35,6 +35,7 @@ import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
@@ -76,6 +77,7 @@ public class ToolItemRubricAssociation implements Modifiable, Serializable, Clon
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "rbc_tool_item_rbc_seq")
     private Long id;
 
+    @Column(length=99)
     private String toolId;
     private String itemId;
 

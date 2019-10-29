@@ -32,6 +32,7 @@ import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
@@ -62,6 +63,7 @@ import lombok.NonNull;
         "criterionOutcomes", "metadata"})
 @NoArgsConstructor
 @Table(name = "rbc_evaluation",
+    indexes = { @Index(name = "rbc_eval_owner",  columnList="ownerId") },
     uniqueConstraints = @UniqueConstraint(columnNames = { "association_id", "evaluated_item_id", "evaluator_id" })
 )
 @ToString(exclude = {"toolItemRubricAssociation", "criterionOutcomes"})
@@ -72,7 +74,7 @@ public class Evaluation implements Modifiable, Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "rbc_eval_seq")
     private Long id;
 
-    @Column(name = "evaluator_id")
+    @Column(name = "evaluator_id", length=99)
     @NonNull
     private String evaluatorId;
 
@@ -80,7 +82,7 @@ public class Evaluation implements Modifiable, Serializable {
     @NonNull
     private String evaluatedItemId;
 
-    @Column(name = "evaluated_item_owner_id")
+    @Column(name = "evaluated_item_owner_id", length=99)
     @NonNull
     private String evaluatedItemOwnerId;
 
