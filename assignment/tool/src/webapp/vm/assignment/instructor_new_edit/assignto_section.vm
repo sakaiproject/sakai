@@ -111,9 +111,10 @@ can be either all members of the site, all members of selected groups, or the se
 						#set($aGroup = $!site.getGroup($!aGroupRef))
 						#if ($!group.Id == $!aGroup.Id)
 							#set($selected = true)
+							#set($groupDisabled = $groupsWithUserSubmission.contains($aGroup))
 						#end
 					#end
-					<option value="$group.Id" #if($selected) selected #end>$validator.escapeHtml($group.Title) #if("$!description" != "") ($description) #end</option>
+					<option value="$group.Id" #if($selected) selected #end #if($groupDisabled) disabled #end>$validator.escapeHtml($group.Title) #if("$!description" != "") ($description) #end</option>
 				#end
 			</select>
 			## Message Area 2
