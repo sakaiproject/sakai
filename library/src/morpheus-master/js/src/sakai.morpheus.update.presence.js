@@ -3,6 +3,7 @@ function updatePresence(){
   $PBJQ.ajax({
     url: sakaiPresenceFragment,
     cache: false,
+    dataType : 'text',
     success: function(frag){
 
       var $presenceIframe = $PBJQ("#presenceIframe");

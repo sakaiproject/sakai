@@ -230,7 +230,7 @@ public class PresenceTool extends HttpServlet
 		url.append("?userId=");
 		url.append(userId);
 
-		out.println("<script type=\"text/javascript\" language=\"JavaScript\">");
+		out.println("<script>");
 		out.println("updateTime = " + updateTime + "000;");
 		out.println("updateUrl = \"" + url.toString() + "\";");
 		out.println("scheduleUpdate();");
