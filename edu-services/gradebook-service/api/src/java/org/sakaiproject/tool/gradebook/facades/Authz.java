@@ -23,6 +23,14 @@ import java.util.Map;
  * Facade to external role and authorization service.
  */
 public interface Authz {
+
+	public static final String
+		PERMISSION_GRADE_ALL = "gradebook.gradeAll",
+		PERMISSION_GRADE_SECTION = "gradebook.gradeSection",
+		PERMISSION_EDIT_ASSIGNMENTS = "gradebook.editAssignments",
+		PERMISSION_VIEW_OWN_GRADES = "gradebook.viewOwnGrades",
+		PERMISSION_VIEW_STUDENT_NUMBERS = "gradebook.viewStudentNumbers";
+
 	public boolean isUserAbleToGrade(String gradebookUid);
 	public boolean isUserAbleToGrade(String gradebookUid, String userUid);
 	public boolean isUserAbleToGradeAll(String gradebookUid);

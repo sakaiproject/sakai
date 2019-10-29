@@ -1,0 +1,23 @@
+.submission-messager {
+  .sm-label {
+    font-weight: bold;
+    margin-top: 5px;
+    margin-bottom: 3px;
+  }
+
+  .message-input {
+    width: 300px;
+    height: 200px;
+  }
+
+  .sm-alert {
+    font-weight: bold;
+    margin-top: 10px;
+    &.sm-error {
+      color: red;
+    }
+    &.sm-success {
+      color: green;
+    }
+  }
+}

@@ -1217,6 +1217,15 @@ GbGradeTable.renderTable = function (elementId, tableData) {
         $togglePanel.find('.gb-item-category-score-filter :checkbox[value="'+col.categoryName+'"]').trigger('click');
       }
   }).
+  on("click", ".gb-dropdown-menu .gb-message-students", function (event) {
+
+    $(`#gb-messager-for-${event.target.dataset.assignmentId}`)
+      .dialog({ close: function () { $(this).dialog("destroy"); } })
+      .on("submission-message-sent", function (e) {
+        $(this).dialog("destroy");
+        $(this).off("submission-message-sent");
+      });
+  }).
   // View Course Grade Statistics
   on("click", ".gb-dropdown-menu .gb-view-course-grade-statistics", function() {
     GbGradeTable.ajax({
