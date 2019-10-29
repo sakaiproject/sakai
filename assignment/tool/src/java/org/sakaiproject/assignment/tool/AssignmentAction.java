@@ -2505,6 +2505,24 @@ public class AssignmentAction extends PagedResourceActionII {
                 context.put("assignmentId", assignmentId);
                 context.put("assignment", a);
                 rangeAndGroups.buildInstructorNewEditAssignmentContextGroupCheck(context, a);
+
+                // controls to disable which groups can be changed
+                Collection<Group> groupsWithUserSubmission = new ArrayList<>();
+                if (a.getIsGroup()) {
+                    try {
+                        Site site = siteService.getSite(a.getContext());
+                        Collection<Group> siteGroups = site.getGroups();
+
+                        a.getSubmissions().stream()
+                                .filter(AssignmentSubmission::getUserSubmission)
+                                .forEach(s -> siteGroups.stream()
+                                        .filter(g -> g.getId().equals(s.getGroupId()))
+                                        .findAny().ifPresent(groupsWithUserSubmission::add));
+                    } catch (IdUnusedException e) {
+                        log.warn("Site not found for context {}, {}", a.getContext(), e.getMessage());
+                    }
+                }
+                context.put("groupsWithUserSubmission", groupsWithUserSubmission);
             }
         }
 
