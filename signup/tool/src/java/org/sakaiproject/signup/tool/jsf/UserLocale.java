@@ -21,7 +21,9 @@ package org.sakaiproject.signup.tool.jsf;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 
+import org.sakaiproject.signup.logic.SakaiFacade;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -35,9 +37,18 @@ import org.sakaiproject.util.ResourceLoader;
 public class UserLocale {
 
 	private ResourceLoader rb = new ResourceLoader("messages");
+	private SakaiFacade sakaiFacade;
 
 	public String getLocale() {
 		return (String) this.rb.getLocale().toString();
+	}
+
+	public SakaiFacade getSakaiFacade() {
+		return sakaiFacade;
+	}
+
+	public void setSakaiFacade(SakaiFacade sakaiFacade) {
+		this.sakaiFacade = sakaiFacade;
 	}
 	
 	/**
@@ -64,7 +75,16 @@ public class UserLocale {
 	 */
 	public String getLocalizedTimeFormat() {
 		DateFormat df = DateFormat.getTimeInstance(DateFormat.SHORT, this.rb.getLocale());
-		System.out.println("zz41: " + ((SimpleDateFormat)df).toPattern());
-		return ((SimpleDateFormat)df).toPattern();
+		String dfPattern = ((SimpleDateFormat)df).toPattern();
+
+		TimeZone userTimeZone = sakaiFacade.getTimeService().getLocalTimeZone();
+		TimeZone serverTimeZone = TimeZone.getDefault();
+
+		// If the user is in a different zone, it would be super helpful to show them the timezone info
+		if (userTimeZone != null && !userTimeZone.hasSameRules(serverTimeZone)) {
+			dfPattern += " z";
+		}
+
+		return dfPattern;
 	}
 }
