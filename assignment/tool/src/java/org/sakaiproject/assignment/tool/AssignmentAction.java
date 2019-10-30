@@ -3404,7 +3404,9 @@ public class AssignmentAction extends PagedResourceActionII {
         }
         context.put("alertGradeDraft", Boolean.valueOf(addGradeDraftAlert));
 
-        rangeAndGroups.buildInstructorGradeSubmissionContextGroupCheck(assignment, submission.get().getGroupId(), state);
+        if (submission.isPresent()) {
+            rangeAndGroups.buildInstructorGradeSubmissionContextGroupCheck(assignment, submission.get().getGroupId(), state);
+        }
 
         // SAK-29314
         // Since USER_SUBMISSIONS is restricted to the page size, it is not very useful here
