@@ -4,17 +4,19 @@
 
 /* Create the footer info popover and show server time on footer, if the popover exists */
 $PBJQ(document).ready(function() {
-	$PBJQ('#Mrphs-footer--details__info').popover({
-		html: true,
-		content: function() {
-			return $PBJQ('#Mrphs-footer--details__panelTemplate').html();
-		}
-	});
-	
-	$PBJQ("#Mrphs-footer--details__info").click(function (e) {
-		e.preventDefault();			// override # in href from popping to the top of the page
-	});
-	
+	var footerDetails = $PBJQ('#Mrphs-footer--details__info');
+	if (footerDetails.length === 1) {
+		footerDetails.popover({
+			html: true,
+			content: function() {
+				return $PBJQ('#Mrphs-footer--details__panelTemplate').html();
+			}
+		});
+		footerDetails.click(function (e) {
+			e.preventDefault();			// override # in href from popping to the top of the page
+		});
+	}
+
 	updateFooterTime = (function() {
 		if( $PBJQ('#preferredTime').length == 1 ) {
 			var preferredTzDisplay= $PBJQ('#preferredTime').data('preferredtzdisplay');
