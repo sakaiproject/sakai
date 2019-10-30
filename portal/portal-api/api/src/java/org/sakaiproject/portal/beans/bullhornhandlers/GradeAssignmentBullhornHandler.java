@@ -50,6 +50,11 @@ public class GradeAssignmentBullhornHandler extends AbstractBullhornHandler {
     @Override
     public Optional<List<BullhornData>> handleEvent(Event e, Cache<String, Long> countCache) {
 
+        // Sometimes events are literally fired for LRS purposes. We don't want alerts for those.
+        if (e.getLrsStatement() != null) {
+            return Optional.empty();
+        }
+
         String from = e.getUserId();
 
         String ref = e.getResource();

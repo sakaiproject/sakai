@@ -92,6 +92,11 @@ public class MockEventTrackingService implements EventTrackingService
 		return null;
 	}
 
+	public Event newEvent(String event, String resource, String context, boolean modify, int priority, boolean isTransient)
+	{
+		return null;
+	}
+
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.event.api.EventTrackingService#newEvent(java.lang.String, java.lang.String, java.lang.String, boolean, int)
 	 */

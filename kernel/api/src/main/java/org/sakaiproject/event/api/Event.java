@@ -60,7 +60,7 @@ public interface Event extends Serializable
 	 * @return The event context
 	 */
 	String getContext();
-	
+
 	/**
 	 * Access the UsageSession id. If null, check for a User id.
 	 * 
@@ -88,10 +88,16 @@ public interface Event extends Serializable
 	 * @return The event's notification priority.
 	 */
 	int getPriority();
-	
+
 	/**
 	 * Retrieve the events time
 	 * @return the events time
 	 */
 	Date getEventTime();
+
+    /**
+     * If an event is marked as transient, it will not be written to any storage - it will only
+     * ever exist in memory
+     */
+    boolean isTransient();
 }

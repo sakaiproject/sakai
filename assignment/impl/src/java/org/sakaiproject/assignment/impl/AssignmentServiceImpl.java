@@ -1224,14 +1224,18 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             }
         } else if (dateReturned != null && submission.getGraded() && (dateSubmitted == null || dateReturned.isAfter(dateSubmitted) || dateSubmitted.isAfter(dateReturned) && submission.getDateModified().isAfter(dateSubmitted))) {
             if (submission.getGraded()) {
+                // Send a non LRS event for other listeners to handle, bullhorns for instance.
+                Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, reference, null, true, NotificationService.NOTI_NONE, true);
+                eventTrackingService.post(event);
+
             	//TODO: This should use an LRS_Group when that exists rather than firing off individual events for each LRS_Actor KNL-1560
                 for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
                     try {
                         User user = userDirectoryService.getUser(submitter.getSubmitter());
-                    	LRS_Statement statement = getStatementForAssignmentGraded(reference, submission.getAssignment(), submission, user);
-                    	// releasing a submitted assignment or releasing grade to an unsubmitted assignment
-                    	Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, reference, null, true, NotificationService.NOTI_OPTIONAL, statement);
-                    	eventTrackingService.post(event);
+                        LRS_Statement statement = getStatementForAssignmentGraded(reference, submission.getAssignment(), submission, user);
+                        // releasing a submitted assignment or releasing grade to an unsubmitted assignment
+                        Event lrsEvent = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, reference, null, true, NotificationService.NOTI_OPTIONAL, statement);
+                        eventTrackingService.post(lrsEvent);
                     } catch (UserNotDefinedException e) {
                         log.warn("Assignments could not find user ({}) while registering Event for LRSS", submitter.getSubmitter());
                     }
