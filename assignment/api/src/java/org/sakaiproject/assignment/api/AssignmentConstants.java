@@ -209,6 +209,7 @@ public final class AssignmentConstants {
      * submission level of close time
      */
     public static final String ALLOW_RESUBMIT_CLOSETIME = "allow_resubmit_closeTime";
+    public static final String ALLOW_EXTENSION_CLOSETIME = "allow_extension_closeTime"; //constant for Extension, very similar to Resubmission
     /**
      * submission by different user
      */
@@ -308,6 +309,11 @@ public final class AssignmentConstants {
     public static final String ALLOW_RESUBMIT_CLOSEHOUR = "allow_resubmit_closeHour";
     public static final String ALLOW_RESUBMIT_CLOSEMIN = "allow_resubmit_closeMin";
     public static final String ALLOW_RESUBMIT_CLOSE_EPOCH_MILLIS = "allow_resubmit_close_epoch_millis";
+    public static final String ALLOW_EXTENSION_CLOSEMONTH = "allow_extension_closeMonth";
+    public static final String ALLOW_EXTENSION_CLOSEDAY = "allow_extension_closeDay";
+    public static final String ALLOW_EXTENSION_CLOSEYEAR = "allow_extension_closeYear";
+    public static final String ALLOW_EXTENSION_CLOSEHOUR = "allow_extension_closeHour";
+    public static final String ALLOW_EXTENSION_CLOSEMIN = "allow_extension_closeMin";
 
     public static final String GRADE_SUBMISSION_DONT_CLEAR_CURRENT_ATTACHMENTS = "grade_submission_dont_clear_current_attachments";
 

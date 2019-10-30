@@ -671,7 +671,55 @@
             #else
                 #set($resubmitStyle="display:none")
             #end
-            <div class="form-group" id="tempAllowRes" #if ($submissionType == 4) style="display:none"#end>
+  ##decide whether to show the Extension options
+            #if($!displayExtensionOptions && $submissionType != 4)
+                #set($extensionStyle="display:block")
+                #set($resubmitVisibility="display:none")
+            #else
+                #set($extensionStyle="display:none")
+                #if($submissionType != 4)
+                    #set($resubmitVisibility="display:block")
+                #else
+                    #set($resubmitVisibility="display:none")
+                #end
+            #end
+
+            <div class="form-group" id="allowExtensionForm" style="$extensionStyle">
+                <input type="checkbox" id="allowExtensionToggle" name="allowExtensionToggle"
+                    #if($extensionCloseTime && $submissionType != 4)
+                       checked="checked"
+                    #end
+                    onclick="if(checked){document.getElementById('allowExtensionTime').style.display = 'block';ASN.resizeFrame();}else{document.getElementById('allowExtensionTime').style.display = 'none';}"
+                />
+                <label for="allowExtensionToggle" >$tlang.getString("allowExtension")</label>
+                <label class="text-warning" >$tlang.getString("allowExtensionCaption")</label>
+                <div id="allowExtensionTime"
+                    #if($extensionCloseTime && $submissionType != 4)
+                        style="display: block"
+                    #else
+                        style="display: none"
+                    #end
+                >
+                    <label for="allowExtensionDate">$tlang.getString("gen.acesubunt")</label>
+                    <input type="text" id="allowExtensionDate" name="allowExtensionDate" class="datepicker" value=""/>
+                    <script type="text/javascript">
+                        localDatePicker({
+                            input: '#allowExtensionDate',
+                            useTime: 1,
+                            val: "$value_ExtensionYear$H$value_ExtensionMonth$H$value_ExtensionDay $value_ExtensionHour:$value_ExtensionMin",
+                            parseFormat: 'YYYY-MM-DD HH:mm',
+                            ashidden: {
+                                month: "allow_extension_closeMonth",
+                                day: "allow_extension_closeDay",
+                                year: "allow_extension_closeYear",
+                                hour: "allow_extension_closeHour",
+                                minute: "allow_extension_closeMin"
+                            }
+                        });
+                    </script>
+                </div>
+            </div>
+            <div class="form-group" id="tempAllowRes" style="$resubmitVisibility">
                 <input type="checkbox" id="allowResToggle" name="allowResToggle"
                     #if($!value_allowResubmitNumber && $submissionType != 4)
                         checked="checked"
