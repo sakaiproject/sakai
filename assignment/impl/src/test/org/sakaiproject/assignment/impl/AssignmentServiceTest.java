@@ -49,12 +49,10 @@ import java.util.stream.IntStream;
 
 import javax.annotation.Resource;
 
-import org.hibernate.NonUniqueResultException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
