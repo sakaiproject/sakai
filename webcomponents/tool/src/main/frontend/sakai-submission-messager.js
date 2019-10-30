@@ -15,6 +15,7 @@ class SakaiSubmissionMessager extends SakaiElement {
 
     return {
       assignmentId: { attribute: "assignment-id", type: String },
+      title: String,
       action: Number,
       subject: String,
       body: String,
@@ -33,6 +34,7 @@ class SakaiSubmissionMessager extends SakaiElement {
 
     return html`
       <div id="submission-messager-${this.assignmentId}" class="submission-messager">
+        <div class="sm-title">${this.title}</div>
         <div id="sm-group-selector-label-${this.assignmentId}" class="sm-label">${this.i18n["select_group"]}</div>
         <select aria-labelledby="sm-group-selector-label-${this.assignmentId}" class="group-select" @change=${e => this.action = e.target.value}>
           <option value="1">${this.i18n["ungraded_students"]}
@@ -78,7 +80,7 @@ class SakaiSubmissionMessager extends SakaiElement {
           this.reset();
           this.requestUpdate();
           this.success = this.i18n["success"];
-          window.setTimeout(() => this.dispatchEvent(new CustomEvent("submission-message-sent", { bubbles: true })), 800);
+          window.setTimeout(() => this.dispatchEvent(new CustomEvent("submission-message-sent", { bubbles: true })), 1000);
         } else {
           this.error = this.i18n["error"];
         }

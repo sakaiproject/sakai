@@ -149,8 +149,8 @@
                             <li><a href="javascript:void(0);" class="gb-delete-item" role="menuitem"><span class="text-danger"><wicket:message key="delete.label" /></span></a></li>
                         {/if}
                     </ul>
-                    <div id="gb-messager-for-${assignmentId}" style="display: none;">
-                      <sakai-submission-messager assignment-id="${assignmentId}"></sakai-submission-messager>
+                    <div id="gb-messager-for-${assignmentId}" style="display: none;" wicket:message="title:label.submission-messager.title">
+                      <sakai-submission-messager assignment-id="${assignmentId}" title="${abbrevTitle}"></sakai-submission-messager>
                     </div>
                 </div>
             </div>
