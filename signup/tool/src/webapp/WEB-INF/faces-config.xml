@@ -334,6 +334,10 @@
     	<managed-bean-name>UserLocale</managed-bean-name>
     	<managed-bean-class>org.sakaiproject.signup.tool.jsf.UserLocale</managed-bean-class>
     	<managed-bean-scope>application</managed-bean-scope>
+    	<managed-property>
+			<property-name>sakaiFacade</property-name>
+			<value>#{org_sakaiproject_signup_logic_SakaiFacade}</value>
+    	</managed-property>
     </managed-bean>
     
     <managed-bean>
