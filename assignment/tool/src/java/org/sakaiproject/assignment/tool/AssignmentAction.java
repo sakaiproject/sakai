@@ -3369,7 +3369,7 @@ public class AssignmentAction extends PagedResourceActionII {
             s.getAttachments().forEach(r -> attachmentReferences.put(r, entityManager.newReference(r)));
             context.put("submissionAttachmentReferences", attachmentReferences);
 
-            rangeAndGroups.buildInstructorGradeSubmissionContextGroupCheck(assignment, submission.get().getGroupId(), state);
+            rangeAndGroups.buildInstructorGradeSubmissionContextGroupCheck(assignment, s.getGroupId(), state);
         }
 
         context.put("user", state.getAttribute(STATE_USER));
