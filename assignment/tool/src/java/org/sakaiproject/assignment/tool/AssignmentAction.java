@@ -3368,6 +3368,8 @@ public class AssignmentAction extends PagedResourceActionII {
             Map<String, Reference> attachmentReferences = new HashMap<>();
             s.getAttachments().forEach(r -> attachmentReferences.put(r, entityManager.newReference(r)));
             context.put("submissionAttachmentReferences", attachmentReferences);
+
+            rangeAndGroups.buildInstructorGradeSubmissionContextGroupCheck(assignment, s.getGroupId(), state);
         }
 
         context.put("user", state.getAttribute(STATE_USER));
@@ -3403,8 +3405,6 @@ public class AssignmentAction extends PagedResourceActionII {
             addAlert(state, rb.getString("grading.alert.draft.beforeclosedate"));
         }
         context.put("alertGradeDraft", Boolean.valueOf(addGradeDraftAlert));
-
-        rangeAndGroups.buildInstructorGradeSubmissionContextGroupCheck(assignment, submission.get().getGroupId(), state);
 
         // SAK-29314
         // Since USER_SUBMISSIONS is restricted to the page size, it is not very useful here
