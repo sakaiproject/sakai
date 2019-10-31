@@ -16,6 +16,10 @@ function loadProperties(options) {
   window.sakai = window.sakai || {};
   window.sakai.translations = window.sakai.translations || {};
 
+  if (typeof options === "string") {
+    options = { bundle: options };
+  }
+
   if (!options.bundle) {
     console.error("You must supply at least a bundle. Doing nothing ...");
     return;
