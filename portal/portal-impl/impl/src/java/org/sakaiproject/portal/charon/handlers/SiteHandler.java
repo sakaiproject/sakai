@@ -128,6 +128,12 @@ public class SiteHandler extends WorksiteHandler
 	// This is Sakai 11 only so please do not back-port or merge this default value
 	private static final String IFRAME_SUPPRESS_DEFAULT = ":all:sakai.gradebook.gwt.rpc:com.rsmart.certification:sakai.rsf.evaluation:kaltura.media:kaltura.my.media";
 
+	private static final String SAK_PROP_SHOW_FAV_STARS = "portal.favoriteSitesBar.showFavStarsOnAllSites";
+	private static final boolean SAK_PROP_SHOW_FAV_STARS_DFLT = true;
+
+	private static final String SAK_PROP_SHOW_FAV_STARS_ON_ALL = "portal.favoriteSitesBar.showFavoriteStars";
+	private static final boolean SAK_PROP_SHOW_FAV_STARS_ON_ALL_DFLT = true;
+
 	private static final long AUTO_FAVORITES_REFRESH_INTERVAL_MS = 30000;
 
 	public SiteHandler()
@@ -545,8 +551,8 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("isUserSite", false);
 		}
 		
-		rcontext.put("showFavStarsInSitesBar",ServerConfigurationService.getBoolean("portal.favoriteSitesBar.showFavoriteStars", true));
-		rcontext.put("showFavStarsOnAllFavSites",ServerConfigurationService.getBoolean("portal.favoriteSitesBar.showFavStarsOnAllSites", true));
+		rcontext.put("showFavStarsInSitesBar",ServerConfigurationService.getBoolean(SAK_PROP_SHOW_FAV_STARS, SAK_PROP_SHOW_FAV_STARS_DFLT));
+		rcontext.put("showFavStarsOnAllFavSites",ServerConfigurationService.getBoolean(SAK_PROP_SHOW_FAV_STARS_ON_ALL, SAK_PROP_SHOW_FAV_STARS_ON_ALL_DFLT));
 		
 		addLocale(rcontext, site, session.getUserId());
 		

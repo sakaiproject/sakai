@@ -578,7 +578,7 @@ $PBJQ(document).ready(function($){
       
       // Use plain JS to toggle the value of the aria-checked attribute
       var thisFavButtonForJS = thisFavButton[0];
-      if(thisFavButtonForJS.getAttribute("aria-checked") == "true") {
+      if(thisFavButtonForJS.getAttribute("aria-checked") === "true") {
         thisFavButtonForJS.setAttribute("aria-checked", "false");
       } else {
         thisFavButtonForJS.setAttribute("aria-checked", "true");
