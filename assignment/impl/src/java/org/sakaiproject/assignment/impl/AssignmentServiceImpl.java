@@ -2435,38 +2435,18 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     public String getGradeForSubmitter(AssignmentSubmission submission, String submitter) {
         if (submission == null || StringUtils.isBlank(submitter)) return null;
 
-        String grade = null;
+        String grade = submission.getGrade(); // start with submission grade
         Assignment assignment = submission.getAssignment();
 
-        // if this assignment is associated to the gradebook always use that score first
-        String gradebookAssignmentName = assignment.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-        if (StringUtils.isNotBlank(gradebookAssignmentName) && !gradebookExternalAssessmentService.isExternalAssignmentDefined(assignment.getContext(), gradebookAssignmentName)) {
-            // associated gradebook item
-            grade = gradebookService.getAssignmentScoreStringByNameOrId(assignment.getContext(), gradebookAssignmentName, submitter);
-        }
-
-        if (StringUtils.isNotBlank(grade)) {
-            // exists a grade in the gradebook so we use that
-            if (StringUtils.isNumeric(grade)) {
-                Integer score = Integer.parseInt(grade);
-                // convert gradebook to an asssignments score using the scale factor
-                grade = Integer.toString(score * assignment.getScaleFactor());
-            }
-        } else {
-            // otherwise use grade maintained by assignments or is considered externally mananged or is not released
-            grade = submission.getGrade(); // start with submission grade
-            if (assignment.getIsGroup()) {
-	            Optional<AssignmentSubmissionSubmitter> submissionSubmitter = submission.getSubmitters().stream().filter(s -> s.getSubmitter().equals(submitter)).findAny();
-	            if (submissionSubmitter.isPresent()) {
-	                grade = StringUtils.defaultIfBlank(submissionSubmitter.get().getGrade(), grade); // if there is a grade override use that
-	            }
+        if (assignment.getIsGroup()) {
+            Optional<AssignmentSubmissionSubmitter> submissionSubmitter = submission.getSubmitters().stream().filter(s -> s.getSubmitter().equals(submitter)).findAny();
+            if (submissionSubmitter.isPresent()) {
+                grade = StringUtils.defaultIfBlank(submissionSubmitter.get().getGrade(), grade); // if there is a grade override use that
             }
         }
 
         Integer scale = assignment.getScaleFactor() != null ? assignment.getScaleFactor() : getScaleFactor();
-        grade = getGradeDisplay(grade, assignment.getTypeOfGrade(), scale);
-
-        return grade;
+        return getGradeDisplay(grade, assignment.getTypeOfGrade(), scale);
     }
 
     /**
@@ -4381,6 +4361,19 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         } else {
             return Optional.empty();
         }
+    }
+
+    @Override
+    public Assignment getAssignmentForGradebookLink(String context, String linkId) throws IdUnusedException, PermissionException {
+        if (StringUtils.isNoneBlank(context, linkId)) {
+            String assignmentId = assignmentRepository.findAssignmentIdForGradebookLink(context, linkId);
+            if (assignmentId != null) {
+                return getAssignment(assignmentId);
+            } else {
+                log.warn("No assignment id could be found for context {} and link {}", context, linkId);
+            }
+        }
+        return null;
     }
 
     @Override

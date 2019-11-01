@@ -40,6 +40,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -48,7 +49,6 @@ import java.util.stream.IntStream;
 
 import javax.annotation.Resource;
 
-import org.hibernate.NonUniqueResultException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -67,10 +67,12 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -97,14 +99,16 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
     private static final Faker faker = new Faker();
 
+    @Autowired private AssignmentEventObserver assignmentEventObserver;
+    @Autowired private AssignmentService assignmentService;
     @Autowired private AuthzGroupService authzGroupService;
+    @Autowired private EntityManager entityManager;
+    @Autowired private FormattedText formattedText;
+    @Autowired private GradebookService gradebookService;
     @Autowired private SecurityService securityService;
     @Autowired private SessionManager sessionManager;
-    @Autowired private AssignmentService assignmentService;
-    @Autowired private EntityManager entityManager;
     @Autowired private ServerConfigurationService serverConfigurationService;
     @Autowired private SiteService siteService;
-    @Autowired private FormattedText formattedText;
     @Resource(name = "org.sakaiproject.time.api.UserTimeService")
     private UserTimeService userTimeService;
 
@@ -881,6 +885,44 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Assert.assertThat(countNoUsers, is(0)); // should have 0 submissions submitted
     }
 
+    @Test
+    public void gradeUpdateFromAssignmentEventObeserver() {
+        char ds = DecimalFormatSymbols.getInstance(Locale.ENGLISH).getDecimalSeparator();
+        when(formattedText.getDecimalSeparator()).thenReturn(Character.toString(ds));
+        configureScale(100, Locale.ENGLISH);
+
+        String context = UUID.randomUUID().toString();
+        String gradebookId = UUID.randomUUID().toString();
+        String submitterId = UUID.randomUUID().toString();
+        String instructorId = UUID.randomUUID().toString();
+        Long itemId = new Random().nextLong();
+        try {
+            AssignmentSubmission newSubmission = createNewSubmission(context, submitterId);
+            Assignment assignment = newSubmission.getAssignment();
+            assignment.getProperties().put(AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, itemId.toString());
+            assignment.setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);
+            assignment.setScaleFactor(assignmentService.getScaleFactor());
+
+            when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION,
+                    AssignmentReferenceReckoner.reckoner().submission(newSubmission).reckon().getReference())).thenReturn(true);
+
+            Event event = createMockEvent(context, gradebookId, itemId, submitterId, "25", instructorId);
+
+            org.sakaiproject.service.gradebook.shared.Assignment gradebookAssignment = mock(org.sakaiproject.service.gradebook.shared.Assignment.class);
+            when(gradebookAssignment.getName()).thenReturn(itemId.toString());
+            when(gradebookService.getAssignmentByNameOrId(context, itemId.toString())).thenReturn(gradebookAssignment);
+            assignmentEventObserver.update(null, event);
+
+            AssignmentSubmission updatedSubmission = assignmentService.getSubmission(newSubmission.getId());
+
+            Assert.assertEquals(Boolean.TRUE, updatedSubmission.getGraded());
+            Assert.assertEquals("2500", updatedSubmission.getGrade());
+            Assert.assertEquals(instructorId, updatedSubmission.getGradedBy());
+        } catch (Exception e) {
+            Assert.fail("Could not create submission\n" + e.toString());
+        }
+    }
+
     private AssignmentSubmission createNewSubmission(String context, String submitterId) throws UserNotDefinedException, IdUnusedException {
         Assignment assignment = createNewAssignment(context);
         String addSubmissionRef = AssignmentReferenceReckoner.reckoner().context(context).subtype("s").reckon().getReference();
@@ -994,5 +1036,25 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         });
         duplicateSubmission.setDateCreated(Instant.now().plusSeconds(5));
         return duplicateSubmission;
+    }
+
+    private Event createMockEvent(String context, String gradebookId, Long itemId, String studentUid, String grade, String grader) {
+        String[] parts = new String[] {
+                "/gradebookng",
+                gradebookId,
+                itemId.toString(),
+                studentUid,
+                grade,
+                "OK",
+                "INSTRUCTOR"
+        };
+
+        Event event = mock(Event.class);
+        when(event.getEvent()).thenReturn("gradebook.updateItemScore");
+        when(event.getModify()).thenReturn(true);
+        when(event.getResource()).thenReturn(String.join("/", parts));
+        when(event.getUserId()).thenReturn(grader);
+        when(event.getContext()).thenReturn(context);
+        return event;
     }
 }

@@ -31,6 +31,8 @@ import org.hibernate.NonUniqueResultException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.persister.collection.CollectionPropertyNames;
+import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
@@ -281,5 +283,16 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
         if (assignment != null && assignment.getId() != null) {
             sessionFactory.getCache().evictEntity(Assignment.class, assignment.getId());
         }
+    }
+
+    @Override
+    public String findAssignmentIdForGradebookLink(String context, String linkId) {
+        return String.valueOf(startCriteriaQuery()
+                .createAlias("properties", "p")
+                .add(Restrictions.eq("context", context))
+                .add(Restrictions.eq("p." + CollectionPropertyNames.COLLECTION_INDICES, AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT))
+                .add(Restrictions.eq("p." + CollectionPropertyNames.COLLECTION_ELEMENTS, linkId))
+                .setProjection(Projections.property("id"))
+                .uniqueResult());
     }
 }
