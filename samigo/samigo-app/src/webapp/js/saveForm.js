@@ -22,6 +22,17 @@ var disabledButtons = [];
 var disabledLinks = [];
 
 function GetFormContent(formId, buttonName) {
+
+    try {
+        toggleSubmissionControls(false);
+        //If the autosave submits any fill in numeric question, validate it before submitting. Wipe the value if it's incorrect and notify the user.
+        $('.fillInNumericInput').each( function() {
+          validateFinInput(this);
+        });
+    } catch(error) {
+        //Fail silently if this validation fails.
+    }
+
     var theForm = document.getElementById(formId);
     var elements = theForm.elements;
     var pairs = [];
