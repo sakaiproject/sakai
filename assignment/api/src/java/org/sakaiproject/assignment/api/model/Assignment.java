@@ -53,6 +53,10 @@ import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 /**
  * Assignment represents a specific assignment for a specific section or class.
  * <p>
@@ -97,6 +101,7 @@ import org.hibernate.annotations.Type;
 @NoArgsConstructor
 @ToString(exclude = {"authors", "submissions", "groups", "properties", "attachments"})
 @EqualsAndHashCode(of = "id")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Assignment {
 
     @Id
@@ -168,6 +173,7 @@ public class Assignment {
     private Integer position;
 
     @OneToMany(mappedBy = "assignment", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private Set<AssignmentSubmission> submissions = new HashSet<>();
 
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)

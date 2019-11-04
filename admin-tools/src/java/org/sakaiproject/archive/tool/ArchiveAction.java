@@ -347,6 +347,9 @@ public class ArchiveAction
 			&&	(file != null) && (file.trim().length() > 0))
 		{
 			String msg = archiveService.merge(file.trim(), id.trim(), null);
+			if (StringUtils.isBlank(msg)) {
+				msg = rb.getFormattedMessage("archive.import3", new Object[]{file});
+			}
 			addAlert(state, rb.getFormattedMessage("archive.import2", new Object[]{file, id}) + msg);
 		}
 		else

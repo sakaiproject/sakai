@@ -23,7 +23,11 @@ package org.sakaiproject.assignment.api;
 
 import java.io.OutputStream;
 import java.time.Instant;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
@@ -38,7 +42,6 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.user.api.User;
-import org.w3c.dom.Element;
 
 /**
  * <p>
@@ -275,17 +278,6 @@ public interface AssignmentService extends EntityProducer {
     public Assignment addAssignment(String context) throws PermissionException;
 
     /**
-     * Add a new assignment to the directory, from a definition in XML. Must commitEdit() to make official, or cancelEdit() when done!
-     *
-     * @param el The XML DOM Element defining the assignment.
-     * @return A locked AssignmentEdit object (reserving the id).
-     * @throws IdInvalidException  if the assignment id is invalid.
-     * @throws IdUsedException     if the assignment id is already used.
-     * @throws PermissionException if the current user does not have permission to add an assignnment.
-     */
-    public Assignment mergeAssignment(Element el) throws IdInvalidException, IdUsedException, PermissionException;
-
-    /**
      * Creates and adds a new Assignment to the service which is a copy of an existing Assignment.
      *
      * @param context The context for the new assignment
@@ -330,17 +322,6 @@ public interface AssignmentService extends EntityProducer {
      * @throws PermissionException if the current User does not have permission to do this.
      */
     public AssignmentSubmission addSubmission(String assignmentId, String submitter) throws PermissionException;
-
-    /**
-     * Add a new AssignmentSubmission to the directory, from a definition in XML. Must commitEdit() to make official, or cancelEdit() when done!
-     *
-     * @param el The XML DOM Element defining the submission.
-     * @return A locked AssignmentSubmission object (reserving the id).
-     * @throws IdInvalidException  if the submission id is invalid.
-     * @throws IdUsedException     if the submission id is already used.
-     * @throws PermissionException if the current user does not have permission to add a submission.
-     */
-    public AssignmentSubmission mergeSubmission(Element el) throws IdInvalidException, IdUsedException, PermissionException;
 
     /**
      * Removes an AssignmentSubmission and all references to it
