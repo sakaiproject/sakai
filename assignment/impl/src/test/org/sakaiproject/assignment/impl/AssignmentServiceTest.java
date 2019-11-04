@@ -22,9 +22,14 @@
 package org.sakaiproject.assignment.impl;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.mockito.ArgumentMatchers.anyCollection;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.time.Duration;
@@ -78,12 +83,17 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.Xml;
 import org.sakaiproject.util.api.FormattedText;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.github.javafaker.Faker;
 
@@ -857,6 +867,52 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Assert.assertThat(countNoUsers, is(0)); // should have 0 submissions submitted
     }
 
+    @Test
+    public void mergeAssignmentFromXML() {
+        String context = UUID.randomUUID().toString();
+        String xml = readResourceToString("/importAssignment.xml");
+        Document doc = Xml.readDocument(xml);
+
+        if (doc != null) {
+            // Mock everything needed to have permission
+            Site siteMock = mock(Site.class);
+            Collection<Group> groupCollection = new ArrayList<>();
+            Group groupMock = mock(Group.class);
+            when(groupMock.getReference()).thenReturn("reference");
+            groupCollection.add(groupMock);
+            when(siteMock.getGroups()).thenReturn(groupCollection);
+            Set<String> references = new HashSet<>();
+            references.add("reference");
+            when(authzGroupService.getAuthzGroupsIsAllowed(anyString(), anyString(), anyCollection())).thenReturn(references);
+            try {
+                when(siteService.getSite(context)).thenReturn(siteMock);
+            } catch (IdUnusedException e) {
+                Assert.fail("Site mock failed");
+            }
+
+            when(securityService.unlock("asn.new", "/assignment/a/SITE_ID")).thenReturn(true);
+            when(securityService.unlock("asn.revise", "/assignment/a/SITE_ID")).thenReturn(true);
+            when(securityService.unlock("asn.read", "/assignment/a/SITE_ID")).thenReturn(true);
+
+            // verify the root element
+            Element root = doc.getDocumentElement();
+            // the children
+            NodeList children = root.getChildNodes();
+            int length = children.getLength();
+
+            for (int i = 0; i < length; i++) {
+                Node child = children.item(i);
+                if (child.getNodeType() != Node.ELEMENT_NODE) continue;
+
+                Element element = (Element) child;
+                if ("org.sakaiproject.assignment.api.AssignmentService".equals(element.getTagName())) {
+                    assignmentService.merge(context, element, null, null, null, null, null);
+                    Assert.assertEquals(1, assignmentService.getAssignmentsForContext(context).size());
+                }
+            }
+        }
+    }
+
     private AssignmentSubmission createNewSubmission(String context, String submitterId) throws UserNotDefinedException, IdUnusedException {
         Assignment assignment = createNewAssignment(context);
         String addSubmissionRef = AssignmentReferenceReckoner.reckoner().context(context).subtype("s").reckon().getReference();
@@ -969,5 +1025,11 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         });
         duplicateSubmission.setDateCreated(Instant.now().plusSeconds(5));
         return duplicateSubmission;
+    }
+
+    private String readResourceToString(String resource) {
+        InputStream is = this.getClass().getResourceAsStream(resource);
+        BufferedReader br = new BufferedReader(new InputStreamReader(is));
+        return br.lines().collect(Collectors.joining("\n"));
     }
 }

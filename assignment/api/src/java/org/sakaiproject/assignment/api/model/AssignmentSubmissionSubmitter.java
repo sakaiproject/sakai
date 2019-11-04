@@ -27,6 +27,10 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -51,6 +55,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString(exclude = {"submission"})
 @EqualsAndHashCode(of = {"submission", "submitter"})
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class AssignmentSubmissionSubmitter {
 
     @Id
@@ -61,6 +66,7 @@ public class AssignmentSubmissionSubmitter {
 
     @ManyToOne
     @JoinColumn(name = "SUBMISSION_ID", nullable = false)
+    @JsonBackReference
     private AssignmentSubmission submission;
 
     @Column(name = "SUBMITTER", length = 99, nullable = false)

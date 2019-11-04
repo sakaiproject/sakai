@@ -50,6 +50,8 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.StringTokenizer;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -166,6 +168,9 @@ import org.springframework.util.Assert;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.InputSource;
 
 /**
@@ -175,7 +180,7 @@ import org.xml.sax.InputSource;
 @Transactional(readOnly = true)
 public class AssignmentServiceImpl implements AssignmentService, EntityTransferrer, EntityTransferrerRefMigrator, ApplicationContextAware {
 
-    @Setter private AnnouncementService announcementService;
+	@Setter private AnnouncementService announcementService;
     @Setter private ApplicationContext applicationContext;
     @Setter private AssignmentActivityProducer assignmentActivityProducer;
     @Setter private ObjectFactory<AssignmentEntity> assignmentEntityFactory;
@@ -262,8 +267,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     public String archive(String siteId, Document doc, Stack<Element> stack, String archivePath, List<Reference> attachments) {
-        String message = "archiving " + getLabel() + " context " + Entity.SEPARATOR + siteId + Entity.SEPARATOR + SiteService.MAIN_CONTAINER + ".\n";
-        log.debug(message);
+        final StringBuilder results = new StringBuilder();
+        results.append("begin archiving ").append(getLabel()).append(" context ").append(siteId).append(LINE_SEPARATOR);
 
         // start with an element with our very own (service) name
         Element element = doc.createElement(AssignmentService.class.getName());
@@ -271,6 +276,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         stack.push(element);
 
         Collection<Assignment> assignments = getAssignmentsForContext(siteId);
+        int assignmentsArchived = 0;
         for (Assignment assignment : assignments) {
             String xml = assignmentRepository.toXML(assignment);
 
@@ -280,6 +286,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 Element assignmentElement = assignmentDocument.getDocumentElement();
                 Node assignmentNode = doc.importNode(assignmentElement, true);
                 element.appendChild(assignmentNode);
+                assignmentsArchived++;
             } catch (Exception e) {
                 log.warn("could not append assignment {} to archive, {}", assignment.getId(), e.getMessage());
             }
@@ -287,12 +294,34 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         stack.pop();
 
-        return message;
+        results.append("completed archiving ").append(getLabel()).append(" context ").append(siteId).append(" count (").append(assignmentsArchived).append(")").append(LINE_SEPARATOR);
+        return results.toString();
     }
 
     @Override
+    @Transactional
     public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map<String, String> attachmentNames, Map<String, String> userIdTrans, Set<String> userListAllowImport) {
-        return null;
+
+        final StringBuilder results = new StringBuilder();
+        results.append("begin merging ").append(getLabel()).append(" context ").append(siteId).append(LINE_SEPARATOR);
+        final NodeList allChildrenNodeList = root.getChildNodes();
+        final Stream<Node> allChildrenNodes = IntStream.range(0, allChildrenNodeList.getLength()).mapToObj(allChildrenNodeList::item);
+        final List<Element> assignmentElements = allChildrenNodes.filter(node -> node.getNodeType() == Node.ELEMENT_NODE).map(element -> (Element) element).collect(Collectors.toList());
+
+        int assignmentsMerged = 0;
+
+        for (Element assignmentElement : assignmentElements) {
+            try {
+                mergeAssignment(siteId, assignmentElement, results);
+                assignmentsMerged++;
+            } catch (Exception e) {
+                final String error = "could not merge assignment with id: " + assignmentElement.getFirstChild().getFirstChild().getNodeValue();
+                log.warn(error, e);
+                results.append(error).append(LINE_SEPARATOR);
+            }
+        }
+        results.append("completed merging ").append(getLabel()).append(" context ").append(siteId).append(" count (").append(assignmentsMerged).append(")").append(LINE_SEPARATOR);
+        return results.toString();
     }
 
     @Override
@@ -747,14 +776,52 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         return assignment;
     }
 
-    @Override
-    @Transactional
-    public Assignment mergeAssignment(Element el) throws IdInvalidException, IdUsedException, PermissionException {
-        // TODO need to write a test for this
-        // this may also need to handle submission serialization?
-        Assignment assignmentFromXml = assignmentRepository.fromXML(el.toString());
+    private Assignment mergeAssignment(final String siteId, final Element element, final StringBuilder results) throws PermissionException {
 
-        return addAssignment(assignmentFromXml.getContext());
+        if (!allowAddAssignment(siteId)) {
+            throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().context(siteId).reckon().getReference());
+        }
+
+        // Serialize the element to a String
+        DOMImplementationLS dom = (DOMImplementationLS) element.getOwnerDocument().getImplementation();
+        LSSerializer domSerializer = dom.createLSSerializer();
+        domSerializer.getDomConfig().setParameter("xml-declaration", false);
+        final String xml = domSerializer.writeToString(element);
+
+        // Get an assignment object from the xml
+        final Assignment assignmentFromXml = assignmentRepository.fromXML(xml);
+        if (assignmentFromXml != null) {
+            assignmentFromXml.setId(null);
+            assignmentFromXml.setContext(siteId);
+
+            if (serverConfigurationService.getBoolean(SAK_PROP_ASSIGNMENT_IMPORT_SUBMISSIONS, false) && !assignmentFromXml.getIsGroup()) {
+                // here it's imported exactly as it was including all submissions
+                // except for group submissions as group ids will never be the same
+                Set<AssignmentSubmission> submissions = assignmentFromXml.getSubmissions();
+                List<String> submitters = submissions.stream().flatMap(s -> s.getSubmitters().stream()).map(AssignmentSubmissionSubmitter::getSubmitter).collect(Collectors.toList());
+                // only if all submitters can be found do we import submissions
+                if (submitters.containsAll(userDirectoryService.getUsers(submitters))) {
+                    submissions.forEach(s -> s.setId(null));
+                    submissions.forEach(s -> s.getSubmitters().forEach(u -> u.setId(null)));
+                }
+            } else {
+                // here it is importing the assignment only
+                assignmentFromXml.setDraft(true);
+                assignmentFromXml.setAttachments(new HashSet<>());
+                assignmentFromXml.setGroups(new HashSet<>());
+                assignmentFromXml.setTypeOfAccess(SITE);
+                Map<String, String> properties = assignmentFromXml.getProperties().entrySet().stream()
+                        .filter(e -> !PROPERTIES_EXCLUDED_FROM_DUPLICATE_ASSIGNMENTS.contains(e.getKey()))
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                assignmentFromXml.setProperties(properties);
+                assignmentFromXml.setSubmissions(new HashSet<>());
+            }
+            assignmentRepository.newAssignment(assignmentFromXml);
+            String result = "merging assignment " + assignmentFromXml.getId() + " with " + assignmentFromXml.getSubmissions().size() + " submissions.";
+            results.append(result).append(LINE_SEPARATOR);
+            log.debug(result);
+        }
+        return assignmentFromXml;
     }
 
     @Override
@@ -1072,38 +1139,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             log.debug("New submission: {} added to assignment: {}", submission.getId(), assignmentId);
             return submission;
         }
-        return null;
-    }
-
-    @Override
-    public AssignmentSubmission mergeSubmission(Element el) throws IdInvalidException, IdUsedException, PermissionException {
-        // TODO this will probably be handled in merge Assignments as submissions are children of assignments
-//        AssignmentSubmission submissionFromXml = new AssignmentSubmission();
-//
-//        // check for a valid submission name
-//        if (!Validator.checkResourceId(submissionFromXml.getId())) throw new IdInvalidException(submissionFromXml.getId());
-//
-//        // check security (throws if not permitted)
-//        unlock(SECURE_ADD_ASSIGNMENT_SUBMISSION, submissionFromXml.getReference());
-//
-//        // reserve a submission with this id from the info store - if it's in use, this will return null
-//        AssignmentSubmissionEdit submission = m_submissionStorage.put(	submissionFromXml.getId(),
-//                submissionFromXml.getAssignmentId(),
-//                submissionFromXml.getSubmitterIdString(),
-//                (submissionFromXml.getTimeSubmitted() != null)?String.valueOf(submissionFromXml.getTimeSubmitted().getTime()):null,
-//                Boolean.valueOf(submissionFromXml.getSubmitted()).toString(),
-//                Boolean.valueOf(submissionFromXml.getGraded()).toString());
-//        if (submission == null)
-//        {
-//            throw new IdUsedException(submissionFromXml.getId());
-//        }
-//
-//        // transfer from the XML read submission object to the SubmissionEdit
-//        ((BaseAssignmentSubmissionEdit) submission).set(submissionFromXml);
-//
-//        ((BaseAssignmentSubmissionEdit) submission).setEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT_SUBMISSION);
-//
-//        return submission;
         return null;
     }
 

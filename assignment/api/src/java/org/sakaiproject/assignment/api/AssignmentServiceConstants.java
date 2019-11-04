@@ -123,6 +123,9 @@ public final class AssignmentServiceConstants {
                     AssignmentServiceConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK,
                     AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT)));
 
+    public static final String LINE_SEPARATOR = System.getProperty("line.separator");
+    public static final String SAK_PROP_ASSIGNMENT_IMPORT_SUBMISSIONS = "assignment.merge.import.submissions";
+
     private AssignmentServiceConstants() {
         throw new RuntimeException(this.getClass().getCanonicalName() + " is not to be instantiated");
     }
