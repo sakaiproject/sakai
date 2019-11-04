@@ -16,25 +16,38 @@
 package org.sakaiproject.assignment.entityproviders;
 
 import java.time.Instant;
+import java.time.temporal.ChronoField;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletResponse;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+
+import static org.sakaiproject.assignment.api.AssignmentConstants.*;
+import static org.sakaiproject.assignment.api.AssignmentServiceConstants.*;
+
 import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.assignment.api.AssignmentConstants;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.fileupload.FileItem;
+
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
-import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.MultiGroupRecord;
+import org.sakaiproject.assignment.tool.AssignmentToolUtils;
 import org.sakaiproject.assignment.api.model.*;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
@@ -56,31 +69,39 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 
 @Slf4j
+@Setter
 public class AssignmentEntityProvider extends AbstractEntityProvider implements EntityProvider,
         CoreEntityProvider, Resolvable, ActionsExecutable, Describeable,
         AutoRegisterEntityProvider, PropertyProvideable, Outputable, Inputable {
 
     public final static String ENTITY_PREFIX = "assignment";
-    @Setter private AssignmentService assignmentService;
-    @Setter private EntityBroker entityBroker;
-    @Setter private SecurityService securityService;
-    @Setter private SessionManager sessionManager;
-    @Setter private SiteService siteService;
-    @Setter private AssignmentSupplementItemService assignmentSupplementItemService;
-    @Setter private GradebookService gradebookService;
-    @Setter private GradebookExternalAssessmentService gradebookExternalService;
-    @Setter private ServerConfigurationService serverConfigurationService;
+
+    private AssignmentService assignmentService;
+    private AssignmentToolUtils assignmentToolUtils;
+    private ContentHostingService contentHostingService;
+    private EntityBroker entityBroker;
+    private EntityManager entityManager;
+    private SecurityService securityService;
+    private SessionManager sessionManager;
+    private SiteService siteService;
+    private AssignmentSupplementItemService assignmentSupplementItemService;
+    private GradebookService gradebookService;
+    private GradebookExternalAssessmentService gradebookExternalService;
+    private ServerConfigurationService serverConfigurationService;
+    private UserDirectoryService userDirectoryService;
 
     // HTML is deliberately not handled here, so that it will be handled by RedirectingAssignmentEntityServlet
     public String[] getHandledOutputFormats() {
-        return new String[]{Formats.XML, Formats.JSON, Formats.FORM};
+        return new String[] { Formats.XML, Formats.JSON, Formats.FORM };
     }
 
     public String[] getHandledInputFormats() {
-        return new String[]{Formats.HTML, Formats.XML, Formats.JSON,
-                Formats.FORM};
+        return new String[] { Formats.HTML, Formats.XML, Formats.JSON, Formats.FORM };
     }
 
     public Object getSampleEntity() {
@@ -106,14 +127,10 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
      * (java.lang.String)
      */
     public boolean entityExists(String id) {
-        boolean rv = false;
+
         // This will look up the ref from the database, so if ref is not null,
         // that means it found one.
-        String ref = assignmentService.assignmentReference(id);
-        if (ref != null) {
-            rv = true;
-        }
-        return rv;
+        return assignmentService.assignmentReference(id) != null;
     }
 
     /*
@@ -124,17 +141,15 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
      * getEntity(org.sakaiproject.entitybroker.EntityReference)
      */
     public Object getEntity(EntityReference ref) {
+
         if (ref == null || ref.getId() == null) {
-            throw new IllegalArgumentException(
-                    "ref and id must be set for assignments");
+            throw new IllegalArgumentException("ref and id must be set for assignments");
         }
         SimpleAssignment assignment;
         try {
-            assignment = new SimpleAssignment(
-                    assignmentService.getAssignment(ref.getId()));
+            assignment = new SimpleAssignment(assignmentService.getAssignment(ref.getId()));
         } catch (IdUnusedException e) {
-            throw new EntityNotFoundException("No assignment found: " + ref,
-                    ref.toString(), e);
+            throw new EntityNotFoundException("No assignment found: " + ref, ref.toString(), e);
         } catch (PermissionException e) {
             throw new SecurityException(e);
         }
@@ -144,7 +159,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
     @EntityCustomAction(action = "annc", viewKey = EntityView.VIEW_LIST)
     public Map<String, Object> getAssignDataForAnnouncement(EntityView view,
                                                             Map<String, Object> params) {
-        Map<String, Object> assignData = new HashMap<String, Object>();
+
+        Map<String, Object> assignData = new HashMap<>();
 
         String context = view.getPathSegment(2);
         String assignmentId = view.getPathSegment(3);
@@ -158,7 +174,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         SecurityAdvisor securityAdvisor = createSecurityAdvisor(
             sessionManager.getCurrentSessionUserId(),
-            AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT,
+            SECURE_ADD_ASSIGNMENT,
             assignmentService.assignmentReference(null, context)
         );
 
@@ -186,30 +202,25 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                     && announcementCheck.equals(messageId)) {
                 assignData.put("assignmentTitle", a.getTitle());
                 String assignmentContext = a.getContext(); // assignment context
-                boolean allowReadAssignment = assignmentService
-                        .allowGetAssignment(assignmentContext);
+                boolean allowReadAssignment = assignmentService.allowGetAssignment(assignmentContext);
                 // check for read permission
                 if (allowReadAssignment
                         && a.getOpenDate().isBefore(Instant.now())) {
                     // this checks if we want to display an assignment link
                     try {
                         Site site = siteService.getSite(assignmentContext); // site id
-                        ToolConfiguration fromTool = site
-                                .getToolForCommonId("sakai.assignment.grades");
-                        boolean allowAddAssignment = assignmentService
-                                .allowAddAssignment(assignmentContext);
+                        ToolConfiguration fromTool = site.getToolForCommonId("sakai.assignment.grades");
+                        boolean allowAddAssignment = assignmentService.allowAddAssignment(assignmentContext);
                         // this checks for the asn.new permission and
                         // determines the url we present the user
-                        boolean allowSubmitAssignment = assignmentService
-                                .allowAddSubmission(assignmentContext);
+                        boolean allowSubmitAssignment = assignmentService.allowAddSubmission(assignmentContext);
                         // this checks for the asn.submit permission and
                         // determines the url we present the user
 
                         // Three different urls to be rendered depending on the
                         // user's permission
                         if (allowAddAssignment) {
-                            assignData
-                                    .put("assignmentUrl",
+                            assignData.put("assignmentUrl",
                                             serverConfigurationService
                                                     .getPortalUrl()
                                                     + "/directtool/"
@@ -222,8 +233,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                             if(a.getHonorPledge()) {
                                 sakaiAction = "doView_assignment_honorPledge";
                             }
-                            assignData
-                                    .put("assignmentUrl",
+                            assignData.put("assignmentUrl",
                                             serverConfigurationService
                                                     .getPortalUrl()
                                                     + "/directtool/"
@@ -234,8 +244,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                         } else {
                             // user can read the assignment, but not submit, so
                             // render the appropriate url
-                            assignData
-                                    .put("assignmentUrl",
+                            assignData.put("assignmentUrl",
                                             serverConfigurationService
                                                     .getPortalUrl()
                                                     + "/directtool/"
@@ -251,8 +260,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                         assignData.remove("assignmentId");
                         assignData.remove("assignmentTitle");
                         assignData.remove("assignmentUrl");
-                        throw new IdUnusedException(
-                                "No site found while creating assignment url");
+                        throw new IdUnusedException("No site found while creating assignment url");
                     }
                 }
             }
@@ -262,8 +270,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             assignData.remove("assignmentId");
             assignData.remove("assignmentTitle");
             assignData.remove("assignmentUrl");
-            throw new EntityNotFoundException("No assignment found",
-                    assignmentId, e);
+            throw new EntityNotFoundException("No assignment found", assignmentId, e);
         } catch (PermissionException e) {
             assignData.remove("assignment");
             assignData.remove("context");
@@ -278,6 +285,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
     }
 
     private SecurityAdvisor createSecurityAdvisor(String currentUserId, String requiredFunction, String requiredReference) {
+
         return (userId, function, reference) -> currentUserId.equals(userId) &&
                 requiredFunction.equals(function) &&
                 requiredReference.equals(reference)
@@ -300,7 +308,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                             + "): e.g. /direct/assignment/deepLinkWithPermissions/{context}/{assignmentId}");
         }
 
-        Map<String, String> assignData = new HashMap<String, String>();
+        Map<String, String> assignData = new HashMap<>();
 
         try {
             Assignment a = assignmentService.getAssignment(assignmentId);
@@ -364,7 +372,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
     @EntityCustomAction(action = "site", viewKey = EntityView.VIEW_LIST)
     public List<?> getAssignmentsForSite(EntityView view,
                                          Map<String, Object> params) {
-        List<SimpleAssignment> rv = new ArrayList<SimpleAssignment>();
+
+        List<SimpleAssignment> rv = new ArrayList<>();
         String siteId = view.getPathSegment(2);
 
         // check user can access this site
@@ -408,8 +417,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
      * item/assignmentId
      */
     @EntityCustomAction(action = "item", viewKey = EntityView.VIEW_LIST)
-    public SimpleAssignment getAssignment(EntityView view,
-                                          Map<String, Object> params) {
+    public SimpleAssignment getAssignment(EntityView view, Map<String, Object> params) {
+
         String assignmentId = view.getPathSegment(2);
 
         // check user can access this assignment
@@ -422,6 +431,270 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             throw new EntityNotFoundException("No access to assignment: " + assignmentId, assignmentId);
         }
         return new SimpleAssignment(a);
+    }
+
+    @Getter
+    public class GraderUser {
+
+        private String displayName;
+        private String id;
+
+        public GraderUser(User sakaiUser) {
+
+            super();
+
+            this.displayName = sakaiUser.getDisplayName();
+            this.id = sakaiUser.getId();
+        }
+    }
+
+    @EntityCustomAction(action = "gradable", viewKey = EntityView.VIEW_LIST)
+    public ActionReturn getGradableForSite(EntityView view , Map<String, Object> params) {
+
+        String gradableId = (String) params.get("gradableId");
+
+        if (StringUtils.isBlank(gradableId)) {
+            throw new EntityException("Need gradableId", "", HttpServletResponse.SC_BAD_REQUEST);
+        }
+
+        Assignment assignment = null;
+        try {
+            assignment = assignmentService.getAssignment(gradableId);
+        } catch (IdUnusedException e) {
+            throw new EntityException("No assignment for id", gradableId, HttpServletResponse.SC_BAD_REQUEST);
+        } catch (PermissionException e) {
+            throw new SecurityException(e);
+        }
+
+        String siteId = assignment.getContext();
+
+        Site site = null;
+        try {
+            site = siteService.getSite(siteId);
+        } catch (IdUnusedException e) {
+            throw new EntityNotFoundException("No site found", siteId, e);
+        }
+
+        Map<String, GraderUser> students = new HashMap<>();
+        try {
+            for (String studentId : site.getUsersIsAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION)) {
+                students.put(studentId, new GraderUser(userDirectoryService.getUser(studentId)));
+            }
+        } catch (UserNotDefinedException e) {
+            throw new EntityException("Failed to setup user", siteId);
+        }
+
+        // A list of mappings of submission id to student id list
+        List<SimpleSubmission> submissions
+            = assignment.getSubmissions().stream().map(as -> new SimpleSubmission(as)).collect(Collectors.toList());
+
+        Map<String, Object> data = new HashMap<>();
+
+        List<SimpleGroup> groups = site.getGroups().stream().map(g -> new SimpleGroup(g)).collect(Collectors.toList());
+
+        data.put("gradable", new SimpleAssignment(assignment));
+        data.put("submissions", submissions);
+        data.put("students", students);
+        data.put("groups", groups);
+        String lOptions = serverConfigurationService.getString("assignment.letterGradeOptions", "A+,A,A-,B+,B,B-,C+,C,C-,D+,D,D-,E,F");
+        data.put("letterGradeOptions", lOptions);
+
+        return new ActionReturn(data);
+    }
+
+    @EntityCustomAction(action = "grades", viewKey = EntityView.VIEW_LIST)
+    public ActionReturn getGrades(Map<String, Object> params) {
+
+        String userId = sessionManager.getCurrentSessionUserId();
+
+        if (StringUtils.isBlank(userId)) {
+            log.warn("getGrades attempt when not logged in");
+            throw new EntityException("You need to be logged in to get grades", "", HttpServletResponse.SC_UNAUTHORIZED);
+        }
+
+        String courseId = (String) params.get("courseId");
+        String gradableId = (String) params.get("gradableId");
+
+        if (StringUtils.isBlank(courseId) || StringUtils.isBlank(gradableId)) {
+            throw new EntityException("You need to supply a courseId and a gradableId", "", HttpServletResponse.SC_BAD_REQUEST);
+        }
+
+        Site site = null;
+        try {
+            site = siteService.getSite(courseId);
+        } catch (IdUnusedException iue) {
+            throw new EntityException("The courseId (site id) you supplied is invalid", "", HttpServletResponse.SC_BAD_REQUEST);
+        }
+
+        if (!securityService.unlock(userId, SECURE_GRADE_ASSIGNMENT_SUBMISSION, "/site/" + courseId)) {
+            throw new EntityException("You don't have permission to get grades", "", HttpServletResponse.SC_FORBIDDEN);
+        }
+
+        Assignment assignment;
+
+        try {
+            assignment = assignmentService.getAssignment(gradableId);
+        } catch (IdUnusedException idue) {
+            throw new EntityException("No gradable for id " + gradableId, "", HttpServletResponse.SC_BAD_REQUEST);
+        } catch (PermissionException pe) {
+            throw new EntityException("You don't have permission to read the assignment", "", HttpServletResponse.SC_FORBIDDEN);
+        }
+
+        // A map of submissionId -> grade
+        Map<String, String> grades = assignment.getSubmissions().stream().collect(Collectors.toMap(s -> s.getId(), s -> {
+
+            Set<AssignmentSubmissionSubmitter> submitters = s.getSubmitters();
+
+            if (submitters.size() > 0) {
+                //String rawGrade = assignmentService.getGradeForSubmitter(s, submitters.iterator().next().getSubmitter());
+                return assignmentService.getGradeDisplay(s.getGrade(), assignment.getTypeOfGrade(), assignment.getScaleFactor());
+            } else {
+                return "";
+            }
+        }));
+
+        Map<String, GraderUser> students = new HashMap<>();
+        try {
+            for (String studentId : site.getUsersIsAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION)) {
+                students.put(studentId, new GraderUser(userDirectoryService.getUser(studentId)));
+            }
+        } catch (UserNotDefinedException e) {
+            throw new EntityException("Failed to setup user", courseId);
+        }
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("students", students);
+        data.put("grades", grades);
+
+        return new ActionReturn(data);
+    }
+
+    @EntityCustomAction(action = "setGrade", viewKey = EntityView.VIEW_NEW)
+    public ActionReturn setGrade(Map<String, Object> params) {
+
+        String userId = sessionManager.getCurrentSessionUserId();
+
+        if (StringUtils.isBlank(userId)) {
+            log.warn("setGrade attempt when not logged in");
+            throw new EntityException("You need to be logged in to set grades", "", HttpServletResponse.SC_UNAUTHORIZED);
+        }
+
+        String courseId = (String) params.get("courseId");
+        String gradableId = (String) params.get("gradableId");
+        String grade = (String) params.get("grade");
+        String studentId = (String) params.get("studentId");
+        String submissionId = (String) params.get("submissionId");
+        if (StringUtils.isBlank(courseId) || StringUtils.isBlank(gradableId)
+                || grade == null || StringUtils.isBlank(studentId) || StringUtils.isBlank(submissionId)) {
+            throw new EntityException("You need to supply the courseId, gradableId, studentId and grade", "", HttpServletResponse.SC_BAD_REQUEST);
+        }
+
+        AssignmentSubmission submission = null;
+        try {
+            submission = assignmentService.getSubmission(submissionId);
+        } catch (IdUnusedException iue) {
+            throw new EntityException("submissionId not found.", "", HttpServletResponse.SC_BAD_REQUEST);
+        } catch (PermissionException pe) {
+            throw new EntityException("You don't have permissions read submission " + submissionId, "", HttpServletResponse.SC_FORBIDDEN);
+        }
+
+
+        String privateNotes = (String) params.get("privateNotes");
+        String feedbackText = (String) params.get("feedbackText");
+        String feedbackComment = (String) params.get("feedbackComment");
+
+        String gradeOption = (String) params.get("gradeOption");
+        gradeOption = StringUtils.isBlank(gradeOption) ? SUBMISSION_OPTION_SAVE : gradeOption;
+
+        String resubmitNumber = (String) params.get("resubmitNumber");
+        String resubmitDate = (String) params.get("resubmitDate");
+
+        System.out.println(resubmitDate);
+
+        List<String> alerts = new ArrayList<>();
+
+        Assignment assignment = submission.getAssignment();
+
+        if (assignment.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE) {
+            grade = assignmentToolUtils.scalePointGrade(grade, assignment.getScaleFactor(), alerts);
+        }
+
+        Map<String, Object> options = new HashMap<>();
+        options.put(GRADE_SUBMISSION_GRADE, grade);
+        options.put(GRADE_SUBMISSION_FEEDBACK_TEXT, feedbackText);
+        options.put(GRADE_SUBMISSION_FEEDBACK_COMMENT, feedbackComment);
+        options.put(GRADE_SUBMISSION_PRIVATE_NOTES, privateNotes);
+        options.put(WITH_GRADES, true);
+        options.put(ALLOW_RESUBMIT_NUMBER, resubmitNumber);
+
+        if (!StringUtils.isBlank(resubmitDate)) {
+            options.put(ALLOW_RESUBMIT_CLOSE_EPOCH_MILLIS, resubmitDate);
+        }
+
+        Set<String> attachmentKeys
+            = params.keySet().stream().filter(k -> k.startsWith("attachment")).collect(Collectors.toSet());
+
+        final List<Reference> attachmentRefs = attachmentKeys.stream().map(k -> {
+            FileItem item = (FileItem) params.get(k);
+            try {
+                ContentResource cr = contentHostingService.addAttachmentResource(item.getName(),
+                    courseId, "Assignments", item.getContentType(), item.getInputStream(), null);
+
+                return entityManager.newReference(cr.getReference());
+            } catch (Exception e) {
+                throw new EntityException("Error while storing attachments", "", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            }
+        }).collect(Collectors.toList());
+
+        options.put(GRADE_SUBMISSION_FEEDBACK_ATTACHMENT,  attachmentRefs);
+
+        options.put(GRADE_SUBMISSION_DONT_CLEAR_CURRENT_ATTACHMENTS, Boolean.TRUE);
+
+        //AssignmentSubmission updatedSubmission
+        submission = assignmentToolUtils.gradeSubmission(submission, gradeOption, options, alerts);
+
+        if (submission != null) {
+            return new ActionReturn(new SimpleSubmission(submission));
+        } else {
+            throw new EntityException("Failed to set grade on " + submissionId, "", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @EntityCustomAction(action = "removeFeedbackAttachment", viewKey = EntityView.VIEW_LIST)
+    public String removeFeedbackAttachment(Map<String, Object> params) {
+
+        String userId = sessionManager.getCurrentSessionUserId();
+
+        if (StringUtils.isBlank(userId)) {
+            log.warn("removeFeedbackAttachment attempt when not logged in");
+            throw new EntityException("You need to be logged in to remove feedback attachments", "", HttpServletResponse.SC_UNAUTHORIZED);
+        }
+
+        String submissionId = (String) params.get("submissionId");
+        String ref = (String) params.get("ref");
+
+        if (StringUtils.isBlank(submissionId) || StringUtils.isBlank(ref)) {
+            throw new EntityException("You need to supply the submissionId and ref", "", HttpServletResponse.SC_BAD_REQUEST);
+        }
+
+        AssignmentSubmission as = null;
+        try {
+            as = assignmentService.getSubmission(submissionId);
+            as.getFeedbackAttachments().remove(ref);
+            assignmentService.updateSubmission(as);
+        } catch (IdUnusedException iue) {
+            throw new EntityException("Invalid submissionId " + submissionId, "", HttpServletResponse.SC_BAD_REQUEST);
+        } catch (PermissionException pe) {
+            throw new EntityException("You can't modify this submission", "", HttpServletResponse.SC_FORBIDDEN);
+        }
+
+        try {
+            contentHostingService.removeResource(ref);
+        } catch (Exception e) {
+            log.warn("Exception caught while removing resource " + ref + ". It may have been removed previously.");
+        }
+
+        return "SUCCESS";
     }
 
     /*
@@ -545,8 +818,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             props.put("security.user", sessionManager.getCurrentSessionUserId());
             props.put("security.site.function", SiteService.SITE_VISIT);
             props.put("security.site.ref", site.getReference());
-            props.put("security.assignment.function", AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT);
-            props.put("security.assignment.grade.function", AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION);
+            props.put("security.assignment.function", SECURE_ACCESS_ASSIGNMENT);
+            props.put("security.assignment.grade.function", SECURE_GRADE_ASSIGNMENT_SUBMISSION);
             props.put("security.assignment.grade.ref", entity.getReference());
             props.put("url",
                     "/portal/tool/" + placement
@@ -606,10 +879,10 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         // Permission check to avoid revealing group memberships, user must be able to edit the given assignment,
         // or if none given, add assignments in the site
         if (!asnRef.isEmpty() && !assignmentService.allowUpdateAssignment(asnRef)) {
-            throw new SecurityException(new PermissionException(sessionManager.getCurrentSessionUserId(), AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, null));
+            throw new SecurityException(new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT, null));
         }
         if (asnRef.isEmpty() && !assignmentService.allowAddAssignment(siteId)) {
-            throw new SecurityException(new PermissionException(sessionManager.getCurrentSessionUserId(), AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, null));
+            throw new SecurityException(new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT, null));
         }
 
         final List<String> groupIds;
@@ -819,11 +1092,15 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         private Long gradebookItemId;
         private String gradebookItemName;
 
+        private boolean anonymousGrading;
+
         public SimpleAssignment() {
         }
 
         public SimpleAssignment(Assignment a) {
+
             super();
+
             if (a == null) {
                 return;
             }
@@ -854,8 +1131,9 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             this.access = a.getTypeOfAccess().toString();
             this.instructions = a.getInstructions();
 
+            this.anonymousGrading = assignmentService.assignmentUsesAnonymousGrading(a);
 
-            String gradebookAssignmentProp = a.getProperties().get(AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+            String gradebookAssignmentProp = a.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
             if (gradebookService.isGradebookDefined(a.getContext())) {
                 if (StringUtils.isNotBlank(gradebookAssignmentProp)) {
                     // try to get internal gradebook assignment first
@@ -906,7 +1184,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             }
 
             // Use the number of submissions allowed as an indicator that re-submission is permitted.
-            if (a.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER) != null && a.getTypeOfSubmission() != Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) {
+            if (a.getProperties().get(ALLOW_RESUBMIT_NUMBER) != null && a.getTypeOfSubmission() != Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) {
                 this.allowResubmission = true;
             }
             this.submissionType = a.getTypeOfSubmission().toString();
@@ -924,6 +1202,92 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             if (assignmentAllPurposeItem != null) {
                 this.allPurposeItemText = assignmentAllPurposeItem.getText();
             }
+        }
+    }
+
+    @Data
+    public class SimpleSubmitter {
+
+        private String id;
+        private String displayName;
+
+        public SimpleSubmitter(AssignmentSubmissionSubmitter ass) {
+
+            super();
+
+            this.id = ass.getSubmitter();
+            try {
+                this.displayName = userDirectoryService.getUser(this.id).getDisplayName();
+            } catch (UserNotDefinedException e) {
+                this.displayName = this.id;
+            }
+        }
+    }
+
+    @Data
+    public class SimpleSubmission {
+
+        private String id;
+        private String gradableId;
+        private String submittedText;
+        private Instant dateSubmitted;
+        private Boolean submitted;
+        private Set<String> submittedAttachments;
+        private List<SimpleSubmitter> submitters;
+        private Boolean userSubmission;
+        private Boolean late;
+        private Boolean graded;
+        private Boolean returned;
+        private String feedbackText;
+        private String feedbackComment;
+        private String privateNotes;
+        private Set<String> feedbackAttachments;
+        private Map<String, String> properties = new HashMap<>();
+
+        public SimpleSubmission(AssignmentSubmission as) {
+
+            super();
+
+            this.id = as.getId();
+            this.gradableId = as.getAssignment().getId();
+            this.submittedText = as.getSubmittedText();
+            this.dateSubmitted = as.getDateSubmitted();
+            this.submitted = as.getSubmitted();
+            this.submittedAttachments = as.getAttachments();
+            this.userSubmission = as.getUserSubmission();
+            Instant dateSubmitted = as.getDateSubmitted();
+            if (dateSubmitted != null) {
+                this.late = dateSubmitted.compareTo(as.getAssignment().getDueDate()) > 0;
+            }
+            this.returned = as.getReturned();
+            this.feedbackText = as.getFeedbackText();
+            this.feedbackComment = as.getFeedbackComment();
+            this.privateNotes = as.getPrivateNotes();
+            this.feedbackAttachments = as.getFeedbackAttachments();
+
+            this.graded = as.getGraded();
+
+            this.properties = as.getProperties();
+
+            this.submitters
+                = as.getSubmitters().stream().map(ass -> new SimpleSubmitter(ass)).collect(Collectors.toList());
+        }
+    }
+
+    @Data
+    public class SimpleGroup {
+
+        private String id;
+        private String title;
+        private Set<String> users;
+
+        public SimpleGroup(Group g) {
+
+            super();
+
+            this.id = g.getId();
+            this.title = g.getTitle();
+            this.users = g.getUsers();
         }
     }
 }

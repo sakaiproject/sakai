@@ -255,4 +255,33 @@ public final class AssignmentConstants {
     public static final String SUBMISSION_OPTION_SAVE = "save";
     public static final String SUBMISSION_OPTION_RETRACT = "retract";
 
+    public static final String STATE_CONTEXT_STRING = "Assignment.context_string";
+
+    public static final String WITH_GRADES = "with_grades";
+
+    public static final String GRADE_SUBMISSION_SUBMISSION_ID = "grade_submission_submission_id";
+    public static final String GRADE_SUBMISSION_ASSIGNMENT_ID = "grade_submission_assignment_id";
+    public static final String GRADE_SUBMISSION_GRADE = "grade_submission_grade";
+
+    public static final String GRADE_SUBMISSION_FEEDBACK_COMMENT = "grade_submission_feedback_comment";
+    public static final String GRADE_SUBMISSION_FEEDBACK_TEXT = "grade_submission_feedback_text";
+    public static final String GRADE_SUBMISSION_PRIVATE_NOTES = "grade_submission_private_notes";
+    public static final String GRADE_SUBMISSION_FEEDBACK_ATTACHMENT = "grade_submission_feedback_attachment";
+
+    // submission level of resubmit due time
+    public static final String ALLOW_RESUBMIT_CLOSEYEAR = "allow_resubmit_closeYear";
+    public static final String ALLOW_RESUBMIT_CLOSEMONTH = "allow_resubmit_closeMonth";
+    public static final String ALLOW_RESUBMIT_CLOSEDAY = "allow_resubmit_closeDay";
+    public static final String ALLOW_RESUBMIT_CLOSEHOUR = "allow_resubmit_closeHour";
+    public static final String ALLOW_RESUBMIT_CLOSEMIN = "allow_resubmit_closeMin";
+    public static final String ALLOW_RESUBMIT_CLOSE_EPOCH_MILLIS = "allow_resubmit_close_epoch_millis";
+
+    public static final String GRADE_SUBMISSION_DONT_CLEAR_CURRENT_ATTACHMENTS = "grade_submission_dont_clear_current_attachments";
+
+    public static final String GRADEBOOK_INTEGRATION_NO = "no";
+    public static final String GRADEBOOK_INTEGRATION_ADD = "add";
+    public static final String GRADEBOOK_INTEGRATION_ASSOCIATE = "associate";
+    public static final String PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT = "prop_new_assignment_add_to_gradebook";
+
+    public static final String NEW_ASSIGNMENT_ADD_TO_GRADEBOOK = "new_assignment_add_to_gradebook";
 }

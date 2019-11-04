@@ -909,7 +909,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         try {
             AssignmentSubmission newSubmission = createNewSubmission(context, submitterId);
             Assignment assignment = newSubmission.getAssignment();
-            assignment.getProperties().put(AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, itemId.toString());
+            assignment.getProperties().put(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, itemId.toString());
             assignment.setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);
             assignment.setScaleFactor(assignmentService.getScaleFactor());
 
