@@ -104,7 +104,10 @@ public class TestConditionService {
 				// TODO Auto-generated method stub
 				return null;
 			}
-			
+
+			public boolean isTransient() {
+				return false;
+			}
 		};
 	}
 
@@ -151,6 +154,10 @@ public class TestConditionService {
 			public Date getEventTime() {
 				// TODO Auto-generated method stub
 				return null;
+			}
+
+			public boolean isTransient() {
+				return false;
 			}
 			
 		};
