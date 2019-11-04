@@ -1581,7 +1581,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	      try {
 	        site.deleteGroup(group);
 	      } catch (AuthzRealmLockException arle) {
-			log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
+	        log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
 	      }
 	  }
 	  try {

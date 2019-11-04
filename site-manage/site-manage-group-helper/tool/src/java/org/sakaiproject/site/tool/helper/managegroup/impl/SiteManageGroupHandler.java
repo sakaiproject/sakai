@@ -375,7 +375,7 @@ public class SiteManageGroupHandler {
 					try {
 						group.deleteMember(mId);
 					} catch (AuthzRealmLockException arle) {
-                        log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
+						log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
 						return null;
 					}
 				}

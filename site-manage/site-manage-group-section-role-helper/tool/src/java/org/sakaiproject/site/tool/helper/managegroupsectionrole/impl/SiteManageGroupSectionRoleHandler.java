@@ -745,7 +745,7 @@ public class SiteManageGroupSectionRoleHandler {
 						group.deleteMember(mId);
 						removedGroupMember.add("uid=" + mId + ";groupId=" + group.getId());
 					} catch (AuthzRealmLockException arle) {
-                        log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
+						log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
 						return null;
 					}
 				}
@@ -1797,7 +1797,7 @@ public class SiteManageGroupSectionRoleHandler {
 		try {
 			g.insertMember(id, r != null ? r.getId() : memberRole != null? memberRole.getId() : "", m != null ? m.isActive() : true, false);
 		} catch (AuthzRealmLockException arle) {
-            log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
+			log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
 		}
 		
 	}
