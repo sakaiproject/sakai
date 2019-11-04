@@ -260,6 +260,12 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+        	<groupId>com.fasterxml.jackson.module</groupId>
+        	<artifactId>jackson-module-parameter-names</artifactId>
+        	<version>${sakai.jackson.version}</version>
+        	<scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jdk8</artifactId>
             <scope>compile</scope>

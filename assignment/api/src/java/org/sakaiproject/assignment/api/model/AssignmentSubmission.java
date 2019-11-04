@@ -56,6 +56,11 @@ import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 /**
  * AssignmentSubmission represents a student submission for an assignment.
  */
@@ -67,6 +72,7 @@ import org.hibernate.annotations.Type;
 @NoArgsConstructor
 @ToString(exclude = {"assignment", "submitters", "attachments", "feedbackAttachments", "properties"})
 @EqualsAndHashCode(of = "id")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class AssignmentSubmission {
 
     @Id
@@ -77,11 +83,13 @@ public class AssignmentSubmission {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ASSIGNMENT_ID")
+    @JsonBackReference
     private Assignment assignment;
 
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @OneToMany(mappedBy = "submission", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     @BatchSize(size = 100)
+    @JsonManagedReference
     private Set<AssignmentSubmissionSubmitter> submitters = new HashSet<>();
 
     //private List submissionLog;
