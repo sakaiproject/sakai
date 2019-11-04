@@ -11,7 +11,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.MultiGroupRecord;
 import org.sakaiproject.assignment.api.model.Assignment;
@@ -105,7 +107,7 @@ class RangeAndGroupsDelegate
 		context.put("allowGroupAssignmentsInGradebook", Boolean.TRUE);
 	}
 
-	boolean setNewAssignmentParameters(RunData data, SessionState state, String siteId)
+	boolean setNewOrEditedAssignmentParameters(RunData data, SessionState state, String siteId)
 	{
 		String assignTo = data.getParameters().getString(NAME_ASSIGN_TO);
 		// reading assignTo back in could be one of three values
@@ -126,13 +128,31 @@ class RangeAndGroupsDelegate
 		state.setAttribute(NEW_ASSIGNMENT_RANGE, range);
 		if (Assignment.Access.GROUP.toString().equals(range))
 		{
-			String[] groupChoice = data.getParameters().getStrings("selectedGroups");
-			if (groupChoice != null && groupChoice.length != 0)
-			{
-				state.setAttribute(NEW_ASSIGNMENT_GROUPS, new ArrayList<>(Arrays.asList(groupChoice)));
+			List<String> groupChoice
+				= new ArrayList<>(Arrays.asList(ArrayUtils.nullToEmpty(
+					data.getParameters().getStrings("selectedGroups"))));
+			String assignmentId
+				= AssignmentReferenceReckoner.reckoner().reference(
+					data.getParameters().getString("assignmentId")).reckon().getId();
+			try {
+				Assignment assignment = assignmentService.getAssignment(assignmentId);
+				if (assignment.getIsGroup()) {
+					// If this assignment has any group submissions, ensure the group id is not removed
+					// from the list. The html form will not submit disabled fields, so it can happen.
+					assignment.getSubmissions().stream().filter(as -> as.getUserSubmission()).forEach(as -> {
+
+						if (!groupChoice.contains(as.getGroupId())) {
+							groupChoice.add(as.getGroupId());
+						}
+					});
+				}
+			} catch (Exception e) {
+				log.warn("Failed to retrieve assignment with id {}, {}", assignmentId, e.getMessage());
 			}
-			else
-			{
+
+			if (!groupChoice.isEmpty()) {
+				state.setAttribute(NEW_ASSIGNMENT_GROUPS, groupChoice);
+			} else {
 				state.setAttribute(NEW_ASSIGNMENT_GROUPS, null);
 				VelocityPortletPaneledAction.addAlert(state, rb.getString("java.alert.youchoosegroup"));
 			}
@@ -145,7 +165,7 @@ class RangeAndGroupsDelegate
 		// check groups for duplicate members
 		if (groupAssignment)
 		{
-			List<String> groupIds = Arrays.asList(data.getParameters().getStrings("selectedGroups"));
+			List<String> groupIds = Arrays.asList(ArrayUtils.nullToEmpty(data.getParameters().getStrings("selectedGroups")));
 			List<MultiGroupRecord> dupes = assignmentService.checkAssignmentForUsersInMultipleGroups(siteId, groupsFromIds(siteId, groupIds));
 			alertDuplicateMemberships(dupes, state);
 		}

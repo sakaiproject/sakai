@@ -6465,7 +6465,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         String contextString = toolManager.getCurrentPlacement().getContext();
 
-        boolean groupAssignment = rangeAndGroups.setNewAssignmentParameters(data, state, contextString);
+        boolean groupAssignment = rangeAndGroups.setNewOrEditedAssignmentParameters(data, state, contextString);
 
         if (StringUtils.isBlank(title)) {
             // empty assignment title
