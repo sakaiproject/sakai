@@ -78,6 +78,7 @@ import org.apache.tika.mime.MimeTypes;
 
 import org.apache.tika.parser.txt.CharsetDetector;
 import org.apache.tika.parser.txt.CharsetMatch;
+import org.sakaiproject.authz.api.AuthzRealmLockException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -2797,6 +2798,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		{
 			log.debug("removeCollection: removing realm for : " + edit.getReference() + " : " + ignore);
 		}
+		catch (AuthzRealmLockException arle)
+		{
+			log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
+		}
 
 		// track it (no notification)
 		String ref = edit.getReference(null);
@@ -4641,6 +4646,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		{
 			log.debug("removeResource: removing realm for : " + edit.getReference() + " : " + ignore);
 		}
+		catch (AuthzRealmLockException arle)
+		{
+			log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
+		}
 
 		// track it (no notification)
 		String ref = edit.getReference(null);
@@ -4704,6 +4713,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		catch (GroupNotDefinedException ignore)
 		{
 			log.debug("removeResource: removing realm for : " + edit.getReference() + " : " + ignore);
+		}
+		catch (AuthzRealmLockException arle)
+		{
+			log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
 		}
 
 	} // removeDeletedResource
@@ -9687,6 +9700,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 			}
 			catch (AuthzPermissionException e)
 			{
+				log.warn(e.getMessage());
+			}
+			catch (AuthzRealmLockException arle)
+			{
+				log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
 			}
 		}
 

@@ -67,6 +67,7 @@ import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider;
 import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider.Pager;
 import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider.Sort;
 import org.sakaiproject.authz.api.*;
+import org.sakaiproject.authz.api.AuthzGroup.RealmLockMode;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
@@ -1867,7 +1868,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
                 if (currentAssignment.getIsGroup()) {
 					context.put("submitterNames", getSubmitterFormattedNames(s, "build_student_view_submission_confirmation_context"));
-					
+
                 }
             }
         }
@@ -7936,7 +7937,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, a.getId(), getRubricConfigurationParameters(params));
 
                 // Locking and unlocking groups
-                rangeAndGroups.postSaveAssignmentGroupLocking(state, post, rangeAndGroupSettings, aOldGroups, siteId, a.getId());
+                rangeAndGroups.postSaveAssignmentGroupLocking(state, post, rangeAndGroupSettings, aOldGroups, siteId, assignmentReference);
 
                 if (post) {
                     // we need to update the submission
@@ -9701,7 +9702,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 for (String reference : groups) {
                     Group group = site.getGroup(reference);
                     if (group != null) {
-                        group.unlockGroup(group.getReference() + "/assignment/" + assignment.getId(), Group.LockMode.ALL);
+                        group.setLockForReference(ref, RealmLockMode.NONE);
                         siteService.save(group.getContainingSite());
                     }
                 }
@@ -10500,7 +10501,7 @@ public class AssignmentAction extends PagedResourceActionII {
         } else if (MODE_STUDENT_REVIEW_EDIT.equals(mode)) {
             saveReviewGradeForm(data, state, "save");
         }
-        
+
         //Set the title and override for anonymous assignment
         if (assignment != null) {
         	assignmentTitle = assignment.getTitle();

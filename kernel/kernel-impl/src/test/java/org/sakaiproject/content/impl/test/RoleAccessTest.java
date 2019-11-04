@@ -24,6 +24,7 @@ import org.junit.*;
 
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
+import org.sakaiproject.authz.api.AuthzRealmLockException;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -91,7 +92,7 @@ public class RoleAccessTest extends SakaiKernelTestBase {
     }
 
     @After
-    public void tearDown() throws IdUnusedException, PermissionException, InUseException, TypeException, ServerOverloadException, AuthzPermissionException {
+    public void tearDown() throws IdUnusedException, PermissionException, InUseException, TypeException, ServerOverloadException, AuthzPermissionException, AuthzRealmLockException {
         _chs.removeCollection(PHOTOS_COLLECTION);
         _ags.removeAuthzGroup(_chs.getReference(PHOTOS_COLLECTION));
         _chs.removeCollection(IMAGES_COLLECTION);

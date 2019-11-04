@@ -2,15 +2,15 @@
  * $Id$
  * $URL$
  * SiteEntityProvider.java - entity-broker - Jun 29, 2008 8:35:55 AM - azeckoski
- **************************************************************************
+ * *************************************************************************
  * Copyright (c) 2008, 2009 The Sakai Foundation
- *
+ * <p>
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *       http://www.opensource.org/licenses/ECL-2.0
- *
+ * <p>
+ * http://www.opensource.org/licenses/ECL-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -39,6 +39,7 @@ import org.azeckoski.reflectutils.ReflectUtils;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
+import org.sakaiproject.authz.api.AuthzRealmLockException;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
@@ -89,13 +90,13 @@ import org.sakaiproject.util.FormattedText;
 
 /**
  * Creates a provider for dealing with sites
- * 
+ *
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
 @Slf4j
 @Setter
 public class SiteEntityProvider extends AbstractEntityProvider implements CoreEntityProvider,
-RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
+        RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
 
     @Getter
     private int maxDepth = 7;
@@ -108,6 +109,7 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
     private SecurityService securityService;
 
     public static String PREFIX = "site";
+
     public String getEntityPrefix() {
         return PREFIX;
     }
@@ -120,14 +122,14 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
     /** Property to set the maximum page size for lists of entities. */
     public static final String PROP_SITE_PROVIDER_PAGESIZE_MAXIMUM = "site.entity.pagesize.maximum";
 
-	private static final String PERMISSION_QUERY_PROPERTY_NAME = "permission";
-    
+    private static final String PERMISSION_QUERY_PROPERTY_NAME = "permission";
+
     /**
      * The default page size for lists of entities. May be overridden with
      * a property of "site.entity.pagesize.default".
      */
     private int defaultPageSize = 50;
-    
+
     /**
      * The maximum page size for lists of entities. May be overridden with
      * a property of "site.entity.pagesize.maximum".
@@ -135,7 +137,7 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
     private int maxPageSize = 500;
 
     private static String[] updateableSiteProps;
-    
+
     public void init() {
         int dps = serverConfigurationService.getInt(
                 PROP_SITE_PROVIDER_PAGESIZE_DEFAULT, defaultPageSize);
@@ -154,7 +156,7 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
         updateableSiteProps = serverConfigurationService.getStrings("site.entity.updateable.props");
         // Set defaults as these are the same values that can be changed through the UI.
         if (updateableSiteProps == null) {
-            updateableSiteProps = new String [] {"contact-email", "contact-name"};
+            updateableSiteProps = new String[]{"contact-email", "contact-name"};
         }
     }
 
@@ -163,7 +165,7 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
     @EntityURLRedirect("/{prefix}/{id}/memberships")
     public String redirectMemberships(Map<String, String> vars) {
         return MembershipEntityProvider.PREFIX + "/site/" + vars.get("id")
-        + vars.get(TemplateParseUtil.DOT_EXTENSION);
+                + vars.get(TemplateParseUtil.DOT_EXTENSION);
     }
 
     @EntityCustomAction(action = "exists", viewKey = EntityView.VIEW_SHOW)
@@ -211,7 +213,7 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
         String userId = developerHelperService.getCurrentUserId();
         if (userId == null) {
             throw new SecurityException(
-            "This action (perms) is not accessible to anon and there is no current user.");
+                    "This action (perms) is not accessible to anon and there is no current user.");
         }
 
         String siteId = view.getEntityReference().getId();
@@ -244,12 +246,12 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
         }
     }
 
-    @EntityCustomAction(action="setPerms", viewKey=EntityView.VIEW_EDIT)
+    @EntityCustomAction(action = "setPerms", viewKey = EntityView.VIEW_EDIT)
     public String handleSetPerms(EntityReference ref, Map<String, Object> params) {
         String userId = developerHelperService.getCurrentUserId();
         if (userId == null) {
             throw new SecurityException(
-            "This action (setPerms) is not accessible to anon and there is no current user.");
+                    "This action (setPerms) is not accessible to anon and there is no current user.");
         }
         String siteId = ref.getId();
         Site site = getSiteById(siteId);
@@ -302,7 +304,7 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
     }
 
     @EntityCustomAction(action = "group", viewKey = "")
-    public EntityGroup handleGroups(EntityView view, Map<String, Object> params) {
+    public EntityGroup handleGroups(EntityView view, Map<String, Object> params) throws AuthzRealmLockException {
         // expects site/siteId/group/groupId
         String siteId = view.getEntityReference().getId();
         String groupId = view.getPathSegment(3);
@@ -358,11 +360,7 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
                 Role role = site.getUserRole(userId);
                 Member m = site.getMember(userId);
                 if (group.getUserRole(userId) == null && role != null) {
-                    try {
-                        group.insertMember(userId, role.getId(), m != null ? m.isActive() : true, false);
-                    } catch (IllegalStateException e) {
-                        throw e;
-                    }
+                    group.insertMember(userId, role.getId(), m != null ? m.isActive() : true, false);
                 }
             }
 
@@ -410,8 +408,7 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
         } else if (EntityView.Method.DELETE.name().equals(view.getMethod())) {
             // DELETE /direct/site/siteid/group - delete an existing group in the site.
             if (groupId == null) {
-                throw new IllegalArgumentException(
-                "Invalid path provided: expect to receive the groupId");
+                throw new IllegalArgumentException("Invalid path provided: expect to receive the groupId");
             }
             group = site.getGroup(groupId);
             checkGroupType(group);
@@ -460,7 +457,7 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
         Set<String> filteredFunctions = new TreeSet<String>();
 
         for (String function : functions) {
-            if(securityService.unlock(userId,function,siteReference)) {
+            if (securityService.unlock(userId, function, siteReference)) {
                 filteredFunctions.add(function);
             }
         }
@@ -474,16 +471,16 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
         String userId = developerHelperService.getCurrentUserId();
         if (userId == null) {
             throw new SecurityException(
-            "This action (pages) is not accessible to anon and there is no current user.");
+                    "This action (pages) is not accessible to anon and there is no current user.");
         }
         boolean admin = developerHelperService.isUserAdmin(developerHelperService.getCurrentUserReference());
 
         String siteId = view.getEntityReference().getId();
         Site site = getSiteById(siteId);
-        if (! admin) {
+        if (!admin) {
             Member member = site.getMember(userId);
-            if (member == null || ! member.isActive()) {
-                throw new SecurityException("User ("+userId+") cannot access the site pages list for site ("+site.getId()+")");
+            if (member == null || !member.isActive()) {
+                throw new SecurityException("User (" + userId + ") cannot access the site pages list for site (" + site.getId() + ")");
             }
             //role = member.getRole();
         }
@@ -508,9 +505,9 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
         }
 
         // get the pages for this site
-        List<Map<String, Object>> data = new ArrayList<Map<String,Object>>();
-        EntitySite es = new EntitySite(site,false);
-        
+        List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
+        EntitySite es = new EntitySite(site, false);
+
         List<SitePage> pages = es.getSitePages();
         for (SitePage page : pages) {
             HashMap<String, Object> pageData = new HashMap<String, Object>();
@@ -526,23 +523,23 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
                 // get the properties
                 HashMap<String, String> props = new HashMap<String, String>();
                 ResourceProperties rp = page.getProperties();
-                for (Iterator<String> iterator = rp.getPropertyNames(); iterator.hasNext();) {
+                for (Iterator<String> iterator = rp.getPropertyNames(); iterator.hasNext(); ) {
                     String name = iterator.next();
                     String value = rp.getProperty(name);
                     props.put(name, value);
                 }
                 pageData.put("properties", page.getProperties());
             }
-            List<Map<String, Object>> tools = new ArrayList<Map<String,Object>>();
+            List<Map<String, Object>> tools = new ArrayList<Map<String, Object>>();
             pageData.put("tools", tools);
 
             // Peek into the tools to see if they want to be popped up 
-	        // Similar to PortalSiteHelperImpl.java
+            // Similar to PortalSiteHelperImpl.java
             String source = null;
             boolean toolPopup = false;
             int count = 0;
             // get the tool configs for each
-            for (ToolConfiguration tc : (List<ToolConfiguration>) page.getTools() ) {
+            for (ToolConfiguration tc : (List<ToolConfiguration>) page.getTools()) {
                 // get the tool from column 0 for this tool config (if there is one)
                 Tool tool = tc.getTool();
                 if (tool != null) {
@@ -568,19 +565,19 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
 
                     count++;
                     Properties toolProps = tc.getConfig();
-                    if ( "sakai.web.168".equals(tc.getToolId()) ) {
+                    if ("sakai.web.168".equals(tc.getToolId())) {
                         source = toolProps.getProperty("source");
                         toolPopup = "true".equals(toolProps.getProperty("popup"));
-                    } else if ( "sakai.iframe".equals(tc.getToolId()) ) {
+                    } else if ("sakai.iframe".equals(tc.getToolId())) {
                         source = toolProps.getProperty("source");
                         toolPopup = "true".equals(toolProps.getProperty("popup"));
-                    } else if ( "sakai.basiclti".equals(tc.getToolId()) ) {
+                    } else if ("sakai.basiclti".equals(tc.getToolId())) {
                         toolPopup = "on".equals(toolProps.getProperty("imsti.newpage"));
-                        source = "/access/basiclti/site/"+tc.getContext()+"/"+tc.getId();
+                        source = "/access/basiclti/site/" + tc.getContext() + "/" + tc.getId();
                     }
                 }
             }
-            if ( count != 1 ) {
+            if (count != 1) {
                 toolPopup = false;
                 source = null;
             }
@@ -588,12 +585,12 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
             pageData.put("toolpopupurl", source);
 
             // Add the pageData
-            data.add( pageData );
+            data.add(pageData);
         }
 
         return new ActionReturn(data);
     }
-    
+
     /**
      * this API call returns data of all the sites the user has permission say "site.visit"
      * for example, /direct/site/withPerm/.json?permission=site.visit
@@ -601,37 +598,36 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
      * @param search
      * @return
      */
-    
+
     @EntityCustomAction(action = "withPerm", viewKey = "")
-        public List<EntitySite> getMySitesWithPermission(EntityReference ref, Search search) {
-    
-           Restriction restriction = (search.getRestrictionByProperty(PERMISSION_QUERY_PROPERTY_NAME));
-           String permission = null;
-           List<EntitySite> sites = new ArrayList<EntitySite>();
-    
-           if (restriction == null) {
-        	   log.info("Their is no restriction found for Property: "+PERMISSION_QUERY_PROPERTY_NAME);
-              return sites;
-          }
-           else {
-              permission = (String) restriction.getValue();
-           }
-    
-    
-           //Get all sites user can access
-          List<EntitySite> possibleSites = (List<EntitySite>)getEntities(ref, search);
-           String userId = developerHelperService.getCurrentUserId();
-    
-          for(EntitySite site: possibleSites) {
-              String siteId = site.getId();
-    
-              if (securityService.unlock(userId, permission, siteService.siteReference(siteId))) {
-                  sites.add(site);
-              }
-          }
-    
-           return sites;
+    public List<EntitySite> getMySitesWithPermission(EntityReference ref, Search search) {
+
+        Restriction restriction = (search.getRestrictionByProperty(PERMISSION_QUERY_PROPERTY_NAME));
+        String permission = null;
+        List<EntitySite> sites = new ArrayList<EntitySite>();
+
+        if (restriction == null) {
+            log.info("Their is no restriction found for Property: " + PERMISSION_QUERY_PROPERTY_NAME);
+            return sites;
+        } else {
+            permission = (String) restriction.getValue();
         }
+
+
+        //Get all sites user can access
+        List<EntitySite> possibleSites = (List<EntitySite>) getEntities(ref, search);
+        String userId = developerHelperService.getCurrentUserId();
+
+        for (EntitySite site : possibleSites) {
+            String siteId = site.getId();
+
+            if (securityService.unlock(userId, permission, siteService.siteReference(siteId))) {
+                sites.add(site);
+            }
+        }
+
+        return sites;
+    }
 
     @EntityCustomAction(action = "info", viewKey = "")
     public EntitySite getInfo(EntityReference ref) {
@@ -748,7 +744,7 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
                 }
                 throw new SecurityException(
                         "Current user does not have permissions to create site: " + ref + ":"
-                        + e.getMessage(), e);
+                                + e.getMessage(), e);
             } catch (IdUnusedException e) {
                 try {
                     siteService.removeSite(s);
@@ -774,7 +770,7 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
                 if (description == null) {
                     throw new IllegalArgumentException("Site description markup rejected: " + alertMsg.toString());
                 }
-            }            
+            }
 
             Site s = null;
             try {
@@ -829,7 +825,7 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
                 }
                 throw new SecurityException(
                         "Current user does not have permissions to create site: " + ref + ":"
-                        + e.getMessage(), e);
+                                + e.getMessage(), e);
             } catch (IdUnusedException e) {
                 try {
                     siteService.removeSite(s);
@@ -841,7 +837,7 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
             }
         } else {
             throw new IllegalArgumentException(
-            "Invalid entity for creation, must be Site or EntitySite object");
+                    "Invalid entity for creation, must be Site or EntitySite object");
         }
         return siteId;
     }
@@ -879,7 +875,7 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
                 if (description == null) {
                     throw new IllegalArgumentException("Site description markup rejected: " + alertMsg.toString());
                 }
-            }            
+            }
 
             s.setCustomPageOrdered(site.isCustomPageOrdered());
             s.setDescription(description);
@@ -909,7 +905,7 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
                     }
                 }
             }
-            
+
             // set the new publish status
             newPublishStatus = site.isPublished();
         } else if (entity.getClass().isAssignableFrom(EntitySite.class)) {
@@ -925,7 +921,7 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
                 if (description == null) {
                     throw new IllegalArgumentException("Site description markup rejected: " + alertMsg.toString());
                 }
-            }            
+            }
 
             s.setCustomPageOrdered(site.isCustomPageOrdered());
             if (description != null)
@@ -947,8 +943,8 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
                 s.setSkin(site.getSkin());
             if (site.getTitle() != null)
                 s.setTitle(site.getTitle());
-            if (site.getInfoUrl() != null) 
-            	s.setInfoUrl(site.getInfoUrl());
+            if (site.getInfoUrl() != null)
+                s.setInfoUrl(site.getInfoUrl());
 
             // put in properties if admin, otherwise allow update of specific configurable fields.
             if (admin) {
@@ -960,7 +956,7 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
             } else {
                 if (updateableSiteProps != null && updateableSiteProps.length != 0) {
                     ResourcePropertiesEdit rpe = s.getPropertiesEdit();
-                    for (String prop: updateableSiteProps) {
+                    for (String prop : updateableSiteProps) {
                         for (String key : site.getProps().keySet()) {
                             if (prop.equals(key)) {
                                 String value = site.getProps().get(key);
@@ -981,38 +977,35 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
                 }
                 ReflectUtils.getInstance().setFieldValue(s, "m_createdUserId", ownerUserId);
             }
-            
+
             // new publish status
             newPublishStatus = site.isPublished();
         } else {
             throw new IllegalArgumentException(
-            "Invalid entity for update, must be Site or EntitySite object");
+                    "Invalid entity for update, must be Site or EntitySite object");
         }
         try {
             siteService.save(s);
-            
+
             // post event
             EventTrackingService eventTrackingService = (EventTrackingService) ComponentManager.get("org.sakaiproject.event.api.EventTrackingService");
-            if (oldPublishStatus && !newPublishStatus)
-            {
-               // unpublish a published site
-               eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_UNPUBLISH,siteService.siteReference(siteId),true));
-            }
-            else if (!oldPublishStatus&& newPublishStatus)
-            {
-               // publish an unpublished site
-               eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_PUBLISH,siteService.siteReference(siteId),true));
+            if (oldPublishStatus && !newPublishStatus) {
+                // unpublish a published site
+                eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_UNPUBLISH, siteService.siteReference(siteId), true));
+            } else if (!oldPublishStatus && newPublishStatus) {
+                // publish an unpublished site
+                eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_PUBLISH, siteService.siteReference(siteId), true));
             }
         } catch (IdUnusedException e) {
-           throw new IllegalArgumentException(
-                                              "Sakai was unable to save a site which it just fetched: " + ref, e);
+            throw new IllegalArgumentException(
+                    "Sakai was unable to save a site which it just fetched: " + ref, e);
         } catch (PermissionException e) {
-           throw new SecurityException("Current user does not have permissions to update site: "
-                                       + ref + ":" + e.getMessage(), e);
+            throw new SecurityException("Current user does not have permissions to update site: "
+                    + ref + ":" + e.getMessage(), e);
         }
     }
 
-    @EntityParameters(accepted = { "includeGroups" })
+    @EntityParameters(accepted = {"includeGroups"})
     public Object getEntity(EntityReference ref) {
         boolean includeGroups = false;
         if (requestStorage.getStoredValue("includeGroups") != null) {
@@ -1044,8 +1037,8 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
             if (!siteService.allowAccessSite(site.getId())) {
                 throw new SecurityException(
                         "This site ("
-                        + site.getReference()
-                        + ") is not accessible to anon and there is no current user so the site is inaccessible");
+                                + site.getReference()
+                                + ") is not accessible to anon and there is no current user so the site is inaccessible");
             }
         } else {
             if (!site.isPubView() && !siteService.allowAccessSite(site.getId())) {
@@ -1070,13 +1063,13 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
             } catch (PermissionException e) {
                 throw new SecurityException("Permission denied: Site cannot be removed: " + ref);
             } catch (IdUnusedException e) {
-            	throw new IllegalArgumentException(
+                throw new IllegalArgumentException(
                         "Cannot delete site, No siteId in provided reference: " + ref);
-			}
+            }
         }
     }
 
-    @EntityParameters(accepted = { "select", "selectionType", "search", "_start", "_limit" })
+    @EntityParameters(accepted = {"select", "selectionType", "search", "_start", "_limit"})
     public List<?> getEntities(EntityReference ref, Search search) {
         String criteria = null;
         String selectType = "access";
@@ -1107,7 +1100,7 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
                 }
             }
         }
-        
+
         int start = 1;
         if (search.getStart() > 0 && search.getStart() < Integer.MAX_VALUE) {
             // Search docs indicate 0-based indexing, while PagingPosition is 1-based
@@ -1141,11 +1134,11 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
     }
 
     public String[] getHandledInputFormats() {
-        return new String[] { Formats.HTML, Formats.XML, Formats.JSON };
+        return new String[]{Formats.HTML, Formats.XML, Formats.JSON};
     }
 
     public String[] getHandledOutputFormats() {
-        return new String[] { Formats.XML, Formats.JSON, Formats.HTML, Formats.FORM };
+        return new String[]{Formats.XML, Formats.JSON, Formats.HTML, Formats.FORM};
     }
 
     private Site getSiteById(String siteId) {
@@ -1167,24 +1160,24 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
     /**
      * Remove the users list from the group provided. User memberships must be retrieved from the
      * Memberships Entity Provider
-     * 
+     *
      * @param grp
      *            Group to trim
      * @return
      */
-    protected Group trimGroupUsers(Group grp) throws IllegalStateException {
+    protected Group trimGroupUsers(Group grp) {
         Group newGrp = grp;
         try {
             newGrp.deleteMembers();
-        } catch (IllegalStateException e) {
-            log.error(".trimGroupUsers: Members from group with id {} cannot be deleted because the group is locked", newGrp.getId());
+        } catch (AuthzRealmLockException arle) {
+            log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
         }
         return newGrp;
     }
 
     /**
      * Only handle Site Info type groups.
-     * 
+     *
      * @param group
      * @throws IllegalArgumentException
      *             if NOT a Site Info type group
@@ -1194,11 +1187,11 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
             try {
                 if (!group.getProperties().getBooleanProperty(GROUP_PROP_WSETUP_CREATED)) {
                     throw new IllegalArgumentException(
-                    "This type of group (Section Info group) should not be edited by this entity provider. Only Site info groups are allowed.");
+                            "This type of group (Section Info group) should not be edited by this entity provider. Only Site info groups are allowed.");
                 }
             } catch (Exception e) {
                 throw new IllegalArgumentException(
-                "This type of group (Section Info group) should not be edited by this entity provider. Only Site info groups are allowed.");
+                        "This type of group (Section Info group) should not be edited by this entity provider. Only Site info groups are allowed.");
             }
         }
     }

@@ -536,4 +536,24 @@ public class DbAuthzGroupSqlDefault implements DbAuthzGroupSql
     public String getMaintainRolesSql() {
         return "SELECT ROLE_NAME FROM SAKAI_REALM_ROLE WHERE ROLE_KEY IN (SELECT DISTINCT MAINTAIN_ROLE FROM SAKAI_REALM WHERE MAINTAIN_ROLE IS NOT NULL)";
     }
+
+	@Override
+	public String getSelectRealmLocksSql() {
+		return "SELECT REALM_KEY, REFERENCE, LOCK_MODE FROM SAKAI_REALM_LOCKS WHERE REALM_KEY = (SELECT REALM_KEY FROM SAKAI_REALM WHERE REALM_ID = ?)";
+	}
+
+	@Override
+	public String getInsertRealmLocksSql() {
+		return "INSERT INTO SAKAI_REALM_LOCKS (REALM_KEY, REFERENCE, LOCK_MODE) VALUES ((SELECT REALM_KEY FROM SAKAI_REALM WHERE REALM_ID = ?), ?, ?)";
+	}
+
+	public String getDeleteRealmLocksForRealmSql()
+	{
+		return "DELETE FROM SAKAI_REALM_LOCKS WHERE REALM_KEY = (SELECT REALM_KEY FROM SAKAI_REALM WHERE REALM_ID = ?)";
+	}
+
+	@Override
+	public String getDeleteRealmLocksForRealmWithReferenceSql() {
+		return "DELETE FROM SAKAI_REALM_LOCKS WHERE REALM_KEY = (SELECT REALM_KEY FROM SAKAI_REALM WHERE REALM_ID = ?) AND REFERENCE = ?";
+	}
 }

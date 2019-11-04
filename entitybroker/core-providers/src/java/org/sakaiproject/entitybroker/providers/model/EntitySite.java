@@ -2,15 +2,15 @@
  * $Id$
  * $URL$
  * EntitySite.java - entity-broker - Jun 29, 2008 9:31:10 AM - azeckoski
- **************************************************************************
+ * *************************************************************************
  * Copyright (c) 2008, 2009 The Sakai Foundation
- *
+ * <p>
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *       http://www.opensource.org/licenses/ECL-2.0
- *
+ * <p>
+ * http://www.opensource.org/licenses/ECL-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,6 +22,7 @@ package org.sakaiproject.entitybroker.providers.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -34,10 +35,10 @@ import java.util.Vector;
 import org.azeckoski.reflectutils.annotations.ReflectIgnoreClassFields;
 import org.azeckoski.reflectutils.annotations.ReflectTransient;
 import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzRealmLockException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
-import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
@@ -61,11 +62,11 @@ import org.w3c.dom.Element;
 
 /**
  * This is needed to allow RESTful access to the site data
- * 
+ *
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
 @SuppressWarnings("unchecked")
-@ReflectIgnoreClassFields({"createdBy","modifiedBy","properties","propertiesEdit","members","orderedPages","pages", "roles","users","groups","url"})
+@ReflectIgnoreClassFields({"createdBy", "modifiedBy", "properties", "propertiesEdit", "members", "orderedPages", "pages", "roles", "users", "groups", "url"})
 public class EntitySite implements Site {
 
     private static final long serialVersionUID = 7526472295622776147L;
@@ -133,20 +134,20 @@ public class EntitySite implements Site {
     }
 
     public EntitySite(String title, String shortDescription, String description, String iconUrl,
-            String iconFullUrl, String infoUrl, String infoUrlFull, boolean joinable,
-            String joinerRole, String maintainRole, String skin, boolean published, boolean pubView,
-            String type, String providerGroupId, boolean customPageOrdered) {
+                      String iconFullUrl, String infoUrl, String infoUrlFull, boolean joinable,
+                      String joinerRole, String maintainRole, String skin, boolean published, boolean pubView,
+                      String type, String providerGroupId, boolean customPageOrdered) {
         this(title, shortDescription, Web.escapeHtml(shortDescription), description, Web.escapeHtml(description),
-             iconUrl, iconFullUrl, infoUrl, infoUrlFull, joinable,
-             joinerRole, maintainRole, skin, published, pubView, type, providerGroupId, customPageOrdered);
+                iconUrl, iconFullUrl, infoUrl, infoUrlFull, joinable,
+                joinerRole, maintainRole, skin, published, pubView, type, providerGroupId, customPageOrdered);
     }
 
     public EntitySite(String title,
-            String shortDescription, String htmlShortDescription,
-            String description, String htmlDescription,
-            String iconUrl, String iconFullUrl, String infoUrl, String infoUrlFull, boolean joinable,
-            String joinerRole, String maintainRole, String skin, boolean published, boolean pubView,
-            String type, String providerGroupId, boolean customPageOrdered) {
+                      String shortDescription, String htmlShortDescription,
+                      String description, String htmlDescription,
+                      String iconUrl, String iconFullUrl, String infoUrl, String infoUrlFull, boolean joinable,
+                      String joinerRole, String maintainRole, String skin, boolean published, boolean pubView,
+                      String type, String providerGroupId, boolean customPageOrdered) {
         this.title = title;
         this.shortDescription = shortDescription;
         this.htmlShortDescription = htmlShortDescription;
@@ -169,7 +170,6 @@ public class EntitySite implements Site {
         getUserRoles(); // populate the user roles
     }
 
-    
 
     public EntitySite(Site site, boolean includeGroups) {
         this.site = site;
@@ -196,7 +196,7 @@ public class EntitySite implements Site {
         getUserRoles(); // populate the user roles
         // properties
         ResourceProperties rp = site.getProperties();
-        for (Iterator<String> iterator = rp.getPropertyNames(); iterator.hasNext();) {
+        for (Iterator<String> iterator = rp.getPropertyNames(); iterator.hasNext(); ) {
             String name = iterator.next();
             String value = rp.getProperty(name);
             this.setProperty(name, value);
@@ -417,6 +417,7 @@ public class EntitySite implements Site {
     public void setCustomPageOrdered(boolean customPageOrdered) {
         this.customPageOrdered = customPageOrdered;
     }
+
     public boolean isPubView() {
         return pubView;
     }
@@ -428,7 +429,7 @@ public class EntitySite implements Site {
     public String[] getUserRoles() {
         if (userRoles == null) {
             if (site == null) {
-                userRoles = new String[] {maintainRole, joinerRole};
+                userRoles = new String[]{maintainRole, joinerRole};
             } else {
                 Set<Role> roles = (Set<Role>) site.getRoles();
                 userRoles = new String[roles.size()];
@@ -456,7 +457,7 @@ public class EntitySite implements Site {
             List<SitePage> pages = site.getOrderedPages();
             rpgs = new ArrayList<SitePage>(pages.size());
             DeveloperHelperService dhs = (DeveloperHelperService) ComponentManager.get(DeveloperHelperService.class);
-            ToolManager toolManager = (ToolManager) ComponentManager.get(ToolManager.class.getName()); 
+            ToolManager toolManager = (ToolManager) ComponentManager.get(ToolManager.class.getName());
             boolean siteUpdate = false;
             if (dhs != null && dhs.getCurrentUserId() != null) {
                 siteUpdate = site.isAllowed(dhs.getCurrentUserId(), "site.upd");
@@ -473,7 +474,7 @@ public class EntitySite implements Site {
                     }
                 }
                 if (allowPage) {
-                    rpgs.add( new EntitySitePage(sitePage) );
+                    rpgs.add(new EntitySitePage(sitePage));
                 }
             }
         }
@@ -528,8 +529,8 @@ public class EntitySite implements Site {
         }
         throw new UnsupportedOperationException();
     }
-    
-    
+
+
     public Group getGroup(String arg0) {
         if (site != null) {
             return site.getGroup(arg0);
@@ -551,7 +552,7 @@ public class EntitySite implements Site {
         throw new UnsupportedOperationException();
     }
 
-    public Collection getGroupsWithMembers(String [] arg0) {
+    public Collection getGroupsWithMembers(String[] arg0) {
         if (site != null) {
             return site.getGroupsWithMembers(arg0);
         }
@@ -586,14 +587,14 @@ public class EntitySite implements Site {
         throw new UnsupportedOperationException();
     }
 
-    
+
     public Date getModifiedDate() {
-    	if (site != null) {
+        if (site != null) {
             return site.getModifiedDate();
         }
         throw new UnsupportedOperationException();
-	}
-    
+    }
+
     public List getOrderedPages() {
         if (site != null) {
             return site.getOrderedPages();
@@ -671,13 +672,10 @@ public class EntitySite implements Site {
         throw new UnsupportedOperationException();
     }
 
-    public void deleteGroup(Group arg0) throws IllegalStateException {
+    public void deleteGroup(Group arg0) throws AuthzRealmLockException {
         if (site != null) {
-            try {
-                site.deleteGroup(arg0);
-            } catch (IllegalStateException e) {
-                throw e;
-            }
+            site.deleteGroup(arg0);
+            return;
         }
         throw new UnsupportedOperationException();
     }
@@ -857,6 +855,37 @@ public class EntitySite implements Site {
             return site.keepIntersection(arg0);
         }
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public RealmLockMode getRealmLock() {
+        if (site != null) {
+            return site.getRealmLock();
+        }
+        return RealmLockMode.NONE;
+    }
+
+    @Override
+    public List<String[]> getRealmLocks() {
+        if (site != null) {
+            return site.getRealmLocks();
+        }
+        return Collections.emptyList();
+    }
+
+    @Override
+    public RealmLockMode getLockForReference(String reference) {
+        if (site != null) {
+            return site.getLockForReference(reference);
+        }
+        return RealmLockMode.NONE;
+    }
+
+    @Override
+    public void setLockForReference(String reference, RealmLockMode type) {
+        if (site != null) {
+            site.setLockForReference(reference, type);
+        }
     }
 
     public void removeMember(String arg0) {

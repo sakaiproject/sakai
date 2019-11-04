@@ -21,18 +21,15 @@
 
 package org.sakaiproject.site.impl;
 
-import java.util.Arrays;
 import java.util.Date;
-import java.util.Objects;
+import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Iterator;
-import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.lang3.StringUtils;
-
+import org.sakaiproject.authz.api.AuthzRealmLockException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -41,7 +38,6 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
-import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.site.api.Group;
@@ -139,12 +135,11 @@ public class BaseGroup implements Group, Identifiable
 		if (exact)
 		{
 			m_id = bOther.m_id;
+			bOther.getRealmLocks().forEach(a -> setLockForReference(a[0], RealmLockMode.valueOf(a[1])));
 		}
 		else
 		{
 			m_id = siteService.idManager().createUuid();
-			// since locks contain references we need to remove all locks if this is not an exact copy
-			Arrays.stream(LockMode.values()).map(this::getGroupLockProperty).filter(Objects::nonNull).forEach(properties::removeProperty);
 		}
 
 		properties.setLazy(bOtherProperties.isLazy());
@@ -419,18 +414,18 @@ public class BaseGroup implements Group, Identifiable
 
 	public void addMember(String userId, String roleId, boolean active, boolean provided)
 	{
-		if(this.isLocked(Group.LockMode.MODIFY)) {
-			log.error("Error, cannot add {} with role {} into a locked group", userId, roleId);
-			return;
+		try {
+			insertMember(userId, roleId, active, provided);
+		} catch (IllegalStateException ise) {
+			log.warn(ise.getMessage());
 		}
-		m_azgChanged = true;
-		getAzg().addMember(userId, roleId, active, provided);
 	}
 
 	public void insertMember(String userId, String roleId, boolean active, boolean provided) throws IllegalStateException
 	{
-		if(this.isLocked(Group.LockMode.MODIFY)) {
-			throw new IllegalStateException("Error, cannot add " + userId + " with role " + roleId + " into a locked group");
+		RealmLockMode lockMode = getRealmLock();
+		if(RealmLockMode.ALL.equals(lockMode) || RealmLockMode.MODIFY.equals(lockMode)) {
+			throw new IllegalStateException("Can't add member " + userId + " with role " + roleId + " to a locked group");
 		}
 		m_azgChanged = true;
 		try
@@ -575,18 +570,18 @@ public class BaseGroup implements Group, Identifiable
 
 	public void removeMember(String userId)
 	{
-		if(this.isLocked(Group.LockMode.MODIFY)) {
-			log.error("Error, can not remove a member from a locked group");
-			return;
+		try {
+			deleteMember(userId);
+		} catch (AuthzRealmLockException arle) {
+			log.warn(arle.getMessage());
 		}
-		m_azgChanged = true;
-		getAzg().removeMember(userId);
 	}
 
-	public void deleteMember(String userId) throws IllegalStateException
+	public void deleteMember(String userId) throws AuthzRealmLockException
 	{
-		if(this.isLocked(Group.LockMode.MODIFY)) {
-			throw new IllegalStateException("Error, can not remove a member from a locked group");
+		RealmLockMode lockMode = getRealmLock();
+		if(RealmLockMode.MODIFY.equals(lockMode) || RealmLockMode.ALL.equals(lockMode)) {
+			throw new AuthzRealmLockException("Member " + userId + " can't be removed from a locked group " + m_id);
 		}
 		m_azgChanged = true;
 		getAzg().removeMember(userId);
@@ -594,18 +589,18 @@ public class BaseGroup implements Group, Identifiable
 
 	public void removeMembers()
 	{
-		if(this.isLocked(Group.LockMode.MODIFY)) {
-			log.error("Error, can not remove members from a locked group");
-			return;
+		try {
+			deleteMembers();
+		} catch (AuthzRealmLockException arle) {
+			log.warn(arle.getMessage());
 		}
-		m_azgChanged = true;
-		getAzg().removeMembers();
 	}
 
-	public void deleteMembers() throws IllegalStateException
+	public void deleteMembers() throws AuthzRealmLockException
 	{
-		if(this.isLocked(Group.LockMode.MODIFY)) {
-			throw new IllegalStateException("Error, can not remove members from a locked group");
+		RealmLockMode lockMode = getRealmLock();
+		if(RealmLockMode.MODIFY.equals(lockMode) || RealmLockMode.ALL.equals(lockMode)) {
+			throw new AuthzRealmLockException("Can't remove members from a locked group " + m_id);
 		}
 		m_azgChanged = true;
 		getAzg().removeMembers();
@@ -642,87 +637,24 @@ public class BaseGroup implements Group, Identifiable
 		return changed;
 	}
 
-	public void lockGroup(String lock, LockMode lockMode) {
-		if(StringUtils.isBlank(lock)) {
-			log.warn("lockGroup: null or empty lock");
-			return;
-		}
-
-		String groupLockProperty = getGroupLockProperty(lockMode);
-		if(StringUtils.isEmpty(groupLockProperty)){
-			log.warn("The groupLockMode is not supported, the group will not be locked.");
-			return;
-		}
-
-		String prop = m_properties.getProperty(groupLockProperty);
-		if(StringUtils.isNotBlank(prop)) {
-			prop += GROUP_PROP_SEPARATOR + lock;
-		} else {
-			prop = lock;
-		}
-		m_properties.addProperty(groupLockProperty, prop);
+	@Override
+	public RealmLockMode getRealmLock() {
+		return getAzg().getRealmLock();
 	}
 
-	public void unlockGroup(String lock, LockMode lockMode) {
-		if(StringUtils.isBlank(lock)) {
-			log.warn("unlockGroup: null or empty lock");
-			return;
-		}
-
-		String groupLockProperty = getGroupLockProperty(lockMode);
-		if(StringUtils.isEmpty(groupLockProperty)){
-			log.warn("The groupLockMode is not supported, the group will not be unlocked.");
-			return;
-		}
-
-		String prop = m_properties.getProperty(groupLockProperty);
-		if(StringUtils.isNotBlank(prop)) {
-			m_properties.addProperty(groupLockProperty, Arrays.stream(prop.split(GROUP_PROP_SEPARATOR)).filter(s -> !lock.equals(s)).collect(Collectors.joining(GROUP_PROP_SEPARATOR)));
-		}
+	@Override
+	public RealmLockMode getLockForReference(String reference) {
+		return getAzg().getLockForReference(reference);
 	}
 
-	public boolean isLocked(String lock, LockMode lockMode) {
-		if(StringUtils.isEmpty(lock)){
-			return isLocked(lockMode);
-		}
-
-		String groupLockProperty = getGroupLockProperty(lockMode);
-		if(StringUtils.isEmpty(groupLockProperty)){
-			return false;
-		}
-
-		String prop = m_properties.getProperty(groupLockProperty);
-		if (StringUtils.contains(prop, lock)) {
-			return true;
-		}
-
-		return false;
+	@Override
+	public void setLockForReference(String reference, RealmLockMode type) {
+		getAzg().setLockForReference(reference, type);
+		m_azgChanged = true;
 	}
 
-	public boolean isLocked(LockMode lockMode) {
-		String groupLockProperty = getGroupLockProperty(lockMode);
-		if(StringUtils.isEmpty(groupLockProperty)){
-			return false;
-		}else{
-			return (StringUtils.isNotBlank(m_properties.getProperty(groupLockProperty)));
-		}
+	@Override
+	public List<String[]> getRealmLocks() {
+		return getAzg().getRealmLocks();
 	}
-
-	private String getGroupLockProperty(LockMode lockMode){
-		String groupLockProperty = null;
-		switch(lockMode){
-			case DELETE:
-				groupLockProperty = GROUP_PROP_LOCKED_FOR_DELETION_BY;
-				break;
-			case MODIFY:
-			case ALL:
-				groupLockProperty = GROUP_PROP_LOCKED_BY;
-				break;
-			case NONE:
-			default:
-				break;
-		}
-		return groupLockProperty;
-	}
-
 }

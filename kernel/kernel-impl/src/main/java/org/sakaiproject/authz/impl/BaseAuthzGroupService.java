@@ -35,6 +35,8 @@ import java.util.Vector;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 
+import org.sakaiproject.authz.api.AuthzGroup.RealmLockMode;
+import org.sakaiproject.authz.impl.DbAuthzGroupService.DbStorage.RealmLock;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -152,7 +154,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	 *        The lock id string.
 	 * @param resource
 	 *        The resource reference string, or null if no resource is involved.
-	 * @exception PermissionException
+	 * @exception AuthzPermissionException
 	 *            Thrown if the azGroup does not have access
 	 */
 	protected void unlock(String lock, String resource) throws AuthzPermissionException
@@ -415,7 +417,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	/**
 	 * {@inheritDoc}
 	 */
-	public void joinGroup(String authzGroupId, String roleId) throws GroupNotDefinedException, AuthzPermissionException
+	public void joinGroup(String authzGroupId, String roleId) throws GroupNotDefinedException, AuthzPermissionException, AuthzRealmLockException
 	{
 		joinGroup(authzGroupId, roleId, 0);
 	}
@@ -423,7 +425,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	/**
 	 * {@inheritDoc}
 	 */
-	public void joinGroup(String authzGroupId, String roleId, int maxSize) throws GroupNotDefinedException, AuthzPermissionException, GroupFullException
+	public void joinGroup(String authzGroupId, String roleId, int maxSize) throws GroupNotDefinedException, AuthzPermissionException, GroupFullException, AuthzRealmLockException
 	{
 		String user = sessionManager().getCurrentSessionUserId();
 		if (user == null) {
@@ -468,7 +470,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	/**
 	 * {@inheritDoc}
 	 */
-	public void unjoinGroup(String authzGroupId) throws GroupNotDefinedException, AuthzPermissionException
+	public void unjoinGroup(String authzGroupId) throws GroupNotDefinedException, AuthzPermissionException, AuthzRealmLockException
 	{
 		String user = sessionManager().getCurrentSessionUserId();
 		if (user == null) {
@@ -721,10 +723,16 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	 * 
 	 * @param azGroup
 	 */
-	protected void addMemberToGroup(AuthzGroup azGroup, String userId, String roleId, int maxSize) throws GroupFullException
+	protected void addMemberToGroup(AuthzGroup azGroup, String userId, String roleId, int maxSize) throws GroupFullException, AuthzRealmLockException
 	{
 		 // update the properties (sets last modified time and modified-by)
         addLiveUpdateProperties((BaseAuthzGroup) azGroup);
+
+		// check realm for locks (throw if locked)
+		RealmLockMode lockMode = azGroup.getRealmLock();
+		if (RealmLockMode.MODIFY.equals(lockMode) || RealmLockMode.ALL.equals(lockMode)) {
+			throw new AuthzRealmLockException("Attempting to add member to group but lock " + lockMode + " exists");
+		}
 
 		// allow any advisors to make last minute changes 
 		for (AuthzGroupAdvisor authzGroupAdvisor : authzGroupAdvisors) {
@@ -761,10 +769,16 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	 * 
 	 * @param azGroup
 	 */
-	protected void removeMemberFromGroup(AuthzGroup azGroup, String userId) 
+	protected void removeMemberFromGroup(AuthzGroup azGroup, String userId) throws AuthzRealmLockException
 	{
 		 // update the properties (sets last modified time and modified-by)
         addLiveUpdateProperties((BaseAuthzGroup) azGroup);
+
+		// check realm for locks (throw if locked)
+		RealmLockMode lockMode = azGroup.getRealmLock();
+		if (RealmLockMode.ALL.equals(lockMode) || RealmLockMode.MODIFY.equals(lockMode)) {
+			throw new AuthzRealmLockException("Attempting to remove member from group but lock " + lockMode + " exists");
+		}
 
 		// allow any advisors to make last minute changes 
 		for (AuthzGroupAdvisor authzGroupAdvisor : authzGroupAdvisors) {
@@ -909,12 +923,18 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	/**
 	 * {@inheritDoc}
 	 */
-	public void removeAuthzGroup(AuthzGroup azGroup) throws AuthzPermissionException
+	public void removeAuthzGroup(AuthzGroup azGroup) throws AuthzPermissionException, AuthzRealmLockException
 	{
 		// check security (throws if not permitted)
 		unlock(SECURE_REMOVE_AUTHZ_GROUP, azGroup.getReference());
 
-		// allow any advisors to make last minute changes 
+		// check realm for locks, can only remove if there are no matching locks present
+		RealmLockMode lockMode = azGroup.getRealmLock();
+		if (RealmLockMode.ALL.equals(lockMode) || RealmLockMode.DELETE.equals(lockMode)) {
+			throw new AuthzRealmLockException("Attempting to remove group but lock " + lockMode + " exists");
+		}
+
+		// allow any advisors to make last minute changes
 		for (AuthzGroupAdvisor authzGroupAdvisor : authzGroupAdvisors) {
 			try {
 				authzGroupAdvisor.remove(azGroup);
@@ -944,7 +964,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	/**
 	 * {@inheritDoc}
 	 */
-	public void removeAuthzGroup(String azGroupId) throws AuthzPermissionException
+	public void removeAuthzGroup(String azGroupId) throws AuthzPermissionException, AuthzRealmLockException
 	{
 		if (azGroupId == null) return;
 
@@ -1492,7 +1512,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		 *        The user id.
 		 * @param function
 		 *        The function to open.
-		 * @param azGroups
+		 * @param realms
 		 *        A collection of AuthzGroup ids to consult.
 		 * @return true if this user is allowed to perform the function in the named AuthzGroups, false if not.
 		 */
@@ -1562,8 +1582,6 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		 * 
 		 * @param userId
 		 *        The user id.
-		 * @param function
-		 *        The function to open.
 		 * @param azGroupId
 		 *        The AuthzGroup id to consult, if it exists.
 		 * @return the role name for this user in this AuthzGroup, if the user has active membership, or null if not.
@@ -1585,10 +1603,8 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		/**
 		 * Get the role name for each user in the userIds Collection in this AuthzGroup.
 		 * 
-		 * @param userId
-		 *        The user id.
-		 * @param function
-		 *        The function to open.
+		 * @param userIds
+		 *        The user ids.
 		 * @param azGroupId
 		 *        The AuthzGroup id to consult, if it exists.
 		 * @return A Map (userId -> role name) of role names for each user who have active membership; if the user does not, it will not be in the Map.
@@ -1623,6 +1639,16 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
          * @return a String Set of all maintain roles
          */
         public Set<String> getMaintainRoles();
+
+        /**
+         * Creates a new {@link RealmLock} with the supplied parameters
+         *
+         * @param realmKey  the realm key
+         * @param reference the reference of the entity holding the lock
+         * @param lockMode  the {@link AuthzGroup.RealmLockMode} mode
+         * @return {@link RealmLock}
+         */
+        RealmLock newRealmLock(Integer realmKey, String reference, RealmLockMode lockMode);
 	}
 
 	@Override

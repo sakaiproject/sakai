@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.authz.api.AuthzGroup.RealmLockMode;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -186,8 +187,8 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
          UIOutput.make(groupForm, "prompt", headerText);
          UIOutput.make(groupForm, "emptyGroupTitleAlert", messageLocator.getMessage("editgroup.titlemissing"));
          
-         if (g != null && g.isLocked(Group.LockMode.MODIFY)) {
-            UIOutput.make(groupForm, "instructions", messageLocator.getMessage("editgroup.notallowed", null)); 
+         if (g != null && (RealmLockMode.ALL.equals(g.getRealmLock()) || RealmLockMode.MODIFY.equals(g.getRealmLock()))) {
+            UIOutput.make(groupForm, "instructions", messageLocator.getMessage("editgroup.notallowed", null));
          } else {
             UIOutput.make(groupForm, "instructions", messageLocator.getMessage("editgroup.instruction", new Object[]{addUpdateButtonName}));
          }
@@ -458,7 +459,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
             UILabelTargetDecorator.targetLabel(filterSetLabel, filterSetSelect);
          }
          
-         if (g != null && g.isLocked(Group.LockMode.MODIFY)) {
+         if (g != null && (RealmLockMode.ALL.equals(g.getRealmLock()) || RealmLockMode.MODIFY.equals(g.getRealmLock()))) {
             UIDisabledDecorator disable = new UIDisabledDecorator(true);
             groupTitleInput.decorate(disable);
             groupDescr.decorate(disable);

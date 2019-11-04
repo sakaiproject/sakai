@@ -1974,6 +1974,9 @@ public abstract class BaseSiteService implements SiteService, Observer
 		{
 			throw new PermissionException(e.getUser(), e.getFunction(), e.getResource());
 		}
+		catch (AuthzRealmLockException arle) {
+			log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
+		}
 	}
 
 	/**
