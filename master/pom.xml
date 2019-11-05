@@ -1712,7 +1712,7 @@
       <dependency>
         <groupId>org.sakaiproject.scorm</groupId>
         <artifactId>scorm-api</artifactId>
-        <version>${sakai.version}</version>
+        <version>20-SNAPSHOT</version>
         <scope>provided</scope>
       </dependency>
       <!-- UI dependencies; our glue packages, not the raw libraries, -->
