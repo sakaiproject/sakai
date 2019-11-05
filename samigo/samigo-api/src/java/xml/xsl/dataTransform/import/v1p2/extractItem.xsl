@@ -23,20 +23,26 @@
   <lastModifiedDate></lastModifiedDate>
   <presentationLabel><xsl:value-of select="//item/presentation/@label" /></presentationLabel>
   <score>
-    <xsl:value-of
-      select="//resprocessing/outcomes/decvar[@varname='SCORE']/@maxvalue"/>
-    <!-- Respondus multiple correct answer -->
-    <xsl:value-of
-      select="//resprocessing/outcomes/decvar[@varname='que_score']/@maxvalue"/>
-    <!-- Respondus single correct answer -->
-    <xsl:for-each select="//respcondition">
-      <xsl:if test="setvar/@varname='que_score' and setvar/@action='Set'">
-        <xsl:value-of select="setvar"/><!--  if not single adds innocuous '0' -->
-      </xsl:if>
-      <xsl:if test="setvar/@varname='SCORE' and setvar/@action='Set'">
-        <xsl:value-of select="setvar"/>
-      </xsl:if>
-    </xsl:for-each>
+    <xsl:choose>
+      <xsl:when test="//resprocessing/outcomes/decvar[@varname='SCORE']/@maxvalue &gt; 0">
+        <xsl:value-of select="//resprocessing/outcomes/decvar[@varname='SCORE']/@maxvalue"/>
+      </xsl:when>
+      <!-- Respondus multiple correct answer -->
+      <xsl:when test="//resprocessing/outcomes/decvar[@varname='que_score']/@maxvalue">
+        <xsl:value-of select="//resprocessing/outcomes/decvar[@varname='que_score']/@maxvalue"/>
+      </xsl:when>
+      <!-- Respondus single correct answer -->
+      <xsl:otherwise>
+        <xsl:for-each select="//respcondition">
+          <xsl:if test="setvar/@varname='que_score' and setvar/@action='Set'">
+            <xsl:value-of select="setvar"/>
+          </xsl:if>
+          <xsl:if test="setvar/@varname='SCORE' and setvar/@action='Set'">
+            <xsl:value-of select="setvar"/>
+          </xsl:if>
+        </xsl:for-each>
+      </xsl:otherwise>
+    </xsl:choose>
   </score>
   <discount>
     <xsl:value-of
