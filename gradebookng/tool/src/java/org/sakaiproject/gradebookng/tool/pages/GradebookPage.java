@@ -258,12 +258,7 @@ public class GradebookPage extends BasePage {
 
 		this.gradebookStudentVisibility = new Label("gradebookStudentVisibility", getString("feedback.gradebookStudentVisibility"));
 		this.form.add(gradebookStudentVisibility);
-		gradebookStudentVisibility.setVisible(false);
-		for (Assignment ass : assignments) {
-			if(!ass.isReleased()){
-				gradebookStudentVisibility.setVisible(true);
-			}
-		}
+		gradebookStudentVisibility.setVisible(assignments.stream().anyMatch(a -> !a.isReleased()));
 		
 		final GbAddButton addGradeItem2 = new GbAddButton("addGradeItem2") {
 			@Override
