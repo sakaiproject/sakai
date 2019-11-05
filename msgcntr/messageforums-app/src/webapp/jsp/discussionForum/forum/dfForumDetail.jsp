@@ -66,7 +66,7 @@
 		  		<f:subview id="longDesc" rendered="#{!empty forum.attachList || (ForumTool.selectedForum.forum.extendedDescription != '' &&  ForumTool.selectedForum.forum.extendedDescription != null && ForumTool.selectedForum.forum.extendedDescription != '<br/>')}">
 
 				<h:panelGroup>
-					<h:panelGroup layout="block" id="openLinkBlock" styleClass="toggleParent openLinkBlock #{ForumTool.alwaysShowFullDesc ? 'display-none' : ''}">
+					<h:panelGroup layout="block" id="openLinkBlock" styleClass="toggleParent openLinkBlock">
 						<a href="#" id="showMessage" class="toggle show">
 							<h:graphicImage url="/images/expand.gif" alt=""/>
 							<h:outputText value=" #{msgs.cdfm_read_full_description}" />
@@ -74,7 +74,7 @@
 							<h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty ForumTool.selectedForum.attachList}"/>
 						</a>
 					</h:panelGroup>
-					<h:panelGroup layout="block" id="hideLinkBlock" styleClass="toggleParent hideLinkBlock #{ForumTool.alwaysShowFullDesc ? '' : 'display-none'}">
+					<h:panelGroup layout="block" id="hideLinkBlock" styleClass="toggleParent hideLinkBlock">
 						<a href="#" id="hideMessage" class="toggle show">
 							<h:graphicImage url="/images/collapse.gif" alt="" />
 							<h:outputText value=" #{msgs.cdfm_hide_full_description}"/>
@@ -84,7 +84,7 @@
 					</h:panelGroup>
 				</h:panelGroup>
 
-				<h:panelGroup layout="block" id="fullTopicDescription" styleClass="textPanel fullTopicDescription #{ForumTool.alwaysShowFullDesc ? 'display-none' : ''}">
+				<h:panelGroup layout="block" id="fullTopicDescription" styleClass="textPanel fullTopicDescription">
 					<h:outputText escape="false" value="#{ForumTool.selectedForum.forum.extendedDescription}" />
 
 					<%-- attachments --%>
@@ -187,7 +187,7 @@
 						<f:subview id="longDescTopic" rendered="#{!empty topic.attachList || (topic.topic.extendedDescription != '' &&  topic.topic.extendedDescription != null && topic.topic.extendedDescription != '<br/>')}">
 
 						<h:panelGroup>
-							<h:panelGroup layout="block" id="openLinkBlock" styleClass="toggleParent openLinkBlock #{ForumTool.alwaysShowFullDesc ? 'display-none' : ''}">
+							<h:panelGroup layout="block" id="openLinkBlock" styleClass="toggleParent openLinkBlock">
 								<a href="#" id="showMessage" class="toggle show">
 									<h:graphicImage url="/images/expand.gif" alt=""/>
 									<h:outputText value=" #{msgs.cdfm_read_full_description}" />
@@ -195,7 +195,7 @@
 									<h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty topic.attachList}"/>
 								</a>
 							</h:panelGroup>
-							<h:panelGroup layout="block" id="hideLinkBlock" styleClass="toggleParent hideLinkBlock #{ForumTool.alwaysShowFullDesc ? '' : 'display-none'}">
+							<h:panelGroup layout="block" id="hideLinkBlock" styleClass="toggleParent hideLinkBlock">
 								<a href="#" id="hideMessage" class="toggle show">
 									<h:graphicImage url="/images/collapse.gif" alt="" />
 									<h:outputText value=" #{msgs.cdfm_hide_full_description}"/>
@@ -205,7 +205,7 @@
 							</h:panelGroup>
 						</h:panelGroup>
 
-					<h:panelGroup layout="block" id="fullTopicDescription" styleClass="textPanel #{ForumTool.alwaysShowFullDesc ? 'display-none' : ''}">
+					<h:panelGroup layout="block" id="fullTopicDescription" styleClass="textPanel">
 						<h:outputText escape="false" value="#{topic.topic.extendedDescription}" />
 
 						<div class="table-responsive">
