@@ -84,6 +84,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Xml;
@@ -121,6 +122,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     @Autowired private SiteService siteService;
     @Resource(name = "org.sakaiproject.time.api.UserTimeService")
     private UserTimeService userTimeService;
+    @Autowired private UserDirectoryService userDirectoryService;
 
     private ResourceLoader resourceLoader;
 
@@ -913,14 +915,17 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             assignment.setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);
             assignment.setScaleFactor(assignmentService.getScaleFactor());
 
-            when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION,
-                    AssignmentReferenceReckoner.reckoner().submission(newSubmission).reckon().getReference())).thenReturn(true);
+            String assignmentRef = AssignmentReferenceReckoner.reckoner().submission(newSubmission).reckon().getReference();
+            when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, assignmentRef)).thenReturn(true);
 
             Event event = createMockEvent(context, gradebookId, itemId, submitterId, "25", instructorId);
 
             org.sakaiproject.service.gradebook.shared.Assignment gradebookAssignment = mock(org.sakaiproject.service.gradebook.shared.Assignment.class);
             when(gradebookAssignment.getName()).thenReturn(itemId.toString());
             when(gradebookService.getAssignmentByNameOrId(context, itemId.toString())).thenReturn(gradebookAssignment);
+            User mockUser = mock(User.class);
+            when(mockUser.getId()).thenReturn(submitterId);
+            when(userDirectoryService.getUser(submitterId)).thenReturn(mockUser);
             assignmentEventObserver.update(null, event);
 
             AssignmentSubmission updatedSubmission = assignmentService.getSubmission(newSubmission.getId());
