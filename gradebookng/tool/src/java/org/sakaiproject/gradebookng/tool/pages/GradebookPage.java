@@ -116,7 +116,7 @@ public class GradebookPage extends BasePage {
 	GbModalWindow bulkEditItemsWindow;
 
 	Label liveGradingFeedback;
-	private Label bannerErrorVisibility;
+	private Label gradebookStudentVisibility;
 	boolean hasGradebookItems, hasStudents;
 	private static final AttributeModifier DISPLAY_NONE = new AttributeModifier("style", "display: none");
 
@@ -256,12 +256,12 @@ public class GradebookPage extends BasePage {
 		noAssignments.setVisible(assignments.isEmpty());
 		this.tableArea.add(noAssignments);
 
-		this.bannerErrorVisibility = new Label("bannerErrorVisibility", getString("feedback.bannerErrorVisibility"));
-		this.form.add(bannerErrorVisibility);
-		bannerErrorVisibility.setVisible(false);
+		this.gradebookStudentVisibility = new Label("gradebookStudentVisibility", getString("feedback.gradebookStudentVisibility"));
+		this.form.add(gradebookStudentVisibility);
+		gradebookStudentVisibility.setVisible(false);
 		for (Assignment ass : assignments) {
 			if(!ass.isReleased()){
-				bannerErrorVisibility.setVisible(true);
+				gradebookStudentVisibility.setVisible(true);
 			}
 		}
 		
