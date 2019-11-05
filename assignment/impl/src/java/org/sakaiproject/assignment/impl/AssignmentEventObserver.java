@@ -17,6 +17,9 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +30,7 @@ public class AssignmentEventObserver implements Observer {
     @Setter private AssignmentService assignmentService;
     @Setter private EventTrackingService eventTrackingService;
     @Setter private GradebookService gradebookService;
+    @Setter private UserDirectoryService userDirectoryService;
 
     public void init() {
         eventTrackingService.addLocalObserver(this);
@@ -59,8 +63,18 @@ public class AssignmentEventObserver implements Observer {
                                     org.sakaiproject.service.gradebook.shared.Assignment gradebookAssignment = gradebookService.getAssignmentByNameOrId(event.getContext(), itemId);
                                     assignment = Optional.ofNullable(assignmentService.getAssignmentForGradebookLink(event.getContext(), gradebookAssignment.getName()));
                                     if (assignment.isPresent()) {
-                                        Assignment a = assignment.get();
-                                        submission = Optional.ofNullable(assignmentService.getSubmission(a.getId(), studentId));
+                                        final Assignment a = assignment.get();
+                                        final User user = userDirectoryService.getUser(studentId);
+                                        submission = Optional.ofNullable(assignmentService.getSubmission(a.getId(), user.getId()));
+                                        submission = Optional.ofNullable(submission.orElseGet(() -> {
+                                            try {
+                                                return assignmentService.addSubmission(a.getId(), assignmentService.getSubmitterIdForAssignment(a, user));
+                                            } catch (PermissionException e) {
+                                                log.warn("Can't access submission for assignment {} and user {}, {}", a.getId(), user.getId(), e.getMessage());
+                                            }
+                                            return null;
+                                        }));
+
                                         if (submission.isPresent()) {
                                             AssignmentSubmission s = submission.get();
                                             final String grade;
@@ -84,7 +98,7 @@ public class AssignmentEventObserver implements Observer {
                                             assignmentService.updateSubmission(s);
                                             log.debug("Updated score for user {} for submission {} with score {}", studentId, s.getId(), score);
                                         } else {
-                                            log.debug("Submission not found for assignment {} and student {}, ", itemId, studentId);
+                                            log.warn("Submission not found for assignment {} and student {}, ", itemId, studentId);
                                         }
                                     } else {
                                         log.warn("No matching assignment found with gradebook item id, {}", itemId);
@@ -95,11 +109,12 @@ public class AssignmentEventObserver implements Observer {
                                     } else if (!submission.isPresent()) {
                                         log.warn("Can't retrieve submission for user {} for assignment {}, {}", studentId, assignment.get().getId(), e.getMessage());
                                     } else {
-                                        // permission exception while updating submission
                                         log.warn("Can't update submission for user {}, {}", studentId, e.getMessage());
                                     }
                                 } catch (AssessmentNotFoundException anfe) {
-                                    log.warn("Can't retrieve gradebook assignment for gradebook {} and item {}", gradebookId, itemId);
+                                    log.warn("Can't retrieve gradebook assignment for gradebook {} and item {}, {}", gradebookId, itemId, anfe.getMessage());
+                                } catch (UserNotDefinedException e) {
+                                    log.warn("Can't retrieve user {}, {}", studentId, e.getMessage());
                                 }
                             } else {
                                 log.warn("Score update not supported for source {}", source);

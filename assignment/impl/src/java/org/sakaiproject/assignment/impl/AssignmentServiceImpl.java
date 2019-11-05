@@ -17,7 +17,6 @@ package org.sakaiproject.assignment.impl;
 
 import static org.sakaiproject.assignment.api.AssignmentConstants.*;
 import static org.sakaiproject.assignment.api.AssignmentServiceConstants.*;
-import static org.sakaiproject.assignment.api.model.Assignment.GradeType.*;
 import static org.sakaiproject.assignment.api.model.Assignment.Access.*;
 
 import java.io.BufferedInputStream;
@@ -1088,6 +1087,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Transactional
     public AssignmentSubmission addSubmission(String assignmentId, String submitter) throws PermissionException {
 
+        if (StringUtils.isBlank(submitter)) return null;
         Optional<Assignment> assignment = Optional.empty();
 
         try {
@@ -2139,25 +2139,25 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     public Map<User, AssignmentSubmission> getSubmitterMap(String searchFilterOnly, String allOrOneGroup, String searchString, String aRef, String contextString) {
         Map<User, AssignmentSubmission> submitterMap = new HashMap<>();
 
-        Assignment assignment = null;
+        Optional<Assignment> assignment = Optional.empty();
         if (StringUtils.isNotBlank(aRef)) {
             String id = AssignmentReferenceReckoner.reckoner().reference(aRef).reckon().getId();
             try {
-                assignment = getAssignment(id);
-            } catch (IdUnusedException iue) {
-                log.warn("Assignment could not be found with id: {}, {}", id, iue.getMessage());
-            } catch (PermissionException pe) {
-                log.warn("You do not have permissions to access assignment {}, {}", id, pe.getMessage());
+                assignment = Optional.ofNullable(getAssignment(id));
+            } catch (Exception e) {
+                log.warn("Assignment could not be found with id: {}, {}", id, e.getMessage());
             }
         }
 
-        if (assignment != null) {
+        if (assignment.isPresent() ) {
+            final Assignment a = assignment.get();
+            final String assignmentId = a.getId();
             final List<User> users;
             allOrOneGroup = StringUtils.trimToNull(allOrOneGroup);
             searchString = StringUtils.trimToNull(searchString);
             boolean bSearchFilterOnly = "true".equalsIgnoreCase(searchFilterOnly);
 
-            if (assignmentUsesAnonymousGrading(assignment)) {
+            if (assignmentUsesAnonymousGrading(a)) {
                 bSearchFilterOnly = false;
                 searchString = "";
             }
@@ -2174,17 +2174,17 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         users = getSearchedUsers(searchString, allowAddSubmissionUsers, false);
                     } else if (searchString != null) {
                         // group filter first
-                        List<User> selectedGroupUsers = getSelectedGroupUsers(allOrOneGroup, contextString, assignment, allowAddSubmissionUsers);
+                        List<User> selectedGroupUsers = getSelectedGroupUsers(allOrOneGroup, contextString, a, allowAddSubmissionUsers);
                         users = getSearchedUsers(searchString, selectedGroupUsers, true);
                     } else {
-                        users = getSelectedGroupUsers(allOrOneGroup, contextString, assignment, allowAddSubmissionUsers);
+                        users = getSelectedGroupUsers(allOrOneGroup, contextString, a, allowAddSubmissionUsers);
                     }
                 }
             } else {
                 List<User> allowAddSubmissionUsers = allowAddSubmissionUsers(aRef);
 
                 // SAK-28055 need to take away those users who have the permissions defined in sakai.properties
-                String resourceString = AssignmentReferenceReckoner.reckoner().context(assignment.getContext()).reckon().getReference();
+                String resourceString = AssignmentReferenceReckoner.reckoner().context(a.getContext()).reckon().getReference();
                 String[] permissions = serverConfigurationService.getStrings("assignment.submitter.remove.permission");
                 if (permissions != null) {
                     for (String permission : permissions) {
@@ -2195,7 +2195,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 }
 
                 // Step 1: get group if any that is selected
-                List<User> selectedGroupUsers = getSelectedGroupUsers(allOrOneGroup, contextString, assignment, allowAddSubmissionUsers);
+                List<User> selectedGroupUsers = getSelectedGroupUsers(allOrOneGroup, contextString, a, allowAddSubmissionUsers);
 
                 // Step 2: get all student that meets the search criteria based on previous group users. If search is null or empty string, return all users.
                 users = getSearchedUsers(searchString, selectedGroupUsers, true);
@@ -2204,7 +2204,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             if (!users.isEmpty()) {
                 List<String> userids = users.stream().filter(Objects::nonNull).map(User::getId).collect(Collectors.toList());
 
-                List<AssignmentSubmission> submissions = assignmentRepository.findSubmissionForUsers(assignment.getId(), userids);
+                List<AssignmentSubmission> submissions = assignmentRepository.findSubmissionForUsers(assignmentId, userids);
 
                 for (final AssignmentSubmission submission : submissions) {
                     submission.getSubmitters().forEach(submitter -> {
@@ -2220,45 +2220,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 usersWithNoSubmission.removeAll(submitterMap.keySet());
 
                 for (final User user : usersWithNoSubmission) {
-                    String submitter = null;
-                    switch (assignment.getTypeOfAccess()) {
-                        case SITE:
-                            // access is for the entire site and submitter is a user
-                            submitter = user.getId();
-                            break;
-                        case GROUP:
-                            // access is restricted to groups
-                            Site site;
-                            try {
-                                site = siteService.getSite(assignment.getContext());
-                            } catch (IdUnusedException iue) {
-                                log.warn("Could not get the site {} for assignment {} while determining the submitter of the submission", assignment.getContext(), assignment.getId());
-                                break;
-                            }
-                            Set<String> assignmentGroups = assignment.getGroups();
-                            Collection<Group> userGroups = site.getGroupsWithMember(user.getId());
-                            Set<String> groupIdsMatchingAssignmentForUser = userGroups.stream().filter(g -> assignmentGroups.contains(g.getReference())).map(Group::getId).collect(Collectors.toSet());
-
-                            if (groupIdsMatchingAssignmentForUser.size() < 1) {
-                                log.debug("User {} is not a member of any groups for this assignment {}", user.getId(), assignment.getId());
-                            } else if (groupIdsMatchingAssignmentForUser.size() == 1) {
-                                if (assignment.getIsGroup()) {
-                                    submitter = groupIdsMatchingAssignmentForUser.toArray(new String[]{})[0];
-                                } else {
-                                    submitter = user.getId();
-                                }
-                                break;
-                            } else if (groupIdsMatchingAssignmentForUser.size() > 1) {
-                                log.warn("User {} is on more than one group for this assignment {}, please remove the user from a group so that they are only a member of a single group",
-                                        user.getId(), assignment.getId());
-                            }
-                        default:
-                            log.warn("Can't determine the type of submission to create for user {} in assignment {}", user.getId(), assignment.getId());
-                            continue;
-                    }
-                    if (submitter != null) {
+                    String submitterId = getSubmitterIdForAssignment(a, user);
+                    if (StringUtils.isNotBlank(submitterId)) {
                         try {
-                            AssignmentSubmission submission = addSubmission(assignment.getId(), submitter);
+                            AssignmentSubmission submission = addSubmission(assignmentId, submitterId);
                             if (submission != null) {
                                 // Note: If we had s.setSubmitted(false);, this would put it in 'draft mode'
                                 submission.setSubmitted(true);
@@ -2272,7 +2237,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                                 // set the resubmission properties
                                 // get the assignment setting for resubmitting
-                                Map<String, String> assignmentProperties = assignment.getProperties();
+                                Map<String, String> assignmentProperties = a.getProperties();
                                 String assignmentAllowResubmitNumber = assignmentProperties.get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER);
                                 if (StringUtils.isNotBlank(assignmentAllowResubmitNumber)) {
                                     Map<String, String> submissionProperties = submission.getProperties();
@@ -2283,12 +2248,12 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                     submissionProperties.put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME,
                                             StringUtils.isNotBlank(assignmentAllowResubmitCloseDate)
                                                     ? assignmentAllowResubmitCloseDate
-                                                    : String.valueOf(assignment.getCloseDate().toEpochMilli()));
+                                                    : String.valueOf(a.getCloseDate().toEpochMilli()));
                                 }
                                 assignmentRepository.updateSubmission(submission);
                                 submitterMap.put(user, submission);
                             } else {
-                                log.warn("No submission was found/created for user {} in assignment {}, this should never happen", user.getId(), assignment.getId());
+                                log.warn("No submission was found/created for user {} in assignment {}, this should never happen", user.getId(), a.getId());
                             }
                         } catch (PermissionException pe) {
                             log.debug("A new submission could not be added because the user lacks a permission, {}", pe.getMessage());
@@ -2300,6 +2265,47 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             }
         }
         return submitterMap;
+    }
+
+    @Override
+    public String getSubmitterIdForAssignment(Assignment assignment, User user) {
+        String submitter = null;
+        if (user != null) {
+            switch (assignment.getTypeOfAccess()) {
+                case SITE:
+                    // access is for the entire site and submitter is a user
+                    submitter = user.getId();
+                    break;
+                case GROUP:
+                    // access is restricted to groups
+                    Site site;
+                    try {
+                        site = siteService.getSite(assignment.getContext());
+                        Set<String> assignmentGroups = assignment.getGroups();
+                        Collection<Group> userGroups = site.getGroupsWithMember(user.getId());
+                        Set<String> groupIdsMatchingAssignmentForUser = userGroups.stream().filter(g -> assignmentGroups.contains(g.getReference())).map(Group::getId).collect(Collectors.toSet());
+
+                        if (groupIdsMatchingAssignmentForUser.size() < 1) {
+                            log.debug("User {} is not a member of any groups for this assignment {}", user.getId(), assignment.getId());
+                        } else if (groupIdsMatchingAssignmentForUser.size() == 1) {
+                            if (assignment.getIsGroup()) {
+                                submitter = groupIdsMatchingAssignmentForUser.toArray(new String[] {})[0];
+                            } else {
+                                submitter = user.getId();
+                            }
+                        } else {
+                            log.warn("User {} is on more than one group for this assignment {}, please remove the user from a group so that they are only a member of a single group", user.getId(), assignment.getId());
+                        }
+                    } catch (IdUnusedException iue) {
+                        log.warn("Could not get the site {} for assignment {} while determining the submitter of the submission", assignment.getContext(), assignment.getId());
+                    }
+                    break;
+                default:
+                    log.warn("Can't determine the type of submission to create for user {} in assignment {}", user.getId(), assignment.getId());
+                    break;
+            }
+        }
+        return submitter;
     }
 
     private List<User> getSelectedGroupUsers(String allOrOneGroup, String contextString, Assignment a, List allowAddSubmissionUsers) {
