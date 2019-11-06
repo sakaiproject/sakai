@@ -4,6 +4,7 @@ import {unsafeHTML} from "/webcomponents/assets/lit-html/directives/unsafe-html.
 import "/webcomponents/fa-icon.js";
 import "./sakai-grader-file-picker.js";
 import "../sakai-date-picker.js";
+import "../sakai-group-picker.js";
 import {gradableDataMixin} from "./sakai-gradable-data-mixin.js";
 import {Submission} from "./submission.js";
 import "/rubrics-service/webcomponents/rubric-association-requirements.js";
@@ -29,7 +30,7 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
     this.resubmitNumber = "1";
 
     this.updateComplete.then(() => $(".grader-help").tooltip({placement: "top", html: "true", toggle: "click"}));
-    this.loadTranslations({bundle: "grader"}).then(t => this.i18n = t);
+    this.loadTranslations("grader").then(t => this.i18n = t);
   }
 
   static get properties() {
@@ -110,10 +111,7 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
             <div><label><input type="checkbox" @change=${this.graderOnLeftChanged} .checked=${this.graderOnLeft} />${this.i18n["grader_on_left"]}</label></div>
             <div class="grader-groups">
               <span>${this.i18n["groups_label"]}</span>
-              <select aria-label="${this.i18n["group_selector_label"]}" @change=${this.groupSelected}>
-                <option value="any">Any</option>
-                ${this.groups.map(g => html`<option value="${g.id}">${g.title}</option>`)}
-              </select>
+              <sakai-group-picker groups="${JSON.stringify(this.groups)}" @change=${this.groupSelected}></sakai-group-picker>
             </div>
           </div>
           </div>

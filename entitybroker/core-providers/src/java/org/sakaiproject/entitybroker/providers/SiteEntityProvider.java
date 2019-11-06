@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -302,9 +303,20 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
         }
         return "SUCCESS";
     }
+    @EntityCustomAction(action = "groups", viewKey = "")
+    public ActionReturn handleGroups(EntityView view, Map<String, Object> params) throws AuthzRealmLockException {
+
+        String siteId = view.getEntityReference().getId();
+        Site site = getSiteById(siteId);
+        // check if the user can access site
+        isAllowedAccessSite(site);
+
+        List<EntityGroup> groups = site.getGroups().stream().map(EntityGroup::new).collect(Collectors.toList());
+        return new ActionReturn(groups);
+    }
 
     @EntityCustomAction(action = "group", viewKey = "")
-    public EntityGroup handleGroups(EntityView view, Map<String, Object> params) throws AuthzRealmLockException {
+    public EntityGroup handleGroup(EntityView view, Map<String, Object> params) throws AuthzRealmLockException {
         // expects site/siteId/group/groupId
         String siteId = view.getEntityReference().getId();
         String groupId = view.getPathSegment(3);
