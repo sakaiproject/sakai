@@ -1709,12 +1709,6 @@
         <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.scorm</groupId>
-        <artifactId>scorm-api</artifactId>
-        <version>20-SNAPSHOT</version>
-        <scope>provided</scope>
-      </dependency>
       <!-- UI dependencies; our glue packages, not the raw libraries, -->
       <!-- and only where we have duplication in dependencyManagement sections. -->
       <dependency>
