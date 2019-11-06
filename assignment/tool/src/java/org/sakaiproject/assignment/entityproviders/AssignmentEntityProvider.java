@@ -857,8 +857,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
             // If grade scale is "points" we also capture the maximum points allowed.
             if (a.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE) {
-                // TODO fix max grade display
-				//	this.gradeScaleMaxPoints = a.getMaxGradePoint();
+                Integer scaleFactor = a.getScaleFactor() != null ? a.getScaleFactor() : assignmentService.getScaleFactor();
+                this.gradeScaleMaxPoints = assignmentService.getMaxPointGradeDisplay(scaleFactor, a.getMaxGradePoint());
             }
 
             // Use the number of submissions allowed as an indicator that re-submission is permitted.
