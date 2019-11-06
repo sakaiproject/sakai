@@ -1,7 +1,7 @@
 import {SakaiElement} from "./sakai-element.js";
 import {html} from "./assets/lit-element/lit-element.js";
 
-class SakaiToolPermissions extends SakaiElement {
+class SakaiPermissions extends SakaiElement {
 
   constructor() {
 
@@ -195,4 +195,4 @@ class SakaiToolPermissions extends SakaiElement {
   }
 }
 
-customElements.define("sakai-tool-permissions", SakaiToolPermissions);
+customElements.define("sakai-permissions", SakaiPermissions);
