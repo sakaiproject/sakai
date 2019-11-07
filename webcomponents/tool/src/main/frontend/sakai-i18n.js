@@ -9,7 +9,7 @@
  *                    namespace: "roster",
  *                    cache: true}
  *
- * For a real world example of how to use this, see sakai-tool-permissions.js.
+ * For a real world example of how to use this, see sakai-permissions.js.
  */
 function loadProperties(options) {
 
