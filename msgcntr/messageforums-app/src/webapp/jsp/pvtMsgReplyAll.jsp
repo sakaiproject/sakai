@@ -66,21 +66,23 @@
 		});
 	</script>
 
-    <h:panelGroup>
-          	<f:verbatim><div class="breadCrumb"><h3></f:verbatim>
-				  <h:panelGroup rendered="#{PrivateMessagesTool.messagesandForums}" >
-				  	<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title="#{msgs.cdfm_message_forums}"/>
-				  	<h:outputText value=" / " />
-				  </h:panelGroup>
-	  		      <h:commandLink action="#{PrivateMessagesTool.processActionPrivateMessages}" value="#{msgs.pvt_message_nav}" title=" #{msgs.cdfm_message_forums}"/>
-	              <h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
-				<h:commandLink action="#{PrivateMessagesTool.processDisplayForum}" value="#{(PrivateMessagesTool.msgNavMode == 'pvt_received' || PrivateMessagesTool.msgNavMode == 'pvt_sent' || PrivateMessagesTool.msgNavMode == 'pvt_deleted' || PrivateMessagesTool.msgNavMode == 'pvt_drafts')? msgs[PrivateMessagesTool.msgNavMode]: PrivateMessagesTool.msgNavMode}" title=" #{(PrivateMessagesTool.msgNavMode == 'pvt_received' || PrivateMessagesTool.msgNavMode == 'pvt_sent' || PrivateMessagesTool.msgNavMode == 'pvt_deleted' || PrivateMessagesTool.msgNavMode == 'pvt_drafts')? msgs[PrivateMessagesTool.msgNavMode]: PrivateMessagesTool.msgNavMode}"/><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
-				<h:commandLink action="#{PrivateMessagesTool.processDisplayMessages}" title=" #{PrivateMessagesTool.detailMsg.msg.title}">
-					<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.title}"/>
-				</h:commandLink>
-				<h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
-				<h:outputText value="#{msgs.pvt_repmsg_ALL}" />
-			<f:verbatim></h3></div></f:verbatim>
+	<h:panelGroup>
+		<f:verbatim><div class="breadCrumb"><h3></f:verbatim>
+		<h:panelGroup rendered="#{PrivateMessagesTool.messagesandForums}" >
+			<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title="#{msgs.cdfm_message_forums}"/>
+			<h:outputText value=" / " />
+		</h:panelGroup>
+		<h:commandLink action="#{PrivateMessagesTool.processActionPrivateMessages}" value="#{msgs.pvt_message_nav}" title=" #{msgs.cdfm_message_forums}"/>
+		<h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
+		<h:commandLink rendered="#{(PrivateMessagesTool.msgNavMode == 'pvt_received' || PrivateMessagesTool.msgNavMode == 'pvt_sent' || PrivateMessagesTool.msgNavMode == 'pvt_deleted' || PrivateMessagesTool.msgNavMode == 'pvt_drafts')}"
+			action="#{PrivateMessagesTool.processDisplayForum}" value="#{msgs[PrivateMessagesTool.msgNavMode]}" title=" #{msgs[PrivateMessagesTool.msgNavMode]}"/>
+		<h:outputText rendered="#{(PrivateMessagesTool.msgNavMode == 'pvt_received' || PrivateMessagesTool.msgNavMode == 'pvt_sent' || PrivateMessagesTool.msgNavMode == 'pvt_deleted' || PrivateMessagesTool.msgNavMode == 'pvt_drafts')}" value=" / " />
+		<h:commandLink action="#{PrivateMessagesTool.processDisplayMessages}" title=" #{PrivateMessagesTool.detailMsg.msg.title}">
+			<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.title}"/>
+		</h:commandLink>
+		<h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
+		<h:outputText value="#{msgs.pvt_repmsg_ALL}" />
+		<f:verbatim></h3></div></f:verbatim>
 	</h:panelGroup>
 
 		<div class="container_messages">
