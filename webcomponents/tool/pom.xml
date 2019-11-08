@@ -111,7 +111,7 @@
                         </goals>
                         <configuration>
                             <arguments>
-                                install --unsafe-perm --save-dev
+                                ci --unsafe-perm --save-dev
                                 @ckeditor/ckeditor5-dev-webpack-plugin
                                 @ckeditor/ckeditor5-dev-utils
                                 postcss-loader@3
@@ -129,7 +129,7 @@
                         </goals>
                         <configuration>
                             <arguments>
-                                install --unsafe-perm
+                                ci --unsafe-perm
                             </arguments>
                         </configuration>
                     </execution>
