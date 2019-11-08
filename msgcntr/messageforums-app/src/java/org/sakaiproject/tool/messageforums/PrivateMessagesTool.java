@@ -1416,7 +1416,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 
 
     	// format the created date according to the setting in the bundle
-	    SimpleDateFormat formatter = new SimpleDateFormat(getResourceBundleString("date_format"), new ResourceLoader().getLocale());
+	    SimpleDateFormat formatter = new SimpleDateFormat(getResourceBundleString("date_format_date"), new ResourceLoader().getLocale());
 		formatter.setTimeZone(userTimeService.getLocalTimeZone());
 		String formattedCreateDate = formatter.format(pm.getCreated());
 		
