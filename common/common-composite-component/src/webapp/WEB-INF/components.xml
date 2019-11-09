@@ -68,11 +68,11 @@
         </property>
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
         <property name="userDirectoryService">
-		   <ref bean="org.sakaiproject.user.api.UserDirectoryService"/>
-		</property>
-	    <property name="photoService">
-    		<ref bean="org.sakaiproject.api.common.edu.person.PhotoService"/>
-    	</property>            
+       <ref bean="org.sakaiproject.user.api.UserDirectoryService"/>
+    </property>
+      <property name="photoService">
+        <ref bean="org.sakaiproject.api.common.edu.person.PhotoService"/>
+      </property>
       </bean>
     </property>
 
@@ -92,24 +92,24 @@
   
    
   <bean id="org.sakaiproject.api.common.edu.person.PhotoService" 
-  	class="org.sakaiproject.component.common.edu.person.SakaiPersonPhotoService">
+    class="org.sakaiproject.component.common.edu.person.SakaiPersonPhotoService">
    </bean>
    
    <!-- <bean id="org.sakaiproject.api.common.edu.person.PhotoService" 
-   	class="org.sakaiproject.component.common.edu.person.FileSystemPhotoService" init-method="init">
-   		<property name="serverConfigurationService">
-        	<ref bean="org.sakaiproject.component.api.ServerConfigurationService" />
+     class="org.sakaiproject.component.common.edu.person.FileSystemPhotoService" init-method="init">
+       <property name="serverConfigurationService">
+          <ref bean="org.sakaiproject.component.api.ServerConfigurationService" />
         </property>
         <property name="userDirectoryService">
-		   <ref bean="org.sakaiproject.user.api.UserDirectoryService"/>
-		</property>
-   	</bean>-->
+       <ref bean="org.sakaiproject.user.api.UserDirectoryService"/>
+    </property>
+     </bean>-->
    
    <bean class="org.sakaiproject.component.common.edu.person.SakaiPersonObserver" init-method="init">
-   	<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
-   	<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
-   	<property name="sakaiPersonManager" ref="org.sakaiproject.api.common.edu.person.SakaiPersonManager"/>
-   	<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+     <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+     <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+     <property name="sakaiPersonManager" ref="org.sakaiproject.api.common.edu.person.SakaiPersonManager"/>
+     <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
    </bean>
   
 
