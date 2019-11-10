@@ -77,7 +77,7 @@
     <sakai.mockito.version>2.28.2</sakai.mockito.version>
     <sakai.powermock.version>2.0.2</sakai.powermock.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
-    <joda.time.version>2.10.4</joda.time.version>
+    <joda.time.version>2.10.5</joda.time.version>
     <sakai.weld.shaded.version>3.1.2.Final</sakai.weld.shaded.version>
     <jayway.jsonpath.version>2.4.0</jayway.jsonpath.version>
     <sakai.genericdao.version>0.11.0</sakai.genericdao.version>
