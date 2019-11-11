@@ -73,7 +73,7 @@ If you can't find your  "at institution.edu" on the Apereo signup page then send
 Sakai 19.3 ([release](http://source.sakaiproject.org/release/19.3/) | [notes](https://confluence.sakaiproject.org/display/DOC/Sakai+19+Release+Notes))
 Is the community supported release of Sakai 19.
 
-Sakai 12.6 ([release](http://source.sakaiproject.org/release/12.6/) | [notes](https://confluence.sakaiproject.org/display/DOC/Sakai+12+Release+Notes))
+Sakai 12.7 ([release](http://source.sakaiproject.org/release/12.7/) | [notes](https://confluence.sakaiproject.org/display/DOC/Sakai+12+Release+Notes))
 Is the community supported release of Sakai 12.
 
 Sakai 11.4 ([release](http://source.sakaiproject.org/release/11.4/))
@@ -84,7 +84,7 @@ For full history of supported releases please see our [release information on co
 ## Under Development
 [Sakai 19.4](https://confluence.sakaiproject.org/display/REL/Sakai+19+Straw+person) is the current developement release of Sakai 19. It is expected to release Q4 2019.
 
-Sakai 12.7 is the current development branch of Sakai 12.
+Sakai 12.8 is the current development branch of Sakai 12.
 
 ## Accessibility
 [The Sakai Accessibility Working Group](https://confluence.sakaiproject.org/display/2ACC/Accessibility+Working+Group) is responsible for ensuring that the Sakai framework and its tools are accessible to persons with disabilities. [The Sakai Ra11y plan](https://confluence.sakaiproject.org/display/2ACC/rA11y+Plan) is working towards a VPAT and/or a WCAG2 certification.
