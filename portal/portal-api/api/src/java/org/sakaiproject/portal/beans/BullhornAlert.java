@@ -17,7 +17,8 @@ import lombok.EqualsAndHashCode;
 
 @Entity
 @Table(name = "BULLHORN_ALERTS", indexes = {
-    @Index(name = "IDX_BULLHORN_ALERTS_TO_USER", columnList = "TO_USER")
+    @Index(name = "IDX_BULLHORN_ALERTS_TO_USER", columnList = "TO_USER"),
+    @Index(name = "IDX_BULLHORN_EVENT_REF", columnList = "EVENT, REF")
 })
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
