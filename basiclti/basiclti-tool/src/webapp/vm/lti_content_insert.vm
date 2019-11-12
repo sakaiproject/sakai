@@ -14,7 +14,8 @@
 	#if ($messageSuccess)<div class="sak-banner-success">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div>#end
 	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<form action="#toolForm("")" method="post" name="customizeForm" >
-#if ( $tool_id && $tool_visible == 1 )
+## Let admins still see stealthed tools in the list
+#if ( !$isAdmin && $tool_id && $tool_visible == 1 )
    <input type="hidden" id="tool_id" name="tool_id" value="$tool_id" />
 #else
 #if ($tools && $tools.size() > 0)
