@@ -54,7 +54,7 @@ export class SakaiRubricEdit extends RubricsElement {
             <label for="rubric_title_edit">
               <sr-lang key="rubric_title">Rubric Title</sr-lang>
             </label>
-            <input title="${tr("rubric_title")}" name="rubric_title_edit" type="text" class="form-control" value="${this.rubricClone.title}" maxlength="255">
+            <input title="${tr("rubric_title")}" id="rubric_title_edit" type="text" class="form-control" value="${this.rubricClone.title}" maxlength="255">
           </div>
         </div>
       </div>
@@ -118,7 +118,7 @@ export class SakaiRubricEdit extends RubricsElement {
   saveEdit(e) {
 
     e.stopPropagation();
-    var title = this.querySelector("[name='rubric_title_edit']").value;
+    var title = this.querySelector("#rubric_title_edit").value;
     this.dispatchEvent(new CustomEvent("update-rubric-title", { detail: title }));
     $(`#edit_rubric_${this.rubric.id}`).hide();
     this.hideToolTip();

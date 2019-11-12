@@ -36,9 +36,9 @@ export class SakaiRubricStudentComment extends RubricsElement {
         <div class="arrow"></div>
         <div class="popover-title" style="display: flex;">
           <div style="flex: auto;">
-            <label class="criterion-title" for="">
+            <span class="criterion-title">
               <sr-lang key="comment_for_criterion" values="${JSON.stringify([this.criterion.title])}" />
-            </label>
+            </span>
           </div>
           <div class="buttons" style="flex: 0;">
             <button class="btn btn-primary btn-xs done" @click="${this.toggleComment}"><sr-lang key="done" /></button>

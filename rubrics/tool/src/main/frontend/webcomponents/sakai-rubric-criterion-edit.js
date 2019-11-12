@@ -9,7 +9,6 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
 
     super();
 
-    this.listeners = { "tap": "hostEventCatch" };
     this.token = "";
     this.criterion = {};
     this.criterionClone = {};
@@ -23,17 +22,18 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
     };
   }
 
-  attributeChangedCallback(name, oldValue, newValue) {
+  set criterion(newValue) {
 
-    super.attributeChangedCallback(name, oldValue, newValue);
-
-    if ("criterion" === name) {
-      this.criterionClone = JSON.parse(newValue);
-      if (this.criterionClone.new) {
-        this.updateComplete.then(() => this.querySelector(".edit").click() );
-      }
+    let oldValue = this._criterion;
+    this._criterion = newValue;
+    this.criterionClone = JSON.parse(JSON.stringify(newValue));
+    this.requestUpdate("criterion", oldValue);
+    if (this.criterionClone.new) {
+      this.updateComplete.then(() => this.querySelector(".edit").click() );
     }
   }
+
+  get criterion() { return this._criterion; }
 
   render() {
 
@@ -54,13 +54,13 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
         </div>
         <div class="popover-content form">
           <div class="form-group">
-            <label>
+            <label for="criterion-title-field-${this.criterion.id}">
               <sr-lang key="criterion_title">Criterion Title</sr-lang>
             </label>
             <input id="criterion-title-field-${this.criterion.id}" type="text" class="form-control" value="${this.criterionClone.title}" maxlength="255">
           </div>
           <div class="form-group">
-            <label>
+            <label for="criterion-description-field-${this.criterion.id}">
               <sr-lang key="criterion_description">Criterion Description</sr-lang>
             </label>
             <textarea id="criterion-description-field-${this.criterion.id}" class="form-control">${this.criterionClone.description}</textarea>
@@ -72,13 +72,6 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
 
   onFocus(e){
     e.target.closest('.criterion-row').classList.add("focused");
-  }
-
-  hostEventCatch(e) {
-
-    // catch and stop taps from bubbling outside the component
-    e.stopPropagation();
-    console.log('event stopped at host');
   }
 
   closeOpen() {
