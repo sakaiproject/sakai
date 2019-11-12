@@ -1450,3 +1450,7 @@ label#itemForm\:noFeedbackMsg {
 .categorySelect {
 	margin-left: 8px;
 }
+
+.attachment-table {
+  width: 40% !important;
+}
