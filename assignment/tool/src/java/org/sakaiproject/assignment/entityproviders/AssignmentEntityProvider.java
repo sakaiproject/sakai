@@ -650,7 +650,6 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         options.put(GRADE_SUBMISSION_DONT_CLEAR_CURRENT_ATTACHMENTS, Boolean.TRUE);
 
-        //AssignmentSubmission updatedSubmission
         submission = assignmentToolUtils.gradeSubmission(submission, gradeOption, options, alerts);
 
         if (submission != null) {

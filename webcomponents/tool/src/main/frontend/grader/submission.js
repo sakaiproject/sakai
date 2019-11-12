@@ -5,6 +5,8 @@ export class Submission {
     if (init) {
       this.id = init.id;
 
+      this.hasRubricEvaluation = init.hasRubricEvaluation;
+
       if (init.dateSubmitted) {
         this.submittedTime = moment.unix(init.dateSubmitted.epochSecond).format("M/D/YYYY @ H:mm");
         this.submittedText = init.submittedText;

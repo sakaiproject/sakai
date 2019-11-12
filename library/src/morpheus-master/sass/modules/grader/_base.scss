@@ -91,6 +91,19 @@ sakai-grader {
       border-right: 1px black solid;
     }
 
+    .rubric-active {
+      color: green;
+    }
+
+    .active-indicator {
+      display: inline-block;
+      background: green;
+      width: 18px;;
+      height: 18px;
+      border-radius: 50%;
+      margin-left: 5px;
+    }
+
     .resubmission-block {
 
       border: black solid 1px;
@@ -131,7 +144,6 @@ sakai-grader {
 
     .current-feedback-attachments {
       margin-bottom: 7px;
-      padding-left: 10px;
 
       .feedback-attachments-row {
         display: flex;
@@ -199,6 +211,11 @@ sakai-grader {
   }
   .feedback-label span, .private-notes-label span {
     margin-right: 7px;
+  }
+
+  .content-button-block {
+    display: flex;
+    align-items: center;
   }
 
   .attachments, .private-notes-block { margin-bottom: 10px; margin-top: 10px;}

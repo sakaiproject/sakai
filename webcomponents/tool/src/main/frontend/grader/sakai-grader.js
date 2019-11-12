@@ -244,7 +244,9 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
           ` : html``}
           <!-- start hasAssociatedRubric -->
           ${this.hasAssociatedRubric === "true" ? html`
-            <a href="javascript:;" id="grader-rubric-link" @click=${this.toggleRubric} title="${this.i18n["grading_rubric"]}"><span class="icon-sakai--sakai-rubrics"></span></a>
+            <a href="javascript:;" id="grader-rubric-link" @click=${this.toggleRubric} title="${this.i18n["grading_rubric"]}">
+              <span class="icon-sakai--sakai-rubrics ${this.submission.hasRubricEvaluation ? "rubric-active" : ""}"></span>
+            </a>
             <div id="rubric-panel" title="${this.i18n["rubric"]}" style="display: none;">
               <sakai-rubric-grading
                 token="${this.token}"
@@ -260,8 +262,9 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
           ` : html``}
           <!-- end hasAssociatedRubric -->
         </div>
-        <div class="feedback-label grader-label">
+        <div class="feedback-label grader-label content-button-block">
           <button id="grader-feedback-button" @click=${this.toggleFeedback} aria-haspopup="true" title="${this.i18n["add_feedback_tooltip"]}" >${this.i18n["add_feedback"]}</button>
+          ${this.submission.feedbackComment ? html`<div class="active-indicator"></div>` : ""}
         </div>
         <div id="feedback-panel" class="grader-panel" title="${this.i18n["feedback"]}" style="display: none;">
           <div class="feedback-title">${this.i18n["instructor_comment_title"]}</div>
@@ -288,8 +291,9 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
           <sakai-grader-file-picker button-text="${this.i18n["add_attachments"]}" style="display: inline-block;" title="${this.i18n["add_attachments_tooltip"]}">
           </sakai-grader-file-picker>
         </div>
-        <div class="grader-label">
+        <div class="grader-label content-button-block">
           <button id="grader-private-notes-button" @click=${this.togglePrivateNotes} aria-haspopup="true" title="${this.i18n["private_notes_tooltip"]}" >${this.i18n["private_notes"]}</button>
+          ${this.submission.privateNotes ? html`<div class="active-indicator"></div>` : ""}
         </div>
         <div id="private-notes-panel" class="grader-panel" title="${this.i18n["private_notes"]}" style="display: none;">
           <div class="sak-banner-info">${unsafeHTML(this.i18n["private_notes_tooltip"])}</div>
@@ -407,9 +411,9 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
   doneWithFeedbackDialog(e) {
 
-    this.submission.feedbackComment = document.getElementById("grader-feedback-comment").value;
     this.toggleFeedback();
     this.querySelector("#grader-feedback-button").focus();
+    this.requestUpdate();
   }
 
   togglePrivateNotes(e) {
@@ -423,12 +427,12 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
       this.privateNotesEditor.destroy();
       $("#private-notes-panel").dialog("destroy");
       this.privateNotesShowing = false;
+      this.requestUpdate();
     }
   }
 
   doneWithPrivateNotesDialog(e) {
 
-    this.privateNotes = document.getElementById("grader-private-notes").value
     this.togglePrivateNotes();
     this.querySelector("#grader-private-notes-button").focus();
   }
@@ -462,7 +466,10 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   onRubricRatingChanged(e) {
+
     this.addRubricParam(e, "criterion");
+    this.submission.hasRubricEvaluation = true;
+    this.requestUpdate();
   }
 
   onRubricRatingTuned(e) {
@@ -567,7 +574,6 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
         this.submission = submission;
         this.totalGraded = this.submissions.filter(s => s.graded).length;
         this.saved = true;
-        //setTimeout(() => this.saved = false, 2000);
       })
       .catch (e => console.error(`Failed to save grade for submission ${this.submission.id}: ${e}`));
   }
@@ -580,7 +586,6 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
     if (this.inlineFeedbackMode) {
       this.toggleInlineFeedback(null, cancelling);
-      //this.feedbackTextEditor.setData(this.submission.feedbackText, function () { CKEDITOR.instances["grader-feedback-text-editor"].resetDirty(); });
     }
   }
 
@@ -607,7 +612,6 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
     this.restoreSubmission(true);
 
-    //this.loadGradableData(this.gradableId, portal.siteId);
     document.getElementById("grader-feedback-text").value = this.submission.feedbackText;
     document.getElementById("grader-feedback-comment").value = this.submission.feedbackComment;
     document.getElementById("grader-private-notes").value = this.submission.privateNotes;
