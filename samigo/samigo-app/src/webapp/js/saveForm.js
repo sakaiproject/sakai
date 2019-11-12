@@ -135,7 +135,6 @@ function SaveFormContentAsync(toUrl, formId, buttonName, updateVar, updateVar2, 
 	// Now that we have the updated date, it's safe for the user to do submits.
 	// Reenable any buttons we disabled.
 	for (var i=0; i<disabledButtons.length; i++) {
-	    //$('#' + formId + ' input[name="' + disabledButtons[i] + '").prop( "disabled", false );
 	    document.forms[formId].elements[disabledButtons[i]].disabled=false;
 	}
 
