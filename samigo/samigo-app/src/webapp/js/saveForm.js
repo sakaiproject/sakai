@@ -46,19 +46,20 @@ function GetFormContent(formId, buttonName) {
     }
     for (var i=0; i<elements.length; i++) {
         var elt = elements[i];
-        var name = elt.name;
+        var eltName = elt.name;
+        if (!eltName) continue;
+
         var type = typeof(elt.type)=='string' ? elt.type.toLowerCase() : '';
         var value = elt.value;
-        var encoded = encodeURIComponent(name)+"="+encodeURIComponent(value);
-	if (type == "submit" && !elt.disabled) {
-	    // save name of buttons we are disabling, and disable
-	    disabledButtons.push(name);
-	    elt.disabled = true;
+        var encoded = encodeURIComponent(eltName) + "=" + encodeURIComponent(value);
+        if (type == "submit" && !elt.disabled) {
+            // save name of buttons we are disabling, and disable
+            disabledButtons.push(eltName);
+            elt.disabled = true;
         }
-        if (type != "submit" &&
-	    !((type == "radio" || type == "checkbox") && !elt.checked)){
-	    pairs.push(encoded);
-  	}
+        else if (type != "submit" && !((type == "radio" || type == "checkbox") && !elt.checked)) {
+            pairs.push(encoded);
+        }
     }
     // save attributes and disable links
     disabledLinks = [];
@@ -130,15 +131,14 @@ function SaveFormContentAsync(toUrl, formId, buttonName, updateVar, updateVar2, 
 	} else {
 	    saveok = false;
 	}
+
 	// Now that we have the updated date, it's safe for the user to do submits.
 	// Reenable any buttons we disabled.
-
 	for (var i=0; i<disabledButtons.length; i++) {
-	    document.forms[0].elements[disabledButtons[i]].disabled=false;
+	    document.forms[formId].elements[disabledButtons[i]].disabled=false;
 	}
 
 	// And links
-
 	for (var i=0; i<disabledLinks.length; i++) {
 	    var item = disabledLinks[i];
 	    var link = document.getElementById(item[0]);
