@@ -119,17 +119,17 @@ public class BeginDeliveryActionListener implements ActionListener
     	delivery.setIsFromPrint(false);
         delivery.calculateMinutesAndSecondsLeft();
     }
-    
+
     int action = delivery.getActionMode();
     PublishedAssessmentFacade pub = getPublishedAssessmentBasedOnAction(action, delivery, assessmentId, publishedId);
-
-    AssessmentAccessControlIfc control = pub.getAssessmentAccessControl();
-    boolean releaseToAnonymous = control.getReleaseTo() != null && control.getReleaseTo().indexOf("Anonymous Users")> -1;
 
     if(pub == null){
     	delivery.setOutcome("poolUpdateError");
     	throw new AbortProcessingException("pub is null");
     }
+
+    AssessmentAccessControlIfc control = pub.getAssessmentAccessControl();
+    boolean releaseToAnonymous = control.getReleaseTo() != null && control.getReleaseTo().indexOf("Anonymous Users")> -1;
 
     // Does the user have permission to take this action on this assessment in this site?
     AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
