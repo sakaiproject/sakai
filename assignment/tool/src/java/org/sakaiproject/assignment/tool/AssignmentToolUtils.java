@@ -397,6 +397,10 @@ public class AssignmentToolUtils {
                 }
             }
 
+            if (options.get(GRADE_SUBMISSION_PRIVATE_NOTES) != null) {
+                submission.setPrivateNotes((String) options.get(GRADE_SUBMISSION_PRIVATE_NOTES));
+            }
+
             String sReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
 
             // save a timestamp for this grading process
