@@ -12,6 +12,7 @@
         <property name="rubricsService" ref="org.sakaiproject.rubrics.logic.RubricsService"/>
         <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+		<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
     </bean>
 
     <!-- entity providers -->

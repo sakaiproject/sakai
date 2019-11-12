@@ -348,18 +348,14 @@ public class AssignmentToolUtils {
 
             Map<String, String> properties = submission.getProperties();
             if (options.get(ALLOW_RESUBMIT_NUMBER) != null) {
-                System.out.println("HERE1");
                 // get resubmit number
                 properties.put(ALLOW_RESUBMIT_NUMBER, (String) options.get(ALLOW_RESUBMIT_NUMBER));
 
                 if (options.get(ALLOW_RESUBMIT_CLOSEYEAR) != null) {
-                    System.out.println("HERE2");
                     // get resubmit time
                     Instant closeTime = getTimeFromOptions(options, ALLOW_RESUBMIT_CLOSEMONTH, ALLOW_RESUBMIT_CLOSEDAY, ALLOW_RESUBMIT_CLOSEYEAR, ALLOW_RESUBMIT_CLOSEHOUR, ALLOW_RESUBMIT_CLOSEMIN);
                     properties.put(ALLOW_RESUBMIT_CLOSETIME, String.valueOf(closeTime.toEpochMilli()));
                 } else if (options.get(ALLOW_RESUBMIT_CLOSE_EPOCH_MILLIS) != null) {
-                    System.out.println("HERE3");
-                    System.out.println((String) options.get(ALLOW_RESUBMIT_CLOSE_EPOCH_MILLIS));
                     properties.put(ALLOW_RESUBMIT_CLOSETIME, (String) options.get(ALLOW_RESUBMIT_CLOSE_EPOCH_MILLIS));
                 } else {
                     properties.remove(ALLOW_RESUBMIT_CLOSETIME);
