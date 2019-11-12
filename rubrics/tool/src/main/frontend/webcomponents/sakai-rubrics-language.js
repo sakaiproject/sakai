@@ -17,7 +17,6 @@ export class SakaiRubricsLanguage extends RubricsElement {
   }
 
   translate(key) {
-
     return tr(key, this.values);
   }
 
