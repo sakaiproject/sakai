@@ -38,6 +38,8 @@ export class Submission {
         this.feedbackText = this.submittedText || "";
       }
       this.feedbackComment = init.feedbackComment || "";
+
+      this.allowResubmitNumber = this.properties["allow_resubmit_number"];
     } else {
       this.id = "dummy";
     }
