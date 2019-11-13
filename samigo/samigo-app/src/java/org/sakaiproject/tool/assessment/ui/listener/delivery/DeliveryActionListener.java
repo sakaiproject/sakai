@@ -2569,9 +2569,9 @@ public class DeliveryActionListener
                     delivery.setFeedback("true");
                 } else if(delivery.getFeedbackComponent().getShowDateFeedback() && delivery.getSettings()!= null) {
                     if(delivery.getSettings().getFeedbackDate()!=null && delivery.getSettings().getFeedbackEndDate()==null){
-                        delivery.setFeedback(delivery.getSettings().getFeedbackDate().after(new Date()) ? "true" : "false");
+                        delivery.setFeedback(String.valueOf(new Date().after(delivery.getSettings().getFeedbackDate())));
                     } else if(delivery.getSettings().getFeedbackDate()!=null && delivery.getSettings().getFeedbackEndDate()!=null){
-                        delivery.setFeedback(delivery.getSettings().getFeedbackDate().after(new Date()) && delivery.getSettings().getFeedbackEndDate().before(new Date()) ? "true" : "false");
+                        delivery.setFeedback(String.valueOf(new Date().after(delivery.getSettings().getFeedbackDate()) && new Date().before(delivery.getSettings().getFeedbackEndDate())));
                     }
                 }
             }
