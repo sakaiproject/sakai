@@ -50,17 +50,9 @@ document.links[newindex].onclick();
 }
 
 function closeWindow() {alert("1"); self.opener=this; self.close(); }
-
-function CloseWin()
-
-{
-window.opener = top ;
-
-window.close();
-}
 </script>
 
-      <body onload="<%= request.getAttribute("html.body.onload") %>">
+<body onload="<%= request.getAttribute("html.body.onload") %>">
       
       <!-- IF A SECURE DELIVERY MODULE HAS BEEN SELECTED, INJECT ITS HTML FRAGMENT (IF ANY) HERE -->
 	  <h:outputText  value="#{delivery.secureDeliveryHTMLFragment}" escape="false" />
@@ -102,10 +94,9 @@ window.close();
 	</div>
 </div>
 
-<div class="table-responsive">
-
 <h:form id="submittedForm">
 
+<div class="table-responsive">
 	<h:outputText id="renderTimeoutMessage" styleClass="messageSamigo3" value="#{deliveryMessages.timeOutSubmission}" rendered="#{delivery.timeOutSubmission=='true'}"/>
 
 <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
@@ -126,7 +117,7 @@ window.close();
 
     <h:outputLabel value="#{deliveryMessages.number_of_sub_remain}" />
     <h:panelGroup>
-	<h:outputText value="#{delivery.submissionsRemaining} #{deliveryMessages.text_out_of} #{delivery.settings.maxAttempts}"
+      <h:outputText value="#{delivery.submissionsRemaining} #{deliveryMessages.text_out_of} #{delivery.settings.maxAttempts}"
           rendered="#{!delivery.settings.unlimitedAttempts}"/>
       <h:outputText value="#{deliveryMessages.unlimited_}"
           rendered="#{delivery.settings.unlimitedAttempts}"/>
@@ -156,7 +147,8 @@ window.close();
 
 <div class="tier1">
   <h:panelGrid columns="2" cellpadding="3" cellspacing="3">
-    <h:commandButton type="submit" value="#{deliveryMessages.button_continue}" action="select"
+    <h:commandButton type="submit" value="#{deliveryMessages.button_continue}"
+       onclick="return returnToHostUrl(\"#{delivery.selectURL}\");"
        rendered="#{delivery.actionString=='takeAssessment'}" />
 
     <h:commandButton value="#{deliveryMessages.review_results}" type="button" id="reviewAssessment"
