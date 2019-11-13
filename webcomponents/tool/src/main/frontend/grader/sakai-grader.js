@@ -174,25 +174,6 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
     return html`
       ${this.submission.id !== "dummy" ? html`
       <div class="grader ${this.graderOnLeft ? "on-left" : ""}">
-        ${this.submission.submittedTime ? html`
-          <div>
-            <label>
-              <input type="checkbox" .checked=${this.showResubmission} @change=${(e) => this.showResubmission = e.target.checked}/>
-              <span>${this.i18n["allow_resubmission"]}</span>
-            </label>
-          </div>
-          ${this.showResubmission ? html`
-            <div class="resubmission-block">
-              <span>${this.i18n["number_resubmissions_allowed"]}:</span>
-              <select aria-label="${this.i18n["attempt_selector_label"]}" @change=${(e) => this.resubmitNumber = e.target.value}>
-                <option value="1">1</option>
-                <option value="2">2</option>
-              </select>
-              <span>${this.i18n["accept_until"]}:</span>
-              <sakai-date-picker @datetime-selected=${(e) => this.resubmitDate = e.detail.epochMillis} initial-value="${this.resubmitDate}"></sakai-date-picker>
-            </div>
-          ` : ""}
-        ` : ""}
         <div class="submitted-block">
           <div class="submitted-time">
             ${this.submission.submittedTime ? html`
@@ -264,7 +245,8 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
         </div>
         <div class="feedback-label grader-label content-button-block">
           <button id="grader-feedback-button" @click=${this.toggleFeedback} aria-haspopup="true" title="${this.i18n["add_feedback_tooltip"]}" >${this.i18n["add_feedback"]}</button>
-          ${this.submission.feedbackComment ? html`<div class="active-indicator"></div>` : ""}
+          ${this.submission.feedbackComment ? html`
+            <div class="active-indicator" aria-label="${this.i18n["comment_present"]}" title="${this.i18n["comment_present"]}"></div>` : ""}
         </div>
         <div id="feedback-panel" class="grader-panel" title="${this.i18n["feedback"]}" style="display: none;">
           <div class="feedback-title">${this.i18n["instructor_comment_title"]}</div>
@@ -293,7 +275,7 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
         </div>
         <div class="grader-label content-button-block">
           <button id="grader-private-notes-button" @click=${this.togglePrivateNotes} aria-haspopup="true" title="${this.i18n["private_notes_tooltip"]}" >${this.i18n["private_notes"]}</button>
-          ${this.submission.privateNotes ? html`<div class="active-indicator"></div>` : ""}
+          ${this.submission.privateNotes ? html`<div class="active-indicator" aria-label="${this.i18n["notes_present"]}" title="${this.i18n["notes_present"]}"></div>` : ""}
         </div>
         <div id="private-notes-panel" class="grader-panel" title="${this.i18n["private_notes"]}" style="display: none;">
           <div class="sak-banner-info">${unsafeHTML(this.i18n["private_notes_tooltip"])}</div>
@@ -302,6 +284,26 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
         </div>
         <div class="text-feedback">
         </div>
+        ${this.submission.submittedTime ? html`
+          <div class="resubmission-checkbox">
+            <label>
+              <input type="checkbox" .checked=${this.showResubmission} @change=${this.toggleResubmissionBlock}/>
+              <span>${this.i18n["allow_resubmission"]}</span>
+            </label>
+          </div>
+          ${this.showResubmission ? html`
+            <div class="resubmission-block">
+              <span>${this.i18n["number_resubmissions_allowed"]}:</span>
+              <select aria-label="${this.i18n["attempt_selector_label"]}" @change=${(e) => this.resubmitNumber = e.target.value}>
+                <option value="0" .selected=${this.submission.allowResubmitNumber === "1"}>0</option>
+                <option value="1" .selected=${this.submission.allowResubmitNumber === "1"}>1</option>
+                <option value="2" .selected=${this.submission.allowResubmitNumber === "2"}>2</option>
+              </select>
+              <span>${this.i18n["accept_until"]}:</span>
+              <sakai-date-picker @datetime-selected=${(e) => this.resubmitDate = e.detail.epochMillis} initial-value="${this.resubmitDate}"></sakai-date-picker>
+            </div>
+          ` : ""}
+        ` : ""}
         <div class="action-button-block act">
           <button accesskey="s" class="btn btn-primary active" name="save" @click=${this.save}>${this.i18n["save"]}</button>
           <button accesskey="d" name="return" @click=${this.saveAndRelease}>${this.i18n["save_and_release"]}</button>
@@ -786,6 +788,16 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
       this.toggleSettings(e);
       this.querySelector(`#settings-link`).focus();
     }
+  }
+
+  toggleResubmissionBlock(e) {
+
+    if (!e.target.checked) {
+      this.submission.allowResubmitNumber = "0";
+    } else {
+      this.submission.allowResubmitNumber = "1";
+    }
+    this.showResubmission = e.target.checked;
   }
 }
 
