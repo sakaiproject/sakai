@@ -27,9 +27,17 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedEvaluationModel;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.GradebookFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener;
@@ -39,6 +47,9 @@ import org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener;
 @Data
 @Slf4j
 public class RestoreAssessmentsBean implements Serializable {
+
+    private static final GradebookServiceHelper gbsHelper = IntegrationContextFactory.getInstance().getGradebookServiceHelper();
+    private static final boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
 
     List<DataAssessment> deletedAssessmentList;
 
@@ -85,6 +96,7 @@ public class RestoreAssessmentsBean implements Serializable {
                     assessmentService.restoreAssessment(dataAssessment.getId());
                 } else {
                     publishedAssessmentService.restorePublishedAssessment(dataAssessment.getId());
+                    updateGB(dataAssessment.getId());
                 }
                 log.info(dataAssessment.isDraft() ? "Restoring deleted assessment {} - {}." : "Restoring published assessment {} - {}.", dataAssessment.getId(), dataAssessment.getTitle());
             }
@@ -98,6 +110,29 @@ public class RestoreAssessmentsBean implements Serializable {
     public String cancel() {
         log.debug("RestoreAssessmentsBean: cancel()");
         return "author";
+    }
+
+    private void updateGB(Long id) {
+        try {
+            GradebookExternalAssessmentService g = null;
+            if (integrated) {
+                g = (GradebookExternalAssessmentService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
+            }
+            if (gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(), g)) {
+                PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+                PublishedAssessmentFacade assessment = publishedAssessmentService.getPublishedAssessment(String.valueOf(id));
+                PublishedEvaluationModel evaluation = (PublishedEvaluationModel) assessment.getEvaluationModel();
+                if (evaluation == null) {
+                    evaluation = new PublishedEvaluationModel();
+                    evaluation.setAssessmentBase(assessment.getData());
+                }
+                if (evaluation.getToGradeBook() != null	&& evaluation.getToGradeBook().equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())) {
+                    gbsHelper.addToGradebook((PublishedAssessmentData) assessment.getData(), assessment.getData().getCategoryId(), g);
+                }
+            }
+        } catch (Exception e1) {
+            log.warn("RestoreAssessmentsBean - Exception thrown in updateGB():" + e1.getMessage());
+        }
     }
 
     @Data
