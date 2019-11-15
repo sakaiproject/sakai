@@ -490,8 +490,8 @@
                 entity-id="$assignment.Id"
                 evaluated-item-id="$submission.Id"
 
-                #if($rbcs-state-details && "$!rbcs-state-details" != "")
-                state-details="$rbcs-state-details"
+                #if($!rbcs-state-details && "$!rbcs-state-details" != "")
+                state-details='$rbcs-state-details'
                 #end
             ></sakai-rubric-grading>
         </div>

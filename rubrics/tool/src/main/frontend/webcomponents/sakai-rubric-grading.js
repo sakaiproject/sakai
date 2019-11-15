@@ -1,5 +1,6 @@
 import {RubricsElement} from "./rubrics-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
+import {ifDefined} from "/webcomponents/assets/lit-html/directives/if-defined.js";
 import {SakaiRubricCriteriaGrading} from "./sakai-rubric-criteria-grading.js";
 import {SakaiRubricsLanguage} from "./sakai-rubrics-language.js";
 
@@ -49,14 +50,23 @@ export class SakaiRubricGrading extends RubricsElement {
     return html`
       <h3 style="margin-bottom: 10px;">${this.rubric.title}</h3>
 
-      <sakai-rubric-criteria-grading
-        criteria="${JSON.stringify(this.rubric.criterions)}"
-        rubric-association="${JSON.stringify(this.association)}"
-        state-details="${this.stateDetails}"
-        entity-id="${this.entityId}"
-        evaluated-item-id="${this.evaluatedItemId}"
-        evaluation-details="${JSON.stringify(this.evaluation.criterionOutcomes)}"
+      ${this.stateDetails ? html`
+        <sakai-rubric-criteria-grading
+          criteria="${JSON.stringify(this.rubric.criterions)}"
+          rubric-association="${JSON.stringify(this.association)}"
+          state-details="${this.stateDetails}"
+          entity-id="${this.entityId}"
+          evaluated-item-id="${this.evaluatedItemId}"
         ></sakai-rubric-criteria-grading>
+      ` : html`
+        <sakai-rubric-criteria-grading
+          criteria="${JSON.stringify(this.rubric.criterions)}"
+          rubric-association="${JSON.stringify(this.association)}"
+          entity-id="${this.entityId}"
+          evaluated-item-id="${this.evaluatedItemId}"
+          evaluation-details="${JSON.stringify(this.evaluation.criterionOutcomes)}"
+        ></sakai-rubric-criteria-grading>
+      `}
     `;
   }
 
