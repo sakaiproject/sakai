@@ -34,17 +34,17 @@
       </h:column>
     </h:dataTable>
   </h:panelGroup>
-  <h:panelGroup rendered="#{!itemauthor.hasAttachment}">
+  <h:panelGroup layout="block" rendered="#{!itemauthor.hasAttachment}">
     <h:outputText escape="false" value="#{authorMessages.no_attachments}" />
   </h:panelGroup>
 
-  <h:panelGroup rendered="#{!itemauthor.hasAttachment}">
+  <h:panelGroup layout="block" rendered="#{!itemauthor.hasAttachment}">
     <sakai:button_bar>
      <h:commandButton action="#{itemauthor.addAttachmentsRedirect}" value="#{authorMessages.add_attachments}"/>
     </sakai:button_bar>
   </h:panelGroup>
 
-  <h:panelGroup rendered="#{itemauthor.hasAttachment}">
+  <h:panelGroup layout="block" rendered="#{itemauthor.hasAttachment}">
     <sakai:button_bar>
      <h:commandButton action="#{itemauthor.addAttachmentsRedirect}" value="#{authorMessages.add_remove_attachments}"/>
     </sakai:button_bar>
