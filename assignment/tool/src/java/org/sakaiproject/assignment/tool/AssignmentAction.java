@@ -39,6 +39,7 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -3563,6 +3564,10 @@ public class AssignmentAction extends PagedResourceActionII {
         // Check if the assignment has a rubric associated or not
         context.put("hasAssociatedRubric", assignment.isPresent() && rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_ASSIGNMENT, assignment.get().getId()));
 
+        if (state.getAttribute(RUBRIC_STATE_DETAILS) != null) {
+            context.put(RUBRIC_STATE_DETAILS, state.getAttribute(RUBRIC_STATE_DETAILS));
+        }
+
         String siteId = (String) state.getAttribute(STATE_CONTEXT_STRING);
         String toolId = toolManager.getCurrentPlacement().getId();
 
@@ -5600,6 +5605,7 @@ public class AssignmentAction extends PagedResourceActionII {
      * Action is to save the grade to submission
      */
     public void doSave_grade_submission(RunData data) {
+
         if (!"POST".equals(data.getRequest().getMethod())) {
             return;
         }
@@ -5748,6 +5754,11 @@ public class AssignmentAction extends PagedResourceActionII {
 
         Map<String, Object> options = stateToMap(state);
 
+        // Add the rubrics params to the map, too
+        ParameterParser params = data.getParameters();
+        Iterable<String> iterable = () -> params.getNames();
+        StreamSupport.stream(iterable.spliterator(), false).filter(n -> n.startsWith(RubricsConstants.RBCS_PREFIX)).forEach(n -> options.put(n, params.get(n)));
+
         List<String> alerts = new ArrayList<>();
 
         assignmentToolUtils.gradeSubmission(submission, gradeOption, options, alerts);
@@ -5765,6 +5776,10 @@ public class AssignmentAction extends PagedResourceActionII {
         } else {
             state.removeAttribute(GRADE_SUBMISSION_DONE);
         }
+
+        // Remove any rubrics related state
+        state.getAttributeNames().stream().filter(n -> n.startsWith(RubricsConstants.RBCS_PREFIX)).forEach(state::removeAttribute);
+        state.removeAttribute(RUBRIC_STATE_DETAILS);
 
         // SAK-29314 - update the list being iterated over
         sizeResources(state);
@@ -10533,6 +10548,14 @@ public class AssignmentAction extends PagedResourceActionII {
                 state.setAttribute(GRADE_SUBMISSION_FEEDBACK_COMMENT, feedbackComment);
             }
 
+            // Pour any rubrics parameters into the state
+            Iterable<String> iterable = () -> params.getNames();
+            StreamSupport.stream(iterable.spliterator(), false).filter(n -> n.startsWith(RubricsConstants.RBCS_PREFIX)).forEach(n -> {
+                if (n.endsWith("state-details")) {
+                    state.setAttribute(RUBRIC_STATE_DETAILS, params.get(n));
+                }
+                state.setAttribute(n, params.get(n));
+            });
 
             String feedbackText = processAssignmentFeedbackFromBrowser(state, params.getCleanString(GRADE_SUBMISSION_FEEDBACK_TEXT));
             // feedbackText value changed?
@@ -10696,14 +10719,6 @@ public class AssignmentAction extends PagedResourceActionII {
                     grade = (typeOfGrade == SCORE_GRADE_TYPE) ? scalePointGrade(state, grade, factor) : grade;
                     state.setAttribute(GRADE_SUBMISSION_GRADE, grade);
                 }
-
-                if (state.getAttribute(STATE_MESSAGE) != null) {
-                    String rubricStateDetails = params.getString(RUBRIC_STATE_DETAILS);
-                    state.setAttribute(RUBRIC_STATE_DETAILS, rubricStateDetails);
-                } else {
-                    state.removeAttribute(RUBRIC_STATE_DETAILS);
-                }
-
             }
         } else {
             // generate alert
