@@ -86,7 +86,7 @@ export class SakaiRubric extends RubricsElement {
                 html`<sr-lang key="share_label">share_label</sr-lang>`
               }
             </span>
-            <span role="button" title="${tr(this.shareTitleKey, [this.shareValues])}" tabindex="0" class="share fa ${this.shareIcon}" @click="${this.sharingChange}"></span>
+            <span role="button" title="${tr(this.shareTitleKey, [this.rubric.title])}" tabindex="0" class="share fa ${this.shareIcon}" @click="${this.sharingChange}"></span>
           </div>
           <div class="action-container">
             <span class="hidden-sm hidden-xs sr-only"><sr-lang key="copy" /></span>
