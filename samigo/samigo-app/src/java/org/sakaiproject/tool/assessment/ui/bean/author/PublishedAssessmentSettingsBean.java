@@ -1793,7 +1793,12 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
           context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, errorString, null));
       }
       else {
-          this.extendedTime.syncDates();
+          AssessmentAccessControlIfc accessControl = new AssessmentAccessControl();
+          accessControl.setStartDate(this.startDate);
+          accessControl.setDueDate(this.dueDate);
+          accessControl.setLateHandling(Integer.valueOf(this.lateHandling));
+          accessControl.setRetractDate(this.retractDate);
+          this.extendedTime.syncDates(accessControl);
           this.extendedTimes.add(this.extendedTime);
           resetExtendedTime();
       }
