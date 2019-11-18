@@ -98,7 +98,11 @@ export class SakaiRubricGradingComment extends RubricsElement {
     // hide the edit popover
     this.classList.remove("show-tooltip");
     $(`#criterion-editor-${this.criterion.id}-${this.randombit}`).hide();
+    if (!this.criterion.comments) {
+      this.criterion.comments = "";
+    }
     this.dispatchEvent(new CustomEvent('update-comment', {detail: {evaluatedItemId: this.evaluatedItemId, entityId: this.entityId, criterionId: this.criterion.id, value: this.criterion.comments}, bubbles: true, composed: true}));
+    this.requestUpdate();
   }
 
   setupEditor() {
