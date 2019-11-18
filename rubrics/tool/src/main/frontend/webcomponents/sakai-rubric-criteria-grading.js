@@ -22,6 +22,7 @@ export class SakaiRubricCriteriaGrading extends RubricsElement {
       evaluatedItemId: { attribute: "evaluated-item-id", type: String },
       totalPoints: { type: Number },
       evaluationDetails: { attribute: "evaluation-details", type: Array },
+      stateDetailsJson: String,
       selectedRatings: { type: Array },
     };
   }
