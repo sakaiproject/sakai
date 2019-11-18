@@ -77,12 +77,13 @@ public class ExtendedTime implements Serializable {
     /**
      * Sync the dates up to the dates in AssessmentAccessControlIfc
      */
-    public void syncDates() {
+    public void syncDates(AssessmentAccessControlIfc control) {
         AssessmentAccessControlIfc ac = null;
-        if (assessment != null) {
+        if (control != null) {
+            ac = control;
+        } else if (assessment != null) {
             ac = assessment.getAssessmentAccessControl();
-        }
-        else if (pubAssessment != null) {
+        } else if (pubAssessment != null) {
             ac = pubAssessment.getAssessmentAccessControl();
         }
 

@@ -101,7 +101,7 @@ public class ExtendedTimeFacade {
 
     private void syncExtendedTimeDates(List <ExtendedTime> et) {
         for(ExtendedTime e : et) {
-        	e.syncDates();
+            e.syncDates(null);
         }
     }
 
