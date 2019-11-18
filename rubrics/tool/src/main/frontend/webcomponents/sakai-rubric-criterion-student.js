@@ -122,6 +122,10 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
           }
 
           c.comments = ed.comments;
+          if (c.comments === "undefined") {
+            // This can happen if undefined gets passed to the server when the evaluation is saved.
+            c.comments = "";
+          }
         }
       });
     });
