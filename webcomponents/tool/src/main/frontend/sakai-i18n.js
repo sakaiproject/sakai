@@ -123,8 +123,10 @@ function tr(namespace, key, options) {
   }
 
   if (options != undefined) {
-    for (var prop in options) {
-      ret = ret.replace('{'+prop+'}', options[prop]);
+    if (Array.isArray(options)) {
+      options.forEach(o => ret = ret.replace("{}", o));
+    } else if (typeof options === "object") {
+      Object.keys(options).forEach(k => ret = ret.replace('{' + k + '}', options[k]));
     }
   }
   return ret;
