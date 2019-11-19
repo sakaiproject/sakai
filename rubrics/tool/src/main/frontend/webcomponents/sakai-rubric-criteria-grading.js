@@ -31,6 +31,7 @@ export class SakaiRubricCriteriaGrading extends RubricsElement {
 
     this._urlEncodedStateDetails = newValue;
     this.stateDetails = JSON.parse(unescape(newValue));
+    this.stateDetailsJson = newValue;
     if (this.criteria) this.setupCriteriaFromState();
   }
 
@@ -208,7 +209,7 @@ export class SakaiRubricCriteriaGrading extends RubricsElement {
 
         if (ed.criterionId === c.id) {
 
-          c.selectedRatingId = ed;
+          c.selectedRatingId = ed.selectedRatingId;
           if (ed.pointsAdjusted) {
             c.pointoverride = ed.points;
             let ratingItem = c.ratings.filter(r => r.id == ed.selectedRatingId)[0];
