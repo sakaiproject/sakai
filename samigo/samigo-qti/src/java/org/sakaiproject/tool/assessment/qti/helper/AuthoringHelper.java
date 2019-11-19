@@ -593,7 +593,7 @@ public class AuthoringHelper
 
           while (notUnique)
           {
-            title = exHelper.renameDuplicate(title);
+            title = assessmentService.renameDuplicate(title);
             log.debug("renameDuplicate(title): " + title);
             assessment.setTitle(title);
             notUnique =
@@ -800,7 +800,7 @@ public class AuthoringHelper
 
  	          while (!isUnique)
  	          {
- 	        	title = exHelper.renameDuplicate(title);
+ 	        	title = AssessmentService.renameDuplicate(title);
  	            log.debug("renameDuplicate(title): " + title);
  	            questionpool.setTitle(title);
  	            //recheck to confirm that new title is not a dplicate too
