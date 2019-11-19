@@ -747,7 +747,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		       if (sakaiId.startsWith(prefix))
 			   sakaiId = "/group/" + siteId + "/" + sakaiId.substring(prefix.length());
 		       else
-			   log.error("sakaiId not recognized " + sakaiId);
+			   log.error("sakaiId not recognized: {}", sakaiId);
 		   } else if (type == SimplePageItem.BLTI) {
 			   try {
 				   // We need to import the BLTI tool to the new site and update the sakaiid
@@ -762,7 +762,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				   Long ltiToolId = getLong(ltiContent.get(LTIService.LTI_TOOL_ID));
 				   sakaiId = importLTITool(siteId, launchUrl, ltiTitle, xmlStr, ltiCustom, ltiToolId);
 			   } catch (Exception e) {
-				   log.warn("Unable to import LTI tool to new site " + e);
+				   log.warn("Unable to import LTI tool to new site: {}", e);
 				   e.printStackTrace();
 			   }
 	           } else if (type == SimplePageItem.TEXT) {
@@ -774,7 +774,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			while(matcher.find()) {
 				String urlFirstPart = matcher.group(1);
 				Long ltiContentId = Long.valueOf(matcher.group(2));
-				log.info("Updating reference: " + matcher.group(0));
+				log.info("Updating reference: {}", matcher.group(0));
 				foundLtiLink = true;
 				try {
 					Map<String, Object> ltiContent = ltiService.getContentDao(ltiContentId, oldSiteId, securityService.isSuperUser());
@@ -787,11 +787,11 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 					String[] bltiId = sakaiId.split("/");
 					ltiContentId = Long.valueOf(bltiId[2]);
 				} catch (Exception e) {
-					log.warn("Unable to import LTI tool to new site " + e);
+					log.warn("Unable to import LTI tool to new site: {}", e);
 					e.printStackTrace();
 				} finally {
 					String updatedReference = urlFirstPart + "/" + siteId + "/content:" + ltiContentId;
-					log.info("New reference: " + updatedReference);
+					log.info("New reference: {}", updatedReference);
 					matcher.appendReplacement(sb, Matcher.quoteReplacement(updatedReference));
 				}
 			}
