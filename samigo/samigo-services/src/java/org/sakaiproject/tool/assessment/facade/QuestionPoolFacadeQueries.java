@@ -65,9 +65,6 @@ import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 public class QuestionPoolFacadeQueries
     extends HibernateDaoSupport implements QuestionPoolFacadeQueriesAPI {
   
-  // SAM-2049
-  private static final String VERSION_START = " - ";
-  
   // SAM-2499
   private final FormattedText formattedText = (FormattedText) ComponentManager.get( FormattedText.class );
 
@@ -1444,44 +1441,7 @@ public class QuestionPoolFacadeQueries
 		  log.warn("problem update the pool name" + e.getMessage());
 	  }	  
   }
-  
-  private String renameDuplicate(String title) {
-	  if (title == null) {
-		  title = "";
-	  }
-  
-	  String rename = "";
-	  int index = title.lastIndexOf(VERSION_START);
 
-	  // If it is versioned
-	  if (index > -1) {
-		  String mainPart = "";
-		  String versionPart = title.substring(index);
-		  if(index > 0) {
-			  mainPart = title.substring(0, index);
-		  }
-  
-		  int nIndex = index + VERSION_START.length();
-		  String version = title.substring(nIndex);
-  
-		  int versionNumber = 0;
-		  try {
-			  versionNumber = Integer.parseInt(version);
-			  if (versionNumber < 2) {
-				  versionNumber = 2;
-			  }
-			  versionPart = VERSION_START + (versionNumber + 1);
-  			  rename = mainPart + versionPart;
-  		  } catch (NumberFormatException ex) {
-  			  rename = title + VERSION_START + "2";
-  		  }
-	  } else {
-		  rename = title + VERSION_START + "2";
-	  }
-
-	  return rename;
-  }
-	  
   public void transferPoolsOwnership(String ownerId, final List<Long> transferPoolIds) {
   	  Session session = null;
 
@@ -1557,7 +1517,7 @@ public class QuestionPoolFacadeQueries
 				  int count = 0; // Alternate exit condition
 	
 				  while (!isUnique) {
-					  title = renameDuplicate(title);
+					  title = AssessmentService.renameDuplicate(title);
 					  log.debug("renameDuplicate (title): " + title);
 					  
 					  // Recheck to confirm that new title is not a dplicate too

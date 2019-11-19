@@ -1222,8 +1222,11 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	}
 
 	public boolean assessmentTitleIsUnique(final Long assessmentBaseId, String title, Boolean isTemplate) {
+		return assessmentTitleIsUnique(assessmentBaseId, title, isTemplate, AgentFacade.getCurrentSiteId());
+	}
+
+	public boolean assessmentTitleIsUnique(final Long assessmentBaseId, String title, Boolean isTemplate, final String siteId) {
 		title = title.trim();
-		final String currentSiteId = AgentFacade.getCurrentSiteId();
 		final String agentString = AgentFacade.getAgentString();
 		List<AssessmentBaseData> list;
 		boolean isUnique = true;
@@ -1252,7 +1255,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
                 q.setString("title", titlef);
                 q.setLong("id", assessmentBaseId);
                 q.setString("fid", "EDIT_ASSESSMENT");
-                q.setString("site", currentSiteId);
+                q.setString("site", siteId);
                 q.setInteger("status", 1);
                 return q.list();
             };
@@ -1611,7 +1614,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		}
 		for (AssessmentData assessmentData : newList) {
 		    getHibernateTemplate().saveOrUpdate(assessmentData); // write
-        }
+		}
 		
 		// authorization
 		for (AssessmentData a : newList) {
@@ -1659,9 +1662,27 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 			}
 		}
 		for (AssessmentData data : newList) {
-		    getHibernateTemplate().saveOrUpdate(data);
-		    String oldRef = assessmentMap.get(data);
-		    if (oldRef != null && data.getAssessmentBaseId() != null)
+			// now make sure we have a unique name for the assessment
+			String title = data.getTitle();
+			boolean notUnique = !assessmentTitleIsUnique(data.getAssessmentBaseId() , title, false, toContext);
+			if (notUnique) {
+				synchronized (title) {
+					log.debug("Assessment "+ title + " is not unique.");
+					int count = 0; // alternate exit condition
+					while (notUnique) {
+						title = AssessmentService.renameDuplicate(title);
+						log.debug("renameDuplicate(title): " + title);
+						data.setTitle(title);
+						notUnique = !assessmentTitleIsUnique(data.getAssessmentBaseId() , title, false);
+						if (count++ > 99) {
+							break;// exit condition in case bug is introduced
+						}
+					}
+				}
+			}
+			getHibernateTemplate().saveOrUpdate(data);
+			String oldRef = assessmentMap.get(data);
+			if (oldRef != null && data.getAssessmentBaseId() != null)
 			transversalMap.put(oldRef, CoreAssessmentEntityProvider.ENTITY_PREFIX + "/" + data.getAssessmentBaseId());
 		}
 
