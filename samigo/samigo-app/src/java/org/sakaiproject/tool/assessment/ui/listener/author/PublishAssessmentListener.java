@@ -313,14 +313,6 @@ public class PublishAssessmentListener
 		  String releaseTo) {
 	  TotalScoresBean totalScoresBean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
 	  
-	  AgentFacade instructor = new AgentFacade();
-	  InternetAddress fromIA = null;
-	  try {
-		  fromIA = new InternetAddress(instructor.getEmail(), instructor.getDisplayName());
-	  } catch (UnsupportedEncodingException e) {
-		  log.warn("UnsupportedEncodingException encountered when constructing instructor's email.");
-	  }
-
 	  boolean groupRelease = AssessmentAccessControlIfc.RELEASE_TO_SELECTED_GROUPS.equals(releaseTo);
 	  if (groupRelease) {
 		  totalScoresBean.setSelectedSectionFilterValue(TotalScoresBean.RELEASED_SECTIONS_GROUPS_SELECT_VALUE);
@@ -333,6 +325,7 @@ public class PublishAssessmentListener
 	  Map useridMap= totalScoresBean.getUserIdMap(TotalScoresBean.CALLED_FROM_NOTIFICATION_LISTENER); 
 	  AgentFacade agent = null;
 
+	  AgentFacade instructor = new AgentFacade();
 	  ArrayList<InternetAddress> toIAList = new ArrayList<>();
 	  try {
 		  toIAList.add(new InternetAddress(instructor.getEmail())); // send one copy to instructor
@@ -364,15 +357,17 @@ public class PublishAssessmentListener
 
 	  String noReplyEmaillAddress =  ServerConfigurationService.getString("setup.request","no-reply@" + ServerConfigurationService.getServerName());
       InternetAddress[] noReply = new InternetAddress[1];
+      InternetAddress from = null;
       try {
-    	  noReply[0] = new InternetAddress(noReplyEmaillAddress);
+          from = new InternetAddress(noReplyEmaillAddress);
+          noReply[0] = from;
       } catch (AddressException e) {
-              log.warn("AddressException encountered when constructing no_reply@serverName email.");
+          log.warn("AddressException encountered when constructing no_reply@serverName email.");
       }
 	  
 	  List<String> headers = new  ArrayList<String>();
 	  headers.add("Content-Type: text/html");
-	  EmailService.sendMail(fromIA, toIA, subject, message, noReply, noReply, headers);
+	  EmailService.sendMail(from, toIA, subject, message, noReply, noReply, headers);
   }
   
   public String getNotificationMessage(PublishRepublishNotificationBean publishRepublishNotification, String title, String releaseTo, String startDateString, String publishedURL, String dueDateString, Integer timedHours, Integer timedMinutes, String unlimitedSubmissions, String submissionsAllowed, String scoringType, String feedbackDelivery, String feedbackDateString){
