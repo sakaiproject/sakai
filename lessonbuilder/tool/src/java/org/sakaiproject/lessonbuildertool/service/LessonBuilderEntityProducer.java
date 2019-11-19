@@ -48,14 +48,28 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.InetAddress;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.Stack;
+import java.util.UUID;
+import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import java.io.InputStream;
 import java.io.FileInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -75,7 +89,6 @@ import uk.org.ponder.messageutil.MessageLocator;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -108,6 +121,7 @@ import org.sakaiproject.lessonbuildertool.cc.PrintHandler;
 import org.sakaiproject.lessonbuildertool.cc.ZipLoader;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.OrphanPageFinder;
+import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.site.api.Group;
@@ -714,7 +728,6 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 	   Node node = allChildrenNodes.item(i);
 	   if (node.getNodeType() == Node.ELEMENT_NODE) {
-
 	       Element itemElement = (Element) node;
 	       if (itemElement.getTagName().equals("item")) {
 		   String s = itemElement.getAttribute("sequence");
@@ -752,6 +765,42 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				   log.warn("Unable to import LTI tool to new site " + e);
 				   e.printStackTrace();
 			   }
+	           } else if (type == SimplePageItem.TEXT) {
+			String html = itemElement.getAttribute("html");
+			Pattern idPattern = Pattern.compile("(https?://[^/]+/access/basiclti/site)/" + Pattern.quote(oldSiteId) + "/content:([0-9]+)");
+			Matcher matcher = idPattern.matcher(html);
+			StringBuffer sb = new StringBuffer();
+			boolean foundLtiLink = false;
+			while(matcher.find()) {
+				String urlFirstPart = matcher.group(1);
+				Long ltiContentId = Long.valueOf(matcher.group(2));
+				log.info("Updating reference: " + matcher.group(0));
+				foundLtiLink = true;
+				try {
+					Map<String, Object> ltiContent = ltiService.getContentDao(ltiContentId, oldSiteId, securityService.isSuperUser());
+					String launchUrl = (String) ltiContent.get(LTIService.LTI_LAUNCH);
+					String ltiTitle = (String) ltiContent.get(LTIService.LTI_TITLE);
+					String xmlStr = (String) ltiContent.get(LTIService.LTI_XMLIMPORT);
+					String ltiCustom = (String) ltiContent.get(LTIService.LTI_CUSTOM);
+					Long ltiToolId = getLong(ltiContent.get(LTIService.LTI_TOOL_ID));
+					sakaiId = importLTITool(siteId, launchUrl, ltiTitle, xmlStr, ltiCustom, ltiToolId);
+					String[] bltiId = sakaiId.split("/");
+					ltiContentId = Long.valueOf(bltiId[2]);
+				} catch (Exception e) {
+					log.warn("Unable to import LTI tool to new site " + e);
+					e.printStackTrace();
+				} finally {
+					String updatedReference = urlFirstPart + "/" + siteId + "/content:" + ltiContentId;
+					log.info("New reference: " + updatedReference);
+					matcher.appendReplacement(sb, Matcher.quoteReplacement(updatedReference));
+				}
+			}
+
+			if(foundLtiLink) {
+				matcher.appendTail(sb);
+				explanation = sb.toString();
+				log.info("Updated at least one LTI reference lesson HTML");
+			}
 		   } else if (type == SimplePageItem.PAGE) {
 		       // sakaiId should be the new page ID
 		       Long newPageId = pageMap.get(Long.valueOf(sakaiId));
