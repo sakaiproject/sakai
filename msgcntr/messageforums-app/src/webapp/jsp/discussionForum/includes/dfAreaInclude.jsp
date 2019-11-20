@@ -96,8 +96,8 @@ $(document).ready(function() {
 					<sakai-rubric-student-preview-button
 						display="icon"
 						token="<h:outputText value="#{ForumTool.rbcsToken}" />"
-						tool-id="sakai.forums"
-						entity-id="<h:outputText value="for.#{forum.forum.id}" />">
+						tool-id="sakai.gradebookng"
+						entity-id="<h:outputText value="#{forum.gradeAssign}" />">
 					</sakai-rubric-student-preview-button>
 				</h:panelGroup>
 				<h:commandLink action="#{ForumTool.processActionDisplayForum}" title=" #{forum.forum.title}" rendered="#{ForumTool.showForumLinksInNav}"  styleClass="title">
@@ -238,8 +238,8 @@ $(document).ready(function() {
 								<sakai-rubric-student-preview-button
 									display="icon"
 									token="<h:outputText value="#{ForumTool.rbcsToken}" />"
-									tool-id="sakai.forums"
-									entity-id="<h:outputText value="top.#{topic.topic.id}" />">
+									tool-id="sakai.gradebookng"
+									entity-id="<h:outputText value="#{topic.gradeAssign}" />">
 								</sakai-rubric-student-preview-button>
 							</h:panelGroup>
 							<h:commandLink action="#{ForumTool.processActionDisplayTopic}" id="topic_title" title=" #{topic.topic.title}" styleClass="title">
