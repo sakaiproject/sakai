@@ -15,11 +15,8 @@
  */
 package org.sakaiproject.gradebookng.business.util;
 
-import com.opencsv.CSVParser;
-import com.opencsv.CSVReader;
-
 import java.io.IOException;
-import java.io.InputStream; 
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,8 +31,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -48,7 +43,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.panel.Panel;
-
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidFileTypeException;
 import org.sakaiproject.gradebookng.business.importExport.CommentValidationReport;
@@ -71,6 +65,14 @@ import org.sakaiproject.gradebookng.tool.model.AssignmentStudentGradeInfo;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
+
+import com.opencsv.CSVParser;
+import com.opencsv.CSVParserBuilder;
+import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
+import com.opencsv.exceptions.CsvValidationException;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Helper to handling parsing and processing of an imported gradebook file
@@ -158,7 +160,14 @@ public class ImportGradesHelper {
 		if(StringUtils.isEmpty(userDecimalSeparator)){
 			reader = new CSVReader(new InputStreamReader(is));
 		}else{
-			reader = new CSVReader(new InputStreamReader(is), ".".equals(userDecimalSeparator) ? CSVParser.DEFAULT_SEPARATOR : CSV_SEMICOLON_SEPARATOR);
+			CSVParser parser = new CSVParserBuilder()
+					//new CSVReader(new InputStreamReader(is), ".".equals(userDecimalSeparator) ? CSVParser.DEFAULT_SEPARATOR : CSV_SEMICOLON_SEPARATOR);
+					.withSeparator(".".equals(userDecimalSeparator) ? CSVParser.DEFAULT_SEPARATOR : CSV_SEMICOLON_SEPARATOR)
+					.build();
+					
+			reader = new CSVReaderBuilder(new InputStreamReader(is))
+					.withCSVParser(parser)
+					.build();
 		}
 		String[] nextLine;
 		int lineCount = 0;
@@ -182,6 +191,8 @@ public class ImportGradesHelper {
 				}
 				lineCount++;
 			}
+		} catch (CsvValidationException e) {
+			log.warn("Error closing the reader", e);
 		} finally {
 			try {
 				reader.close();

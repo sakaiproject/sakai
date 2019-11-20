@@ -44,8 +44,8 @@ import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
-import com.opencsv.CSVReader;
 import com.opencsv.bean.CsvToBean;
+import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.bean.HeaderColumnNameTranslateMappingStrategy;
 
 import lombok.Getter;
@@ -372,10 +372,11 @@ public class ProfileConverter {
         
         strat.setColumnMapping(map);
 
-        CsvToBean<ImportableUserProfile> csv = new CsvToBean<ImportableUserProfile>();
+       // CsvToBean<ImportableUserProfile> csv = new CsvToBean<ImportableUserProfile>();
         List<ImportableUserProfile> list = new ArrayList<ImportableUserProfile>();
         try {
-			list = csv.parse(strat, new CSVReader(new FileReader(path)));
+			//list = csv.parse(strat, new CSVReader(new FileReader(path)));
+			list = new CsvToBeanBuilder<ImportableUserProfile>(new FileReader(path)).withType(ImportableUserProfile.class).build().parse();
 		} catch (FileNotFoundException fnfe) {
 			log.error("Profile2 importer: Couldn't find file: " + fnfe.getClass() + " : " + fnfe.getMessage());
 		}
