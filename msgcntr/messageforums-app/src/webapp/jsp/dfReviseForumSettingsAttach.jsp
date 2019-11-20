@@ -27,12 +27,12 @@
     		thisId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
   		}
 	%>
-	<script type="text/javascript">
+	<script>
 		function resize(){
   			mySetMainFrameHeight('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
   		}
 	</script> 
-	<script type="text/javascript">
+	<script>
 	function setDatesEnabled(radioButton){
 		$(".calWidget").fadeToggle('slow');
 	}
@@ -50,6 +50,7 @@
 		var forumAssignments = document.getElementById("revise:forum_assignments");
 		if( forumAssignments != null && forumAssignments.value != null && forumAssignments.value != 'Default_0'){
 			for (var i = 0; i<elems.length; i++) {
+                elems[i].setAttribute("entity-id", forumAssignments.value);
 				elems[i].style.display = 'inline';
 			}
 		} else {
@@ -78,13 +79,12 @@
 	ValueBinding vbinding = appl.createValueBinding("#{ForumTool}");
 	DiscussionForumTool forumTool = (DiscussionForumTool) vbinding.getValue(fcontext);
 	String stateDetails = forumTool.getRbcsStateDetails();
-	String entityId = "for." + forumTool.getSelectedForum().getForum().getId();
 %>
 <!-- END RUBRICS VARIABLES -->
 
   <!-- Y:\msgcntr\messageforums-app\src\webapp\jsp\dfReviseForumSettingsAttach.jsp -->
     <h:form id="revise">
-		  <script type="text/javascript">
+		  <script>
             $(document).ready(function(){
 				$('.displayMore').click(function(e){
 					e.preventDefault();
@@ -330,15 +330,8 @@
 			dont-associate-value="0"
 			associate-label='<h:outputText value="#{msgs.forum_associate_label}" />'
 			associate-value="1"
-
-			tool-id="sakai.forums"
-			<% if(entityId != null && !"".equals(entityId)){ %>
-				entity-id=<%= entityId %>
-			<%}%>
-			<% if(stateDetails != null && !"".equals(stateDetails)){ %>
-				state-details=<%= stateDetails %>
-			<%}%>
-
+			read-only="true"
+			tool-id="sakai.gradebookng"
 			fine-tune-points='<h:outputText value="#{msgs.option_pointsoverride}" />'
 			hide-student-preview='<h:outputText value="#{msgs.option_studentpreview}" />'
 
