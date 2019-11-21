@@ -46,9 +46,10 @@
 }
 .topicBloc{
 	/*inner container topic metadata in forum list view, or single topic view*/
-	margin: 0 0 0 1em;
 	border-left: 2px solid #fc6;
-	width: calc(100% - 1em);
+	width: 80%;
+	padding: 0 .5em;
+	margin: 0;
 }
 .topicBloc td{
 	padding-left: .5em;
@@ -231,8 +232,8 @@
 /*PART 3 - SINGLE MESSAGE DISPLAY*/
 .singleMessage{
 	/*title + metadata block of a single message display*/
-	border-left: 2px solid #ccc;
-	background:#fff;
+	border-left: 2px solid #69d;
+	background:#f9f9f9;
 	margin-top: 1em;
 	padding:.3em  .5em;
 }
