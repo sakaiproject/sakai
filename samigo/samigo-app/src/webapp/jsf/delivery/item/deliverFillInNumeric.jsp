@@ -164,7 +164,6 @@ $( document ).ready(function() {
   });
 
   $('#takeAssessmentForm').submit(function() {
-    toggleSubmissionControls(false);
     $('.fillInNumericInput').each(function() {
       //If a part or an exam is submitted, validate all the FIN inputs and alert about the invalid ones to prevent a response loss.
       validateFinInput(this);
@@ -173,13 +172,15 @@ $( document ).ready(function() {
 
   $('.fillInNumericInput').focus( function() {
     $(this).popover();
-    toggleSubmissionControls(true);
   });
 
   $('.fillInNumericInput').change( function() {
-    toggleSubmissionControls(false);
     validateFinInput(this);
   });
+
+  $('.fillInNumericInput').keyup( throttle(function(){
+    validateFinInput(this);
+  }));
 
 });
 </script>
