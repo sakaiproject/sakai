@@ -3574,7 +3574,7 @@ public class AssignmentAction extends PagedResourceActionII {
         List<BasicUser> submitters
             = userSubmissions.stream().map(ss -> {
 
-                BasicUser bu = new BasicUser(ss.getUser());
+                BasicUser bu = ss.getUser() != null ? new BasicUser(ss.getUser()): new BasicUser();
                 String ref = AssignmentReferenceReckoner.reckoner().submission(ss.submission).reckon().getReference();
                 bu.url = serverConfigurationService.getPortalUrl() + "/site/" + siteId + "/tool/" + toolId + "?assignmentId=" + assignmentRef + "&submissionId=" + ref + "&panel=Main&sakai_action=doGrade_submission";
                 return bu;
@@ -3611,6 +3611,8 @@ public class AssignmentAction extends PagedResourceActionII {
         public String id;
         public String displayName;
         public String url;
+
+        public BasicUser() {}
 
         public BasicUser(User u) {
 
