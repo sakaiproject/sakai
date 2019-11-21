@@ -8,19 +8,19 @@
 
 <f:view>
 	<sakai:view toolCssHref="/messageforums-tool/css/msgcntr.css">
-		<h:form id="msgForum" styleClass="specialLink">
-			<f:verbatim><input type="hidden" id="currentMessageId" name="currentMessageId" value="</f:verbatim><h:outputText value="#{ForumTool.selectedMessage.message.id}"/><f:verbatim>"/></f:verbatim>
-			<f:verbatim><input type="hidden" id="currentTopicId" name="currentTopicId" value="</f:verbatim><h:outputText value="#{ForumTool.selectedTopic.topic.id}"/><f:verbatim>"/></f:verbatim>
-			<f:verbatim><input type="hidden" id="currentForumId" name="currentForumId" value="</f:verbatim><h:outputText value="#{ForumTool.selectedForum.forum.id}"/><f:verbatim>"/></f:verbatim>
-			<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-			<script type="text/javascript" src="/library/webjars/qtip2/3.0.3/jquery.qtip.min.js"></script>
+		<h:form id="msgForum" styleClass="specialLink" prependId = "false">
+			<h:inputHidden id="currentMessageId" value="#{ForumTool.selectedMessage.message.id}"/>
+			<h:inputHidden id="currentTopicId" value="#{ForumTool.selectedTopic.topic.id}"/>
+			<h:inputHidden id="currentForumId" value="#{ForumTool.selectedForum.forum.id}"/>
+			<script>includeLatestJQuery("msgcntr");</script>
+			<script src="/library/webjars/qtip2/3.0.3/jquery.qtip.min.js"></script>
 			<link rel="stylesheet" type="text/css" href="/library/webjars/qtip2/3.0.3/jquery.qtip.min.css" />
-			<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
-			<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
-			<script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
+			<script src="/messageforums-tool/js/forum.js"></script>
+			<script src="/messageforums-tool/js/sak-10625.js"></script>
+			<script src="/messageforums-tool/js/messages.js"></script>
 			
 			<!--jsp/discussionForum/message/dfViewMessage.jsp-->
-			<script type="text/javascript">
+			<script>
 				$(document).ready(function() {
 					if ($('table.messageActions a').length==0){
 						$('.messageActions').hide();
@@ -42,7 +42,7 @@
 						event.preventDefault();
 						$('#permalinkHolder').fadeOut('fast');
 					});
-					var msgBody = document.getElementById("msgForum:messageBody").innerHTML;
+					var msgBody = document.getElementById("messageBody").innerHTML;
 					msgBody = msgBody.replace(/\n/g,',').replace(/\s/g,' ').replace(/  ,/g,',');
 					fckeditor_word_count_fromMessage(msgBody, "counttotal");
 
@@ -50,9 +50,9 @@
 			</script>
 
 			<%--breadcrumb and thread nav grid--%>
-			<div class="navPanel row">
-				<div class="col-md-12">
-					<f:verbatim><h3></f:verbatim>
+			<h:panelGroup layout="block" styleClass="navPanel row">
+				<h:panelGroup layout="block" styleClass="col-md-12">
+					<h3>
 						<h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"
 							rendered="#{ForumTool.messagesandForums}" />
 						<h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_discussion_forums}" title=" #{msgs.cdfm_discussion_forums}"
@@ -79,13 +79,13 @@
 							<f:param value="#{ForumTool.selectedThreadHead.message.id}" name="messageId"/>
 							<h:outputText value="#{ForumTool.selectedThreadHead.message.title}"/>
 						</h:commandLink>
-					<f:verbatim></h3></f:verbatim>
-				</div>
-			</div>
+					</h3>
+				</h:panelGroup>
+			</h:panelGroup>
 			
-			<div class="row">
-				<div class="col-md-offset-6 col-md-6 view-message-nav">
-					<h:panelGroup  styleClass="button formButtonDisabled" rendered="#{!ForumTool.selectedThreadHead.hasPreThread}">
+			<h:panelGroup layout="block" styleClass="row view-message-nav">
+				<h:panelGroup layout="block" styleClass="col-md-offset-6 col-md-6 view-message-nav">
+					<h:panelGroup styleClass="button formButtonDisabled" rendered="#{!ForumTool.selectedThreadHead.hasPreThread}">
 						<h:outputText value="#{msgs.cdfm_previous_thread}"  />
 					</h:panelGroup>
 					<h:commandLink styleClass="button" action="#{ForumTool.processActionDisplayThread}" value="#{msgs.cdfm_previous_thread}"  rendered="#{ForumTool.selectedThreadHead.hasPreThread}">
@@ -101,22 +101,22 @@
 						<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 						<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 					</h:commandLink>
-				 </div>
-			</div>
+				</h:panelGroup>
+			</h:panelGroup>
 			<%-- topic short description and long description --%>
-			<div class="topicBloc" style="width:80%;padding:0 .5em;margin:0;">
-				<p class="textPanel">
+			<h:panelGroup layout="block" styleClass="topicBloc">
+				<h:panelGroup layout="block" styleClass="textPanel">
 					<h:graphicImage url="/images/silk/date_delete.png" title="#{msgs.topic_restricted_message}" alt="#{msgs.topic_restricted_message}" rendered="#{ForumTool.selectedTopic.availability == 'false'}" style="margin-right:.5em"/>
 					<h:graphicImage url="/images/silk/lock.png" alt="#{msgs.cdfm_forum_locked}" 
 						 rendered="#{ForumTool.selectedTopic.locked =='true'}" style="margin-right:.5em"/>
 					<h:outputText value="#{ForumTool.selectedTopic.topic.shortDescription}" />
-				</p>
+				</h:panelGroup>
 				<%-- link to open and close long desc. --%>
 				<h:outputText value="#{ForumTool.selectedForum.forum.title} /  #{ForumTool.selectedTopic.topic.title}"  styleClass="title"/> 
-				<div class="textPanel">
+				<h:panelGroup layout="block" styleClass="textPanel">
 					<h:outputText value="#{ForumTool.selectedTopic.topic.shortDescription}" />
-				</div>
-				<div>
+				</h:panelGroup>
+				<h:panelGroup layout="block">
 					<p id="openLinkBlock" class="toggleParent openLinkBlock display-none">
 						<a href="#" id="showMessage" class="toggle show">
 							<h:graphicImage url="/images/expand.gif" alt=""/>
@@ -129,15 +129,16 @@
 							<h:outputText value=" #{msgs.cdfm_hide_full_description}"/>
 						</a>
 					</p>
-					<div id="fullTopicDescription" class="textPanel fullTopicDescription">
+					<h:panelGroup id="fullTopicDescription" layout="block" styleClass="textPanel fullTopicDescription">
 						<h:outputText escape="false" value="#{ForumTool.selectedTopic.topic.extendedDescription}" />
-					</div>
-				</div>
-			</div>
+					</h:panelGroup>
+				</h:panelGroup>
+			</h:panelGroup>
 			<h:messages globalOnly="true" infoClass="success" errorClass="alertMessage" rendered="#{! empty facesContext.maximumSeverity}"/>
-			<f:subview id="wordCountView">
-				<span style="margin-left:1em"><h:graphicImage url="/../../library/image/silk/table_add.png" alt="#{msgs.cdfm_message_count}" />&nbsp;<h:outputText value="#{msgs.cdfm_message_count}" />:&nbsp;<span id="counttotal"> </span></span>
-			</f:subview>
+			<h:panelGroup styleClass="margin-left:1em;">
+				<h:graphicImage url="/../../library/image/silk/table_add.png" alt="#{msgs.cdfm_message_count}" />&nbsp;<h:outputText value="#{msgs.cdfm_message_count}" />:&nbsp;
+				<h:panelGroup id="counttotal"></h:panelGroup>
+			</h:panelGroup>
 			<h:panelGrid columns="2" 
 					width="100%" 
 					columnClasses="specialLink, specialLink otherOtherActions"
@@ -145,75 +146,76 @@
 					rendered="#{!ForumTool.deleteMsg && !ForumTool.selectedMessage.message.deleted}" 
 					styleClass="messageActions"
 					style="margin:1em 0 0 0">
-				<h:panelGroup  style="display:block">
-					<h:commandLink title="#{msgs.cdfm_button_bar_reply_to_msg}" action="#{ForumTool.processDfMsgReplyMsg}" 
+				<h:panelGroup style="display:block">
+					<h:commandLink styleClass="button" title="#{msgs.cdfm_button_bar_reply_to_msg}" action="#{ForumTool.processDfMsgReplyMsg}" 
 							rendered="#{ForumTool.selectedTopic.isNewResponseToResponse && ForumTool.selectedMessage.msgApproved && !ForumTool.selectedTopic.locked && !ForumTool.selectedForum.locked == 'true'}">
 						<h:graphicImage value="/../../library/image/silk/email_go.png" alt="#{msgs.cdfm_button_bar_reply_to_msg}" rendered="#{ForumTool.selectedTopic.isNewResponseToResponse}" />
 						<h:outputText value=" #{msgs.cdfm_button_bar_reply_to_msg}" />
 					</h:commandLink>
 					
-					<h:commandLink title="#{msgs.cdfm_button_bar_reply_to_thread}" action="#{ForumTool.processDfMsgReplyThread}" 
+					<h:commandLink styleClass="button"  title="#{msgs.cdfm_button_bar_reply_to_thread}" action="#{ForumTool.processDfMsgReplyThread}" 
 							rendered="#{ForumTool.selectedTopic.isNewResponseToResponse && ForumTool.selectedThreadHead.msgApproved && !ForumTool.selectedTopic.locked && !ForumTool.selectedForum.locked == 'true'}">
 						<h:graphicImage value="/../../library/image/silk/folder_go.png" alt="#{msgs.cdfm_button_bar_reply_to_thread}" />
 						<h:outputText value=" #{msgs.cdfm_button_bar_reply_to_thread}" />
 					</h:commandLink>
 					
-					<h:commandLink title="#{msgs.cdfm_button_bar_delete_msg}" action="#{ForumTool.processDfMsgDeleteConfirm}" rendered="#{ForumTool.selectedMessage.userCanDelete}" >
+					<h:commandLink styleClass="button"  title="#{msgs.cdfm_button_bar_delete_msg}" action="#{ForumTool.processDfMsgDeleteConfirm}" rendered="#{ForumTool.selectedMessage.userCanDelete}" >
 						<h:graphicImage value="/../../library/image/silk/email_delete.png" alt="#{msgs.cdfm_button_bar_delete_msg}" />
 						<h:outputText value=" #{msgs.cdfm_button_bar_delete_msg}" />
 					</h:commandLink>
 					
-					<h:commandLink title="#{msgs.cdfm_button_bar_revise}" action="#{ForumTool.processDfMsgRvs}" 
+					<h:commandLink styleClass="button"  title="#{msgs.cdfm_button_bar_revise}" action="#{ForumTool.processDfMsgRvs}" 
 							rendered="#{ForumTool.selectedMessage.revise}">
 						<h:graphicImage value="/../../library/image/silk/email_edit.png" alt="#{msgs.cdfm_button_bar_revise}" />
 						<h:outputText value=" #{msgs.cdfm_button_bar_revise}" />
 					</h:commandLink>
 					
-					<h:commandLink title="#{msgs.cdfm_button_bar_grade}" action="#{ForumTool.processDfMsgGrd}" 
+					<h:commandLink styleClass="button"  title="#{msgs.cdfm_button_bar_grade}" action="#{ForumTool.processDfMsgGrd}" 
 							rendered="#{ForumTool.selectedTopic.isPostToGradebook && ForumTool.gradebookExist}">
 						<h:graphicImage value="/../../library/image/silk/award_star_gold_1.png" alt="#{msgs.cdfm_button_bar_grade}" />
 						<h:outputText value=" #{msgs.cdfm_button_bar_grade}" />
 					</h:commandLink>
 					<%-- Email --%>
-					<h:outputLink id="createEmail1" value="mailto:#{ForumTool.selectedMessage.authorEmail}" rendered="#{ForumTool.selectedMessage.userCanEmail && ForumTool.selectedMessage.authorEmail != '' && ForumTool.selectedMessage.authorEmail != null}"> 
+					<h:outputLink styleClass="button"  id="createEmail1" value="mailto:#{ForumTool.selectedMessage.authorEmail}" rendered="#{ForumTool.selectedMessage.userCanEmail && ForumTool.selectedMessage.authorEmail != '' && ForumTool.selectedMessage.authorEmail != null}"> 
 						<f:param value="Feedback on #{ForumTool.selectedMessage.message.title}" name="subject" />
 						<h:graphicImage value="/../../library/image/silk/email_edit.png" alt="#{msgs.cdfm_button_bar_email}" />
   						<h:outputText value=" #{msgs.cdfm_button_bar_email}"/>
-					</h:outputLink>			
+					</h:outputLink>
 					<%-- premalink --%>
-					<h:outputLink id="permalink1" value="#{ForumTool.messageURL}" styleClass="permaLink" title="#{msgs.cdfm_button_bar_permalink_message}"> 
+					<h:outputLink id="permalink1" value="#{ForumTool.messageURL}" styleClass="button permaLink" title="#{msgs.cdfm_button_bar_permalink_message}"> 
 						<h:graphicImage value="/../../library/image/silk/folder_go.png" alt="#{msgs.cdfm_button_bar_permalink}" />
   						<h:outputText value=" #{msgs.cdfm_button_bar_permalink}"/>
 					</h:outputLink>
 				</h:panelGroup>
-				<h:panelGroup  style="display:block;white-space:nowrap;">
-					<h:commandLink title="#{msgs.cdfm_button_bar_deny}" action="#{ForumTool.processDfMsgDeny}" 
+				<h:panelGroup style="display:block;white-space:nowrap;">
+					<h:commandLink styleClass="button" title="#{msgs.cdfm_button_bar_deny}" action="#{ForumTool.processDfMsgDeny}" 
 							rendered="#{ForumTool.allowedToDenyMsg}">
 						<h:graphicImage value="/../../library/image/silk/cross.png" alt="#{msgs.cdfm_button_bar_deny}" />
 						<h:outputText value=" #{msgs.cdfm_button_bar_deny}" />
 					</h:commandLink>
-					<h:commandLink title="#{msgs.cdfm_button_bar_add_comment}" action="#{ForumTool.processDfMsgAddComment}" 
+					<h:commandLink styleClass="button" title="#{msgs.cdfm_button_bar_add_comment}" action="#{ForumTool.processDfMsgAddComment}" 
 							rendered="#{ForumTool.allowedToApproveMsg && ForumTool.selectedMessage.msgDenied}">
 						<h:graphicImage value="/../../library/image/silk/comment.png" alt="#{msgs.cdfm_button_bar_add_comment}" />
 						<h:outputText value=" #{msgs.cdfm_button_bar_add_comment}" />
 					</h:commandLink>
-					<h:commandLink title="#{msgs.cdfm_button_bar_approve}" action="#{ForumTool.processDfMsgApprove}" 
+					<h:commandLink styleClass="button" title="#{msgs.cdfm_button_bar_approve}" action="#{ForumTool.processDfMsgApprove}" 
 							rendered="#{ForumTool.allowedToApproveMsg}">
 						<h:graphicImage value="/../../library/image/silk/tick.png" alt="#{msgs.cdfm_button_bar_approve}" />
 						<h:outputText value=" #{msgs.cdfm_button_bar_approve}" />
 					</h:commandLink>
-				</h:panelGroup>	
+				</h:panelGroup>
 			</h:panelGrid>
 			
 
-			<f:verbatim><div id="permalinkHolder"><a class="closeMe" href="#" style=""><span class="icon-sakai--delete"></span></a></f:verbatim>
+			<h:panelGroup layout="block" id="permalinkHolder">
+				<h:outputLink styleClass="closeMe" value="#"><h:panelGroup styleClass="icon-sakai--delete"></h:panelGroup></h:outputLink>
 				<h:outputText value="#{msgs.cdfm_button_bar_permalink_message}" style="display:block" styleClass="textPanelFooter"/>
 				<h:inputTextarea value="" />
-			<f:verbatim></div></f:verbatim>
+			</h:panelGroup>
 
 			<%--navigation cell --%>
-			<div class="row view-message-nav">
-				<div class="col-md-offset-6 col-md-6">
+			<h:panelGroup layout="block" styleClass="row view-message-nav">
+				<h:panelGroup layout="block" styleClass="col-md-offset-6 col-md-6">
 					<h:commandLink styleClass="button"
 						action="#{ForumTool.processDisplayPreviousMsg}"
 						rendered="#{ForumTool.selectedMessage != null && ForumTool.selectedMessage.hasPre}"
@@ -234,10 +236,9 @@
 						rendered="#{!ForumTool.selectedMessage.hasNext}">
 						<h:outputText value="#{msgs.cdfm_next_msg}" />
 					</h:panelGroup>
-				</div>
-			</div>
-			<f:verbatim><div class="singleMessage">
-			</f:verbatim>
+				</h:panelGroup>
+			</h:panelGroup>
+			<h:panelGroup layout="block" styleClass="singleMessage">
 				<%--title, metadata and navigation --%>
 				<h:panelGrid columns="1"  style="width: 100%;" border="0">
 					<h:outputText rendered="#{ForumTool.selectedMessage.message.deleted && !ForumTool.needToPostFirst}"  value="#{msgs.cdfm_msg_deleted_label}" styleClass="instruction"/>
@@ -264,27 +265,26 @@
 							<f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{ForumTool.userTimeZone}" locale="#{ForumTool.userLocale}"/>  
 						</h:outputText>
 						<h:outputText value=" #{msgs.cdfm_closeb}"  styleClass="textPanelFooter" />
-					</h:panelGroup>                                                                                            
+					</h:panelGroup>
 
 				</h:panelGrid>
 
 				<%-- Rank --%>
 				<h:panelGroup rendered="#{ForumTool.selectedMessage.authorRank != null}">
-				<f:verbatim><div class="forumsRank"></f:verbatim>
+				<h:panelGroup layout="block" styleClass="forumsRank">
 					<h:outputText escape="false" rendered="#{not empty ForumTool.selectedMessage.authorRank.rankImage.attachmentId}" value="<img src=\"#{ForumTool.selectedMessage.authorRank.rankImage.attachmentUrl}\" class=\"rankImage\" alt=\"Rank Image\" height=\"35\" width=\"35\" />" />
-					
-					<f:verbatim><div class="forumsRankNameContainer"></f:verbatim>
+					<h:panelGroup layout="block" styleClass="forumsRankNameContainer">
 						<h:outputText value="#{ForumTool.selectedMessage.authorRank.title}" styleClass="forumsRankName"/>
 						<h:outputText value="#{msgs.num_of_posts} #{ForumTool.selectedMessage.authorPostCount}" styleClass="forumsRankName" rendered="#{ForumTool.selectedMessage.authorRank.type == 2}"/>
-					<f:verbatim></div></f:verbatim>
-				<f:verbatim></div></f:verbatim>
+					</h:panelGroup>
+				</h:panelGroup>
 				</h:panelGroup>
 				<%-- End Rank --%>
 
-				<f:verbatim><div class="textPanel"></f:verbatim>
+				<h:panelGroup layout="block" styleClass="textPanel">
 					<h:outputText escape="false" value="#{ForumTool.selectedMessage.message.body}" id="messageBody" 
 							rendered="#{!ForumTool.selectedMessage.message.deleted}" />
-				<f:verbatim></div></f:verbatim>
+				</h:panelGroup>
 				<h:dataTable value="#{ForumTool.selectedMessage.attachList}" var="eachAttach"  cellpadding="3" cellspacing="0" columnClasses="attach,bogus" style="font-size:.9em;width:auto;margin-left:1em" border="0">
 					<h:column rendered="#{!empty ForumTool.selectedMessage.message.attachments}">
 						  <sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>
@@ -298,7 +298,7 @@
 						</h:outputLink>
 					</h:column>
 				</h:dataTable>
-			<f:verbatim></div></f:verbatim>
+			</h:panelGroup>
 		
 			<h:panelGroup rendered="#{ForumTool.deleteMsg && ForumTool.errorSynch}">
 				<h:outputText styleClass="alertMessage" 
@@ -313,9 +313,8 @@
                 <h:outputText styleClass="sak-banner-info" style="display:none" value="#{msgs.cdfm_processing_submit_message}" />
 			</p>
 	
-			<f:verbatim><br/><br/></f:verbatim>		
-			<div class="row view-message-nav">
-				<div class="col-md-offset-6 col-md-6">
+			<h:panelGroup layout="block" styleClass="row view-message-nav">
+				<h:panelGroup layout="block" styleClass="col-md-offset-6 col-md-6">
 					<h:commandLink styleClass="button" action="#{ForumTool.processDisplayPreviousMsg}" rendered="#{ForumTool.selectedMessage != null && ForumTool.selectedMessage.hasPre}" 
 							title=" #{msgs.cdfm_prev_msg}">
 						<h:outputText value="#{msgs.cdfm_prev_msg}" />
@@ -330,12 +329,11 @@
 					<h:panelGroup rendered="#{!ForumTool.selectedMessage.hasNext}"  styleClass="button formButtonDisabled">
 						<h:outputText value="#{msgs.cdfm_next_msg}" />
 					</h:panelGroup>
-				</div>
-			</div>
-
-			<f:verbatim><br/><br/></f:verbatim>
-			<div class="row view-message-nav">
-				<div class="col-md-offset-6 col-md-6">
+				</h:panelGroup>
+			</h:panelGroup>
+			<h:panelGroup><br /></h:panelGroup>
+			<h:panelGroup layout="block" styleClass="row view-message-nav">
+				<h:panelGroup layout="block" styleClass="col-md-offset-6 col-md-6">
 					<h:panelGroup rendered="#{!ForumTool.selectedThreadHead.hasPreThread}" >
 						<h:outputText value="#{msgs.cdfm_previous_thread}"  styleClass="button formButtonDisabled" />
 					</h:panelGroup>
@@ -346,14 +344,14 @@
 					</h:commandLink>
 					<h:panelGroup rendered="#{!ForumTool.selectedThreadHead.hasNextThread}" styleClass="button formButtonDisabled" >
 						<h:outputText   value="#{msgs.cdfm_next_thread}"  />
-					</h:panelGroup>				
+					</h:panelGroup>
 					<h:commandLink styleClass="button" action="#{ForumTool.processActionDisplayThread}" value="#{msgs.cdfm_next_thread}" rendered="#{ForumTool.selectedThreadHead.hasNextThread}">
 						<f:param value="#{ForumTool.selectedThreadHead.nextThreadId}" name="messageId"/>
 						<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 						<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 					</h:commandLink>
-				</div>
-			 </div>
+				</h:panelGroup>
+			 </h:panelGroup>
 		</h:form>
 	</sakai:view>
 </f:view>
