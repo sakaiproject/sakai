@@ -51,6 +51,8 @@ import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
+import com.opencsv.exceptions.CsvException;
+
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -12913,6 +12915,10 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
             }
         } catch (IOException e) {
+            // uploaded file is not a valid archive
+            addAlert(state, rb.getString("uploadall.alert.zipFile"));
+            log.warn(this + ":uploadAll_parseZipFile " + e.getMessage());
+        } catch (CsvException e) {
             // uploaded file is not a valid archive
             addAlert(state, rb.getString("uploadall.alert.zipFile"));
             log.warn(this + ":uploadAll_parseZipFile " + e.getMessage());
