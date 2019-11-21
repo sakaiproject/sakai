@@ -45,15 +45,14 @@ import javax.faces.context.FacesContext;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
-import com.opencsv.CSVWriter;
-import com.opencsv.CSVWriterBuilder;
-
-import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Workbook;
-
 import org.sakaiproject.signup.tool.jsf.SignupMeetingWrapper;
 import org.sakaiproject.signup.tool.jsf.SignupMeetingsBean;
 import org.sakaiproject.signup.tool.util.Utilities;
+
+import com.opencsv.CSVWriter;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
