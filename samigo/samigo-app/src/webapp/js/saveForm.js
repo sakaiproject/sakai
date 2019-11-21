@@ -26,7 +26,6 @@ var disabledLinks = [];
 function GetFormContent(formId, buttonName) {
 
     try {
-        toggleSubmissionControls(false);
         //If the autosave submits any fill in numeric question, validate it before submitting. Wipe the value if it's incorrect and notify the user.
         $('.fillInNumericInput').each( function() {
           validateFinInput(this);

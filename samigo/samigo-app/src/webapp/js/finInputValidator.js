@@ -41,12 +41,13 @@ var validateFinInput = function(input) {
   return true;
 }
 
-//Toggle all the assessment controls
-function toggleSubmissionControls(disable) {
-  var formPrefix = '#takeAssessmentForm\\:';
-  var controlButtons = ['submitForm3', 'previous', 'next1', 'next', 'submitNoCheck',
-                       'submitForGrade', 'submitForm1', 'saveAndExit2', 'quit', 'save', 'saveAndExit', 'submitForm'];
-  for (i = 0 ; i < controlButtons.length; i++) {
-    $(formPrefix+controlButtons[i]).prop("disabled",disable);
-  }
+function throttle(f, delay) {
+  var timer = null;
+  return function() {
+   var context = this, args = arguments;
+   clearTimeout(timer);
+   timer = window.setTimeout(function() {
+     f.apply(context, args);
+   }, delay || 200);
+  };
 }
