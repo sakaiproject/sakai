@@ -163,7 +163,7 @@ public class TimeUtil
 		  // 2015-02-19T02:25:00 = 19 characters
 		  final String localDateString = StringUtils.left(dateString, 19);
 		  LocalDateTime ldt = LocalDateTime.parse(localDateString);
-		  log.info("UnZoned date: {}", ldt.toString());
+		  log.debug("parseISO8601String: string={}, localdate={}", dateString, ldt.toString());
 
 		  if (ldt != null && m_client_timezone != null && m_server_timezone != null && !m_client_timezone.hasSameRules(m_server_timezone)) {
 			  ZonedDateTime zdt = ldt.atZone(m_client_timezone.toZoneId());
