@@ -874,4 +874,17 @@ $(function() {
 			}
 		}
 	-->
+
+	#if ($timeFormat.contains("H"))	
+		jQuery(document).ready(function(){
+			hour24Change('startHour24', 'startHour', 'startAmpm');
+			hourChange('startHour');
+			reflectHourToHour24('endHour24', 'endHour', 'endAmpm');
+		});
+	#else
+		jQuery(document).ready(function(){
+			minuteChange('duMinute');
+			minuteChange('duHour');
+		});
+	#end
 </script>
