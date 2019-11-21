@@ -297,8 +297,15 @@ GbGradeTable.replaceContents = function (elt, newContents) {
   return elt;
 };
 
+GbGradeTable.isColumnRendered = function(instance, col) {
+  return (instance.view.settings.columns[col] !== undefined);
+};
+
 // This function is called a *lot*, so avoid doing anything too expensive here.
 GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellProperties) {
+  //If col is not rendered, skip cell renderer
+  if (!GbGradeTable.isColumnRendered(instance, col)) return false;
+
   var $td = $(td);
   var index = col - GbGradeTable.FIXED_COLUMN_OFFSET;
   var student = instance.getDataAtCell(row, GbGradeTable.STUDENT_COLUMN_INDEX);
@@ -701,6 +708,8 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     if (GbGradeTable.settings.isPercentageGradeEntry) {
       outOf.innerHTML = "100%";
     } else if (GbGradeTable.settings.isPointsGradeEntry) {
+      //If col is not rendered, skip begin editing cell
+      if (!GbGradeTable.isColumnRendered(GbGradeTable.instance, col)) return false;
       var assignment = GbGradeTable.instance.view.settings.columns[col]._data_;
       var points = assignment.points;
       outOf.innerHTML = "/" + points;
@@ -759,6 +768,8 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       if (col < GbGradeTable.FIXED_COLUMN_OFFSET) {
         html = GbGradeTable.headerRenderer(col, $th);
       } else {
+        //If col is not rendered, skip header renderer
+        if (!GbGradeTable.isColumnRendered(this, col)) return false;
         html = GbGradeTable.headerRenderer(col, this.view.settings.columns[col]._data_, $th);
       }
 
@@ -795,6 +806,8 @@ GbGradeTable.renderTable = function (elementId, tableData) {
         handle.classList.add("gb-sorted-"+GbGradeTable.currentSortDirection);
       }
 
+      //If col is not rendered, skip afterGetColHeader
+      if (!GbGradeTable.isColumnRendered(this, col)) return false;
       var columnModel = this.view.settings.columns[col]._data_;
 
       // assignment column
@@ -924,6 +937,9 @@ GbGradeTable.renderTable = function (elementId, tableData) {
 
   GbGradeTable.instance.updateSettings({
     cells: function (row, col, prop) {
+      //If col is not rendered, skip cell updatesettings
+      if (!GbGradeTable.isColumnRendered(GbGradeTable.instance, col)) return false;
+
       var cellProperties = {};
 
       var column = GbGradeTable.instance.view.settings.columns[col]._data_;
@@ -1212,6 +1228,8 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       if ($(this).data('assignmentid')) {
         $togglePanel.find('.gb-item-filter :checkbox[value='+$(this).data('assignmentid')+']').trigger('click');
       } else if ($(this).data('categoryid')) {
+        // Skip if column is already not rendered
+        if (!GbGradeTable.isColumnRendered(GbGradeTable.instance, col)) return false;
         var colIndex = GbGradeTable.colForCategoryScore($(this).data('categoryid'));
         var col = GbGradeTable.instance.view.settings.columns[colIndex]._data_;
         $togglePanel.find('.gb-item-category-score-filter :checkbox[value="'+col.categoryName+'"]').trigger('click');
