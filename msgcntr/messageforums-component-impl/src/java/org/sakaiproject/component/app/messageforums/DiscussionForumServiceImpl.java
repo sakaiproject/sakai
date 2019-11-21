@@ -681,7 +681,9 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 				final List<Element> elements = getChildElementList(root);
 				final List<Element> messageForumElementList = elements.stream()
 						.filter(element -> MESSAGEFORUM.equals(element.getTagName())).collect(Collectors.toList());
-				mergeMessageForumElements(siteId, fromSiteId, attachmentNames, messageForumElementList.get(0));
+				if (!messageForumElementList.isEmpty()) {
+					mergeMessageForumElements(siteId, fromSiteId, attachmentNames, messageForumElementList.get(0));
+				}
 			} catch (Exception e) {
 				results.append("merging ").append(getLabel()).append(" failed.\n");
 				log.error(e.getMessage(), e);
