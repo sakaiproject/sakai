@@ -116,7 +116,7 @@
               useTime: 1,
               parseFormat: 'YYYY-MM-DD HH:mm:ss',
               allowEmptyDate: true,
-              val: '<h:outputText value="#{publishedSettings.startDate}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
+              val: '<h:outputText value="#{publishedSettings.startDate}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" timeZone="#{author.userTimeZone}"/></h:outputText>',
               ashidden: { iso8601: 'startDateISO8601' }
           });
           localDatePicker({
@@ -124,7 +124,7 @@
               useTime: 1,
               parseFormat: 'YYYY-MM-DD HH:mm:ss',
               allowEmptyDate: true,
-              val: '<h:outputText value="#{publishedSettings.dueDate}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
+              val: '<h:outputText value="#{publishedSettings.dueDate}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" timeZone="#{author.userTimeZone}"/></h:outputText>',
               ashidden: { iso8601: 'endDateISO8601' }
           });
           localDatePicker({
@@ -132,7 +132,7 @@
               useTime: 1,
               parseFormat: 'YYYY-MM-DD HH:mm:ss',
               allowEmptyDate: true,
-              val: '<h:outputText value="#{publishedSettings.retractDate}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
+              val: '<h:outputText value="#{publishedSettings.retractDate}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" timeZone="#{author.userTimeZone}"/></h:outputText>',
               ashidden: { iso8601: 'retractDateISO8601' }
           });
           localDatePicker({
@@ -140,7 +140,7 @@
               useTime: 1,
               parseFormat: 'YYYY-MM-DD HH:mm:ss',
               allowEmptyDate: true,
-              val: '<h:outputText value="#{publishedSettings.feedbackDate}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
+              val: '<h:outputText value="#{publishedSettings.feedbackDate}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" timeZone="#{author.userTimeZone}"/></h:outputText>',
               ashidden: { iso8601: 'feedbackDateISO8601' }
           });
           localDatePicker({
@@ -148,7 +148,7 @@
               useTime: 1,
               parseFormat: 'YYYY-MM-DD HH:mm:ss',
               allowEmptyDate: true,
-              val: '<h:outputText value="#{publishedSettings.feedbackEndDate}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
+              val: '<h:outputText value="#{publishedSettings.feedbackEndDate}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" timeZone="#{author.userTimeZone}"/></h:outputText>',
               ashidden: { iso8601: 'feedbackEndDateISO8601' }
           });
           localDatePicker({
