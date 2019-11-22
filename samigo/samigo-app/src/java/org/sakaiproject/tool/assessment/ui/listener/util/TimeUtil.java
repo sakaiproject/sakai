@@ -23,6 +23,9 @@ package org.sakaiproject.tool.assessment.ui.listener.util;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -143,26 +146,42 @@ public class TimeUtil
       }
       return dt.toString(fmt) + " " + dt.toString(fmtTime);
   }
-  
+
   /*
-   * SAM-2323: the jquery-ui datepicker provides a hidden field with ISO-8601 date/time
-   * This method will convert that date string into a Java Date
+   * User could be in a different timezone and modifying dates in the date picker.
+   * We need to take the user date and convert back to server time zone for storage in database.
    */
-  public Date parseISO8601String(String dateString) {
-    if (StringUtils.isBlank(dateString)) {
-      return null;
-    }
+  public Date parseISO8601String(final String dateString) {
+	  if (StringUtils.isBlank(dateString)) {
+		  return null;
+	  }
 
-    try {
-      // Hidden field from the datepicker will look like: 2015-02-19T02:25:00-06:00
-      DateTime dt = dtf.parseDateTime(dateString);
-      return dt.toDate();
-    } catch (Exception e) {
-      log.error("parseISO8601String could not parse: " + dateString);
-    }
+	  try {
+		  // Hidden field from the datepicker will look like: 2015-02-19T02:25:00-06:00
+		  // But that timezone offset is the client browser time zone offset (not necessarily their preferred time zone).
+		  // So bring in the time as LocalDateTime and then do the zone manipulation later.
+		  // 2015-02-19T02:25:00 = 19 characters
+		  final String localDateString = StringUtils.left(dateString, 19);
+		  LocalDateTime ldt = LocalDateTime.parse(localDateString);
+		  log.debug("parseISO8601String: string={}, localdate={}", dateString, ldt.toString());
 
-    return null;
+		  if (ldt != null && m_client_timezone != null && m_server_timezone != null && !m_client_timezone.hasSameRules(m_server_timezone)) {
+			  ZonedDateTime zdt = ldt.atZone(m_client_timezone.toZoneId());
+			  log.debug("parseISO8601String: original={}, zoned={}", dateString, zdt.toString());
+			  return Date.from(zdt.toInstant());
+		  }
+		  else if (ldt != null && m_server_timezone != null) {
+			  ZonedDateTime zdt = ldt.atZone(m_server_timezone.toZoneId());
+			  return Date.from(zdt.toInstant());
+		  }
+		  else if (ldt != null) {
+			  return Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
+		  }
+	  } catch (Exception e) {
+		  log.error("parseISO8601String could not parse: {}", dateString);
+	  }
+
+	  return null;
   }
-
-
+ 
 }
