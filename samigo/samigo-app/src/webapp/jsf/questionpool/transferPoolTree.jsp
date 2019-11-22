@@ -53,7 +53,7 @@
         </f:facet>
         <h:panelGroup id="thirdcolumn">
             <h:outputText value="#{pool.lastModified}">
-                <f:convertDateTime pattern="#{generalMessages.output_date_picker}" />
+                <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
             </h:outputText>
         </h:panelGroup>
     </h:column>

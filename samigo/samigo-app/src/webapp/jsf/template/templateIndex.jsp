@@ -167,7 +167,7 @@
          </h:panelGroup>
       </f:facet>
       <h:outputText value="#{templateListItem.modifiedDate}" rendered="#{person.isAdmin or (templateListItem.idString ne '1')}">
-         <f:convertDateTime pattern="#{generalMessages.output_date_picker}"/>
+         <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
       </h:outputText>
     </h:column>
 

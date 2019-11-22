@@ -48,6 +48,16 @@
                 },
                 "span-desc": function (a, b) {
                     return naturalSort($(a).find(".spanValue").text().toLowerCase(), $(b).find(".spanValue").text().toLowerCase(), false) * -1;
+                },
+                "numeric-asc": function (a, b) {
+                    var numA = parseInt($(a).text()) || 0;
+                    var numB = parseInt($(b).text()) || 0;
+                    return ((numB < numA) ? 1 : ((numB > numA) ? -1 : 0));
+                },
+                "numeric-desc": function (a, b) {
+                    var numA = parseInt($(a).text()) || 0;
+                    var numB = parseInt($(b).text()) || 0;
+                    return ((numA < numB) ? 1 : ((numA > numB) ? -1 : 0));
                 }
             });
 
@@ -66,10 +76,10 @@
                         {"bSortable": true, "bSearchable": false},
                         {"bSortable": true, "bSearchable": false},
                         {"bSortable": true, "bSearchable": false},
-                        {"bSortable": true, "bSearchable": true},
-                        {"bSortable": true, "bSearchable": true},
+                        {"bSortable": true, "bSearchable": true, "type": "numeric"},
+                        {"bSortable": true, "bSearchable": true, "type": "numeric"},
                         {"bSortable": true, "bSearchable": false},
-                        {"bSortable": true, "bSearchable": true},
+                        {"bSortable": true, "bSearchable": true, "type": "numeric"},
                         {"bSortable": false, "bSearchable": false},
                     ],
                     "language": {
@@ -192,6 +202,17 @@
 
             $("#authorIndexForm\\:coreAssessments").on("change", ".select-checkbox", function() {
                 updateRemoveButton();
+            });
+
+            // Highlight the due date if it is coming up soon
+            $("#authorIndexForm\\:coreAssessments .dueDate").each( function( index, element ) {
+                var dateNow = parseInt (moment(new Date()).format('YYYYMMDDHHmmss') ) || 0;
+                var dueDate = parseInt( $( this ).find(".hidden").text()  ) || 0;
+                var dateDiff = (dueDate - dateNow)/1000000;
+
+                if (dateDiff > 0 && dateDiff < 14) {
+                  $( this ).addClass("highlight");
+                }
             });
 
             function updateRemoveButton() {
@@ -539,7 +560,11 @@
                     </f:facet>
 
                     <h:outputText value="#{assessment.startDate}" >
-                        <f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/>
+                        <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
+                    </h:outputText>
+
+                    <h:outputText value="#{assessment.startDate}" styleClass="hidden spanValue">
+                        <f:convertDateTime pattern="yyyyMMddHHmmss" />
                     </h:outputText>
                 </t:column>
 
@@ -553,8 +578,12 @@
                         </h:panelGroup>
                     </f:facet>
 
-                    <h:outputText value="#{assessment.dueDate}" styleClass="highlight">
-                        <f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" />
+                    <h:outputText value="#{assessment.dueDate}">
+                        <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
+                    </h:outputText>
+
+                    <h:outputText value="#{assessment.dueDate}" styleClass="hidden spanValue">
+                        <f:convertDateTime pattern="yyyyMMddHHmmss" />
                     </h:outputText>
                 </t:column>
 
@@ -582,7 +611,11 @@
                     </f:facet>
 
                     <h:outputText value="#{assessment.lastModifiedDate}">
-                        <f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" />
+                        <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
+                    </h:outputText>
+
+                    <h:outputText value="#{assessment.lastModifiedDate}" styleClass="hidden spanValue">
+                        <f:convertDateTime pattern="yyyyMMddHHmmss" />
                     </h:outputText>
                 </t:column>
 

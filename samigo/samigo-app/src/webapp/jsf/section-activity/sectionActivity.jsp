@@ -199,7 +199,7 @@
      </f:facet>
 	 <h:panelGroup>
 	  <h:outputText value="#{pageData.submitDate}">
-	  <f:convertDateTime pattern="#{generalMessages.output_data_picker_w_sec}"/>
+	    <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
 	  </h:outputText>	
      </h:panelGroup>
 	</h:column>
@@ -216,7 +216,7 @@
       </f:facet>
      <h:panelGroup>
 	  <h:outputText value="#{pageData.submitDate}">
-	  <f:convertDateTime pattern="#{generalMessages.output_data_picker_w_sec}"/>
+	    <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
 	  </h:outputText>	
      </h:panelGroup>
 	</h:column>
@@ -233,7 +233,7 @@
       </f:facet>
        <h:panelGroup>
 	  <h:outputText value="#{pageData.submitDate}">
-	  <f:convertDateTime pattern="#{generalMessages.output_data_picker_w_sec}"/>
+	    <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
 	  </h:outputText>	
      </h:panelGroup>
 	</h:column>
