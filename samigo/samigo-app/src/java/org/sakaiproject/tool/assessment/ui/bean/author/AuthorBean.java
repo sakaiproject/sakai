@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 import javax.faces.bean.ManagedBean;
@@ -44,6 +45,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -132,6 +134,8 @@ public class AuthorBean implements Serializable {
   private AssessmentService assessmentService = new AssessmentService();
   private PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
   private RubricsService rubricsService = ComponentManager.get(RubricsService.class);
+  private UserTimeService userTimeService = ComponentManager.get(UserTimeService.class);
+
   /* ------------------------------------ /*
   
   /**
@@ -944,6 +948,10 @@ public class AuthorBean implements Serializable {
 			  context.redirect("discrepancyInData");
 		  } catch (Exception e) {};
 	  }
+  }
+
+  public TimeZone getUserTimeZone() {
+    return userTimeService.getLocalTimeZone();
   }
 
   public boolean isGroupFilterEnabled() {

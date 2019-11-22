@@ -819,7 +819,7 @@ $Id$
         </h:commandLink>
      </f:facet>
         <h:outputText value="#{description.submittedDate}">
-         <f:convertDateTime pattern="#{generalMessages.output_date_picker}"/>
+          <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
         </h:outputText>
     </h:column>
 
@@ -836,7 +836,7 @@ $Id$
           </h:commandLink>    
       </f:facet>
         <h:outputText value="#{description.submittedDate}">
-         <f:convertDateTime pattern="#{generalMessages.output_date_picker}"/>
+          <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
         </h:outputText>
     </h:column>    
     
@@ -853,7 +853,7 @@ $Id$
           </h:commandLink>    
       </f:facet>
         <h:outputText value="#{description.submittedDate}">
-         <f:convertDateTime pattern="#{generalMessages.output_date_picker}"/>
+          <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
         </h:outputText>
     </h:column>    
 

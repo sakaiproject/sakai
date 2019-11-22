@@ -138,7 +138,7 @@ function textCounter(field, maxlimit) {
 </h:panelGroup>
 
   <h:inputHidden id="createdDate" value="#{questionpool.currentPool.dateCreated}">
-  <f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/>
+    <f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/>
   </h:inputHidden>
 <div>
   <h:commandButton id="Update" rendered="#{questionpool.importToAuthoring == 'false'}" action="#{questionpool.getOutcomeEdit}" value="#{questionPoolMessages.update}">

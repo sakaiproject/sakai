@@ -398,7 +398,7 @@ $Id$
         </h:commandLink>
      </f:facet>
         <h:outputText rendered="#{description.submittedDate !=null && description.submittedDate ne ''}" value="#{description.submittedDate}">
-          <f:convertDateTime pattern="#{generalMessages.output_date_picker}"/>
+          <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
         </h:outputText>
 		<h:outputText rendered="#{description.submittedDate == null || description.submittedDate eq ''}" value="#{evaluationMessages.no_submission}"/>
     </h:column>
@@ -414,7 +414,7 @@ $Id$
           </h:commandLink>    
       </f:facet>
         <h:outputText rendered="#{description.submittedDate !=null && description.submittedDate ne ''}" value="#{description.submittedDate}">
-           <f:convertDateTime pattern="#{generalMessages.output_date_picker}"/>
+           <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
         </h:outputText>
 		<h:outputText rendered="#{description.submittedDate == null || description.submittedDate eq ''}" value="#{evaluationMessages.no_submission}"/>
     </h:column>
@@ -430,7 +430,7 @@ $Id$
           </h:commandLink>    
       </f:facet>
         <h:outputText rendered="#{description.submittedDate !=null && description.submittedDate ne ''}" value="#{description.submittedDate}">
-           <f:convertDateTime pattern="#{generalMessages.output_date_picker}"/>
+           <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
         </h:outputText>
 		<h:outputText rendered="#{description.submittedDate == null || description.submittedDate eq ''}" value="#{evaluationMessages.no_submission}"/>
     </h:column>

@@ -174,8 +174,8 @@ lydial: in 2.2, use Display Name instead of ownerId, since ownerId now returns t
      </f:facet>
      <h:panelGroup id="thirdcolumn">
         <h:outputText value="#{pool.lastModified}">
-          <f:convertDateTime pattern="#{generalMessages.output_date_picker}"/>
-	</h:outputText>
+          <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
+        </h:outputText>
      </h:panelGroup>
     </h:column>
 
