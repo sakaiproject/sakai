@@ -448,6 +448,13 @@ document.links[newindex].onclick();
 
   <f:verbatim><br/></f:verbatim>
 
+  <div id="autosave-conn-error" class="sak-banner-error tier1" style="display: none" role="alert">
+    <h:outputText value="#{deliveryMessages.autosaveConnError}" escape="false" />
+  </div>
+  <div id="autosave-submit-error" class="sak-banner-error tier1" style="display: none" role="alert">
+    <h:outputText value="#{deliveryMessages.autosaveSubmitError}" escape="false" />
+  </div>
+
 <!-- 1. special case: linear + no question to answer -->
 <h:panelGrid columns="2" border="0" rendered="#{delivery.pageContents.isNoParts && delivery.navigation eq '1'}">
   <h:panelGrid columns="1" width="100%" border="0" columnClasses="act">
