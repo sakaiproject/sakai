@@ -83,7 +83,7 @@ should be included in file importing DeliveryMessages
 		<h:outputText styleClass="recordedOn#{question.itemData.itemId}" value="#{question.mediaArray[0].duration} #{deliveryMessages.secs}, #{deliveryMessages.recorded_on} " rendered="#{!question.mediaArray[0].durationIsOver}" />
 		<h:outputText value="#{question.mediaArray[0].duration} #{deliveryMessages.secs}, #{deliveryMessages.recorded_on} " rendered="#{question.mediaArray[0].durationIsOver}" />
       <h:outputText value="#{question.mediaArray[0].createdDate}">
-        <f:convertDateTime pattern="#{deliveryMessages.delivery_date_format}" />
+        <f:convertDateTime pattern="#{deliveryMessages.delivery_date_format}" timeZone="#{author.userTimeZone}" />
       </h:outputText>
       <f:verbatim></span></f:verbatim>
       <h:outputText value="#{deliveryMessages.close_bracket}"/>

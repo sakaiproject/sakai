@@ -93,7 +93,7 @@
                                 <h:outputText value="#{authorMessages.restore_assessments_deleted_on}" />
                             </f:facet>
                             <h:outputText value="#{deletedAssessment.lastModifiedDate}">
-                                <f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" />
+                                <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
                             </h:outputText>
                         </h:column>
 

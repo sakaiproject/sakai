@@ -129,7 +129,7 @@
         </h:panelGroup>
       </f:facet>
        <h:outputText value="#{question.lastModifiedDate}">
-           <f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/>
+           <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
        </h:outputText>
     </h:column>    
 
