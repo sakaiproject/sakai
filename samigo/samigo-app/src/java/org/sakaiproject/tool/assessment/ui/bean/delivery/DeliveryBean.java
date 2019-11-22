@@ -4238,6 +4238,10 @@ public class DeliveryBean implements Serializable {
       return ServerConfigurationService.getString("samigo.ajaxTimerMinReqScale","5000");
     }
 
+    public int getAutoSaveRepeatMilliseconds() {
+        return ServerConfigurationService.getInt("samigo.autoSave.repeat.milliseconds", 300000);
+    }
+
     public void calculateMinutesAndSecondsLeft() {
         int milliseconds = ServerConfigurationService.getInt("samigo.autoSave.repeat.milliseconds", 300000);
         if (milliseconds > 0) {
