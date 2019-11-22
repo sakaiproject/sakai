@@ -2333,7 +2333,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                         }
 
                         //Survey - Matrix of Choices - Add Comment Field
-                        if (typeId.equals(TypeIfc.MATRIX_CHOICES_SURVEY)) {
+                        if (matrixChoices) {
                             PublishedItemData pid = (PublishedItemData) publishedItemData;
                             if (pid.getAddCommentFlag()) {
                                 addResponseComment = true;
@@ -2374,14 +2374,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                     } else if ("".equals(maintext)) {
                         maintext = "No Answer";
                     }
-                    String itemGradingComments = "";
                     // if question type is not matrix choices apply the original code
                     if (!matrixChoices) {
                         responseList.add(maintext);
-                        if (grade.getComments() != null) {
-                            itemGradingComments = grade.getComments().replaceAll("<br\\s*/>", "");
-                        }
-                        responseList.add(itemGradingComments);
                     } else {
                         // if there are questions not answered, a no answer response is added to the map
                         ItemDataIfc correspondingPublishedItemData = (ItemDataIfc) publishedItemHash.get(grade.getPublishedItemId());
@@ -2403,20 +2398,21 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                             Map.Entry e = (Map.Entry) it.next();
                             log.debug("Adding to response list " + e.getKey() + " and " + e.getValue());
                             responseList.add(e.getValue());
-                            if (grade.getComments() != null) {
-                                itemGradingComments = grade.getComments().replaceAll("<br\\s*/>", "");
-                            }
-                            responseList.add(itemGradingComments);
-                            itemGradingComments = "";
                         }
-                    }
-
-                    if (addRationale) {
-                        responseList.add(rationale);
                     }
 
                     if (addResponseComment) {
                         responseList.add(responseComment);
+                    }
+
+                    String itemGradingComments = "";
+                    if (grade.getComments() != null) {
+                        itemGradingComments = grade.getComments().replaceAll("<br\\s*/>", "");
+                    }
+                    responseList.add(itemGradingComments);
+
+                    if (addRationale) {
+                        responseList.add(rationale);
                     }
 
                     // Only set header based on the first item grading data
@@ -2437,15 +2433,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                                     questionNumber,
                                     poolString,
                                     poolName));
-                            if (addResponseComment) {
-                                headerList.add(makeHeader(partString,
-                                        sectionSequenceNumber,
-                                        questionString,
-                                        responseCommentString,
-                                        questionNumber,
-                                        poolString,
-                                        poolName));
-                            }
                             headerList.add(makeHeader(partString,
                                     sectionSequenceNumber,
                                     questionString,
@@ -2473,35 +2460,23 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                                         i + 1,
                                         poolString,
                                         poolName));
-                                if (addRationale) {
-                                    headerList.add(makeHeaderMatrix(partString,
-                                            sectionSequenceNumber,
-                                            questionString,
-                                            rationaleString,
-                                            questionNumber,
-                                            i + 1,
-                                            poolString,
-                                            poolName));
-                                }
-                                if (addResponseComment) {
-                                    headerList.add(makeHeaderMatrix(partString,
-                                            sectionSequenceNumber,
-                                            questionString,
-                                            responseCommentString,
-                                            questionNumber,
-                                            i + 1,
-                                            poolString,
-                                            poolName));
-                                }
-                                headerList.add(makeHeaderMatrix(partString,
+                            }
+                            if (addResponseComment) {
+                                headerList.add(makeHeader(partString,
                                         sectionSequenceNumber,
                                         questionString,
-                                        itemGradingCommentsString,
+                                        responseCommentString,
                                         questionNumber,
-                                        i + 1,
                                         poolString,
                                         poolName));
                             }
+                            headerList.add(makeHeader(partString,
+                                    sectionSequenceNumber,
+                                    questionString,
+                                    itemGradingCommentsString,
+                                    questionNumber,
+                                    poolString,
+                                    poolName));
                         }
                     }
                 } // outer for - questions
