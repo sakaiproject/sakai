@@ -5028,7 +5028,7 @@ public class AssignmentAction extends PagedResourceActionII {
                                     }
                                 } else if (isExternalAssignmentDefined) {
                                     gradebookExternalAssessmentService.updateExternalAssessmentScoresString(gradebookUid, assignmentRef, sm);
-                                    gradebookExternalAssessmentService.updateExternalAssessmentComments(gradebookUid, associateGradebookAssignment, cm);
+                                    gradebookExternalAssessmentService.updateExternalAssessmentComments(gradebookUid, assignmentRef, cm);
                                 }
                             }
                         } else {
