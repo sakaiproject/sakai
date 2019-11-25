@@ -60,6 +60,8 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.DateFormatterUtil;
 
 import lombok.extern.slf4j.Slf4j;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * <p>
@@ -97,6 +99,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	private String signupBeginsType;
 	
 	//Meeting title attribute
+	@Getter @Setter
 	private String title;
 	
 	//Location selected from the dropdown
@@ -265,14 +268,6 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		return sakaiFacade.getUserDisplayName(sakaiFacade.getCurrentUserId());
 	}
 	
-	public String getTitle() {
-		return title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-	
 	public String getselectedLocation() {
 		return selectedLocation;
 	}
@@ -296,7 +291,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	public void setselectedCategory(String selectedCategory) {
 		this.selectedCategory = selectedCategory;
 	}
-	
+
 	public String getcustomCategory() {
 		return customCategory;
 	}
@@ -304,7 +299,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	public void setcustomCategory(String customCategory) {
 		this.customCategory = customCategory;
 	}
-	
+
 	public String getCreatorUserId() {
 		if(this.creatorUserId ==null){
 			//set current user as default meeting organizer if case people forget to select one
@@ -511,6 +506,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		this.creatorUserId=null;
 		this.locations=null;
 		this.categories=null;
+		this.title = "";
 		/*clean up everything in getUserDefineTimeslotBean*/
 		getUserDefineTimeslotBean().reset(UserDefineTimeslotBean.NEW_MEETING);
 	}
