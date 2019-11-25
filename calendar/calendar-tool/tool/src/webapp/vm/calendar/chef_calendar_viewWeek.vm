@@ -355,7 +355,6 @@
     #if ($oneMore > 0)
     	#set ($rowspan = $rowspan + 1)
     #end
-
     
 #end    ## endof macro-rowspan
 
