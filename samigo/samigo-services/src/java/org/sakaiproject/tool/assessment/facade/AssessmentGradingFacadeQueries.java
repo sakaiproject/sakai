@@ -2437,15 +2437,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                                     questionNumber,
                                     poolString,
                                     poolName));
-                            if (addRationale) {
-                                headerList.add(makeHeader(partString,
-                                        sectionSequenceNumber,
-                                        questionString,
-                                        rationaleString,
-                                        questionNumber,
-                                        poolString,
-                                        poolName));
-                            }
                             if (addResponseComment) {
                                 headerList.add(makeHeader(partString,
                                         sectionSequenceNumber,
@@ -2462,6 +2453,15 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                                     questionNumber,
                                     poolString,
                                     poolName));
+                            if (addRationale) {
+                                headerList.add(makeHeader(partString,
+                                        sectionSequenceNumber,
+                                        questionString,
+                                        rationaleString,
+                                        questionNumber,
+                                        poolString,
+                                        poolName));
+                            }
                         } else {
                             int numberRows = responsesMap.size();
                             for (int i = 0; i < numberRows; i = i + 1) {
