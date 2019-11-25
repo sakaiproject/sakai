@@ -41,6 +41,7 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceH
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener;
+import org.sakaiproject.util.FormattedText;
 
 @ManagedBean(name = "restoreAssessmentsBean", eager = true)
 @SessionScoped
@@ -63,7 +64,7 @@ public class RestoreAssessmentsBean implements Serializable {
             log.debug("Adding deleted assessment to the list {} - {}.", assessment.getAssessmentId(), assessment.getTitle());
             DataAssessment dataAssessment = new DataAssessment();
             dataAssessment.setId(assessment.getAssessmentId());
-            dataAssessment.setTitle(assessment.getTitle());
+            dataAssessment.setTitle(FormattedText.convertFormattedTextToPlaintext(assessment.getTitle()));
             dataAssessment.setLastModifiedDate(assessment.getLastModifiedDate());
             dataAssessment.setDraft(true);
             dataAssessment.setSelected(false);
@@ -76,7 +77,7 @@ public class RestoreAssessmentsBean implements Serializable {
             log.debug("Adding deleted published assessment to the list {} - {}.", publishedAssessment.getAssessmentId(), publishedAssessment.getTitle());
             DataAssessment dataAssessment = new DataAssessment();
             dataAssessment.setId(publishedAssessment.getPublishedAssessmentId());
-            dataAssessment.setTitle(publishedAssessment.getTitle());
+            dataAssessment.setTitle(FormattedText.convertFormattedTextToPlaintext(publishedAssessment.getTitle()));
             dataAssessment.setLastModifiedDate(publishedAssessment.getLastModifiedDate());
             dataAssessment.setDraft(false);
             dataAssessment.setSelected(false);
