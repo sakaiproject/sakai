@@ -386,9 +386,8 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		log.debug("removeAssesment: no. of pub Assessment = {}", count.size());
 		Iterator iter = count.iterator();
 		int i = ((Long) iter.next()).intValue();
+		AssessmentData assessment = (AssessmentData) getHibernateTemplate().load(AssessmentData.class, assessmentId);
 		if (i < 1) {
-			AssessmentData assessment = (AssessmentData) getHibernateTemplate().load(AssessmentData.class, assessmentId);
-
 			AssessmentService s = new AssessmentService();
 			List resourceIdList = s.getAssessmentResourceIdList(assessment);
 			if (log.isDebugEnabled()) log.debug("*** we have no. of resource in assessment=" + resourceIdList.size());
@@ -397,15 +396,21 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 
 		RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.logic.RubricsService");
 		rubricsService.deleteRubricAssociationsByItemIdPrefix(assessmentId + ".", RubricsConstants.RBCS_TOOL_SAMIGO);
-	
-		final String softDeleteQuery = "update AssessmentData set status = :status WHERE assessmentBaseId = :id";
 
-		getHibernateTemplate().execute(session -> {
-            Query q = session.createQuery(softDeleteQuery);
-            q.setInteger("status", AssessmentIfc.DEAD_STATUS);
-            q.setLong("id", assessmentId);
-            return q.executeUpdate();
-        });
+		assessment.setLastModifiedBy(AgentFacade.getAgentString());
+		assessment.setLastModifiedDate(new Date());
+		assessment.setStatus(AssessmentIfc.DEAD_STATUS);
+		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
+		while (retryCount > 0) {
+			try {
+				getHibernateTemplate().update(assessment);
+				retryCount = 0;
+			} catch (Exception e) {
+				log.warn("problem updating asssessment: " + e.getMessage());
+				retryCount = PersistenceService.getInstance().getPersistenceHelper()
+						.retryDeadlock(e, retryCount);
+			}
+		}
 	}
 
 	/* this assessment comes with a default section */
@@ -2394,13 +2399,21 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
     }
 
     public void restoreAssessment(Long assessmentId) {
-        final String recoverQuery = "update AssessmentData set status = :status WHERE assessmentBaseId = :id";
-        getHibernateTemplate().execute(session -> {
-            Query q = session.createQuery(recoverQuery);
-            q.setInteger("status", AssessmentIfc.ACTIVE_STATUS);
-            q.setLong("id", assessmentId);
-            return q.executeUpdate();
-        });
+    	AssessmentData assessment = (AssessmentData) getHibernateTemplate().load(AssessmentData.class, assessmentId);
+    	assessment.setLastModifiedBy(AgentFacade.getAgentString());
+    	assessment.setLastModifiedDate(new Date());
+    	assessment.setStatus(AssessmentIfc.ACTIVE_STATUS);
+    	int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
+    	while (retryCount > 0) {
+    		try {
+    			getHibernateTemplate().update(assessment);
+    			retryCount = 0;
+    		} catch (Exception e) {
+    			log.warn("problem updating asssessment: " + e.getMessage());
+    			retryCount = PersistenceService.getInstance().getPersistenceHelper()
+    					.retryDeadlock(e, retryCount);
+    		}
+    	}
     }
 
 }
