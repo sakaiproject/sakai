@@ -861,7 +861,8 @@ body.is-logged-out{
 				left: 0;
 				z-index: 99;
 				display: none;
-				width: 100%;
+				min-width: 100%;	// at minimum, the menu should be the width of the site title
+				width: max-content; // if the content is wider than the site title, expand to the longest tool name
 				border: $sites-nav-menu-item-border-thickness solid $sites-nav-submenu-border-color;
 				box-shadow: 0 3px 2px rgba( $text-color, 0.35);
 				background: $sites-nav-menu-item-background;
