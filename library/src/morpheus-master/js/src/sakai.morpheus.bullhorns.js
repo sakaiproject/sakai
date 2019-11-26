@@ -298,9 +298,6 @@
         auto: true // indicates that this request is not a user action
       }
     }).done(function (data) {
-
-      portal.failedBullhornCounts = 0;
-
       if (data > 0) {
         portal.setBullhornCounter(data);
       } else {
@@ -309,11 +306,7 @@
     }).fail(function (xhr, status, error) {
       if (console) console.log('Failed to get the bullhorn counts. Status: ' + status);
       if (console) console.log('FAILED ERROR: ' + error);
-      portal.failedBullhornCounts = portal.failedBullhornCounts || 0;
-      portal.failedBullhornCounts += 1;
-      if (portal.failedBullhornCounts == 3) {
-        clearInterval(portal.bullhornCountIntervalId);
-      }
+      clearInterval(portal.bullhornCountIntervalId);
     });
   };
 
