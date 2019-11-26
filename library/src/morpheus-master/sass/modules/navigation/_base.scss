@@ -174,7 +174,9 @@ body.is-logged-out{
 		}
 
 		.#{$namespace}userNav__submenuitem--displayid{
+			margin-top: $standard-space;
 			font-weight: normal;
+			line-height: 1.2;
 		}
 
 	}
