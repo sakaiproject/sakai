@@ -85,13 +85,11 @@ document.links[newindex].onclick();
   <h:form id="assessmentForm">
   
   <!-- HEADINGS (NOT PRINTED) -->
-      <p>        
-        <h:commandLink action="#{pdfAssessment.getActionString}">
+        <h:commandLink styleClass="printReturnLink" action="#{pdfAssessment.getActionString}">
           <h:outputText value="#{printMessages.back_to_assessmt}" rendered="#{pdfAssessment.actionString == 'editAssessment'}" escape="false" />
-		  <h:outputText value="#{printMessages.back_to_landingpage}" rendered="#{pdfAssessment.actionString != 'editAssessment'}" escape="false" />
+          <h:outputText value="#{printMessages.back_to_landingpage}" rendered="#{pdfAssessment.actionString != 'editAssessment'}" escape="false" />
         </h:commandLink>
-      </p>
-      
+
     <h:messages/>
     
     <div id="header">
