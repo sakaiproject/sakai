@@ -25,7 +25,7 @@
 		<tool id = "sakai.assignment" />
 		<tool id = "sakai.assignment.grades" />
 		<tool id = "sakai.samigo" />
-		<tool id = "sakai.gradebook.tool" />
+		<tool id = "sakai.gradebookng" />
 		<tool id = "sakai.dropbox" />
 		<tool id = "sakai.chat" />
 		<tool id = "sakai.rwiki" />
@@ -54,7 +54,7 @@
 		<tool id = "sakai.assignment" />
 		<tool id = "sakai.assignment.grades" />
 		<tool id = "sakai.samigo" />
-		<tool id = "sakai.gradebook.tool" />
+		<tool id = "sakai.gradebookng" />
 		<tool id = "sakai.dropbox" />
 		<tool id = "sakai.chat" />
 		<tool id = "sakai.rwiki" />

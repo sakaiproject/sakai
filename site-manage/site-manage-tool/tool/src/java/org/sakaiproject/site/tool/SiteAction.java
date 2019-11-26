@@ -2948,7 +2948,7 @@ public class SiteAction extends PagedResourceActionII {
 
 			List<String> gradebooksInTargetSite = new ArrayList<String>();
 			for (String toolId : targetSiteToolIds) {
-				if (org.apache.commons.lang3.StringUtils.equalsAny(toolId, "sakai.gradebook.tool", "sakai.gradebookng")) {
+				if (StringUtils.isNotBlank(toolId) && toolId.contains("sakai.gradebook")) {
 					gradebooksInTargetSite.add(toolId);
 				}
 			}
@@ -15667,14 +15667,13 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			
 			for(String toolId: toolIds) {
 				if(site.getToolForCommonId(toolId) != null ||
-						(org.apache.commons.lang3.StringUtils.equalsAny(toolId, "sakai.gradebook.tool", "sakai.gradebookng") &&
-							(site.getToolForCommonId("sakai.gradebook.tool") != null || site.getToolForCommonId("sakai.gradebookng") != null)))
-				{
+						(StringUtils.isNotBlank(toolId) && toolId.contains("sakai.gradebook")) &&
+						(site.getToolForCommonId("sakai.gradebook.tool") != null || site.getToolForCommonId("sakai.gradebookng") != null)) {
 					//check the tool has content
 					if(hasContent(toolId, site.getId())) {
 						toolsWithContent.add(toolId);
 					} else {
-						if (org.apache.commons.lang3.StringUtils.equalsAny(toolId, "sakai.gradebook.tool", "sakai.gradebookng") &&
+						if ((StringUtils.isNotBlank(toolId) && toolId.contains("sakai.gradebook")) &&
 								hasContent("sakai.gradebook.tool", site.getId()) || hasContent("sakai.gradebookng", site.getId())) {
 							toolsWithContent.add(toolId);
 						}

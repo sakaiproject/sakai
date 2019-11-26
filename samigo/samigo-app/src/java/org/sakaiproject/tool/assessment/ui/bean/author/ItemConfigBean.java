@@ -424,11 +424,11 @@ private static final String msgResource =
     	if (ToolManager.getTool("sakai.questionbank.client") != null
 			&& !ServerConfigurationService
 					.getString(
-							"stealthTools@org.sakaiproject.tool.api.ActiveToolManager")
+							"stealthTools@org.sakaiproject.tool.api.ActiveToolManager", "")
 					.contains("sakai.questionbank.client")
 			&& !ServerConfigurationService
 					.getString(
-							"hiddenTools@org.sakaiproject.tool.api.ActiveToolManager")
+							"hiddenTools@org.sakaiproject.tool.api.ActiveToolManager", "")
 					.contains("sakai.questionbank.client")) {
 
 			list.add(new SelectItem("100",
