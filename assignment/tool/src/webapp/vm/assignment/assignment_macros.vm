@@ -370,19 +370,32 @@
 
 ## macro for rendering student's progress bar
 #macro( progressBar $progressStatus)
-	#if (!$!progressStatus.isEmpty())
-		#set($dynWidth = 100.0 / $!progressStatus.size())
-		#set($statusSet = $!progressStatus.keySet())
-		<div class="progress">
-			#foreach ($status in $!statusSet.iterator())
-				#if($!progressStatus.get($status))
-					<div class="progress-bar" role="progressbar" style="width: $dynWidth%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="$dynWidth">$status</div>
-				#else
-					<div class="progress-bar progress-bar-empty" role="progressbar" style="width: $dynWidth%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="$dynWidth">$status</div>
-				#end
-			#end
-		</div>
-	#end
+    #if (!$!progressStatus.isEmpty())
+        #set($dynWidth = 100.0 / $!progressStatus.size())
+        #set($totalWidthBg = 0)
+        #set($statusSet = $!progressStatus.keySet())
+        <div class="progress-container">
+            <div class="progress progress-cols">
+                #foreach ($status in $!statusSet.iterator())
+                    #if($!progressStatus.get($status))
+                        <div class="progress-bar progress-bar-empty progress-bar-active" role="progressbar" style="width: $dynWidth%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="$dynWidth">$status</div>
+                        #set($totalWidthBg = $totalWidthBg + $dynWidth)
+                    #else
+                        <div class="progress-bar progress-bar-empty" role="progressbar" style="width: $dynWidth%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="$dynWidth">$status</div>
+                    #end
+                #end
+            </div>
+            <div class="progress">
+                #set($minWidth = $totalWidthBg - $dynWidth)
+                <div class="progress-bar progress-bar-striped active" role="progressbar" style="width: $minWidth%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="$totalWidthBg"></div>
+            </div>
+            <script>
+                $(document).ready(function() {
+                    $('.progress-bar.progress-bar-striped').css('width', $totalWidthBg + '%');
+                });
+            </script>
+        </div>
+    #end
 #end
 
 ## macro to display content review results; assumes they're visible (caller must do the required checks / provide appropriate messaging)
