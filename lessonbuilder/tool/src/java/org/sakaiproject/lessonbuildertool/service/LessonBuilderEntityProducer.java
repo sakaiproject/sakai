@@ -69,6 +69,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.fileupload.disk.DiskFileItem;
+import org.jsoup.Jsoup;
+import org.jsoup.select.Elements;
 
 import org.springframework.context.MessageSource;
 
@@ -995,31 +997,25 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	   return;
 
        for (SimplePageItem item: items) {
-	   if (item.getType() == SimplePageItem.TEXT) {
-	       String s = item.getHtml();
-	       if (s != null) {
-		   String fixed = fixUrls(s, oldServer, siteId, fromSiteId, itemMap);
-		   if (!s.equals(fixed)) {
-		       item.setHtml(fixed);
-		       simplePageToolDao.quickUpdate(item);
-		   }
-	       }
-	   }
+           if (item.getType() == SimplePageItem.TEXT) {
+               String s = item.getHtml();
+               if (StringUtils.isNotBlank(s)) {
+                   String fixed = fixUrls(s, oldServer, siteId, fromSiteId, itemMap);
+                   if (!StringUtils.equals(s ,fixed)) {
+                       item.setHtml(fixed);
+                       simplePageToolDao.quickUpdate(item);
+                   }
+               }
+           }
        }
 
     }
 
-
     public String fixUrls(String s, String oldServer, String siteId, String fromSiteId, Map<Long,Long> itemMap) {
-
-	ContentCopyContext context = new ContentCopyContext(fromSiteId, siteId, oldServer);
-
-       // should use CopyContent in kernel once KNL-737 is implemented. I'm including a copy of
-       // it for the moment
-	return convertHtmlContent(context, s, null, itemMap);
-
+        ContentCopyContext context = new ContentCopyContext(fromSiteId, siteId, oldServer);
+        String htmlWithAttachments = transferAttachmentFiles(s, fromSiteId, siteId);
+        return convertHtmlContent(context, htmlWithAttachments, null, itemMap);
    }
-
 
    public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans,
 		       Set userListAllowImport) {
@@ -1800,19 +1796,16 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	}
     }
 
-    private String convertHtmlContent(ContentCopyContext context,
-				      String content, String contentUrl, Map<Long,Long> itemMap) {
-	
+    private String convertHtmlContent(ContentCopyContext context, String content, String contentUrl, Map<Long,Long> itemMap) {
 	// this old code (below) seems to have come from an old version of the kerne's reference migrator.
 	// It's too complex for me to verify that it's right.
 	// At this point the kernel just does string replacements. So I'm going to
-	// replace /access/content/group/NNN with the new value
+	// replace NNN with the new value
 	// and also fix up the dummy references.
 
-	String oldurl = "/access/content/group/" + context.getOldSiteId().replace(" ", "%20");
-	String newurl = "/access/content/group/" + context.getNewSiteId().replace(" ", "%20");
-
-	content = content.replace(oldurl, newurl);
+        String oldSiteReference = context.getOldSiteId();
+        String newSiteReference = context.getNewSiteId();
+        content = StringUtils.replace(content, oldSiteReference, newSiteReference);
 
 	// no point doing this code unless we actually have a dummy url in it
 	if (content.indexOf(ITEMDUMMY) >= 0) {
@@ -1834,36 +1827,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	    content = newcontent.toString();
 	}
 
-	if (false) {
-	StringBuilder output = new StringBuilder();
-	Matcher matcher = attributePattern.matcher(content);
-	int contentPos = 0;
-
-	StringBuffer newContent = new StringBuffer();
-	while (matcher.find()) {
-	    String url = matcher.group(3);
-
-	    // processUrl does a parse of the URL. It will fail if there is a space
-	    // in it. But spaces are often used by humans, since they actually work.
-	    // And a CKEditor bug inserts them. So handle them correctly.
-	    url = url.replace(" ", "%20");
-	    url = processUrl(context, url, contentUrl, itemMap);
-	    // Content up to the match.
-	    int copyTo = matcher.start(3);
-	    // Start the second copy after the match.
-	    int copyFrom = matcher.end(3);
-	    int copyEnd = matcher.end();
-	    
-	    output.append(content.substring(contentPos, copyTo));
-	    output.append(url);
-	    output.append(content.substring(copyFrom, copyEnd));
-	    contentPos = copyEnd;
-	}
-	    output.append(content.substring(contentPos));
-	    return output.toString();
-	} // end of if false
-
-	return content;
+        return content;
 
     }
 
@@ -2193,6 +2157,56 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
     //Seems like there should be a method for this, but is what most of the code does, lessons length is 4
     private long idFromRef (String reference) {
         return idFromRef(reference,4);
+    }
+
+    /**
+     * Parses an HTML content, extracts the URLs of the HTML content and transfer the missing files into the new site.
+     */
+    private String transferAttachmentFiles(String msgBody, String oldSiteId, String newSiteId) {
+        String replacedBody = msgBody;
+        String serverURL = ServerConfigurationService.getServerUrl();
+        String collectionPrefix = "/access/content/";
+        if(StringUtils.isNotBlank(msgBody)) {
+            org.jsoup.nodes.Document doc = Jsoup.parse(msgBody);
+
+            Elements links = doc.select("a[href]");
+            Elements media = doc.select("[src]");
+            Elements imports = doc.select("link[href]");
+            List<String> references = new ArrayList<String>();
+            // href ...
+            for (org.jsoup.nodes.Element link : links) {
+                references.add(link.attr("abs:href"));
+            }
+
+            // img ...
+            for (org.jsoup.nodes.Element src : media) {
+                references.add(src.attr("abs:src"));
+            }
+
+            // js, css, ...
+            for (org.jsoup.nodes.Element link : imports) {
+                references.add(link.attr("abs:href"));
+            }
+
+            for (String reference : references) {
+                if (reference.contains(oldSiteId) && reference.contains(collectionPrefix)) {
+                    try {
+                        String oldReferenceId = reference;
+                        oldReferenceId = StringUtils.replace(oldReferenceId, collectionPrefix, "/");
+                        oldReferenceId = StringUtils.replace(oldReferenceId, serverURL, StringUtils.EMPTY);
+                        //Try secure and non-secure URLs too, for instances with a mix of configurations.
+                        oldReferenceId = StringUtils.replace(oldReferenceId, StringUtils.replace(serverURL, "https://", "http://"), StringUtils.EMPTY);
+                        oldReferenceId = StringUtils.replace(oldReferenceId, StringUtils.replace(serverURL, "http://", "https://"), StringUtils.EMPTY);
+                        String newReferenceId = StringUtils.replace(oldReferenceId, oldSiteId, newSiteId);
+                        contentHostingService.copy(oldReferenceId, newReferenceId);
+                        replacedBody = StringUtils.replace(replacedBody, oldSiteId, newSiteId);
+                        } catch(Exception e) {
+                            log.error("Error transfering file from site {} to site {}.", oldSiteId, newSiteId, e);
+                        }
+                }
+            }
+        }
+        return replacedBody;
     }
 
 }
