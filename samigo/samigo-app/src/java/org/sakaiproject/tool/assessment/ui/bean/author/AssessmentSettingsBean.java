@@ -1137,7 +1137,7 @@ public class AssessmentSettingsBean implements Serializable {
    * @return date String "MM-dd-yyyy hh:mm:ss a"
    */
   private String getDisplayFormatFromDate(Date date, boolean manipulateTimezoneForClient) {
-    if (date == null) return "";
+    if (date == null) return StringUtils.EMPTY;
 
     try {
       return tu.getDisplayDateTime(displayFormat, date, manipulateTimezoneForClient);
@@ -1146,7 +1146,7 @@ public class AssessmentSettingsBean implements Serializable {
       // we will leave it as an empty string
       log.warn("Unable to format date.", ex);
     }
-    return "";
+    return StringUtils.EMPT;
   }
 
   public String getStartDateInClientTimezoneString() {
