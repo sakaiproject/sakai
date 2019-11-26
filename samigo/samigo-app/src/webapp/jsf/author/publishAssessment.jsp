@@ -152,17 +152,17 @@
 		</h:panelGroup>
 		
 		<h:outputFormat value=" #{assessmentSettingsMessages.available_anonymously_at}" escape="false" rendered="#{assessmentSettings.releaseTo eq 'Anonymous Users'}">
-			<f:param value="#{assessmentSettings.startDateString}" />
+			<f:param value="#{assessmentSettings.startDateInClientTimezoneString}" />
 			<f:param value="#{assessmentSettings.publishedUrl}" />
 		</h:outputFormat>
 		
 		<h:outputFormat value=" #{assessmentSettingsMessages.available_class_at}" escape="false" rendered="#{assessmentSettings.releaseTo ne 'Anonymous Users' && assessmentSettings.releaseTo ne 'Selected Groups'}">
-			<f:param value="#{assessmentSettings.startDateString}" />
+			<f:param value="#{assessmentSettings.startDateInClientTimezoneString}" />
 			<f:param value="#{assessmentSettings.publishedUrl}" />
 		</h:outputFormat>
 		
 		<h:outputFormat value=" #{assessmentSettingsMessages.available_group_at}" escape="false" rendered="#{assessmentSettings.releaseTo eq 'Selected Groups'}">
-			<f:param value="#{assessmentSettings.startDateString}" />
+			<f:param value="#{assessmentSettings.startDateInClientTimezoneString}" />
 			<f:param value="#{assessmentSettings.releaseToGroupsAsHtml}" />
 			<f:param value="#{assessmentSettings.publishedUrl}" />
 		</h:outputFormat>
@@ -171,7 +171,7 @@
 	<h:panelGroup  rendered="#{assessmentSettings.dueDate ne null}" > 
 		<f:verbatim><br/></f:verbatim>
 		<h:outputFormat value=" #{assessmentSettingsMessages.it_is_due}" escape="false">
-			<f:param value="#{assessmentSettings.dueDateString}" />
+			<f:param value="#{assessmentSettings.dueDateInClientTimezoneString}" />
 		</h:outputFormat>	
 	</h:panelGroup>
 	
@@ -214,17 +214,17 @@
 			</h:panelGroup>
 
 			<h:outputFormat value=" #{assessmentSettingsMessages.available_anonymously_at}" escape="false" rendered="#{publishedSettings.releaseTo eq 'Anonymous Users'}">
-				<f:param value="#{publishedSettings.startDateString}" />
+				<f:param value="#{publishedSettings.startDateInClientTimezoneString}" />
 				<f:param value="#{publishedSettings.publishedUrl}" />
 			</h:outputFormat>
 		
 			<h:outputFormat value=" #{assessmentSettingsMessages.available_class_at}" escape="false" rendered="#{publishedSettings.releaseTo ne 'Anonymous Users' && publishedSettings.releaseTo ne 'Selected Groups'}">
-				<f:param value="#{publishedSettings.startDateString}" />
+				<f:param value="#{publishedSettings.startDateInClientTimezoneString}" />
 				<f:param value="#{publishedSettings.publishedUrl}" />
 			</h:outputFormat>
 		
 			<h:outputFormat value=" #{assessmentSettingsMessages.available_group_at}" escape="false" rendered="#{publishedSettings.releaseTo eq 'Selected Groups'}">
-				<f:param value="#{publishedSettings.startDateString}" />
+				<f:param value="#{publishedSettings.startDateInClientTimezoneString}" />
 				<f:param value="#{publishedSettings.releaseToGroupsAsHtml}" />
 				<f:param value="#{publishedSettings.publishedUrl}" />
 			</h:outputFormat>
@@ -233,7 +233,7 @@
 		<h:panelGroup  rendered="#{publishedSettings.dueDate ne null}" >
 			<f:verbatim><br/></f:verbatim> 
 			<h:outputFormat value=" #{assessmentSettingsMessages.it_is_due}" escape="false">
-				<f:param value="#{publishedSettings.dueDateString}" />
+				<f:param value="#{publishedSettings.dueDateInClientTimezoneString}" />
 			</h:outputFormat>
 		</h:panelGroup>
 		
