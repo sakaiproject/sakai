@@ -64,15 +64,15 @@ $(document).ready(function() {
 </div>
 <p rsf:id="question">poll question</p>
 <p rsf:id="poll-size">Num votes</p>
-  <table id="sortableTable" class="listHier lines nolines" border="0" cellspacing="0">
+  <table id="sortableTable" class="table table-responsive table-bordered table-striped table-hover">
 	<caption class="skip"><span class="skip" rsf:id="msg=results_summary"></span></caption>
     <thead>
   <tr>
     <th style="display:none"><a title="Sort by Option number" href="#" rsf:id="answers-count">Number</a></th>
     <th width="15px"><div title="Sort by default order" class="reset-order" rsf:id="answers-default:"><a href="#" id="reset-order-link"><span rsf:id="msg=results_answers_reset_ordering">Reset Order</span></a></div></th>
-    <th><a title="Sort by Answers" href="#" rsf:id="answers-title">Answers</a></th>
-    <th><a title="Sort by the number of Votes" href="#" rsf:id="answers-votes">Votes</a></th>
-    <th><a href="#" title="Sort by the Percentage value" rsf:id="answers-percent">%</a></th>
+    <th><a title="Sort by Answers" href="#" rsf:id="answers-title" onclick="return false;">Answers</a></th>
+    <th><a title="Sort by the number of Votes" href="#" rsf:id="answers-votes" onclick="return false;">Votes</a></th>
+    <th><a href="#" title="Sort by the Percentage value" rsf:id="answers-percent" onclick="return false;">%</a></th>
   </tr>
 </thead>
 <tbody>
