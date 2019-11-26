@@ -2302,10 +2302,10 @@ GbGradeTable.setupConcurrencyCheck = function() {
         handleConcurrencyCheck);
   };
 
-  // Check for concurrent editors.. and again every 10 seconds
+  // Check for concurrent editors.. and again every 20 seconds
   // (note: there's a 10 second cache)
   performConcurrencyCheck();
-  var concurrencyCheckInterval = setInterval(performConcurrencyCheck, 10 * 1000);
+  var concurrencyCheckInterval = setInterval(performConcurrencyCheck, 20 * 1000);
 };
 
 
