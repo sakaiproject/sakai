@@ -260,4 +260,9 @@ table{
 	#toolMenuWrap{
 		display:none !important;
 	}
+
+	.printReturnLink {
+		display: none;
+	}
+
 }
