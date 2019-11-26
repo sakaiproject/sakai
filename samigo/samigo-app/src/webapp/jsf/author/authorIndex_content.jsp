@@ -206,10 +206,9 @@
 
             // Highlight the due date if it is coming up soon
             $("#authorIndexForm\\:coreAssessments .dueDate").each( function( index, element ) {
-                var dateNow = parseInt (moment(new Date()).format('YYYYMMDDHHmmss') ) || 0;
-                var dueDate = parseInt( $( this ).find(".hidden").text()  ) || 0;
-                var dateDiff = (dueDate - dateNow)/1000000;
-
+                var dateNow = moment(new Date(), 'YYYYMMDDHHmmss');
+                var dueDate = moment($( this ).find(".hidden").text() || 0, 'YYYYMMDDHHmmss');
+                var dateDiff = dueDate.diff(dateNow, 'days');
                 if (dateDiff > 0 && dateDiff < 14) {
                   $( this ).addClass("highlight");
                 }
