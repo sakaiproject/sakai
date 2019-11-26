@@ -8156,7 +8156,7 @@ public class AssignmentAction extends PagedResourceActionII {
                                 header.setSubject(/* subject */rb.getFormattedMessage("assig5", title));
                             }
 
-			    String formattedOpenTime = assignmentService.getUsersLocalDateTimeString(openTime);
+                            String formattedOpenTime = assignmentService.getUsersLocalDateTimeString(openTime, FormatStyle.MEDIUM, FormatStyle.LONG);
                             if (updatedOpenDate) {
                                 // revised assignment open date
                                 message.setBody(/* body */ "<p>" + rb.getFormattedMessage("newope", formattedText.convertPlaintextToFormattedText(title), formattedOpenTime) + "</p>");
