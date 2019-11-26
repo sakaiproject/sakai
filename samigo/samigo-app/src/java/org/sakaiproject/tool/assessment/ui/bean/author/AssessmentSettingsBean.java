@@ -1136,34 +1136,34 @@ public class AssessmentSettingsBean implements Serializable {
    * @param date Date object
    * @return date String "MM-dd-yyyy hh:mm:ss a"
    */
-  private String getDisplayFormatFromDate(Date date) {
-    String dateString = "";
-    if (date == null) {
-      return dateString;
-    }
-
-    if (displayFormat == null) {   
-    	setDisplayFormat(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_data_picker_w_sec"));
-    }
+  private String getDisplayFormatFromDate(Date date, boolean manipulateTimezoneForClient) {
+    if (date == null) return StringUtils.EMPTY;
 
     try {
-      // Do not manipulate the date based on the client browser timezone.
-      dateString = tu.getDisplayDateTime(displayFormat, date, false);
+      return tu.getDisplayDateTime(displayFormat, date, manipulateTimezoneForClient);
     }
     catch (Exception ex) {
       // we will leave it as an empty string
       log.warn("Unable to format date.", ex);
     }
-    return dateString;
+    return StringUtils.EMPTY;
   }
 
-  public String getStartDateString()
-  {
+  public String getStartDateInClientTimezoneString() {
+    if (!this.isValidStartDate) {
+      return this.originalStartDateString;
+    }
+    else {
+      return getDisplayFormatFromDate(startDate, true);
+    }
+  }
+
+  public String getStartDateString() {
 	if (!this.isValidStartDate) {
 		return this.originalStartDateString;
 	}
 	else {
-		return getDisplayFormatFromDate(startDate);
+      return getDisplayFormatFromDate(startDate, false);
 	}
   }
    
@@ -1189,15 +1189,24 @@ public class AssessmentSettingsBean implements Serializable {
     }
   }
 
-  public String getDueDateString()
-  {
+  public String getDueDateInClientTimezoneString() {
+    if (!this.isValidDueDate) {
+      return this.originalDueDateString;
+    }
+    else {
+      return getDisplayFormatFromDate(dueDate, true);
+    }
+  }
+
+  public String getDueDateString() {
     if (!this.isValidDueDate) {
 		return this.originalDueDateString;
 	}
 	else {
-		return getDisplayFormatFromDate(dueDate);
+      return getDisplayFormatFromDate(dueDate, false);
 	}	  
   }
+
   public void setDueDateString(String dueDateString)
   {
     if (dueDateString == null || dueDateString.trim().equals("")) {
@@ -1226,7 +1235,7 @@ public class AssessmentSettingsBean implements Serializable {
 		return this.originalRetractDateString;
 	}
 	else {
-		return getDisplayFormatFromDate(retractDate);
+		return getDisplayFormatFromDate(retractDate, false);
 	}	  	  
   }
 
@@ -1255,13 +1264,21 @@ public class AssessmentSettingsBean implements Serializable {
     }
   }
 
-  public String getFeedbackDateString()
-  {
+  public String getFeedbackDateInClientTimezoneString() {
+    if (!this.isValidFeedbackDate) {
+      return this.originalFeedbackDateString;
+    }
+    else {
+      return getDisplayFormatFromDate(feedbackDate, true);
+    }
+  }
+
+  public String getFeedbackDateString() {
     if (!this.isValidFeedbackDate) {
 		return this.originalFeedbackDateString;
 	}
 	else {
-		return getDisplayFormatFromDate(feedbackDate);
+		return getDisplayFormatFromDate(feedbackDate, false);
 	}	  	  	  
   }
 
@@ -1286,11 +1303,21 @@ public class AssessmentSettingsBean implements Serializable {
     }
   }
 
+  public String getFeedbackEndDateInClientTimezoneString() {
+    if (!this.isValidFeedbackEndDate) {
+      return this.originalFeedbackEndDateString;
+    }
+    else {
+      return getDisplayFormatFromDate(feedbackEndDate, true);
+    }
+  }
+
   public String getFeedbackEndDateString() {
     if (!this.isValidFeedbackEndDate) {
       return this.originalFeedbackEndDateString;
-    } else {
-      return getDisplayFormatFromDate(feedbackEndDate);
+    }
+    else {
+      return getDisplayFormatFromDate(feedbackEndDate, false);
     }
   }
 
