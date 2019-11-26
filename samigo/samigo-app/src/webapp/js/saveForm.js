@@ -79,23 +79,13 @@ function SaveFormContentAsync(toUrl, formId, buttonName, updateVar, updateVar2, 
     // asyncronously send form content to toUrl, wait for response, sleep, repeat
     //    var theStatus = document.getElementById(statusId);
     counter += 1;
-    //    theStatus.innerHTML = "count "+counter+" saving form at "+Date();
-    var request = initXMLHTTPRequest();
-    var method = "POST";
-    var async = true;
-    var payload;
-    function onready_callback() {
-	var state = request.readyState;
-	if (state!=4) {
-	    // ignore intermediate states
-	    return;
-	}
+
+    function onready_callback(text) {
 	    // This is an Ajax response. It isn't normally processed.
 	// So if we need anything from it we have to get it.
 	// Get new date from response and update the form variable
 
 	var saveok = true;
-	var text = request.responseText;
         var i = text.indexOf('"' + updateVar);
 	if (i < 0) {
 	    i = text.indexOf('"' + updateVar2);	    
@@ -148,7 +138,7 @@ function SaveFormContentAsync(toUrl, formId, buttonName, updateVar, updateVar2, 
     var noLateSubmission = text.indexOf("noLateSubmission");
     var isRetracted = text.indexOf("isRetracted");
     if (noLateSubmission >= 0 || isRetracted >= 0) {
-        timeExpired();
+        $("#autosave-timeexpired-warning").show();
         $("[id$=\\:submitNoCheck]")[0].click();
     }
 
@@ -171,21 +161,28 @@ function SaveFormContentAsync(toUrl, formId, buttonName, updateVar, updateVar2, 
         if (j >= 0) {
             var dueDateorRetractDate = text.substring(i+7, j);
             if (dueDateorRetractDate - timeNow <= repeatMilliseconds) {
-                timeLeft();
+                $("#autosave-timeleft-warning").show();
             }
         }
     }
 
         // when the request is done the scope of the function can be garbage collected...
     }
+
     if (doautosave && counter > 1) {
-	payload = GetFormContent(formId, buttonName);
-	request.open(method, toUrl, async);
-	request.onreadystatechange = onready_callback;
-	request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-	//alert("about to send");
-	window.status = "Saving...";
-	request.send(payload);
+      var payload = GetFormContent(formId, buttonName);
+
+      $.ajax({ method: "POST", url: toUrl, data: payload }, function () {
+        // Promises below will allow handling of a connection failure
+      })
+        .done(function (html) {
+          onready_callback(html);
+        })
+        .fail(function () {
+          $("#autosave-failed-warning").show();
+          onready_callback("");
+        });
+
     } else {
 	//alert("first time" + 	    document.forms[0].elements['takeAssessmentForm:lastSubmittedDate1'].value);
         var onTimeout = TimeOutAction(toUrl, formId, buttonName, updateVar, updateVar2, repeatMilliseconds);
@@ -200,19 +197,5 @@ function TimeOutAction(toUrl, formId, buttonName, updateVar, updateVar2, repeatM
 	SaveFormContentAsync(toUrl, formId, buttonName, updateVar, updateVar2, repeatMilliseconds, true);
     }
     return ActionResult;
-}
-
-function initXMLHTTPRequest() {
-        var result = null;
-        if (window.XMLHttpRequest) {
-                ////al("xmlhttp");
-                result = new XMLHttpRequest();
-        } else if (window.ActiveXObject) {
-                ////al("microsoft");
-                result = new ActiveXObject("Microsoft.XMLHTTP");
-        } else {
-                throw new Error("failed to create XMLHTTPRequest");
-        }
-        return result;
 }
 
