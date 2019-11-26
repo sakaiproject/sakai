@@ -32,13 +32,13 @@
   	//show entire page, otherwise, don't allow anon user to use this tool:
 %>
 
-    <script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js?version="></script>
-    <script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
-    <script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
-    <script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
-    <script type="text/JavaScript">includeWebjarLibrary('datatables');</script>
+    <script src="/library/webjars/jquery/1.12.4/jquery.min.js?version="></script>
+    <script src="/messageforums-tool/js/sak-10625.js"></script>
+    <script src="/messageforums-tool/js/forum.js"></script>
+    <script src="/messageforums-tool/js/messages.js"></script>
+    <script>includeWebjarLibrary('datatables');</script>
 
-    <script type="text/javascript">
+    <script>
         $(document).ready(function() {
 
             var notEmptyTableTd = $("#prefs_pvt_form\\:pvtmsgs td:not(:empty)").length;
@@ -106,6 +106,7 @@
                         }
                     }
                 });
+            }
     });
     </script>
 
@@ -124,7 +125,7 @@
 
   		<%@ include file="msgHeader.jsp"%>
 		<%-- gsilver:this table needs a render atrtibute that will make it not display if there are no messages - and a companion text block classed as "instruction" that will render instead--%>
-	  <div class="table-responsive">
+	  <h:panelGroup layout="block" styleClass="table-responsive">
 	  <h:dataTable styleClass="table table-hover table-striped table-bordered" id="pvtmsgs" width="100%" value="#{PrivateMessagesTool.decoratedPvtMsgs}" var="rcvdItems" 
 	  	             rendered="#{PrivateMessagesTool.selectView != 'threaded'}"
 	  	             summary="#{msgs.pvtMsgListSummary}"
@@ -213,8 +214,8 @@
 		     <h:outputText value="#{rcvdItems.label}"/>
 		  </h:column>
 		</h:dataTable>
-	</div>
-	  <div class="table-responsive">
+	  </h:panelGroup>
+	  <h:panelGroup layout="block" styleClass="table-responsive">
 	  <mf:hierPvtMsgDataTable styleClass="table table-hover table-striped table-bordered" id="threaded_pvtmsgs" width="100%" 
 	                          value="#{PrivateMessagesTool.decoratedPvtMsgs}" 
 	  	                        var="rcvdItems" 
@@ -291,9 +292,9 @@
 		     <h:outputText value="#{rcvdItems.label}"/>
 		  </h:column>
 		</mf:hierPvtMsgDataTable>
-		</div>
+		</h:panelGroup>
 <%-- Added if user clicks Check All --%>
-    <script language="Javascript" type="text/javascript">
+    <script>
      // setting number checked just in case Check All being processed
      // needed to 'enable' bulk operations
      numberChecked = <h:outputText value="#{PrivateMessagesTool.numberChecked}" />;
