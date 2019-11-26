@@ -23,6 +23,7 @@ package org.sakaiproject.assignment.api;
 
 import java.io.OutputStream;
 import java.time.Instant;
+import java.time.format.FormatStyle;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -719,6 +720,8 @@ public interface AssignmentService extends EntityProducer {
     public String getToolTitle();
 
     String getUsersLocalDateTimeString(Instant date);
+
+    String getUsersLocalDateTimeString(Instant date, FormatStyle dateStyle, FormatStyle timeStyle);
 
     public List<ContentReviewResult> getContentReviewResults(AssignmentSubmission submission);
 
