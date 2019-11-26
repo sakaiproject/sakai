@@ -1146,7 +1146,7 @@ public class AssessmentSettingsBean implements Serializable {
       // we will leave it as an empty string
       log.warn("Unable to format date.", ex);
     }
-    return StringUtils.EMPT;
+    return StringUtils.EMPTY;
   }
 
   public String getStartDateInClientTimezoneString() {
