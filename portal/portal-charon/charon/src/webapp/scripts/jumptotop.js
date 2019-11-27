@@ -8,11 +8,17 @@
     };
 
     JumpToTop.prototype.init = function() {
+        portal.i18n.loadProperties({
+            resourceClass: 'org.sakaiproject.portal.api.PortalService',
+            resourceBundle: 'jumptotop',
+            namespace: 'jumptotop'
+        });
+
         this.$link = $("<a>");
         this.$link.attr("id", "jumptotop");
         this.$link.addClass("jumptotop");
         this.$link.addClass("hidden");
-        this.$link.attr("title", "Jump to top");
+        this.$link.attr("title", portal.i18n.tr('jumptotop', 'jumptotop_title'));
 
         this.hide();
 
