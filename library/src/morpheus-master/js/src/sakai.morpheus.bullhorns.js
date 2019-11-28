@@ -175,7 +175,7 @@
       faClass = 'fa-bank';
       messageTemplate = i18n.academicCommentCreated;
     } else if ("lessonbuilder" === bunch.type) {
-      faClass = 'fa-leanpub';
+      faClass = 'fa-file-text-o';
       messageTemplate = i18n.academicLessonBuilderCommentCreate;
     } else if ("profile" === bunch.type) {
       faClass = "icon-sakai--sakai-profile2";
