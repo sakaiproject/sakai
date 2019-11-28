@@ -45,6 +45,7 @@
 			<artifactId>urlrewritefilter</artifactId>
 			<version>4.0.3</version>
 		</dependency>
+		<!--Used in cloud storage, Google Drive integration, file navigation UI -->
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>jstree</artifactId>
@@ -54,6 +55,7 @@
 		<!-- At the moment we're unpacking the webjars, so we don't want them bundled into the WAR
 		     but we still need them as dependencies so the plugin unpacks them, that's why they
 		     have a scope of runtime -->
+		<!--Used in ELFinder, inside CK Editor, file editor -->
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>codemirror</artifactId>
@@ -84,6 +86,7 @@
 			<version>${ckeditor.image2.version}</version>
 			<scope>runtime</scope>
 		</dependency>
+		<!--Used in Resources, drag&drop resources -->
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>dropzone</artifactId>
@@ -156,12 +159,14 @@
 			<version>1.2.2</version>
 			<scope>runtime</scope>
 		</dependency>
+		<!--Used in the portal, notify the user about forbidden HTML entities (AntiSamy) -->
 		<dependency>
 			<groupId>org.webjars.npm</groupId>
 			<artifactId>pnotify</artifactId>
 			<version>4.0.0</version>
 			<scope>runtime</scope>
 		</dependency>
+		<!--Used in the CK Editor, browse server option -->
 		<dependency>
 			<groupId>org.webjars.bower</groupId>
 			<artifactId>elfinder</artifactId>
@@ -185,30 +190,35 @@
 			<version>${font-awesome-version}</version>
 			<scope>runtime</scope>
 		</dependency>
+		<!--Used in the portal, profile image change option -->
 		<dependency>
 			<groupId>org.webjars.bower</groupId>
 			<artifactId>cropper</artifactId>
 			<version>4.0.0</version>
 			<scope>runtime</scope>
 		</dependency>
+		<!--Used in Private messages, Tests&Quizzes, selector of multiple items (users, groups) -->
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>select2</artifactId>
             <version>4.0.8</version>
             <scope>runtime</scope>
         </dependency>
+		<!--Used in Lessons, embed calendar item -->
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>fullcalendar</artifactId>
 			<version>4.3.1</version>
 			<scope>runtime</scope>
 		</dependency>
+		<!--Used in Tests&Quizzes, Private Messages, search, pagination and sort options for tables -->
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>datatables</artifactId>
 			<version>1.10.20</version>
 			<scope>runtime</scope>
 		</dependency>
+		<!--Used in Tests&Quizzes, Assignments, Site Info, Resources, Announcements, Sites, selector of multiple items (groups, tools) -->
   		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>bootstrap-multiselect</artifactId>
@@ -226,21 +236,25 @@
 			<version>1.7.13</version>
 			<scope>runtime</scope>
 		</dependency>
+		<!--Used in Tests&Quizzes, Gradebook, Forums, autocomplete with previous inputs -->
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>awesomplete</artifactId>
 			<version>1.1.4</version>
 		</dependency>
+		<!--Used in Profile, record name pronunciation -->
 		<dependency>
 			<groupId>org.webjars.npm</groupId>
 			<artifactId>recordrtc</artifactId>
 			<version>5.5.8</version>
 		</dependency>
+		<!--Used in Profile, record name pronunciation -->
 		<dependency>
 			<groupId>org.webjars.npm</groupId>
 			<artifactId>webrtc-adapter</artifactId>
 			<version>7.2.9</version>
 		</dependency>
+		<!--Used in Tests&Quizzes, validation of fill in numeric questions -->
 		<dependency>
 			<groupId>org.webjars.npm</groupId>
 			<artifactId>mathjs</artifactId>
