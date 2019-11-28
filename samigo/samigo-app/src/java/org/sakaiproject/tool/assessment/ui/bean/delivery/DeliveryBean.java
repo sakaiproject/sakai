@@ -3999,17 +3999,9 @@ public class DeliveryBean implements Serializable {
 	    this.itemContentsMap = itemContentsMap;
 	  }
 	  
-	  public String getAutoSaveRepeatMilliseconds()
+	  public int getAutoSaveRepeatMilliseconds()
 	  {
-  	    String s = ServerConfigurationService.getString("samigo.autoSave.repeat.milliseconds");
-  	    try {
-  	    	Integer.parseInt(s);
-  	    }
-  	    catch (NumberFormatException ex) {
-  	    	s = "-1";
-  	    }
-  	    log.debug("auto save every {} milliseconds", s);
-	    return s;
+  	    return ServerConfigurationService.getInt("samigo.autoSave.repeat.milliseconds", 300000);
 	  }
 	  
 	  public void setFileUploadSizeMax(int fileUploadSizeMax)
@@ -4252,9 +4244,8 @@ public class DeliveryBean implements Serializable {
     }
 
     public void calculateMinutesAndSecondsLeft() {
-        String ms = getAutoSaveRepeatMilliseconds();
-        int milliseconds = Integer.parseInt(ms);
-        if (milliseconds != -1) {
+        int milliseconds = getAutoSaveRepeatMilliseconds();
+        if (milliseconds > 0) {
             Date d = new Date(milliseconds);
             this.setMinutesLeft(String.valueOf(d.getMinutes()));
             this.setSecondsLeft(String.valueOf(d.getSeconds()));
