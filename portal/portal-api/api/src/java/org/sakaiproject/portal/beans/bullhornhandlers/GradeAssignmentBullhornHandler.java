@@ -71,8 +71,11 @@ public class GradeAssignmentBullhornHandler extends AbstractBullhornHandler {
                 submission.getSubmitters().forEach(to -> {
                     try {
                         String url = assignmentService.getDeepLink(siteId, assignment.getId(), to.getSubmitter());
+                        // TODO fix Assignment so that the submitter list doesn't contain users that have dropped the course (SAK-42721)
                         if (!url.isEmpty()) {
                             bhEvents.add(new BullhornData(from, to.getSubmitter(), siteId, title, url));
+                        } else {
+                            log.warn("Submitter {} probably doesn't have any permission on the assignment {}", to.getSubmitter(), assignment.getId());
                         }
                         countCache.remove(to.getSubmitter());
                     } catch(Exception exc) {
