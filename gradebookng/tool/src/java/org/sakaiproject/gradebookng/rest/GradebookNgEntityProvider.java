@@ -17,6 +17,7 @@ package org.sakaiproject.gradebookng.rest;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,6 +38,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutab
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
+import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.exception.IdUnusedException;
@@ -52,6 +54,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -230,12 +233,16 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		return this.businessService.getAssignmentGradeComment(siteId, assignmentId, studentUuid);
 	}
 
-	@EntityCustomAction(action = "messageStudents", viewKey = EntityView.VIEW_NEW)
-	public String messageStudents(final EntityView view, final Map<String, Object> params) {
+	private Set<String> getRecipients(Map<String, Object> params, boolean addCurrentUser) {
 
 		final String siteId = (String) params.get("siteId");
 		final long assignmentId = NumberUtils.toLong((String) params.get("assignmentId"));
 		final String action = (String) params.get("action");
+		final String cc = (String) params.get("cc");
+		final String groupId = (String) params.get("groupId");
+		final String minScoreString  = (String) params.get("minScore");
+		final String maxScoreString = (String) params.get("maxScore");
+
 		final String subject = (String) params.get("subject");
 		final String body = (String) params.get("body");
 
@@ -246,6 +253,9 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 
 		checkInstructorOrTA(siteId);
 
+		final Double minScore = (!StringUtils.isEmpty(minScoreString)) ? Double.valueOf(minScoreString) : null;
+		final Double maxScore = (!StringUtils.isEmpty(maxScoreString)) ? Double.valueOf(maxScoreString) : null;
+
 		Site site = null;
 		try {
 			site = siteService.getSite(siteId);
@@ -253,46 +263,123 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 			throw new IllegalArgumentException("siteId " + siteId + " is invalid");
 		}
 
-		Set<String> students = site.getUsers();
-
-		// Remove the instructors
-		students.removeAll(site.getUsersIsAllowed(Authz.PERMISSION_GRADE_ALL));
-
-		List<GradeDefinition> grades
-			= gradebookService.getGradesForStudentsForItem(siteId, assignmentId, new ArrayList<String>(students));
-
-		Set<String> gradedStudents = grades.stream().filter(g -> g.getDateRecorded() != null)
-			.map(g -> g.getStudentUid()).collect(Collectors.toSet());
-
-		switch(action) {
-			case MESSAGE_UNGRADED:
-				students.removeAll(gradedStudents);
-				break;
-			case MESSAGE_GRADED:
-				students = gradedStudents;
-				break;
-			default:
-				 // Just default to all the students
+		Set<String> recipients = null;
+		if (StringUtils.isEmpty(groupId)) {
+			// Start with the site users
+			recipients = site.getUsers();
+			// Remove the instructors
+			recipients.removeAll(site.getUsersIsAllowed(Authz.PERMISSION_GRADE_ALL));
+		} else {
+			Group group = site.getGroup(groupId);
+			if (group == null) {
+				throw new IllegalArgumentException("Invalid groupId supplied.");
+			}
+			// Start with the group users
+			recipients = group.getUsers();
+			// Remove the instructors
+			recipients.removeAll(group.getUsersIsAllowed(Authz.PERMISSION_GRADE_ALL));
 		}
 
-		List<String> headers = new ArrayList<>();
-		headers.add("Subject: " + subject);
-		headers.add("From: " + "\"" + serverConfigurationService.getString("ui.service", "Sakai") + "\" <" + serverConfigurationService.getString("setup.request", "no-reply@" + serverConfigurationService.getServerName()) + ">");
-		List<User> users = students.stream().map(s -> {
-			try {
-				return userDirectoryService.getUser(s);
-			} catch (UserNotDefinedException unde) {
-				return null;
-			}
-		}).collect(Collectors.toList());
+		List<GradeDefinition> grades
+			= gradebookService.getGradesForStudentsForItem(siteId, assignmentId, new ArrayList<String>(recipients));
 
-		if (users.contains(null)) {
-			String errorMsg = "At least one of the students to message is null. No messsages sent.";
-			log.warn(errorMsg);
-			throw new EntityException(errorMsg, "", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		if (MESSAGE_GRADED.equals(action)) {
+			// We want to message graded students. Filter by min and max score, if needed.
+			if (minScore != null) {
+				grades = grades.stream().filter(g -> {
+					try {
+						return Double.valueOf(g.getGrade()).compareTo(minScore) >= 0;
+					} catch (NumberFormatException nfe) {
+						return false;
+					}
+				}).collect(Collectors.toList());
+			}
+
+			if (maxScore != null) {
+				grades = grades.stream().filter(g -> {
+					try {
+						return Double.valueOf(g.getGrade()).compareTo(maxScore) <= 0;
+					} catch (NumberFormatException nfe) {
+						return false;
+					}
+				}).collect(Collectors.toList());
+			}
+
+			recipients = grades.stream().filter(g -> g.getDateRecorded() != null)
+				.map(g -> g.getStudentUid()).collect(Collectors.toSet());
+		} else if (MESSAGE_UNGRADED.equals(action)) {
+			recipients.removeAll(grades.stream().filter(g -> g.getDateRecorded() != null).map(g -> g.getStudentUid()).collect(Collectors.toSet()));
+		}
+
+		return recipients;
+	}
+
+	@EntityCustomAction(action = "listMessageRecipients", viewKey = EntityView.VIEW_NEW)
+	public ActionReturn listMessageRecipients(final EntityView view, final Map<String, Object> params) {
+
+		Set<String> recipients = getRecipients(params, false);
+
+		if (!recipients.isEmpty()) {
+			List<User> users = recipients.stream().map(s -> {
+				try {
+					return userDirectoryService.getUser(s);
+				} catch (UserNotDefinedException unde) {
+					return null;
+				}
+			}).collect(Collectors.toList());
+
+			if (users.contains(null)) {
+				String errorMsg = "At least one of the students to message is null. No messsages sent.";
+				log.warn(errorMsg);
+				throw new EntityException(errorMsg, "", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			} else {
+				// Cache the users in the session. The client needs to show the users to the caller, so they can
+				// confirm, but we don't want to call this logic again for no reason.
+				List<BasicUser> basicUsers = users.stream().map(BasicUser::new).collect(Collectors.toList());
+				return new ActionReturn(basicUsers);
+			}
 		} else {
-			emailService.sendToUsers(users, headers, body);
-			return "";
+			Map<String, Object> data = new HashMap<>();
+			data.put("result", "SUCCESS");
+			return new ActionReturn(data);
+		}
+	}
+
+	@EntityCustomAction(action = "messageStudents", viewKey = EntityView.VIEW_NEW)
+	public ActionReturn messageStudents(final EntityView view, final Map<String, Object> params) {
+
+		Set<String> recipients = getRecipients(params, false);
+
+		if (!recipients.isEmpty()) {
+			recipients.add(getCurrentUserId());
+
+			List<User> users = recipients.stream().map(s -> {
+				try {
+					return userDirectoryService.getUser(s);
+				} catch (UserNotDefinedException unde) {
+					return null;
+				}
+			}).collect(Collectors.toList());
+
+			if (users.contains(null)) {
+				String errorMsg = "At least one of the students to message is null. No messsages sent.";
+				log.warn(errorMsg);
+				throw new EntityException(errorMsg, "", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			} else {
+				String from = serverConfigurationService.getString("setup.request", "no-reply@" + serverConfigurationService.getServerName());
+				List<String> headers = new ArrayList<>();
+				String subject = (String) params.get("subject");
+				headers.add("Subject: " + subject);
+				headers.add("From: " + "\"" + serverConfigurationService.getString("ui.service", "Sakai") + "\" <" + from + ">");
+				users.forEach(u -> emailService.send(from, u.getEmail(), subject, (String) params.get("body"), null, null, headers));
+				Map<String, Object> data = new HashMap<>();
+				data.put("result", "SUCCESS");
+				return new ActionReturn(data);
+			}
+		} else {
+			Map<String, Object> data = new HashMap<>();
+			data.put("result", "SUCCESS");
+			return new ActionReturn(data);
 		}
 	}
 
@@ -381,4 +468,17 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		return role;
 	}
 
+    public class BasicUser {
+
+        public String id;
+        public String displayName;
+
+        public BasicUser(User u) {
+
+            super();
+
+            this.id = u.getId();
+            this.displayName = u.getDisplayName();
+        }
+    }
 }

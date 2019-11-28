@@ -7,14 +7,17 @@ class SakaiGroupPicker extends SakaiElement {
 
     super();
 
+    this.groups = [];
     this.debug = false;
     this.loadTranslations("group-picker").then(t => this.i18n = t );
   }
 
   static get properties() {
+
     return {
       siteId: { attribute: "site-id", type: String },
-      groups: { type: Object},
+      groupId: { attribute: "group-id", type: String },
+      groups: { type: Array},
       formName: { attribute: "form-name", type: String },
       i18n: Object,
     }
@@ -39,18 +42,18 @@ class SakaiGroupPicker extends SakaiElement {
 
   get siteId() { return this._siteId; }
 
-  shouldUpdate(changedProps) {
-    return this.i18n && this.groups;
-  }
-
   render() {
 
     return html`
-      <select aria-label="${this.i18n["group_selector_label"]}">
-        <option value="any">${this.i18n["any"]}</option>
-        ${this.groups.map(g => html`<option value="${g.id}">${g.title}</option>`)}
+      <select aria-label="${this.i18n["group_selector_label"]}" @change=${this.groupChanged}>
+        <option value="any" ?selected=${this.groupId === "any"}>${this.i18n["any"]}</option>
+        ${this.groups.map(g => html`<option value="${g.id}" ?selected=${this.groupId === g.id}>${g.title}</option>`)}
       </select>
     `;
+  }
+
+  groupChanged(e) {
+    this.dispatchEvent(new CustomEvent("group-selected", { detail: { groupId: e.target.value }, bubbles: true }));
   }
 }
 
