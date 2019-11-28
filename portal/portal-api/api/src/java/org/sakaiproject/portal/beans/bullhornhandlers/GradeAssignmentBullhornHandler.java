@@ -70,7 +70,10 @@ public class GradeAssignmentBullhornHandler extends AbstractBullhornHandler {
                 List<BullhornData> bhEvents = new ArrayList<>();
                 submission.getSubmitters().forEach(to -> {
                     try {
-                        bhEvents.add(new BullhornData(from, to.getSubmitter(), siteId, title, assignmentService.getDeepLink(siteId, assignment.getId(), to.getSubmitter())));
+                        String url = assignmentService.getDeepLink(siteId, assignment.getId(), to.getSubmitter());
+                        if (!url.isEmpty()) {
+                            bhEvents.add(new BullhornData(from, to.getSubmitter(), siteId, title, url));
+                        }
                         countCache.remove(to.getSubmitter());
                     } catch(Exception exc) {
                         log.error("Error retrieving deep link for assignment {} and user {} on site {}", assignment.getId(), to.getSubmitter(), siteId, exc);
