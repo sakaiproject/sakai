@@ -15,11 +15,11 @@
  */
 package org.sakaiproject.profile2.tool.components;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebComponent;
 import org.apache.wicket.model.IModel;
 import org.sakaiproject.profile2.util.ProfileConstants;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Renders a user's profile image via the direct entity URL. 
@@ -73,8 +73,8 @@ public class ProfileImage extends WebComponent {
 			}
 		}
 		
-		//Cache for a minute
-		String url = "/direct/profile/"+userUuid + "/image" + sizePart + "?t=" + TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis());
+		//Force a reload
+		String url = "/direct/profile/"+userUuid + "/image" + sizePart + "?v=" + RandomStringUtils.randomAlphabetic(10);
 		
 		tag.put("src", url);
 		tag.put("alt", "User profile image");
