@@ -550,7 +550,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                 final String slash = Entity.SEPARATOR;
                 final StringBuilder path = new StringBuilder();
                 SakaiPerson sakaiPerson = sakaiPersonManager.getSakaiPerson(user.getId(), this.sakaiPersonManager.getUserMutableType());
-                String phoneticPronunciation = StringUtils.EMPTY;
+                String phoneticPronunciation = "";
                 if (sakaiPerson != null && StringUtils.isNotEmpty(sakaiPerson.getPhoneticPronunciation())) {
                     //Append the phonetic pronunciation if it's not empty.
                     phoneticPronunciation = sakaiPerson.getPhoneticPronunciation();

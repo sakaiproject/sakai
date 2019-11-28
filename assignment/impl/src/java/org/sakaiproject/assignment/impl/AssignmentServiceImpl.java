@@ -2387,8 +2387,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Override
     public String escapeInvalidCharsEntry(String accentedString) {
         String decomposed = Normalizer.normalize(accentedString, Normalizer.Form.NFD);
-        decomposed = decomposed.replaceAll("\\p{InCombiningDiacriticalMarks}+", StringUtils.EMPTY);
-        decomposed = decomposed.replaceAll("\\?", StringUtils.EMPTY);
+        decomposed = decomposed.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+        decomposed = decomposed.replaceAll("\\?", "");
         return decomposed;
     }
 
@@ -3292,7 +3292,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         
                         //Adding the row
                         sheet.addRow(groupTitle, s.getGroupId(), submitters2String.toString(),
-                        		gradeDisplay, s.getDateSubmitted() != null ? s.getDateSubmitted().toString(): StringUtils.EMPTY, latenessStatus);
+                        		gradeDisplay, s.getDateSubmitted() != null ? s.getDateSubmitted().toString(): "", latenessStatus);
 
 
                         if (StringUtils.trimToNull(groupTitle) != null) {

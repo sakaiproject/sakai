@@ -310,7 +310,7 @@ public class PublishedAssessmentSettingsBean implements Serializable {
         this.retractDate = accessControl.getRetractDate();
         this.feedbackDate = accessControl.getFeedbackDate();
         this.feedbackEndDate = accessControl.getFeedbackEndDate();
-        this.feedbackScoreThreshold = accessControl.getFeedbackScoreThreshold() != null ? String.valueOf(accessControl.getFeedbackScoreThreshold()) : StringUtils.EMPTY;
+        this.feedbackScoreThreshold = accessControl.getFeedbackScoreThreshold() != null ? String.valueOf(accessControl.getFeedbackScoreThreshold()) : "";
         this.feedbackScoreThresholdEnabled = StringUtils.isNotBlank(this.feedbackScoreThreshold);
 
         // deal with releaseTo
@@ -1112,7 +1112,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
    * @return date String "MM-dd-yyyy hh:mm:ss a"
    */
   private String getDisplayFormatFromDate(Date date, boolean manipulateTimezoneForClient) {
-    if (date == null) return StringUtils.EMPTY;
+    if (date == null) return "";
 
     try {
       return tu.getDisplayDateTime(displayFormat, date, manipulateTimezoneForClient);
@@ -1121,7 +1121,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
       // we will leave it as an empty string
       log.warn("Unable to format date.", ex);
     }
-    return StringUtils.EMPTY;
+    return "";
   }
 
   public String getStartDateInClientTimezoneString() {

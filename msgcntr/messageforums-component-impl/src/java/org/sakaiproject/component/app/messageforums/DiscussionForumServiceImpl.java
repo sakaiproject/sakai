@@ -273,7 +273,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 				if (discussionTopic.getSortIndex() != null) {
 					discussionTopicElement.setAttribute(SORT_INDEX, discussionTopic.getSortIndex().toString());
 				} else {
-					discussionTopicElement.setAttribute(SORT_INDEX, StringUtils.EMPTY);
+					discussionTopicElement.setAttribute(SORT_INDEX, "");
 				}
 				final Element discussionTopicPropertiesElement = appendDiscussionTopicPropertiesElement(doc,
 						discussionTopic);
@@ -327,7 +327,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		if (message.getInReplyTo() != null) {
 			messageElement.setAttribute(MESSAGE_IN_REPLY_TO, message.getInReplyTo().getId().toString());
 		} else {
-			messageElement.setAttribute(MESSAGE_IN_REPLY_TO, StringUtils.EMPTY);
+			messageElement.setAttribute(MESSAGE_IN_REPLY_TO, "");
 		}
 		messageElement.setAttribute(MESSAGE_TITLE, message.getTitle());
 		messageElement.setAttribute(MESSAGE_AUTHOR_NAME, message.getAuthor());
@@ -347,17 +347,17 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		if (message.getThreadId() != null) {
 			messageElement.setAttribute(MESSAGE_THREAD_ID, message.getThreadId().toString());
 		} else {
-			messageElement.setAttribute(MESSAGE_THREAD_ID, StringUtils.EMPTY);
+			messageElement.setAttribute(MESSAGE_THREAD_ID, "");
 		}
 		if (message.getThreadLastPost() != null) {
 			messageElement.setAttribute(MESSAGE_THREAD_LAST_POST, message.getThreadLastPost().toString());
 		} else {
-			messageElement.setAttribute(MESSAGE_THREAD_LAST_POST, StringUtils.EMPTY);
+			messageElement.setAttribute(MESSAGE_THREAD_LAST_POST, "");
 		}
 		if(message.getDateThreadlastUpdated() != null) {
 			messageElement.setAttribute(MESSAGE_DATE_THREAD_LAST_UPDATED, message.getDateThreadlastUpdated().toString());
 		} else {
-			messageElement.setAttribute(MESSAGE_DATE_THREAD_LAST_UPDATED, StringUtils.EMPTY);
+			messageElement.setAttribute(MESSAGE_DATE_THREAD_LAST_UPDATED, "");
 		}
 		messageElement.setAttribute(MESSAGE_TOPIC, message.getTopic().toString());
 		messageElement.setAttribute(MESSAGE_BODY, getEncodedString(message.getBody()));
@@ -382,7 +382,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 			String encoded = new String(base64Encoder.encode(discussionTopic.getShortDescription().getBytes()));
 			discussionTopicShortDescElement.setAttribute(VALUE, encoded);
 		} catch (Exception e) {
-			discussionTopicShortDescElement.setAttribute(VALUE, StringUtils.EMPTY);
+			discussionTopicShortDescElement.setAttribute(VALUE, "");
 		}
 		Element discussionTopicLongDescElement = doc.createElement(PROPERTY);
 		discussionTopicLongDescElement.setAttribute(NAME, TOPIC_LONG_DESC);
@@ -391,7 +391,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 			String encoded = new String(base64Encoder.encode(discussionTopic.getExtendedDescription().getBytes()));
 			discussionTopicLongDescElement.setAttribute(VALUE, encoded);
 		} catch (Exception e) {
-			discussionTopicLongDescElement.setAttribute(VALUE, StringUtils.EMPTY);
+			discussionTopicLongDescElement.setAttribute(VALUE, "");
 		}
 		final Element discussionTopicPropertiesElement = doc.createElement(PROPERTIES);
 		discussionTopicPropertiesElement.appendChild(discussionTopicShortDescElement);
@@ -1071,14 +1071,14 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		if (StringUtils.isNotBlank(inputString)) {
 			return new String(base64Encoder.decode(inputString.getBytes()), StandardCharsets.UTF_8);
 		}
-		return StringUtils.EMPTY;
+		return "";
 	}
 
 	private String getEncodedString(final String inputString) {
 		try {
 			return new String(base64Encoder.encode(inputString.getBytes()));
 		} catch (Exception e) {
-			return StringUtils.EMPTY;
+			return "";
 		}
 	}
 

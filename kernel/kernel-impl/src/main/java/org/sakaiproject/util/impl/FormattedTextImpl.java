@@ -513,7 +513,7 @@ public class FormattedTextImpl implements FormattedText
      */
     private String escapeHtmlFormattedText(String value, boolean supressNewlines)
     {
-        if (StringUtils.isEmpty(value)) return StringUtils.EMPTY;
+        if (StringUtils.isEmpty(value)) return "";
         if (cleanUTF8) {
             value = removeSurrogates(value);
         }
@@ -619,7 +619,7 @@ public class FormattedTextImpl implements FormattedText
     public String encodeUnicode(String value)
     {
         // TODO call method in each process routine
-        if (StringUtils.isEmpty(value)) return StringUtils.EMPTY;
+        if (StringUtils.isEmpty(value)) return "";
 
         try
         {
@@ -651,7 +651,7 @@ public class FormattedTextImpl implements FormattedText
         catch (Exception e)
         {
             log.error("Validator.escapeHtml: ", e);
-            return StringUtils.EMPTY;
+            return "";
         }
     }
 
@@ -660,7 +660,7 @@ public class FormattedTextImpl implements FormattedText
      */
     public String unEscapeHtml(String value)
     {
-        if (StringUtils.isEmpty(value)) return StringUtils.EMPTY;
+        if (StringUtils.isEmpty(value)) return "";
         return StringEscapeUtils.unescapeHtml4(value);
     }
 
@@ -762,7 +762,7 @@ public class FormattedTextImpl implements FormattedText
      */
     public String processEscapedHtml(final String source) {
         if (StringUtils.isEmpty(source))
-            return StringUtils.EMPTY;
+            return "";
 
         String html = null;
         try {
@@ -1051,7 +1051,7 @@ public class FormattedTextImpl implements FormattedText
     }
 
     public String escapeJavascript(String value) {
-        if (StringUtils.isEmpty(value)) return StringUtils.EMPTY;
+        if (StringUtils.isEmpty(value)) return "";
         try
         {
             StringBuilder buf = new StringBuilder();

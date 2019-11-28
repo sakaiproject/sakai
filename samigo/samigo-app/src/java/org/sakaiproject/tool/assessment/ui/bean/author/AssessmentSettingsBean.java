@@ -317,7 +317,7 @@ public class AssessmentSettingsBean implements Serializable {
         this.retractDate = accessControl.getRetractDate();
         this.feedbackDate = accessControl.getFeedbackDate();
         this.feedbackEndDate = accessControl.getFeedbackEndDate();
-        this.feedbackScoreThreshold = accessControl.getFeedbackScoreThreshold() != null ? String.valueOf(accessControl.getFeedbackScoreThreshold()) : StringUtils.EMPTY;
+        this.feedbackScoreThreshold = accessControl.getFeedbackScoreThreshold() != null ? String.valueOf(accessControl.getFeedbackScoreThreshold()) : "";
         this.feedbackScoreThresholdEnabled = StringUtils.isNotBlank(this.feedbackScoreThreshold);
         // deal with releaseTo
         this.releaseTo = accessControl.getReleaseTo(); // list of String
@@ -1137,7 +1137,7 @@ public class AssessmentSettingsBean implements Serializable {
    * @return date String "MM-dd-yyyy hh:mm:ss a"
    */
   private String getDisplayFormatFromDate(Date date, boolean manipulateTimezoneForClient) {
-    if (date == null) return StringUtils.EMPTY;
+    if (date == null) return "";
 
     try {
       return tu.getDisplayDateTime(displayFormat, date, manipulateTimezoneForClient);
@@ -1146,7 +1146,7 @@ public class AssessmentSettingsBean implements Serializable {
       // we will leave it as an empty string
       log.warn("Unable to format date.", ex);
     }
-    return StringUtils.EMPTY;
+    return "";
   }
 
   public String getStartDateInClientTimezoneString() {

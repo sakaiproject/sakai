@@ -154,7 +154,7 @@ public class Validator
      */
     public static String escapeJavascript(String value)
     {
-        if (StringUtils.isEmpty(value)) return StringUtils.EMPTY;
+        if (StringUtils.isEmpty(value)) return "";
         try
         {
             StringBuilder buf = new StringBuilder();

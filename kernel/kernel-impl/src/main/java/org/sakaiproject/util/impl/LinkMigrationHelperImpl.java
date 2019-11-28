@@ -207,7 +207,7 @@ public class LinkMigrationHelperImpl implements LinkMigrationHelper {
 	}
 
 	private String expandShortenedUrl(String shortenedUrl){
-		String expandedURL = StringUtils.EMPTY;
+		String expandedURL = "";
 		try{
 			URL url = new URL(shortenedUrl);
 			// open connection

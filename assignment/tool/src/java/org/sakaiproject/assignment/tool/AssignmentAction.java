@@ -12353,7 +12353,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
                     try {
                         assignmentService.updateAssignment(a);
-                        state.setAttribute(DEFAULT_GRADE, StringUtils.EMPTY);
+                        state.setAttribute(DEFAULT_GRADE, "");
                     } catch (PermissionException e) {
                         log.warn("Could not update assignment: {}, {}", a.getId(), e.getMessage());
                     }
@@ -12436,7 +12436,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 if (state.getAttribute(STATE_MESSAGE) == null) {
                     try {
                         assignmentService.updateAssignment(a);
-                        state.setAttribute(DEFAULT_GRADE, StringUtils.EMPTY);
+                        state.setAttribute(DEFAULT_GRADE, "");
                     } catch (PermissionException e) {
                         log.warn("Could not update assignment: {}, {}", a.getId(), e.getMessage());
                     }

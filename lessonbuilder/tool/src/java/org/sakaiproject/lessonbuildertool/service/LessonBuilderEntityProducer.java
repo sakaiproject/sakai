@@ -2179,10 +2179,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
                     try {
                         String oldReferenceId = reference;
                         oldReferenceId = StringUtils.replace(oldReferenceId, collectionPrefix, "/");
-                        oldReferenceId = StringUtils.replace(oldReferenceId, serverURL, StringUtils.EMPTY);
+                        oldReferenceId = StringUtils.replace(oldReferenceId, serverURL, "");
                         //Try secure and non-secure URLs too, for instances with a mix of configurations.
-                        oldReferenceId = StringUtils.replace(oldReferenceId, StringUtils.replace(serverURL, "https://", "http://"), StringUtils.EMPTY);
-                        oldReferenceId = StringUtils.replace(oldReferenceId, StringUtils.replace(serverURL, "http://", "https://"), StringUtils.EMPTY);
+                        oldReferenceId = StringUtils.replace(oldReferenceId, StringUtils.replace(serverURL, "https://", "http://"), "");
+                        oldReferenceId = StringUtils.replace(oldReferenceId, StringUtils.replace(serverURL, "http://", "https://"), "");
                         String newReferenceId = StringUtils.replace(oldReferenceId, oldSiteId, newSiteId);
                         contentHostingService.copy(oldReferenceId, newReferenceId);
                         replacedBody = StringUtils.replace(replacedBody, oldSiteId, newSiteId);
