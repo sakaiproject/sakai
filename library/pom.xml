@@ -246,6 +246,12 @@
 			<artifactId>mathjs</artifactId>
 			<version>6.2.3</version>
 		</dependency>
+		<!--Used in feedback tool-->
+		<dependency>
+			<groupId>org.webjars.bower</groupId>
+			<artifactId>multifile</artifactId>
+			<version>2.2.2</version>
+		</dependency>
 	</dependencies>
 	<profiles>
 		<profile>
