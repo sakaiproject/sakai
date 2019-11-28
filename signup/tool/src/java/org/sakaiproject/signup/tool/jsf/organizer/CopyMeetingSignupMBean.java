@@ -383,16 +383,16 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 
 		/*user defined own TS case*/
 		if(isUserDefinedTS()){
-			eventEndTime= getUserDefineTimeslotBean().getEventEndTime();
-			eventStartTime = getUserDefineTimeslotBean().getEventStartTime();		
-			/*pass the value since they may be null*/
-			this.signupMeeting.setStartTime(eventStartTime);
-			this.signupMeeting.setEndTime(eventEndTime);
-			
 			if(getUserDefineTimeslotBean().getDestTSwrpList()==null || getUserDefineTimeslotBean().getDestTSwrpList().isEmpty()){
 				validationError = true;
 				Utilities.addErrorMessage(Utilities.rb.getString("event.create_custom_defined_TS_blocks"));
 				return;
+			} else {
+				eventEndTime = getUserDefineTimeslotBean().getEventEndTime();
+				eventStartTime = getUserDefineTimeslotBean().getEventStartTime();
+				/*pass the value since they may be null*/
+				this.signupMeeting.setStartTime(eventStartTime);
+				this.signupMeeting.setEndTime(eventEndTime);
 			}
 				
 		}

@@ -623,12 +623,13 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 
 		/*user defined own TS case*/
 		if(isUserDefinedTS()){
-			eventEndTime= getUserDefineTimeslotBean().getEventEndTime();
-			eventStartTime = getUserDefineTimeslotBean().getEventStartTime();
 			if(getUserDefineTimeslotBean().getDestTSwrpList()==null || getUserDefineTimeslotBean().getDestTSwrpList().isEmpty()){
 				validationError = true;
 				Utilities.addErrorMessage(Utilities.rb.getString("event.create_custom_defined_TS_blocks"));
 				return;
+			} else {
+				eventEndTime= getUserDefineTimeslotBean().getEventEndTime();
+				eventStartTime = getUserDefineTimeslotBean().getEventStartTime();
 			}
 				
 		}
