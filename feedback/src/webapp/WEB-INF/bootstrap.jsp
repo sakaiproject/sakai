@@ -7,14 +7,14 @@
     lang="${language}">
     <head>
         <link rel="stylesheet" type="text/css" href="/feedback-tool/css/feedback.css" />
-        <script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
-        <script type="text/javascript" src="/feedback-tool/lib/jquery.form.min.js"></script>
-        <script type="text/javascript" src="/feedback-tool/lib/jquery.MultiFile.pack.js"></script>
-        <script type="text/javascript" src="//www.google.com/recaptcha/api/js/recaptcha_ajax.js"></script>
-        <script type="text/javascript" src="/feedback-tool/lib/handlebars.runtime-v1.3.0.js"></script>
-        <script type="text/javascript" src="/feedback-tool/templates/all.handlebars"></script>
+        <script src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
+        <script src="/feedback-tool/lib/jquery.form.min.js"></script>
+        <script src="/library/webjars/multifile/2.2.2/jquery.MultiFile.min.js"></script>
+        <script src="//www.google.com/recaptcha/api/js/recaptcha_ajax.js"></script>
+        <script src="/feedback-tool/lib/handlebars.runtime-v1.3.0.js"></script>
+        <script src="/feedback-tool/templates/all.handlebars"></script>
 
-        <script type="text/javascript">
+        <script>
 
             var feedback = {
                 state: 'home',
@@ -68,7 +68,7 @@
             };
     
         </script>
-        <script type="text/javascript" src="/feedback-tool/js/feedbackutils.js"></script>
+        <script src="/feedback-tool/js/feedbackutils.js"></script>
         ${sakaiHtmlHead}
     </head>
 
@@ -87,7 +87,7 @@
                 <div id="feedback-content"></div>
             </div>
         </div>
-        <script type="text/javascript" src="/feedback-tool/js/feedback.js"></script>
+        <script src="/feedback-tool/js/feedback.js"></script>
 
     </body>
 </html>
