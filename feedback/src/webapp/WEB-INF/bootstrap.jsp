@@ -78,15 +78,11 @@
         <div class="portletBody">
             <ul id="feedback-toolbar" class="navIntraTool actionToolBar" role="menu"></ul>
             <div class="portletBody">
-                <div id="feedback-error-message-wrapper">
-                    <div>
-                        <span></span><a href="javascript:;" alt="${i18n.close}" title="${i18n.close}"></a>
-                    </div>
+                <div id="feedback-error-message-wrapper" class="sak-banner-error">
+                    <span></span>
                 </div>
-                <div id="feedback-info-message-wrapper">
-                    <div>
-                        <span></span><a href="javascript:;" alt="${i18n.close}" title="${i18n.close}"></a>
-                    </div>
+                <div id="feedback-info-message-wrapper" class="sak-banner-success">
+                    <span></span>
                 </div>
                 <div id="feedback-content"></div>
             </div>
