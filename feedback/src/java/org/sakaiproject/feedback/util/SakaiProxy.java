@@ -311,15 +311,12 @@ public class SakaiProxy {
 
 		msg.addRecipient(RecipientType.TO, toAddress);
 
-		new Thread(new Runnable() {
-			public void run() {
-		        try {
-			        emailService.send(msg, true);
-                } catch (Exception e) {
-                    log.error("Failed to send email.", e);
-                }
-            }
-        }, "Feedback Email Thread").start();
+		try {
+			emailService.send(msg, true);
+		} catch (Exception e) {
+			log.error("Failed to send email.", e);
+		}
+
 	}
 
     public int getAttachmentLimit() {
