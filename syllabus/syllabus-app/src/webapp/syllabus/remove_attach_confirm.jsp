@@ -18,7 +18,7 @@
 				<div class="alertMessage">
 					<h:outputText value="#{msgs.delAttConfAlert}" />
 				</div>	
-				<h:dataTable value="#{SyllabusTool.prepareRemoveAttach}" var="eachAttach" summary="#{msgs.del_conf_listsummary}">
+				<h:dataTable value="#{SyllabusTool.prepareRemoveAttach}" styleClass="table table-bordered table-striped" var="eachAttach" summary="#{msgs.del_conf_listsummary}">
 					<h:column>
 						<f:facet name="header">
 							<h:outputText value="#{msgs.title}" />
