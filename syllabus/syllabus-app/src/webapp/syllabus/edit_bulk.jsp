@@ -139,7 +139,7 @@
 			background: none repeat scroll 0 0 #CCCCCC;
 		}
 	</style>
-			<h:outputText value="#{SyllabusTool.alertMessage}" styleClass="alertMessage" rendered="#{SyllabusTool.alertMessage != null}" />
+			<h:outputText value="#{SyllabusTool.alertMessage}" styleClass="sak-banner-error" rendered="#{SyllabusTool.alertMessage != null}" />
 				
 			<sakai:tool_bar_message value="#{msgs.add_sylla_bulk}" /> 
 			<sakai:doc_section>
