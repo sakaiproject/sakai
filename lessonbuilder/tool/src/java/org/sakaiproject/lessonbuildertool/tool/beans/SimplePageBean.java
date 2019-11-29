@@ -6369,6 +6369,7 @@ public class SimplePageBean {
 					} else {
 					    // otherwise create a new file
 					    if (isWebsite) {
+							
 						// the code below tests whether it's actually a zip file. But we can't be sure it is until after
 						// the file is saved, since the kernel does the test. Thus about all we can do is check isWebsite.
 						// that indicates that the user intended it to be a zip file.
@@ -6404,7 +6405,7 @@ public class SimplePageBean {
 					} catch (java.lang.NullPointerException e) {
 						setErrMessage(messageLocator.getMessage("simplepage.resourcepossibleerror"));
 					}
-					mimeType = null; // display code will use type from the object
+
 					sakaiId = res.getId();
 
 					if(StringUtils.equalsAny(mimeType, "application/zip", "application/x-zip-compressed")  && isWebsite) {
@@ -6416,8 +6417,7 @@ public class SimplePageBean {
 					    // We set this special type for the html field in the db. This allows us to
 					    // map an icon onto website links in applicationContext.xml
 					    mimeType = "LBWEBSITE";
-					}		    
-					
+					}
 				} catch (org.sakaiproject.exception.OverQuotaException ignore) {
 					setErrMessage(messageLocator.getMessage("simplepage.overquota"));
 					return;
@@ -8056,22 +8056,12 @@ public class SimplePageBean {
 		try {
 			contentHostingService.removeCollection(contentCollectionId);
 		} catch (Exception e) {
-			log.info("Failed to delete expanded collection");
+			log.warn("Failed to delete expanded collection");
 		}
 
-		// Q: Are we running a kernel with KNL-273?
-		Class contentHostingInterface = ContentHostingService.class;
 		try {
-			Method expandMethod = contentHostingInterface.getMethod("expandZippedResource", new Class[] { String.class });
-			// Expand the website
-			expandMethod.invoke(contentHostingService, new Object[] { resourceId });
-		} catch (NoSuchMethodException nsme) {
-			// A: No; should be impossible, UI already tested
-			return null;
+			contentHostingService.expandZippedResource(resourceId);
 		} catch (Exception e) {
-			// This is very strange. The kernel code will normally trap exceptions
-		        // and print a backtrace, robbing us of any ability to see that something
-		        // has gone wrong.
 			log.error("Exception thrown by expandZippedResource", e);
 			setErrKey("simplepage.website.cantexpand", null);
 			return null;
