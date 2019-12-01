@@ -20,6 +20,7 @@
                             "pageLength": 20,
                             "aaSorting": [[0, "desc"]],
                             "columns": [
+                                {"bSortable": true, "bSearchable": true},
                                 {"bSortable": true, "bSearchable": true, "type": "span"},
                                 {"bSortable": true, "bSearchable": true},
                                 {"bSortable": false, "bSearchable": false},
@@ -80,6 +81,12 @@
                     <h:dataTable cellpadding="0" cellspacing="0" id="deletedAssessmentsTable" value="#{restoreAssessmentsBean.deletedAssessmentList}"
                         var="deletedAssessment" styleClass="table table-bordered table-striped" rendered ="#{!restoreAssessmentsBean.deletedAssessmentList.isEmpty()}">
 
+                        <h:column>
+                            <f:facet name="header">
+                                <h:outputText value="#{authorFrontDoorMessages.assessment_id}" />
+                            </f:facet>
+                            <h:outputText value="#{deletedAssessment.id}" />
+                        </h:column>
                         <h:column>
                             <f:facet name="header">
                                 <h:outputText value="#{authorFrontDoorMessages.assessment_title}" />
