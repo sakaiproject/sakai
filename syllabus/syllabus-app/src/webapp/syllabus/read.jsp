@@ -43,7 +43,7 @@
 		});
 	});
  </script>
-			<h:outputText value="#{SyllabusTool.alertMessage}" styleClass="alertMessage" rendered="#{SyllabusTool.alertMessage != null}" />
+			<h:outputText value="#{SyllabusTool.alertMessage}" styleClass="sak-banner-error" rendered="#{SyllabusTool.alertMessage != null}" />
 			<h:form id="readview">
 		  	<sakai:tool_bar_message value="#{msgs.editNotice}" /> 
 				<sakai:doc_section>
