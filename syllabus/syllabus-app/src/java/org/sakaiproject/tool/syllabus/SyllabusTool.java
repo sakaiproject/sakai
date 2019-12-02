@@ -41,8 +41,11 @@ import javax.faces.event.ValueChangeEvent;
 
 import com.sun.faces.util.MessageFactory;
 import lombok.extern.slf4j.Slf4j;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
@@ -374,19 +377,22 @@ public class SyllabusTool
   private String evilTagMsg=null;
   
   private SyllabusService syllabusService;
-  
+
+  @Setter
   private ArrayList attachments = new ArrayList();
-  
+
+  @Getter @Setter
   private boolean attachCaneled = false;
-  
+
+  @Getter @Setter
   private String removeAttachId = null;
-  
+
+  @Getter @Setter
   private ArrayList oldAttachments = new ArrayList();
-  
+
+  @Setter
   private ArrayList allAttachments = new ArrayList();
-  
-  private ArrayList prepareRemoveAttach = new ArrayList();
-  
+
   private List filePickerList;
   
   private String currentRediredUrl = null;
@@ -2220,53 +2226,31 @@ public class SyllabusTool
     
     return attachments;
   }
-  
-  public void setAttachments(ArrayList attachments)
-  {
-    this.attachments = attachments;
-  }
-  
-  public boolean getAttachCaneled()
-  {
-    return attachCaneled;
-  }
-  
-  public void setAttachCaneled(boolean attachCaneled)
-  {
-    this.attachCaneled = attachCaneled;
-  }
-  
-  public String processDeleteAttach()
-  {
+
+  public String processDeleteAttach() {
     ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
     String attachId = null;
     
     Map paramMap = context.getRequestParameterMap();
     Iterator itr = paramMap.keySet().iterator();
-    while(itr.hasNext())
-    {
+    while(itr.hasNext()) {
       Object key = itr.next();
-      if( key instanceof String)
-      {
-        String name =  (String)key;
-        int pos = name.lastIndexOf("syllabus_current_attach");
-        
-        if(pos>=0 && name.length()==pos+"syllabus_current_attach".length())
-        {
-          attachId = (String)paramMap.get(key);
+      if( key instanceof String && "syllabus_current_attach".equals((String) key)) {
+          attachId = (String) paramMap.get(key);
           break;
-        }
       }
     }
-    
+
     removeAttachId = attachId;
-    
-    if((removeAttachId != null) && (!removeAttachId.equals("")))
+
+    if (StringUtils.isNotBlank(removeAttachId)) {
       return "remove_attach_confirm";
-    else
+    } else {
       return null;
+    }
+
   }
-  
+
   public String processRemoveAttach()
   {
       if (!isAddOrEdit())
@@ -2301,7 +2285,6 @@ public class SyllabusTool
       }
       
       removeAttachId = null;
-      prepareRemoveAttach.clear();
       return "edit";
     }
     else
@@ -2359,7 +2342,6 @@ public class SyllabusTool
       }
 
       removeAttachId = null;
-      prepareRemoveAttach.clear();
       return "read";
     }
   }
@@ -2367,7 +2349,6 @@ public class SyllabusTool
   public String processRemoveAttachCancel()
   {
     removeAttachId = null;
-    prepareRemoveAttach.clear();
     if(entry.justCreated == true)
     {
       return "edit";
@@ -2378,26 +2359,6 @@ public class SyllabusTool
     }
   }
 
-  public String getRemoveAttachId()
-  {
-    return removeAttachId;
-  }
-
-  public final void setRemoveAttachId(String removeAttachId)
-  {
-    this.removeAttachId = removeAttachId;
-  }
-
-  public final ArrayList getOldAttachments()
-  {
-    return oldAttachments;
-  }
-
-  public final void setOldAttachments(ArrayList oldAttachments)
-  {
-    this.oldAttachments = oldAttachments;
-  }
-  
   public String processAddAttWithOldItem()
   {
     if(entry.getEntry().getTitle() == null)
@@ -2448,26 +2409,14 @@ public class SyllabusTool
     return allAttachments;
   }
 
-  public final void setAllAttachments(ArrayList allAttachments)
-  {
-    this.allAttachments = allAttachments;
-  }
-
-  public ArrayList getPrepareRemoveAttach()
-  {
-    if((removeAttachId != null) && (!removeAttachId.equals("")))
-    {
-      prepareRemoveAttach.add(syllabusManager.getSyllabusAttachment(removeAttachId));
+  public List getPrepareRemoveAttach() {
+    List removedAttachments = new ArrayList();
+    if(StringUtils.isNotBlank(removeAttachId)) {
+      removedAttachments.add(syllabusManager.getSyllabusAttachment(removeAttachId));
     }
-    
-    return prepareRemoveAttach;
+    return removedAttachments;
   }
 
-  public final void setPrepareRemoveAttach(ArrayList prepareRemoveAttach)
-  {
-    this.prepareRemoveAttach = prepareRemoveAttach;
-  }
-  
   public String processAddAttachRedirect()
   {
     try
