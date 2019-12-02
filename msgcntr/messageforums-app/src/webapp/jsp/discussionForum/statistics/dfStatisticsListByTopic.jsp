@@ -134,31 +134,30 @@
 					$('.comments').fadeOut();
 					$('.commentsHidden').fadeIn();
 					link.innerHTML = '<h:outputText value="#{msgs.stat_forum_comments_show}"/>';
-				}		
+				}
 				
 				resize();
 			}
-			
+
 			function applyDefaultToUngraded(value){
 				$('.gradeInput').each(function(){
 					if($(this).val() == null || $(this).val() == ''){
 						$(this).val($('.defaultValue').val());
 					}
 				});
-				
-				dialogutil.showDiv('gradesNeedSaved');				
+
+				dialogutil.showDiv('gradesNeedSaved');
 			}
-			
+
 			$(document).ready(function() {
 				$('.selAssignVal').val('<h:outputText value="#{mfStatisticsBean.selectedAssign}"/>');
 			});
 		</script>
 		
-		<f:verbatim>
-			<div id="dialogDiv" title="Grade Messages" style="display:none">
-		       <iframe id="dialogFrame" name="dialogFrame" width="100%" height="100%" frameborder="0"></iframe>
-		    </div>
-		</f:verbatim>
+		<div id="dialogDiv" title="Grade Messages" style="display:none">
+			<h:commandButton type="button" styleClass="closeDialogFrame" onclick="dialogutil.closeDialog($(this).parent().attr('id'), $('#dialogFrame').attr('id'));" value="#{msgs.close_window}"/>
+			<iframe id="dialogFrame" name="dialogFrame" width="100%" height="100%" frameborder="0"></iframe>
+		</div>
 		<f:verbatim>
 	  		<div class="success" id="gradesSavedDiv" class="success" style="display:none">
 	  	</f:verbatim>

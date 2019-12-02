@@ -18,55 +18,38 @@
   	{
     	thisId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
  		 }
- 	
- 	
- 		
 
 	FacesContext context = FacesContext.getCurrentInstance();
 	Application app = context.getApplication();
 	ValueBinding binding = app.createValueBinding("#{mfStatisticsBean}");
 	MessageForumStatisticsBean statsBean = (MessageForumStatisticsBean) binding.getValue(context);
-	
-	
-		
+
 	//Check if user called this page with a popup dialog
 	
 	String selectedUserId = request.getParameter("siteUserId");
 	String frameId = request.getParameter("frameId");
 	String dialogDivId = request.getParameter("dialogDivId");
 	boolean isDialogBox = false;
-	
+
 	if(selectedUserId != null && !"".equals(selectedUserId)){
 		isDialogBox = true;
 		statsBean.selectedSiteUserId = selectedUserId;
 		//set up default settings:
 		statsBean.processActionStatisticsUserHelper();	
-	}	
-%>
-<script type="text/javascript" language="javascript">
-		
-	function closeDialogBoxIfExists(){
-		//if isDialogBox, there will be javascript that is ran, otherwise its an empty function
-		<% if(isDialogBox){ %>
-			parent.dialogutil.closeDialog('<%=dialogDivId%>','<%=frameId%>');
-		<% }%>
 	}
-</script>
+%>
 
 <f:view>
   <sakai:view toolCssHref="/messageforums-tool/css/msgcntr.css">
   	<h:form id="dfStatisticsForm" rendered="#{ForumTool.instructor}">
   	<!-- discussionForum/statistics/dfStatisticsAllAuthoredMsgForOneUser.jsp-->
-  		<script type="text/javascript">
-
-	
+  		<script>
 			var iframeId = '<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>';
-			
+
 			function resize(){
 				mySetMainFrameHeight('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
 			}
-		
-		
+
 			function mySetMainFrameHeight(id)
 			{
 				// run the script only if this window's name matches the id parameter
@@ -76,15 +59,15 @@
 				var frame = parent.document.getElementById(id);
 				if (frame)
 				{
-			
+
 					var objToResize = (frame.style) ? frame.style : frame;
-			  
+
 			    // SAK-11014 revert           if ( false ) {
-			
-					var height; 		
+
+					var height;
 					var offsetH = document.body.offsetHeight;
 					var innerDocScrollH = null;
-			
+
 					if (typeof(frame.contentDocument) != 'undefined' || typeof(frame.contentWindow) != 'undefined')
 					{
 						// very special way to get the height from IE on Windows!
@@ -93,7 +76,7 @@
 			 			var innerDoc = (frame.contentDocument) ? frame.contentDocument : frame.contentWindow.document;
 						innerDocScrollH = (innerDoc != null) ? innerDoc.body.scrollHeight : null;
 					}
-				
+
 					if (document.all && innerDocScrollH != null)
 					{
 						// IE on Windows only
@@ -105,21 +88,21 @@
 						height = offsetH;
 					}
 			   // SAK-11014 revert		} 
-			
+
 			   // SAK-11014 revert             var height = getFrameHeight(frame);
-			
+
 					// here we fudge to get a little bigger
 					var newHeight = height + 40;
-			
+
 					// but not too big!
 					if (newHeight > 32760) newHeight = 32760;
-			
+
 					// capture my current scroll position
 					var scroll = findScroll();
-			
+
 					// resize parent frame (this resets the scroll as well)
 					objToResize.height=newHeight + "px";
-			
+
 					// reset the scroll, unless it was y=0)
 					if (scroll[1] > 0)
 					{
@@ -128,57 +111,48 @@
 					}
 				}
 			}
-			
+
 			</script>
-			  			
-  	
-  	       	<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-			<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
-			<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
-			<script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
-			<script type="text/javascript" src="/messageforums-tool/js/dialog.js"></script>
+
+  	       	<script>includeLatestJQuery("msgcntr");</script>
+			<script src="/messageforums-tool/js/sak-10625.js"></script>
+			<script src="/messageforums-tool/js/forum.js"></script>
+			<script src="/messageforums-tool/js/messages.js"></script>
+			<script src="/messageforums-tool/js/dialog.js"></script>
   			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />
   			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/msgcntr_statistics.css" />
-  			
-  			<script type="text/javascript">
+
+  			<script>
 	  			$(document).ready(function() {
 					$(".messageBody").each(function(index){
 						var msgBody = $(this).html();
 						msgBody = msgBody.replace(/\n/g,',').replace(/\s/g,' ').replace(/  ,/g,',');
 						var wordCountId = $(this).attr('id').substring(11, $(this).attr('id').length);
-		  				fckeditor_word_count_fromMessage(msgBody,'wordCountSpan' + wordCountId);		  				
+		  				fckeditor_word_count_fromMessage(msgBody,'wordCountSpan' + wordCountId);
 					});
 					resize();
 				});
-				
+
 				function dialogLinkClick(link){
 					var position =  $(link).position();
 					dialogutil.openDialog('dialogDiv', 'dialogFrame', position.top);
 				}
 			</script>
-  			
+
   			<sakai:tool_bar>
   				<h:outputLink id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyAllAuthoredMsg}');" title="#{msgs.cdfm_print}">
 					<h:graphicImage url="/../../library/image/silk/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
 				</h:outputLink>		
   			</sakai:tool_bar>
-  	
-  			<% if(isDialogBox){ %>	  				
-				<f:verbatim>
-					<div style="display: block" class="itemNav">
-          				<input type="button" onclick="closeDialogBoxIfExists();" value="</f:verbatim><h:outputText value="#{msgs.close_window}"/><f:verbatim>"/>
-          			</div>
-					<div class="breadCrumb">
-						<h3>
-							</f:verbatim>
-								<h:outputText value="#{mfStatisticsBean.selectedSiteUser}"/>
-							<f:verbatim>
-						</h3>
-					</div>
-					
-          		</f:verbatim>
+
+  			<% if(isDialogBox){ %>
+				<h:panelGroup layout="block" styleClass="itemNav">
+					<h:panelGroup layout="block" styleClass="breadCrumb">
+						<h3><h:outputText value="#{mfStatisticsBean.selectedSiteUser}"/></h3>
+					</h:panelGroup>
+				</h:panelGroup>
 			<% }else {%>
-          	 <f:verbatim><div class="breadCrumb"><h3></f:verbatim>
+          	 <h:panelGroup layout="block" styleClass="breadCrumb"><h3>
 			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"
 			      		rendered="#{ForumTool.messagesandForums}" />
 			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_discussion_forums}" title=" #{msgs.cdfm_discussion_forums}"
@@ -208,7 +182,7 @@
 			      </h:commandLink>
 			      <h:outputText value=" / "/>
 			      <h:outputText value="#{msgs.stat_authored}" />
-			  <f:verbatim></h3></div></f:verbatim>
+			  </h3></h:panelGroup>
 			 <%}%>
 			  <f:verbatim>
 			  	<div class="success" id="gradesSavedDiv" class="success" style="display:none">
@@ -222,8 +196,8 @@
 			       <iframe id="dialogFrame" name="dialogFrame" width="100%" height="100%" frameborder="0"></iframe>
 			    </div>
 			</f:verbatim>
-			  <f:verbatim><div style="font-weight:bold;" styleClass="specialLink"></f:verbatim>					          
-					<h:commandLink  action="#{mfStatisticsBean.toggleTopicTitleSort3}" title=" #{msgs.stat_sort_by_topic}">	
+			  <f:verbatim><div style="font-weight:bold;" styleClass="specialLink"></f:verbatim>
+					<h:commandLink  action="#{mfStatisticsBean.toggleTopicTitleSort3}" title=" #{msgs.stat_sort_by_topic}">
 						<h:outputText value="#{msgs.stat_sort_by_topic}" />
 						<h:graphicImage value="/images/sortascending.gif" rendered="#{mfStatisticsBean.topicTitleSort3 && mfStatisticsBean.ascendingForUser3}" alt="#{msgs.stat_topic_title}"/>
 						<h:graphicImage value="/images/sortdescending.gif" rendered="#{mfStatisticsBean.topicTitleSort3 && !mfStatisticsBean.ascendingForUser3}" alt="#{msgs.stat_topic_title}"/>
@@ -234,7 +208,7 @@
 						<h:graphicImage value="/images/sortascending.gif" rendered="#{mfStatisticsBean.forumDateSort3 && mfStatisticsBean.ascendingForUser3}" alt="#{msgs.stat_forum_date}"/>
 						<h:graphicImage value="/images/sortdescending.gif" rendered="#{mfStatisticsBean.forumDateSort3 && !mfStatisticsBean.ascendingForUser3}" alt="#{msgs.stat_forum_date}"/>
 					</h:commandLink>
-			  <f:verbatim></div></f:verbatim>					            
+			  <f:verbatim></div></f:verbatim>
   			<h:dataTable id="staticAllMessages" value="#{mfStatisticsBean.userAuthoredStatistics2}" var="stat" styleClass="messagesFlat" columnClasses="bogus">	
    				<h:column>
 				<h:panelGroup rendered="#{!stat.msgDeleted}" layout="block"> 
@@ -243,8 +217,8 @@
 	  					<span id="messageBody</f:verbatim><h:outputText value="#{stat.msgId}"/><f:verbatim>" style="display: none" class="messageBody">
 	  				</f:verbatim>
 	  					<h:outputText escape="false" value="#{stat.message}"/>
-					<f:verbatim>  					
-	  					</span>  		  									  				
+					<f:verbatim>
+	  					</span>
 		  				<h4 style="border-bottom:1px solid #ccc;padding-bottom:5px;overflow:hidden">
 						<span><img src="/library/image/silk/table_add.png" />&nbsp;</f:verbatim><h:outputText value="#{msgs.cdfm_message_count}" /><f:verbatim>:&nbsp;<span  id="wordCountSpan</f:verbatim><h:outputText value="#{stat.msgId}"/><f:verbatim>"> </span></span>
 						<br>
@@ -288,11 +262,11 @@
 				<h:panelGroup rendered="#{!empty stat.decoAttachmentsList}" style="display:block;" styleClass="indnt1">
 					<h:dataTable value="#{stat.decoAttachmentsList}" var="eachAttach" styleClass="attachListJSF" rendered="#{!empty stat.decoAttachmentsList}">
 					<h:column rendered="#{!empty stat.decoAttachmentsList}">
-						<sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>		
-						<h:graphicImage id="exampleFileIcon" value="#{imagePath}" />							
+						<sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>
+						<h:graphicImage id="exampleFileIcon" value="#{imagePath}" />
 						<h:outputLink value="#{eachAttach.url}" target="_blank">
 							<h:outputText value=" #{eachAttach.attachment.attachmentName}" />
-						</h:outputLink>								
+						</h:outputLink>
 					</h:column>
 					</h:dataTable>
 				</h:panelGroup>
@@ -328,25 +302,16 @@
 				<f:verbatim></h4></f:verbatim>
 				<mf:htmlShowArea value="" hideBorder="true" />
 				<f:verbatim></div></f:verbatim>
-  			</h:column>			
+  			</h:column>
 			
 			--%>
   		</h:dataTable>
 
-  		<h:panelGroup styleClass="act" style="display:block">
-  			<% if(isDialogBox){ %>	  				
-				<f:verbatim>
-					<div style="display: block" class="itemNav">
-          			<input type="button" onclick="closeDialogBoxIfExists();" value="</f:verbatim><h:outputText value="#{msgs.close_window}"/><f:verbatim>"/>
-          			</div>
-          		</f:verbatim>
-			<% }else {%>
-				<h:commandButton action="#{mfStatisticsBean.processActionBackToUser}" value="#{mfStatisticsBean.buttonUserName}"  
-				               title="#{mfStatisticsBean.buttonUserName}">			               			
-				</h:commandButton>
-			<%}%>
+		<% if(!isDialogBox){ %>
+		<h:panelGroup styleClass="act" style="display:block">
+			<h:commandButton action="#{mfStatisticsBean.processActionBackToUser}" value="#{mfStatisticsBean.buttonUserName}" title="#{mfStatisticsBean.buttonUserName}"/>
 		</h:panelGroup>
-
+		<%}%>
 
 <% if(isDialogBox){ %>
     <!-- This is used to keep the dialogbox state when going to the next page (this page) -->
