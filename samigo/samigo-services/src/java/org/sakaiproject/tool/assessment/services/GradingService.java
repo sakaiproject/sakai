@@ -948,9 +948,7 @@ public class GradingService
         itemId = itemGrading.getPublishedItemId();
         ItemDataIfc item = (ItemDataIfc) publishedItemHash.get(itemId);
         if (item == null) {
-        	//this probably shouldn't happen
-        	log.error("unable to retrive itemDataIfc for: {}", publishedItemHash.get(itemId));
-        	continue;
+            throw new DataInconsistencyException("Unable to retrieve itemDataIfc for: " + publishedItemHash.get(itemId));
         }
         for (ItemMetaDataIfc meta : item.getItemMetaDataSet())
         {
@@ -1054,10 +1052,9 @@ public class GradingService
         ItemGradingData itemGrading = iter.next();
         itemId = itemGrading.getPublishedItemId();
         ItemDataIfc item = (ItemDataIfc) publishedItemHash.get(itemId);
-      //SAM-1724 it's possible the item is not in the hash -DH
+        //SAM-1724 it's possible the item is not in the hash -DH
         if (item == null) {
-        	log.error("unable to retrive itemDataIfc for: " + publishedItemHash.get(itemId));
-        	continue;
+            throw new DataInconsistencyException("Unable to retrieve itemDataIfc for: " + publishedItemHash.get(itemId));
         }
 
         itemType2 = item.getTypeId();
@@ -1229,11 +1226,10 @@ public class GradingService
     	  data.setFinalScore(totalAutoScore + data.getTotalOverrideScore());
       }
       log.debug("****x6. "+(new Date()).getTime());
-    } catch (GradebookServiceException ge) {
+    } catch (GradebookServiceException | DataInconsistencyException ge) {
       log.error(ge.getMessage(), ge);
       throw ge;
-    } 
-    catch (Exception e) {
+    } catch (Exception e) {
       log.error(e.getMessage(), e);
       throw new RuntimeException(e);
     }

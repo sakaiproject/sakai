@@ -55,6 +55,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.services.DataInconsistencyException;
 import org.sakaiproject.tool.assessment.services.FinFormatException;
 import org.sakaiproject.tool.assessment.services.GradebookServiceException;
 import org.sakaiproject.tool.assessment.services.GradingService;
@@ -105,12 +106,13 @@ public class SubmitToGradingActionListener implements ActionListener {
 	 * @throws AbortProcessingException
 	 */
 	public void processAction(ActionEvent ae) throws AbortProcessingException, FinFormatException, SaLengthException {
+		// SAK-34373 - make DeliveryBean reference available in catch block
+		DeliveryBean delivery = null;
 		try {
 			log.debug("SubmitToGradingActionListener.processAction() ");
 			
 			// get managed bean
-			DeliveryBean delivery = (DeliveryBean) ContextUtil
-					.lookupBean("delivery");
+			delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
 
 			if ((ContextUtil.lookupParam("showfeedbacknow") != null
 					&& "true"
@@ -169,6 +171,12 @@ public class SubmitToGradingActionListener implements ActionListener {
 					"org.sakaiproject.tool.assessment.bundle.AuthorMessages",
 					"gradebook_exception_error");
 			context.addMessage(null, new FacesMessage(err));
+		} catch (DataInconsistencyException exc) {
+			delivery.setDataInconsistency(true);
+			Event event = eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_DATA_INCONSISTENCY,
+					delivery.getAssessmentTitle(), delivery.getCourseName(), false,
+					NotificationService.NOTI_OPTIONAL, null);
+			eventTrackingService.post(event);
 		}
 	}
 

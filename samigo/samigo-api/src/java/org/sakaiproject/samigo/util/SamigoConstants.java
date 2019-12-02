@@ -93,6 +93,7 @@ public final class SamigoConstants {
     public static final     String      EVENT_AUTO_SUBMIT_JOB                               = "sam.auto-submit.job";
     public static final     String      EVENT_AUTO_SUBMIT_JOB_ERROR                         = "sam.auto-submit.job.error";
     public static final     String      EVENT_ASSESSMENT_SETTING_EDIT                       = "sam.setting.edit";
+    public static final     String      EVENT_ASSESSMENT_DATA_INCONSISTENCY                 = "sam.data.inconsistency";
 
     /*
      * Notification Types

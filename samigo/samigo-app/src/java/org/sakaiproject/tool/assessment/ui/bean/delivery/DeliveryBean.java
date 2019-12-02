@@ -303,6 +303,9 @@ public class DeliveryBean implements Serializable {
   // Rubrics
   private String rbcsToken;
 
+  // SAK-34373
+  boolean dataInconsistency = false;
+
   private static String ACCESSBASE = ServerConfigurationService.getAccessUrl();
   private static String RECPATH = ServerConfigurationService.getString("samigo.recommendations.path"); 
 
@@ -3335,6 +3338,11 @@ public class DeliveryBean implements Serializable {
     if (this.actionMode == PREVIEW_ASSESSMENT) {
 		  return "safeToProceed";
     }
+
+    if (isDataInconsistency()) {
+        setDataInconsistency(false);
+        return "discrepancyInData";
+    }
   
     GradingService service = new GradingService();
     AssessmentGradingData assessmentGrading=null;
@@ -4255,4 +4263,13 @@ public class DeliveryBean implements Serializable {
     public String getCDNQuery() {
         return PortalUtils.getCDNQuery();
     }
+
+    public boolean isDataInconsistency() {
+        return dataInconsistency;
+    }
+
+    public void setDataInconsistency(boolean dataInconsistency) {
+        this.dataInconsistency = dataInconsistency;
+    }
+
 }
