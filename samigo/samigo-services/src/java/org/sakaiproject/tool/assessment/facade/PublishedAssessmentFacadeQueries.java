@@ -1059,6 +1059,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 							true);
 		}
 		else {
+			assessment.setLastModifiedBy(AgentFacade.getAgentString());
+			assessment.setLastModifiedDate(new Date());
 			assessment.setStatus(PublishedAssessmentIfc.DEAD_STATUS);
 			try {
 				saveOrUpdate(assessment);
