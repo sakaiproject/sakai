@@ -86,16 +86,6 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
      * for container and resource names.
      */
     private String invalidCharactersRegex = "[:*?<|>]";
-    /**
-     * The maximum buffer size, which dictates the maximum file upload.
-     *
-     * Because services like S3 require a known size at the beginning of an
-     * upload, we buffer the InputStream to get its size. This is not
-     * the default size of the buffer, but the maximum. The
-     * content.upload.ceiling property is almost certainly lower than the 1GB
-     * set here, meaning that the buffer should be bounded on it instead.
-     */
-    private static final int MAX_UPLOAD_BYTES = 1024 * 1024 * 1024;
 
     /**
      * This is how long we want the signed URL to be valid for.
@@ -316,10 +306,8 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
             ContainerAndName can = getContainerAndName(id, root, filePath);
             createContainerIfNotExist(can.container);
 
-            InputStream in = markableInputStream(stream);
-            long size = markableStreamLength(in);
 
-            Payload payload = Payloads.newInputStreamPayload(in);
+            Payload payload = Payloads.newInputStreamPayload(stream);
 
             try {
                 BlobStore store = getBlobStore();
@@ -327,46 +315,20 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
 
                 Blob blob = store.blobBuilder(can.name)
                     .payload(payload)
-                    .contentLength(size)
                     .userMetadata(ImmutableMap.of("id", asciiID, "path", filePath))
                     .build();
-                store.putBlob(can.container, blob);
+                
+                // Send to AWS via multi-part upload
+                store.putBlob(can.container, blob, PutOptions.Builder.multipart());
+                
+                // Retrieve the uploaded size from AWS S3
+                StorageMetadata returnedMetadata = blob.getMetadata();
+                return returnedMetadata.getSize();
             } finally {
                 payload.release();
                 Closeables.close(stream, true);
-                Closeables.close(in, true);
             }
-
-            return size;
         }
-
-    /**
-     * Get a markable version of an InputStream, wrapping it if necessary.
-     *
-     * This method will return the passed stream if it is already markable,
-     * otherwise wrapping it in a BufferedInputStream to support mark/reset
-     * for computing length and rereading.
-     */
-    private InputStream markableInputStream(InputStream stream) {
-        if (stream.markSupported()) {
-            return stream;
-        } else {
-            return new BufferedInputStream(stream);
-        }
-    }
-
-    /**
-     * Get the length of a markable InputStream.
-     */
-    private long markableStreamLength(InputStream stream) throws IOException {
-        long size = 0;
-        stream.mark(MAX_UPLOAD_BYTES);
-        while (stream.read() != -1) {
-            size += 1;
-        }
-        stream.reset();
-        return size;
-    }
 
     /**
      * {@inheritDoc}
