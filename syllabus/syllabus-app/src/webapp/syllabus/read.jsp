@@ -95,7 +95,7 @@
 							value="#{msgs.add_attach}"/>
 					</sakai:button_bar>							
 	
-					<h:dataTable value="#{SyllabusTool.allAttachments}" var="eachAttach" summary="#{msgs.edit_att_list_summary}" styleClass="listHier lines nolines">
+					<h:dataTable value="#{SyllabusTool.allAttachments}" var="eachAttach" summary="#{msgs.edit_att_list_summary}" styleClass="table table-striped table-bordered table-hover">
 					  <h:column rendered="#{!empty SyllabusTool.allAttachments}">
 							<f:facet name="header">
 								<h:outputText value="#{msgs.attachmentTitle}" />
