@@ -606,7 +606,7 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
 
   public void removeSyllabusAttachmentObject(SyllabusAttachment o)
   {
-    getHibernateTemplate().delete(o);
+    getHibernateTemplate().delete(getHibernateTemplate().merge(o));
   }
   
   public void removeSyllabusAttachSyllabusData(final SyllabusData syllabusData, final SyllabusAttachment syllabusAttach)
