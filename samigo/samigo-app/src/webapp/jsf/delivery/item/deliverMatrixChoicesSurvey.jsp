@@ -32,6 +32,9 @@ should be included in file importing DeliveryMessages
 **********************************************************************************/
 --%>
 -->
+<script>
+  var matrixChoicesAlert = '<h:outputText value="#{deliveryMessages.matrix_choices_alert}"/>';
+</script>
 <h:messages layout="table" styleClass="error"/>
 
  <h:outputText value="#{question.itemData.text}"  escape="false"/>
