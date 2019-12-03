@@ -22,6 +22,7 @@
                             "columns": [
                                 {"bSortable": true, "bSearchable": true, "type": "span"},
                                 {"bSortable": true, "bSearchable": true},
+                                {"bSortable": true, "bSearchable": true},
                                 {"bSortable": false, "bSearchable": false},
                             ],
                             "language": {
@@ -86,6 +87,12 @@
                             </f:facet>
                             <h:outputText value="#{authorFrontDoorMessages.assessment_draft} - " styleClass="highlight" rendered="#{deletedAssessment.draft}" />
                             <h:outputText value="#{deletedAssessment.title}" />
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">
+                                <h:outputText value="#{eventLogMessages.id}" />
+                            </f:facet>
+                            <h:outputText value="#{deletedAssessment.id}" />
                         </h:column>
 
                         <h:column>
