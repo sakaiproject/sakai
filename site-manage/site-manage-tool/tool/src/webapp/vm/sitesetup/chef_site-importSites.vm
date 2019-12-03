@@ -99,14 +99,14 @@
 												#foreach ($pageTool in $pageTools)
 													#if ($pageTool.getTool().getId() == $toolId)
 														#set($toolFound = true)
-													#elseif (($toolId == "sakai.gradebook.tool" || $toolId == "sakai.gradebookng") && ($pageTool.getTool().getId() == "sakai.gradebook.tool" || $pageTool.getTool().getId() == "sakai.gradebookng"))
+													#elseif ($toolId.contains("sakai.gradebook") && $pageTool.getTool().getId().contains("sakai.gradebook"))
 														#set($toolFound = true)
 													#end
 												#end
 											#end
 										
 											#set ($toolsWithContent = $!siteToolsWithContent.get($site.getId()))
-											#if(($toolId == "sakai.gradebook.tool" || $toolId == "sakai.gradebookng") && ($toolsWithContent.contains("sakai.gradebook.tool") || $toolsWithContent.contains("sakai.gradebookng")))
+											#if($toolId.contains("sakai.gradebook") && $toolsWithContent.contains("sakai.gradebook"))
 												## Take the default
 											#elseif(!$toolsWithContent.contains($toolId))
 												#set($toolFound = false)

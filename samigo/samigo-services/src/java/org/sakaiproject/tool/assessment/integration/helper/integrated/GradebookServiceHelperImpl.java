@@ -100,14 +100,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 				} catch (Exception ee) {
 					log.warn(siteId + " contains a page (" + page.getTitle() + ") without a valid tool registration");
 				}
-				if (toolId != null && toolId.equalsIgnoreCase("sakai.gradebook.tool")) {
-					return true;
-				} else if (toolId != null && toolId.equalsIgnoreCase("sakai.gradebook.gwt.rpc")) {
-					return true;
-				} else if (toolId != null && toolId.equalsIgnoreCase("sakai.gradebookng")) {
-					return true;
-				}
-
+				return toolId != null && toolId.toLowerCase().contains("sakai.gradebook");
 			}
 		} catch (Exception e) {
 			log.warn(e.getMessage());
