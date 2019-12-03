@@ -982,6 +982,11 @@ public class SakaiBLTIUtil {
 			}
 
 			Properties custom = new Properties();
+
+			String contentCustom = (String) content.get(LTIService.LTI_CUSTOM);
+			contentCustom = adjustCustom(contentCustom);
+			mergeLTI1Custom(custom, contentCustom);
+
 			String toolCustom = (String) tool.get(LTIService.LTI_CUSTOM);
 			toolCustom = adjustCustom(toolCustom);
 			mergeLTI1Custom(custom, toolCustom);
