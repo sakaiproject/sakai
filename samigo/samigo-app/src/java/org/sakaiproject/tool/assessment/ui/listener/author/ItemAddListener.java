@@ -1888,33 +1888,30 @@ public class ItemAddListener
   private void preparePublishedTextForMC(ItemFacade item, ItemBean bean, ItemService delegate) {
 		Set textSet = item.getItemTextSet();
 		ItemTextIfc text = null;
-		Iterator iter = textSet.iterator();
+		HashSet newTextSet = new HashSet();
+		item.setItemTextSet(newTextSet);
+		Iterator iter = textSet.iterator();		
 		while (iter.hasNext()) {
 			text = (ItemTextIfc) iter.next();
 			text.setText(bean.getItemText());
+			text.setItem(item.getData());
 			List newAnswerList = bean.getMultipleChoiceAnswers();
-			Map newAnswerMap = new HashMap();
+			Set answerSet = new HashSet();
 			Iterator newAnswerIter = newAnswerList.iterator();
+			delegate.deleteSet(text.getId(), false);
 			while (newAnswerIter.hasNext()) {
 				AnswerBean answerBean = (AnswerBean) newAnswerIter.next();
-				newAnswerMap.put(answerBean.getSequence(), answerBean);
-			}
-			AnswerBean answerBean = null;
-			Set answerSet = new HashSet();
-			delegate.deleteSet(text.getId(), false);
-			for (int i = 0; i < newAnswerList.size(); i++) {
-				answerBean = (AnswerBean) newAnswerMap.get(Long.valueOf(String.valueOf(i)));
 				String oneAnswer = stripPtags(answerBean.getText());
 				String oneLabel = answerBean.getLabel();
 				AnswerIfc answer = null;
 				if (isCorrectChoice(bean, answerBean.getLabel().trim())) {
 					answer = new PublishedAnswer(text, oneAnswer,
-						Long.valueOf(i), oneLabel, Boolean.TRUE, null,
+						answerBean.getSequence(), oneLabel, Boolean.TRUE, null,
 						Double.valueOf(bean.getItemScore()), Double.valueOf(100d), Double.valueOf(bean.getItemDiscount()));
 				}
 				else {
 					answer = new PublishedAnswer(text, oneAnswer,
-							Long.valueOf(i), oneLabel, Boolean.FALSE, null,
+							answerBean.getSequence(), oneLabel, Boolean.FALSE, null,
 							Double.valueOf(bean.getItemScore()), Double.valueOf(answerBean.getPartialCredit()), Double.valueOf(bean.getItemDiscount()));
 				}
 				HashSet answerFeedbackSet = new HashSet();
@@ -1924,6 +1921,8 @@ public class ItemAddListener
 				answer.setAnswerFeedbackSet(answerFeedbackSet);
 				answerSet.add(answer);
 			}
+			text.setAnswerSet(answerSet);
+			newTextSet.add(text);
 		}
   }
   
