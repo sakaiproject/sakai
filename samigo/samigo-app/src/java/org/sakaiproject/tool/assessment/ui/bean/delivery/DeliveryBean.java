@@ -1172,25 +1172,24 @@ public class DeliveryBean implements Serializable {
   
   public java.util.Date getRetractDate()
   {
-    return retractDate;
+    return isAcceptLateSubmission() ? retractDate : null;
   }
 
   public String getDayRetractDateString()
   {
-    String dateString = "";
-    if (retractDate == null) {
-      return dateString;
+    if (retractDate == null || !isAcceptLateSubmission()) {
+      return "";
     }
 
     try {
       TimeUtil tu = new TimeUtil();
-      dateString = tu.getDisplayDateTime(dayDisplayFormat, retractDate, true);
+      return tu.getDisplayDateTime(dayDisplayFormat, retractDate, true);
     }
     catch (Exception ex) {
       // we will leave it as an empty string
-      log.warn("Unable to format date.", ex);
+      log.warn("Unable to format date: {}", retractDate, ex);
     }
-    return dateString;
+    return "";
   }
   
   public void setRetractDate(java.util.Date retractDate)
