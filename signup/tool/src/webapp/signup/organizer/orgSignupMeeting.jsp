@@ -187,7 +187,7 @@
 			function confirmDelete() {
 			  var ans = confirm(deleteMsg);
 			  if (ans) {
-			    return deleteClick();
+			    return deleteClick;
 			  } else {
 			    return false;
 			  }
