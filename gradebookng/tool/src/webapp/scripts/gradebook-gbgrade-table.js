@@ -2883,7 +2883,7 @@ GbGradeTable.setupCellMetaDataSummary = function() {
     }
   });
 
-  $(GbGradeTable.instance.rootElement).on("click", "th .gb-external-app, th .gb-grade-item-flags > *, th .gb-flag-extra-credit", function(event){
+  $(GbGradeTable.instance.rootElement).on("click", "th .gb-external-app, th .gb-grade-item-flags > *, th .gb-flag-extra-credit, th .gb-flag-equal-weight", function(event){
     event.preventDefault();
     event.stopImmediatePropagation();
 

@@ -292,6 +292,7 @@
 #gradeTableWrapper .currentCol .gb-extra-credit {
   background-color: #FCF8E3 !important;
 }
+.gb-flag-equal-weight:before,
 .gb-flag-extra-credit:before {
   content: '\f0fe';
   color: rgb(200,144,0);
@@ -312,12 +313,14 @@
 .gb-flag-read-only:before {
   content: '\f023';
 }
+#gradeTableWrapper th .gb-flag-equal-weight,
 #gradeTableWrapper th .gb-flag-extra-credit,
 #gradeTableWrapper th .gb-external-app {
   font-size: 1.1em;
   vertical-align: baseline;
   display: inline-block;
 }
+#gradeTableWrapper th .relative > .gb-flag-equal-weight,
 #gradeTableWrapper th .relative > .gb-flag-extra-credit,
 #gradeTableWrapper th .relative > .gb-external-app {
   float: left;
@@ -325,6 +328,7 @@
   line-height: inherit;
   margin-right: 4px;
 }
+#gradeTableWrapper th .gb-flag-equal-weight:before,
 #gradeTableWrapper th .gb-flag-extra-credit:before {
   color: #999;
 }
@@ -373,6 +377,7 @@
   content: '\f023';
   color: #DDD;
 }
+#gradeTableWrapper .gb-read-only .gb-notification.gb-flag-equal-weight:after,
 #gradeTableWrapper .gb-read-only .gb-notification.gb-flag-extra-credit:after {
   font-family: "gradebook-icons";
   content: '\f0fe';

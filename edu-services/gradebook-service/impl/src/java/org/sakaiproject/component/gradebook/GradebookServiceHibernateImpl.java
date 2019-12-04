@@ -282,6 +282,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
     		assignmentDefinition.setCategoryName(internalAssignment.getCategory().getName());
     		assignmentDefinition.setWeight(internalAssignment.getCategory().getWeight());
     		assignmentDefinition.setCategoryExtraCredit(internalAssignment.getCategory().isExtraCredit());
+    		assignmentDefinition.setCategoryEqualWeight(internalAssignment.getCategory().isEqualWeightAssignments());
     		assignmentDefinition.setCategoryId(internalAssignment.getCategory().getId());
     		assignmentDefinition.setCategoryOrder(internalAssignment.getCategory().getCategoryOrder());
     	}
