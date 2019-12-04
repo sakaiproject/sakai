@@ -1022,17 +1022,20 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		BigDecimal extraPointsEarned = new BigDecimal(0);
 		BigDecimal literalTotalPointsEarned = new BigDecimal(0d);
 
-		final Map cateScoreMap = new HashMap();
-		final Map cateTotalScoreMap = new HashMap();
+		final Map<Long, BigDecimal> cateScoreMap = new HashMap<>();
+		final Map<Long, BigDecimal> cateTotalScoreMap = new HashMap<>();
+		final Map<Long, BigDecimal> cateMeanScoreMap = new HashMap<>();
+		final Set<Long> assignmentsTaken = new HashSet<>();
 
-		final Set assignmentsTaken = new HashSet();
 		for (final AssignmentGradeRecord gradeRec : gradeRecs) {
 			final boolean excused = BooleanUtils.toBoolean(gradeRec.isExcludedFromGrade());
 
 			if (gradeRec.getPointsEarned() != null && !gradeRec.getPointsEarned().equals("") && !gradeRec.getDroppedFromGrade()) {
 				final GradebookAssignment go = gradeRec.getAssignment();
 				if (go.isIncludedInCalculations() && countedAssigns.contains(go)) {
-					final BigDecimal pointsEarned = BigDecimal.valueOf(gradeRec.getPointsEarned());
+					BigDecimal pointsEarned = BigDecimal.valueOf(gradeRec.getPointsEarned());
+					final BigDecimal pointsPossible = BigDecimal.valueOf(go.getPointsPossible());
+
 					// if(gbGradeType == GradebookService.GRADE_TYPE_POINTS)
 					// {
 					if (gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_NO_CATEGORY) {
@@ -1056,11 +1059,25 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 								if (!excused) {
 									assignmentsTaken.add(go.getId());
 									literalTotalPointsEarned = pointsEarned.add(literalTotalPointsEarned, GradebookService.MATH_CONTEXT);
+
+									// If category is equal weight, manipulate points to be the average
+									if (cate.isEqualWeightAssignments()) {
+										pointsEarned = pointsEarned.divide(pointsPossible, GradebookService.MATH_CONTEXT);
+									}
+
 									if (cateScoreMap.get(cate.getId()) != null) {
 										cateScoreMap.put(cate.getId(), ((BigDecimal)cateScoreMap.get(cate.getId())).add(pointsEarned, GradebookService.MATH_CONTEXT));
 									} else {
 										cateScoreMap.put(cate.getId(), pointsEarned);
 									}
+
+									// Running average for an equal-weight category
+/*									final BigDecimal singleItemAverage = pointsEarned.divide(pointsPossible, GradebookService.MATH_CONTEXT);
+									if (cateMeanScoreMap.get(cate.getId()) != null) {
+										cateMeanScoreMap.put(cate.getId(), cateMeanScoreMap.get(cate.getId()).add(singleItemAverage, GradebookService.MATH_CONTEXT));
+									} else {
+										cateMeanScoreMap.put(cate.getId(), pointsEarned);
+									}*/
 								}
 								break;
 							}
@@ -1074,19 +1091,25 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			final Iterator assgnsIter = countedAssigns.iterator();
 			while (assgnsIter.hasNext()) {
 				final GradebookAssignment asgn = (GradebookAssignment) assgnsIter.next();
+				BigDecimal pointsPossible = new BigDecimal(asgn.getPointsPossible());
+
 				if (assignmentsTaken.contains(asgn.getId())) {
 					for (int i = 0; i < categories.size(); i++) {
 						final Category cate = (Category) categories.get(i);
 						if (cate != null && !cate.isRemoved() && asgn.getCategory() != null
 								&& cate.getId().equals(asgn.getCategory().getId()) && !asgn.isExtraCredit()) {
 
-							if (cateTotalScoreMap.get(cate.getId()) == null) {
-								cateTotalScoreMap.put(cate.getId(), new BigDecimal(asgn.getPointsPossible()));
-							} else {
-								cateTotalScoreMap.put(cate.getId(),
-										((BigDecimal) cateTotalScoreMap.get(cate.getId())).add(new BigDecimal(asgn.getPointsPossible())));
+							// If it's equal-weight category, just want to divide averages by number of items
+							if (cate.isEqualWeightAssignments()) {
+								pointsPossible = new BigDecimal("1");
 							}
 
+							if (cateTotalScoreMap.get(cate.getId()) == null) {
+								cateTotalScoreMap.put(cate.getId(), pointsPossible);
+							} else {
+								cateTotalScoreMap.put(cate.getId(),
+										((BigDecimal) cateTotalScoreMap.get(cate.getId())).add(pointsPossible));
+							}
 						}
 					}
 				}
