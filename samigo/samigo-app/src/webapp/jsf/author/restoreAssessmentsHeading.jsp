@@ -24,7 +24,7 @@
         <h:panelGroup rendered="#{authorization.createAssessment}">
             <li role="menuitem">
                 <span>
-                    <h:commandLink title="#{generalMessages.add}" action="author" immediate="true">
+                    <h:commandLink title="#{generalMessages.add}" action="#{author.getOutcome}" immediate="true">
                         <f:param name="action" value="create_assessment_title" />
                         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorAssessmentListener" />
                         <h:outputText value="#{generalMessages.add}" />
