@@ -128,10 +128,15 @@ public class SettingsCategoryPanel extends BasePanel {
 				this.isKeepHighest = true;
 			}
 
-			// check points
-			final Set<Double> points = new HashSet<>();
-			final List<Assignment> assignments = category.getAssignmentList();
-			assignments.forEach(a -> points.add(a.getPoints()));
+			// check for differing points if not using an equal weight category
+			final Set<BigDecimal> points = new HashSet<>();
+			if (!category.getEqualWeight()) {
+				for (Assignment a : category.getAssignmentList()) {
+					// Possible for some tools to send a big floating point double here so round it
+					final BigDecimal roundedPoints = new BigDecimal(a.getPoints()).setScale(2, RoundingMode.HALF_DOWN);
+					points.add(roundedPoints);
+				}
+			}
 
 			this.categoryDropKeepAvailability.put(category.getId(), (points.size() <= 1));
 

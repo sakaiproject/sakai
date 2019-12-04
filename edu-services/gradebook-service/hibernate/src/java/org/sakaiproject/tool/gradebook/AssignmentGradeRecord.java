@@ -59,8 +59,8 @@ public class AssignmentGradeRecord extends AbstractGradeRecord implements Clonea
                 if(agr2 == null) {
                     return 1;
                 }
-                Double agr1Points = agr1.getPointsEarned();
-                Double agr2Points = agr2.getPointsEarned();
+                Double agr1Points = agr1.getPercentEarned(); // Use percent in case the category is equal weight
+                Double agr2Points = agr2.getPercentEarned();
                 
                 if (agr1Points == null && agr2Points == null) {
                     return 0;
