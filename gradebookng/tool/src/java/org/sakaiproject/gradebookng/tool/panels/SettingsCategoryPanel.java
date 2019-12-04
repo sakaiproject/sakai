@@ -74,6 +74,7 @@ public class SettingsCategoryPanel extends BasePanel {
 	boolean isDropHighest = false;
 	boolean isDropLowest = false;
 	boolean isKeepHighest = false;
+	boolean isEqualWeight = false;
 	boolean expanded = false;
 
 	Radio<Integer> categoriesAndWeighting;
@@ -277,6 +278,29 @@ public class SettingsCategoryPanel extends BasePanel {
 		};
 		keepHighest.setOutputMarkupId(true);
 		categoriesOptionsWrap.add(keepHighest);
+
+		// enable equal weight
+		final AjaxCheckBox equalWeight = new AjaxCheckBox("equalWeight", Model.of(this.isEqualWeight)) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onUpdate(final AjaxRequestTarget target) {
+				SettingsCategoryPanel.this.isEqualWeight = getModelObject();
+
+				// reset
+				if (!SettingsCategoryPanel.this.isEqualWeight) {
+					for (final CategoryDefinition c : SettingsCategoryPanel.this.model.getObject().getGradebookInformation()
+							.getCategories()) {
+						c.setEqualWeight(false);
+					}
+					target.appendJavaScript("$('.gb-category-equalweight').hide();");
+				}
+
+				target.add(categoriesWrap);
+			}
+		};
+		equalWeight.setOutputMarkupId(true);
+		categoriesOptionsWrap.add(equalWeight);
 
 		// add the options wrapper
 		categoriesOptionsWrap.setOutputMarkupPlaceholderTag(true);
@@ -638,6 +662,9 @@ public class SettingsCategoryPanel extends BasePanel {
 				}
 				if (!SettingsCategoryPanel.this.isKeepHighest) {
 					response.render(OnDomReadyHeaderItem.forScript("$('.gb-category-keephighest').hide();"));
+				}
+				if (!SettingsCategoryPanel.this.isEqualWeight) {
+					response.render(OnDomReadyHeaderItem.forScript("$('.gb-category-equalweight').hide();"));
 				}
 			}
 		};
