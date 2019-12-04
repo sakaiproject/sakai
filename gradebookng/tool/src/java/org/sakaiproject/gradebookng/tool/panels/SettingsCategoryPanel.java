@@ -393,6 +393,11 @@ public class SettingsCategoryPanel extends BasePanel {
 						new Object[] { category.getAssignmentList().size() }));
 				item.add(numItems);
 
+				// equal weight
+				final CheckBox equalWeight = new CheckBox("equalWeight", new PropertyModel<Boolean>(category, "equalWeight"));
+				equalWeight.setOutputMarkupId(true);
+				item.add(equalWeight);
+
 				// extra credit
 				final CheckBox extraCredit = new CheckBox("extraCredit", new PropertyModel<Boolean>(category, "extraCredit"));
 				extraCredit.setOutputMarkupId(true);
@@ -666,6 +671,7 @@ public class SettingsCategoryPanel extends BasePanel {
 	private CategoryDefinition stubCategoryDefinition() {
 		final CategoryDefinition cd = new CategoryDefinition();
 		cd.setExtraCredit(false);
+		cd.setEqualWeight(false);
 		cd.setWeight(Double.valueOf(0));
 		cd.setAssignmentList(Collections.<Assignment>emptyList());
 		cd.setDropHighest(0);

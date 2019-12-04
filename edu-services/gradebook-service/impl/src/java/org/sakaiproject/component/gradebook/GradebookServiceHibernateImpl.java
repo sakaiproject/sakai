@@ -496,7 +496,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 							Long categoryId = null;
 							try {
 								categoryId = createCategory(gradebook.getId(), c.getName(), c.getWeight(), c.getDropLowest(),
-										c.getDropHighest(), c.getKeepHighest(), c.getExtraCredit(), c.getCategoryOrder());
+										c.getDropHighest(), c.getKeepHighest(), c.getExtraCredit(), c.getEqualWeight(), c.getCategoryOrder());
 							} catch (final ConflictingCategoryNameException e) {
 								// category already exists. Could be from a merge.
 								log.info("Category: {} already exists in target site. Skipping creation.", c.getName());
@@ -536,7 +536,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			categories.forEach(c -> {
 				try {
 					createCategory(gradebook.getId(), c.getName(), c.getWeight(), c.getDropLowest(), c.getDropHighest(), c.getKeepHighest(),
-							c.getExtraCredit(), c.getCategoryOrder());
+							c.getExtraCredit(), c.getEqualWeight(), c.getCategoryOrder());
 				} catch (final ConflictingCategoryNameException e) {
 					// category already exists. Could be from a merge.
 					log.info("Category: {} already exists in target site. Skipping creation.", c.getName());
@@ -2555,6 +2555,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			categoryDef.setAssignmentList(getAssignments(category.getGradebook().getUid(), category.getName()));
 			categoryDef.setDropKeepEnabled(category.isDropScores());
 			categoryDef.setExtraCredit(category.isExtraCredit());
+			categoryDef.setEqualWeight(category.isEqualWeightAssignments());
 			categoryDef.setCategoryOrder(category.getCategoryOrder());
 		}
 
@@ -3034,6 +3035,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			c.setDropHighest(category.getDropHighest());
 			c.setDropLowest(category.getDropLowest());
 			c.setKeepHighest(category.getKeepHighest());
+			c.setEqualWeightAssignments(category.getEqualWeight());
 
 			// recreate the assignment (required fields only)
 			final GradebookAssignment a = new GradebookAssignment();
@@ -3103,7 +3105,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		int numScored = 0;
 		int numOfAssignments = 0;
 		BigDecimal totalEarned = new BigDecimal("0");
+		BigDecimal totalEarnedMean = new BigDecimal("0");
 		BigDecimal totalPossible = new BigDecimal("0");
+		Category category = getCategory(categoryId);
 
 		// apply any drop/keep settings for this category
 		applyDropScores(gradeRecords);
@@ -3160,30 +3164,41 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		for (final AssignmentGradeRecord gradeRecord : gradeRecords) {
 
 			final GradebookAssignment assignment = gradeRecord.getAssignment();
+			final BigDecimal possiblePoints = new BigDecimal(assignment.getPointsPossible().toString());
 
 			// EC item, don't count points possible
 			if (!assignment.isExtraCredit()) {
-				totalPossible = totalPossible.add(new BigDecimal(assignment.getPointsPossible().toString()));
+				totalPossible = totalPossible.add(possiblePoints);
 				numOfAssignments++;
 				numScored++;
 			}
 
 			// sanitise grade, null values to "0";
-			final String grade = (gradeRecord.getPointsEarned() != null) ? String.valueOf(gradeRecord.getPointsEarned()) : "0";
+			final String gradeString = (gradeRecord.getPointsEarned() != null) ? String.valueOf(gradeRecord.getPointsEarned()) : "0";
+			final BigDecimal grade = new BigDecimal(gradeString);
 
 			// update total points earned
-			totalEarned = totalEarned.add(new BigDecimal(grade));
+			totalEarned = totalEarned.add(grade);
 
+			// keep running total of averages in case the category is equal weighted
+			totalEarnedMean = totalEarnedMean.add(
+				grade.divide(possiblePoints, GradebookService.MATH_CONTEXT)
+			);
 		}
 
 		if (numScored == 0 || numOfAssignments == 0 || totalPossible.doubleValue() == 0) {
 			return Optional.empty();
 		}
 
-		final BigDecimal mean = totalEarned.divide(new BigDecimal(numScored), GradebookService.MATH_CONTEXT)
+		BigDecimal mean = totalEarned.divide(new BigDecimal(numScored), GradebookService.MATH_CONTEXT)
 				.divide((totalPossible.divide(new BigDecimal(numOfAssignments), GradebookService.MATH_CONTEXT)),
 						GradebookService.MATH_CONTEXT)
 				.multiply(new BigDecimal("100"));
+		
+		if (category.isEqualWeightAssignments()) {
+			mean = totalEarnedMean.divide(new BigDecimal(numScored), GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100"));
+		}
+
 		return Optional.of(new CategoryScoreData(mean.doubleValue(), droppedItemIds));
 	}
 
@@ -3406,6 +3421,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				existing.setDropHighest(newDef.getDropHighest());
 				existing.setKeepHighest(newDef.getKeepHighest());
 				existing.setExtraCredit(newDef.getExtraCredit());
+				existing.setEqualWeightAssignments(newDef.getEqualWeight());
 				existing.setCategoryOrder(categoryIndex);
 				updateCategory(existing);
 
@@ -3427,7 +3443,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		for (final Entry<CategoryDefinition, Integer> entry : newCategories.entrySet()) {
 			final CategoryDefinition newCat = entry.getKey();
 			this.createCategory(gradebook.getId(), newCat.getName(), newCat.getWeight(), newCat.getDropLowest(),
-					newCat.getDropHighest(), newCat.getKeepHighest(), newCat.getExtraCredit(), entry.getValue());
+					newCat.getDropHighest(), newCat.getKeepHighest(), newCat.getExtraCredit(), newCat.getEqualWeight(), entry.getValue());
 		}
 
 		// if weighted categories, all uncategorised assignments are to be removed from course grade calcs

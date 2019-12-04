@@ -43,6 +43,7 @@ public class CategoryDefinition implements Serializable {
     @Getter @Setter private Integer dropHighest;
     @Getter @Setter private Integer keepHighest;
     @Getter @Setter private Boolean extraCredit;
+    @Getter @Setter private Boolean equalWeight;
     @Getter @Setter private Integer categoryOrder;
     @Getter @Setter private Boolean dropKeepEnabled;
     

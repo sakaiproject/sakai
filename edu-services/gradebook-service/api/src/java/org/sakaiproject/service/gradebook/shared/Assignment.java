@@ -134,6 +134,9 @@ public class Assignment implements Serializable, Comparable<Assignment> {
 	private boolean categoryExtraCredit;
 	@Getter
 	@Setter
+	private boolean categoryEqualWeight;
+	@Getter
+	@Setter
 	private Long categoryId;
 	@Getter
 	@Setter
