@@ -8,7 +8,25 @@
 
     <div id="siteStatus" class="Mrphs-siteStatus Mrphs-messagePanel__information is-unpublished">
         <h4>${rloader.sit_unpublished}</h4>
-        <button onclick="publishSite('${sitePages.siteId}');" class="Mrphs-button--active">${rloader.sit_publish_now}</button>
+        <button class="Mrphs-button--active" data-toggle="modal" data-target="#publishSiteConfirmModal">${rloader.sit_publish_now}</button>
+    </div>
+
+    <div id="publishSiteConfirmModal" class="modal" role="dialog" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">${rloader.sit_unpublished}</h4>
+                </div>
+                <div class="modal-body">
+                    <p>${rloader.sit_publish_confirmation}</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="publishSite('${sitePages.siteId}');">${rloader.sit_publish_now}</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal" >${rloader.sit_publish_cancel}</button>
+                </div>
+            </div>
+        </div>
     </div>
 
 #end ## END of IF (${sitePages.softlyDeleted})
