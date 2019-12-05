@@ -1,73 +1,73 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-	<modelVersion>4.0.0</modelVersion>
+   <modelVersion>4.0.0</modelVersion>
 
-	<name>sakai-acadtermmanage - Base</name>
-	<groupId>org.sakaiproject.acadtermmanage</groupId>
-	<artifactId>sakai-acadtermmanage</artifactId>	
-	<packaging>pom</packaging>
-	
-	<parent>
-		<groupId>org.sakaiproject.site</groupId>
-		<artifactId>site</artifactId>
-		<version>21-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
-	</parent>
+   <name>sakai-acadtermmanage - Base</name>
+   <groupId>org.sakaiproject.acadtermmanage</groupId>
+   <artifactId>sakai-acadtermmanage</artifactId>   
+   <packaging>pom</packaging>
+   
+   <parent>
+      <groupId>org.sakaiproject.site</groupId>
+      <artifactId>site</artifactId>
+      <version>21-SNAPSHOT</version>
+      <relativePath>../pom.xml</relativePath>
+   </parent>
 
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<my.wicket.version>6.30.0</my.wicket.version>
-	</properties>
+   <properties>
+      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+      <my.wicket.version>6.30.0</my.wicket.version>
+   </properties>
 
-	<dependencyManagement>
-		<dependencies>
+   <dependencyManagement>
+      <dependencies>
 
-			<!-- project dependencies -->
-			<dependency>
-				<groupId>org.sakaiproject.acadtermmanage</groupId>
-				<artifactId>sakai-acadtermmanage-api</artifactId>
-				<version>${project.version}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.sakaiproject.acadtermmanage</groupId>
-				<artifactId>sakai-acadtermmanage-impl</artifactId>
-				<version>${project.version}</version>
-				<scope>runtime</scope>
-			</dependency>
+         <!-- project dependencies -->
+         <dependency>
+            <groupId>org.sakaiproject.acadtermmanage</groupId>
+            <artifactId>sakai-acadtermmanage-api</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+         </dependency>
+         <dependency>
+            <groupId>org.sakaiproject.acadtermmanage</groupId>
+            <artifactId>sakai-acadtermmanage-impl</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+         </dependency>
 
 
-			<!-- third party dependencies -->
-			<dependency>
-				<groupId>org.apache.wicket</groupId>
-				<artifactId>wicket-core</artifactId>
-				<version>${my.wicket.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.wicket</groupId>
-				<artifactId>wicket-spring</artifactId>
-				<version>${my.wicket.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.wicket</groupId>
-				<artifactId>wicket-extensions</artifactId>
-				<version>${my.wicket.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.wicket</groupId>
-				<artifactId>wicket-datetime</artifactId>
-				<version>${my.wicket.version}</version>
-			</dependency>
+         <!-- third party dependencies -->
+         <dependency>
+            <groupId>org.apache.wicket</groupId>
+            <artifactId>wicket-core</artifactId>
+            <version>${my.wicket.version}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.apache.wicket</groupId>
+            <artifactId>wicket-spring</artifactId>
+            <version>${my.wicket.version}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.apache.wicket</groupId>
+            <artifactId>wicket-extensions</artifactId>
+            <version>${my.wicket.version}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.apache.wicket</groupId>
+            <artifactId>wicket-datetime</artifactId>
+            <version>${my.wicket.version}</version>
+         </dependency>
 
-		</dependencies>
-	</dependencyManagement>
+      </dependencies>
+   </dependencyManagement>
 
-	<modules>
-		<module>tool</module>
-		<module>api</module>
-		<module>impl</module>
-	</modules>
+   <modules>
+      <module>tool</module>
+      <module>api</module>
+      <module>impl</module>
+   </modules>
 
 </project>

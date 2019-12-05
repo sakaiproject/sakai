@@ -3,6 +3,6 @@
 
 <beans>
 
-	<!-- We don't need anything in it since we use Wicket's dependency injection -->
-       
+    <!-- We don't need anything in it since we use Wicket's dependency injection -->
+
 </beans>
