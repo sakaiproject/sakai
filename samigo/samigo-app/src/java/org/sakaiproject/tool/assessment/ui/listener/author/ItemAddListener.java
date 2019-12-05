@@ -1862,6 +1862,8 @@ public class ItemAddListener
 		String processedText [] = processFIBFINText(entiretext);
 		String updatedText = processedText[0];
 		log.debug(" new text without answer is = " + updatedText);
+		HashSet newTextSet = new HashSet();
+		item.setItemTextSet(newTextSet);
 		Iterator iter = textSet.iterator();
 		while (iter.hasNext()) {
 			text = (ItemTextIfc) iter.next();
@@ -1882,6 +1884,8 @@ public class ItemAddListener
 						Double.valueOf(bean.getItemScore()), null, Double.valueOf(bean.getItemDiscount()));
 				answerSet.add(answer);
 			}
+			text.setAnswerSet(answerSet);
+			newTextSet.add(text);
 		}
   }
 
