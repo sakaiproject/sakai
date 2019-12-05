@@ -128,6 +128,9 @@ public class SettingsCategoryPanel extends BasePanel {
 			if (category.getKeepHighest() != null && category.getKeepHighest() > 0) {
 				this.isKeepHighest = true;
 			}
+			if (category.getEqualWeight()) {
+				this.isEqualWeight = true;
+			}
 
 			// check for differing points if not using an equal weight category
 			final Set<BigDecimal> points = new HashSet<>();
