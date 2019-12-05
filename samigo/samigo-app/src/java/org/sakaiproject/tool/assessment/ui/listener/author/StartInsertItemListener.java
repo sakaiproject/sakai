@@ -18,7 +18,6 @@
  * limitations under the License.
  *
  **********************************************************************************/
-
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.List;
@@ -45,8 +44,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * @version $Id$
  */
 @Slf4j
-public class StartInsertItemListener implements ValueChangeListener
-{
+public class StartInsertItemListener implements ValueChangeListener {
 
   private RubricsService rubricsService = ComponentManager.get(RubricsService.class);
 
@@ -55,8 +53,7 @@ public class StartInsertItemListener implements ValueChangeListener
    * @param ae ValueChangeEvent
    * @throws AbortProcessingException
    */
-  public void processValueChange(ValueChangeEvent ae) throws AbortProcessingException
-  {
+  public void processValueChange(ValueChangeEvent ae) throws AbortProcessingException {
     ItemAuthorBean itemauthorbean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
 
     String olditemtype = (String) ae.getOldValue();
@@ -68,74 +65,37 @@ public class StartInsertItemListener implements ValueChangeListener
     String insertToSection = null;
 
     // only set itemtype when the value has indeed changed.
-    if ((selectedvalue!=null) && (!selectedvalue.equals("")) ){
+    if ((selectedvalue!=null) && (!selectedvalue.equals("")) ) {
       String[] strArray = selectedvalue.split(",");
 
-      try
-      {
+      try {
         newitemtype = strArray[0].trim();
         ///////// SAK-3114: ///////////////////////////////////////////
         // note: you must include at least one selectItem in the form
         // type#,p#,q#
         // the rest, in a selectItems will get the p#,q# added in.
         ///////////////////////////////////////////////////////////////
-        if (strArray.length < 2)
-        {
-          UISelectOne comp = (UISelectOne) ae.getComponent();
-          List children = comp.getChildren();
-          // right now there are two kids selectItems & selectItem
-          // we use loop to keep this flexible
-          for (int i = 0; i < children.size(); i++) {
-
-            if (children.get(i) instanceof UISelectItem)
-            {
+        UISelectOne comp = (UISelectOne) ae.getComponent();
+        List children = comp.getChildren();
+        // right now there are two kids selectItems & selectItem
+        // we use loop to keep this flexible
+        for (int i = 0; i < children.size(); i++) {
+          if (children.get(i) instanceof UISelectItem) {
               UISelectItem selectItem = (UISelectItem) children.get(i);
-    	      log.debug("***" + i + "***");
               log.debug("selectItem.getItemValue()="+selectItem.getItemValue());
               String itemValue =  (String) selectItem.getItemValue();
               log.debug("itemValue ="+ itemValue);
               String[] insertArray = itemValue.split(",");
               // add in p#,q#
               insertToSection = insertArray[1].trim();
-              
-              // SAK-3160: workaround
-              /*
-               It seems very difficult to track down why the sequence number is
-               getting lost in the JSF lifecycle in the nested lists in the
-               backing beans (it appears) when there is more than one part.
 
-               Therefore I have added a workaround fix that supplies 0 for the
-               sequence number if it is not available.
-
-               This fixes two things.
-                1. No error or warning is logged
-                2. The type of item chosen is retained, and in the correct part.
-                
-              if (insertArray.length > 2)
-              {
-                insertItemPosition = insertArray[2].trim();
-              }
-              else
-              {
-                insertItemPosition = "0";
-              }
-              */
               break;
-            }
-        	if (ContextUtil.lookupParam("itemSequence") != null &&
-      	          !ContextUtil.lookupParam("itemSequence").trim().equals("")) {
-        	  insertItemPosition = ContextUtil.lookupParam("itemSequence");
-        	}
+          }
+          if (ContextUtil.lookupParam("itemSequence") != null && !ContextUtil.lookupParam("itemSequence").trim().equals("")) {
+        	insertItemPosition = ContextUtil.lookupParam("itemSequence");
           }
         }
-        else
-        {
-          insertToSection = strArray[1].trim();
-          insertItemPosition = strArray[2].trim();
-        }
-      }
-      catch (Exception ex)
-      {
+      } catch (Exception ex) {
         log.warn("unable to process value change", ex);
         return;
       }
@@ -152,22 +112,11 @@ public class StartInsertItemListener implements ValueChangeListener
       itemauthorbean.setRbcsToken(rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_SAMIGO));
       itemauthorbean.setRubricStateDetails("");
 
-    log.debug("new itemtype." + newitemtype);
-    log.debug("new insert to secction." + insertToSection);
-    log.debug("new insert to pos ." + insertItemPosition);
-    log.debug("new temno ." + itemauthorbean.getItemNo());
-
-    StartCreateItemListener listener = new StartCreateItemListener();
-
-    if (!listener.startCreateItem(itemauthorbean))
-    {
-      throw new RuntimeException("failed to startCreatItem.");
-    }
-
+      StartCreateItemListener listener = new StartCreateItemListener();
+      if (!listener.startCreateItem(itemauthorbean)) {
+        throw new RuntimeException("failed to startCreatItem.");
+      }
 
     }
-
   }
-
-
 }
