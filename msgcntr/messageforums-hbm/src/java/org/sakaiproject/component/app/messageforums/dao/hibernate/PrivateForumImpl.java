@@ -27,18 +27,23 @@ import org.sakaiproject.api.app.messageforums.PrivateForum;
 public class PrivateForumImpl extends BaseForumImpl implements PrivateForum {
 
     private String owner;
-    private Boolean autoForward;
+    private Integer autoForward;
     private String autoForwardEmail;
     private Boolean previewPaneEnabled;
 
+    
+    //Declaracion constantes foward
+    public static final int AUTO_FOWARD_NO = 0;
+    public static final int AUTO_FOWARD_YES = 1;
+    public static final int AUTO_FOWARD_DEFAULT = 2;
     // indecies for hibernate
     //private int areaindex;
 
-    public Boolean getAutoForward() {
+    public Integer getAutoForward() {
         return autoForward;
     }
 
-    public void setAutoForward(Boolean autoForward) {
+    public void setAutoForward(Integer autoForward) {
         this.autoForward = autoForward;
     }
 

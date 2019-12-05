@@ -102,7 +102,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     pfm1.setTitle("Messages");
     pfm1.setTopics((getPrivateTopics()));
     // pfm1.setType(new TypeImpl());
-    pfm1.setAutoForward(Boolean.TRUE);
+    pfm1.setAutoForward(PrivateForumImpl.AUTO_FOWARD_YES);
     pfm1.setAutoForwardEmail("fish@indiana.edu");
     pfm1.setPreviewPaneEnabled(Boolean.TRUE);
     pfm1.setSortIndex(Integer.valueOf(2));

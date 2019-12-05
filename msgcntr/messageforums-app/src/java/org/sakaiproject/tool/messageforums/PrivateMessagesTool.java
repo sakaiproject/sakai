@@ -51,6 +51,7 @@ import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.app.messageforums.MembershipItem;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.HiddenGroupImpl;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -270,7 +271,8 @@ public class PrivateMessagesTool {
   
   public static final String SET_AS_YES="yes";
   public static final String SET_AS_NO="no";    
-  
+  public static final String SET_AS_DEFAULT="default";
+
   public static final String THREADED_VIEW = "threaded";
   
   //huxt
@@ -362,7 +364,7 @@ public class PrivateMessagesTool {
   @Getter @Setter
   private String activatePvtMsg=SET_AS_NO;
   @Getter @Setter
-  private String forwardPvtMsg=SET_AS_NO;
+  private String forwardPvtMsg=SET_AS_DEFAULT;
   @Getter @Setter
   private String forwardPvtMsgEmail;
   private boolean superUser;
@@ -439,7 +441,13 @@ public class PrivateMessagesTool {
       forum=pf;
       activatePvtMsg = (Boolean.TRUE.equals(area.getEnabled())) ? SET_AS_YES : SET_AS_NO;
       sendToEmail = area.getSendToEmail() + "";
-      forwardPvtMsg = (Boolean.TRUE.equals(pf.getAutoForward())) ? SET_AS_YES : SET_AS_NO;
+      if(pf.getAutoForward()==PrivateForumImpl.AUTO_FOWARD_YES) {
+    	  forwardPvtMsg = SET_AS_YES;
+      }else if(pf.getAutoForward()==PrivateForumImpl.AUTO_FOWARD_NO) {
+    	  forwardPvtMsg = SET_AS_NO;
+      }else {
+    	  forwardPvtMsg = SET_AS_DEFAULT;
+      }
       forwardPvtMsgEmail = pf.getAutoForwardEmail();
       hiddenGroups = new ArrayList<>();
       if(area != null && area.getHiddenGroups() != null){
@@ -3302,6 +3310,9 @@ public void processChangeSelectView(ValueChangeEvent eve)
     if (SET_AS_NO.equals(forwardPvtMsg)){
       setValidEmail(true);
     }
+    if (SET_AS_DEFAULT.equals(forwardPvtMsg)){
+        setValidEmail(true);
+    }
   }
   
   public String processPvtMsgSettingsSave()
@@ -3312,7 +3323,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     String email= getForwardPvtMsgEmail();
     String activate=getActivatePvtMsg() ;
     String forward=getForwardPvtMsg() ;
-    if (email != null && (!SET_AS_NO.equals(forward)) 
+    if (email != null && (SET_AS_YES.equals(forward)) 
             && !EmailValidator.getInstance().isValid(email) ) {
       setValidEmail(false);
       setErrorMessage(getResourceBundleString(PROVIDE_VALID_EMAIL));
@@ -3336,9 +3347,14 @@ public void processChangeSelectView(ValueChangeEvent eve)
           return null;
       }
 
-      Boolean formAutoForward = (SET_AS_YES.equals(forward)) ? Boolean.TRUE : Boolean.FALSE;            
-      forum.setAutoForward(formAutoForward);
-      if (Boolean.TRUE.equals(formAutoForward)){
+      if(SET_AS_YES.equals(forward)) {
+    	  forum.setAutoForward(PrivateForumImpl.AUTO_FOWARD_YES);  
+      }else if(SET_AS_NO.equals(forward)) {
+    	  forum.setAutoForward(PrivateForumImpl.AUTO_FOWARD_NO);
+      }else {
+    	  forum.setAutoForward(PrivateForumImpl.AUTO_FOWARD_DEFAULT);
+      }
+      if (SET_AS_YES.equals(forward)){
         forum.setAutoForwardEmail(email);  
       }
       else{

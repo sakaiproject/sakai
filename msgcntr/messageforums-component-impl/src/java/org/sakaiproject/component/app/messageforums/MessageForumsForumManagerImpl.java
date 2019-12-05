@@ -743,7 +743,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         forum.setSortIndex(Integer.valueOf(0));
         forum.setShortDescription("short-desc");
         forum.setExtendedDescription("ext desc");
-        forum.setAutoForward(Boolean.FALSE);
+        forum.setAutoForward(PrivateForumImpl.AUTO_FOWARD_DEFAULT);
         forum.setAutoForwardEmail("");
         forum.setPreviewPaneEnabled(Boolean.FALSE);
         forum.setModified(new Date());

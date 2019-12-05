@@ -47,10 +47,11 @@
 				styleClass="checkbox inlineForm table-inline">
 			          <f:selectItem itemValue="yes" itemLabel="#{msgs.pvt_yes}" />
 				  <f:selectItem itemValue="no" itemLabel="#{msgs.pvt_no}" />
+				  <f:selectItem itemValue="default" itemLabel="#{msgs.pvt_default}" />
 			      </h:selectOneRadio> 
 		             <h:outputLabel for="fwd_email"><h:outputText value="#{msgs.pvt_emailfor}" /></h:outputLabel>
 		             <h:inputText value="#{PrivateMessagesTool.forwardPvtMsgEmail}" id="fwd_email"
-		               disabled="#{PrivateMessagesTool.forwardPvtMsg == 'no'}" />
+		               disabled="#{PrivateMessagesTool.forwardPvtMsg != 'yes'}" />
 		           </h:panelGroup>
 		         
 		         

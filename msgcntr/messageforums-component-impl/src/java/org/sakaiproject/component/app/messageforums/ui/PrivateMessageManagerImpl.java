@@ -61,13 +61,19 @@ import org.sakaiproject.api.app.messageforums.cover.SynopticMsgcntrManagerCover;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.app.messageforums.TestUtil;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageRecipientImpl;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.email.api.EmailService;
+import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
+import org.sakaiproject.entity.api.EntityPropertyTypeException;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.site.api.Site;
@@ -76,6 +82,8 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.user.api.Preferences;
+import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
@@ -88,6 +96,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   private static final String QUERY_MESSAGES_BY_ID_WITH_RECIPIENTS = "findPrivateMessageByIdWithRecipients";
   
   private static final String MESSAGECENTER_BUNDLE = "org.sakaiproject.api.app.messagecenter.bundle.Messages";
+  
+  private final PreferencesService preferencesService = ComponentManager.get( PreferencesService.class );
   
   private AreaManager areaManager;
   private MessageForumsMessageManager messageManager;
@@ -1133,36 +1143,66 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 		boolean forwardingEnabled = false;
 		List<InternetAddress> fAddresses = new ArrayList<InternetAddress>();
     	//this only needs to be done if the message is not being sent
+		int submitterEmailReceiptPref;
     	for (Iterator<Entry<User, Boolean>> i = recipients.entrySet().iterator(); i.hasNext();)
     	{
     		Entry<User, Boolean> entrySet = (Entry<User, Boolean>) i.next();
     		User u = (User) entrySet.getKey();
     		Boolean bcc = (Boolean) entrySet.getValue();
     		String userId = u.getId();
+    		String mailAFoward = u.getEmail();
 
 
 
     		//boolean forwardingEnabled = false;
     		//String forwardAddress = null;
-    		
+    		submitterEmailReceiptPref = 0; //Coger de properties el valor por defecto
+    		submitterEmailReceiptPref = ServerConfigurationService.getInt("prefs.msg.notification", submitterEmailReceiptPref);
+    		Preferences submitterPrefs = preferencesService.getPreferences( userId );
+    		ResourceProperties props = submitterPrefs.getProperties( NotificationService.PREFS_TYPE + "sakai:messageforums" );
+    		try {
+    			submitterEmailReceiptPref = (int) props.getLongProperty( "2" );
+    		}catch(EntityPropertyNotDefinedException | EntityPropertyTypeException ex )
+    	    {
+    	    	/* User hasn't changed preference */  
+    		}
+
     		PrivateForum pf = null;
     		if (pfMap.containsKey(userId))
     			pf = pfMap.get(userId);
 
-			if (pf != null && pf.getAutoForward().booleanValue() && pf.getAutoForwardEmail() != null){
+    		if (pf != null && (pf.getAutoForward().intValue()==PrivateForumImpl.AUTO_FOWARD_YES) && pf.getAutoForwardEmail() != null){
     			forwardingEnabled = true;
 				fAddresses.add(new InternetAddress(pf.getAutoForwardEmail()));
 				//forwardAddress = pf.getAutoForwardEmail();
+    		}
+			if (pf != null && (pf.getAutoForward().intValue()==PrivateForumImpl.AUTO_FOWARD_DEFAULT)){
+				if(submitterEmailReceiptPref==PrivateForumImpl.AUTO_FOWARD_YES) {
+					//Consulta en la tabla preferences SAKAI
+					pf.setAutoForwardEmail(mailAFoward);
+	    			forwardingEnabled = true;
+					fAddresses.add(new InternetAddress(pf.getAutoForwardEmail()));
+					//forwardAddress = pf.getAutoForwardEmail();
+				}
     		}
     		if( pf == null)  
     		{
     			//only check for default settings if the pf is null
     			PrivateForum oldPf = forumManager.getPrivateForumByOwnerAreaNull(userId);
-				if (oldPf != null && oldPf.getAutoForward().booleanValue() && oldPf.getAutoForwardEmail() != null) {
+    			if (oldPf != null && (oldPf.getAutoForward().intValue()==PrivateForumImpl.AUTO_FOWARD_YES) && oldPf.getAutoForwardEmail() != null) {
 					//forwardAddress = oldPf.getAutoForwardEmail();
     				forwardingEnabled = true;
 					fAddresses.add(new InternetAddress(oldPf.getAutoForwardEmail()));
     			}
+				if (oldPf != null && (oldPf.getAutoForward().intValue()==PrivateForumImpl.AUTO_FOWARD_DEFAULT)) {
+					if(submitterEmailReceiptPref==PrivateForumImpl.AUTO_FOWARD_YES) {
+						//Consulta en la tabla preferences SAKAI
+						oldPf.setAutoForwardEmail(mailAFoward);
+	    				forwardingEnabled = true;
+						fAddresses.add(new InternetAddress(oldPf.getAutoForwardEmail()));
+					}
+    			}
+
     		}
 
     		/** determine if current user is equal to recipient */
