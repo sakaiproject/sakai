@@ -1,6 +1,6 @@
 export class Submission {
 
-  constructor(init, i18n) {
+  constructor(init, groups) {
 
     if (init) {
       this.id = init.id;
@@ -18,9 +18,18 @@ export class Submission {
 
       this.graded = init.graded;
 
+      this.groupId = init.groupId;
+
+      if (init.groupId) {
+        this.groupTitle = groups.find(g => g.id === init.groupId).title;
+        this.groupMembers = init.submitters.map(s => s.displayName).join(", ");
+      }
+
       this.properties = init.properties;
 
       this.submittedAttachments = init.submittedAttachments || [];
+
+      this.submitters = init.submitters;
 
       if (init.submitters) {
         this.firstSubmitterName = init.submitters[0].displayName;

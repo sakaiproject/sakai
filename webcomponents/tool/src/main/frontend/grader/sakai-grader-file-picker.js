@@ -15,6 +15,7 @@ class SakaiGraderFilePicker extends SakaiElement {
 
     return {
       buttonText: { attribute: "button-text", type: String },
+      files: Array,
     };
   }
 
@@ -23,7 +24,7 @@ class SakaiGraderFilePicker extends SakaiElement {
     return html`
       <button title="${this.title}" @click=${this.pickFile}>${this.buttonText}</button>
       <div class="sakai-file-picker-list">
-      ${this.files.map(f => html`<div>${f.name}</div>`)}
+      ${this.files.map(f => html`<div style="overflow-wrap: break-word;">${f.name}</div>`)}
       </div>
     `;
   }
