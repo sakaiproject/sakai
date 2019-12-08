@@ -156,7 +156,7 @@
     <dependency>
       <groupId>org.apache.pdfbox</groupId>
       <artifactId>pdfbox</artifactId>
-      <version>2.0.16</version>
+      <version>2.0.17</version>
     </dependency>
     <!-- PDF box uses BouncyCastle for crypotgraphic functions at runtime -->
     <dependency>
