@@ -231,6 +231,13 @@ public class SaveAssessmentSettingsListener
         	context.addMessage(null,new FacesMessage(feedbackDateErr));
         	error=true;
         }
+
+        if(StringUtils.isNotBlank(assessmentSettings.getFeedbackEndDateString()) && assessmentSettings.getFeedbackDate().after(assessmentSettings.getFeedbackEndDate())){
+            String feedbackDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","invalid_feedback_ranges");
+            context.addMessage(null,new FacesMessage(feedbackDateErr));
+            error=true;
+        }
+
 		boolean scoreThresholdEnabled = assessmentSettings.getFeedbackScoreThresholdEnabled();
 		//Check if the value is empty
 		boolean scoreThresholdError = StringUtils.isBlank(assessmentSettings.getFeedbackScoreThreshold());

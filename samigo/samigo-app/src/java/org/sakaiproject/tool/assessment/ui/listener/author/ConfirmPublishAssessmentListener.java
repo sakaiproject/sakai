@@ -397,6 +397,13 @@ public class ConfirmPublishAssessmentListener
 				String date_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","date_error");
 				context.addMessage(null,new FacesMessage(date_err));
 			}
+
+			if(StringUtils.isNotBlank(assessmentSettings.getFeedbackEndDateString()) && assessmentSettings.getFeedbackDate().after(assessmentSettings.getFeedbackEndDate())){
+				String feedbackDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","invalid_feedback_ranges");
+				context.addMessage(null,new FacesMessage(feedbackDateErr));
+				error=true;
+			}
+
 			boolean scoreThresholdEnabled = assessmentSettings.getFeedbackScoreThresholdEnabled();
 			//Check if the value is empty
 			boolean scoreThresholdError = StringUtils.isBlank(assessmentSettings.getFeedbackScoreThreshold());
