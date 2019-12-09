@@ -11,14 +11,23 @@ let gradableDataMixin = Base => class extends Base {
         .then(res => res.json())
         .then(gradableData => {
 
+          this.gradable = gradableData.gradable;
+
+          this.isGroupGradable = gradableData.gradable.access === "GROUP";
+
+          this.backToListLabel = gradableData.gradable.access === "GROUP"
+            ? this.i18n["back_to_group_list"] : this.i18n["back_to_user_list"];
+
           this.gradableTitle = gradableData.gradable.title;
 
           this.anonymousGrading = gradableData.gradable.anonymousGrading;
 
           this.closeTime = gradableData.gradable.closeTimeString;
 
-          this.originalSubmissions = gradableData.submissions.map(s => new Submission(s));
-          this.submissions = gradableData.submissions.map(s => new Submission(s));
+          this.groups = gradableData.groups;
+
+          this.originalSubmissions = gradableData.submissions.map(s => new Submission(s, gradableData.groups));
+          this.submissions = gradableData.submissions.map(s => new Submission(s, gradableData.groups));
 
           this.submissions.sort((a,b) => a.firstSubmitterName.localeCompare(b.firstSubmitterName));
 
