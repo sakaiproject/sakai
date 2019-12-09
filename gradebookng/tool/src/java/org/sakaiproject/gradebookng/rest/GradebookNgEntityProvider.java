@@ -233,12 +233,11 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		return this.businessService.getAssignmentGradeComment(siteId, assignmentId, studentUuid);
 	}
 
-	private Set<String> getRecipients(Map<String, Object> params, boolean addCurrentUser) {
+	private Set<String> getRecipients(Map<String, Object> params) {
 
 		final String siteId = (String) params.get("siteId");
 		final long assignmentId = NumberUtils.toLong((String) params.get("assignmentId"));
 		final String action = (String) params.get("action");
-		final String cc = (String) params.get("cc");
 		final String groupId = (String) params.get("groupId");
 		final String minScoreString  = (String) params.get("minScore");
 		final String maxScoreString = (String) params.get("maxScore");
@@ -319,7 +318,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 	@EntityCustomAction(action = "listMessageRecipients", viewKey = EntityView.VIEW_NEW)
 	public ActionReturn listMessageRecipients(final EntityView view, final Map<String, Object> params) {
 
-		Set<String> recipients = getRecipients(params, false);
+		Set<String> recipients = getRecipients(params);
 
 		if (!recipients.isEmpty()) {
 			List<User> users = recipients.stream().map(s -> {
@@ -350,7 +349,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 	@EntityCustomAction(action = "messageStudents", viewKey = EntityView.VIEW_NEW)
 	public ActionReturn messageStudents(final EntityView view, final Map<String, Object> params) {
 
-		Set<String> recipients = getRecipients(params, false);
+		Set<String> recipients = getRecipients(params);
 
 		if (!recipients.isEmpty()) {
 			recipients.add(getCurrentUserId());
