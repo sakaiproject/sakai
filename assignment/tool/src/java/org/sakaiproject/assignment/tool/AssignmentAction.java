@@ -3573,6 +3573,7 @@ public class AssignmentAction extends PagedResourceActionII {
         String siteId = (String) state.getAttribute(STATE_CONTEXT_STRING);
         String toolId = toolManager.getCurrentPlacement().getId();
 
+        /*
         List<BasicUser> submitters
             = userSubmissions.stream().map(ss -> {
 
@@ -3588,6 +3589,7 @@ public class AssignmentAction extends PagedResourceActionII {
         } catch (Exception e) {
             log.error("Failed to set jsonSubmitters variable in grading template", e);
         }
+        */
 
         String template = (String) getContext(data).get("template");
 

@@ -1240,6 +1240,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         private String feedbackText;
         private String feedbackComment;
         private String privateNotes;
+        private String groupId;
         private Set<String> feedbackAttachments;
         private Map<String, String> properties = new HashMap<>();
 
@@ -1253,6 +1254,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             this.dateSubmitted = as.getDateSubmitted();
             this.submitted = as.getSubmitted();
             this.submittedAttachments = as.getAttachments();
+            this.groupId = as.getGroupId();
             this.userSubmission = as.getUserSubmission();
             Instant dateSubmitted = as.getDateSubmitted();
             if (dateSubmitted != null) {
@@ -1263,9 +1265,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             this.feedbackComment = as.getFeedbackComment();
             this.privateNotes = as.getPrivateNotes();
             this.feedbackAttachments = as.getFeedbackAttachments();
-
             this.graded = as.getGraded();
-
             this.properties = as.getProperties();
 
             this.submitters
