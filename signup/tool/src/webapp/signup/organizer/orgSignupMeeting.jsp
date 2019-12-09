@@ -171,38 +171,6 @@
 					lastClickedAddImage.style.display = "block";
 			}
 			
-			//Due to JSF commandLink don't have onclick() method and this is a way to go around
-			var deleteClick;
-			var deleteMsg='Are you sure to do this?'; //default          
-			function assignDeleteClick(link,msg) {
-			  if (link.onclick == confirmDelete) {
-			    return;
-			  }
-			                
-			  deleteClick = link.onclick;
-			  deleteMsg = msg;
-			  link.onclick = confirmDelete;
-			}
-			            
-			function confirmDelete() {
-			  var ans = confirm(deleteMsg);
-			  if (ans) {
-			    return deleteClick;
-			  } else {
-			    return false;
-			  }
-			}
-			
-			function confirmTsCancel(link,msg){
-			if (link.onclick == confirmDelete) {
-			    return;
-			  }
-			                
-			  deleteClick = link.onclick;
-			  deleteMsg = msg;
-			  link.onclick = confirmDelete;
-			}
-			
 			//just introduce jquery slideUp/Down visual effect to overwrite top function
 			function switchShowOrHide(tag){
 				if(tag){
@@ -596,8 +564,7 @@
 												</h:panelGroup>
 												
 												<h:panelGroup >
-													<h:commandLink id="cancelTimeslot" action="#{OrganizerSignupMBean.initiateCancelTimeslot}" rendered="#{!timeSlotWrapper.timeSlot.canceled}"
-													  onmousedown="confirmTsCancel(this,'#{msgs.confirm_cancel}');" title="#{msgs.event_tool_tips_cancel_label}">
+													<h:commandLink id="cancelTimeslot" action="#{OrganizerSignupMBean.initiateCancelTimeslot}" rendered="#{!timeSlotWrapper.timeSlot.canceled}" onclick="return confirm('#{msgs.confirm_cancel}');" title="#{msgs.event_tool_tips_cancel_label}">
 														<h:graphicImage value="/images/cancelled.gif" alt="" style="border:none" styleClass="openCloseImageIcon"/>
 														<h:outputText value="#{msgs.event_cancel_timeslot_label}" style="white-space: nowrap;" escape="false"/>
 													</h:commandLink>
@@ -660,7 +627,7 @@
 							   								onclick="showHideEditPanel('#{timeSlotWrapper.positionInTSlist}','#{attendeeWrapper.positionIndex}','#{attendeeWrapper.signupAttendee.attendeeUserId}');" 
 							   								alt="#{msgs.edit}" style="cursor:pointer; border:none" rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}"/>
 							   							<h:outputText value="&nbsp;" escape="false"/>
-							   							<h:commandLink id="deleteAttendee" action="#{OrganizerSignupMBean.removeAttendee}"  onmousedown="assignDeleteClick(this,'#{msgs.delete_attandee_confirmation}');"  title="#{msgs.event_tool_tips_delete}" rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}" >
+							   							<h:commandLink id="deleteAttendee" action="#{OrganizerSignupMBean.removeAttendee}" onclick="return confirm('#{msgs.delete_attandee_confirmation}');"  title="#{msgs.event_tool_tips_delete}" rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}" >
 							   								<h:graphicImage value="/images/delete.png"  alt="#{msgs.delete}" style="border:none" styleClass="openCloseImageIcon"></h:graphicImage>
 							   								<f:param id="deletAttendeeUserId" name="#{OrganizerSignupMBean.attendeeUserId}" value="#{attendeeWrapper.signupAttendee.attendeeUserId}"></f:param>
 							   							</h:commandLink>
@@ -793,10 +760,10 @@
 								<f:facet name="header">
 									<h:outputText value="#{msgs.group_synchronise_heading}"/>
 								</f:facet>
-								<h:commandButton id="synctogroup" value="#{msgs.group_synchronise_button}" action="#{OrganizerSignupMBean.synchroniseGroupMembership}" actionListener="#{OrganizerSignupMBean.attrListener}"   onmousedown="assignDeleteClick(this,'#{msgs.synchronisetogroup_confirmation}');" title="#{msgs.event_tool_tips_syncTogroup}">
+								<h:commandButton id="synctogroup" value="#{msgs.group_synchronise_button}" action="#{OrganizerSignupMBean.synchroniseGroupMembership}" actionListener="#{OrganizerSignupMBean.attrListener}" onclick="return confirm('#{msgs.synchronisetogroup_confirmation}');" title="#{msgs.event_tool_tips_syncTogroup}">
         								<f:attribute name="timeslottoGroup" value="toGroup" />
                                 </h:commandButton>
-								<h:commandButton id="syncfromgroup" value="#{msgs.fromgroup_synchronise_button}" action="#{OrganizerSignupMBean.synchroniseGroupMembership}" actionListener="#{OrganizerSignupMBean.attrListener}"  onmousedown="assignDeleteClick(this,'#{msgs.synchronisefromgroup_confirmation}');" title="#{msgs.event_tool_tips_syncFromgroup}">
+								<h:commandButton id="syncfromgroup" value="#{msgs.fromgroup_synchronise_button}" action="#{OrganizerSignupMBean.synchroniseGroupMembership}" actionListener="#{OrganizerSignupMBean.attrListener}"  onclick="return confirm('#{msgs.synchronisefromgroup_confirmation}');" title="#{msgs.event_tool_tips_syncFromgroup}">
 									<f:attribute name="timeslottoGroup" value="" />
 								</h:commandButton>
 					   		</h:column>
