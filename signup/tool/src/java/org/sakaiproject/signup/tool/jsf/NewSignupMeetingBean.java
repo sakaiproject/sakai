@@ -1228,7 +1228,6 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
      * @return a event frequency type string
      */
     public String getEventFreqType() {
-        eventFreqType = "";
         switch (getRepeatType()) {
             case DAILY:
                 eventFreqType = Utilities.rb.getString("label_daily");
@@ -1241,6 +1240,9 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
                 break;
             case BIWEEKLY:
                 eventFreqType = Utilities.rb.getString("label_biweekly");
+                break;
+            default:
+                eventFreqType = StringUtils.EMPTY;
                 break;
         }
         return eventFreqType;
