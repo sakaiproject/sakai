@@ -1176,14 +1176,10 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 				fAddresses.add(new InternetAddress(pf.getAutoForwardEmail()));
 				//forwardAddress = pf.getAutoForwardEmail();
     		}
-			if (pf != null && (pf.getAutoForward().intValue()==PrivateForumImpl.AUTO_FOWARD_DEFAULT)){
-				if(submitterEmailReceiptPref==PrivateForumImpl.AUTO_FOWARD_YES) {
-					//Consulta en la tabla preferences SAKAI
+			if (pf != null && (pf.getAutoForward().intValue()==PrivateForumImpl.AUTO_FOWARD_DEFAULT) && submitterEmailReceiptPref==PrivateForumImpl.AUTO_FOWARD_YES){
 					pf.setAutoForwardEmail(mailAFoward);
 	    			forwardingEnabled = true;
 					fAddresses.add(new InternetAddress(pf.getAutoForwardEmail()));
-					//forwardAddress = pf.getAutoForwardEmail();
-				}
     		}
     		if( pf == null)  
     		{
@@ -1194,13 +1190,10 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     				forwardingEnabled = true;
 					fAddresses.add(new InternetAddress(oldPf.getAutoForwardEmail()));
     			}
-				if (oldPf != null && (oldPf.getAutoForward().intValue()==PrivateForumImpl.AUTO_FOWARD_DEFAULT)) {
-					if(submitterEmailReceiptPref==PrivateForumImpl.AUTO_FOWARD_YES) {
-						//Consulta en la tabla preferences SAKAI
+				if (oldPf != null && (oldPf.getAutoForward().intValue()==PrivateForumImpl.AUTO_FOWARD_DEFAULT) && submitterEmailReceiptPref==PrivateForumImpl.AUTO_FOWARD_YES) {
 						oldPf.setAutoForwardEmail(mailAFoward);
 	    				forwardingEnabled = true;
 						fAddresses.add(new InternetAddress(oldPf.getAutoForwardEmail()));
-					}
     			}
 
     		}
