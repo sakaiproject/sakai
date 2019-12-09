@@ -14,6 +14,13 @@ for (i=0; i<document.links.length; i++) {
 document.links[newindex].onclick();
 }
 
+jQuery(document).ready(function() {
+	var itemType = "${itemauthor.currentItem.itemType}";
+	if ( itemType == 2 || itemType == 12 ) {
+		$('#itemFormHeading\\:changeQType2').find('option[value=1]').attr('selected', true);
+	}
+});
+
 //Display the EMI question example
 function displayEMIHelp(){
     window.open('../../../../../../samigo-app/emi/help.txt', '_blank', 'location=no,menubar=no,status=no,toolbar=no');
