@@ -346,7 +346,7 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
   toggleRubric(e) {
 
     if (!this.rubricShowing) {
-      $("#rubric-panel").dialog({ width: "auto", close: (e) => { this.rubricShowing = false; } });
+      $("#rubric-panel").dialog({ width: "70%", close: (e) => { this.rubricShowing = false; } });
       this.rubricShowing = true;
     } else {
       $("#rubric-panel").dialog("destroy");
@@ -531,6 +531,8 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
       formData.set("resubmitNumber", this.resubmitNumber);
       formData.set("resubmitDate", this.resubmitDate);
     }
+
+    formData.set("siteId", portal.siteId);
 
     if (this.debug) {
       // Display the key/value pairs
