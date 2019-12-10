@@ -78,7 +78,15 @@
     checklist.addChecklistItem = function () {
         var clonedAnswer = $("#copyableChecklistItemDiv").clone(true);
         clonedAnswer.show();
-        var num = $("#createdChecklistItems").find("li").length + 1; // Should be currentNumberOfChecklistItems + 1
+        var num = 0;
+        var itemNamesOnScreen = document.getElementsByClassName('checklist-item-name');
+        for(var count=0; count<itemNamesOnScreen.length; count++){  //observe all the named items currently onscreen to try and get the largest index
+            var nameNow = itemNamesOnScreen[count].name.replace('checklist-item-name','0'); //get the index number of the current item alone, adding 0 just in case there isn't one
+            if(parseInt(nameNow) > num){    //if the index of the current item is larger than the old one, we have a new highest number.
+                num = parseInt(nameNow);
+            }
+        }
+        num = num + 1;  //num should be incremented by 1 over the largest existing index.
 
         clonedAnswer.find(".checklist-item-id").val("-1");
         clonedAnswer.find(".checklist-item-name").val("");
