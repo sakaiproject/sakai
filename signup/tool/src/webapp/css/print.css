@@ -22,3 +22,9 @@ table.signupTable{
 	border: solid;
 	border-width: thin;	
 }
+
+@media print {
+  .hidden-print {
+    display : none !important;
+  }
+}

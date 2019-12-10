@@ -948,8 +948,8 @@
 					</sakai:doc_section>	
 							
 							 	
-					<sakai:button_bar>					
-						<h:commandButton id="goback" action="listMeetings" value="#{msgs.goback_button}"/>					
+					<sakai:button_bar>
+						<h:commandButton styleClass="hidden-print" id="goback" action="listMeetings" value="#{msgs.goback_button}"/>
 	                </sakai:button_bar>
 	                
 	                <h:outputText value="&nbsp;" escape="false"/>
