@@ -425,13 +425,17 @@ public class AssignmentToolUtils {
                 alerts.addAll(integrateGradebook(options, aReference, associateGradebookAssignment, null, null, null, -1, null, sReference, "remove", -1));
             }
 
+            String siteId = (String) options.get("siteId");
+
             // Persist the rubric evaluations
             if (rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_ASSIGNMENT, submission.getAssignment().getId())){
                 Map<String, String> rubricsParams
                     = options.entrySet().stream().filter(e -> e.getKey().startsWith("rbcs"))
                         .collect(Collectors.toMap(e -> e.getKey(), e -> (String) e.getValue()));
 
-                //rubricsParams.put("siteId", siteId);
+                if (StringUtils.isNotBlank(siteId)) {
+                    rubricsParams.put("siteId", siteId);
+                }
                 for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
                     String submitterId = submitter.getSubmitter();
                     rubricsService.saveRubricEvaluation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, submission.getAssignment().getId(), submission.getId(), submitterId, submission.getGradedBy(), rubricsParams);
