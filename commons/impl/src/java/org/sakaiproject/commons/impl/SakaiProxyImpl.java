@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Observer;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -37,7 +38,6 @@ import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.commons.api.CommonsConstants;
 import org.sakaiproject.commons.api.CommonsFunctions;
@@ -246,105 +246,88 @@ public class SakaiProxyImpl implements SakaiProxy {
 
     public Set<String> getSitePermissionsForCurrentUser(String siteId, String embedder) {
 
-        Set<String> filteredFunctions = new TreeSet();
-
-        Site site = null;
-        try {
-            site = siteService.getSite(siteId);
-        } catch (IdUnusedException e) {
-            log.error("Trying to get commons permissions for unknown site " + siteId, e);
-        }
-
+        Set<String> filteredFunctions = new TreeSet<>();
         String userId = getCurrentUserId();
 
-        if (userId == null) {
-            throw new SecurityException("This action (userPerms) is not accessible to anon and there is no current user.");
-        }
-
-        Role siteRole = getCurrentUserRoleForSite(site);
-
-        // Check to see if this is the user's own workspace
-        if (siteService.getUserSiteId(userId).equals(siteId)) {
-            // Make sure the basic set are allowed so that
-            // the security manager can make the right decisions.
-            AuthzGroup siteRealm = null;
+        if (userId != null) {
             try {
-                siteRealm = authzGroupService.getAuthzGroup("/site/" + siteId);
-                if (!siteRole.isAllowed(CommonsFunctions.POST_CREATE)
-                        || !siteRole.isAllowed(CommonsFunctions.POST_READ_ANY)
-                        || !siteRole.isAllowed(CommonsFunctions.POST_UPDATE_OWN)
-                        || !siteRole.isAllowed(CommonsFunctions.POST_DELETE_OWN)
-                        || !siteRole.isAllowed(CommonsFunctions.COMMENT_CREATE)
-                        || !siteRole.isAllowed(CommonsFunctions.COMMENT_READ_ANY)
-                        || !siteRole.isAllowed(CommonsFunctions.COMMENT_UPDATE_OWN)
-                        || !siteRole.isAllowed(CommonsFunctions.COMMENT_DELETE_OWN)) {
+                Site site = siteService.getSite(siteId);
+                Role siteRole = getCurrentUserRoleForSite(site);
 
-                    siteRole.allowFunction(CommonsFunctions.POST_CREATE);
-                    siteRole.allowFunction(CommonsFunctions.POST_READ_ANY);
-                    siteRole.allowFunction(CommonsFunctions.POST_UPDATE_OWN);
-                    siteRole.allowFunction(CommonsFunctions.POST_DELETE_OWN);
-                    siteRole.allowFunction(CommonsFunctions.COMMENT_CREATE);
-                    siteRole.allowFunction(CommonsFunctions.COMMENT_READ_ANY);
-                    siteRole.allowFunction(CommonsFunctions.COMMENT_UPDATE_OWN);
-                    siteRole.allowFunction(CommonsFunctions.COMMENT_DELETE_OWN);
-                    authzGroupService.save(siteRealm);
+                if (siteRole != null) {
+                    // Check to see if this is the user's own workspace
+                    if (siteService.getUserSiteId(userId).equals(siteId)) {
+                        // Make sure the basic set are allowed so that
+                        // the security manager can make the right decisions.
+                        AuthzGroup siteRealm = authzGroupService.getAuthzGroup("/site/" + siteId);
+                        if (!siteRole.isAllowed(CommonsFunctions.POST_CREATE)
+                                || !siteRole.isAllowed(CommonsFunctions.POST_READ_ANY)
+                                || !siteRole.isAllowed(CommonsFunctions.POST_UPDATE_OWN)
+                                || !siteRole.isAllowed(CommonsFunctions.POST_DELETE_OWN)
+                                || !siteRole.isAllowed(CommonsFunctions.COMMENT_CREATE)
+                                || !siteRole.isAllowed(CommonsFunctions.COMMENT_READ_ANY)
+                                || !siteRole.isAllowed(CommonsFunctions.COMMENT_UPDATE_OWN)
+                                || !siteRole.isAllowed(CommonsFunctions.COMMENT_DELETE_OWN)) {
+
+                            siteRole.allowFunction(CommonsFunctions.POST_CREATE);
+                            siteRole.allowFunction(CommonsFunctions.POST_READ_ANY);
+                            siteRole.allowFunction(CommonsFunctions.POST_UPDATE_OWN);
+                            siteRole.allowFunction(CommonsFunctions.POST_DELETE_OWN);
+                            siteRole.allowFunction(CommonsFunctions.COMMENT_CREATE);
+                            siteRole.allowFunction(CommonsFunctions.COMMENT_READ_ANY);
+                            siteRole.allowFunction(CommonsFunctions.COMMENT_UPDATE_OWN);
+                            siteRole.allowFunction(CommonsFunctions.COMMENT_DELETE_OWN);
+                            authzGroupService.save(siteRealm);
+                        }
+                    }
+
+                    // If the commons is attached to an assignment, then it gets the permissions of
+                    // user relative to the assignment
+                    if (embedder.equals(CommonsConstants.ASSIGNMENT)) {
+                        // This won't generally apply to workspace sites, but it's harmless
+                        if (siteRole.isAllowed(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION)) {
+                            filteredFunctions.add(CommonsFunctions.POST_CREATE);
+                            filteredFunctions.add(CommonsFunctions.POST_READ_ANY);
+                            filteredFunctions.add(CommonsFunctions.POST_UPDATE_OWN);
+                            filteredFunctions.add(CommonsFunctions.POST_DELETE_OWN);
+                            filteredFunctions.add(CommonsFunctions.COMMENT_CREATE);
+                            filteredFunctions.add(CommonsFunctions.COMMENT_READ_ANY);
+                            filteredFunctions.add(CommonsFunctions.COMMENT_UPDATE_OWN);
+                            filteredFunctions.add(CommonsFunctions.COMMENT_DELETE_OWN);
+                        }
+
+                        if (siteRole.isAllowed(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT)) {
+                            filteredFunctions.add(CommonsFunctions.POST_CREATE);
+                            filteredFunctions.add(CommonsFunctions.POST_READ_ANY);
+                            filteredFunctions.add(CommonsFunctions.POST_DELETE_ANY);
+                            filteredFunctions.add(CommonsFunctions.POST_UPDATE_OWN);
+                            filteredFunctions.add(CommonsFunctions.POST_DELETE_OWN);
+                            filteredFunctions.add(CommonsFunctions.COMMENT_CREATE);
+                            filteredFunctions.add(CommonsFunctions.COMMENT_READ_ANY);
+                            filteredFunctions.add(CommonsFunctions.COMMENT_UPDATE_OWN);
+                            filteredFunctions.add(CommonsFunctions.COMMENT_DELETE_OWN);
+                            filteredFunctions.add(CommonsFunctions.COMMENT_DELETE_ANY);
+                        }
+
+                        return filteredFunctions;
+                    }
+
+                    Set<String> functions = siteRole.getAllowedFunctions();
+
+                    AuthzGroup siteHelperRealm = authzGroupService.getAuthzGroup("!site.helper");
+                    Optional.ofNullable(siteHelperRealm.getRole(siteRole.getId())).ifPresent(r -> functions.addAll(r.getAllowedFunctions()));
+
+                    // Don't like the startsWith use. Things could start with "commons" but still not be relevant here
+                    filteredFunctions.addAll(functions.stream().filter(f -> f.startsWith("commons") || f.equals(SiteService.SECURE_UPDATE_SITE)).collect(Collectors.toSet()));
                 }
-            } catch (Exception e) {
-                log.error("Exception while looking up or modifying user workspace role " +
-                    siteRole.getId() + " in site " + siteId, e);
+            } catch (AuthzPermissionException ape) {
+                log.warn("Could not look up role for user {} in site {}, {}", userId, siteId, ape.getMessage());
+            } catch (GroupNotDefinedException gnde) {
+                log.warn("Group doesn't exist, {}", gnde.getMessage());
+            } catch (IdUnusedException iue) {
+                log.warn("Site {} not found, {}", siteId, iue.getMessage());
             }
         }
-
-        // If the commons is attached to an assignment, then it gets the permissions of
-        // user relative to the assignment
-        if (embedder.equals(CommonsConstants.ASSIGNMENT)) {
-            // This won't generally apply to workspace sites, but it's harmless
-            if (siteRole.isAllowed(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION)) {
-                filteredFunctions.add(CommonsFunctions.POST_CREATE);
-                filteredFunctions.add(CommonsFunctions.POST_READ_ANY);
-                filteredFunctions.add(CommonsFunctions.POST_UPDATE_OWN);
-                filteredFunctions.add(CommonsFunctions.POST_DELETE_OWN);
-                filteredFunctions.add(CommonsFunctions.COMMENT_CREATE);
-                filteredFunctions.add(CommonsFunctions.COMMENT_READ_ANY);
-                filteredFunctions.add(CommonsFunctions.COMMENT_UPDATE_OWN);
-                filteredFunctions.add(CommonsFunctions.COMMENT_DELETE_OWN);
-            }
-
-            if (siteRole.isAllowed(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT)) {
-                filteredFunctions.add(CommonsFunctions.POST_CREATE);
-                filteredFunctions.add(CommonsFunctions.POST_READ_ANY);
-                filteredFunctions.add(CommonsFunctions.POST_DELETE_ANY);
-                filteredFunctions.add(CommonsFunctions.POST_UPDATE_OWN);
-                filteredFunctions.add(CommonsFunctions.POST_DELETE_OWN);
-                filteredFunctions.add(CommonsFunctions.COMMENT_CREATE);
-                filteredFunctions.add(CommonsFunctions.COMMENT_READ_ANY);
-                filteredFunctions.add(CommonsFunctions.COMMENT_UPDATE_OWN);
-                filteredFunctions.add(CommonsFunctions.COMMENT_DELETE_OWN);
-                filteredFunctions.add(CommonsFunctions.COMMENT_DELETE_ANY);
-            }
-
-            return filteredFunctions;
-        }
-
-        Set<String> functions = siteRole.getAllowedFunctions();
-
-        AuthzGroup siteHelperRealm = null;
-        try {
-            siteHelperRealm = authzGroupService.getAuthzGroup("!site.helper");
-        } catch (Exception e) {
-            log.error("Error calling authzGroupService.getAuthzGroup(\"!site.helper\")", e);
-        }
-        if (siteHelperRealm != null) {
-            Role siteHelperRole = siteHelperRealm.getRole(siteRole.getId());
-            if (siteHelperRole != null) {
-                // Merge in all the functions from the same role in !site.helper
-                functions.addAll(siteHelperRole.getAllowedFunctions());
-            }
-        }
-
-        // Don't like this startsWith use. Things could start with "commons" but
-        // still not be relevant here
-        filteredFunctions.addAll(functions.stream().filter(f -> f.startsWith("commons") || f.equals(SiteService.SECURE_UPDATE_SITE)).collect(Collectors.toSet()));
 
         if (securityService.isSuperUser(userId)) {
             // Special case for the super admin
