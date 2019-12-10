@@ -328,7 +328,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                     if (!Long.valueOf(params.get(RubricsConstants.RBCS_LIST)).equals(oldRubricId)) {
                         deleteRubricEvaluationsForAssociation(associationHref, tool);
                     }
-                    String resultPut = putRubricResource(associationHref, input, tool);
+                    String resultPut = putRubricResource(associationHref, input, tool, null);
                     //update the actual one.
                     log.debug("resultPUT: {}",  resultPut);
                 }
@@ -432,7 +432,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                         rubricToolItemAssociationResource.getLink(Link.REL_SELF).getHref(), criterionJsonData, existingEvaluation.getMetadata().getCreated(), existingEvaluation.getMetadata().getOwnerId(), 
 						existingEvaluation.getMetadata().getOwnerType(), existingEvaluation.getMetadata().getCreatorId());
 
-                String resultPut = putRubricResource(evaluationUri, input, toolId);
+                String resultPut = putRubricResource(evaluationUri, input, toolId, siteId);
                 //lets update the actual one.
                 log.debug("resultPUT: " +  resultPut);
             }
@@ -620,11 +620,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                 "by-tool-item-ids");
 
         HttpHeaders headers = new HttpHeaders();
-        if(siteId != null) {
-            headers.add("Authorization", String.format("Bearer %s", generateJsonWebToken(toolId, siteId)));
-        } else {
-            headers.add("Authorization", String.format("Bearer %s", generateJsonWebToken(toolId)));
-        }
+        headers.add("Authorization", String.format("Bearer %s", generateJsonWebToken(toolId, siteId)));
         builder.withHeaders(headers);
 
         Map<String, Object> parameters = new HashMap<>();
@@ -693,11 +689,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
             conn.setRequestMethod("POST");
             String cookie = buildCookieString();
             conn.setRequestProperty("Cookie", cookie);
-            if (siteId != null){
-                conn.setRequestProperty("Authorization", "Bearer " + generateJsonWebToken(toolId, siteId));
-            } else {
-                conn.setRequestProperty("Authorization", "Bearer " + generateJsonWebToken(toolId));
-            }
+            conn.setRequestProperty("Authorization", "Bearer " + generateJsonWebToken(toolId, siteId));
             try(OutputStream os = conn.getOutputStream()) {
                 os.write(json.getBytes("UTF-8"));
                 os.close();
@@ -738,7 +730,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
      * @param json The json to post.
      * @return
      */
-    private String putRubricResource(String targetUri,String json, String toolId) throws IOException {
+    private String putRubricResource(String targetUri,String json, String toolId, String siteId) throws IOException {
         log.debug(String.format("PUT to URI '%s' body:", targetUri, json));
 
         HttpURLConnection conn = null;
@@ -753,7 +745,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
             conn.setRequestMethod("PUT");
             String cookie = buildCookieString();
             conn.setRequestProperty("Cookie", cookie);
-            conn.setRequestProperty("Authorization", "Bearer " + generateJsonWebToken(toolId));
+            conn.setRequestProperty("Authorization", "Bearer " + generateJsonWebToken(toolId, siteId));
 
             try(OutputStream os = conn.getOutputStream()) {
                 os.write(json.getBytes("UTF-8"));

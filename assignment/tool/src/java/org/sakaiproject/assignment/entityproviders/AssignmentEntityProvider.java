@@ -62,6 +62,7 @@ import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Group;
@@ -609,8 +610,6 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         String resubmitNumber = (String) params.get("resubmitNumber");
         String resubmitDate = (String) params.get("resubmitDate");
 
-        System.out.println(resubmitDate);
-
         List<String> alerts = new ArrayList<>();
 
         Assignment assignment = submission.getAssignment();
@@ -649,6 +648,11 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         options.put(GRADE_SUBMISSION_FEEDBACK_ATTACHMENT,  attachmentRefs);
 
         options.put(GRADE_SUBMISSION_DONT_CLEAR_CURRENT_ATTACHMENTS, Boolean.TRUE);
+
+        // Add any rubrics params
+        params.keySet().stream().filter(k -> k.startsWith(RubricsConstants.RBCS_PREFIX)).forEach(k -> options.put(k, params.get(k)));
+
+        options.put("siteId", (String) params.get("siteId"));
 
         submission = assignmentToolUtils.gradeSubmission(submission, gradeOption, options, alerts);
 
