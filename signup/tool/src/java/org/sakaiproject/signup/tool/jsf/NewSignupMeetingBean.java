@@ -368,6 +368,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
      * @return null.
      */
     public String addRemoveAttachments() {
+        this.setMeetingDates();
         getAttachmentHandler().processAddAttachRedirect(attachments, signupMeeting, true);
         return null;
     }
@@ -414,26 +415,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
         String step = (String) currentStepHiddenInfo.getValue();
 
         if ("step1".equals(step)) {
-            Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
-
-            String isoStartTime = params.get(HIDDEN_ISO_STARTTIME);
-
-            if (DateFormatterUtil.isValidISODate(isoStartTime)) {
-                signupMeeting.setStartTime(DateFormatterUtil.parseISODate(isoStartTime));
-            }
-
-            String isoEndTime = params.get(HIDDEN_ISO_ENDTIME);
-
-            if (DateFormatterUtil.isValidISODate(isoEndTime)) {
-                signupMeeting.setEndTime(DateFormatterUtil.parseISODate(isoEndTime));
-            }
-
-            String isoUntilTime = params.get(HIDDEN_ISO_UNTILTIME);
-
-            if (DateFormatterUtil.isValidISODate(isoUntilTime)) {
-                setRepeatUntil(DateFormatterUtil.parseISODate(isoUntilTime));
-            }
-
+            this.setMeetingDates();
             boolean locationSet = false;
 
             // Set Title
@@ -1343,5 +1325,30 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
     public String getIframeId() {
         HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
         return (String) request.getAttribute("sakai.tool.placement.id");
+    }
+
+    /* Get the dates from the input fields and save them into the signupMetting object.*/
+    private void setMeetingDates() {
+        Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+
+        String isoStartTime = params.get(HIDDEN_ISO_STARTTIME);
+
+        if(DateFormatterUtil.isValidISODate(isoStartTime)){
+            this.signupMeeting.setStartTime(DateFormatterUtil.parseISODate(isoStartTime));
+        }
+
+        String isoEndTime = params.get(HIDDEN_ISO_ENDTIME);
+
+        if(DateFormatterUtil.isValidISODate(isoEndTime)){
+            this.signupMeeting.setEndTime(DateFormatterUtil.parseISODate(isoEndTime));
+        }
+
+        String isoUntilTime = params.get(HIDDEN_ISO_UNTILTIME);
+
+        if(DateFormatterUtil.isValidISODate(isoUntilTime)){
+            setRepeatUntil(DateFormatterUtil.parseISODate(isoUntilTime));
+            this.signupMeeting.setRepeatUntil(DateFormatterUtil.parseISODate(isoUntilTime));
+        }
+
     }
 }
