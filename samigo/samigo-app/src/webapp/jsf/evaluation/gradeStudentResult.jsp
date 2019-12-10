@@ -47,6 +47,7 @@ $Id$
     <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
     <script>includeWebjarLibrary('awesomplete')</script>
     <script src="/library/js/sakai-reminder.js"></script>
+    <script src="/samigo-app/js/finInputValidator.js"></script>
     
     <script>
       jQuery(window).load(function(){
