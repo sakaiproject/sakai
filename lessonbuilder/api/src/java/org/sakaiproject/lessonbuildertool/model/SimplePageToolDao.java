@@ -148,6 +148,8 @@ public interface SimplePageToolDao {
     // find all items with given page ID
 	public List<SimplePageItem> findPageItemsBySakaiId(String id);
 
+	public List<SimplePageItem> findPageItemsByPageId(long pageId);
+
     // find resource items with access control involving specified sakaiid
 	public List findControlledResourcesBySakaiId(String id, String siteid);
 	
