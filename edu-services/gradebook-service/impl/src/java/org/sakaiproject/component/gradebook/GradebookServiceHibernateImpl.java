@@ -1025,7 +1025,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 		final Map<Long, BigDecimal> cateScoreMap = new HashMap<>();
 		final Map<Long, BigDecimal> cateTotalScoreMap = new HashMap<>();
-		final Map<Long, BigDecimal> cateMeanScoreMap = new HashMap<>();
 		final Set<Long> assignmentsTaken = new HashSet<>();
 
 		for (final AssignmentGradeRecord gradeRec : gradeRecs) {
@@ -1071,14 +1070,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 									} else {
 										cateScoreMap.put(cate.getId(), pointsEarned);
 									}
-
-									// Running average for an equal-weight category
-/*									final BigDecimal singleItemAverage = pointsEarned.divide(pointsPossible, GradebookService.MATH_CONTEXT);
-									if (cateMeanScoreMap.get(cate.getId()) != null) {
-										cateMeanScoreMap.put(cate.getId(), cateMeanScoreMap.get(cate.getId()).add(singleItemAverage, GradebookService.MATH_CONTEXT));
-									} else {
-										cateMeanScoreMap.put(cate.getId(), pointsEarned);
-									}*/
 								}
 								break;
 							}
