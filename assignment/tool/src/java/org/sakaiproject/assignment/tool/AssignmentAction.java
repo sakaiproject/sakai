@@ -14538,9 +14538,9 @@ public class AssignmentAction extends PagedResourceActionII {
                         List<ContentReviewResult> r1 = assignmentService.getContentReviewResults(s1);
                         List<ContentReviewResult> r2 = assignmentService.getContentReviewResults(s2);
 
-                        if (r1 == null || r1.isEmpty()) {
+                        if (CollectionUtils.isEmpty(r1)) {
                             result = -1;
-                        } else if (r2 == null || r2.isEmpty()) {
+                        } else if (CollectionUtils.isEmpty(r2)) {
                             result = 1;
                         } else {
                             int score1 = -99;
