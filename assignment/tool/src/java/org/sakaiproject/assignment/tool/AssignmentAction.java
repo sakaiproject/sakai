@@ -14530,17 +14530,45 @@ public class AssignmentAction extends PagedResourceActionII {
                     AssignmentSubmission s1 = u1.getSubmission();
                     AssignmentSubmission s2 = u2.getSubmission();
 
-
                     if (s1 == null) {
                         result = -1;
                     } else if (s2 == null) {
                         result = 1;
                     } else {
-                        String ts1 = s1.getProperties().get(AssignmentConstants.REVIEW_SCORE);
-                        String ts2 = s2.getProperties().get(AssignmentConstants.REVIEW_SCORE);
-                        int score1 = ts1 != null ? Integer.parseInt(ts1) : 0;
-                        int score2 = ts2 != null ? Integer.parseInt(ts2) : 0;
-                        result = score1 > score2 ? 1 : -1;
+                        List<ContentReviewResult> r1 = assignmentService.getContentReviewResults(s1);
+                        List<ContentReviewResult> r2 = assignmentService.getContentReviewResults(s2);
+
+                        if (CollectionUtils.isEmpty(r1)) {
+                            result = -1;
+                        } else if (CollectionUtils.isEmpty(r2)) {
+                            result = 1;
+                        } else {
+                            int score1 = -99;
+                            int score2 = -99;
+
+                            // Find the highest score in all of the possible submissions
+                            for (ContentReviewResult crr1 : r1) {
+                                String reviewReport = crr1.getReviewReport();
+                                // Yes, "Error" appears to be magic throughout the review code
+                                // Error should appear before pending
+                                if (StringUtils.equals(reviewReport, "Error")) {
+                                    score1 = -1;
+                                } else if (crr1.getReviewScore() > score1) {
+                                    score1 = crr1.getReviewScore(); // This will return -2 for pending
+                                }
+                            }
+
+                            for (ContentReviewResult crr2 : r2) {
+                                String reviewReport = crr2.getReviewReport();
+                                if (StringUtils.equals(reviewReport, "Error")) {
+                                    score2 = -1;
+                                } else if (crr2.getReviewScore() > score2) {
+                                    score2 = crr2.getReviewScore();
+                                }
+                            }
+
+                            result = score1 > score2 ? 1 : -1;
+                        }
                     }
                 }
 
