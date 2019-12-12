@@ -8440,10 +8440,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		Site.setDescription(siteInfo.description);
 		Site.setShortDescription(siteInfo.short_description);
 
-		if (site_type != null) {
-			// set icon url for course
-			setAppearance(state, Site, siteInfo.iconUrl);
-		}
+		// set icon url for course
+		setAppearance(state, Site, siteInfo.iconUrl);
 
 		// site contact information
 		String contactName = siteInfo.site_contact_name;
