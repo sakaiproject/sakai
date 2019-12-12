@@ -11,9 +11,10 @@
     this.$link.addClass("hidden");
 
     portal.i18n.loadProperties({
-      resourceBundle: 'jumptotop',
-      namespace: 'jumptotop',
-      callback: () => this.$link.attr("title", portal.i18n.tr('jumptotop', 'jumptotop_title'))
+      resourceClass: "org.sakaiproject.portal.api.PortalService",
+      resourceBundle: "jumptotop",
+      namespace: "jumptotop",
+      callback: () => this.$link.attr("title", portal.i18n.tr("jumptotop", "jumptotop_title"))
     });
 
     this.hide();
