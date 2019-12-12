@@ -2784,7 +2784,7 @@ public class GradebookNgBusinessService {
 	/**
 	 * Get the user's custom GbUiSettings from PreferencesService
 	 *
-	 * @return Boolean
+	 * @return String
 	 */
 	public String getUserGbPreference(final String prefName) {
 		final String siteId = getCurrentSiteId();
