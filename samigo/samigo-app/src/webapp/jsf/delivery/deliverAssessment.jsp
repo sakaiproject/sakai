@@ -442,8 +442,8 @@ document.links[newindex].onclick();
              <h:outputFormat value="#{deliveryMessages.time_left}"><f:param value="#{delivery.minutesLeft}"/><f:param value="#{delivery.secondsLeft}"/></h:outputFormat>
            </div>
            <div role="alert" class="sak-banner-error" style="display: none" id="autosave-failed-warning">
-             <p><h:outputText value="#{deliveryMessages.autosaveFailed} " /></p>
-             <p><h:outputText value="#{deliveryMessages.autosaveFailedDetail} " /></p>
+             <p><h:outputText value="#{deliveryMessages.autosaveFailed}" escape="false" /></p>
+             <p><h:outputText value="#{deliveryMessages.autosaveFailedDetail}" escape="false" /></p>
            </div>
           
          </div>
