@@ -314,7 +314,7 @@ public class ExportPanel extends BasePanel {
 				// get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment from the map
 				SortType sortBy = SortType.SORT_BY_SORTING;
 				final String userGbUiCatPref = this.businessService.getUserGbPreference("GROUP_BY_CAT");
-				if ((StringUtils.isBlank(userGbUiCatPref) && this.businessService.categoriesAreEnabled()) || BooleanUtils.toBoolean(userGbUiCatPref)) {
+				if (this.businessService.categoriesAreEnabled() && (StringUtils.isBlank(userGbUiCatPref) || BooleanUtils.toBoolean(userGbUiCatPref))) {
 					sortBy = SortType.SORT_BY_CATEGORY;
 				}
 				final List<Assignment> assignments = this.businessService.getGradebookAssignments(sortBy);
