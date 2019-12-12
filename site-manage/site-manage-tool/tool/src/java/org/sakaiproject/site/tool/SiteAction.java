@@ -15812,7 +15812,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		// get the tool
 		Site site = (Site) state.getAttribute("site");
 		SitePage page = (SitePage) state.getAttribute("overview");
-		List<ToolConfiguration> tools = page.getTools();
+		List<ToolConfiguration> tools = (List<ToolConfiguration>) state.getAttribute("tools");
 		ToolConfiguration tool = null;
 
 		for(ToolConfiguration pageTool: tools){
@@ -15897,7 +15897,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		// get the tool
 		Site site = (Site) state.getAttribute("site");
 		SitePage page = (SitePage) state.getAttribute("overview");
-		List<ToolConfiguration> tools = page.getTools();
+		List<ToolConfiguration> tools = (List<ToolConfiguration>) state.getAttribute("tools");
 		ToolConfiguration tool = null;
 
 		for(ToolConfiguration pageTool: tools){
