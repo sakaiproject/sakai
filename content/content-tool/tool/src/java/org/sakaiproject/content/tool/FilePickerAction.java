@@ -93,6 +93,7 @@ import org.sakaiproject.exception.IdUniquenessException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InconsistentException;
+import org.sakaiproject.exception.InvalidFilenameException;
 import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
@@ -1358,8 +1359,8 @@ public class FilePickerAction extends PagedResourceHelperAction
 				props.addProperty(ResourceProperties.PROP_DESCRIPTION, filename);
 
 				// make an attachment resource for this URL
-				try
-				{
+				try {
+					Validator.checkFilename(filename);
 					String siteId = toolManager.getCurrentPlacement().getContext();
 
 					String toolName = (String) toolSession.getAttribute(STATE_ATTACH_TOOL_NAME);
@@ -1432,6 +1433,10 @@ public class FilePickerAction extends PagedResourceHelperAction
 				catch(IdUsedException ignore)
 				{
 					// other exceptions should be caught earlier
+				}
+				catch(InvalidFilenameException ex)
+				{
+					addAlert(state, trb.getFormattedMessage("alert.invalid.name", new String[]{filename}));
 				}
 				catch(RuntimeException e)
 				{
@@ -1994,6 +1999,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 				InputStream contentStream = resource.streamContent();
 				String contentType = resource.getContentType();
 				String filename = FilenameUtils.getName(itemId);
+				Validator.checkFilename(filename);
 				String resourceId = Validator.escapeResourceName(filename);
 
 				String siteId = toolManager.getCurrentPlacement().getContext();
@@ -2051,6 +2057,10 @@ public class FilePickerAction extends PagedResourceHelperAction
 			catch(InconsistentException ignore)
 			{
 				// other exceptions should be caught earlier
+			}
+			catch(InvalidFilenameException e)
+			{
+				addAlert(state, trb.getFormattedMessage("alert.invalid.name", new String[]{""}));
 			}
 			catch(RuntimeException e)
 			{

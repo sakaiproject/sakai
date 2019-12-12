@@ -1322,6 +1322,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 					
 					// create resource
 					try {
+						Validator.checkFilename(displayName);
 						ContentResourceEdit edit = getContentService().addResource(contentCollectionId, displayName, null, ContentHostingService.MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
 						
 						edit.setResourceType(CitationService.CITATION_LIST_ID);
@@ -1359,6 +1360,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 					} catch (IdUnusedException e) {
 						message = e.getMessage();
 						log.warn("IdUnusedException in ensureCitationListExists() {}", e);
+					}  catch (InvalidFilenameException e) {
+						message = e.getMessage();
+						log.warn("InvalidFilenameException in ensureCitationListExists() {}", e);
 					}
 				}
 				

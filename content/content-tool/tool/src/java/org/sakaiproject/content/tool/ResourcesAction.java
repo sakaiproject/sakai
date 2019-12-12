@@ -127,6 +127,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.InconsistentException;
+import org.sakaiproject.exception.InvalidFilenameException;
 import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
@@ -1148,8 +1149,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			{
 				continue;
 			}
-			try
-			{
+			try {
+				Validator.checkFilename(name);
 				ContentCollectionEdit edit = contentHostingService.addCollection(collectionId, Validator.escapeResourceName(name), MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
 				ResourcePropertiesEdit props = edit.getPropertiesEdit();
 				props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
@@ -1212,6 +1213,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			{
 				// TODO Auto-generated catch block
 				log.warn("TypeException id = {}{}", collectionId, name, e);
+			} catch (InvalidFilenameException e) {
+				addAlert(state, trb.getFormattedMessage("alert.invalid.name", new Object[] { name }));
 			}
 		}
 		return (new_collections.isEmpty() ? null : new_collections);
@@ -1256,8 +1259,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				
 				basename = sb.toString();
 			}
-			try
-			{
+			try {
+				Validator.checkFilename(basename);
 				ContentResourceEdit resource = contentHostingService.addResource(collectionId,Validator.escapeResourceName(basename),Validator.escapeResourceName(extension),MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
 				
 				extractContent(fp, resource);
@@ -1372,6 +1375,10 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			{
 				addAlert(trb.getFormattedMessage("alert.unable1", new Object[]{name}));
 				log.warn("ServerOverloadException {}", (Object) e);
+			}
+			catch (InvalidFilenameException e) {
+				addAlert(trb.getFormattedMessage("alert.invalid.name", new Object[]{name}));
+				log.warn("InvalidFilenameException {}", (Object) e);
 			}
 		}
 		
@@ -4355,7 +4362,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			catch(TypeException ex)
 			{
 				log.warn("{}TypeException.", this);
-				throw ex;				
+				throw ex;
 			}
 			catch(PermissionException ex)
 			{
@@ -6237,7 +6244,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					
 					basename = sb.toString();
 				}
-				
+
+				Validator.checkFilename(basename);
 				// create resource
 				ContentResourceEdit resource = contentHostingService.addResource(collectionId, Validator.escapeResourceName(basename), Validator.escapeResourceName(extension), MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
 				
@@ -6403,6 +6411,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			catch (IdLengthException e)
 			{
 				addAlert(state, trb.getFormattedMessage("alert.toolong", e.getReference()));
+			} catch (InvalidFilenameException e) {
+				addAlert(state, trb.getFormattedMessage("alert.invalid.name", new Object[]{name}));
 			}
 		}
 		else if("cancel".equals(user_action))
@@ -9183,8 +9193,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			String basename = name.trim();
             String extension = ".URL";
             
-            try
-			{
+            try {
+				Validator.checkFilename(basename);
 				ContentResourceEdit resource = contentHostingService.addResource(collectionId,Validator.escapeResourceName(basename),Validator.escapeResourceName(extension),MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
 				
 				extractContent(fp, resource);
@@ -9299,6 +9309,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				addAlert(state, trb.getFormattedMessage("alert.toolong", new Object[]{e.getMessage()}));
 				// TODO Auto-generated catch block
 				log.warn("IdLengthException ", e);
+			} catch (InvalidFilenameException e) {
+				addAlert(state, trb.getFormattedMessage("alert.invalid.name", new Object[]{ basename }));
+				log.warn("InvalidFilenameException ", e);
 			}
 			catch (OverQuotaException e)
 			{
@@ -9558,6 +9571,16 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	        } else if ("".equals(displayName)) {
 	            displayName = filename;
 	        }
+
+	        try {
+	            Validator.checkFilename(filename);
+	        } catch (InvalidFilenameException e) {
+	            // Invalid file name
+	            addAlert(state, trb.getFormattedMessage("alert.invalid.name", new Object[] { filename }));
+	            state.setAttribute(STATE_MODE, MODE_DROPBOX_MULTIPLE_FOLDERS_UPLOAD);
+	            return;
+	        }
+
 	        String SEPARATOR = "/";
 	        String COLLECTION_DROPBOX = "/group-user/";
 	        String contentType = fileitem.getContentType();

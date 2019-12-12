@@ -33,6 +33,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdInvalidException;
+import org.sakaiproject.exception.InvalidFilenameException;
 
 /**
  * <p>
@@ -45,7 +46,7 @@ import org.sakaiproject.exception.IdInvalidException;
 public class Validator
 {
 	/** These characters are not allowed in a resource id */
-	public static final String INVALID_CHARS_IN_RESOURCE_ID = "^/\\{}[]()%*?#&=\n\r\t\b\f";
+	public static final String INVALID_CHARS_IN_RESOURCE_ID = "^/\\{}[]()%*?#&=\n\r\t\b\f<>:\"|";
 
 	/** These characters are not allowed in a user id */
 	protected static final String INVALID_CHARS_IN_USER_ID = "^/\\%*?\n\r\t\b\f";
@@ -477,6 +478,16 @@ public class Validator
 
 	} // checkResourceId
 
+    /**
+     * Check for a valid filename.
+     * 
+     * @Throws an InvalidFileNameException if the file name is not valid
+     */
+    public static void checkFilename(String filename) throws InvalidFilenameException {
+        if (StringUtils.isBlank(filename) || StringUtils.containsAny(filename, INVALID_CHARS_IN_FILENAME)) {
+            throw new InvalidFilenameException(filename);
+        }
+    } // checkFilename
 
 	/**
 	 * Check for a syntactically valid site type.
