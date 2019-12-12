@@ -441,13 +441,19 @@ public class PrivateMessagesTool {
       forum=pf;
       activatePvtMsg = (Boolean.TRUE.equals(area.getEnabled())) ? SET_AS_YES : SET_AS_NO;
       sendToEmail = area.getSendToEmail() + "";
-      if(pf.getAutoForward()==PrivateForumImpl.AUTO_FOWARD_YES) {
+
+      switch (pf.getAutoForward()) {
+      case PrivateForumImpl.AUTO_FOWARD_YES:
     	  forwardPvtMsg = SET_AS_YES;
-      }else if(pf.getAutoForward()==PrivateForumImpl.AUTO_FOWARD_NO) {
+    	  break;
+      case PrivateForumImpl.AUTO_FOWARD_NO:
     	  forwardPvtMsg = SET_AS_NO;
-      }else {
+    	  break;
+      default:
     	  forwardPvtMsg = SET_AS_DEFAULT;
+    	  break;
       }
+
       forwardPvtMsgEmail = pf.getAutoForwardEmail();
       hiddenGroups = new ArrayList<>();
       if(area != null && area.getHiddenGroups() != null){
@@ -3304,14 +3310,17 @@ public void processChangeSelectView(ValueChangeEvent eve)
     log.debug("processPvtMsgSettingsRevise()");   
     
     /** block executes when changing value to "no" */
-    if (SET_AS_YES.equals(forwardPvtMsg)){
-      setForwardPvtMsgEmail(null);
-    }       
-    if (SET_AS_NO.equals(forwardPvtMsg)){
-      setValidEmail(true);
-    }
-    if (SET_AS_DEFAULT.equals(forwardPvtMsg)){
-        setValidEmail(true);
+
+    switch (forwardPvtMsg) {
+    case SET_AS_YES:
+    	setForwardPvtMsgEmail(null);
+    	break;
+    case SET_AS_NO:
+    	setValidEmail(true);
+    	break;
+    default:
+    	setValidEmail(true);
+    	break;
     }
   }
   
@@ -3347,13 +3356,18 @@ public void processChangeSelectView(ValueChangeEvent eve)
           return null;
       }
 
-      if(SET_AS_YES.equals(forward)) {
-    	  forum.setAutoForward(PrivateForumImpl.AUTO_FOWARD_YES);  
-      }else if(SET_AS_NO.equals(forward)) {
+      switch (forward) {
+      case SET_AS_YES:
+    	  forum.setAutoForward(PrivateForumImpl.AUTO_FOWARD_YES);
+    	  break;
+      case SET_AS_NO:
     	  forum.setAutoForward(PrivateForumImpl.AUTO_FOWARD_NO);
-      }else {
+    	  break;
+      default:
     	  forum.setAutoForward(PrivateForumImpl.AUTO_FOWARD_DEFAULT);
+    	  break;
       }
+
       if (SET_AS_YES.equals(forward)){
         forum.setAutoForwardEmail(email);  
       }

@@ -1156,15 +1156,15 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 
     		//boolean forwardingEnabled = false;
     		//String forwardAddress = null;
-    		submitterEmailReceiptPref = 0; //Coger de properties el valor por defecto
+    		submitterEmailReceiptPref = 0;
     		submitterEmailReceiptPref = ServerConfigurationService.getInt("prefs.msg.notification", submitterEmailReceiptPref);
     		Preferences submitterPrefs = preferencesService.getPreferences( userId );
     		ResourceProperties props = submitterPrefs.getProperties( NotificationService.PREFS_TYPE + "sakai:messageforums" );
+
     		try {
-    			submitterEmailReceiptPref = (int) props.getLongProperty( "2" );
-    		}catch(EntityPropertyNotDefinedException | EntityPropertyTypeException ex )
-    	    {
-    	    	/* User hasn't changed preference */  
+    			submitterEmailReceiptPref = (int) props.getLongProperty("2");
+    		} catch (EntityPropertyNotDefinedException | EntityPropertyTypeException ex) {
+    			/* User hasn't changed preference */
     		}
 
     		PrivateForum pf = null;
@@ -1177,9 +1177,9 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 				//forwardAddress = pf.getAutoForwardEmail();
     		}
 			if (pf != null && (pf.getAutoForward().intValue()==PrivateForumImpl.AUTO_FOWARD_DEFAULT) && submitterEmailReceiptPref==PrivateForumImpl.AUTO_FOWARD_YES){
-					pf.setAutoForwardEmail(mailAFoward);
-	    			forwardingEnabled = true;
-					fAddresses.add(new InternetAddress(pf.getAutoForwardEmail()));
+				pf.setAutoForwardEmail(mailAFoward);
+				forwardingEnabled = true;
+				fAddresses.add(new InternetAddress(pf.getAutoForwardEmail()));
     		}
     		if( pf == null)  
     		{
@@ -1191,9 +1191,9 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 					fAddresses.add(new InternetAddress(oldPf.getAutoForwardEmail()));
     			}
 				if (oldPf != null && (oldPf.getAutoForward().intValue()==PrivateForumImpl.AUTO_FOWARD_DEFAULT) && submitterEmailReceiptPref==PrivateForumImpl.AUTO_FOWARD_YES) {
-						oldPf.setAutoForwardEmail(mailAFoward);
-	    				forwardingEnabled = true;
-						fAddresses.add(new InternetAddress(oldPf.getAutoForwardEmail()));
+					oldPf.setAutoForwardEmail(mailAFoward);
+					forwardingEnabled = true;
+					fAddresses.add(new InternetAddress(oldPf.getAutoForwardEmail()));
     			}
 
     		}
