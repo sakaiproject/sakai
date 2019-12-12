@@ -150,6 +150,7 @@ import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.exception.ZipFileNumberException;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.memory.api.CacheRefresher;
 import org.sakaiproject.memory.api.MemoryService;
@@ -14275,7 +14276,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
         if (zipManifest == null) {
             log.error("Zip file for resource ("+resourceId+") has no zip manifest, cannot extract");
         } else if (zipManifest.size() >= maxZipExtractSize) {
-            log.warn("Zip file for resource ("+resourceId+") is too large to be expanded, size("+zipManifest.size()+") exceeds the max=("+maxZipExtractSize+") as specified in setting content.zip.expand.maxfiles");
+            log.warn("Zip file for resource {} is too large to be expanded, size {} exceeds the max {} as specified in setting content.zip.expand.maxfiles", resourceId, zipManifest.size(), maxZipExtractSize);
+            throw new ZipFileNumberException(resourceId);
         } else {
             // zip is not too large to extract so check if files are too large
             long totalSize = 0;
