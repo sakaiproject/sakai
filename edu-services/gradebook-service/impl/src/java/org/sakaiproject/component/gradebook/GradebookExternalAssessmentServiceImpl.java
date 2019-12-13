@@ -913,7 +913,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 	private void postUpdateGradeEvent(final String gradebookUid, final String assignmentName, final String studentUid,
 			final Double pointsEarned) {
 		postEvent("gradebook.updateItemScore",
-				"/gradebook/" + gradebookUid + "/" + assignmentName + "/" + studentUid + "/" + pointsEarned + "/student");
+				"/gradebookng/" + gradebookUid + "/" + assignmentName + "/" + studentUid + "/" + pointsEarned + "/student");
 	}
 
 	/**
