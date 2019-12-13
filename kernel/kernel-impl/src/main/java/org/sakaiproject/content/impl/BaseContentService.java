@@ -7450,6 +7450,28 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 				String refId = ref.getId();
 				if (refId == null) refId = "";
 
+				// We allow access to dropbox files because they are linked to the user, to avoid this we should restrict to /group-user/.
+				// We don't allow access to contents or collections if the site is unpublished and the user cannot visit unpublished sites.
+				// We don't allow access to attachments if the site is unpublished and the user cannot visit unpublished sites.
+				// We allow access to public files or collections, independently of the site permissions.
+				if (ref.getId().startsWith("/group/") || ref.getId().startsWith("/attachment/")) {
+					try {
+						//When a file or collection is public, there is a realm associated to the file or the collection.
+						m_authzGroupService.getAuthzGroup(ref.getReference());
+					} catch (Exception ex) {
+						try {
+							//The public file realm doesn't exist, check the permissions.
+							String siteId = ref.getId().split("/")[2];
+							Site site = m_siteService.getSite(siteId);
+							if (!site.isPublished() && !m_securityService.unlock(sessionManager.getCurrentSessionUserId(), m_siteService.SITE_VISIT_UNPUBLISHED, siteId)) {
+								throw new Exception();
+							}
+						} catch (Exception e) {
+							throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(), m_siteService.SITE_VISIT_UNPUBLISHED, ref.getReference());
+						}
+					}
+				}
+
 				// test if the given reference is a resource
 				if (m_storage.checkResource(refId))
 				{
