@@ -46,8 +46,8 @@ import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
-
-import org.sakaiproject.content.cover.ContentTypeImageService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.content.api.ContentTypeImageService;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -56,9 +56,9 @@ import org.sakaiproject.entity.api.serialize.SerializablePropertiesAccess;
 import org.sakaiproject.exception.EmptyException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.user.api.UserDirectoryService;
 
 /**
  * <p>
@@ -137,7 +137,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 					// if we don't have a value yet, make a list to hold this one
 					if (current == null)
 					{
-						List values = new Vector();
+						List<String> values = new Vector();
 						m_props.put(name, values);
 						values.add(value);
 					}
@@ -171,6 +171,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 *        The DOM elements, the top of which is the containing element of the new "resource" element.
 	 * @return The newly added element.
 	 */
+	@Override
 	public Element toXml(Document doc, Stack stack)
 	{
 		Element properties = doc.createElement("properties");
@@ -229,7 +230,8 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 * 
 	 * @return An iterator on the names of the defined properties (Strings) (may be empty).
 	 */
-	public Iterator getPropertyNames()
+	@Override
+	public Iterator<String> getPropertyNames()
 	{
 		if (m_props.size() == 0)
 		{
@@ -246,6 +248,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 *        The property name.
 	 * @return the property value, or null if not found.
 	 */
+	@Override
 	public String getProperty(String name)
 	{
 		Object value = m_props.get(name);
@@ -257,6 +260,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public Object get(String name)
 	{
 		return m_props.get(name);
@@ -269,7 +273,8 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 *        The property name.
 	 * @return the property value, or null if not found.
 	 */
-	public List getPropertyList(String name)
+	@Override
+	public List<String> getPropertyList(String name)
 	{
 		Object value = m_props.get(name);
 		if (value == null) return null;
@@ -298,6 +303,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 *        The property name.
 	 * @return True if the property is a live one, false if not.
 	 */
+	@Override
 	public boolean isLiveProperty(String name)
 	{
 		if ((name.equals(PROP_CREATOR)) || (name.equals(PROP_MODIFIED_BY)) || (name.equals(PROP_CREATION_DATE))
@@ -317,6 +323,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 *        The property name.
 	 * @return the property value, or an empty string if not found.
 	 */
+	@Override
 	public String getPropertyFormatted(String name)
 	{
 		Object value = m_props.get(name);
@@ -370,7 +377,8 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 				// content type
 				else if (name.equals(PROP_CONTENT_TYPE))
 				{
-					return ContentTypeImageService.getContentTypeDisplayName((String) value);
+					ContentTypeImageService contentTypeImageService = ComponentManager.get(ContentTypeImageService.class);
+					return contentTypeImageService.getContentTypeDisplayName((String) value);
 				}
 			}
 			catch (EntityPropertyNotDefinedException e)
@@ -418,6 +426,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 * @exception TypeException
 	 *            if the property is found but not a boolean.
 	 */
+	@Override
 	public boolean getBooleanProperty(String name) throws EntityPropertyNotDefinedException, EntityPropertyTypeException
 	{
 		String p = getProperty(name);
@@ -444,6 +453,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 * @exception TypeException
 	 *            if the property is found but not a long.
 	 */
+	@Override
 	public long getLongProperty(String name) throws EntityPropertyNotDefinedException, EntityPropertyTypeException
 	{
 		String p = getProperty(name);
@@ -458,24 +468,14 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 		}
 	}
 
-	/**
-	 * Access a named property as a Time.
-	 * 
-	 * @param name
-	 *        The property name.
-	 * @return the property value
-	 * @exception EmptyException
-	 *            if not found.
-	 * @exception TypeException
-	 *            if the property is found but not a Time.
-	 */
+	@Override
 	public Time getTimeProperty(String name) throws EntityPropertyNotDefinedException, EntityPropertyTypeException
 	{
 		String p = getProperty(name);
 		if (p == null) throw new EntityPropertyNotDefinedException();
 		try
-		{
-			return TimeService.newTimeGmt(p);
+		{	TimeService timeService = ComponentManager.get(TimeService.class);
+			return timeService.newTimeGmt(p);
 		}
 		catch (Exception any)
 		{
@@ -484,18 +484,20 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 
 	} // getTimeProperty
 
-	
+	@Override
 	public Date getDateProperty(String name) throws EntityPropertyNotDefinedException, EntityPropertyTypeException
 	{
 		Time time = getTimeProperty(name);
 		return new Date(time.getTime());
 	}
 	
+	@Override
 	public Instant getInstantProperty(String name) throws EntityPropertyNotDefinedException, EntityPropertyTypeException
 	{
 		Time time = getTimeProperty(name);
 		return Instant.ofEpochMilli(time.getTime());
 	}
+	
 	/**
 	 * Access a named property as a User.
 	 * 
@@ -507,13 +509,14 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 * @exception TypeException
 	 *            if the property is found but not a User.
 	 */
-	public User getUserProperty(String name) throws EntityPropertyNotDefinedException, EntityPropertyTypeException
+	private User getUserProperty(String name) throws EntityPropertyNotDefinedException, EntityPropertyTypeException
 	{
 		String p = getProperty(name);
 		if (p == null) throw new EntityPropertyNotDefinedException();
 		try
 		{
-			return UserDirectoryService.getUser(p);
+			UserDirectoryService userDirectoryService = ComponentManager.get(UserDirectoryService.class);
+			return userDirectoryService.getUser(p);
 		}
 		catch (Exception any)
 		{
@@ -526,6 +529,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 * 
 	 * @return The static String of PROP_CREATOR
 	 */
+	@Override
 	public String getNamePropCreator()
 	{
 		return PROP_CREATOR;
@@ -536,6 +540,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 * 
 	 * @return The static String of PROP_MODIFIED_BY
 	 */
+	@Override
 	public String getNamePropModifiedBy()
 	{
 		return PROP_MODIFIED_BY;
@@ -546,6 +551,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 * 
 	 * @return The static String of PROP_CREATION_DATE
 	 */
+	@Override
 	public String getNamePropCreationDate()
 	{
 		return PROP_CREATION_DATE;
@@ -556,6 +562,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 * 
 	 * @return The static String of PROP_DISPLAY_NAME
 	 */
+	@Override
 	public String getNamePropDisplayName()
 	{
 		return PROP_DISPLAY_NAME;
@@ -566,6 +573,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 * 
 	 * @return The static String of PROP_COPYRIGHT_CHOICE
 	 */
+	@Override
 	public String getNamePropCopyrightChoice()
 	{
 		return PROP_COPYRIGHT_CHOICE;
@@ -576,6 +584,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 * 
 	 * @return The static String of PROP_COPYRIGHT_ALERT
 	 */
+	@Override
 	public String getNamePropCopyrightAlert()
 	{
 		return PROP_COPYRIGHT_ALERT;
@@ -586,6 +595,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 * 
 	 * @return The static String of PROP_COPYRIGHT
 	 */
+	@Override
 	public String getNamePropCopyright()
 	{
 		return PROP_COPYRIGHT;
@@ -596,6 +606,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 * 
 	 * @return The static String of PROP_CONTENT_LENGTH
 	 */
+	@Override
 	public String getNamePropContentLength()
 	{
 		return PROP_CONTENT_LENGTH;
@@ -606,6 +617,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 * 
 	 * @return The static String of PROP_CONTENT_TYPE
 	 */
+	@Override
 	public String getNamePropContentType()
 	{
 		return PROP_CONTENT_TYPE;
@@ -616,6 +628,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 * 
 	 * @return The static String of PROP_MODIFIED_DATE
 	 */
+	@Override
 	public String getNamePropModifiedDate()
 	{
 		return PROP_MODIFIED_DATE;
@@ -626,6 +639,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 * 
 	 * @return The static String of PROP_IS_COLLECTION
 	 */
+	@Override
 	public String getNamePropIsCollection()
 	{
 		return PROP_IS_COLLECTION;
@@ -636,6 +650,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 * 
 	 * @return The static String of PROP_COLLECTION_BODY_QUOTA
 	 */
+	@Override
 	public String getNamePropCollectionBodyQuota()
 	{
 		return PROP_COLLECTION_BODY_QUOTA;
@@ -646,6 +661,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 * 
 	 * @return The static String of PROP_CHAT_ROOM
 	 */
+	@Override
 	public String getNamePropChatRoom()
 	{
 		return PROP_CHAT_ROOM;
@@ -656,6 +672,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 * 
 	 * @return The static String of PROP_TO
 	 */
+	@Override
 	public String getNamePropTo()
 	{
 		return PROP_TO;
@@ -666,6 +683,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 * 
 	 * @return The static String of PROP_DESCRIPTION
 	 */
+	@Override
 	public String getNamePropDescription()
 	{
 		return PROP_DESCRIPTION;
@@ -676,6 +694,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 * 
 	 * @return The static String of PROP_CALENDAR_TYPE
 	 */
+	@Override
 	public String getNamePropCalendarType()
 	{
 		return PROP_CALENDAR_TYPE;
@@ -686,6 +705,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 * 
 	 * @return The static String of PROP_CALENDAR_LOCATION
 	 */
+	@Override
 	public String getNamePropCalendarLocation()
 	{
 		return PROP_CALENDAR_LOCATION;
@@ -696,6 +716,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 * 
 	 * @return The static String of PROP_REPLY_STYLE
 	 */
+	@Override
 	public String getNamePropReplyStyle()
 	{
 		return PROP_REPLY_STYLE;
@@ -706,6 +727,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 * 
 	 * @return The static String of NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE
 	 */
+	@Override
 	public String getNamePropNewAssignmentCheckAddDueDate()
 	{
 		return NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE;
@@ -716,6 +738,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 * 
 	 * @return The static String of NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE
 	 */
+	@Override
 	public String getNamePropNewAssignmentCheckAutoAnnounce()
 	{
 		return NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE;
@@ -726,6 +749,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 * 
 	 * @return The static String of PROP_SUBMISSION_PREVIOUS_GRADES
 	 */
+	@Override
 	public String getNamePropSubmissionPreviousGrades()
 	{
 		return PROP_SUBMISSION_PREVIOUS_GRADES;
@@ -736,6 +760,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 * 
 	 * @return The static String of PROP_SUBMISSION_SCALED_PREVIOUS_GRADES
 	 */
+	@Override
 	public String getNamePropSubmissionScaledPreviousGrades()
 	{
 		return PROP_SUBMISSION_SCALED_PREVIOUS_GRADES;
@@ -746,6 +771,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 * 
 	 * @return The static String of PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT
 	 */
+	@Override
 	public String getNamePropSubmissionPreviousFeedbackText()
 	{
 		return PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT;
@@ -756,6 +782,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 * 
 	 * @return The static String of PROP_SUBMISSION_PREVIOUS_FEEDBACK_COMMENT
 	 */
+	@Override
 	public String getNamePropSubmissionPreviousFeedbackComment()
 	{
 		return PROP_SUBMISSION_PREVIOUS_FEEDBACK_COMMENT;
@@ -766,6 +793,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 * 
 	 * @return The static String of PROP_ASSIGNMENT_DELETED
 	 */
+	@Override
 	public String getNamePropAssignmentDeleted()
 	{
 		return PROP_ASSIGNMENT_DELETED;
@@ -776,6 +804,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 * 
 	 * @return The static String of TYPE_URL
 	 */
+	@Override
 	public String getTypeUrl()
 	{
 		return TYPE_URL;
@@ -786,6 +815,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 * 
 	 * @return The static String of PROP_STRUCTOBJ_TYPE
 	 */
+	@Override
 	public String getNamePropStructObjType()
 	{
 		return PROP_STRUCTOBJ_TYPE;
@@ -807,6 +837,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 * @param value
 	 *        The property value.
 	 */
+	@Override
 	public void addProperty(String name, String value)
 	{
 		// protect against a null put
@@ -823,6 +854,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 * @param value
 	 *        The property value.
 	 */
+	@Override
 	public void addPropertyToList(String name, String value)
 	{
 		// protect against a null put
@@ -858,6 +890,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 * @param other
 	 *        The ResourceProperties to add.
 	 */
+	@Override
 	public void addAll(ResourceProperties other)
 	{
 		for (Iterator iNames = other.getPropertyNames(); iNames.hasNext();)
@@ -892,6 +925,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 * @param props
 	 *        The Properties to add.
 	 */
+	@Override
 	public void addAll(Properties props)
 	{
 		// if there's a list, it must be deep copied
@@ -915,6 +949,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	/**
 	 * Remove all properties.
 	 */
+	@Override
 	public void clear()
 	{
 		m_props.clear();
@@ -926,6 +961,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 * @param name
 	 *        The property name.
 	 */
+	@Override
 	public void removeProperty(String name)
 	{
 		m_props.remove(name);
@@ -936,6 +972,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 * 
 	 * @param props the ResourceProperties object to take values from.
 	 */
+	@Override
 	public void set(ResourceProperties props)
 	{
 		clear();
@@ -1022,6 +1059,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.entity.api.SerializableProperties#getSerializableProperties()
 	 */
+	@Override
 	public Map<String, Object> getSerializableProperties()
 	{
 		Map<String, Object>  m = new HashMap<String, Object>();
@@ -1032,6 +1070,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.entity.api.SerializableProperties#setSerializableProperties(java.util.Map)
 	 */
+	@Override
 	public void setSerializableProperties(Map<String, Object> properties)
 	{
 		m_props.clear();
