@@ -4166,42 +4166,47 @@ public class DiscussionForumTool {
 	  } 
   }
   
-  private String processDfMsgGrdHelper(String userId, String msgAssignmentName){
-	  selectedMessageCount = 0;
+  private String processDfMsgGrdHelper(String userId, String msgAssignmentName) {
+
+    selectedMessageCount = 0;
 	  
-  	grade_too_large_make_sure = false;
+    grade_too_large_make_sure = false;
   	
-	  selectedAssign = DEFAULT_GB_ITEM; 
-	  resetGradeInfo();
+    selectedAssign = DEFAULT_GB_ITEM;
+    resetGradeInfo();
 
-	  String gradebookUid = toolManager.getCurrentPlacement().getContext();
+    String gradebookUid = toolManager.getCurrentPlacement().getContext();
 
-	  String topicDefaultAssignment = null;
-	  if(selectedTopic != null){
-		  topicDefaultAssignment = selectedTopic.getTopic().getDefaultAssignName();
-	  }
-	  String forumDefaultAssignment = selectedForum.getForum().getDefaultAssignName();
+    String topicDefaultAssignment = null;
+    if (selectedTopic != null) {
+      topicDefaultAssignment = selectedTopic.getTopic().getDefaultAssignName();
+    }
+    String forumDefaultAssignment = selectedForum.getForum().getDefaultAssignName();
 
-	  String selAssignmentName = null;
-	  if (msgAssignmentName !=null && msgAssignmentName.trim().length()>0) {
-		  selAssignmentName = msgAssignmentName;
-	  } else if (topicDefaultAssignment != null && topicDefaultAssignment.trim().length() > 0) {
-		  selAssignmentName = topicDefaultAssignment;
-	  } else if (forumDefaultAssignment != null && forumDefaultAssignment.trim().length() > 0) {
-		  selAssignmentName = forumDefaultAssignment;
-	  }
+    String selAssignmentName = null;
+    if (msgAssignmentName !=null && msgAssignmentName.trim().length()>0) {
+      selAssignmentName = msgAssignmentName;
+    } else if (topicDefaultAssignment != null && topicDefaultAssignment.trim().length() > 0) {
+      selAssignmentName = topicDefaultAssignment;
+      if (selectedTopic != null) {
+        selectedTopic.setGradeAssign(topicDefaultAssignment);
+      }
+    } else if (forumDefaultAssignment != null && forumDefaultAssignment.trim().length() > 0) {
+      selAssignmentName = forumDefaultAssignment;
+      selectedForum.setGradeAssign(forumDefaultAssignment);
+    }
 
-	  if (selAssignmentName != null) {
-		  setUpGradeInformation(gradebookUid, selAssignmentName, userId);  
-	  } else {
-		  // this is the "Select a gradebook item" selection
-		  allowedToGradeItem = false;
-		  selGBItemRestricted = true;
-	  }
+    if (selAssignmentName != null) {
+      setUpGradeInformation(gradebookUid, selAssignmentName, userId);
+    } else {
+      // this is the "Select a gradebook item" selection
+      allowedToGradeItem = false;
+      selGBItemRestricted = true;
+    }
 
-	  return GRADE_MESSAGE; 
+    return GRADE_MESSAGE;
   }
-  
+
   private void setUpGradeInformation(String gradebookUid, String selAssignmentName, String studentId) {
 	  GradebookService gradebookService = getGradebookService();
 	  if (gradebookService == null) return;
