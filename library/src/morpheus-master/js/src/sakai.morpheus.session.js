@@ -66,9 +66,8 @@ var poll_session_data = function(){
               .fail(function() {
                 timeoutDialogEnabled = false;
               });
-          }
-          else {
-                show_timeout_alert(min);
+          } else {
+            show_timeout_alert(min);
           }
 
           clearTimeout(sessionTimeOut);
