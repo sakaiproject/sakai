@@ -31,6 +31,7 @@
 						<div class="checkbox gb-inline-checkbox"><label><input wicket:id="dropHighest" type="checkbox"/><span><wicket:message key="settingspage.categories.drophighest" /></span></label></div>
 						<div class="checkbox gb-inline-checkbox"><label><input wicket:id="dropLowest" type="checkbox"/><span><wicket:message key="settingspage.categories.droplowest" /></span></label></div>
 						<div class="checkbox gb-inline-checkbox"><label><input wicket:id="keepHighest" type="checkbox"/><span><wicket:message key="settingspage.categories.keephighest" /></span></label></div>
+						<div class="checkbox gb-inline-checkbox"><label><input wicket:id="equalWeight" type="checkbox"/><span><wicket:message key="settingspage.categories.equalweight" /></span></label></div>
 					</div>
 					
 					<div class="instruction">
@@ -48,6 +49,7 @@
 							<th class="gb-category-drophighest"><wicket:message key="settingspage.categories.drophighestcolhead" /></th>
 							<th class="gb-category-droplowest"><wicket:message key="settingspage.categories.droplowestcolhead" /></th>
 							<th class="gb-category-keephighest"><wicket:message key="settingspage.categories.keephighestcolhead" /></th>
+							<th class="gb-category-equalweight"><wicket:message key="settingspage.categories.equalweighthead" /></th>
 							<th><wicket:message key="settingspage.categories.removecolhead" /></th>
 						</tr>
 						</thead>
@@ -73,6 +75,7 @@
 								<td class="gb-category-drophighest"><input wicket:id="categoryDropHighest" type="text" size="5" class="form-control" /></td>
 								<td class="gb-category-droplowest"><input wicket:id="categoryDropLowest" type="text" size="5" class="form-control" /></td>
 								<td class="gb-category-keephighest"><input wicket:id="categoryKeepHighest" type="text" size="5" class="form-control" /></td>
+								<td class="gb-category-equalweight"><input wicket:id="equalWeight" type="checkbox" class="form-control" /></td>
 								<td><button wicket:id="remove" class="btn btn-default btn-table"><wicket:message key="button.remove" /></button></td>
 							</tr>
 						</tbody>

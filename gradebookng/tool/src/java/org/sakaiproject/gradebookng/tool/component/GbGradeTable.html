@@ -88,6 +88,9 @@
                             {if categoryExtraCredit}
                                 <span class="gb-flag-extra-credit" wicket:message="title:label.gradeitem.extracreditcategory"></span>
                             {/if}
+                            {if categoryEqualWeight}
+                                <span class="gb-flag-equal-weight" wicket:message="title:label.gradeitem.equalweightcategory"></span>
+                            {/if}
                             <span>${categoryName}</span>
                             {if settings.isCategoryTypeWeighted}
                                 <span class="gb-category-weight">[${categoryWeight}]</span>

@@ -210,7 +210,7 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 					.findFirst()
 					.orElse(null);
 
-			if (category != null) {
+			if (category != null && !category.getEqualWeight()) {
 				final Assignment mismatched = category.getAssignmentList()
 						.stream()
 						.filter(a -> Double.compare(a.getPoints().doubleValue(), assignment.getPoints().doubleValue()) != 0)
