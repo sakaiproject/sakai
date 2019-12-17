@@ -54,10 +54,13 @@ public interface UsageSession extends Comparable
 	/*
 	 * @deprecated  discontinued 2008
 	 */
+	@Deprecated
 	public static final String WIN_NN = "Win-NetscapeNavigator";
 
+	@Deprecated
 	public static final String WIN_MZ = "Win-Mozilla";
 	
+
 	public static final String LIN_MZ = "Lin-Mozilla";
 	
 	/*

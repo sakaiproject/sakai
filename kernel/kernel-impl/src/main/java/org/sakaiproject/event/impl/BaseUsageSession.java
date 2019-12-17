@@ -21,6 +21,7 @@
 
 package org.sakaiproject.event.impl;
 
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -31,6 +32,11 @@ import org.sakaiproject.tool.api.SessionBindingEvent;
 import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
+
+import com.blueconic.browscap.Capabilities;
+import com.blueconic.browscap.ParseException;
+import com.blueconic.browscap.UserAgentParser;
+import com.blueconic.browscap.UserAgentService;
 
 /*************************************************************************************************************************************************
  * UsageSession
@@ -63,6 +69,8 @@ public class BaseUsageSession implements UsageSession, SessionBindingListener
 
 	/** The BrowserID string describing the browser used in this session. */
 	protected String m_browserId = null;
+	protected String m_platform = null;
+	protected String m_deviceType = null;
 
 	/** The time the session was started */
 	protected Instant m_start = null;
@@ -155,7 +163,22 @@ public class BaseUsageSession implements UsageSession, SessionBindingListener
 	 */
 	protected void setBrowserId(String agent)
 	{
-		if (agent == null)
+		 try {
+			UserAgentParser parser = new UserAgentService().loadParser();
+			Capabilities capabilities = parser.parse(agent);
+			m_browserId = capabilities.getBrowser();
+			m_platform = capabilities.getPlatform();
+			m_deviceType = capabilities.getDeviceType();
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		 
+		/*if (agent == null)
 		{
 			m_browserId = UNKNOWN;
 		}
@@ -210,7 +233,7 @@ public class BaseUsageSession implements UsageSession, SessionBindingListener
 		else
 		{
 			m_browserId = UNKNOWN;
-		}
+		}*/
 	}
 
 	/**

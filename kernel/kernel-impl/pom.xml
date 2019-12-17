@@ -361,6 +361,11 @@
             <artifactId>passay</artifactId>
             <version>1.5.0</version>
         </dependency>
+        <dependency>
+           <groupId>com.blueconic</groupId>
+           <artifactId>browscap-java</artifactId>
+           <version>1.2.13</version>
+</dependency>
     </dependencies>
 
     <profiles>
