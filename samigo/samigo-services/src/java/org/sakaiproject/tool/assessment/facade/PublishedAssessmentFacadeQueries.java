@@ -2771,13 +2771,20 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
     }
 
     public void restorePublishedAssessment(Long publishedAssessmentId) {
-        final String recoverQuery = "update PublishedAssessmentData set status = :status WHERE publishedAssessmentId = :id";
-        getHibernateTemplate().execute(session -> {
-            Query q = session.createQuery(recoverQuery);
-            q.setInteger("status", AssessmentIfc.ACTIVE_STATUS);
-            q.setLong("id", publishedAssessmentId);
-            return q.executeUpdate();
-        });
+    	PublishedAssessmentData assessment = (PublishedAssessmentData) getHibernateTemplate().load(PublishedAssessmentData.class, publishedAssessmentId);
+    	assessment.setLastModifiedBy(AgentFacade.getAgentString());
+    	assessment.setLastModifiedDate(new Date());
+    	assessment.setStatus(AssessmentIfc.ACTIVE_STATUS);
+    	int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
+    	while (retryCount > 0) {
+    		try {
+    			getHibernateTemplate().update(assessment);
+    			retryCount = 0;
+    		} catch (Exception e) {
+    			log.warn("problem updating asssessment: " + e.getMessage());
+    			retryCount = PersistenceService.getInstance().getPersistenceHelper()
+    					.retryDeadlock(e, retryCount);
+    		}
+    	}
     }
-
 }
