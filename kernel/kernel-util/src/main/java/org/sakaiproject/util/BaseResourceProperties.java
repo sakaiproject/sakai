@@ -137,7 +137,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 					// if we don't have a value yet, make a list to hold this one
 					if (current == null)
 					{
-						List<String> values = new Vector();
+						List<String> values = new Vector<>();
 						m_props.put(name, values);
 						values.add(value);
 					}
@@ -474,7 +474,8 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 		String p = getProperty(name);
 		if (p == null) throw new EntityPropertyNotDefinedException();
 		try
-		{	TimeService timeService = ComponentManager.get(TimeService.class);
+		{
+			TimeService timeService = ComponentManager.get(TimeService.class);
 			return timeService.newTimeGmt(p);
 		}
 		catch (Exception any)
