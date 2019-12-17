@@ -29,8 +29,6 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
-import javax.faces.context.ExternalContext;
-import javax.servlet.ServletContext;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -113,11 +111,10 @@ public class BeginDeliveryActionListener implements ActionListener
     if ("previewAssessment".equals(delivery.getActionString()) || "editAssessment".equals(actionString)) {
     	String isFromPrint = ContextUtil.lookupParam("isFromPrint");
         if (StringUtils.isNotBlank(isFromPrint)) {
-    		delivery.setIsFromPrint(Boolean.parseBoolean(isFromPrint));
+    		delivery.setFromPrint(Boolean.parseBoolean(isFromPrint));
     	}
-    }
-    else {
-    	delivery.setIsFromPrint(false);
+    } else {
+    	delivery.setFromPrint(false);
         delivery.calculateMinutesAndSecondsLeft();
     }
 
@@ -139,14 +136,12 @@ public class BeginDeliveryActionListener implements ActionListener
         if (!authzBean.isUserAllowedToEditAssessment(assessmentId, pub.getCreatedBy(), false)) {
           throw new IllegalArgumentException("User does not have permission to preview assessment id " + assessmentId);
         }
-      }
-      else {
+      } else {
         if (!authzBean.isUserAllowedToEditAssessment(publishedId, pub.getCreatedBy(), true)) {
           throw new IllegalArgumentException("User does not have permission to preview assessment id " + publishedId);
         }
       }
-    }
-    else if (DeliveryBean.REVIEW_ASSESSMENT == action || DeliveryBean.TAKE_ASSESSMENT == action) {
+    } else if (DeliveryBean.REVIEW_ASSESSMENT == action || DeliveryBean.TAKE_ASSESSMENT == action) {
       if (!releaseToAnonymous && !authzBean.isUserAllowedToTakeAssessment(pub.getPublishedAssessmentId().toString())) {
         throw new IllegalArgumentException("User does not have permission to view assessment id " + pub.getPublishedAssessmentId());
       }
@@ -188,9 +183,7 @@ public class BeginDeliveryActionListener implements ActionListener
     populateBeanFromPub(delivery, pub);
   }
 
-  private PublishedAssessmentFacade lookupPublishedAssessment(String id,
-    PublishedAssessmentService publishedAssessmentService
-    )
+  private PublishedAssessmentFacade lookupPublishedAssessment(String id)
   {
     PublishedAssessmentFacade pub;
     PublishedAssessmentService assessmentService = new PublishedAssessmentService();
@@ -554,7 +547,7 @@ public class BeginDeliveryActionListener implements ActionListener
 
     case 1: //delivery.TAKE_ASSESSMENT
     case 3: //delivery.REVIEW_ASSESSMENT
-        pub = lookupPublishedAssessment(publishedId, publishedAssessmentService);
+        pub = lookupPublishedAssessment(publishedId);
         break;
 
     default: 

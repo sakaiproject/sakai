@@ -128,7 +128,19 @@ function closeWindow() {alert("1"); self.opener=this; self.close(); }
     <h:outputLabel value="#{deliveryMessages.submission_dttm}" />
     <h:outputText value="#{delivery.submissionDate}">
         <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
-     </h:outputText>
+    </h:outputText>
+	
+    <h:outputLabel rendered="#{delivery.submissionFiles.values().size() > 0}" value="#{deliveryMessages.submission_files}" />
+    <h:dataTable rendered="#{delivery.submissionFiles.values().size() > 0}" value="#{delivery.submissionFiles.values()}" var="media">
+        <h:column>
+            <h:outputLink title="#{evaluationMessages.t_fileUpload}" value="/samigo-app/servlet/ShowMedia?mediaId=#{media.mediaId}" target="new_window">
+                <h:outputText value="#{media.filename} " />
+            </h:outputLink>
+        </h:column>
+        <h:column>
+            <h:outputText value=" #{evaluationMessages.open_bracket} #{media.fileSizeKBFormat} #{generalMessages.kb} #{evaluationMessages.close_bracket}"/>
+        </h:column>
+    </h:dataTable>
 
     <h:outputLabel value="#{deliveryMessages.final_page}" rendered="#{delivery.url!=null && delivery.url!=''}"/>
     <h:outputLink title="#{deliveryMessages.t_url}" value="#" rendered="#{delivery.url!=null && delivery.url!=''}"

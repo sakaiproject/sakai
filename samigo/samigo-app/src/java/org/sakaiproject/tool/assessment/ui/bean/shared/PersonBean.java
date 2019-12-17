@@ -52,8 +52,6 @@ public class PersonBean implements Serializable {
   private String previewFromPage;
   
   public PersonBean(){}
-  {
-  }
 
   public String getAgentString()
   {
@@ -68,7 +66,7 @@ public class PersonBean implements Serializable {
   public String getId()
   {
     DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
-    if (delivery.getAnonymousLogin())
+    if (delivery.isAnonymousLogin())
       return getAnonymousId();
     else
       return getAgentString();
@@ -88,7 +86,6 @@ public class PersonBean implements Serializable {
   {
     this.anonymousId=anonymousId;
   }
-
 
   public boolean getIsAdmin()
   {
