@@ -129,9 +129,5 @@ public interface AssessmentBaseIfc
 
   void updateAssessmentMetaData(String label, String entry);
 
-  Long getCategoryId();
-
-  void setCategoryId(Long categoryId);
-
   TypeIfc getType();
 }

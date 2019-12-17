@@ -49,9 +49,5 @@ public interface PublishedAssessmentIfc
   Date getLastNeedResubmitDate();
 
   void setLastNeedResubmitDate(Date lastNeedResubmitDate);
-
-  Long getCategoryId();
-
-  void setCategoryId(Long categoryId);
   
 }

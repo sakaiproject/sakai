@@ -206,8 +206,6 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		publishedAssessment
 				.setAssessmentAttachmentSet(publishedAssessmentAttachmentSet);
 
-		publishedAssessment.setCategoryId(a.getCategoryId());
-
 		return publishedAssessment;
 	}
 
@@ -770,7 +768,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 							.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK
 									.toString())) {
 				try {
-					gbsHelper.addToGradebook(publishedAssessment, publishedAssessment.getCategoryId(), g);
+					gbsHelper.addToGradebook(publishedAssessment, null, g);
 				} catch (Exception e) {
 					log.error("Removing published assessment: " + e);
 					delete(publishedAssessment);

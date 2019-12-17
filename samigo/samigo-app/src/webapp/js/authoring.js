@@ -765,16 +765,3 @@ if (typeof MathJax != 'undefined') {
     $(".mathjax-warning").show();
   });
 }
-
-function toggleCategories(checkbox) {
-    // Toggle categories selector. If categories are disabled it won't exist
-    // so check first.
-    var categoryDiv = $('#assessmentSettingsAction\\:toGradebookCategory');
-    if (categoryDiv.length) {
-        if ($(checkbox).prop("checked")) {
-            categoryDiv.fadeIn();
-        } else {
-            categoryDiv.fadeOut();
-        }
-    }
-}

@@ -26,7 +26,6 @@
     <property name="createdDate" type="timestamp" column="CREATEDDATE" not-null="true" />
     <property name="lastModifiedBy" type="string" length="255" column="LASTMODIFIEDBY" not-null="true" />
     <property name="lastModifiedDate"  type="timestamp" column="LASTMODIFIEDDATE" not-null="true" />
-    <property name="categoryId" type="long" column="CATEGORYID" not-null="false" />
 
 <!--
     <property name="typeId">

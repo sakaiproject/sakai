@@ -288,11 +288,6 @@ public class SaveAssessmentSettings
       evaluation.setScoringType(new Integer(assessmentSettings.getScoringType()));
     assessment.setEvaluationModel(evaluation);
 
-    // Add category unless unassigned (-1) is selected or defaulted. CategoryId comes
-    // from the web page as a string representation of a the long cat id.
-    if (!StringUtils.equals(assessmentSettings.getCategorySelected(), "-1")) {
-		assessment.setCategoryId(Long.parseLong((assessmentSettings.getCategorySelected())));
-    }
 
     // h. update ValueMap: it contains value for teh checkboxes in
     // authorSettings.jsp for: hasAvailableDate, hasDueDate,

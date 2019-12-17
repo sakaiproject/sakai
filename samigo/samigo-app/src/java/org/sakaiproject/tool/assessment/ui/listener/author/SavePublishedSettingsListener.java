@@ -129,7 +129,6 @@ implements ActionListener
 		}
 		boolean isTitleChanged = isTitleChanged(assessmentSettings, assessment);
 		boolean isScoringTypeChanged = isScoringTypeChanged(assessmentSettings, assessment);
-		boolean isCategoryChanged = isCategoryChanged(assessmentSettings, assessment);
 		SaveAssessmentSettings saveAssessmentSettings = new SaveAssessmentSettings();
 		setPublishedSettings(assessmentSettings, assessment, retractNow, saveAssessmentSettings);
 		
@@ -139,7 +138,7 @@ implements ActionListener
 			return;
 		}
 
-		boolean gbUpdated = updateGB(assessmentSettings, assessment, isTitleChanged, isScoringTypeChanged, isCategoryChanged, context);
+		boolean gbUpdated = updateGB(assessmentSettings, assessment, isTitleChanged, isScoringTypeChanged, context);
 		if (!gbUpdated){
 			assessmentSettings.setOutcome("editPublishedAssessmentSettings");
 			return;
@@ -525,12 +524,7 @@ implements ActionListener
 
 		return error;
 	}
-
-	// Check if the category has changed.
-	private boolean isCategoryChanged(PublishedAssessmentSettingsBean assessmentSettings, PublishedAssessmentFacade assessment) {
-		return !StringUtils.equals(assessmentSettings.getCategorySelected(), String.valueOf(assessment.getCategoryId()));
-	}
-
+	
 	// Check if title has been changed. If yes, update it.
 	private boolean isTitleChanged(PublishedAssessmentSettingsBean assessmentSettings, PublishedAssessmentFacade assessment) {
 		if (assessment.getTitle() != null && assessmentSettings.getTitle() != null) {
@@ -755,12 +749,6 @@ implements ActionListener
 		}
 		assessment.setEvaluationModel(evaluation);
 
-		// Add category unless unassigned (-1) is selected or defaulted. CategoryId comes
-		// from the web page as a string representation of a the long cat id.
-		if (!StringUtils.equals(assessmentSettings.getCategorySelected(), "-1")) {
-			assessment.setCategoryId(Long.parseLong((assessmentSettings.getCategorySelected())));
-		}
-
 		// update ValueMap: it contains value for thh checkboxes in
 		// publishedSettings.jsp for: hasAvailableDate, hasDueDate,
 		// hasRetractDate, hasAnonymous, hasAuthenticatedUser, hasIpAddress,
@@ -798,7 +786,7 @@ implements ActionListener
 		return gbError;
 	}
 
-	public boolean updateGB(PublishedAssessmentSettingsBean assessmentSettings, PublishedAssessmentFacade assessment, boolean isTitleChanged, boolean isScoringTypeChanged, boolean isCategoryChanged, FacesContext context) {
+	public boolean updateGB(PublishedAssessmentSettingsBean assessmentSettings, PublishedAssessmentFacade assessment, boolean isTitleChanged, boolean isScoringTypeChanged, FacesContext context) {
 		//#3 - add or remove external assessment to gradebook
 		// a. if Gradebook does not exists, do nothing, 'cos setting should have been hidden
 		// b. if Gradebook exists, just call addExternal and removeExternal and swallow any exception. The
@@ -849,7 +837,7 @@ implements ActionListener
 			if (evaluation.getToGradeBook()!=null && 
 					evaluation.getToGradeBook().equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())){
 				Long categoryId = null;
-				if (isTitleChanged || isScoringTypeChanged || isCategoryChanged) {
+				if (isTitleChanged || isScoringTypeChanged) {
 					// Because GB use title instead of id, we remove and re-add to GB if title changes.
 					try {
 						log.debug("before gbsHelper.removeGradebook()");
@@ -861,7 +849,7 @@ implements ActionListener
 					}
 				}
 				
-				if(gbItemExists && !(isTitleChanged || isScoringTypeChanged || isCategoryChanged)){
+				if(gbItemExists && !(isTitleChanged || isScoringTypeChanged)){
 					try {
 						gbsHelper.updateGradebook(assessment, g);
 					} catch (Exception e) {
@@ -875,13 +863,7 @@ implements ActionListener
 				else{
 					try{
 						log.debug("before gbsHelper.addToGradebook()");
-
-						Long newCategory = null;
-						if (!StringUtils.equals(assessmentSettings.getCategorySelected(), "-1")) {
-							newCategory = Long.valueOf(assessmentSettings.getCategorySelected());
-						}
-
-						gbsHelper.addToGradebook((PublishedAssessmentData)assessment.getData(), newCategory, g);
+						gbsHelper.addToGradebook((PublishedAssessmentData)assessment.getData(), categoryId, g);
 
 						// any score to copy over? get all the assessmentGradingData and copy over
 						GradingService gradingService = new GradingService();

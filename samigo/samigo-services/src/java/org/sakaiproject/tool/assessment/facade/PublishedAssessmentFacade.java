@@ -106,8 +106,7 @@ public class PublishedAssessmentFacade
   private String lastModifiedDateForDisplay;
   private int groupCount;
   private boolean selected;
-  private Long categoryId;
-
+  
   public PublishedAssessmentFacade() {
   }
 
@@ -883,13 +882,5 @@ public class PublishedAssessmentFacade
 
   public void setSelected(boolean selected) {
 	  this.selected = selected;
-  }
-
-  public Long getCategoryId() {
-    return categoryId;
-  }
-
-  public void setCategoryId(Long categoryId) {
-    this.categoryId = categoryId;
   }
 }
