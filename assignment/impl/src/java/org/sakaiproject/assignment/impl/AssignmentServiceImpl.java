@@ -3914,7 +3914,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     AssignmentNoteItem oNoteItem = assignmentSupplementItemService.getNoteItem(oAssignmentId);
                     if (oNoteItem != null) {
                         AssignmentNoteItem nNoteItem = assignmentSupplementItemService.newNoteItem();
-                        //assignmentSupplementItemService.saveNoteItem(nNoteItem);
                         nNoteItem.setAssignmentId(nAssignment.getId());
                         nNoteItem.setNote(oNoteItem.getNote());
                         nNoteItem.setShareWith(oNoteItem.getShareWith());
