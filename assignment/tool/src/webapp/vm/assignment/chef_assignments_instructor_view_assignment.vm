@@ -342,6 +342,8 @@
 				## Student Assignment attachments
 				#attachmentFragment($assignment.Attachments $attachmentReferences $decoratedUrlMap)
 
+				#supplementItems($!allowViewModelAnswer $!allowReadAssignmentNoteItem $!allowViewAllPurposeItem $!assignmentModelAnswerItem $!assignmentNoteItem $!assignmentAllPurposeItem)
+
 				<h4>
 					$tlang.getString("gen.submission")
 				</h4>	

@@ -461,4 +461,103 @@
 		</div>
 	#end
 #end
+
+## macro for rendering supplement items ui
+#macro( supplementItems $!allowViewModelAnswer $!allowReadAssignmentNoteItem $!allowViewAllPurposeItem $!assignmentModelAnswerItem $!assignmentNoteItem $!assignmentAllPurposeItem )
+	<script>
+		$(document).ready(function(){
+			ASN.setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
+		});
+	</script>
+	## Model Answer
+	#if($!allowViewModelAnswer)
+		<h4 id="toggleModel" class="toggleAnchor specialLink">
+			<img alt="expand" class="expand" src="/library/image/sakai/expand.gif" />
+			<img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />
+			$tlang.getString('modelAnswer')
+		</h4>
+		<div class="toggledContent model">
+			<p>$validator.escapeHtml($!assignmentModelAnswerItem.getText())</p>
+			#set ($mAttachments = $!assignmentModelAnswerItem.getAttachmentObjectSet())
+			<ul class="attachList">
+				#set ($size = 0)
+				#set ($props = false)
+				#foreach ($attachment in $!mAttachments) 
+					#set ($props = $attachment.Properties) 
+					#if ($!props)
+						#set ($size = $size + 1)
+					#end
+				#end
+				#if ($size > 0)
+					#foreach ($attachment in $mAttachments)
+						#set ($props = false)
+						#set ($props = $attachment.Properties) 
+						#if ($!props)
+							<li>
+								#if ($props.getBooleanProperty($props.NamePropIsCollection))
+									<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+								#else
+									<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+								#end
+								<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+								#propertyDetails($props)
+							</li>
+						#end
+					#end
+				#end
+			</ul>
+		</div>
+	#end
+	## Private Note	
+	#if ($!allowReadAssignmentNoteItem)
+		<h4 id="toggleNotes" class="toggleAnchor specialLink">
+			<img alt="expand" class="expand" src="/library/image/sakai/expand.gif" />
+			<img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />
+			$tlang.getString('note.label')
+		</h4>
+		<div class="toggledContent notes">
+			$validator.escapeHtml($!assignmentNoteItem.getNote())
+		</div>
+	#end
+	## All Purpose
+	#if ($!allowViewAllPurposeItem)
+		<h4 id="toggleAllPurpose" class="toggleAnchor specialLink">
+			<img alt="expand" class="expand" src="/library/image/sakai/expand.gif" />
+			<img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />
+			$tlang.getString('allPurpose')
+		</h4>
+		<div class="toggledContent allPurpose">
+			<p>$validator.escapeHtml($!assignmentAllPurposeItem.getTitle())</p>
+			<p>$validator.escapeHtml($!assignmentAllPurposeItem.getText())</p>
+			#set ($aAttachments = $!assignmentAllPurposeItem.getAttachmentObjectSet())
+			<ul class="attachList">
+				#set ($size = 0)
+				#set ($props = false)
+				#foreach ($attachment in $!aAttachments) 
+					#set ($props = $attachment.Properties) 
+					#if ($!props)
+						#set ($size = $size + 1)
+					#end
+				#end
+				#if ($size > 0)
+					#foreach ($attachment in $aAttachments)
+						#set ($props = false)
+						#set ($props = $attachment.Properties) 
+						#if ($!props)
+							<li>
+								#if ($props.getBooleanProperty($props.NamePropIsCollection))
+									<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+								#else
+									<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+								#end
+								<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+								#propertyDetails($props)
+							</li>
+						#end
+					#end
+				#end
+			</ul>
+		</div>
+	#end
+#end
 <!-- end: assignment_macros.vm -->
