@@ -22,6 +22,7 @@
 package org.sakaiproject.util;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -31,21 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Stack;
-import java.util.Vector;
-
-import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import org.xml.sax.Attributes;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentTypeImageService;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
@@ -59,6 +47,16 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
@@ -137,7 +135,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 					// if we don't have a value yet, make a list to hold this one
 					if (current == null)
 					{
-						List<String> values = new Vector<>();
+						List<String> values = new ArrayList<>();
 						m_props.put(name, values);
 						values.add(value);
 					}
@@ -281,14 +279,14 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 
 		if (value instanceof String)
 		{
-			List rv = new Vector();
+			List rv = new ArrayList<>();
 			rv.add(value);
 			return rv;
 		}
 
 		else if (value instanceof List)
 		{
-			List rv = new Vector();
+			List rv = new ArrayList<>();
 			rv.addAll((List) value);
 			return rv;
 		}
@@ -867,7 +865,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 		// if we don't have a value yet, make a list to hold this one
 		if (current == null)
 		{
-			List values = new Vector();
+			List values = new ArrayList<>();
 			m_props.put(name, values);
 			values.add(value);
 		}
@@ -912,7 +910,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 				// deep copy the list
 				else if (value instanceof List)
 				{
-					List list = new Vector();
+					List list = new ArrayList<>();
 					list.addAll((List) value);
 					m_props.put(name, list);					
 				}
@@ -936,7 +934,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 			Object value = props.get(name);
 			if (value instanceof List)
 			{
-				List list = new Vector();
+				List list = new ArrayList<>();
 				list.addAll((List) value);
 				m_props.put(name, list);
 			}
@@ -1030,7 +1028,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 						// this one
 						if (current == null)
 						{
-							List values = new Vector();
+							List values = new ArrayList<>();
 							m_props.put(name, values);
 							values.add(value);
 						}
