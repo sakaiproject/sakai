@@ -3,6 +3,7 @@
     <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.extendedTimeNew}" />
     <h:panelGroup styleClass="col-md-10" layout="block">
         <h:panelGroup styleClass="form-group row" layout="block">
+        		<h:selectBooleanCheckbox id="extendedEnableUser" styleClass="disable-cb" />
                 <h:outputLabel styleClass="col-md-2" for="newEntry-user" value="#{assessmentSettingsMessages.extendedTimeUser}"/>
                 <h:panelGroup styleClass="col-md-4" layout="block">
                     <h:selectOneMenu id="newEntry-user" value="#{publishedSettings.extendedTime.user}">
@@ -11,6 +12,7 @@
                 </h:panelGroup>
         </h:panelGroup>
         <h:panelGroup styleClass="form-group row" layout="block">
+        		<h:selectBooleanCheckbox id="extendedEnableGroup" styleClass="disable-cb" />
                 <h:outputLabel styleClass="col-md-2" for="newEntry-group" value="#{assessmentSettingsMessages.extendedTimeGroup}"/>
                 <h:panelGroup styleClass="col-md-4" layout="block">
                     <h:selectOneMenu id="newEntry-group" value="#{publishedSettings.extendedTime.group}">
