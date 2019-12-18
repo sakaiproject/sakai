@@ -341,6 +341,48 @@ $( document ).ready( function() {
             $("input", this).click();
         }
     });
+
+    // Setup extended time checkboxes
+    $('.disable-cb').change(function () {
+        var $t = $(this);
+        var $parent = $t.parents('div');
+
+        var $lbl;
+        var $select;
+
+        if($t.attr('id') === 'assessmentSettingsAction:extendedEnableUser') {
+            $lbl = $('label[for="assessmentSettingsAction\\:newEntry-user"]');
+            $select = $('#assessmentSettingsAction\\:newEntry-user');
+        } else {
+            $lbl = $('label[for="assessmentSettingsAction\\:newEntry-group"]');
+            $select = $('#assessmentSettingsAction\\:newEntry-group');
+        }
+
+        if ($t.is(':checked')) {
+            $lbl.removeClass('disabled');
+            $select.prop('disabled', false);
+        } else {
+            $lbl.addClass('disabled');
+            $select.prop('disabled', 'disabled');
+            $select.val('');
+        }
+    });
+
+    if($('#assessmentSettingsAction\\:newEntry-user').val() === '') {
+        $('label[for="assessmentSettingsAction\\:newEntry-user"]').addClass('disabled');
+        $('#assessmentSettingsAction\\:newEntry-user').prop('disabled', 'disabled');
+        $('#assessmentSettingsAction\\:extendedEnableUser').prop('checked', false);
+    } else {
+        $('#assessmentSettingsAction\\:extendedEnableUser').prop('checked', true);
+    }
+
+    if($('#assessmentSettingsAction\\:newEntry-group').val() === '') {
+        $('label[for="assessmentSettingsAction\\:newEntry-group"]').addClass('disabled');
+        $('#assessmentSettingsAction\\:newEntry-group').prop('disabled', 'disabled');
+        $('#assessmentSettingsAction\\:extendedEnableGroup').prop('checked', false);
+    } else {
+        $('#assessmentSettingsAction\\:extendedEnableGroup').prop('checked', true);
+    }
 });
 
 function validationWarningSetDefault(element, value) {

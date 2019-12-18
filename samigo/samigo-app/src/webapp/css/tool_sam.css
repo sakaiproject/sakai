@@ -1454,3 +1454,7 @@ label#itemForm\:noFeedbackMsg {
 .attachment-table {
   width: 40% !important;
 }
+
+.disable-cb {
+	float: left;
+}
