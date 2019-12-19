@@ -1351,6 +1351,7 @@ $(document).ready(function() {
 			$("#question-prerequisite").prop("checked", false);
 			$("#question-show-poll").prop("checked", false);
 			$("#multipleChoiceSelect").click();
+			$("#multipleChoiceSelect").prop('checked',true);	//the Click above will trigger the right hide/show of things itself, but it will not actually display multipleChoiceSelect as Checked, so we do it explicitly here.
 			resetMultipleChoiceAnswers();
 			resetShortanswers();
 			
