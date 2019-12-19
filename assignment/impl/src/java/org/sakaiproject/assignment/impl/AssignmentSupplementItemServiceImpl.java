@@ -330,10 +330,9 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 	 */
 	public boolean removeAllPurposeItem(AssignmentAllPurposeItem mItem)
 	{
-
-		try 
+		try
 		{
-			getHibernateTemplate().delete(mItem);
+			getHibernateTemplate().delete(getHibernateTemplate().merge(mItem));
 			return true;
 		}
 		catch (DataAccessException e)
@@ -408,7 +407,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 
 		try 
 		{
-			getHibernateTemplate().delete(access);
+			getHibernateTemplate().delete(getHibernateTemplate().merge(access));
 			return true;
 		}
 		catch (DataAccessException e)
