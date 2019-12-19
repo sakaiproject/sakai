@@ -8129,6 +8129,7 @@ public class AssignmentAction extends PagedResourceActionII {
             AssignmentModelAnswerItem mAnswer = assignmentSupplementItemService.getModelAnswer(aId);
             if (mAnswer != null) {
                 assignmentSupplementItemService.cleanAttachment(mAnswer);
+                mAnswer.setAttachmentSet(new HashSet<>());
                 assignmentSupplementItemService.removeModelAnswer(mAnswer);
             }
         } else if (state.getAttribute(MODELANSWER_TEXT) != null) {
@@ -8167,6 +8168,7 @@ public class AssignmentAction extends PagedResourceActionII {
             AssignmentAllPurposeItem nAllPurpose = assignmentSupplementItemService.getAllPurposeItem(aId);
             if (nAllPurpose != null) {
                 assignmentSupplementItemService.cleanAttachment(nAllPurpose);
+                nAllPurpose.setAttachmentSet(new HashSet<>());
                 assignmentSupplementItemService.cleanAllPurposeItemAccess(nAllPurpose);
                 assignmentSupplementItemService.removeAllPurposeItem(nAllPurpose);
             }
