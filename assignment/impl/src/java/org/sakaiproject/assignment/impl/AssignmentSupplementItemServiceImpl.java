@@ -172,7 +172,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 	{
 		try 
 		{
-			getHibernateTemplate().delete(attachment);
+			getHibernateTemplate().delete(getHibernateTemplate().merge(attachment));
 			return true;
 		}
 		catch (DataAccessException e)
@@ -216,7 +216,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 
 		try 
 		{
-			getHibernateTemplate().delete(mItem);
+			getHibernateTemplate().delete(getHibernateTemplate().merge(mItem));
 			return true;
 		}
 		catch (DataAccessException e)
@@ -274,7 +274,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 
 		try 
 		{
-			getHibernateTemplate().delete(mItem);
+			getHibernateTemplate().delete(getHibernateTemplate().merge(mItem));
 			return true;
 		}
 		catch (DataAccessException e)
