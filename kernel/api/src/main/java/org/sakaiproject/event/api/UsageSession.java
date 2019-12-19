@@ -35,12 +35,12 @@ public interface UsageSession extends Comparable
 	/** String constants for major browser types */
 	public static final String MAC_IE = "Mac-InternetExplorer";
 	
-	/*
+	/**
 	 * @deprecated  discontinued 2008
 	 */
 	public static final String MAC_NN = "Mac-NetscapeNavigator";
 	
-	/*
+	/**
 	 * @deprecated  discontinued 2003
 	 */
 	public static final String MAC_CM = "Mac-Camino";
@@ -51,7 +51,7 @@ public interface UsageSession extends Comparable
 
 	public static final String WIN_IE = "Win-InternetExplorer";
 
-	/*
+	/**
 	 * @deprecated  discontinued 2008
 	 */
 	public static final String WIN_NN = "Win-NetscapeNavigator";
@@ -60,7 +60,7 @@ public interface UsageSession extends Comparable
 	
 	public static final String LIN_MZ = "Lin-Mozilla";
 	
-	/*
+	/**
 	 * Apple iOS - iPhone, iPad
 	 */
 	public static final String IOS_MZ = "iOS-Mozilla";
