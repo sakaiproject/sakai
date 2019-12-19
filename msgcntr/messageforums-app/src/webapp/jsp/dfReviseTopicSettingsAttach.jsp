@@ -377,7 +377,7 @@
 				<h:outputText styleClass="displayMorePanel" value="#{msgs.perm_choose_instruction_topic_more}"/>
 			</h:panelGroup>
 		</h:panelGrid>
-		<sakai-rubric-association styleClass="checkbox" style="margin-left:10px;display:none"
+		<sakai-rubric-association style="margin-left:20px;display:none"
 
 			token='<h:outputText value="#{ForumTool.rbcsToken}"/>'
 			dont-associate-label='<h:outputText value="#{msgs.topic_dont_associate_label}" />'
