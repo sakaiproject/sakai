@@ -53,7 +53,7 @@ public class AuthorPartListener implements ActionListener
     SectionBean sectionBean = (SectionBean) ContextUtil.lookupBean(
                                           "sectionBean");
     // clean it
-    sectionBean.setSectionTitle("");
+    sectionBean.setSectionTitle("Default");
     sectionBean.setAssessmentTitle(assessmentBean.getTitle());
     sectionBean.setSectionDescription("");
     sectionBean.setSectionId("");
