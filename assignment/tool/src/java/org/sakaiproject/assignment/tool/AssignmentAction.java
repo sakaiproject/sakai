@@ -4416,6 +4416,8 @@ public class AssignmentAction extends PagedResourceActionII {
             Map<String, Reference> attachmentReferences = new HashMap<>();
             assignment.getAttachments().forEach(r -> attachmentReferences.put(r, entityManager.newReference(r)));
             context.put("attachmentReferences", attachmentReferences);
+
+            supplementItemIntoContext(state, context, assignment, null);
         }
 
         if (taggingManager.isTaggable() && assignment != null) {
