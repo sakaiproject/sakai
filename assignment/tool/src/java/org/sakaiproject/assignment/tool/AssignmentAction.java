@@ -7819,6 +7819,7 @@ public class AssignmentAction extends PagedResourceActionII {
             if (nAllPurpose != null) {
                 assignmentSupplementItemService.cleanAttachment(nAllPurpose);
                 assignmentSupplementItemService.cleanAllPurposeItemAccess(nAllPurpose);
+                nAllPurpose.setAccessSet(new HashSet<>());
                 assignmentSupplementItemService.removeAllPurposeItem(nAllPurpose);
             }
         } else if (state.getAttribute(ALLPURPOSE_TITLE) != null) {
