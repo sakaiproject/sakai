@@ -28,6 +28,7 @@ import java.util.Map;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 
+import org.sakaiproject.email.api.AttachmentSizeException;
 import org.sakaiproject.email.api.EmailAddress.RecipientType;
 import org.sakaiproject.user.api.User;
 
@@ -38,6 +39,9 @@ import org.sakaiproject.user.api.User;
  */
 public interface EmailService
 {
+	public static final String MAIL_SENDFROMSAKAI_MAXSIZE = "mail.sendfromsakai.maxsize";
+	public static final int DEFAULT_MAXSIZE = 25000000;
+
 	/**
 	 * Creates and sends a generic text MIME message to the address contained in to.
 	 * 
@@ -163,5 +167,5 @@ public interface EmailService
 	 */
 
 	List<EmailAddress> send(EmailMessage message, boolean messagingException) throws AddressValidationException,
-			NoRecipientsException, MessagingException;
+			AttachmentSizeException, NoRecipientsException, MessagingException;
 }

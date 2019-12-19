@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Optional;
 import javax.activation.DataSource;
 import javax.activation.FileDataSource;
 
@@ -104,7 +105,7 @@ public class Attachment
 	 */
 	public File getFile()
 	{
-		return (dataSource instanceof FileDataSource)?((FileDataSource)dataSource).getFile():null;
+		return (dataSource instanceof FileDataSource) ? ((FileDataSource)dataSource).getFile() : null;
 	}
 
 	/**
@@ -147,6 +148,18 @@ public class Attachment
 	public String getContentDispositionHeader()
 	{
 		return contentDisposition;
+	}
+
+	public Optional<Long> getSizeIfFile() {
+
+		if (dataSource instanceof RenamedDataSource) {
+			RenamedDataSource rds = (RenamedDataSource) dataSource;
+			if (rds.dataSource instanceof FileDataSource) {
+				return Optional.of(((FileDataSource) rds.dataSource).getFile().length());
+			}
+		}
+
+		return Optional.empty();
 	}
 
 	/**

@@ -37,6 +37,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.email.api.AddressValidationException;
+import org.sakaiproject.email.api.AttachmentSizeException;
 import org.sakaiproject.email.api.Attachment;
 import org.sakaiproject.email.api.ContentType;
 import org.sakaiproject.email.api.EmailAddress;
@@ -458,27 +459,28 @@ public class ExternalLogicImpl implements ExternalLogic
 		msg.addHeader("X-Mailer", "sakai-mailsender");
 		msg.addHeader("Content-Transfer-Encoding", "quoted-printable");
 
-		try
-		{
+		try {
 			List<EmailAddress> invalids = emailService.send(msg,true);
 			List<String> rets = EmailAddress.toStringList(invalids);
 			Event event = eventService.newEvent(ExternalLogic.EVENT_EMAIL_SEND,
 					null, false);
 			eventService.post(event);
 			return rets;
-		}
-		//Catch these exceptions to give the user a better error message
-		catch (AddressValidationException e)
-		{
+		} catch (AddressValidationException e) {
 			MailsenderException me = new MailsenderException(e.getMessage(), e);
 			me.addMessage("invalid.email.addresses", EmailAddress.toString(e
 					.getInvalidEmailAddresses()));
 			throw me;
-		}
-		catch (NoRecipientsException e)
-		{
+		} catch (NoRecipientsException e) {
 			MailsenderException me = new MailsenderException(e.getMessage(), e);
 			me.addMessage("error.no.valid.recipients", "");
+			throw me;
+		} catch (AttachmentSizeException e) {
+			MailsenderException me = new MailsenderException(e.getMessage(), e);
+			double maxBytes = (double) configService.getInt(EmailService.MAIL_SENDFROMSAKAI_MAXSIZE, EmailService.DEFAULT_MAXSIZE);
+			String maxMB = Double.toString(Math.round(((maxBytes/1024.0)/1024.0) * 10) / 10.0);
+			String attemptedMB = Double.toString(Math.round(((e.getAttemptedSize()/1024.0)/1024.0) * 10) / 10.0);
+			me.addMessage("error.attachmentsize.exception", new String[] {attemptedMB, maxMB});
 			throw me;
 		} catch (MessagingException e) {
 			MailsenderException me = new MailsenderException(e.getMessage(), e);
