@@ -62,18 +62,19 @@ class SakaiRubricAssociation extends RubricsElement {
     return html`
       <h4><sr-lang key="grading_rubric">Grading Rubric</sr-lang></h4>
       <div class="sakai-rubric-association form">
-        <div class="radio">
-          <label>
-            <input @click="${this.associate}" name="rbcs-associate" type="radio" value="${this.dontAssociateValue}" .checked=${!this.isAssociated} .disabled=${this.readOnly}>${this.dontAssociateLabel}
-          </label>
-        </div>
+        ${this.readOnly ? "" : html`
+          <div class="radio">
+            <label>
+              <input @click="${this.associate}" name="rbcs-associate" type="radio" value="${this.dontAssociateValue}" .checked=${!this.isAssociated} .disabled=${this.readOnly}>${this.dontAssociateLabel}
+            </label>
+          </div>
 
-        <div class="radio">
-          <label>
-            <input @click="${this.associate}" name="rbcs-associate" type="radio" value="${this.associateValue}" .checked=${this.isAssociated} .disabled=${this.readOnly}>${this.associateLabel}
-          </label>
-        </div>
-
+          <div class="radio">
+            <label>
+              <input @click="${this.associate}" name="rbcs-associate" type="radio" value="${this.associateValue}" .checked=${this.isAssociated} .disabled=${this.readOnly}>${this.associateLabel}
+            </label>
+          </div>
+        `}
         <div class="rubrics-list">
 
           <div class="rubrics-selections">
@@ -83,24 +84,25 @@ class SakaiRubricAssociation extends RubricsElement {
             `)}
             </select>
 
-            <!-- <a href="#">Create a Rubric</a> -->
             <button @click="${this.showRubric}" class="btn btn-link" .disabled=${!this.isAssociated}>
               <sr-lang key="preview_rubric">Preview Rubric</sr-lang>
             </button>
           </div>
 
-          <div class="rubric-options">
-            <div class="checkbox">
-              <label>
-                <input @change="${this.updateStateDetails}" name="rbcs-config-fineTunePoints" type="checkbox" .checked=${this.selectedConfigOptions["fineTunePoints"]} value="1" .disabled=${!this.isAssociated || this.readOnly}>${this.fineTunePoints}
-              </label>
+          ${this.readOnly ? "" : html`
+            <div class="rubric-options">
+              <div class="checkbox">
+                <label>
+                  <input @change="${this.updateStateDetails}" name="rbcs-config-fineTunePoints" type="checkbox" .checked=${this.selectedConfigOptions["fineTunePoints"]} value="1" .disabled=${!this.isAssociated || this.readOnly}>${this.fineTunePoints}
+                </label>
+              </div>
+              <div class="checkbox">
+                <label>
+                  <input @change="${this.updateStateDetails}" name="rbcs-config-hideStudentPreview" type="checkbox" .checked=${this.selectedConfigOptions["hideStudentPreview"]} value="1" .disabled=${!this.isAssociated || this.readOnly}>${this.hideStudentPreview}
+                </label>
+              </div>
             </div>
-            <div class="checkbox">
-              <label>
-                <input @change="${this.updateStateDetails}" name="rbcs-config-hideStudentPreview" type="checkbox" .checked=${this.selectedConfigOptions["hideStudentPreview"]} value="1" .disabled=${!this.isAssociated || this.readOnly}>${this.hideStudentPreview}
-              </label>
-            </div>
-          </div>
+        `}
         </div>
       </div>
       <input name="rbcs-state-details" type="hidden" value="${this.stateDetails}" />
