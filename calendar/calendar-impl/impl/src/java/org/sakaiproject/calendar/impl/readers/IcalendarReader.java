@@ -137,7 +137,6 @@ public class IcalendarReader extends Reader
 					Period period = (Period) j.next();
 					Duration duration = Duration.from(period.getDuration());
 					long durationminutes = duration.toMinutes();
-					long durationhours =  duration.toHours();
 
 					if (durationminutes < 10L)
 					{
@@ -148,10 +147,6 @@ public class IcalendarReader extends Reader
 					durationformat = ""+durationminutes;
 					}
 
-					if (durationhours != 0L)
-					{
-						durationformat = durationhours+":"+durationformat;
-					}
 					String description = "";
 					if ( component.getProperty("DESCRIPTION") != null) {
 						description = component.getProperty("DESCRIPTION").getValue();
