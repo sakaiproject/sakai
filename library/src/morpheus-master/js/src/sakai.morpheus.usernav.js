@@ -299,10 +299,11 @@ $PBJQ(document).ready( function(){
 
     $PBJQ(document).off("keypress.maximise");
 
+    portal.toggleMinimizeNav({forceMax: true});
+
     $PBJQ(".Mrphs-topHeader").show();
     $PBJQ("#Mrphs-sites-nav").show();
     $PBJQ(".Mrphs-siteHierarchy").show();
-    $PBJQ("#toolMenuWrap").show();
     $PBJQ("#footer").show();
     $PBJQ("#presenceToggle").show();
   };
@@ -311,10 +312,11 @@ $PBJQ(document).ready( function(){
 
     $PBJQ(document).off('keyup.usernav');
 
+    portal.toggleMinimizeNav({forceMin: true});
+
     $PBJQ(".Mrphs-topHeader").hide();
     $PBJQ("#Mrphs-sites-nav").hide();
     $PBJQ(".Mrphs-siteHierarchy").hide();
-    $PBJQ("#toolMenuWrap").hide();
     $PBJQ("#footer").hide();
     $PBJQ("#presenceToggle").hide();
 
