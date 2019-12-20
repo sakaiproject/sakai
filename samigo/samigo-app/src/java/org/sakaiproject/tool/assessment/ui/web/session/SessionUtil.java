@@ -100,7 +100,7 @@ public class SessionUtil {
         int interval = DEFAULT_APP_INTERVAL_VAL;
         if (session.getAttribute(EXTERNAL_APP_INTERVAL) == null)
         {
-          if (delivery != null && delivery.getHasTimeLimit())
+          if (delivery != null && delivery.isHasTimeLimit())
           {
             interval = delivery.getTimeLimit_hour() * HOURS_TO_SECONDS_MULTIPLIER;
             interval += delivery.getTimeLimit_minute() * MINUTES_TO_SECONDS_MULTIPLIER;
