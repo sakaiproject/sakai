@@ -15,24 +15,30 @@ portal.updateToolsCollapsedPref = function (collapsed) {
 	}
 };
 
-portal.toggleMinimizeNav = function () {
+portal.toggleMinimizeNav = function (options) {
 
-	$PBJQ('body').toggleClass('Mrphs-toolMenu-collapsed');
-	// Remove any popout div for subsites.  Popout only displayed when portal.showSubsitesAsFlyout is set to true.
-	$PBJQ('#subSites.floating').css({'display': 'none'});
+  if (options) {
+    if (options.forceMin && portal.toolsCollapsed) return;
+    if (options.forceMax && !portal.toolsCollapsed) return;
+  }
 
-	var el = $PBJQ(this);
-	el.toggleClass('min max').parent().toggleClass('min max');
+  $PBJQ("body").toggleClass("Mrphs-toolMenu-collapsed");
 
-	if (portal.toolsCollapsed) {
-		portal.updateToolsCollapsedPref(false);
-		portal.toolsCollapsed = false;
-		el.attr('aria-pressed', false);
-	} else {
-		portal.updateToolsCollapsedPref(true);
-		portal.toolsCollapsed = true;
-		el.attr('aria-pressed', true);
-	}
+  // Remove any popout div for subsites.  Popout only displayed when portal.showSubsitesAsFlyout is set to true.
+  $PBJQ('#subSites.floating').css({'display': 'none'});
+
+  var el = $PBJQ("#toolsNav-toggle-li button");
+  el.toggleClass('min max').parent().toggleClass('min max');
+
+  if (portal.toolsCollapsed) {
+    portal.updateToolsCollapsedPref(false);
+    portal.toolsCollapsed = false;
+    el.attr('aria-pressed', false);
+  } else {
+    portal.updateToolsCollapsedPref(true);
+    portal.toolsCollapsed = true;
+    el.attr('aria-pressed', true);
+  }
 };
 
 $PBJQ("#toolsNav-toggle-li button").on("click", portal.toggleMinimizeNav);

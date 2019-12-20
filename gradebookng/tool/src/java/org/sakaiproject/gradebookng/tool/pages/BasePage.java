@@ -110,6 +110,9 @@ public class BasePage extends WebPage {
 
 		};
 
+		nav.setOutputMarkupId(true);
+		nav.setMarkupId("gradebook-navbar");
+
 		// grades page
 		this.gradebookPageLink = new Link<Void>("gradebookPageLink") {
 			private static final long serialVersionUID = 1L;
