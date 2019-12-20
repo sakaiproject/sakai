@@ -50,6 +50,7 @@ import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
+import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
@@ -117,7 +118,6 @@ public class SubmitToGradingActionListener implements ActionListener {
 							.equals(ContextUtil.lookupParam("showfeedbacknow")) || delivery
 					.getActionMode() == DeliveryBean.PREVIEW_ASSESSMENT))
 				delivery.setForGrade(false);
-
 			
 			// get assessment
 			PublishedAssessmentFacade publishedAssessment;
@@ -139,7 +139,7 @@ public class SubmitToGradingActionListener implements ActionListener {
                 eventTrackingService.post(event);
             }
 			// set url & confirmation after saving the record for grade
-			if (delivery.getForGrade())
+			if (delivery.isForGrade())
 			{
 				setConfirmation(adata, publishedAssessment, delivery);
 				setReceiptEmailSetting( delivery );
@@ -151,16 +151,16 @@ public class SubmitToGradingActionListener implements ActionListener {
 			}
 
 			if (!invalidFINMap.isEmpty()) {
-				delivery.setIsAnyInvalidFinInput(true);
+				delivery.setAnyInvalidFinInput(true);
 				throw new FinFormatException ("Not a valid FIN input");
 			}
 			
 			if (!invalidSALengthList.isEmpty()) {
-				delivery.setIsAnyInvalidFinInput(true);
+				delivery.setAnyInvalidFinInput(true);
 				throw new SaLengthException ("Short Answer input is too long");
 			}
 			
-			delivery.setIsAnyInvalidFinInput(false);
+			delivery.setAnyInvalidFinInput(false);
 
 		} catch (GradebookServiceException ge) {
 			log.warn(ge.getMessage(), ge);
@@ -342,7 +342,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 						redrawAnchorName.append(partSeq);
 						redrawAnchorName.append("q");
 						redrawAnchorName.append(itemSeq);
-						if (tmpAnchorName.equals("") || tmpAnchorName.compareToIgnoreCase(redrawAnchorName.toString()) > 0) {
+						if ("".equals(tmpAnchorName) || tmpAnchorName.compareToIgnoreCase(redrawAnchorName.toString()) > 0) {
 							tmpAnchorName = redrawAnchorName.toString();
 						}
 					} else {
@@ -374,11 +374,9 @@ public class SubmitToGradingActionListener implements ActionListener {
 			}
 		}
 		
-		
 		if (tmpAnchorName != null && !tmpAnchorName.equals("")) {
 			delivery.setRedrawAnchorName(tmpAnchorName);
-		}
-		else {
+		} else {
 			delivery.setRedrawAnchorName("");
 		}
 		
@@ -400,11 +398,10 @@ public class SubmitToGradingActionListener implements ActionListener {
 		}
 
 		GradingService service = new GradingService();
-		log.debug("**adata=" + adata);
+		log.debug("**adata={}", adata);
 		if (adata == null) { // <--- this shouldn't happened 'cos it should
 			// have been created by BeginDelivery
-			adata = makeNewAssessmentGrading(publishedAssessment, delivery,
-					itemGradingHash);
+			adata = makeNewAssessmentGrading(publishedAssessment, delivery, itemGradingHash);
 			delivery.setAssessmentGrading(adata);
 		} else {
 			// 1. add all the new itemgrading for MC/Survey and discard any
@@ -416,43 +413,36 @@ public class SubmitToGradingActionListener implements ActionListener {
 			Map<Long, ItemDataIfc> imagQuestionMap = getImagQuestionMap(publishedAssessment); // IMAGEMAP_QUESTION
 			Map<Long, ItemDataIfc> emiMap = getEMIMap(publishedAssessment);
 			Set<ItemGradingData> itemGradingSet = adata.getItemGradingSet();
-			log.debug("*** 2a. before removal & addition " + (new Date()));
+			log.debug("*** 2a. before removal & addition {}", (new Date()));
 			if (itemGradingSet != null) {
-				log.debug("*** 2aa. removing old itemGrading " + (new Date()));
+				log.debug("*** 2aa. removing old itemGrading {}", (new Date()));
 				itemGradingSet.removeAll(removes);
 				service.deleteAll(removes);
 				// refresh itemGradingSet & assessmentGrading after removal
-				log.debug("*** 2ab. reload itemGradingSet " + (new Date()));
+				log.debug("*** 2ab. reload itemGradingSet {}", (new Date()));
 				itemGradingSet = service.getItemGradingSet(adata
 						.getAssessmentGradingId().toString());
-				log.debug("*** 2ac. load assessmentGarding " + (new Date()));
+				log.debug("*** 2ac. load assessmentGrading {}", (new Date()));
 				adata = service.load(adata.getAssessmentGradingId().toString(), false);
 
 				Iterator<ItemGradingData> iter = adds.iterator();
 				while (iter.hasNext()) {
-					iter.next().setAssessmentGradingId(adata
-							.getAssessmentGradingId());
+					iter.next().setAssessmentGradingId(adata.getAssessmentGradingId());
 				}
 				// make update to old item and insert new item
 				// and we will only update item that has been changed
-				log
-						.debug("*** 2ad. set assessmentGrading with new/updated itemGrading "
-								+ (new Date()));
-				log
-						.debug("Submitforgrading: before calling .....................oldItemGradingSet.size = "
-								+ itemGradingSet.size());
-				log.debug("Submitforgrading: newItemGradingSet.size = "
-						+ adds.size());
+				log.debug("*** 2ad. set assessmentGrading with new/updated itemGrading {}", (new Date()));
+				log.debug("Submitforgrading: before calling .....................oldItemGradingSet.size = {}", itemGradingSet.size());
+				log.debug("Submitforgrading: newItemGradingSet.size = {}", adds.size());
 
-				HashSet<ItemGradingData> updateItemGradingSet = getUpdateItemGradingSet(
-						itemGradingSet, adds, calcQuestionMap,imagQuestionMap, emiMap, adata);
+				HashSet<ItemGradingData> updateItemGradingSet = getUpdateItemGradingSet(itemGradingSet, adds, calcQuestionMap,imagQuestionMap, emiMap, adata);
 				adata.setItemGradingSet(updateItemGradingSet);
 			}
 		}
 		
-		adata.setSubmitFromTimeoutPopup(delivery.getsubmitFromTimeoutPopup());
-		adata.setIsLate(isLate(publishedAssessment, delivery.getsubmitFromTimeoutPopup(), adata.getAgentId()));
-		adata.setForGrade(delivery.getForGrade());
+		adata.setSubmitFromTimeoutPopup(delivery.isSubmitFromTimeoutPopup());
+		adata.setIsLate(isLate(publishedAssessment, delivery.isSubmitFromTimeoutPopup(), adata.getAgentId()));
+		adata.setForGrade(delivery.isForGrade());
 		
 		// If this assessment grading data has been updated (comments or adj. score) by grader and then republic and allow student to resubmit
 		// when the student submit his answers, we update the status back to 0 and remove the grading entry/info.
@@ -464,8 +454,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 			adata.setTotalOverrideScore(0d);
 		}
 	
-		log.debug("*** 2b. before storingGrades, did all the removes and adds "
-				+ (new Date()));
+		log.debug("*** 2b. before storingGrades, did all the removes and adds {}", (new Date()));
 		
 		if (delivery.getNavigation().equals("1") && ae != null && "showFeedback".equals(ae.getComponent().getId())) {
 			log.debug("Do not persist to db if it is linear access and the action is show feedback");
@@ -476,13 +465,12 @@ public class SubmitToGradingActionListener implements ActionListener {
 			Map publishedItemTextHash = delivery.getPublishedItemTextHash();
 			Map publishedAnswerHash = delivery.getPublishedAnswerHash();
 			service.storeGrades(adata, publishedAssessment, publishedItemHash, publishedItemTextHash, publishedAnswerHash, false, invalidFINMap, invalidSALengthList);
-		}
-		else {
+		} else {
 			log.debug("Persist to db otherwise");
 			// The following line seems redundant. I cannot see a reason why we need to save the adata here
 			// and then again in following service.storeGrades(). Comment it out.
 			//service.saveOrUpdateAssessmentGrading(adata);
-			log.debug("*** 3. before storingGrades, did all the removes and adds " + (new Date()));
+			log.debug("*** 3. before storingGrades, did all the removes and adds {}", (new Date()));
 			// 3. let's build three HashMap with (publishedItemId, publishedItem),
 			// (publishedItemTextId, publishedItem), (publishedAnswerId,
 			// publishedItem) to help with storing grades to adata and then persist to DB
@@ -520,10 +508,8 @@ public class SubmitToGradingActionListener implements ActionListener {
 	private HashSet<ItemGradingData> getUpdateItemGradingSet(Set oldItemGradingSet, Set<ItemGradingData> newItemGradingSet,
 															 Map<Long, ItemDataIfc> calcQuestionMap, Map<Long, ItemDataIfc> imagQuestionMap,
 															 Map<Long, ItemDataIfc> emiMap, AssessmentGradingData adata) {
-		log.debug("Submitforgrading: oldItemGradingSet.size = "
-				+ oldItemGradingSet.size());
-		log.debug("Submitforgrading: newItemGradingSet.size = "
-				+ newItemGradingSet.size());
+		log.debug("Submitforgrading: oldItemGradingSet.size = {}", oldItemGradingSet.size());
+		log.debug("Submitforgrading: newItemGradingSet.size = {}", newItemGradingSet.size());
 		HashSet<ItemGradingData> updateItemGradingSet = new HashSet<>();
 		Iterator iter = oldItemGradingSet.iterator();
 		Map<Long, ItemGradingData> map = new HashMap<>();
@@ -536,8 +522,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 		Iterator<ItemGradingData> iter1 = newItemGradingSet.iterator();
 		while (iter1.hasNext()) {
 			ItemGradingData newItem = iter1.next();
-			ItemGradingData oldItem = map.get(newItem
-					.getItemGradingId());
+			ItemGradingData oldItem = map.get(newItem.getItemGradingId());
 			if (oldItem != null) {
 			    if (!oldItem.equals(newItem) || 
 			    // Check for presence of old data in the EMI, calcQuestion and imagQuestion maps.
@@ -585,7 +570,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 		adata.setAgentId(person.getId());
 		adata.setPublishedAssessmentId(publishedAssessment
 				.getPublishedAssessmentId());
-		adata.setForGrade(delivery.getForGrade());
+		adata.setForGrade(delivery.isForGrade());
 		adata.setItemGradingSet(itemGradingHash);
 		adata.setAttemptDate(new Date());
 		adata.setIsLate(Boolean.FALSE);
@@ -611,7 +596,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 		//no matter what kinds of type questions, if it marks as review, add it in.
 		for (int m = 0; m < grading.size(); m++) {
 			ItemGradingData itemgrading = grading.get(m);
-			if (itemgrading.getItemGradingId() == null && (itemgrading.getReview() != null && itemgrading.getReview())  == true) {
+			if (itemgrading.getItemGradingId() == null && (itemgrading.getReview() != null && itemgrading.getReview())) {
 				adds.add(itemgrading);
 			} 
 		}
@@ -668,8 +653,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 						}
 					}
 				}
-			}
-			else{
+			} else {
 				handleMarkForReview(grading, adds);
 			}
 			break;
@@ -768,8 +752,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 		case 14: // Extended Matching Item
 			Long assessmentGradingId = delivery.getAssessmentGrading().getAssessmentGradingId();
                        	Long publishedItemId = item.getItemData().getItemId();
-			log.debug("Updating answer set for EMI question: publishedItemId=" + publishedItemId + " grading.size()=" + grading.size() + 
-				" item id=" + item.getItemData().getItemId() + " assessmentGradingId=" + assessmentGradingId);
+			log.debug("Updating answer set for EMI question: publishedItemId={} grading.size()={} item id={} assessmentGradingId={}", publishedItemId, grading.size(), item.getItemData().getItemId(), assessmentGradingId);
 
 			for (int m = 0; m < grading.size(); m++) {
 				ItemGradingData itemgrading = (ItemGradingData) grading.get(m);
@@ -795,7 +778,6 @@ public class SubmitToGradingActionListener implements ActionListener {
 						log.debug("adding new answer answer: " + itemgrading.getItemGradingId());
 					}
 				}
-				
 			}
 
 			// We need to remove any answer (response) items in the storage that are not in the above lists
@@ -804,8 +786,16 @@ public class SubmitToGradingActionListener implements ActionListener {
 			break;
 		case 6: // File Upload
 		case 7: // Audio
-                        handleMarkForReview(grading, adds);
-                        break;
+			GradingService gradingService = new GradingService();
+			for (int m = 0; m < grading.size(); m++) {
+				ItemGradingData itemgrading = grading.get(m);
+				List<MediaData> medias = gradingService.getMediaArray2(itemgrading.getItemGradingId().toString());
+				for(MediaData md : medias) { 
+					delivery.getSubmissionFiles().put(itemgrading.getItemGradingId()+"_"+md.getMediaId(), md);
+				}
+			}
+			handleMarkForReview(grading, adds);
+			break;
 		case 13: //Matrix Choices question
 			answerModified = false;
 			for (int m = 0; m < grading.size(); m++) {
@@ -842,8 +832,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 						adds.add(itemgrading);
 					}
 				}
-			}
-			else{
+			} else{
 				updateItemGradingData(grading, adds);
 			}
 			break;
@@ -854,8 +843,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 		if (ae != null) {
 			actionCommand = ae.getComponent().getId();
 			log.debug("ae is not null, getActionCommand() = " + actionCommand);	
-		}
-		else {
+		} else {
 			log.debug("ae is null");
 		}
 		
@@ -943,7 +931,6 @@ public class SubmitToGradingActionListener implements ActionListener {
         }
       }
     }
-
    
 	private Boolean isLate(PublishedAssessmentIfc pub, boolean submitFromTimeoutPopup, String adataAgentId) {
 		AssessmentAccessControlIfc a = pub.getAssessmentAccessControl();

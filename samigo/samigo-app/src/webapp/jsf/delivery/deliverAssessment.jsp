@@ -493,14 +493,14 @@ document.links[newindex].onclick();
   <%-- NEXT --%>
   <h:panelGrid columns="1" border="0" columnClasses="act">
     <h:commandButton id="next1" type="submit" value="#{commonMessages.action_next}"
-    action="#{delivery.next_page}" disabled="#{!delivery.doContinue}"
+    action="#{delivery.nextPage}" disabled="#{!delivery.doContinue}"
 	rendered="#{(delivery.actionString=='previewAssessment'
                  || delivery.actionString=='takeAssessment'
                  || delivery.actionString=='takeAssessmentViaUrl')
               && (delivery.previous && !delivery.doContinue)}" />
 
     <h:commandButton id="next" type="submit" value="#{commonMessages.action_next}"
-    action="#{delivery.next_page}" styleClass="active"
+    action="#{delivery.nextPage}" styleClass="active"
 	rendered="#{(delivery.actionString=='previewAssessment'
                  || delivery.actionString=='takeAssessment'
                  || delivery.actionString=='takeAssessmentViaUrl')
@@ -516,7 +516,7 @@ document.links[newindex].onclick();
   <%-- SAVE --%>
   <h:panelGrid columns="1" border="0" >
   <h:commandButton id="save" type="submit" value="#{commonMessages.action_save}"
-    action="#{delivery.save_work}" rendered="#{delivery.actionString=='previewAssessment'
+    action="#{delivery.saveWork}" rendered="#{delivery.actionString=='previewAssessment'
                  || delivery.actionString=='takeAssessment'
                  || delivery.actionString=='takeAssessmentViaUrl'}" />
   </h:panelGrid>
@@ -578,10 +578,10 @@ document.links[newindex].onclick();
 </h:panelGrid>
 
    <h:commandButton id="autoSave" type="submit" value="" style="display: none"
-   action="#{delivery.auto_save}" rendered="#{delivery.actionString=='takeAssessment'
+   action="#{delivery.autoSave}" rendered="#{delivery.actionString=='takeAssessment'
                   || delivery.actionString=='takeAssessmentViaUrl'}" />
 
-	<h:commandLink id="hiddenReloadLink" action="#{delivery.same_page}" value="">
+	<h:commandLink id="hiddenReloadLink" action="#{delivery.samePage}" value="">
 	</h:commandLink>
 
 <f:verbatim></p><br /><br /></f:verbatim>

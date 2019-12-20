@@ -184,7 +184,7 @@ function saveTime()
               && delivery.navigation ne '1'}" 
     />
   <h:commandButton id="save" type="submit" value="#{commonMessages.action_save}"
-     action="#{delivery.save_work}"
+     action="#{delivery.saveWork}"
      style="display:none"
      rendered="#{delivery.actionString=='previewAssessment'
                   || delivery.actionString=='takeAssessment'
