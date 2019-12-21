@@ -41,7 +41,6 @@ import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.serialize.SerializableEntity;
 import org.sakaiproject.entity.api.serialize.SerializablePropertiesAccess;
-import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.User;
