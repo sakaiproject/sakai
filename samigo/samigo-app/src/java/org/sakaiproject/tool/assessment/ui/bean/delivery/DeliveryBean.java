@@ -142,6 +142,10 @@ public class DeliveryBean
   private String receiptEmailSetting;
   @Getter @Setter
   private Map<String, MediaData> submissionFiles = new HashMap<>();
+  
+  public List<MediaData> getSubmissionFilesList() {
+	return new ArrayList<MediaData>(submissionFiles.values());
+  }
 
   //Settings
   private String questionLayout;
