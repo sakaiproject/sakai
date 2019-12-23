@@ -14,12 +14,13 @@ class SakaiRubricAssociation extends RubricsElement {
 
     this.isAssociated = false;
 
-    SakaiRubricsLanguage.loadTranslations().then(result => this.i18nLoaded = result );
+    this.i18nPromise = SakaiRubricsLanguage.loadTranslations();
+    this.i18nPromise.then(r => this.i18n = r);
   }
 
   set token(newValue) {
 
-    this.rubricsUtils.initLightbox(newValue);
+    this.i18nPromise.then(r => this.rubricsUtils.initLightbox(newValue, r));
     this._token = "Bearer " + newValue;
   }
 
@@ -54,7 +55,7 @@ class SakaiRubricAssociation extends RubricsElement {
   }
 
   shouldUpdate(changedProperties) {
-    return this.i18nLoaded && this.rubrics && this.rubrics.length > 0;
+    return this.i18n && this.rubrics && this.rubrics.length > 0;
   }
 
   render() {

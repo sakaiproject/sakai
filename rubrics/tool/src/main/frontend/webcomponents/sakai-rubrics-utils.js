@@ -94,7 +94,7 @@ var rubricsUtils = {
   lightbox: null,
   windowRef: window!=window.top ? window.top : window,
 
-  initLightbox(token) {
+  initLightbox(token, i18n) {
 
     if (rubricsUtils.lightbox) {
       return;
@@ -106,7 +106,16 @@ var rubricsUtils = {
     });
 
     var scrollTop = rubricsUtils.windowRef.pageYOffset || rubricsUtils.windowRef.document.documentElement.scrollTop;
-    this.appendStringAsNodes(rubricsUtils.windowRef.document.body, '<div class="rubrics-lightbox" tabindex="0" style="display:none"><div class="container"><a href="#" class=>&times;</a><sakai-rubric-student token="' + token + '"></sakai-rubric-student></div></div>');
+
+    this.appendStringAsNodes(rubricsUtils.windowRef.document.body, `
+      <div class="rubrics-lightbox" tabindex="0" style="display:none">
+        <div class="container">
+          <a href="#" aria-label="${i18n["close_dialog"]}">&times;</a>
+          <sakai-rubric-student token="${token}"></sakai-rubric-student>
+        </div>
+      </div>
+    `);
+
     rubricsUtils.lightbox = $(".rubrics-lightbox", rubricsUtils.windowRef.document);
   },
 
