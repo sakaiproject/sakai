@@ -95,6 +95,7 @@ public class RemoveMediaListener implements ActionListener
     }
 
     mediaService.remove(mediaId, itemGradingId);
+    delivery.getSubmissionFiles().remove(itemGradingId+"_"+mediaId);
 
     // #2. update time based on server
     if (delivery.isTimeRunning() && delivery.getTimeExpired()){
