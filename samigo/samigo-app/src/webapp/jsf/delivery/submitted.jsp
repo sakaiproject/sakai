@@ -131,8 +131,8 @@ function closeWindow() {alert("1"); self.opener=this; self.close(); }
         <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{delivery.userTimeZone}" />
     </h:outputText>
 
-    <h:outputLabel rendered="#{delivery.submissionFiles.values().size() > 0}" value="#{deliveryMessages.submission_files}" />
-    <h:dataTable rendered="#{delivery.submissionFiles.values().size() > 0}" value="#{delivery.submissionFiles.values()}" var="media">
+    <h:outputLabel rendered="#{delivery.submissionFilesList.size() > 0}" value="#{deliveryMessages.submission_files}" />
+    <h:dataTable rendered="#{delivery.submissionFilesList.size() > 0}" value="#{delivery.submissionFilesList}" var="media">
         <h:column>
             <h:outputLink title="#{evaluationMessages.t_fileUpload}" value="/samigo-app/servlet/ShowMedia?mediaId=#{media.mediaId}" target="new_window">
                 <h:outputText value="#{media.filename} " />
