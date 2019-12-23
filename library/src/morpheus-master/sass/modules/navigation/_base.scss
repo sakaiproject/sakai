@@ -18,7 +18,8 @@ body.is-logged-out{
 }
 
 .#{$namespace}mainHeader{
-		box-shadow: $divider-shadow;
+		box-shadow: $divider-shadow-fixed;
+		
 		position: relative;
 
 	.#{$namespace}headerLogo{
@@ -238,9 +239,9 @@ body.is-logged-out{
 		#roleSwitch {
 			@include display-flex;
 			@include align-items( center );
-			padding-right: $standard-spacing;
-			margin-right: $standard-spacing;
-			border-right: 1px solid $topNav-alt-color;
+			margin-left: $top-header-item-spacing;
+			padding-left: $top-header-item-spacing;
+			border-left: $top-header-separators-thickness solid $topNav-alt-color;
 			white-space: nowrap;
 
 				@media #{$phone} {
@@ -268,7 +269,12 @@ body.is-logged-out{
 				&:hover {
 					text-decoration: none;
 					color: #FFF;
-					text-shadow: 0 0 5px rgba(165, 165, 165, 0.95); /* same as profile picture hover */
+					@if $top-header-as-material {
+						background: rgba(0,0,0,.2);
+						border-radius:50%;
+					} @else {
+						text-shadow: 0 0 5px rgba(165, 165, 165, 0.95); /* same as profile picture hover */
+					}
 				}
 			}
 
@@ -449,8 +455,18 @@ body.is-logged-out{
 		&.has-avatar:hover .#{$namespace}userNav__submenuitem--profilepicture,
 			&.has-avatar:active .#{$namespace}userNav__submenuitem--profilepicture
 		{
-			box-shadow: 0px 0px 5px 1px rgba(165, 165, 165, 0.95);
+			@if $top-header-as-material {
+				box-shadow:inset 0 0 0 2px $top-header-profile-border-color-inner, 0 0 0 2px rgba(0,0,0,.2);
+			} @else {
+				box-shadow: 0px 0px 5px 1px rgba(165, 165, 165, 0.95);
+			}
 		}
+		@if $top-header-as-material {
+			&.has-avatar:active .#{$namespace}userNav__submenuitem--profilepicture {
+				box-shadow:inset 0 0 0 2px $top-header-profile-border-color-inner, 0 0 0 2px rgba(0,0,0,.6);
+			}
+		}
+		
 
 		&.has-avatar:hover .#{$namespace}userNav__submenuitem--username,
 			&.has-avatar:hover .has-avatar .#{$namespace}userNav__submenuitem--userid
@@ -467,12 +483,13 @@ body.is-logged-out{
 
 	.has-avatar, .no-avatar{
 		position: relative;
+		
 
 		.#{$namespace}userNav__submenuitem--username, .#{$namespace}userNav__submenuitem--userid{
 			text-decoration: none;
 
 			span.textlink {
-				display: inline-block;
+				display: $top-header-text-display;
 				max-width: 100px;
 				overflow: hidden;
 				position: relative;
@@ -525,11 +542,26 @@ body.is-logged-out{
 			background-position: 50%;
 			border-radius:50%;
 			margin: 0 4px 0 0;
+			border: $top-header-profile-border-thickness solid $top-header-profile-border-color-top;			
+			border-right-color: $top-header-profile-border-color-right;
+			border-bottom-color: $top-header-profile-border-color-bottom;
+			border-left-color: $top-header-profile-border-color-left;
+			border-radius: 50%;
+			box-shadow:inset 0 0 0 2px $top-header-profile-border-color-inner;
 			position: relative;
 
 			&:hover, &:active
 			{
-				box-shadow: 0px 0px 5px 1px rgba(165, 165, 165, 0.95);
+				@if $top-header-as-material {
+					box-shadow:inset 0 0 0 2px $top-header-profile-border-color-inner, 0 0 0 2px rgba(0,0,0,.2);
+				} @else {
+					box-shadow: 0px 0px 5px 1px rgba(165, 165, 165, 0.95);
+				}
+			}
+			@if $top-header-as-material {
+				&:active {
+					background:inset 0 0 0 2px $top-header-profile-border-color-inner, 0 0 0 2px rgba(0,0,0,.4);
+				}
 			}
 			@media #{$phone}
 			{
@@ -590,9 +622,11 @@ body.is-logged-out{
 
 	#loginLinks{
 		font-family: $header-font-family;
-		margin: 0;
 		list-style: none;
-		padding: 0 0 0 $standard-spacing;
+		margin-left: $top-header-item-spacing;
+		padding: 0;
+		padding-left: $top-header-item-spacing;
+		border-left: $top-header-separators-thickness solid $topNav-alt-color;
 		@include display-flex;
 		@include align-items(center);
 
@@ -622,7 +656,11 @@ body.is-logged-out{
 			@extend .userNav__subnav;
 			&:after {
 				bottom: 100%;
-				left: 85%;
+				@if $top-header-text-display == "none" {
+					left: 90%;
+				} @else {
+					left: 85%;
+				}
 				border: solid transparent;
 				content: " ";
 				height: 0;
@@ -697,7 +735,7 @@ body.is-logged-out{
 /* because #loginLinks appears on the Gateway page when two log-in links are available (e.g. for CAS), the following applies only when you are logged in: */
 .is-maximized #loginLinks
 {
-	border-left: 1px solid $topNav-alt-color;
+	border-left: $top-header-separators-thickness solid $topNav-alt-color;
 }
 
 .#{$namespace}sitesNav__menu{
@@ -709,19 +747,34 @@ body.is-logged-out{
 .portal-bullhorns-buttons{
 	position: relative;
 	display: inline-block;
-	padding-left: $standard-spacing;
-	padding-right: $standard-spacing;
-	border-right: 1px solid $topNav-alt-color;
+	margin-left: $top-header-item-spacing;
+	padding-left: $top-header-item-spacing;
+	border-left: $top-header-separators-thickness solid $topNav-alt-color;
     white-space: nowrap;
 }
 
 ##{$namespace}bullhorn {
 	display: inline-block; /* Sakai 11.1 makes it flex, which is wrong */
-
+	width: $top-header-icon-size;
+	height: $top-header-icon-size;
+	.icon-sakai--academic-bullhorn {
+		padding:0;
+	}
 	&:hover {
 		text-decoration: none;
 		color: $topNav-text-color;
-		text-shadow: 0 0 5px rgba(165, 165, 165, 0.95); /* same as profile picture hover */
+		@if $top-header-as-material {
+			background: rgba(0,0,0,.2);
+			border-radius:50%;
+		} @else {
+			text-shadow: 0 0 5px rgba(165, 165, 165, 0.95); /* same as profile picture hover */
+		}
+	&:active {
+		@if $top-header-as-material {
+			background: rgba(0,0,0,.4);
+		}
+	}
+		
 	}
 }
 
@@ -729,7 +782,9 @@ body.is-logged-out{
 .view-all-sites-btn{
 	position: relative;
 	display: inline-block;
-	padding: 0 $standard-spacing;
+	margin-left: $top-header-item-spacing;
+	padding-left: $top-header-item-spacing;
+	border-left: $top-header-separators-thickness solid $topNav-alt-color;
 
 	@media #{$phone}{
 		display: none;
@@ -745,7 +800,12 @@ body.is-logged-out{
 
 		i
 		{
-			text-shadow: 0 0 5px rgba(165, 165, 165, 0.95); /* same as profile picture hover */
+			@if $top-header-as-material {
+				background: rgba(0,0,0,.2);
+				border-radius:50%;
+			} @else {
+				text-shadow: 0 0 5px rgba(165, 165, 165, 0.95); /* same as profile picture hover */
+			}
 		}
 
 		span.all-sites-label
@@ -753,20 +813,30 @@ body.is-logged-out{
 			text-decoration: underline; /* just underline the text */
 		}
 	}
+	@if $top-header-as-material {
+		&:active i {
+			background: rgba(0,0,0,.4);
+		}
+	}
 }
 
 .all-sites-icon, .all-sites-label{
-	display: inline-block;
 	vertical-align: middle;
 }
-
+.all-sites-label {
+	display: $top-header-text-display;
+	margin-left: $standard-space;
+}
 .all-sites-icon
 {
 	/* Using !important here because CKEditor pulls in its own
 		fontawesome.css which adjusts the size of our icon unless
 		we override it. */
 	font-size: 16pt !important;
-	padding-right: $standard-space;
+	padding-top: $top-header-sites-padding-top;
+	display: inline-block;
+	width: $top-header-icon-size;
+	height: $top-header-icon-size;
 }
 #topnav_container
 {
@@ -791,7 +861,8 @@ body.is-logged-out{
 			position: relative;
 			margin: 0 $standard-spacing $standard-spacing 0;	// space the items apart, and space vertically if wrapped
 			padding: 0;
-
+			border-radius: $sites-nav-menu-item-border-radius;
+			background: $sites-nav-menu-item-background;
 			.link-container{
 				@include display-flex;
 				@include align-items( center );
@@ -799,9 +870,10 @@ body.is-logged-out{
 			}
 
 			&.dropdown-is-visible {
+				background: $sites-nav-menu-item-hover-background;
 				&:after {
 					content: "";
-					border-bottom: $sites-nav-menu-item-border-thickness solid $sites-nav-submenu-topleft-border-color;
+					border-bottom: $sites-nav-selected-submenu-border;
 					width: 100%; // fallback for browsers who don't calculate nested equations
 					width: calc(100% - (2 * #{$sites-nav-menu-item-border-thickness}));	// width minus the left and right border widths
 					position: absolute;
@@ -811,11 +883,11 @@ body.is-logged-out{
 				}
 				
 				.link-container, .#{$namespace}sitesNav__dropdown, .#{$namespace}sitesNav__favbtn {
-					border-top: $sites-nav-menu-item-hover-border-top;
-					border-right: $sites-nav-menu-item-hover-border-right;
-					border-bottom: $sites-nav-menu-item-hover-border-bottom;
-					border-left: $sites-nav-menu-item-hover-border-left;
-					background: $sites-nav-menu-item-hover-background;
+						border-top: $sites-nav-menu-item-hover-border-top;
+						border-right: $sites-nav-menu-item-hover-border-right;
+						border-bottom: $sites-nav-menu-item-hover-border-bottom;
+						border-left: $sites-nav-menu-item-hover-border-left;
+						background: $sites-nav-menu-item-hover-background;
 				}
 			}
 
@@ -859,14 +931,15 @@ body.is-logged-out{
 			
 			.#{$namespace}sitesNav__submenu {
 				position: absolute;
-				top: calc( #{$default-font-size} + ( #{$standard-space} * 2) - #{$sites-nav-menu-item-border-thickness});	// 1px for item border
+				padding: $sites-nav-submenu-padding;
+				top: $sites-nav-submenu-top;
 				left: 0;
 				z-index: 99;
 				display: none;
 				min-width: 100%;	// at minimum, the menu should be the width of the site title
 				width: max-content; // if the content is wider than the site title, expand to the longest tool name
-				border: $sites-nav-menu-item-border-thickness solid $sites-nav-submenu-border-color;
-				box-shadow: 0 3px 2px rgba( $text-color, 0.35);
+				border: $sites-nav-submenu-border;
+				box-shadow: $sites-nav-submenu-shadow;
 				background: $sites-nav-menu-item-background;
 				
 				.#{$namespace}sitesNav__submenuitem {
@@ -880,7 +953,7 @@ body.is-logged-out{
 					.#{$namespace}sitesNav__submenuitem-link, a {
 						@include display-flex;
 						@include align-items(center);
-						padding: $standard-spacing;
+						padding: $sites-nav-submenu-item-padding;
 						text-decoration: none;
 						color: $sites-nav-submenu-item-color;
 						font-size: $sites-nav-submenu-item-text-size;
@@ -913,6 +986,7 @@ body.is-logged-out{
 			
 			// Current site is selected:
 			&.is-selected {
+				background: $sites-nav-menu-item-selected-background;
 				.link-container, .#{$namespace}sitesNav__dropdown, .#{$namespace}sitesNav__favbtn {
 					background: $sites-nav-menu-item-selected-background;
 					border-top: $sites-nav-menu-item-selected-border-top;
@@ -933,7 +1007,7 @@ body.is-logged-out{
 				&.dropdown-is-visible {
 					&:after {	// the rest of the properties will inherit from the default case above
 						content: "";
-						border-bottom: $sites-nav-menu-item-border-thickness solid $sites-nav-selected-submenu-topleft-border-color;
+						border-bottom: $sites-nav-selected-submenu-border
 					}
 					
 					.link-container, .#{$namespace}sitesNav__dropdown, .#{$namespace}sitesNav__favbtn {
@@ -981,7 +1055,7 @@ body.is-logged-out{
 							left: 0;
 							display: inline-block;
 							height: 100%;
-							border-left: 4px solid $sites-nav-submenu-item-left-border-color;
+							border-left: $sites-nav-submenu-item-left-border;
 						}
 
 						&:hover, &:active, &:focus {

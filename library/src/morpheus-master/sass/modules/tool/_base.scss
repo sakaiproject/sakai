@@ -16,7 +16,8 @@
 
 .#{$namespace}multipleTools{
 	.#{$namespace}container {
-		border: 1px solid $overview-portlet-border-color;
+		border: $overview-portlet-border;
+		border-radius: $overview-portlet-border-radius;
 		box-shadow: $overview-portlet-shadow;
 		margin-bottom: $standard-spacing;
 
@@ -33,7 +34,7 @@
 			@include align-items(center);
 			@include justify-content(space-between);
 			background-color: $overview-portlet-title-background-color;
-			border-bottom: 1px solid $overview-portlet-border-color;
+			border-bottom: $overview-portlet-border;
 			padding: $standard-spacing;
 		}
 
