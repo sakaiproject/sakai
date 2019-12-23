@@ -56,6 +56,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
@@ -1762,7 +1763,7 @@ public class SiteAction extends PagedResourceActionII {
 			String type = (String) state.getAttribute(STATE_SITE_TYPE);
 			setTypeIntoContext(context, type);
 
-			Map<String,List> groupTools = getTools(state, type, site);
+			Map<String, List<MyTool>> groupTools = getTools(state, type, site);
 			state.setAttribute(STATE_TOOL_GROUP_LIST, groupTools);
 
 			// information related to LTI tools
@@ -6227,62 +6228,48 @@ public class SiteAction extends PagedResourceActionII {
  * @param state
  * @param site
  */
-private Map<String,List> getTools(SessionState state, String type, Site site) {
+private Map<String, List<MyTool>> getTools(SessionState state, String type, Site site) {
 
-	boolean checkhome =  state.getAttribute(STATE_TOOL_HOME_SELECTED) != null ?((Boolean) state.getAttribute(STATE_TOOL_HOME_SELECTED)).booleanValue():true;
+	boolean checkHome = BooleanUtils.toBooleanDefaultIfNull((Boolean) state.getAttribute(STATE_TOOL_HOME_SELECTED), true);
 	boolean isNewToolOrderType = ServerConfigurationService.getBoolean("config.sitemanage.useToolGroup", false);
-	Map<String,List> toolGroup = new LinkedHashMap<String,List>();
-	MyTool newTool = null;
-	
+	Map<String, List<MyTool>> toolGroup = new LinkedHashMap<>();
+
 	File moreInfoDir = new File(moreInfoPath);
-	List toolList;
 	
 	// if this is legacy format toolOrder.xml file, get all tools by siteType
-	if (isNewToolOrderType == false) {
+	if (!isNewToolOrderType) {
 		String defaultGroupName = rb.getString("tool.group.default");
-		toolGroup.put(defaultGroupName, getOrderedToolList(state, defaultGroupName, type, checkhome));		
+		toolGroup.put(defaultGroupName, getOrderedToolList(state, defaultGroupName, type, checkHome));
 	} else {	
 		// get all the groups that are available for this site type
-		List groups = ServerConfigurationService.getCategoryGroups(SiteTypeUtil.getTargetSiteType(type));
-		for(Iterator<String> itr = groups.iterator(); itr.hasNext();) {
-			String groupId = itr.next();
+		List<String> groups = ServerConfigurationService.getCategoryGroups(SiteTypeUtil.getTargetSiteType(type));
+		for (String groupId : groups) {
 			String groupName = getGroupName(groupId);
-			toolList = getGroupedToolList(groupId, groupName, type, checkhome, moreInfoDir);
-			if (toolList.size() > 0) {
-				toolGroup.put(groupName, toolList);
-			}
+			List<MyTool> toolList = getGroupedToolList(groupId, groupName, type, checkHome, moreInfoDir);
+			if (!toolList.isEmpty()) toolGroup.put(groupName, toolList);
 		}
 
 		// add ungroups tools to end of toolGroup list
 		String ungroupedName = getGroupName(UNGROUPED_TOOL_TITLE);
-		List ungroupedList = getUngroupedTools(ungroupedName,	 toolGroup, state, moreInfoDir, site);
-		if (ungroupedList.size() > 0) {
-			toolGroup.put(ungroupedName, ungroupedList );
-		}	 
+		List<MyTool> ungroupedList = getUngroupedTools(ungroupedName, toolGroup, state, moreInfoDir, site);
+		if (!ungroupedList.isEmpty()) toolGroup.put(ungroupedName, ungroupedList);
 	}
 
 	// add external tools to end of toolGroup list
 	String externaltoolgroupname = getGroupName(LTI_TOOL_TITLE);
-	List externalTools = getLtiToolGroup(externaltoolgroupname, moreInfoDir, site);
-	if (externalTools.size() > 0 ) 
-		toolGroup.put(externaltoolgroupname, externalTools);
+	List<MyTool> externalTools = getLtiToolGroup(externaltoolgroupname, moreInfoDir, site);
+	if (!externalTools.isEmpty()) toolGroup.put(externaltoolgroupname, externalTools);
 	
-	// Home page should be auto-selected
-	if (checkhome==true) {
-		state.setAttribute(STATE_TOOL_HOME_SELECTED, new Boolean(true));
+	if (checkHome) {
+		// Home page should be auto-selected
+		state.setAttribute(STATE_TOOL_HOME_SELECTED, Boolean.TRUE);
 	}
 	
-	// refresh selectedList
-	List<String> selectedTools = new ArrayList<String>();
-	for(Iterator itr = toolGroup.keySet().iterator();  itr.hasNext(); )  {
-		String key = (String) itr.next();
-		List toolGroupSelectedList =(List) toolGroup.get(key);
-		for (Iterator listItr = toolGroupSelectedList.iterator(); listItr.hasNext();) {
-			MyTool tool = (MyTool) listItr.next();
-			if (tool.selected) {
-				selectedTools.add(tool.id);
-			}
-		}
+	List<String> toolRegistrationSelectedList = (List<String>) state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
+	if (toolRegistrationSelectedList == null) {
+		// If this is a new site add these selected tools as the default
+		List<String> selectedTools = toolGroup.values().stream().flatMap(list -> list.stream().filter(MyTool::getSelected).map(MyTool::getId)).collect(Collectors.toList());
+		state.setAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST, selectedTools);
 	}
 	return toolGroup;
 }
@@ -6293,9 +6280,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	 * @param type - site type
 	 * @param checkhome
 	 */
-	private List getOrderedToolList(SessionState state, String groupName, String type, boolean checkhome) {
+	private List<MyTool> getOrderedToolList(SessionState state, String groupName, String type, boolean checkhome) {
 		MyTool newTool = null;
-		List toolsInOrderedList = new ArrayList();
+		List<MyTool> toolsInOrderedList = new ArrayList<>();
 		
 		// see setToolRegistrationList()
 		List toolList = (List)state.getAttribute(STATE_TOOL_REGISTRATION_LIST);
@@ -6350,7 +6337,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	}
 
 	// SAK-23811
-	private List getGroupedToolList(String groupId, String groupName, String type, boolean checkhome, File moreInfoDir ) {
+	private List<MyTool> getGroupedToolList(String groupId, String groupName, String type, boolean checkhome, File moreInfoDir ) {
 		List toolsInGroup = new ArrayList();
 		MyTool newTool = null;
 		List toolList = ServerConfigurationService.getToolGroup(groupId);
@@ -6489,7 +6476,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	 * @param	site				current site
 	 * @return	list of MyTool items 
 	 */
-	private List getUngroupedTools(String ungroupedName, Map<String,List> toolsByGroup, SessionState state, File moreInforDir, Site site) {
+	private List<MyTool> getUngroupedTools(String ungroupedName, Map<String, List<MyTool>> toolsByGroup, SessionState state, File moreInforDir, Site site) {
 		// Get all tools for site
 		List ungroupedToolsOld = (List) state.getAttribute(STATE_TOOL_REGISTRATION_LIST);
 		
@@ -6540,7 +6527,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	 * @param	site				current site
 	 * @return	list of MyTool items 
 	 */
-	private List getLtiToolGroup(String groupName, File moreInfoDir, Site site) {
+	private List<MyTool> getLtiToolGroup(String groupName, File moreInfoDir, Site site) {
 		List ltiSelectedTools = selectedLTITools(site);
 		List <MyTool> ltiTools = new ArrayList<>();
 		List<Map<String, Object>> allTools;
