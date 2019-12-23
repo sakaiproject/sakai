@@ -3573,24 +3573,6 @@ public class AssignmentAction extends PagedResourceActionII {
         String siteId = (String) state.getAttribute(STATE_CONTEXT_STRING);
         String toolId = toolManager.getCurrentPlacement().getId();
 
-        /*
-        List<BasicUser> submitters
-            = userSubmissions.stream().map(ss -> {
-
-                BasicUser bu = new BasicUser(ss.getUser());
-                String ref = AssignmentReferenceReckoner.reckoner().submission(ss.submission).reckon().getReference();
-                bu.url = serverConfigurationService.getPortalUrl() + "/site/" + siteId + "/tool/" + toolId + "?assignmentId=" + assignmentRef + "&submissionId=" + ref + "&panel=Main&sakai_action=doGrade_submission";
-                return bu;
-            }).collect(Collectors.toList());
-
-        try {
-            String jsonSubmitters = new ObjectMapper().writeValueAsString(submitters);
-            context.put("jsonSubmitters", jsonSubmitters);
-        } catch (Exception e) {
-            log.error("Failed to set jsonSubmitters variable in grading template", e);
-        }
-        */
-
         String template = (String) getContext(data).get("template");
 
         boolean useSakaiGrader = false;
