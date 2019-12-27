@@ -42,6 +42,10 @@ class SakaiGroupPicker extends SakaiElement {
 
   get siteId() { return this._siteId; }
 
+  shouldUpdate(changedProps) {
+    return this.i18n;
+  }
+
   render() {
 
     return html`
