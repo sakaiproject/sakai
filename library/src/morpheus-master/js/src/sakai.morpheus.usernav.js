@@ -331,13 +331,11 @@ $PBJQ(document).ready( function(){
   });
 
   $PBJQ("body").on("minimise-tool", e => minimiseTool());
-});
 
-/////////////////////////////////////////////////
-// Add become user to body as a class
-////////////////////////////////////////////////
-$PBJQ(document).ready( function(){
-    if ( $PBJQ('#loginLink1').find('.Mrphs-login-Message').text().startsWith("Return") ){
-        $PBJQ('body').addClass('Mrphs-become-user-enabled');
-    }
+  /////////////////////////////////////////////////
+  // Add become user to body as a class
+  ////////////////////////////////////////////////
+  if (portal.user.impersonatorDisplayId) {
+    $PBJQ("body").addClass("Mrphs-become-user-enabled");
+  }
 });
