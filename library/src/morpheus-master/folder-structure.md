@@ -25,6 +25,8 @@ We are going to focus in this document on the `sass` folder, which is where you 
 In the `base` directory you can find the default styles that will be used all along the platform regardless of where we are inside Sakai or, what we decide to load with the `sakai.properties` file. We're going to go explain every file in alphabetical order.
 ​
 - `_bootstrap-defaults.scss`. Since we have added the Bootstrap library, we’ve needed to add this file to make possible to modify the default styles of this library to maintain consistency between Sakai’s typografies and colours although we are using different libraries. If you want to customize your own theme maybe you will need to modify this variables.
+- `_material-defaults.scss`. In Sakai 20.x, the option to enable several design elements from Google's material
+design library were introduced. This file contains several boolean variables that enable the various functionality.
 - `_compass.scss`, Up until recently we were compiling Morpheus with JRuby + Compass. When we deleted that dependency we needed to put into this file the dependencies of the compass mixins that we were using related primarily with CSS3 features and browser differences.
 - `_defaults.scss`, are the styles for default HTML tags (`body`, links, `input`).
 - `_extendables.scss`, this file contains functions and classes created for morpheus that are been used all along the skin. For example, style definition for buttons and form selects (`.btn`, `.select`) that are used after to define `input` and `select` tags into the `_defaults.scss` file in this directory. You can also use those classes to extend / inherit the behaviour of them into another tag or class. For example, making a link look like a button.

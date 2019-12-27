@@ -74,7 +74,8 @@
 			&.#{$namespace}skipNav__menuitem.#{$namespace}skipNav__menuitem--tools {
 				@include display-flex;
 				background: $portal-background-color;
-				box-shadow: $divider-shadow;
+				box-shadow: $divider-shadow-fixed;
+				
 
 				a {
 					float: left;

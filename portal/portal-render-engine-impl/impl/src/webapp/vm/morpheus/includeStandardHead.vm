@@ -37,7 +37,8 @@
                     "id": "$!{userId}",
                     "eid": "$!{userEid}",
                     "userType": "$!{userType}",
-                    "siteRole": "$!{userSiteRole}"
+                    "siteRole": "$!{userSiteRole}",
+                    "impersonatorDisplayId": "$!{impersonatorDisplayId}"
                 },
                 "timeoutDialog" : {
                 "enabled": $!{timeoutDialogEnabled},
