@@ -137,7 +137,7 @@
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20090211</version>
+            <version>${sakai.org.json.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jumpmind.symmetric</groupId>
