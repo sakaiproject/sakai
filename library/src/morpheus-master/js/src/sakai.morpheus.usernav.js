@@ -333,4 +333,11 @@ $PBJQ(document).ready( function(){
   });
 
   $PBJQ("body").on("minimise-tool", e => minimiseTool());
+
+  /////////////////////////////////////////////////
+  // Add become user to body as a class
+  ////////////////////////////////////////////////
+  if (portal.user.impersonatorDisplayId) {
+    $PBJQ("body").addClass("Mrphs-become-user-enabled");
+  }
 });

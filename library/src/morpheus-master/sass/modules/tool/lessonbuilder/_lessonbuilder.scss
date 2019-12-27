@@ -72,7 +72,43 @@
 	#content {
 			padding-top: 0;
 	}
-	
+	.portletBody {
+		.column {
+			border: $lessons-column-border;
+		}
+		.mainList {
+			div:hover {
+				&.canEdit {
+					background-color: $lessons-item-hover-background;
+					box-shadow: $lessons-item-hover-shadow;
+				}
+			}
+			.canEdit {
+				border-top: $lessons-item-border-top;
+				border-right: $lessons-item-border-right;
+				border-bottom: $lessons-item-border-bottom;
+				border-left: $lessons-item-border-left;
+		
+			}
+			div.item,
+			div.textType,
+			div.multimediaType,
+			div.checklistType {
+				margin:0;
+				padding: calc(#{$standard-spacing} / 2) 0;
+			}
+			div.item:hover,
+			div.item:focus,
+			div.item:active {
+				.edit-col {
+					display: $lessons-item-edit-hover-display;
+				}	
+			}
+			.edit-col {
+				display: $lessons-item-edit-display;
+			}
+		}
+	}
 	.topaction {
 		position: absolute;
 		top: 0;

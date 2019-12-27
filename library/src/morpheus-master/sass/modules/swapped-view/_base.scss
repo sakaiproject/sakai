@@ -7,3 +7,10 @@
 		}
 	}
 }
+
+// Admin Become User view
+body.Mrphs-become-user-enabled {
+	.#{$namespace}topHeader, .#{$namespace}headerLogo {
+		background: $become-user-primary;
+	}
+}
