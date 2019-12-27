@@ -76,7 +76,7 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
     this._submission = newValue;
     this.modified = false;
     this.saved = false;
-    if (newValue.properties["allow_resubmit_number"]) {
+    if (newValue.properties && newValue.properties["allow_resubmit_number"]) {
       this.showResubmission = true;
       this.resubmitDate = moment(parseInt(newValue.properties["allow_resubmit_closeTime"], 10)).format();
     }
