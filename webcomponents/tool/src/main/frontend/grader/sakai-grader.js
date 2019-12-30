@@ -26,7 +26,8 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
     this.hasUnsubmitted = false;
     this.resubmitNumber = "1";
 
-    this.loadTranslations("grader").then(t => this.i18n = t);
+    this.i18nPromise = this.loadTranslations("grader");
+    this.i18nPromise.then(t => this.i18n = t);
   }
 
   static get properties() {
@@ -65,7 +66,7 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
   set gradableId(newValue) {
 
     this._gradableId = newValue;
-    this.loadData(newValue);
+    this.i18nPromise.then(() => this.loadData(newValue));
   }
 
   get gradableId() { return this._gradableId; }
