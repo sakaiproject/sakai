@@ -83,7 +83,7 @@ sakai-grader {
   .grader {
     flex: 0 0 auto;
     padding: 5px;
-    width: 350px;
+    width: 380px;
     border-left: 1px black solid;
 
     &.on-left {
@@ -257,6 +257,13 @@ sakai-grader {
 
   .grader-returned {
     margin-left: 5px;
+  }
+
+  .action-button-block {
+    button {
+      //font-size: smaller;
+      padding: 7px 9px;
+    }
   }
 }
 
