@@ -1254,16 +1254,19 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
             this.id = as.getId();
             this.gradableId = as.getAssignment().getId();
-            this.submittedText = as.getSubmittedText();
-            this.dateSubmitted = as.getDateSubmitted();
             this.submitted = as.getSubmitted();
-            this.submittedAttachments = as.getAttachments();
+            if (this.submitted) {
+                this.submittedText = as.getSubmittedText();
+                this.dateSubmitted = as.getDateSubmitted();
+                if (dateSubmitted != null) {
+                    this.late = dateSubmitted.compareTo(as.getAssignment().getDueDate()) > 0;
+                }
+                this.submittedAttachments = as.getAttachments();
+            }
+            this.submitters
+                = as.getSubmitters().stream().map(ass -> new SimpleSubmitter(ass)).collect(Collectors.toList());
             this.groupId = as.getGroupId();
             this.userSubmission = as.getUserSubmission();
-            Instant dateSubmitted = as.getDateSubmitted();
-            if (dateSubmitted != null) {
-                this.late = dateSubmitted.compareTo(as.getAssignment().getDueDate()) > 0;
-            }
             this.returned = as.getReturned();
             this.feedbackText = as.getFeedbackText();
             this.feedbackComment = as.getFeedbackComment();
@@ -1271,9 +1274,6 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             this.feedbackAttachments = as.getFeedbackAttachments();
             this.graded = as.getGraded();
             this.properties = as.getProperties();
-
-            this.submitters
-                = as.getSubmitters().stream().map(ass -> new SimpleSubmitter(ass)).collect(Collectors.toList());
         }
     }
 
