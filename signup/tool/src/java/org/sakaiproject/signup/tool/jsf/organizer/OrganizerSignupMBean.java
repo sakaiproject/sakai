@@ -23,6 +23,7 @@ import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import javax.faces.component.UIData;
 import javax.faces.component.UIInput;
@@ -273,17 +274,18 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 	 * @return
 	 */
 	private AttendeeWrapper findAttendee(String timeslotId, String userId) {
-		if (getTimeslotWrappers() == null || getTimeslotWrappers().isEmpty())
+		List<TimeslotWrapper> timeslotWrappers = getTimeslotWrappers();
+		if (timeslotWrappers == null || timeslotWrappers.isEmpty()) {
 			return null;
+		}
 
-		String timeslotPeriod = null;
-		for (TimeslotWrapper wrapper : getTimeslotWrappers()) {
+		Locale userLocale = Utilities.rb.getLocale();
+
+		for (TimeslotWrapper wrapper : timeslotWrappers) {
 			if (wrapper.getTimeSlot().getId().toString().equals(timeslotId)) {
-				timeslotPeriod = getSakaiFacade().getTimeService().newTime(
-						wrapper.getTimeSlot().getStartTime().getTime()).toStringLocalTime()
+				String timeslotPeriod = getSakaiFacade().getTimeService().timeFormatShort(wrapper.getTimeSlot().getStartTime(), userLocale)
 						+ " - "
-						+ getSakaiFacade().getTimeService().newTime(wrapper.getTimeSlot().getEndTime().getTime())
-								.toStringLocalTime();
+						+ getSakaiFacade().getTimeService().timeFormatShort(wrapper.getTimeSlot().getEndTime(), userLocale);
 				List<AttendeeWrapper> attWrp = wrapper.getAttendeeWrappers();
 				for (AttendeeWrapper att : attWrp) {
 					if (att.getSignupAttendee().getAttendeeUserId().equals(userId)) {
