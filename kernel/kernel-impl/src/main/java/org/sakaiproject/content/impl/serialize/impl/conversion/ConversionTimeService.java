@@ -196,8 +196,7 @@ public class ConversionTimeService implements TimeService
 
 	@Override
 	public String timeFormatShort(Date date, Locale locale) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
 	}
 
 	@Override
