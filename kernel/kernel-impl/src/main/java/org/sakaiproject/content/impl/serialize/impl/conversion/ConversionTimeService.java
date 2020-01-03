@@ -195,7 +195,53 @@ public class ConversionTimeService implements TimeService
 	}
 
 	@Override
+	public String timeFormatShort(Date date, Locale locale) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String timeFormatMedium(Date date, Locale locale) {
+		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
+	}
+
+	@Override
+	public String timeFormatLong(Date date, Locale locale) {
+		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
+	}
+
+	@Override
+	public String dateFormatShort(Date date, Locale locale) {
+		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
+	}
+
+	@Override
+	public String dateFormatMedium(Date date, Locale locale) {
+		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
+	}
+
+	@Override
 	public String dateFormatLong(Date date, Locale locale) {
+		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
+	}
+
+	@Override
+	public String dayOfWeekFormatShort(Date date, Locale locale) {
+		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
+	}
+
+	@Override
+	public String dayOfWeekFormatLong(Date date, Locale locale) {
+		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
+	}
+
+	@Override
+	public String dateTimeFormatShort(Date date, Locale locale) {
+		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
+	}
+
+	@Override
+	public String dateTimeFormatMedium(Date date, Locale locale) {
 		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
 	}
 
@@ -228,4 +274,10 @@ public class ConversionTimeService implements TimeService
 	public String shortPreciseLocalizedTimestamp(Instant instant, Locale locale) {
 		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
 	}
+
+	@Override
+	public Date parseISODateInUserTimezone(String dateString) {
+		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
+	}
+
 }

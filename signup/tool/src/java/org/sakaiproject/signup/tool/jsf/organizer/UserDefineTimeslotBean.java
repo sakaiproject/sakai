@@ -415,11 +415,11 @@ public class UserDefineTimeslotBean implements SignupBeanConstants {
 			}
 
 			if(DateFormatterUtil.isValidISODate(isoStartTime)){
-				tsWrp.getTimeSlot().setStartTime(DateFormatterUtil.parseISODate(isoStartTime));
+				tsWrp.getTimeSlot().setStartTime(sakaiFacade.getTimeService().parseISODateInUserTimezone(isoStartTime));
 			}
 			
 			if(DateFormatterUtil.isValidISODate(isoEndTime)){
-				tsWrp.getTimeSlot().setEndTime(DateFormatterUtil.parseISODate(isoEndTime));
+				tsWrp.getTimeSlot().setEndTime(sakaiFacade.getTimeService().parseISODateInUserTimezone(isoEndTime));
 			}
 			Date endTime = tsWrp.getTimeSlot().getEndTime();
 			Date startTime = tsWrp.getTimeSlot().getStartTime();

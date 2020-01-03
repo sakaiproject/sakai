@@ -34,17 +34,89 @@ public interface UserTimeService {
      * @return true if successful
      */
     boolean clearLocalTimeZone(String userId);
-    
+
     /**
-     * Gets the date formatter with the given formatting style for the default Long locale.
+     * Gets the time formatter with the given formatting style in the user's locale and preferred timezone.
+     * @param date
+     * @param locale
+     * @return
+     */
+    public String  timeFormatShort(Date date, Locale locale);
+
+    /**
+     * Gets the time formatter with the given formatting style in the user's locale and preferred timezone.
+     * @param date
+     * @param locale
+     * @return
+     */
+    public String  timeFormatMedium(Date date, Locale locale);
+
+    /**
+     * Gets the time formatter with the given formatting style in the user's locale and preferred timezone.
+     * @param date
+     * @param locale
+     * @return
+     */
+    public String  timeFormatLong(Date date, Locale locale);
+
+    /**
+     * Gets the date formatter with the given formatting style in the user's locale and preferred timezone.
+     * @param date
+     * @param locale
+     * @return
+     */
+    public String  dateFormatShort(Date date, Locale locale);
+
+    /**
+     * Gets the date formatter with the given formatting style in the user's locale and preferred timezone.
+     * @param date
+     * @param locale
+     * @return
+     */
+    public String  dateFormatMedium(Date date, Locale locale);
+
+    /**
+     * Gets the date formatter with the given formatting style in the user's locale and preferred timezone.
      * @param date
      * @param locale
      * @return
      */
     public String  dateFormatLong(Date date, Locale locale);
-    
+
     /**
-     * Gets the date/time formatter with the given formatting style for the default Long locale. 
+     * Gets the day of week localized and in the user's preferred timezone.
+     * @param date
+     * @param locale
+     * @return
+     */
+    public String dayOfWeekFormatShort(Date date, Locale locale);
+
+    /**
+     * Gets the day of week localized and in the user's preferred timezone.
+     * @param date
+     * @param locale
+     * @return
+     */
+    public String dayOfWeekFormatLong(Date date, Locale locale);
+
+    /**
+     * Gets the date/time formatter with the given formatting style in the user's locale and preferred timezone.
+     * @param date
+     * @param locale
+     * @return
+     */
+
+    public String  dateTimeFormatShort(Date date, Locale locale);
+    /**
+     * Gets the date/time formatter with the given formatting style in the user's locale and preferred timezone.
+     * @param date
+     * @param locale
+     * @return
+     */
+    public String  dateTimeFormatMedium(Date date, Locale locale);
+
+    /**
+     * Gets the date/time formatter with the given formatting style in the user's locale and preferred timezone.
      * @param date
      * @param locale
      * @return
@@ -101,4 +173,14 @@ public interface UserTimeService {
      * @return a formatted date for presentation to the user
      */
     public String shortLocalizedDate(LocalDate date, Locale locale);
+
+    /**
+     * A helper function to parse dates from the Sakai date/time picker.
+     * Useful because Javascript Date object uses the client computer timezone
+     * and not the user's preferred Sakai timezone.
+     * @param dateString An ISO8601 date with zone info like 2015-02-19T02:25:00-06:00
+     * @return a Date object localized to the user's preferred Sakai time zone
+     */
+	public Date parseISODateInUserTimezone(String dateString);
+
 }

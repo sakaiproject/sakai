@@ -524,7 +524,7 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 
 		List<SelectItem> list = new ArrayList<SelectItem>();
 		for (TimeslotWrapper wrapper : timeslotWrapperList) {
-			list.add(new SelectItem(wrapper.getTimeSlot().getId().toString(), wrapper.getLabel()));
+			list.add(new SelectItem(wrapper.getTimeSlot().getId().toString(), wrapper.getLabel(sakaiFacade)));
 		}
 
 		/*
@@ -543,7 +543,7 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 	private void createUISwapListForEachTimeSlot(List<TimeslotWrapper> timeslotWrapperList) {
 		List<SelectItem> tsAttendeeGroups = new ArrayList<SelectItem>();
 		for (TimeslotWrapper wrapper : timeslotWrapperList) {
-			String grpLabel = wrapper.getLabel();
+			String grpLabel = wrapper.getLabel(sakaiFacade);
 			List<SelectItem> attendeeOnTS = new ArrayList<SelectItem>();
 			
 			//clean the list of attendees

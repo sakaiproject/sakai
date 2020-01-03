@@ -1019,8 +1019,53 @@ public class BasicTimeService implements TimeService
 	}
 
 	@Override
+	public String timeFormatShort(Date date, Locale locale) {
+		return userTimeService.timeFormatShort(date, locale);
+	}
+	
+	@Override
+	public String timeFormatMedium(Date date, Locale locale) {
+		return userTimeService.timeFormatMedium(date, locale);
+	}
+
+	@Override
+	public String timeFormatLong(Date date, Locale locale) {
+		return userTimeService.timeFormatLong(date, locale);
+	}
+
+	@Override
+	public String dateFormatShort(Date date, Locale locale) {
+		return userTimeService.dateFormatShort(date, locale);
+	}
+
+	@Override
+	public String dateFormatMedium(Date date, Locale locale) {
+		return userTimeService.dateFormatMedium(date, locale);
+	}
+
+	@Override
 	public String dateFormatLong(Date date, Locale locale) {
 		return userTimeService.dateFormatLong(date, locale);
+	}
+
+	@Override
+	public String dayOfWeekFormatShort(Date date, Locale locale) {
+		return userTimeService.dayOfWeekFormatShort(date, locale);
+	}
+
+	@Override
+	public String dayOfWeekFormatLong(Date date, Locale locale) {
+		return userTimeService.dayOfWeekFormatLong(date, locale);
+	}
+
+	@Override
+	public String dateTimeFormatShort(Date date, Locale locale) {
+		return userTimeService.dateTimeFormatShort(date, locale);
+	}
+
+	@Override
+	public String dateTimeFormatMedium(Date date, Locale locale) {
+		return userTimeService.dateTimeFormatMedium(date, locale);
 	}
 
 	@Override
@@ -1052,4 +1097,10 @@ public class BasicTimeService implements TimeService
 	public String shortPreciseLocalizedTimestamp(Instant instant, Locale locale) {
 		return userTimeService.shortPreciseLocalizedTimestamp(instant, getLocalTimeZone(), locale);
 	}
+
+	@Override
+	public Date parseISODateInUserTimezone(String dateString) {
+		return userTimeService.parseISODateInUserTimezone(dateString);
+	}
+
 }
