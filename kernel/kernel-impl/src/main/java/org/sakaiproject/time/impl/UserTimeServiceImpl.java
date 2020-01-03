@@ -110,17 +110,17 @@ public class UserTimeServiceImpl implements UserTimeService {
 
     @Override
     public String timeFormatShort(Date time, Locale locale) {
-    	return timeFormat(time, locale, DateFormat.SHORT);
+        return timeFormat(time, locale, DateFormat.SHORT);
     }
 
     @Override
     public String timeFormatMedium(Date time, Locale locale) {
-    	return timeFormat(time, locale, DateFormat.MEDIUM);
+        return timeFormat(time, locale, DateFormat.MEDIUM);
     }
 
     @Override
     public String timeFormatLong(Date time, Locale locale) {
-    	return timeFormat(time, locale, DateFormat.LONG);
+        return timeFormat(time, locale, DateFormat.LONG);
     }
 
     private String timeFormat(Date time, Locale locale, int df) {
@@ -133,17 +133,17 @@ public class UserTimeServiceImpl implements UserTimeService {
 
     @Override
     public String dateFormatShort(Date date, Locale locale) {
-    	return dateFormat(date, locale, DateFormat.SHORT);
+        return dateFormat(date, locale, DateFormat.SHORT);
     }
 
     @Override
     public String dateFormatMedium(Date date, Locale locale) {
-    	return dateFormat(date, locale, DateFormat.MEDIUM);
+        return dateFormat(date, locale, DateFormat.MEDIUM);
     }
 
     @Override
     public String dateFormatLong(Date date, Locale locale) {
-    	return dateFormat(date, locale, DateFormat.LONG);
+        return dateFormat(date, locale, DateFormat.LONG);
     }
 
     private String dateFormat(Date date, Locale locale, int df) {
@@ -156,17 +156,17 @@ public class UserTimeServiceImpl implements UserTimeService {
 
     @Override
     public String dateTimeFormatShort(Date date, Locale locale) {
-    	return dateTimeFormat(date, locale, DateFormat.SHORT);
+        return dateTimeFormat(date, locale, DateFormat.SHORT);
     }
 
     @Override
     public String dateTimeFormatMedium(Date date, Locale locale) {
-    	return dateTimeFormat(date, locale, DateFormat.MEDIUM);
+        return dateTimeFormat(date, locale, DateFormat.MEDIUM);
     }
 
     @Override
     public String dateTimeFormatLong(Date date, Locale locale) {
-    	return dateTimeFormat(date, locale, DateFormat.LONG);
+        return dateTimeFormat(date, locale, DateFormat.LONG);
     }
 
 	private String dateTimeFormat(Date date, Locale locale, int df) {
@@ -179,16 +179,16 @@ public class UserTimeServiceImpl implements UserTimeService {
 
     @Override
     public String dayOfWeekFormatShort(Date date, Locale locale) {
-    	return dayOfWeekFormat(date, locale, "E");
+        return dayOfWeekFormat(date, locale, "E");
     }
 
     @Override
     public String dayOfWeekFormatLong(Date date, Locale locale) {
-    	return dayOfWeekFormat(date, locale, "EEEE");
+        return dayOfWeekFormat(date, locale, "EEEE");
     }
 
     private String dayOfWeekFormat(Date date, Locale locale, String format) {
-    	log.debug("dateTimeFormat: {}, {}, {}", date.toString(), locale.toString(), format);
+        log.debug("dateTimeFormat: {}, {}, {}", date.toString(), locale.toString(), format);
 
         DateFormat dsf = new SimpleDateFormat(format, locale);
         dsf.setTimeZone(getLocalTimeZone());
@@ -230,30 +230,30 @@ public class UserTimeServiceImpl implements UserTimeService {
 
     @Override
     public Date parseISODateInUserTimezone(final String dateString) {
-    	// Hidden field from the datepicker will look like: 2015-02-19T02:25:00-06:00
-    	// JavaScript Date will always be the computer timezone and not the user's Sakai-preferred timezone
-    	// So we should ignore the browser-provided timezone and assume the user is working in their Sakai-preferred timezone
-    	final String localDateString = StringUtils.left(dateString, 19);
-    	LocalDateTime ldt = LocalDateTime.parse(localDateString);
-    	log.debug("parseISODateInUserTimezone: string={}, localDate={}", dateString, ldt.toString());
-    	
-    	TimeZone clientTimezone = getLocalTimeZone();
-    	TimeZone serverTimezone = TimeZone.getDefault();
+        // Hidden field from the datepicker will look like: 2015-02-19T02:25:00-06:00
+        // JavaScript Date will always be the computer timezone and not the user's Sakai-preferred timezone
+        // So we should ignore the browser-provided timezone and assume the user is working in their Sakai-preferred timezone
+        final String localDateString = StringUtils.left(dateString, 19);
+        LocalDateTime ldt = LocalDateTime.parse(localDateString);
+        log.debug("parseISODateInUserTimezone: string={}, localDate={}", dateString, ldt.toString());
 
-    	if (ldt != null && clientTimezone != null && serverTimezone != null && !clientTimezone.hasSameRules(serverTimezone)) {
-    		ZonedDateTime zdt = ldt.atZone(clientTimezone.toZoneId());
-    		log.debug("parseISODateInUserTimezone: original={}, zoned={}", dateString, zdt.toString());
-    		return Date.from(zdt.toInstant());
-    	}
-    	else if (ldt != null && serverTimezone != null) {
-    		ZonedDateTime zdt = ldt.atZone(serverTimezone.toZoneId());
-    		return Date.from(zdt.toInstant());
-    	}
-    	else if (ldt != null) {
-    		return Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
-    	}
+        TimeZone clientTimezone = getLocalTimeZone();
+        TimeZone serverTimezone = TimeZone.getDefault();
 
-    	return null;
+        if (ldt != null && clientTimezone != null && serverTimezone != null && !clientTimezone.hasSameRules(serverTimezone)) {
+            ZonedDateTime zdt = ldt.atZone(clientTimezone.toZoneId());
+            log.debug("parseISODateInUserTimezone: original={}, zoned={}", dateString, zdt.toString());
+            return Date.from(zdt.toInstant());
+        }
+        else if (ldt != null && serverTimezone != null) {
+            ZonedDateTime zdt = ldt.atZone(serverTimezone.toZoneId());
+            return Date.from(zdt.toInstant());
+        }
+        else if (ldt != null) {
+            return Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
+        }
+
+        return null;
     }
 
 }
