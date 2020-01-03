@@ -169,7 +169,7 @@ public class UserTimeServiceImpl implements UserTimeService {
         return dateTimeFormat(date, locale, DateFormat.LONG);
     }
 
-	private String dateTimeFormat(Date date, Locale locale, int df) {
+    private String dateTimeFormat(Date date, Locale locale, int df) {
         log.debug("dateTimeFormat: {}, {}, {}", date.toString(), locale.toString(), df);
 
         DateFormat dsf = DateFormat.getDateTimeInstance(df, df, locale);
