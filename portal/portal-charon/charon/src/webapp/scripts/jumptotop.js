@@ -1,3 +1,4 @@
+/*global portal*/
 /**
  * SAK-42483 Jump-to-Top Behavior
  */
@@ -5,6 +6,11 @@
 
   function JumpToTop() {
     
+    // Don't run this if i18n is not yet available
+    if (typeof portal.i18n.loadProperties !== 'function') {
+      return;
+    }
+
     this.$link = $("<a>");
     this.$link.attr("id", "jumptotop");
     this.$link.addClass("jumptotop");
