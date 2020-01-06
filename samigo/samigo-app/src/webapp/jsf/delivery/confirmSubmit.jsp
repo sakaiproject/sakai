@@ -127,7 +127,7 @@ function saveTime()
         <h:panelGroup layout="block" styleClass="col-sm-2">
             <h:outputLabel value="#{deliveryMessages.course_name}"/>
         </h:panelGroup>
-        <h:panelGroup layout="block" styleClass="col-sm-2">
+        <h:panelGroup layout="block" styleClass="col-sm-10">
             <h:outputText value="#{delivery.courseName}" />
         </h:panelGroup>
     </h:panelGroup>
@@ -135,7 +135,7 @@ function saveTime()
         <h:panelGroup layout="block" styleClass="col-sm-2">
             <h:outputLabel  value="#{deliveryMessages.creator}" />
         </h:panelGroup>
-        <h:panelGroup layout="block" styleClass="col-sm-2">
+        <h:panelGroup layout="block" styleClass="col-sm-10">
             <h:outputText value="#{delivery.creatorName}"/>
         </h:panelGroup>
     </h:panelGroup>
@@ -143,7 +143,7 @@ function saveTime()
         <h:panelGroup layout="block" styleClass="col-sm-2">
             <h:outputLabel value="#{deliveryMessages.assessment_title}"/>
         </h:panelGroup>
-        <h:panelGroup layout="block" styleClass="col-sm-2">
+        <h:panelGroup layout="block" styleClass="col-sm-10">
             <h:outputText value="#{delivery.assessmentTitle}" escape="false"/>
         </h:panelGroup>
     </h:panelGroup>
