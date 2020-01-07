@@ -1190,7 +1190,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     				forwardingEnabled = true;
 					fAddresses.add(new InternetAddress(oldPf.getAutoForwardEmail()));
     			}
-				if (oldPf != null && (oldPf.getAutoForward().intValue()==PrivateForumImpl.AUTO_FOWARD_DEFAULT) && submitterEmailReceiptPref==PrivateForumImpl.AUTO_FOWARD_YES) {
+        		if (oldPf != null && (oldPf.getAutoForward().intValue()==PrivateForumImpl.AUTO_FOWARD_DEFAULT) && submitterEmailReceiptPref==PrivateForumImpl.AUTO_FOWARD_YES) {
 					oldPf.setAutoForwardEmail(mailAFoward);
 					forwardingEnabled = true;
 					fAddresses.add(new InternetAddress(oldPf.getAutoForwardEmail()));
