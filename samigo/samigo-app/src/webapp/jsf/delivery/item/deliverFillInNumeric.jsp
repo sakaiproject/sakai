@@ -56,7 +56,7 @@ should be included in file importing DeliveryMessages
         rendered="#{delivery.feedback eq 'true' &&
                     delivery.feedbackComponent.showCorrectResponse &&
                     answer.isCorrect && answer.hasInput && !delivery.noFeedback=='true' && 
-                    !delivery.isAnyInvalidFinInput}" >
+                    !delivery.anyInvalidFinInput}" >
       </h:panelGroup>
       <h:panelGroup styleClass="icon-sakai--delete feedBackCross" id="ximage"
         rendered="#{delivery.feedback eq 'true' &&
