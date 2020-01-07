@@ -15,12 +15,42 @@ portal.updateToolsCollapsedPref = function (collapsed) {
 	}
 };
 
-portal.toggleMinimizeNav = function (options) {
+portal.updateMaximisedToolsPref = function (maximised) {
 
-  if (options) {
-    if (options.forceMin && portal.toolsCollapsed) return;
-    if (options.forceMax && !portal.toolsCollapsed) return;
-  }
+	if (portal.user.id) {
+		var url = '/direct/userPrefs/updateKey/' + portal.user.id + '/sakai:portal:sitenav?toolMaximised=' + maximised;
+		$PBJQ.ajax(url, {method: 'PUT', cache: false});
+	}
+};
+
+portal.maximiseTool = function () {
+
+  document.getElementsByTagName("body").item(0).classList.add("tool-maximised");
+  portal.updateMaximisedToolsPref(true);
+  $PBJQ("sakai-maximise-button").each((i ,e) => e.setMaximised());
+
+  $PBJQ(document)
+    .off('keyup.usernav')
+    .on("keyup.maximise", e => {
+
+      // Exit fullscreen mode on escape
+      if (e.keyCode === 27) {
+        e.stopPropagation();
+        $PBJQ(document).off("keyup.maximise");
+        $PBJQ("sakai-maximise-button").each((i ,e) => e.minimise());
+      }
+    });
+}
+
+portal.minimiseTool = function () {
+
+  document.getElementsByTagName("body").item(0).classList.remove("tool-maximised");
+  portal.updateMaximisedToolsPref(false);
+  $PBJQ(document).off("keyup.maximise");
+  $PBJQ("sakai-maximise-button").each((i ,e) => e.setMinimised());
+}
+
+portal.toggleMinimizeNav = function () {
 
   $PBJQ("body").toggleClass("Mrphs-toolMenu-collapsed");
 
