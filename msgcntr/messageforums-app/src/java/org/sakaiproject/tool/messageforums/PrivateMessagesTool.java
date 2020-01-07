@@ -443,15 +443,15 @@ public class PrivateMessagesTool {
       sendToEmail = area.getSendToEmail() + "";
 
       switch (pf.getAutoForward()) {
-      case PrivateForumImpl.AUTO_FOWARD_YES:
-    	  forwardPvtMsg = SET_AS_YES;
-    	  break;
-      case PrivateForumImpl.AUTO_FOWARD_NO:
-    	  forwardPvtMsg = SET_AS_NO;
-    	  break;
-      default:
-    	  forwardPvtMsg = SET_AS_DEFAULT;
-    	  break;
+	      case PrivateForumImpl.AUTO_FOWARD_YES:
+	    	  forwardPvtMsg = SET_AS_YES;
+	    	  break;
+	      case PrivateForumImpl.AUTO_FOWARD_NO:
+	    	  forwardPvtMsg = SET_AS_NO;
+	    	  break;
+	      default:
+	    	  forwardPvtMsg = SET_AS_DEFAULT;
+	    	  break;
       }
 
       forwardPvtMsgEmail = pf.getAutoForwardEmail();
@@ -3312,15 +3312,15 @@ public void processChangeSelectView(ValueChangeEvent eve)
     /** block executes when changing value to "no" */
 
     switch (forwardPvtMsg) {
-    case SET_AS_YES:
-    	setForwardPvtMsgEmail(null);
-    	break;
-    case SET_AS_NO:
-    	setValidEmail(true);
-    	break;
-    default:
-    	setValidEmail(true);
-    	break;
+	    case SET_AS_YES:
+	    	setForwardPvtMsgEmail(null);
+	    	break;
+	    case SET_AS_NO:
+	    	setValidEmail(true);
+	    	break;
+	    default:
+	    	setValidEmail(true);
+	    	break;
     }
   }
   
@@ -3357,15 +3357,15 @@ public void processChangeSelectView(ValueChangeEvent eve)
       }
 
       switch (forward) {
-      case SET_AS_YES:
-    	  forum.setAutoForward(PrivateForumImpl.AUTO_FOWARD_YES);
-    	  break;
-      case SET_AS_NO:
-    	  forum.setAutoForward(PrivateForumImpl.AUTO_FOWARD_NO);
-    	  break;
-      default:
-    	  forum.setAutoForward(PrivateForumImpl.AUTO_FOWARD_DEFAULT);
-    	  break;
+	      case SET_AS_YES:
+	    	  forum.setAutoForward(PrivateForumImpl.AUTO_FOWARD_YES);
+	    	  break;
+	      case SET_AS_NO:
+	    	  forum.setAutoForward(PrivateForumImpl.AUTO_FOWARD_NO);
+	    	  break;
+	      default:
+	    	  forum.setAutoForward(PrivateForumImpl.AUTO_FOWARD_DEFAULT);
+	    	  break;
       }
 
       if (SET_AS_YES.equals(forward)){
