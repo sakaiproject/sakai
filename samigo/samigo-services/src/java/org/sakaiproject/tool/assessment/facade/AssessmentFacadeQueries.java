@@ -387,12 +387,13 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		Iterator iter = count.iterator();
 		int i = ((Long) iter.next()).intValue();
 		AssessmentData assessment = (AssessmentData) getHibernateTemplate().load(AssessmentData.class, assessmentId);
-		if (i < 1) {
+		// SAK-42943 Commented because attachments aren't removed on soft deletion, but this will be handy whenever hard deletion is added
+		/*if (i < 1) {
 			AssessmentService s = new AssessmentService();
 			List resourceIdList = s.getAssessmentResourceIdList(assessment);
 			if (log.isDebugEnabled()) log.debug("*** we have no. of resource in assessment=" + resourceIdList.size());
 			s.deleteResources(resourceIdList);
-		}
+		}*/
 
 		RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.logic.RubricsService");
 		rubricsService.deleteRubricAssociationsByItemIdPrefix(assessmentId + ".", RubricsConstants.RBCS_TOOL_SAMIGO);
