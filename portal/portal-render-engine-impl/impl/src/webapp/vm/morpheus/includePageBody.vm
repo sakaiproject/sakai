@@ -67,7 +67,7 @@
                                                 <span class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--reset"></span>
                                                 <span class="Mrphs-toolTitleNav__text">${tool.toolRenderResult.getTitle()}</span>
                                             </a>
-					    <span class="Mrphs-toolTitleNav__addLeft"></span>
+					                        <span class="Mrphs-toolTitleNav__addLeft"></span>
                                         </h2>
 
                                     #else
@@ -77,7 +77,7 @@
                                                 <span class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--reset"></span>
                                                 <span class="Mrphs-toolTitleNav__text">${tool.toolRenderResult.getTitle()}</span>
                                             </a>
-					    <span class="Mrphs-toolTitleNav__addLeft"></span>
+                                            <span class="Mrphs-toolTitleNav__addLeft"></span>
                                         </h2>
 
                                     #end ## END of IF ($!{tool.toolInline})
@@ -99,7 +99,7 @@
 
                                 #end ## END of IF (${tool.toolJSR168Edit} )
 
-				                <span class="Mrphs-toolTitleNav__addRight"></span>
+				                    <span class="Mrphs-toolTitleNav__addRight"></span>
                                 #if ( $toolDirectUrlEnabled && ${tool.showDirectToolUrl} )
 
                                     <button class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--directurl" rel="#${tool.toolPlacementIDJS}_directurl" title="${rloader.tool_direct_link}" aria-haspopup="dialog">
@@ -138,6 +138,8 @@
                                     #end ## END of IF (${tool.toolJSR168Help})
 
                                 #end ## END of IF (${tool.toolShowHelpButton})
+
+                                    <sakai-maximise-button #if (${toolMaximised}) full-screen #end></sakai-maximise-button>
 
                                 </div>
 

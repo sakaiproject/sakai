@@ -979,13 +979,9 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     $(window).trigger('resize');
   });
 
-  $("#gb-maximise-button").on("maximise-tool", function () {
-
-    document.getElementById("gradebook-navbar").style.display = "none";
+  $("sakai-maximise-button").on("maximise-tool", function () {
     $(window).trigger('resize');
   }).on("minimise-tool", function () {
-
-    document.getElementById("gradebook-navbar").style.display = "block";
     $(window).trigger('resize');
   });
 

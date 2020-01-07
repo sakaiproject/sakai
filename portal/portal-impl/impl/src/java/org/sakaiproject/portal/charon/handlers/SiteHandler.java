@@ -897,6 +897,7 @@ public class SiteHandler extends WorksiteHandler
 
 			int tabDisplayLabel = 1;
 			boolean toolsCollapsed = false;
+			boolean toolMaximised = false;
 
 			if (loggedIn) 
 			{
@@ -915,10 +916,15 @@ public class SiteHandler extends WorksiteHandler
 				try {
 					toolsCollapsed = props.getBooleanProperty("toolsCollapsed");
 				} catch (Exception any) {}
+
+				try {
+					toolMaximised = props.getBooleanProperty("toolMaximised");
+				} catch (Exception any) {}
 			}
 
 			rcontext.put("tabDisplayLabel", tabDisplayLabel);
 			rcontext.put("toolsCollapsed", Boolean.valueOf(toolsCollapsed));
+			rcontext.put("toolMaximised", Boolean.valueOf(toolMaximised));
 			
 			SiteView siteView = portal.getSiteHelper().getSitesView(
 					SiteView.View.DHTML_MORE_VIEW, req, session, siteId);

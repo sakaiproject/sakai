@@ -8,13 +8,14 @@ class SakaiMaximiseButton extends SakaiElement {
 
     super();
 
-    this.loadTranslations({bundle: "maximise-button"}).then(t => { this.i18n = t; this.requestUpdate(); });
+    this.loadTranslations("maximise-button").then(t => this.i18n = t);
   }
 
   static get properties() {
 
     return {
       fullScreen: { attribute: "full-screen", type: Boolean },
+      i18n: Object,
     };
   }
 
@@ -25,18 +26,16 @@ class SakaiMaximiseButton extends SakaiElement {
   render() {
 
     return html`
-      <div style="display: inline-block;">
       ${this.fullScreen ?
       html`
-          <a href="javascript;" title="${this.i18n["normal_view"]}" @click=${this.minimise}>
-            <fa-icon size="1.3em" class="fas compress-arrows-alt" path-prefix="/webcomponents/assets" />
+          <a class="Mrphs-toolTitleNav__link" href="javascript;" title="${this.i18n["normal_view"]}" @click=${this.minimise}>
+            <fa-icon size="1.0em" class="fas compress-arrows-alt" path-prefix="/webcomponents/assets" />
           </a>`
       : html`
-          <a href="javascript;" title="${this.i18n["fullscreen_view"]}" @click=${this.maximise}>
-            <fa-icon size="1.3em" class="fas expand-arrows-alt" path-prefix="/webcomponents/assets" />
+          <a class="Mrphs-toolTitleNav__link" href="javascript;" title="${this.i18n["fullscreen_view"]}" @click=${this.maximise}>
+            <fa-icon size="1.0em" class="fas expand-arrows-alt" path-prefix="/webcomponents/assets" />
           </a>`
       }
-      </div>
     `;
   }
 
@@ -44,13 +43,19 @@ class SakaiMaximiseButton extends SakaiElement {
 
     e.preventDefault();
 
+    portal.maximiseTool();
+
     this.dispatchEvent(new CustomEvent("maximise-tool", {bubbles: true, composed: true}));
     this.fullScreen = true;
   }
 
   minimise(e) {
 
-    e.preventDefault();
+    if (e) {
+      e.preventDefault();
+    }
+
+    portal.minimiseTool();
 
     this.dispatchEvent(new CustomEvent("minimise-tool", {bubbles: true, composed: true}));
     this.fullScreen = false;
@@ -58,6 +63,10 @@ class SakaiMaximiseButton extends SakaiElement {
 
   setMinimised() {
     this.fullScreen = false;
+  }
+
+  setMaximised() {
+    this.fullScreen = true;
   }
 }
 

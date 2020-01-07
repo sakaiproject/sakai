@@ -295,45 +295,6 @@ $PBJQ(document).ready( function(){
 		$PBJQ(window).trigger('scroll');
 	});
 
-  var minimiseTool = () => {
-
-    $PBJQ(document).off("keypress.maximise");
-
-    portal.toggleMinimizeNav({forceMax: true});
-
-    $PBJQ(".Mrphs-topHeader").show();
-    $PBJQ("#Mrphs-sites-nav").show();
-    $PBJQ(".Mrphs-siteHierarchy").show();
-    $PBJQ("#footer").show();
-    $PBJQ("#presenceToggle").show();
-  };
-
-  $PBJQ("body").on("maximise-tool", e => {
-
-    $PBJQ(document).off('keyup.usernav');
-
-    portal.toggleMinimizeNav({forceMin: true});
-
-    $PBJQ(".Mrphs-topHeader").hide();
-    $PBJQ("#Mrphs-sites-nav").hide();
-    $PBJQ(".Mrphs-siteHierarchy").hide();
-    $PBJQ("#footer").hide();
-    $PBJQ("#presenceToggle").hide();
-
-    $PBJQ(document).on("keyup.maximise", e => {
-
-      // Exit fullscreen mode on escape
-      if (e.keyCode === 27) {
-        minimiseTool();
-        e.stopPropagation();
-        $PBJQ(document).on('keyup.usernav',userNavEscHandler);
-        $PBJQ("sakai-maximise-button").each((i ,e) => e.setMinimised());
-      }
-    });
-  });
-
-  $PBJQ("body").on("minimise-tool", e => minimiseTool());
-
   /////////////////////////////////////////////////
   // Add become user to body as a class
   ////////////////////////////////////////////////

@@ -32,8 +32,25 @@ body.is-logged-out{
 		text-align: right;
 	}
 
+	body.tool-maximised {
+
+		.#{$namespace}topHeader, ##{$namespace}sites-nav, #footer, #presenceToggle {
+			display: none;
+		}
+
+		#toolMenuWrap {
+			max-width: 0px;
+			min-width: 0px;
+			width: 0px;
+		}
+
+		#toolMenu, #subSites:not(.floating) {	// subsites menu, but not the floating one
+			display: none;
+		}
+  }
+
 	// LHS tool menu collapsed to show icons only and not tool titles.
-	body.#{$namespace}toolMenu-collapsed{
+	body.#{$namespace}toolMenu-collapsed:not(.tool-maximised) {
 		#toolMenuWrap{
 			max-width: #{ $tool-menu-width-collapsed };
 			min-width: #{ $tool-menu-width-collapsed };
