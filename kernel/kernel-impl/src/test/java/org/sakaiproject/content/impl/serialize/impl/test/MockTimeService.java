@@ -235,4 +235,34 @@ public class MockTimeService implements TimeService
 	public String shortPreciseLocalizedTimestamp(Instant instant, Locale locale) {
 		return null;
 	}
+
+	@Override
+	public String timeFormat(Date date, Locale locale, int format) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String dateFormat(Date date, Locale locale, int format) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String dayOfWeekFormat(Date date, Locale locale, int format) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String dateTimeFormat(Date date, Locale locale, int format) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Date parseISODateInUserTimezone(String dateString) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
