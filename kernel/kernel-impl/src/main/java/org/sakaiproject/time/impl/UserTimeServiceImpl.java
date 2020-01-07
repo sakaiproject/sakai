@@ -109,21 +109,7 @@ public class UserTimeServiceImpl implements UserTimeService {
     }
 
     @Override
-    public String timeFormatShort(Date time, Locale locale) {
-        return timeFormat(time, locale, DateFormat.SHORT);
-    }
-
-    @Override
-    public String timeFormatMedium(Date time, Locale locale) {
-        return timeFormat(time, locale, DateFormat.MEDIUM);
-    }
-
-    @Override
-    public String timeFormatLong(Date time, Locale locale) {
-        return timeFormat(time, locale, DateFormat.LONG);
-    }
-
-    private String timeFormat(Date time, Locale locale, int df) {
+    public String timeFormat(Date time, Locale locale, int df) {
         log.debug("timeFormat: {}, {}, {}", time.toString(), locale.toString(), df);
 
         DateFormat dsf = DateFormat.getTimeInstance(df, locale);
@@ -132,21 +118,7 @@ public class UserTimeServiceImpl implements UserTimeService {
     }
 
     @Override
-    public String dateFormatShort(Date date, Locale locale) {
-        return dateFormat(date, locale, DateFormat.SHORT);
-    }
-
-    @Override
-    public String dateFormatMedium(Date date, Locale locale) {
-        return dateFormat(date, locale, DateFormat.MEDIUM);
-    }
-
-    @Override
-    public String dateFormatLong(Date date, Locale locale) {
-        return dateFormat(date, locale, DateFormat.LONG);
-    }
-
-    private String dateFormat(Date date, Locale locale, int df) {
+    public String dateFormat(Date date, Locale locale, int df) {
         log.debug("dateFormat: {}, {}, {}", date.toString(), locale.toString(), df);
 
         DateFormat dsf = DateFormat.getDateInstance(df, locale);
@@ -155,21 +127,7 @@ public class UserTimeServiceImpl implements UserTimeService {
     }
 
     @Override
-    public String dateTimeFormatShort(Date date, Locale locale) {
-        return dateTimeFormat(date, locale, DateFormat.SHORT);
-    }
-
-    @Override
-    public String dateTimeFormatMedium(Date date, Locale locale) {
-        return dateTimeFormat(date, locale, DateFormat.MEDIUM);
-    }
-
-    @Override
-    public String dateTimeFormatLong(Date date, Locale locale) {
-        return dateTimeFormat(date, locale, DateFormat.LONG);
-    }
-
-    private String dateTimeFormat(Date date, Locale locale, int df) {
+    public String dateTimeFormat(Date date, Locale locale, int df) {
         log.debug("dateTimeFormat: {}, {}, {}", date.toString(), locale.toString(), df);
 
         DateFormat dsf = DateFormat.getDateTimeInstance(df, df, locale);
@@ -178,16 +136,9 @@ public class UserTimeServiceImpl implements UserTimeService {
     }
 
     @Override
-    public String dayOfWeekFormatShort(Date date, Locale locale) {
-        return dayOfWeekFormat(date, locale, "E");
-    }
+    public String dayOfWeekFormat(Date date, Locale locale, int df) {
+        String format = df > 1 ? "EEEEE" : "E";
 
-    @Override
-    public String dayOfWeekFormatLong(Date date, Locale locale) {
-        return dayOfWeekFormat(date, locale, "EEEE");
-    }
-
-    private String dayOfWeekFormat(Date date, Locale locale, String format) {
         log.debug("dateTimeFormat: {}, {}, {}", date.toString(), locale.toString(), format);
 
         DateFormat dsf = new SimpleDateFormat(format, locale);

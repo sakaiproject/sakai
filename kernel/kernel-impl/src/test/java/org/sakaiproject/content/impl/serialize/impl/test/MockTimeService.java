@@ -212,18 +212,6 @@ public class MockTimeService implements TimeService
 	}
 
 	@Override
-	public String dateFormatLong(Date date, Locale locale) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String dateTimeFormatLong(Date date, Locale locale) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public String shortLocalizedTimestamp(Instant instant, TimeZone timezone, Locale locale) {
 		return null;
 	}

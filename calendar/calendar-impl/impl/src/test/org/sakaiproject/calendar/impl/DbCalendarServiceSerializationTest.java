@@ -437,13 +437,14 @@ public class DbCalendarServiceSerializationTest extends TestCase
 				// TODO Auto-generated method stub
 				return -1;
 			}
+
 			@Override
-			public String dateFormatLong(Date date, Locale locale) {
+			public String dateFormat(Date date, Locale locale, int df) {
 				return null;
 			}
 
 			@Override
-			public String dateTimeFormatLong(Date date, Locale locale) {
+			public String dateTimeFormat(Date date, Locale locale, int df) {
 				return null;
 			}
 

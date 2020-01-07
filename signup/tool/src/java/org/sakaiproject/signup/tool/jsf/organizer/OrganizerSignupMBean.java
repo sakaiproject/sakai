@@ -19,6 +19,7 @@
 
 package org.sakaiproject.signup.tool.jsf.organizer;
 
+import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -283,9 +284,9 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 
 		for (TimeslotWrapper wrapper : timeslotWrappers) {
 			if (wrapper.getTimeSlot().getId().toString().equals(timeslotId)) {
-				String timeslotPeriod = getSakaiFacade().getTimeService().timeFormatShort(wrapper.getTimeSlot().getStartTime(), userLocale)
+				String timeslotPeriod = getSakaiFacade().getTimeService().timeFormat(wrapper.getTimeSlot().getStartTime(), userLocale, DateFormat.SHORT)
 						+ " - "
-						+ getSakaiFacade().getTimeService().timeFormatShort(wrapper.getTimeSlot().getEndTime(), userLocale);
+						+ getSakaiFacade().getTimeService().timeFormat(wrapper.getTimeSlot().getEndTime(), userLocale, DateFormat.SHORT);
 				List<AttendeeWrapper> attWrp = wrapper.getAttendeeWrappers();
 				for (AttendeeWrapper att : attWrp) {
 					if (att.getSignupAttendee().getAttendeeUserId().equals(userId)) {

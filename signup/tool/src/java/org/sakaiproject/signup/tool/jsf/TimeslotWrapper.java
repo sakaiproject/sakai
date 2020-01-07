@@ -19,6 +19,7 @@
 
 package org.sakaiproject.signup.tool.jsf;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -406,15 +407,15 @@ public class TimeslotWrapper implements Comparable{
 		Locale locale = Utilities.rb.getLocale();
 		TimeService ts = sakaiFacade.getTimeService();
 
-		return ts.timeFormatShort(timeSlot.getStartTime(), locale)
+		return ts.timeFormat(timeSlot.getStartTime(), locale, DateFormat.SHORT)
 				+ ", "
-				+ ts.dayOfWeekFormatShort(timeSlot.getStartTime(), locale) 
+				+ ts.dayOfWeekFormat(timeSlot.getStartTime(), locale, DateFormat.SHORT) 
 				+ " - "
-				+ ts.timeFormatShort(timeSlot.getEndTime(), locale)
+				+ ts.timeFormat(timeSlot.getEndTime(), locale, DateFormat.SHORT)
 				+ ", "
-				+ ts.dayOfWeekFormatShort(timeSlot.getEndTime(), locale)
+				+ ts.dayOfWeekFormat(timeSlot.getEndTime(), locale, DateFormat.SHORT)
 				+ ", "
-				+ ts.dateFormatShort(timeSlot.getEndTime(), locale); 
+				+ ts.dateFormat(timeSlot.getEndTime(), locale, DateFormat.SHORT); 
 	}
 
 	/**

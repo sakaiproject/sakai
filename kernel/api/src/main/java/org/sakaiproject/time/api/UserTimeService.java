@@ -39,89 +39,37 @@ public interface UserTimeService {
      * Gets the time formatter with the given formatting style in the user's locale and preferred timezone.
      * @param date
      * @param locale
+     * @param format use java.text.DateFormat.SHORT, MEDIUM, LONG, or FULL
      * @return
      */
-    public String  timeFormatShort(Date date, Locale locale);
-
-    /**
-     * Gets the time formatter with the given formatting style in the user's locale and preferred timezone.
-     * @param date
-     * @param locale
-     * @return
-     */
-    public String  timeFormatMedium(Date date, Locale locale);
-
-    /**
-     * Gets the time formatter with the given formatting style in the user's locale and preferred timezone.
-     * @param date
-     * @param locale
-     * @return
-     */
-    public String  timeFormatLong(Date date, Locale locale);
+    public String  timeFormat(Date date, Locale locale, int format);
 
     /**
      * Gets the date formatter with the given formatting style in the user's locale and preferred timezone.
      * @param date
      * @param locale
+     * @param format use java.text.DateFormat.SHORT, MEDIUM, LONG, or FULL
      * @return
      */
-    public String  dateFormatShort(Date date, Locale locale);
-
-    /**
-     * Gets the date formatter with the given formatting style in the user's locale and preferred timezone.
-     * @param date
-     * @param locale
-     * @return
-     */
-    public String  dateFormatMedium(Date date, Locale locale);
-
-    /**
-     * Gets the date formatter with the given formatting style in the user's locale and preferred timezone.
-     * @param date
-     * @param locale
-     * @return
-     */
-    public String  dateFormatLong(Date date, Locale locale);
+    public String  dateFormat(Date date, Locale locale, int format);
 
     /**
      * Gets the day of week localized and in the user's preferred timezone.
      * @param date
      * @param locale
+     * @param format use java.text.DateFormat.SHORT, MEDIUM, LONG, or FULL
      * @return
      */
-    public String dayOfWeekFormatShort(Date date, Locale locale);
-
-    /**
-     * Gets the day of week localized and in the user's preferred timezone.
-     * @param date
-     * @param locale
-     * @return
-     */
-    public String dayOfWeekFormatLong(Date date, Locale locale);
+    public String dayOfWeekFormat(Date date, Locale locale, int format);
 
     /**
      * Gets the date/time formatter with the given formatting style in the user's locale and preferred timezone.
      * @param date
      * @param locale
+     * @param format use java.text.DateFormat.SHORT, MEDIUM, LONG, or FULL
      * @return
      */
-
-    public String  dateTimeFormatShort(Date date, Locale locale);
-    /**
-     * Gets the date/time formatter with the given formatting style in the user's locale and preferred timezone.
-     * @param date
-     * @param locale
-     * @return
-     */
-    public String  dateTimeFormatMedium(Date date, Locale locale);
-
-    /**
-     * Gets the date/time formatter with the given formatting style in the user's locale and preferred timezone.
-     * @param date
-     * @param locale
-     * @return
-     */
-    public String  dateTimeFormatLong(Date date, Locale locale);
+    public String  dateTimeFormat(Date date, Locale locale, int format);
     
     /**
      * Formats a point in time, in the given time zone, for display to the user in a concise way that still presents all relevant information

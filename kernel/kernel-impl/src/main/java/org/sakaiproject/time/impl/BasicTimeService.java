@@ -1019,58 +1019,23 @@ public class BasicTimeService implements TimeService
 	}
 
 	@Override
-	public String timeFormatShort(Date date, Locale locale) {
-		return userTimeService.timeFormatShort(date, locale);
-	}
-	
-	@Override
-	public String timeFormatMedium(Date date, Locale locale) {
-		return userTimeService.timeFormatMedium(date, locale);
+	public String timeFormat(Date date, Locale locale, int df) {
+		return userTimeService.timeFormat(date, locale, df);
 	}
 
 	@Override
-	public String timeFormatLong(Date date, Locale locale) {
-		return userTimeService.timeFormatLong(date, locale);
+	public String dateFormat(Date date, Locale locale, int df) {
+		return userTimeService.dateFormat(date, locale, df);
 	}
 
 	@Override
-	public String dateFormatShort(Date date, Locale locale) {
-		return userTimeService.dateFormatShort(date, locale);
+	public String dayOfWeekFormat(Date date, Locale locale, int df) {
+		return userTimeService.dayOfWeekFormat(date, locale, df);
 	}
 
 	@Override
-	public String dateFormatMedium(Date date, Locale locale) {
-		return userTimeService.dateFormatMedium(date, locale);
-	}
-
-	@Override
-	public String dateFormatLong(Date date, Locale locale) {
-		return userTimeService.dateFormatLong(date, locale);
-	}
-
-	@Override
-	public String dayOfWeekFormatShort(Date date, Locale locale) {
-		return userTimeService.dayOfWeekFormatShort(date, locale);
-	}
-
-	@Override
-	public String dayOfWeekFormatLong(Date date, Locale locale) {
-		return userTimeService.dayOfWeekFormatLong(date, locale);
-	}
-
-	@Override
-	public String dateTimeFormatShort(Date date, Locale locale) {
-		return userTimeService.dateTimeFormatShort(date, locale);
-	}
-
-	@Override
-	public String dateTimeFormatMedium(Date date, Locale locale) {
-		return userTimeService.dateTimeFormatMedium(date, locale);
-	}
-
-	@Override
-	public String dateTimeFormatLong(Date date, Locale locale) {
-		return userTimeService.dateTimeFormatLong(date, locale);
+	public String dateTimeFormat(Date date, Locale locale, int df) {
+		return userTimeService.dateTimeFormat(date, locale, df);
 	}
 
 	@Override
