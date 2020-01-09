@@ -2596,8 +2596,11 @@ public class DeliveryBean implements Serializable {
 
 	  //SAM-2517
 	  public boolean getIsMathJaxEnabled(){
-		  PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-		  String siteId = publishedAssessmentService.getPublishedAssessmentOwner(Long.parseLong(getAssessmentId()));
+		  String siteId = AgentFacade.getCurrentSiteId();
+		  if(siteId == null) {
+		    PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+		    siteId = publishedAssessmentService.getPublishedAssessmentOwner(Long.parseLong(getAssessmentId()));
+		  }
 		  return Boolean.parseBoolean(getCurrentSite(siteId).getProperties().getProperty(Site.PROP_SITE_MATHJAX_ALLOWED));
 	  }
 	  public String getMathJaxHeader(){
