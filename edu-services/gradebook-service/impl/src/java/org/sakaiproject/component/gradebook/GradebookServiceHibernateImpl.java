@@ -1424,7 +1424,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		  }
 	  } else if (getAuthz().isUserAbleToViewOwnGrades(gradebookUid)) {
 		  // if user is just a student, we need to filter out unreleased items
-		  final List allAssigns = getAssignments(gradebook.getId(), null, true);
+		  final List allAssigns = getAssignments(gradebook.getId(), sortBy, true);
 		  if (allAssigns != null) {
 			  for (final Iterator aIter = allAssigns.iterator(); aIter.hasNext();) {
 				  final GradebookAssignment assign = (GradebookAssignment) aIter.next();
