@@ -1,8 +1,11 @@
 package org.sakaiproject.time.impl;
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -13,6 +16,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
@@ -103,27 +107,43 @@ public class UserTimeServiceImpl implements UserTimeService {
         M_userTzCache.remove(userId);
         return true;
     }
-    
-    
-    @Override
-    public String  dateFormatLong(Date date, Locale locale) {
-        log.debug("dateFormat: " + date.toString() + ", " + locale.toString());
 
-        DateFormat dsf = DateFormat.getDateInstance(DateFormat.LONG, locale);
+    @Override
+    public String timeFormat(Date time, Locale locale, int df) {
+        log.debug("timeFormat: {}, {}, {}", time.toString(), locale.toString(), df);
+
+        DateFormat dsf = DateFormat.getTimeInstance(df, locale);
         dsf.setTimeZone(getLocalTimeZone());
-        String d = dsf.format(date); 
-        return d;
+        return dsf.format(time); 
     }
 
+    @Override
+    public String dateFormat(Date date, Locale locale, int df) {
+        log.debug("dateFormat: {}, {}, {}", date.toString(), locale.toString(), df);
+
+        DateFormat dsf = DateFormat.getDateInstance(df, locale);
+        dsf.setTimeZone(getLocalTimeZone());
+        return dsf.format(date); 
+    }
 
     @Override
-	public String  dateTimeFormatLong(Date date, Locale locale) {
-        log.debug("dateFormat: " + date.toString() + ", " + locale.toString());
+    public String dateTimeFormat(Date date, Locale locale, int df) {
+        log.debug("dateTimeFormat: {}, {}, {}", date.toString(), locale.toString(), df);
 
-        DateFormat dsf = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG, locale);
+        DateFormat dsf = DateFormat.getDateTimeInstance(df, df, locale);
         dsf.setTimeZone(getLocalTimeZone());
-        String d = dsf.format(date);
-        return d;
+        return dsf.format(date);
+    }
+
+    @Override
+    public String dayOfWeekFormat(Date date, Locale locale, int df) {
+        String format = df > 1 ? "EEEEE" : "E";
+
+        log.debug("dateTimeFormat: {}, {}, {}", date.toString(), locale.toString(), format);
+
+        DateFormat dsf = new SimpleDateFormat(format, locale);
+        dsf.setTimeZone(getLocalTimeZone());
+        return dsf.format(date);
     }
 
     @Override
@@ -158,4 +178,33 @@ public class UserTimeServiceImpl implements UserTimeService {
         return new DateTimeFormatterBuilder().appendLocalized(dateStyle, timeStyle)
                 .appendLiteral(" ").appendZoneText(zoneStyle).toFormatter(locale);
     }
+
+    @Override
+    public Date parseISODateInUserTimezone(final String dateString) {
+        // Hidden field from the datepicker will look like: 2015-02-19T02:25:00-06:00
+        // JavaScript Date will always be the computer timezone and not the user's Sakai-preferred timezone
+        // So we should ignore the browser-provided timezone and assume the user is working in their Sakai-preferred timezone
+        final String localDateString = StringUtils.left(dateString, 19);
+        LocalDateTime ldt = LocalDateTime.parse(localDateString);
+        log.debug("parseISODateInUserTimezone: string={}, localDate={}", dateString, ldt.toString());
+
+        TimeZone clientTimezone = getLocalTimeZone();
+        TimeZone serverTimezone = TimeZone.getDefault();
+
+        if (ldt != null && clientTimezone != null && serverTimezone != null && !clientTimezone.hasSameRules(serverTimezone)) {
+            ZonedDateTime zdt = ldt.atZone(clientTimezone.toZoneId());
+            log.debug("parseISODateInUserTimezone: original={}, zoned={}", dateString, zdt.toString());
+            return Date.from(zdt.toInstant());
+        }
+        else if (ldt != null && serverTimezone != null) {
+            ZonedDateTime zdt = ldt.atZone(serverTimezone.toZoneId());
+            return Date.from(zdt.toInstant());
+        }
+        else if (ldt != null) {
+            return Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
+        }
+
+        return null;
+    }
+
 }

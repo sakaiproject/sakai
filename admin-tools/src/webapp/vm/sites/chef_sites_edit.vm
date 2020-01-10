@@ -200,7 +200,7 @@
 				<tr>
 					<th>$tlang.getString("sitedi.cre")</th>
 					<td>
-						#if ($site.CreatedDate) $userTimeService.dateTimeFormatLong($site.CreatedDate, $tlang.Locale) #end
+						#if ($site.CreatedDate) $userTimeService.dateTimeFormat($site.CreatedDate, $tlang.Locale, 2) #end
 					</td>
 				</tr>
 				<tr>
@@ -212,7 +212,7 @@
 				<tr>
 					<th>$tlang.getString("sitedi.mod")</th>
 					<td>
-						#if ($site.ModifiedDate) $userTimeService.dateTimeFormatLong($site.ModifiedDate, $tlang.Locale) #end
+						#if ($site.ModifiedDate) $userTimeService.dateTimeFormat($site.ModifiedDate, $tlang.Locale, 2) #end
 					</td>
 				</tr>
 				<tr>

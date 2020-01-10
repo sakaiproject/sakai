@@ -353,19 +353,19 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 		String isoStartTime = params.get(HIDDEN_ISO_STARTTIME);
 
 		if(DateFormatterUtil.isValidISODate(isoStartTime)){
-			this.signupMeeting.setStartTime(DateFormatterUtil.parseISODate(isoStartTime));
+			this.signupMeeting.setStartTime(sakaiFacade.getTimeService().parseISODateInUserTimezone(isoStartTime));
 		}
 
 		String isoEndTime = params.get(HIDDEN_ISO_ENDTIME);
 
 		if(DateFormatterUtil.isValidISODate(isoEndTime)){
-			this.signupMeeting.setEndTime(DateFormatterUtil.parseISODate(isoEndTime));
+			this.signupMeeting.setEndTime(sakaiFacade.getTimeService().parseISODateInUserTimezone(isoEndTime));
 		}
 
 		String isoUntilTime = params.get(HIDDEN_ISO_UNTILTIME);
 
 		if(DateFormatterUtil.isValidISODate(isoUntilTime)){
-			setRepeatUntil(DateFormatterUtil.parseISODate(isoUntilTime));
+			setRepeatUntil(sakaiFacade.getTimeService().parseISODateInUserTimezone(isoUntilTime));
 		}
 		Date eventEndTime = signupMeeting.getEndTime();
 		Date eventStartTime = signupMeeting.getStartTime();

@@ -19,16 +19,20 @@
 
 package org.sakaiproject.signup.tool.jsf;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 import javax.faces.model.SelectItem;
 
+import org.sakaiproject.signup.logic.SakaiFacade;
 import org.sakaiproject.signup.model.SignupAttendee;
 import org.sakaiproject.signup.model.SignupTimeslot;
-import org.sakaiproject.signup.util.SignupDateFormat;
+import org.sakaiproject.signup.tool.util.Utilities;
+import org.sakaiproject.time.api.TimeService;
 
 /**
  * <p>
@@ -399,11 +403,19 @@ public class TimeslotWrapper implements Comparable{
 	 * 
 	 * @return a string value.
 	 */
-	public String getLabel() {
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat();
-		simpleDateFormat.applyPattern(", EEE");
-		return SignupDateFormat.format_h_mm_a(timeSlot.getStartTime())+simpleDateFormat.format(timeSlot.getStartTime()) + " - "
-		+ SignupDateFormat.format_h_mm_a(timeSlot.getEndTime())+simpleDateFormat.format(timeSlot.getEndTime())+", "+SignupDateFormat.format_date_mm_dd_yy(timeSlot.getEndTime()); 
+	public String getLabel(SakaiFacade sakaiFacade) {
+		Locale locale = Utilities.rb.getLocale();
+		TimeService ts = sakaiFacade.getTimeService();
+
+		return ts.timeFormat(timeSlot.getStartTime(), locale, DateFormat.SHORT)
+				+ ", "
+				+ ts.dayOfWeekFormat(timeSlot.getStartTime(), locale, DateFormat.SHORT) 
+				+ " - "
+				+ ts.timeFormat(timeSlot.getEndTime(), locale, DateFormat.SHORT)
+				+ ", "
+				+ ts.dayOfWeekFormat(timeSlot.getEndTime(), locale, DateFormat.SHORT)
+				+ ", "
+				+ ts.dateFormat(timeSlot.getEndTime(), locale, DateFormat.SHORT); 
 	}
 
 	/**
