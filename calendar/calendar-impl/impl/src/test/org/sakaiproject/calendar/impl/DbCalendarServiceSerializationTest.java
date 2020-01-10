@@ -437,13 +437,14 @@ public class DbCalendarServiceSerializationTest extends TestCase
 				// TODO Auto-generated method stub
 				return -1;
 			}
+
 			@Override
-			public String dateFormatLong(Date date, Locale locale) {
+			public String dateFormat(Date date, Locale locale, int df) {
 				return null;
 			}
 
 			@Override
-			public String dateTimeFormatLong(Date date, Locale locale) {
+			public String dateTimeFormat(Date date, Locale locale, int df) {
 				return null;
 			}
 
@@ -469,6 +470,24 @@ public class DbCalendarServiceSerializationTest extends TestCase
 
 			@Override
 			public String shortPreciseLocalizedTimestamp(Instant instant, Locale locale) {
+				return null;
+			}
+
+			@Override
+			public String timeFormat(Date date, Locale locale, int format) {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public String dayOfWeekFormat(Date date, Locale locale, int format) {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public Date parseISODateInUserTimezone(String dateString) {
+				// TODO Auto-generated method stub
 				return null;
 			}
 		};

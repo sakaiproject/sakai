@@ -888,7 +888,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
         calendar.setTime(signupMeeting.getStartTime());
         String isoStartTime = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get(HIDDEN_ISO_STARTTIME);
         if (DateFormatterUtil.isValidISODate(isoStartTime)) {
-            calendar.setTime(DateFormatterUtil.parseISODate(isoStartTime));
+            calendar.setTime(sakaiFacade.getTimeService().parseISODateInUserTimezone(isoStartTime));
         }
 
         List<TimeslotWrapper> timeSlotWrappers = new ArrayList<>();
@@ -984,12 +984,12 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
             Date startTime = getSignupMeeting().getStartTime();
             String isoStartTime = params.get(HIDDEN_ISO_STARTTIME);
             if (DateFormatterUtil.isValidISODate(isoStartTime)) {
-                startTime = DateFormatterUtil.parseISODate(isoStartTime);
+                startTime = sakaiFacade.getTimeService().parseISODateInUserTimezone(isoStartTime);
             }
             Date endTime = getSignupMeeting().getEndTime();
             String isoEndTime = params.get(HIDDEN_ISO_ENDTIME);
             if (DateFormatterUtil.isValidISODate(isoEndTime)) {
-                endTime = DateFormatterUtil.parseISODate(isoEndTime);
+                endTime = sakaiFacade.getTimeService().parseISODateInUserTimezone(isoEndTime);
             }
             long duration = (endTime.getTime() - startTime.getTime()) / (MINUTE_IN_MILLISEC * getNumberOfSlots());
             setTimeSlotDuration((int) duration);
@@ -1334,20 +1334,20 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
         String isoStartTime = params.get(HIDDEN_ISO_STARTTIME);
 
         if(DateFormatterUtil.isValidISODate(isoStartTime)){
-            this.signupMeeting.setStartTime(DateFormatterUtil.parseISODate(isoStartTime));
+            this.signupMeeting.setStartTime(sakaiFacade.getTimeService().parseISODateInUserTimezone(isoStartTime));
         }
 
         String isoEndTime = params.get(HIDDEN_ISO_ENDTIME);
 
         if(DateFormatterUtil.isValidISODate(isoEndTime)){
-            this.signupMeeting.setEndTime(DateFormatterUtil.parseISODate(isoEndTime));
+            this.signupMeeting.setEndTime(sakaiFacade.getTimeService().parseISODateInUserTimezone(isoEndTime));
         }
 
         String isoUntilTime = params.get(HIDDEN_ISO_UNTILTIME);
 
         if(DateFormatterUtil.isValidISODate(isoUntilTime)){
             setRepeatUntil(DateFormatterUtil.parseISODate(isoUntilTime));
-            this.signupMeeting.setRepeatUntil(DateFormatterUtil.parseISODate(isoUntilTime));
+            this.signupMeeting.setRepeatUntil(sakaiFacade.getTimeService().parseISODateInUserTimezone(isoUntilTime));
         }
 
     }
