@@ -10,7 +10,7 @@ This section contains the options for grading this assignment, including rubrics
 	<div class="checkbox">
 		<label for="$name_CheckAnonymousGrading" #if( !$enableAnonGrading ) class="disabled" #end>
 			<input id="$name_CheckAnonymousGrading" name="$name_CheckAnonymousGrading" type="checkbox" value="true"
-			#if ($value_CheckAnonymousGrading.equals("true"))
+			#if ($value_CheckAnonymousGrading)
 				checked="checked"
 			#end
 			#if( !$enableAnonGrading )
@@ -184,7 +184,7 @@ This section contains the options for grading this assignment, including rubrics
 							});
 						</script>
 						##Anonymous Eval
-						#if ($!value_PeerAssessmentAnonEval.equals("true"))
+						#if ($!value_PeerAssessmentAnonEval)
 							<input id="$name_PeerAssessmentAnonEval" name="$name_PeerAssessmentAnonEval" type="checkbox" value="true" checked="checked"/>
 						#else
 							<input id="$name_PeerAssessmentAnonEval" name="$name_PeerAssessmentAnonEval" type="checkbox" value="true"/>
@@ -194,7 +194,7 @@ This section contains the options for grading this assignment, including rubrics
 						</label>
 						<br/>
 						##Students View Reviews
-						#if ($!value_PeerAssessmentStudentViewReviews.equals("true"))
+						#if ($!value_PeerAssessmentStudentViewReviews)
 							<input id="$name_PeerAssessmentStudentViewReviews" name="$name_PeerAssessmentStudentViewReviews" type="checkbox" value="true" checked="checked"/>
 						#else
 							<input id="$name_PeerAssessmentStudentViewReviews" name="$name_PeerAssessmentStudentViewReviews" type="checkbox" value="true"/>

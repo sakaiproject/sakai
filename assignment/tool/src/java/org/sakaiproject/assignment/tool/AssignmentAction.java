@@ -46,7 +46,6 @@ import java.util.zip.ZipFile;
 import javax.servlet.ServletException;
 import javax.servlet.ServletConfig;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
@@ -4492,6 +4491,7 @@ public class AssignmentAction extends PagedResourceActionII {
             Map<String, Reference> assignmentAttachmentReferences = new HashMap<>();
             assignment.getAttachments().forEach(r -> assignmentAttachmentReferences.put(r, entityManager.newReference(r)));
             context.put("assignmentAttachmentReferences", assignmentAttachmentReferences);
+            context.put("value_CheckAnonymousGrading", assignmentService.assignmentUsesAnonymousGrading(assignment));
         }
         String submissionId = "";
         SecurityAdvisor secAdv = (userId, function, reference) -> {
