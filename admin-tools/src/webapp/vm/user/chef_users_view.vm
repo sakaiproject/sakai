@@ -55,7 +55,7 @@
                             </tr>
                             <tr>
                                 <td><label>$tlang.getString("useedi.cre")</label></td>
-                                <td>$userTimeService.dateTimeFormatLong($user.CreatedDate, $tlang.Locale)</td>
+                                <td>$userTimeService.dateTimeFormat($user.CreatedDate, $tlang.Locale, 2)</td>
                             </div>
                             <tr>
                                 <td><label>$tlang.getString("useedi.modby")</label></td>
@@ -63,7 +63,7 @@
                             </tr>
                             <tr>
                                 <td><label>$tlang.getString("useedi.mod")</label></td>
-                                <td>$userTimeService.dateTimeFormatLong($user.ModifiedDate, $tlang.Locale)</td>
+                                <td>$userTimeService.dateTimeFormat($user.ModifiedDate, $tlang.Locale, 2)</td>
                             </tr>
                         #end
                     </tbody>
