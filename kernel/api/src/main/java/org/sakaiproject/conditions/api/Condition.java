@@ -21,7 +21,7 @@
 
 package org.sakaiproject.conditions.api;
 
-import org.apache.commons.collections.Predicate;
+import org.apache.commons.collections4.Predicate;
 
 /**
  * extension of <code>org.apache.commons.collections.Predicate</code> to include all the operations we need to 
@@ -29,7 +29,7 @@ import org.apache.commons.collections.Predicate;
  * @author Zach A. Thomas <zach@aeroplanesoftware.com>
  *
  */
-public interface Condition extends Predicate {
+public interface Condition extends Predicate<Object> {
 	/**
 	 * get this condition's boolean operator, e.g. less_than, greater_than_or_equal, etc.	
 	 * @return <code>String</code> representation of the operator
