@@ -52,6 +52,7 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.OrFilterBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.SearchHit;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.search.api.EntityContentProducer;
@@ -207,7 +208,7 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
         return contentSourceBuilder.field(SearchService.FIELD_SITEID, ecp.getSiteId(resourceName))
                 .field(SearchService.FIELD_TITLE, ecp.getTitle(resourceName))
                 .field(SearchService.FIELD_REFERENCE, resourceName)
-                .field(SearchService.FIELD_URL, ecp.getUrl(resourceName))
+                .field(SearchService.FIELD_URL, ecp.getUrl(resourceName, Entity.UrlType.PORTAL))
                 //.field(SearchService.FIELD_ID, ecp.getId(resourceName))
                 .field(SearchService.FIELD_TOOL, ecp.getTool())
                 .field(SearchService.FIELD_CONTAINER, ecp.getContainer(resourceName))

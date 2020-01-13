@@ -25,6 +25,7 @@ import java.io.Reader;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.search.model.SearchBuilderItem;
 
@@ -37,7 +38,6 @@ import org.sakaiproject.search.model.SearchBuilderItem;
  */
 public interface EntityContentProducer
 {
-
 	/**
 	 * Should the consumer use the reader or is it OK to use a memory copy of
 	 * the content
@@ -79,6 +79,10 @@ public interface EntityContentProducer
 	 * @return
 	 */
 	String getUrl(String reference);
+
+	default String getUrl(String reference, Entity.UrlType urlType) {
+        return this.getUrl(reference);
+    }
 
 	/**
 	 * If the reference matches this EntityContentProducer return true
