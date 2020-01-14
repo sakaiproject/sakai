@@ -377,8 +377,7 @@ public class DeliveryBean implements Serializable {
 
   private String display_dayDateFormat= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_day_date_no_sec");
   private SimpleDateFormat dayDisplayFormat = new SimpleDateFormat(display_dayDateFormat, new ResourceLoader().getLocale());
-  private String display_dateFormat= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_date_no_sec");
-  private SimpleDateFormat displayFormat = new SimpleDateFormat(display_dateFormat, new ResourceLoader().getLocale());
+
   @Getter @Setter
   private boolean noQuestions = false;
 
@@ -608,38 +607,6 @@ public class DeliveryBean implements Serializable {
     return settings;
   }
 
-  public String getDueDateString() {
-    String dateString = "";
-    if (dueDate == null) {
-      return dateString;
-    }
-
-    try {
-      TimeUtil tu = new TimeUtil();
-      dateString = tu.getDisplayDateTime(displayFormat, dueDate, true);
-    } catch (Exception ex) {
-      // we will leave it as an empty string
-      log.warn("Unable to format date.", ex);
-    }
-    return dateString;
-  }
-  
-  public String getDayDueDateString() {
-    String dateString = "";
-    if (dueDate == null) {
-      return dateString;
-    }
-
-    try {
-      TimeUtil tu = new TimeUtil();
-      dateString = tu.getDisplayDateTime(dayDisplayFormat, dueDate, true);
-    } catch (Exception ex) {
-      // we will leave it as an empty string
-      log.warn("Unable to format date.", ex);
-    }
-    return dateString;
-  }
-
   public String getAdjustedTimedAssesmentDueDateString () {
 	  String adjustedTimedAssesmentDueDateString = "";
 	    if (adjustedTimedAssesmentDueDate == null) {
@@ -706,22 +673,6 @@ public class DeliveryBean implements Serializable {
 		  // encountered some weird number format/locale
 		  return Validator.check(rawScore, "0");
 	  }
-  }
-
-  public String getSubmissionDateString() {
-    String dateString = "";
-    if (submissionDate== null) {
-      return dateString;
-    }
-
-    try {
-      TimeUtil tu = new TimeUtil();
-      dateString = tu.getDisplayDateTime(displayFormat, submissionDate, true);
-    } catch (Exception ex) {
-      // we will leave it as an empty string
-      log.warn("Unable to format date.", ex);
-    }
-    return dateString;
   }
 
   public void syncSubmissionsRemaining() {
@@ -880,7 +831,7 @@ public class DeliveryBean implements Serializable {
 	  }
 	  notificationValues.put("assessmentGradingID", local_assessmentGradingID);
 	  notificationValues.put("userID", adata.getAgentId());
-	  notificationValues.put("submissionDate", getSubmissionDateString());
+	  notificationValues.put("submissionDate", getSubmissionDate());
 	  notificationValues.put("publishedAssessmentID", adata.getPublishedAssessmentId());
 	  notificationValues.put("confirmationNumber", confirmation);
 	  
@@ -1705,38 +1656,6 @@ public class DeliveryBean implements Serializable {
 	  }
   }
 
-  public String getFeedbackDateString() {
-    String dateString = "";
-    if (feedbackDate== null) {
-      return dateString;
-    }
-
-    try {
-      TimeUtil tu = new TimeUtil();
-      dateString = tu.getDisplayDateTime(displayFormat, feedbackDate, true);
-    } catch (Exception ex) {
-      // we will leave it as an empty string
-      log.warn("Unable to format date.", ex);
-    }
-    return dateString;
-  }
-
-  public String getFeedbackEndDateString() {
-    String dateString = "";
-    if (feedbackEndDate== null) {
-      return dateString;
-    }
-
-    try {
-      TimeUtil tu = new TimeUtil();
-      dateString = tu.getDisplayDateTime(displayFormat, feedbackEndDate, true);
-    } catch (Exception ex) {
-      // we will leave it as an empty string
-      log.warn("Unable to format date.", ex);
-    }
-    return dateString;
-  }
-
   public String doit() {
     return outcome;
   }
@@ -2547,11 +2466,6 @@ public class DeliveryBean implements Serializable {
 	  public boolean getStudentRichText() {
 	      String studentRichText = ServerConfigurationService.getString("samigo.studentRichText", "true");
 		  return Boolean.parseBoolean(studentRichText);
-	  }
-
-	  public void setDisplayFormat() {
-		  display_dateFormat= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_date_no_sec");
-		  displayFormat = new SimpleDateFormat(display_dateFormat, new ResourceLoader().getLocale());
 	  }
 
 	  public String getRecURL() {
