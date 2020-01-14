@@ -31,8 +31,8 @@ import java.util.Vector;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.collections.Predicate;
-import org.apache.commons.collections.PredicateUtils;
+import org.apache.commons.collections4.Predicate;
+import org.apache.commons.collections4.PredicateUtils;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
