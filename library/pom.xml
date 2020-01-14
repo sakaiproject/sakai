@@ -55,9 +55,9 @@
 		     but we still need them as dependencies so the plugin unpacks them, that's why they
 		     have a scope of runtime -->
 		<dependency>
-			<groupId>org.webjars</groupId>
+			<groupId>org.webjars.npm</groupId>
 			<artifactId>codemirror</artifactId>
-			<version>5.49.0</version>
+			<version>5.50.2</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
