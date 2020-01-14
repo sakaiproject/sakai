@@ -69,7 +69,7 @@
   <build>
       <resources>
           <resource>
-              <directory>${basedir}/resources</directory>
+              <directory>${basedir}/src/resources</directory>
               <includes>
                   <include>**/*.properties</include>
               </includes>
