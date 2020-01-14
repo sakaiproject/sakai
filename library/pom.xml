@@ -57,9 +57,9 @@
 		     have a scope of runtime -->
 		<!--Used in ELFinder, inside CK Editor, file editor -->
 		<dependency>
-			<groupId>org.webjars</groupId>
+			<groupId>org.webjars.npm</groupId>
 			<artifactId>codemirror</artifactId>
-			<version>5.49.0</version>
+			<version>5.50.2</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
