@@ -20,9 +20,9 @@
  **********************************************************************************/
 package org.sakaiproject.conditions.impl;
 
-import org.apache.commons.collections.Predicate;
+import org.apache.commons.collections4.Predicate;
 
-public class NullPredicate implements Predicate {
+public class NullPredicate implements Predicate<Object> {
 
 	public boolean evaluate(Object object) {
 		throw new IllegalStateException("Cannot call evaluate() on a NullPredicate. NullPredicate is a placeholder only.");
