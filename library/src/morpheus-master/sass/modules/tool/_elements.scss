@@ -1,0 +1,25 @@
+.sakai-accordion {
+	.panel-heading > .panel-title {
+		padding: 0;
+		
+		a {
+			padding: $standard-spacing;
+		}
+		a, a:hover {
+			text-decoration: none;
+		}
+		a:focus {
+			outline-offset: -#{$focus-outline-width};	// keep outline contained within the element
+		}
+		a::before {
+			content: "\f0da";				// fa-caret-right
+			display: inline-block;
+			width: 0.75em;					// fixed width for both icons, similar to .fa-fw
+			font-family: FontAwesome;
+			text-align: center;
+		}
+		a[aria-expanded="true"]::before {
+			content: "\f0d7";				// fa-caret-down
+		}
+	}
+}
