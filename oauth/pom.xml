@@ -48,16 +48,9 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <!-- maven-compiler-plugin config -->
-        <maven.compiler.source>6</maven.compiler.source>
-        <maven.compiler.target>6</maven.compiler.target>
-
         <!-- dependencies versions -->
         <oauth.version>20100527</oauth.version>
-        <servlet-api.version>2.5</servlet-api.version>
-        <wicket.version>7.15.0</wicket.version>
-        <slf4j.version>1.7.5</slf4j.version>
+        <wicket.version>7.16.0</wicket.version>
     </properties>
 
     <dependencyManagement>
@@ -93,12 +86,6 @@
                 <artifactId>oauth-tool</artifactId>
                 <version>${project.version}</version>
                 <type>war</type>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>oauth-pack</artifactId>
-                <version>${project.version}</version>
-                <type>sakai-component</type>
             </dependency>
 
             <!-- Dependencies -->
