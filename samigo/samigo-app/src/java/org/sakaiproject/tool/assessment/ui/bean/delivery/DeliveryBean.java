@@ -492,7 +492,7 @@ public class DeliveryBean implements Serializable {
 	      return beginTimeString;
 	    }
 
-      return userTimeService.dateTimeFormat(beginTime, new ResourceLoader().getLocale(), DateFormat.LONG);
+      return userTimeService.dateTimeFormat(beginTime, new ResourceLoader().getLocale(), DateFormat.MEDIUM);
   }
 
   public String getCurrentTimeElapse() {
@@ -2245,7 +2245,7 @@ public class DeliveryBean implements Serializable {
 		      return "";
 		    }
 
-		    return userTimeService.dateTimeFormat(deadline, new ResourceLoader().getLocale(), DateFormat.LONG);
+		    return userTimeService.dateTimeFormat(deadline, new ResourceLoader().getLocale(), DateFormat.MEDIUM);
 	  }
 
 	  public void setDeadline() {
