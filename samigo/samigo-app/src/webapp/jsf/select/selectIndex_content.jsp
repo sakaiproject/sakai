@@ -236,8 +236,13 @@
                             </h:panelGroup>
                         </f:facet>
                         <h:outputText value="#{selectIndexMessages.na}" rendered="#{takeable.dueDate == null}" />
-                        <h:outputText value="#{takeable.dueDateString} #{selectIndexMessages.late}" style="color: red;" rendered="#{takeable.pastDue}" />
-                        <h:outputText value="#{takeable.dueDateString}" rendered="#{!takeable.pastDue}" />
+                        <h:outputText value="#{takeable.dueDate}" styleClass="text-danger" rendered="#{takeable.pastDue}">
+                            <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
+                        </h:outputText>
+                        <h:outputText value=" #{selectIndexMessages.late} " styleClass="text-danger" rendered="#{takeable.pastDue}" />
+                        <h:outputText value="#{takeable.dueDate}" rendered="#{!takeable.pastDue}">
+                            <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
+                        </h:outputText>
                     </t:column>
                 </t:dataTable>
             </div>
@@ -341,7 +346,13 @@
                                 </h:panelGroup>
                             </f:facet>
 
-                            <h:outputText value="#{reviewable.feedbackDateString}" styleClass="currentSort" rendered="#{reviewable.feedbackComponentOption == '2'  && reviewable.feedbackDelivery eq '2' && !reviewable.isAssessmentRetractForEdit && reviewable.isRecordedAssessment}" />
+                            <h:outputText value="#{reviewable.feedbackDate}" styleClass="currentSort" rendered="#{reviewable.feedbackComponentOption == '2'  && reviewable.feedbackDelivery eq '2' && !reviewable.isAssessmentRetractForEdit && reviewable.isRecordedAssessment}">
+                              <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
+                            </h:outputText>
+                            <h:outputText value=" - " rendered="#{reviewable.feedbackComponentOption == '2'  && reviewable.feedbackDelivery eq '2' && !reviewable.isAssessmentRetractForEdit && reviewable.isRecordedAssessment && not empty reviewable.feedbackEndDate}" />
+                            <h:outputText value="#{reviewable.feedbackEndDate}" styleClass="currentSort" rendered="#{reviewable.feedbackComponentOption == '2'  && reviewable.feedbackDelivery eq '2' && !reviewable.isAssessmentRetractForEdit && reviewable.isRecordedAssessment && not empty reviewable.feedbackEndDate}">
+                              <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
+                            </h:outputText>
                             <h:outputText value="#{selectIndexMessages.immediate}" styleClass="currentSort" rendered="#{reviewable.feedbackComponentOption == '2'  && (reviewable.feedbackDelivery eq '1' || reviewable.feedbackDelivery eq '4') && !reviewable.isAssessmentRetractForEdit && reviewable.isRecordedAssessment}" />
                             <h:outputText value="#{selectIndexMessages.not_applicable}" styleClass="currentSort" rendered="#{(reviewable.feedbackComponentOption == '1' || reviewable.feedbackDelivery==null  || reviewable.feedbackDelivery eq '3' || reviewable.isAssessmentRetractForEdit) && reviewable.isRecordedAssessment}" />
 
@@ -394,8 +405,12 @@
                                 </h:panelGroup>
                             </f:facet>
 
-                            <h:outputText value="#{reviewable.submissionDateString}" styleClass="currentSort" rendered="#{reviewable.isRecordedAssessment}" />
-                            <h:outputText value="#{reviewable.submissionDateString}" rendered="#{!reviewable.isRecordedAssessment}" />
+                            <h:outputText value="#{reviewable.submissionDate}" styleClass="currentSort" rendered="#{reviewable.isRecordedAssessment}">
+                                <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
+                            </h:outputText>
+                            <h:outputText value="#{reviewable.submissionDate}" rendered="#{!reviewable.isRecordedAssessment}">
+                                <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
+                            </h:outputText>
                         </t:column>
                     </t:dataTable>
 

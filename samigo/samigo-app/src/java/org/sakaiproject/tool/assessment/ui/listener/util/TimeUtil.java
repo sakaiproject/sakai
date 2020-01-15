@@ -75,6 +75,7 @@ public class TimeUtil
   }
 
   /*
+   * @deprecated use UserTimeService instead
    * This will return a formatted date/time with or without adjustment for client time zone.
    * If instructor is located in Michigan and teaches on Sakai based in Chicago, 
    * the date should stay stable in the server timezone when using date/time picker. Previous 
