@@ -106,8 +106,6 @@ public class BeginDeliveryActionListener implements ActionListener
       }
     }
     
-    delivery.setDisplayFormat();
-    
     if ("previewAssessment".equals(delivery.getActionString()) || "editAssessment".equals(actionString)) {
     	String isFromPrint = ContextUtil.lookupParam("isFromPrint");
         if (StringUtils.isNotBlank(isFromPrint)) {
