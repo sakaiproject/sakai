@@ -188,8 +188,6 @@ public class FormatHelper {
 
 		String s;
 		try {
-			final DecimalFormat dfParse = (DecimalFormat) NumberFormat.getInstance(Locale.ROOT);
-			dfParse.setParseBigDecimal(true);
 			final BigDecimal d = convertStringToBigDecimal(grade, 2);
 
 			final DecimalFormat dfFormat = (DecimalFormat) NumberFormat.getInstance(rl.getLocale());
@@ -198,7 +196,7 @@ public class FormatHelper {
 			dfFormat.setGroupingUsed(true);
 			s = dfFormat.format(d);
 		} catch (final NumberFormatException e) {
-			log.debug("Bad format, returning original string: {}", grade);
+			log.warn("Bad format, returning original string: {}", grade);
 			s = grade;
 		}
 
@@ -237,7 +235,7 @@ public class FormatHelper {
 
 			s = df.format(d);
 		} catch (final NumberFormatException | ParseException e) {
-			log.debug("Bad format, returning original string: {}", grade);
+			log.warn("Bad format, returning original string: {}", grade);
 			s = grade;
 		}
 
