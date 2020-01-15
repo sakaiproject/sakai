@@ -37,9 +37,9 @@
     <sakai.hibernate.groupId>org.hibernate</sakai.hibernate.groupId>
     <sakai.hibernate.artifactId>hibernate-core</sakai.hibernate.artifactId>
     <sakai.hibernate.version>4.3.11.Final</sakai.hibernate.version>
-    <sakai.httpclient.version>4.5.8</sakai.httpclient.version>
-    <sakai.httpcore.version>4.4.11</sakai.httpcore.version>
-    <sakai.httpmime.version>4.5.8</sakai.httpmime.version>
+    <sakai.httpclient.version>4.5.10</sakai.httpclient.version>
+    <sakai.httpcore.version>4.4.13</sakai.httpcore.version>
+    <sakai.httpmime.version>4.5.10</sakai.httpmime.version>
     <sakai.jackson.version>2.10.1</sakai.jackson.version>
     <sakai.jsoup.version>1.12.1</sakai.jsoup.version>
     <sakai.woodstox.version>5.2.1</sakai.woodstox.version>
