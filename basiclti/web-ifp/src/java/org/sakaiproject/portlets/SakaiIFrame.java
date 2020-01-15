@@ -56,7 +56,7 @@ import org.sakaiproject.tool.cover.ToolManager;
 import javax.servlet.ServletRequest;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 
-// Velocity
+import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.context.Context;
 import org.apache.velocity.app.VelocityEngine;
@@ -66,7 +66,6 @@ import org.sakaiproject.component.cover.ComponentManager;
 
 // lti service
 import org.sakaiproject.lti.api.LTIService;
-
 
 /**
  * a simple SakaiIFrame Portlet
@@ -451,9 +450,9 @@ public class SakaiIFrame extends GenericPortlet {
 			String id = request.getParameter(LTIService.LTI_ID);
 			String toolId = request.getParameter(LTIService.LTI_TOOL_ID);
 			Properties reqProps = new Properties();
-			Enumeration names = request.getParameterNames();
+			Enumeration<String> names = request.getParameterNames();
 			while (names.hasMoreElements()) {
-				String name = (String) names.nextElement();
+				String name = names.nextElement();
 				reqProps.setProperty(name, request.getParameter(name));
 			}
 			Placement placement = ToolManager.getCurrentPlacement();
@@ -466,13 +465,16 @@ public class SakaiIFrame extends GenericPortlet {
 			// get the site toolConfiguration, if this is part of a site.
 			ToolConfiguration toolConfig = SiteService.findTool(placement.getId());
 
-			// Set the title for the page
-			toolConfig.getContainingPage().setTitle(reqProps.getProperty("title"));
+			String title = reqProps.getProperty("title");
+			if (StringUtils.isNotBlank(title)) {
+				// Set the title for the page
+				toolConfig.getContainingPage().setTitle(title);
 
-			try {
-				SiteService.save(SiteService.getSite(toolConfig.getSiteId()));
-			} catch(Exception e) {
-				log.error("Failed to save site", e);
+				try {
+					SiteService.save(SiteService.getSite(toolConfig.getSiteId()));
+				} catch (Exception e) {
+					log.error("Failed to save site", e);
+				}
 			}
 
 			placement.save();
