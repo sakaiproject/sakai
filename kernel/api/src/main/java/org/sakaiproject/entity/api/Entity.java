@@ -36,6 +36,8 @@ public interface Entity
 	/** The character used to separate names in the region address path */
 	static final String SEPARATOR = "/";
 
+	enum UrlType { PORTAL };
+
 	/**
 	 * Access the URL which can be used to access the entity.
 	 * 

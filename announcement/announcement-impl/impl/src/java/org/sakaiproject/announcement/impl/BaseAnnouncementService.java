@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Stack;
 import java.util.Set;
 
@@ -133,11 +134,10 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	@Resource(name="org.sakaiproject.util.api.LinkMigrationHelper")
 	private LinkMigrationHelper linkMigrationHelper;
 
+
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Constructors, Dependencies and their setter methods
 	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	
 
 
 	/** Dependency: NotificationService. */
@@ -1809,6 +1809,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 
 		} // setSubject
 
+
 		/**
 		 * Serialize the resource into XML, adding an element to the doc under the top of the stack element.
 		 * 
@@ -1944,5 +1945,32 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 
 	public void clearMessagesCache(String channelRef){
 		m_threadLocalManager.set(channelRef + ".msgs", null);
+	}
+
+	public Optional<String> getEntityUrl(Reference r, Entity.UrlType urlType) {
+
+		//Reference r = getReference(ref);
+		if (Entity.UrlType.PORTAL == urlType) {
+			if (r != null) {
+				String siteId = r.getContext();
+				Site site;
+				try {
+					site = m_siteService.getSite(siteId);
+					ToolConfiguration tc = site.getToolForCommonId("sakai.announcements");
+					if (tc != null) {
+						return Optional.of(m_serverConfigurationService.getPortalUrl() + "/directtool/" + tc.getId()
+							+ "?itemReference=" + r.getReference() + "&sakai_action=doShowmetadata");
+					} else {
+						log.error("No announcements tool in site {}", siteId);
+					}
+				} catch (IdUnusedException iue) {
+					log.error("Failed to get site site for id {}", siteId);
+				}
+			} else {
+				log.error("Failed to get reference for {}", r.getReference());
+			}
+		}
+
+		return Optional.of(super.getEntityUrl(r));
 	}
 }

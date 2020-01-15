@@ -33,6 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.Reference;
@@ -131,7 +132,7 @@ public class MessageContentProducer implements EntityContentProducer
 		return new StringReader(getContent(reference));
 	}
 
-	private Reference getReference(String reference)
+	protected Reference getReference(String reference)
 	{
 		try
 		{
@@ -348,6 +349,10 @@ public class MessageContentProducer implements EntityContentProducer
 	{
 		Reference ref = getReference(reference);
 		return ref.getUrl();
+	}
+
+	public String getUrl(String ref, Entity.UrlType urlType) {
+		return entityManager.getUrl(ref, urlType).orElse("");
 	}
 
 	/**

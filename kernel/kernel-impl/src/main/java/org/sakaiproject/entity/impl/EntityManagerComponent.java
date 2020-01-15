@@ -26,10 +26,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.Reference;
@@ -144,17 +146,17 @@ public class EntityManagerComponent implements EntityManager
 	}
 
 	/** Set of EntityProducer services. */
-	protected ConcurrentHashMap<String, EntityProducer> m_producersIn = new ConcurrentHashMap<String, EntityProducer>();
+	protected ConcurrentHashMap<String, EntityProducer> m_producersIn = new ConcurrentHashMap<>();
 
-	protected ConcurrentHashMap<EntityProducer, Calls> m_performanceIn = new ConcurrentHashMap<EntityProducer, Calls>();
+	protected ConcurrentHashMap<EntityProducer, Calls> m_performanceIn = new ConcurrentHashMap<>();
 
-	protected ConcurrentHashMap<String, String> m_rejectRefIn = new ConcurrentHashMap<String, String>();
+	protected ConcurrentHashMap<String, String> m_rejectRefIn = new ConcurrentHashMap<>();
 
-	protected Map<String, EntityProducer> m_producers = new HashMap<String, EntityProducer>();
+	protected Map<String, EntityProducer> m_producers = new HashMap<>();
 
-	protected Map<EntityProducer, Calls> m_performance = new HashMap<EntityProducer, Calls>();
+	protected Map<EntityProducer, Calls> m_performance = new HashMap<>();
 
-	private Map<String, String> m_rejectRef = new HashMap<String, String>();
+	private Map<String, String> m_rejectRef = new HashMap<>();
 
 	private int nparse = 0;
 
@@ -181,7 +183,7 @@ public class EntityManagerComponent implements EntityManager
 			// resolution
 			m_rejectRefIn.put("library", "library");
 
-			m_rejectRef = new HashMap<String, String>(m_rejectRefIn);
+			m_rejectRef = new HashMap<>(m_rejectRefIn);
 			log.info("init()");
 		}
 		catch (Exception t)
@@ -231,8 +233,8 @@ public class EntityManagerComponent implements EntityManager
 		m_producersIn.put(referenceRoot, manager);
 		m_performanceIn.put(manager, new Calls(manager));
 
-		m_producers = new HashMap<String, EntityProducer>(m_producersIn);
-		m_performance = new HashMap<EntityProducer, Calls>(m_performanceIn);
+		m_producers = new HashMap<>(m_producersIn);
+		m_performance = new HashMap<>(m_performanceIn);
 	}
 
 	/**
@@ -310,6 +312,13 @@ public class EntityManagerComponent implements EntityManager
 		}
 
 		return true;
+	}
+
+	public Optional<String> getUrl(String ref, Entity.UrlType urlType) {
+
+		Reference r = newReference(ref);
+		EntityProducer ep = r.getEntityProducer();
+		return ep.getEntityUrl(r, urlType);
 	}
 
 	public EntityProducer getEntityProducer(String reference, Reference target)
