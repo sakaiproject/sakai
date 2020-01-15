@@ -22,6 +22,7 @@ package org.sakaiproject.portal.charon.velocity;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.collections.ExtendedProperties;
 import org.apache.velocity.exception.ResourceNotFoundException;
@@ -45,7 +46,7 @@ public class LibraryWebappLoader extends ResourceLoader {
     private static final long CACHE_EXPIRATION_IN_MILLIS = 60 * 1000;
     private WebappResourceManager libraryWebappResourceManager;
 
-    protected HashMap<String, Date> templatePaths = null;
+    protected Map<String, Date> templatePaths = null;
 
     /**
      * @param configuration the {@link ExtendedProperties} associated with this resource
