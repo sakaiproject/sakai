@@ -1142,7 +1142,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 
 		boolean forwardingEnabled = false;
 		List<InternetAddress> fAddresses = new ArrayList<InternetAddress>();
-    	//this only needs to be done if the message is not being sent
+		//this only needs to be done if the message is not being sent
 		int submitterEmailReceiptPref;
     	for (Iterator<Entry<User, Boolean>> i = recipients.entrySet().iterator(); i.hasNext();)
     	{
@@ -1171,12 +1171,12 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     		if (pfMap.containsKey(userId))
     			pf = pfMap.get(userId);
 
-    		if (pf != null && (pf.getAutoForward().intValue()==PrivateForumImpl.AUTO_FOWARD_YES) && pf.getAutoForwardEmail() != null){
+    		if (pf != null && (pf.getAutoForward()==PrivateForumImpl.AUTO_FOWARD_YES) && pf.getAutoForwardEmail() != null){
     			forwardingEnabled = true;
 				fAddresses.add(new InternetAddress(pf.getAutoForwardEmail()));
 				//forwardAddress = pf.getAutoForwardEmail();
     		}
-    		if (pf != null && (pf.getAutoForward().intValue()==PrivateForumImpl.AUTO_FOWARD_DEFAULT) && submitterEmailReceiptPref==PrivateForumImpl.AUTO_FOWARD_YES){
+    		if (pf != null && (pf.getAutoForward()==PrivateForumImpl.AUTO_FOWARD_DEFAULT) && submitterEmailReceiptPref==PrivateForumImpl.AUTO_FOWARD_YES){
 				pf.setAutoForwardEmail(mailAFoward);
 				forwardingEnabled = true;
 				fAddresses.add(new InternetAddress(pf.getAutoForwardEmail()));
@@ -1185,12 +1185,12 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     		{
     			//only check for default settings if the pf is null
     			PrivateForum oldPf = forumManager.getPrivateForumByOwnerAreaNull(userId);
-    			if (oldPf != null && (oldPf.getAutoForward().intValue()==PrivateForumImpl.AUTO_FOWARD_YES) && oldPf.getAutoForwardEmail() != null) {
+    			if (oldPf != null && (oldPf.getAutoForward()==PrivateForumImpl.AUTO_FOWARD_YES) && oldPf.getAutoForwardEmail() != null) {
 					//forwardAddress = oldPf.getAutoForwardEmail();
     				forwardingEnabled = true;
 					fAddresses.add(new InternetAddress(oldPf.getAutoForwardEmail()));
     			}
-        		if (oldPf != null && (oldPf.getAutoForward().intValue()==PrivateForumImpl.AUTO_FOWARD_DEFAULT) && submitterEmailReceiptPref==PrivateForumImpl.AUTO_FOWARD_YES) {
+        		if (oldPf != null && (oldPf.getAutoForward()==PrivateForumImpl.AUTO_FOWARD_DEFAULT) && submitterEmailReceiptPref==PrivateForumImpl.AUTO_FOWARD_YES) {
 					oldPf.setAutoForwardEmail(mailAFoward);
 					forwardingEnabled = true;
 					fAddresses.add(new InternetAddress(oldPf.getAutoForwardEmail()));
