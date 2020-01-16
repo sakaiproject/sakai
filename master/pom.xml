@@ -208,7 +208,7 @@
     <pluginRepository>
       <id>central</id>
       <name>Maven Plugin Repository</name>
-      <url>http://repo1.maven.org/maven2</url>
+      <url>https://repo1.maven.org/maven2</url>
       <layout>default</layout>
       <snapshots>
         <enabled>false</enabled>
@@ -220,7 +220,7 @@
     <pluginRepository>
         <id>opencast</id>
         <name>Opencast Repo</name>
-        <url>http://nexus.opencast.org/nexus/content/groups/public</url>
+        <url>https://nexus.opencast.org/nexus/content/groups/public</url>
         <snapshots>
             <enabled>false</enabled>
         </snapshots>
@@ -234,7 +234,7 @@
       <id>central</id>
       <name>Maven Repository Switchboard</name>
       <layout>default</layout>
-      <url>http://repo1.maven.org/maven2</url>
+      <url>https://repo1.maven.org/maven2</url>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
@@ -256,7 +256,7 @@
     <repository>
       <id>repository.spring.release</id>
       <name>Spring GA Repository</name>
-      <url>http://repo.spring.io/release</url>
+      <url>https://repo.spring.io/release</url>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
@@ -264,7 +264,7 @@
     <repository>
       <id>repository.spring.libs.release</id>
       <name>Spring Lib Repository</name>
-      <url>http://repo.spring.io/libs-release</url>
+      <url>https://repo.spring.io/libs-release</url>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
@@ -286,7 +286,7 @@
     <repository>
         <id>opencast</id>
         <name>Opencast Repo</name>
-        <url>http://nexus.opencast.org/nexus/content/groups/public</url>
+        <url>https://nexus.opencast.org/nexus/content/groups/public</url>
         <snapshots>
             <enabled>false</enabled>
         </snapshots>
