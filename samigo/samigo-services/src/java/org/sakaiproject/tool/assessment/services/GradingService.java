@@ -1579,8 +1579,7 @@ public class GradingService
 	  notiValues.put("submissionDate", adata.getSubmittedDate());
 
 	  String confirmationNumber = adata.getAssessmentGradingId() + "-" + adata.getPublishedAssessmentId() + "-"
-
-			  + adata.getAgentId() + "-" + adata.getSubmittedDate().toString();
+			  + adata.getAgentId() + "-" + adata.getSubmittedDate().getTime();
 	  notiValues.put( "confirmationNumber", confirmationNumber );
 
 	  EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_AUTO, notiValues.toString(), AgentFacade.getCurrentSiteId(), false, SamigoConstants.NOTI_EVENT_ASSESSMENT_SUBMITTED));
