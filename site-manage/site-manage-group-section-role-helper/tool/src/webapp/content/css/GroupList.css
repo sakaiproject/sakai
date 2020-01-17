@@ -273,3 +273,19 @@ th.check, td.check{
 	line-height: 1.42857143;
 	background-color: #eee;
 }
+
+.group-locked-info-collapsed::before {
+  content: '\f0da';
+  font-family: 'FontAwesome';
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.group-locked-info-expanded::before {
+  content: '\f0d7';
+  font-family: 'FontAwesome';
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+}

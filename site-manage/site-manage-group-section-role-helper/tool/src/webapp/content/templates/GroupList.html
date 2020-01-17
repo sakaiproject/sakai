@@ -31,13 +31,16 @@
 			</div>
 			<form rsf:id="delete-group-form">
 				<p rsf:id="no-group" class="instruction">No group</p>
+				<span class="fa fa-fw fa-lock"></span><span rsf:id="msg=groupList.lock_info">- indicates group is locked because it is being used by a tool. Locked groups cannot be edited or deleted.</span>
 				<!-- This span is needed here to guide the renderer away to the checkboxes -->
 				<span rsf:id="delete-group"/>
 				<div class="table-responsive">
 				<table class="table table-striped table-bordered table-hover table-condensed">
 					<thead>
 						<tr>
+							<th><i class="fa fa-fw fa-lock"></i></th>
 							<th rsf:id="group-title-title"></th>
+							<th rsf:id="group-locked-by"></th>
 							<th rsf:id="group-joinable-set-title"></th>
 							<th rsf:id="group-size-title"></th>
 							<th rsf:id="group-members-title"></th>
@@ -51,7 +54,15 @@
 					</thead>
 					<tbody id="tasks:grouplist:tbody_element">
 						<tr rsf:id="group-row:">
-							<td><span class="itemAction"><span rsf:id="group-for-deletion-icon" class="fa fa-fw" aria-hidden="true"></span><span rsf:id="group-icon" class="fa fa-fw" aria-hidden="true"></span><a href="GroupEdit.html" rsf:id="group-title">Edit</a></span></td>
+							<td><span rsf:id="group-icon" class="fa fa-fw" aria-hidden="true"></span></td>
+							<td><span class="itemAction"><a href="GroupEdit.html" rsf:id="group-title">Edit</a></span></td>
+							<td rsf:id="group-lock-row:">
+								<span rsf:id="group-not-locked"></span>
+								<span class="group-locked-info-collapsed" rsf:id="group-locked-assignments" data-toggle="collapse" tabindex="0" role="button"></span>
+								<div class="collapse"><span class="group-lock-assignment-info" rsf:id="group-lock-assignment-info"></span></div>
+								<span class="group-locked-info-collapsed" rsf:id="group-locked-assessments" data-toggle="collapse" tabindex="0" role="button"></span>
+								<div class="collapse"><span class="group-lock-assessment-info" rsf:id="group-lock-assessment-info"></span></div>
+							</td>
 							<td>
 								<span class="itemAction"><a rsf:id="group-joinable-set" href="CreateJoinableGroups.html">Joinable Set</a></span>
 								<span rsf:id="group-no-joinable-set">---</span>
@@ -60,6 +71,7 @@
 							<td rsf:id="group-members"></td>
 							<td>
 								<label rsf:id="delete-label" class="skip">Label for element</label>
+								<span rsf:id="group-for-deletion-icon" class="fa fa-fw" aria-hidden="true"></span>
 								<input rsf:id="group-select" title="Select to remove" type="checkbox" id="check-2" name="deleteGroup" value="" onclick="adjustCount(this, 'removeCount');syncSelectAll();" />
 							</td>
 						</tr>
@@ -75,7 +87,23 @@
 				<input type="hidden" id="removeCount" value="0" />
 			</form>
 		</div>
-		<script  type="text/javascript">
+		<script>
+
+			$('.group-locked-info-collapsed').on('click keypress', function(event) {
+				toggleGroupLockDetails(this);
+			});
+
+			function toggleGroupLockDetails(toolDetails) {
+				$(toolDetails).next().toggle();
+				if ($(toolDetails).attr('class').endsWith('collapsed')) {
+					$(toolDetails).removeClass('group-locked-info-collapsed');
+					$(toolDetails).toggleClass('group-locked-info-expanded');
+				} else {
+					$(toolDetails).removeClass('group-locked-info-expanded');
+					$(toolDetails).toggleClass('group-locked-info-collapsed');
+				}
+			}
+
 			$(document).ready(function(){
 				if ($('.listHier td').length === 0) {
 					$('.listHier').hide();
@@ -88,7 +116,24 @@
 						$(this).parents("tr").removeClass('selectedSelected');
 					}
 				});
+
+				$('.group-lock-assignment-info, .group-lock-assessment-info').each(function () {
+					var entityList = $(this).text();
+					var entityArray = entityList.split(',');
+					var list = document.createElement('ul');
+					$(entityArray).each( function (index, element) {
+						// Create the list item
+						var item = document.createElement('li');
+						// Set its contents
+						item.appendChild(document.createTextNode(element));
+						// Add it to the list
+						list.appendChild(item);
+					});
+					$(this).html(list);
+				});
+
 			});
+
 		</script>
 	</body>
 </html>

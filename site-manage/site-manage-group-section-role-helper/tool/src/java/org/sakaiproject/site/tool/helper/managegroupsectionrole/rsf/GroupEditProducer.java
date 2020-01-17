@@ -189,6 +189,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
          
          if (g != null && (RealmLockMode.ALL.equals(g.getRealmLock()) || RealmLockMode.MODIFY.equals(g.getRealmLock()))) {
             UIOutput.make(groupForm, "instructions", messageLocator.getMessage("editgroup.notallowed", null));
+            UIOutput.make(groupForm, "lockedGroupAlert", messageLocator.getMessage("editgroup.lockedgroup"));
          } else {
             UIOutput.make(groupForm, "instructions", messageLocator.getMessage("editgroup.instruction", new Object[]{addUpdateButtonName}));
          }

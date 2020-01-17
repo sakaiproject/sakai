@@ -21,8 +21,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.StringJoiner;
 
 import lombok.extern.slf4j.Slf4j;
+import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessageList;
 import uk.org.ponder.rsf.components.UIBranchContainer;
@@ -50,6 +53,10 @@ import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.stringutil.StringList;
 
+import org.sakaiproject.assignment.api.model.Assignment;
+import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
+import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
@@ -62,6 +69,7 @@ import org.sakaiproject.site.util.SiteComparator;
 import org.sakaiproject.site.util.SiteConstants;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 
@@ -84,7 +92,10 @@ public class GroupListProducer
     public String getViewID() {
         return VIEW_ID;
     }
-    
+
+    @Setter
+    public AssignmentService assignmentService;
+
 	public UserDirectoryService userDirectoryService;
 	public void setUserDirectoryService(UserDirectoryService userDirectoryService)
 	{
@@ -134,6 +145,7 @@ public class GroupListProducer
 
 			//get the headers for the table
 			UIMessage.make(deleteForm, "group-title-title","group.title");
+			UIMessage.make(deleteForm, "group-locked-by","group.locked.by");
 			UIMessage.make(deleteForm, "group-joinable-set-title","group.joinable-set");
 			UIMessage.make(deleteForm, "group-size-title", "group.number");
 			UIMessage.make(deleteForm, "group-members-title", "group.members");
@@ -175,6 +187,57 @@ public class GroupListProducer
 				}
 				log.debug("Check if the group is locked : {} -> {}", group.getId(), modifyLockFound);
 				log.debug("Check if the group is locked for deletion : {} -> {}", group.getId(), deleteLockFound);
+
+				List<String[]> groupRealmLocks = group.getRealmLocks();
+				String lockingItems = StringUtils.EMPTY;
+				List<String> assignmentTitles = new ArrayList<>();
+				List<String> assessmentTitles = new ArrayList<>();
+				for (String[] groupRealmLock : groupRealmLocks) {
+					String objectReference = groupRealmLock[0];
+					if (StringUtils.isNotBlank(objectReference)) {
+						if (objectReference.startsWith(AssignmentServiceConstants.REFERENCE_ROOT)) {
+							AssignmentReferenceReckoner.AssignmentReference reckoner = AssignmentReferenceReckoner.reckoner().reference(objectReference).reckon();
+							try {
+								Assignment ab = assignmentService.getAssignment(reckoner.getId());
+								assignmentTitles.add(ab.getTitle());
+							} catch (Exception e) {
+								log.error("Cannot find assignment with id {}.", reckoner.getId());
+							}
+						} else {
+							try {
+								//Validate that the reference is an integer
+								Integer assessmentId = Integer.parseInt(objectReference);
+								PublishedAssessmentService assessmentService = new PublishedAssessmentService();
+								assessmentTitles.add(assessmentService.getAssessment(Long.valueOf(assessmentId)).getTitle());
+							} catch (Exception e) {
+								log.error("Cannot find assessment with id {}.", objectReference);
+							}
+						}
+					}
+				}
+
+				UIBranchContainer lockInfoRow = UIBranchContainer.make(grouprow, "group-lock-row:", group.getId());
+				if (assignmentTitles.isEmpty() && assessmentTitles.isEmpty()) {
+					UIOutput.make(lockInfoRow, "group-not-locked", "---");
+				} else {
+					if (!assignmentTitles.isEmpty()) {
+						StringJoiner assignmentJoiner = new StringJoiner(",");
+						for(String assignment : assignmentTitles) {
+							assignmentJoiner.add(assignment);
+						}
+						
+						UIOutput.make(lockInfoRow, "group-locked-assignments", messageLocator.getMessage("group.assignments"));
+						UIOutput.make(lockInfoRow, "group-lock-assignment-info", assignmentJoiner.toString());
+					}
+					if (!assessmentTitles.isEmpty()) {
+						StringJoiner assessmentJoiner = new StringJoiner(",");
+						for(String assessment : assessmentTitles) {
+							assessmentJoiner.add(assessment);
+						}
+						UIOutput.make(lockInfoRow, "group-locked-assessments", messageLocator.getMessage("group.assessments"));
+						UIOutput.make(lockInfoRow, "group-lock-assessment-info", assessmentJoiner.toString());
+					}
+				}
 
 				String joinableSet = "---";
 				if(group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET) != null){

@@ -15,6 +15,7 @@
     <property name="targettedMessageList" ref="targettedMessageList" />
     <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
     <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+    <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService" />
   </bean>
    
   <bean id="GroupEditProducer" 
