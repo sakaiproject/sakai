@@ -549,7 +549,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	public boolean removeGalleryImage(final GalleryImage galleryImage) {
 		
 		try {
-			getHibernateTemplate().delete(galleryImage);
+			getHibernateTemplate().delete(getHibernateTemplate().merge(galleryImage));
 			return true;
 		} catch (final Exception e) {
 			log.error("removeGalleryImage failed. " + e.getClass() + ": " + e.getMessage());
