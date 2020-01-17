@@ -1103,7 +1103,7 @@ public class DeliveryBean implements Serializable {
 				  "-" +
 				  adata.getAgentId() +
 				  "-" +
-				  timedAG.getExpirationDate().toString();
+				  timedAG.getExpirationDate().getTime();
 			  setConfirmation(confirmation);
 			  lastSave = true;
           }
