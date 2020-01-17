@@ -22,6 +22,7 @@ package org.sakaiproject.portal.charon.velocity;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.collections.ExtendedProperties;
 import org.apache.velocity.exception.ResourceNotFoundException;
@@ -31,6 +32,8 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.webapp.api.WebappResourceManager;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Created with IntelliJ IDEA.
  * User: jbush
@@ -38,11 +41,12 @@ import org.sakaiproject.webapp.api.WebappResourceManager;
  * Time: 2:15 PM
  * To change this template use File | Settings | File Templates.
  */
+@Slf4j
 public class LibraryWebappLoader extends ResourceLoader {
     private static final long CACHE_EXPIRATION_IN_MILLIS = 60 * 1000;
     private WebappResourceManager libraryWebappResourceManager;
 
-    protected HashMap templatePaths = null;
+    protected Map<String, Date> templatePaths = null;
 
     /**
      * @param configuration the {@link ExtendedProperties} associated with this resource
@@ -50,14 +54,14 @@ public class LibraryWebappLoader extends ResourceLoader {
      */
     @Override
     public void init(ExtendedProperties configuration) {
-        rsvc.debug("WebappLoader : initialization starting.");
+        log.debug("WebappLoader : initialization starting.");
 
         getLibraryWebappResourceManager();
 
 		/* init the template paths map */
-        templatePaths = new HashMap();
+        templatePaths = new HashMap<>();
 
-        rsvc.debug("WebappLoader : initialization complete.");
+        log.debug("WebappLoader : initialization complete.");
     }
 
     /**
