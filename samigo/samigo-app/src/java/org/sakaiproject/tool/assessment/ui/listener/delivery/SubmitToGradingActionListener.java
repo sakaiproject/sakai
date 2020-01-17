@@ -789,9 +789,11 @@ public class SubmitToGradingActionListener implements ActionListener {
 			GradingService gradingService = new GradingService();
 			for (int m = 0; m < grading.size(); m++) {
 				ItemGradingData itemgrading = grading.get(m);
-				List<MediaData> medias = gradingService.getMediaArray2(itemgrading.getItemGradingId().toString());
-				for(MediaData md : medias) { 
-					delivery.getSubmissionFiles().put(itemgrading.getItemGradingId()+"_"+md.getMediaId(), md);
+				if (itemgrading.getItemGradingId() != null && itemgrading.getItemGradingId().intValue() > 0) {
+					List<MediaData> medias = gradingService.getMediaArray2(itemgrading.getItemGradingId().toString());
+					for(MediaData md : medias) { 
+						delivery.getSubmissionFiles().put(itemgrading.getItemGradingId()+"_"+md.getMediaId(), md);
+					}
 				}
 			}
 			handleMarkForReview(grading, adds);
