@@ -1995,7 +1995,7 @@ public class DeliveryBean
                       "-" +
                       adata.getAgentId() +
                       "-" +
-                      timedAG.getExpirationDate().toString();
+				      timedAG.getExpirationDate().getTime();
                   setConfirmation(confirmation);
                   lastSave = true;
               }

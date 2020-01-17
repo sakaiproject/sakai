@@ -254,7 +254,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 		delivery.setConfirmation(adata.getAssessmentGradingId() + "-"
 				+ publishedAssessment.getPublishedAssessmentId() + "-"
 				+ adata.getAgentId() + "-"
-				+ adata.getSubmittedDate().toString());
+				+ adata.getSubmittedDate().getTime());
 	}
 
 	/**
