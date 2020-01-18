@@ -1,4 +1,4 @@
-<div id="loginLinksImage" class="Mrphs-loginUser" tabindex="-1">
+<div id="loginLinksImage" class="Mrphs-loginUser">
 
     #if (${loginHasImage1})
 
