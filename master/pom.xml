@@ -2152,14 +2152,22 @@
           </configuration>
         </plugin>
         <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>findbugs-maven-plugin</artifactId>
-          <version>3.0.5</version>
-          <configuration>
-            <findbugsXmlOutput>true</findbugsXmlOutput>
+          <groupId>com.github.spotbugs</groupId>
+          <artifactId>spotbugs-maven-plugin</artifactId>
+          <version>3.1.12.2</version>
+         <configuration>
+            <spotbugsXmlOutput>true</spotbugsXmlOutput>
             <xmlOutput>true</xmlOutput>
             <effort>Max</effort>
           </configuration>
+         <dependencies>
+         <!-- overwrite dependency on spotbugs if you want to specify the version of spotbugs -->
+            <dependency>
+              <groupId>com.github.spotbugs</groupId>
+              <artifactId>spotbugs</artifactId>
+               <version>3.1.12</version>
+             </dependency>
+          </dependencies>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
