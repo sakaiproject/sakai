@@ -6,6 +6,10 @@
   input, a {
     display: inline-block;
   }
+
+  input {
+    height: $top-header-icon-size;
+  }
   a {
     width: $top-header-icon-size;
     height: $top-header-icon-size;
@@ -49,8 +53,13 @@
 
     a { display: inline-block; }
 
-    .search-result-title {
-      font-size: larger;
+    .search-result-title-label {
+      font-weight: bold;
+      margin-right: 5px;
+    }
+
+    .search-result-site-title {
+      font-weight: bold;
     }
 
     .search-result-tool-icon {
@@ -65,6 +74,13 @@
         width: 400px;
       }
     }
+
+    .search-result-toolname {
+      font-weight: bold;
+    }
   }
 
+  .pager-previous-link {
+    margin-right: 50px;
+  }
 }
