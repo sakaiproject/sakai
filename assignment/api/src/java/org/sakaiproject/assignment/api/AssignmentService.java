@@ -515,6 +515,8 @@ public interface AssignmentService extends EntityProducer {
      */
     public void getSubmissionsZip(OutputStream out, String ref, String queryString) throws IdUnusedException, PermissionException;
 
+    public boolean permissionCheck(String permission, String resource, String user);
+
     /**
      * Access the internal reference which can be used to assess security clearance.
      *

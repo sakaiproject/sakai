@@ -19,8 +19,6 @@
     <dependency>
         <groupId>org.sakaiproject.search.elasticsearch</groupId>
         <artifactId>elasticsearch-api</artifactId>
-        <version>${project.version}</version>
-        <scope>provided</scope>
     </dependency>
     <dependency>
         <groupId>org.sakaiproject.kernel</groupId>

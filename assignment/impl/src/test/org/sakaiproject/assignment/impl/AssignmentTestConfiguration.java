@@ -47,6 +47,8 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.hibernate.AssignableUUIDGenerator;
 import org.sakaiproject.rubrics.logic.RubricsService;
+import org.sakaiproject.search.api.SearchIndexBuilder;
+import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -72,6 +74,7 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.hibernate4.HibernateTransactionManager;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBuilder;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * Created by enietzel on 4/12/17.
@@ -293,5 +296,20 @@ public class AssignmentTestConfiguration {
     @Bean(name = "org.sakaiproject.rubrics.logic.RubricsService")
     public RubricsService rubricsService() {
         return mock(RubricsService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.search.api.SearchService")
+    public SearchService searchService() {
+        return mock(SearchService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.search.api.SearchIndexBuilder")
+    public SearchIndexBuilder searchIndexBuilder() {
+        return mock(SearchIndexBuilder.class);
+    }
+
+    @Bean(name = "org.springproject.transaction.support.TransactionTemplate")
+    public TransactionTemplate transactionTemplate() {
+        return mock(TransactionTemplate.class);
     }
 }

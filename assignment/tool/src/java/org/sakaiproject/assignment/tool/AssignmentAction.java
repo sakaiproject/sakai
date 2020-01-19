@@ -5060,6 +5060,10 @@ public class AssignmentAction extends PagedResourceActionII {
 
         ParameterParser params = data.getParameters();
         String assignmentReference = params.getString("assignmentReference");
+
+        if (assignmentReference == null) {
+            assignmentReference = params.getString("assignmentId");
+        }
         state.setAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE, assignmentReference);
 
         User u = (User) state.getAttribute(STATE_USER);
@@ -8857,15 +8861,33 @@ public class AssignmentAction extends PagedResourceActionII {
 
         Assignment a = getAssignment(assignmentId, "doView_assignment", state);
 
-        // get resubmission option into state
-        assignment_resubmission_option_into_state(a, null, state);
+        String siteId = a.getContext();
 
-        // assignment read event
-        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ACCESS_ASSIGNMENT, assignmentId, false));
+        //String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 
-        if (state.getAttribute(STATE_MESSAGE) == null) {
-            state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_VIEW_ASSIGNMENT);
+        boolean allowSubmitAssignment = assignmentService.allowAddSubmission(siteId);
+        boolean allowAddAssignment = assignmentService.allowAddAssignment(siteId);
+
+        if (allowSubmitAssignment && !allowAddAssignment) {
+            // Retrieve the status of the assignment
+            String assignStatus = getAssignmentStatus(assignmentId, state);
+            if (assignStatus != null && !assignStatus.equals(rb.getString("gen.open")) && !allowAddAssignment) {
+                addAlert(state, rb.getFormattedMessage("gen.notavail", assignStatus));
+            }
+            doView_submission(data);
+        } else {
+            // get resubmission option into state
+            assignment_resubmission_option_into_state(a, null, state);
+
+            // assignment read event
+            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ACCESS_ASSIGNMENT, assignmentId, false));
+
+            if (state.getAttribute(STATE_MESSAGE) == null) {
+                state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_VIEW_ASSIGNMENT);
+            }
         }
+
+        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ACCESS_ASSIGNMENT, assignmentId, false));
 
     } // doView_Assignment
 
@@ -13787,7 +13809,6 @@ public class AssignmentAction extends PagedResourceActionII {
         Boolean useSakaiGrader = (Boolean) state.getAttribute(USE_SAKAI_GRADER);
 
         if (submissionsSearchOnly == null || useSakaiGrader == null) {
-            System.out.println("TRYING TOOL ...");
             try {
                 Site site = siteService.getSite(siteId);
                 ToolConfiguration tc = site.getToolForCommonId(ASSIGNMENT_TOOL_ID);
