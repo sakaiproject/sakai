@@ -27,28 +27,24 @@ import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.portal.api.Portal;
-import org.sakaiproject.util.Web;
-
+import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.tool.api.ActiveTool;
-import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.tool.api.Placement;
-import org.sakaiproject.tool.api.Session;
-
-import org.sakaiproject.portal.api.PortalService;
-import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
-
 // Yes - crazy and brittle - but better in one place
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.RequestFilter;
+import org.sakaiproject.util.Web;
 
 /**
  * A set of utilities provided by the portal for use by tools.
