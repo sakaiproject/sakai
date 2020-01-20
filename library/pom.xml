@@ -238,9 +238,9 @@
 		</dependency>
 		<!--Used in Tests&Quizzes, Gradebook, Forums, autocomplete with previous inputs -->
 		<dependency>
-			<groupId>org.webjars</groupId>
+			<groupId>org.webjars.npm</groupId>
 			<artifactId>awesomplete</artifactId>
-			<version>1.1.4</version>
+			<version>1.1.5</version>
 		</dependency>
 		<!--Used in Profile, record name pronunciation -->
 		<dependency>
