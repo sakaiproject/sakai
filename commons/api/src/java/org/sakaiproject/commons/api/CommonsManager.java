@@ -15,7 +15,8 @@
  */
 package org.sakaiproject.commons.api;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 import org.sakaiproject.commons.api.datamodel.Comment;
 import org.sakaiproject.commons.api.datamodel.Post;
@@ -32,13 +33,15 @@ public interface CommonsManager extends EntityProducer {
 
     public static final String POST_CACHE = "org.sakaiproject.commons.sortedPostCache";
 
-    public Post getPost(String postId, boolean loadComments);
+    public Optional<Post> getPost(String postId, boolean loadComments);
 
     public List<Post> getPosts(QueryBean query) throws Exception;
 
     public Post savePost(Post post);
 
     public boolean deletePost(String postId);
+
+    public Optional<Comment> getComment(String commentId);
 
     public Comment saveComment(String commonsId, Comment comment);
 

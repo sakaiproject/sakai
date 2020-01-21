@@ -20,15 +20,20 @@ package org.sakaiproject.commons.api;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Getter;
+import lombok.Builder;
+
 /**
  * @author Adrian Fish (adrian.r.fish@gmail.com)
  */
+@Getter
+@Builder
 public class QueryBean {
 
-    public String commonsId = "";
-    public String siteId = "";
-    public String embedder = "";
-    public boolean isUserSite = false;
-    public List<String> fromIds = new ArrayList();
-    public String callerId = "";
+    @Builder.Default private String commonsId = "";
+    @Builder.Default private String siteId = "";
+    @Builder.Default private String embedder = "";
+    @Builder.Default private boolean userSite = false;
+    @Builder.Default private List<String> fromIds = new ArrayList<>();
+    @Builder.Default private String callerId = "";
 }

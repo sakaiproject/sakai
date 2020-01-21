@@ -13,9 +13,11 @@
         <groupId>org.sakaiproject.commons</groupId>
         <version>21-SNAPSHOT</version>
     </parent>
+
    <properties>
       <deploy.target>components</deploy.target>
-    </properties>
+  </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.sakaiproject.commons</groupId>
@@ -52,6 +54,22 @@
         <dependency>
             <groupId>org.sakaiproject.delegatedaccess</groupId>
             <artifactId>delegatedaccess-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.search</groupId>
+            <artifactId>search-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
