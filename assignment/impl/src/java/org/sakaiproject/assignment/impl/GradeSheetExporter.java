@@ -51,8 +51,8 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.CandidateDetailProvider;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.FormattedText;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -67,6 +67,7 @@ public class GradeSheetExporter {
     @Setter private CandidateDetailProvider candidateDetailProvider;
     @Setter private SiteService siteService;
     @Setter private UserDirectoryService userDirectoryService;
+    @Setter private FormattedText formattedText;
 
     private ResourceLoader rb = new ResourceLoader("assignment");
 
@@ -216,7 +217,7 @@ public class GradeSheetExporter {
                                             int dec = (int) Math.log10(factor);
 
                                             //We get float number no matter the locale it was managed with.
-                                            final NumberFormat nbFormat = FormattedText.getNumberFormat(dec, dec, null);
+                                            final NumberFormat nbFormat = formattedText.getNumberFormat(dec, dec, null);
                                             float f = nbFormat.parse(getGrade(submissionSubmitter)).floatValue();
 
                                             style = wb.createCellStyle();
@@ -272,7 +273,7 @@ public class GradeSheetExporter {
 	                                    int dec = (int) Math.log10(factor);
 	
 	                                    //We get float number no matter the locale it was managed with.
-	                                    NumberFormat nbFormat = FormattedText.getNumberFormat(dec, dec, null);
+	                                    NumberFormat nbFormat = formattedText.getNumberFormat(dec, dec, null);
 	                                    float f = nbFormat.parse(grade).floatValue();
 	
 	                                    String format = "#,##0.";
