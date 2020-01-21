@@ -362,12 +362,7 @@ public class ErrorReporter
 					+ pathInfo + rb.getString("bugreport.time") + ": " + time + "\n\n\n"
 					+ userComment + problemDisplay + placementDisplay + "\n\n" + requestDisplay;
 
-			EmailService emailService = ComponentManager.get(EmailService.class);
-			if (emailService != null) {
-				emailService.send(from, emailAddr, subject, body, emailAddr, null, null);
-			} else {
-				log.error("emailService null!");
-			}
+			ComponentManager.get(EmailService.class).send(from, emailAddr, subject, body, emailAddr, null, null);
 		}
 	}
 
