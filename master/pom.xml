@@ -37,6 +37,7 @@
     <sakai.hibernate.groupId>org.hibernate</sakai.hibernate.groupId>
     <sakai.hibernate.artifactId>hibernate-core</sakai.hibernate.artifactId>
     <sakai.hibernate.version>4.3.11.Final</sakai.hibernate.version>
+    <sakai.hikaricp.version>3.4.2</sakai.hikaricp.version>
     <sakai.httpclient.version>4.5.10</sakai.httpclient.version>
     <sakai.httpcore.version>4.4.13</sakai.httpcore.version>
     <sakai.httpmime.version>4.5.10</sakai.httpmime.version>
@@ -1877,7 +1878,7 @@
       <dependency>
         <groupId>com.zaxxer</groupId>
         <artifactId>HikariCP</artifactId>
-        <version>3.3.1</version>
+        <version>${sakai.hikaricp.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
