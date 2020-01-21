@@ -116,10 +116,10 @@ function saveTime()
 <%-- PART/ITEM DATA TABLES --%>
 
   <h:panelGroup styleClass="sak-banner-warn">
-	  <h:outputText value="#{deliveryMessages.submit_warning_1}" escape="false"/>
-	  <h:outputText value="#{deliveryMessages.submit_warning_2}" escape="false"/>
-	  <h:outputText value="#{deliveryMessages.submit_warning_3_non_linear}" rendered="#{delivery.navigation ne '1'}" escape="false"/>
-	  <h:outputText value="#{deliveryMessages.submit_warning_3_linear}" rendered="#{delivery.navigation eq '1'}" escape="false"/>
+	  <h:outputText value="#{deliveryMessages.submit_warning_1} " escape="false"/>
+	  <h:outputText value="#{deliveryMessages.submit_warning_2} " escape="false"/>
+	  <h:outputText value="#{deliveryMessages.submit_warning_3_non_linear} " rendered="#{delivery.navigation ne '1'}" escape="false"/>
+	  <h:outputText value="#{deliveryMessages.submit_warning_3_linear} " rendered="#{delivery.navigation eq '1'}" escape="false"/>
   </h:panelGroup>
 
   <h:panelGroup layout="block">
