@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.MessageDigest;
 import java.text.DateFormat;
+import java.time.Instant;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Locale;
@@ -36,24 +37,24 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import lombok.extern.slf4j.Slf4j;
-
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.email.cover.EmailService;
+import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.event.api.UsageSession;
-import org.sakaiproject.event.cover.UsageSessionService;
-import org.sakaiproject.id.cover.IdManager;
-import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.event.api.UsageSessionService;
+import org.sakaiproject.id.api.IdManager;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.Placement;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.FormattedText;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
@@ -62,7 +63,6 @@ import org.sakaiproject.util.ResourceLoader;
  * This is a util class as it's used by both the CharronPortal and the SkinnableCharronPortal.
  * </p>
  */
-@SuppressWarnings("deprecation")
 @Slf4j
 public class ErrorReporter
 {
@@ -290,7 +290,7 @@ public class ErrorReporter
 		if (emailAddr != null)
 		{
 			String uSessionInfo = "";
-			UsageSession usageSession = UsageSessionService.getSession();
+			UsageSession usageSession = ComponentManager.get(UsageSessionService.class).getSession();
 
 			if (usageSession != null)
 			{
@@ -316,7 +316,7 @@ public class ErrorReporter
 			{
 				try
 				{
-					user = UserDirectoryService.getUser(userId);
+					user = ComponentManager.get(UserDirectoryService.class).getUser(userId);
 					userName = user.getDisplayName();
 					userMail = user.getEmail();
 					userEid = user.getEid();
@@ -362,7 +362,7 @@ public class ErrorReporter
 					+ pathInfo + rb.getString("bugreport.time") + ": " + time + "\n\n\n"
 					+ userComment + problemDisplay + placementDisplay + "\n\n" + requestDisplay;
 
-			EmailService.send(from, emailAddr, subject, body, emailAddr, null, null);
+			ComponentManager.get(EmailService.class).send(from, emailAddr, subject, body, emailAddr, null, null);
 		}
 	}
 
@@ -404,24 +404,26 @@ public class ErrorReporter
 	public void report(HttpServletRequest req, HttpServletResponse res, 
 		Throwable t, boolean fullPage)
 	{
-		boolean showStackTrace = SecurityService.isSuperUser() || 
+		boolean showStackTrace = ComponentManager.get(SecurityService.class).isSuperUser() || 
 			ServerConfigurationService.getBoolean("portal.error.showdetail", false);
 		
-		String bugId = IdManager.createUuid(); 
+		String bugId = ComponentManager.get(IdManager.class).createUuid(); 
 				 
 		String headInclude = (String) req.getAttribute("sakai.html.head");
 		String bodyOnload = (String) req.getAttribute("sakai.html.body.onload");
-		Time reportTime = TimeService.newTime();
-		String time = reportTime.toStringLocalDate() + " "
-				+ reportTime.toStringLocalTime24();
-		String usageSessionId = UsageSessionService.getSessionId();
-		String userId = SessionManager.getCurrentSessionUserId();
+		Instant reportTime = Instant.now();
+		UserTimeService userTimeService = ComponentManager.get(UserTimeService.class);
+		String time = userTimeService.shortPreciseLocalizedTimestamp(reportTime, rb.getLocale());
+		String usageSessionId = ComponentManager.get(UsageSessionService.class).getSessionId();
+		String userId = ComponentManager.get(SessionManager.class).getCurrentSessionUserId();
 		String requestDisplay = requestDisplay(req);
 		String placementDisplay = placementDisplay();
 		String problem = throwableDisplay(t);
 		String problemdigest = computeSha1(problem);
 		String postAddr = ServerConfigurationService.getPortalUrl() + "/error-report";
 		String requestURI = req.getRequestURI();
+		
+		FormattedText formattedText = ComponentManager.get(FormattedText.class);
 
 		if (bodyOnload == null)
 		{
@@ -476,26 +478,26 @@ public class ErrorReporter
 			
 			if (showStackTrace) {
 				out.println("<input type=\"hidden\" name=\"problem\" value=\"");
-				out.println(FormattedText.escapeHtml(problem, false));
+				out.println(formattedText.escapeHtml(problem, false));
 				out.println("\">");
 			}
 			
 			out.println("<input type=\"hidden\" name=\"problemRequest\" value=\"");
-			out.println(FormattedText.escapeHtml(requestDisplay, false));
+			out.println(formattedText.escapeHtml(requestDisplay, false));
 			out.println("\">");
 			out.println("<input type=\"hidden\" name=\"problemPlacement\" value=\"");
-			out.println(FormattedText.escapeHtml(placementDisplay, false));
+			out.println(formattedText.escapeHtml(placementDisplay, false));
 			out.println("\">");
 			out.println("<input type=\"hidden\" name=\"problemdigest\" value=\""
-					+ FormattedText.escapeHtml(problemdigest, false) + "\">");
+					+ formattedText.escapeHtml(problemdigest, false) + "\">");
 			out.println("<input type=\"hidden\" name=\"session\" value=\""
-					+ FormattedText.escapeHtml(usageSessionId, false) + "\">");
+					+ formattedText.escapeHtml(usageSessionId, false) + "\">");
 			out.println("<input type=\"hidden\" name=\"bugid\" value=\""
-					+ FormattedText.escapeHtml(bugId, false) + "\">");
+					+ formattedText.escapeHtml(bugId, false) + "\">");
 			out.println("<input type=\"hidden\" name=\"user\" value=\""
-					+ FormattedText.escapeHtml(userId, false) + "\">");
+					+ formattedText.escapeHtml(userId, false) + "\">");
 			out.println("<input type=\"hidden\" name=\"time\" value=\""
-					+ FormattedText.escapeHtml(time, false) + "\">");
+					+ formattedText.escapeHtml(time, false) + "\">");
 
 			out
 					.println("<table class=\"itemSummary\" cellspacing=\"5\" cellpadding=\"5\">");
@@ -526,14 +528,14 @@ public class ErrorReporter
 				out.println("<p>" + rb.getString("bugreport.detailsnote") + "</p>");
 				
 				out.println("<p><pre>");
-				out.println(FormattedText.escapeHtml(problem, false));
+				out.println(formattedText.escapeHtml(problem, false));
 				out.println();
 				out.println(rb.getString("bugreport.user") + ": "
-						+ FormattedText.escapeHtml(userId, false) + "\n");
+						+ formattedText.escapeHtml(userId, false) + "\n");
 				out.println(rb.getString("bugreport.usagesession") + ": "
-						+ FormattedText.escapeHtml(usageSessionId, false) + "\n");
+						+ formattedText.escapeHtml(usageSessionId, false) + "\n");
 				out.println(rb.getString("bugreport.time") + ": "
-						+ FormattedText.escapeHtml(time, false) + "\n");
+						+ formattedText.escapeHtml(time, false) + "\n");
 				out.println("</pre></p>");
 			}
 			
@@ -564,7 +566,7 @@ public class ErrorReporter
 		StringBuilder sb = new StringBuilder();
 		try
 		{
-			Placement p = ToolManager.getCurrentPlacement();
+			Placement p = ComponentManager.get(ToolManager.class).getCurrentPlacement();
 			if (p != null)
 			{
 				sb.append(rb.getString("bugreport.placement")).append("\n");
