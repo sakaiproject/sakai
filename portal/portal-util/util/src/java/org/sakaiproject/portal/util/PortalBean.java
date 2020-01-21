@@ -21,10 +21,6 @@
 
 package org.sakaiproject.portal.util;
 
-import org.sakaiproject.portal.util.PortalUtils;
-import org.sakaiproject.portal.util.ToolUtils;
-import org.sakaiproject.portal.util.URLUtils;
-
 public class PortalBean
 {
 
