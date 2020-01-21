@@ -15,11 +15,14 @@
  */
 package org.sakaiproject.site.tool;
 
+import java.io.UnsupportedEncodingException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -4792,11 +4795,16 @@ public class SiteAction extends PagedResourceActionII {
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		// read the search form field into the state object
-		String search = StringUtils.trimToNull(data.getParameters().getString(
-				FORM_SEARCH));
+		String search = StringUtils.trimToNull(data.getParameters().getString(FORM_SEARCH));
+		//The search input has been encoded and should be decoded.
+		try {
+			search = URLDecoder.decode(search, StandardCharsets.UTF_8.toString());
+		} catch(UnsupportedEncodingException ex) {
+			log.error("Error decoding the input search '{}'.", search);
+		}
 		resetPaging(state);
 		// set the flag to go to the prev page on the next list
-		if (search == null) {
+		if (StringUtils.isBlank(search)) {
 			state.removeAttribute(STATE_SEARCH);
 		} else {
 			state.setAttribute(STATE_SEARCH, search);
