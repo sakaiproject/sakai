@@ -60,7 +60,7 @@
 		}
 	}
 
-	function setAutoCreatePanel(radioButton) {
+	function setAutoCreatePanel() {
 		$(".createOneForumPanel").slideToggle("fast");
 		$(".createForumsForGroupsPanel").slideToggle("fast", function() {
 			if ($('#createForumsForGroupsPanel').is(':hidden')) {
@@ -69,7 +69,7 @@
 			else {
 			   document.getElementById("revise:saveandadd").disabled = true;
 			}
-		});		
+		});
 	}
 	</script>
 <!-- RUBRICS VARIABLES -->
@@ -109,28 +109,33 @@
 					format: charRemFormat
 				 });
 				 updateGradeAssignment();
-			 });				 
+
+                if(document.getElementById("revise:createForumsForGroups:1").checked) {
+                    setAutoCreatePanel();
+                }
+
+			 });
         </script>
-		<div class="page-header">
+		<h:panelGroup layout="block" styleClass="page-header">
 			<h1><h:outputText value="#{msgs.cdfm_discussion_forum_settings}" /></h1>
-		</div>
-		<div class="instruction">
+		</h:panelGroup>
+		<h:panelGroup layout="block" styleClass="instruction">
 		  <h:outputText id="instruction"  value="#{msgs.cdfm_settings_instruction}"/>
 		  <h:outputText value="#{msgs.cdfm_info_required_sign}" styleClass="reqStarInline" />
-		</div>
+		</h:panelGroup>
 			<h:messages styleClass="messageAlert" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" /> 
      
 			<h:panelGrid columns="1" styleClass="jsfFormTable" columnClasses="shorttext">
-				<h:panelGroup>	
+				<h:panelGroup>
 					<%-- //designNote: does this text input need a maxlength attribute ? --%>
 					<h:outputLabel id="outputLabel" for="forum_title" styleClass="block" style="padding-bottom:.3em;display:block;clear:both;float:none">
 					<h:outputText id="req_star"  value="#{msgs.cdfm_info_required_sign}" styleClass="reqStar"/>	
 						<h:outputText  value="#{msgs.cdfm_forum_title}" />
-					</h:outputLabel>	
+					</h:outputLabel>
 					<h:inputText size="50" id="forum_title"  maxlength="250" value="#{ForumTool.selectedForum.forum.title}">
 						<f:validateLength minimum="1" maximum="255"/>
 					</h:inputText>
-				</h:panelGroup>	
+				</h:panelGroup>
 			</h:panelGrid>
 			<%-- //designNote: rendered attr below should resolve to false only if there is no prior short description
 			 		and if there is server property (TBD) saying not to use it  - below just checking for pre-existing short description--%>
@@ -149,29 +154,28 @@
 					
 					<h:inputTextarea rows="3" cols="45" id="forum_shortDescription"  value="#{ForumTool.selectedForum.forum.shortDescription}" styleClass="forum_shortDescriptionClass" style="float:none"/>
 					<h:outputText value="" />
-				</h:panelGroup>	
+				</h:panelGroup>
       	</h:panelGrid>
-      		
+
 			<%--RTEditor area - if enabled--%>
 			<h:panelGroup rendered="#{! ForumTool.disableLongDesc}">
 				<h:outputText id="outputLabel2" value="#{msgs.cdfm_fullDescription}" styleClass="labeled"/>
 			<sakai:inputRichText textareaOnly="#{PrivateMessagesTool.mobileSession}" rows="#{ForumTool.editorRows}" cols="132" id="df_compose_description" value="#{ForumTool.selectedForum.forum.extendedDescription}">
 			</sakai:inputRichText>
 	      	</h:panelGroup>
-	      	
-			
+
 			<%--Attachment area  --%>
 	      <h2>
 		        <h:outputText value="#{msgs.cdfm_att}"/>
 	      </h2>
-			<div>
+
 				<%--designNote: would be nice to make this an include, as well as a more comprehensive MIME type check  --%> 
 			<h:dataTable styleClass="attachPanel" id="attmsg"  value="#{ForumTool.attachments}" var="eachAttach"  cellpadding="0" cellspacing="0" columnClasses="attach,bogus,specialLink,bogus,bogus" rendered="#{!empty ForumTool.attachments}">
 				<h:column>
-					<f:facet name="header">   <h:outputText value=" "/>                                          
+					<f:facet name="header">   <h:outputText value=" "/>
 						</f:facet>
-						<sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>									
-						<h:graphicImage id="exampleFileIcon" value="#{imagePath}" />							
+						<sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>
+						<h:graphicImage id="exampleFileIcon" value="#{imagePath}" />
 						</h:column>
 						<h:column>
 						<f:facet name="header">
@@ -203,12 +207,12 @@
 					<%--//designNote: do we really need this info if the lookup has worked? I Suppose till the MIME type check is more comprehensive, yes --%>
 						<h:outputText value="#{eachAttach.attachment.attachmentType}"/>
 					</h:column>
-					</h:dataTable>   
+			</h:dataTable>
 
 			<h:panelGroup rendered="#{empty ForumTool.attachments}" styleClass="instruction">
 				<h:outputText value="#{msgs.cdfm_no_attachments}" />
 			</h:panelGroup>
-			<p class="act" style="padding:0 0 1em 0;">
+			<h:panelGroup layout="block" styleClass="act" style="padding:0 0 1em 0;">
 				<h:commandButton  action="#{ForumTool.processAddAttachmentRedirect}"
 					value="#{msgs.cdfm_button_bar_add_attachment_more_redirect}"  
 					style="font-size:96%"
@@ -218,13 +222,12 @@
 					style="font-size:96%"
 					rendered="#{empty ForumTool.attachments}"
 					/>
-			</p>	
-			</div>		
+			</h:panelGroup>
 			<%--general posting  forum settings --%>
 			<h2>
 				<h:outputText value="#{msgs.cdfm_forum_posting}" />
 			</h2>
-			
+
 				<p class="checkbox">
 					<h:selectBooleanCheckbox
 						title="ForumLocked" value="#{ForumTool.selectedForum.forumLocked}"
@@ -246,7 +249,7 @@
 
 			<h2><h:outputText  value="#{msgs.cdfm_forum_availability}" /></h2>
 			
-			<div class="indnt1">
+			<h:panelGroup layout="block" styleClass="indnt1">
 			<%-- <h:panelGrid columns="1" columnClasses="longtext,checkbox" cellpadding="0" cellspacing="0"> --%>
               <h:panelGroup styleClass="checkbox">
                  <h:selectOneRadio layout="pageDirection" onclick="this.blur()" onchange="setDatesEnabled(this);" disabled="#{not ForumTool.editMode}" id="availabilityRestricted"  value="#{ForumTool.selectedForum.availabilityRestricted}">
@@ -266,9 +269,9 @@
 
               	</h:panelGroup>
            <%-- </h:panelGrid> --%>
- 		</div>
+			</h:panelGroup>
 
- 		<script type="text/javascript">
+ 		<script>
  		      localDatePicker({
  		      	input:'.openDate', 
  		      	allowEmptyDate:true, 
@@ -301,10 +304,10 @@
 				<%--designNote:  How is this a "permission" item? --%>  
 				<h2><h:outputText value="#{msgs.perm_choose_assignment_head}" rendered="#{ForumTool.gradebookExist}" /></h2>
 
-				<div class="row form-group" id="forum_grading">
+				<h:panelGroup layout="block" styleClass="row form-group" id="forum_grading">
 					<h:outputLabel for="forum_assignments" value="#{msgs.perm_choose_assignment}" styleClass="col-md-2 col-sm-2"></h:outputLabel>  
-					<div class="col-md-10 col-sm-10">
-						<div class="row">
+					<h:panelGroup layout="block" styleClass="col-md-10 col-sm-10">
+						<h:panelGroup layout="block" styleClass="row">
 				  		<h:panelGroup  styleClass="gradeSelector  itemAction actionItem"> 
 							<h:selectOneMenu id="forum_assignments" onchange="updateGradeAssignment()" value="#{ForumTool.selectedForum.gradeAssign}" disabled="#{not ForumTool.editMode}">
 			   	    			<f:selectItems value="#{ForumTool.assignments}" />
@@ -313,15 +316,15 @@
 							<h:outputText value=" #{msgs.perm_choose_instruction_forum} " styleClass="instrWithGrades" style="margin-left:0;"/>
 							<h:outputLink value="#" style="text-decoration:none" styleClass="instrWithGrades"><h:outputText styleClass="displayMore" value="#{msgs.perm_choose_instruction_more_link}"/></h:outputLink>
 			    		</h:panelGroup>
-			    		</div>
-			    		<div class="row">
+			    		</h:panelGroup>
+			    		<h:panelGroup layout="block" styleClass="row"> 
 							<h:panelGroup styleClass="displayMorePanel" style="display:none" ></h:panelGroup>
 							<h:panelGroup styleClass="itemAction actionItem displayMorePanel" style="display:none" >
 								<h:outputText styleClass="displayMorePanel" value="#{msgs.perm_choose_instruction_forum_more}"/>
 			    			</h:panelGroup>
-			    		</div>
-					</div>
-				</div>
+			    		</h:panelGroup>
+					</h:panelGroup>
+				</h:panelGroup>
 			
 		<sakai-rubric-association styleClass="checkbox" style="margin-left:10px;display:none;"
 
@@ -340,21 +343,21 @@
 			<h:panelGroup rendered="#{ForumTool.selectedForum.forum.id==null && !empty ForumTool.siteGroups}">
 					<f:verbatim><h4></f:verbatim><h:outputText  value="#{msgs.cdfm_autocreate_forums_header}" /><f:verbatim></h4></f:verbatim>
 				</h:panelGroup>
-				<div class="indnt1">
+				<h:panelGroup layout="block" styleClass="indnt1">
 					<h:panelGrid columns="1" columnClasses="longtext,checkbox" cellpadding="0" cellspacing="0" >
 						<h:panelGroup rendered="#{ForumTool.selectedForum.forum.id==null && !empty ForumTool.siteGroups}">
-							<h:selectOneRadio layout="pageDirection" onclick="this.blur()" onchange="setAutoCreatePanel(this);" disabled="#{not ForumTool.editMode}" id="createForumsForGroups" value="#{ForumTool.selectedForum.restrictPermissionsForGroups}">
+							<h:selectOneRadio layout="pageDirection" onclick="this.blur()" onchange="setAutoCreatePanel();" disabled="#{not ForumTool.editMode}" id="createForumsForGroups" value="#{ForumTool.selectedForum.restrictPermissionsForGroups}">
 								<f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_create_one_forum}"/>
 								<f:selectItem itemValue="true" itemLabel="#{msgs.cdfm_autocreate_forums_for_groups}"/>
 							</h:selectOneRadio>
 						</h:panelGroup>
 					</h:panelGrid>
-				</div>
-				<div id="createOneForumPanel" class="createOneForumPanel">
+				</h:panelGroup>
+				<h:panelGroup layout="block" styleClass="createOneForumPanel" id="createOneForumPanel">
 					<%@ include file="/jsp/discussionForum/permissions/permissions_include.jsp"%>
-				</div>
+				</h:panelGroup>
 
-				<div id="createForumsForGroupsPanel" class="createForumsForGroupsPanel" style="display:none" >
+				<h:panelGroup layout="block" styleClass="createForumsForGroupsPanel" id="createForumsForGroupsPanel" style="display:none;" >
 				<h:panelGroup rendered="#{ForumTool.selectedForum.forum.id==null && !empty ForumTool.siteGroups}"> 
 					<h:outputText value="#{msgs.cdfm_autocreate_forums_desc}" rendered="#{ForumTool.selectedForum.forum.id==null && !empty ForumTool.siteGroups}" />
 					<h:panelGroup styleClass="itemAction">
@@ -375,10 +378,10 @@
 						</h:column>
 					</h:dataTable>
 				</h:panelGroup>
-				</div>
+				</h:panelGroup>
 				
         
-      <div class="act">
+      <h:panelGroup layout="block" styleClass="act">
           <h:commandButton action="#{ForumTool.processActionSaveForumSettings}" actionListener="#{ForumTool.keepStateDetails}" value="#{msgs.cdfm_button_bar_save_setting}"
           								 rendered="#{!ForumTool.selectedForum.markForDeletion}" accesskey="s" styleClass="blockMeOnClick"> 
     	 	  	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>         
@@ -405,7 +408,7 @@
           </h:commandButton>
           <h:commandButton immediate="true" action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_button_bar_cancel}" accesskey="x" />
           <h:outputText styleClass="sak-banner-info" style="display:none" value="#{msgs.cdfm_processing_submit_message}" />
-       </div>
+       </h:panelGroup>
 	 </h:form>
     </sakai:view>
 </f:view>
