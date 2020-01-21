@@ -18,6 +18,8 @@ package org.sakaiproject.gradebookng.business.util;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -65,6 +67,7 @@ import org.sakaiproject.gradebookng.tool.model.AssignmentStudentGradeInfo;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.util.ResourceLoader;
 
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
@@ -158,14 +161,14 @@ public class ImportGradesHelper {
 		// manually parse method so we can support arbitrary columns
 		CSVReader reader;
 		if(StringUtils.isEmpty(userDecimalSeparator)){
-			reader = new CSVReader(new InputStreamReader(is));
+			reader = new CSVReader(new InputStreamReader(is, "ISO-8859-1"));
 		}else{
 			CSVParser parser = new CSVParserBuilder()
 					//new CSVReader(new InputStreamReader(is), ".".equals(userDecimalSeparator) ? CSVParser.DEFAULT_SEPARATOR : CSV_SEMICOLON_SEPARATOR);
 					.withSeparator(".".equals(userDecimalSeparator) ? CSVParser.DEFAULT_SEPARATOR : CSV_SEMICOLON_SEPARATOR)
 					.build();
 					
-			reader = new CSVReaderBuilder(new InputStreamReader(is))
+			reader = new CSVReaderBuilder(new InputStreamReader(is, "ISO-8859-1"))
 					.withCSVParser(parser)
 					.build();
 		}
@@ -229,14 +232,16 @@ public class ImportGradesHelper {
 
 		final Workbook wb = WorkbookFactory.create(is);
 		final Sheet sheet = wb.getSheetAt(0);
+		int numCells = 0;
 		for (final Row row : sheet) {
 
-			final String[] r = convertRow(row);
-
 			if (lineCount == 0) {
+				numCells = row.getPhysicalNumberOfCells();
+				final String[] r = convertRow(row, numCells);
 				// header row, capture it
 				mapping = mapHeaderRow(r, importedGradeWrapper.getHeadingReport());
 			} else {
+				final String[] r = convertRow(row, numCells);
 				// map the fields into the object
 				final ImportedRow importedRow = mapLine(r, mapping, userEidMap, userDecimalSeparator);
 				if (importedRow != null) {
@@ -262,6 +267,8 @@ public class ImportGradesHelper {
 	private static ImportedRow mapLine(final String[] line, final Map<Integer, ImportedColumn> mapping, final Map<String, GbUser> userMap, String userDecimalSeparator) {
 
 		final ImportedRow row = new ImportedRow();
+		NumberFormat nbFormat = NumberFormat.getInstance(new ResourceLoader().getLocale());
+		String decSeparator =((DecimalFormat)nbFormat).getDecimalFormatSymbols().getDecimalSeparator() + "";
 
 		for (final Map.Entry<Integer, ImportedColumn> entry : mapping.entrySet()) {
 
@@ -306,7 +313,11 @@ public class ImportGradesHelper {
 				case GB_ITEM_WITHOUT_POINTS:
 					// fix the separator for the comparison with the current values
 					if (StringUtils.isNotBlank(lineVal)) {
-						cell.setRawScore(lineVal);
+						if(lineVal.contains(".")) {
+							cell.setRawScore(lineVal.replace(".", decSeparator));
+						}else {
+							cell.setRawScore(lineVal);
+						}
 						cell.setScore(",".equals(userDecimalSeparator) ? lineVal.replace(userDecimalSeparator, ".") : lineVal);
 					}
 					row.getCellMap().put(columnTitle, cell);
@@ -830,17 +841,18 @@ public class ImportGradesHelper {
 	 * @param row
 	 * @return
 	 */
-	private static String[] convertRow(final Row row) {
+	private static String[] convertRow(final Row row, final int numCells) {
 
-		final int numCells = row.getPhysicalNumberOfCells();
 		final String[] s = new String[numCells];
-
-		int i = 0;
-		for (final Cell cell : row) {
-			// force cell to String
-			cell.setCellType(CellType.STRING);
-			s[i] = StringUtils.trimToNull(cell.getStringCellValue());
-			i++;
+		
+		Cell cell;
+		for(int i = 0; i < numCells; i++) {
+			cell = row.getCell(i);
+			if(cell != null) {
+				cell.setCellType(CellType.STRING);
+				s[i] = StringUtils.trimToNull(cell.getStringCellValue());
+			}
+			
 		}
 
 		return s;
