@@ -7,7 +7,7 @@ export class SakaiPager extends SakaiElement {
 
     super();
 
-    this.loadTranslations({bundle: "pager"}).then(t => { this.i18n = t; this.requestUpdate(); });
+    this.loadTranslations("pager").then(t => this.i18n = t);
   }
 
   static get properties() {
@@ -17,6 +17,7 @@ export class SakaiPager extends SakaiElement {
       pageSize: { attribute: "page-size", type:  Number },
       numPages: Number,
       currentPageNumbers: Array,
+      i18n: Object,
     };
   }
 
@@ -25,6 +26,7 @@ export class SakaiPager extends SakaiElement {
     this._totalThings = newValue;
     if (this.pageSize) {
       this.numPages = this._totalThings / this.pageSize;
+      if (this.numPages < 1) this.numPages = 1;
       this.initSetsOfPages();
     }
   }
@@ -36,6 +38,7 @@ export class SakaiPager extends SakaiElement {
     this._pageSize = newValue;
     if (this.totalThings) {
       this.numPages = this.totalThings / this._pageSize;
+      if (this.numPages < 1) this.numPages = 1;
       this.initSetsOfPages();
     }
   }
@@ -43,8 +46,6 @@ export class SakaiPager extends SakaiElement {
   get pageSize() { return this._pageSize; }
 
   initSetsOfPages() {
-
-    console.log(this.numPages);
 
     let allPages = [...Array(this.numPages).keys()].map(i => i + 1);
 
@@ -79,7 +80,11 @@ export class SakaiPager extends SakaiElement {
         ` : html`
         <span>${this.i18n["previous"]}</span>
         `}
-        ${this.currentPageNumbers.map((i) => html`<div class="pager-page-link"><a href="javascript:;" data-page="${i}" @click=${this.pageClicked} title="${this.tr("page_tooltip", { page: i })}">${i}</a></div>`)}
+        ${this.currentPageNumbers.map((i) => html`
+        <div class="pager-page-link">
+          <a href="javascript:;" data-page="${i}" @click=${this.pageClicked} title="${this.tr("page_tooltip", { page: i })}">${i}</a>
+        </div>
+        `)}
         ${this.enableNext ? html`
         <a href="javascript:;" class="pager-next-link" @click=${this.showNextPageNumbers} title="${this.i18n["next"]}">${this.i18n["next"]}</a>
         ` : html`

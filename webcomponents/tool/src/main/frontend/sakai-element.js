@@ -17,7 +17,11 @@ class SakaiElement extends LitElement {
 
   loadTranslations(options) {
 
-    this.bundle = options.bundle;
+    if (typeof options === "string") {
+      this.bundle = options;
+    } else {
+      this.bundle = options.bundle;
+    }
 
     // Pass the call on to the imported function
     return loadProperties(options);
