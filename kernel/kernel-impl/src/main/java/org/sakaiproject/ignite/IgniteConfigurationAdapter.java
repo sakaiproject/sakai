@@ -23,7 +23,7 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
     @Getter @Setter private String mode;
 
     public void init() {
-        node = serverConfigurationService.getString("ignite.node", serverConfigurationService.getString(node));
+        node = serverConfigurationService.getString("ignite.node", serverConfigurationService.getServerId());
         name = serverConfigurationService.getString("ignite.name", name);
         home = serverConfigurationService.getString("ignite.home", home);
         mode = serverConfigurationService.getString("ignite.mode", mode);
@@ -43,7 +43,7 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
         igniteConfiguration.setConsistentId(node);
         igniteConfiguration.setIgniteInstanceName(name);
 
-        if (StringUtils.equalsAnyIgnoreCase("client", mode)) {
+        if (StringUtils.equalsIgnoreCase("client", mode)) {
             igniteConfiguration.setClientMode(true);
         } else {
             igniteConfiguration.setClientMode(false);
@@ -59,5 +59,8 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
     private void configureHome() {
         File igniteHome = new File(home);
         if (!igniteHome.exists()) igniteHome.mkdir();
+
+        // update home with the absolute path
+        setHome(igniteHome.getAbsolutePath());
     }
 }

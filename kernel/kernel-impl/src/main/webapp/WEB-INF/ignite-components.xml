@@ -8,8 +8,7 @@
           init-method="init">
         <property name="home" value="${sakai.home}/ignite"/>
         <property name="mode" value="server"/>
-        <property name="node" value="serverId"/>
-        <property name="name" value="sakai-grid"/>
+        <property name="name" value="sakai"/>
         <property name="cacheConfiguration">
             <list>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">

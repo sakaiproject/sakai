@@ -932,12 +932,6 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-ehcache</artifactId>
-        <version>${sakai.hibernate.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
         <groupId>org.javassist</groupId>
         <artifactId>javassist</artifactId>
         <version>3.25.0-GA</version>
@@ -1143,13 +1137,6 @@
         <groupId>com.opencsv</groupId>
         <artifactId>opencsv</artifactId>
         <version>${sakai.opencsv.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <!-- Added to shared by the kernel (duplicate definition in kernel/pom.xml) -->
-      <dependency>
-        <groupId>com.h2database</groupId>
-        <artifactId>h2</artifactId>
-        <version>1.4.199</version>
         <scope>provided</scope>
       </dependency>
       <!-- Elasticsearch -->

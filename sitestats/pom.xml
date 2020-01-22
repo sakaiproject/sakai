@@ -121,7 +121,7 @@
         <groupId>org.jfree</groupId>
         <artifactId>jfreechart</artifactId>
         <version>${jfreechart.version}</version>
-      </dependency> 
+      </dependency>
     </dependencies>
   </dependencyManagement>
 </project>
