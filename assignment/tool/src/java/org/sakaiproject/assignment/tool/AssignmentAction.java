@@ -5872,6 +5872,14 @@ public class AssignmentAction extends PagedResourceActionII {
         // for points grading, one have to enter number as the points
         String grade = (String) state.getAttribute(GRADE_SUBMISSION_GRADE);
 
+        Map<String, Object> options
+            = state.getAttributeNames().stream().collect(Collectors.toMap(n -> n, n -> state.getAttribute(n)));
+
+        // Add the rubrics params to the map, too
+        ParameterParser params = data.getParameters();
+        Iterable<String> iterable = () -> params.getNames();
+        StreamSupport.stream(iterable.spliterator(), false).filter(n -> n.startsWith(RubricsConstants.RBCS_PREFIX)).forEach(n -> options.put(n, params.get(n)));
+
         AssignmentSubmission submission = getSubmission(sId, "grade_submission_option", state);
 
         if (submission != null) {
@@ -6010,12 +6018,21 @@ public class AssignmentAction extends PagedResourceActionII {
             }
 
             // Persist the rubric evaluations
-            if(rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_ASSIGNMENT, submission.getAssignment().getId())){
+            if (rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_ASSIGNMENT, submission.getAssignment().getId())){
+                Map<String, String> rubricsParams
+                    = options.entrySet().stream().filter(e -> e.getKey().startsWith("rbcs"))
+                        .collect(Collectors.toMap(e -> e.getKey(), e -> (String) e.getValue()));
+
+                String siteId = a.getContext();
+
+                if (StringUtils.isNotBlank(siteId)) {
+                    rubricsParams.put("siteId", siteId);
+                }
                 for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
                     String submitterId = submitter.getSubmitter();
-                    rubricsService.saveRubricEvaluation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, submission.getAssignment().getId(), submission.getId(), submitterId, submission.getGradedBy(), getRubricConfigurationParameters(data.getParameters()));
+                    rubricsService.saveRubricEvaluation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, submission.getAssignment().getId(), submission.getId(), submitterId, submission.getGradedBy(), rubricsParams);
                 }
-            }			
+            }
         }
 
         if (state.getAttribute(STATE_MESSAGE) == null) {
