@@ -117,7 +117,7 @@ public class AssignmentEventObserver implements Observer {
                                     log.warn("Can't retrieve user {}, {}", studentId, e.getMessage());
                                 }
                             } else {
-                                log.warn("Score update not supported for source {}", source);
+                                log.debug("Score update not supported for event with source of {}", source);
                             }
                         }
                         break;
