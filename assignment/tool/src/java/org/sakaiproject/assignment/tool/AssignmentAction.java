@@ -14547,7 +14547,7 @@ public class AssignmentAction extends PagedResourceActionII {
                                     // Error should appear before pending
                                     score1 = -1;
                                 } else if (crr1.getReviewScore() > score1) {
-                                    score1 = crr1.getReviewScore(); // This will return -2 for pending
+                                    score1 = crr1.getReviewScore();
                                 }
                             }
 
