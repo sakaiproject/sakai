@@ -11,6 +11,7 @@ class SakaiSearch extends SakaiElement {
 
     this.iconMapping = {
       "announcement": "icon-sakai--sakai-announcements",
+      "assignments": "icon-sakai--sakai-assignment-grades",
       "chat": "icon-sakai--sakai-chat",
       "forums": "icon-sakai--sakai-forums",
       "lessons": "icon-sakai--sakai-lessonbuildertool",
@@ -22,7 +23,16 @@ class SakaiSearch extends SakaiElement {
 
     this.showField = this.searchTerms.length > 3 && this.results.length > 0;
 
-    this.loadTranslations({bundle: "search"}).then(t => { this.i18n = t; this.requestUpdate(); });
+    this.loadTranslations("search").then(t => {
+      this.i18n = t;
+      this.toolNameMapping = {
+        "announcement": this.i18n["toolname_announcement"],
+        "assignments": this.i18n["toolname_assignment"],
+        "chat": this.i18n["toolname_chat"],
+        "forums": this.i18n["toolname_forum"],
+        "lessons": this.i18n["toolname_lesson"],
+      };
+    });
   }
 
   static get properties() {
@@ -31,6 +41,7 @@ class SakaiSearch extends SakaiElement {
       showField: Boolean,
       results: Array,
       pageSize: { attribute: "page-size", type: Number },
+      i18n: Object,
     };
   }
 
@@ -60,13 +71,15 @@ class SakaiSearch extends SakaiElement {
           ${this.currentPageOfResults.map(r => html`
           <div class="search-result-container">
             <div>
-              <i class="search-result-tool-icon ${this.iconMapping[r.tool]}" title="${r.tool}"></i>
-              <a href="${r.url}">
-                <span class="search-result-title">${r.title}</span>
-              </a>
+              <i class="search-result-tool-icon ${this.iconMapping[r.tool]}" title="${this.toolNameMapping[r.tool]}"></i>
+              <span class="search-result-toolname">${this.toolNameMapping[r.tool]}</span>
+              <span>${this.i18n["from_site"]}</span>
+              <span class="search-result-site-title">${r.siteTitle}</span>
+            </div>
+            <div>
+              <span class="search-result-title-label">${this.i18n["search_result_title"]}</span><a href="${r.url}"><span class="search-result-title">${r.title}</span></a>
             </div>
             <div class="search-result">${unsafeHTML(r.searchResult)}</div>
-            <div class="search-result-site-title"><span>${this.i18n["site_label"]}</span><a href="${r.siteUrl}" title="Click to visit ${this.siteTitle}">${r.siteTitle}</a></div>
           </div>
           `)}
         <sakai-pager total-things="${this.results.length}" page-size="${this.pageSize}" @page-clicked=${this.pageClicked}></sakai-pager>
@@ -84,7 +97,7 @@ class SakaiSearch extends SakaiElement {
 
     this.requestUpdate();
 
-    this.updateComplete.then(() => this.querySelector("#sakai-search-input").focus());
+    this.updateComplete.then(() => { if (this.showField) this.querySelector("#sakai-search-input").focus(); });
   }
 
   clear() {
