@@ -746,6 +746,8 @@ public interface AssignmentService extends EntityProducer {
 
     public List<ContentReviewResult> getContentReviewResults(AssignmentSubmission submission);
 
+    public List<ContentReviewResult> getSortedContentReviewResults(AssignmentSubmission submission);
+
     /**
      * Determines whether it is appropriate to display the content review results for a submission. For instance, this will be false if the submission is a draft or if the user doesn't have permission
      * Note: this doesn't check if content review is enabled in the site / if the associated assignment has content review enabled; it is assumed that this has been handled by the caller.

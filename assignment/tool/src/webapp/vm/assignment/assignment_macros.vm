@@ -400,7 +400,7 @@
 
 ## macro to display content review results; assumes they're visible (caller must do the required checks / provide appropriate messaging)
 #macro(contentReviewReports $submission $inTable $displayUrkundOptOut)
-	#set($reviewResults=$!service.getContentReviewResults($!submission))
+	#set($reviewResults=$!service.getSortedContentReviewResults($!submission))
 	#if ($reviewResults.size() >= 3)
 		#if (!$inTable)
 			<div class="contentReviewDisclosure discTria">
