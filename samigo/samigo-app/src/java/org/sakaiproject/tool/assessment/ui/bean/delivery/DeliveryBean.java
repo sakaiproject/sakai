@@ -496,11 +496,9 @@ public class DeliveryBean
     return beginTime;
   }
 
-  
   public String getBeginTimeString() {
-	  String beginTimeString = "";
 	    if (beginTime == null) {
-	      return beginTimeString;
+	      return "";
 	    }
 
       return userTimeService.dateTimeFormat(beginTime, new ResourceLoader().getLocale(), DateFormat.MEDIUM);
@@ -1041,6 +1039,14 @@ public class DeliveryBean
     }
 	
     return settings;
+  }
+
+  public String getAdjustedTimedAssesmentDueDateString () {
+    if (adjustedTimedAssesmentDueDate == null) {
+      return "";
+    }
+
+    return userTimeService.dateTimeFormat(adjustedTimedAssesmentDueDate, new ResourceLoader().getLocale(), DateFormat.MEDIUM);
   }
 
   /**
@@ -3647,7 +3653,6 @@ public class DeliveryBean
 	  }
 
 	  public String getDeadlineString() {
-		  String deadlineString = "";
 		    if (deadline == null) {
 		      return "";
 		    }
