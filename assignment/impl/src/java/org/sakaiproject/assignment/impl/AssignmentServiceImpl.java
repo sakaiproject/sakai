@@ -4241,6 +4241,24 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         return reviewResults;
     }
 
+    public List<ContentReviewResult> getSortedContentReviewResults(AssignmentSubmission s){
+        List<ContentReviewResult> reviewResults = getContentReviewResults(s);
+
+        Comparator<ContentReviewResult> byReviewScore = Comparator.comparing(r ->
+        {
+            if (r.isPending()) {
+                return -2;
+            }
+            else if (StringUtils.equals(r.getReviewReport(), "Error")) {
+                return -1;
+            }
+            return r.getReviewScore();
+        });
+
+        reviewResults.sort(byReviewScore.reversed());
+        return reviewResults;
+    }
+
     @Override
     public boolean isContentReviewVisibleForSubmission(AssignmentSubmission submission)
     {
@@ -4319,7 +4337,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 return contentReviewService.getReviewReportStudent(contentId, assignmentReference, userDirectoryService.getCurrentUser().getId());
             }
         } catch (Exception e) {
-            log.warn(":getReviewReport(ContentResource) {}", e.getMessage());
+            log.debug(":getReviewReport(ContentResource) {}", e.getMessage());
             return "Error";
         }
     }
