@@ -24,7 +24,7 @@ import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
-
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageComment;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
@@ -39,7 +39,8 @@ import org.sakaiproject.sitestats.api.event.detailed.lessons.PageData;
 import org.sakaiproject.sitestats.api.event.detailed.lessons.TextItemData;
 import org.sakaiproject.sitestats.api.parser.EventParserTip;
 import org.sakaiproject.sitestats.impl.event.detailed.refresolvers.parsers.GenericRefParser;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
+
 
 /**
  * Resolves LessonBuilder references into meaningful details.
@@ -142,7 +143,7 @@ public class LessonsReferenceResolver
         switch( item.getType() )
         {
             case SimplePageItem.TEXT:
-                return new TextItemData( FormattedText.stripHtmlFromText( item.getHtml(), false, true ),  new PageData( parentPage.getTitle(), hierarchy ) );
+                return new TextItemData( ComponentManager.get(FormattedText.class).stripHtmlFromText( item.getHtml(), false, true ),  new PageData( parentPage.getTitle(), hierarchy ) );
 
             case SimplePageItem.MULTIMEDIA:
                 String desc = StringUtils.trimToEmpty( item.getDescription() );
@@ -191,7 +192,7 @@ public class LessonsReferenceResolver
         // Get the top parent
         SimplePage parentPage = lsnServ.getPage( comment.getPageId() );
 
-        return new CommentData( comment.getAuthor(), FormattedText.stripHtmlFromText( comment.getComment(), false, true ),
+        return new CommentData( comment.getAuthor(), ComponentManager.get(FormattedText.class).stripHtmlFromText( comment.getComment(), false, true ),
                 new PageData( parentPage.getTitle(), getPageHierarchy( parentPage, lsnServ ) ), comment.getTimePosted().toInstant() );
     }
 
