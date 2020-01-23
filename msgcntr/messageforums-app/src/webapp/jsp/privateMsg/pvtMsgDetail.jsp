@@ -17,10 +17,10 @@
        				"cdfm_profile_information":<h:outputText value="\"#{msgs.cdfm_profile_information}\"" />
        			};
        		</script>
-           		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-           	<script type="text/javascript" src="/library/webjars/qtip2/3.0.3/jquery.qtip.min.js"></script>
-       		<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
-       		<script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
+           		<script>includeLatestJQuery("msgcntr");</script>
+           	<script src="/library/webjars/qtip2/3.0.3/jquery.qtip.min.js"></script>
+       		<script src="/messageforums-tool/js/sak-10625.js"></script>
+       		<script src="/messageforums-tool/js/messages.js"></script>
 <!--jsp/privateMsg/pvtMsgDetail.jsp-->
 <%--			<sakai:tool_bar_message value="#{msgs.pvt_detmsgreply}" /> --%> 
 			<h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/> 

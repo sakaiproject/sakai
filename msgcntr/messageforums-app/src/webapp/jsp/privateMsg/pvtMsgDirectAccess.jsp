@@ -28,10 +28,10 @@
   	//show entire page, otherwise, don't allow anon user to use this tool:
 %>
 
-		    <script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js?version="></script>
-       		<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
-			<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
-			<script type="text/javascript">
+		    <script src="/library/webjars/jquery/1.12.4/jquery.min.js?version="></script>
+       		<script src="/messageforums-tool/js/sak-10625.js"></script>
+			<script src="/messageforums-tool/js/forum.js"></script>
+			<script>
 				$(document).ready(function() {
 					if ($('ul[class="alertMessage"]').length==0) {
 						eval('function c(){' + $('a[title="shortaccess"]').attr('onclick') + '};c();');

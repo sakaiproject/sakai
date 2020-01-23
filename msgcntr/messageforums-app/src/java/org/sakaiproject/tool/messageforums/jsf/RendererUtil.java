@@ -284,7 +284,7 @@ public class RendererUtil
         for (int i = 0; i < scriptPaths.length; i++)
         {
             writer.write("    document.write(");
-            writer.write("   \"<\" + \"script type='text/javascript' src='/'\" + "
+            writer.write("   \"<\" + \"script src='/'\" + "
                     + contextBasePath + " +");
             writer.write("   \"'" + scriptPaths[i] + "'><\" + \"/script>);");
         }

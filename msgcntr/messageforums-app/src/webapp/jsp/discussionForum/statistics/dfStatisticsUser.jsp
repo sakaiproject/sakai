@@ -19,7 +19,7 @@
   <sakai:view>
   	<h:form id="dfStatisticsForm" rendered="#{ForumTool.instructor}">
 		<!--discussionForum/statistics/dfStatisticsUser.jsp-->
-		<script type="text/javascript">
+		<script>
 
 	
 			var iframeId = '<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>';
@@ -93,14 +93,14 @@
 			
 		</script>
 		
-  	    <script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-		<script type="text/javascript" src="/messageforums-tool/js/dialog.js"></script>
-		<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
+  	    <script>includeLatestJQuery("msgcntr");</script>
+		<script src="/messageforums-tool/js/dialog.js"></script>
+		<script src="/messageforums-tool/js/forum.js"></script>
 		<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />
 		<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/msgcntr_statistics.css" />
        	
   	
-  		<script type="text/javascript">
+  		<script>
   			$(document).ready(function() {
 				$(".messageBody").each(function(index){
 					var msgBody = $(this).html();

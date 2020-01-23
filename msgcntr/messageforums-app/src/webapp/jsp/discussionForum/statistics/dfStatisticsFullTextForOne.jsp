@@ -10,11 +10,11 @@
   
   	<h:form id="dfStatisticsForm" rendered="#{ForumTool.instructor}">
 		<!-- discussionForum/statistics/dfStatisticsFullTextForOne.jsp -->
-  	       	<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-       		<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
-			<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
+  	       	<script>includeLatestJQuery("msgcntr");</script>
+       		<script src="/messageforums-tool/js/sak-10625.js"></script>
+			<script src="/messageforums-tool/js/forum.js"></script>
 			
-			<script type="text/javascript">
+			<script>
 	  			$(document).ready(function() {
 					$(".messageBody").each(function(index){
 						var msgBody = $(this).html();

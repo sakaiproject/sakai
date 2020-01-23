@@ -12,9 +12,9 @@
 <hr />
 
 <h:form id="timerBarForm">
-       		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-			<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
-			<script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
+       		<script>includeLatestJQuery("msgcntr");</script>
+			<script src="/messageforums-tool/js/sak-10625.js"></script>
+			<script src="/messageforums-tool/js/messages.js"></script>
   <sakai:timerBar height="15" width="300" wait="60" elapsed="30"
      expireMessage="this is the expire message"
      expireScript="var universe=42; alert('this is the expire script');"

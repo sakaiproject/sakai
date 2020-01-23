@@ -11,9 +11,9 @@
 
 <!--jsp/privateMsg/pvtMsgFolderSettings.jsp-->
 		<h:form id="pvtMsgFolderSettings">
-		       		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-			<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
-			<script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
+		       		<script>includeLatestJQuery("msgcntr");</script>
+			<script src="/messageforums-tool/js/sak-10625.js"></script>
+			<script src="/messageforums-tool/js/messages.js"></script>
 		  <sakai:tool_bar_message value="#{msgs.pvt_msgs_label} #{msgs.pvt_foldersettings}" /> 
 	    <h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" /> 
 		<table class="itemSummary">

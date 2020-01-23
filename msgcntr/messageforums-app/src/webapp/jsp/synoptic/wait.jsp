@@ -19,13 +19,13 @@
 <html>
 
 <head>
-<script type="text/javascript" src="/library/js/headscripts.js"></script>
-<script src="js/frameAdjust.js" type="text/javascript"></script>
-<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
+<script src="/library/js/headscripts.js"></script>
+<script src="js/frameAdjust.js"></script>
+<script>includeLatestJQuery("msgcntr");</script>
 
 
 
-<script type="text/javascript"><!--
+<script><!--
 	/*
 	 *	To use this, call this page with a GET parameter of "url"
 	 *	with the urlencoded destination page that takes a while to load
@@ -173,10 +173,10 @@
 
 <f:view>
   <sakai:view>
-	  <script type="text/javascript">includeWebjarLibrary('jquery.tablesorter');</script>
-	  <script type="text/javascript" src="/messageforums-tool/js/synopticLite.js"></script>
-  	  <script type="text/javascript" src="/messageforums-tool/js/popupscripts.js"></script>
-  	  <script type="text/javascript">
+	  <script>includeWebjarLibrary('jquery.tablesorter');</script>
+	  <script src="/messageforums-tool/js/synopticLite.js"></script>
+  	  <script src="/messageforums-tool/js/popupscripts.js"></script>
+  	  <script>
 
 //this function (setupTableParsers) setting has to be in the jsp page b/c of the msgs.syn_no_messages string.
 var SynMainLite = SynMainLite || {};
@@ -370,7 +370,7 @@ function mySetMainFrameHeightViewCell(id)
 	}else{
 %>
 	
-	<script type="text/javascript"> 
+	<script> 
 	// Call javascript function to grab actual long loading page
 	load();
 	</script>
