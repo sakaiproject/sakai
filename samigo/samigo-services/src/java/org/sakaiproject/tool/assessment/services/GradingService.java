@@ -172,9 +172,9 @@ public class GradingService
  /**
   * Get all submissions for a published assessment from the back end.
   */
-  public List getAllSubmissions(String publishedId)
+  public List<AssessmentGradingData> getAllSubmissions(String publishedId)
   {
-    List results = null;
+    List<AssessmentGradingData> results = null;
     try {
       results = PersistenceService.getInstance().
            getAssessmentGradingFacadeQueries().getAllSubmissions(publishedId);
