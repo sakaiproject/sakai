@@ -46,7 +46,7 @@
 
   <h:panelGroup rendered="#{!itemauthor.hasAttachment}">
     <sakai:button_bar>
-     <h:commandButton action="#{itemauthor.addAttachmentsRedirect}" value="#{authorMessages.add_attachments}"/>
+     <h:commandButton action="#{itemauthor.addAttachmentsRedirect}" value="#{authorMessages.add_attachments}" disabled="#{itemauthor.currentItem.hasSubmissions}" />
     </sakai:button_bar>
   </h:panelGroup>
 

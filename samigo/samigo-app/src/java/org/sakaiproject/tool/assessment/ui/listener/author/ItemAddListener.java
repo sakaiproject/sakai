@@ -1899,7 +1899,6 @@ public class ItemAddListener
 			List newAnswerList = bean.getMultipleChoiceAnswers();
 			Set answerSet = new HashSet();
 			Iterator newAnswerIter = newAnswerList.iterator();
-			delegate.deleteSet(text.getId(), false);
 			while (newAnswerIter.hasNext()) {
 				AnswerBean answerBean = (AnswerBean) newAnswerIter.next();
 				String oneAnswer = stripPtags(answerBean.getText());
@@ -1916,10 +1915,12 @@ public class ItemAddListener
 							Double.valueOf(bean.getItemScore()), Double.valueOf(answerBean.getPartialCredit()), Double.valueOf(bean.getItemDiscount()));
 				}
 				HashSet answerFeedbackSet = new HashSet();
-				answerFeedbackSet.add(new PublishedAnswerFeedback(answer,
-														 AnswerFeedbackIfc.GENERAL_FEEDBACK,
-														 stripPtags(answerBean.getFeedback())));
+				PublishedAnswerFeedback fb
+					= new PublishedAnswerFeedback(answer, AnswerFeedbackIfc.GENERAL_FEEDBACK, stripPtags(answerBean.getFeedback()));
+				fb.setId(answerBean.getAnswerFeedbackId());
+				answerFeedbackSet.add(fb);
 				answer.setAnswerFeedbackSet(answerFeedbackSet);
+				answer.setId(answerBean.getId());
 				answerSet.add(answer);
 			}
 			text.setAnswerSet(answerSet);

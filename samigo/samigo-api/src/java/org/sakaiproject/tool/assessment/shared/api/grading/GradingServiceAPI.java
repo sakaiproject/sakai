@@ -48,7 +48,7 @@ public interface GradingServiceAPI
   * Get all submissions for a published assessment from the back end.
   * @return List of AssessmentGradingIfs
   */
-  public List getAllSubmissions(String publishedId);
+  public List<AssessmentGradingData> getAllSubmissions(String publishedId);
 
   /**
    * Save the total scores.
