@@ -145,7 +145,7 @@ public interface Reference
 
 	/**
 	 * Check if the reference's type is known
-	 * 
+	 *
 	 * @return true if known, false if not.
 	 */
 	boolean isKnownType();
