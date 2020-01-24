@@ -107,9 +107,7 @@ public class PostemTool {
 	protected boolean displayErrors;
 
 	protected boolean userPressedBack = false;
-	
-	protected boolean gradebooksExist = true;
-	
+
 	private static final int TEMPLATE_MAX_LENGTH = 4000;
 	private static final int TITLE_MAX_LENGTH = 255;
 	private static final int HEADING_MAX_LENGTH = 500;
@@ -177,18 +175,14 @@ public class PostemTool {
 		} catch (Exception e) {
 			gradebooks = null;
 		}
-		
-		if (gradebooks != null && gradebooks.size() > 0)
-			gradebooksExist = true;
-		else
-			gradebooksExist = false;
 
 		return gradebooks;
 
 	}
-	
+
 	public boolean getGradebooksExist() {
-		return gradebooksExist;
+		this.gradebooks = this.getGradebooks();
+		return this.gradebooks != null && !this.gradebooks.isEmpty();
 	}
 
 	public String getCsv() {
