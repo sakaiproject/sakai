@@ -78,9 +78,9 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.api.FormattedText;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -126,6 +126,7 @@ public class AdminSitesAction extends PagedResourceActionII
 	private EventTrackingService eventTrackingService;
 	private SecurityService securityService;
 	private UserTimeService userTimeService;
+	private FormattedText formattedText;
 
 	public AdminSitesAction() {
 		super();
@@ -138,6 +139,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		eventTrackingService = ComponentManager.get(EventTrackingService.class);
 		securityService = ComponentManager.get(SecurityService.class);
 		userTimeService = ComponentManager.get(UserTimeService.class);
+		formattedText = ComponentManager.get(FormattedText.class);
 		
 		
 	}
@@ -1401,7 +1403,7 @@ public class AdminSitesAction extends PagedResourceActionII
 
 		// Site title is editable; cannot but null/empty after HTML stripping, and cannot exceed max length
 		String titleOrig = data.getParameters().getString("title");
-		String titleStripped = FormattedText.stripHtmlFromText(titleOrig, true, true);
+		String titleStripped = formattedText.stripHtmlFromText(titleOrig, true, true);
 		SiteTitleValidationStatus status = siteService.validateSiteTitle(titleOrig, titleStripped);
 
 		if (SiteTitleValidationStatus.STRIPPED_TO_EMPTY.equals(status)) {
