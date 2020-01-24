@@ -181,7 +181,6 @@ public class ItemModifyListener implements ActionListener
               boolean authorized = false;
               poolloop:
               for (Long poolId : poolIds) {
-                  //List<AgentFacade> agents = qpdelegate.getAgentsWithAccess(poolId);
                   for (AgentFacade agent : qpdelegate.getAgentsWithAccess(poolId)) {
                       if (currentUserId.equals(((AgentDataIfc) agent).getIdString())) {
                           authorized = true;
