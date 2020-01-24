@@ -62,7 +62,7 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.*;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * @author Adrian Fish (adrian.r.fish@gmail.com)
@@ -83,6 +83,7 @@ public class SakaiProxyImpl implements SakaiProxy {
     private ToolManager toolManager;
     private UserDirectoryService userDirectoryService;
     private ProjectLogic projectLogic;
+    private FormattedText formattedText;
 
     public void init() {
     }
@@ -155,7 +156,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 
         try {
             User sakaiUser = userDirectoryService.getUser(userId);
-            return FormattedText.escapeHtmlFormattedText(sakaiUser.getDisplayName());
+            return formattedText.escapeHtmlFormattedText(sakaiUser.getDisplayName());
         } catch (Exception e) {
             return userId; // this can happen if the user does not longer exist
             // in the system

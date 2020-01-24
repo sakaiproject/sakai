@@ -16,7 +16,6 @@
     <bean id="org.sakaiproject.commons.api.SakaiProxy"
         class="org.sakaiproject.commons.impl.SakaiProxyImpl"
         init-method="init">
-
         <property name="authzGroupService"><ref bean="org.sakaiproject.authz.api.AuthzGroupService"/></property>
         <property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
         <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
@@ -30,7 +29,7 @@
         <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
         <property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
         <property name="projectLogic"><ref bean="org.sakaiproject.delegatedaccess.logic.ProjectLogic"/></property>
-
+        <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
     </bean>
 
     <bean id="org.sakaiproject.commons.api.CommonsSecurityManager"
