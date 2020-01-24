@@ -338,8 +338,6 @@ The following steps will register a custom ElasticSearchIndexBuilder responsible
 <dependency>
   <groupId>org.sakaiproject.search.elasticsearch</groupId>
   <artifactId>elasticsearch-api</artifactId>
-  <version>${project.version}</version>
-  <scope>provided</scope>
 </dependency>
 ```
 And the 'pack' module that bundles your implementation into a Sakai component should get the following dependencies (this will prevent duplicate deployment of the main ElasticSearch jar file into your component):

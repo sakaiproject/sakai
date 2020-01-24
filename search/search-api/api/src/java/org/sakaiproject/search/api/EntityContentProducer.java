@@ -80,6 +80,14 @@ public interface EntityContentProducer
 	 */
 	String getUrl(String reference);
 
+	/**
+	 * Gets the url that displays the entity. You can specify a UrlType depending on
+	 * what kind of link you want.
+	 *
+	 * @param reference
+	 * @param EntityUrlType
+	 * @return The url as a String
+	 */
 	default String getUrl(String reference, Entity.UrlType urlType) {
         return this.getUrl(reference);
     }
@@ -112,8 +120,6 @@ public interface EntityContentProducer
 	 * @return
 	 */
 	String getTool();
-
-
 	
 	/**
 	 * get the site ID from the resource Name
