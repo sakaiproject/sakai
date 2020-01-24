@@ -40,6 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
+import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
@@ -49,6 +50,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.AgentDataIfc;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedItemFacade;
@@ -132,8 +134,8 @@ public class ItemModifyListener implements ActionListener
       String nextpage= null;
       ItemBean bean = new ItemBean();
       AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
-      boolean isEditPendingAssessmentFlow = author.getIsEditPendingAssessmentFlow();
-      log.debug("**** isEditPendingAssessmentFlow : " + isEditPendingAssessmentFlow);
+      final boolean isEditPendingAssessmentFlow = author.getIsEditPendingAssessmentFlow();
+      log.debug("**** isEditPendingAssessmentFlow : {}", isEditPendingAssessmentFlow);
       ItemService delegate = null;
       AssessmentService assessdelegate= null;
       if (isEditPendingAssessmentFlow) {
@@ -144,6 +146,8 @@ public class ItemModifyListener implements ActionListener
     	  delegate = new PublishedItemService();
     	  assessdelegate = new PublishedAssessmentService();
       }
+
+      GradingService gradingService = new GradingService();
 
     try {
       ItemFacade itemfacade = delegate.getItem(itemId);
@@ -157,16 +161,10 @@ public class ItemModifyListener implements ActionListener
               // you'd think a slight variant of the published would work for core, but it generates an error
               Long assessmentId = null;
               String createdBy = null;
-              if (isEditPendingAssessmentFlow) {
-                  Long sectionId = itemfacade.getSection().getSectionId();
-                  AssessmentFacade af = assessdelegate.getBasicInfoOfAnAssessmentFromSectionId(sectionId);
-                  assessmentId = af.getAssessmentBaseId();
-                  createdBy = af.getCreatedBy();
-              } else {
-                  PublishedAssessmentIfc assessment = (PublishedAssessmentIfc) itemfacade.getSection().getAssessment();
-                  assessmentId = assessment.getPublishedAssessmentId();
-                  createdBy = assessment.getCreatedBy();
-              }
+              Long sectionId = itemfacade.getSection().getSectionId();
+              AssessmentFacade af = assessdelegate.getBasicInfoOfAnAssessmentFromSectionId(sectionId);
+              assessmentId = af.getAssessmentBaseId();
+              createdBy = af.getCreatedBy();
               if (!authzBean.isUserAllowedToEditAssessment(assessmentId.toString(), createdBy, !isEditPendingAssessmentFlow)) {
                   String err = (String) ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "denied_edit_assessment_error");
                   context.addMessage(null, new FacesMessage(err));
@@ -183,8 +181,7 @@ public class ItemModifyListener implements ActionListener
               boolean authorized = false;
               poolloop:
               for (Long poolId : poolIds) {
-                  List agents = qpdelegate.getAgentsWithAccess(poolId);
-                  for (Object agent : agents) {
+                  for (AgentFacade agent : qpdelegate.getAgentsWithAccess(poolId)) {
                       if (currentUserId.equals(((AgentDataIfc) agent).getIdString())) {
                           authorized = true;
                           break poolloop;
@@ -201,9 +198,23 @@ public class ItemModifyListener implements ActionListener
           } else {
               log.warn("Skip authorization for unknown target '" + target + "' for itemId '" + itemId + "', this should probably never happen.");
           }
-      }
+        }
 
-      bean.setItemId(itemfacade.getItemId().toString());
+        bean.setItemId(itemfacade.getItemId().toString());
+
+        PublishedAssessmentIfc assessment = (PublishedAssessmentIfc) itemfacade.getSection().getAssessment();
+        Long assessmentId = assessment.getPublishedAssessmentId();
+        List<AssessmentGradingData> assessmentGradingData = gradingService.getAllSubmissions(assessmentId.toString());
+        if (assessmentGradingData != null && assessmentGradingData.size() > 0) {
+            assessmentGradingData.forEach(agd -> {
+                agd.getItemGradingSet().forEach(igd -> {
+                    if (igd.getSubmittedDate() != null && igd.getPublishedItemId().toString().equals(bean.getItemId())) {
+                        bean.setHasSubmissions(true);
+                    }
+                });
+            });
+        }
+
       bean.setItemType(itemfacade.getTypeId().toString());
       itemauthorbean.setItemType(itemfacade.getTypeId().toString());
 
@@ -529,13 +540,15 @@ public class ItemModifyListener implements ActionListener
            answerArray[seq.intValue()-1] = answerobj;
          }
          for (int i=0; i<answerArray.length; i++) {
-           Set feedbackSet = answerArray[i].getAnswerFeedbackSet();
+           Set<AnswerFeedbackIfc> feedbackSet = answerArray[i].getAnswerFeedbackSet();
 	   // contains only one element in the Set
 	   if (feedbackSet.size() == 1) {
-	     AnswerFeedbackIfc afbobj=(AnswerFeedbackIfc) feedbackSet.iterator().next();
+	     AnswerFeedbackIfc afbobj = feedbackSet.iterator().next();
              afeedback = afbobj.getText();
            }
 	   AnswerBean answerbean = new AnswerBean();
+	            answerbean.setId(answerArray[i].getId());
+	            answerbean.setAnswerFeedbackId(feedbackSet.iterator().next().getId());
                 answerbean.setText(answerArray[i].getText());
                 answerbean.setSequence(answerArray[i].getSequence());
                 answerbean.setLabel(answerArray[i].getLabel());

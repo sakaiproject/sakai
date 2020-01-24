@@ -178,6 +178,7 @@ public class ItemBean
   private String currentFavorite="1";
   private boolean hasFavoriteList=false;
   private ArrayList currentFavoriteList;
+  private boolean hasSubmissions;
   
   private static final ResourceLoader RB_AUTHOR_MESSAGES = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");  
   
@@ -1980,4 +1981,12 @@ public class ItemBean
 	public List<ItemTagBean> getItemTags() { return itemTags; }
 
 	public void setItemTags(List<ItemTagBean> itemTags) { this.itemTags = itemTags; }
+
+	public boolean getHasSubmissions() {
+	    return this.hasSubmissions;
+    }
+
+	public void setHasSubmissions(boolean hasSubmissions) {
+	    this.hasSubmissions = hasSubmissions;
+    }
 }

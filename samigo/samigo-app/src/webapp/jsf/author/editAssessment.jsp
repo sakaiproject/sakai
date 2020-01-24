@@ -32,43 +32,41 @@
   <f:view>
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{authorMessages.create_modify_a}" /></title>
-      <script type="text/javascript" src="/samigo-app/js/authoring.js"></script>
+        <title><h:outputText value="#{authorMessages.create_modify_a}" /></title>
+        <script src="/samigo-app/js/authoring.js"></script>
+        <script>
+          <%@ include file="/js/samigotree.js" %>
 
-<script type="text/JavaScript">
-<%@ include file="/js/samigotree.js" %>
+          $(window).load( function () {
 
-$(window).load( function() {
-  // No need for an insert question box after every single question!
-  $('div.part-insert-question:not(:last)').hide();
-});
-</script>
+            // No need for an insert question box after every single question!
+            $('div.part-insert-question:not(:last)').hide();
+          });
+        </script>
+        <script src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
+        <script src="/samigo-app/js/selection.author.preview.js"></script>
+        <script src="/library/js/spinner.js"></script>
+        <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
+        <script>
+          jQuery(window).load(function () {
 
-<script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
-<script type="text/javascript" src="/samigo-app/js/selection.author.preview.js"></script>
-<script type="text/javascript" src="/library/js/spinner.js"></script>
+            $('input:hidden[id*=hiddenSerializedCoords_]').each(function () {
 
-<link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
+              var myregexp = /hiddenSerializedCoords_(\d+_\d+)_(\d+)/
+              var matches = myregexp.exec(this.id);
+              var sequence = matches[1];
+              var label = matches[2];
 
-<script type="text/JavaScript">	
-	jQuery(window).load(function(){
-			
-		$('input:hidden[id*=hiddenSerializedCoords_]').each(function(){
-			var myregexp = /hiddenSerializedCoords_(\d+_\d+)_(\d+)/
-			var matches = myregexp.exec(this.id);
-			var sequence = matches[1];
-			var label = matches[2];
-			
-			var sel = new selectionAuthor({selectionClass: 'selectiondiv', textClass: 'textContainer'}, 'imageMapContainer_'+sequence);
-			try {
-				sel.setCoords(jQuery.parseJSON(this.value));
-				sel.setText(label);
-			}catch(err){}
-			
-		});	
-	});
-</script>
-</head>
+              var sel = new selectionAuthor({selectionClass: 'selectiondiv', textClass: 'textContainer'}, 'imageMapContainer_' + sequence);
+              try {
+                sel.setCoords(jQuery.parseJSON(this.value));
+                sel.setText(label);
+              } catch (err) {}
+            });
+          });
+        </script>
+      </head>
+
 <body onload="document.forms[0].reset(); disableIt(); resetSelectMenus(); ;<%= request.getAttribute("html.body.onload") %>">
 
 <div class="portletBody container-fluid">
