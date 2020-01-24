@@ -61,7 +61,7 @@ public class ItemGradingData implements java.io.Serializable {
 	private String lastDuration;
 	private Boolean isCorrect;
 	private List mediaArray;
-	private Set<ItemGradingAttachment> itemGradingAttachmentSet = new HashSet<ItemGradingAttachment>();
+	private Set<ItemGradingAttachment> itemGradingAttachmentSet = new HashSet<>();
 
 	public ItemGradingData() {
 	}

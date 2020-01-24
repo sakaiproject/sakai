@@ -37,8 +37,6 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  * 
  */
 public class AssessmentGradingData implements java.io.Serializable
-// need to implement org.osid.assessment.ItemTaken in the future
-// - daisyf 10/11/04
 {
 	private static final long serialVersionUID = 7526471155622776147L;
 
@@ -55,7 +53,7 @@ public class AssessmentGradingData implements java.io.Serializable
 	private Integer status;
 	private String gradedBy;
 	private Date gradedDate;
-	private Set<ItemGradingData> itemGradingSet = new HashSet<ItemGradingData>();
+	private Set<ItemGradingData> itemGradingSet = new HashSet<>();
 	private Date attemptDate;
 	private Integer timeElapsed;
 	private Boolean submitFromTimeoutPopup;
