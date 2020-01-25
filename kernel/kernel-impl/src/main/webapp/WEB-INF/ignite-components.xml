@@ -1,14 +1,32 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:cache="http://www.springframework.org/schema/cache"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd">
+
+    <cache:annotation-driven cache-manager="org.sakaiproject.ignite.SakaiCacheManager"/>
+
+    <bean id="org.sakaiproject.ignite.SakaiCacheManager"
+          class="org.apache.ignite.cache.spring.SpringCacheManager">
+        <property name="igniteInstanceName" value="${serverName}"/>
+        <property name="configuration" ref="org.sakaiproject.ignite.SakaiIgniteConfiguration"/>
+        <property name="dynamicCacheConfiguration">
+            <bean class="org.apache.ignite.configuration.CacheConfiguration">
+                <property name="cacheMode" value="REPLICATED"/>
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="org.sakaiproject.ignite.SakaiIgnite"
+          class="org.sakaiproject.ignite.EagerIgniteSpringBean"
+          destroy-method="destroy">
+        <property name="configuration" ref="org.sakaiproject.ignite.SakaiIgniteConfiguration"/>
+    </bean>
+
 
     <bean id="org.sakaiproject.ignite.SakaiIgniteConfiguration"
-          class="org.sakaiproject.ignite.IgniteConfigurationAdapter"
-          init-method="init">
-        <property name="home" value="${sakai.home}/ignite"/>
-        <property name="mode" value="server"/>
-        <property name="name" value="sakai"/>
+          class="org.sakaiproject.ignite.IgniteConfigurationAdapter">
         <property name="cacheConfiguration">
             <list>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
@@ -129,12 +147,6 @@
             </list>
         </property>
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
-    </bean>
-
-    <bean id="org.sakaiproject.ignite.SakaiIgnite"
-          class="org.sakaiproject.ignite.EagerIgniteSpringBean"
-          destroy-method="destroy">
-        <property name="configuration" ref="org.sakaiproject.ignite.SakaiIgniteConfiguration"/>
     </bean>
 
     <bean id="org.sakaiproject.ignite.cache.atomic" class="org.apache.ignite.configuration.CacheConfiguration" abstract="true">

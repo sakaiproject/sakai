@@ -454,7 +454,7 @@
 				<prop key="hibernate.enable_lazy_load_no_trans">true</prop>
 				<prop key="hibernate.current_session_context_class">org.springframework.orm.hibernate4.SpringSessionContext</prop>
 				<prop key="org.apache.ignite.hibernate.default_access_type">READ_ONLY</prop>
-				<prop key="org.apache.ignite.hibernate.ignite_instance_name">${ignite.name}</prop>
+				<prop key="org.apache.ignite.hibernate.ignite_instance_name">${serverName}</prop>
 			</props>
 		</property>
 	</bean>
