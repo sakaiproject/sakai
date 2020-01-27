@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -484,6 +485,10 @@ public class DeliveryBean implements Serializable {
    */
   public DeliveryBean() {
     deliveryAgent = new AgentFacade();
+  }
+
+  public TimeZone getUserTimeZone() {
+    return userTimeService.getLocalTimeZone();
   }
 
   public String getBeginTimeString() {
