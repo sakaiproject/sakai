@@ -35,20 +35,20 @@
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{authorMessages.item_display_author}"/></title>
 	  
-	  <script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
-	  <script type="text/javascript" src="/samigo-app/js/jquery.dynamiclist.author.js"></script>
-	  <script type="text/javascript" src="/samigo-app/js/selection.author.js"></script>
+	  <script src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
+	  <script src="/samigo-app/js/jquery.dynamiclist.author.js"></script>
+	  <script src="/samigo-app/js/selection.author.js"></script>
 	  
 	  <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
 <%--
-<script type="text/JavaScript">
+<script>
 <!--
 <%@ include file="/js/authoring.js" %>
 //-->
 </script>
 --%>
 
-<script type="text/JavaScript">
+<script>
 
 	var dynamicList = new DynamicList('itemForm\\:serialized', 'template', {selectionClass: 'selectiondiv', textClass: 'textContainer'}, 'imageContainer');
 			

@@ -96,7 +96,7 @@ $Id$
   <body onload="<%= request.getAttribute("html.body.onload") %>">
 <!-- $Id:  -->
 <!-- content... -->
-<script type="text/javascript">
+<script>
 function toPoint(id)
 {
   var x=document.getElementById(id).value

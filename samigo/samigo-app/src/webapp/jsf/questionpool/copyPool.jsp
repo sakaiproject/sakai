@@ -32,7 +32,7 @@
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{questionPoolMessages.copy_p}"/></title>
                         <!-- stylesheet and script widgets -->
-<script type="text/JavaScript">
+<script>
 <%@ include file="/js/samigotree.js" %>
               function flagFolders() {
 	          collapseAllRowsForSelectList();
@@ -54,7 +54,7 @@
               }
               window.onload = initPage;
 </script>
-<script type="text/javascript" src="/library/js/spinner.js"></script>
+<script src="/library/js/spinner.js"></script>
 </head>
 <body onload="collapseAllRowsForSelectList();flagRows();;<%= request.getAttribute("html.body.onload") %>">
 <!-- content... -->

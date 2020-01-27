@@ -307,7 +307,7 @@
 
 <f:verbatim><p></p></f:verbatim>
 
-<script type="text/JavaScript">
+<script>
 var clicked = 'false';
 function toggle(){
   if (clicked == 'false'){

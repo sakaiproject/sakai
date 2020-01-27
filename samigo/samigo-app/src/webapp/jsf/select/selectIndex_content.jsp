@@ -36,9 +36,9 @@
     <h:outputText  value="#{select.secureDeliveryHTMLFragments}" escape="false" />
 
     <!--JAVASCRIPT -->
-    <script type="text/JavaScript">includeWebjarLibrary('datatables');</script>
-    <script type="text/javascript" src="/samigo-app/js/naturalSort.js"></script>
-    <script type="text/JavaScript">
+    <script>includeWebjarLibrary('datatables');</script>
+    <script src="/samigo-app/js/naturalSort.js"></script>
+    <script>
         $(document).ready(function() {
             jQuery.extend(jQuery.fn.dataTableExt.oSort, {
                 "span-asc": function (a, b) {

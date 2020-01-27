@@ -13,8 +13,8 @@
 <title><h:outputText value="#{questionPoolMessages.t_previewPool}"/></title>
 <!-- stylesheet and script widgets -->
 <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
-<script type="text/javascript" src="/samigo-app/js/selection.author.preview.js"></script>
-<script type="text/JavaScript">	
+<script src="/samigo-app/js/selection.author.preview.js"></script>
+<script>	
 	jQuery(window).load(function(){
 			
 		$('input:hidden[id*=hiddenSerializedCoords_]').each(function(){

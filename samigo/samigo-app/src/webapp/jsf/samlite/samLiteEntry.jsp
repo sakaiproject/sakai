@@ -32,7 +32,7 @@
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
       	<title><h:outputText value="#{samLiteMessages.samlite_title}" /></title>
-      	<script type="text/javascript">
+      	<script>
       	function toggleLayer(layerId)
         {
         	var layerStyle;

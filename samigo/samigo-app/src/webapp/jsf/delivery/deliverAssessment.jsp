@@ -70,7 +70,7 @@
 <!-- JAVASCRIPT -->
 <%@ include file="/js/delivery.js" %>
 
-<script type="text/JavaScript">
+<script>
 function checkRadio()
 {
   for (i=0; i<document.forms[0].elements.length; i++)
@@ -196,7 +196,7 @@ document.links[newindex].onclick();
 <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.student.css">
 <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
 
-<script type="text/JavaScript">
+<script>
 	var dynamicListMap = [];		
 	jQuery(window).load(function(){
 		
@@ -606,8 +606,8 @@ document.links[newindex].onclick();
 <!-- end content -->
 </div>
 <f:verbatim></div></f:verbatim>
-<script type="text/javascript" src="/samigo-app/js/questionProgress.js"></script>
-<script type="text/JavaScript">
+<script src="/samigo-app/js/questionProgress.js"></script>
+<script>
 	<%= request.getAttribute("html.body.onload") %> 
 	setLocation(); 
 	checkRadio();

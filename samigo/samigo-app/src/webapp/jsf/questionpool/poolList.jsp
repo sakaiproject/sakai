@@ -31,10 +31,10 @@
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
           <title><h:outputText value="#{questionPoolMessages.q_mgr}"/></title>
-          <script type="text/JavaScript">
+          <script>
               <%@ include file="/js/samigotree.js" %>
           </script>
-          <script type="text/javascript">
+          <script>
               function flagFolders() {
                   collapseAllRows();
                   flagRows();

@@ -38,13 +38,13 @@
 				background-color: #f1f1f1;
 			}
 		</style>
-      <script type="text/javascript" src="/library/js/spinner.js"></script>
+      <script src="/library/js/spinner.js"></script>
 <%@ include file="/js/delivery.js" %>
 
-      <script type="text/javascript">includeWebjarLibrary('awesomplete')</script>
-      <script type="text/javascript" src="/library/js/sakai-reminder.js"></script>
+      <script>includeWebjarLibrary('awesomplete')</script>
+      <script src="/library/js/sakai-reminder.js"></script>
 
-<script type="text/javascript">
+<script>
 function toPoint(id)
 {
   var x=document.getElementById(id).value

@@ -34,7 +34,7 @@
       <title><h:outputText value="#{deliveryMessages.submission}" /></title>
       </head>
 
-<script type="text/JavaScript">
+<script>
 function reviewAssessment(field){
 var insertlinkid= field.id.replace("reviewAssessment", "hiddenlink");
 var newindex = 0;
