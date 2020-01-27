@@ -8,7 +8,7 @@
 
     <div id="siteStatus" class="Mrphs-siteStatus Mrphs-messagePanel__information is-unpublished">
         <h4>${rloader.sit_unpublished}</h4>
-        <button class="Mrphs-button--active" data-toggle="modal" data-target="#publishSiteConfirmModal">${rloader.sit_publish_now}</button>
+        <button class="Mrphs-button--active" #if($publishSiteDialogEnabled) data-toggle="modal" data-target="#publishSiteConfirmModal" #else onclick="publishSite('${sitePages.siteId}');" #end>${rloader.sit_publish_now}</button>
     </div>
 
     <div id="publishSiteConfirmModal" class="modal" role="dialog" tabindex="-1" aria-hidden="true">
