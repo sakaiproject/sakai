@@ -43,11 +43,11 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.EmailNotification;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SiteEmailNotification;
 import org.sakaiproject.util.StringUtil;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * <p>
@@ -169,10 +169,11 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 
 		if ( doHtml ) 
 		{
-			title = FormattedText.escapeHtmlFormattedTextarea(title);
+			FormattedText formattedText = ComponentManager.get(FormattedText.class);
+			title = formattedText.escapeHtmlFormattedTextarea(title);
 			//subject = FormattedText.escapeHtmlFormattedTextarea(subject);
-			resourceName = FormattedText.escapeHtmlFormattedTextarea(resourceName);
-			description = FormattedText.escapeHtmlFormattedTextarea(description);
+			resourceName = formattedText.escapeHtmlFormattedTextarea(resourceName);
+			description = formattedText.escapeHtmlFormattedTextarea(description);
 			blankLine = "\n</p><p>\n";
 			newLine = "<br/>\n";
 		}
