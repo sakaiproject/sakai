@@ -42,8 +42,12 @@
   <h:outputText value="#{deliveryMessages.is_retracted}" rendered="#{delivery.actionString!='takeAssessmentViaUrl'}"/>
   <h:outputText value="#{deliveryMessages.is_retracted_url}" rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"/>
   <p></p> 
-  <h:panelGroup  rendered="#{delivery.publishedAssessment.assessmentAccessControl.retractDate!=null}" >
-	<h:outputLabel value="#{deliveryMessages.retract_date}: #{delivery.dayRetractDateString}." />
+  <h:panelGroup rendered="#{delivery.publishedAssessment.assessmentAccessControl.retractDate!=null}">
+    <h:outputLabel value="#{deliveryMessages.retract_date}: " />
+    <h:outputText value="#{delivery.retractDate}">
+      <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
+    </h:outputText>
+    <h:outputText value="." />
   </h:panelGroup> 
 
 
