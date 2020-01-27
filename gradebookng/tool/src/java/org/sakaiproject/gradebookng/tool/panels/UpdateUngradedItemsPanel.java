@@ -34,6 +34,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
@@ -45,8 +46,8 @@ import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GraderPermission;
 import org.sakaiproject.service.gradebook.shared.GradingType;
 import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.NumberUtil;
+import org.sakaiproject.util.api.FormattedText;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -82,7 +83,7 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 
 		// form model
 		final GradeOverride override = new GradeOverride();
-		override.setGrade(",".equals(FormattedText.getDecimalSeparator()) ? "0,0" : "0.0");
+		override.setGrade(",".equals(ComponentManager.get(FormattedText.class).getDecimalSeparator()) ? "0,0" : "0.0");
 		final CompoundPropertyModel<GradeOverride> formModel = new CompoundPropertyModel<GradeOverride>(override);
 
 		// build form

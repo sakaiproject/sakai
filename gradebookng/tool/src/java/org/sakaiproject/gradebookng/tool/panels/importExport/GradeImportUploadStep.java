@@ -32,7 +32,7 @@ import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.form.upload.FileUploadField;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.lang.Bytes;
-
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidFileTypeException;
 import org.sakaiproject.gradebookng.business.model.ImportedSpreadsheetWrapper;
 import org.sakaiproject.gradebookng.business.util.ImportGradesHelper;
@@ -40,7 +40,7 @@ import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
 import org.sakaiproject.gradebookng.tool.panels.BasePanel;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * Upload/Download page
@@ -138,7 +138,7 @@ public class GradeImportUploadStep extends BasePanel {
 				ImportedSpreadsheetWrapper spreadsheetWrapper;
 				try {
 					spreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(upload.getInputStream(), upload.getContentType(), 
-																					upload.getClientFileName(), businessService, FormattedText.getDecimalSeparator());
+																					upload.getClientFileName(), businessService, ComponentManager.get(FormattedText.class).getDecimalSeparator());
 				} catch (final GbImportExportInvalidFileTypeException | InvalidFormatException e) {
 					log.debug("incorrect type", e);
 					error(getString("importExport.error.incorrecttype"));

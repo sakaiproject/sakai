@@ -28,6 +28,7 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.gradebookng.business.util.ImportGradesHelper;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
@@ -36,7 +37,7 @@ import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
 import org.sakaiproject.gradebookng.tool.panels.AddOrEditGradeItemPanelContent;
 import org.sakaiproject.gradebookng.tool.panels.BasePanel;
 import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -79,7 +80,7 @@ public class CreateGradeItemStep extends BasePanel {
 			assignment.setName(StringUtils.trim(processedGradeItem.getItemTitle()));
 			String itemPointValue = processedGradeItem.getItemPointValue();
 			if (StringUtils.isNotBlank(itemPointValue)) {
-				final String decimalSeparator = FormattedText.getDecimalSeparator();
+				final String decimalSeparator = ComponentManager.get(FormattedText.class).getDecimalSeparator();
 				if (",".equals(decimalSeparator)) {
 					itemPointValue = itemPointValue.replace(decimalSeparator, ".");
 				}
