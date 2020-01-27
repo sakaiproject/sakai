@@ -6,14 +6,16 @@
     <name>COMMONS IMPL</name>
     <artifactId>commons-impl</artifactId>
     <groupId>org.sakaiproject.commons</groupId>
-    <packaging>jar</packaging>
+    <packaging>sakai-component</packaging>
 
     <parent>
         <artifactId>commons</artifactId>
         <groupId>org.sakaiproject.commons</groupId>
         <version>21-SNAPSHOT</version>
     </parent>
-
+   <properties>
+      <deploy.target>components</deploy.target>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>org.sakaiproject.commons</groupId>

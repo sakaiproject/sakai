@@ -25,7 +25,6 @@
     </developers>
 
     <modules>
-        <module>components</module>
         <module>api</module>
         <module>impl</module>
         <module>tool</module>
