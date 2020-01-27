@@ -29,7 +29,7 @@
   <sakai:view >
   	<h:form id="dfStatisticsForm" rendered="#{ForumTool.instructor}">
 <!-- discussionForum/statistics/dfStatisticsList.jsp-->
-	<script type="text/javascript">
+	<script>
 
 	
 			var iframeId = '<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>';
@@ -119,12 +119,12 @@
 				}
 			}
 		</script>
-       		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-			<script type="text/javascript" src="/messageforums-tool/js/dialog.js"></script>
-			<script type="text/javascript" src="/library/js/spinner.js"></script>
+       		<script>includeLatestJQuery("msgcntr");</script>
+			<script src="/messageforums-tool/js/dialog.js"></script>
+			<script src="/library/js/spinner.js"></script>
 			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />
 			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/msgcntr_statistics.css" />
-		<script type="text/javascript">		
+		<script>		
 			function toggleComments(link){
 				if(link.innerHTML == "<h:outputText value="#{msgs.stat_forum_comments_show}" escape="false"/>"){
 					$('.comments').fadeIn();

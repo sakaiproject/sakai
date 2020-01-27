@@ -272,7 +272,7 @@
            <%-- </h:panelGrid> --%>
 			</h:panelGroup>
 
- 		<script type="text/javascript">
+ 		<script>
  		      localDatePicker({
  		      	input:'.openDate', 
  		      	allowEmptyDate:true, 

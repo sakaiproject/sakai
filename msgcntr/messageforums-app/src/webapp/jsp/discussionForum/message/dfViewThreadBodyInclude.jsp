@@ -9,7 +9,7 @@
  		 }
  	
 %>
-<script type="text/javascript">
+<script>
 
 
 	var iframeId = '<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>';

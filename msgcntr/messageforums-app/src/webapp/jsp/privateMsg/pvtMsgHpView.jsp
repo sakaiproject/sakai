@@ -27,8 +27,8 @@
 
 
 
-		       		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-			<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
+		       		<script>includeLatestJQuery("msgcntr");</script>
+			<script src="/messageforums-tool/js/sak-10625.js"></script>
 
 
 			<sakai:tool_bar rendered="#{PrivateMessagesTool.messages}">

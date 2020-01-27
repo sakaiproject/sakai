@@ -12,24 +12,24 @@
 	<h:form id="msgForum" styleClass="specialLink">
 
 	<!--jsp/discussionForum/message/dfFlatView.jsp-->
-		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
+		<script>includeLatestJQuery("msgcntr");</script>
   		<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />
-		<script type="text/javascript" src="/library/webjars/qtip2/3.0.3/jquery.qtip.min.js"></script>
+		<script src="/library/webjars/qtip2/3.0.3/jquery.qtip.min.js"></script>
 		<link rel="stylesheet" type="text/css" href="/library/webjars/qtip2/3.0.3/jquery.qtip.min.css" />
-		<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
-		<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
-		<script type="text/javascript" src="/messageforums-tool/js/dialog.js"></script>
+		<script src="/messageforums-tool/js/sak-10625.js"></script>
+		<script src="/messageforums-tool/js/forum.js"></script>
+		<script src="/messageforums-tool/js/dialog.js"></script>
 
 	<%--//
 		//plugin required below
-		<script type="text/javascript" src="/messageforums-tool/js/pxToEm.js"></script>
+		<script src="/messageforums-tool/js/pxToEm.js"></script>
 
 		/*
 		gsilver: get a value representing max indents
 	 	from the server configuraiton service or the language bundle, parse 
 		all the indented items, and if the item indent goes over the value, flatten to the value 
 		*/
-		<script type="text/javascript">
+		<script>
 		$(document).ready(function() {
 			// pick value from element (that gets it from language bundle)
 			maxThreadDepth =$('#maxthreaddepth').text()
@@ -115,7 +115,7 @@
 	<span class="skip" id="lastPendItemTitleHolder"><h:outputText value="#{msgs.cdfm_lastpendtitle}" /></span>
 	<span class="skip" id="nextNewItemTitleHolder"><h:outputText value="#{msgs.cdfm_gotonewtitle}" /></span>
 	<span class="skip" id="lastNewItemTitleHolder"><h:outputText value="#{msgs.cdfm_lastnewtitle}" /></span>
- 	<script type="text/javascript">
+ 	<script>
  			$(document).ready(function() {
 					setupMessageNav('messageNew');
 					setupMessageNav('messagePending');
@@ -164,7 +164,7 @@
     thisId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
   }
 %>
-			<script type="text/javascript">
+			<script>
 			function resize(){
   				mySetMainFrameHeight('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
   			}

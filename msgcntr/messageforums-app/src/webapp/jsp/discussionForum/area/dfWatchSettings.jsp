@@ -11,9 +11,9 @@
 <f:view>
    <sakai:view title="#{msgs.watch_forums_options}" toolCssHref="/messageforums-tool/css/msgcntr.css">
       <h:form id="revise">
-        		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-       		<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
-       		<script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
+        		<script>includeLatestJQuery("msgcntr");</script>
+       		<script src="/messageforums-tool/js/sak-10625.js"></script>
+       		<script src="/messageforums-tool/js/messages.js"></script>
 <!--jsp/discussionForum/area/dfWatchSettings.jsp-->
 				<div class="page-header">
 					<h1><h:outputText value="#{msgs.watch_forums_options}" /></h1>

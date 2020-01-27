@@ -17,9 +17,9 @@ org.sakaiproject.tool.cover.SessionManager.getCurrentToolSession().
 
 <f:view>
   <sakai:view title="#{msgs.cdfm_discussion_forums}" toolCssHref="/messageforums-tool/css/msgcntr.css">
-  		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-		<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
-		<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
+  		<script>includeLatestJQuery("msgcntr");</script>
+		<script src="/messageforums-tool/js/sak-10625.js"></script>
+		<script src="/messageforums-tool/js/forum.js"></script>
 
 	<h:form id="msgForum">
   <sakai:tool_bar>
@@ -66,7 +66,7 @@ org.sakaiproject.tool.cover.SessionManager.getCurrentToolSession().
     	thisId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
  		 }
 	%>
-			<script type="text/javascript">
+			<script>
 			function resize(){
   				mySetMainFrameHeight('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
   			}
