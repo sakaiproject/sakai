@@ -4511,7 +4511,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				initValues.add(entry.id);
 			}
 		}
-		if (groupsSet == null || groupsSet.size() == 0) {
+		if (groupsSet == null || groupsSet.size() == 0 || initValues.isEmpty()) {
 			initValues.add("");
 		}
 
