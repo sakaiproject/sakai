@@ -23,8 +23,8 @@
 					rendered="#{PostemTool.editable}"/>
    	        </sakai:tool_bar>
 			<sakai:view_content>
-	
-				<sakai:flat_list value="#{PostemTool.gradebooks}" var="gradebook" binding="#{PostemTool.gradebookTable}" styleClass="table table-bordered table-striped">
+
+				<sakai:flat_list rendered="#{PostemTool.gradebooksExist}" value="#{PostemTool.gradebooks}" var="gradebook" binding="#{PostemTool.gradebookTable}" styleClass="table table-bordered table-striped">
 					<h:column>
 						<f:facet name="header">
 							<h:commandLink action="#{PostemTool.toggleTitleSort}" title="#{msgs.sort_title}">
@@ -110,8 +110,8 @@
 						</h:commandLink>
 					</h:column>
 				</sakai:flat_list>
-				
-				  <h:outputText styleClass="instruction" value="#{msgs.no_gradebooks}" rendered="#{!PostemTool.gradebooksExist}" />				
+
+				<h:outputText styleClass="sak-banner-warn" value="#{msgs.no_gradebooks}" rendered="#{!PostemTool.gradebooksExist}" />
 			</sakai:view_content>
 
 		</h:form>
