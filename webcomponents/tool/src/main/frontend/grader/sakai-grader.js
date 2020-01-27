@@ -101,7 +101,7 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
         </div>
         <div style="display: inline-block; margin-left: 20px;">
           <a id="settings-link" href="javascript;" @click=${this.toggleSettings} title="${this.i18n["settings"]}">
-            <fa-icon size="1.3em" class="fas cogs" path-prefix="/webcomponents/assets" />
+            <fa-icon size="1.3em" i-class="fas cogs" path-prefix="/webcomponents/assets" />
           </a>
           <div id="grader-settings" @keydown=${this.onSettingsKeydown} class="settings">
             <div><label><input type="checkbox" ?disabled=${!this.hasUnsubmitted} @change=${this.submittedOnlyChanged} .checked=${this.submittedOnly} />${this.i18n["only_submitted"]}</label></div>
@@ -125,7 +125,7 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
       <div class="grader-navigator">
         <div><a class="user-list-link" href="${this.userListUrl}" title="${this.backToListLabel}">${this.backToListLabel}</a></div>
         <div>
-          <a href="javascript:;" @click=${this.firePrevious}><fa-icon size="2em" class="fas arrow-circle-left" path-prefix="/webcomponents/assets" style="vertical-align: middle;" /></a>
+          <a href="javascript:;" @click=${this.firePrevious}><fa-icon size="2em" i-class="fas arrow-circle-left" path-prefix="/webcomponents/assets" style="vertical-align: middle;" /></a>
           ${this.anonymousGrading ? html`
             <span class="anonymous-grading-label">${this.i18n['anonymous_grading']}</span>
           ` : html`
@@ -133,11 +133,10 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
               ${this.submissions.map(s => html`<option value="${s.id}" .selected=${this.submission.id === s.id}>${s.groupId ? s.groupTitle : s.firstSubmitterName}</option>`)}
             </select>
           `}
-          <a href="javascript:;" @click=${this.fireNext}><fa-icon size="2em" class="fas arrow-circle-right" path-prefix="/webcomponents/assets" style="vertical-align: middle;" /></a>
+          <a href="javascript:;" @click=${this.fireNext}><fa-icon size="2em" i-class="fas arrow-circle-right" path-prefix="/webcomponents/assets" style="vertical-align: middle;" /></a>
         </div>
         <div>${this.currentStudentInfo}</div>
       </div>
-      <sakai-maximise-button style="margin-left: 20px;" />
     `;
   }
 
@@ -253,8 +252,8 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
           <textarea id="grader-feedback-comment">${this.submission.feedbackComment}</textarea>
           <div class="media-feedback grader-label">
             <span class="feedback-label">${this.i18n["recorded_feedback_label"]}</span>
-            <fa-icon size="1.5em" class="fas microphone" path-prefix="/webcomponents/assets" style="vertical-align: middle;"></fa-icon>
-            <fa-icon size="1.5em" class="fas video" path-prefix="/webcomponents/assets" style="vertical-align: middle;"></fa-icon>
+            <fa-icon size="1.5em" i-class="fas microphone" path-prefix="/webcomponents/assets" style="vertical-align: middle;"></fa-icon>
+            <fa-icon size="1.5em" i-class="fas video" path-prefix="/webcomponents/assets" style="vertical-align: middle;"></fa-icon>
           </div>
           <button @click=${this.doneWithFeedbackDialog}>${this.i18n["done"]}</button>
         </div>
