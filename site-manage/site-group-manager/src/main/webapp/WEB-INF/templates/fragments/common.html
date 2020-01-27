@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<body>
+<head th:fragment="head">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link media="all" href="/library/skin/tool_base.css" rel="stylesheet" type="text/css" />
+<script src="/library/js/headscripts.js"></script>
+<script src="/library/js/spinner.js"></script>
+<title th:text="#{grouphelper.tool.title}">Group Manager</title>
+</head>
+<div th:fragment="jQuery">
+  <script>includeLatestJQuery('sakai-site-group-manager');</script>
+  <script th:inline="javascript">
+    $(document).ready(function () {
+      var toolId = /*[[${#httpServletRequest.getAttribute('sakai.tool.placement.id')}]]*/'toolId';
+      if (toolId) {
+        setMainFrameHeight('Main' + toolId.replace(/-/g, 'x'));
+      }
+    });
+  </script>
+</div>
+</body>
+</html>

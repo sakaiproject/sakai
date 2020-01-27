@@ -289,6 +289,12 @@
 			<artifactId>viewerjs</artifactId>
 			<version>0.5.8</version>
 		</dependency>
+		<!--Used in the site group manager helper-->
+		<dependency>
+			<groupId>org.webjars.bower</groupId>
+			<artifactId>multiselect-two-sides</artifactId>
+			<version>2.5.5</version>
+		</dependency>
 	</dependencies>
 	<profiles>
 		<profile>

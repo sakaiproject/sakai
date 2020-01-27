@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div class="row" th:fragment="step (current)">
+  <div class="col-sm-12">
+    <div th:class="${current} == 'step1' ? 'col-sm-2 bordered wizard-step-active' : 'col-sm-2 bordered'">
+      <a href="#" th:if="${current} != 'step1'" th:text="#{autogroups.wizard.step1}" onclick="previousWizardStep('step1');">Step 1: Select Role(s)</a>
+      <span th:if="${current} == 'step1'" th:text="#{autogroups.wizard.step1}">Step 1: Select Role(s)</span>
+    </div>
+    <div th:class="${current} == 'step2' ? 'col-sm-2 bordered wizard-step-active' : 'col-sm-2 bordered'">
+      <a href="#" th:if="${current} == 'step3' or ${current} == 'step4'" th:text="#{autogroups.wizard.step2}" onclick="previousWizardStep('step2');">Step 2: Select Section(s)</a>
+      <span th:if="${current} == 'step2' or ${current} == 'step1'" th:text="#{autogroups.wizard.step2}">Step 2: Select Section(s)</span>
+    </div>
+    <div th:class="${current} == 'step3' ? 'col-sm-2 bordered wizard-step-active' : 'col-sm-2 bordered'">
+      <a href="#" th:if="${current} == 'step4'" th:text="#{autogroups.wizard.step3}" onclick="previousWizardStep('step3');">Step 3: Define Group Structure</a>
+      <span th:if="${current} == 'step3' or ${current} == 'step2' or ${current} == 'step1' " th:text="#{autogroups.wizard.step3}">Step 3: Define Group Structure</span>
+    </div>
+    <div th:class="${current} == 'step4' ? 'col-sm-2 bordered wizard-step-active' : 'col-sm-2 bordered'" th:text="#{autogroups.wizard.step4}">
+      Step 4: Preview
+    </div>
+  </div>
+  <script th:inline="javascript">
+    /*<![CDATA[*/
+
+    function previousWizardStep(step) {
+      var wizardAction = document.getElementById('wizardAction');
+      if (wizardAction !== 'undefined') {
+        wizardAction.value = step;
+        document.forms[0].submit();
+      }
+    }
+
+    /*]]>*/
+  </script>
+</div>
+</body>
+</html>
