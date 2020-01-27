@@ -53,7 +53,8 @@ import org.sakaiproject.util.EmailNotification;
 import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
+
 
 /**
  * <p>
@@ -369,11 +370,12 @@ public class DropboxNotification extends EmailNotification
 
 		if ( doHtml ) 
 		{
-			siteTitle = FormattedText.escapeHtmlFormattedTextarea(siteTitle);
-			subject = FormattedText.escapeHtmlFormattedTextarea(subject);
-			resourceName = FormattedText.escapeHtmlFormattedTextarea(resourceName);
-			description = FormattedText.escapeHtmlFormattedTextarea(description);
-			dropboxTitle = FormattedText.escapeHtmlFormattedTextarea(dropboxTitle);
+			FormattedText formattedText = ComponentManager.get(FormattedText.class);
+			siteTitle = formattedText.escapeHtmlFormattedTextarea(siteTitle);
+			subject = formattedText.escapeHtmlFormattedTextarea(subject);
+			resourceName = formattedText.escapeHtmlFormattedTextarea(resourceName);
+			description = formattedText.escapeHtmlFormattedTextarea(description);
+			dropboxTitle = formattedText.escapeHtmlFormattedTextarea(dropboxTitle);
 			blankLine = "\n</p><p>\n";
 			newLine = "<br/>\n";
 		}
