@@ -44,7 +44,7 @@
 				onchange="this.form.submit();"
 				valueChangeListener="#{PrivateMessagesTool.processPvtMsgSettingsRevise}"
 				layout="pageDirection"
-				styleClass="checkbox inlineForm table-inline">
+				styleClass="checkbox inlineForm">
 			          <f:selectItem itemValue="yes" itemLabel="#{msgs.pvt_yes}" />
 				  <f:selectItem itemValue="no" itemLabel="#{msgs.pvt_no}" />
 			      </h:selectOneRadio> 
