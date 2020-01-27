@@ -10,8 +10,8 @@
 				<thead>
 					<tr>
 						<th class="col-md-4"><wicket:message key="bulkedit.column.header.gradebookitem" /></th>
-						<th class="col-md-1"><wicket:message key="bulkedit.column.header.release" /></th>
-						<th class="col-md-1"><wicket:message key="bulkedit.column.header.include" /></th>
+						<th class="col-md-1"><wicket:message key="bulkedit.column.header.release" /><br/><input type="checkbox" id="releaseToggleAll" onclick="releaseToggleCheckboxes();" wicket:message="aria-label:label.addgradeitem.release.toggle.all"> <span wicket:id="toggleAllLabel">Toggle All</span></th>
+						<th class="col-md-1"><wicket:message key="bulkedit.column.header.include" /><br/><input type="checkbox" id="includeToggleAll" onclick="includeToggleCheckboxes();" wicket:message="aria-label:label.addgradeitem.include.toggle.all"> <span wicket:id="toggleAllLabel">Toggle All</span></th>
 					</tr>
 				</thead>
 				<tbody>
