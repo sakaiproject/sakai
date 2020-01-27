@@ -4437,7 +4437,6 @@ public class SiteAction extends PagedResourceActionII {
 	public void doManageGroupHelper(RunData data) {
 		SessionState state = ((JetspeedRunData) data)
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-		
 
 		// pass in the siteId of the site to be ordered (so it can configure
 		// sites other then the current site)
@@ -4445,8 +4444,7 @@ public class SiteAction extends PagedResourceActionII {
 				HELPER_ID + ".siteId", ((Site) getStateSite(state)).getId());
 
 		// launch the helper
-		startHelper(data.getRequest(), (String) state.getAttribute(STATE_GROUP_HELPER_ID));//"sakai-site-manage-group-helper");
-		
+		startHelper(data.getRequest(), (String) state.getAttribute(STATE_GROUP_HELPER_ID));
 	}
 
 	/**
