@@ -14,7 +14,7 @@
   <f:verbatim><p/></f:verbatim>
   --%>
 
-<script type="text/javascript">
+<script>
   setPanelId('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
 </script>
     <h:panelGroup rendered="#{ForumTool.selectedForum.restrictPermissionsForGroups == 'true' && ForumTool.permissionMode == 'forum'}" styleClass="itemAction">

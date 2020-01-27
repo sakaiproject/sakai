@@ -10,9 +10,9 @@
 <f:view>
 	<sakai:view toolCssHref="/messageforums-tool/css/msgcntr.css">
       <h:form id="revise">
-        <script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-        <script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
-		<script type="text/javascript">
+        <script>includeLatestJQuery("msgcntr");</script>
+        <script src="/messageforums-tool/js/messages.js"></script>
+		<script>
 			$(document).ready(function(){
 				//fade permission block and then disable all the inputs/selects in the permission include so as not to confuse people
 				$('#permissionReadOnly').fadeTo("fast", 0.50);
@@ -35,8 +35,8 @@
     		thisId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
   		}
 		%>
-       		<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
-       		<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>			
+       		<script src="/messageforums-tool/js/sak-10625.js"></script>
+       		<script src="/messageforums-tool/js/forum.js"></script>			
 		<%--//designNote: this just feels weird - presenting somehting that sort of looks like the form used to create the topic (with an editable permissions block!) to comfirm deletion --%>
 <!--jsp/discussionForum/topic/dfTopicSettings.jsp-->
 		<%--<sakai:tool_bar_message value="#{msgs.cdfm_delete_topic_title}"/>--%>

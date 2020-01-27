@@ -89,14 +89,14 @@
 
 	<%--//
 		//plugin required below
-		<script type="text/javascript" src="/messageforums-tool/js/pxToEm.js"></script>
+		<script src="/messageforums-tool/js/pxToEm.js"></script>
 		
 		/*
 		gsilver: get a value representing max indents
 	 	from the server configuraiton service or the language bundle, parse 
 		all the indented items, and if the item indent goes over the value, flatten to the value 
 		*/
-		<script type="text/javascript">
+		<script>
 		$(document).ready(function() {
 			// pick value from element (that gets it from language bundle)
 			maxThreadDepth =$('#maxthreaddepth').text()
@@ -472,12 +472,12 @@
     thisId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
   }
 %>
-			<script type="text/javascript">
+			<script>
 			function resize(){
   				mySetMainFrameHeight('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
   			}
 			</script> 
-<h:outputText escape="false" value="<script type='text/javascript'>$(document).ready(function() {setupLongDesc()});</script>"  rendered="#{!ForumTool.showShortDescription}"/>
+<h:outputText escape="false" value="<script>$(document).ready(function() {setupLongDesc()});</script>"  rendered="#{!ForumTool.showShortDescription}"/>
 	</h:form>
 
 	<h:outputText value="#{msgs.cdfm_insufficient_privileges_view_topic}" rendered="#{ForumTool.selectedTopic.topic.draft && ForumTool.selectedTopic.topic.createdBy != ForumTool.userId}" />

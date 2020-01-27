@@ -9,16 +9,16 @@
 	<sakai:view title="#{msgs.pvt_msgs_label} #{msgs.pvt_settings}">
 <!--jsp/privateMsg/pvtMsgSettings.jsp-->
 	<%-- gsilver:moved this function here from the top  to avoid validation errors (content before the DOCTYPE)--%>
-	<script language="Javascript" type="text/javascript">
+	<script>
 		function displayEmail() {
 	
 			document.forms[0].email.disabled = false
 		}
 	</script>
 <h:form id="pvtMsgSettings">
-       		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-			<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
-			<script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
+       		<script>includeLatestJQuery("msgcntr");</script>
+			<script src="/messageforums-tool/js/sak-10625.js"></script>
+			<script src="/messageforums-tool/js/messages.js"></script>
 			<h1><h:outputText value="#{msgs.pvt_msgs_label} #{msgs.pvt_settings}" /></h1>
 			<h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/>
 			
