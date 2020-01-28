@@ -101,7 +101,6 @@ import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.ContextualUserDisplayService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.MergedList;
 import org.sakaiproject.util.MergedListEntryProviderBase;
 import org.sakaiproject.util.MergedListEntryProviderFixedListWrapper;
@@ -109,6 +108,7 @@ import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.StringUtil;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * AnnouncementAction is an implementation of Announcement service, which provides the complete function of announcements. User could check the announcements, create own new and manage all the announcement items, under certain permission check.
@@ -249,6 +249,8 @@ public class AnnouncementAction extends PagedResourceActionII
    private UserDirectoryService userDirectoryService;
 
    private ServerConfigurationService serverConfigurationService;
+   
+   private FormattedText formattedText;
 
    
    private static final String DEFAULT_TEMPLATE="announcement/chef_announcements";
@@ -258,7 +260,8 @@ public class AnnouncementAction extends PagedResourceActionII
         super();
         aliasService = ComponentManager.get(AliasService.class);
         userDirectoryService = ComponentManager.get(UserDirectoryService.class);
-		serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
+        serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
+        formattedText = ComponentManager.get(FormattedText.class);
     }
    /*
 	 * Returns the current order
@@ -615,8 +618,8 @@ public class AnnouncementAction extends PagedResourceActionII
 				// trim the body, as formatted text
 				String body = announcementMesssage.getBody();
 				StringBuilder buf = new StringBuilder();
-				body = FormattedText.escapeHtmlFormattedTextSupressNewlines(body);
-				boolean didTrim = FormattedText.trimFormattedText(body, this.maxNumberOfChars, buf);
+				body = ComponentManager.get(FormattedText.class).escapeHtmlFormattedTextSupressNewlines(body);
+				boolean didTrim = ComponentManager.get(FormattedText.class).trimFormattedText(body, this.maxNumberOfChars, buf);
 				if (didTrim)
 				{
 					if (buf.toString().length() != 0)
@@ -1430,7 +1433,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		if ( ! aliasList.isEmpty() )
 		{
 			String alias[] = ((Alias)aliasList.get(0)).getId().split("\\.");
-			context.put("rssAlias", FormattedText.escapeHtmlFormattedTextSupressNewlines(alias[0]) );
+			context.put("rssAlias", formattedText.escapeHtmlFormattedTextSupressNewlines(alias[0]) );
 		}
 
 		// Add Announcement RSS URL
@@ -2798,7 +2801,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				addAlert(sstate, rb.getString("java.alert.youneed"));
 			}
 			else if (body == null ||body.replaceAll("<br>", "").replaceAll("<br/>","").replaceAll("&nbsp;", "").replaceAll("&lt;br type=&quot;_moz&quot; /&gt;", "").trim().equals("")  || body.length() == 0 ||  
-					FormattedText.escapeHtml(body,false).equals("&lt;br type=&quot;_moz&quot; /&gt;"))
+					formattedText.escapeHtml(body,false).equals("&lt;br type=&quot;_moz&quot; /&gt;"))
 			{
 				body="";
 				addAlert(sstate, rb.getString("java.alert.youfill"));
@@ -4454,7 +4457,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			
 			// SAK-17786 Check for XSS
 			StringBuilder alertMsg = new StringBuilder();
-			alias = FormattedText.processFormattedText(alias, alertMsg);
+			alias = formattedText.processFormattedText(alias, alertMsg);
 			if (alertMsg.length() > 0) 
 			{
 				addAlert(sstate, alertMsg.toString());
@@ -4586,7 +4589,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		StringBuilder alertMsg = new StringBuilder();
 		try
 		{
-			String text = FormattedText.processFormattedText(strFromBrowser, alertMsg);
+			String text = formattedText.processFormattedText(strFromBrowser, alertMsg);
 			if (alertMsg.length() > 0) addAlert(state, alertMsg.toString());
 			return text;
 		}

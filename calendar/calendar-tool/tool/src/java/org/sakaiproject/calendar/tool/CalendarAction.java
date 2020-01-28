@@ -111,12 +111,12 @@ import org.sakaiproject.util.CalendarEventType;
 import org.sakaiproject.util.CalendarUtil;
 import org.sakaiproject.util.EntryProvider;
 import org.sakaiproject.util.FileItem;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.MergedList;
 import org.sakaiproject.util.MergedListEntryProviderFixedListWrapper;
 import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * The schedule tool.
@@ -869,7 +869,7 @@ extends VelocityPortletStateAction
 		public String trimFormattedText(String formattedText, int maxNumOfChars)
 		{
 			StringBuilder sb = new StringBuilder();
-			FormattedText.trimFormattedText(formattedText, maxNumOfChars, sb);
+			ComponentManager.get(FormattedText.class).trimFormattedText(formattedText, maxNumOfChars, sb);
 			return sb.toString();
 		}
 	}
@@ -1704,7 +1704,7 @@ extends VelocityPortletStateAction
 			{
 				addAlert(sstate, rb.getString("java.alert.subsurlempty"));
 			}
-			else if(!FormattedText.validateURL(calendarUrl))
+			else if(!ComponentManager.get(FormattedText.class).validateURL(calendarUrl))
 			{
 				addAlert(sstate,rb.getString("java.alert.subsurlinvalid"));
 			}
@@ -8109,7 +8109,7 @@ extends VelocityPortletStateAction
 		StringBuilder alertMsg = new StringBuilder();
 		try
 		{
-			String text = FormattedText.processFormattedText(strFromBrowser, alertMsg);
+			String text = ComponentManager.get(FormattedText.class).processFormattedText(strFromBrowser, alertMsg);
 			if (alertMsg.length() > 0) addAlert(state, alertMsg.toString());
 			return text;
 		}

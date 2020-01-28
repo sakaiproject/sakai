@@ -152,12 +152,12 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.FileItem;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.api.FormattedText;
 import org.w3c.dom.Element;
 
 import lombok.extern.slf4j.Slf4j;
@@ -9035,7 +9035,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	{
 		log.debug("{}.processHtmlDocumentFromBrowser()", this);
 		StringBuilder alertMsg = new StringBuilder();
-		String text = FormattedText.processHtmlDocument(strFromBrowser, alertMsg);
+		String text = ComponentManager.get(FormattedText.class).processHtmlDocument(strFromBrowser, alertMsg);
 		if (alertMsg.length() > 0) addAlert(state, alertMsg.toString());
 		return text;
 	}

@@ -90,10 +90,10 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * ListItem
@@ -1615,7 +1615,7 @@ public class ListItem
 		if(description != null)
 		{
 			StringBuilder errorMessages = new StringBuilder();
-			description = FormattedText.processFormattedText(description, errorMessages);
+			description = ComponentManager.get(FormattedText.class).processFormattedText(description, errorMessages);
 			// what to do with errorMessages
 			if(errorMessages.length() > 0)
 			{
