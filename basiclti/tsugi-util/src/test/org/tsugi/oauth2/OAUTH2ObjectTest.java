@@ -1,4 +1,4 @@
-package org.tsugi.lti13;
+package org.tsugi.oauth2;
 
 import static org.junit.Assert.*;
 
