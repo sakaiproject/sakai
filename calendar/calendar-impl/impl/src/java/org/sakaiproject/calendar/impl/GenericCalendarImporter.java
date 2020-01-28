@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.Vector;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.w3c.dom.Document;
@@ -58,8 +59,8 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * This class provides common importing functionality after a lower-level reader has taken care of the peculiarities of a given import format.
@@ -127,6 +128,15 @@ public class GenericCalendarImporter implements CalendarImporterService
 	private final Map<String, Class<? extends Reader>> readerMap = new HashMap<>();
 	
 	protected Map<String, String> columnMap = null;
+	
+	private static ResourceLoader rb = new ResourceLoader("calendar");
+
+	// These are injected at runtime by Spring.
+	private CalendarService calendarService = null;
+
+	private TimeService timeService = null;
+	
+	@Setter private FormattedText formattedText;
 
 	static DateFormat timeFormatter()
 	{
@@ -153,13 +163,6 @@ public class GenericCalendarImporter implements CalendarImporterService
 		rv.setLenient(false);
 		return rv;
 	}
-
-	private static ResourceLoader rb = new ResourceLoader("calendar");
-
-	// These are injected at runtime by Spring.
-	private CalendarService calendarService = null;
-
-	private TimeService timeService = null;
 
 	/*
 	 * This class is used as a "prototype" event that may be added to a real calendar. We emulate enough of a calendar event to hold all the information necessary to create a real event.
@@ -221,7 +224,7 @@ public class GenericCalendarImporter implements CalendarImporterService
 		 */
 		public String getDescription()
 		{
-			return FormattedText.convertFormattedTextToPlaintext(description);
+			return formattedText.convertFormattedTextToPlaintext(description);
 		}
 
 		/*
@@ -416,7 +419,7 @@ public class GenericCalendarImporter implements CalendarImporterService
 		 */
 		public void setDescription(String description)
 		{
-			this.description = FormattedText.convertPlaintextToFormattedText(description);
+			this.description = formattedText.convertPlaintextToFormattedText(description);
 		}
 
 		/*

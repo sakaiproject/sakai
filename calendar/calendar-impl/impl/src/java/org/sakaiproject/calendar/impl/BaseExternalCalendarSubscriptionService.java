@@ -63,7 +63,8 @@ import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
+
 
 @Slf4j
 public class BaseExternalCalendarSubscriptionService implements
@@ -131,6 +132,8 @@ public class BaseExternalCalendarSubscriptionService implements
 
 	/** Dependency: SiteService. */
 	protected SiteService m_siteService = null;
+	
+	protected FormattedText m_formattedText;
 
 	protected MemoryService m_memoryService = null;
 
@@ -161,6 +164,10 @@ public class BaseExternalCalendarSubscriptionService implements
 	public void setSiteService(SiteService service)
 	{
 		this.m_siteService = service;
+	}
+
+	public void setFormattedText(FormattedText FormattedText) {
+		this.m_formattedText = FormattedText;
 	}
 
 	/**
@@ -1281,7 +1288,7 @@ public class BaseExternalCalendarSubscriptionService implements
 
 		public String getDescription()
 		{
-			return FormattedText
+			return m_formattedText
 					.convertFormattedTextToPlaintext(getDescriptionFormatted());
 		}
 
@@ -1296,9 +1303,9 @@ public class BaseExternalCalendarSubscriptionService implements
 			if (desc != null && desc.length() > 0) return desc;
 			desc = m_properties.getPropertyFormatted(ResourceProperties.PROP_DESCRIPTION
 					+ "-formatted");
-			desc = FormattedText.convertOldFormattedText(desc);
+			desc = m_formattedText.convertOldFormattedText(desc);
 			if (desc != null && desc.length() > 0) return desc;
-			desc = FormattedText.convertPlaintextToFormattedText(m_properties
+			desc = m_formattedText.convertPlaintextToFormattedText(m_properties
 					.getPropertyFormatted(ResourceProperties.PROP_DESCRIPTION));
 			return desc;
 		}
@@ -1509,7 +1516,7 @@ public class BaseExternalCalendarSubscriptionService implements
 		public void setDescription(String description)
 		{
 
-			setDescriptionFormatted(FormattedText
+			setDescriptionFormatted(m_formattedText
 					.convertPlaintextToFormattedText(description));
 		}
 
@@ -1520,7 +1527,7 @@ public class BaseExternalCalendarSubscriptionService implements
 			// save both a formatted and a plaintext version of the description
 			m_properties.addProperty(ResourceProperties.PROP_DESCRIPTION + "-html",
 					description);
-			m_properties.addProperty(ResourceProperties.PROP_DESCRIPTION, FormattedText
+			m_properties.addProperty(ResourceProperties.PROP_DESCRIPTION, m_formattedText
 					.convertFormattedTextToPlaintext(description));
 		}
 
