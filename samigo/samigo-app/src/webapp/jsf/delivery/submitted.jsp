@@ -128,8 +128,8 @@ function closeWindow() {alert("1"); self.opener=this; self.close(); }
 
     <h:outputLabel value="#{deliveryMessages.submission_dttm}" />
     <h:outputText value="#{delivery.submissionDate}">
-        <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
-     </h:outputText>
+        <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{delivery.userTimeZone}" />
+    </h:outputText>
 
     <h:outputLabel value="#{deliveryMessages.final_page}" rendered="#{delivery.url!=null && delivery.url!=''}"/>
     <h:outputLink title="#{deliveryMessages.t_url}" value="#" rendered="#{delivery.url!=null && delivery.url!=''}"

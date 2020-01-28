@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -341,6 +342,10 @@ public class DeliveryBean
   public void setItemIndex(int itemIndex)
   {
     this.itemIndex = itemIndex;
+  }
+
+  public TimeZone getUserTimeZone() {
+    return userTimeService.getLocalTimeZone();
   }
 
   /**
