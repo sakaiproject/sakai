@@ -202,8 +202,10 @@ public class ItemModifyListener implements ActionListener
 
         bean.setItemId(itemfacade.getItemId().toString());
 
-        PublishedAssessmentIfc assessment = (PublishedAssessmentIfc) itemfacade.getSection().getAssessment();
-        Long assessmentId = assessment.getPublishedAssessmentId();
+        AssessmentIfc assessment = (AssessmentIfc) itemfacade.getSection().getAssessment();
+
+        Long assessmentId = (assessment instanceof PublishedAssessmentIfc)
+            ? ((PublishedAssessmentIfc) assessment).getPublishedAssessmentId() : assessment.getAssessmentId();
         List<AssessmentGradingData> assessmentGradingData = gradingService.getAllSubmissions(assessmentId.toString());
         if (assessmentGradingData != null && assessmentGradingData.size() > 0) {
             assessmentGradingData.forEach(agd -> {
