@@ -2066,6 +2066,7 @@
               <link>http://junit.sourceforge.net/javadoc/</link>
               <link>http://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
               <link>http://commons.apache.org/proper/commons-collections/apidocs/</link>
+              <link>https://commons.apache.org/proper/commons-io/javadocs/api-release/index.html</link>
             </links>
             <breakiterator>true</breakiterator>
             <minmemory>256m</minmemory>

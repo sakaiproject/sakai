@@ -534,7 +534,7 @@ public class Validator
 	 * @param fullName
 	 *        The full file name from a local os file system (mac, unix, windoze)
 	 * @return Just the name (and extension) of the file, without the drive or path.
-	 * @deprecated use commons-io FilenameUtils.getName() instead
+	 * @deprecated use commons-io: {@link org.apache.commons.io.FilenameUtils#getName(String)} instead
 	 */
 	public static String getFileName(String fullName)
 	{
