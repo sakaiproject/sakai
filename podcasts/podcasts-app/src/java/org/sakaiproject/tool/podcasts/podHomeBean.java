@@ -46,6 +46,7 @@ import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.io.FilenameUtils;
 import org.sakaiproject.api.app.podcasts.PodcastPermissionsService;
 import org.sakaiproject.api.app.podcasts.PodcastService;
 import org.sakaiproject.api.app.podcasts.exception.PodcastException;
@@ -1161,7 +1162,7 @@ public class podHomeBean {
 
 		FileItem item = (FileItem) event.getNewValue();
 		String fieldName = item.getFieldName();
-		filename = Validator.getFileName(item.getName());
+		filename = FilenameUtils.getName(item.getName());
 		fileSize = item.getSize();
 		fileContentType = item.getContentType();
 //		log.info("processFileUpload(): item: " + item
