@@ -45,7 +45,7 @@
   <h:panelGroup rendered="#{delivery.publishedAssessment.assessmentAccessControl.dueDate!=null}">
     <h:outputLabel value="#{deliveryMessages.due_date}: " />
     <h:outputText value="#{delivery.dueDate}">
-      <f:convertDateTime dateStyle="full" timeStyle="short" timeZone="#{author.userTimeZone}" />
+      <f:convertDateTime dateStyle="full" timeStyle="short" timeZone="#{delivery.userTimeZone}" />
     </h:outputText>
     <h:outputText value="." />
   </h:panelGroup> 
