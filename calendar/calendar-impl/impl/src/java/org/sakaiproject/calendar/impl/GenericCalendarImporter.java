@@ -128,6 +128,15 @@ public class GenericCalendarImporter implements CalendarImporterService
 	private final Map<String, Class<? extends Reader>> readerMap = new HashMap<>();
 	
 	protected Map<String, String> columnMap = null;
+	
+	private static ResourceLoader rb = new ResourceLoader("calendar");
+
+	// These are injected at runtime by Spring.
+	private CalendarService calendarService = null;
+
+	private TimeService timeService = null;
+	
+	@Setter private FormattedText formattedText;
 
 	static DateFormat timeFormatter()
 	{
@@ -154,15 +163,6 @@ public class GenericCalendarImporter implements CalendarImporterService
 		rv.setLenient(false);
 		return rv;
 	}
-
-	private static ResourceLoader rb = new ResourceLoader("calendar");
-
-	// These are injected at runtime by Spring.
-	private CalendarService calendarService = null;
-
-	private TimeService timeService = null;
-	
-	@Setter private FormattedText formattedText;
 
 	/*
 	 * This class is used as a "prototype" event that may be added to a real calendar. We emulate enough of a calendar event to hold all the information necessary to create a real event.
