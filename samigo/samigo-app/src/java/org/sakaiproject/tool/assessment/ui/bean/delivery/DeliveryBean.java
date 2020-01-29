@@ -4044,7 +4044,7 @@ public class DeliveryBean
 	  }
 
 	  
-	  public boolean getIsFromPrint()
+	  public boolean isFromPrint()
 	  {
 	    return isFromPrint;
 	  }
