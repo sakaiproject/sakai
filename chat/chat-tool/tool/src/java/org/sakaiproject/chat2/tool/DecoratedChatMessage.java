@@ -28,8 +28,9 @@ import java.time.format.FormatStyle;
 
 import org.sakaiproject.chat2.model.ChatManager;
 import org.sakaiproject.chat2.model.ChatMessage;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.FormattedText;
 
 public class DecoratedChatMessage {
 
@@ -89,7 +90,7 @@ public class DecoratedChatMessage {
     * @return
     */
    public String getRestrictedBody() {
-      String message = FormattedText.convertFormattedTextToPlaintext(chatMessage.getBody());
+      String message = ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(chatMessage.getBody());
       int maxLength = chatTool.lookupSynopticOptions().getChars();
       int actualLength = message.length();
       if (maxLength < actualLength && maxLength >= 0) {
@@ -99,7 +100,7 @@ public class DecoratedChatMessage {
    }
 
    public String getUnformattedBody() {
-      return FormattedText.convertFormattedTextToPlaintext(chatMessage.getBody());
+      return ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(chatMessage.getBody());
    }
      
    public boolean getCanRemoveMessage()
