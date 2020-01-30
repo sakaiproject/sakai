@@ -30,7 +30,7 @@ import org.sakaiproject.entity.api.ResourceProperties;
  * Comparator for announcements.
  */
 @Slf4j
-class AnnouncementWrapperComparator implements Comparator<AnnouncementAction.AnnouncementWrapper> {
+class AnnouncementWrapperComparator implements Comparator<AnnouncementWrapper> {
 
     private static RuleBasedCollator collator_ini = (RuleBasedCollator)Collator.getInstance();
     private Collator collator = Collator.getInstance();
@@ -67,7 +67,7 @@ class AnnouncementWrapperComparator implements Comparator<AnnouncementAction.Ann
      * @param o2 The second object
      * @return The compare result. 1 is o1 < o2; -1 otherwise
      */
-    public int compare(AnnouncementAction.AnnouncementWrapper o1, AnnouncementAction.AnnouncementWrapper o2) {
+    public int compare(AnnouncementWrapper o1, AnnouncementWrapper o2) {
         int result = -1;
 
         switch (m_criteria) {
