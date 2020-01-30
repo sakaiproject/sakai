@@ -75,7 +75,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.DateFormatterUtil;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.api.FormattedText;
 
 @Slf4j
 @Getter @Setter
@@ -1262,7 +1262,7 @@ public class ChatTool {
     * @return
     */
    public String getFramePlacementId() {
-      return Validator.escapeJavascript("Main" + getToolManager().getCurrentPlacement().getId());
+      return ComponentManager.get(FormattedText.class).escapeJavascript("Main" + getToolManager().getCurrentPlacement().getId());
    }
    
    
