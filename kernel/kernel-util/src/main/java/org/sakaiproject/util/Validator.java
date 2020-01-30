@@ -196,8 +196,8 @@ public class Validator
 	 * One reason for this existing is that the standard URLEncoder in Java will encode slashes ('/') but this method doesn't.
 	 * Also watch out as it trims trailing spaces, and other character get lost here too.
 	 * 
-	 * Note: java.net.URLEncode.encode() provides a more standard option
-	 *       FormattedText.decodeNumericCharacterReferences() undoes this op
+	 * Note: {@link java.net.URLEncode#encode(String, String)} provides a more standard option
+	 *       {@link FormattedText#decodeNumericCharacterReferences(String)} undoes this op
 	 * 
 	 * @param id
 	 *        The string to escape.
