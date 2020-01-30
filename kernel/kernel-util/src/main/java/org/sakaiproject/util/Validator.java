@@ -106,7 +106,7 @@ public class Validator
 	 * @param value
 	 *        The string to escape.
 	 * @return value fully escaped for HTML.
-     * @deprecated this is a passthrough for {@link FormattedText#escapeHtml(String, boolean)} so use that instead
+     * @deprecated this is a passthrough for {@link org.sakaiproject.util.api.FormattedText#escapeHtml(String, boolean)} so use that instead
 	 */
 	public static String escapeHtml(String value)
 	{
@@ -115,7 +115,7 @@ public class Validator
 
 	/**
 	 * Escape plaintext for display inside a plain textarea.
-     * @deprecated this is a passthrough for {@link FormattedText#escapeHtml(String, boolean)} so use that instead
+     * @deprecated this is a passthrough for {@link org.sakaiproject.util.api.FormattedText#escapeHtml(String, boolean)} so use that instead
 	 */
 	public static String escapeHtmlTextarea(String value)
 	{
@@ -124,7 +124,7 @@ public class Validator
 
 	/**
 	 * Escape HTML-formatted text in preparation to include it in an HTML document.
-     * @deprecated this is a passthrough for {@link FormattedText#escapeHtmlFormattedText(String)} so use that instead
+     * @deprecated this is a passthrough for {@link org.sakaiproject.util.api.FormattedText#escapeHtmlFormattedText(String)} so use that instead
 	 */
 	public static String escapeHtmlFormattedText(String value)
 	{
@@ -137,7 +137,7 @@ public class Validator
 	 * @param value
 	 *        The formatted text to escape
 	 * @return The string to use as the value of the formatted textarea widget
-     * @deprecated this is a passthrough for {@link FormattedText#escapeHtmlFormattedTextarea(String)} so use that instead
+     * @deprecated this is a passthrough for {@link org.sakaiproject.util.api.FormattedText#escapeHtmlFormattedTextarea(String)} so use that instead
 	 */
 	public static String escapeHtmlFormattedTextarea(String value)
 	{
@@ -150,7 +150,7 @@ public class Validator
      * @param value
      *        The string to escape.
      * @return value fully escaped using javascript / html identifier rules.
-     * @deprecated use commons-lang StringEscapeUtils
+     * @deprecated use commons-text {@link org.apache.commons.text.StringEscapeUtils}
      */
     public static String escapeJavascript(String value)
     {
@@ -202,7 +202,7 @@ public class Validator
 	 * @param id
 	 *        The string to escape.
 	 * @return id fully escaped using URL rules.
-	 * @deprecated use java.net.URLEncode.encode()
+	 * @deprecated use {@link java.net.URLEncode#encode(String, String)}
 	 */
 	public static String escapeUrl(String id)
 	{
@@ -251,7 +251,7 @@ public class Validator
     
     /**
      * Is this a valid local part of an email id?
-     * @deprecated use commons-validator EmailValidator
+     * @deprecated use commons-validator {@link org.apache.commons.validator.routines.EmailValidator}
      */
     public static boolean checkEmailLocal(String id)
     {
