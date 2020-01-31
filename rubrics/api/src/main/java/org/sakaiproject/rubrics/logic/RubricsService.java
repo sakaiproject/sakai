@@ -66,4 +66,7 @@ public interface RubricsService {
     void deleteRubricAssociation(String query, String toolId);
 
     void deleteRubricAssociationsByItemIdPrefix(String itemId, String toolId);
+    void softDeleteRubricAssociationsByItemIdPrefix(String itemId, String toolId);
+    void restoreRubricAssociationsByItemIdPrefix(String itemId, String toolId);
+
 }

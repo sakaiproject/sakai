@@ -43,6 +43,7 @@ import javax.persistence.Table;
 
 import lombok.ToString;
 import org.sakaiproject.rubrics.logic.listener.MetadataListener;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.springframework.data.rest.core.annotation.RestResource;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -87,7 +88,14 @@ public class Rubric implements Modifiable, Serializable, Cloneable {
     @PostUpdate
     public void determineLockStatus() {
         if (getToolItemAssociations() != null && getToolItemAssociations().size() > 0) {
-            getMetadata().setLocked(true);
+            for(ToolItemRubricAssociation tira : getToolItemAssociations()) {
+                if(tira.getParameters() == null) {
+                    getMetadata().setLocked(true);
+                } else if(!tira.getParameters().containsKey(RubricsConstants.RBCS_SOFT_DELETED) || !tira.getParameters().get(RubricsConstants.RBCS_SOFT_DELETED)) {
+                    getMetadata().setLocked(true);
+                    break;
+                }
+            }
         }
     }
 
