@@ -1,7 +1,7 @@
 <script>includeWebjarLibrary('select2');</script>
 <script src="/library/webjars/select2/4.0.12/js/i18n/<h:outputText value='#{itemauthor.language}' rendered='#{not empty itemauthor.language}' /><h:outputText value='en' rendered='#{empty itemauthor.language}' />.js"></script>
 <f:subview id="delete" rendered="#{itemauthor.deleteTagsAllowed == true}">
-    <script type="text/javascript">
+    <script>
 
 
         $(document).ready(function () {
@@ -122,7 +122,7 @@
 </f:subview>
 <f:subview id="nodelete" rendered="#{itemauthor.deleteTagsAllowed == false}">
 
-    <script type="text/javascript">
+    <script>
 
 
         $(document).ready(function () {

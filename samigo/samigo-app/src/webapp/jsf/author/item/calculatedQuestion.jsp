@@ -42,10 +42,10 @@ confirmation dialog
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head><%= request.getAttribute("html.head") %>
 	<title><h:outputText value="#{authorMessages.item_display_author}"/></title>
-	<script type="text/javascript" src="/samigo-app/js/info.js"></script>
+	<script src="/samigo-app/js/info.js"></script>
 	<!-- AUTHORING -->
-	<script type="text/javascript" src="/samigo-app/js/authoring.js"></script>
-	<script type="text/javascript">
+	<script src="/samigo-app/js/authoring.js"></script>
+	<script>
 	$(document).ready(function() {
 		initCalcQuestion();
 	});

@@ -457,7 +457,7 @@
 </div>
 
 <f:verbatim> 
-	<script type="text/javascript" defer='defer'>
+	<script defer='defer'>
 	$(document).ready(function(){
 		var itemType = "${itemauthor.currentItem.itemType}";
 		var prefixId='#itemForm\\:';

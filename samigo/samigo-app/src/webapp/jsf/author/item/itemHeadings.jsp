@@ -1,6 +1,6 @@
 <%-- Headings for item edit pages, needs to have msg=AuthorMessages.properties.  --%>
 <!-- Core files -->
-<script type="text/JavaScript">
+<script>
 function changeTypeLink(field){
 
 var newindex = 0;

@@ -1,7 +1,7 @@
 <%-- JAVSCRIPT FOR DISABLING SHOWFEEDBACK AND TOC AFTER ONE CLICK 
 Note that this will be embedded in the page exactly as is
 --%><!-- Samigo embedded delivery.js starts here -->
-<script type="text/javascript">
+<script>
 
 function printForm(){
   alert("print 0");

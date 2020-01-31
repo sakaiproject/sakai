@@ -39,8 +39,8 @@
     <h:form id="authorIndexForm">
         <!-- HEADINGS -->
         <%@ include file="/jsf/author/editAssessmentHeadings.jsp" %>
-        <script type="text/JavaScript">includeWebjarLibrary('datatables');</script>
-        <script type="text/javascript" src="/samigo-app/js/info.js"></script>
+        <script>includeWebjarLibrary('datatables');</script>
+        <script src="/samigo-app/js/info.js"></script>
 
 <%--        header--%>
         <div class="page-header">

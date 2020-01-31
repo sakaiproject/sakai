@@ -21,11 +21,11 @@
     
   <%@ include file="/jsf/delivery/deliveryjQuery.jsp" %>
   
-	<script type="text/javascript" src="/samigo-app/js/selection.author.preview.js"></script>
+	<script src="/samigo-app/js/selection.author.preview.js"></script>
 		
 	<link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
 		
-	<script type="text/JavaScript">		
+	<script>		
 		jQuery(window).load(function(){
 			
 			$('input:hidden[id^=hiddenSerializedCoords_]').each(function(){
@@ -45,7 +45,7 @@
 	</script>
 	    
   
-  <script type="text/JavaScript">
+  <script>
 function resetSelectMenus(){
   var selectlist = document.getElementsByTagName("SELECT");
 

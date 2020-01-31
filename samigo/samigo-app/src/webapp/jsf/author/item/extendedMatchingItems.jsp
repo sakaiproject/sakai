@@ -40,13 +40,13 @@
 <!-- AUTHORING -->
 <link type="text/css"
 	rel="Stylesheet" />
-<script type="text/javascript">
+<script>
 	var emiAuthoring = true;
 </script>
 
-<script type="text/javascript" src="/samigo-app/js/authoring.js"></script>
-<script type="text/javascript" src="/samigo-app/js/utils-emi.js"></script>
-<script type="text/javascript" src="/samigo-app/js/authoring-emi.js"></script>
+<script src="/samigo-app/js/authoring.js"></script>
+<script src="/samigo-app/js/utils-emi.js"></script>
+<script src="/samigo-app/js/authoring-emi.js"></script>
 </head>
 <body onload="<%=request.getAttribute("html.body.onload")%>">
     
