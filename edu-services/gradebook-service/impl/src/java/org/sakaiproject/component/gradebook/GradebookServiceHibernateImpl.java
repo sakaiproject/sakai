@@ -3251,8 +3251,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		if (gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY) {
 			double totalWeight = 0;
 			for (final CategoryDefinition newDef : newCategoryDefinitions) {
-				BigDecimal bg = newDef.getWeight() == null ? null : new BigDecimal(newDef.getWeight());
-				if (bg == null || bg.compareTo(BigDecimal.ZERO) == 0) {
+
+				if (newDef.getWeight() == null) {
 					throw new IllegalArgumentException("No weight specified for a category, but weightings enabled");
 				}
 
