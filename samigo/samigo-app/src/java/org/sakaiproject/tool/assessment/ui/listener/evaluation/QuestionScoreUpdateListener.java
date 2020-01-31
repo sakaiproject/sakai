@@ -29,7 +29,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -260,11 +262,13 @@ import org.sakaiproject.tool.cover.SessionManager;
   }
 
   private void updateAttachment(ItemGradingData itemGradingData, AgentResults agentResults, QuestionScoresBean bean){
-	  List oldList = itemGradingData.getItemGradingAttachmentList();
+
+	  Set<ItemGradingAttachment> oldList = itemGradingData.getItemGradingAttachmentSet();
 	  List newList = agentResults.getItemGradingAttachmentList();
 	  if ((oldList == null || oldList.size() == 0 ) && (newList == null || newList.size() == 0)) return;
-	  List attachmentList = new ArrayList();
-	  HashMap map = getAttachmentIdHash(oldList);
+	  final Map<Long, ItemGradingAttachment> map
+		  = oldList.stream().collect(Collectors.toMap(a -> a.getAttachmentId(), a -> a));
+	  List<ItemGradingAttachment> attachmentList = new ArrayList<>();
 	  for (int i=0; i<newList.size(); i++){
 		  ItemGradingAttachment itemGradingAttachment = (ItemGradingAttachment) newList.get(i);
 		  if (map.get(itemGradingAttachment.getAttachmentId()) != null){
@@ -297,14 +301,5 @@ import org.sakaiproject.tool.cover.SessionManager;
 				  "siteId=" + AgentFacade.getCurrentSiteId() + ", Removing attachmentId = " + attachmentId, true));
 	  }
 	  bean.setAnyItemGradingAttachmentListModified(true);
-  }
-
-  private HashMap getAttachmentIdHash(List list){
-    HashMap map = new HashMap();
-    for (int i=0; i<list.size(); i++){
-    	ItemGradingAttachment a = (ItemGradingAttachment)list.get(i);
-      map.put(a.getAttachmentId(), a);
-    }
-    return map;
   }
 }
