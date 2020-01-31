@@ -21,22 +21,23 @@
 
 package org.sakaiproject.poll.tool.validators;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
-
+import org.sakaiproject.poll.logic.ExternalLogic;
 import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.util.PollUtils;
-import org.sakaiproject.util.FormattedText;
+
 
 @Slf4j
 public class OptionValidator implements Validator {
 
 	public String submissionStatus;
+	@Setter private ExternalLogic externalLogic;
 	
 	public boolean supports(Class clazz) {
-		// TODO Auto-generated method stub
 		return clazz.equals(Option.class);
 	}
 
@@ -48,7 +49,7 @@ public class OptionValidator implements Validator {
 		String stripText = null;
 		
 		if(null != option.getText()) {
-			stripText = FormattedText.convertFormattedTextToPlaintext(option.getText()).trim();
+			stripText = externalLogic.convertFormattedTextToPlaintext(option.getText()).trim();
 		}
 		
 		log.debug("validating Option with id {} and status {}.", option.getOptionId(), option.getStatus());

@@ -44,7 +44,6 @@ import org.sakaiproject.poll.model.Vote;
 import org.sakaiproject.poll.model.VoteCollection;
 import org.sakaiproject.poll.tool.util.OptionsFileConverterUtil;
 import org.sakaiproject.poll.util.PollUtils;
-import org.sakaiproject.util.FormattedText;
 
 import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.messageutil.MessageLocator;
@@ -182,7 +181,7 @@ public class PollToolBean {
 		}
 
 
-		poll.setDetails(PollUtils.cleanupHtmlPtags(FormattedText.processFormattedText(poll.getDetails(), new StringBuilder())));
+		poll.setDetails(PollUtils.cleanupHtmlPtags(externalLogic.processFormattedText(poll.getDetails(), new StringBuilder())));
 		log.debug("about to save poll " + poll);
 		manager.savePoll(poll);
 
@@ -287,7 +286,7 @@ public class PollToolBean {
 			// return null;
 		}
 		StringBuilder sb = new StringBuilder();
-		option.setText(FormattedText.processFormattedText(option.getText(), sb, true, true));
+		option.setText(externalLogic.processFormattedText(option.getText(), sb, true, true));
 
 		String text = PollUtils.cleanupHtmlPtags(option.getText());
 		option.setText(text);
