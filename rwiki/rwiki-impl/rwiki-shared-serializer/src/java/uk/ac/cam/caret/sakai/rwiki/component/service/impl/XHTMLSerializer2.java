@@ -467,4 +467,20 @@ public class XHTMLSerializer2 implements SerializationHandler
 		xmlStream.setWriter(arg0);
 	}
 
+	public String getOutputProperty(String name) {
+		return xmlStream.getOutputProperty(name);
+	}
+
+	public String getOutputPropertyDefault(String name) {
+		return xmlStream.getOutputPropertyDefault(name);
+	}
+
+	public void setOutputProperty(String name, String val) {
+		xmlStream.setOutputProperty(name, val);
+	}
+
+	public void setOutputPropertyDefault(String name, String val) {
+		xmlStream.setOutputPropertyDefault(name, val);
+	}
+
 }
