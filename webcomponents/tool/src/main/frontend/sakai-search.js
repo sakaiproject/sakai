@@ -15,6 +15,7 @@ class SakaiSearch extends SakaiElement {
       "chat": "icon-sakai--sakai-chat",
       "forums": "icon-sakai--sakai-forums",
       "lessons": "icon-sakai--sakai-lessonbuildertool",
+      "commons": "icon-sakai--sakai-commons",
     };
 
     this.searchTerms = sessionStorage.getItem("searchterms") || "";
@@ -31,6 +32,7 @@ class SakaiSearch extends SakaiElement {
         "chat": this.i18n["toolname_chat"],
         "forums": this.i18n["toolname_forum"],
         "lessons": this.i18n["toolname_lesson"],
+        "commons": this.i18n["toolname_commons"],
       };
     });
   }
@@ -63,28 +65,30 @@ class SakaiSearch extends SakaiElement {
       <div class="sakai-search-input">
         ${this.showField ? html`
             <input type="text" id="sakai-search-input" tabindex="0" @keyup=${this.search} .value=${this.searchTerms} placeholder="${this.i18n["search_placeholder"]}" aria-label="${this.i18n["search_placeholder"]}"/>
-          ` : html``}
+          ` : ""}
         <a href="javascript:;" @click=${this.toggleField} title="${this.i18n["search_tooltip"]}"><span class="icon-sakai--sakai-search"></span></a>
       </div>
       ${this.results.length > 0 && this.showField ? html`
         <div class="sakai-search-results" tabindex="1">
           ${this.currentPageOfResults.map(r => html`
           <div class="search-result-container">
-            <div>
-              <i class="search-result-tool-icon ${this.iconMapping[r.tool]}" title="${this.toolNameMapping[r.tool]}"></i>
-              <span class="search-result-toolname">${this.toolNameMapping[r.tool]}</span>
-              <span>${this.i18n["from_site"]}</span>
-              <span class="search-result-site-title">${r.siteTitle}</span>
-            </div>
-            <div>
-              <span class="search-result-title-label">${this.i18n["search_result_title"]}</span><a href="${r.url}"><span class="search-result-title">${r.title}</span></a>
-            </div>
-            <div class="search-result">${unsafeHTML(r.searchResult)}</div>
+            <a href="${r.url}">
+              <div>
+                <i class="search-result-tool-icon ${this.iconMapping[r.tool]}" title="${this.toolNameMapping[r.tool]}"></i>
+                <span class="search-result-toolname">${this.toolNameMapping[r.tool]}</span>
+                <span>${this.i18n["from_site"]}</span>
+                <span class="search-result-site-title">${r.siteTitle}</span>
+              </div>
+              <div>
+                <span class="search-result-title-label">${this.i18n["search_result_title"]}</span><span class="search-result-title">${r.title}</span>
+              </div>
+              <div class="search-result">${unsafeHTML(r.searchResult)}</div>
+            </a>
           </div>
           `)}
         <sakai-pager total-things="${this.results.length}" page-size="${this.pageSize}" @page-clicked=${this.pageClicked}></sakai-pager>
         </div>
-        ` : html``}
+        ` : ""}
     `;
   }
 
