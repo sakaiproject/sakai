@@ -122,6 +122,10 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
 
     this.rating.title = document.getElementById(`rating-title-${this.rating.id}`).value;
     this.rating.points = document.getElementById(`rating-points-${this.rating.id}`).value;
+
+    // Enforce a points value. Blank breaks things.
+    if (this.rating.points.length === 0) this.rating.points = "0";
+
     this.rating.description = document.getElementById(`rating-description-${this.rating.id}`).value;
     this.rating.criterionId = this.criterionId;
 
