@@ -82,6 +82,7 @@ import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.MapUtil;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
+import org.sakaiproject.util.RequestFilter;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -475,7 +476,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			m.put("shortDescription", Web.escapeHtml(shortDesc_trimmed));
 		}
 
-		String siteUrl = Web.serverUrl(req)
+		String siteUrl = RequestFilter.serverUrl(req)
 				+ ServerConfigurationService.getString("portalPath") + "/";
 		if (prefix != null) siteUrl = siteUrl + prefix + "/";
 		// siteUrl = siteUrl + Web.escapeUrl(siteHelper.getSiteEffectiveId(s));

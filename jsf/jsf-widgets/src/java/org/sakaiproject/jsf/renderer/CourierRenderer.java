@@ -105,7 +105,7 @@ public class CourierRenderer extends Renderer
 	}
 	
 	/** 
-	 * This method is a duplicate of org.sakaiproject.util.web.Web.serverUrl()
+	 * This method is a duplicate of {@link org.sakaiproject.util.RequestFilter#serverUrl(HttpServletRequest)}
 	 * Duplicated here from org.sakaiproject.util.web.Web.java so that 
 	 * the JSF tag library doesn't have a direct jar dependency on more of Sakai.
 	 */

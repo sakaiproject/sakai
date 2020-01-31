@@ -174,7 +174,6 @@ import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.Validator;
-import org.sakaiproject.util.Web;
 import org.sakaiproject.util.api.LinkMigrationHelper;
 
 import lombok.extern.slf4j.Slf4j;
@@ -15102,7 +15101,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	
 	private void putDownloadParticipantPDFLinkIntoContext(Context context, RunData data, Site site) {
 		// the status servlet reqest url
-		String url = Web.serverUrl(data.getRequest()) + "/sakai-site-manage-tool/tool/printparticipant/" + site.getId();
+		String url = RequestFilter.serverUrl(data.getRequest()) + "/sakai-site-manage-tool/tool/printparticipant/" + site.getId();
 		context.put("downloadParticipantsPDF_URL", url);
 	}
 	
