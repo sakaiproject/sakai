@@ -73,6 +73,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.FormattedText;
 
 @Slf4j
 @Setter
@@ -112,6 +113,7 @@ public class ExternalLogicImpl implements ExternalLogic {
 	private UserTimeService userTimeService;
 	private String fromEmailAddress;
 	private String replyToEmailAddress;
+	@Setter private FormattedText formattedText;
 	
 	/**
      * Methods
@@ -521,6 +523,22 @@ public class ExternalLogicImpl implements ExternalLogic {
     	ArrayList<String> siteGroupRefs = new ArrayList<>();
     	siteGroupRefs.add(siteService.siteReference(developerHelperService.getCurrentLocationId()));
     	return (authzGroupService.getUsersIsAllowed(PollListManager.PERMISSION_VOTE, siteGroupRefs).size());
+    }
+
+    @Override
+    public String convertFormattedTextToPlaintext(String text) {
+        return formattedText.convertFormattedTextToPlaintext(text);
+    }
+
+    @Override
+    public String processFormattedText(String text, StringBuilder errorMessages) {
+        return formattedText.processFormattedText(text, errorMessages);
+    }
+
+    @Override
+    public String processFormattedText(String strFromBrowser, StringBuilder errorMessages, boolean checkForEvilTags,
+           boolean replaceWhitespaceTags) {
+        return formattedText.processFormattedText(strFromBrowser, errorMessages, checkForEvilTags, replaceWhitespaceTags);
     }
 
 }

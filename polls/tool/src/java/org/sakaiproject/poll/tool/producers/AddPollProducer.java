@@ -38,7 +38,7 @@ import org.sakaiproject.poll.tool.params.OptionViewParameters;
 import org.sakaiproject.poll.tool.params.OptionBatchViewParameters;
 import org.sakaiproject.poll.tool.params.PollViewParameters;
 import org.sakaiproject.poll.tool.params.VoteBean;
-import org.sakaiproject.util.FormattedText;
+
 
 import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.messageutil.MessageLocator;
@@ -225,12 +225,12 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 				UIInternalLink editOption = UIInternalLink.make(oRow,"option-edit",UIMessage.make("new_poll_option_edit"),
 						new OptionViewParameters(PollOptionProducer.VIEW_ID, o.getOptionId().toString()));
 
-				editOption.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("new_poll_option_edit") +":" + FormattedText.convertFormattedTextToPlaintext(o.getText())));
+				editOption.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("new_poll_option_edit") +":" + externalLogic.convertFormattedTextToPlaintext(o.getText())));
 
 				UIInternalLink deleteOption = UIInternalLink.make(oRow,"option-delete",UIMessage.make("new_poll_option_delete"),
 						new OptionViewParameters(PollOptionDeleteProducer.VIEW_ID,o.getOptionId().toString()));
 
-				deleteOption.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("new_poll_option_delete") +":" + FormattedText.convertFormattedTextToPlaintext(o.getText())));
+				deleteOption.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("new_poll_option_delete") +":" + externalLogic.convertFormattedTextToPlaintext(o.getText())));
 
 			}
 		}

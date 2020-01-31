@@ -217,4 +217,23 @@ public class ExternalLogicStubb implements ExternalLogic {
     	return 0;
     }
 
+	@Override
+	public String convertFormattedTextToPlaintext(String text) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String processFormattedText(String text, StringBuilder errorMessages) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String processFormattedText(String strFromBrowser, StringBuilder errorMessages, boolean checkForEvilTags,
+			boolean replaceWhitespaceTags) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
