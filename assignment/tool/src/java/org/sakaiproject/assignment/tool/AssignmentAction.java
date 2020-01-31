@@ -58,6 +58,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -13645,7 +13646,7 @@ public class AssignmentAction extends PagedResourceActionII {
             // only if in the single file upload case, need to warn user to upload a local file
             addAlert(state, rb.getString("choosefile7"));
         } else if (fileitem.getFileName().length() > 0) {
-            String filename = Validator.getFileName(fileitem.getFileName());
+            String filename = FilenameUtils.getName(fileitem.getFileName());
             InputStream fileContentStream = fileitem.getInputStream();
             String contentType = fileitem.getContentType();
 
@@ -13657,7 +13658,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     addAlert(state, rb.getFormattedMessage("attempty", filename));
                 } else {
                     // we just want the file name part - strip off any drive and path stuff
-                    String name = Validator.getFileName(filename);
+                    String name = FilenameUtils.getName(filename);
                     String resourceId = Validator.escapeResourceName(name);
 
                     // make a set of properties to add for the new resource

@@ -745,7 +745,7 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
      */
     protected Optional<ContentResource> createAttachment(String siteId, List<Reference> attachments, String type, String fileName, InputStream in, String id) {
         // we just want the file name part - strip off any drive and path stuff
-        String name = FilenameUtils.getName(fileName);  //Validator.getFileName(fileName);
+        String name = FilenameUtils.getName(fileName);  //FilenameUtils.getName(fileName);
         String resourceName = Validator.escapeResourceName(fileName);
 
         // make a set of properties to add for the new resource

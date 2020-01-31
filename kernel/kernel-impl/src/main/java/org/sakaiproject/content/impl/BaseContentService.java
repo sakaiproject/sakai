@@ -68,6 +68,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.tika.io.TikaInputStream;
@@ -7052,7 +7053,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 			else
 			{
 				// use the last part, the file name part of the id, for the download file name
-				String fileName = Validator.getFileName(ref.getId());
+				String fileName = FilenameUtils.getName(ref.getId());
 				String disposition = null;
 
 				if (Validator.letBrowserInline(contentType))
