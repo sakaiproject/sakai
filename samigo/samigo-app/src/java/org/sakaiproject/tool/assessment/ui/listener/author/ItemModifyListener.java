@@ -552,7 +552,9 @@ public class ItemModifyListener implements ActionListener
            }
 	   AnswerBean answerbean = new AnswerBean();
 	            answerbean.setId(answerArray[i].getId());
-	            answerbean.setAnswerFeedbackId(feedbackSet.iterator().next().getId());
+                if (feedbackSet.size() > 0) {
+                    answerbean.setAnswerFeedbackId(feedbackSet.iterator().next().getId());
+                }
                 answerbean.setText(answerArray[i].getText());
                 answerbean.setSequence(answerArray[i].getSequence());
                 answerbean.setLabel(answerArray[i].getLabel());
