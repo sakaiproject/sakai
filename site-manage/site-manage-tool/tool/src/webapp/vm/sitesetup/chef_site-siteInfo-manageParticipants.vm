@@ -218,7 +218,7 @@
                                     </td>
                                 #end
                                 <td class="screenOnly">
-                                    #if ($participant.isRemoveable())
+                                    #if ($participant.isRemoveable() && $hasAllowedRole == "true")
                                         ## if in Home site, cannot move the site user from it
                                         #if (!$!isMyWorkspace || ($!isMyWorkspace && !$uniqname.equals($!siteUserId)))
                                             <label class="skip" for="remove_$uniqname">$tlang.getString("sitegen.siteinfolist.remove") $participant.getDisplayId()</label>
