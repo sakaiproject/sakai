@@ -31,8 +31,10 @@ import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 import javax.faces.render.Renderer;
 
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.jsf.util.RendererUtil;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
+
 
 public class RichTextAreaRenderer extends Renderer
 {
@@ -57,7 +59,7 @@ public class RichTextAreaRenderer extends Renderer
 
         //escape the value so the wysiwyg editors don't get too clever and turn things
         //into tags that are not tags. 
-        value = FormattedText.escapeHtmlFormattedTextarea((String) value);
+        value = ComponentManager.get(FormattedText.class).escapeHtmlFormattedTextarea((String) value);
 
         // character height of the textarea
         int columns = -1;
