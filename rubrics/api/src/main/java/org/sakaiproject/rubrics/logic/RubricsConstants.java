@@ -38,6 +38,7 @@ public interface RubricsConstants {
 	public static final	String RBCS_ASSOCIATE = RBCS_PREFIX + RBCS_ASSOCIATE_SUFFIX;
 	public static final String RBCS_LIST_SUFFIX = "rubricslist";
 	public static final String RBCS_LIST = RBCS_PREFIX + RBCS_LIST_SUFFIX;
+	public static final String RBCS_SOFT_DELETED = RBCS_PREFIX + "soft-deleted";
 
 	//samigo custom props
 	public static final	String RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX = "pub.";

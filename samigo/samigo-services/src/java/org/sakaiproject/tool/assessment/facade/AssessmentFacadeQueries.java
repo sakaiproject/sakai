@@ -396,7 +396,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		}*/
 
 		RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.logic.RubricsService");
-		rubricsService.deleteRubricAssociationsByItemIdPrefix(assessmentId + ".", RubricsConstants.RBCS_TOOL_SAMIGO);
+		rubricsService.softDeleteRubricAssociationsByItemIdPrefix(assessmentId + ".", RubricsConstants.RBCS_TOOL_SAMIGO);
 
 		assessment.setLastModifiedBy(AgentFacade.getAgentString());
 		assessment.setLastModifiedDate(new Date());
@@ -2408,6 +2408,10 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
     	assessment.setLastModifiedBy(AgentFacade.getAgentString());
     	assessment.setLastModifiedDate(new Date());
     	assessment.setStatus(AssessmentIfc.ACTIVE_STATUS);
+
+    	RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.logic.RubricsService");
+    	rubricsService.restoreRubricAssociationsByItemIdPrefix(assessmentId + ".", RubricsConstants.RBCS_TOOL_SAMIGO);
+
     	int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
     	while (retryCount > 0) {
     		try {
