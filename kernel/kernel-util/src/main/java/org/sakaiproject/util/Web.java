@@ -360,7 +360,7 @@ public class Web
 	 * @param req
 	 *        The request.
 	 * @return The URL back to this server based on the current request.
-	 * @deprecated use {@link RequestFilter.serverUrl}
+	 * @deprecated use {@link RequestFilter#serverUrl(HttpServletRequest)}
 	 */
 	public static String serverUrl(HttpServletRequest req)
 	{
