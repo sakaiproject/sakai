@@ -44,6 +44,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
@@ -1135,7 +1136,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		}
 		else if (fileitem.getFileName().length() > 0)
 		{
-			String filename = Validator.getFileName(fileitem.getFileName());
+			String filename = FilenameUtils.getName(fileitem.getFileName());
 			InputStream stream = fileitem.getInputStream();
 			pipe.setRevisedContentStream(stream);
 			String contentType = fileitem.getContentType().replaceAll("\"", "");
@@ -1547,7 +1548,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			}
 			else if (fileitem.getFileName().length() > 0)
 			{
-				String filename = Validator.getFileName(fileitem.getFileName());
+				String filename = FilenameUtils.getName(fileitem.getFileName());
 				pipe.setRevisedContentStream( fileitem.getInputStream() );
 				String contentType = fileitem.getContentType().replaceAll("\"", "");
 				pipe.setRevisedMimeType(contentType);

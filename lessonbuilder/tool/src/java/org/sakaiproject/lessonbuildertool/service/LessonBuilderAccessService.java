@@ -53,7 +53,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 
 import uk.org.ponder.messageutil.MessageLocator;
-
+import org.apache.commons.io.FilenameUtils;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
@@ -726,7 +726,7 @@ public class LessonBuilderAccessService {
 						else
 						{
 							// use the last part, the file name part of the id, for the download file name
-							String fileName = Web.encodeFileName(req, Validator.getFileName(ref.getId()));
+							String fileName = Web.encodeFileName(req, FilenameUtils.getName(ref.getId()));
 							String disposition = null;
 							
 							boolean inline = false;
