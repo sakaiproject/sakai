@@ -49,6 +49,7 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.PresenceObservingCourier;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
+import org.sakaiproject.util.RequestFilter;
 
 /**
  * <p>
@@ -224,7 +225,7 @@ public class PresenceTool extends HttpServlet
 		int updateTime = PresenceService.getTimeout() / 2;
 
 		String userId = SessionManager.getCurrentSessionUserId();
-		StringBuilder url = new StringBuilder(Web.serverUrl(req));
+		StringBuilder url = new StringBuilder(RequestFilter.serverUrl(req));
 		url.append("/courier/");
 		url.append(placementId);
 		url.append("?userId=");

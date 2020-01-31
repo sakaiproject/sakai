@@ -78,6 +78,7 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
+import org.sakaiproject.util.RequestFilter;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -577,7 +578,7 @@ public class SiteHandler extends WorksiteHandler
 		}catch(Exception e){}
 		//End - log the visit into SAKAI_EVENT		
 
-		rcontext.put("currentUrlPath", Web.serverUrl(req) + req.getContextPath()
+		rcontext.put("currentUrlPath", RequestFilter.serverUrl(req) + req.getContextPath()
 				+ URLUtils.getSafePathInfo(req));
 
 		rcontext.put("usePortalSearch", ServerConfigurationService.getBoolean("portal.search.enabled", true));
@@ -943,7 +944,7 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("tabsAddLogout", Boolean.valueOf(addLogout));
 			if (addLogout)
 			{
-				String logoutUrl = Web.serverUrl(req)
+				String logoutUrl = RequestFilter.serverUrl(req)
 						+ ServerConfigurationService.getString("portalPath")
 						+ "/logout_gallery";
 				rcontext.put("tabsLogoutUrl", logoutUrl);
@@ -956,7 +957,7 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("tabsAddLogout", Boolean.valueOf(addLogout));
 			if (addLogout)
 			{
-				String logoutUrl = Web.serverUrl(req)
+				String logoutUrl = RequestFilter.serverUrl(req)
 						+ ServerConfigurationService.getString("portalPath")
 						+ "/logout_gallery";
 				rcontext.put("tabsLogoutUrl", logoutUrl);

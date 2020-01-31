@@ -63,6 +63,7 @@ import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
+import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.vm.ActionURL;
 
 import lombok.extern.slf4j.Slf4j;
@@ -1124,7 +1125,7 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 		if (placement != null)
 		{
 			String userId = SessionManager.getCurrentSessionUserId();
-			StringBuilder url = new StringBuilder(Web.serverUrl(request));
+			StringBuilder url = new StringBuilder(RequestFilter.serverUrl(request));
 			url.append("/courier/");
 			url.append(placement.getId());
 			url.append("?userId=");

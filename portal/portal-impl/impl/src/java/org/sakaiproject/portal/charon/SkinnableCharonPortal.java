@@ -132,6 +132,7 @@ import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
+import org.sakaiproject.util.RequestFilter;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -531,7 +532,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		PortalRenderContext rcontext = startPageContext(siteType, title, siteSkin, req, site);
 
 		// Make the top Url where the "top" url is
-		String portalTopUrl = Web.serverUrl(req)
+		String portalTopUrl = RequestFilter.serverUrl(req)
 		+ ServerConfigurationService.getString("portalPath") + "/";
 		if (prefix != null) portalTopUrl = portalTopUrl + prefix + "/";
 
@@ -673,7 +674,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		// Reset is different for Portlets
 		if (isPortletPlacement(placement))
 		{
-			resetActionUrl = Web.serverUrl(req)
+			resetActionUrl = RequestFilter.serverUrl(req)
 			+ ServerConfigurationService.getString("portalPath")
 			+ URLUtils.getSafePathInfo(req) + "?sakai.state.reset=true";
 		}
@@ -724,7 +725,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				
 		if (renderResult.getJSR168HelpUrl() != null)
 		{
-			toolMap.put("toolJSR168Help", Web.serverUrl(req) + renderResult.getJSR168HelpUrl());
+			toolMap.put("toolJSR168Help", RequestFilter.serverUrl(req) + renderResult.getJSR168HelpUrl());
 		}
 
 		// Must have site.upd to see the Edit button
@@ -733,7 +734,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			if (securityService.unlock(SiteService.SECURE_UPDATE_SITE, site
 					.getReference()))
 			{
-				String editUrl = Web.serverUrl(req) + renderResult.getJSR168EditUrl();
+				String editUrl = RequestFilter.serverUrl(req) + renderResult.getJSR168EditUrl();
 				toolMap.put("toolJSR168Edit", editUrl);
 				toolMap.put("toolJSR168EditEncode", URLUtils.encodeUrl(editUrl));
 			}
@@ -1793,7 +1794,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		{
 
 			// for the main login/out link
-			String logInOutUrl = Web.serverUrl(req);
+			String logInOutUrl = RequestFilter.serverUrl(req);
 			String message = null;
 			String image1 = null;
 
