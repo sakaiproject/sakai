@@ -1105,8 +1105,8 @@
 					<div class="validationError alertMessage" id="modelanswer_text_message">
 						$tlang.getString("extraNodesRequired")
 					</div>
-					<textarea name="modelanswer_text" id="modelanswer_text" cols="60" rows="10" wrap="virtual">$formattedText.escapeHtmlTextarea($!modelanswer_text)</textarea>
-					<textarea name="modelanswer_text_holder" id="modelanswer_text_holder" style="display:none" cols="60" rows="2" wrap="virtual">$formattedText.escapeHtmlTextarea($!modelanswer_text)</textarea>
+					<textarea name="modelanswer_text" id="modelanswer_text" cols="60" rows="10" wrap="virtual">$validator.escapeHtmlTextarea($!modelanswer_text)</textarea>
+					<textarea name="modelanswer_text_holder" id="modelanswer_text_holder" style="display:none" cols="60" rows="2" wrap="virtual">$validator.escapeHtmlTextarea($!modelanswer_text)</textarea>
 				</div>
 				###chef_setupformattedtextareaparams("modeltext" "200" "365" "small")
 			</div>
@@ -1223,8 +1223,8 @@
 						$tlang.getString("extraNodesRequired")
 					</div>
 					#if ($!note && $!allowEditAssignmentNoteItem || !$!note)
-						<textarea name="note_text" id="note_text" cols="60" rows="10" wrap="virtual">$formattedText.escapeHtmlTextarea($!note_text)</textarea>
-						<textarea name="note_text_holder" id="note_text_holder"  style="display:none"  cols="60" rows="2" wrap="virtual">$formattedText.escapeHtmlTextarea($!note_text)</textarea>
+						<textarea name="note_text" id="note_text" cols="60" rows="10" wrap="virtual">$validator.escapeHtmlTextarea($!note_text)</textarea>
+						<textarea name="note_text_holder" id="note_text_holder"  style="display:none"  cols="60" rows="2" wrap="virtual">$validator.escapeHtmlTextarea($!note_text)</textarea>
 					#else
 						#if ($!allowReadAssignmentNoteItem)
 					 		<div class="notes">$formattedText.escapeHtml($!note_text)</div>
@@ -1294,8 +1294,8 @@
 					<div class="validationError alertMessage" id="allPurpose_text_message">
 						$tlang.getString("extraNodesRequired")
 					</div>
-					<textarea name="allPurposeText" id="allPurpose_text" cols="60" rows="10" wrap="virtual">$formattedText.escapeHtmlTextarea($!value_allPurposeText)</textarea>
-					<textarea name="allPurposeTextHolder"  id="allPurpose_text_holder"  style="display:none"  cols="60" rows="2" wrap="virtual">$formattedText.escapeHtmlTextarea($!value_allPurposeText)</textarea>
+					<textarea name="allPurposeText" id="allPurpose_text" cols="60" rows="10" wrap="virtual">$validator.escapeHtmlTextarea($!value_allPurposeText)</textarea>
+					<textarea name="allPurposeTextHolder"  id="allPurpose_text_holder"  style="display:none"  cols="60" rows="2" wrap="virtual">$validator.escapeHtmlTextarea($!value_allPurposeText)</textarea>
 				</div>
 			</div>
 			## attachments for allpurpose item
