@@ -147,7 +147,7 @@ $(function () {
         inputs.appendChild(input);
       }
     }
-    input.setAttribute("value", e.detail.value);
+    input.setAttribute("value", "criterionrating" === type ? e.detail.ratingId : e.detail.value);
   };
 
   $('body').on('total-points-updated', function (e) {
@@ -170,7 +170,10 @@ $(function () {
 
   $('body').on('rubric-rating-tuned', e => addRubricInputs(e, "criterion-override"));
 
-  $('body').on('rubric-rating-changed', e => addRubricInputs(e, "criterion"));
+  $('body').on('rubric-rating-changed', e => {
+    addRubricInputs(e, "criterion");
+    addRubricInputs(e, "criterionrating");
+  });
 
   $('body').on('update-state-details', e => addRubricInputs(e, "state-details"));
 
