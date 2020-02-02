@@ -5,7 +5,7 @@
         $tlang.getString("gen.instrcomment")
         $tlang.getString("gen.to")
         $tlang.getString("gen.openquote")
-        $validator.escapeHtml($assignment.Title)
+        $formattedText.escapeHtml($assignment.Title)
         $tlang.getString("gen.closequote")
     </h3>
     #if ($alertMessage)
@@ -19,7 +19,7 @@
                 </th>
                 <td>
 					#if ($value_CheckAnonymousGrading)
-                        $validator.escapeHtml($!submission.Id) $tlang.getString("grading.anonymous.title")
+                        $formattedText.escapeHtml($!submission.Id) $tlang.getString("grading.anonymous.title")
                     #else
                         $!submitterNames
                     #end
@@ -62,7 +62,7 @@
             $tlang.getString("gen.instr")
         </h4>
         #if ($assignment.Instructions && !$assignment.Instructions.isEmpty())
-            <div class="textPanel">$validator.escapeHtmlFormattedText($assignment.Instructions)</div>
+            <div class="textPanel">$formattedText.escapeHtmlFormattedText($assignment.Instructions)</div>
         #else
         #end
 
@@ -101,7 +101,7 @@
                                     #else
                                         <img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
                                     #end
-                                    <a href="$reference.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+                                    <a href="$reference.Url" target="_blank">$formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
                                     #propertyDetails($props)
                                 </li>
                             #end
@@ -113,7 +113,7 @@
 
         #if ($!feedback_comment.length() > 0)
             <h4>$tlang.getString("gen.sumcom")</h4>
-            <div class="textPanel">$validator.escapeHtmlFormattedText($feedback_comment)</div>
+            <div class="textPanel">$formattedText.escapeHtmlFormattedText($feedback_comment)</div>
         #end
 
         ## Feedback Attachments
@@ -138,7 +138,7 @@
                             #else
                                 <img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
                             #end
-                            <a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+                            <a href="$attachment.Url" target="_blank">$formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
                             #propertyDetails($props)
                         </li>
                     #end

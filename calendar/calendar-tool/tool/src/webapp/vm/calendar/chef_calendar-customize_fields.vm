@@ -17,7 +17,7 @@
 	</div>
 	<script type="text/javascript"> var a = document.MyCalendar; </script>
 	#if ($alertMessage)
-		<div class="sak-banner-warn">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>
+		<div class="sak-banner-warn">$tlang.getString('gen.alert') $formattedText.escapeHtml($alertMessage)</div>
 	#end
 	<p class="instruction">
 		$tlang.getString('cust.toadd')
@@ -98,7 +98,7 @@
 					#set ($addedFieldsCount=$addedFieldsCount + 1)
 						<tr> 
 							<td headers="fieldname">
-								<label for="addedFields$addedFieldsCount">$validator.escapeHtml($fieldEntry)</label>
+								<label for="addedFields$addedFieldsCount">$formattedText.escapeHtml($fieldEntry)</label>
 							</td>
 							<td headers="checkbox">
 								<input type="checkbox" id="addedFields$addedFieldsCount"  name="$fieldEntry" value="$tlang.getString('cust.true')"  />

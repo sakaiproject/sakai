@@ -50,7 +50,7 @@
                                     #set($siteSelected = true)
                                 #end
                             #end
-                            <option value="$site.getId()" #if ($siteSelected)selected="selected"#end>$validator.escapeHtml($site.getTitle())</option>
+                            <option value="$site.getId()" #if ($siteSelected)selected="selected"#end>$formattedText.escapeHtml($site.getTitle())</option>
                         #end
                     </select>
                     </p>

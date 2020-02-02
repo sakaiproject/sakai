@@ -1,4 +1,4 @@
 <div class="portletBody">
-#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>#end
 <p>$tlang.getString("bad.operation")</p>
 </div>

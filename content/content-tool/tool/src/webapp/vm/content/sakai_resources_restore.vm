@@ -12,7 +12,7 @@
                 #*
                 #foreach ($item in $collectionPath)
 					#set($rootFolderId=$item.id)
-					$validator.escapeHtml("$item.name")
+					$formattedText.escapeHtml("$item.name")
 				#end
                 *#
 			</h1>
@@ -29,7 +29,7 @@
 			<br /><div id="messageSuccessHolder" class="sak-banner-success">$tlang.getFormattedMessage("remove.success", $removedResources)</div>
 		#end
 		#if ($alertMessage)
-			<br /><div class="messageValidation">$validator.escapeHtml($alertMessage)</div><div class="clear"></div>
+			<br /><div class="messageValidation">$formattedText.escapeHtml($alertMessage)</div><div class="clear"></div>
 		#end
 			<div class="navPanel">
 				<div class="navIntraToolLink viewNav act">
@@ -85,7 +85,7 @@
 						<td style="text-indent:$width">
 							<h4><span class="fa fa-folder" aria-hidden="true"></span>
 							<span class="sr-only">$tlang.getString('gen.folder1')</span>
-							$validator.escapeHtml($folderName)</h4>
+							$formattedText.escapeHtml($folderName)</h4>
 						</td>
 						<td colspan="2"></td>
 					</tr>
@@ -97,7 +97,7 @@
 					<tr>
 						<td headers="checkboxes">
 						#set($collectionId=$contentService.getContainingCollectionId($member.id))
-							<input type="checkbox" name="selectedMembers" id="root.members$num" value="$member.id" onclick="adjustCount(this)"/><label for="root.members$num" class="skip">$tlang.getString('att.select') $validator.escapeHtml($member.name)</label>
+							<input type="checkbox" name="selectedMembers" id="root.members$num" value="$member.id" onclick="adjustCount(this)"/><label for="root.members$num" class="skip">$tlang.getString('att.select') $formattedText.escapeHtml($member.name)</label>
 						</td>
 						<td headers="title" style="text-indent: $width" class="specialLink">
 							<h5>
@@ -107,11 +107,11 @@
 								#else
 									<span class="$contentTypeImageService.getContentTypeImageClass("$member.type")" aria-hidden="true"></span>
 								#end
-								$validator.escapeHtml($member.name)
+								$formattedText.escapeHtml($member.name)
 							</h5>	
 						</td>
 						<td headers="creator">
-							$validator.escapeHtml($member.modifiedBy)
+							$formattedText.escapeHtml($member.modifiedBy)
 						</td>
 						<td headers="modified">
 							$member.ModifiedTime

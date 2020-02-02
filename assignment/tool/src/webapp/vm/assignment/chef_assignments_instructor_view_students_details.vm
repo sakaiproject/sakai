@@ -36,9 +36,9 @@
         <tr>        
           <td headers="studentname">
             #if ($value_CheckAnonymousGrading)
-                $validator.escapeHtml($!submission.Id) $tlang.getString("grading.anonymous.title")
+                $formattedText.escapeHtml($!submission.Id) $tlang.getString("grading.anonymous.title")
             #else
-                $validator.escapeHtml($submitterName)
+                $formattedText.escapeHtml($submitterName)
             #end
           </td>
           <td headers="notes">            

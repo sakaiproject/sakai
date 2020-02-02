@@ -8,7 +8,7 @@
 	</h3>
 	#if ($alertMessage)
 		<div class="alertMessage">
-			$tlang.getFormattedMessage("presence.list1.alert.message", $validator.escapeHtml($alertMessage))
+			$tlang.getFormattedMessage("presence.list1.alert.message", $formattedText.escapeHtml($alertMessage))
 		</div>
 	#end
 	<table class="table table-hover table-striped table-bordered" summary ="$tlang.getString("presence.list1.tablesummary")" border="0">
@@ -19,7 +19,7 @@
 					$list.size()
 				</td>
 				<td colspan="5">
-					$tlang.getFormattedMessage("presence.list1.location.value", $validator.escapeHtml($location))
+					$tlang.getFormattedMessage("presence.list1.location.value", $formattedText.escapeHtml($location))
 				</td>
 			</tr>
 			#foreach($entry in $list)
@@ -27,19 +27,19 @@
 					<td>
 					</td>
 					<td>
-						<span title="$tlang.getString("presence.session.name")">$validator.escapeHtml($entry.UserDisplayId)</span>
+						<span title="$tlang.getString("presence.session.name")">$formattedText.escapeHtml($entry.UserDisplayId)</span>
 					</td>
 					<td class="hidden-xs">
-						<span title="$tlang.getString("presence.session.session")">$validator.escapeHtml($entry.Id)</span>
+						<span title="$tlang.getString("presence.session.session")">$formattedText.escapeHtml($entry.Id)</span>
 					</td>
 					<td>
-						<span title="$tlang.getString("presence.session.adress")">$validator.escapeHtml($entry.IpAddress)</span>
+						<span title="$tlang.getString("presence.session.adress")">$formattedText.escapeHtml($entry.IpAddress)</span>
 					</td>
 					<td class="hidden-xs">
-						<span title="$tlang.getString("presence.session.agent")" class="textPanelFooter">$validator.escapeHtml($entry.UserAgent)</span>
+						<span title="$tlang.getString("presence.session.agent")" class="textPanelFooter">$formattedText.escapeHtml($entry.UserAgent)</span>
 					</td>
 					<td>
-						<span title="$tlang.getString("presence.session.started")">$validator.escapeHtml($entry.getStart().toStringLocalFull())</span>
+						<span title="$tlang.getString("presence.session.started")">$formattedText.escapeHtml($entry.getStart().toStringLocalFull())</span>
 					</td>
 				</tr>
 			#end

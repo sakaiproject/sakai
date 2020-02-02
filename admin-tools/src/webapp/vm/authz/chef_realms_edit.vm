@@ -8,11 +8,11 @@
 		#toolbar($menu)
 	#end
 	<h3>
-		$tlang.getString("realm.edit.edit") $validator.escapeHtml($!realm.Id)
+		$tlang.getString("realm.edit.edit") $formattedText.escapeHtml($!realm.Id)
 	</h3>
-	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("realm.edit.alert") $validator.escapeHtml($alertMessage)</div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("realm.edit.alert") $formattedText.escapeHtml($alertMessage)</div>#end
 	<div class="instruction">
-		$tlang.getString("realm.edit.used") $validator.escapeHtml($!realm.Description): $tlang.getString("realm.edit.review")
+		$tlang.getString("realm.edit.used") $formattedText.escapeHtml($!realm.Description): $tlang.getString("realm.edit.review")
 	</div>
 
 	<form name="$form-name" action="#toolForm("$action")" method="post">
@@ -26,7 +26,7 @@
 				#end	
 				$tlang.getString("realm.edit.id")
 			</label>
-			#if(!$realm)<input type="text" name="id" id="id" />#else$validator.escapeHtml($realm.Id)#end
+			#if(!$realm)<input type="text" name="id" id="id" />#else$formattedText.escapeHtml($realm.Id)#end
 		</p>
 		<p class="shorttext">						
 			<label for="provider">
@@ -65,12 +65,12 @@
 						#foreach ($grant in $grants)
 							<tr>
 								<td headers="Id">
-									<a href="#" onclick="location = '#toolLinkParam("$action" "doEdit_user" "target=$validator.escapeUrl($grant.UserId)")'+buildQueryString('$form-name');return false;">
-										$validator.escapeHtml($grant.UserDisplayId)
+									<a href="#" onclick="location = '#toolLinkParam("$action" "doEdit_user" "target=$formattedText.escapeUrl($grant.UserId)")'+buildQueryString('$form-name');return false;">
+										$formattedText.escapeHtml($grant.UserDisplayId)
 									</a>
 								</td>
 								<td headers="Description">
-									$validator.escapeHtml($grant.Role.Id)
+									$formattedText.escapeHtml($grant.Role.Id)
 								</td>
 								<td headers="Active">
 									#if ($grant.Active)
@@ -114,13 +114,13 @@
 							<tr>
 								<td headers="Id">
 									<h4>
-										<a href="#" onclick="location = '#toolLinkParam("$action" "doEdit_role" "target=$validator.escapeUrl($role.Id)")'+buildQueryString('$form-name');return false;" title="$tlang.getString("realm.role.set")">
-											$validator.escapeHtml($role.Id)
+										<a href="#" onclick="location = '#toolLinkParam("$action" "doEdit_role" "target=$formattedText.escapeUrl($role.Id)")'+buildQueryString('$form-name');return false;" title="$tlang.getString("realm.role.set")">
+											$formattedText.escapeHtml($role.Id)
 										</a>
 									</h4>	
 								</td>
 								<td headers="Description">
-									$validator.escapeHtml($!role.Description)
+									$formattedText.escapeHtml($!role.Description)
 								</td>
 							</tr>
 						#end

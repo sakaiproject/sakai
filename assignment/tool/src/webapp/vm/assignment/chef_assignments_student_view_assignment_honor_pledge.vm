@@ -10,7 +10,7 @@
         <h3>
             $tlang.getString('assignment.title')
             #assignmentTitleIcon($assignment)
-            $validator.escapeHtml($!assignment.Title)
+            $formattedText.escapeHtml($!assignment.Title)
         </h3>
 
         #progressBar($statusMap)
@@ -38,7 +38,7 @@
                    aria-label="$tlang.getString('gen.backtolist')"
                    onclick="SPNR.disableControlsAndSpin( this, null );"/>
         </p>
-        <input type="hidden" name="assignmentReference" value="$validator.escapeUrl($assignmentReference)"/>
+        <input type="hidden" name="assignmentReference" value="$formattedText.escapeUrl($assignmentReference)"/>
         <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token"/>
     </form>
 </div>

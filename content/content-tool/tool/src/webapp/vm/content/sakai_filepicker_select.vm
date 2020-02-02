@@ -93,7 +93,7 @@ $(document).ready(function() {
 </script>
 <div class="portletBody specialLink">
 	#if ($alertMessage)
-		<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
+		<div class="sak-banner-error">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>
 	#end
 	<h3>
 		#if($helper_title)
@@ -145,7 +145,7 @@ $(document).ready(function() {
 
 	<form name="attachForm" id="attachForm" action="#toolForm("FilePickerAction" "Main")" method="post">
 		<input type="hidden" name="source" value="0" />
-		<input type="hidden" name="collectionId" value="$validator.escapeHtml($collectionId)" />
+		<input type="hidden" name="collectionId" value="$formattedText.escapeHtml($collectionId)" />
 		<input type="hidden" name="from" value="list" />
 		<input type="hidden" name="sakai_action" id="sakai_action" value="" />
 		<input type="hidden" name="selectedItemId" id="selectedItemId" value="" />
@@ -173,7 +173,7 @@ $(document).ready(function() {
 							</td>
 							<td  headers="action">
 								<div class="itemAction">
-									<a href="#toolLinkParam("ResourcesAction" "doRemoveitem" "itemId=$validator.escapeUrl($att_item.id)")" title="$tlang.getString('att.remove')">$tlang.getString("att.remove")</a>
+									<a href="#toolLinkParam("ResourcesAction" "doRemoveitem" "itemId=$formattedText.escapeUrl($att_item.id)")" title="$tlang.getString('att.remove')">$tlang.getString("att.remove")</a>
 								</div>	
 							</td>
 						</tr>
@@ -196,16 +196,16 @@ $(document).ready(function() {
 				<span class="sr-only">$tlang.getString('gen.folder1')</span>
 				#foreach ($item in $collectionPath)
 					#if($item.isLast())
-						$validator.escapeHtml("$item.name")
+						$formattedText.escapeHtml("$item.name")
 						#if($upOneLevel)
-							<a href="#toolLinkParam("ResourcesAction" "doNavigate" "collectionId=$validator.escapeUrl($upOneLevel.id)&navRoot=$validator.escapeUrl($upOneLevel.root)")" title= "$tlang.getString('sh.one')">
+							<a href="#toolLinkParam("ResourcesAction" "doNavigate" "collectionId=$formattedText.escapeUrl($upOneLevel.id)&navRoot=$formattedText.escapeUrl($upOneLevel.root)")" title= "$tlang.getString('sh.one')">
 							<span class="fa fa-level-up" aria-hidden="true"></span>
 							<span class="sr-only">$tlang.getString('sh.one')</span>
 							</a>
 						#end
 					#else
-						<a href="#toolLinkParam("ResourcesAction" "doNavigate" "collectionId=$validator.escapeUrl($item.id)&navRoot=$validator.escapeUrl($item.root)")" title ="$tlang.getString('sh.go')">
-							$validator.escapeHtml("$item.name")
+						<a href="#toolLinkParam("ResourcesAction" "doNavigate" "collectionId=$formattedText.escapeUrl($item.id)&navRoot=$formattedText.escapeUrl($item.root)")" title ="$tlang.getString('sh.go')">
+							$formattedText.escapeHtml("$item.name")
 						</a> /
 						#set($upOneLevel = $item)
 					#end
@@ -220,17 +220,17 @@ $(document).ready(function() {
 			<tr>
 				<th id="title">
 					#if ($expandallflag && "$expandallflag" == "$TRUE")
-						<a href="#toolLinkParam("ResourcesAction" "doUnexpandall" "collectionId=$validator.escapeUrl($collectionId)")" title ="$tlang.getString('collapse.all')">
+						<a href="#toolLinkParam("ResourcesAction" "doUnexpandall" "collectionId=$formattedText.escapeUrl($collectionId)")" title ="$tlang.getString('collapse.all')">
 						<span class="fa fa-compress" aria-hidden="true"></span>
 						<span class="sr-only">$tlang.getString('collapseall')</span>
 						</a>								 
 					#else
-						<a href="#toolLinkParam("ResourcesAction" "doExpandall" "collectionId=$validator.escapeUrl($collectionId)")" title ="$stlang.getString('label.expand.all')">
+						<a href="#toolLinkParam("ResourcesAction" "doExpandall" "collectionId=$formattedText.escapeUrl($collectionId)")" title ="$stlang.getString('label.expand.all')">
 						<span class="fa fa-expand" aria-hidden="true"></span>
 						<span class="sr-only">$stlang.getString('label.expand.all')</span>
 						</a>								 
 					#end
-					<a href="#toolLinkParam("ResourcesAction" "doSort" "criteria=title&collectionId=$validator.escapeUrl($collectionId)")" title ="$tlang.getString('sh.sorttit')"> 
+					<a href="#toolLinkParam("ResourcesAction" "doSort" "criteria=title&collectionId=$formattedText.escapeUrl($collectionId)")" title ="$tlang.getString('sh.sorttit')"> 
 						$tlang.getString("gen.title1")
 						#if ($currentSortAsc.equals("true")) 
 							<span class="fa fa-chevron-up" aria-hidden="true"></span>
@@ -272,22 +272,22 @@ $(document).ready(function() {
 					#end>
 					######################  Item title and action links  ##############
 					<td headers="title" style="text-indent:$width">
-						<h$headerDepth title="$validator.escapeHtml(${item.name})">
+						<h$headerDepth title="$formattedText.escapeHtml(${item.name})">
 						#if ($item.isCollection())
 							#if ($item.isEmpty() || !$item.canRead())
 								<span class="$item.iconClass" aria-hidden="true"></span>
 								<span class="sr-only">$tlang.getString('gen.folder1')</span>
-								$validator.escapeHtml(${item.name})
+								$formattedText.escapeHtml(${item.name})
 							#else
 								#if (!$item.isExpanded())
-									<a href="#toolLinkParam("ResourcesAction" "doExpand_collection" "collectionId=$validator.escapeUrl($item.Id)")" title="$tlang.getString('sh.open')">
+									<a href="#toolLinkParam("ResourcesAction" "doExpand_collection" "collectionId=$formattedText.escapeUrl($item.Id)")" title="$tlang.getString('sh.open')">
 									<span class="sr-only">$tlang.getString('sh.open')</span>
 								#else
-									<a href="#toolLinkParam("ResourcesAction" "doCollapse_collection" "collectionId=$validator.escapeUrl($item.Id)")" title="$tlang.getString('sh.close')">
+									<a href="#toolLinkParam("ResourcesAction" "doCollapse_collection" "collectionId=$formattedText.escapeUrl($item.Id)")" title="$tlang.getString('sh.close')">
 									<span class="sr-only">$tlang.getString('sh.close')</span>
 								#end
 										<span class="$item.iconClass" aria-hidden="true"></span>
-										$validator.escapeHtml(${item.name})
+										$formattedText.escapeHtml(${item.name})
 									</a>
 							#end
 						#else
@@ -310,20 +310,20 @@ $(document).ready(function() {
 									<a href="#"
 									title="$tlang.getString('gen.copycomf') $tlang.getString('gen.type'): $item.hoverText  [$tlang.getString('gen.newwin')]"
 									onclick="openCopyrightWindow('${item.accessUrl}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false;">
-										$validator.escapeHtml($item.name)
+										$formattedText.escapeHtml($item.name)
 									</a>
 									&#169;
 								#else
 									<a href="$item.accessUrl" target="$item.target"
 									title="$tlang.getString('gen.type'): $item.hoverText  [$tlang.getString('gen.newwin')]"
 									>
-										$validator.escapeHtml($item.name)
+										$formattedText.escapeHtml($item.name)
 									</a>
 								#end
 							#else
 								<span class="$item.iconClass" aria-hidden="true"></span>
 								<span class="sr-only">$!item.hoverText</span>
-								$validator.escapeHtml($item.name)
+								$formattedText.escapeHtml($item.name)
 								#if ($item.hasCopyrightAlert())
 									&#169;
 								#end
@@ -359,7 +359,7 @@ $(document).ready(function() {
 								#end
 							#elseif($item.canSelect())
 								<div class="itemAction" style="margin:0;">
-									<a href="#" onclick="return doattachsubmit('$validator.escapeUrl(${item.id})')" title ="$tlang.getString('att.select')">$tlang.getString("att.select")</a>
+									<a href="#" onclick="return doattachsubmit('$formattedText.escapeUrl(${item.id})')" title ="$tlang.getString('att.select')">$tlang.getString("att.select")</a>
 								</div>
 							#end
 						#end
@@ -378,7 +378,7 @@ $(document).ready(function() {
 						<h4>
 							<a href="#"
 								onclick="document.getElementById('attachForm').action='#toolLink("ResourcesAction" "doHideOtherSites")';submitform('attachForm');" title= "$tlang.getString('list.hide')">
-								<span class="fa fa-caret-down" aria-hidden="true"></span><span class="sr-only">$tlang.getString('list.hide')</span> $validator.escapeHtml("$tlang.getString('list.hide')")
+								<span class="fa fa-caret-down" aria-hidden="true"></span><span class="sr-only">$tlang.getString('list.hide')</span> $formattedText.escapeHtml("$tlang.getString('list.hide')")
 							</a>
 						</h4>
 						</th>
@@ -453,22 +453,22 @@ $(document).ready(function() {
 							#end>
 							######################  Item title and action links  ##############
 							<td headers="title" style="text-indent:$width">
-								<h$headerDepth title="$validator.escapeHtml(${item.name})">
+								<h$headerDepth title="$formattedText.escapeHtml(${item.name})">
 								#if ($item.isCollection())
 									#if ($item.isEmpty() || !$item.canRead())
 										<span class="$item.iconClass" aria-hidden="true"></span>
 										<span class="sr-only">$tlang.getString('gen.folder1')</span>
-										$validator.escapeHtml(${item.name})
+										$formattedText.escapeHtml(${item.name})
 									#else
 										#if (!$item.isExpanded())
-											<a href="#toolLinkParam("ResourcesAction" "doExpand_collection" "collectionId=$validator.escapeUrl($item.Id)")" title="$tlang.getString('sh.open')">
+											<a href="#toolLinkParam("ResourcesAction" "doExpand_collection" "collectionId=$formattedText.escapeUrl($item.Id)")" title="$tlang.getString('sh.open')">
 											<span class="sr-only">$tlang.getString('sh.open')</span>
 										#else
-											<a href="#toolLinkParam("ResourcesAction" "doCollapse_collection" "collectionId=$validator.escapeUrl($item.Id)")" title="$tlang.getString('sh.close')">
+											<a href="#toolLinkParam("ResourcesAction" "doCollapse_collection" "collectionId=$formattedText.escapeUrl($item.Id)")" title="$tlang.getString('sh.close')">
 											<span class="sr-only">$tlang.getString('sh.close')</span>
 										#end
 												<span class="$item.iconClass" aria-hidden="true"></span>
-												$validator.escapeHtml(${item.name})
+												$formattedText.escapeHtml(${item.name})
 											</a>
 									#end
 								#else
@@ -491,20 +491,20 @@ $(document).ready(function() {
 											<a href="#"
 											title="$tlang.getString('gen.copycomf') $tlang.getString('gen.type'): $item.hoverText  [$tlang.getString('gen.newwin')]"
 											onclick="openCopyrightWindow('${item.accessUrl}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false;">
-												$validator.escapeHtml($item.name)
+												$formattedText.escapeHtml($item.name)
 											</a>
 											&#169;
 										#else
 											<a href="$item.accessUrl" target="$item.target"
 											title="$tlang.getString('gen.type'): $item.hoverText  [$tlang.getString('gen.newwin')]"
 											>
-												$validator.escapeHtml($item.name)
+												$formattedText.escapeHtml($item.name)
 											</a>
 										#end
 									#else
 										<span class="$item.iconClass" aria-hidden="true"></span>
 										<span class="sr-only">$!item.hoverText</span>
-										$validator.escapeHtml($item.name)
+										$formattedText.escapeHtml($item.name)
 										#if ($item.hasCopyrightAlert())
 											&#169;
 										#end
@@ -543,9 +543,9 @@ $(document).ready(function() {
 
 #*
 
-											<div dojotype="dijit.form.DropDownButton" menuid="$validator.escapeJavascript("addMenu-${item.id}")">
+											<div dojotype="dijit.form.DropDownButton" menuid="$formattedText.escapeJavascript("addMenu-${item.id}")">
 				    							<span>$tlang.getString('gen.add')</span>
-									            <div dojotype="dijit.Menu" id="$validator.escapeJavascript("addMenu-${item.id}")" toggle="fade" style="display: none;">
+									            <div dojotype="dijit.Menu" id="$formattedText.escapeJavascript("addMenu-${item.id}")" toggle="fade" style="display: none;">
 									            	#foreach($action in $item.addActions)
 										                <div dojotype="dijit.MenuItem" iconclass="dijitEditorIcon dijitEditorIconSave" 
 										                     onclick="document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('attachForm');">
@@ -558,7 +558,7 @@ $(document).ready(function() {
 								#end
 									#elseif($item.canSelect())
 										<div class="itemAction">
-											<a href="#" onclick="return doattachsubmit('$validator.escapeUrl(${item.id})')" title ="$tlang.getString('att.select')">$tlang.getString("att.select")</a>
+											<a href="#" onclick="return doattachsubmit('$formattedText.escapeUrl(${item.id})')" title ="$tlang.getString('att.select')">$tlang.getString("att.select")</a>
 										</div>
 									#end
 								#end
@@ -571,7 +571,7 @@ $(document).ready(function() {
 						<th colspan="3">
 						<h4>
 							<a href="#toolLink("ResourcesAction" "doShowOtherSites")" title= "$tlang.getString('list.show')">
-								<span class="fa fa-caret-right" aria-hidden="true"></span><span class="sr-only">$tlang.getString('list.show')</span> $validator.escapeHtml("$tlang.getString('list.show')")
+								<span class="fa fa-caret-right" aria-hidden="true"></span><span class="sr-only">$tlang.getString('list.show')</span> $formattedText.escapeHtml("$tlang.getString('list.show')")
 							</a>
 						</h4>
 						</th>

@@ -25,18 +25,18 @@
                 #foreach ($helperInfo in $itemHelpers)
                     #if (!$first)
                         <li class="firstToolBarItem">
-                            <span><a href="#toolLinkParam("$action" "doHelp_item" "itemRef=$validator.escapeUrl($item.reference)&providerId=$validator.escapeUrl($helperInfo.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a></span>
+                            <span><a href="#toolLinkParam("$action" "doHelp_item" "itemRef=$formattedText.escapeUrl($item.reference)&providerId=$formattedText.escapeUrl($helperInfo.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a></span>
                         </li>
                     #else
                         #set ($first = false)
                     <li>
-                        <span><a href="#toolLinkParam("$action" "doHelp_item" "itemRef=$validator.escapeUrl($item.reference)&providerId=$validator.escapeUrl($helperInfo.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a></span>
+                        <span><a href="#toolLinkParam("$action" "doHelp_item" "itemRef=$formattedText.escapeUrl($item.reference)&providerId=$formattedText.escapeUrl($helperInfo.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a></span>
                     #end
                 #end
             </ul>
         #end
     #end
-    <h3>$validator.escapeHtml($assignment.Title)
+    <h3>$formattedText.escapeHtml($assignment.Title)
         #if ($!assignment.IsGroup)
             <span> - $tlang.getString("gen.groupassignment") </span>
         #end
@@ -65,7 +65,7 @@
                 $tlang.getString("gen.title")
             </th>
             <td valign="top">
-                #assignmentTitleIcon($assignment) $validator.escapeHtml($assignment.title)
+                #assignmentTitleIcon($assignment) $formattedText.escapeHtml($assignment.title)
             </td>
         </tr>
         #if ($!assignment.IsGroup)
@@ -181,7 +181,7 @@
 ##                <th>$tlang.getString("gen.history")</th>
 ##                <td>
 ##                    #foreach ($entry in $submission.getSubmissionLog())
-##                        $validator.escapeHtml($entry)<br>
+##                        $formattedText.escapeHtml($entry)<br>
 ##                    #end
 ##                </td>
 ##            </tr>
@@ -197,7 +197,7 @@
     </h4>
 
     #if ($assignment.Instructions && $!assignment.Instructions.length() > 0)
-        <div class="textPanel borderPanel">$validator.escapeHtmlFormattedText($!assignment.Instructions)</div>
+        <div class="textPanel borderPanel">$formattedText.escapeHtmlFormattedText($!assignment.Instructions)</div>
     #end
 
     ## Assignment Attachments
@@ -264,9 +264,9 @@
                                             <img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
                                         #end
                                         #if ($decoratedUrlMap)
-                                            <a href="$decoratedUrlMap.get($reference.Url)" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+                                            <a href="$decoratedUrlMap.get($reference.Url)" target="_blank">$formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
                                         #else
-                                            <a href="$reference.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+                                            <a href="$reference.Url" target="_blank">$formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
                                         #end
                                         #propertyDetails($props)
                                     </li>
@@ -293,7 +293,7 @@
     ## show feedback comment and feedback comment when submission is released or returned
         #if (($!submission.FeedbackComment) && ($submission.FeedbackComment.length() > 0))
             <h5>$tlang.getString("gen.addinst")</h5>
-            <div class="textPanel borderPanel">$validator.escapeHtmlFormattedText($submission.FeedbackComment)</div>
+            <div class="textPanel borderPanel">$formattedText.escapeHtmlFormattedText($submission.FeedbackComment)</div>
         #end
 
         ## Feedback Attachments
@@ -310,7 +310,7 @@
                         <br/>
                         #if($!review.getComment() && $review.getComment().length()>0)
                             <b>$tlang.getString("gen.comments")</b>
-                            <div class="textPanel borderPanel">$validator.escapeHtmlFormattedText($review.getComment())</div>
+                            <div class="textPanel borderPanel">$formattedText.escapeHtmlFormattedText($review.getComment())</div>
                         #end
                         <ul class="attachList">
                             <lh><strong>$tlang.getString("gen.attachments")</strong></lh>
@@ -328,10 +328,10 @@
                                         #end
                                         #if ($decoratedUrlMap)
                                             <a href="$decoratedUrlMap.get($attachment.Url)"
-                                               target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+                                               target="_blank">$formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
                                         #else
                                             <a href="$attachment.Url"
-                                               target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+                                               target="_blank">$formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
                                         #end
                                         #propertyDetails($props)
                                     </li>

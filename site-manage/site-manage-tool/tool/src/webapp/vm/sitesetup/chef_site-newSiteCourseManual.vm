@@ -187,7 +187,7 @@
 							$tlang.getString("man.spec")
 						</label>
 						<div class="col-sm-6">
-							<textarea id="additional"   name="additional" rows="4" cols="40" wrap="virtual" aria-describedby="additionalinst">$validator.escapeHtmlTextarea($form_additional)</textarea>
+							<textarea id="additional"   name="additional" rows="4" cols="40" wrap="virtual" aria-describedby="additionalinst">$formattedText.escapeHtmlTextarea($form_additional)</textarea>
 						</div>
 					</div>
 					<p  class="labelindnt">

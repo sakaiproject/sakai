@@ -1,12 +1,12 @@
 <!-- start: chef_assignments_student_view_group_error.vm -->
 <div class="portletBody">
-	#if ($alertMessage)<div class="sak-banner-error"><strong>$tlang.getString("gen.alert")</strong> $validator.escapeHtml($alertMessage)</div>#end
+	#if ($alertMessage)<div class="sak-banner-error"><strong>$tlang.getString("gen.alert")</strong> $formattedText.escapeHtml($alertMessage)</div>#end
 	<table class="itemSummary"  summary="$tlang.getString("gen.theassinf")">
 		<tr>
 			<th>$tlang.getString("gen.title")</th>
 			<td>
 				#if ($!assignment.getIsGroup())<i class="fa fa-users" aria-hidden="true" title="$tlang.getString('gen.groupassignment')"></i>#end
-				$validator.escapeHtml($assignment.getTitle())
+				$formattedText.escapeHtml($assignment.getTitle())
 				#set ($deleted = $assignment.getProperties().getProperty($assignment.getProperties().getNamePropAssignmentDeleted()))
 				#if ($!deleted.equalsIgnoreCase("true"))<span class="highlight">(Assignment has been deleted)</span>#end
 			</td>

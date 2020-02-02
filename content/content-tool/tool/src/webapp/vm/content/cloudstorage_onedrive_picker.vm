@@ -48,15 +48,15 @@
 						##$onedriveItem.file.mimeType
 						<a href="$onedriveItem.downloadUrl"><span class="$contentTypeImageService.getContentTypeImageClass($onedriveItem.file.mimeType)" aria-hidden="true"></span>
 					#end
-					$validator.escapeHtml(${onedriveItem.name})</a>
+					$formattedText.escapeHtml(${onedriveItem.name})</a>
 				</td>
 				<td headers="action-clone">
 					#if (!$onedriveItem.isFolder())
-						<a href="#" onclick="return doAttachSubmitOneDrive('$validator.escapeUrl(${onedriveItem.oneDriveItemId})',true)" title ="$tlang.getString('att.copy')">$tlang.getString("att.copy") <span class="skip">$validator.escapeHtml($onedriveItem.name)</span></a>
+						<a href="#" onclick="return doAttachSubmitOneDrive('$formattedText.escapeUrl(${onedriveItem.oneDriveItemId})',true)" title ="$tlang.getString('att.copy')">$tlang.getString("att.copy") <span class="skip">$formattedText.escapeHtml($onedriveItem.name)</span></a>
 					#end
 				<td headers="action-link">
 					#if (!$onedriveItem.isFolder())
-						<a href="#" onclick="return doAttachSubmitOneDrive('$validator.escapeUrl(${onedriveItem.oneDriveItemId})',false)" title ="$tlang.getString('cloudstorage.attach_link')">$tlang.getString('cloudstorage.attach_link') <span class="skip">$validator.escapeHtml($onedriveItem.name)</span></a>
+						<a href="#" onclick="return doAttachSubmitOneDrive('$formattedText.escapeUrl(${onedriveItem.oneDriveItemId})',false)" title ="$tlang.getString('cloudstorage.attach_link')">$tlang.getString('cloudstorage.attach_link') <span class="skip">$formattedText.escapeHtml($onedriveItem.name)</span></a>
 					#end
 				</td>
 			</tr>

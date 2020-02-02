@@ -26,12 +26,12 @@
 		| <a href="#toolLink("ResourcesAction" "doShow_webdav")" title="$tlang.getString('dav.webdav')">$tlang.getString("dav.webdav")</a> 
 		#end
 		#if($showPermissions)
-		| <a href="#toolLinkParam("ResourcesAction" "doPermissions" "collectionId=$validator.escapeUrl(${site.id})")" title="$tlang.getString('list.sPerm')">$tlang.getString("list.sPerm")</a>
+		| <a href="#toolLinkParam("ResourcesAction" "doPermissions" "collectionId=$formattedText.escapeUrl(${site.id})")" title="$tlang.getString('list.sPerm')">$tlang.getString("list.sPerm")</a>
 		#end
 		| <a href="#toolLink("ResourcesAction" "doHierarchy")" title="$tlang.getString('list.hierarchy')">$tlang.getString("list.hierarchy")</a> 
 	</div>
 	#if ($alertMessage)
-		<br /><div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
+		<br /><div class="sak-banner-error">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>
 	#end
 	<div>
 		<form id="actionForm" name="actionForm" action="#toolLink("ResourcesAction" "doDispatchAction")" method="post">

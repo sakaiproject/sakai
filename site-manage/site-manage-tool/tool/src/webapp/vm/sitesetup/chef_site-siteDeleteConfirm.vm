@@ -39,7 +39,7 @@
 			<ul class="attachList indnt2">
 				#foreach($site in $removals)
 					<li>	<input type="hidden" name="selectedMembers" value="$site.getId()" />
-							$validator.escapeHtml($site.getTitle())
+							$formattedText.escapeHtml($site.getTitle())
 					</li>
 				#end
 			</ul>

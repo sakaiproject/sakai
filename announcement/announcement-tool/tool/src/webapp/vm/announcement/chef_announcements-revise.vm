@@ -120,9 +120,9 @@ function resizeFrame(){
 				</label>
 				<div class="col-md-6">
 					#if ($new=="true")
-						<input type="text" size="45" name="subject" id="subject" value="$validator.escapeHtml($tempSubject)" class="form-control" autofocus="autofocus" />                
+						<input type="text" size="45" name="subject" id="subject" value="$formattedText.escapeHtml($tempSubject)" class="form-control" autofocus="autofocus" />                
 					#else
-						<input type="text" size="45" name="subject" id="subject" value="$validator.escapeHtml($message.Header.subject)" class="form-control" autofocus="autofocus" />
+						<input type="text" size="45" name="subject" id="subject" value="$formattedText.escapeHtml($message.Header.subject)" class="form-control" autofocus="autofocus" />
 					#end
 				</div>
 			</div>
@@ -137,14 +137,14 @@ function resizeFrame(){
 				<div class="col-md-12">
 					#if ($new=="true")
 						#if ($!tempBody.length() != 0)
-							<textarea name="body" class="block" id="body" cols="65" rows="30" wrap="virtual">$validator.escapeHtmlFormattedTextarea($tempBody)</textarea>
+							<textarea name="body" class="block" id="body" cols="65" rows="30" wrap="virtual">$formattedText.escapeHtmlFormattedTextarea($tempBody)</textarea>
 						#else
 							<textarea name="body" class="block" id="body" cols="65" rows="30" wrap="virtual"></textarea>
 						#end
 					#else
 						#set($messageBody = $message.body)
 						#if ($!messageBody.length() != 0)
-							<textarea name="body" class="block" id="body" cols="65" rows="30" wrap="virtual">$validator.escapeHtmlFormattedTextarea($message.body)</textarea>
+							<textarea name="body" class="block" id="body" cols="65" rows="30" wrap="virtual">$formattedText.escapeHtmlFormattedTextarea($message.body)</textarea>
 						#else
 							<textarea name="body" class="block" id="body" cols="65" rows="30" wrap="virtual"></textarea>
 						#end
@@ -236,9 +236,9 @@ function resizeFrame(){
 									#if($groups.size() == 1) #set($selected=true) #end
 									#set($disabled=true)
 									#set($description = "")
-									#set($description = $validator.escapeHtml($group.Description))
+									#set($description = $formattedText.escapeHtml($group.Description))
 
-									<option id="group-$group.Id" value="$group.Id" #if($selected) selected #end>$validator.escapeHtml($group.Title) #if("$!description" != "") ($!description) #end</option>
+									<option id="group-$group.Id" value="$group.Id" #if($selected) selected #end>$formattedText.escapeHtml($group.Title) #if("$!description" != "") ($!description) #end</option>
 								#end
 							</select>
 						</div>
@@ -380,7 +380,7 @@ function resizeFrame(){
 									<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt ="$props.getProperty($props.NamePropContentType)" />
 							#end
 							<a href="$attachment.Url" target="_blank">
-							$validator.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>
+							$formattedText.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>
 							#if (!$props.getBooleanProperty($props.NamePropIsCollection) && $props.getProperty("DAV:getcontenttype") != "text/url")
 								($props.getPropertyFormatted($props.NamePropContentLength))
 							#end

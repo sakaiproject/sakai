@@ -1,14 +1,14 @@
 <!-- sakai_resources_showFinish.vm, version: $Revision:  $, use with org.sakaiproject.tool.content.ResourcesAction.java -->
 <div class="portletBody">
 	#if ($alertMessage)
-		<div class="sak-banner-error">$tlang.getString("label.alert") $validator.escapeHtml($alertMessage)</div>
+		<div class="sak-banner-error">$tlang.getString("label.alert") $formattedText.escapeHtml($alertMessage)</div>
 	#end
 	<div class="sak-banner-error">$tlang.getString("show.sure")</div>
 	<h3>
 		$tlang.getString("show.show")
 	</h3>
 	<form action="#toolForm("ResourcesAction")" name="showFileForm" method="post" >
-		<input type="hidden" name="collectionId" value="$validator.escapeHtml($collectionId)" />
+		<input type="hidden" name="collectionId" value="$formattedText.escapeHtml($collectionId)" />
 		#if ($showItems.size()>0)
 			<table class ="listHier lines" cellspacing="0" summary="$tlang.getString("show.table")" border="0" cellpadding="0">
 				<tr>

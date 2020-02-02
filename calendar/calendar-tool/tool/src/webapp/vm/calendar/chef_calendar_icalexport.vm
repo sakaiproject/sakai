@@ -23,7 +23,7 @@
 		<h1>$tlang.getString("ical.title")</h1>
 	</div>
 
-	#if ($alertMessage)<div class="sak-banner-warn">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+	#if ($alertMessage)<div class="sak-banner-warn">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>#end
 
 	<p class="instruction">$icalInfoStr</p>
 

@@ -8,7 +8,7 @@
 			<a href="$printableVersionUrl" title="$!tlang.getString('java.print')" target="_blank" rel="noreferrer">$!tlang.getString('java.print')</a>
 		</div>
 	</div>
-	#if ($alertMessage)<div class="sak-banner-warn">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>#end
+	#if ($alertMessage)<div class="sak-banner-warn">$tlang.getString('gen.alert') $formattedText.escapeHtml($alertMessage)</div>#end
 	<div class="sakai-table-toolBar">
 		<div class="sakai-table-filterContainer">
 			#calendarView()
@@ -101,9 +101,9 @@
                     #determineRowspan()
                         <td width="$v%" class="borderTopLeft" rowspan="$rowspan">
                             <div class="calendarDayView-event">
-                                <a href="#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($x.getEvent().getReference())")" 
-                                title="$x.getEvent().getDisplayName() - $validator.escapeHtml($x.getEvent().getSiteName())">
-                                <span class="icon $eventIconMap.get($x.getEvent().getType())" title="$localizedEventTypes.get($x.getEvent().getType())" ></span>$validator.escapeHtml($x.getEvent().getDisplayName())</a>
+                                <a href="#toolLinkParam("$action" "doDescription" "eventReference=$formattedText.escapeUrl($x.getEvent().getReference())")" 
+                                title="$x.getEvent().getDisplayName() - $formattedText.escapeHtml($x.getEvent().getSiteName())">
+                                <span class="icon $eventIconMap.get($x.getEvent().getType())" title="$localizedEventTypes.get($x.getEvent().getType())" ></span>$formattedText.escapeHtml($x.getEvent().getDisplayName())</a>
                             </div>
                         </td> 
                         #set($counter = $counter +1)
@@ -146,9 +146,9 @@
                             <td width="$v%" class="borderTopLeft" rowspan="$rowspan">
                             <div class="calendarDayView-event">
                             <a href="#" 
-                               onclick="location='#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($x.getEvent().getReference())")';return false;" 
-                               title="$x.getEvent().getDisplayName() - $validator.escapeHtml($x.getEvent().getSiteName())">
-                                <span class="icon $eventIconMap.get($x.getEvent().getType())" title="$localizedEventTypes.get($x.getEvent().getType())"></span>$validator.escapeHtml($x.getEvent().getDisplayName())
+                               onclick="location='#toolLinkParam("$action" "doDescription" "eventReference=$formattedText.escapeUrl($x.getEvent().getReference())")';return false;" 
+                               title="$x.getEvent().getDisplayName() - $formattedText.escapeHtml($x.getEvent().getSiteName())">
+                                <span class="icon $eventIconMap.get($x.getEvent().getType())" title="$localizedEventTypes.get($x.getEvent().getType())"></span>$formattedText.escapeHtml($x.getEvent().getDisplayName())
                             </a></div>
                             </td>
                         #end

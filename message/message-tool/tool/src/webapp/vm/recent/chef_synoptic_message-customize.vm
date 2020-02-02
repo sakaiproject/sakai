@@ -15,7 +15,7 @@
 ##		$tlang.getString("cus.cus") $tool_title
 		$tlang.getString("gen.options")
 	</h3>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $validator.escapeHtml($alertMessage))</div><div class="clear"></div>#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $formattedText.escapeHtml($alertMessage))</div><div class="clear"></div>#end
 	<p class="instruction indnt1">
 		$tlang.getFormattedMessage("cus.youare.for", $tool_title)
 	</p>

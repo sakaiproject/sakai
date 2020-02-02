@@ -17,7 +17,7 @@
             </th>
             <td>
                 #assignmentTitleIcon($assignment)
-				$validator.escapeHtml($assignment.Title)
+				$formattedText.escapeHtml($assignment.Title)
             </td>
         </tr>
         <tr>
@@ -105,7 +105,7 @@
     </h4>
     #if ($text && $!text.length() > 0)
         <div class="textPanel">
-            $validator.escapeHtmlFormattedText($text)
+            $formattedText.escapeHtmlFormattedText($text)
         </div>
     #end
 
@@ -117,7 +117,7 @@
 		#if (!$submissionType != 4 && !$!deleted.equalsIgnoreCase("true") && $!allowAddAssignment && $!allowSubmitByInstructor && $!student) 
 			<h4>$tlang.getString("submitforstudent")</h4>
 			<p class="instruction">
-				$validator.escapeHtml($student.getDisplayName())
+				$formattedText.escapeHtml($student.getDisplayName())
 				<input type="hidden" name="submit_on_behalf_of" id="submit_on_behalf_of" value="$student.id" />		
 			</p>
 		#end

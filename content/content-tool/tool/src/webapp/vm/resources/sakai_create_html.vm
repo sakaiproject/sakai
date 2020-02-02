@@ -4,7 +4,7 @@
 		$tlang.getString("create.html")
 	</h3>
 	#if ($itemAlertMessage)
-		<div class="sak-banner-error">$tlang.getString("label.alert") $validator.escapeHtml($itemAlertMessage)</div>
+		<div class="sak-banner-error">$tlang.getString("label.alert") $formattedText.escapeHtml($itemAlertMessage)</div>
 	#end
 	<p class="instruction">
 		$tlang.getString("instr.html")
@@ -21,7 +21,7 @@
 				<tr>
 					<td>
 					<!-- id can't be content, or it conflicts with portal markup, but java expects name to be content -->
-						<textarea name="content" id="contenttext" rows="30" cols="80" wrap="virtual">$validator.escapeHtmlTextarea("$!{pipe.contentstring}")</textarea>
+						<textarea name="content" id="contenttext" rows="30" cols="80" wrap="virtual">$formattedText.escapeHtmlTextarea("$!{pipe.contentstring}")</textarea>
 						#chef_setupformattedtextarea("contenttext")
 					</td>
 				</tr>

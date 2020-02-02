@@ -39,7 +39,7 @@
                     $tlang.getString('confirm.submission.label.user')
                 </th>
                 <td>
-                    $validator.escapeHtml($!user_name) #if($!user_id)($!user_id)#end
+                    $formattedText.escapeHtml($!user_name) #if($!user_id)($!user_id)#end
                 </td>
             </tr>
 
@@ -73,7 +73,7 @@
                     $tlang.getString('confirm.submission.label.classsite')
                 </th>
                 <td>
-                    $validator.escapeHtml($!site_title)
+                    $formattedText.escapeHtml($!site_title)
                 </td>
             </tr>
             ## assignment title
@@ -83,7 +83,7 @@
                 </th>
                 <td>
                     #assignmentTitleIcon($assignment)
-					$validator.escapeHtml($!assignment.Title)
+					$formattedText.escapeHtml($!assignment.Title)
                 </td>
             </tr>
             ## submission id
@@ -116,7 +116,7 @@
 ##                  <th>$tlang.getString('gen.history')</th>
 ##                  <td>
 ##                      #foreach ($entry in $submission.getSubmissionLog())
-##                          $validator.escapeHtml($entry)<br>
+##                          $formattedText.escapeHtml($entry)<br>
 ##                      #end
 ##                  </td>
 ##              </tr>
@@ -135,7 +135,7 @@
             #if ($!submit_text)
                 <div class="textPanel indnt2">
                     $!submit_text
-					##$validator.escapeHtmlFormattedText($!submit_text)
+					##$formattedText.escapeHtmlFormattedText($!submit_text)
                 </div>
             #else
                 <p class="indnt2 instruction">
@@ -179,7 +179,7 @@
                                 #set ($props = false)
                                 #set ($props = $reference.Properties)
                                 #if ($!props)
-                                    <li>$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))
+                                    <li>$formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))
 										#propertyDetails($props)
                                     </li>
                                 #end

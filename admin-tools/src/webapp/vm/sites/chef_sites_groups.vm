@@ -7,7 +7,7 @@
 		<h3>
 			$tlang.getString("sitgrp.edisit") $!site.Id
 		</h3>
-		#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("sitgrp.alert") $validator.escapeHtml($alertMessage)</div>#end
+		#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("sitgrp.alert") $formattedText.escapeHtml($alertMessage)</div>#end
 		<div class="instruction"> 
 			$tlang.getString("sitgrp.theare")
 		</div>
@@ -23,12 +23,12 @@
 		#set ($groupCount=$groupCount + 1)
 			<tr>
 				<td headers="Id"  style="border-bottom:1px dashed  gray">
-					<a href="#toolLinkParam("$action" "doEdit_group" "id=$validator.escapeUrl($group.Id)")">
-						$validator.escapeHtml($group.Id)
+					<a href="#toolLinkParam("$action" "doEdit_group" "id=$formattedText.escapeUrl($group.Id)")">
+						$formattedText.escapeHtml($group.Id)
 					</a>
 				</td>
-				<td headers="Title"  style="border-bottom:1px dashed  gray">$validator.escapeHtml($group.Title)</td>
-				<td headers="Description"  style="border-bottom:1px dashed  gray">$validator.escapeHtml($group.Description)</td>
+				<td headers="Title"  style="border-bottom:1px dashed  gray">$formattedText.escapeHtml($group.Title)</td>
+				<td headers="Description"  style="border-bottom:1px dashed  gray">$formattedText.escapeHtml($group.Description)</td>
 			</tr>
 	#end
 		</table>

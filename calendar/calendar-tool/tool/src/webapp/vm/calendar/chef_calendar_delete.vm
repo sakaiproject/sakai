@@ -17,14 +17,14 @@
 		</h1>
 	</div>
 	#if ($alertMessage)
-		<div class="sak-banner-warn">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
+		<div class="sak-banner-warn">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>
 	#end
 	<div class="sak-banner-warn">$tlang.getString("del.sure")</div>
 	<form name="deleteTemplateForm" action="#toolForm("$action")" method="post">
 		<table class="itemSummary" cellspacing="0">
 			<tr>
 				<th>$tlang.getString("gen.title")</th>
-				<td>$validator.escapeHtml($event.getDisplayName())</td>
+				<td>$formattedText.escapeHtml($event.getDisplayName())</td>
 		</tr>
 		<tr>
 			<th>$tlang.getString("gen.date")</th> 
@@ -68,16 +68,16 @@
 					$localizedEventTypes.get($event.getType())
 				</td>
 		</tr>
-		#if (!$validator.escapeHtml($event.Location)=="")
+		#if (!$formattedText.escapeHtml($event.Location)=="")
 			<tr> 
 				<th>$tlang.getString("new.location"):</th>
-				<td>$validator.escapeHtml($event.Location)</td>
+				<td>$formattedText.escapeHtml($event.Location)</td>
 			</tr>
 		#end
 	</table>
 	#if (!$event.DescriptionFormatted.equals(""))
 		<h4>$tlang.getString("gen.descr")</h4>
-		$validator.escapeHtmlFormattedText($event.DescriptionFormatted)
+		$formattedText.escapeHtmlFormattedText($event.DescriptionFormatted)
 	#end
 	#set ($size = 0)
 	#if (!$event.Attachments.isEmpty())
@@ -106,10 +106,10 @@
 					#if ($copyflag)
 						## if there is a copyright alert, show the alert page first
 						<a href="" onclick="openCopyrightWindow('${attachment.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false">
-						$validator.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>&#169;
+						$formattedText.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>&#169;
 					#else
 						<a href="$attachment.Url" target="_blank">
-						$validator.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>
+						$formattedText.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>
 					#end
 
 					#if (!$props.getBooleanProperty($props.NamePropIsCollection))

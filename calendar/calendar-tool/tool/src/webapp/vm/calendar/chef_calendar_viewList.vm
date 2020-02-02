@@ -20,7 +20,7 @@
 			<a href="$printableVersionUrl" title="$!tlang.getString('java.print')" target="_blank" rel="noreferrer">$!tlang.getString('java.print')</a>
 		</div>
 	</div>
-	#if ($alertMessage)<div class="sak-banner-warn">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>#end
+	#if ($alertMessage)<div class="sak-banner-warn">$tlang.getString('gen.alert') $formattedText.escapeHtml($alertMessage)</div>#end
 	<div class="sakai-table-toolBar">
 		<div class="sakai-table-filterContainer">
 			#calendarView()
@@ -182,7 +182,7 @@
 #if (!$canViewAudience)
 <td #if ($counter == 1) #else #if ($dayShown == "false") class="chefTopline" #end #end>
 #set ($dr = $m.getGroupRangeForDisplay($cal))
-#if ($!dr && ($dr.equals(""))) $tlang.getString("gen.site") #else $validator.escapeHtml($dr) #end
+#if ($!dr && ($dr.equals(""))) $tlang.getString("gen.site") #else $formattedText.escapeHtml($dr) #end
 </td>
 #end
 ## From Column
@@ -196,14 +196,14 @@
 																		## description column
 																		<td #if ($counter == 1) #else #if ($dayShown == "false") class="chefTopline" #end #end>
 																			#set ($dayShown = "true")
-																			<a href="#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($m.getReference())")" title="$validator.escapeHtml($m.getDisplayName())">
+																			<a href="#toolLinkParam("$action" "doDescription" "eventReference=$formattedText.escapeUrl($m.getReference())")" title="$formattedText.escapeHtml($m.getDisplayName())">
 																				<span class="icon $eventIconMap.get($m.getType()) " title="$localizedEventTypes.get($m.getType())"></span>
-																			 $validator.escapeHtml($m.getDisplayName())</a>
+																			 $formattedText.escapeHtml($m.getDisplayName())</a>
 
 																		#set ($counter= $counter + 1)
 
 																		<div style="margin:.5em 2em">
-																		#set ($desc = $validator.escapeHtmlFormattedText($m.DescriptionFormatted))
+																		#set ($desc = $formattedText.escapeHtmlFormattedText($m.DescriptionFormatted))
 																		
 																		#if ($desc.length() > 50)
 																			$calendarFormattedText.trimFormattedText($desc, 50) ...
@@ -241,10 +241,10 @@
 																							#if ($copyflag)
 																								## if there is a copyright alert, show the alert page first
 																								<a href="" onclick="openCopyrightWindow('${attachment.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false">
-																								$validator.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>&#169;
+																								$formattedText.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>&#169;
 																							#else
 																								<a href="$attachment.Url" target="_blank">
-																								$validator.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>
+																								$formattedText.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>
 																							#end
 																							
 																							#if (!$props.getBooleanProperty($props.NamePropIsCollection))
@@ -321,13 +321,13 @@
 					</td>
 					<td headers="name" nowrap="nowrap">
 						<label for="$group.Id">
-							$validator.escapeHtml($group.Title)
+							$formattedText.escapeHtml($group.Title)
 						</label>	
 					</td>
 					<td headers="description">
 						#set($description = "")
 						#set($description = $group.Description)
-						$validator.escapeHtml($!description)
+						$formattedText.escapeHtml($!description)
 					</td>
 				</tr>
 			#end

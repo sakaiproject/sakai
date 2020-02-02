@@ -3,7 +3,7 @@
 <div class ="portletBody">
 	#if($menu)#toolbar($menu)#end
 	<h3>
-		$tlang.getString("sitegen.addcourse.adding") $validator.escapeHtml($siteTitle)...
+		$tlang.getString("sitegen.addcourse.adding") $formattedText.escapeHtml($siteTitle)...
 	</h3>
 	#if ($alertMessage)
 		<div class="sak-banner-error">$tlang.getString("sitegen.addcourse.alert") $alertMessage</div>

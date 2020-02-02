@@ -42,7 +42,7 @@ button.btn.btn-default.multiselect-clear-filter{
 	<h3>
 		$tlang.getString("siteditoo.edisit")  $!site.Id / $tlang.getString("siteditoo.pag") $!page.Id / $tlang.getString("siteditoo.too") $!tool.Id
 	</h3>
-	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("siteditoo.alert") $validator.escapeHtml($alertMessage)</div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("siteditoo.alert") $formattedText.escapeHtml($alertMessage)</div>#end
 	<div class="instruction">
 		$tlang.getString("siteditoo.revandmod")
 	</div>
@@ -56,7 +56,7 @@ button.btn.btn-default.multiselect-clear-filter{
 				<tr>
 					<th>$tlang.getString("siteditoo.tooid")</th>
 					<td>
-						$validator.escapeHtml($tool.Tool.Id)
+						$formattedText.escapeHtml($tool.Tool.Id)
 					</td>
 				</tr>
 				<tr>
@@ -66,7 +66,7 @@ button.btn.btn-default.multiselect-clear-filter{
 					<td>
 						<select id="feature" name="feature">
 						#foreach ($reg in $features)
-							<option value="$reg.Id" #if($reg.Id==$tool.Tool.Id) selected #end>$validator.escapeHtml($reg.Title) ($reg.Id)</option>
+							<option value="$reg.Id" #if($reg.Id==$tool.Tool.Id) selected #end>$formattedText.escapeHtml($reg.Title) ($reg.Id)</option>
 						#end
 						</select>
 					</td>
@@ -102,9 +102,9 @@ button.btn.btn-default.multiselect-clear-filter{
 							#set ($paramValue = $toolParams.getProperty($paramName))
 								<p class="shorttext">
 									<label for="param_$paramName">
-										$validator.escapeHtml($paramName):
+										$formattedText.escapeHtml($paramName):
 									</label>
-									<input type="text" name="param_$paramName" id="param_$paramName" value="$validator.escapeHtml($paramValue)" />
+									<input type="text" name="param_$paramName" id="param_$paramName" value="$formattedText.escapeHtml($paramValue)" />
 								</p>	
 						#end
 
@@ -122,11 +122,11 @@ button.btn.btn-default.multiselect-clear-filter{
 						<tr>
 							<th>
 								<label for="param_$paramName">
-									$validator.escapeHtml($paramName):
+									$formattedText.escapeHtml($paramName):
 								</label>
 							</th>
 							<td>
-								<input type="text"  disabled name="param_$paramName" id="param_$paramName" value="$validator.escapeHtml($paramValue)" />
+								<input type="text"  disabled name="param_$paramName" id="param_$paramName" value="$formattedText.escapeHtml($paramValue)" />
 							</td>
 						</tr>
 					#end

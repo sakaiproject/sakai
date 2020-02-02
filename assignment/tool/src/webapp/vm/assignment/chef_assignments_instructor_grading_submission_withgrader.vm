@@ -5,7 +5,7 @@
 <!-- GRADER JAVASCRIPT -->
 #module("/webcomponents/grader/sakai-grader.js")
 <script>
-  ASN.currentGradingSubmission = "$validator.escapeUrl( $!submissionReference )";
+  ASN.currentGradingSubmission = "$formattedText.escapeUrl( $!submissionReference )";
 </script>
 <!-- END GRADER JAVASCRIPT -->
 
@@ -17,7 +17,7 @@
         max-grade="$!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint)"
         gradable-id="$assignment.Id"
         submission-id="$submission.Id"
-        user-list-url="#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")"
+        user-list-url="#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$formattedText.escapeUrl($assignmentReference)")"
         current-student-id="$!submitterId"
         has-associated-rubric="$!hasAssociatedRubric"
         #if ($!hasAssociatedRubric)

@@ -4,10 +4,10 @@
 	<h3>$tlang.getString("memory.vm.memory")</h3>
 		#if ($alertMessage)
 			<div class="sak-banner-error">
-				$tlang.getFormattedMessage("memory.vm.alert.nosplit", $validator.escapeHtml($alertMessage))
+				$tlang.getFormattedMessage("memory.vm.alert.nosplit", $formattedText.escapeHtml($alertMessage))
 			</div>
 		#end
-	#if ($status)<p class="infoPanel">$validator.escapeHtml($status)</p>#end
+	#if ($status)<p class="infoPanel">$formattedText.escapeHtml($status)</p>#end
 	<div class="instruction">$tlang.getFormattedMessage("memory.vm.ava.nosplit", $memory)</div>
 	<form action="#toolForm("$action")" method="post">
 		<p class="act">

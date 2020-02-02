@@ -90,18 +90,18 @@
 					<input type="text" size="3" value="$count" id="index$count"/>
 					<input type="hidden"  size="3" id="holder$count"  value="$count" tabindex="-2"/>
 				</span>
-				<span class="col-md-6 col-sm-6 col-xs-12" title="$validator.escapeHtml($!assignment.Title)">
+				<span class="col-md-6 col-sm-6 col-xs-12" title="$formattedText.escapeHtml($!assignment.Title)">
 					#if ($!assignment.Draft)
 						<em class="highlight" style="font-style:normal">$tlang.getString("gen.dra2")</em>
 					#end
-					$validator.escapeHtml($!assignment.Title)
+					$formattedText.escapeHtml($!assignment.Title)
 				</span>
 				<span class="col-md-3 col-sm-3 col-xs-12">
 					$!service.getUsersLocalDateTimeString($!assignment.OpenDate)
 				</span>
 				<span class="col-md-3 col-sm-3 col-xs-12">
 					$!service.getUsersLocalDateTimeString($!assignment.DueDate)
-					<select name="position_$validator.escapeUrl("$assignment.id")" class="selectSet">
+					<select name="position_$formattedText.escapeUrl("$assignment.id")" class="selectSet">
 						#foreach($i in [1..$assignmentsize])
 						<option value="$i"#if("$i" == "$count") selected="selected"#end>$i</option>
 						#end

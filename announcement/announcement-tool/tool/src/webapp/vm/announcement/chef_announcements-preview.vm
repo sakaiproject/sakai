@@ -7,11 +7,11 @@
 	<table cellspacing="0" class="itemSummary indnt1" summary="">
 		<tr>
 			<th>$tlang.getString("gen.subject")</th>
-			<td>$validator.escapeHtml($subject)</td>
+			<td>$formattedText.escapeHtml($subject)</td>
 		</tr>
 		<tr> 
 			<th>$tlang.getString("gen.from")</th>
-			<td>$validator.escapeHtml($user.DisplayName)</td>
+			<td>$formattedText.escapeHtml($user.DisplayName)</td>
 		</tr>
 ##		<tr>
 ##			<th>$tlang.getString("gen.date")</th>
@@ -30,7 +30,7 @@
 			</tr>
 			<tr>
 			<th>$tlang.getString("groups")</th>
-			<td>$validator.escapeHtml($annToGroups)</td>				
+			<td>$formattedText.escapeHtml($annToGroups)</td>				
 			#end
 		</tr>
 		</tr>
@@ -43,7 +43,7 @@
 		$tlang.getString("meta.message")
 	</h4>
 	<div class="message-body">
-		<p class="indnt1">$validator.escapeHtmlFormattedText($body)</p>
+		<p class="indnt1">$formattedText.escapeHtmlFormattedText($body)</p>
 	</div>
 	#set ($size = 0)
 	#if (!$attachments.isEmpty())
@@ -62,7 +62,7 @@
 					<li><img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0"  alt ="$props.getProperty($props.NamePropContentType)" />
 					#end
 					<a href="$attachment.Url" target="_blank" title="$tlang.getString("gen.newwindow")">
-					  $validator.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>
+					  $formattedText.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>
 					#if (!$props.getBooleanProperty($props.NamePropIsCollection) && $props.getProperty("DAV:getcontenttype") != "text/url")
 					  ($props.getPropertyFormatted($props.NamePropContentLength))
 					#end

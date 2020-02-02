@@ -8,7 +8,7 @@
 	<h3>	$tlang.getString("useact.remuse")
 </h3>	
 
-		#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("useconrem.alert") $validator.escapeHtml($alertMessage)</div>#end
+		#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("useconrem.alert") $formattedText.escapeHtml($alertMessage)</div>#end
 		<div class="sak-banner-error">
 			$permDelWarning
 		</div>
@@ -20,10 +20,10 @@
 				<th id="Id">$tlang.getString("useconrem.useuid")</th>
 			</tr>
 			<tr>
-				<td headers="Eid"> $validator.escapeHtml($user.Eid)</td>
-				<td headers="Name">$validator.escapeHtml($user.DisplayName)</td>
-				<td headers="Email">$validator.escapeHtml($user.Email)</td>
-				<td headers="Id">$validator.escapeHtml($user.Id)</td>
+				<td headers="Eid"> $formattedText.escapeHtml($user.Eid)</td>
+				<td headers="Name">$formattedText.escapeHtml($user.DisplayName)</td>
+				<td headers="Email">$formattedText.escapeHtml($user.Email)</td>
+				<td headers="Id">$formattedText.escapeHtml($user.Id)</td>
 			</tr>
 		</table>
 		<form action="#toolForm("$action")" method="post">

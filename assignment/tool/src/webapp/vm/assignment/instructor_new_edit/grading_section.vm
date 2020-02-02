@@ -127,7 +127,7 @@ This section contains the options for grading this assignment, including rubrics
 												#elseif($!gradebookAssignmentsSelectedDisabled.get($gaId).equals("selected"))
 													selected="selected"
 												#end>
-													$validator.escapeHtml($!gradebookAssignmentsLabel.get($gaId))
+													$formattedText.escapeHtml($!gradebookAssignmentsLabel.get($gaId))
 											</option>
 										#end
 									</select>
@@ -214,7 +214,7 @@ This section contains the options for grading this assignment, including rubrics
 						<label for="$name_PeerAssessmentInstructions">$tlang.getString("peerassessment.reviewInstructions")</label>
 						<br/>
 						<table border="0" style="margin:0"><tr><td>
-							<textarea name="$name_PeerAssessmentInstructions" id="$name_PeerAssessmentInstructions" cols="80" rows="30" wrap="virtual">$validator.escapeHtmlTextarea($!value_PeerAssessmentInstructions)</textarea>
+							<textarea name="$name_PeerAssessmentInstructions" id="$name_PeerAssessmentInstructions" cols="80" rows="30" wrap="virtual">$formattedText.escapeHtmlTextarea($!value_PeerAssessmentInstructions)</textarea>
 							#chef_setupformattedtextarea($name_PeerAssessmentInstructions)
 						</td</tr></table>
 					</div>

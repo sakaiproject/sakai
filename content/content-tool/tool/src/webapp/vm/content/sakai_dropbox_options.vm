@@ -26,7 +26,7 @@
 		</div>
 
 		#if ($itemAlertMessage)
-			<div class="sak-banner-error">$tlang.getString("label.alert") $validator.escapeHtml($itemAlertMessage)</div>
+			<div class="sak-banner-error">$tlang.getString("label.alert") $formattedText.escapeHtml($itemAlertMessage)</div>
 		#end
 		<p class="instruction">
 			$tlang.getString("instr.dropbox.options") 

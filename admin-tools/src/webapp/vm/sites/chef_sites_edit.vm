@@ -11,7 +11,7 @@
 	<h3>
 		$tlang.getString("sitedi.edisit") $!site.Id
 	</h3>
-	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("sitedi.alert") $validator.escapeHtml($alertMessage)</div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("sitedi.alert") $formattedText.escapeHtml($alertMessage)</div>#end
 	<div class="instruction">
 		$tlang.getString("sitedi.revandmod")
 	</div>
@@ -29,7 +29,7 @@
 					</label>
 				</th>
 				<td class="shorttext">
-					#if(!$site)<input type="text" name="id" id="id"/>#else$validator.escapeHtml($site.Id)#end
+					#if(!$site)<input type="text" name="id" id="id"/>#else$formattedText.escapeHtml($site.Id)#end
 				</td>
 			</tr>
 			<tr>
@@ -50,7 +50,7 @@
 				</th>
 				<td  class="shorttext">
 					 $!form_url_base
-	  	                     <input type="text" name="url_alias" id="url_alias" maxlength="40" size="20" value="$validator.escapeHtml($form_url_alias)" /> 
+	  	                     <input type="text" name="url_alias" id="url_alias" maxlength="40" size="20" value="$formattedText.escapeHtml($form_url_alias)" /> 
 				</td>
 			</tr>
 			<tr>
@@ -83,7 +83,7 @@
 					<table class="table table-striped table-bordered">
 						<tr>
 							<td>
-								<textarea name="description" id="description" cols="65" rows="30" wrap="virtual">#if($site)$validator.escapeHtmlFormattedTextarea($site.Description)#end</textarea>
+								<textarea name="description" id="description" cols="65" rows="30" wrap="virtual">#if($site)$formattedText.escapeHtmlFormattedTextarea($site.Description)#end</textarea>
 								#chef_setupformattedtextarea("description")
 							</td>
 						</tr>
@@ -194,7 +194,7 @@
 				<tr>
 					<th>$tlang.getString("sitedi.creby")</th>
 					<td>
-						#if ($site.CreatedBy) $validator.escapeHtml($site.CreatedBy.DisplayName) #end
+						#if ($site.CreatedBy) $formattedText.escapeHtml($site.CreatedBy.DisplayName) #end
 					</td>
 				</tr>
 				<tr>
@@ -206,7 +206,7 @@
 				<tr>
 					<th>$tlang.getString("sitedi.modby")</th>
 					<td>
-						#if ($site.ModifiedBy) $validator.escapeHtml($site.ModifiedBy.DisplayName) #end
+						#if ($site.ModifiedBy) $formattedText.escapeHtml($site.ModifiedBy.DisplayName) #end
 					</td>
 				</tr>
 				<tr>
@@ -218,7 +218,7 @@
 				<tr>
 					<th>$tlang.getString("sitedi.deletedon")</th>
 					<td>
-						#if ($site.SoftlyDeletedDate) $validator.escapeHtml($site.SoftlyDeletedDate.toStringLocalFull()) #end
+						#if ($site.SoftlyDeletedDate) $formattedText.escapeHtml($site.SoftlyDeletedDate.toStringLocalFull()) #end
 					</td>
 				</tr>
 			</table>
@@ -233,11 +233,11 @@
 					<tr>
 						<th>
 							<label for="param_$paramName">
-								$validator.escapeHtml($paramName):
+								$formattedText.escapeHtml($paramName):
 							</label>
 						</th>
 						<td>
-							<input type="text" disabled="disabled" name="param_$paramName" id="param_$paramName" value="$validator.escapeHtml($paramValue)" />
+							<input type="text" disabled="disabled" name="param_$paramName" id="param_$paramName" value="$formattedText.escapeHtml($paramValue)" />
 						</td>
 					</tr>
 				#end

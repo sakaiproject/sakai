@@ -142,7 +142,7 @@
 									<label for="title_$toolId">
 										$!tlang.getString("multipleTools.title")
 									</label>
-									<input type="text" name="title_$toolId" id="title_$toolId" value="$validator.escapeHtml($!multipleToolIdTitleMap.get($toolId))" size="20" maxlength="$!maxToolTitleLength"/><span class="instruction"> $tlang.getFormattedMessage("multipleTools.title.suggest", $maxToolTitleLength)</span>
+									<input type="text" name="title_$toolId" id="title_$toolId" value="$formattedText.escapeHtml($!multipleToolIdTitleMap.get($toolId))" size="20" maxlength="$!maxToolTitleLength"/><span class="instruction"> $tlang.getFormattedMessage("multipleTools.title.suggest", $maxToolTitleLength)</span>
 								</p>
 						 #set($attributeHashtable=false)
 							#set($attributeHashtable=$!multipleToolConfiguration.get($toolId))
@@ -152,7 +152,7 @@
 										<label for="$attributeInputName">
 											$clang.getString($attribute)
 										</label>
-										<input type="text" name="$attributeInputName" id="$attributeInputName" value="$validator.escapeHtml($!attributeHashtable.get($attribute))" size="50" />
+										<input type="text" name="$attributeInputName" id="$attributeInputName" value="$formattedText.escapeHtml($!attributeHashtable.get($attribute))" size="50" />
 								</p>
 								#end
 						#end

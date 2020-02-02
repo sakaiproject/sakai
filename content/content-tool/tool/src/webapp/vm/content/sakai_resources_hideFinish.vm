@@ -1,7 +1,7 @@
 <!-- sakai_resources_hideFinish.vm, version: $Revision:  $, use with org.sakaiproject.tool.content.ResourcesAction.java -->
 <div class="portletBody">
 	#if ($alertMessage)
-		<div class="sak-banner-error">$tlang.getString("label.alert") $validator.escapeHtml($alertMessage)</div>
+		<div class="sak-banner-error">$tlang.getString("label.alert") $formattedText.escapeHtml($alertMessage)</div>
 	#end
 	#if($sitetype == "course")
 		<div class="sak-banner-error">$tlang.getString("hide.sure_course")</div>
@@ -12,7 +12,7 @@
 		$tlang.getString("hide.hide")
 	</h3>
 	<form action="#toolForm("ResourcesAction")" name="hideFileForm" method="post" >
-		<input type="hidden" name="collectionId" value="$validator.escapeHtml($collectionId)" />
+		<input type="hidden" name="collectionId" value="$formattedText.escapeHtml($collectionId)" />
 		#if ($hideItems.size()>0)
 			<table class ="listHier lines" cellspacing="0" summary="$tlang.getString("hide.table")" border="0" cellpadding="0">
 				<tr>

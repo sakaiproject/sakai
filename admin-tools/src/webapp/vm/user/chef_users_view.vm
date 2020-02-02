@@ -12,7 +12,7 @@
 		</h3>
 		#if ($alertMessage)
 			<div class="sak-banner-error">
-				$tlang.getString("useconrem.alert") $validator.escapeHtml($alertMessage)
+				$tlang.getString("useconrem.alert") $formattedText.escapeHtml($alertMessage)
 			</div>
 		#end
 
@@ -25,23 +25,23 @@
                     <tbody>
                         <tr>
                             <td><label>$tlang.getString("useconrem.useid")</label></td>
-                            <td>$validator.escapeHtml($user.Eid)</td>
+                            <td>$formattedText.escapeHtml($user.Eid)</td>
                         </tr>
                         <tr>
                             <td><label>$tlang.getString("usecre.firnam")</label></td>
-                            <td>$validator.escapeHtml($user.FirstName)</td>
+                            <td>$formattedText.escapeHtml($user.FirstName)</td>
                         </tr>
                         <tr>
                             <td><label>$tlang.getString("usecre.lasnam")</label></td>
-                            <td>$validator.escapeHtml($user.LastName)</td>
+                            <td>$formattedText.escapeHtml($user.LastName)</td>
                         </tr>
                         <tr>
                             <td><label>$tlang.getString("usevie.ema")</label></td>
-                            <td>$validator.escapeHtml($user.Email)</td>
+                            <td>$formattedText.escapeHtml($user.Email)</td>
                         </tr>
                         <tr>
                             <td><label>$tlang.getString("usecre.typ")</label></td>
-                            <td>$validator.escapeHtml($user.Type)</td>
+                            <td>$formattedText.escapeHtml($user.Type)</td>
                         </tr>
                         #if($enableEdit)
                             <tr>
@@ -51,7 +51,7 @@
                             </tr>
                             <tr>
                                 <td><label>$tlang.getString("useedi.creby")</label></td>
-                                <td>$validator.escapeHtml($user.CreatedBy.DisplayName)</td>
+                                <td>$formattedText.escapeHtml($user.CreatedBy.DisplayName)</td>
                             </tr>
                             <tr>
                                 <td><label>$tlang.getString("useedi.cre")</label></td>
@@ -59,7 +59,7 @@
                             </div>
                             <tr>
                                 <td><label>$tlang.getString("useedi.modby")</label></td>
-                                <td>$validator.escapeHtml($user.ModifiedBy.DisplayName)</td>
+                                <td>$formattedText.escapeHtml($user.ModifiedBy.DisplayName)</td>
                             </tr>
                             <tr>
                                 <td><label>$tlang.getString("useedi.mod")</label></td>
@@ -75,7 +75,7 @@
 				</div>
 			#end
 
-				<input type="hidden" id="id" name="id" value="$validator.escapeHtml($user.Id)" />
+				<input type="hidden" id="id" name="id" value="$formattedText.escapeHtml($user.Id)" />
 				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
             </fieldset>
 		</form>
