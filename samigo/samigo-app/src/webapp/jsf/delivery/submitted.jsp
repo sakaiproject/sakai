@@ -148,13 +148,13 @@ function closeWindow() {alert("1"); self.opener=this; self.close(); }
         <h:outputText value="#{delivery.url}" escape="false"/>
     </h:outputLink>
     
-    <h:outputLabel value="<b>#{deliveryMessages.anonymousScore}</b>" rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.anonymousLogin && (delivery.feedbackComponent.showImmediate || delivery.feedbackComponent.showOnSubmission || delivery.feedbackOnDate) && delivery.feedbackComponentOption=='1'}"/>
+    <h:outputLabel value="#{deliveryMessages.anonymousScore}" rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.anonymousLogin && (delivery.feedbackComponent.showImmediate || delivery.feedbackComponent.showOnSubmission || delivery.feedbackOnDate) && delivery.feedbackComponentOption=='1'}"/>
     <h:outputText value="<b>#{delivery.roundedRawScoreViaURL}</b>" rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.anonymousLogin && (delivery.feedbackComponent.showImmediate || delivery.feedbackComponent.showOnSubmission || delivery.feedbackOnDate) && delivery.feedbackComponentOption=='1'}" escape="false"/>
   </h:panelGrid>  
 
 </div>
 
-<p><h:outputText value="#{delivery.receiptEmailSetting} #{deliveryMessages.receiptEmail_changeSetting}" escape="false" /></p>
+<p><h:outputText rendered="#{!delivery.anonymousLogin}" value="#{delivery.receiptEmailSetting} #{deliveryMessages.receiptEmail_changeSetting}" escape="false" /></p>
 
 <div class="tier1">
   <h:panelGrid columns="2" cellpadding="3" cellspacing="3">
