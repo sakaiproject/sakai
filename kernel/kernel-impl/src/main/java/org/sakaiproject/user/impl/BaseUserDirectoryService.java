@@ -1789,6 +1789,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		if (!m_separateIdEid) {
 		    id = cleanEid(id);
 		}
+		id = StringUtils.lowerCase(id);
 		id = StringUtils.trimToNull(id);
 		// max length for an id is 99 chars
         id = StringUtils.abbreviate(id, 99);
@@ -2172,8 +2173,8 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		 */
 		public BaseUserEdit(String id, String eid)
 		{
-			m_id = id;
-			m_eid = eid;
+			m_id = cleanId(id);
+			m_eid = cleanEid(eid);
 
 			// setup for properties
 			BaseResourcePropertiesEdit props = new BaseResourcePropertiesEdit();

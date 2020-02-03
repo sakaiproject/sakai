@@ -155,6 +155,11 @@ public class BaseUserDirectoryServiceTest extends SakaiKernelTestBase  {
         Assert.assertNotNull(cleaned);
         Assert.assertEquals(id, cleaned);
 
+        id = "MixedCaseId";
+        cleaned = userDirectoryService.cleanId(id);
+        Assert.assertNotNull(cleaned);
+        Assert.assertEquals(id.toLowerCase(), cleaned);
+
         id = "012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789";
         cleaned = userDirectoryService.cleanId(id);
         Assert.assertNotNull(cleaned);
@@ -180,10 +185,10 @@ public class BaseUserDirectoryServiceTest extends SakaiKernelTestBase  {
         Assert.assertNotNull(cleaned);
         Assert.assertEquals(eid, cleaned);
 
-        eid = "azeckoski@unicon.net";
+        eid = "MixedCase@sakaiproject.org";
         cleaned = userDirectoryService.cleanEid(eid);
         Assert.assertNotNull(cleaned);
-        Assert.assertEquals(eid, cleaned);
+        Assert.assertEquals(eid.toLowerCase(), cleaned);
 
         eid = "<script>alert('XSS');</script>";
         cleaned = userDirectoryService.cleanEid(eid);
