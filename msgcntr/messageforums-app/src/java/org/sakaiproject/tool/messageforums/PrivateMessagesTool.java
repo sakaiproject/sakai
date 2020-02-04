@@ -766,8 +766,10 @@ public class PrivateMessagesTool
       // we need to filter out the hidden groups since they will only appear as recipients in the bcc list
       for (MembershipItem item : (List<MembershipItem>) members) {
           if (hiddenGroupIds != null && item.getGroup() != null && hiddenGroupIds.contains(item.getGroup().getTitle())) {
-              // hidden groups only appear in the bcc list
-              totalComposeToBccList.add(item);
+              // hidden groups only appear in the bcc list (to users with permission)
+              if (isDisplayHiddenGroupsMsg()) {
+                totalComposeToBccList.add(item);
+              }
           } else {
               totalComposeToList.add(item);
               totalComposeToBccList.add(item);
