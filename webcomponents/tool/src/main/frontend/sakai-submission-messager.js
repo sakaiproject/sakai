@@ -53,7 +53,7 @@ class SakaiSubmissionMessager extends SakaiElement {
                   type="text" .value=${this.subject} @change=${e => this.subject = e.target.value}
                   placeholder="${this.i18n["subject_placeholder"]}"/>
           <div id="sm-body-label-${this.assignmentId}" class="sm-label">${this.i18n["message"]}</div>
-          <textarea aria-labelledby="sm-body-label-${this.assignmentId}" .value=${this.body} id="message-editor-${this.assignmentId}" class="message-input" @change=${e => this.body = e.target.value}>${this.body}</textarea>
+          <textarea aria-labelledby="sm-body-label-${this.assignmentId}" .value=${this.body} class="message-input" @change=${e => this.body = e.target.value}>${this.body}</textarea>
         </div>
         <div class="sm-block">
           <span id="sm-action-selector-label-${this.assignmentId}" class="sm-label">${this.i18n["select_action"]}</span>
