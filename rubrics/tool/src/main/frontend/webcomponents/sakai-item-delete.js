@@ -135,28 +135,28 @@ export class SakaiItemDelete extends RubricsElement {
       url += `${this.rubricId}/criterions/${this.criterion.id}`;
     } else {
       url += this.rubric.id;
-    }
 
-    // SAK-42944 removing the soft-deleted associations
-    $.ajax({
-      url: `/rubrics-service/rest/rubric-associations/search/by-rubric-id?rubricId=${this.rubric.id}`,
-      headers: {"authorization": this.token}
-    }).done(data => {
-      if (data._embedded['rubric-associations'].length) {
-        data._embedded['rubric-associations'].forEach( assoc => {					
-          var assocUrl = "/rubrics-service/rest/rubric-associations/"+assoc.id;
-          $.ajax({
-		    url: assocUrl,
-		    method: "DELETE",
-		    headers: {"authorization": this.token},
-		    contentType: "application/json"
-		  }).fail((jqXHR, error, message) => {
-		    console.error(error);
-		    console.log(message);
-		  });
-		});
-	  }
-	});
+      // SAK-42944 removing the soft-deleted associations
+      $.ajax({
+        url: `/rubrics-service/rest/rubric-associations/search/by-rubric-id?rubricId=${this.rubric.id}`,
+        headers: {"authorization": this.token}
+      }).done(data => {
+        if (data._embedded['rubric-associations'].length) {
+          data._embedded['rubric-associations'].forEach( assoc => {
+            var assocUrl = "/rubrics-service/rest/rubric-associations/"+assoc.id;
+            $.ajax({
+              url: assocUrl,
+              method: "DELETE",
+              headers: {"authorization": this.token},
+              contentType: "application/json"
+            }).fail((jqXHR, error, message) => {
+              console.error(error);
+              console.log(message);
+            });
+          });
+        }
+      });
+    }
 
     $.ajax({
       url: url,
