@@ -16,7 +16,6 @@
 package org.sakaiproject.tool.assessment.services.qti;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
@@ -43,7 +42,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.qti.asi.Item;
-import org.sakaiproject.tool.assessment.qti.asi.PrintUtil;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.qti.helper.ExtractionHelper;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
