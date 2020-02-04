@@ -2467,7 +2467,117 @@
       <value>Messages</value>
     </property>
     <property name="resources">
-      <list/>
+        <ref bean="whatistheMessagestool"/>
+        <ref bean="howdoIviewmymessages"/>
+        <ref bean="howdoIsendamessage"/>
+        <ref bean="howdoIreplytoamessage"/>
+        <ref bean="howdoIcreateaMessagesfolder"/>
+        <ref bean="howdoImoveamessage"/>
+        <ref bean="howdoIdeleteamessage"/>
+        <ref bean="howdoImodifythesettingsforMessages"/>
+        <ref bean="howdoIdeterminewhositeparticipantscansendamessageto"/>
+    </property>
+  </bean>
+  <bean id="whatistheMessagestool" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whatistheMessagestool</value>
+    </property>
+    <property name="name">
+      <value>What is the Messages tool?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_messagesUserGuide/whatistheMessagestool.html</value>
+    </property>
+    <property name="defaultForTool">
+      <value>sakai.messages</value>
+    </property>
+  </bean>
+  <bean id="howdoIviewmymessages" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIviewmymessages</value>
+    </property>
+    <property name="name">
+      <value>How do I view my messages?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_messagesUserGuide/howdoIviewmymessages.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIsendamessage" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIsendamessage</value>
+    </property>
+    <property name="name">
+      <value>How do I send a message?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_messagesUserGuide/howdoIsendamessage.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIreplytoamessage" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIreplytoamessage</value>
+    </property>
+    <property name="name">
+      <value>How do I reply to a message?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_messagesUserGuide/howdoIreplytoamessage.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIcreateaMessagesfolder" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIcreateaMessagesfolder</value>
+    </property>
+    <property name="name">
+      <value>How do I create a Messages folder?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_messagesUserGuide/howdoIcreateaMessagesfolder.html</value>
+    </property>
+  </bean>
+  <bean id="howdoImoveamessage" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoImoveamessage</value>
+    </property>
+    <property name="name">
+      <value>How do I move a message?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_messagesUserGuide/howdoImoveamessage.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIdeleteamessage" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIdeleteamessage</value>
+    </property>
+    <property name="name">
+      <value>How do I delete a message?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_messagesUserGuide/howdoIdeleteamessage.html</value>
+    </property>
+  </bean>
+  <bean id="howdoImodifythesettingsforMessages" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoImodifythesettingsforMessages</value>
+    </property>
+    <property name="name">
+      <value>How do I modify the settings for Messages?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_messagesUserGuide/howdoImodifythesettingsforMessages.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIdeterminewhositeparticipantscansendamessageto" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIdeterminewhositeparticipantscansendamessageto</value>
+    </property>
+    <property name="name">
+      <value>How do I determine who site participants can send a message to?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_messagesUserGuide/howdoIdeterminewhositeparticipantscansendamessageto.html</value>
     </property>
   </bean>
   <bean id="newsUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
