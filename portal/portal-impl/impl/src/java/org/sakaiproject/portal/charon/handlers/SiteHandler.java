@@ -585,7 +585,7 @@ public class SiteHandler extends WorksiteHandler
 		rcontext.put("portalSearchPageSize", ServerConfigurationService.getString("portal.search.pageSize", "10"));
 
 		//Show a confirm dialog when publishing an unpublished site.
-		rcontext.put("publishSiteDialogEnabled", ServerConfigurationService.getBoolean("portal.publish.site.confirm.enabled", true));
+		rcontext.put("publishSiteDialogEnabled", ServerConfigurationService.getBoolean("portal.publish.site.confirm.enabled", false));
 
 		//Find any quick links ready for display in the top navigation bar,
 		//they can be set per site or for the whole portal.
