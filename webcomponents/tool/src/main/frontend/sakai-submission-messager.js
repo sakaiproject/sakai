@@ -129,6 +129,7 @@ class SakaiSubmissionMessager extends SakaiElement {
     this.recipientsToCheck = [];
     this.minScore = "";
     this.maxScore = "";
+    this.validationError = "";
   }
 
   getFormData() {
