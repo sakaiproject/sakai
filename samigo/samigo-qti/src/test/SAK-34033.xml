@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<questestinterop>
+  <assessment ident="01a70e2d-06b8-4b38-9599-48d38b81d0c1" title="ISTM476.41 - Chapter 15">
+    <section ident="ff6e56d7-f9a6-41d3-a491-d5761e06cf8b">
+
+      <item ident="Question_0" title="01: In database systems, a row is also known as a _____.">
+        <qticomment>CogneroItemType: Multiple_Choice</qticomment>
+        <itemmetadata>
+          <qtimetadata>
+            <vocabulary>NationalStandard,StateStandard,LocalStandard,LearningObjective,Notes,Keyword</vocabulary>
+          </qtimetadata>
+          <qmd_itemtype>Logical Identifier</qmd_itemtype>
+          <qmd_renderingtype>Choice</qmd_renderingtype>
+          <qmd_responsetype>Single</qmd_responsetype>
+          <qmd_computerscored>Yes</qmd_computerscored>
+          <qmd_levelofdifficulty>Easy</qmd_levelofdifficulty>
+        </itemmetadata>
+        <presentation>
+          <flow>
+            <material>
+              <mattext texttype="text/html"><![CDATA[<span style="font-family: Times New Roman; font-size: 12pt; color: #000000; font-weight: normal;">In database systems, a row is also known as a _____.</span>]]></mattext>
+            </material>
+            <response_lid ident="RESPONSE_I0_R0" rcardinality="Single">
+              <render_choice shuffle="Yes" minnumber="0" maxnumber="1">
+                <flow_label>
+                  <response_label ident="I0_C0" rshuffle="Yes">
+                    <material>
+                      <mattext texttype="text/html"><![CDATA[<span style="font-family: Times New Roman; font-size: 12pt; color: #000000; font-weight: normal;">table</span>]]></mattext>
+                    </material>
+                  </response_label>
+                  <response_label ident="I0_C1" rshuffle="Yes">
+                    <material>
+                      <mattext texttype="text/html"><![CDATA[<span style="font-family: Times New Roman; font-size: 12pt; color: #000000; font-weight: normal;">column</span>]]></mattext>
+                    </material>
+                  </response_label>
+                  <response_label ident="I0_C2" rshuffle="Yes">
+                    <material>
+                      <mattext texttype="text/html"><![CDATA[<span style="font-family: Times New Roman; font-size: 12pt; color: #000000; font-weight: normal;">key</span>]]></mattext>
+                    </material>
+                  </response_label>
+                  <response_label ident="I0_C3" rshuffle="Yes">
+                    <material>
+                      <mattext texttype="text/html"><![CDATA[<span style="font-family: Times New Roman; font-size: 12pt; color: #000000; font-weight: normal;">record</span>]]></mattext>
+                    </material>
+                  </response_label>
+                  <response_label ident="I0_C4" rshuffle="Yes">
+                    <material>
+                      <mattext texttype="text/html"><![CDATA[<span style="font-family: Times New Roman; font-size: 12pt; color: #000000; font-weight: normal;">field</span>]]></mattext>
+                    </material>
+                  </response_label>
+                </flow_label>
+              </render_choice>
+            </response_lid>
+          </flow>
+        </presentation>
+        <resprocessing>
+          <outcomes>
+            <decvar varname="SCORE" defaultval="0" />
+          </outcomes>
+          <respcondition>
+            <conditionvar>
+              <varequal respident="RESPONSE_I0_R0">I0_C3</varequal>
+            </conditionvar>
+            <setvar varname="SCORE" action="Set">5</setvar>
+          </respcondition>
+        </resprocessing>
+      </item>
+
+    </section>
+  </assessment>
+</questestinterop>
