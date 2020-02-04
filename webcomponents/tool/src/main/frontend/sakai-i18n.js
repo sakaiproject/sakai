@@ -26,7 +26,7 @@ function loadProperties(options) {
   }
 
   var defaults = {
-    lang: parent.portal.locale,
+    lang: (parent.portal && parent.portal.locale) ? parent.portal.locale : "",
     resourceClass: "org.sakaiproject.i18n.InternationalizedMessages",
     cache: true,
   };
