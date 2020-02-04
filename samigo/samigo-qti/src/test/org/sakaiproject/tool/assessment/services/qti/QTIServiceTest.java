@@ -95,7 +95,7 @@ public class QTIServiceTest {
 		Document document = getDocument("SAK-42728.xml");
 		ItemFacade item = extractItem(document);
 		assertEquals("Multiple Choice", item.getDescription());
-		assertEquals(Double.valueOf(5.0), item.getScore());
+		assertEquals(Double.valueOf(1.0), item.getScore());
 		assertEquals(Double.valueOf(0.0), item.getDiscount());
 	}
 
