@@ -2693,7 +2693,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		 * resource reference or outputting that reference as a URL.
 		 */
 		boolean isSimpleResourceName = alias.equals(Validator.escapeResourceName(alias));
-		boolean isSimpleUrl = alias.equals(Validator.escapeUrl(alias));
+		boolean isSimpleUrl = alias.equals(formattedText.escapeUrl(alias));
 		if ( !(isSimpleResourceName) || !(isSimpleUrl) ) {
 			addAlert(state, rb.getFormattedMessage("sitedipag.alias.isinval", new Object[]{alias}));
 			log.warn("{}.updateSiteInfo: {}", this, rb.getFormattedMessage("sitedipag.alias.isinval", new Object[]{alias}));

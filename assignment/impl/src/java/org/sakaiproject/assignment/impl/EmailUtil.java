@@ -26,7 +26,6 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
 
 @Slf4j
@@ -194,7 +193,7 @@ public class EmailUtil {
         // submit text
         String text = StringUtils.trimToNull(submission.getSubmittedText());
         if (text != null) {
-            buffer.append(resourceLoader.getString("gen.submittedtext")).append(NEW_LINE).append(NEW_LINE).append(Validator.escapeHtmlFormattedText(text)).append(NEW_LINE).append(NEW_LINE);
+            buffer.append(resourceLoader.getString("gen.submittedtext")).append(NEW_LINE).append(NEW_LINE).append(formattedText.escapeHtmlFormattedText(text)).append(NEW_LINE).append(NEW_LINE);
         }
 
         // attachment if any
