@@ -298,7 +298,7 @@ $PBJQ(document).ready( function(){
   /////////////////////////////////////////////////
   // Add become user to body as a class
   ////////////////////////////////////////////////
-  if (portal.user.impersonatorDisplayId) {
+  if (portal && portal.user && portal.user.impersonatorDisplayId) {
     $PBJQ("body").addClass("Mrphs-become-user-enabled");
   }
 });
