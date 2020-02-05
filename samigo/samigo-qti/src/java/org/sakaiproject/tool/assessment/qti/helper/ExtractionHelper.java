@@ -1705,23 +1705,10 @@ public class ExtractionHelper
     }
 
     String createdDate = (String) itemMap.get("createdDate");
-    
+
     item.setInstruction( (String) itemMap.get("instruction"));
-    if (notNullOrEmpty(score))
-    {
-      item.setScore( Double.valueOf(score));
-    }
-    else {
-    	item.setScore(Double.valueOf(0));
-    }
-    
-    if (notNullOrEmpty(discount))
-    {
-    	item.setDiscount(Double.valueOf(discount));
-    }
-    else {
-    	item.setDiscount(Double.valueOf(0));
-    }
+    item.setScore( getValidDouble(score) );
+    item.setDiscount( getValidDouble(discount) );
 
     if (notNullOrEmpty( partialCreditFlag))
     {
@@ -2075,6 +2062,19 @@ public class ExtractionHelper
 		  itemTextSet.add(itemText);
 	  }
 	  item.setItemTextSet(itemTextSet);
+  }
+
+  private double getValidDouble(final String scoreText) {
+    if (StringUtils.isBlank(scoreText)) return 0d;
+
+    try {
+      return Double.valueOf(scoreText);
+    }
+    catch (NumberFormatException e) {
+      log.warn("Tried to parse this double in IMS-QTI extraction: {}", scoreText);
+    }
+
+    return 0d;
   }
 
   private double getCorrectScore(ItemDataIfc item, int answerSize)
