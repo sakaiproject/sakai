@@ -114,7 +114,7 @@ export class SakaiRubricEdit extends RubricsElement {
       popover.show();
       var input =  popover.find("input[type='text']")[0];
       input.setSelectionRange(0, input.value.length);
-      popover.find("button")[0].focus();
+      input.focus();
 
     } else {
       this.popoverOpen = "false";
