@@ -1,5 +1,6 @@
 import {RubricsElement} from "./rubrics-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
+import {ifDefined} from '/webcomponents/assets/lit-html/directives/if-defined.js';
 import {tr} from "./sakai-rubrics-language.js";
 
 export class SakaiRubricCriterionRatingEdit extends RubricsElement {
@@ -9,8 +10,8 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
     return {
       rating: { type: Object },
       criterionId: { attribute: "criterion-id", type: String },
-      minpoints: { type: Number },
-      maxpoints: { type: Number },
+      minpoints: Number,
+      maxpoints:  Number,
     };
   }
 
@@ -52,7 +53,7 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
               </div>
               <div class="form-group points">
                 <label for="rating-points-${this.rating.id}"><sr-lang key="points" /></label>
-                <input type="number" id="rating-points-${this.rating.id}" class="form-control hide-input-arrows" name="quantity" .value="${this.rating.points}" min="${this.minpoints}" max="${this.maxpoints}">
+                <input type="number" id="rating-points-${this.rating.id}" class="form-control hide-input-arrows" name="quantity" .value="${this.rating.points}" min="${ifDefined(this.minpoints)}" max="${ifDefined(this.maxpoints)}" />
               </div>
           </div>
           <div class="form-group">

@@ -67,7 +67,7 @@ public class CriterionOutcome implements Serializable {
         private boolean pointsAdjusted;
 
         @NonNull
-        private Integer points;
+        private Double points;
 
         @Lob
         @Column(length = 65535)
