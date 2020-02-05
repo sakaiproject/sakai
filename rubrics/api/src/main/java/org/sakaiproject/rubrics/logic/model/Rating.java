@@ -66,7 +66,7 @@ public class Rating implements Modifiable, Serializable, Cloneable {
 
     @Lob
     private String description;
-    private Integer points;
+    private Double points;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
