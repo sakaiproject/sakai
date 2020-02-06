@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <!-- external logic service -->
+  <bean id="org.sakaiproject.gradebook.logic.ExternalLogic" class="org.sakaiproject.gradebook.logic.ExternalLogic" init-method="init">
+    <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+    <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService"/>
+    <property name="gradebookExternalAssessmentService" ref="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService"/>
+    <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+    <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+    <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+    <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+    <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
+    <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+  </bean>
+
+  <!-- entity provider -->
+  <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" class="org.sakaiproject.gradebook.entity.GradesEntityProvider">
+    <property name="externalLogic" ref="org.sakaiproject.gradebook.logic.ExternalLogic"/>
+  </bean>
+
+</beans>
