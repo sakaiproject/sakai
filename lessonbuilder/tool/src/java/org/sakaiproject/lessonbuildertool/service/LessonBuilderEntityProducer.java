@@ -47,6 +47,7 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.InetAddress;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -60,10 +61,15 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
+import java.util.UUID;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.io.InputStream;
+import java.io.FileInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -117,6 +123,7 @@ import org.sakaiproject.lessonbuildertool.cc.PrintHandler;
 import org.sakaiproject.lessonbuildertool.cc.ZipLoader;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.OrphanPageFinder;
+import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.site.api.Group;
@@ -183,6 +190,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
    private GradebookIfc gradebookIfc;
    private LessonBuilderAccessAPI lessonBuilderAccessAPI;
    private MessageSource messageSource;
+	private LTIService ltiService;
    public void setLessonBuilderAccessAPI(LessonBuilderAccessAPI l) {
        lessonBuilderAccessAPI = l;
    }
@@ -722,7 +730,6 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 	   Node node = allChildrenNodes.item(i);
 	   if (node.getNodeType() == Node.ELEMENT_NODE) {
-
 	       Element itemElement = (Element) node;
 	       if (itemElement.getTagName().equals("item")) {
 		   String s = itemElement.getAttribute("sequence");
@@ -742,7 +749,58 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		       if (sakaiId.startsWith(prefix))
 			   sakaiId = "/group/" + siteId + "/" + sakaiId.substring(prefix.length());
 		       else
-			   log.error("sakaiId not recognized " + sakaiId);
+			   log.error("sakaiId not recognized: {}", sakaiId);
+		   } else if (type == SimplePageItem.BLTI) {
+			   try {
+				   // We need to import the BLTI tool to the new site and update the sakaiid
+				   String[] bltiId = sakaiId.split("/");
+				   Long ltiContentId = Long.valueOf(bltiId[2]);
+
+				   Map<String, Object> ltiContent = ltiService.getContentDao(ltiContentId, oldSiteId, securityService.isSuperUser());
+				   String launchUrl = (String) ltiContent.get(LTIService.LTI_LAUNCH);
+				   String ltiTitle = (String) ltiContent.get(LTIService.LTI_TITLE);
+				   String xmlStr = (String) ltiContent.get(LTIService.LTI_XMLIMPORT);
+				   String ltiCustom = (String) ltiContent.get(LTIService.LTI_CUSTOM);
+				   Long ltiToolId = getLong(ltiContent.get(LTIService.LTI_TOOL_ID));
+				   sakaiId = importLTITool(siteId, launchUrl, ltiTitle, xmlStr, ltiCustom, ltiToolId);
+			   } catch (Exception e) {
+				   log.warn("Unable to import LTI tool to new site: {}", e);
+			   }
+	           } else if (type == SimplePageItem.TEXT) {
+			String html = itemElement.getAttribute("html");
+			Pattern idPattern = Pattern.compile("(https?://[^/]+/access/basiclti/site)/" + Pattern.quote(oldSiteId) + "/content:([0-9]+)");
+			Matcher matcher = idPattern.matcher(html);
+			StringBuffer sb = new StringBuffer();
+			boolean foundLtiLink = false;
+			while(matcher.find()) {
+				String urlFirstPart = matcher.group(1);
+				Long ltiContentId = Long.valueOf(matcher.group(2));
+				log.info("Updating reference: {}", matcher.group(0));
+				foundLtiLink = true;
+				try {
+					Map<String, Object> ltiContent = ltiService.getContentDao(ltiContentId, oldSiteId, securityService.isSuperUser());
+					String launchUrl = (String) ltiContent.get(LTIService.LTI_LAUNCH);
+					String ltiTitle = (String) ltiContent.get(LTIService.LTI_TITLE);
+					String xmlStr = (String) ltiContent.get(LTIService.LTI_XMLIMPORT);
+					String ltiCustom = (String) ltiContent.get(LTIService.LTI_CUSTOM);
+					Long ltiToolId = getLong(ltiContent.get(LTIService.LTI_TOOL_ID));
+					sakaiId = importLTITool(siteId, launchUrl, ltiTitle, xmlStr, ltiCustom, ltiToolId);
+					String[] bltiId = sakaiId.split("/");
+					ltiContentId = Long.valueOf(bltiId[2]);
+				} catch (Exception e) {
+					log.warn("Unable to import LTI tool to new site: {}", e);
+				} finally {
+					String updatedReference = urlFirstPart + "/" + siteId + "/content:" + ltiContentId;
+					log.info("New reference: {}", updatedReference);
+					matcher.appendReplacement(sb, Matcher.quoteReplacement(updatedReference));
+				}
+			}
+
+			if(foundLtiLink) {
+				matcher.appendTail(sb);
+				explanation = sb.toString();
+				log.info("Updated at least one LTI reference lesson HTML");
+			}
 		   } else if (type == SimplePageItem.PAGE) {
 		       // sakaiId should be the new page ID
 		       Long newPageId = pageMap.get(Long.valueOf(sakaiId));
@@ -1713,6 +1771,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	messageSource = s;
     }
 
+	public void setLtiService(LTIService s) {
+		ltiService = s;
+	}
+
     // sitestats support
 
     public boolean entityExists(String id) {
@@ -2208,5 +2270,109 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
         }
         return replacedBody;
     }
+
+	private String importLTITool(String siteId, String launchUrl, String bltiTitle, String strXml, String custom, Long ltiToolId)
+			throws Exception
+	{
+		if ( ltiService == null ) return null;
+
+		// If there is no launch url saved in the lti content get it from the corresponding tool
+		if (launchUrl == null) {
+			Map<String, Object> ltiTool = ltiService.getToolDao(ltiToolId, siteId, securityService.isSuperUser());
+			launchUrl = (String) ltiTool.get(LTIService.LTI_LAUNCH);
+		}
+		String toolUrl = launchUrl;
+		int pos = toolUrl.indexOf("?");
+		if ( pos > 0 ) {
+			toolUrl = toolUrl.substring(0, pos);
+		}
+
+		// Check for global tool configurations (prefer global)
+		Map<String,Object> theTool = null;
+		List<Map<String,Object>> tools = ltiService.getToolsDao(null,null,0,0,"!admin");
+		String lastLaunch = "";
+		for ( Map<String,Object> tool : tools ) {
+			String toolLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
+			// Prefer the longest match
+			if (toolUrl.startsWith(toolLaunch) && toolLaunch.length() > lastLaunch.length()) {
+				theTool = tool;
+				lastLaunch = toolLaunch;
+			}
+		}
+
+		// Check for within-site tool configurations (prefer global)
+		if ( theTool == null ) {
+			tools = ltiService.getToolsDao(null,null,0,0,siteId);
+			lastLaunch = "";
+			for ( Map<String,Object> tool : tools ) {
+				String toolLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
+				// Prefer the longest match
+				if ( toolUrl.startsWith(toolLaunch) && toolLaunch.length() > lastLaunch.length()) {
+					theTool = tool;
+					lastLaunch = toolLaunch;
+				}
+			}
+		}
+
+		// If we still do not have a tool configuration throw an error
+		if ( theTool == null ) {
+			log.error("LORI Launch configuration not found- "+toolUrl);
+			throw new Exception("LORI Launch configuration not found");
+		}
+
+		// Found a tool - time to insert content
+		Map<String,Object> theContent = null;
+
+		Properties props = new Properties ();
+		String toolId = getLong(theTool.get(LTIService.LTI_ID)).toString();
+		props.setProperty(LTIService.LTI_TOOL_ID,toolId);
+		props.setProperty(LTIService.LTI_PLACEMENTSECRET, UUID.randomUUID().toString());
+		props.setProperty(LTIService.LTI_TITLE, bltiTitle);
+		props.setProperty(LTIService.LTI_PAGETITLE, bltiTitle);
+		props.setProperty(LTIService.LTI_LAUNCH,launchUrl);
+		props.setProperty(LTIService.LTI_SITE_ID,siteId);
+
+		if ( strXml != null) props.setProperty(LTIService.LTI_XMLIMPORT,strXml);
+		if ( custom != null ) props.setProperty(LTIService.LTI_CUSTOM,custom);
+
+		log.debug("Inserting content associated with toolId="+toolId);
+
+		// Insert as admin into siteId, on error throw upwards
+		Object result = ltiService.insertContentDao(props, "!admin");
+		if ( result instanceof String ) {
+			log.error("Could not insert content - "+result);
+		} else {
+			log.debug("Adding LTI tool "+result);
+		}
+		if ( result instanceof Long ) theContent = ltiService.getContentDao((Long) result, siteId);
+
+		String sakaiId = null;
+		if ( theContent != null ) {
+			sakaiId = "/blti/" + theContent.get(LTIService.LTI_ID);
+		}
+		return sakaiId;
+	}
+
+	private Long getLong(Object key) {
+		Long retval = getLongNull(key);
+		if (retval != null)
+			return retval;
+		return new Long(-1);
+	}
+
+	private Long getLongNull(Object key) {
+		if (key == null)
+			return null;
+		if (key instanceof Number)
+			return new Long(((Number) key).longValue());
+		if (key instanceof String) {
+			try {
+				return new Long((String) key);
+			} catch (Exception e) {
+				return null;
+			}
+		}
+		return null;
+	}
 
 }
