@@ -4,7 +4,7 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<meta http-equiv="Content-Style-Type" content="text/css" />
-		<title>$tlang.getFormattedMessage("gen.copyright.filename", $validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName)))</title>
+		<title>$tlang.getFormattedMessage("gen.copyright.filename", $formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName)))</title>
 	</head>
 <body> 
 <div align="center" style="width:60%;margin-top:1em;margin-left:auto;margin-right:auto;padding:.5em;background-color:silver;border:1px solid gray;font-family:Verdana,Arial,Helvetica,sans-serif;font-size:.8em">
@@ -22,7 +22,7 @@
 				$tlang.getString("gen.title")
 				</th>
 				<td>
-					$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))
+					$formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))
 				</td>
 			</tr>
 			<tr> 
@@ -30,7 +30,7 @@
 					$tlang.getString("gen.copy")
 				</th>
 				<td>
-					$validator.escapeHtml($props.getPropertyFormatted($props.NamePropCopyright))
+					$formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropCopyright))
 				</td>
 			</tr>
 		</table>	

@@ -4,7 +4,7 @@
 		$tlang.getString("create.urls")
 	</h3>
 	#if ($itemAlertMessage)
-		<div class="sak-banner-error">$tlang.getString("label.alert") $validator.escapeHtml($itemAlertMessage)</div>
+		<div class="sak-banner-error">$tlang.getString("label.alert") $formattedText.escapeHtml($itemAlertMessage)</div>
 	#end
 	<ol class="breadcrumb">
 		<li><span>
@@ -12,7 +12,7 @@
 		</span></li>
 		##<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0"  alt="$tlang.getString("gen.folder")" />
 		#foreach ($folder in $model.collectionPath)
-			<li><span>$validator.escapeHtml($folder.name)</span></li>
+			<li><span>$formattedText.escapeHtml($folder.name)</span></li>
 		#end
 	</ol>
 

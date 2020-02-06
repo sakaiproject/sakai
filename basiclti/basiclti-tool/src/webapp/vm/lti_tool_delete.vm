@@ -2,8 +2,8 @@
 	<h3>
 		$tlang.getString("tool.delete")
 	</h3>
-	#if ($messageSuccess)<div class="sak-banner-success">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div>#end
-	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+	#if ($messageSuccess)<div class="sak-banner-success">$tlang.getString("gen.success") $formattedText.escapeHtml($messageSuccess)</div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>#end
 	<div class="sak-banner-warn">$tlang.getString("tool.delete.sure")</div>
 	<form action="#toolForm("")" method="post" name="customizeForm" >
 		$formOutput

@@ -107,8 +107,8 @@
 
 	<div class="page-header">
 		<h1>
-		#if($validator.escapeHtml($!value_title) && $validator.escapeHtml($!value_title) !='')
-			$validator.escapeHtml($!value_title) <span class="highlight">	$tlang.getString("edit")</span>
+		#if($formattedText.escapeHtml($!value_title) && $formattedText.escapeHtml($!value_title) !='')
+			$formattedText.escapeHtml($!value_title) <span class="highlight">	$tlang.getString("edit")</span>
 		#else
 			$tlang.getString("new.title")
 		#end
@@ -135,7 +135,7 @@
 				$tlang.getString("gen.title")
 			</label>
 			<div class="col-sm-6">
-				<input name="$name_title" id="$name_title" type="text" value="$validator.escapeHtml($!value_title)" size="30" maxlength="100" class="form-control" placeholder="$tlang.getString("gen.title")" />
+				<input name="$name_title" id="$name_title" type="text" value="$formattedText.escapeHtml($!value_title)" size="30" maxlength="100" class="form-control" placeholder="$tlang.getString("gen.title")" />
 			</div>
 		</div>
 
@@ -145,7 +145,7 @@
 			</label>
 			<div class="col-sm-12">
 				<table border="0" style="margin:0"><tr><td>
-					<textarea name="$name_Description" id="$name_Description" cols="80" rows="30" wrap="virtual">$validator.escapeHtmlFormattedTextarea($value_Description)</textarea>
+					<textarea name="$name_Description" id="$name_Description" cols="80" rows="30" wrap="virtual">$formattedText.escapeHtmlFormattedTextarea($value_Description)</textarea>
 					#chef_setupformattedtextarea($name_Description)
 					</td></tr>
 				</table>
@@ -200,7 +200,7 @@
 							#else
 								<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 							#end
-							<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+							<a href="$attachment.Url" target="_blank">$formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
 							#propertyDetails($props)
 						</li>
 					#end
@@ -1142,7 +1142,7 @@
 								#else
 									<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 								#end
-								<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+								<a href="$attachment.Url" target="_blank">$formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
 								#propertyDetails($props)
 							</li>
 						#end
@@ -1227,7 +1227,7 @@
 						<textarea name="note_text_holder" id="note_text_holder"  style="display:none"  cols="60" rows="2" wrap="virtual">$validator.escapeHtmlTextarea($!note_text)</textarea>
 					#else
 						#if ($!allowReadAssignmentNoteItem)
-					 		<div class="notes">$validator.escapeHtml($!note_text)</div>
+					 		<div class="notes">$formattedText.escapeHtml($!note_text)</div>
 				 		#end
 					#end
 					###chef_setupformattedtextareaparams("assigntext" "200" "365" "small")
@@ -1275,7 +1275,7 @@
 			<legend>$tlang.getString('allPurpose')</legend>
 			<div class="form-group row form-required">
 				<label  for="allPurpose_title" class="form-control-label col-lg-2">
-					$validator.escapeHtml($tlang.getString("gen.title"))
+					$formattedText.escapeHtml($tlang.getString("gen.title"))
 				</label>
 				<div class="col-lg-8">
 					<input id="allPurpose_title" name="allPurposeTitle" type="text" size="20" maxlength="30" value="$!value_allPurposeTitle" class="form-control"/>
@@ -1330,7 +1330,7 @@
 								#else
 									<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 								#end
-								<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+								<a href="$attachment.Url" target="_blank">$formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
 								#propertyDetails($props)
 							</li>
 						#end
@@ -1453,7 +1453,7 @@
 										<li>
 											<label for="$showInputString" style="white-space:nowrap;padding:2px;width:90%;display:block" #if ($!value_allPurposeAccessList.contains($user.getId())) class="selectedItem" #else #set ($allSelected=false) #end>
 												<input id="$showInputString" name="$showInputString" #if ($!value_allPurposeAccessList.contains($user.getId())) class="selectedItem" checked="checked" #set($userCount=$userCount + 1) #end type="checkbox" value="$user.Id"/>
-												$validator.escapeHtml($user.getDisplayName())
+												$formattedText.escapeHtml($user.getDisplayName())
 											</label>
 										</li>
 									#end

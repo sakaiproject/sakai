@@ -8,7 +8,7 @@
 	#if ($alertMessage)<div class="sak-banner-error"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>#end
 		#if (!$hideAssignmentFlag)
 		<p class="discTria">
-			 $tlang.getString("gen.settfor") "$validator.escapeHtml($assignment.title)"
+			 $tlang.getString("gen.settfor") "$formattedText.escapeHtml($assignment.title)"
 		</p>
 		<table class="itemSummary" border="0">
 			<tr>
@@ -16,7 +16,7 @@
 					$tlang.getString("gen.creby")
 				</th>	
 				<td>
-					$validator.escapeHtml($!creator)
+					$formattedText.escapeHtml($!creator)
 				</td>
 			</tr>
 			<tr> 
@@ -130,7 +130,7 @@
 		</h4>
 		<p>					
 			#if ($assignment.Instructions.length()>0)
-				$validator.escapeHtmlFormattedText($assignment.Instructions)
+				$formattedText.escapeHtmlFormattedText($assignment.Instructions)
 			#end
 		</p>
 		## assignment attachment
@@ -145,7 +145,7 @@
 			<p class="discTria">
 				<a href="javascript:void(0)" onclick="location='#toolLink("AssignmentAction" "doShow_view_assignment")'; return false;" title="$tlang.getString("viewassig.shoassinf")">	
 				<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("gen.open")" border="0" width="13" height="13" align="top" alt="$tlang.getString("viewassig.shoassinf")" /></a>
-				$tlang.getString("gen.settfor") "$validator.escapeHtml($assignment.title)"
+				$tlang.getString("gen.settfor") "$formattedText.escapeHtml($assignment.title)"
 			</p>	
 		#end
 	<form name="viewAssignmentsForm" action="#toolForm("AssignmentAction")" method="post">

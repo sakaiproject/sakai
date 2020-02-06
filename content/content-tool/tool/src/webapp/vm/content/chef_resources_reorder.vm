@@ -13,7 +13,7 @@
 				<span class = "$contentTypeImageService.getContentTypeImageClass("folder")" aria-hidden="true"></span>
 				<span class="sr-only">$tlang.getString('gen.folder1')</span>
 				#foreach ($item in $collectionPath)
-					$validator.escapeHtml("$item.name")
+					$formattedText.escapeHtml("$item.name")
 					#if(! $item.isLast()) / #end
 				#end
 			</h3>
@@ -59,16 +59,16 @@
 								#else
 									<span class = "$contentTypeImageService.getContentTypeImageClass("$member.type")" aria-hidden="true"></span>
 								#end
-								$validator.escapeHtml($member.name)
+								$formattedText.escapeHtml($member.name)
 						</div>
 						<div class="col-lg-4 col-md-4 hidden-xs hidden-sm">
-							$validator.escapeHtml($member.createdBy)
+							$formattedText.escapeHtml($member.createdBy)
 						</div>
 						<div class="col-lg-2 col-md-2 hidden-xs hidden-sm">
 							$member.ModifiedTime
 						</span>
 						<span headers="position" style="display:none">
-							<select name="position_$validator.escapeUrl("$member.id")" class="selectSet" style="display:none" tabindex="-1">
+							<select name="position_$formattedText.escapeUrl("$member.id")" class="selectSet" style="display:none" tabindex="-1">
 								#foreach($i in [1..$collectionMembers.size()])
 									<option value="$i"#if("$i" == "$count") selected="selected"#end>$i</option>
 								#end

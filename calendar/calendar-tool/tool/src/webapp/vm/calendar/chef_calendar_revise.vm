@@ -313,7 +313,7 @@ $(function() {
 	<div class="page-header">
 		<h1>$tlang.getString("rev.revising")</h1>
 	</div>
-	#if ($alertMessage)<div class="sak-banner-warn">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+	#if ($alertMessage)<div class="sak-banner-warn">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>#end
 	<p class="sak-banner-info">
 		$tlang.getString("new.a") <span class="reqStarInline">*</span>
 	</p>
@@ -329,7 +329,7 @@ $(function() {
 					#set($str = $event.getDisplayName().trim())
 				#end
 			#end
-			<input type="text" name="activitytitle" id="activitytitle" size="50" maxlength="150" value = "$validator.escapeHtml($str)" onfocus="minuteChange('startMinute'); #if ($timeFormat.contains("H")) reflectHourToHour24('endHour24', 'endHour', 'endAmpm'); #end return false;" />
+			<input type="text" name="activitytitle" id="activitytitle" size="50" maxlength="150" value = "$formattedText.escapeHtml($str)" onfocus="minuteChange('startMinute'); #if ($timeFormat.contains("H")) reflectHourToHour24('endHour24', 'endHour', 'endAmpm'); #end return false;" />
 		</p>
 		<p class="shorttext">
 			<span class="reqStar">*</span>	
@@ -624,11 +624,11 @@ $(function() {
 			</label>	
 			<table border="0"><tr><td>
 			#if("$!savedData.getDescription()" != "")
-			<textarea name="description"  id="description" wrap="virtual" rows="10" >$validator.escapeHtmlFormattedTextarea($savedData.getDescription())</textarea>
+			<textarea name="description"  id="description" wrap="virtual" rows="10" >$formattedText.escapeHtmlFormattedTextarea($savedData.getDescription())</textarea>
 			#chef_setupformattedtextarea("description")
 		   #elseif ($calEventFlag != "false")
 			#if("$!event.getDescriptionFormatted()" != "")
-			<textarea name="description" id="description" wrap="virtual" rows="10">$validator.escapeHtmlFormattedTextarea($event.getDescriptionFormatted())</textarea>
+			<textarea name="description" id="description" wrap="virtual" rows="10">$formattedText.escapeHtmlFormattedTextarea($event.getDescriptionFormatted())</textarea>
 			#chef_setupformattedtextarea("description")
 			#else
 			<textarea name="description" id="description" wrap="virtual" rows="10"></textarea>
@@ -688,13 +688,13 @@ $(function() {
 						</td>
 						<td headers="name" nowrap="nowrap">
 							<label for="$group.Id">
-								$validator.escapeHtml($group.Title)
+								$formattedText.escapeHtml($group.Title)
 							</label>	
 						</td>
 						<td headers="description" width="100%"> ##mozilla does not resize table children dynamically , so set here
 							#set($description = "")
 							#set($description = $group.Description)
-							$validator.escapeHtml($!description)
+							$formattedText.escapeHtml($!description)
 						</td>
 					</tr>
 				#end
@@ -751,11 +751,11 @@ $(function() {
 			</label>	
 			#if ("$!savedData.Location" != "")
 				#set($str = $savedData.getLocation())
-				<textarea id="location"  name="location" wrap="virtual" rows="2" cols="60">$validator.escapeHtmlTextarea($str)</textarea>
+				<textarea id="location"  name="location" wrap="virtual" rows="2" cols="60">$formattedText.escapeHtmlTextarea($str)</textarea>
 			#elseif ($calEventFlag != "false")
 				#if ("$!event.Location" != "")
 					#set($str = $event.Location)
-					<textarea name="location" wrap="virtual" rows="2" cols="60">$validator.escapeHtmlTextarea($str)</textarea>
+					<textarea name="location" wrap="virtual" rows="2" cols="60">$formattedText.escapeHtmlTextarea($str)</textarea>
 				#else
 				<textarea name="location"  wrap="virtual" rows="2" cols="60"></textarea>
 				#end
@@ -765,18 +765,18 @@ $(function() {
 		</p>
 	
 		#foreach ($addfield in $addFieldsCalendarsCollection)
-			#set ($addfield = $validator.escapeHtml($addfield))
+			#set ($addfield = $formattedText.escapeHtml($addfield))
 			<p class="shorttext">
 				<label for="$addfield">
 					$addfield
 				</label>	
 				#if ("$!savedData.getAddfieldValue($addfield)" != "")
 					#set($afv = $savedData.getAddfieldValue($addfield))
-					<textarea id="$addfield" name="$addfield"  wrap="virtual" rows="2" cols="60">$validator.escapeHtmlTextarea($afv)</textarea>
+					<textarea id="$addfield" name="$addfield"  wrap="virtual" rows="2" cols="60">$formattedText.escapeHtmlTextarea($afv)</textarea>
 				#elseif ($calEventFlag != "false")
 					#if ("$!event.getField($addfield)" != "")
 						#set($str = $event.getField($addfield))
-						<textarea name="$addfield" wrap="virtual" rows="2" cols="60">$validator.escapeHtmlTextarea($str)</textarea>
+						<textarea name="$addfield" wrap="virtual" rows="2" cols="60">$formattedText.escapeHtmlTextarea($str)</textarea>
 					#else
 					<textarea name="$addfield" wrap="virtual" rows="2" cols="60"></textarea>
 					#end
@@ -812,10 +812,10 @@ $(function() {
 						#if ($copyflag)
 							## if there is a copyright alert, show the alert page first
 							<a href="" onclick="openCopyrightWindow('${attachment.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false">
-							$validator.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>&#169;
+							$formattedText.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>&#169;
 						#else
 							<a href="$attachment.Url" target="_blank">
-							$validator.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>
+							$formattedText.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>
 						#end
 						
 						#if (!$props.getBooleanProperty($props.NamePropIsCollection))

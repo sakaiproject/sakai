@@ -27,7 +27,7 @@
 		<h1>$tlang.getString("cus.cus2")</h1>
 	</div>
 
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	<form action="#toolForm($action)" method="post">
 		<h4 class="indnt1">
 			$tlang.getString("cus.maiset2")

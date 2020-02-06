@@ -58,7 +58,7 @@ $(document).ready(function(){
 				<h3>$tlang.getString("viewexampleassign") </h3>
 			#else
 			<h3>
-				$validator.escapeHtml($assignment.Title)
+				$formattedText.escapeHtml($assignment.Title)
 				#if(!$submitted)
                     <span class="highlight">
 						 - $!service.getSubmissionStatus($!submission.Id)
@@ -140,7 +140,7 @@ $(document).ready(function(){
 				<div class="col-lg-4 col-sm-6 col-xs-12">
 					<div class="itemSummaryValue">
 						#assignmentTitleIcon($assignment)
-						$validator.escapeHtml($assignment.Title)
+						$formattedText.escapeHtml($assignment.Title)
 						#set ($deleted = false)
 						#set ($deleted = $assignment.Deleted)
 						#if ($deleted)
@@ -289,7 +289,7 @@ $(document).ready(function(){
 ##					<div class="col-lg-4 col-sm-6 col-xs-12">
 ##						<div class="itemSummaryValue">
 ##							#foreach ($entry in $submission.getSubmissionLog())
-##								$validator.escapeHtml($entry)<br>
+##								$formattedText.escapeHtml($entry)<br>
 ##							#end
 ##						</div>
 ##					</div>
@@ -302,7 +302,7 @@ $(document).ready(function(){
 		</h4>
 		
 		#if (!$!assignment.Instructions.isEmpty())
-			<div class="textPanel">$validator.escapeHtmlFormattedText($!assignment.Instructions)</div>
+			<div class="textPanel">$formattedText.escapeHtmlFormattedText($!assignment.Instructions)</div>
 		#end
 
 		## Assignment Attachments
@@ -364,7 +364,7 @@ $(document).ready(function(){
 						#else
 							<h3>$tlang.getString("gen.addinst")</h3>
 						#end	
-							<div class="textPanel">$validator.escapeHtmlFormattedText($submission.FeedbackComment)</div>
+							<div class="textPanel">$formattedText.escapeHtmlFormattedText($submission.FeedbackComment)</div>
 					#end
 					## for returned (not resubmitted ) submission, show the instructor feedback
 					#if ($!prevFeedbackComment && $!prevFeedbackComment.trim().length() > 0)
@@ -421,20 +421,20 @@ $(document).ready(function(){
 							</td>
 							<td headers="name" class="checkbox" style="white-space:nowrap">
 								<label for="id-$group.Id">
-									$validator.escapeHtml($group.Title)
+									$formattedText.escapeHtml($group.Title)
 								</label>	
 							</td>
                                                         <td headers="description" width="100%"> ##mozilla does not resize table children dynamically , so set here
 							<span style="font-size: smaller; color: blue;">	
 								#set($gusers = $!service.getSortedGroupUsers($group))
 								#foreach ($user in $gusers)
-									$validator.escapeHtml($user.getDisplayName()) ($validator.escapeHtml($user.getDisplayId()))
+									$formattedText.escapeHtml($user.getDisplayName()) ($formattedText.escapeHtml($user.getDisplayId()))
 									#if ($velocityCount < $gusers.size()),#end
 								#end
 							</span>	
 
 								#set($description = $group.Description)
-								<div style="font-size: smaller;">$validator.escapeHtml($!description)</div>
+								<div style="font-size: smaller;">$formattedText.escapeHtml($!description)</div>
 							</td>
 						</tr>
 					#end
@@ -451,7 +451,7 @@ $(document).ready(function(){
 			#if (!$submissionType != 4 && !$!deleted.equalsIgnoreCase("true") && $!allowAddAssignment && $!allowSubmitByInstructor && $!student) 
 				<h4>$tlang.getString("submitforstudent")</h4>
 				<p class="instruction">
-					$validator.escapeHtml($student.getDisplayName())
+					$formattedText.escapeHtml($student.getDisplayName())
 					<input type="hidden" name="submit_on_behalf_of" id="submit_on_behalf_of" value="$student.id" />		
 				</p>
 			#end
@@ -460,7 +460,7 @@ $(document).ready(function(){
 				#if ($!deleted.equalsIgnoreCase("true"))
 					<h4>$tlang.getString("gen.yousub") </h4>
 					##if the assignment has been deleted, disable the action button
-					$validator.escapeHtmlFormattedText($!value_submission_text)
+					$formattedText.escapeHtmlFormattedText($!value_submission_text)
 				#else
 							<h4>$tlang.getString("assignmenttext")</h4>
 							<p class="instruction">
@@ -511,7 +511,7 @@ $(document).ready(function(){
 							<table border="0">
 								<tr>
 									<td>
-										<textarea cols="80" rows="30" wrap="virtual" name="$name_submission_text" id="$name_submission_text" #if(!$allowSubmit)disabled="disabled"#end >#if($!value_submission_text)$validator.escapeHtmlFormattedTextarea($!value_submission_text)#end</textarea>						
+										<textarea cols="80" rows="30" wrap="virtual" name="$name_submission_text" id="$name_submission_text" #if(!$allowSubmit)disabled="disabled"#end >#if($!value_submission_text)$formattedText.escapeHtmlFormattedTextarea($!value_submission_text)#end</textarea>						
 											#chef_setupformattedtextarea($name_submission_text)
 									</td>
 								</tr>
@@ -541,7 +541,7 @@ $(document).ready(function(){
 							<div>
 								$tlang.getString("gen.yousub")
 							</div>
-							$validator.escapeHtmlFormattedText($!value_submission_text)
+							$formattedText.escapeHtmlFormattedText($!value_submission_text)
 						#end							
 					#end*#
 				#end
@@ -596,7 +596,7 @@ $(document).ready(function(){
 							<h3>$tlang.getString("gen.orisub")</h3>
 							<p class="assignmentWarning">$tlang.getString("stuviewsubm.typesubhaschanged.inline")</p>
 							<div class="assignmentInline">
-								$validator.escapeHtmlFormattedText($!value_submission_text)
+								$formattedText.escapeHtmlFormattedText($!value_submission_text)
 							</div>
 						</div>
 					#end
@@ -632,7 +632,7 @@ $(document).ready(function(){
 											#else
 												<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 											#end
-											<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+											<a href="$attachment.Url" target="_blank">$formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
 										</td>
 										<td>
 											#propertyDetails($props)
@@ -640,7 +640,7 @@ $(document).ready(function(){
 										<td class="itemAction">
 											<div class="spinnerBesideContainer">
 												<a href="javascript:void(0)" onclick="SPNR.insertSpinnerAfter( this, null, null ); ASN.doStudentViewSubmissionAction( 'addSubmissionForm', 'removeAttachment', '$attachment.id', 'attachmentspanel' ); return false;">
-													$tlang.getString("stuviewsubm.removeatt")<span class="skip"> $validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</span>
+													$tlang.getString("stuviewsubm.removeatt")<span class="skip"> $formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</span>
 												</a>
 											</div>
 										</td>
@@ -671,7 +671,7 @@ $(document).ready(function(){
 											</td>
 											<td>
 												<div id="clonableUploadW spinnerBesideContainer"> 
-													<input type="file" name="upload" class="upload" id="clonableUpload" #if($content_review_acceptedMimeTypes) accept="$content_review_acceptedMimeTypes" #end onchange="SPNR.insertSpinnerAfter( this, null, null ); document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUpload" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';ASN.submitForm( 'addSubmissionForm', null, null, null, 'attachmentspanel' );"/> 
+													<input type="file" name="upload" class="upload" id="clonableUpload" #if($content_review_acceptedMimeTypes) accept="$content_review_acceptedMimeTypes" #end onchange="SPNR.insertSpinnerAfter( this, null, null ); document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUpload" "sakai_csrf_token=$formattedText.escapeUrl($sakai_csrf_token)")';ASN.submitForm( 'addSubmissionForm', null, null, null, 'attachmentspanel' );"/> 
 												</div>
 												</td>
 												##Only show for inline and attachments
@@ -707,7 +707,7 @@ $(document).ready(function(){
 										</td>
 										<td>
 											<div class="spinnerBesideContainer">
-												<input type="file" name="upload" class="upload" id="clonableUpload" #if($content_review_acceptedMimeTypes) accept="$content_review_acceptedMimeTypes" #end onchange="SPNR.insertSpinnerAfter( this, null, null ); document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUploadSingle" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';ASN.submitForm( 'addSubmissionForm', null, null, null, 'attachmentspanel' );"/>
+												<input type="file" name="upload" class="upload" id="clonableUpload" #if($content_review_acceptedMimeTypes) accept="$content_review_acceptedMimeTypes" #end onchange="SPNR.insertSpinnerAfter( this, null, null ); document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUploadSingle" "sakai_csrf_token=$formattedText.escapeUrl($sakai_csrf_token)")';ASN.submitForm( 'addSubmissionForm', null, null, null, 'attachmentspanel' );"/>
 											</div>
 											<input type="hidden" name="submissionFileCount" id="submissionFileCount" value="1"/>
 										</td>
@@ -755,12 +755,12 @@ $(document).ready(function(){
 							#if ($props)
 								#attachmentDetails()
 								<a href="javascript:void(0)" onclick="SPNR.insertSpinnerAfter( this, null, null ); ASN.submitForm( 'addSubmissionForm', 'removeNewSingleUploadedFile', null, null, 'attachmentspanel' ); return false;">
-									$tlang.getString("stuviewsubm.removeatt")<span class="skip"> $validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</span>
+									$tlang.getString("stuviewsubm.removeatt")<span class="skip"> $formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</span>
 								</a>
 								<br>
 							#else
 								$tlang.getString("stuviewsubm.uploadnew")
-								<input type="file" name="upload" class="upload" id="clonableUpload" #if($content_review_acceptedMimeTypes) accept="$content_review_acceptedMimeTypes" #end onchange="SPNR.insertSpinnerAfter( this, null, null ); document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUploadSingle" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';ASN.submitForm( 'addSubmissionForm', null, null, null, 'attachmentspanel' );"/>
+								<input type="file" name="upload" class="upload" id="clonableUpload" #if($content_review_acceptedMimeTypes) accept="$content_review_acceptedMimeTypes" #end onchange="SPNR.insertSpinnerAfter( this, null, null ); document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUploadSingle" "sakai_csrf_token=$formattedText.escapeUrl($sakai_csrf_token)")';ASN.submitForm( 'addSubmissionForm', null, null, null, 'attachmentspanel' );"/>
 							#end
 						</span>
 					</div>
@@ -790,7 +790,7 @@ $(document).ready(function(){
 											#else
 												<img src = "#imageLink($contentTYpeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 											#end
-											<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+											<a href="$attachment.Url" target="_blank">$formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
 										</td>
 										<td>
 											#propertyDetails($props)
@@ -810,7 +810,7 @@ $(document).ready(function(){
 						#else
 							<h3>$tlang.getString("gen.addinst")</h3>
 						#end	
-							<div class="textPanel">$validator.escapeHtmlFormattedText($submission.FeedbackComment)</div>
+							<div class="textPanel">$formattedText.escapeHtmlFormattedText($submission.FeedbackComment)</div>
 					#end
 					## for returned (not resubmitted ) submission, show the instructor feedback
 					#if ($!prevFeedbackComment && $!prevFeedbackComment.trim().length() > 0)
@@ -856,7 +856,7 @@ $(document).ready(function(){
 											#else
 												<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 											#end
-											<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+											<a href="$attachment.Url" target="_blank">$formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
 											#propertyDetails($props)
 										</li>
 									#end
@@ -972,7 +972,7 @@ $(document).ready(function(){
 									#else
 										<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 									#end
-									<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+									<a href="$attachment.Url" target="_blank">$formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
 									#propertyDetails($props)
 								</li>
 							#end
@@ -982,7 +982,7 @@ $(document).ready(function(){
 				#if ($withGrade && $submission.getGraded() && $submission.getGradeReleased())
 					#if ($submission.getGradeReleased() &&($!submission.FeedbackComment) && ($submission.FeedbackComment.trim().length()>0))
 						<h5>$tlang.getString("gen.addinst")</h5>
-						<div>$validator.escapeHtmlFormattedText($submission.FeedbackComment)</div>
+						<div>$formattedText.escapeHtmlFormattedText($submission.FeedbackComment)</div>
 					#end
 					## for returned submission, show the instructor feedback
 					#if ($!prevFeedbackComment && $!prevFeedbackComment.trim().length() > 0)

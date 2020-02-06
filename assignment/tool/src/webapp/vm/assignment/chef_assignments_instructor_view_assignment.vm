@@ -7,12 +7,12 @@
 				#foreach ($helperInfo in $activityHelpers)
 					#if (!$first)
 					<li  class="firstToolBarItem">
-						<span><a href="#toolLinkParam("$action" "doHelp_activity" "activityRef=$validator.escapeUrl($activity.reference)&providerId=$validator.escapeUrl($helperInfo.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a></span>
+						<span><a href="#toolLinkParam("$action" "doHelp_activity" "activityRef=$formattedText.escapeUrl($activity.reference)&providerId=$formattedText.escapeUrl($helperInfo.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a></span>
 					</li>	
 					#else
 						#set ($first = false)
 						<li>						
-							<span><a href="#toolLinkParam("$action" "doHelp_activity" "activityRef=$validator.escapeUrl($activity.reference)&providerId=$validator.escapeUrl($helperInfo.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a></span>
+							<span><a href="#toolLinkParam("$action" "doHelp_activity" "activityRef=$formattedText.escapeUrl($activity.reference)&providerId=$formattedText.escapeUrl($helperInfo.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a></span>
 						</li>	
 					#end
 				#end
@@ -28,7 +28,7 @@
 		<p class="discTria">
 			<a href="javascript:void(0)" onclick="location='#toolLink("AssignmentAction" "doHide_view_assignment")'; return false;" title="$tlang.getString("gen.hidassinf")">
 				<img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("gen.hidassinf")" border="0" width="13" height="13" />
-    			$tlang.getString("gen.settfor") "$validator.escapeHtml($assignment.title)"
+    			$tlang.getString("gen.settfor") "$formattedText.escapeHtml($assignment.title)"
 			 </a>
 		</p>
 		<table class="itemSummary" border="0" summary="$tlang.getString("gen.viewasstablesummary")">
@@ -37,7 +37,7 @@
 					$tlang.getString("gen.creby")
 				</th>	
 				<td>
-					$validator.escapeHtml($!creator)
+					$formattedText.escapeHtml($!creator)
 				</td>
 			</tr>
 			<tr>
@@ -123,7 +123,7 @@
 					#if($count==1)
 						#set($for=$tlang.getString("gen.viewallgroupssections"))
 					#end
-					$validator.escapeHtml($!for)
+					$formattedText.escapeHtml($!for)
 				</td>
 			</tr>
 			<tr> 
@@ -211,7 +211,7 @@
 		</h4>
 		<div class="textPanel">					
 			#if ($assignment.Instructions)
-				$validator.escapeHtmlFormattedText($assignment.Instructions)
+				$formattedText.escapeHtmlFormattedText($assignment.Instructions)
 			#end
 		</div>
 
@@ -226,7 +226,7 @@
 			<p class="discTria">
 				<a href="javascript:void(0)" onclick="location='#toolLink("AssignmentAction" "doShow_view_assignment")'; return false;" title="$tlang.getString("viewassig.shoassinf")">	
 				<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("viewassig.shoassinf")" border="0" width="13" height="13" align="top"  />
-				$tlang.getString("gen.settfor") "$validator.escapeHtml($assignment.title)"
+				$tlang.getString("gen.settfor") "$formattedText.escapeHtml($assignment.title)"
 				</a>
 			</p>	
 		#end
@@ -237,7 +237,7 @@
 			<p class="discTria">
 				<a href="javascript:void(0)" onclick="location='#toolLink("AssignmentAction" "doHide_view_student_view")'; return false;">
 				<img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("gen.open")" border="0" width="13" height="13" align="top" />
-				$tlang.getString("gen.stuvieof") "$validator.escapeHtml($assignment.title)"
+				$tlang.getString("gen.stuvieof") "$formattedText.escapeHtml($assignment.title)"
 				</a>
 			</p>
 			<div class="inopPanel">
@@ -336,7 +336,7 @@
 					$tlang.getString("gen.assinf")
 				</h4>	
 				#if ($!assignment.Instructions)
-					<div class="textPanel">$validator.escapeHtmlFormattedText($!assignment.Instructions)</div>
+					<div class="textPanel">$formattedText.escapeHtmlFormattedText($!assignment.Instructions)</div>
 				#end
 
 				## Student Assignment attachments
@@ -380,7 +380,7 @@
 			<p class="discTria">
 				<a href="javascript:void(0)" onclick="location='#toolLink("AssignmentAction" "doShow_view_student_view")'; return false;">
 				<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("gen.open")" border="0" width="13" height="13" align="top" />
-				$tlang.getString("gen.stuvieof") "$validator.escapeHtml($assignment.Title)"
+				$tlang.getString("gen.stuvieof") "$formattedText.escapeHtml($assignment.Title)"
 				</a>
 			</p>	
 

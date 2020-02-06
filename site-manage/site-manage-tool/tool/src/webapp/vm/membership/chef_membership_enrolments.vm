@@ -4,7 +4,7 @@
     <div class="membershipContent">
 
         #if ($alertMessage)
-            <div class="sak-banner-error">$validator.escapeHtml( $alertMessage )</div>
+            <div class="sak-banner-error">$formattedText.escapeHtml( $alertMessage )</div>
         #end
 
         <div class="sak-banner-info">
@@ -76,8 +76,8 @@
                                 <td headers="worksite">
                                     #if ($enrolment.siteWrappers.size() > 0)
                                         #foreach( $site in $enrolment.siteWrappers )
-                                            <a href="$site.getSiteURL()" target="_top" title="$tlang.getString( "mb.gotosite" ) $validator.escapeHtml( $site.getSiteTitle() )">
-                                                $validator.escapeHtml( $site.getSiteTitle() )
+                                            <a href="$site.getSiteURL()" target="_top" title="$tlang.getString( "mb.gotosite" ) $formattedText.escapeHtml( $site.getSiteTitle() )">
+                                                $formattedText.escapeHtml( $site.getSiteTitle() )
                                             </a>
                                         #end
                                     #else

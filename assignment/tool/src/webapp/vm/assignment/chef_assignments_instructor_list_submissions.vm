@@ -49,7 +49,7 @@ function printView(url) {
     #navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
 	<div class="page-header">
 		<h1>
-		$validator.escapeHtml($assignment.Title)
+		$formattedText.escapeHtml($assignment.Title)
 		<small>
 		#if ($!assignment.IsGroup )
 			<i class="fa fa-users" aria-hidden="true" title="$tlang.getString('gen.groupassignment')"></i>
@@ -111,7 +111,7 @@ function printView(url) {
 			</div>
 		</div>
 		<form name="viewForm" id="viewForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
-			<input type="hidden" name="assignmentId" id = "assignmentId" value=$validator.escapeUrl($!assignmentReference) />
+			<input type="hidden" name="assignmentId" id = "assignmentId" value=$formattedText.escapeUrl($!assignmentReference) />
 			<input type="hidden" name="option" id="option" value="x" />
 			<input type="hidden" name="eventSubmit_doView_submission_list_option" value="x" />
 			#set($disableGrade=false)
@@ -143,7 +143,7 @@ function printView(url) {
 								#set ($helperInfo = false)
 								#set ($helperInfo = $provider.provider.getItemsHelperInfo($activity.Reference))
 								#if ($helperInfo)
-									|  <a id="helpItems" class="noPointers" onclick="SPNR.insertSpinnerAfter( this, escapeList, null );" href="#toolLinkParam("$action" "doHelp_items" "activityRef=$validator.escapeUrl($activity.Reference)&providerId=$validator.escapeUrl($provider.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a>
+									|  <a id="helpItems" class="noPointers" onclick="SPNR.insertSpinnerAfter( this, escapeList, null );" href="#toolLinkParam("$action" "doHelp_items" "activityRef=$formattedText.escapeUrl($activity.Reference)&providerId=$formattedText.escapeUrl($provider.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a>
 								#end
 							#end
 						#end
@@ -266,7 +266,7 @@ function printView(url) {
 			#end
 
 			#if ($!isAdditionalNotesEnabled && !$assignment.IsGroup)
-				<a href="#" onclick="window.open(printView('#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)&grade_showStudentDetails=true")'));return false"><span alt="$tlang.getString("assignment.print")" class="fa fa-print"></span><span> $tlang.getString("assignment.print") $tlang.getString("assignment.additional.notes.export.title")</span></a>
+				<a href="#" onclick="window.open(printView('#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$formattedText.escapeUrl($assignmentReference)&grade_showStudentDetails=true")'));return false"><span alt="$tlang.getString("assignment.print")" class="fa fa-print"></span><span> $tlang.getString("assignment.print") $tlang.getString("assignment.additional.notes.export.title")</span></a>
 			#end
 
 			#if($disableGrade)
@@ -284,7 +284,7 @@ function printView(url) {
 									<option value="" >$tlang.getString('please_select_group')</option>
 								#end
 								#foreach($aGroup in $groups)
-									<option value="$!aGroup.Reference" #if($!view.equals($!aGroup.Reference))selected="selected"#end >$validator.escapeHtml($aGroup.Title)</option>
+									<option value="$!aGroup.Reference" #if($!view.equals($!aGroup.Reference))selected="selected"#end >$formattedText.escapeHtml($aGroup.Title)</option>
 								#end
 							#end
 							#viewFilterPanel("viewFilterForm", "view", $viewSelectOptions, "doChange_submission_list_option")
@@ -434,7 +434,7 @@ function printView(url) {
 							<td headers="allowResubmit" class="screenOnly smallCol">
 								#set($userId = $!siteUser)
 								<input type="checkbox" name="selectedAllowResubmit" value="$!submitterId" id="check_$submitterDisplayId" />
-								<label for="check_$submitterDisplayId" class="skip">$tlang.getString("allowResubmission.select.student") #if($value_CheckAnonymousGrading)$anonymousSubmissionId#else$validator.escapeHtml($submitterName)#end</label>
+								<label for="check_$submitterDisplayId" class="skip">$tlang.getString("allowResubmission.select.student") #if($value_CheckAnonymousGrading)$anonymousSubmissionId#else$formattedText.escapeHtml($submitterName)#end</label>
 							</td>
 							<td headers="attachment" class="attach">
 								#set ($size = $submission.Attachments.size())
@@ -455,7 +455,7 @@ function printView(url) {
 									#if ($value_CheckAnonymousGrading)
 										$anonymousSubmissionId
 									#else
-										$validator.escapeHtml($submitterName)
+										$formattedText.escapeHtml($submitterName)
 									#end
 
 									#if ($gusers)
@@ -479,20 +479,20 @@ function printView(url) {
 									#end
 									#if(!$disableGrade)
 										<div class="itemAction">
-											<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignmentReference)&submissionId=$validator.escapeUrl($userSubmission.Reference)")" title="$tlang.getString("listsub.grasub")">$!tlang.getString("gen.assign.gra")<span class="skip">:#if($value_CheckAnonymousGrading)$anonymousSubmissionId#else$validator.escapeHtml($submitterName)#end</span></a>
+											<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$formattedText.escapeUrl($assignmentReference)&submissionId=$formattedText.escapeUrl($userSubmission.Reference)")" title="$tlang.getString("listsub.grasub")">$!tlang.getString("gen.assign.gra")<span class="skip">:#if($value_CheckAnonymousGrading)$anonymousSubmissionId#else$formattedText.escapeHtml($submitterName)#end</span></a>
 											#foreach ($provider in $providers)
 												#set ($item = $producer.getItem($submission, $siteUser.getId()))
 												#set ($helperInfo = false)
 												#set ($helperInfo = $provider.provider.getItemHelperInfo($item.reference))
 												#if ($helperInfo)
-													| <a href="#toolLinkParam("$action" "doHelp_item" "itemRef=$validator.escapeUrl($item.reference)&providerId=$validator.escapeUrl($provider.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a>
+													| <a href="#toolLinkParam("$action" "doHelp_item" "itemRef=$formattedText.escapeUrl($item.reference)&providerId=$formattedText.escapeUrl($provider.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a>
 												#end
 											#end
 										</div>
 									#end
 								#else
 									#if(!$disableGrade)
-										<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignmentReference)&submissionId=$validator.escapeUrl($userSubmission.Reference)")" title="$tlang.getString("listsub.grasub")">
+										<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$formattedText.escapeUrl($assignmentReference)&submissionId=$formattedText.escapeUrl($userSubmission.Reference)")" title="$tlang.getString("listsub.grasub")">
 											#if (!$!submission.submitted)
 												#set($submittedText = $!submission.submittedText)
 												#set($submittedAttachments = $submission.Attachments)
@@ -504,7 +504,7 @@ function printView(url) {
 											#if ($value_CheckAnonymousGrading)
 												$anonymousSubmissionId
 											#else
-												$validator.escapeHtml($submitterName)
+												$formattedText.escapeHtml($submitterName)
 											#end
 
 										</a>
@@ -512,7 +512,7 @@ function printView(url) {
 										#if ($value_CheckAnonymousGrading)
 											$anonymousSubmissionId
 										#else
-											$validator.escapeHtml($submitterName)
+											$formattedText.escapeHtml($submitterName)
 									#end
 								#end
 								#end
@@ -537,7 +537,7 @@ function printView(url) {
 										#end
 									#end
 									#if ($!submittedBy) 
-									<br /> $tlang.getString("listsub.submitted.by") $!submittedBy.sortName ($tlang.getString("listsub.submitted.on.behalf") $validator.escapeHtml($submitterSortName))
+									<br /> $tlang.getString("listsub.submitted.by") $!submittedBy.sortName ($tlang.getString("listsub.submitted.on.behalf") $formattedText.escapeHtml($submitterSortName))
 									#end
 							</td>
 							<td headers="status">
@@ -549,16 +549,16 @@ function printView(url) {
 								<td>
 									#if($!submission)
 										#foreach($item in $peerAssessmentItems.get($userSubmission.Submission.Id))
-											<a href='#toolLinkParam("$action" "doView_submissionReviews" "submissionId=${userSubmission.Submission.Id}&assessorId=$item.getId().getAssessorUserId()&assignmentId=$validator.escapeUrl($!assignmentReference)")'>
+											<a href='#toolLinkParam("$action" "doView_submissionReviews" "submissionId=${userSubmission.Submission.Id}&assessorId=$item.getId().getAssessorUserId()&assignmentId=$formattedText.escapeUrl($!assignmentReference)")'>
 											#if($item.Removed)
 												<span style="text-decoration: line-through">
 											#else
 												<span>
 											#end
 											#if($reviewersMap.containsKey($item.getId().getAssessorUserId()))
-												$validator.escapeHtml($!reviewersMap.get($item.getId().getAssessorUserId()).sortName)
+												$formattedText.escapeHtml($!reviewersMap.get($item.getId().getAssessorUserId()).sortName)
 											#else
-												$validator.escapeHtml($!item.getId().getAssessorUserId())
+												$formattedText.escapeHtml($!item.getId().getAssessorUserId())
 											#end
 											</span>
 											</a>
@@ -661,7 +661,7 @@ function printView(url) {
 			</th>
 			<td>
 					#assignmentTitleIcon($assignment)
-					$validator.escapeHtml($assignment.Title)
+					$formattedText.escapeHtml($assignment.Title)
 			</td>
 		</tr>
 		<tr>
@@ -669,7 +669,7 @@ function printView(url) {
 				$tlang.getString("gen.creby")
 			</th>
 			<td>
-				$validator.escapeHtml($!creator) ($!service.getUsersLocalDateTimeString($assignment.DateCreated))
+				$formattedText.escapeHtml($!creator) ($!service.getUsersLocalDateTimeString($assignment.DateCreated))
 			</td>
 		</tr>
 		<tr>
@@ -744,7 +744,7 @@ function printView(url) {
 	
 	#if ($assignment.Instructions && !$assignment.Instructions.isEmpty())
 		<h4>$tlang.getString("gen.assinf")</h4>
-		<div class="textPanel">$validator.escapeHtmlFormattedText($assignment.Instructions)</div>
+		<div class="textPanel">$formattedText.escapeHtmlFormattedText($assignment.Instructions)</div>
 	#end
 	#set ($size = 0)
 	#set ($attachments = $assignment.Attachments)
@@ -775,7 +775,7 @@ function printView(url) {
 						#else
 							<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 						#end
-						<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+						<a href="$attachment.Url" target="_blank">$formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
 						#propertyDetails($props)
 					</li>
 				#end

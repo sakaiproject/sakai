@@ -12,16 +12,16 @@
 	<h3>
 		$tlang.getString("realm.role.set")
 	</h3>
-	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("realm.role.alert") $validator.escapeHtml($alertMessage)</div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("realm.role.alert") $formattedText.escapeHtml($alertMessage)</div>#end
 	<p class="instruction">	
 		$tlang.getString("realm.role.edit")
-		$validator.escapeHtml($!realm.Id)
+		$formattedText.escapeHtml($!realm.Id)
 	</p>
 	<p class="instruction">
 		$tlang.getString("realm.role.used")
 		</p>
 		<p class="instruction">
-		$validator.escapeHtml($!realm.Description)
+		$formattedText.escapeHtml($!realm.Description)
 	</p>
 	<form name="$form-name" action="#toolForm("$action")" method="post">
 		<h4>
@@ -32,7 +32,7 @@
 			<label #if(!$role) for="id" #end>
 				 $tlang.getString("realm.role.id")
 			</label>
-			#if(!$role)<input type="text" name="id" id="id" />#else$validator.escapeHtml($role.Id)#end
+			#if(!$role)<input type="text" name="id" id="id" />#else$formattedText.escapeHtml($role.Id)#end
 		</p>
 		<p class="shorttext">
 			<label for="description">

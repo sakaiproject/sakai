@@ -127,7 +127,7 @@ This section contains the options for grading this assignment, including rubrics
 												#elseif($!gradebookAssignmentsSelectedDisabled.get($gaId).equals("selected"))
 													selected="selected"
 												#end>
-													$validator.escapeHtml($!gradebookAssignmentsLabel.get($gaId))
+													$formattedText.escapeHtml($!gradebookAssignmentsLabel.get($gaId))
 											</option>
 										#end
 									</select>

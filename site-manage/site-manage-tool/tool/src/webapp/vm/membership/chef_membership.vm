@@ -22,7 +22,7 @@
 	<div class="membershipContent">
 
 		#if ($alertMessage)
-			<div class="sak-banner-error">$validator.escapeHtml($alertMessage)</div>
+			<div class="sak-banner-error">$formattedText.escapeHtml($alertMessage)</div>
 		#end
 
 		<div class="sakai-table-toolBar">
@@ -82,18 +82,18 @@
 										#set($siteType=$site.Type)
 										## don't show unjoin link if (1) unjoin is disabled for all sites; (2) unjoin is disabled for current site type
 										#if(!$disableUnjoinSelection && !($!siteType && $!disableUnjoinSiteTypes.contains($!siteType)) && $SiteService.allowUnjoinSite($site.Id))
-											<label for="check-$rowCount" class="sr-only">$tlang.getString('mb.unjointitle') $validator.escapeHtml($site.Title)</label>
-											<input title="$tlang.getString('mb.unjointitle') $validator.escapeHtml($site.Title)" type="checkbox" id="check-$rowCount" name="itemReference" value="$validator.escapeUrl($site.Id)" class="joinable" onclick="utils.checkEnableUnjoin();" />
+											<label for="check-$rowCount" class="sr-only">$tlang.getString('mb.unjointitle') $formattedText.escapeHtml($site.Title)</label>
+											<input title="$tlang.getString('mb.unjointitle') $formattedText.escapeHtml($site.Title)" type="checkbox" id="check-$rowCount" name="itemReference" value="$formattedText.escapeUrl($site.Id)" class="joinable" onclick="utils.checkEnableUnjoin();" />
 										#end
 									</td>
 								#end
 
 								<td scope="row" headers="worksite" class="attach noWrap" id="mcstR-$rowCount">
-									<a href="$site.Url" target="_top" title="$tlang.getString('mb.gotosite') $validator.escapeHtml($site.Title)">$validator.escapeHtml($site.Title)</a>
+									<a href="$site.Url" target="_top" title="$tlang.getString('mb.gotosite') $formattedText.escapeHtml($site.Title)">$formattedText.escapeHtml($site.Title)</a>
 								</td>
 
 								<td headers="description mcstR-$rowCount" class="specialLink">
-									#if ($validator.escapeHtml($site.Description) != '')
+									#if ($formattedText.escapeHtml($site.Description) != '')
 										$!membershipTextEdit.doPlainTextAndLimit($site.Description,65,"...")
 										<span class="itemAction"><a class="getSiteDesc" id="$site.Id" href="#">$tlang.getString("list.desc.more")</a></span>
 									#end

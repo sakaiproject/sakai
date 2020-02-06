@@ -24,7 +24,7 @@
     </div>
 
     #if ($alertMessage)
-        <div class="sak-banner-error">$validator.escapeHtml($alertMessage)</div>
+        <div class="sak-banner-error">$formattedText.escapeHtml($alertMessage)</div>
     #end
 
     <div class="sakai-table-toolBar">
@@ -143,7 +143,7 @@
                             <th scope="row">
                                 #set ($participantName=$participant.getName())
                                 #if ($participantName != ", ")
-                                    $validator.escapeHtml($participantName)
+                                    $formattedText.escapeHtml($participantName)
                                 #end
                             </th>
                             <td headers="id">
@@ -275,7 +275,7 @@
                     #set($roleDesc="${propertiesKey}${RoleId}")
                     #set($description = $tlang.getString($roleDesc,""))
                 #end
-                $validator.escapeHtml($!description)
+                $formattedText.escapeHtml($!description)
             </dd>
         #end
     </dl>

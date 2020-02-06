@@ -30,10 +30,10 @@
             #end
         />
         <label for="$toolId">
-            #set($title = $validator.escapeHtml($tool.title))
+            #set($title = $formattedText.escapeHtml($tool.title))
             $title
             #if ($allowPageOrderHelper && $toolRegistrationTitleList)
-                #set($currentTitle = $validator.escapeHtml($toolRegistrationTitleList.get($toolId)))
+                #set($currentTitle = $formattedText.escapeHtml($toolRegistrationTitleList.get($toolId)))
                 #if (!$currentTitle.equals($title) && !$currentTitle.isEmpty())
                     ($currentTitle)
                 #end
@@ -53,7 +53,7 @@
             #if ($properties && !$properties.isEmpty())
                 (
                 #foreach ($property in $properties.keySet())
-                    $validator.escapeHtml($properties.get($property))
+                    $formattedText.escapeHtml($properties.get($property))
                 #end
                 )
             #end
@@ -121,7 +121,7 @@
                                                 <label for="sakai.home">
                                                     $tlang.getString("java.home")
                                                     #if ($allowPageOrderHelper && $toolRegistrationTitleList)
-                                                        #set($currentTitle = $validator.escapeHtml($toolRegistrationTitleList.get($toolId)))
+                                                        #set($currentTitle = $formattedText.escapeHtml($toolRegistrationTitleList.get($toolId)))
                                                         #if (!$currentTitle.equals($tlang.getString("java.home")))
                                                             ($currentTitle)
                                                         #end
@@ -148,7 +148,7 @@
                                                                     <div class="toolListControl">
                                                                         <input type="checkbox" name="selectedTools" value="$toolMultipleId" id="$toolMultipleId" aria-describedby="${toolMultipleId}.desc" checked="checked" />
                                                                         <label for="$toolMultipleId">
-                                                                            $validator.escapeHtml($toolMultiple.title)
+                                                                            $formattedText.escapeHtml($toolMultiple.title)
                                                                         </label>
                                                                     </div>
                                                                     #toolListDescription ($toolMultiple $multipleToolIdTitleMap $multipleToolConfiguration)

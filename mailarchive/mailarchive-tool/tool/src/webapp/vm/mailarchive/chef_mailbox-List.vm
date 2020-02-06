@@ -41,7 +41,7 @@
 			#if (${allow-search})
 			<div class="searchNav">
 				<label for="search" class="skip">$tlang.getString('lis.search')</label>
-				<input size="15" value="$validator.escapeHtml($!search)" name="search" id="search" type="text" class="searchField"  />
+				<input size="15" value="$formattedText.escapeHtml($!search)" name="search" id="search" type="text" class="searchField"  />
 				<input type="hidden" name="eventSubmit_doSearch" id="eventSubmit_doSearch" value="Search for emails" />
 				<a href="#" title="$tlang.getString('lis.search')" onclick="location = '#toolLink("$action" "doSearch")'+buildQueryString('toolbar');document.getElementById('submitnotifwrap').style.visibility='visible';return false;" style="text-decoration:none !important" class="act"><input type="button" class="active" value="$tlang.getString('lis.search')" /></a>
 				#if (($!search) && (!$search.equals("")))
@@ -54,7 +54,7 @@
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	#if ($sort-order)
 		#set ($sort-img = "sakai/sortascending.gif")
 		#set ($sort-dir = "ascending")
@@ -157,12 +157,12 @@
                #set ($item.Header.Subject = $tlang.getString("err_no_subject"))
            #end
 				<tr>
-					<td headers="from">$validator.escapeHtml($item.Header.FromAddress)</td>
+					<td headers="from">$formattedText.escapeHtml($item.Header.FromAddress)</td>
 					<td headers="subject">
 						<h4><a href="#"
-						onclick="location = '#toolLinkParam($action "doView" "$view-id=$validator.escapeUrl($item.Header.Id)&amp;item_number=$msgPos")';return false;"
-						title="$tlang.getString("lis.viewmessage") $validator.escapeHtml($item.Header.Subject)">
-							$validator.escapeHtml($item.Header.Subject)
+						onclick="location = '#toolLinkParam($action "doView" "$view-id=$formattedText.escapeUrl($item.Header.Id)&amp;item_number=$msgPos")';return false;"
+						title="$tlang.getString("lis.viewmessage") $formattedText.escapeHtml($item.Header.Subject)">
+							$formattedText.escapeHtml($item.Header.Subject)
 
 							## show the paperclip if existing
 							#set ($size = 0)

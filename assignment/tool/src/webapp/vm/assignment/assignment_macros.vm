@@ -15,7 +15,7 @@
     #else
         <img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
     #end
-    <a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+    <a href="$attachment.Url" target="_blank">$formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
     #propertyDetails($props)
 #end
 
@@ -354,9 +354,9 @@
                                     <img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
                                 #end
                                 #if ($decoratedUrlMap)
-                                    <a href="$decoratedUrlMap.get($reference.Url)" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+                                    <a href="$decoratedUrlMap.get($reference.Url)" target="_blank">$formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
                                 #else
-                                    <a href="$reference.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+                                    <a href="$reference.Url" target="_blank">$formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
                                 #end
                                 #propertyDetails($props)
                             </li>
@@ -444,7 +444,7 @@
 			#if ($reviewResult.isInline())
 				$tlang.getString("submission.inline")
 			#else
-				$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))
+				$formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))
 			#end
 			#if ($displayUrkundOptOut && $hasScore && $reviewResult.contentReviewItem.Properties.get($NamePropContentReviewOptoutUrl))
 					(<a href="$!reviewResult.contentReviewItem.Properties.get($NamePropContentReviewOptoutUrl)" target="_blank">$tlang.getString("review.report.urkund.optoutlink")</a>)
@@ -477,7 +477,7 @@
 			$tlang.getString('modelAnswer')
 		</h4>
 		<div class="toggledContent model">
-			<p>$validator.escapeHtml($!assignmentModelAnswerItem.getText())</p>
+			<p>$formattedText.escapeHtml($!assignmentModelAnswerItem.getText())</p>
 			#set ($mAttachments = $!assignmentModelAnswerItem.getAttachmentObjectSet())
 			<ul class="attachList">
 				#set ($size = 0)
@@ -499,7 +499,7 @@
 								#else
 									<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 								#end
-								<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+								<a href="$attachment.Url" target="_blank">$formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
 								#propertyDetails($props)
 							</li>
 						#end
@@ -516,7 +516,7 @@
 			$tlang.getString('note.label')
 		</h4>
 		<div class="toggledContent notes">
-			$validator.escapeHtml($!assignmentNoteItem.getNote())
+			$formattedText.escapeHtml($!assignmentNoteItem.getNote())
 		</div>
 	#end
 	## All Purpose
@@ -527,8 +527,8 @@
 			$tlang.getString('allPurpose')
 		</h4>
 		<div class="toggledContent allPurpose">
-			<p>$validator.escapeHtml($!assignmentAllPurposeItem.getTitle())</p>
-			<p>$validator.escapeHtml($!assignmentAllPurposeItem.getText())</p>
+			<p>$formattedText.escapeHtml($!assignmentAllPurposeItem.getTitle())</p>
+			<p>$formattedText.escapeHtml($!assignmentAllPurposeItem.getText())</p>
 			#set ($aAttachments = $!assignmentAllPurposeItem.getAttachmentObjectSet())
 			<ul class="attachList">
 				#set ($size = 0)
@@ -550,7 +550,7 @@
 								#else
 									<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 								#end
-								<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+								<a href="$attachment.Url" target="_blank">$formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
 								#propertyDetails($props)
 							</li>
 						#end
