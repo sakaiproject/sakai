@@ -198,7 +198,7 @@ public class FavoritesHandler extends BasePortalHandler
 		Set<String> newFavorites = new LinkedHashSet<String>();
 
 		for (String userSite : userSites) {
-			if (!oldSiteSet.contains(userSite) && !existingFavorites.contains(userSite) && !firstTimeFavs) {
+			if (!oldSiteSet.contains(userSite) && !existingFavorites.contains(userSite)) {
 				newFavorites.add(userSite);
 			}
 		}
