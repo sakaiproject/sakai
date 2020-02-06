@@ -16,7 +16,7 @@
 					<p class="discTria">
 						<a href="#toolLink("$action" "doHide_preview_assignment_assignment")" title="$tlang.getString("prevassig.hidass")">
 							<img src = "#imageLink("sakai/collapse.gif")" border="0" title="$tlang.getString("prevassig.hidass")" alt="$tlang.getString("prevassig.hidass")" hspace="0" /></a>
-							$tlang.getString("prevassig.hidass"): $validator.escapeHtml($value_Title)
+							$tlang.getString("prevassig.hidass"): $formattedText.escapeHtml($value_Title)
 					</p>		
 							<table class="itemSummary" border="0" summary="$tlang.getString("gen.viewasstablesummary")">  
 								<tr>
@@ -134,7 +134,7 @@
 											$!tlang.getString('addtogradebook')
 										</th>
 										<td>
-											$validator.escapeHtml($!gradeName)
+											$formattedText.escapeHtml($!gradeName)
 										</td>
 									</tr>
 								#end
@@ -143,7 +143,7 @@
 									$tlang.getString("gen.assinf")
 							</h4>
 							#if (($!value_Description) && ($value_Description.length()>0))
-								<div class="textPanel">$validator.escapeHtmlFormattedText($value_Description)</div>
+								<div class="textPanel">$formattedText.escapeHtmlFormattedText($value_Description)</div>
 							#end
 							#set ($size = 0)
 							#set ($props = false)
@@ -169,7 +169,7 @@
 												#else
 													<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 												#end
-												<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+												<a href="$attachment.Url" target="_blank">$formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
 												#propertyDetails($props)
 											</li>
 										#end
@@ -180,7 +180,7 @@
 				<p class="discTria">			
 					<a href="#toolLink("$action" "doShow_preview_assignment_assignment")" title="$tlang.getString("prevassig.shoass")">
 						<img src = "#imageLink("sakai/expand.gif")" border="0" title="$tlang.getString("prevassig.shoass")" alt="$tlang.getString("prevassig.shoass")" hspace="0" /></a>
-						$tlang.getString("prevassig.shoass"): $validator.escapeHtml($value_Title)
+						$tlang.getString("prevassig.shoass"): $formattedText.escapeHtml($value_Title)
 				</p>	
 			#end
 			#if (!$preview_assignment_student_view_hide_flag)
@@ -235,7 +235,7 @@
 						$tlang.getString("gen.assinf")
 					</h4>	
 					#if (($!value_Description) && ($value_Description.length()>0))
-								<div class="textPanel">$validator.escapeHtmlFormattedText($value_Description)</div>
+								<div class="textPanel">$formattedText.escapeHtmlFormattedText($value_Description)</div>
 					#else
 					#end
 					#set ($size = 0)
@@ -262,7 +262,7 @@
 										#else
 											<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 										#end
-										<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+										<a href="$attachment.Url" target="_blank">$formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
 										#propertyDetails($props)
 									</li>
 								#end

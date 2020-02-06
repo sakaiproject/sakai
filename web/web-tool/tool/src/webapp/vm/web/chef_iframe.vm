@@ -43,12 +43,12 @@
 <div class="portletBody">
 #if($options_title) 
 	<ul class="navIntraTool actionToolBar">
-		<li class="firstToolBarItem"><span><a href="#" title="$validator.escapeHtml($options_title)" onclick="location = '#toolLink("" "doOptions")';return false;">
+		<li class="firstToolBarItem"><span><a href="#" title="$formattedText.escapeHtml($options_title)" onclick="location = '#toolLink("" "doOptions")';return false;">
 		$tlang.getString("gen.options") </a></span></li>
 	</ul>
 #end
 
-#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>#end
 
 		#if($TargetPageUrl && !$TargetPagePopup)
 			<h3><a href=$TargetPageUrl>$TargetPageName</a></h3><br>
@@ -73,7 +73,7 @@
 			width="100%"
 			id="wciframe"
 			name="wciframe"
-			style="width:100%;height:$validator.escapeHtml($height)"
+			style="width:100%;height:$formattedText.escapeHtml($height)"
 			frameborder="0"
 			marginwidth="0"
 			marginheight="0"

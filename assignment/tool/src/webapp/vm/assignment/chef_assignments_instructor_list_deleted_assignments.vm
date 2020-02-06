@@ -48,7 +48,7 @@
 							<tr>
 								<td headers="title" scope="row">
 											<strong>
-												$validator.escapeHtml($!assignment.title)
+												$formattedText.escapeHtml($!assignment.title)
 												#if ($assignment.getContentReview())
 													<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" />
 												#end
@@ -57,7 +57,7 @@
 								#if ($!allowRecoverAssignment)
 									<td headers="selectAssignments" class="screenOnly">
 											<input type="checkbox" name="selectedAssignments" value="$assignment.Id" id="check_$assignmentCount" onclick="ASN.checkEnableRestore();" />
-											<label for="check_$assignmentCount" class="skip">$validator.escapeHtml($!assignment.Title)</label>
+											<label for="check_$assignmentCount" class="skip">$formattedText.escapeHtml($!assignment.Title)</label>
 									</td>
 								#end
 							</tr>

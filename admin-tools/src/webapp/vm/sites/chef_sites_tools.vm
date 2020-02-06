@@ -8,7 +8,7 @@
 		<h3>
 			$tlang.getString("sittoo.edisit") $!site.Id / $tlang.getString("sittoo.pag") $!page.Id
 		</h3>
-		#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("sittoo.alert") $validator.escapeHtml($alertMessage)</div>#end
+		#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("sittoo.alert") $formattedText.escapeHtml($alertMessage)</div>#end
 #if ($tools.size() > 0)
 	<div class="instruction">
 		$tlang.getString("sittoo.theare")
@@ -28,23 +28,23 @@
 			<tr>
 				<td headers="move">
 					#if ($toolCount > 1)
-					<a href="#toolLinkParam("$action" "doEdit_tool_up" "id=$validator.escapeUrl($tool.Id)")" title="$tlang.getString("sittoo.motoup")">
+					<a href="#toolLinkParam("$action" "doEdit_tool_up" "id=$formattedText.escapeUrl($tool.Id)")" title="$tlang.getString("sittoo.motoup")">
 						<img src = "#imageLink("sakai/arrowUp.gif")" border="0" alt ="$tlang.getString("sittoo.motoup")" />
 					</a>
 					#end
 					#if ($toolCount < $tools.size())
-					<a href="#toolLinkParam("$action" "doEdit_tool_down" "id=$validator.escapeUrl($tool.Id)")" title ="$tlang.getString("sittoo.motodown")">
+					<a href="#toolLinkParam("$action" "doEdit_tool_down" "id=$formattedText.escapeUrl($tool.Id)")" title ="$tlang.getString("sittoo.motodown")">
 						<img src = "#imageLink("sakai/arrowDown.gif")" border="0" alt ="$tlang.getString("sittoo.motodown")" />
 					</a>
 					#end
 				</td>
 				<td headers="Id">
-					<a href="#toolLinkParam("$action" "doEdit_tool" "id=$validator.escapeUrl($tool.Id)")">
-						$validator.escapeHtml($tool.Id)
+					<a href="#toolLinkParam("$action" "doEdit_tool" "id=$formattedText.escapeUrl($tool.Id)")">
+						$formattedText.escapeHtml($tool.Id)
 					</a>
 				</td>
-				<td headers="Feature">$validator.escapeHtml($tool.Tool.Id)</td>
-				<td headers="Title">$validator.escapeHtml($tool.Title)</td>
+				<td headers="Feature">$formattedText.escapeHtml($tool.Tool.Id)</td>
+				<td headers="Title">$formattedText.escapeHtml($tool.Title)</td>
 				<td headers="Description">
 					<div>
 						$tlang.getString("sittoo.con")
@@ -53,7 +53,7 @@
 						#set ($toolParams = $tool.PlacementConfig)
 						#set ($paramNames = $toolParams.propertyNames())
 						#foreach ($name in $paramNames)
-							$validator.escapeHtml($name) = $validator.escapeHtml($toolParams.getProperty($name))<br/>
+							$formattedText.escapeHtml($name) = $formattedText.escapeHtml($toolParams.getProperty($name))<br/>
 						#end
 						#if ($tool.LayoutHints)
 							$tlang.getString("sittoo.lay") $tool.LayoutHints

@@ -30,7 +30,7 @@
 							#if ($assignment.draft)
 								<span class="highlight">$tlang.getString("gen.dra2") </span>
 							#end
-							$validator.escapeHtml($assignment.Title)</td>
+							$formattedText.escapeHtml($assignment.Title)</td>
 						<td headers="duedate">$!service.getUsersLocalDateTimeString($assignment.DueDate)</td>
 						##<td headers="section">$assignment.Section</td>
 						<td headers="status">

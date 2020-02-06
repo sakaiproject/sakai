@@ -8,10 +8,10 @@
 	#toolbar($menu)
 #end
 		<h3>
-			$tlang.getString("realm.user.edit") $validator.escapeHtml($!realm.Id)
+			$tlang.getString("realm.user.edit") $formattedText.escapeHtml($!realm.Id)
 		</h3>
-		#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("realm.user.alert") $validator.escapeHtml($alertMessage)</div>#end
-		<p class="instruction">$tlang.getString("realm.user.used") $validator.escapeHtml($!realm.Description)</p>
+		#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("realm.user.alert") $formattedText.escapeHtml($alertMessage)</div>#end
+		<p class="instruction">$tlang.getString("realm.user.used") $formattedText.escapeHtml($!realm.Description)</p>
 		
 		<p class="instruction">
 			$tlang.getString("realm.user.set")
@@ -25,7 +25,7 @@
 				<label #if(!$user) for="eid" #end>
 					 $tlang.getString("realm.user.id")
 				</label>
-					#if(!$user)<input type="text" name="eid" id="eid" />#else$validator.escapeHtml($user.Eid)#end
+					#if(!$user)<input type="text" name="eid" id="eid" />#else$formattedText.escapeHtml($user.Eid)#end
 			</p>
 			<h4>
 				$tlang.getString("realm.user.role")

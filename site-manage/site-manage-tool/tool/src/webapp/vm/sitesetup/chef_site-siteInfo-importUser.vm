@@ -24,7 +24,7 @@
 									checked="checked"
 								#end
 					 		/>
-							$validator.escapeHtml($site.getTitle())
+							$formattedText.escapeHtml($site.getTitle())
 						</label>
 					</div>	
 				#end

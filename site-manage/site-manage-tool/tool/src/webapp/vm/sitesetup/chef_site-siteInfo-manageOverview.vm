@@ -6,7 +6,7 @@
         <div class="page-header">
             <h1>$tlang.getString("manover.header") <span class="highlight">$!site.Title</span></h1>
         <div>
-        #if ($alertMessage)<div class="sak-banner-error">$tlang.getString("manover.alert") $validator.escapeHtml($alertMessage)</div>#end
+        #if ($alertMessage)<div class="sak-banner-error">$tlang.getString("manover.alert") $formattedText.escapeHtml($alertMessage)</div>#end
         <p class="instruction">
             $tlang.getString("manover.instr")
         </p>
@@ -47,21 +47,21 @@
                             <tr>
                                 <td headers="move" class="buttonCol">
                                     #if ($toolCount > 1)
-                                        <a href="#toolLinkParam("$action" "doEdit_tool_up" "id=$validator.escapeUrl($tool.Tool.Id)")" title="$tlang.getString("manover.up")">
+                                        <a href="#toolLinkParam("$action" "doEdit_tool_up" "id=$formattedText.escapeUrl($tool.Tool.Id)")" title="$tlang.getString("manover.up")">
                                             <span class="fa fa-arrow-up"></span>
                                         </a>
                                     #end
                                     #if ($toolCount < $tools.size())
-                                        <a href="#toolLinkParam("$action" "doEdit_tool_down" "id=$validator.escapeUrl($tool.Tool.Id)")" title ="$tlang.getString("manover.down")">
+                                        <a href="#toolLinkParam("$action" "doEdit_tool_down" "id=$formattedText.escapeUrl($tool.Tool.Id)")" title ="$tlang.getString("manover.down")">
                                             <span class="fa fa-arrow-down"></span>
                                         </a>
                                     #end
                                 </td>
                                 <td headers="Title">
-                                    <span class="titleSpan">$validator.escapeHtml($tool.Title)</span>
+                                    <span class="titleSpan">$formattedText.escapeHtml($tool.Title)</span>
                                 </td>
                                 <td headers="Remove" class="removeCol">
-                                    <a href="#toolLinkParam("$action" "doRemove_widget" "id=$validator.escapeUrl($tool.Tool.Id)")" title="$tlang.getString("manover.remove.full")">
+                                    <a href="#toolLinkParam("$action" "doRemove_widget" "id=$formattedText.escapeUrl($tool.Tool.Id)")" title="$tlang.getString("manover.remove.full")">
                                         <span class="fa fa-times fa-lg text-danger" aria-hidden="true"></span>
                                     </a>
                                 </td>
@@ -94,27 +94,27 @@
                                 #set ($leftToolCount=$leftToolCount + 1)
                                 <tr>
                                     <td headers="Title">
-                                        <span class="titleSpan">$validator.escapeHtml($tool.Title)</span>
+                                        <span class="titleSpan">$formattedText.escapeHtml($tool.Title)</span>
                                     </td>
                                     <td headers="Remove" class="removeCol">
-                                        <a href="#toolLinkParam("$action" "doRemove_widget" "id=$validator.escapeUrl($tool.Tool.Id)")" title="$tlang.getString("manover.remove.full")">
+                                        <a href="#toolLinkParam("$action" "doRemove_widget" "id=$formattedText.escapeUrl($tool.Tool.Id)")" title="$tlang.getString("manover.remove.full")">
                                             <span class="fa fa-times fa-lg text-danger" aria-hidden="true"></span>
                                         </a>
                                     </td>
                                     <td headers="move" class="buttonCol">
                                         #if ($leftToolCount > 1)
-                                            <a href="#toolLinkParam("$action" "doEdit_tool_up" "id=$validator.escapeUrl($tool.Tool.Id) ")" title="$tlang.getString("manover.up")">
+                                            <a href="#toolLinkParam("$action" "doEdit_tool_up" "id=$formattedText.escapeUrl($tool.Tool.Id) ")" title="$tlang.getString("manover.up")">
                                                 <span class="fa fa-arrow-up"></span>
                                             </a>
                                         #end
                                         #if ($leftToolCount < $leftTools.size())
-                                            <a href="#toolLinkParam("$action" "doEdit_tool_down" "id=$validator.escapeUrl($tool.Tool.Id) ")" title ="$tlang.getString("manover.down")">
+                                            <a href="#toolLinkParam("$action" "doEdit_tool_down" "id=$formattedText.escapeUrl($tool.Tool.Id) ")" title ="$tlang.getString("manover.down")">
                                                 <span class="fa fa-arrow-down"></span>
                                            </a>
                                         #end
                                     </td>
                                     <td headers="move" class="buttonCol">
-                                        <a href="#toolLinkParam("$action" "doEdit_tool_right" "id=$validator.escapeUrl($tool.Id)")" title="$tlang.getString("manover.right")">
+                                        <a href="#toolLinkParam("$action" "doEdit_tool_right" "id=$formattedText.escapeUrl($tool.Id)")" title="$tlang.getString("manover.right")">
                                             <span class="fa fa-arrow-right"></span>
                                         </a>
                                     </td>
@@ -139,27 +139,27 @@
                                 #set ($rightToolCount=$rightToolCount + 1)
                                 <tr>
                                     <td headers="move" class="buttonCol">
-                                        <a href="#toolLinkParam("$action" "doEdit_tool_left" "id=$validator.escapeUrl($tool.Id)")" title="$tlang.getString("manover.left")">
+                                        <a href="#toolLinkParam("$action" "doEdit_tool_left" "id=$formattedText.escapeUrl($tool.Id)")" title="$tlang.getString("manover.left")">
                                             <span class="fa fa-arrow-left"></span>
                                         </a>
                                     </td>
                                     <td headers="move" class="buttonCol">
                                         #if ($rightToolCount > 1)
-                                            <a href="#toolLinkParam("$action" "doEdit_tool_up" "id=$validator.escapeUrl($tool.Tool.Id) ")" title="$tlang.getString("manover.up")">
+                                            <a href="#toolLinkParam("$action" "doEdit_tool_up" "id=$formattedText.escapeUrl($tool.Tool.Id) ")" title="$tlang.getString("manover.up")">
                                                 <span class="fa fa-arrow-up"></span>
                                             </a>
                                         #end
                                         #if ($rightToolCount < $rightTools.size())
-                                            <a href="#toolLinkParam("$action" "doEdit_tool_down" "id=$validator.escapeUrl($tool.Tool.Id) ")" title ="$tlang.getString("manover.down")">
+                                            <a href="#toolLinkParam("$action" "doEdit_tool_down" "id=$formattedText.escapeUrl($tool.Tool.Id) ")" title ="$tlang.getString("manover.down")">
                                                 <span class="fa fa-arrow-down"></span>
                                             </a>
                                         #end
                                     </td>
                                     <td headers="Title">
-                                        <span class="titleSpan">$validator.escapeHtml($tool.Title)</span>
+                                        <span class="titleSpan">$formattedText.escapeHtml($tool.Title)</span>
                                     </td>
                                     <td headers="Remove" class="removeCol">
-                                        <a href="#toolLinkParam("$action" "doRemove_widget" "id=$validator.escapeUrl($tool.Tool.Id)")" title="$tlang.getString("manover.remove.full")">
+                                        <a href="#toolLinkParam("$action" "doRemove_widget" "id=$formattedText.escapeUrl($tool.Tool.Id)")" title="$tlang.getString("manover.remove.full")">
                                             <span class="fa fa-times fa-lg text-danger " aria-hidden="true"></span>
                                         </a>
                                     </td>
@@ -193,10 +193,10 @@
                         #foreach ($widget in $availWidgets)
                             #set ($widgetCount=$widgetCount + 1)
                             <li class="list-group-item">
-                                <a href="#toolLinkParam("$action" "doAdd_widget" "id=$validator.escapeUrl($widget.Id)")" title="$tlang.getString("manover.add.full")">
+                                <a href="#toolLinkParam("$action" "doAdd_widget" "id=$formattedText.escapeUrl($widget.Id)")" title="$tlang.getString("manover.add.full")">
                                     <span class="fa fa-plus" aria-hidden="true"></span>
                                 </a>
-                                <span class="widgetName">$validator.escapeHtml($widget.Title)</span>
+                                <span class="widgetName">$formattedText.escapeHtml($widget.Title)</span>
                             </li>
                             #end
                     </ul>
@@ -221,7 +221,7 @@
                          #if ($currentTool == false)
                              <li class="disabled list-group-item">
                                  <span class="fa fa-ban fa-lg"></span>
-                                 <span class="widgetName">$validator.escapeHtml($widget.Title)</span>
+                                 <span class="widgetName">$formattedText.escapeHtml($widget.Title)</span>
                              </li>
                          #end
                      #end

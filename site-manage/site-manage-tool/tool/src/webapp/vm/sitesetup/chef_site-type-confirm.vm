@@ -11,7 +11,7 @@
 					$tlang.getString("site.sname")
 				</th>
 				<td>
-					$validator.escapeHtml($title)
+					$formattedText.escapeHtml($title)
 				</td>
 			</tr>
 			<tr>
@@ -19,7 +19,7 @@
 					$tlang.getString("site.descr")
 				</th>
 				<td>
-					$validator.escapeHtml($description)
+					$formattedText.escapeHtml($description)
 				</td>
 			</tr>
 			<tr>
@@ -27,7 +27,7 @@
 					$tlang.getString("site.short")
 				</th>
 				<td>
-					$validator.escapeHtml($short_description)
+					$formattedText.escapeHtml($short_description)
 				</td>
 			</tr>
 		</table>

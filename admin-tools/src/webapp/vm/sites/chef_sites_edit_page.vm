@@ -12,7 +12,7 @@
 		<h3>
 			$tlang.getString("sitedipag.edisit") $!site.Id / $tlang.getString("sitedipag.pag") $!page.Id
 		</h3>
-		#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("sitedipag.alert") $validator.escapeHtml($alertMessage)</div>#end
+		#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("sitedipag.alert") $formattedText.escapeHtml($alertMessage)</div>#end
 		<div class="instruction">
 			$tlang.getString("sitedipag.revandmod")
 		</div>
@@ -25,7 +25,7 @@
 				<tr>
 					<th>$tlang.getString("sitedipag.pag2")</th>
 					<td>
-						$validator.escapeHtml($page.Id)
+						$formattedText.escapeHtml($page.Id)
 					</td>
 				</tr>
 				<tr>
@@ -84,11 +84,11 @@
 						<tr>
 							<th>
 								<label for="param_$paramName">
-									$validator.escapeHtml($paramName):
+									$formattedText.escapeHtml($paramName):
 								</label>
 							</th>
 							<td>
-								<input type="text" disabled name="param_$paramName" id="param_$paramName" value="$validator.escapeHtml($paramValue)" />
+								<input type="text" disabled name="param_$paramName" id="param_$paramName" value="$formattedText.escapeHtml($paramValue)" />
 							</td>
 						</tr>
 					#end

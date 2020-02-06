@@ -46,7 +46,7 @@ function removeOptionalAttributeBlock(elem) {
 			$tlang.getString("useedi.revandmod")
 		</h3>
 		
-		#if ($alertMessage)<div class="sak-banner-error" id="alertMsg">$tlang.getString("useconrem.alert") $validator.escapeHtml($alertMessage)</div>#end
+		#if ($alertMessage)<div class="sak-banner-error" id="alertMsg">$tlang.getString("useconrem.alert") $formattedText.escapeHtml($alertMessage)</div>#end
 		<form class="form-horizontal" name="$form-name" id="useredit" action="#toolForm("$action")" method="post" autocomplete="on">
 			<fieldset>
 				<legend>
@@ -66,14 +66,14 @@ function removeOptionalAttributeBlock(elem) {
 					<div class="col-sm-3">
 						#if(!$user)
 							## creating new account
-							<input class="form-control sakai-glow" type="text" name="eid" id="user_eid" placeholder="$tlang.getString("useconrem.useid.placeholder")" oninput="USER.validateUserId();" onkeyup="USER.validateUserId();" autocomplete="username" #if($!valueEid)value="$validator.escapeHtml($!valueEid)"#end/>
+							<input class="form-control sakai-glow" type="text" name="eid" id="user_eid" placeholder="$tlang.getString("useconrem.useid.placeholder")" oninput="USER.validateUserId();" onkeyup="USER.validateUserId();" autocomplete="username" #if($!valueEid)value="$formattedText.escapeHtml($!valueEid)"#end/>
 						#else
 							## modifying existing account
 							#if($!superUser)
 								## only admin type user can modify the eid field
-								<input class="form-control sakai-glow" type="text" name="eid" id="user_eid" placeholder="$tlang.getString("useconrem.useid.placeholder")" oninput="USER.validateUserId();" onkeyup="USER.validateUserId();" autocomplete="off" #if($!valueEid)value="$validator.escapeHtml($!valueEid)"#end/>
+								<input class="form-control sakai-glow" type="text" name="eid" id="user_eid" placeholder="$tlang.getString("useconrem.useid.placeholder")" oninput="USER.validateUserId();" onkeyup="USER.validateUserId();" autocomplete="off" #if($!valueEid)value="$formattedText.escapeHtml($!valueEid)"#end/>
 							#else
-								<span id="eidValue">$validator.escapeHtml($!valueEid)</span>
+								<span id="eidValue">$formattedText.escapeHtml($!valueEid)</span>
 							#end
 						#end
 					</div>
@@ -85,9 +85,9 @@ function removeOptionalAttributeBlock(elem) {
 					</label>
 					<div class="col-sm-3">
 						#if ($service.allowUpdateUserName($user.Id) || !$user)
-							<input class="form-control sakai-glow" type="text" name="first-name" id="first-name" placeholder="$tlang.getString("usecre.firnam.placeholder")" autocomplete="given-name" #if($user)value="$validator.escapeHtml($user.FirstName)"#elseif($valueFirstName)value="$validator.escapeHtml($valueFirstName)"#end />
+							<input class="form-control sakai-glow" type="text" name="first-name" id="first-name" placeholder="$tlang.getString("usecre.firnam.placeholder")" autocomplete="given-name" #if($user)value="$formattedText.escapeHtml($user.FirstName)"#elseif($valueFirstName)value="$formattedText.escapeHtml($valueFirstName)"#end />
 						#else
-							#if($user)$validator.escapeHtml($user.FirstName)#elseif($valueFirstName)$validator.escapeHtml($valueFirstName)#end
+							#if($user)$formattedText.escapeHtml($user.FirstName)#elseif($valueFirstName)$formattedText.escapeHtml($valueFirstName)#end
 						#end
 					</div>
 				</div>
@@ -98,9 +98,9 @@ function removeOptionalAttributeBlock(elem) {
 					</label>
 					<div class="col-sm-3">
 						#if ($service.allowUpdateUserName($user.Id) || !$user)
-							<input class="form-control sakai-glow" type="text" name="last-name" id="last-name" placeholder="$tlang.getString("usecre.lasnam.placeholder")" autocomplete="family-name" #if($user)value="$validator.escapeHtml($user.LastName)"#elseif($valueLastName)value="$validator.escapeHtml($valueLastName)"#end />
+							<input class="form-control sakai-glow" type="text" name="last-name" id="last-name" placeholder="$tlang.getString("usecre.lasnam.placeholder")" autocomplete="family-name" #if($user)value="$formattedText.escapeHtml($user.LastName)"#elseif($valueLastName)value="$formattedText.escapeHtml($valueLastName)"#end />
 						#else
-							#if($user)$validator.escapeHtml($user.LastName)#elseif($valueLastName)$validator.escapeHtml($valueLastName)#end
+							#if($user)$formattedText.escapeHtml($user.LastName)#elseif($valueLastName)$formattedText.escapeHtml($valueLastName)#end
 						#end
 					</div>
 				</div>
@@ -111,9 +111,9 @@ function removeOptionalAttributeBlock(elem) {
 					</label>
 					<div class="col-sm-3">
 						#if ($service.allowUpdateUserEmail($user.Id) || !$user)
-							<input class="form-control sakai-glow" type="text" name="email" id="email" placeholder="$tlang.getString("useconrem.ema.placeholder")"  oninput="USER.validateEmail();" onkeyup="USER.validateEmail();" autocomplete="email" #if($user)value="$validator.escapeHtml($user.Email)"#elseif($valueEmail)value="$validator.escapeHtml($valueEmail)"#end />
+							<input class="form-control sakai-glow" type="text" name="email" id="email" placeholder="$tlang.getString("useconrem.ema.placeholder")"  oninput="USER.validateEmail();" onkeyup="USER.validateEmail();" autocomplete="email" #if($user)value="$formattedText.escapeHtml($user.Email)"#elseif($valueEmail)value="$formattedText.escapeHtml($valueEmail)"#end />
 						#else
-							#if($user)$validator.escapeHtml($user.Email)#elseif($valueEmail)$validator.escapeHtml($valueEmail)#end
+							#if($user)$formattedText.escapeHtml($user.Email)#elseif($valueEmail)$formattedText.escapeHtml($valueEmail)#end
 						#end
 					</div>
 
@@ -228,14 +228,14 @@ function removeOptionalAttributeBlock(elem) {
 								#if($userTypes)
 									<select name="type" id="type">
 									#foreach ( $userType in $userTypes )
-										<option value="$validator.escapeHtml($userType)" #if($user.Type==$userType)selected#end>$validator.escapeHtml($userType)</option>
+										<option value="$formattedText.escapeHtml($userType)" #if($user.Type==$userType)selected#end>$formattedText.escapeHtml($userType)</option>
 									#end
 								</select>
 								#else
-									<input class="form-control sakai-glow" type="text" name="type" id="type" #if($user)value="$validator.escapeHtml($user.Type)"#elseif($valueType)value="$validator.escapeHtml($valueType)"#end />
+									<input class="form-control sakai-glow" type="text" name="type" id="type" #if($user)value="$formattedText.escapeHtml($user.Type)"#elseif($valueType)value="$formattedText.escapeHtml($valueType)"#end />
 								#end
 							#else
-								#if($user)$validator.escapeHtml($user.Type)#elseif($valueType)$validator.escapeHtml($valueType)#end
+								#if($user)$formattedText.escapeHtml($user.Type)#elseif($valueType)$formattedText.escapeHtml($valueType)#end
 							#end
 						</div>
 					</div>
@@ -260,23 +260,23 @@ function removeOptionalAttributeBlock(elem) {
 		<tbody>
 			<tr>
 				<td><label>$tlang.getString("useedi.creby")</label></td>
-				<td>$validator.escapeHtml($user.CreatedBy.DisplayName)</td>
+				<td>$formattedText.escapeHtml($user.CreatedBy.DisplayName)</td>
 			</tr>
 			<tr>
 				<td><label>$tlang.getString("useedi.cre")</label></td>
-				<td>$validator.escapeHtml($userCreated)</td>
+				<td>$formattedText.escapeHtml($userCreated)</td>
 			</tr>
 			<tr>
 				<td><label>$tlang.getString("useedi.modby")</label></td>
-				<td>$validator.escapeHtml($user.ModifiedBy.DisplayName)</td>
+				<td>$formattedText.escapeHtml($user.ModifiedBy.DisplayName)</td>
 			</tr>
 			<tr>
 				<td><label>$tlang.getString("useedi.mod")</label></td>
-				<td>$validator.escapeHtml($userModifiedDate)</td>
+				<td>$formattedText.escapeHtml($userModifiedDate)</td>
 			</tr>
 			<tr>
 				<td><label>$tlang.getString("useconrem.useuid")</label></td>
-				<td>$validator.escapeHtml($user.Id)</td>
+				<td>$formattedText.escapeHtml($user.Id)</td>
 			</tr>
 		</tbody>
 	</table>

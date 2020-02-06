@@ -105,8 +105,8 @@ ${includeLatestJQuery}
 		<li class="firstToolBarItew"><span><a href="" title="$tlang.getString("tool.in.system")" onclick="location = '$sakai_ActionURL.setPanel("ToolSystem")';return false;"> $tlang.getString("tool.in.system")</a></span></li>
 		<li><span class="current">$tlang.getString("tool.in.site")</span></li>
 	</ul>
-	#if ($messageSuccess)<div class="sak-banner-success">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div>#end
-	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+	#if ($messageSuccess)<div class="sak-banner-success">$tlang.getString("gen.success") $formattedText.escapeHtml($messageSuccess)</div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>#end
 	#if ($isAdmin || $allowMaintainerAddToolSite)
 	<div align="right"><a href="" title="$tlang.getString("add.to.site")" onclick="location = '$sakai_ActionURL.setPanel("ContentPut")';return false;"> $tlang.getString("add.to.site")</a></div>
 	<br/>
@@ -162,29 +162,29 @@ ${includeLatestJQuery}
 			#if ($contents && $contents.size() > 0)
 			#foreach ($content in $contents)
 			<tr class="#if($velocityCount%2 == 0)even#{else}odd#end">
-			<td headers="matchpattern">$validator.escapeHtml($content.get("title"))</td>
+			<td headers="matchpattern">$formattedText.escapeHtml($content.get("title"))</td>
 			<td headers="url">
 				#set($launch = "-")
 				#if ($content.get("launch"))
-					 #set($launch = $validator.escapeHtml($content.get("launch")))
+					 #set($launch = $formattedText.escapeHtml($content.get("launch")))
 				#else
 					#set($tool=false)
 					#set($tool=$ltiService.getTool($content.get("tool_id_long"), $content.get("SITE_ID")))
 					#if ($!tool)
-						#set($launch = $validator.escapeHtml($tool.get("launch")))
+						#set($launch = $formattedText.escapeHtml($tool.get("launch")))
 					#end
 				#end
 				<a target="_blank" href="$content.get("tool_url")">$launch</a>
 			</td>
 			#if ($isAdmin) 
-				<td headers="site"><a target="_blank" href="$!content.get("site_url")">$validator.escapeHtml($!content.get("SITE_TITLE"))</a></td>
+				<td headers="site"><a target="_blank" href="$!content.get("site_url")">$formattedText.escapeHtml($!content.get("SITE_TITLE"))</a></td>
 			#end
 				<td headers="created_at">$!dateTool.format($!content.get("created_at"))</td>
 			#if ($isAdmin)
-				<td headers="contactname"> $validator.escapeHtml($!content.get("SITE_CONTACT_NAME"))</td>
-				<td headers="contactemail"> $validator.escapeHtml($!content.get("SITE_CONTACT_EMAIL"))</td>
+				<td headers="contactname"> $formattedText.escapeHtml($!content.get("SITE_CONTACT_NAME"))</td>
+				<td headers="contactemail"> $formattedText.escapeHtml($!content.get("SITE_CONTACT_EMAIL"))</td>
 				#if ($attribution_name)
-				<td headers="attribution"> $validator.escapeHtml($!content.get("ATTRIBUTION"))</td>
+				<td headers="attribution"> $formattedText.escapeHtml($!content.get("ATTRIBUTION"))</td>
 				#end
 			#end
 			<td headers="action"><a href="$sakai_ActionURL.setPanel("ContentPut")&id=$content.get("id")">$tlang.getString("gen.edit")</a> / 

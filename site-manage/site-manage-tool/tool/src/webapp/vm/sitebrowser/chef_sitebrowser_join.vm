@@ -13,7 +13,7 @@
 	
 	#if( $success )
 		<br />
-		<a href="$link" title="$tlang.getString( "list.go" ) $validator.escapeHtml( $siteTitle ) $tlang.getString( "site" )" target="_top">
+		<a href="$link" title="$tlang.getString( "list.go" ) $formattedText.escapeHtml( $siteTitle ) $tlang.getString( "site" )" target="_top">
 			$siteTitle
 		</a>
 	#end

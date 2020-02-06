@@ -32,7 +32,7 @@
             </th>
             <td>
                 #assignmentTitleIcon($assignment)
-				$validator.escapeHtml($assignment.Title)
+				$formattedText.escapeHtml($assignment.Title)
             </td>
         </tr>
         <tr>
@@ -120,7 +120,7 @@
     </h4>
     #if ($text && $!text.length() > 0)
         <div class="textPanel">
-            $validator.escapeHtmlFormattedText($text)
+            $formattedText.escapeHtmlFormattedText($text)
         </div>
     #end
 

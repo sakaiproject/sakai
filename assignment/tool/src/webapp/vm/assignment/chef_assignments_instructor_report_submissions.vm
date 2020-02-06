@@ -24,7 +24,7 @@
 							<option value="" >$tlang.getString('please_select_group')</option>
 						#end
 						#foreach($aGroup in $groups)
-							<option value="$!aGroup.Reference" #if($!viewString.equals($!aGroup.Reference))selected="selected"#end >$validator.escapeHtml($aGroup.Title)</option>
+							<option value="$!aGroup.Reference" #if($!viewString.equals($!aGroup.Reference))selected="selected"#end >$formattedText.escapeHtml($aGroup.Title)</option>
 						#end
 					#end
 					#viewFilterPanel("viewFilterForm", "viewgroup", $viewSelectOptions, "doChange_submission_list_option")
@@ -147,7 +147,7 @@
 								#if( $isAnon )
 									$anonymousSubmissionId
 								#else
-									$validator.escapeHtml($!submitterName)
+									$formattedText.escapeHtml($!submitterName)
 								#end
 							#end
 							#if ($!submission.MultiGroup)
@@ -156,7 +156,7 @@
 							</td>
 							<td headers="assignment">
 								#assignmentTitleIcon($assignment)
-								$validator.escapeHtml($!assignment.Title)
+								$formattedText.escapeHtml($!assignment.Title)
 							</td>
 							#if($!isAdditionalNotesEnabled)
 							<td headers="notes">

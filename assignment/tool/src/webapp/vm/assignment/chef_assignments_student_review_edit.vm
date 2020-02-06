@@ -41,19 +41,19 @@
 				 		
 				<h3>
                     #assignmentTitleIcon($assignment)
-					$validator.escapeHtml($!assignment.title)
+					$formattedText.escapeHtml($!assignment.title)
 					<span class="highlight"> -
 					$tlang.getString("gen.reviewing"):&nbsp;
 					#if(!$view_only && $assignment.getPeerAssessmentAnonEval())
 						$tlang.getString("gen.student")
 					#elseif ($value_CheckAnonymousGrading)
-						$validator.escapeHtml($!submission.Id) $tlang.getString("grading.anonymous.title")
+						$formattedText.escapeHtml($!submission.Id) $tlang.getString("grading.anonymous.title")
 					#else
 						$!submitterNames
 					#end
 					#if($view_only)
 						<br/>
-						$tlang.getFormattedMessage("gen.reviewer.who", $validator.escapeHtml($reviewer.getDisplayName()), $validator.escapeHtml($reviewer.getDisplayId()))
+						$tlang.getFormattedMessage("gen.reviewer.who", $formattedText.escapeHtml($reviewer.getDisplayName()), $formattedText.escapeHtml($reviewer.getDisplayId()))
 					#else
 						($reviewNumber $tlang.getString("gen.of") $totalReviews)
 						<br/>
@@ -68,11 +68,11 @@
 		   </div>
 			<div class="itemNav highlightPanel" style="float:right;text-align:right;clear:right">
 				## prev button
-				<input type="button" name="prevsubmission1" class="prevsubmission" value="$tlang.getString("nav.prev")" #if (!$!goPTButton) disabled="disabled" #end onclick="ASN.submitForm( 'gradeForm', 'prevsubmission_review', '$validator.escapeUrl($submissionReference)', null ); return false;"/>
+				<input type="button" name="prevsubmission1" class="prevsubmission" value="$tlang.getString("nav.prev")" #if (!$!goPTButton) disabled="disabled" #end onclick="ASN.submitForm( 'gradeForm', 'prevsubmission_review', '$formattedText.escapeUrl($submissionReference)', null ); return false;"/>
 				## back to list button
-				<input type="button" name="cancelgradesubmission1" class="cancelgradesubmission" value="$tlang.getString("nav.list")" onclick="ASN.submitForm( 'gradeForm', 'cancelgradesubmission_review', '$validator.escapeUrl($submissionReference)', null ); return false;"/>
+				<input type="button" name="cancelgradesubmission1" class="cancelgradesubmission" value="$tlang.getString("nav.list")" onclick="ASN.submitForm( 'gradeForm', 'cancelgradesubmission_review', '$formattedText.escapeUrl($submissionReference)', null ); return false;"/>
 				## next button
-				<input type="button" name="nextsubmission1" class="nextsubmission" value="$tlang.getString("nav.next")" #if (!$!goNTButton)disabled="disabled"#end onclick="ASN.submitForm( 'gradeForm', 'nextsubmission_review', '$validator.escapeUrl($submissionReference)', null ); return false;"/>
+				<input type="button" name="nextsubmission1" class="nextsubmission" value="$tlang.getString("nav.next")" #if (!$!goNTButton)disabled="disabled"#end onclick="ASN.submitForm( 'gradeForm', 'nextsubmission_review', '$formattedText.escapeUrl($submissionReference)', null ); return false;"/>
 				#if(!$view_only)
 					<div class="instruction textPanelFooter" style="text-align:center">$tlang.getString("nav.message")</div>
 				#end
@@ -95,7 +95,7 @@
 			#end
 			#if ($assignment_expand_flag)
 				#if ($assignment.Instructions && !$assignment.Instructions.isEmpty())
-					<div class="textPanel">$validator.escapeHtmlFormattedText($assignment.Instructions)</div>
+					<div class="textPanel">$formattedText.escapeHtmlFormattedText($assignment.Instructions)</div>
 				#else
 				#end
 				## attachments of assignment
@@ -151,7 +151,7 @@
 												#else
 													<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 												#end
-												<a href="$reference.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+												<a href="$reference.Url" target="_blank">$formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
 												#propertyDetails($props)
 											</li>
 										#end
@@ -199,11 +199,11 @@
 						#end
 						<table border="0"><tr><td>
 						#if(!$view_only)
-							<textarea name="$name_feedback_comment" id="$name_feedback_comment" rows="30" wrap="virtual" cols="80">#if($!value_feedback_comment)$validator.escapeHtmlFormattedTextarea($!value_feedback_comment)#end</textarea>
+							<textarea name="$name_feedback_comment" id="$name_feedback_comment" rows="30" wrap="virtual" cols="80">#if($!value_feedback_comment)$formattedText.escapeHtmlFormattedTextarea($!value_feedback_comment)#end</textarea>
 							#chef_setupformattedtextarea($name_feedback_comment)
 						#else
 							#if($!value_feedback_comment && $!value_feedback_comment.length() > 0)
-								<div class="textPanel">$validator.escapeHtmlFormattedText($!value_feedback_comment)</div>
+								<div class="textPanel">$formattedText.escapeHtmlFormattedText($!value_feedback_comment)</div>
 							#else
 								<span class="instruction">$tlang.getString("peerassessment.nocomments")</span>
 							#end
@@ -240,14 +240,14 @@
 										#else
                                             <img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 										#end
-                                        <a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+                                        <a href="$attachment.Url" target="_blank">$formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
                                     </td>
                                     <td>
 										#propertyDetails($props)
                                     </td>
                                     <td class="itemAction">
                                         <a href="#" onclick="document.gradeForm.option.value='removeAttachment_review'; document.gradeForm.currentAttachment.value='$attachment.id'; document.gradeForm.submit(); return false;">
-											$tlang.getString("stuviewsubm.removeatt")<span class="skip"> $validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</span>
+											$tlang.getString("stuviewsubm.removeatt")<span class="skip"> $formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</span>
                                         </a>
                                     </td>
                                 </tr>
@@ -298,9 +298,9 @@
                                     <img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 								#end
 								#if ($decoratedUrlMap)
-                                    <a href="$decoratedUrlMap.get($attachment.Url)" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+                                    <a href="$decoratedUrlMap.get($attachment.Url)" target="_blank">$formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
 								#else
-                                    <a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+                                    <a href="$attachment.Url" target="_blank">$formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
 								#end
 								#propertyDetails($props)
                             </li>
@@ -319,14 +319,14 @@
 				<span class="act">
 					#if($view_only)
 						#if($item_removed)
-							<input type="button" accesskey="s" name="return" value="$tlang.getString('peerassessment.restorereview')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'toggleremove_review', '$validator.escapeUrl($submissionReference)', null ); return false;" title="$tlang.getString("peerassessment.restorereview")" />
+							<input type="button" accesskey="s" name="return" value="$tlang.getString('peerassessment.restorereview')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'toggleremove_review', '$formattedText.escapeUrl($submissionReference)', null ); return false;" title="$tlang.getString("peerassessment.restorereview")" />
 						#else
-							<input type="button" accesskey="s" name="return" value="$tlang.getString('peerassessment.removereview')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'toggleremove_review', '$validator.escapeUrl($submissionReference)', null ); return false;" title="$tlang.getString("peerassessment.removereview")" />
+							<input type="button" accesskey="s" name="return" value="$tlang.getString('peerassessment.removereview')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'toggleremove_review', '$formattedText.escapeUrl($submissionReference)', null ); return false;" title="$tlang.getString("peerassessment.removereview")" />
 						#end
 					#else
-						<input type="button" accesskey="s" name="return" value="$tlang.getString('gen.sav')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'savegrade_review', '$validator.escapeUrl($submissionReference)', null ); return false;" title="$tlang.getString("gen.sav")" />
+						<input type="button" accesskey="s" name="return" value="$tlang.getString('gen.sav')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'savegrade_review', '$formattedText.escapeUrl($submissionReference)', null ); return false;" title="$tlang.getString("gen.sav")" />
 						<input type="button" accesskey="x" name="cancel" value="$tlang.getString('cancel_changes')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'cancelgrade_review', null, null ); return false;" />
-						<input type="button" id="post" name="returnSubmit" value="$tlang.getString('gen.subm3')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'submitgrade_review', '$validator.escapeUrl($submissionReference)', null ); return false;" title="$tlang.getString("gen.subm3")" />
+						<input type="button" id="post" name="returnSubmit" value="$tlang.getString('gen.subm3')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'submitgrade_review', '$formattedText.escapeUrl($submissionReference)', null ); return false;" title="$tlang.getString("gen.subm3")" />
 					#end
 					#if ($!prevSubmissionId)
 						<input type="hidden" name="prevSubmissionId" value = "$!prevSubmissionId" />
@@ -340,11 +340,11 @@
 			</div>				
 			<div class="itemNav highlightPanel" style="float:right;text-align:right;clear:right;margin-top:0">
 				## prev button				
-				<input type="button" name="prevsubmission2" class="prevsubmission" value="$tlang.getString("nav.prev")" #if (!$!goPTButton) disabled="disabled" #end onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'prevsubmission_review', '$validator.escapeUrl($submissionReference)', null ); return false;"/>
+				<input type="button" name="prevsubmission2" class="prevsubmission" value="$tlang.getString("nav.prev")" #if (!$!goPTButton) disabled="disabled" #end onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'prevsubmission_review', '$formattedText.escapeUrl($submissionReference)', null ); return false;"/>
 				## back to list button
-				<input type="button" name="cancelgradesubmission2" class="cancelgradesubmission" value="$tlang.getString("nav.list")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'cancelgradesubmission_review', '$validator.escapeUrl($submissionReference)', null ); return false;"/>
+				<input type="button" name="cancelgradesubmission2" class="cancelgradesubmission" value="$tlang.getString("nav.list")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'cancelgradesubmission_review', '$formattedText.escapeUrl($submissionReference)', null ); return false;"/>
 				## next button
-				<input type="button" name="nextsubmission2" class="nextsubmission" value="$tlang.getString("nav.next")" #if (!$!goNTButton)disabled="disabled"#end onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'nextsubmission_review', '$validator.escapeUrl($submissionReference)', null ); return false;"/>
+				<input type="button" name="nextsubmission2" class="nextsubmission" value="$tlang.getString("nav.next")" #if (!$!goNTButton)disabled="disabled"#end onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'nextsubmission_review', '$formattedText.escapeUrl($submissionReference)', null ); return false;"/>
 				#if(!$view_only)
 					<div class="instruction textPanelFooter" style="text-align:center">$tlang.getString("nav.message")</div>
 				#end
