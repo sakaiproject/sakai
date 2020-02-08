@@ -1000,6 +1000,13 @@
         <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.kernel</groupId>
+        <artifactId>sakai-test-helper</artifactId>
+        <version>${sakai.version}</version>
+        <classifier>helper-jar</classifier>
+        <scope>test</scope>
+      </dependency>
 
       <!-- Tika includes asm-debug-all which it really shouldn't
            since it is used in multiple places it is declared here so its done right -->
@@ -2115,6 +2122,26 @@
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-failsafe-plugin</artifactId>
+          <version>3.0.0-M4</version>
+          <configuration>
+            <systemPropertyVariables>
+              <maven.tomcat.home>${maven.tomcat.home}</maven.tomcat.home>
+              <test.sakai.home>${test.sakai.home}</test.sakai.home>
+            </systemPropertyVariables>
+          </configuration>
+          <executions>
+            <execution>
+              <id>integration-test</id>
+              <goals>
+                <goal>integration-test</goal>
+                <goal>verify</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-war-plugin</artifactId>
           <version>3.2.3</version>
         </plugin>
@@ -2348,6 +2375,10 @@
           <!-- The random source it to stop builds stalling on VMs with poor sources of random -->
           <argLine>-Djava.awt.headless=true -Dfile.encoding=${project.build.sourceEncoding} ${random-source}</argLine>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
       </plugin>
       <plugin>
         <inherited>true</inherited>
