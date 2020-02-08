@@ -40,16 +40,15 @@
   <!-- content... -->
   <h3><h:outputText value="#{deliveryMessages.data_discrepancy_title}"/></h3>
   <f:verbatim>&nbsp;</f:verbatim>
+  <div class="alertMessage">
   <h:panelGrid border="0">
     <h:outputText value="#{deliveryMessages.data_discrepancy_1}"/>
-		<f:verbatim><ol></f:verbatim>
-	  <h:panelGrid columns="2" border="0">
-		<h:outputText value="&nbsp" escape="false"/>
+	  <h:outputText value="&nbsp" escape="false"/>
+	  <h:panelGrid border="0">
 		<h:outputText value="<li> #{deliveryMessages.data_discrepancy_2}</li>" escape="false"/>
-		<h:outputText value="&nbsp" escape="false"/>
 		<h:outputText value="<li> #{deliveryMessages.data_discrepancy_3}</li>" escape="false"/>
 	  </h:panelGrid>
-		<f:verbatim></ol></f:verbatim>
+	  <h:outputText value="&nbsp" escape="false"/>
 
     <h:outputText value="#{deliveryMessages.data_discrepancy_4}" escape="false"/>
     <h:outputFormat value="#{deliveryMessages.data_discrepancy_5}" escape="false" rendered="#{delivery.actionString=='takeAssessment'}"> 		
@@ -60,6 +59,7 @@
 	</h:outputFormat>
   
   </h:panelGrid>
+  </div>
 
  <h:form id="discrepancyInData">
  <p class="act">
