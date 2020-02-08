@@ -175,6 +175,31 @@ $material-elevation-8dp: 0 5px 5px -3px rgba(0,0,0,.2), 0 8px 10px 1px rgba(0,0,
     $button-primary-active-border-color:        $button-primary-active-background;
     $button-primary-active-shadow-color:        $button-active-shadow-color;
     $button-primary-active-shadow:              $material-elevation-4dp;
+
+    //Tertiary (link style) button design:
+    $button-link-text-color: $primary-color;
+    $button-link-background: rgba(0,0,0,0);
+    $button-link-border-color: $button-link-background;
+    $button-link-text-transform: uppercase;
+    $button-link-font-weight: 600;
+    $button-link-shadow: none;
+    // hover and focus states:
+    $button-link-hover-text-color: $button-text-color;
+    $button-link-hover-background: rgba(0,0,0,.1);
+    $button-link-hover-border-color: $button-link-background;
+    $button-link-hover-shadow: none;
+    // active state:
+    $button-link-active-text-color:$button-text-color;
+    $button-link-active-background: #E3EBF0;
+    $button-link-active-border-color:    $button-hover-border-color;
+    $button-link-active-shadow-color: rgba(0,0,0,0);
+    $button-link-active-shadow: none;
+    // disabled state:
+    $button-link-disabled-text-color:    #717171;
+    $button-link-disabled-background:    #f6f6f6;
+    $button-link-disabled-border-color:  #dbdbdb;
+    $button-link-disabled-shadow:        none;
+    $button-link-disabled-font-weight:   300;
 }
 
 @if $top-header-as-material {
