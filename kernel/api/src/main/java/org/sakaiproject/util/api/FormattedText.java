@@ -349,8 +349,8 @@ public interface FormattedText {
      * WEB Utility -
      * Return a string based on id that is fully escaped using URL rules, using a UTF-8 underlying encoding.
      * 
-     * Note: java.net.URLEncode.encode() provides a more standard option
-     *       FormattedText.decodeNumericCharacterReferences() undoes this operation
+     * Note: {@link java.net.URLEncoder#encode(String, String)} provides a more standard option
+     *       {@link FormattedText#decodeNumericCharacterReferences(String)} undoes this operation
      * 
      * @param value
      *        The string to escape.
