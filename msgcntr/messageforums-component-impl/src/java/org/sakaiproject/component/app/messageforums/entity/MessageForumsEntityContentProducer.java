@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
@@ -42,7 +43,8 @@ import org.sakaiproject.search.api.PortalUrlEnabledProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.model.SearchBuilderItem;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
+
 
 @Slf4j
 public class MessageForumsEntityContentProducer implements
@@ -53,6 +55,8 @@ public class MessageForumsEntityContentProducer implements
 
 	// runtime dependency
 	private List removeEvents = null;
+	
+	@Setter private FormattedText formattedText;
 	
 	/**
 	 * @param addEvents
@@ -214,7 +218,7 @@ public class MessageForumsEntityContentProducer implements
 		if (m != null) {
 			sb.append("author: " + m.getAuthor());
 			sb.append(" title: " + m.getTitle());
-			sb.append(" body: " + FormattedText.convertFormattedTextToPlaintext(m.getBody()));
+			sb.append(" body: " + formattedText.convertFormattedTextToPlaintext(m.getBody()));
 			/* causes hibernate lazy init error
 			List attachments = m.getAttachments();
 			if (attachments != null && attachments.size() > 0) {
