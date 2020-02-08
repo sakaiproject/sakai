@@ -994,7 +994,7 @@ body.is-logged-out{
 					border-bottom: $sites-nav-menu-item-selected-border-bottom;
 					border-left: $sites-nav-menu-item-selected-border-left;
 					color: $sites-nav-menu-item-selected-color;
-					
+					font-weight: $sites-nav-menu-item-selected-font-weight;
 					&:hover, &:focus {
 						border-top: $sites-nav-menu-item-selected-hover-border-top;
 						border-right: $sites-nav-menu-item-selected-hover-border-right;

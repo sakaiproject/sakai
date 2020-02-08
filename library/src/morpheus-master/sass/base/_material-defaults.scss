@@ -50,15 +50,15 @@ $material-elevation-8dp: 0 5px 5px -3px rgba(0,0,0,.2), 0 8px 10px 1px rgba(0,0,
     $sites-nav-menu-item-border-thickness: 1px;
     $sites-nav-menu-item-border-radius: $button-radius-pill;
     
-    $sites-nav-menu-item-background: #e0e0e0;
-    $sites-nav-menu-item-color: rgba(0,0,0,0.87);
+    $sites-nav-menu-item-background: hsla(0, 0%, 92%, 1);
+    $sites-nav-menu-item-color: hsla(0, 0%, 25%, 1);
     $sites-nav-menu-item-border-color: $sites-nav-menu-item-background;
     $sites-nav-menu-item-border-top:            $sites-nav-menu-item-border-thickness solid $sites-nav-menu-item-border-color;
     $sites-nav-menu-item-border-right:          $sites-nav-menu-item-border-top;
     $sites-nav-menu-item-border-bottom:         $sites-nav-menu-item-border-top;
     $sites-nav-menu-item-border-left:           $sites-nav-menu-item-border-top;
     
-    $sites-nav-menu-item-hover-background: #D8D8D8;
+    $sites-nav-menu-item-hover-background: hsla(0, 0%, 82%, 1);
     $sites-nav-menu-item-hover-color: rgba(0,0,0,1);
     $sites-nav-menu-item-hover-border-color:      $sites-nav-menu-item-hover-background;
     $sites-nav-menu-item-hover-border-top:      $sites-nav-menu-item-border-thickness solid $sites-nav-menu-item-hover-border-color;
@@ -66,16 +66,16 @@ $material-elevation-8dp: 0 5px 5px -3px rgba(0,0,0,.2), 0 8px 10px 1px rgba(0,0,
     $sites-nav-menu-item-hover-border-bottom:   $sites-nav-menu-item-hover-border-top;
     $sites-nav-menu-item-hover-border-left:     $sites-nav-menu-item-hover-border-top;
     
-    $sites-nav-menu-item-selected-background: #ecf2f5;
-    $sites-nav-menu-item-selected-color: $primary-color;
+    $sites-nav-menu-item-selected-background: hsla(200, 31%, 84%,1);
+    $sites-nav-menu-item-selected-color: hsl(201, 71%, 20%);
     $sites-nav-menu-item-selected-border-color: $sites-nav-menu-item-selected-background;
     $sites-nav-menu-item-selected-border-top:   $sites-nav-menu-item-border-thickness solid $sites-nav-menu-item-selected-border-color;
     $sites-nav-menu-item-selected-border-bottom:$sites-nav-menu-item-selected-border-top;
     $sites-nav-menu-item-selected-border-left:  $sites-nav-menu-item-selected-border-top;
     $sites-nav-menu-item-selected-border-right: $sites-nav-menu-item-selected-border-top;
     
-    $sites-nav-menu-item-selected-hover-background:   darken($sites-nav-menu-item-selected-background, 5%);
-    $sites-nav-menu-item-selected-hover-color: $primary-color; 
+    $sites-nav-menu-item-selected-hover-background:   hsla(200, 31%, 76%,1);
+    $sites-nav-menu-item-selected-hover-color: hsl(201, 71%, 20%);
     $sites-nav-menu-item-selected-hover-border-color: $sites-nav-menu-item-selected-hover-background;
     $sites-nav-menu-item-selected-hover-border-top:   $sites-nav-menu-item-border-thickness solid $sites-nav-menu-item-selected-hover-border-color;
     $sites-nav-menu-item-selected-hover-border-right: $sites-nav-menu-item-selected-hover-border-top;
@@ -100,11 +100,16 @@ $material-elevation-8dp: 0 5px 5px -3px rgba(0,0,0,.2), 0 8px 10px 1px rgba(0,0,
     $tool-menu-item-background-color: #fff;
     $tool-menu-item-border-left: none;
     $tool-menu-item-margin-right: calc( #{$standard-spacing} / 2);
+    $tool-menu-item-hover-background-color: hsla(0, 0%, 92%, 1);
     $tool-menu-item-hover-border-left: $tool-menu-item-border-left;
-    $tool-menu-item-selected-background-color: #e3ecf0;
+    $tool-menu-item-selected-text-color: hsl(201, 71%, 20%);
+    $tool-menu-item-selected-icon-color: hsl(201, 71%, 20%);
+    $tool-menu-item-selected-background-color: hsla(200, 31%, 84%,1);
     $tool-menu-item-selected-border-left: $tool-menu-item-border-left;
+    $tool-menu-item-selected-hover-text-color: hsl(201, 71%, 20%);
+    $tool-menu-item-selected-hover-icon-color: hsl(201, 71%, 20%);
     $tool-menu-item-selected-hover-border-left: $tool-menu-item-border-left;
-    $tool-menu-item-selected-hover-background-color: darken($tool-menu-item-selected-background-color, 15%);
+    $tool-menu-item-selected-hover-background-color: hsla(200, 31%, 76%,1);
     $tool-menu-item-border-radius: 0 calc(#{$button-radius-pill} * 1.5) calc(#{$button-radius-pill} * 1.5) 0;
      
     $tool-menu-item-padding: calc( #{$standard-spacing} / 2) 0 calc( #{$standard-spacing} / 2) $standard-spacing;
