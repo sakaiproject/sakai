@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.sakaiproject.component.api.ComponentManagerEventListener;
 import org.sakaiproject.component.impl.MockCompMgr;
 import org.sakaiproject.component.impl.SpringCompMgr;
 
@@ -58,6 +59,12 @@ public class ComponentManager {
 	private static Lock m_lock = new ReentrantLock(false);
 
 	private static boolean lateRefresh = false;
+
+	/**
+	 * Keep track of whether the manager is ready. We may have a reference before it
+	 * is initialized.
+	 */
+	private static boolean ready = false;
 
 	/**
 	 * Setup the CM in testingMode if this is true (this is to be used for unit tests only),
@@ -122,6 +129,48 @@ public class ComponentManager {
 		return m_componentManager;
 	}
 
+	/**
+	 * Get an event listener bound to the cover, for managing external instantiation
+	 * of the ComponentManager. This is not intended for general use, but rather a
+	 * migration path to loosen the coupling gradually, such that Spring manages the
+	 * lifecycle and we can eliminate the uncertainty and design difficulties of the
+	 * static locators.
+	 *
+	 * There are many circular dependencies and timing issues to sort out, and this
+	 * is a mechanism to help start that work.
+	 *
+	 * Unless you are building a test harness or working directly on the kernel, you
+	 * should not call this.
+	 */
+	public static ComponentManagerEventListener getBinding() {
+		return new ComponentManagerEventListener() {
+			/**
+			 * Sets the singleton instance upon notification that a component manager has
+			 * been created. It should not yet be considered ready for use.
+			 */
+			public void onCreate(org.sakaiproject.component.api.ComponentManager manager) {
+				m_componentManager = manager;
+				ready = false;
+			}
+
+			/**
+			 * Mark that the component manager is now ready for use.
+			 */
+			public void onReady(org.sakaiproject.component.api.ComponentManager manager) {
+				ready = true;
+			}
+
+			/**
+			 * Clear the singleton instance and mark that the component manager is not ready
+			 * for use.
+			 */
+			public void onClose(org.sakaiproject.component.api.ComponentManager manager) {
+				m_componentManager = null;
+				ready = false;
+			}
+		};
+	}
+
 	public static <T> T get(Class<T> iface) {
 		return getInstance().get(iface);
 	}
@@ -181,6 +230,10 @@ public class ComponentManager {
 
 	public static boolean hasBeenClosed() {
 		return getInstance().hasBeenClosed();
+	}
+
+	public static boolean isReady() {
+		return ready && m_componentManager != null;
 	}
 
 	public static void setLateRefresh(boolean b) {

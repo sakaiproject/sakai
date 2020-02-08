@@ -127,22 +127,6 @@
   </dependencies>
 
   <build>
-    <resources>
-      <resource>
-        <targetPath>sakai-test-helper/components</targetPath>
-        <directory>../kernel-impl/src/main/webapp/WEB-INF</directory>
-        <includes>
-          <include>*.xml</include>
-        </includes>
-      </resource>
-      <resource>
-        <targetPath>sakai-test-helper/sakai.test</targetPath>
-        <directory>src/main/resources/sakai.test</directory>
-        <includes>
-          <include>**/*</include>
-        </includes>
-      </resource>
-    </resources>
     <plugins>
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>

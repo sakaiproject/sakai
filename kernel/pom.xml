@@ -104,6 +104,21 @@
                     <include>**/*.xml</include>
                 </includes>
             </resource>
+            <!--
+              Special case duplication to pack kernel components in a simple JAR. This
+              is especially useful for the test-helper, but may also serve as a way to
+              begin migrating from WAR components to JARs in general.
+
+              Note that kernel-impl is still packaged as a sakai-component; this is just
+              a duplication to get the files onto the classpath.
+            -->
+            <resource>
+                <directory>${basedir}/src/main/webapp/WEB-INF</directory>
+                <targetPath>org/sakaiproject/kernel</targetPath>
+                <includes>
+                    <include>*.xml</include>
+                </includes>
+            </resource>
         </resources>
 
         <plugins>

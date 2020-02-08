@@ -15,79 +15,74 @@
  */
 package org.sakaiproject.integration;
 
-import java.io.IOException;
-
-import org.sakaiproject.component.cover.TestComponentManagerContainer;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.impl.SpringCompMgr;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.test.context.web.AnnotationConfigWebContextLoader;
 import org.springframework.test.context.web.WebMergedContextConfiguration;
 import org.springframework.web.context.support.GenericWebApplicationContext;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * ContextLoader for integration tests that loads all of the kernel components
  * and wires up the parent application context.
  *
  */
+@Slf4j
 public class IntegrationTestContextLoader extends AnnotationConfigWebContextLoader {
+	/** Our test context's component manager */
+	private SpringCompMgr componentManager;
 
-	/**
-	 * Path within the test-helper JAR to the parent components.xml file, imported
-	 * from kernel-impl.
-	 */
-	public static final String KERNEL_COMPONENTS = "sakai-test-helper/components/components.xml";
+	/** The configuration (like sakai-configuration.xml) for this test suite */
+	private Resource testConfig;
 
-	/**
-	 * Path within the test-helper JAR to the sakai.test properties directory.
-	 */
-	public static final String SAKAI_TEST_PATH = "sakai-test-helper/sakai.test/";
+	/** The set of components to load for this test suite (like components.xml) */
+	private Resource components;
 
-	private static final String SAKAI_TEST = "sakai.test";
+	/** Basic constructor; sets standard config and components from the kernel. */
+	public IntegrationTestContextLoader() {
+		super();
+		testConfig = new ClassPathResource("org/sakaiproject/config/test-configuration.xml");
+		components = new ClassPathResource("org/sakaiproject/kernel/components.xml");
+	}
 
 	@Override
 	protected void customizeContext(GenericWebApplicationContext context,
 			WebMergedContextConfiguration webMergedConfig) {
-		setSystemProperties();
+		addListeners(context);
 		startComponentManager(context);
 	}
 
 	/**
-	 * Start up a test ComponentManager and wire up the Spring ApplicationContext.
+	 * Set up any context lifecycle event handlers.
+	 *
+	 * We start the component manager, but we need to listen to Spring to know when
+	 * to clean up and shut down.
 	 */
-	protected void startComponentManager(GenericWebApplicationContext context) {
-		try {
-			TestComponentManagerContainer container = new TestComponentManagerContainer(componentsPath());
-			SpringCompMgr cm = (SpringCompMgr) container.getComponentManager();
-			context.setParent(cm.getApplicationContext());
-		} catch (IOException e) {
-			throw new RuntimeException("Could not load kernel components while loading context!", e);
-		}
-	}
-
-	/** Set system properties that the ComponentManager needs to start. */
-	protected void setSystemProperties() {
-		System.setProperty(SAKAI_TEST, sakaiTestPath());
-	}
-
-	/** Absolute path to components.xml that the ComponentManager can use. */
-	private String componentsPath() {
-		return pathInJar(KERNEL_COMPONENTS);
+	protected void addListeners(GenericWebApplicationContext context) {
+		context.addApplicationListener(closeListener());
 	}
 
 	/**
-	 * Absolute path for the "sakai.test" system property.
+	 * Start up a test ComponentManager and wire up the Spring ApplicationContext.
+	 *
+	 * Ensure that the ComponentManager cover gets our instance immediately so
+	 * startup can complete.
 	 */
-	private String sakaiTestPath() {
-		return System.getProperty(SAKAI_TEST, pathInJar(SAKAI_TEST_PATH));
+	protected void startComponentManager(GenericWebApplicationContext context) {
+		componentManager = new SpringCompMgr(context, testConfig, components, ComponentManager.getBinding());
 	}
 
-	/** Resolve a classpath-relative path to an absolute path for use outside. */
-	private String pathInJar(String path) {
-		try {
-			ClassPathResource resource = new ClassPathResource(path, getClass().getClassLoader());
-			return resource.getFile().getAbsolutePath();
-		} catch (IOException e) {
-			throw new RuntimeException("Could not resolve '" + path + "' from the test-helper classpath");
-		}
+	protected ApplicationListener<ContextClosedEvent> closeListener() {
+		return new ApplicationListener<ContextClosedEvent>() {
+			public void onApplicationEvent(ContextClosedEvent event) {
+				log.info("Receieved context close event, closing Component Manager: " + event.toString());
+				componentManager.close();
+			}
+		};
 	}
 }
