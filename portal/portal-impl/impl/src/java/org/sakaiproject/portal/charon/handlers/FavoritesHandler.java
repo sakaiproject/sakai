@@ -42,6 +42,7 @@ import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.SiteService.SelectionType;
+import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesEdit;
@@ -198,7 +199,7 @@ public class FavoritesHandler extends BasePortalHandler
 		}
 
 		// This should not call getUserSites(boolean, boolean) because the property is variable, while the call is cacheable otherwise
-		List<String> userSites = siteService.getSiteIds(SelectionType.MEMBER, null, null, null, null, null);
+		List<String> userSites = siteService.getSiteIds(SelectionType.MEMBER, null, null, null, SortType.CREATED_ON_DESC, null);
 		Set<String> newFavorites = new LinkedHashSet<String>();
 
 		for (String userSite : userSites) {
