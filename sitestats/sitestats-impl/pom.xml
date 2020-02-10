@@ -220,8 +220,6 @@
             <artifactId>mysql-connector-java</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- <dependency> <groupId>com.oracle</groupId> <artifactId>ojdbc14</artifactId>
-            <scope>test</scope> </dependency> -->
         <dependency>
             <groupId>org.dom4j</groupId>
             <artifactId>dom4j</artifactId>
@@ -243,11 +241,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.easymock</groupId>
-            <artifactId>easymock</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <scope>test</scope>
@@ -263,6 +256,9 @@
         <testResources>
             <testResource>
                 <directory>src/test</directory>
+            </testResource>
+            <testResource>
+                <directory>src/webapp</directory>
             </testResource>
         </testResources>
     </build>

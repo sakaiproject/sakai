@@ -101,7 +101,6 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	@Setter private EventTrackingService	eventTrackingService;
 
 	/** Collect Thread and Semaphore */
-	private Thread		collectThread;
 	private List<Event>	collectThreadQueue		= new ArrayList<>();
 	private Object		collectThreadSemaphore	= new Object();
 	private boolean		collectThreadRunning	= false;
@@ -454,8 +453,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	/** Start the update thread */
 	private void startUpdateThread(){
 		collectThreadRunning = true;
-		collectThread = null;
-		collectThread = new Thread(this, "org.sakaiproject.sitestats.impl.StatsUpdateManagerImpl");
+		Thread collectThread = new Thread(this, "org.sakaiproject.sitestats.impl.StatsUpdateManagerImpl");
 		collectThread.start();
 	}
 	
@@ -1009,7 +1007,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 						eExisting = null;
 					}
 				}catch(Exception ex2){
-					log.warn("Probably ddbb error when loading data at java object", ex2);
+					log.warn("Probably db error when loading data at java object", ex2);
 				}
 				if(eExisting == null) 
 					eExisting = eUpdate;
@@ -1066,7 +1064,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 						eExisting = null;
 					}
 				}catch(Exception ex2){
-					log.warn("Probably ddbb error when loading data at java object", ex2);
+					log.warn("Probably db error when loading data at java object", ex2);
 				}
 				if(eExisting == null) 
 					eExisting = eUpdate;
@@ -1115,7 +1113,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 						eExisting = null;
 					}
 				} catch(Exception ex2) {
-					log.warn("Probably ddbb error when loading data at java object", ex2);
+					log.warn("Probably db error when loading data at java object", ex2);
 				}
 				if (eExisting == null) {
 					eExisting = eUpdate;
@@ -1162,7 +1160,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 						eExisting = null;
 					}
 				}catch(Exception ex2){
-					log.warn("Probably ddbb error when loading data at java object", ex2);
+					log.warn("Probably db error when loading data at java object", ex2);
 				}
 				if(eExisting == null) 
 					eExisting = eUpdate;
@@ -1208,7 +1206,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 						eExisting = null;
 					}
 				}catch(Exception ex2){
-					log.warn("Probably ddbb error when loading data at java object", ex2);
+					log.warn("Probably db error when loading data at java object", ex2);
 				}
 				if(eExisting == null){
 					eExisting = eUpdate;
@@ -1255,7 +1253,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 						eExisting = null;
 					}
 				}catch(Exception ex2){
-					log.warn("Probably ddbb error when loading data at java object", ex2);
+					log.warn("Probably db error when loading data at java object", ex2);
 				}
 				if(eExisting == null) {
 					eExisting = eUpdate;
@@ -1299,7 +1297,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 						eExisting = null;
 					}
 				}catch(Exception ex2){
-					log.warn("Probably ddbb error when loading data at java object", ex2);
+					log.warn("Probably db error when loading data at java object", ex2);
 				}
 				if(eExisting == null) {
 					eExisting = eUpdate;
@@ -1351,7 +1349,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				}
 				
 			}catch(Exception ex2){
-				log.debug("Probably ddbb error when loading data at java object", ex2);
+				log.debug("Probably db error when loading data at java object", ex2);
 			}
 			int uniqueVisits = uv == null? 1 : uv.intValue();
 			map.put(key, Integer.valueOf((int)uniqueVisits));			
@@ -1377,16 +1375,18 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					} else {
 						// TODO Should deal with midnight crossing.
 						// Should we at least warn that we've just got a end event without a start.
+						log.warn("Found an end event without a corresponding start event");
 					}
 				}else{
 					long previousTotalPresence = spExisting.getDuration();
 					long previousPresence = 0;
 					long newTotalPresence;
 					if(spc.firstEventIsPresEnd) {
-						if(spExisting.getLastVisitStartTime() != null)
+						if (spExisting.getLastVisitStartTime() != null) {
 							previousPresence = spc.firstPresEndDate.getTime() - spExisting.getLastVisitStartTime().getTime();
-						else
-							throw new Exception("No initial visit start time found - skipping");
+						} else {
+							throw new RuntimeException("No initial visit start time found");
+						}
 					} 
 					newTotalPresence = previousTotalPresence + previousPresence + sp.getDuration();
 					spExisting.setDuration(newTotalPresence);				
@@ -1397,9 +1397,9 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					}
 				}
 			}catch(HibernateException e){
-				log.debug("Probably ddbb error when loading data at java object", e);
+				log.warn("Probably db error when loading data at java object", e);
 			}catch(Exception e){
-				log.debug("Unknow error while consolidating presence events", e);
+				log.warn("Exception while consolidating presence events", e);
 			}
 		}
 	}
@@ -1410,7 +1410,9 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			SitePresenceTotal spt = new SitePresenceTotalImpl(sp);
 			session.save(spt);
 		} else {
-			sptExisting.updateFrom(sp);
+			sptExisting.incrementTotalVisits();
+			Date lastVisit = sp.getLastVisitStartTime() != null ? sp.getLastVisitStartTime() : sp.getDate();
+			sptExisting.setLastVisitTime(lastVisit);
 			session.update(sptExisting);
 		}
 	}
@@ -1438,12 +1440,12 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					eDb = null;
 				}
 			}catch (Exception e3){
-				log.debug("Probably ddbb error when loading data at java object", e3);
+				log.debug("Probably db error when loading data at java object", e3);
 				eDb = null;
 			}
 			
 		}catch(Exception ex2){
-			log.debug("Probably ddbb error when loading data at java object", ex2);
+			log.debug("Probably db error when loading data at java object", ex2);
 		}
 		return eDb;
 	}
@@ -1468,11 +1470,11 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					eDb = null;
 				}
 			} catch (Exception e3) {
-				log.debug("Probably ddbb error when loading data at java object", e3);
+				log.debug("Probably db error when loading data at java object", e3);
 				eDb = null;
 			}
 		} catch (Exception ex2) {
-			log.debug("Probably ddbb error when loading data at java object", ex2);
+			log.debug("Probably db error when loading data at java object", ex2);
 		}
 		return eDb;
 	}
