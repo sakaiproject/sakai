@@ -751,11 +751,11 @@ $(function() {
 			</label>	
 			#if ("$!savedData.Location" != "")
 				#set($str = $savedData.getLocation())
-				<textarea id="location"  name="location" wrap="virtual" rows="2" cols="60">$formattedText.escapeHtmlTextarea($str)</textarea>
+				<textarea id="location"  name="location" wrap="virtual" rows="2" cols="60">$validator.escapeHtmlTextarea($str)</textarea>
 			#elseif ($calEventFlag != "false")
 				#if ("$!event.Location" != "")
 					#set($str = $event.Location)
-					<textarea name="location" wrap="virtual" rows="2" cols="60">$formattedText.escapeHtmlTextarea($str)</textarea>
+					<textarea name="location" wrap="virtual" rows="2" cols="60">$validator.escapeHtmlTextarea($str)</textarea>
 				#else
 				<textarea name="location"  wrap="virtual" rows="2" cols="60"></textarea>
 				#end
@@ -772,11 +772,11 @@ $(function() {
 				</label>	
 				#if ("$!savedData.getAddfieldValue($addfield)" != "")
 					#set($afv = $savedData.getAddfieldValue($addfield))
-					<textarea id="$addfield" name="$addfield"  wrap="virtual" rows="2" cols="60">$formattedText.escapeHtmlTextarea($afv)</textarea>
+					<textarea id="$addfield" name="$addfield"  wrap="virtual" rows="2" cols="60">$validator.escapeHtmlTextarea($afv)</textarea>
 				#elseif ($calEventFlag != "false")
 					#if ("$!event.getField($addfield)" != "")
 						#set($str = $event.getField($addfield))
-						<textarea name="$addfield" wrap="virtual" rows="2" cols="60">$formattedText.escapeHtmlTextarea($str)</textarea>
+						<textarea name="$addfield" wrap="virtual" rows="2" cols="60">$validator.escapeHtmlTextarea($str)</textarea>
 					#else
 					<textarea name="$addfield" wrap="virtual" rows="2" cols="60"></textarea>
 					#end

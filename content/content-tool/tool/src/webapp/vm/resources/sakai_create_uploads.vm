@@ -52,7 +52,7 @@
                 <h4>$tlang.getString("cright.info")</h4>
                 <div class="form-group">
                     <textarea name="newcopyright" id="newcopyright" rows="2" cols="40" wrap="virtual">
-                        $formattedText.escapeHtmlTextarea("$!model.copyrightInfo")
+                        $validator.escapeHtmlTextarea("$!model.copyrightInfo")
                     </textarea>
                 </div>
             </div>
