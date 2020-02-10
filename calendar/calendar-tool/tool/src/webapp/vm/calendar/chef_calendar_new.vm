@@ -726,7 +726,7 @@ $(function() {
 			</label>
 			#if ($savedData.Location.length() !=0)
 				#set($str = $savedData.getLocation())
-				<textarea id="location" name="location" wrap="virtual" rows="2" cols="60">$formattedText.escapeHtmlTextarea($str)</textarea>
+				<textarea id="location" name="location" wrap="virtual" rows="2" cols="60">$validator.escapeHtmlTextarea($str)</textarea>
 			#else
 				<textarea id="location" name="location"  wrap="virtual" rows="2" cols="60"></textarea>
 			#end
@@ -739,7 +739,7 @@ $(function() {
 				</label> 
 				#if ($savedData.getAddfieldValue($addfield).length() != 0)
 					#set($str = $savedData.getAddfieldValue($addfield))
-					<textarea id="$addfield" name="$addfield"  name="$addfield"  wrap="virtual" rows="2" cols="60">$formattedText.escapeHtmlTextarea($str)</textarea>
+					<textarea id="$addfield" name="$addfield"  name="$addfield"  wrap="virtual" rows="2" cols="60">$validator.escapeHtmlTextarea($str)</textarea>
 				#else
 					<textarea id="$addfield" name="$addfield"  wrap="virtual" rows="2" cols="60"></textarea>
 				#end
