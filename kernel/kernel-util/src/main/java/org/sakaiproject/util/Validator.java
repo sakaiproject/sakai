@@ -202,7 +202,7 @@ public class Validator
 	 * @param id
 	 *        The string to escape.
 	 * @return id fully escaped using URL rules.
-	 * @deprecated use {@link java.net.URLEncode#encode(String, String)}
+	 * @deprecated use {@link java.net.URLEncoder#encode(String, String)}
 	 */
 	public static String escapeUrl(String id)
 	{
