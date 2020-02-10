@@ -255,7 +255,7 @@ button.btn.btn-default.multiselect-clear-filter{
 				<label for="newcopyright">
 					$tlang.getString("cright.info")
 				</label>
-				<textarea class="form-control" name="newcopyright" id="newcopyright" rows="2" wrap="virtual" >$formattedText.escapeHtmlTextarea("$!model.copyrightInfo")</textarea>
+				<textarea class="form-control" name="newcopyright" id="newcopyright" rows="2" wrap="virtual" >$validator.escapeHtmlTextarea("$!model.copyrightInfo")</textarea>
 			</p>
 		</div>
 		<div class="form-group">
