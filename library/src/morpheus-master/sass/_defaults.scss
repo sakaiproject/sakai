@@ -156,6 +156,7 @@ $button-primary-active-background:          $button-primary-hover-background;
 $button-primary-active-border-color:        $button-primary-hover-border-color;
 $button-primary-active-shadow-color:        $button-active-shadow-color;
 $button-primary-active-shadow:              inset 0 0 $standard-spacing $button-active-shadow-color !default;
+
 /* end of General button design */
 
 $info-color:                $primary-color  !default;
@@ -240,7 +241,7 @@ $sites-nav-menu-item-hover-border-left:     $sites-nav-menu-item-hover-border-to
 $sites-nav-menu-item-selected-background:   $primary-color !default;
 $sites-nav-menu-item-selected-color:        #FFFFFF !default;
 $sites-nav-menu-item-selected-border-color: #326B97 !default;
-
+$sites-nav-menu-item-selected-font-weight:  600 !default
 $sites-nav-menu-item-selected-border-top:   $sites-nav-menu-item-border-thickness solid $sites-nav-menu-item-selected-border-color !default;
 $sites-nav-menu-item-selected-border-right: $sites-nav-menu-item-selected-border-top !default;
 $sites-nav-menu-item-selected-border-bottom:$sites-nav-menu-item-selected-border-top !default;
