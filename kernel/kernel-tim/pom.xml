@@ -110,7 +110,7 @@
         <repository>
             <id>terracotta-releases</id>
             <!-- You might need to use http://repo.spring.io/libs-release-remote to build this -->
-            <url>http://www.terracotta.org/download/reflector/releases</url>
+            <url>https://www.terracotta.org/download/reflector/releases</url>
         </repository>
     </repositories>
     <pluginRepositories>
@@ -129,7 +129,7 @@
         <pluginRepository>
             <id>terracotta-repository</id>
             <!-- You might need to use http://repo.spring.io/libs-release-remote to build this -->
-            <url>http://www.terracotta.org/download/reflector/maven2</url>
+            <url>https://www.terracotta.org/download/reflector/maven2</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
