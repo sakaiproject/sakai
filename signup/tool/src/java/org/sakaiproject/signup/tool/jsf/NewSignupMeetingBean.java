@@ -241,6 +241,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
         recurrence = false;
         assignParicitpantsToAllRecurEvents = false;
         numberOfSlots = 4;
+        maxNumOfSlots = 1;
         numberOfAttendees = 1;
         maxOfAttendees = 10;
         timeSlotDuration = 0; // minutes
