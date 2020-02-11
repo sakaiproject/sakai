@@ -75,6 +75,8 @@ function GetFormContent(formId, buttonName) {
     return pairs.join("&");
 }
 
+var counter = 0
+
 function SaveFormContentAsync(toUrl, formId, buttonName, updateVar, updateVar2, repeatMilliseconds, ok ) {
     if (!ok) { 
 		return;
@@ -85,6 +87,9 @@ function SaveFormContentAsync(toUrl, formId, buttonName, updateVar, updateVar2, 
 	}
 
     // asyncronously send form content to toUrl, wait for response, sleep, repeat
+    //    var theStatus = document.getElementById(statusId);
+    counter += 1;
+
     function onready_callback(text) {
 	    // This is an Ajax response. It isn't normally processed.
 	// So if we need anything from it we have to get it.
@@ -129,7 +134,7 @@ function SaveFormContentAsync(toUrl, formId, buttonName, updateVar, updateVar2, 
 	    link.onmouseup = item[1];
 	    link.onclick = item[2];
 	}
-
+	//	theStatus.innerHTML = "count "+counter+" save complete at "+Date();
         // wait and then call save form again
 	if (saveok) {
 	    var onTimeout = TimeOutAction(toUrl, formId, buttonName, updateVar, updateVar2, repeatMilliseconds);
@@ -174,7 +179,7 @@ function SaveFormContentAsync(toUrl, formId, buttonName, updateVar, updateVar2, 
         // when the request is done the scope of the function can be garbage collected...
     }
 
-    if (doautosave) {
+    if (doautosave && counter > 1) {
       var payload = GetFormContent(formId, buttonName);
 
       $.ajax({ method: "POST", url: toUrl, data: payload }, function () {
