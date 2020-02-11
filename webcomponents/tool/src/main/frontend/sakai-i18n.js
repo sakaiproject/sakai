@@ -71,10 +71,6 @@ function loadProperties(options) {
     params.append("resourceclass", options.resourceClass);
     params.append("resourcebundle", options.bundle);
 
-    var fetchPromise = fetch(`/sakai-ws/rest/i18n/getI18nProperties?${params.toString()}`, {
-      headers: { "Content-Type": "application/text" },
-    });
-
     return new Promise(resolve => {
 
       const url = `/sakai-ws/rest/i18n/getI18nProperties?${params.toString()}`;

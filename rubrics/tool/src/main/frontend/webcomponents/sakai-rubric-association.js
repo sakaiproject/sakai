@@ -49,7 +49,7 @@ class SakaiRubricAssociation extends RubricsElement {
 
     super.attributeChangedCallback(name, oldValue, newValue);
 
-    if (this.token && this.toolId) {
+    if (this.token && this.toolId && this.entityId) {
       this.getAssociation();
     }
   }
