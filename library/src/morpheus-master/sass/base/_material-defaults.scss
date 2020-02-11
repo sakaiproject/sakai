@@ -125,7 +125,7 @@ $material-elevation-8dp: 0 5px 5px -3px rgba(0,0,0,.2), 0 8px 10px 1px rgba(0,0,
 @if $buttons-as-material {
     /* General button design */
     $button-radius: 4px;
-    $button-text-transform: uppercase;
+    $button-text-transform: none;
 
     // Default (non-primary) button design:
     $button-text-color: $primary-color;
