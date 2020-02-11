@@ -20,6 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.messageforums;
 
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -363,8 +364,7 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
         int attIndex = url.indexOf("attachment");
         String leftOfAttachment = url.substring(0, attIndex);
         String rightOfAttachment = url.substring(attIndex);
-
-        String finalUrl = leftOfAttachment.concat(formattedText.escapeUrl(rightOfAttachment));
+        String finalUrl = leftOfAttachment.concat(URLEncoder.encode(rightOfAttachment));
         return finalUrl;
     }
 

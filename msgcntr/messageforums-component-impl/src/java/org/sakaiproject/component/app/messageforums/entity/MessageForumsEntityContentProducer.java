@@ -57,6 +57,19 @@ public class MessageForumsEntityContentProducer implements
 	private List removeEvents = null;
 	
 	@Setter private FormattedText formattedText;
+	@Setter private DeveloperHelperService developerHelperService;
+	@Setter private ServerConfigurationService serverConfigurationService;
+	@Setter private SearchService searchService;
+	@Setter private EntityBroker entityBroker;
+	@Setter private String toolName = null;
+	@Setter private SearchIndexBuilder searchIndexBuilder = null;
+	/**
+	 * Forums Services
+	 */
+	@Setter private MessageForumsMessageManager messageForumsMessageManager;
+	@Setter private DiscussionForumManager discussionForumManager;
+	@Setter private UIPermissionsManager uIPermissionManager; 
+	
 	
 	/**
 	 * @param addEvents
@@ -72,81 +85,7 @@ public class MessageForumsEntityContentProducer implements
 		this.removeEvents = removeEvents;
 	}
 	
-	// runtime dependency
-	private String toolName = null;
-	/**
-	 * @param toolName
-	 *        The toolName to set.
-	 */
-	public void setToolName(String toolName)
-	{
-		this.toolName = toolName;
-	}
-	
-	
-	private DeveloperHelperService developerHelperService;
-	public void setDeveloperHelperService(
-			DeveloperHelperService developerHelperService) {
-		this.developerHelperService = developerHelperService;
-	}
 
-	private ServerConfigurationService serverConfigurationService;
-	public void setServerConfigurationService(
-			ServerConfigurationService serverConfigurationService)
-	{
-		this.serverConfigurationService = serverConfigurationService;
-	}
-	
-
-	// injected dependency
-	private SearchService searchService = null;
-	/**
-	 * @param searchService the searchService to set
-	 */
-	public void setSearchService(SearchService searchService)
-	{
-		this.searchService = searchService;
-	}
-	
-	// injected dependency
-	private SearchIndexBuilder searchIndexBuilder = null;
-
-	/**
-	 * @param searchIndexBuilder the searchIndexBuilder to set
-	 */
-	public void setSearchIndexBuilder(SearchIndexBuilder searchIndexBuilder)
-	{
-		this.searchIndexBuilder = searchIndexBuilder;
-	}
-	
-	/**
-	 * Forums Services
-	 */
-	private MessageForumsMessageManager messageForumsMessageManager;
-	public void setMessageForumsMessageManager(
-			MessageForumsMessageManager messageForumsMessageManager) {
-		this.messageForumsMessageManager = messageForumsMessageManager;
-	}
-
-	private DiscussionForumManager discussionForumManager;
-	
-	public void setDiscussionForumManager(
-			DiscussionForumManager discussionForumManager) {
-		this.discussionForumManager = discussionForumManager;
-	}
-
-
-	public void setUIPermissionManager(UIPermissionsManager permissionManager) {
-		uIPermissionManager = permissionManager;
-	}
-
-	private UIPermissionsManager uIPermissionManager; 
-	
-	private EntityBroker entityBroker;
-	public void setEntityBroker(EntityBroker eb) {
-		this.entityBroker = eb;
-	}
-	
 	public void init()
 	{
 
@@ -385,7 +324,6 @@ public class MessageForumsEntityContentProducer implements
 	}
 
 	public boolean matches(Event event) {
-		// TODO Auto-generated method stub
 		return matches(event.getResource());
 	}
 

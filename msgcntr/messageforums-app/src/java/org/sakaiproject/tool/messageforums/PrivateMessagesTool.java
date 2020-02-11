@@ -26,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Attachment;
@@ -4161,7 +4162,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     
     public String getPlacementId() 
     {
-       return formattedText.escapeJavascript("Main" + toolManager.getCurrentPlacement().getId());
+       return StringEscapeUtils.escapeEcmaScript("Main" + toolManager.getCurrentPlacement().getId());
     }
 
     public boolean isSearchPvtMsgsEmpty()
