@@ -30,8 +30,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.sakaiproject.api.app.messageforums.AnonymousManager;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.BaseForum;
@@ -56,8 +54,10 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.messageforums.ui.DiscussionMessageBean;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.FormattedText;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This sends out emails to a list of users.
@@ -138,7 +138,8 @@ public class ForumsEmailService {
 			attachmentList = reply.getAttachments();
 			StringBuilder content = new StringBuilder();
 			String newline = "<br/>";
-			String greaterThanHtml = FormattedText.escapeHtml(">", true);
+			FormattedText formattedText = ComponentManager.get(FormattedText.class);
+			String greaterThanHtml = formattedText.escapeHtml(">", true);
 			Site currentSite = null;
 			String sitetitle = "";
 			BaseForum baseforum = reply.getTopic().getBaseForum();
@@ -204,7 +205,7 @@ public class ForumsEmailService {
 				log.debug("Email content: " + content.toString());
 			}
 
-			msg.setBody(FormattedText.escapeHtmlFormattedText(content.toString()));
+			msg.setBody(formattedText.escapeHtmlFormattedText(content.toString()));
 			msg.setContentType("text/html");
 			msg.setCharacterSet("utf-8");
 			msg.addHeader("Content-Transfer-Encoding", "quoted-printable");

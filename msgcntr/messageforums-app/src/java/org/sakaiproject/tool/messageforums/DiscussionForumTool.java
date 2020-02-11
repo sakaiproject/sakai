@@ -138,8 +138,8 @@ import org.sakaiproject.tool.messageforums.ui.PermissionBean;
 import org.sakaiproject.tool.messageforums.ui.SiteGroupBean;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.FormattedText;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 import org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation;
 import org.sakaiproject.rubrics.logic.RubricsConstants;
@@ -321,6 +321,9 @@ public class DiscussionForumTool {
   // compose
   @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.MessageForumsMessageManager\"]}")
   private MessageForumsMessageManager messageManager;
+  @Setter
+  @ManagedProperty(value="#{Components[\"org.sakaiproject.util.api.FormattedText\"]}")
+  private FormattedText formattedText;
   private String composeTitle;
   private String composeBody;
   private String composeLabel;
@@ -1034,7 +1037,7 @@ public class DiscussionForumTool {
       return gotoMain();
     }
     StringBuilder alertMsg = new StringBuilder();
-    selectedForum.getForum().setExtendedDescription(FormattedText.processFormattedText(selectedForum.getForum().getExtendedDescription(), alertMsg));
+    selectedForum.getForum().setExtendedDescription(formattedText.processFormattedText(selectedForum.getForum().getExtendedDescription(), alertMsg));
     selectedForum.setMarkForDeletion(true);
     return FORUM_SETTING;
   }
@@ -1409,7 +1412,7 @@ public class DiscussionForumTool {
     }
     
     StringBuilder alertMsg = new StringBuilder();
-    forum.setExtendedDescription(FormattedText.processFormattedText(forum.getExtendedDescription(), alertMsg));
+    forum.setExtendedDescription(formattedText.processFormattedText(forum.getExtendedDescription(), alertMsg));
 	if(forum.getShortDescription()!=null && forum.getShortDescription().length() > 255){
 		forum.setShortDescription(forum.getShortDescription().substring(0, 255));
 	}
@@ -1899,7 +1902,7 @@ public class DiscussionForumTool {
     	}
 
     	StringBuilder alertMsg = new StringBuilder();
-    	topic.setExtendedDescription(FormattedText.processFormattedText(topic.getExtendedDescription(), alertMsg));
+    	topic.setExtendedDescription(formattedText.processFormattedText(topic.getExtendedDescription(), alertMsg));
     	
     	if ("<br/>".equals(topic.getExtendedDescription()))
     	{
@@ -1996,7 +1999,7 @@ public class DiscussionForumTool {
     }
     //in case XSS was slipped in, make sure we remove it:
     StringBuilder alertMsg = new StringBuilder();
-    selectedTopic.getTopic().setExtendedDescription(FormattedText.processFormattedText(selectedTopic.getTopic().getExtendedDescription(), alertMsg));
+    selectedTopic.getTopic().setExtendedDescription(formattedText.processFormattedText(selectedTopic.getTopic().getExtendedDescription(), alertMsg));
     selectedTopic.setMarkForDeletion(true);
     return TOPIC_SETTING;
   }
@@ -3775,7 +3778,7 @@ public class DiscussionForumTool {
     {
       StringBuilder alertMsg = new StringBuilder();
       aMsg.setTitle(getComposeTitle());
-      aMsg.setBody(FormattedText.processFormattedText(getComposeBody(), alertMsg));
+      aMsg.setBody(formattedText.processFormattedText(getComposeBody(), alertMsg));
       
       if(getUserNameOrEid()!=null){
       aMsg.setAuthor(getUserNameOrEid());
@@ -4251,7 +4254,7 @@ public class DiscussionForumTool {
 		  GradeDefinition gradeDef = gradebookService.getGradeDefinitionForStudentForItem(gradebookUid, assignment.getId(), studentId);
 
 		  if (gradeDef.getGrade() != null) {
-		      String decSeparator = FormattedText.getDecimalSeparator();
+		      String decSeparator = formattedText.getDecimalSeparator();
 		      gbItemScore = StringUtils.replace(gradeDef.getGrade(), (",".equals(decSeparator)?".":","), decSeparator);
 		  }
 
@@ -4557,7 +4560,7 @@ public class DiscussionForumTool {
 
 		StringBuilder alertMsg = new StringBuilder();
 		dMsg.setTitle(getComposeTitle());
-		dMsg.setBody(FormattedText.processFormattedText(currentBody, alertMsg));
+		dMsg.setBody(formattedText.processFormattedText(currentBody, alertMsg));
 		dMsg.setDraft(Boolean.FALSE);
 		dMsg.setModified(new Date());
 
@@ -7567,7 +7570,7 @@ public class DiscussionForumTool {
     }
     //in case XSS was slipped in, make sure we remove it:
     StringBuilder alertMsg = new StringBuilder();
-    selectedForum.getForum().setExtendedDescription(FormattedText.processFormattedText(selectedForum.getForum().getExtendedDescription(), alertMsg));
+    selectedForum.getForum().setExtendedDescription(formattedText.processFormattedText(selectedForum.getForum().getExtendedDescription(), alertMsg));
     selectedForum.getForum().setTitle(getResourceBundleString(DUPLICATE_COPY_TITLE, new Object [] {selectedForum.getForum().getTitle()} ));
 
     selectedForum.setMarkForDuplication(true);
@@ -7642,7 +7645,7 @@ public class DiscussionForumTool {
     }
     //in case XSS was slipped in, make sure we remove it:
     StringBuilder alertMsg = new StringBuilder();
-    selectedTopic.getTopic().setExtendedDescription(FormattedText.processFormattedText(selectedTopic.getTopic().getExtendedDescription(), alertMsg));
+    selectedTopic.getTopic().setExtendedDescription(formattedText.processFormattedText(selectedTopic.getTopic().getExtendedDescription(), alertMsg));
     selectedTopic.getTopic().setTitle(getResourceBundleString(DUPLICATE_COPY_TITLE, new Object[] {selectedTopic.getTopic().getTitle()}));
     selectedTopic.setMarkForDuplication(true);
     return TOPIC_SETTING;
