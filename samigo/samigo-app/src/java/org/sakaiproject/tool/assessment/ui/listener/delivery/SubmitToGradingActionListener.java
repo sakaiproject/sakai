@@ -114,13 +114,13 @@ public class SubmitToGradingActionListener implements ActionListener {
 			DeliveryBean delivery = (DeliveryBean) ContextUtil
 					.lookupBean("delivery");
 
-      for (ItemGradingData checkIGD : delivery.getAssessmentGrading().getItemGradingSet()) {
-        Long itemId = checkIGD.getPublishedItemId();
-        ItemDataIfc item = (ItemDataIfc) delivery.getPublishedItemHash().get(itemId);
-        if (item == null) {
-          throw new DataException("Items in ItemGradingSet missing in PublishedItemHash");
-        }
-      }
+			for (ItemGradingData checkIGD : delivery.getAssessmentGrading().getItemGradingSet()) {
+				Long itemId = checkIGD.getPublishedItemId();
+				ItemDataIfc item = (ItemDataIfc) delivery.getPublishedItemHash().get(itemId);
+				if (item == null) {
+					throw new DataException("Items in ItemGradingSet missing in PublishedItemHash");
+				}
+			}
 
 			if ((ContextUtil.lookupParam("showfeedbacknow") != null
 					&& "true"
