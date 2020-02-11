@@ -1,10 +1,11 @@
 <!-- start: chef_assignments_instructor_list_submissions.vm  -->
 #module("/rubrics-service/webcomponents/rubric-association-requirements.js")
 #set( $H = '-' )
-<script type="text/javascript">includeLatestJQuery('assignments');</script>
+<script>includeLatestJQuery('assignments');</script>
 #javascript("/library/js/lang-datepicker/lang-datepicker.js")
+<script type="module" src="/webcomponents/grader/grader-toggle.js" />
 
-<script type="text/javascript">
+<script>
 	$(document).ready(function(){
 		$('#submissionList input:checkbox').click(function()
 		{
@@ -30,7 +31,7 @@
 	var escapeList = [ 'toggleModel' ];
 </script>
 
-<script type="text/javascript">
+<script>
 function printView(url) {
     var i = url.indexOf("/site/");
     if (i < 0)
@@ -105,6 +106,7 @@ function printView(url) {
 					<input type="button" accesskey="a" class="active" name="apply" value="$tlang.getString('gen.applygrade')" onclick="SPNR.disableControlsAndSpin( this, escapeList ); ASN.submitForm( 'defaultGradeForm', null, null, null );" title="$tlang.getString("gen.applygrade")" />
 					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 				</form>
+				<grader-toggle tool="assignments"></grader-toggle>
 			#end
 			</div>
 		</div>
