@@ -11,8 +11,6 @@ var disabledButtons = [];
 
 // confirm box needs to disable autosave temporarily
 
-var doautosave = true;
-
 //    Links are more difficult, as there isn't a disabled
 // attribute for them. Currently I clear onmouseup and onclick.
 //    I've tried to make this script generic, but if it is
@@ -174,7 +172,6 @@ function SaveFormContentAsync(toUrl, formId, buttonName, updateVar, updateVar2, 
         // when the request is done the scope of the function can be garbage collected...
     }
 
-    if (doautosave) {
       var payload = GetFormContent(formId, buttonName);
 
       $.ajax({ method: "POST", url: toUrl, data: payload }, function () {
@@ -187,12 +184,6 @@ function SaveFormContentAsync(toUrl, formId, buttonName, updateVar, updateVar2, 
           $("#autosave-failed-warning").show();
           onready_callback("");
         });
-
-    } else {
-	//alert("first time" + 	    document.forms[0].elements['takeAssessmentForm:lastSubmittedDate1'].value);
-        var onTimeout = TimeOutAction(toUrl, formId, buttonName, updateVar, updateVar2, repeatMilliseconds);
-        setTimeout(onTimeout, repeatMilliseconds);
-    }
 
     // onready_callback called on request response.
 }
