@@ -13,8 +13,8 @@
 		</style>	
 	
 <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
-	  <script TYPE="text/javascript" src="/sakai-signup-tool/js/signupScript.js"></script>
-	  <script TYPE="text/javascript">
+	  <script src="/sakai-signup-tool/js/signupScript.js"></script>
+	  <script>
 			jQuery(document).ready(function() {
 				isShowEmailChoice();
 	         });

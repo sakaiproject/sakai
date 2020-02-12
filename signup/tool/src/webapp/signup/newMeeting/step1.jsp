@@ -12,13 +12,13 @@
         <style type="text/css">
             @import url("/sakai-signup-tool/css/signupStyle.css");
         </style>
-        
+
 <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
-        <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
-        <script type="text/javascript" src="/sakai-signup-tool/js/signupScript.js"></script>
-        <script type="text/javascript" src="/sakai-signup-tool/js/newMeetingStep1.js"></script>  
-        
-    	<script type="text/javascript">
+        <script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+        <script src="/sakai-signup-tool/js/signupScript.js"></script>
+        <script src="/sakai-signup-tool/js/newMeetingStep1.js"></script>
+
+		<script>
 	         //initialization of the page
 	         jQuery(document).ready(function() {
 

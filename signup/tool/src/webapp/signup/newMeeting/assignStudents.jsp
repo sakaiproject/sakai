@@ -11,9 +11,9 @@
 		<style type="text/css">
 			@import url("/sakai-signup-tool/css/signupStyle.css");
 		</style>
-<h:outputText value="#{Portal.latestJQuery}" escape="false"/>
-		<script TYPE="text/javascript" src="/sakai-signup-tool/js/signupScript.js"></script>		
-		<script TYPE="text/javascript">			
+		<h:outputText value="#{Portal.latestJQuery}" escape="false"/>
+		<script src="/sakai-signup-tool/js/signupScript.js"></script>
+		<script>
 			var lastActivePanel;
 			var lastClickedAddImage;
 			var lastUserInputEid;
