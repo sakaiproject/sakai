@@ -335,6 +335,22 @@
 							$button-hover-shadow,
 							$button-active-shadow);
 }
+@mixin sakai_link_button() {
+	@include sakai_button(	$button-link-text-color,
+							$button-link-background,
+							$button-link-border-color,
+							$button-link-hover-text-color,
+							$button-link-hover-background,
+							$button-link-hover-border-color,
+							$button-link-active-text-color,
+							$button-link-active-background,
+							$button-link-active-border-color,
+							$button-link-text-transform,
+							$button-link-font-weight,
+							$button-link-shadow,
+							$button-link-hover-shadow,
+							$button-link-active-shadow);
+}
 
 button.btn-primary, .act .active {
 	@include sakai_primary_button();
@@ -342,6 +358,10 @@ button.btn-primary, .act .active {
 
 .button_color, button:not(.fc-button), .button, a[href].button, button.ui-state-default, .btn-group .btn, .btn.btn-default, .button.link, a.btn-link, button.btn-link {
 	@include sakai_secondary_button();
+}
+
+button.btn-tertiary {
+	@include sakai_link_button();
 }
 
 .input-group-btn .btn {
