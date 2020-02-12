@@ -56,6 +56,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.services.DataException;
 import org.sakaiproject.tool.assessment.services.FinFormatException;
 import org.sakaiproject.tool.assessment.services.GradebookServiceException;
 import org.sakaiproject.tool.assessment.services.GradingService;
@@ -105,13 +106,21 @@ public class SubmitToGradingActionListener implements ActionListener {
 	 * @param ae
 	 * @throws AbortProcessingException
 	 */
-	public void processAction(ActionEvent ae) throws AbortProcessingException, FinFormatException, SaLengthException {
+	public void processAction(ActionEvent ae) throws AbortProcessingException, FinFormatException, SaLengthException, DataException {
 		try {
 			log.debug("SubmitToGradingActionListener.processAction() ");
 			
 			// get managed bean
 			DeliveryBean delivery = (DeliveryBean) ContextUtil
 					.lookupBean("delivery");
+
+			for (ItemGradingData checkIGD : delivery.getAssessmentGrading().getItemGradingSet()) {
+				Long itemId = checkIGD.getPublishedItemId();
+				ItemDataIfc item = (ItemDataIfc) delivery.getPublishedItemHash().get(itemId);
+				if (item == null) {
+					throw new DataException("Items in ItemGradingSet missing in PublishedItemHash");
+				}
+			}
 
 			if ((ContextUtil.lookupParam("showfeedbacknow") != null
 					&& "true"
