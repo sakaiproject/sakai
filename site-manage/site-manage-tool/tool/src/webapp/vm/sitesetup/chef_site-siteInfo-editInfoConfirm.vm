@@ -20,7 +20,7 @@
 					#else
 						$formattedText.escapeHtml($!title)
 					#end
-				</div>					
+				</div>
 			</div>
 			#if ($displaySiteAlias)
 				<div class="form-group row">
@@ -29,7 +29,7 @@
 	 				</label>
 	 				<div class="col-sm-8">
 	 					$formattedText.escapeHtml($!form_url_alias_full)
-	 				</div>	
+	 				</div>
 	 			</div>
 	 		#end
 			#if ($!isCourseSite)
@@ -39,7 +39,7 @@
 					</label>
 					<div class="col-sm-8">
 						$!siteTerm
-					</div>					
+					</div>
 				</div>
 			#end
 			<div class="form-group row">
@@ -66,13 +66,13 @@
 							#end
 						#end
 					#end
-				</div>	
+				</div>
 			</div>
 			<div class="form-group row">
  				<label class="col-sm-2 form-control-label">
  					$tlang.getString("sitediconf.language")
  				</label>
- 				<div class="col-sm-8">					
+ 				<div class="col-sm-8">
  					#if (!$new_locale.equals("") && !$oLocale.equals(""))
  						#if (!$new_locale.toString().equals($oLocale.toString()))
  							<span class="highlight">$formattedText.escapeHtml($new_locale.getDisplayName())</span>
@@ -93,13 +93,13 @@
 					<label class="col-sm-2 form-control-label">
 						$tlang.getString("sitediconf.des")
 					</label>
-					<div class="col-sm-8">	
-						#if (!$!description.equals($!oDescription))
+					<div class="col-sm-8">
+						#if ($!descriptionUpdated)
 							<span class="highlight">$!description</span>
 						#else	
 							$!description
 						#end	
-					</div>					
+					</div>
 				</div>
 			#end
 			#if ($!short_description)
@@ -107,7 +107,7 @@
 					<label class="col-sm-2 form-control-label">
 						$tlang.getString("sitediconf.shodes")
 					</label>
-					<div class="col-sm-8">	
+					<div class="col-sm-8">
 						#if (!$!short_description.equals($!oShort_description))
 							<span class="highlight">$formattedText.escapeHtml($!short_description)</span>
 						#else
@@ -115,7 +115,7 @@
 						#end
 					</div>
 				</div>
-			#end	
+			#end
 			#if ($allowSkinChoice)
 				## course site
 				<div class="form-group row">
@@ -172,8 +172,8 @@
 						#else
 							$formattedText.escapeHtml($!name)
 						#end
-					#end	
-				</div>					
+					#end
+				</div>
 			</div>
 			<div class="form-group row">
 				<label class="col-sm-2 form-control-label">
@@ -189,7 +189,7 @@
 							$!email
 						#end
 					#end
-				</div>					
+				</div>
 			</div>
             #if ($isMathJaxInstalled)
             <div class="form-group row">
@@ -204,7 +204,7 @@
                 #end
                 <div>
             </div>
-            #end		
+            #end
 		<input type="hidden" name="back" value="$!backIndex" />
 		<input type="hidden" name="templateIndex" value="$!templateIndex" />
 		<input type="hidden" name="continue" value="12" />
