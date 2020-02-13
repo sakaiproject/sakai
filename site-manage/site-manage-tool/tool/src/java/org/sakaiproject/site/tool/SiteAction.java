@@ -711,8 +711,6 @@ public class SiteAction extends PagedResourceActionII {
 	
 	// the list of visited templates
 	private static final String STATE_VISITED_TEMPLATES = "state_visited_templates";
-	
-	public static final String STATE_GROUP_HELPER_ID = "state_group_helper_id";
 
 	// used in the configuration file to specify which tool attributes are configurable through WSetup tool, and what are the default value for them.
 	private String CONFIG_TOOL_ATTRIBUTE = "wsetup.config.tool.attribute_";
@@ -4432,22 +4430,13 @@ public class SiteAction extends PagedResourceActionII {
 		// launch the helper
 		startHelper(data.getRequest(), getAddUserHelper(getStateSite(state)));
 	}
-	
+
 	/**
 	 * Launch the Manage Group helper Tool -- for adding, editing and deleting groups
 	 * 
 	 */
 	public void doManageGroupHelper(RunData data) {
-		SessionState state = ((JetspeedRunData) data)
-				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-
-		// pass in the siteId of the site to be ordered (so it can configure
-		// sites other then the current site)
-		SessionManager.getCurrentToolSession().setAttribute(
-				HELPER_ID + ".siteId", ((Site) getStateSite(state)).getId());
-
-		// launch the helper
-		startHelper(data.getRequest(), (String) state.getAttribute(STATE_GROUP_HELPER_ID));
+		startHelper(data.getRequest(), "sakai-site-group-manager");
 	}
 
 	/**
