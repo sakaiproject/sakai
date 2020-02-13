@@ -172,6 +172,12 @@
 			<version>1.2.2</version>
 			<scope>runtime</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>jqplot</artifactId>
+			<version>1.0.9.d96a669-1</version>
+			<scope>runtime</scope>
+		</dependency>
 		<!--Used in the portal, notify the user about forbidden HTML entities (AntiSamy) -->
 		<dependency>
 			<groupId>org.webjars.npm</groupId>
