@@ -46,7 +46,7 @@
 		<h:outputText value="<li> #{deliveryMessages.data_discrepancy_3}</li>" escape="false"/>
 	<h:outputText value="</ol>" escape="false"/>
 
-    <h:outputText value="#{deliveryMessages.data_discrepancy_4}" escape="false"/>
+    <h:outputText value="#{deliveryMessages.data_discrepancy_4}" escape="false"/><br/>
     <h:outputFormat value="#{deliveryMessages.data_discrepancy_5}" escape="false" rendered="#{delivery.actionString=='takeAssessment'}"> 		
 		<f:param value="#{deliveryMessages.button_return}"/>
 	</h:outputFormat>
