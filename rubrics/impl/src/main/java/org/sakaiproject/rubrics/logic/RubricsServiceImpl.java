@@ -454,7 +454,6 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         int index = 0;
         boolean pointsAdjusted = false;
         String points = null;
-        String selectedRatingId = null;
 
         String siteId = formPostParameters.get("siteId");
 
@@ -478,7 +477,8 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
             }
             index++;
 
-            final String selectedRatingPoints = criterionData.getValue().get(RubricsConstants.RBCS_PREFIX + evaluatedItemId + "-"+ associatedItemId + "-criterion");
+            String selectedRatingPoints = criterionData.getValue().get(RubricsConstants.RBCS_PREFIX + evaluatedItemId + "-"+ associatedItemId + "-criterion");
+            String selectedRatingId = criterionData.getValue().get(RubricsConstants.RBCS_PREFIX + evaluatedItemId + "-"+ associatedItemId + "-criterionrating");
 
             if (StringUtils.isNotBlank(criterionData.getValue().get(RubricsConstants.RBCS_PREFIX + evaluatedItemId + "-" + associatedItemId + "-criterion-override"))) {
                 pointsAdjusted = true;
@@ -488,15 +488,8 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                 points = selectedRatingPoints;
             }
 
-            Criterion criterion = criterions.get(criterionData.getKey());
-            Optional<Rating> rating = criterion.getRatings().stream().filter(c -> String.valueOf(c.getPoints()).equals(selectedRatingPoints)).findFirst();
-
-            if (rating.isPresent()) {
-                selectedRatingId =  String.valueOf(rating.get().getId());
-            }
-
             if (StringUtils.isEmpty(points)){
-                points = "0";
+                points = "0.0";
             }
 
             criterionJsonData += String.format("{ \"criterionId\" : \"%s\", \"points\" : \"%s\", " +

@@ -10,7 +10,7 @@
 			<h3>
 				$tlang.getString("alias.alias")
 			</h3>	
-		#if ($alertMessage)<div class="sak-banner-error">$tlang.getFormattedMessage("alias.alert.message", $validator.escapeHtml($alertMessage))</div>#end
+		#if ($alertMessage)<div class="sak-banner-error">$tlang.getFormattedMessage("alias.alert.message", $formattedText.escapeHtml($alertMessage))</div>#end
 			<div class="instruction">
 				$tlang.getString("alias.edit.review")
 			</div>
@@ -19,31 +19,31 @@
 				<label #if(!$alias) for="id" #end>
 					$tlang.getFormattedMessage("alias.alias.label", $max_alias_id_length)
 				</label>
-				#if(!$alias)<input type="text" name="id" id="id" maxlength="$max_alias_id_length" />#else$validator.escapeHtml($alias.Id)#end
+				#if(!$alias)<input type="text" name="id" id="id" maxlength="$max_alias_id_length" />#else$formattedText.escapeHtml($alias.Id)#end
 			</p>	
 			<p class="shorttext">
 				<label for="target">
 					$tlang.getFormattedMessage("alias.edit.target.label", $max_alias_target_length)
 				</label>
-				<input type="text" name="target" id="target" #if($alias)value="$validator.escapeHtml($alias.Target)"#end maxlength="$max_alias_target_length" />
+				<input type="text" name="target" id="target" #if($alias)value="$formattedText.escapeHtml($alias.Target)"#end maxlength="$max_alias_target_length" />
 			</p>	
 #if ($alias)
 					<p class="shorttext">
 						<label>$tlang.getString("alias.edit.createdby")</label>
-						$validator.escapeHtml($alias.Properties.getPropertyFormatted($alias.Properties.NamePropCreator))&nbsp;
+						$formattedText.escapeHtml($alias.Properties.getPropertyFormatted($alias.Properties.NamePropCreator))&nbsp;
 					</p>
 					
 					<p class="shorttext">
 						<label>$tlang.getString("alias.edit.created")</label>
-						$validator.escapeHtml($alias.Properties.getPropertyFormatted($alias.Properties.NamePropCreationDate))&nbsp;
+						$formattedText.escapeHtml($alias.Properties.getPropertyFormatted($alias.Properties.NamePropCreationDate))&nbsp;
 					</p>	
 					<p class="shorttext">
 						<label>$tlang.getString("alias.edit.modby")</label>
-						$validator.escapeHtml($alias.Properties.getPropertyFormatted($alias.Properties.NamePropModifiedBy))&nbsp;
+						$formattedText.escapeHtml($alias.Properties.getPropertyFormatted($alias.Properties.NamePropModifiedBy))&nbsp;
 					</p>
 					<p class="shorttext">
 						<label>$tlang.getString("alias.edit.mod")</label>
-						$validator.escapeHtml($alias.Properties.getPropertyFormatted($alias.Properties.NamePropModifiedDate))&nbsp;
+						$formattedText.escapeHtml($alias.Properties.getPropertyFormatted($alias.Properties.NamePropModifiedDate))&nbsp;
 					</p>	
 #end
 			<div class="act">

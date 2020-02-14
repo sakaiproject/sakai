@@ -327,7 +327,7 @@ $(function() {
 	<div class="page-header">
 		<h1>$tlang.getString("new.adding")</h1>
 	</div>
-	#if ($alertMessage)<div class="sak-banner-warn">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+	#if ($alertMessage)<div class="sak-banner-warn">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>#end
 	<p class="sak-banner-info">
 		$tlang.getString("new.a") <span class="reqStarInline"> * </span>
 	</p>
@@ -338,7 +338,7 @@ $(function() {
 			<label for="activitytitle">$tlang.getString("new.title")</label>
 			#if ($savedData.getTitle().length() !=0)
 				#set($str = $savedData.getTitle().trim())
-				<input type="text" name="activitytitle" id="activitytitle" size="50" maxlength="150" value = "$validator.escapeHtml($str)" onfocus="minuteChange('startMinute'); 
+				<input type="text" name="activitytitle" id="activitytitle" size="50" maxlength="150" value = "$formattedText.escapeHtml($str)" onfocus="minuteChange('startMinute'); 
 					#if ($timeFormat.contains("H"))
 						reflectHourToHour24('endHour24', 'endHour', 'endAmpm');
 					#end
@@ -618,7 +618,7 @@ $(function() {
 			
 			<label for="body" class="block">$tlang.getString("new.descr")</label>
 			#if ($savedData.getDescription().length() !=0)
-				<textarea name="description" id="description" wrap="virtual" rows="10">$validator.escapeHtmlFormattedTextarea($savedData.getDescription())</textarea>
+				<textarea name="description" id="description" wrap="virtual" rows="10">$formattedText.escapeHtmlFormattedTextarea($savedData.getDescription())</textarea>
 				#chef_setupformattedtextarea("description")
 			#else
 				<textarea name="description" id="description" wrap="virtual" rows="10"> </textarea>
@@ -677,13 +677,13 @@ $(function() {
 						</td>
 						<td headers="name" nowrap="nowrap">
 							<label for="$group.Id">
-								$validator.escapeHtml($group.Title)
+								$formattedText.escapeHtml($group.Title)
 							</label>	
 						</td>
 						<td headers="description" width="100%"> ##mozilla does not resize table children dynamically , so set here
 							#set($description = "")
 							#set($description = $group.Description)
-							$validator.escapeHtml($!description)
+							$formattedText.escapeHtml($!description)
 						</td>
 					</tr>
 				#end
@@ -732,7 +732,7 @@ $(function() {
 			#end
 		</p>
 		#foreach ($addfield in $addFieldsCalendarsCollection)
-			#set ($addfield = $validator.escapeHtml($addfield))
+			#set ($addfield = $formattedText.escapeHtml($addfield))
 			<p class="shorttext">
 				<label for="$addfield">
 					$addfield
@@ -773,10 +773,10 @@ $(function() {
 						#if ($copyflag)
 							## if there is a copyright alert, show the alert page first
 							<a href="" onclick="openCopyrightWindow('${attachment.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false">
-							$validator.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>&#169;
+							$formattedText.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>&#169;
 						#else
 							<a href="$attachment.Url" target="_blank">
-							$validator.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>
+							$formattedText.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>
 						#end
 						
 						#if (!$props.getBooleanProperty($props.NamePropIsCollection))

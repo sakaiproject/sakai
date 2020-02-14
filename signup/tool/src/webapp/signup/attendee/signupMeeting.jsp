@@ -16,9 +16,9 @@
 				@import url("/sakai-signup-tool/css/print.css");
 		</style>
 <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
-		<script TYPE="text/javascript" LANGUAGE="JavaScript" src="/sakai-signup-tool/js/signupScript.js"></script>
+		<script src="/sakai-signup-tool/js/signupScript.js"></script>
 		
-		<script type="text/javascript">
+		<script>
 			var hiddenInputCollapeMInfo;
 			var showMInfoTitleTag;
 			jQuery(document).ready(function() {

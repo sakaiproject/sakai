@@ -90,6 +90,13 @@ public class BaseUserEqualsTest {
 	}
 
 	@Test
+	public void testEqualMixedCaseIdNoEid() {
+		BaseUserEdit user1 = newUser("id", null);
+		BaseUserEdit user2 = newUser("ID", null);
+		assertSymetric(user1, user2, true);
+	}
+
+	@Test
 	public void testEqualsNoId() {
 		BaseUserEdit user1 = newUser("id", "eid");
 		BaseUserEdit user2 = newUser(null, "eid");
@@ -103,6 +110,13 @@ public class BaseUserEqualsTest {
 		assertSymetric(user1, user2, true);
 	}
 
+	@Test
+	public void testMixedCaseEqualityInEid() {
+		BaseUserEdit user1 = newUser(null, "eid1");
+		BaseUserEdit user2 = newUser(null, "Eid1");
+		assertSymetric(user1, user2, true);
+	}
+	
 	@Test
 	public void testDiffEid() {
 		BaseUserEdit user1 = newUser(null, "eid1");

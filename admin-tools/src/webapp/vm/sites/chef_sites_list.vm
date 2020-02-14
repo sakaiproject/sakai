@@ -9,7 +9,7 @@
 	<h3>
 		$tlang.getString("sitlis.sites")
 	</h3>	
-		#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("sitlis.alert") $validator.escapeHtml($alertMessage)</div>#end
+		#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("sitlis.alert") $formattedText.escapeHtml($alertMessage)</div>#end
 		<div class="instruction">
 			$tlang.getString("sitlis.theare") 
 		</div>
@@ -103,22 +103,22 @@
 				<th scope="row" headers="Id">
 				<a href="#siteLink($site.Id)" id="external-link" class="external-link"><span class="fa fa-external-link" title="$tlang.getString("sitlis.link")"></span></a> | 
 					#if ($service.allowUpdateSite($site.Id))
-						<a href="#toolLinkParam("$action" "doEdit" "id=$validator.escapeUrl($site.Id)")" title="$tlang.getString("sitlis.edit")">
-							$validator.escapeHtml($site.Id) <span class="fa fa-pencil-square-o"></span>
+						<a href="#toolLinkParam("$action" "doEdit" "id=$formattedText.escapeUrl($site.Id)")" title="$tlang.getString("sitlis.edit")">
+							$formattedText.escapeHtml($site.Id) <span class="fa fa-pencil-square-o"></span>
 						</a>
 					#else
-						$validator.escapeHtml($site.Id)
+						$formattedText.escapeHtml($site.Id)
 					#end
 				</th>
-				<td headers="Title">$validator.escapeHtml($site.Title)</td>
+				<td headers="Title">$formattedText.escapeHtml($site.Title)</td>
 				<td headers="Published">#if($site.isPublished())<img src="#imageLink("sakai/checkon.gif")" border="0" alt="$tlang.getString("sitlis.pub")" />#end</td>
 				<td headers="Joinable">#if($site.isJoinable())<img src="#imageLink("sakai/checkon.gif")" border="0" alt="$tlang.getString("sitlis.joialt")" />#end</td>
-				<td headers="Type">$validator.escapeHtml($site.Type)</td>
+				<td headers="Type">$formattedText.escapeHtml($site.Type)</td>
 				<td headers="Description">
 					#if ($site.ShortDescription && $site.ShortDescription !="")
 						<div class="short-description">
 							<strong>$tlang.getString("sitlis.shodes")</strong>
-							<small> $validator.escapeHtml($site.ShortDescription) </small>
+							<small> $formattedText.escapeHtml($site.ShortDescription) </small>
 						</div>
 					#end	
 					#if ($site.Description && $site.Description !="")
@@ -130,20 +130,20 @@
 					#if ($site.IconUrl && $site.IconUrl !="")
 						<div class="icon-url">
 							<strong>$tlang.getString("sitlis.ico")</strong>
-							<small> $validator.escapeHtml($site.IconUrl) </small>
+							<small> $formattedText.escapeHtml($site.IconUrl) </small>
 						</div>
 					#end
 					#if ($site.InfoUrl  && $site.InfoUrl !="")
 						<div class="info-url">
 							<strong>$tlang.getString("sitlis.sitinf")</strong>
-							<small> $validator.escapeHtml($site.InfoUrl) </small>						
+							<small> $formattedText.escapeHtml($site.InfoUrl) </small>						
 						</div>
 					#end
 						<div class="created-by">
 							<strong>$tlang.getString("sitlis.cre")</strong>
 							<small>
 								#if ($site.CreatedDate) $userTimeService.dateFormat($site.CreatedDate, $tlang.Locale, 2) #end
-								#if ($site.CreatedBy) $validator.escapeHtml($site.CreatedBy.DisplayName) #end
+								#if ($site.CreatedBy) $formattedText.escapeHtml($site.CreatedBy.DisplayName) #end
 							</small>
 						</div>
 ##					#if ($realm.ProviderGroupId)

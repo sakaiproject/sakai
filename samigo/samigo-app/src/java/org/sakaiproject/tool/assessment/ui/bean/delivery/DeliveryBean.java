@@ -78,6 +78,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.EventLogFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.services.DataException;
 import org.sakaiproject.tool.assessment.services.FinFormatException;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
@@ -718,13 +719,16 @@ public class DeliveryBean implements Serializable {
 	  
 	  SubmitToGradingActionListener listener = new SubmitToGradingActionListener();
 	  // submission remaining and totalSubmissionPerAssessmentHash is updated inside 
-	  // SubmitToGradingListener
-	  try {
-		  listener.processAction(null);
-	  } catch (FinFormatException | SaLengthException e) {
-		  log.debug(e.getMessage());
-		  return "takeAssessment";
-	  }
+    // SubmitToGradingListener
+    try {
+      listener.processAction(null);
+    } catch (FinFormatException | SaLengthException e) {
+      log.debug(e.getMessage());
+      return "takeAssessment";
+    } catch (DataException e) {
+      log.error(e.getMessage());
+      return "discrepancyInData";
+    }
 	  
 	  // We don't need to call completeItemGradingData to create new ItemGradingData for linear access
 	  // because each ItemGradingData is created when it is viewed/answered 
@@ -872,12 +876,15 @@ public class DeliveryBean implements Serializable {
 			  || this.actionMode == TAKE_ASSESSMENT_VIA_URL) {
 		  syncTimeElapsedWithServer();
 		  SubmitToGradingActionListener listener = new SubmitToGradingActionListener();
-		  try {
-			  listener.processAction(null);
-		  } catch (FinFormatException | SaLengthException fine) {
-			  log.debug(fine.getMessage());
-			  return "takeAssessment";
-		  }
+      try {
+        listener.processAction(null);
+      } catch (FinFormatException | SaLengthException e) {
+        log.debug(e.getMessage());
+        return "takeAssessment";
+      } catch (DataException e) {
+        log.error(e.getMessage());
+        return "discrepancyInData";
+      }
 	  }
 
 	  skipFlag = true;
@@ -908,12 +915,15 @@ public class DeliveryBean implements Serializable {
 			  || this.actionMode == TAKE_ASSESSMENT_VIA_URL) {
 		  syncTimeElapsedWithServer();
 		  SubmitToGradingActionListener listener = new SubmitToGradingActionListener();
-		  try {
-			  listener.processAction(null);
-		  } catch (FinFormatException | SaLengthException e) {
-			  log.debug(e.getMessage());
-			  return "takeAssessment";
-		  }
+      try {
+        listener.processAction(null);
+      } catch (FinFormatException | SaLengthException e) {
+        log.debug(e.getMessage());
+        return "takeAssessment";
+      } catch (DataException e) {
+        log.error(e.getMessage());
+        return "discrepancyInData";
+      }
 	  }
 	  
 	  setFromTableOfContents(true);
@@ -946,12 +956,15 @@ public class DeliveryBean implements Serializable {
 			  || this.actionMode == TAKE_ASSESSMENT_VIA_URL) {
     	syncTimeElapsedWithServer();
     	SubmitToGradingActionListener listener = new SubmitToGradingActionListener();
-    	try {
-    		listener.processAction(null);
-    	} catch (FinFormatException | SaLengthException e) {
-  		  log.debug(e.getMessage());
-  		  return "takeAssessment";
-    	}
+      try {
+        listener.processAction(null);
+      } catch (FinFormatException | SaLengthException e) {
+        log.debug(e.getMessage());
+        return "takeAssessment";
+      } catch (DataException e) {
+        log.error(e.getMessage());
+        return "discrepancyInData";
+      }
     }
     
     String returnValue;
@@ -1004,9 +1017,12 @@ public class DeliveryBean implements Serializable {
       try {
         listener.processAction(null);
       } catch (FinFormatException | SaLengthException e) {
-		  log.debug(e.getMessage());
-		  return "takeAssessment";
-	  }
+        log.debug(e.getMessage());
+        return "takeAssessment";
+      } catch (DataException e) {
+        log.error(e.getMessage());
+        return "discrepancyInData";
+      }
     }
 
     int oPartIndex = partIndex;
@@ -1061,11 +1077,14 @@ public class DeliveryBean implements Serializable {
       SubmitToGradingActionListener listener =
         new SubmitToGradingActionListener();
       try {
-    	  listener.processAction(null);
+        listener.processAction(null);
       } catch (FinFormatException | SaLengthException e) {
-		  log.debug(e.getMessage());
-		  return "takeAssessment";
-	  }
+        log.debug(e.getMessage());
+        return "takeAssessment";
+      } catch (DataException e) {
+        log.error(e.getMessage());
+        return "discrepancyInData";
+      }
     }
 
     DeliveryActionListener l2 = new DeliveryActionListener();
@@ -1112,12 +1131,15 @@ public class DeliveryBean implements Serializable {
 			  setConfirmation(confirmation);
 			  lastSave = true;
           }
-          try {
-              listener.processAction(null);
-          } catch (FinFormatException | SaLengthException e) {
-              log.debug(e.getMessage());
-              return "takeAssessment";
-          }
+        try {
+          listener.processAction(null);
+        } catch (FinFormatException | SaLengthException e) {
+          log.debug(e.getMessage());
+          return "takeAssessment";
+        } catch (DataException e) {
+          log.error(e.getMessage());
+          return "discrepancyInData";
+        }
       }
       DeliveryActionListener l2 = new DeliveryActionListener();
       l2.processAction(null);
@@ -1148,11 +1170,14 @@ public class DeliveryBean implements Serializable {
       SubmitToGradingActionListener listener =
         new SubmitToGradingActionListener();
       try {
-    	  listener.processAction(null);
+        listener.processAction(null);
       } catch (FinFormatException | SaLengthException e) {
-		  log.debug(e.getMessage());
-		  return "takeAssessment";
-	  }
+        log.debug(e.getMessage());
+        return "takeAssessment";
+      } catch (DataException e) {
+        log.error(e.getMessage());
+        return "discrepancyInData";
+      }
     }
     
     DeliveryActionListener l2 = new DeliveryActionListener();

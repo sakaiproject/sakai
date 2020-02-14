@@ -109,9 +109,9 @@
 			</label>
 			<div class="col-sm-6">
 				#if ($siteTitleEditable || (!$!existingSite && !$hasRosterAttached))
-					<input type="text" name="title" id="title" size="20" maxlength="$!titleMaxLength" value="$validator.escapeHtml($!title)" />
+					<input type="text" name="title" id="title" size="20" maxlength="$!titleMaxLength" value="$formattedText.escapeHtml($!title)" />
 				#else
-					$validator.escapeHtml($!title)
+					$formattedText.escapeHtml($!title)
 				#end
 			</div>
 		</div>
@@ -123,7 +123,7 @@
 		 			<label for="alias_0">
 						$tlang.getString("sinfo.url")
 		 			</label>
-		 				$!form_site_url_base<input type="text" name="alias_0" id="alias_0" maxlength="40" size="20" value="$validator.escapeHtml($form_site_alias)" />
+		 				$!form_site_url_base<input type="text" name="alias_0" id="alias_0" maxlength="40" size="20" value="$formattedText.escapeHtml($form_site_alias)" />
 				</div>
 				<input type="hidden" name="alias_count" id="alias_count" value="1" />
 			#else
@@ -139,15 +139,15 @@
 		 					$tlang.getString("sitediinf.editurl")
 		 				</label>
 		 				<div class="col-sm-6">
-		 					$!site_url_base<input type="text" name="alias_$aliasIdx" id="alias_$aliasIdx" maxlength="40" size="20" value="$validator.escapeHtml($!siteAlias)" />
+		 					$!site_url_base<input type="text" name="alias_$aliasIdx" id="alias_$aliasIdx" maxlength="40" size="20" value="$formattedText.escapeHtml($!siteAlias)" />
 		 				</div>
 		 			#else
 		 				<label for="alias_$aliasIdx" class="col-sm-2 form-control-label">
 		 					$tlang.getString("sinfo.url")
 		 				</label>
 		 				<div class="col-sm-6">
-		 					$!site_url_base$validator.escapeHtml($!siteAlias)
-		 					<input type="hidden" name="alias_$aliasIdx" id="alias_$aliasIdx" value="$validator.escapeHtml($!siteAlias)" />
+		 					$!site_url_base$formattedText.escapeHtml($!siteAlias)
+		 					<input type="hidden" name="alias_$aliasIdx" id="alias_$aliasIdx" value="$formattedText.escapeHtml($!siteAlias)" />
 		 				</div>
 		 			#end
 		 			#set ( $aliasIdx = $aliasIdx + 1 )
@@ -184,7 +184,7 @@
 				<select name="locales" class="indnt2" id="locales" >
 					<option value="" #if ($locale_string == "")selected="true" #end>$tlang.getString("sinfo.language.defaultUserLanguage")</option>			
 					#foreach($locale in $locales)			
-						<option value="$locale.toString()" #if ($locale.toString() == $locale_string)selected="true" #end>$validator.escapeHtml($tlang.getLocaleDisplayName($locale))</option>	
+						<option value="$locale.toString()" #if ($locale.toString() == $locale_string)selected="true" #end>$formattedText.escapeHtml($tlang.getLocaleDisplayName($locale))</option>	
 					#end			
 				</select>
 			</div>
@@ -200,7 +200,7 @@
 			<table border="0" cellpadding="0" cellspacing="0" >
 					<tr>
 						<td>
-							<textarea name="description" id="description" cols="65" rows="30" wrap="virtual">$validator.escapeHtmlFormattedTextarea($!description)</textarea>
+							<textarea name="description" id="description" cols="65" rows="30" wrap="virtual">$formattedText.escapeHtmlFormattedTextarea($!description)</textarea>
 							#chef_setupformattedtextarea("description")
 						</td>
 					</tr>

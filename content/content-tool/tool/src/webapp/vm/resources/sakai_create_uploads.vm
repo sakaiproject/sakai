@@ -9,7 +9,7 @@
         <li><span>$tlang.getString("gen.location")</span></li>
         ##<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0"  alt="$tlang.getString("gen.folder")" />
         #foreach ($folder in $model.collectionPath)
-            <li><span>$validator.escapeHtml($folder.name)</span></li>
+            <li><span>$formattedText.escapeHtml($folder.name)</span></li>
         #end
     </ol>
     #if ($itemAlertMessage)

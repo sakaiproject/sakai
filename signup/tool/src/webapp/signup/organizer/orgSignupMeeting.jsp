@@ -13,10 +13,10 @@
 		<style type="text/css" media="print">
 			@import url("/sakai-signup-tool/css/print.css");
 		</style>
-<h:outputText value="#{Portal.latestJQuery}" escape="false"/>
-		<script TYPE="text/javascript" LANGUAGE="JavaScript" src="/sakai-signup-tool/js/signupScript.js"></script>
-		<script type="text/javascript">
-			
+		<h:outputText value="#{Portal.latestJQuery}" escape="false"/>
+		<script src="/sakai-signup-tool/js/signupScript.js"></script>
+		<script>
+
 			var firstAttendee; 
 			var userActionType;
 			var lastActivePanel;

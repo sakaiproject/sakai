@@ -7,7 +7,7 @@
 	<div class="indnt1">
 		#if ($alertMessage)
 			<br />
-			<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
+			<div class="alertMessage">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>
 			<div class="clear" ></div>
 		#end
 		<h3>$tlang.getString("title.error")</h3>

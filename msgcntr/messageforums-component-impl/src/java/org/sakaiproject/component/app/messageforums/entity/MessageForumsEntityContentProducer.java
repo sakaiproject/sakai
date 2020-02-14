@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
@@ -42,7 +43,8 @@ import org.sakaiproject.search.api.PortalUrlEnabledProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.model.SearchBuilderItem;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
+
 
 @Slf4j
 public class MessageForumsEntityContentProducer implements
@@ -53,6 +55,21 @@ public class MessageForumsEntityContentProducer implements
 
 	// runtime dependency
 	private List removeEvents = null;
+	
+	@Setter private FormattedText formattedText;
+	@Setter private DeveloperHelperService developerHelperService;
+	@Setter private ServerConfigurationService serverConfigurationService;
+	@Setter private SearchService searchService;
+	@Setter private EntityBroker entityBroker;
+	@Setter private String toolName = null;
+	@Setter private SearchIndexBuilder searchIndexBuilder = null;
+	/**
+	 * Forums Services
+	 */
+	@Setter private MessageForumsMessageManager messageForumsMessageManager;
+	@Setter private DiscussionForumManager discussionForumManager;
+	@Setter private UIPermissionsManager uIPermissionManager; 
+	
 	
 	/**
 	 * @param addEvents
@@ -68,81 +85,7 @@ public class MessageForumsEntityContentProducer implements
 		this.removeEvents = removeEvents;
 	}
 	
-	// runtime dependency
-	private String toolName = null;
-	/**
-	 * @param toolName
-	 *        The toolName to set.
-	 */
-	public void setToolName(String toolName)
-	{
-		this.toolName = toolName;
-	}
-	
-	
-	private DeveloperHelperService developerHelperService;
-	public void setDeveloperHelperService(
-			DeveloperHelperService developerHelperService) {
-		this.developerHelperService = developerHelperService;
-	}
 
-	private ServerConfigurationService serverConfigurationService;
-	public void setServerConfigurationService(
-			ServerConfigurationService serverConfigurationService)
-	{
-		this.serverConfigurationService = serverConfigurationService;
-	}
-	
-
-	// injected dependency
-	private SearchService searchService = null;
-	/**
-	 * @param searchService the searchService to set
-	 */
-	public void setSearchService(SearchService searchService)
-	{
-		this.searchService = searchService;
-	}
-	
-	// injected dependency
-	private SearchIndexBuilder searchIndexBuilder = null;
-
-	/**
-	 * @param searchIndexBuilder the searchIndexBuilder to set
-	 */
-	public void setSearchIndexBuilder(SearchIndexBuilder searchIndexBuilder)
-	{
-		this.searchIndexBuilder = searchIndexBuilder;
-	}
-	
-	/**
-	 * Forums Services
-	 */
-	private MessageForumsMessageManager messageForumsMessageManager;
-	public void setMessageForumsMessageManager(
-			MessageForumsMessageManager messageForumsMessageManager) {
-		this.messageForumsMessageManager = messageForumsMessageManager;
-	}
-
-	private DiscussionForumManager discussionForumManager;
-	
-	public void setDiscussionForumManager(
-			DiscussionForumManager discussionForumManager) {
-		this.discussionForumManager = discussionForumManager;
-	}
-
-
-	public void setUIPermissionManager(UIPermissionsManager permissionManager) {
-		uIPermissionManager = permissionManager;
-	}
-
-	private UIPermissionsManager uIPermissionManager; 
-	
-	private EntityBroker entityBroker;
-	public void setEntityBroker(EntityBroker eb) {
-		this.entityBroker = eb;
-	}
-	
 	public void init()
 	{
 
@@ -214,7 +157,7 @@ public class MessageForumsEntityContentProducer implements
 		if (m != null) {
 			sb.append("author: " + m.getAuthor());
 			sb.append(" title: " + m.getTitle());
-			sb.append(" body: " + FormattedText.convertFormattedTextToPlaintext(m.getBody()));
+			sb.append(" body: " + formattedText.convertFormattedTextToPlaintext(m.getBody()));
 			/* causes hibernate lazy init error
 			List attachments = m.getAttachments();
 			if (attachments != null && attachments.size() > 0) {
@@ -381,7 +324,6 @@ public class MessageForumsEntityContentProducer implements
 	}
 
 	public boolean matches(Event event) {
-		// TODO Auto-generated method stub
 		return matches(event.getResource());
 	}
 

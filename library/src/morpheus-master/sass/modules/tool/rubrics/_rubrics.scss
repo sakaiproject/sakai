@@ -164,7 +164,7 @@
 .criterion {
     &.sakai-rubric-criterion,
     &.sakai-rubric-criterion-preview,
-    &.sakai-rubric-criterion-grading,
+    &.sakai-rubric-criteria-grading,
     &.sakai-rubric-criterion-student,
     &.sakai-rubric-criterion-readonly {
         width: 100%;
@@ -293,6 +293,10 @@
                     .points {
                         color: $rubrics-item-points-color;
                         font-style: italic;
+                    }
+
+                    .popover {
+                        max-width: 300px;
                     }
                 }
             }

@@ -214,6 +214,14 @@ public class AssignmentAction extends PagedResourceActionII {
      */
     private static final String ADDITIONAL_CALENDAR_TOOL_READY = "additional_calendar_tool_ready";
     /**
+     * Sakai property key to change the default value for the 'Add due date to calendar' checkbox
+     */
+    private static final String SAK_PROP_DUE_DATE_TO_CALENDAR_DEFAULT = "asn.due.date.to.calendar.default";
+    /**
+     * Default value for the 'Add due date to calendar' checkbox
+     */
+    private static final boolean DUE_DATE_TO_CALENDAR_DEFAULT = true;
+    /**
      * The announcement tool
      */
     private static final String ANNOUNCEMENT_TOOL_EXIST = "announcement_tool_exist";
@@ -3170,7 +3178,6 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("value_opendate_notification_low", AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_LOW);
         context.put("value_opendate_notification_high", AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_HIGH);
         context.put("value_CheckAddHonorPledge", state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE));
-        context.put("honor_pledge_text", serverConfigurationService.getString("assignment.honor.pledge", rb.getString("gen.honple2")));
 
         context.put("value_CheckAnonymousGrading", Boolean.FALSE);
 
@@ -4427,7 +4434,6 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("hideAssignmentFlag", state.getAttribute(VIEW_ASSIGNMENT_HIDE_ASSIGNMENT_FLAG));
         context.put("hideStudentViewFlag", state.getAttribute(VIEW_ASSIGNMENT_HIDE_STUDENT_VIEW_FLAG));
         context.put("contentTypeImageService", contentTypeImageService);
-        context.put("honor_pledge_text", serverConfigurationService.getString("assignment.honor.pledge", rb.getString("gen.honple2")));
 
         String template = (String) getContext(data).get("template");
         return template + TEMPLATE_INSTRUCTOR_VIEW_ASSIGNMENT;
@@ -11204,7 +11210,8 @@ public class AssignmentAction extends PagedResourceActionII {
         state.setAttribute(NEW_ASSIGNMENT_GRADE_TYPE, UNGRADED_GRADE_TYPE.ordinal());
         state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, "");
         state.setAttribute(NEW_ASSIGNMENT_DESCRIPTION, "");
-        state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, Boolean.FALSE.toString());
+        boolean checkAddDueDate = (state.getAttribute(CALENDAR) != null || state.getAttribute(ADDITIONAL_CALENDAR) != null) && serverConfigurationService.getBoolean(SAK_PROP_DUE_DATE_TO_CALENDAR_DEFAULT, DUE_DATE_TO_CALENDAR_DEFAULT);
+        state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, Boolean.toString(checkAddDueDate));
         state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, Boolean.FALSE.toString());
 
         String defaultNotification = serverConfigurationService.getString("announcement.default.notification", "n");

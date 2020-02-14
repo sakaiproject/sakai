@@ -3,7 +3,7 @@
 <div class="portletBody container-fluid">
 	#if($menu)#toolbar($menu)#end
 	<h3>
-		$tlang.getString("sitediconf.con") <span class="highlight">$validator.escapeHtml($!title)</span>
+		$tlang.getString("sitediconf.con") <span class="highlight">$formattedText.escapeHtml($!title)</span>
 	</h3>
 	<p class="instruction">
 		$tlang.getString("sitediconf.cli")
@@ -16,11 +16,11 @@
 				</label>
 				<div class="col-sm-8">
 					#if (!$!title.equals($!oTitle))
-						<span class="highlight">$validator.escapeHtml($!title)</span>
+						<span class="highlight">$formattedText.escapeHtml($!title)</span>
 					#else
-						$validator.escapeHtml($!title)
+						$formattedText.escapeHtml($!title)
 					#end
-				</div>					
+				</div>
 			</div>
 			#if ($displaySiteAlias)
 				<div class="form-group row">
@@ -28,8 +28,8 @@
 	 					$tlang.getString("newsc.url")
 	 				</label>
 	 				<div class="col-sm-8">
-	 					$validator.escapeHtml($!form_url_alias_full)
-	 				</div>	
+	 					$formattedText.escapeHtml($!form_url_alias_full)
+	 				</div>
 	 			</div>
 	 		#end
 			#if ($!isCourseSite)
@@ -39,7 +39,7 @@
 					</label>
 					<div class="col-sm-8">
 						$!siteTerm
-					</div>					
+					</div>
 				</div>
 			#end
 			<div class="form-group row">
@@ -52,7 +52,7 @@
 							<span class="highlight">$tlang.getString("sitediconf.none")</span>
 						#else
 							#foreach ( $siteUrl in $siteUrls )
-								<span class="highlight">$validator.escapeHtml($!siteUrl)</span><br/>
+								<span class="highlight">$formattedText.escapeHtml($!siteUrl)</span><br/>
 							#end
 						#end
 					#elseif ($!siteUrls.Empty)
@@ -60,27 +60,27 @@
 					#else
 						#foreach ( $siteUrl in $siteUrls )
 							#if ( !$!oSiteUrls.contains($!siteUrl) )
-								<span class="highlight">$validator.escapeHtml($!siteUrl)</span><br/>
+								<span class="highlight">$formattedText.escapeHtml($!siteUrl)</span><br/>
 							#else
-								$validator.escapeHtml($!siteUrl)<br/>
+								$formattedText.escapeHtml($!siteUrl)<br/>
 							#end
 						#end
 					#end
-				</div>	
+				</div>
 			</div>
 			<div class="form-group row">
  				<label class="col-sm-2 form-control-label">
  					$tlang.getString("sitediconf.language")
  				</label>
- 				<div class="col-sm-8">					
+ 				<div class="col-sm-8">
  					#if (!$new_locale.equals("") && !$oLocale.equals(""))
  						#if (!$new_locale.toString().equals($oLocale.toString()))
- 							<span class="highlight">$validator.escapeHtml($new_locale.getDisplayName())</span>
+ 							<span class="highlight">$formattedText.escapeHtml($new_locale.getDisplayName())</span>
  						#else
- 							$validator.escapeHtml($new_locale.getDisplayName())
+ 							$formattedText.escapeHtml($new_locale.getDisplayName())
  						#end
  					#elseif (!$new_locale.equals(""))
- 						<span class="highlight">$validator.escapeHtml($new_locale.getDisplayName())</span>
+ 						<span class="highlight">$formattedText.escapeHtml($new_locale.getDisplayName())</span>
  					#elseif ($oLocale.equals(""))
  						<span>$tlang.getString("newsc.language.none")</span>
  					#else
@@ -93,13 +93,13 @@
 					<label class="col-sm-2 form-control-label">
 						$tlang.getString("sitediconf.des")
 					</label>
-					<div class="col-sm-8">	
-						#if (!$!description.equals($!oDescription))
+					<div class="col-sm-8">
+						#if ($!descriptionUpdated)
 							<span class="highlight">$!description</span>
 						#else	
 							$!description
 						#end	
-					</div>					
+					</div>
 				</div>
 			#end
 			#if ($!short_description)
@@ -107,15 +107,15 @@
 					<label class="col-sm-2 form-control-label">
 						$tlang.getString("sitediconf.shodes")
 					</label>
-					<div class="col-sm-8">	
+					<div class="col-sm-8">
 						#if (!$!short_description.equals($!oShort_description))
-							<span class="highlight">$validator.escapeHtml($!short_description)</span>
+							<span class="highlight">$formattedText.escapeHtml($!short_description)</span>
 						#else
-								$validator.escapeHtml($!short_description)
+								$formattedText.escapeHtml($!short_description)
 						#end
 					</div>
 				</div>
-			#end	
+			#end
 			#if ($allowSkinChoice)
 				## course site
 				<div class="form-group row">
@@ -168,12 +168,12 @@
 						<span>$tlang.getString("sitediconf.none")</span>
 					#else	
 						#if (!$!name.equals($!oName))
-							<span class="highlight">$validator.escapeHtml($!name)</span>
+							<span class="highlight">$formattedText.escapeHtml($!name)</span>
 						#else
-							$validator.escapeHtml($!name)
+							$formattedText.escapeHtml($!name)
 						#end
-					#end	
-				</div>					
+					#end
+				</div>
 			</div>
 			<div class="form-group row">
 				<label class="col-sm-2 form-control-label">
@@ -189,7 +189,7 @@
 							$!email
 						#end
 					#end
-				</div>					
+				</div>
 			</div>
             #if ($isMathJaxInstalled)
             <div class="form-group row">
@@ -204,7 +204,7 @@
                 #end
                 <div>
             </div>
-            #end		
+            #end
 		<input type="hidden" name="back" value="$!backIndex" />
 		<input type="hidden" name="templateIndex" value="$!templateIndex" />
 		<input type="hidden" name="continue" value="12" />

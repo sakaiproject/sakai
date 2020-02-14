@@ -60,10 +60,10 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.EditorConfiguration;
 import org.sakaiproject.util.ParameterParser;
-import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.Validator;
-import org.sakaiproject.util.Web;
 import org.sakaiproject.util.RequestFilter;
+import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.Web;
+import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.vm.ActionURL;
 
 import lombok.extern.slf4j.Slf4j;
@@ -113,9 +113,11 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
         protected static final String HELPER_MODE_DONE = "helper.done";
 
 	private ContentHostingService contentHostingService;
+	private FormattedText formattedText;
 
 	public VelocityPortletPaneledAction() {
 		contentHostingService = (ContentHostingService) ComponentManager.get(ContentHostingService.class.getName());
+		formattedText = ComponentManager.get(FormattedText.class);
 	}
 	
 	protected void initState(SessionState state, VelocityPortlet portlet, JetspeedRunData rundata)
@@ -173,7 +175,7 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 	public static String mainPanelUpdateId(String toolId)
 	{
 		// TODO: who should be responsible for "Main" here? It's a Portal thing... -ggolden
-		return Validator.escapeJavascript("Main" + toolId);
+		return ComponentManager.get(FormattedText.class).escapeJavascript("Main" + toolId);
 
 	} // mainPanelUpdateId
 
@@ -187,7 +189,7 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 	public static String titlePanelUpdateId(String toolId)
 	{
 		// TODO: who should be responsible for "Title" here? It's a Portal thing... -ggolden
-		return Validator.escapeJavascript("Title" + toolId);
+		return ComponentManager.get(FormattedText.class).escapeJavascript("Title" + toolId);
 
 	} // titlePanelUpdateId
 
@@ -462,6 +464,7 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 
 				// setup for old style validator
 				setVmReference("validator", m_validator, req);
+				setVmReference("formattedText", formattedText, req);
 
 				// set standard no-cache headers
 				setNoCacheHeaders(res);

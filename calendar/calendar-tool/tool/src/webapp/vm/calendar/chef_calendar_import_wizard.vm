@@ -20,7 +20,7 @@
 		#end
 	</p>
 		<script type="text/javascript"> var a = document.MyCalendar; </script>
-	#if ($alertMessage)<div class="sak-banner-warn">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+	#if ($alertMessage)<div class="sak-banner-warn">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>#end
 		#if ($importWizardState == "SELECT_TYPE")
 			<h2>$tlang.getString("imp.select")</h2>
 		#elseif ($importWizardState == "OTHER_SELECT_FILE")
@@ -96,7 +96,7 @@
 					<td nowrap="nowrap" >
 						<label for="eventSelected$impEvent.getLineNumber()">
 							<span class="icon $eventIconMap.get($impEvent.getType())" title="$localizedEventTypes.get($impEvent.getType())"></span>
-							&nbsp;$validator.escapeHtml($impEvent.getDisplayName())&nbsp;
+							&nbsp;$formattedText.escapeHtml($impEvent.getDisplayName())&nbsp;
 							($impEvent.getDisplayStartTime()&nbsp;-&nbsp;$impEvent.getDisplayEndTime())
 						</label>
 					</td>
@@ -166,13 +166,13 @@
 					</td>
 					<td headers="name" nowrap="nowrap">
 						<label for="$group.Id">
-							$validator.escapeHtml($group.Title)
+							$formattedText.escapeHtml($group.Title)
 						</label>	
 					</td>
 					<td headers="description" width="100%"> ##mozilla does not resize table children dynamically , so set here
 						#set($description = "")
 						#set($description = $group.Description)
-						$validator.escapeHtml($!description)
+						$formattedText.escapeHtml($!description)
 					</td>
 				</tr>
 			#end

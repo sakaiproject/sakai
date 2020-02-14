@@ -112,8 +112,11 @@ class SakaiRubricAssociation extends RubricsElement {
 
   getAssociation() {
 
+    let url = `/rubrics-service/rest/rubric-associations/search/by-tool-item-ids?toolId=${this.toolId}`;
+    if (this.entityId) url += `&itemId=${this.entityId}`;
+
     $.ajax({
-      url: `/rubrics-service/rest/rubric-associations/search/by-tool-item-ids?toolId=${this.toolId}&itemId=${this.entityId}`,
+      url: url,
       headers: {"authorization": this.token},
       contentType: "application/json"
     })

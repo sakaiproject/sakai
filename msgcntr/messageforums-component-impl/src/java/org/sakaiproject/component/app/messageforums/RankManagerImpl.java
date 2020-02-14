@@ -20,10 +20,12 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.messageforums;
 
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Query;
 import org.hibernate.type.LongType;
@@ -50,7 +52,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.api.FormattedText;
 
 @Slf4j
 public class RankManagerImpl extends HibernateDaoSupport implements RankManager {
@@ -73,6 +75,7 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
     private ServerConfigurationService serverConfigurationService;
     
     private ToolManager toolManager;
+    @Setter private FormattedText formattedText;
     
     public void init() {
         log.info("init()");
@@ -361,8 +364,7 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
         int attIndex = url.indexOf("attachment");
         String leftOfAttachment = url.substring(0, attIndex);
         String rightOfAttachment = url.substring(attIndex);
-
-        String finalUrl = leftOfAttachment.concat(Validator.escapeUrl(rightOfAttachment));
+        String finalUrl = leftOfAttachment.concat(URLEncoder.encode(rightOfAttachment));
         return finalUrl;
     }
 

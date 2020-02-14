@@ -4,7 +4,7 @@
 	<div class="page-header">
 		<h1>$tlang.getString("view.calyear")</h1>
 	</div>
-	#if ($alertMessage)<div class="sak-banner-warn">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>#end
+	#if ($alertMessage)<div class="sak-banner-warn">$tlang.getString('gen.alert') $formattedText.escapeHtml($alertMessage)</div>#end
 	<div class="sakai-table-toolBar">
 		<div class="sakai-table-filterContainer">
 			#calendarView()

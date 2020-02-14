@@ -7,7 +7,7 @@
 	</div>
 	<script type="text/javascript"> var a = document.MyCalendar; </script>
 	#if ($alertMessage)
-		<div class="sak-banner-warn">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>
+		<div class="sak-banner-warn">$tlang.getString('gen.alert') $formattedText.escapeHtml($alertMessage)</div>
 	#end
 
 	<form name="Options" action="#toolForm("$action")" method="post">
@@ -74,7 +74,7 @@
 					#if (! $calendarEntry.isInstitutional())
 						#set ($num=$num + 1)
 						<tr> 
-							<td headers="subscriptionName"><label for="check_$num">$validator.escapeHtml($calendarEntry.getDisplayName())</label></td>
+							<td headers="subscriptionName"><label for="check_$num">$formattedText.escapeHtml($calendarEntry.getDisplayName())</label></td>
 							<td headers="checkbox">
 								<input type="checkbox" name="$calendarEntry.getReference()" value="$calendarEntry.getReference()" id="check_$num"
 								#if($calendarEntry.isSelected())
@@ -82,7 +82,7 @@
 								#end
 								/>
 							</td>
-							<td headers="subscriptionUrl"><label for="check_$num">$validator.escapeHtml($calendarEntry.getUrl())</label></td>
+							<td headers="subscriptionUrl"><label for="check_$num">$formattedText.escapeHtml($calendarEntry.getUrl())</label></td>
 						</tr>
 					#end
 				#end

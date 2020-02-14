@@ -254,7 +254,7 @@ public class HistogramListener
 		  
  		  // get the Map of all users(keyed on userid) belong to the selected sections 
 		  // now we only include scores of users belong to the selected sections
-		  Map useridMap = null; 
+		  Map useridMap = null;
 		  List scores = new ArrayList();
 		  // only do section filter if it's published to authenticated users
 		  if (totalScores.getReleaseToAnonymous()) {
@@ -266,7 +266,7 @@ public class HistogramListener
 			  while (allscores_iter.hasNext())
 			  {
 				  AssessmentGradingData data = (AssessmentGradingData) allscores_iter.next();
-				  String agentid =  data.getAgentId();				   
+				  String agentid =  data.getAgentId();
 				  if (useridMap.containsKey(agentid)) {
 					  scores.add(data);
 				  }
@@ -292,7 +292,7 @@ public class HistogramListener
 		  int numSubmissions = scores.size();
 		  //int percent27 = ((numSubmissions*10*27/100)+5)/10; // rounded
 		  int percent27 = numSubmissions*27/100; // rounded down
-		  if (percent27 == 0) percent27 = 1; 
+		  if (percent27 == 0) percent27 = 1;
 		  for (int i=0; i<percent27; i++) {
 			  histogramScores.addToLowerQuartileStudents(((AssessmentGradingData)
 					  submissionsSortedForDiscrim.get(i)).getAgentId());
@@ -324,7 +324,7 @@ public class HistogramListener
 								   HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
 								   PhaseStatus status = secureDelivery.validatePhase(moduleId, Phase.ASSESSMENT_REVIEW, pub, request );
 								   delivery.setSecureDeliveryHTMLFragment( 
-										   secureDelivery.getHTMLFragment(moduleId, pub, request, Phase.ASSESSMENT_REVIEW, status, new ResourceLoader().getLocale() ) );             		 
+										   secureDelivery.getHTMLFragment(moduleId, pub, request, Phase.ASSESSMENT_REVIEW, status, new ResourceLoader().getLocale()));
 								   if ( PhaseStatus.FAILURE == status )  {           			 
 									   delivery.setOutcome( "secureDeliveryError" );
 									   delivery.setActionString(actionString);
@@ -363,7 +363,7 @@ public class HistogramListener
 			  }
 			  else {
 				  if (useridMap == null) {
-					  useridMap = totalScores.getUserIdMap(callerName); 
+					  useridMap = totalScores.getUserIdMap(callerName);
 				  }
 
 				  for (Iterator it = itemScoresMap.entrySet().iterator(); it.hasNext();) {
@@ -419,7 +419,7 @@ public class HistogramListener
 				  // Iterate through the assessment questions (items)
 				  while (itemsIter.hasNext()) {
 					  HistogramQuestionScoresBean questionScores = new HistogramQuestionScoresBean();
-					  questionScores.setNumberOfParts(parts.size()); 
+					  questionScores.setNumberOfParts(parts.size());
 					  //if this part is a randompart , then set randompart = true
 					  questionScores.setRandomType(isRandompart);
                       questionScores.setPoolName(poolName);
@@ -767,9 +767,17 @@ public class HistogramListener
       Set<Long> assessmentGradingIds = new HashSet<Long>();
       int numStudentsWithZeroAnswers = 0;
       for (ItemGradingData itemGradingData: itemScores) {
-          //only count the unique questions answers
+          // only count the unique questions answers
+	  // There may be multiple itemGradingData with the same AssessmentGradingId
+	  // for matching questions (essentially a collection of MC questions)
           if(!assessmentGradingIds.contains(itemGradingData.getAssessmentGradingId())){
-              responses++;
+	      if (itemGradingData.getPublishedAnswerId() != null) {
+	          responses++;
+	          assessmentGradingIds.add(itemGradingData.getAssessmentGradingId());
+	      } else if (!qbean.getQuestionType().equals(TypeIfc.MATCHING.toString())) { 
+	          assessmentGradingIds.add(itemGradingData.getAssessmentGradingId());
+	      }
+
               assessmentGradingIds.add(itemGradingData.getAssessmentGradingId());
 
               if (itemGradingData.getSubmittedDate() == null) {
@@ -1068,7 +1076,7 @@ public class HistogramListener
 				bars[i].setIsCorrect(answer.getIsCorrect());
 			}
 			
-			bars[i].setNumStudentsText(num + " " + rb.getString("responses"));
+			bars[i].setNumStudentsText(String.valueOf(num));
 			bars[i].setNumStudents(num);
 			i++;
 		}// end while
@@ -1128,9 +1136,9 @@ public class HistogramListener
 
 			if (!hasIncorrect) {
 				correctresponses = correctresponses + 1;
-				qbean.addStudentWithAllCorrect(((ItemGradingData)resultsForOneStudent.get(0)).getAgentId()); 
+				qbean.addStudentWithAllCorrect(((ItemGradingData)resultsForOneStudent.get(0)).getAgentId());
 			}
-			qbean.addStudentResponded(((ItemGradingData)resultsForOneStudent.get(0)).getAgentId()); 
+			qbean.addStudentResponded(((ItemGradingData)resultsForOneStudent.get(0)).getAgentId());
 		} // end for - number of students with all correct responses for the whole question
 		
 		// NEW
@@ -1191,7 +1199,7 @@ public class HistogramListener
 						break;
 					}
 				}
-				if (hasIncorrect) continue;	
+				if (hasIncorrect) continue;
 				Integer numWithAllCorrect = (Integer)numStudentsWithAllCorrectPerSubQuestion.get(subQuestionId);
 				if (numWithAllCorrect == null) {
 					numWithAllCorrect = Integer.valueOf(0);
@@ -1290,13 +1298,12 @@ public class HistogramListener
 			  }
 			  questionScores.setTotalScore(totalScore.toString());
 			  
-			  HistogramScoresBean histogramScores = (HistogramScoresBean) ContextUtil.lookupBean(
-                "histogramScores");	
+			  HistogramScoresBean histogramScores = (HistogramScoresBean) ContextUtil.lookupBean("histogramScores");
 			    
 			  Iterator keys = responsesPerStudentPerSubQuestionMap.keySet().iterator();
 			  int numSubmissions = 0;
 			  while (keys.hasNext()) {
-				  String assessmentAndSubquestionId = (String)keys.next(); 
+				  String assessmentAndSubquestionId = (String)keys.next();
 				  if (assessmentAndSubquestionId.endsWith("-"+subQuestionId)) numSubmissions++;
 			  }
 			  int percent27 = numSubmissions*27/100; // rounded down
@@ -1371,8 +1378,6 @@ public class HistogramListener
 	}
   
   private void getFIBMCMCScores(Map publishedItemHash, Map publishedAnswerHash, List scores, HistogramQuestionScoresBean qbean, List answers) {
-		ResourceLoader rb = new ResourceLoader(
-				"org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
 		Map texts = new HashMap();
 		Iterator iter = answers.iterator();
 		Map results = new HashMap();
@@ -1460,17 +1465,8 @@ public class HistogramListener
 					&& answer != null) {
 				bars[i].setIsCorrect(answer.getIsCorrect());
 			}
-
-			if ((num > 1) || (num == 0)) {
-				bars[i].setNumStudentsText(num + " "
-						+ rb.getString("responses"));
-			} else {
-				bars[i]
-						.setNumStudentsText(num + " "
-								+ rb.getString("response"));
-
-			}
-			bars[i].setNumStudents(num);
+			bars[i].setNumStudentsText(String.valueOf(num));
+		        bars[i].setNumStudents(num);
 			i++;
 		}
 		
@@ -1627,9 +1623,9 @@ public class HistogramListener
 				// one submitted answer per student/assessment
 				if (answer.getIsCorrect() != null
 						&& answer.getIsCorrect().booleanValue()) {
-					qbean.addStudentWithAllCorrect(data.getAgentId()); 
+					qbean.addStudentWithAllCorrect(data.getAgentId());
 				}
-				qbean.addStudentResponded(data.getAgentId()); 
+				qbean.addStudentResponded(data.getAgentId());
 
 			}
 		}
@@ -1651,12 +1647,16 @@ public class HistogramListener
 		// iter = results.keySet().iterator();
 		int i = 0;
 		int correctresponses = 0;
+		int barsFilteredSize = 0;
 
 		// find answers sorted by sequence
 		while (iter.hasNext()) {
 			Long sequenceId = (Long) iter.next();
 			Long answerId = (Long) sequenceMap.get(sequenceId);
 			AnswerIfc answer = (AnswerIfc) texts.get(answerId);
+
+			if (answer.getText() == null || "".equals(answer.getText())) continue;
+			barsFilteredSize++;
 			
 			int num = ((Integer) results.get(answerId)).intValue();
 			// set i to be the sequence, so that the answer choices will be in
@@ -1678,15 +1678,7 @@ public class HistogramListener
 				bars[i].setLabel(answer.getText());
 			}
 			bars[i].setIsCorrect(answer.getIsCorrect());
-			if ((num > 1) || (num == 0)) {
-				bars[i].setNumStudentsText(num + " "
-						+ rb.getString("responses"));
-			} else {
-				bars[i]
-						.setNumStudentsText(num + " "
-								+ rb.getString("response"));
-
-			}
+			bars[i].setNumStudentsText(String.valueOf(num));
 			bars[i].setNumStudents(num);
 			if (answer.getIsCorrect() != null
 					&& answer.getIsCorrect().booleanValue()) {
@@ -1697,15 +1689,19 @@ public class HistogramListener
 		// NEW
 		int[] heights = calColumnHeight(numarray, qbean.getNumResponses());
 		// int[] heights = calColumnHeight(numarray);
-		for (i = 0; i < bars.length; i++) {
+		HistogramBarBean[] barsFiltered = new HistogramBarBean[barsFilteredSize];
+		int barsFilteredIndex = 0;
+		for (i = 0; i < barsFilteredSize; i++) {
 			try {
-				bars[i].setColumnHeight(Integer.toString(heights[i]));
+				barsFiltered[barsFilteredIndex] = bars[i];
+				barsFiltered[barsFilteredIndex].setColumnHeight(Integer.toString(heights[i]));
+				barsFilteredIndex++;
 			}
 			catch (NullPointerException npe) {
 				log.warn("bars[" + i + "] is null. " + npe);
 			}
 		}
-		qbean.setHistogramBars(bars);
+		qbean.setHistogramBars(barsFiltered);
 		if (qbean.getNumResponses() > 0)
 			qbean
 					.setPercentCorrect(Integer
@@ -1731,23 +1727,19 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
         if (score.getAutoScore() != null && score.getAutoScore() > 0) {
             Integer value = results.get(CORRECT);
             results.put(CORRECT, ++value);
-        } else {
+        } else if (score.getPublishedAnswerId() != null) {
             Integer value = results.get(INCORRECT);
             results.put(INCORRECT, ++value);
         }
     }
     
     // build the histogram bar for correct/incorrect answers
-    List<HistogramBarBean> barList = new ArrayList<HistogramBarBean>();    
+    List<HistogramBarBean> barList = new ArrayList<HistogramBarBean>();
     for (Map.Entry<String, Integer> entry : results.entrySet()) {
         HistogramBarBean bar = new HistogramBarBean();
         bar.setLabel(entry.getKey());
         bar.setNumStudents(entry.getValue());
-        if (entry.getValue() > 1) {
-            bar.setNumStudentsText(entry.getValue() + " " + rb.getString("correct_responses"));
-        } else {
-            bar.setNumStudentsText(entry.getValue() + " " + rc.getString("correct_response"));
-        }
+	bar.setNumStudentsText(String.valueOf(entry.getValue()));
         bar.setNumStudentsText(entry.getValue() + " " + entry.getKey());
         bar.setIsCorrect(entry.getKey().equals(CORRECT));
         int height = 0;
@@ -1766,15 +1758,18 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
     // this will allow us to calculate % Students All correct by giving
     // us a count of assessmnets that had an incorrect answer 
     Set<Long> assessmentQuestionIncorrect = new HashSet<Long>();
+    int total = 0;
     for (ItemGradingData score : scores) {
-        if (score.getAutoScore() == null || score.getAutoScore() == 0) {
-            assessmentQuestionIncorrect.add(score.getAssessmentGradingId());
+	if (score.getAutoScore() != null) {
+	    total++;
+	    if (score.getAutoScore() == 0) {
+	        assessmentQuestionIncorrect.add(score.getAssessmentGradingId());
+	    }
         }
     }
     
     if (qbean.getNumResponses() > 0) {
-        int correct = qbean.getNumResponses() - assessmentQuestionIncorrect.size();
-        int total = qbean.getNumResponses();
+        int correct = total - assessmentQuestionIncorrect.size();
         double percentCorrect = ((double) correct / (double) total) * 100;
         String percentCorrectStr = Integer.toString((int)percentCorrect);
         qbean.setPercentCorrect(percentCorrectStr);
@@ -1851,15 +1846,7 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
 	      bars[i] = new HistogramBarBean();
 	      bars[i].setLabel(text.getText());
 	      bars[i].setNumStudents(num);
-	      if ((num>1)||(num==0))
-		  {
-	    	  bars[i].setNumStudentsText(num + " " +rb.getString("correct_responses"));
-		  }
-	      else
-		  {
-		      bars[i].setNumStudentsText(num + " " +rc.getString("correct_response"));
-
-	      }
+	      bars[i].setNumStudentsText(String.valueOf(num));
 
 	      i++;
 	    }
@@ -1897,10 +1884,10 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
 	        correctresponses = correctresponses + 1;
 
 	        // gopalrc - Nov 2007
-			qbean.addStudentWithAllCorrect(((ItemGradingData)resultsForOneStudent.get(0)).getAgentId()); 
+			qbean.addStudentWithAllCorrect(((ItemGradingData)resultsForOneStudent.get(0)).getAgentId());
 		  }
 		  // gopalrc - Dec 2007
-		  qbean.addStudentResponded(((ItemGradingData)resultsForOneStudent.get(0)).getAgentId()); 
+		  qbean.addStudentResponded(((ItemGradingData)resultsForOneStudent.get(0)).getAgentId());
 	    }
 
 	    //NEW
@@ -1925,7 +1912,6 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
 		  List scores, HistogramQuestionScoresBean qbean, List labels)
   {
 	ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
-	ResourceLoader rc = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.CommonMessages");
     Map texts = new HashMap();
     Iterator iter = labels.iterator();
     Map results = new HashMap();
@@ -1999,15 +1985,7 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
       bars[i] = new HistogramBarBean();
       bars[i].setLabel(text.getText());
       bars[i].setNumStudents(num);
-      if ((num>1)||(num==0))
-	  {
-    	  bars[i].setNumStudentsText(num + " " +rb.getString("correct_responses"));
-	  }
-      else
-	  {
-	      bars[i].setNumStudentsText(num + " " +rc.getString("correct_response"));
-
-      }
+      bars[i].setNumStudentsText(String.valueOf(num));
 
       i++;
     }
@@ -2040,7 +2018,7 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
       
       if (!hasIncorrectMatches && correctMatchesCount ==  numberOfRealChoices) {
         correctresponses = correctresponses + 1;
-		qbean.addStudentWithAllCorrect(((ItemGradingData)resultsForOneStudent.get(0)).getAgentId()); 
+		qbean.addStudentWithAllCorrect(((ItemGradingData)resultsForOneStudent.get(0)).getAgentId());
 	  }
 	  qbean.addStudentResponded(((ItemGradingData)resultsForOneStudent.get(0)).getAgentId());
     }
@@ -2066,8 +2044,6 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
   private void getMatrixSurveyScores(Map publishedItemTextHash, Map publishedAnswerHash,
 		  List scores, HistogramQuestionScoresBean qbean, List labels)
   {
-	  ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
-
 	  Map<Long, ItemTextIfc> texts = new LinkedHashMap<>();
 	  Map rows = new HashMap();
 	  Map answers = new HashMap();
@@ -2200,13 +2176,7 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
 				  }
 			  }
 
-			if (count > 1) {
-				barBean.setNumStudentsText(count + " " + rb.getString("responses"));
-			}
-			else {
-				barBean.setNumStudentsText(count + " " + rb.getString("response"));
-			}
-
+			  barBean.setNumStudentsText(String.valueOf(count));
 			  //2. get the answer text
 			  barBean.setItemText((String)answerTextList.get(i));
 
@@ -2266,19 +2236,7 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
         bars[i].setColumnHeight
           (Integer.toString(qbean.getColumnHeight()[i]));
         bars[i].setNumStudents(qbean.getNumStudentCollection()[i]);
-        if (qbean.getNumStudentCollection()[i]>1)
-	  {
-	      bars[i].setNumStudentsText(qbean.getNumStudentCollection()[i] +
-          " Responses");
-	  }
-      else
-	  {
-	     bars[i].setNumStudentsText(qbean.getNumStudentCollection()[i] +
-          " Response");
-
-      }
-	//  bars[i].setNumStudentsText(qbean.getNumStudentCollection()[i] +
-	// " Responses");
+	bars[i].setNumStudentsText("" + qbean.getNumStudentCollection()[i]);
         bars[i].setRangeInfo(qbean.getRangeCollection()[i]);
         bars[i].setLabel(qbean.getRangeCollection()[i]);
       }
@@ -2480,7 +2438,7 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
    */
   private static double calStandDev(double[] scores, double mean)
   {
-    double total = 0;  
+    double total = 0;
   
     for(int i = 0; i < scores.length; i++)
     {
@@ -2920,31 +2878,31 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
     List<Object> headerList = new ArrayList<Object>();
     
     headerList = new ArrayList<Object>();
-    headerList.add(ExportResponsesBean.HEADER_MARKER); 
+    headerList.add(ExportResponsesBean.HEADER_MARKER);
     headerList.add(rb.getString("question"));
     if(bean.getRandomType()){
         headerList.add("N(" + bean.getNumResponses() + ")");
     }else{
         headerList.add("N");
     }
-    headerList.add(rb.getString("pct_correct_of")); 
+    headerList.add(rb.getString("pct_correct_of"));
     if (bean.getShowDiscriminationColumn()) {
-        headerList.add(rb.getString("pct_correct_of")); 
-        headerList.add(rb.getString("pct_correct_of")); 
+        headerList.add(rb.getString("pct_correct_of"));
+        headerList.add(rb.getString("pct_correct_of"));
     	headerList.add(rb.getString("discrim_abbrev"));
     }
-    headerList.add(rb.getString("frequency")); 
+    headerList.add(rb.getString("frequency"));
     spreadsheetRows.add(headerList);
     
     headerList = new ArrayList<Object>();
-    headerList.add(ExportResponsesBean.HEADER_MARKER); 
-    headerList.add(""); 
+    headerList.add(ExportResponsesBean.HEADER_MARKER);
     headerList.add("");
-    headerList.add(rb.getString("whole_group")); 
+    headerList.add("");
+    headerList.add(rb.getString("whole_group"));
     if (bean.getShowDiscriminationColumn()) {
-	    headerList.add(rb.getString("upper_pct")); 
-	    headerList.add(rb.getString("lower_pct")); 
-	    headerList.add(""); 
+	    headerList.add(rb.getString("upper_pct"));
+	    headerList.add(rb.getString("lower_pct"));
+	    headerList.add("");
     }
 
     // No Answer
@@ -2955,9 +2913,9 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
     for (char colHeader=65; colHeader < 65+bean.getMaxNumberOfAnswers(); colHeader++) {
         headerList.add(String.valueOf(colHeader));
     }
-    spreadsheetRows.add(headerList);      
+    spreadsheetRows.add(headerList);
 	//VULA-1948: sort the detailedStatistics list by Question Label
-    sortQuestionScoresByLabel(detailedStatistics);       
+    sortQuestionScoresByLabel(detailedStatistics);
     Iterator detailedStatsIter = detailedStatistics.iterator();
     List statsLine = null;
     while (detailedStatsIter.hasNext()) {
