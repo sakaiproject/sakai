@@ -31,9 +31,12 @@ import java.util.Set;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
@@ -98,6 +101,10 @@ public class AgentResults
   private int submissionCount=0;
   private Double scoreSummation=new Double("0");
   private Double averageScore= new Double("0");
+
+  @Getter
+  @Setter
+  private String rubricStateDetails;
   
   public AgentResults() {
   }
@@ -442,25 +449,31 @@ public class AgentResults
 	}
 	
 	public String addAttachmentsRedirect() {
-		  // 1. redirect to add attachment
-		  try	{
-			  List filePickerList = new ArrayList();
-			  if (itemGradingAttachmentList != null){
-				  AttachmentUtil attachmentUtil = new AttachmentUtil();
-				  filePickerList = attachmentUtil.prepareReferenceList(itemGradingAttachmentList);
-			  }
-			  ToolSession currentToolSession = SessionManager.getCurrentToolSession();
-			  currentToolSession.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, filePickerList);
+
+		QuestionScoresBean questionScoresBean = (QuestionScoresBean) ContextUtil.lookupBean("questionScores");
+		String evalId = this.getAssessmentGradingId() + "." + questionScoresBean.getItemId();
+		String entityId = RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + questionScoresBean.getPublishedId() + "." + questionScoresBean.getItemId();
+		String rubricStateDetails = ContextUtil.lookupParam(RubricsConstants.RBCS_PREFIX + evalId + "-" + entityId + "-state-details");
+		this.setRubricStateDetails(rubricStateDetails);
+
+		// 1. redirect to add attachment
+		try	{
+			List filePickerList = new ArrayList();
+			if (itemGradingAttachmentList != null) {
+				AttachmentUtil attachmentUtil = new AttachmentUtil();
+				filePickerList = attachmentUtil.prepareReferenceList(itemGradingAttachmentList);
+			}
+			ToolSession currentToolSession = SessionManager.getCurrentToolSession();
+			currentToolSession.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, filePickerList);
 			  
-			  currentToolSession.setAttribute("itemGradingId", itemGradingId);
-			  ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
-			  context.redirect("sakai.filepicker.helper/tool");
-		  }
-		  catch(Exception e){
-			  log.error("fail to redirect to attachment page: " + e.getMessage());
-		  }
-		  return "sakai.filepicker.helper";
-	  }
+			currentToolSession.setAttribute("itemGradingId", itemGradingId);
+			ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+			context.redirect("sakai.filepicker.helper/tool");
+		} catch (Exception e) {
+			log.error("fail to redirect to attachment page: " + e.getMessage());
+		}
+		return "sakai.filepicker.helper";
+	}
 	
 	public AssessmentGradingData getAssessmentGrading() {
 		return this.assessmentGrading;
