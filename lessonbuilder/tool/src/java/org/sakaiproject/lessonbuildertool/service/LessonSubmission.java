@@ -23,15 +23,8 @@
 
 package org.sakaiproject.lessonbuildertool.service;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.Date;
-
-import org.sakaiproject.lessonbuildertool.SimplePageItem;
-
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Interface for individual submission to assignments, tests and other external assignment-like things
@@ -39,6 +32,7 @@ import org.sakaiproject.lessonbuildertool.SimplePageItem;
  * @author Charles Hedrick <hedrick@rutgers.edu>
  * 
  */
+@Getter @Setter
 public class LessonSubmission {
 
     // this is used in a context where we have know most of what we
@@ -48,24 +42,12 @@ public class LessonSubmission {
     private Double grade;
     private int type;
     private String gradeString = null;
+    private Boolean userSubmission;
 
     // add grading type when we do assignments. We can't hide that, since
     // it's in the UI. I sure hope Assignment 2 uses the same grading types
 
     public LessonSubmission(Double grade) {
-	this.grade = grade;
+        this.grade = grade;
     }
-
-    public Double getGrade() {
-	return grade;
-    }
-
-    public String getGradeString() {
-	return gradeString;
-    }
-
-    public void setGradeString(String s) {
-	gradeString = s;
-    }
-
 }
