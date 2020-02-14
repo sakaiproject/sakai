@@ -279,6 +279,7 @@
 	<!-- backing beans -->
 	<bean name="simplePageBean" class="org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean" init-method="init">
 		<property name="messageLocator" ref="messageLocator"/>
+		<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService" />
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
