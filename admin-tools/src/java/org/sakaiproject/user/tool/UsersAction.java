@@ -1507,7 +1507,11 @@ public class UsersAction extends PagedResourceActionII
 							try {
 								UserEdit editUser = userDirectoryService.editUser(newUser.getId());
 								editUser.getProperties().addProperty("disabled", "true");
+								userDirectoryService.commitEdit(editUser);
 								newUser = editUser;
+							} catch (UserAlreadyDefinedException e) {
+								addAlert(state, rb.getString("useact.theuseid1"));
+								return false;
 							} catch (UserNotDefinedException e) {
 								addAlert(state, rb.getString("usecre.disableFailed"));
 								return false;
