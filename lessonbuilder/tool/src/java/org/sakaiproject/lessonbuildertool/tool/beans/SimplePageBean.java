@@ -63,7 +63,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-
 import javax.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
@@ -74,12 +73,14 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.*;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
@@ -127,6 +128,10 @@ import org.sakaiproject.util.Validator;
 
 import org.springframework.web.multipart.MultipartFile;
 import org.tsugi.basiclti.ContentItem;
+
+import lombok.extern.slf4j.Slf4j;
+import lombok.Getter;
+import lombok.Setter;
 
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.components.UIContainer;
@@ -602,26 +607,11 @@ public class SimplePageBean {
 	    Arrays.sort(htmlTypes);
 	}
 
-
     // Spring Injection
 
-	private SessionManager sessionManager;
-
-	public void setSessionManager(SessionManager sessionManager) {
-		this.sessionManager = sessionManager;
-	}
-
-	private ContentHostingService contentHostingService;
-
-	public void setContentHostingService(ContentHostingService contentHostingService) {
-		this.contentHostingService = contentHostingService;
-	}
-
-	private GradebookIfc gradebookIfc = null;
-
-	public void setGradebookIfc(GradebookIfc g) {
-		gradebookIfc = g;
-	}
+	@Setter private SessionManager sessionManager;
+	@Setter private ContentHostingService contentHostingService;
+	@Setter private GradebookIfc gradebookIfc = null;
 
 	private LessonEntity forumEntity = null;
 	public void setForumEntity(Object e) {
@@ -632,46 +622,32 @@ public class SimplePageBean {
 	public void setQuizEntity(Object e) {
 		quizEntity = (LessonEntity)e;
 	}
-	
+
 	private LessonEntity assignmentEntity = null;
 	public void setAssignmentEntity(Object e) {
 		assignmentEntity = (LessonEntity)e;
 	}
-        private LessonEntity bltiEntity = null;
-        public void setBltiEntity(Object e) {
-	    bltiEntity = (LessonEntity)e;
-        }
-	
-	private ToolManager toolManager;
-	private LTIService ltiService;
-	private SecurityService securityService;
-	private SiteService siteService;
-	private AuthzGroupService authzGroupService;
-	private SimplePageToolDao simplePageToolDao;
-	private LessonsAccess lessonsAccess;
-        private LessonBuilderAccessService lessonBuilderAccessService;
 
-	private MessageLocator messageLocator;
-	public void setMessageLocator(MessageLocator x) {
-	    messageLocator = x;
-	}
-	public MessageLocator getMessageLocator() {
-	    return messageLocator;
+	private LessonEntity bltiEntity = null;
+	public void setBltiEntity(Object e) {
+		bltiEntity = (LessonEntity)e;
 	}
 
-
-        private HttpServletResponse httpServletResponse;
-	public void setHttpServletResponse(HttpServletResponse httpServletResponse) {
-		this.httpServletResponse = httpServletResponse;
-	}
-
-        private LessonBuilderEntityProducer lessonBuilderEntityProducer;
-        public void setLessonBuilderEntityProducer(LessonBuilderEntityProducer p) {
-	    lessonBuilderEntityProducer = p;
-	}
+	@Setter private AssignmentService assignmentService;
+	@Setter private ToolManager toolManager;
+	@Setter private LTIService ltiService;
+	@Setter private SecurityService securityService;
+	@Setter private SiteService siteService;
+	@Setter private AuthzGroupService authzGroupService;
+	@Setter private SimplePageToolDao simplePageToolDao;
+	@Setter private LessonsAccess lessonsAccess;
+    @Setter private LessonBuilderAccessService lessonBuilderAccessService;
+	@Getter @Setter private MessageLocator messageLocator;
+    @Setter private HttpServletResponse httpServletResponse;
+    @Setter private LessonBuilderEntityProducer lessonBuilderEntityProducer;
 
     // End Injection
-    
+
 	static Class levelClass = null;
 	static Object[] levels = null;
 	static Class ftClass = null;
@@ -1871,38 +1847,6 @@ public class SimplePageBean {
 		return true;
 	    String ref = "/site/" + getCurrentSiteId();
 	    return securityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_SEE_ALL, ref);
-	}
-
-	public void setLtiService(LTIService service) {
-		ltiService = service;
-	}
-
-	public void setToolManager(ToolManager toolManager) {
-		this.toolManager = toolManager;
-	}
-
-	public void setSecurityService(SecurityService service) {
-		securityService = service;
-	}
-
-	public void setSiteService(SiteService service) {
-		siteService = service;
-	}
-
-	public void setAuthzGroupService(AuthzGroupService authzGroupService) {
-		this.authzGroupService = authzGroupService;
-	}
-
-	public void setSimplePageToolDao(Object dao) {
-		simplePageToolDao = (SimplePageToolDao) dao;
-	}
-
-	public void setLessonsAccess(LessonsAccess a) {
-		lessonsAccess = a;
-	}
-
-	public void setLessonBuilderAccessService(LessonBuilderAccessService a) {
-		lessonBuilderAccessService = a;
 	}
 
 	public List<SimplePageItem>  getItemsOnPage(long pageid) {
@@ -5279,7 +5223,7 @@ public class SimplePageBean {
 				}
 				LessonSubmission submission = assignment.getSubmission(getCurrentUserId());
 
-				if (submission == null) {
+				if (submission == null || !submission.getUserSubmission()) {
 				    completeCache.put(itemId, false);
 				    return false;
 				}
@@ -5291,7 +5235,7 @@ public class SimplePageBean {
 					return true;
 				} else if (submission.getGradeString() != null) {
 				    // assume that assignments always use string grade. this may change
-					boolean ret = isAssignmentComplete(type, submission, item.getRequirementText());
+					boolean ret = isAssignmentComplete(type, assignment, submission, item.getRequirementText());
 					completeCache.put(itemId, ret);
 					return ret;
 				} else {
@@ -5425,7 +5369,7 @@ public class SimplePageBean {
 		}
 	}
 
-	private boolean isAssignmentComplete(int type, LessonSubmission submission, String requirementString) {
+	private boolean isAssignmentComplete(int type, LessonEntity assEntity, LessonSubmission submission, String requirementString) {
 		String grade = submission.getGradeString();
 
 		if (type == SimplePageItem.ASSESSMENT) {
@@ -5456,12 +5400,22 @@ public class SimplePageBean {
 				return requiredIndex >= currentIndex;
 			}
 		} else if (type == SimplePageItem.ASSIGNMENT) {
-			// assignment 2 uses gradebook, so we have a float value
-		        // use some fuzz so 1.9999 is the same as 2
-			if (submission.getGrade() != null)
-				return (submission.getGrade() + 0.0001d) >= Double.valueOf(requirementString);
-			// otherwise use the String. With two strings we can use exact decimal arithmetic
-			return new BigDecimal(grade).compareTo(new BigDecimal(requirementString).multiply(new BigDecimal(10))) >= 0;
+			if (submission.getUserSubmission()) {
+				if (submission.getGrade() != null) {
+					// assignment 2 uses gradebook, so we have a float value
+					// use some fuzz so 1.9999 is the same as 2
+					return (submission.getGrade() + 0.0001d) >= Double.valueOf(requirementString);
+				} else {
+					Integer scaleFactor = ((AssignmentEntity) assEntity).getScaleFactor();
+					if (scaleFactor == null) {
+						scaleFactor = assignmentService.getScaleFactor();
+					}
+					// otherwise use the String. With two strings we can use exact decimal arithmetic
+					return (new BigDecimal(grade)).compareTo(new BigDecimal(requirementString).multiply(new BigDecimal(scaleFactor))) >= 0;
+				}
+			} else {
+				return false;
+			}
 		} else {
 			return false;
 		}
