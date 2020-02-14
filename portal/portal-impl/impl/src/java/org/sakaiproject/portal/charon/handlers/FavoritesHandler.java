@@ -38,9 +38,11 @@ import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.SiteService.SelectionType;
+import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesEdit;
@@ -184,6 +186,9 @@ public class FavoritesHandler extends BasePortalHandler
 			oldSiteSet = new HashSet<String>(oldSiteList);
 		}
 
+		//The limit for the number of sites to be added for a first time user
+		int firstTimeLimit = serverConfigurationService.getInt(Portal.CONFIG_DEFAULT_TABS, 15);
+		
 		boolean firstTimeFavs = true;
 		try {
 			firstTimeFavs = existingProps.getBooleanProperty(FIRST_TIME_PROPERTY);
@@ -194,11 +199,18 @@ public class FavoritesHandler extends BasePortalHandler
 		}
 
 		// This should not call getUserSites(boolean, boolean) because the property is variable, while the call is cacheable otherwise
-		List<String> userSites = siteService.getSiteIds(SelectionType.MEMBER, null, null, null, null, null);
+		List<String> userSites = siteService.getSiteIds(SelectionType.MEMBER, null, null, null, SortType.CREATED_ON_DESC, null);
 		Set<String> newFavorites = new LinkedHashSet<String>();
 
 		for (String userSite : userSites) {
-			if (!oldSiteSet.contains(userSite) && !existingFavorites.contains(userSite) && !firstTimeFavs) {
+			// If this is the first time running favorites and below the first time limit of sites
+			// or if there are some sites that haven't been set as favorite before, add it
+			if (firstTimeFavs && newFavorites.size() >= firstTimeLimit) {
+				log.debug("First time favorites size limit exceeded {} for {}", firstTimeLimit, userId);
+				break;
+			}
+			if (firstTimeFavs || (!oldSiteSet.contains(userSite) && !existingFavorites.contains(userSite))) {
+				log.debug("Adding {} as a favorite for {}", userSite, userId);
 				newFavorites.add(userSite);
 			}
 		}
