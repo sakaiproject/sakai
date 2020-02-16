@@ -2048,6 +2048,7 @@ public class SakaiBLTIUtil {
 				retval = retMap;
 			} else if (isDelete) {
 				g.setAssignmentScoreString(siteId, assignmentObject.getId(), user_id, null, "External Outcome");
+				g.setAssignmentScoreComment(siteId, assignmentObject.getId(), user_id, null);
 				log.info("Delete Score site={} assignment={} user_id={}", siteId, assignment, user_id);
 				message = "Result deleted";
 				retval = Boolean.TRUE;
@@ -2137,6 +2138,8 @@ public class SakaiBLTIUtil {
 				retval = retMap;
 			} else if (isDelete) {
 				g.setAssignmentScoreString(siteId, assignmentObject.getId(), user_id, null, "External Outcome");
+				g.setAssignmentScoreComment(siteId, assignmentObject.getId(), user_id, null);
+
 				log.info("Delete Score site={} assignment={} user_id={}", siteId, assignment, user_id);
 				message = "Result deleted";
 				retval = Boolean.TRUE;
