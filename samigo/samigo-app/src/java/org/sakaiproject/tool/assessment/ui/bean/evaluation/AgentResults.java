@@ -257,6 +257,10 @@ public class AgentResults
 	   return Validator.check(totalAutoScore, "0").replace(',', '.');
    }
   }
+
+	public void setRoundedTotalAutoScore(String roundedTotalAutoScore) {
+		this.setTotalAutoScore(roundedTotalAutoScore);
+	}
   
   public void setTotalAutoScore(String totalAutoScore) {
 	  if (totalAutoScore!= null){
