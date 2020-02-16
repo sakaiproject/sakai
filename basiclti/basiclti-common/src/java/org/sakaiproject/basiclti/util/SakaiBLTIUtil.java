@@ -1725,7 +1725,7 @@ public class SakaiBLTIUtil {
 			for (Iterator i=gradebookAssignments.iterator(); i.hasNext();) {
 				Assignment gAssignment = (Assignment) i.next();
 				if ( gAssignment.isExternallyMaintained() ) continue;
-				if ( assignment.equals(gAssignment.getName()) ) { 
+				if (assignment.trim().equalsIgnoreCase(gAssignment.getName().trim())) {
 					assignmentObject = gAssignment;
 					break;
 				}
@@ -1928,7 +1928,8 @@ public class SakaiBLTIUtil {
 					}
 				}
 			}
-			retval.setProperty("assignment",(String)content.get("title"));
+			String aTitle = (String) content.get("title");
+			retval.setProperty("assignment", aTitle.trim());
 		}
 		return retval;
 	}
