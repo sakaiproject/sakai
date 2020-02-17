@@ -38,6 +38,7 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.w3c.dom.Document;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -59,7 +60,7 @@ public class SamLiteBean implements Serializable {
 	private AuthorBean authorBean;
 	@ManagedProperty(value="#{authorization}")
 	private AuthorizationBean authorizationBean;
-	@ManagedProperty(value="#{Components[\"org.sakaiproject.util.api.FormattedText\"]}")
+	@Setter @ManagedProperty(value="#{Components[\"org.sakaiproject.util.api.FormattedText\"]}")
 	private FormattedText formattedText;
 
 	private ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.SamLite");
