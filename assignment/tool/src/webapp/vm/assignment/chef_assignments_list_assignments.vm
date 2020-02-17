@@ -391,10 +391,14 @@
 													#end
 												</strong>
 											#end
+											#set($submissionId="undefined")
+											#if ($submission.Graded && ($submission.GradeReleased || $submission.Returned))
+												#set($submissionId=$submission.Id)
+											#end
 											<sakai-rubric-student-button
 												token="$!rbcs-token"
 												tool-id="sakai.assignment"
-												evaluated-item-id="$submission.Id"
+												evaluated-item-id="$submissionId"
 												entity-id="$assignment.Id">
 											</sakai-rubric-student-button>
 											#if ($taggable && $allowAddAssignment)
