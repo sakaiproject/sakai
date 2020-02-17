@@ -1542,3 +1542,7 @@ td.stats-correctness {
   width: 7%;
   padding-left: 10px;
 }
+
+.sam-data-discrepancy-ol {
+	margin-top: 10px;
+}
