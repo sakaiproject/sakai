@@ -24,8 +24,9 @@ package org.sakaiproject.tool.assessment.ui.bean.evaluation;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -237,17 +238,15 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
 	 * @return The appropriate filename for the export
 	 */
     public String getDownloadFileName() {
-		Date now = new Date();
-		String dateFormat = ContextUtil.getLocalizedString(MSG_BUNDLE,"export_filename_date_format");
-		DateFormat df = new SimpleDateFormat(dateFormat, new ResourceLoader().getLocale());
-		StringBuilder fileName = new StringBuilder(ContextUtil.getLocalizedString(MSG_BUNDLE,"assessment"));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        StringBuilder fileName = new StringBuilder(ContextUtil.getLocalizedString(MSG_BUNDLE,"assessment"));
         if(StringUtils.trimToNull(assessmentName) != null) {
         	assessmentName = assessmentName.replaceAll("\\s", "_"); // replace whitespace with '_'
             fileName.append("-");
             fileName.append(assessmentName);
         }
 		fileName.append("-");
-		fileName.append(df.format(now));
+		fileName.append( LocalDate.now().format(formatter) );
 		return fileName.toString();
 	}
     
