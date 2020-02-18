@@ -556,6 +556,8 @@ public class SiteHandler extends WorksiteHandler
 		rcontext.put("showFavStarsOnAllFavSites",ServerConfigurationService.getBoolean(SAK_PROP_SHOW_FAV_STARS_ON_ALL, SAK_PROP_SHOW_FAV_STARS_ON_ALL_DFLT));
 		
 		addLocale(rcontext, site, session.getUserId());
+
+		addTimeInfo(rcontext);
 		
 		includeSiteNav(rcontext, req, session, siteId);
 
