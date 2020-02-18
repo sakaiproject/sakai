@@ -47,8 +47,6 @@ public interface PublishedItemFacadeQueriesAPI {
 
 	BackfillItemHashResult backfillItemHashes(int batchSize, boolean backfillBaselineHashes);
 
-	public List<Long> getPublishedItemsIdsByHash(String hash);
-
 	public Long getPublishedAssessmentId(Long itemId);
 
 	public Boolean itemExists(String itemId);
