@@ -407,9 +407,9 @@ implements ActionListener
 
 	    // SAM-1088
 	    // if late submissions not allowed and late submission date is null, set late submission date to due date
+	    final boolean autoSubmitEnabled = ServerConfigurationService.getBoolean("samigo.autoSubmit.enabled", true);
 	    if (assessmentSettings.getLateHandling() != null && AssessmentAccessControlIfc.NOT_ACCEPT_LATE_SUBMISSION.toString().equals(assessmentSettings.getLateHandling()) &&
 	    		retractDate == null && dueDate != null && assessmentSettings.getAutoSubmit()) {
-	    	boolean autoSubmitEnabled = ServerConfigurationService.getBoolean("samigo.autoSubmit.enabled", false);
 	    	if (autoSubmitEnabled) {
 	    		assessmentSettings.setRetractDate(dueDate);
 	    	}
@@ -417,7 +417,6 @@ implements ActionListener
 
 	    // if auto-submit is enabled, make sure late submission date is set
 	    if (assessmentSettings.getAutoSubmit() && retractDate == null && !retractNow) {
-	    	boolean autoSubmitEnabled = ServerConfigurationService.getBoolean("samigo.autoSubmit.enabled", false);
 	    	if (autoSubmitEnabled) {
 	    		String dateError4 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_required_with_auto_submit");
 	    		context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, dateError4, null));

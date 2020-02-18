@@ -298,7 +298,7 @@ public class SelectAssessmentBean implements Serializable {
 
 	public Boolean getWarnUserOfModification() {
 		if(warnUserOfModification == null){
-			warnUserOfModification = serverConfigurationService.getBoolean("samigo.SelectAssessmentBean.warnUserOfModification", true);
+			warnUserOfModification = serverConfigurationService.getBoolean("samigo.SelectAssessmentBean.warnUserOfModification", false);
 		}
 		return warnUserOfModification;
 	}

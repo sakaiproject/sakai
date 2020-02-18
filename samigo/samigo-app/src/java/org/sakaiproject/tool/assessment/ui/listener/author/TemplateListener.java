@@ -65,7 +65,7 @@ public class TemplateListener extends TemplateBaseListener
     // look for some sort information passed as parameters
     processSortInfo(templateIndex);
 
-    boolean autoSubmitEnabled = ServerConfigurationService.getBoolean("samigo.autoSubmit.enabled", false);
+    boolean autoSubmitEnabled = ServerConfigurationService.getBoolean("samigo.autoSubmit.enabled", true);
     if (!autoSubmitEnabled) {
     	templateIndex.setAutomaticSubmissionEnabled(false);
     }
