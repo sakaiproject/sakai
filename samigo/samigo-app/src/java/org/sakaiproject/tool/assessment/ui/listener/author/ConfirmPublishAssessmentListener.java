@@ -39,7 +39,7 @@ import javax.faces.model.SelectItem;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.spring.SpringBeanLocator;
@@ -60,7 +60,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.PublishRepublishNotificat
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.TextFormat;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * <p>Title: Samigo</p>2
@@ -472,15 +472,16 @@ public class ConfirmPublishAssessmentListener
    
     if (!isFromActionSelect) {
     	// To convertFormattedTextToPlaintext for the fields that have been through convertPlaintextToFormattedTextNoHighUnicode
-    	assessmentSettings.setTitle(FormattedText.convertFormattedTextToPlaintext(assessmentSettings.getTitle()));
-    	assessmentSettings.setAuthors(FormattedText.convertFormattedTextToPlaintext(assessmentSettings.getAuthors()));
-    	assessmentSettings.setFinalPageUrl(FormattedText.convertFormattedTextToPlaintext(assessmentSettings.getFinalPageUrl()));
-    	assessmentSettings.setBgColor(FormattedText.convertFormattedTextToPlaintext(assessmentSettings.getBgColor()));
-    	assessmentSettings.setBgImage(FormattedText.convertFormattedTextToPlaintext(assessmentSettings.getBgImage()));
-    	assessmentSettings.setKeywords(FormattedText.convertFormattedTextToPlaintext(assessmentSettings.getKeywords()));
-    	assessmentSettings.setObjectives(FormattedText.convertFormattedTextToPlaintext(assessmentSettings.getObjectives()));
-    	assessmentSettings.setRubrics(FormattedText.convertFormattedTextToPlaintext(assessmentSettings.getRubrics()));
-    	assessmentSettings.setPassword(FormattedText.convertFormattedTextToPlaintext(StringUtils.trim(assessmentSettings.getPassword())));
+    	FormattedText formattedText = ComponentManager.get(FormattedText.class);
+    	assessmentSettings.setTitle(formattedText.convertFormattedTextToPlaintext(assessmentSettings.getTitle()));
+    	assessmentSettings.setAuthors(formattedText.convertFormattedTextToPlaintext(assessmentSettings.getAuthors()));
+    	assessmentSettings.setFinalPageUrl(formattedText.convertFormattedTextToPlaintext(assessmentSettings.getFinalPageUrl()));
+    	assessmentSettings.setBgColor(formattedText.convertFormattedTextToPlaintext(assessmentSettings.getBgColor()));
+    	assessmentSettings.setBgImage(formattedText.convertFormattedTextToPlaintext(assessmentSettings.getBgImage()));
+    	assessmentSettings.setKeywords(formattedText.convertFormattedTextToPlaintext(assessmentSettings.getKeywords()));
+    	assessmentSettings.setObjectives(formattedText.convertFormattedTextToPlaintext(assessmentSettings.getObjectives()));
+    	assessmentSettings.setRubrics(formattedText.convertFormattedTextToPlaintext(assessmentSettings.getRubrics()));
+    	assessmentSettings.setPassword(formattedText.convertFormattedTextToPlaintext(StringUtils.trim(assessmentSettings.getPassword())));
     }
     
     if (error){
@@ -494,7 +495,7 @@ public class ConfirmPublishAssessmentListener
     	assessment = s.save(assessmentSettings, true);
 
     	//unEscape the TextFormat.convertPlaintextToFormattedTextNoHighUnicode in s.save()
-    	assessment.setTitle(FormattedText.convertFormattedTextToPlaintext(assessment.getTitle()));
+    	assessment.setTitle(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(assessment.getTitle()));
     	assessmentSettings.setAssessment(assessment);
     }
     

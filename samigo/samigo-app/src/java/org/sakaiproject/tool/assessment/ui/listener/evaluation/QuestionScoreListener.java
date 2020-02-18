@@ -43,6 +43,7 @@ import javax.faces.event.ValueChangeListener;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
@@ -72,8 +73,8 @@ import org.sakaiproject.tool.assessment.ui.bean.evaluation.SubmissionStatusBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 
 /**
@@ -768,7 +769,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 					String checkmarkGif = String.format("<span title=\"%s\" class=\"icon-sakai--check feedBackCheck\"></span>", correct);
 					String crossmarkGif = String.format("<span title=\"%s\" class=\"icon-sakai--delete feedBackCross\"></span>", incorrect);
 					if (gdataAnswer != null) {
-						answerText = FormattedText.escapeHtml(answerText, true);
+						answerText = ComponentManager.get(FormattedText.class).escapeHtml(answerText, true);
 						if (bean.getTypeId().equals("8") || bean.getTypeId().equals("11")) {
 							if (gdata.getIsCorrect() == null) {
 								boolean result = false;
@@ -901,7 +902,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 						} else {
 							results.setTotalAutoScore(Double.toString(0));
 						}
-						results.setComments(FormattedText.convertFormattedTextToPlaintext(gdata.getComments()));
+						results.setComments(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(gdata.getComments()));
 						results.setAnswer(answerText);
 						if (bean.getTypeId().equals("15")){ // CALCULATED_QUESTION Answer Key
 							results.setAnswerKey(answerKey);

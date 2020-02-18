@@ -59,7 +59,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
-
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -103,8 +103,8 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.MimeTypesLocator;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.FormattedText;
 
 /* For author: Item Author backing bean. */
 @Slf4j
@@ -796,7 +796,7 @@ public class ItemAuthorBean implements Serializable {
           selection.setLabel(rb.getString("p")+" "+ i );
         }
         else {
-          selection.setLabel(rb.getString("p")+" " + i + " - " + FormattedText.convertFormattedTextToPlaintext(part.getTitle()));
+          selection.setLabel(rb.getString("p")+" " + i + " - " + ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(part.getTitle()));
         }
         selection.setValue(part.getSectionId());
         list.add(selection);
@@ -929,10 +929,11 @@ public class ItemAuthorBean implements Serializable {
         
         // SAM-2269 - add the appropriate string to the list
         String original = pool.getDisplayName() + " (" + delegate.getCountItems(pool.getQuestionPoolId()) + ")";
+        FormattedText formattedText = ComponentManager.get(FormattedText.class);
         if (parent != null) {
-            poolListSelectItems.add(new SelectItem(pool.getQuestionPoolId().toString(), FormattedText.convertFormattedTextToPlaintext(parent.getDisplayName() + ": " + original)));
+            poolListSelectItems.add(new SelectItem(pool.getQuestionPoolId().toString(), formattedText.convertFormattedTextToPlaintext(parent.getDisplayName() + ": " + original)));
         } else {
-            poolListSelectItems.add(new SelectItem(pool.getQuestionPoolId().toString(), FormattedText.convertFormattedTextToPlaintext(original)));
+            poolListSelectItems.add(new SelectItem(pool.getQuestionPoolId().toString(), formattedText.convertFormattedTextToPlaintext(original)));
         }
       }
 
