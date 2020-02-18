@@ -463,7 +463,7 @@ public class UploadAudioMediaServlet extends HttpServlet
     JsonObject json = new JsonObject();
     json.addProperty("mediaId", mediaId);
     json.addProperty("duration", mediaData.getDuration());
-    json.addProperty("createdDate", DateFormatterUtil.format(mediaData.getCreatedDate(), rb.getString("delivery_date_format"), rb.getLocale()));
+    json.addProperty("createdDate", mediaData.getCreatedDate().toString());
     json.addProperty("attemptsRemaining", attemptsRemaining);
     return json;
   }
