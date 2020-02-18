@@ -169,14 +169,7 @@ public class AuthorActionListener
 
     // If a site property does not exist, go ahead and evaluate the global property
     if (!sitePropertyExists) {
-
-        String s = ServerConfigurationService.getString("samigo.editPubAssessment.restricted");
-	if (s != null && s.toLowerCase().equals("false")) {
-		author.setEditPubAssessmentRestricted(false);
-	}
-	else {
-		author.setEditPubAssessmentRestricted(true);
-	}
+        author.setEditPubAssessmentRestricted(ServerConfigurationService.getBoolean("samigo.editPubAssessment.restricted", false));
     } 
 
 	author.setEditPubAssessmentRestrictedAfterStarted(ServerConfigurationService.getBoolean("samigo.editPubAssessment.restricted.afterStart", false));
