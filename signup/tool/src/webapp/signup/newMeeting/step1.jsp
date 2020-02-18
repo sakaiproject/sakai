@@ -27,7 +27,7 @@
                     useTime: 1,
                     parseFormat: 'YYYY-MM-DD HH:mm:ss',
                     allowEmptyDate: false,
-                    val: '<h:outputText value="#{NewSignupMeetingBean.signupMeeting.startTime}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
+                    val: '<h:outputText value="#{NewSignupMeetingBean.signupMeeting.startTime}"><f:convertDateTime timeZone="#{UserTimeZone.userTimeZone}" pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
                     ashidden: {
                             iso8601: 'startTimeISO8601',
                             month:"meeting_startTime_month",
@@ -43,7 +43,7 @@
                     useTime: 1,
                     parseFormat: 'YYYY-MM-DD HH:mm:ss',
                     allowEmptyDate: false,
-                    val: '<h:outputText value="#{NewSignupMeetingBean.signupMeeting.endTime}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
+                    val: '<h:outputText value="#{NewSignupMeetingBean.signupMeeting.endTime}"><f:convertDateTime timeZone="#{UserTimeZone.userTimeZone}" pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
                     ashidden: {
                             iso8601: 'endTimeISO8601',
                             month:"meeting_endTime_month",
@@ -59,7 +59,7 @@
                     useTime: 0,
                     parseFormat: 'YYYY-MM-DD',
                     allowEmptyDate: false,
-                    val: '<h:outputText value="#{NewSignupMeetingBean.repeatUntil}"><f:convertDateTime pattern="yyyy-MM-dd"/></h:outputText>',
+                    val: '<h:outputText value="#{NewSignupMeetingBean.repeatUntil}"><f:convertDateTime timeZone="#{UserTimeZone.userTimeZone}" pattern="yyyy-MM-dd"/></h:outputText>',
                     ashidden: {
                             iso8601: 'untilISO8601',
                             month:"meeting_until_month",
