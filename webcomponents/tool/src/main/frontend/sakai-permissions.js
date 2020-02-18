@@ -1,6 +1,27 @@
 import {SakaiElement} from "./sakai-element.js";
 import {html} from "./assets/lit-element/lit-element.js";
 
+/**
+ * Handles display and manipulation of permissions for a Sakai tool.
+ *
+ * Usage, from the Roster tool:
+ *
+ * <sakai-permissions tool="roster" />
+ *
+ * This component needs to be able to lookup a tool's translations, and this happens via the
+ * sakai-i18n.js module, loading the translations from a Sakai web service. The translations need
+ * to be jarred and put in TOMCAT/lib, and the permission translation keys need to start with "perm-",
+ * eg: perm-TOOLPERMISSION.
+ *
+ * Example:
+ *
+ * perm-roster.viewallmembers = View all participants
+ * perm-roster.viewhidden = View hidden participants
+ * perm-roster.export = Export roster
+ * perm-roster.viewgroup = View groups
+ *
+ * @author Adrian Fish <adrian.r.fish@gmail.com>
+ */
 class SakaiPermissions extends SakaiElement {
 
   constructor() {
@@ -12,8 +33,10 @@ class SakaiPermissions extends SakaiElement {
     this.roles;
     this.roleNameMappings;
 
-    this.loadTranslations({bundle: "permissions"}).then(i18n => {
-      this.loadTranslations({bundle: this.tool}).then(tool => {
+    this.loadTranslations("permissions").then(i18n => {
+
+      this.loadTranslations(this.tool).then(tool => {
+
         Object.keys(tool).filter(k => k.startsWith("perm-")).forEach(k => i18n[k.substring(5)] = tool[k]);
         this.i18n = i18n;
         this.requestUpdate();
