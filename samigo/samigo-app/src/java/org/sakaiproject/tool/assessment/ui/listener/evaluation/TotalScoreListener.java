@@ -76,7 +76,7 @@ import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.util.EmailBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * <p>
@@ -626,7 +626,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
       else
         results.setTimeElapsed(Integer.valueOf(0));      
       
-      results.setComments(FormattedText.convertFormattedTextToPlaintext(gdata.getComments()));
+      results.setComments(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(gdata.getComments()));
       
       results.setIsLate(gdata.getIsLate());
       

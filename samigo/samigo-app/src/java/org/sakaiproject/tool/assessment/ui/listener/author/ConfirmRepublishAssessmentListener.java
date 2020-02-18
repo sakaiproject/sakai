@@ -16,7 +16,6 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.faces.context.FacesContext;
@@ -26,6 +25,7 @@ import javax.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -37,7 +37,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishRepublishNotificationBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
 
 @Slf4j
 public class ConfirmRepublishAssessmentListener implements ActionListener {
@@ -52,7 +52,7 @@ public class ConfirmRepublishAssessmentListener implements ActionListener {
 		PublishedAssessmentService assessmentService = new PublishedAssessmentService();
 		SavePublishedSettingsListener savePublishedSettingsListener = new SavePublishedSettingsListener();
 		PublishedAssessmentSettingsBean assessmentSettings = (PublishedAssessmentSettingsBean) ContextUtil.lookupBean("publishedSettings");
-		assessmentSettings.setTitle(FormattedText.convertFormattedTextToPlaintext(assessmentSettings.getTitle()));
+		assessmentSettings.setTitle(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(assessmentSettings.getTitle()));
 		Long assessmentId = assessmentSettings.getAssessmentId();
 		PublishedAssessmentFacade assessment = assessmentService.getPublishedAssessment(assessmentId.toString());
 		/*

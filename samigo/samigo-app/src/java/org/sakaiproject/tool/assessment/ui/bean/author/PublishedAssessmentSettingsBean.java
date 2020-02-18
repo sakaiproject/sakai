@@ -95,7 +95,7 @@ import org.sakaiproject.tool.assessment.ui.listener.author.SaveAssessmentAttachm
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
 import org.springframework.web.context.ContextLoader;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -243,6 +243,8 @@ public class PublishedAssessmentSettingsBean implements Serializable {
   private SessionManager sessionManager;
   @Resource(name = "org.sakaiproject.tool.api.ToolManager")
   private ToolManager toolManager;
+  @Resource(name = "org.sakaiproject.util.api.FormattedText")
+  private FormattedText formattedText;
 
   /*
    * Creates a new AssessmentBean object.
@@ -1671,7 +1673,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 	}
 
 	public String getReleaseToGroupsAsHtml() {
-		return FormattedText.escapeHtml(releaseToGroupsAsString,false);
+		return formattedText.escapeHtml(releaseToGroupsAsString,false);
 	}
 
 	public void setBlockDivs(String blockDivs){

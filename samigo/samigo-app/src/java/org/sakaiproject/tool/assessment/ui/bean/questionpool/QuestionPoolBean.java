@@ -60,6 +60,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.osid.shared.SharedException;
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolTreeImpl;
@@ -93,8 +94,8 @@ import org.sakaiproject.tool.assessment.util.BeanSort;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.FormattedText;
 
 /* Question Pool backing bean. */
 @Slf4j
@@ -2629,6 +2630,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 		List<ItemContentsBean>itemBeans = this.getItemsBean();
 		
 		int questionNumber = 1;
+		FormattedText formattedText = ComponentManager.get(FormattedText.class);
 		for ( ItemContentsBean itemBean : itemBeans) {
 			ItemFacade item = new ItemFacade(itemBean.getItemData());
 				
@@ -2641,7 +2643,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 			row.add(questionString + " " + questionNumber++);
 			
 			// Get the question text
-			row.add(FormattedText.convertFormattedTextToPlaintext(item.getData().getText()));
+			row.add(formattedText.convertFormattedTextToPlaintext(item.getData().getText()));
 			
 			// Get the question type
 			row.add(getTypeQuestion(item.getData().getTypeId()));
@@ -2664,7 +2666,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 				
 				// Feedback
 				if (StringUtils.isNotEmpty(item.getData().getGeneralItemFeedback())) {
-					contentBuffer.append(FormattedText.convertFormattedTextToPlaintext(item.getData().getGeneralItemFeedback()));
+					contentBuffer.append(formattedText.convertFormattedTextToPlaintext(item.getData().getGeneralItemFeedback()));
 				}
 				feedbackList.add(contentBuffer.toString());
 			}
@@ -2674,7 +2676,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 				
 				// Feedback
 				if (StringUtils.isNotEmpty(item.getData().getGeneralItemFeedback())) {
-					contentBuffer.append(FormattedText.convertFormattedTextToPlaintext(item.getData().getGeneralItemFeedback()));
+					contentBuffer.append(formattedText.convertFormattedTextToPlaintext(item.getData().getGeneralItemFeedback()));
 				}
 				feedbackList.add(contentBuffer.toString());
 			}
@@ -2700,7 +2702,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 							answerText = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", answer.getText());
 						}
 						else {
-							answerText = FormattedText.convertFormattedTextToPlaintext(answer.getText());
+							answerText = formattedText.convertFormattedTextToPlaintext(answer.getText());
 						}
 						contentBuffer.append(answerText);
 						
@@ -2708,7 +2710,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 						
 						contentBuffer.setLength(0);
 						if (StringUtils.isNotEmpty(answer.getGeneralAnswerFeedback())) {
-							contentBuffer.append(FormattedText.convertFormattedTextToPlaintext(answer.getGeneralAnswerFeedback()));
+							contentBuffer.append(formattedText.convertFormattedTextToPlaintext(answer.getGeneralAnswerFeedback()));
 						}
 						feedbackAnswerList.add(contentBuffer.toString());	
 					}
@@ -2738,19 +2740,19 @@ String poolId = ContextUtil.lookupParam("qpid");
 				if (!TypeIfc.MULTIPLE_CHOICE_SURVEY.equals(item.getData().getTypeId()) &&
 					!TypeIfc.MATRIX_CHOICES_SURVEY.equals(item.getData().getTypeId())) {
 					if (StringUtils.isNotEmpty(item.getData().getCorrectItemFeedback())) {
-						contentBuffer.append(FormattedText.convertFormattedTextToPlaintext(item.getData().getCorrectItemFeedback()));
+						contentBuffer.append(formattedText.convertFormattedTextToPlaintext(item.getData().getCorrectItemFeedback()));
 					}
 					feedbackList.add(contentBuffer.toString());
 					
 					contentBuffer.setLength(0);
 					if (StringUtils.isNotEmpty(item.getData().getInCorrectItemFeedback())) {
-						contentBuffer.append(FormattedText.convertFormattedTextToPlaintext(item.getData().getInCorrectItemFeedback()));
+						contentBuffer.append(formattedText.convertFormattedTextToPlaintext(item.getData().getInCorrectItemFeedback()));
 					}
 					feedbackList.add(contentBuffer.toString());
 				}
 				else {
 					if (StringUtils.isNotEmpty(item.getData().getGeneralItemFeedback())) {
-						contentBuffer.append(FormattedText.convertFormattedTextToPlaintext(item.getData().getGeneralItemFeedback()));
+						contentBuffer.append(formattedText.convertFormattedTextToPlaintext(item.getData().getGeneralItemFeedback()));
 					}
 					feedbackList.add(contentBuffer.toString());
 				}
@@ -2760,7 +2762,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 				// Answer
 				for ( ItemTextIfc matching : item.getData().getItemTextArray() ) {
 					contentBuffer.setLength(0);
-					contentBuffer.append(FormattedText.convertFormattedTextToPlaintext(matching.getText()));
+					contentBuffer.append(formattedText.convertFormattedTextToPlaintext(matching.getText()));
 					contentBuffer.append("--->");
 					
 					boolean first = true;
@@ -2773,7 +2775,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 							contentBuffer.append(" | ");
 							first = false;
 						}
-						contentBuffer.append(FormattedText.convertFormattedTextToPlaintext(answer.getText()));
+						contentBuffer.append(formattedText.convertFormattedTextToPlaintext(answer.getText()));
 					}
 					
 					answerList.add(contentBuffer.toString());
@@ -2785,13 +2787,13 @@ String poolId = ContextUtil.lookupParam("qpid");
 				// Feedback
 				contentBuffer.setLength(0);
 				if (StringUtils.isNotEmpty(item.getData().getCorrectItemFeedback())) {
-					contentBuffer.append(FormattedText.convertFormattedTextToPlaintext(item.getData().getCorrectItemFeedback()));
+					contentBuffer.append(formattedText.convertFormattedTextToPlaintext(item.getData().getCorrectItemFeedback()));
 				}
 				feedbackList.add(contentBuffer.toString());
 				
 				contentBuffer.setLength(0);
 				if (StringUtils.isNotEmpty(item.getData().getInCorrectItemFeedback())) {
-					contentBuffer.append(FormattedText.convertFormattedTextToPlaintext(item.getData().getInCorrectItemFeedback()));
+					contentBuffer.append(formattedText.convertFormattedTextToPlaintext(item.getData().getInCorrectItemFeedback()));
 				}
 				feedbackList.add(contentBuffer.toString());
 			}
@@ -2812,7 +2814,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 				// Feedback
 				contentBuffer.setLength(0);
 				if (StringUtils.isNotEmpty(item.getData().getGeneralItemFeedback())) {
-					contentBuffer.append(FormattedText.convertFormattedTextToPlaintext(item.getData().getGeneralItemFeedback()));
+					contentBuffer.append(formattedText.convertFormattedTextToPlaintext(item.getData().getGeneralItemFeedback()));
 				}
 				feedbackList.add(contentBuffer.toString());
 			}
@@ -2831,20 +2833,20 @@ String poolId = ContextUtil.lookupParam("qpid");
 						contentBuffer.append(" | ");
 						first = false;
 					}
-					contentBuffer.append(FormattedText.convertFormattedTextToPlaintext(answer.getText()));
+					contentBuffer.append(formattedText.convertFormattedTextToPlaintext(answer.getText()));
 				}
 				key.append(contentBuffer.toString());
 				
 				// Feedback
 				contentBuffer.setLength(0);
 				if (StringUtils.isNotEmpty(item.getData().getCorrectItemFeedback())) {
-					contentBuffer.append(FormattedText.convertFormattedTextToPlaintext(item.getData().getCorrectItemFeedback()));
+					contentBuffer.append(formattedText.convertFormattedTextToPlaintext(item.getData().getCorrectItemFeedback()));
 				}
 				feedbackList.add(contentBuffer.toString());
 				
 				contentBuffer.setLength(0);
 				if (StringUtils.isNotEmpty(item.getData().getInCorrectItemFeedback())) {
-					contentBuffer.append(FormattedText.convertFormattedTextToPlaintext(item.getData().getInCorrectItemFeedback()));
+					contentBuffer.append(formattedText.convertFormattedTextToPlaintext(item.getData().getInCorrectItemFeedback()));
 				}
 				feedbackList.add(contentBuffer.toString());
 			}
@@ -2854,13 +2856,13 @@ String poolId = ContextUtil.lookupParam("qpid");
 				// Feedback
 				contentBuffer.setLength(0);
 				if (StringUtils.isNotEmpty(item.getData().getCorrectItemFeedback())) {
-					contentBuffer.append(FormattedText.convertFormattedTextToPlaintext(item.getData().getCorrectItemFeedback()));
+					contentBuffer.append(formattedText.convertFormattedTextToPlaintext(item.getData().getCorrectItemFeedback()));
 				}
 				feedbackList.add(contentBuffer.toString());
 
 				contentBuffer.setLength(0);
 				if (StringUtils.isNotEmpty(item.getData().getInCorrectItemFeedback())) {
-					contentBuffer.append(FormattedText.convertFormattedTextToPlaintext(item.getData().getInCorrectItemFeedback()));
+					contentBuffer.append(formattedText.convertFormattedTextToPlaintext(item.getData().getInCorrectItemFeedback()));
 				}
 				feedbackList.add(contentBuffer.toString());
 			}
