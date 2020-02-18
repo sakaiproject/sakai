@@ -58,8 +58,8 @@ import org.sakaiproject.tool.assessment.ui.bean.print.settings.PrintSettingsBean
 import org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.component.cover.ComponentManager;
 
 import com.lowagie.text.Chunk;
@@ -84,7 +84,7 @@ public class PDFAssessmentBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private static org.sakaiproject.util.api.FormattedText formattedText = (org.sakaiproject.util.api.FormattedText)ComponentManager.get(org.sakaiproject.util.api.FormattedText.class);
+	private static FormattedText formattedText = ComponentManager.get(FormattedText.class);
 	
 	private ResourceLoader printMessages = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.PrintMessages");
 
@@ -105,6 +105,7 @@ public class PDFAssessmentBean implements Serializable {
 	private int baseFontSize = 5;
 
 	private String actionString = "";
+	
 
 	public PDFAssessmentBean() {
 		if (log.isInfoEnabled())
@@ -126,7 +127,7 @@ public class PDFAssessmentBean implements Serializable {
 	 * @param intro in html
 	 */
 	public void setIntro(String intro) {
-		this.intro = convertFormattedText(FormattedText.unEscapeHtml(intro));
+		this.intro = convertFormattedText(formattedText.unEscapeHtml(intro));
 	}
 
 	/**
@@ -223,7 +224,7 @@ public class PDFAssessmentBean implements Serializable {
 		int min = cal.get(Calendar.MINUTE);
 		int sec = cal.get(Calendar.SECOND);
 
-		String fTitle = FormattedText.convertFormattedTextToPlaintext(title);
+		String fTitle = formattedText.convertFormattedTextToPlaintext(title);
 		int end = Math.min(fTitle.length(), 9);
 
 		StringBuffer name = new StringBuffer(fTitle.substring(0, end));
@@ -836,7 +837,7 @@ public class PDFAssessmentBean implements Serializable {
 	    //To preserve old behavior, set this to true
 	    //Possibly consider using jsoup with a whitelist so some formatted text gets though, I'm not sure why this was here in the first place
 	    if (ServerConfigurationService.getBoolean("samigo.pdf.convertformattedtext",false)) {
-	        return FormattedText.convertPlaintextToFormattedText(FormattedText.convertFormattedTextToPlaintext(text));
+	        return formattedText.convertPlaintextToFormattedText(formattedText.convertFormattedTextToPlaintext(text));
 	    }
 	    return text;
 	}

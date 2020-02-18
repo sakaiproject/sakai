@@ -22,13 +22,13 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.nio.file.Files;
 import java.text.DateFormat;
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TimeZone;
@@ -43,9 +43,6 @@ import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -97,7 +94,6 @@ import org.sakaiproject.tool.assessment.ui.listener.delivery.LinearAccessDeliver
 import org.sakaiproject.tool.assessment.ui.listener.delivery.SubmitToGradingActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
 import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
 import org.sakaiproject.tool.assessment.ui.queue.delivery.TimedAssessmentQueue;
 import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
@@ -105,8 +101,12 @@ import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.sakaiproject.tool.assessment.util.MimeTypesLocator;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.FormattedText;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /* For delivery: Delivery backing bean */
 @Slf4j
@@ -1391,7 +1391,7 @@ public class DeliveryBean implements Serializable {
 		  agentEid= "N/A";
 	  }
 	  eventLogData.setUserEid(agentEid);
-	  eventLogData.setTitle(FormattedText.convertFormattedTextToPlaintext(publishedAssessment.getTitle()));
+	  eventLogData.setTitle(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(publishedAssessment.getTitle()));
 	  String site_id= AgentFacade.getCurrentSiteId();
 	  if(site_id == null) {
 		  //take assessment via url

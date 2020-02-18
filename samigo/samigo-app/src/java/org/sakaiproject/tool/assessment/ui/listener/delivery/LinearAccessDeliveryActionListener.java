@@ -57,7 +57,7 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
 import org.sakaiproject.tool.assessment.util.SamigoLRSStatements;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
 
 @Slf4j
 public class LinearAccessDeliveryActionListener extends DeliveryActionListener
@@ -181,7 +181,7 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
           eventLogData.setAssessmentId(Long.valueOf(id));
           eventLogData.setProcessId(delivery.getAssessmentGradingId());
           eventLogData.setStartDate(new Date());
-          eventLogData.setTitle(FormattedText.convertFormattedTextToPlaintext(publishedAssessment.getTitle()));
+          eventLogData.setTitle(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(publishedAssessment.getTitle()));
           eventLogData.setUserEid(agentEid); 
           String site_id= AgentFacade.getCurrentSiteId();
           if(site_id == null) {

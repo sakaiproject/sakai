@@ -24,7 +24,6 @@
 package org.sakaiproject.tool.assessment.qti.asi;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -32,16 +31,9 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import lombok.extern.slf4j.Slf4j;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextAttachmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionMetaDataIfc;
@@ -50,7 +42,11 @@ import org.sakaiproject.tool.assessment.qti.constants.QTIConstantStrings;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.qti.helper.QTIHelperFactory;
 import org.sakaiproject.tool.assessment.qti.helper.item.ItemHelperIfc;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>Copyright: Copyright (c) 2004</p>
@@ -137,7 +133,7 @@ public void setTitle(String title)
   {
     // identity
     setIdent("" + section.getSectionId());
-    setTitle(FormattedText.convertFormattedTextToPlaintext(section.getTitle()));
+    setTitle(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(section.getTitle()));
     // metadata
     // Where the heck do these come from?  Looks like not being used.
     // If required we could extract keywords by weighting, and

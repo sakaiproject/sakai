@@ -22,25 +22,22 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.Iterator;
-import java.util.Set;
 import java.util.List;
+import java.util.Set;
 
-import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 import javax.faces.model.SelectItem;
 
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
-import org.sakaiproject.tool.assessment.data.dao.assessment.SectionMetaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionMetaDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
-import org.sakaiproject.tool.assessment.services.ItemService;
-import org.sakaiproject.tool.assessment.services.PublishedItemService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
@@ -48,7 +45,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.SectionBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * <p>Title: Samigo</p>
@@ -112,7 +109,7 @@ public class EditPartListener
     section = assessmentService.getSection(sectionId);
     section.setAssessment(assessmentBean.getAssessment());
     sectionBean.setSection(section);
-    sectionBean.setSectionTitle(FormattedText.convertFormattedTextToPlaintext(section.getTitle()));
+    sectionBean.setSectionTitle(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(section.getTitle()));
     sectionBean.setSectionDescription(section.getDescription());
 
     sectionBean.setNoOfItems(String.valueOf(section.getItemSet().size()));
@@ -138,16 +135,17 @@ public class EditPartListener
     boolean isRandomizationTypeSet = false;
     boolean isPointValueHasOverrided = false;
     boolean isDiscountValueHasOverrided = false;
+    FormattedText formattedText = ComponentManager.get(FormattedText.class);
     while (iter.hasNext()){
     SectionMetaDataIfc meta= (SectionMetaDataIfc) iter.next();
        if (meta.getLabel().equals(SectionMetaDataIfc.OBJECTIVES)){
-         bean.setObjective(FormattedText.convertFormattedTextToPlaintext(meta.getEntry()));
+         bean.setObjective(formattedText.convertFormattedTextToPlaintext(meta.getEntry()));
        }
        if (meta.getLabel().equals(SectionMetaDataIfc.KEYWORDS)){
-         bean.setKeyword(FormattedText.convertFormattedTextToPlaintext(meta.getEntry()));
+         bean.setKeyword(formattedText.convertFormattedTextToPlaintext(meta.getEntry()));
        }
        if (meta.getLabel().equals(SectionMetaDataIfc.RUBRICS)){
-         bean.setRubric(FormattedText.convertFormattedTextToPlaintext(meta.getEntry()));
+         bean.setRubric(formattedText.convertFormattedTextToPlaintext(meta.getEntry()));
        }
 
        if (meta.getLabel().equals(SectionDataIfc.AUTHOR_TYPE)){

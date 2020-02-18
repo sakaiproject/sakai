@@ -33,7 +33,7 @@ import javax.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
@@ -46,7 +46,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.TextFormat;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * <p>Title: Samigo</p>2
@@ -306,7 +306,7 @@ public class SaveAssessmentSettingsListener
     Iterator iter = assessmentList.iterator();
 	while (iter.hasNext()) {
 		AssessmentFacade assessmentFacade= (AssessmentFacade) iter.next();
-		assessmentFacade.setTitle(FormattedText.convertFormattedTextToPlaintext(assessmentFacade.getTitle()));
+		assessmentFacade.setTitle(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(assessmentFacade.getTitle()));
 	}
     // get the managed bean, author and set the list
     List allAssessments = new ArrayList<>();
