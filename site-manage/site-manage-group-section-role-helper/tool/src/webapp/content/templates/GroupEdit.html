@@ -32,7 +32,7 @@
 	 $(document).ready(function() {
 		$('#save').click(function() {
 			if ($('#group_title').val() === "") {
-		   		$('.messageValidation').show();
+		   		$('.emptyGroupTitleAlert').show();
 		   		$('#group_title').focus();
 		   		return false;
 		  	}
@@ -73,7 +73,7 @@
 		<div class="page-header">
 			<h1 rsf:id="prompt"></h1>
 		</div>
-		<p id="" class="sak-banner-warn" rsf:id="emptyGroupTitleAlert" style="display:none"/>
+		<p id="emptyGroupTitleAlert" class="sak-banner-warn" rsf:id="emptyGroupTitleAlert" style="display:none"/>
 		<p rsf:id="instructions" class="instruction">
 		</p>
 
