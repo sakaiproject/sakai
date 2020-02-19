@@ -216,7 +216,7 @@ public class SamigoPoolHandler implements HandlesImportable {
 			itemFacade.setCreatedDate(new java.util.Date());
 			itemFacade.setLastModifiedBy(SessionManager.getCurrentSessionUserId());
 			itemFacade.setLastModifiedDate(new java.util.Date());
-			itemService.saveItem(itemFacade);
+			itemFacade = itemService.saveItem(itemFacade);
 			EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/saved itemId=" + itemFacade.getItemId().toString(), true));
 			rv.add(itemFacade);
 			

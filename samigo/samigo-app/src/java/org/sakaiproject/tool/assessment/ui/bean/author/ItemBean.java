@@ -118,10 +118,10 @@ public class ItemBean
 
 // for matching and calculated questions only
   private String instruction;  // matching's question text
-  private ArrayList matchItemBeanList;  // store List of MatchItemBean, used for Matching only
+  @Getter @Setter private List<MatchItemBean> matchItemBeanList;  // store List of MatchItemBean, used for Matching only
   private MatchItemBean currentMatchPair;  // do not need this ?   store List of MatchItemBeans, used for Matching only
   
-  private ArrayList imageMapItemBeanList;
+  @Getter @Setter private List<ImageMapItemBean> imageMapItemBeanList;
 
 // begin DELETEME
   private String[] matches;
@@ -176,7 +176,6 @@ public class ItemBean
   private String currentFavorite="1";
   private boolean hasFavoriteList=false;
   private ArrayList currentFavoriteList;
-  private boolean hasSubmissions;
   
   private static final ResourceLoader RB_AUTHOR_MESSAGES = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");  
   
@@ -680,16 +679,6 @@ public class ItemBean
     this.multipleChoiceAnswers= list;
   }
 
-  public void setMatchItemBeanList(ArrayList list)
-  {
-    this.matchItemBeanList= list;
-  }
-  
-  public void setImageMapItemBeanList(ArrayList list)
-  {
-	  this.imageMapItemBeanList= list;
-  }
-
   /**
    * getSelfSequenceList examines the MatchItemBean list and returns a list of SelectItemOptions that
    * correspond to beans that have a controlling sequence of "Self", meaning that they do not depend 
@@ -735,11 +724,6 @@ public class ItemBean
 	  return options;
   }
 
-  public ArrayList getMatchItemBeanList()
-  {
-	return matchItemBeanList;
-  }
-
   public void setCurrentMatchPair(MatchItemBean param)
   {
     this.currentMatchPair= param;
@@ -751,11 +735,6 @@ public class ItemBean
         return currentMatchPair;
   }
   
-  public ArrayList getImageMapItemBeanList()
-  {
-	  return imageMapItemBeanList;
-  }
-
   /**
    * Is question to be randomized?
    * @return true or false
@@ -1160,7 +1139,7 @@ public class ItemBean
   public String addMatchPair() {
       if (!isMatchError()){
 	    // get existing list
-	    ArrayList<MatchItemBean> list = getMatchItemBeanList();
+	    List<MatchItemBean> list = getMatchItemBeanList();
 	    MatchItemBean newpair = null;
 	    MatchItemBean currpair = this.getCurrentMatchPair();
 	    if (!currpair.getSequence().equals( Long.valueOf(-1))) {
@@ -1979,12 +1958,4 @@ public class ItemBean
 	public List<ItemTagBean> getItemTags() { return itemTags; }
 
 	public void setItemTags(List<ItemTagBean> itemTags) { this.itemTags = itemTags; }
-
-	public boolean getHasSubmissions() {
-	    return this.hasSubmissions;
-    }
-
-	public void setHasSubmissions(boolean hasSubmissions) {
-	    this.hasSubmissions = hasSubmissions;
-    }
 }

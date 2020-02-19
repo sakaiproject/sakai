@@ -32,7 +32,6 @@ import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 import org.osid.assessment.AssessmentException;
-import org.osid.assessment.Item;
 import org.osid.shared.Type;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemFeedback;
@@ -118,10 +117,9 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable<ItemDat
   // need to hook ItemFacade.data to ItemData, our POJO for Hibernate
   // persistence
    this.data = new ItemData();
-   ItemImpl itemImpl = new ItemImpl(); //<-- place holder
-   item = (Item)itemImpl;
+   this.item = new ItemImpl(); //<-- place holder
    try {
-     item.updateData(this.data);
+     this.item.updateData(this.data);
    }
    catch (AssessmentException ex) {
      throw new DataFacadeException(ex.getMessage());
@@ -137,10 +135,9 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable<ItemDat
    */
   public ItemFacade(ItemDataIfc data){
     this.data = data;
-    ItemImpl itemImpl = new ItemImpl(); // place holder
-    item = (Item)itemImpl;
+    this.item = new ItemImpl(); // place holder
     try {
-      item.updateData(this.data);
+      this.item.updateData(this.data);
     }
     catch (AssessmentException ex) {
       throw new DataFacadeException(ex.getMessage());
@@ -157,22 +154,6 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable<ItemDat
     this.answerOptionsRichCount = getAnswerOptionsRichCount();
     this.answerOptionsSimpleOrRich = getAnswerOptionsSimpleOrRich();
   }
-
-    /*
-  public Object clone() throws CloneNotSupportedException{
-        ItemData itemdataOrig = (ItemData) this.data;
-  ItemData cloneditemdata = (ItemData) itemdataOrig.clone();
-  // set itemId and itemIdString = 0
-        cloneditemdata.setItemId(new Long(0));
-        cloneditemdata.setItemIdString("0");
-        Object cloned = new ItemFacade(cloneditemdata);
-        return cloned;
-    }
-    */
-
-  // the following method's signature has a one to one relationship to
-  // org.sakaiproject.tool.assessment.osid.item.ItemImpl
-  // which implements org.osid.assessment.Item
 
   /**
    * Get the Id for this ItemFacade.
@@ -241,6 +222,11 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable<ItemDat
    */
   public void setData(ItemDataIfc data) {
       this.data = data;
+    try {
+      this.item.updateData(data);
+    } catch (AssessmentException e) {
+      throw new DataFacadeException(e.getMessage());
+    }
   }
 
   // the following methods implements
@@ -682,7 +668,7 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable<ItemDat
    * @return
    * @throws DataFacadeException
    */
-  public Set getItemTextSet() throws DataFacadeException {
+  public Set<ItemTextIfc> getItemTextSet() throws DataFacadeException {
     try {
       this.data = (ItemDataIfc) item.getData();
     }

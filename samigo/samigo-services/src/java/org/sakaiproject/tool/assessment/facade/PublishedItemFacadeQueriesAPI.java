@@ -18,7 +18,6 @@ package org.sakaiproject.tool.assessment.facade;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.TagServiceHelper;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 
-import java.util.List;
 import java.util.Map;
 
 public interface PublishedItemFacadeQueriesAPI {
@@ -46,8 +45,6 @@ public interface PublishedItemFacadeQueriesAPI {
 	public void deleteItemTagBindingsHavingTagCollectionId(String tagCollectionId);
 
 	BackfillItemHashResult backfillItemHashes(int batchSize, boolean backfillBaselineHashes);
-
-	public List<Long> getPublishedItemsIdsByHash(String hash);
 
 	public Long getPublishedAssessmentId(Long itemId);
 

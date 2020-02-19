@@ -36,23 +36,23 @@
     <property name="lastModifiedDate" type="timestamp" column="LASTMODIFIEDDATE" not-null="true" />
     <property name="hash" type="string" column="HASH" not-null="false" />
     <property name="itemHash" type="string" column="ITEMHASH" not-null="false" />
-    <set name="itemTextSet" table="SAM_PUBLISHEDITEMTEXT_T" cascade="all" order-by="sequence asc" inverse="true" lazy="false" batch-size="50">
+    <set name="itemTextSet" table="SAM_PUBLISHEDITEMTEXT_T" cascade="all-delete-orphan" order-by="sequence asc" inverse="true" lazy="false" batch-size="50">
        <key column="ITEMID"/>
        <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText"/>
     </set>
-    <set name="itemMetaDataSet" table="SAM_PUBLISHEDITEMMETADATA_T" cascade="all" inverse="true" lazy="false" batch-size="50">
+    <set name="itemMetaDataSet" table="SAM_PUBLISHEDITEMMETADATA_T" cascade="all-delete-orphan" inverse="true" lazy="false" batch-size="50">
        <key column="ITEMID"/>
        <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemMetaData"/>
     </set>
-    <set name="itemFeedbackSet" table="SAM_PUBLISHEDFEEDBACK_T" cascade="all" inverse="true" lazy="false" batch-size="50">
+    <set name="itemFeedbackSet" table="SAM_PUBLISHEDFEEDBACK_T" cascade="all-delete-orphan" inverse="true" lazy="false" batch-size="50">
        <key column="ITEMID"/>
        <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemFeedback"/>
     </set>
-    <set name="itemAttachmentSet" table="SAM_PUBLISHEDATTACHMENT_T" cascade="all" order-by="createdDate asc" inverse="true" lazy="false" batch-size="50">
+    <set name="itemAttachmentSet" table="SAM_PUBLISHEDATTACHMENT_T" cascade="all-delete-orphan" order-by="createdDate asc" inverse="true" lazy="false" batch-size="50">
        <key column="ITEMID"/>
        <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemAttachment"/>
     </set>
-    <set name="itemTagSet" table="SAM_ITEMTAG_T" cascade="all" inverse="true" lazy="false" batch-size="50" >
+    <set name="itemTagSet" table="SAM_ITEMTAG_T" cascade="all-delete-orphan" inverse="true" lazy="false" batch-size="50" >
       <key column="ITEMID"/>
       <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemTag" />
     </set>
@@ -70,11 +70,11 @@
     <property name="sequence" type="long" column="SEQUENCE" not-null="true" />
     <property name="text" type="materialized_clob" column="TEXT" not-null="false" />
 	<property name="requiredOptionsCount" type="integer" column="REQUIRED_OPTIONS_COUNT" not-null="false" />
-    <set name="answerSet" table="SAM_PUBLISHEDANSWER_T" cascade="all" inverse="true" lazy="false" batch-size="50" order-by="sequence asc">
+    <set name="answerSet" table="SAM_PUBLISHEDANSWER_T" cascade="all-delete-orphan" inverse="true" lazy="false" batch-size="50" order-by="sequence asc">
        <key column="ITEMTEXTID"/>
        <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer"/>
     </set>
-    <set name="itemTextAttachmentSet" table="SAM_PUBLISHEDATTACHMENT_T" cascade="all" order-by="createdDate asc" inverse="true" lazy="false" batch-size="50">
+    <set name="itemTextAttachmentSet" table="SAM_PUBLISHEDATTACHMENT_T" cascade="all-delete-orphan" order-by="createdDate asc" inverse="true" lazy="false" batch-size="50">
        <key column="ITEMTEXTID"/>
        <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemTextAttachment"/>
     </set>
@@ -136,7 +136,7 @@
     <property name="score" type="double" column="SCORE" not-null="false" />
     <property name="partialCredit" type="double" column="PARTIAL_CREDIT" not-null="false" /> 
     <property name="discount" type="double" column="DISCOUNT" not-null="false" />
-    <set name="answerFeedbackSet" table="SAM_PUBLISHEDANSWERFEEDBACK_T" cascade="all" inverse="true" lazy="false" batch-size="50">
+    <set name="answerFeedbackSet" table="SAM_PUBLISHEDANSWERFEEDBACK_T" cascade="all-delete-orphan" inverse="true" lazy="false" batch-size="50">
       <cache usage="nonstrict-read-write" />
       <key column="ANSWERID" />
       <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswerFeedback" />
