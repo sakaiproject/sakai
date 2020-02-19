@@ -20,7 +20,6 @@
 package org.sakaiproject.signup.tool.jsf;
 
 import java.text.MessageFormat;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -40,7 +39,6 @@ import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.logic.SakaiFacade;
@@ -60,7 +58,6 @@ import org.sakaiproject.signup.tool.jsf.organizer.action.CreateSitesGroups;
 import org.sakaiproject.signup.tool.util.SignupBeanConstants;
 import org.sakaiproject.signup.tool.util.Utilities;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.DateFormatterUtil;
 
@@ -229,10 +226,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
         signupMeeting = new SignupMeeting();
         signupMeeting.setMeetingType(INDIVIDUAL);
 
-        TimeService timeService = (TimeService) ComponentManager.get(TimeService.class);
         Date date = new Date();
-        date = new Date(date.getTime() + timeService.getLocalTimeZone().getOffset(Instant.now().toEpochMilli()));
-
         Calendar startCal = Calendar.getInstance();
         startCal.setTime(date);
         startCal.set(Calendar.MINUTE, 0);

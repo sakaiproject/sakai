@@ -81,8 +81,6 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 
-import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -96,25 +94,157 @@ import lombok.extern.slf4j.Slf4j;
  * 
  */
 @Slf4j
-@Getter
-@Setter
 public class SakaiFacadeImpl implements SakaiFacade {
 
+	private FunctionManager functionManager;
+	
 	private static ResourceLoader rb=  new ResourceLoader();
 
-	private FunctionManager functionManager;
-	private ToolManager toolManager;
-	private SecurityService securityService;
-	private SessionManager sessionManager;
-	private SiteService siteService;
-	private UserDirectoryService userDirectoryService;
-	private CalendarService calendarService;
-	private ServerConfigurationService serverConfigurationService;
-	private AuthzGroupService authzGroupService;
-	private FormattedText formattedText;
-	private TimeService timeService;
-	private ContentHostingService contentHostingService;
+	/**
+	 * set a Sakai FunctionManager object
+	 * 
+	 * @param functionManager
+	 *            a Sakai FunctionManager object
+	 */
+	public void setFunctionManager(FunctionManager functionManager) {
+		this.functionManager = functionManager;
+	}
 
+	private ToolManager toolManager;
+
+	/**
+	 * set a Sakai ToolManager object
+	 * 
+	 * @param toolManager
+	 *            a Sakai ToolManager object
+	 */
+	public void setToolManager(ToolManager toolManager) {
+		this.toolManager = toolManager;
+	}
+
+	/**
+	 * get the ToolManager object.
+	 * 
+	 * @return a ToolManager object.
+	 */
+	public ToolManager getToolManager() {
+		return this.toolManager;
+	}
+
+	private SecurityService securityService;
+
+	/**
+	 * set a Sakai SecurityService object
+	 * 
+	 * @param securityService
+	 *            a Sakai SecurityService object
+	 */
+	public void setSecurityService(SecurityService securityService) {
+		this.securityService = securityService;
+	}
+
+	private SessionManager sessionManager;
+
+	/**
+	 * set a Sakai SessionManager object
+	 * 
+	 * @param sessionManager
+	 *            a Sakai SessionManager object
+	 */
+	public void setSessionManager(SessionManager sessionManager) {
+		this.sessionManager = sessionManager;
+	}
+
+	private SiteService siteService;
+
+	/**
+	 * set a Sakai SiteService object
+	 * 
+	 * @param siteService
+	 *            a Sakai SiteService object
+	 */
+	public void setSiteService(SiteService siteService) {
+		this.siteService = siteService;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public SiteService getSiteService() {
+		return siteService;
+	}
+
+	private UserDirectoryService userDirectoryService;
+
+	/**
+	 * set a Sakai UserDirectoryService object
+	 * 
+	 * @param userDirectoryService
+	 *            a Sakai UserDirectoryService object
+	 */
+	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
+		this.userDirectoryService = userDirectoryService;
+	}
+
+	private CalendarService calendarService;
+
+	/**
+	 * set a Sakai CalendarService object
+	 * 
+	 * @param calendarService
+	 *            a Sakai CalendarService object
+	 */
+	public void setCalendarService(CalendarService calendarService) {
+		this.calendarService = calendarService;
+	}
+
+	private ServerConfigurationService serverConfigurationService;
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public ServerConfigurationService getServerConfigurationService() {
+		return serverConfigurationService;
+	}
+
+	/**
+	 * set a Sakai ServerConfigurationService object
+	 * 
+	 * @param serverConfigurationService
+	 *            a Sakai ServerConfigurationService object
+	 */
+	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
+	}
+	
+	private AuthzGroupService authzGroupService;
+
+	private FormattedText formattedText;
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public FormattedText getFormattedText() {
+		return formattedText;
+	}
+
+	/**
+	 * Sets the FormattedText Service.
+	 *
+	 * @param formattedText
+	 *            a FormattedText object
+	 */
+	public void setFormattedText(FormattedText formattedText) {
+		this.formattedText = formattedText;
+	}
+
+	public AuthzGroupService getAuthzGroupService() {
+		return authzGroupService;
+	}
+	public void setAuthzGroupService(AuthzGroupService authzGroupService) {
+		this.authzGroupService=authzGroupService;
+	}
 	// Returns Google calendar if the calendar has been created in Google
 	public Calendar getAdditionalCalendar(String siteId) throws PermissionException {
 		CalendarService additionalCalendarService = null;
@@ -920,7 +1050,43 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		return site.getGroup(groupId);
 	}
 
+	private TimeService timeService;
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public TimeService getTimeService() {
+		return timeService;
+	}
+
+	/**
+	 * This is a setter.
+	 * 
+	 * @param timeService
+	 *            a TimeService object.
+	 */
+	public void setTimeService(TimeService timeService) {
+		this.timeService = timeService;
+	}
+	
+	private ContentHostingService contentHostingService;
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public ContentHostingService getContentHostingService() {
+		return contentHostingService;
+	}
+
+	/**
+	 * This is a setter.
+	 * @param contentHostingService
+	 * 			a ContentHostingService object
+	 */
+	public void setContentHostingService(ContentHostingService contentHostingService) {
+		this.contentHostingService = contentHostingService;
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
