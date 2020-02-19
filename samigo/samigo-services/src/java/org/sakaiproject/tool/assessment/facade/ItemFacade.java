@@ -32,7 +32,6 @@ import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 import org.osid.assessment.AssessmentException;
-import org.osid.assessment.Item;
 import org.osid.shared.Type;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemFeedback;
