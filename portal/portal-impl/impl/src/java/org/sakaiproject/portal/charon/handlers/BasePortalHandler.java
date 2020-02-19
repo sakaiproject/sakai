@@ -21,7 +21,10 @@
 
 package org.sakaiproject.portal.charon.handlers;
 
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -208,5 +211,16 @@ public abstract class BasePortalHandler implements PortalHandler
 			// if the locale was changed, clear the date/time format which was cached in the previous locale
 			timeService.clearLocalTimeZone(userId);
 		}
+	}
+
+	protected void addTimeInfo(PortalRenderContext rcontext) {
+
+		long now = Instant.now().toEpochMilli();
+		rcontext.put("serverTimeMillis", now);
+		TimeZone userTz = timeService.getLocalTimeZone();
+		rcontext.put("userTimezone", userTz.getID());
+		rcontext.put("userTimezoneOffsetMillis", userTz.getOffset(now));
+		String iso8601 = Instant.now().atZone(ZoneId.of(userTz.getID())).toLocalDateTime().toString();
+		rcontext.put("userISO8601Timestamp", iso8601);
 	}
 }
