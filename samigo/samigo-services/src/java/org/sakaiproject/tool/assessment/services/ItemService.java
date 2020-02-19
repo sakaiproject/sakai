@@ -61,8 +61,8 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 @Slf4j
 public class ItemService
 {
-  protected static TagService tagService;
-  protected static RubricsService rubricsService;
+  protected TagService tagService;
+  protected RubricsService rubricsService;
 
   /**
    * Creates a new ItemService object.
@@ -70,7 +70,7 @@ public class ItemService
   public ItemService()
   {
     rubricsService = ComponentManager.get(RubricsService.class);
-    tagService = ComponentManager.get( TagService.class);
+    tagService = ComponentManager.get(TagService.class);
   }
 
 

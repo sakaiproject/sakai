@@ -24,8 +24,6 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -48,7 +46,6 @@ import javax.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.lang.math.IntRange;
 import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.component.cover.ComponentManager;
@@ -847,7 +844,7 @@ public class ItemAddListener
 
       if (update && !isPendingOrPool) {
     	  //prepare itemText, including answers
-          item.setItemTextSet(preparePublishedText(item, bean, delegate));
+          item.setItemTextSet(preparePublishedText(item, bean));
          
           // prepare MetaData
           item.setItemMetaDataSet(preparePublishedMetaData(item, bean));
@@ -1733,7 +1730,7 @@ public class ItemAddListener
 		return textSet;
 	}
 	  
-  private Set preparePublishedText(ItemFacade item, ItemBean bean, ItemService delegate) throws FinFormatException{
+  private Set preparePublishedText(ItemFacade item, ItemBean bean) throws FinFormatException{
 
 	  if (item.getTypeId().equals(TypeFacade.TRUE_FALSE)) {
 		  preparePublishedTextForTF(item, bean);
@@ -1742,35 +1739,35 @@ public class ItemAddListener
 		  preparePublishedTextForEssay(item, bean);
 	  }
 	  else if (item.getTypeId().equals(TypeFacade.MULTIPLE_CHOICE_SURVEY)) {
-		  preparePublishedTextForSurvey(item, bean, delegate);
+		  preparePublishedTextForSurvey(item, bean);
 	  }
 	  else if (item.getTypeId().equals(TypeFacade.FILL_IN_BLANK)) {
-		  preparePublishedTextForFIBFIN(item, bean, delegate, true);
+		  preparePublishedTextForFIBFIN(item, bean, true);
 	  }
 	  else if (item.getTypeId().equals(TypeFacade.FILL_IN_NUMERIC)) {
-		  preparePublishedTextForFIBFIN(item, bean, delegate, false);
+		  preparePublishedTextForFIBFIN(item, bean, false);
 	  }
 	  else if ( (item.getTypeId().equals(TypeFacade.MULTIPLE_CHOICE)) ||
 	             (item.getTypeId().equals(TypeFacade.MULTIPLE_CORRECT)) ||
 	             (item.getTypeId().equals(TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION))) {
-		  preparePublishedTextForMC(item, bean, delegate);
+		  preparePublishedTextForMC(item, bean);
 	  }
 	  else if (item.getTypeId().equals(TypeFacade.MATCHING)) {
-		  preparePublishedTextForMatching(item, bean, delegate);
+		  preparePublishedTextForMatching(item, bean);
 	  }
 	  else if (item.getTypeId().equals(TypeFacade.EXTENDED_MATCHING_ITEMS)) {
 		  item.setAnswerOptionsSimpleOrRich(Integer.valueOf(bean.getAnswerOptionsSimpleOrRich()));
 		  item.setAnswerOptionsRichCount(Integer.valueOf(bean.getAnswerOptionsRichCount()));
-		  preparePublishedTextForEMI(item, bean, delegate);		  
+		  preparePublishedTextForEMI(item, bean);
 	  }
 	  else if (item.getTypeId().equals(TypeFacade.CALCULATED_QUESTION)) {
-	      preparePublishedTextForCalculatedQueston(item, bean, delegate);
+	      preparePublishedTextForCalculatedQueston(item, bean);
 	  }
 	  else if (item.getTypeId().equals(TypeFacade.IMAGEMAP_QUESTION)) {
-		  preparePublishedTextForImageMapQuestion(item, bean, delegate);
+		  preparePublishedTextForImageMapQuestion(item, bean);
 	  }
 	  else if(item.getTypeId().equals(TypeFacade.MATRIX_CHOICES_SURVEY)) {
-		  preparePublishedTextForMatrixSurvey(item,bean,delegate);
+		  preparePublishedTextForMatrixSurvey(item,bean);
 	  }
 	  // for file Upload and audio recording
 	  else {
@@ -1836,7 +1833,7 @@ public class ItemAddListener
 	  }
   }
 
-	private void preparePublishedTextForSurvey(ItemFacade item, ItemBean bean, ItemService delegate) {
+	private void preparePublishedTextForSurvey(ItemFacade item, ItemBean bean) {
 		String scalename = bean.getScaleName();
 		String[] choices = getSurveyChoices(scalename);
 		Set<ItemTextIfc> textSet = item.getItemTextSet();
@@ -1863,7 +1860,7 @@ public class ItemAddListener
 		}
 	}
 
-	private void preparePublishedTextForFIBFIN(ItemFacade item, ItemBean bean, ItemService delegate, boolean isFIB) throws FinFormatException {
+	private void preparePublishedTextForFIBFIN(ItemFacade item, ItemBean bean, boolean isFIB) throws FinFormatException {
 		Set<ItemTextIfc> textSet = item.getItemTextSet();
 		String entiretext = bean.getItemText();
 		String processedText[] = processFIBFINText(entiretext);
@@ -1906,7 +1903,7 @@ public class ItemAddListener
 		}
 	}
 
-	private void preparePublishedTextForMC(ItemFacade item, ItemBean bean, ItemService delegate) {
+	private void preparePublishedTextForMC(ItemFacade item, ItemBean bean) {
 		Set<ItemTextIfc> textSet = item.getItemTextSet();
 
 		for (ItemTextIfc text : textSet) {
@@ -1963,7 +1960,7 @@ public class ItemAddListener
 		}
 	}
 
-	private void preparePublishedTextForCalculatedQueston(ItemFacade item, ItemBean bean, ItemService delegate) {
+	private void preparePublishedTextForCalculatedQueston(ItemFacade item, ItemBean bean) {
 		Set<ItemTextIfc> itemTextSet = item.getItemTextSet();
 		CalculatedQuestionBean calcBean = bean.getCalculatedQuestion();
 		double score = bean.getItemScore();
@@ -2055,7 +2052,7 @@ public class ItemAddListener
 		}
 	}
 
-	private void preparePublishedTextForImageMapQuestion(ItemFacade item, ItemBean bean, ItemService delegate) {
+	private void preparePublishedTextForImageMapQuestion(ItemFacade item, ItemBean bean) {
 		List<ImageMapItemBean> imageMapItemBeanList = bean.getImageMapItemBeanList();
 		Set<ItemTextIfc> textSet = item.getItemTextSet();
 		Map<Long, ItemTextIfc> itemTextMap = textSet.stream().collect(Collectors.toMap(ItemTextIfc::getSequence, Function.identity()));
@@ -2155,7 +2152,7 @@ public class ItemAddListener
 		}
 	}
 
-	private void preparePublishedTextForMatching(ItemFacade item, ItemBean bean, ItemService delegate) {
+	private void preparePublishedTextForMatching(ItemFacade item, ItemBean bean) {
 		Set<ItemTextIfc> textSet = item.getItemTextSet();
 		Map<Long, ItemTextIfc> itemTextMap = textSet.stream().collect(Collectors.toMap(ItemTextIfc::getSequence, Function.identity()));
 
@@ -2274,7 +2271,7 @@ public class ItemAddListener
 		}
 	}
 
-	private void preparePublishedTextForEMI(ItemFacade item, ItemBean bean, ItemService delegate) {
+	private void preparePublishedTextForEMI(ItemFacade item, ItemBean bean) {
 
 		// 1. save Theme and Lead-In Text and Answer Options
 		ItemTextIfc textTheme = item.getItemTextBySequence(ItemTextIfc.EMI_THEME_TEXT_SEQUENCE);
@@ -2652,7 +2649,7 @@ public class ItemAddListener
 	  return itemMetaDataSet;
 	}
 
-	private void preparePublishedTextForMatrixSurvey(ItemFacade item, ItemBean bean, ItemService delegate) {
+	private void preparePublishedTextForMatrixSurvey(ItemFacade item, ItemBean bean) {
 		Set<ItemTextIfc> textSet = item.getItemTextSet();
 		item.getData().setInstruction(bean.getItemText());
 		Map<Long, ItemTextIfc> itemTextMap = textSet.stream().collect(Collectors.toMap(ItemTextIfc::getSequence, Function.identity()));
