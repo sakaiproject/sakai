@@ -695,7 +695,7 @@ public class AuthoringHelper
           exHelper.makeItemAttachmentSet(item);
           
           section.addItem(item); // many to one
-          itemService.saveItem(item);
+          item = itemService.saveItem(item);
           EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/saved itemId=" + item.getItemId().toString(), true));
         } // ... end for each item
         
@@ -839,7 +839,7 @@ public class AuthoringHelper
                item.setLastModifiedBy(me);
                item.setLastModifiedDate(questionpool.getLastModified());
                item.setStatus(ItemDataIfc.ACTIVE_STATUS);
-               itemService.saveItem(item);
+               item = itemService.saveItem(item);
                EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/saved itemId=" + item.getItemId().toString(), true));
                
                QuestionPoolItemData questionPoolItem = new QuestionPoolItemData();
@@ -882,7 +882,7 @@ public class AuthoringHelper
       Item itemXml = new Item(document, QTIVersion.VERSION_1_2);
       exHelper.updateItem(item, itemXml);
       ItemService itemService = new ItemService();
-      itemService.saveItem(item);
+      item = itemService.saveItem(item);
     }
     catch (Exception e)
     {
