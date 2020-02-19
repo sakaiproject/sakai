@@ -80,6 +80,8 @@ public class SignupMeeting implements MeetingTypes, SignupMessageTypes {
 
 	private Date endTime;
 
+	private String timezone;
+
 	private Date signupBegins;
 
 	private Date signupDeadline;
@@ -222,8 +224,6 @@ public class SignupMeeting implements MeetingTypes, SignupMessageTypes {
 		this.startTime = truncateSeconds(startTime);
 	}
 
-	
-	
 	/**
 	 * get the maximum nubmer of the attendees, which is allowed in one time
 	 * slot
