@@ -9,7 +9,6 @@
 * * jquery-ui i18n translations
 * * jquery-timepicker-addon minified code
 * * jquery-timepicker-addon translations
-* * moment.js (minified) to parse and validate dates (http://momentjs.com/)
 * * jQuery UI Touch Punch 0.2.2 
 * * Sakai integration code
 */
@@ -1437,13 +1436,57 @@ if(c&&c._defaults.timeOnly&&b.input.val()!==b.lastVal)try{$.datepicker._updateDa
  */
 !function(a){function f(a,b){if(!(a.originalEvent.touches.length>1)){a.preventDefault();var c=a.originalEvent.changedTouches[0],d=document.createEvent("MouseEvents");d.initMouseEvent(b,!0,!0,window,1,c.screenX,c.screenY,c.clientX,c.clientY,!1,!1,!1,!1,0,null),a.target.dispatchEvent(d)}}if(a.support.touch="ontouchend"in document,a.support.touch){var e,b=a.ui.mouse.prototype,c=b._mouseInit,d=b._mouseDestroy;b._touchStart=function(a){var b=this;!e&&b._mouseCapture(a.originalEvent.changedTouches[0])&&(e=!0,b._touchMoved=!1,f(a,"mouseover"),f(a,"mousemove"),f(a,"mousedown"))},b._touchMove=function(a){e&&(this._touchMoved=!0,f(a,"mousemove"))},b._touchEnd=function(a){e&&(f(a,"mouseup"),f(a,"mouseout"),this._touchMoved||f(a,"click"),e=!1)},b._mouseInit=function(){var b=this;b.element.bind({touchstart:a.proxy(b,"_touchStart"),touchmove:a.proxy(b,"_touchMove"),touchend:a.proxy(b,"_touchEnd")}),c.call(b)},b._mouseDestroy=function(){var b=this;b.element.unbind({touchstart:a.proxy(b,"_touchStart"),touchmove:a.proxy(b,"_touchMove"),touchend:a.proxy(b,"_touchEnd")}),d.call(b)}}}(jQuery);
 
+$.datepicker._getPreferredSakaiDatetime = function () {
+
+  if (portal.serverTimeMillis && portal.user && portal.user.offsetFromServerMillis) {
+    let osTzOffset = (new Date()).getTimezoneOffset();
+    return moment(parseInt(portal.serverTimeMillis))
+      .add(portal.user.offsetFromServerMillis, 'ms')
+      .add(osTzOffset, 'm')
+      .toDate();
+  } else {
+    window.console && console.debug("No user timezone or server time set. Using agent's time and timezone for initial datetime");
+    return new Date();
+  }
+};
+
+$.datepicker._gotoToday = function (id) {
+
+  var target = $( id ), inst = this._getInst( target[ 0 ] );
+
+  let date = $.datepicker._getPreferredSakaiDatetime();
+
+  if ( this._get( inst, "gotoCurrent" ) && inst.currentDay ) {
+    inst.selectedDay = inst.currentDay;
+    inst.drawMonth = inst.selectedMonth = inst.currentMonth;
+    inst.drawYear = inst.selectedYear = inst.currentYear;
+  } else {
+    inst.selectedDay = date.getDate();
+    inst.drawMonth = inst.selectedMonth = date.getMonth();
+    inst.drawYear = inst.selectedYear = date.getFullYear();
+  }
+  this._notifyChange( inst );
+  this._adjustDate( target );
+
+  var inst = this._getInst($(id)[0]);
+
+  var tp_inst = this._get(inst, 'timepicker');
+  if (!tp_inst) {
+    return;
+  }
+
+  var tzoffset = $.timepicker.timezoneOffsetNumber(tp_inst.timezone);
+  let now = $.datepicker._getPreferredSakaiDatetime();
+  this._setTime(inst, now);
+  this._setDate(inst, now);
+  tp_inst._onSelectHandler();
+};
+
 /*
  *  Project: sakaiDateTimePicker
  *  Description: global date and time picker for Sakai
  *  Author: Phillip Ball
  */
-
-
 (function ( $, window, undefined ) {
 
   // Create the defaults once
@@ -1681,40 +1724,42 @@ if(c&&c._defaults.timeOnly&&b.input.val()!==b.lastVal)try{$.datepicker._updateDa
 			}
 		}
 
-		/**
-		 * Initiallizes the base date for the picker.
-		 * This gets the date that should be displayed to the user.
-		 * 
-		 */
-		var initDateTime = function () {
-			var initVal;
+    /**
+     * Initiallizes the base date for the picker.
+     * This gets the date that should be displayed to the user.
+     *
+     */
+    var initDateTime = function () {
 
- 			// If val is undefined, we assume we're to use the input value 
-			if (typeof options.val === 'undefined' && $(options.input).val() !== '') {
-				initVal = $(options.input).val();
-			}
+      var initVal;
 
-			// if val is set, use it
-			if (typeof options.val !== 'undefined') {
-				initVal = options.val;
-			}
+      // If val is undefined, we assume we're to use the input value
+      if (typeof options.val === 'undefined' && $(options.input).val() !== '') {
+        initVal = $(options.input).val();
+      }
 
-			// if getval is set, this will override val
-			if (typeof options.getval !== 'undefined') {
-				initVal = $(options.getval).val();
-			}
+      // if val is set, use it
+      if (typeof options.val !== 'undefined') {
+        initVal = options.val;
+      }
 
-			// finally trim the initVal and make sure it is set so we don't Dec 1969 the user
-			initVal = jQuery.trim(initVal);
+      // if getval is set, this will override val
+      if (typeof options.getval !== 'undefined') {
+        initVal = $(options.getval).val();
+      }
 
-			if (!(initVal == "" && options.allowEmptyDate)){
-				if (!initVal) initVal = new Date();
-			}
+      // finally trim the initVal and make sure it is set so we don't Dec 1969 the user
+      initVal = jQuery.trim(initVal);
 
+      if (!(initVal == "" && options.allowEmptyDate)){
+        if (!initVal) {
+          initVal = $.datepicker._getPreferredSakaiDatetime();
+        }
+      }
 
-			// set localDate to the time to use, predefined or current date/time
-			localDate = getDate(initVal);
-		};
+      // set localDate to the time to use, predefined or current date/time
+      localDate = getDate(initVal);
+    };
 
 		/**
 		 * Parses the current time and adds the hours and minutes to derive the end time and date

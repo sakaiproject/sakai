@@ -545,6 +545,8 @@ public class SiteHandler extends WorksiteHandler
 		}
 		
 		addLocale(rcontext, site, session.getUserId());
+
+		addTimeInfo(rcontext);
 		
 		includeSiteNav(rcontext, req, session, siteId);
 

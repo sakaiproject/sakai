@@ -33,11 +33,15 @@
                 "shortDescription" : "$!{shortDescription}",
                 "toolsCollapsed": #if ($toolsCollapsed) true #else false #end,
                 "locale": "$!{locale}",
+                "serverTimeMillis": "$!{serverTimeMillis}",
                 "user": {
                     "id": "$!{userId}",
                     "eid": "$!{userEid}",
                     "userType": "$!{userType}",
-                    "siteRole": "$!{userSiteRole}"
+                    "siteRole": "$!{userSiteRole}",
+                    "iso8601Timestamp": "$!{userISO8601Timestamp}",
+                    "timezone": "$!{userTimezone}",
+                    "offsetFromServerMillis": "$!{userTimezoneOffsetMillis}"
                 },
                 "timeoutDialog" : {
                 "enabled": $!{timeoutDialogEnabled},
