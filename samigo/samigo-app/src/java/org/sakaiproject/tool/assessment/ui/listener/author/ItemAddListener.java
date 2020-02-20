@@ -901,7 +901,7 @@ public class ItemAddListener
       	  	}
       }
 
-	  updateAttachments(itemauthor.getAttachmentList(), item, delegate);
+	  updateAttachments(itemauthor.getAttachmentList(), item);
 
 	  //Manage the tags.
 	  String[] tagsFromForm= FacesContext.getCurrentInstance().getExternalContext().getRequestParameterValuesMap().get("tag_selector[]");
@@ -2941,24 +2941,19 @@ public class ItemAddListener
 	  }
   }
 
-	private void updateAttachments(List newList, ItemFacade targetItem, ItemService delegate) {
-		final Map<Long, ItemAttachmentIfc> oldIds = targetItem.getItemAttachmentMap();
-		if ( newList != null && !(newList.isEmpty()) ) {
-			for (Object o : newList) {
-				ItemAttachmentIfc newAttachment = (ItemAttachmentIfc) o;
-				final Long newAttachmentId = newAttachment.getAttachmentId();
-				if (oldIds.containsKey(newAttachmentId)) {
+	private void updateAttachments(List<ItemAttachmentIfc> newAttachments, ItemFacade targetItem) {
+		if (newAttachments != null && targetItem != null) {
+			Map<Long, ItemAttachmentIfc> existingAttachments = targetItem.getItemAttachmentMap();
+			for (ItemAttachmentIfc newAttachment : newAttachments) {
+				Long newAttachmentId = newAttachment.getAttachmentId();
+				if (existingAttachments.containsKey(newAttachmentId)) {
 					// reiteration of existing attachment, no-op
-					oldIds.remove(newAttachmentId);
+					existingAttachments.remove(newAttachmentId);
 				} else {
 					targetItem.addItemAttachment(newAttachment);
 				}
 			}
-		}
-		// any "oldIds" left over must be orphans. delete them.
-		for ( Map.Entry<Long, ItemAttachmentIfc> e : oldIds.entrySet() ) {
-			targetItem.removeItemAttachment(e.getValue());
-			delegate.removeItemAttachment(e.getKey());
+			existingAttachments.values().forEach(targetItem::removeItemAttachment);
 		}
 	}
 
