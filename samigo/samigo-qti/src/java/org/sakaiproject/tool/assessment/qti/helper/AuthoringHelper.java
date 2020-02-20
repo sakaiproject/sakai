@@ -694,8 +694,8 @@ public class AuthoringHelper
           // Item Attachment
           exHelper.makeItemAttachmentSet(item);
           
-          section.addItem(item); // many to one
           item = itemService.saveItem(item);
+          section.addItem(item);
           EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/saved itemId=" + item.getItemId().toString(), true));
         } // ... end for each item
         
