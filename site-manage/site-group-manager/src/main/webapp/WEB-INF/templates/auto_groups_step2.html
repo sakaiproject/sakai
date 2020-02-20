@@ -6,7 +6,7 @@
   <div class="portletBody">
     <div id="menu" th:include="fragments/menus :: main (autogroups)" />
     <div class="page-header"><h1 th:text="#{autogroups.header.wizard}"></h1></div>
-    <div th:replace="fragments/wizard :: step (step2)" /><br/>
+    <div th:replace="fragments/wizard :: step (step2)"></div><br/>
     <div class="row" th:if="${step2ErrorMessage != null}">
       <div class="col-sm-8">
         <div class="sak-banner-error" th:text="${step2ErrorMessage}">You must at least select a role or a section.</div>
@@ -43,7 +43,7 @@
             <table class="table table-hovered table-bordered table-striped">
             <thead>
               <tr>
-                <th><input type="checkbox" id="selectAllSections" th:text="| #{autogroups.step2.table.selectallnone}|" onchange="checkSubmitButton();"/></th>
+                <th><input type="checkbox" id="group-manager-select-all-sections" th:text="| #{autogroups.step2.table.selectallnone}|"/></th>
                 <th th:text="#{autogroups.step2.table.sectionroster}">Section/Roster</th>
               </tr>
             </thead>

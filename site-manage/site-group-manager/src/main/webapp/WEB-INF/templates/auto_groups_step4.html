@@ -6,7 +6,7 @@
   <div class="portletBody">
     <div id="menu" th:include="fragments/menus :: main (autogroups)" />
     <div class="page-header"><h1 th:text="#{autogroups.header.wizard}"></h1></div>
-    <div th:replace="fragments/wizard :: step (step4)" />
+    <div th:replace="fragments/wizard :: step (step4)"></div>
     <div class="row">
       <div class="col-sm-8">
         <div class="instruction" th:utext="#{autogroups.step4.info}">Below is a preview of the groups to be created. Select Save below to create these groups, or Back to make changes.</div>
