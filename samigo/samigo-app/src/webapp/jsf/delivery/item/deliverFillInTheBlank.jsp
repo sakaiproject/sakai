@@ -74,7 +74,7 @@ should be included in file importing DeliveryMessages
   <h:panelGrid rendered="#{delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}" >
     <h:panelGroup>
       <h:outputLabel for="answerKeyMC" styleClass="answerkeyFeedbackCommentLabel" value="#{deliveryMessages.ans_key}: " />
-      <h:outputText id="answerKeyMC" value="#{question.key}" escape="false"/>
+      <h:outputText id="answerKeyMC" value="#{question.key}" escape="true"/>
     </h:panelGroup>
     <h:outputText value=" "/>
   </h:panelGrid>
