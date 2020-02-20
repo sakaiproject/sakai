@@ -719,7 +719,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		AgentFacade agent = null;
 		for (AssessmentData a : list) {
 			releaseToGroups = null;
-			if (a.getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
+			if (AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS.equals(a.getReleaseTo())) {
 				if (groupsForSite == null) {
 					groupsForSite = getGroupsForSite(siteAgentId);
 				}
