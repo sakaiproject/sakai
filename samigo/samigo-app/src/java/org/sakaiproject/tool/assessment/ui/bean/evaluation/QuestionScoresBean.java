@@ -155,7 +155,7 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
   @Getter @Setter
   private Map userIdMap;
   @Getter @Setter
-  private Map agentResultsByItemGradingId;
+  private Map<Long, AgentResults> agentResultsByItemGradingId;
   @Getter @Setter
   private boolean anyItemGradingAttachmentListModified;
   @Getter @Setter
