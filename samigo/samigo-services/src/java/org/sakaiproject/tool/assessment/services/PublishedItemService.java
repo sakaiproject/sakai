@@ -96,13 +96,4 @@ public class PublishedItemService extends ItemService {
         return PersistenceService.getInstance().getPublishedItemFacadeQueries().backfillItemHashes(batchSize, backfillBaselineHashes);
     }
 
-    @Override
-    public void removeItemAttachment(Long attachmentId) {
-        try {
-            PersistenceService.getInstance().getPublishedItemFacadeQueries().removeItemAttachment(attachmentId);
-        } catch(Exception e) {
-            log.error(e.getMessage(), e);
-            throw new RuntimeException(e);
-        }
-    }
 }

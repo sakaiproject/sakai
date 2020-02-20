@@ -1046,7 +1046,7 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable<ItemDat
     return this.data.getItemAttachmentSet();
   }
 
-  public void setItemAttachmentSet(Set itemAttachmentSet) {
+  public void setItemAttachmentSet(Set<ItemAttachmentIfc> itemAttachmentSet) {
     this.itemAttachmentSet = itemAttachmentSet;
     this.data.setItemAttachmentSet(itemAttachmentSet);
   }
