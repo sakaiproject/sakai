@@ -844,7 +844,30 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                 log.debug("resultPUT: {}",  resultPut);
             }
         } catch (Exception e) {
-            log.warn("Error soft deleting rubric association for id {} : {}", itemId, e.getMessage());
+            log.warn("Error soft deleting rubric association for item id prefix {} : {}", itemId, e.getMessage());
+        }
+    }
+
+    public void restoreRubricAssociation(String toolId, String itemId) {
+        try{
+            Optional<Resource<ToolItemRubricAssociation>> associationResource = getRubricAssociationResource(toolId, itemId, null);
+            if (associationResource.isPresent()) {
+                String associationHref = associationResource.get().getLink(Link.REL_SELF).getHref();
+                ToolItemRubricAssociation association = associationResource.get().getContent();
+                String created = association.getMetadata().getCreated().toString();
+                String owner = association.getMetadata().getOwnerId();
+                String ownerType = association.getMetadata().getOwnerType();
+                String creatorId = association.getMetadata().getCreatorId();
+                Map <String,Boolean> oldParams = association.getParameters();
+                oldParams.put(RubricsConstants.RBCS_SOFT_DELETED, false);
+                String input = "{\"toolId\" : \""+toolId+"\",\"itemId\" : \"" + association.getItemId() + "\",\"rubricId\" : " + association.getRubricId() + ",\"metadata\" : {\"created\" : \"" + created + "\",\"ownerId\" : \"" + owner +
+                "\",\"ownerType\" : \"" + ownerType + "\",\"creatorId\" : \"" + creatorId + "\"},\"parameters\" : {" + setConfigurationParametersForDuplication(oldParams) + "}}";
+                log.debug("Restoring association {}", input);
+                String resultPut = putRubricResource(associationHref, input, toolId, null);
+                log.debug("resultPUT: {}",  resultPut);
+            }
+        } catch (Exception e) {
+            log.warn("Error restoring rubric association for item id prefix {} : {}", itemId, e.getMessage());
         }
     }
 
@@ -883,7 +906,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                 log.debug("resultPUT: {}",  resultPut);
             }
         } catch (Exception e) {
-            log.warn("Error soft deleting rubric association for id {} : {}", itemId, e.getMessage());
+            log.warn("Error restoring rubric association for id {} : {}", itemId, e.getMessage());
         }
     }
 
@@ -898,6 +921,31 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
             }
         } catch (Exception e) {
             log.warn("Error deleting rubric association for tool {} and association {} : {}", tool, associationHref, e.getMessage());
+        }
+    }
+
+    public void softDeleteRubricAssociation(String toolId, String id){
+        try{
+            Optional<Resource<ToolItemRubricAssociation>> associationResource = getRubricAssociationResource(toolId, id, null);
+            if (associationResource.isPresent()) {
+                String associationHref = associationResource.get().getLink(Link.REL_SELF).getHref();
+                //deleteRubricEvaluationsForAssociation(associationHref, toolId);//??
+
+                ToolItemRubricAssociation association = associationResource.get().getContent();
+                String created = association.getMetadata().getCreated().toString();
+                String owner = association.getMetadata().getOwnerId();
+                String ownerType = association.getMetadata().getOwnerType();
+                String creatorId = association.getMetadata().getCreatorId();
+                Map <String,Boolean> oldParams = association.getParameters();
+                oldParams.put(RubricsConstants.RBCS_SOFT_DELETED, true);
+                String input = "{\"toolId\" : \""+toolId+"\",\"itemId\" : \"" + association.getItemId() + "\",\"rubricId\" : " + association.getRubricId() + ",\"metadata\" : {\"created\" : \"" + created + "\",\"ownerId\" : \"" + owner +
+                "\",\"ownerType\" : \"" + ownerType + "\",\"creatorId\" : \"" + creatorId + "\"},\"parameters\" : {" + setConfigurationParametersForDuplication(oldParams) + "}}";
+                log.debug("Soft delete association {}", input);
+                String resultPut = putRubricResource(associationHref, input, toolId, null);
+                log.debug("resultPUT: {}",  resultPut);
+            }
+        } catch (Exception e) {
+            log.warn("Error soft deleting rubric association for tool {} and id {} : {}", toolId, id, e.getMessage());
         }
     }
 
