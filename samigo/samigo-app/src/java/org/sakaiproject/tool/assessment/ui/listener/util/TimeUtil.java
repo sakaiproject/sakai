@@ -21,7 +21,6 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.util;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -47,8 +46,6 @@ import org.sakaiproject.util.ResourceLoader;
 @Slf4j
 public class TimeUtil 
 {
-  private static final String ISO_8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZZ";
-  private static DateTimeFormatter dtf = DateTimeFormat.forPattern(ISO_8601_DATE_FORMAT);
 
   private TimeZone m_client_timezone= null;
   private TimeZone m_server_timezone= null;
@@ -90,11 +87,6 @@ public class TimeUtil
     
     try {
       if (manipulateTimezoneForClient && m_client_timezone !=null && m_server_timezone!=null && !m_client_timezone.hasSameRules(m_server_timezone)) {
-        String sdf = ndf.toPattern();
-        // If we are going to manipulate the timezone for client browser, let's be clear and show user the timezone.
-        if (StringUtils.containsNone(sdf, "zZ")) {
-          ndf = new SimpleDateFormat(sdf + " z");
-        }
         return convertFromServerDateToTimeZone2String (ndf, serverDate, m_client_timezone);
       }
       else {
