@@ -81,7 +81,7 @@ public class TimeUtil
    */
   public String getDisplayDateTime(SimpleDateFormat ndf, Date serverDate, boolean manipulateTimezoneForClient) {
      //we can't format a null date
-    if (serverDate == null) {
+    if (serverDate == null || ndf == null) {
       return "";
     }
     
