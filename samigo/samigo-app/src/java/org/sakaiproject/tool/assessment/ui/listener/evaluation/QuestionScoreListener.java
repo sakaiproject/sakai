@@ -267,7 +267,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 //			}
 			log.debug("questionScores(): publishedAnswerHash.size = "
 					+ publishedAnswerHash.size());
-			Map agentResultsByItemGradingIdMap = new HashMap();
+			Map<Long, AgentResults> agentResultsByItemGradingIdMap = new HashMap<>();
 
 			TotalScoresBean totalBean = (TotalScoresBean) ContextUtil
 					.lookupBean("totalScores");
