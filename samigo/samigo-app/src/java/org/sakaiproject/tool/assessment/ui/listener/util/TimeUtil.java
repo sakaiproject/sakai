@@ -55,43 +55,19 @@ public class TimeUtil
     m_server_timezone= TimeZone.getDefault();
   }
 
-
-  /**
-  * Convert a Date representation of date and time in the server TimeZone 
-  * to String representation of date and time  in client TimeZone
-  * used for display. 
-  * tz1 is the client timezone,  tz2 is the server timezone
-  */
-
-  private String convertFromServerDateToTimeZone2String(SimpleDateFormat ndf, Date tz2Date, TimeZone tz1) {
-    Calendar cal1= new GregorianCalendar(tz1);
-    ndf.setCalendar(cal1);
-    String clientStr= ndf.format(tz2Date);
-
-    return clientStr;
-  }
-
   /*
    * @deprecated use UserTimeService instead
-   * This will return a formatted date/time with or without adjustment for client time zone.
+   * This will return a formatted date/time without adjustment for client time zone.
    * If instructor is located in Michigan and teaches on Sakai based in Chicago, 
-   * the date should stay stable in the server timezone when using date/time picker. Previous 
-   * behavior meant the date would be constantly manipulated by client timezone because of the
-   * convertFromServerDateToTimeZone2String manipulation below.
    */
-  public String getDisplayDateTime(SimpleDateFormat ndf, Date serverDate, boolean manipulateTimezoneForClient) {
+  public String getDisplayDateTime(SimpleDateFormat ndf, Date serverDate) {
      //we can't format a null date
-    if (serverDate == null || ndf == null) {
+    if (serverDate == null) {
       return "";
     }
     
     try {
-      if (manipulateTimezoneForClient && m_client_timezone !=null && m_server_timezone!=null && !m_client_timezone.hasSameRules(m_server_timezone)) {
-        return convertFromServerDateToTimeZone2String (ndf, serverDate, m_client_timezone);
-      }
-      else {
-        return ndf.format(serverDate);
-      }
+      return ndf.format(serverDate);
     }
     catch (RuntimeException e){
       log.warn("can not format the Date to a string", e);

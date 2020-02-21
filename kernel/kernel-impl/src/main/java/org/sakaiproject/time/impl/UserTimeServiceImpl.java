@@ -110,6 +110,7 @@ public class UserTimeServiceImpl implements UserTimeService {
 
     @Override
     public String timeFormat(Date time, Locale locale, int df) {
+        if (time == null || locale == null) return "";
         log.debug("timeFormat: {}, {}, {}", time.toString(), locale.toString(), df);
 
         DateFormat dsf = DateFormat.getTimeInstance(df, locale);
@@ -119,6 +120,7 @@ public class UserTimeServiceImpl implements UserTimeService {
 
     @Override
     public String dateFormat(Date date, Locale locale, int df) {
+        if (date == null || locale == null) return "";
         log.debug("dateFormat: {}, {}, {}", date.toString(), locale.toString(), df);
 
         DateFormat dsf = DateFormat.getDateInstance(df, locale);
@@ -128,6 +130,7 @@ public class UserTimeServiceImpl implements UserTimeService {
 
     @Override
     public String dateTimeFormat(Date date, Locale locale, int df) {
+        if (date == null || locale == null) return "";
         log.debug("dateTimeFormat: {}, {}, {}", date.toString(), locale.toString(), df);
 
         DateFormat dsf = DateFormat.getDateTimeInstance(df, df, locale);
