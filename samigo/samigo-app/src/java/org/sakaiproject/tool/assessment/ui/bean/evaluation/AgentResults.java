@@ -23,10 +23,7 @@
 package org.sakaiproject.tool.assessment.ui.bean.evaluation;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
@@ -454,11 +451,15 @@ public class AgentResults
 	
 	public String addAttachmentsRedirect() {
 
+		// We need to make sure that the state details are reapplied to the agent beans
 		QuestionScoresBean questionScoresBean = (QuestionScoresBean) ContextUtil.lookupBean("questionScores");
-		String evalId = this.getAssessmentGradingId() + "." + questionScoresBean.getItemId();
-		String entityId = RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + questionScoresBean.getPublishedId() + "." + questionScoresBean.getItemId();
-		String rubricStateDetails = ContextUtil.lookupParam(RubricsConstants.RBCS_PREFIX + evalId + "-" + entityId + "-state-details");
-		this.setRubricStateDetails(rubricStateDetails);
+		questionScoresBean.getAgentResultsByItemGradingId().values().forEach(ar -> {
+
+			String evalId = ar.getAssessmentGradingId() + "." + questionScoresBean.getItemId();
+			String entityId = RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + questionScoresBean.getPublishedId() + "." + questionScoresBean.getItemId();
+			String rubricStateDetails = ContextUtil.lookupParam(RubricsConstants.RBCS_PREFIX + evalId + "-" + entityId + "-state-details");
+			ar.setRubricStateDetails(rubricStateDetails);
+		});
 
 		// 1. redirect to add attachment
 		try	{
