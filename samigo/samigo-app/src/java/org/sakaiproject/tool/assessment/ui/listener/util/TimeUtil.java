@@ -21,7 +21,6 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.util;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -47,8 +46,6 @@ import org.sakaiproject.util.ResourceLoader;
 @Slf4j
 public class TimeUtil 
 {
-  private static final String ISO_8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZZ";
-  private static DateTimeFormatter dtf = DateTimeFormat.forPattern(ISO_8601_DATE_FORMAT);
 
   private TimeZone m_client_timezone= null;
   private TimeZone m_server_timezone= null;
@@ -58,48 +55,19 @@ public class TimeUtil
     m_server_timezone= TimeZone.getDefault();
   }
 
-
-  /**
-  * Convert a Date representation of date and time in the server TimeZone 
-  * to String representation of date and time  in client TimeZone
-  * used for display. 
-  * tz1 is the client timezone,  tz2 is the server timezone
-  */
-
-  private String convertFromServerDateToTimeZone2String(SimpleDateFormat ndf, Date tz2Date, TimeZone tz1) {
-    Calendar cal1= new GregorianCalendar(tz1);
-    ndf.setCalendar(cal1);
-    String clientStr= ndf.format(tz2Date);
-
-    return clientStr;
-  }
-
   /*
    * @deprecated use UserTimeService instead
-   * This will return a formatted date/time with or without adjustment for client time zone.
+   * This will return a formatted date/time without adjustment for client time zone.
    * If instructor is located in Michigan and teaches on Sakai based in Chicago, 
-   * the date should stay stable in the server timezone when using date/time picker. Previous 
-   * behavior meant the date would be constantly manipulated by client timezone because of the
-   * convertFromServerDateToTimeZone2String manipulation below.
    */
-  public String getDisplayDateTime(SimpleDateFormat ndf, Date serverDate, boolean manipulateTimezoneForClient) {
+  public String getDisplayDateTime(SimpleDateFormat ndf, Date serverDate) {
      //we can't format a null date
     if (serverDate == null) {
       return "";
     }
     
     try {
-      if (manipulateTimezoneForClient && m_client_timezone !=null && m_server_timezone!=null && !m_client_timezone.hasSameRules(m_server_timezone)) {
-        String sdf = ndf.toPattern();
-        // If we are going to manipulate the timezone for client browser, let's be clear and show user the timezone.
-        if (StringUtils.containsNone(sdf, "zZ")) {
-          ndf = new SimpleDateFormat(sdf + " z");
-        }
-        return convertFromServerDateToTimeZone2String (ndf, serverDate, m_client_timezone);
-      }
-      else {
-        return ndf.format(serverDate);
-      }
+      return ndf.format(serverDate);
     }
     catch (RuntimeException e){
       log.warn("can not format the Date to a string", e);
