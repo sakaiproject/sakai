@@ -76,7 +76,7 @@ public class AutoGroupsController {
         Site site = siteOptional.get();
 
         // Fill the model attributes.
-        model.addAttribute("siteRoleList", site.getRoles());
+        model.addAttribute("siteRoleList", site.getRoles().stream().filter(role -> !role.getId().startsWith(".")).collect(Collectors.toList()));
         model.addAttribute("autoGroupsForm", autoGroupsForm == null ? new AutoGroupsForm() : autoGroupsForm);
         return GroupManagerConstants.AUTO_GROUPS_STEP1_TEMPLATE;
     }
