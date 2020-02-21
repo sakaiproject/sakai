@@ -40,10 +40,10 @@ import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.groupmanager.constants.GroupManagerConstants;
 import org.sakaiproject.groupmanager.form.GroupForm;
 import org.sakaiproject.groupmanager.service.SakaiService;
+import org.sakaiproject.groupmanager.util.UserComparator;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.site.util.SiteComparator;
 import org.sakaiproject.site.util.SiteConstants;
 import org.sakaiproject.site.util.SiteGroupHelper;
 import org.sakaiproject.sitemanage.api.SiteHelper;
@@ -156,8 +156,8 @@ public class GroupController {
                 }
             }
         }
-        //Sort the members of the site by the existing comparator.
-        Collections.sort(siteMemberList, new SiteComparator(SiteConstants.SORTED_BY_MEMBER_NAME, Boolean.TRUE.toString()));
+        //Sort the members of the site by sort name.
+        Collections.sort(siteMemberList, new UserComparator());
 
         // Filter by groups or sections
         site.getGroups().forEach(group -> {
