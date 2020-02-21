@@ -6,6 +6,12 @@ portal.iframesuppress=:all:sakai.scorm.singlepackage.tool:sakai.scorm.tool
 
 As of Sakai 20, the above sakai.property is no longer needed. See SCO-161 for technical details.
 
+## Oracle support:
+
+There is a known issue with auto.ddl creating the SCORM tables. This issue is being tracked @ https://jira.sakaiproject.org/browse/SCO-84
+
+The workaround is to either create all the SCORM tables manually (with a provided script), or manually change some datatypes on specific columns that cause the problem. Both workarounds are explained in Confluence @ https://confluence.sakaiproject.org/display/SCORMPLAYER/Sakai+SCORM+player+installation+guide#SakaiSCORMplayerinstallationguide-OracleSupport
+
 ## Sakai.properties (for Sakai 20+)
 
 ### Control the default setting for "Show Content Package Structure in Player" (table of contents) when uploading new modules:
