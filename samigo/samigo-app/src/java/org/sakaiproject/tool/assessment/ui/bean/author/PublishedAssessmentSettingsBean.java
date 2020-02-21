@@ -22,6 +22,7 @@
 package org.sakaiproject.tool.assessment.ui.bean.author;
 
 import java.io.Serializable;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -62,6 +63,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
@@ -245,6 +247,8 @@ public class PublishedAssessmentSettingsBean implements Serializable {
   private ToolManager toolManager;
   @Resource(name = "org.sakaiproject.util.api.FormattedText")
   private FormattedText formattedText;
+  @Resource(name = "org.sakaiproject.time.api.UserTimeService")
+  private UserTimeService userTimeService;
 
   /*
    * Creates a new AssessmentBean object.
@@ -1113,11 +1117,11 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
    * @param date Date object
    * @return date String "MM-dd-yyyy hh:mm:ss a"
    */
-  private String getDisplayFormatFromDate(Date date, boolean manipulateTimezoneForClient) {
+  private String getDisplayFormatFromDate(Date date) {
     if (date == null) return StringUtils.EMPTY;
 
     try {
-      return tu.getDisplayDateTime(displayFormat, date, manipulateTimezoneForClient);
+      return tu.getDisplayDateTime(displayFormat, date);
     }
     catch (Exception ex) {
       // we will leave it as an empty string
@@ -1131,7 +1135,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
       return this.originalStartDateString;
     }
     else {
-      return getDisplayFormatFromDate(startDate, true);
+      return userTimeService.dateTimeFormat(startDate, new ResourceLoader().getLocale(), DateFormat.MEDIUM);
     }
   }
 
@@ -1140,7 +1144,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
       return this.originalStartDateString;
     }
     else {
-      return getDisplayFormatFromDate(startDate, false);
+      return getDisplayFormatFromDate(startDate);
     }
   }
 
@@ -1171,7 +1175,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
       return this.originalDueDateString;
     }
     else {
-      return getDisplayFormatFromDate(dueDate, true);
+      return userTimeService.dateTimeFormat(dueDate, new ResourceLoader().getLocale(), DateFormat.MEDIUM);
     }
   }
 
@@ -1180,7 +1184,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
       return this.originalDueDateString;
     }
     else {
-      return getDisplayFormatFromDate(dueDate, false);
+      return getDisplayFormatFromDate(dueDate);
     }
   }
 
@@ -1212,7 +1216,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 		return this.originalRetractDateString;
 	}
 	else {
-		return getDisplayFormatFromDate(retractDate, false);
+		return getDisplayFormatFromDate(retractDate);
 	}	  	  
   }
 
@@ -1243,7 +1247,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
       return this.originalFeedbackDateString;
     }
     else {
-      return getDisplayFormatFromDate(feedbackDate, true);
+      return userTimeService.dateTimeFormat(feedbackDate, new ResourceLoader().getLocale(), DateFormat.MEDIUM);
     }
   }
 
@@ -1252,7 +1256,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
       return this.originalFeedbackDateString;
     }
     else {
-      return getDisplayFormatFromDate(feedbackDate, false);
+      return getDisplayFormatFromDate(feedbackDate);
     }
   }
 
@@ -1282,7 +1286,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
       return this.originalFeedbackEndDateString;
     }
     else {
-      return getDisplayFormatFromDate(feedbackEndDate, true);
+      return userTimeService.dateTimeFormat(feedbackEndDate, new ResourceLoader().getLocale(), DateFormat.MEDIUM);
     }
   }
 
@@ -1291,7 +1295,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
       return this.originalFeedbackEndDateString;
     }
     else {
-      return getDisplayFormatFromDate(feedbackEndDate, false);
+      return getDisplayFormatFromDate(feedbackEndDate);
     }
   }
 

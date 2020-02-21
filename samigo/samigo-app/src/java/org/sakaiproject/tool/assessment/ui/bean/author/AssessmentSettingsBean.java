@@ -17,6 +17,7 @@
 package org.sakaiproject.tool.assessment.ui.bean.author;
 
 import java.io.Serializable;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -55,6 +56,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
@@ -245,6 +247,8 @@ public class AssessmentSettingsBean implements Serializable {
   private ToolManager toolManager;
   @Resource(name = "org.sakaiproject.util.api.FormattedText")
   private FormattedText formattedText;
+  @Resource(name = "org.sakaiproject.time.api.UserTimeService")
+  private UserTimeService userTimeService;
 
   /*
    * Creates a new AssessmentBean object.
@@ -1143,11 +1147,15 @@ public class AssessmentSettingsBean implements Serializable {
    * @param date Date object
    * @return date String "MM-dd-yyyy hh:mm:ss a"
    */
-  private String getDisplayFormatFromDate(Date date, boolean manipulateTimezoneForClient) {
+  private String getDisplayFormatFromDate(Date date) {
     if (date == null) return StringUtils.EMPTY;
 
+    if (displayFormat == null) {   
+    	setDisplayFormat(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_data_picker_w_sec"));
+    }
+
     try {
-      return tu.getDisplayDateTime(displayFormat, date, manipulateTimezoneForClient);
+      return tu.getDisplayDateTime(displayFormat, date);
     }
     catch (Exception ex) {
       // we will leave it as an empty string
@@ -1161,7 +1169,7 @@ public class AssessmentSettingsBean implements Serializable {
       return this.originalStartDateString;
     }
     else {
-      return getDisplayFormatFromDate(startDate, true);
+      return userTimeService.dateTimeFormat(startDate, new ResourceLoader().getLocale(), DateFormat.MEDIUM);
     }
   }
 
@@ -1170,7 +1178,7 @@ public class AssessmentSettingsBean implements Serializable {
 		return this.originalStartDateString;
 	}
 	else {
-      return getDisplayFormatFromDate(startDate, false);
+      return getDisplayFormatFromDate(startDate);
 	}
   }
    
@@ -1201,7 +1209,7 @@ public class AssessmentSettingsBean implements Serializable {
       return this.originalDueDateString;
     }
     else {
-      return getDisplayFormatFromDate(dueDate, true);
+      return userTimeService.dateTimeFormat(dueDate, new ResourceLoader().getLocale(), DateFormat.MEDIUM);
     }
   }
 
@@ -1210,7 +1218,7 @@ public class AssessmentSettingsBean implements Serializable {
 		return this.originalDueDateString;
 	}
 	else {
-      return getDisplayFormatFromDate(dueDate, false);
+      return getDisplayFormatFromDate(dueDate);
 	}	  
   }
 
@@ -1242,7 +1250,7 @@ public class AssessmentSettingsBean implements Serializable {
 		return this.originalRetractDateString;
 	}
 	else {
-		return getDisplayFormatFromDate(retractDate, false);
+		return getDisplayFormatFromDate(retractDate);
 	}	  	  
   }
 
@@ -1276,7 +1284,7 @@ public class AssessmentSettingsBean implements Serializable {
       return this.originalFeedbackDateString;
     }
     else {
-      return getDisplayFormatFromDate(feedbackDate, true);
+      return userTimeService.dateTimeFormat(feedbackDate, new ResourceLoader().getLocale(), DateFormat.MEDIUM);
     }
   }
 
@@ -1285,7 +1293,7 @@ public class AssessmentSettingsBean implements Serializable {
 		return this.originalFeedbackDateString;
 	}
 	else {
-		return getDisplayFormatFromDate(feedbackDate, false);
+		return getDisplayFormatFromDate(feedbackDate);
 	}	  	  	  
   }
 
@@ -1315,7 +1323,7 @@ public class AssessmentSettingsBean implements Serializable {
       return this.originalFeedbackEndDateString;
     }
     else {
-      return getDisplayFormatFromDate(feedbackEndDate, true);
+      return userTimeService.dateTimeFormat(feedbackEndDate, new ResourceLoader().getLocale(), DateFormat.MEDIUM);
     }
   }
 
@@ -1324,7 +1332,7 @@ public class AssessmentSettingsBean implements Serializable {
       return this.originalFeedbackEndDateString;
     }
     else {
-      return getDisplayFormatFromDate(feedbackEndDate, false);
+      return getDisplayFormatFromDate(feedbackEndDate);
     }
   }
 
