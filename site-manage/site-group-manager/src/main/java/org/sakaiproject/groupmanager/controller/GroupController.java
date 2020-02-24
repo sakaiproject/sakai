@@ -72,6 +72,11 @@ public class GroupController {
 
         // The form values which are optional.
         GroupForm groupForm = new GroupForm();
+        groupForm.setJoinableSetName(StringUtils.EMPTY);
+        groupForm.setJoinableSetNumOfMembers(String.valueOf(1));
+        groupForm.setGroupAllowPreviewMembership(false);
+        groupForm.setGroupUnjoinable(false);
+
         // The list of roles assigned to the group, only for existing groups.
         List<String> roleProviderList = new ArrayList<String>();
         // The list of members assigned to the group, only for existing groups.
@@ -129,11 +134,6 @@ public class GroupController {
                     groupForm.setJoinableSetNumOfMembers(StringUtils.isNotBlank(group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET_MAX)) ? group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET_MAX) : String.valueOf(0));
                     groupForm.setGroupAllowPreviewMembership(Boolean.valueOf(group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET_PREVIEW)));
                     groupForm.setGroupUnjoinable(Boolean.valueOf(group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_UNJOINABLE)));
-                 } else{
-                     groupForm.setJoinableSetName(StringUtils.EMPTY);
-                     groupForm.setJoinableSetNumOfMembers(String.valueOf(0));
-                     groupForm.setGroupAllowPreviewMembership(false);
-                     groupForm.setGroupUnjoinable(false);
                 }
             }
         }
