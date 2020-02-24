@@ -83,8 +83,6 @@ public class GroupController {
         groupForm.setGroupAllowPreviewMembership(false);
         groupForm.setGroupUnjoinable(false);
 
-      
-      1
         // The list of roles assigned to the group, only for existing groups.
         List<String> roleProviderList = new ArrayList<String>();
         // The list of members assigned to the group, only for existing groups.
