@@ -31,7 +31,7 @@ import java.util.Map;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.Setter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.content.api.ContentTypeImageService;
 
 import uk.org.ponder.localeutil.LocaleGetter;

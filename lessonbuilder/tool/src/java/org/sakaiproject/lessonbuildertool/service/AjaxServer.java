@@ -44,7 +44,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.lang.BooleanUtils;
 import org.springframework.context.MessageSource;
 
 import org.sakaiproject.authz.api.AuthzGroupService;

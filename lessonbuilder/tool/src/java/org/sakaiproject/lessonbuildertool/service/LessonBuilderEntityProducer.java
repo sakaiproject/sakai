@@ -76,6 +76,10 @@ import java.io.FileNotFoundException;
 
 import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.apache.commons.lang3.StringUtils;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
 import org.sakaiproject.authz.api.AuthzRealmLockException;
