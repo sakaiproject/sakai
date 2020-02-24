@@ -195,7 +195,7 @@
 
         <!-- JFreeChart -->
         <dependency>
-            <groupId>jfree</groupId>
+            <groupId>org.jfree</groupId>
             <artifactId>jfreechart</artifactId>
         </dependency>
 

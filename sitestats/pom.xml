@@ -19,7 +19,7 @@
   <properties>
     <commons-betwixt.version>0.8</commons-betwixt.version>
     <fop.version>1.0</fop.version>
-    <jfreechart.version>1.0.5</jfreechart.version>
+    <jfreechart.version>1.0.19</jfreechart.version>
     <sst.wicket.version>6.30.0</sst.wicket.version>
   </properties>
 
@@ -118,7 +118,7 @@
       </dependency>
       <!-- JFreeChart -->
       <dependency>
-        <groupId>jfree</groupId>
+        <groupId>org.jfree</groupId>
         <artifactId>jfreechart</artifactId>
         <version>${jfreechart.version}</version>
       </dependency> 
