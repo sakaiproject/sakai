@@ -61,7 +61,7 @@
               </label>
             </div>
             <label for="joinableSetNumOfMembers" class="form-control-label block" th:text="#{groups.joinableset.maxmembers}">Max members:</label>
-            <input name="joinableSetNumOfMembers" id="joinableSetNumOfMembers" type="number" th:field="*{joinableSetNumOfMembers}" min="0" max="999" class="form-control" th:placeholder="#{groups.joinableset.maxmembers}"/>
+            <input name="joinableSetNumOfMembers" id="joinableSetNumOfMembers" type="number" th:field="*{joinableSetNumOfMembers}" min="1" max="999" class="form-control"/>
           </div>
         </div>
       </div>
@@ -99,8 +99,8 @@
           </div>
       </div>
       <div class="act">
-        <input th:if="${groupForm.groupId == null}" accesskey="s" disabled="disabled" id="create-group-submit-button" type="submit" class="active" onclick="SPNR.disableControlsAndSpin( this, null );" th:value="#{groups.button.create}">
-        <input th:if="${groupForm.groupId != null}" accesskey="s" id="save-group-submit-button" type="submit" class="active" onclick="SPNR.disableControlsAndSpin( this, null );" th:value="#{groups.button.save}">
+        <input th:if="${groupForm.groupId == null}" accesskey="s" disabled="disabled" id="create-group-submit-button" type="submit" class="active" th:value="#{groups.button.create}">
+        <input th:if="${groupForm.groupId != null}" accesskey="s" id="save-group-submit-button" type="submit" class="active" th:value="#{groups.button.save}">
         <a th:href="@{/}" accesskey="x" id="create-group-cancel-button" class="btn btn-default" th:text="#{groups.button.cancel}">Cancel</a>
       </div>
     </form>
