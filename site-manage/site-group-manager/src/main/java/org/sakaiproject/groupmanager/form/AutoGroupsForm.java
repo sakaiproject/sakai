@@ -26,6 +26,7 @@ public class AutoGroupsForm {
     //Step 2
     private int sectionsOption;
     private List<String> selectedSectionList;
+    private boolean useManuallyAddedUsers;
     //Step 3
     private int structureConfigurationOption;
     private int splitOptions;

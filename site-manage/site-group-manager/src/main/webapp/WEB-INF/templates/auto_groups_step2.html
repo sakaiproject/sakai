@@ -52,6 +52,10 @@
                 <td><input type="checkbox" name="selectedSectionList" th:field="*{selectedSectionList}" th:value="${section.id}"/></td>
                 <td th:text="${section.title}"></td>
               </tr>
+              <tr>
+                <td><input type="checkbox" name="useManuallyAddedUsers" th:field="*{useManuallyAddedUsers}"/></td>
+                <td th:text="#{autogroups.manually.added}"></td>
+              </tr>
             </tbody>
             </table>
           </div>
