@@ -9,7 +9,13 @@ sakai-grader {
     padding: 5px;
     margin-bottom: 5px;
 
-    .left-block { flex: 0 0 auto; }
+    .left-block {
+      flex: 0 0 auto;
+      #grader-settings-wrapper {
+        display: inline-block;
+        margin-left: 20px;
+      }
+    }
     .assessment-info { display: inline-block; font-weight: bold; }
     .assessment-title { font-size: larger; }
 
@@ -38,18 +44,26 @@ sakai-grader {
       flex: 1 1 auto;
       font-weight: bold;
       text-align: center;
+      div { display: inline-block; }
     }
+
     .grader-navigator {
       flex: 0 0 auto;
       text-align: center;
       text-decoration: none;
+      select {
+        display: inline-block;
+        margin: 0px 0px 0px 8px;
+        &:focus { outline: 0;}
+      }
+      .grader-navigator a { text-decoration: none; font-weight: bold; }
+      .profile-image {
+        margin-right: 6px;
+        img {
+          height: 26px;
+        }
+      }
     }
-    .grader-navigator select {
-      display: inline-block;
-      margin: 0px 20px 0px 20px;
-      &:focus { outline: 0;}
-    }
-    .grader-navigator a { text-decoration: none; font-weight: bold; }
   }
 
   .grader-container {
@@ -93,6 +107,11 @@ sakai-grader {
 
     .rubric-active {
       color: green;
+    }
+
+    .profile-image {
+      margin-right: 6px;
+      img { width: 64px; }
     }
 
     .active-indicator {
@@ -188,6 +207,7 @@ sakai-grader {
 
   .attachments-header {
     margin-top: 7px;
+    font-weight: bold;
   }
 
   .attachment-link {

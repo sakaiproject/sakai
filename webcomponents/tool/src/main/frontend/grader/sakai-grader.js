@@ -99,7 +99,7 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
           <div class="course-title">${portal.siteTitle}</div>
           <div class="assessment-title">${this.gradableTitle}</div>
         </div>
-        <div style="display: inline-block; margin-left: 20px;">
+        <div id="grader-settings-wrapper">
           <a id="settings-link" href="javascript;" @click=${this.toggleSettings} title="${this.i18n["settings"]}">
             <fa-icon size="1.3em" i-class="fas cogs" path-prefix="/webcomponents/assets" />
           </a>
@@ -117,7 +117,7 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
         </div>
       </div>
       <div class="total-block">
-        <div style="display: inline-block;">
+        <div>
           <div class="total-label">${this.i18n["graded"]}</div>
           <div class="total-graded">${this.totalGraded} / ${this.submissions.length}</div>
         </div>
@@ -132,6 +132,7 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
             <select aria-label="${this.i18n["student_selector_label"]}" @change=${this.studentSelected}>
               ${this.submissions.map(s => html`<option value="${s.id}" .selected=${this.submission.id === s.id}>${s.groupId ? s.groupTitle : s.firstSubmitterName}</option>`)}
             </select>
+            <span class="profile-image"><img src="/direct/profile/${this.submission.firstSubmitterId}/image/official?siteId=${portal.siteId}" alt="${this.submission.firstSubmitterName}${this.i18n["profile_image"]}"/></span>
           `}
           <a href="javascript:;" @click=${this.fireNext}><fa-icon size="2em" i-class="fas arrow-circle-right" path-prefix="/webcomponents/assets" style="vertical-align: middle;" /></a>
         </div>
@@ -172,19 +173,22 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
       ${this.submission.id !== "dummy" ? html`
       <div class="grader ${this.graderOnLeft ? "on-left" : ""}">
         <div class="submitted-block">
-          <div class="submitted-time">
-            ${this.submission.submittedTime ? html`
-              <span>${this.i18n["submitted_by"]} </span><span class="submitter-name">${this.renderSubmitter()}</span><span> ${this.i18n["on"]} </span>
-              <span class="submitted-time">${this.submission.submittedTime}</span>
-              ${this.submission.late ? html`<span class="grader-late">${this.i18n["late"]}</span>` : ""}
-              ${this.submission.returned ? html`<span class="grader-returned fa fa-eye" title="${this.i18n["returned_tooltip"]}" />` : ""}
-            ` : html`
-              <span>${this.i18n["no_submission_for"]} ${this.renderSubmitter()}</span>
-            `}
+          <div style="display: flex;">
+            <div class="profile-image" style="flex: 1;"><img src="/direct/profile/${this.submission.firstSubmitterId}/image/official?siteId=${portal.siteId}" alt="${this.submission.firstSubmitterName}${this.i18n["profile_image"]}" /></div>
+            <div class="submitted-time" style="flex: 4;">
+              ${this.submission.submittedTime ? html`
+                <span class="submitter-name">${this.renderSubmitter()}</span><span> ${this.i18n["on"]}</span>
+                <span class="submitted-time">${this.submission.submittedTime}</span>
+                ${this.submission.late ? html`<span class="grader-late">${this.i18n["late"]}</span>` : ""}
+                ${this.submission.returned ? html`<span class="grader-returned fa fa-eye" title="${this.i18n["returned_tooltip"]}" />` : ""}
+                ${this.submission.submittedText && this.submission.submittedTime ? html`<div class="attachments-header"><a href="javascript;" @click=${this.displaySubmittedText}>${this.i18n["submitted_text"]}</a></div>` : ""}
+              ` : html`
+                <span>${this.i18n["no_submission_for"]} ${this.renderSubmitter()}</span>
+              `}
+            </div>
           </div>
           ${this.submission.groupId && this.submission.submittedTime ?  html`<div class="grader-group-members">${this.submission.groupMembers}</div>` : ""}
           <div class="attachments">
-            ${this.submission.submittedText && this.submission.submittedTime ?html`<div><a href="javascript;" @click=${this.displaySubmittedText}>${this.i18n["submitted_text"]}</a></div>` : ""}
             ${this.submission.submittedAttachments.length > 0 ? html`
               <div class="attachments-header">${this.i18n["submitted_attachments"]}:</div>
               ${Object.keys(this.submission.submittedAttachments).map(k => html`
