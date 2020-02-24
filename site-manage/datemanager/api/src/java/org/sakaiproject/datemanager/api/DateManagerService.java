@@ -27,7 +27,6 @@ public interface DateManagerService {
 	public String getCurrentSiteId();
 	public Locale getUserLocale();
 	public String getMessage(String messageId);
-	public Instant parseStringToInstant(String timestamp, TimeZone userTimeZone);
 	public boolean currentSiteContainsTool(String commonId);
 	public String getToolTitle(String commonId);
 

@@ -21,6 +21,7 @@ package org.sakaiproject.basiclti.impl;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +40,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.utils.URIBuilder;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityAccessOverloadException;
@@ -281,16 +283,18 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 
 		byte[] bytesEncoded = Base64.encodeBase64(login_hint.getBytes());
 		String encoded_login_hint = new String(bytesEncoded);
-		String redirect = oidc_endpoint.trim();
-		redirect += "?iss=" + java.net.URLEncoder.encode(SakaiBLTIUtil.getOurServerUrl());
-		redirect += "&login_hint=" + encoded_login_hint;
-		if ( StringUtils.isNotEmpty(launch_url)) {
-			redirect += "&target_link_uri=" + java.net.URLEncoder.encode(launch_url);
-		}
 		try {
-			res.sendRedirect(redirect);
+			URIBuilder redirect = new URIBuilder(oidc_endpoint.trim());
+			redirect.addParameter("iss", SakaiBLTIUtil.getOurServerUrl());
+			redirect.addParameter("login_hint", encoded_login_hint);
+			if (StringUtils.isNotBlank(launch_url)) {
+				redirect.addParameter("target_link_uri", launch_url);
+			}
+			res.sendRedirect(redirect.build().toString());
 		} catch (IOException unlikely) {
 			log.error("failed redirect {}", unlikely.getMessage());
+		} catch (URISyntaxException e) {
+			log.error("Syntax exception building the URL with the params: {}.", e.getMessage());
 		}
 
 	}

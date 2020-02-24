@@ -60,7 +60,11 @@ public class GroupController {
     private SakaiService sakaiService;
 
     @RequestMapping(value = "/group")
-    public String showGroup(Model model, @RequestParam(value="groupId", required=false) String groupId, @RequestParam(value="filterByGroupId", required=false) String filterByGroupId) {
+    public String showGroup(Model model, 
+    		@RequestParam(required=false) String groupId,
+    		@RequestParam(required=false) String filterByGroupId,
+    		@RequestParam(required=false) String currentTitle,
+    		@RequestParam(required=false) String currentDescription ) {
         log.debug("showGroup called with groupId {}.", groupId);
 
         Optional<Site> siteOptional = sakaiService.getCurrentSite();
@@ -72,11 +76,15 @@ public class GroupController {
 
         // The form values which are optional.
         GroupForm groupForm = new GroupForm();
+        groupForm.setGroupTitle(StringUtils.isNotBlank(currentTitle) ? currentTitle : StringUtils.EMPTY);
+        groupForm.setGroupDescription(StringUtils.isNotBlank(currentDescription) ? currentDescription : StringUtils.EMPTY);
         groupForm.setJoinableSetName(StringUtils.EMPTY);
         groupForm.setJoinableSetNumOfMembers(String.valueOf(1));
         groupForm.setGroupAllowPreviewMembership(false);
         groupForm.setGroupUnjoinable(false);
 
+      
+      1
         // The list of roles assigned to the group, only for existing groups.
         List<String> roleProviderList = new ArrayList<String>();
         // The list of members assigned to the group, only for existing groups.
@@ -193,8 +201,10 @@ public class GroupController {
 
         // Variable definition
         Locale userLocale = sakaiService.getCurrentUserLocale();
-        String groupTitle = groupForm.getGroupTitle();
         String groupId = groupForm.getGroupId();
+        String groupTitle = groupForm.getGroupTitle();
+        String groupDescription = groupForm.getGroupDescription();
+        String filterByGroupId = groupForm.getFilterByGroupId();
         String joinableSetName = groupForm.getJoinableSetName();
         // The group can be new or existing.
         Group group = null;
@@ -205,13 +215,13 @@ public class GroupController {
         //Ensure the group title is provided
         if (StringUtils.isBlank(groupTitle)) {
             model.addAttribute("errorMessage", messageSource.getMessage("groups.error.providetitle", null, userLocale));
-            return showGroup(model, groupId, null);
+            return showGroup(model, groupId, filterByGroupId, groupTitle, groupDescription);
         }
 
         //Ensure the group title is shorter than the maximum allowed
         if (groupTitle.length() > 99) {
             model.addAttribute("errorMessage", messageSource.getMessage("groups.error.titlelength", null, userLocale));
-            return showGroup(model, groupId, null);
+            return showGroup(model, groupId, filterByGroupId, groupTitle, groupDescription);
         }
 
         // If a joinable set is selected, validate the maximum number of members.
@@ -223,14 +233,14 @@ public class GroupController {
                 }
             } catch (NumberFormatException  e) {
                 model.addAttribute("errorMessage", messageSource.getMessage("groups.error.maxmembers", null, userLocale));
-                return showGroup(model, groupId, null);                
+                return showGroup(model, groupId, filterByGroupId, groupTitle, groupDescription);                
             }
         }
 
         //Ensure the group title is not in use by other groups.
         if (site.getGroups().stream().anyMatch(g -> !g.getId().equals(groupId) && groupTitle.equalsIgnoreCase(g.getTitle()))) {
             model.addAttribute("errorMessage", messageSource.getMessage("groups.error.sametitle", null, userLocale));
-            return showGroup(model, groupId, null);
+            return showGroup(model, groupId, filterByGroupId, groupTitle, groupDescription);
         }
 
         // If the group already exists, get it from the site and delete all the members.

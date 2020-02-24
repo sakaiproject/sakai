@@ -120,7 +120,9 @@
     $('#groupMembershipFilter').on('change', function() {
       const groupParams = {
         filterByGroupId: this.value,
-        groupId: $('#groupId').val()
+        groupId: $('#groupId').val(),
+        currentTitle: $('#groupTitle').val(),
+        currentDescription: $('#groupDescription').val()
       };
       window.location = 'group?'+new URLSearchParams(groupParams);
     });
