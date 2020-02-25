@@ -85,7 +85,7 @@ export class SakaiRubricCriteriaGrading extends RubricsElement {
                 <div class="rating-item ${this.selectedRatings.includes(r.id) ? "selected" : ""}" data-rating-id="${r.id}" id="rating-item-${r.id}" data-criterion-id="${c.id}" @click="${this.toggleRating}">
                   <h5 class="criterion-item-title">${r.title}</h5>
                   <p>${r.description}</p>
-                  <span class="points" data-points="${r.points}">${r.points} <sr-lang key="points">Points</sr-lang></span>
+                  <span class="points" data-points="${r.points}">${r.points.toLocaleString(portal.locale)} <sr-lang key="points">Points</sr-lang></span>
                 </div>
               `)}
               </div>
@@ -119,7 +119,7 @@ export class SakaiRubricCriteriaGrading extends RubricsElement {
       <div class="rubric-totals" style="margin: 10px 0px 10px 0px;">
         <input type="hidden" aria-labelledby="${tr("total")}" id="rbcs-${this.evaluatedItemId}-${this.entityId}-totalpoints" name="rbcs-${this.evaluatedItemId}-${this.entityId}-totalpoints" .value="${this.totalPoints}">
         <div class="total-points">
-          <sr-lang key="total">Total</sr-lang>: <strong id="sakai-rubrics-total-points">${this.totalPoints}</strong>
+          <sr-lang key="total">Total</sr-lang>: <strong id="sakai-rubrics-total-points">${this.totalPoints.toLocaleString(portal.locale)}</strong>
         </div>
       </div>
 
@@ -335,7 +335,7 @@ export class SakaiRubricCriteriaGrading extends RubricsElement {
   updateTotalPoints() {
 
     this.calculateTotalPointsFromCriteria();
-    var detail = { evaluatedItemId: this.evaluatedItemId, entityId: this.entityId, value: this.totalPoints };
+    var detail = { evaluatedItemId: this.evaluatedItemId, entityId: this.entityId, value: this.totalPoints.toLocaleString(portal.locale) };
     this.dispatchEvent(new CustomEvent('total-points-updated', {detail: detail, bubbles: true, composed: true}));
 
     this.updateStateDetails();

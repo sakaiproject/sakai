@@ -76,7 +76,7 @@ export class SakaiRubricCriteria extends RubricsElement {
                   </p>
                 </div>
                 <span class="points">
-                  ${r.points} <sr-lang key="points">Points</sr-lang>
+                  ${r.points.toLocaleString(portal.locale)} <sr-lang key="points">Points</sr-lang>
                 </span>
 
                 <div class="add-criterion-item">
@@ -172,7 +172,7 @@ export class SakaiRubricCriteria extends RubricsElement {
             if (r.id == e.detail.id) {
               r.title = e.detail.title;
               r.description = e.detail.description;
-              r.points = e.detail.points;
+              r.points = parseFloat(e.detail.points);
               r.new = false;
             }
           });
