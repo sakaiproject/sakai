@@ -51,17 +51,17 @@
 		<tr class="bottomBorder">
 			<th rsf:id="msg=simplepage.grading-student"></th>
 			<th rsf:id="unique-header"></th>
-			<th rsf:id="msg=simplepage.grading-total-posts" style="text-align:right"></th>
-			<th rsf:id="msg=simplepage.grading-grade" style="text-align:center"></th>
-			<th style="width:100%"></th>
+			<th rsf:id="msg=simplepage.grading-total-posts"></th>
+			<th rsf:id="msg=simplepage.grading-grade"></th>
+			<th></th>
 		</tr>
 		
 		<div class="student-row" rsf:id="student-row:" role="listitem">
 			<tr rsf:id="first-row" class="first-row topBorder" id="first-row">
-				<td rsf:id="student-name" style="padding-left:0.7em;"></td>
-				<td style="text-align:right;" rsf:id="student-unique"></td>
-				<td style="padding-right:2em !important; text-align:right; " rsf:id="student-total"></td>
-				<td style="text-align:right;white-space:nowrap" rsf:id="student-grade">
+				<td rsf:id="student-name"></td>
+				<td rsf:id="student-unique"></td>
+				<td rsf:id="student-total"></td>
+				<td rsf:id="student-grade">
 					<span rsf:id="gradingSpan">
 						<img class="statusImg" src="$context/images/no-status.png" id="statusImg" height="16px" width="16px" alt=""></img>
 						<span rsf:id="msg=simplepage.comments-points"></span><span style="display:none" class="uuidBox" rsf:id="commentsUUID"></span>
@@ -71,7 +71,7 @@
 					</span>
 				</td>
 				<td>
-					<a href="#" class="usebutton toggleButton" style="margin:4px 0px 3px 10px;" onclick="return false;" rsf:id="clickToExpand"></a>
+					<a href="#" class="button useButton toggleButton" onclick="return false;" rsf:id="clickToExpand"></a>
 					<img class="toggleStatus" src="$context/images/no-status.png" height="16px" width="16px" alt=""></img>
 				</td>
 			</tr>
@@ -97,7 +97,7 @@
 	<div rsf:id="missing-div" style="margin-bottom:1em">
 	  <div rsf:id="missing:"><span rsf:id="missing-entry"></span></div>
 	</div>
-	 <a id="clickToSubmit" href="#" class="usebutton toggleButton" style="margin:4px 0px 3px 10px; " onclick="return false;" rsf:id="clickToSubmit"></a> 
+	 <a id="clickToSubmit" href="#" class="button useButton toggleButton" onclick="return false;" rsf:id="clickToSubmit"></a> 
 	<form class="gradingForm" rsf:id="gradingForm" style="display:none;">
 		<input type="hidden" class="idField" id="gradingForm-id" rsf:id="gradingForm-id"></input>
 		<input type="hidden" class="jsIdField" id="gradingForm-jsId" rsf:id="gradingForm-jsId"></input>
@@ -106,7 +106,7 @@
 		<input type="hidden" class="csrfField" id="csrf" rsf:id="csrf"/>
 	</form>
 		
-	<a id="zeroMissing" href="#" class="usebutton toggleButton" style="margin:4px 0px 3px 10px; " rsf:id="zeroMissing"></a> 
+	<a id="zeroMissing" href="#" class="button useButton toggleButton" rsf:id="zeroMissing"></a> 
 	<form rsf:id="zero-form" action="#" id="zero-form" method="post" enctype="multipart/form-data" style="display:none">
 	  <input type="hidden" rsf:id="zero-csrf" />
 	  <input type="hidden" rsf:id="zero-item" />
