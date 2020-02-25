@@ -1528,18 +1528,18 @@
 		$tlang.getString("additional_information")
 	</h4>
 
-	<div class="col-sm-12 row table-reponsive">
+	<div class="col-sm-6 row">
 		<table class="table table-striped" id="extraNodeLinkList">
-			<caption style="border-bottom:1px solid #ccc;text-align:left; margin-top:1em;padding-bottom:.3em">$tlang.getString("supplement")</caption>
+			<h5>$tlang.getString("supplement")</h5>
 			<tr>
-				<td>
+				<td class="col-sm-2">
 					$tlang.getString("modelAnswer")
 				</td>
-				<td class="itemAction" style="white-space:nowrap">
-					<div id="nomodelanswer"  #if(!$!modelanswer) style="display:block"#else style="display:none" #end>
+				<td class="col-sm-4 itemAction" style="white-space:nowrap">
+					<div class="col-sm-2" id="nomodelanswer"  #if(!$!modelanswer) style="display:block"#else style="display:none" #end>
 						<a id="modelanswer_add" class="extraNodeLink" href="javascript:void(0)">$tlang.getString("new")<span class="skip"> $tlang.getString("modelAnswer")</span></a>
 					</div>
-					<div id="hasmodelanswer"  #if($!modelanswer) style="display:block"#else style="display:none" #end>
+					<div class="col-sm-2" id="hasmodelanswer"  #if($!modelanswer) style="display:block"#else style="display:none" #end>
 						<a id="modelanswer_edit" class="extraNodeLink" href="javascript:void(0)">$tlang.getString("gen.revi")<span class="skip"> $tlang.getString("modelAnswer")</span></a> | <a id="modelanswer_delete" class="extraNodeLink" href="javascript:void(0)">$tlang.getString("delet")<span class="skip"> $tlang.getString("modelAnswer")</span></a>
 						<input id = "modelanswer_to_delete" name = "modelanswer_to_delete" type= "hidden" value = "false" />
 					</div>
@@ -1548,14 +1548,14 @@
 			## show the private note section if only the user can view or edit the item
 			#if ($!allowEditAssignmentNoteItem || $!allowReadAssignmentNoteItem)
 				<tr>
-					<td>
+					<td class="col-sm-2">
 						$tlang.getString("note")
 					</td>
-					<td class="itemAction" style="white-space:nowrap">
-						<div id="nonote"  #if(!$!note) style="display:block"#else style="display:none" #end>
+					<td class="col-sm-4 itemAction" style="white-space:nowrap">
+						<div class="col-sm-2" id="nonote"  #if(!$!note) style="display:block"#else style="display:none" #end>
 							<a id="note_add" class="extraNodeLink" href="javascript:void(0)">$tlang.getString("new")<span class="skip"> $tlang.getString("note")</span></a>
 						</div>
-						<div id="hasnote"  #if($!note) style="display:block"#else style="display:none" #end>
+						<div class="col-sm-2" id="hasnote"  #if($!note) style="display:block"#else style="display:none" #end>
 							#if ($!allowEditAssignmentNoteItem)
 								<a id="note_edit" class="extraNodeLink" href="javascript:void(0)">$tlang.getString("gen.revi")<span class="skip"> $tlang.getString("note")</span></a> | <a id="note_delete" class="extraNodeLink" href="javascript:void(0)">$tlang.getString("delet")<span class="skip"> $tlang.getString("note")</span></a>
 							#else
@@ -1569,14 +1569,14 @@
 				</tr>
 			#end
 			<tr>
-				<td>
+				<td class="col-sm-2">
 					$tlang.getString("allPurpose")
 				</td>
-				<td class="itemAction" style="white-space:nowrap">
-					<div id="noallPurpose" #if(!$!allPurpose) style="display:block"#else style="display:none" #end>
+				<td class="col-sm-4 itemAction" style="white-space:nowrap">
+					<div class="col-sm-2" id="noallPurpose" #if(!$!allPurpose) style="display:block"#else style="display:none" #end>
 						<a id="allPurpose_add" class="extraNodeLink" href="javascript:void(0)">$tlang.getString("new")<span class="skip"> $tlang.getString("allPurpose")</span></a>
 					</div>
-					<div id="hasallPurpose" #if($!allPurpose) style="display:block"#else style="display:none" #end>
+					<div class="col-sm-2" id="hasallPurpose" #if($!allPurpose) style="display:block"#else style="display:none" #end>
 						<a id="allPurpose_edit" class="extraNodeLink" href="javascript:void(0)">$tlang.getString("gen.revi")<span class="skip"> $tlang.getString("allPurpose")</span></a> | <a id="allPurpose_delete" class="extraNodeLink" href="javascript:void(0)">$tlang.getString("delet")<span class="skip"> $tlang.getString("allPurpose")</span></a>
 					</div>
 					<input type="hidden" name="value_allPurpose" #if($!allPurpose) value="true" #else value="false" #end />
