@@ -11,6 +11,8 @@ let gradableDataMixin = Base => class extends Base {
         .then(res => res.json())
         .then(gradableData => {
 
+          this.showOfficialPhoto = gradableData.showOfficialPhoto;
+
           this.gradable = gradableData.gradable;
 
           this.isGroupGradable = gradableData.gradable.access === "GROUP";
