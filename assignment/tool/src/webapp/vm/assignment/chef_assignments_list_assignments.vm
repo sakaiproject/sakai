@@ -46,9 +46,9 @@
 	</div>
 
 	#if (!$!assignments.hasNext())
-		<p class="instruction">
+		<div class="sak-banner-info">
 			$tlang.getString("gen.thearecur1")
-		</p>
+		</div>
 	#else
 	#if ($allowAddAssignment)
 		#if ($!view.equals('stuvie'))
