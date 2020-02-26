@@ -390,8 +390,8 @@
 			#end
 			#if ($!joinableGroups.size() > 0)
 				<h4 class="toggleAnchor specialLink">
-					<span  style="padding-left:1.5em">$tlang.getString("sinfo.list.joinable.groups")</span>
-				</h4>		
+					<span style="padding-left:1.5em">#if ($!allowUpdate) $tlang.getString("sinfo.list.joinable.joinable-sets") #else $tlang.getString("sinfo.list.joinable.groups") #end</span>
+				</h4>
 				<div class="toggledContent">
 				<dl class="defList" id="accordion">
 					<table class ="listHier lines nolines"  cellpadding="0" cellspacing="0" border="0">
