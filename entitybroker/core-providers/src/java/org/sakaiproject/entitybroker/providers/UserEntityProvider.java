@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.azeckoski.reflectutils.FieldUtils;
@@ -38,10 +39,19 @@ import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Createable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Deleteable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Inputable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Redirectable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestAware;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
+import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.providers.model.EntityUser;
@@ -65,33 +75,16 @@ import org.sakaiproject.user.api.UserPermissionException;
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
 @Slf4j
-public class UserEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, RESTful, Describeable {
+@Setter
+public class UserEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, Createable, Resolvable
+    , Deleteable, CollectionResolvable, Outputable, Inputable, Describeable, ActionsExecutable, Redirectable {
 
     private static final String ID_PREFIX = "id=";
 
-    private UserDirectoryService userDirectoryService;
-    public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
-        this.userDirectoryService = userDirectoryService;
-    }
-
-    private SiteService siteService;
-    public void setSiteService(SiteService siteService) {
-        this.siteService = siteService;
-    }
-
-
     private DeveloperHelperService developerHelperService;
-    public void setDeveloperHelperService(
-            DeveloperHelperService developerHelperService) {
-        this.developerHelperService = developerHelperService;
-    }
-
     private ServerConfigurationService serverConfigurationService;
-    public void setServerConfigurationService(
-            ServerConfigurationService serverConfigurationService) {
-        this.serverConfigurationService = serverConfigurationService;
-    }
-
+    private SiteService siteService;
+    private UserDirectoryService userDirectoryService;
 
     public static String PREFIX = "user";
     public String getEntityPrefix() {
@@ -214,59 +207,6 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
 
     public Object getSampleEntity() {
         return new EntityUser();
-    }
-
-    public void updateEntity(EntityReference ref, Object entity, Map<String, Object> params) {
-        String userId = ref.getId();
-        if (userId == null || "".equals(userId)) {
-            throw new IllegalArgumentException("Cannot update, No userId in provided reference: " + ref);
-        }
-        User user = getUserByIdEid(userId);
-        UserEdit edit = null;
-        try {
-            edit = userDirectoryService.editUser(user.getId());
-        } catch (UserNotDefinedException e) {
-            throw new IllegalArgumentException("Invalid user: " + ref + ":" + e.getMessage());
-        } catch (UserPermissionException e) {
-            throw new SecurityException("Permission denied: User cannot be updated: " + ref);
-        } catch (UserLockedException e) {
-            throw new RuntimeException("Something strange has failed with Sakai: " + e.getMessage());
-        }
-
-        if (entity.getClass().isAssignableFrom(User.class)) {
-            // if someone passes in a user or useredit
-            User u = (User) entity;
-            edit.setEmail(u.getEmail());
-            edit.setFirstName(u.getFirstName());
-            edit.setLastName(u.getLastName());
-            edit.setType(u.getType());
-            // put in properties
-            ResourcePropertiesEdit rpe = edit.getPropertiesEdit();
-            rpe.set(u.getProperties());
-        } else if (entity.getClass().isAssignableFrom(EntityUser.class)) {
-            // if they instead pass in the myuser object
-            EntityUser u = (EntityUser) entity;
-            edit.setEmail(u.getEmail());
-            edit.setFirstName(u.getFirstName());
-            edit.setLastName(u.getLastName());
-            if (u.getPassword() != null && !"".equals(u.getPassword())) {
-                edit.setPassword(u.getPassword());
-            }
-            edit.setType(u.getType());
-            // put in properties
-            ResourcePropertiesEdit rpe = edit.getPropertiesEdit();
-            for (String key : u.getProps().keySet()) {
-                String value = u.getProps().get(key);
-                rpe.addProperty(key, value);
-            }
-        } else {
-            throw new IllegalArgumentException("Invalid entity for update, must be User or EntityUser object");
-        }
-        try {
-            userDirectoryService.commitEdit(edit);
-        } catch (UserAlreadyDefinedException e) {
-            throw new RuntimeException(ref + ": This exception should not be possible: " + e.getMessage(), e);
-        }
     }
 
     public void deleteEntity(EntityReference ref, Map<String, Object> params) {
