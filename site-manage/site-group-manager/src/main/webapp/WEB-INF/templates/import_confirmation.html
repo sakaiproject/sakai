@@ -6,7 +6,7 @@
   <div class="portletBody">
     <div id="menu" th:include="fragments/menus :: main (import)" />
     <div class="page-header"><h1 th:text="#{import.confirmation.header}"></h1></div>
-    <div class="instruction" th:text="#{import.confirmation.instructions}"></div>
+    <p th:text="#{import.confirmation.instructions}"></p>
     <div class="sak-banner-error" th:text="#{import.confirmation.error}" th:if="${membershipErrors}"></div>
     <div th:each="importedGroup : ${importedGroups}">
       <h3 th:text="|#{import.confirmation.group} ${importedGroup.key}|"></h3>

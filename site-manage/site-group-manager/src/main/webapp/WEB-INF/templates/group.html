@@ -12,7 +12,7 @@
     <div class="row">
       <div class="col-sm-8">
         <div class="sak-banner-error" th:if="${errorMessage != null}" th:text="${errorMessage}"></div>
-        <div class="instruction" th:text="#{groups.instruction}"></div>
+        <p th:text="#{groups.instruction}"></p>
       </div>
     </div>
     <form id="creategroup-form" action="#" th:action="@{/saveGroup}" th:object="${groupForm}" method="post">
