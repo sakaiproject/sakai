@@ -132,7 +132,7 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
             ${this.isGroupGradable ? "" : html`
               <div class="grader-groups">
                 <span>${this.assignmentsI18n["please_select_group"]}</span>
-                <sakai-group-picker groups="${JSON.stringify(this.groups)}" @change=${this.groupSelected}></sakai-group-picker>
+                <sakai-group-picker groups="${JSON.stringify(this.groups)}" @group-selected=${this.groupSelected}></sakai-group-picker>
               </div>
             `}
           </div>
@@ -771,8 +771,8 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
       this.submissions = [...this.originalSubmissions];
     }
 
-    if (this.currentGroup && this.currentGroup !== "any") {
-      let group = this.groups.find(g => g.id === this.currentGroup);
+    if (this.currentGroup && this.currentGroup !== `/site/${portal.siteId}`) {
+      let group = this.groups.find(g => g.reference === this.currentGroup);
       this.submissions = this.submissions.filter(s => group.users.includes(s.firstSubmitterId));
     }
 
@@ -815,7 +815,7 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
   groupSelected(e) {
 
-    this.currentGroup = e.target.value;
+    this.currentGroup = e.detail.value;
     this.applyFilters(e);
   }
 

@@ -16,8 +16,8 @@ class SakaiGroupPicker extends SakaiElement {
 
     return {
       siteId: { attribute: "site-id", type: String },
-      groupId: { attribute: "group-id", type: String },
-      groups: { type: Array},
+      groupRef: { attribute: "group-id", type: String },
+      groups: { type: Array },
       formName: { attribute: "form-name", type: String },
       i18n: Object,
     }
@@ -33,7 +33,7 @@ class SakaiGroupPicker extends SakaiElement {
       .then(r => r.json() )
       .then(groups => {
 
-        this.groups = groups.map(g => ({id: g.id, title: g.title}));
+        this.groups = groups.map(g => ({reference: g.reference, title: g.title}));
         if (this.debug) {
           console.debug(this.groups);
         }
@@ -50,14 +50,16 @@ class SakaiGroupPicker extends SakaiElement {
 
     return html`
       <select aria-label="${this.i18n["group_selector_label"]}" @change=${this.groupChanged}>
-        <option value="any" ?selected=${this.groupId === "any"}>${this.i18n["any"]}</option>
-        ${this.groups.map(g => html`<option value="${g.id}" ?selected=${this.groupId === g.id}>${g.title}</option>`)}
+        <option value="/site/${portal.siteId}" ?selected=${this.groupRef === "/site/${portal.siteId}"}>
+          ${this.i18n["site"]}
+        </option>
+        ${this.groups.map(g => html`<option value="${g.reference}" ?selected=${this.groupRef === g.reference}>${g.title}</option>`)}
       </select>
     `;
   }
 
   groupChanged(e) {
-    this.dispatchEvent(new CustomEvent("group-selected", { detail: { groupId: e.target.value }, bubbles: true }));
+    this.dispatchEvent(new CustomEvent("group-selected", { detail: { value: e.target.value }, bubbles: true }));
   }
 }
 

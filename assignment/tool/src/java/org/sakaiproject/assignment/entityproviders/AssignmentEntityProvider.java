@@ -493,7 +493,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         Map<String, Object> data = new HashMap<>();
 
-        List<SimpleGroup> groups = site.getGroups().stream().map(g -> new SimpleGroup(g)).collect(Collectors.toList());
+        List<SimpleGroup> groups = site.getGroups().stream().map(SimpleGroup::new).collect(Collectors.toList());
 
         data.put("gradable", new SimpleAssignment(assignment));
         data.put("submissions", submissions);
@@ -1288,6 +1288,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
     public class SimpleGroup {
 
         private String id;
+        private String reference;
         private String title;
         private Set<String> users;
 
@@ -1296,6 +1297,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             super();
 
             this.id = g.getId();
+            this.reference = g.getReference();
             this.title = g.getTitle();
             this.users = g.getUsers();
         }
