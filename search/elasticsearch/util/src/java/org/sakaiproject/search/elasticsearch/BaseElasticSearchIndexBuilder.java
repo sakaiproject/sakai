@@ -1136,7 +1136,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
             query = query.must(termQuery(SearchService.FIELD_TYPE, "sakai:" + termType));
             query = query.must(matchQuery(SearchService.FIELD_CONTENTS, termValue));
         } else {
-            query = query.must(QueryBuilders.queryStringQuery(searchTerms));
+            query = query.must(QueryBuilders.simpleQueryStringQuery(searchTerms));
         }
 
         return pairOf(builders.getLeft(), query);
