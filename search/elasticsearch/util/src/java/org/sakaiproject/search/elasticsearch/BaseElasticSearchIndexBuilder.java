@@ -23,6 +23,7 @@ import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.filteredQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
+import static org.elasticsearch.index.query.QueryBuilders.simpleQueryStringQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 import static org.elasticsearch.search.facet.FacetBuilders.termsFacet;
@@ -77,7 +78,6 @@ import org.elasticsearch.common.settings.loader.JsonSettingsLoader;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.indices.IndexAlreadyExistsException;
 import org.elasticsearch.search.SearchHit;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -1136,7 +1136,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
             query = query.must(termQuery(SearchService.FIELD_TYPE, "sakai:" + termType));
             query = query.must(matchQuery(SearchService.FIELD_CONTENTS, termValue));
         } else {
-            query = query.must(QueryBuilders.simpleQueryStringQuery(searchTerms));
+            query = query.must(simpleQueryStringQuery(searchTerms));
         }
 
         return pairOf(builders.getLeft(), query);
