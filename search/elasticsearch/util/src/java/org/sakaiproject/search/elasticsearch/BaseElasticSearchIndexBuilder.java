@@ -51,6 +51,7 @@ import org.elasticsearch.common.settings.loader.JsonSettingsLoader;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
+import static org.elasticsearch.index.query.QueryBuilders.simpleQueryStringQuery;
 import org.elasticsearch.indices.IndexAlreadyExistsException;
 import org.elasticsearch.search.SearchHit;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -1131,7 +1132,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
             query = query.must(termQuery(SearchService.FIELD_TYPE, "sakai:" + termType));
             query = query.must(matchQuery(SearchService.FIELD_CONTENTS, termValue));
         } else {
-            query = query.must(matchQuery(SearchService.FIELD_CONTENTS, searchTerms));
+            query = query.must(simpleQueryStringQuery(searchTerms));
         }
 
         return pairOf(builders.getLeft(), query);
