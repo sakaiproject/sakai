@@ -88,7 +88,7 @@
                                 </a>
                             </th>
                         #end
-                        #if ($!isCourseSite)
+                        #if ($!isCourseSite && $!hasCredits)
                             <th id="credits" scope="col">
                                 <a href="#toolLinkParam("$action" "doSort_roster" "criterion=participant_credits")" title="$tlang.getString("sitegen.siteinfolist.sortcred")">
                                     $tlang.getString("sitegen.siteinfolist.credits")
@@ -158,7 +158,7 @@
                                     $partSection
                                 </td>
                             #end
-                            #if ($!isCourseSite)
+                            #if ($!isCourseSite && $!hasCredits)
                                 <td headers="credits">
                                     #set($partCredits = "")
                                     #set($partCredits = $participant.getCredits())
