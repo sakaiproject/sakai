@@ -49,6 +49,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -63,6 +64,7 @@ import java.util.stream.Collectors;
 public class SearchEntityProvider extends AbstractEntityProvider implements ActionsExecutable, Outputable, Describeable {
 
     private static final int DEFAULT_RESULT_COUNT = 10;
+    public static final String REQUEST_PARAMETER_Q = "q";
 
     private UserDirectoryService userDirectoryService;
     private SearchService searchService;
@@ -113,12 +115,19 @@ public class SearchEntityProvider extends AbstractEntityProvider implements Acti
             //Transforms SearchResult in a SearchResultEntity to avoid conflicts with the getId() method (see SRCH-85)
             List<SearchResultEntity> results = 
                 searchService.search(query, contexts, (int) search.getStart(), (int) search.getLimit())
-                    .stream().map(r -> new SearchResultEntity(r)).collect(Collectors.toList());
+                    .stream().map(SearchResultEntity::new).collect(Collectors.toList());
 
             return new ActionReturn(results);
         } catch (InvalidSearchQueryException e) {
             throw new IllegalArgumentException(e);
         }
+    }
+
+    @EntityCustomAction(action = "suggestions", viewKey = EntityView.VIEW_LIST)
+    public ActionReturn handleSuggestions(Map<String, String> params) {
+
+        String[] suggestions = searchService.getSearchSuggestions(params.get(REQUEST_PARAMETER_Q), null, true);
+        return new ActionReturn(Arrays.asList(suggestions), null, Formats.JSON);
     }
 
     /**
