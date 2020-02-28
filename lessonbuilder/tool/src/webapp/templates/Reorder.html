@@ -9,6 +9,7 @@
         <link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
         <link rsf:id="scr=portal-matter" href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
         <script>includeLatestJQuery('Reorder.html');</script>
+        <script src="/library/js/fluid/1.5/MyInfusion.js"></script>
         <script type="text/javascript" src="$context/js/reorder.js"></script>
         <link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/Simplepagetool.css" type="text/css"/>
         <title rsf:id="msg=simplepage.reorder_header"></title>
@@ -63,8 +64,9 @@
                         </div>
                     </div>
                     <div class="flc-reorderer-column col2 panel panel-danger col-md-4 col-md-offset-1" id="reorderCol2">
-                        <span rsf:id="msg=simplepage.reorder_delebox">Drop off here</span>
-                        <div class="deleteListMessageEmpty reorderItemsContainer" id="deleteListHead"></div>
+                        <div class="deleteListMessageEmpty reorderItemsContainer" id="deleteListHead">
+                            <span rsf:id="msg=simplepage.reorder_delebox">Drop off here</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -100,5 +102,8 @@
                 </div>
             </div>
         </div>
+        <script>
+            initlayoutReorderer();
+        </script>
     </body>
 </html>
