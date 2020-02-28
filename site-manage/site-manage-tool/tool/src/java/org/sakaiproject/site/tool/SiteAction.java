@@ -2029,6 +2029,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("isMyWorkspace", isMyWorkspace);
 			context.put("siteTitle", site.getTitle());
 			context.put("isCourseSite", SiteTypeUtil.isCourseSite(site.getType()));
+			context.put("isCreditsEnabled", ServerConfigurationService.getBoolean("wsetup.participants.credits.enabled", false));
 
 			// Set participant list
 			if (allowUpdateSite || allowViewRoster || allowUpdateSiteMembership) {
