@@ -10,8 +10,7 @@ component    Contains the component which is deployed to the
    
 sample       Contains the sample providers.
 
-jldap        Contains the jldap UserDirectoryProvider - see the README
-   in that directory for proper configuration and use.
+unboundid    Contains the unboundid UserDirectoryProvider - see https://jira.sakaiproject.org/browse/SAK-23630 for proper configuration and use.
 
 kerberos     Contains a basic Kerberos provider.
 
