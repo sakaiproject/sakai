@@ -23,11 +23,13 @@ package org.sakaiproject.content.impl;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.SocketException;
 import java.net.URI;
@@ -46,6 +48,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.SortedSet;
@@ -71,14 +74,21 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.tika.io.TikaInputStream;
-import org.apache.tika.metadata.Metadata;
+import fr.opensagres.odfdom.converter.xhtml.XHTMLConverter;
+
 import org.apache.tika.detect.DefaultDetector;
 import org.apache.tika.detect.Detector;
+import org.apache.tika.io.TikaInputStream;
+import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MimeTypes;
-
 import org.apache.tika.parser.txt.CharsetDetector;
 import org.apache.tika.parser.txt.CharsetMatch;
+
+import org.odftoolkit.odfdom.doc.OdfTextDocument;
+
+import org.zwobble.mammoth.DocumentConverter;
+import org.zwobble.mammoth.Result;
+
 import org.sakaiproject.authz.api.AuthzRealmLockException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -14350,7 +14360,44 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
     	
     	return url;
     }
-    
+
+    public Optional<String> getHtmlForRef(String ref) {
+
+        try {
+            ContentResource cr = getResource(ref);
+
+            byte[] content = cr.getContent();
+            String contentType = cr.getContentType();
+
+            switch (cr.getContentType()) {
+                case DOCX_MIMETYPE:
+                    try (InputStream in = cr.streamContent()) {
+                        Result<String> result = new DocumentConverter().convertToHtml(in);
+                        String html = result.getValue();
+                        if (log.isDebugEnabled()) {
+                            result.getWarnings().forEach(w -> log.debug("Warning while converting {} to html: {}", ref, w));
+                        }
+                        return Optional.of(html);
+                    }
+                case ODT_MIMETYPE:
+                    try (InputStream in = cr.streamContent()) {
+                        OdfTextDocument document = OdfTextDocument.loadDocument(in);
+                        StringWriter sw = new StringWriter();
+                        XHTMLConverter.getInstance().convert( document, sw, null );
+                        return Optional.of(sw.toString());
+                    } catch ( Throwable e ) {
+                        e.printStackTrace();
+                    }
+
+                    return Optional.of("");
+                default:
+            }
+        } catch (Exception e) {
+            log.error("Failed to get html for ref {}", ref, e);
+        }
+        return Optional.empty();
+    }
+
     /**
      * Helper to get the value for a given macro.
      * @param macroName

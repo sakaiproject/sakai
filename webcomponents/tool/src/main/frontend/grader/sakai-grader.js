@@ -5,6 +5,7 @@ import "/webcomponents/fa-icon.js";
 import "./sakai-grader-file-picker.js";
 import "../sakai-date-picker.js";
 import "../sakai-group-picker.js";
+import "../sakai-document-viewer.js";
 import {gradableDataMixin} from "./sakai-gradable-data-mixin.js";
 import {Submission} from "./submission.js";
 import "/rubrics-service/webcomponents/rubric-association-requirements.js";
@@ -147,15 +148,14 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
       <div class="gradable">
         ${this.submission.submittedTime ? html`
           ${this.submittedTextMode ? html`
-            <div class="sak-banner-info">This is the submitted text, with your feedback. To add more feedback, click 'Add Feedback' at
-            the bottom of the submission, then click 'Done' when you're finished. <strong>Your changes won't be saved until you click one of the save buttons in the grader.</strong></div>
+            <div class="sak-banner-info">${unsafeHTML(this.i18n["inline_feedback_instruction"])}</div>
             <textarea id="grader-feedback-text-editor" style="display: none">${this.submission.feedbackText}</textarea>
             <div id="grader-feedback-text">${unsafeHTML(this.submission.feedbackText)}</div>
             <button id="edit-inline-feedback-button" class="inline-feedback-button" @click=${this.toggleInlineFeedback} aria-haspopup="true">${this.i18n["add_feedback"]}</button>
             <button id="show-inline-feedback-button" class="inline-feedback-button" @click=${this.toggleInlineFeedback} aria-haspopup="true" style="display: none;">Done</button>
           ` : html`
             ${this.selectedAttachmentRef ? html`
-              <div>${this.i18n["previewing"]}: <a href="/access${this.selectedAttachmentRef}">${this.fileNameFromRef(this.selectedAttachmentRef)}</a></div>
+              <div class="preview"><sakai-document-viewer ref="${this.selectedAttachmentRef}"></sakai-document-viewer></div>
             ` : ""}
           `}
         ` : ""}
@@ -191,8 +191,8 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
           <div class="attachments">
             ${this.submission.submittedAttachments.length > 0 ? html`
               <div class="attachments-header">${this.i18n["submitted_attachments"]}:</div>
-              ${Object.keys(this.submission.submittedAttachments).map(k => html`
-                <span class="attachment-link"><a href="javascript;" data-url="${this.submission.submittedAttachments[k]}" @click=${this.previewAttachment}>${parseInt(k) + 1}</a></span>
+              ${this.submission.submittedAttachments.map(r => html`
+                <span class="attachment-link"><a href="javascript;" data-url="${r}" @click=${this.previewAttachment}>${this.fileNameFromRef(r)}</a></span>
               `)}` : ""}
           </div>
         </div> <!-- /submitted-block -->
