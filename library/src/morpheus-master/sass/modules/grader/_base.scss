@@ -82,6 +82,39 @@ sakai-grader {
     .inline-feedback-button {
       margin-top: 8px;
     }
+    .preview {
+      padding: 5px;
+      margin-top: 10px;
+      border: solid black 1px;
+
+      sakai-document-viewer {
+        .document-link { margin-bottom: 8px; font-weight: bold; }
+
+        .preview-outer {
+          background: gray;
+          text-align: center;
+          padding: 30px;
+          .preview-middle {
+          background: black;
+            background: white;
+          }
+          .preview-inner {
+            width: 75%;
+            background: white;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            display: inline-block;
+            padding: 20 10 20 10;
+            text-align: left;
+          }
+          .nomargins {
+            width: 100%;
+            margin-top: 0px;
+            margin-bottom: 0px;
+          }
+        }
+      }
+    }
   }
 
   #grader-rubric-link {
