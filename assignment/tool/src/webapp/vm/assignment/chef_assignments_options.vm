@@ -28,12 +28,6 @@
     				$tlang.getString("options_searchonly")
 				</label>
             </div>
-			<div class="checkbox">
-				<label class="checkbox-label" for="submission_list_option_usegrader">
-					<input type="checkbox" id="submission_list_option_usegrader" name="use_sakai_grader" #if($use_sakai_grader)checked#end value="true"/>
-					$tlang.getString("options_usegrader")
-				</label>
-			</div>
 		</fieldset>
 		<p class="act">
 			<input type="submit" class="active" name="eventSubmit_doUpdate_options" id = "eventSubmit_doUpdate_option_default" value="$tlang.getString("update")" accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" />
