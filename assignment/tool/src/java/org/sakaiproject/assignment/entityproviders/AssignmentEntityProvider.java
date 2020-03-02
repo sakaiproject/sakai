@@ -497,6 +497,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         data.put("submissions", submissions);
         data.put("students", students);
         data.put("groups", groups);
+        data.put("showOfficialPhoto", serverConfigurationService.getBoolean("assignment.show.official.photo", true));
         String lOptions = serverConfigurationService.getString("assignment.letterGradeOptions", "A+,A,A-,B+,B,B-,C+,C,C-,D+,D,D-,E,F");
         data.put("letterGradeOptions", lOptions);
 

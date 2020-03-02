@@ -133,7 +133,11 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
             <select aria-label="${this.i18n["student_selector_label"]}" @change=${this.studentSelected}>
               ${this.submissions.map(s => html`<option value="${s.id}" .selected=${this.submission.id === s.id}>${s.groupId ? s.groupTitle : s.firstSubmitterName}</option>`)}
             </select>
-            <span class="profile-image"><img src="/direct/profile/${this.submission.firstSubmitterId}/image/official?siteId=${portal.siteId}" alt="${this.submission.firstSubmitterName}${this.i18n["profile_image"]}"/></span>
+            ${this.submission.showPhoto ? html`
+              <span class="profile-image">
+                <img src="/direct/profile/${this.submission.firstSubmitterId}/image/official?siteId=${portal.siteId}" alt="${this.submission.firstSubmitterName}${this.i18n["profile_image"]}"/>
+              </span>
+            ` : ""}
           `}
           <a href="javascript:;" @click=${this.fireNext}><fa-icon size="2em" i-class="fas arrow-circle-right" path-prefix="/webcomponents/assets" style="vertical-align: middle;" /></a>
         </div>
@@ -174,7 +178,11 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
       <div class="grader ${this.graderOnLeft ? "on-left" : ""}">
         <div class="submitted-block">
           <div style="display: flex;">
-            <div class="profile-image" style="flex: 1;"><img src="/direct/profile/${this.submission.firstSubmitterId}/image/official?siteId=${portal.siteId}" alt="${this.submission.firstSubmitterName}${this.i18n["profile_image"]}" /></div>
+            ${this.submission.showPhoto ? html`
+              <div class="profile-image" style="flex: 1;">
+                <img src="/direct/profile/${this.submission.firstSubmitterId}/image/official?siteId=${portal.siteId}" alt="${this.submission.firstSubmitterName}${this.i18n["profile_image"]}" />
+              </div>
+            ` : ""}
             <div class="submitted-time" style="flex: 4;">
               ${this.submission.submittedTime ? html`
                 <span class="submitter-name">${this.renderSubmitter()}</span><span> ${this.i18n["on"]}</span>
