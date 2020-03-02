@@ -260,8 +260,13 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         return token;
     }
 
+    public boolean hasAssociatedRubric(String tool, String id) {
+        return hasAssociatedRubric(tool, id, getCurrentSiteId("hasAssociatedRubric"));
+    }
 
-    public boolean hasAssociatedRubric(String tool, String id ) {
+    public boolean hasAssociatedRubric(String tool, String id, String siteId ) {
+
+        siteId = StringUtils.isEmpty(siteId) ? getCurrentSiteId("hasAssociatedRubric") : siteId;
 
         String cacheKey = tool + "#" + id;
         Boolean isAssociated = hasAssociatedRubricCache.get(cacheKey);
@@ -271,7 +276,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         } else {
             boolean exists = false;
             try {
-                Optional<ToolItemRubricAssociation> association = getRubricAssociation(tool, id);
+                Optional<ToolItemRubricAssociation> association = getRubricAssociation(tool, id, siteId);
                 exists = association.isPresent();
                 hasAssociatedRubricCache.put(cacheKey, exists);
             } catch (Exception e){
