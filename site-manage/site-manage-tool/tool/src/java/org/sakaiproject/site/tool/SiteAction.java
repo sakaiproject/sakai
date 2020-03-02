@@ -2032,7 +2032,7 @@ public class SiteAction extends PagedResourceActionII {
 
 			// Set participant list
 			if (allowUpdateSite || allowViewRoster || allowUpdateSiteMembership) {
-				Collection participantsCollection = getParticipantList(state);
+				Collection<Participant> participantsCollection = getParticipantList(state);
 				sortedBy = (String) state.getAttribute(SORTED_BY);
 				sortedAsc = (String) state.getAttribute(SORTED_ASC);
 				if (sortedBy == null) {
@@ -2048,6 +2048,9 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("currentSortAsc", sortedAsc);
 				context.put("participantListSize", participantsCollection.size());
 				context.put("participantList", prepPage(state));
+
+				boolean hasCredits = participantsCollection.stream().anyMatch(p -> StringUtils.isNotEmpty(p.getCredits()));
+				context.put("hasCredits", hasCredits);
 
 				ParticipantFilterHandler.putSelectedFilterIntoContext(state, context);
 
@@ -10974,7 +10977,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 * getParticipantList
 	 * 
 	 */
-	private Collection getParticipantList(SessionState state) {
+	private Collection<Participant> getParticipantList(SessionState state) {
 		List members = new Vector();
 		String siteId = (String) state.getAttribute(STATE_SITE_INSTANCE_ID);
 
