@@ -204,14 +204,15 @@ public class CommentGradingPaneProducer implements ViewComponentProducer, ViewPa
 		}
 		
 		if (notSubmitted.size() > 0) {
-		    List<String> missing = new ArrayList<String>();
-		    for (String userId: notSubmitted) {
-			try {
-			    missing.add(UserDirectoryService.getUser(userId).getDisplayName());
-			} catch (Exception e) {
-			    missing.add(userId);
+			List<String> missing = new ArrayList<String>();
+			for (String userId : notSubmitted) {
+				try {
+					User user = UserDirectoryService.getUser(userId);
+					missing.add(String.format("%s (%s)", user.getSortName(), user.getEid()));
+				} catch (Exception e) {
+					missing.add(userId);
+				}
 			}
-		    }
 		    Collections.sort(missing);
 		    UIOutput.make(tofill, "missing-head");
 		    UIOutput.make(tofill, "missing-div");
