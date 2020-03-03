@@ -94,6 +94,7 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
             }
             getHibernateTemplate().merge(item);
         }
+        getHibernateTemplate().delete(item);
     }
 
     public void deleteItemContent(Long itemId, String agent) {
