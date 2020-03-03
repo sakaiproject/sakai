@@ -1,15 +1,27 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <body>
+<script th:fragment="wizardJs" th:inline="javascript">
+  /*<![CDATA[*/
+  var wizardFunctions = {
+
+    previousWizardStep: function (step) {
+      var wizardAction = document.getElementById('wizardAction');
+      if (wizardAction !== 'undefined') {
+        wizardAction.value = step;
+        document.forms[0].submit();
+      }
+    }
+
+  }
+  /*]]>*/
+</script>
 <script th:fragment="indexJs" th:inline="javascript">
   /*<![CDATA[*/
-  $('#delete-groups-cancel-button').click(function(e) {
-    e.preventDefault;
-    window.location = window.location.href.replace('/sakai-site-group-manager.helper', '');
-  });
+  var indexFunctions = {
 
-  function checkSubmitButton() {
-    var anyCheckboxEnabled = false;
+    checkSubmitButton : function () {
+      var anyCheckboxEnabled = false;
       $(':checkbox').each(function() {
         if(this.checked) {
           $('#delete-groups-submit-button').attr('disabled', false);
@@ -20,9 +32,16 @@
       if(!anyCheckboxEnabled) {
         $('#delete-groups-submit-button').attr('disabled', true);
       }
+    }
+
   }
 
-  $('#selectAllGroups').click(function(e) {
+  $('#delete-groups-cancel-button').click(function(e) {
+    e.preventDefault;
+    window.location = window.location.href.replace('/sakai-site-group-manager.helper', '');
+  });
+
+  $('#group-manager-index-select-all').click(function(e) {
     var selectAllChecked = this.checked;
     $(':checkbox').each(function() {
       this.checked = selectAllChecked;
@@ -147,13 +166,12 @@
     });
 
   });
-
   /*]]>*/
 </script>
 
 <script th:fragment="autoGroupsStep1Js" th:inline="javascript">
   /*<![CDATA[*/
-  $('#selectAllRoles').click(function(e) {
+  $('#group-manager-select-all-roles').click(function(e) {
     var selectAllChecked = this.checked;
     $(':checkbox').each(function() {
       this.checked = selectAllChecked;
@@ -168,7 +186,7 @@
     this.value === '0' ? $('#selectSectionDiv').fadeOut() : $('#selectSectionDiv').fadeIn();
   });
 
-  $('#selectAllSections').click(function(e) {
+  $('#group-manager-select-all-sections').click(function(e) {
     var selectAllChecked = this.checked;
     $(':checkbox').each(function() {
       this.checked = selectAllChecked;
