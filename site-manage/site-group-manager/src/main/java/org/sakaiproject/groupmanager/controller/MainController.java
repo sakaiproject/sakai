@@ -38,10 +38,9 @@ import org.sakaiproject.authz.api.AuthzRealmLockException;
 import org.sakaiproject.groupmanager.constants.GroupManagerConstants;
 import org.sakaiproject.groupmanager.form.MainForm;
 import org.sakaiproject.groupmanager.service.SakaiService;
+import org.sakaiproject.groupmanager.util.UserComparator;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.util.SiteComparator;
-import org.sakaiproject.site.util.SiteConstants;
 import org.sakaiproject.user.api.User;
 
 @Slf4j
@@ -90,7 +89,7 @@ public class MainController {
                     groupMemberList.add(memberUserOptional.get());
                 }
             });
-            Collections.sort(groupMemberList, new SiteComparator(SiteConstants.SORTED_BY_MEMBER_NAME, Boolean.TRUE.toString()));
+            Collections.sort(groupMemberList, new UserComparator());
             groupMemberList.forEach(u -> stringJoiner.add(u.getDisplayName()));
             groupMemberMap.put(group.getId(), stringJoiner.toString());
             // Get the joinable sets and add them to the Map
