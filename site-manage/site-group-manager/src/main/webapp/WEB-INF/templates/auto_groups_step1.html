@@ -6,7 +6,7 @@
   <div class="portletBody">
     <div id="menu" th:include="fragments/menus :: main (autogroups)" />
     <div class="page-header"><h1 th:text="#{autogroups.header.wizard}"></h1></div>
-    <div th:replace="fragments/wizard :: step (step1)" />
+    <div th:replace="fragments/wizard :: step (step1)"></div>
     <div class="row" th:if="${step1ErrorMessage != null}">
       <div class="col-sm-8">
         <div class="sak-banner-error" th:text="${step1ErrorMessage}">You must at least select a role.</div>
@@ -23,7 +23,7 @@
             <table class="table table-bordered table-striped table-hover">
             <thead>
               <tr>
-                <th><input type="checkbox" id="selectAllRoles" th:text="| #{autogroups.step1.table.selectallnone}|"/></th>
+                <th><input type="checkbox" id="group-manager-select-all-roles" th:text="| #{autogroups.step1.table.selectallnone}|"/></th>
                 <th th:text="#{autogroups.step1.table.role}"></th>
               </tr>
             </thead>

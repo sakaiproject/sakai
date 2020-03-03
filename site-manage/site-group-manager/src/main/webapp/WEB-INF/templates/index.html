@@ -15,7 +15,7 @@
             <th th:text="#{index.table.joinableset}">Joinable set</th>
             <th class="hidden-xs" th:text="#{index.table.groupsize}">Size (Max)</th>
             <th class="hidden-xs" th:text="#{index.table.groupmembers}">Members</th>
-            <th><input type="checkbox" id="selectAllGroups" th:text="| #{index.table.selectallnone}|"/></th>
+            <th><input type="checkbox" id="group-manager-index-select-all" th:text="| #{index.table.selectallnone}|"/></th>
           </tr>
         </thead>
         <tbody>
@@ -29,7 +29,7 @@
             <td class="hidden-xs"><span th:text="${group.getMembers().size()}"></span> <span th:if="${groupJoinableSetSizeMap.get(group.id) != null}" th:text="'('+${groupJoinableSetSizeMap.get(group.id)}+')'"></span></td>
             <td class="hidden-xs" th:text="${groupMemberMap.get(group.id)}"></td>
             <td>
-              <input th:if="${!lockedForDeletionGroupList.contains(group)}" th:attr="groupInfo=|${group.title} - ${group.getMembers().size()} #{index.table.members}|" type="checkbox" name="deletedGroupList" th:field="*{deletedGroupList}" th:value="${group.id}" onchange="checkSubmitButton();"/>
+              <input th:if="${!lockedForDeletionGroupList.contains(group)}" th:attr="groupInfo=|${group.title} - ${group.getMembers().size()} #{index.table.members}|" type="checkbox" name="deletedGroupList" th:field="*{deletedGroupList}" th:value="${group.id}" onchange="indexFunctions.checkSubmitButton();"/>
               <span th:if="${lockedForDeletionGroupList.contains(group)}" class="fa fa-fw fa-lock" aria-hidden="true" th:title="#{index.table.grouplocked.deletion}"></span>
             </td>
           </tr>
