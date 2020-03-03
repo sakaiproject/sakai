@@ -1040,6 +1040,7 @@ img {
 	border-collapse: collapse;
 	margin-top: 20px;
 	width:auto !important;
+	text-align: center;
 }
 .gradingTable th {
        padding-right: 2em;
