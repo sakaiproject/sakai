@@ -282,7 +282,10 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 				UIComponent del = UIOutput.make(row, "dellink").decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.delete")));
 				if (i.getType() == SimplePageItem.BREAK && "section".equals(i.getFormat())) {
 					del.decorate(new UIFreeAttributeDecorator("style", "display:none;"));
-					UIOutput.make(row, "dellinkoptions").decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.delete")));
+					UIOutput.make(row, "dellinksection");
+					UIOutput.make(row, "dellinkmoveup");
+				} else {
+
 				}
 
 				if(second) {

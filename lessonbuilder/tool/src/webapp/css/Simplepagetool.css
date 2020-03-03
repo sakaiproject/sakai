@@ -817,6 +817,12 @@ h3.section-label {
     position: relative;
 }
 
+.section-delete-icon {
+    color: #fff;
+    font-size: 24px !important;
+    margin-top: 8px;
+}
+
 #reorderCol2 {
     padding: 0;
 }

@@ -74,6 +74,6 @@ $(document).ready(function(){
 
     $('.deleteAllLink').on('click', function(e){
         e.preventDefault();
-        $(this).parentsUntil('.section-container').parent().find('a.deleteAnswerLink').click();
+        $(this).parentsUntil('.section-container').parent().find('a.deleteAnswerTrashLink').click();
     });
 });
