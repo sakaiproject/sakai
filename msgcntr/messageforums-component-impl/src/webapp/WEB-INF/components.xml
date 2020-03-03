@@ -67,7 +67,7 @@
                 <property name="typeManager" ref="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
                 <property name="areaManager" ref="org.sakaiproject.api.app.messageforums.AreaManager"/>
                 <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
-                 <property name="defaultPermissionsManager" ref="org.sakaiproject.api.app.messageforums.DefaultPermissionsManager"/>
+                <property name="defaultPermissionsManager" ref="org.sakaiproject.api.app.messageforums.DefaultPermissionsManager"/>
                 <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
             </bean>
         </property>
@@ -294,7 +294,7 @@
                 <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
                 <property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager"/>
                 <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
-                 <property name="privacyManager" ref="org.sakaiproject.api.privacy.PrivacyManager" />
+                <property name="privacyManager" ref="org.sakaiproject.api.privacy.PrivacyManager" />
                 <property name="prtMsgManager" ref="org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager" />
             </bean>
         </property>
