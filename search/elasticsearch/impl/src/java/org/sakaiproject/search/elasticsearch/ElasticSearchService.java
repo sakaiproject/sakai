@@ -691,7 +691,8 @@ import lombok.extern.slf4j.Slf4j;
                 List<Object[]> workers = new ArrayList();
 
                 for (NodeStats nodeStat : nodesStatsResponse.getNodes()) {
-                    workers.add(new Object[]{nodeStat.getNode().getName() + "(" + nodeStat.getHostname() + ")",
+                    if (nodeStat.getNode().isDataNode()) {
+                        workers.add(new Object[]{nodeStat.getNode().getName() + "(" + nodeStat.getHostname() + ")",
                             null, // No way to get a meaningful "start" time per node, so now just set a null Date.
                             // Historically used an index builder starttime, which was always meaningless in this
                             // context since it's always going to refer to the local node. And we now have
@@ -699,7 +700,7 @@ import lombok.extern.slf4j.Slf4j;
                             // hints at same problem with the results of 'getStatus()'
                             //TODO will show same status for each node, need to deal with that
                             getStatus()});
-
+                    }
                 }
                 return workers;
             }

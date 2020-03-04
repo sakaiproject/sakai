@@ -33,17 +33,15 @@
   <f:view>
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
-        <title><h:outputText value="#{authorMessages.item_display_author}"/></title>
-        <!-- AUTHORING -->
-        <script src="/samigo-app/js/authoring.js"></script>
+      <title><h:outputText value="#{authorMessages.item_display_author}"/></title>
+      <!-- AUTHORING -->
+      <script type="text/javascript" src="/samigo-app/js/authoring.js"></script>
+
       </head>
-
 <body onload="<%= request.getAttribute("html.body.onload") %>;resetInsertAnswerSelectMenus();disablePartialCreditField();">
-
 
 <div class="portletBody container-fluid">
 <!-- content... -->
-<h:outputText styleClass="sak-banner-warn" value="#{authorFrontDoorMessages.item_has_submissions}" rendered="#{itemauthor.currentItem.hasSubmissions}" />
 <!-- FORM -->
 <!-- HEADING -->
 <%@ include file="/jsf/author/item/itemHeadings.jsp" %>
@@ -92,7 +90,7 @@
   <div class="form-group row">
     <h:outputLabel styleClass="col-md-2" value="#{authorMessages.answer_point_value_display}" />    
 	<div class="col-md-10">
-      <t:selectOneRadio id="itemScoreDisplay" value="#{itemauthor.currentItem.itemScoreDisplayFlag}" layout="spread" disabled="#{itemauthor.currentItem.hasSubmissions}">
+      <t:selectOneRadio id="itemScoreDisplay" value="#{itemauthor.currentItem.itemScoreDisplayFlag}" layout="spread">
         <f:selectItem itemValue="true" itemLabel="#{authorMessages.yes}" />
         <f:selectItem itemValue="false" itemLabel="#{authorMessages.no}" />
       </t:selectOneRadio>
@@ -136,8 +134,7 @@
 	 		        onclick="this.form.onsubmit();this.form.submit();"
                     onkeypress="this.form.onsubmit();this.form.submit();"
                     value="#{itemauthor.currentItem.itemType}"
-					valueChangeListener="#{itemauthor.currentItem.toggleChoiceTypes}"
-                    disabled="#{itemauthor.currentItem.hasSubmissions}" >
+	                valueChangeListener="#{itemauthor.currentItem.toggleChoiceTypes}" >
       <f:selectItem itemValue="1" itemLabel="#{commonMessages.multiple_choice_sin}" escape="false" />  
       <f:selectItem itemValue="12" itemLabel="#{commonMessages.multipl_mc_ss}" escape="false" /> 
       <f:selectItem itemValue="2"   itemLabel="#{commonMessages.multipl_mc_ms}" escape="false" />
@@ -152,10 +149,9 @@
 					  onclick="this.form.onsubmit();this.form.submit();"
 					  onkeypress="this.form.onsubmit();this.form.submit();"
 					  value="#{itemauthor.currentItem.partialCreditFlag}"
-					  valueChangeListener="#{itemauthor.currentItem.togglePartialCredit}"
-					  disabled="#{itemauthor.currentItem.hasSubmissions}">
+					  valueChangeListener="#{itemauthor.currentItem.togglePartialCredit}">
         <f:selectItem itemValue="false" itemLabel="#{authorMessages.enable_nagative_marking}"  />
-        <f:selectItem itemValue="true" itemLabel="#{authorMessages.enable_partial_credit}" />
+        <f:selectItem itemValue="true" itemLabel="#{authorMessages.enable_partial_credit}"  />
       </h:selectOneRadio>
       <h:panelGroup>
 	    <h:outputText value="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" escape="false" />
@@ -177,8 +173,7 @@
 					  layout="pageDirection"
 					  onclick="this.form.onsubmit();this.form.submit();"
 					  onkeypress="this.form.onsubmit();this.form.submit();"
-					  value="#{itemauthor.currentItem.mcmsPartialCredit}"
-					  disabled="#{itemauthor.currentItem.hasSubmissions}">
+					  value="#{itemauthor.currentItem.mcmsPartialCredit}">
       <f:selectItem itemValue="true" itemLabel="#{commonMessages.mutlipl_mc_ms_partial_credit}"  />
       <f:selectItem itemValue="false" itemLabel="#{commonMessages.multipl_mc_ms_full_credit}"  />
     </h:selectOneRadio>
@@ -193,7 +188,7 @@
   <h:inputText id="answerdsc" value="#{itemauthor.currentItem.itemDiscount}" required="true" styleClass="ConvertPoint">
     <f:validateDoubleRange/>
   </h:inputText>
-  <f:verbatim> <script defer='defer'>
+  <f:verbatim> <script type="text/javascript" defer='defer'>
   		var itemType = "${itemauthor.currentItem.itemType}";
   		var discDiv=document.getElementById('itemForm:discountDiv');
 		
@@ -271,7 +266,7 @@
     <f:selectItem itemValue="#{answer.label}" itemLabel="&#160; #{answer.label}" escape="false" />
   </h:selectOneRadio>
 
-  <h:commandLink title="#{authorMessages.t_removeC}" id="removelink" onfocus="document.forms[1].onsubmit();" action="#{itemauthor.currentItem.removeChoices}" rendered="#{!itemauthor.currentItem.hasSubmissions}">
+  <h:commandLink title="#{authorMessages.t_removeC}" id="removelink" onfocus="document.forms[1].onsubmit();" action="#{itemauthor.currentItem.removeChoices}" >
     <h:outputText id="text" value="#{commonMessages.remove_action}"/>
     <f:param name="answerid" value="#{answer.label}"/>
   </h:commandLink>
@@ -326,7 +321,7 @@
   <div class="form-group row">
     <h:outputLabel styleClass="col-md-2" value="#{authorMessages.insert_additional_a}" />
     <div class="col-md-10">
-      <h:selectOneMenu id="insertAdditionalAnswerSelectMenu" onchange="clickAddChoiceLink();" value="#{itemauthor.currentItem.additionalChoices}" disabled="#{itemauthor.currentItem.hasSubmissions}">
+      <h:selectOneMenu id="insertAdditionalAnswerSelectMenu" onchange="clickAddChoiceLink();" value="#{itemauthor.currentItem.additionalChoices}" >
         <f:selectItem itemLabel="#{authorMessages.select_menu}" itemValue="0"/>
         <f:selectItem itemLabel="1" itemValue="1"/>
         <f:selectItem itemLabel="2" itemValue="2"/>

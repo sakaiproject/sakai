@@ -24,7 +24,6 @@
 package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -33,13 +32,10 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
-import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
@@ -50,7 +46,9 @@ import org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListe
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.util.EvaluationListenerUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
@@ -136,14 +134,14 @@ import org.sakaiproject.util.FormattedText;
         for (ItemContentsBean question : items) {
           question.setRubricStateDetails("");
           if (question.getGradingComment() != null && !question.getGradingComment().equals("")) {
-            question.setGradingComment(FormattedText.convertFormattedTextToPlaintext(question.getGradingComment()));
+            question.setGradingComment(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(question.getGradingComment()));
           }
         }
       } // End of SAK-13930
 
       GradingService service = new GradingService();
       AssessmentGradingData adata= (AssessmentGradingData) service.load(bean.getAssessmentGradingId(), false);
-      bean.setComments(FormattedText.convertFormattedTextToPlaintext(adata.getComments()));
+      bean.setComments(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(adata.getComments()));
       buildItemContentsMap(dbean, publishedId);
 
       return true;

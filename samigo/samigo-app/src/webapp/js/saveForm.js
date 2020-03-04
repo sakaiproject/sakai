@@ -11,8 +11,6 @@ var disabledButtons = [];
 
 // confirm box needs to disable autosave temporarily
 
-var doautosave = true;
-
 //    Links are more difficult, as there isn't a disabled
 // attribute for them. Currently I clear onmouseup and onclick.
 //    I've tried to make this script generic, but if it is
@@ -75,8 +73,6 @@ function GetFormContent(formId, buttonName) {
     return pairs.join("&");
 }
 
-var counter = 0
-
 function SaveFormContentAsync(toUrl, formId, buttonName, updateVar, updateVar2, repeatMilliseconds, ok ) {
     if (!ok) { 
 		return;
@@ -87,9 +83,6 @@ function SaveFormContentAsync(toUrl, formId, buttonName, updateVar, updateVar2, 
 	}
 
     // asyncronously send form content to toUrl, wait for response, sleep, repeat
-    //    var theStatus = document.getElementById(statusId);
-    counter += 1;
-
     function onready_callback(text) {
 	    // This is an Ajax response. It isn't normally processed.
 	// So if we need anything from it we have to get it.
@@ -134,7 +127,7 @@ function SaveFormContentAsync(toUrl, formId, buttonName, updateVar, updateVar2, 
 	    link.onmouseup = item[1];
 	    link.onclick = item[2];
 	}
-	//	theStatus.innerHTML = "count "+counter+" save complete at "+Date();
+
         // wait and then call save form again
 	if (saveok) {
 	    var onTimeout = TimeOutAction(toUrl, formId, buttonName, updateVar, updateVar2, repeatMilliseconds);
@@ -179,7 +172,6 @@ function SaveFormContentAsync(toUrl, formId, buttonName, updateVar, updateVar2, 
         // when the request is done the scope of the function can be garbage collected...
     }
 
-    if (doautosave && counter > 1) {
       var payload = GetFormContent(formId, buttonName);
 
       $.ajax({ method: "POST", url: toUrl, data: payload }, function () {
@@ -192,12 +184,6 @@ function SaveFormContentAsync(toUrl, formId, buttonName, updateVar, updateVar2, 
           $("#autosave-failed-warning").show();
           onready_callback("");
         });
-
-    } else {
-	//alert("first time" + 	    document.forms[0].elements['takeAssessmentForm:lastSubmittedDate1'].value);
-        var onTimeout = TimeOutAction(toUrl, formId, buttonName, updateVar, updateVar2, repeatMilliseconds);
-        setTimeout(onTimeout, repeatMilliseconds);
-    }
 
     // onready_callback called on request response.
 }

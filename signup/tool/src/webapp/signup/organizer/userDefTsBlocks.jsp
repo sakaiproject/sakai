@@ -8,14 +8,14 @@
 	   <jsp:setProperty name="msgs" property="baseName" value="messages"/>
 	</jsp:useBean>
 	<sakai:view_container title="Signup Tool">
-			<style type="text/css">
-				@import url("/sakai-signup-tool/css/signupStyle.css");
-			</style>
-<h:outputText value="#{Portal.latestJQuery}" escape="false"/>
-			<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
-			<script TYPE="text/javascript" LANGUAGE="JavaScript" src="/sakai-signup-tool/js/signupScript.js"></script>			
-			
-		<script TYPE="text/javascript" LANGUAGE="JavaScript">
+		<style type="text/css">
+			@import url("/sakai-signup-tool/css/signupStyle.css");
+		</style>
+		<h:outputText value="#{Portal.latestJQuery}" escape="false"/>
+		<script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+		<script src="/sakai-signup-tool/js/signupScript.js"></script>
+
+		<script>
 			var prefix="meeting_userDefinedTS_";
 			
 			function initLocalDatePicker(pos){

@@ -49,6 +49,8 @@ export class Submission {
       this.feedbackComment = init.feedbackComment || "";
 
       this.allowResubmitNumber = this.properties["allow_resubmit_number"];
+
+      this.showPhoto = this.showOfficalPhoto && !this.anonymousGrading && this.submission.firstSubmitterId && !this.submission.groupId;
     } else {
       this.id = "dummy";
     }

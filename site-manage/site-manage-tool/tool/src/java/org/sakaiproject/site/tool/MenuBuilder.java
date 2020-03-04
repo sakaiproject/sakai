@@ -61,9 +61,6 @@ public class MenuBuilder
     private static final String     SAK_PROP_ALLOW_DUPLICATE_SITE                   = "site.setup.allowDuplicateSite";
     private static final boolean    SAK_PROP_ALLOW_DUPLICATE_SITE_DEFAULT           = false;
 
-    private static final String     SAK_PROP_GROUP_HELPER_NAME                      = "wsetup.group.helper.name";
-    private static final String     SAK_PROP_GROUP_HELPER_NAME_DEFAULT              = "sakai-site-manage-group-section-role-helper";
-
     private static final String     SAK_PROP_SITE_SETUP_ALLOW_EDIT_ROSTER           = "site.setup.allow.editRoster";
     private static final boolean    SAK_PROP_SITE_SETUP_ALLOW_EDIT_ROSTER_DEFAULT   = true;
 
@@ -264,19 +261,9 @@ public class MenuBuilder
         if( allowUpdateGroupMembership )
         {
             boolean groupSupportEnabled = ServerConfigurationService.getBoolean( SiteAction.SAK_PROP_SITE_SETUP_GROUP_SUPPORT, SiteAction.SAK_PROP_SITE_SETUP_GROUP_SUPPORT_DEFAULT );
-            if( !isMyWorkspace && groupSupportEnabled )
-            {
-                // Show the group toolbar unless configured to not support group.
-                // If the manage group helper is available, not stealthed and not hidden, show the link
-                // read the helper name from configuration variable: wsetup.group.helper.name
-                // the default value is: "sakai-site-manage-group-section-role-helper"
-                // the older version of group helper which is not section/role aware is named:"sakai-site-manage-group-helper"
-                String groupHelper = ServerConfigurationService.getString( SAK_PROP_GROUP_HELPER_NAME, SAK_PROP_GROUP_HELPER_NAME_DEFAULT );
-                if( SiteAction.setHelper( "wsetup.groupHelper", groupHelper, state, SiteAction.STATE_GROUP_HELPER_ID ) )
-                {
-                    // 'Manage Groups'
-                    menu.add( buildMenuEntry( rl.getString( "java.group" ), "doManageGroupHelper", activeTab.equals( SiteInfoActiveTab.MANAGE_GROUPS ) ) );
-                }
+            if( !isMyWorkspace && groupSupportEnabled ) {
+                // 'Manage Groups'
+                menu.add( buildMenuEntry( rl.getString( "java.group" ), "doManageGroupHelper", activeTab.equals( SiteInfoActiveTab.MANAGE_GROUPS ) ) );
             }
         }
 

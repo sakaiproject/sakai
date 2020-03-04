@@ -711,8 +711,6 @@ public class SiteAction extends PagedResourceActionII {
 	
 	// the list of visited templates
 	private static final String STATE_VISITED_TEMPLATES = "state_visited_templates";
-	
-	public static final String STATE_GROUP_HELPER_ID = "state_group_helper_id";
 
 	// used in the configuration file to specify which tool attributes are configurable through WSetup tool, and what are the default value for them.
 	private String CONFIG_TOOL_ATTRIBUTE = "wsetup.config.tool.attribute_";
@@ -2034,7 +2032,7 @@ public class SiteAction extends PagedResourceActionII {
 
 			// Set participant list
 			if (allowUpdateSite || allowViewRoster || allowUpdateSiteMembership) {
-				Collection participantsCollection = getParticipantList(state);
+				Collection<Participant> participantsCollection = getParticipantList(state);
 				sortedBy = (String) state.getAttribute(SORTED_BY);
 				sortedAsc = (String) state.getAttribute(SORTED_ASC);
 				if (sortedBy == null) {
@@ -2050,6 +2048,9 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("currentSortAsc", sortedAsc);
 				context.put("participantListSize", participantsCollection.size());
 				context.put("participantList", prepPage(state));
+
+				boolean hasCredits = participantsCollection.stream().anyMatch(p -> StringUtils.isNotEmpty(p.getCredits()));
+				context.put("hasCredits", hasCredits);
 
 				ParticipantFilterHandler.putSelectedFilterIntoContext(state, context);
 
@@ -2564,9 +2565,9 @@ public class SiteAction extends PagedResourceActionII {
 				Locale oLocale = getLocaleFromString(oLocale_string);
 				context.put("oLocale", oLocale);
 			}
-									
+
 			context.put("description", siteInfo.description);
-			context.put("oDescription", site.getDescription());
+			context.put("descriptionUpdated", !StringUtils.equals(StringUtils.strip(site.getDescription()), StringUtils.strip(siteInfo.description)));
 			context.put("short_description", siteInfo.short_description);
 			context.put("oShort_description", site.getShortDescription());
 			context.put("skin", siteInfo.iconUrl);
@@ -4429,24 +4430,13 @@ public class SiteAction extends PagedResourceActionII {
 		// launch the helper
 		startHelper(data.getRequest(), getAddUserHelper(getStateSite(state)));
 	}
-	
+
 	/**
 	 * Launch the Manage Group helper Tool -- for adding, editing and deleting groups
 	 * 
 	 */
 	public void doManageGroupHelper(RunData data) {
-		SessionState state = ((JetspeedRunData) data)
-				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-		
-
-		// pass in the siteId of the site to be ordered (so it can configure
-		// sites other then the current site)
-		SessionManager.getCurrentToolSession().setAttribute(
-				HELPER_ID + ".siteId", ((Site) getStateSite(state)).getId());
-
-		// launch the helper
-		startHelper(data.getRequest(), (String) state.getAttribute(STATE_GROUP_HELPER_ID));//"sakai-site-manage-group-helper");
-		
+		startHelper(data.getRequest(), "sakai-site-group-manager");
 	}
 
 	/**
@@ -10987,7 +10977,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 * getParticipantList
 	 * 
 	 */
-	private Collection getParticipantList(SessionState state) {
+	private Collection<Participant> getParticipantList(SessionState state) {
 		List members = new Vector();
 		String siteId = (String) state.getAttribute(STATE_SITE_INSTANCE_ID);
 

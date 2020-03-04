@@ -95,8 +95,8 @@ import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.sakaiproject.tool.assessment.util.FormatException;
 import org.sakaiproject.tool.assessment.util.SamigoLRSStatements;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * <p>Title: Samigo</p>
@@ -416,7 +416,7 @@ public class DeliveryActionListener
                   eventLogData.setAssessmentId(Long.valueOf(id));
                   eventLogData.setProcessId(delivery.getAssessmentGradingId());
                   eventLogData.setStartDate(new Date());
-                  eventLogData.setTitle(FormattedText.convertFormattedTextToPlaintext(publishedAssessment.getTitle()));
+                  eventLogData.setTitle(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(publishedAssessment.getTitle()));
                   eventLogData.setUserEid(agentEid); 
                   String site_id = AgentFacade.getCurrentSiteId();
                   //take assessment via url
@@ -550,7 +550,7 @@ public class DeliveryActionListener
     		eventLogData.setAssessmentId(Long.valueOf(id));
     		eventLogData.setProcessId(delivery.getAssessmentGradingId());
     		eventLogData.setStartDate(new Date());
-    		eventLogData.setTitle(FormattedText.convertFormattedTextToPlaintext(publishedAssessment.getTitle()));
+    		eventLogData.setTitle(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(publishedAssessment.getTitle()));
     		eventLogData.setUserEid(agentEid); 
     		String site_id =AgentFacade.getCurrentSiteId();
     		//take assessment via url
@@ -1925,7 +1925,7 @@ public class DeliveryActionListener
           if ((data.getPublishedAnswerId()!=null) && data.getPublishedAnswerId().equals(answer.getId()))
           {
             fbean.setItemGradingData(data);
-            fbean.setResponse(FormattedText.convertFormattedTextToPlaintext(data.getAnswerText()));
+            fbean.setResponse(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(data.getAnswerText()));
             if (answer.getText() == null)
             {
               answer.setText("");
@@ -2080,7 +2080,7 @@ public class DeliveryActionListener
           {
         	  
             fbean.setItemGradingData(data);
-            fbean.setResponse(FormattedText.convertFormattedTextToPlaintext(data.getAnswerText()));
+            fbean.setResponse(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(data.getAnswerText()));
             if (answer.getText() == null)
             {
               answer.setText("");
@@ -2346,7 +2346,7 @@ public class DeliveryActionListener
                   if ((data.getPublishedAnswerId()!=null) && (data.getPublishedAnswerId().equals(answer.getId())))
                   {
                       fbean.setItemGradingData(data);
-                      fbean.setResponse(FormattedText.convertFormattedTextToPlaintext(data.getAnswerText()));
+                      fbean.setResponse(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(data.getAnswerText()));
                       if (answer.getText() == null)
                       {
                           answer.setText("");

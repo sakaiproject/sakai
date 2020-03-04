@@ -32,8 +32,11 @@ import java.util.List;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -42,6 +45,7 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.component.cover.ComponentManager;
@@ -102,7 +106,8 @@ import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolDataBea
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.ParameterUtil;
 import org.sakaiproject.tool.assessment.util.TextFormat;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
+
 
 /**
  * <p>Title: Samigo</p>
@@ -840,7 +845,7 @@ public class ItemAddListener
 
       if (update && !isPendingOrPool) {
     	  //prepare itemText, including answers
-            item.setItemTextSet(preparePublishedText(item, bean, delegate));
+          item.setItemTextSet(preparePublishedText(item, bean));
          
           // prepare MetaData
           item.setItemMetaDataSet(preparePublishedMetaData(item, bean));
@@ -897,7 +902,7 @@ public class ItemAddListener
       	  	}
       }
 
-	  updateAttachments(itemauthor.getAttachmentList(), item, delegate);
+	  updateAttachments(itemauthor.getAttachmentList(), item);
 
 	  //Manage the tags.
 	  String[] tagsFromForm= FacesContext.getCurrentInstance().getExternalContext().getRequestParameterValuesMap().get("tag_selector[]");
@@ -953,9 +958,7 @@ public class ItemAddListener
 			  }
 		  }
 
-        delegate.saveItem(item);
-
-       item = delegate.getItem(item.getItemId().toString());
+        item = delegate.saveItem(item);
 
         QuestionPoolService qpdelegate = new QuestionPoolService();
 
@@ -995,7 +998,7 @@ public class ItemAddListener
       }
       // Came from Questionbank Authoring
       else if (itemauthor.getTarget() != null && (itemauthor.getTarget().equals("sambank"))) {
-		delegate.saveItem(item);
+		item = delegate.saveItem(item);
 		itemauthor.setItemNo(item.getItemId().toString());
       }
       else {
@@ -1079,10 +1082,7 @@ public class ItemAddListener
 			}
 		  }
 
-		  delegate.saveItem(item);
-
-          item = delegate.getItem(item.getItemId().toString());
-
+		  item = delegate.saveItem(item);
         }
 
         // prepare saving column choice to favorites (SAM_FAVORITECOLCHOICES_T and SAM_FAVORITECOLCHOICESITEM_T)
@@ -1731,7 +1731,7 @@ public class ItemAddListener
 		return textSet;
 	}
 	  
-  private Set preparePublishedText(ItemFacade item, ItemBean bean, ItemService delegate) throws FinFormatException{
+  private Set preparePublishedText(ItemFacade item, ItemBean bean) throws FinFormatException{
 
 	  if (item.getTypeId().equals(TypeFacade.TRUE_FALSE)) {
 		  preparePublishedTextForTF(item, bean);
@@ -1740,35 +1740,35 @@ public class ItemAddListener
 		  preparePublishedTextForEssay(item, bean);
 	  }
 	  else if (item.getTypeId().equals(TypeFacade.MULTIPLE_CHOICE_SURVEY)) {
-		  preparePublishedTextForSurvey(item, bean, delegate);
+		  preparePublishedTextForSurvey(item, bean);
 	  }
 	  else if (item.getTypeId().equals(TypeFacade.FILL_IN_BLANK)) {
-		  preparePublishedTextForFIBFIN(item, bean, delegate, true);
+		  preparePublishedTextForFIBFIN(item, bean, true);
 	  }
 	  else if (item.getTypeId().equals(TypeFacade.FILL_IN_NUMERIC)) {
-		  preparePublishedTextForFIBFIN(item, bean, delegate, false);
+		  preparePublishedTextForFIBFIN(item, bean, false);
 	  }
 	  else if ( (item.getTypeId().equals(TypeFacade.MULTIPLE_CHOICE)) ||
 	             (item.getTypeId().equals(TypeFacade.MULTIPLE_CORRECT)) ||
 	             (item.getTypeId().equals(TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION))) {
-		  preparePublishedTextForMC(item, bean, delegate);
+		  preparePublishedTextForMC(item, bean);
 	  }
 	  else if (item.getTypeId().equals(TypeFacade.MATCHING)) {
-		  preparePublishedTextForMatching(item, bean, delegate);
+		  preparePublishedTextForMatching(item, bean);
 	  }
 	  else if (item.getTypeId().equals(TypeFacade.EXTENDED_MATCHING_ITEMS)) {
 		  item.setAnswerOptionsSimpleOrRich(Integer.valueOf(bean.getAnswerOptionsSimpleOrRich()));
 		  item.setAnswerOptionsRichCount(Integer.valueOf(bean.getAnswerOptionsRichCount()));
-		  preparePublishedTextForEMI(item, bean, delegate);		  
+		  preparePublishedTextForEMI(item, bean);
 	  }
 	  else if (item.getTypeId().equals(TypeFacade.CALCULATED_QUESTION)) {
-	      preparePublishedTextForCalculatedQueston(item, bean, delegate);
+	      preparePublishedTextForCalculatedQueston(item, bean);
 	  }
 	  else if (item.getTypeId().equals(TypeFacade.IMAGEMAP_QUESTION)) {
-		  preparePublishedTextForImageMapQuestion(item, bean, delegate);
+		  preparePublishedTextForImageMapQuestion(item, bean);
 	  }
 	  else if(item.getTypeId().equals(TypeFacade.MATRIX_CHOICES_SURVEY)) {
-		  preparePublishedTextForMatrixSurvey(item,bean,delegate);
+		  preparePublishedTextForMatrixSurvey(item,bean);
 	  }
 	  // for file Upload and audio recording
 	  else {
@@ -1833,346 +1833,613 @@ public class ItemAddListener
 		  }		
 	  }
   }
-  
-  private void preparePublishedTextForSurvey(ItemFacade item, ItemBean bean, ItemService delegate) {
-	  String scalename = bean.getScaleName();
-	  String[] choices = getSurveyChoices(scalename);
-	  Set textSet = item.getItemTextSet();
-	  ItemTextIfc text = null;
-	  Iterator iter = textSet.iterator();
-	  while (iter.hasNext()) {
-		  Set answerSet = new HashSet();
-		  text = (ItemTextIfc) iter.next();
-		  text.setText(bean.getItemText());
-		  delegate.deleteSet(text.getId(), false);
-		  for (int i = 0; i < choices.length; i++) {
-			  AnswerIfc answer = new PublishedAnswer(text, choices[i], Long.valueOf(i + 1),
-					null, null, null, Double.valueOf(bean.getItemScore()), null, Double.valueOf(bean.getItemDiscount()));
-			  answerSet.add(answer);
-		  }
-		  text.setAnswerSet(answerSet);
-		  textSet.add(text);
-	  }
-  }
-  
-  private void preparePublishedTextForFIBFIN(ItemFacade item, ItemBean bean, ItemService delegate, boolean isFIB) throws FinFormatException {
-		Set textSet = item.getItemTextSet();
-		ItemTextIfc text = null;
+
+	private void preparePublishedTextForSurvey(ItemFacade item, ItemBean bean) {
+		String scalename = bean.getScaleName();
+		String[] choices = getSurveyChoices(scalename);
+		Set<ItemTextIfc> textSet = item.getItemTextSet();
+		for (ItemTextIfc text : textSet) {
+			text.setText(bean.getItemText());
+			Set<AnswerIfc> answers = text.getAnswerSet();
+			Set<AnswerIfc> keepAnswers = new HashSet<>();
+			for (int i = 0; i < choices.length; i++) {
+				boolean found = false;
+				for (AnswerIfc answer : answers) {
+					if (answer.getText().equals(choices[i]) && answer.getSequence().equals((long) i)) {
+						keepAnswers.add(answer);
+						found = true;
+					}
+				}
+				// if none of the Answers matched for this choice then create and add
+				if (!found) {
+					keepAnswers.add(
+							new PublishedAnswer(
+									text, choices[i], (long) (i + 1), null, null, null, bean.getItemScore(), null, bean.getItemDiscount()));
+				}
+			}
+			text.setAnswerSet(keepAnswers);
+		}
+	}
+
+	private void preparePublishedTextForFIBFIN(ItemFacade item, ItemBean bean, boolean isFIB) throws FinFormatException {
+		Set<ItemTextIfc> textSet = item.getItemTextSet();
 		String entiretext = bean.getItemText();
-		String processedText [] = processFIBFINText(entiretext);
+		String processedText[] = processFIBFINText(entiretext);
 		String updatedText = processedText[0];
-		log.debug(" new text without answer is = " + updatedText);
-		HashSet newTextSet = new HashSet();
-		item.setItemTextSet(newTextSet);
-		Iterator iter = textSet.iterator();
-		while (iter.hasNext()) {
-			text = (ItemTextIfc) iter.next();
+		log.debug("New text without answer is = {}", updatedText);
+
+		for (ItemTextIfc text : textSet) {
 			text.setText(updatedText);
 			Object[] answers;
 			if (isFIB) {
 				answers = getFIBanswers(entiretext).toArray();
-			}
-			else {
+			} else {
 				answers = getFINanswers(entiretext).toArray();
 			}
-			Set answerSet = new HashSet();
-			delegate.deleteSet(text.getId(), false);
-			for (int i = 0; i < answers.length; i++) {
-				String oneanswer = (String) answers[i];
-				AnswerIfc answer = new PublishedAnswer(text, oneanswer,
-						Long.valueOf(i + 1), null, Boolean.TRUE, null,
-						Double.valueOf(bean.getItemScore()), null, Double.valueOf(bean.getItemDiscount()));
-				answerSet.add(answer);
-			}
-			text.setAnswerSet(answerSet);
-			newTextSet.add(text);
-		}
-  }
 
-  private void preparePublishedTextForMC(ItemFacade item, ItemBean bean, ItemService delegate) {
-		Set textSet = item.getItemTextSet();
-		ItemTextIfc text = null;
-		HashSet newTextSet = new HashSet();
-		item.setItemTextSet(newTextSet);
-		Iterator iter = textSet.iterator();		
-		while (iter.hasNext()) {
-			text = (ItemTextIfc) iter.next();
+			Set<AnswerIfc> toBeRemovedSet = new HashSet<>();
+			Set<AnswerIfc> answerSet = text.getAnswerSet();
+			int newAnswersSize = answers.length;
+
+			for (AnswerIfc answer : answerSet) {
+				answer.setScore(bean.getItemScore());
+				int i = answer.getSequence().intValue();
+				if (i <= newAnswersSize) {
+					String oneanswer = (String) answers[i - 1];
+					answer.setText(oneanswer);
+				} else {
+					toBeRemovedSet.add(answer);
+				}
+			}
+
+			if (answerSet.size() < newAnswersSize) {
+				for (int j = answerSet.size(); j < newAnswersSize; j++) {
+					String oneanswer = (String) answers[j];
+					AnswerIfc answer = new PublishedAnswer(
+							text, oneanswer, (long) (j + 1), null, Boolean.TRUE, null, bean.getItemScore(), null, Double.valueOf(bean.getItemDiscount()));
+					answerSet.add(answer);
+				}
+			}
+			answerSet.removeAll(toBeRemovedSet);
+		}
+	}
+
+	private void preparePublishedTextForMC(ItemFacade item, ItemBean bean) {
+		Set<ItemTextIfc> textSet = item.getItemTextSet();
+
+		for (ItemTextIfc text : textSet) {
 			text.setText(bean.getItemText());
-			text.setItem(item.getData());
-			List newAnswerList = bean.getMultipleChoiceAnswers();
-			Set answerSet = new HashSet();
-			Iterator newAnswerIter = newAnswerList.iterator();
-			while (newAnswerIter.hasNext()) {
-				AnswerBean answerBean = (AnswerBean) newAnswerIter.next();
-				String oneAnswer = stripPtags(answerBean.getText());
-				String oneLabel = answerBean.getLabel();
-				AnswerIfc answer = null;
-				if (isCorrectChoice(bean, answerBean.getLabel().trim())) {
-					answer = new PublishedAnswer(text, oneAnswer,
-						answerBean.getSequence(), oneLabel, Boolean.TRUE, null,
-						Double.valueOf(bean.getItemScore()), Double.valueOf(100d), Double.valueOf(bean.getItemDiscount()));
+			List<AnswerBean> newAnswerList = bean.getMultipleChoiceAnswers();
+			Map<Long, AnswerBean> newAnswerMap = newAnswerList.stream().collect(Collectors.toMap(AnswerBean::getSequence, Function.identity()));
+
+			int newAnswersSize = newAnswerList.size();
+			Set<AnswerIfc> toBeRemovedSet = new HashSet<>();
+			Set<AnswerIfc> answerSet = text.getAnswerSet();
+			for (AnswerIfc answer : answerSet) {
+				answer.setDiscount(bean.getItemDiscount());
+				Long sequence = answer.getSequence();
+				if (sequence <= newAnswersSize) {
+					answer.setScore(bean.getItemScore());
+					AnswerBean answerBean = newAnswerMap.get(sequence);
+					String oneAnswer = stripPtags(answerBean.getText());
+					answer.setPartialCredit(Double.valueOf(answerBean.getPartialCredit()));
+					String oneLabel = answerBean.getLabel();
+					log.debug("oneAnswer = {}, oneLabel = {}", oneAnswer, oneLabel);
+					answer.setText(oneAnswer);
+					answer.setLabel(oneLabel);
+					if (isCorrectChoice(bean, oneLabel.trim())) {
+						answer.setIsCorrect(Boolean.TRUE);
+					} else {
+						answer.setIsCorrect(Boolean.FALSE);
+					}
+					Set<AnswerFeedbackIfc> answerFeedbackSet = answer.getAnswerFeedbackSet();
+					answerFeedbackSet.forEach(feedback -> feedback.setText(stripPtags(answerBean.getFeedback())));
+				} else {
+					toBeRemovedSet.add(answer);
 				}
-				else {
-					answer = new PublishedAnswer(text, oneAnswer,
-							answerBean.getSequence(), oneLabel, Boolean.FALSE, null,
-							Double.valueOf(bean.getItemScore()), Double.valueOf(answerBean.getPartialCredit()), Double.valueOf(bean.getItemDiscount()));
-				}
-				HashSet answerFeedbackSet = new HashSet();
-				PublishedAnswerFeedback fb
-					= new PublishedAnswerFeedback(answer, AnswerFeedbackIfc.GENERAL_FEEDBACK, stripPtags(answerBean.getFeedback()));
-				fb.setId(answerBean.getAnswerFeedbackId());
-				answerFeedbackSet.add(fb);
-				answer.setAnswerFeedbackSet(answerFeedbackSet);
-				answer.setId(answerBean.getId());
-				answerSet.add(answer);
 			}
-			text.setAnswerSet(answerSet);
-			newTextSet.add(text);
+			if (answerSet.size() < newAnswersSize) {
+				for (Long sequence = answerSet.size() + 1L; sequence < (newAnswersSize + 1); sequence++) {
+					AnswerBean answerBean = newAnswerMap.get(sequence);
+					String oneAnswer = stripPtags(answerBean.getText());
+					String oneLabel = answerBean.getLabel();
+					AnswerIfc answer;
+					if (isCorrectChoice(bean, answerBean.getLabel().trim())) {
+						answer = new PublishedAnswer(
+								text, oneAnswer, sequence, oneLabel, Boolean.TRUE, null, bean.getItemScore(), 100d, bean.getItemDiscount());
+					} else {
+						answer = new PublishedAnswer(
+								text, oneAnswer, sequence, oneLabel, Boolean.FALSE, null, bean.getItemScore(), Double.valueOf(answerBean.getPartialCredit()), bean.getItemDiscount());
+					}
+					Set<AnswerFeedbackIfc> answerFeedbackSet = new HashSet<>();
+					answerFeedbackSet.add(new PublishedAnswerFeedback(answer, AnswerFeedbackIfc.GENERAL_FEEDBACK, stripPtags(answerBean.getFeedback())));
+					answer.setAnswerFeedbackSet(answerFeedbackSet);
+					answerSet.add(answer);
+				}
+			}
+			answerSet.removeAll(toBeRemovedSet);
 		}
-  }
-  
-  private void preparePublishedTextForCalculatedQueston(ItemFacade item, ItemBean bean, ItemService delegate) {
-      CalculatedQuestionBean calcBean = bean.getCalculatedQuestion();
-      double score = Double.valueOf(bean.getItemScore());
-      double partialCredit = 0d;
-      double discount = Double.valueOf(bean.getItemDiscount());
-      
-      // Variables and formulas are very similar, and both have entries in the 
-      // sam_itemtext_t table.  Because of the way the data is structured, every 
-      // answer stored in sam_answer_t is a possible match to every ItemText 
-      // stored in sam_itemtext_t.   If there is one variable and one formula, 
-      // there are 2 entries in sam_itemtext_t and 4 entries in sam_answer_t.  
-      // 2 variables and 2 formulas has 4 entries in sam_itemtext_t and 16 entries 
-      // in sam_answer_t.  This is required for the current design (which makes 
-      // more sense for other question types; we're just trying to work within 
-      // that structure.  We loop through each formula and variable to create 
-      // an entry in sam_itemtext_t (ItemText choiceText).  Then for each 
-      // choicetext, we loop through all variables and formulas to create the 
-      // answer objects.
-      List<CalculatedQuestionAnswerIfc> list = new ArrayList<CalculatedQuestionAnswerIfc>();
-      list.addAll(calcBean.getFormulas().values());
-      list.addAll(calcBean.getVariables().values());
+	}
 
-      Set newTextSet = new HashSet();
-      item.setItemTextSet(newTextSet);
-      delegate.deleteSet(item.getItemId(), true);
+	private void preparePublishedTextForCalculatedQueston(ItemFacade item, ItemBean bean) {
+		Set<ItemTextIfc> itemTextSet = item.getItemTextSet();
+		CalculatedQuestionBean calcBean = bean.getCalculatedQuestion();
+		double score = bean.getItemScore();
+		double partialCredit = 0d;
+		double discount = bean.getItemDiscount();
+		String grade = null;
 
-      // loop through all variables and formulas to create ItemText objects
-      for (CalculatedQuestionAnswerIfc varFormula : list) {
-          ItemTextIfc choiceText = new PublishedItemText();
-          choiceText.setItem(item.getData());
-          choiceText.setText(varFormula.getName());
-          Long sequence = varFormula.getSequence();
-          choiceText.setSequence(sequence);
-		  
-          Set<AnswerIfc> answerSet = new HashSet<AnswerIfc>();
-		  
-          // loop through all variables and formulas to create all answers for the ItemText object
-          for (CalculatedQuestionAnswerIfc curVarFormula : list) {
-			  String match = curVarFormula.getMatch();
-			  Long curSequence = curVarFormula.getSequence();
-			  boolean isCorrect = curSequence.equals(sequence);
-			  String choiceLabel = curVarFormula.getName();
-			  AnswerIfc answer = new PublishedAnswer(choiceText, match, curSequence, choiceLabel,
-					  isCorrect, null, score, partialCredit, discount);
-			  answerSet.add(answer);
-          }
-          choiceText.setAnswerSet(answerSet);
-          newTextSet.add(choiceText);          
-	  }
-  }
+		// Variables and formulas are very similar, and both have entries in the
+		// sam_itemtext_t table.  Because of the way the data is structured, every
+		// answer stored in sam_answer_t is a possible match to every ItemText
+		// stored in sam_itemtext_t.   If there is one variable and one formula,
+		// there are 2 entries in sam_itemtext_t and 4 entries in sam_answer_t.
+		// 2 variables and 2 formulas has 4 entries in sam_itemtext_t and 16 entries
+		// in sam_answer_t.  This is required for the current design (which makes
+		// more sense for other question types; we're just trying to work within
+		// that structure.  We loop through each formula and variable to create
+		// an entry in sam_itemtext_t (ItemText choiceText).  Then for each
+		// choicetext, we loop through all variables and formulas to create the
+		// answer objects.
+		List<CalculatedQuestionAnswerIfc> list = new ArrayList<>();
+		list.addAll(calcBean.getFormulas().values());
+		list.addAll(calcBean.getVariables().values());
 
-  private void preparePublishedTextForImageMapQuestion(ItemFacade item, ItemBean bean, ItemService delegate) {
-		List<ImageMapItemBean>imageMapItemBeanList = bean.getImageMapItemBeanList();
-		Set newTextSet = new HashSet();
-		item.setItemTextSet(newTextSet);
-		delegate.deleteSet(item.getItemId(), true);
-		for(ImageMapItemBean choicebean : imageMapItemBeanList) {
-			ItemTextIfc choicetext = new PublishedItemText();
-			choicetext.setItem(item.getData()); // all set to the same
-			choicetext.setSequence(choicebean.getSequence());
-			choicetext.setText(stripPtags(choicebean.getChoice()));
-			Set answerSet = new HashSet();
-			choicetext.setAnswerSet(answerSet);
-			newTextSet.add(choicetext);
+		// loop through all variables and formulas to create ItemText objects
+		for (CalculatedQuestionAnswerIfc varFormula : list) {
+			ItemTextIfc choiceText = null;
+			for (ItemTextIfc itemText : itemTextSet) {
+				if (itemText.getSequence().equals(varFormula.getSequence())) {
+					choiceText = itemText;
+				}
+			}
+			if (choiceText == null) {
+				choiceText = new PublishedItemText();
+				choiceText.setItem(item.getData());
+				choiceText.setSequence(varFormula.getSequence());
+				itemTextSet.add(choiceText);
+			}
+			choiceText.setText(varFormula.getName());
+			Long sequence = choiceText.getSequence();
 
-			AnswerIfc answer = new PublishedAnswer(choicetext, 
-										stripPtags(choicebean.getMatch()), 
-										choicebean.getSequence(), 
-										AnswerBean.getChoiceLabels()[choicebean.getSequence().intValue() - 1], 
-										Boolean.TRUE, 
-										null, 
-										Double.valueOf(bean.getItemScore()), 
-										Double.valueOf(0d), 
-										Double.valueOf(bean.getItemDiscount()));
-			
-			Set<AnswerFeedbackIfc> answerFeedbackSet = new HashSet<AnswerFeedbackIfc>();
-			answerFeedbackSet.add(new PublishedAnswerFeedback(answer, AnswerFeedbackIfc.CORRECT_FEEDBACK, stripPtags(choicebean.getCorrImageMapFeedback())));
-			answerFeedbackSet.add(new PublishedAnswerFeedback(answer, AnswerFeedbackIfc.INCORRECT_FEEDBACK, stripPtags(choicebean.getIncorrImageMapFeedback())));
-			answer.setAnswerFeedbackSet(answerFeedbackSet);
-			answerSet.add(answer);
+			Set<AnswerIfc> answerSet = choiceText.getAnswerSet();
+			if (answerSet == null) {
+				answerSet = new HashSet<>();
+				choiceText.setAnswerSet(answerSet);
+			}
+
+			// loop through all variables and formulas to create all answers for the ItemText object
+			for (CalculatedQuestionAnswerIfc curVarFormula : list) {
+				String match = curVarFormula.getMatch();
+				Long curSequence = curVarFormula.getSequence();
+				boolean isCorrect = curSequence.equals(sequence);
+				String choiceLabel = AnswerBean.getChoiceLabels()[curSequence.intValue()];
+				boolean foundAnswer = false;
+				for (AnswerIfc curAnswer : answerSet) {
+					if (curAnswer.getSequence().equals(sequence)) {
+						curAnswer.setText(varFormula.getMatch());
+						foundAnswer = true;
+						break;
+					}
+				}
+				if (!foundAnswer) {
+					AnswerIfc answer = new PublishedAnswer(choiceText, match, curSequence, choiceLabel, isCorrect, grade, score, partialCredit, discount);
+					answerSet.add(answer);
+				}
+			}
 		}
-  }
-  
-  private void preparePublishedTextForMatching(ItemFacade item, ItemBean bean, ItemService delegate) {
-	  Set newTextSet = new HashSet();
-	  item.setItemTextSet(newTextSet);
-	  delegate.deleteSet(item.getItemId(), true);
 
-	  // looping through matchItemBean
-	  List matchItemBeanList = bean.getMatchItemBeanList();
-	  Iterator<MatchItemBean> choiceiter = matchItemBeanList.iterator();
-	  while (choiceiter.hasNext()) {
-		  MatchItemBean choicebean = choiceiter.next();
-		  ItemTextIfc choicetext = new PublishedItemText();
-		  // Create a list of valid answers to loop through.  Ignore answers that are distractors
-		  // or are controlled by another MatchItemBean
-		  List<MatchItemBean> validAnswers = new ArrayList<MatchItemBean>();
-		  Iterator<MatchItemBean>validAnswerIter = matchItemBeanList.iterator();
-		  while (validAnswerIter.hasNext()) {
-			  MatchItemBean validAnswer = validAnswerIter.next();
-			  if (MatchItemBean.CONTROLLING_SEQUENCE_DEFAULT.equals(validAnswer.getControllingSequence())) {
-				  validAnswers.add(validAnswer);
-			  }
-		  }
-		  
-		  choicetext.setItem(item.getData()); // all set to the same
-		  choicetext.setSequence(choicebean.getSequence());
-		  choicetext.setText(stripPtags(choicebean.getChoice()));
+		// If we're saving fewer variables/formulas than are currently in  the
+		// itemtext/answer list, we need to delete the extra ones.
+		// ASSUMPTION - that sequences in sam_itemtext_t and sam_answer_t have no gaps.  If
+		// there are 3 entries in sam_itemtext_t, they are numbered 1, 2, and 3
+		// (not 1, 2, 4 for example).  This assumption should be verified
+		if (list.size() < itemTextSet.size()) {
+			Set<ItemTextIfc> toBeRemovedTextSet = new HashSet<>();
+			Set<AnswerIfc> toBeRemovedAnswerSet = new HashSet<>();
+			for (ItemTextIfc curItemText : itemTextSet) {
+				Set<AnswerIfc> answerSet = curItemText.getAnswerSet();
+				for (AnswerIfc curAnswer : answerSet) {
+					if (curAnswer.getSequence() > list.size()) {
+						toBeRemovedAnswerSet.add(curAnswer);
+					}
+				}
+				answerSet.removeAll(toBeRemovedAnswerSet);
+				if (curItemText.getSequence() > list.size()) {
+					toBeRemovedTextSet.add(curItemText);
+				}
+			}
+			itemTextSet.removeAll(toBeRemovedTextSet);
+		}
+	}
 
-		  // loop through matches for in validAnswers list and add all to this choice
-		  Set<AnswerIfc> answerSet = new HashSet<AnswerIfc>();
-		  for (int i = 0; i < validAnswers.size(); i++) {
-			  AnswerIfc answer = null;
-			  MatchItemBean answerbean = validAnswers.get(i);
-			  if (answerbean.getSequence().equals(choicebean.getSequence()) ||
-					  answerbean.getSequenceStr().equals(choicebean.getControllingSequence())) {
-				  // correct answers
-				  answer = new PublishedAnswer(choicetext, stripPtags(answerbean.getMatch()), answerbean.getSequence(), 
-						  AnswerBean.getChoiceLabels()[i], Boolean.TRUE, null, Double.valueOf(bean.getItemScore()), Double.valueOf(0d), Double.valueOf(bean.getItemDiscount()));
+	private void preparePublishedTextForImageMapQuestion(ItemFacade item, ItemBean bean) {
+		List<ImageMapItemBean> imageMapItemBeanList = bean.getImageMapItemBeanList();
+		Set<ItemTextIfc> textSet = item.getItemTextSet();
+		Map<Long, ItemTextIfc> itemTextMap = textSet.stream().collect(Collectors.toMap(ItemTextIfc::getSequence, Function.identity()));
 
-			  } else {
-				  // incorrect answers
-				  answer = new PublishedAnswer(choicetext, stripPtags(answerbean.getMatch()), answerbean.getSequence(),
-						  AnswerBean.getChoiceLabels()[i], Boolean.FALSE, null,  Double.valueOf(bean.getItemScore()), Double.valueOf(0d), Double.valueOf(bean.getItemDiscount()));
-			  }
+		for (ImageMapItemBean choiceBean : imageMapItemBeanList) {
+			ItemTextIfc choiceText;
+			Long choiceSequence = choiceBean.getSequence();
+			if (itemTextMap.get(choiceSequence) == null) {
+				// new - add it in
+				choiceText = new PublishedItemText();
+				choiceText.setItem(item.getData()); // all set to the same
+				choiceText.setSequence(choiceBean.getSequence());
+				choiceText.setText(stripPtags(choiceBean.getChoice()));
+			} else {
+				choiceText = itemTextMap.get(choiceSequence);
+				choiceText.setText(choiceBean.getChoice());
+			}
 
-			  // record answers for all combination of pairs
-			  Set<AnswerFeedbackIfc> answerFeedbackSet = new HashSet<>();
-			  answerFeedbackSet.add(new PublishedAnswerFeedback(answer,
-					  AnswerFeedbackIfc.CORRECT_FEEDBACK,
-					  stripPtags(answerbean.getCorrMatchFeedback())));
-			  answerFeedbackSet.add(new PublishedAnswerFeedback(answer,
-					  AnswerFeedbackIfc.INCORRECT_FEEDBACK,
-					  stripPtags(answerbean.getIncorrMatchFeedback())));
-			  answer.setAnswerFeedbackSet(answerFeedbackSet);
-			  answerSet.add(answer);
-		  }
-		  choicetext.setAnswerSet(answerSet);
-		  newTextSet.add(choicetext);  
-	  }
-	
-  }
-  
-  /**
-   * Prepare Text for Extended Matching Item Questions
-   * @param item
-   * @param bean
-   * @param itemauthor
-   * @return
-   */
-  private void preparePublishedTextForEMI(ItemFacade item,
-			ItemBean bean, ItemService delegate) {
-		Set newTextSet = new HashSet();
-		item.setItemTextSet(newTextSet);
-		delegate.deleteSet(item.getItemId(), true);
+			Set<AnswerIfc> answerSet = choiceText.getAnswerSet();
+			Map<Long, AnswerIfc> answerMap;
+			if (answerSet != null) {
+				answerMap = answerSet.stream().collect(Collectors.toMap(AnswerIfc::getSequence, Function.identity()));
+			} else {
+				answerSet = new HashSet<>();
+				answerMap = new HashMap<>();
+				choiceText.setAnswerSet(answerSet);
+				textSet.add(choiceText);
+			}
 
-		Set<AnswerIfc> answerOptions = new HashSet();
+			Long matchSequence = choiceBean.getSequence();
+			if (answerMap.get(matchSequence) == null) {
+				// new - add it in
+				// correct answer
+				AnswerIfc answer = new PublishedAnswer(choiceText,
+						stripPtags(choiceBean.getMatch()),
+						choiceBean.getSequence(),
+						AnswerBean.getChoiceLabels()[choiceBean.getSequence().intValue() - 1],
+						Boolean.TRUE,
+						null,
+						bean.getItemScore(),
+						0d,
+						bean.getItemDiscount());
 
-	  	// ///////////////////////////////////////////////////////////
+				Set<AnswerFeedbackIfc> answerFeedbackSet = new HashSet<>();
+				answerFeedbackSet.add(new PublishedAnswerFeedback(answer, AnswerFeedbackIfc.CORRECT_FEEDBACK, stripPtags(choiceBean.getCorrImageMapFeedback())));
+				answerFeedbackSet.add(new PublishedAnswerFeedback(answer, AnswerFeedbackIfc.INCORRECT_FEEDBACK, stripPtags(choiceBean.getIncorrImageMapFeedback())));
+				answer.setAnswerFeedbackSet(answerFeedbackSet);
+				answerSet.add(answer);
+
+			} else {
+				AnswerIfc answer = answerMap.get(matchSequence);
+				answer.setScore(bean.getItemScore());
+				String oneAnswer = stripPtags(choiceBean.getMatch());
+				String oneLabel = AnswerBean.getChoiceLabels()[matchSequence.intValue() - 1];
+				log.debug("oneAnswer = " + oneAnswer);
+				log.debug("oneLabel = " + oneLabel);
+				answer.setText(oneAnswer);
+				answer.setLabel(oneLabel);
+				// for new answers above, the default is true, not clear if we need to do something fancier here.
+				answer.setIsCorrect(Boolean.TRUE);
+				Set<AnswerFeedbackIfc> answerFeedbackSet = answer.getAnswerFeedbackSet();
+				for (AnswerFeedbackIfc answerFeedback : answerFeedbackSet) {
+					if (answerFeedback.getTypeId().equals(AnswerFeedbackIfc.CORRECT_FEEDBACK)) {
+						answerFeedback.setText(stripPtags(choiceBean.getCorrImageMapFeedback()));
+					} else if (answerFeedback.getTypeId().equals(AnswerFeedbackIfc.INCORRECT_FEEDBACK)) {
+						answerFeedback.setText(stripPtags(choiceBean.getIncorrImageMapFeedback()));
+					}
+				}
+			}
+		}
+
+		final int oldSize = textSet.size() + 1;
+		final int newSize = imageMapItemBeanList.size() + 1;
+		if (oldSize > newSize) {
+			Set<ItemTextIfc> toBeRemovedTextSet = new HashSet<>();
+			Set<AnswerIfc> toBeRemovedAnswerSet = new HashSet<>();
+			// Need to remove from answer too
+			LongStream.range(1L, newSize).forEach(i -> {
+				ItemTextIfc text = itemTextMap.get(i);
+				Set<AnswerIfc> answerSet = text.getAnswerSet();
+				if (answerSet != null) {
+					for (AnswerIfc answer : answerSet) {
+						LongStream.range(newSize, oldSize).forEach(j -> {
+							if (answer.getSequence().equals(j)) {
+								toBeRemovedAnswerSet.add(answer);
+							}
+						});
+					}
+					answerSet.removeAll(toBeRemovedAnswerSet);
+				}
+			});
+			LongStream.range(newSize, oldSize).forEach(t -> {
+				ItemTextIfc text = itemTextMap.get(t);
+				toBeRemovedTextSet.add(text);
+			});
+			textSet.removeAll(toBeRemovedTextSet);
+		}
+	}
+
+	private void preparePublishedTextForMatching(ItemFacade item, ItemBean bean) {
+		Set<ItemTextIfc> textSet = item.getItemTextSet();
+		Map<Long, ItemTextIfc> itemTextMap = textSet.stream().collect(Collectors.toMap(ItemTextIfc::getSequence, Function.identity()));
+
+		List<MatchItemBean> matchItemBeanList = bean.getMatchItemBeanList();
+
+		for (MatchItemBean choiceBean : matchItemBeanList) {
+			Long choiceSequence = choiceBean.getSequence();
+			ItemTextIfc itemText;
+			if (itemTextMap.get(choiceSequence) == null) {
+				// new - add it in
+				itemText = new PublishedItemText();
+				itemText.setItem(item.getData());
+				itemText.setSequence(choiceBean.getSequence());
+				itemText.setText(stripPtags(choiceBean.getChoice()));
+			} else {
+				itemText = itemTextMap.get(choiceSequence);
+				itemText.setText(choiceBean.getChoice());
+			}
+
+			Set<AnswerIfc> answerSet = itemText.getAnswerSet();
+			Map<Long, AnswerIfc> answerMap;
+			if (answerSet != null) {
+				answerMap = answerSet.stream().collect(Collectors.toMap(AnswerIfc::getSequence, Function.identity()));
+			} else {
+				answerSet = new HashSet<>();
+				answerMap = new HashMap<>();
+				itemText.setAnswerSet(answerSet);
+				textSet.add(itemText);
+			}
+
+			for (MatchItemBean matchItemBean : matchItemBeanList) {
+				Long matchSequence = matchItemBean.getSequence();
+				if (answerMap.get(matchSequence) == null) {
+					// new - add it in
+					AnswerIfc answer;
+					if (matchItemBean.getSequence().equals(choiceBean.getSequence())) {
+						answer = new PublishedAnswer(
+								itemText,
+								stripPtags(matchItemBean.getMatch()),
+								matchItemBean.getSequence(),
+								AnswerBean.getChoiceLabels()[matchItemBean.getSequence().intValue() - 1],
+								Boolean.TRUE,
+								null,
+								bean.getItemScore(),
+								null,
+								bean.getItemDiscount());
+					} else {
+						answer = new PublishedAnswer(
+								itemText,
+								stripPtags(matchItemBean.getMatch()),
+								matchItemBean.getSequence(),
+								AnswerBean.getChoiceLabels()[matchItemBean.getSequence().intValue() - 1],
+								Boolean.FALSE,
+								null,
+								bean.getItemScore(),
+								null,
+								bean.getItemDiscount());
+					}
+
+					// record answers for all combination of pairs
+					Set<AnswerFeedbackIfc> answerFeedbackSet = new HashSet<>();
+					answerFeedbackSet.add(new PublishedAnswerFeedback(answer, AnswerFeedbackIfc.CORRECT_FEEDBACK, stripPtags(matchItemBean.getCorrMatchFeedback())));
+					answerFeedbackSet.add(new PublishedAnswerFeedback(answer, AnswerFeedbackIfc.INCORRECT_FEEDBACK, stripPtags(matchItemBean.getIncorrMatchFeedback())));
+					answer.setAnswerFeedbackSet(answerFeedbackSet);
+					answerSet.add(answer);
+
+				} else {
+					AnswerIfc answer = answerMap.get(matchSequence);
+					answer.setScore(bean.getItemScore());
+					String oneAnswer = stripPtags(matchItemBean.getMatch());
+					String oneLabel = AnswerBean.getChoiceLabels()[matchSequence.intValue() - 1];
+					log.debug("oneAnswer = {}, oneLabel = {}", oneAnswer, oneLabel);
+					answer.setText(oneAnswer);
+					answer.setLabel(oneLabel);
+					if (choiceSequence.equals(matchSequence)) {
+						answer.setIsCorrect(Boolean.TRUE);
+					} else {
+						answer.setIsCorrect(Boolean.FALSE);
+					}
+					for (AnswerFeedbackIfc answerFeedback : answer.getAnswerFeedbackSet()) {
+						if (answerFeedback.getTypeId().equals(AnswerFeedbackIfc.CORRECT_FEEDBACK)) {
+							answerFeedback.setText(stripPtags(matchItemBean.getCorrMatchFeedback()));
+						} else if (answerFeedback.getTypeId().equals(AnswerFeedbackIfc.INCORRECT_FEEDBACK)) {
+							answerFeedback.setText(stripPtags(matchItemBean.getIncorrMatchFeedback()));
+						}
+					}
+				}
+			}
+		}
+
+		final int oldSize = textSet.size() + 1;
+		final int newSize = matchItemBeanList.size() + 1;
+		if (oldSize > newSize) {
+			Set<ItemTextIfc> toBeRemovedTextSet = new HashSet<>();
+			Set<AnswerIfc> toBeRemovedAnswerSet = new HashSet<>();
+			// Need to remove from answer too
+			LongStream.range(1L, newSize).forEach(i -> {
+				ItemTextIfc text = itemTextMap.get(i);
+				Set<AnswerIfc> answerSet = text.getAnswerSet();
+				if (answerSet != null) {
+					for (AnswerIfc answer : answerSet) {
+						LongStream.range(newSize, oldSize).forEach(j -> {
+							if (answer.getSequence().equals(j)) {
+								toBeRemovedAnswerSet.add(answer);
+							}
+						});
+					}
+					answerSet.removeAll(toBeRemovedAnswerSet);
+				}
+			});
+			LongStream.range(newSize, oldSize).forEach(t -> {
+				ItemTextIfc text = itemTextMap.get(t);
+				toBeRemovedTextSet.add(text);
+			});
+			textSet.removeAll(toBeRemovedTextSet);
+		}
+	}
+
+	private void preparePublishedTextForEMI(ItemFacade item, ItemBean bean) {
+
 		// 1. save Theme and Lead-In Text and Answer Options
-		// ///////////////////////////////////////////////////////////
-		ItemTextIfc textTheme = new PublishedItemText();
-		textTheme.setItem(item.getData());
-		textTheme.setSequence(ItemTextIfc.EMI_THEME_TEXT_SEQUENCE);
+		ItemTextIfc textTheme = item.getItemTextBySequence(ItemTextIfc.EMI_THEME_TEXT_SEQUENCE);
 		textTheme.setText(bean.getItemText());
 
-		ItemTextIfc textAnswerOptions = new PublishedItemText();
-		textAnswerOptions.setItem(item.getData());
-		textAnswerOptions.setSequence(ItemTextIfc.EMI_ANSWER_OPTIONS_SEQUENCE);
+		ItemTextIfc textAnswerOptions = item.getItemTextBySequence(ItemTextIfc.EMI_ANSWER_OPTIONS_SEQUENCE);
 		textAnswerOptions.setText(bean.getEmiAnswerOptionsRich());
 
-		ItemTextIfc textLeadIn = new PublishedItemText();
-		textLeadIn.setItem(item.getData());
-		textLeadIn.setSequence(ItemTextIfc.EMI_LEAD_IN_TEXT_SEQUENCE);
+		ItemTextIfc textLeadIn = item.getItemTextBySequence(ItemTextIfc.EMI_LEAD_IN_TEXT_SEQUENCE);
 		textLeadIn.setText(bean.getLeadInStatement());
 
-		// ///////////////////////////////////////////////////////////
 		// 2. save Answer Options - emiAnswerOptions
 		// with ItemText  (seq=ItemTextIfc.EMI_ANSWER_OPTIONS_SEQUENCE).
 		// These will be used to construct the actual answers.
-		// ///////////////////////////////////////////////////////////
-		Iterator iter = bean.getEmiAnswerOptionsClean().iterator();
-		AnswerIfc answer = null;
-		while (iter.hasNext()) {
-			AnswerBean answerbean = (AnswerBean) iter.next();
-			answer = new PublishedAnswer(textAnswerOptions, stripPtags(answerbean.getText()),
-					answerbean.getSequence(), answerbean.getLabel(),
-					Boolean.FALSE, null,
-					null, null, null, null);
-			answerOptions.add(answer);
+		Set<AnswerIfc> answerOptions = textAnswerOptions.getAnswerSet();
+		Set<AnswerIfc> deleteAnswerOptions = new HashSet<>(answerOptions);
+		answerOptions.clear();
+		outer:
+		for (AnswerBean answerBean : bean.getEmiAnswerOptionsClean()) {
+			for (AnswerIfc currentAnswerOption : deleteAnswerOptions) {
+				if (currentAnswerOption.getSequence().equals(answerBean.getSequence())) {
+					//update the existing answer
+					currentAnswerOption.setText(stripPtags(answerBean.getText()));
+					currentAnswerOption.setLabel(answerBean.getLabel());
+					currentAnswerOption.setIsCorrect(Boolean.FALSE);
+					answerOptions.add(currentAnswerOption);
+					continue outer;
+				}
+			}
+			//This is a new answer option, so add it
+			//later (a little below this) we will add all the answer options to the items too
+			AnswerIfc answerOption = new PublishedAnswer(
+					textAnswerOptions,
+					stripPtags(answerBean.getText()),
+					answerBean.getSequence(),
+					answerBean.getLabel(),
+					Boolean.FALSE,
+					null,
+					null,
+					null,
+					null,
+					null);
+			answerOptions.add(answerOption);
 		}
+		// The deleted answer options that will be removed
+		deleteAnswerOptions.removeAll(answerOptions);
 
-		textAnswerOptions.setAnswerSet(answerOptions);
-		newTextSet.add(textTheme);
-		newTextSet.add(textAnswerOptions);
-		newTextSet.add(textLeadIn);
-
-		// ///////////////////////////////////////////////////////////
-		// 3. Prepare and save actual answers from answer components 
+		// 3. Prepare and save actual answers from answer components
 		// (emiAnswerOptions and emiQuestionAnswerCombinations)
-		// ///////////////////////////////////////////////////////////
 		List<AnswerBean> emiQuestionAnswerCombinations = bean.getEmiQuestionAnswerCombinationsClean();
-		int answerCombinations = emiQuestionAnswerCombinations.size();
-		iter = emiQuestionAnswerCombinations.iterator();
-		AnswerBean qaCombo = null;
 		Double itemScore = 0.0;
-		while (iter.hasNext()) {
-			qaCombo = (AnswerBean) iter.next();
-			
-			ItemTextIfc itemText = new PublishedItemText();
-			itemText.setItem(item.getData());
-			itemText.setSequence(qaCombo.getSequence());
-			itemText.setText(qaCombo.getText());
-			int requiredOptions = (Integer.valueOf(qaCombo.getRequiredOptionsCount())).intValue();
+		Set<ItemTextIfc> deleteItemText = new HashSet<>(item.getItemTextSet());
+		item.getItemTextSet().clear();
+		// Put the theme, options and lead in back
+		for (ItemTextIfc currentItemText : deleteItemText) {
+			if (currentItemText.getSequence() < 1) {
+				item.getItemTextSet().add(currentItemText);
+			}
+		}
+		deleteItemText.removeAll(item.getItemTextSet());
+		for (AnswerBean answerBean : emiQuestionAnswerCombinations) {
+			ItemTextIfc itemText = null;
+			for (ItemTextIfc currentItemText : deleteItemText) {
+				if (currentItemText.getSequence().equals(answerBean.getSequence())) {
+					itemText = currentItemText;
+					break;
+				}
+			}
+			if (itemText == null) {
+				itemText = new PublishedItemText();
+				itemText.setItem(item.getData());
+				itemText.setSequence(answerBean.getSequence());
+			}
+			itemText.setText(answerBean.getText());
+
+			int requiredOptions = Integer.parseInt(answerBean.getRequiredOptionsCount());
 			if (requiredOptions == 0) {
-				requiredOptions = qaCombo.correctOptionsCount();
+				requiredOptions = answerBean.correctOptionsCount();
 			}
 			itemText.setRequiredOptionsCount(requiredOptions);
-			itemScore += qaCombo.getScore();
+			itemScore += answerBean.getScore();
 
-			//for emi the score per correct answer is itemTotal/requiredOptions
-			//the discount is 1/2 the negative of that for answers more then required
-			Set answerSet = new HashSet();			
-			if (Integer.valueOf(bean.getAnswerOptionsSimpleOrRich()).equals(ItemDataIfc.ANSWER_OPTIONS_SIMPLE) ) {
-				Iterator selectionOptions = textAnswerOptions.getAnswerArraySorted().iterator();
-				while (selectionOptions.hasNext()) {
-					AnswerIfc selectOption = (AnswerIfc) selectionOptions.next();
-					answerSet.add(getAnswer(qaCombo, itemText, selectOption.getText(),
-							selectOption.getSequence(), selectOption.getLabel(), requiredOptions));
+			Set<AnswerIfc> deleteItemAnswerSet = new HashSet<AnswerIfc>(itemText.getAnswerSet());
+			itemText.getAnswerSet().clear();
+			if (Integer.valueOf(bean.getAnswerOptionsSimpleOrRich()).equals(ItemDataIfc.ANSWER_OPTIONS_SIMPLE)) {
+				outer2:
+				for (AnswerIfc currentAnswerOption : answerOptions) {
+					String correctLabels = answerBean.getCorrectOptionLabels();
+					int correctRequiredCount = Math.min(correctLabels.length(), requiredOptions);
+					boolean isCorrect = answerBean.getCorrectOptionLabels().contains(currentAnswerOption.getLabel());
+
+					// item option score
+					Double score = answerBean.getScore() / correctRequiredCount;
+					for (AnswerIfc currentItemAnswer : deleteItemAnswerSet) {
+						// if the answer option was removed before then the item
+						// answer will also be removed (not added back here)
+						if (currentItemAnswer.getSequence().equals(currentAnswerOption.getSequence())) {
+							currentItemAnswer.setText(currentAnswerOption.getText());
+							currentItemAnswer.setLabel(currentAnswerOption.getLabel());
+							currentItemAnswer.setIsCorrect(isCorrect);
+							currentItemAnswer.setGrade(answerBean.getScoreUserSet() ? "user" : "auto");
+							currentItemAnswer.setScore(isCorrect ? score : 0.0);
+							currentItemAnswer.setPartialCredit(null);
+							currentItemAnswer.setDiscount(isCorrect ? 0.0 : -score / 2);
+							currentItemAnswer.setAnswerFeedbackSet(null);
+							itemText.getAnswerSet().add(currentItemAnswer);
+							continue outer2;
+						}
+					}
+					// if we get here then there is a new answer option and we need to
+					// add it to the itemtext
+					itemText.getAnswerSet().add(new PublishedAnswer(
+							itemText,
+							currentAnswerOption.getText(),
+							currentAnswerOption.getSequence(),
+							currentAnswerOption.getLabel(),
+							isCorrect,
+							answerBean.getScoreUserSet() ? "user" : "auto",
+							isCorrect ? score : 0.0,
+							null,
+							isCorrect ? 0.0 : -score / 2));
+				}
+			} else { // ANSWER_OPTION_RICH
+				int answerOptionsCount = Integer.parseInt(bean.getAnswerOptionsRichCount());
+				outer3:
+				for (int i = 0; i < answerOptionsCount; i++) {
+					String label = ItemDataIfc.ANSWER_OPTION_LABELS.substring(i, i + 1);
+					String correctLabels = answerBean.getCorrectOptionLabels();
+					int correctRequiredCount = Math.min(correctLabels.length(), requiredOptions);
+					boolean isCorrect = answerBean.getCorrectOptionLabels().contains(label);
+
+					// item option score
+					double score = answerBean.getScore() / correctRequiredCount;
+					for (AnswerIfc currentItemAnswer : deleteItemAnswerSet) {
+						// if the answer option was removed before then the item
+						// answer will also be removed (not added back here)
+						if (currentItemAnswer.getSequence() == i) {
+							currentItemAnswer.setText(label);
+							currentItemAnswer.setLabel(label);
+							currentItemAnswer.setIsCorrect(isCorrect);
+							currentItemAnswer.setGrade(answerBean.getScoreUserSet() ? "user" : "auto");
+							currentItemAnswer.setScore(isCorrect ? score : 0.0);
+							currentItemAnswer.setPartialCredit(null);
+							currentItemAnswer.setDiscount(isCorrect ? 0.0 : -score / 2);
+							currentItemAnswer.setAnswerFeedbackSet(null);
+							itemText.getAnswerSet().add(currentItemAnswer);
+							continue outer3;
+						}
+					}
+					// if we get here then there is a new answer option and we need to
+					// add it to the itemtext
+					itemText.getAnswerSet().add(new PublishedAnswer(
+							itemText,
+							label,
+							(long) i,
+							label,
+							isCorrect,
+							answerBean.getScoreUserSet() ? "user" : "auto",
+							isCorrect ? score : 0.0,
+							null,
+							isCorrect ? 0.0 : -score / 2));
 				}
 			}
-			else { // ANSWER_OPTION_RICH
-				int answerOptionsCount = Integer.valueOf(bean.getAnswerOptionsRichCount());
-				for (int i=0; i<answerOptionsCount; i++) {
-					String label = ItemDataIfc.ANSWER_OPTION_LABELS.substring(i, i+1);
-					answerSet.add(getAnswer(qaCombo, itemText, label,
-							Long.valueOf(i), label, requiredOptions));
-				}
-			}
-			itemText.setAnswerSet(answerSet);
-			newTextSet.add(itemText);
+			deleteItemAnswerSet.removeAll(itemText.getAnswerSet());
+			item.getItemTextSet().add(itemText);
 		}
+		deleteItemText.removeAll(item.getItemTextSet());
 		item.setScore(itemScore);
 	}
   
@@ -2382,36 +2649,79 @@ public class ItemAddListener
 	  }
 	  return itemMetaDataSet;
 	}
-  
-  private void preparePublishedTextForMatrixSurvey(ItemFacade item, ItemBean bean, ItemService delegate){
-	  item.getData().setInstruction(bean.getItemText());
-	  Set newTextSet = new HashSet();
-	  item.setItemTextSet(newTextSet);
-	  delegate.deleteSet(item.getItemId(), true);
 
-	  String[] rowChoices = returnMatrixChoices(bean,"row");
-	  String[] columnChoices = returnMatrixChoices(bean,"column");
-	  
-	  Long rowChoiceSequence = null, columnChoiceSequence = null;
-	  for(int i = 0; i<rowChoices.length;i++)
-	  {
-		  rowChoiceSequence = Long.valueOf(i+1);
+	private void preparePublishedTextForMatrixSurvey(ItemFacade item, ItemBean bean) {
+		Set<ItemTextIfc> textSet = item.getItemTextSet();
+		item.getData().setInstruction(bean.getItemText());
+		Map<Long, ItemTextIfc> itemTextMap = textSet.stream().collect(Collectors.toMap(ItemTextIfc::getSequence, Function.identity()));
+		String[] rowChoices = returnMatrixChoices(bean, "row");
+		String[] columnChoices = returnMatrixChoices(bean, "column");
+		LongStream.range(0L, rowChoices.length).forEach(i -> {
+			Long rowChoiceSequence = i + 1L;
+			ItemTextIfc publishedItemText;
+			if (!itemTextMap.containsKey(rowChoiceSequence)) {
+				publishedItemText = new PublishedItemText();
+				publishedItemText.setItem(item.getData());
+				publishedItemText.setSequence(rowChoiceSequence);
+				publishedItemText.setText(rowChoices[(int) i]);
+			} else {
+				publishedItemText = itemTextMap.get(rowChoiceSequence);
+				publishedItemText.setText(rowChoices[(int) i]);
+			}
+			Set<AnswerIfc> answerSet = publishedItemText.getAnswerSet();
+			Map<Long, AnswerIfc> answerMap;
+			if (answerSet != null) {
+				answerMap = answerSet.stream().collect(Collectors.toMap(AnswerIfc::getSequence, Function.identity()));
+			} else {
+				answerMap = new HashMap<>();
+				answerSet = new HashSet<>();
+				publishedItemText.setAnswerSet(answerSet);
+				textSet.add(publishedItemText);
+			}
+			AnswerIfc publishedAnswer;
+			for (int j = 0; j < columnChoices.length; j++) {
+				Long columnChoiceSequence = j + 1L;
+				if (!answerMap.containsKey(columnChoiceSequence)) {
+					publishedAnswer = new PublishedAnswer(publishedItemText,
+							columnChoices[j],
+							columnChoiceSequence,
+							null,
+							null,
+							null,
+							bean.getItemScore(),
+							0d,
+							bean.getItemDiscount());
+					answerSet.add(publishedAnswer);
+				} else {
+					publishedAnswer = answerMap.get(columnChoiceSequence);
+					publishedAnswer.setText(columnChoices[j]);
+				}
+			}
 
-		  ItemTextIfc publishedItemText = new PublishedItemText();
-		  publishedItemText.setItem(item.getData());
-		  publishedItemText.setSequence(rowChoiceSequence);
-		  publishedItemText.setText(rowChoices[i]);
+			final int oldAnswerSetSize = publishedItemText.getAnswerSet().size();
+			final int newAnswerSetSize = columnChoices.length;
+			if (oldAnswerSetSize > newAnswerSetSize) {
+				Set<AnswerIfc> toBeRemovedAnswerSet = new HashSet<>();
 
-		  Set answerSet = new HashSet();
-		  publishedItemText.setAnswerSet(answerSet);
-		  newTextSet.add(publishedItemText);
-		  for(int j = 0; j<columnChoices.length;j++){
-			  columnChoiceSequence = Long.valueOf(j+1);
-			  AnswerIfc publishedAnswer = new PublishedAnswer(publishedItemText,columnChoices[j],columnChoiceSequence,null, null, null, Double.valueOf(bean.getItemScore()), Double.valueOf(0d), Double.valueOf(bean.getItemDiscount()));
-			  answerSet.add(publishedAnswer);
-		  }
-	  }
-  }
+				for (Long j = newAnswerSetSize + 1L; j < oldAnswerSetSize + 1L; j++) {
+					publishedAnswer = answerMap.get(j);
+					toBeRemovedAnswerSet.add(publishedAnswer);
+				}
+				answerSet.removeAll(toBeRemovedAnswerSet);
+			}
+		});
+
+		final long oldTextSetSize = textSet.size();
+		final long newTextSetSize = rowChoices.length;
+		if (oldTextSetSize > newTextSetSize) {
+			Set<ItemTextIfc> toBeRemovedTextSet = new HashSet<>();
+			for (Long i = newTextSetSize + 1L; i < oldTextSetSize + 1L; i++) {
+				ItemTextIfc text = itemTextMap.get(i);
+				toBeRemovedTextSet.add(text);
+			}
+			textSet.removeAll(toBeRemovedTextSet);
+		}
+	}
 
   private static List getFIBanswers(String entiretext) {
 	  String fixedText = entiretext.replaceAll("&nbsp;", " "); // replace &nbsp to " " (instead of "") just want to reserve the original input
@@ -2422,7 +2732,7 @@ public class ItemAddListener
 		  if (afteropen.length>1) {
 			  //	 must have text in between {}
 			  String[] lastpart = afteropen[1].split("\\}");
-			  String answer = FormattedText.convertFormattedTextToPlaintext(lastpart[0].replaceAll("&lt;.*?&gt;", ""));
+			  String answer = ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(lastpart[0].replaceAll("&lt;.*?&gt;", ""));
 			  list.add(answer);
 		  }
 	  }
@@ -2431,17 +2741,17 @@ public class ItemAddListener
 			  if (i == 0) {
 				  String[] firstpart = tokens[i].split("\\{");
 				  if (firstpart.length>1) {
-					  String answer = FormattedText.convertFormattedTextToPlaintext(firstpart[1].replaceAll("&lt;.*?&gt;", ""));
+					  String answer = ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(firstpart[1].replaceAll("&lt;.*?&gt;", ""));
 					  list.add(answer);
 				  }
 			  }
 			  else if (i == (tokens.length - 1)) {
 				  String[] lastpart = tokens[i].split("\\}");
-				  String answer = FormattedText.convertFormattedTextToPlaintext(lastpart[0].replaceAll("&lt;.*?&gt;", ""));
+				  String answer = ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(lastpart[0].replaceAll("&lt;.*?&gt;", ""));
 				  list.add(answer);
 			  }
 			  else {
-				  String answer = FormattedText.convertFormattedTextToPlaintext(tokens[i].replaceAll("&lt;.*?&gt;", ""));
+				  String answer = ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(tokens[i].replaceAll("&lt;.*?&gt;", ""));
 				  list.add(answer);
 			  }
 		  }
@@ -2485,39 +2795,6 @@ public class ItemAddListener
 
   }
 
-  /*
-  private static boolean isValidFINAnswer(String answer){
-	  String processedAnswer = "";
-	  if (answer.indexOf("|") == -1) {
-		  processedAnswer = answer.replaceAll(" ", "").replaceAll(",", ".");
-		  // Test if it is a valid Double
-		  try {
-			  Double.parseDouble(processedAnswer); 
-		  }
-		  catch (NumberFormatException e) {
-			  return false;
-		  }
-		  return true;
-	  }
-
-	  String[] tokens = answer.split("\\|");
-	  if (tokens.length != 2) {
-		  return false;
-	  }
-	  for (int i = 0; i < 2; i++) {
-		  String tmpAnswer = tokens[i].replaceAll(" ", "").replaceAll(",", ".");
-		  // Test if it is a valid Double
-		  try {
-			  Double.parseDouble(tmpAnswer);
-		  }
-		  catch (NumberFormatException e) {
-			  return false;
-		  }
-	  }
-	  return true;
-  }
-  */
-  
   /**
    ** returns if the multile choice label is the correct choice,
    ** bean.getCorrAnswers() returns a string[] of labels
@@ -2665,24 +2942,19 @@ public class ItemAddListener
 	  }
   }
 
-	private void updateAttachments(List newList, ItemFacade targetItem, ItemService delegate) {
-		final Map<Long, ItemAttachmentIfc> oldIds = targetItem.getItemAttachmentMap();
-		if ( newList != null && !(newList.isEmpty()) ) {
-			for (Object o : newList) {
-				ItemAttachmentIfc newAttachment = (ItemAttachmentIfc) o;
-				final Long newAttachmentId = newAttachment.getAttachmentId();
-				if (oldIds.containsKey(newAttachmentId)) {
+	private void updateAttachments(List<ItemAttachmentIfc> newAttachments, ItemFacade targetItem) {
+		if (newAttachments != null && targetItem != null) {
+			Map<Long, ItemAttachmentIfc> existingAttachments = targetItem.getItemAttachmentMap();
+			for (ItemAttachmentIfc newAttachment : newAttachments) {
+				Long newAttachmentId = newAttachment.getAttachmentId();
+				if (existingAttachments.containsKey(newAttachmentId)) {
 					// reiteration of existing attachment, no-op
-					oldIds.remove(newAttachmentId);
+					existingAttachments.remove(newAttachmentId);
 				} else {
 					targetItem.addItemAttachment(newAttachment);
 				}
 			}
-		}
-		// any "oldIds" left over must be orphans. delete them.
-		for ( Map.Entry<Long, ItemAttachmentIfc> e : oldIds.entrySet() ) {
-			targetItem.removeItemAttachment(e.getValue());
-			delegate.removeItemAttachment(e.getKey());
+			existingAttachments.values().forEach(targetItem::removeItemAttachment);
 		}
 	}
 

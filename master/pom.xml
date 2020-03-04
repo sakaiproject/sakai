@@ -47,7 +47,7 @@
     <sakai.stax2.version>4.2</sakai.stax2.version>
     <sakai.java.jwt.version>3.1.0</sakai.java.jwt.version>
     <sakai.jstl.version>1.2</sakai.jstl.version>
-    <sakai.lombok.version>1.18.10</sakai.lombok.version>
+    <sakai.lombok.version>1.18.12</sakai.lombok.version>
     <sakai.lucene.version>4.10.4</sakai.lucene.version>
     <sakai.org.json.version>20190722</sakai.org.json.version>
     <sakai.pluto.version>1.1.7</sakai.pluto.version>
@@ -68,13 +68,13 @@
     <sakai.spring.test.artifactId>spring-test</sakai.spring.test.artifactId>
     <sakai.spring.test.version>4.3.25.RELEASE</sakai.spring.test.version>
     <sakai.tika.version>1.23</sakai.tika.version>
-    <sakai.tomcat.version>9.0.30</sakai.tomcat.version>
+    <sakai.tomcat.version>9.0.31</sakai.tomcat.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.xerces.impl.version>2.12.0</sakai.xerces.impl.version>
     <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
     <sakai.log4j.version>1.2.17</sakai.log4j.version>
     <sakai.slf4j.version>1.7.30</sakai.slf4j.version>
-    <sakai.poi.version>4.1.1</sakai.poi.version>
+    <sakai.poi.version>4.1.2</sakai.poi.version>
     <sakai.mockito.version>2.28.2</sakai.mockito.version>
     <sakai.powermock.version>2.0.2</sakai.powermock.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
@@ -1929,11 +1929,10 @@
         <version>1.0_01-ea</version>
         <scope>provided</scope>
       </dependency>
-      <!-- SAK-32707 -->
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>xmlgraphics-commons</artifactId>
-        <version>2.3</version>
+        <version>1.5</version>
       </dependency>
       <dependency>
         <groupId>org.mariuszgromada.math</groupId>

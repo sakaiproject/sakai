@@ -517,6 +517,10 @@ public class MessageForumStatisticsBean {
 		this.eventTrackingService = eventTrackingService;
 	}
 
+	public void setFormattedText(FormattedText formattedText) {
+		this.formattedText = formattedText;
+	}
+
 	public void setSecurityService(SecurityService securityService) {
 		this.securityService = securityService;
 	}

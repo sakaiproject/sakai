@@ -537,6 +537,7 @@
 		@include align-items(flex-end);
 		-webkit-flex-wrap: wrap;
 		flex-wrap: wrap;
+		grader-toggle { margin-left: 20px; }
 	}
 
 	#honor-pledge-agreement {

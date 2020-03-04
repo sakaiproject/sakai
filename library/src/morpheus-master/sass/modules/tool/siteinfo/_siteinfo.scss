@@ -124,6 +124,26 @@
 			}
 		}
 	}
+
+  /*Start of Site Group Manager*/
+  .wizard-step-active {
+    background-color: $primary-color;
+    color: $button-primary-text-color;
+  }
+
+  .optGroupSelect {
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    background: none repeat scroll 0 0 #EEEEEE;
+    padding: 0.5em;
+  }
+
+  .optGroupSelectSelected {
+    background: none repeat scroll 0 0 #ccc;
+  }
+  /*End of Site Group Manager*/
+
 }
 
 #toolSelectionList{

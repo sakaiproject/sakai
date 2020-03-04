@@ -16,15 +16,12 @@
 
 package org.sakaiproject.tool.assessment.services;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import lombok.extern.slf4j.Slf4j;
-
 import org.sakaiproject.tool.assessment.facade.BackfillItemHashResult;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedItemFacade;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.TagServiceHelper;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class PublishedItemService extends ItemService {
@@ -39,6 +36,7 @@ public class PublishedItemService extends ItemService {
 			throw new RuntimeException(e);
 		}
 
+		log.debug("Retrieved item {}", item);
 		return item;
 	}
 	
@@ -52,17 +50,8 @@ public class PublishedItemService extends ItemService {
 			throw new RuntimeException(e);
 		}
 
+		log.debug("Retrieved item {}", item);
 		return item;
-	}
-
-	public Map<String,ItemFacade> getPublishedItemsByHash(String hash) {
-		try{
-			return PersistenceService.getInstance().getPublishedItemFacadeQueries().getPublishedItemsByHash(hash);
-		}
-		catch(Exception e)
-		{
-			log.error(e.getMessage(), e); throw new RuntimeException(e);
-		}
 	}
 
 	public void deleteItemContent(Long itemId, String agentId) {
@@ -107,13 +96,4 @@ public class PublishedItemService extends ItemService {
         return PersistenceService.getInstance().getPublishedItemFacadeQueries().backfillItemHashes(batchSize, backfillBaselineHashes);
     }
 
-    @Override
-    public void removeItemAttachment(Long attachmentId) {
-        try {
-            PersistenceService.getInstance().getPublishedItemFacadeQueries().removeItemAttachment(attachmentId);
-        } catch(Exception e) {
-            log.error(e.getMessage(), e);
-            throw new RuntimeException(e);
-        }
-    }
 }

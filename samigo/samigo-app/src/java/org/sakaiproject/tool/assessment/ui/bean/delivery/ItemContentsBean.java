@@ -40,7 +40,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Precision;
-
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
@@ -61,8 +61,8 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.AttachmentUtil;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.FormattedText;
 
 /* For delivery: ItemContents backing bean. */
 @Slf4j
@@ -870,7 +870,7 @@ public class ItemContentsBean implements Serializable {
 	}
 	
 	public String getResponseTextPlain() {
-		return FormattedText.convertFormattedTextToPlaintext(getResponseText());
+		return ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(getResponseText());
 	}
 
 	public String getResponseTextForDisplay() {
@@ -1174,7 +1174,7 @@ public class ItemContentsBean implements Serializable {
 		int count = getItemGradingDataArray().size();
 		if (count > 0) {
 			ItemGradingData data = getItemGradingDataArray().get(count - 1);
-			rationale = FormattedText.convertFormattedTextToPlaintext(data.getRationale());
+			rationale = ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(data.getRationale());
 		}
 		return Validator.check(rationale, "");
 	}
@@ -1184,7 +1184,7 @@ public class ItemContentsBean implements Serializable {
 		if (count > 0) {
 			ItemGradingData data = getItemGradingDataArray().get(count - 1);
 			if (data.getRationale() != null) {
-				rationale = FormattedText.convertFormattedTextToPlaintext(data.getRationale()).replaceAll("(\r\n|\r)", "<br/>");
+				rationale = ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(data.getRationale()).replaceAll("(\r\n|\r)", "<br/>");
 			}
 		}
 		return Validator.check(rationale, "");
@@ -1344,7 +1344,7 @@ public class ItemContentsBean implements Serializable {
 			//text = text.replaceAll("<.*?>", " ");
 			//text = FormattedText.convertFormattedTextToPlaintext(text);
 			//text = FormattedText.stripHtmlFromText(text, true); // SAM-2277
-			text = FormattedText.stripHtmlFromText( text, false, true ).trim(); // SAM-2499
+			text = ComponentManager.get(FormattedText.class).stripHtmlFromText( text, false, true ).trim(); // SAM-2499
 		}
 		return text;
 

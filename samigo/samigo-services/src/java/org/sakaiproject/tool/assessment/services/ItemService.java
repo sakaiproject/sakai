@@ -61,14 +61,16 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 @Slf4j
 public class ItemService
 {
-  private static final TagService tagService= (TagService) ComponentManager.get( TagService.class );
-  private RubricsService rubricsService = ComponentManager.get(RubricsService.class);
+  protected TagService tagService;
+  protected RubricsService rubricsService;
 
   /**
    * Creates a new ItemService object.
    */
   public ItemService()
   {
+    rubricsService = ComponentManager.get(RubricsService.class);
+    tagService = ComponentManager.get(TagService.class);
   }
 
 
@@ -425,29 +427,6 @@ public class ItemService
 	return h;
   }
 
-  public void deleteSet(Long elemId, boolean isText)
-  {
-    try
-    {
-      PersistenceService.getInstance().getItemFacadeQueries().
-      deleteSet(elemId, isText);
-    }
-    catch(Exception e)
-    {
-      log.error(e.getMessage(), e);
-      throw new RuntimeException(e);
-    }
-  }
-
-  public void removeItemAttachment(Long attachmentId) {
-    try {
-      PersistenceService.getInstance().getItemFacadeQueries().removeItemAttachment(attachmentId);
-    } catch(Exception e) {
-      log.error(e.getMessage(), e);
-      throw new RuntimeException(e);
-    }
-  }
-  
   /**
    * Save favorite column choices for matrix survey question.
    */

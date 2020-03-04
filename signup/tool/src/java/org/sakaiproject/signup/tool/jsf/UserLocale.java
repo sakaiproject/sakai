@@ -21,10 +21,14 @@ package org.sakaiproject.signup.tool.jsf;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.TimeZone;
+import java.util.Locale;
 
 import org.sakaiproject.signup.logic.SakaiFacade;
 import org.sakaiproject.util.ResourceLoader;
+
+import lombok.extern.slf4j.Slf4j;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * <p>
@@ -34,21 +38,15 @@ import org.sakaiproject.util.ResourceLoader;
  * @author Peter Liu
  */
 
+@Slf4j
 public class UserLocale {
 
 	private ResourceLoader rb = new ResourceLoader("messages");
-	private SakaiFacade sakaiFacade;
+
+	@Getter @Setter private SakaiFacade sakaiFacade;
 
 	public String getLocale() {
 		return (String) this.rb.getLocale().toString();
-	}
-
-	public SakaiFacade getSakaiFacade() {
-		return sakaiFacade;
-	}
-
-	public void setSakaiFacade(SakaiFacade sakaiFacade) {
-		this.sakaiFacade = sakaiFacade;
 	}
 	
 	/**
@@ -56,17 +54,31 @@ public class UserLocale {
 	 * @return
 	 */
 	public String getDateFormat() {
-		DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT, (new ResourceLoader()).getLocale());
-		return ((SimpleDateFormat)df).toPattern();
+
+		Locale locale = new ResourceLoader().getLocale();
+		DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT, locale);
+		try {
+			return ((SimpleDateFormat)df).toPattern();
+		} catch (ClassCastException cce) {
+			log.warn("Failed to cast DateFormat into SimpleDateFormat for locale {}", locale.toString());
+			return new SimpleDateFormat().toPattern();
+		}
 	}
 
 	/**
-	 * Get the date format from the locale with short timezone at end
+	 * Get the date format from the locale
 	 * @return String representing a SimpleDateFormat for use with JSF convertDateTime
 	 */
 	public String getFullDateTimeFormat() {
-		DateFormat df = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG, this.rb.getLocale());
-		return ((SimpleDateFormat)df).toPattern();
+
+		Locale locale = this.rb.getLocale();
+		DateFormat df = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT, locale);
+		try {
+			return ((SimpleDateFormat) df).toPattern();
+		} catch (ClassCastException cce) {
+			log.warn("Failed to cast DateFormat into SimpleDateFormat for locale {}", locale.toString());
+			return new SimpleDateFormat().toPattern();
+		}
 	}
 	
 	/**
@@ -74,17 +86,14 @@ public class UserLocale {
 	 * @return
 	 */
 	public String getLocalizedTimeFormat() {
-		DateFormat df = DateFormat.getTimeInstance(DateFormat.SHORT, this.rb.getLocale());
-		String dfPattern = ((SimpleDateFormat)df).toPattern();
 
-		TimeZone userTimeZone = sakaiFacade.getTimeService().getLocalTimeZone();
-		TimeZone serverTimeZone = TimeZone.getDefault();
-
-		// If the user is in a different zone, it would be super helpful to show them the timezone info
-		if (userTimeZone != null && !userTimeZone.hasSameRules(serverTimeZone)) {
-			dfPattern += " z";
+		Locale locale = this.rb.getLocale();
+		DateFormat df = DateFormat.getTimeInstance(DateFormat.SHORT, locale);
+		try {
+			return ((SimpleDateFormat) df).toPattern();
+		} catch (ClassCastException cce) {
+			log.warn("Failed to cast DateFormat into SimpleDateFormat for locale {}", locale.toString());
+			return new SimpleDateFormat().toPattern();
 		}
-
-		return dfPattern;
 	}
 }

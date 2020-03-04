@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/common :: head" />
+<body>
+  <div th:replace="fragments/common :: jQuery" />
+  <div class="portletBody">
+    <div id="menu" th:include="fragments/menus :: main (import)" />
+    <div class="page-header"><h1 th:text="#{import.header}"></h1></div>
+    <div class="row">
+      <div class="col-sm-6">
+        <div class="sak-banner-error" th:text="${errorMessage}" th:if="${errorMessage != null}"></div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-6">
+        <div id="bulkCreationRequirements">
+          <strong th:utext="#{import.requirements}"></strong>
+          <ul>
+            <li th:text="#{import.requirements.step1}">The CSV file or data should contain the group details in the columns: group title, username / email address. </li>
+            <li th:utext="#{import.requirements.step2}">Columns must be in the order above, but <b>do not include a row of column headers</b>.</li>
+            <li th:text="#{import.requirements.step3}">Fields must be comma separated and the username/email address must already be a site participant.</li>
+          </ul>
+          <div id="example">
+            <pre><code th:utext="#{import.example}"></code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+    <form id="bulkcreation-form" th:action="@{/importGroups}" method="post" enctype="multipart/form-data">
+      <div class="form-group row">
+        <div class="col-sm-6">
+          <label for="groupUploadText" th:text="#{import.typetext}">Type or paste in the text box</label>
+          <textarea class="form-control" id="groupUploadedText" name="groupUploadedText" rows="10" cols="45"></textarea>
+        </div>
+        <div class="col-sm-6">
+          <label for="groupUploadFile" th:text="#{import.chooseone}">Or choose a file</label>
+          <input class="form-control" id="groupUploadFile" name="groupUploadFile" type="file">
+        </div>
+      </div>
+      <div class="act">
+        <input accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" id="bulk-creation-submit-button" type="submit" class="active" th:value="#{import.button.submit}">
+        <a th:href="@{/}" accesskey="x" id="bulk-creation-cancel-button" class="btn btn-default" th:text="#{import.button.cancel}">Cancel</a>
+      </div>
+    </form>
+  </div>
+</body>
+</html>

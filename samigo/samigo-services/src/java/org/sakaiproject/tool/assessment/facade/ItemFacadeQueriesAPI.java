@@ -38,18 +38,9 @@ public interface ItemFacadeQueriesAPI
 
   public IdImpl getItemId(long id);
 
-  public List getQPItems(Long questionPoolId);
-
   public List list();
 
   public void show(Long itemId);
-
-  public void showType(Long typeId);
-
-  public void listType();
-
-  // DELETEME
-  public void remove(Long itemId);
 
   public void deleteItem(Long itemId, String agent);
 
@@ -58,8 +49,6 @@ public interface ItemFacadeQueriesAPI
   public void deleteItemMetaData(Long itemId, String label);
 
   public void addItemMetaData(Long itemId, String label, String value);
-
-  public void ifcShow(Long itemId);
 
   public ItemFacade saveItem(ItemFacade item) throws DataFacadeException;
 
@@ -87,8 +76,6 @@ public interface ItemFacadeQueriesAPI
 
   public Long getItemTextId(Long publishedItemId);
   
-  public void deleteSet(Long elemId, boolean isText);
-
   public void updateItemTagBindingsHavingTag(TagServiceHelper.TagView tagView);
 
   public void deleteItemTagBindingsHavingTagId(String tagId);

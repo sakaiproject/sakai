@@ -34,7 +34,8 @@
 
 package org.sakaiproject.signup.util;
 
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * <P>
@@ -63,7 +64,7 @@ public class PlainTextFormat {
 		htmlText = htmlText.replaceAll("<p>", "");
 		htmlText = htmlText.replaceAll("</p>", "<br />");
 		htmlText = htmlText.replaceAll("<p />", "<br />");
-		return FormattedText.convertFormattedTextToPlaintext(htmlText);
+		return ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(htmlText);
 	}
 	
 	/**

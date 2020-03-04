@@ -20,6 +20,7 @@ import static org.sakaiproject.assignment.api.AssignmentServiceConstants.*;
 import static org.sakaiproject.assignment.api.model.Assignment.GradeType.*;
 
 import java.io.*;
+import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
@@ -46,6 +47,8 @@ import java.util.zip.ZipFile;
 import javax.servlet.ServletException;
 import javax.servlet.ServletConfig;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
@@ -112,6 +115,8 @@ import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.*;
 import org.sakaiproject.user.api.CandidateDetailProvider;
+import org.sakaiproject.user.api.Preferences;
+import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -213,6 +218,14 @@ public class AssignmentAction extends PagedResourceActionII {
      * Additional calendar tool
      */
     private static final String ADDITIONAL_CALENDAR_TOOL_READY = "additional_calendar_tool_ready";
+    /**
+     * Sakai property key to change the default value for the 'Add due date to calendar' checkbox
+     */
+    private static final String SAK_PROP_DUE_DATE_TO_CALENDAR_DEFAULT = "asn.due.date.to.calendar.default";
+    /**
+     * Default value for the 'Add due date to calendar' checkbox
+     */
+    private static final boolean DUE_DATE_TO_CALENDAR_DEFAULT = true;
     /**
      * The announcement tool
      */
@@ -891,7 +904,6 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String INVOKE_BY_LINK = "link";
     private static final String INVOKE_BY_PORTAL = "portal";
     private static final String SUBMISSIONS_SEARCH_ONLY = "submissions_search_only";
-    private static final String USE_SAKAI_GRADER = "use_sakai_grader";
     /*************** search related *******************/
     private static final String STATE_SEARCH = "state_search";
     private static final String FORM_SEARCH = "form_search";
@@ -969,6 +981,7 @@ public class AssignmentAction extends PagedResourceActionII {
     private GradebookExternalAssessmentService gradebookExternalAssessmentService;
     private LearningResourceStoreService learningResourceStoreService;
     private NotificationService notificationService;
+	private PreferencesService preferencesService;
 	private RubricsService rubricsService;
     private SecurityService securityService;
     private ServerConfigurationService serverConfigurationService;
@@ -1002,6 +1015,7 @@ public class AssignmentAction extends PagedResourceActionII {
         gradebookService = (GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
         learningResourceStoreService = ComponentManager.get(LearningResourceStoreService.class);
         notificationService = ComponentManager.get(NotificationService.class);
+		preferencesService  = ComponentManager.get(PreferencesService.class);
 		rubricsService  = ComponentManager.get(RubricsService.class);
         securityService = ComponentManager.get(SecurityService.class);
         serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
@@ -3170,7 +3184,6 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("value_opendate_notification_low", AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_LOW);
         context.put("value_opendate_notification_high", AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_HIGH);
         context.put("value_CheckAddHonorPledge", state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE));
-        context.put("honor_pledge_text", serverConfigurationService.getString("assignment.honor.pledge", rb.getString("gen.honple2")));
 
         context.put("value_CheckAnonymousGrading", Boolean.FALSE);
 
@@ -3578,13 +3591,22 @@ public class AssignmentAction extends PagedResourceActionII {
 
         String template = (String) getContext(data).get("template");
 
-        boolean useSakaiGrader = false;
-        try {
-            Site site = siteService.getSite(siteId);
-            ToolConfiguration tc = site.getToolForCommonId(ASSIGNMENT_TOOL_ID);
-            useSakaiGrader = BooleanUtils.toBoolean(tc.getPlacementConfig().getProperty(USE_SAKAI_GRADER));
-        } catch (IdUnusedException iue) {
-            log.warn("No site for {}", siteId);
+        boolean useSakaiGrader = true;
+
+        Preferences prefs = preferencesService.getPreferences(sessionManager.getCurrentSessionUserId());
+        ResourceProperties props = prefs.getProperties("viewpreferences");
+        if (props != null) {
+            try {
+                String assignmentsViewPrefs = (String) props.getProperty("assignments");
+                if (assignmentsViewPrefs != null) {
+                    String assignmentsViewPreferences = URLDecoder.decode(assignmentsViewPrefs, "UTF-8");
+                    ObjectMapper m = new ObjectMapper();
+                    Map<String, Object> prefsMap = m.readValue(assignmentsViewPrefs, Map.class);
+                    useSakaiGrader = (Boolean) prefsMap.get("usegrader");
+                }
+            } catch (Exception e) {
+                log.error("Failed to parse assignments view preferences", e);
+            }
         }
 
         if (useSakaiGrader) {
@@ -4427,7 +4449,6 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("hideAssignmentFlag", state.getAttribute(VIEW_ASSIGNMENT_HIDE_ASSIGNMENT_FLAG));
         context.put("hideStudentViewFlag", state.getAttribute(VIEW_ASSIGNMENT_HIDE_STUDENT_VIEW_FLAG));
         context.put("contentTypeImageService", contentTypeImageService);
-        context.put("honor_pledge_text", serverConfigurationService.getString("assignment.honor.pledge", rb.getString("gen.honple2")));
 
         String template = (String) getContext(data).get("template");
         return template + TEMPLATE_INSTRUCTOR_VIEW_ASSIGNMENT;
@@ -9412,7 +9433,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 String title = assignment.getTitle();
 
                 // remove rubric association if there is one
-                rubricsService.deleteRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, id);
+                rubricsService.softDeleteRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, id);
 				
                 // remove from Gradebook
                 assignmentToolUtils.integrateGradebook(stateToMap(state), ref, associateGradebookAssignment, "remove", null, null, -1, null, null, null, -1);
@@ -9494,6 +9515,9 @@ public class AssignmentAction extends PagedResourceActionII {
                             }
                         }
 
+                        // remove rubric association if there is one
+                        rubricsService.deleteRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, id);
+
                         assignmentService.deleteAssignment(a);
                     }
 
@@ -9535,6 +9559,8 @@ public class AssignmentAction extends PagedResourceActionII {
                     if (a != null) {
                         a.setDeleted(false);
                         assignmentService.updateAssignment(a);
+
+                        rubricsService.restoreRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, id);
 
                         // restore email reminder only if reminder is set and the due date is after 1 day
                         if (BooleanUtils.toBoolean(a.getProperties().get(NEW_ASSIGNMENT_REMINDER_EMAIL))
@@ -11204,7 +11230,8 @@ public class AssignmentAction extends PagedResourceActionII {
         state.setAttribute(NEW_ASSIGNMENT_GRADE_TYPE, UNGRADED_GRADE_TYPE.ordinal());
         state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, "");
         state.setAttribute(NEW_ASSIGNMENT_DESCRIPTION, "");
-        state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, Boolean.FALSE.toString());
+        boolean checkAddDueDate = (state.getAttribute(CALENDAR) != null || state.getAttribute(ADDITIONAL_CALENDAR) != null) && serverConfigurationService.getBoolean(SAK_PROP_DUE_DATE_TO_CALENDAR_DEFAULT, DUE_DATE_TO_CALENDAR_DEFAULT);
+        state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, Boolean.toString(checkAddDueDate));
         state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, Boolean.FALSE.toString());
 
         String defaultNotification = serverConfigurationService.getString("announcement.default.notification", "n");
@@ -13807,20 +13834,17 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("context", siteId);
 
         Boolean submissionsSearchOnly = (Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY);
-        Boolean useSakaiGrader = (Boolean) state.getAttribute(USE_SAKAI_GRADER);
 
-        if (submissionsSearchOnly == null || useSakaiGrader == null) {
+        if (submissionsSearchOnly == null) {
             try {
                 Site site = siteService.getSite(siteId);
                 ToolConfiguration tc = site.getToolForCommonId(ASSIGNMENT_TOOL_ID);
                 submissionsSearchOnly = BooleanUtils.toBoolean(tc.getPlacementConfig().getProperty(SUBMISSIONS_SEARCH_ONLY));
-                useSakaiGrader = BooleanUtils.toBoolean(tc.getPlacementConfig().getProperty(USE_SAKAI_GRADER));
             } catch (Exception e) {
             }
         }
 
         context.put(SUBMISSIONS_SEARCH_ONLY, submissionsSearchOnly);
-        context.put(USE_SAKAI_GRADER, useSakaiGrader);
 
         String template = (String) getContext(data).get("template");
         return template + TEMPLATE_OPTIONS;
@@ -13845,9 +13869,6 @@ public class AssignmentAction extends PagedResourceActionII {
         boolean submissionsSearchOnly = params.getBoolean(SUBMISSIONS_SEARCH_ONLY);
         state.setAttribute(SUBMISSIONS_SEARCH_ONLY, submissionsSearchOnly);
 
-        boolean useSakaiGrader = params.getBoolean(USE_SAKAI_GRADER);
-        state.setAttribute(USE_SAKAI_GRADER, useSakaiGrader);
-
         // save the option into tool configuration
         try {
             boolean changed = false;
@@ -13858,12 +13879,6 @@ public class AssignmentAction extends PagedResourceActionII {
                 changed = true;
                 // save the change
                 tc.getPlacementConfig().setProperty(SUBMISSIONS_SEARCH_ONLY, Boolean.toString(submissionsSearchOnly));
-            }
-            currentSetting = tc.getPlacementConfig().getProperty(USE_SAKAI_GRADER);
-            if (currentSetting == null || !currentSetting.equals(Boolean.toString(useSakaiGrader))) {
-                changed = true;
-                // save the change
-                tc.getPlacementConfig().setProperty(USE_SAKAI_GRADER, Boolean.toString(useSakaiGrader));
             }
             if (changed) {
                 siteService.save(site);

@@ -16,6 +16,8 @@ class SakaiSearch extends SakaiElement {
       "forums": "icon-sakai--sakai-forums",
       "lessons": "icon-sakai--sakai-lessonbuildertool",
       "commons": "icon-sakai--sakai-commons",
+      "content": "icon-sakai--sakai-resources",
+      "wiki": "icon-sakai--sakai-rwiki",
     };
 
     this.searchTerms = sessionStorage.getItem("searchterms") || "";
@@ -33,6 +35,8 @@ class SakaiSearch extends SakaiElement {
         "forums": this.i18n["toolname_forum"],
         "lessons": this.i18n["toolname_lesson"],
         "commons": this.i18n["toolname_commons"],
+        "content": this.i18n["toolname_resources"],
+        "wiki": this.i18n["toolname_wiki"],
       };
     });
   }
@@ -64,13 +68,18 @@ class SakaiSearch extends SakaiElement {
     return html`
       <div class="sakai-search-input">
         ${this.showField ? html`
-            <input type="text" id="sakai-search-input" tabindex="0" @keyup=${this.search} .value=${this.searchTerms} placeholder="${this.i18n["search_placeholder"]}" aria-label="${this.i18n["search_placeholder"]}"/>
+            <input type="text" id="sakai-search-input" tabindex="0" @input=${this.search} @keyup=${this.search} .value=${this.searchTerms} placeholder="${this.i18n["search_placeholder"]}" aria-label="${this.i18n["search_placeholder"]}"/>
           ` : ""}
         <a href="javascript:;" @click=${this.toggleField} title="${this.i18n["search_tooltip"]}"><span class="icon-sakai--sakai-search"></span></a>
       </div>
+      ${this.noResults && this.showField ? html`
+        <div class="sakai-search-results" tabindex="1">
+          <div class="search-result-container"><div class="search-result">No results</div></div>
+        </div>
+      ` : ""}
       ${this.results.length > 0 && this.showField ? html`
         <div class="sakai-search-results" tabindex="1">
-          ${this.currentPageOfResults.map(r => html`
+          ${this.currentPageOfResults.map((r,i) => html`
           <div class="search-result-container">
             <a href="${r.url}">
               <div>
@@ -86,17 +95,43 @@ class SakaiSearch extends SakaiElement {
             </a>
           </div>
           `)}
-        <sakai-pager total-things="${this.results.length}" page-size="${this.pageSize}" @page-clicked=${this.pageClicked}></sakai-pager>
+          <sakai-pager total-things="${this.results.length}" page-size="${this.pageSize}" @page-clicked=${this.pageClicked}></sakai-pager>
         </div>
-        ` : ""}
+      ` : ""}
     `;
   }
 
   toggleField() {
 
+    let $input = $('#sakai-search-input');
+
     this.showField = !this.showField;
     if (!this.showField) {
       this.clear();
+    } else {
+      if (!$input.data('ui-autocomplete')) {
+        this.updateComplete.then(() => {
+
+          $('#sakai-search-input').autocomplete({
+            source: function(request, response) {
+              const query = document.getElementById("sakai-search-input").value;
+              fetch(`/direct/search/suggestions.json?q=${encodeURIComponent(query)}`)
+                .then(r => {
+
+                  if (r.ok) {
+                    return r.json();
+                  } else {
+                    throw new Error("Failed to get search suggestions");
+                  }
+                })
+                .then(data => response(data))
+                .catch (error => console.error("Failed to get search suggestions", error));
+            },
+            minLength: 2,
+            select: (e,ui) => { const ev = {keyCode: "13", target: {value: ui.item.value}}; this.search(ev); }
+          });
+        });
+      }
     }
 
     this.requestUpdate();
@@ -111,20 +146,25 @@ class SakaiSearch extends SakaiElement {
     this.results = [];
     this.searchTerms = "";
     this.requestUpdate();
+    this.noResults = false;
   }
 
   search(e) {
 
     var keycode = e.keyCode ? e.keyCode : e.which;
-    if (keycode == "13" && e.target.value.length > 3) {
+    if (keycode == "13" && e.target.value.length > 2) {
       sessionStorage.setItem("searchterms", e.target.value);
       fetch(`/direct/search/search.json?searchTerms=${e.target.value}`, {cache: "no-cache", credentials: "same-origin"})
         .then(res => res.json() )
         .then(data => {
 
           this.results = data;
+          this.noResults = this.results.length === 0;
           this.results.forEach(r => { if (r.title.length === 0) r.title = r.tool; });
           this.initSetsOfResults(this.results);
+          this.updateComplete.then(() => {
+            document.querySelector(".sakai-search-results .search-result-container a").focus();
+          });
           sessionStorage.setItem("searchresults", JSON.stringify(this.results));
           this.requestUpdate();
         })

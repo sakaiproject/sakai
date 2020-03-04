@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<registration>
+	<tool id="sakai-site-group-manager"
+		title="Group Manager Helper"
+		description="Site Group Manager Helper Tool">
+		<category name="sakai.helper" />
+		<configuration name="functions.require" value="site.upd" />
+	</tool>
+</registration>

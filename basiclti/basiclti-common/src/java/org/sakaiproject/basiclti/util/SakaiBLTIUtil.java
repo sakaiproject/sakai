@@ -2048,6 +2048,7 @@ public class SakaiBLTIUtil {
 				retval = retMap;
 			} else if (isDelete) {
 				g.setAssignmentScoreString(siteId, assignmentObject.getId(), user_id, null, "External Outcome");
+				g.setAssignmentScoreComment(siteId, assignmentObject.getId(), user_id, null);
 				log.info("Delete Score site={} assignment={} user_id={}", siteId, assignment, user_id);
 				message = "Result deleted";
 				retval = Boolean.TRUE;
@@ -2137,6 +2138,8 @@ public class SakaiBLTIUtil {
 				retval = retMap;
 			} else if (isDelete) {
 				g.setAssignmentScoreString(siteId, assignmentObject.getId(), user_id, null, "External Outcome");
+				g.setAssignmentScoreComment(siteId, assignmentObject.getId(), user_id, null);
+
 				log.info("Delete Score site={} assignment={} user_id={}", siteId, assignment, user_id);
 				message = "Result deleted";
 				retval = Boolean.TRUE;
@@ -2178,7 +2181,7 @@ public class SakaiBLTIUtil {
 				if (gAssignment.isExternallyMaintained()) {
 					continue;
 				}
-				if (assignment.equals(gAssignment.getName())) {
+				if (assignment.trim().equalsIgnoreCase(gAssignment.getName().trim())) {
 					assignmentObject = gAssignment;
 					break;
 				}
@@ -2366,7 +2369,8 @@ public class SakaiBLTIUtil {
 					}
 				}
 			}
-			retval.setProperty(BASICLTI_PORTLET_ASSIGNMENT, (String) content.get("title"));
+			String aTitle = (String) content.get("title");
+			retval.setProperty(BASICLTI_PORTLET_ASSIGNMENT, aTitle.trim());
 		}
 		return retval;
 	}

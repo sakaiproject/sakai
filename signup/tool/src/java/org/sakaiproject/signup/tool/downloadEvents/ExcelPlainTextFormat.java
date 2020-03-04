@@ -34,7 +34,8 @@
 
 package org.sakaiproject.signup.tool.downloadEvents;
 
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * <P>
@@ -71,7 +72,7 @@ public class ExcelPlainTextFormat {
 		htmlText = htmlText.replaceAll("</p>", BreakMark);
 		htmlText = htmlText.replaceAll("<p />", BreakMark);
 		htmlText = htmlText.replaceAll("<br />", BreakMark);
-		htmlText = FormattedText.convertFormattedTextToPlaintext(htmlText);
+		htmlText = ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(htmlText);
 		StringBuilder sb = new StringBuilder();
 		int begin_pos = 0;
 		int find_pos= 0;

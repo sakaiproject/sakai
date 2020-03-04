@@ -159,6 +159,12 @@
 			<version>1.2.2</version>
 			<scope>runtime</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>jqplot</artifactId>
+			<version>1.0.9.d96a669-1</version>
+			<scope>runtime</scope>
+		</dependency>
 		<!--Used in the portal, notify the user about forbidden HTML entities (AntiSamy) -->
 		<dependency>
 			<groupId>org.webjars.npm</groupId>
@@ -252,7 +258,7 @@
 		<dependency>
 			<groupId>org.webjars.npm</groupId>
 			<artifactId>webrtc-adapter</artifactId>
-			<version>7.4.0</version>
+			<version>7.5.0</version>
 		</dependency>
 		<!--Used in Tests&Quizzes, validation of fill in numeric questions -->
 		<dependency>
@@ -265,6 +271,22 @@
 			<groupId>org.webjars.bower</groupId>
 			<artifactId>multifile</artifactId>
 			<version>2.2.2</version>
+		</dependency>
+		<!--Used in the site group manager helper-->
+		<dependency>
+			<groupId>org.webjars.bower</groupId>
+			<artifactId>multiselect-two-sides</artifactId>
+			<version>2.5.5</version>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>pdf-js</artifactId>
+			<version>2.3.200</version>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>viewerjs</artifactId>
+			<version>0.5.8</version>
 		</dependency>
 	</dependencies>
 	<profiles>

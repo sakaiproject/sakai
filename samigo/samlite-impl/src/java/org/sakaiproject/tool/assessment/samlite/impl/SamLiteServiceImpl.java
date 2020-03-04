@@ -509,8 +509,8 @@ public class SamLiteServiceImpl implements SamLiteService {
 			}
 			
 		}
-		
-		boolean autoSubmitEnabled = ServerConfigurationService.getBoolean("samigo.autoSubmit.enabled", false);
+
+	    final boolean autoSubmitEnabled = ServerConfigurationService.getBoolean("samigo.autoSubmit.enabled", true);
 	    if (!autoSubmitEnabled) {
 	    	buildMetaDataField(metadata, "automaticSubmission_isInstructorEditable", "false");
 	    }

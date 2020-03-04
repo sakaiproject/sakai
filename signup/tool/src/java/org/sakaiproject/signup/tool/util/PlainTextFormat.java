@@ -34,14 +34,15 @@
 
 package org.sakaiproject.signup.tool.util;
 
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.util.api.FormattedText;
 
-import org.sakaiproject.util.FormattedText;
 /* TODO one duplicate class with signup-impl */
 
 /**
  * <P>
  * This class just provides a static method to extend the funtionality of the
- * metod: convertFormattedTextToPlaintext(htmlText) in the class:FormattedText
+ * method: convertFormattedTextToPlaintext(htmlText) in the class:FormattedText
  * class.
  * </P>
  */
@@ -65,6 +66,6 @@ public class PlainTextFormat {
 		htmlText = htmlText.replaceAll("<p>", "");
 		htmlText = htmlText.replaceAll("</p>", "<br />");
 		htmlText = htmlText.replaceAll("<p />", "<br />");
-		return FormattedText.convertFormattedTextToPlaintext(htmlText);
+		return ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(htmlText);
 	}
 }

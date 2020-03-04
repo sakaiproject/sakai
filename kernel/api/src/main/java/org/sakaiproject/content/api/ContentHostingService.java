@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.TreeSet;
@@ -244,6 +245,10 @@ public interface ContentHostingService extends EntityProducer
     public static final String RESOURCES_ZIP_ENABLE_COMPRESS = "content.zip.compress.enabled";
 
 	static final String ID_LENGTH_EXCEPTION = "id_length_exception";
+
+	public static final String DOCX_MIMETYPE
+		= "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+	public static final String ODT_MIMETYPE = "application/vnd.oasis.opendocument.text";
 
 	/**
     * For a given id, return its UUID (creating it if it does not already exist)
@@ -2081,4 +2086,5 @@ public interface ContentHostingService extends EntityProducer
 
 	public String expandMacros(String url);
 
+	public Optional<String> getHtmlForRef(String ref);
 }

@@ -209,7 +209,9 @@ SPNR.disableSelects = function( clickedElement, escapeList )
 
             // Create the cloned element and disable it
             var newSelect = document.createElement( "select" );
-            newSelect.setAttribute( "id", select.getAttribute( "id" ) + "Disabled" );
+            var oldId = select.getAttribute( "id" );
+            var newId = (oldId !== null) ? oldId : Math.random().toString(36).substring(2, 15);
+            newSelect.setAttribute( "id", newId + "Disabled" );
             newSelect.setAttribute( "name", select.getAttribute( "name" ) + "Disabled" );
             newSelect.setAttribute( "className", select.getAttribute( "className" ) );
             newSelect.setAttribute( "disabled", "true" );
@@ -304,7 +306,9 @@ SPNR.disableElementAndSpin = function( divID, element, activateSpinner )
         newElement.setAttribute( "type", element.type );
     }
 
-    newElement.setAttribute( "id", element.getAttribute( "id" ) + "Disabled" );
+    var oldId = element.getAttribute( "id" );
+    var newId = (oldId !== null) ? oldId : Math.random().toString(36).substring(2, 15);
+    newElement.setAttribute( "id", newId + "Disabled" );
     newElement.setAttribute( "name", element.getAttribute( "name" ) + "Disabled" );
     newElement.setAttribute( "value", element.getAttribute( "value" ) );
     newElement.setAttribute( "disabled", "true" );
