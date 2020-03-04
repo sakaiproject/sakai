@@ -548,25 +548,6 @@
 		margin-bottom: 0;
 	}
 
-	.progress-container {
-		position: relative;
-
-		.progress-cols {
-			position: absolute;
-			width: 100%;
-			background: no-repeat;
-		}
-
-		.progress-bar-empty {
-			background-color: transparent;
-			color: $text-color;
-		}
-
-		.progress-bar-active {
-			color: #ffffff;
-		}
-	}
-
 	.student-picture {
 		background-position: center center;
 		background-size: cover;

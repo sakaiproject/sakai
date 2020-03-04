@@ -67,7 +67,7 @@
         #end
 
         ## Assignment Attachments
-        #attachmentFragment($assignment.Attachments $assignmentAttachmentReferences $!decoratedUrlMap false)
+        #attachmentFragment($assignment.Attachments $assignmentAttachmentReferences $!decoratedUrlMap)
 
         #if ($feedback_text && !$feedback_text.isEmpty())
             <h4>

@@ -128,9 +128,7 @@ $(document).ready(function(){
 			</p>	
 		#end
 	#end
-	#if (!$!allowAddAssignment && !$!nonElectronicType)
-		#progressBar($!service.getProgressBarStatus($!submission))
-	#end
+
 ##		<h4>$tlang.getString("gen.assdet")</h4>
 		<div class="itemSummary">
 			<div class="row">
@@ -306,7 +304,7 @@ $(document).ready(function(){
 		#end
 
 		## Assignment Attachments
-		#attachmentFragment($assignment.Attachments $assignmentAttachmentReferences $!decoratedUrlMap false)
+		#attachmentFragment($assignment.Attachments $assignmentAttachmentReferences $!decoratedUrlMap)
 
 		#supplementItems($!allowViewModelAnswer $!allowReadAssignmentNoteItem $!allowViewAllPurposeItem $!assignmentModelAnswerItem $!assignmentNoteItem $!assignmentAllPurposeItem)
 
@@ -888,8 +886,8 @@ $(document).ready(function(){
 								#else
 									#set($name=$tlang.getString("gen.subm3"))
 								#end
-								<input type="button" class="active" name="confirm" accesskey="s" id="confirm" value="$!name"
-									onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'confirm', null, null ); return false;" 
+								<input type="button" class="active" name="post" accesskey="s" id="post" value="$!name"
+									onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'post', null, null ); return false;" 
 								#if ($submitted && ($submissionType == 2 || $submissionType == 5) && !$!new_attachments && !$!newSingleUploadedFile && (!$!newSingleAttachmentList || $!newSingleAttachmentList.isEmpty()))
 									disabled="disabled"
 								#end

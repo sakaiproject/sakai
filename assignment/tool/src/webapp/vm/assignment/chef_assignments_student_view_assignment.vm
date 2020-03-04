@@ -134,7 +134,7 @@
 			#end
 		</p>
 		## assignment attachment
-		#attachmentFragment($assignment.Attachments $assignmentAttachmentReferences $!decoratedUrlMap false)
+		#attachmentFragment($assignment.Attachments $assignmentAttachmentReferences $!decoratedUrlMap)
 
 		#supplementItems($!allowViewModelAnswer $!allowReadAssignmentNoteItem $!allowViewAllPurposeItem $!assignmentModelAnswerItem $!assignmentNoteItem $!assignmentAllPurposeItem)
 

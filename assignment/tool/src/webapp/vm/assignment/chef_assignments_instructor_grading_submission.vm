@@ -242,7 +242,7 @@
             #end
 
             ## Assignment Attachments
-            #attachmentFragment($assignment.Attachments $assignmentAttachmentReferences $!decoratedUrlMap false)
+            #attachmentFragment($assignment.Attachments $assignmentAttachmentReferences $!decoratedUrlMap)
         #end
         ## show the assignment content
 

@@ -99,7 +99,7 @@
 				#else
 				#end
 				## attachments of assignment
-				#attachmentFragment($assignment.Attachments $assignmentAttachmentReferences $!decoratedUrlMap false)
+				#attachmentFragment($assignment.Attachments $assignmentAttachmentReferences $!decoratedUrlMap)
 			#end	## show the assignment content
 			
 			#supplementItems($!allowViewModelAnswer $!allowReadAssignmentNoteItem $!allowViewAllPurposeItem $!assignmentModelAnswerItem $!assignmentNoteItem $!assignmentAllPurposeItem)

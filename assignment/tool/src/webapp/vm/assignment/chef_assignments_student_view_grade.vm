@@ -48,9 +48,7 @@
             <span class="highlight"> - $tlang.getString("gen.subm4")</span>
         #end
     </h3>
-    #if (!$!nonElectronicType)
-        #progressBar($!service.getProgressBarStatus($!submission))
-    #end
+
     #if ($alertMessage)
         <div class="sak-banner-error"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>
     #end
@@ -201,7 +199,7 @@
     #end
 
     ## Assignment Attachments
-    #attachmentFragment($assignment.Attachments $assignmentAttachmentReferences $decoratedUrlMap false)
+    #attachmentFragment($assignment.Attachments $assignmentAttachmentReferences $decoratedUrlMap)
 
     #supplementItems($!allowViewModelAnswer $!allowReadAssignmentNoteItem $!allowViewAllPurposeItem $!assignmentModelAnswerItem $!assignmentNoteItem $!assignmentAllPurposeItem)
  
