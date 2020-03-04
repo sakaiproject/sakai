@@ -3591,9 +3591,8 @@ public class AssignmentAction extends PagedResourceActionII {
             try {
                 String assignmentsViewPrefs = (String) props.getProperty("assignments");
                 if (assignmentsViewPrefs != null) {
-                    String assignmentsViewPreferences = URLDecoder.decode(assignmentsViewPrefs, "UTF-8");
                     ObjectMapper m = new ObjectMapper();
-                    Map<String, Object> prefsMap = m.readValue(assignmentsViewPrefs, Map.class);
+                    Map<String, Object> prefsMap = m.readValue(URLDecoder.decode(assignmentsViewPrefs, "UTF-8"), Map.class);
                     useSakaiGrader = (Boolean) prefsMap.get("usegrader");
                 }
             } catch (Exception e) {
