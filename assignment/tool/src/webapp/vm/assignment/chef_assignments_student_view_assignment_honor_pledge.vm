@@ -12,7 +12,6 @@
             #assignmentTitleIcon($assignment)
             $formattedText.escapeHtml($!assignment.Title)
         </h3>
-
         <div class="jumbotron" id="honor-pledge-agreement">
             <h4>$tlang.getString("gen.hpa.title")</h4>
             <p>$!honorPledgeText</p>
