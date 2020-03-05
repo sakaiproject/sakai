@@ -135,6 +135,7 @@ public class AutoGroupsController {
         // Clean the list if the 'dont use sections' option has been selected
         if (GroupManagerConstants.SECTIONS_OPTION_DONT_USE_SECTIONS == autoGroupsForm.getSectionsOption()) {
             autoGroupsForm.setSelectedSectionList(new ArrayList<String>());
+            autoGroupsForm.setUseManuallyAddedUsers(false);
         }
 
         // Display an error if 'use sections' option has been selected and the list is empty.
@@ -248,6 +249,7 @@ public class AutoGroupsController {
         List<String> selectedRoleList = autoGroupsForm.getSelectedRoleList();
         List<String> selectedSectionList = autoGroupsForm.getSelectedSectionList();
         int sectionsOption = autoGroupsForm.getSectionsOption();
+        boolean useManuallyAddedUsers = autoGroupsForm.isUseManuallyAddedUsers();
         int structureConfigurationOption = autoGroupsForm.getStructureConfigurationOption();
         int splitOption = autoGroupsForm.getSplitOptions();
 
@@ -296,6 +298,13 @@ public class AutoGroupsController {
                     }
                 }
             }
+
+            if (useManuallyAddedUsers) {
+                // Add non-provided members filtering by the selected roles.
+                List<Member> nonProvidedSiteMembers = site.getMembers().stream().filter(m -> !m.isProvided() && selectedRoleList.contains(m.getRole().getId())).collect(Collectors.toList());
+                filteredMembers.addAll(nonProvidedSiteMembers);
+            }
+
         }
 
         // Fill the user and the member objects to display the names and the eid in the UI.
