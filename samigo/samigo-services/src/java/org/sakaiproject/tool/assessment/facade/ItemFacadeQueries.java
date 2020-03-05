@@ -92,7 +92,7 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
             if (section != null) {
                 section.getItemSet().remove(item);
             }
-            getHibernateTemplate().merge(item);
+            getHibernateTemplate().delete(item);
         }
     }
 
