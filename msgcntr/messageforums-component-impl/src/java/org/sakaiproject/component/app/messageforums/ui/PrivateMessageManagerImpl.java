@@ -20,6 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.messageforums.ui;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -29,10 +30,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.collections4.CollectionUtils;
 import org.hibernate.LockMode;
 import org.hibernate.Query;
 import org.hibernate.type.LongType;
@@ -76,6 +83,15 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.id.api.IdManager;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.LearningResourceStoreService;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Actor;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Object;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VERB;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService;
@@ -86,6 +102,7 @@ import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 
 @Slf4j
@@ -94,6 +111,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   private static final String QUERY_AGGREGATE_COUNT = "findAggregatePvtMsgCntForUserInContext";  
   private static final String QUERY_MESSAGES_BY_USER_TYPE_AND_CONTEXT = "findPrvtMsgsByUserTypeContext";
   private static final String QUERY_MESSAGES_BY_ID_WITH_RECIPIENTS = "findPrivateMessageByIdWithRecipients";
+  private static final String QUERY_RESPONSED_COUNT = "findMessageResponsedCountByUser";
+  private static final String QUERY_USER_ID_BY_FOWARD_MAIL = "findUserIdByFowardMail";
   
   private static final String MESSAGECENTER_BUNDLE = "org.sakaiproject.api.app.messagecenter.bundle.Messages";
   
@@ -112,6 +131,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   private SiteService siteService;
   private ToolManager toolManager;
   private UserDirectoryService userDirectoryService;
+  private LearningResourceStoreService learningResourceStoreService;
   
   private static final String MESSAGES_TITLE = "pvt_message_nav";// Mensajes-->Messages/need to be modified to support internationalization
   
@@ -124,7 +144,9 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   private static final String EMAIL_FOOTER1 = "pvt_email_footer1";
   private static final String EMAIL_FOOTER2 = "pvt_email_footer2";
   private static final String EMAIL_FOOTER3 = "pvt_email_footer3";
-  private static final String EMAIL_FOOTER4 = "pvt_email_footer4";
+  private static final String EMAIL_FOOTER4_A = "pvt_email_footer4_a";
+  private static final String EMAIL_FOOTER4_B = "pvt_email_footer4_b";
+  private static final String INIT_VECTOR = "RandomInitVector";
 
   public void init()
   {
@@ -154,6 +176,10 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 
 	public void setContentHostingService(ContentHostingService contentHostingService) {
 		this.contentHostingService = contentHostingService;
+	}
+	
+	public void setLearningResourceStoreService(LearningResourceStoreService learningResourceStoreService) {
+		this.learningResourceStoreService = learningResourceStoreService;
 	}
 
   public boolean getPrivateAreaEnabled()
@@ -1080,8 +1106,26 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
       return;
     }
 
+    String contextId="";
+    boolean isMailArchive = false;
+    try {
+        contextId = getContextId();
+	} catch (Exception e) {
+	    contextId = ((PrivateMessageRecipientImpl)message.getRecipients().get(0)).getContextId();
+	    isMailArchive = true;
+	}
     String currentUserAsString = getCurrentUser();
+    if(currentUserAsString==null || isMailArchive) {
+        currentUserAsString = message.getCreatedBy();
+    }
     User currentUser = userDirectoryService.getCurrentUser();
+    if(currentUser==null || isMailArchive) {
+        try {
+            currentUser = userDirectoryService.getUser(message.getCreatedBy());
+        } catch (UserNotDefinedException e) {
+            throw new IllegalArgumentException("Null Argument");
+        }
+    }
     List recipientList = new UniqueArrayList();
 
     /** test for draft message */
@@ -1089,11 +1133,15 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     {
       PrivateMessageRecipientImpl receiver = new PrivateMessageRecipientImpl(
       		currentUserAsString, typeManager.getDraftPrivateMessageType(),
-          getContextId(), Boolean.TRUE, false);
+      		contextId, Boolean.TRUE, false);
 
       recipientList.add(receiver);
       message.setRecipients(recipientList);
-      savePrivateMessage(message, false);
+      if(isMailArchive) {
+          message = (PrivateMessage)messageManager.saveOrUpdateMessage(message, false, DiscussionForumService.MESSAGES_TOOL_ID, currentUserAsString, contextId);
+      }else {
+          message = (PrivateMessage)savePrivateMessage(message, false);
+      }
       return;
     }
 
@@ -1105,7 +1153,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     /** determines if default in sakai.properties is set, if not will make a reasonable default */
     String defaultEmail = ServerConfigurationService.getString("setup.request","postmaster@" + ServerConfigurationService.getServerName());
     String systemEmail = ServerConfigurationService.getString("msgcntr.notification.from.address", defaultEmail);
-   
+    InternetAddress[] replyEmail  = null;
+    
     if (!ServerConfigurationService.getBoolean("msgcntr.notification.user.real.from", false)) {
     	systemEmail = ServerConfigurationService.getString("msgcntr.notification.from.address", defaultEmail);
     } else  {
@@ -1119,7 +1168,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     List<PrivateForum> privateForums = null;
     Map<String, PrivateForum> pfMap = null;
     
-    	currentArea = getAreaByContextIdAndTypeId(typeManager.getPrivateMessageAreaType());
+    	currentArea = getAreaByContextIdAndTypeId(typeManager.getPrivateMessageAreaType(), contextId);
 
     	// make sure the site-wide email copy preference is respected in case an invalid
     	// value slipped in
@@ -1204,7 +1253,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 
 
     			PrivateMessageRecipientImpl receiver = new PrivateMessageRecipientImpl(
-    					userId, typeManager.getReceivedPrivateMessageType(), getContextId(),
+    					userId, typeManager.getReceivedPrivateMessageType(), contextId,
     					isRecipientCurrentUser, bcc);
     			recipientList.add(receiver);                    
     		}      
@@ -1213,16 +1262,28 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     /** add sender as a saved recipient */
     PrivateMessageRecipientImpl sender = new PrivateMessageRecipientImpl(
     		currentUserAsString, typeManager.getSentPrivateMessageType(),
-        getContextId(), Boolean.TRUE, false);
+    		contextId, Boolean.TRUE, false);
 
     recipientList.add(sender);
 
     message.setRecipients(recipientList);
 
-    Message savedMessage = savePrivateMessage(message, false);
+	Message savedMessage;
+	if(isMailArchive) {
+		savedMessage = messageManager.saveOrUpdateMessage(message, false, DiscussionForumService.MESSAGES_TOOL_ID, currentUserAsString, contextId);
+	}else {
+		savedMessage = savePrivateMessage(message, false);
+	}
+
     message.setId(savedMessage.getId());
 
     String bodyString = buildMessageBody(message);
+	
+	if (("all".equals(ServerConfigurationService.getString("msgcntr.messages.user.real.reply", "none")) || contextId.contains(ServerConfigurationService.getString("msgcntr.messages.user.real.reply", "none"))) && systemEmail.equalsIgnoreCase(ServerConfigurationService.getString("msgcntr.notification.from.address", defaultEmail))) {
+		replyEmail = new InternetAddress[1];
+		replyEmail[0] = new InternetAddress(buildMailReply(savedMessage));
+		systemEmail = ServerConfigurationService.getString("msgcntr.notification.from.address.reply", defaultEmail);
+	}
 
 	if (asEmail)
 	{
@@ -1230,6 +1291,9 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 	//we need to add som headers
 	additionalHeaders.add("From: " + systemEmail);
 	additionalHeaders.add("Subject: " + message.getTitle());
+	if(replyEmail!=null) {
+		additionalHeaders.add("Reply-To: " + replyEmail[0].getAddress());
+	}
 	emailService.sendToUsers(recipients.keySet(), additionalHeaders, bodyString);
 	}   	
 
@@ -1238,7 +1302,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 		InternetAddress fAddressesArr[] = new InternetAddress[fAddresses.size()];
 		fAddressesArr = fAddresses.toArray(fAddressesArr);
 		emailService.sendMail(new InternetAddress(systemEmail), fAddressesArr, message.getTitle(), 
-				bodyString, null, null, additionalHeaders);
+				bodyString, null, replyEmail, additionalHeaders);
 	}
 
 
@@ -1252,10 +1316,34 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   public boolean isEmailForwardDisabled(){
 	  return ServerConfigurationService.getBoolean("mc.messages.forwardEmailDisabled", false);
   }
-  
+  private String buildMailReply(Message message) {
+	  
+	  StringBuilder replyMail = new StringBuilder();
+	  replyMail.append(ServerConfigurationService.getString("msgcntr.messages.header.from.reply"));
+	  replyMail.append(encrypt(message.getId().toString()));
+	  replyMail.append("@");
+	  replyMail.append(ServerConfigurationService.getString("serverName"));
+	  return replyMail.toString();
+  }
 
   private String buildMessageBody(PrivateMessage message) {
+	  String contextId="";
+	  boolean isMailArchive = false;
+	  try {
+		  contextId = getContextId();
+	  } catch (Exception e) {
+		  contextId = ((PrivateMessageRecipientImpl)message.getRecipients().get(0)).getContextId();
+		  isMailArchive = true;
+	  }
+
 	  User currentUser = userDirectoryService.getCurrentUser();
+	  if(currentUser==null || isMailArchive) {
+		  try {
+			  currentUser = userDirectoryService.getUser(message.getCreatedBy());
+		  } catch (UserNotDefinedException e) {
+			  throw new IllegalArgumentException("Null Argument");
+		  }
+	  }
 	  StringBuilder body = new StringBuilder(message.getBody());
 	  
 	  StringBuilder fromString = new StringBuilder();
@@ -1327,50 +1415,66 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 		  body.append("<br/><br/>");
 		  for (Iterator iter = message.getAttachments().iterator(); iter.hasNext();) {
 			  Attachment attachment = (Attachment) iter.next();
-			  //body.append("<a href=\"" + attachment.getAttachmentUrl() +
-			  //"\">" + attachment.getAttachmentName() + "</a><br/>");            
 			  body.append("<a href=\"" + messageManager.getAttachmentUrl(attachment.getAttachmentId()) +
 					  "\">" + attachment.getAttachmentName() + "</a><br/>");            
 		  }
 	  }
 
+	  String contextTool = "";
 	  String siteTitle = null;
 	  try{
-		  siteTitle = siteService.getSite(getContextId()).getTitle();
+		  if(isMailArchive) {
+			  contextTool = contextId;
+			  siteTitle = siteService.getSite(contextId).getTitle();
+		  }else {
+			  contextTool = toolManager.getCurrentPlacement().getContext();
+			  siteTitle = siteService.getSite(getContextId()).getTitle();  
+		  }
 	  }
 	  catch (IdUnusedException e){
 		  log.error(e.getMessage(), e);
 	  }
-
 	  String thisToolId = "";
-	  ToolSession ts = sessionManager.getCurrentToolSession();
-	  if (ts != null)
-	  {
-		  ToolConfiguration tool = siteService.findTool(ts.getPlacementId());
-		  if (tool != null)
+	  if(isMailArchive) {
+		  thisToolId = DiscussionForumService.MESSAGES_TOOL_ID;
+	  }else{
+		  ToolSession ts = sessionManager.getCurrentToolSession();
+		  if (ts != null)
 		  {
-			  thisToolId = tool.getId();
+			  ToolConfiguration tool = siteService.findTool(ts.getPlacementId());
+			  if (tool != null)
+			  {
+				  thisToolId = tool.getId();
+			  }
 		  }
 	  }
 
 	  String footer = "<p>----------------------<br>" +
 	      getResourceBundleString(EMAIL_FOOTER1) + " " + ServerConfigurationService.getString("ui.service","Sakai") +
 	  " " + getResourceBundleString(EMAIL_FOOTER2) + " \"" +
-	  siteTitle + "\" " + getResourceBundleString(EMAIL_FOOTER3) + "\n" +
-	  getResourceBundleString(EMAIL_FOOTER4) +
-	  " <a href=\"" +
-	  ServerConfigurationService.getPortalUrl() + 
-	  "/site/" + toolManager.getCurrentPlacement().getContext() +
-	  "/tool/" + thisToolId+
-	  (message!=null?"/privateMsg/pvtMsgDirectAccess?current_msg_detail="+message.getId():"")+
-	  "\">";
-
+	  siteTitle + "\" " + getResourceBundleString(EMAIL_FOOTER3) + "\n";
+	  if (("all".equals(ServerConfigurationService.getString("msgcntr.messages.user.real.reply", "none")) || contextId.contains(ServerConfigurationService.getString("msgcntr.messages.user.real.reply", "none")))){
+		  footer = footer +  getResourceBundleString(EMAIL_FOOTER4_A) +
+				  " <a href=\"" +
+				  ServerConfigurationService.getPortalUrl() + 
+				  "/site/" + contextTool +
+				  "/tool/" + thisToolId+
+				  (message!=null?"/privateMsg/pvtMsgDirectAccess?current_msg_detail="+message.getId():"")+
+				  "\">";
+	  }else {
+		  footer = footer +  getResourceBundleString(EMAIL_FOOTER4_B) +
+				  " <a href=\"" +
+				  ServerConfigurationService.getPortalUrl() + 
+				  "/site/" + contextTool +
+				  "/tool/" + thisToolId+
+				  (message!=null?"/privateMsg/pvtMsgDirectAccess?current_msg_detail="+message.getId():"")+
+				  "\">";
+	  }
 
 	  footer += siteTitle + "</a><br>----------------------</p>";
 	  body.insert(0, footer); // Put the footer at the top.
 
-	  String bodyString = body.toString();
-	  return bodyString;
+	  return body.toString();
   }
 
 
@@ -1532,7 +1636,21 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 				}
 			}
 		}		
-	} 
+	}
+
+	public void markMessageAsRepliedForUser(final PrivateMessage message, String userId) {				
+		  
+		PrivateMessage pvtMessage = getPrivateMessageWithRecipients(message);
+		List recipientList = pvtMessage.getRecipients();
+
+		if (recipientList != null) {
+			for (Object r : recipientList) {
+				if (((PrivateMessageRecipientImpl) r).getUserId().equals(userId)) {
+					((PrivateMessageRecipientImpl) r).setReplied(true);
+				}
+			}
+		}
+	}
 
   private PrivateMessage getPrivateMessageWithRecipients(
       final PrivateMessage message)
@@ -1903,6 +2021,18 @@ return topicTypeUuid;
     return getHibernateTemplate().execute(hcb);
   }
   
+  public Area getAreaByContextIdAndTypeId(final String typeId, String contextId) {
+	    log.debug("getAreaByContextIdAndTypeId executing for current user: " + getCurrentUser());
+	    HibernateCallback<Area> hcb = session -> {
+	        Query q = session.getNamedQuery("findAreaByContextIdAndTypeId");
+	        q.setParameter("contextId", contextId, StringType.INSTANCE);
+	        q.setParameter("typeId", typeId, StringType.INSTANCE);
+	        return (Area) q.uniqueResult();
+	    };
+
+	    return getHibernateTemplate().execute(hcb);
+  }
+  
   /**
    * Gets Strings from Message Bundle (specifically for titles)
    * TODO: pull directly from bundle instead of using areaManager
@@ -1945,6 +2075,238 @@ return topicTypeUuid;
   			eventMessagePrefix = "/forums/site/";
   	
   	return eventMessagePrefix + contextId + "/" + object.toString() + "/" + userId;
+  }
+
+  public PrivateMessage getPrivateMessage(final String id)
+  {
+	  PrivateMessage currentMessage = (PrivateMessage) messageManager.getMessageByIdWithAttachments(Long.parseLong(decrypt(id)));
+	  getHibernateTemplate().initialize(currentMessage.getRecipients());
+	  return currentMessage;
+  }
+  
+  public PrivateMessage getPvtMsgReplyMessage(PrivateMessage currentMessage, MimeMessage msg, StringBuilder[] bodyBuf, List<Reference> attachments, String from) throws MessagingException{ //Me falta coger de forma correcta el body y el attachtment
+		
+	  PrivateMessage rrepMsg = messageManager.createPrivateMessage() ;
+	  try {
+		  rrepMsg.setTitle(msg.getSubject());
+		  try {
+			  rrepMsg.setCreatedBy(userDirectoryService.getUserByEid(from).getId());
+		  } catch (UserNotDefinedException e) {
+			  rrepMsg.setCreatedBy(getUserIdByFowardMail(currentMessage.getId(), from));
+			  if(rrepMsg.getCreatedBy() == null) {
+				  log.warn("PrivateMessageManagerImpl.getPvtMsgReplyMessage: exception: 683 - Sender's email does not belong in Sakai, nor is it recognized as an automatic forwarding address. If you have replied to this email from an address other than the one you have configured for email forwarding, please reply from that address.");
+				  throw new MessagingException("683 - Sender's email does not belong in Sakai, nor is it recognized as an automatic forwarding address. If you have replied to this email from an address other than the one you have configured for email forwarding, please reply from that address."); 
+			  }
+		  }
+		  User userFrom;
+		  try {
+			  userFrom = userDirectoryService.getUser(rrepMsg.getCreatedBy());
+			  from = userFrom.getEmail();
+		  } catch (UserNotDefinedException e1) {
+			  log.warn("PrivateMessageManagerImpl.getPvtMsgReplyMessage: exception: 683 - Sender's email does not belong in Sakai, nor is it recognized as an automatic forwarding address. If you have replied to this email from an address other than the one you have configured for email forwarding, please reply from that address.");
+			  throw new MessagingException("683 - Sender's email does not belong in Sakai, nor is it recognized as an automatic forwarding address. If you have replied to this email from an address other than the one you have configured for email forwarding, please reply from that address.");
+		  }
+		  rrepMsg.setAuthor(userFrom.getSortName().concat(" ("+from+")"));
+		  rrepMsg.setInReplyTo(currentMessage);
+		  if(errRecipient(currentMessage.getRecipients(), rrepMsg)) {
+			  log.warn("PrivateMessageManagerImpl.getPvtMsgReplyMessage: exception: Sender's email address does not belong to any of the mail original recipients.  If you are replying from an address different than the one from which you received the email, please use the correct email address to reply to it.");
+			  throw new MessagingException("359 - Sender's email address does not belong to any of the mail original recipients.  If you are replying from an address different than the one from which you received the email, please use the correct email address to reply to it.");
+		  }
+		  if(errMaxMessageRespond(rrepMsg)) {
+			  log.warn("PrivateMessageManagerImpl.getPvtMsgReplyMessage: exception: The maximum number of responses for the sender's mail address has been exceeded.  For security reasons, please reply to this mail from Sakai's private messages tool.");
+			  throw new MessagingException("682 - The maximum number of responses for the sender's mail address has been exceeded.  For security reasons, please reply to this mail from Sakai's private messages tool.");
+		  }
+	  }catch (MessagingException e){
+		  log.warn("PrivateMessageManagerImpl.getPvtMsgReplyMessage: exception: " + e.getMessage(), e);
+		  throw e;
+	  }
+	  if(!"".equals(bodyBuf[0].toString())) {
+		  bodyBuf[0].insert(0, "<pre>");
+		  bodyBuf[0].insert(bodyBuf[0].length(), "</pre>");
+		  rrepMsg.setBody(bodyBuf[0].toString());
+	  }else {
+		  rrepMsg.setBody(bodyBuf[1].toString());
+	  }
+	  rrepMsg.setDraft(Boolean.FALSE);
+	  rrepMsg.setDeleted(Boolean.FALSE);
+	  rrepMsg.setApproved(Boolean.FALSE);
+	  rrepMsg.setLabel(currentMessage.getLabel());
+
+	  StringBuilder sendToString = new StringBuilder("");
+
+	  if(currentMessage.getAuthor() != null && !"".equals(currentMessage.getAuthor()))
+	  {
+		  sendToString.append(currentMessage.getAuthor());
+	  }
+	  rrepMsg.setRecipientsAsText(sendToString.toString());
+	  /** add sender as a saved recipient */
+	  List recipientList = new UniqueArrayList();
+	  PrivateMessageRecipientImpl sender = new PrivateMessageRecipientImpl(
+			  currentMessage.getCreatedBy(), typeManager.getSentPrivateMessageType(),
+			  ((PrivateMessageRecipientImpl)currentMessage.getRecipients().get(0)).getContextId(), Boolean.FALSE, false);
+
+	  recipientList.add(sender);
+
+	  rrepMsg.setRecipients(recipientList);
+	  rrepMsg.setModifiedBy(rrepMsg.getCreatedBy());
+	  //Add attachments
+	  if(CollectionUtils.isNotEmpty(attachments)){
+		  for(int i=0; i<attachments.size(); i++)
+		  {
+			  Attachment thisAttach = createPvtMsgAttachment(attachments.get(i).getId(), attachments.get(i).getProperties().getProperty(attachments.get(i).getProperties().getNamePropDisplayName()));
+			  addAttachToPvtMsg(rrepMsg, thisAttach);
+		  }
+	  }
+		
+	  return rrepMsg;
+  }
+  
+  public Map<User, Boolean> getRecipients(List recipients)
+  {     
+	  Map<User, Boolean> returnSet = new HashMap<>();
+    
+	  /** get List of unfiltered course members */
+	  for (Iterator iterator = recipients.iterator(); iterator.hasNext();) {
+		  PrivateMessageRecipient element = (PrivateMessageRecipient) iterator.next();
+		  try {
+			  returnSet.put(userDirectoryService.getUser(element.getUserId()), false);
+		  } catch (UserNotDefinedException e) {
+			  log.warn("PrivateMessageManagerImpl.getRecipients: exception: " + e.getMessage(), e);
+		  }
+	  }
+	  //now add them all back
+	  return returnSet;
+  }
+
+  private boolean errRecipient(List recipients, PrivateMessage rrepMsg)
+  {
+	  for (Iterator iterator = recipients.iterator(); iterator.hasNext();) {
+		  PrivateMessageRecipient element = (PrivateMessageRecipient) iterator.next();
+		  if(element.getUserId().equals(rrepMsg.getCreatedBy())) {
+			  return false;
+		  }
+	  }
+	  return true;
+  }
+
+  private boolean errMaxMessageRespond(PrivateMessage rrepMsg){
+	  int max = ServerConfigurationService.getInt("msgcntr.no.reply.max.respond", 5);
+	  if(getNumMessageRespond(rrepMsg.getCreatedBy(), rrepMsg.getInReplyTo().getId()) > max) {
+		  return true;
+	  }
+	  return false;
+  }
+  
+  private int getNumMessageRespond(final String userId, final Long messageId)
+  {
+	  if (log.isDebugEnabled())
+	  {
+		  log.debug("getNumMessageRespond executing");
+	  }
+
+	  HibernateCallback<Number> hcb = session -> {
+		  Query q = session.getNamedQuery(QUERY_RESPONSED_COUNT);
+		  q.setParameter("userId", userId, StringType.INSTANCE);
+		  q.setParameter("messageId", messageId, LongType.INSTANCE);
+		  return (Number) q.uniqueResult();
+	  };
+    
+	  return getHibernateTemplate().execute(hcb).intValue();
+  }
+  
+  private String getUserIdByFowardMail(final Long messageId, final String mail)
+  {
+	  if (log.isDebugEnabled())
+	  {
+		  log.debug("getUserIdByFowardMail executing");
+	  }
+
+	  HibernateCallback<String> hcb = session -> {
+		  Query q = session.getNamedQuery(QUERY_USER_ID_BY_FOWARD_MAIL);
+		  q.setParameter("messageId", messageId, LongType.INSTANCE);
+		  q.setParameter("mail", mail, StringType.INSTANCE);
+		  return (String)q.uniqueResult();
+	  };
+
+	  return getHibernateTemplate().execute(hcb);
+  }
+
+  public void processPvtMsgReplySentAction(PrivateMessage currentMessage, PrivateMessage rrepMsg){
+	  if(rrepMsg != null){
+		  Map<User, Boolean> recipients = getRecipients(rrepMsg.getRecipients());
+
+		  sendPrivateMessage(rrepMsg, recipients, false);
+
+		  if(!rrepMsg.getDraft()){
+			  markMessageAsRepliedForUser(currentMessage, rrepMsg.getAuthorId());
+			  String contextId = ((PrivateMessageRecipientImpl)currentMessage.getRecipients().get(0)).getContextId();
+			  markMessageAsReadForUser(currentMessage, contextId, rrepMsg.getAuthorId(), DiscussionForumService.MESSAGES_TOOL_ID);
+			  LRS_Statement statement = null;
+			  if (null != learningResourceStoreService) {
+				  try{
+					  statement = getStatementForUserSentPvtMsg(currentMessage.getTitle(), SAKAI_VERB.responded, currentMessage);
+				  }catch(Exception e){
+					  log.error(e.getMessage(), e);
+				  }
+			  }
+
+			  Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_RESPONSE, getEventMessage(currentMessage, DiscussionForumService.MESSAGES_TOOL_ID, rrepMsg.getAuthorId(), ((PrivateMessageRecipientImpl)currentMessage.getRecipients().get(0)).getContextId()), null, true, NotificationService.NOTI_OPTIONAL, statement);
+			  eventTrackingService.post(event);
+		  }
+	  }
+  }
+  
+  private static String encrypt(String value) {
+	  try {
+		  IvParameterSpec iv = new IvParameterSpec(INIT_VECTOR.getBytes(StandardCharsets.UTF_8));
+		  String key = ServerConfigurationService.getString("msgcntr.no.reply.secret", "1111111111111111");
+		  SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "AES");
+
+		  Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+		  cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
+
+		  byte[] encrypted = cipher.doFinal(value.getBytes(StandardCharsets.UTF_8));
+
+		  return Base64.encodeBase64String(encrypted);
+
+	  } catch (Exception ex) {
+		  log.error(ex.getMessage(), ex);
+	  }
+
+	  return null;
+  }
+
+  private static String decrypt(String encrypted) {
+	  try {
+		  IvParameterSpec iv = new IvParameterSpec(INIT_VECTOR.getBytes(StandardCharsets.UTF_8));
+		  String key = ServerConfigurationService.getString("msgcntr.no.reply.secret", "1111111111111111");
+		  SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "AES");
+
+		  Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+		  cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
+
+		  byte[] original = cipher.doFinal(Base64.decodeBase64(encrypted));
+
+		  return new String(original,StandardCharsets.UTF_8);
+	  } catch (Exception ex) {
+		  log.error(ex.getMessage(), ex);
+	  }
+
+	  return null;
+  }
+  
+  private LRS_Statement getStatementForUserSentPvtMsg(String subject, SAKAI_VERB sakaiVerb, PrivateMessage rrepMsg) {
+	  LRS_Actor student = learningResourceStoreService.getActor(rrepMsg.getCreatedBy());
+	  String url = ServerConfigurationService.getPortalUrl();
+	  LRS_Verb verb = new LRS_Verb(sakaiVerb);
+	  LRS_Object lrsObject = new LRS_Object(url + "/privateMessage", "send-private-message");
+	  HashMap<String, String> nameMap = new HashMap<>();
+	  nameMap.put("en-US", "User sent a private message");
+	  lrsObject.setActivityName(nameMap);
+	  HashMap<String, String> descMap = new HashMap<>();
+	  descMap.put("en-US", "User sent a private message with subject: " + subject);
+	  lrsObject.setDescription(descMap);
+	  return new LRS_Statement(student, verb, lrsObject);
   }
 
 }
