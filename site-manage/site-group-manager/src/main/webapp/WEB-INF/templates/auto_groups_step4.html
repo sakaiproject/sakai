@@ -25,6 +25,7 @@
           <input type="hidden" th:field="*{groupNumberByGroup}" name="groupNumberByGroup">
           <input type="hidden" th:field="*{groupTitleByUser}" name="sgroupTitleByUser">
           <input type="hidden" th:field="*{groupNumberByUser}" name="groupNumberByUser">
+          <input type="hidden" th:field="*{useManuallyAddedUsers}" name="useManuallyAddedUsers">
           <input type="hidden" th:value="${serializedAutoGroupsMap}" name="serializedAutoGroupsMap">
           <div class="act">
             <input accesskey="c" type="submit" class="active" id="autogroups-creategroups-button-top" th:value="#{autogroups.button.save}" onclick="SPNR.disableControlsAndSpin( this, null );">
