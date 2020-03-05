@@ -24,6 +24,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.Message;
@@ -32,7 +35,6 @@ import org.sakaiproject.api.app.messageforums.PrivateForum;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.PrivateTopic;
 import org.sakaiproject.api.app.messageforums.Topic;
-
 import org.sakaiproject.user.api.User;
 
 public interface PrivateMessageManager {
@@ -206,7 +208,10 @@ public interface PrivateMessageManager {
     public PrivateMessage getPreviousMessage(PrivateMessage message);
     public boolean hasPreviousMessage(PrivateMessage message);
     public boolean hasNextMessage(PrivateMessage message);
-    
+    public PrivateMessage getPrivateMessage(final String id);
+    public Map<User, Boolean> getRecipients(List recipients);
+    public PrivateMessage getPvtMsgReplyMessage(PrivateMessage currentMessage, MimeMessage msg, StringBuilder[] bodyBuf, List<Reference> attachments, String from) throws MessagingException;
+    public void processPvtMsgReplySentAction(PrivateMessage currentMessage, PrivateMessage rrepMsg);
     /** advanced search for private messages */ 
     public List searchPvtMsgs(String typeUuid, String searchText,Date searchFromDate, Date searchToDate, boolean searchByText, boolean searchByAuthor,boolean searchByBody, boolean searchByLabel,boolean searchByDate);
     

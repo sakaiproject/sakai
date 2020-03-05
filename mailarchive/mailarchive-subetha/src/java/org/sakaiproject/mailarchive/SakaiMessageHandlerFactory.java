@@ -52,6 +52,8 @@ import javax.mail.internet.ParseException;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.alias.api.AliasService;
+import org.sakaiproject.api.app.messageforums.PrivateMessage;
+import org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
@@ -91,6 +93,10 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
      * The user name of the postmaster user - the one who posts incoming mail.
      */
     public static final String POSTMASTER = "postmaster";
+    public static final String FROM_REPLY = "msgcntr.messages.header.from.reply";
+    public static final String MESSAGE_ERROR_682 = "682";
+    public static final String MESSAGE_ERROR_359 = "359";
+    public static final String MESSAGE_ERROR_683 = "683";
 
     private SMTPServer server;
 
@@ -104,6 +110,9 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
     @Setter private ContentHostingService contentHostingService;
     @Setter private MailArchiveService mailArchiveService;
     @Setter private SessionManager sessionManager;
+    @Setter private SynopticMsgcntrManager synopticMsgcntrManager;
+    private PrivateMessage currentMessage;
+    private boolean isMessageId;
 
     public void setInternationalizedMessages(InternationalizedMessages rb) {
         this.rb = rb;
@@ -171,9 +180,14 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
             @Override
             public void recipient(String to) throws RejectException {
                 SplitEmailAddress address = SplitEmailAddress.parse(to);
+                String fromReply = serverConfigurationService.getString(FROM_REPLY, StringUtils.EMPTY);
 
-                if (serverConfigurationService.getServerName().equalsIgnoreCase(address.getDomain())) {
-                    // || serverConfigurationService.getServerNameAliases().contains(address.getDomain())) {
+                if (StringUtils.isNotBlank(fromReply) && to.startsWith(serverConfigurationService.getString(FROM_REPLY, StringUtils.EMPTY))) {
+                    isMessageId = true;
+                    String id = to.replace(serverConfigurationService.getString(FROM_REPLY), StringUtils.EMPTY).split("@")[0];
+                    currentMessage = synopticMsgcntrManager.getPvtMessageManager().getPrivateMessage(id);
+                } else if (serverConfigurationService.getServerName().equalsIgnoreCase(address.getDomain())) {
+                    isMessageId = false;
                     Recipient recipient = new Recipient();
                     recipient.address = address;
                     recipient.channel = getMailArchiveChannel(address.getLocal());
@@ -204,6 +218,17 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
                     // The reads the entire body of the message into a byte array which is far from optimal.
                     MimeMessage msg = new MimeMessage(Session.getDefaultInstance(new Properties()), data);
 
+                    if(isMessageId) {
+                        StringBuilder bodyBuf[] = new StringBuilder[2];
+                        bodyBuf[0] = new StringBuilder();
+                        bodyBuf[1] = new StringBuilder();
+                        StringBuilder bodyContentType = new StringBuilder();
+                        List<Reference> attachments = entityManager.newReferenceList();
+                        parseParts(null, msg, StringUtils.EMPTY, bodyBuf, bodyContentType, attachments, -1);
+                        synopticMsgcntrManager.sendPrivateMessageDesktop(currentMessage, msg, bodyBuf, attachments, this.from);
+                        return;
+                    }
+                    
                     // Date can be null, need to fallback to better replacement
                     Date sent = msg.getSentDate();
                     if (sent == null) {
@@ -325,8 +350,34 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
                         }
                     }
                 } catch (MessagingException me) {
-                    // TODO
-                    throw new RejectException();
+                    // INDICATES that the channel is NOT currently enabled so no messages can be received
+                    if (me.getMessage().startsWith(MESSAGE_ERROR_682)) {
+                        // BOUNCE REPLY - send a message back to the user to let them know their email failed
+                        String errMsg = rb.getString("mail.support.682") + "\n\n";
+                        String mailSupport = StringUtils.trimToNull(serverConfigurationService.getString("mail.support"));
+                        if (StringUtils.isNotBlank(mailSupport)) {
+                            errMsg += rb.getFormattedMessage("err_questions", mailSupport) + "\n";
+                        }
+                        throw new RejectException(Integer.parseInt(MESSAGE_ERROR_682), errMsg);
+                    } else if (me.getMessage().startsWith(MESSAGE_ERROR_359)) {
+                        // BOUNCE REPLY - send a message back to the user to let them know their email failed
+                        String errMsg = rb.getString("mail.support.359") + "\n\n";
+                        String mailSupport = StringUtils.trimToNull(serverConfigurationService.getString("mail.support"));
+                        if (StringUtils.isNotBlank(mailSupport)) {
+                            errMsg += rb.getFormattedMessage("err_questions", mailSupport) + "\n";
+                        }
+                        throw new RejectException(Integer.parseInt(MESSAGE_ERROR_359), errMsg);
+                    } else if (me.getMessage().startsWith(MESSAGE_ERROR_683)) {
+                        // BOUNCE REPLY - send a message back to the user to let them know their email failed
+                        String errMsg = rb.getString("mail.support.683") + "\n\n";
+                        String mailSupport = StringUtils.trimToNull(serverConfigurationService.getString("mail.support"));
+                        if (StringUtils.isNotBlank(mailSupport)) {
+                            errMsg += rb.getFormattedMessage("err_questions", mailSupport) + "\n";
+                        }
+                        throw new RejectException(Integer.parseInt(MESSAGE_ERROR_683), errMsg);
+                    } else {
+                        throw new RejectException();
+                    }
                 } finally {
                     session.clear();
                     // clear out any current current bindings

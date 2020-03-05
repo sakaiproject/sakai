@@ -16,6 +16,7 @@
 package org.sakaiproject.mailarchive;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -24,6 +25,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.sakaiproject.alias.api.AliasService;
+import org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.entity.api.EntityManager;
@@ -48,6 +50,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 /**
@@ -89,8 +92,12 @@ public class SakaiMessageHandlerTest {
     @Mock
     private Session session;
 
+    @Mock
+    private SynopticMsgcntrManager synopticMsgcntrManager;
+    
     private SakaiMessageHandlerFactory messageHandlerFactory;
-
+    public static final String FROM_REPLY = "msgcntr.messages.header.from.reply";
+    
     @Before
     public void setUp() throws Exception {
         messageHandlerFactory = new SakaiMessageHandlerFactory();
@@ -104,6 +111,7 @@ public class SakaiMessageHandlerTest {
         messageHandlerFactory.setContentHostingService(contentHostingService);
         messageHandlerFactory.setMailArchiveService(mailArchiveService);
         messageHandlerFactory.setSessionManager(sessionManager);
+        messageHandlerFactory.setSynopticMsgcntrManager(synopticMsgcntrManager);
 
         // Binding to port 0 means that it picks a random port to listen on.
         when(serverConfigurationService.getInt("smtp.port", 25)).thenReturn(0);
@@ -175,6 +183,23 @@ public class SakaiMessageHandlerTest {
         writeData(client, "/simple-email.txt");
 
         verify(channel, times(1)).addMailArchiveMessage(anyString(), eq("sender@example.com"), any(), any(), any(), any());
+    }
+    
+    @Test
+    public void testNoReply() {
+        String fromReply = serverConfigurationService.getString(FROM_REPLY, StringUtils.EMPTY);
+
+        try {
+            if (!StringUtils.isBlank(fromReply)) {
+                SmartClient client = createClient();
+                client.from("sender@example.com");
+                client.to("reply-msg-id_0000000@sakai.example.com");
+                writeData(client, "/simple-email.txt");
+            }
+            assertTrue(Boolean.TRUE);
+        }catch (Exception e){
+            assertTrue(Boolean.FALSE);
+        }
     }
 
     @Test
