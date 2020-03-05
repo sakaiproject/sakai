@@ -833,6 +833,28 @@
              where mhist.messageId = :messageId
    	]]>    
   </query>
+  
+  <query name="findMessageResponsedCountByUser">
+    <![CDATA[select count(*)
+             from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl as message
+             left join message.recipients recipient
+             where message.inReplyTo.id = :messageId
+             AND recipient.userId = :userId
+    ]]>
+    
+  </query>
+    
+  <query name="findUserIdByFowardMail">
+    <![CDATA[select recipient.userId
+             from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl as message
+             left join message.recipients recipient
+             where message.id = :messageId
+             AND recipient.userId IN (select privateForum.owner 
+             from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl as privateForum
+             where privateForum.autoForwardEmail = :mail)
+    ]]>
+ 
+  </query>
     
 </hibernate-mapping>
 

@@ -24,6 +24,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sakaiproject.alias.api.AliasService;
+import org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.entity.api.EntityManager;
@@ -89,6 +90,9 @@ public class SakaiMessageHandlerTest {
     @Mock
     private Session session;
 
+    @Mock
+    private SynopticMsgcntrManager synopticMsgcntrManager;
+    
     private SakaiMessageHandlerFactory messageHandlerFactory;
 
     @Before
@@ -104,6 +108,7 @@ public class SakaiMessageHandlerTest {
         messageHandlerFactory.setContentHostingService(contentHostingService);
         messageHandlerFactory.setMailArchiveService(mailArchiveService);
         messageHandlerFactory.setSessionManager(sessionManager);
+        messageHandlerFactory.setSynopticMsgcntrManager(synopticMsgcntrManager);
 
         // Binding to port 0 means that it picks a random port to listen on.
         when(serverConfigurationService.getInt("smtp.port", 25)).thenReturn(0);
@@ -175,6 +180,14 @@ public class SakaiMessageHandlerTest {
         writeData(client, "/simple-email.txt");
 
         verify(channel, times(1)).addMailArchiveMessage(anyString(), eq("sender@example.com"), any(), any(), any(), any());
+    }
+    
+    @Test
+    public void testNoReply() throws Exception {
+        SmartClient client = createClient();
+        client.from("sender@example.com");
+        client.to("reply-msg-id_0000000@aulavirtual.um.es");
+        writeData(client, "/simple-email.txt");
     }
 
     @Test
