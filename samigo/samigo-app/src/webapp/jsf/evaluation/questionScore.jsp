@@ -43,6 +43,14 @@ $Id$
 <%@ include file="/js/delivery.js" %>
 
 <script>
+  $(document).ready(function(){
+    // The current class is assigned using Javascript because we don't use facelets and the include directive does not support parameters.
+    var currentLink = $('#editTotalResults\\:questionScoresMenuLink');
+    currentLink.addClass('current');
+    // Remove the link of the current option
+    currentLink.html(currentLink.find('a').text());
+  });
+
   function toPoint(id) {
 
     var x = document.getElementById(id).value;
@@ -61,7 +69,6 @@ $Id$
       , <h:outputText value="'#{evaluationMessages.saverubricgrading}'"/>);
   }
 </script>
-
 <!-- content... -->
 <div class="portletBody container-fluid">
 <h:form id="editTotalResults">
@@ -71,79 +78,15 @@ $Id$
   <!-- HEADINGS -->
   <%@ include file="/jsf/evaluation/evaluationHeadings.jsp" %>
 
-  <div class="page-header">
+  <h:panelGroup layout="block" styleClass="page-header">
     <h1>
-  	  <h:outputText value="#{evaluationMessages.part} #{questionScores.partName}#{evaluationMessages.column} #{evaluationMessages.question} #{questionScores.itemName} " escape="false"/>
-      <small>
-  	    <h:outputText value="(#{totalScores.assessmentName}) " escape="false"/>
-      </small>
+      <h:outputText value="#{evaluationMessages.part} #{questionScores.partName}#{evaluationMessages.column} #{evaluationMessages.question} #{questionScores.itemName} " escape="false"/>
+      <small><h:outputText value="(#{totalScores.assessmentName}) " escape="false"/></small>
     </h1>
-  </div>
-  
-  <!-- Per UX, for formatting -->
-  <div class="textBelowHeader">
-    <h:outputText value=""/>
-  </div>
-  
-  <h:outputText value="<ul class='navIntraTool actionToolbar' role='menu'>" escape="false"/>
-    <h:outputText value="<li role='menuitem' class='firstToolBarItem'><span>" escape="false"/>
+  </h:panelGroup>
 
-    <h:commandLink title="#{evaluationMessages.t_submissionStatus}" action="submissionStatus" immediate="true">
-      <h:outputText value="#{evaluationMessages.sub_status}" />
-      <f:param name="allSubmissions" value="true"/>
-      <f:actionListener
-        type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
-    </h:commandLink>
-
-    <h:outputText value="<li role='menuitem'><span>" escape="false"/>
-    <h:commandLink title="#{evaluationMessages.t_totalScores}" action="totalScores" immediate="true">
-    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
-    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
-      <h:outputText value="#{commonMessages.total_scores}" />
-    </h:commandLink>
-
-    <h:outputText value="</span><li role='menuitem'><span class='current'>" escape="false"/>
-  
-    <h:outputText value="#{evaluationMessages.q_view}" />
-
-    <h:outputText value="</span><li role='menuitem'><span>" escape="false" rendered="#{totalScores.firstItem ne ''}" /> 
-     
-	<h:commandLink title="#{evaluationMessages.t_histogram}" action="histogramScores" immediate="true"
-      rendered="#{totalScores.firstItem ne ''}" >
-      <h:outputText value="#{evaluationMessages.stat_view}" />
-      <f:param name="hasNav" value="true"/>
-      <f:actionListener
-        type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />
-    </h:commandLink>
-
-    <h:outputText value="</span><li role='menuitem'><span>" escape="false" rendered="#{totalScores.firstItem ne ''}" />   
-  
-	<h:commandLink title="#{evaluationMessages.t_itemAnalysis}" action="detailedStatistics" immediate="true"
-      rendered="#{totalScores.firstItem ne ''}" >
-      <h:outputText value="#{evaluationMessages.item_analysis}" />
-      <f:param name="hasNav" value="true"/>
-      <f:actionListener
-        type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />
-    </h:commandLink>
-
-    <h:outputText value="</span><li role='menuitem'><span>" escape="false" />
-    
-    <h:commandLink title="#{commonMessages.export_action}" action="exportResponses" immediate="true">
-      <h:outputText value="#{commonMessages.export_action}" />
-  	  <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ExportResponsesListener" />
-    </h:commandLink>
-    
-    <h:outputText value="</span><li role='menuitem'><span>" escape="false" rendered="#{totalScores.hasFileUpload}"/>
-
-    <h:commandLink title="#{evaluationMessages.t_title_download_file_submissions}" action="downloadFileSubmissions" immediate="true" rendered="#{totalScores.hasFileUpload}">
-      <h:outputText value="#{evaluationMessages.title_download_file_submissions}" />
-        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetQuestionScoreListener" />
-        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.DownloadFileSubmissionsListener" />
-    </h:commandLink>
-    
-  <h:outputText value="</span></li></ul>" escape="false"/>
-
-<br/>
+  <!-- EVALUATION SUBMENU -->
+  <%@ include file="/jsf/evaluation/evaluationSubmenu.jsp" %>
 
 <div class="tier1">
   <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>

@@ -35,8 +35,16 @@
         value="#{commonMessages.export_action}" /></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
+<script>
+  $(document).ready(function(){
+    // The current class is assigned using Javascript because we don't use facelets and the include directive does not support parameters.
+    var currentLink = $('#editTotalResults\\:exportResponsesMenuLink');
+    currentLink.addClass('current');
+    // Remove the link of the current option
+    currentLink.html(currentLink.find('a').text());
+  });
+</script>
  <div class="portletBody">
-
 <!-- content... -->
 <h:form id="editTotalResults">
   <h:inputHidden id="publishedId" value="#{totalScores.publishedId}" />
@@ -45,86 +53,16 @@
   <!-- HEADINGS -->
   <%@ include file="/jsf/evaluation/evaluationHeadings.jsp" %>
 
-  <h:panelGrid columns="1">
-  <h:panelGroup>
-  <f:verbatim><h3></f:verbatim>
-  	<h:outputText value="#{commonMessages.export_action}#{evaluationMessages.column} " escape="false"/>
-  <f:verbatim><span style="font-weight:normal !important;"></f:verbatim>
-  	<h:outputText value="#{exportResponses.assessmentName} " escape="false"/>
-  <f:verbatim></span></f:verbatim>
-  <f:verbatim></h3></f:verbatim>
+  <h:panelGroup layout="block" styleClass="page-header">
+    <h1>
+      <h:outputText value="#{commonMessages.export_action}#{evaluationMessages.column} " escape="false"/>
+      <small><h:outputText value="#{exportResponses.assessmentName} " escape="false"/></small>
+    </h1>
   </h:panelGroup>
-  </h:panelGrid>
 
-  <!-- Per UX, for formatting -->
-  <div class="textBelowHeader">
-    <h:outputText value=""/>
-  </div>
+  <!-- EVALUATION SUBMENU -->
+  <%@ include file="/jsf/evaluation/evaluationSubmenu.jsp" %>
 
-  <h:outputText value="<ul class='navIntraTool actionToolbar' role='menu'>" escape="false"/>
-    <h:outputText value="<li role='menuitem' class='firstToolBarItem'><span>" escape="false"/>
-    <h:commandLink title="#{evaluationMessages.t_submissionStatus}" action="submissionStatus" immediate="true">
-      <h:outputText value="#{evaluationMessages.sub_status}" />
-      <f:param name="allSubmissions" value="true"/>
-      <f:actionListener
-        type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
-    </h:commandLink>
-
-    <h:outputText value="</span><li role='menuitem'><span>" escape="false"/>
-    
-    <h:commandLink title="#{evaluationMessages.t_totalScores}" action="totalScores" immediate="true">
-    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
-    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
-      <h:outputText value="#{commonMessages.total_scores}" />
-    </h:commandLink>
-
-    <h:outputText value="</span><li role='menuitem'><span>" rendered="#{totalScores.firstItem ne ''}" escape="false" />
-    <h:commandLink title="#{evaluationMessages.t_questionScores}" action="questionScores" immediate="true"
-      rendered="#{totalScores.firstItem ne ''}" >
-      <h:outputText value="#{evaluationMessages.q_view}" />
-      <f:param name="allSubmissions" value="3"/>
-      <f:actionListener
-        type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetQuestionScoreListener" />
-      <f:actionListener
-        type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScorePagerListener" />
-      <f:actionListener
-        type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
-    </h:commandLink>
-
-    <h:outputText value="</span><li role='menuitem'><span>" rendered="#{totalScores.firstItem ne ''}" escape="false" />
-
-    <h:commandLink title="#{evaluationMessages.t_histogram}" action="histogramScores" immediate="true"
-      rendered="#{totalScores.firstItem ne ''}" >
-      <h:outputText value="#{evaluationMessages.stat_view}" />
-      <f:param name="hasNav" value="true"/>
-      <f:actionListener
-        type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />
-    </h:commandLink>
-
-    <h:outputText value="</span><li role='menuitem'><span>" rendered="#{totalScores.firstItem ne ''}" escape="false"/>
-
-    <h:commandLink title="#{evaluationMessages.t_itemAnalysis}" action="detailedStatistics" immediate="true"
-      rendered="#{totalScores.firstItem ne ''}" >
-      <h:outputText value="#{evaluationMessages.item_analysis}" />
-      <f:param name="hasNav" value="true"/>
-      <f:actionListener
-        type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />
-    </h:commandLink>
-
-    <h:outputText value="</span><li role='menuitem'><span class='current'>" escape="false" />
-    <h:outputText value="#{commonMessages.export_action}" />
-
-    <h:outputText value="</span><li role='menuitem'><span>" escape="false" rendered="#{totalScores.hasFileUpload}"/>
-   
-    <h:commandLink title="#{evaluationMessages.t_title_download_file_submissions}" action="downloadFileSubmissions" immediate="true" rendered="#{totalScores.hasFileUpload}">
-      <h:outputText value="#{evaluationMessages.title_download_file_submissions}" />
-        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetQuestionScoreListener" />
-        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.DownloadFileSubmissionsListener" />
-    </h:commandLink>
-
-  <h:outputText value="</span></li></ul>" escape="false"/>
-  
-<f:verbatim><br /></f:verbatim>  
 <div class="tier1">
 <h:panelGrid columns="1">
 <h:panelGroup>
