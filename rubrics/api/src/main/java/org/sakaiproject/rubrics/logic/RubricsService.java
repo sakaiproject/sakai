@@ -36,8 +36,9 @@ public interface RubricsService {
 
     public static final String REFERENCE_ROOT = Entity.SEPARATOR + "rubrics";
 
-    boolean hasAssociatedRubric(String toolId,
-                                String associatedToolItemId);
+    boolean hasAssociatedRubric(String toolId, String associatedToolItemId);
+
+    boolean hasAssociatedRubric(String toolId, String associatedToolItemId, String siteId);
 
     Optional<ToolItemRubricAssociation> getRubricAssociation(String toolId,
                                                              String associatedToolItemId) throws Exception;

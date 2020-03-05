@@ -45,10 +45,6 @@
             <artifactId>sakai-assignment-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.assignment</groupId>
-            <artifactId>sakai-assignment-bundles</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.sakaiproject.edu-services.gradebook</groupId>
             <artifactId>gradebook-service-api</artifactId>
         </dependency>

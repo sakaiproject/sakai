@@ -324,7 +324,7 @@ export class SakaiRubricCriteriaGrading extends RubricsElement {
     // Samigo a chance to build their form inputs properly.
     this._dispatchRatingChanged(this.criteria);
 
-    this.dispatchEvent(new CustomEvent("rubric-ratings-changed"));
+    this.dispatchEvent(new CustomEvent("rubric-ratings-changed", { bubbles: true, composed: true }));
     this.updateTotalPoints();
   }
 

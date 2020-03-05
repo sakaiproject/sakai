@@ -16,7 +16,6 @@
 
     <modules>
         <module>api</module>
-        <module>bundles</module>
         <module>impl</module>
         <module>tool</module>
     </modules>

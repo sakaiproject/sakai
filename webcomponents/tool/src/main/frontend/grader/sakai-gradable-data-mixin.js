@@ -17,9 +17,6 @@ let gradableDataMixin = Base => class extends Base {
 
           this.isGroupGradable = gradableData.gradable.access === "GROUP";
 
-          this.backToListLabel = gradableData.gradable.access === "GROUP"
-            ? this.i18n["back_to_group_list"] : this.i18n["back_to_user_list"];
-
           this.gradableTitle = gradableData.gradable.title;
 
           this.anonymousGrading = gradableData.gradable.anonymousGrading;
@@ -57,7 +54,7 @@ let gradableDataMixin = Base => class extends Base {
                 }
               });
 
-              this.originalSubmissions.forEach(s => s.grade = gradesData.grades[s.id]);
+              this.originalSubmissions.forEach(s => s.grade = gradesData.grades[s.id] );
 
               if (submissionId) {
                 this.submission = this.submissions.find(s => s.id === submissionId);
