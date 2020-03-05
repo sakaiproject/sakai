@@ -57,10 +57,15 @@ public class AnnouncementObserver implements Observer {
         }
     }
 
+    /*
+     * Utility method to generate the channel ID based on the event reference.
+     * Normal channel ID: "/announcement/channel/<siteID>/main"
+     * Admin Workspace channel ID: "/announcement/channel/!site/motd"
+     */
     private String getChannel(final Event event) {
         final String[] resourceSplitted = event.getResource().split("/");
-        final String site = resourceSplitted[3];
-        return "/announcement/channel/" + site + "/main";
+        final String site = "!admin".equals(resourceSplitted[3]) ? "!site" : resourceSplitted[3];
+        return "/announcement/channel/" + site + ("!site".equals(site) ? "/motd" : "/main");
     }
 
 }
