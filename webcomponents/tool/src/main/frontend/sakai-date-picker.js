@@ -7,6 +7,7 @@ class SakaiDatePicker extends SakaiElement {
 
     return {
       initialValue: { attribute: "initial-value", type : String },
+      parseFormat: { attribute: "parse-format", type: String },
     };
 
   }
@@ -15,6 +16,7 @@ class SakaiDatePicker extends SakaiElement {
 
     super();
 
+    this.parseFormat = "YYYY-MM-DDTHH:mm:ssZ";
     this.inputId = `date-picker-${Math.floor(Math.random() * Math.floor(1000))}`;
   }
 
@@ -24,12 +26,13 @@ class SakaiDatePicker extends SakaiElement {
       input: `#${this.inputId}`,
       useTime: 1,
       val: this.initialValue,
-      parseFormat: 'YYYY-MM-DDTHH:mm:ssZ',
+      parseFormat: this.parseFormat,
       onDateTimeSelected: (v) => this.fireEvent(v),
     });
   }
 
   render() {
+
     return html`
       <input id="${this.inputId}" type="text" />
       <div>${this.dateTime}</div>

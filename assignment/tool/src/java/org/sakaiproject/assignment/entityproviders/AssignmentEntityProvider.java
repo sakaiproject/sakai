@@ -48,6 +48,8 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
@@ -637,8 +639,12 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         final List<Reference> attachmentRefs = attachmentKeys.stream().map(k -> {
             FileItem item = (FileItem) params.get(k);
             try {
+                // make a set of properties to add for the new resource
+                ResourcePropertiesEdit props = contentHostingService.newResourceProperties();
+                props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, item.getName());
+                props.addProperty(ResourceProperties.PROP_DESCRIPTION, item.getName());
                 ContentResource cr = contentHostingService.addAttachmentResource(item.getName(),
-                    courseId, "Assignments", item.getContentType(), item.getInputStream(), null);
+                    courseId, "Assignments", item.getContentType(), item.getInputStream(), props);
 
                 return entityManager.newReference(cr.getReference());
             } catch (Exception e) {
