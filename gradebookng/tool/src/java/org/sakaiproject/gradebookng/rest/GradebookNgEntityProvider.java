@@ -266,8 +266,9 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		if (StringUtils.isEmpty(groupId)) {
 			// Start with the site users
 			recipients = site.getUsers();
-			// Remove the instructors
+			// Remove the instructors and TAs
 			recipients.removeAll(site.getUsersIsAllowed(Authz.PERMISSION_GRADE_ALL));
+			recipients.removeAll(site.getUsersIsAllowed(Authz.PERMISSION_GRADE_SECTION));
 		} else {
 			Group group = site.getGroup(groupId);
 			if (group == null) {
@@ -275,8 +276,9 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 			}
 			// Start with the group users
 			recipients = group.getUsers();
-			// Remove the instructors
+			// Remove the instructors and TAs
 			recipients.removeAll(group.getUsersIsAllowed(Authz.PERMISSION_GRADE_ALL));
+			recipients.removeAll(group.getUsersIsAllowed(Authz.PERMISSION_GRADE_SECTION));
 		}
 
 		List<GradeDefinition> grades
