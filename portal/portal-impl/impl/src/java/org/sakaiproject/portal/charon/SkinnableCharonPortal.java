@@ -1401,13 +1401,16 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		}
 
 		StringBuilder bodyonload = new StringBuilder();
+		String bodyclass = "Mrphs-container";
 		if (p != null)
 		{
 			String element = Web.escapeJavascript("Main" + p.getId());
 			bodyonload.append("setMainFrameHeight('" + element + "');");
+			bodyclass += " Mrphs-" + p.getToolId().replace(".","-");
 		}
 		bodyonload.append("setFocus(focus_path);");
 		req.setAttribute("sakai.html.body.onload", bodyonload.toString());
+		req.setAttribute("sakai.html.body.class", bodyclass.toString());
 
 		portalService.getRenderEngine(portalContext, req).setupForward(req, res, p, skin);
 	}
