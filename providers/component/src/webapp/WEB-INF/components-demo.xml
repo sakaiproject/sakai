@@ -23,7 +23,7 @@
 	</bean>
 	
 	<bean id="org.sakaiproject.authz.api.RoleProvider"
-		class="edu.amc.sakai.user.UserAttributeRoleProvider"
+		class="org.sakaiproject.unboundid.UserAttributeRoleProvider"
 		init-method="init">
 		<property name="userDirectoryService">
 			<ref bean="org.sakaiproject.user.api.UserDirectoryService"/>

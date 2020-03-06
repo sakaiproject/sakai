@@ -6,7 +6,7 @@ The directory layout is as follows:
 component    Contains the component which is deployed to the 
    servlet container and selects the providers.  As shipped,
    Sample providers are selected.  Sample configuration necessary
-   to use the jldap provider is included in the configuration files:
+   to use the unboundid provider is included in the configuration files:
    
 sample       Contains the sample providers.
 
