@@ -111,6 +111,7 @@ public class SeedSitesAndUsersJob implements Job {
 	private int numberOfInstructorsPerSite = 1;
 	private int numberOfGradebookItems = 20;
 	private String emailDomain = "mailinator.com";
+	private boolean useEidAsPassword;
 
 	private long repositorySize = 10485760;        //  10 MB
 	//private long repositorySize = 1073741824L;   //   1 GB
@@ -135,6 +136,7 @@ public class SeedSitesAndUsersJob implements Job {
 		numberOfInstructorsPerSite = serverConfigurationService.getInt("site.seed.instructors.per.site", 1);
 		numberOfGradebookItems = serverConfigurationService.getInt("site.seed.create.gradebookitems", 20);
 		emailDomain = serverConfigurationService.getString("site.seed.email.domain", "mailinator.com");
+		useEidAsPassword = serverConfigurationService.getBoolean("site.seed.eid.password", false);
 
 		try {
 	        repositorySize = Long.parseLong(serverConfigurationService.getString("site.seed.repository.size", "10485760"));
@@ -311,8 +313,9 @@ public class SeedSitesAndUsersJob implements Job {
 		User user = null;
 			String lastName = faker.name().lastName();
 			String eid = faker.numerify("#########");
+			String password = useEidAsPassword ? eid : faker.letterify("???????");
 			try {
-	            user = userDirectoryService.addUser(null, eid, faker.name().firstName(), lastName, eid + "@" + emailDomain, faker.letterify("???????"), userType, null);
+	            user = userDirectoryService.addUser(null, eid, faker.name().firstName(), lastName, eid + "@" + emailDomain, password, userType, null);
             } catch (UserIdInvalidException uiue) {
             	log.error("invalid userId: ", uiue);
             } catch (UserAlreadyDefinedException uade) {
