@@ -17,8 +17,6 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
     super();
 
-    this.debug = true;
-
     this.sumittedTextMode = false;
     this.rubricParams = new Map();
     this.graderOnLeft = this.getSetting("grader", "graderOnLeft");
@@ -148,18 +146,14 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
         <div><a class="user-list-link" href="${this.userListUrl}" title="${this.assignmentsI18n["nav.list"]}">${this.assignmentsI18n["nav.list"]}</a></div>
         <div>
           <a href="javascript:;" @click=${this.previous}><fa-icon size="2em" i-class="fas arrow-circle-left" path-prefix="/webcomponents/assets" style="vertical-align: middle;" /></a>
-          ${this.anonymousGrading ? html`
-            <span class="anonymous-grading-label">${this.assignmentsI18n['grading.anonymous.title']}</span>
-          ` : html`
-            <select aria-label="${this.i18n["student_selector_label"]}" @change=${this.studentSelected}>
-              ${this.submissions.map(s => html`<option value="${s.id}" .selected=${this.submission.id === s.id}>${s.groupId ? s.groupTitle : s.firstSubmitterName}</option>`)}
-            </select>
-            ${this.submission.showPhoto ? html`
-              <span class="profile-image">
-                <img src="/direct/profile/${this.submission.firstSubmitterId}/image/official?siteId=${portal.siteId}" alt="${this.submission.firstSubmitterName}${this.i18n["profile_image"]}"/>
-              </span>
-            ` : ""}
-          `}
+          <select aria-label="${this.i18n["student_selector_label"]}" @change=${this.studentSelected}>
+            ${this.submissions.map(s => html`<option value="${s.id}" .selected=${this.submission.id === s.id}>${s.groupId ? s.groupTitle : s.firstSubmitterName}</option>`)}
+          </select>
+          ${this.submission.showPhoto ? html`
+            <span class="profile-image">
+              <img src="/direct/profile/${this.submission.firstSubmitterId}/image/official?siteId=${portal.siteId}" alt="${this.submission.firstSubmitterName}${this.i18n["profile_image"]}"/>
+            </span>
+          ` : ""}
           <a href="javascript:;" @click=${this.next}><fa-icon size="2em" i-class="fas arrow-circle-right" path-prefix="/webcomponents/assets" style="vertical-align: middle;" /></a>
         </div>
         <div>${this.currentStudentInfo}</div>
@@ -354,11 +348,7 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
   renderSubmitter() {
 
     return html`
-      ${this.anonymousGrading
-        ? html`${this.assignmentsI18n['grading.anonymous.title']}`
-          : html`${this.submission.groupId
-              ? html`${this.submission.groupTitle}`
-                : html`${this.submission.firstSubmitterName}`}`}
+      ${this.submission.groupId ? html`${this.submission.groupTitle}` : html`${this.submission.firstSubmitterName}`}
     `;
   }
 
