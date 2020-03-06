@@ -1,5 +1,5 @@
 <!-- start: chef_assignments_student_view_grade.vm  -->
-#module("/rubrics-service/webcomponents/rubric-association-requirements.js")
+#rubricsRequirements
 <script>
     $(document).ready(function () {
         $("#accordion").accordion({

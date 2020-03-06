@@ -65,11 +65,8 @@ export class SakaiRubricStudentComment extends RubricsElement {
     if (!this.classList.contains("show-tooltip")) {
 
       this.classList.add('show-tooltip');
-
-      this.rubricsUtils.css(popover[0], {
-        'left': e.target.offsetLeft - 270 + "px",
-        'top': (e.target.offsetTop + e.target.offsetHeight/2 - popover.height()/2) + "px",
-      });
+      popover[0].style.left = e.target.offsetLeft - 270 + "px";
+      popover[0].style.top = (e.target.offsetTop + e.target.offsetHeight/2 - popover.height()/2) + "px";
       popover.show();
     } else {
       this.classList.remove('show-tooltip');

@@ -1,8 +1,8 @@
 <!-- start: chef_assignments_instructor_new_edit_assignment.vm  -->
-#module("/rubrics-service/webcomponents/rubric-association-requirements.js")
 #set( $H = '-' )
+#rubricsRequirements
 <!-- Initialize the Bootstrap-multiselect plugin: -->
-<script type="text/javascript">
+<script>
     $(document).ready(function() {
         $('#selectedGroups').multiselect({
             selectAllText: '$tlang.getString("asn.edit.selectall")',
@@ -19,7 +19,7 @@
         });
     });
 </script>
-<script type="text/javascript">
+<script>
 	#if($turnitin_forceSingleAttachment)
 		function forceSingleAttachment(checked) {
 			if(checked){
@@ -236,7 +236,7 @@
 				</p>
 			</div>
 
-			<script type="text/javascript">
+			<script>
 				localDatePicker({
 					input:'#visibledate',
 					useTime:1,
@@ -266,7 +266,7 @@
 				</p>
 			</div>
 
-			<script type="text/javascript">
+			<script>
 			      localDatePicker({
 			      	input:'#opendate',
 			      	useTime:1,
@@ -292,7 +292,7 @@
 				<input type="text" id="duedate" name="duedate" class="form-control datepicker" value="">
 			</div>
 
-			<script type="text/javascript">
+			<script>
 			      localDatePicker({
 			      	input:'#duedate',
 			      	useTime:1,
@@ -321,7 +321,7 @@
 				</p>
 			</div>
 
-			<script type="text/javascript">
+			<script>
 			      localDatePicker({
 			      	input:'#closedate',
 			      	useTime:1,
@@ -524,7 +524,7 @@
 				<input type="text" id="resubmit" name="resubmit" class="datepicker" value="">
 			</div>
 
-			<script type="text/javascript">
+			<script>
 			      localDatePicker({
 			      	input:'#resubmit',
 			      	useTime:1,

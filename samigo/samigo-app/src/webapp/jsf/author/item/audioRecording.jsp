@@ -33,6 +33,7 @@
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{authorMessages.item_display_author}"/></title>
       <script src="/samigo-app/js/authoring.js"></script>
+      <script src="/rubrics-service/webcomponents/sakai-rubrics-utils.js<h:outputText value="#{questionScores.CDNQuery}" />"></script>
       <script type="module" src="/rubrics-service/webcomponents/rubric-association-requirements.js<h:outputText value="#{itemauthor.CDNQuery}" />"></script>
       </head>
 <body onload="<%= request.getAttribute("html.body.onload") %>">

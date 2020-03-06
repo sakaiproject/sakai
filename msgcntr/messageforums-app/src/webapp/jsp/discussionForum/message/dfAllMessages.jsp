@@ -23,6 +23,7 @@
 <script src="/messageforums-tool/js/forum_movethread.js"></script>
 
 <script src="/messageforums-tool/js/sak-10625.js"></script>
+<script src="/rubrics-service/webcomponents/sakai-rubrics-utils.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 <script type="module" src="/rubrics-service/webcomponents/rubric-association-requirements.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 
 <!--jsp/discussionForum/message/dfAllMessages.jsp-->

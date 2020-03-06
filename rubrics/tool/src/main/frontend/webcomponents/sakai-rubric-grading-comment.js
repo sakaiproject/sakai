@@ -75,10 +75,8 @@ export class SakaiRubricGradingComment extends RubricsElement {
 
       var popover = $(`#criterion-editor-${this.criterion.id}-${this.randombit}`);
 
-      this.rubricsUtils.css(popover[0], {
-        'left': e.target.offsetLeft - 270 + "px",
-        'top': ((e.target.offsetTop + e.target.offsetHeight/2 + 20) - popover.height()/2) + "px",
-      });
+      popover[0].style.left = e.target.offsetLeft - 270 + "px";
+      popover[0].style.top = ((e.target.offsetTop + e.target.offsetHeight/2 + 20) - popover.height()/2) + "px";
 
       this.setupEditor();
 

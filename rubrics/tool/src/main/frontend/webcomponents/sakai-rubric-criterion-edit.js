@@ -93,13 +93,11 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
       this.classList.add("show-tooltip");
 
       var popover = $(`#edit_criterion_${this.criterion.id}`);
-      this.rubricsUtils.css(popover[0], {
-        'top': e.target.offsetTop + 20 + "px",
-        'left': (e.target.offsetLeft - popover.width()/2) + "px",
-      });
+      popover[0].style.top = e.target.offsetTop + 20 + "px";
+      popover[0].style.left = (e.target.offsetLeft - popover.width()/2) + "px";
+      popover.show();
 
       // and highlight the title
-      popover.show();
       titleinput.setSelectionRange(0, titleinput.value.length);
       titleinput.focus();
 
