@@ -5218,40 +5218,8 @@ public class AssignmentAction extends PagedResourceActionII {
     } // doView_submission_list_option
 
     public void doConfirm_submission(RunData data) {
-		//TODO remove unnecessary code
         SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-
-        ParameterParser params = data.getParameters();
-        String aReference = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
-        state.setAttribute(PREVIEW_SUBMISSION_ASSIGNMENT_REFERENCE, aReference);
-        Assignment a = getAssignment(aReference, "doPreview_submission", state);
-
-        String[] groupChoice = params.getStrings("selectedGroups");
-        if (groupChoice != null && ArrayUtils.isNotEmpty(groupChoice)) {
-            state.setAttribute(VIEW_SUBMISSION_GROUP, groupChoice[0]);
-        }
-
-        saveSubmitInputs(state, params);
-
-        // retrieve the submission text (as formatted text)
-        String text = processFormattedTextFromBrowser(state, params.getCleanString(VIEW_SUBMISSION_TEXT), true);
-        if (text == null) {
-            text = state.getAttribute(VIEW_SUBMISSION_TEXT) != null ? (String) state.getAttribute(VIEW_SUBMISSION_TEXT) : (String) state.getAttribute(PREVIEW_SUBMISSION_TEXT);
-        }
-        state.setAttribute(PREVIEW_SUBMISSION_TEXT, text);
-        state.setAttribute(VIEW_SUBMISSION_TEXT, text);
-
-        // assign the EULA attribute
-        String eulaAgreementYes = params.getString(SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT);
-        if(StringUtils.isEmpty(eulaAgreementYes)) {
-            eulaAgreementYes = "false";
-        }
-        state.setAttribute(SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT, eulaAgreementYes);
-
-        // get attachment input and generate alert message according to assignment submission type
-        checkSubmissionTextAttachmentInput(data, state, a, text);
-        state.setAttribute(PREVIEW_SUBMISSION_ATTACHMENTS, state.getAttribute(ATTACHMENTS));
-
+        doSave_submission(data);
         if (state.getAttribute(STATE_MESSAGE) == null) {
             state.setAttribute(STATE_MODE, MODE_STUDENT_CONFIRM_SUBMISSION);
         }

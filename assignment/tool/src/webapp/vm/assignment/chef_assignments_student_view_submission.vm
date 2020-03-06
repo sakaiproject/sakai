@@ -883,12 +883,7 @@ $(document).ready(function(){
 						<input type="button" name="cancel" accesskey="x" id="cancel" value="$tlang.getString("gen.don")" onclick="ASN_SVS.confirmDiscardOrSubmit( '$name_submission_text', $!new_attachments ); return false;" />
 					#else
 					 class="act">
-								#if ($submitted && $!dateSubmitted)
-									#set($name=$tlang.getString("resubmit"))
-								#else
-									#set($name=$tlang.getString("gen.subm3"))
-								#end
-								<input type="button" class="active" name="confirm" accesskey="s" id="confirm" value="$!name"
+								<input type="button" class="active" name="confirm" accesskey="s" id="confirm" value="$tlang.getString("gen.proceed")"
 									onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'confirm', null, null ); return false;" 
 								#if ($submitted && ($submissionType == 2 || $submissionType == 5) && !$!new_attachments && !$!newSingleUploadedFile && (!$!newSingleAttachmentList || $!newSingleAttachmentList.isEmpty()))
 									disabled="disabled"
