@@ -10,9 +10,10 @@ class SakaiSubmissionMessager extends SakaiElement {
 
     this.groups = [];
     this.recipientsToCheck = [];
-
+    this.i18n = {};
+    this.group = `/site/${portal.siteId}`;
     this.reset();
-    this.loadTranslations("submission-messager").then(t => { this.i18n = t; this.requestUpdate(); });
+    this.loadTranslations("submission-messager").then(t => this.i18n = t);
   }
 
   static get properties() {
@@ -30,6 +31,7 @@ class SakaiSubmissionMessager extends SakaiElement {
       validationError: String,
       recipientsToCheck: Array,
       sending: Boolean,
+      i18n: Object,
     };
   }
 
@@ -74,7 +76,7 @@ class SakaiSubmissionMessager extends SakaiElement {
             group-id="${this.groupId}"
             aria-labelledby="sm-group-selector-label-${this.assignmentId}"
             class="group-select"
-            @group-selected=${this.groupChanged}>
+            @group-selected=${this.groupSelected}>
           </sakai-group-picker>
         </div>
         <button @click=${this.listRecipients}>${this.i18n["show_recipients"]}</button>
@@ -112,10 +114,10 @@ class SakaiSubmissionMessager extends SakaiElement {
     this.maxScore = e.target.value;
   }
 
-  groupChanged(e) {
+  groupSelected(e) {
 
     this.recipientsToCheck = [];
-    this.group = e.detail.groupId;
+    this.group = e.detail.value;
   }
 
   reset() {
@@ -136,7 +138,7 @@ class SakaiSubmissionMessager extends SakaiElement {
 
     let formData = new FormData();
     formData.set("action", this.action);
-    formData.set("groupId", this.group || "");
+    formData.set("groupRef", this.group || "");
     formData.set("minScore", this.minScore || "");
     formData.set("maxScore", this.maxScore || "");
     formData.set("siteId", portal.siteId);
@@ -147,11 +149,6 @@ class SakaiSubmissionMessager extends SakaiElement {
   }
 
   listRecipients(e) {
-
-    if (!this.subject || !this.body) {
-      this.validationError = "You need to supply a subject and body!";
-      return;
-    }
 
     let formData = this.getFormData();
 
