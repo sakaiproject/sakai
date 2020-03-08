@@ -510,7 +510,10 @@ public class AssignmentToolUtils {
         String submissionId = AssignmentReferenceReckoner.reckoner().reference(submissionRef).reckon().getId();
 
         try {
-            String gradebookUid = toolManager.getCurrentPlacement().getContext();
+            String gradebookUid = (String) options.get("siteId");
+            if (gradebookUid == null) {
+                gradebookUid = toolManager.getCurrentPlacement().getContext();
+            }
             if (gradebookService.isGradebookDefined(gradebookUid) && gradebookService.currentUserHasGradingPerm(gradebookUid)) {
                 boolean isExternalAssignmentDefined = gradebookExternalAssessmentService.isExternalAssignmentDefined(gradebookUid, assignmentRef);
                 boolean isExternalAssociateAssignmentDefined = gradebookExternalAssessmentService.isExternalAssignmentDefined(gradebookUid, associateGradebookAssignment);
