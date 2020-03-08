@@ -48,6 +48,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 
@@ -88,54 +89,67 @@ public class PermissionsEntityProvider extends AbstractEntityProvider implements
             throw new SecurityException("This action (getPerms) is not allowed.");
         }
 
-        Site site = getSiteById(view.getEntityReference().getId());
+        String groupRef = (String) params.get("ref");
 
-        Set<Role> roles = site.getRoles();
-        Map<String, Set<String>> on = new HashMap<>();
-        for (Role role : roles) {
-            Set<String> functions = role.getAllowedFunctions();
-            Set<String> filteredFunctions = new TreeSet<>();
-            if (tool != null) {
-                for (String function : functions) {
-                    if (function.startsWith(tool)) {
-                        filteredFunctions.add(function);
+        try {
+            AuthzGroup authzGroup = authzGroupService.getAuthzGroup(groupRef);
+
+            Site site = getSiteById(view.getEntityReference().getId());
+
+            Set<Role> roles = authzGroup.getRoles();
+            Map<String, Set<String>> on = new HashMap<>();
+            for (Role role : roles) {
+                Set<String> functions = role.getAllowedFunctions();
+                Set<String> filteredFunctions = new TreeSet<>();
+                if (tool != null) {
+                    for (String function : functions) {
+                        if (function.startsWith(tool)) {
+                            filteredFunctions.add(function);
+                        }
                     }
+                } else {
+                    filteredFunctions = functions;
                 }
-            } else {
-                filteredFunctions = functions;
+                on.put(role.getId(), filteredFunctions);
             }
-            on.put(role.getId(), filteredFunctions);
+
+            Map<String, String> roleNameMappings
+                = roles.stream().collect(
+                    Collectors.toMap(Role::getId, r -> authzGroupService.getRoleName(r.getId())));
+
+
+            List<String> available = functionManager.getRegisteredFunctions(tool);
+            Map<String, Object> data = new HashMap<>();
+            data.put("on", on);
+            data.put("available", available);
+            data.put("roleNameMappings", roleNameMappings);
+
+            List<PermissionGroup> groups = site.getGroups().stream().map(PermissionGroup::new).collect(Collectors.toList());
+            data.put("groups", groups);
+
+            return new ActionReturn(data, null, Formats.JSON);
+        } catch (GroupNotDefinedException gnde) {
+            throw new IllegalArgumentException("No realm defined for ref " + groupRef + ".");
         }
-
-        Map<String, String> roleNameMappings
-            = roles.stream().collect(
-                Collectors.toMap(Role::getId, r -> authzGroupService.getRoleName(r.getId())));
-
-        List<String> available = functionManager.getRegisteredFunctions(tool);
-        Map<String, Object> data = new HashMap<>();
-        data.put("on", on);
-        data.put("available", available);
-        data.put("roleNameMappings", roleNameMappings);
-
-        return new ActionReturn(data, null, Formats.JSON);
     }
 
     @EntityCustomAction(action="setPerms", viewKey=EntityView.VIEW_EDIT)
-    public String handleSet(EntityReference ref, Map<String, Object> params) {
+    public String handleSet(EntityReference entityRef, Map<String, Object> params) {
 
         String userId = developerHelperService.getCurrentUserId();
         if (userId == null) {
             throw new SecurityException(
             "This action (setPerms) is not accessible to anon and there is no current user.");
         }
-        String siteId = ref.getId();
+        String siteId = entityRef.getId();
         Site site = getSiteById(siteId);
         List<String> userMutableFunctions = functionManager.getRegisteredUserMutableFunctions();
-        boolean admin = developerHelperService.isUserAdmin(developerHelperService
-                .getCurrentUserReference());
+        boolean admin = developerHelperService.isUserAdmin(developerHelperService.getCurrentUserReference());
+
+        String groupRef = (String) params.get("ref");
 
         try {
-            AuthzGroup authzGroup = authzGroupService.getAuthzGroup(site.getReference());
+            AuthzGroup authzGroup = authzGroupService.getAuthzGroup(groupRef);
             boolean changed = false;
             for (String name : params.keySet()) {
                 if (!name.contains(":")) {
@@ -173,7 +187,7 @@ public class PermissionsEntityProvider extends AbstractEntityProvider implements
                 }
             }
         } catch (GroupNotDefinedException gnde) {
-            throw new IllegalArgumentException("No realm defined for site (" + siteId + ").");
+            throw new IllegalArgumentException("No realm defined for ref " + groupRef + ".");
         }
         return "SUCCESS";
     }
@@ -187,5 +201,17 @@ public class PermissionsEntityProvider extends AbstractEntityProvider implements
             throw new IllegalArgumentException("Cannot find site by siteId: " + siteId, e);
         }
         return site;
+    }
+
+    public class PermissionGroup {
+
+        public String reference;
+        public String title;
+
+        public PermissionGroup(Group group) {
+
+            this.reference = group.getReference();
+            this.title = group.getTitle();
+        }
     }
 }

@@ -1,5 +1,6 @@
 import {SakaiElement} from "./sakai-element.js";
 import {html} from "./assets/lit-element/lit-element.js";
+import "./sakai-group-picker.js";
 
 class SakaiPermissions extends SakaiElement {
 
@@ -11,6 +12,8 @@ class SakaiPermissions extends SakaiElement {
     this.on;
     this.roles;
     this.roleNameMappings;
+    this.groups = [];
+    this.groupReference = `/site/${portal.siteId}`;
 
     this.loadTranslations({bundle: "permissions"}).then(i18n => {
       this.loadTranslations({bundle: this.tool}).then(tool => {
@@ -24,8 +27,9 @@ class SakaiPermissions extends SakaiElement {
   static get properties() {
 
     return {
-      tool: {type: String},
+      tool: String,
       roles: {type: Array},
+      groups: Array,
     };
   }
 
@@ -50,6 +54,12 @@ class SakaiPermissions extends SakaiElement {
     if (this.roles) {
       return html`
 
+        ${this.groups ? html`
+          <div>
+            <label for="permissons-group-picker">${this.i18n["per.lis.selectgrp"]}</label>
+            <sakai-group-picker id="permissions-group-picker" groups="${JSON.stringify(this.groups)}" @group-selected=${this.groupSelected} />
+          </div>
+        ` : ""}
         <div class="permissions-undo-button"" style="float:left;padding-top:.5em">
           <input type="button" value="${this.i18n["per.lis.restoredef"]}" aria-label="${this.i18n["undo"]}" @click=${this.resetPermissions} />
         </div>
@@ -93,12 +103,13 @@ class SakaiPermissions extends SakaiElement {
 
   loadPermissions() {
 
-    fetch(`/direct/permissions/${portal.siteId}/getPerms/${this.tool}.json`, {cache: "no-cache", credentials: "same-origin"})
+    fetch(`/direct/permissions/${portal.siteId}/getPerms/${this.tool}.json?ref=${this.groupReference}`, {cache: "no-cache", credentials: "same-origin"})
       .then(res => res.json() )
       .then(data => {
 
         this.on = data.on;
         this.available = data.available;
+        this.groups = data.groups;
         this.roles = Object.keys(this.on);
         this.roleNameMappings = data.roleNameMappings;
       })
@@ -111,7 +122,7 @@ class SakaiPermissions extends SakaiElement {
 
     const boxes = document.querySelectorAll(`#${this.tool}-permissions-table input[type="checkbox"]`);
     const myData = {};
-    const params = Array.from(boxes).reduce((acc,b) => {
+    const params = `ref=${this.groupReference}&` + Array.from(boxes).reduce((acc,b) => {
 
       if (b.checked) {
         return acc + `${b.id}=true&`;
@@ -192,6 +203,12 @@ class SakaiPermissions extends SakaiElement {
       $(".permissions-table input").not('[disabled]').prop("checked", false).change();
       e.preventDefault();
     });
+  }
+
+  groupSelected(e) {
+
+    this.groupReference = e.detail.value;
+    this.loadPermissions();
   }
 }
 
