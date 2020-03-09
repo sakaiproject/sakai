@@ -94,6 +94,7 @@ import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.comparator.GroupTitleComparator;
 
 /**
  * ListItem
@@ -146,17 +147,8 @@ public class ListItem
 	private static SecurityService securityService  = ComponentManager.get(SecurityService.class);
 	private static final org.sakaiproject.tool.api.ToolManager toolManager = (org.sakaiproject.tool.api.ToolManager) ComponentManager.get(org.sakaiproject.tool.api.ToolManager.class.getCanonicalName());
 
-	/** 
-	 ** Comparator for sorting Group objects
-	 **/
-	private static class GroupComparator implements Comparator {
-		public int compare(Object o1, Object o2) {
-			return ((Group)o1).getTitle().compareToIgnoreCase( ((Group)o2).getTitle() );
-		}
-	}
-	
 	// sort groups before display
-	private static GroupComparator groupComparator = new GroupComparator();
+	private static GroupTitleComparator groupComparator = new GroupTitleComparator();
 	
 	/**
 	 * @param entity

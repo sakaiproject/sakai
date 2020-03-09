@@ -52,6 +52,7 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.Web;
+import org.sakaiproject.util.comparator.ToolTitleComparator;
 
 import lombok.extern.slf4j.Slf4j;
 import uk.org.ponder.util.UniversalRuntimeException;
@@ -256,7 +257,7 @@ public class SitePageEditHandler {
             multiPlacementToolIds.add(items[i]);
         }
      
-        SortedIterator i = new SortedIterator(toolRegistrations.iterator(), new ToolComparator());
+        SortedIterator i = new SortedIterator(toolRegistrations.iterator(), new ToolTitleComparator());
         for (; i.hasNext();)
         {
         	Tool tr = (Tool) i.next();
@@ -817,36 +818,6 @@ public class SitePageEditHandler {
 
         saveSite(site);
     }
-    
-    
-    /**
-     * ** Copied from SiteAction.java.. should be in a common place such as util?
-     * 
-     * @author joshuaryan
-     *
-     */
-    private class ToolComparator implements Comparator<Tool>
-    {    
-        /**
-        * implementing the Comparator compare function
-        * @param o1 The first object
-        * @param o2 The second object
-        * @return The compare result. 1 is o1 < o2; 0 is o1.equals(o2); -1 otherwise
-        */
-        public int compare (Tool o1, Tool o2)
-        {
-            try {
-                return o1.getTitle().compareTo(o2.getTitle());
-            }
-            catch (Exception e)
-            {
-            }
-            return -1;
-            
-        }    // compare
-        
-    } //ToolComparator    
-
 
     /**
      * Is the current user allowed to edit the title of the page.
