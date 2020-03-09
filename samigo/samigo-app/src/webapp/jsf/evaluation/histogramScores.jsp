@@ -379,8 +379,44 @@ $Id$
 
               <h:dataTable columnClasses="stats-answers" styleClass="table panel-body stats-bod stats-bar"
                 value="#{item.histogramBars}" var="bar"
-                rendered="#{item.questionType == '8' or item.questionType == '9' or item.questionType == '11' or item.questionType == '14' or item.questionType == '16'}">
+                rendered="#{item.questionType == '8'}">
                 <!-- FILL_IN_BLANK (8) -->
+                <h:column>
+                  <f:facet name="header">
+                    <h:outputText value="#{evaluationMessages.stats_ans_opt}" />
+                  </f:facet>
+                  <h:panelGroup styleClass="answer-bar-label" layout="block">
+                    <h:outputText value="#{bar.label}" escape="true">
+                      <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter" />
+                    </h:outputText>
+                  </h:panelGroup>
+                </h:column>
+                <h:column>
+                  <f:facet name="header">
+                    <h:outputText value="#{evaluationMessages.stats_num_correct_responses}" />
+                  </f:facet>
+                  <h:panelGroup>
+                    <span class="progress-num">
+                      <h:outputText value="#{bar.numStudentsText}" />
+                    </span>
+                    <div class="progress-stat">
+                      <h:outputText value="<div class=\" progress-bar progress-bar-success\" role=\"progressbar\"
+                        aria-valuenow=\"#{bar.columnHeight}\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width:
+                        #{bar.columnHeight}%;\">"
+                        escape="false">
+                      </h:outputText>
+                      &nbsp;
+                    </div>
+                    <div class="num-students-text hide">
+                      <h:outputText value=" #{bar.numStudentsText}" />
+                    </div>
+                  </h:panelGroup>
+                </h:column>
+              </h:dataTable>
+
+              <h:dataTable columnClasses="stats-answers" styleClass="table panel-body stats-bod stats-bar"
+                value="#{item.histogramBars}" var="bar"
+                rendered="#{item.questionType == '9' or item.questionType == '11' or item.questionType == '14' or item.questionType == '16'}">
                 <!-- MATCHING (9) -->
                 <!-- FILL_IN_NUMERIC (11) -->
                 <!-- EXTENDED_MATCHING_ITEMS (14) -->
