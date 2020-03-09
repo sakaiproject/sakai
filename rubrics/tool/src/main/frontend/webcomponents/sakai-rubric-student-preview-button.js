@@ -27,7 +27,7 @@ export class SakaiRubricStudentPreviewButton extends RubricsElement {
 
   set token(newValue) {
 
-    this.i18nPromise.then(r => this.rubricsUtils.initLightbox(newValue, r));
+    this.i18nPromise.then(r => this.initLightbox(newValue, r));
     this._token = "Bearer " + newValue;
   }
 
@@ -73,7 +73,7 @@ export class SakaiRubricStudentPreviewButton extends RubricsElement {
 
     e.preventDefault();
 
-    this.rubricsUtils.showRubric(this.rubricId);
+    this.showRubricLightbox(this.rubricId);
     return false;
   }
 }

@@ -91,7 +91,6 @@ export class SakaiItemDelete extends RubricsElement {
     if (!this.classList.contains("show-tooltip")) {
       this.closeOpen();
       this.popoverOpen = "true";
-      var triggerPosition = this.rubricsUtils.altOffset(e.target);
 
       this.classList.add("show-tooltip");
 
@@ -99,10 +98,8 @@ export class SakaiItemDelete extends RubricsElement {
 
       var target = this.querySelector(".fa-times");
 
-      this.rubricsUtils.css(popover[0], {
-        'left': target.offsetLeft - 280 + "px",
-        'top': (target.offsetTop - this.offsetHeight*2 - 10) + "px",
-      });
+      popover[0].style.left = target.offsetLeft - 280 + "px";
+      popover[0].style.top = (target.offsetTop - this.offsetHeight*2 - 10) + "px";
 
       $('.btn-danger').focus();
 

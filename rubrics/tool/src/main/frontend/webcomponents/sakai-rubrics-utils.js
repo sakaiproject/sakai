@@ -1,113 +1,32 @@
-var rubricsUtils = {
-  // --------------- Plain JS helper methods [to avoid relying on jQuery]
-  // replaces $.css()
-  css(el, styles) {
+var rubrics = window.top.rubrics || {};
+rubrics.utils = rubrics.utils || {
 
-    for (var property in styles) {
-      el.style[property] = styles[property];
-    }
-  },
-
-  // replaces $.offset()
-  altOffset(el) {
-
-    var rect = el.getBoundingClientRect(),
-    scrollLeft = window.pageXOffset || document.documentElement.scrollLeft,
-    scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    return { top: rect.top + scrollTop, left: rect.left + scrollLeft }
-  },
-
-  // replaces $.prop(), $.attr()
-  addAttr(els, attr, attrval) {
-
-    for (var i = els.length - 1; i >= 0; i--) {
-      els[i].setAttribute(attr, attrval);
-    }
-  },
-
-  removeAttr(els, attr) {
-
-    for (var i = els.length - 1; i >= 0; i--) {
-      els[i].removeAttribute(attr);
-    }
-  },
-
-  // clone an object
-  cloneObject(obj) {
-
-    if (obj === null || typeof obj !== "object") {
-      return obj;
-    }
- 
-    var temp = obj.constructor(); // give temp the original obj's constructor
-    for (var key in obj) {
-      temp[key] = cloneObject(obj[key]);
-    }
- 
-    return temp;
-  },
-
-  toCamelCase(str) {
-
-    return str
-      .replace(/\-/g, " ")
-      .replace(/\s(.)/g, ($1) => { return $1.toUpperCase(); } )
-      .replace(/\s/g, "")
-      .replace(/^(.)/, ($1) => { return $1.toLowerCase(); } );
-  },
-
-  // get high low values from objects in array
-  getHighLow(myArray, property) {
-
-    var lowest = Number.POSITIVE_INFINITY;
-    var highest = Number.NEGATIVE_INFINITY;
-    var tmp;
-
-    for (var i=myArray.length-1; i>=0; i--) {
-      tmp = myArray[i][property];
-      if (tmp < lowest) lowest = tmp;
-      if (tmp > highest) highest = tmp;
-    }
-
-    return {
-      high: highest,
-      low: lowest
-    }
-  },
-
-  // appends HTML string as node
-  appendStringAsNodes(element, html) {
-
-    var frag = document.createDocumentFragment(),
-        tmp = document.createElement("body"), child;
-    tmp.innerHTML = html;
-    // Append elements in a loop to a DocumentFragment, so that the browser does
-    // not re-render the document for each node
-    while (child = tmp.firstChild) {
-        frag.appendChild(child);
-    }
-    element.appendChild(frag); // Now, append all elements at once
-    frag = tmp = null;
-  },
-
-  langCode: null,
   lightbox: null,
-  windowRef: window!=window.top ? window.top : window,
+  windowRef: window != window.top ? window.top : window,
 
   initLightbox(token, i18n) {
 
-    if (rubricsUtils.lightbox) {
+    if (rubrics.utils.lightbox) {
       return;
     }
 
-    $(rubricsUtils.windowRef.document.body).on("click", ".rubrics-lightbox a", (e) => {
-      e.preventDefault();
-      rubricsUtils.closeLightbox();
-    });
+    var scrollTop = rubrics.utils.windowRef.pageYOffset || rubrics.utils.windowRef.document.documentElement.scrollTop;
 
-    var scrollTop = rubricsUtils.windowRef.pageYOffset || rubricsUtils.windowRef.document.documentElement.scrollTop;
+    // appends HTML string as node
+    const appendStringAsNodes = function (element, html) {
 
-    this.appendStringAsNodes(rubricsUtils.windowRef.document.body, `
+      var frag = document.createDocumentFragment(), tmp = document.createElement("body"), child;
+      tmp.innerHTML = html;
+      // Append elements in a loop to a DocumentFragment, so that the browser does
+      // not re-render the document for each node
+      while (child = tmp.firstChild) {
+          frag.appendChild(child);
+      }
+      element.appendChild(frag); // Now, append all elements at once
+      frag = tmp = null;
+    };
+
+    appendStringAsNodes(rubrics.utils.windowRef.document.body, `
       <div class="rubrics-lightbox" tabindex="0" style="display:none">
         <div class="container">
           <a href="#" aria-label="${i18n["close_dialog"]}">&times;</a>
@@ -116,12 +35,18 @@ var rubricsUtils = {
       </div>
     `);
 
-    rubricsUtils.lightbox = $(".rubrics-lightbox", rubricsUtils.windowRef.document);
+    rubrics.utils.windowRef.document.body.querySelector(".rubrics-lightbox a").addEventListener("click", e => {
+
+      e.preventDefault();
+      rubrics.utils.closeLightbox();
+    });
+
+    rubrics.utils.lightbox = rubrics.utils.windowRef.document.querySelector(".rubrics-lightbox");
   },
 
   closeLightbox() {
 
-    var el = $("sakai-rubric-student", rubricsUtils.windowRef.document)[0];
+    var el = rubrics.utils.windowRef.document.querySelector("sakai-rubric-student");
 
     el.removeAttribute("rubric-id");
     el.removeAttribute("preview");
@@ -130,20 +55,20 @@ var rubricsUtils = {
     el.removeAttribute("evaluated-item-id");
     el.removeAttribute("instructor");
 
-    this.css(rubricsUtils.lightbox[0], {"display": "none"});
-    this.css(rubricsUtils.windowRef.document.body, {"overflow": "auto"});
+    rubrics.utils.lightbox.style.display = "none";
+    rubrics.utils.windowRef.document.body.style.overflow = "auto";
   },
 
   showRubric(id, attributes, launchingElement) {
 
-    this.css(rubricsUtils.windowRef.document.body, {"overflow": "hidden"});
-    var scrollTop = rubricsUtils.windowRef.pageYOffset || rubricsUtils.windowRef.document.documentElement.scrollTop;
+    rubrics.utils.windowRef.document.body.style.overflow = "hidden";
+    var scrollTop = rubrics.utils.windowRef.pageYOffset || rubrics.utils.windowRef.document.documentElement.scrollTop;
 
-    this.css(rubricsUtils.lightbox[0], {height: rubricsUtils.windowRef.window.innerHeight + "px"
-                                          , width: rubricsUtils.windowRef.window.innerWidth + "px"
-                                          , top: scrollTop + "px"})
+    rubrics.utils.lightbox.style.height = rubrics.utils.windowRef.window.innerHeight + "px";
+    rubrics.utils.lightbox.style.width = rubrics.utils.windowRef.window.innerWidth + "px";
+    rubrics.utils.lightbox.style.top = scrollTop + "px";
 
-    var el = $("sakai-rubric-student", rubricsUtils.windowRef.document)[0];
+    var el = rubrics.utils.lightbox.querySelector("sakai-rubric-student");
 
     if (!attributes) {
       el.setAttribute("rubric-id", id);
@@ -160,17 +85,18 @@ var rubricsUtils = {
       el.setAttribute("evaluated-item-id", attributes["evaluated-item-id"]);
       el.setAttribute("instructor", attributes["instructor"]);
     }
-    this.css(rubricsUtils.lightbox[0], {"display": "block"});
-    rubricsUtils.lightbox.focus();
-    rubricsUtils.lightbox.keydown(e => {
+    rubrics.utils.lightbox.style.display = "block";
+    rubrics.utils.lightbox.focus();
+    rubrics.utils.lightbox.addEventListener("keydown", e => {
+
       if (e.keyCode === 27) {
-        rubricsUtils.closeLightbox();
+        rubrics.utils.closeLightbox();
         if (launchingElement) {
           launchingElement.focus();
         }
       }
-    });
+    }, { once: true });
   },
 };
 
-export {rubricsUtils};
+//export {rubricsUtils};

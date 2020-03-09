@@ -37,7 +37,7 @@ class SakaiRubricStudentButton extends RubricsElement {
 
   set token(newValue) {
 
-    this.i18nPromise.then(r => this.rubricsUtils.initLightbox(newValue, r));
+    this.i18nPromise.then(r => this.initLightbox(newValue, r));
     this._token = newValue;
   }
 
@@ -51,7 +51,7 @@ class SakaiRubricStudentButton extends RubricsElement {
   }
 
   showRubric(e) {
-    this.rubricsUtils.showRubric(undefined, {"tool-id": this.toolId, "entity-id": this.entityId, "evaluated-item-id": this.evaluatedItemId, "instructor": this.instructor}, e.target);
+    this.showRubricLightbox(undefined, {"tool-id": this.toolId, "entity-id": this.entityId, "evaluated-item-id": this.evaluatedItemId, "instructor": this.instructor}, e.target);
   }
 
   setHidden() {
