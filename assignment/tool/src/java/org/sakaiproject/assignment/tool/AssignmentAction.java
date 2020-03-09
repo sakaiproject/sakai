@@ -2031,19 +2031,19 @@ public class AssignmentAction extends PagedResourceActionII {
                 context.put("returnedFeedback", Boolean.TRUE);
                 state.removeAttribute(RETURNED_FEEDBACK);
             }
+            if (assignment.getContentReview()) {
+                context.put("plagiarismStudentPreview", state.getAttribute("plagiarismStudentPreview"));
+                context.put("plagiarismFileTypes", state.getAttribute("plagiarismFileTypes"));
+                context.put("plagiarismFileSize", state.getAttribute("plagiarismFileSize"));
+                context.put("plagiarismNote", state.getAttribute("plagiarismNote"));
+                context.put("name_plagiarism_eula_agreement", SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT);
+                context.put("value_plagiarism_eula_agreement", state.getAttribute(SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT));
+                context.put("plagiarismEULALink", state.getAttribute("eulaServiceLink"));
+                context.put("name_check_plagiarism_eula_agreement", SUBMISSION_REVIEW_CHECK_SERVICE_EULA_AGREEMENT);
+            }
         }
 
         context.put("text", state.getAttribute(PREVIEW_SUBMISSION_TEXT));
-        if(assignment.getContentReview()) {
-	        	context.put("plagiarismStudentPreview", state.getAttribute("plagiarismStudentPreview"));
-	        	context.put("plagiarismFileTypes", state.getAttribute("plagiarismFileTypes"));
-	        	context.put("plagiarismFileSize", state.getAttribute("plagiarismFileSize"));
-	        	context.put("plagiarismNote", state.getAttribute("plagiarismNote"));
-	        	context.put("name_plagiarism_eula_agreement", SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT);
-	        	context.put("value_plagiarism_eula_agreement", state.getAttribute(SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT));
-	        	context.put("plagiarismEULALink", state.getAttribute("eulaServiceLink"));
-	        	context.put("name_check_plagiarism_eula_agreement", SUBMISSION_REVIEW_CHECK_SERVICE_EULA_AGREEMENT);
-        }
         Map<String, Reference> submissionAttachmentReferences = new HashMap<>();
         stripInvisibleAttachments(state.getAttribute(PREVIEW_SUBMISSION_ATTACHMENTS)).forEach(r -> submissionAttachmentReferences.put(r.getId(), r));
         context.put("submissionAttachmentReferences", submissionAttachmentReferences);
@@ -2122,19 +2122,19 @@ public class AssignmentAction extends PagedResourceActionII {
                 context.put("returnedFeedback", Boolean.TRUE);
                 state.removeAttribute(RETURNED_FEEDBACK);
             }
+            if (assignment.getContentReview()) {
+                context.put("plagiarismStudentPreview", state.getAttribute("plagiarismStudentPreview"));
+                context.put("plagiarismFileTypes", state.getAttribute("plagiarismFileTypes"));
+                context.put("plagiarismFileSize", state.getAttribute("plagiarismFileSize"));
+                context.put("plagiarismNote", state.getAttribute("plagiarismNote"));
+                context.put("name_plagiarism_eula_agreement", SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT);
+                context.put("value_plagiarism_eula_agreement", state.getAttribute(SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT));
+                context.put("plagiarismEULALink", state.getAttribute("eulaServiceLink"));
+                context.put("name_check_plagiarism_eula_agreement", SUBMISSION_REVIEW_CHECK_SERVICE_EULA_AGREEMENT);
+            }
         }
 
         context.put("text", state.getAttribute(PREVIEW_SUBMISSION_TEXT));
-        if(assignment.getContentReview()) {
-	        	context.put("plagiarismStudentPreview", state.getAttribute("plagiarismStudentPreview"));
-	        	context.put("plagiarismFileTypes", state.getAttribute("plagiarismFileTypes"));
-	        	context.put("plagiarismFileSize", state.getAttribute("plagiarismFileSize"));
-	        	context.put("plagiarismNote", state.getAttribute("plagiarismNote"));
-	        	context.put("name_plagiarism_eula_agreement", SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT);
-	        	context.put("value_plagiarism_eula_agreement", state.getAttribute(SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT));
-	        	context.put("plagiarismEULALink", state.getAttribute("eulaServiceLink"));
-	        	context.put("name_check_plagiarism_eula_agreement", SUBMISSION_REVIEW_CHECK_SERVICE_EULA_AGREEMENT);
-        }
 
         Map<String, Reference> submissionAttachmentReferences = new HashMap<>();
         stripInvisibleAttachments(state.getAttribute(PREVIEW_SUBMISSION_ATTACHMENTS)).forEach(r -> submissionAttachmentReferences.put(r.getId(), r));
@@ -10168,27 +10168,29 @@ public class AssignmentAction extends PagedResourceActionII {
             // Restrict file picker configuration if using content-review (Turnitin):
             String assignmentRef = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
             assignment = getAssignment(assignmentRef, "doAttachments", state);
-            assignmentUser = userDirectoryService.getCurrentUser().getDisplayName();
-            if (assignment.getContentReview()) {
-                state.setAttribute(FilePickerHelper.FILE_PICKER_MAX_ATTACHMENTS, FilePickerHelper.CARDINALITY_MULTIPLE);
-                state.setAttribute(FilePickerHelper.FILE_PICKER_SHOW_URL, Boolean.FALSE);
+            if (assignment != null) {
+                assignmentUser = userDirectoryService.getCurrentUser().getDisplayName();
+                if (assignment.getContentReview()) {
+                    state.setAttribute(FilePickerHelper.FILE_PICKER_MAX_ATTACHMENTS, FilePickerHelper.CARDINALITY_MULTIPLE);
+                    state.setAttribute(FilePickerHelper.FILE_PICKER_SHOW_URL, Boolean.FALSE);
+                }
+
+                if (assignment.getTypeOfSubmission() == Assignment.SubmissionType.SINGLE_ATTACHMENT_SUBMISSION) {
+                    singleAttachment = true;
+                }
+
+                // need also to upload local file if any
+                doAttachUpload(data, false);
+
+                // TODO: file picker to save in dropbox? -ggolden
+                // User[] users = { userDirectoryService.getCurrentUser() };
+                // state.setAttribute(ResourcesAction.STATE_SAVE_ATTACHMENT_IN_DROPBOX, users);
+
+                // Always omit inline attachments. Even if content-review is not enabled,
+                // this could be a resubmission to an assignment that was previously content-review enabled,
+                // in which case the file will be present and should be omitted.
+                omitInlineAttachments = true;
             }
-
-            if (assignment.getTypeOfSubmission() == Assignment.SubmissionType.SINGLE_ATTACHMENT_SUBMISSION) {
-                singleAttachment = true;
-            }
-
-            // need also to upload local file if any
-            doAttachUpload(data, false);
-
-            // TODO: file picker to save in dropbox? -ggolden
-            // User[] users = { userDirectoryService.getCurrentUser() };
-            // state.setAttribute(ResourcesAction.STATE_SAVE_ATTACHMENT_IN_DROPBOX, users);
-
-            // Always omit inline attachments. Even if content-review is not enabled,
-            // this could be a resubmission to an assignment that was previously content-review enabled,
-            // in which case the file will be present and should be omitted.
-            omitInlineAttachments = true;
         } else if (MODE_INSTRUCTOR_NEW_EDIT_ASSIGNMENT.equals(mode)) {
             setNewAssignmentParameters(data, false);
             assignmentTitle = (String) state.getAttribute(NEW_ASSIGNMENT_TITLE);
