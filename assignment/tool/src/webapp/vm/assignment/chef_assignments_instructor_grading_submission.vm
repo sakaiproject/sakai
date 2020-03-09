@@ -1,9 +1,9 @@
 <!-- start: chef_assignments_instructor_grading_submission.vm  -->
-#module("/rubrics-service/webcomponents/rubric-association-requirements.js")
+#rubricsRequirements
 #set( $H = '-' )
 #javascript("/library/js/lang-datepicker/lang-datepicker.js")
 
-<script type="text/javascript">
+<script>
     focus_path = ['$fField'];
     $(document).ready(function () {
         //click anywhere to close the peer assessment information box
@@ -706,7 +706,7 @@
                 <span id="allowResubmitTime">
                     <label for="allowResubmitDate">$tlang.getString("gen.acesubunt")</label>
                     <input type="text" id="allowResubmitDate" name="allowResubmitDate" class="datepicker" value=""/>
-                    <script type="text/javascript">
+                    <script>
                         localDatePicker({
                             input: '#allowResubmitDate',
                             useTime: 1,

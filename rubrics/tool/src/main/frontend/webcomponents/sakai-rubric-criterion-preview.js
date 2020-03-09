@@ -30,7 +30,7 @@ export class SakaiRubricCriterionPreview extends RubricsElement {
                       <p>${r.description}</p>
                     </div>
                     <span class="points">
-                      ${r.points.toLocaleString(portal.locale)} <sr-lang key="points">Points</sr-lang>
+                      ${r.points.toLocaleString(this.locale)} <sr-lang key="points">Points</sr-lang>
                     </span>
                   </div>
                 `)}

@@ -20,12 +20,12 @@ class SakaiRubricStudent extends RubricsElement {
   static get properties() {
 
     return {
-      token: { type: String},
+      token: String,
       entityId: { attribute: "entity-id", type: String},
       toolId: { attribute: "tool-id", type: String},
-      stateDetails: { type: String},
-      preview: { type: Boolean},
-      instructor: { type: Boolean},
+      stateDetails: String,
+      preview: Boolean,
+      instructor: Boolean,
       evaluatedItemId: { attribute: "evaluated-item-id", type: String},
       rubric: { type: Object },
       rubricId: { attribute: "rubric-id", type: String },
@@ -38,19 +38,43 @@ class SakaiRubricStudent extends RubricsElement {
 
     if (this.token && this.toolId && this.entityId) {
       this.init();
-    } else if (this.token && this.preview && this.rubricId) {
-      this.setRubric();
     }
   }
 
   set token(newValue) {
+
     this._token = "Bearer " + newValue;
+    if (this.preview && this.rubricId) {
+      this.setRubric();
+    }
   }
 
   get token() { return this._token; }
 
+  set preview(newValue) {
+
+    this._preview = newValue;
+    if (this.token && this.rubricId) {
+      this.setRubric();
+    }
+  }
+
+  get preview() { return this._preview; }
+
+  set rubricId(newValue) {
+
+    this._rubricId = newValue;
+    if (this._rubricId != null && this.token && this.preview) {
+      console.log(newValue);
+      this.setRubric();
+    }
+  }
+
+  get rubricId() { return this._rubricId; }
+
   shouldUpdate(changedProperties) {
     return this.i18nLoaded && changedProperties.has("rubric") && (this.instructor || !this.options.hideStudentPreview);
+    //return changedProperties.has("rubric");
   }
 
   render() {

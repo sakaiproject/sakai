@@ -20,7 +20,7 @@ class SakaiRubricAssociation extends RubricsElement {
 
   set token(newValue) {
 
-    this.i18nPromise.then(r => this.rubricsUtils.initLightbox(newValue, r));
+    this.i18nPromise.then(r => this.initLightbox(newValue, r));
     this._token = "Bearer " + newValue;
   }
 
@@ -182,7 +182,7 @@ class SakaiRubricAssociation extends RubricsElement {
 
     e.preventDefault();
     if (this.isAssociated) {
-      this.rubricsUtils.showRubric(this.selectedRubric);
+      this.showRubricLightbox(this.selectedRubric);
     }
   }
 

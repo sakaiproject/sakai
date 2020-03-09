@@ -29,10 +29,10 @@ export class SakaiRubricCriteriaReadonly extends RubricsElement {
                 <div class="cr-table">
                   <div class="cr-table-row">
                   ${c.ratings.map(r => html`
-                    <div tabindex="0" title="${tr("rating_title")}: ${r.title}. ${tr("rating_description")}: ${r.description}. ${tr("point_value")}: ${r.points.toLocaleString(portal.locale)}" class="rating-item" id="rating_item_${r.id}" on-save-ratings="saveRatings" @on-delete-rating="${this.deleteCriterionRating}">
+                    <div tabindex="0" title="${tr("rating_title")}: ${r.title}. ${tr("rating_description")}: ${r.description}. ${tr("point_value")}: ${r.points.toLocaleString(this.locale)}" class="rating-item" id="rating_item_${r.id}" on-save-ratings="saveRatings" @on-delete-rating="${this.deleteCriterionRating}">
                       <h5 class="criterion-item-title">${r.title}</h5>
                       <p>${r.description}</p>
-                      <span class="points">${r.points.toLocaleString(portal.locale)} ${tr("points")}</span>
+                      <span class="points">${r.points.toLocaleString(this.locale)} ${tr("points")}</span>
                     </div>
                   `)}
                   </div>
