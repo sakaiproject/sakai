@@ -17,7 +17,6 @@
     <module>component</module>
     <module>federating</module>
     <module>imsent</module>
-    <module>jldap-mock</module>
     <module>userdetail</module>
     <module>kerberos</module>
     <module>openldap</module>
