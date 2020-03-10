@@ -555,8 +555,11 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             Set<AssignmentSubmissionSubmitter> submitters = s.getSubmitters();
 
             if (submitters.size() > 0) {
-                //String rawGrade = assignmentService.getGradeForSubmitter(s, submitters.iterator().next().getSubmitter());
-                return assignmentService.getGradeDisplay(s.getGrade(), assignment.getTypeOfGrade(), assignment.getScaleFactor());
+                if (assignment.getTypeOfGrade() == Assignment.GradeType.PASS_FAIL_GRADE_TYPE) {
+                    return s.getGrade() == null ? "ungraded" : s.getGrade();
+                } else {
+                    return assignmentService.getGradeDisplay(s.getGrade(), assignment.getTypeOfGrade(), assignment.getScaleFactor());
+                }
             } else {
                 return "";
             }
@@ -624,6 +627,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         if (assignment.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE) {
             grade = assignmentToolUtils.scalePointGrade(grade, assignment.getScaleFactor(), alerts);
+        } else if (assignment.getTypeOfGrade() == Assignment.GradeType.PASS_FAIL_GRADE_TYPE && grade.equals("ungraded")) {
+            grade = null;
         }
 
         Map<String, Object> options = new HashMap<>();
