@@ -1997,7 +1997,7 @@ public class AssignmentAction extends PagedResourceActionII {
 		//TODO keep/remove/add what necessary
 
         User user = (User) state.getAttribute(STATE_USER);
-        String aReference = (String) state.getAttribute(PREVIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
+        String aReference = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
 
         Assignment assignment = getAssignment(aReference, "build_student_confirm_submission_context", state);
         if (assignment != null) {
