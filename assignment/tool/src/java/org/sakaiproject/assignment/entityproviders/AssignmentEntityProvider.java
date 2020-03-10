@@ -1237,7 +1237,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 if (!anonymousGrading) {
                     this.displayName = userDirectoryService.getUser(this.id).getDisplayName();
                 } else {
-                    this.displayName = this.id + " " + rb.getString("grading.anonymous.title");
+                    this.displayName = ass.getSubmission().getId() + " " + rb.getString("grading.anonymous.title");
                 }
             } catch (UserNotDefinedException e) {
                 this.displayName = this.id;
