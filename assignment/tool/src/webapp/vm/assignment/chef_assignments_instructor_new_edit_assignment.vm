@@ -1914,7 +1914,7 @@
 				<tbody>
 					#set ($roleCount=0)
 					#foreach ($role in $!roleUsers.keySet())
-
+						#set ($allSelected=true)
 						#set ($roleCount=$roleCount + 1)
 						#set($expandString=$tlang.getString("allPurpose.show.expand").concat(" ").concat($role).concat(" ").concat($tlang.getString("allPurpose.show.list")))
 						#set($collapseString=$tlang.getString("allPurpose.show.collapse").concat(" ").concat($role).concat(" ").concat($tlang.getString("allPurpose.show.list")))
@@ -1944,7 +1944,7 @@
 										#set($showInputString = "allPurpose_")
 										#set($showInputString = $showInputString.concat($user.getId()))
 										<li>
-											<label for="$showInputString" style="white-space:nowrap;padding:2px;width:90%;display:block" #if ($!value_allPurposeAccessList.contains($user.getId())) class="selectedItem" #end>
+											<label for="$showInputString" style="white-space:nowrap;padding:2px;width:90%;display:block" #if ($!value_allPurposeAccessList.contains($user.getId())) class="selectedItem" #else #set ($allSelected=false) #end>
 												<input id="$showInputString" name="$showInputString" #if ($!value_allPurposeAccessList.contains($user.getId())) class="selectedItem" checked="checked" #set($userCount=$userCount + 1) #end type="checkbox" value="$user.Id"/>
 												$validator.escapeHtml($user.getDisplayName())
 											</label>
@@ -1952,6 +1952,11 @@
 									#end
 									<li class="countHolder" class="skip" style="display:none">$userCount</li>
 								</ul>
+								#if($!allSelected)
+									<script>
+										$('#allPurposeGroupLists tr:last').find('.selectAllMembers').prop('checked', true);
+									</script>
+								#end
 							</td>
 						</tr>
 					#end

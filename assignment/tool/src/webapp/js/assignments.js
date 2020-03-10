@@ -250,6 +250,10 @@ ASN.setupAssignNew = function(){
         if (this.checked) {
             $(this).parent('label').addClass('selectedItem');
             ($(this).parents('.groupCell').children('.countDisplay').text(thisCount + 1));
+            var usersCount = Number($(this).parents('.groupCell').find('input.selectedItem').length);
+            if (usersCount === thisCount+1) {
+                $(this).parents('.groupCell').find('.selectAllMembers').prop('checked', true);
+            }
         }
         else {
             ($(this).parents('.groupCell').children('.countDisplay').text(thisCount - 1));
@@ -273,7 +277,7 @@ ASN.setupAssignNew = function(){
     });
     $(".groupCell").each(function(){
         if ($(this).find('input.selectAllMembers:checked').length) {
-            $(this).children('.countDisplay').text($(this).find('input').prop('checked', 'checked').length);
+            $(this).children('.countDisplay').text($(this).find('input.selectedItem').prop('checked', 'checked').length);
         }
         else {
             $(this).children('.countDisplay').text($(this).find('.countHolder').text());
