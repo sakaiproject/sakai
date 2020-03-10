@@ -2,10 +2,10 @@
     
 
 	<sakai:view>
-      <script type="text/javascript">includeLatestJQuery("chatEditRoom");</script>
-      <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+      <script>includeLatestJQuery("editRoom.jsp");</script>
+      <script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
 
-      <script type="text/javascript">
+      <script>
           $(document).ready(function() {
              localDatePicker({
                 input: '#editRoomForm\\:startDate',
@@ -24,14 +24,20 @@
                 val: '<h:outputText value="#{ChatTool.currentChannelEdit.endDate}"><f:convertDateTime pattern="yyyy-MM-dd"/></h:outputText>',
                 ashidden: { iso8601: 'chatEndDateISO8601' }
             });
+
+            // Assign the current class to the tab in the template
+            var menuLink = $('#editRoomForm\\:chatAddRoomLink');
+            menuLink.addClass('current');
+            // Remove the link of the current option
+            menuLink.html(menuLink.find('a').text());
           });
         </script>
-		<sakai:view_title value="#{msgs.edit_channel_title}" rendered="#{!ChatTool.currentChannelEdit.newChannel}" />
-		<sakai:view_title value="#{msgs.add_channel_title}" rendered="#{ChatTool.currentChannelEdit.newChannel}" />
-		<h:messages globalOnly="false" styleClass="sak-banner-warn"
-			showDetail="true" showSummary="false" rendered="#{not empty facesContext.maximumSeverity}" />
-		<h:form id="editRoomForm" styleClass="edit-room">
 
+		<h:form id="editRoomForm" styleClass="edit-room">
+			<%@ include file="chatMenu.jsp" %>
+			<sakai:view_title value="#{msgs.edit_channel_title}" rendered="#{!ChatTool.currentChannelEdit.newChannel}" />
+			<sakai:view_title value="#{msgs.add_channel_title}" rendered="#{ChatTool.currentChannelEdit.newChannel}" />
+			<h:messages globalOnly="false" styleClass="sak-banner-warn" showDetail="true" showSummary="false" rendered="#{not empty facesContext.maximumSeverity}" />
 			<h:panelGrid columns="1" styleClass="jsfFormTable" cellpadding="0">
 				<h:panelGroup styleClass="shorttext">
 					<h:outputText value="*" styleClass="reqStar" />
