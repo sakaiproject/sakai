@@ -16,6 +16,7 @@
 package org.sakaiproject.mailarchive;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -94,7 +95,8 @@ public class SakaiMessageHandlerTest {
     private SynopticMsgcntrManager synopticMsgcntrManager;
     
     private SakaiMessageHandlerFactory messageHandlerFactory;
-
+    public static final String FROM_REPLY = "msgcntr.messages.header.from.reply";
+    
     @Before
     public void setUp() throws Exception {
         messageHandlerFactory = new SakaiMessageHandlerFactory();
@@ -184,10 +186,14 @@ public class SakaiMessageHandlerTest {
     
     @Test
     public void testNoReply() throws Exception {
-        SmartClient client = createClient();
-        client.from("sender@example.com");
-        client.to("reply-msg-id_0000000@aulavirtual.um.es");
-        writeData(client, "/simple-email.txt");
+        String fromReply = serverConfigurationService.getString(FROM_REPLY, StringUtils.EMPTY);
+
+        if (!StringUtils.isBlank(fromReply)) {
+            SmartClient client = createClient();
+	        client.from("sender@example.com");
+	        client.to("reply-msg-id_0000000@sakai.example.com");
+	        writeData(client, "/simple-email.txt");
+	    }
     }
 
     @Test

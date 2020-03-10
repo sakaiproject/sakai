@@ -40,6 +40,7 @@ import javax.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.LockMode;
 import org.hibernate.Query;
 import org.hibernate.type.LongType;
@@ -115,6 +116,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   private static final String QUERY_USER_ID_BY_FOWARD_MAIL = "findUserIdByFowardMail";
   
   private static final String MESSAGECENTER_BUNDLE = "org.sakaiproject.api.app.messagecenter.bundle.Messages";
+  public static final String REAL_REPLY = "msgcntr.messages.user.real.reply";  
+  public static final String FROM_REPLY = "msgcntr.messages.header.from.reply";
   
   private final PreferencesService preferencesService = ComponentManager.get( PreferencesService.class );
   
@@ -301,12 +304,12 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 //    		getHibernateTemplate().initialize(oldForum.getTopicsSet());
     		List pvtTopics = oldForum.getTopics();
     		
-    		for(int i=0; i<pvtTopics.size(); i++)//reveived deleted sent
+    		for (int i=0; i<pvtTopics.size(); i++)//reveived deleted sent
     		{
     			PrivateTopic currentTopic = (PrivateTopic) pvtTopics.get(i);
-    			if(currentTopic != null)
+    			if (currentTopic != null)
     			{
-    				if(!currentTopic.getTitle().equals(PVT_RECEIVED) && !currentTopic.getTitle().equals(PVT_SENT) && !currentTopic.getTitle().equals(PVT_DELETED) 
+    				if (!currentTopic.getTitle().equals(PVT_RECEIVED) && !currentTopic.getTitle().equals(PVT_SENT) && !currentTopic.getTitle().equals(PVT_DELETED) 
     						&& !currentTopic.getTitle().equals(PVT_DRAFTS) && area.getContextId().equals(currentTopic.getContextId()))
     				{
     					currentTopic.setPrivateForum(pf);
@@ -315,11 +318,11 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     				}
     			}
     		}
-    		if(oldForum.getAutoForward() != null)
+    		if (oldForum.getAutoForward() != null)
     		{
     			pf.setAutoForward(oldForum.getAutoForward());
     		}
-    		if(oldForum.getAutoForwardEmail() != null)
+    		if (oldForum.getAutoForwardEmail() != null)
     		{
     			pf.setAutoForwardEmail(oldForum.getAutoForwardEmail());
     		}      
@@ -1082,16 +1085,12 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   /**
    * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#sendPrivateMessage(org.sakaiproject.api.app.messageforums.PrivateMessage, java.util.Set, boolean)
    */
-  public void sendPrivateMessage(PrivateMessage message, Map<User, Boolean> recipients, boolean asEmail)
-  {
+  public void sendPrivateMessage(PrivateMessage message, Map<User, Boolean> recipients, boolean asEmail) {
 
     try 
     {
-    if (log.isDebugEnabled())
-    {
       log.debug("sendPrivateMessage(message: " + message + ", recipients: "
           + recipients + ")");
-    }
 
     if (message == null || recipients == null)
     {
@@ -1110,16 +1109,16 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     boolean isMailArchive = false;
     try {
         contextId = getContextId();
-	} catch (Exception e) {
+    } catch (Exception e) {
 	    contextId = ((PrivateMessageRecipientImpl)message.getRecipients().get(0)).getContextId();
 	    isMailArchive = true;
 	}
     String currentUserAsString = getCurrentUser();
-    if(currentUserAsString==null || isMailArchive) {
+    if (isMailArchive || currentUserAsString == null) {
         currentUserAsString = message.getCreatedBy();
     }
     User currentUser = userDirectoryService.getCurrentUser();
-    if(currentUser==null || isMailArchive) {
+    if (isMailArchive || currentUser == null) {
         try {
             currentUser = userDirectoryService.getUser(message.getCreatedBy());
         } catch (UserNotDefinedException e) {
@@ -1137,9 +1136,9 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 
       recipientList.add(receiver);
       message.setRecipients(recipientList);
-      if(isMailArchive) {
+      if (isMailArchive) {
           message = (PrivateMessage)messageManager.saveOrUpdateMessage(message, false, DiscussionForumService.MESSAGES_TOOL_ID, currentUserAsString, contextId);
-      }else {
+      } else {
           message = (PrivateMessage)savePrivateMessage(message, false);
       }
       return;
@@ -1269,9 +1268,9 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     message.setRecipients(recipientList);
 
 	Message savedMessage;
-	if(isMailArchive) {
+	if (isMailArchive) {
 		savedMessage = messageManager.saveOrUpdateMessage(message, false, DiscussionForumService.MESSAGES_TOOL_ID, currentUserAsString, contextId);
-	}else {
+	} else {
 		savedMessage = savePrivateMessage(message, false);
 	}
 
@@ -1279,7 +1278,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 
     String bodyString = buildMessageBody(message);
 	
-	if (("all".equals(ServerConfigurationService.getString("msgcntr.messages.user.real.reply", "none")) || contextId.contains(ServerConfigurationService.getString("msgcntr.messages.user.real.reply", "none"))) && systemEmail.equalsIgnoreCase(ServerConfigurationService.getString("msgcntr.notification.from.address", defaultEmail))) {
+	if (("all".equals(ServerConfigurationService.getString(REAL_REPLY, "none")) || contextId.contains(ServerConfigurationService.getString(REAL_REPLY, "none"))) && systemEmail.equalsIgnoreCase(ServerConfigurationService.getString("msgcntr.notification.from.address", defaultEmail))) {
 		replyEmail = new InternetAddress[1];
 		replyEmail[0] = new InternetAddress(buildMailReply(savedMessage));
 		systemEmail = ServerConfigurationService.getString("msgcntr.notification.from.address.reply", defaultEmail);
@@ -1291,13 +1290,13 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 	//we need to add som headers
 	additionalHeaders.add("From: " + systemEmail);
 	additionalHeaders.add("Subject: " + message.getTitle());
-	if(replyEmail!=null) {
+	if (replyEmail != null) {
 		additionalHeaders.add("Reply-To: " + replyEmail[0].getAddress());
 	}
 	emailService.sendToUsers(recipients.keySet(), additionalHeaders, bodyString);
 	}   	
 
-	if(!isEmailForwardDisabled() && forwardingEnabled)
+	if (!isEmailForwardDisabled() && forwardingEnabled)
 	{
 		InternetAddress fAddressesArr[] = new InternetAddress[fAddresses.size()];
 		fAddressesArr = fAddresses.toArray(fAddressesArr);
@@ -1319,7 +1318,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   private String buildMailReply(Message message) {
 	  
 	  StringBuilder replyMail = new StringBuilder();
-	  replyMail.append(ServerConfigurationService.getString("msgcntr.messages.header.from.reply"));
+	  replyMail.append(ServerConfigurationService.getString(FROM_REPLY));
 	  replyMail.append(encrypt(message.getId().toString()));
 	  replyMail.append("@");
 	  replyMail.append(ServerConfigurationService.getString("serverName"));
@@ -1337,7 +1336,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 	  }
 
 	  User currentUser = userDirectoryService.getCurrentUser();
-	  if(currentUser==null || isMailArchive) {
+	  if (currentUser==null || isMailArchive) {
 		  try {
 			  currentUser = userDirectoryService.getUser(message.getCreatedBy());
 		  } catch (UserNotDefinedException e) {
@@ -1420,30 +1419,27 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 		  }
 	  }
 
-	  String contextTool = "";
+	  String contextTool = StringUtils.EMPTY;
 	  String siteTitle = null;
 	  try{
-		  if(isMailArchive) {
+		  if (isMailArchive) {
 			  contextTool = contextId;
 			  siteTitle = siteService.getSite(contextId).getTitle();
-		  }else {
+		  } else {
 			  contextTool = toolManager.getCurrentPlacement().getContext();
 			  siteTitle = siteService.getSite(getContextId()).getTitle();  
 		  }
-	  }
-	  catch (IdUnusedException e){
+	  } catch (IdUnusedException e){
 		  log.error(e.getMessage(), e);
 	  }
 	  String thisToolId = "";
-	  if(isMailArchive) {
+	  if (isMailArchive) {
 		  thisToolId = DiscussionForumService.MESSAGES_TOOL_ID;
-	  }else{
+	  } else {
 		  ToolSession ts = sessionManager.getCurrentToolSession();
-		  if (ts != null)
-		  {
+		  if (ts != null) {
 			  ToolConfiguration tool = siteService.findTool(ts.getPlacementId());
-			  if (tool != null)
-			  {
+			  if (tool != null) {
 				  thisToolId = tool.getId();
 			  }
 		  }
@@ -1453,7 +1449,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 	      getResourceBundleString(EMAIL_FOOTER1) + " " + ServerConfigurationService.getString("ui.service","Sakai") +
 	  " " + getResourceBundleString(EMAIL_FOOTER2) + " \"" +
 	  siteTitle + "\" " + getResourceBundleString(EMAIL_FOOTER3) + "\n";
-	  if (("all".equals(ServerConfigurationService.getString("msgcntr.messages.user.real.reply", "none")) || contextId.contains(ServerConfigurationService.getString("msgcntr.messages.user.real.reply", "none")))){
+	  if (("all".equals(ServerConfigurationService.getString(REAL_REPLY, "none")) || contextId.contains(ServerConfigurationService.getString(REAL_REPLY, "none")))){
 		  footer = footer +  getResourceBundleString(EMAIL_FOOTER4_A) +
 				  " <a href=\"" +
 				  ServerConfigurationService.getPortalUrl() + 
@@ -1529,8 +1525,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     }
     
     int recordIndex = -1;
-    for(int i  = 0; i < pvtMessage.getRecipients().size(); i++) {
-    	if(((PrivateMessageRecipientImpl) pvtMessage.getRecipients().get(i)).getUserId().equals(searchRecipient.getUserId())){
+    for (int i  = 0; i < pvtMessage.getRecipients().size(); i++) {
+    	if (((PrivateMessageRecipientImpl) pvtMessage.getRecipients().get(i)).getUserId().equals(searchRecipient.getUserId())){
     		recordIndex = i;
     		if (! ((PrivateMessageRecipientImpl) recipientList.get(recordIndex)).getRead()) {
     			((PrivateMessageRecipientImpl) recipientList.get(recordIndex)).setRead(Boolean.TRUE);
@@ -1538,7 +1534,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     	}      
     }
     
-    if(recordIndex != -1){
+    if (recordIndex != -1){
 		decrementMessagesSynopticToolInfo(searchRecipient.getUserId(), contextId, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
 		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_READ, getEventMessage(pvtMessage, toolId, userId, contextId), false));
     }
@@ -1595,8 +1591,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 	  }
 
 	  int recordIndex = -1;
-	  for(int i  = 0; i < pvtMessage.getRecipients().size(); i++) {
-		  if(((PrivateMessageRecipientImpl) pvtMessage.getRecipients().get(i)).getUserId().equals(searchRecipient.getUserId())){
+	  for (int i  = 0; i < pvtMessage.getRecipients().size(); i++) {
+		  if (((PrivateMessageRecipientImpl) pvtMessage.getRecipients().get(i)).getUserId().equals(searchRecipient.getUserId())){
 			  recordIndex = i;
 			  if (((PrivateMessageRecipientImpl) recipientList.get(recordIndex))
 					  .getRead()) {
@@ -1605,7 +1601,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 			  }
 		  }      
 	  }
-	  if(recordIndex != -1){
+	  if (recordIndex != -1){
 		  Site currentSite;
 		  try {
 			  //TODO is this only used to prevent increments if the site doesn't exit? DH
@@ -1986,19 +1982,19 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   {
     String topicTypeUuid;
 
-    if(PVTMSG_MODE_RECEIVED.equals(topicTitle))
+    if (PVTMSG_MODE_RECEIVED.equals(topicTitle))
     {
       topicTypeUuid=typeManager.getReceivedPrivateMessageType();
     }
-    else if(PVTMSG_MODE_SENT.equals(topicTitle))
+    else if (PVTMSG_MODE_SENT.equals(topicTitle))
     {
       topicTypeUuid=typeManager.getSentPrivateMessageType();
     }
-    else if(PVTMSG_MODE_DELETE.equals(topicTitle))
+    else if (PVTMSG_MODE_DELETE.equals(topicTitle))
     {
       topicTypeUuid=typeManager.getDeletedPrivateMessageType();
     }
-    else if(PVTMSG_MODE_DRAFT.equals(topicTitle))
+    else if (PVTMSG_MODE_DRAFT.equals(topicTitle))
     {
       topicTypeUuid=typeManager.getDraftPrivateMessageType();
     }
@@ -2077,14 +2073,13 @@ return topicTypeUuid;
   	return eventMessagePrefix + contextId + "/" + object.toString() + "/" + userId;
   }
 
-  public PrivateMessage getPrivateMessage(final String id)
-  {
+  public PrivateMessage getPrivateMessage(final String id) {
 	  PrivateMessage currentMessage = (PrivateMessage) messageManager.getMessageByIdWithAttachments(Long.parseLong(decrypt(id)));
 	  getHibernateTemplate().initialize(currentMessage.getRecipients());
 	  return currentMessage;
   }
   
-  public PrivateMessage getPvtMsgReplyMessage(PrivateMessage currentMessage, MimeMessage msg, StringBuilder[] bodyBuf, List<Reference> attachments, String from) throws MessagingException{ //Me falta coger de forma correcta el body y el attachtment
+  public PrivateMessage getPvtMsgReplyMessage(PrivateMessage currentMessage, MimeMessage msg, StringBuilder[] bodyBuf, List<Reference> attachments, String from) throws MessagingException {
 		
 	  PrivateMessage rrepMsg = messageManager.createPrivateMessage() ;
 	  try {
@@ -2093,7 +2088,7 @@ return topicTypeUuid;
 			  rrepMsg.setCreatedBy(userDirectoryService.getUserByEid(from).getId());
 		  } catch (UserNotDefinedException e) {
 			  rrepMsg.setCreatedBy(getUserIdByFowardMail(currentMessage.getId(), from));
-			  if(rrepMsg.getCreatedBy() == null) {
+			  if (rrepMsg.getCreatedBy() == null) {
 				  log.warn("PrivateMessageManagerImpl.getPvtMsgReplyMessage: exception: 683 - Sender's email does not belong in Sakai, nor is it recognized as an automatic forwarding address. If you have replied to this email from an address other than the one you have configured for email forwarding, please reply from that address.");
 				  throw new MessagingException("683 - Sender's email does not belong in Sakai, nor is it recognized as an automatic forwarding address. If you have replied to this email from an address other than the one you have configured for email forwarding, please reply from that address."); 
 			  }
@@ -2108,23 +2103,23 @@ return topicTypeUuid;
 		  }
 		  rrepMsg.setAuthor(userFrom.getSortName().concat(" ("+from+")"));
 		  rrepMsg.setInReplyTo(currentMessage);
-		  if(errRecipient(currentMessage.getRecipients(), rrepMsg)) {
+		  if (errRecipient(currentMessage.getRecipients(), rrepMsg)) {
 			  log.warn("PrivateMessageManagerImpl.getPvtMsgReplyMessage: exception: Sender's email address does not belong to any of the mail original recipients.  If you are replying from an address different than the one from which you received the email, please use the correct email address to reply to it.");
 			  throw new MessagingException("359 - Sender's email address does not belong to any of the mail original recipients.  If you are replying from an address different than the one from which you received the email, please use the correct email address to reply to it.");
 		  }
-		  if(errMaxMessageRespond(rrepMsg)) {
+		  if (errMaxMessageRespond(rrepMsg)) {
 			  log.warn("PrivateMessageManagerImpl.getPvtMsgReplyMessage: exception: The maximum number of responses for the sender's mail address has been exceeded.  For security reasons, please reply to this mail from Sakai's private messages tool.");
 			  throw new MessagingException("682 - The maximum number of responses for the sender's mail address has been exceeded.  For security reasons, please reply to this mail from Sakai's private messages tool.");
 		  }
-	  }catch (MessagingException e){
+	  } catch (MessagingException e){
 		  log.warn("PrivateMessageManagerImpl.getPvtMsgReplyMessage: exception: " + e.getMessage(), e);
 		  throw e;
 	  }
-	  if(!"".equals(bodyBuf[0].toString())) {
+	  if (!StringUtils.isNotBlank(bodyBuf[0].toString())) {
 		  bodyBuf[0].insert(0, "<pre>");
 		  bodyBuf[0].insert(bodyBuf[0].length(), "</pre>");
 		  rrepMsg.setBody(bodyBuf[0].toString());
-	  }else {
+	  } else {
 		  rrepMsg.setBody(bodyBuf[1].toString());
 	  }
 	  rrepMsg.setDraft(Boolean.FALSE);
@@ -2134,7 +2129,7 @@ return topicTypeUuid;
 
 	  StringBuilder sendToString = new StringBuilder("");
 
-	  if(currentMessage.getAuthor() != null && !"".equals(currentMessage.getAuthor()))
+	  if (!StringUtils.isNotBlank(currentMessage.getAuthor()))
 	  {
 		  sendToString.append(currentMessage.getAuthor());
 	  }
@@ -2150,8 +2145,8 @@ return topicTypeUuid;
 	  rrepMsg.setRecipients(recipientList);
 	  rrepMsg.setModifiedBy(rrepMsg.getCreatedBy());
 	  //Add attachments
-	  if(CollectionUtils.isNotEmpty(attachments)){
-		  for(int i=0; i<attachments.size(); i++)
+	  if (CollectionUtils.isNotEmpty(attachments)) {
+		  for (int i=0; i<attachments.size(); i++)
 		  {
 			  Attachment thisAttach = createPvtMsgAttachment(attachments.get(i).getId(), attachments.get(i).getProperties().getProperty(attachments.get(i).getProperties().getNamePropDisplayName()));
 			  addAttachToPvtMsg(rrepMsg, thisAttach);
@@ -2161,8 +2156,7 @@ return topicTypeUuid;
 	  return rrepMsg;
   }
   
-  public Map<User, Boolean> getRecipients(List recipients)
-  {     
+  public Map<User, Boolean> getRecipients(List recipients) {     
 	  Map<User, Boolean> returnSet = new HashMap<>();
     
 	  /** get List of unfiltered course members */
@@ -2178,31 +2172,26 @@ return topicTypeUuid;
 	  return returnSet;
   }
 
-  private boolean errRecipient(List recipients, PrivateMessage rrepMsg)
-  {
+  private boolean errRecipient(List recipients, PrivateMessage rrepMsg) {
 	  for (Iterator iterator = recipients.iterator(); iterator.hasNext();) {
 		  PrivateMessageRecipient element = (PrivateMessageRecipient) iterator.next();
-		  if(element.getUserId().equals(rrepMsg.getCreatedBy())) {
+		  if (element.getUserId().equals(rrepMsg.getCreatedBy())) {
 			  return false;
 		  }
 	  }
 	  return true;
   }
 
-  private boolean errMaxMessageRespond(PrivateMessage rrepMsg){
+  private boolean errMaxMessageRespond(PrivateMessage rrepMsg) {
 	  int max = ServerConfigurationService.getInt("msgcntr.no.reply.max.respond", 5);
-	  if(getNumMessageRespond(rrepMsg.getCreatedBy(), rrepMsg.getInReplyTo().getId()) > max) {
+	  if (getNumMessageRespond(rrepMsg.getCreatedBy(), rrepMsg.getInReplyTo().getId()) > max) {
 		  return true;
 	  }
 	  return false;
   }
   
-  private int getNumMessageRespond(final String userId, final Long messageId)
-  {
-	  if (log.isDebugEnabled())
-	  {
-		  log.debug("getNumMessageRespond executing");
-	  }
+  private int getNumMessageRespond(final String userId, final Long messageId) {
+	  log.debug("getNumMessageRespond executing");
 
 	  HibernateCallback<Number> hcb = session -> {
 		  Query q = session.getNamedQuery(QUERY_RESPONSED_COUNT);
@@ -2214,12 +2203,8 @@ return topicTypeUuid;
 	  return getHibernateTemplate().execute(hcb).intValue();
   }
   
-  private String getUserIdByFowardMail(final Long messageId, final String mail)
-  {
-	  if (log.isDebugEnabled())
-	  {
-		  log.debug("getUserIdByFowardMail executing");
-	  }
+  private String getUserIdByFowardMail(final Long messageId, final String mail) {
+	  log.debug("getUserIdByFowardMail executing");
 
 	  HibernateCallback<String> hcb = session -> {
 		  Query q = session.getNamedQuery(QUERY_USER_ID_BY_FOWARD_MAIL);
@@ -2231,13 +2216,13 @@ return topicTypeUuid;
 	  return getHibernateTemplate().execute(hcb);
   }
 
-  public void processPvtMsgReplySentAction(PrivateMessage currentMessage, PrivateMessage rrepMsg){
-	  if(rrepMsg != null){
+  public void processPvtMsgReplySentAction(PrivateMessage currentMessage, PrivateMessage rrepMsg) {
+	  if (rrepMsg != null) {
 		  Map<User, Boolean> recipients = getRecipients(rrepMsg.getRecipients());
 
 		  sendPrivateMessage(rrepMsg, recipients, false);
 
-		  if(!rrepMsg.getDraft()){
+		  if (!rrepMsg.getDraft()) {
 			  markMessageAsRepliedForUser(currentMessage, rrepMsg.getAuthorId());
 			  String contextId = ((PrivateMessageRecipientImpl)currentMessage.getRecipients().get(0)).getContextId();
 			  markMessageAsReadForUser(currentMessage, contextId, rrepMsg.getAuthorId(), DiscussionForumService.MESSAGES_TOOL_ID);

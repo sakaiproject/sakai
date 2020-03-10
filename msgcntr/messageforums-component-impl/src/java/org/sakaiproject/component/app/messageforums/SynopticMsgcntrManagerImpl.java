@@ -1303,7 +1303,7 @@ public class DecoratedForumInfo{
 	public void sendPrivateMessageDesktop(PrivateMessage currentMessage, MimeMessage msg, StringBuilder[] bodyBuf, List<Reference> attachments, String from) throws MessagingException {
 		PrivateMessage rrepMsg = getPvtMessageManager().getPvtMsgReplyMessage(currentMessage, msg, bodyBuf, attachments, from);
 		getPvtMessageManager().processPvtMsgReplySentAction(currentMessage, rrepMsg);
-		if(!rrepMsg.getDraft()){
+		if (!rrepMsg.getDraft()){
 			Map<User, Boolean> recipients = getPvtMessageManager().getRecipients(rrepMsg.getRecipients());
 			incrementSynopticToolInfo(recipients.keySet(), rrepMsg, false);
 		}
@@ -1315,7 +1315,7 @@ public class DecoratedForumInfo{
 		String currentUser = rrepMsg.getAuthorId();
 		List<String> userIds = new ArrayList<>();
 		for (User user : recipients) {
-			if(updateCurrentUser || (!currentUser.equals(user.getId())))
+			if (updateCurrentUser || (!currentUser.equals(user.getId())))
 				userIds.add(user.getId());
 		}
 		incrementMessagesSynopticToolInfo(userIds, siteId, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
