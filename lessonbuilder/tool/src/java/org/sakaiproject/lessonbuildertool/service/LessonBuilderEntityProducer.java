@@ -1048,7 +1048,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	try {
 		oldSite = siteService.getSite(fromSiteId);
 	} catch (Exception e) {
-		logger.debug("site " + fromSiteId + " not found.", e);
+		log.debug("site " + fromSiteId + " not found.", e);
 	}
 	// For each old group, get the corresponding new group id
 	if (!groups.isEmpty() && siteGroups != null && oldSite != null) {
