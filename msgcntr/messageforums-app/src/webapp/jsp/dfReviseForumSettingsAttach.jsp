@@ -111,7 +111,7 @@
 				 });
 				 updateGradeAssignment();
 
-                if(document.getElementById("revise:createForumsForGroups:1").checked) {
+                if(document.getElementById("revise:createForumsForGroups:1") && document.getElementById("revise:createForumsForGroups:1").checked) {
                     setAutoCreatePanel();
                 }
 
