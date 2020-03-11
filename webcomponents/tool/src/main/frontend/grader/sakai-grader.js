@@ -149,7 +149,7 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
           <select aria-label="${this.i18n["student_selector_label"]}" @change=${this.studentSelected}>
             ${this.submissions.map(s => html`<option value="${s.id}" .selected=${this.submission.id === s.id}>${s.groupId ? s.groupTitle : s.firstSubmitterName}</option>`)}
           </select>
-          ${this.submission.showPhoto ? html`
+          ${this.showPhoto() ? html`
             <span class="profile-image">
               <img src="/direct/profile/${this.submission.firstSubmitterId}/image/official?siteId=${portal.siteId}" alt="${this.submission.firstSubmitterName}${this.i18n["profile_image"]}"/>
             </span>
@@ -193,7 +193,7 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
       <div class="grader ${this.graderOnLeft ? "on-left" : ""}">
         <div class="submitted-block">
           <div style="display: flex;">
-            ${this.submission.showPhoto ? html`
+            ${this.showPhoto() ? html`
               <div class="profile-image" style="flex: 1;">
                 <img src="/direct/profile/${this.submission.firstSubmitterId}/image/official?siteId=${portal.siteId}" alt="${this.submission.firstSubmitterName}${this.i18n["profile_image"]}" />
               </div>
@@ -368,6 +368,10 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
         `}
       </div>
     `;
+  }
+
+  showPhoto() {
+    return this.showOfficialPhoto && !this.gradable.anonymousGrading && this.submission.firstSubmitterId && !this.submission.groupId;
   }
 
   fileNameFromRef(ref) { return ref.substring(ref.lastIndexOf("\/") + 1); }
