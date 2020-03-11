@@ -42,7 +42,7 @@ $header-font-weight: 700 !default;										// 400 or 700 as you wish
 $background-color: 			 #FFFFFF !default;
 $background-color-secondary: #000036 !default;
 
-$primary-color:    			 #15597e !default;
+$primary-color: #15597e !default;
 $primary-color-highContrast: darken( $primary-color, 4% ) !default;	// for use of primary on non-white light backgrounds, such as greys
 $primary-color-shadow:			 adjust-hue( $primary-color, 5 ) !default;	// To give primary a darker shadow
 $secondary-color:  			 #F00 !default;
@@ -82,7 +82,7 @@ $tool-nav-link-color: #666 !default;
 
 $main-content-background: $background-color !default;
 
-$top-header-background: $background-color-secondary !default;
+$top-header-background: $primary-color !default;
 $top-header-separators-thickness: 1px !default;
 $top-header-item-spacing: $standard-spacing !default;
 $top-header-text-display: inline-block !default;

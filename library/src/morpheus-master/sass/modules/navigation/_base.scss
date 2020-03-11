@@ -269,12 +269,8 @@ body.is-logged-out{
 				&:hover {
 					text-decoration: none;
 					color: #FFF;
-					@if $top-header-as-material {
 						background: rgba(0,0,0,.2);
 						border-radius:50%;
-					} @else {
-						text-shadow: 0 0 5px rgba(165, 165, 165, 0.95); /* same as profile picture hover */
-					}
 				}
 			}
 
@@ -455,16 +451,10 @@ body.is-logged-out{
 		&.has-avatar:hover .#{$namespace}userNav__submenuitem--profilepicture,
 			&.has-avatar:active .#{$namespace}userNav__submenuitem--profilepicture
 		{
-			@if $top-header-as-material {
 				box-shadow:inset 0 0 0 2px $top-header-profile-border-color-inner, 0 0 0 2px rgba(0,0,0,.2);
-			} @else {
-				box-shadow: 0px 0px 5px 1px rgba(165, 165, 165, 0.95);
-			}
 		}
-		@if $top-header-as-material {
-			&.has-avatar:active .#{$namespace}userNav__submenuitem--profilepicture {
-				box-shadow:inset 0 0 0 2px $top-header-profile-border-color-inner, 0 0 0 2px rgba(0,0,0,.6);
-			}
+		&.has-avatar:active .#{$namespace}userNav__submenuitem--profilepicture {
+			box-shadow:inset 0 0 0 2px $top-header-profile-border-color-inner, 0 0 0 2px rgba(0,0,0,.6);
 		}
 		
 
@@ -552,16 +542,10 @@ body.is-logged-out{
 
 			&:hover, &:active
 			{
-				@if $top-header-as-material {
 					box-shadow:inset 0 0 0 2px $top-header-profile-border-color-inner, 0 0 0 2px rgba(0,0,0,.2);
-				} @else {
-					box-shadow: 0px 0px 5px 1px rgba(165, 165, 165, 0.95);
-				}
 			}
-			@if $top-header-as-material {
-				&:active {
-					background:inset 0 0 0 2px $top-header-profile-border-color-inner, 0 0 0 2px rgba(0,0,0,.4);
-				}
+			&:active {
+				background:inset 0 0 0 2px $top-header-profile-border-color-inner, 0 0 0 2px rgba(0,0,0,.4);
 			}
 			@media #{$phone}
 			{
@@ -763,18 +747,11 @@ body.is-logged-out{
 	&:hover {
 		text-decoration: none;
 		color: $topNav-text-color;
-		@if $top-header-as-material {
-			background: rgba(0,0,0,.2);
-			border-radius:50%;
-		} @else {
-			text-shadow: 0 0 5px rgba(165, 165, 165, 0.95); /* same as profile picture hover */
-		}
-	&:active {
-		@if $top-header-as-material {
-			background: rgba(0,0,0,.4);
-		}
+		background: rgba(0,0,0,.2);
+		border-radius:50%;
 	}
-		
+	&:active {
+		background: rgba(0,0,0,.4);
 	}
 }
 
@@ -800,12 +777,8 @@ body.is-logged-out{
 
 		i
 		{
-			@if $top-header-as-material {
-				background: rgba(0,0,0,.2);
-				border-radius:50%;
-			} @else {
-				text-shadow: 0 0 5px rgba(165, 165, 165, 0.95); /* same as profile picture hover */
-			}
+			background: rgba(0,0,0,.2);
+			border-radius:50%;
 		}
 
 		span.all-sites-label
@@ -813,10 +786,8 @@ body.is-logged-out{
 			text-decoration: underline; /* just underline the text */
 		}
 	}
-	@if $top-header-as-material {
-		&:active i {
-			background: rgba(0,0,0,.4);
-		}
+	&:active i {
+		background: rgba(0,0,0,.4);
 	}
 }
 
