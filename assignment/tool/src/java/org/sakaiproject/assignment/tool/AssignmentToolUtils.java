@@ -276,19 +276,15 @@ public class AssignmentToolUtils {
     @Transactional
     public AssignmentSubmission gradeSubmission(AssignmentSubmission submission, String gradeOption, Map<String, Object> options, List<String> alerts) {
 
-        boolean withGrade = options.get(WITH_GRADES) != null && (Boolean) options.get(WITH_GRADES);
-
-        // for points grading, one have to enter number as the points
-        String grade = (String) options.get(GRADE_SUBMISSION_GRADE);
-
         if (submission != null) {
+            boolean withGrade = options.get(WITH_GRADES) != null && (Boolean) options.get(WITH_GRADES);
+            String grade = (String) options.get(GRADE_SUBMISSION_GRADE);
             boolean gradeChanged = false;
             if (!StringUtils.equals(StringUtils.trimToNull(submission.getGrade()), StringUtils.trimToNull(grade))) {
                 //one is null the other isn't
                 gradeChanged = true;
             }
             Assignment a = submission.getAssignment();
-
             if (!withGrade) {
                 // no grade input needed for the without-grade version of assignment tool
                 submission.setGraded(true);
