@@ -2145,7 +2145,7 @@ return topicTypeUuid;
 	  rrepMsg.setRecipients(recipientList);
 	  rrepMsg.setModifiedBy(rrepMsg.getCreatedBy());
 	  //Add attachments
-	  if (CollectionUtils.isNotEmpty(attachments)) {
+	  if (CollectionUtils.isNotEmpty(attachments)){
 		  for (int i=0; i<attachments.size(); i++)
 		  {
 			  Attachment thisAttach = createPvtMsgAttachment(attachments.get(i).getId(), attachments.get(i).getProperties().getProperty(attachments.get(i).getProperties().getNamePropDisplayName()));
