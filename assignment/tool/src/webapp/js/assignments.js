@@ -816,6 +816,15 @@ ASN.toggleSendFeedbackPanel = function()
     ASN.swapDisplay(expandImg, collapseImg);
 }
 
+ASN.toggleAssignamentInstructionPanel = function()
+{
+    var panel = document.getElementById("assignamentInstructionPanelContent");
+    $(panel).slideToggle(200);
+    var expandImg = document.getElementById("expandAssignamentInstruction");
+    var collapseImg = document.getElementById("collapseAssignamentInstruction");
+    ASN.swapDisplay(expandImg, collapseImg);
+}
+
 ASN.swapDisplay = function(elem1, elem2)
 {
     var tmpDisplay = elem1.style.display;
