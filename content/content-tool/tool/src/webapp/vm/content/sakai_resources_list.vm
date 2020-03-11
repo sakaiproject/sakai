@@ -45,49 +45,7 @@
 #set($num = 0)
 <div class="portletBody specialLink">
 	#set($itemsOnLine = 0)
-		<ul class="navIntraTool actionToolBar">
-			#if($canDeleteResource)
-				## view restore deleted resources area if the user has revise permission
-				<li><span><a href="#toolLinkParam("ResourcesAction" "doViewTrash" "siteId=$formattedText.escapeUrl(${site.id})")" title="$clang.getString('trash')">$clang.getString("trash")</a></span></li>
-			#end
-			#if($showDropboxMultipleFoldersUpload)
-			<li class="hidden-xs"><span><a href="#toolLinkParam("ResourcesAction" "doDropboxMultipleFoldersUpload" "siteId=$formattedText.escapeUrl(${site.id})")" title="$tlang.getString("multiple.file.upload")">$tlang.getString("multiple.file.upload")</a></span></li>
-			#end
-			#if($showWebdavLink)
-			<li class="hidden-xs"><span><a href="#toolLink("ResourcesAction" "doShow_webdav")" title="$tlang.getString('dav.webdav')">$tlang.getString("dav.webdav")</a></span></li>
-			#end
-			#if($showPermissions)
-			<li><span><a href="#toolLinkParam("ResourcesAction" "doPermissions" "collectionId=$formattedText.escapeUrl(${site.id})")" title="$clang.getString('list.sPerm')">$clang.getString("list.sPerm")</a></span></li>
-			#end
-			#if($showOptions)
-			<li><span><a href="#toolLinkParam("ResourcesAction" "doOptions" "siteId=$formattedText.escapeUrl(${site.id})")" title="$clang.getString('list.options')">$clang.getString("list.options")</a></span></li>
-			#end
-			#if($showDropboxOptions)
-			<li><span><a href="#toolLinkParam("ResourcesAction" "doDropboxOptions" "siteId=$formattedText.escapeUrl(${site.id})")" title="$clang.getString('list.options')">$clang.getString("list.options")</a></span></li>
-			#end
-			#if($showQuota)
-			<li><span><a href="#toolLinkParam("ResourcesAction" "doShowQuota" "siteId=$formattedText.escapeUrl(${site.id})")" title="$clang.getString('list.quota')">$clang.getString("list.quota")</a></span></li>
-			#end
-			##SAK-30085
-			#if($showJumpToResourceForm)
-			<li class="inputItem">
-				<span class="formItem form-inline">
-					<form id="jumpToResourceForm" class="inlineForm form-group" action="#toolForm("ResourcesAction")" method="post">
-						<input type="hidden" name="source" value="0" />	
-						<input type="hidden" name="navRoot" value="" />
-						<input type="hidden" name="criteria" value="title" />
-						<input type="hidden" name="sakai_action" value="doNavigate" />
-						<input type="hidden" name="rt_action" value="" />
-						<input type="hidden" name="selectedItemId" value="" />
-						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-						<input type="text" class="form-control" name="collectionId" value="" required />
-						<input type="submit" value="$clang.getString('list.jumptoresource')"/>
-					</form>
-				</span>
-			</li>
-			#end
-		</ul>
-		</ul>
+	#contentMenu("resources")
 	<div class="page-header">
 		#if("$!dropboxMode" == "true")
 			<h1>$clang.getString("list.site.dropbox")</h1>

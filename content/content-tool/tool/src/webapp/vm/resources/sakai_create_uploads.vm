@@ -4,6 +4,7 @@
 </script>
 
 <div class="portletBody specialLink">
+    #contentMenu("resources")
     <h3>$tlang.getString("create.uploads")</h3>
     <ol class="breadcrumb">
         <li><span>$tlang.getString("gen.location")</span></li>
