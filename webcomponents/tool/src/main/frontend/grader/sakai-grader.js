@@ -116,7 +116,7 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
     return html`
       <div class="left-block">
         <div class="assessment-info">
-          <div class="course-title">${portal.siteTitle}</div>
+          <div class="course-title">${unsafeHTML(portal.siteTitle)}</div>
           <div class="assessment-title">${this.gradableTitle}</div>
         </div>
         <div id="grader-settings-wrapper">
