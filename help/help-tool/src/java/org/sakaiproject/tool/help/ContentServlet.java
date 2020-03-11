@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
 import org.sakaiproject.api.app.help.HelpManager;
@@ -59,6 +60,7 @@ public class ContentServlet extends HttpServlet
   private HelpManager helpManager;
   private ServerConfigurationService serverConfigurationService;
 
+  private String[] ALLOWED_DOC_ID_URLS = {"html/help.html"};
   /**
    * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
    */
@@ -66,10 +68,9 @@ public class ContentServlet extends HttpServlet
 
       getHelpManager().initialize();
       String docId = req.getParameter(DOC_ID);
-
-      if (docId == null) {
+      if (StringUtils.isBlank(docId) || (!StringUtils.isAlphanumeric(docId) && !ArrayUtils.contains(ALLOWED_DOC_ID_URLS, docId))) {
           res.sendError(HttpServletResponse.SC_BAD_REQUEST);
-	  return;
+          return;
       }
 
       OutputStreamWriter writer = new OutputStreamWriter(res.getOutputStream(), "UTF-8");
