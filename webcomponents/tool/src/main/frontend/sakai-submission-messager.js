@@ -191,9 +191,9 @@ class SakaiSubmissionMessager extends SakaiElement {
           this.success = true;
           this.sending = false;
           window.setTimeout(() => {
-            this.dispatchEvent(new CustomEvent("submission-message-sent", { bubbles: true }))
+            this.success = false;
             this.reset();
-          }, 1000);
+          }, 1500);
         }
       });
   }

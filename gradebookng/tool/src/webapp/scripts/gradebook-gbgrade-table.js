@@ -1245,11 +1245,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   on("click", ".gb-dropdown-menu .gb-message-students", function (event) {
 
     $(`#gb-messager-for-${event.target.dataset.assignmentId}`)
-      .dialog({ width: 500, close: function () { $(this).dialog("destroy"); } })
-      .on("submission-message-sent", function (e) {
-        $(this).dialog("destroy");
-        $(this).off("submission-message-sent");
-      });
+      .dialog({ width: 500, close: function () { $(this).dialog("destroy"); } });
   }).
   // View Course Grade Statistics
   on("click", ".gb-dropdown-menu .gb-view-course-grade-statistics", function() {
