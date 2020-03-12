@@ -1116,6 +1116,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         private boolean anonymousGrading;
 
+        private Boolean allowPeerAssessment;
+
         public SimpleAssignment() {
         }
 
@@ -1224,6 +1226,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             if (assignmentAllPurposeItem != null) {
                 this.allPurposeItemText = assignmentAllPurposeItem.getText();
             }
+
+            this.allowPeerAssessment = a.getAllowPeerAssessment();
         }
     }
 

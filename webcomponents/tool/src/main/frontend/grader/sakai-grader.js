@@ -102,7 +102,11 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
       rubric.setAttribute("evaluated-item-id", this._submission.id);
     }
 
-    this.requestUpdate("submission", oldValue);
+    this.requestUpdate();
+
+    if (this.gradable.allowPeerAssessment) {
+      this.updateComplete.then(() => $("#peer-info").popover());
+    }
   }
 
   get submission() { return this._submission; }
@@ -234,6 +238,9 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
             <input aria-label="${this.i18n["number_grade_label"]}" @keydown=${this.validateGradeInput} @keyup=${this.gradeSelected} type="text" size="8" .value=${this.submission.grade} />
             ${this.renderSaved()}
             <span>(${this.assignmentsI18n["grade.max"]} ${this.maxGrade})</span>
+            ${this.gradable.allowPeerAssessment ? html`
+              <span id="peer-info" class="fa fa-info-circle" data-toggle="popover" data-container="body" data-placement="auto" data-content="${this.assignmentsI18n["peerassessment.peerGradeInfo"]}"></span>
+            ` : ""}
           ` : ""}
           ${this.gradeScale === "PASS_FAIL_GRADE_TYPE" ? html`
             <span>${this.assignmentsI18n["gen.assign.gra"]}</span>
