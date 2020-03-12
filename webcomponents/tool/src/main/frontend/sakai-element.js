@@ -50,6 +50,12 @@ class SakaiElement extends LitElement {
       return settings[name];
     }
   }
+
+  decodeHTMLEntities(text) {
+    var textArea = document.createElement('textarea');
+    textArea.innerHTML = text;
+    return textArea.value;
+  }
 }
 
 
