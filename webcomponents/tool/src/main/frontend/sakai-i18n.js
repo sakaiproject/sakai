@@ -15,6 +15,7 @@ function loadProperties(options) {
 
   window.sakai = window.sakai || {};
   window.sakai.translations = window.sakai.translations || {};
+  window.sakai.translations.existingPromises = window.sakai.translations.existingPromises || {};
 
   if (typeof options === "string") {
     options = { bundle: options };
@@ -25,7 +26,7 @@ function loadProperties(options) {
     return;
   }
 
-  var defaults = {
+  const defaults = {
     lang: (parent.portal && parent.portal.locale) ? parent.portal.locale : "",
     resourceClass: "org.sakaiproject.i18n.InternationalizedMessages",
     cache: true,
@@ -71,40 +72,42 @@ function loadProperties(options) {
     params.append("resourceclass", options.resourceClass);
     params.append("resourcebundle", options.bundle);
 
-    var fetchPromise = fetch(`/sakai-ws/rest/i18n/getI18nProperties?${params.toString()}`, {
-      headers: { "Content-Type": "application/text" },
-    });
+    let existingPromise = window.sakai.translations.existingPromises[options.bundle];
+    if (existingPromise) {
+      if (options.debug) console.debug("Returning existing promise ...");
+      return existingPromise;
+    } else {
+      return window.sakai.translations.existingPromises[options.bundle] = new Promise(resolve => {
 
-    return new Promise(resolve => {
+        const url = `/sakai-ws/rest/i18n/getI18nProperties?${params.toString()}`;
+        if (options.debug) {
+          console.debug(url);
+        }
+        fetch(url, { headers: { "Content-Type": "application/text" }})
+        .then(r => r.text())
+        .then(data => {
 
-      const url = `/sakai-ws/rest/i18n/getI18nProperties?${params.toString()}`;
-      if (options.debug) {
-        console.debug(url);
-      }
-      fetch(url, { headers: { "Content-Type": "application/text" }})
-      .then(r => r.text())
-      .then(data => {
+          data.split("\n").forEach(function (pair) {
 
-        data.split("\n").forEach(function (pair) {
+            var keyValue = pair.split('=');
+            if (keyValue.length == 2) {
+              window.sakai.translations[options.bundle][keyValue[0]] = keyValue[1];
+            }
+          });
 
-          var keyValue = pair.split('=');
-          if (keyValue.length == 2) {
-            window.sakai.translations[options.bundle][keyValue[0]] = keyValue[1];
+          if (options.debug) {
+            console.debug('Updated translations: ');
+            console.debug(window.sakai.translations[options.bundle]);
           }
-        });
 
-        if (options.debug) {
-          console.debug('Updated translations: ');
-          console.debug(window.sakai.translations[options.bundle]);
-        }
-
-        if (options.debug) {
-          console.debug(`Caching translations for ${options.bundle} against key ${storageKey} in sessionStorage ...`);
-        }
-        sessionStorage[storageKey] = JSON.stringify(window.sakai.translations[options.bundle]);
-        resolve(window.sakai.translations[options.bundle]);
-      }).catch(error => { console.error(error); resolve(false); } );
-    });
+          if (options.debug) {
+            console.debug(`Caching translations for ${options.bundle} against key ${storageKey} in sessionStorage ...`);
+          }
+          sessionStorage[storageKey] = JSON.stringify(window.sakai.translations[options.bundle]);
+          resolve(window.sakai.translations[options.bundle]);
+        }).catch(error => { console.error(error); resolve(false); } );
+      });
+    }
   }
 } // loadProperties
 
