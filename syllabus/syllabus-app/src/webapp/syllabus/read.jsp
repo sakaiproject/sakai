@@ -21,7 +21,7 @@
 	}
 </style>
 
-<script type="text/javascript">
+<script>
 	jQuery(document).ready(function() {
 		localDatePicker({
 			input: '#readview\\:dataStartDate',
@@ -41,10 +41,16 @@
 			ashidden: {
 					iso8601: 'dataEndDateISO8601'}
 		});
+
+		var menuLink = $('#syllabusMenuBulkEditLink');
+		menuLink.addClass('current');
+		menuLink.find('a').removeAttr('href');
+
 	});
  </script>
-			<h:outputText value="#{SyllabusTool.alertMessage}" styleClass="sak-banner-error" rendered="#{SyllabusTool.alertMessage != null}" />
 			<h:form id="readview">
+			<%@ include file="mainMenu.jsp" %>
+			<h:outputText value="#{SyllabusTool.alertMessage}" styleClass="sak-banner-error" rendered="#{SyllabusTool.alertMessage != null}" />
 		  	<sakai:tool_bar_message value="#{msgs.editNotice}" /> 
 				<sakai:doc_section>
 					<h:outputText value="#{msgs.newSyllabusForm1}"/>

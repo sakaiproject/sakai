@@ -9,7 +9,16 @@
 
 	<sakai:view_container title="#{msgs.title_edit}">
 		<sakai:view_content>
+			<script>includeLatestJQuery('edit_redirect.jsp');</script>
+			<script>
+				$(document).ready( function() {
+					var menuLink = $('#syllabusMenuRedirectLink');
+					menuLink.addClass('current');
+					menuLink.find('a').removeAttr('href');
+				});
+			</script>
 			<h:form id="redirectForm">
+				<%@ include file="mainMenu.jsp" %>
 
 				<div class="page-header">
 					<h1><h:outputText value="#{msgs.redirect_sylla}" /></h1>
