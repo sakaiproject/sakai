@@ -4,10 +4,11 @@ import {getViewPreferences, updateViewPreferences} from "../sakai-view-preferenc
 
 export class GraderToggle extends SakaiElement {
 
-  constructor(init) {
+  constructor() {
 
     super();
 
+    this.i18n = {};
     this.loadTranslations("grader-toggle").then(i18n => this.i18n = i18n);
   }
 
@@ -23,7 +24,7 @@ export class GraderToggle extends SakaiElement {
   set tool(newValue) {
 
     this._tool = newValue;
-    this.prefsPromise = getViewPreferences(newValue).then(prefs => {
+    getViewPreferences(newValue).then(prefs => {
 
       if (!prefs) {
         this.checked = true;
