@@ -25,7 +25,12 @@
 				hiddenInputCollapeMInfo =document.getElementById("meeting:meetingInfoCollapseExpand");
 				showMInfoTitleTag =document.getElementById("meeting:showMeetingTitleOnly");
 				//initialize
-				initMeetingInfoDetail();			
+				initMeetingInfoDetail();
+
+				var menuLink = $('#signupMainMenuLink');
+				menuLink.addClass('current');
+				menuLink.html(menuLink.find('a').text());
+
 				});
 			
 			
@@ -62,28 +67,19 @@
 		</script>
 			
 		<h:form id="signupMeeting">
-		   <h:panelGroup>
-				<f:verbatim><ul class="navIntraTool actionToolbar" role="menu"></f:verbatim> 
-				<h:panelGroup>
-						<f:verbatim><li role="menuitem" class="firstToolBarItem"> <span></f:verbatim>
-					<h:commandLink id="download_xls" value="#{msgs.event_pageTop_link_for_download_xls}" action="#{DownloadEventBean.downloadOneEventAsExcel}" />
-					<f:verbatim></span></li></f:verbatim>
-				</h:panelGroup>
-				
-				<h:panelGroup rendered="#{DownloadEventBean.csvExportEnabled && DownloadEventBean.currentUserAllowedUpdateSite}"> 	
-					<f:verbatim><li role="menuitem" ><span></f:verbatim>
-					<h:commandLink id="download_csv" value="#{msgs.event_pageTop_link_for_download_csv}" action="#{DownloadEventBean.downloadOneEventAsCsv}" rendered="#{DownloadEventBean.csvExportEnabled && DownloadEventBean.currentUserAllowedUpdateSite}"/>
-					<f:verbatim></span></li></f:verbatim>
-				</h:panelGroup>
-				
-				<f:verbatim><li role="menuitem" ><span></f:verbatim>
-					<h:outputLink id="print" value="javascript:window.print();">
-							<h:outputText value="#{msgs.print_event}" escape="false"/>
-					</h:outputLink>				
-				<f:verbatim></span></li>
-								
-			  </ul></f:verbatim>		
+			<%@ include file="/signup/menu/signupMenu.jsp" %>
+			<br/>
+			<h:panelGroup>
+				<h:commandLink styleClass="button" id="download_xls" value="#{msgs.event_pageTop_link_for_download_xls}" action="#{DownloadEventBean.downloadOneEventAsExcel}" />
+				&nbsp;
 			</h:panelGroup>
+			<h:panelGroup rendered="#{DownloadEventBean.csvExportEnabled && DownloadEventBean.currentUserAllowedUpdateSite}">
+				<h:commandLink styleClass="button" id="download_csv" value="#{msgs.event_pageTop_link_for_download_csv}"/>
+				&nbsp;
+			</h:panelGroup>
+			<h:outputLink styleClass="button" id="print" value="javascript:window.print();">
+					<h:outputText value="#{msgs.print_event}" escape="false"/>
+			</h:outputLink>
 		</h:form>
 		
 		<sakai:view_content>

@@ -104,6 +104,11 @@
 		    	 isShowAssignToAllChoice();
 		    	 
 		    	 sakai.initSignupBeginAndEndsExact();
+
+                var menuLink = $('#signupMainMenuLink');
+                menuLink.addClass('current');
+                menuLink.html(menuLink.find('a').text());
+
     	 	});
     	 				 	         	         	    	 
 	         function alertTruncatedAttendees(alertMsg,hasTruncated){         	
@@ -173,11 +178,11 @@
 			}
 			
 		</script>
-		
 		<sakai:view_content>
-			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>      			
-			<h:outputText id="iframeId" value="#{CopyMeetingSignupMBean.iframeId}" style="display:none"/>	
+			<h:outputText id="iframeId" value="#{CopyMeetingSignupMBean.iframeId}" style="display:none"/>
 			<h:form id="meeting">
+				<%@ include file="/signup/menu/signupMenu.jsp" %>
+				<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>
 				<div class="page-header">
 					<sakai:view_title value="#{msgs.event_copy_meeting_page_title}"/>
 				</div>
