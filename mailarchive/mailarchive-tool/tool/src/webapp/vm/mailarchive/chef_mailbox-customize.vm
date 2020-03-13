@@ -20,6 +20,9 @@
 #end
 
 <div class="portletBody">
+	#if($menu)
+		#toolbar($menu)
+	#end
 	<div class="page-header">
 		<h1>$tlang.getString("cus.cus2")</h1>
 	</div>
