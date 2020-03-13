@@ -77,16 +77,6 @@
 			<h4>
 				<h:outputText value="#{msgs.attachment}"/>
 			</h4>	
-<%--						<h:outputText value="#{msgs.attachment}"/>
-						<h:outputText value=" "/>--%>
-
-<%--							<h:commandLink action="#{SyllabusTool.processAddAttWithOldItem}" onfocus="document.forms[0].onsubmit();">
-									<h:outputText value="#{msgs.attachment_local} "/>
-							</h:commandLink>--%>
-<%--							<h:outputText value=" "/>
-							<h:outputLink value="sakai.filepicker.helper/tool" onfocus="document.forms[0].onsubmit(); document.forms[0].submit();return false;">
-							  <h:outputText id="file_picker" value=" #{msgs.file_picker}"/>
-							</h:outputLink>--%>
 					
 					<sakai:button_bar>
 <%-- (gsilver) cannot pass a needed title atribute to this next item --%>					
@@ -107,8 +97,7 @@
 							<f:verbatim></h5></f:verbatim>
 							<f:verbatim><div class="itemAction"></f:verbatim>
 
-							<h:commandLink action="#{SyllabusTool.processDeleteAttach}" 
-								onfocus="document.forms[0].onsubmit();" title="#{msgs.removeAttachmentLink} #{eachAttach.name}">
+							<h:commandLink action="#{SyllabusTool.processDeleteAttach}" title="#{msgs.removeAttachmentLink} #{eachAttach.name}">
 								<h:outputText value="#{msgs.mainEditHeaderRemove}"/>
 								<f:param value="#{eachAttach.syllabusAttachId}" name="syllabus_current_attach"/>
 							</h:commandLink>
