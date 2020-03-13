@@ -19,9 +19,13 @@
 			var lastUserInputEid;
 			var defaultColor='black';
 			var predefinedByJSF = "meeting:preSignup:";//tag prefix-id form.name + datatable name
-						
-			
-			
+
+			$(document).ready( function () {
+				var menuLink = $('#signupAddMeetingMenuLink');
+				menuLink.addClass('current');
+				menuLink.html(menuLink.find('a').text());
+			});
+
 			function showHideAddPanel(timeslotId, attendeeIndex){				
 				clearPanel();
 				//hide addImage block
@@ -49,11 +53,11 @@
 				}
 
 		</script>
-		
-		<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>      			
-						
+
 		<sakai:view_content>
 			<h:form id="meeting">
+				<%@ include file="/signup/menu/signupMenu.jsp" %>
+				<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>
 				<div class="page-header">
 			 		<sakai:view_title value="#{msgs.event_assign_attendee_page_title}"/>
 				</div>

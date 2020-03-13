@@ -12,10 +12,18 @@
 		</style>
 		<h:outputText value="#{Portal.latestJQuery}" escape="false"/>
 		<script src="/sakai-signup-tool/js/signupScript.js"></script>
-		
+
+        <script>
+        $(document).ready( function() {
+          var menuLink = $('#signupMainMenuLink');
+          menuLink.addClass('current');
+          menuLink.html(menuLink.find('a').text());
+        });
+        </script>
 		<sakai:view_content>
-			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/> 
 			<h:form id="meeting">
+				<%@ include file="/signup/menu/signupMenu.jsp" %>
+				<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>
 				<div class="page-header">
 					<sakai:view_title value="#{msgs.event_addSignup_attendee_page_title}"/>
 				</div>

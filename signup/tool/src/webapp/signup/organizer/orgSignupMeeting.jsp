@@ -34,7 +34,9 @@
 			//initialization of the page
 	        jQuery(document).ready(function() {
 	        	initMeetingInfoDetail();
-	        	
+                var menuLink = $('#signupMainMenuLink');
+                menuLink.addClass('current');
+                menuLink.html(menuLink.find('a').text());
 				});
 						
 			function initMeetingInfoDetail(){
@@ -216,40 +218,28 @@
 		</script>
 		
 		<h:form id="modifyMeeting">
-			<h:panelGroup>
-				<f:verbatim><ul class="navIntraTool actionToolbar" role="menu"></f:verbatim> 
-				<h:panelGroup rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}">				
-						<f:verbatim><li role="menuitem" class="firstToolBarItem"> <span></f:verbatim>
-					<h:commandLink value="#{msgs.modify_event}" action="#{OrganizerSignupMBean.modifyMeeting}" rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}" />
-					<f:verbatim></span></li></f:verbatim>
-				</h:panelGroup>
-				
-				<h:panelGroup rendered="#{SignupPermissionsUpdateBean.showPermissionLink}"> 	
-					<f:verbatim><li role="menuitem" ><span></f:verbatim>
-					<h:commandLink value="#{msgs.copy_event}" action="#{OrganizerSignupMBean.copyMeeting}" />
-					<f:verbatim></span></li></f:verbatim>
-				</h:panelGroup>
-				
-				<h:panelGroup>
-					<f:verbatim><li role="menuitem" ><span></f:verbatim>
-					<h:commandLink value="#{msgs.event_pageTop_link_for_download_xls}" action="#{DownloadEventBean.downloadOneEventAsExcel}" />
-					<f:verbatim></span></li></f:verbatim>
-				</h:panelGroup>
-				
-				<h:panelGroup rendered="#{DownloadEventBean.csvExportEnabled}">
-					<f:verbatim><li role="menuitem" ><span></f:verbatim>
-					<h:commandLink value="#{msgs.event_pageTop_link_for_download_csv}" action="#{DownloadEventBean.downloadOneEventAsCsv}" rendered="#{DownloadEventBean.csvExportEnabled}" />
-					<f:verbatim></span></li></f:verbatim>
-				</h:panelGroup>
-				
-				<f:verbatim><li role="menuitem" ><span></f:verbatim>
-					<h:outputLink id="print" value="javascript:window.print();">
-							<h:outputText value="#{msgs.print_event}" escape="false"/>
-					</h:outputLink>				
-				<f:verbatim></span></li>
-				
-			  </ul></f:verbatim>
+			<%@ include file="/signup/menu/signupMenu.jsp" %>
+			<br/>
+			<h:panelGroup rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}">
+				<h:commandButton styleClass="button" value="#{msgs.modify_event}" action="#{OrganizerSignupMBean.modifyMeeting}"/>
+				&nbsp;
 			</h:panelGroup>
+			<h:panelGroup rendered="#{SignupPermissionsUpdateBean.showPermissionLink}">
+				<h:commandLink styleClass="button" value="#{msgs.copy_event}" action="#{OrganizerSignupMBean.copyMeeting}" />
+				&nbsp;
+			</h:panelGroup>
+			<h:panelGroup>
+				<h:commandLink styleClass="button"  value="#{msgs.event_pageTop_link_for_download_xls}" action="#{DownloadEventBean.downloadOneEventAsExcel}" />
+				&nbsp;
+			</h:panelGroup>
+			<h:panelGroup rendered="#{DownloadEventBean.csvExportEnabled}">
+				<h:commandLink value="#{msgs.event_pageTop_link_for_download_csv}" action="#{DownloadEventBean.downloadOneEventAsCsv}" rendered="#{DownloadEventBean.csvExportEnabled}" />
+				&nbsp;
+			</h:panelGroup>
+			<h:outputLink styleClass="button" id="print" value="javascript:window.print();">
+				<h:outputText value="#{msgs.print_event}" escape="false"/>
+			</h:outputLink>
+
 		</h:form>
 		
 		<sakai:view_content>
