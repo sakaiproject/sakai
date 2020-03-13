@@ -94,8 +94,7 @@
 							<f:verbatim></h4></f:verbatim>
 							<f:verbatim><div class="itemAction"></f:verbatim>
 							
-							<h:commandLink action="#{SyllabusTool.processDeleteAttach}" 
-								onfocus="document.forms[0].onsubmit();" title="#{msgs.removeAttachmentLink} #{eachAttach.name}">
+							<h:commandLink action="#{SyllabusTool.processDeleteAttach}" title="#{msgs.removeAttachmentLink} #{eachAttach.name}">
 									<h:outputText value="#{msgs.mainEditHeaderRemove}"/>
 									<f:param value="#{eachAttach.syllabusAttachId}" name="syllabus_current_attach"/>
 							</h:commandLink>
