@@ -77,14 +77,20 @@
 				
 		         sakai.toggleExactDateVisibility();
 	        		sakai.initSignupBeginAndEndsExact();
+
+                var menuLink = $('#signupAddMeetingMenuLink');
+                menuLink.addClass('current');
+                menuLink.html(menuLink.find('a').text());
+
 	         });
 			 
 		</script>
 
     	
         <sakai:view_content>
-     		<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>
-            <h:form id="meeting" >              
+            <h:form id="meeting" >
+                <%@ include file="/signup/menu/signupMenu.jsp" %>
+                <h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>
                 <div class="page-header">
                     <sakai:view_title value="#{msgs.create_new_event} #{msgs.basic}"/>
                 </div>
