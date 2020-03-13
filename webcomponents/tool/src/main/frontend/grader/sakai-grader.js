@@ -564,6 +564,9 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
     this.gradableDataLoader.then(data => doIt(data));
   }
 
+  /**
+   * Bundle up and post all the needed stuff, like the grade, rubric, instructor comments and attachments.
+   */
   getFormData() {
 
     let formData = new FormData();
@@ -599,16 +602,18 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   /**
-   * Bundle up and post all the needed stuff, like the grade, rubric, instructor comments and attachments.
+   * Bundle up all the form data, but set gradeOption=retract
+   *
    */
   save() {
 
     let formData = this.getFormData();
+    formData.set("gradeOption", "retract");
     this.submitGradingData(formData);
   }
 
   /**
-   * Same as save, but with release being set
+   * Same as save, but with gradeOption=release being set
    */
   saveAndRelease() {
 
