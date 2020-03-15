@@ -824,6 +824,10 @@ function includeWebjarLibrary(library) {
 	} else if (library == 'multiselect-two-sides') {
 		libraryVersion = "2.5.5";
 		document.write('\x3Cscript src="' + webjars + 'multiselect-two-sides/' + libraryVersion + '/dist/js/multiselect.min.js' + ver + '">' + '\x3C/script>');
+	} else if (library == 'fontawesome-iconpicker') {
+		libraryVersion = "1.4.1";
+		document.write('\x3Cscript src="' + webjars + 'fontawesome-iconpicker/' + libraryVersion + '/dist/js/fontawesome-iconpicker.min.js' + ver + '">' + '\x3C/script>');
+		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'fontawesome-iconpicker/' + libraryVersion + '/dist/css/fontawesome-iconpicker.min.css' + ver + '"/>');
 	} else {
 		if (library.endsWith(".js")) {
 			document.write('\x3Cscript src="' + webjars + library + ver + '">' + '\x3C/script>');
@@ -839,28 +843,8 @@ function portalSmallBreakPoint() { return 800; }
 function portalMediumBreakPoint() { return 800; } 
 
 // A function to add an icon picker to a text input field
-var fontawesome_icons = false;
 function fontawesome_icon_picker(selector) {
-	if ( fontawesome_icons ) { // Already loaded
-		$(selector).fontIconPicker({
-			source: fontawesome_icons,
-			extraClass: 'fa',
-			placeHolder: '',
-			emptyIconValue: 'none'
-		});
-	} else {
-		$.getJSON( '/library/js/fontIconPicker/2.0.1-cs/icons.json', function( data ) {
-			fontawesome_icons = data;
-			$(selector).fontIconPicker({
-				source: fontawesome_icons,
-				extraClass: 'fa',
-				placeHolder: '',
-				emptyIconValue: 'none'
-			});
-		}).error(function() { 
-			window.console && console.log("Could not load icons for icon picker."); 
-		});
-	}
+	$(selector).iconpicker({'hideOnSelect' : true});
 }
 
 // Return the correct width for a modal dialog.

@@ -78,7 +78,10 @@ Boolean allowRoster = (Boolean) rReq.getAttribute("allowRoster");
 	<% } %>
 
 <script type="text/javascript" src="/library/js/headscripts.js"></script>
-<script>includeLatestJQuery('portlet edit.jsp');</script>
+<script>
+	includeLatestJQuery('portlet edit.jsp');
+       	includeWebjarLibrary('fontawesome-iconpicker');
+</script>
 
 <ul class="navIntraTool actionToolBar">
 	<li class="firstToolBarItem">
@@ -178,9 +181,6 @@ if ( document.getElementById("UISwitcher") ) switchui();
 <label for="imsti_fa_icon"><%=rb.getString("tool.fa_icon") %></label>
 <input type="text" name="imsti.fa_icon" id="imsti_fa_icon" size="20" value="<%=ov.getProperty("imsti.fa_icon","")%>"> 
 </p>
-<script type="text/javascript" src="/library/js/fontIconPicker/2.0.1-cs/jquery.fonticonpicker.min.js"></script>
-<link rel="stylesheet" type="text/css" href="/library/js/fontIconPicker/2.0.1-cs/css/jquery.fonticonpicker.css" />
-<link rel="stylesheet" type="text/css" href="/library/js/fontIconPicker/2.0.1-cs/themes/grey-theme/jquery.fonticonpicker.grey.min.css" />
 <script type="text/javascript">$(document).ready(function () { fontawesome_icon_picker('#imsti_fa_icon'); });</script>
 </p>
 <% } %>
