@@ -24,11 +24,17 @@
               val: '',
               ashidden: { iso8601: 'podAddISO8601' }
           });
+
+          var menuLink = $('#podcastAddMenuLink');
+          var menuLinkSpan = menuLink.closest('span');
+          menuLinkSpan.addClass('current');
+          menuLinkSpan.html(menuLink.text());
+
         });
       </script>
       
   <h:form id="podAdd" enctype="multipart/form-data">
-
+    <%@ include file="/podcasts/podcastMenu.jsp" %>
     <div>  <!-- Page title and Instructions -->
         <div class="page-header">
             <h1><h:outputText value="#{msgs.add_title}" /></h1>
