@@ -76,10 +76,17 @@
 
 		if (userId == null) userId = forumTool.getUserId();
 
-		String rbcsEvaluationId = entityId + "." + userId;
+		String rbcsEvaluationId = userId+".";
+		if (forumTool.getSelectedMessage() != null) {
+			rbcsEvaluationId += forumTool.getSelectedMessage().getMessage().getUuid();
+		} else if (forumTool.getSelectedTopic() != null) {
+			rbcsEvaluationId += forumTool.getSelectedTopic().getTopic().getUuid();
+		} else {
+			rbcsEvaluationId += forumTool.getSelectedForum().getForum().getUuid();
+		}
 		%>
 		
-		<script>
+		<script type="text/javascript" language="javascript">
 		
 			function closeDialogBoxIfExists(){
 				//if isDialogBox, there will be javascript that is ran, otherwise its an empty function
@@ -207,7 +214,7 @@
 	<% if (hasAssociatedRubric) { %>
 		<sakai-rubric-grading
 		    token='<h:outputText value="#{ForumTool.rbcsToken}"/>'
-			tool-id="sakai.gradebookng"
+			tool-id="sakai.forums"
 			entity-id='<%= entityId %>'
 			evaluated-item-id='<%= rbcsEvaluationId %>'
 			<% if (stateDetails != null && !"".equals(stateDetails)) { %>

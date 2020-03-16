@@ -27,9 +27,9 @@
 
 <!--jsp/discussionForum/message/dfAllMessages.jsp-->
 		<link rel="stylesheet" type="text/css" href="../../css/TableSorter.css" />
-		<script>includeWebjarLibrary('jquery.tablesorter');</script>
-		<script src="/messageforums-tool/js/forumTopicThreadsSorter.js"></script>
-		<script>
+		<script type="text/javascript">includeWebjarLibrary('jquery.tablesorter');</script>
+		<script type="text/javascript" src="/messageforums-tool/js/forumTopicThreadsSorter.js"></script>
+ 		<script type="text/javascript">
  		jQuery(document).ready(function(){
  			//sort forum threads
  			$('#msgForum\\:messagesInHierDataTable').threadsSorter();
@@ -195,8 +195,8 @@
 					  <sakai-rubric-student-preview-button
 						  token="<h:outputText value="#{ForumTool.rbcsToken}" />"
 						  display="icon"
-						  tool-id="sakai.gradebookng"
-						  entity-id="<h:outputText value="#{ForumTool.selectedForum.gradeAssign}" />">
+						  tool-id="sakai.forums"
+						  entity-id="<h:outputText value="top.#{ForumTool.selectedTopic.topic.id}" />">
 					  </sakai-rubric-student-preview-button>
 					</h:panelGroup>
 					<h:outputText value="#{ForumTool.selectedTopic.topic.title}" styleClass="title"/>

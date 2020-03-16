@@ -31,9 +31,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
 import lombok.extern.slf4j.Slf4j;
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
@@ -49,7 +47,6 @@ import org.sakaiproject.util.ResourceLoader;
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
  */
 @Slf4j
-@Getter @Setter
 public class DiscussionForumBean
 {
   private static UserPreferencesManager userPreferencesManager = ComponentManager.get(UserPreferencesManager.class);
@@ -88,7 +85,7 @@ public class DiscussionForumBean
   /**
    * List of decorated topics
    */
-  private List<DiscussionTopicBean> topics = new ArrayList<>();
+  private List topics = new ArrayList();
 
   public DiscussionForumBean(DiscussionForum forum, UIPermissionsManager uiPermissionsManager, DiscussionForumManager forumManager)
   {
@@ -99,6 +96,15 @@ public class DiscussionForumBean
     this.forum = forum;
     this.uiPermissionsManager=uiPermissionsManager;
     this.forumManager=forumManager; 
+  }
+
+  /**
+   * @return
+   */
+  public DiscussionForum getForum()
+  {
+    log.debug("getForum()");
+    return forum;
   }
 
   /**
@@ -125,6 +131,15 @@ public class DiscussionForumBean
      }
      
      return retSort;
+  }
+
+  /**
+   * @return Returns the decorated topic.
+   */
+  public List getTopics()
+  {
+    log.debug("getTopics()");
+    return topics;
   }
 
   public void addTopic(DiscussionTopicBean decoTopic)
@@ -400,6 +415,50 @@ public class DiscussionForumBean
   }
 
   /**
+   * @return Returns the markForDeletion.
+   */
+  public boolean isMarkForDeletion()
+  {
+    log.debug("isMarkForDeletion()");
+    return markForDeletion;
+  }
+
+  /**
+   * @param markForDeletion
+   *          The markForDeletion to set.
+   */
+  public void setMarkForDeletion(boolean markForDeletion)
+  {
+    if(log.isDebugEnabled())
+    {
+      log.debug("setMarkForDeletion(boolean"+ markForDeletion+")");
+    }
+    this.markForDeletion = markForDeletion;
+  }
+
+  /**
+   * @return Returns the markForDuplication.
+   */
+  public boolean isMarkForDuplication()
+  {
+    log.debug("isMarkForDuplication()");
+    return markForDuplication;
+  }
+
+  /**
+   * @param markForDuplication
+   *          The markForDuplication to set.
+   */
+  public void setMarkForDuplication(boolean markForDuplication)
+  {
+    if(log.isDebugEnabled())
+    {
+      log.debug("setMarkForDuplication(boolean"+ markForDuplication+")");
+    }
+    this.markForDuplication = markForDuplication;
+  }
+
+  /**
    * @return
    */
   public boolean getChangeSettings()
@@ -450,6 +509,18 @@ public class DiscussionForumBean
     return readFullDesciption;
   }
 
+  /**
+   * @param readFullDesciption The readFullDesciption to set.
+   */
+  public void setReadFullDesciption(boolean readFullDesciption)
+  {
+    if(log.isDebugEnabled())
+    {
+      log.debug("setReadFullDesciption(boolean" +readFullDesciption+")");
+    }
+    this.readFullDesciption = readFullDesciption;
+  }
+  
   /**
    * @return
    */
@@ -504,6 +575,28 @@ public class DiscussionForumBean
     forum.getActorPermissions().setContributors(forumManager.decodeContributorsList(contributorsList));
   }
 
+  /**
+   * @param forumManager The forumManager to set.
+   */
+  public void setForumManager(DiscussionForumManager forumManager)
+  {
+    if(log.isDebugEnabled())
+    {
+       log.debug("setForumManager(DiscussionForumManager"+ forumManager+")");
+    }
+    this.forumManager = forumManager;
+  }
+
+  public String getGradeAssign()
+  {
+    return gradeAssign;
+  }
+
+  public void setGradeAssign(String gradeAssign)
+  {
+    this.gradeAssign = gradeAssign;
+  }
+  
 	public boolean getNonePermission()
 	{
 		if (nonePermission == null){
@@ -530,6 +623,11 @@ public class DiscussionForumBean
 		return nonePermission.booleanValue();
 	}
 
+	public void setNonePermission(boolean nonePermission)
+	{
+		this.nonePermission = nonePermission;
+	}
+	
 	public ArrayList getAttachList()
 	{
 		if (decoAttachList == null){
@@ -674,6 +772,6 @@ public class DiscussionForumBean
 	}
 
 	public String getHasRubric(){
-		return rubricsService.hasAssociatedRubric("sakai.gradebookng", forum.getDefaultAssignName()) ? Boolean.TRUE.toString() : Boolean.FALSE.toString();
+		return rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_FORUMS, RubricsConstants.RBCS_FORUM_ENTITY_PREFIX + forum.getId()) ? Boolean.TRUE.toString() : Boolean.FALSE.toString();
 	}
 }

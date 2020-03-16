@@ -37,8 +37,8 @@
 					<sakai-rubric-student-preview-button
 						display="icon"
 						token="<h:outputText value="#{ForumTool.rbcsToken}" />"
-						tool-id="sakai.gradebookng"
-						entity-id="<h:outputText value="#{ForumTool.selectedForum.gradeAssign}" />">
+						tool-id="sakai.forums"
+						entity-id="<h:outputText value="for.#{ForumTool.selectedForum.forum.id}" />">
 					</sakai-rubric-student-preview-button>
 				</h:panelGroup>
 				<h:outputText value="#{ForumTool.selectedForum.forum.title}" styleClass="title"/>
@@ -127,8 +127,8 @@
 							<sakai-rubric-student-preview-button
 								display="icon"
 								token="<h:outputText value="#{ForumTool.rbcsToken}" />"
-								tool-id="sakai.gradebookng"
-								entity-id="<h:outputText value="#{topic.gradeAssign}" />">
+								tool-id="sakai.forums"
+								entity-id="<h:outputText value="top.#{topic.topic.id}" />">
 							</sakai-rubric-student-preview-button>
 						</h:panelGroup>
 						<h:commandLink action="#{ForumTool.processActionDisplayTopic}" id="topic_title" title=" #{topic.topic.title}" styleClass="title">
