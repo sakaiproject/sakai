@@ -9178,16 +9178,16 @@ public class DiscussionForumTool {
 		return (allowedToGradeItem && (getRubricAssociationId() != null));
 	}
 
-    public String getRubricAssociationId() {
-        String gradeAssign = selectedTopic != null ? selectedTopic.getGradeAssign()
-                : selectedForum != null ? selectedForum.getGradeAssign()
-                : null;
+	public String getRubricAssociationId(){
 
-        if (gradeAssign != null && rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, gradeAssign)) {
-            return gradeAssign;
-        }
-        return null;
-    }
+		String gradeAssign = selectedTopic.getGradeAssign();
+
+		if ((selectedTopic != null || selectedForum != null) && rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, gradeAssign)) {
+			return gradeAssign;
+		} else {
+			return null;
+		}
+	}
 
 	public String getCDNQuery() {
 		return PortalUtils.getCDNQuery();
