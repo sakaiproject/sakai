@@ -166,12 +166,7 @@
                 <input name="eventSubmit_doPost_submission" type="submit" value="$tlang.getString("gen.subm3")" disabled="disabled"/>
                 <input name="eventSubmit_doCancel_show_submission" type="submit" value="$tlang.getString("gen.revi")" disabled="disabled"/>
             #else
-                #if ($!submission.Submitted && $!submission.DateSubmitted)
-                    #set($name=$tlang.getString("resubmit"))
-                #else
-                    #set($name=$tlang.getString("gen.subm3"))
-                #end
-                <input type="button" class="active" name="confirm" accesskey="s" id="confirm" value="$!name" aria-label="$!name"
+                <input type="button" class="active" name="confirm" accesskey="s" id="confirm" value="$tlang.getString("gen.proceed")" aria-label="$!name"
                        onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'confirm', null, null ); return false;"/>
                 <input class="disableme" type="button" accesskey="d" name="save" id="save"
                        value="$tlang.getString("gen.savdra")"
