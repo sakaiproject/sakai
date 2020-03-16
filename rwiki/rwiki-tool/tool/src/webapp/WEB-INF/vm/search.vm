@@ -47,6 +47,10 @@
 	<script type="text/javascript">
 		$(document).ready(function(){
 			rearrangeBreadCrumb();
+			var menuLink = $('#homeLink');
+			var menuLinkSpan = menuLink.closest('span');
+			menuLinkSpan.addClass('current');
+			menuLinkSpan.html(menuLink.text());
 		})
 	</script>
 	<div id="rwiki_head" >				    

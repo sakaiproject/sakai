@@ -15,6 +15,10 @@
 	<script type="text/javascript">
 		$(document).ready(function(){
 			rearrangeBreadCrumb();
+			var menuLink = $('#viewLink');
+			var menuLinkSpan = menuLink.closest('span');
+			menuLinkSpan.addClass('current');
+			menuLinkSpan.html(menuLink.text());
 		})
 	</script>
 	<ul class="navIntraTool actionToolBar">
