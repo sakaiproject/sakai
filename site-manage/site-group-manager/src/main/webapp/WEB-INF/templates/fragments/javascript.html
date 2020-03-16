@@ -50,6 +50,10 @@
     $('#delete-groups-submit-button').attr('disabled', !selectAllChecked );
   });
 
+  $('.group-locked-info-collapsed').on('keypress', function(event) {
+    $(this).click();
+  });
+
   var confirmationModal = function(callback){
     $('#group-manager-form').on('submit', function(e){
       e.preventDefault();
