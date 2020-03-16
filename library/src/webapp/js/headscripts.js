@@ -844,7 +844,23 @@ function portalMediumBreakPoint() { return 800; }
 
 // A function to add an icon picker to a text input field
 function fontawesome_icon_picker(selector) {
-	$(selector).iconpicker({'hideOnSelect' : true});
+	// Set the input to read only
+	$(selector).prop('readonly', true);
+	// Add the class to make this a form control
+	$(selector).addClass('form-control icp icp-auto');
+	// Add an input group to the parent to enable the preview icon
+	$(selector).parent().addClass("input-group");
+	// Add the preview icon
+	$(selector).before('<span class="input-group-addon"></span>');
+	// Enable the iconpicker
+	$(selector).iconpicker({
+		'hideOnSelect' : true, 
+		'collision': true
+	});
+	$(selector).parent().on('iconpickerShown', function(event) {
+		// Focus on the popover window since this attachs to the input-group
+		event.iconpickerInstance.popover.find('input').focus()
+	});
 }
 
 // Return the correct width for a modal dialog.

@@ -178,8 +178,10 @@ if ( document.getElementById("UISwitcher") ) switchui();
 
 <% if ( allow(sp,"fa_icon") ) { %>
 <p  class="shorttext" style="clear:none;">
-<label for="imsti_fa_icon"><%=rb.getString("tool.fa_icon") %></label>
-<input type="text" name="imsti.fa_icon" id="imsti_fa_icon" size="20" value="<%=ov.getProperty("imsti.fa_icon","")%>"> 
+<div class=form-group">
+	<label for="imsti_fa_icon"><%=rb.getString("tool.fa_icon") %></label>
+	<input type="text" name="imsti.fa_icon" id="imsti_fa_icon" size="20" value="<%=ov.getProperty("imsti.fa_icon","")%>"> 
+</div>
 </p>
 <script type="text/javascript">$(document).ready(function () { fontawesome_icon_picker('#imsti_fa_icon'); });</script>
 </p>

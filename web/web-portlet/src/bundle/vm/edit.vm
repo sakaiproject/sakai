@@ -43,10 +43,7 @@ ${includeLatestJQuery}
                 #end
                     <div class="form-group">
 			    <label for="fa_icon" class="control-label form-control-label"> $tlang.getString("gen.fa_icon")</label>
-			    <div class="input-group">
-				    <input class="form-control icp icp-auto" value="$!fa_icon" id="fa_icon" name="fa_icon" type="text"/>
-				    <span class="input-group-addon"></span>
-			    </div>
+                    	    <input type="text" id="fa_icon" name="fa_icon" value="$!fa_icon" /><br />
                     </div>
                     <br />
 
