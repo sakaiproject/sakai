@@ -21,13 +21,6 @@
 -->
 <h:panelGroup>
     <ul class="navIntraTool actionToolbar" role="menu">
-        <h:panelGroup rendered="#{authorization.createAssessment}">
-            <li role="menuitem">
-                <span class="current">
-                    <h:outputText value="#{generalMessages.add}" />
-                </span>
-            </li>
-        </h:panelGroup>
         <h:panelGroup rendered="#{authorization.createAssessment or authorization.editAnyAssessment or authorization.editOwnAssessment or authorization.gradeAnyAssessment or authorization.gradeOwnAssessment}">
             <li role="menuitem">
                 <span>
@@ -35,6 +28,13 @@
                         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
                         <h:outputText value="#{generalMessages.assessment}" />
                     </h:commandLink>
+                </span>
+            </li>
+        </h:panelGroup>
+        <h:panelGroup rendered="#{authorization.createAssessment}">
+            <li role="menuitem">
+                <span class="current">
+                    <h:outputText value="#{generalMessages.add}" />
                 </span>
             </li>
         </h:panelGroup>
