@@ -9,7 +9,14 @@
 
 <body rsf:id="scr=sakai-body">
 <div class="portletBody">
-<p><strong rsf:id="confirm-msg">Thank you for voting!</strong></p>
+<ul rsf:id="actions:" class="navIntraTool">
+    <li><span class="current" rsf:id="actions-main">Polls</span></li>
+    <li><span><a href="voteAdd.html" rsf:id="actions-add">Add</a></span></li>
+    <li><span><a href="votePermissions.html" rsf:id="actions-permissions">Permissions</a></span></li>
+</ul>
+<div class ="page-header">
+  <h1 rsf:id="confirm-msg">Results</h1>
+</div>
 <p><span rsf:id="confirm-ref-msg">Your reference number:</span> <span rsf:id="ref-number">{number goes here}</span></p>
 <p><a href="voteResults.html" rsf:id="poll_results">View Results</a></p>
 

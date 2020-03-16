@@ -26,11 +26,14 @@ import java.util.List;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
+import lombok.Setter;
 
+import org.sakaiproject.poll.logic.ExternalLogic;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
 import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
+import org.sakaiproject.poll.tool.constants.NavigationConstants;
 import org.sakaiproject.poll.tool.params.OptionViewParameters;
 import org.sakaiproject.poll.tool.params.PollToolBean;
 import org.sakaiproject.poll.tool.params.PollViewParameters;
@@ -43,6 +46,7 @@ import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIELBinding;
 import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UIInput;
+import uk.org.ponder.rsf.components.UIInternalLink;
 import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UISelect;
@@ -52,6 +56,7 @@ import uk.org.ponder.rsf.flow.ARIResult;
 import uk.org.ponder.rsf.flow.ActionResultInterceptor;
 import uk.org.ponder.rsf.view.ComponentChecker;
 import uk.org.ponder.rsf.view.ViewComponentProducer;
+import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
@@ -61,7 +66,8 @@ public class PollOptionDeleteProducer implements ViewComponentProducer, ActionRe
 
 	private MessageLocator messageLocator;
 	private LocaleGetter localeGetter;
-	
+	@Setter private ExternalLogic externalLogic;
+
 	public String getViewID() {
 		
 		return VIEW_ID;
@@ -92,7 +98,17 @@ public class PollOptionDeleteProducer implements ViewComponentProducer, ActionRe
 		log.debug("rendering view");
 		
 		UIOutput.make(tofill,"confirm_delete",messageLocator.getMessage("delete_confirm"));
-		
+
+		// Menu links
+		UIBranchContainer actions = UIBranchContainer.make(tofill,"actions:",Integer.toString(0));
+		UIInternalLink.make(actions, NavigationConstants.NAVIGATE_MAIN, UIMessage.make(NavigationConstants.NAVIGATE_MAIN_MESSAGE), new SimpleViewParameters(PollToolProducer.VIEW_ID));
+		if (this.isAllowedPollAdd()) {
+			UIInternalLink.make(actions, NavigationConstants.NAVIGATE_ADD, UIMessage.make(NavigationConstants.NAVIGATE_ADD_MESSAGE), new PollViewParameters(AddPollProducer.VIEW_ID, "New 0"));
+		}
+		if (this.isSiteOwner()) {
+			UIInternalLink.make(actions, NavigationConstants.NAVIGATE_PERMISSIONS, UIMessage.make(NavigationConstants.NAVIGATE_PERMISSIONS_MESSAGE), new SimpleViewParameters(PermissionsProducer.VIEW_ID));
+		}
+
 		Option option = null;
 		OptionViewParameters aivp = (OptionViewParameters) viewparams;
 		if(aivp.id != null) {
@@ -219,4 +235,13 @@ public class PollOptionDeleteProducer implements ViewComponentProducer, ActionRe
 			}
 
 	  }
+
+    private boolean isAllowedPollAdd() {
+        return externalLogic.isUserAdmin() || externalLogic.isAllowedInLocation(PollListManager.PERMISSION_ADD, externalLogic.getCurrentLocationReference());
+    }
+
+    private boolean isSiteOwner() {
+        return externalLogic.isUserAdmin() || externalLogic.isAllowedInLocation("site.upd", externalLogic.getCurrentLocationReference());
+    }
+
 }

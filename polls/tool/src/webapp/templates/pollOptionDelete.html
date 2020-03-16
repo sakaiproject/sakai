@@ -9,13 +9,21 @@
 
 <body rsf:id="scr=sakai-body">
 	<div class="portletBody">
-		<p>
-			<strong rsf:id="confirm_delete">Delete confirmation</strong>
-		</p>
-		<div>
-			<div class="alertMessage" rsf:id="error">We Have Errors!</div>
-		</div>
-		
+
+	<ul rsf:id="actions:" class="navIntraTool">
+		<li><span><a href="votePolls.html" rsf:id="actions-main">Polls</a></span></li>
+		<li><span class="current" rsf:id="actions-add">Add</span></li>
+		<li><span><a href="votePermissions.html" rsf:id="actions-permissions">Permissions</a></span></li>
+	</ul>
+
+	<div class ="page-header">
+		<h1 rrsf:id="confirm_delete">Delete confirmation</h1>
+	</div>
+
+	<div>
+		<div class="sak-banner-warn" rsf:id="error">We Have Errors!</div>
+	</div>
+
 		<p><span rsf:id="poll_text">poll_text</span></p>
 		
 		<form rsf:id="opt-form">
