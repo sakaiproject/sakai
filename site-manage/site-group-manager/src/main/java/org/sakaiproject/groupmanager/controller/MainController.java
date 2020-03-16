@@ -46,7 +46,7 @@ import org.sakaiproject.user.api.User;
 @Slf4j
 @Controller
 public class MainController {
-    
+
     @Autowired
     private SakaiService sakaiService;
 
@@ -75,11 +75,15 @@ public class MainController {
                 return g1.getTitle().compareToIgnoreCase(g2.getTitle());
         }});
 
-        List<Group> lockedGroupList = site.getGroups().stream().filter(group -> RealmLockMode.ALL.equals(group.getRealmLock()) || RealmLockMode.MODIFY.equals(group.getRealmLock())).collect(Collectors.toList());
-        List<Group> lockedForDeletionGroupList = site.getGroups().stream().filter(group -> RealmLockMode.ALL.equals(group.getRealmLock()) || RealmLockMode.DELETE.equals(group.getRealmLock())).collect(Collectors.toList());
+        // Control the groups that are locked by entities
+        boolean anyGroupLocked = false;
+        List<String> lockedGroupList = new ArrayList<>();
+        List<String> lockedForDeletionGroupList = new ArrayList<>();
+        Map<String, Map<String, List<String>>> lockedGroupsEntityMap = new HashMap<>();
 
         // For each group of the site, get the members separated by comma, the joinable sets and the size of the joinable sets.
         for (Group group: groupList) {
+            boolean groupLocked = false;
             // Get the group members separated by comma
             StringJoiner stringJoiner = new StringJoiner(", ");
             List<User> groupMemberList = new ArrayList<User>();
@@ -96,12 +100,33 @@ public class MainController {
             groupJoinableSetMap.put(group.getId(), group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET));
             // Get the joinable sets and add them to the Map
             groupJoinableSetSizeMap.put(group.getId(), group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET_MAX) != null ? group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET_MAX) : null);
+
+            // Check if the group is locked for modify or all
+            if (RealmLockMode.ALL.equals(group.getRealmLock()) || RealmLockMode.MODIFY.equals(group.getRealmLock())) {
+                lockedGroupList.add(group.getId());
+                groupLocked = true;
+            }
+
+            // Check if the group is locked for deletion
+            if (RealmLockMode.ALL.equals(group.getRealmLock()) || RealmLockMode.DELETE.equals(group.getRealmLock())) {
+                lockedForDeletionGroupList.add(group.getId());
+                groupLocked = true;
+            }
+
+            // If the group is locked, provide information about the entities that are locking the group.
+            if (groupLocked) {
+                anyGroupLocked = true;
+                lockedGroupsEntityMap.put(group.getId(), sakaiService.getGroupLockingEntities(group));
+            }
+
         }
 
         // Add attributes to the model
         model.addAttribute("groupList", groupList);
         model.addAttribute("lockedGroupList", lockedGroupList);
         model.addAttribute("lockedForDeletionGroupList", lockedForDeletionGroupList);
+        model.addAttribute("anyGroupLocked", anyGroupLocked);
+        model.addAttribute("lockedGroupsEntityMap", lockedGroupsEntityMap);
         model.addAttribute("groupMemberMap", groupMemberMap);
         model.addAttribute("groupJoinableSetMap", groupJoinableSetMap);
         model.addAttribute("groupJoinableSetSizeMap", groupJoinableSetSizeMap);
