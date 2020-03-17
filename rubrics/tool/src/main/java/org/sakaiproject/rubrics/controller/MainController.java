@@ -2,10 +2,12 @@ package org.sakaiproject.rubrics.controller;
 
 import javax.annotation.Resource;
 
+import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.rubrics.logic.RubricsService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
+
 
 @Controller
 public class MainController {
@@ -23,6 +25,7 @@ public class MainController {
         String token = rubricsService.generateJsonWebToken("sakai.rubrics");
         model.addAttribute("token", token);
         model.addAttribute("sakaiSessionId", rubricsService.getCurrentSessionId());
+        model.addAttribute("cdnQuery", PortalUtils.getCDNQuery());
         return "index";
     }
 }

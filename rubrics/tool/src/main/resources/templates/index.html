@@ -3,8 +3,8 @@
       xmlns:th="http://www.thymeleaf.org">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <script src="/library/js/headscripts.js" type="text/javascript"></script>
-    <script type="module" src="/rubrics-service/webcomponents/sakai-rubrics-manager.js"></script>
+    <script th:src="@{~/library/js/headscripts.js} + ${cdnQuery}"></script>
+    <script type="module" th:src="@{/webcomponents/sakai-rubrics-manager.js} + ${cdnQuery}"></script>
   </head>
   <body>
     <div class="portletBody">

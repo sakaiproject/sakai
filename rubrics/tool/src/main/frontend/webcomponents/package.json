@@ -1,0 +1,19 @@
+{
+  "name": "rubrics",
+  "version": "1.0.0",
+  "description": "Rubrics",
+  "main": "rubrics-manager.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sakaiproject/sakai.git"
+  },
+  "scripts": {
+    "empathise": "empathise install"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ECL-2.0",
+  "devDependencies": {
+    "@sakaicontrib/empathise": "github:sakaicontrib/empathise"
+  }
+}
