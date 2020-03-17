@@ -75,6 +75,7 @@
 		class="org.sakaiproject.poll.tool.producers.ConfirmProducer">
 		<property name="localeGetter" ref="requestLocaleProxy" />
 		<property name="messageLocator" ref="messageLocator" />
+		<property name="externalLogic" ref="org.sakaiproject.poll.logic.ExternalLogic"/>
 	</bean>
 
 	<bean id="pollOptionProducer"
@@ -95,6 +96,7 @@
 		<property name="localeGetter" ref="requestLocaleProxy" />
 		<property name="pollListManager" ref="org.sakaiproject.poll.logic.PollListManager" />
 		<property name="targettedMessageList" ref="targettedMessageList" />
+		<property name="externalLogic" ref="org.sakaiproject.poll.logic.ExternalLogic"/>
 	</bean>
 
 	<bean id="pollOptionDeleteProducer"
@@ -105,6 +107,7 @@
 			ref="org.sakaiproject.poll.logic.PollListManager" />
 		<property name="pollVoteManager"
 			ref="org.sakaiproject.tool.poll.api.PollVoteManager" />
+		<property name="externalLogic" ref="org.sakaiproject.poll.logic.ExternalLogic"/>
 	</bean>
 
 	<bean id="addPollProducer"
