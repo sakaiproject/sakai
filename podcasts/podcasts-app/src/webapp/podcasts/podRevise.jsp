@@ -12,10 +12,10 @@
     <link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
 
   <sakai:view toolCssHref="./css/podcaster.css">
-      <script type="text/javascript">includeLatestJQuery("podRevise");</script>
-      <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+      <script>includeLatestJQuery("podRevise");</script>
+      <script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
 
-      <script type="text/javascript">
+      <script>
         $(document).ready(function() {
            localDatePicker({
               input: '#podRev\\:poddate',
@@ -25,11 +25,17 @@
               val: '<h:outputText value="#{podHomeBean.selectedPodcast.displayDateRevise}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
               ashidden: { iso8601: 'podReviseISO8601' }
           });
+
+          var menuLink = $('#podcastMainMenuLink');
+          var menuLinkSpan = menuLink.closest('span');
+          menuLinkSpan.addClass('current');
+          menuLinkSpan.html(menuLink.text());
+
         });
       </script>
 
   <h:form id="podRev" enctype="multipart/form-data">
-
+    <%@ include file="/podcasts/podcastMenu.jsp" %>
     <div>  <!-- Page title and Instructions -->
       <div class="page-header">
         <h1><h:outputText value="#{msgs.revise_title}" /></h1>
