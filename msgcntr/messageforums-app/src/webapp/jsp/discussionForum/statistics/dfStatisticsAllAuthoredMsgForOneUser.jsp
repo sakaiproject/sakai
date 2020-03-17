@@ -131,6 +131,10 @@
 		  				fckeditor_word_count_fromMessage(msgBody,'wordCountSpan' + wordCountId);
 					});
 					resize();
+                    var menuLink = $('#forumsStatisticsMenuLink');
+                    var menuLinkSpan = menuLink.closest('span');
+                    menuLinkSpan.addClass('current');
+                    menuLinkSpan.html(menuLink.text());
 				});
 
 				function dialogLinkClick(link){
@@ -139,11 +143,7 @@
 				}
 			</script>
 
-  			<sakai:tool_bar>
-  				<h:outputLink id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyAllAuthoredMsg}');" title="#{msgs.cdfm_print}">
-					<h:graphicImage url="/../../library/image/silk/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
-				</h:outputLink>		
-  			</sakai:tool_bar>
+           <%@ include file="/jsp/discussionForum/menu/forumsMenu.jsp" %>
 
   			<% if(isDialogBox){ %>
 				<h:panelGroup layout="block" styleClass="itemNav">
@@ -183,6 +183,13 @@
 			      <h:outputText value=" / "/>
 			      <h:outputText value="#{msgs.stat_authored}" />
 			  </h3></h:panelGroup>
+
+			<h:panelGroup id="forumsAction">
+				<h:outputLink styleClass="button" id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyAllAuthoredMsg}');" title="#{msgs.cdfm_print}">
+					<h:graphicImage url="/../../library/image/silk/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
+				</h:outputLink>
+			</h:panelGroup>
+
 			 <%}%>
 			  <f:verbatim>
 			  	<div class="success" id="gradesSavedDiv" class="success" style="display:none">

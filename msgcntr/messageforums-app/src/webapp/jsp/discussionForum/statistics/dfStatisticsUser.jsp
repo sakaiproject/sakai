@@ -109,6 +109,10 @@
 					$("#wordCountSpan" + wordCountId).html(getWordCount(msgBody));
 	  				//fckeditor_word_count_fromMessage(msgBody,'wordCountSpan' + wordCountId);
 				});
+				var menuLink = $('#forumsStatisticsMenuLink');
+				var menuLinkSpan = menuLink.closest('span');
+				menuLinkSpan.addClass('current');
+				menuLinkSpan.html(menuLink.text());
 			});
 			
 			function dialogLinkClick(link){
@@ -116,6 +120,8 @@
 				dialogutil.openDialog('dialogDiv', 'dialogFrame', position.top);
 			}
 		</script>
+
+		<%@ include file="/jsp/discussionForum/menu/forumsMenu.jsp" %>
 
 		<div id="dialogDiv" title="Grade Messages" style="display:none">
 			<h:commandButton type="button" styleClass="closeDialogFrame" onclick="dialogutil.closeDialog($(this).parent().attr('id'), $('#dialogFrame').attr('id'));" value="#{msgs.close_window}"/>
