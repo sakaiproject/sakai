@@ -1,0 +1,113 @@
+<!-- start:  content_macros.vm -->
+#macro( contentMenu $current)
+  <ul id="contentMenu" class="navIntraTool actionToolBar">
+      <li>
+        <span #if("resources" == $current) class="current" #end>
+          #set($linkText = $clang.getString("list.site.dropbox"))
+          #if(!$!dropboxMode)
+            #set($linkText = $tlang.getString("list.site"))
+          #end
+          #if("resources" == $current)
+            $linkText
+          #else 
+            <a href="#toolLink("ResourcesAction" "doCancel" "requestStateId=1")">$linkText</a>
+          #end
+        </span>
+      </li>
+    #if($showWebdavLink)
+      <li class="hidden-xs">
+        <span #if("webdav" == $current) class="current" #end>
+          #if("webdav" == $current)
+            $tlang.getString("dav.webdav")
+          #else
+            <a href="#toolLink("ResourcesAction" "doShow_webdav")" title="$tlang.getString('dav.webdav')">$tlang.getString("dav.webdav")</a>
+          #end
+        </span>
+      </li>
+    #end
+    #if($showOptions)
+      <li>
+        <span #if("options" == $current) class="current" #end>
+          #if("options" == $current)
+            $clang.getString("list.options")
+          #else
+            <a href="#toolLinkParam("ResourcesAction" "doOptions" "siteId=$siteId")" title="$clang.getString('list.options')">$clang.getString("list.options")</a>
+          #end
+        </span>
+      </li>
+    #end
+    #if($showDropboxOptions)
+      <li class="hidden-xs">
+        <span #if("dropboxUploadMultiple" == $current) class="current" #end>
+          #if("dropboxUploadMultiple" == $current)
+            $tlang.getString("multiple.file.upload")
+          #else
+            <a href="#toolLinkParam("ResourcesAction" "doDropboxMultipleFoldersUpload" "siteId=$siteId")" title="$tlang.getString("multiple.file.upload")">$tlang.getString("multiple.file.upload")</a>
+          #end
+        </span>
+      </li>
+      <li>
+        <span #if("dropboxOptions" == $current) class="current" #end>
+          #if("dropboxOptions" == $current)
+            $clang.getString("list.options")
+          #else
+            <a href="#toolLinkParam("ResourcesAction" "doDropboxOptions" "siteId=$siteId")" title="$clang.getString('list.options')">$clang.getString("list.options")</a>
+          #end
+        </span>
+      </li>
+    #end
+    #if($showQuota)
+      <li>
+        <span #if("quota" == $current) class="current" #end>
+          #if("quota" == $current)
+            $clang.getString("list.quota")
+          #else
+            <a href="#toolLinkParam("ResourcesAction" "doShowQuota" "siteId=$siteId")" title="$clang.getString('list.quota')">$clang.getString("list.quota")</a>
+          #end
+        </span>
+      </li>
+    #end
+    #if($canDeleteResource)
+      ## view restore deleted resources area if the user has revise permission
+      <li>
+        <span #if("trash" == $current) class="current" #end>
+        #if("trash" == $current)
+          $clang.getString("trash")
+        #else
+          <a href="#toolLinkParam("ResourcesAction" "doViewTrash" "siteId=$siteId")" title="$clang.getString('trash')">$clang.getString("trash")</a>
+        #end
+        </span>
+      </li>
+    #end
+    #if($showPermissions)
+      <li><span><a href="#toolLinkParam("ResourcesAction" "doPermissions" "collectionId=$siteId")" title="$clang.getString('list.sPerm')">$clang.getString("list.sPerm")</a></span></li>
+    #end
+    ##SAK-30085
+    #if($showJumpToResourceForm)
+      <li class="inputItem">
+        <span class="formItem form-inline">
+          <form id="jumpToResourceForm" class="inlineForm form-group" action="#toolForm("ResourcesAction")" method="post">
+            <input type="hidden" name="source" value="0" />  
+            <input type="hidden" name="navRoot" value="" />
+            <input type="hidden" name="criteria" value="title" />
+            <input type="hidden" name="sakai_action" value="doNavigate" />
+            <input type="hidden" name="rt_action" value="" />
+            <input type="hidden" name="selectedItemId" value="" />
+            <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+            <input type="text" class="form-control" name="collectionId" value="" required />
+            <input type="submit" value="$clang.getString('list.jumptoresource')"/>
+          </form>
+        </span>
+    </li>
+    #end
+  </ul>
+<script>
+  // This is needed to redirect to main actions from the helper using the top menu, must call ResourcesAction instead of ResourcesHelperAction.
+  var menuList = document.getElementById('contentMenu');
+  let menuLinks = menuList.querySelectorAll('a');
+  menuLinks.forEach(function (menuLink) {
+    menuLink.href = menuLink.href.replace('/sakai.resource.type.helper.helper', '');
+  });
+</script>
+#end
+<!-- end:    content_macros.vm -->
