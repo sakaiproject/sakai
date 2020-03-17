@@ -115,8 +115,14 @@
                     setAutoCreatePanel();
                 }
 
+                var menuLink = $('#forumsNewMenuLink');
+                var menuLinkSpan = menuLink.closest('span');
+                menuLinkSpan.addClass('current');
+                menuLinkSpan.html(menuLink.text());
+
 			 });
         </script>
+		<%@ include file="/jsp/discussionForum/menu/forumsMenu.jsp" %>
 		<h:panelGroup layout="block" styleClass="page-header">
 			<h1><h:outputText value="#{msgs.cdfm_discussion_forum_settings}" /></h1>
 		</h:panelGroup>

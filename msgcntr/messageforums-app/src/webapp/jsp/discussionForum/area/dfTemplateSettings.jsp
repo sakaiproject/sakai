@@ -31,6 +31,14 @@
 		function resize(){
   			mySetMainFrameHeight('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
   		}
+
+         $(document).ready(function() {
+             var menuLink = $('#forumsTemplateSettingsMenuLink');
+             var menuLinkSpan = menuLink.closest('span');
+             menuLinkSpan.addClass('current');
+             menuLinkSpan.html(menuLink.text());
+         });
+
 	</script> 
 <script>
 	function setDatesEnabled(radioButton){
@@ -51,6 +59,7 @@
 <!--jsp/discussionForum/area/dfTemplateSettings.jsp-->
 
 
+				<%@ include file="/jsp/discussionForum/menu/forumsMenu.jsp" %>
 				<div class="page-header">
 					<h1><h:outputText value="#{msgs.cdfm_default_template_settings}" /></h1>
 				</div>

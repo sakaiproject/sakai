@@ -1,4 +1,4 @@
-<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+// <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
@@ -46,8 +46,14 @@
 					msgBody = msgBody.replace(/\n/g,',').replace(/\s/g,' ').replace(/  ,/g,',');
 					fckeditor_word_count_fromMessage(msgBody, "counttotal");
 
+					var menuLink = $('#forumsMainMenuLink');
+					var menuLinkSpan = menuLink.closest('span');
+					menuLinkSpan.addClass('current');
+					menuLinkSpan.html(menuLink.text());
+
 					});
 			</script>
+            <%@ include file="/jsp/discussionForum/menu/forumsMenu.jsp" %>
 
 			<%--breadcrumb and thread nav grid--%>
 			<h:panelGroup layout="block" styleClass="navPanel row">
