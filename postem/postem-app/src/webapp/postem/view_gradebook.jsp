@@ -15,8 +15,17 @@
 </jsp:useBean>
 <f:view>
 	<sakai:view title="#{msgs.title_list}">
+		<script>includeLatestJQuery("postemViewGradebook");</script>
+		<script>
+			$(document).ready(function() {
+				var menuLink = $('#postemMainMenuLink');
+				var menuLinkSpan = menuLink.closest('span');
+				menuLinkSpan.addClass('current');
+				menuLinkSpan.html(menuLink.text());
+			});
+		</script>
 		<h:form>
-
+			<%@ include file="/postem/postemMenu.jsp" %>
 			<sakai:view_content>
 				<br />
 				<h:outputText value="#{msgs.gradebook_lastmodified}"/>

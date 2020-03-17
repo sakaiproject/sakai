@@ -17,9 +17,18 @@
 
 <f:view>
   <sakai:view title="#{msgs.title_new}">
-      <script src="/library/js/spinner.js" type="text/javascript"></script>
+      <script src="/library/js/spinner.js"></script>
+      <script>includeLatestJQuery("postemCreateGradebook");</script>
+      <script>
+          $(document).ready(function() {
+              var menuLink = $('#postemAddMenuLink');
+              var menuLinkSpan = menuLink.closest('span');
+              menuLinkSpan.addClass('current');
+              menuLinkSpan.html(menuLink.text());
+          });
+      </script>
       <h:form enctype="multipart/form-data">
-      
+        <%@ include file="/postem/postemMenu.jsp" %>
       	<div class="page-header">
           <h1><h:outputText value="#{msgs.create_update}"/></h1>
         </div>
