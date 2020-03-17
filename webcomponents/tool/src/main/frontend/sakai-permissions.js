@@ -36,7 +36,7 @@ class SakaiPermissions extends SakaiElement {
     this.groups = [];
     this.groupReference = `/site/${portal.siteId}`;
 
-    this.loadTranslations("permissions").then(i18n => {
+    this.loadTranslations("permissions-wc").then(i18n => {
 
       this.loadTranslations(this.tool).then(tool => {
 
