@@ -22,6 +22,16 @@ $Id: evaluationHeadings.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
 -->
 <h:panelGroup>
     <ul class="navIntraTool actionToolbar" role="menu">
+        <h:panelGroup rendered="#{authorization.createAssessment or authorization.editAnyAssessment or authorization.editOwnAssessment or authorization.gradeAnyAssessment or authorization.gradeOwnAssessment}">
+            <li role="menuitem">
+                <span>
+                    <h:commandLink title="#{generalMessages.t_assessment}" action="author" immediate="true"  rendered="#{authorization.adminAssessment}">
+                        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
+                        <h:outputText value="#{generalMessages.assessment}" />
+                    </h:commandLink>
+                </span>
+            </li>
+        </h:panelGroup>
         <h:panelGroup rendered="#{authorization.createAssessment}">
             <li role="menuitem">
                 <span>
@@ -29,16 +39,6 @@ $Id: evaluationHeadings.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
                         <f:param name="action" value="create_assessment_title" />
                         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorAssessmentListener" />
                         <h:outputText value="#{generalMessages.add}" />
-                    </h:commandLink>
-                </span>
-            </li>
-        </h:panelGroup>
-        <h:panelGroup rendered="#{authorization.createAssessment or authorization.editAnyAssessment or authorization.editOwnAssessment or authorization.gradeAnyAssessment or authorization.gradeOwnAssessment}">
-            <li role="menuitem">
-                <span>
-                    <h:commandLink title="#{generalMessages.t_assessment}" action="author" immediate="true"  rendered="#{authorization.adminAssessment}">
-                        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
-                        <h:outputText value="#{generalMessages.assessment}" />
                     </h:commandLink>
                 </span>
             </li>
