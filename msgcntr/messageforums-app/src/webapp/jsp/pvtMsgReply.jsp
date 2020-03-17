@@ -21,7 +21,7 @@
 		<script src="/messageforums-tool/js/sak-10625.js"></script>
 		<script src="/messageforums-tool/js/messages.js"></script>
 		<script>includeWebjarLibrary('select2');</script>
-
+        <%@ include file="/jsp/privateMsg/pvtMenu.jsp" %>
 	<h:form id="pvtMsgReply">
 		<script>
 				function clearSelection(selectObject)
@@ -59,6 +59,12 @@
 				  	addTagSelector(document.getElementById('pvtMsgReply:list1'));
 				  	addTagSelector(document.getElementById('pvtMsgReply:list2'));
 				  	resize();
+
+                    var menuLink = $('#messagesMainMenuLink');
+                    var menuLinkSpan = menuLink.closest('span');
+                    menuLinkSpan.addClass('current');
+                    menuLinkSpan.html(menuLink.text());
+
 				});
 		</script>
 
