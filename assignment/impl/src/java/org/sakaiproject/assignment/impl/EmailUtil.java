@@ -159,8 +159,10 @@ public class EmailUtil {
         buffer.append(resourceLoader.getString("noti.site.url")).append(" <a href=\"").append(siteUrl).append("\">").append(siteUrl).append("</a>").append(NEW_LINE);
         // assignment title and due date
         buffer.append(resourceLoader.getString("assignment.title")).append(" ").append(assignment.getTitle()).append(NEW_LINE);
-	String formattedDueDate = assignmentService.getUsersLocalDateTimeString(assignment.getDueDate());
-        buffer.append(resourceLoader.getString("noti.assignment.duedate")).append(" ").append(formattedDueDate).append(NEW_LINE).append(NEW_LINE);
+        if(!assignment.getHideDueDate()) {
+            String formattedDueDate = assignmentService.getUsersLocalDateTimeString(assignment.getDueDate());
+            buffer.append(resourceLoader.getString("noti.assignment.duedate")).append(" ").append(formattedDueDate).append(NEW_LINE).append(NEW_LINE);
+        }
         // submitter name and id
         String submitterNames = "";
         String submitterIds = "";
