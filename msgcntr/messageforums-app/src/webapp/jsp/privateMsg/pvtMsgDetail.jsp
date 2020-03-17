@@ -21,6 +21,15 @@
            	<script src="/library/webjars/qtip2/3.0.3/jquery.qtip.min.js"></script>
        		<script src="/messageforums-tool/js/sak-10625.js"></script>
        		<script src="/messageforums-tool/js/messages.js"></script>
+			<script>
+				$(document).ready(function () {
+					var menuLink = $('#messagesMainMenuLink');
+					var menuLinkSpan = menuLink.closest('span');
+					menuLinkSpan.addClass('current');
+					menuLinkSpan.html(menuLink.text());
+				});
+			</script>
+			<%@ include file="/jsp/privateMsg/pvtMenu.jsp" %>
 <!--jsp/privateMsg/pvtMsgDetail.jsp-->
 <%--			<sakai:tool_bar_message value="#{msgs.pvt_detmsgreply}" /> --%> 
 			<h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/> 

@@ -15,6 +15,15 @@
 		<script src="/messageforums-tool/js/sak-10625.js"></script>
 		<script src="/messageforums-tool/js/forum.js"></script>
 		<script src="/messageforums-tool/js/messages.js"></script>
+        <script>
+            $(document).ready(function() {
+                var menuLink = $('#messagesMainMenuLink');
+                var menuLinkSpan = menuLink.closest('span');
+                menuLinkSpan.addClass('current');
+                menuLinkSpan.html(menuLink.text());
+            });
+        </script>
+        <%@ include file="/jsp/privateMsg/pvtMenu.jsp" %>
 
 		<h:form id="prefs_form_search">
 

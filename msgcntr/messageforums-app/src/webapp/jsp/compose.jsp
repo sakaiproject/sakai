@@ -59,8 +59,13 @@
 				  	addTagSelector(document.getElementById('compose:list1'));
 				  	addTagSelector(document.getElementById('compose:list2'));
 				  	resize();
+					var menuLink = $('#messagesComposeMenuLink');
+					var menuLinkSpan = menuLink.closest('span');
+					menuLinkSpan.addClass('current');
+					menuLinkSpan.html(menuLink.text());
 				});
 			</script>
+			<%@ include file="/jsp/privateMsg/pvtMenu.jsp" %>
 		<!-- compose.jsp -->
   			<div class="page-header">
 				<h1>
