@@ -255,7 +255,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		String siteId = ToolManager.getCurrentPlacement().getContext();
 		String homeCollectionId = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
 		String collectionId = (String) state.getAttribute (STATE_COLLECTION_ID);
-		boolean atHome = collectionId.equals(homeCollectionId);
+		boolean atHome = StringUtils.isNotBlank(collectionId) && collectionId.equals(homeCollectionId);
 		boolean allowUpdateSite = SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext());
 		ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
 		if(registry == null) {
