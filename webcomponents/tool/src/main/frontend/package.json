@@ -8,8 +8,8 @@
     "url": "https://github.com/sakaiproject/sakai.git"
   },
   "scripts": {
-    "build": "webpack --config webpack.config.js -p",
-    "postinstall": "empathy install"
+    "build": "webpack --config conf/webpack.config.js -p",
+    "empathise": "empathise install"
   },
   "keywords": [],
   "author": "",
@@ -21,7 +21,6 @@
     "sortablejs": "^1.9.0"
   },
   "devDependencies": {
-    "@0xcda7a/empathy": "0.0.9",
     "@ckeditor/ckeditor5-adapter-ckfinder": "^11.0.5",
     "@ckeditor/ckeditor5-autoformat": "^11.0.5",
     "@ckeditor/ckeditor5-basic-styles": "^11.1.4",
@@ -44,6 +43,7 @@
     "@ckeditor/ckeditor5-paste-from-office": "^11.1.0",
     "@ckeditor/ckeditor5-table": "^14.0.0",
     "@ckeditor/ckeditor5-theme-lark": "^14.2.0",
+    "@sakaicontrib/empathise": "github:sakaicontrib/empathise",
     "postcss-loader": "^3.0.0",
     "raw-loader": "^3.1.0",
     "style-loader": "^1.0.0",

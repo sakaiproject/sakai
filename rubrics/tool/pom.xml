@@ -57,6 +57,10 @@
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-util</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.portal</groupId>
+            <artifactId>sakai-portal-util</artifactId>
+        </dependency>
         <!-- Spring Boot -->
         <dependency>
             <groupId>org.springframework</groupId>
@@ -223,7 +227,92 @@
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                 </configuration>
             </plugin>
-			<plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>buildnumber-maven-plugin</artifactId>
+                <version>1.4</version>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>create</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <shortRevisionLength>8</shortRevisionLength>
+                    <revisionOnScmFailure>Sakai</revisionOnScmFailure>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>src/main/frontend/webcomponents/node_modules</directory>
+                            <followSymlinks>false</followSymlinks>
+                        </fileset>
+                        <fileset>
+                            <directory>src/main/frontend/webcomponents</directory>
+                            <includes>
+                                <include>**/*.js</include>
+                            </includes>
+                            <excludes>
+                                <exclude>js/**</exclude>
+                            </excludes>
+                            <followSymlinks>false</followSymlinks>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <version>1.8.0</version>
+                <configuration>
+                    <installDirectory>target</installDirectory>
+                    <workingDirectory>src/main/frontend/webcomponents</workingDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>install node and npm</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>install-node-and-npm</goal>
+                        </goals>
+                        <configuration>
+                            <nodeVersion>v12.16.1</nodeVersion>
+                            <npmVersion>6.14.2</npmVersion>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm install dependencies</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>
+                                ci --save-dev
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm empathise</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>
+                                run empathise -- --query=?version=${buildNumber}
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
 				<artifactId>maven-resources-plugin</artifactId>
 				<version>2.6</version>
 				<executions>
@@ -238,13 +327,19 @@
 							<resources>          
 								<resource>
 									<directory>src/main/frontend</directory>
-									<filtering>true</filtering>
+                                    <filtering>true</filtering>
+                                    <excludes>
+                                        <exclude>webcomponents/js/**</exclude>
+                                        <exclude>webcomponents/node_modules/**</exclude>
+                                        <exclude>webcomponents/package.json</exclude>
+                                        <exclude>webcomponents/package-lock.json</exclude>
+                                    </excludes>
 								</resource>
 							</resources>              
 						</configuration>            
 					</execution>
 				</executions>
-		    </plugin>
+            </plugin>
         </plugins>
     </build>
 </project>
