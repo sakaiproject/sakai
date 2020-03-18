@@ -1,14 +1,52 @@
 ## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/calendar/chef_calendar_viewList.vm,v 1.9 2005/05/31 19:04:02 suiyy.umich.edu Exp $
 <script>includeLatestJQuery('chef_calendar_viewList.vm');</script>
 #javascript("/library/js/lang-datepicker/lang-datepicker.js")
-<script language="JavaScript" type="text/JavaScript">
-<!--
-	function openCopyrightWindow(theURL,winName,winSettings) 
-	{ 
-	  window.open(theURL,winName,winSettings);
-	  return false;
-	}
-//-->
+<script>
+  function openCopyrightWindow(theURL,winName,winSettings) {
+    window.open(theURL,winName,winSettings);
+    return false;
+  }
+
+  function toggleSelectAll(caller, elementName) {
+    var newValue = caller.checked;
+    var elements = document.getElementsByName(elementName);
+
+    if(elements) {
+      for(var i = 0; i < elements.length; i++) {
+        elements[i].checked = newValue;
+      }
+    }
+  }
+
+  $(document).ready(function() {
+    localDatePicker({
+      input:'#customStartDate',
+      useTime:0,
+      val:"$customStartYear$H$customStartMonth$H$customStartDay",
+      parseFormat: 'YYYY-MM-DD',
+      ashidden:{
+        month:"customStartMonth",
+        day:"customStartDay",
+        year:"customStartYear",
+        iso8601: 'customStartDateISO8601'
+      }
+    });
+
+    localDatePicker({
+      input:'#customEndDate',
+      useTime:0,
+      val:"$customEndYear$H$customEndMonth$H$customEndDay",
+      parseFormat: 'YYYY-MM-DD',
+      ashidden:{
+        month:"customEndMonth",
+        day:"customEndDay",
+        year:"customEndYear",
+        iso8601: 'customEndDateISO8601'
+      }
+    });
+
+  });
+
 </script>
 
 <div class="portletBody">
@@ -43,39 +81,13 @@
 			#if ($timeFilterOption == "SHOW_CUSTOM_RANGE")
 				<form name="listform1" class="customDateRange" method="post" action="#toolForm("$action")">
 					<div class="sakai-table-viewFilter">
-						<label for="customStartMonth">$tlang.getString('viewl.st')</label>
-						<input type="text" id="customStartDate" name="customStartDate" class="datepicker" value="">
-						<script type="text/javascript">
-							localDatePicker({
-								input:'#customStartDate',
-								useTime:0,
-								val:"$customStartYear$H$customStartMonth$H$customStartDay",
-								parseFormat: 'YYYY-MM-DD',
-								ashidden:{
-									month:"customStartMonth",
-									day:"customStartDay",
-									year:"customStartYear"
-								}
-							});
-						</script>
-					</div>	
+						<label for="customStartDate">$tlang.getString('viewl.st')</label>
+						<input type="text" id="customStartDate" name="customStartDate" class="datepicker">
+					</div>
 					<div class="sakai-table-viewFilter">
-						<label for="customEndMonth">$tlang.getString('viewl.ed')</label>
-						<input type="text" id="customEndDate" name="customEndDate" class="datepicker" value="">
-						<script type="text/javascript">
-							localDatePicker({
-								input:'#customEndDate',
-								useTime:0,
-								val:"$customEndYear$H$customEndMonth$H$customEndDay",
-								parseFormat: 'YYYY-MM-DD',
-								ashidden:{
-									month:"customEndMonth",
-									day:"customEndDay",
-									year:"customEndYear"
-								}
-							});
-						</script>
-					</div>	
+						<label for="customEndDate">$tlang.getString('viewl.ed')</label>
+						<input type="text" id="customEndDate" name="customEndDate" class="datepicker">
+					</div>
 					<p class="act"><input name="eventSubmit_doCustomdate" type="submit" value="$tlang.getString('view.apply')" /></p>
 					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 				</form>
@@ -346,22 +358,4 @@
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 </div>
-
-<script language="JavaScript" type="text/JavaScript">
-	<!--
-		function toggleSelectAll(caller, elementName)
-		{
-			var newValue = caller.checked;
-			var elements = document.getElementsByName(elementName);
-			
-			if(elements)
-			{
-				for(var i = 0; i < elements.length; i++)
-				{
-					elements[i].checked = newValue;
-				}
-			}
-		}
-	-->
-</script>
 
