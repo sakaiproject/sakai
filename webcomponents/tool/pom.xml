@@ -44,10 +44,31 @@
         <sourceDirectory>src/main/java</sourceDirectory>
         <plugins>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>buildnumber-maven-plugin</artifactId>
+                <version>1.4</version>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>create</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <shortRevisionLength>8</shortRevisionLength>
+                    <revisionOnScmFailure>Sakai</revisionOnScmFailure>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>
                 <configuration>
                     <filesets>
+                        <fileset>
+                            <directory>src/main/frontend/node_modules</directory>
+                            <followSymlinks>false</followSymlinks>
+                        </fileset>
                         <fileset>
                             <directory>src/main/frontend/assets</directory>
                             <includes>
@@ -62,6 +83,17 @@
                             </includes>
                             <followSymlinks>false</followSymlinks>
                         </fileset>
+                        <fileset>
+                            <directory>src/main/frontend</directory>
+                            <includes>
+                                <include>**/*.js</include>
+                            </includes>
+                            <excludes>
+                                <exclude>js/**</exclude>
+                                <exclude>conf/**</exclude>
+                            </excludes>
+                            <followSymlinks>false</followSymlinks>
+                        </fileset>
                     </filesets>
                 </configuration>
             </plugin>
@@ -71,11 +103,11 @@
                 <configuration>
                     <warSourceDirectory>src/main/webapp</warSourceDirectory>
                     <packagingExcludes>
+                        js/**,
+                        conf/**,
                         node_modules/**,
-                        ckeditor-src.js,
                         package.json,
                         package-lock.json,
-                        webpack.config.js,
                         .jshintrc
                     </packagingExcludes>
                     <webResources>
@@ -100,8 +132,8 @@
                             <goal>install-node-and-npm</goal>
                         </goals>
                         <configuration>
-                            <nodeVersion>v12.14.0</nodeVersion>
-                            <npmVersion>6.13.4</npmVersion>
+                            <nodeVersion>v12.16.1</nodeVersion>
+                            <npmVersion>6.14.2</npmVersion>
                         </configuration>
                     </execution>
                     <execution>
@@ -123,13 +155,13 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>npm install</id>
+                        <id>npm tailor</id>
                         <goals>
                             <goal>npm</goal>
                         </goals>
                         <configuration>
                             <arguments>
-                                ci --unsafe-perm
+                                run empathise -- --query=?version=${buildNumber}
                             </arguments>
                         </configuration>
                     </execution>
