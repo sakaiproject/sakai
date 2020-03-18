@@ -16,6 +16,7 @@
 package org.sakaiproject.gradebookng.tool.actions;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.model.Model;
@@ -77,10 +78,10 @@ public class EditCommentAction extends InjectableAction implements Serializable 
 				final String comment = panel.getComment();
 
 				target.appendJavaScript(
-						String.format("GbGradeTable.updateComment('%s', '%s', '%s');",
+						String.format("GbGradeTable.updateComment('%s', '%s', \"%s\");",
 								assignmentId,
 								studentUuid,
-								comment == null ? "" : comment));
+								comment == null ? "" : StringEscapeUtils.escapeJson(comment)));
 			}
 		});
 		window.show(target);
