@@ -4710,7 +4710,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		String siteId = toolManager.getCurrentPlacement().getContext();
 		String homeCollectionId = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
 		String collectionId = (String) state.getAttribute (STATE_COLLECTION_ID);
-		boolean atHome = collectionId.equals(homeCollectionId);
+		boolean atHome = StringUtils.isNotBlank(collectionId) && collectionId.equals(homeCollectionId);
 		boolean allowUpdateSite = siteService.allowUpdateSite(toolManager.getCurrentPlacement().getContext());
 		ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
 		if(registry == null) {
