@@ -358,7 +358,7 @@ document.links[newindex].onclick();
          </sakai-rubric-student>
        </h:panelGroup>
 
-       <h:panelGroup rendered="#{delivery.actionString == 'takeAssessment'}">
+       <h:panelGroup rendered="#{delivery.actionString == 'takeAssessment' || delivery.actionString == 'takeAssessmentViaUrl'}">
            <sakai-rubric-student-preview-button
                 token="<h:outputText value="#{delivery.rbcsToken}" />"
                 tool-id="sakai.samigo"

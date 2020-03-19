@@ -1685,11 +1685,16 @@ public class DeliveryBean implements Serializable {
   }
 
   public String getSiteId() {
-    siteId = null;
-    Placement currentPlacement = ToolManager.getCurrentPlacement();
-    if(currentPlacement != null)
-      siteId = currentPlacement.getContext();
-    return siteId;
+
+    if (StringUtils.isNotBlank(siteId)) {
+      return siteId;
+    } else {
+      Placement currentPlacement = ToolManager.getCurrentPlacement();
+      if (currentPlacement != null) {
+        siteId = currentPlacement.getContext();
+      }
+      return siteId;
+    }
   }
 
   public String getAgentAccessString() {
