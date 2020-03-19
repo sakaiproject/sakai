@@ -2592,14 +2592,17 @@ public class MessageForumStatisticsBean {
 	} 
 	
 	public void setDefaultSelectedAssign(){
-		if(!gradebookItemChosen){
-			if(selectedAllTopicsTopicId != null && !"".equals(selectedAllTopicsTopicId)){
-				String defaultAssignName = forumManager.getTopicById(Long.parseLong(selectedAllTopicsTopicId)).getDefaultAssignName();
-				setDefaultSelectedAssign(defaultAssignName);
-			}else{
-				String defaultAssignName = forumManager.getForumById(Long.parseLong(selectedAllTopicsForumId)).getDefaultAssignName();
-				setDefaultSelectedAssign(defaultAssignName);
-			}			
+		if (!gradebookItemChosen) {
+			String defaultAssignName;
+			if (StringUtils.isNotBlank(selectedAllTopicsTopicId)) {
+				defaultAssignName = forumManager.getTopicById(Long.parseLong(selectedAllTopicsTopicId)).getDefaultAssignName();
+			} else {
+				defaultAssignName = forumManager.getForumById(Long.parseLong(selectedAllTopicsForumId)).getDefaultAssignName();
+			}
+			if (StringUtils.isNotBlank(defaultAssignName)) {
+				Assignment assignment = getGradebookService().getAssignmentByNameOrId(toolManager.getCurrentPlacement().getContext(), defaultAssignName);
+				setDefaultSelectedAssign(assignment.getName());
+			}
 		}
 		gradebookItemChosen = false;
 	}
@@ -2624,18 +2627,13 @@ public class MessageForumStatisticsBean {
 		selAssignName = "";
 	}
 	
-	private void setDefaultSelectedAssign(String assign){
+	private void setDefaultSelectedAssign(final String assign){
 		selectedAssign = DEFAULT_GB_ITEM;
 		selAssignName = "";
-		if(assign != null){
-			for (SelectItem item : getAssignments()) {
-				if(assign.equals(item.getLabel())){
-					selectedAssign = item.getValue().toString();
-					selAssignName = assign;
-				}
-			}
-		}
-		
+		getAssignments().stream().filter(item -> item.getLabel().equals(assign)).findAny().ifPresent(item -> {
+			selectedAssign = item.getValue().toString();
+			selAssignName = assign;
+		});
 	}
 	
 	private Map<String, DecoratedGradebookAssignment> getGradebookAssignment(){
