@@ -61,6 +61,7 @@ import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.service.gradebook.shared.InvalidGradeItemNameException;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
@@ -283,6 +284,12 @@ public class PublishAssessmentListener
         // Add a global message (not bound to any component) to the faces context indicating the failure
         String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
                                                  "gradebook_exception_min_points");
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(err));
+        throw new AbortProcessingException(gbe);
+    } catch (InvalidGradeItemNameException gbe) {
+        log.warn(gbe.getMessage(), gbe);
+        String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
+                                                 "gradebook_exception_title_invalid");
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(err));
         throw new AbortProcessingException(gbe);
     } catch (Exception e) {

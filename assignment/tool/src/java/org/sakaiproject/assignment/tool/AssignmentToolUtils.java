@@ -55,6 +55,7 @@ import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameExcept
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.InvalidGradeItemNameException;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
@@ -513,6 +514,10 @@ public class AssignmentToolUtils {
                         } catch (ConflictingAssignmentNameException e) {
                             // add alert prompting for change assignment title
                             alerts.add(rb.getFormattedMessage("addtogradebook.nonUniqueTitle", "\"" + newAssignment_title + "\""));
+                            log.warn(this + ":integrateGradebook " + e.getMessage());
+                        } catch (InvalidGradeItemNameException e) {
+                            // add alert prompting for invalid assignment title name
+                            alerts.add(rb.getFormattedMessage("addtogradebook.titleInvalidCharacters", "\"" + newAssignment_title + "\""));
                             log.warn(this + ":integrateGradebook " + e.getMessage());
                         } catch (Exception e) {
                             log.warn(this + ":integrateGradebook " + e.getMessage());
