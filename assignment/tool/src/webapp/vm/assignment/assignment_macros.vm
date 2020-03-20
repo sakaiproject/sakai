@@ -94,14 +94,6 @@
 #macro( navBarHREF $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view $current )
     <ul class="navIntraTool actionToolBar">
         #set( $prevAction = false )
-        #if( $allowAddAssignment )
-            #set( $prevAction = true )
-            <li class="firstToolBarItem">
-                <span>
-                    <a href="#toolLink( "$action" "doNew_assignment" )" title="$!tlang.getString( "new" )">$!tlang.getString( "new" )</a>
-                </span>
-            </li>
-        #end
         <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
             #if( !$!view.equals( "lisofass1" ) )
                 <span>
@@ -111,6 +103,14 @@
                 <span class="current">$!tlang.getString( "lisofass1" )</span>
             #end
         </li>
+        #if( $allowAddAssignment )
+            #set( $prevAction = true )
+            <li class="firstToolBarItem">
+                <span>
+                    <a href="#toolLink( "$action" "doNew_assignment" )" title="$!tlang.getString( "new" )">$!tlang.getString( "new" )</a>
+                </span>
+            </li>
+        #end
         <li>
             #if( !$!view.equals( "lisofass2" ) )
                 <span>
@@ -155,23 +155,16 @@
                 #end
             </li>
         #end
-        #if( $allowUpdateSite )
+        #if( $allowUpdateSite && $enableViewOption)
             <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
-                <span>
-                    <a href="#toolLink( "$action" "doPermissions" )" title="$tlang.getString( "permis" )">$tlang.getString( "permis" )</a>
-                </span>
+                #if( !$!current.equals( "options" ) )
+                    <span>
+                        <a href="#toolLink( "$action" "doOptions" )" title="$tlang.getString( "options" )">$tlang.getString( "options" )</a>
+                    </span>
+                #else
+                    <span class="current">$!tlang.getString( "options" )</span>
+                #end
             </li>
-            #if( $enableViewOption )
-                <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
-                    #if( !$!current.equals( "options" ) )
-                        <span>
-                            <a href="#toolLink( "$action" "doOptions" )" title="$tlang.getString( "options" )">$tlang.getString( "options" )</a>
-                        </span>
-                    #else
-                        <span class="current">$!tlang.getString( "options" )</span>
-                    #end
-                </li>
-            #end
         #end
         #if( $allowRecoverAssignment )
             <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
@@ -184,6 +177,13 @@
                 #end
             </li>
         #end
+        #if( $allowUpdateSite )
+            <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
+                <span>
+                    <a href="#toolLink( "$action" "doPermissions" )" title="$tlang.getString( "permis" )">$tlang.getString( "permis" )</a>
+                </span>
+            </li>
+        #end
     </ul>
 #end
 
@@ -191,20 +191,6 @@
 #macro( navBarOnClick $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view $formID $current )
     <ul class="navIntraTool actionToolBar">
         #set( $prevAction = false )
-        #if( $allowAddAssignment )
-            #set( $prevAction = true )
-            <li class="firstToolBarItem">
-                #if( $current == "new" )
-                    <span class="current">$!tlang.getString( "new" )</span>
-                #else
-                    <span>
-                        <a href="javascript:void(0)" title="$!tlang.getString( "new" )" onclick="ASN.submitForm( '$formID', 'new', null, 'new' ); return false;">
-                            $!tlang.getString( "new" )
-                        </a>
-                    </span
-                #end
-            </li>
-        #end
         #if( !$!view.equals( "lisofass1" ) )
             #set( $prevAction = true )
             <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
@@ -221,6 +207,20 @@
         #else
             <li>
                 <span class="disabled">$!tlang.getString( "lisofass1" )</span>
+            </li>
+        #end
+        #if( $allowAddAssignment )
+            #set( $prevAction = true )
+            <li class="firstToolBarItem">
+                #if( $current == "new" )
+                    <span class="current">$!tlang.getString( "new" )</span>
+                #else
+                    <span>
+                        <a href="javascript:void(0)" title="$!tlang.getString( "new" )" onclick="ASN.submitForm( '$formID', 'new', null, 'new' ); return false;">
+                            $!tlang.getString( "new" )
+                        </a>
+                    </span
+                #end
             </li>
         #end
         #if( !$!view.equals( "lisofass2" ) )
@@ -281,23 +281,14 @@
                 #end
             </li>
         #end
-        #if( $allowUpdateSite )
+        #if( $allowUpdateSite && $enableViewOption)
             <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
                 <span>
-                    <a href="javascript:void(0)" title="$tlang.getString( "permis" )" onclick="ASN.submitForm( '$formID', 'permissions', null, null ); return false;">
-                        $tlang.getString( "permis" )
+                    <a href="javascript:void(0)" title="$tlang.getString( "options" )" onclick="ASN.submitForm( '$formID', 'options', null, null ); return false;">
+                        $tlang.getString( "options" )
                     </a>
                 </span>
             </li>
-            #if( $enableViewOption )
-                <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
-                    <span>
-                        <a href="javascript:void(0)" title="$tlang.getString( "options" )" onclick="ASN.submitForm( '$formID', 'options', null, null ); return false;">
-                            $tlang.getString( "options" )
-                        </a>
-                    </span>
-                </li>
-            #end
         #end
         #if( $allowRecoverAssignment )
             <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
@@ -310,6 +301,15 @@
                         </a>
                     </span>
                 #end
+            </li>
+        #end
+        #if( $allowUpdateSite )
+            <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
+                <span>
+                    <a href="javascript:void(0)" title="$tlang.getString( "permis" )" onclick="ASN.submitForm( '$formID', 'permissions', null, null ); return false;">
+                        $tlang.getString( "permis" )
+                    </a>
+                </span>
             </li>
         #end
     </ul>
