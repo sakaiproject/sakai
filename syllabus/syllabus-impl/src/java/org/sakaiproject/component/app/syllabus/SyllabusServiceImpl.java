@@ -22,6 +22,7 @@ package org.sakaiproject.component.app.syllabus;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -1164,7 +1165,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 												toSyData.getCalendarEventIdStartDate(), toSyData.getCalendarEventIdEndDate());
 						Set attachSet = syllabusManager.getSyllabusAttachmentsForSyllabusData(toSyData);
 						Iterator attachIter = attachSet.iterator();
-						Set<SyllabusAttachment> newAttachSet = new TreeSet<SyllabusAttachment>();
+						Set<SyllabusAttachment> newAttachSet = new TreeSet<SyllabusAttachment>(Comparator.comparing(SyllabusAttachment::getAttachmentId));
 						while(attachIter.hasNext())
 						{
 							SyllabusAttachment thisAttach = (SyllabusAttachment)attachIter.next();
