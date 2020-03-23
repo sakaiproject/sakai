@@ -18,7 +18,7 @@
 		<bootstrap-version>3.3.7</bootstrap-version>
 		<font-awesome-version>4.7.0</font-awesome-version>
 		<!-- Default extra plugins enabled -->
-		<ckeditor-extra-plugins>sakaipreview,image2,audiorecorder,contentitem,movieplayer,wordcount,notification,autosave,bt_table</ckeditor-extra-plugins>
+		<ckeditor-extra-plugins>sakaipreview,image2,audiorecorder,contentitem,html5video,wordcount,notification,autosave,bt_table</ckeditor-extra-plugins>
 		<!-- Empty defaults for a11y-->
 		<ckeditor-a11y-extra-plugins></ckeditor-a11y-extra-plugins>
 		<!-- These should only be updated when the webjars version is updated -->
@@ -27,6 +27,7 @@
 		<ckeditor.a11ychecker.version>1.1.1</ckeditor.a11ychecker.version>
 		<ckeditor.balloonpanel.version>4.9.2</ckeditor.balloonpanel.version>
 		<ckeditor.image2.version>4.14.0</ckeditor.image2.version>
+		<ckeditor.html5video.version>1.2.1</ckeditor.html5video.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -82,6 +83,12 @@
 			<groupId>org.webjars</groupId>
 			<artifactId>ckeditor-image2</artifactId>
 			<version>${ckeditor.image2.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars.bower</groupId>
+			<artifactId>github-com-bahriddin-ckeditor-html5-video</artifactId>
+			<version>${ckeditor.html5video.version}</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
