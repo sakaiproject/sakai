@@ -27,6 +27,8 @@
                 enableFiltering: true,
                 enableCaseInsensitiveFiltering: true
             });
+            var content = $('#access_groups${DOT}'+index.value).closest('.multiselect-native-select').contents();
+            $('#access_groups${DOT}'+index.value).closest('.multiselect-native-select').replaceWith(content);
         });
     });
 </script>
