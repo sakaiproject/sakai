@@ -1,6 +1,6 @@
 <div class="portletBody container-fluid">
     <form name = "manageOverviewForm" method = "post" action="#toolForm($action)">
-
+        <input type="hidden" name="back" value="$!back" />
         <input type="hidden" name="eventSubmit_doManage_overview_option" value="x" />
         <input type="hidden" name="option" value="cancel" />
         <div class="page-header">

@@ -666,7 +666,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					addMoreToolsUrl += "?sakai_action=doMenu_edit_site_tools&panel=Shortcut";
 
 					manageOverviewUrl = ToolUtils.getPageUrl(req, site, p, portalPrefix, resetTools, effectiveSiteId, null);
-					manageOverviewUrl += "?sakai_action=doManageOverview";
+					manageOverviewUrl += "?sakai_action=doManageOverviewFromHome";
 				}
 			}
 			if ( pageTools.size() != 1 ) {
