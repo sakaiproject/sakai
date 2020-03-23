@@ -74,7 +74,7 @@ public class FileUploadType extends BaseResourceType
 	private static final String RESOURCEBUNDLE = "resource.bundle.type";
 	private String resourceClass = ServerConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
 	private String resourceBundle = ServerConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
-	private ResourceLoader rb = new Resource().getLoader(resourceClass, resourceBundle);
+	private ResourceLoader rb = Resource.getResourceLoader(resourceClass, resourceBundle);
 	// private static ResourceLoader rb = new ResourceLoader("types");
 	
 	private Localizer localizer(final String string) {
