@@ -76,7 +76,7 @@
     <!-- QUESTION PROPERTIES -->
     <!-- 1 POINTS -->
     <div class="form-group row">
-        <h:outputLabel value="#{authorMessages.answer_point_value}" styleClass="col-md-4 col-lg-2 form-control-label"/>
+        <h:outputLabel for="answerptr" value="#{authorMessages.answer_point_value}" styleClass="col-md-4 col-lg-2 form-control-label"/>
         <div class="col-md-2">
             <h:inputText id="answerptr" label="#{authorMessages.pt}" value="#{itemauthor.currentItem.itemScore}" 
                         required="true" disabled="#{author.isEditPoolFlow}" styleClass="form-control ConvertPoint">
@@ -87,9 +87,9 @@
     </div>
   
     <div class="form-group row">
-        <h:outputLabel value="#{authorMessages.answer_point_value_display}" styleClass="col-md-4 col-lg-2 form-control-label"/>
+        <h:outputLabel for="itemScore" value="#{authorMessages.answer_point_value_display}" styleClass="col-md-4 col-lg-2 form-control-label"/>
         <div class="col-md-5 samigo-inline-radio">
-            <h:selectOneRadio value="#{itemauthor.currentItem.itemScoreDisplayFlag}" >
+            <h:selectOneRadio value="#{itemauthor.currentItem.itemScoreDisplayFlag}" id="itemScore">
                 <f:selectItem itemValue="true" itemLabel="#{authorMessages.yes}" />
                 <f:selectItem itemValue="false" itemLabel="#{authorMessages.no}" />
             </h:selectOneRadio>
@@ -115,11 +115,11 @@
 
     <!-- 2 TEXT -->
     <div class="form-group row">
-        <h:outputLabel value="#{authorMessages.q_text}" styleClass="col-md-4 col-lg-2 form-control-label"/>
+        <h:outputLabel for="questionItemText_textinput" value="#{authorMessages.q_text}" styleClass="col-md-4 col-lg-2 form-control-label"/>
         <div class="col-md-8">
             <!-- WYSIWYG -->
             <h:panelGrid>
-                <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="yes" mode="author">
+                <samigo:wysiwyg identity="questionItemText" rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="yes" mode="author">
                     <f:validateLength maximum="60000"/>
                 </samigo:wysiwyg>
             </h:panelGrid>
@@ -166,7 +166,7 @@
 
     <!-- 5 PART -->
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{itemauthor.target == 'assessment' && !author.isEditPoolFlow}">
-        <h:outputLabel value="#{authorMessages.assign_to_p} " styleClass="col-md-4 col-lg-2 form-control-label"/>
+        <h:outputLabel for="assignToPart" value="#{authorMessages.assign_to_p} " styleClass="col-md-4 col-lg-2 form-control-label"/>
         <div class="col-md-8">
             <h:selectOneMenu id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
                 <f:selectItems value="#{itemauthor.sectionSelectList}" />
@@ -176,7 +176,7 @@
     
     <!-- 6 POOL -->
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow}">
-        <h:outputLabel value="#{authorMessages.assign_to_question_p} " styleClass="col-md-4 col-lg-2 form-control-label"/>
+        <h:outputLabel for="assignToPool" value="#{authorMessages.assign_to_question_p} " styleClass="col-md-4 col-lg-2 form-control-label"/>
         <div class="col-md-8">
             <h:selectOneMenu id="assignToPool" value="#{itemauthor.currentItem.selectedPool}">
                 <f:selectItem itemValue="" itemLabel="#{authorMessages.select_a_pool_name}" />
@@ -189,10 +189,10 @@
     <!-- FEEDBACK -->
     <h:panelGroup rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}">
         <div class="form-group row">
-            <h:outputLabel value="#{commonMessages.feedback_optional}" escape="false" styleClass="col-md-4 col-lg-2 form-control-label"/>
+            <h:outputLabel for="questionFeedbackGeneral_textinput" value="#{commonMessages.feedback_optional}" escape="false" styleClass="col-md-4 col-lg-2 form-control-label"/>
             <div class="col-md-8">
                 <h:panelGrid >
-                    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.generalFeedback}" hasToggle="yes" mode="author">
+                    <samigo:wysiwyg identity="questionFeedbackGeneral" rows="140" value="#{itemauthor.currentItem.generalFeedback}" hasToggle="yes" mode="author">
                         <f:validateLength maximum="60000"/>
                     </samigo:wysiwyg>
                 </h:panelGrid>

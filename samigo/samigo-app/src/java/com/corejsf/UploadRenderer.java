@@ -71,6 +71,7 @@ public class UploadRenderer extends Renderer {
     writer.startElement("input", component);
     writer.writeAttribute("type","file","type");
     writer.writeAttribute("name",clientId + UPLOAD,"clientId");
+    writer.writeAttribute("id",clientId + UPLOAD,"clientId");
     writer.writeAttribute("size", "50", null);
     writer.endElement("input");
     writer.flush();
