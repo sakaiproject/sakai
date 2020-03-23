@@ -1,6 +1,6 @@
-import {RubricsElement} from "./rubrics-element.js";
-import {html} from "/webcomponents/assets/lit-element/lit-element.js";
-import {loadProperties, tr as translate} from "/webcomponents/sakai-i18n.js";
+import { RubricsElement } from "./rubrics-element.js";
+import { html } from "/webcomponents/assets/lit-element/lit-element.js";
+import { loadProperties, tr as translate } from "/webcomponents/sakai-i18n.js";
 
 export class SakaiRubricsLanguage extends RubricsElement {
 
@@ -8,7 +8,7 @@ export class SakaiRubricsLanguage extends RubricsElement {
 
     return {
       key: { type: String },
-      values: { type : Array },
+      values: { type: Array }
     };
   }
 
@@ -25,6 +25,12 @@ export class SakaiRubricsLanguage extends RubricsElement {
   }
 }
 
-export function tr(key, values) { return translate("rubrics", key, values); }
+export function tr(key, values) {
+  return translate("rubrics", key, values);
+}
 
-customElements.define("sr-lang", SakaiRubricsLanguage);
+try {
+  customElements.define("sr-lang", SakaiRubricsLanguage);
+} catch (error) {
+  // Can happen under healthy circumstances
+}

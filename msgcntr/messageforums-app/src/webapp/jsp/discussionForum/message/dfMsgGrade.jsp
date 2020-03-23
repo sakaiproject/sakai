@@ -207,9 +207,6 @@
                     tool-id="sakai.gradebookng"
                     entity-id='<%= entityId %>'
                     evaluated-item-id='<%= rbcsEvaluationId %>'
-                    <% if (stateDetails != null && !"".equals(stateDetails)) { %>
-                        state-details='<%= stateDetails %>'
-                    <%}%>
                 ></sakai-rubric-grading>
             <%}%>
 

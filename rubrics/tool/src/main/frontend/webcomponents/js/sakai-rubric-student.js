@@ -65,7 +65,6 @@ class SakaiRubricStudent extends RubricsElement {
 
     this._rubricId = newValue;
     if (this._rubricId != null && this.token && this.preview) {
-      console.log(newValue);
       this.setRubric();
     }
   }
@@ -74,7 +73,6 @@ class SakaiRubricStudent extends RubricsElement {
 
   shouldUpdate(changedProperties) {
     return this.i18nLoaded && changedProperties.has("rubric") && (this.instructor || !this.options.hideStudentPreview);
-    //return changedProperties.has("rubric");
   }
 
   render() {

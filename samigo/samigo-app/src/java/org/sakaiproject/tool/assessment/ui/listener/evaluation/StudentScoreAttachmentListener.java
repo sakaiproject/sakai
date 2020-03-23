@@ -22,12 +22,7 @@ import javax.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.sakaiproject.rubrics.logic.RubricsConstants;
-import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
-import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
-import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.StudentScoresBean;
-import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 @Slf4j
@@ -35,20 +30,8 @@ public class StudentScoreAttachmentListener implements ActionListener {
 
     public void processAction(ActionEvent event) throws AbortProcessingException {
         StudentScoresBean studentScoresBean = (StudentScoresBean) ContextUtil.lookupBean("studentScores");
-        TotalScoresBean tbean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
-        DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
-
-        for (SectionContentsBean sectionContent : delivery.getPageContents().getPartsContents()) {
-            for (ItemContentsBean question : sectionContent.getItemContents()) {
-                String entityId = RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + tbean.getPublishedId() + "." + question.getItemData().getItemId();
-                String evalId = studentScoresBean.getAssessmentGradingId() + "." + question.getItemData().getItemId();
-                String rubricStateDetails = ContextUtil.lookupParam(RubricsConstants.RBCS_PREFIX + evalId + "-" + entityId + "-state-details");
-                question.setRubricStateDetails(rubricStateDetails);
-            }
-        }
-
         String itemGradingId = ContextUtil.lookupParam("itemGradingId");
-        log.debug("itemGradingId = " + itemGradingId);
+        log.debug("itemGradingId = {}", itemGradingId);
         studentScoresBean.setItemGradingIdForFilePicker(Long.valueOf(itemGradingId));
     }
 }
