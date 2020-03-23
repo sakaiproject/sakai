@@ -6,7 +6,7 @@
 <script type="text/javascript" src="/library/js/headscripts.js"></script>
 <script>
 	includeLatestJQuery('web-ifp edit.vm');
-       	includeWebjarLibrary('fontawesome-iconpicker');
+	includeWebjarLibrary('fontawesome-iconpicker');
 </script>
 	<h3>
 		$tlang.getString("gen.custom")

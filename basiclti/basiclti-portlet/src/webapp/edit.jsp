@@ -80,7 +80,7 @@ Boolean allowRoster = (Boolean) rReq.getAttribute("allowRoster");
 <script type="text/javascript" src="/library/js/headscripts.js"></script>
 <script>
 	includeLatestJQuery('portlet edit.jsp');
-       	includeWebjarLibrary('fontawesome-iconpicker');
+	includeWebjarLibrary('fontawesome-iconpicker');
 </script>
 
 <ul class="navIntraTool actionToolBar">
