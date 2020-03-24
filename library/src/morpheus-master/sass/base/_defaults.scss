@@ -213,3 +213,14 @@ ul, ol {
 span.marker {
     background-color: yellow;
 }
+
+.hide-input-arrows {
+  -moz-appearance: textfield;
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    margin: 0;
+  }
+}
