@@ -24,7 +24,7 @@
     </div>
     <div class="row">
       <div class="col-sm-8">
-        <div class="instruction" th:text="#{autogroups.step2.info}">You now have the option to draw group members from specific section(s)/Roster(s). Would you like to do this?</div>
+        <p th:text="#{autogroups.step2.info}">You now have the option to draw group members from specific section(s)/Roster(s). Would you like to do this?</p>
       </div>
     </div>
     <div class="row">
@@ -39,7 +39,7 @@
             <label for="sectionOptionUseSections"><input id="sectionOptionUseSections" type="radio" name="sectionOption" value="1" th:field="*{sectionsOption}"><span th:utext="#{autogroups.step2.choose.section}">Yes - (Select members from specific section/rosters, who fit the role(s) selected in Step 1)</span></label>
           </div>
           <div id="selectSectionDiv" th:if="${!sectionList.isEmpty()}" th:style="${autoGroupsForm.sectionsOption == 0 ? 'display:none' : 'display:block'}">
-            <div class="instruction">Which section(s)/roster(s) should be included in the groups?</div>
+            <p th:text="#{autogroups.step2.info2}">Which section(s)/roster(s) should be included in the groups?</p>
             <table class="table table-hovered table-bordered table-striped">
             <thead>
               <tr>

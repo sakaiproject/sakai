@@ -12,7 +12,7 @@
     <div class="row">
       <div class="col-sm-6">
         <div class="sak-banner-error" th:if="${errorMessage != null}" th:text="${errorMessage}"></div>
-        <div class="instruction" th:text="#{joinableset.instruction}">Joinable sets consist of automatically created groups that users can elect to join.  Each group in a set begins with the set name and ends with a unique number.  An individual can join one group per set.</div>
+        <p th:text="#{joinableset.instruction}">joinable sets consist of automatically created groups that users can elect to join.  Each group in a set begins with the set name and ends with a unique number.  An individual can join one group per set.</p>
       </div>
     </div>
     <form id="createnewjoinableset-form" action="#" th:action="@{/saveJoinableSet}" th:object="${joinableSetForm}" method="post">
