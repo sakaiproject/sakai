@@ -130,13 +130,6 @@ public class StudentScoreUpdateListener
       for (SectionContentsBean part : parts) {
         List<ItemContentsBean> items = part.getItemContents();
         for (ItemContentsBean question : items) {
-          // Persist the rubric evaluation
-          String entityId = RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + tbean.getPublishedId() + "." + question.getItemData().getItemId();
-          if(rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_SAMIGO, entityId)){
-            String evaluatedItemId = bean.getAssessmentGradingId() + "." + question.getItemData().getItemId();
-            rubricsService.saveRubricEvaluation(RubricsConstants.RBCS_TOOL_SAMIGO, entityId, evaluatedItemId, bean.getStudentId(), SessionManager.getCurrentSessionUserId(), paramUtil.getRubricConfigurationParameters(entityId, evaluatedItemId));
-          }
-
           List<ItemGradingData> gradingarray = question.getItemGradingDataArray();
           log.debug("****1. pub questionId = " + question.getItemData().getItemId());
           log.debug("****2. Gradingarray length = " + gradingarray.size());

@@ -1431,9 +1431,6 @@ public class DiscussionForumTool {
       updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), forum.getId(), null, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
     }
 
-    //RUBRICS, Save the binding between the forum and the rubric
-    //rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_FORUMS, RubricsConstants.RBCS_FORUM_ENTITY_PREFIX + forum.getId(), getRubricConfigurationParameters());
-
     selectedForum.getForum().setId(forum.getId());
     return forum;
   }
@@ -1798,9 +1795,6 @@ public class DiscussionForumTool {
     		updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), forumId, null, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
     	}
     }
-
-    //RUBRICS, Save the binding between the topic and the rubric
-    //rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_FORUMS, RubricsConstants.RBCS_TOPIC_ENTITY_PREFIX + selectedTopic.getTopic().getId(), getRubricConfigurationParameters());
 
     return processReturnToOriginatingPage();
     //reset();
@@ -5898,26 +5892,18 @@ public class DiscussionForumTool {
     } 
         
     String eventRef = "";
-    String evaluatedItemId = "";
     String evaluatedItemTitle = "";
     if(selectedMessage != null){
         eventRef = getEventReference(selectedMessage.getMessage());
-        evaluatedItemId = studentUid+"."+selectedMessage.getMessage().getUuid();
         evaluatedItemTitle = selectedMessage.getMessage().getTitle();
     }else if(selectedTopic != null){
         eventRef = getEventReference(selectedTopic.getTopic());
-        evaluatedItemId = studentUid+"."+selectedTopic.getTopic().getUuid();
         evaluatedItemTitle = selectedTopic.getTopic().getTitle();
     }else if(selectedForum != null){
         eventRef = getEventReference(selectedForum.getForum());
-        evaluatedItemId = studentUid+"."+selectedForum.getForum().getUuid();
         evaluatedItemTitle = selectedForum.getForum().getTitle();
     }
 
-    evaluatedItemId = getRubricAssociationId() + "." + studentUid;
-    if(rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, getRubricAssociationId())){
-        rubricsService.saveRubricEvaluation(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, getRubricAssociationId(), evaluatedItemId, studentUid, getUserId(), getRubricConfigurationParameters());
-    }
     LRS_Statement statement = forumManager.getStatementForGrade(studentUid, evaluatedItemTitle, gradeAsDouble).orElse(null);
     Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_GRADE, eventRef, null, true, NotificationService.NOTI_OPTIONAL, statement);
     eventTrackingService.post(event);

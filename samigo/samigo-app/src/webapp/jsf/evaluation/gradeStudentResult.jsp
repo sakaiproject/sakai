@@ -217,7 +217,7 @@ function toPoint(id)
               <h:outputText value="#{deliveryMessages.q} #{question.number} #{deliveryMessages.of} " />
               <h:outputText value="#{part.questions}#{deliveryMessages.column}  " />
             </span>
-            <h:inputText styleClass="form-control adjustedScore#{question.itemData.itemId}" id="adjustedScore" value="#{question.pointsForEdit}" onchange="toPoint(this.id);" >
+            <h:inputText styleClass="form-control adjustedScore#{studentScores.assessmentGradingId}.#{question.itemData.itemId}" id="adjustedScore" value="#{question.pointsForEdit}" onchange="toPoint(this.id);" >
               <f:validateDoubleRange/>
             </h:inputText>
             <span class="input-group-addon">
@@ -339,10 +339,6 @@ function toPoint(id)
               entity-id='<h:outputText value="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"/>'
               evaluated-item-id='<h:outputText value="#{studentScores.assessmentGradingId}.#{question.itemData.itemId}" />'
               item-id='<h:outputText value="#{question.itemData.itemId}"/>'
-
-              <h:panelGroup rendered="#{question.rubricStateDetails != ''}">
-                state-details='<h:outputText value="#{question.rubricStateDetails}"/>'
-              </h:panelGroup>>
             </sakai-rubric-grading>
           </div>
           </div>

@@ -864,9 +864,15 @@ $(document).ready(function(){
         $buttonContainer.find('.messageProgress').fadeIn('slow')
     });
 
-});
+    $('body').on('total-points-updated', function (e) {
 
-// rubrics-specific code
+        var gradeField = document.getElementById("msgForum:dfMsgGradeGradePoint");
+        if (gradeField) {
+            gradeField.value = e.detail.value;
+        }
+    });
+});
+/*
 rubricsEventHandlers = function () {
 
   $('body').on('total-points-updated', function (e) {
@@ -876,8 +882,5 @@ rubricsEventHandlers = function () {
       gradeField.value = e.detail.value;
     }
   });
-
-  $('body').on('rubric-ratings-changed', function (e) {
-    rubricChanged = true;
-  });
 }
+*/

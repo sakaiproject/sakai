@@ -49,13 +49,6 @@ public interface RubricsService {
                                String associatedToolItemId,
                                Map<String, String> params);
 
-    void saveRubricEvaluation(String toolId,
-                              String associatedToolItemId,
-                              String evaluatedItemId,
-                              String evaluatedItemOwnerId,
-                              String evaluatorId,
-                              Map<String, String> params);
-
     String generateJsonWebToken(String tool);
 
     String getCurrentSessionId();

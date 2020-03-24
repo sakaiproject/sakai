@@ -872,7 +872,7 @@ $Id$
         <f:param name="sortAscending" value="true" />
         </h:commandLink>
       </f:facet>
-      <h:inputText value="#{description.roundedTotalAutoScore}" size="5" id="qscore" styleClass="adjustedScore#{description.assessmentGradingId}" required="false" onchange="toPoint(this.id);">
+      <h:inputText value="#{description.roundedTotalAutoScore}" size="5" id="qscore" styleClass="adjustedScore#{description.assessmentGradingId}.#{questionScores.itemId}" required="false" onchange="toPoint(this.id);">
         <f:validateDoubleRange/>
       </h:inputText>
       <h:message for="qscore" style="color:red"/>
