@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.AttributeModifier;
@@ -34,13 +33,11 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
-import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.BasePage;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
@@ -49,6 +46,7 @@ import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
+import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.service.gradebook.shared.GradingType;
 
 import lombok.extern.slf4j.Slf4j;
@@ -329,10 +327,7 @@ public class GradeSummaryTablePanel extends BasePanel {
 							sakaiRubricPreview.add(AttributeModifier.append("evaluated-item-id", assignment.getId() + "." + studentUuid));
 							sakaiRubricPreview.add(AttributeModifier.append("token", rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_GRADEBOOKNG)));
 
-							if (!showingStudentView && (GradeSummaryTablePanel.this.getUserRole() == GbRole.INSTRUCTOR
-										|| GradeSummaryTablePanel.this.getUserRole() == GbRole.TA)) {
-								sakaiRubricPreview.add(AttributeModifier.append("instructor", true));
-							}
+							addInstructorAttributeOrHide(sakaiRubricPreview, assignment.getId(), studentUuid, showingStudentView);
 
 							if (assignment.getId() != null) {
 								sakaiRubricPreview.add(AttributeModifier.append("entity-id", assignment.getId()));
@@ -349,10 +344,7 @@ public class GradeSummaryTablePanel extends BasePanel {
 							sakaiRubricPreview.add(AttributeModifier.append("display", "icon"));
 							sakaiRubricPreview.add(AttributeModifier.append("token", rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_GRADEBOOKNG)));
 
-							if (!showingStudentView && (GradeSummaryTablePanel.this.getUserRole() == GbRole.INSTRUCTOR
-										|| GradeSummaryTablePanel.this.getUserRole() == GbRole.TA)) {
-								sakaiRubricPreview.add(AttributeModifier.append("instructor", true));
-							}
+							addInstructorAttributeOrHide(sakaiRubricPreview, assignment.getId(), studentUuid, showingStudentView);
 
 							if (assignment.isExternallyMaintained()) {
 								sakaiRubricPreview.add(AttributeModifier.append("tool-id", RubricsConstants.RBCS_TOOL_ASSIGNMENT));
@@ -397,6 +389,19 @@ public class GradeSummaryTablePanel extends BasePanel {
 				});
 			}
 		});
+	}
+
+	private void addInstructorAttributeOrHide(WebMarkupContainer sakaiRubricPreviewButton, Long assignmentId, String studentId, boolean showingStudentView) {
+
+		if (!showingStudentView && (GradeSummaryTablePanel.this.getUserRole() == GbRole.INSTRUCTOR
+					|| GradeSummaryTablePanel.this.getUserRole() == GbRole.TA)) {
+			sakaiRubricPreviewButton.add(AttributeModifier.append("instructor", true));
+		} else {
+			GradeDefinition gradeDefinition = businessService.getGradeForStudentForItem(studentId, assignmentId);
+			if (gradeDefinition.getGrade() == null) {
+				sakaiRubricPreviewButton.setVisible(false);
+			}
+		}
 	}
 
 	private final class DropInfoPair {
