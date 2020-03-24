@@ -151,6 +151,19 @@ assignment.useContentReview=true
 # default: null
 # example: turnitin.oc.may_view_match_submission_info.instructor=true
 
+#turnitin.oc.roles.[TII_ROLE].mapping=SAKAI_ROLE1,SAKAI_ROLE2...
+# Allows you to customize the default Sakai->Turnitin role mapping for user's default permission set when submitting and viewing reports.
+# Note: if a user is an admin, they will automatically be given the role Administrator. If you want to re-map administrators, clear out the mapping
+# like: turnitin.oc.roles.administrator.mapping="" and add "ADMINISTRATOR" to your desired role like: turnitin.oc.roles.instructor.mapping=ADMINISTRATOR,Faculty,Instructor,Mentor,Staff,maintain,Teaching Assistant.
+# Default:
+# turnitin.oc.roles.instructor.mapping=Faculty,Instructor,Mentor,Staff,maintain,Teaching Assistant
+# turnitin.oc.roles.learner.mapping=Learner,Student,access
+# turnitin.oc.roles.editor.mapping=""
+# turnitin.oc.roles.user.mapping=Alumni,guest,Member,Observer,Other
+# turnitin.oc.roles.applicant.mapping=ProspectiveStudent
+# turnitin.oc.roles.administrator.mapping=Administrator,Admin
+# turnitin.oc.roles.undefined.mapping=""
+
 
 # Please make sure the property 'version.sakai' is set correctly
 ```
