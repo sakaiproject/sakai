@@ -243,7 +243,7 @@ public class FormattedTextImpl implements FormattedText
     public ResourceLoader getResourceLoader() {
         String resourceClass = serverConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
         String resourceBundle = serverConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
-        ResourceLoader loader = new Resource().getLoader(resourceClass, resourceBundle);
+        ResourceLoader loader = Resource.getResourceLoader(resourceClass, resourceBundle);
         return loader;
     }   
 

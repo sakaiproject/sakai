@@ -157,7 +157,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	 * messages.
 	 */
 	private static ResourceLoader rloader = new ResourceLoader("sitenav");
-	private static ResourceLoader cmLoader = new Resource().getLoader("org.sakaiproject.portal.api.PortalService", "connection-manager");
+	private static ResourceLoader cmLoader = Resource.getResourceLoader("org.sakaiproject.portal.api.PortalService", "connection-manager");
 
 	/**
 	 * Parameter value to indicate to look up a tool ID within a site
