@@ -456,7 +456,7 @@ public class ResourcesAction
 	private static final String RESOURCEBUNDLE = "resource.bundle.shared";
 	private final String resourceClass = ServerConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
 	private final String resourceBundle = ServerConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
-	private final ResourceLoader srb = new Resource().getLoader(resourceClass, resourceBundle);
+	private final ResourceLoader srb = Resource.getResourceLoader(resourceClass, resourceBundle);
 	
 	static final ResourceConditionsHelper conditionsHelper = new ResourceConditionsHelper();
 

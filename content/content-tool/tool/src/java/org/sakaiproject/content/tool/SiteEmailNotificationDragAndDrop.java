@@ -101,7 +101,7 @@ public class SiteEmailNotificationDragAndDrop extends SiteEmailNotification
 	private void loadResources(ServerConfigurationService serverConfigurationService) {
 		resourceClass = serverConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
 		resourceBundle = serverConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
-		rb = new Resource().getLoader(resourceClass, resourceBundle);
+		rb = Resource.getResourceLoader(resourceClass, resourceBundle);
 	}
 
 	/**

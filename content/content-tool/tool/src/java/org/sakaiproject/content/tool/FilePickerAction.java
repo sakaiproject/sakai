@@ -166,7 +166,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 	private static final String RESOURCEBUNDLE = "resource.bundle.shared";
 	private String resourceClass = ServerConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
 	private String resourceBundle = ServerConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
-	private ResourceLoader srb = new Resource().getLoader(resourceClass, resourceBundle);
+	private ResourceLoader srb = Resource.getResourceLoader(resourceClass, resourceBundle);
 	
 	/** CloudStorage **/
 	private boolean onedriveOn = ServerConfigurationService.getBoolean(OneDriveService.ONEDRIVE_ENABLED, Boolean.FALSE);

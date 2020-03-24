@@ -641,7 +641,7 @@ public abstract class BaseDigestService implements DigestService, SingleStorageU
 		// Resource Bundle
 		String resourceClass = serverConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
 		String resourceBundle = serverConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
-		rb = new Resource().getLoader(resourceClass, resourceBundle);
+		rb = Resource.getResourceLoader(resourceClass, resourceBundle);
 
 		// USE A TIMER INSTEAD OF CREATING A NEW THREAD -AZ
 		// start();
