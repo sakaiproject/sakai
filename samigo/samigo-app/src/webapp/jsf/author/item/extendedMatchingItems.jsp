@@ -101,7 +101,7 @@
 			<!-- 1 POINTS and DISCOUNT -->
 			<div>
 				<h3>
-					<h:outputText value="#{authorMessages.answer_point_value}" />
+					<h:outputLabel for="answerptr" value="#{authorMessages.answer_point_value}" />
 					<h:outputLink title="#{authorMessages.emi_whats_this}" value="#" 
 							onclick="javascript:window.open('/samigo-app/jsf/author/item/emiWhatsThis.faces?item=point#point','EMIWhatsThis','width=800,height=660,scrollbars=yes, resizable=yes');" 
 							onkeypress="javascript:window.open('/samigo-app/jsf/author/item/emiWhatsThis.faces?item=point#point','EMIWhatsThis','width=800,height=660,scrollbars=yes, resizable=yes');" >
@@ -116,9 +116,9 @@
 				</h3>
 			</div>
 			<div class="longtext">
-				<h:outputLabel value="#{authorMessages.answer_point_value_display}" />    </div>
+				<h:outputLabel for="questionItemScore" value="#{authorMessages.answer_point_value_display}" />    </div>
 			<div class="tier3">
-				<h:selectOneRadio value="#{itemauthor.currentItem.itemScoreDisplayFlag}" >
+				<h:selectOneRadio value="#{itemauthor.currentItem.itemScoreDisplayFlag}" id="questionItemScore">
 				<f:selectItem itemValue="true"
 				  itemLabel="#{authorMessages.yes}" />
 				<f:selectItem itemValue="false"
@@ -131,7 +131,7 @@
 
 			<!-- 2 QUESTION THEME TEXT -->
 			<h3>
-				<h:outputText value="#{authorMessages.question_theme_text}" />
+				<h:outputLabel for="themetext" value="#{authorMessages.question_theme_text}" />
 				<h:outputLink title="#{authorMessages.emi_whats_this}" value="#" 
 						onclick="javascript:window.open('/samigo-app/jsf/author/item/emiWhatsThis.faces?item=theme#theme','EMIWhatsThis','width=800,height=660,scrollbars=yes, resizable=yes');" 
 						onkeypress="javascript:window.open('/samigo-app/jsf/author/item/emiWhatsThis.faces?item=theme#theme','EMIWhatsThis','width=800,height=660,scrollbars=yes, resizable=yes');" >
@@ -161,7 +161,7 @@
 				</f:verbatim>
 				<div
 					style="padding: 2px; border-style: outset; border-radius: 1em; border-color: black; border-width: 1px;">
-					<h:outputText value="#{authorMessages.select_appropriate_format}" />
+					<h:outputLabel for="emiAnswerOptionsSimpleOrRich" value="#{authorMessages.select_appropriate_format}" />
 					<h:selectOneRadio id="emiAnswerOptionsSimpleOrRich"
 						value="#{itemauthor.currentItem.answerOptionsSimpleOrRich}"
 						layout="pageDirection" required="yes">
@@ -183,7 +183,7 @@
 				<!-- dynamically generate rows of answer options -->
 				<div id="emiAnswerOptionsSimpleOptions" class=" tier2">
 					<div>
-						<h:outputLabel value="#{authorMessages.answer_options}" />
+						<h:outputLabel for="emiAnswerOptions" value="#{authorMessages.answer_options}" />
 					</div>
 					<h:dataTable id="emiAnswerOptions"
 						value="#{itemauthor.currentItem.emiAnswerOptions}" var="answer"
@@ -216,7 +216,7 @@
 					</h:dataTable>
 
                     <h:outputLink id="addEmiAnswerOptionsLink" value="#" styleClass="iconAdd" rendered="#{author.isEditPendingAssessmentFlow}">
-						<h:outputText value="#{authorMessages.add_more_options}" />
+						<h:outputLabel foraddEmiAnswerOptionsSelect value="#{authorMessages.add_more_options}" />
 					</h:outputLink>
 					<h:selectOneMenu id="addEmiAnswerOptionsSelect" value="1" rendered="#{author.isEditPendingAssessmentFlow}">
 						<f:selectItem itemLabel="1" itemValue="1" />
@@ -230,8 +230,7 @@
 				<!-- dynamically generate rows of answer options by pasting -->
 				<div id="emiAnswerOptionsSimplePaste" class=" tier2">
 					<div>
-						<h:outputLabel id="pasteLabel"
-							value="#{authorMessages.answer_options_paste}" />
+						<h:outputLabel id="pasteLabel" for="emiAnswerOptionsPaste" value="#{authorMessages.answer_options_paste}" />
 					</div>
 					<table>
 						<tr>
@@ -252,12 +251,10 @@
 
 				<!-- 3.1(c) ANSWER RICH - TABLE/GRAPHIC -->
 				<div id="emiAnswerOptionsRich" class="tier2">
-					<h:outputLabel value="#{authorMessages.answer_options_rich}" />
+					<h:outputLabel for="questionItemText_textinput" value="#{authorMessages.answer_options_rich}" />
 					<!-- WYSIWYG -->
 					<h:panelGrid>
-						<samigo:wysiwyg rows="140"
-							value="#{itemauthor.currentItem.emiAnswerOptionsRich}"
-							hasToggle="yes" mode="author">
+						<samigo:wysiwyg identity="questionItemText" rows="140" value="#{itemauthor.currentItem.emiAnswerOptionsRich}" hasToggle="yes" mode="author">
 							<f:validateLength maximum="64000" />
 						</samigo:wysiwyg>
 					</h:panelGrid>
@@ -302,7 +299,7 @@
 						<br />
 					</f:verbatim>
 					<div class="tier2">
-						<h:outputText value="#{authorMessages.answer_options_count}" />
+						<h:outputLabel for="answerOptionsRichCount" value="#{authorMessages.answer_options_count}" />
 						<h:selectOneMenu id="answerOptionsRichCount"
 							value="#{itemauthor.currentItem.answerOptionsRichCount}">
 							<f:selectItem itemLabel="#{authorMessages.select_menu}"
@@ -339,17 +336,16 @@
 
 			<!-- 4 LEAD IN STATEMENT -->
 			<h3>
-				<h:outputText value="#{authorMessages.lead_in_statement}" />
+				<h:outputLabel for="lead_in_statement_textinput" value="#{authorMessages.lead_in_statement}" />
 				<h:outputLink title="#{authorMessages.emi_whats_this}" value="#" 
 						onclick="javascript:window.open('/samigo-app/jsf/author/item/emiWhatsThis.faces?item=leadin#leadin','EMIWhatsThis','width=800,height=660,scrollbars=yes, resizable=yes');" 
 						onkeypress="javascript:window.open('/samigo-app/jsf/author/item/emiWhatsThis.faces?item=leadin#leadin','EMIWhatsThis','width=800,height=660,scrollbars=yes, resizable=yes');" >
 					<h:outputText  value=" (#{authorMessages.emi_whats_this})"/>
-				</h:outputLink>
+				</h:outputLabel>
 			</h3>
 			<!-- WYSIWYG -->
 			<h:panelGrid>
-				<samigo:wysiwyg identity="lead_in_statement" rows="140"
-					value="#{itemauthor.currentItem.leadInStatement}" hasToggle="yes" mode="author">
+				<samigo:wysiwyg identity="lead_in_statement" rows="140" value="#{itemauthor.currentItem.leadInStatement}" hasToggle="yes" mode="author">
 					<f:validateLength maximum="64000" />
 				</samigo:wysiwyg>
 			</h:panelGrid>
@@ -358,13 +354,12 @@
 			<!-- 5 QUESTION-ANSWER COMBINATIONS -->
 			<!-- dynamicaly generate rows of question-answer combos -->
 			<div class="act greyBox">
-				<h3><h:outputText
-						value="#{authorMessages.question_answer_combinations} " />
+				<h3><h:outputLabel for="emiQuestionAnswerCombinations" value="#{authorMessages.question_answer_combinations} " />
 					<h:outputLink title="#{authorMessages.emi_whats_this}" value="#" 
 							onclick="javascript:window.open('/samigo-app/jsf/author/item/emiWhatsThis.faces?item=items#items','EMIWhatsThis','width=800,height=660,scrollbars=yes, resizable=yes');" 
 							onkeypress="javascript:window.open('/samigo-app/jsf/author/item/emiWhatsThis.faces?item=items#items','EMIWhatsThis','width=800,height=660,scrollbars=yes, resizable=yes');" >
 						<h:outputText  value=" (#{authorMessages.emi_whats_this})"/>
-					</h:outputLink>
+					</h:outputLabel>
 				</h3>
 				<f:verbatim>
 					<br />
@@ -437,7 +432,7 @@
 							</h:panelGrid>
 
 							<h:panelGroup>
-								<h:outputLabel value="#{authorMessages.correct_option_labels}" />
+								<h:outputLabel for="correctOptionLabels" value="#{authorMessages.correct_option_labels}" />
 								<f:verbatim>
 									<br />
 								</f:verbatim>
@@ -449,7 +444,7 @@
 									<br />
 								</f:verbatim>
 
-								<h:outputText value="#{authorMessages.required_options_count}" />
+								<h:outputLabel for="requiredOptionsCount" value="#{authorMessages.required_options_count}" />
 								<f:verbatim>
 									<br />
 								</f:verbatim>
@@ -489,7 +484,7 @@
 									<br />
 								</f:verbatim>
 								
-								<h:outputLabel value="#{authorMessages.emi_pt}" />
+								<h:outputLabel for="itemScore" value="#{authorMessages.emi_pt}" />
 								<h:outputLink title="#{authorMessages.emi_whats_this}" value="#" 
 										onclick="javascript:window.open('/samigo-app/jsf/author/item/emiWhatsThis.faces?item=point#point','EMIWhatsThis','width=800,height=660,scrollbars=yes, resizable=yes');" 
 										onkeypress="javascript:window.open('/samigo-app/jsf/author/item/emiWhatsThis.faces?item=point#point','EMIWhatsThis','width=800,height=660,scrollbars=yes, resizable=yes');" >
@@ -520,7 +515,7 @@
 				</f:verbatim>
 				<h:outputLink id="addEmiQuestionAnswerCombinationsLink" value="#" 
 					styleClass="iconAdd" rendered="#{author.isEditPendingAssessmentFlow}">
-					<h:outputText value="#{authorMessages.add_more_items}" />
+					<h:outputLabel for="addEmiQuestionAnswerCombinationsSelect" value="#{authorMessages.add_more_items}" />
 				</h:outputLink>
 				<h:selectOneMenu id="addEmiQuestionAnswerCombinationsSelect" value="1" rendered="#{author.isEditPendingAssessmentFlow}">
 					<f:selectItem itemLabel="1" itemValue="1" />
@@ -540,7 +535,7 @@
 			<h:panelGrid columns="3" columnClasses="shorttext"
 				rendered="#{itemauthor.target == 'assessment' && !author.isEditPoolFlow}">
 				<f:verbatim>&nbsp;</f:verbatim>
-				<h:outputLabel value="#{authorMessages.assign_to_p} " />
+				<h:outputLabel for="assignToPart" value="#{authorMessages.assign_to_p} " />
 				<h:selectOneMenu id="assignToPart"
 					value="#{itemauthor.currentItem.selectedSection}">
 					<f:selectItems value="#{itemauthor.sectionSelectList}" />
@@ -551,7 +546,7 @@
 			<h:panelGrid columns="3" columnClasses="shorttext"
 				rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow}">
 				<f:verbatim>&nbsp;</f:verbatim>
-				<h:outputLabel value="#{authorMessages.assign_to_question_p} " />
+				<h:outputLabel for="assignToPool" value="#{authorMessages.assign_to_question_p} " />
 				<h:selectOneMenu rendered="#{itemauthor.target == 'assessment'}"
 					id="assignToPool" value="#{itemauthor.currentItem.selectedPool}">
 					<f:selectItem itemValue=""
@@ -567,13 +562,13 @@
 				<br />
 
 				<h:panelGrid columns="2" columnClasses="shorttext">
-					<h:outputText value="#{authorMessages.objective}" />
+					<h:outputLabel for="obj" value="#{authorMessages.objective}" />
 					<h:inputText size="30" id="obj"
 						value="#{itemauthor.currentItem.objective}" />
-					<h:outputText value="#{authorMessages.keyword}" />
+					<h:outputLabel for="keyword" value="#{authorMessages.keyword}" />
 					<h:inputText size="30" id="keyword"
 						value="#{itemauthor.currentItem.keyword}" />
-					<h:outputText value="#{authorMessages.rubric_colon}" />
+					<h:outputLabel for="rubric" value="#{authorMessages.rubric_colon}" />
 					<h:inputText size="30" id="rubric"
 						value="#{itemauthor.currentItem.rubric}" />
 				</h:panelGrid>

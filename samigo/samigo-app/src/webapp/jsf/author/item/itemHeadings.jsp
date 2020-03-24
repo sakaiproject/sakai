@@ -181,7 +181,7 @@ function displayEMIHelp(){
 
 <!-- CHANGE TYPE -->
 <div class="form-group row">
-    <h:outputLabel styleClass="col-md-2" value="#{authorMessages.change_q_type} &#160;" escape="false" rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow || (itemauthor.target == 'questionpool' && itemauthor.itemType == '')}"/>
+    <h:outputLabel for="changeQType2" styleClass="col-md-2" value="#{authorMessages.change_q_type} &#160;" escape="false" rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow || (itemauthor.target == 'questionpool' && itemauthor.itemType == '')}"/>
   <div class="col-md-10">
 
 <h:selectOneMenu onchange="changeTypeLink(this);" value="#{itemauthor.currentItem.itemType}" required="true" id="changeQType2">
