@@ -3,8 +3,21 @@ import {loadProperties, tr} from "./sakai-i18n.js";
 
 class SakaiElement extends LitElement {
 
-  tr(key, options) {
-    return tr(this.bundle, key, options);
+  /**
+   * Convenience wrapper for sakai-18n.tr.
+   *
+   * Example:
+   *
+   * confirm_coolness=This is {} cool
+   * let translated = mySakaiElementSubclass.tr("confirm_coolness", ["really"]);
+   *
+   * @param {string} key The i18n key we want to translate
+   * @params {(string[]|Object)} options This can either be an array of replacement strings, or an object
+   * which contains token names to values, as well as options like debug: true.
+   * @param {boolean} [forceBundle=this.bundle] The bundle to use in preference to this.bundle
+   */
+  tr(key, options, forceBundle) {
+    return tr(forceBundle || this.bundle, key, options);
   }
 
   createRenderRoot() {

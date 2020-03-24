@@ -14,7 +14,6 @@
     <sakai-grader
         id="sakai-grader-$assignment.Id"
         tool="assignments"
-        max-grade="$!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint)"
         gradable-id="$assignment.Id"
         submission-id="$submission.Id"
         user-list-url="#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$formattedText.escapeUrl($assignmentReference)")"
