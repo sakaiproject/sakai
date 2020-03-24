@@ -149,6 +149,8 @@ public class PrivateMessagesTool {
   private static final String SELECT_RECIPIENT_LIST_FOR_REPLY = "pvt_select_reply_recipients_list";
   private static final String MISSING_SUBJECT = "pvt_missing_subject";
   private static final String MISSING_SUBJECT_DRAFT = "pvt_missing_subject_draft";
+  private static final String MISSING_BODY = "pvt_missing_body";
+  private static final String MISSING_BODY_DRAFT = "pvt_missing_body_draft";
   private static final String SELECT_MSG_RECIPIENT = "pvt_select_msg_recipient";
   private static final String MULTIPLE_WINDOWS = "pvt_multiple_windows";
   
@@ -1641,7 +1643,11 @@ public void processChangeSelectView(ValueChangeEvent eve)
 		  setErrorMessage(getResourceBundleString(MISSING_SUBJECT));
 		  return null;
 	  }
-
+	  if(StringUtils.isEmpty(getComposeBody()))
+	  {
+		  setErrorMessage(getResourceBundleString(MISSING_BODY));
+		  return null;
+	  }
 	  if(getSelectedComposeToList().size()<1 && getSelectedComposeBccList().size() < 1)
 	  {
 		  setErrorMessage(getResourceBundleString(SELECT_MSG_RECIPIENT));
@@ -1684,7 +1690,11 @@ public void processChangeSelectView(ValueChangeEvent eve)
       setErrorMessage(getResourceBundleString(MISSING_SUBJECT));
       return null;
     }
-
+    if(StringUtils.isEmpty(getComposeBody()))
+    {
+      setErrorMessage(getResourceBundleString(MISSING_BODY));
+      return null;
+    }
     if(getSelectedComposeToList().size()<1)
     {
       setErrorMessage(getResourceBundleString(SELECT_MSG_RECIPIENT));
@@ -1803,7 +1813,11 @@ public void processChangeSelectView(ValueChangeEvent eve)
       setErrorMessage(getResourceBundleString(MISSING_SUBJECT_DRAFT));
       return null ;
     }
-
+    if(StringUtils.isEmpty(getComposeBody()))
+    {
+      setErrorMessage(getResourceBundleString(MISSING_BODY_DRAFT));
+      return null ;
+    }
     PrivateMessage dMsg = null;
     if(getDetailMsg() != null && getDetailMsg().getMsg() != null && getDetailMsg().getMsg().getDraft()){
     	dMsg =constructMessage(true, getDetailMsg().getMsg()) ;
@@ -2324,7 +2338,6 @@ public void processChangeSelectView(ValueChangeEvent eve)
     			selectedComposeToList.add(membershipItem.getId());
     		}
     	}
-
     	
     	if(StringUtils.isEmpty(getReplyToSubject()))
     	{
@@ -2332,6 +2345,14 @@ public void processChangeSelectView(ValueChangeEvent eve)
     			setErrorMessage(getResourceBundleString(MISSING_SUBJECT_DRAFT));
     		}else{
     			setErrorMessage(getResourceBundleString(MISSING_SUBJECT));
+    		}
+    		return null ;
+    	}
+    	if(StringUtils.isEmpty(getReplyToBody())) {
+    		if(isDraft) {
+    			setErrorMessage(getResourceBundleString(MISSING_BODY_DRAFT));
+    		} else {
+    			setErrorMessage(getResourceBundleString(MISSING_BODY));
     		}
     		return null ;
     	}
@@ -2530,6 +2551,14 @@ public void processChangeSelectView(ValueChangeEvent eve)
 			 setErrorMessage(getResourceBundleString(MISSING_SUBJECT));
 		 }
 		 return null ;
+	 }
+	 if(StringUtils.isEmpty(getForwardBody()))  {
+		 if(isDraft) {
+			 setErrorMessage(getResourceBundleString(MISSING_BODY_DRAFT));
+		 } else {
+			 setErrorMessage(getResourceBundleString(MISSING_BODY));
+		 }
+		 return null;
 	 }
 
     	PrivateMessage rrepMsg = messageManager.createPrivateMessage() ;
@@ -2732,6 +2761,14 @@ public void processChangeSelectView(ValueChangeEvent eve)
 			  setErrorMessage(getResourceBundleString(MISSING_SUBJECT));
 		  }
 		  return null ;
+	  }
+	  if(StringUtils.isEmpty(getForwardBody())) {
+		  if(isDraft) {
+			  setErrorMessage(getResourceBundleString(MISSING_BODY_DRAFT));
+		  } else {
+			  setErrorMessage(getResourceBundleString(MISSING_BODY));
+		  }
+		  return null;
 	  }
 
 	  PrivateMessage rrepMsg = messageManager.createPrivateMessage() ;

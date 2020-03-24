@@ -257,7 +257,7 @@
 				</div>
 		  </div>
 		  
-			<h4><h:outputText value="#{msgs.pvt_message}" /></h4>
+			<h4><h:outputText value="#{msgs.pvt_star}" styleClass="reqStar"/><h:outputText value="#{msgs.pvt_message}" /></h4>
 	        <sakai:panel_edit>
 	          <sakai:doc_section>
 			  <sakai:inputRichText textareaOnly="#{PrivateMessagesTool.mobileSession}" rows="#{ForumTool.editorRows}" cols="132" id="df_compose_body" value="#{PrivateMessagesTool.replyToBody}">	 
