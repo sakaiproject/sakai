@@ -24,7 +24,7 @@
     </div>
     <div class="row">
       <div class="col-sm-8">
-        <div class="instruction" th:text="#{autogroups.step3.info}">Now you are ready to define the group membership format/structure. Please select an option below.</div>
+        <p th:text="#{autogroups.step3.info}">Now you are ready to define the group membership format/structure. Please select an option below.</p>
       </div>
     </div>
     <div class="row">
@@ -48,7 +48,7 @@
                 <div class="form-group form-required">
                   <label for="groupTitleByGroup" class="form-control-label block" th:text="#{autogroups.step3.group.title}">Group Title</label>
                   <input name="groupTitleByGroup" id="groupTitleByGroup" type="text" th:field="*{groupTitleByGroup}" th:placeholder="#{autogroups.step3.group.title}" class="form-control">
-                  <div class="instruction" th:text="#{autogroups.step3.title.info}">Note: Numbers will be appended to the title for each group. For example, a title of 'Team' will result in 'Team-1', 'Team-2', etc</div>
+                  <p th:text="#{autogroups.step3.title.info}">Note: Numbers will be appended to the title for each group. For example, a title of 'Team' will result in 'Team-1', 'Team-2', etc</p>
                 </div>
                 <div class="form-group form-required">
                   <label for="groupNumberByGroup" class="form-control-label block" th:text="#{autogroups.step3.number.groups}">Number of groups</label>
@@ -65,7 +65,7 @@
                 <div class="form-group form-required">
                   <label for="groupTitleByUser" class="form-control-label block" th:text="#{autogroups.step3.group.title}">Group Title</label>
                   <input name="groupTitleByUser" id="groupTitleByUser" type="text" th:field="*{groupTitleByUser}" th:placeholder="#{autogroups.step3.group.title}" class="form-control">
-                  <div class="instruction" th:text="#{autogroups.step3.title.info}">Note: Numbers will be appended to the title for each group. For example, a title of 'Team' will result in 'Team-1', 'Team-2', etc</div>
+                  <p th:text="#{autogroups.step3.title.info}">Note: Numbers will be appended to the title for each group. For example, a title of 'Team' will result in 'Team-1', 'Team-2', etc</p>
                 </div>
                 <div class="form-group form-required">
                   <label for="groupNumberByUser" class="form-control-label block" th:text="#{autogroups.step3.number.users}">Number of users</label>
