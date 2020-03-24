@@ -1122,7 +1122,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
         try {
             currentUser = userDirectoryService.getUser(message.getCreatedBy());
         } catch (UserNotDefinedException e) {
-            throw new IllegalArgumentException("Null Argument");
+            log.error("cannot find user with id " + message.getCreatedBy() + " " + e.getMessage());
+            throw new IllegalArgumentException("cannot find user with id " + message.getCreatedBy());
         }
     }
     List recipientList = new UniqueArrayList();
@@ -1340,7 +1341,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 		  try {
 			  currentUser = userDirectoryService.getUser(message.getCreatedBy());
 		  } catch (UserNotDefinedException e) {
-			  throw new IllegalArgumentException("Null Argument");
+			  log.error("cannot find user with id " + message.getCreatedBy() + " " + e.getMessage());
+			  throw new IllegalArgumentException("cannot find user with id " + message.getCreatedBy());
 		  }
 	  }
 	  StringBuilder body = new StringBuilder(message.getBody());
@@ -2089,7 +2091,7 @@ return topicTypeUuid;
 		  } catch (UserNotDefinedException e) {
 			  rrepMsg.setCreatedBy(getUserIdByFowardMail(currentMessage.getId(), from));
 			  if (rrepMsg.getCreatedBy() == null) {
-				  log.warn("PrivateMessageManagerImpl.getPvtMsgReplyMessage: exception: 683 - Sender's email does not belong in Sakai, nor is it recognized as an automatic forwarding address. If you have replied to this email from an address other than the one you have configured for email forwarding, please reply from that address.");
+				  log.warn("Exception: Sender's email does not belong in Sakai, nor is it recognized as an automatic forwarding address. If you have replied to this email from an address other than the one you have configured for email forwarding, please reply from that address.");
 				  throw new MessagingException("683 - Sender's email does not belong in Sakai, nor is it recognized as an automatic forwarding address. If you have replied to this email from an address other than the one you have configured for email forwarding, please reply from that address."); 
 			  }
 		  }
@@ -2098,21 +2100,21 @@ return topicTypeUuid;
 			  userFrom = userDirectoryService.getUser(rrepMsg.getCreatedBy());
 			  from = userFrom.getEmail();
 		  } catch (UserNotDefinedException e1) {
-			  log.warn("PrivateMessageManagerImpl.getPvtMsgReplyMessage: exception: 683 - Sender's email does not belong in Sakai, nor is it recognized as an automatic forwarding address. If you have replied to this email from an address other than the one you have configured for email forwarding, please reply from that address.");
+			  log.warn("Exception: Sender's email does not belong in Sakai, nor is it recognized as an automatic forwarding address. If you have replied to this email from an address other than the one you have configured for email forwarding, please reply from that address.");
 			  throw new MessagingException("683 - Sender's email does not belong in Sakai, nor is it recognized as an automatic forwarding address. If you have replied to this email from an address other than the one you have configured for email forwarding, please reply from that address.");
 		  }
 		  rrepMsg.setAuthor(userFrom.getSortName().concat(" ("+from+")"));
 		  rrepMsg.setInReplyTo(currentMessage);
 		  if (errRecipient(currentMessage.getRecipients(), rrepMsg)) {
-			  log.warn("PrivateMessageManagerImpl.getPvtMsgReplyMessage: exception: Sender's email address does not belong to any of the mail original recipients.  If you are replying from an address different than the one from which you received the email, please use the correct email address to reply to it.");
+			  log.warn("Exception: Sender's email address does not belong to any of the mail original recipients.  If you are replying from an address different than the one from which you received the email, please use the correct email address to reply to it.");
 			  throw new MessagingException("359 - Sender's email address does not belong to any of the mail original recipients.  If you are replying from an address different than the one from which you received the email, please use the correct email address to reply to it.");
 		  }
 		  if (errMaxMessageRespond(rrepMsg)) {
-			  log.warn("PrivateMessageManagerImpl.getPvtMsgReplyMessage: exception: The maximum number of responses for the sender's mail address has been exceeded.  For security reasons, please reply to this mail from Sakai's private messages tool.");
+			  log.warn("Exception: The maximum number of responses for the sender's mail address has been exceeded.  For security reasons, please reply to this mail from Sakai's private messages tool.");
 			  throw new MessagingException("682 - The maximum number of responses for the sender's mail address has been exceeded.  For security reasons, please reply to this mail from Sakai's private messages tool.");
 		  }
 	  } catch (MessagingException e){
-		  log.warn("PrivateMessageManagerImpl.getPvtMsgReplyMessage: exception: " + e.getMessage(), e);
+		  log.warn(e.getMessage(), e);
 		  throw e;
 	  }
 	  if (!StringUtils.isNotBlank(bodyBuf[0].toString())) {
@@ -2165,7 +2167,7 @@ return topicTypeUuid;
 		  try {
 			  returnSet.put(userDirectoryService.getUser(element.getUserId()), false);
 		  } catch (UserNotDefinedException e) {
-			  log.warn("PrivateMessageManagerImpl.getRecipients: exception: " + e.getMessage(), e);
+			  log.warn(e.getMessage(), e);
 		  }
 	  }
 	  //now add them all back
