@@ -80,7 +80,6 @@ public class RubricGradePanel extends BasePanel {
         final GbAjaxButton submit = new GbAjaxButton("submit") {
             @Override
             public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                rubricsService.saveRubricEvaluation(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignmentId.toString(), assignmentId + "." + studentUuid, studentUuid, getCurrentUserId(), getRubricParameters(""));
                 target.appendJavaScript(String.format("GbGradeTable.instance.setDataAtCell(rubricGradingRow, rubricGradingCol, rubricGradingPoints.toString());", studentUuid, assignmentId));
                 RubricGradePanel.this.window.close(target);
             }
