@@ -72,10 +72,14 @@ function renderChart(gbChartData) {
 					title: function(tooltipItem, data) {
 						switch(chartType) {
 						case 'bar':
-							return tooltipItem[0].yLabel + ' student(s): ' + tooltipItem[0].xLabel;
+							var message = GbGradeTable.templates['chartStudentsGradeMessage'].process();
+							message = message.replace('{0}', tooltipItem[0].yLabel).replace('{1}', tooltipItem[0].xLabel);
+							return message;
 							break;
 						case 'horizontalBar':
-							return tooltipItem[0].xLabel + ' student(s): ' + tooltipItem[0].yLabel;
+							var message = GbGradeTable.templates['chartStudentsGradeMessage'].process();
+							message = message.replace('{0}', tooltipItem[0].xLabel).replace('{1}', tooltipItem[0].yLabel);
+							return message;
 						}
 
 					},
@@ -85,12 +89,12 @@ function renderChart(gbChartData) {
 							switch(chartType) {
 							case 'bar':
 								if (window.studentGradeRange != null && window.studentGradeRange == tooltipItem[0].xLabel) {
-									return 'Your grade';
+									return GbGradeTable.templates['chartYourGradeMessage'].process();
 								}
 								break;
 							case 'horizontalBar':
 								if (window.studentGradeRange != null && window.studentGradeRange == tooltipItem[0].yLabel) {
-									return 'Your grade';
+									return GbGradeTable.templates['chartYourGradeMessage'].process();
 								}
 							}
 						}
