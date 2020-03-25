@@ -164,14 +164,11 @@
 		         	return false;
 		         };		         	
 		</script>
-			
-		<h:form id="addMeeting">
-			<%@ include file="/signup/menu/signupMenu.jsp" %>
-		</h:form>
 
 		<sakai:view_content>
-			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/> 
 			<h:form id="items">
+				<%@ include file="/signup/menu/signupMenu.jsp" %>
+				<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/> 
 				<div class="page-header">
 					<sakai:view_title value="#{msgs.signup_tool}"/>
 				</div>
