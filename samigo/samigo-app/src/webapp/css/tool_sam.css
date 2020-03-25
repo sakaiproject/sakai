@@ -1542,3 +1542,7 @@ td.stats-correctness {
 .sam-data-discrepancy-ol {
 	margin-top: 10px;
 }
+
+.feedbackByDatePanel {
+  padding-left: 2em;
+}
