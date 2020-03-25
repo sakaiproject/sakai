@@ -2869,13 +2869,17 @@ public class DeliveryBean
     this.siteId = siteId;
   }
 
-  public String getSiteId()
-  {
-    siteId = null;
-    Placement currentPlacement = ToolManager.getCurrentPlacement();
-    if(currentPlacement != null)
-      siteId = currentPlacement.getContext();
-    return siteId;
+  public String getSiteId() {
+
+    if (StringUtils.isNotBlank(siteId)) {
+      return siteId;
+    } else {
+      Placement currentPlacement = ToolManager.getCurrentPlacement();
+      if (currentPlacement != null) {
+        siteId = currentPlacement.getContext();
+      }
+      return siteId;
+    }
   }
 
   public String getAgentAccessString()
