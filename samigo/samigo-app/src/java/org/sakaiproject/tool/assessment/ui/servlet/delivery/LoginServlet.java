@@ -113,6 +113,7 @@ public class LoginServlet
 
     String siteId = pub.getOwnerSiteId();
 
+
     boolean isInstructor = PersistenceService.getInstance()
         .getAuthzQueriesFacade()
         .hasPrivilege(SamigoConstants.AUTHZ_EDIT_ASSESSMENT_ANY, siteId);
@@ -120,6 +121,7 @@ public class LoginServlet
     if (isInstructor) {
         delivery.setActionString("previewAssessment");
     } else {
+        delivery.setSiteId(siteId);
         delivery.setActionString("takeAssessmentViaUrl");
     }
 
