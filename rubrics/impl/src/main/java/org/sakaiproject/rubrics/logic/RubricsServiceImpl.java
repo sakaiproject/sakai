@@ -192,17 +192,17 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
     }
 
     public String generateJsonWebToken(String tool) {
-        return generateJsonWebToken(tool, getCurrentSiteId("generateJsonWebToken"));
+        return generateJsonWebToken(tool, null);
     }
 
     public String generateJsonWebToken(String tool, String siteId) {
 
-        String token = null;
-        String userId = sessionManager.getCurrentSessionUserId();
-
         if (StringUtils.isBlank(siteId)) {
             siteId = getCurrentSiteId("generateJsonWebToken");
         }
+
+        String token = null;
+        String userId = sessionManager.getCurrentSessionUserId();
 
         try {
             DateTime now = DateTime.now();
