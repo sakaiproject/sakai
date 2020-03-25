@@ -63,7 +63,7 @@
 		
 		<p class="act">
  			<input type="submit" class="active" value="<fmt:message key='config.button.submit' />">
- 			<a href="${cancelUrl}"><fmt:message key='config.button.cancel' /></a>
+ 			<a class="button" href="${cancelUrl}"><fmt:message key='config.button.cancel' /></a>
 		</p>
 	</form>
 	
