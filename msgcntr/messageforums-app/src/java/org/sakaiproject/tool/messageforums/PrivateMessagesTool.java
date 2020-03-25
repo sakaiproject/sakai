@@ -86,6 +86,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.DateFormatterUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.comparator.GroupTitleComparator;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 
 import javax.faces.application.FacesMessage;
@@ -4562,15 +4563,10 @@ public void processChangeSelectView(ValueChangeEvent eve)
 		  List<Group> sortGroupsList = new ArrayList<>();
 
 		  sortGroupsList.addAll(groups);
-		  
-		  final GroupComparator groupComparator = new GroupComparator("title", true);
-		  
+		  final GroupTitleComparator groupComparator = new GroupTitleComparator();
 		  Collections.sort(sortGroupsList, groupComparator);
-		  
 		  groups.clear();
-		  
 		  groups.addAll(sortGroupsList);
-		  
 		  return groups;
 	  }
 	  

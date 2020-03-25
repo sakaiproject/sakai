@@ -80,7 +80,7 @@
             <label for="groupMembersFrom" class="form-control-label block" th:text="#{groups.available.members}">Available Members</label>
             <select name="groupMembersFrom" id="groupMembersFrom" class="form-control" multiple="multiple" size="8">
               <option th:if="${groupForm.groupMembers == null || !groupForm.groupMembers.contains(siteRole.id)}" th:each="siteRole : ${siteRoleList}" th:value="${siteRole.id}" th:text="|#{groups.role} ${siteRole.id}|"></option>
-              <option th:if="${groupForm.groupMembers == null || !groupForm.groupMembers.contains(siteMember.id)}" th:each="siteMember : ${siteMemberList}" th:value="${siteMember.id}" th:text="|${siteMember.displayName} (${siteMember.eid})|"></option>
+              <option th:if="${groupForm.groupMembers == null || !groupForm.groupMembers.contains(siteMember.id)}" th:each="siteMember : ${siteMemberList}" th:value="${siteMember.id}" th:text="|${siteMember.sortName} (${siteMember.eid})|"></option>
             </select>
           </div>
           <div class="col-sm-2">
@@ -94,7 +94,7 @@
             <label for="groupMembersFrom_to" class="form-control-label block" th:text="#{groups.assigned.members}">Assigned Members</label>
             <select name="groupMembers" th:field="*{groupMembers}" id="groupMembersFrom_to" class="form-control" multiple="multiple" size="8">
               <option th:if="${groupForm.groupMembers != null && groupForm.groupMembers.contains(siteRole.id)}" th:each="siteRole : ${siteRoleList}" th:value="${siteRole.id}" th:text="|#{groups.role} ${siteRole.id}|"></option>
-              <option th:if="${groupForm.groupMembers != null && groupForm.groupMembers.contains(siteMember.id)}" th:each="siteMember : ${siteMemberList}" th:value="${siteMember.id}" th:text="|${siteMember.displayName} (${siteMember.eid})|"></option>
+              <option th:if="${groupForm.groupMembers != null && groupForm.groupMembers.contains(siteMember.id)}" th:each="siteMember : ${siteMemberList}" th:value="${siteMember.id}" th:text="|${siteMember.sortName} (${siteMember.eid})|"></option>
             </select>
           </div>
       </div>

@@ -154,6 +154,8 @@ import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.comparator.GroupTitleComparator;
+import org.sakaiproject.util.comparator.ResourceTypeLabelComparator;
 import org.w3c.dom.Element;
 
 import lombok.extern.slf4j.Slf4j;
@@ -4146,12 +4148,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					site_groups.addAll(site.getGroups());
 					if(site_groups.size() > 0)
 					{
-						Collections.sort(site_groups, new Comparator<Group>()
-						{
-							public int compare(Group g0, Group g1) {
-								return g0.getTitle().compareToIgnoreCase(g1.getTitle());						
-							}
-						});
+						Collections.sort(site_groups, new GroupTitleComparator());
 						context.put("dropboxGroupFilter_groups", site_groups);
 						context.put("showDropboxGroupFilter", showDropboxGroupFilter.toString());
 						String dropboxGroupFilter_groupId = (String) state.getAttribute("dropboxGroupFilter_groupId");
@@ -4990,14 +4987,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		context.put("statusMap", statusMap);
 		
 		List types = new ArrayList(registry.getTypes());
-		Collections.sort(types, new Comparator(){
-
-			public int compare(Object arg0, Object arg1) {
-				ResourceType type0 = (ResourceType) arg0;
-				
-				ResourceType type1 = (ResourceType) arg1;
-				return type0.getLabel().compareToIgnoreCase(type1.getLabel());
-			}});
+		Collections.sort(types, new ResourceTypeLabelComparator());
 		
 		context.put("types", types);
 

@@ -36,6 +36,7 @@ import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.util.comparator.UserSortNameComparator;
 
 import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.messageutil.MessageLocator;
@@ -224,21 +225,20 @@ public class QuestionGradingPaneProducer implements ViewComponentProducer, ViewP
 		}
 		
 		if (notSubmitted.size() > 0) {
-			List<String> missing = new ArrayList<String>();
+			List<User> missing = new ArrayList<User>();
 			for (String userId : notSubmitted) {
 				try {
 					User user = UserDirectoryService.getUser(userId);
-					missing.add(String.format("%s (%s)", user.getSortName(), user.getEid()));
+					missing.add(user);
 				} catch (Exception e) {
-					missing.add(userId);
 				}
 			}
-		    Collections.sort(missing);
+		    Collections.sort(missing, new UserSortNameComparator());
 		    UIOutput.make(tofill, "missing-head");
 		    UIOutput.make(tofill, "missing-div");
-		    for (String name: missing) {
-			UIBranchContainer branch = UIBranchContainer.make(tofill, "missing:");
-			UIOutput.make(branch, "missing-entry", name);
+		    for (User user : missing) {
+		    	UIBranchContainer branch = UIBranchContainer.make(tofill, "missing:");
+		    	UIOutput.make(branch, "missing-entry", String.format("%s (%s)", user.getSortName(), user.getEid()));
 		    }
 		    if (graded)
 			UIOutput.make(tofill, "zeroMissing", messageLocator.getMessage("simplepage.zero-missing")).

@@ -140,6 +140,9 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.comparator.AuthzGroupIdComparator;
+import org.sakaiproject.util.comparator.GroupTitleComparator;
+
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 import org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation;
 import org.sakaiproject.rubrics.logic.RubricsConstants;
@@ -6439,13 +6442,8 @@ public class DiscussionForumTool {
    */
   private List sortRoles(Set roles) {
 	  final List rolesList = new ArrayList();
-	  
 	  rolesList.addAll(roles);
-	  
-	  final AuthzGroupComparator authzGroupComparator = new AuthzGroupComparator("id", true);
-	  
-	  Collections.sort(rolesList, authzGroupComparator);
-	  
+	  Collections.sort(rolesList, new AuthzGroupIdComparator());
 	  return rolesList;
   }
   /**
@@ -6460,17 +6458,10 @@ public class DiscussionForumTool {
    */
   private Collection sortGroups(Collection groups) {
 	  List sortGroupsList = new ArrayList();
-
 	  sortGroupsList.addAll(groups);
-	  
-	  final GroupComparator groupComparator = new GroupComparator("title", true);
-	  
-	  Collections.sort(sortGroupsList, groupComparator);
-	  
+	  Collections.sort(sortGroupsList, new GroupTitleComparator());
 	  groups.clear();
-	  
 	  groups.addAll(sortGroupsList);
-	  
 	  return groups;
   }
   /**
