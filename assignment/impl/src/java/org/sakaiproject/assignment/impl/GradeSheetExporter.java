@@ -44,7 +44,6 @@ import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.assignment.impl.sort.AssignmentComparator;
-import org.sakaiproject.assignment.impl.sort.UserComparator;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -53,6 +52,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.comparator.UserSortNameComparator;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -121,7 +121,7 @@ public class GradeSheetExporter {
                     site != null && candidateDetailProvider.isAdditionalNotesEnabled(site);
             // For details of all the users in the site.
             Map<String, Submitter> submitterMap = new HashMap<>();
-            members.sort(new UserComparator());
+            members.sort(new UserSortNameComparator());
             for (User user : members) {
                 // put user displayid and sortname in the first two cells
                 Submitter submitter = new Submitter(user.getDisplayId(), user.getSortName());
