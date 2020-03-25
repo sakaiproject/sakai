@@ -63,35 +63,29 @@
 					else
 						jQuery(tag).slideUp("fast");
 				}
-			}								
+			}
 		</script>
-			
-		<h:form id="signupMeeting">
-			<%@ include file="/signup/menu/signupMenu.jsp" %>
-			<br/>
-			<h:panelGroup>
-				<h:commandLink styleClass="button" id="download_xls" value="#{msgs.event_pageTop_link_for_download_xls}" action="#{DownloadEventBean.downloadOneEventAsExcel}" />
-				&nbsp;
-			</h:panelGroup>
-			<h:panelGroup rendered="#{DownloadEventBean.csvExportEnabled && DownloadEventBean.currentUserAllowedUpdateSite}">
-				<h:commandLink styleClass="button" id="download_csv" value="#{msgs.event_pageTop_link_for_download_csv}"/>
-				&nbsp;
-			</h:panelGroup>
-			<h:outputLink styleClass="button" id="print" value="javascript:window.print();">
-					<h:outputText value="#{msgs.print_event}" escape="false"/>
-			</h:outputLink>
-		</h:form>
-		
-		<sakai:view_content>
-			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}"
-				styleClass="alertMessage" escape="false"
-				rendered="#{messageUIBean.error}" />
 
+		<sakai:view_content>
 			<h:form id="meeting">
+				<%@ include file="/signup/menu/signupMenu.jsp" %>
+				<br/>
+				<h:panelGroup>
+					<h:commandLink styleClass="button" id="download_xls" value="#{msgs.event_pageTop_link_for_download_xls}" action="#{DownloadEventBean.downloadOneEventAsExcel}" />
+					&nbsp;
+				</h:panelGroup>
+				<h:panelGroup rendered="#{DownloadEventBean.csvExportEnabled && DownloadEventBean.currentUserAllowedUpdateSite}">
+					<h:commandLink styleClass="button" id="download_csv" value="#{msgs.event_pageTop_link_for_download_csv}"/>
+					&nbsp;
+				</h:panelGroup>
+				<h:outputLink styleClass="button" id="print" value="javascript:window.print();">
+					<h:outputText value="#{msgs.print_event}" escape="false"/>
+				</h:outputLink><br/>
+
+				<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}" />
 				<div class="page-header">
 					<sakai:view_title value="#{msgs.event_participant_view_page_title}" />
 				</div>
-
 				<%-- show title only when collapsed --%>
 				<h:panelGrid id="showMeetingTitleOnly" columns="2" columnClasses="titleColumn,valueColumn" styleClass="orgShowTitleOnly">
 							<h:outputText value="#{msgs.event_name}" styleClass="titleText" escape="false"/>
