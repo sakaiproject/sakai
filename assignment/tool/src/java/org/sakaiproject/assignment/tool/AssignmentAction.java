@@ -31,6 +31,7 @@ import java.nio.file.StandardCopyOption;
 import java.text.*;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.time.format.FormatStyle;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
@@ -12908,7 +12909,7 @@ public class AssignmentAction extends PagedResourceActionII {
                                 if (entryName.contains("timestamp")) {
                                     byte[] timeStamp = readIntoBytes(zipFile.getInputStream(entry), entryName, entry.getSize());
                                     UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userEid);
-                                    r.setSubmissionTimestamp(new String(timeStamp));
+                                    r.setSubmissionTimestamp(StringUtils.stripToEmpty(StringUtils.chomp(new String(timeStamp))));
                                     submissionTable.put(userEid, r);
                                 }
                             }
@@ -13094,7 +13095,19 @@ public class AssignmentAction extends PagedResourceActionII {
 
                     // if the current submission lacks timestamp while the timestamp exists inside the zip file
                     if (StringUtils.trimToNull(w.getSubmissionTimeStamp()) != null && submission.getDateSubmitted() == null) {
-                        submission.setDateSubmitted(Instant.ofEpochMilli(Long.parseLong(w.getSubmissionTimeStamp())));
+                        Instant timestamp = Instant.now(); // default is now
+                        if (StringUtils.isNumeric(w.getSubmissionTimeStamp())) {
+                            // if timestamp in file is a numeric
+                            timestamp = Instant.ofEpochMilli(Long.parseLong(w.getSubmissionTimeStamp()));
+                        } else {
+                            // otherwise should be 2020-03-06T16:10:21Z
+                            try {
+                                timestamp = Instant.parse(w.getSubmissionTimeStamp());
+                            } catch (DateTimeParseException dtpe) {
+                                log.warn("Could not parse timestamp {} for submission {}, {}", w.getSubmissionTimeStamp(), submission.getId(), dtpe.toString());
+                            }
+                        }
+                        submission.setDateSubmitted(timestamp);
                         submission.setSubmitted(true);
                     }
 
