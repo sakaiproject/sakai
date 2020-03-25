@@ -38,10 +38,11 @@ import org.sakaiproject.authz.api.AuthzRealmLockException;
 import org.sakaiproject.groupmanager.constants.GroupManagerConstants;
 import org.sakaiproject.groupmanager.form.MainForm;
 import org.sakaiproject.groupmanager.service.SakaiService;
-import org.sakaiproject.groupmanager.util.UserComparator;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.util.comparator.GroupTitleComparator;
+import org.sakaiproject.util.comparator.UserSortNameComparator;
 
 @Slf4j
 @Controller
@@ -70,10 +71,7 @@ public class MainController {
         // List of groups of the site, excluding the ones which GROUP_PROP_WSETUP_CREATED property is false.
         List<Group> groupList = site.getGroups().stream().filter(group -> group.getProperties().getProperty(Group.GROUP_PROP_WSETUP_CREATED) != null && Boolean.valueOf(group.getProperties().getProperty(Group.GROUP_PROP_WSETUP_CREATED)).booleanValue()).collect(Collectors.toList());
         // Sort the group list by title.
-        Collections.sort(groupList, new Comparator<Group>(){
-            public int compare(Group g1, Group g2){
-                return g1.getTitle().compareToIgnoreCase(g2.getTitle());
-        }});
+        Collections.sort(groupList, new GroupTitleComparator());
 
         // Control the groups that are locked by entities
         boolean anyGroupLocked = false;
@@ -93,7 +91,7 @@ public class MainController {
                     groupMemberList.add(memberUserOptional.get());
                 }
             });
-            Collections.sort(groupMemberList, new UserComparator());
+            Collections.sort(groupMemberList, new UserSortNameComparator());
             groupMemberList.forEach(u -> stringJoiner.add(u.getDisplayName()));
             groupMemberMap.put(group.getId(), stringJoiner.toString());
             // Get the joinable sets and add them to the Map
