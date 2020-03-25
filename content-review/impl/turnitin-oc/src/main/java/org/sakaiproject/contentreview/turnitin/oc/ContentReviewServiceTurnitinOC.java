@@ -60,6 +60,7 @@ import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -124,6 +125,12 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	
 	@Setter
 	private SessionManager sessionManager;
+	
+	@Setter
+	private MemoryService memoryService;
+	
+	@Setter
+	private AuthzGroupService authzGroupService;
 
 	private static final String SERVICE_NAME = "Turnitin";
 	private static final String TURNITIN_OC_API_VERSION = "v1";
@@ -159,8 +166,26 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private static final String VIEWER_PERMISSION_MAY_VIEW_SUBMISSIONS_FULL_SOURCE = "may_view_submission_full_source";
 	private static final String VIEWER_PERMISSION_MAY_VIEW_MATCH_SUBMISSION_INFO = "may_view_match_submission_info";
 	private static final String VIEWER_DEFAULT_PERMISSIONS = "viewer_default_permission_set";
-	private static final String INSTRUCTOR = "INSTRUCTOR";
-	private static final String LEARNER = "LEARNER";
+	private enum ROLES{
+		INSTRUCTOR(Arrays.asList("Faculty", "Instructor", "Mentor", "Staff", "maintain", "Teaching Assistant")),
+		LEARNER(Arrays.asList("Learner", "Student", "access")),
+		EDITOR(Arrays.asList()),
+		USER(Arrays.asList("Alumni", "guest", "Member", "Observer", "Other")),
+		APPLICANT(Arrays.asList("ProspectiveStudent")),
+		ADMINISTRATOR(Arrays.asList("Administrator", "Admin")),
+		UNDEFINED(Arrays.asList());
+		
+		List<String> mappedRoles;
+		private ROLES(List<String> mappedRoles) {
+			this.mappedRoles = mappedRoles;
+		}
+		private void setMappedRoles(List<String> mappedRoles) {
+			this.mappedRoles = mappedRoles;
+		}
+		private List<String> getMappedRoles() {
+			return mappedRoles;
+		}
+	};
 	
 	private static final String GENERATE_REPORTS_IMMEDIATELY_AND_ON_DUE_DATE= "1";
 	private static final String GENERATE_REPORTS_ON_DUE_DATE = "2";	
@@ -195,8 +220,6 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		GROUP_CONTEXT
 	}
 	
-	@Setter
-	private MemoryService memoryService;
 	//Caches requests for instructors so that we don't have to send a request for every student
 	private Cache EULA_CACHE;
 	private static final String EULA_LATEST_KEY = "latest";
@@ -309,6 +332,11 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		mayViewMatchSubmissionInfoOverrideInstructor = StringUtils.isNotEmpty(serverConfigurationService.getString("turnitin.oc.may_view_match_submission_info.instructor")) 
 				? serverConfigurationService.getBoolean("turnitin.oc.may_view_match_submission_info.instructor", false)
 				: null;
+				
+		// Override default Sakai->Turnitin roles mapping
+		for(ROLES role : ROLES.values()) {
+			role.setMappedRoles(serverConfigurationService.getStringList("turnitin.oc.roles." + role.name().toLowerCase() + ".mapping", role.getMappedRoles()));
+		}
 
 		// Populate base headers that are needed for all calls to TCA
 		BASE_HEADERS.put(HEADER_NAME, INTEGRATION_FAMILY);
@@ -548,7 +576,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				viewSettings.put(SAVE_CHANGES, Boolean.TRUE);
 				similarity.put(VIEW_SETTINGS, viewSettings);
 				data.put(SIMILARITY, similarity);
-				data.put(VIEWER_DEFAULT_PERMISSIONS, isInstructor ? INSTRUCTOR : LEARNER);
+				data.put(VIEWER_DEFAULT_PERMISSIONS, mapUserRole(userId, contextId, isInstructor));
 				//Check if there are any sakai.properties overrides for the default permissions
 				Map<String, Object> viewerPermissionsOverride = new HashMap<String, Object>();
 				if(!isInstructor && mayViewSubmissionFullSourceOverrideStudent != null) {
@@ -883,8 +911,14 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			// Build header maps
 			Map<String, Object> data = new HashMap<String, Object>();
 			data.put("owner", userID);
+			if(site != null) {
+				data.put("owner_default_permission_set", mapUserRole(userID, site.getId(), false));
+			}
 			if (StringUtils.isNotBlank(submitterID)) {
-				data.put("submitter", submitterID);	
+				data.put("submitter", submitterID);
+				if(site != null) {
+					data.put("submitter_default_permission_set", mapUserRole(submitterID, site.getId(), false));
+				}
 			}
 			data.put("title", fileName);
 			String eulaUserId = StringUtils.isNotEmpty(submitterID) ? submitterID : userID;
@@ -1804,6 +1838,24 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		}
 		log.info("Turnitin webhook received: " + success + " items processed, " + errors + " errors.");
 	}
+	
+	private String mapUserRole(String userId, String contextId, boolean isInstructor) {
+		String role = isInstructor ? ROLES.INSTRUCTOR.name() : ROLES.UNDEFINED.name();
+		try
+		{
+			//get the user's role for this course
+			String siteRole = securityService.isSuperUser(userId) ? ROLES.ADMINISTRATOR.name() : authzGroupService.getUserRole(userId, siteService.siteReference(contextId));
+			role = Arrays.asList(ROLES.values()).stream()
+				.filter(r -> r.getMappedRoles().stream().anyMatch(siteRole::equalsIgnoreCase))
+				.map(r -> r.name())
+				.findFirst()
+				.orElse(role);
+		}catch(Exception e) {
+			log.error(e.getMessage(), e);
+		}
+		return role;
+	}
+	
 	
 	@Getter
 	@AllArgsConstructor
