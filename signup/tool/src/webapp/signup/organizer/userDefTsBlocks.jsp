@@ -17,8 +17,8 @@
 
 		<script>
 			var prefix="meeting_userDefinedTS_";
-			
-			function initLocalDatePicker(pos){
+
+			function initLocalDatePicker(pos) {
 					localDatePicker({
 						input: '#meeting\\:userDefinedTS\\:'+pos+'\\:startTime',
 						useTime: 1,
@@ -51,8 +51,8 @@
 								ampm: prefix + pos + "_endTime_ampm"}
 					});
 			}
-				
-			function setCustomEndtimeMonthDateYear(pos){
+
+			function setCustomEndtimeMonthDateYear(pos) {
 				var yearTag = document.getElementById(prefix + pos + "_startTime_year");
 				if(!yearTag)
 					return;
@@ -78,23 +78,30 @@
 			function delayedRecalcDate(){
 				if (!wait){
 						wait = true;
-						for(i=0; i<30; i++){//control 30 ts
-						 setCustomEndtimeMonthDateYear(i);
-						}
-					  	setTimeout("wait=false;", 1500);//1.5 sec
-					}			
+						jQuery('.timeSlot').each( function(index, data) {
+							var inputId = this.id;
+							if (inputId !== '' && inputId.endsWith('startTime')) {
+								// Get the input position
+								var inputPosition = inputId.replace('meeting:userDefinedTS:', '').replace(':startTime', '');
+								setCustomEndtimeMonthDateYear(inputPosition);
+							}
+							setTimeout("wait=false;", 1500);//1.5 sec
+						});
+					}
 			}
-				
-		</script>
-		<script type="text/javascript">			
+
 			jQuery(document).ready(function(){
+				jQuery('.timeSlot').each( function(index, data) {
+					var inputId = this.id;
+					if (inputId !== '' && inputId.endsWith('startTime')) {
+						// Get the input position
+						var inputPosition = inputId.replace('meeting:userDefinedTS:', '').replace(':startTime', '');
+						initLocalDatePicker(inputPosition);
+					}
+				});
 				var MIN_ATTENDEES = 1;
 				var MAX_ATTENDEES = 500;
-			    
-				for(i = 0 ; i < 30 ; i++){
-					initLocalDatePicker(i);
-				}
-				
+
 				/**
 				* check input is only numeric
 				*/
@@ -183,7 +190,7 @@
 									</f:facet>
 						    		<h:panelGrid columns="1">
 							    		<h:panelGroup styleClass="titleText">
-											<h:inputText id="startTime" value="#{tsWrapper.timeSlot.startTimeString}"/>
+											<h:inputText styleClass="timeSlot" id="startTime" value="#{tsWrapper.timeSlot.startTimeString}"/>
 											<h:inputHidden id="hiddenStartTime" value="#{tsWrapper.timeSlot.startTime}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" timeZone="#{UserTimeZone.userTimeZone}" /></h:inputHidden>
 										</h:panelGroup>
 										<h:message for="startTime" errorClass="alertMessageInline"/>
