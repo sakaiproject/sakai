@@ -24,6 +24,7 @@ import java.util.Comparator;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.user.api.User;
+import org.springframework.util.comparator.NullSafeComparator;
 
 /**
  * This sorts users.
@@ -32,24 +33,30 @@ import org.sakaiproject.user.api.User;
 public class UserSortNameComparator implements Comparator<User> {
 
     private Collator collator;
+    private boolean nullsLow = false;
 
     public UserSortNameComparator() {
-        // TODO this should be in a service and should repect the current user's locale
+        collator = Collator.getInstance();
         try {
-            collator = new RuleBasedCollator(((RuleBasedCollator) Collator.getInstance()).getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
+            String oldRules = ((RuleBasedCollator) collator).getRules();
+            String newRules = oldRules.replaceAll("<'\u005f'", "<' '<'\u005f'");
+            collator = new RuleBasedCollator(newRules);
         } catch (ParseException e) {
-            // error with init RuleBasedCollator with rules
-            // use the default Collator
-            collator = Collator.getInstance();
-            log.warn("{} UserSortNameComparator cannot init RuleBasedCollator. Will use the default Collator instead. {}", this, e);
+            log.warn("Can't create custom collator instead using the default collator, {}", e.toString());
         }
-        // This is to ignore case of the values
-        collator.setStrength(Collator.SECONDARY);
+        collator.setStrength(Collator.SECONDARY); // ignore case
+    }
+
+    public UserSortNameComparator(boolean nullsLow) {
+        this();
+        this.nullsLow = nullsLow;
     }
 
     public int compare(User u1, User u2) {
-        String name1 = u1.getSortName();
-        String name2 = u2.getSortName();
-        return collator.compare(name1, name2);
+        if (u1 == u2) return 0;
+        if (u1 == null) return (nullsLow ? -1 : 1);
+        if (u2 == null) return (nullsLow ? 1 : -1);
+
+        return new NullSafeComparator<>(collator, nullsLow).compare(u1.getSortName(), u2.getSortName());
     }
 }
