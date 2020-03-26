@@ -1360,6 +1360,10 @@ public class AssignmentAction extends PagedResourceActionII {
             case MODE_STUDENT_VIEW_ASSIGNMENT_HONORPLEDGE:
                 template = build_student_view_assignment_honorPledge_context(portlet, context, data, state);
                 break;
+            case MODE_PERMISSIONS:
+                template = build_permissions_context(portlet, context, data, state);
+                state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
+                break;
         }
 
         if (template == null) {
@@ -9963,7 +9967,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 doView(data);
             } else if ("permissions".equals(option)) {
                 // permissions
-                doPermissions(data);
+                doPermissions(data, null);
             } else if ("new".equals(option)) {
                 doNew_assignment(data, null);
             } else if ("returngrade".equals(option)) {
@@ -11654,63 +11658,11 @@ public class AssignmentAction extends PagedResourceActionII {
         }
     }
 
-    /**
-     * Fire up the permissions editor
-     */
-    public void doPermissions(RunData data) {
-        SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-        if (!alertGlobalNavigation(state, data)) {
-            // we are changing the view, so start with first page again.
-            resetPaging(state);
-
-            // clear search form
-            doSearch_clear(data, null);
-
-            if (siteService.allowUpdateSite((String) state.getAttribute(STATE_CONTEXT_STRING))) {
-                // get into helper mode with this helper tool
-                startHelper(data.getRequest(), "sakai.permissions.helper");
-
-                String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
-                String siteRef = siteService.siteReference(contextString);
-
-                // setup for editing the permissions of the site for this tool, using the roles of this site, too
-                state.setAttribute(PermissionsHelper.TARGET_REF, siteRef);
-
-                // ... with this description
-                state.setAttribute(PermissionsHelper.DESCRIPTION, rb.getString("setperfor") + " "
-                        + siteService.getSiteDisplay(contextString));
-
-                // ... showing only locks that are prpefixed with this
-                state.setAttribute(PermissionsHelper.PREFIX, "asn.");
-
-                // ... pass the resource loader object
-                ResourceLoader pRb = new ResourceLoader("permissions");
-                HashMap<String, String> pRbValues = new HashMap<String, String>();
-                for (Iterator<Map.Entry<String, Object>> iEntries = pRb.entrySet().iterator(); iEntries.hasNext(); ) {
-                    Map.Entry<String, Object> entry = iEntries.next();
-                    pRbValues.put(entry.getKey(), (String) entry.getValue());
-
-                }
-                state.setAttribute("permissionDescriptions", pRbValues);
-
-                String groupAware = toolManager.getCurrentTool().getRegisteredConfig().getProperty("groupAware");
-                state.setAttribute("groupAware", groupAware != null ? Boolean.valueOf(groupAware) : Boolean.FALSE);
-
-                // disable auto-updates while leaving the list view
-                justDelivered(state);
-            }
-
-            // reset the global navigaion alert flag
-            if (state.getAttribute(ALERT_GLOBAL_NAVIGATION) != null) {
-                state.removeAttribute(ALERT_GLOBAL_NAVIGATION);
-            }
-
-            // switching back to assignment list view
-            state.setAttribute(STATE_SELECTED_VIEW, MODE_LIST_ASSIGNMENTS);
-            doList_assignments(data);
-        }
-
-    } // doPermissions
+    public void doPermissions(RunData runData, Context context) {
+        SessionState state = ((JetspeedRunData) runData).getPortletSessionState(((JetspeedRunData) runData).getJs_peid());
+        state.setAttribute(STATE_MODE, "permissions");
+        state.setAttribute(STATE_TOOL_KEY, "asn");
+    }
 
     /**
      * transforms the Iterator to List
