@@ -12,6 +12,18 @@
  * @returns
  */
 
+var GbChart = {};
+
+$(document).ready(function() {
+	// need TrimPath to load before parsing templates
+	GbChart.templates = {
+		chartStudentsGradeMessage: TrimPath.parseTemplate(
+			$("#chartStudentsGradeMessage").html().trim().toString()),
+		chartYourGradeMessage: TrimPath.parseTemplate(
+			$("#chartYourGradeMessage").html().trim().toString()),
+	};
+});
+
 var myChart;
 
 function renderChart(gbChartData) {
@@ -70,16 +82,13 @@ function renderChart(gbChartData) {
 				displayColors: false,
 				callbacks: {
 					title: function(tooltipItem, data) {
+						var chartMessage = GbChart.templates['chartStudentsGradeMessage'].process();
 						switch(chartType) {
 						case 'bar':
-							var message = GbGradeTable.templates['chartStudentsGradeMessage'].process();
-							message = message.replace('{0}', tooltipItem[0].yLabel).replace('{1}', tooltipItem[0].xLabel);
-							return message;
+							return chartMessage.replace('{0}', tooltipItem[0].yLabel).replace('{1}', tooltipItem[0].xLabel);
 							break;
 						case 'horizontalBar':
-							var message = GbGradeTable.templates['chartStudentsGradeMessage'].process();
-							message = message.replace('{0}', tooltipItem[0].xLabel).replace('{1}', tooltipItem[0].yLabel);
-							return message;
+							return chartMessage.replace('{0}', tooltipItem[0].xLabel).replace('{1}', tooltipItem[0].yLabel);
 						}
 
 					},
@@ -89,12 +98,12 @@ function renderChart(gbChartData) {
 							switch(chartType) {
 							case 'bar':
 								if (window.studentGradeRange != null && window.studentGradeRange == tooltipItem[0].xLabel) {
-									return GbGradeTable.templates['chartYourGradeMessage'].process();
+									return GbChart.templates['chartYourGradeMessage'].process();
 								}
 								break;
 							case 'horizontalBar':
 								if (window.studentGradeRange != null && window.studentGradeRange == tooltipItem[0].yLabel) {
-									return GbGradeTable.templates['chartYourGradeMessage'].process();
+									return GbChart.templates['chartYourGradeMessage'].process();
 								}
 							}
 						}
