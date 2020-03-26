@@ -1,7 +1,7 @@
-import {RubricsElement} from "./rubrics-element.js";
-import {html} from "/webcomponents/assets/lit-element/lit-element.js";
-import {unsafeHTML} from "/webcomponents/assets/lit-html/directives/unsafe-html.js";
-import {tr} from "./sakai-rubrics-language.js";
+import { RubricsElement } from "./rubrics-element.js";
+import { html } from "/webcomponents/assets/lit-element/lit-element.js";
+import { unsafeHTML } from "/webcomponents/assets/lit-html/directives/unsafe-html.js";
+import { tr } from "./sakai-rubrics-language.js";
 
 export class SakaiRubricStudentComment extends RubricsElement {
 
@@ -20,16 +20,18 @@ export class SakaiRubricStudentComment extends RubricsElement {
 
     var oldValue = this._criterion;
     this._criterion = newValue;
-    this._criterion.comments = (newValue.comments && newValue.comments.indexOf("null") === 0) ? "" : newValue.comments;
+    this._criterion.comments = newValue.comments && newValue.comments.indexOf("null") === 0 ? "" : newValue.comments;
     this.requestUpdate("criterion", oldValue);
   }
 
-  get criterion() { return this._criterion; }
+  get criterion() {
+    return this._criterion;
+  }
 
   render() {
 
     return html`
-      <div style="${this.criterion.comments ? "cursor: pointer;" : ""}" class="comment-icon fa fa-2x fa-comments ${this.criterion.comments ? "active": ""}" @click="${this.toggleComment}" title="${tr("criterion_comment_student")}"></div>
+      <div tabindex="0" style="${this.criterion.comments ? "cursor: pointer;" : ""}" class="comment-icon fa fa-2x fa-comments ${this.criterion.comments ? "active" : ""}" @click=${this.toggleComment} @keypress=${this.toggleComment} title="${tr("criterion_comment_student")}"></div>
 
       <!-- popover -->
       <div id="criterion-comment-viewer-${this.criterion.id}-${this.randombit}" class="popover criterion-edit-popover left">
@@ -66,7 +68,7 @@ export class SakaiRubricStudentComment extends RubricsElement {
 
       this.classList.add('show-tooltip');
       popover[0].style.left = e.target.offsetLeft - 270 + "px";
-      popover[0].style.top = (e.target.offsetTop + e.target.offsetHeight/2 - popover.height()/2) + "px";
+      popover[0].style.top = e.target.offsetTop + e.target.offsetHeight / 2 - popover.height() / 2 + "px";
       popover.show();
     } else {
       this.classList.remove('show-tooltip');
