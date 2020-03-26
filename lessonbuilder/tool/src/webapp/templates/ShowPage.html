@@ -887,8 +887,8 @@
                                     <form action="#" rsf:id="shortanswerForm" class="shortanswerForm">
 				      <input type="hidden" rsf:id="csrf5" />
                                         <input type="hidden" rsf:id="shortanswerId" />
-                                        <div rsf:id="msg=simplepage.answer"></div>
-                                        <textarea rsf:id="shortanswerInput" class="resizable" ></textarea>
+                                        <div id="answerInput"><span rsf:id="msg=simplepage.answer"></span></div>
+                                        <textarea rsf:id="shortanswerInput" aria-labelledby="answerInput"></textarea>
                                         <input class="bold question-submit" type="submit" value="Answer!" rsf:id="answerShortanswer" />
                                     </form>
                                 </div>
