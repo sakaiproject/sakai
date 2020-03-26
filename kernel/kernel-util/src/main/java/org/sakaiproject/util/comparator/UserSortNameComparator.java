@@ -48,6 +48,9 @@ public class UserSortNameComparator implements Comparator<User> {
     }
 
     public int compare(User u1, User u2) {
+        if (u1 == null || u2 == null) {
+            return 0;
+        }
         String name1 = u1.getSortName();
         String name2 = u2.getSortName();
         return collator.compare(name1, name2);

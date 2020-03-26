@@ -3971,13 +3971,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		return userDisplayName;
 	}
 
-	private static User getUser(String userId) {
+	private static Optional<User> getUser(String userId) {
 		try {
-			return UserDirectoryService.getUser(userId);
+			return Optional.of(UserDirectoryService.getUser(userId));
 		} catch (UserNotDefinedException e) {
 			log.error("User {} does not exist", userId);
 		}
-		return null;
+		return Optional.empty();
 	}
 
 	//Get the twitter widget hashtag and other settings from the user.
@@ -4954,7 +4954,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				Collections.sort(siteMemberList, new Comparator<Member>() {
 					public int compare(Member lhs, Member rhs) {
 						UserSortNameComparator userComparator = new UserSortNameComparator();
-						return userComparator.compare(getUser(lhs.getUserId()), getUser(rhs.getUserId()));
+						Optional<User> lhsUserOptional = getUser(lhs.getUserId());
+						Optional<User> rhsUserOptional = getUser(rhs.getUserId());
+						return lhsUserOptional.isPresent() && rhsUserOptional.isPresent() ? userComparator.compare(lhsUserOptional.get(), rhsUserOptional.get()) : 0;
 					}
 				});
 				siteMemberList.forEach(member -> {
