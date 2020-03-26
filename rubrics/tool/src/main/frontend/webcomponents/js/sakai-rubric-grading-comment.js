@@ -1,6 +1,6 @@
-import {RubricsElement} from "./rubrics-element.js";
-import {html} from "/webcomponents/assets/lit-element/lit-element.js";
-import {tr} from "./sakai-rubrics-language.js";
+import { RubricsElement } from "./rubrics-element.js";
+import { html } from "/webcomponents/assets/lit-element/lit-element.js";
+import { tr } from "./sakai-rubrics-language.js";
 
 export class SakaiRubricGradingComment extends RubricsElement {
 
@@ -16,7 +16,7 @@ export class SakaiRubricGradingComment extends RubricsElement {
     return {
       criterion: { type: Object },
       entityId: { attribute: "entity-id", type: String },
-      evaluatedItemId: { attribute: "evaluated-item-id", type: String },
+      evaluatedItemId: { attribute: "evaluated-item-id", type: String }
     };
   }
 
@@ -24,17 +24,19 @@ export class SakaiRubricGradingComment extends RubricsElement {
 
     var oldValue = this._criterion;
     this._criterion = newValue;
-    this._criterion.comments = (newValue.comments && newValue.comments.indexOf("null") === 0) ? "" : newValue.comments;
+    this._criterion.comments = newValue.comments && newValue.comments.indexOf("null") === 0 ? "" : newValue.comments;
     this.requestUpdate("criterion", oldValue);
   }
 
-  get criterion() { return this._criterion; }
+  get criterion() {
+    return this._criterion;
+  }
 
   render() {
 
     return html`
       <!-- edit icon -->
-      <div style="cursor: pointer;" class="comment-icon fa fa-2x fa-comments ${this.criterion.comments ? "active": ""}" @click="${this.toggleEditor}" title="${tr("criterion_comment")}"></div>
+      <div tabindex="0" style="cursor: pointer;" class="comment-icon fa fa-2x fa-comments ${this.criterion.comments ? "active" : ""}" @click=${this.toggleEditor} @keypress=${this.toggleEditor} title="${tr("criterion_comment")}"></div>
 
       <!-- popover -->
       <div id="criterion-editor-${this.criterion.id}-${this.randombit}" class="popover criterion-edit-popover left">
@@ -76,7 +78,7 @@ export class SakaiRubricGradingComment extends RubricsElement {
       var popover = $(`#criterion-editor-${this.criterion.id}-${this.randombit}`);
 
       popover[0].style.left = e.target.offsetLeft - 270 + "px";
-      popover[0].style.top = ((e.target.offsetTop + e.target.offsetHeight/2 + 20) - popover.height()/2) + "px";
+      popover[0].style.top = e.target.offsetTop + e.target.offsetHeight / 2 + 20 - popover.height() / 2 + "px";
 
       this.setupEditor();
 
@@ -99,7 +101,7 @@ export class SakaiRubricGradingComment extends RubricsElement {
     if (!this.criterion.comments) {
       this.criterion.comments = "";
     }
-    this.dispatchEvent(new CustomEvent('update-comment', {detail: {evaluatedItemId: this.evaluatedItemId, entityId: this.entityId, criterionId: this.criterion.id, value: this.criterion.comments}, bubbles: true, composed: true}));
+    this.dispatchEvent(new CustomEvent('update-comment', { detail: { evaluatedItemId: this.evaluatedItemId, entityId: this.entityId, criterionId: this.criterion.id, value: this.criterion.comments }, bubbles: true, composed: true }));
     this.requestUpdate();
   }
 
@@ -107,15 +109,11 @@ export class SakaiRubricGradingComment extends RubricsElement {
 
     try {
       var commentEditor = CKEDITOR.replace('criterion_' + this.evaluatedItemId + '_' + this.entityId + '_comment_' + this.criterion.id + '|' + this.randombit + '|', {
-        toolbar : [
-          // ['Bold', 'Italic', 'Underline', '-', 'Link', 'Unlink'],
-          ['Bold', 'Italic', 'Underline'],
-          ['NumberedList','BulletedList', 'Blockquote']
-        ],
-        height: 40,
+        toolbar: [['Bold', 'Italic', 'Underline'], ['NumberedList', 'BulletedList', 'Blockquote']],
+        height: 40
       });
 
-      commentEditor.on('change', (e) => this.criterion.comments = commentEditor.getData() );
+      commentEditor.on('change', e => this.criterion.comments = commentEditor.getData());
     } catch (error) {
       console.log(error);
     }
