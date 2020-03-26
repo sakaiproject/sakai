@@ -874,8 +874,4 @@ rubricsEventHandlers = function () {
       gradeField.value = e.detail.value;
     }
   });
-
-  $('body').on('rubric-ratings-changed', function (e) {
-    rubricChanged = true;
-  });
 }

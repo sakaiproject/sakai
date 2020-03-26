@@ -43,8 +43,6 @@ import org.apache.commons.math3.util.Precision;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.rubrics.logic.RubricsConstants;
-import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
@@ -61,7 +59,6 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.ParameterUtil;
 import org.sakaiproject.tool.assessment.util.SamigoLRSStatements;
 import org.sakaiproject.tool.assessment.util.TextFormat;
-import org.sakaiproject.tool.cover.SessionManager;
 
 /**
  * <p>
@@ -80,8 +77,6 @@ public class StudentScoreUpdateListener
   private final EventTrackingService eventTrackingService= ComponentManager.get( EventTrackingService.class );
 
   private static ContextUtil cu;
-
-  private RubricsService rubricsService = ComponentManager.get(RubricsService.class);
 
   /**
    * Standard process action method.
@@ -130,13 +125,6 @@ public class StudentScoreUpdateListener
       for (SectionContentsBean part : parts) {
         List<ItemContentsBean> items = part.getItemContents();
         for (ItemContentsBean question : items) {
-          // Persist the rubric evaluation
-          String entityId = RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + tbean.getPublishedId() + "." + question.getItemData().getItemId();
-          if(rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_SAMIGO, entityId)){
-            String evaluatedItemId = bean.getAssessmentGradingId() + "." + question.getItemData().getItemId();
-            rubricsService.saveRubricEvaluation(RubricsConstants.RBCS_TOOL_SAMIGO, entityId, evaluatedItemId, bean.getStudentId(), SessionManager.getCurrentSessionUserId(), paramUtil.getRubricConfigurationParameters(entityId, evaluatedItemId));
-          }
-
           List<ItemGradingData> gradingarray = question.getItemGradingDataArray();
           log.debug("****1. pub questionId = " + question.getItemData().getItemId());
           log.debug("****2. Gradingarray length = " + gradingarray.size());

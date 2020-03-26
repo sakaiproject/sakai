@@ -23,7 +23,6 @@ class SakaiRubricStudent extends RubricsElement {
       token: { type: String},
       entityId: { attribute: "entity-id", type: String},
       toolId: { attribute: "tool-id", type: String},
-      stateDetails: { type: String},
       preview: { type: Boolean},
       instructor: { type: Boolean},
       evaluatedItemId: { attribute: "evaluated-item-id", type: String},
