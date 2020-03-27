@@ -1363,6 +1363,16 @@
                     <regexp name="boolean"/>
                 </regexp-list>
             </attribute>
+            <attribute name="controlslist">
+                <literal-list>
+                    <literal value="nodownload"/>
+                    <literal value="nofullscreen"/>
+                    <literal value="noremoteplayback"/>
+                </literal-list>
+                <regexp-list>
+                    <regexp name="boolean"/>
+                </regexp-list>
+            </attribute>
             <attribute name="muted">
                 <literal-list>
                     <literal value="muted"/>
