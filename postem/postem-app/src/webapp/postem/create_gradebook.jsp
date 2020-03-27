@@ -70,13 +70,12 @@
           </div>
 
 					<div class="form-group row">
-						<h:outputLabel value="#{msgs.gradebook_feedbackavail}" styleClass="form-group-label col-xs-2" />
+						<h:outputLabel for="release" value="#{msgs.gradebook_feedbackavail}" styleClass="form-group-label col-xs-2" />
 						<div class="col-xs-4">
 						  <h:selectBooleanCheckbox id="release" value="#{PostemTool.currentGradebook.release}" />
-						  <h:outputLabel for="release"><h:outputText value="#{msgs.release}"/></h:outputLabel>
+						  <h:outputLabel for="release" value="#{msgs.release}" />
 						</div>
-
-					</div>											
+					</div>
 				</sakai:panel_titled>
 
 				<br />
