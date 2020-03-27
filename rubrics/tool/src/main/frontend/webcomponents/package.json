@@ -14,6 +14,7 @@
   "author": "",
   "license": "ECL-2.0",
   "devDependencies": {
-    "@sakaicontrib/empathise": "github:sakaicontrib/empathise"
-  }
+    "@adrianfish/empathise": "^0.1.1"
+  },
+  "dependencies": {}
 }
