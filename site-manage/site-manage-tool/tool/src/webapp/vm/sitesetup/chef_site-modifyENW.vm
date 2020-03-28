@@ -2,10 +2,10 @@
 ## modify Email Archive, and other multiple tools
 ##   - did some work on producing valid ids for inputs that would be good to validate 
 <div class="portletBody">
-<script>includeLatestJQuery('chef_site-modifyENW.vm');</script>
-#javascript("/library/js/fontIconPicker/2.0.1-cs/jquery.fonticonpicker.min.js")
-#css("/library/js/fontIconPicker/2.0.1-cs/css/jquery.fonticonpicker.css")
-#css("/library/js/fontIconPicker/2.0.1-cs/themes/grey-theme/jquery.fonticonpicker.grey.min.css")
+<script>
+	includeLatestJQuery('chef_site-modifyENW.vm');
+       	includeWebjarLibrary('fontawesome-iconpicker');
+</script>
 	#if($menu)#toolbar($menu)#end
 	<h3>
 		$tlang.getString("multipleTools.custom")
