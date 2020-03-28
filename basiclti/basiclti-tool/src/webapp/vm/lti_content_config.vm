@@ -7,10 +7,10 @@ setTimeout('window.location="$autoLaunch";', 1500);
 </script>
 #else
 <script type="text/javascript" src="/library/js/headscripts.js"></script>
-<script>includeLatestJQuery('lti_content_config.vm');</script>
-<script type="text/javascript" src="/library/js/fontIconPicker/2.0.1-cs/jquery.fonticonpicker.min.js"></script>
-<link rel="stylesheet" type="text/css" href="/library/js/fontIconPicker/2.0.1-cs/css/jquery.fonticonpicker.css" />
-<link rel="stylesheet" type="text/css" href="/library/js/fontIconPicker/2.0.1-cs/themes/grey-theme/jquery.fonticonpicker.grey.min.css" />
+<script>
+	includeLatestJQuery('lti_content_config.vm');
+	includeWebjarLibrary('fontawesome-iconpicker');
+</script>
 	<h3>
 		$tlang.getString("content.put")
 	</h3>

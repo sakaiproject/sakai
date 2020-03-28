@@ -294,6 +294,13 @@
 			<groupId>org.webjars.bower</groupId>
 			<artifactId>multiselect-two-sides</artifactId>
 			<version>2.5.5</version>
+		<!--Used in the BasicLTI and Site Manage-->
+		<dependency>
+			<groupId>org.webjars.npm</groupId>
+			<artifactId>fontawesome-iconpicker</artifactId>
+			<!-- Newer versions of this only compatible with FontAwesome 5 -->
+			<!-- Might be able to pass icon list to newer versions -->
+			<version>1.4.1</version>
 		</dependency>
 	</dependencies>
 	<profiles>
