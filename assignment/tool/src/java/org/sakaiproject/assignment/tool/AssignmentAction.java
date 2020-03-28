@@ -1512,6 +1512,7 @@ public class AssignmentAction extends PagedResourceActionII {
             if (s != null) {
                 log.debug("BUILD SUBMISSION FORM HAS SUBMISSION FOR USER {}", user);
                 context.put("submission", s);
+                context.put("submitterId", s);
                 String currentUser = userDirectoryService.getCurrentUser().getId();
                 String grade = assignmentService.getGradeForSubmitter(s, currentUser);
                 context.put("grade", grade);
@@ -3261,6 +3262,7 @@ public class AssignmentAction extends PagedResourceActionII {
             final String submitterNames = users.values().stream().map(u -> u.getDisplayName() + " (" + u.getDisplayId() + ")").collect(Collectors.joining(", "));
             context.put("submitterNames", formattedText.escapeHtml(submitterNames));
             context.put("submissionStatus", assignmentService.getSubmissionStatus(s.getId()));
+            s.getSubmitters().stream().findAny().ifPresent(u -> context.put("submitterId", u.getSubmitter()));
 
             if (assignment.isPresent()) {
                 Assignment a = assignment.get();
@@ -6017,23 +6019,6 @@ public class AssignmentAction extends PagedResourceActionII {
             } else {
                 //remove grade from gradebook
                 integrateGradebook(state, aReference, associateGradebookAssignment, null, null, null, -1, null, sReference, "remove", -1);
-            }
-
-            // Persist the rubric evaluations
-            if (rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_ASSIGNMENT, submission.getAssignment().getId())){
-                Map<String, String> rubricsParams
-                    = options.entrySet().stream().filter(e -> e.getKey().startsWith("rbcs"))
-                        .collect(Collectors.toMap(e -> e.getKey(), e -> (String) e.getValue()));
-
-                String siteId = a.getContext();
-
-                if (StringUtils.isNotBlank(siteId)) {
-                    rubricsParams.put("siteId", siteId);
-                }
-                for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
-                    String submitterId = submitter.getSubmitter();
-                    rubricsService.saveRubricEvaluation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, submission.getAssignment().getId(), submission.getId(), submitterId, submission.getGradedBy(), rubricsParams);
-                }
             }
         }
 

@@ -70,7 +70,6 @@
 		<%	
 		}
 		
-		String stateDetails = forumTool.getRbcsStateDetails();
 		boolean hasAssociatedRubric = forumTool.hasAssociatedRubric();
 		String entityId = forumTool.getRubricAssociationId();
 
@@ -213,13 +212,11 @@
 	
 	<% if (hasAssociatedRubric) { %>
 		<sakai-rubric-grading
-		    token='<h:outputText value="#{ForumTool.rbcsToken}"/>'
+			token='<h:outputText value="#{ForumTool.rbcsToken}"/>'
 			tool-id="sakai.forums"
 			entity-id='<%= entityId %>'
 			evaluated-item-id='<%= rbcsEvaluationId %>'
-			<% if (stateDetails != null && !"".equals(stateDetails)) { %>
-				state-details='<%= stateDetails %>'
-			<%}%>
+			evaluated-item-owner-id='<h:outputText value="#{ForumTool.selectedMessage.message.authorId}" />'
 		></sakai-rubric-grading>
 	<%}%>
 	

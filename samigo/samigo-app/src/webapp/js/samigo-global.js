@@ -130,52 +130,16 @@ function initRubricDialog(gradingId, saveText, cancelText, titleText) {
 
 $(function () {
 
-  var addRubricInputs = function (e, type) {
-
-    var gradingId = e.detail.evaluatedItemId.split(".")[0];
-    var inputs = document.getElementById(gradingId + "-inputs");
-    var inputId = gradingId + "-" + type + "-" + e.detail.criterionId;
-    var input = document.getElementById(inputId );
-    if (!input) {
-      input = document.createElement("input");
-      input.setAttribute("type", "hidden");
-      input.setAttribute("id", inputId);
-      var name = "rbcs-" + e.detail.evaluatedItemId + "-" + e.detail.entityId + "-" + type;
-      if ("totalpoints" !== type && "state-details" !== type) name += "-" + e.detail.criterionId;
-      input.setAttribute("name", name);
-      if (inputs) {
-        inputs.appendChild(input);
-      }
-    }
-    input.setAttribute("value", "criterionrating" === type ? e.detail.ratingId : e.detail.value);
-  };
-
   $('body').on('total-points-updated', function (e) {
 
     e.stopPropagation();
-    var itemId = e.target.parentElement.getAttribute("item-id");
-
-    var points = e.detail.value;
 
     // handles point changes for assignments, updating the grade field if it exists.
-    var gradeField = $('.adjustedScore' + itemId);
+    var gradeField = $('.adjustedScore' + e.detail.evaluatedItemId.replace("\.", "\\."));
     if (gradeField) {
-      gradeField.val(points);
+      gradeField.val(e.detail.value);
     }
-
-    addRubricInputs(e, "totalpoints");
   });
-
-  $('body').on('update-comment', e => addRubricInputs(e, "criterion-comment") );
-
-  $('body').on('rubric-rating-tuned', e => addRubricInputs(e, "criterion-override"));
-
-  $('body').on('rubric-rating-changed', e => {
-    addRubricInputs(e, "criterion");
-    addRubricInputs(e, "criterionrating");
-  });
-
-  $('body').on('update-state-details', e => addRubricInputs(e, "state-details"));
 
   // SAK-38320: add scope to the table. Maybe can add these direct to the JSF table after JSF 2.3 upgrade?
 	$('table.matrixTable th.matrixSurvey').attr('scope', 'col');
