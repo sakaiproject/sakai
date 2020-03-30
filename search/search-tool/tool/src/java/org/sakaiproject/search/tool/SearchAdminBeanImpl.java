@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.search.api.SearchService;
@@ -46,7 +47,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * @author ieb
@@ -106,6 +107,7 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 	
 	
 	private ServerConfigurationService serverConfigurationService;
+	private FormattedText formattedText;
 	
 	private SearchService searchService = null;
 
@@ -164,6 +166,7 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 		String indexBuilderName = request.getParameter(INDEX_BUILDER_NAME);
 		doCommand(indexBuilderName);
 		internCommand = null;
+		formattedText = ComponentManager.get(FormattedText.class);
 	}
 	
 	
@@ -356,7 +359,7 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 			sb.append(MessageFormat.format(rowFormat,
 					new Object[] {
 					sbi.getId(), 
-					FormattedText.escapeHtml(sbi.getName(),false), 
+					formattedText.escapeHtml(sbi.getName(),false), 
 					sbi.getContext(), 
 					SearchBuilderItem.actions[sbi.getSearchaction().intValue()], 
 					sbi.isLocked()?"Locked to "+sbi.getLock():SearchBuilderItem.states[sbi.getSearchstate().intValue()], 
@@ -372,7 +375,7 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 			sb.append(MessageFormat.format(rowFormat,
 					new Object[] {
 					sbi.getId(), 
-					FormattedText.escapeHtml(sbi.getName(),false), 
+					formattedText.escapeHtml(sbi.getName(),false), 
 					sbi.getContext(), 
 					SearchBuilderItem.actions[sbi.getSearchaction().intValue()], 
 					sbi.isLocked()?"Locked to "+sbi.getLock():SearchBuilderItem.states[sbi.getSearchstate().intValue()], 
@@ -389,7 +392,7 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 			sb.append(MessageFormat.format(rowFormat,
 					new Object[] {
 					sbi.getId(), 
-					FormattedText.escapeHtml(sbi.getName(),false), 
+					formattedText.escapeHtml(sbi.getName(),false), 
 					sbi.getContext(), 
 					SearchBuilderItem.actions[sbi.getSearchaction().intValue()], 
 					sbi.isLocked()?"Locked to "+sbi.getLock():SearchBuilderItem.states[sbi.getSearchstate().intValue()], 
@@ -654,15 +657,15 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 					Object[] wa = (Object[]) w;
 
 					public String getEta() {
-						return FormattedText.escapeHtml(String.valueOf(wa[1]), false);
+						return formattedText.escapeHtml(String.valueOf(wa[1]), false);
 					}
 
 					public String getName() {
-						return FormattedText.escapeHtml(String.valueOf(wa[0]), false);
+						return formattedText.escapeHtml(String.valueOf(wa[0]), false);
 					}
 
 					public String getStatus() {
-						return FormattedText.escapeHtml(String.valueOf(wa[2]), false);
+						return formattedText.escapeHtml(String.valueOf(wa[2]), false);
 					}
 				})
 				.collect(Collectors.toList());

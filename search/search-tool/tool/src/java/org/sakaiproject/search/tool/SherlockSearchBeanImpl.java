@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.search.api.SearchService;
@@ -37,7 +38,7 @@ import org.sakaiproject.search.tool.api.SherlockSearchBean;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * @author ieb
@@ -65,6 +66,8 @@ public class SherlockSearchBeanImpl implements SherlockSearchBean
 	private String portalBaseURL;
 
 	private ServletContext context;
+	
+	private FormattedText formattedText;
 
 	public SherlockSearchBeanImpl(HttpServletRequest request, ServletContext context,
 			SearchService searchService, SiteService siteService,
@@ -77,6 +80,7 @@ public class SherlockSearchBeanImpl implements SherlockSearchBean
 		this.currentSite = this.siteService.getSite(this.siteId);
 		baseURL = getBaseURL();
 		portalBaseURL = getPortalBaseURL();
+		formattedText = ComponentManager.get(FormattedText.class);
 	}
 
 	private String getBaseURL()
@@ -97,17 +101,17 @@ public class SherlockSearchBeanImpl implements SherlockSearchBean
 
 	public String getSiteName()
 	{
-		return FormattedText.escapeHtml(currentSite.getTitle(),false);
+		return formattedText.escapeHtml(currentSite.getTitle(),false);
 	}
 
 	public String getUpdateIcon()
 	{
-		return FormattedText.escapeHtml(baseURL + UPDATE_IMAGE,false);
+		return formattedText.escapeHtml(baseURL + UPDATE_IMAGE,false);
 	}
 
 	public String getUpdateURL()
 	{
-		return FormattedText.escapeHtml(baseURL + UPDATE_URL,false);
+		return formattedText.escapeHtml(baseURL + UPDATE_URL,false);
 	}
 
 	public void sendIcon(HttpServletResponse response)
@@ -155,6 +159,6 @@ public class SherlockSearchBeanImpl implements SherlockSearchBean
 	}
 	public String getSystemName()
 	{
-		return FormattedText.escapeHtml(ServerConfigurationService.getString("ui.service","Sakai"),false);
+		return formattedText.escapeHtml(ServerConfigurationService.getString("ui.service","Sakai"),false);
 	}
 }
