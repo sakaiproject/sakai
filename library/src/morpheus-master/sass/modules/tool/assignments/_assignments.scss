@@ -61,6 +61,15 @@
 		margin-left: 20px;
 	}
 
+	a#infoImg{
+		color: lightblue;
+		font-size: 1.2em;
+		margin-right: 5px;
+		vertical-align: middle;
+		text-decoration: none;
+		cursor: pointer;
+	}
+
 	#sendFeedbackPanel, #allowResubmissionPanel{
 		.discTria{
 			font-weight: bold;

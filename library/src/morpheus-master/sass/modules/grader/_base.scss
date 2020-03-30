@@ -128,11 +128,12 @@ sakai-grader {
     vertical-align: middle;
   }
 
-  span#peer-info {
+  a#peer-info {
     color: lightblue;
     font-size: 1.5em;
     margin-right: 5px;
     vertical-align: middle;
+    cursor: pointer;
   }
 
   .grader {
