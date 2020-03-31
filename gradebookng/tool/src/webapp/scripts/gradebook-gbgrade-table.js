@@ -221,12 +221,7 @@ $(document).ready(function() {
        $("#newGradeItemPopoverTitle").html().trim().toString()),
     newGradeItemPopoverMessage: TrimPath.parseTemplate(
        $("#newGradeItemPopoverMessage").html().trim().toString()),
-    chartStudentsGradeMessage: TrimPath.parseTemplate(
-       $("#chartStudentsGradeMessage").html().trim().toString()),
-    chartYourGradeMessage: TrimPath.parseTemplate(
-       $("#chartYourGradeMessage").html().trim().toString()),
   };
-
 });
 
 GbGradeTable.courseGradeRenderer = function (instance, td, row, col, prop, value, cellProperties) {
