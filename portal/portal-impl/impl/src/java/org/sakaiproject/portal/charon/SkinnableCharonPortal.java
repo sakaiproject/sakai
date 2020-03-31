@@ -1335,6 +1335,12 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		headJs.append("/library/js/headscripts.js");
 		headJs.append(PortalUtils.getCDNQuery());
 		headJs.append("\"></script>\n");
+
+		String [] parts = getParts(req);
+		if ((parts.length > 2) && (parts[1].equals("tool"))) {
+			headJs.append("<script src=\""+PortalUtils.getWebjarsPath()+"momentjs/"+PortalUtils.MOMENTJS_VERSION+"/min/moment-with-locales.min.js"+PortalUtils.getCDNQuery()+"\"></script>\n");
+		}
+
 		headJs.append("<script type=\"text/javascript\">var sakai = sakai || {}; sakai.editor = sakai.editor || {}; " +
 				"sakai.editor.editors = sakai.editor.editors || {}; " +
 				"sakai.editor.editors.ckeditor = sakai.editor.editors.ckeditor || {}; " +
