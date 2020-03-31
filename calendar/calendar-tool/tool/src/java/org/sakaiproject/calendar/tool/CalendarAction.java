@@ -1436,73 +1436,45 @@ extends VelocityPortletStateAction
 		 * Handles the user clicking on the save button on the page to add or
 		 * remove additional attributes for all calendar events.
 		 */
-		public void doUpdate(
-		RunData runData,
-		Context context,
-		CalendarActionState state,
-		SessionState sstate)
-		{
-			
-			if (sstate.getAttribute(CalendarAction.SSTATE_ATTRIBUTE_DELFIELDS_CONFIRM).equals("Y") && state.getDelfieldAlertOff() )
-			{
-				String errorCode = rb.getString("java.alert.areyou");
-				List delFields = (List) sstate.getAttribute(SSTATE_ATTRIBUTE_DELFIELDS);
-				
-				errorCode = errorCode.concat((String)(delFields.get(0)));
-				for(int i=1; i<delFields.size(); i++)
-				{
-					errorCode = errorCode.concat(", " + (String)(delFields.get(i)));
-				}
-				errorCode = errorCode.concat(rb.getString("java.alert.ifyes"));
-				addAlert(sstate, errorCode);
+		public void doUpdate( RunData runData, Context context, CalendarActionState state, SessionState sstate) {
+			if ("Y".equals(sstate.getAttribute(CalendarAction.SSTATE_ATTRIBUTE_DELFIELDS_CONFIRM)) && state.getDelfieldAlertOff() ) {
 				state.setDelfieldAlertOff(false);
-			}
-			else
-			{
+			} else {
 				state.setDelfieldAlertOff(true);
 				String addfields = (String) sstate.getAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDFIELDS_CALENDARS);
-				while (addfields.startsWith(ADDFIELDS_DELIMITER))
-				{
+				while (addfields.startsWith(ADDFIELDS_DELIMITER)) {
 					addfields = addfields.substring(ADDFIELDS_DELIMITER.length());
 				}
-				
+
 				String calId = state.getPrimaryCalendarReference();
-				try
-				{
+				try {
 					CalendarEdit edit = CalendarService.editCalendar(calId);
 					edit.setEventFields(addfields);
 					CalendarService.commitCalendar(edit);
-				}
-				catch (IdUnusedException e)
-				{
+				} catch (IdUnusedException e) {
 					context.put(ALERT_MSG_KEY,rb.getString("java.alert.thereisno")); 
 					log.debug(".doUpdate customize calendar IdUnusedException"+e);
 					return;
-				}
-				catch (PermissionException e)
-				{
+				} catch (PermissionException e) {
 					context.put(ALERT_MSG_KEY,rb.getString("java.alert.youdonthave"));
 					log.debug(".doUpdate customize calendar "+e);
 					return;
-				}
-				catch (InUseException e)
-				{
+				} catch (InUseException e) {
 					context.put(ALERT_MSG_KEY,rb.getString("java.alert.someone")); 
 					log.debug(".doUpdate() for CustomizeCalendar: " + e);
 					return;
 				}
-				
+
 				sstate.setAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDFIELDS_CALENDARS, addfields);
-				
 				sstate.setAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDFIELDS_PAGE, CalendarAction.PAGE_MAIN);
 			}
-			
+
 			// Go back to whatever state we were in beforehand.
 			state.setReturnState(CalendarAction.STATE_INITED);
 			enableObserver(sstate, true);
-			
+
 		} // doUpdate
-		
+
 		/* (non-Javadoc)
 		 * @see org.chefproject.actions.schedulePages.SchedulePage#getMenuHandlerID()
 		 */
