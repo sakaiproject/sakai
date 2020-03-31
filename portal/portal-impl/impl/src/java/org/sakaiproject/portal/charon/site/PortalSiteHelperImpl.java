@@ -122,6 +122,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	// private final String PROP_PARENT_ID = "sakai:parent-id";
 
 	private ToolManager toolManager;
+	private FormattedText formattedText;
+	private SimplePageToolDao simplePageToolDao;
 
 	public ToolManager getToolManager() {
 		//To work around injection for test case
@@ -131,7 +133,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		return toolManager;
 	}
 	
-	private FormattedText formattedText;
 	public FormattedText getFormattedText() {
 		if (formattedText == null) {
 			formattedText = ComponentManager.get(FormattedText.class);
@@ -143,7 +144,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		return (AuthzGroupService) ComponentManager.get(AuthzGroupService.class.getName());
 	}
 
-	private SimplePageToolDao simplePageToolDao;
+	
 	public SimplePageToolDao getSimplePageToolDao() {
 		if (simplePageToolDao == null) {
 			simplePageToolDao = (SimplePageToolDao) ComponentManager.get(SimplePageToolDao.class.getName());
