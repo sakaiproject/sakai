@@ -28,14 +28,12 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Properties;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.UrlValidator;
-
 import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.RunData;
@@ -61,8 +59,10 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.FormattedText;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
@@ -214,6 +214,7 @@ public class IFrameAction extends VelocityPortletPaneledAction
 	private static EventTrackingService m_eventTrackingService = null;
 
 	private AuthzGroupService authzGroupService;
+	private FormattedText formattedText;
 	/**
 	 * Populate the state with configuration settings
 	 */
@@ -348,6 +349,9 @@ public class IFrameAction extends VelocityPortletPaneledAction
 		if (authzGroupService == null)
 		{
 			authzGroupService = ComponentManager.get(AuthzGroupService.class);
+		}
+		if (formattedText == null) {
+			formattedText = ComponentManager.get(FormattedText.class);
 		}
 		
 	}
@@ -872,7 +876,7 @@ public class IFrameAction extends VelocityPortletPaneledAction
 					String description = StringUtils.trimToNull(s.getDescription());
 					if (description != null)
 					{
-	                    description = FormattedText.escapeHtmlFormattedTextarea(description);
+	                    description = formattedText.escapeHtmlFormattedTextarea(description);
 						context.put("description", description);
 					}
 				}
@@ -1174,7 +1178,7 @@ public class IFrameAction extends VelocityPortletPaneledAction
 				infoUrl = "http://" + infoUrl;
 			}
 			String description = StringUtils.trimToNull(data.getParameters().getString("description"));
-			description = FormattedText.processEscapedHtml(description);
+			description = formattedText.processEscapedHtml(description);
 
 			// update the site info
 			try
