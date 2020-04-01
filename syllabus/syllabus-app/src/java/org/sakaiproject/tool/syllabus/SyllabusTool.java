@@ -39,24 +39,20 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 
-import com.sun.faces.util.MessageFactory;
-import lombok.extern.slf4j.Slf4j;
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-
-import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
 import org.sakaiproject.api.app.syllabus.SyllabusData;
 import org.sakaiproject.api.app.syllabus.SyllabusItem;
 import org.sakaiproject.api.app.syllabus.SyllabusManager;
 import org.sakaiproject.api.app.syllabus.SyllabusService;
 import org.sakaiproject.calendar.api.CalendarService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
@@ -69,14 +65,20 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.DateFormatterUtil;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.FormattedText;
+
+import com.sun.faces.util.MessageFactory;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 //sakai2 - no need to import org.sakaiproject.jsf.ToolBean here as sakai does.
 
@@ -98,6 +100,7 @@ public class SyllabusTool
   private static final String HIDDEN_END_ISO_DATE = "dataEndDateISO8601";
   private static final String DATEPICKER_DATE_FORMAT = "yyyy-MM-dd";
   private static final String DATEPICKER_DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+  private FormattedText formattedText;
   
   public class DecoratedSyllabusEntry
   {
@@ -113,9 +116,10 @@ public class SyllabusTool
 
     protected boolean justCreated = false;
     
-    protected ArrayList attachmentList = null;
+    protected List<SyllabusAttachment> attachmentList = null;
     private String startDateString;
     private String endDateString;
+
     
     public DecoratedSyllabusEntry(SyllabusData en)
     {
@@ -210,10 +214,10 @@ public class SyllabusTool
       return "main_edit";
     }
     
-    public ArrayList getAttachmentList()
+    public List<SyllabusAttachment> getAttachmentList()
     {
     	if(attachmentList == null){
-    		attachmentList = new ArrayList();
+    		attachmentList = new ArrayList<>();
     		Set tempList = syllabusManager.getSyllabusAttachmentsForSyllabusData(in_entry);
 
     		Iterator iter = tempList.iterator();
@@ -227,7 +231,7 @@ public class SyllabusTool
       return attachmentList;
     }
     
-    public void setAttachmentList(ArrayList attachmentList)
+    public void setAttachmentList(List attachmentList)
     {
       this.attachmentList = attachmentList;
     }
@@ -430,6 +434,7 @@ public class SyllabusTool
   {
 	  Session session = SessionManager.getCurrentSession();
 	  mobileSession = session.getAttribute("is_wireless_device") != null && ((Boolean) session.getAttribute("is_wireless_device"))?"true":"false";
+	  formattedText = ComponentManager.get(FormattedText.class);
   }
 
   public boolean getdisplayNoEntryMsg()
@@ -998,7 +1003,7 @@ public class SyllabusTool
         	String cleanedText = null;
     		try
     		{
-    			cleanedText  =  FormattedText.processFormattedText(entry.getEntry().getAsset(), alertMsg);
+    			cleanedText  =  formattedText.processFormattedText(entry.getEntry().getAsset(), alertMsg);
     			if (cleanedText != null)
     			{
         			entry.getEntry().setAsset(cleanedText);
@@ -1228,7 +1233,7 @@ public class SyllabusTool
         	String cleanedText = null;
         	try
     		{
-    			cleanedText  =  FormattedText.processFormattedText(entry.getEntry().getAsset(), alertMsg);
+    			cleanedText  =  formattedText.processFormattedText(entry.getEntry().getAsset(), alertMsg);
     			if (cleanedText != null)
     			{
 					entry.getEntry().setAsset(cleanedText);
@@ -1521,7 +1526,7 @@ public class SyllabusTool
         	String cleanedText = null;
         	try
     		{
-    			cleanedText  =  FormattedText.processFormattedText(entry.getEntry().getAsset(), alertMsg);
+    			cleanedText  =  formattedText.processFormattedText(entry.getEntry().getAsset(), alertMsg);
     			if (cleanedText != null) 
     			{
 					entry.getEntry().setAsset(cleanedText);
@@ -1619,7 +1624,7 @@ public class SyllabusTool
         	String cleanedText = null;
         	try
     		{
-				cleanedText  =  FormattedText.processFormattedText(entry.getEntry().getAsset(), alertMsg);
+				cleanedText  =  formattedText.processFormattedText(entry.getEntry().getAsset(), alertMsg);
 				if (cleanedText != null)
 				{
 					entry.getEntry().setAsset(cleanedText);
@@ -1790,7 +1795,7 @@ public class SyllabusTool
     	String cleanedText = null;
     	try
 		{
-			cleanedText  =  FormattedText.processFormattedText(entry.getEntry().getAsset(), alertMsg);
+			cleanedText  =  formattedText.processFormattedText(entry.getEntry().getAsset(), alertMsg);
 			if (cleanedText != null)
 			{
 				entry.getEntry().setAsset(cleanedText);
@@ -1848,7 +1853,7 @@ public class SyllabusTool
     	String cleanedText = null;
     	try
 		{
-			cleanedText  =  FormattedText.processFormattedText(entry.getEntry().getAsset(), alertMsg);
+			cleanedText  =  formattedText.processFormattedText(entry.getEntry().getAsset(), alertMsg);
 			if (cleanedText != null)
 			{
 				entry.getEntry().setAsset(cleanedText);
