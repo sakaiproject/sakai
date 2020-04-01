@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
@@ -60,7 +61,8 @@ import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.user.api.UserDirectoryService;
+
 
 /**
  * SyllabusManagerImpl provides convenience functions to query the database
@@ -76,6 +78,7 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
   private PreferencesService preferencesService;
   private TimeService timeService;
   private EntityManager entityManager;
+  @Setter private UserDirectoryService userDirectoryService;
   private static final String QUERY_BY_USERID_AND_CONTEXTID = "findSyllabusItemByUserAndContextIds";
   private static final String QUERY_BY_CONTEXTID = "findSyllabusItemByContextId";
   private static final String QUERY_LARGEST_POSITION = "findLargestSyllabusPosition";
@@ -541,9 +544,9 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
 
       ContentResource cr = contentHostingService.getResource(attachId);
       attach.setSize((Long.valueOf(cr.getContentLength())).toString());
-      User creator = UserDirectoryService.getUser(cr.getProperties().getProperty(cr.getProperties().getNamePropCreator()));
+      User creator = userDirectoryService.getUser(cr.getProperties().getProperty(cr.getProperties().getNamePropCreator()));
       attach.setCreatedBy(creator.getDisplayName());
-      User modifier = UserDirectoryService.getUser(cr.getProperties().getProperty(cr.getProperties().getNamePropModifiedBy()));
+      User modifier = userDirectoryService.getUser(cr.getProperties().getProperty(cr.getProperties().getNamePropModifiedBy()));
       attach.setLastModifiedBy(modifier.getDisplayName());
       attach.setType(cr.getContentType());
       String tempString = cr.getUrl();
