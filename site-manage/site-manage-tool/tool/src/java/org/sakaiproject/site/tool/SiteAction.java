@@ -160,6 +160,7 @@ import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -4207,11 +4208,31 @@ public class SiteAction extends PagedResourceActionII {
 	 */
 	private void putImportSitesInfoIntoContext(Context context, Site site, SessionState state, boolean ownTypeOnly) {
 		context.put("currentSite", site);
-		context.put("importSiteList", state
-				.getAttribute(STATE_IMPORT_SITES));
-		context.put("sites", SiteService.getSites(
-				org.sakaiproject.site.api.SiteService.SelectionType.UPDATE,
-				ownTypeOnly?site.getType():null, null, null, SortType.TITLE_ASC, null));
+		context.put("importSiteList", state.getAttribute(STATE_IMPORT_SITES));
+		final List<Site> siteList = SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.UPDATE, ownTypeOnly?site.getType():null, null, null, SortType.TITLE_ASC, null);
+		List<String> hiddenSiteIdList = new ArrayList<>();
+		List<Site> hiddenSiteList = new ArrayList<>();
+		List<Site> visibleSiteList = new ArrayList<>();
+		Preferences preferences = preferencesService.getPreferences(userDirectoryService.getCurrentUser().getId());
+		if (preferences != null) {
+			ResourceProperties properties = preferences.getProperties(PreferencesService.SITENAV_PREFS_KEY);
+			hiddenSiteIdList = (List<String>) properties.getPropertyList(PreferencesService.SITENAV_PREFS_EXCLUDE_KEY);
+		}
+
+		if (hiddenSiteIdList != null && !hiddenSiteIdList.isEmpty()) {
+			for (Site s : siteList) {
+				if (hiddenSiteIdList.contains(s.getId())) {
+					hiddenSiteList.add(s);
+				} else {
+					visibleSiteList.add(s);
+				}
+			}
+		} else {
+			visibleSiteList.addAll(siteList);
+		}
+
+		context.put("sites", visibleSiteList);
+		context.put("hiddenSites", hiddenSiteList);
 	}
 
 	/**
