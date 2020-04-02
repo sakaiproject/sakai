@@ -26,7 +26,8 @@ import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.velocity.app.event.ReferenceInsertionEventHandler;
-import org.sakaiproject.util.Web;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * @author ieb
@@ -53,11 +54,11 @@ public class ExcludeEscapeHtmlReference implements ReferenceInsertionEventHandle
 		if ( ignore .get(name) != null || name.contains("rlb.") ||
 				name.contains("util.escapeHtml") ||
 				name.contains("resourceLoaderBean.getString")) {
-			log.warn("Ignoring "+name);
+			log.warn("Ignoring {}", name);
 			return value;
 		} else {
-			log.warn("Escaping "+name);
-			return Web.escapeHtml(String.valueOf(value));
+			log.warn("Escaping {}", name);
+			return ComponentManager.get(FormattedText.class).escapeHtml(String.valueOf(value));
 		}
 		
 	}
