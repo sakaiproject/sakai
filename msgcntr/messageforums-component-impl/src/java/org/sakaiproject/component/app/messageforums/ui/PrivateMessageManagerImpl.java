@@ -1639,7 +1639,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 	public void markMessageAsRepliedForUser(final PrivateMessage message, String userId) {				
 		  
 		PrivateMessage pvtMessage = getPrivateMessageWithRecipients(message);
-		List recipientList = pvtMessage.getRecipients();
+		List<PrivateMessageRecipient> recipientList = pvtMessage.getRecipients();
 
 		if (recipientList != null) {
 			for (Object r : recipientList) {
@@ -2229,12 +2229,10 @@ return topicTypeUuid;
 			  String contextId = ((PrivateMessageRecipientImpl)currentMessage.getRecipients().get(0)).getContextId();
 			  markMessageAsReadForUser(currentMessage, contextId, rrepMsg.getAuthorId(), DiscussionForumService.MESSAGES_TOOL_ID);
 			  LRS_Statement statement = null;
-			  if (null != learningResourceStoreService) {
-				  try{
-					  statement = getStatementForUserSentPvtMsg(currentMessage.getTitle(), SAKAI_VERB.responded, currentMessage);
-				  }catch(Exception e){
-					  log.error(e.getMessage(), e);
-				  }
+			  try{
+				  statement = getStatementForUserSentPvtMsg(currentMessage.getTitle(), SAKAI_VERB.responded, currentMessage);
+			  }catch(Exception e){
+				  log.error(e.getMessage(), e);
 			  }
 
 			  Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_RESPONSE, getEventMessage(currentMessage, DiscussionForumService.MESSAGES_TOOL_ID, rrepMsg.getAuthorId(), ((PrivateMessageRecipientImpl)currentMessage.getRecipients().get(0)).getContextId()), null, true, NotificationService.NOTI_OPTIONAL, statement);
