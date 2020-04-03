@@ -12,7 +12,7 @@ export class SakaiRubricGrading extends RubricsElement {
     super();
 
     this.selectedRatings = [];
-    this.existingEvalution = false;
+    this.existingEvaluation = false;
 
     this.rubric = { title: "" };
     this.criteria = [];
@@ -28,6 +28,7 @@ export class SakaiRubricGrading extends RubricsElement {
       toolId: { attribute: "tool-id", type: String },
       entityId: { attribute: "entity-id", type: String },
       evaluatedItemId: { attribute: "evaluated-item-id", type: String },
+      evaluatedItemOwnerId: { attribute: "evaluated-item-owner-id", type: String },
 
       // Non attribute
       evaluation: { type: Object },
@@ -209,7 +210,7 @@ export class SakaiRubricGrading extends RubricsElement {
     let evaluation = {
       evaluatorId: window.top.portal.user.id,
       evaluatedItemId: this.evaluatedItemId,
-      evaluatedItemOwnerId: window.top.portal.siteId,
+      evaluatedItemOwnerId: this.evaluatedItemOwnerId,
       overallComment: "",
       criterionOutcomes: crit,
       toolItemRubricAssociation: this.association._links.self.href,
@@ -331,7 +332,7 @@ export class SakaiRubricGrading extends RubricsElement {
         this.evaluation = data._embedded.evaluations[0] || { criterionOutcomes: [] };
         this.selectedRatings = this.evaluation.criterionOutcomes.map(ed => ed.selectedRatingId);
         if (this.criteria) this.decorateCriteria();
-        this.existingEvalution = true;
+        this.existingEvaluation = true;
 
         this.rubric = rubric;
 

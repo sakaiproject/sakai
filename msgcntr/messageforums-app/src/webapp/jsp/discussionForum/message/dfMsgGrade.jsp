@@ -207,6 +207,7 @@
                     tool-id="sakai.gradebookng"
                     entity-id='<%= entityId %>'
                     evaluated-item-id='<%= rbcsEvaluationId %>'
+                    evaluated-item-owner-id='<h:outputText value="#{ForumTool.selectedMessage.message.authorId}" />'
                 ></sakai-rubric-grading>
             <%}%>
 

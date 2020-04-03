@@ -1,4 +1,4 @@
-<!-- start: chef_assignments_instructor_grading_submission.vm  -->
+<!-- start: chef_assignments_instructor_grading_submission_withgrader.vm  -->
 #set( $H = '-' )
 #javascript("/library/js/lang-datepicker/lang-datepicker.js")
 

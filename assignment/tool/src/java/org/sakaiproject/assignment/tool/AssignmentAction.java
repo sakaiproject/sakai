@@ -1370,7 +1370,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         return template;
 
-    } // buildNormalContext
+    } // buildMainPanelContext
 
     /**
      * local function for getting assignment object
