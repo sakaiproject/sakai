@@ -117,7 +117,6 @@ public class DeliveryActionListener
   private static ResourceBundle eventLogMessages = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.EventLogMessages");
   private final EventTrackingService eventTrackingService= ComponentManager.get( EventTrackingService.class );
 
-
   /**
    * ACTION.
    * @param ae
@@ -1508,9 +1507,9 @@ public class DeliveryActionListener
             }
           }
           // CALCULATED_QUESTION
-          if (item.getTypeId().equals(TypeIfc.CALCULATED_QUESTION))
-          {
-                key = commaDelimtedCalcQuestionAnswers(item, delivery, itemBean);
+          // Don't recalculate this N * M times when the key doesn't change between iterations
+          if (item.getTypeId().equals(TypeIfc.CALCULATED_QUESTION) && key.isEmpty()) {
+            key = commaDelimitedCalcQuestionAnswers(item, delivery, itemBean);
           }
           //myanswers will get the answer even for matrix and multiple choices survey
           myanswers.add(answer);
@@ -2847,7 +2846,7 @@ public class DeliveryActionListener
    * CALCULATED_QUESTION
    * This returns the comma delimted answer key for display such as "42.1,23.19"
    */
-  private String commaDelimtedCalcQuestionAnswers(ItemDataIfc item, DeliveryBean delivery, ItemContentsBean itemBean) {
+  private String commaDelimitedCalcQuestionAnswers(ItemDataIfc item, DeliveryBean delivery, ItemContentsBean itemBean) {
 	  long gradingId = determineCalcQGradingId(delivery);
 	  String agentId = determineCalcQAgentId(delivery, itemBean);
 	  
