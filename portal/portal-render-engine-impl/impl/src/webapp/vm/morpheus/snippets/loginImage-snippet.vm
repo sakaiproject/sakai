@@ -9,7 +9,7 @@
     #else
 
         <p class="Mrphs-loginUser__menuitem">
-            <a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" class="Mrphs-loginUser__message" data-warning="${logoutWarningMessage}">
+            <a class="button" href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" class="Mrphs-loginUser__message" data-warning="${logoutWarningMessage}">
                 <i class="login-Icon"></i>
                 <span class="Mrphs-login-Message">${loginMessage}</span>
             </a>
@@ -28,7 +28,7 @@
         #else
 
             <p class="Mrphs-loginUser__menuitem Mrphs-loginUser__menuitemk--alt">
-                <a href="${loginLogInOutUrl2}" title="${loginMessage2}" id="loginLink2" class="Mrphs-loginUser__message">
+                <a class="button" href="${loginLogInOutUrl2}" title="${loginMessage2}" id="loginLink2" class="Mrphs-loginUser__message">
                     <i class="login-Icon"></i>
                     <span class="Mrphs-login-Message">${loginMessage2}</span>
                 </a>
