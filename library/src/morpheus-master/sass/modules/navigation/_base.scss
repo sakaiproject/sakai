@@ -14,6 +14,12 @@ body.is-logged-out{
 		@media #{$phone}{
 			min-height: $header-size;
 		}
+		a {
+			&:focus, &:hover, &:active {
+				text-decoration: underline;
+				color: $text-color;
+			}
+		}
 	}
 }
 
