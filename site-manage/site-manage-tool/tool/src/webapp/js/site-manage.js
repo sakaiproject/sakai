@@ -687,7 +687,7 @@ var setupCategTools = function () {
 
     $('#alertBox a#alertBoxYes').on('click', function () {
       $(this).closest('li').prev('li').remove();
-      var checkboxInput = document.getElementById(target.replace('_', '.'));
+      var checkboxInput = document.getElementById(target.split('_').join('.'));
       if (checkboxInput != null) {
         checkboxInput.checked = false;
         var checkboxLabel = checkboxInput.closest('div').querySelector('label');
