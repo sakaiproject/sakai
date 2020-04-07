@@ -72,18 +72,14 @@ GradebookCategorySettings.prototype.updateCategoryOrders = function() {
  */
 function GradebookGradingSchemaSettings($container) {
   this.$container = $container;
-  this.$table = this.$container.find("#table-grading-schema");
-
-  // only if categories are enabled
-  if (this.$table.length > 0) {
-    this.setupKeyboardSupport();
-  }
+  this.tableId = "#table-grading-schema";
+  this.setupKeyboardSupport();
 }
 
 GradebookGradingSchemaSettings.prototype.setupKeyboardSupport = function() {
   var self = this;
 
-  self.$table.on("keydown", ":text", function(event) {
+  $('body').on("keydown", self.tableId, function(event) {
     // add new row upon return
     if (event.keyCode == 13) {
       event.preventDefault();
@@ -96,7 +92,7 @@ GradebookGradingSchemaSettings.prototype.setupKeyboardSupport = function() {
 
 GradebookGradingSchemaSettings.prototype.focusLastRow = function() {
   // get the first input#text in the last row of the table
-  var $input = this.$table.find(".gb-schema-row:last :text:first");
+  var $input = $('body').find(this.tableId + " .gb-schema-row:last :text:first");
   // attempt to set focus
   $input.focus();
   // Wicket may try to set focus on the input last focused before form submission
@@ -110,7 +106,7 @@ GradebookGradingSchemaSettings.prototype.focusLastRow = function() {
 function GradebookSettings($container) {
   this.$container = $container;
   this.categories = new GradebookCategorySettings($container.find("#settingsCategories"));
-  this.categories = new GradebookGradingSchemaSettings($container.find("#settingsGradingSchema"));
+  this.gradingschemas = new GradebookGradingSchemaSettings($container.find("#settingsGradingSchema"));
 };
 
 /**************************************************************************************
