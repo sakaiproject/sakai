@@ -338,7 +338,7 @@ function toPoint(id)
               tool-id="sakai.samigo"
               entity-id='<h:outputText value="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"/>'
               evaluated-item-id='<h:outputText value="#{studentScores.assessmentGradingId}.#{question.itemData.itemId}" />'
-              item-id='<h:outputText value="#{question.itemData.itemId}"/>'
+              evaluated-item-owner-id='<h:outputText value="#{studentScores.studentId}"/>'
             </sakai-rubric-grading>
           </div>
           </div>
