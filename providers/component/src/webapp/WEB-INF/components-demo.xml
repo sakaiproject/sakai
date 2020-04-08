@@ -7,7 +7,7 @@
 			class="org.sakaiproject.provider.user.SampleUserDirectoryProvider"
 			init-method="init"
 			destroy-method="destroy">
-		<property name="courseStudents"><value>500</value></property>
+		<property name="courseStudents"><value>1200</value></property>
 		<property name="valueEncryptionUtilities" ref="org.sakaiproject.user.detail.ValueEncryptionUtilities"/>
 	</bean>
 
