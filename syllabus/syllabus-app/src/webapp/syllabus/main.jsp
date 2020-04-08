@@ -53,6 +53,7 @@
 				clickToAddEndDate: $("#messages #clickToAddEndDate").html(),
 				clickToAddBody: $("#messages #clickToAddBody").html(),
 				saved: $("#messages #saved").html(),
+				deleted: $("#messages #deleted").html(),
 				error: $("#messages #error").html(),
 				required: $("#messages #required").html(),
 				startBeforeEndDate: $("#messages #startBeforeEndDate").html(),
@@ -290,6 +291,7 @@
 				<span id="clickToAddEndDate"></f:verbatim><h:outputText value="#{msgs.clickToAddEndDate}"/><f:verbatim></span>
 				<span id="clickToAddBody"></f:verbatim><h:outputText value="#{msgs.clickToAddBody}"/><f:verbatim></span>
 				<span id="saved"></f:verbatim><h:outputText value="#{msgs.saved}"/><f:verbatim></span>
+				<span id="deleted"></f:verbatim><h:outputText value="#{msgs.deleted}"/><f:verbatim></span>
 				<span id="error"></f:verbatim><h:outputText value="#{msgs.error}"/><f:verbatim></span>
 				<span id="required"></f:verbatim><h:outputText value="#{msgs.required}"/><f:verbatim></span>
 				<span id="startBeforeEndDate"></f:verbatim><h:outputText value="#{msgs.startBeforeEndDate}"/><f:verbatim></span>
