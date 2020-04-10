@@ -263,6 +263,19 @@
 	jQuery(".Mrphs-toolTitleNav__button_container").after(jQuery(".action"));
 
 	jQuery(".portletBody").prepend(jQuery(".navIntraTool"));
+
+	jQuery(document).ready( function() {
+		jQuery('.item, .canEdit').on( 'keyup', function( e ) {
+			if( e.which == 9 ) {
+				if(e.target.tagName === 'DIV') {
+					jQuery('.edit-col').each(function() {
+						$(this).show();
+					});
+				}
+			}
+		});
+	});
+
 </script>
 
 		<div id="addContentDiv" style="display:none" class="dropDownDiv specialLink lessonsDialog" role="menu" aria-label="Add content menu">
@@ -426,7 +439,7 @@
 			<span rsf:id="addbottom" class="sectionedit addbottom"><a role="button" aria-haspopup="dialog" aria-controls="addContentDiv" rsf:id="addbottom2" class="add-bottom" href="#" ><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span>
 
                         <div class="indent mainList" rsf:id="itemTable:" border="0" style="z-index: 1;" role="list" aria-labelledby="itemContainer::maintablelabel">
-                <div rsf:id="item:" id="item" role="listitem" class="item"><span style="display:none" rsf:id="itemid" class="itemid"></span><span style="display:none" rsf:id="pageid" class="pageid"></span>
+                <div tabindex="0" rsf:id="item:" id="item" role="listitem" class="item"><span style="display:none" rsf:id="itemid" class="itemid"></span><span style="display:none" rsf:id="pageid" class="pageid"></span>
                     <div rsf:id="group-td" aria-hidden="true" class="group-col"><div><a href="#" class="usebutton" onclick="return false" rsf:id="group-link"><span rsf:id="group-icon"></span></a></div></div>
                     <div rsf:id="item-td" class="right-col">
                         <div class="statusCol">
