@@ -3735,13 +3735,9 @@ public class SimplePageBean {
 		   if (i.getAttribute("multimediaUrl") != null)
 		       return getLBItemGroups(i); // for all native LB objects
 		   return getResourceGroups(i, nocache);  // responsible for caching the result
-		   // throws IdUnusedException if necessary
-	       case SimplePageItem.BLTI:
-		   entity = bltiEntity.getEntity(i.getSakaiId());
-		   if (entity == null || !entity.objectExists())
-		       throw new IdUnusedException(i.toString());
 		   // fall through: groups controlled by LB
 	       // for the following items we don't have non-LB items so don't need itemunused
+	       case SimplePageItem.BLTI: // Groups always managed in lessons
 	       case SimplePageItem.TEXT:
 	       case SimplePageItem.RESOURCE_FOLDER:
 	       case SimplePageItem.CHECKLIST:
@@ -5330,10 +5326,16 @@ public class SimplePageBean {
 				return false;
 			    break;
 			case SimplePageItem.BLTI:
-			    if (bltiEntity != null)
-				entity = bltiEntity.getEntity(item.getSakaiId());
-			    if (entity == null || entity.notPublished())
-				return false;
+				if (bltiEntity != null) {
+					entity = bltiEntity.getEntity(item.getSakaiId());
+				}
+				if (entity == null || entity.notPublished()) {
+					return false;
+				} else {
+					// After checking that it exists reset to null so that groups are
+					// checked internal to Lessons
+					entity = null;
+				}
 			}
 		    }
 		} finally {
