@@ -204,7 +204,11 @@ function postAjax(id, params, msgs){
 			d().reject();
 		},
 		success: function success(data){
-			showMessage(msgs.saved, true);
+			var successText = msgs.saved;
+			if (params.delete !== null && params.delete) {
+				successText = msgs.deleted;
+			}
+			showMessage(successText, true);
 			d().resolve();
 		}
 	});
