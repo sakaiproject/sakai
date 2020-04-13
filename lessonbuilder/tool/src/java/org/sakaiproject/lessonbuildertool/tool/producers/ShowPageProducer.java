@@ -120,7 +120,6 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
-import org.sakaiproject.util.comparator.UserSortNameComparator;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -3971,15 +3970,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		return userDisplayName;
 	}
 
-	private static User getUser(String userId) {
-		try {
-			return UserDirectoryService.getUser(userId);
-		} catch (UserNotDefinedException e) {
-			log.error("User {} does not exist", userId);
-		}
-		return null;
-	}
-
 	//Get the twitter widget hashtag and other settings from the user.
 	private void createTwitterDialog(UIContainer tofill, SimplePage currentPage) {
 		UIOutput.make(tofill, "add-twitter-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.twitter")));
@@ -4953,8 +4943,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				List<Member> siteMemberList = new ArrayList<Member>(simplePageBean.getCurrentSite().getMembers());
 				Collections.sort(siteMemberList, new Comparator<Member>() {
 					public int compare(Member lhs, Member rhs) {
-						UserSortNameComparator userComparator = new UserSortNameComparator();
-						return userComparator.compare(getUser(lhs.getUserId()), getUser(rhs.getUserId()));
+						return getUserDisplayName(lhs.getUserId()).compareTo(getUserDisplayName(rhs.getUserId()));
 					}
 				});
 				siteMemberList.forEach(member -> {

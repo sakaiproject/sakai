@@ -6439,8 +6439,13 @@ public class DiscussionForumTool {
    */
   private List sortRoles(Set roles) {
 	  final List rolesList = new ArrayList();
+	  
 	  rolesList.addAll(roles);
-	  Collections.sort(rolesList, new RoleIdComparator());
+	  
+	  final AuthzGroupComparator authzGroupComparator = new AuthzGroupComparator("id", true);
+	  
+	  Collections.sort(rolesList, authzGroupComparator);
+	  
 	  return rolesList;
   }
   /**
@@ -6455,10 +6460,17 @@ public class DiscussionForumTool {
    */
   private Collection sortGroups(Collection groups) {
 	  List sortGroupsList = new ArrayList();
+
 	  sortGroupsList.addAll(groups);
-	  Collections.sort(sortGroupsList, new GroupTitleComparator());
+	  
+	  final GroupComparator groupComparator = new GroupComparator("title", true);
+	  
+	  Collections.sort(sortGroupsList, groupComparator);
+	  
 	  groups.clear();
+	  
 	  groups.addAll(sortGroupsList);
+	  
 	  return groups;
   }
   /**

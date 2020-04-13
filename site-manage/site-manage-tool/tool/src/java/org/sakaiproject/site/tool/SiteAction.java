@@ -142,6 +142,7 @@ import org.sakaiproject.site.util.SiteParticipantHelper;
 import org.sakaiproject.site.util.SiteSetupQuestionFileParser;
 import org.sakaiproject.site.util.SiteTextEditUtil;
 import org.sakaiproject.site.util.SiteTypeUtil;
+import org.sakaiproject.site.util.ToolComparator;
 import org.sakaiproject.sitemanage.api.SectionField;
 import org.sakaiproject.sitemanage.api.SiteHelper;
 import org.sakaiproject.sitemanage.api.SiteManageConstants;
@@ -174,8 +175,6 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.LinkMigrationHelper;
-import org.sakaiproject.util.comparator.GroupTitleComparator;
-import org.sakaiproject.util.comparator.ToolTitleComparator;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.math.NumberUtils;
@@ -2260,9 +2259,17 @@ public class SiteAction extends PagedResourceActionII {
 							unjoinableGroups.add(g.getId());
 						}
 					}
-					Collections.sort(filteredGroups, new GroupTitleComparator());
+					Collections.sort(filteredGroups, new Comparator<Group>(){
+						public int compare(Group o1, Group o2) {
+							return o1.getTitle().compareToIgnoreCase(o2.getTitle());
+						}
+					});
 					context.put("groups", filteredGroups);
-					Collections.sort(filteredSections, new GroupTitleComparator());
+					Collections.sort(filteredSections, new Comparator<Group>(){
+						public int compare(Group o1, Group o2) {
+							return o1.getTitle().compareToIgnoreCase(o2.getTitle());
+						}
+					});
 					context.put("sections", filteredSections);
 					context.put("viewMembershipGroups", viewMembershipGroups);
 					context.put("unjoinableGroups", unjoinableGroups);
@@ -3038,6 +3045,7 @@ public class SiteAction extends PagedResourceActionII {
 					return t1.getTitle().compareTo(t2.getTitle());
 				}
 			});
+				
 			final List<String> sortedToolIds = new ArrayList<String>();
 			for (MyTool m: allTools) {
 				sortedToolIds.add(m.getId());
@@ -6644,7 +6652,8 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		Set<Tool> toolRegistrations = getToolRegistrations(state, type);
 
 		List tools = new Vector();
-		SortedIterator i = new SortedIterator(toolRegistrations.iterator(), new ToolTitleComparator());
+		SortedIterator i = new SortedIterator(toolRegistrations.iterator(),
+				new ToolComparator());
 		for (; i.hasNext();) {
 			// form a new Tool
 			Tool tr = (Tool) i.next();
@@ -16131,7 +16140,13 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		return true;
 	}
 
-	private List findWidgets() {
+	private List findWidgets()
+	{
+		class ToolTitleComparator implements Comparator{
+			public int compare(Object tool0, Object tool1) {
+				return ((Tool)tool0).getTitle().compareTo( ((Tool)tool1).getTitle() );
+			}
+		}
 		// get the helpers
 		Set categories = new HashSet();
 		categories.add("widget");

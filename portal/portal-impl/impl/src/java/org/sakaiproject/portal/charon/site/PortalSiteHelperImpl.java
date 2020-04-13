@@ -83,7 +83,6 @@ import org.sakaiproject.util.MapUtil;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.util.RequestFilter;
-import org.sakaiproject.util.comparator.AliasCreatedTimeComparator;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -1352,7 +1351,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			{
 				log.warn("More than one alias for: "+siteId+ ":"+ page.getId());
 				// Sort on ID so it is consistent in the alias it uses.
-				Collections.sort(aliases, new AliasCreatedTimeComparator());
+				Collections.sort(aliases, getAliasComparator());
 			}
 			alias = aliases.get(0).getId();
 			alias = parseAlias(alias, siteId);
@@ -1381,6 +1380,19 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		return PAGE_ALIAS+site.getId()+Entity.SEPARATOR+alias;
 	}
 
+	private Comparator<Alias> getAliasComparator()
+	{
+		return new Comparator<Alias>() {
+			public int compare(Alias o1, Alias o2)
+			{
+				// Sort by date, then by ID to assure consistent order.
+				return o1.getCreatedTime().compareTo(o2.getCreatedTime()) * 10 +
+					o1.getId().compareTo(o2.getId());
+			}
+			
+		};
+	}
+	
 	public boolean allowTool(Site site, Placement placement)
 	{
 		return getToolManager().allowTool(site, placement);

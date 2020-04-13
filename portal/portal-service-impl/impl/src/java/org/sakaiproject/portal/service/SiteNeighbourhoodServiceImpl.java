@@ -48,7 +48,6 @@ import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.util.comparator.AliasIdComparator;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -528,7 +527,14 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 			if (aliases.size() > 1 && log.isInfoEnabled())
 			{
 				log.debug("More than one alias for {} sorting.", id);
-				Collections.sort(aliases, new AliasIdComparator());
+				Collections.sort(aliases, new Comparator<Alias>()
+				{
+					public int compare(Alias o1, Alias o2)
+					{
+						return o1.getId().compareTo(o2.getId());
+					}
+					
+				});
 			}
 			for (Alias alias : aliases)
 			{
