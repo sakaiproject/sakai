@@ -70,6 +70,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
 import org.tsugi.basiclti.BasicLTIConstants;
@@ -1283,6 +1284,8 @@ public class SakaiBLTIUtil {
 			if (placementId == null) {
 				return postError("<p>" + getRB(rb, "error.missing", "Error, missing placementId") + "</p>");
 			}
+			FormattedText formattedText = ComponentManager.get(FormattedText.class);
+			placementId = formattedText.escapeHtml(placementId);
 			ToolConfiguration placement = SiteService.findTool(placementId);
 			if (placement == null) {
 				return postError("<p>" + getRB(rb, "error.load", "Error, cannot load placement=") + placementId + ".</p>");
