@@ -25,6 +25,24 @@
 		padding: 0 0 0 0;
 	}
 
+	.split {
+		.mainList {
+			@include display-flex;
+			@include flex-wrap(wrap);
+			.item {
+				@include flex-grow(1);
+				width: 50%;
+				max-width: 50%;
+				@media #{$phone} {
+					width: 100%;
+				}
+			}
+			.breaksection {
+				display: none;
+			}
+		}
+	}
+
 	label.checklistLabel.disabled:hover {
 		color: $text-color-disabled;
 		cursor: not-allowed;
