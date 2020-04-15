@@ -179,6 +179,17 @@ $( document ).ready(function() {
   });
 
   $('.fillInNumericInput').keyup( throttle(function(){
+    // Do not validate on key up when the user is inserting a complex number or scientific notation or a real with sign.
+    if (this.value !== '' && 
+        (this.value.includes('+') ||
+        this.value.includes('-') ||
+        this.value.includes('{') ||
+        this.value.includes('}') ||
+        this.value.includes('e') ||
+        this.value.includes('E'))
+    ) {
+        return;
+    }
     validateFinInput(this);
   }));
 
