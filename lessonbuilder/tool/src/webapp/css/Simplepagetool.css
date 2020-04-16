@@ -449,11 +449,6 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
   padding-right: 7px;
 }
 
-.split .mainList {
-    -webkit-column-count: 2;
-    -moz-column-count: 2;
-    column-count: 2;
-} 
 .split .edit-col {
     right:0px;
 }
@@ -1720,11 +1715,6 @@ div.portletBody[sakaiversion="12"] {
   padding-right: 7px;
 }
 
-.split .mainList {
-    -webkit-column-count: 1;
-    -moz-column-count: 1;
-    column-count: 1;
-} 
 /* with narrow screen, don't use multiple columns */
 .cols1, .cols2, .cols3, .cols4, .cols5, .cols6, .cols7, .cols8, .cols9, 
 [class~="cols9"][class~="double"],
