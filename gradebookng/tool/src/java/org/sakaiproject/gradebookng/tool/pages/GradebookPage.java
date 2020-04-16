@@ -213,6 +213,8 @@ public class GradebookPage extends BasePage {
 		this.form.add(this.courseGradeStatisticsWindow);
 
 		this.bulkEditItemsWindow = new GbModalWindow("bulkEditItemsWindow");
+		this.bulkEditItemsWindow.setWidthUnit("%");
+		this.bulkEditItemsWindow.setInitialWidth(65);
 		this.bulkEditItemsWindow.setPositionAtTop(true);
 		this.bulkEditItemsWindow.showUnloadConfirmation(false);
 		this.form.add(this.bulkEditItemsWindow);
