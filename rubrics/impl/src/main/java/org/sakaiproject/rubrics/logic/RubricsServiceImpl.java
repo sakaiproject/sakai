@@ -1052,31 +1052,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
     public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options, boolean cleanup) {
 
         if (cleanup){
-            try {
-                TypeReferences.ResourcesType<Resource<Rubric>> resourceParameterizedTypeReference = new TypeReferences.ResourcesType<Resource<Rubric>>() {};
-                URI apiBaseUrl = new URI(serverConfigurationService.getServerUrl() + RBCS_SERVICE_URL_PREFIX);
-                Traverson traverson = new Traverson(apiBaseUrl, MediaTypes.HAL_JSON);
-                Traverson.TraversalBuilder builder = traverson.follow("rubrics", "search", "rubrics-from-site");
-
-                HttpHeaders headers = new HttpHeaders();
-                headers.add("Authorization", String.format("Bearer %s", generateJsonWebToken(RubricsConstants.RBCS_TOOL, toContext)));
-                builder.withHeaders(headers);
-
-                Map<String, Object> parameters = new HashMap<>();
-                parameters.put("siteId", toContext);
-                Resources<Resource<Rubric>> rubricResources = builder.withTemplateParameters(parameters).toObject(resourceParameterizedTypeReference);
-                for (Resource<Rubric> rubricResource : rubricResources) {
-                    String [] rubricSplitted = rubricResource.getLink(Link.REL_SELF).getHref().split("/");
-                    Collection<Resource<ToolItemRubricAssociation>> assocs = getRubricAssociationByRubric(rubricSplitted[rubricSplitted.length-1],toContext);
-                    for(Resource<ToolItemRubricAssociation> associationResource : assocs){
-                        String associationHref = associationResource.getLink(Link.REL_SELF).getHref();
-                        deleteRubricResource(associationHref, RubricsConstants.RBCS_TOOL, toContext);
-                    }
-                    deleteRubricResource(rubricResource.getLink(Link.REL_SELF).getHref(), RubricsConstants.RBCS_TOOL, toContext);
-                }
-            } catch(Exception e){
-                log.error("Rubrics - transferCopyEntities: error trying to delete rubric -> {}" , e.getMessage());
-            }
+            deleteSiteRubrics(toContext);
         }
         return transferCopyEntities(fromContext, toContext, ids, null);
     }
@@ -1257,6 +1233,34 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         Resources<Resource<ToolItemRubricAssociation>> associationResources = builder.withTemplateParameters(parameters).toObject(resourceParameterizedTypeReference);
 
         return associationResources.getContent();
+    }
+
+    public void deleteSiteRubrics(String siteId) {
+        try {
+            TypeReferences.ResourcesType<Resource<Rubric>> resourceParameterizedTypeReference = new TypeReferences.ResourcesType<Resource<Rubric>>() {};
+            URI apiBaseUrl = new URI(serverConfigurationService.getServerUrl() + RBCS_SERVICE_URL_PREFIX);
+            Traverson traverson = new Traverson(apiBaseUrl, MediaTypes.HAL_JSON);
+            Traverson.TraversalBuilder builder = traverson.follow("rubrics", "search", "rubrics-from-site");
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Authorization", String.format("Bearer %s", generateJsonWebToken(RubricsConstants.RBCS_TOOL, siteId)));
+            builder.withHeaders(headers);
+
+            Map<String, Object> parameters = new HashMap<>();
+            parameters.put("siteId", siteId);
+            Resources<Resource<Rubric>> rubricResources = builder.withTemplateParameters(parameters).toObject(resourceParameterizedTypeReference);
+            for (Resource<Rubric> rubricResource : rubricResources) {
+                String [] rubricSplitted = rubricResource.getLink(Link.REL_SELF).getHref().split("/");
+                Collection<Resource<ToolItemRubricAssociation>> assocs = getRubricAssociationByRubric(rubricSplitted[rubricSplitted.length-1],siteId);
+                for(Resource<ToolItemRubricAssociation> associationResource : assocs){
+                    String associationHref = associationResource.getLink(Link.REL_SELF).getHref();
+                    deleteRubricResource(associationHref, RubricsConstants.RBCS_TOOL, siteId);
+                }
+                deleteRubricResource(rubricResource.getLink(Link.REL_SELF).getHref(), RubricsConstants.RBCS_TOOL, siteId);
+            }
+        } catch(Exception e){
+            log.error("Rubrics: error trying to delete rubric -> {}" , e.getMessage());
+        }
     }
 
 }
