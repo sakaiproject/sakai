@@ -124,6 +124,7 @@ import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.scoringservice.api.ScoringAgent;
 import org.sakaiproject.scoringservice.api.ScoringService;
 import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
@@ -191,7 +192,7 @@ public class SiteAction extends PagedResourceActionII {
 	// SAK-23491 add template_used property
 	private static final String TEMPLATE_USED = "template_used";
 
-	
+	private RubricsService rubricsService = (RubricsService) ComponentManager.get(RubricsService.class);
 	private LTIService m_ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
 	private ContentHostingService m_contentHostingService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
 	private LinkMigrationHelper m_linkMigrationHelper = (LinkMigrationHelper) ComponentManager.get("org.sakaiproject.util.api.LinkMigrationHelper");
@@ -5554,6 +5555,16 @@ public class SiteAction extends PagedResourceActionII {
 						//now delete the site
 						SiteService.removeSite(site, hardDelete);
 						log.debug("Removed site: " + site.getId());
+
+						// As we do not want to introduce Rubrics dependencies in the Kernel, delete the Site Rubrics here.
+						if (hardDelete) {
+							try {
+								rubricsService.deleteSiteRubrics(site.getId());
+							} catch(Exception ex) {
+								log.error("Error deleting site Rubrics for the site {}. {}", site.getId(), ex.getMessage());
+							}
+						}
+
 					} catch (IdUnusedException e) {
 						log.error(this +".doSite_delete_confirmed - IdUnusedException " + id, e);
 						addAlert(state, rb.getFormattedMessage("java.couldnt", new Object[]{site_title,id}));
