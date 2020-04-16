@@ -98,6 +98,10 @@ should be included in file importing DeliveryMessages
         }
       });
       $(elBlockToFix).find('li.samigo-question-answer label').each(function(index2, answerLabel) {
+        var properImage = $(answerLabel).parent('li').find(':span')[0];
+        if (typeof properImage !== 'undefined') {
+          answerLabel.append(properImage);
+        }
         var properRadio = $(answerLabel).parent('li').find(':radio')[0];
         if (typeof properRadio !== 'undefined') {
           answerLabel.append(properRadio);
