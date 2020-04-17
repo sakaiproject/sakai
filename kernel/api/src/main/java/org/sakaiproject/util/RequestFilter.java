@@ -501,7 +501,7 @@ public class RequestFilter implements Filter
 							{
 								c.setSecure(true);
 							}
-							addCookie(resp, c);
+							addCookie(req, resp, c);
 						}
 					}
 
@@ -586,7 +586,7 @@ public class RequestFilter implements Filter
 		{
 			c.setSecure(true);
 		}
-		addCookie(res, c);
+		addCookie(req, res, c);
 
 		// We want the non-decoded ones so we don't have to re-encode.
 		StringBuilder url = new StringBuilder(req.getRequestURI());
@@ -1229,7 +1229,7 @@ public class RequestFilter implements Filter
 			{
 				c.setDomain(cookieDomain);
 			}
-			addCookie(res, c);
+			addCookie(req, res, c);
 		}
 
 		// if we have a session and had no cookie,
@@ -1253,7 +1253,7 @@ public class RequestFilter implements Filter
 				{
 					c.setSecure(true);
 				}
-				addCookie(res, c);
+				addCookie(req, res, c);
 			}
 		}
 
@@ -1424,7 +1424,7 @@ public class RequestFilter implements Filter
 		return suffix;
 	}
 	
-	protected void addCookie(HttpServletResponse res, Cookie cookie) {
+	protected void addCookie(HttpServletRequest req, HttpServletResponse res, Cookie cookie) {
 
 		if (!m_cookieHttpOnly) {
 			// Use the standard servlet mechanism for setting the cookie
@@ -1436,7 +1436,7 @@ public class RequestFilter implements Filter
 
 			ServerCookie.appendCookieValue(sb, cookie.getVersion(), cookie.getName(), cookie.getValue(),
 					cookie.getPath(), cookie.getDomain(), cookie.getComment(),
-					cookie.getMaxAge(), cookie.getSecure(), m_cookieHttpOnly, m_cookieSameSite);
+					cookie.getMaxAge(), cookie.getSecure(), m_cookieHttpOnly, m_cookieSameSite, req.getHeader("user-agent"));
 
 			res.addHeader("Set-Cookie", sb.toString());
 		}
