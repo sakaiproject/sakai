@@ -85,7 +85,7 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
     this.rubricParams = new Map();
     if (newValue.properties && newValue.properties["allow_resubmit_number"]) {
       this.showResubmission = true;
-      this.resubmitDate = moment(parseInt(newValue.properties["allow_resubmit_closeTime"], 10)).format();
+      this.resubmitDate = moment(parseInt(newValue.properties["allow_resubmit_closeTime"], 10)).valueOf();
     }
 
     this.submittedTextMode = this._submission.submittedText;
@@ -342,12 +342,16 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
             <div class="resubmission-block">
               <span>${this.assignmentsI18n["allow.resubmit.number"]}:</span>
               <select aria-label="${this.i18n["attempt_selector_label"]}" @change=${e => this.resubmitNumber = e.target.value}>
-                <option value="0" .selected=${this.submission.allowResubmitNumber === "1"}>0</option>
-                <option value="1" .selected=${this.submission.allowResubmitNumber === "1"}>1</option>
-                <option value="2" .selected=${this.submission.allowResubmitNumber === "2"}>2</option>
+                ${Array(10).fill().map((_, i) => html`
+                  <option value="${i + 1}" .selected=${this.submission.allowResubmitNumber == (i + 1)}>${i + 1}</option>
+                `)}
+                <option value="-1" .selected=${this.submission.allowResubmitNumber === "-1"}>${this.i18n["unlimited"]}</option>
               </select>
               <span>${this.assignmentsI18n["allow.resubmit.closeTime"]}:</span>
-              <sakai-date-picker parse-format="YYYY-MM-DD HH:mm" @datetime-selected=${e => this.resubmitDate = e.detail.epochMillis} initial-value="${this.resubmitDate}"></sakai-date-picker>
+              <sakai-date-picker
+                epoch-millis="${this.resubmitDate}"
+                @datetime-selected=${this.resubmitDateSelected}>
+              </sakai-date-picker>
             </div>
           ` : ""}
         ` : ""}
@@ -866,6 +870,12 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
     this.graderOnLeft = e.target.checked;
     this.setSetting("grader", "graderOnLeft", e.target.checked);
+  }
+
+  resubmitDateSelected(e) {
+
+    this.resubmitDate = e.detail.epochMillis;
+    this.modified = true;
   }
 
   onSettingsKeydown(e) {
