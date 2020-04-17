@@ -340,9 +340,10 @@ public class AutoGroupsController {
                 String groupPrefix = autoGroupsForm.getGroupTitleByGroup();
                 int groupNumber = autoGroupsForm.getGroupNumberByGroup();
                 int groupSize = filteredMembers.size() / groupNumber;
-
+                // Use one, two or three digits to represent the suffix depending on the size of the number of groups, %01d %02d or %03d
+                String indexFormat = String.format("%%0%dd", String.valueOf(groupNumber).length());
                 for (int groupIndex = 1 ; groupIndex <= groupNumber; groupIndex++) {
-                    String groupTitle = String.format("%s-%d", groupPrefix, groupIndex);
+                    String groupTitle = String.format("%s-"+indexFormat, groupPrefix, groupIndex);
                     List<String> randomMemberList = new ArrayList<String>();
                     List<Member> memberSubList = filteredMembers.stream().limit(groupSize).collect(Collectors.toList());
                     filteredMembers.removeAll(memberSubList);
@@ -359,8 +360,10 @@ public class AutoGroupsController {
                 int groupNumber = autoGroupsForm.getGroupNumberByUser();
                 List<List<Member>> partitionedMemberList = ListUtils.partition(filteredMembers, groupNumber);
                 int groupIndex = 1;
+                // Use one, two or three digits to represent the suffix depending on the size of the number of groups, %01d %02d or %03d
+                String indexFormat = String.format("%%0%dd", String.valueOf(partitionedMemberList.size()).length());
                 for (List<Member> groupMembers : partitionedMemberList) {
-                    String groupTitle = String.format("%s-%d", groupPrefix, groupIndex);
+                    String groupTitle = String.format("%s-"+indexFormat, groupPrefix, groupIndex);
                     groupIndex++;
                     List<String> randomMemberList = new ArrayList<String>();
                     groupMembers.forEach(member -> { randomMemberList.add(member.getUserId()); });
