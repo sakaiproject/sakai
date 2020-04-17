@@ -58,6 +58,7 @@ public final class SamigoConstants {
     public static final     String      EVENT_ASSESSMENT_STUDENT_SCORE_UPDATE               = "sam.student.score.update";
     public static final     String      EVENT_ASSESSMENT_AUTO_GRADED                        = "sam.assessment.graded.auto";
     public static final     String      EVENT_ASSESSMENT_QUESTION_SCORE_UPDATE              = "sam.question.score.update";
+    public static final     String      EVENT_SUBMISSION_DELETE                             = "sam.submission.delete";
 
     //Assessment manipulation
     public static final     String      EVENT_ASSESSMENT_SAVEITEM                           = "sam.assessment.saveitem";
