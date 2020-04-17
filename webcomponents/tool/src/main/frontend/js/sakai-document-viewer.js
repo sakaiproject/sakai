@@ -16,10 +16,10 @@ import {unsafeHTML} from "/webcomponents/assets/lit-html/directives/unsafe-html.
  * happen in an iframe. You can specify the height of that with the height attribute. Light dom is in use, so you can
  * style this from the usual Sakai SASS build.
  *
- * Usage:
+ * @example <caption>Usage:</caption>
  * <sakai-document-viewer height="400px" ref="/content/attachment/8c563fb1-6bf8-4e01-9e25-8881f4dc35e2/Assignments/77377d3d-6deb-4c78-b69c-2821c6d0602d/nndr 2015.odp"></sakai-document-viewer>
  *
- * '@author Adrian Fish <adrian.r.fish@gmail.com>
+ * @author Adrian Fish <adrian.r.fish@gmail.com>
  */
 class SakaiDocumentViewer extends SakaiElement {
 
