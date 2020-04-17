@@ -204,13 +204,16 @@ public class AutoGroupsController {
         if (GroupManagerConstants.STRUCTURE_CONFIGURATION_MIXTURE == autoGroupsForm.getStructureConfigurationOption()) {
             boolean titleError = false;
             boolean numberError = false;
+            String numberErrorMessage = StringUtils.EMPTY;
 
             if (GroupManagerConstants.SPLIT_OPTIONS_BY_GROUP == autoGroupsForm.getSplitOptions()) {
                 titleError = StringUtils.isBlank(autoGroupsForm.getGroupTitleByGroup());
                 numberError = autoGroupsForm.getGroupNumberByGroup() <= 0 || autoGroupsForm.getGroupNumberByGroup() > 999;
+                numberErrorMessage = messageSource.getMessage("autogroups.step3.group.number.required", null, userLocale);
             } else {
                 titleError = StringUtils.isBlank(autoGroupsForm.getGroupTitleByUser());
                 numberError = autoGroupsForm.getGroupNumberByUser() <= 0 || autoGroupsForm.getGroupNumberByUser() > 999;
+                numberErrorMessage = messageSource.getMessage("autogroups.step3.userspergroup.number.required", null, userLocale);
             }
 
             // Validate the title is not empty.
@@ -221,7 +224,7 @@ public class AutoGroupsController {
 
             // Validate the number of groups is inside the range.
             if (numberError) {
-                model.addAttribute("splitOptionsError", messageSource.getMessage("autogroups.step3.group.number.required", null, userLocale));
+                model.addAttribute("splitOptionsError", numberErrorMessage);
                 return showStep3(model, autoGroupsForm);
             }
 

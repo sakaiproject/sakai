@@ -17,7 +17,7 @@
           <div th:if="${!selectedSectionList.isEmpty()}" th:text="#{autogroups.step3.section.info}">who are included in the following section(s)/roster(s):</div>
             <ul th:if="${!selectedSectionList.isEmpty()}">
               <li th:each="section : ${selectedSectionList}"><span th:text="${section.title}"></span></li>
-              <li><span th:if="${autoGroupsForm.useManuallyAddedUsers}" th:text="#{autogroups.manually.added}"></span></li>
+              <li th:if="${autoGroupsForm.useManuallyAddedUsers}"><span th:text="#{autogroups.manually.added}"></span></li>
             </ul>
         </div>
       </div>
