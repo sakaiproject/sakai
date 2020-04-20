@@ -75,7 +75,11 @@ class SakaiDatePicker extends SakaiElement {
       allowInput: true,
       defaultHour: this.start.hours(),
       defaultMinute: this.start.minutes(),
-      static: true,
+      position: "auto",
+      confirmDate: {
+        "enableTime": true,
+        "plugins": [new confirmDatePlugin({})]
+      },
       onReady() {
         this.showTimeInput = true;
         this.setDate(self.start.toDate());
