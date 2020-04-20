@@ -467,12 +467,10 @@ public class AssignmentAction extends PagedResourceActionII {
     /**
      * ****************** flags controls the grade assignment page layout *******************
      */
-    private static final String GRADE_ASSIGNMENT_EXPAND_FLAG = "grade_assignment_expand_flag";
     private static final String GRADE_SUBMISSION_EXPAND_FLAG = "grade_submission_expand_flag";
     /**
      * ****************** instructor's grade submission *****************************
      */
-    private static final String GRADE_SUBMISSION_ASSIGNMENT_EXPAND_FLAG = "grade_submission_assignment_expand_flag";
     private static final String GRADE_SUBMISSION_ALLOW_RESUBMIT = "grade_submission_allow_resubmit";
     private static final String GRADE_SUBMISSION_DONE = "grade_submission_done";
     private static final String GRADE_SUBMISSION_SUBMIT = "grade_submission_submit";
@@ -3428,7 +3426,6 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("value_CheckAnonymousGrading", assignmentService.assignmentUsesAnonymousGrading(assignment.get()));
         context.put("value_grade", displayGrade(state, (String) state.getAttribute(GRADE_SUBMISSION_GRADE), scaleFactor));
 
-        context.put("assignment_expand_flag", state.getAttribute(GRADE_SUBMISSION_ASSIGNMENT_EXPAND_FLAG));
 
         // is this a non-electronic submission type of assignment
         context.put("nonElectronic", (assignment.isPresent() && assignment.get().getTypeOfSubmission() == Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) ? Boolean.TRUE : Boolean.FALSE);
@@ -4260,7 +4257,6 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("submissionTypeTable", submissionTypeTable());
         context.put("attachments", state.getAttribute(ATTACHMENTS));
         context.put("contentTypeImageService", contentTypeImageService);
-        context.put("assignment_expand_flag", state.getAttribute(GRADE_ASSIGNMENT_EXPAND_FLAG));
         context.put("submission_expand_flag", state.getAttribute(GRADE_SUBMISSION_EXPAND_FLAG));
 
         add2ndToolbarFields(data, context);
@@ -4753,7 +4749,6 @@ public class AssignmentAction extends PagedResourceActionII {
             }
         }
 
-        context.put("assignment_expand_flag", state.getAttribute(GRADE_SUBMISSION_ASSIGNMENT_EXPAND_FLAG));
         context.put("user", sessionUser);
         context.put("submissionTypeTable", submissionTypeTable());
         context.put("instructorAttachments", state.getAttribute(ATTACHMENTS));
@@ -7169,7 +7164,6 @@ public class AssignmentAction extends PagedResourceActionII {
      */
     public void doHide_submission_assignment_instruction(RunData data) {
         SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-        state.setAttribute(GRADE_SUBMISSION_ASSIGNMENT_EXPAND_FLAG, Boolean.FALSE);
 
         // save user input
         readGradeForm(data, state, "read");
@@ -7185,7 +7179,6 @@ public class AssignmentAction extends PagedResourceActionII {
         }
 
         SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-        state.setAttribute(GRADE_SUBMISSION_ASSIGNMENT_EXPAND_FLAG, Boolean.FALSE);
 
         // save user input
         saveReviewGradeForm(data, state, "read");
@@ -7199,7 +7192,6 @@ public class AssignmentAction extends PagedResourceActionII {
 
 
         SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-        state.setAttribute(GRADE_SUBMISSION_ASSIGNMENT_EXPAND_FLAG, Boolean.TRUE);
 
         // save user input
         saveReviewGradeForm(data, state, "read");
@@ -7210,7 +7202,6 @@ public class AssignmentAction extends PagedResourceActionII {
      */
     public void doShow_submission_assignment_instruction(RunData data) {
         SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-        state.setAttribute(GRADE_SUBMISSION_ASSIGNMENT_EXPAND_FLAG, Boolean.TRUE);
 
         // save user input
         readGradeForm(data, state, "read");
@@ -9614,7 +9605,6 @@ public class AssignmentAction extends PagedResourceActionII {
         putSubmissionInfoIntoState(state, assignmentId, submissionId, viewSubsOnlySelected);
 
         if (state.getAttribute(STATE_MESSAGE) == null) {
-            state.setAttribute(GRADE_SUBMISSION_ASSIGNMENT_EXPAND_FLAG, Boolean.FALSE);
             state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_SUBMISSION);
             state.setAttribute(FROM_VIEW, (String) params.getString("option"));
             // assignment read event
@@ -9746,7 +9736,6 @@ public class AssignmentAction extends PagedResourceActionII {
      */
     public void doExpand_grade_assignment(RunData data) {
         SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-        state.setAttribute(GRADE_ASSIGNMENT_EXPAND_FLAG, Boolean.TRUE);
 
     } // doExpand_grade_assignment
 
@@ -9755,7 +9744,6 @@ public class AssignmentAction extends PagedResourceActionII {
      */
     public void doCollapse_grade_assignment(RunData data) {
         SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-        state.setAttribute(GRADE_ASSIGNMENT_EXPAND_FLAG, Boolean.FALSE);
 
     } // doCollapse_grade_assignment
 
@@ -9796,7 +9784,6 @@ public class AssignmentAction extends PagedResourceActionII {
         Assignment a = getAssignment(assignmentId, "doGrade_assignment", state);
         if (a != null) {
             state.setAttribute(EXPORT_ASSIGNMENT_ID, a.getId());
-            state.setAttribute(GRADE_ASSIGNMENT_EXPAND_FLAG, Boolean.FALSE);
             state.setAttribute(GRADE_SUBMISSION_EXPAND_FLAG, Boolean.TRUE);
             state.setAttribute(GRADE_SUBMISSION_SHOW_STUDENT_DETAILS, params.getBoolean(GRADE_SUBMISSION_SHOW_STUDENT_DETAILS));
             state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_ASSIGNMENT);

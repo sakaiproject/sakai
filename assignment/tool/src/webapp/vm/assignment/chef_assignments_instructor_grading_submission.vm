@@ -221,31 +221,22 @@
         </table>
 
         ## show or hide assignment instruction and attachment
-        #if ($assignment_expand_flag)
+        <div id="assignamentInstructionPanel">
             <p class="discTria">
-                <a href="javascript:void(0)" onclick="ASN.submitForm( 'gradeForm', 'hide_instruction', null, null ); return false;">
-                    <img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("gradingsub.opecliass")" border="0" width="13" height="13" align="top"/>
+                <a href="javascript:void(0)" onclick="ASN.toggleAssignamentInstructionPanel();">
+                    <img id="expandAssignamentInstruction" src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("gen.clocli")" border="0" width="13" height="13" align="top"/>
+                    <img id="collapseAssignamentInstruction" style="display: none;" src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("gradingsub.opecliass")" border="0" width="13" height="13" align="top"/>
+                    $tlang.getString("gen.assinf")
                 </a>
-                $tlang.getString("gen.assinf")
             </p>
-        #else
-            <p class="discTria">
-                <a href="javascript:void(0)" onclick="ASN.submitForm( 'gradeForm', 'show_instruction', null, null ); return false;">
-                    <img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("gen.clocli")" border="0" width="13" height="13" align="top"/>
-                </a>
-                $tlang.getString("gen.assinf")
-            </p>
-        #end
-        #if ($assignment_expand_flag)
-            #if (!$assignment.Instructions.isEmpty())
-                <div class="textPanel">$formattedText.escapeHtmlFormattedText($assignment.Instructions)</div>
-            #end
-
-            ## Assignment Attachments
-            #attachmentFragment($assignment.Attachments $assignmentAttachmentReferences $!decoratedUrlMap false)
-        #end
-        ## show the assignment content
-
+            <div id="assignamentInstructionPanelContent" style="display: none;">
+                <p>$formattedText.escapeHtmlFormattedText($assignment.Instructions)</p>
+                ## Assignment Attachments
+                #attachmentFragment($assignment.Attachments $assignmentAttachmentReferences $!decoratedUrlMap false)
+                ##end
+                ## show the assignment content
+            </div>
+        </div>
         #supplementItems($!allowViewModelAnswer $!allowReadAssignmentNoteItem $!allowViewAllPurposeItem $!assignmentModelAnswerItem $!assignmentNoteItem $!assignmentAllPurposeItem)
 
         #if ($!hasAssociatedRubric)
