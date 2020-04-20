@@ -294,6 +294,7 @@
 			<groupId>org.webjars.bower</groupId>
 			<artifactId>multiselect-two-sides</artifactId>
 			<version>2.5.5</version>
+		</dependency>
 		<!--Used in the BasicLTI and Site Manage-->
 		<dependency>
 			<groupId>org.webjars.npm</groupId>
