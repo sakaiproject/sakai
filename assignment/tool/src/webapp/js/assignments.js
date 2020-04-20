@@ -961,3 +961,13 @@ ASN.changeVisibleDate = function()
 		$('.visibleDatePanel').hide();
 	}
 }
+
+$(document).ready(function() {
+	var infoIcon = $('#infoImg');
+	if (infoIcon.length === 1) {
+		infoIcon.popover({html : true});
+		infoIcon.click(function (e) {
+			e.preventDefault();			// override # in href from popping to the top of the page
+		});
+	}
+});
