@@ -246,7 +246,7 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
             ${this.renderSaved()}
             <span>(${this.assignmentsI18n["grade.max"]} ${this.gradable.maxGradePoint})</span>
             ${this.gradable.allowPeerAssessment ? html`
-              <span id="peer-info" class="fa fa-info-circle" data-toggle="popover" data-container="body" data-placement="auto" data-content="${this.assignmentsI18n["peerassessment.peerGradeInfo"]}"></span>
+              <a id="peer-info" class="fa fa-info-circle" data-toggle="popover" data-container="body" data-placement="auto" data-content="${this.assignmentsI18n["peerassessment.peerGradeInfo"]}"></a>
             ` : ""}
           ` : ""}
           ${this.gradeScale === "PASS_FAIL_GRADE_TYPE" ? html`
