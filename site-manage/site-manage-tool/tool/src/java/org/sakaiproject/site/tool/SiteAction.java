@@ -840,7 +840,8 @@ public class SiteAction extends PagedResourceActionII {
 	private String libraryPath;
 
 	private static final String STATE_HARD_DELETE = "hardDelete";
-	
+	private static final String STATE_SOFT_DELETE = "softDelete";
+
 	private static final String STATE_CREATE_FROM_ARCHIVE = "createFromArchive";
 	private static final String STATE_UPLOADED_ARCHIVE_PATH = "uploadedArchivePath";
 	private static final String STATE_UPLOADED_ARCHIVE_NAME = "uploadedArchiveNAme";
@@ -1883,17 +1884,19 @@ public class SiteAction extends PagedResourceActionII {
 				}
 			}
 			context.put("removals", remove);
-			
+
+			boolean hardlyDeleting = false;
 			//check if hard deletes are wanted
 			if(StringUtils.equalsIgnoreCase((String)state.getAttribute(STATE_HARD_DELETE), Boolean.TRUE.toString())) {
-				context.put("hardDelete", true);
 				//SAK-29678 - If it's hard deleted, it's not soft deleted.
 				softlyDeleting = false;
+				hardlyDeleting =true;
 			}
 			
 			//check if soft deletes are activated
-			context.put("softDelete", softlyDeleting);
-			
+			context.put(STATE_SOFT_DELETE, softlyDeleting);
+			context.put(STATE_HARD_DELETE, hardlyDeleting);
+
 			return (String) getContext(data).get("template") + TEMPLATE[8];
 		case 10:
 			/*
@@ -5509,7 +5512,11 @@ public class SiteAction extends PagedResourceActionII {
 			hardDelete = true;
 			state.removeAttribute(STATE_HARD_DELETE);
 		}
-		
+		boolean softDelete = false;
+		if(StringUtils.equalsIgnoreCase((String)state.getAttribute(STATE_SOFT_DELETE), Boolean.TRUE.toString())) {
+			softDelete = true;
+			state.removeAttribute(STATE_SOFT_DELETE);
+		}
 		if (!chosenList.isEmpty()) {
 			
 			for (ListIterator i = chosenList.listIterator(); i.hasNext();) {
@@ -5523,6 +5530,16 @@ public class SiteAction extends PagedResourceActionII {
 						//now delete the site
 						SiteService.removeSite(site, hardDelete);
 						log.debug("Removed site: " + site.getId());
+
+						// As we do not want to introduce Rubrics dependencies in the Kernel, delete the Site Rubrics here.
+						if (hardDelete || (!softDelete && !hardDelete)) {
+							try {
+								rubricsService.deleteSiteRubrics(site.getId());
+							} catch(Exception ex) {
+								log.error("Error deleting site Rubrics for the site {}. {}", site.getId(), ex.getMessage());
+							}
+						}
+
 					} catch (IdUnusedException e) {
 						log.error(this +".doSite_delete_confirmed - IdUnusedException " + id, e);
 						addAlert(state, rb.getFormattedMessage("java.couldnt", new Object[]{site_title,id}));
