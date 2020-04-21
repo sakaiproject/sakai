@@ -278,9 +278,7 @@
 						<h:column>
 
 						  <h:commandLink action="#{PrivateMessagesTool.processDeleteAttach}"
-							           		immediate="true"
-									           onfocus="document.forms[0].onsubmit();"
-									           title="#{msgs.pvt_attrem}">
+							           		immediate="true" title="#{msgs.pvt_attrem}">
 							  <h:outputText value="#{msgs.pvt_attrem}"/>
 <%--							<f:param value="#{eachAttach.attachmentId}" name="dfmsg_current_attach"/>--%>
 								<f:param value="#{eachAttach.attachment.attachmentId}" name="pvmsg_current_attach"/>
