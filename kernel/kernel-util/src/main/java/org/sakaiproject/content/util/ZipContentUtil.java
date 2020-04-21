@@ -164,6 +164,7 @@ public class ZipContentUtil {
 				temp = File.createTempFile("sakai_content-", ".tmp");
 				ContentCollection collection = ContentHostingService.getCollection(reference.getId());
 				out = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(temp),BUFFER_SIZE),java.nio.charset.StandardCharsets.UTF_8);
+				out.setLevel(ServerConfigurationService.getInt("zip.compression.level", 1));
 				storeContentCollection(reference.getId(),collection,out);
 			} finally {
 				if (out != null) {
