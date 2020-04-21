@@ -2831,6 +2831,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         try {
             out = new ZipOutputStream(outputStream);
+            out.setLevel(serverConfigurationService.getInt("zip.compression.level", 1));
 
             // create the folder structure - named after the assignment's title
             final String root = escapeInvalidCharsEntry(Validator.escapeZipEntry(assignmentTitle)) + Entity.SEPARATOR;
@@ -3127,6 +3128,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         ZipOutputStream out = null;
         try {
             out = new ZipOutputStream(outputStream);
+            out.setLevel(serverConfigurationService.getInt("zip.compression.level", 1));
 
             // create the folder structure - named after the assignment's title
             final String root = escapeInvalidCharsEntry(Validator.escapeZipEntry(assignmentTitle)) + Entity.SEPARATOR;
