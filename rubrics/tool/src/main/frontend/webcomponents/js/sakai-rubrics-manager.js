@@ -30,6 +30,13 @@ class SakaiRubricsManager extends RubricsElement {
     return html`
       <h1>${tr("manage_rubrics")}</h1>
 
+      <div class="row">
+        <div class="col-md-4 form-group">
+          <label for="rubrics-search-bar"><sr-lang key="search_rubrics">Search Rubrics by title or author</sr-lang></label>
+          <input type="text" id="rubrics-search-bar" name="rubrics-search-bar" class="form-control" @keyup="${this.filterRubrics}">
+        </div>
+      </div>
+
       <div role="tablist">
         <div id="site-rubrics-title" aria-expanded="${this.siteRubricsExpanded}"
             role="tab" aria-multiselectable="true" class="manager-collapse-title"
@@ -103,6 +110,26 @@ class SakaiRubricsManager extends RubricsElement {
       this.sharedRubricsExpanded = "false";
       icon.removeClass("fa-chevron-down").addClass("fa-chevron-right");
     }
+  }
+
+  filterRubrics() {
+    var searchInput = document.getElementById('rubrics-search-bar');
+    var searchInputValue = searchInput.value.toLowerCase();
+
+    this.querySelectorAll('sakai-rubrics-list, sakai-rubrics-shared-list').forEach(rubricList => {
+      rubricList.querySelectorAll('.rubric-item').forEach(rubricItem => {
+        rubricItem.classList.remove('hidden');
+        var rubricTitle = rubricItem.querySelector('.rubric-name').textContent;
+        var rubricAuthor = rubricItem.querySelector('sakai-rubric-creator-name').textContent;
+        var rubricSite = rubricItem.querySelector('sakai-rubric-site-title').textContent;
+        if (!rubricAuthor.toLowerCase().includes(searchInputValue) &&
+            !rubricTitle.toLowerCase().includes(searchInputValue) &&
+            !rubricSite.toLowerCase().includes(searchInputValue)
+        ) {
+          rubricItem.classList.add('hidden');
+        }
+      });
+    });
   }
 }
 
