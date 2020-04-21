@@ -340,9 +340,9 @@ public class DateManagerServiceImpl implements DateManagerService {
 			JSONObject assobj = new JSONObject();
 			assobj.put("id", assessment.getAssessmentBaseId());
 			assobj.put("title", assessment.getTitle());
-			assobj.put("due_date", control.getDueDate());
-			assobj.put("open_date", control.getStartDate());
-			assobj.put("accept_until", control.getRetractDate());
+			assobj.put("due_date", formatToUserDateFormat(control.getDueDate()));
+			assobj.put("open_date", formatToUserDateFormat(control.getStartDate()));
+			assobj.put("accept_until", formatToUserDateFormat(control.getRetractDate()));
 			assobj.put("is_draft", true);
 			assobj.put("late_handling", lateHandling);
 			assobj.put("tool_title", toolTitle);
@@ -366,9 +366,9 @@ public class DateManagerServiceImpl implements DateManagerService {
 			JSONObject assobj = new JSONObject();
 			assobj.put("id", assessment.getPublishedAssessmentId());
 			assobj.put("title", assessment.getTitle());
-			assobj.put("due_date", control.getDueDate());
-			assobj.put("open_date", control.getStartDate());
-			assobj.put("accept_until", control.getRetractDate());
+			assobj.put("due_date", formatToUserDateFormat(control.getDueDate()));
+			assobj.put("open_date", formatToUserDateFormat(control.getStartDate()));
+			assobj.put("accept_until", formatToUserDateFormat(control.getRetractDate()));
 			assobj.put("is_draft", false);
 			assobj.put("late_handling", lateHandling);
 			assobj.put("tool_title", toolTitle);
