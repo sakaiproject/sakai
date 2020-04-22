@@ -73,6 +73,7 @@ GradebookCategorySettings.prototype.updateCategoryOrders = function() {
 function GradebookGradingSchemaSettings($container) {
   this.$container = $container;
   this.tableId = "#table-grading-schema";
+  this.addCategory = false;
   this.setupKeyboardSupport();
 }
 
@@ -84,10 +85,17 @@ GradebookGradingSchemaSettings.prototype.setupKeyboardSupport = function() {
     if (event.keyCode == 13) {
       event.preventDefault();
       event.stopPropagation();
-
-      self.$container.find(".btn-add-mapping").trigger("click");
+      self.addCategory = true;
+      $(document.activeElement).change();
     }
   });
+}
+
+GradebookGradingSchemaSettings.prototype.addCategoryFunction = function() {
+  if (this.addCategory) {
+    this.$container.find(".btn-add-mapping").trigger("click");
+    this.addCategory = false;
+  }
 }
 
 GradebookGradingSchemaSettings.prototype.focusLastRow = function() {
@@ -98,6 +106,23 @@ GradebookGradingSchemaSettings.prototype.focusLastRow = function() {
   // Wicket may try to set focus on the input last focused before form submission
   // so set this manually to our desired input
   Wicket.Focus.setFocusOnId($input.attr("id"));
+}
+
+GradebookGradingSchemaSettings.prototype.getFocusedCell = function() {
+  var $activeElement = $(document.activeElement);
+  if ($activeElement.hasClass('schema-input')) {
+    sakai.gradebookng.settings.gradingschemas.cellName = $activeElement.attr('name');
+  }
+}
+
+GradebookGradingSchemaSettings.prototype.focusPreviousCell = function() {
+  // This is a trick to focus the previous focused cell after table re-render
+  var cellName = sakai.gradebookng.settings.gradingschemas.cellName;
+  var $inputSameName = $('[name="' + cellName + '"]');
+  if ($inputSameName.length > 0) {
+    $inputSameName.focus();
+  }
+  sakai.gradebookng.settings.gradingschemas.cellName = '';
 }
 
 /**************************************************************************************
