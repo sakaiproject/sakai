@@ -41,6 +41,7 @@
 				<property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService" />
 				<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
 				<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
+				<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 			</bean>
 		</property>
 		<property name="transactionAttributes">
@@ -74,6 +75,11 @@
 		</property>
 		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
 		<property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager" />
+		<property name="timeService" ref="org.sakaiproject.time.api.TimeService"/>
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
 	</bean>
 
 	<bean id="FixPublicSyllabusAttachmentsJob"
@@ -85,6 +91,9 @@
 		<!-- This is the userId the job will run under.  This user must have
 		the appropriate permissions to create new permissions/realms for any site in the system -->
 		<property name="userId" value="admin" />
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+		<property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService"/>
+		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
 	</bean>
 
 	<bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.helloWorld"

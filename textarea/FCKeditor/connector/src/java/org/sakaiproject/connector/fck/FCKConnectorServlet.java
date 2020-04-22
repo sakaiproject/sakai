@@ -49,23 +49,17 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.fileupload.DiskFileUpload;
 import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang3.StringUtils;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-
-import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.api.app.messageforums.entity.DecoratedForumInfo;
 import org.sakaiproject.api.app.messageforums.entity.DecoratedTopicInfo;
-import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -82,7 +76,12 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Conenctor Servlet to upload and browse files to a Sakai worksite for the FCK editor.<br>
@@ -133,6 +132,7 @@ public class FCKConnectorServlet extends HttpServlet {
      private EntityBroker entityBroker;
      private ServerConfigurationService serverConfigurationService = null;
      private ResourceLoader resourceLoader = null;
+     private FormattedText formattedText;
 
      /**
       * Injects dependencies using the ComponentManager cover.
@@ -168,10 +168,13 @@ public class FCKConnectorServlet extends HttpServlet {
           if (siteService == null) {
               siteService = (SiteService) inject("org.sakaiproject.site.api.SiteService");
           if (entityBroker == null) {
-        	   entityBroker = (EntityBroker) inject("org.sakaiproject.entitybroker.EntityBroker");
+             entityBroker = (EntityBroker) inject("org.sakaiproject.entitybroker.EntityBroker");
           }
           if (serverConfigurationService == null) {
-        	  serverConfigurationService = (ServerConfigurationService) inject("org.sakaiproject.component.api.ServerConfigurationService");
+            serverConfigurationService = (ServerConfigurationService) inject("org.sakaiproject.component.api.ServerConfigurationService");
+          }
+          if (formattedText == null) {
+            formattedText = (FormattedText) inject("org.sakaiproject.util.api.FormattedText");
           }
 
           //Default providers to exclude, add addition with the property textarea.hiddenProviders if needed 
@@ -550,7 +553,7 @@ public class FCKConnectorServlet extends HttpServlet {
 
                        out.println("window.parent.OnUploadCompleted(" + status + ",'"
                                + (attachment!=null?attachment.getUrl():"")
-                               + "','" + FormattedText.escapeJsQuoted(fileName) + "','" + errorMessage + "');");
+                               + "','" + formattedText.escapeJsQuoted(fileName) + "','" + errorMessage + "');");
 
                    out.println("</script>");
                }

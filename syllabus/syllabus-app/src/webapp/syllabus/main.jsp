@@ -53,6 +53,7 @@
 				clickToAddEndDate: $("#messages #clickToAddEndDate").html(),
 				clickToAddBody: $("#messages #clickToAddBody").html(),
 				saved: $("#messages #saved").html(),
+				deleted: $("#messages #deleted").html(),
 				error: $("#messages #error").html(),
 				required: $("#messages #required").html(),
 				startBeforeEndDate: $("#messages #startBeforeEndDate").html(),
@@ -175,7 +176,7 @@
 							</f:subview>
 							<f:verbatim>></f:verbatim>
 							<h:outputText styleClass="draftTitlePrefix" rendered="#{eachEntry.status == eachEntry.draftStatus}" value="#{msgs.draftTitlePrefix}" />
-							<h:outputText styleClass="" value="#{eachEntry.entry.title}" />
+							<h:outputText styleClass="syllabusItemTitle" value="#{eachEntry.entry.title}" />
 							<f:subview id="dateStudent" rendered="#{!SyllabusTool.editAble && (eachEntry.entry.startDate != null || eachEntry.entry.endDate != null)}">
 								<f:verbatim><span style="float: right; padding-right: 1em; padding-left: 1em"></f:verbatim>
 									<h:outputText value="#{eachEntry.entry.startDate}">
@@ -290,6 +291,7 @@
 				<span id="clickToAddEndDate"></f:verbatim><h:outputText value="#{msgs.clickToAddEndDate}"/><f:verbatim></span>
 				<span id="clickToAddBody"></f:verbatim><h:outputText value="#{msgs.clickToAddBody}"/><f:verbatim></span>
 				<span id="saved"></f:verbatim><h:outputText value="#{msgs.saved}"/><f:verbatim></span>
+				<span id="deleted"></f:verbatim><h:outputText value="#{msgs.deleted}"/><f:verbatim></span>
 				<span id="error"></f:verbatim><h:outputText value="#{msgs.error}"/><f:verbatim></span>
 				<span id="required"></f:verbatim><h:outputText value="#{msgs.required}"/><f:verbatim></span>
 				<span id="startBeforeEndDate"></f:verbatim><h:outputText value="#{msgs.startBeforeEndDate}"/><f:verbatim></span>

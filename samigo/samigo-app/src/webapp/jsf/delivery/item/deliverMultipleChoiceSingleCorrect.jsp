@@ -43,13 +43,13 @@ should be included in file importing DeliveryMessages
   <%@ include file="/jsf/delivery/item/attachment.jsp" %>
 
 
-  <f:verbatim><div class="mcscFixUp"></f:verbatim>
-  <f:verbatim><div class="mcscFixUpSource"></f:verbatim>
+  <h:panelGroup layout="block" styleClass="mcscFixUp">
+  <h:panelGroup layout="block" styleClass="mcscFixUpSource">
   <h:selectOneRadio id="samigo-mc-select-one" required="false" value="#{question.responseId}" layout="pagedirection"
                     disabled="#{delivery.actionString=='reviewAssessment' || delivery.actionString=='gradeAssessment'}" >
        <f:selectItems value="#{question.selectItemPartsMC}" />
   </h:selectOneRadio>
-  <f:verbatim></div></f:verbatim>
+  </h:panelGroup>
 
 
   <t:dataList layout="unorderedList" styleClass="samigo-question" itemStyleClass="samigo-question-answer" value="#{question.selectionArray}" var="selection">
@@ -67,7 +67,7 @@ should be included in file importing DeliveryMessages
         styleClass="icon-sakai--check feedBackNone">
       </h:panelGroup>
     </h:panelGroup>
-    <div class="mcscFixUpTarget"></div>
+    <h:panelGroup layout="block" styleClass="mcscFixUpTarget"></h:panelGroup>
     <h:panelGroup styleClass="mcAnswerText">
       <span class="samigo-answer-label strong" aria-hidden="true">
         <h:outputText value=" #{selection.answer.label}" escape="false" />
@@ -88,8 +88,8 @@ should be included in file importing DeliveryMessages
     </h:panelGroup>
   </t:dataList>
 
-  <f:verbatim></div></f:verbatim>
-  <f:verbatim><script>
+  </h:panelGroup>
+  <script>
     $('div.mcscFixUp').each(function(index1,elBlockToFix) {
       $(elBlockToFix).find('div.mcscFixUpSource td').each(function(index,elLabelAndInputToMove) {
         var contentsToMove = $(elLabelAndInputToMove).contents();
@@ -98,6 +98,14 @@ should be included in file importing DeliveryMessages
         }
       });
       $(elBlockToFix).find('li.samigo-question-answer label').each(function(index2, answerLabel) {
+        var properImage = $(answerLabel).parent('li').find(':span')[0];
+        if (typeof properImage !== 'undefined') {
+          answerLabel.append(properImage);
+        }
+        var properRadio = $(answerLabel).parent('li').find(':radio')[0];
+        if (typeof properRadio !== 'undefined') {
+          answerLabel.append(properRadio);
+        }
         var properLabel = $(answerLabel).parent('li').children('span.mcAnswerText')[0];
         if (typeof properLabel !== 'undefined') {
           answerLabel.append(properLabel);
@@ -105,7 +113,7 @@ should be included in file importing DeliveryMessages
       });
       $(elBlockToFix).find('div.mcscFixUpSource').remove();
     });
-  </script></f:verbatim>
+  </script>
 
   <h:panelGroup
     rendered="#{question.itemData.hasRationale && question.itemData.typeId != 3}" >

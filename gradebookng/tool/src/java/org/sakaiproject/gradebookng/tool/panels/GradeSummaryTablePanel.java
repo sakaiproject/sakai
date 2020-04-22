@@ -321,52 +321,52 @@ public class GradeSummaryTablePanel extends BasePanel {
 
 							gradeScore.add(new Label("outOf").setVisible(false));
 
-							final WebMarkupContainer sakaiRubricPreview = new WebMarkupContainer("sakai-rubric-student-button");
-							sakaiRubricPreview.add(AttributeModifier.append("display", "icon"));
-							sakaiRubricPreview.add(AttributeModifier.append("tool-id", RubricsConstants.RBCS_TOOL_GRADEBOOKNG));
-							sakaiRubricPreview.add(AttributeModifier.append("evaluated-item-id", assignment.getId() + "." + studentUuid));
-							sakaiRubricPreview.add(AttributeModifier.append("token", rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_GRADEBOOKNG)));
+							final WebMarkupContainer sakaiRubricButton = new WebMarkupContainer("sakai-rubric-student-button");
+							sakaiRubricButton.add(AttributeModifier.append("display", "icon"));
+							sakaiRubricButton.add(AttributeModifier.append("tool-id", RubricsConstants.RBCS_TOOL_GRADEBOOKNG));
+							sakaiRubricButton.add(AttributeModifier.append("evaluated-item-id", assignment.getId() + "." + studentUuid));
+							sakaiRubricButton.add(AttributeModifier.append("token", rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_GRADEBOOKNG)));
 
-							addInstructorAttributeOrHide(sakaiRubricPreview, assignment.getId(), studentUuid, showingStudentView);
+							addInstructorAttributeOrHide(sakaiRubricButton, assignment, studentUuid, showingStudentView);
 
 							if (assignment.getId() != null) {
-								sakaiRubricPreview.add(AttributeModifier.append("entity-id", assignment.getId()));
+								sakaiRubricButton.add(AttributeModifier.append("entity-id", assignment.getId()));
 							}
 
-							gradeScore.add(sakaiRubricPreview);
+							gradeScore.add(sakaiRubricButton);
 						} else {
 							gradeScore.add(
 									new Label("grade", FormatHelper.convertEmptyGradeToDash(FormatHelper.formatGradeForDisplay(rawGrade))));
 							gradeScore.add(new Label("outOf",
 									new StringResourceModel("label.studentsummary.outof", null, assignment.getPoints())));
 
-							final WebMarkupContainer sakaiRubricPreview = new WebMarkupContainer("sakai-rubric-student-button");
-							sakaiRubricPreview.add(AttributeModifier.append("display", "icon"));
-							sakaiRubricPreview.add(AttributeModifier.append("token", rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_GRADEBOOKNG)));
+							final WebMarkupContainer sakaiRubricButton = new WebMarkupContainer("sakai-rubric-student-button");
+							sakaiRubricButton.add(AttributeModifier.append("display", "icon"));
+							sakaiRubricButton.add(AttributeModifier.append("token", rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_GRADEBOOKNG)));
 
-							addInstructorAttributeOrHide(sakaiRubricPreview, assignment.getId(), studentUuid, showingStudentView);
+							addInstructorAttributeOrHide(sakaiRubricButton, assignment, studentUuid, showingStudentView);
 
 							if (assignment.isExternallyMaintained()) {
-								sakaiRubricPreview.add(AttributeModifier.append("tool-id", RubricsConstants.RBCS_TOOL_ASSIGNMENT));
+								sakaiRubricButton.add(AttributeModifier.append("tool-id", RubricsConstants.RBCS_TOOL_ASSIGNMENT));
 								String[] bits = assignment.getExternalId().split("/");
 								if (bits != null && bits.length >= 1) {
 									String assignmentId = bits[bits.length-1];
 									String submissionId = rubricsService.getRubricEvaluationObjectId(assignmentId, studentUuid, RubricsConstants.RBCS_TOOL_ASSIGNMENT);
-									sakaiRubricPreview.add(AttributeModifier.append("entity-id", assignmentId));
-									sakaiRubricPreview.add(AttributeModifier.append("evaluated-item-id", submissionId));
+									sakaiRubricButton.add(AttributeModifier.append("entity-id", assignmentId));
+									sakaiRubricButton.add(AttributeModifier.append("evaluated-item-id", submissionId));
 								} else {
 									log.warn(assignment.getExternalId() + " is not a valid assignment reference");
 								}
 							} else {
-								sakaiRubricPreview.add(AttributeModifier.append("tool-id", RubricsConstants.RBCS_TOOL_GRADEBOOKNG));
-								sakaiRubricPreview.add(AttributeModifier.append("evaluated-item-id", assignment.getId() + "." + studentUuid));
+								sakaiRubricButton.add(AttributeModifier.append("tool-id", RubricsConstants.RBCS_TOOL_GRADEBOOKNG));
+								sakaiRubricButton.add(AttributeModifier.append("evaluated-item-id", assignment.getId() + "." + studentUuid));
 
 								if (assignment.getId() != null) {
-									sakaiRubricPreview.add(AttributeModifier.append("entity-id", assignment.getId()));
+									sakaiRubricButton.add(AttributeModifier.append("entity-id", assignment.getId()));
 								}
 							}
 
-							gradeScore.add(sakaiRubricPreview);
+							gradeScore.add(sakaiRubricButton);
 						}
 						if (gradeInfo != null && gradeInfo.isDroppedFromCategoryScore()) {
 							gradeScore.add(AttributeModifier.append("class", "gb-summary-grade-score-dropped"));
@@ -391,15 +391,15 @@ public class GradeSummaryTablePanel extends BasePanel {
 		});
 	}
 
-	private void addInstructorAttributeOrHide(WebMarkupContainer sakaiRubricPreviewButton, Long assignmentId, String studentId, boolean showingStudentView) {
+	private void addInstructorAttributeOrHide(WebMarkupContainer sakaiRubricButton, Assignment assignment, String studentId, boolean showingStudentView) {
 
 		if (!showingStudentView && (GradeSummaryTablePanel.this.getUserRole() == GbRole.INSTRUCTOR
 					|| GradeSummaryTablePanel.this.getUserRole() == GbRole.TA)) {
-			sakaiRubricPreviewButton.add(AttributeModifier.append("instructor", true));
+			sakaiRubricButton.add(AttributeModifier.append("instructor", true));
 		} else {
-			GradeDefinition gradeDefinition = businessService.getGradeForStudentForItem(studentId, assignmentId);
-			if (gradeDefinition.getGrade() == null) {
-				sakaiRubricPreviewButton.setVisible(false);
+			GradeDefinition gradeDefinition = businessService.getGradeForStudentForItem(studentId, assignment.getId());
+			if (assignment.isExternallyMaintained() && gradeDefinition.getGrade() == null) {
+				sakaiRubricButton.setVisible(false);
 			}
 		}
 	}

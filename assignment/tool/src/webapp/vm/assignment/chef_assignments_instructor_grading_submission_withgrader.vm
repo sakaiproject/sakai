@@ -1,8 +1,7 @@
-<!-- start: chef_assignments_instructor_grading_submission.vm  -->
-#set( $H = '-' )
-#javascript("/library/js/lang-datepicker/lang-datepicker.js")
+<!-- start: chef_assignments_instructor_grading_submission_withgrader.vm  -->
 
 <!-- GRADER JAVASCRIPT -->
+<script>window.top.includeWebjarLibrary("flatpickr");</script>
 #module("/webcomponents/grader/sakai-grader.js")
 <script>
   ASN.currentGradingSubmission = "$formattedText.escapeUrl( $!submissionReference )";

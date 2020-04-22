@@ -1186,6 +1186,7 @@ public class CCExport {
         try {
 	    htmlOut = response.getOutputStream();
 	    out = new ZipPrintStream(htmlOut);
+	    out.setLevel(ServerConfigurationService.getInt("zip.compression.level", 1));
 
 	    response.setHeader("Content-disposition", "inline; filename=sakai-export.imscc");
 	    response.setContentType("application/zip");

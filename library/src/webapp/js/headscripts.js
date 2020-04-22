@@ -283,7 +283,7 @@ function setMainFrameHeightWithMax(id, maxHeight)
 		clearTimeout(MainFrameHeightTimeOut);
 		MainFrameHeightTimeOut = false;
 	}
-	MainFrameHeightTimeOut = setTimeout("setMainFrameHeightNow('"+id+"',"+maxHeight+")", 1000);
+	MainFrameHeightTimeOut = setTimeout( function() { setMainFrameHeightNow(id, maxHeight); }, 1000);
 }
 
 function setMainFrameHeight(id)
@@ -828,6 +828,14 @@ function includeWebjarLibrary(library) {
 		libraryVersion = "1.4.1";
 		document.write('\x3Cscript src="' + webjars + 'fontawesome-iconpicker/' + libraryVersion + '/dist/js/fontawesome-iconpicker.min.js' + ver + '">' + '\x3C/script>');
 		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'fontawesome-iconpicker/' + libraryVersion + '/dist/css/fontawesome-iconpicker.min.css' + ver + '"/>');
+	} else if (library === "flatpickr") {
+		libraryVersion = "4.6.3";
+		document.write('\x3Cscript src="' + webjars + 'flatpickr/' + libraryVersion + '/dist/flatpickr.min.js' + ver + '">\x3C/script>');
+		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'flatpickr/' + libraryVersion + '/dist/flatpickr.min.css' + ver + '"/>');
+		let lang = portal.locale.split("-")[0];
+		if (lang !== "en") {
+			document.write('\x3Cscript src="' + webjars + 'flatpickr/' + libraryVersion + '/dist/l10n/' + lang + '.js' + ver + '">\x3C/script>');
+		}
 	} else {
 		if (library.endsWith(".js")) {
 			document.write('\x3Cscript src="' + webjars + library + ver + '">' + '\x3C/script>');

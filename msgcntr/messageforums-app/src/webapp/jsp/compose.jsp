@@ -33,17 +33,21 @@
 					changeSelect(selectObject);
 				}
 
-				function fadeInBcc(){
+				function fadeInBcc(clearSelected){
 					$('.bccLink').fadeOut();
 					$('.bcc').fadeIn();
-					clearSelection(document.getElementById('compose:list2'));
+					if (clearSelected) {
+						clearSelection(document.getElementById('compose:list2'));
+					}
 					resize();
 				}
 
-				function fadeOutBcc(){
+				function fadeOutBcc(clearSelected){
 					$('.bccLink').fadeIn();
 					$('.bcc').fadeOut();
-					clearSelection(document.getElementById('compose:list2'));
+					if (clearSelected) {
+						clearSelection(document.getElementById('compose:list2'));
+					}
 					resize();
 				}
 
@@ -54,7 +58,7 @@
 				$(document).ready(function() {
 				  	if(document.getElementById('compose:list2').selectedIndex != -1){
 				  		//BCC has selected items, so show it
-				  		fadeInBcc();
+				  		fadeInBcc(false);
 				  	}
 				  	addTagSelector(document.getElementById('compose:list1'));
 				  	addTagSelector(document.getElementById('compose:list2'));
@@ -137,7 +141,7 @@
 								</f:verbatim>
 								<h:graphicImage url="/../../library/image/silk/add.png" title="#{msgs.pvt_addBcc}" alt="#{msgs.pvt_addBcc}"/>
 								<f:verbatim>
-									<a href="#" onclick="fadeInBcc();">
+									<a href="#" onclick="fadeInBcc(true);">
 								</f:verbatim>
 								<h:outputText value="#{msgs.pvt_addBcc}"/>
 								<f:verbatim>
@@ -153,7 +157,7 @@
 								</f:verbatim>
 								<h:graphicImage url="/../../library/image/silk/cancel.png" title="#{msgs.pvt_removeBcc}" alt="#{msgs.pvt_removeBcc}"/>
 								<f:verbatim>
-									<a href="#" onclick="fadeOutBcc();">
+									<a href="#" onclick="fadeOutBcc(true);">
 								</f:verbatim>
 								<h:outputText value="#{msgs.pvt_removeBcc}"/>
 								<f:verbatim>
@@ -274,9 +278,7 @@
 						<h:column>
 
 						  <h:commandLink action="#{PrivateMessagesTool.processDeleteAttach}"
-							           		immediate="true"
-									           onfocus="document.forms[0].onsubmit();"
-									           title="#{msgs.pvt_attrem}">
+							           		immediate="true" title="#{msgs.pvt_attrem}">
 							  <h:outputText value="#{msgs.pvt_attrem}"/>
 <%--							<f:param value="#{eachAttach.attachmentId}" name="dfmsg_current_attach"/>--%>
 								<f:param value="#{eachAttach.attachment.attachmentId}" name="pvmsg_current_attach"/>

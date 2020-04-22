@@ -23,7 +23,7 @@
     <sakai.version>21-SNAPSHOT</sakai.version>
     <!-- Standard dependency versions -->
     <sakai.commons.lang.version>2.6</sakai.commons.lang.version>
-    <sakai.commons.lang3.version>3.9</sakai.commons.lang3.version>
+    <sakai.commons.lang3.version>3.10</sakai.commons.lang3.version>
     <sakai.commons.fileupload.version>1.4</sakai.commons.fileupload.version>
     <sakai.commons-math3.version>3.6.1</sakai.commons-math3.version>
     <sakai.commons-text.version>1.8</sakai.commons-text.version>
@@ -51,7 +51,7 @@
     <sakai.org.json.version>20190722</sakai.org.json.version>
     <sakai.pluto.version>1.1.7</sakai.pluto.version>
     <sakai.quartz.version>2.3.2</sakai.quartz.version>
-    <sakai.opencsv.version>5.0</sakai.opencsv.version>
+    <sakai.opencsv.version>5.1</sakai.opencsv.version>
     <sakai.servletapi.version>2.4</sakai.servletapi.version>
     <sakai.groovy.version>2.4.17</sakai.groovy.version>
     <sakai.simple-xml.version>2.7.1</sakai.simple-xml.version>
@@ -67,7 +67,7 @@
     <sakai.spring.test.artifactId>spring-test</sakai.spring.test.artifactId>
     <sakai.spring.test.version>4.3.25.RELEASE</sakai.spring.test.version>
     <sakai.tika.version>1.24</sakai.tika.version>
-    <sakai.tomcat.version>9.0.33</sakai.tomcat.version>
+    <sakai.tomcat.version>9.0.34</sakai.tomcat.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.xerces.impl.version>2.12.0</sakai.xerces.impl.version>
     <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
@@ -99,6 +99,14 @@
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
     <!-- Default empty unless profile activation -->
     <random-source></random-source>
+
+    <!-- These should only be updated when the webjars version is updated -->
+    <ckeditor.autosave.version>0.18.4</ckeditor.autosave.version>
+    <ckeditor.wordcount.version>1.17.6</ckeditor.wordcount.version>
+    <ckeditor.a11ychecker.version>1.1.1</ckeditor.a11ychecker.version>
+    <ckeditor.balloonpanel.version>4.9.2</ckeditor.balloonpanel.version>
+    <ckeditor.image2.version>4.14.0</ckeditor.image2.version>
+    <ckeditor.html5video.version>1.2.1</ckeditor.html5video.version>
 
   </properties>
   <distributionManagement>
@@ -895,7 +903,7 @@
       <dependency>
         <groupId>org.mnode.ical4j</groupId>
         <artifactId>ical4j</artifactId>
-        <version>3.0.7</version>
+        <version>3.0.18</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -2172,7 +2180,7 @@
             <dependency>
               <groupId>com.github.spotbugs</groupId>
               <artifactId>spotbugs</artifactId>
-               <version>3.1.12</version>
+               <version>4.0.1</version>
              </dependency>
           </dependencies>
         </plugin>

@@ -70,4 +70,9 @@
         <property name="height" value="400" />
         -->
     </bean>
+
+    <bean class="org.springframework.web.multipart.commons.CommonsMultipartResolver" id="multipartResolver"> 
+        <property name="maxUploadSize" value="20971520" />
+    </bean>
+
 </beans>

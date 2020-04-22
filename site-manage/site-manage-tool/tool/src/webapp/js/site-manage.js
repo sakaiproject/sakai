@@ -685,11 +685,17 @@ var setupCategTools = function () {
     var noMsg = $("#removalAlertNoMessage").val();
     $("<li id=\"alertBox\"><span>" + msg + "</span><span><a href=\"#\" id=\"alertBoxYes\">" + yesMsg + "</a>&nbsp;|&nbsp;<a href=\"#\" id=\"alertBoxNo\">" + noMsg + "</a></span></li>").insertAfter("#" + target);
 
-    $("#alertBox a#alertBoxYes").on("click", function () {
-
-      $(this).closest("li").prev("li").remove();
-      $("#" + target +"_wrap").find("input").attr("checked", false).end().find("label").css("font-weight", "normal");
-      $("#alertBox").remove();
+    $('#alertBox a#alertBoxYes').on('click', function () {
+      $(this).closest('li').prev('li').remove();
+      var checkboxInput = document.getElementById(target.split('_').join('.'));
+      if (checkboxInput != null) {
+        checkboxInput.checked = false;
+        var checkboxLabel = checkboxInput.closest('div').querySelector('label');
+        if (checkboxLabel != null) {
+          checkboxLabel.style.fontWeight = 'normal';
+        }
+      }
+      $('#alertBox').remove();
     });
 
     $("#alertBox a#alertBoxNo").on("click", function () {

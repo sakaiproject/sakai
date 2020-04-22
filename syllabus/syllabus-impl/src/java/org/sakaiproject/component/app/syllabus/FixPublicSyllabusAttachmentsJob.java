@@ -19,6 +19,7 @@ package org.sakaiproject.component.app.syllabus;
 
 import java.util.Set;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -27,16 +28,20 @@ import org.quartz.JobExecutionException;
 import org.sakaiproject.api.app.syllabus.SyllabusData;
 import org.sakaiproject.api.app.syllabus.SyllabusManager;
 import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.event.cover.EventTrackingService;
-import org.sakaiproject.event.cover.UsageSessionService;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.api.SessionManager;
 
 @Slf4j
 public class FixPublicSyllabusAttachmentsJob implements Job {
 
 	private SyllabusManager syllabusManager;
 	private AuthzGroupService authzGroupService;
+	@Setter private SessionManager sessionManager;
+	@Setter private UsageSessionService usageSessionService;
+	@Setter private EventTrackingService eventTrackingService;
+	
 	private String userId = "admin";
 
 	public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
@@ -55,23 +60,23 @@ public class FixPublicSyllabusAttachmentsJob implements Job {
 	}
 
 	protected void loginToSakai() {
-	    Session sakaiSession = SessionManager.getCurrentSession();
+	    Session sakaiSession = sessionManager.getCurrentSession();
 		sakaiSession.setUserId(userId);
 		sakaiSession.setUserEid(userId);
 
 		// establish the user's session
-		UsageSessionService.startSession(userId, "127.0.0.1", FixPublicSyllabusAttachmentsJob.class.getName());
+		usageSessionService.startSession(userId, "127.0.0.1", FixPublicSyllabusAttachmentsJob.class.getName());
 		
 		// update the user's externally provided realm definitions
 		authzGroupService.refreshUser(userId);
 
 		// post the login event
-		EventTrackingService.post(EventTrackingService.newEvent(UsageSessionService.EVENT_LOGIN, null, true));
+		eventTrackingService.post(eventTrackingService.newEvent(usageSessionService.EVENT_LOGIN, null, true));
 	}
 
 	protected void logoutFromSakai() {
 		// post the logout event
-		EventTrackingService.post(EventTrackingService.newEvent(UsageSessionService.EVENT_LOGOUT, null, true));
+		eventTrackingService.post(eventTrackingService.newEvent(usageSessionService.EVENT_LOGOUT, null, true));
 	}
 
 	public SyllabusManager getSyllabusManager() {

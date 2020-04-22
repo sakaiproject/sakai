@@ -53,7 +53,13 @@ export class SakaiRubricGradingComment extends RubricsElement {
         </div>
         <div class="popover-content form">
           <div class="form-group">
-            <textarea aria-label="${tr("criterion_comment")}" class="form-control" name="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-comment-${this.criterion.id}" id="criterion_${this.evaluatedItemId}_${this.entityId}_comment_${this.criterion.id}|${this.randombit}|">${this.criterion.comments}</textarea>
+            <textarea
+              aria-label="${tr("criterion_comment")}"
+              class="form-control"
+              name="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-comment-${this.criterion.id}"
+              id="criterion-${this.criterion.id}-${this.evaluatedItemId}-comment-${this.randombit}">
+              ${this.criterion.comments}
+            </textarea>
           </div>
         </div>
       </div>
@@ -79,6 +85,9 @@ export class SakaiRubricGradingComment extends RubricsElement {
 
       popover[0].style.left = e.target.offsetLeft - 270 + "px";
       popover[0].style.top = e.target.offsetTop + e.target.offsetHeight / 2 + 20 - popover.height() / 2 + "px";
+
+      Object.keys(CKEDITOR.instances)
+        .filter(n => n.includes("criterion-")).forEach(n => CKEDITOR.instances[n].destroy(true));
 
       this.setupEditor();
 
@@ -107,8 +116,10 @@ export class SakaiRubricGradingComment extends RubricsElement {
 
   setupEditor() {
 
+    let editorKey = `criterion-${this.criterion.id}-${this.evaluatedItemId}-comment-${this.randombit}`;
+
     try {
-      var commentEditor = CKEDITOR.replace('criterion_' + this.evaluatedItemId + '_' + this.entityId + '_comment_' + this.criterion.id + '|' + this.randombit + '|', {
+      var commentEditor = CKEDITOR.replace(editorKey, {
         toolbar: [['Bold', 'Italic', 'Underline'], ['NumberedList', 'BulletedList', 'Blockquote']],
         height: 40
       });

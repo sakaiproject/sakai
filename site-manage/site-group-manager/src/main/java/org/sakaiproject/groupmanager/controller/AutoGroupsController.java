@@ -204,13 +204,16 @@ public class AutoGroupsController {
         if (GroupManagerConstants.STRUCTURE_CONFIGURATION_MIXTURE == autoGroupsForm.getStructureConfigurationOption()) {
             boolean titleError = false;
             boolean numberError = false;
+            String numberErrorMessage = StringUtils.EMPTY;
 
             if (GroupManagerConstants.SPLIT_OPTIONS_BY_GROUP == autoGroupsForm.getSplitOptions()) {
                 titleError = StringUtils.isBlank(autoGroupsForm.getGroupTitleByGroup());
                 numberError = autoGroupsForm.getGroupNumberByGroup() <= 0 || autoGroupsForm.getGroupNumberByGroup() > 999;
+                numberErrorMessage = messageSource.getMessage("autogroups.step3.group.number.required", null, userLocale);
             } else {
                 titleError = StringUtils.isBlank(autoGroupsForm.getGroupTitleByUser());
                 numberError = autoGroupsForm.getGroupNumberByUser() <= 0 || autoGroupsForm.getGroupNumberByUser() > 999;
+                numberErrorMessage = messageSource.getMessage("autogroups.step3.userspergroup.number.required", null, userLocale);
             }
 
             // Validate the title is not empty.
@@ -221,7 +224,7 @@ public class AutoGroupsController {
 
             // Validate the number of groups is inside the range.
             if (numberError) {
-                model.addAttribute("splitOptionsError", messageSource.getMessage("autogroups.step3.group.number.required", null, userLocale));
+                model.addAttribute("splitOptionsError", numberErrorMessage);
                 return showStep3(model, autoGroupsForm);
             }
 
@@ -337,9 +340,10 @@ public class AutoGroupsController {
                 String groupPrefix = autoGroupsForm.getGroupTitleByGroup();
                 int groupNumber = autoGroupsForm.getGroupNumberByGroup();
                 int groupSize = filteredMembers.size() / groupNumber;
-
+                // Use one, two or three digits to represent the suffix depending on the size of the number of groups, %01d %02d or %03d
+                String indexFormat = String.format("%%0%dd", String.valueOf(groupNumber).length());
                 for (int groupIndex = 1 ; groupIndex <= groupNumber; groupIndex++) {
-                    String groupTitle = String.format("%s-%d", groupPrefix, groupIndex);
+                    String groupTitle = String.format("%s-"+indexFormat, groupPrefix, groupIndex);
                     List<String> randomMemberList = new ArrayList<String>();
                     List<Member> memberSubList = filteredMembers.stream().limit(groupSize).collect(Collectors.toList());
                     filteredMembers.removeAll(memberSubList);
@@ -356,8 +360,10 @@ public class AutoGroupsController {
                 int groupNumber = autoGroupsForm.getGroupNumberByUser();
                 List<List<Member>> partitionedMemberList = ListUtils.partition(filteredMembers, groupNumber);
                 int groupIndex = 1;
+                // Use one, two or three digits to represent the suffix depending on the size of the number of groups, %01d %02d or %03d
+                String indexFormat = String.format("%%0%dd", String.valueOf(partitionedMemberList.size()).length());
                 for (List<Member> groupMembers : partitionedMemberList) {
-                    String groupTitle = String.format("%s-%d", groupPrefix, groupIndex);
+                    String groupTitle = String.format("%s-"+indexFormat, groupPrefix, groupIndex);
                     groupIndex++;
                     List<String> randomMemberList = new ArrayList<String>();
                     groupMembers.forEach(member -> { randomMemberList.add(member.getUserId()); });

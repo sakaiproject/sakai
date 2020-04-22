@@ -21,13 +21,6 @@
 		<ckeditor-extra-plugins>sakaipreview,image2,audiorecorder,contentitem,html5video,wordcount,notification,autosave,bt_table</ckeditor-extra-plugins>
 		<!-- Empty defaults for a11y-->
 		<ckeditor-a11y-extra-plugins></ckeditor-a11y-extra-plugins>
-		<!-- These should only be updated when the webjars version is updated -->
-		<ckeditor.autosave.version>0.18.4</ckeditor.autosave.version>
-		<ckeditor.wordcount.version>1.17.6</ckeditor.wordcount.version>
-		<ckeditor.a11ychecker.version>1.1.1</ckeditor.a11ychecker.version>
-		<ckeditor.balloonpanel.version>4.9.2</ckeditor.balloonpanel.version>
-		<ckeditor.image2.version>4.14.0</ckeditor.image2.version>
-		<ckeditor.html5video.version>1.2.1</ckeditor.html5video.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -308,6 +301,11 @@
 			<!-- Newer versions of this only compatible with FontAwesome 5 -->
 			<!-- Might be able to pass icon list to newer versions -->
 			<version>1.4.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars.npm</groupId>
+			<artifactId>flatpickr</artifactId>
+			<version>4.6.3</version>
 		</dependency>
 	</dependencies>
 	<profiles>

@@ -32,7 +32,7 @@
     #navBarOnClick( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "gradeForm" "")
     ## confirmation
     #if ($!gradingDone)
-        <div class="success">
+        <div class="sak-banner-success">
             $!tlang.getString("saved_grading")
         </div>
     #end
@@ -221,31 +221,22 @@
         </table>
 
         ## show or hide assignment instruction and attachment
-        #if ($assignment_expand_flag)
+        <div id="assignamentInstructionPanel">
             <p class="discTria">
-                <a href="javascript:void(0)" onclick="ASN.submitForm( 'gradeForm', 'hide_instruction', null, null ); return false;">
-                    <img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("gradingsub.opecliass")" border="0" width="13" height="13" align="top"/>
+                <a href="javascript:void(0)" onclick="ASN.toggleAssignamentInstructionPanel();">
+                    <img id="expandAssignamentInstruction" src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("gen.clocli")" border="0" width="13" height="13" align="top"/>
+                    <img id="collapseAssignamentInstruction" style="display: none;" src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("gradingsub.opecliass")" border="0" width="13" height="13" align="top"/>
+                    $tlang.getString("gen.assinf")
                 </a>
-                $tlang.getString("gen.assinf")
             </p>
-        #else
-            <p class="discTria">
-                <a href="javascript:void(0)" onclick="ASN.submitForm( 'gradeForm', 'show_instruction', null, null ); return false;">
-                    <img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("gen.clocli")" border="0" width="13" height="13" align="top"/>
-                </a>
-                $tlang.getString("gen.assinf")
-            </p>
-        #end
-        #if ($assignment_expand_flag)
-            #if (!$assignment.Instructions.isEmpty())
-                <div class="textPanel">$formattedText.escapeHtmlFormattedText($assignment.Instructions)</div>
-            #end
-
-            ## Assignment Attachments
-            #attachmentFragment($assignment.Attachments $assignmentAttachmentReferences $!decoratedUrlMap false)
-        #end
-        ## show the assignment content
-
+            <div id="assignamentInstructionPanelContent" style="display: none;">
+                <p>$formattedText.escapeHtmlFormattedText($assignment.Instructions)</p>
+                ## Assignment Attachments
+                #attachmentFragment($assignment.Attachments $assignmentAttachmentReferences $!decoratedUrlMap false)
+                ##end
+                ## show the assignment content
+            </div>
+        </div>
         #supplementItems($!allowViewModelAnswer $!allowReadAssignmentNoteItem $!allowViewAllPurposeItem $!assignmentModelAnswerItem $!assignmentNoteItem $!assignmentAllPurposeItem)
 
         #if ($!hasAssociatedRubric)
@@ -352,6 +343,7 @@
                 tool-id="sakai.assignment"
                 entity-id="$assignment.Id"
                 evaluated-item-id="$submission.Id"
+                evaluated-item-owner-id="$submitterId"
 
                 #if($!rbcs-state-details && "$!rbcs-state-details" != "")
                 state-details='$rbcs-state-details'
@@ -390,11 +382,10 @@
                         </p>
                     #elseif ($gradeType == 3)
                         <p class="shorttext">
-                            <label for="grade">$tlang.getString("gen.gra2")
-                                #if($assignment.getAllowPeerAssessment())
-                                    <img id="infoImg" title="$tlang.getString('peerassessment.peerGradeInfo')" src="/library/image/silk/information.png" onclick="$('#peerReviewInfo').show();"/>
-                                #end
-                            </label>
+                            <label for="grade">$tlang.getString("gen.gra2")</label>
+                            #if($assignment.getAllowPeerAssessment())
+                                <a id="infoImg" href="#"  class="fa fa-info-circle" data-toggle="popover" data-placement="auto" data-content="$tlang.getString('peerassessment.peerGradeInfo')"></a>
+                            #end
                             <input type="text" name="$name_grade" size="5" maxlength="11" value="$!value_grade" id="grade" onkeypress="return ASN.handleEnterKeyPress(event);"/>
                             <span class="text-info">($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))</span>
 

@@ -140,8 +140,8 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
-import org.sakaiproject.util.comparator.AuthzGroupIdComparator;
 import org.sakaiproject.util.comparator.GroupTitleComparator;
+import org.sakaiproject.util.comparator.RoleIdComparator;
 
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 import org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation;
@@ -6443,7 +6443,7 @@ public class DiscussionForumTool {
   private List sortRoles(Set roles) {
 	  final List rolesList = new ArrayList();
 	  rolesList.addAll(roles);
-	  Collections.sort(rolesList, new AuthzGroupIdComparator());
+	  Collections.sort(rolesList, new RoleIdComparator());
 	  return rolesList;
   }
   /**
@@ -6538,7 +6538,7 @@ public class DiscussionForumTool {
   	PermissionLevel contributorLevel = permissionLevelManager.getDefaultContributorPermissionLevel();
   	  	
   	StringBuilder sBuffer = new StringBuilder();  	
-  	sBuffer.append("<script type=\"text/javascript\">\n");   	  	
+  	sBuffer.append("<script>\n");
   	sBuffer.append("var ownerLevelArray = " + ownerLevel + ";\n");
   	sBuffer.append("var authorLevelArray = " + authorLevel + ";\n");
   	sBuffer.append("var noneditingAuthorLevelArray = " + noneditingAuthorLevel + ";\n");
