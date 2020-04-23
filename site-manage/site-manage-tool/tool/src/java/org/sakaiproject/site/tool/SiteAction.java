@@ -1854,6 +1854,7 @@ public class SiteAction extends PagedResourceActionII {
 			String workspace = SiteService.getUserSiteId(user);
 			// Are we attempting to softly delete a site.
 			boolean softlyDeleting = ServerConfigurationService.getBoolean("site.soft.deletion", true);
+			boolean hardDeleting = false;
 			if (removals != null && removals.length != 0) {
 				for (int i = 0; i < removals.length; i++) {
 					String id = (String) removals[i];
@@ -1866,6 +1867,7 @@ public class SiteAction extends PagedResourceActionII {
 								//check site isn't already softly deleted
 								if(softlyDeleting && removeSite.isSoftlyDeleted()) {
 									softlyDeleting = false;
+									hardDeleting = true;
 								}
 								remove.add(removeSite);
 							} catch (IdUnusedException e) {
@@ -1885,17 +1887,17 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			context.put("removals", remove);
 
-			boolean hardlyDeleting = false;
 			//check if hard deletes are wanted
 			if(StringUtils.equalsIgnoreCase((String)state.getAttribute(STATE_HARD_DELETE), Boolean.TRUE.toString())) {
 				//SAK-29678 - If it's hard deleted, it's not soft deleted.
 				softlyDeleting = false;
-				hardlyDeleting =true;
+				hardDeleting =true;
 			}
 			
 			//check if soft deletes are activated
 			context.put(STATE_SOFT_DELETE, softlyDeleting);
-			context.put(STATE_HARD_DELETE, hardlyDeleting);
+			context.put(STATE_HARD_DELETE, hardDeleting);
+			state.setAttribute(STATE_HARD_DELETE, String.valueOf(hardDeleting));
 
 			return (String) getContext(data).get("template") + TEMPLATE[8];
 		case 10:
@@ -5512,11 +5514,6 @@ public class SiteAction extends PagedResourceActionII {
 			hardDelete = true;
 			state.removeAttribute(STATE_HARD_DELETE);
 		}
-		boolean softDelete = false;
-		if(StringUtils.equalsIgnoreCase((String)state.getAttribute(STATE_SOFT_DELETE), Boolean.TRUE.toString())) {
-			softDelete = true;
-			state.removeAttribute(STATE_SOFT_DELETE);
-		}
 		if (!chosenList.isEmpty()) {
 			
 			for (ListIterator i = chosenList.listIterator(); i.hasNext();) {
@@ -5532,7 +5529,7 @@ public class SiteAction extends PagedResourceActionII {
 						log.debug("Removed site: " + site.getId());
 
 						// As we do not want to introduce Rubrics dependencies in the Kernel, delete the Site Rubrics here.
-						if (hardDelete || (!softDelete && !hardDelete)) {
+						if (hardDelete) {
 							try {
 								rubricsService.deleteSiteRubrics(site.getId());
 							} catch(Exception ex) {
