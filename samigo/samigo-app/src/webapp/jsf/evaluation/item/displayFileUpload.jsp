@@ -42,4 +42,10 @@ should be included in file importing DeliveryMessages
         </h:column>
       </h:dataTable>
 
-
+      <h:panelGrid rendered="#{delivery.feedbackComponent.showItemLevel && question.feedbackIsNotEmpty}">
+        <h:panelGroup>
+         <h:outputLabel for="feedSC" styleClass="answerkeyFeedbackCommentLabel" value="#{commonMessages.feedback}: " />
+         <h:outputText id="feedSC" value="#{question.feedback}" escape="false" />
+        </h:panelGroup>
+        <h:outputText value=" " />
+      </h:panelGrid>
