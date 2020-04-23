@@ -2295,6 +2295,11 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	  }
   }
   public String processPvtMsgPreviewReplyBack(){
+	  for (MembershipItem membershipItem : totalComposeToList) {
+	    if (membershipItem.getUser() != null && membershipItem.getUser().getId().equals(getDetailMsg().getPreviewReplyTmpMsg().getMsg().getCreatedBy())) {
+	      selectedComposeToList.remove(membershipItem.getId());
+	    }
+	  }
 	  this.setDetailMsg(getDetailMsg().getPreviewReplyTmpMsg());
 	  return MESSAGE_REPLY_PG;
   }
