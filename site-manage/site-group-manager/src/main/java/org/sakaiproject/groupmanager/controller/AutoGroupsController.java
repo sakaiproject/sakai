@@ -340,6 +340,8 @@ public class AutoGroupsController {
                 String groupPrefix = autoGroupsForm.getGroupTitleByGroup();
                 int groupNumber = autoGroupsForm.getGroupNumberByGroup();
                 int groupSize = filteredMembers.size() / groupNumber;
+                int remainingUsers = filteredMembers.size() % groupNumber;
+
                 // Use one, two or three digits to represent the suffix depending on the size of the number of groups, %01d %02d or %03d
                 String indexFormat = String.format("%%0%dd", String.valueOf(groupNumber).length());
                 for (int groupIndex = 1 ; groupIndex <= groupNumber; groupIndex++) {
@@ -347,6 +349,13 @@ public class AutoGroupsController {
                     List<String> randomMemberList = new ArrayList<String>();
                     List<Member> memberSubList = filteredMembers.stream().limit(groupSize).collect(Collectors.toList());
                     filteredMembers.removeAll(memberSubList);
+
+                    // Distribute the rest of the users in the first groups, we can take the first as they are already randomized. 
+                    if (groupIndex <= remainingUsers && !filteredMembers.isEmpty()) {
+                        memberSubList.add(filteredMembers.get(0));
+                        filteredMembers.remove(0);
+                    }
+
                     // If there are remaining members, assign them to the last group.
                     if (groupIndex == groupNumber && !filteredMembers.isEmpty()) {
                         memberSubList.addAll(filteredMembers);
