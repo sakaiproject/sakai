@@ -1136,6 +1136,11 @@
 
         <!-- Frame & related tags -->
         <tag name="iframe" action="validate">
+            <attribute name="allow">
+                <regexp-list>
+                    <regexp name="anything"/>
+                </regexp-list>
+            </attribute>
             <attribute name="height"/>
             <attribute name="width"/>
             <attribute name="frameborder">
