@@ -192,12 +192,12 @@
 					<h:graphicImage url="/images/silk/date_delete.png" title="#{msgs.topic_restricted_message}" alt="#{msgs.topic_restricted_message}" rendered="#{ForumTool.selectedTopic.topic.availability == 'false'}" style="margin-right:.5em"/>
 					<h:graphicImage url="/images/silk/lock.png" alt="#{msgs.cdfm_forum_locked}" rendered="#{ForumTool.selectedForum.forum.locked == 'true' || ForumTool.selectedTopic.topic.locked == 'true'}" style="margin-right:.5em"/>
 					<%-- Rubrics marker --%>
-					<h:panelGroup rendered="#{ForumTool.selectedForum.hasRubric == 'true'}" >
+					<h:panelGroup rendered="#{ForumTool.selectedTopic.hasRubric == 'true'}" >
 					  <sakai-rubric-student-preview-button
 						  token="<h:outputText value="#{ForumTool.rbcsToken}" />"
 						  display="icon"
 						  tool-id="sakai.gradebookng"
-						  entity-id="<h:outputText value="#{ForumTool.selectedForum.gradeAssign}" />">
+						  entity-id="<h:outputText value="#{ForumTool.selectedTopic.gradeAssign}" />">
 					  </sakai-rubric-student-preview-button>
 					</h:panelGroup>
 					<h:outputText value="#{ForumTool.selectedTopic.topic.title}" styleClass="title"/>

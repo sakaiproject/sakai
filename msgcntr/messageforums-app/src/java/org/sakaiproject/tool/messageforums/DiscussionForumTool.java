@@ -716,6 +716,8 @@ public class DiscussionForumTool {
             if (decoTopic != null) decoForum.addTopic(decoTopic);
           }
 
+          String forumDefaultAssignName = forum.getDefaultAssignName();
+
           //iterate over all topics in the decoratedForum to add the unread message
           //counts to update the sypnoptic tool
           for (DiscussionTopicBean dTopicBean : decoForum.getTopics()) {
@@ -723,6 +725,8 @@ public class DiscussionForumTool {
             if (uiPermissionsManager.isRead(dTopicBean.getTopic(), decoForum.getForum(), userId)) {
                 unreadMessagesCount += dTopicBean.getUnreadNoMessages();
             }
+
+            setTopicGradeAssign(dTopicBean, forumDefaultAssignName);
           }
         }
 
@@ -740,6 +744,17 @@ public class DiscussionForumTool {
     //update synoptic info for forums only:
     setForumSynopticInfoHelper(userId, getSiteId(), unreadMessagesCount, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
     return forums;
+  }
+
+  public void setTopicGradeAssign(DiscussionTopicBean bean, String defaultGradeAssign) {
+
+    if (StringUtils.isNotEmpty(bean.getTopic().getDefaultAssignName())) {
+      bean.setGradeAssign(bean.getTopic().getDefaultAssignName());
+    } else {
+      if (StringUtils.isNotEmpty(defaultGradeAssign)) {
+        bean.setGradeAssign(defaultGradeAssign);
+      }
+    }
   }
   
   public void setForumSynopticInfoHelper(String userId, String siteId,
@@ -2812,6 +2827,8 @@ public class DiscussionForumTool {
 
 	  Map msgIdReadStatusMap = forumManager.getReadStatusForMessagesWithId(msgIds, getUserId());
 
+	  String forumDefaultAssignName = forum.getDefaultAssignName();
+
 	  Iterator iter = temp_topics.iterator();
 	  while (iter.hasNext())
 	  {
@@ -2857,6 +2874,8 @@ public class DiscussionForumTool {
 				  decoTopic.setTotalNoMessages(forumManager.getTotalViewableMessagesWhenMod(topic));
 				  decoTopic.setUnreadNoMessages(forumManager.getNumUnreadViewableMessagesWhenMod(topic));
 			  }
+
+			  setTopicGradeAssign(decoTopic, forumDefaultAssignName);
 
 			  decoForum.addTopic(decoTopic);
 		  }
@@ -3160,6 +3179,8 @@ public class DiscussionForumTool {
     		decoTopic.setTotalNoMessages(forumManager.getTotalViewableMessagesWhenMod(topic));
     		decoTopic.setUnreadNoMessages(forumManager.getNumUnreadViewableMessagesWhenMod(topic));
     	}
+
+        setTopicGradeAssign(decoTopic, selectedForum.getForum().getDefaultAssignName());
 
     	Iterator iter = temp_messages.iterator();
 
