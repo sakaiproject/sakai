@@ -13,12 +13,9 @@
 
 package org.sakaiproject.datemanager.api;
 
-import java.time.Instant;
 import java.util.Locale;
-import java.util.TimeZone;
 
 import org.json.simple.JSONArray;
-
 import org.sakaiproject.datemanager.api.model.DateManagerValidation;
 
 public interface DateManagerService {
