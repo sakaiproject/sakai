@@ -193,6 +193,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 	}
 	
 	private String formatToUserInstantFormat(Instant instant) {
+		if (instant == null) return "";
 		ZonedDateTime userDate = ZonedDateTime.ofInstant(instant, userTimeService.getLocalTimeZone().toZoneId());
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DateManagerConstants.DATEPICKER_DATETIME_FORMAT);
 		String text = userDate.format(formatter);
