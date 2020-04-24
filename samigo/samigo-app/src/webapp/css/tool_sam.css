@@ -1416,6 +1416,10 @@ input[type='reset'].linearButton {
 	padding: 6px 12px;
 }
 
+.MathJax_Display {
+  text-align: left !important;
+}
+
 .input-group-btn button.multiselect-clear-filter{
 	padding: 6px 12px;
 	font-size: 14px;
