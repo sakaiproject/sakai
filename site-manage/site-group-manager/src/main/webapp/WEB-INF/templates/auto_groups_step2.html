@@ -43,17 +43,17 @@
             <table class="table table-hovered table-bordered table-striped">
             <thead>
               <tr>
-                <th><input type="checkbox" id="group-manager-select-all-sections" th:text="| #{autogroups.step2.table.selectallnone}|"/></th>
+                <th><input type="checkbox" id="group-manager-select-all-sections"/><label for="group-manager-select-all-sections" th:text="| #{autogroups.step2.table.selectallnone}|"></label></th>
                 <th th:text="#{autogroups.step2.table.sectionroster}">Section/Roster</th>
               </tr>
             </thead>
             <tbody>
               <tr th:each="section : ${sectionList}">
-                <td><input type="checkbox" name="selectedSectionList" th:field="*{selectedSectionList}" th:value="${section.id}"/></td>
+                <td><input th:id="${section.id}" type="checkbox" name="selectedSectionList" th:field="*{selectedSectionList}" th:value="${section.id}"/></td>
                 <td><label th:for="${section.id}" th:text="${section.title}"></label></td>
               </tr>
               <tr>
-                <td><input type="checkbox" name="useManuallyAddedUsers" th:field="*{useManuallyAddedUsers}"/></td>
+                <td><input id="useManuallyAddedUsers" type="checkbox" name="useManuallyAddedUsers" th:field="*{useManuallyAddedUsers}"/></td>
                 <td><label for="useManuallyAddedUsers" th:text="#{autogroups.manually.added}"></label></td>
               </tr>
             </tbody>
