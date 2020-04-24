@@ -188,7 +188,7 @@ public class GroupController {
 
         // Add the attributes to the model
         model.addAttribute("groupForm", groupForm);
-        model.addAttribute("siteRoleList", site.getRoles());
+        model.addAttribute("siteRoleList", site.getRoles().stream().filter(role -> !role.getId().startsWith(".")).collect(Collectors.toList()));
         model.addAttribute("joinableSetList", joinableSetList);
         model.addAttribute("siteMemberList", siteMemberList);
         model.addAttribute("groupList", groupList);
