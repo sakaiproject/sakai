@@ -1,7 +1,7 @@
-import {RubricsElement} from "./rubrics-element.js";
-import {html} from "/webcomponents/assets/lit-element/lit-element.js";
-import {SakaiRubricsLanguage, tr} from "./sakai-rubrics-language.js";
-import {SakaiRubricsHelpers} from "./sakai-rubrics-helpers.js";
+import { RubricsElement } from "./rubrics-element.js";
+import { html } from "/webcomponents/assets/lit-element/lit-element.js";
+import { SakaiRubricsLanguage, tr } from "./sakai-rubrics-language.js";
+import { SakaiRubricsHelpers } from "./sakai-rubrics-helpers.js";
 
 class SakaiRubricStudentButton extends RubricsElement {
 
@@ -11,6 +11,7 @@ class SakaiRubricStudentButton extends RubricsElement {
 
     this.hidden = true;
     this.instructor = false;
+    this.forcePreview = false;
     this.i18nPromise = SakaiRubricsLanguage.loadTranslations();
   }
 
@@ -20,9 +21,10 @@ class SakaiRubricStudentButton extends RubricsElement {
       token: String,
       entityId: { attribute: "entity-id", type: String },
       toolId: { attribute: "tool-id", type: String },
-      evaluatedItemId: { attribute: "evaluated-item-id", type: String},
+      evaluatedItemId: { attribute: "evaluated-item-id", type: String },
       hidden: Boolean,
       instructor: Boolean,
+      forcePreview: { attribute: "force-preview", type: Boolean },
     };
   }
 
@@ -51,13 +53,12 @@ class SakaiRubricStudentButton extends RubricsElement {
   }
 
   showRubric(e) {
-    this.showRubricLightbox(undefined, {"tool-id": this.toolId, "entity-id": this.entityId, "evaluated-item-id": this.evaluatedItemId, "instructor": this.instructor}, e.target);
+    this.showRubricLightbox(undefined, { "tool-id": this.toolId, "entity-id": this.entityId, "evaluated-item-id": this.evaluatedItemId, "instructor": this.instructor, "force-preview": this.forcePreview }, e.target);
   }
 
   setHidden() {
 
-    SakaiRubricsHelpers.get("/rubrics-service/rest/rubric-associations/search/by-tool-item-ids", "Bearer " + this.token, { params: {toolId: this.toolId, itemId: this.entityId }})
-    .then(data => {
+    SakaiRubricsHelpers.get("/rubrics-service/rest/rubric-associations/search/by-tool-item-ids", "Bearer " + this.token, { params: { toolId: this.toolId, itemId: this.entityId } }).then(data => {
 
       const association = data._embedded["rubric-associations"][0];
 

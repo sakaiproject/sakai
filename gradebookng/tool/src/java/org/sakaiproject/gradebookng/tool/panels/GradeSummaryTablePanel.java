@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *             http://opensource.org/licenses/ecl2
+ * http://opensource.org/licenses/ecl2
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -399,7 +399,7 @@ public class GradeSummaryTablePanel extends BasePanel {
 		} else {
 			GradeDefinition gradeDefinition = businessService.getGradeForStudentForItem(studentId, assignment.getId());
 			if (assignment.isExternallyMaintained() && gradeDefinition.getGrade() == null) {
-				sakaiRubricButton.setVisible(false);
+				sakaiRubricButton.add(AttributeModifier.replace("force-preview", true));
 			}
 		}
 	}
@@ -431,5 +431,5 @@ public class GradeSummaryTablePanel extends BasePanel {
 			"<script src=\"/rubrics-service/webcomponents/sakai-rubrics-utils.js" + version + "\"></script>"));
 		response.render(StringHeaderItem.forString(
 			"<script type=\"module\" src=\"/rubrics-service/webcomponents/rubric-association-requirements.js" + version + "\"></script>"));
-    }
+	}
 }
