@@ -20,7 +20,7 @@ rubrics.utils = rubrics.utils || {
       // Append elements in a loop to a DocumentFragment, so that the browser does
       // not re-render the document for each node
       while (child = tmp.firstChild) {
-          frag.appendChild(child);
+        frag.appendChild(child);
       }
       element.appendChild(frag); // Now, append all elements at once
       frag = tmp = null;
@@ -46,7 +46,7 @@ rubrics.utils = rubrics.utils || {
 
   closeLightbox() {
 
-    var el = rubrics.utils.windowRef.document.querySelector("sakai-rubric-student");
+    var el = rubrics.utils.lightbox.querySelector("sakai-rubric-student");
 
     el.removeAttribute("rubric-id");
     el.removeAttribute("preview");
@@ -79,7 +79,11 @@ rubrics.utils = rubrics.utils || {
       el.removeAttribute("instructor");
     } else {
       el.removeAttribute("rubric-id");
-      el.removeAttribute("preview");
+      if (attributes["force-preview"]) {
+        el.setAttribute("force-preview", "force-preview");
+      } else {
+        el.removeAttribute("force-preview");
+      }
       el.setAttribute("tool-id", attributes["tool-id"]);
       el.setAttribute("entity-id", attributes["entity-id"]);
       el.setAttribute("evaluated-item-id", attributes["evaluated-item-id"]);
@@ -96,7 +100,7 @@ rubrics.utils = rubrics.utils || {
         }
       }
     }, { once: true });
-  },
+  }
 };
 
 //export {rubricsUtils};
