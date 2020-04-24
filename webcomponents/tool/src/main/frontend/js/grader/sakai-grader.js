@@ -643,7 +643,7 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
     let formData = this.getFormData();
     if (formData.valid) {
-      formData.set("gradeOption", "release");
+      formData.set("gradeOption", "return");
       this.submitGradingData(formData);
     }
   }
