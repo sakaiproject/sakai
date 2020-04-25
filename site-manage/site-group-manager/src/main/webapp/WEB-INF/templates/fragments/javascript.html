@@ -132,8 +132,8 @@
     // Initialize tooltips
     $('[data-toggle="tooltip"]').tooltip();
 
-    //Disable the submit button
-    $('#create-group-submit-button').prop('disabled', true);
+    //Disable or enable the submit depending on the group title value.
+    $('#create-group-submit-button').prop('disabled', $('#groupTitle').val() === '');
 
     //Enable or disable the submit button depending on the required fields
     $('input[type="text"]').keyup(function() {
