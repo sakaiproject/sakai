@@ -1,82 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>How do I enable student peer review for an assignment?</title>
+<title>How do I set empty cells to zero for a single grade item?</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta content="sakai.assignment" name="description">
-<meta content="peer review, peer assessment, peer evaluation" name="search">
+<meta content="" name="description">
 <link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="/library/js/jquery/featherlight/0.4.0/featherlight.min.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="/library/js/jquery/featherlight/0.4.0/featherlight.min.js" type="text/javascript" charset="utf-8"></script><script type="text/javascript" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    includeWebjarLibrary('featherlight');
     $(document).ready(function(){
-      $("a[rel^='featherlight']").featherlight({
+      $("a.screensteps-image-zoom").featherlight({
         type: { image:true },
-    closeOnClick: 'anywhere'
+        closeOnClick: 'anywhere'
       }); 
     });   
-  </script>
+</script>
 </head>
 <body>
-  <div id="wrapper"><div id="article-content">
-<div id="article-header"><h1 class="article-title">How do I set empty cells to zero for a single grade item?</h1></div>
-<div id="article-description">  <div class="step-instructions screensteps-textblock">
-  <p><em>Note:  Gradebook does not include ungraded items in the course grade calculation. Empty cells could result in a higher course grade average for a student. To include a gradebook item in the course grade calculation, you must enter a grade of zero or higher.  </em></p>
+  <div><div>
+<div><h1 class="article-title">How do I set empty cells to zero for a single grade item?</h1></div>
+<div>    <div class="step-instructions screensteps-textblock">
+  <p><em>Note: Gradebook does not include ungraded items in the course grade calculation. Empty cells could result in a higher course grade average for a student. To include a Gradebook item in the course grade calculation, you must enter a grade of zero or higher.  </em></p>
 </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="go-to-gradebook">
-    <h2 id="go-to-gradebook" class="step-title screensteps-heading">Go to Gradebook.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Go to Gradebook.</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/002/300/667/original/b94f4424-1c24-4d77-a566-029ddd939132.png" alt="" height="140" width="201">
+    <img src="https://media.screensteps.com/image_assets/assets/003/300/411/original/92930616-4491-4d8c-88da-ab08c1560aed.png" alt="" height="107" width="204">
 </div>
  
-        <div class="step screensteps-section screensteps-depth-2" id="select-the-gradebook-tool-from-the-tool-menu-of-your-site">
-    <h3 id="select-the-gradebook-tool-from-the-tool-menu-of-your-site" class="step-title screensteps-heading">Select the Gradebook tool from the Tool Menu of your site.</h3>
-  </div>
+      <div class="step-instructions screensteps-textblock">
+  <p>Select the Gradebook tool from the Tool Menu of your site.</p>
+</div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="find-the-grade-item-for-which-you-want-to-assign-zeros-for-missed-work-select-the-dropdown-arrow-in-the-grade-item-s-column-header">
-    <h2 id="find-the-grade-item-for-which-you-want-to-assign-zeros-for-missed-work-select-the-dropdown-arrow-in-the-grade-item-s-column-header" class="step-title screensteps-heading">Find the grade item for which you want to assign zeros for missed work. Select the dropdown arrow in the grade item's column header. </h2>
+
+      <div class="step screensteps-section screensteps-depth-1" id="find-the-grade-item-for-which-you-want-to-assign-zeros-for-missed-work-select-the-dropdown-arrow-in-the-grade-item-s-column-header">
+    <h2 class="step-title screensteps-heading">Find the grade item for which you want to assign zeros for missed work. </h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/002/300/665/original/bcf65522-ae11-4b0c-b58f-edb22551543e.png" alt="" height="326" width="264">
+    <img src="https://media.screensteps.com/image_assets/assets/003/160/137/original/6f96a753-6610-4792-bd4e-12fd2f214972.png" alt="" height="337" width="223">
+</div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <p>Select the dropdown arrow in the grade item's column header. </p>
 </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="select-set-score-for-empty-cells">
-    <h2 id="select-set-score-for-empty-cells" class="step-title screensteps-heading">Select Set Score for Empty Cells.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1" id="select-set-score-for-empty-cells">
+    <h2 class="step-title screensteps-heading">Select Set Score for Empty Cells.</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/002/300/661/original/73b85877-3282-4f5d-819e-544ae54f0dfa.png" alt="" height="314" width="235">
+    <img src="https://media.screensteps.com/image_assets/assets/003/160/135/original/8f13534e-9d1a-4b68-ab8a-299c998dcac1.png" alt="" height="337" width="223">
 </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="enter-the-grade-you-will-assign-for-empty-cells">
-    <h2 id="enter-the-grade-you-will-assign-for-empty-cells" class="step-title screensteps-heading">Enter the grade you will assign for empty cells. </h2>
+
+      <div class="step screensteps-section screensteps-depth-1" id="enter-the-grade-you-will-assign-for-empty-cells">
+    <h2 class="step-title screensteps-heading">Enter the grade you will assign for empty cells. </h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/002/300/663/original/af00664a-0da3-4a92-b919-4f8b627390d9.png" alt="" height="356" width="605">
+    <img src="https://media.screensteps.com/image_assets/assets/003/160/143/original/e8c0c92a-4b28-4b56-a748-00638f5f4cfc.png" alt="" height="332" width="590">
 </div>
  
-        <div class="step screensteps-section screensteps-depth-2" id="use-the-group-section-dropdown-menu-to-select-a-specific-group-or-section-to-assign-this-grade-to-optional-then-enter-the-grade-you-will-assign-to-all-empty-cells-click-done-to-assign">
-    <h3 id="use-the-group-section-dropdown-menu-to-select-a-specific-group-or-section-to-assign-this-grade-to-optional-then-enter-the-grade-you-will-assign-to-all-empty-cells-click-done-to-assign" class="step-title screensteps-heading">Use the Group/Section dropdown menu to select a specific group or section to assign this grade to (optional).  Then, enter the grade you will assign to all empty cells. Click Done to assign.</h3>
-  </div>
+      <div class="step-instructions screensteps-textblock">
+  <p>Use the Group/Section drop-down menu to select a specific group or section to assign this grade to (optional). Then, enter the grade you will assign to all empty cells. Click Done to assign.</p>
+</div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="click-continue">
-    <h2 id="click-continue" class="step-title screensteps-heading">Click Continue.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Click Continue.</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/002/300/659/original/ac8ab0a3-0bfe-4f60-9882-32a6296931f6.png" alt="" height="203" width="604">
+    <img src="https://media.screensteps.com/image_assets/assets/003/160/141/original/f0776c18-6a64-415c-97ca-071d5d2e9f32.png" alt="" height="197" width="606">
 </div>
  
-        <div class="step screensteps-section screensteps-depth-2" id="click-continue-to-confirm-the-score-and-section-or-groups-you-have-chosen-to-update-these-scores-can-be-overwritten-later-if-a-student-turns-in-late-work-by-clicking-into-the-individual-student-s-grade-cell-and-entering-the-new-grade">
-    <h3 id="click-continue-to-confirm-the-score-and-section-or-groups-you-have-chosen-to-update-these-scores-can-be-overwritten-later-if-a-student-turns-in-late-work-by-clicking-into-the-individual-student-s-grade-cell-and-entering-the-new-grade" class="step-title screensteps-heading">Click Continue to confirm the score and section or groups you have chosen to update. These scores can be overwritten later if a student turns in late work by clicking into the individual student's grade cell and entering the new grade.</h3>
-  </div>
+      <div class="step-instructions screensteps-textblock">
+  <p>Click Continue to confirm the score and section or groups you have chosen to update. These scores can be overwritten later if a student turns in late work by clicking into the individual student's grade cell and entering the new grade.</p>
+</div>
  
   </div>
- 
+
+
 </div>
 </div></div>
 </body>

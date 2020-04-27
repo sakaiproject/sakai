@@ -1,36 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>How do I enable student peer review for an assignment?</title>
+<title>Search Administration</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta content="sakai.assignment" name="description">
-<meta content="peer review, peer assessment, peer evaluation" name="search">
+<meta content="" name="description">
 <link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="/library/js/jquery/featherlight/0.4.0/featherlight.min.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="/library/js/jquery/featherlight/0.4.0/featherlight.min.js" type="text/javascript" charset="utf-8"></script><script type="text/javascript" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    includeWebjarLibrary('featherlight');
     $(document).ready(function(){
-      $("a[rel^='featherlight']").featherlight({
+      $("a.screensteps-image-zoom").featherlight({
         type: { image:true },
-    closeOnClick: 'anywhere'
+        closeOnClick: 'anywhere'
       }); 
     });   
-  </script>
+</script>
 </head>
 <body>
-  <div id="wrapper"><div id="article-content">
-<div id="article-header"><h1 class="article-title">Search Administration</h1></div>
-<div id="article-description">  <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+  <div><div>
+<div><h1 class="article-title">Search Administration</h1></div>
+<div>    <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
   <p><em>Note: To complete the procedures in this document, you need to be assigned a role that has the necessary permissions.</em></p>
 <p>Admin users are allowed to administer all aspects of the search engine. These users are allowed access to the administration page of the Search Tool. This page gives these users access to parts of the Search Engine which is used by the Search Tool.</p>
 <p>The Administration page shows information about the indexing worker threads in the server cluster, and their state. It also shows information concerning the current index queue.</p>
 </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="go-to-search">
-    <h2 id="go-to-search" class="step-title screensteps-heading">Go to Search.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Go to Search.</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/000/998/599/original/e667822f-1021-446c-b152-79ac3c2c4301.png" alt="Go to Search." height="125" width="195">
+    <img src="https://media.screensteps.com/image_assets/assets/003/335/602/original/24a84ebc-c642-440a-b294-df5c71646760.png" alt="" height="112" width="195">
 </div>
  
       <div class="step-instructions screensteps-textblock">
@@ -39,21 +40,23 @@
 </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="click-admin">
-    <h2 id="click-admin" class="step-title screensteps-heading">Click Admin.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1" id="click-admin">
+    <h2 class="step-title screensteps-heading">Click Admin.</h2>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/000/998/601/original/914cb457-bcfd-4eff-b55e-8b90af68de57.png" class="screensteps-image-zoom">
-      <img src="https://media.screensteps.com/image_assets/assets/000/998/601/medium/914cb457-bcfd-4eff-b55e-8b90af68de57.png" alt="" height="152" width="855">
+    <a href="https://media.screensteps.com/image_assets/assets/003/335/608/original/00116d56-8e7c-4fad-aaf8-e8bc8fbcc0d0.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/335/608/medium/00116d56-8e7c-4fad-aaf8-e8bc8fbcc0d0.png" alt="" height="131" width="855">
     </a>
 </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="site-commands-rebuild-site-index-refresh-site-index">
-    <h2 id="site-commands-rebuild-site-index-refresh-site-index" class="step-title screensteps-heading">Site Functions (Rebuild Site Index, Refresh Site Index)</h2>
+
+      <div class="step screensteps-section screensteps-depth-1" id="site-commands-rebuild-site-index-refresh-site-index">
+    <h2 class="step-title screensteps-heading">Site Functions (Rebuild Site Index, Refresh Site Index)</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/000/998/598/original/58f289b4-0ff4-41da-ac32-94307aad7d9a.png" alt="" height="158" width="326">
+    <a href="https://media.screensteps.com/image_assets/assets/003/335/604/original/c03ea6ed-562c-4ef8-8094-995873073ed0.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/335/604/medium/c03ea6ed-562c-4ef8-8094-995873073ed0.png" alt="" height="126" width="855">
+    </a>
 </div>
  
       <div class="step-instructions screensteps-textblock">
@@ -67,11 +70,11 @@
 </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="index-functions">
-    <h2 id="index-functions" class="step-title screensteps-heading">Index Functions</h2>
+
+      <div class="step screensteps-section screensteps-depth-1" id="index-functions">
+    <h2 class="step-title screensteps-heading">Index Functions</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/001/166/784/original/2f9e72ab-d67d-4c0f-860a-23a87859d72f.png" alt="" height="85" width="396">
+    <img src="https://media.screensteps.com/image_assets/assets/003/335/605/original/c699e346-8d09-47cb-8762-eb80cdaf61d8.png" alt="" height="77" width="492">
 </div>
  
       <div class="step-instructions screensteps-textblock">
@@ -84,7 +87,7 @@
 </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="global-commands-rebuild-whole-index-refresh-whole-index-remove-lock">
-    <h3 id="global-commands-rebuild-whole-index-refresh-whole-index-remove-lock" class="step-title screensteps-heading">Global Commands (Rebuild Whole Index, Refresh Whole Index)</h3>
+    <h3 class="step-title screensteps-heading">Global Commands (Rebuild Whole Index, Refresh Whole Index)</h3>
       <div class="step-instructions screensteps-textblock">
   <p>Only instance administrators are allowed to perform Global operations. </p>
 <ul>
@@ -98,12 +101,12 @@
   </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="view-search-administration-information">
-    <h2 id="view-search-administration-information" class="step-title screensteps-heading">View Search administration information.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1" id="view-search-administration-information">
+    <h2 class="step-title screensteps-heading">View Search administration information.</h2>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/001/166/782/original/81cbd8c4-4309-471b-acc7-020eaf0d8f9f.png" class="screensteps-image-zoom">
-      <img src="https://media.screensteps.com/image_assets/assets/001/166/782/medium/81cbd8c4-4309-471b-acc7-020eaf0d8f9f.png" alt="View Search administration information." height="638" width="855">
+    <a href="https://media.screensteps.com/image_assets/assets/003/335/606/original/815045ee-8c84-495b-b09f-e6ba4c28ebb3.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/335/606/medium/815045ee-8c84-495b-b09f-e6ba4c28ebb3.png" alt="" height="588" width="855">
     </a>
 </div>
  
@@ -121,7 +124,8 @@
 </div>
  
   </div>
- 
+
+
 </div>
 </div></div>
 </body>

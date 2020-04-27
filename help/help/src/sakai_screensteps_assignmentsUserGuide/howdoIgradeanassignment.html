@@ -1,30 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>How do I enable student peer review for an assignment?</title>
+<title>How do I grade an assignment?</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta content="sakai.assignment" name="description">
-<meta content="peer review, peer assessment, peer evaluation" name="search">
+<meta content="" name="description">
 <link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="/library/js/jquery/featherlight/0.4.0/featherlight.min.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="/library/js/jquery/featherlight/0.4.0/featherlight.min.js" type="text/javascript" charset="utf-8"></script><script type="text/javascript" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    includeWebjarLibrary('featherlight');
     $(document).ready(function(){
-      $("a[rel^='featherlight']").featherlight({
+      $("a.screensteps-image-zoom").featherlight({
         type: { image:true },
-    closeOnClick: 'anywhere'
+        closeOnClick: 'anywhere'
       }); 
     });   
-  </script>
+</script>
 </head>
 <body>
-  <div id="wrapper"><div id="article-content">
-<div id="article-header"><h1 class="article-title">How do I grade an assignment?</h1></div>
-<div id="article-description">    <div class="step screensteps-section screensteps-depth-1" id="go-to-assignments">
-    <h2 id="go-to-assignments" class="step-title screensteps-heading">Go to Assignments.</h2>
+  <div><div>
+<div><h1 class="article-title">How do I grade an assignment?</h1></div>
+<div>    <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+  <p>This article describes how to grade an assignment using the new grader interface. For instructions on grading using the older interface, please see <a href="content.hlp?docId=howdoigradeanassignmentusingthelegacygradinginterface">How do I grade an assignment using the legacy grading interface?</a></p>
+</div>
+
+      <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Go to Assignments.</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/001/311/286/original/dcbfd4a2-a921-4bdb-8720-06e515d7a6b8.png" alt="Go to Assignments." height="127" width="199">
+    <img src="https://media.screensteps.com/image_assets/assets/003/267/444/original/a2c2c992-c886-4cab-adec-428bb495a894.png" alt="" height="119" width="208">
 </div>
  
       <div class="step-instructions screensteps-textblock">
@@ -32,26 +37,40 @@
 </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="select-the-assignment-to-grade">
-    <h2 id="select-the-assignment-to-grade" class="step-title screensteps-heading">Select the assignment to grade.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1" id="select-the-assignment-to-grade">
+    <h2 class="step-title screensteps-heading">Select the assignment to grade.</h2>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/001/311/271/original/65032b12-38eb-4b42-b3be-d32bdd58c54d.png" class="screensteps-image-zoom">
-      <img src="https://media.screensteps.com/image_assets/assets/001/311/271/medium/65032b12-38eb-4b42-b3be-d32bdd58c54d.png" alt="Select the assignment to grade." height="409" width="855">
+    <a href="https://media.screensteps.com/image_assets/assets/003/267/452/original/fd4f694b-6ba2-48b2-9df8-f15fa83ee525.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/267/452/medium/fd4f694b-6ba2-48b2-9df8-f15fa83ee525.png" alt="" height="283" width="855">
     </a>
 </div>
  
       <div class="step-instructions screensteps-textblock">
-  <p>Click the <strong>Grade</strong> link for the assignment you would like to grade.</p>
+  <p>Click the <strong>Grade </strong>link for the assignment you would like to grade.</p>
+<p>Note: If you have yet to choose a grading scale for an assignment, it will say <strong>View Submissions</strong> instead of Grade. </p>
 </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="select-a-student-to-grade">
-    <h2 id="select-a-student-to-grade" class="step-title screensteps-heading">Select a student to grade.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1" id="check-the-box-next-to-use-new-grader-to-grade-submissions">
+    <h2 class="step-title screensteps-heading">Check the box next to Use new Grader to grade submissions.</h2>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/001/311/273/original/dcdafb34-d335-4bc3-a9fc-7a50557c7719.png" class="screensteps-image-zoom">
-      <img src="https://media.screensteps.com/image_assets/assets/001/311/273/medium/dcdafb34-d335-4bc3-a9fc-7a50557c7719.png" alt="Select a student to grade." height="617" width="855">
+    <img src="https://media.screensteps.com/image_assets/assets/003/268/131/original/fdab6193-d26e-4256-acc8-e13f8aef55fa.png" alt="" height="125" width="473">
+</div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <p>The new Grader interface is the default setting, so this option may already be selected. </p>
+<p><em>Tip: If you open a submission to grade and don't see the new interface, try deselecting and then reselecting the option to use the new Grader.</em></p>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="select-a-student-to-grade">
+    <h2 class="step-title screensteps-heading">Select a student to grade.</h2>
+      <div class="image screensteps-image">
+    <a href="https://media.screensteps.com/image_assets/assets/003/268/141/original/0fd22daa-02e7-4bc4-aef0-f4c745acb94b.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/268/141/medium/0fd22daa-02e7-4bc4-aef0-f4c745acb94b.png" alt="" height="440" width="855">
     </a>
 </div>
  
@@ -61,46 +80,63 @@
 </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="navigate-submissions">
-    <h2 id="navigate-submissions" class="step-title screensteps-heading">Navigate submissions.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1" id="navigate-submissions">
+    <h2 class="step-title screensteps-heading">Navigate submissions.</h2>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/001/311/275/original/775415d8-3997-43dd-9540-de4997fa991a.png" class="screensteps-image-zoom">
-      <img src="https://media.screensteps.com/image_assets/assets/001/311/275/medium/775415d8-3997-43dd-9540-de4997fa991a.png" alt="Navigate submissions." height="272" width="855">
+    <a href="https://media.screensteps.com/image_assets/assets/002/351/582/original/43cf4a05-656f-43ef-aae0-fcae4a1ba7bc.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/002/351/582/medium/43cf4a05-656f-43ef-aae0-fcae4a1ba7bc.png" alt="" height="287" width="855">
     </a>
 </div>
  
       <div class="step-instructions screensteps-textblock">
-  <p>The navigation buttons at the top and bottom of the page allow you to quickly cycle through student submissions. You may use these buttons to jump to the <strong>Preview</strong>, <strong>Previous Ungraded</strong>, <strong>Next Ungraded</strong>, or <strong>Next</strong> student submission. Or, you can select <strong>Return to List</strong> to return to the full listing of all student submissions.</p>
-<p>Optionally, you may select the <strong>Navigate between students with submissions only </strong>check box to skip any students in the list without submissions.</p>
+  <p>The navigation options at the top right of the page allow you to quickly cycle through student submissions. You may use the next and previous arrows jump to the next or previous student submission. You may also use the drop-down menu to jump to any student in the list, or, you can select <strong>Return to List</strong> to return to the full listing of all student submissions.</p>
 </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="view-student-submission">
-    <h2 id="view-student-submission" class="step-title screensteps-heading">View student submission.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1" id="customize-grader-view">
+    <h2 class="step-title screensteps-heading">Customize grader view.</h2>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/001/311/284/original/6157e63c-7f2f-4815-b147-6c1e92725068.png" class="screensteps-image-zoom">
-      <img src="https://media.screensteps.com/image_assets/assets/001/311/284/medium/6157e63c-7f2f-4815-b147-6c1e92725068.png" alt="View student submission." height="612" width="855">
+    <a href="https://media.screensteps.com/image_assets/assets/003/268/145/original/922aea77-f037-4af4-ac4c-3ec2191120c7.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/268/145/medium/922aea77-f037-4af4-ac4c-3ec2191120c7.png" alt="" height="388" width="855">
     </a>
 </div>
  
       <div class="step-instructions screensteps-textblock">
-  <p>The student submission will be displayed at the top of the page.  </p>
-<ol>
-<li>The student's name, username, submission date, and graded status appear at the very top.</li>
-<li>Next, under "Assignment Submission" the student's inline submission text (if applicable) is shown.  </li>
-<li>Under "Submitted Attachments" any attached files will appear.  The filename as well as the the file size and submission date are also shown.  </li>
+  <p>Optionally, you may also click the <strong>Settings</strong> cog icon next to the assignment title to customize the grader view. This will allow you to select any of the following options:</p>
+<ul>
+<li>Navigate between students with submissions only</li>
+<li>Only show ungraded submissions</li>
+<li>Dock the grader on the left</li>
+<li>Please select a group </li>
+</ul>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="view-student-submission">
+    <h2 class="step-title screensteps-heading">View student submission.</h2>
+      <div class="image screensteps-image">
+    <a href="https://media.screensteps.com/image_assets/assets/003/268/149/original/f58ac75b-ce43-4839-9905-14b4b3a9c832.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/268/149/medium/f58ac75b-ce43-4839-9905-14b4b3a9c832.png" alt="" height="431" width="855">
+    </a>
+</div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <ol>
+<li>The student submission will be previewed on one side of the screen. </li>
+<li>The student's name and submission date are listed in the top of the grading pane, along with links to submitted inline text (if applicable) and any file attachments. Click on the <strong>Submitted Text</strong> link or the filename of an item under <strong>Submitted Attachments</strong> to preview that item on the other side of the screen.</li>
+<li>If you would like to download a copy of the student file, click on the filename above the preview area.</li>
 </ol>
-<p><em>Note: To view student file attachments, you will need to click on the filename to download and open the file.</em></p>
 </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="enter-grade">
-    <h2 id="enter-grade" class="step-title screensteps-heading">Enter grade.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1" id="enter-grade">
+    <h2 class="step-title screensteps-heading">Enter a grade.</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/001/311/278/original/759ecf1e-1a31-497a-8b19-77d74cfb6f18.png" alt="Enter grade." height="45" width="232">
+    <img src="https://media.screensteps.com/image_assets/assets/003/268/133/original/f82e2701-3b22-4961-a28e-2426691f52ee.png" alt="" height="38" width="231">
 </div>
  
       <div class="step-instructions screensteps-textblock">
@@ -108,38 +144,95 @@
 </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="enter-instructor-comments">
-    <h2 id="enter-instructor-comments" class="step-title screensteps-heading">Enter instructor comments.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1" id="rubric-grading">
+    <h2 class="step-title screensteps-heading">Rubric grading.</h2>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/001/311/280/original/1f49fb49-759f-48f3-bed1-3898f0f2748f.png" class="screensteps-image-zoom">
-      <img src="https://media.screensteps.com/image_assets/assets/001/311/280/medium/1f49fb49-759f-48f3-bed1-3898f0f2748f.png" alt="Enter instructor comments." height="417" width="855">
+    <a href="https://media.screensteps.com/image_assets/assets/003/268/151/original/a489a973-e389-4032-8a6a-0e1be977d6a5.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/268/151/medium/a489a973-e389-4032-8a6a-0e1be977d6a5.png" alt="" height="408" width="855">
     </a>
 </div>
  
       <div class="step-instructions screensteps-textblock">
-  <p>If you would like to include additional comments along with the grade, you may enter them into the rich text editor under the "Instructor Summary Comments" section.</p>
+  <p>If the assignment has a rubric associated with it, you will see a rubric icon next to the grade. </p>
+<ol>
+<li>Click on the icon to open the rubric.</li>
+<li>The rubric will open in a pop-up window where you can select the desired rating for each criteria. This window may be moved around or resized as needed. Notice that the number in the Grade field will update automatically with the points selected in the rubric.</li>
+</ol>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="enter-instructor-comments">
+    <h2 class="step-title screensteps-heading">Enter feedback comments.</h2>
+      <div class="image screensteps-image">
+    <a href="https://media.screensteps.com/image_assets/assets/003/268/137/original/35367933-0e82-4f66-bcff-2b6148c0ad95.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/268/137/medium/35367933-0e82-4f66-bcff-2b6148c0ad95.png" alt="" height="381" width="855">
+    </a>
+</div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <p>If you would like to include additional comments along with the grade, you may use the Rich Text Editor to provide instructor feedback.</p>
+<ol>
+<li>Select the <strong>Feedback Comment</strong> button.</li>
+<li>The Rich Text Editor will open in a pop-up window where you can enter the desired feedback. This window may be moved around or resized as needed. </li>
+<li>Select the <strong>Done</strong> button to save your feedback.</li>
+</ol>
+</div>
+ 
+        <div class="step screensteps-section screensteps-depth-2" id="once-you-have-saved-a-feedback-comment-a-green-circle-next-to-the-button-will-indicate-that-there-is-an-existing-comment">
+    <h3 class="step-title screensteps-heading">Once you have saved a feedback comment, a green circle next to the button will indicate that there is an existing comment.</h3>
+      <div class="image screensteps-image">
+    <img src="https://media.screensteps.com/image_assets/assets/003/268/135/original/b308449a-5e20-41f3-adb7-e12891d82404.png" alt="" height="59" width="199">
 </div>
  
   </div>
  
-    <div class="step screensteps-section screensteps-depth-1" id="return-an-attachment">
-    <h2 id="return-an-attachment" class="step-title screensteps-heading">Return an attachment.</h2>
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="return-an-attachment">
+    <h2 class="step-title screensteps-heading">Return an attachment.</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/001/311/282/original/f1be051d-5666-4caf-b0aa-301cfc5c05b7.png" alt="Return an attachment." height="178" width="316">
+    <img src="https://media.screensteps.com/image_assets/assets/003/268/147/original/9e80b9d7-8c30-4bea-804a-6a61b46fbe65.png" alt="" height="101" width="375">
 </div>
  
       <div class="step-instructions screensteps-textblock">
   <p>If you would like to return a file attachment to the student with additional feedback, click on the <strong>Add Attachments</strong> button to browse for and select a file.</p>
-<p><em>Note: If you have returned more than one attachment to a particular a student, you may also click on <strong>Previous Returned Attachments</strong> to expand that section and view any other attachments that you have returned for this assignment.</em></p>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="add-private-notes">
+    <h2 class="step-title screensteps-heading">Add private notes.</h2>
+      <div class="image screensteps-image">
+    <a href="https://media.screensteps.com/image_assets/assets/003/268/153/original/15d24273-f595-4b1e-9532-3f1f58dc9f0e.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/268/153/medium/15d24273-f595-4b1e-9532-3f1f58dc9f0e.png" alt="" height="381" width="855">
+    </a>
+</div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <p>If you would like to include additional information for other instructors or TAs, you may use the Rich Text Editor to provide instructor feedback. Students will not see these notes. They are only visible to users with grading permissions. </p>
+<ol>
+<li>Select the <strong>Private Notes</strong> button.</li>
+<li>The Rich Text Editor will open in a pop-up window where you can enter the desired feedback. This window may be moved around or resized as needed. </li>
+<li>Select the <strong>Done</strong> button to save your note.</li>
+</ol>
+</div>
+ 
+        <div class="step screensteps-section screensteps-depth-2" id="once-you-have-saved-a-private-note-a-green-circle-next-to-the-button-will-indicate-that-there-is-an-existing-comment">
+    <h3 class="step-title screensteps-heading">Once you have saved a private note, a green circle next to the button will indicate that there is an existing comment.</h3>
+      <div class="image screensteps-image">
+    <img src="https://media.screensteps.com/image_assets/assets/003/268/139/original/cde0ad4e-ce84-494d-83d1-68864db29586.png" alt="" height="56" width="158">
 </div>
  
   </div>
  
-    <div class="step screensteps-section screensteps-depth-1" id="allow-resubmissions">
-    <h2 id="allow-resubmissions" class="step-title screensteps-heading">Allow resubmissions.</h2>
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="allow-resubmissions">
+    <h2 class="step-title screensteps-heading">Allow resubmissions.</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/001/311/288/original/1cfbfcea-7114-4f02-96b2-acf4679158c9.png" alt="Allow resubmissions." height="104" width="661">
+    <img src="https://media.screensteps.com/image_assets/assets/003/268/155/original/77aea70a-3802-4542-8e4c-cae51de15689.png" alt="" height="128" width="382">
 </div>
  
       <div class="step-instructions screensteps-textblock">
@@ -148,36 +241,23 @@
 </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="save-grade">
-    <h2 id="save-grade" class="step-title screensteps-heading">Save grade.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1" id="save-grade">
+    <h2 class="step-title screensteps-heading">Save grade.</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/001/311/276/original/50911fb9-8c17-44d4-9575-1543c59a982c.png" alt="Save grade." height="43" width="638">
+    <img src="https://media.screensteps.com/image_assets/assets/003/268/143/original/7fa6e56e-88a3-45a6-b1fa-5097db177ad6.png" alt="" height="58" width="363">
 </div>
  
       <div class="step-instructions screensteps-textblock">
-  <p>If you are finished grading and would like to release the information to the student, click the <strong>Save and Release to Student</strong> button.</p>
-<p>Alternately, if you would like to save the grade but wait and release to the student at a later date, you may select the <strong>Save and Don't Release to Student</strong> button instead. </p>
+  <p>Select the <strong>Save</strong> button to save the grade and feedback. (This option does not release the grade to students.) </p>
+<p>If you are finished grading and would like to release the information to the student, click the <strong>Save and Release to Student</strong> button.</p>
+<p>If you want to discard your changes, click <strong>Cancel</strong>.</p>
 <p><em>Tip: Some faculty prefer to release all of the grades at one time when they have finished entering grades for the whole class.  </em></p>
 </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="navigate-submissions_1">
-    <h2 id="navigate-submissions_1" class="step-title screensteps-heading">Navigate submissions.</h2>
-      <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/001/311/290/original/a3d1bf6c-8060-43c6-a3f6-d5fa79e76683.png" class="screensteps-image-zoom">
-      <img src="https://media.screensteps.com/image_assets/assets/001/311/290/medium/a3d1bf6c-8060-43c6-a3f6-d5fa79e76683.png" alt="Navigate submissions." height="198" width="855">
-    </a>
-</div>
- 
-      <div class="step-instructions screensteps-textblock">
-  <p>The Navigate Submission buttons appear at both the top and bottom of the page. You may use these buttons to jump to the <strong>Preview</strong>, <strong>Previous Ungraded</strong>, <strong>Next Ungraded</strong>, or <strong>Next</strong> student submission. Or, you can select <strong>Return to List</strong> to return to the full listing of all student submissions.</p>
-<p>Optionally, you may select the <strong>Navigate between students with submissions only </strong>check box to skip any students in the list without submissions.</p>
-</div>
- 
-  </div>
- 
+
+
 </div>
 </div></div>
 </body>
