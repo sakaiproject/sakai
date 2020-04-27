@@ -372,6 +372,10 @@ sakai-rubric-student-comment {
 [class*="edit-popover"] {
     width: 400px;
 
+    .popover-content {
+        word-break: break-word;
+    }
+
     .buttons {
         text-align: right;
 
