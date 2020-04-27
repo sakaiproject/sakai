@@ -1,82 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>How do I enable student peer review for an assignment?</title>
+<title>How are grades calculated in Gradebook?</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta content="sakai.assignment" name="description">
-<meta content="peer review, peer assessment, peer evaluation" name="search">
+<meta content="" name="description">
 <link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="/library/js/jquery/featherlight/0.4.0/featherlight.min.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="/library/js/jquery/featherlight/0.4.0/featherlight.min.js" type="text/javascript" charset="utf-8"></script><script type="text/javascript" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    includeWebjarLibrary('featherlight');
     $(document).ready(function(){
-      $("a[rel^='featherlight']").featherlight({
+      $("a.screensteps-image-zoom").featherlight({
         type: { image:true },
-    closeOnClick: 'anywhere'
+        closeOnClick: 'anywhere'
       }); 
     });   
-  </script>
+</script>
 </head>
 <body>
-  <div id="wrapper"><div id="article-content">
-<div id="article-header"><h1 class="article-title">How are grades calculated in Gradebook?</h1></div>
-<div id="article-description">  <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+  <div><div>
+<div><h1 class="article-title">How are grades calculated in Gradebook?</h1></div>
+<div>    <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
   <p>Course grade calculations depend on your <em>Gradebook</em>'s organization and grade entry setting, points (described here) or percentages:</p>
 <ul>
 <li>
-<strong>No categories (default) </strong>- Each gradebook item is assigned a simple point value. The course grade is determined by the student's total score divided by the total points possible.</li>
+<strong>No categories (default) </strong>- Each Gradebook item is assigned a simple point value. The course grade is determined by the student's total score divided by the total points possible.</li>
 <li>
-<strong>Categories only</strong> - Categories are used to group gradebook items, where items are assigned a simple point or percentage value.  Similar to a gradebook with <strong>No categories</strong>, the course grade is determined by the student's total score divided by the total points possible. This structure provides the option to drop the lowest grade(s), keep the highest grade(s), or drop the highest grade(s) within a category.</li>
+<strong>Categories only</strong> - Categories are used to group Gradebook items, where items are assigned a simple point or percentage value.  Similar to a gradebook with <strong>No categories</strong>, the course grade is determined by the student's total score divided by the total points possible. This structure provides the option to drop the lowest grade(s), keep the highest grade(s), or drop the highest grade(s) within a category.</li>
 <li>
 <strong>Categories and weighting</strong>- Items are grouped into categories, where each category is assigned a percentage of the course grade.  The total score of all items in a category will comprise the category's percentage of the course grade. This structure provides the option to drop the lowest grade(s), keep the highest grade(s), or drop the highest grade(s) within a category.</li>
 </ul>
 </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="no-categories">
-    <h2 id="no-categories" class="step-title screensteps-heading">No categories</h2>
+
+      <div class="step screensteps-section screensteps-depth-1" id="no-categories">
+    <h2 class="step-title screensteps-heading">No Categories</h2>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/002/268/925/original/8b920122-c84a-4710-b8f6-5ef21265f82b.png" class="screensteps-image-zoom">
-      <img src="https://media.screensteps.com/image_assets/assets/002/268/925/medium/8b920122-c84a-4710-b8f6-5ef21265f82b.png" alt="" height="314" width="855">
+    <a href="https://media.screensteps.com/image_assets/assets/003/152/677/original/8b920122-c84a-4710-b8f6-5ef21265f82b.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/152/677/medium/8b920122-c84a-4710-b8f6-5ef21265f82b.png" alt="" height="314" width="855">
     </a>
 </div>
  
       <div class="step-instructions screensteps-textblock">
-  <p>In a default gradebook with <strong>No categories</strong>, course grades are calculated for each student by dividing the sum of their scores received for all graded items by the total points possible for those items.</p>
-<p>In the example pictured above, Student Five earned a total of 72 points out of 80 total points possible.  His course grade is 72/80 = 0.90 (90%).</p>
+  <p>In a default gradebook with <strong>No categories</strong>, course grades are calculated for each student by dividing the sum of the scores received for all graded items by the total points possible for those items.</p>
+<p>In the example pictured above, Student Five earned a total of 72 points out of 80 total points possible. This student's course grade is 72/80 = 0.90 (90%).</p>
 </div>
  
       <div class="step-instructions screensteps-textblock">
-  <p><em>Note: <strong>Ungraded</strong> items are <strong>not included</strong> in a student's course grade.  Leaving a grade entry blank reduces the total points possible by the point value of the ungraded item for that student.</em></p>
-<p><em>In the example pictured above, most students were graded out of <strong>80</strong> total points.  However, Student Three has not received a grade for Homework 2 (10 points possible).  Thus, her course grade is 59/<strong>70</strong> = 0.8429 (84.29%).</em></p>
+  <p><em>Note: <strong>Ungraded</strong> items are <strong>not included</strong> in a student's course grade. Leaving a grade entry blank reduces the total points possible by the point value of the ungraded item for that student.</em></p>
+<p><em>In the example pictured above, most students were graded out of <strong>80</strong> total points. However, Student Three has not received a grade for Homework 2 (10 points possible).  Thus, this student's course grade is 59/<strong>70</strong> = 0.8429 (84.29%).</em></p>
 </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="categories-only">
-    <h2 id="categories-only" class="step-title screensteps-heading">Categories only</h2>
+
+      <div class="step screensteps-section screensteps-depth-1" id="categories-only">
+    <h2 class="step-title screensteps-heading">Categories Only</h2>
       <div class="step-instructions screensteps-textblock">
   <p>With <strong>Categories only</strong>, course grades are calculated the same as in a gradebook with <strong>No categories</strong> (described above). However, if all items in a category have the same total point value, you can automatically drop the lowest or highest grades or keep the highest grades within that category. Dropped grades are omitted from the course grade calculation, and the total points possible in the category are reduced by the point value(s) of the omitted item(s).</p>
-<p>By using the <strong>Keep Highest</strong> option instead of <strong>Drop Lowest</strong> to drop the lowest grade(s), no grades will be dropped in the category until the number of items kept is exceeded.</p>
-<p>See below example calculations when grades in a category are dropped or kept.</p>
+<p>By using the <strong>Keep Highest</strong> option instead of the <strong>Drop Lowest</strong> to drop the lowest grade(s), no grades will be dropped in the category until the number of items kept is exceeded.</p>
+<p>See below for example calculations when grades in a category are dropped or kept.</p>
 </div>
  
       <div class="step-instructions screensteps-textblock">
   <p><em>Note: You must assign each item to a category for the item to be included in students' course grades.</em></p>
-<p><em>Grades can only be entered in gradebook items; you cannot enter grades into a category with no items.</em></p>
+<p><em>Grades can only be entered in Gradebook items; you cannot enter grades into a category with no items.</em></p>
 <p><em><strong>Ungraded</strong> items are <strong>not included</strong> in a student's course grade.  Leaving a grade entry blank reduces the total points possible by the point value of the ungraded item for that student.</em></p>
 </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="categories-with-dropped-grades">
-    <h3 id="categories-with-dropped-grades" class="step-title screensteps-heading">Categories with Drop Lowest/Highest</h3>
+    <h3 class="step-title screensteps-heading">Categories with Drop Lowest/Highest</h3>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/002/268/929/original/3346afd0-cafb-4617-a1a8-c8a42d305bc3.png" class="screensteps-image-zoom">
-      <img src="https://media.screensteps.com/image_assets/assets/002/268/929/medium/3346afd0-cafb-4617-a1a8-c8a42d305bc3.png" alt="" height="228" width="855">
+    <a href="https://media.screensteps.com/image_assets/assets/003/152/675/original/3346afd0-cafb-4617-a1a8-c8a42d305bc3.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/152/675/medium/3346afd0-cafb-4617-a1a8-c8a42d305bc3.png" alt="" height="228" width="855">
     </a>
 </div>
  
       <div class="step-instructions screensteps-textblock">
-  <p>Pictured above is a gradebook with two categories: <strong>Assignments</strong> and <strong>Quizzes</strong>.  The <strong>Assignments</strong> category drops the lowest grade, and includes two assignments, each worth 10 points. The <strong>Quizzes</strong> category includes <strong>Quiz 1</strong> (10 points) and <strong>Quiz 2</strong> (20 points).  There are <strong>40 points</strong> possible because only one assignment and the two quiz grades are included in the course grade calculation.</p>
+  <p>Pictured above is a gradebook with two categories: <strong>Assignments</strong> and <strong>Quizzes</strong>. The <strong>Assignments</strong> category drops the lowest grade, and includes two assignments, each worth 10 points. The <strong>Quizzes</strong> category includes <strong>Quiz 1</strong> (10 points) and <strong>Quiz 2</strong> (20 points).  There are <strong>40 points</strong> possible because only one assignment and the two quiz grades are included in the course grade calculation.</p>
 <p>In our example, <strong>Student Five</strong> received the following grades:</p>
 <p><strong>Assignments:</strong></p>
 <ul>
@@ -101,23 +102,23 @@
   </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="categories-with-keep-highest">
-    <h3 id="categories-with-keep-highest" class="step-title screensteps-heading">Categories with Keep Highest</h3>
+    <h3 class="step-title screensteps-heading">Categories with Keep Highest</h3>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/002/268/931/original/59d957e5-6077-423f-95ce-87c1e0086a73.png" class="screensteps-image-zoom">
+    <a href="https://media.screensteps.com/image_assets/assets/002/268/931/original/59d957e5-6077-423f-95ce-87c1e0086a73.png" class="screensteps-image-zoom">
       <img src="https://media.screensteps.com/image_assets/assets/002/268/931/medium/59d957e5-6077-423f-95ce-87c1e0086a73.png" alt="" height="133" width="855">
     </a>
 </div>
  
       <div class="step-instructions screensteps-textblock">
-  <p>Pictured above is a gradebook with two categories: <strong>Assignments</strong> and <strong>Quizzes</strong>.  The <strong>Assignments</strong> category keeps the two highest grades, and includes three assignments, each worth 10 points. The <strong>Quizzes</strong> category includes <strong>Quiz 1</strong> (10 points) and <strong>Quiz 2</strong> (20 points).  There are <strong>50 points</strong> possible because only two assignments and the two quiz grades are included in the course grade calculation.</p>
-<p>In our example below, we will use the <strong>Keep Highest</strong> option versus <strong>Drop Lowest</strong> to show how it  affects <strong>Student Five's </strong>course grade.<strong>  </strong> </p>
+  <p>Pictured above is a gradebook with two categories: <strong>Assignments</strong> and <strong>Quizzes</strong>. The <strong>Assignments</strong> category keeps the two highest grades, and includes three assignments, each worth 10 points. The <strong>Quizzes</strong> category includes <strong>Quiz 1</strong> (10 points) and <strong>Quiz 2</strong> (20 points). There are <strong>50 points</strong> possible because only two assignments and the two quiz grades are included in the course grade calculation.</p>
+<p>In our example below, we will use the <strong>Keep Highest</strong> option versus <strong>Drop Lowest</strong> to show how it affects <strong>Student Five's </strong>course grade.<strong>  </strong> </p>
 </div>
  
         <div class="step screensteps-section screensteps-depth-3" id="before-all-grades-are-entered-for-student-five-keep-highest-2-assignments">
-    <h4 id="before-all-grades-are-entered-for-student-five-keep-highest-2-assignments" class="step-title screensteps-heading">Before all grades are entered for Student Five - Keep Highest 2 Assignments</h4>
+    <h4 class="step-title screensteps-heading">Before All Grades Are Entered for Student Five - Keep Highest 2 Assignments</h4>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/002/268/934/original/ed0f6bf1-c976-40f8-a47c-bb4bc476f1d1.png" class="screensteps-image-zoom">
-      <img src="https://media.screensteps.com/image_assets/assets/002/268/934/medium/ed0f6bf1-c976-40f8-a47c-bb4bc476f1d1.png" alt="" height="129" width="855">
+    <a href="https://media.screensteps.com/image_assets/assets/003/152/673/original/ed0f6bf1-c976-40f8-a47c-bb4bc476f1d1.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/152/673/medium/ed0f6bf1-c976-40f8-a47c-bb4bc476f1d1.png" alt="" height="129" width="855">
     </a>
 </div>
  
@@ -148,15 +149,15 @@
   </div>
  
         <div class="step screensteps-section screensteps-depth-3" id="after-all-grades-are-entered-for-student-five-keep-highest-2-assignments">
-    <h4 id="after-all-grades-are-entered-for-student-five-keep-highest-2-assignments" class="step-title screensteps-heading">After all grades are entered for Student Five - Keep Highest 2 Assignments</h4>
+    <h4 class="step-title screensteps-heading">After All Grades Are Entered for Student Five - Keep Highest 2 Assignments</h4>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/002/268/937/original/d8197d37-0b0e-4bd6-b63f-2b0b091c08af.png" class="screensteps-image-zoom">
-      <img src="https://media.screensteps.com/image_assets/assets/002/268/937/medium/d8197d37-0b0e-4bd6-b63f-2b0b091c08af.png" alt="" height="129" width="855">
+    <a href="https://media.screensteps.com/image_assets/assets/003/152/674/original/d8197d37-0b0e-4bd6-b63f-2b0b091c08af.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/152/674/medium/d8197d37-0b0e-4bd6-b63f-2b0b091c08af.png" alt="" height="129" width="855">
     </a>
 </div>
  
       <div class="step-instructions screensteps-textblock">
-  <p>Now we enter the third assignment grade.  The highest two assignment grades are kept, so the lowest assignment grade (<strong>Assignment 3</strong>) is dropped:</p>
+  <p>Now we enter the third assignment grade. The highest two assignment grades are kept, so the lowest assignment grade (<strong>Assignment 3</strong>) is dropped:</p>
 <p><strong>Assignments:</strong></p>
 <ul>
 <li>
@@ -178,7 +179,7 @@
 <li>46/50 = 0.92</li>
 </ul>
 <p>Keeping the highest grades instead of dropping the lowest grades ensures that Student Five's grade is calculated out of the same number of total points (<strong>50 points</strong>) both before and after entering the third assignment grade.</p>
-<p>If the <strong>Drop Lowest</strong> option had been used instead, the calculated course grade for Student Five would have been calculated out of <strong>40 points </strong>before entering the third assignment grade.  The course grade would have decreased significantly after the third assignment grade was entered, going from an <strong>A</strong> (<strong>95%</strong>) down to an <strong>A-</strong> (<strong>92%</strong>).</p>
+<p>If the <strong>Drop Lowest</strong> option had been used instead, the calculated course grade for Student Five would have been calculated out of <strong>40 points </strong>before entering the third assignment grade. The course grade would have decreased significantly after the third assignment grade was entered, going from an <strong>A</strong> (<strong>95%</strong>) down to an <strong>A-</strong> (<strong>92%</strong>).</p>
 </div>
  
   </div>
@@ -186,23 +187,23 @@
   </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="categories-and-weighting">
-    <h2 id="categories-and-weighting" class="step-title screensteps-heading">Categories &amp; Weighting</h2>
+
+      <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Categories &amp; Weighting</h2>
       <div class="step-instructions screensteps-textblock">
-  <p>Use <strong>Categories &amp; weighting</strong> to group gradebook items into categories, and weight each category as a percentage of the total course grade.  The sum total of all category percentages must equal <strong>100%</strong> (or more, if there is an <strong>Extra Credit</strong> category).</p>
+  <p>Use <strong>Categories &amp; Weighting</strong> to group Gradebook items into categories, and weight each category as a percentage of the total course grade. The sum total of all category percentages must equal <strong>100%</strong> (or more, if there is an <strong>Extra Credit</strong> category).</p>
 <p>For example, if <strong>Exams</strong> are worth <strong>20%</strong> of the course grade, the <strong>Exams</strong> category (<strong>20%</strong>) could include a <strong>Midterm Exam</strong> (50 points) and<strong> Final Exam</strong> (100 points).</p>
-<p>Each student's <strong>course grade</strong> is the sum of the categories' <strong>weighted averages</strong>.  See below for additional information about dropping and keeping grades, and example calculations.</p>
+<p>Each student's <strong>course grade</strong> is the sum of the categories' <strong>weighted averages</strong>. See below for additional information about dropping and keeping grades, and for example calculations.</p>
 </div>
  
       <div class="step-instructions screensteps-textblock">
   <p><em>Note: You must assign each item to a category for the item to be included in students' course grades.</em></p>
-<p><em>Grades can only be entered in gradebook items; you cannot enter grades into a category with no items.</em></p>
+<p><em>Grades can only be entered in Gradebook items; you cannot enter grades into a category with no items.</em></p>
 <p><em><strong>Ungraded</strong> items are <strong>not included</strong> in a student's course grade.  If any grade entry is left blank, the total points possible within the category are reduced by the point value(s) of the ungraded item(s) for that student.</em></p>
 </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="dropping-and-keeping-grades">
-    <h3 id="dropping-and-keeping-grades" class="step-title screensteps-heading">Dropping and keeping grades</h3>
+    <h3 class="step-title screensteps-heading">Dropping and Keeping Grades</h3>
       <div class="step-instructions screensteps-textblock">
   <p>If all items in a category have the same total point value, you can automatically drop the lowest or highest grades or keep the highest grades within that category. Dropped grades are omitted from the course grade calculation, and the total points possible in the category are reduced by the point value(s) of the omitted item(s).</p>
 <p>By using the <strong>Keep Highest</strong> option instead of <strong>Drop Lowest</strong> to drop the lowest grade(s), no grades will be dropped in the category until the number of items kept is exceeded. </p>
@@ -211,32 +212,32 @@
   </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="categories-weighting-example-calculations">
-    <h3 id="categories-weighting-example-calculations" class="step-title screensteps-heading">Categories &amp; Weighting - Example Calculations</h3>
+    <h3 class="step-title screensteps-heading">Categories &amp; Weighting - Example Calculations</h3>
       <div class="step-instructions screensteps-textblock">
-  <p>Below is an example of how a <em>Gradebook</em> with three weighted categories, <strong>Exams</strong> (20%), <strong>Assignments</strong> (40%), and <strong>Quizzes</strong> (40%), would calculate a student's grade.</p>
+  <p>Below is an example of how a g<em>radebook</em> with three weighted categories, <strong>Exams</strong> (20%), <strong>Assignments</strong> (40%), and <strong>Quizzes</strong> (40%), would calculate a student's grade.</p>
 </div>
  
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/002/268/927/original/18604b20-2d60-45aa-b0fe-8b254cdb655d.png" class="screensteps-image-zoom">
-      <img src="https://media.screensteps.com/image_assets/assets/002/268/927/medium/18604b20-2d60-45aa-b0fe-8b254cdb655d.png" alt="" height="175" width="855">
+    <a href="https://media.screensteps.com/image_assets/assets/003/152/676/original/18604b20-2d60-45aa-b0fe-8b254cdb655d.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/152/676/medium/18604b20-2d60-45aa-b0fe-8b254cdb655d.png" alt="" height="175" width="855">
     </a>
 </div>
  
         <div class="step screensteps-section screensteps-depth-3" id="the-gradebook-calculates-the-weighted-average-in-each-category-by">
-    <h4 id="the-gradebook-calculates-the-weighted-average-in-each-category-by" class="step-title screensteps-heading">The Gradebook calculates the weighted average in each category by:</h4>
+    <h4 class="step-title screensteps-heading">The Gradebook calculates the weighted average in each category by doing the following:</h4>
       <div class="step-instructions screensteps-textblock">
   <ol>
-<li>Totaling the <strong>student's scores</strong> for all graded items in the category.<br><br>In the example pictured above, in <strong>Exams</strong>, Student One earned: <strong>Final Exam (</strong>95 points) + <strong>Midterm Exam </strong>(40<strong> </strong>points) = <strong>135 points</strong>.<br>
+<li>Totaling the <strong>student's scores</strong> for all graded items in the category<br><br>In the example pictured above, in <strong>Exams</strong>, Student One earned: <strong>Final Exam (</strong>95 points) + <strong>Midterm Exam </strong>(40<strong> </strong>points) = <strong>135 points<br></strong>
 </li>
-<li>Totaling the <strong>point values</strong> for all graded items in the category.<br><br><strong>Final Exam</strong> (95 points) + <strong>Midterm Exam</strong> (40 points) =<strong> 150 total points</strong>.<br>
+<li>Totaling the <strong>point values</strong> for all graded items in the category<br><br><strong>Final Exam</strong> (95 points) + <strong>Midterm Exam</strong> (40 points) =<strong> 150 total points<br></strong>
 </li>
-<li>Dividing the <strong>student's score</strong> by the <strong>total points</strong>, then <strong>multiplying that number by 100</strong>, to determine the <strong>category average</strong>:<br><br>Student One's <strong>category average</strong> in <strong>Exams</strong> is <strong>90%</strong>:<ul>
+<li>Dividing the <strong>student's score</strong> by the <strong>total points </strong>and then <strong>multiplying that number by 100 </strong>to determine the <strong>category average</strong>:<br><br>Student One's <strong>category average</strong> in <strong>Exams</strong> is <strong>90%</strong>:<ul>
 <li>135/150 = 0.90</li>
 <li>0.90 x 100 = <strong>90%<br></strong>
 </li>
 </ul>
 </li>
-<li>Applying the <strong>weight</strong> to the <strong>category average</strong>.<br><br>Because the <strong>Exams</strong> category is worth <strong>20%</strong> of the course grade, Student One's <strong>weighted average</strong> is <strong>18</strong>:<ul>
+<li>Applying the <strong>weight</strong> to the <strong>category average</strong><br><br>Because the <strong>Exams</strong> category is worth <strong>20%</strong> of the course grade, Student One's <strong>weighted average</strong> is <strong>18</strong>:<ul>
 <li>To get 20% of a number, multiply the number by 0.2.</li>
 <li>90 x 0.2 = <strong>18</strong>
 </li>
@@ -246,15 +247,15 @@
 </div>
  
       <div class="step-instructions screensteps-textblock">
-  <p><em>Tip: The <strong>category average</strong> is shown in a column to the right of the gradebook items in that category.</em></p>
+  <p><em>Tip: The <strong>category average</strong> is shown in a column to the right of the Gradebook items in that category.</em></p>
 </div>
  
   </div>
  
         <div class="step screensteps-section screensteps-depth-3" id="the-gradebook-totals-the-weighted-averages-to-produce-the-course-grade">
-    <h4 id="the-gradebook-totals-the-weighted-averages-to-produce-the-course-grade" class="step-title screensteps-heading">The Gradebook totals the weighted averages to produce the course grade.</h4>
+    <h4 class="step-title screensteps-heading">The Gradebook totals the weighted averages to produce the course grade.</h4>
       <div class="step-instructions screensteps-textblock">
-  <p>If Student One received a <strong>category average</strong> of <strong>75%</strong> for <strong>Assignments</strong> and <strong>85%</strong> for <strong>Quizzes</strong>, his <strong>course grade</strong> is <strong>82%</strong>, calculated as follows:</p>
+  <p>If Student One received a <strong>category average</strong> of <strong>75%</strong> for <strong>Assignments</strong> and <strong>85%</strong> for <strong>Quizzes</strong>, that student's <strong>course grade</strong> would be <strong>82%</strong>, calculated as follows:</p>
 <ul>
 <li>
 <strong>Exams</strong> (20%) weighted average (shown above) = <strong>18</strong>
@@ -276,7 +277,8 @@
   </div>
  
   </div>
- 
+
+
 </div>
 </div></div>
 </body>
