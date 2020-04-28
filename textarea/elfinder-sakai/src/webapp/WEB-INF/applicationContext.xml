@@ -48,17 +48,8 @@
 								<bean class="org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService"/>
 							</property>
 							<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
-						</bean>
 
-						<!-- Uncomment the following bean definition to enable entity linking to SCORM Player modules. -->
-						<!-- NOTE: this requires the SCORM Player project to be build and deployed to your Tomcat. -->
-						<!--<bean class="org.sakaiproject.elfinder.sakai.scorm.ScormSiteVolumeFactory">
-							<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
-							<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
-							<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
-							<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
-							<property name="scormContentService" ref="org.sakaiproject.scorm.service.api.ScormContentService" />
-						</bean>-->
+						</bean>
 					</set>
 				</property>
 			</bean>
