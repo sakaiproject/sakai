@@ -52,8 +52,8 @@ import org.sakaiproject.util.ResourceLoader;
 @Slf4j
 public class EventRegistryServiceImpl implements EventRegistry, EventRegistryService, Observer {
 	/** Static fields */
-	private static final String			CACHENAME					= EventRegistryServiceImpl.class.getName();
-	private static final String			CACHENAME_EVENTREGISTRY		= "eventRegistry";
+	public static final String			CACHENAME					= EventRegistryServiceImpl.class.getName();
+	public static final String			CACHENAME_EVENTREGISTRY		= "eventRegistry";
 	private static ResourceLoader		msgs						= new ResourceLoader("Messages");
 	private static ResourceLoader		EVENT_MSGS					= new ResourceLoader("Events");
 
@@ -65,13 +65,13 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 	private Map<String, String>		toolIdIconMap				= null;
 	@Setter private boolean			checkLocalEventNamesFirst	= false;
 
+	@Setter private EntityBrokerEventRegistry entityBrokerEventRegistry = null;
 	/** Event Registries */
-	@Setter private FileEventRegistry		fileEventRegistry			= null;
-	private EntityBrokerEventRegistry		entityBrokerEventRegistry	= null;
-	@Getter @Setter private List<String>	serverEventIds				= new ArrayList<String>();
+	@Setter private FileEventRegistry fileEventRegistry = null;
+	@Getter @Setter private List<String> serverEventIds = new ArrayList<>();
 
 	/** Caching */
-	private Cache<String, List> eventRegistryCache = null;
+	private Cache<String, List<ToolInfo>> eventRegistryCache = null;
 
 	/** Sakai services */
 	@Setter private StatsManager				statsManager;
@@ -84,17 +84,13 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 	// Spring methods
 	// ################################################################
 
-	public void setEntityBrokerEventRegistry(EntityBrokerEventRegistry ebEventRegistry) {
-		this.entityBrokerEventRegistry = ebEventRegistry;
-		this.entityBrokerEventRegistry.addObserver(this);
-	}
-
 	public void init() {
 		String willCheckLocalEventNamesFirst = checkLocalEventNamesFirst ? "Local event names in sitestats-bundles will be checked first" : "Tool specified event names (Statisticable interface) will be checked first";
 		log.info("init(): " + willCheckLocalEventNamesFirst);
 		
 		// configure cache
-		eventRegistryCache = memoryService.getCache(CACHENAME);		
+		eventRegistryCache = memoryService.getCache(CACHENAME);
+		entityBrokerEventRegistry.addObserver(this);
 	}
 
 	// ################################################################
