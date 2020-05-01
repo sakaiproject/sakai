@@ -27,15 +27,18 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class DBHelper extends HibernateDaoSupport {
+
+	@Setter private ServerConfigurationService serverConfigurationService;
 	private boolean		autoDdl					= false;
 	private String		dbVendor				= null;
 	private boolean		notifiedIndexesUpdate	= false;
@@ -230,10 +233,10 @@ public class DBHelper extends HibernateDaoSupport {
 	
 	private String getDbVendor() {
 		String dialectStr = null;
-		if(ServerConfigurationService.getString("sitestats.db", "internal").equals("internal")) {
-			dialectStr = ServerConfigurationService.getString("hibernate.dialect", "org.hibernate.dialect.HSQLDialect");
+		if(serverConfigurationService.getString("sitestats.db", "internal").equals("internal")) {
+			dialectStr = serverConfigurationService.getString("hibernate.dialect", "org.hibernate.dialect.HSQLDialect");
 		}else{
-			dialectStr = ServerConfigurationService.getString("sitestats.externalDb.hibernate.dialect","org.hibernate.dialect.HSQLDialect");
+			dialectStr = serverConfigurationService.getString("sitestats.externalDb.hibernate.dialect","org.hibernate.dialect.HSQLDialect");
 		}
 		if(dialectStr.toLowerCase().contains("mysql")) {
 			return "mysql";
@@ -246,10 +249,10 @@ public class DBHelper extends HibernateDaoSupport {
 	
 	public boolean getAutoDdl() {
 		boolean autoDdl = false;
-		if(ServerConfigurationService.getString("sitestats.db", "internal").equals("internal")) {
-			autoDdl = ServerConfigurationService.getBoolean("auto.ddl", true);
+		if(serverConfigurationService.getString("sitestats.db", "internal").equals("internal")) {
+			autoDdl = serverConfigurationService.getBoolean("auto.ddl", true);
 		}else{
-			autoDdl = ServerConfigurationService.getBoolean("sitestats.externalDb.auto.ddl", true);
+			autoDdl = serverConfigurationService.getBoolean("sitestats.externalDb.auto.ddl", true);
 		}
 		return autoDdl;
 	}

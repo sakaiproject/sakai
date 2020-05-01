@@ -21,101 +21,61 @@ package org.sakaiproject.sitestats.impl;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.authz.cover.FunctionManager;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.sitestats.api.StatsAuthz;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.user.api.UserDirectoryService;
 
 @Slf4j
 public class StatsAuthzImpl implements StatsAuthz {
-	/** Sakai services */
-	private UserDirectoryService	M_uds;
-	private SecurityService			M_secs;
-	private SessionManager			M_sess;
-	private ToolManager				M_tm;
-	@Setter private StatsManager	M_statsManager;
 
-	// ################################################################
-	// Spring bean methods
-	// ################################################################
-	public void setUserService(UserDirectoryService userService) {
-		this.M_uds = userService;
-	}
-
-	public void setSecurityService(SecurityService securityService) {
-		this.M_secs = securityService;
-	}
-
-	public void setSessionManager(SessionManager sessionManager) {
-		this.M_sess = sessionManager;
-	}
-	
-	public void setToolManager(ToolManager toolManager) {
-		this.M_tm = toolManager;
-	}
+	@Setter private FunctionManager functionManager;
+	@Setter private SecurityService securityService;
+	@Setter private SessionManager sessionManager;
+	@Setter private StatsManager statsManager;
+	@Setter private ToolManager toolManager;
 
 	public void init() {
-		log.info("init()");
-		// register functions
-		FunctionManager.registerFunction(PERMISSION_SITESTATS_VIEW);
-		FunctionManager.registerFunction(PERMISSION_SITESTATS_ADMIN_VIEW);
-		FunctionManager.registerFunction(PERMISSION_SITESTATS_OWN);
-		FunctionManager.registerFunction(PERMISSION_SITESTATS_USER_TRACKING_CAN_BE_TRACKED);
-		FunctionManager.registerFunction(PERMISSION_SITESTATS_USER_TRACKING_CAN_TRACK);
+		functionManager.registerFunction(PERMISSION_SITESTATS_VIEW);
+		functionManager.registerFunction(PERMISSION_SITESTATS_ADMIN_VIEW);
+		functionManager.registerFunction(PERMISSION_SITESTATS_OWN);
+		functionManager.registerFunction(PERMISSION_SITESTATS_USER_TRACKING_CAN_BE_TRACKED);
+		functionManager.registerFunction(PERMISSION_SITESTATS_USER_TRACKING_CAN_TRACK);
 	}
 
-	// ################################################################
-	// Public methods
-	// ################################################################
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.impl.Authz#isUserAbleToViewSiteStats(java.lang.String)
-	 */
 	@Override
 	public boolean isUserAbleToViewSiteStats(String siteId) {
 		return isUserAbleToViewSiteStatsForSiteRef(SiteService.siteReference(siteId));
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.impl.Authz#isUserAbleToViewSiteStatsAdmin(java.lang.String)
-	 */
 	@Override
 	public boolean isUserAbleToViewSiteStatsAdmin(String siteId) {
 		return hasPermission(SiteService.siteReference(siteId), PERMISSION_SITESTATS_ADMIN_VIEW);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.impl.Authz#isUserAbleToViewSiteStatsOwn(java.lang.String)
-	 */
 	@Override
 	public boolean isUserAbleToViewSiteStatsOwn(String siteId) {
-		boolean showOwnStatisticsToStudents = M_statsManager.getPreferences(siteId, true).isShowOwnStatisticsToStudents();
+		boolean showOwnStatisticsToStudents = statsManager.getPreferences(siteId, true).isShowOwnStatisticsToStudents();
 		boolean hasPermission = hasPermission(SiteService.siteReference(siteId), PERMISSION_SITESTATS_OWN);
 		return (showOwnStatisticsToStudents && hasPermission);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.StatsAuthz#isSiteStatsPage()
-	 */
 	@Override
 	public boolean isSiteStatsPage() {
-		return StatsManager.SITESTATS_TOOLID.equals(M_tm.getCurrentTool().getId());
+		return StatsManager.SITESTATS_TOOLID.equals(toolManager.getCurrentTool().getId());
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.StatsAuthz#isSiteStatsAdminPage()
-	 */
 	@Override
 	public boolean isSiteStatsAdminPage() {
-		return StatsManager.SITESTATS_ADMIN_TOOLID.equals(M_tm.getCurrentTool().getId());
+		return StatsManager.SITESTATS_ADMIN_TOOLID.equals(toolManager.getCurrentTool().getId());
 	}
 
 	@Override
 	public boolean currentUserHasPermission(String siteId, String permission) {
-		if (M_secs.isSuperUser()) {
+		if (securityService.isSuperUser()) {
 			return true;
 		}
 
@@ -123,20 +83,14 @@ public class StatsAuthzImpl implements StatsAuthz {
 		return hasPermission(siteRef, permission);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.impl.Authz#canUserBeTracked(java.lang.String, java.lang.String)
-	 */
 	@Override
 	public boolean canUserBeTracked(String siteID, String userID) {
 		return userHasPermission(userID, SiteService.siteReference(siteID), PERMISSION_SITESTATS_USER_TRACKING_CAN_BE_TRACKED);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.impl.Authz#canCurrentUserTrackInSite(java.lang.String)
-	 */
 	@Override
 	public boolean canCurrentUserTrackInSite(String siteID) {
-		if (M_secs.isSuperUser()) {
+		if (securityService.isSuperUser()) {
 			return true;
 		}
 
@@ -150,18 +104,18 @@ public class StatsAuthzImpl implements StatsAuthz {
 	 */
 	@Override
 	public String getCurrentSessionUserId() {
-		return M_sess.getCurrentSessionUserId();
+		return sessionManager.getCurrentSessionUserId();
 	}
 
 	// ################################################################
 	// Private methods
 	// ################################################################
 	private boolean hasPermission(String reference, String permission) {
-		return M_secs.unlock(permission, reference);
+		return securityService.unlock(permission, reference);
 	}
 
 	private boolean userHasPermission(String userID, String reference, String permission) {
-		return M_secs.unlock(userID, permission, reference);
+		return securityService.unlock(userID, permission, reference);
 	}
 
 	private boolean isUserAbleToViewSiteStatsForSiteRef(String siteRef) {

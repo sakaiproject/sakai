@@ -15,33 +15,38 @@
  */
 package org.sakaiproject.sitestats.test.perf;
 
-import javax.sql.DataSource;
-import java.sql.*;
-import java.sql.Date;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-import lombok.extern.slf4j.Slf4j;
+import javax.annotation.Resource;
+import javax.sql.DataSource;
+
+import org.hibernate.SQLQuery;
+import org.hibernate.ScrollMode;
+import org.hibernate.ScrollableResults;
 import org.hibernate.SessionFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.sitestats.api.StatsManager;
-import org.sakaiproject.sitestats.api.event.EventRegistryService;
+import org.sakaiproject.sitestats.api.StatsUpdateManager;
 import org.sakaiproject.sitestats.impl.CustomEventImpl;
-import org.sakaiproject.sitestats.impl.StatsUpdateManagerImpl;
-import org.sakaiproject.sitestats.test.perf.mock.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.sakaiproject.sitestats.test.SiteStatsTestConfiguration;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.annotation.Transactional;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
@@ -76,36 +81,26 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * the test can be run in normal performance tests so that we check it still works/compiles.
  * </p>
  */
-@Sql("/update-manager-perf.sql")
+@ContextConfiguration(classes = {SiteStatsTestConfiguration.class})
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration( locations = { "/hibernate-beans.xml"})
 @Slf4j
-public class StatsUpdateManagerTestPerf {
+@Sql("/update-manager-perf.sql")
+@Transactional(transactionManager = "org.sakaiproject.sitestats.SiteStatsTransactionManager")
+public class StatsUpdateManagerTestPerf extends AbstractTransactionalJUnit4SpringContextTests {
 
-	@Autowired
-	private SessionFactory sessionFactory;
-	
-	@Autowired
+	@Resource(name = "javax.sql.DataSource")
 	private DataSource dataSource;
-	
-	private SiteService siteService;
-	private EventRegistryService eventRegistryService;
-	private StatsManager statsManager;
-	private UsageSessionService usageSessionService;
-	private EventTrackingService eventTrackingService;
+	@Resource(name = "org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
+	private SessionFactory sessionFactory;
+	@Resource(name = "org.sakaiproject.sitestats.api.StatsUpdateManager")
+	private StatsUpdateManager statsUpdateManager;
 
-	
-	
 	@Before
 	public void setUp() throws SQLException {
 
-		siteService = StubUtils.stubClass(MockSiteService.class);
-		eventRegistryService = StubUtils.stubClass(MockEventRegistryService.class);
-		statsManager = StubUtils.stubClass(MockStatsManager.class);
-		usageSessionService = StubUtils.stubClass(MockUsageSessionService.class);
-		eventTrackingService = StubUtils.stubClass(EventTrackingService.class);
 		String isolation;
-		switch (dataSource.getConnection().getTransactionIsolation()) {
+		Connection connection = dataSource.getConnection();
+		switch (connection.getTransactionIsolation()) {
 			case Connection.TRANSACTION_NONE:
 				isolation = "None";
 				break;
@@ -124,11 +119,9 @@ public class StatsUpdateManagerTestPerf {
 			default:
 				isolation = "Unknown";
 		}
-		log.debug("Transation isolation is: "+ isolation);
-		// As we can't haven mutlple @RunWith annotations.
+		log.info("Transaction isolation is: "+ isolation);
 
-		// We're not going to do live look ups
-		//when(usageSessionService.getSession(anyString())).thenReturn(null);
+		sessionFactory.openStatelessSession(connection);
 	}
 
 	@Test
@@ -166,48 +159,44 @@ public class StatsUpdateManagerTestPerf {
 	}
 	
 
-	public void getEvents() throws SQLException, InterruptedException {
-		Connection connection = dataSource.getConnection();
-		// Must sort by date so that time never goes backwards.
-		PreparedStatement preparedStatement = connection.prepareStatement(
-				"SELECT e.event_date date, e.event, e.ref, e.context, s.session_user user, e.session_id, s.session_server server "+
-				"FROM SAKAI_event e "+
-				"LEFT JOIN SAKAI_SESSION s ON e.session_id = s.session_id ORDER BY e.event_date ASC LIMIT 400000",
-				ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-		if ("mysql".equalsIgnoreCase(connection.getMetaData().getDatabaseProductName())) {
-			// So that we dont' store the whole result set in memory
-			preparedStatement.setFetchSize(Integer.MIN_VALUE);
-		}
-		ResultSet resultSet = preparedStatement.executeQuery();
+	public void getEvents() throws InterruptedException {
+		SQLQuery query = sessionFactory.getCurrentSession().createSQLQuery(
+				"SELECT e.event_date, e.event, e.ref, e.context, s.session_user, e.session_id, s.session_server server " +
+				"FROM SAKAI_EVENT e " +
+				"LEFT JOIN SAKAI_SESSION s ON e.session_id = s.session_id ORDER BY e.event_date ASC LIMIT 400000"
+		);
+		query.setReadOnly(true);
+		query.setFetchSize(0);
+		ScrollableResults results = query.scroll(ScrollMode.FORWARD_ONLY);
 
 		// How long to wait until we post the events (can't initialize until first run through.)
 		Date postBatchAt = null;
 		int droppedEvents = 0, events = 0;
-		Random rnd = new Random();
-		Map<String, EventProcessor> processors = new HashMap<String, EventProcessor>();
+		Map<String, EventProcessor> processors = new HashMap<>();
 		long reported = System.currentTimeMillis();
 		long reportEvery = 4000;
 		long reportedLast = 0;
-		while (resultSet.next()) {
+		while (results.next()) {
 			long now = System.currentTimeMillis();
 			if (reported+reportEvery < now) {
-				System.out.printf("Current rate: %.2f/sec\n", ((float)(events-reportedLast))/reportEvery*1000);
+				log.info("Current rate: {}/sec", String.format("%.2f", (float)(events-reportedLast)/reportEvery*1000));
 				reportedLast = events;
 				reported = now;
 			}
-			Timestamp date = resultSet.getTimestamp("date");
-					
-			CustomEventImpl event = new CustomEventImpl(date,
-					resultSet.getString("event"),
-					resultSet.getString("ref"),
-					resultSet.getString("context"),
-					resultSet.getString("user"),
-					resultSet.getString("session_id"));
-			String serverId = resultSet.getString("server");
+
+			Object[] row = results.get();
+			CustomEventImpl event = new CustomEventImpl(
+					(Date) row[0],
+					(String) row[1],
+					(String) row[2],
+					(String) row[3],
+					(String) row[4],
+					(String) row[5]);
+			String serverId = (String) row[6];
 			if (serverId != null) {
 				serverId = extractServerId(serverId);
 			} else {
-				String sessionId = resultSet.getString("session_id");
+				String sessionId = results.getString(5);
 				serverId = extractServerIdFromSession(sessionId);
 			}
 			// We can't put null in map.
@@ -222,19 +211,18 @@ public class StatsUpdateManagerTestPerf {
 				processors.get(serverId).addEvent(event);
 				// Setup if needed.
 				if (postBatchAt == null) {
-					postBatchAt = calcNextDate(date);
+					postBatchAt = calcNextDate(event.getDate());
 				}
-				if (date.after(postBatchAt)) {
+				if (event.getDate().after(postBatchAt)) {
 					// Send all the batches to the threads.
 					for (EventProcessor processor: processors.values()) {
 						processor.postToQueue();
 					}
-					postBatchAt = calcNextDate(date);
+					postBatchAt = calcNextDate(event.getDate());
 				}
 			} else {
 				droppedEvents++;
 			}
-			//resultSet.next();
 			events++;
 		}
 		for (EventProcessor processor: processors.values()) {
@@ -246,30 +234,23 @@ public class StatsUpdateManagerTestPerf {
 		log.debug("Events dropped: "+ droppedEvents);
 	}
 
-	protected Date calcNextDate(Timestamp date) {
+	protected Date calcNextDate(Date date) {
 		return new Date(date.getTime() + 8000);
 	}
 	
-	public StatsUpdateManagerImpl updateInstance() {
-		StatsUpdateManagerImpl updateManager = new StatsUpdateManagerImpl();
-		updateManager.setSessionFactory(sessionFactory);
-		updateManager.setCollectEventsForSiteWithToolOnly(false);
-		updateManager.setSiteService(siteService);
-		updateManager.setEventRegistryService(eventRegistryService);
-		updateManager.setStatsManager(statsManager);
-		updateManager.setUsageSessionService(usageSessionService);
-		updateManager.setEventTrackingService(eventTrackingService);
-		return updateManager;
+	public StatsUpdateManager updateInstance() {
+		statsUpdateManager.setCollectEventsForSiteWithToolOnly(false);
+		return statsUpdateManager;
 	}
 	
 	class EventProcessor extends Thread {
 
-		List<Event> batch = new ArrayList<Event>();
-		BlockingQueue<List<Event>> queue = new ArrayBlockingQueue<List<Event>>(1);
-		StatsUpdateManagerImpl updateManager;
-		boolean run = true;
+		private List<Event> batch = new ArrayList<>();
+		private BlockingQueue<List<Event>> queue = new ArrayBlockingQueue<>(1);
+		private StatsUpdateManager updateManager;
+		private boolean run = true;
 		
-		public EventProcessor(StatsUpdateManagerImpl updateManager) {
+		public EventProcessor(StatsUpdateManager updateManager) {
 			this.updateManager = updateManager;
 		}
 
@@ -278,15 +259,13 @@ public class StatsUpdateManagerTestPerf {
 
 			try {
 				do {
-					
 					List<Event> events = queue.take();
 					long start = System.currentTimeMillis();
 					updateManager.collectEvents(events);
 					long end = System.currentTimeMillis();
-//					log.debug(Thread.currentThread().getName()+ " took "+ (end - start)+ "ms for "+ events.size());
+					log.debug("{} took {}ms for {}", Thread.currentThread().getName(), (end - start), events.size());
 				} while (run);
 			} catch (InterruptedException e) {
-				
 			}
 
 		}
