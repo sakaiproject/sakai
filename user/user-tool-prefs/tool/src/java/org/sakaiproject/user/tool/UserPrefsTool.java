@@ -271,7 +271,7 @@ public class UserPrefsTool
 			Arrays.sort(timeZoneArray);
 			for (int i = 0; i < timeZoneArray.length; i++) {
 				String tzt = timeZoneArray[i];
-				if (StringUtils.contains(tzt, '/') && StringUtils.indexOf(tzt, "SystemV/") != 0) {
+				if (StringUtils.contains(tzt, '/') && StringUtils.indexOf(tzt, "SystemV/") != 0 && StringUtils.indexOf(tzt, "Etc/GMT") != 0) {
 					String id = tzt;
 					String name = tzt;
 					if (StringUtils.contains(tzt, '_')) {
