@@ -79,18 +79,8 @@ public class UserTimeServiceImpl implements UserTimeService {
         ResourceProperties tzProps = prefs.getProperties(TimeService.APPLICATION_ID);
         String timeZone = tzProps.getProperty(TimeService.TIMEZONE_KEY);
 
-        if (StringUtils.isBlank(timeZone)) {
+        if (timeZone == null || timeZone.equals(""))
             timeZone = TimeZone.getDefault().getID();
-        }
-        else {
-            try {
-                ZoneId.of(timeZone);
-            }
-            catch (Exception e) {
-                log.warn("getUserTimezone bad tz: {}, {}", userId, timeZone);
-                timeZone = TimeZone.getDefault().getID();
-            }
-        }
 
         timeZoneLocale = timeZone;
 
