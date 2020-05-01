@@ -2682,6 +2682,14 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	    }
   }
   
+  public void removeAssessmentGradingData(AssessmentGradingData data) {
+	  try {
+		  PersistenceService.getInstance().getAssessmentGradingFacadeQueries().removeAssessmentGradingData(data);
+	  } catch (Exception e) {
+		  log.error("Exception thrown from removeAssessmentGradingData", e);
+	  }
+  }
+
   public boolean getHasGradingData(Long publishedAssessmentId) {
 	  boolean hasGradingData = false;
 	    try {

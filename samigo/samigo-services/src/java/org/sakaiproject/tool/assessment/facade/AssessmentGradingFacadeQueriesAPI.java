@@ -248,7 +248,9 @@ public interface AssessmentGradingFacadeQueriesAPI
   public boolean getHasGradingData(Long publishedAssessmentId);
 
   public void removeUnsubmittedAssessmentGradingData(AssessmentGradingData data);
-    
+
+  public void removeAssessmentGradingData(AssessmentGradingData data);
+
   public List<Boolean> getHasGradingDataAndHasSubmission(Long publishedAssessmentId);
   
   

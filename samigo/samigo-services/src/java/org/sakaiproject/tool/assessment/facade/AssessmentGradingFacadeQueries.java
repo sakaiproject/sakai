@@ -158,6 +158,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
                 Criteria q = session.createCriteria(AssessmentGradingData.class)
                         .add(Restrictions.eq("publishedAssessmentId", Long.parseLong(publishedId)))
+                        .add(Restrictions.gt("status", AssessmentGradingData.REMOVED))
                         .addOrder(Order.asc("agentId"))
                         .addOrder(Order.desc("finalScore"))
                         .addOrder(Order.desc("submittedDate"));
@@ -190,6 +191,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                 final HibernateCallback<List<AssessmentGradingData>> hcb2 = session -> {
                     Criteria q = session.createCriteria(AssessmentGradingData.class)
                             .add(Restrictions.eq("publishedAssessmentId", Long.parseLong(publishedId)))
+                            .add(Restrictions.gt("status", AssessmentGradingData.REMOVED))
                             .addOrder(Order.asc("agentId"))
                             .addOrder(Order.desc("submittedDate"));
 
@@ -233,9 +235,10 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     public List<AssessmentGradingData> getAllSubmissions(final String publishedId) {
         final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
             Query q = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.forGrade = :forgrade");
+                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.forGrade = :forgrade and a.status > :status");
             q.setLong("id", Long.parseLong(publishedId));
             q.setBoolean("forgrade", true);
+            q.setInteger("status", AssessmentGradingData.REMOVED);
             return q.list();
         };
         return getHibernateTemplate().execute(hcb);
@@ -244,9 +247,10 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     public List<AssessmentGradingData> getAllAssessmentGradingData(final Long publishedId) {
         final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
             Query q = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.status <> :status order by a.agentId asc, a.submittedDate desc");
+                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.status <> :status and a.status <> :removed order by a.agentId asc, a.submittedDate desc");
             q.setLong("id", publishedId);
             q.setInteger("status", AssessmentGradingData.NO_SUBMISSION);
+            q.setInteger("removed", AssessmentGradingData.REMOVED);
             return q.list();
         };
         List<AssessmentGradingData> list = getHibernateTemplate().execute(hcb);
@@ -350,12 +354,13 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                 // I am debating should I use (a.forGrade=false and a.status=NO_SUBMISSION) or attemptDate is not null
                 Query q = session.createQuery(
                         "from AssessmentGradingData a where a.publishedAssessmentId = :id " +
-                                "and a.agentId = :agent and a.forGrade = :forgrade and a.status <> :status " +
+                                "and a.agentId = :agent and a.forGrade = :forgrade and a.status <> :status and a.status <> :removed " +
                                 "order by a.submittedDate DESC");
                 q.setLong("id", publishedId);
                 q.setString("agent", agentId);
                 q.setBoolean("forgrade", false);
                 q.setInteger("status", AssessmentGradingData.NO_SUBMISSION);
+                q.setInteger("removed", AssessmentGradingData.REMOVED);
                 return q.list();
             };
             List<AssessmentGradingData> scores = getHibernateTemplate().execute(hcb);
@@ -427,10 +432,11 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                     Query q;
                     if (assessmentGradingId == null) {
                         q = session.createQuery(
-                                "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade order by a.submittedDate DESC");
+                                "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade and a.status > :status order by a.submittedDate DESC");
                         q.setLong("id", publishedId);
                         q.setString("agent", agentId);
                         q.setBoolean("forgrade", true);
+                        q.setInteger("status", AssessmentGradingData.REMOVED);
                     } else {
                         q = session.createQuery("from AssessmentGradingData a where a.assessmentGradingId = :id");
                         q.setLong("id", assessmentGradingId);
@@ -441,10 +447,11 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                     Query q1 = null;
                     if (assessmentGradingId == null) {
                         q1 = session.createQuery(
-                                "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade order by a.finalScore DESC, a.submittedDate DESC");
+                                "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade and a.status > :status order by a.finalScore DESC, a.submittedDate DESC");
                         q1.setLong("id", publishedId);
                         q1.setString("agent", agentId);
                         q1.setBoolean("forgrade", true);
+                        q1.setInteger("status", AssessmentGradingData.REMOVED);
                     } else {
                         q1 = session.createQuery("from AssessmentGradingData a where a.assessmentGradingId = :id");
                         q1.setLong("id", assessmentGradingId);
@@ -1146,9 +1153,10 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
             Query q = session.createQuery(
                     "from AssessmentGradingData a where a.publishedAssessmentId = :id and " +
-                            " a.agentId = :agent order by a.finalScore desc, a.submittedDate desc");
+                            " a.agentId = :agent and a.status > :status order by a.finalScore desc, a.submittedDate desc");
             q.setLong("id", publishedAssessmentId);
             q.setString("agent", agentId);
+            q.setInteger("status", AssessmentGradingData.REMOVED);
             return q.list();
         };
         List<AssessmentGradingData> assessmentGradings = getHibernateTemplate().execute(hcb);
@@ -1166,10 +1174,11 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
             Query q = session.createQuery(
                     "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and " +
-                            " a.forGrade = :forgrade  order by a.finalScore desc, a.submittedDate desc");
+                            " a.forGrade = :forgrade and a.status > :status order by a.finalScore desc, a.submittedDate desc");
             q.setLong("id", publishedAssessmentId);
             q.setString("agent", agentId);
             q.setBoolean("forgrade", true);
+            q.setInteger("status", AssessmentGradingData.REMOVED);
             return q.list();
         };
         List<AssessmentGradingData> assessmentGradings = getHibernateTemplate().execute(hcb);
@@ -1256,8 +1265,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
         final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
             Query q = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id order by a.agentId asc, a.finalScore desc");
+                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.status > :status order by a.agentId asc, a.finalScore desc");
             q.setLong("id", publishedAssessmentId);
+            q.setInteger("status", AssessmentGradingData.REMOVED);
             return q.list();
         };
         List<AssessmentGradingData> assessmentGradings = getHibernateTemplate().execute(hcb);
@@ -1272,6 +1282,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         final HibernateCallback<List<AssessmentGradingData>> hcb = session -> session.createCriteria(
                 AssessmentGradingData.class)
                 .add(Restrictions.eq("publishedAssessmentId", publishedAssessmentId))
+                .add(Restrictions.gt("status", AssessmentGradingData.REMOVED))
                 .add(Restrictions.or(
                         Restrictions.eq("forGrade", true),
                         Restrictions.and(
@@ -1302,9 +1313,10 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                             " from ItemGradingData i, AssessmentGradingData a," +
                             " PublishedItemData p where " +
                             " i.assessmentGradingId = a.assessmentGradingId and i.publishedItemId = p.itemId and " +
-                            " a.publishedAssessmentId = :id " +
+                            " a.publishedAssessmentId = :id and a.status > :status " +
                             " order by a.agentId asc, a.submittedDate desc");
             q.setLong("id", publishedAssessmentId);
+            q.setInteger("status", AssessmentGradingData.REMOVED);
             return q.list();
         };
         List<AssessmentGradingData> assessmentGradings = getHibernateTemplate().execute(hcb);
@@ -1355,9 +1367,10 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                             " from ItemGradingData i, AssessmentGradingData a, " +
                             " PublishedItemData p where " +
                             " i.assessmentGradingId = a.assessmentGradingId and i.publishedItemId = p.itemId and " +
-                            " a.publishedAssessmentId = :id " +
+                            " a.publishedAssessmentId = :id and a.status > :status " +
                             " order by a.agentId asc, a.finalScore desc");
             q.setLong("id", publishedAssessmentId);
+            q.setInteger("status", AssessmentGradingData.REMOVED);
             return q.list();
         };
         List<AssessmentGradingData> assessmentGradings = getHibernateTemplate().execute(hcb);
@@ -1430,9 +1443,10 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                             " from ItemGradingData i, AssessmentGradingData a " +
                             " where i.assessmentGradingId = a.assessmentGradingId " +
                             " and a.publishedAssessmentId = :id " +
-                            " and a.forGrade = :forgrade ");
+                            " and a.forGrade = :forgrade and a.status > :status ");
             q.setLong("id", publishedAssessmentId);
             q.setBoolean("forgrade", true);
+            q.setInteger("status", AssessmentGradingData.REMOVED);
             return q.list();
         };
         List<ItemGradingData> l = getHibernateTemplate().execute(hcb);
@@ -1592,10 +1606,11 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                             "from PublishedItemData p, AssessmentGradingData a, ItemGradingData i " +
                             "where a.publishedAssessmentId = :id and a.forGrade = :forgrade and p.section.id = :sectionid " +
                             "and i.assessmentGradingId = a.assessmentGradingId " +
-                            "and p.itemId = i.publishedItemId ");
+                            "and p.itemId = i.publishedItemId and a.status > :status ");
             q.setLong("id", publishedAssessmentId);
             q.setBoolean("forgrade", true);
             q.setLong("sectionid", sectionId);
+            q.setInteger("status", AssessmentGradingData.REMOVED);
             return q.list();
         };
         List<Long> itemIds = getHibernateTemplate().execute(hcb);
@@ -1657,10 +1672,11 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
         final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
             Query q = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade order by a.submittedDate desc");
+                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade and a.status > :status order by a.submittedDate desc");
             q.setLong("id", publishedAssessmentId);
             q.setString("agent", agentIdString);
             q.setBoolean("forgrade", true);
+            q.setInteger("status", AssessmentGradingData.REMOVED);
             return q.list();
         };
         return getHibernateTemplate().execute(hcb);
@@ -1686,12 +1702,13 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         final HibernateCallback<List<Object[]>> hcb = session -> session.createQuery(
                 "select a.publishedAssessmentId, a.agentId, count(*) " +
                         "from AssessmentGradingData a, AuthorizationData au  " +
-                        "where a.forGrade = :forgrade and au.functionId = :fid and au.agentIdString = :agent and a.publishedAssessmentId = au.qualifierId " +
+                        "where a.forGrade = :forgrade and au.functionId = :fid and au.agentIdString = :agent and a.publishedAssessmentId = au.qualifierId and a.status > :status " +
                         "group by a.publishedAssessmentId, a.agentId " +
                         "order by a.publishedAssessmentId, a.agentId ")
                 .setBoolean("forgrade", true)
                 .setString("fid", "OWN_PUBLISHED_ASSESSMENT")
                 .setString("agent", siteId)
+                .setInteger("status", AssessmentGradingData.REMOVED)
                 .setCacheable(true)
                 .list();
 
@@ -1727,8 +1744,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                 .setBoolean("forgrade", false)
                 .setString("fid", "OWN_PUBLISHED_ASSESSMENT")
                 .setString("agent", siteId)
-                .setInteger("status1", 0)
-                .setInteger("status2", 6)
+                .setInteger("status1", AssessmentGradingData.IN_PROGRESS)
+                .setInteger("status2", AssessmentGradingData.ASSESSMENT_UPDATED)
                 .setCacheable(true)
                 .list();
 
@@ -1758,10 +1775,11 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                     "select count(*) from AssessmentGradingData a, StudentGradingSummaryData s " +
                             " where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade " +
                             " and a.publishedAssessmentId = s.publishedAssessmentId and a.agentId = s.agentId " +
-                            " and a.submittedDate > s.createdDate");
+                            " and a.submittedDate > s.createdDate and a.status > :status");
             q.setLong("id", publishedAssessmentId);
             q.setString("agent", agentIdString);
             q.setBoolean("forgrade", true);
+            q.setInteger("status", AssessmentGradingData.REMOVED);
             return q.list();
         };
         List<Long> countList = getHibernateTemplate().execute(hcb);
@@ -1781,11 +1799,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                             " and a.publishedAssessmentId = s.publishedAssessmentId and a.agentId = s.agentId " +
                             " and a.submittedDate > s.createdDate" +
                             " and a.publishedAssessmentId = p.publishedAssessmentId" +
-                            " and p.status != 2" +
+                            " and p.status != 2 and a.status > :astatus" +
                             " group by a.publishedAssessmentId, a.agentId" +
                             " order by a.publishedAssessmentId");
             q.setBoolean("forgrade", true);
             q.setString("fid", "OWN_PUBLISHED_ASSESSMENT");
+            q.setInteger("astatus", AssessmentGradingData.REMOVED);
             q.setString("agent", siteId);
             return q.list();
         };
@@ -1815,10 +1834,11 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                     "select a.publishedAssessmentId, count(*) from AssessmentGradingData a, StudentGradingSummaryData s " +
                             " where a.agentId = :agent and a.forGrade = :forgrade " +
                             " and a.publishedAssessmentId = s.publishedAssessmentId and a.agentId = s.agentId " +
-                            " and a.submittedDate > s.createdDate" +
+                            " and a.submittedDate > s.createdDate and a.status > :status" +
                             " group by a.publishedAssessmentId");
             q.setString("agent", agentIdString);
             q.setBoolean("forgrade", true);
+            q.setInteger("status", AssessmentGradingData.REMOVED);
             return q.list();
         };
         List<Object[]> countList = getHibernateTemplate().execute(hcb);
@@ -1923,11 +1943,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     public int getLateSubmissionsNumberByAgentId(final Long publishedAssessmentId, final String agentIdString, final Date dueDate) {
         final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
             Query q = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade and a.submittedDate > :submitted");
+                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade and a.submittedDate > :submitted and a.status > :status");
             q.setLong("id", publishedAssessmentId);
             q.setString("agent", agentIdString);
             q.setBoolean("forgrade", true);
             q.setDate("submitted", dueDate);
+            q.setInteger("status", AssessmentGradingData.REMOVED);
             return q.list();
         };
         List<AssessmentGradingData> assessmentGradings = getHibernateTemplate().execute(hcb);
@@ -2763,6 +2784,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         }
     }
 
+    public void removeAssessmentGradingData(final AssessmentGradingData data) {
+    	data.setStatus(AssessmentGradingData.REMOVED);
+    	data.setForGrade(false);
+    	saveOrUpdateAssessmentGrading(data);
+    }
+
     public boolean getHasGradingData(final Long publishedAssessmentId) {
         final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
             Query q = session.createQuery(
@@ -2777,8 +2804,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     public List<Boolean> getHasGradingDataAndHasSubmission(final Long publishedAssessmentId) {
         final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
             Query q = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id order by a.agentId asc, a.submittedDate desc");
+                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.status > :status order by a.agentId asc, a.submittedDate desc");
             q.setLong("id", publishedAssessmentId);
+            q.setInteger("status", AssessmentGradingData.REMOVED);
             return q.list();
         };
         List<AssessmentGradingData> assessmentGradings = getHibernateTemplate().execute(hcb);
@@ -2951,7 +2979,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                                 "where au.functionId = :fid and au.agentIdString = :site and a.publishedAssessmentId = au.qualifierId " +
                                 "and a.forGrade = :forgrade and a.status = :status",
                         new String[]{"fid", "site", "forgrade", "status"},
-                        new Object[]{"OWN_PUBLISHED_ASSESSMENT", siteId, false, 4});
+                        new Object[]{"OWN_PUBLISHED_ASSESSMENT", siteId, false, AssessmentGradingData.ASSESSMENT_UPDATED_NEED_RESUBMIT});
         return list;
     }
 
@@ -2967,7 +2995,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 						" from AssessmentGradingData a, PublishedAccessControl c " +
 						" where a.publishedAssessmentId = c.assessment.publishedAssessmentId " +
 						" and ((c.lateHandling = 1 and c.retractDate <= :currentTime) or (c.lateHandling = 2 and c.dueDate <= :currentTime))" +
-						" and a.status not in (5) and (a.hasAutoSubmissionRun = 0 or a.hasAutoSubmissionRun is null) and c.autoSubmit = 1 " +
+						" and a.status not in (0,5) and (a.hasAutoSubmissionRun = 0 or a.hasAutoSubmissionRun is null) and c.autoSubmit = 1 " +
 						" and a.attemptDate is not null " +
 						" order by a.publishedAssessmentId, a.agentId, a.forGrade desc, a.assessmentGradingId");
 	    
@@ -3255,7 +3283,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                         "where au.functionId = :fid and au.agentIdString = :site and a.publishedAssessmentId = au.qualifierId " +
                         "and a.forGrade = :forgrade and (a.status = :status1 or a.status = :status2) group by a.publishedAssessmentId",
                 new String[]{"fid", "site", "forgrade", "status1", "status2"},
-                new Object[]{"OWN_PUBLISHED_ASSESSMENT", siteId, false, 0, 6});
+                new Object[]{"OWN_PUBLISHED_ASSESSMENT", siteId, false, AssessmentGradingData.IN_PROGRESS, AssessmentGradingData.ASSESSMENT_UPDATED});
         Iterator iter = list.iterator();
         HashMap inProgressCountsMap = new HashMap();
         while (iter.hasNext()) {
@@ -3270,10 +3298,10 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                 "select a.publishedAssessmentId, count(distinct a.agentId) " +
                         "from AssessmentGradingData a, AuthorizationData au, PublishedAssessmentData p " +
                         "where au.functionId = :fid and au.agentIdString = :site and a.publishedAssessmentId = au.qualifierId " +
-                        "and a.forGrade = :forgrade and a.publishedAssessmentId = p.publishedAssessmentId and " +
+                        "and a.forGrade = :forgrade and a.status > :status and a.publishedAssessmentId = p.publishedAssessmentId and " +
                         "(p.lastNeedResubmitDate is null or a.submittedDate >= p.lastNeedResubmitDate) group by a.publishedAssessmentId",
-                new String[]{"fid", "site", "forgrade"},
-                new Object[]{"OWN_PUBLISHED_ASSESSMENT", siteId, true});
+                new String[]{"fid", "site", "forgrade", "status"},
+                new Object[]{"OWN_PUBLISHED_ASSESSMENT", siteId, true, AssessmentGradingData.REMOVED});
         Iterator iter = list.iterator();
         HashMap startedCountsMap = new HashMap();
         while (iter.hasNext()) {
@@ -3390,10 +3418,11 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
         final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
             Query q = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade order by  a.submittedDate desc");
+                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade and a.status > :status order by  a.submittedDate desc");
             q.setLong("id", publishedAssessmentId);
             q.setString("agent", agentId);
             q.setBoolean("forgrade", true);
+            q.setInteger("status", AssessmentGradingData.REMOVED);
             return q.list();
         };
         List<AssessmentGradingData> assessmentGradings = getHibernateTemplate().execute(hcb);
@@ -3423,9 +3452,10 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
         final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
             Query q = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.forGrade = :forgrade order by a.agentId asc, a.finalScore desc");
+                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.forGrade = :forgrade and a.status > :status order by a.agentId asc, a.finalScore desc");
             q.setLong("id", publishedAssessmentId);
             q.setBoolean("forgrade", true);
+            q.setInteger("status", AssessmentGradingData.REMOVED);
             return q.list();
         };
         List<AssessmentGradingData> assessmentGradings = getHibernateTemplate().execute(hcb);
@@ -3446,10 +3476,11 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                             " from ItemGradingData i, AssessmentGradingData a," +
                             " PublishedItemData p where " +
                             " i.assessmentGradingId = a.assessmentGradingId and i.publishedItemId = p.itemId and " +
-                            " a.publishedAssessmentId = :id" +
+                            " a.publishedAssessmentId = :id and a.status > :Status" +
                             " order by a.agentId asc, a.submittedDate desc"
             );
             q.setLong("id", publishedAssessmentId);
+            q.setInteger("status", AssessmentGradingData.REMOVED);
             return q.list();
         };
 
@@ -3608,10 +3639,11 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     public List<AssessmentGradingData> getUnSubmittedAssessmentGradingDataList(final Long publishedAssessmentId, final String agentIdString) {
         final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
             Query q = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade order by a.attemptDate desc");
+                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade and a.status > :status order by a.attemptDate desc");
             q.setLong("id", publishedAssessmentId);
             q.setString("agent", agentIdString);
             q.setBoolean("forgrade", false);
+            q.setInteger("status", AssessmentGradingData.REMOVED);
             return q.list();
         };
         return getHibernateTemplate().execute(hcb);
