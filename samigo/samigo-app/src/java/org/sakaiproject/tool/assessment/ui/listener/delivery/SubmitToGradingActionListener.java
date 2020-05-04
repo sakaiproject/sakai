@@ -713,23 +713,35 @@ public class SubmitToGradingActionListener implements ActionListener {
 				itemgrading.setAgentId(AgentFacade.getAgentString());
 				itemgrading.setSubmittedDate(new Date());
 			}
+			int fake=-1;
 			for (int m = 0; m < grading.size(); m++) {
 				ItemGradingData itemgrading = grading.get(m);
+				String s = itemgrading.getAnswerText();
 				if (itemgrading.getItemGradingId() != null
 						&& itemgrading.getItemGradingId().intValue() > 0) {
-					adds.addAll(grading);
-					break;
-				} else if (itemgrading.getAnswerText() != null && !itemgrading.getAnswerText().equals("")) {
-					String s = itemgrading.getAnswerText();
+					 if (itemgrading.getPublishedAnswerId()!=null && s!=null && !s.equals("")) {					 
+						 log.debug("s = " + s);
+						 // Change to allow student submissions in rich-text [SAK-17021]
+						 itemgrading.setAnswerText(s);
+						 adds.add(itemgrading);
+					 } else
+						//Mark this as the fake itemgrading record
+					 {fake=m;}	 
+				}
+				else if (s != null && !s.equals("")) {
 					log.debug("s = " + s);
 					// Change to allow student submissions in rich-text [SAK-17021]
 					itemgrading.setAnswerText(s);
-					adds.addAll(grading);
-					if (!addedToAdds) {
-						adds.addAll(grading);
-						addedToAdds = true;
-					}
+					adds.add(itemgrading);
 				}
+			}
+			//Now if the list of adds is empty we add the fake itemgrading, otherwise we deleted as it is not longer necessary
+			if (fake>-1) {
+				if (adds.size()>0) {
+					removes.add(grading.get(fake));
+				} else {
+					adds.add(grading.get(fake));
+				};
 			}
 			break;
 		case 2: // MCMR
