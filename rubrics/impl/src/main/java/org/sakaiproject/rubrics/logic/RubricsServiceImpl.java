@@ -738,8 +738,6 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
             for (Resource<ToolItemRubricAssociation> associationResource : associationResources) {
                 String associationHref = associationResource.getLink(Link.REL_SELF).getHref();
-                deleteRubricEvaluationsForAssociation(associationHref, toolId);
-                
                 ToolItemRubricAssociation association = associationResource.getContent();
                 String created = association.getMetadata().getCreated().toString();
                 String owner = association.getMetadata().getOwnerId();
@@ -820,7 +818,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         }
     }
 
-    public void deleteRubricEvaluationsForAssociation(String associationHref, String tool){
+    private void deleteRubricEvaluationsForAssociation(String associationHref, String tool){
         try{
             String [] assocSplitted = associationHref.split("/");
             Long associationId = Long.valueOf(assocSplitted[assocSplitted.length-1]);
@@ -839,8 +837,6 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
             Optional<Resource<ToolItemRubricAssociation>> associationResource = getRubricAssociationResource(toolId, id, null);
             if (associationResource.isPresent()) {
                 String associationHref = associationResource.get().getLink(Link.REL_SELF).getHref();
-                //deleteRubricEvaluationsForAssociation(associationHref, toolId);//??
-
                 ToolItemRubricAssociation association = associationResource.get().getContent();
                 String created = association.getMetadata().getCreated().toString();
                 String owner = association.getMetadata().getOwnerId();
