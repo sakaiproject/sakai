@@ -23,6 +23,7 @@ package org.sakaiproject.search.tool;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
@@ -32,7 +33,8 @@ import org.sakaiproject.search.tool.api.OpenSearchBean;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
+
 
 /**
  * @author ieb
@@ -50,6 +52,8 @@ public class OpenSearchBeanImpl implements OpenSearchBean
 
 	private String baseURL;
 	private String scope = null;
+	private FormattedText formattedText;
+	
 	public OpenSearchBeanImpl(HttpServletRequest request,
 			SearchService searchService, SiteService siteService,
 			ToolManager toolManager) throws IdUnusedException
@@ -64,6 +68,7 @@ public class OpenSearchBeanImpl implements OpenSearchBean
 			scope = Scope.SITE.name();
 		}
 		baseURL = getBaseURL();
+		formattedText = ComponentManager.get(FormattedText.class);
 	}
 
 	private String getBaseURL()
@@ -86,7 +91,7 @@ public class OpenSearchBeanImpl implements OpenSearchBean
 		{
 			copyright = siteCopyright;
 		}
-		return FormattedText.escapeHtml(copyright,false);
+		return formattedText.escapeHtml(copyright,false);
 	}
 
 	public String getHTMLSearchFormUrl()
@@ -105,7 +110,7 @@ public class OpenSearchBeanImpl implements OpenSearchBean
 		if ( iconURL == null ) {
 			iconURL = ServerConfigurationService.getServerUrl()+"/favicon.ico";
 		}
-		return FormattedText.escapeHtml(iconURL,false);
+		return formattedText.escapeHtml(iconURL,false);
 	}
 	
 
@@ -121,16 +126,16 @@ public class OpenSearchBeanImpl implements OpenSearchBean
 		{
 			sindicationRights = "limited";
 		}
-		return FormattedText.escapeHtml(sindicationRights,false);
+		return formattedText.escapeHtml(sindicationRights,false);
 	}
 
 	public String getSiteName()
 	{
-		return FormattedText.escapeHtml(currentSite.getTitle(),false);
+		return formattedText.escapeHtml(currentSite.getTitle(),false);
 	}
 	public String getSystemName()
 	{
-		return FormattedText.escapeHtml(ServerConfigurationService.getString("ui.service","Sakai"),false);
+		return formattedText.escapeHtml(ServerConfigurationService.getString("ui.service","Sakai"),false);
 	}
 
 

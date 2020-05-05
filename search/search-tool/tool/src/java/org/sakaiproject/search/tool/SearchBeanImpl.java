@@ -43,6 +43,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.search.api.SearchList;
 import org.sakaiproject.search.api.SearchResult;
@@ -58,8 +59,8 @@ import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.StringUtil;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * Implementation of the search bean backing bean
@@ -177,10 +178,11 @@ import org.sakaiproject.util.StringUtil;
 
 	private List<SearchOutputItem> outputItems;
 	
-	
 	private String searchTermSuggestion = null;
 	
 	private boolean inPDAPortal = false;
+	
+	private FormattedText formattedText;
 	
 	// Empty constructor to aid in testing.
 	 
@@ -193,6 +195,7 @@ import org.sakaiproject.util.StringUtil;
 		this.toolManager = tm;
 		this.serverConfigurationService = serverConfigurationService;
 		this.securityService = securityService;
+		formattedText = ComponentManager.get(FormattedText.class);
 	}
 	
 	/**
@@ -252,6 +255,7 @@ import org.sakaiproject.util.StringUtil;
 		
 		// normal or pda portal?
 		checkPdaPortal(request);
+		formattedText = ComponentManager.get(FormattedText.class);
 	}
 	
 	/**
@@ -416,7 +420,7 @@ import org.sakaiproject.util.StringUtil;
 	public String getSearch()
 	{
 		if (search == null) return "";
-		return FormattedText.escapeHtml(search, false);
+		return formattedText.escapeHtml(search, false);
 	}
 
 	/**
@@ -684,12 +688,12 @@ import org.sakaiproject.util.StringUtil;
 	
 	public String getSherlockIconUrl()
 	{
-		return FormattedText.escapeHtml(getBaseUrl() + SherlockSearchBeanImpl.UPDATE_IMAGE,false);
+		return formattedText.escapeHtml(getBaseUrl() + SherlockSearchBeanImpl.UPDATE_IMAGE,false);
 	}
 
 	public String getSherlockUpdateUrl()
 	{
-		return FormattedText.escapeHtml(getBaseUrl() + SherlockSearchBeanImpl.UPDATE_URL,false);
+		return formattedText.escapeHtml(getBaseUrl() + SherlockSearchBeanImpl.UPDATE_URL,false);
 	}
 
 	public String getBaseUrl()
@@ -704,12 +708,12 @@ import org.sakaiproject.util.StringUtil;
 
 	public String getSiteTitle()
 	{
-		return FormattedText.escapeHtml(currentSite.getTitle(), false);
+		return formattedText.escapeHtml(currentSite.getTitle(), false);
 	}
 
 	public String getSystemName()
 	{
-		return FormattedText.escapeHtml(serverConfigurationService.getString(
+		return formattedText.escapeHtml(serverConfigurationService.getString(
 				"ui.service", "Sakai"), false);
 	}
 
@@ -761,12 +765,12 @@ import org.sakaiproject.util.StringUtil;
 
 						public String getName()
 						{
-							return FormattedText.escapeHtml(name, false);
+							return formattedText.escapeHtml(name, false);
 						}
 
 						public String getUrl()
 						{
-							return FormattedText.escapeHtml(searchURL, false);
+							return formattedText.escapeHtml(searchURL, false);
 						}
 
 					});
@@ -818,7 +822,7 @@ import org.sakaiproject.util.StringUtil;
 					{
 						try
 						{
-							return FormattedText.escapeHtml(sr.getTitle(), false);
+							return formattedText.escapeHtml(sr.getTitle(), false);
 						}
 						catch (Exception ex)
 						{
@@ -831,7 +835,7 @@ import org.sakaiproject.util.StringUtil;
 					{
 						try
 						{
-							return FormattedText.escapeHtml(sr.getTool(), false);
+							return formattedText.escapeHtml(sr.getTool(), false);
 						}
 						catch (Exception ex)
 						{
@@ -844,7 +848,7 @@ import org.sakaiproject.util.StringUtil;
 					{
 						try
 						{
-							return FormattedText.escapeHtml(sr.getUrl(), false);
+							return formattedText.escapeHtml(sr.getUrl(), false);
 						}
 						catch (Exception ex)
 						{
@@ -870,7 +874,7 @@ import org.sakaiproject.util.StringUtil;
 							site = getSite();
 
 						if (site != null)
-							return FormattedText.escapeHtml(site.getTitle(), false);
+							return formattedText.escapeHtml(site.getTitle(), false);
 
 
 						return "";
@@ -1011,19 +1015,19 @@ import org.sakaiproject.util.StringUtil;
 
 				public String getName()
 				{
-					return FormattedText.escapeHtml(t.term, false);
+					return formattedText.escapeHtml(t.term, false);
 				}
 
 				public String getUrl()
 				{
 					try
 					{
-						return FormattedText
+						return formattedText
 								.escapeHtml("?panel=Main&search=" + URLEncoder.encode(t.term,"UTF-8")+"&scope=" + searchScope, false);
 					}
 					catch (UnsupportedEncodingException e)
 					{
-						return FormattedText
+						return formattedText
 						.escapeHtml("?panel=Main&search=" + URLEncoder.encode(t.term), false);
 
 					}
@@ -1055,7 +1059,7 @@ import org.sakaiproject.util.StringUtil;
 	 */
 	public String getErrorMessage()
 	{
-		return FormattedText.escapeHtml(errorMessage, false);
+		return formattedText.escapeHtml(errorMessage, false);
 	}
 
 	/*
@@ -1070,13 +1074,13 @@ import org.sakaiproject.util.StringUtil;
 
 			try
 			{
-				return FormattedText.escapeHtml(getToolUrl() + "/rss20?search="
+				return formattedText.escapeHtml(getToolUrl() + "/rss20?search="
 						+ URLEncoder.encode(search, "UTF-8")
 						+ ((scope != null)?"&scope="+ URLEncoder.encode(scope.toString(), "UTF-8"):""), false);
 			}
 			catch (UnsupportedEncodingException e)
 			{
-				return FormattedText.escapeHtml(getToolUrl() + "/rss20?search="
+				return formattedText.escapeHtml(getToolUrl() + "/rss20?search="
 						+ URLEncoder.encode(search)
 						+ ((scope != null)?"&scope="+ URLEncoder.encode(scope.toString()):"") , false);
 			}
@@ -1101,7 +1105,7 @@ import org.sakaiproject.util.StringUtil;
 	 */
 	public String getRequestUrl()
 	{
-		return FormattedText.escapeHtml(requestURL, false);
+		return formattedText.escapeHtml(requestURL, false);
 	}
 
 	private Boolean searchScopeSite = null;
@@ -1149,7 +1153,7 @@ import org.sakaiproject.util.StringUtil;
 			log.error(e.getMessage(), e);
 			return null;
 		}
-		return FormattedText.escapeHtml(searchURL, false);
+		return formattedText.escapeHtml(searchURL, false);
 
 	}
 
