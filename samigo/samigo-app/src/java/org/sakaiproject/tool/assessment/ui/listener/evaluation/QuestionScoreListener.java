@@ -52,6 +52,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
+import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
@@ -593,7 +594,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 					});
 				}
 				Iterator iter2 = answerList.iterator();
-				List itemGradingAttachmentList = new ArrayList();
+				List<ItemGradingAttachment> itemGradingAttachmentList = new ArrayList<>();
 				Map<Long, Set<String>> fibmap = new HashMap<Long, Set<String>>();
 				int i = 1;
 				Map<Integer, String> answersMap = new HashMap<Integer, String>();
@@ -602,7 +603,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 					results.setItemGrading(gdata);
 					delegate.extractCalcQAnswersArray(answersMap, item, 
 								gdata.getAssessmentGradingId(), gdata.getAgentId());
-					itemGradingAttachmentList.addAll(gdata.getItemGradingAttachmentList());
+					itemGradingAttachmentList.addAll(gdata.getItemGradingAttachmentSet());
 					agentResultsByItemGradingIdMap.put(gdata.getItemGradingId(), results);
 										
 					ItemTextIfc gdataPubItemText = (ItemTextIfc) publishedItemTextHash

@@ -1160,7 +1160,7 @@ public class DeliveryActionListener
     }
     // Set comments and points
     Iterator i = itemBean.getItemGradingDataArray().iterator();
-    List itemGradingAttachmentList = new ArrayList();
+    List<ItemGradingAttachment> itemGradingAttachmentList = new ArrayList<>();
     while (i.hasNext())
     {
       ItemGradingData data = (ItemGradingData) i.next();
@@ -1180,7 +1180,7 @@ public class DeliveryActionListener
       // set the itemGradingAttachment only for Review and Grading flows because itemGradingAttachment 
       // can exist in these two flows only (grader can only enter comments for submitted assessments) 
       if (delivery.getActionMode() == 3 || delivery.getActionMode() == 4) {
-    	  itemGradingAttachmentList.addAll(data.getItemGradingAttachmentList());
+          itemGradingAttachmentList.addAll(data.getItemGradingAttachmentSet());
       }
       else {
     	  itemGradingAttachmentList.addAll(new ArrayList<ItemGradingAttachment>());
