@@ -3476,7 +3476,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                             " from ItemGradingData i, AssessmentGradingData a," +
                             " PublishedItemData p where " +
                             " i.assessmentGradingId = a.assessmentGradingId and i.publishedItemId = p.itemId and " +
-                            " a.publishedAssessmentId = :id and a.status > :Status" +
+                            " a.publishedAssessmentId = :id and a.status > :status" +
                             " order by a.agentId asc, a.submittedDate desc"
             );
             q.setLong("id", publishedAssessmentId);
