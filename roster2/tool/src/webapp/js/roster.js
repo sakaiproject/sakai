@@ -134,7 +134,7 @@ roster.switchState = function (state, args) {
   }
 
   // don't show enrollments tab if user doesn't have permission, or there's no enrollment sets attached to the site
-  if (!roster.currentUserPermissions.viewEnrollmentStatus ||
+  if ((roster.currentUserPermissions && !roster.currentUserPermissions.viewEnrollmentStatus) ||
           roster.site.siteEnrollmentSets.length === 0) {
 
     $('#navbar_enrollment_status_link').hide();
@@ -504,33 +504,44 @@ roster.search = function (query) {
 
 roster.readySearchButton = function () {
 
-  $('#roster-search-button').off('click').on('click', function (e) {
+  let button = $('#roster-search-button');
+  button.prop("disabled", true);
 
-    var searchFieldValue = $('#roster-search-field').val();
-    roster.search(searchFieldValue);
+  this.searchIndexPromise.then(() => {
+
+    button.prop("disabled", false).off('click').on('click', function (e) {
+
+      var searchFieldValue = $('#roster-search-field').val();
+      roster.search(searchFieldValue);
+    });
   });
 };
 
 roster.readySearchField = function () {
 
   var field = $('#roster-search-field');
+  field.prop("disabled", true);
 
-  field.keydown(function (e) {
+  this.searchIndexPromise.then(() => {
 
-    if (e.which === 13) {
-      e.preventDefault();
-      $('#roster-search-button').click();
-    }
-  });
+    field.keydown(function (e) {
 
-  field.autocomplete({
-    source: roster.searchIndexValues,
-    select: function (e, ui) {
-
-      if (e.originalEvent && e.originalEvent.originalEvent && e.originalEvent.originalEvent.type === "click") {
-        roster.search(ui.item.value);
+      if (e.which === 13) {
+        e.preventDefault();
+        $('#roster-search-button').click();
       }
-    }
+    });
+
+    field.autocomplete({
+      source: roster.searchIndexValues,
+      select: function (e, ui) {
+
+        if (e.originalEvent && e.originalEvent.originalEvent && e.originalEvent.originalEvent.type === "click") {
+          roster.search(ui.item.value);
+        }
+      }
+    });
+    field.prop("disabled", false);
   });
 };
 
@@ -816,26 +827,23 @@ roster.init = function () {
   roster.nextPage = 0;
   roster.currentState = null;
 
-  if (!roster.currentUserPermissions.viewOfficialPhoto) {
-    // The official photo permission should always override the
-    // roster.display.officialPicturesByDefault property
-    roster.officialPictureMode = false;
-  }
+  this.searchIndexPromise = new Promise((resolve, reject) => {
 
-  $.ajax({
-    url: '/direct/roster-membership/' + roster.siteId + '/get-search-index.json',
-    dataType: "json",
-    success: function (data) {
+    $.ajax({
+      url: '/direct/roster-membership/' + roster.siteId + '/get-search-index.json',
+      dataType: "json",
+      success: function (data) {
 
-      roster.searchIndex = data.data;
-      roster.searchIndexKeys = Object.keys(data.data);
-      roster.searchIndexValues = roster.searchIndexKeys.map(function (k) { return data.data[k] });
-      // Now switch into the requested state
-      roster.switchState(roster.state, roster);
-    },
-    error: function () {
-    }
+        roster.searchIndex = data.data;
+        roster.searchIndexKeys = Object.keys(data.data);
+        roster.searchIndexValues = roster.searchIndexKeys.map(function (k) { return data.data[k] });
+        resolve();
+      },
+      error: () => reject()
+    });
   });
+
+  roster.switchState(roster.state, roster);
 };
 
 roster.initNavBar = function() {
@@ -865,11 +873,8 @@ roster.loadSiteDataAndInit = function () {
     success: function (data) {
 
       roster.site = data || {};
-
       if (!roster.site.siteGroups) roster.site.siteGroups = [];
-
       if (!roster.site.userRoles) roster.site.userRoles = [];
-
       if (!roster.site.siteEnrollmentSets) roster.site.siteEnrollmentSets = [];
 
       // Setup the current user's permissions
@@ -893,6 +898,11 @@ roster.loadSiteDataAndInit = function () {
           success: function (perms, status) {
 
             roster.currentUserPermissions = new roster.RosterPermissions(perms.data);
+            if (!roster.currentUserPermissions.viewOfficialPhoto) {
+              // The official photo permission should always override the
+              // roster.display.officialPicturesByDefault property
+              roster.officialPictureMode = false;
+            }
             roster.init();
           },
           error : function(xmlHttpRequest, stat, error) {

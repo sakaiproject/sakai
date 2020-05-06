@@ -149,6 +149,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
     private static final String SAK_PROP_SHOW_PERMS_TO_MAINTAINERS = "roster.showPermsToMaintainers";
     private static final boolean SAK_PROP_SHOW_PERMS_TO_MAINTAINERS_DEFAULT = true;
+    private Pattern userPropsRegex;
 	
 	public void init() {
 		
@@ -197,6 +198,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
         eventTrackingService.addObserver(this);
 
         memberComparator = new RosterMemberComparator(getFirstNameLastName());
+        userPropsRegex = Pattern.compile(serverConfigurationService.getString("roster.filter.user.properties.regex", "^udp\\.dn$"));
 	}
 	
 	/**
@@ -809,8 +811,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 		userPropertiesMap.values().removeIf(Objects::isNull);
 
 		// filter values that are configured to be removed
-		Pattern regex = Pattern.compile(serverConfigurationService.getString("roster.filter.user.properties.regex", "^udp\\.dn$"));
-		Set<String> keysToRemove = userPropertiesMap.keySet().stream().filter(regex.asPredicate()).collect(Collectors.toSet());
+		Set<String> keysToRemove = userPropertiesMap.keySet().stream().filter(this.userPropsRegex.asPredicate()).collect(Collectors.toSet());
 		userPropertiesMap.keySet().removeAll(keysToRemove);
 
 		rosterMember.setUserProperties(userPropertiesMap);
