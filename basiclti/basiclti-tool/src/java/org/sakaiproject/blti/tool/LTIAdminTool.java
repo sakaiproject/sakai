@@ -1229,6 +1229,11 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			if(StringUtils.isNotEmpty(ltiToolDescription)){
 				returnUrl += "&ltiItemDescription=" + URLEncoder.encode(ltiToolDescription);
 			}
+			//Append the LTI item icon to the URL so Lessons can use it.
+			String ltiToolIcon = reqProps.getProperty(LTIService.LTI_FA_ICON);
+			if(StringUtils.isNotEmpty(ltiToolIcon)) {
+				returnUrl += "&ltiItemIcon=" + URLEncoder.encode(ltiToolIcon);
+			}
 
 			state.setAttribute(STATE_REDIRECT_URL, returnUrl);
 			return;

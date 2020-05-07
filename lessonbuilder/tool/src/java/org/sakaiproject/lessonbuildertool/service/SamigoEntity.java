@@ -354,6 +354,9 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
     public String getDescription(){
         return "";
     }
+    public String getIcon(){
+    	return "";
+	}
 
     public String getAssessmentAlias(Long publishedId) {
 	try {

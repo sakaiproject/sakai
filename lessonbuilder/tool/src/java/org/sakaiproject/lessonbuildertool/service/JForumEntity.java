@@ -376,6 +376,10 @@ public class JForumEntity implements LessonEntity, ForumInterface {
         return "";
     }
 
+	public String getIcon(){
+		return "";
+	}
+
     public String getUrl() {
 	if (url != null)
 	    return url;

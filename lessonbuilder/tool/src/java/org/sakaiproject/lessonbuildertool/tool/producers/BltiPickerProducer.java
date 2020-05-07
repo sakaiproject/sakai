@@ -232,6 +232,7 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 				UIInput.make(fb, "add-before", "#{simplePageBean.addBefore}", ((GeneralViewParameters) viewparams).getAddBefore());
 				UIInput.make(fb, "item-id", "#{simplePageBean.itemId}");
 				UIInput.make(fb, "item-description", "simplePageBean.description", ltiItemDescription);
+				UIInput.make(fb, "item-icon", "simplePageBean.faIcon", ToolUtils.getRequestParameter("ltiItemIcon"));
 				UICommand.make(fb, "submit", messageLocator.getMessage("simplepage.chooser.select"), "#{simplePageBean.addBlti}");
 				UICommand.make(fb, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
 

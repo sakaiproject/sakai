@@ -1526,7 +1526,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						itemicon.decorate(new UIStyleDecorator("icon-sakai--sakai-samigo"));
 						break;
 					    case SimplePageItem.BLTI:
-						itemicon.decorate(new UIStyleDecorator("fa-globe"));
+							LessonEntity blti= (bltiEntity == null ? null : bltiEntity.getEntity(i.getSakaiId()));
+							if (blti != null) {
+								itemicon.decorate(new UIStyleDecorator(blti.getIcon()));
+							} else {
+								itemicon.decorate(new UIStyleDecorator("fa-globe"));
+							}
 						break;
 					    case SimplePageItem.PAGE:
 						itemicon.decorate(new UIStyleDecorator("fa-folder-open-o"));

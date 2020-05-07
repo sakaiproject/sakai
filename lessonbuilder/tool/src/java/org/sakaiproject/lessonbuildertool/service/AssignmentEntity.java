@@ -278,6 +278,10 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
         return "";
     }
 
+	public String getIcon(){
+		return "";
+	}
+
     public String getUrl() {
 	
 	if (simplePageBean != null) {

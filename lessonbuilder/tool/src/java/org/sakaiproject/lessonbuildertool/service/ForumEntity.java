@@ -387,6 +387,10 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
         return "";
     }
 
+	public String getIcon(){
+		return "";
+	}
+
     public String getUrl() {
 	
 	if (type == TYPE_FORUM_TOPIC) {

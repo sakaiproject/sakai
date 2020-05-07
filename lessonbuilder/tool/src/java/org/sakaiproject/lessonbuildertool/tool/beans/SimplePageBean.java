@@ -302,6 +302,7 @@ public class SimplePageBean {
 	private String height, width;
 
 	private String description;
+	private String faIcon;
 	private String name;
 	private String names;
 	private boolean required;
@@ -862,6 +863,14 @@ public class SimplePageBean {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public String getFaIcon() {
+		return faIcon;
+	}
+
+	public void setFaIcon(String faIcon) {
+		this.faIcon = faIcon;
 	}
 
 	public void setNameHidden(boolean nameHidden) {
