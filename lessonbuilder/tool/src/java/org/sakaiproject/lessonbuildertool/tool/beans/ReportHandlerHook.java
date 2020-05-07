@@ -14,17 +14,17 @@
 
 package org.sakaiproject.lessonbuildertool.tool.beans;
 
+import java.io.IOException;
+
 import javax.servlet.http.HttpServletResponse;
-
-import lombok.extern.slf4j.Slf4j;
-
-import uk.org.ponder.rsf.viewstate.ViewParameters;
 
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.lessonbuildertool.SimplePage;
-import org.sakaiproject.lessonbuildertool.ccexport.CCExport;
 import org.sakaiproject.lessonbuildertool.tool.view.ExportCCViewParameters;
 import org.sakaiproject.tool.cover.ToolManager;
+
+import lombok.extern.slf4j.Slf4j;
+import uk.org.ponder.rsf.viewstate.ViewParameters;
 
 /**
  * Handles the generation of files for exporting results
@@ -49,19 +49,24 @@ public class ReportHandlerHook {
     */
    public boolean handle() {
       if (viewparams instanceof ExportCCViewParameters) {
+      ExportCCViewParameters parameters = ((ExportCCViewParameters) viewparams);
 	  String siteId = ToolManager.getCurrentPlacement().getContext();
 	  String ref = "/site/" + siteId;
 	  boolean ok = SecurityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_UPDATE, ref);
 	  // In this context it's hard to report an error. However since the UI will
 	  // never present this option unless the user has permission, anyone for whom
 	  // this fails is deep in hack mode.
-	  if (!ok)
-	      return false;
+	  if (!ok) return false;
 
-          log.debug("Handing viewparams and response off to the reportExporter");
-	  CCExport ccExport = new CCExport();
-	  ccExport.doExport(siteId, response, (ExportCCViewParameters)viewparams);
-
+          try {
+              response.sendRedirect("/lessonbuilder-tool/ccexport?" +
+                      "version=" + parameters.getVersion() + "&" +
+                      "bank=" + parameters.getBank() + "&" +
+                      "siteid=" + siteId);
+          } catch (IOException ioe) {
+              log.warn("Could not send redirect, {}", ioe.toString());
+              return false;
+          }
           return true;
       }
       return false;

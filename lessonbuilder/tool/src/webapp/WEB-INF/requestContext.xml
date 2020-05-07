@@ -314,27 +314,30 @@
 
         <!-- Bean override for rootHandlerHook see RSF-123 and CTL-1214 -->
 	<bean id="reportHandlerHook"
-              class="org.sakaiproject.lessonbuildertool.tool.beans.ReportHandlerHook">
+          class="org.sakaiproject.lessonbuildertool.tool.beans.ReportHandlerHook">
           <property name="viewparams" ref="viewParameters" />
           <property name="response" ref="httpServletResponse" />
 	</bean>
 
-        <bean id="rootHandlerBean" class="org.sakaiproject.lessonbuildertool.util.RootHandlerBeanOverride" init-method="handle">
-	  <property name="rootHandlerBeanBase" ref="overridedRootHandlerBean"/>
-          <property name="reportHandlerHook" ref="reportHandlerHook"/>
+    <bean id="rootHandlerBean"
+		  class="org.sakaiproject.lessonbuildertool.util.RootHandlerBeanOverride"
+		  init-method="handle">
+		<property name="rootHandlerBeanBase" ref="overridedRootHandlerBean"/>
+		<property name="reportHandlerHook" ref="reportHandlerHook"/>
 	</bean>
 
-        <bean id="overridedRootHandlerBean" parent="rootHandlerBeanBase" init-method="doNothing" class="org.sakaiproject.lessonbuildertool.util.OverridedServletRootHandlerBean">
-          <property name="httpServletRequest" ref="httpServletRequest" />
-          <property name="httpServletResponse" ref="httpServletResponse" />
-        </bean>
+	<bean id="overridedRootHandlerBean"
+		  class="org.sakaiproject.lessonbuildertool.util.OverridedServletRootHandlerBean"
+		  parent="rootHandlerBeanBase"
+		  init-method="doNothing">
+	  <property name="httpServletRequest" ref="httpServletRequest" />
+	  <property name="httpServletResponse" ref="httpServletResponse" />
+	</bean>
 
 	<bean id="checklistBean"
 		  class="org.sakaiproject.lessonbuildertool.tool.beans.ChecklistBean">
 		<property name="simplePageBean" ref="simplePageBean" />
-		<property name="simplePageToolDao">
-			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
-		</property>
+		<property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao"/>
 	</bean>
 
 </beans>
