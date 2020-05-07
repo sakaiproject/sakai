@@ -615,7 +615,7 @@ div.layout-option > div {
 }
 .listType .link-div .fa-item-text {
     display:inline-block;
-    vertical-align: text-top;
+    vertical-align: text-bottom;
 }
 
 
