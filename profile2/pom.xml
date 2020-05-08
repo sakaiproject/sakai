@@ -68,12 +68,12 @@
 			<dependency>
 				<groupId>org.twitter4j</groupId>
 				<artifactId>twitter4j-core</artifactId>
-				<version>4.0.6</version>
+				<version>4.0.7</version>
 			</dependency>
 			<dependency>
 				<groupId>org.wicketstuff</groupId>
 				<artifactId>wicketstuff-objectautocomplete</artifactId>
-				<version>6.18.0</version>
+				<version>${wicket.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.imgscalr</groupId>
