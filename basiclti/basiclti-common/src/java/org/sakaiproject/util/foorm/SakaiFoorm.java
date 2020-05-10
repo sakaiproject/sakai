@@ -23,9 +23,11 @@ import java.sql.Statement;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
+
 
 @Slf4j
 public class SakaiFoorm extends Foorm {
@@ -34,7 +36,7 @@ public class SakaiFoorm extends Foorm {
 	@Override
 		public String htmlSpecialChars(String str)
 		{
-			return FormattedText.escapeHtml(str, false);
+			return ComponentManager.get(FormattedText.class).escapeHtml(str, false);
 		}
 
 	// Abstract this away for testing purposes - return null if non existant
