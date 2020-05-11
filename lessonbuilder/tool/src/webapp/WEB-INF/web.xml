@@ -151,5 +151,22 @@
 	    <dispatcher>INCLUDE</dispatcher>
 	</filter-mapping>
 
+	<servlet>
+		<servlet-name>sakai.lessonbuildertool.export</servlet-name>
+		<servlet-class>org.sakaiproject.lessonbuildertool.ccexport.CCExportServlet</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>sakai.lessonbuildertool.export</servlet-name>
+		<url-pattern>/ccexport</url-pattern>
+	</servlet-mapping>
+
+	<filter-mapping>
+		<filter-name>sakai.request</filter-name>
+		<servlet-name>sakai.lessonbuildertool.export</servlet-name>
+		<dispatcher>REQUEST</dispatcher>
+		<dispatcher>FORWARD</dispatcher>
+		<dispatcher>INCLUDE</dispatcher>
+	</filter-mapping>
 
 </web-app>
