@@ -1763,7 +1763,15 @@ $(document).ready(function() {
 			var row = $(this).parent().parent().parent();
 			var itemid = row.find(".current-item-id2").text();
 
-			$("#name").val(row.find(".link-text").text());
+			let linkTextEle = row.find(".link-text");
+			let linkText = '';
+			if (linkTextEle.length) {
+				linkText = linkTextEle.text();
+			} else {
+				// If link text wasn't found use the text in the link element
+				linkText = row.find(".itemlink").text();
+			}
+			$("#name").val(linkText);
 			$("#description").val(row.find(".rowdescription").text());
 
 			$("select[name=indent-level-selection]").val(row.find(".indentLevel").text());
