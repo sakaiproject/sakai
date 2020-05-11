@@ -17,5 +17,16 @@
     <properties>
         <deploy.target>shared</deploy.target>
     </properties>
+    
+    <build>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/bundle</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
 
 </project>

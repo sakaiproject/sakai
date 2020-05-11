@@ -38,7 +38,7 @@ class SakaiPermissions extends SakaiElement {
 
     this.loadTranslations("permissions-wc").then(i18n => {
 
-      this.loadTranslations(this.tool).then(tool => {
+      this.loadTranslations(this.bundleKey ? this.bundleKey : this.tool).then(tool => {
 
         Object.keys(tool).filter(k => k.startsWith("perm-")).forEach(k => i18n[k.substring(5)] = tool[k]);
         this.i18n = i18n;
@@ -51,6 +51,7 @@ class SakaiPermissions extends SakaiElement {
 
     return {
       tool: String,
+      bundleKey: { attribute: 'bundle-key', type: String },
       roles: {type: Array},
       groups: Array,
     };

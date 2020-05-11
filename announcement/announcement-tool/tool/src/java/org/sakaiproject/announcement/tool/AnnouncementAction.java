@@ -49,7 +49,6 @@ import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.announcement.tool.MenuBuilder.ActiveTab;
 import org.sakaiproject.announcement.tool.AnnouncementActionState;
-import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.cheftool.Context;
@@ -865,6 +864,11 @@ public class AnnouncementAction extends PagedResourceActionII
 				activeTab = ActiveTab.DELETE;
 				break;
 		}
+		
+		// So, when reload after save/cancel permission actions, default page will be shown
+		if(MODE_PERMISSIONS.equals(statusName)) {
+			state.setStatus(LIST_STATUS);
+		}
 
 		// "View" announcement menu bar has already been built by this point (buildShowMetadataContext)
 		if( !ActiveTab.VIEW.equals(activeTab)) {
@@ -1059,6 +1063,11 @@ public class AnnouncementAction extends PagedResourceActionII
 		{
 			template = buildReorderContext(portlet, context, rundata, state, sstate);
 		}
+		else if (statusName.equals(MODE_PERMISSIONS))
+		{
+			template = build_permissions_context(portlet, context, rundata, sstate);
+		}
+		
 		return template;
 
 	} // getTemplate
@@ -3806,56 +3815,16 @@ public class AnnouncementAction extends PagedResourceActionII
 	/**
 	 * Fire up the permissions editor
 	 */
-	public void doPermissions(RunData data, Context context)
+	public void doPermissions(RunData runData, Context context)
 	{
-		// get into helper mode with this helper tool
-		startHelper(data.getRequest(), "sakai.permissions.helper");
+		AnnouncementActionState state = (AnnouncementActionState) getState(context, runData, AnnouncementActionState.class);
+		String peid = ((JetspeedRunData) runData).getJs_peid();
+		SessionState sstate = ((JetspeedRunData) runData).getPortletSessionState(peid);
 
-		// setup the parameters for the helper
-		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-		AnnouncementActionState stateObj = (AnnouncementActionState) getState(context, data, AnnouncementActionState.class);
+		state.setStatus(MODE_PERMISSIONS);
 
-		String channelRefStr = stateObj.getChannelId();
-		Reference channelRef = EntityManager.newReference(channelRefStr);
-		
-		/* 
-		   SAK-19526
-		   Setting the site reference for the permission target ref only makes sense for a site
-		   not for a channel reference like '/announcement/channel/!site/motd' 
-		*/
-		if (SiteService.siteExists(channelRef.getContext())) {
-			String siteRef = SiteService.siteReference(channelRef.getContext());
-	
-			// setup for editing the permissions of the site for this tool, using the roles of this site, too
-			state.setAttribute(PermissionsHelper.TARGET_REF, siteRef);
-			// ... with this description
-			state.setAttribute(PermissionsHelper.DESCRIPTION, rb.getString("java.set")
-				+ SiteService.getSiteDisplay(channelRef.getContext()));
-		} else {
-			// setup for editing the permissions of the site for this tool, using the roles of this site, too
-			state.setAttribute(PermissionsHelper.TARGET_REF, channelRefStr);
-			// ... with this description
-			state.setAttribute(PermissionsHelper.DESCRIPTION, rb.getString("java.set") + channelRefStr);
-		}
-		// ... showing only locks that are prpefixed with this
-		state.setAttribute(PermissionsHelper.PREFIX, "annc.");
-
-		// load the permissions.properties file
-		ResourceLoader pRb = new ResourceLoader("permissions");
-		HashMap<String, String> pRbValues = new HashMap<String, String>();
-		for (Iterator iterator = pRb.entrySet().iterator(); iterator.hasNext();)
-		{
-			Map.Entry<String, String> entry= (Map.Entry<String, String>)iterator.next();
-			pRbValues.put(entry.getKey(), entry.getValue());
-		//String key = (String) iKeys.next();
-		//pRbValues.put(key, (String) pRb.get(key));
-
-		}
-		state.setAttribute("permissionDescriptions", pRbValues);
-		String groupAware = ToolManager.getCurrentTool().getRegisteredConfig().getProperty("groupAware");
-		state.setAttribute("groupAware", groupAware != null?Boolean.valueOf(groupAware):Boolean.FALSE);
-		state.removeAttribute("menu"); //Menu not required in the permission view
-		
+		sstate.setAttribute(STATE_TOOL_KEY, "annc");
+		sstate.setAttribute(STATE_BUNDLE_KEY, "announcement");
 	}
 
 	/**
