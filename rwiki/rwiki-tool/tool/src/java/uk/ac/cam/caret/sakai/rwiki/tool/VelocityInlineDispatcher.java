@@ -35,7 +35,6 @@ import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.exception.MethodInvocationException;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.time.cover.TimeService;
-//import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.velocity.util.SLF4JLogChute;
