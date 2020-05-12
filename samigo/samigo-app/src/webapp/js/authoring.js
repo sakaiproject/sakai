@@ -637,6 +637,7 @@ function lockdownAnonyGrading(value) {
 		$('#assessmentSettingsAction\\:anonymousGrading').prop('disabled', 'disabled');
 	} 
 	else {
+		$('#assessmentSettingsAction\\:anonymousGrading').prop('checked', '');
 		$('#assessmentSettingsAction\\:anonymousGrading').prop('disabled', '');
 	}
 }
