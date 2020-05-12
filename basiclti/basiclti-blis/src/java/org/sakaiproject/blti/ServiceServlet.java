@@ -66,8 +66,8 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.FormattedText;
 
 import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_ALLOWROSTER;
 import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_ALLOWSETTINGS;
@@ -117,7 +117,7 @@ public class ServiceServlet extends HttpServlet {
 		theMap.put("/message_response/statusinfo/severity", "Error");
 		String msg = rb.getString(s) + ": " + message;
 		log.info(msg);
-		theMap.put("/message_response/statusinfo/description", FormattedText.escapeHtmlFormattedText(msg));
+		theMap.put("/message_response/statusinfo/description", ComponentManager.get(FormattedText.class).escapeHtmlFormattedText(msg));
 		String theXml = XMLMap.getXML(theMap, true);
 		PrintWriter out = response.getWriter();
 		out.println(theXml);

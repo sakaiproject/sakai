@@ -19,88 +19,72 @@
 
 package org.sakaiproject.portlets;
 
-import org.tsugi.basiclti.BasicLTIUtil;
+import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_ALLOWROSTER;
+import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_ALLOWSETTINGS;
+import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_ASSIGNMENT;
+import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_KEY;
+import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_ON;
+import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_PLACEMENTSECRET;
+import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_RELEASEEMAIL;
+import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_RELEASENAME;
+import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_TOOLTITLE;
 
-import java.lang.Integer;
-
-import java.io.PrintWriter;
 import java.io.IOException;
-import java.net.URL;
+import java.io.PrintWriter;
 import java.net.URI;
-import java.util.UUID;
-import java.util.Properties;
-import java.util.Map;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Date;
+import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.UUID;
 
-import javax.portlet.GenericPortlet;
-import javax.portlet.RenderRequest;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
-import javax.portlet.RenderResponse;
-import javax.portlet.PortletRequest;
-import javax.portlet.PortletException;
-import javax.portlet.PortletPreferences;
-import javax.portlet.PortletContext;
-import javax.portlet.PortletRequestDispatcher;
+import javax.portlet.GenericPortlet;
 import javax.portlet.PortletConfig;
+import javax.portlet.PortletContext;
+import javax.portlet.PortletException;
 import javax.portlet.PortletMode;
+import javax.portlet.PortletPreferences;
+import javax.portlet.PortletRequest;
+import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.PortletSession;
 import javax.portlet.ReadOnlyException;
-
+import javax.portlet.RenderRequest;
+import javax.portlet.RenderResponse;
 import javax.servlet.ServletRequest;
 
-import lombok.extern.slf4j.Slf4j;
-
-import org.sakaiproject.thread_local.cover.ThreadLocalManager;
-
-import org.sakaiproject.portlet.util.PortletHelper;
-
-// Sakai APIs
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.tool.api.Placement;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SitePage;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.FormattedText;
-import org.sakaiproject.event.api.Event;
-import org.sakaiproject.event.api.NotificationService;
-//import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.basiclti.LocalEventTrackingService;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.sakaiproject.basiclti.util.SimpleEncryption;
-
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.portlet.util.PortletHelper;
 import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
-import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
-import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.FormattedText;
+import org.tsugi.basiclti.BasicLTIUtil;
 
-import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_KEY;
-import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_ON;
-import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_OFF;
-import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_ALLOWSETTINGS;
-import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_ALLOWROSTER;
-import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_ASSIGNMENT;
-import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_RELEASENAME;
-import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_RELEASEEMAIL;
-import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_TOOLSETTING;
-import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_TOOLTITLE;
-import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_PLACEMENTSECRET;
-import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_OLDPLACEMENTSECRET;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * a simple IMSBLTIPortlet Portlet
@@ -235,7 +219,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 					String windowOpen = "window.open('"+iframeUrl+"','BasicLTI');"; 			
 					String siteName = ServerConfigurationService.getString(SITE_NAME, SAKAI);
 					title = title!=null ? title : rb.getString("tool.name", "your tool");
-					String newPageLaunchText = rb.getFormattedMessage("new.page.launch", new Object[]{FormattedText.escapeHtml(title, false), FormattedText.escapeHtml(siteName, false)});
+					String newPageLaunchText = rb.getFormattedMessage("new.page.launch", new Object[]{ComponentManager.get(FormattedText.class).escapeHtml(title, false), ComponentManager.get(FormattedText.class).escapeHtml(siteName, false)});
 					text.append(newPageLaunchText);
 					text.append("</p>\n");
 					text.append("<input type=\"submit\" onclick=\""+windowOpen+"\" target=\"BasicLTI\" value=\"Launch " + title + "\"/>");
@@ -351,7 +335,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 				if ( "secret".equals(element)) {
 					propValue = LEAVE_SECRET_ALONE;
 				}
-				oldValues.setProperty(propKey, FormattedText.escapeHtml(propValue,false));
+				oldValues.setProperty(propKey, ComponentManager.get(FormattedText.class).escapeHtml(propValue,false));
 			}
 		}
 
@@ -707,7 +691,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 				}
 				if ( ! found ) {
 					setErrorMessage(request, rb.getString("error.gradable.badassign") +
-							" " + FormattedText.escapeHtml(assignment,false));
+							" " + ComponentManager.get(FormattedText.class).escapeHtml(assignment,false));
 					return;
 				}
 			}
