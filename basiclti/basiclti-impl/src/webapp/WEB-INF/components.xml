@@ -7,6 +7,12 @@
                 class="org.sakaiproject.basiclti.impl.BasicLTISecurityServiceImpl"
                 init-method="init"
                 destroy-method="destroy">
+                <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
+                <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+                <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+                <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+                <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+                <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
         </bean>
 
         <bean id="org.sakaiproject.lti.api.LTIService"
