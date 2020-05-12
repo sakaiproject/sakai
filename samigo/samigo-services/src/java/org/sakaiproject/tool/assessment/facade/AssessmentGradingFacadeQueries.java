@@ -2207,7 +2207,10 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
                             ItemTextIfc itemTextIfc = (ItemTextIfc) publishedItemTextHash.get(grade.getPublishedItemTextId());
                             Long sequence = itemTextIfc.getSequence();
-                            String temptext = (grade.getIsCorrect()) ? "OK" : "No OK";
+                            String temptext = "No OK";
+                            if (grade.getIsCorrect() != null) {
+                                temptext = (grade.getIsCorrect()) ? "OK" : "No OK";
+                            }
 
                             String thistext = sequence + ": " + temptext;
 
