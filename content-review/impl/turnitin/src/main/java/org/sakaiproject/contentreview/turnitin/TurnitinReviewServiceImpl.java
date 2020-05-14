@@ -280,6 +280,11 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 	}
 
 	@Override
+	public boolean allowSubmissionsOnBehalf() {
+		return true;
+	}
+
+	@Override
 	public String getServiceName() {
 		return SERVICE_NAME;
 	}
