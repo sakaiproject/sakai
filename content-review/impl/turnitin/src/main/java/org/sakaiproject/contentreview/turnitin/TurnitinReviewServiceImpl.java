@@ -2261,11 +2261,16 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 	 */
 	@SuppressWarnings("unchecked")
 	public Map getInstructorInfo(String siteId) {
+		return getInstructorInfo(siteId, false);
+	}
+
+	@SuppressWarnings("unchecked")
+	public Map getInstructorInfo(String siteId, boolean ignoreUseSource) {
 
 		log.debug("Getting instructor info for site " + siteId);
 
 		Map togo = new HashMap();
-		if (!turnitinConn.isUseSourceParameter()) {
+		if (!turnitinConn.isUseSourceParameter() && !ignoreUseSource) {
 			togo.put("uem", turnitinConn.getDefaultInstructorEmail());
 			togo.put("ufn", turnitinConn.getDefaultInstructorFName());
 			togo.put("uln", turnitinConn.getDefaultInstructorLName());
@@ -2296,53 +2301,11 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 			if (inst == null) {
 				log.error("Instructor is null in getAbsoluteInstructorInfo");
 			} else {
-				togo.put("uem", getEmail(inst));
-				togo.put("ufn", inst.getFirstName());
-				togo.put("uln", inst.getLastName());
-				togo.put("uid", inst.getId());
-				togo.put("username", inst.getDisplayName());
-			}
-		}
-
-		return togo;
-	}
-
-	@SuppressWarnings("unchecked")
-	public Map getInstructorInfo(String siteId, boolean ignoreUseSource) {
-		Map togo = new HashMap();
-		if (!turnitinConn.isUseSourceParameter() && ignoreUseSource == false) {
-			togo.put("uem", turnitinConn.getDefaultInstructorEmail());
-			togo.put("ufn", turnitinConn.getDefaultInstructorFName());
-			togo.put("uln", turnitinConn.getDefaultInstructorLName());
-			togo.put("uid", turnitinConn.getDefaultInstructorId());
-		} else {
-			String INST_ROLE = "section.role.instructor";
-			User inst = null;
-			try {
-				Site site = siteService.getSite(siteId);
-				User user = userDirectoryService.getCurrentUser();
-				if (site.isAllowed(user.getId(), INST_ROLE)) {
-					inst = user;
-				} else {
-					Set<String> instIds = getActiveInstructorIds(INST_ROLE, site);
-					if (instIds.size() > 0) {
-						inst = userDirectoryService.getUser((String) instIds.toArray()[0]);
-					}
-				}
-			} catch (IdUnusedException e) {
-				log.error("Unable to fetch site in getAbsoluteInstructorInfo: " + siteId, e);
-			} catch (UserNotDefinedException e) {
-				log.error("Unable to fetch user in getAbsoluteInstructorInfo", e);
-			}
-
-			if (inst == null) {
-				log.error("Instructor is null in getAbsoluteInstructorInfo");
-			} else {
-				togo.put("uem", getEmail(inst));
-				togo.put("ufn", inst.getFirstName());
-				togo.put("uln", inst.getLastName());
-				togo.put("uid", inst.getId());
-				togo.put("username", inst.getDisplayName());
+				togo.put("uem", StringUtils.trimToEmpty(getEmail(inst)));
+				togo.put("ufn", StringUtils.trimToEmpty(inst.getFirstName()));
+				togo.put("uln", StringUtils.trimToEmpty(inst.getLastName()));
+				togo.put("uid", StringUtils.trimToEmpty(inst.getId()));
+				togo.put("username", StringUtils.trimToEmpty(inst.getDisplayName()));
 			}
 		}
 
