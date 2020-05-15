@@ -583,7 +583,8 @@ public class SiteHandler extends WorksiteHandler
 		rcontext.put("currentUrlPath", RequestFilter.serverUrl(req) + req.getContextPath()
 				+ URLUtils.getSafePathInfo(req));
 
-		rcontext.put("usePortalSearch", ServerConfigurationService.getBoolean("portal.search.enabled", true));
+		rcontext.put("usePortalSearch", ServerConfigurationService.getBoolean("portal.search.enabled", true)
+		    && ServerConfigurationService.getBoolean("search.enable", false));
 		rcontext.put("portalSearchPageSize", ServerConfigurationService.getString("portal.search.pageSize", "10"));
 
 		//Show a confirm dialog when publishing an unpublished site.
