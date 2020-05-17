@@ -292,7 +292,10 @@
 #gradeTableWrapper .currentCol .gb-extra-credit {
   background-color: #FCF8E3 !important;
 }
-.gb-flag-equal-weight:before,
+.gb-flag-equal-weight:before {
+  content: '\2696';
+  color: rgb(200,144,0);
+}
 .gb-flag-extra-credit:before {
   content: '\f0fe';
   color: rgb(200,144,0);
