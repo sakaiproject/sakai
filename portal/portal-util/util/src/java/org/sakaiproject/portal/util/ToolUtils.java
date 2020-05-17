@@ -210,7 +210,11 @@ public class ToolUtils
 		if (!trinity) return pageUrl;
 
 		pageUrl = Web.returnUrl(req, "/" + portalPrefix + "/" + Web.escapeUrl(effectiveSiteId));
-		if (reset || resetSiteProperty) {
+		// Check the tool configuration to see if this tool needs to be always reset
+		Properties toolConfig = pageTool.getTool().getRegisteredConfig();
+		boolean resetToolProperty = Boolean.parseBoolean(toolConfig.getProperty(Portal.CONFIG_AUTO_RESET));
+
+		if (reset || resetSiteProperty || resetToolProperty) {
 			pageUrl = pageUrl + "/tool-reset/";
 		} else {
 			pageUrl = pageUrl + "/tool/";

@@ -8,6 +8,7 @@
 			
 		<category name="course" />
 		<category name="project" />
+		<configuration name="portal.experimental.auto.reset" value="true" />
 
 	</tool>	
 </registration>
