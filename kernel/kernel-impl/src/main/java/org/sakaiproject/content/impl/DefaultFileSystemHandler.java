@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 
-import org.springframework.util.FileCopyUtils;
+import org.apache.commons.io.IOUtils;
 
 /**
  * The default implementation of FileSystemHandler, targeting local disk.
@@ -93,7 +93,7 @@ public class DefaultFileSystemHandler implements FileSystemHandler {
         }
 
         // write the file
-        return FileCopyUtils.copy(stream, new FileOutputStream(file));
+        return IOUtils.copyLarge(stream, new FileOutputStream(file));
     }
 
     @Override
