@@ -412,13 +412,11 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
         }
 
         // Date settings should always override the max message setting
-        if (localDate == null && localMax > 0) {
+        if (localMax > 0) {
             c.setMaxResults(localMax);
         }
 
-        if (localDate != null || localMax > 0) {
-            messages = c.list();
-        }
+        messages = c.list();
 
         //Reorder the list
         if (sortAsc) {
