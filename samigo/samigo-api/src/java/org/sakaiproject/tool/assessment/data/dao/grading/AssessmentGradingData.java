@@ -71,6 +71,16 @@ public class AssessmentGradingData implements java.io.Serializable
 	// need to distinguish status 2 and 3 anymore. But I just leave them here...
 
 	/**
+	 * status = -1: submission removed (soft-deleted)
+	 */
+	public static final Integer REMOVED = Integer.valueOf(-1);
+
+	/**
+	 * status = 0: in-progress
+	 */
+	public static final Integer IN_PROGRESS = Integer.valueOf(0);
+
+	/**
 	 * status = 1: submit but not grade yet
 	 */
 	public static final Integer SUBMITTED = Integer.valueOf(1);
