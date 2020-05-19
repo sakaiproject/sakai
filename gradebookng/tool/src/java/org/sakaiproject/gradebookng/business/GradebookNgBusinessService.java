@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.function.Consumer;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -44,6 +45,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import org.sakaiproject.authz.api.GroupProvider;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
@@ -52,6 +54,12 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.coursemanagement.api.CourseManagementService;
+import org.sakaiproject.coursemanagement.api.Enrollment;
+import org.sakaiproject.coursemanagement.api.EnrollmentSet;
+import org.sakaiproject.coursemanagement.api.Membership;
+import org.sakaiproject.coursemanagement.api.Section;
+import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.exception.IdUnusedException;
@@ -77,7 +85,6 @@ import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.section.api.SectionManager;
-import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
@@ -158,6 +165,12 @@ public class GradebookNgBusinessService {
 
 	@Setter
 	private SectionManager sectionManager;
+
+	@Setter
+	private CourseManagementService courseManagementService;
+
+	@Setter
+	private GroupProvider groupProvider;
 
 	@Setter
 	private SecurityService securityService;
@@ -353,7 +366,7 @@ public class GradebookNgBusinessService {
 
 		for (final User u : users) {
 			gbUsers.add(new GbUser(u, getStudentNumber(u, site))
-							.setSections(userSections.getOrDefault(u.getId(), Collections.emptyList())));
+							.setSections(userSections.getOrDefault(u.getEid(), Collections.emptyList())));
 		}
 
 		return gbUsers;
@@ -1061,18 +1074,59 @@ public class GradebookNgBusinessService {
 
 	private Map<String, List<String>> getUserSections(String siteId) {
 
-		Map<String, List<String>> userSections = new HashMap<>();
-		for (CourseSection cs : sectionManager.getSections(siteId)) {
-			for (EnrollmentRecord er : sectionManager.getSectionEnrollments(cs.getUuid())) {
-				String userId = er.getUser().getUserUid();
+		final Map<String, List<String>> userSections = new HashMap<>();
+
+		String[] sectionIds = null;
+
+		try {
+			sectionIds = groupProvider.unpackId(siteService.getSite(siteId).getProviderGroupId());
+		} catch (IdUnusedException idue) {}
+
+		if (sectionIds == null || sectionIds.length == 0) {
+			log.debug("No section ids found for {}. Returning an empty map ...", siteId);
+			return userSections;
+		}
+
+		for (String sectionId : sectionIds) {
+			Section section = null;
+			try {
+				section = courseManagementService.getSection(sectionId);
+			} catch (IdNotFoundException idNotFoundException) {}
+
+			if (section == null) {
+				log.debug("Section '{}'  not found, skipping ...", sectionId);
+				continue;
+			}
+
+			EnrollmentSet enrollmentSet = section.getEnrollmentSet();
+
+			Set<Membership> memberships = courseManagementService.getSectionMemberships(sectionId);
+
+			if ((memberships == null || memberships.size() == 0) && enrollmentSet == null) {
+				log.debug("Section '{}' does not have any direct memberships or enrollments. Skipping ...", sectionId);
+				continue;
+			}
+
+			final Section finalSection = section;
+			Consumer<String> collect = (userId) -> {
 				List<String> sections = userSections.get(userId);
 				if (sections == null) {
-					userSections.put(userId, new ArrayList<>(Arrays.asList(cs.getTitle())));
+					userSections.put(userId, new ArrayList<>(Arrays.asList(finalSection.getTitle())));
 				} else {
-				    sections.add(cs.getTitle());
+					sections.add(finalSection.getTitle());
 				}
+			};
+
+			if (enrollmentSet != null) {
+				Set<Enrollment> enrollments = courseManagementService.getEnrollments(enrollmentSet.getEid());
+				enrollments.forEach(e -> collect.accept(e.getUserId()));
+			}
+			
+			if (memberships != null) {
+				memberships.forEach(m -> collect.accept(m.getUserId()));
 			}
 		}
+
 		return userSections;
 	}
 
@@ -1109,7 +1163,7 @@ public class GradebookNgBusinessService {
 
 		for (User u : users) {
 			gbUsers.add(new GbUser(u, getStudentNumber(u, site))
-							.setSections(userSections.getOrDefault(u.getId(), Collections.emptyList())));
+							.setSections(userSections.getOrDefault(u.getEid(), Collections.emptyList())));
 		}
 
 		return gbUsers;
