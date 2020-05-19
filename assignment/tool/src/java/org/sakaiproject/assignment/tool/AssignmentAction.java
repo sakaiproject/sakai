@@ -3583,7 +3583,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         String template = (String) getContext(data).get("template");
 
-        boolean useSakaiGrader = false;
+        boolean useSakaiGrader = serverConfigurationService.getBoolean("assignment.usegraderbydefault", false);
 
         Preferences prefs = preferencesService.getPreferences(sessionManager.getCurrentSessionUserId());
         ResourceProperties props = prefs.getProperties("viewpreferences");
