@@ -711,7 +711,7 @@ public class PublishedAssessmentData
 
       while (iter2.hasNext()){
         PublishedItemData item = (PublishedItemData)iter2.next();
-        if( item.getIsExtraCredit() == null || !item.getIsExtraCredit()) {
+        if(!item.getIsExtraCredit()) {
             total = total.add(BigDecimal.valueOf(item.getScore()));
         }
       }
