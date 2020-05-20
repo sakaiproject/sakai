@@ -135,7 +135,7 @@ public class PublishedAssessmentBeanie implements Serializable {
       this.questionSize += items.size();
       for (ItemContentsBean item : items) {
         if (item.getItemData().getScore()!=null){
-          if(item.getItemData().getIsExtraCredit() == null || !item.getItemData().getIsExtraCredit())
+          if(!item.getItemData().getIsExtraCredit())
             this.totalScore += item.getItemData().getScore();
         }
       }
