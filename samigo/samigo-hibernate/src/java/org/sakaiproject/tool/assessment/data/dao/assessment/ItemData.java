@@ -34,6 +34,8 @@ import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
@@ -84,7 +86,7 @@ public class ItemData
   private Double minScore;
   private String hash;
   private Long originalItemId;
-  @Getter @Setter private Boolean isExtraCredit;
+  @Getter private Boolean isExtraCredit = Boolean.FALSE;
 
   // for EMI question
   private String themeText;
@@ -206,6 +208,10 @@ public ItemData() {}
   public void setItemId(Long itemId) {
     this.itemId = itemId;
     setItemIdString(itemId.toString());
+  }
+
+  public void setIsExtraCredit(Boolean extraCredit) {
+    this.isExtraCredit = BooleanUtils.toBoolean(extraCredit);
   }
 
   public String getItemIdString() {

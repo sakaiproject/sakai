@@ -177,7 +177,7 @@ public class AssessmentBean  implements Serializable {
       for (int j=0; j<itemsInThisSection; j++){
           ItemContentsBean item = items.get(j);
           if (item.getItemData().getScore()!=null){
-            if(item.getItemData().getIsExtraCredit()==null || !item.getItemData().getIsExtraCredit()) {
+            if(!item.getItemData().getIsExtraCredit()) {
               this.totalScore += item.getItemData().getScore();
             }
           }
