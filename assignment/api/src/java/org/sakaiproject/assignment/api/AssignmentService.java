@@ -92,6 +92,17 @@ public interface AssignmentService extends EntityProducer {
     public boolean allowAddAssignment(String context);
 
     /**
+     * Check permissions for adding an Assignment.
+     *
+     * @param context -
+     *                Describes the portlet context - generated with DefaultId.getChannel().
+     * @param user -
+     *             The user for which the permission will be checked
+     * @return True if the provided User is allowed to add an Assignment, false if not.
+     */
+    public boolean allowAddAssignment(String context, String userId);
+
+    /**
      * Check permissions for updating an Assignment based on context.
      *
      * @param context -
