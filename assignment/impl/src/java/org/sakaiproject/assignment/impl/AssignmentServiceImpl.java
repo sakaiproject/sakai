@@ -599,7 +599,12 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     public Collection<Group> getGroupsAllowAddAssignment(String context) {
-        return getGroupsAllowFunction(SECURE_ADD_ASSIGNMENT, context, null);
+        return getGroupsAllowAddAssignment(context, null);
+    }
+
+    @Override
+    public Collection<Group> getGroupsAllowAddAssignment(String context, String userId) {
+        return getGroupsAllowFunction(SECURE_ADD_ASSIGNMENT, context, userId);
     }
 
     @Override
@@ -652,10 +657,15 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     public boolean allowAddAssignment(String context) {
+        return allowAddAssignment(context, null);
+    }
+
+    @Override
+    public boolean allowAddAssignment(String context, String userId) {
         String resourceString = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
-        if (permissionCheck(SECURE_ADD_ASSIGNMENT, resourceString, null)) return true;
+        if (permissionCheck(SECURE_ADD_ASSIGNMENT, resourceString, userId)) return true;
         // if not, see if the user has any groups to which adds are allowed
-        return (!getGroupsAllowAddAssignment(context).isEmpty());
+        return (!getGroupsAllowAddAssignment(context, userId).isEmpty());
     }
 
     @Override
