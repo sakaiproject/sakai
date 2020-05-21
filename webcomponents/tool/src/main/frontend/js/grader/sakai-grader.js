@@ -181,7 +181,7 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
             <button id="show-inline-feedback-button" class="inline-feedback-button" @click=${this.toggleInlineFeedback} aria-haspopup="true" style="display: none;">${this.assignmentsI18n["gen.don"]}</button>
           ` : html`
             ${this.selectedAttachmentRef ? html`
-              <div class="preview"><sakai-document-viewer ref="${this.selectedAttachmentRef}"></sakai-document-viewer></div>
+              <div class="preview"><sakai-document-viewer ref="${this.selectedPreviewRef}" download-ref="${this.selectedAttachmentRef}"></sakai-document-viewer></div>
             ` : ""}
           `}
         ` : ""}
@@ -517,6 +517,7 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
     this.submittedTextMode = false;
     this.previewMode = true;
     this.selectedAttachmentRef = e.target.dataset.url;
+    this.selectedPreviewRef = this.submission.previewableAttachments[e.target.dataset.url] || e.target.dataset.url;
   }
 
   addRubricParam(e, type) {

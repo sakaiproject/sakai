@@ -41,6 +41,7 @@ class SakaiDocumentViewer extends SakaiElement {
 
     return {
       ref: String,
+      downloadRef: { attribute: "download-ref", type: String },
       height: String,
       //INTERNAL
       documentMarkup: String,
@@ -60,7 +61,7 @@ class SakaiDocumentViewer extends SakaiElement {
   render() {
 
     return html`
-      <div class="document-link">${this.i18n["viewing"]}: <a href="/access${this.ref}" target="_blank" rel="noopener">${this.fileNameFromRef(this.ref)}</a></div>
+      <div class="document-link">${this.i18n["viewing"]}: <a href="/access${this.downloadRef}" target="_blank" rel="noopener">${this.fileNameFromRef(this.downloadRef)}</a></div>
       <div class="preview-outer">
         <div class="preview-middle">
           <div class="preview-inner ${this.nomargins ? "nomargins" : ""}" >

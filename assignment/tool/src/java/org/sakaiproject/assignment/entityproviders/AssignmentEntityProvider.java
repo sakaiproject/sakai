@@ -1268,6 +1268,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         private Instant dateSubmitted;
         private Boolean submitted;
         private Set<String> submittedAttachments;
+        private Map<String, String> previewableAttachments = new HashMap<>();
         private List<SimpleSubmitter> submitters;
         private Boolean userSubmission;
         private Boolean late;
@@ -1294,6 +1295,33 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                     this.late = dateSubmitted.compareTo(as.getAssignment().getDueDate()) > 0;
                 }
                 this.submittedAttachments = as.getAttachments();
+
+                SecurityAdvisor securityAdvisor = (String userId, String function, String reference) -> {
+
+                    if (ContentHostingService.AUTH_RESOURCE_READ.equals(function)) {
+                        return SecurityAdvisor.SecurityAdvice.ALLOWED;
+                    } else {
+                        return SecurityAdvisor.SecurityAdvice.NOT_ALLOWED;
+                    }
+                };
+
+                try {
+                    securityService.pushAdvisor(securityAdvisor);
+                    this.submittedAttachments.forEach(ref -> {
+
+                        try {
+                            ResourceProperties props = contentHostingService.getProperties(ref.replaceFirst("\\/content", ""));
+                            String previewId = props.getProperty(ContentHostingService.PREVIEW);
+                            if (StringUtils.isNotEmpty(previewId)) {
+                                previewableAttachments.put(ref, contentHostingService.getResource(previewId).getReference());
+                            }
+                        } catch (Exception e) {
+                            log.warn("Could not access properties for resource {}, {}", ref, e.toString());
+                        }
+                    });
+                } finally {
+                    securityService.popAdvisor(securityAdvisor);
+                }
             }
             this.submitters
                 = as.getSubmitters().stream().map(ass -> new SimpleSubmitter(ass, anonymousGrading)).collect(Collectors.toList());

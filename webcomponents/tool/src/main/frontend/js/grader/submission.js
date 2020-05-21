@@ -28,6 +28,7 @@ export class Submission {
       this.properties = init.properties;
 
       this.submittedAttachments = init.submittedAttachments || [];
+      this.previewableAttachments = init.previewableAttachments || [];
 
       this.submitters = init.submitters;
 
