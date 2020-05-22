@@ -6,7 +6,7 @@
 // http://docs.cksource.com/ckeditor_api/symbols/CKEDITOR.plugins.html
 var ContentItemIFrameWindow = null;
 CKEDITOR.plugins.add( 'contentitem',
-{ requires : [ 'iframedialog' ], lang: ['en'],
+{ requires : [ 'iframedialog' ], lang: ['en', 'es'],
     // The plugin initialization logic goes inside this method.
     // http://docs.cksource.com/ckeditor_api/symbols/CKEDITOR.pluginDefinition.html#init
     init: function( editor )
@@ -16,7 +16,7 @@ CKEDITOR.plugins.add( 'contentitem',
         var height = 480, width = 750;
         CKEDITOR.dialog.addIframe(
                'ContentItemDialog',
-               'Select Content Item',
+               editor.lang.contentitem.title,
                sakai.editor.contentItemUrl, width, height,
                function()
                {
@@ -126,7 +126,7 @@ CKEDITOR.plugins.add( 'contentitem',
 	editor.ui.addButton( 'ContentItem',
         {
             // Toolbar button tooltip.
-            label: 'Insert ContentItem',
+            label: editor.lang.contentitem.tooltip,
             // Reference to the plugin command name.
             command: 'ContentItemDialog',
             // Button's icon file path.
