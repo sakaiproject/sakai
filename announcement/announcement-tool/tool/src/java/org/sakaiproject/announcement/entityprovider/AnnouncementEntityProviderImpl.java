@@ -42,7 +42,6 @@ import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
 import org.sakaiproject.announcement.api.AnnouncementService;
-import org.sakaiproject.announcement.tool.AnnouncementAction;
 import org.sakaiproject.announcement.tool.AnnouncementWrapper;
 import org.sakaiproject.announcement.tool.AnnouncementWrapperComparator;
 import org.sakaiproject.authz.api.SecurityService;
