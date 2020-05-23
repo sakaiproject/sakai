@@ -42,6 +42,7 @@ import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
 import org.sakaiproject.announcement.api.AnnouncementService;
+import org.sakaiproject.announcement.tool.AnnouncementAction;
 import org.sakaiproject.announcement.tool.AnnouncementWrapper;
 import org.sakaiproject.announcement.tool.AnnouncementWrapperComparator;
 import org.sakaiproject.authz.api.SecurityService;
@@ -102,10 +103,6 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 	public static int DEFAULT_DAYS_IN_PAST = 10;
 	private static final long MILLISECONDS_IN_DAY = (24 * 60 * 60 * 1000);
 	private static ResourceLoader rb = new ResourceLoader("announcement");
-	public static final String SORT_DATE = "date";
-	public static final String SORT_MESSAGE_ORDER = "message_order";
-	public static final String SAK_PROP_ANNC_REORDER = "sakai.announcement.reorder";
-	public static final boolean SAK_PROP_ANNC_REORDER_DEFAULT = true;
     
 	/**
 	 * Prefix for this provider
@@ -230,12 +227,12 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		//get the announcements for each channel
 		List<Message> announcements = new ArrayList<Message>();
 		
-		boolean enableReorder = ComponentManager.get(ServerConfigurationService.class).getBoolean(SAK_PROP_ANNC_REORDER, SAK_PROP_ANNC_REORDER_DEFAULT);
-		String sortCurrentOrder = SORT_DATE;
+		boolean enableReorder = ComponentManager.get(ServerConfigurationService.class).getBoolean(AnnouncementAction.SAK_PROP_ANNC_REORDER, AnnouncementAction.SAK_PROP_ANNC_REORDER_DEFAULT);
+		String sortCurrentOrder = AnnouncementAction.SORT_DATE;
 		if (enableReorder){
-			sortCurrentOrder = SORT_MESSAGE_ORDER;
+			sortCurrentOrder = AnnouncementAction.SORT_MESSAGE_ORDER;
 		}
-		ViewableFilter msgFilter = SORT_MESSAGE_ORDER.equals(sortCurrentOrder) ? null:new ViewableFilter(null, t, numberOfAnnouncements);
+		ViewableFilter msgFilter = AnnouncementAction.SORT_MESSAGE_ORDER.equals(sortCurrentOrder) ? null:new ViewableFilter(null, t, numberOfAnnouncements);
 		
 		//for each channel
 		for(String channel: channels) {
@@ -260,7 +257,7 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 			log.debug("announcements.size(): {}", announcements.size());
 		}
 		
-		if (SORT_MESSAGE_ORDER.equals(sortCurrentOrder)) {
+		if (AnnouncementAction.SORT_MESSAGE_ORDER.equals(sortCurrentOrder)) {
 			try {
 				List<AnnouncementWrapper> messageList = new ArrayList<>();
 				AnnouncementChannel defaultChannel = (AnnouncementChannel) announcementService.getChannel("/announcement/channel/" + siteId + "/main");
@@ -277,7 +274,7 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 				announcements = subrv;
 			} catch (Exception e) {
 				if(log.isDebugEnabled()) {
-					log.warn("Error sorting announcements by " + SORT_MESSAGE_ORDER + "." + e.getMessage());
+					log.warn("Error sorting announcements by " + AnnouncementAction.SORT_MESSAGE_ORDER + "." + e.getMessage());
 				}
 			}
 
@@ -297,7 +294,7 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 			}
 		}
 		
-		if (!SORT_MESSAGE_ORDER.equals(sortCurrentOrder) || channels.size() > 1) {
+		if (!AnnouncementAction.SORT_MESSAGE_ORDER.equals(sortCurrentOrder) || channels.size() > 1) {
 			//sort
 			Collections.sort(decoratedAnnouncements);
 			
