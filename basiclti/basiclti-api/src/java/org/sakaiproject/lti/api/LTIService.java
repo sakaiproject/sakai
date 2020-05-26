@@ -145,9 +145,8 @@ public interface LTIService extends LTISubstitutionsFilter {
             // LTI 1.3 expansion space (See SAK-33772)
             "lti13:radio:label=bl_lti13:choices=off,on:role=admin",
             "lti13_client_id:text:hide=insert:label=bl_lti13_client_id:maxlength=1024:role=admin",
+            "lti13_tool_keyset:textarea:label=bl_lti13_tool_keyset:maxlength=1M:role=admin",
             "lti13_tool_public:textarea:hide=insert:label=bl_lti13_tool_public:maxlength=1M:role=admin",
-            // The tool keyset is a future feature - we can unhide it in the UI when Sakai supports this
-            "lti13_tool_keyset:textarea:hidden=true:label=bl_lti13_tool_keyset:maxlength=1M:role=admin",
             // The tool kid is internal (comes through on launch and we store it and cache the public key)
             "lti13_tool_kid:text:hidden=true:label=bl_lti13_tool_kid:maxlength=1024:role=admin",
             "lti13_tool_private:textarea:hide=insert:label=bl_lti13_tool_private:maxlength=1M:role=admin",
@@ -268,6 +267,8 @@ public interface LTIService extends LTISubstitutionsFilter {
     // LTI 1.3
     String LTI13 = "lti13";
     String LTI13_CLIENT_ID = "lti13_client_id";
+    String LTI13_TOOL_KID = "lti13_tool_kid";
+    String LTI13_TOOL_KEYSET = "lti13_tool_keyset";
     String LTI13_TOOL_PUBLIC = "lti13_tool_public";
     String LTI13_TOOL_PRIVATE = "lti13_tool_private";
     String LTI13_PLATFORM_PUBLIC = "lti13_platform_public";
