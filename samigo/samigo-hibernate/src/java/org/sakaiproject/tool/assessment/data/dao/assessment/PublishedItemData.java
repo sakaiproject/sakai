@@ -35,6 +35,8 @@ import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
@@ -75,9 +77,7 @@ public class PublishedItemData
   private Date createdDate;
   private String lastModifiedBy;
   private Date lastModifiedDate;
-  @Getter
-  @Setter
-  private Boolean isExtraCredit;
+  @Getter private Boolean isExtraCredit = Boolean.FALSE;
   private Set itemTextSet;
   private Set itemMetaDataSet;
   private Set itemFeedbackSet;
@@ -216,6 +216,10 @@ public class PublishedItemData
   public void setItemId(Long itemId) {
     this.itemId = itemId;
     setItemIdString(itemId.toString());
+  }
+
+  public void setIsExtraCredit(Boolean extraCredit) {
+    this.isExtraCredit = BooleanUtils.toBoolean(extraCredit);
   }
 
   public String getItemIdString() {

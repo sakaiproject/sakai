@@ -19,19 +19,18 @@
 
 package org.sakaiproject.portlet.util;
 
-import java.io.PrintStream;
-import java.io.OutputStream;
 import java.io.ByteArrayOutputStream;
-
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.Map;
 
 import javax.portlet.PortletRequest;
-import javax.portlet.PortletPreferences;
 import javax.portlet.PortletSession;
 
-import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.util.api.FormattedText;
 
-import org.sakaiproject.util.FormattedText;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Some Utility Functions
@@ -121,7 +120,7 @@ public class PortletHelper {
 
 		StringBuffer errorOut = new StringBuffer();
 		errorOut.append("<p class=\"portlet-msg-error\">\n");
-		errorOut.append(FormattedText.escapeHtmlFormattedText(errorMsg));
+		errorOut.append(ComponentManager.get(FormattedText.class).escapeHtmlFormattedText(errorMsg));
 		errorOut.append("\n</p>\n<!-- Traceback for this error\n");
 		errorOut.append(oStream.toString());
 		errorOut.append("\n-->\n");
