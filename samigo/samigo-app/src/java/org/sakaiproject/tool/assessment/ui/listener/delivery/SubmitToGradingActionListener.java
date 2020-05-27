@@ -712,35 +712,35 @@ public class SubmitToGradingActionListener implements ActionListener {
 				itemgrading.setAgentId(AgentFacade.getAgentString());
 				itemgrading.setSubmittedDate(new Date());
 			}
-			int fake=-1;
+			int fakeitemgrading=-1;
 			for (int m = 0; m < grading.size(); m++) {
 				ItemGradingData itemgrading = grading.get(m);
 				String s = itemgrading.getAnswerText();
 				if (itemgrading.getItemGradingId() != null
 						&& itemgrading.getItemGradingId().intValue() > 0) {
-					 if ("1".equals(delivery.getNavigation()) && itemgrading.getPublishedAnswerId()==null && (s==null || s.equals(""))) {
+					if ("1".equals(delivery.getNavigation()) && itemgrading.getPublishedAnswerId()==null && StringUtils.isBlank(s)) {
 						//Mark this as the fake itemgrading record
-						{fake=m;}	 
-				     } else {
-						 log.debug("s = " + s);
-						 // Change to allow student submissions in rich-text [SAK-17021]
-						 itemgrading.setAnswerText(s);
-						 adds.add(itemgrading);
-				     }	
+						fakeitemgrading=m;	 
+				    } else {
+						log.debug("Existing Itemgrading with AnswerText = {}",s);
+						// Change to allow student submissions in rich-text [SAK-17021]
+						itemgrading.setAnswerText(s);
+						adds.add(itemgrading);
+				    }	
 				}
-				else if (s != null && !s.equals("")) {
-					log.debug("s = " + s);
+				else if (StringUtils.isNotBlank(s)) {
+					log.debug("New Itemgrading with AnswerText = {}", s);
 					// Change to allow student submissions in rich-text [SAK-17021]
 					itemgrading.setAnswerText(s);
 					adds.add(itemgrading);
 				}
 			}
 			//Now if the list of adds is empty we add the fake itemgrading, otherwise we deleted as it is not longer necessary
-			if (fake>-1) {
+			if (fakeitemgrading>-1) {
 				if (adds.size()>0) {
-					removes.add(grading.get(fake));
+					removes.add(grading.get(fakeitemgrading));
 				} else {
-					adds.add(grading.get(fake));
+					adds.add(grading.get(fakeitemgrading));
 				}
 			}
 			break;
