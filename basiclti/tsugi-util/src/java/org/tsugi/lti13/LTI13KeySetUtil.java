@@ -82,10 +82,10 @@ public class LTI13KeySetUtil {
 	{
 		com.nimbusds.jose.jwk.JWKSet localKeys = com.nimbusds.jose.jwk.JWKSet.load(new java.net.URL(url));
 
-        com.nimbusds.jose.jwk.RSAKey nimbusPublic = (com.nimbusds.jose.jwk.RSAKey) localKeys.getKeyByKeyId(kid);
+		com.nimbusds.jose.jwk.RSAKey nimbusPublic = (com.nimbusds.jose.jwk.RSAKey) localKeys.getKeyByKeyId(kid);
 
-        RSAPublicKey publicKey = nimbusPublic.toRSAPublicKey();
-        java.security.interfaces.RSAKey rsaPublicKey = (java.security.interfaces.RSAKey) publicKey;
+		RSAPublicKey publicKey = nimbusPublic.toRSAPublicKey();
+		java.security.interfaces.RSAKey rsaPublicKey = (java.security.interfaces.RSAKey) publicKey;
 
 		return publicKey;
 	}
@@ -95,10 +95,10 @@ public class LTI13KeySetUtil {
 	{
 		com.nimbusds.jose.jwk.JWKSet localKeys = com.nimbusds.jose.jwk.JWKSet.parse(json);
 
-        com.nimbusds.jose.jwk.RSAKey nimbusPublic = (com.nimbusds.jose.jwk.RSAKey) localKeys.getKeyByKeyId(kid);
+		com.nimbusds.jose.jwk.RSAKey nimbusPublic = (com.nimbusds.jose.jwk.RSAKey) localKeys.getKeyByKeyId(kid);
 
-        RSAPublicKey publicKey = nimbusPublic.toRSAPublicKey();
-        java.security.interfaces.RSAKey rsaPublicKey = (java.security.interfaces.RSAKey) publicKey;
+		RSAPublicKey publicKey = nimbusPublic.toRSAPublicKey();
+		java.security.interfaces.RSAKey rsaPublicKey = (java.security.interfaces.RSAKey) publicKey;
 
 		return publicKey;
 	}

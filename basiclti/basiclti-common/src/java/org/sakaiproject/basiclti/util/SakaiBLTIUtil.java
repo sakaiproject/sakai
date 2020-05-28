@@ -1133,20 +1133,9 @@ public class SakaiBLTIUtil {
 			if (lti_errorlog != null) {
 				log.warn(lti_errorlog);
 			}
-/*
-			// TODO: Remove this
-			String publicKeyStr = (String) tool.get(LTIService.LTI13_TOOL_PUBLIC);
-			if (publicKeyStr == null) {
-				throw new RuntimeException("Could not find tool public key");
-			}
 
-			Key publicKey = string2PublicKey(publicKeyStr);
-			if (publicKey == null) {
-				throw new RuntimeException("Could not deserialize tool public key");
-			}
-*/
 			// May throw a RunTimeException on our behalf :)
-		    Key publicKey = SakaiBLTIUtil.getPublicKey(tool, id_token);
+			Key publicKey = SakaiBLTIUtil.getPublicKey(tool, id_token);
 
 			// Fill up the object, validate and return
 			DeepLinkResponse dlr = new DeepLinkResponse(id_token);
