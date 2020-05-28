@@ -402,7 +402,6 @@ public class LTI13Servlet extends HttpServlet {
 			log.error("Could not parse Jwt Header in client_assertion\n{}", client_assertion);
 			return;
 		}
-		String incoming_kid = (String) jsonHeader.get("kid");
 
 		Long toolKey = getLongKey(tool_id);
 		if (toolKey < 1) {

@@ -855,17 +855,17 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			}
 
 			// If we do not have a tool keyset we create a public/private key pair for the tool
-			if ( form_lti13_lti13_tool_keyset == null ) {
-				if (form_lti13_tool_public == null && old_lti13_tool_public == null) {
-					kp = LTI13Util.generateKeyPair();
-					if (kp == null) {
-						addAlert(state, rb.getString("error.keygen.fail"));
-						switchPanel(state, "Error");
-						return;
-					}
-					reqProps.setProperty("lti13_tool_public", LTI13Util.getPublicEncoded(kp));
-					reqProps.setProperty("lti13_tool_private", LTI13Util.getPrivateEncoded(kp));
+			if ( form_lti13_lti13_tool_keyset == null &&
+				form_lti13_tool_public == null && old_lti13_tool_public == null) {
+
+				kp = LTI13Util.generateKeyPair();
+				if (kp == null) {
+					addAlert(state, rb.getString("error.keygen.fail"));
+					switchPanel(state, "Error");
+					return;
 				}
+				reqProps.setProperty("lti13_tool_public", LTI13Util.getPublicEncoded(kp));
+				reqProps.setProperty("lti13_tool_private", LTI13Util.getPrivateEncoded(kp));
 			}
 		}
 
