@@ -409,11 +409,7 @@ public class ChartServiceImpl implements ChartService {
 			boolean render3d, float transparency,
 			boolean itemLabelsVisible, 
 			boolean smallFontInDomainAxis) {
-		// JFreechart 1.5 doesn't support 3D rendering anymore.
-		// JFreeChart chart = null;
-		// if(render3d)
-		// 	chart = ChartFactory.createLineChart3D(null, null, null, dataset, PlotOrientation.VERTICAL, true, false, false);
-		// else
+		// JFreechart 1.5 doesn't support 3D rendering so this was changed to a line chart
 		JFreeChart chart = ChartFactory.createLineChart(null, null, null, dataset, PlotOrientation.VERTICAL, true, false, false);
 		CategoryPlot plot = (CategoryPlot) chart.getPlot();
 		
