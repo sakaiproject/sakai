@@ -33,6 +33,13 @@
     </dependency>
   </dependencies>
   <build>
-    <resources />
+    <resources>
+      <resource>
+        <directory>${basedir}/src/bundle</directory>
+        <includes>
+          <include>**/*.properties</include>
+        </includes>
+      </resource>
+    </resources>
   </build>
 </project>
