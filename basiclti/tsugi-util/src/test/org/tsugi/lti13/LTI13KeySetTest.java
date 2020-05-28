@@ -94,7 +94,6 @@ public class LTI13KeySetTest {
 	    throws java.io.IOException, java.text.ParseException, com.nimbusds.jose.JOSEException, java.net.MalformedURLException
     {
         String kid = "49e4cfe6d3280fec019c92abe85b2747ffd98d19845b99373dbadc741286288c";
-        String alg = "RS256";
 
         String json = "{\n" +
             "\"keys\": [\n" +

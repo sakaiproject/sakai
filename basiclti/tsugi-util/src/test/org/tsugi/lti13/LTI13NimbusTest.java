@@ -128,7 +128,6 @@ public class LTI13NimbusTest {
         throws java.text.ParseException, com.nimbusds.jose.JOSEException
     {
 		String kid = "49e4cfe6d3280fec019c92abe85b2747ffd98d19845b99373dbadc741286288c";
-		String alg = "RS256";
 
         String json = "{\n" +
             "\"keys\": [\n" +

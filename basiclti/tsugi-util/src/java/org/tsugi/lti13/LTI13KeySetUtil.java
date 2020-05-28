@@ -30,8 +30,6 @@ import org.json.simple.JSONValue;
 
 import com.nimbusds.jose.JWSAlgorithm;
 
-import com.nimbusds.jose.jwk.JWKSet;
-
 @Slf4j
 public class LTI13KeySetUtil {
 
@@ -85,8 +83,6 @@ public class LTI13KeySetUtil {
 		com.nimbusds.jose.jwk.RSAKey nimbusPublic = (com.nimbusds.jose.jwk.RSAKey) localKeys.getKeyByKeyId(kid);
 
 		RSAPublicKey publicKey = nimbusPublic.toRSAPublicKey();
-		java.security.interfaces.RSAKey rsaPublicKey = (java.security.interfaces.RSAKey) publicKey;
-
 		return publicKey;
 	}
 
@@ -98,8 +94,6 @@ public class LTI13KeySetUtil {
 		com.nimbusds.jose.jwk.RSAKey nimbusPublic = (com.nimbusds.jose.jwk.RSAKey) localKeys.getKeyByKeyId(kid);
 
 		RSAPublicKey publicKey = nimbusPublic.toRSAPublicKey();
-		java.security.interfaces.RSAKey rsaPublicKey = (java.security.interfaces.RSAKey) publicKey;
-
 		return publicKey;
 	}
 }

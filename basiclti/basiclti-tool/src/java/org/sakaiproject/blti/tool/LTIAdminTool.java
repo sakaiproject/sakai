@@ -762,6 +762,12 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		String formInput = ltiService.formInput(previousPost, mappingForm);
 		context.put("formInput", formInput);
 
+		// Initially all LTI 1.3 tools are global and installed system wide by the admin
+		// If we move to an instructor deploy model, the issuer will need to change
+		String site_id = null;
+		String issuerURL = SakaiBLTIUtil.getIssuer(site_id);
+		context.put("issuerURL", issuerURL);
+
 		state.removeAttribute(STATE_POST);
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_tool_insert";

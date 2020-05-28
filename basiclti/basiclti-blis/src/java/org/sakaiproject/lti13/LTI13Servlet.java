@@ -419,41 +419,6 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		/*
-		// (1) No keyset url, just use the stored public key and hope
-		// (2) Keyset url and kids match use stored public key
-		// (3) Keyset url kids mis-match, get new public key from keyset URL retain and use.
-		String tool_keyset = (String) tool.get(LTIService.LTI13_TOOL_KEYSET);
-		String tool_public = (String) tool.get(LTIService.LTI13_TOOL_PUBLIC);
-		if (tool_keyset == null && tool_public == null) {
-			LTI13Util.return400(response, "Could not find tool keyset url or stored public key");
-			log.error("Could not find tool keyset url or stored public key {}", tool_id);
-			return;
-		}
-
-		Key publicKey = null;
-		String tool_kid = (String) tool.get(LTIService.LTI13_TOOL_KID);
-		if ( tool_keyset != null && incoming_kid != null && ! incoming_kid.equals(tool_kid) ) {
-			// TODO: Use Earle's super-cluster-cache one day
-			log.debug("Retrieving kid="+incoming_kid+" from "+tool_keyset);
-			try {
-				publicKey = LTI13KeySetUtil.getKeyFromKeySet(incoming_kid, tool_keyset);
-			} catch (Exception e) {
-				LTI13Util.return400(response, "Unable to retrieve kid="+incoming_kid+" from "+tool_keyset+" detail="+e.getMessage());
-				log.error(e.getMessage(), e);
-				return;
-			}
-		} else {
-			publicKey = LTI13Util.string2PublicKey(tool_public);
-			if (publicKey == null) {
-				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				LTI13Util.return400(response, "Could not deserialize tool public key");
-				log.error("Could not deserialize tool public key {}", tool_id);
-				return;
-			}
-		}
-		*/
-
 		// Get the correct public key.
 		Key publicKey = null;
 		try {
