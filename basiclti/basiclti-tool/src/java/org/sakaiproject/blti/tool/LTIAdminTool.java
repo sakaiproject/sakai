@@ -818,6 +818,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		// Handle the incoming LTI 1.3 data
 		String form_lti13 = reqProps.getProperty("lti13");
 		String form_lti13_tool_public = StringUtils.trimToNull(reqProps.getProperty("lti13_tool_public"));
+		String form_lti13_lti13_tool_keyset = StringUtils.trimToNull(reqProps.getProperty("lti13_tool_keyset"));
 
 		String old_lti13_client_id = null;
 		String old_lti13_tool_public = null;
@@ -835,6 +836,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			if (old_lti13_client_id == null) {
 				reqProps.setProperty("lti13_client_id", UUID.randomUUID().toString());
 			}
+
 			if (old_lti13_platform_public == null || old_lti13_platform_private == null) {
 				kp = LTI13Util.generateKeyPair();
 				if (kp == null) {
@@ -845,15 +847,19 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 				reqProps.setProperty("lti13_platform_public", LTI13Util.getPublicEncoded(kp));
 				reqProps.setProperty("lti13_platform_private", LTI13Util.getPrivateEncoded(kp));
 			}
-			if (form_lti13_tool_public == null && old_lti13_tool_public == null) {
-				kp = LTI13Util.generateKeyPair();
-				if (kp == null) {
-					addAlert(state, rb.getString("error.keygen.fail"));
-					switchPanel(state, "Error");
-					return;
+
+			// If we do not have a tool keyset we create a public/private key pair for the tool
+			if ( form_lti13_lti13_tool_keyset == null ) {
+				if (form_lti13_tool_public == null && old_lti13_tool_public == null) {
+					kp = LTI13Util.generateKeyPair();
+					if (kp == null) {
+						addAlert(state, rb.getString("error.keygen.fail"));
+						switchPanel(state, "Error");
+						return;
+					}
+					reqProps.setProperty("lti13_tool_public", LTI13Util.getPublicEncoded(kp));
+					reqProps.setProperty("lti13_tool_private", LTI13Util.getPrivateEncoded(kp));
 				}
-				reqProps.setProperty("lti13_tool_public", LTI13Util.getPublicEncoded(kp));
-				reqProps.setProperty("lti13_tool_private", LTI13Util.getPrivateEncoded(kp));
 			}
 		}
 
@@ -1252,8 +1258,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		if ( isDeepLink ) {
 			// Parse and validate the incoming DeepLink
 			String pubkey = (String) tool.get(LTIService.LTI13_TOOL_PUBLIC);
-			if (pubkey == null) {
-				addAlert(state, rb.getString("error.tool.missing.pubkey"));
+			String keyset = (String) tool.get(LTIService.LTI13_TOOL_KEYSET);
+			if (keyset == null && pubkey == null) {
+				addAlert(state, rb.getString("error.tool.missing.keyset"));
 				switchPanel(state, "Error");
 				return;
 			}
@@ -1388,8 +1395,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		if ( isDeepLink ) {
 			// Parse and validate the incoming DeepLink
 			String pubkey = (String) tool.get(LTIService.LTI13_TOOL_PUBLIC);
-			if (pubkey == null) {
-				addAlert(state, rb.getString("error.tool.missing.pubkey"));
+			String keyset = (String) tool.get(LTIService.LTI13_TOOL_KEYSET);
+			if (keyset == null && pubkey == null) {
+				addAlert(state, rb.getString("error.tool.missing.keyset"));
 				switchPanel(state, "Error");
 				return;
 			}
