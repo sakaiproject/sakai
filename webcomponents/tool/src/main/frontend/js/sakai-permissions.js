@@ -38,7 +38,7 @@ class SakaiPermissions extends SakaiElement {
 
     this.loadTranslations("permissions-wc").then(i18n => {
 
-      this.loadTranslations(this.tool).then(tool => {
+      this.loadTranslations(this.bundleKey ? this.bundleKey : this.tool).then(tool => {
 
         Object.keys(tool).filter(k => k.startsWith("perm-")).forEach(k => i18n[k.substring(5)] = tool[k]);
         this.i18n = i18n;
@@ -51,6 +51,7 @@ class SakaiPermissions extends SakaiElement {
 
     return {
       tool: String,
+      bundleKey: { attribute: 'bundle-key', type: String },
       roles: {type: Array},
       groups: Array,
     };
@@ -107,7 +108,7 @@ class SakaiPermissions extends SakaiElement {
               <label for="${role}:${perm}" class="sr-only">
                 <span>${this.i18n["gen.enable"]} ${role}</span>
               </label>
-              <input type="checkbox" class="sakai-permission-checkbox" aria-label="${this.i18n["gen.enable"]} ${role}" .checked=${this.on[role].includes(perm)} id="${role}:${perm}"/>
+              <input type="checkbox" class="sakai-permission-checkbox" aria-label="${this.i18n["gen.enable"]} ${role}" .checked=${this.on[role].includes(perm)} data-role="${role}" data-perm="${perm}" id="${role}:${perm}"/>
             </td>
             `)}
           </tr>
@@ -115,7 +116,7 @@ class SakaiPermissions extends SakaiElement {
         </table>
         <div class="act">
           <input type="button" class="active" value="${this.i18n["gen.sav"]}" aria-label="${this.i18n["gen.sav"]}" @click=${this.savePermissions}/>
-          <input type="button" value="${this.i18n["gen.can"]}" aria-label="${this.i18n["gen.can"]}" @click=${this.resetPermissions}/>
+          <input type="button" value="${this.i18n["gen.can"]}" aria-label="${this.i18n["gen.can"]}" @click=${this.cancelPermissions}/>
           <span id="${this.tool}-failure-message" class="permissions-save-message" style="display: none;">${this.i18n["per.error.save"]}</span>
         </div>
       `;
@@ -172,6 +173,26 @@ class SakaiPermissions extends SakaiElement {
   }
 
   resetPermissions() {
+
+    this.updateComplete.then(() => {
+
+      let inputs = this.renderRoot.querySelectorAll("input[type='checkbox']");
+      inputs.forEach(elem => {
+
+          let role = elem.getAttribute('data-role');
+          let perm = elem.getAttribute('data-perm');
+          if (role && perm) {
+            let elemChanged = (elem.checked != this.on[role].includes(perm));
+            elem.checked = this.on[role].includes(perm);
+            if (elemChanged) {
+              elem.dispatchEvent(new Event("change"));
+            }
+          }
+      })
+    });
+  }
+
+  cancelPermissions() {
     window.location.reload();
   }
 

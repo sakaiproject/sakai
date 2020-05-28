@@ -48,7 +48,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
-import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEdit;
@@ -2480,6 +2479,11 @@ extends VelocityPortletStateAction
 		else if (stateName.equals(STATE_SET_FREQUENCY))
 		{
 			buildFrequencyContext(portlet, context, runData, state);
+		}
+		else if (stateName.equals(MODE_PERMISSIONS))
+		{
+			template = build_permissions_context(portlet, context, runData, getSessionState(runData));
+			state.setState(state.getPrevState());
 		}
 
 		if (stateName.equals("description") 
@@ -7701,41 +7705,14 @@ extends VelocityPortletStateAction
 	 */
 	public void doPermissions(RunData data, Context context)
 	{
-		// get into helper mode with this helper tool
-		startHelper(data.getRequest(), "sakai.permissions.helper");
-
 		// setup the parameters for the helper
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		CalendarActionState cstate = (CalendarActionState) getState(context, data, CalendarActionState.class);
 
-		String calendarRefStr = cstate.getPrimaryCalendarReference();
-		Reference calendarRef = EntityManager.newReference(calendarRefStr);
-		String siteRef = SiteService.siteReference(calendarRef.getContext());
+		cstate.setPrevState(cstate.getState());
+		cstate.setState(MODE_PERMISSIONS);
 
-		// setup for editing the permissions of the site for this tool, using the roles of this site, too
-		state.setAttribute(PermissionsHelper.TARGET_REF, siteRef);
-
-		// ... with this description
-		state.setAttribute(PermissionsHelper.DESCRIPTION, rb.getString("java.set")
-				+ SiteService.getSiteDisplay(calendarRef.getContext()));
-
-		// ... showing only locks that are prpefixed with this
-		state.setAttribute(PermissionsHelper.PREFIX, "calendar.");
-		// ... pass the resource loader object
-		ResourceLoader pRb = new ResourceLoader("permissions");
-		HashMap<String, String> pRbValues = new HashMap<String, String>();
-		for (Iterator<Entry<String, String>> iKeys = pRb.entrySet().iterator();iKeys.hasNext();)
-		{
-			Entry entry = iKeys.next();
-			String key = (String)entry.getKey();
-			pRbValues.put(key, (String)entry.getValue());
-
-		}
-		state.setAttribute("permissionDescriptions",  pRbValues);
-		
-		String groupAware = ToolManager.getCurrentTool().getRegisteredConfig().getProperty("groupAware");
-		state.setAttribute("groupAware", groupAware != null?Boolean.valueOf(groupAware):Boolean.FALSE);
-		state.removeAttribute("menu"); //Menu not required in the permission view
+		state.setAttribute(STATE_TOOL_KEY, "calendar");
 	}
 
 	/**
