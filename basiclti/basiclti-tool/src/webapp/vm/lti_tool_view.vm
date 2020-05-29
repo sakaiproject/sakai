@@ -10,7 +10,7 @@
         <p class="act">
         <input type="submit" accesskey ="x" name="doDone" value="$tlang.getString('gen.done')"
         onclick="location = '$sakai_ActionURL.setPanel("ToolSystem")';return false;" class="active">
-        <input type="submit" accesskey ="v" name="doShow" value="$tlang.getString('gen.toggle.priv')"
+        <input type="submit" id="lti13_tool_toggle" style="display:none;" accesskey ="v" name="doShow" value="$tlang.getString('gen.toggle.priv')"
         onclick="$('#lti13_tool_private').toggle();return false;"> 
 	</form>
 #if ( ! $isAdmin )
@@ -22,7 +22,9 @@ $(document).ready( function() {
         $(window).resize( function() {
                 setMainFrameHeight('sakai-basiclti-admin-iframe');
         });
+        $('#lti13_platform_public').hide();
         $('#lti13_tool_private').hide();
+        $('#lti13_tool_public').hide();
 
         $('#lti13_tool_public').css('font-family', '"Courier New", monospace');
         $('#lti13_tool_public').css('white-space', 'pre');
@@ -42,7 +44,15 @@ $(document).ready( function() {
             '<b>$tlang.getString('lti13_oidc_auth')</b><br/>$authOIDC</p>' +
             '<p class="foorm-text" id="lti13_issuer">' +
             '<b>$tlang.getString('lti13_issuer')</b><br/>$issuerURL</p>' +
-            '		</p>');
+            '</p>');
+
+        // If we have a keyset - it is as if the tool public and private key
+        // don't exist
+        var keyset = '$keySetUrl';
+        if ( keyset.length == 0 ) {
+            $('#lti13_tool_public').show();
+            $('#lti13_tool_toggle').show();
+        }
 });
 </script>
 
