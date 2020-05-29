@@ -79,6 +79,7 @@ import org.tsugi.jackson.JacksonUtil;
 import org.tsugi.lti13.DeepLinkResponse;
 import org.tsugi.lti13.LTI13KeySetUtil;
 import org.tsugi.lti13.LTI13Util;
+import org.tsugi.lti13.LTI13JwtUtil;
 import org.tsugi.lti13.objects.BasicOutcome;
 import org.tsugi.lti13.objects.Context;
 import org.tsugi.lti13.objects.DeepLink;
@@ -1069,7 +1070,47 @@ public class SakaiBLTIUtil {
 			return contentItem;
 		}
 
-			/**
+		/**
+		 * getPublicKey - Get the appropriate public key for use for an incoming request
+		 */
+		public static Key getPublicKey(Map<String, Object> tool, String id_token)
+		{
+			JSONObject jsonHeader = LTI13JwtUtil.jsonJwtHeader(id_token);
+			if (jsonHeader == null) {
+				throw new RuntimeException("Could not parse Jwt Header in client_assertion");
+			}
+			String incoming_kid = (String) jsonHeader.get("kid");
+
+			String tool_keyset = (String) tool.get(LTIService.LTI13_TOOL_KEYSET);
+			String tool_public = (String) tool.get(LTIService.LTI13_TOOL_PUBLIC);
+			if (tool_keyset == null && tool_public == null) {
+				throw new RuntimeException("Could not find tool keyset url or stored public key");
+			}
+
+			Key publicKey = null;
+			if ( tool_keyset != null ) {
+				log.debug("Retrieving kid="+incoming_kid+" from "+tool_keyset);
+
+				// TODO: Read from Earle's super-cluster-cache one day - SAK-43700
+				try {
+					publicKey = LTI13KeySetUtil.getKeyFromKeySet(incoming_kid, tool_keyset);
+				} catch (Exception e) {
+					log.error(e.getMessage(), e);
+					// Sorry - too many exceptions to explain here - lets keep it simple after logging it
+					throw new RuntimeException("Unable to retrieve kid="+incoming_kid+" from "+tool_keyset+" detail="+e.getMessage());
+				}
+				// TODO: Store in Earle's super-cluster-cache one day - SAK-43700
+
+			} else {
+				publicKey = LTI13Util.string2PublicKey(tool_public);
+				if (publicKey == null) {
+					throw new RuntimeException("Could not deserialize tool public key");
+				}
+			}
+			return publicKey;
+		}
+
+		/**
 		 * Create a ContentItem from the current request (may throw runtime)
 		 */
 		public static DeepLinkResponse getDeepLinkFromToken(Map<String, Object> tool, String id_token) {
@@ -1093,15 +1134,8 @@ public class SakaiBLTIUtil {
 				log.warn(lti_errorlog);
 			}
 
-			String publicKeyStr = (String) tool.get(LTIService.LTI13_TOOL_PUBLIC);
-			if (publicKeyStr == null) {
-				throw new RuntimeException("Could not find tool public key");
-			}
-
-			Key publicKey = LTI13Util.string2PublicKey(publicKeyStr);
-			if (publicKey == null) {
-				throw new RuntimeException("Could not deserialize tool public key");
-			}
+			// May throw a RunTimeException on our behalf :)
+			Key publicKey = SakaiBLTIUtil.getPublicKey(tool, id_token);
 
 			// Fill up the object, validate and return
 			DeepLinkResponse dlr = new DeepLinkResponse(id_token);
