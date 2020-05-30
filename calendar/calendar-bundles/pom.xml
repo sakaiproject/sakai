@@ -13,6 +13,10 @@
     <artifactId>sakai-calendar-bundles</artifactId>
     <packaging>jar</packaging>
 
+    <properties>
+        <deploy.target>shared</deploy.target>
+    </properties>
+
     <build>
         <resources>
             <resource>

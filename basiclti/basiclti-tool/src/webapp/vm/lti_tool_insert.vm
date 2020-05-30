@@ -60,6 +60,13 @@ $(document).ready( function() {
 
     var toolorderspinner = $("#toolorder").spinner({min:0,max:99});
 
+    var issuerURL = '$issuerURL';
+
+    $( "#lti13-input" ).after(
+            '<p class="foorm-text" id="lti13_issuer_url">' +
+            '<b>$tlang.getString('lti13_issuer_url')</b><br/>$issuerURL</p>' +
+            '</p>');
+
 });
 
 </script>
