@@ -1211,11 +1211,18 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		String peid = ((JetspeedRunData) data).getJs_peid();
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
 
+		// Special error panel URL to re-establish session cookie
+		String sakaiSession = data.getParameters().getString(RequestFilter.ATTR_SESSION);
+		String errorPanel = "Error";
+		if ( sakaiSession != null ) {
+			errorPanel = errorPanel + "&" + RequestFilter.ATTR_SESSION + "=" + sakaiSession;
+		}
+
 		// Check for a returned error message from LTI
 		String lti_errormsg = data.getParameters().getString("lti_errormsg");
 		if (lti_errormsg != null && lti_errormsg.trim().length() > 0) {
 			addAlert(state, lti_errormsg);
-			switchPanel(state, "Error");
+			switchPanel(state, errorPanel);
 			return;
 		}
 
@@ -1229,14 +1236,14 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		Long toolKey = foorm.getLongNull(data.getParameters().getString(LTIService.LTI_TOOL_ID));
 		if (toolKey == 0 || toolKey < 0) {
 			addAlert(state, rb.getString("error.contentitem.missing"));
-			switchPanel(state, "Error");
+			switchPanel(state, errorPanel);
 			return;
 		}
 
 		Map<String, Object> tool = ltiService.getTool(toolKey, getSiteId(state));
 		if (tool == null) {
 			addAlert(state, rb.getString("error.contentitem.missing"));
-			switchPanel(state, "Error");
+			switchPanel(state, errorPanel);
 			return;
 		}
 
@@ -1244,7 +1251,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		String returnUrl = data.getParameters().getString("returnUrl");
 		if (returnUrl == null) {
 			addAlert(state, rb.getString("error.contentitem.missing.returnurl"));
-			switchPanel(state, "Error");
+			switchPanel(state, errorPanel);
 			return;
 		}
 
@@ -1257,7 +1264,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			isDeepLink = DeepLinkResponse.isRequest(id_token);
 		} catch (Exception e) {
 			addAlert(state, rb.getString("error.deeplink.bad") + " (" + e.getMessage() + ")");
-			switchPanel(state, "Error");
+			switchPanel(state, errorPanel);
 			return;
 		}
 
@@ -1267,7 +1274,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			String keyset = (String) tool.get(LTIService.LTI13_TOOL_KEYSET);
 			if (keyset == null && pubkey == null) {
 				addAlert(state, rb.getString("error.tool.missing.keyset"));
-				switchPanel(state, "Error");
+				switchPanel(state, errorPanel);
 				return;
 			}
 
@@ -1276,14 +1283,14 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 				dlr = SakaiBLTIUtil.getDeepLinkFromToken(tool, id_token);  // Also checks security
 			} catch (Exception e) {
 				addAlert(state, rb.getString("error.deeplink.bad") + " (" + e.getMessage() + ")");
-				switchPanel(state, "Error");
+				switchPanel(state, errorPanel);
 				return;
 			}
 
 			JSONObject item = dlr.getItemOfType(DeepLinkResponse.TYPE_LTILINKITEM);
 			if (item == null) {
 				addAlert(state, rb.getString("error.deeplink.no.ltilink"));
-				switchPanel(state, "Error");
+				switchPanel(state, errorPanel);
 				return;
 			}
 
@@ -1299,7 +1306,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 				contentItem = SakaiBLTIUtil.getContentItemFromRequest(tool);
 			} catch (Exception e) {
 				addAlert(state, rb.getString("error.contentitem.bad") + " (" + e.getMessage() + ")");
-				switchPanel(state, "Error");
+				switchPanel(state, errorPanel);
 				return;
 			}
 
@@ -1315,7 +1322,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			}
 			if (item == null) {
 				addAlert(state, rb.getString("error.contentitem.no.ltilink"));
-				switchPanel(state, "Error");
+				switchPanel(state, errorPanel);
 				return;
 			}
 
@@ -1343,7 +1350,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		log.debug("Content Item complete toolKey={}", toolKey);
 		doContentPutInternal(data, context, reqProps);
 
-		String sakaiSession = data.getParameters().getString(RequestFilter.ATTR_SESSION);
 		if (sakaiSession != null) {
 			switchPanel(state, "Redirect&" + RequestFilter.ATTR_SESSION + "=" + sakaiSession);
 		}
