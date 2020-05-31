@@ -636,6 +636,7 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String NEW_ASSIGNMENT_ATTACHMENT = "new_assignment_attachment";
     private static final String NEW_ASSIGNMENT_SECTION = "new_assignment_section";
     private static final String NEW_ASSIGNMENT_SUBMISSION_TYPE = "new_assignment_submission_type";
+    private static final String NEW_ASSIGNMENT_CONTENT_ID = "new_assignment_content_id";
     private static final String NEW_ASSIGNMENT_CATEGORY = "new_assignment_category";
     private static final String NEW_ASSIGNMENT_GRADE_TYPE = "new_assignment_grade_type";
     private static final String NEW_ASSIGNMENT_GRADE_POINTS = "new_assignment_grade_points";
@@ -2740,6 +2741,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         context.put("name_Section", NEW_ASSIGNMENT_SECTION);
         context.put("name_SubmissionType", NEW_ASSIGNMENT_SUBMISSION_TYPE);
+        context.put("name_ContentId", NEW_ASSIGNMENT_CONTENT_ID);
         context.put("name_Category", NEW_ASSIGNMENT_CATEGORY);
         context.put("name_GradeAssignment", NEW_ASSIGNMENT_GRADE_ASSIGNMENT);
         context.put("name_GradeType", NEW_ASSIGNMENT_GRADE_TYPE);
@@ -2779,6 +2781,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         context.put("value_Sections", state.getAttribute(NEW_ASSIGNMENT_SECTION));
         context.put("value_SubmissionType", state.getAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE));
+        context.put("value_ContentId", state.getAttribute(NEW_ASSIGNMENT_CONTENT_ID));
 
         // information related to gradebook categories
         putGradebookCategoryInfoIntoContext(state, context);
@@ -3290,6 +3293,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         context.put("value_Sections", state.getAttribute(NEW_ASSIGNMENT_SECTION));
         context.put("value_SubmissionType", state.getAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE));
+        context.put("value_ContentId", state.getAttribute(NEW_ASSIGNMENT_CONTENT_ID));
         context.put("value_GradeType", state.getAttribute(NEW_ASSIGNMENT_GRADE_TYPE));
         String maxGrade = (String) state.getAttribute(NEW_ASSIGNMENT_GRADE_POINTS);
         context.put("value_GradePoints", displayGrade(state, maxGrade, assignmentService.getScaleFactor()));
@@ -6571,6 +6575,10 @@ public class AssignmentAction extends PagedResourceActionII {
         String title = params.getString(NEW_ASSIGNMENT_TITLE);
         state.setAttribute(NEW_ASSIGNMENT_TITLE, title);
 
+        // put the input value into the state attributes
+        Integer contentId = Integer.valueOf((String) params.getString(NEW_ASSIGNMENT_CONTENT_ID));
+        state.setAttribute(NEW_ASSIGNMENT_CONTENT_ID, contentId);
+
         String order = params.getString(NEW_ASSIGNMENT_ORDER);
         state.setAttribute(NEW_ASSIGNMENT_ORDER, order);
 
@@ -7598,6 +7606,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
             String gradePoints = (String) state.getAttribute(NEW_ASSIGNMENT_GRADE_POINTS);
 
+            Integer contentId = (Integer) state.getAttribute(NEW_ASSIGNMENT_CONTENT_ID);
+
             String description = (String) state.getAttribute(NEW_ASSIGNMENT_DESCRIPTION);
 
             String checkAddDueTime = state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE) != null ? (String) state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE) : null;
@@ -7736,7 +7746,8 @@ public class AssignmentAction extends PagedResourceActionII {
                         gradeType, gradePoints, description, checkAddHonorPledge, attachments, section, rangeAndGroupSettings.range,
                         visibleTime, openTime, dueTime, closeTime, hideDueDate, enableCloseDate, emailReminder, rangeAndGroupSettings.isGroupSubmit, rangeAndGroupSettings.groups,
                         usePeerAssessment, peerPeriodTime, peerAssessmentAnonEval, peerAssessmentStudentViewReviews, peerAssessmentNumReviews, peerAssessmentInstructions,
-                        submitReviewRepo, generateOriginalityReport, checkTurnitin, checkInternet, checkPublications, checkInstitution, excludeBibliographic, excludeQuoted, excludeSelfPlag, storeInstIndex, studentPreview, excludeType, excludeValue);
+                        submitReviewRepo, generateOriginalityReport, checkTurnitin, checkInternet, checkPublications, checkInstitution, excludeBibliographic, excludeQuoted,
+					   	excludeSelfPlag, storeInstIndex, studentPreview, excludeType, excludeValue, contentId);
 
                 //RUBRICS, Save the binding between the assignment and the rubric
                 rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, a.getId(), getRubricConfigurationParameters(params));
@@ -8578,7 +8589,8 @@ public class AssignmentAction extends PagedResourceActionII {
                                   boolean storeInstIndex,
                                   boolean studentPreview,
                                   int excludeType,
-                                  int excludeValue) {
+                                  int excludeValue,
+								  Integer contentId) {
         a.setTitle(title);
         a.setContext((String) state.getAttribute(STATE_CONTEXT_STRING));
         a.setSection(section);
@@ -8595,6 +8607,7 @@ public class AssignmentAction extends PagedResourceActionII {
         a.setDropDeadDate(dueTime);
         a.setVisibleDate(visibleTime);
         if (closeTime != null) a.setCloseDate(closeTime);
+		a.setContentId(contentId);
 
         Map<String, String> p = a.getProperties();
         p.put("s_view_report", Boolean.toString(allowStudentViewReport));
@@ -11306,6 +11319,7 @@ public class AssignmentAction extends PagedResourceActionII {
         state.setAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE, Assignment.SubmissionType.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION.ordinal());
         state.setAttribute(NEW_ASSIGNMENT_GRADE_TYPE, UNGRADED_GRADE_TYPE.ordinal());
         state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, "");
+        state.setAttribute(NEW_ASSIGNMENT_CONTENT_ID, null);
         state.setAttribute(NEW_ASSIGNMENT_DESCRIPTION, "");
         boolean checkAddDueDate = (state.getAttribute(CALENDAR) != null || state.getAttribute(ADDITIONAL_CALENDAR) != null) && serverConfigurationService.getBoolean(SAK_PROP_DUE_DATE_TO_CALENDAR_DEFAULT, DUE_DATE_TO_CALENDAR_DEFAULT);
         state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, Boolean.toString(checkAddDueDate));
@@ -11379,6 +11393,7 @@ public class AssignmentAction extends PagedResourceActionII {
         state.removeAttribute(NEW_ASSIGNMENT_OPENYEAR);
         state.removeAttribute(NEW_ASSIGNMENT_OPENHOUR);
         state.removeAttribute(NEW_ASSIGNMENT_OPENMIN);
+        state.removeAttribute(NEW_ASSIGNMENT_CONTENT_ID);
 
         state.removeAttribute(ALLPURPOSE_RELEASE_MONTH);
         state.removeAttribute(ALLPURPOSE_RELEASE_DAY);
@@ -11532,6 +11547,7 @@ public class AssignmentAction extends PagedResourceActionII {
         submissionTypeTable.put(3, rb.getString(AssignmentConstants.ASSN_SUBMISSION_TYPE_INLINE_AND_ATTACHMENTS_PROP));
         submissionTypeTable.put(4, rb.getString(AssignmentConstants.ASSN_SUBMISSION_TYPE_NON_ELECTRONIC_PROP));
         submissionTypeTable.put(5, rb.getString(AssignmentConstants.ASSN_SUBMISSION_TYPE_SINGLE_ATTACHMENT_PROP));
+        submissionTypeTable.put(6, rb.getString(AssignmentConstants.ASSN_SUBMISSION_TYPE_EXTERNAL_TOOL));
 
         return submissionTypeTable;
     } // submissionTypeTable
