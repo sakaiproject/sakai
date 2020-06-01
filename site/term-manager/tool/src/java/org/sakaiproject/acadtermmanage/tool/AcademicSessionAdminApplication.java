@@ -43,10 +43,6 @@ public class AcademicSessionAdminApplication extends WebApplication {
 		
 		//Remove the wicket specific tags from the generated markup
 		getMarkupSettings().setStripWicketTags(true);
-		
-		//Don't add any extra tags around a disabled link (default is <em></em>)
-		getMarkupSettings().setDefaultBeforeDisabledLink(null);
-		getMarkupSettings().setDefaultAfterDisabledLink(null);
 				
 		// On Wicket session timeout, redirect to main page
 		getApplicationSettings().setPageExpiredErrorPage(getHomePage());
@@ -59,10 +55,10 @@ public class AcademicSessionAdminApplication extends WebApplication {
 			 public IRequestHandler onException(RequestCycle cycle, Exception ex) {
 				 if (ex instanceof RuntimeException) {
 					 RuntimeException re = (RuntimeException)ex;
-	                throw re;
+					 throw re;
 				 }
 				 return super.onException(cycle, ex);
-            }
+			}
 		});
 		
 	}
@@ -76,9 +72,5 @@ public class AcademicSessionAdminApplication extends WebApplication {
 	public Class<? extends Page> getHomePage() {
 		return SemesterPage.class;
 	}
-	
-	
-	
-	
 
 }
