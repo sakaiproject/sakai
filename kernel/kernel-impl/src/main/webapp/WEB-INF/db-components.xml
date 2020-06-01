@@ -465,11 +465,21 @@
 	<bean id="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"
 		  class="org.springframework.orm.hibernate4.HibernateTransactionManager">
 		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+	<!--  The "Global" JPA Transaction Manager -->
+	<bean id="org.sakaiproject.springframework.orm.jpa.GlobalJpaTransactionManager"
+		  class="org.springframework.orm.jpa.JpaTransactionManager">
+		<constructor-arg ref="entityManagerFactory"/>
 	</bean>
 
 	<!-- Alias for the GlobalTransactionManager to follow the springs default naming convention -->
 	<alias name="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"
-		   alias="transactionManager"/>
+        alias="transactionManager"/>
+
+	<!-- Alias for the GlobalJpaTransactionManager to follow the springs default naming convention -->
+	<alias name="org.sakaiproject.springframework.orm.jpa.GlobalJpaTransactionManager"
+		   alias="jpaTransactionManager"/>
 
 	<!-- enables JMX on hibernate -->
 	<bean id="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory.statistics"

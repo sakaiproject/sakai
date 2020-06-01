@@ -76,4 +76,8 @@ class FaIcon extends LitElement {
     `;
   }
 }
-customElements.define('fa-icon', FaIcon);
+
+try {
+  customElements.define('fa-icon', FaIcon);
+} catch (error) {
+}

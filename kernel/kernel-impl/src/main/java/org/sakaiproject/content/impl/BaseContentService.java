@@ -66,6 +66,7 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.codec.binary.Base64;
@@ -292,7 +293,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 	/** Dependency: MemoryService. */
 	protected MemoryService m_memoryService = null;
 
-    	/**
+	@Setter
+	private FileConversionService fileConversionService;
+
+	/**
 	 * Use a timer for repeating actions
 	 */
 	private Timer virusScanTimer = new Timer(true);
@@ -930,12 +934,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 
 			log.info("init(): site quota: " + m_siteQuota + ", dropbox quota: " + m_dropBoxQuota + ", body path: " + m_bodyPath + " volumes: "+ buf.toString());
 
-            int virusScanPeriod = m_serverConfigurationService.getInt(VIRUS_SCAN_CHECK_PERIOD_PROPERTY, VIRUS_SCAN_PERIOD);
-            int virusScanDelay = m_serverConfigurationService.getInt(VIRUS_SCAN_START_DELAY_PROPERTY, VIRUS_SCAN_DELAY);
+			int virusScanPeriod = m_serverConfigurationService.getInt(VIRUS_SCAN_CHECK_PERIOD_PROPERTY, VIRUS_SCAN_PERIOD);
+			int virusScanDelay = m_serverConfigurationService.getInt(VIRUS_SCAN_START_DELAY_PROPERTY, VIRUS_SCAN_DELAY);
 
-            virusScanDelay += new Random().nextInt(60); // add some random delay to get the servers out of sync
-            virusScanTimer.schedule(new VirusTimerTask(), (virusScanDelay * 1000), (virusScanPeriod * 1000) );
+ 			virusScanDelay += new Random().nextInt(60); // add some random delay to get the servers out of sync
+			virusScanTimer.schedule(new VirusTimerTask(), (virusScanDelay * 1000), (virusScanPeriod * 1000) );
 
+			fileConversionService.startIfEnabled();
 		}
 		catch (Exception t)
 		{
@@ -4018,8 +4023,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 			name = name.substring(0, name.length() - 1);
 		}
 
+		final String uuid = idManager.createUuid();
 		// form a name based on the attachments collection, a unique folder id, and the given name
-		String collection = ATTACHMENTS_COLLECTION + idManager.createUuid() + Entity.SEPARATOR;
+		String collection = ATTACHMENTS_COLLECTION + uuid + Entity.SEPARATOR;
 		String id = collection + name;
 
 		if (id.length() > MAXIMUM_RESOURCE_ID_LENGTH)
@@ -4031,8 +4037,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		addAndCommitAttachmentCollection(collection, name, null);
 
 		// and add the resource
-		return addResource(id, type, content, properties, new ArrayList(), NotificationService.NOTI_NONE);
+		ContentResource resource = addResource(id, type, content, properties, new ArrayList(), NotificationService.NOTI_NONE);
 
+		if (fileConversionService.canConvert(type)) {
+			fileConversionService.convert(id);
+		}
+
+		return resource;
 	} // addAttachmentResource
 
 	/**
@@ -4123,9 +4134,14 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		addAndCommitAttachmentCollection(collection, name, siteCreator);
 
 		// and add the resource
-		return addResource(id, type, content, properties, new ArrayList(), NotificationService.NOTI_NONE);
+		ContentResource resource = addResource(id, type, content, properties, new ArrayList(), NotificationService.NOTI_NONE);
 
-			} // addAttachmentResource
+		if (fileConversionService.canConvert(type)) {
+			fileConversionService.convert(id);
+		}
+
+		return resource;
+	} // addAttachmentResource
 
 	/**
 	 * Create a new resource as an attachment to some other resource in the system, locked for update. Must commitResource() to make official, or cancelResource() when done! The new resource will be placed into a newly created collecion in the attachment
