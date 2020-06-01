@@ -127,9 +127,6 @@ public class ExtractionHelper
   
   private String unzipLocation;
 
-  // versioning title string that it will look for/use, followed by a number
-  private static final String VERSION_START = "  - ";
-
   /**
    * @deprecated
    */
@@ -607,6 +604,9 @@ public class ExtractionHelper
     if (
         this.notNullOrEmpty(assessment.getAssessmentMetaDataByLabel(
         "FEEDBACK_DELIVERY_DATE") )  ||
+        (this.notNullOrEmpty(assessment.getAssessmentMetaDataByLabel(
+        "FEEDBACK_DELIVERY_END_DATE") ) && this.notNullOrEmpty(assessment.getAssessmentMetaDataByLabel(
+        "FEEDBACK_DELIVERY_DATE") )) ||
         "DATED".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
         "FEEDBACK_DELIVERY")))
     {
@@ -761,6 +761,8 @@ public class ExtractionHelper
     String retractDate = assessment.getAssessmentMetaDataByLabel("RETRACT_DATE");
     String feedbackDate = assessment.getAssessmentMetaDataByLabel(
         "FEEDBACK_DELIVERY_DATE");
+    String feedbackEndDate = assessment.getAssessmentMetaDataByLabel(
+        "FEEDBACK_DELIVERY_END_DATE");
 
     try
     {
@@ -794,6 +796,7 @@ public class ExtractionHelper
     try
     {
       control.setFeedbackDate(iso.parse(feedbackDate).getTime());
+      control.setFeedbackEndDate(iso.parse(feedbackEndDate).getTime());
       assessment.getData().addAssessmentMetaData("FEEDBACK_DELIVERY","DATED");
     }
     catch (Iso8601FormatException ex)
@@ -1708,23 +1711,10 @@ public class ExtractionHelper
     }
 
     String createdDate = (String) itemMap.get("createdDate");
-    
+
     item.setInstruction( (String) itemMap.get("instruction"));
-    if (notNullOrEmpty(score))
-    {
-      item.setScore( Double.valueOf(score));
-    }
-    else {
-    	item.setScore(Double.valueOf(0));
-    }
-    
-    if (notNullOrEmpty(discount))
-    {
-    	item.setDiscount(Double.valueOf(discount));
-    }
-    else {
-    	item.setDiscount(Double.valueOf(0));
-    }
+    item.setScore( getValidDouble(score) );
+    item.setDiscount( getValidDouble(discount) );
 
     if (notNullOrEmpty( partialCreditFlag))
     {
@@ -1873,9 +1863,8 @@ public class ExtractionHelper
 		  itemText.setItem(item.getData());
 		  itemText.setSequence( Long.valueOf(i + 1));
 
-		  List answerScoreList = new ArrayList(); //--mustansar
-		  List sList = (List) itemMap.get("answerScore"); //--mustansar
-		  answerScoreList = sList == null ? answerScoreList : sList; //--mustansar
+		  List<String> sList = (List) itemMap.get("answerScore");
+		  List<String> answerScoreList = sList == null ? new ArrayList<>() : sList;
 		  HashSet answerSet = new HashSet();
 		  char answerLabel = 'A';
 		  for (int a = 0; a < answerList.size(); a++)
@@ -1945,7 +1934,7 @@ public class ExtractionHelper
 						  long index = answer.getSequence().longValue(); 
 						  index = index - 1L;
 						  int indexInteger = Long.valueOf(index).intValue();
-						  String strPCredit = (String) answerScoreList.get(indexInteger);
+						  String strPCredit = answerScoreList.contains(indexInteger) ? answerScoreList.get(indexInteger) : "0";
 						  double fltPCredit = Double.parseDouble(strPCredit);
 						  Double pCredit = (fltPCredit/(item.getScore().doubleValue()))*100;
 						  if (pCredit.isNaN()){
@@ -2079,6 +2068,19 @@ public class ExtractionHelper
 		  itemTextSet.add(itemText);
 	  }
 	  item.setItemTextSet(itemTextSet);
+  }
+
+  private double getValidDouble(final String scoreText) {
+    if (StringUtils.isBlank(scoreText)) return 0d;
+
+    try {
+      return Double.valueOf(scoreText);
+    }
+    catch (NumberFormatException e) {
+      log.warn("Tried to parse this double in IMS-QTI extraction: {}", scoreText);
+    }
+
+    return 0d;
   }
 
   private double getCorrectScore(ItemDataIfc item, int answerSize)
@@ -2938,54 +2940,6 @@ public class ExtractionHelper
   {
     return s != null && s.trim().length() > 0 ?
         true : false;
-  }
-
-  /**
-   * Append "  - 2", "  - 3", etc. incrementing as you go.
-   * @param title the original
-   * @return the title with versioning appended
-   */
-  public String renameDuplicate(String title)
-  {
-    if (title==null) title = "";
-
-    String rename = "";
-    int index = title.lastIndexOf(VERSION_START);
-
-    if (index>-1)//if is versioned
-    {
-      String mainPart = "";
-      String versionPart = title.substring(index);
-      if (index > 0)
-      {
-        mainPart = title.substring(0, index);
-      }
-
-      int nindex = index + VERSION_START.length();
-
-      String version = title.substring(nindex);
-
-      int versionNumber = 0;
-      try
-      {
-        versionNumber = Integer.parseInt(version);
-        if (versionNumber < 2) versionNumber = 2;
-        versionPart = VERSION_START + (versionNumber + 1);
-
-        rename = mainPart + versionPart;
-      }
-      catch (NumberFormatException ex)
-      {
-        rename = title + VERSION_START + "2";
-      }
-    }
-    else
-    {
-      rename = title + VERSION_START + "2";
-    }
-
-    return rename;
-
   }
 
   /**

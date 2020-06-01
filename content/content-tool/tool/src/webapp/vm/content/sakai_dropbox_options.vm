@@ -17,6 +17,7 @@
 	//-->
 </script>
 <div class="portletBody specialLink">
+	#contentMenu("dropboxOptions")
 	<form name="optionsForm" id="optionsForm" action="#toolForm("ResourcesAction")" method="post" >
 		<input type="hidden" name="sakai_action" id="sakai_action" value="doUpdateDropboxOptions" />
 		<input type="hidden" name="siteId" id="siteId" value="$siteId" />
@@ -26,7 +27,7 @@
 		</div>
 
 		#if ($itemAlertMessage)
-			<div class="sak-banner-error">$tlang.getString("label.alert") $validator.escapeHtml($itemAlertMessage)</div>
+			<div class="sak-banner-error">$tlang.getString("label.alert") $formattedText.escapeHtml($itemAlertMessage)</div>
 		#end
 		<p class="instruction">
 			$tlang.getString("instr.dropbox.options") 

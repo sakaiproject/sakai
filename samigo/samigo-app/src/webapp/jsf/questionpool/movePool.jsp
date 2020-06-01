@@ -33,7 +33,7 @@
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{questionPoolMessages.mv_p}"/></title>
                         <!-- stylesheet and script widgets -->
-<script type="text/JavaScript">
+<script>
 <%@ include file="/js/samigotree.js" %>
               function flagFolders() {
 	          collapseAllRowsForSelectList();
@@ -41,14 +41,14 @@
               }
               window.onload = flagFolders;
 </script>
-<script type="text/javascript" src="/library/js/spinner.js"></script>
+<script src="/library/js/spinner.js"></script>
       </head>
 <body onload="collapseAllRowsForSelectList();flagRows();;<%= request.getAttribute("html.body.onload") %>">
   
 <!-- content... -->
  <div class="portletBody">
 <h:form id="movePool">
-<h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+<h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
 <h3>
 <h:outputText rendered="#{questionpool.actionType == 'pool'}" value="#{questionPoolMessages.mv_p}"/>
 <h:outputText rendered="#{questionpool.actionType == 'item'}" value="#{questionPoolMessages.mv_q}"/>

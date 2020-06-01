@@ -22,6 +22,7 @@
 package org.sakaiproject.tool.assessment.ui.bean.author;
 
 import java.io.Serializable;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -37,10 +38,14 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 import javax.faces.application.FacesMessage;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
@@ -58,6 +63,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
@@ -91,13 +97,15 @@ import org.sakaiproject.tool.assessment.ui.listener.author.SaveAssessmentAttachm
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
 import org.springframework.web.context.ContextLoader;
 import org.springframework.web.context.WebApplicationContext;
 
+/* For author: Assessment Settings backing bean.*/
 @Slf4j
-public class PublishedAssessmentSettingsBean
-  implements Serializable {
+@ManagedBean(name="publishedSettings")
+@SessionScoped
+public class PublishedAssessmentSettingsBean implements Serializable {
   
   private static final IntegrationContextFactory integrationContextFactory =
     IntegrationContextFactory.getInstance();
@@ -129,6 +137,9 @@ public class PublishedAssessmentSettingsBean
   private Date dueDate;
   private Date retractDate;
   private Date feedbackDate;
+  @Getter @Setter private Date feedbackEndDate;
+  private boolean feedbackScoreThresholdEnabled = false;
+  @Getter @Setter private String feedbackScoreThreshold;
   private Integer timeLimit; // in seconds, calculated from timedHours & timedMinutes
   private Integer timedHours;
   private Integer timedMinutes;
@@ -190,11 +201,13 @@ public class PublishedAssessmentSettingsBean
   private boolean isValidDueDate = true;
   private boolean isValidRetractDate = true;
   private boolean isValidFeedbackDate = true;
+  private boolean isValidFeedbackEndDate = true;
   
   private String originalStartDateString;
   private String originalDueDateString;
   private String originalRetractDateString;
   private String originalFeedbackDateString;
+  @Getter @Setter private String originalFeedbackEndDateString;
   private boolean updateMostCurrentSubmission = false;
   
   private boolean isMarkForReview;
@@ -222,6 +235,7 @@ public class PublishedAssessmentSettingsBean
   private final String HIDDEN_END_DATE_FIELD = "endDateISO8601";
   private final String HIDDEN_RETRACT_DATE_FIELD = "retractDateISO8601";
   private final String HIDDEN_FEEDBACK_DATE_FIELD = "feedbackDateISO8601";
+  private final String HIDDEN_FEEDBACK_END_DATE_FIELD = "feedbackEndDateISO8601";
 
   private ResourceLoader assessmentSettingMessages;
 
@@ -231,6 +245,10 @@ public class PublishedAssessmentSettingsBean
   private SessionManager sessionManager;
   @Resource(name = "org.sakaiproject.tool.api.ToolManager")
   private ToolManager toolManager;
+  @Resource(name = "org.sakaiproject.util.api.FormattedText")
+  private FormattedText formattedText;
+  @Resource(name = "org.sakaiproject.time.api.UserTimeService")
+  private UserTimeService userTimeService;
 
   /*
    * Creates a new AssessmentBean object.
@@ -297,6 +315,9 @@ public class PublishedAssessmentSettingsBean
         this.dueDate = accessControl.getDueDate();
         this.retractDate = accessControl.getRetractDate();
         this.feedbackDate = accessControl.getFeedbackDate();
+        this.feedbackEndDate = accessControl.getFeedbackEndDate();
+        this.feedbackScoreThreshold = accessControl.getFeedbackScoreThreshold() != null ? String.valueOf(accessControl.getFeedbackScoreThreshold()) : StringUtils.EMPTY;
+        this.feedbackScoreThresholdEnabled = StringUtils.isNotBlank(this.feedbackScoreThreshold);
 
         // deal with releaseTo
         this.releaseTo = accessControl.getReleaseTo(); // list of String
@@ -1097,30 +1118,34 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
    * @return date String "MM-dd-yyyy hh:mm:ss a"
    */
   private String getDisplayFormatFromDate(Date date) {
-    String dateString = "";
-    if (date == null) {
-      return dateString;
-    }
+    if (date == null) return StringUtils.EMPTY;
 
     try {
-      // Do not manipulate the date based on the client browser timezone.
-      dateString = tu.getDisplayDateTime(displayFormat, date, false);
+      return tu.getDisplayDateTime(displayFormat, date);
     }
     catch (Exception ex) {
       // we will leave it as an empty string
       log.warn("Unable to format date.", ex);
     }
-    return dateString;
+    return StringUtils.EMPTY;
   }
 
-  public String getStartDateString()
-  {
-	if (!this.isValidStartDate) {
-		return this.originalStartDateString;
-	}
-	else {
-		return getDisplayFormatFromDate(startDate);
-	}
+  public String getStartDateInClientTimezoneString() {
+    if (!this.isValidStartDate) {
+      return this.originalStartDateString;
+    }
+    else {
+      return userTimeService.dateTimeFormat(startDate, new ResourceLoader().getLocale(), DateFormat.MEDIUM);
+    }
+  }
+
+  public String getStartDateString() {
+    if (!this.isValidStartDate) {
+      return this.originalStartDateString;
+    }
+    else {
+      return getDisplayFormatFromDate(startDate);
+    }
   }
 
   public void setStartDateString(String startDateString)
@@ -1145,14 +1170,22 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
     }
   }
 
-  public String getDueDateString()
-  {
+  public String getDueDateInClientTimezoneString() {
     if (!this.isValidDueDate) {
-		return this.originalDueDateString;
-	}
-	else {
-		return getDisplayFormatFromDate(dueDate);
-	}	  
+      return this.originalDueDateString;
+    }
+    else {
+      return userTimeService.dateTimeFormat(dueDate, new ResourceLoader().getLocale(), DateFormat.MEDIUM);
+    }
+  }
+
+  public String getDueDateString() {
+    if (!this.isValidDueDate) {
+      return this.originalDueDateString;
+    }
+    else {
+      return getDisplayFormatFromDate(dueDate);
+    }
   }
 
   public void setDueDateString(String dueDateString)
@@ -1209,14 +1242,22 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
     }
   }
 
-  public String getFeedbackDateString()
-  {
+  public String getFeedbackDateInClientTimezoneString() {
     if (!this.isValidFeedbackDate) {
-		return this.originalFeedbackDateString;
-	}
-	else {
-		return getDisplayFormatFromDate(feedbackDate);
-	}	  	  	  
+      return this.originalFeedbackDateString;
+    }
+    else {
+      return userTimeService.dateTimeFormat(feedbackDate, new ResourceLoader().getLocale(), DateFormat.MEDIUM);
+    }
+  }
+
+  public String getFeedbackDateString() {
+    if (!this.isValidFeedbackDate) {
+      return this.originalFeedbackDateString;
+    }
+    else {
+      return getDisplayFormatFromDate(feedbackDate);
+    }
   }
 
   public void setFeedbackDateString(String feedbackDateString) {
@@ -1239,7 +1280,52 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
       }
     }
   }
-  
+
+  public String getFeedbackEndDateInClientTimezoneString() {
+    if (!this.isValidFeedbackEndDate) {
+      return this.originalFeedbackEndDateString;
+    }
+    else {
+      return userTimeService.dateTimeFormat(feedbackEndDate, new ResourceLoader().getLocale(), DateFormat.MEDIUM);
+    }
+  }
+
+  public String getFeedbackEndDateString() {
+    if (!this.isValidFeedbackEndDate) {
+      return this.originalFeedbackEndDateString;
+    }
+    else {
+      return getDisplayFormatFromDate(feedbackEndDate);
+    }
+  }
+
+  public void setFeedbackEndDateString(String feedbackEndDateString) {
+    if (StringUtils.isBlank(feedbackEndDateString)) {
+      this.isValidFeedbackEndDate = true;
+      this.feedbackEndDate = null;
+    } else {
+
+      Date tempDate = tu.parseISO8601String(ContextUtil.lookupParam(HIDDEN_FEEDBACK_END_DATE_FIELD));
+
+      if (tempDate != null) {
+        this.isValidFeedbackEndDate = true;
+        this.feedbackEndDate = tempDate;
+      } else {
+        log.error("setFeedbackEndDateString could not parse hidden date field {}.", ContextUtil.lookupParam(HIDDEN_FEEDBACK_DATE_FIELD));
+        this.isValidFeedbackEndDate = false;
+        this.originalFeedbackEndDateString = feedbackEndDateString;
+      }
+    }
+  }
+
+  public boolean getFeedbackScoreThresholdEnabled() {
+    return feedbackScoreThresholdEnabled;
+  }
+
+  public void setFeedbackScoreThresholdEnabled(boolean feedbackScoreThresholdEnabled) {
+    this.feedbackScoreThresholdEnabled = feedbackScoreThresholdEnabled;
+  }
+
   public String getPublishedUrl() {
     return this.publishedUrl;
   }
@@ -1356,12 +1442,17 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 	public boolean getIsValidFeedbackDate() {
 		return this.isValidFeedbackDate;
 	}
-	
+
+	public boolean getIsValidFeedbackEndDate() {
+		return this.isValidFeedbackEndDate;
+	}
+
 	public void resetIsValidDate() {
 		this.isValidStartDate = true;
 		this.isValidDueDate = true;
 		this.isValidRetractDate = true;
 		this.isValidFeedbackDate = true;
+		this.isValidFeedbackEndDate = true;
 	}
 	  
 	public void resetOriginalDateString() {
@@ -1369,6 +1460,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 		this.originalDueDateString = "";
 		this.originalRetractDateString = "";
 		this.originalFeedbackDateString = "";
+		this.originalFeedbackEndDateString = "";
 	 }
 
 	public boolean getupdateMostCurrentSubmission() {
@@ -1585,7 +1677,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 	}
 
 	public String getReleaseToGroupsAsHtml() {
-		return FormattedText.escapeHtml(releaseToGroupsAsString,false);
+		return formattedText.escapeHtml(releaseToGroupsAsString,false);
 	}
 
 	public void setBlockDivs(String blockDivs){
@@ -1728,23 +1820,21 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
     this.transitoryExtendedTime = newExTime;
   }
 
-  //From the form
-  public void addExtendedTime() {
-	  addExtendedTime(true);
-  }
-
   //Internal to be able to supress error easier
-  public void addExtendedTime(boolean errorToContext) {
+  public void addExtendedTime() {
       ExtendedTime entry = this.extendedTime;
       if (StringUtils.isBlank(entry.getUser()) && StringUtils.isBlank(entry.getGroup())) {
-          if (errorToContext) {
-              FacesContext context = FacesContext.getCurrentInstance();
-              String errorString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "extended_time_user_and_group_set");
-              context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, errorString, null));
-          }
+          FacesContext context = FacesContext.getCurrentInstance();
+          String errorString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "extended_time_user_and_group_set");
+          context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, errorString, null));
       }
       else {
-          this.extendedTime.syncDates();
+          AssessmentAccessControlIfc accessControl = new AssessmentAccessControl();
+          accessControl.setStartDate(this.startDate);
+          accessControl.setDueDate(this.dueDate);
+          accessControl.setLateHandling(Integer.valueOf(this.lateHandling));
+          accessControl.setRetractDate(this.retractDate);
+          this.extendedTime.syncDates(accessControl);
           this.extendedTimes.add(this.extendedTime);
           resetExtendedTime();
       }

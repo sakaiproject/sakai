@@ -38,8 +38,8 @@
 		});
 	});
  </script>
-			<h:outputText value="#{SyllabusTool.alertMessage}" styleClass="alertMessage" rendered="#{SyllabusTool.alertMessage != null}" />
-			<h:messages styleClass="alertMessage" rendered="#{!empty facesContext.maximumSeverity}" />
+			<h:outputText value="#{SyllabusTool.alertMessage}" styleClass="sak-banner-error" rendered="#{SyllabusTool.alertMessage != null}" />
+			<h:messages styleClass="sak-banner-error" rendered="#{!empty facesContext.maximumSeverity}" />
 			<h:form id="syllabusEdit">
 		  	<sakai:tool_bar_message value="#{msgs.add_sylla}" /> 
  			<sakai:doc_section>
@@ -82,7 +82,7 @@
 									value="#{msgs.add_attach}"/>
 							</sakai:button_bar>
 							
-					<h:dataTable value="#{SyllabusTool.attachments}" var="eachAttach" summary="#{msgs.edit_att_list_summary}" styleClass="listHier lines nolines">
+					<h:dataTable value="#{SyllabusTool.attachments}" var="eachAttach" summary="#{msgs.edit_att_list_summary}" styleClass="table table-striped table-bordered table-hover">
 					  <h:column rendered="#{!empty SyllabusTool.attachments}">
 							<f:facet name="header">
 								<h:outputText value="#{msgs.attachmentTitle}"/>
@@ -94,8 +94,7 @@
 							<f:verbatim></h4></f:verbatim>
 							<f:verbatim><div class="itemAction"></f:verbatim>
 							
-							<h:commandLink action="#{SyllabusTool.processDeleteAttach}" 
-								onfocus="document.forms[0].onsubmit();" title="#{msgs.removeAttachmentLink} #{eachAttach.name}">
+							<h:commandLink action="#{SyllabusTool.processDeleteAttach}" title="#{msgs.removeAttachmentLink} #{eachAttach.name}">
 									<h:outputText value="#{msgs.mainEditHeaderRemove}"/>
 									<f:param value="#{eachAttach.syllabusAttachId}" name="syllabus_current_attach"/>
 							</h:commandLink>
@@ -149,7 +148,7 @@
 							<h:outputLabel for="linkCalendar">
 								<h:outputText value="#{msgs.linkcalendartitle}"/>
 							</h:outputLabel>
-							<h:outputText value="#{msgs.invalid_calendar}" styleClass="alertMessage" 
+							<h:outputText value="#{msgs.invalid_calendar}" styleClass="sak-banner-error" 
 									rendered="#{SyllabusTool.displayCalendarError}"/>
 						</h:panelGroup>
 					</h:panelGrid>

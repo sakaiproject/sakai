@@ -27,9 +27,10 @@
 %>
 <f:view>
   <sakai:view >
+    <%@ include file="/jsp/discussionForum/menu/forumsMenu.jsp" %>
   	<h:form id="dfStatisticsForm" rendered="#{ForumTool.instructor}">
 <!-- discussionForum/statistics/dfStatisticsList.jsp-->
-	<script type="text/javascript">
+	<script>
 
 	
 			var iframeId = '<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>';
@@ -119,12 +120,12 @@
 				}
 			}
 		</script>
-       		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-			<script type="text/javascript" src="/messageforums-tool/js/dialog.js"></script>
-			<script type="text/javascript" src="/library/js/spinner.js"></script>
+       		<script>includeLatestJQuery("msgcntr");</script>
+			<script src="/messageforums-tool/js/dialog.js"></script>
+			<script src="/library/js/spinner.js"></script>
 			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />
 			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/msgcntr_statistics.css" />
-		<script type="text/javascript">		
+		<script>		
 			function toggleComments(link){
 				if(link.innerHTML == "<h:outputText value="#{msgs.stat_forum_comments_show}" escape="false"/>"){
 					$('.comments').fadeIn();
@@ -134,31 +135,34 @@
 					$('.comments').fadeOut();
 					$('.commentsHidden').fadeIn();
 					link.innerHTML = '<h:outputText value="#{msgs.stat_forum_comments_show}"/>';
-				}		
+				}
 				
 				resize();
 			}
-			
+
 			function applyDefaultToUngraded(value){
 				$('.gradeInput').each(function(){
 					if($(this).val() == null || $(this).val() == ''){
 						$(this).val($('.defaultValue').val());
 					}
 				});
-				
-				dialogutil.showDiv('gradesNeedSaved');				
+
+				dialogutil.showDiv('gradesNeedSaved');
 			}
-			
+
 			$(document).ready(function() {
 				$('.selAssignVal').val('<h:outputText value="#{mfStatisticsBean.selectedAssign}"/>');
+				var menuLink = $('#forumsStatisticsMenuLink');
+				var menuLinkSpan = menuLink.closest('span');
+				menuLinkSpan.addClass('current');
+				menuLinkSpan.html(menuLink.text());
 			});
 		</script>
 		
-		<f:verbatim>
-			<div id="dialogDiv" title="Grade Messages" style="display:none">
-		       <iframe id="dialogFrame" name="dialogFrame" width="100%" height="100%" frameborder="0"></iframe>
-		    </div>
-		</f:verbatim>
+		<div id="dialogDiv" title="Grade Messages" style="display:none">
+			<h:commandButton type="button" styleClass="closeDialogFrame" onclick="dialogutil.closeDialog($(this).parent().attr('id'), $('#dialogFrame').attr('id'));" value="#{msgs.close_window}"/>
+			<iframe id="dialogFrame" name="dialogFrame" width="100%" height="100%" frameborder="0"></iframe>
+		</div>
 		<f:verbatim>
 	  		<div class="success" id="gradesSavedDiv" class="success" style="display:none">
 	  	</f:verbatim>

@@ -27,7 +27,7 @@
 			</div>
 		</div>
 
-		<a role="menuitem" class="usebutton" target="sakai-basiclti-admin-iframe" onclick="showIframe(this.title);" id="blti-main-link" href="#" rsf:id="blti-main-link"></a>
+		<a role="menuitem" class="usebutton" target="sakai-basiclti-admin-iframe" onclick="showIframe(this.title, true);" id="blti-main-link" href="#" rsf:id="blti-main-link"></a>
 
 		<h2 rsf:id="mainhead" id="mainhead"></h2>
 
@@ -35,7 +35,7 @@
 
 		<div rsf:id="app-store-shortcut:" class="col-md-11 col-md-offset-1">
 			<div rsf:id="blti-create:">
-				<a rsf:id="blti-create-link" id="blti-shortcut-link" href="#" class="btn btn-primary" target="sakai-basiclti-admin-iframe" onclick="showIframe(this.title);">
+				<a rsf:id="blti-create-link" id="blti-shortcut-link" href="#" class="btn btn-primary" target="sakai-basiclti-admin-iframe" onclick="showIframe(this.title, true);">
 					<i class="fa fa-shopping-cart lessons-shopping-cart" rsf:id="blti-search-icon"></i>
 					<i class="" rsf:id="blti-create-icon"></i>
 					<span rsf:id="blti-create-text"></span>
@@ -53,7 +53,7 @@
 				</thead>
 				<tbody>
 				<tr rsf:id="blti-create:">
-					<td><a rsf:id="blti-create-link" href="#" target="sakai-basiclti-admin-iframe" onclick="showIframe(this.title);">
+					<td><a rsf:id="blti-create-link" href="#" target="sakai-basiclti-admin-iframe" onclick="showIframe(this.title, false);">
 						<i class="fa fa-shopping-cart lessons-shopping-cart" rsf:id="blti-search-icon"></i>
 						<i class="" rsf:id="blti-create-icon"></i>
 						<span rsf:id="blti-create-text"></span>
@@ -74,7 +74,7 @@
 				</thead>
 				<tbody>
 				<tr rsf:id="blti-create:">
-					<td><a rsf:id="blti-create-link" href="#" target="sakai-basiclti-admin-iframe" onclick="showIframe(this.title);">
+					<td><a rsf:id="blti-create-link" href="#" target="sakai-basiclti-admin-iframe" onclick="showIframe(this.title, false);">
 						<i class="fa fa-shopping-cart lessons-shopping-cart" rsf:id="blti-search-icon"></i>
 						<i class="" rsf:id="blti-create-icon"></i>
 						<span rsf:id="blti-create-text"></span>
@@ -108,8 +108,8 @@
 			<input type="submit" rsf:id="cancel" class='cancelButton'/>
 		</form>
 
-		<div id="modal-iframe-div" style="display:none">
-			<iframe name="sakai-basiclti-admin-iframe" id="sakai-basiclti-admin-iframe" src="/library/image/sakai/spinner.gif"></iframe>
+		<div id="modal-iframe-div" style="display:none" tabindex="-1" role="dialog">
+			<iframe name="sakai-basiclti-admin-iframe" id="sakai-basiclti-admin-iframe" src="/library/image/sakai/spinner.gif" tabindex="0"></iframe>
 		</div>
 	</div>
 
@@ -119,7 +119,7 @@ includeLatestJQuery('BltiPicker.html');
 
 <script>
 //<![CDATA[
-function showIframe(title) {
+function showIframe(title, doreload) {
 	$("#modal-iframe-div").dialog({
 		title: title,
 		width: modalDialogWidth(),
@@ -131,9 +131,15 @@ function showIframe(title) {
 		    $("#modal-iframe-div").dialog("option", "height", modalDialogHeight());
 			$('#sakai-basiclti-admin-iframe').attr('width', '100%');
 			$('#sakai-basiclti-admin-iframe').attr('height', '100%');
+			// https://stackoverflow.com/questions/1202079/prevent-jquery-ui-dialog-from-setting-focus-to-first-textbox
+			$(this).parent().focus();
 		},
 		close: function() {
-			$('#sakai-basiclti-admin-iframe').attr('src','/library/image/sakai/spinner.gif');
+            if ( doreload ) {
+                location.reload();
+            } else {
+			    $('#sakai-basiclti-admin-iframe').attr('src','/library/image/sakai/spinner.gif');
+            }
 		}
 	});
 

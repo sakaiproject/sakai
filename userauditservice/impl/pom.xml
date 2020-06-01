@@ -4,18 +4,13 @@
     <parent>
         <groupId>org.sakaiproject.userauditservice</groupId>
         <artifactId>userauditservice</artifactId>
-        <version>20-SNAPSHOT</version>
+        <version>21-SNAPSHOT</version>
 	<relativePath>../pom.xml</relativePath>
     </parent>
 
     <name>Sakai Userauditservice Implementation (userauditservice-impl)</name>
     <groupId>org.sakaiproject.userauditservice</groupId>
     <artifactId>userauditservice-impl</artifactId>
-    <organization>
-        <name>Sakai Project</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2013</inceptionYear>
     <description>Userauditservice implementation</description>
     <packaging>sakai-component</packaging>
 

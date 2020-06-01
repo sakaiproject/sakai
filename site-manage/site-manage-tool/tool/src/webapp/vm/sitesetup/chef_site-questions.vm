@@ -1,5 +1,5 @@
 <div class="portletBody">
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $alertMessage</div>#end
 	<h4>
 	$questionSet.getInstruction()
 	#set($url=false)

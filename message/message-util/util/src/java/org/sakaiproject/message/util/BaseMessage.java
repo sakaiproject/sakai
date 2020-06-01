@@ -45,6 +45,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
+import org.sakaiproject.authz.api.AuthzRealmLockException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -575,6 +576,11 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	{
 		if (ref == null) return null;
 
+		// Used to resolve Site objects; "!site" refers to "!admin" site
+		if ("!site".equals(ref)) {
+			ref = "!admin";
+		}
+
 		MessageChannel channel = (MessageChannel) m_threadLocalManager.get(ref);
 		if (channel == null)
 		{
@@ -826,8 +832,13 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		{
 			log.warn("removeChannel: removing realm for : " + channel.getReference() + " : " + e);
 		}
-		catch (GroupNotDefinedException ignore)
+		catch (GroupNotDefinedException gnde)
 		{
+			log.debug(gnde.getMessage());
+		}
+		catch (AuthzRealmLockException arle)
+		{
+			log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
 		}
 
 	} // removeChannel
@@ -2213,8 +2224,8 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		 */
 		public String getContext()
 		{
-			return m_context;
-
+			// Used to resolve Site objects; "!site" refers to "!admin" site
+			return "!site".equals(m_context) ? "!admin" : m_context;
 		} // getContext
 
 		/**
@@ -2960,6 +2971,10 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			catch (AuthzPermissionException e)
 			{
 				log.warn("removeMessage: removing realm for : " + message.getReference() + " : " + e);
+			}
+			catch (AuthzRealmLockException arle)
+			{
+				log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
 			}
 
 		} // removeMessage

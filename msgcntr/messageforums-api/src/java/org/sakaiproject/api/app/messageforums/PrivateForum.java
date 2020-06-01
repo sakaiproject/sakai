@@ -26,9 +26,9 @@ public interface PrivateForum extends BaseForum {
     
     public void setOwner(String owner);
   
-    public Boolean getAutoForward();
+    public Integer getAutoForward();
 
-    public void setAutoForward(Boolean autoForward);
+    public void setAutoForward(Integer autoForward);
 
     public String getAutoForwardEmail();
 

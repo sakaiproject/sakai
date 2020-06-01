@@ -32,11 +32,15 @@ import java.util.List;
  */
 @Slf4j
 public class ExtendedTimeFacade {
+
+    @Setter
+    private ExtendedTimeQueriesAPI extendedTimeQueries;
+
     public void init() {
         log.info("init");
     }
 
-    public  List<ExtendedTime>  getEntriesForAss                (AssessmentBaseIfc ass) {
+    public List<ExtendedTime> getEntriesForAss(AssessmentBaseIfc ass) {
         // is this the best way to ensure separation between published and unpublished?
         if(ass instanceof PublishedAssessmentIfc){
             throw new IllegalArgumentException("getEntriesForAss accepts only unpublished assessments.");
@@ -45,27 +49,27 @@ public class ExtendedTimeFacade {
         return getEntriesForX(ass, null);
     }
 
-    public  List<ExtendedTime>  getEntriesForPub                (PublishedAssessmentIfc pub) {
+    public List<ExtendedTime> getEntriesForPub (PublishedAssessmentIfc pub) {
         return getEntriesForX(null, pub);
     }
 
-    public  ExtendedTime        getEntryForPubAndUser           (PublishedAssessmentIfc pub, String user) {
+    public ExtendedTime getEntryForPubAndUser(PublishedAssessmentIfc pub, String user) {
         return extendedTimeQueries.getEntryForPubAndUser(pub, user);
     }
 
-    public  ExtendedTime        getEntryForPubAndGroup          (PublishedAssessmentIfc pub, String group) {
+    public ExtendedTime getEntryForPubAndGroup(PublishedAssessmentIfc pub, String group) {
         return extendedTimeQueries.getEntryForPubAndGroup(pub, group);
     }
 
-    public  void                saveEntriesPub                  (PublishedAssessmentIfc p, List<ExtendedTime> entries) {
+    public void saveEntriesPub(PublishedAssessmentIfc p, List<ExtendedTime> entries) {
         saveExtendedTimeEntriesHelper(null, p, entries);
     }
 
-    public  void                saveEntries                     (AssessmentFacade aFacade, List<ExtendedTime> entries) {
+    public void saveEntries(AssessmentFacade aFacade, List<ExtendedTime> entries) {
         saveExtendedTimeEntriesHelper(aFacade, null, entries);
     }
 
-    public  void                copyEntriesToPub                (PublishedAssessmentIfc pub, List<ExtendedTime> entries) {
+    public void copyEntriesToPub(PublishedAssessmentIfc pub, List<ExtendedTime> entries) {
         List<ExtendedTime> publishedTimes = new ArrayList<>(entries.size());
 
         for(ExtendedTime entry : entries) {
@@ -81,7 +85,7 @@ public class ExtendedTimeFacade {
         saveEntriesPub(pub, publishedTimes);
     }
 
-    private List<ExtendedTime>  getEntriesForX                  (AssessmentBaseIfc ass, PublishedAssessmentIfc pub) {
+    private List<ExtendedTime> getEntriesForX(AssessmentBaseIfc ass, PublishedAssessmentIfc pub) {
         List<ExtendedTime> results;
         if(ass == null) {
             results = extendedTimeQueries.getEntriesForPub(pub);
@@ -101,7 +105,7 @@ public class ExtendedTimeFacade {
 
     private void syncExtendedTimeDates(List <ExtendedTime> et) {
         for(ExtendedTime e : et) {
-        	e.syncDates();
+            e.syncDates(null);
         }
     }
 
@@ -112,7 +116,7 @@ public class ExtendedTimeFacade {
      * @param p
      * @param newExtendedTime
      */
-    private void                saveExtendedTimeEntriesHelper   (AssessmentFacade assFacade, PublishedAssessmentIfc p, List<ExtendedTime> newExtendedTime) {
+    private void saveExtendedTimeEntriesHelper(AssessmentFacade assFacade, PublishedAssessmentIfc p, List<ExtendedTime> newExtendedTime) {
         List<ExtendedTime> oldExtendedTime;
         if(assFacade == null) {
             oldExtendedTime = extendedTimeQueries.getEntriesForPub(p);
@@ -142,7 +146,4 @@ public class ExtendedTimeFacade {
 
         extendedTimeQueries.updateEntries(newExtendedTime);
     }
-
-    @Setter
-    private ExtendedTimeQueriesAPI extendedTimeQueries;
 }

@@ -35,6 +35,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
+import org.sakaiproject.authz.api.AuthzRealmLockException;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.GroupAlreadyDefinedException;
 import org.sakaiproject.authz.api.GroupIdInvalidException;
@@ -792,6 +793,10 @@ public class RealmsAction extends PagedResourceActionII
 				{
 					addAlert(state, rb.getFormattedMessage("realm.notpermis2", new Object[]{realm.getId()}));
 				}
+				catch (AuthzRealmLockException arle)
+				{
+					log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
+				}
 			}
 		}
 
@@ -847,6 +852,10 @@ public class RealmsAction extends PagedResourceActionII
 			catch (AuthzPermissionException e)
 			{
 				addAlert(state, rb.getFormattedMessage("realm.notpermis2", new Object[]{realm.getId()}));
+			}
+			catch (AuthzRealmLockException arle)
+			{
+				log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
 			}
 	
 			// cleanup

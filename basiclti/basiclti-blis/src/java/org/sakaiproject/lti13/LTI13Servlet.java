@@ -396,10 +396,17 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
+		JSONObject jsonHeader = LTI13JwtUtil.jsonJwtHeader(client_assertion);
+		if (jsonHeader == null) {
+			LTI13Util.return400(response, "Could not parse Jwt Header in client_assertion");
+			log.error("Could not parse Jwt Header in client_assertion\n{}", client_assertion);
+			return;
+		}
+
 		Long toolKey = getLongKey(tool_id);
 		if (toolKey < 1) {
 			LTI13Util.return400(response, "Invalid tool key");
-			log.error("Invalis tool key {}", tool_id);
+			log.error("Invalid tool key {}", tool_id);
 			return;
 		}
 
@@ -411,18 +418,12 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		String tool_public = (String) tool.get(LTIService.LTI13_TOOL_PUBLIC);
-		if (tool_public == null) {
-			LTI13Util.return400(response, "Could not find tool public key");
-			log.error("Could not find tool public key {}", tool_id);
-			return;
-		}
-
-		Key publicKey = LTI13Util.string2PublicKey(tool_public);
-		if (publicKey == null) {
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			LTI13Util.return400(response, "Could not deserialize tool public key");
-			log.error("Could not deserialize tool public key {}", tool_id);
+		// Get the correct public key.
+		Key publicKey = null;
+		try {
+			publicKey = SakaiBLTIUtil.getPublicKey(tool, client_assertion);
+		} catch (Exception e) {
+			LTI13Util.return400(response, e.getMessage());
 			return;
 		}
 

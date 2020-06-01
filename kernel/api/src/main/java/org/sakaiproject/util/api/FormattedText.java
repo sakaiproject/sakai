@@ -250,7 +250,6 @@ public interface FormattedText {
      * @param value
      *        The text containing entity references (e.g., a News item description).
      * @return The HTML, ready for processing.
-     * @see https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/util/HtmlUtils.html#htmlUnescape-java.lang.String-
      */
     public String unEscapeHtml(String value);
 
@@ -350,8 +349,8 @@ public interface FormattedText {
      * WEB Utility -
      * Return a string based on id that is fully escaped using URL rules, using a UTF-8 underlying encoding.
      * 
-     * Note: java.net.URLEncode.encode() provides a more standard option
-     *       FormattedText.decodeNumericCharacterReferences() undoes this operation
+     * Note: {@link java.net.URLEncoder#encode(String, String)} provides a more standard option
+     *       {@link FormattedText#decodeNumericCharacterReferences(String)} undoes this operation
      * 
      * @param value
      *        The string to escape.
@@ -376,13 +375,13 @@ public interface FormattedText {
      * into src="URL" or href="URL" places within our markup.  There
      * are many "valid" URLs that are dangerous unless escaped.
      * 
-     * Note: java.net.URLEncode.encode() is not sufficient for because
+     * Note: {@link java.net.URLEncoder#encode(String, String)} is not sufficient for because
      * it encodes the whole string including colons and slashes so
-     * http://www.sakaiproject.org/?x=Hello World becomes
-     * http%3A%2F%2Fwww.sakaiproject.org%2F%3Fx%3DHello%20World instead of
-     * http://www.sakaiproject.org/?x=Hello%20World
+     * https://www.sakailms.org/?x=Hello World becomes
+     * https%3A%2F%2Fwww.sakailms.org%2F%3Fx%3DHello%20World instead of
+     * https://www.sakailms.org/?x=Hello%20World
      *
-     * java.net.URLEncode.encode() is designed for application/x-www-form-urlencoded
+     * {@link java.net.URLEncoder#encode(String, String)} is designed for application/x-www-form-urlencoded
      * data in forms and as the parameters on GET strings.  It is not suitable
      * to encode entire URLs prior to embedding them in an href or src attribute.
      * 
@@ -459,14 +458,5 @@ public interface FormattedText {
       * @return the all contents within the HTML body
       */
      public String getHtmlBody(String text);
-
-    /**
-     * Sanitizes the user input to prevent XSS attacks.
-     *
-     * @param userInput The value to sanitize.
-     * @return A sanitized user input.
-     * @see https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/util/HtmlUtils.html#htmlEscape-java.lang.String-java.lang.String-
-     */
-     public String sanitizeUserInput(final String userInput);
 
 }

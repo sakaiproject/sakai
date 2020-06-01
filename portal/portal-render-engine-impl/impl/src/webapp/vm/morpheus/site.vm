@@ -4,7 +4,7 @@
 
     #parse("/vm/morpheus/includeStandardHead.vm")
 
-    <body #if( !${loggedIn} ) class="Mrphs-portalBody is-logged-out" #else class="Mrphs-portalBody ${logoSiteClass} #if ( ${toolsCollapsed} ) Mrphs-toolMenu-collapsed #end" #end $pageSiteType>
+    <body #if( !${loggedIn} ) class="Mrphs-portalBody is-logged-out" #else class="Mrphs-portalBody ${logoSiteClass} #if ( ${toolsCollapsed} ) Mrphs-toolMenu-collapsed #end #if ( ${toolMaximised} ) tool-maximised #end" #end $pageSiteType>
 
         <noscript>
             <span id="portal_js_warn" class="Mrphs-noJs js-warn-no-js">${rloader.sit_noscript_message}</span>
@@ -145,15 +145,9 @@
         <script src="${pageScriptPath}jquery/qtip/tutorial.js$!{portalCDNQuery}"></script>
         <script src="${pageWebjarsPath}cropper/4.0.0/dist/cropper.min.js$!{portalCDNQuery}"></script>
 
-        <script type="module" src="/webcomponents/sakai-tool-permissions.js$!{portalCDNQuery}"></script>
-
-        <!-- RUBRICS CODE AND MODULES -->
-        <script src="/rubrics-service/webcomponents/sakai-rubrics.js$!{portalCDNQuery}"></script>
-        <script type="module" src="/rubrics-service/webcomponents/sakai-rubric-student.js$!{portalCDNQuery}"></script>
-        <script type="module" src="/rubrics-service/webcomponents/sakai-rubric-grading.js$!{portalCDNQuery}"></script>
-        <script type="module" src="/rubrics-service/webcomponents/sakai-rubric-association.js$!{portalCDNQuery}"></script>
-        <script type="module" src="/rubrics-service/webcomponents/sakai-rubric-student-preview-button.js$!{portalCDNQuery}"></script>
-        <script type="module" src="/rubrics-service/webcomponents/sakai-rubric-student-button.js$!{portalCDNQuery}"></script>
+        <script type="module" src="/webcomponents/sakai-permissions.js$!{portalCDNQuery}"></script>
+        <script type="module" src="/webcomponents/sakai-search.js$!{portalCDNQuery}"></script>
+        <script type="module" src="/webcomponents/sakai-maximise-button.js$!{portalCDNQuery}"></script>
 
         #if ( $tutorial && $loggedIn )
             <script>$(document).ready(function(){startTutorial({'showTutorialLocationOnHide': 'true'});});</script>
@@ -218,6 +212,8 @@
 <![endif]-->
 
         <script src="${pageScriptPath}caps-lock-checker.js$!{portalCDNQuery}"></script>
+
+        <script src="$!{portalCDNPath}/portal/scripts/jumptotop.js$!{portalCDNQuery}"></script>
 
         #parse("/vm/morpheus/includeAnalytics.vm")
         #parse("/vm/morpheus/includePASystem.vm")

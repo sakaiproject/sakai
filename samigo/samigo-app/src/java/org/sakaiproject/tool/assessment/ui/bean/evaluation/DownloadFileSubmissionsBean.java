@@ -27,6 +27,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ExternalContext;
 import javax.faces.event.ActionEvent;
@@ -46,7 +48,10 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.DownloadFileUtil;
 import org.sakaiproject.util.ResourceLoader;
 
+/* For evaluation: Download File Submissions backing bean */
 @Slf4j
+@ManagedBean(name="downloadFileSubmissions")
+@SessionScoped
 public class DownloadFileSubmissionsBean implements Serializable {
 
 	private String assessmentId;

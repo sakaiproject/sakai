@@ -1,0 +1,17 @@
+<!-- Start of cloudstorage_googledrive_picker.vm-->
+<h4>
+	<span class="fa fa-google" aria-hidden="true"></span>
+	$tlang.getString('googledrive.integration')
+</h4>
+#if(!$!googledriveUserAccount)
+	<span aria-hidden="true"> $tlang.getString('googledrive.set_account')</span>
+	<a href="#toolLink("FilePickerAction" "doGoogleDrive")" title= "$tlang.getString('googledrive.set_account')">
+		<input type="button" aria-hidden="true" value="$tlang.getString('cloudstorage.configure')" />
+	</a>
+#else
+	<span aria-hidden="true"> $tlang.getFormattedMessage('googledrive.configured', $!googledriveUserAccount)</span>
+	<input type="button" name="refreshGoogleDriveButton" id="refreshGoogleDriveButton" class="refreshGoogleDriveButton" onclick="SPNR.insertSpinnerAfter( this, null, 'pickerGoogleDrive' );document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doRefreshGoogleDrive")'; submitform('attachForm');" value="$tlang.getString('cloudstorage.refresh')" />
+	<input type="button" name="revokeGoogleDriveButton" id="revokeGoogleDriveButton" class="revokeGoogleDriveButton" onclick="document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doRevokeGoogleDrive")'; submitform('attachForm');" value="$tlang.getString('cloudstorage.revoke')" />
+	<div id="container-jstree"></div>
+#end
+<!-- End of cloudstorage_googledrive_picker.vm-->

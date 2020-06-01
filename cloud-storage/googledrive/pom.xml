@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <name>Sakai GoogleDrive Integration - BASE</name>
+    <groupId>org.sakaiproject.googledrive</groupId>
+    <artifactId>sakai-googledrive</artifactId>
+    <packaging>pom</packaging>
+
+    <parent>
+        <groupId>org.sakaiproject.cloudstorage</groupId>
+        <artifactId>cloud-storage</artifactId>
+        <version>21-SNAPSHOT</version>
+    </parent>
+
+    <modules>
+        <module>api</module>
+        <module>impl</module>
+        <module>tool</module>
+    </modules>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- project dependencies -->
+            <dependency>
+                <groupId>org.sakaiproject.googledrive</groupId>
+                <artifactId>sakai-googledrive-api</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.googledrive</groupId>
+                <artifactId>sakai-googledrive-impl</artifactId>
+                <version>${project.version}</version>
+                <scope>runtime</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>

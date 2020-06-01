@@ -58,7 +58,7 @@ public class CommonsCommentBullhornHandler extends AbstractBullhornHandler {
     }
 
     @Override
-    public Optional<List<BullhornData>> handleEvent(Event e, Cache<String, Map> countCache) {
+    public Optional<List<BullhornData>> handleEvent(Event e, Cache<String, Long> countCache) {
 
         String commentCreator = e.getUserId();
 
@@ -69,13 +69,13 @@ public class CommonsCommentBullhornHandler extends AbstractBullhornHandler {
         String postId = pathParts[4];
 
         // To is always going to be the author of the original post
-        Post post = commonsManager.getPost(postId, true);
-        if (post != null) {
+        Optional<Post> post = commonsManager.getPost(postId, true);
+        if (post.isPresent()) {
             if ("SOCIAL".equals(siteId)) {
                 return Optional.empty();
             }
 
-            String postCreator = post.getCreatorId();
+            String postCreator = post.get().getCreatorId();
 
             String url = null;
             String siteTitle = null;
@@ -95,24 +95,24 @@ public class CommonsCommentBullhornHandler extends AbstractBullhornHandler {
 
             // First, send an alert to the post author
             if (!commentCreator.equals(postCreator)) {
-                bhEvents.add(new BullhornData(commentCreator, postCreator, siteId, siteTitle, url, false));
+                bhEvents.add(new BullhornData(commentCreator, postCreator, siteId, siteTitle, url));
                 countCache.remove(postCreator);
             }
 
             List<String> sentAlready = new ArrayList<>();
 
             // Now, send an alert to anybody else who has commented on this post.
-            for (Comment comment : post.getComments()) {
+            for (Comment comment : post.get().getComments()) {
 
                 String to = comment.getCreatorId();
 
                 // If we're commenting on our own post, no alert needed
-                if (to.equals(post.getCreatorId()) || to.equals(commentCreator)) {
+                if (to.equals(postCreator) || to.equals(commentCreator)) {
                     continue;
                 }
 
                 if (!sentAlready.contains(to)) {
-                    bhEvents.add(new BullhornData(commentCreator, to, siteId, siteTitle, url, false));
+                    bhEvents.add(new BullhornData(commentCreator, to, siteId, siteTitle, url));
                     countCache.remove(to);
                     sentAlready.add(to);
                 }

@@ -551,7 +551,7 @@ public interface LearningResourceStoreService {
          * In this case, a URI should identify one of these specific meanings, not the word "fired".
          */
         static String XAPI_VERBS_PREFIX = "http://www.adlnet.gov/expapi/verbs/";
-        static String SAKAI_VERBS_PREFIX = "http://sakaiproject.org/expapi/verbs/";
+        static String SAKAI_VERBS_PREFIX = "https://www.sakailms.org/expapi/verbs/";
         /**
          * Set of Sakai verbs (limited set of verbs that make sense for use in Sakai)
          * Based on ADL approved verbs for 1.0
@@ -690,7 +690,7 @@ public interface LearningResourceStoreService {
          */
         String id;
         /**
-         * URI, the type of activity. (e.g. http://sakaiproject.org/expapi/activity/assessment)
+         * URI, the type of activity. (e.g. https://www.sakailms.org/expapi/activity/assessment)
          * Note, URI fragments (sometimes called relative URLs) are not valid URIs. 
          * Similar to verbs, we recommend that Learning Activity Providers look for and use established, widely adopted, activity types.
          */
@@ -826,18 +826,18 @@ public interface LearningResourceStoreService {
          * string representation of the grade (e.g. A, B, C, D, F, pass, fail, first, second, etc.)
          * NOTE: this should be encoded into the XAPI extension for the result. Example for "A":
          * "extensions": {
-         *    "http://sakaiproject.org/xapi/activities/grade": "A"
+         *    "https://www.sakailms.org/xapi/activities/grade": "A"
          * }
          * 
          * Or the more complex and supposedly portable way (lowercase, strip spaces, and append in the id):
          * "result" : {
          *     .....
          *     "extensions" : {
-         *         "http://sakaiproject.org/xapi/extensions/result/classification" : {
+         *         "https://www.sakailms.org/xapi/extensions/result/classification" : {
          *             "objectType" : "activity",
-         *             "id":"http://sakaiproject.org/xapi/activities/grade-a",
+         *             "id":"https://www.sakailms.org/xapi/activities/grade-a",
          *             "definition" : { 
-         *                "type" : "http://sakaiproject.org/xapi/activitytypes/grade_classification",
+         *                "type" : "https://www.sakailms.org/xapi/activitytypes/grade_classification",
          *                "name" : {
          *                    "en-US":"A"
          *                }

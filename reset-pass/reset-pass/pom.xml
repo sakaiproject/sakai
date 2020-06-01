@@ -4,17 +4,12 @@
   <parent>
     <artifactId>reset-pass</artifactId>
     <groupId>org.sakaiproject.reset-pass</groupId>
-    <version>20-SNAPSHOT</version>
+    <version>21-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Reset pass</name>
   <groupId>org.sakaiproject.reset-pass</groupId>
   <artifactId>sakai-reset-pass</artifactId>
-  <organization>
-    <name>Sakai Foundation</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2006</inceptionYear>
   <properties>
   </properties>
   <packaging>war</packaging>
@@ -71,6 +66,14 @@
     <dependency>
        <groupId>org.apache.commons</groupId>
        <artifactId>commons-lang3</artifactId>
-       </dependency>
+    </dependency>
+    <dependency>
+       <groupId>org.apache.commons</groupId>
+       <artifactId>commons-collections4</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>javax</groupId>
+        <artifactId>javaee-api</artifactId>
+    </dependency>
   </dependencies>
 </project>

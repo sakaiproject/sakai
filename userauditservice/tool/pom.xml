@@ -5,18 +5,13 @@
     <parent>
         <groupId>org.sakaiproject.userauditservice</groupId>
         <artifactId>userauditservice</artifactId>
-        <version>20-SNAPSHOT</version>
+        <version>21-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <name>Sakai Userauditservice Tool (userauditservice-tool)</name>
     <groupId>org.sakaiproject.userauditservice</groupId>
     <artifactId>userauditservice-tool</artifactId>
-    <organization>
-        <name>The Sakai Foundation</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2013</inceptionYear>
     <packaging>war</packaging>
 
     <dependencies>

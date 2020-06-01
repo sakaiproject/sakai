@@ -20,14 +20,14 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
 
 public class ConfirmCopyAssessmentListener implements ActionListener {
 	public void processAction(ActionEvent ae) throws AbortProcessingException {
@@ -53,6 +53,6 @@ public class ConfirmCopyAssessmentListener implements ActionListener {
 		}
 
 		assessmentBean.setAssessmentId(assessment.getAssessmentBaseId().toString());
-		assessmentBean.setTitle(FormattedText.convertFormattedTextToPlaintext(assessment.getTitle()));
+		assessmentBean.setTitle(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(assessment.getTitle()));
 	}
 }

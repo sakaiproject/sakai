@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="org.sakaiproject.datemanager.api.DateManagerService"
+		class="org.sakaiproject.datemanager.impl.DateManagerServiceImpl"
+		init-method="init">
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+		<property name="prefService" ref="org.sakaiproject.user.api.PreferencesService"/>
+		<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
+		<property name="assessmentPersistenceService" ref="PersistenceService"/>
+		<property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService"/>
+		<property name="signupService" ref="org.sakaiproject.signup.logic.SignupMeetingService"/>
+		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+		<property name="calendarService" ref="org.sakaiproject.calendar.api.CalendarService" />
+		<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
+		<property name="forumManager" ref="org.sakaiproject.api.app.messageforums.MessageForumsForumManager" />
+		<property name="announcementService" ref="org.sakaiproject.announcement.api.AnnouncementService" />
+		<!--<property name="messageService" ref="org.sakaiproject.message.api.MessageService" />-->
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+		<property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
+		<property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
+	</bean>
+</beans>

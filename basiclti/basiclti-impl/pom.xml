@@ -5,17 +5,12 @@
     <parent>
         <artifactId>basiclti</artifactId>
         <groupId>org.sakaiproject.basiclti</groupId>
-        <version>20-SNAPSHOT</version>
+        <version>21-SNAPSHOT</version>
     </parent>
 
     <name>BasicLTI Implementation (basiclti-impl)</name>
     <groupId>org.sakaiproject.basiclti</groupId>
     <artifactId>basiclti-impl</artifactId>
-    <organization>
-        <name>Sakai Project</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2009</inceptionYear>
     <packaging>sakai-component</packaging>
 
     <properties>
@@ -73,6 +68,10 @@
             <artifactId>javax.servlet-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
             <scope>test</scope>
@@ -122,6 +121,10 @@
           <groupId>org.apache.commons</groupId>
           <artifactId>commons-lang3</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+      </dependency>
     </dependencies>
 
     <build>

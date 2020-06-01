@@ -13,10 +13,10 @@
 		<style type="text/css" media="print">
 			@import url("/sakai-signup-tool/css/print.css");
 		</style>
-<h:outputText value="#{Portal.latestJQuery}" escape="false"/>
-		<script TYPE="text/javascript" LANGUAGE="JavaScript" src="/sakai-signup-tool/js/signupScript.js"></script>
-		<script type="text/javascript">
-			
+		<h:outputText value="#{Portal.latestJQuery}" escape="false"/>
+		<script src="/sakai-signup-tool/js/signupScript.js"></script>
+		<script>
+
 			var firstAttendee; 
 			var userActionType;
 			var lastActivePanel;
@@ -34,7 +34,9 @@
 			//initialization of the page
 	        jQuery(document).ready(function() {
 	        	initMeetingInfoDetail();
-	        	
+                var menuLink = $('#signupMainMenuLink');
+                menuLink.addClass('current');
+                menuLink.html(menuLink.find('a').text());
 				});
 						
 			function initMeetingInfoDetail(){
@@ -171,38 +173,6 @@
 					lastClickedAddImage.style.display = "block";
 			}
 			
-			//Due to JSF commandLink don't have onclick() method and this is a way to go around
-			var deleteClick;
-			var deleteMsg='Are you sure to do this?'; //default          
-			function assignDeleteClick(link,msg) {
-			  if (link.onclick == confirmDelete) {
-			    return;
-			  }
-			                
-			  deleteClick = link.onclick;
-			  deleteMsg = msg;
-			  link.onclick = confirmDelete;
-			}
-			            
-			function confirmDelete() {
-			  var ans = confirm(deleteMsg);
-			  if (ans) {
-			    return deleteClick();
-			  } else {
-			    return false;
-			  }
-			}
-			
-			function confirmTsCancel(link,msg){
-			if (link.onclick == confirmDelete) {
-			    return;
-			  }
-			                
-			  deleteClick = link.onclick;
-			  deleteMsg = msg;
-			  link.onclick = confirmDelete;
-			}
-			
 			//just introduce jquery slideUp/Down visual effect to overwrite top function
 			function switchShowOrHide(tag){
 				if(tag){
@@ -216,40 +186,28 @@
 		</script>
 		
 		<h:form id="modifyMeeting">
-			<h:panelGroup>
-				<f:verbatim><ul class="navIntraTool actionToolbar" role="menu"></f:verbatim> 
-				<h:panelGroup rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}">				
-						<f:verbatim><li role="menuitem" class="firstToolBarItem"> <span></f:verbatim>
-					<h:commandLink value="#{msgs.modify_event}" action="#{OrganizerSignupMBean.modifyMeeting}" rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}" />
-					<f:verbatim></span></li></f:verbatim>
-				</h:panelGroup>
-				
-				<h:panelGroup rendered="#{SignupPermissionsUpdateBean.showPermissionLink}"> 	
-					<f:verbatim><li role="menuitem" ><span></f:verbatim>
-					<h:commandLink value="#{msgs.copy_event}" action="#{OrganizerSignupMBean.copyMeeting}" />
-					<f:verbatim></span></li></f:verbatim>
-				</h:panelGroup>
-				
-				<h:panelGroup>
-					<f:verbatim><li role="menuitem" ><span></f:verbatim>
-					<h:commandLink value="#{msgs.event_pageTop_link_for_download_xls}" action="#{DownloadEventBean.downloadOneEventAsExcel}" />
-					<f:verbatim></span></li></f:verbatim>
-				</h:panelGroup>
-				
-				<h:panelGroup rendered="#{DownloadEventBean.csvExportEnabled}">
-					<f:verbatim><li role="menuitem" ><span></f:verbatim>
-					<h:commandLink value="#{msgs.event_pageTop_link_for_download_csv}" action="#{DownloadEventBean.downloadOneEventAsCsv}" rendered="#{DownloadEventBean.csvExportEnabled}" />
-					<f:verbatim></span></li></f:verbatim>
-				</h:panelGroup>
-				
-				<f:verbatim><li role="menuitem" ><span></f:verbatim>
-					<h:outputLink id="print" value="javascript:window.print();">
-							<h:outputText value="#{msgs.print_event}" escape="false"/>
-					</h:outputLink>				
-				<f:verbatim></span></li>
-				
-			  </ul></f:verbatim>
+			<%@ include file="/signup/menu/signupMenu.jsp" %>
+			<br/>
+			<h:panelGroup rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}">
+				<h:commandButton styleClass="button" value="#{msgs.modify_event}" action="#{OrganizerSignupMBean.modifyMeeting}"/>
+				&nbsp;
 			</h:panelGroup>
+			<h:panelGroup rendered="#{SignupPermissionsUpdateBean.showPermissionLink}">
+				<h:commandLink styleClass="button" value="#{msgs.copy_event}" action="#{OrganizerSignupMBean.copyMeeting}" />
+				&nbsp;
+			</h:panelGroup>
+			<h:panelGroup>
+				<h:commandLink styleClass="button"  value="#{msgs.event_pageTop_link_for_download_xls}" action="#{DownloadEventBean.downloadOneEventAsExcel}" />
+				&nbsp;
+			</h:panelGroup>
+			<h:panelGroup rendered="#{DownloadEventBean.csvExportEnabled}">
+				<h:commandLink value="#{msgs.event_pageTop_link_for_download_csv}" action="#{DownloadEventBean.downloadOneEventAsCsv}" rendered="#{DownloadEventBean.csvExportEnabled}" />
+				&nbsp;
+			</h:panelGroup>
+			<h:outputLink styleClass="button" id="print" value="javascript:window.print();">
+				<h:outputText value="#{msgs.print_event}" escape="false"/>
+			</h:outputLink>
+
 		</h:form>
 		
 		<sakai:view_content>
@@ -353,14 +311,14 @@
 						<h:panelGroup styleClass="col-xs-12 col-md-9 valueColumn" layout="block">
 							<h:panelGroup>
 								<h:outputText value="#{OrganizerSignupMBean.meetingWrapper.meeting.startTime}">
-									<f:convertDateTime pattern="h:mm a" timeZone="#{UserTimeZone.userTimeZone}"/>
+									<f:convertDateTime pattern="#{UserLocale.localizedTimeFormat}" timeZone="#{UserTimeZone.userTimeZone}"/>
 								</h:outputText>
 								<h:outputText value="#{OrganizerSignupMBean.meetingWrapper.meeting.startTime}" rendered="#{OrganizerSignupMBean.meetingWrapper.meeting.meetingCrossDays}">
 									<f:convertDateTime pattern=", EEEEEEEE" timeZone="#{UserTimeZone.userTimeZone}"/>
 								</h:outputText>
 								<h:outputText value="#{msgs.timeperiod_divider}" escape="false"/>
 								<h:outputText value="#{OrganizerSignupMBean.meetingWrapper.meeting.endTime}">
-									<f:convertDateTime pattern="h:mm a" timeZone="#{UserTimeZone.userTimeZone}"/>
+									<f:convertDateTime pattern="#{UserLocale.localizedTimeFormat}" timeZone="#{UserTimeZone.userTimeZone}"/>
 								</h:outputText>
 								<h:panelGroup rendered="#{OrganizerSignupMBean.meetingWrapper.meeting.meetingCrossDays}">
 									<h:outputText value="#{OrganizerSignupMBean.meetingWrapper.meeting.endTime}" >
@@ -394,13 +352,7 @@
 						<h:panelGroup styleClass="col-xs-12 col-md-9 valueColumn" layout="block">
 							<h:panelGroup rendered="#{!OrganizerSignupMBean.announcementType}">
 								<h:outputText value="#{OrganizerSignupMBean.meetingWrapper.meeting.signupBegins}" styleClass="longtext">
-								 	<f:convertDateTime pattern="EEEEEEEE, " timeZone="#{UserTimeZone.userTimeZone}"/>
-								</h:outputText>
-								<h:outputText value="#{OrganizerSignupMBean.meetingWrapper.meeting.signupBegins}" styleClass="longtext">
-								 	<f:convertDateTime dateStyle="long" timeZone="#{UserTimeZone.userTimeZone}"/>
-								</h:outputText>
-								<h:outputText value="#{OrganizerSignupMBean.meetingWrapper.meeting.signupBegins}" styleClass="longtext">
-									<f:convertDateTime pattern=", h:mm a" timeZone="#{UserTimeZone.userTimeZone}"/>
+									<f:convertDateTime pattern="#{UserLocale.fullDateTimeFormat}" timeZone="#{UserTimeZone.userTimeZone}"/>
 								</h:outputText>
 							</h:panelGroup>
 						</h:panelGroup>
@@ -413,13 +365,7 @@
 						<h:panelGroup styleClass="col-xs-12 col-md-9 valueColumn" layout="block">
 							<h:panelGroup rendered="#{!OrganizerSignupMBean.announcementType}">
 								<h:outputText value="#{OrganizerSignupMBean.meetingWrapper.meeting.signupDeadline}" styleClass="longtext">
-								 	<f:convertDateTime pattern="EEEEEEEE, " timeZone="#{UserTimeZone.userTimeZone}"/>
-								</h:outputText>
-								<h:outputText value="#{OrganizerSignupMBean.meetingWrapper.meeting.signupDeadline}" styleClass="longtext">
-								 	<f:convertDateTime dateStyle="long" timeZone="#{UserTimeZone.userTimeZone}"/>
-								</h:outputText>
-								<h:outputText value="#{OrganizerSignupMBean.meetingWrapper.meeting.signupDeadline}" styleClass="longtext">
-								 	<f:convertDateTime pattern=", h:mm a" timeZone="#{UserTimeZone.userTimeZone}"/>
+								 	<f:convertDateTime pattern="#{UserLocale.fullDateTimeFormat}" timeZone="#{UserTimeZone.userTimeZone}"/>
 								</h:outputText>
 							</h:panelGroup>
 						</h:panelGroup>
@@ -560,38 +506,38 @@
 											<h:outputLink title="#{msgs.event_tool_tips_lockOrcancel}"  onclick="showEditTimeslot('#{timeSlotWrapper.positionInTSlist}'); return false;"
 												rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}">
 									   			<h:outputText value="#{timeSlotWrapper.timeSlot.startTime}">
-													<f:convertDateTime pattern="h:mm a" timeZone="#{UserTimeZone.userTimeZone}"/>
+													<f:convertDateTime pattern="#{UserLocale.localizedTimeFormat}" timeZone="#{UserTimeZone.userTimeZone}"/>
 												</h:outputText>
 												<h:outputText value="#{timeSlotWrapper.timeSlot.startTime}" rendered="#{OrganizerSignupMBean.meetingWrapper.meeting.meetingCrossDays}">
 													<f:convertDateTime pattern=", EEE" timeZone="#{UserTimeZone.userTimeZone}"/>
 												</h:outputText>
 												<h:outputText value="#{msgs.timeperiod_divider}" escape="false"/>
 												<h:outputText value="#{timeSlotWrapper.timeSlot.endTime}">
-													<f:convertDateTime pattern="h:mm a" timeZone="#{UserTimeZone.userTimeZone}"/>
+													<f:convertDateTime pattern="#{UserLocale.localizedTimeFormat}" timeZone="#{UserTimeZone.userTimeZone}"/>
 												</h:outputText>
 												<h:outputText value="#{timeSlotWrapper.timeSlot.endTime}" rendered="#{OrganizerSignupMBean.meetingWrapper.meeting.meetingCrossDays}">
 													<f:convertDateTime pattern=", EEE, " timeZone="#{UserTimeZone.userTimeZone}"/>
 												</h:outputText>
 												<h:outputText value="#{timeSlotWrapper.timeSlot.endTime}" rendered="#{OrganizerSignupMBean.meetingWrapper.meeting.meetingCrossDays}">
-													<f:convertDateTime  dateStyle="short" pattern="#{UserLocale.dateFormat}" timeZone="#{UserTimeZone.userTimeZone}"/>
+													<f:convertDateTime dateStyle="short" pattern="#{UserLocale.dateFormat}" timeZone="#{UserTimeZone.userTimeZone}"/>
 												</h:outputText>
 											</h:outputLink>
 											<h:panelGroup rendered="#{OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}">
 												<h:outputText value="#{timeSlotWrapper.timeSlot.startTime}">
-													<f:convertDateTime pattern="h:mm a" timeZone="#{UserTimeZone.userTimeZone}"/>
+													<f:convertDateTime pattern="#{UserLocale.localizedTimeFormat}" timeZone="#{UserTimeZone.userTimeZone}"/>
 												</h:outputText>
 												<h:outputText value="#{timeSlotWrapper.timeSlot.startTime}" rendered="#{OrganizerSignupMBean.meetingWrapper.meeting.meetingCrossDays}">
 													<f:convertDateTime pattern=", EEE" timeZone="#{UserTimeZone.userTimeZone}"/>
 												</h:outputText>
 												<h:outputText value="#{msgs.timeperiod_divider}" escape="false"/>
 												<h:outputText value="#{timeSlotWrapper.timeSlot.endTime}">
-													<f:convertDateTime pattern="h:mm a" timeZone="#{UserTimeZone.userTimeZone}"/>
+													<f:convertDateTime pattern="#{UserLocale.localizedTimeFormat}" timeZone="#{UserTimeZone.userTimeZone}"/>
 												</h:outputText>
 												<h:outputText value="#{timeSlotWrapper.timeSlot.endTime}" rendered="#{OrganizerSignupMBean.meetingWrapper.meeting.meetingCrossDays}">
 													<f:convertDateTime pattern=", EEE, " timeZone="#{UserTimeZone.userTimeZone}"/>
 												</h:outputText>
 												<h:outputText value="#{timeSlotWrapper.timeSlot.endTime}" rendered="#{OrganizerSignupMBean.meetingWrapper.meeting.meetingCrossDays}">
-													<f:convertDateTime  dateStyle="short" pattern="#{UserLocale.dateFormat}" timeZone="#{UserTimeZone.userTimeZone}"/>
+													<f:convertDateTime dateStyle="short" pattern="#{UserLocale.dateFormat}" timeZone="#{UserTimeZone.userTimeZone}"/>
 												</h:outputText>
 											</h:panelGroup>
 										</h:panelGroup>
@@ -610,8 +556,7 @@
 												</h:panelGroup>
 												
 												<h:panelGroup >
-													<h:commandLink id="cancelTimeslot" action="#{OrganizerSignupMBean.initiateCancelTimeslot}" rendered="#{!timeSlotWrapper.timeSlot.canceled}"
-													  onmousedown="confirmTsCancel(this,'#{msgs.confirm_cancel}');" title="#{msgs.event_tool_tips_cancel_label}">
+													<h:commandLink id="cancelTimeslot" action="#{OrganizerSignupMBean.initiateCancelTimeslot}" rendered="#{!timeSlotWrapper.timeSlot.canceled}" onclick="return confirm('#{msgs.confirm_cancel}');" title="#{msgs.event_tool_tips_cancel_label}">
 														<h:graphicImage value="/images/cancelled.gif" alt="" style="border:none" styleClass="openCloseImageIcon"/>
 														<h:outputText value="#{msgs.event_cancel_timeslot_label}" style="white-space: nowrap;" escape="false"/>
 													</h:commandLink>
@@ -674,7 +619,7 @@
 							   								onclick="showHideEditPanel('#{timeSlotWrapper.positionInTSlist}','#{attendeeWrapper.positionIndex}','#{attendeeWrapper.signupAttendee.attendeeUserId}');" 
 							   								alt="#{msgs.edit}" style="cursor:pointer; border:none" rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}"/>
 							   							<h:outputText value="&nbsp;" escape="false"/>
-							   							<h:commandLink id="deleteAttendee" action="#{OrganizerSignupMBean.removeAttendee}"  onmousedown="assignDeleteClick(this,'#{msgs.delete_attandee_confirmation}');"  title="#{msgs.event_tool_tips_delete}" rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}" >
+							   							<h:commandLink id="deleteAttendee" action="#{OrganizerSignupMBean.removeAttendee}" onclick="return confirm('#{msgs.delete_attandee_confirmation}');"  title="#{msgs.event_tool_tips_delete}" rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}" >
 							   								<h:graphicImage value="/images/delete.png"  alt="#{msgs.delete}" style="border:none" styleClass="openCloseImageIcon"></h:graphicImage>
 							   								<f:param id="deletAttendeeUserId" name="#{OrganizerSignupMBean.attendeeUserId}" value="#{attendeeWrapper.signupAttendee.attendeeUserId}"></f:param>
 							   							</h:commandLink>
@@ -807,10 +752,10 @@
 								<f:facet name="header">
 									<h:outputText value="#{msgs.group_synchronise_heading}"/>
 								</f:facet>
-								<h:commandButton id="synctogroup" value="#{msgs.group_synchronise_button}" action="#{OrganizerSignupMBean.synchroniseGroupMembership}" actionListener="#{OrganizerSignupMBean.attrListener}"   onmousedown="assignDeleteClick(this,'#{msgs.synchronisetogroup_confirmation}');" title="#{msgs.event_tool_tips_syncTogroup}">
+								<h:commandButton id="synctogroup" value="#{msgs.group_synchronise_button}" action="#{OrganizerSignupMBean.synchroniseGroupMembership}" actionListener="#{OrganizerSignupMBean.attrListener}" onclick="return confirm('#{msgs.synchronisetogroup_confirmation}');" title="#{msgs.event_tool_tips_syncTogroup}">
         								<f:attribute name="timeslottoGroup" value="toGroup" />
                                 </h:commandButton>
-								<h:commandButton id="syncfromgroup" value="#{msgs.fromgroup_synchronise_button}" action="#{OrganizerSignupMBean.synchroniseGroupMembership}" actionListener="#{OrganizerSignupMBean.attrListener}"  onmousedown="assignDeleteClick(this,'#{msgs.synchronisefromgroup_confirmation}');" title="#{msgs.event_tool_tips_syncFromgroup}">
+								<h:commandButton id="syncfromgroup" value="#{msgs.fromgroup_synchronise_button}" action="#{OrganizerSignupMBean.synchroniseGroupMembership}" actionListener="#{OrganizerSignupMBean.attrListener}"  onclick="return confirm('#{msgs.synchronisefromgroup_confirmation}');" title="#{msgs.event_tool_tips_syncFromgroup}">
 									<f:attribute name="timeslottoGroup" value="" />
 								</h:commandButton>
 					   		</h:column>
@@ -861,7 +806,7 @@
 																	<h:outputText value="&nbsp;" escape="false"/>
 															</h:panelGroup>
 									   						<h:panelGroup>
-									   							<h:outputText value="#{waiterWrapper.displayName}" escape="false"/>
+									   							<h:outputText value="#{waiterWrapper.displayName}"/>
 									   							<br />
 									   							<h:outputText id="waiterInscriptionTime" rendered="#{OrganizerSignupMBean.getDisplayTimeFromInstant(waiterWrapper.signupAttendee.inscriptionTime) != ''}"
 									   								style="font-size: 90%;" value="(#{OrganizerSignupMBean.getDisplayTimeFromInstant(waiterWrapper.signupAttendee.inscriptionTime)})" escape="false"/>
@@ -961,8 +906,8 @@
 					</sakai:doc_section>	
 							
 							 	
-					<sakai:button_bar>					
-						<h:commandButton id="goback" action="listMeetings" value="#{msgs.goback_button}"/>					
+					<sakai:button_bar>
+						<h:commandButton styleClass="hidden-print" id="goback" action="listMeetings" value="#{msgs.goback_button}"/>
 	                </sakai:button_bar>
 	                
 	                <h:outputText value="&nbsp;" escape="false"/>

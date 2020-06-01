@@ -9,13 +9,22 @@
 
 	<sakai:view_container title="#{msgs.title_edit}">
 		<sakai:view_content>
+			<script>includeLatestJQuery('edit_redirect.jsp');</script>
+			<script>
+				$(document).ready( function() {
+					var menuLink = $('#syllabusMenuRedirectLink');
+					menuLink.addClass('current');
+					menuLink.find('a').removeAttr('href');
+				});
+			</script>
 			<h:form id="redirectForm">
+				<%@ include file="mainMenu.jsp" %>
 
 				<div class="page-header">
 					<h1><h:outputText value="#{msgs.redirect_sylla}" /></h1>
 				</div>
 
-				<h:messages styleClass="alertMessage" rendered="#{!empty facesContext.maximumSeverity}" />
+				<h:messages styleClass="sak-banner-error" rendered="#{!empty facesContext.maximumSeverity}" />
 				<h:panelGrid styleClass="jsfFormTable" columns="1">
 					<h:panelGroup styleClass="instruction">
 						<h:outputText value="#{msgs.redirect_sylla_delete}" />

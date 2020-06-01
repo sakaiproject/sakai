@@ -57,6 +57,7 @@ public interface SakaiProxy {
     public final static String SEARCH_INDEX_CACHE = "org.sakaiproject.roster.searchIndexCache";
 
 	public final static String DEFAULT_SORT_COLUMN = "sortName";
+	public final static String DEFAULT_OVERVIEW_MODE = "cards";
 	public final static Boolean DEFAULT_FIRST_NAME_LAST_NAME = false;
 	public final static Boolean DEFAULT_HIDE_SINGLE_GROUP_FILTER = false;
 	public final static Boolean DEFAULT_VIEW_EMAIL = true;
@@ -114,6 +115,15 @@ public interface SakaiProxy {
 	 */
 	public String getDefaultSortColumn();
 	
+	/**
+	 * Returns the value of the <code>roster.defaultOverviewMode</code> Sakai
+	 * property.
+	 *
+	 * @return the value of the <code>roster.defaultOverviewMode</code> Sakai
+	 * property.
+	 */
+	public String getDefaultOverviewMode();
+
 	/**
 	 * Returns the value of the <code>roster.display.firstNameLastName</code>
 	 * Sakai property.

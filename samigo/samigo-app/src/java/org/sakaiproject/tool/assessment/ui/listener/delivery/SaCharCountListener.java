@@ -47,7 +47,7 @@ public class SaCharCountListener implements ActionListener
 		}
 		StringBuffer redrawAnchorName = new StringBuffer("p");
 
-		if (delivery.getHasShowTimeWarning()) {
+		if (delivery.isHasShowTimeWarning()) {
 			delivery.setShowTimeWarning(false);
 		}
 		

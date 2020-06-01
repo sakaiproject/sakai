@@ -5,17 +5,12 @@
     <parent>
         <artifactId>basiclti</artifactId>
         <groupId>org.sakaiproject.basiclti</groupId>
-        <version>20-SNAPSHOT</version>
+        <version>21-SNAPSHOT</version>
     </parent>
 
     <name>BasicLIS Implementation (imsblis)</name>
     <groupId>org.sakaiproject.basiclti</groupId>
     <artifactId>imsblis</artifactId>
-    <organization>
-        <name>Sakai Project</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2010</inceptionYear>
     <packaging>war</packaging>
 
     <dependencies>
@@ -100,11 +95,15 @@
             <artifactId>jjwt-jackson</artifactId>
             <version>0.10.5</version>
         </dependency>
-        <dependency>
-            <groupId>com.nimbusds</groupId>
-            <artifactId>nimbus-jose-jwt</artifactId>
-            <version>4.3.1</version>
-        </dependency>
+	<dependency>
+		<groupId>com.nimbusds</groupId>
+		<artifactId>nimbus-jose-jwt</artifactId>
+	</dependency>
+	<dependency>
+		<groupId>commons-io</groupId>
+		<artifactId>commons-io</artifactId>
+		<scope>provided</scope>
+	</dependency>
 
 
         <!-- for the entityprovider -->

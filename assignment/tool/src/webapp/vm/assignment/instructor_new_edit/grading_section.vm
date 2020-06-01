@@ -1,0 +1,225 @@
+#**
+"Grading" Section
+This section contains the options for grading this assignment, including rubrics and peer assessment.
+
+@author plukasew
+*#
+
+## Anonymous Grading (SAK-17606)
+#if( $enableAnonGrading || $value_CheckAnonymousGrading.equals("true") )
+	<div class="checkbox">
+		<label for="$name_CheckAnonymousGrading" #if( !$enableAnonGrading ) class="disabled" #end>
+			<input id="$name_CheckAnonymousGrading" name="$name_CheckAnonymousGrading" type="checkbox" value="true"
+			#if ($value_CheckAnonymousGrading)
+				checked="checked"
+			#end
+			#if( !$enableAnonGrading )
+				disabled="disabled"
+			#end
+			/>
+			$tlang.getString("grading.anonymous")
+		</label>
+	</div>
+#end
+
+## Grading Options
+#if ($withGrade)
+	<div class="checkbox">
+		<label for="gradeAssignment">
+			<input id="gradeAssignment" name="$name_GradeAssignment" type="checkbox" value="true" #if($value_GradeType != 1)checked#end
+				onclick="ASN_INE.handleGradeAssignmentClick(this, '$name_GradeType', '$name_GradePoints');">
+			$tlang.getString("grading.gradeAssignment")
+		</label>
+	</div>
+
+	<div id="assignmentGradingPanel"#if($value_GradeType == 1)style="display:none;"#end class="indnt3">
+		<div class="form-group form-required">
+			<label for="$name_GradeType">$tlang.getString("gen.grasca")</label>
+			<span class="skip">$tlang.getString("newassig.selectmessage")</span>
+			<select id="$name_GradeType"  name="$name_GradeType" title="$tlang.getString("gen.grasca")" onchange="ASN_INE.handleGradeScaleChange(this, '$name_GradePoints', '$!gradebookChoice_add', '$!gradebookChoice_associate')" class="gradeScaleSelect">
+				<option value="3" #if (1 == $value_GradeType || 3 == $value_GradeType)selected="selected"#end>$gradeTypeTable.get(3)</option>
+				<option value="2" #if (2 == $value_GradeType)selected="selected"#end>$gradeTypeTable.get(2)</option>
+				<option value="4" #if (4 == $value_GradeType)selected="selected"#end>$gradeTypeTable.get(4)</option>
+				<option value="5" #if (5 == $value_GradeType)selected="selected"#end>$gradeTypeTable.get(5)</option>
+			</select>
+		</div>
+
+		<div id="assignmentGradingPointsPanel" class="well" #if($value_GradeType != 3 && $value_GradeType != 1)style="display:none;"#end >
+			## enable the maxfield when it is points grade type
+			<div class="form-group form-required">
+				<label for="$name_GradePoints" class="control-label">$tlang.getString("gen.forpoi")</label>
+				<input name="$name_GradePoints" id="$name_GradePoints" value="$!value_GradePoints" type="text" size="5" maxlength="11" />
+			</div>
+
+			## Rubrics
+			<div class="form-group">
+				<sakai-rubric-association token="$!rbcs-token" dont-associate-label="$tlang.getString("dont.associate.label")"
+					dont-associate-value="0" associate-label="$tlang.getString("associate.label")" associate-value="1" tool-id="sakai.assignment"
+					#if("$!assignment.Id" != "") entity-id="$assignment.Id"	#end
+					#if($rbcs-state-details && "$!rbcs-state-details" != "") state-details="$rbcs-state-details" #end
+					fine-tune-points="$tlang.getString("option.pointsoverride")" hide-student-preview="$tlang.getString("option.studentpreview")">
+				</sakai-rubric-association>
+			</div>
+
+			#if ($!withGrade && $!withGradebook)
+				## show the "Add to Gradebook" choices or not
+				#if(!$!allowGroupAssignmentsInGradebook)
+					#set ($addToGBDisplay="none")
+				#else
+					#set ($addToGBDisplay="block")
+				#end
+				#set($sendToGradebook=false)
+				#if($!gradebookChoice.equals("$!gradebookChoice_add") || $!gradebookChoice.equals("$!gradebookChoice_associate"))
+					#set($sendToGradebook=true)
+				#end
+				<div class="form-group" style="display:$!addToGBDisplay">
+					<div style="display:$!addToGBDisplay">
+						<div class="checkbox">  ## Send to Gradebook
+							<label for="$name_SendToGradebook">
+								<input type="checkbox" id="$name_SendToGradebook" name="$name_SendToGradebook" value="true"
+									#if($sendToGradebook)checked#end
+									onclick="ASN_INE.handleSendToGradebookClick(this, '$!gradebookChoice_add', '$!gradebookChoice_associate' );" >
+								$tlang.getString("grading.send")
+							</label>
+						</div>
+						<div id="assignmentGradingGradebookOptionsPanel" class="indnt3" #if(!$sendToGradebook)style="display: none;"#end>
+							#if (!$!noAddToGradebookChoice)
+								<div class="radio">  ## Add to Gradebook
+									<label id="radioAddToGbLabel" for="$!gradebookChoice_add">
+										<input type="radio" name="$!name_Addtogradebook" id="$!gradebookChoice_add" value="$!gradebookChoice_add"
+											#if($!gradebookChoice.equals("$!gradebookChoice_add"))checked#end
+											onclick="ASN_INE.handleGradebookRadioClick(this, '$!gradebookChoice_add');" >
+										$tlang.getString("grading.add")
+									</label>
+								</div>
+								#if ($!value_totalCategories > 1)
+								## show the "Category list" choices or not
+								<div id="categoryList" class="indnt3">
+									<label for="category">$tlang.getString("grading.categorylist")</label>
+									<select name="$name_Category" id="category" #if(!$!gradebookChoice.equals("$!gradebookChoice_add"))disabled#end>
+										#foreach ($i in $categoryKeys)
+											<option value="$i" #if ($i == $!value_Category)selected="selected"#end>$categoryTable.get($i)</option>
+										#end
+									</select>
+								</div>
+								#end
+							#end
+
+							## if there are assignment entries in Gradebook
+							#if (!$!gradebookAssignmentsLabel.isEmpty())
+								<div class="radio">  ## Associate with Existing Gradebook Item
+									<label id="radioAssocWithGbLabel" for="$!gradebookChoice_associate">
+										<input type="radio"	name="$!name_Addtogradebook" id="$!gradebookChoice_associate" value="$!gradebookChoice_associate"
+											#if($!gradebookChoice.equals("$!gradebookChoice_associate"))checked#end
+											onclick="ASN_INE.handleGradebookRadioClick(this, '$!gradebookChoice_add');" >
+										$tlang.getString("grading.associate")
+									</label>
+								</div>
+								<div id="gradebookList" class="indnt3">
+									<label for="gradebookItemSelect" class="sr-only">$tlang.getString("grading.select")</label>
+									<select name="$!name_AssociateGradebookAssignment" id="gradebookItemSelect">
+										<option value="">$tlang.getString("grading.select")</option>
+										#set($gAssignmentSet = $!gradebookAssignmentsLabel.keySet())
+										#foreach ($gaId in $!gAssignmentSet.iterator())
+											<option  value="$gaId"
+												#if($!gradebookAssignmentsSelectedDisabled.get($gaId).equals("disabled"))
+													disabled="disabled"
+												#elseif($!gradebookAssignmentsSelectedDisabled.get($gaId).equals("selected"))
+													selected="selected"
+												#end>
+													$formattedText.escapeHtml($!gradebookAssignmentsLabel.get($gaId))
+											</option>
+										#end
+									</select>
+								</div>
+							#end
+						</div>
+					</div>
+				</div>
+			#end
+
+			#if ($allowPeerAssessment)
+				#set($groupAssignment = false)
+				#if ($value_AssignTo == $value_AssignTo_Groups && $!groupsList && !$selectedGroupsNotFound)
+					#set($groupAssignment = true)
+				#end
+				<div class="peerAssessmentContainer form-group">
+					<div class="checkbox">
+						<label id="peerAssessmentCheckboxLabel" for="usePeerAssessment">
+							<input id="usePeerAssessment" name="$name_UsePeerAssessment" type="checkbox" value="true"
+								#if ($!value_UsePeerAssessment.equals("true")) checked="checked" #end
+								#if ($groupAssignment) disabled="disabled" #end
+								onclick="ASN_INE.togglePeerAssessment(this)"
+							/>
+							$tlang.getString("peerAssessmentUse")
+							<span id="peerGroupAsnWarn" style="display:#if($groupAssignment)block#else none#end;">
+								$tlang.getString("peerassessment.warn.nogroup")
+							</span>
+						</label>
+					</div>
+					#set($displayPeerOptions = "none")
+					#if($!value_UsePeerAssessment.equals("true"))
+						#set($displayPeerOptions = "block")
+					#end
+					<div id="peerAssessmentOptions" class="indnt3" style="display:$displayPeerOptions">
+
+						<div id="peerperiod-finish">
+							<label for="new_assignment_peerperiod">$tlang.getString("peerassessment.periodfinishes")</label>
+							<input type="text" id="new_assignment_peerperiod" name="new_assignment_peerperiod" class="datepicker" value="">
+						</div>
+
+						<script type="text/javascript">
+							localDatePicker({
+								input:'#new_assignment_peerperiod',
+								useTime:1,
+								val:"$value_PeerPeriodYear$H$value_PeerPeriodMonth$H$value_PeerPeriodDay $value_PeerPeriodHour:$value_PeerPeriodMin",
+								parseFormat: 'YYYY-MM-DD HH:mm',
+								ashidden:{
+									month:"$name_PeerPeriodMonth",
+									day:"$name_PeerPeriodDay",
+									year:"$name_PeerPeriodYear",
+									hour:"$name_PeerPeriodHour",
+									minute:"$name_PeerPeriodMin"
+								}
+							});
+						</script>
+						##Anonymous Eval
+						#if ($!value_PeerAssessmentAnonEval)
+							<input id="$name_PeerAssessmentAnonEval" name="$name_PeerAssessmentAnonEval" type="checkbox" value="true" checked="checked"/>
+						#else
+							<input id="$name_PeerAssessmentAnonEval" name="$name_PeerAssessmentAnonEval" type="checkbox" value="true"/>
+						#end
+						<label for="$name_PeerAssessmentAnonEval">
+							$tlang.getString("peerassessment.anonymousEvaluation")
+						</label>
+						<br/>
+						##Students View Reviews
+						#if ($!value_PeerAssessmentStudentViewReviews)
+							<input id="$name_PeerAssessmentStudentViewReviews" name="$name_PeerAssessmentStudentViewReviews" type="checkbox" value="true" checked="checked"/>
+						#else
+							<input id="$name_PeerAssessmentStudentViewReviews" name="$name_PeerAssessmentStudentViewReviews" type="checkbox" value="true"/>
+						#end
+						<label for="$name_PeerAssessmentStudentViewReviews">
+							$tlang.getString("peerassessment.studentViewReviews")
+						</label>
+						<br/>
+						##Number of Submissions for review
+						<span class="reqStar">*</span>
+						<input name="$name_PeerAssessmentNumReviews" id="$name_PeerAssessmentNumReviews" value="$!value_PeerAssessmentNumReviews" type="text" size="5" maxlength="11"/>
+						<label for="$name_PeerAssessmentNumReviews">
+							$tlang.getString("peerassessment.numSubmissions")
+						</label>
+						<br/>
+						<br/>
+						<label for="$name_PeerAssessmentInstructions">$tlang.getString("peerassessment.reviewInstructions")</label>
+						<br/>
+						<table border="0" style="margin:0"><tr><td>
+							<textarea name="$name_PeerAssessmentInstructions" id="$name_PeerAssessmentInstructions" cols="80" rows="30" wrap="virtual">$validator.escapeHtmlTextarea($!value_PeerAssessmentInstructions)</textarea>
+							#chef_setupformattedtextarea($name_PeerAssessmentInstructions)
+						</td</tr></table>
+					</div>
+				</div>
+			#end ## allowPeerAssessment
+		</div>
+	</div>
+#end

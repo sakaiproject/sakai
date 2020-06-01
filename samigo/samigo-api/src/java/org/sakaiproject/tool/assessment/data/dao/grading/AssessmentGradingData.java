@@ -37,8 +37,6 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  * 
  */
 public class AssessmentGradingData implements java.io.Serializable
-// need to implement org.osid.assessment.ItemTaken in the future
-// - daisyf 10/11/04
 {
 	private static final long serialVersionUID = 7526471155622776147L;
 
@@ -55,7 +53,7 @@ public class AssessmentGradingData implements java.io.Serializable
 	private Integer status;
 	private String gradedBy;
 	private Date gradedDate;
-	private Set<ItemGradingData> itemGradingSet = new HashSet<ItemGradingData>();
+	private Set<ItemGradingData> itemGradingSet = new HashSet<>();
 	private Date attemptDate;
 	private Integer timeElapsed;
 	private Boolean submitFromTimeoutPopup;
@@ -71,6 +69,16 @@ public class AssessmentGradingData implements java.io.Serializable
 	// Because of SAK-16456, we no longer need to show the auto/human graded
 	// status per submission, I don't think we
 	// need to distinguish status 2 and 3 anymore. But I just leave them here...
+
+	/**
+	 * status = -1: submission removed (soft-deleted)
+	 */
+	public static final Integer REMOVED = Integer.valueOf(-1);
+
+	/**
+	 * status = 0: in-progress
+	 */
+	public static final Integer IN_PROGRESS = Integer.valueOf(0);
 
 	/**
 	 * status = 1: submit but not grade yet

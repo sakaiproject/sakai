@@ -34,55 +34,27 @@ import org.sakaiproject.tool.api.Placement;
 public interface BullhornService {
 
     /**
-     * Used by the bullhorn alerts code
-     */
-    public static final String ACADEMIC = "ACADEMIC";
-
-    /**
-     * Used by the bullhorn alerts code
-     */
-    public static final String SOCIAL = "SOCIAL";
-
-    /**
      * @param userId The user to retrieve the alert count for
-     * @return the number of current social alerts for the specified user
+     * @return the number of current alerts for the specified user
      */
-    public long getSocialAlertCount(String userId);
+    public long getAlertCount(String userId);
 
     /**
      * @param userId The user to retrieve alerts for
-     * @return the list of current social alerts for the specified user
+     * @return the list of current alerts for the specified user
      */
-    public List<BullhornAlert> getSocialAlerts(String userId);
-
-    /**
-     * @param userId The user to clear the alerts for
-     * @return boolean to indicate success
-     */
-    public boolean clearAllSocialAlerts(String userId);
-
-    /**
-     * @param userId The user to retrieve the alert count for
-     * @return the number of current academic alerts for the specified user
-     */
-    public long getAcademicAlertCount(String userId);
-
-    /**
-     * @param userId The user to retrieve alerts for
-     * @return the list of current academic alerts for the specified user
-     */
-    public List<BullhornAlert> getAcademicAlerts(String userId);
+    public List<BullhornAlert> getAlerts(String userId);
 
     /**
      * @param userId The user to clear the alert for
      * @param alertId The alert to clear
      * @return boolean to indicate success
      */
-    public boolean clearBullhornAlert(String userId, long alertId);
+    public boolean clearAlert(String userId, long alertId);
 
     /**
      * @param userId The user to clear the alerts for
      * @return boolean to indicate success
      */
-    public boolean clearAllAcademicAlerts(String userId);
+    public boolean clearAllAlerts(String userId);
 }

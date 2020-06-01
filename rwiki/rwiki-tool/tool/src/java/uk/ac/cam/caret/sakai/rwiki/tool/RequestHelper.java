@@ -65,22 +65,10 @@ public class RequestHelper
 				request.getContextPath().length()
 						+ request.getServletPath().length());
 		
-		// SAK-13408 - Tomcat and WAS have different URL structures; Attempting to add a 
-		// link or image would lead to site unavailable errors in websphere if the tomcat
-		// URL structure is used.
-		if("websphere".equals(ServerConfigurationService.getString("servlet.container"))) {
-			String[] parts = requestPath.split("/");
-
-			if ((parts.length >= 4) && (parts[3].equals(HELPER_PATH)))
-			{
-				action = HELPER_PATH;
-			}
-
-		}
-		else if (requestPath != null
-				&& requestPath.startsWith("/" + HELPER_PATH + "/"))
+		if (requestPath != null && requestPath.startsWith("/" + HELPER_PATH + "/"))
+		{
 			action = HELPER_PATH;
-		
+		}
 		if (action == null)
 		{
 			action = defaultAction;

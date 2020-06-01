@@ -1,0 +1,7 @@
+<div class="page-header">
+	<h1>
+		$!permissions
+	</h1>
+</div>
+
+<sakai-permissions tool="$!toolKey" bundle-key="$!bundleKey" />

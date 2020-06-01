@@ -30,6 +30,7 @@ import javax.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
@@ -40,7 +41,8 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.TemplateBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
+
 
 /**
  * <p>Description: Action Listener for loading a template</p>
@@ -101,7 +103,7 @@ public class TemplateLoadListener
         (templateId);
 
       templateBean.setIdString(templateId);
-      templateBean.setTemplateName(FormattedText.convertFormattedTextToPlaintext(template.getTitle()));      
+      templateBean.setTemplateName(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(template.getTitle()));      
       templateBean.setTemplateDescription(template.getDescription());
 
       // Assessment Access Control

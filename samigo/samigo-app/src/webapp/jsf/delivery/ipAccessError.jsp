@@ -41,7 +41,7 @@
   <h3><h:outputText value="#{deliveryMessages.access_denied}"/></h3>
  <h:form id="removeTemplateForm">
    <h:panelGroup>
-       <f:verbatim><div class="messageSamigo"></f:verbatim>
+       <f:verbatim><div class="sak-banner-error"></f:verbatim>
        <h:outputText value="#{deliveryMessages.ip_denied}" escape="false" />
        <f:verbatim></div></f:verbatim>
    </h:panelGroup>

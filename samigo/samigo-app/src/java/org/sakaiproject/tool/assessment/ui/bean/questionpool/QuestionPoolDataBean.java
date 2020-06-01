@@ -19,8 +19,6 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.bean.questionpool;
 
 //import org.sakaiproject.tool.assessment.business.entity.questionpool.*;
@@ -33,17 +31,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import lombok.extern.slf4j.Slf4j;
-import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
-import org.sakaiproject.util.FormattedText;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 
-/**
- * This holds question pool information.
- *
- * Used to be org.navigoproject.ui.web.form.questionpool.QuestionPoolBean
- *
- * @author Rachel Gollub <rgollub@stanford.edu>
- */
+import lombok.extern.slf4j.Slf4j;
+
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
+import org.sakaiproject.util.api.FormattedText;
+
+/* For questionpool: Question Pool Data backing bean. */
+@Slf4j
+@ManagedBean(name="questionpooldata")
+@SessionScoped
 public class QuestionPoolDataBean implements Serializable {
 
   /** Use serialVersionUID for interoperability. */
@@ -88,7 +88,7 @@ public class QuestionPoolDataBean implements Serializable {
   
   public String getDisplayName()
   {
-    return FormattedText.convertFormattedTextToPlaintext(displayName);
+    return ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(displayName);
   }
 
   public void setDisplayName(String newName)
@@ -108,7 +108,7 @@ public class QuestionPoolDataBean implements Serializable {
 
   public String getDescription()
   {
-    return FormattedText.convertFormattedTextToPlaintext(description);
+    return ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(description);
   }
 
   public void setDescription(String newDesc)
@@ -118,7 +118,7 @@ public class QuestionPoolDataBean implements Serializable {
 
   public String getOrganizationName()
   {
-    return FormattedText.convertFormattedTextToPlaintext(organizationName);
+    return ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(organizationName);
   }
 
   public void setOrganizationName(String param)
@@ -128,7 +128,7 @@ public class QuestionPoolDataBean implements Serializable {
 
   public String getKeywords()
   {
-    return FormattedText.convertFormattedTextToPlaintext(keywords);
+    return ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(keywords);
   }
 
   public void setKeywords(String param)
@@ -138,7 +138,7 @@ public class QuestionPoolDataBean implements Serializable {
 
   public String getObjectives()
   {
-    return FormattedText.convertFormattedTextToPlaintext(objectives);
+    return ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(objectives);
   }
 
   public void setObjectives(String param)

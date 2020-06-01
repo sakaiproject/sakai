@@ -1,12 +1,5 @@
 @import "base/compass";
 
-.sitesNav__drop{
-	cursor: pointer;
-	display: inline-block;
-	height:  12px;
-	width:   16px;
-}
-
 .blurry{
 	@include filter( blur(0.1em) );
 }
@@ -176,7 +169,6 @@
 	background-image: url("images/icon-arrow-down.png");
 	background-position: right 50%;
 	background-repeat: no-repeat;
-	border: 1px solid $button-border-color;
 	color: $text-color;
 	font-family: $font-family;
 	font-size: #{$default-font-size - 1};
@@ -240,7 +232,12 @@
 					$sb-hover-border-color,
 					$sb-active-text-color,
 					$sb-active-background,
-					$sb-active-border-color) {
+					$sb-active-border-color,
+					$sb-text-transform,
+					$sb-font-weight,
+					$sb-shadow,
+					$sb-hover-shadow,
+					$sb-active-shadow) {
 	display: inline-block;
 	margin: 0;
 	padding: 7px $standard-spacing;
@@ -249,12 +246,14 @@
 	background: $sb-background;
 	font-family: $font-family;
 	font-size: 1em;
+	font-weight: $sb-font-weight;
 	line-height: 18px;
 	color: $sb-text-color;
 	text-decoration: none;
+	text-transform: $sb-text-transform;
 	cursor: pointer;
 	@include appearance(none);
-	box-shadow: 0 1px 0 rgba(255,255,255,0.15) inset;
+	box-shadow: $sb-shadow;
 
 	&:before { // icon
 		color: $sb-text-color;
@@ -270,7 +269,7 @@
 		text-decoration: none;
 		background: $sb-hover-background;
 		border-color: $sb-hover-border-color;
-
+		box-shadow: $sb-hover-shadow;
 		&:before { // icon
 			color: $sb-hover-text-color;
 		}
@@ -282,7 +281,7 @@
 		text-decoration: none;
 		background: $sb-active-background;
 		border-color: $sb-active-border-color;
-		box-shadow: inset 0 0 $standard-spacing $button-active-shadow-color;
+		box-shadow: $sb-active-shadow;
 		
 		&:before { // icon
 			color: $sb-active-text-color;
@@ -311,7 +310,12 @@
 							$button-primary-hover-border-color,
 							$button-primary-active-text-color,
 							$button-primary-active-background,
-							$button-primary-active-border-color);
+							$button-primary-active-border-color,
+							$button-primary-text-transform,
+							$button-primary-font-weight,
+							$button-primary-shadow,
+							$button-primary-hover-shadow,
+							$button-primary-active-shadow);
 }
 
 // the standard button design for non-primary action buttons (opposite of sakai_primary_button above)
@@ -324,7 +328,12 @@
 							$button-hover-border-color,
 							$button-active-text-color,
 							$button-active-background,
-							$button-active-border-color);
+							$button-active-border-color,
+							$button-text-transform,
+							$button-font-weight,
+							$button-shadow,
+							$button-hover-shadow,
+							$button-active-shadow);
 }
 
 button.btn-primary, .act .active {

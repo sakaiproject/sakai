@@ -633,6 +633,23 @@ public interface SiteService extends EntityProducer
 	void removeSite(Site site) throws PermissionException, IdUnusedException;
 
 	/**
+	 * Remove this site's information.
+	 * 
+	 * <p>If site.soft.deletion=true, the site will be softly deleted and user access will be removed.
+	 * If hardDelete is true, all tools that implement HardDelete interface will have content removed.</p>
+	 * 
+	 * @param site
+	 *        The site id.
+	 * @param hardDelete
+	 *        Whether content should be purged from database.
+	 * @exception PermissionException
+	 *            if the current user does not have permission to remove this site.
+	 * @exception IdUnusedException 
+	 * 			  if site does not exist
+	 */
+	void removeSite(Site site, boolean hardDelete) throws PermissionException, IdUnusedException;
+
+	/**
 	 * Access the internal reference which can be used to access the site from within the system.
 	 * 
 	 * @param id

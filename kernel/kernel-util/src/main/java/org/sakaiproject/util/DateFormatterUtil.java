@@ -24,6 +24,8 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
+import java.time.DateTimeException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
@@ -106,5 +108,21 @@ public final class DateFormatterUtil {
 					.format(inputDate)
 					.replace(",",""); // FIX JDK8 -> JDK9
 		}
+	}
+	
+	/**
+	 * Validate whether the date input is valid
+	 * @param day
+	 * @param month
+	 * @param year
+	 * @return
+	 */
+	public static boolean checkDate(int day, int month, int year) {
+		try {
+			LocalDate.of(year, month, day);
+		} catch (DateTimeException e) {
+			return false;
+		}
+		return true;
 	}
 }

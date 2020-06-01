@@ -125,6 +125,10 @@ public class SaveAssessmentSettings
         control.setRetractDate(assessmentSettings.getRetractDate());
     }
     control.setFeedbackDate(assessmentSettings.getFeedbackDate());
+    control.setFeedbackEndDate(assessmentSettings.getFeedbackEndDate());
+    //Set the value if the checkbox is selected, wipe the value otherwise.
+    String feedbackScoreThreshold = StringUtils.replace(assessmentSettings.getFeedbackScoreThreshold(), ",", ".");
+    control.setFeedbackScoreThreshold(assessmentSettings.getFeedbackScoreThresholdEnabled() ? new Double(feedbackScoreThreshold) : null);
     control.setReleaseTo(assessmentSettings.getReleaseTo());
 
     // b. set Timed Assessment
@@ -301,9 +305,6 @@ public class SaveAssessmentSettings
     // hasTimeAssessment,hasAutoSubmit, hasPartMetaData, hasQuestionMetaData
     Map <String, String> h = assessmentSettings.getValueMap();
     updateMetaWithValueMap(assessment, h);
-
-    //Update with any settings that are unsaved
-    assessmentSettings.addExtendedTime(false);
 
     ExtendedTimeFacade extendedTimeFacade = PersistenceService.getInstance().getExtendedTimeFacade();
     extendedTimeFacade.saveEntries(assessment, assessmentSettings.getExtendedTimes());

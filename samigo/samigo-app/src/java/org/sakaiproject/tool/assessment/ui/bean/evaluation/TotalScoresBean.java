@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
 
@@ -65,14 +67,11 @@ import org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListene
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.AttachmentUtil;
 
-/**
- * <p>Description: class form for evaluating total scores</p>
- *
- */
+/* For evaluation: Total Scores backing bean. */
 @Slf4j
-public class TotalScoresBean
-  implements Serializable, PhaseAware
-{
+@ManagedBean(name="totalScores")
+@SessionScoped
+public class TotalScoresBean implements Serializable, PhaseAware {
   private String assessmentId;
   private String publishedId;
 

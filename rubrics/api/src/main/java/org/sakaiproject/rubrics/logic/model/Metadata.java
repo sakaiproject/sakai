@@ -48,8 +48,11 @@ public class Metadata {
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime modified;
+    @Column(length=99)
     private String ownerId;
+    @Column(length=99)
     private String ownerType;
+    @Column(length=99)
     private String creatorId;
 
     @JsonProperty("public")

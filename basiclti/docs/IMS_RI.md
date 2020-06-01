@@ -43,7 +43,7 @@ Once you save the tool go back to https://lti-ri.imsglobal.org/lti/tools and fin
 tool and copy these values (examples shown):
 (<a href="IMG_IMS_RI/02-RI-Tool-View.png" target="_blank">Image</a>)
 
-    Tool end-point to receive launches:
+    Tool Launch URL:
     https://lti-ri.imsglobal.org/lti/tools/362/launches
 
     Tool end-point to receive Deep Link launches:
@@ -52,6 +52,9 @@ tool and copy these values (examples shown):
     OIDC Login Initiation URL:
     https://lti-ri.imsglobal.org/lti/tools/362/login_initiations
 
+    Tool JWT Key Set URL:
+    https://lti-ri.imsglobal.org/lti/tools/362/.well-known/jwks.json 
+
 Testing a Normal LTI 1.3 / JWT Launch
 -------------------------------------
 
@@ -59,7 +62,7 @@ Back in Sakai, go to Admin -> Admin Workspace -> External Tools -> Install LTI 1
 With the following values (watch for extra spaces while pasting):
 
     Choose a title like "IMS RI Normal Launch"
-    Use "Tool end-point to receive launches" as Launch URL in Sakai
+    Use "Tool Launch URL" as Launch URL in Sakai
     Leave key / secret blank
     Check: Send Names, Send Email, All services
     Check Only: Allow the tool to be launched as a link
@@ -70,6 +73,7 @@ With the following values (watch for extra spaces while pasting):
 
 Copy these fields from the IMS RI to Sakai (don't add spaces at the end):
 
+    LTI 1.3 Tool Keyset URL <- Tool JWT Key Set URL
     LTI 1.3 Tool OpenID Connect/Initialization Endpoint <- OIDC Login Initiation URL
     LTI 1.3 Tool Redirect Endpoint(s) <- Tool Launch Url
 
@@ -84,10 +88,11 @@ Back in the IMS RI edit the your tool and transfer these fields from Sakai to
 the RI:
 
     Client ID
-    Keyset url <- LTI 1.3 Platform OAuth2 Well-Known/KeySet URL
+    Private key (leave blank - let the RI generate this)
+    Deployment - Set to 1
+    Keyset url <- LTI 1.3 Platform OAuth2 Well-Known/KeySet URL 
     Oauth2 url <- LTI 1.3 Platform OAuth2 Bearer Token Retrieval URL
     Platform oidc auth url <- LTI 1.3 Platform OIDC Authentication URL
-    Private key <- Tool Private Key (Must toggle at the bottom to show)
 
 Update the tool.
 (<a href="IMG_IMS_RI/03-RI-Data-Copied.png" target="_blank">Image</a>)
@@ -109,12 +114,13 @@ be able to launch the tool.
 
 You should see a page in the RI that says something like "Make Authentication Request
 back to Platform" - you may need to scroll down - press
-the "Proceed with LTI 1.3 Launch" button to "Continue".
+the "Send Request" button to get back to Sakai so we can do the real launch.
 (<a href="IMG_IMS_RI/13-Lessons-OIDC.png" target="_blank">Image</a>)
 
-You actually need to press this button pretty quickly - this is part of
+You actually need to press the "Send Request" button pretty quickly - this is part of
 the OIDC Connect Flow and Sakai has a pretty short window of time that
-it allows the OIDC Connect flow to come back.
+it allows the OIDC Connect flow to come back nbefore it rejects it for taking too
+long.  Normal tools don't pause at this point but the RI does this to allow debugging.
 
 After you press the button to continue through the Sakai debug screen, you should 
 add "Lauch Status - Valid".
@@ -133,7 +139,7 @@ Go to Admin -> Admin Workspace -> External Tools -> Install LTI 1.x Tool
 Edit the tool you installed and make the following changes:
 
     Change the title and button test to something like "IMS RI Deep Link"
-    Change Launch URL to the "Tool end-point to receive Deep Link launches" value
+    Change Launch URL to the "Tool Deep Link URL" value
     You don't have to change the redirect endpoint
     Leave Checked: Send Names, Send Email, All four services,
     Un-Check: Allow the tool to be launched as a link
@@ -146,14 +152,17 @@ Save the Tool.
 Testing Deep Link Launch
 ------------------------
 
-Back in Lessons, use Add Content -> Add Learning App
+At this point if you can, log in to www.imsglobal.org web site with an IMS account in your browser.
 
+Your Sakai site should have both Lessons and Gradebook.
+
+Back in Lessons, use Add Content -> Add Learning App
 You should see the Reference Implementation tool you just edited in Sakai - choose it.
 It should launch in a modal.  If there are debug buttons - just continue.
 
 You should see a page in the RI that says something like "Make Authentication Request
 back to Platform" - you may need to scroll down - press
-the "Proceed with LTI 1.3 Launch" button to "Continue".
+the "Send Request" button to "Continue".
 
 You actually need to press this button pretty quickly - this is part of
 the OIDC Connect Flow and Sakai has a pretty short window of time that
@@ -163,4 +172,27 @@ The next screen you should see is also from the RI - it should say "Successful l
 
 At this point if you have not logged in you have no more steps unless you log in.
 If you are logged in with your IMS account - keep going :)
+
+Testing Deep Link Installation
+------------------------------
+
+After the Deep Link Launch has worked, scroll down and find "Select Deep Links" and click it.
+
+Pick the LTI link and send it to the platform.  It should appear in Lessons.  Launch the link.
+It should launch and be "valid".
+
+Test "Request Names and Roles" - it should work.
+
+Test "Submit Score to Platform" - it should work (but actually it does not work because as of
+28-May-2020 I think there is a bug in the reference implementation).
+
+
+
+
+
+
+
+
+Make sure gradebook
+
 

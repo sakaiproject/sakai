@@ -1,14 +1,14 @@
 <div class="portletBody">
 <script type="text/javascript" src="/library/js/headscripts.js"></script>
-<script>includeLatestJQuery('lti_tool_insert.vm');</script>
-<script type="text/javascript" src="/library/js/fontIconPicker/2.0.1-cs/jquery.fonticonpicker.min.js"></script>
-<link rel="stylesheet" type="text/css" href="/library/js/fontIconPicker/2.0.1-cs/css/jquery.fonticonpicker.css" />
-<link rel="stylesheet" type="text/css" href="/library/js/fontIconPicker/2.0.1-cs/themes/grey-theme/jquery.fonticonpicker.grey.min.css" />
+<script>
+	includeLatestJQuery('lti_tool_insert.vm');
+	includeWebjarLibrary('fontawesome-iconpicker');
+</script>
     <h3>
         $tlang.getString("tool.put")
     </h3>
-    #if ($messageSuccess)<div class="sak-banner-success">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div>#end
-    #if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+    #if ($messageSuccess)<div class="sak-banner-success">$tlang.getString("gen.success") $formattedText.escapeHtml($messageSuccess)</div>#end
+    #if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>#end
     <form action="#toolForm("")" method="post" name="customizeForm" >
         $formInput
                 <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
@@ -59,6 +59,13 @@ $(document).ready( function() {
     });
 
     var toolorderspinner = $("#toolorder").spinner({min:0,max:99});
+
+    var issuerURL = '$issuerURL';
+
+    $( "#lti13-input" ).after(
+            '<p class="foorm-text" id="lti13_issuer_url">' +
+            '<b>$tlang.getString('lti13_issuer_url')</b><br/>$issuerURL</p>' +
+            '</p>');
 
 });
 

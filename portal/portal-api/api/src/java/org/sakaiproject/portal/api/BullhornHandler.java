@@ -37,5 +37,5 @@ import org.sakaiproject.memory.api.Cache;
 public interface BullhornHandler {
 
     public List<String> getHandledEvents();
-    public Optional<List<BullhornData>> handleEvent(Event e, Cache<String, Map> countCache);
+    public Optional<List<BullhornData>> handleEvent(Event e, Cache<String, Long> countCache);
 }

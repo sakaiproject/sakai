@@ -47,7 +47,7 @@ public class Category implements Serializable {
 	private int assignmentCount;
 	private Boolean extraCredit = false;
 	private Boolean unweighted;
-	private Boolean equalWeightAssignments;
+	private Boolean equalWeightAssignments = false;
 	private Integer categoryOrder;
 	private Boolean enforcePointWeighting;
 
@@ -419,7 +419,7 @@ public class Category implements Serializable {
 						if (assignment.getPointsPossible() != null
 								&& !GradebookAssignment.item_type_adjustment.equals(assignment.getItemType()) // ignore adjustment items
 																												// that are not equal
-								&& !pointsPossible.equals(assignment.getPointsPossible())) {
+								&& !pointsPossible.equals(assignment.getPointsPossible()) && !isEqualWeightAssignments()) {
 							isEqual = false;
 							return isEqual;
 						}

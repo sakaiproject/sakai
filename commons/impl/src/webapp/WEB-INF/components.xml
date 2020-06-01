@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+			    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="org.sakaiproject.commons.api.PersistenceManager"
+        class="org.sakaiproject.commons.impl.PersistenceManagerImpl"
+        init-method="init">
+
+        <property name="sakaiProxy" ref="org.sakaiproject.commons.api.SakaiProxy" />
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+        <property name="sqlService" ref="org.sakaiproject.db.api.SqlService" />
+    </bean>
+
+    <bean id="org.sakaiproject.commons.api.SakaiProxy"
+        class="org.sakaiproject.commons.impl.SakaiProxyImpl"
+        init-method="init">
+        <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
+        <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+        <property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager" />
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+        <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
+        <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
+        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
+        <property name="projectLogic" ref="org.sakaiproject.delegatedaccess.logic.ProjectLogic" />
+        <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
+    </bean>
+
+    <bean id="org.sakaiproject.commons.api.CommonsSecurityManager"
+        class="org.sakaiproject.commons.impl.CommonsSecurityManagerImpl">
+        <property name="sakaiProxy" ref="org.sakaiproject.commons.api.SakaiProxy" />
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+    </bean>
+
+    <bean id="org.sakaiproject.commons.api.CommonsManager"
+        class="org.sakaiproject.commons.impl.CommonsManagerImpl"
+        init-method="init">
+        <property name="sakaiProxy"><ref bean="org.sakaiproject.commons.api.SakaiProxy"/></property>
+        <property name="commonsSecurityManager"><ref bean="org.sakaiproject.commons.api.CommonsSecurityManager"/></property>
+        <property name="persistenceManager"><ref bean="org.sakaiproject.commons.api.PersistenceManager"/></property>
+        <property name="profileConnectionsLogic"><ref bean="org.sakaiproject.profile2.logic.ProfileConnectionsLogic"/></property>
+        <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
+    </bean>
+
+    <bean id="org.sakaiproject.commons.impl.CommonsContentProducer"
+        class="org.sakaiproject.commons.impl.CommonsContentProducer"
+        init-method="init">
+        <property name="commonsManager" ref="org.sakaiproject.commons.api.CommonsManager" />
+        <property name="sakaiProxy" ref="org.sakaiproject.commons.api.SakaiProxy" />
+        <property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder" />
+        <property name="searchService" ref="org.sakaiproject.search.api.SearchService" />
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+        <property name="transactionTemplate">
+            <bean class="org.springframework.transaction.support.TransactionTemplate">
+                <property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+            </bean>
+        </property>
+    </bean>
+
+</beans>

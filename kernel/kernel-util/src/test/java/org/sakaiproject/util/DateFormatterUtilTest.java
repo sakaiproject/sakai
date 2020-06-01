@@ -71,4 +71,26 @@ public class DateFormatterUtilTest {
         Assert.assertEquals(DateFormatterUtil.format(date, "dd/MM/yyyy HH:mm:ss", null), "6/11/16 7:45 AM");
         Assert.assertNull(DateFormatterUtil.format(null, "dd/MM/yyyy HH:mm:ss", Locale.US));
     }
+
+    @Test
+    public void testCheckDate() {
+       Assert.assertEquals(DateFormatterUtil.checkDate(1, 1, 2020), true);
+       Assert.assertEquals(DateFormatterUtil.checkDate(1, 1, 1990), true);
+       Assert.assertEquals(DateFormatterUtil.checkDate(1, 1, 3020), true);
+       Assert.assertEquals(DateFormatterUtil.checkDate(100, 1, 2020), false);
+       Assert.assertEquals(DateFormatterUtil.checkDate(-1, 1, 2020), false);
+       Assert.assertEquals(DateFormatterUtil.checkDate(1, 13, 2020), false);
+       Assert.assertEquals(DateFormatterUtil.checkDate(1, -1, 2020), false);
+       Assert.assertEquals(DateFormatterUtil.checkDate(-1, -1, 2020), false);
+       
+       // leap year
+       Assert.assertEquals(DateFormatterUtil.checkDate(29, 2, 2020), true);
+       Assert.assertEquals(DateFormatterUtil.checkDate(29, 2, 2019), false);
+       
+       // 0
+       Assert.assertEquals(DateFormatterUtil.checkDate(0, 2, 2019), false);
+       Assert.assertEquals(DateFormatterUtil.checkDate(2, 0, 2019), false);
+       Assert.assertEquals(DateFormatterUtil.checkDate(0, 0, 2019), false);
+       Assert.assertEquals(DateFormatterUtil.checkDate(29, 2, 0), true);
+    }
 }

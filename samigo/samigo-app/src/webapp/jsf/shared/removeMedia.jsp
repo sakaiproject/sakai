@@ -56,7 +56,7 @@
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.UpdateTimerListener" />
       </h:commandButton>
       <h:commandButton id="save" styleClass="hidden" type="submit" value="#{commonMessages.action_save}"
-          action="#{delivery.save_work}" rendered="#{delivery.actionString=='previewAssessment'
+          action="#{delivery.saveWork}" rendered="#{delivery.actionString=='previewAssessment'
                  || delivery.actionString=='takeAssessment'
                  || delivery.actionString=='takeAssessmentViaUrl'}" />
    </p>

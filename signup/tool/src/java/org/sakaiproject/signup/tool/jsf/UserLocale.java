@@ -21,11 +21,14 @@ package org.sakaiproject.signup.tool.jsf;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-
+import org.sakaiproject.signup.logic.SakaiFacade;
 import org.sakaiproject.util.ResourceLoader;
+
+import lombok.extern.slf4j.Slf4j;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * <p>
@@ -35,50 +38,15 @@ import org.sakaiproject.util.ResourceLoader;
  * @author Peter Liu
  */
 
+@Slf4j
 public class UserLocale {
 
 	private ResourceLoader rb = new ResourceLoader("messages");
 
+	@Getter @Setter private SakaiFacade sakaiFacade;
+
 	public String getLocale() {
 		return (String) this.rb.getLocale().toString();
-	}
-
-	/*
-	 * When user uses IE browser, due to Tomhwak 1.1.9 bug for display Chinese
-	 * character in t:inputDate tag. it will return a default 'en' for following
-	 * countries: china:CN, Taiwan:TW, [Japan:JP and Korea:KR too?] Once Tomhwak
-	 * fixes this issue, REMOVE IT.
-	 * 
-	 * Just found out that it's not Tomhwak issue, it's IE browser issue, it's
-	 * not working for any Drop-Down box. All other sakai tool this the same
-	 * issue except Resource by using JQuery stuff.
-	 */
-	public String getLocaleExcludeCountryForIE() {
-		FacesContext context = FacesContext.getCurrentInstance();
-		ExternalContext ext = context.getExternalContext();
-		String userAgent = (String) ext.getRequestHeaderMap().get("User-Agent");// MSIE
-		if (userAgent != null) {
-			int index = userAgent.indexOf("MSIE");
-			if (index >= 0 && isExcludedCountry()) {
-				return rb.getLocale().US.toString();
-			}
-		}
-
-		return (String) rb.getLocale().toString();
-	}
-
-	/*
-	 * should exclude country like china:CN, Taiwan:TW, Japan:JP and Korea:KR
-	 * due to Chinese character bug in currently Tomhwak 1.1.9 version for IE
-	 * browser 7.0 etc.
-	 */
-	private boolean isExcludedCountry() {
-		String cur_country = rb.getLocale().getCountry();
-		if ("CN".equals(cur_country) || "TW".equals(cur_country)) { // JP,KR ?
-			return true;
-		}
-
-		return false;
 	}
 	
 	/**
@@ -86,7 +54,46 @@ public class UserLocale {
 	 * @return
 	 */
 	public String getDateFormat() {
-		DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT, (new ResourceLoader()).getLocale());
-		return ((SimpleDateFormat)df).toPattern();
+
+		Locale locale = new ResourceLoader().getLocale();
+		DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT, locale);
+		try {
+			return ((SimpleDateFormat)df).toPattern();
+		} catch (ClassCastException cce) {
+			log.warn("Failed to cast DateFormat into SimpleDateFormat for locale {}", locale.toString());
+			return new SimpleDateFormat().toPattern();
+		}
+	}
+
+	/**
+	 * Get the date format from the locale
+	 * @return String representing a SimpleDateFormat for use with JSF convertDateTime
+	 */
+	public String getFullDateTimeFormat() {
+
+		Locale locale = this.rb.getLocale();
+		DateFormat df = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT, locale);
+		try {
+			return ((SimpleDateFormat) df).toPattern();
+		} catch (ClassCastException cce) {
+			log.warn("Failed to cast DateFormat into SimpleDateFormat for locale {}", locale.toString());
+			return new SimpleDateFormat().toPattern();
+		}
+	}
+	
+	/**
+	 * Get the time format from the locale 
+	 * @return
+	 */
+	public String getLocalizedTimeFormat() {
+
+		Locale locale = this.rb.getLocale();
+		DateFormat df = DateFormat.getTimeInstance(DateFormat.SHORT, locale);
+		try {
+			return ((SimpleDateFormat) df).toPattern();
+		} catch (ClassCastException cce) {
+			log.warn("Failed to cast DateFormat into SimpleDateFormat for locale {}", locale.toString());
+			return new SimpleDateFormat().toPattern();
+		}
 	}
 }

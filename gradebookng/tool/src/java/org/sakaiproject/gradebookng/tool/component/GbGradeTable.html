@@ -1,5 +1,6 @@
 <html>
     <wicket:panel xmlns:wicket="http://wicket.apache.org">
+        <script type="module" src="/webcomponents/sakai-submission-messager.js"></script>
         <div id="gradeTableWrapper">
             <div wicket:id="gradeTable" id="gradeTable" accesskey="g" wicket:message="aria-label:gradetable.wrapper.tooltip" aria-describedby="gradeTableCaption"></div>
         </div>
@@ -87,6 +88,9 @@
                             {if categoryExtraCredit}
                                 <span class="gb-flag-extra-credit" wicket:message="title:label.gradeitem.extracreditcategory"></span>
                             {/if}
+                            {if categoryEqualWeight}
+                                <span class="gb-flag-equal-weight" wicket:message="title:label.gradeitem.equalweightcategory"></span>
+                            {/if}
                             <span>${categoryName}</span>
                             {if settings.isCategoryTypeWeighted}
                                 <span class="gb-category-weight">[${categoryWeight}]</span>
@@ -143,10 +147,14 @@
                             <li><a href="javascript:void(0);" class="gb-set-ungraded" role="menuitem"><wicket:message key="assignment.option.setungraded" /></a></li>
                         {/if}
                         <li><a href="javascript:void(0);" class="gb-hide-column" role="menuitem" data-assignmentid="${assignmentId}"><wicket:message key="assignment.option.hide" /></a></li>
+                        <li><a href="javascript:void(0);" class="gb-message-students" role="menuitem" data-assignment-id="${assignmentId}"><wicket:message key="label.submission-messager.title" /></a></li>
                         {if !externallyMaintained && settings.isUserAbleToEditAssessments}
                             <li><a href="javascript:void(0);" class="gb-delete-item" role="menuitem"><span class="text-danger"><wicket:message key="delete.label" /></span></a></li>
                         {/if}
                     </ul>
+                    <div id="gb-messager-for-${assignmentId}" style="display: none;" wicket:message="title:label.submission-messager.title">
+                      <sakai-submission-messager assignment-id="${assignmentId}" title="${abbrevTitle}"></sakai-submission-messager>
+                    </div>
                 </div>
             </div>
         </script>
@@ -483,6 +491,12 @@
         </script>
         <script id="newGradeItemPopoverMessage" type="text/template">
             <wicket:message key="label.addgradeitem.highlight.message"/>
+        </script>
+        <script id="chartStudentsGradeMessage" type="text/template">
+            <wicket:message key="chart.students.grade.message"/>
+        </script>
+        <script id="chartYourGradeMessage" type="text/template">
+            <wicket:message key="chart.yourgrade.message"/>
         </script>
         <script id="captionTemplate" type="text/template">
             <div id="gradeTableCaption">

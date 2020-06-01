@@ -73,6 +73,11 @@ public class ConversionTimeService implements TimeService
 		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
 	}
 
+	public TimeZone getLocalTimeZone(String userId)
+	{
+		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
+	}
+
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.time.api.TimeService#newTime()
 	 */
@@ -190,12 +195,22 @@ public class ConversionTimeService implements TimeService
 	}
 
 	@Override
-	public String dateFormatLong(Date date, Locale locale) {
+	public String timeFormat(Date date, Locale locale, int df) {
 		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
 	}
 
 	@Override
-	public String dateTimeFormatLong(Date date, Locale locale) {
+	public String dateFormat(Date date, Locale locale, int df) {
+		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
+	}
+
+	@Override
+	public String dayOfWeekFormat(Date date, Locale locale, int df) {
+		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
+	}
+
+	@Override
+	public String dateTimeFormat(Date date, Locale locale, int df) {
 		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
 	}
 
@@ -223,4 +238,10 @@ public class ConversionTimeService implements TimeService
 	public String shortPreciseLocalizedTimestamp(Instant instant, Locale locale) {
 		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
 	}
+
+	@Override
+	public Date parseISODateInUserTimezone(String dateString) {
+		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
+	}
+
 }

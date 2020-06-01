@@ -24,6 +24,7 @@ package org.sakaiproject.entity.api;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 
@@ -135,6 +136,10 @@ public interface EntityProducer
 	 * @return The entity's URL, or null if it does not have one.
 	 */
 	String getEntityUrl(Reference ref);
+
+	default Optional<String> getEntityUrl(Reference ref, Entity.UrlType urlType) {
+		return Optional.of(getEntityUrl(ref));
+	}
 
 	/**
 	 * Access a collection of authorization group ids for security on the for the referenced entity - the entity will belong to the service.

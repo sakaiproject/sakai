@@ -1,5 +1,6 @@
 body > .portletBody {
 	margin: 0;
+	padding: 1px;	// to fix the iframe cut-off around the edges
 
 	> .navIntraTool {
 		margin: 0;

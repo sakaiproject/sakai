@@ -20,7 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.conditions.api;
 
-import org.apache.commons.collections.Predicate;
+import org.apache.commons.collections4.Predicate;
 import org.sakaiproject.event.api.NotificationAction;
 
 /**
@@ -34,7 +34,7 @@ import org.sakaiproject.event.api.NotificationAction;
  * 
  * @author Zach A. Thomas <zach@aeroplanesoftware.com>
  */
-public interface Rule extends Predicate, NotificationAction {
+public interface Rule extends Predicate<Object>, NotificationAction {
 
 	/**
 	 * A Rule may have an AND relationship among its Predicates, or it may have an OR.

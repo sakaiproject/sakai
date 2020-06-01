@@ -28,7 +28,7 @@
     
         <input type="text" id="courseSiteTypes" style="display:none" value="$courseSiteTypeStrings">
         
-    #if ($alertMessage)<div class="alertMessage">$tlang.getString("sitetype.alert") $alertMessage</div>  #end
+    #if ($alertMessage)<div class="sak-banner-error">$tlang.getString("sitetype.alert") $alertMessage</div>  #end
     #if ($multipleTypes)
         <p class="instruction">
             $tlang.getString("sitetype.chothetyp.different.ways")

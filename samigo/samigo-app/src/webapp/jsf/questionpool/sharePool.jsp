@@ -31,7 +31,7 @@
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{questionPoolMessages.q_mgr}"/></title>
-<script type="text/JavaScript">
+<script>
 <%@ include file="/js/samigotree.js" %>
 	
 function flagFolders() {
@@ -53,7 +53,7 @@ function checkUpdate()
 }
 
 </script>
-<script type="text/javascript" src="/library/js/spinner.js"></script>
+<script src="/library/js/spinner.js"></script>
       </head>
 <body onload="collapseAllRows();flagRows();disabledButton();<%= request.getAttribute("html.body.onload") %>">
  <div class="portletBody">
@@ -89,7 +89,7 @@ function checkUpdate()
 
  <h3><h:outputText value="#{questionPoolMessages.share_pool}"/></h3>
 
-<h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+<h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
  
 <div class="tier1">
 <h4><h:outputText value="#{questionPoolMessages.members_with_access} #{questionpoolshare.questionPoolName}"/></h4>

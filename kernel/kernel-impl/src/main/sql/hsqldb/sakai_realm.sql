@@ -194,6 +194,17 @@ CREATE INDEX SAKAI_REALM_RL_GR_RAU ON SAKAI_REALM_RL_GR
 );
 
 -----------------------------------------------------------------------------
+-- SAKAI_REALM_LOCKS
+-----------------------------------------------------------------------------
+
+CREATE TABLE SAKAI_REALM_LOCKS (
+       REALM_KEY            INTEGER NOT NULL,
+       REFERENCE            VARCHAR (255) NOT NULL,
+       LOCK_MODE            INTEGER NOT NULL,
+       PRIMARY KEY (REALM_KEY, REFERENCE)
+);
+
+-----------------------------------------------------------------------------
 -- FOREIGN KEYS
 -----------------------------------------------------------------------------
 
@@ -237,7 +248,9 @@ ALTER TABLE SAKAI_REALM_RL_GR
        ADD FOREIGN KEY (ROLE_KEY)
                              REFERENCES SAKAI_REALM_ROLE (ROLE_KEY);
 
-
+ALTER TABLE SAKAI_REALM_LOCKS
+       ADD  FOREIGN KEY (REALM_KEY)
+                             REFERENCES SAKAI_REALM (REALM_KEY);
 
 INSERT INTO SAKAI_REALM_ROLE VALUES (NEXT VALUE FOR SAKAI_REALM_ROLE_SEQ, '.anon');
 INSERT INTO SAKAI_REALM_ROLE VALUES (NEXT VALUE FOR SAKAI_REALM_ROLE_SEQ, '.auth');

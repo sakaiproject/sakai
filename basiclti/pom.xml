@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
-        <version>20-SNAPSHOT</version>
+        <version>21-SNAPSHOT</version>
         <relativePath>../master/pom.xml</relativePath>
         <!-- <version>2.8.3</version> -->
     </parent>
@@ -13,11 +13,6 @@
     <name>BasicLTI base pom (basiclti)</name>
     <groupId>org.sakaiproject.basiclti</groupId>
     <artifactId>basiclti</artifactId>
-    <organization>
-        <name>Sakai Project</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2009</inceptionYear>
     <packaging>pom</packaging>
 
     <modules>
@@ -167,6 +162,11 @@
                 <artifactId>profile2-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
+	    <dependency>
+		    <groupId>com.nimbusds</groupId>
+		    <artifactId>nimbus-jose-jwt</artifactId>
+		    <version>8.2</version>
+	    </dependency>
         </dependencies>
     </dependencyManagement>
 </project>

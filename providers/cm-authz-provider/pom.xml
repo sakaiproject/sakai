@@ -4,17 +4,12 @@
   <parent>
     <artifactId>providers-base</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>20-SNAPSHOT</version>
+    <version>21-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>sakai-coursemanagement-authz-provider-impl</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-coursemanagement-authz-provider-impl</artifactId>
-  <organization>
-    <name>Sakai Project</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2006</inceptionYear>
   <packaging>jar</packaging>
   <properties>
     <deploy.target />

@@ -1,164 +1,452 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-		<title>Sakai Features</title>
-		<link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
-		<link href="/library/skin/morpheus-default/tool.css" type="text/css" rel="stylesheet" media="all" />
-	</head>
-	<body style="width:95%">
-		<div class="portletBody">
-			<h3 style="text-align:center">Capabilities</h3>
-			<p>Sakai offers a variety of capabilities for use in course and project sites, including:</p>
-		    <table class="listHier indnt1" summary="a list of features available">
-				<tr>
-					<td>Home</td>
-					<td>View recent announcements, discussions, and chat activity</td>
-				</tr>
-				<tr>
-					<td>Announcements</td>
-					<td>Post current, time-critical information</td>
-				</tr>
-				<tr>
-					<td>Assignments </td>
-					<td>Post assignments and receive submissions online</td>
-				</tr>
-                <tr>
-                    <td>Basiclti</td>
-                    <td>Launch and exchange information with externally-hosted tools</td>
-                </tr>
-				<tr>
-					<td>Chat Room </td>
-					<td>Participate in real-time, written conversations </td>
-				</tr>
-				<tr>
-					<td>Drop Box</td>
-					<td>Allow private file-sharing between instructors and students</td>
-				</tr>
-                <tr>
-                    <td>Entity Broker</td>
-                    <td>Provides a set of RESTful APIs that support interoperability between Sakai tools.</td>
-                </tr>
-				<tr>
-					<td>Email Archive </td>
-					<td>Maintain an archive of all email sent to the worksite's email list</td>
-				</tr>
-				<tr>
-					<td>Gradebook</td>
-					<td>Compute and store grades</td>
-				</tr>
-				<tr>
-					<td>Help</td>
-					<td>Access help documentation </td>
-				</tr>
-                <tr>
-                    <td>Lessons</td>
-                    <td>Can organize the course by unit, module, week, topic, or any other grouping the instructor creates. Lessons leverages the power of other Sakai tools like Assignments, and Test and Quizzes.</td>
-                </tr>
-				<tr>
-					<td>Membership</td>
-					<td>Choose sites in which you would like to participate</td>
-				</tr>
-                <tr>
-                    <td>Messages and Forums</td>
-                    <td>Create discussion forums and communicate between site groups and users using internal mail.</td>
-                </tr>
-				<tr>
-					<td>News</td>
-					<td>Display an RSS feed from an external site</td>
-				</tr>
-                <tr>
-                    <td>Podcasts</td>
-                    <td>View podcasts</td>
-                </tr>
-                <tr>
-                    <td>Polls</td>
-                    <td>Create site-based surveys and polls</td>
-                </tr>
-                <tr>
-                    <td>Portfolios</td>
-                    <td>Supports portfolio-based activities with a suite of tools.</td>
-                </tr>
-                <tr>
-                    <td>Post'em</td>
-                    <td>Provides functionality for uploading .csv formatted files to display feedback (e.g., comments, grades) to site participants.</td>
-                </tr>
-				<tr>
-					<td>Preferences</td>
-					<td>Set your personal preferences, such as time zone, tab order</td>
-				</tr>
-				<tr>
-					<td>Profile</td>
-					<td>Provides a Facebook-style interface for editing user profiles; includes Twitter integration</td>
-				</tr>
-                <tr>
-                    <td>Quartz Scheduler</td>
-                    <td>Schedule and run cron jobs</td>
-                </tr>
-				<tr>
-					<td>Resources </td>
-					<td>Add documents and URLs to your worksite</td>
-				</tr>
-				<tr>
-					<td>Roster</td>
-					<td>View list of site participants</td>
-				</tr>
-				<tr>
-					<td>Schedule</td>
-					<td>Keep track of important dates and deadlines on worksite calendar</td>
-				</tr>
-                <tr>
-                    <td>Search</td>
-                    <td>Provides search capabilities of Sakai content</td>
-                </tr>
-				<tr>
-					<td>Section Info</td>
-					<td>Manage sections or groups within a site</td>
-				</tr>
-                <tr>
-                    <td>Shortened URL Service</td>
-                    <td>A simple service that allows tools and services to shorten links to anything, either via the Java-based service or the Entity Provider. </td>
-                </tr>
-                <tr>
-                    <td>Signup tool</td>
-                    <td>Schedule instructor and ta office hours, study groups, and review sessions.</td>
-                </tr>
-				<tr>
-					<td>Site Info</td>
-					<td>View worksite profile and participants list</td>
-				</tr>
-                <tr>
-                    <td>Site Stats</td>
-                    <td>View site usage statistics</td>
-                </tr>
-				<tr>
-					<td>Syllabus</td>
-					<td>Create a worksite syllabus </td>
-				</tr>
-				<tr>
-					<td>Tests &amp; Quizzes</td>
-					<td>Create, administer, and correct tests and quizzes online, and automatically
-						feed the results to the Gradebook</td>
-				</tr>
-				<tr>
-					<td>Web Content </td>
-					<td>Include external website content in your worksite</td>
-				</tr>
-				<tr>
-					<td>Wiki</td>
-					<td>Collaboratively edit simple web pages</td>
-				</tr>
-				<tr>
-					<td>Worksite Setup</td>
-					<td>Create and manage sites</td>
-				</tr>
-                <tr>
-                    <td>Webservices</td>
-                    <td>Includes a rich collection of web services for system admins</td>
-                </tr>
-			</table>
-			<p class="instruction">The information displayed here
-				can be modified by the Sakai Administrator by editing the !gateway site.</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Features</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="/library/js/headscripts.js"></script>
+    <link rel="stylesheet" href="/library/webjars/bootstrap/3.3.7/css/bootstrap.min.css">
+</head>
+<script>
+    includeLatestJQuery('features.html');
+</script>
+
+<style type="text/css">
+
+.row-eq-height {
+	display: -webkit-box;
+	display: -webkit-flex;
+	display: -ms-flexbox;
+	display:         flex;
+	-webkit-flex-flow: row wrap;
+	flex-flow: row wrap;
+	-webkit-align-content: flex-end;
+	align-content: flex-end;
+}
+
+.panel-primary {
+	border-color: #000036;
+	border-radius: 1rem;
+	height:100%;
+}
+.panel-primary > .panel-heading {
+	background-color: #000036;
+	border-color: #000036;
+	border-top-left-radius: calc(1rem - 1px);
+	border-top-right-radius: calc(1rem - 1px);
+	
+	font-size: 18pt;
+	text-align: center;
+}
+
+.panel-body {
+	font-size:14pt;
+	padding-bottom:0;
+	height:100%;
+}
+
+.panel-box {
+	margin-bottom: 2rem;
+}
+
+.btn-box {
+	padding: 1rem 1rem 0;
+}
+
+.btn-primary{
+	background-color: #000036;
+	width:100%;
+	font-size:12pt;
+}
+
+.jtop{
+    padding: 1rem 3rem;
+    margin-bottom: 2rem;
+    background-color: #e9ecef;
+    border-radius: 0.3rem;
+}
+
+.jtop > h1 {
+    font-size:36px;
+}
+
+.jtop > p {
+    font-size:18px;
+}
+
+</style>
+
+<body>
+<div class="jumbotron jtop">
+	<h1>Features</h1>
+	<p>Sakai’s breadth of features means you can choose the tools that meet your needs. 
+	Out of the box, Sakai includes all of the standard online learning, teaching, 
+	and collaboration tools found in learning platforms today. In addition, Sakai has a 
+	wide range of community contributed tools and external integrations available as add-on components. 
+	Sakai’s open source flexibility allows you to configure or customize the system as much or as little as needed.</p>
+</div>
+
+<div class="container">
+	<div class="row row-eq-height">
+	
+		<div class="panel-box col-lg-4 col-md-4 col-sm-6 col-xs-12">
+			<div class="panel panel-primary">
+				<div class="panel-heading">Communication and Collaboration</div>
+				
+				<div class="panel-body">
+					Robust communication options
+					and group-aware tools make keeping
+					in touch and working together easier.
+					Choose from a variety of synchronous
+					and asynchronous tools for messaging,
+					discussions, social connections, and
+					collaborative work.
+					<div class="btn-box">
+						<button class="btn btn-primary" data-toggle="modal" data-target="#CaCmodal">More</button>
+					</div>
+				</div>
+			</div>
 		</div>
-	</body>
+		
+		<div class="panel-box col-lg-4 col-md-4 col-sm-6 col-xs-12">
+			<div class="panel panel-primary">
+				<div class="panel-heading">Grading and Assessment</div>
+				
+				<div class="panel-body">
+					State of the art grading
+					and assessment features
+					make Sakai a great choice
+					for collecting student submissions
+					and providing rich feedback on their
+					work. Whether it is high stakes
+					testing, online assignments,
+					rubric-based scoring, or fast,
+					easy grade-entry capabilities,
+					Sakai’s got you covered.
+					<div class="btn-box">
+						<button class="btn btn-primary" data-toggle="modal" data-target="#GaAmodal">More</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="panel-box col-lg-4 col-md-4 col-sm-6 col-xs-12">
+			<div class="panel panel-primary">
+				<div class="panel-heading">Content Development and Delivery</div>
+				
+				<div class="panel-body">
+					Building your course has
+					never been easier! Sakai
+					lets you create and organize
+					text, resources, quizzes, tests,
+					assignments, links, video, 
+					and other media into lessons 
+					or modules; control access to
+					materials via conditional release;
+					upload, store, and share files
+					and other resources; and much more.
+					<div class="btn-box">
+						<button class="btn btn-primary" data-toggle="modal" data-target="#CDaDmodal">More</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="panel-box col-lg-4 col-md-4 col-sm-6 col-xs-12">
+			<div class="panel panel-primary">
+				<div class="panel-heading">Course and System Management</div>
+				
+				<div class="panel-body">
+					Powerful course and system
+					administration features give
+					you the tools to manage courses
+					and users effectively and 
+					efficiently. Sakai’s highly
+					configurable system of roles 
+					and permissions lets you 
+					customize the platform to match
+					your business processes.
+					<div class="btn-box">
+						<button class="btn btn-primary" data-toggle="modal" data-target="#CaSMmodal">More</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="panel-box col-lg-4 col-md-4 col-sm-6 col-xs-12">
+			<div class="panel panel-primary">
+				<div class="panel-heading">Community Contributed Tools</div>
+				
+				<div class="panel-body">
+					Take advantage of open source,
+					Sakai-specific tools developed
+					by community members and then 
+					released for others to use outside
+					of the packaged Sakai release. 
+					You can even build your own if you like!
+					<div class="btn-box">
+						<button class="btn btn-primary" data-toggle="modal" data-target="#CCTmodal">More</button>
+					</div>
+				</div>
+				
+			</div>
+		</div>
+		
+		<div class="panel-box col-lg-4 col-md-4 col-sm-6 col-xs-12">
+			<div class="panel panel-primary">
+				<div class="panel-heading">External App Integrations</div>
+				
+				<div class="panel-body">
+					Sakai is a leader in the 
+					development and implementation 
+					of the IMS LTI specification. 
+					In addition, Sakai has an extensive
+					API which facilitates the development
+					of deep, native integrations with 
+					third party applications.
+					<div class="btn-box">
+						<button class="btn btn-primary" data-toggle="modal" data-target="#EAImodal">More</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+</div>
+
+<!--Modal for Communication and Collaboration-->		
+<div id="CaCmodal" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title">Communication and Collaboration</h4>
+			</div>
+			<div class="modal-body">
+				<p>
+					<strong>Announcements</strong> - Post current, time-critical information for your site, and schedule notices to display at specific times throughout the term.<br><br>
+					<strong>Calendar</strong> - Schedule and maintain deadlines, activities and events related to a course or project; link to announcements, assignments, assessments, materials, etc.<br><br>
+					<strong>Chat</strong> - Engage in real-time, text-based conversations with course or project participants.<br><br>
+					<strong>Commons</strong> - Interact with site participants in a Facebook-inspired, asynchronous, social messaging tool.<br><br>
+					<strong>Contact Us</strong> - Quickly and easily direct questions and feedback to the correct source. With one click, the Contact Us tool can send an email to an institution’s helpdesk, with all relevant info automatically included.<br><br>
+					<strong>Email</strong> - Send mail to participants in your site using the institution’s official email system.<br><br>
+					<strong>Email Archive</strong> - Create a mailing list for your course or worksite, allowing for many-to-many broadcasting; access and search an archive of email sent to this address.<br><br>
+					<strong>Forums</strong> - Create, moderate and manage discussion topics and groups within a course and send private messages to participants; options to grade discussions, set word count, permissions, etc.<br><br>
+					<strong>Messages</strong> - Send, receive and reply to messages among site participants using Sakai’s internal email messaging.<br><br>
+					<strong>Sign-up</strong> - Create and manage electronic sign-up sheets for events or activities such as office hours, presentation slots, research topics, review sessions, etc.<br><br>
+					<strong>Wiki</strong> - Create, share and edit web content collaboratively.</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>>
+
+<!--Modal for Grading and Assessment-->
+<div id="GaAmodal" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title">Grading and Assessment</h4>
+			</div>
+			<div class="modal-body">
+				<p>
+					<strong>Assignments</strong> - Create and grade online or offline assignments with a variety of options and settings, including honor pledge, peer review, and group submissions.<br><br>
+					<strong>​Gradebook</strong> - Calculate, store and distribute grade information to students. Uses a  spreadsheet-style interface, and designed to provide faster, easier grade-entry capabilities.<br><br>
+					<strong>​Post’Em</strong> - Post, store, and distribute scores or non-numeric feedback and comments to students.<br><br>
+					<strong>​Rubrics</strong> - Create, manage, and share grading rubrics that work within Sakai’s Assignments, Forums, Gradebook, and Tests & Quizzes tools to provide rich feedback and automatically tabulated scoring.<br><br>
+					<strong>​Tests & Quizzes</strong> - Create and manage online assessments using a robust testing engine which includes a variety of question types, question pools, statistics, security options for high stakes testing, delivery time and date exceptions, and more.
+				</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!--Modal for Content Development and Delivery-->
+<div id="CDaDmodal" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title">Content Development and Delivery</h4>
+			</div>
+			<div class="modal-body">
+				<p>
+					<strong>Dropbox</strong> - Share files privately with course, project, or site participants.​<br><br>
+					<strong>External Tool</strong> - Configure and launch external tools using IMS Learning Tools Interoperability.​<br><br>
+					<strong>Lessons</strong> - Create and organize text, resources, quizzes, tests, assignments, links, video, and other media into lessons or units. Lessons can be configured for conditional release of content, student-authored pages, group collaboration, and much more.<br><br>
+					<strong>News</strong> - Display custom news content from dynamic, online sources via RSS.​<br><br>
+					<strong>Overview</strong> - View the site description and recent announcements, messages, discussion posts, and calendar events on the Overview landing page.​<br><br>
+					<strong>Podcasts</strong> - Manage individual podcasts and podcast feed information for your site.<br><br>
+					<strong>Resources</strong> - Post, store and organize material related to the course or project site. Drag and drop and WebDAV functionality make bulk file uploads quick and easy.​<br><br>
+					<strong>Search</strong> - Search content in a site using Sakai’s Elasticsearch powered search tool.​<br><br>
+					<strong>Syllabus</strong> - Post a summary outline of course requirements.<br><br>
+					<strong>Web Content</strong> - Display external web pages as part of the site menu.</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!--Modal for Course and System Management-->
+<div id="CaSMmodal" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title">Course and System Management</h4>
+			</div>
+			<div class="modal-body">
+				<p>
+					<strong>Polls</strong> - Easily create quick polls to collect and distribute data from site participants.<br><br>
+					<strong>Roster</strong> - View a list of course or project participants along with their pictures and profiles.<br><br>
+					<strong>Section Info</strong> - Manage multiple sections and assign teaching assistants to specific sections within a course.<br><br>
+					<strong>Site Info</strong> - View and update information about the site including site settings, tools, membership, groups, content imports, and more.<br><br>
+					<strong>Statistics</strong> - Use summary and custom reports to display site statistics regarding user visits, tool use, and course activity.<br><br>
+				</p>
+					<h4>User Tools</h4><br>
+				<p>
+					<strong>Account</strong> - View and update user account details.<br><br>
+					<strong>Help</strong> - Access context-sensitive help articles throughout the system.<br><br>
+					<strong>Membership</strong> - View and search for your enrolled sites or self-enroll in a joinable site.<br><br>
+					<strong>New Account</strong> - Create a new user account in the system.<br><br>
+					<strong>Preferences</strong> - Set your individual preferences for notifications, time zone, language,  active sites, and rich text editor mode.<br><br>
+					<strong>Profile</strong> - Create a personal profile and connect with other users in the system.<br><br>
+					<strong>Reset Password</strong> - Reset your Sakai password using the self-service reset option.<br><br>
+					<strong>Worksite Setup</strong> - View information about your sites, and (for users with appropriate permissions) create new sites and make changes to site settings.<br><br>
+				</p>
+					<h4>System Administrator Tools</h4><br>
+				<p>
+					<strong>Admin Site Perms</strong> - Quickly and easily add or remove permissions across all sites for specified roles.<br><br>
+					<strong>Aliases</strong> - View, create, and edit alias strings for target items such as site email list addresses, friendly site urls, etc.<br><br>
+					<strong>Become User</strong> - Log in as another user to perform troubleshooting or diagnose issues without needing to know their password.<br><br>
+					<strong>Delegated Access</strong> - Distribute admin functions or course access for specific users by departments or organizational units.<br><br>
+					<strong>Email Templates</strong> - Create customized email notifications for users in your local Sakai instance to replace default system messages.<br><br>
+					<strong>External Tools</strong> - Configure LTI Apps at the system level for use in all sites, or just specific courses as needed.<br><br>
+					<strong>Job Scheduler</strong> - Create simple or complex schedules for executing Quartz jobs, from the smallest stand-alone application, to the largest e-commerce system.<br><br>
+					<strong>Memory</strong> - View system cache sizes in order to better optimize performance.<br><br>
+					<strong>Message Bundle Manager</strong> -  Locate and modify system message properties, which define the user interface text for Sakai components in all supported languages.<br><br>
+					<strong>MOTD/Announcements</strong> - Post system-wide announcements using the “Message of the Day” Announcement tool.<br><br>
+					<strong>Online</strong> - View information on currently running servers and sessions, as well as user IP address and browser information.<br><br>
+					<strong>PA System</strong> - Deliver customizable system-wide or targeted alerts to Sakai users as either popup alerts or text banners, color-coded by alert priority.<br><br>
+					<strong>Realms</strong> - View and customize roles and permissions for sites and site templates.<br><br>
+					<strong>Site Archive</strong> - Back up sites or import existing backups individually or in bulk.<br><br>
+					<strong>Sites</strong> - Create, modify, delete, and search for course, project, and user sites.<br><br>
+					<strong>Sitestats Admin</strong> - Display server-wide reports and to save custom reports which are available for instructors within all sites in the Statistics tool.<br><br>
+					<strong>Tags Service</strong> - Create and maintain tag collections either manually or by importing collections. Tags can be used in question pools and other areas of Sakai for search purposes.<br><br>
+					<strong>User Membership</strong> - Locate, view, and modify site and group membership information for Sakai users in the system.<br><br>
+					<strong>Users</strong> - Create, search, view, and update Sakai user account information.
+				</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!--Modal for Community Contributed Tools-->
+<div id="CCTmodal" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title">Community Contributed Tools</h4>
+			</div>
+			<div class="modal-body">
+				<p>
+					<strong>Attendance</strong> - Take attendance online, print sign-in sheets, and assign attendance grades.<br><br>
+					<strong>BlogWow</strong> - Post blog entries which can either be viewed by the rest of the site members or kept private to the author.  (Alternative to the Clog tool.)<br><br>
+					<strong>Certification</strong> - Award printable certificates to site participants based on successful demonstration of specific criteria.<br><br>
+					<strong>Clog</strong> - Post blog entries which can either be viewed by the rest of the site members or kept private to the author. (Alternative to the BlogWow tool.)<br><br>
+					<strong>Evaluation System</strong> - Create and deliver formative and summative (end of term) evaluations and surveys of Sakai course sites individually, hierarchically, or system-wide.<br><br>
+					<strong>Mneme</strong> - Create and deliver tests and surveys in Sakai. (Alternative to the Tests & Quizzes core tool.)
+				</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!--Modal for External App Integrations-->
+<div id="EAImodal" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title">External App Integrations</h4>
+			</div>
+			<div class="modal-body">
+				<div class="container" style="width:100%;">
+					<h4>LTI Integrations</h4>
+					<ul class="list-group row" style="width:100%;">
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">Barnes & Noble</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">BigBlueButton</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">Box</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">Cengage</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">Digication</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">DynamicBooks</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">Examity</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">eXplorance Blue</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">iClicker</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">iRubric</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">Juta books</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">Kaltura</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">Karuta</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">Mahara</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">McGraw-Hill</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">Mediasite</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">Office 365</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">Opencast</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">Panopto</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">Perusall</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">Piazza</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">PlaceU</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">RedShelf</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">REEF Polling</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">Respondus Lockdown Browser</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">SCORMCloud</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">Tsugi App Store</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">TurningTechnologies</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">Turnitin</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">Vericite</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">VoiceThread</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">Warpwire</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">WebAssign</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">WordPress</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">WWNorton</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">Zoom</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">Zybooks</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">More...</li>
+					</ul>
+					<h4>API Integrations</h4>
+					<ul class="list-group row" style="width:100%;">	
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">Big Blue Button</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">Turnitin</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">Urkund</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">VeriCite</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">Wild Apricot</li>
+						<li class="list-group-item col-lg-4 col-md-6 col-xs-12">More...
+					</ul>
+					
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+</body>
 </html>

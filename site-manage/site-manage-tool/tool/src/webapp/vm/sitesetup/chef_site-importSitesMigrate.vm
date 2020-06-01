@@ -8,8 +8,7 @@
 		$tlang.getString("import.reuse2")
 	</p>
 	#if ($alertMessage)
-		<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>
-		<div class="clear"></div>
+		<div class="sak-banner-error">$tlang.getString("gen.alert") $alertMessage</div>
 	#end
 	<p class="instruction">
 	$tlang.getString("sitinfimp.choose")
@@ -25,7 +24,7 @@
 						<th>
 							<label>
 								<input type="checkbox" class="import-sites-tool-toggle"/>
-								$validator.escapeHtml($site.getTitle())
+								$formattedText.escapeHtml($site.getTitle())
 							</label>
 						</th>
 					#end
@@ -88,7 +87,7 @@
 											checked="checked"
 											#end />
 										<label	class="skip" for="toolSite$toolCount$siteCount">
-											$tlang.getString('import.choose.label1') $toolTitle $tlang.getString('import.choose.label2') $validator.escapeHtml($site.getTitle())
+											$tlang.getString('import.choose.label1') $toolTitle $tlang.getString('import.choose.label2') $formattedText.escapeHtml($site.getTitle())
 										</label>
 										#if ($importOptions.get(${toolId}).isPresent())
 										<a id="toolSite${toolCount}${siteCount}-options-link" style="display: none;" href="javascript:;" class="siteimport-options-link" data-options-id="${toolCount}-${siteCount}-options" title="$tlang.getString('import.options.title')">
@@ -121,7 +120,7 @@
 		</div>
 		
 		#if ($addMissingTools)
-			<p class="messageConfirmation">$tlang.getString("import.newtool")</p>
+			<p class="sak-banner-warn">$tlang.getString("import.newtool")</p>
 		#end
 		
 		<input type="hidden" name="back" value="59" />

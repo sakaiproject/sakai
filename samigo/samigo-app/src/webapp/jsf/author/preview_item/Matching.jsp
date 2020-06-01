@@ -2,6 +2,7 @@
 include file for delivering matching questions
 should be included in file importing DeliveryMessages
 --%>
+<%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t"%>
 <!--
 <%--
 ***********************************************************************************

@@ -17,24 +17,40 @@
 	<h:form id="msgForum" rendered="#{!ForumTool.selectedTopic.topic.draft || ForumTool.selectedTopic.topic.createdBy == ForumTool.userId}">
 
 		<!--jsp/discussionForum/message/dfViewThread.jsp-->
-       		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-  			<script type="text/javascript" src="/messageforums-tool/js/dialog.js"></script>
-			<script type="text/javascript" src="/library/webjars/qtip2/3.0.3/jquery.qtip.min.js"></script>
+       		<script>includeLatestJQuery("msgcntr");</script>
+  			<script src="/messageforums-tool/js/dialog.js"></script>
+			<script src="/library/webjars/qtip2/3.0.3/jquery.qtip.min.js"></script>
 			<link rel="stylesheet" type="text/css" href="/library/webjars/qtip2/3.0.3/jquery.qtip.min.css" />
   			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />	
-       		<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
-		<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
-		
+       		<script src="/messageforums-tool/js/sak-10625.js"></script>
+		<script src="/messageforums-tool/js/forum.js"></script>
+		<script>
+			$(document).ready(function () {
+				var menuLink = $('#forumsMainMenuLink');
+				var menuLinkSpan = menuLink.closest('span');
+				menuLinkSpan.addClass('current');
+				menuLinkSpan.html(menuLink.text());
+
+				setupMessageNav('messagePending');
+				setupMessageNav('messageNew');
+				if ($('div.hierItemBlock').size() >= 1){
+					$('.itemNav').clone().addClass('specialLink').appendTo('form')
+					$("<br/><br/>").appendTo('form');
+				}
+
+			});
+		</script>
+		<%@ include file="/jsp/discussionForum/menu/forumsMenu.jsp" %>
 	<%--//
 		//plugin required below
-		<script type="text/javascript" src="/messageforums-tool/js/pxToEm.js"></script>
+		<script src="/messageforums-tool/js/pxToEm.js"></script>
 
 		/*
 		gsilver: get a value representing max indents
 	 	from the server configuraiton service or the language bundle, parse 
 		all the indented items, and if the item indent goes over the value, flatten to the value 
 		*/
-		<script type="text/javascript">
+		<script>
 		$(document).ready(function() {
 			// pick value from element (that gets it from language bundle)
 			maxThreadDepth =$('#maxthreaddepth').text()
@@ -57,28 +73,6 @@
 		<span class="highlight"  id="maxthreaddepth" class="skip"><h:outputText value="#{msgs.cdfm_maxthreaddepth}" /></span>
 //--%>
 
-<script type="text/javascript">
- 			$(document).ready(function() {
-				setupMessageNav('messagePending');
-				setupMessageNav('messageNew');
-				if ($('div.hierItemBlock').size() >= 1){
-					$('.itemNav').clone().addClass('specialLink').appendTo('form')
-					$("<br/><br/>").appendTo('form');					
-				}
-			});
-</script>		
-		<sakai:tool_bar separator="#{msgs.cdfm_toolbar_separator}" rendered="#{!ForumTool.threadMoved}">
-			<h:commandLink id="replyThread" rendered="#{ForumTool.selectedTopic.isNewResponseToResponse && ForumTool.selectedThreadHead.msgApproved && !ForumTool.selectedTopic.locked && !ForumTool.selectedForum.locked == 'true'}"
-				action="#{ForumTool.processDfMsgReplyThread}" immediate="true">
-					<h:outputText value="#{msgs.cdfm_reply_thread}" />
-			</h:commandLink>
-			<h:commandLink id="markAllRead" action="#{ForumTool.processActionMarkAllThreadAsRead}" rendered="#{ForumTool.selectedTopic.isMarkAsRead and not ForumTool.selectedTopic.topic.autoMarkThreadsRead}"> 
-				<h:outputText value=" #{msgs.cdfm_mark_all_as_read}" />
-			</h:commandLink>
-			<h:outputLink id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyUrlThread}');">
-				<h:graphicImage url="/../../library/image/silk/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
-			</h:outputLink>
- 		</sakai:tool_bar>
 			<h:panelGrid columns="2" width="100%" styleClass="specialLink">
 			    <h:panelGroup>
 					<f:verbatim><div class="specialLink"><h3></f:verbatim>
@@ -106,7 +100,7 @@
 					  <f:verbatim></h3></div></f:verbatim>
 
 				 </h:panelGroup>
-				 
+
 				 <h:panelGroup styleClass="itemNav">
 				 	<h:panelGroup styleClass="button formButtonDisabled" rendered="#{!ForumTool.selectedThreadHead.hasPreThread}" >
 						<h:outputText  value="#{msgs.cdfm_previous_thread}"/>
@@ -126,7 +120,16 @@
 					 </h:commandLink>
 				 </h:panelGroup>
 			</h:panelGrid>
-		
+
+		<h:panelGroup rendered="#{!ForumTool.threadMoved}">
+			<h:commandLink styleClass="button" value="#{msgs.cdfm_reply_thread}" id="replyThread" rendered="#{ForumTool.selectedTopic.isNewResponseToResponse && ForumTool.selectedThreadHead.msgApproved && !ForumTool.selectedTopic.locked && !ForumTool.selectedForum.locked == 'true'}"
+				action="#{ForumTool.processDfMsgReplyThread}" immediate="true"/>&nbsp;
+			<h:commandLink styleClass="button" value=" #{msgs.cdfm_mark_all_as_read}" id="markAllRead" action="#{ForumTool.processActionMarkAllThreadAsRead}" rendered="#{ForumTool.selectedTopic.isMarkAsRead and not ForumTool.selectedTopic.topic.autoMarkThreadsRead}"/>&nbsp;
+			<h:outputLink styleClass="button" id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyUrlThread}');">
+				<h:graphicImage url="/../../library/image/silk/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
+			</h:outputLink>
+		</h:panelGroup>
+
 	  	<f:verbatim>
 			<div id="dialogDiv" title="Grade Messages" style="display:none">
 	    		<iframe id="dialogFrame" name="dialogFrame" width="100%" height="100%" frameborder="0"></iframe>
@@ -181,7 +184,7 @@
     		thisId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
   		}
 	%>
-	<script type="text/javascript">
+	<script>
 		function resize(){
   			mySetMainFrameHeight('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
   		}

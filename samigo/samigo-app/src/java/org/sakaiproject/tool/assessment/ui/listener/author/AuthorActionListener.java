@@ -37,6 +37,7 @@ import javax.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
@@ -45,6 +46,7 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -61,7 +63,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettin
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
-import org.sakaiproject.util.FormattedText;
+
 
 /**
  * <p>Title: Samigo</p>2
@@ -167,14 +169,7 @@ public class AuthorActionListener
 
     // If a site property does not exist, go ahead and evaluate the global property
     if (!sitePropertyExists) {
-
-        String s = ServerConfigurationService.getString("samigo.editPubAssessment.restricted");
-	if (s != null && s.toLowerCase().equals("false")) {
-		author.setEditPubAssessmentRestricted(false);
-	}
-	else {
-		author.setEditPubAssessmentRestricted(true);
-	}
+        author.setEditPubAssessmentRestricted(ServerConfigurationService.getBoolean("samigo.editPubAssessment.restricted", false));
     } 
 
 	author.setEditPubAssessmentRestrictedAfterStarted(ServerConfigurationService.getBoolean("samigo.editPubAssessment.restricted.afterStart", false));
@@ -192,7 +187,7 @@ public class AuthorActionListener
 		Iterator iter = assessmentList.iterator();
 		while (iter.hasNext()) {
 			AssessmentFacade assessmentFacade= (AssessmentFacade) iter.next();
-			assessmentFacade.setTitle(FormattedText.convertFormattedTextToPlaintext(assessmentFacade.getTitle()));
+			assessmentFacade.setTitle(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(assessmentFacade.getTitle()));
 			try {
 				String lastModifiedDateDisplay = tu.getIsoDateWithLocalTime(assessmentFacade.getLastModifiedDate());
 				assessmentFacade.setLastModifiedDateForDisplay(lastModifiedDateDisplay);  
@@ -299,7 +294,7 @@ public class AuthorActionListener
 
 	  for( Object assessmentList1 : assessmentList ) {
 		  PublishedAssessmentFacade f = (PublishedAssessmentFacade) assessmentList1;
-		  f.setTitle(FormattedText.convertFormattedTextToPlaintext(f.getTitle()));
+		  f.setTitle(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(f.getTitle()));
 		  Long publishedAssessmentId = f.getPublishedAssessmentId();
 		  if (isActive(f, 
 				  (Map<String, Integer>) submissionCountHash.get(publishedAssessmentId), 

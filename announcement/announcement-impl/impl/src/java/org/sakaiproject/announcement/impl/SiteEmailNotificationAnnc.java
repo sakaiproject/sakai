@@ -53,9 +53,9 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.EmailNotification;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SiteEmailNotification;
+import org.sakaiproject.util.api.FormattedText;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -84,6 +84,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 	@Setter private UserDirectoryService userDirectoryService;
 	@Setter private ServerConfigurationService serverConfigurationService;
 	@Setter private UserTimeService userTimeService;
+	@Setter private FormattedText formattedText;
 
 	/**
 	 * Construct.
@@ -430,10 +431,11 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 	{
 		// get the message
 		final Reference ref = entityManager.newReference(opaqueContext);
+
+		// needed to access the message
+		SecurityAdvisor sa = enableSecurityAdvisorToGetAnnouncement();
+
 		try {
-			// needed to access the message
-			enableSecurityAdvisorToGetAnnouncement();
-			
 			final AnnouncementMessage msg = (AnnouncementMessage) ref.getEntity();
 			if (msg!=null) {
 				final AnnouncementMessageHeader hdr = (AnnouncementMessageHeader) msg.getAnnouncementHeader();
@@ -464,7 +466,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 			// message within the super class, can't remove the
 			// SecurityAdvisor until this point
 			// done with access, need to remove from stack
-			disableSecurityAdvisor();
+			disableSecurityAdvisor(sa);
 		}
 	}
 
@@ -472,10 +474,10 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 	 * Establish a security advisor to allow the "embedded" azg work to occur
 	 * with no need for additional security permissions.
 	 */
-	protected void enableSecurityAdvisorToGetAnnouncement() {
+	protected SecurityAdvisor enableSecurityAdvisorToGetAnnouncement() {
 		// put in a security advisor so we can do our podcast work without need
 		// of further permissions
-		securityService.pushAdvisor(new SecurityAdvisor() {
+		SecurityAdvisor sa = new SecurityAdvisor() {
 			public SecurityAdvice isAllowed(String userId, String function,
 					String reference) {
 				if (function.equals(AnnouncementService.SECURE_ANNC_READ) || function.equals(ContentHostingService.AUTH_RESOURCE_READ)) // SAK-23300
@@ -483,14 +485,16 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 				else
 					return SecurityAdvice.PASS;
 			}
-		});
+		};
+		securityService.pushAdvisor(sa);
+		return sa;
 	}
 
 	/**
 	 * remove recent add SecurityAdvisor from stack
 	 */
-	protected void disableSecurityAdvisor() {
-		securityService.popAdvisor();
+	protected void disableSecurityAdvisor(SecurityAdvisor sa) {
+		securityService.popAdvisor(sa);
 	}
 
 
@@ -530,27 +534,27 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		if (AnnouncementService.SECURE_ANNC_ADD.equals(event.getEvent()))
 		{
 			if(!serverConfigurationService.getBoolean("notify.email.from.replyable", false)) {
-				buf.append(FormattedText.convertFormattedTextToPlaintext(rb.getFormattedMessage("noti.header.sender.info.add", title, url, hdr.getFrom().getDisplayName())));
+				buf.append(formattedText.convertFormattedTextToPlaintext(rb.getFormattedMessage("noti.header.sender.info.add", title, url, hdr.getFrom().getDisplayName())));
 			}
 			else {
-				buf.append(FormattedText.convertFormattedTextToPlaintext(rb.getFormattedMessage("noti.header.add", title, url)));
+				buf.append(formattedText.convertFormattedTextToPlaintext(rb.getFormattedMessage("noti.header.add", title, url)));
 			}
 
 		}
 		else
 		{
 			if(!serverConfigurationService.getBoolean("notify.email.from.replyable", false)) {
-				buf.append(FormattedText.convertFormattedTextToPlaintext(rb.getFormattedMessage("noti.header.sender.info.update", title, url, hdr.getFrom().getDisplayName())));
+				buf.append(formattedText.convertFormattedTextToPlaintext(rb.getFormattedMessage("noti.header.sender.info.update", title, url, hdr.getFrom().getDisplayName())));
 			}
 			else {
-				buf.append(FormattedText.convertFormattedTextToPlaintext(rb.getFormattedMessage("noti.header.update", title, url)));
+				buf.append(formattedText.convertFormattedTextToPlaintext(rb.getFormattedMessage("noti.header.update", title, url)));
 			}
 		}
 		
 		buf.append(" ").append(rb.getString("at_date")).append(" ");
         buf.append(userTimeService.shortLocalizedTimestamp(hdr.getInstant(), rb.getLocale()));
 		buf.append(newline);
-		buf.append(FormattedText.convertFormattedTextToPlaintext(msg.getBody()));
+		buf.append(formattedText.convertFormattedTextToPlaintext(msg.getBody()));
 		buf.append(newline);
 
 		// add any attachments

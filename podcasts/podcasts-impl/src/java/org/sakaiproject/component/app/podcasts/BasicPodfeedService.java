@@ -54,17 +54,18 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.util.ResourceLoader;
 
-import com.sun.syndication.feed.WireFeed;
-import com.sun.syndication.feed.module.DCModuleImpl;
-import com.sun.syndication.feed.module.itunes.EntryInformation;
-import com.sun.syndication.feed.module.itunes.EntryInformationImpl;
-import com.sun.syndication.feed.rss.Channel;
-import com.sun.syndication.feed.rss.Description;
-import com.sun.syndication.feed.rss.Enclosure;
-import com.sun.syndication.feed.rss.Guid;
-import com.sun.syndication.feed.rss.Item;
-import com.sun.syndication.io.FeedException;
-import com.sun.syndication.io.WireFeedOutput;
+import com.rometools.modules.itunes.EntryInformation;
+import com.rometools.modules.itunes.EntryInformationImpl;
+import com.rometools.rome.feed.WireFeed;
+import com.rometools.rome.feed.module.DCModuleImpl;
+import com.rometools.rome.feed.rss.Channel;
+import com.rometools.rome.feed.rss.Description;
+import com.rometools.rome.feed.rss.Enclosure;
+import com.rometools.rome.feed.rss.Guid;
+import com.rometools.rome.feed.rss.Item;
+import com.rometools.rome.io.FeedException;
+import com.rometools.rome.io.WireFeedOutput;
+
 
 @Slf4j
 public class BasicPodfeedService implements PodfeedService {

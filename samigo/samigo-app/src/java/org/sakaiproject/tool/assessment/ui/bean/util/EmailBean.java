@@ -28,6 +28,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.faces.application.FacesMessage;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
@@ -52,7 +54,10 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.SamigoEmailService;
 import org.sakaiproject.tool.cover.SessionManager;
 
+/* For util Email backing bean. */
 @Slf4j
+@ManagedBean(name="email")
+@SessionScoped
 public class EmailBean implements Serializable {
 
 	private String fromName;

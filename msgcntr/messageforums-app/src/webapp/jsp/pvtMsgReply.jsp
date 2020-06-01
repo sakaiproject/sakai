@@ -17,13 +17,13 @@
 	<sakai:view title="#{msgs.pvt_reply}">
 		<link rel="stylesheet" href="/messageforums-tool/css/messages.css" type="text/css" />
 		<link rel="stylesheet" href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" type="text/css" />
-		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-		<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
-		<script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
-		<script type="text/javascript">includeWebjarLibrary('select2');</script>
-
+		<script>includeLatestJQuery("msgcntr");</script>
+		<script src="/messageforums-tool/js/sak-10625.js"></script>
+		<script src="/messageforums-tool/js/messages.js"></script>
+		<script>includeWebjarLibrary('select2');</script>
+        <%@ include file="/jsp/privateMsg/pvtMenu.jsp" %>
 	<h:form id="pvtMsgReply">
-		<script type="text/javascript">
+		<script>
 				function clearSelection(selectObject)
 				{
 					for (var i=0; i<selectObject.options.length; i++)
@@ -59,27 +59,35 @@
 				  	addTagSelector(document.getElementById('pvtMsgReply:list1'));
 				  	addTagSelector(document.getElementById('pvtMsgReply:list2'));
 				  	resize();
+
+                    var menuLink = $('#messagesMainMenuLink');
+                    var menuLinkSpan = menuLink.closest('span');
+                    menuLinkSpan.addClass('current');
+                    menuLinkSpan.html(menuLink.text());
+
 				});
 		</script>
 
 		<h:panelGroup>
-          	<f:verbatim><div class="breadCrumb"><h3></f:verbatim>
-				  <h:panelGroup rendered="#{PrivateMessagesTool.messagesandForums}" >
-				  	<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title="#{msgs.cdfm_message_forums}"/>
-				  	<h:outputText value=" / " />
-				  </h:panelGroup>
-	  		      <h:commandLink action="#{PrivateMessagesTool.processActionPrivateMessages}" value="#{msgs.pvt_message_nav}" title=" #{msgs.cdfm_message_forums}"/>
-	              <h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
-				<h:commandLink action="#{PrivateMessagesTool.processDisplayForum}" value="#{(PrivateMessagesTool.msgNavMode == 'pvt_received' || PrivateMessagesTool.msgNavMode == 'pvt_sent' || PrivateMessagesTool.msgNavMode == 'pvt_deleted' || PrivateMessagesTool.msgNavMode == 'pvt_drafts')? msgs[PrivateMessagesTool.msgNavMode]: PrivateMessagesTool.msgNavMode}" title=" #{(PrivateMessagesTool.msgNavMode == 'pvt_received' || PrivateMessagesTool.msgNavMode == 'pvt_sent' || PrivateMessagesTool.msgNavMode == 'pvt_deleted' || PrivateMessagesTool.msgNavMode == 'pvt_drafts')? msgs[PrivateMessagesTool.msgNavMode]: PrivateMessagesTool.msgNavMode}"/><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
-				<h:commandLink action="#{PrivateMessagesTool.processDisplayMessages}" title=" #{PrivateMessagesTool.detailMsg.msg.title}">
-					<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.title}"/>
-				</h:commandLink>
-				<h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
-				<h:outputText value="#{msgs.pvt_reply}" />
+			<f:verbatim><div class="breadCrumb"><h3></f:verbatim>
+			<h:panelGroup rendered="#{PrivateMessagesTool.messagesandForums}" >
+				<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title="#{msgs.cdfm_message_forums}"/>
+				<h:outputText value=" / " />
+			</h:panelGroup>
+			<h:commandLink action="#{PrivateMessagesTool.processActionPrivateMessages}" value="#{msgs.pvt_message_nav}" title=" #{msgs.cdfm_message_forums}"/>
+			<h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
+			<h:commandLink rendered="#{(PrivateMessagesTool.msgNavMode == 'pvt_received' || PrivateMessagesTool.msgNavMode == 'pvt_sent' || PrivateMessagesTool.msgNavMode == 'pvt_deleted' || PrivateMessagesTool.msgNavMode == 'pvt_drafts')}"
+				action="#{PrivateMessagesTool.processDisplayForum}" value="#{msgs[PrivateMessagesTool.msgNavMode]}" title=" #{msgs[PrivateMessagesTool.msgNavMode]}"/>
+			<h:outputText rendered="#{(PrivateMessagesTool.msgNavMode == 'pvt_received' || PrivateMessagesTool.msgNavMode == 'pvt_sent' || PrivateMessagesTool.msgNavMode == 'pvt_deleted' || PrivateMessagesTool.msgNavMode == 'pvt_drafts')}" value=" / " />
+			<h:commandLink action="#{PrivateMessagesTool.processDisplayMessages}" title=" #{PrivateMessagesTool.detailMsg.msg.title}">
+				<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.title}"/>
+			</h:commandLink>
+			<h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
+			<h:outputText value="#{msgs.pvt_reply}" />
 			<f:verbatim></h3></div></f:verbatim>
-	</h:panelGroup>	
-		
-		
+		</h:panelGroup>
+
+
 	<%--//designNote: gsilver:commenting this header out as redundant--%>		
       <%-- <sakai:tool_bar_message value="#{msgs.pvt_reply}" />--%> 
 		<div class="container_messages">
@@ -242,14 +250,14 @@
 					<div class="col-xs-12 col-sm-10">
 						<h:panelGroup styleClass="shorttext">
 							<h:inputText value="#{PrivateMessagesTool.replyToSubject}" id="subject" size="45" styleClass="form-control">
-								<f:validateLength minimum="1" maximum="255"/>
+								<f:validateLength maximum="255"/>
 							</h:inputText>
 						</h:panelGroup>
 					</div>
 				</div>
 		  </div>
 		  
-			<h4><h:outputText value="#{msgs.pvt_message}" /></h4>
+			<h4><h:outputText value="#{msgs.pvt_star}" styleClass="reqStar"/><h:outputText value="#{msgs.pvt_message}" /></h4>
 	        <sakai:panel_edit>
 	          <sakai:doc_section>
 			  <sakai:inputRichText textareaOnly="#{PrivateMessagesTool.mobileSession}" rows="#{ForumTool.editorRows}" cols="132" id="df_compose_body" value="#{PrivateMessagesTool.replyToBody}">	 

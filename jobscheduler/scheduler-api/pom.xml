@@ -5,17 +5,12 @@
   <parent>
     <groupId>org.sakaiproject.scheduler</groupId>
     <artifactId>scheduler</artifactId>
-    <version>20-SNAPSHOT</version>
+    <version>21-SNAPSHOT</version>
   </parent>
   
   <name>Sakai Job Scheduler API (scheduler-api)</name>
   <groupId>org.sakaiproject.scheduler</groupId>
   <artifactId>scheduler-api</artifactId>
-  <organization>
-    <name>Sakai</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2003</inceptionYear>
   <packaging>jar</packaging>
   
   <properties>
@@ -34,7 +29,7 @@
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-private</artifactId>
-      <version>20-SNAPSHOT</version>
+      <version>21-SNAPSHOT</version>
     </dependency>
   </dependencies>
   

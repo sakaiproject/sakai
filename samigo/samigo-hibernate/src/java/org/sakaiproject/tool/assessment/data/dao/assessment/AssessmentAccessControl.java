@@ -32,6 +32,9 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 
 import java.util.Date;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * This keeps track of the submission scheme, and the number allowed.
  *
@@ -98,6 +101,8 @@ public class AssessmentAccessControl
   private Date dueDate;
   private Date scoreDate;
   private Date feedbackDate;
+  @Setter @Getter private Date feedbackEndDate;
+  @Setter @Getter private Double feedbackScoreThreshold;
   private Date retractDate;
   private Integer autoSubmit;  // auto submit when time expires
   private Integer itemNavigation; // linear (1)or random (0)
@@ -173,6 +178,8 @@ public class AssessmentAccessControl
     ((AssessmentAccessControl)cloned).setUnlimitedSubmissions(this.unlimitedSubmissions);
     ((AssessmentAccessControl)cloned).setMarkForReview(this.markForReview);
     ((AssessmentAccessControl)cloned).setHonorPledge(this.honorPledge);
+    ((AssessmentAccessControl)cloned).setFeedbackEndDate(this.feedbackEndDate);
+    ((AssessmentAccessControl)cloned).setFeedbackScoreThreshold(this.feedbackScoreThreshold);
     return cloned;
   }
 

@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -38,11 +39,13 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -56,6 +59,8 @@ import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
+import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -120,6 +125,12 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	
 	@Setter
 	private SessionManager sessionManager;
+	
+	@Setter
+	private MemoryService memoryService;
+	
+	@Setter
+	private AuthzGroupService authzGroupService;
 
 	private static final String SERVICE_NAME = "Turnitin";
 	private static final String TURNITIN_OC_API_VERSION = "v1";
@@ -155,8 +166,26 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private static final String VIEWER_PERMISSION_MAY_VIEW_SUBMISSIONS_FULL_SOURCE = "may_view_submission_full_source";
 	private static final String VIEWER_PERMISSION_MAY_VIEW_MATCH_SUBMISSION_INFO = "may_view_match_submission_info";
 	private static final String VIEWER_DEFAULT_PERMISSIONS = "viewer_default_permission_set";
-	private static final String INSTRUCTOR = "INSTRUCTOR";
-	private static final String LEARNER = "LEARNER";
+	private enum ROLES{
+		INSTRUCTOR(Arrays.asList("Faculty", "Instructor", "Mentor", "Staff", "maintain", "Teaching Assistant")),
+		LEARNER(Arrays.asList("Learner", "Student", "access")),
+		EDITOR(Arrays.asList()),
+		USER(Arrays.asList("Alumni", "guest", "Member", "Observer", "Other")),
+		APPLICANT(Arrays.asList("ProspectiveStudent")),
+		ADMINISTRATOR(Arrays.asList("Administrator", "Admin")),
+		UNDEFINED(Arrays.asList());
+		
+		List<String> mappedRoles;
+		private ROLES(List<String> mappedRoles) {
+			this.mappedRoles = mappedRoles;
+		}
+		private void setMappedRoles(List<String> mappedRoles) {
+			this.mappedRoles = mappedRoles;
+		}
+		private List<String> getMappedRoles() {
+			return mappedRoles;
+		}
+	};
 	
 	private static final String GENERATE_REPORTS_IMMEDIATELY_AND_ON_DUE_DATE= "1";
 	private static final String GENERATE_REPORTS_ON_DUE_DATE = "2";	
@@ -191,8 +220,6 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		GROUP_CONTEXT
 	}
 	
-	@Setter
-	private MemoryService memoryService;
 	//Caches requests for instructors so that we don't have to send a request for every student
 	private Cache EULA_CACHE;
 	private static final String EULA_LATEST_KEY = "latest";
@@ -305,6 +332,11 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		mayViewMatchSubmissionInfoOverrideInstructor = StringUtils.isNotEmpty(serverConfigurationService.getString("turnitin.oc.may_view_match_submission_info.instructor")) 
 				? serverConfigurationService.getBoolean("turnitin.oc.may_view_match_submission_info.instructor", false)
 				: null;
+				
+		// Override default Sakai->Turnitin roles mapping
+		for(ROLES role : ROLES.values()) {
+			role.setMappedRoles(serverConfigurationService.getStringList("turnitin.oc.roles." + role.name().toLowerCase() + ".mapping", role.getMappedRoles()));
+		}
 
 		// Populate base headers that are needed for all calls to TCA
 		BASE_HEADERS.put(HEADER_NAME, INTEGRATION_FAMILY);
@@ -544,7 +576,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				viewSettings.put(SAVE_CHANGES, Boolean.TRUE);
 				similarity.put(VIEW_SETTINGS, viewSettings);
 				data.put(SIMILARITY, similarity);
-				data.put(VIEWER_DEFAULT_PERMISSIONS, isInstructor ? INSTRUCTOR : LEARNER);
+				data.put(VIEWER_DEFAULT_PERMISSIONS, mapUserRole(userId, contextId, isInstructor));
 				//Check if there are any sakai.properties overrides for the default permissions
 				Map<String, Object> viewerPermissionsOverride = new HashMap<String, Object>();
 				if(!isInstructor && mayViewSubmissionFullSourceOverrideStudent != null) {
@@ -846,6 +878,32 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 
 	private String getSubmissionId(ContentReviewItem item, String fileName, Site site, Assignment assignment) {
 		String userID = item.getUserId();
+		List<User> submissionOwners = new ArrayList<>();
+		String submitterID = null;
+
+		try {
+			AssignmentSubmission currentSubmission = assignmentService.getSubmission(assignment.getId(), userID);
+
+			Set<String> ownerIds = currentSubmission.getSubmitters().stream()
+				.map(AssignmentSubmissionSubmitter::getSubmitter)
+				.collect(Collectors.toSet());
+
+			//find submitter by filtering submittee=true, if not found, then use the assignment property SUBMITTER_USER_ID
+			submitterID = currentSubmission.getSubmitters().stream().filter(AssignmentSubmissionSubmitter::getSubmittee).findAny()
+					.map(AssignmentSubmissionSubmitter::getSubmitter)
+					.orElseGet(() -> currentSubmission.getProperties().get(AssignmentConstants.SUBMITTER_USER_ID));
+
+			if (userID.equals(submitterID) || StringUtils.isBlank(submitterID)) {
+				//no need to keep track of the submitterID if it is the same as the ownerID
+				submitterID = null;
+			} else {
+				ownerIds.add(submitterID);
+			}
+
+			submissionOwners.addAll(userDirectoryService.getUsers(ownerIds));
+		} catch (Exception e) {
+			log.warn(e.getMessage(), e);
+		}
 
 		String submissionId = null;
 		try {
@@ -853,29 +911,69 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			// Build header maps
 			Map<String, Object> data = new HashMap<String, Object>();
 			data.put("owner", userID);
-			data.put("title", fileName);
-			Instant eulaTimestamp = getUserEULATimestamp(userID);
-			String eulaVersion = getUserEULAVersion(userID);
-			if(eulaTimestamp != null && StringUtils.isNotEmpty(eulaVersion)) {
-				Map<String, Object> eula = new HashMap<String, Object>();
-				eula.put("accepted_timestamp", eulaTimestamp.toString());
-				eula.put("language", getUserEulaLocale(userID));
-				eula.put("version", eulaVersion);
-				data.put("eula", eula);
+			if(site != null) {
+				data.put("owner_default_permission_set", mapUserRole(userID, site.getId(), false));
 			}
-			if(assignment != null) {
-				Map<String, Object> metadata = new HashMap<String, Object>();
-				Map<String, Object> group = new HashMap<String, Object>();
+			if (StringUtils.isNotBlank(submitterID)) {
+				data.put("submitter", submitterID);
+				if(site != null) {
+					data.put("submitter_default_permission_set", mapUserRole(submitterID, site.getId(), false));
+				}
+			}
+			data.put("title", fileName);
+			String eulaUserId = StringUtils.isNotEmpty(submitterID) ? submitterID : userID;
+			Instant eulaTimestamp = getUserEULATimestamp(eulaUserId);
+			String eulaVersion = getUserEULAVersion(eulaUserId);
+			if(eulaTimestamp == null || StringUtils.isEmpty(eulaVersion)) {
+				//best effort to make sure the user has a EULA acceptance timestamp, but if not
+				//add a warning in the logs and continue so that the report will still generate
+				eulaTimestamp = Instant.now();
+				eulaVersion = getEndUserLicenseAgreementVersion();
+				log.warn("EULA not found for user: " + eulaUserId + ", contentId: " + item.getId());
+			}
+			Map<String, Object> eula = new HashMap<>();
+			eula.put("accepted_timestamp", eulaTimestamp.toString());
+			eula.put("language", getUserEulaLocale(eulaUserId));
+			eula.put("version", eulaVersion);
+			data.put("eula", eula);
+			Map<String, Object> metadata = new HashMap<>();
+			if(assignment != null) {				
+				Map<String, Object> group = new HashMap<>();
 				group.put("id", assignment.getId());
 				group.put("name", assignment.getTitle());
 				group.put("type", "ASSIGNMENT");
 				metadata.put("group", group);
 				if(site != null) {
-					Map<String, Object> groupContext = new HashMap<String, Object>();
+					Map<String, Object> groupContext = new HashMap<>();
 					groupContext.put("id", site.getId());
 					groupContext.put("name", site.getTitle());
 					metadata.put("group_context", groupContext);
 				}
+			}
+			//set submission owner metadata
+			if (submissionOwners.size() > 0) {
+				List<Map<String, Object>> submissionOwnersMetedata = new ArrayList<>();
+				for(User owner : submissionOwners) {
+					Map<String, Object> ownerMetadata = new HashMap<>();
+					ownerMetadata.put("id", owner.getId());
+					if(StringUtils.isNotEmpty(owner.getFirstName())) {
+						ownerMetadata.put("given_name", owner.getFirstName());	
+					}
+					if(StringUtils.isNotEmpty(owner.getLastName())) {
+						ownerMetadata.put("family_name", owner.getLastName());	
+					}
+					if(StringUtils.isNotEmpty(owner.getEmail())) {
+						ownerMetadata.put("email", owner.getEmail());	
+					}
+					if(ownerMetadata.size() > 1) {
+						submissionOwnersMetedata.add(ownerMetadata);
+					}
+				}
+				if(submissionOwnersMetedata.size() > 0) {
+					metadata.put("owners", submissionOwnersMetedata);
+				}
+			}
+			if(metadata.size() > 0) {
 				data.put("metadata", metadata);
 			}
 			HashMap<String, Object> response = makeHttpCall("POST",
@@ -980,8 +1078,9 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				if (PLACEHOLDER_ITEM_REVIEW_SCORE.equals(item.getReviewScore())) {	
 					// Get assignment associated with current item's task Id
 					Assignment assignment = assignmentService.getAssignment(entityManager.newReference(item.getTaskId()));
-					Date assignmentDueDate = Date.from(assignment.getDueDate());
-					if(assignment != null && assignmentDueDate != null ) {
+					if(assignment != null && assignment.getDueDate() != null ) {
+						Date assignmentDueDate = Date.from(assignment.getDueDate());
+
 						// Make sure due date is past						
 						if (assignmentDueDate.before(new Date())) {
 							//Lookup reference item
@@ -999,14 +1098,14 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 								referenceItem.setNextRetryTime(new Date());
 								crqs.update(referenceItem);
 								// Report regenerated for reference item, placeholder item is no longer needed
-								crqs.delete(item);
+								crqs.removeFromQueue(getProviderId(), item.getContentId());
 								success++;
 								continue;
 							}
 							else {
 								// Reference item no longer exists
 								// Placeholder item is no longer needed
-								crqs.delete(item);
+								crqs.removeFromQueue(getProviderId(), item.getContentId());
 								errors++;
 								continue;
 							}
@@ -1015,13 +1114,13 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 							// Reset retry count to zero
 							item.setRetryCount(Long.valueOf(0));
 							item.setNextRetryTime(getDueDateRetryTime(assignmentDueDate));
-							crqs.update(item);
+							crqs.removeFromQueue(getProviderId(), item.getContentId());
 							continue;
 						}
 					}else {
 						// Assignment or due date no longer exist
 						// placeholder item is no longer needed
-						crqs.delete(item);
+						crqs.removeFromQueue(getProviderId(), item.getContentId());
 						errors++;
 						continue;
 					}
@@ -1152,7 +1251,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 						}
 						else {
 							// Add filename to content upload headers
-							CONTENT_UPLOAD_HEADERS.put(HEADER_DISP, "inline; filename=\"" + fileName + "\"");
+							CONTENT_UPLOAD_HEADERS.put(HEADER_DISP, "inline; filename=\"" + URLEncoder.encode(fileName, "UTF-8") + "\"");
 							// Upload submission contents of to TCA
 							uploadExternalContent(externalId, resource.getContent());
 							// Set item externalId to externalId
@@ -1740,6 +1839,24 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		log.info("Turnitin webhook received: " + success + " items processed, " + errors + " errors.");
 	}
 	
+	private String mapUserRole(String userId, String contextId, boolean isInstructor) {
+		String role = isInstructor ? ROLES.INSTRUCTOR.name() : ROLES.UNDEFINED.name();
+		try
+		{
+			//get the user's role for this course
+			String siteRole = securityService.isSuperUser(userId) ? ROLES.ADMINISTRATOR.name() : authzGroupService.getUserRole(userId, siteService.siteReference(contextId));
+			role = Arrays.asList(ROLES.values()).stream()
+				.filter(r -> r.getMappedRoles().stream().anyMatch(siteRole::equalsIgnoreCase))
+				.map(r -> r.name())
+				.findFirst()
+				.orElse(role);
+		}catch(Exception e) {
+			log.error(e.getMessage(), e);
+		}
+		return role;
+	}
+	
+	
 	@Getter
 	@AllArgsConstructor
 	private class Webhook {
@@ -1750,5 +1867,10 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	@Override
 	protected String getResourceLoaderName() {
 		return "turnitin-oc";
+	}
+	
+	@Override
+	public boolean allowSubmissionsOnBehalf() {
+		return true;
 	}
 }

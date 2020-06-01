@@ -113,10 +113,6 @@
 			{
 				tag.onclick = handleAccessIsGroup;
 			}
-			else if(tag.id && tag.id.match(/^selectall${DOT}\d+$/))
-			{
-				tag.onclick = handleSelectAllChange;
-			}
 #end
 		}
 		
@@ -464,15 +460,6 @@
 			if(inheritedChoice)
 			{
 				inheritedChoice.checked = true;
-				var selectAllGroups = document.getElementById("selectall${DOT}" + index);
-				if(selectAllGroups)
-				{
-					if(selectAllGroups.checked)
-					{
-						toggleAllGroups(index);
-					}
-					hideGroupsTable(index);
-				}
 			}
 			// hide the properties div by default
 			var propertiesDiv = document.getElementById("propertiesDiv$DOT" + index);
@@ -723,12 +710,17 @@
 								
 			if(root && root.childNodes)
 			{
-				for(var i = 0; i < root.childNodes.length; i++)
-				{
-					var newChild = copyTree(root.childNodes[i], index);
-					if(newChild)
+				var className = root.className;
+				if(className == null || className.includes('multiselect-native-select') || !root.className.includes('multiselect')) {
+					for(var i = 0; i < root.childNodes.length; i++)
 					{
-						newElement.appendChild(newChild);
+						if(className != 'multiselect-native-select' || root.childNodes[i].type == 'select-multiple') {
+							var newChild = copyTree(root.childNodes[i], index);
+							if(newChild)
+							{
+								newElement.appendChild(newChild);
+							}
+						}
 					}
 				}
 			}
@@ -796,6 +788,10 @@
 			if( root.id.match( /^selectCondition${DOT}\d+$/ ) )
 			{
 				newElement.onchange = handleSelectConditionChange;
+			}
+			if( root.id.match( /^groupTable${DOT}\d+$/ ) )
+			{
+				newElement.style.display = "none";
 			}
 			
 		}
@@ -1141,8 +1137,8 @@
 		// 'Please select...' is always the first element in the drop down, but only enforce this if configured via sakai.properties
 		if (requireChoice && copyrightSelect !== null && copyrightSelect.selectedIndex < 1)
 		{
-			$('.alertMessage').html('$tlang.getString("label.alert") $copyrightError');
-			$('.alertMessage').show();
+			$('.sak-banner-error').html('$tlang.getString("label.alert") $copyrightError');
+			$('.sak-banner-error').show();
 			window.scrollTo(0, 0);
 			copyrightSelect.focus();
 
@@ -1151,7 +1147,7 @@
 		}
 
 		// Copyright status has been selected; let the calling site submit the necessary form
-		$('.alertMessage').hide();
+		$('.sak-banner-error').hide();
 		submitButton.disabled = true;
 		return true;
 	}
@@ -1449,40 +1445,7 @@
 			use_condition.checked = false;
 		}	
 	}
-	function handleSelectAllChange(evt)
-	{
-		evt = (evt) ? evt : ((event) ? event : null);
-		if(evt)
-		{
-			evt.cancelBubble = true;
-			var element = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null)
-			if(element)
-			{
-				element = (element.nodeType == 1 || element.nodeType == 9) ? element : element.parentNode;
-				if(element.id)
-				{
-					var dot = element.id.lastIndexOf("$DOT");
-					if(dot >= 0)
-					{
-						var index = element.id.substr(dot + 1);
-						toggleAllGroups(index);
-					}
-				}
-			}
-		}
-	}
-	
-	function toggleAllGroups(index)
-	{
-		var selectAll = document.getElementById("selectall${DOT}" + index);
-		var newSetting = selectAll.checked;
-		var checkboxes = document.getElementsByName("access_groups$DOT" + index);
-		for(var i = 0; i < checkboxes.length; i++)
-		{
-			checkboxes[i].checked = newSetting;
-		}
-	}
-	
+
 	function changeCondition(selectValue,dotSuffix)
 	{
 		selectIndex = Number(selectValue.substring(0, selectValue.indexOf("|")));

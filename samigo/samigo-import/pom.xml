@@ -5,17 +5,12 @@
 	<parent>
 		<groupId>org.sakaiproject.samigo</groupId>
 		<artifactId>samigo</artifactId>
-		<version>20-SNAPSHOT</version>
+		<version>21-SNAPSHOT</version>
 	</parent>
     
 	<name>Sakai Samigo Import Handlers (samigo-import)</name>
 	<groupId>org.sakaiproject.samigo</groupId>
 	<artifactId>samigo-import</artifactId>
-	<organization>
-		<name>Sakai Foundation</name>
-		<url>http://sakaiproject.org/</url>
-	</organization>
-	<inceptionYear>2005</inceptionYear>
 	<packaging>jar</packaging>
     
 	<dependencies>

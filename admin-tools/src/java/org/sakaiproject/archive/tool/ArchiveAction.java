@@ -29,10 +29,14 @@ import org.sakaiproject.archive.tool.model.SparseFile;
 import org.sakaiproject.archive.tool.model.SparseSite;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.cheftool.*;
 import org.sakaiproject.cheftool.api.Menu;
+import org.sakaiproject.cheftool.Context;
+import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.menu.MenuEntry;
 import org.sakaiproject.cheftool.menu.MenuImpl;
+import org.sakaiproject.cheftool.RunData;
+import org.sakaiproject.cheftool.VelocityPortlet;
+import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.coursemanagement.api.AcademicSession;
@@ -61,7 +65,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -69,9 +82,7 @@ import lombok.extern.slf4j.Slf4j;
 * <p>ArchiveAction is the Sakai archive tool.</p>
 */
 @Slf4j
-public class ArchiveAction
-	extends VelocityPortletPaneledAction
-{
+public class ArchiveAction extends VelocityPortletPaneledAction {
 
 	private static final long serialVersionUID = 1L;
 	private static final String STATE_MODE = "mode";
@@ -177,7 +188,7 @@ public class ArchiveAction
 	public String buildSingleModeContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)									
 	{
 		context.put("tlang",rb);
-		buildMenu(context);
+		buildMenu(context, SINGLE_MODE);
 		
 		return "";
 
@@ -189,7 +200,7 @@ public class ArchiveAction
 	public String buildBatchModeContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
 	{
 		context.put("tlang",rb);
-		buildMenu(context);
+		buildMenu(context, BATCH_MODE);
 		
 		//check if we are already running. Template will render just the message if so
 		String statusMessage = getCurrentBatchArchiveStatusMessage();
@@ -211,6 +222,7 @@ public class ArchiveAction
 	public String buildBatchModeArchiveConfirmContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
 	{
 		context.put("tlang",rb);
+		buildMenu(context, BATCH_ARCHIVE_CONFIRM_MODE);
 		
 		//go to template
 		return "-batch-archive-confirm";
@@ -222,7 +234,7 @@ public class ArchiveAction
 	public String buildDownloadContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
 	{
 		context.put("tlang",rb);
-		buildMenu(context);
+		buildMenu(context, DOWNLOAD_MODE);
 		
 		//get list of existing archives
 		Collection<File> files = Collections.<File>emptySet();
@@ -347,6 +359,9 @@ public class ArchiveAction
 			&&	(file != null) && (file.trim().length() > 0))
 		{
 			String msg = archiveService.merge(file.trim(), id.trim(), null);
+			if (StringUtils.isBlank(msg)) {
+				msg = rb.getFormattedMessage("archive.import3", new Object[]{file});
+			}
 			addAlert(state, rb.getFormattedMessage("archive.import2", new Object[]{file, id}) + msg);
 		}
 		else
@@ -679,23 +694,37 @@ public class ArchiveAction
     }
 	
     
-    /**
-     * Build the top level menu
-     * @param context
-     */
-    private void buildMenu(Context context) {
-    	//build the menu
+	/**
+	 * Build the top level menu
+	 * @param context
+	 */
+	private void buildMenu(Context context, String page) {
+		//build the menu
 		Menu bar = new MenuImpl();
-		bar.add(new MenuEntry(rb.getString("archive.button.single"), "doView_single"));
-		bar.add(new MenuEntry(rb.getString("archive.button.batch"), "doView_batch"));
-		bar.add(new MenuEntry(rb.getString("archive.button.download"), "doView_download"));
+		MenuEntry single = new MenuEntry(rb.getString("archive.button.single"), "doView_single");
+		MenuEntry batch = new MenuEntry(rb.getString("archive.button.batch"), "doView_batch");
+		MenuEntry download = new MenuEntry(rb.getString("archive.button.download"), "doView_download");
+		switch(page) {
+			case SINGLE_MODE:
+				single.setIsCurrent(true);
+				break;
+			case BATCH_MODE:
+			case BATCH_ARCHIVE_CONFIRM_MODE:
+				batch.setIsCurrent(true);
+				break;
+			case DOWNLOAD_MODE:
+				download.setIsCurrent(true);
+				break;
+			default:
+		}
+		bar.add(single);
+		bar.add(batch);
+		bar.add(download);
 
 		context.put(Menu.CONTEXT_MENU, bar);
-		context.put (Menu.CONTEXT_ACTION, "ArchiveAction");
-    }
-	
-	
-	
+		context.put(Menu.CONTEXT_ACTION, "ArchiveAction");
+	}
+
 }	// ArchiveAction
 
 

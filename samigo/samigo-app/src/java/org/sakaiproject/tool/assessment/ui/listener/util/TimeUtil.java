@@ -21,8 +21,10 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.util;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -44,8 +46,6 @@ import org.sakaiproject.util.ResourceLoader;
 @Slf4j
 public class TimeUtil 
 {
-  private static final String ISO_8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZZ";
-  private static DateTimeFormatter dtf = DateTimeFormat.forPattern(ISO_8601_DATE_FORMAT);
 
   private TimeZone m_client_timezone= null;
   private TimeZone m_server_timezone= null;
@@ -55,47 +55,19 @@ public class TimeUtil
     m_server_timezone= TimeZone.getDefault();
   }
 
-
-  /**
-  * Convert a Date representation of date and time in the server TimeZone 
-  * to String representation of date and time  in client TimeZone
-  * used for display. 
-  * tz1 is the client timezone,  tz2 is the server timezone
-  */
-
-  private String convertFromServerDateToTimeZone2String(SimpleDateFormat ndf, Date tz2Date, TimeZone tz1) {
-    Calendar cal1= new GregorianCalendar(tz1);
-    ndf.setCalendar(cal1);
-    String clientStr= ndf.format(tz2Date);
-
-    return clientStr;
-  }
-
   /*
-   * This will return a formatted date/time with or without adjustment for client time zone.
+   * @deprecated use UserTimeService instead
+   * This will return a formatted date/time without adjustment for client time zone.
    * If instructor is located in Michigan and teaches on Sakai based in Chicago, 
-   * the date should stay stable in the server timezone when using date/time picker. Previous 
-   * behavior meant the date would be constantly manipulated by client timezone because of the
-   * convertFromServerDateToTimeZone2String manipulation below.
    */
-  public String getDisplayDateTime(SimpleDateFormat ndf, Date serverDate, boolean manipulateTimezoneForClient) {
+  public String getDisplayDateTime(SimpleDateFormat ndf, Date serverDate) {
      //we can't format a null date
     if (serverDate == null) {
       return "";
     }
     
     try {
-      if (manipulateTimezoneForClient && m_client_timezone !=null && m_server_timezone!=null && !m_client_timezone.hasSameRules(m_server_timezone)) {
-        String sdf = ndf.toPattern();
-        // If we are going to manipulate the timezone for client browser, let's be clear and show user the timezone.
-        if (StringUtils.containsNone(sdf, "zZ")) {
-          ndf = new SimpleDateFormat(sdf + " z");
-        }
-        return convertFromServerDateToTimeZone2String (ndf, serverDate, m_client_timezone);
-      }
-      else {
-        return ndf.format(serverDate);
-      }
+      return ndf.format(serverDate);
     }
     catch (RuntimeException e){
       log.warn("can not format the Date to a string", e);
@@ -143,26 +115,42 @@ public class TimeUtil
       }
       return dt.toString(fmt) + " " + dt.toString(fmtTime);
   }
-  
+
   /*
-   * SAM-2323: the jquery-ui datepicker provides a hidden field with ISO-8601 date/time
-   * This method will convert that date string into a Java Date
+   * User could be in a different timezone and modifying dates in the date picker.
+   * We need to take the user date and convert back to server time zone for storage in database.
    */
-  public Date parseISO8601String(String dateString) {
-    if (StringUtils.isBlank(dateString)) {
-      return null;
-    }
+  public Date parseISO8601String(final String dateString) {
+	  if (StringUtils.isBlank(dateString)) {
+		  return null;
+	  }
 
-    try {
-      // Hidden field from the datepicker will look like: 2015-02-19T02:25:00-06:00
-      DateTime dt = dtf.parseDateTime(dateString);
-      return dt.toDate();
-    } catch (Exception e) {
-      log.error("parseISO8601String could not parse: " + dateString);
-    }
+	  try {
+		  // Hidden field from the datepicker will look like: 2015-02-19T02:25:00-06:00
+		  // But that timezone offset is the client browser time zone offset (not necessarily their preferred time zone).
+		  // So bring in the time as LocalDateTime and then do the zone manipulation later.
+		  // 2015-02-19T02:25:00 = 19 characters
+		  final String localDateString = StringUtils.left(dateString, 19);
+		  LocalDateTime ldt = LocalDateTime.parse(localDateString);
+		  log.debug("parseISO8601String: string={}, localdate={}", dateString, ldt.toString());
 
-    return null;
+		  if (ldt != null && m_client_timezone != null && m_server_timezone != null && !m_client_timezone.hasSameRules(m_server_timezone)) {
+			  ZonedDateTime zdt = ldt.atZone(m_client_timezone.toZoneId());
+			  log.debug("parseISO8601String: original={}, zoned={}", dateString, zdt.toString());
+			  return Date.from(zdt.toInstant());
+		  }
+		  else if (ldt != null && m_server_timezone != null) {
+			  ZonedDateTime zdt = ldt.atZone(m_server_timezone.toZoneId());
+			  return Date.from(zdt.toInstant());
+		  }
+		  else if (ldt != null) {
+			  return Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
+		  }
+	  } catch (Exception e) {
+		  log.error("parseISO8601String could not parse: {}", dateString);
+	  }
+
+	  return null;
   }
-
-
+ 
 }

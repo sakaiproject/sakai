@@ -11,17 +11,21 @@
 		<style type="text/css">
 			@import url("/sakai-signup-tool/css/signupStyle.css");
 		</style>
-<h:outputText value="#{Portal.latestJQuery}" escape="false"/>
-		<script TYPE="text/javascript" src="/sakai-signup-tool/js/signupScript.js"></script>		
-		<script TYPE="text/javascript">			
+		<h:outputText value="#{Portal.latestJQuery}" escape="false"/>
+		<script src="/sakai-signup-tool/js/signupScript.js"></script>
+		<script>
 			var lastActivePanel;
 			var lastClickedAddImage;
 			var lastUserInputEid;
 			var defaultColor='black';
 			var predefinedByJSF = "meeting:preSignup:";//tag prefix-id form.name + datatable name
-						
-			
-			
+
+			$(document).ready( function () {
+				var menuLink = $('#signupAddMeetingMenuLink');
+				menuLink.addClass('current');
+				menuLink.html(menuLink.find('a').text());
+			});
+
 			function showHideAddPanel(timeslotId, attendeeIndex){				
 				clearPanel();
 				//hide addImage block
@@ -49,11 +53,11 @@
 				}
 
 		</script>
-		
-		<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>      			
-						
+
 		<sakai:view_content>
 			<h:form id="meeting">
+				<%@ include file="/signup/menu/signupMenu.jsp" %>
+				<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>
 				<div class="page-header">
 			 		<sakai:view_title value="#{msgs.event_assign_attendee_page_title}"/>
 				</div>
@@ -61,14 +65,8 @@
 				<h:panelGrid columns="2" style="margin-top:20px;margin-bottom:20px;" columnClasses="titleColumn,valueColumn">
 					<h:outputText value="#{msgs.event_date}" styleClass="titleText" escape="false"/>
 					<h:panelGroup>
-						<h:outputText value="#{NewSignupMeetingBean.signupMeeting.startTime}" styleClass="longtext">
-							<f:convertDateTime pattern="EEEEEEEE, " timeZone="#{UserTimeZone.userTimeZone}"/>
-				 		</h:outputText>
-						<h:outputText value="#{NewSignupMeetingBean.signupMeeting.startTime}" styleClass="longtext">
-							<f:convertDateTime dateStyle="long" timeZone="#{UserTimeZone.userTimeZone}"/>
-				 		</h:outputText>
 				 		<h:outputText value="#{NewSignupMeetingBean.signupMeeting.startTime}" styleClass="longtext">
-							<f:convertDateTime pattern=", h:mm a" timeZone="#{UserTimeZone.userTimeZone}"/>
+							<f:convertDateTime pattern="#{UserLocale.fullDateTimeFormat}" timeZone="#{UserTimeZone.userTimeZone}"/>
 				 		</h:outputText>
 				 	</h:panelGroup>
 				 	
@@ -106,20 +104,20 @@
 						</f:facet>
 						<h:panelGroup>
 				   			<h:outputText value="#{timeSlot.timeSlot.startTime}" styleClass="longtext">
-								<f:convertDateTime pattern="h:mm a" timeZone="#{UserTimeZone.userTimeZone}"/>
+								<f:convertDateTime pattern="#{UserLocale.localizedTimeFormat}" timeZone="#{UserTimeZone.userTimeZone}"/>
 							</h:outputText>
 							<h:outputText value="#{timeSlot.timeSlot.startTime}" rendered="#{NewSignupMeetingBean.signupMeeting.meetingCrossDays}">
 									<f:convertDateTime pattern=", EEE" timeZone="#{UserTimeZone.userTimeZone}"/>
 							</h:outputText>
 							<h:outputText value="#{msgs.timeperiod_divider}" escape="false"/>
 							<h:outputText value="#{timeSlot.timeSlot.endTime}" styleClass="longtext">
-								<f:convertDateTime pattern="h:mm a" timeZone="#{UserTimeZone.userTimeZone}"/>
+								<f:convertDateTime pattern="#{UserLocale.localizedTimeFormat}" timeZone="#{UserTimeZone.userTimeZone}"/>
 							</h:outputText>
 							<h:outputText value="#{timeSlot.timeSlot.endTime}" rendered="#{NewSignupMeetingBean.signupMeeting.meetingCrossDays}">
 									<f:convertDateTime pattern=", EEE, " timeZone="#{UserTimeZone.userTimeZone}"/>
 							</h:outputText>
 							<h:outputText value="#{timeSlot.timeSlot.endTime}" rendered="#{NewSignupMeetingBean.signupMeeting.meetingCrossDays}">
-									<f:convertDateTime  dateStyle="short" pattern="#{UserLocale.dateFormat}" timeZone="#{UserTimeZone.userTimeZone}"/>
+									<f:convertDateTime dateStyle="short" pattern="#{UserLocale.dateFormat}" timeZone="#{UserTimeZone.userTimeZone}"/>
 							</h:outputText>
 						</h:panelGroup>		
 			   		</h:column>

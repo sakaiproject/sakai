@@ -10,12 +10,18 @@
 
 <f:view>
 	<sakai:view title="#{msgs.cdfm_default_template_organize}" toolCssHref="/messageforums-tool/css/msgcntr.css">           
-       		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-       		<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
-       		<script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
+       		<script>includeLatestJQuery("msgcntr");</script>
+       		<script src="/messageforums-tool/js/sak-10625.js"></script>
+       		<script src="/messageforums-tool/js/messages.js"></script>
    <f:verbatim>
-      <script language="javascript">
-      
+      <script>
+         $(document).ready(function() {
+             var menuLink = $('#forumsOrganizeMenuLink');
+             var menuLinkSpan = menuLink.closest('span');
+             menuLinkSpan.addClass('current');
+             menuLinkSpan.html(menuLink.text());
+         });
+
          function updateForums(forumIndexChanged)
          {
          	var numForums = 0;
@@ -124,7 +130,7 @@
       </script>
    </f:verbatim>
       <h:form id="revise">
-		
+			<%@ include file="/jsp/discussionForum/menu/forumsMenu.jsp" %>
 			<!--jsp/discussionForum/area/dfTemplateOrganize.jsp-->
 			<div class="page-header">
 				<h1><sakai:tool_bar_message value="#{msgs.cdfm_default_template_organize}"/></h1>

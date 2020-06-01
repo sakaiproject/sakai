@@ -241,23 +241,23 @@ public class UserDirectoryServiceGetTest extends SakaiKernelTestBase {
         userEdit = userDirectoryService.editUser(localuserId);
         String originalFirstName = userEdit.getFirstName();
         String originalLastName = userEdit.getLastName();
-        userEdit.setFirstName("John");
-        userEdit.setLastName("Sakaiger");
+        userEdit.setFirstName("Aaron");
+        userEdit.setLastName("Zeckoski");
         userDirectoryService.commitEdit(userEdit);
 
         user = userDirectoryService.getUser(localuserId);
-        Assert.assertEquals("John", user.getFirstName());
-        Assert.assertEquals("Sakaiger", user.getLastName());
+        Assert.assertEquals("Aaron", user.getFirstName());
+        Assert.assertEquals("Zeckoski", user.getLastName());
 
         // check https://jira.sakaiproject.org/browse/SAK-20226
         userEdit = userDirectoryService.editUser(localuserId);
-        userEdit.setFirstName("<b>John</b>");
-        userEdit.setLastName("Sakaiger<script>alert(document.cookie)</script>");
+        userEdit.setFirstName("<b>Aaron</b>");
+        userEdit.setLastName("Zeckoski<script>alert(document.cookie)</script>");
         userDirectoryService.commitEdit(userEdit);
 
         user = userDirectoryService.getUser(localuserId);
-        Assert.assertEquals("&lt;b&gt;John&lt;/b&gt;", user.getFirstName());
-        Assert.assertEquals("Sakaiger&lt;script&gt;alert(document.cookie)&lt;/script&gt;", user.getLastName());
+        Assert.assertEquals("Aaron", user.getFirstName());
+        Assert.assertEquals("Zeckoskialert(document.cookie)", user.getLastName());
 
         // Return to where we were.
         userEdit = userDirectoryService.editUser(localuserId);

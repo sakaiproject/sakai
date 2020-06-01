@@ -178,6 +178,7 @@ h2 {
 	background-position: center left;
     background-repeat: no-repeat;
     padding-left: 18px;
+    display: inline !important;
 }
 
 /* icons */

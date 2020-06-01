@@ -1,24 +1,20 @@
 <f:view>
     <sakai:view title="#{msgs['custom.chatroom']}">
         <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
-        <script type="text/javascript" src="/sakai-chat-tool/js/chatscript.js"></script>
-        <script type="text/javascript">
+        <script src="/sakai-chat-tool/js/chatscript.js"></script>
+        <script>
             if ( window.frameElement) window.frameElement.className='wcwmenu';
+            $(document).ready( function () {
+                // Assign the current class to the tab in the template
+                var menuLink = $('#topForm\\:chatMainLink');
+                menuLink.addClass('current');
+                // Remove the link of the current option
+                menuLink.html(menuLink.find('a').text());
+            });
         </script>
         <h:form id="topForm">
             <h:inputHidden id="chatidhidden" value="#{ChatTool.currentChatChannelId}" />
-            <sakai:tool_bar rendered="#{ChatTool.canManageTool || ChatTool.siteChannelCount > 1 || ChatTool.maintainer}">
-                <h:commandLink action="#{ChatTool.processActionListRooms}" rendered="#{ChatTool.canManageTool}">
-                    <h:outputText value="#{msgs.manage_tool}" />
-                </h:commandLink>
-                <h:commandLink action="#{ChatTool.processActionListRooms}" rendered="#{ChatTool.siteChannelCount > 1}">
-                    <h:outputText value="#{msgs.change_room}" />
-                </h:commandLink>
-                <h:commandLink rendered="#{ChatTool.maintainer}"
-                action="#{ChatTool.processActionPermissions}">
-                    <h:outputText value="#{msgs.permis}" />
-                </h:commandLink>
-            </sakai:tool_bar>
+            <%@ include file="chatMenu.jsp" %>
             <div class="panel panel-chat panel-default">
                 <div class="panel-heading">
                     <sakai:instruction_message value="#{ChatTool.datesMessage}" rendered="#{ChatTool.datesMessage ne null}" />

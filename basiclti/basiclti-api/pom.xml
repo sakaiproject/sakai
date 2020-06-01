@@ -5,17 +5,12 @@
     <parent>
         <artifactId>basiclti</artifactId>
         <groupId>org.sakaiproject.basiclti</groupId>
-        <version>20-SNAPSHOT</version>
+        <version>21-SNAPSHOT</version>
     </parent>
 
     <name>BasicLTI API (basiclti-api)</name>
     <groupId>org.sakaiproject.basiclti</groupId>
     <artifactId>basiclti-api</artifactId>
-    <organization>
-        <name>University of Michigan</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2011</inceptionYear>
     <packaging>jar</packaging>
     
     <properties>

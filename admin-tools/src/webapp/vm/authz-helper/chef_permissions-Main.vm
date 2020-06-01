@@ -12,7 +12,7 @@
 		<div class="sak-banner-error">
 			$thelp.getString("gen.alert")
 			## We do fallback message here so there is no chance of it not being set.
-			#if ($alertMessage) $validator.escapeHtml($alertMessage)
+			#if ($alertMessage) $formattedText.escapeHtml($alertMessage)
 			#else $thelp.getString("alert.prbset")
 			#end
 		</div>

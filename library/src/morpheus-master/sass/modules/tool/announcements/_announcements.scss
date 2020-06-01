@@ -29,4 +29,12 @@
 		border: 1px solid darken( $tool-background-color, 10% );
 		border-radius: 4px;		
 	}
+	#groupTable{
+		button.multiselect-clear-filter{
+			padding: 6px 12px;
+			font-size: 14px;
+			line-height: 1.42857143;
+			background-color: #eee;
+		}
+	}
 }

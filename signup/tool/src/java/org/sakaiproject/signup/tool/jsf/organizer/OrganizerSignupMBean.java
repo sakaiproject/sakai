@@ -19,10 +19,12 @@
 
 package org.sakaiproject.signup.tool.jsf.organizer;
 
+import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import javax.faces.component.UIData;
 import javax.faces.component.UIInput;
@@ -273,17 +275,18 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 	 * @return
 	 */
 	private AttendeeWrapper findAttendee(String timeslotId, String userId) {
-		if (getTimeslotWrappers() == null || getTimeslotWrappers().isEmpty())
+		List<TimeslotWrapper> timeslotWrappers = getTimeslotWrappers();
+		if (timeslotWrappers == null || timeslotWrappers.isEmpty()) {
 			return null;
+		}
 
-		String timeslotPeriod = null;
-		for (TimeslotWrapper wrapper : getTimeslotWrappers()) {
+		Locale userLocale = Utilities.rb.getLocale();
+
+		for (TimeslotWrapper wrapper : timeslotWrappers) {
 			if (wrapper.getTimeSlot().getId().toString().equals(timeslotId)) {
-				timeslotPeriod = getSakaiFacade().getTimeService().newTime(
-						wrapper.getTimeSlot().getStartTime().getTime()).toStringLocalTime()
+				String timeslotPeriod = getSakaiFacade().getTimeService().timeFormat(wrapper.getTimeSlot().getStartTime(), userLocale, DateFormat.SHORT)
 						+ " - "
-						+ getSakaiFacade().getTimeService().newTime(wrapper.getTimeSlot().getEndTime().getTime())
-								.toStringLocalTime();
+						+ getSakaiFacade().getTimeService().timeFormat(wrapper.getTimeSlot().getEndTime(), userLocale, DateFormat.SHORT);
 				List<AttendeeWrapper> attWrp = wrapper.getAttendeeWrappers();
 				for (AttendeeWrapper att : attWrp) {
 					if (att.getSignupAttendee().getAttendeeUserId().equals(userId)) {
@@ -522,7 +525,7 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 
 		List<SelectItem> list = new ArrayList<SelectItem>();
 		for (TimeslotWrapper wrapper : timeslotWrapperList) {
-			list.add(new SelectItem(wrapper.getTimeSlot().getId().toString(), wrapper.getLabel()));
+			list.add(new SelectItem(wrapper.getTimeSlot().getId().toString(), wrapper.getLabel(sakaiFacade)));
 		}
 
 		/*
@@ -541,7 +544,7 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 	private void createUISwapListForEachTimeSlot(List<TimeslotWrapper> timeslotWrapperList) {
 		List<SelectItem> tsAttendeeGroups = new ArrayList<SelectItem>();
 		for (TimeslotWrapper wrapper : timeslotWrapperList) {
-			String grpLabel = wrapper.getLabel();
+			String grpLabel = wrapper.getLabel(sakaiFacade);
 			List<SelectItem> attendeeOnTS = new ArrayList<SelectItem>();
 			
 			//clean the list of attendees

@@ -21,7 +21,7 @@ $Id: audioRecordingPopup.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
 **********************************************************************************/
 --%>
 
-<script type="text/javascript">
+<script>
     $(document).ready(function() {
         var localeLanguage = <h:outputText value="'#{person.localeLanguage}'" escape="false"/>;
         var localeCountry = <h:outputText value="'#{person.localeCountry}'" escape="false"/>;

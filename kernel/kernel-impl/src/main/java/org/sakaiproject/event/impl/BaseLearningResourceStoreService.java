@@ -91,7 +91,7 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
         providers = new ConcurrentHashMap<String, LearningResourceStoreProvider>();
         // search for known providers
         if (isEnabled() && applicationContext != null) {
-            Map<String, LearningResourceStoreProvider> beans = applicationContext.getBeansOfType(LearningResourceStoreProvider.class);
+            Map<String, LearningResourceStoreProvider> beans = applicationContext.getBeansOfType(LearningResourceStoreProvider.class, true, false);
             for (LearningResourceStoreProvider lrsp : beans.values()) {
                 if (lrsp != null) { // should not be null but this avoids killing everything if it is
                     registerProvider(lrsp);

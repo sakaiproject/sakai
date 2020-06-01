@@ -292,11 +292,14 @@ import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
     Date scoreDate = accessControl.getScoreDate();
     Date restractDate = accessControl.getRetractDate();
     Date feedbackDate = accessControl.getFeedbackDate();
+    Date feedbackEndDate = accessControl.getFeedbackDate();
     assessmentXml.setFieldentry("END_DATE", formatDate(dueDate));
     assessmentXml.setFieldentry("FEEDBACK_DELIVERY_DATE",
                                 formatDate(feedbackDate));
     assessmentXml.setFieldentry("RETRACT_DATE", formatDate(restractDate));
     assessmentXml.setFieldentry("START_DATE", formatDate(startDate));
+    assessmentXml.setFieldentry("FEEDBACK_DELIVERY_END_DATE",
+                                formatDate(feedbackEndDate));
 
     //MAX_ATTEMPTS
     Integer submissionsAllowed = accessControl.getSubmissionsAllowed();

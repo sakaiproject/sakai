@@ -5,17 +5,12 @@
 	<parent>
 		<groupId>org.sakaiproject.samigo</groupId>
 		<artifactId>samigo</artifactId>
-		<version>20-SNAPSHOT</version>
+		<version>21-SNAPSHOT</version>
 	</parent>
     
 	<name>Sakai Samigo Hibernate POJO (samigo-hibernate)</name>
 	<groupId>org.sakaiproject.samigo</groupId>
 	<artifactId>samigo-hibernate</artifactId>
-	<organization>
-		<name>Sakai Project</name>
-		<url>http://sakaiproject.org/</url>
-	</organization>
-	<inceptionYear>2005</inceptionYear>
 	<packaging>jar</packaging>
     
 	<properties>
@@ -30,6 +25,10 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
         </dependency>
 	</dependencies>
     

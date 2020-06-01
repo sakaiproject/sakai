@@ -4,17 +4,12 @@
   <name>Sakai Entity Broker API</name>
   <groupId>org.sakaiproject.entitybroker</groupId>
   <artifactId>entitybroker-api</artifactId>
-  <organization>
-    <name>Sakai Project</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2007</inceptionYear>
   <packaging>jar</packaging>
 <!-- the base is parent -->
   <parent>
     <artifactId>entitybroker</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>20-SNAPSHOT</version><!--entitybroker.version-->
+    <version>21-SNAPSHOT</version><!--entitybroker.version-->
   </parent>
   <properties>
     <deploy.target>shared</deploy.target>

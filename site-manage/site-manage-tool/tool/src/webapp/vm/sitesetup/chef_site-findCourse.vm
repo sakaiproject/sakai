@@ -12,7 +12,7 @@
 		$tlang.getString("nscourse.findCourse") - $term.title
 	</p>
 		
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $alertMessage</div>#end
 		   #if ($selectedProviderCourse || $cmRequestedSections)
 				<p>
 					$tlang.getString("sitegen.addcourse.you")

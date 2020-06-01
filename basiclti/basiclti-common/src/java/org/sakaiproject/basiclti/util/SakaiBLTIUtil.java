@@ -70,6 +70,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
 import org.tsugi.basiclti.BasicLTIConstants;
@@ -78,6 +79,7 @@ import org.tsugi.jackson.JacksonUtil;
 import org.tsugi.lti13.DeepLinkResponse;
 import org.tsugi.lti13.LTI13KeySetUtil;
 import org.tsugi.lti13.LTI13Util;
+import org.tsugi.lti13.LTI13JwtUtil;
 import org.tsugi.lti13.objects.BasicOutcome;
 import org.tsugi.lti13.objects.Context;
 import org.tsugi.lti13.objects.DeepLink;
@@ -141,8 +143,11 @@ public class SakaiBLTIUtil {
 	public static final String BASICLTI_LTI11_LAUNCH_TYPE_LTI112 = "lti112";
 	public static final String BASICLTI_LTI11_LAUNCH_TYPE_DEFAULT = BASICLTI_LTI11_LAUNCH_TYPE_LEGACY;
 
-	public static final String LTI1_PATH = "/imsblis/service/";
+	public static final String LTI11_SERVICE_PATH = "/imsblis/service/";
 	public static final String LTI13_PATH = "/imsblis/lti13/";
+
+	// The path for servlet bits that neither sets nor uses cookies
+	public static final String LTI1_ANON_PATH = "/imsoidc/lti11/";
 
 		public static boolean rosterEnabled() {
 			String allowRoster = ServerConfigurationService.getString(BASICLTI_ROSTER_ENABLED, BASICLTI_ROSTER_ENABLED_DEFAULT);
@@ -452,7 +457,7 @@ public class SakaiBLTIUtil {
 			// Fix up the return Url
 			String returnUrl = ServerConfigurationService.getString("basiclti.consumer_return_url", null);
 			if (returnUrl == null) {
-				returnUrl = getOurServerUrl() + LTI1_PATH + "return-url";
+				returnUrl = getOurServerUrl() + LTI1_ANON_PATH + "return-url";
 				Session s = SessionManager.getCurrentSession();
 				if (s != null) {
 					String controllingPortal = (String) s.getAttribute("sakai-controlling-portal");
@@ -676,12 +681,12 @@ public class SakaiBLTIUtil {
 						// New Basic Outcomes URL
 						String outcome_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lis_basic_outcome_url", null);
 						if (outcome_url == null) {
-							outcome_url = getOurServerUrl() + LTI1_PATH;
+							outcome_url = getOurServerUrl() + LTI11_SERVICE_PATH;
 						}
 						setProperty(props, "ext_ims_lis_basic_outcome_url", outcome_url);
 						outcome_url = ServerConfigurationService.getString("basiclti.consumer." + BasicLTIConstants.LIS_OUTCOME_SERVICE_URL, null);
 						if (outcome_url == null) {
-							outcome_url = getOurServerUrl() + LTI1_PATH;
+							outcome_url = getOurServerUrl() + LTI11_SERVICE_PATH;
 						}
 						setProperty(props, BasicLTIConstants.LIS_OUTCOME_SERVICE_URL, outcome_url);
 					}
@@ -691,7 +696,7 @@ public class SakaiBLTIUtil {
 
 						String service_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lti_tool_setting_url", null);
 						if (service_url == null) {
-							service_url = getOurServerUrl() + LTI1_PATH;
+							service_url = getOurServerUrl() + LTI11_SERVICE_PATH;
 						}
 						setProperty(props, "ext_ims_lti_tool_setting_url", service_url);
 					}
@@ -701,7 +706,7 @@ public class SakaiBLTIUtil {
 
 						String roster_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lis_memberships_url", null);
 						if (roster_url == null) {
-							roster_url = getOurServerUrl() + LTI1_PATH;
+							roster_url = getOurServerUrl() + LTI11_SERVICE_PATH;
 						}
 						setProperty(props, "ext_ims_lis_memberships_url", roster_url);
 					}
@@ -937,15 +942,16 @@ public class SakaiBLTIUtil {
 				String theRole = getRoleString(context);
 				log.debug("theRole={}", theRole);
 				if (allowoutcomes == 1) {
+					setProperty(ltiProps, "ext_outcome_data_values_accepted", "text");  // SAK-25696
 					// New Basic Outcomes URL
 					String outcome_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lis_basic_outcome_url", null);
 					if (outcome_url == null) {
-						outcome_url = getOurServerUrl() + LTI1_PATH;
+						outcome_url = getOurServerUrl() + LTI11_SERVICE_PATH;
 					}
 					setProperty(ltiProps, "ext_ims_lis_basic_outcome_url", outcome_url);
 					outcome_url = ServerConfigurationService.getString("basiclti.consumer." + BasicLTIConstants.LIS_OUTCOME_SERVICE_URL, null);
 					if (outcome_url == null) {
-						outcome_url = getOurServerUrl() + LTI1_PATH;
+						outcome_url = getOurServerUrl() + LTI11_SERVICE_PATH;
 					}
 					setProperty(ltiProps, BasicLTIConstants.LIS_OUTCOME_SERVICE_URL, outcome_url);
 
@@ -960,7 +966,7 @@ public class SakaiBLTIUtil {
 
 					String service_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lti_tool_setting_url", null);
 					if (service_url == null) {
-						service_url = getOurServerUrl() + LTI1_PATH;
+						service_url = getOurServerUrl() + LTI11_SERVICE_PATH;
 					}
 					setProperty(ltiProps, "ext_ims_lti_tool_setting_url", service_url);
 				}
@@ -970,7 +976,7 @@ public class SakaiBLTIUtil {
 
 					String roster_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lis_memberships_url", null);
 					if (roster_url == null) {
-						roster_url = getOurServerUrl() + LTI1_PATH;
+						roster_url = getOurServerUrl() + LTI11_SERVICE_PATH;
 					}
 					setProperty(ltiProps, "ext_ims_lis_memberships_url", roster_url);
 				}
@@ -978,6 +984,11 @@ public class SakaiBLTIUtil {
 			}
 
 			Properties custom = new Properties();
+
+			String contentCustom = (String) content.get(LTIService.LTI_CUSTOM);
+			contentCustom = adjustCustom(contentCustom);
+			mergeLTI1Custom(custom, contentCustom);
+
 			String toolCustom = (String) tool.get(LTIService.LTI_CUSTOM);
 			toolCustom = adjustCustom(toolCustom);
 			mergeLTI1Custom(custom, toolCustom);
@@ -1059,7 +1070,47 @@ public class SakaiBLTIUtil {
 			return contentItem;
 		}
 
-			/**
+		/**
+		 * getPublicKey - Get the appropriate public key for use for an incoming request
+		 */
+		public static Key getPublicKey(Map<String, Object> tool, String id_token)
+		{
+			JSONObject jsonHeader = LTI13JwtUtil.jsonJwtHeader(id_token);
+			if (jsonHeader == null) {
+				throw new RuntimeException("Could not parse Jwt Header in client_assertion");
+			}
+			String incoming_kid = (String) jsonHeader.get("kid");
+
+			String tool_keyset = (String) tool.get(LTIService.LTI13_TOOL_KEYSET);
+			String tool_public = (String) tool.get(LTIService.LTI13_TOOL_PUBLIC);
+			if (tool_keyset == null && tool_public == null) {
+				throw new RuntimeException("Could not find tool keyset url or stored public key");
+			}
+
+			Key publicKey = null;
+			if ( tool_keyset != null ) {
+				log.debug("Retrieving kid="+incoming_kid+" from "+tool_keyset);
+
+				// TODO: Read from Earle's super-cluster-cache one day - SAK-43700
+				try {
+					publicKey = LTI13KeySetUtil.getKeyFromKeySet(incoming_kid, tool_keyset);
+				} catch (Exception e) {
+					log.error(e.getMessage(), e);
+					// Sorry - too many exceptions to explain here - lets keep it simple after logging it
+					throw new RuntimeException("Unable to retrieve kid="+incoming_kid+" from "+tool_keyset+" detail="+e.getMessage());
+				}
+				// TODO: Store in Earle's super-cluster-cache one day - SAK-43700
+
+			} else {
+				publicKey = LTI13Util.string2PublicKey(tool_public);
+				if (publicKey == null) {
+					throw new RuntimeException("Could not deserialize tool public key");
+				}
+			}
+			return publicKey;
+		}
+
+		/**
 		 * Create a ContentItem from the current request (may throw runtime)
 		 */
 		public static DeepLinkResponse getDeepLinkFromToken(Map<String, Object> tool, String id_token) {
@@ -1083,15 +1134,8 @@ public class SakaiBLTIUtil {
 				log.warn(lti_errorlog);
 			}
 
-			String publicKeyStr = (String) tool.get(LTIService.LTI13_TOOL_PUBLIC);
-			if (publicKeyStr == null) {
-				throw new RuntimeException("Could not find tool public key");
-			}
-
-			Key publicKey = LTI13Util.string2PublicKey(publicKeyStr);
-			if (publicKey == null) {
-				throw new RuntimeException("Could not deserialize tool public key");
-			}
+			// May throw a RunTimeException on our behalf :)
+			Key publicKey = SakaiBLTIUtil.getPublicKey(tool, id_token);
 
 			// Fill up the object, validate and return
 			DeepLinkResponse dlr = new DeepLinkResponse(id_token);
@@ -1274,6 +1318,8 @@ public class SakaiBLTIUtil {
 			if (placementId == null) {
 				return postError("<p>" + getRB(rb, "error.missing", "Error, missing placementId") + "</p>");
 			}
+			FormattedText formattedText = ComponentManager.get(FormattedText.class);
+			placementId = formattedText.escapeHtml(placementId);
 			ToolConfiguration placement = SiteService.findTool(placementId);
 			if (placement == null) {
 				return postError("<p>" + getRB(rb, "error.load", "Error, cannot load placement=") + placementId + ".</p>");
@@ -1473,7 +1519,7 @@ public class SakaiBLTIUtil {
 	ext_ims_lis_memberships_url: http://localhost:8080/imsblis/service/
 	ext_ims_lti_tool_setting_id: c1007fb6345a87cd651785422a2925114d0707fad32c66edb6bfefbf2165819a:::admin:::content:3
 	ext_ims_lti_tool_setting_url: http://localhost:8080/imsblis/service/
-	ext_lms: sakai-20-SNAPSHOT
+	ext_lms: sakai-21-SNAPSHOT
 	ext_sakai_academic_session: OTHER
 	ext_sakai_launch_presentation_css_url_list: http://localhost:8080/library/skin/tool_base.css,http://localhost:8080/library/skin/morpheus-default/tool.css?version=49b21ca5
 	ext_sakai_role: maintain
@@ -2039,6 +2085,7 @@ public class SakaiBLTIUtil {
 				retval = retMap;
 			} else if (isDelete) {
 				g.setAssignmentScoreString(siteId, assignmentObject.getId(), user_id, null, "External Outcome");
+				g.setAssignmentScoreComment(siteId, assignmentObject.getId(), user_id, null);
 				log.info("Delete Score site={} assignment={} user_id={}", siteId, assignment, user_id);
 				message = "Result deleted";
 				retval = Boolean.TRUE;
@@ -2128,6 +2175,8 @@ public class SakaiBLTIUtil {
 				retval = retMap;
 			} else if (isDelete) {
 				g.setAssignmentScoreString(siteId, assignmentObject.getId(), user_id, null, "External Outcome");
+				g.setAssignmentScoreComment(siteId, assignmentObject.getId(), user_id, null);
+
 				log.info("Delete Score site={} assignment={} user_id={}", siteId, assignment, user_id);
 				message = "Result deleted";
 				retval = Boolean.TRUE;
@@ -2169,7 +2218,7 @@ public class SakaiBLTIUtil {
 				if (gAssignment.isExternallyMaintained()) {
 					continue;
 				}
-				if (assignment.equals(gAssignment.getName())) {
+				if (assignment.trim().equalsIgnoreCase(gAssignment.getName().trim())) {
 					assignmentObject = gAssignment;
 					break;
 				}
@@ -2357,7 +2406,8 @@ public class SakaiBLTIUtil {
 					}
 				}
 			}
-			retval.setProperty(BASICLTI_PORTLET_ASSIGNMENT, (String) content.get("title"));
+			String aTitle = (String) content.get("title");
+			retval.setProperty(BASICLTI_PORTLET_ASSIGNMENT, aTitle.trim());
 		}
 		return retval;
 	}

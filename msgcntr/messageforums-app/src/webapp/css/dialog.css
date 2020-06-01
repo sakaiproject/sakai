@@ -73,3 +73,9 @@
   background-color: rgb(238, 238, 238);
   /* z-index: 1001;*/
 }
+
+.closeDialogFrame {
+  float: right;
+  margin-bottom : 3px !important;
+}
+

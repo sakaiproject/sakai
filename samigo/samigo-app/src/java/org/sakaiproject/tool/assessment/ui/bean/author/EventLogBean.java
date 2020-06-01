@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.faces.model.SelectItem;
 
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +30,10 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 
+/* Event Log backing bean. */
 @Slf4j
+@ManagedBean(name="eventLog")
+@SessionScoped
 public class EventLogBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;

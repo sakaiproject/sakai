@@ -9,9 +9,18 @@
   <sakai:view title="#{msgs.pvt_msgs_label} #{msgs.pvt_create_folder}">
 <!--jsp/privateMsg/pvtMsgFolderAdd.jsp-->
 		<h:form id="pvtMsgFolderAdd">
-		       		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-					<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
-					<script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
+		       		<script>includeLatestJQuery("msgcntr");</script>
+					<script src="/messageforums-tool/js/sak-10625.js"></script>
+					<script src="/messageforums-tool/js/messages.js"></script>
+					<script>
+						$(document).ready(function() {
+							var menuLink = $('#messagesNewFolderMenuLink');
+							var menuLinkSpan = menuLink.closest('span');
+							menuLinkSpan.addClass('current');
+							menuLinkSpan.html(menuLink.text());
+						});
+					</script>
+					<%@ include file="/jsp/privateMsg/pvtMenu.jsp" %>
 			  <sakai:tool_bar_message value="#{msgs.pvt_msgs_label} #{msgs.pvt_create_folder}" />
 			 
 				<div class="instruction">

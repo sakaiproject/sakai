@@ -17,71 +17,37 @@
 <div class="portletBody">
 	#if($menu)#toolbar($menu)#end
 	#if ($alertMessage)
-		<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
+		<div class="sak-banner-warn">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>
 	#end
 	#if ($noEvent=="true")
 		## this event doesn't exist. show nothing.
-		
+
 	#elseif ($notOpenEvent=="true")
-		## Permission error occured. Don't show event details but show navigations.
-		<form name="navigatorform" action="#toolForm("$action")" method="post">
-		<div class="navPanel">
-			<div class="itemNav" >
-				#if ($!prevAct)
-					<input type="submit" name="eventSubmit_doPrev_activity" value="$tlang.getString('det.lasact')" />
-				#else
-					<input type="submit" name="eventSubmit_doPrev_activity" value="$tlang.getString('det.lasact')" disabled="disabled" />
-				#end
-				<input type="submit" name="eventSubmit_doToday" value="$tlang.getString('view.gotoday')" />
-				<a href="#" onclick="location='#toolLink("$action" "doOk")';return false;"><input type="button" value="$tlang.getString("gen.backtolist")" /></a>
-				#if ($!nextAct)
-				<input type="submit" name="eventSubmit_doNext_activity" value="$tlang.getString('det.nexact')" />
-				#else
-				<input type="submit" name="eventSubmit_doNext_activity" value="$tlang.getString('det.nexact')" disabled="disabled" />
-				#end
-			</div>
-		</div>	
-		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-	</form>
-	<h3>$validator.escapeHtml($event.getDisplayName())</h3>
+	## Permission error occured. Don't show event details but show navigations.
+	<h1>$formattedText.escapeHtml($event.getDisplayName())</h1>
+	<div class="navPanel">
 		<div class="itemNav" >
-					<form name="navigatorform" action="#toolForm("$action")" method="post" class="inlineForm">
-						#if ($!prevAct)
-						<input type="submit" name="eventSubmit_doPrev_activity" value="$tlang.getString('det.lasact')" />
-						#else
-						<input type="submit" name="eventSubmit_doPrev_activity" value="$tlang.getString('det.lasact')" disabled="disabled" />
-						#end
-						<input type="submit" name="eventSubmit_doToday" value="$tlang.getString('view.gotoday')" />
-						<a href="#" onclick="location='#toolLink("$action" "doOk")';return false;"><input type="button" value="$tlang.getString("gen.backtolist")" /></a>
-						#if ($!nextAct)
-						<input type="submit" name="eventSubmit_doNext_activity" value="$tlang.getString('det.nexact')" />
-						#else
-						<input type="submit" name="eventSubmit_doNext_activity" value="$tlang.getString('det.nexact')" disabled="disabled" />
-						#end
-						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-					</form>	
-		</div>
-	#else
-	<form name="navigatorform" action="#toolForm("$action")" method="post">
-		<div class="navPanel">
-			<div class="itemNav" >
-				#if ($!prevAct)
-					<input type="submit" name="eventSubmit_doPrev_activity" value="$tlang.getString('det.lasact')" />
-				#else
-					<input type="submit" name="eventSubmit_doPrev_activity" value="$tlang.getString('det.lasact')" disabled="disabled" />
-				#end
-				<input type="submit" name="eventSubmit_doToday" value="$tlang.getString('view.gotoday')" />
+			<form name="navigatorform" action="#toolForm("$action")" method="post">
+				<input type="submit" name="eventSubmit_doPrev_activity" value="$tlang.getString('det.lasact')" #if(!$prevAct) disabled="disabled" #end />
 				<a href="#" onclick="location='#toolLink("$action" "doOk")';return false;"><input type="button" value="$tlang.getString("gen.backtolist")" /></a>
-				#if ($!nextAct)
-				<input type="submit" name="eventSubmit_doNext_activity" value="$tlang.getString('det.nexact')" />
-				#else
-				<input type="submit" name="eventSubmit_doNext_activity" value="$tlang.getString('det.nexact')" disabled="disabled" />
-				#end
-			</div>
+				<input type="submit" name="eventSubmit_doNext_activity" value="$tlang.getString('det.nexact')" #if(!$nextAct) disabled="disabled" #end />
+				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+			</form>
 		</div>	
-		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-	</form>
-	<h3>$validator.escapeHtml($event.getDisplayName())</h3>
+	</div>
+
+	#else
+	<div class="navPanel">
+		<div class="itemNav">
+			<form name="navigatorform" action="#toolForm("$action")" method="post">
+				<input type="submit" name="eventSubmit_doPrev_activity" value="$tlang.getString('det.lasact')" #if(!$prevAct) disabled="disabled" #end />
+				<a href="#" onclick="location='#toolLink("$action" "doOk")';return false;"><input type="button" value="$tlang.getString("gen.backtolist")" /></a>
+				<input type="submit" name="eventSubmit_doNext_activity" value="$tlang.getString('det.nexact')" #if(!$nextAct) disabled="disabled" #end />
+				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+			</form>	
+		</div>
+	</div>
+	<h1>$formattedText.escapeHtml($event.getDisplayName())</h1>
 	<table class="itemSummary" cellspacing="0" border="0">
 		<tr>
 			<th>$tlang.getString("gen.date")</th> 
@@ -106,7 +72,7 @@
 						$tlang.getString("gen.descr")
 					</th>
 					<td>
-						$validator.escapeHtmlFormattedText($event.DescriptionFormatted)
+						$formattedText.escapeHtmlFormattedText($event.DescriptionFormatted)
 					</td>
 				</tr>	
 			#end
@@ -127,7 +93,7 @@
 								#if ($props.getBooleanProperty($props.NamePropIsCollection))
 									<li><img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="folder" />
 								#else
-									<li><img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$validator.escapeHtml($props.getProperty($props.NamePropContentType))" />
+									<li><img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$formattedText.escapeHtml($props.getProperty($props.NamePropContentType))" />
 								#end
 								
 								#set ($copyflag = false)
@@ -140,10 +106,10 @@
 								#if ($copyflag)
 									## if there is a copyright alert, show the alert page first
 									<a href="" onclick="openCopyrightWindow('${attachment.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false">
-									$validator.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>&#169;
+									$formattedText.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>&#169;
 								#else
 									<a href="$attachment.Url" target="_blank">
-									$validator.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>
+									$formattedText.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>
 								#end
 								
 								#if (!$props.getBooleanProperty($props.NamePropIsCollection))
@@ -179,19 +145,19 @@
 			#if($owner_name && $owner_name !="")
 			<tr>
 				<th>$tlang.getString("gen.owner")</th>
-				<td>$validator.escapeHtml($owner_name)</td>
-         </tr>
+				<td>$formattedText.escapeHtml($owner_name)</td>
+			</tr>
 			#end
 			#if($site_name && $site_name !="")
 			<tr>
 				<th>$tlang.getString("gen.site")</th>
-				<td>$validator.escapeHtml($site_name)</td>
-         </tr>
+				<td>$formattedText.escapeHtml($site_name)</td>
+			</tr>
 			#end
 			#if($event.Location && $event.Location !="")
 				<tr> 
 					 <th>$tlang.getString("new.location")</th>
-					 <td>$validator.escapeHtml($event.Location)</td>
+					 <td>$formattedText.escapeHtml($event.Location)</td>
 				</tr>
 			#end
 			#set ($calObj = $CalendarService.getCalendar($event.CalendarReference))
@@ -204,15 +170,15 @@
 
 			#foreach ($fieldEntry in $addFieldsCalendarsCollection)
 			<tr>
-				<th>$validator.escapeHtml($fieldEntry)</th>
-				<td>$validator.escapeHtml($event.getField($fieldEntry))</td>
+				<th>$formattedText.escapeHtml($fieldEntry)</th>
+				<td>$formattedText.escapeHtml($event.getField($fieldEntry))</td>
 			</tr>
 			#end
 			
 			#if ($!groupRange && !($!groupRange == ""))
 			<tr>
 				<th class="chefLabel">$tlang.getString("groups")</th>
-				<td>$validator.escapeHtml($!groupRange)</td>
+				<td>$formattedText.escapeHtml($!groupRange)</td>
 			</tr>
 			#end
 			#if($assignmenturl && $assignmenturl !="")
@@ -220,42 +186,32 @@
 				<th>$tlang.getString("gen.assignmentlink")</th>
 				<td>
 					<a href="javascript:change_parent_url('$assignmenturl');">
-						$validator.escapeHtml($validator.limit($!assignmentTitle, 40))
+						$formattedText.escapeHtml($validator.limit($!assignmentTitle, 40))
 					</a>
 				</td>
 			</tr>
 			#end
 		</table>
-			<div class="navPanel">
-				<div class="act">
-					<form name="form" action="#toolForm("$action")" method="post" class="inlineForm">
-						#if ($!allowRevise)
-						<input type="submit" name="eventSubmit_doRevise" value="$tlang.getString('gen.revise')" accesskey="e" />
-						#end
-						#if ($!allowDelete)
-						<input type="submit" name="eventSubmit_doDelete" value="$tlang.getString('gen.delete')" accesskey="x" />
-						#end
-						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-					</form>
-				</div>
-				<div class="itemNav" >
-					<form name="navigatorform" action="#toolForm("$action")" method="post" class="inlineForm">
-						#if ($!prevAct)
-						<input type="submit" name="eventSubmit_doPrev_activity" value="$tlang.getString('det.lasact')" />
-						#else
-						<input type="submit" name="eventSubmit_doPrev_activity" value="$tlang.getString('det.lasact')" disabled="disabled" />
-						#end
-						<input type="submit" name="eventSubmit_doToday" value="$tlang.getString('view.gotoday')" />
-						<a href="#" onclick="location='#toolLink("$action" "doOk")';return false;"><input type="button" value="$tlang.getString("gen.backtolist")" /></a>
-						#if ($!nextAct)
-						<input type="submit" name="eventSubmit_doNext_activity" value="$tlang.getString('det.nexact')" />
-						#else
-						<input type="submit" name="eventSubmit_doNext_activity" value="$tlang.getString('det.nexact')" disabled="disabled" />
-						#end
-						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-					</form>	
-				</div>
-
+		<div class="navPanel">
+			<div class="act">
+				<form name="form" action="#toolForm("$action")" method="post" class="inlineForm">
+					#if ($!allowRevise)
+					<input type="submit" class="active" name="eventSubmit_doRevise" value="$tlang.getString('gen.revise')" accesskey="e" />
+					#end
+					#if ($!allowDelete)
+					<input type="submit" name="eventSubmit_doDelete" value="$tlang.getString('gen.delete')" accesskey="x" />
+					#end
+					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+				</form>
 			</div>
+			<div class="itemNav">
+				<form name="navigatorform" action="#toolForm("$action")" method="post">
+					<input type="submit" name="eventSubmit_doPrev_activity" value="$tlang.getString('det.lasact')" #if(!$prevAct) disabled="disabled" #end />
+					<a href="#" onclick="location='#toolLink("$action" "doOk")';return false;"><input type="button" value="$tlang.getString("gen.backtolist")" /></a>
+					<input type="submit" name="eventSubmit_doNext_activity" value="$tlang.getString('det.nexact')" #if(!$nextAct) disabled="disabled" #end />
+					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+				</form>	
+			</div>
+		</div>
 	#end ## if noEvent == true
 </div>

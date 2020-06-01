@@ -3,8 +3,8 @@ Starting a README.md for Samigo
 # Auto Submit
 This feature forces the submission of saved assessments for students who have NO previous submissions (Please also refer to SAK-14474).
 
-This is not a OOTB feature. To turn this on, add
-samigo.autoSubmit.enabled=true to sakai.properties. Also, administrators need to set up a quartz job to auto-submit the assessments.
+This is enabled by default in Sakai 20+.
+samigo.autoSubmit.enabled=false to disable it in sakai.properties. Also, administrators need to set up a quartz job to auto-submit the assessments.
 
 If the autoSubmit is enabled in sakai.properties, there will be a configurable option in the Submissions portion of Settings, deselected by default.
 

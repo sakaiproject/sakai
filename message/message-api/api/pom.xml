@@ -5,18 +5,13 @@
     <parent>
         <artifactId>message</artifactId>
         <groupId>org.sakaiproject.message</groupId>
-        <version>20-SNAPSHOT</version>
+        <version>21-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <name>sakai-message-api</name>
     <groupId>org.sakaiproject.message</groupId>
     <artifactId>sakai-message-api</artifactId>
-    <organization>
-        <name>The Sakai Foundation</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2003</inceptionYear>
     <packaging>jar</packaging>
 
     <properties>

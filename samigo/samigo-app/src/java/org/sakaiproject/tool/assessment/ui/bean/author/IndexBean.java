@@ -29,6 +29,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 
 import lombok.extern.slf4j.Slf4j;
@@ -37,15 +39,11 @@ import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.util.BeanSort;
 
-/**
- * Used to be org.navigoproject.ui.web.form.IndexForm.java
- *
- * @author $author$
- * @version $Id$
- */
+/* For author: Template Index backing bean. */
 @Slf4j
-public class IndexBean implements Serializable
-{
+@ManagedBean(name="templateIndex")
+@SessionScoped
+public class IndexBean implements Serializable {
   private static BeanSort bs;
   private Collection templateList;
   private List sortTemplateList;

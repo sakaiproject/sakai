@@ -39,7 +39,7 @@
 <!-- some back end stuff stubbed -->
 <h:form id="assessmentForm">
 
-<h:messages styleClass="messageSamigo" layout="table"/>
+<h:messages styleClass="sak-banner-error" layout="table"/>
 
  <div class="navView">
     <h3>

@@ -2,18 +2,12 @@
 
 <registration>
 	<tool id="sakai.summary.calendar"
-    	title="Calendar"
-        description="Show a summary of schedule events.">
-    	
-    	<!--
-    	<category name="myworkspace" />
-    	-->
+			title="Calendar"
+			description="Show a summary of schedule events.">
 		
-               <configuration name="reset.button" value="false" type="final" />
+		<configuration name="reset.button" value="false" type="final" />
+		<configuration name="functions.require" value="calendar.read" />
 
-		<!-- <configuration name="help.id" value="sakai.schedule" type="final" /> -->
-
-		<configuration name="functions.require" value="calendar.read" /> 
-
+		<category name="widget" />
 	</tool>
 </registration>

@@ -23,6 +23,7 @@
 package org.sakaiproject.rubrics.security;
 
 import org.aopalliance.intercept.MethodInvocation;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.rubrics.logic.repository.CriterionRepository;
 import org.sakaiproject.rubrics.logic.repository.EvaluationRepository;
 import org.sakaiproject.rubrics.logic.repository.RatingRepository;
@@ -56,11 +57,14 @@ public class CustomMethodSecurityExpressionHandler extends DefaultMethodSecurity
     @Autowired
     private ToolItemRubricAssociationRepository toolItemRubricAssociationRepository;
 
+    @Autowired
+    private SecurityService securityService;
+
     protected MethodSecurityExpressionOperations createSecurityExpressionRoot(
             Authentication authentication, MethodInvocation invocation) {
         CustomMethodSecurityExpressionRoot root =
                 new CustomMethodSecurityExpressionRoot(rubricRepository, criterionRepository, ratingRepository,
-                        evaluationRepository, toolItemRubricAssociationRepository, authentication);
+                        evaluationRepository, toolItemRubricAssociationRepository, securityService, authentication);
         root.setPermissionEvaluator(getPermissionEvaluator());
         root.setTrustResolver(this.trustResolver);
         root.setRoleHierarchy(getRoleHierarchy());

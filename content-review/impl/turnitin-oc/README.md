@@ -151,6 +151,68 @@ assignment.useContentReview=true
 # default: null
 # example: turnitin.oc.may_view_match_submission_info.instructor=true
 
+#turnitin.oc.roles.[TII_ROLE].mapping=SAKAI_ROLE1,SAKAI_ROLE2...
+# Allows you to customize the default Sakai->Turnitin role mapping for user's default permission set when submitting and viewing reports.
+# Note: if a user is an admin, they will automatically be given the role Administrator. If you want to re-map administrators, clear out the mapping
+# like: turnitin.oc.roles.administrator.mapping="" and add "ADMINISTRATOR" to your desired role like: turnitin.oc.roles.instructor.mapping=ADMINISTRATOR,Faculty,Instructor,Mentor,Staff,maintain,Teaching Assistant.
+# Default:
+# turnitin.oc.roles.instructor.mapping=Faculty,Instructor,Mentor,Staff,maintain,Teaching Assistant
+# turnitin.oc.roles.learner.mapping=Learner,Student,access
+# turnitin.oc.roles.editor.mapping=""
+# turnitin.oc.roles.user.mapping=Alumni,guest,Member,Observer,Other
+# turnitin.oc.roles.applicant.mapping=ProspectiveStudent
+# turnitin.oc.roles.administrator.mapping=Administrator,Admin
+# turnitin.oc.roles.undefined.mapping=""
+
 
 # Please make sure the property 'version.sakai' is set correctly
+```
+
+
+### Migrating from another service
+
+In order to allow instructors to continue to have access to old reports using another content review service, like VeriCite, you will need to run both providers and configure existing site properties.
+
+#### Example of how to migrate from VeriCite:
+
+##### Step 1: Piloting Turnitin while running VeriCite as default provider:
+
+Enable both providers and keep VeriCite as the default in sakai.properties:
+```
+contentreview.enabledProviders=TurnitinOC,VeriCite
+contentreview.defaultProvider=VeriCite
+```
+For each site you want to pilot Turnitin, add the site property: `contentreview.provider=TurnitinOC`
+
+##### Step 2: Switching default providers
+
+Run a query to maintain VeriCite as the provider for existing courses (you can limit the scope of sites for this query as much as you like).
+```
+insert into sakai_site_property(SITE_ID, NAME, VALUE)
+select SITE_ID, 'contentreview.provider', 'VeriCite' from sakai_site
+where SITE_ID not in (
+	select SITE_ID from sakai_site_property where name = 'contentreview.provider'
+)
+and IS_USER = 0
+and IS_SPECIAL = 0
+and SITE_ID != '!admin'
+and SITE_ID != 'mercury'
+-- optional restrictions:
+-- and CREATEDON < '2013-08-04'
+-- and TYPE = 'course'
+-- and SITE_ID in (
+--	select SITE_ID from sakai_site_property where NAME = 'term' and VALUE = 'FALL 2013'
+-- )
+```
+Next, switch default provider in sakai.properties and restart Sakai.
+```
+contentreview.defaultProvider=TurnitinOC
+```
+
+##### Step 3: Remove old providers
+
+Once a few terms have passed and instructors no longer need direct access to VeriCite reports, you can remove the sakai.properties for that provider and remove VeriCite from `contentreview.enabledProviders`.
+```
+contentreview.enabledProviders=TurnitinOC
+contentreview.defaultProvider=TurnitinOC
 ```

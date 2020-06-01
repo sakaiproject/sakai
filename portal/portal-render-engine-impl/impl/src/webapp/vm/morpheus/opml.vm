@@ -31,7 +31,7 @@
             <link>${currentSite.siteUrl}</link>
         #else
             <title>Sakai OPML Feed</title>
-            <link>http://www.sakaiproject.org</link>
+            <link>https://www.sakailms.org/</link>
         #end
         ##<dateCreated>Thu, 12 Sep 2003 23:35:52 GMT</dateCreated>
         ##<dateModified>Fri, 12 Sep 2003 23:45:37 GMT</dateModified>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>sakai-googledrive</artifactId>
+        <groupId>org.sakaiproject.googledrive</groupId>
+        <version>21-SNAPSHOT</version>
+    </parent>
+
+    <name>Sakai GoogleDrive Integration - API</name>
+    <groupId>org.sakaiproject.googledrive</groupId>
+    <artifactId>sakai-googledrive-api</artifactId>
+    <packaging>jar</packaging>
+
+    <properties>
+        <deploy.target>shared</deploy.target>
+    </properties>
+
+    <dependencies>
+        <!-- Sakai dependencies -->
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-private</artifactId>
+        </dependency>
+        <!--Other dependencies-->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${sakai.commons.lang3.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+        </dependency>
+    </dependencies>
+    <build />
+</project>

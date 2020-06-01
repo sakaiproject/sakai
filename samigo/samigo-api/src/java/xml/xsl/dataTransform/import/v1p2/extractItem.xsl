@@ -23,17 +23,26 @@
   <lastModifiedDate></lastModifiedDate>
   <presentationLabel><xsl:value-of select="//item/presentation/@label" /></presentationLabel>
   <score>
-    <xsl:value-of
-      select="//resprocessing/outcomes/decvar[@varname='SCORE']/@maxvalue"/>
-    <!-- Respondus multiple correct answer -->
-    <xsl:value-of
-      select="//resprocessing/outcomes/decvar[@varname='que_score']/@maxvalue"/>
-    <!-- Respondus single correct answer -->
-    <xsl:for-each select="//respcondition">
-      <xsl:if test="setvar/@varname='que_score' and setvar/@action='Set'">
-      <xsl:value-of select="setvar"/><!--  if not single adds innocuous '0' -->
-      </xsl:if>
-    </xsl:for-each>
+    <xsl:choose>
+      <xsl:when test="//resprocessing/outcomes/decvar[@varname='SCORE']/@maxvalue &gt; 0">
+        <xsl:value-of select="//resprocessing/outcomes/decvar[@varname='SCORE']/@maxvalue"/>
+      </xsl:when>
+      <!-- Respondus multiple correct answer -->
+      <xsl:when test="//resprocessing/outcomes/decvar[@varname='que_score']/@maxvalue">
+        <xsl:value-of select="//resprocessing/outcomes/decvar[@varname='que_score']/@maxvalue"/>
+      </xsl:when>
+      <!-- Respondus single correct answer -->
+      <xsl:otherwise>
+        <xsl:for-each select="//respcondition">
+          <xsl:if test="setvar/@varname='que_score' and setvar/@action='Set'">
+            <xsl:value-of select="setvar"/>
+          </xsl:if>
+          <xsl:if test="setvar/@varname='SCORE' and setvar/@action='Set'">
+            <xsl:value-of select="setvar"/>
+          </xsl:if>
+        </xsl:for-each>
+      </xsl:otherwise>
+    </xsl:choose>
   </score>
   <discount>
     <xsl:value-of
@@ -125,15 +134,34 @@
   </xsl:for-each>
   <!-- label(s) for correct answer(s), if any -->
   <xsl:for-each select="//respcondition">
-    <xsl:if test="displayfeedback/@linkrefid='Correct'">
-      <itemAnswerCorrectLabel type="list"><xsl:value-of select="conditionvar/varequal"/></itemAnswerCorrectLabel>
-    </xsl:if>
-  </xsl:for-each>
-  <!-- alternate for Respondus questions -->
-  <xsl:for-each select="//respcondition">
-    <xsl:if test="setvar/@varname='que_score' and setvar/@action='Set'">
-      <itemAnswerCorrectLabel type="list"><xsl:value-of select="conditionvar/varequal"/></itemAnswerCorrectLabel>
-    </xsl:if>
+    <xsl:choose>
+      <xsl:when test="displayfeedback/@linkrefid='Correct'">
+        <itemAnswerCorrectLabel type="list">
+          <xsl:value-of select="conditionvar/varequal"/>
+        </itemAnswerCorrectLabel>
+      </xsl:when>
+      <xsl:when test="displayfeedback/@linkrefid='InCorrect'">
+         <!-- Purposefully ignoring incorrect answers -->
+      </xsl:when>
+      <!-- Found in SAK-34033 Cognero -->
+      <xsl:when test="setvar/@varname='SCORE' and setvar/@action='Set'">
+        <xsl:variable name="tempIdentVal">
+          <xsl:value-of select="conditionvar/varequal"/>
+        </xsl:variable>
+        <itemAnswerCorrectLabel type="list">
+          <xsl:for-each select="//response_lid//flow_label/response_label">
+            <xsl:if test="@ident = $tempIdentVal">
+              <xsl:number value="position()" format="A" />
+            </xsl:if>
+          </xsl:for-each>
+        </itemAnswerCorrectLabel>
+      </xsl:when>
+      <!-- alternate for Respondus questions -->
+      <xsl:when test="setvar/@varname='que_score' and setvar/@action='Set'">
+        <itemAnswerCorrectLabel type="list"><xsl:value-of select="conditionvar/varequal"/></itemAnswerCorrectLabel>
+      </xsl:when>
+      <!-- Sorry, couldn't find a correct answer in the XML  ........... -->
+    </xsl:choose>
   </xsl:for-each>
   <!-- matching feedback -->
   <xsl:for-each select="//respcondition">
@@ -153,7 +181,7 @@
   </xsl:for-each>
 
   <!-- answers -->
-  <xsl:for-each select="//presentation//response_lid/render_choice/response_label/material/mattext" >
+  <xsl:for-each select="//presentation//response_lid/render_choice//response_label/material/mattext" >
       <itemAnswer type="list"><xsl:apply-templates mode="itemRichText" /></itemAnswer>
   </xsl:for-each>
   <xsl:for-each select="//respcondition/conditionvar/*[name()='or']/varequal">
@@ -166,6 +194,9 @@
     	</xsl:when>
   	</xsl:choose>
   </xsl:for-each>
+  <xsl:if test="//itemmetadata/qmd_renderingtype='Text entry' and //itemmetadata/qmd_responsetype='Single'">
+    <itemFibAnswer type="list"><xsl:value-of select="//respcondition/conditionvar/varequal"/></itemFibAnswer>
+  </xsl:if>
   <!-- feedback -->
 
   <xsl:for-each select="//itemfeedback">
@@ -283,6 +314,8 @@
         <xsl:when test=".//render_choice and @title='Multiple Correct Single Selection'">Multiple Correct Single Selection</xsl:when>
         <xsl:when test=".//render_choice and @title='Multiple Choice'">Multiple Choice</xsl:when>
         <xsl:when test=".//render_choice and @title='Matrix Choices Survey'">Matrix Choice</xsl:when>
+        <xsl:when test=".//qmd_renderingtype='Choice' and .//qmd_responsetype='Single'">Multiple Choice</xsl:when>
+        <xsl:when test=".//qmd_renderingtype='Choice' and .//qmd_responsetype='Multiple'">Multiple Correct Answer</xsl:when>
         <xsl:otherwise>Short Answers/Essay</xsl:otherwise>
       </xsl:choose>
     </itemIntrospect>

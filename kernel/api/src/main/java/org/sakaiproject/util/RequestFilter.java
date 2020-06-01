@@ -165,14 +165,14 @@ public class RequestFilter implements Filter
 	/** The "." character */
 	protected static final String DOT = ".";
 
-	/** The name of the system property that will be used when setting the value of the session cookie. */
-	protected static final String SAKAI_SERVERID = "sakai.serverId";
+	/** The name of the system property that will be used when setting the Sakai server id. */
+	public static final String SAKAI_SERVERID = "sakai.serverId";
 
 	/** The name of the system property that will be used when setting the name of the session cookie. */
-	protected static final String SAKAI_COOKIE_NAME = "sakai.cookieName";
+	public static final String SAKAI_COOKIE_PROP = "sakai.cookieName";
 
 	/** The name of the system property that will be used when setting the domain of the session cookie. */
-	protected static final String SAKAI_COOKIE_DOMAIN = "sakai.cookieDomain";
+	public static final String SAKAI_COOKIE_DOMAIN = "sakai.cookieDomain";
 
 	/** The name of the Sakai property to disable setting the HttpOnly attribute on the cookie (if false). */
 	protected static final String SAKAI_COOKIE_HTTP_ONLY = "sakai.cookieHttpOnly";
@@ -243,9 +243,9 @@ public class RequestFilter implements Filter
 	protected boolean m_sessionParamAllow = false;
 	protected Pattern m_sessionParamRegex = null;
 
-    /** The name of the cookie we use to keep sakai session. */                                            
-    protected String cookieName = "JSESSIONID";                                                            
-                                                                                                              
+	/** The name of the cookie we use to keep sakai session. */
+	public String cookieName = "JSESSIONID";
+
     protected String cookieDomain = null; 
 
     private ThreadLocalManager threadLocalManager;
@@ -501,7 +501,7 @@ public class RequestFilter implements Filter
 							{
 								c.setSecure(true);
 							}
-							addCookie(resp, c);
+							addCookie(req, resp, c);
 						}
 					}
 
@@ -586,7 +586,7 @@ public class RequestFilter implements Filter
 		{
 			c.setSecure(true);
 		}
-		addCookie(res, c);
+		addCookie(req, res, c);
 
 		// We want the non-decoded ones so we don't have to re-encode.
 		StringBuilder url = new StringBuilder(req.getRequestURI());
@@ -810,9 +810,9 @@ public class RequestFilter implements Filter
 		TERRACOTTA_CLUSTER = "true".equals(clusterTerracotta);
 
 		// retrieve the configured cookie name, if any
-		if (System.getProperty(SAKAI_COOKIE_NAME) != null)
+		if (System.getProperty(SAKAI_COOKIE_PROP) != null)
 		{
-			cookieName = System.getProperty(SAKAI_COOKIE_NAME);
+			cookieName = System.getProperty(SAKAI_COOKIE_PROP);
 		}
 
 		// retrieve the configured cookie domain, if any
@@ -1229,7 +1229,7 @@ public class RequestFilter implements Filter
 			{
 				c.setDomain(cookieDomain);
 			}
-			addCookie(res, c);
+			addCookie(req, res, c);
 		}
 
 		// if we have a session and had no cookie,
@@ -1253,7 +1253,7 @@ public class RequestFilter implements Filter
 				{
 					c.setSecure(true);
 				}
-				addCookie(res, c);
+				addCookie(req, res, c);
 			}
 		}
 
@@ -1424,7 +1424,7 @@ public class RequestFilter implements Filter
 		return suffix;
 	}
 	
-	protected void addCookie(HttpServletResponse res, Cookie cookie) {
+	protected void addCookie(HttpServletRequest req, HttpServletResponse res, Cookie cookie) {
 
 		if (!m_cookieHttpOnly) {
 			// Use the standard servlet mechanism for setting the cookie
@@ -1436,7 +1436,7 @@ public class RequestFilter implements Filter
 
 			ServerCookie.appendCookieValue(sb, cookie.getVersion(), cookie.getName(), cookie.getValue(),
 					cookie.getPath(), cookie.getDomain(), cookie.getComment(),
-					cookie.getMaxAge(), cookie.getSecure(), m_cookieHttpOnly, m_cookieSameSite);
+					cookie.getMaxAge(), cookie.getSecure(), m_cookieHttpOnly, m_cookieSameSite, req.getHeader("user-agent"));
 
 			res.addHeader("Set-Cookie", sb.toString());
 		}

@@ -6,20 +6,16 @@
     <name>COMMONS</name>
     <groupId>org.sakaiproject.commons</groupId>
     <artifactId>commons</artifactId>
-    <version>20-SNAPSHOT</version>
+    <version>21-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
-        <version>20-SNAPSHOT</version>
+        <version>21-SNAPSHOT</version>
         <relativePath>../master/pom.xml</relativePath>
     </parent>
 
-    <organization>
-        <name>Noodle Partners, Inc.</name>
-        <url>http://noodle-partners.com</url>
-    </organization>
 
     <developers>
         <developer>
@@ -29,7 +25,6 @@
     </developers>
 
     <modules>
-        <module>components</module>
         <module>api</module>
         <module>impl</module>
         <module>tool</module>

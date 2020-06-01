@@ -33,6 +33,8 @@ import java.util.Set;
 
 import org.apache.commons.lang3.ArrayUtils;
 import lombok.extern.slf4j.Slf4j;
+import lombok.Getter;
+import lombok.Setter;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 
 import org.sakaiproject.util.ResourceLoader;
@@ -67,6 +69,8 @@ import org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter;
 public class AnswerBean implements Serializable, Comparable{
   private static final long serialVersionUID = 7526471155622776147L;
 
+  @Getter @Setter
+  private Long id;
   private String text;
   private Long sequence;
   private String label;
@@ -85,6 +89,9 @@ public class AnswerBean implements Serializable, Comparable{
   private List attachmentList;
   //for navigation
   private String outcome;
+
+  @Getter @Setter
+  private Long answerFeedbackId;
   
   private String partialCredit = "0";  //to incorporate partial credit
   private static ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");

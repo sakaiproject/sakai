@@ -12,10 +12,10 @@
             <%= request.getAttribute("html.head") %>
             <title><h:outputText value="#{questionPoolMessages.transfer_pool_confirmation}" /></title>
             
-            <script language="javascript" type="text/JavaScript">
+            <script language="javascript">
                 <%@ include file="/js/samigotree.js" %>
             </script>
-            <script type="text/javascript" src="/library/js/spinner.js"></script>
+            <script src="/library/js/spinner.js"></script>
 
             <link rel="stylesheet" type="text/css" href="/samigo-app/css/tool_sam.css">
         </head>
@@ -67,7 +67,7 @@
                             </f:facet>
                             <h:panelGroup id="thirdcolumn">
                                 <h:outputText value="#{pool.lastModified}">
-                                    <f:convertDateTime pattern="#{generalMessages.output_date_picker}" />
+                                    <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
                                 </h:outputText>
                             </h:panelGroup>
                         </h:column>

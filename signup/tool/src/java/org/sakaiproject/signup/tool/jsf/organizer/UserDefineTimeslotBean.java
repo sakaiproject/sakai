@@ -402,17 +402,24 @@ public class UserDefineTimeslotBean implements SignupBeanConstants {
 			if (isoStartTime == null && isoEndTime == null) {
 				while (isoStartTime == null) {
 					position++;
+					if (position > params.size()) {
+						this.validationError = true;
+						tsWrp.setErrorStyle(this.errorStyleValue);
+						Utilities.addErrorMessage(MessageFormat.format(Utilities.rb
+								.getString("event.data_sync_error"), i));
+						return;
+					}
 					isoStartTime = params.get((position - 1) + HIDDEN_ISO_STARTTIME);
 					isoEndTime = params.get((position - 1) + HIDDEN_ISO_ENDTIME);
 				}
 			}
 
 			if(DateFormatterUtil.isValidISODate(isoStartTime)){
-				tsWrp.getTimeSlot().setStartTime(DateFormatterUtil.parseISODate(isoStartTime));
+				tsWrp.getTimeSlot().setStartTime(sakaiFacade.getTimeService().parseISODateInUserTimezone(isoStartTime));
 			}
 			
 			if(DateFormatterUtil.isValidISODate(isoEndTime)){
-				tsWrp.getTimeSlot().setEndTime(DateFormatterUtil.parseISODate(isoEndTime));
+				tsWrp.getTimeSlot().setEndTime(sakaiFacade.getTimeService().parseISODateInUserTimezone(isoEndTime));
 			}
 			Date endTime = tsWrp.getTimeSlot().getEndTime();
 			Date startTime = tsWrp.getTimeSlot().getStartTime();

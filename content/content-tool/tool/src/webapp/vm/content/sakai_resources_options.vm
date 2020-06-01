@@ -17,15 +17,16 @@
 	//-->
 </script>
 <div class="portletBody specialLink">
+	#contentMenu("options")
 	<form name="optionsForm" id="optionsForm" action="#toolForm("ResourcesAction")" method="post" >
 		<input type="hidden" name="sakai_action" id="sakai_action" value="doUpdateOptions" />
 		<input type="hidden" name="siteId" id="siteId" value="$siteId" />
 		######################## ================ Title Bar for Item ================ ########################
 		<h4>
-			$validator.escapeHtml($title)
+			$formattedText.escapeHtml($title)
 		</h4>
 		#if ($itemAlertMessage)
-			<div class="sak-banner-error">$tlang.getString("label.alert") $validator.escapeHtml($itemAlertMessage)</div>
+			<div class="sak-banner-error">$tlang.getString("label.alert") $formattedText.escapeHtml($itemAlertMessage)</div>
 		#end
 		<p class="instruction">
 			$tlang.getString("instr.options") 

@@ -27,37 +27,29 @@ import java.util.Stack;
 
 import org.sakaiproject.entity.api.ContentExistsAware;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import lombok.Setter;
+
 public class ReportDefEntityProducer implements EntityProducer, EntityTransferrer, ContentExistsAware {
-	private ReportManager			M_rm;
+
+	@Setter private EntityManager entityManager;
+	@Setter private ReportManager reportManager;
 		
-	// --- Sakai services --------------------------------
-	
 	public void init() {
-		EntityManager.registerEntityProducer(this, ReportDefEntityProvider.REFERENCE_ROOT);
+		entityManager.registerEntityProducer(this, ReportDefEntityProvider.REFERENCE_ROOT);
 	}
 	
-	public void setReportManager(ReportManager reportManager) {
-		this.M_rm = reportManager;
-	}
-	
-	
-	// --- EntityTransferrer -----------------------------
-	
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.entity.api.EntityTransferrer#myToolIds()
-	 */
 	public String[] myToolIds() {
 		return new String[]{StatsManager.SITESTATS_TOOLID};
 	}
@@ -66,29 +58,26 @@ public class ReportDefEntityProducer implements EntityProducer, EntityTransferre
 		return transferCopyEntities(fromContext, toContext, ids, transferOptions, false);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.entity.api.EntityTransferrer#transferCopyEntities(java.lang.String, java.lang.String, java.util.List, boolean)
-	 */
 	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> transferOptions, boolean cleanup) {
 		// determine report definitions to copy
 		List<ReportDef> list = null;
 		if(ids != null && ids.size() > 0) {
 			list = new ArrayList<ReportDef>();
 			for(String id : (List<String>) ids) {
-				ReportDef rd = M_rm.getReportDefinition(Long.valueOf(id));
+				ReportDef rd = reportManager.getReportDefinition(Long.valueOf(id));
 				if(rd != null) {
 					list.add(rd);
 				}
 			}
 		}else{
-			list = M_rm.getReportDefinitions(fromContext, false, true);
+			list = reportManager.getReportDefinitions(fromContext, false, true);
 		}
 
 		// cleanup existing reports on destination site before copying
 		if(cleanup) {
-			List<ReportDef> listToCleanUp = M_rm.getReportDefinitions(toContext, false, true);
+			List<ReportDef> listToCleanUp = reportManager.getReportDefinitions(toContext, false, true);
 			for(ReportDef rd : listToCleanUp) {
-				M_rm.removeReportDefinition(rd);
+				reportManager.removeReportDefinition(rd);
 			}
 		}
 		
@@ -97,88 +86,53 @@ public class ReportDefEntityProducer implements EntityProducer, EntityTransferre
 			rd.setId(0);
 			rd.setSiteId(toContext);
 			rd.getReportParams().setSiteId(toContext);
-			M_rm.saveReportDefinition(rd);			
+			reportManager.saveReportDefinition(rd);
 		}
 
         return null;
 	}
 	
 	
-	// --- EntityProducer --------------------------------
-
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.entity.api.EntityProducer#getLabel()
-	 */
 	public String getLabel() {
 		return ReportDefEntityProvider.LABEL;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.entity.api.EntityProducer#willArchiveMerge()
-	 */
 	public boolean willArchiveMerge() {
 		return false;
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.entity.api.EntityProducer#archive(java.lang.String, org.w3c.dom.Document, java.util.Stack, java.lang.String, java.util.List)
-	 */
 	public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments) {
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.entity.api.EntityProducer#merge(java.lang.String, org.w3c.dom.Element, java.lang.String, java.lang.String, java.util.Map, java.util.Map, java.util.Set)
-	 */
 	public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans, Set userListAllowImport) {
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.entity.api.EntityProducer#parseEntityReference(java.lang.String, org.sakaiproject.entity.api.Reference)
-	 */
 	public boolean parseEntityReference(String reference, Reference ref) {
 		return false;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.entity.api.EntityProducer#getEntityDescription(org.sakaiproject.entity.api.Reference)
-	 */
 	public String getEntityDescription(Reference ref) {
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.entity.api.EntityProducer#getEntityResourceProperties(org.sakaiproject.entity.api.Reference)
-	 */
 	public ResourceProperties getEntityResourceProperties(Reference ref) {
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.entity.api.EntityProducer#getEntity(org.sakaiproject.entity.api.Reference)
-	 */
 	public Entity getEntity(Reference ref) {
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.entity.api.EntityProducer#getEntityUrl(org.sakaiproject.entity.api.Reference)
-	 */
 	public String getEntityUrl(Reference ref) {
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.entity.api.EntityProducer#getEntityAuthzGroups(org.sakaiproject.entity.api.Reference, java.lang.String)
-	 */
 	public Collection getEntityAuthzGroups(Reference ref, String userId) {
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.entity.api.EntityProducer#getHttpAccess()
-	 */
 	public HttpAccess getHttpAccess() {
 		return null;
 	}
@@ -190,10 +144,8 @@ public class ReportDefEntityProducer implements EntityProducer, EntityTransferre
 	 */
 	@Override
 	public boolean hasContent(String siteId) {
-		List<ReportDef> existingReportDefinitions = M_rm.getReportDefinitions(siteId, false, true);
+		List<ReportDef> existingReportDefinitions = reportManager.getReportDefinitions(siteId, false, true);
 		return !existingReportDefinitions.isEmpty();
 	}
-
-	
 
 }

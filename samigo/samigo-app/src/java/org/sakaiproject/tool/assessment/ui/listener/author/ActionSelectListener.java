@@ -69,7 +69,7 @@ public class ActionSelectListener implements ActionListener {
 		}
 		else if ("preview_pending".equals(action)) {
 			delivery.setActionString("previewAssessment");
-			delivery.setIsFromPrint(false);
+			delivery.setFromPrint(false);
 			author.setIsEditPendingAssessmentFlow(true);
 			person.setPreviewFromPage("author");
 			BeginDeliveryActionListener beginDeliveryActionListener = new BeginDeliveryActionListener();
@@ -79,7 +79,7 @@ public class ActionSelectListener implements ActionListener {
 		}
 		else if ("print_pending".equals(action) || "print_published".equals(action)) {
 			delivery.setActionString("previewAssessment");
-			delivery.setIsFromPrint(true);
+			delivery.setFromPrint(true);
 			author.setIsEditPendingAssessmentFlow(true);
 			if ("print_published".equals(action)) {
 				author.setIsEditPendingAssessmentFlow(false);

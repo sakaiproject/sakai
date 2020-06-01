@@ -209,13 +209,9 @@ public class ControllerServlet2 extends HttpServlet
 		if (TITLE_PANEL.equals(request.getParameter(PANEL)))
 		{
 			template = "title";
-
 		}
 		else
 		{
-
-
-
 			String path = request.getPathInfo();
 			if (path == null || path.length() == 0)
 			{
@@ -224,35 +220,6 @@ public class ControllerServlet2 extends HttpServlet
 			if (path.startsWith("/"))
 			{
 				path = path.substring(1);
-
-				// SAK-13408, SAK-16278 - Websphere must be told to look in a different directory for .vm files.
-				// This fix forces the class to use the default directory and file when using WebSphere.
-				ServerConfigurationService  serverConfigurationService
-					 = (ServerConfigurationService) wac.getBean(ServerConfigurationService.class.getName());
-				if (serverConfigurationService == null)
-				{
-					throw new ServletException("Unable to get " + ServerConfigurationService.class.getName());
-				}
-				if ("websphere".equals(serverConfigurationService.getString("servlet.container")))
-				{
-					// expecting path like: "tool/fe2bb974-dbd4-4a08-b75b-d69f3cdcacea" or
-					//                      "tool/fe2bb974-dbd4-4a08-b75b-d69f3cdcacea/admin/index"
-					if (path.indexOf("/") >= 0) {
-						path = path.substring(path.indexOf("/"));
-					}
-					if (path.startsWith("/")) {
-						path = path.substring(1);
-					}
-					if (path.indexOf("/") >= 0) {
-						path = path.substring(path.indexOf("/"));
-						if (path.startsWith("/")) {
-							path = path.substring(1);
-						}
-					} else
-					{
-						path = "index";
-					}
-				}
 			}
 			template = path;
 		}

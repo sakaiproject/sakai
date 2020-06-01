@@ -18,21 +18,12 @@
  */
 package org.sakaiproject.sitestats.test.mocks;
 
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.Properties;
-import java.util.Stack;
 
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.time.api.Time;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.ContentHandler;
 
 public abstract class FakeResourceProperties implements ResourceProperties {
 	private Map<String, String> map = new HashMap<String, String>();

@@ -113,6 +113,16 @@ public abstract class VmServlet extends ComponentServlet
 			}
 		}
 
+		// get the include (from the portal) for the HTML BODY onload
+		if (getVmReference("sakai_class", request) == null)
+		{
+			String className = (String) request.getAttribute("sakai.html.body.class");
+			if (className != null)
+			{
+				setVmReference("sakai_class", className, request);
+			}
+		}
+
 		// set the ref to the images
 		if (getVmReference("sakai_image_path", request) == null)
 		{

@@ -228,6 +228,19 @@ CREATE INDEX SAKAI_REALM_RL_GR_RAU ON SAKAI_REALM_RL_GR
 );
 
 -----------------------------------------------------------------------------
+-- SAKAI_REALM_LOCKS
+-----------------------------------------------------------------------------
+
+CREATE TABLE SAKAI_REALM_LOCKS (
+       REALM_KEY            INTEGER NOT NULL,
+       REFERENCE            VARCHAR2 (255) NOT NULL,
+       LOCK_MODE            INTEGER NOT NULL
+);
+
+ALTER TABLE SAKAI_REALM_LOCKS
+       ADD  ( PRIMARY KEY (REALM_KEY, REFERENCE) ) ;
+
+-----------------------------------------------------------------------------
 -- FOREIGN KEYS
 -----------------------------------------------------------------------------
 

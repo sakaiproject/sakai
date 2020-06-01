@@ -61,7 +61,7 @@
 					#end
 				</table>
 			#else
-				<div class="information">$tlang.getString("tag.emptylist")</div>
+				<div class="sak-banner-info">$tlang.getString("tag.emptylist")</div>
 			#end
 		#end
 	#end

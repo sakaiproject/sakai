@@ -28,8 +28,12 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Set;
 import java.util.Iterator;
+
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Assessment Settings used in Delivery   
@@ -44,6 +48,7 @@ public class SettingsDeliveryBean implements Serializable
   private boolean unlimitedAttempts;
   private java.util.Date dueDate;
   private java.util.Date feedbackDate;
+  @Getter @Setter private Date feedbackEndDate;
   private boolean autoSave;
   private boolean autoSubmit;
   private boolean formatByPart;
@@ -354,6 +359,7 @@ public class SettingsDeliveryBean implements Serializable
     }
     setSubmissionMessage(control.getSubmissionMessage());
     setFeedbackDate(control.getFeedbackDate());
+    setFeedbackEndDate(control.getFeedbackEndDate());
     Integer format = control.getAssessmentFormat();
     if (format == null)
       format =  Integer.valueOf(1);

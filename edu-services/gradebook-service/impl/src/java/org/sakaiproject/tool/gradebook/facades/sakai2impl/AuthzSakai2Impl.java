@@ -39,12 +39,6 @@ import org.sakaiproject.user.cover.UserDirectoryService;
  */
 @Slf4j
 public class AuthzSakai2Impl extends AuthzSectionsImpl implements Authz {
-    public static final String
-    	PERMISSION_GRADE_ALL = "gradebook.gradeAll",
-    	PERMISSION_GRADE_SECTION = "gradebook.gradeSection",
-    	PERMISSION_EDIT_ASSIGNMENTS = "gradebook.editAssignments",
-    	PERMISSION_VIEW_OWN_GRADES = "gradebook.viewOwnGrades",
-        PERMISSION_VIEW_STUDENT_NUMBERS = "gradebook.viewStudentNumbers";
 
     /**
      * Perform authorization-specific framework initializations for the Gradebook.

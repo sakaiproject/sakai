@@ -41,7 +41,7 @@
    <h:inputHidden id="templateId" value="#{template.idString}"/>
 	<br/>
      <div>
-       <h:outputText value="#{assessmentSettingsMessages.retract_for_sure}" styleClass="messageConfirmation" />
+       <h:outputText value="#{assessmentSettingsMessages.retract_for_sure}" styleClass="sak-banner-warn" />
 
        <p class="act">
        <h:commandButton id="retract" value="#{assessmentSettingsMessages.button_stop_accepting}" type="submit"

@@ -15,12 +15,11 @@
  */
 package org.sakaiproject.gradebookng.business.util;
 
-import com.opencsv.CSVParser;
-import com.opencsv.CSVReader;
-
 import java.io.IOException;
-import java.io.InputStream; 
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -34,8 +33,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -48,7 +45,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.panel.Panel;
-
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidFileTypeException;
 import org.sakaiproject.gradebookng.business.importExport.CommentValidationReport;
@@ -71,6 +67,15 @@ import org.sakaiproject.gradebookng.tool.model.AssignmentStudentGradeInfo;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.util.ResourceLoader;
+
+import com.opencsv.CSVParser;
+import com.opencsv.CSVParserBuilder;
+import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
+import com.opencsv.exceptions.CsvValidationException;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Helper to handling parsing and processing of an imported gradebook file
@@ -156,9 +161,16 @@ public class ImportGradesHelper {
 		// manually parse method so we can support arbitrary columns
 		CSVReader reader;
 		if(StringUtils.isEmpty(userDecimalSeparator)){
-			reader = new CSVReader(new InputStreamReader(is));
+			reader = new CSVReader(new InputStreamReader(is, "ISO-8859-1"));
 		}else{
-			reader = new CSVReader(new InputStreamReader(is), ".".equals(userDecimalSeparator) ? CSVParser.DEFAULT_SEPARATOR : CSV_SEMICOLON_SEPARATOR);
+			CSVParser parser = new CSVParserBuilder()
+					//new CSVReader(new InputStreamReader(is), ".".equals(userDecimalSeparator) ? CSVParser.DEFAULT_SEPARATOR : CSV_SEMICOLON_SEPARATOR);
+					.withSeparator(".".equals(userDecimalSeparator) ? CSVParser.DEFAULT_SEPARATOR : CSV_SEMICOLON_SEPARATOR)
+					.build();
+					
+			reader = new CSVReaderBuilder(new InputStreamReader(is, "ISO-8859-1"))
+					.withCSVParser(parser)
+					.build();
 		}
 		String[] nextLine;
 		int lineCount = 0;
@@ -182,6 +194,8 @@ public class ImportGradesHelper {
 				}
 				lineCount++;
 			}
+		} catch (CsvValidationException e) {
+			log.warn("Error closing the reader", e);
 		} finally {
 			try {
 				reader.close();
@@ -218,14 +232,16 @@ public class ImportGradesHelper {
 
 		final Workbook wb = WorkbookFactory.create(is);
 		final Sheet sheet = wb.getSheetAt(0);
+		int numCells = 0;
 		for (final Row row : sheet) {
 
-			final String[] r = convertRow(row);
-
 			if (lineCount == 0) {
+				numCells = row.getPhysicalNumberOfCells();
+				final String[] r = convertRow(row, numCells);
 				// header row, capture it
 				mapping = mapHeaderRow(r, importedGradeWrapper.getHeadingReport());
 			} else {
+				final String[] r = convertRow(row, numCells);
 				// map the fields into the object
 				final ImportedRow importedRow = mapLine(r, mapping, userEidMap, userDecimalSeparator);
 				if (importedRow != null) {
@@ -251,6 +267,8 @@ public class ImportGradesHelper {
 	private static ImportedRow mapLine(final String[] line, final Map<Integer, ImportedColumn> mapping, final Map<String, GbUser> userMap, String userDecimalSeparator) {
 
 		final ImportedRow row = new ImportedRow();
+		NumberFormat nbFormat = NumberFormat.getInstance(new ResourceLoader().getLocale());
+		String decSeparator =((DecimalFormat)nbFormat).getDecimalFormatSymbols().getDecimalSeparator() + "";
 
 		for (final Map.Entry<Integer, ImportedColumn> entry : mapping.entrySet()) {
 
@@ -295,7 +313,11 @@ public class ImportGradesHelper {
 				case GB_ITEM_WITHOUT_POINTS:
 					// fix the separator for the comparison with the current values
 					if (StringUtils.isNotBlank(lineVal)) {
-						cell.setRawScore(lineVal);
+						if(lineVal.contains(".")) {
+							cell.setRawScore(lineVal.replace(".", decSeparator));
+						}else {
+							cell.setRawScore(lineVal);
+						}
 						cell.setScore(",".equals(userDecimalSeparator) ? lineVal.replace(userDecimalSeparator, ".") : lineVal);
 					}
 					row.getCellMap().put(columnTitle, cell);
@@ -819,17 +841,18 @@ public class ImportGradesHelper {
 	 * @param row
 	 * @return
 	 */
-	private static String[] convertRow(final Row row) {
+	private static String[] convertRow(final Row row, final int numCells) {
 
-		final int numCells = row.getPhysicalNumberOfCells();
 		final String[] s = new String[numCells];
-
-		int i = 0;
-		for (final Cell cell : row) {
-			// force cell to String
-			cell.setCellType(CellType.STRING);
-			s[i] = StringUtils.trimToNull(cell.getStringCellValue());
-			i++;
+		
+		Cell cell;
+		for(int i = 0; i < numCells; i++) {
+			cell = row.getCell(i);
+			if(cell != null) {
+				cell.setCellType(CellType.STRING);
+				s[i] = StringUtils.trimToNull(cell.getStringCellValue());
+			}
+			
 		}
 
 		return s;

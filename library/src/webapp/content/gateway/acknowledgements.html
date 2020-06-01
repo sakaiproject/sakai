@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Acknowledgements</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="/library/js/headscripts.js"></script>
+</head>
+
+<script>
+    includeLatestJQuery('acknowledgements.html');
+    includeWebjarLibrary('bootstrap');
+</script>
+
+<style type="text/css">
+
+.card {
+    position: relative;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    min-width: 0;
+    word-wrap: break-word;
+    background-color: #fff;
+    background-clip: border-box;
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    border-radius: 0.25rem;
+    margin-top: 2rem;
+    border-color: #000036;
+    border-radius: 1rem;
+    padding: 0.5rem;
+}
+
+.card-img-top {
+    width: 100%;
+    border-top-left-radius: calc(1rem - 1px);
+    border-top-right-radius: calc(1rem - 1px);
+}
+
+.card-body {
+    -ms-flex: 1 1 auto;
+    flex: 1 1 auto;
+    padding: 1.25rem;
+    text-align: center;
+}
+
+.card-body > h4 {
+    font-size:22px;
+    color: #000036;
+    }
+
+.card-body > p {
+    font-size:14px;
+}
+.btn-primary{
+    background-color: #000036;
+    bottom: 2rem;
+}
+
+.jtop{
+    padding: 1rem 3rem;
+    margin-bottom: 2rem;
+    background-color: #e9ecef;
+    border-radius: 0.3rem;
+}
+
+.jtop > h1 {
+    font-size:36px;
+}
+
+.jtop > p {
+    font-size:18px;
+}
+
+</style>
+
+<body>
+<div class="jumbotron jtop">
+    <h1>Acknowledgements</h1>&nbsp;
+    <p>Copyright 2003-<span id="year">current Year</span> The Apereo Foundation.  All rights reserved.</p>
+    <p>Sakai is licensed for use pursuant to the <a href="http://opensource.org/licenses/ecl2.php">
+    Educational Community License v. 2.0</a>. Portions of Sakai are copyrighted by other parties,
+    including the parties listed below.
+    Please refer to the licenses directory for complete copyright and licensing information.</p>
+</div>
+
+<div class="container">
+    <div id="ackList" class="row">
+    </div>
+</div>
+
+<script>
+    /*set current year*/
+    document.getElementById("year").innerHTML = new Date().getFullYear();
+
+    /*create cards*/
+    //images should be 600x200px
+    var inpt 
+        ="Sakai Community;https://www.sakailms.org/sakai-community-members;sakaic.jpg!"
+        +"Apache Foundation;https://www.apache.org/;apache.png!"
+        +"WebJars;https://www.webjars.org/;webjars.png!"
+        +"jsoup;https://jsoup.org/;jsoup.png!"
+        +"Lombok Project;https://projectlombok.org/;lombok.png!"
+        +"Quartz;https://www.quartz-scheduler.org/;quartz.png!"
+        +"opencsv;http://opencsv.sourceforge.net/;openscv.png!"
+        +"Simple;http://simple.sourceforge.net;simple-xml.png!"
+        +"Spring;https://spring.io;spring.png!"
+        +"SLF4J;https://www.slf4j.org/;slf4j.png!"
+        +"mockito;https://site.mockito.org/;mockito.png!"
+        +"PowerMock;https://github.com/powermock/powermock;powermock.png!"
+        +"Joda-Time;https://www.joda.org/joda-time/;jodatime.png!"
+        +"Weld;https://weld.cdi-spec.org/;weld.png!"
+        +"Jayway JsonPath;https://github.com/json-path/JsonPath;jsonpath.png!"
+        +"dropzone;https://www.dropzonejs.com/;dropzone.png!"
+        +"qTip2;http://qtip2.com/;qtip2.png!"
+        +"handlebars;https://handlebarsjs.com/;handlebars.png!"
+        +"Moment.js;https://momentjs.com/;momentjs.png!"
+        +"jQuery;https://jquery.com/;jquery.jpg!"
+        +"Bootstrap;https://getbootstrap.com/;bootstrap.png!"
+        +"PNotify;https://sciactive.com/pnotify/;pnotify.png!"
+        +"elFinder;https://github.com/Studio-42/elFinder;elfinder.png!"
+        +"Font Awesome;https://fontawesome.com/;fontawesome.png!"
+        +"Cropper;https://fengyuanchen.github.io/cropper/;cropper.png!"
+        +"Select2;https://select2.org/;select2.png!"
+        +"FullCalendar;https://fullcalendar.io/;fullcalendar.png!"
+        +"DataTables;https://datatables.net/;datatables.png!"
+        +"Featherlight;https://noelboss.github.io/featherlight/;featherlight.png!"
+        +"Awesomplete;https://leaverou.github.io/awesomplete/;awesomplete.png!"
+        +"WebRtc;https://webrtc.org/;webrtc.png!"
+        +"RecordRtc;https://github.com/muaz-khan/RecordRTC;recordrtc.png!"
+        +"mathjs;https://mathjs.org/;mathjs.png!"
+        +"jsMath;http://www.math.union.edu/~dpvc/jsMath/welcome.html;jsmath.png!"
+        +"UrlRewriteFilter;https://tuckey.org/urlrewrite/;urlrewritefilter.png!"
+        +"CodeMirror;https://codemirror.net/;codemirror.png!"    
+        +"CKEditor;https://ckeditor.com/;ckeditor.png!"
+        +"Silk Icons;http://www.famfamfam.com/lab/icons/silk/;famfamfam.png";
+    var content = inpt.split("!");
+    var place = document.getElementById("ackList");
+    for(i = 0; i < content.length; i++) {
+        content[i] = content[i].split(";");
+
+        if(content[i][2] == "") {
+            content[i][2] = "placeholder.png";
+        }
+
+        place.innerHTML +=
+         '<div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">'
+        +    '<div class="card">'
+        +        '<img class="card-img-top" src="acknowledgements_images/' + content[i][2] +'">'
+        +        '<div class="card-body">'
+        +            '<h4>' + content[i][0] + '</h4>'
+        +            '<a target="_blank" href="' + content[i][1] +'" class="btn btn-primary stretched-link btn-block">Explore</a>'
+        +        '</div>'
+        +    '</div>'
+        +'</div>';
+    }
+
+</script>
+
+</body>
+</html>

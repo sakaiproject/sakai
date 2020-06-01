@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.azeckoski.reflectutils.FieldUtils;
@@ -65,33 +66,15 @@ import org.sakaiproject.user.api.UserPermissionException;
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
 @Slf4j
+@Setter
 public class UserEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, RESTful, Describeable {
 
     private static final String ID_PREFIX = "id=";
 
     private UserDirectoryService userDirectoryService;
-    public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
-        this.userDirectoryService = userDirectoryService;
-    }
-
     private SiteService siteService;
-    public void setSiteService(SiteService siteService) {
-        this.siteService = siteService;
-    }
-
-
     private DeveloperHelperService developerHelperService;
-    public void setDeveloperHelperService(
-            DeveloperHelperService developerHelperService) {
-        this.developerHelperService = developerHelperService;
-    }
-
     private ServerConfigurationService serverConfigurationService;
-    public void setServerConfigurationService(
-            ServerConfigurationService serverConfigurationService) {
-        this.serverConfigurationService = serverConfigurationService;
-    }
-
 
     public static String PREFIX = "user";
     public String getEntityPrefix() {
@@ -239,7 +222,6 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
             edit.setEmail(u.getEmail());
             edit.setFirstName(u.getFirstName());
             edit.setLastName(u.getLastName());
-            edit.setType(u.getType());
             // put in properties
             ResourcePropertiesEdit rpe = edit.getPropertiesEdit();
             rpe.set(u.getProperties());
@@ -249,10 +231,6 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
             edit.setEmail(u.getEmail());
             edit.setFirstName(u.getFirstName());
             edit.setLastName(u.getLastName());
-            if (u.getPassword() != null && !"".equals(u.getPassword())) {
-                edit.setPassword(u.getPassword());
-            }
-            edit.setType(u.getType());
             // put in properties
             ResourcePropertiesEdit rpe = edit.getPropertiesEdit();
             for (String key : u.getProps().keySet()) {
@@ -578,8 +556,8 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
         // If config, internal request or admin, give full access
         if (developerHelperService.getConfigurationSetting("entity.users.viewall", false) ||
                 developerHelperService.isEntityRequestInternal(ref.toString()) ||
-                developerHelperService.isUserAdmin(developerHelperService.getCurrentUserReference()) ||
-                user.getId().equals(developerHelperService.getCurrentUserId())) {
+                user.getId().equals(developerHelperService.getCurrentUserId()) ||
+                developerHelperService.isUserAllowedInEntityReference(developerHelperService.getCurrentUserReference(), UserDirectoryService.SECURE_VIEW_USER_ANY, user.getReference())) {
             EntityUser eu = new EntityUser(user);
             return eu;
         } else if (hasProfile) {

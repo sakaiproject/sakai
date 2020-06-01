@@ -25,6 +25,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.RequestScoped;
+
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.api.app.messageforums.Area;
@@ -54,6 +58,8 @@ import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.cover.PreferencesService;
 
 @Slf4j
+@ManagedBean(name="mfSynopticBeanLite")
+@RequestScoped
 public class MessageForumSynopticBeanLite {
 	
 	// transient only persists in request scope
@@ -61,10 +67,15 @@ public class MessageForumSynopticBeanLite {
 	private transient Boolean anyMFToolInSite = null;
 	private transient List<DecoratedSynopticMsgcntrItem> myContents = null;
 	private transient DecoratedSynopticMsgcntrItem siteHomepageContent = null;
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager\"]}")
 	private SynopticMsgcntrManager synopticMsgcntrManager;
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.MessageForumsForumManager\"]}")
 	private MessageForumsForumManager forumsManager;
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.MessageForumsTypeManager\"]}")
 	private MessageForumsTypeManager typeManager;
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.AreaManager\"]}")
 	private AreaManager areaManager;
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager\"]}")
 	private PrivateMessageManager pvtMessageManager;
 	private int myContentsSize = -1;
 	private Map mfPageInSiteMap, sitesMap;
@@ -78,11 +89,13 @@ public class MessageForumSynopticBeanLite {
 	private String disableMyWorkspaceDisabledMessage;
 	
 	/** Dependency Injected   */
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.site.api.SiteService\"]}")
 	private SiteService siteService;
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.tool.api.SessionManager\"]}")
 	private SessionManager sessionManager;
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.tool.api.ToolManager\"]}")
 	private ToolManager toolManager;
 
-	
 	public void setToolManager(ToolManager toolManager) {
 		this.toolManager = toolManager;
 	}

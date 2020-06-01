@@ -36,18 +36,21 @@ $Id$
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{commonMessages.total_scores}" /></title>
 
-    <script type="text/javascript" src="/samigo-app/jsf/widget/hideDivision/hideDivision.js"></script>
-    <script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
-    <script type="text/javascript" src="/samigo-app/js/jquery.dynamiclist.student.preview.js"></script>
-    <script type="text/javascript" src="/samigo-app/js/selection.student.preview.js"></script>
-    <script type="text/javascript" src="/samigo-app/js/selection.author.preview.js"></script>
+    <script src="/samigo-app/jsf/widget/hideDivision/hideDivision.js"></script>
+    <script src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
+    <script src="/samigo-app/js/jquery.dynamiclist.student.preview.js"></script>
+    <script src="/samigo-app/js/selection.student.preview.js"></script>
+    <script src="/samigo-app/js/selection.author.preview.js"></script>
+    <script src="/rubrics-service/webcomponents/sakai-rubrics-utils.js<h:outputText value="#{studentScores.CDNQuery}" />"></script>
+    <script type="module" src="/rubrics-service/webcomponents/rubric-association-requirements.js<h:outputText value="#{studentScores.CDNQuery}" />"></script>
 
     <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.student.css">
     <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
-    <script type="text/javascript">includeWebjarLibrary('awesomplete')</script>
-    <script type="text/javascript" src="/library/js/sakai-reminder.js"></script>
+    <script>includeWebjarLibrary('awesomplete')</script>
+    <script src="/library/js/sakai-reminder.js"></script>
+    <script src="/samigo-app/js/finInputValidator.js"></script>
     
-    <script type="text/JavaScript">   
+    <script>
       jQuery(window).load(function(){
         
         $('div[id^=sectionImageMap_]').each(function(){
@@ -94,12 +97,20 @@ $Id$
   <body onload="<%= request.getAttribute("html.body.onload") %>">
 <!-- $Id:  -->
 <!-- content... -->
-<script type="text/javascript">
+<script>
 function toPoint(id)
 {
   var x=document.getElementById(id).value
   document.getElementById(id).value=x.replace(',','.')
 }
+
+  $(document).ready(function(){
+    // The current class is assigned using Javascript because we don't use facelets and the include directive does not support parameters.
+    var currentLink = $('#editStudentResults\\:totalScoresMenuLink');
+    currentLink.addClass('current');
+    // Remove the link of the current option
+    currentLink.html(currentLink.find('a').text());
+  });
 </script>
 
 <div class="portletBody container-fluid">
@@ -114,44 +125,17 @@ function toPoint(id)
   <!-- HEADINGS -->
   <%@ include file="/jsf/evaluation/evaluationHeadings.jsp" %>
 
-  <div class="page-header">
+  <h:panelGroup layout="block" styleClass="page-header">
     <h1>
       <h:outputText value="#{studentScores.studentName}" rendered="#{totalScores.anonymous eq 'false'}"/>
-      <h:outputText value="#{evaluationMessages.submission_id}#{deliveryMessages.column} #{studentScores.assessmentGradingId}" rendered="#{totalScores.anonymous eq 'true'}"/>
+      <small><h:outputText value="#{evaluationMessages.submission_id}#{deliveryMessages.column} #{studentScores.assessmentGradingId}" rendered="#{totalScores.anonymous eq 'true'}"/></small>
     </h1>
-  </div>
+  </h:panelGroup>
 
-  <h:outputText value="<ul class='navIntraTool actionToolbar' role='menu'>" escape="false"/>
-   <h:outputText value="<li role='menuitem'><span>" escape="false"/>
-    <h:commandLink title="#{evaluationMessages.t_submissionStatus}" action="submissionStatus" immediate="true">
-      <h:outputText value="#{evaluationMessages.sub_status}" />
-      <f:param name="allSubmissions" value="true"/>
-      <f:actionListener
-        type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
-    </h:commandLink>
-    <h:outputText value="</span><li role='menuitem'><span>" escape="false"/>
-    <h:commandLink title="#{evaluationMessages.t_totalScores}" action="totalScores" immediate="true">
-      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
-      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
-      <h:outputText value="#{commonMessages.total_scores}" />
-    </h:commandLink>
-    <h:outputText value="</span><li role='menuitem'><span>" escape="false" rendered="#{totalScores.firstItem ne ''}" />
-    <h:commandLink title="#{evaluationMessages.t_questionScores}" action="questionScores" immediate="true"
-      rendered="#{totalScores.firstItem ne ''}" >
-      <h:outputText value="#{evaluationMessages.q_view}" />
-      <f:actionListener
-        type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
-    </h:commandLink>
-    <h:outputText value="</span><li role='menuitem'><span>" escape="false" rendered="#{totalScores.firstItem ne ''}" /> 
-    <h:commandLink title="#{evaluationMessages.t_histogram}" action="histogramScores" immediate="true"
-      rendered="#{totalScores.firstItem ne ''}" >
-      <h:outputText value="#{evaluationMessages.stat_view}" />
-      <f:actionListener
-        type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />
-    </h:commandLink>
-   <h:outputText value="</span></li></ul>" escape="false"/>
+  <!-- EVALUATION SUBMENU -->
+  <%@ include file="/jsf/evaluation/evaluationSubmenu.jsp" %>
 
-  <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+  <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
 
 <h2>
   <h:outputText value="#{totalScores.assessmentName}" escape="false"/>
@@ -203,7 +187,7 @@ function toPoint(id)
         </h4>
       </div>
 
-      <h:panelGroup layout="block" styleClass="bs-callout-error" rendered="#{part.noQuestions}">
+      <h:panelGroup layout="block" styleClass="sak-banner-error" rendered="#{part.noQuestions}">
         <h:outputText value="#{evaluationMessages.no_questions}" escape="false"/>
       </h:panelGroup>
 
@@ -214,7 +198,7 @@ function toPoint(id)
               <h:outputText value="#{deliveryMessages.q} #{question.number} #{deliveryMessages.of} " />
               <h:outputText value="#{part.questions}#{deliveryMessages.column}  " />
             </span>
-            <h:inputText styleClass="form-control adjustedScore#{question.itemData.itemId}" id="adjustedScore" value="#{question.pointsForEdit}" onchange="toPoint(this.id);" >
+            <h:inputText styleClass="form-control adjustedScore#{studentScores.assessmentGradingId}.#{question.itemData.itemId}" id="adjustedScore" value="#{question.pointsForEdit}" onchange="toPoint(this.id);" >
               <f:validateDoubleRange/>
             </h:inputText>
             <span class="input-group-addon">
@@ -335,11 +319,7 @@ function toPoint(id)
               tool-id="sakai.samigo"
               entity-id='<h:outputText value="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"/>'
               evaluated-item-id='<h:outputText value="#{studentScores.assessmentGradingId}.#{question.itemData.itemId}" />'
-              item-id='<h:outputText value="#{question.itemData.itemId}"/>'
-
-              <h:panelGroup rendered="#{question.rubricStateDetails != ''}">
-                state-details='<h:outputText value="#{question.rubricStateDetails}"/>'
-              </h:panelGroup>>
+              evaluated-item-owner-id='<h:outputText value="#{studentScores.studentId}"/>'
             </sakai-rubric-grading>
           </div>
           </div>
@@ -359,10 +339,11 @@ function toPoint(id)
 
 <h:panelGroup rendered="#{totalScores.anonymous eq 'false' && studentScores.email != null && studentScores.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}">
   <h:outputText value="<a href=\"mailto:" escape="false" />
-  <h:outputText value="#{studentScores.email}" escape="false" />
+  <h:outputText value="#{studentScores.email}" />
   <h:outputText value="?subject=" escape="false" />
   <h:outputText value="#{totalScores.assessmentName} #{commonMessages.feedback}\">" escape="false" />
-  <h:outputText value="  #{evaluationMessages.email} #{studentScores.firstName}" escape="false"/>
+  <h:outputText value="  #{evaluationMessages.email} " escape="false"/>
+  <h:outputText value="#{studentScores.firstName}" />
   <h:outputText value="</a>" escape="false" />
 </h:panelGroup>
 

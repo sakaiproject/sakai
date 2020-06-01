@@ -32,9 +32,9 @@
   <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
     <head><%= request.getAttribute("html.head") %>
     <title><h:outputText value="#{deliveryMessages.table_of_contents}" /></title>
-    <script type="text/javascript" src="/samigo-app/jsf/widget/hideDivision/hideDivision.js"></script>
+    <script src="/samigo-app/jsf/widget/hideDivision/hideDivision.js"></script>
     <%@ include file="/jsf/delivery/deliveryjQuery.jsp" %>
-    <h:outputText value="#{delivery.mathJaxHeader}" escape="false" rendered="#{delivery.actionString=='takeAssessmentViaUrl' and delivery.isMathJaxEnabled}"/>
+    <h:outputText value="#{delivery.mathJaxHeader}" escape="false" rendered="#{(delivery.actionString=='takeAssessmentViaUrl' ||  delivery.actionString=='previewAssessment') and delivery.isMathJaxEnabled}"/>
     </head>
     <body onload="<%= request.getAttribute("html.body.onload") %>">
 <!--div class="portletBody"-->
@@ -47,7 +47,7 @@
 
 
 <!-- content... -->
-<script type="text/javascript">
+<script>
 function isFromLink() {
   if (${delivery.actionMode} == 5) {
     return true;
@@ -157,9 +157,8 @@ function saveTime()
 <h:inputHidden id="assessTitle" value="#{delivery.assessmentTitle}" />
 <h:inputHidden id="elapsed" value="#{delivery.timeElapse}" />
 <h:inputHidden id="outoftime" value="#{delivery.timeOutSubmission}"/>
-<h:commandLink id="submitforgrade" action="#{delivery.submitForGrade}" value="" />
 
-    <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+    <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
     <p style="margin-bottom:0"><h:outputText value="#{deliveryMessages.seeOrHide}" /> </p>
     <h:dataTable value="#{delivery.tableOfContents.partsContents}" var="part">
       <h:column>
@@ -212,7 +211,7 @@ function saveTime()
       disabled="#{delivery.actionString=='previewAssessment'}" />
   </h:panelGroup>
   <h:commandButton id="save" type="submit" value="#{commonMessages.action_save}"
-    action="#{delivery.save_work}" rendered="#{delivery.actionString=='previewAssessment'
+    action="#{delivery.saveWork}" rendered="#{delivery.actionString=='previewAssessment'
       || delivery.actionString=='takeAssessment'
       || delivery.actionString=='takeAssessmentViaUrl'}" /> 
 

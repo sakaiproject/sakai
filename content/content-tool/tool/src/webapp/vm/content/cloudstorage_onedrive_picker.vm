@@ -1,0 +1,66 @@
+<!-- Start of cloudstorage_onedrive_picker.vm-->
+<h4>
+	<span class="fa fa-windows" aria-hidden="true"></span>
+	$tlang.getString('onedrive.integration')
+</h4>
+#if(!$!onedriveUserAccount)
+	<span aria-hidden="true"> $tlang.getString('onedrive.set_account')</span>
+	<a href="#toolLink("FilePickerAction" "doOneDrive")" title= "$tlang.getString('onedrive.set_account')">
+		<input type="button" aria-hidden="true" value="$tlang.getString('cloudstorage.configure')" />
+	</a>
+#else
+	<span aria-hidden="true"> $tlang.getFormattedMessage('onedrive.configured', $!onedriveUserAccount)</span>
+	<input type="button" name="refreshOneDriveButton" id="refreshOneDriveButton" class="refreshOneDriveButton" onclick="SPNR.insertSpinnerAfter( this, null, 'pickerGoogleDrive' );document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doRefreshOneDrive")'; submitform('attachForm');" value="$tlang.getString('cloudstorage.refresh')" />
+	<input type="button" name="revokeOneDriveButton" id="revokeOneDriveButton" class="revokeOneDriveButton" onclick="document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doRevokeOneDrive")'; submitform('attachForm');" value="$tlang.getString('cloudstorage.revoke')" />
+	<table class="listHier lines" cellspacing="0" border="0" summary="$tlang.getString("onedrive.table_summary")">
+		<tr>
+			<th id="title">
+				$tlang.getString("cloudstorage.title")
+			</th>
+			<th id="action-clone">
+				$tlang.getString("cloudstorage.clone")
+			</th>
+			<th id="action-link">
+				$tlang.getString("cloudstorage.link")
+			</th>
+		</tr>
+		#foreach($onedriveItem in $onedriveItems)
+			#set($itemcount = $itemcount + 1)
+			#set ($width = "$!{onedriveItem.depth}${unit}")
+			<tr
+				#if ($itemcount % 2==0)
+					class="odd"
+				#else
+					class="even"
+				#end>
+				<td headers="title" style="text-indent: $width" class="specialLink">
+					#if ($onedriveItem.isFolder())
+						#set($folderClass = "fa fa-folder-o")
+						#if($onedriveItem.hasChildren() && !$onedriveItem.isExpanded())
+							#set($folderClass = "fa fa-folder")
+						#elseif($onedriveItem.hasChildren() && $onedriveItem.isExpanded())
+							#set($folderClass = "fa fa-folder-open")
+						#end
+						<a	#if($onedriveItem.hasChildren() && !$onedriveItem.isExpanded()) href="#toolLinkParam("FilePickerAction" "doNavigate" "onedriveCollectionId=${validator.escapeUrl(${onedriveItem.oneDriveItemId})}&onedriveCollectionDepth=${onedriveItem.depth}")" title="$tlang.getString('sh.go')" #end
+						><span class="$folderClass" aria-hidden="true"></span>
+						<span class="sr-only">$tlang.getString('gen.folder1')</span>
+					#else
+						##$onedriveItem.file.mimeType
+						<a href="$onedriveItem.downloadUrl"><span class="$contentTypeImageService.getContentTypeImageClass($onedriveItem.file.mimeType)" aria-hidden="true"></span>
+					#end
+					$formattedText.escapeHtml(${onedriveItem.name})</a>
+				</td>
+				<td headers="action-clone">
+					#if (!$onedriveItem.isFolder())
+						<a href="#" onclick="return doAttachSubmitOneDrive('$formattedText.escapeUrl(${onedriveItem.oneDriveItemId})',true)" title ="$tlang.getString('att.copy')">$tlang.getString("att.copy") <span class="skip">$formattedText.escapeHtml($onedriveItem.name)</span></a>
+					#end
+				<td headers="action-link">
+					#if (!$onedriveItem.isFolder())
+						<a href="#" onclick="return doAttachSubmitOneDrive('$formattedText.escapeUrl(${onedriveItem.oneDriveItemId})',false)" title ="$tlang.getString('cloudstorage.attach_link')">$tlang.getString('cloudstorage.attach_link') <span class="skip">$formattedText.escapeHtml($onedriveItem.name)</span></a>
+					#end
+				</td>
+			</tr>
+		#end
+	</table>
+#end
+<!-- End of cloudstorage_onedrive_picker.vm-->

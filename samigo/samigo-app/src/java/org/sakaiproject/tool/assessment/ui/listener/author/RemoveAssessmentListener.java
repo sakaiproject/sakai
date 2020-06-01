@@ -35,6 +35,7 @@ import javax.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.sakaiproject.authz.api.AuthzGroup.RealmLockMode;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
@@ -180,7 +181,7 @@ public class RemoveAssessmentListener implements ActionListener
                             for(Group group : groups){
                                 if(selectedGroups.keySet().contains(group.getId())){
                                     log.debug("Unlocking the group {} for deletion by the the published assessment with id {}.", group.getTitle(), assessmentId);
-                                    group.unlockGroup(assessmentId, Group.LockMode.DELETE);
+                                    group.setLockForReference(assessmentId, RealmLockMode.NONE);
                                 }
                             }
 
@@ -269,12 +270,6 @@ public class RemoveAssessmentListener implements ActionListener
             return false;
         }
 
-        //Alert user to remove submissions associated with the assessment before delete the assessment
-        int submissions = publishedAssessmentService.getTotalSubmissionForEachAssessment(publishedAssessment.getPublishedAssessmentId().toString());
-        if (submissions > 0) {
-            author.setOutcome("removeError");
-            return false;
-        }
         return true;
     }
 

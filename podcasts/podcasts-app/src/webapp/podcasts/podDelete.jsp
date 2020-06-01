@@ -9,20 +9,23 @@
 
   <f:view>
     <sakai:view toolCssHref="./css/podcaster.css">
+      <script>includeLatestJQuery("podDelete");</script>
+      <script>
+        $(document).ready(function() {
 
+          var menuLink = $('#podcastMainMenuLink');
+          var menuLinkSpan = menuLink.closest('span');
+          menuLinkSpan.addClass('current');
+          menuLinkSpan.html(menuLink.text());
+
+        });
+      </script>
     <h:form>
-      <h3><h:outputText value="#{msgs.delete_title}" /></h3>
- 	  
- 	  <br />
-  	  <h:outputText value="#{msgs.del_confirm}" styleClass="alertMessage" />
-
-	  <br /><br />
-	  <h:panelGrid>
-	      <h:outputText value="#{podHomeBean.selectedPodcast.displayDate}" styleClass="podDateFormat" />
- 	      <h:outputText value="#{podHomeBean.selectedPodcast.title}" styleClass="podTitleFormat" />
-	      <h:outputText value="#{podHomeBean.selectedPodcast.description}" />
-	  </h:panelGrid>
-
+        <%@ include file="/podcasts/podcastMenu.jsp" %>
+        <h:outputText value="#{msgs.del_confirm}" styleClass="sak-banner-warn" />
+        <h:panelGroup style="display:block;">
+             <h:outputText value="#{podHomeBean.selectedPodcast.title}" />
+        </h:panelGroup>
       <sakai:button_bar >  <!-- Save Changes and Cancel buttons -->
         <sakai:button_bar_item action="#{podHomeBean.processDeletePodcast}" value="#{msgs.delete}" 
           accesskey="s" title="Delete the Podcast" styleClass="active" />

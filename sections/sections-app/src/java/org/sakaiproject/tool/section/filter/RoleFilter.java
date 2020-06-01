@@ -122,11 +122,7 @@ public class RoleFilter implements Filter {
 				isAuthorized = true;
 			}
 
-			// SAK-13408 - This fix addresses the problem of the filter receiving a blank field on WebSphere.
-			// Without this, users would be denied access to the tool
-			if ( "websphere".equals(ServerConfigurationService.getString("servlet.container")) && ( isAuthorized || pageName.equals(""))) {
-				chain.doFilter(request,response);
-			} else if ( !"websphere".equals(ServerConfigurationService.getString("servlet.container")) && isAuthorized ) {
+			if ( isAuthorized ) {
 				chain.doFilter(request, response);
 			} else {
 				log.error("AUTHORIZATION FAILURE: User " + userUid + " in site " +

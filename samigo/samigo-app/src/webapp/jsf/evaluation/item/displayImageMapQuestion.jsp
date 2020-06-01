@@ -23,14 +23,14 @@ include file for displaying fill in the numeric questions
 --%>
 -->
 
-<script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
-<script type="text/javascript" src="/samigo-app/js/selection.author.preview.js"></script>
-<script type="text/javascript" src="/samigo-app/js/selection.student.preview.js"></script>
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
+<script src="/samigo-app/js/selection.author.preview.js"></script>
+<script src="/samigo-app/js/selection.student.preview.js"></script>
 <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
 <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.student.css">
 
 <f:verbatim>
-<script type="text/JavaScript">	
+<script>	
 	jQuery(window).load(function(){
 			
 		$('input:hidden[id^=hiddenSerializedCoords_]').each(function(){

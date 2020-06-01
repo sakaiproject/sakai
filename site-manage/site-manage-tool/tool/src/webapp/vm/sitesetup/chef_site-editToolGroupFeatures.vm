@@ -15,7 +15,7 @@
             <h3>$tlang.getString("feat.other.tools")</h3>
         #end
 
-        #if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>#end
+        #if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $alertMessage</div>#end
 
         <form name="featuresForm" action="#toolForm("$action")" method="post">
             <input type="hidden" name="option" value="add" />
@@ -50,7 +50,7 @@
                                     #set($siteSelected = true)
                                 #end
                             #end
-                            <option value="$site.getId()" #if ($siteSelected)selected="selected"#end>$validator.escapeHtml($site.getTitle())</option>
+                            <option value="$site.getId()" #if ($siteSelected)selected="selected"#end>$formattedText.escapeHtml($site.getTitle())</option>
                         #end
                     </select>
                     </p>

@@ -21,6 +21,10 @@
 			@include display-flex;
 			@include align-items(center);
 		}
+		
+		.todayButton {
+			margin: 0 $standard-space;
+		}
 	}
 
 	.calLeft 
@@ -77,6 +81,9 @@
 	.calHeader 
 	{
 		text-align: center;
+		font-weight: normal;
+		color: $calendar-column-heading-color;
+		line-height: $calendar-table-header-line-height;
 	}
 
 	.calDay
@@ -98,17 +105,13 @@
 			border: 1px solid $calendar-day-border-color;	// to style the cell borders
 			text-align: center;
 			
-			&.calOtherDayWithNoActivity
-			{
-				border-color: transparent;
-				font-size: 10px;			// to de-emphasize these days
-				color: #767676;
+			&.calOtherDayWithNoActivity, &.calOtherDayWithActivity {
+				border: 0 none;		// to distinguish current month days from non-current month days
 			}
 		}
 
 		.calToday 			// today without events
 		{
-			border-color: $calendar-day-today-border-color;
 			background-color: $calendar-day-today-background-color;
 			color: $calendar-day-today-text-color;
 
@@ -119,42 +122,51 @@
 
 			&.calSelectedDay		//today selected without activity
 			{
-				border: 1px dashed $calendar-day-today-text-color;
+				border: 1px solid $calendar-day-today-text-color;
 			}
 		}
 
-		.calDayWithActivity
+		.calDayWithActivity, .calOtherDayWithActivity
 		{
 			// background-color will be overriden if:
 			// 1. colors specified for high/medium/low priority events in Options (user preferences)
 			// 2. default colors specified in sakai.properties
-			border-color: $calendar-event-border-color;
-			background-color: #f9f9f9;
-			font-weight: normal;
+			background-color: $calendar-event-background-color;
 			text-align: center;
+			
+			&::after {
+				content: "";
+				@include eventIndicator();
+			}
 
 			a
 			{
 				width: 100%;		// to maximize click area
 				height: 100%;
-				color: $text-color;
+				color: $calendar-event-text-color;
 				text-shadow: 0 0 2px rgba(255, 255, 255, 1);			// to be able to see text on dark user-picked background colours
 				text-decoration: none;
 
 				&:hover, &:focus
 				{
-					text-decoration: underline;
+					outline-offset: -#{$focus-outline-offset};
+					text-decoration: none;
+				}
+				
+				&:hover {
+					margin: -1px; 	// to prevent border jitter
+					border: 1px solid $link-color;
 				}
 			}
 
-			&.calSelectedDay
+			&.calSelectedDay a
 			{
-				border-style: dashed;
+				margin: -1px; 	// to prevent border jitter
+				border: 1px solid $calendar-event-border-color;
 			}
 
 			&.calToday 			//today with events
 			{
-				border-color: $calendar-today-event-border-color;
 				background-color: $calendar-today-event-background-color;
 
 				a
@@ -165,6 +177,8 @@
 				&.calSelectedDay		//today selected with activity
 				{
 					border-color: $calendar-today-event-text-color;
+					border-left: 0 none;	// removing side borders to avoid double thickness caused by the -1px margin from above (.calSelectedDay a) not applying to the sides
+					border-right: 0 none;
 				}
 			}
 		}
@@ -175,25 +189,21 @@
 		text-align: center;
 	}
 
-	.eventCount
-	{
-		position: absolute;
-		display: inline-block !important;
-		right: 1px;
-		top: 1px;
-		margin: 0;
-		padding: 0 4px;
-		border-radius: 2px;
-		background-color: #fff;
-		font-size: 10px;
-		font-weight: normal;
-		line-height: 1.5;
-		color: $calendar-column-heading-color;
-	}
-
 	#prefsForm
 	{
 		width: 99%;
+	}
+	
+	.calendarEventListContainer 
+	{
+		display: block;
+		width: 100%;
+		margin-top: $standard-spacing;
+		
+		h4 {
+			margin: $standard-spacing 0;
+			padding: 0;
+		}
 	}
 
 	.calendarEventList
@@ -207,7 +217,7 @@
 
 		span.icon
 		{
-			margin-right: $standard-spacing;
+			margin-right: $standard-space;
 		}
 	}
 }

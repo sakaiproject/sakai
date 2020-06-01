@@ -88,7 +88,7 @@
                     <h:outputText value="#{assessmentSettingsMessages.header_extendedTime_start_date}" />
                 </f:facet>
                 <h:outputText id="extendedTimeStartDate" value="#{entry.startDate}">
-                    <f:convertDateTime pattern="#{generalMessages.output_date_no_sec}"/>
+                    <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
                 </h:outputText>
             </h:column>
             <h:column headerClass="extendedTime-due">
@@ -96,7 +96,7 @@
                     <h:outputText value="#{assessmentSettingsMessages.header_extendedTime_due_date}" />
                 </f:facet>
                 <h:outputText id="extendedTimeEndDate" value="#{entry.dueDate}">
-                    <f:convertDateTime pattern="#{generalMessages.output_date_no_sec}"/>
+                    <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
                 </h:outputText>
             </h:column>
             <h:column headerClass="extendedTime-retract">
@@ -104,7 +104,7 @@
                     <h:outputText value="#{assessmentSettingsMessages.header_extendedTime_retract_date}" />
                 </f:facet>
                 <h:outputText id="extendedTimeRetractDate" value="#{entry.retractDate}">
-                    <f:convertDateTime pattern="#{generalMessages.output_date_no_sec}"/>
+                    <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
                 </h:outputText>
             </h:column>
             <h:column headerClass="extendedTime-hours">

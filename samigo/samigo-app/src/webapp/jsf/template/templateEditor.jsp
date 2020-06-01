@@ -33,10 +33,10 @@
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{templateMessages.template_editor}" /></title>
-      <script type="text/javascript" src="/samigo-app/jsf/widget/hideDivision/hideDivision.js"></script>
-      <script type="text/javascript" src="/samigo-app/js/authoring.js"></script>
+      <script src="/samigo-app/jsf/widget/hideDivision/hideDivision.js"></script>
+      <script src="/samigo-app/js/authoring.js"></script>
 
-      <script type="text/javascript">
+      <script>
         $(document).ready(function() {
           // set up the accordion for settings
           $("#jqueryui-accordion").accordion({ heightStyle: "content",collapsible: true });
@@ -79,7 +79,7 @@
      <h:outputText value="#{template.templateName}"/>
 </h3>
  <h:outputText escape="false" value="#{templateMessages.template_instructions}"/>
- <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+ <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
   <!-- *** GENERAL TEMPLATE INFORMATION *** -->
   <div class="tier1" id="jqueryui-accordion">
   <samigo:hideDivision id="div1" title="#{templateMessages.template_inform}" >

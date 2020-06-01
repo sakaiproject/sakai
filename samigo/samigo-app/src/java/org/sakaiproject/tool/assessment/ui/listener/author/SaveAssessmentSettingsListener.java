@@ -33,7 +33,7 @@ import javax.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
@@ -46,7 +46,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.TextFormat;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * <p>Title: Samigo</p>2
@@ -221,7 +221,7 @@ public class SaveAssessmentSettingsListener
 		
     //check feedback - if at specific time then time should be defined.
     if((assessmentSettings.getFeedbackDelivery()).equals("2")) {
-    	if (assessmentSettings.getFeedbackDateString()==null || assessmentSettings.getFeedbackDateString().equals("")) {
+    	if (StringUtils.isBlank(assessmentSettings.getFeedbackDateString())) {
     		error=true;
     		String  date_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","date_error");
     		context.addMessage(null,new FacesMessage(date_err));
@@ -231,6 +231,34 @@ public class SaveAssessmentSettingsListener
         	context.addMessage(null,new FacesMessage(feedbackDateErr));
         	error=true;
         }
+
+        if(StringUtils.isNotBlank(assessmentSettings.getFeedbackEndDateString()) && assessmentSettings.getFeedbackDate().after(assessmentSettings.getFeedbackEndDate())){
+            String feedbackDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","invalid_feedback_ranges");
+            context.addMessage(null,new FacesMessage(feedbackDateErr));
+            error=true;
+        }
+
+		boolean scoreThresholdEnabled = assessmentSettings.getFeedbackScoreThresholdEnabled();
+		//Check if the value is empty
+		boolean scoreThresholdError = StringUtils.isBlank(assessmentSettings.getFeedbackScoreThreshold());
+		//If the threshold value is not empty, check if is a valid percentage
+		if (!scoreThresholdError) {
+			String submittedScoreThreshold = StringUtils.replace(assessmentSettings.getFeedbackScoreThreshold(), ",", ".");
+			try {
+				Double doubleInput = new Double(submittedScoreThreshold);
+				if(doubleInput.compareTo(new Double("0.0")) == -1 || doubleInput.compareTo(new Double("100.0")) == 1){
+					throw new Exception();
+				}
+			} catch(Exception ex) {
+				scoreThresholdError = true;
+			}
+		}
+		//If the threshold is enabled and is not valid, display an error.
+		if(scoreThresholdEnabled && scoreThresholdError){
+			error = true;
+			String str_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","feedback_score_threshold_required");
+			context.addMessage(null,new FacesMessage(str_err));
+		}
     }
     
     // check secure delivery exit password
@@ -278,7 +306,7 @@ public class SaveAssessmentSettingsListener
     Iterator iter = assessmentList.iterator();
 	while (iter.hasNext()) {
 		AssessmentFacade assessmentFacade= (AssessmentFacade) iter.next();
-		assessmentFacade.setTitle(FormattedText.convertFormattedTextToPlaintext(assessmentFacade.getTitle()));
+		assessmentFacade.setTitle(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(assessmentFacade.getTitle()));
 	}
     // get the managed bean, author and set the list
     List allAssessments = new ArrayList<>();

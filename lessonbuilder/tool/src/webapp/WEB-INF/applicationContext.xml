@@ -294,7 +294,7 @@ simplePageBean.addForumSummary
     <property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
     <property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
     <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
-
+    <property name="ltiService" ref="org.sakaiproject.lti.api.LTIService" />
     <property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
     <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
     <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
@@ -366,64 +366,65 @@ simplePageBean.addForumSummary
 
  	<bean id="org.sakaiproject.lessonbuildertool.ccexport.CCExport"
 	      class="org.sakaiproject.lessonbuildertool.ccexport.CCExport">
-	  <property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
-	  <property name="samigoExport"><ref bean="org.sakaiproject.lessonbuildertool.ccexport.SamigoExport"/></property>
-	  <property name="assignmentExport"><ref bean="org.sakaiproject.lessonbuildertool.ccexport.AssignmentExport"/></property>
-	  <property name="forumsExport"><ref bean="org.sakaiproject.lessonbuildertool.ccexport.ForumsExport"/></property>
-	  <property name="bltiExport"><ref bean="org.sakaiproject.lessonbuildertool.ccexport.BltiExport"/></property>
-	  <property name="messageLocator" ref="messageLocator"/>
-	  <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+		<property name="assignmentExport" ref="org.sakaiproject.lessonbuildertool.ccexport.AssignmentExport"/>
+		<property name="bltiExport" ref="org.sakaiproject.lessonbuildertool.ccexport.BltiExport"/>
+		<property name="ccUtils" ref="org.sakaiproject.lessonbuildertool.ccexport.CCUtils"/>
+		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+		<property name="forumsExport" ref="org.sakaiproject.lessonbuildertool.ccexport.ForumsExport"/>
+		<property name="lessonsExport" ref="org.sakaiproject.lessonbuildertool.ccexport.LessonsExport"/>
+		<property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService"/>
+		<property name="samigoExport" ref="org.sakaiproject.lessonbuildertool.ccexport.SamigoExport"/>
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+		<property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao"/>
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+	</bean>
+
+	<bean id="org.sakaiproject.lessonbuildertool.ccexport.CCUtils"
+		  class="org.sakaiproject.lessonbuildertool.ccexport.CCUtils">
+		<property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
 	</bean>
 
  	<bean id="org.sakaiproject.lessonbuildertool.ccexport.SamigoExport"
-	      class="org.sakaiproject.lessonbuildertool.ccexport.SamigoExport"
-              init-method="init"
-              destroy-method="destroy">
-	  
-	  <property name="publishedAssessmentFacadeQueries"><ref bean="PublishedAssessmentFacadeQueries" /></property>
-	  <property name="questionPoolFacadeQueries"><ref bean="QuestionPoolFacadeQueries" /></property>
-	  <property name="messageLocator" ref="messageLocator"/>
-	  <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+	      class="org.sakaiproject.lessonbuildertool.ccexport.SamigoExport">
+	  <property name="ccUtils" ref="org.sakaiproject.lessonbuildertool.ccexport.CCUtils"/>
+	  <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText"/>
+	  <property name="questionPoolFacadeQueries" ref="QuestionPoolFacadeQueries"/>
+	  <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 	</bean>
 
  	<bean id="org.sakaiproject.lessonbuildertool.ccexport.AssignmentExport"
-	      class="org.sakaiproject.lessonbuildertool.ccexport.AssignmentExport"
-              init-method="init"
-              destroy-method="destroy">
-	  <property name="messageLocator" ref="messageLocator"/>
-	  <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+	      class="org.sakaiproject.lessonbuildertool.ccexport.AssignmentExport">
+		<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
+		<property name="ccUtils" ref="org.sakaiproject.lessonbuildertool.ccexport.CCUtils"/>
+		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
 	</bean>
 
  	<bean id="org.sakaiproject.lessonbuildertool.ccexport.ForumsExport"
-	      class="org.sakaiproject.lessonbuildertool.ccexport.ForumsExport"
-              init-method="init"
-              destroy-method="destroy">
-	  <property name="messageLocator" ref="messageLocator"/>
-	  <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+	      class="org.sakaiproject.lessonbuildertool.ccexport.ForumsExport">
+		<property name="assignmentExport" ref="org.sakaiproject.lessonbuildertool.ccexport.AssignmentExport"/>
+		<property name="ccUtils" ref="org.sakaiproject.lessonbuildertool.ccexport.CCUtils"/>
+		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+		<property name="formattedText" ref="org.sakaiproject.util.api.FormattedText"/>
+	    <property name="forumManager" ref="org.sakaiproject.api.app.messageforums.MessageForumsForumManager"/>
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
 	</bean>
-
- 	<bean id="org.sakaiproject.lessonbuildertool.ccexport.JForumExport"
-	      class="org.sakaiproject.lessonbuildertool.ccexport.JForumExport"
-              init-method="init"
-              destroy-method="destroy">
-	  <property name="messageLocator" ref="messageLocator"/>
-	  <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
-	  <property name="prev" ref="org.sakaiproject.lessonbuildertool.ccexport.ForumsExport" />
-	</bean>
-
 
  	<bean id="org.sakaiproject.lessonbuildertool.ccexport.BltiExport"
-	      class="org.sakaiproject.lessonbuildertool.ccexport.BltiExport"
-              init-method="init"
-              destroy-method="destroy">
-	  <property name="messageLocator" ref="messageLocator"/>
-	  <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+	      class="org.sakaiproject.lessonbuildertool.ccexport.BLTIExport">
+		<property name="ltiService" ref="org.sakaiproject.lti.api.LTIService"/>
+	</bean>
+
+	<bean id="org.sakaiproject.lessonbuildertool.ccexport.LessonsExport"
+		  class="org.sakaiproject.lessonbuildertool.ccexport.LessonsExport">
+		<property name="ccUtils" ref="org.sakaiproject.lessonbuildertool.ccexport.CCUtils"/>
+		<property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao"/>
 	</bean>
 
 	<bean parent="viewParamsRegistrarParent">
-          <property name="viewID" value="exportCc" />
-          <property name="viewParamsClass"
-		    value="org.sakaiproject.lessonbuildertool.tool.view.ExportCCViewParameters" />
+		<property name="viewID" value="exportCc" />
+        <property name="viewParamsClass" value="org.sakaiproject.lessonbuildertool.tool.view.ExportCCViewParameters" />
 	</bean>
 	
 	<bean

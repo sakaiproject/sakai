@@ -23,9 +23,9 @@
   	pmt.initializePrivateMessageArea();
 %>
 
-       		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-			<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
-			<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
+       		<script>includeLatestJQuery("msgcntr");</script>
+			<script src="/messageforums-tool/js/sak-10625.js"></script>
+			<script src="/messageforums-tool/js/forum.js"></script>
 				<%--//designNote:  if layout="table" is needed,  need rendered attr here so that no empty tables  are put in the response - leaving undefined here so that it reverts to layout="list" --%> 
 				<h:messages globalOnly="true" infoClass="success" errorClass="alertMessage" rendered="#{! empty facesContext.maximumSeverity}"/>  		
   
@@ -40,7 +40,7 @@
     thisId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
   }
 %>
-			<script type="text/javascript">
+			<script>
   				setPanelId('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
 			</script> 
 		

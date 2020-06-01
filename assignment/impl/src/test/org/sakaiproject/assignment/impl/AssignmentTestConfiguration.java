@@ -29,6 +29,7 @@ import org.mockito.Mockito;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.api.app.scheduler.SchedulerManager;
+import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.taggable.AssignmentActivityProducer;
 import org.sakaiproject.assignment.impl.reminder.prefs.AssignmentUserNotificationPreferencesRegistrationImpl;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -46,6 +47,8 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.hibernate.AssignableUUIDGenerator;
 import org.sakaiproject.rubrics.logic.RubricsService;
+import org.sakaiproject.search.api.SearchIndexBuilder;
+import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -71,6 +74,7 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.hibernate4.HibernateTransactionManager;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBuilder;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * Created by enietzel on 4/12/17.
@@ -225,6 +229,7 @@ public class AssignmentTestConfiguration {
         ServerConfigurationService scs = mock(ServerConfigurationService.class);
         Mockito.when(scs.getBoolean("content.cleaner.filter.utf8", true)).thenReturn(Boolean.TRUE);
         Mockito.when(scs.getString("content.cleaner.filter.utf8.replacement", "")).thenReturn("");
+        Mockito.when(scs.getInt("assignment.grading.decimals", AssignmentConstants.DEFAULT_DECIMAL_POINT)).thenReturn(2);
         return scs;
     }
 
@@ -291,5 +296,20 @@ public class AssignmentTestConfiguration {
     @Bean(name = "org.sakaiproject.rubrics.logic.RubricsService")
     public RubricsService rubricsService() {
         return mock(RubricsService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.search.api.SearchService")
+    public SearchService searchService() {
+        return mock(SearchService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.search.api.SearchIndexBuilder")
+    public SearchIndexBuilder searchIndexBuilder() {
+        return mock(SearchIndexBuilder.class);
+    }
+
+    @Bean(name = "org.springproject.transaction.support.TransactionTemplate")
+    public TransactionTemplate transactionTemplate() {
+        return mock(TransactionTemplate.class);
     }
 }

@@ -3,7 +3,7 @@
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t" %>
 
-<f:view locale="#{UserLocale.localeExcludeCountryForIE}">
+<f:view>
 	<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
 	   <jsp:setProperty name="msgs" property="baseName" value="messages"/>
 	</jsp:useBean>
@@ -12,11 +12,11 @@
 			@import url("/sakai-signup-tool/css/signupStyle.css");
 		</style>
 <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
-        <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
-		<script TYPE="text/javascript" LANGUAGE="JavaScript" src="/sakai-signup-tool/js/signupScript.js"></script>
-		
-    	<script type="text/javascript">
-    		 
+        <script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+		<script src="/sakai-signup-tool/js/signupScript.js"></script>
+
+		<script>
+
 		     var timeslotTag; 
 		     var maxAttendeeTag;
 		     var originalTsVal; 
@@ -36,7 +36,7 @@
                     useTime: 1,
                     parseFormat: 'YYYY-MM-DD HH:mm:ss',
                     allowEmptyDate: false,
-                    val: '<h:outputText value="#{CopyMeetingSignupMBean.signupMeeting.startTime}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
+                    val: '<h:outputText value="#{CopyMeetingSignupMBean.signupMeeting.startTime}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" timeZone="#{UserTimeZone.userTimeZone}" /></h:outputText>',
                     ashidden: {
                             iso8601: 'startTimeISO8601',
                             month:"meeting_startTime_month",
@@ -52,7 +52,7 @@
                     useTime: 1,
                     parseFormat: 'YYYY-MM-DD HH:mm:ss',
                     allowEmptyDate: false,
-                    val: '<h:outputText value="#{CopyMeetingSignupMBean.signupMeeting.endTime}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
+                    val: '<h:outputText value="#{CopyMeetingSignupMBean.signupMeeting.endTime}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" timeZone="#{UserTimeZone.userTimeZone}" /></h:outputText>',
                     ashidden: {
                             iso8601: 'endTimeISO8601',
                             month:"meeting_endTime_month",
@@ -68,7 +68,7 @@
                     useTime: 0,
                     parseFormat: 'YYYY-MM-DD',
                     allowEmptyDate: false,
-                    val: '<h:outputText value="#{CopyMeetingSignupMBean.repeatUntilString}"><f:convertDateTime pattern="yyyy-MM-dd"/></h:outputText>',
+                    val: '<h:outputText value="#{CopyMeetingSignupMBean.repeatUntilString}"><f:convertDateTime pattern="yyyy-MM-dd" timeZone="#{UserTimeZone.userTimeZone}" /></h:outputText>',
                     ashidden: {
                             iso8601: 'untilISO8601',
                             month:"meeting_until_month",
@@ -104,6 +104,11 @@
 		    	 isShowAssignToAllChoice();
 		    	 
 		    	 sakai.initSignupBeginAndEndsExact();
+
+                var menuLink = $('#signupMainMenuLink');
+                menuLink.addClass('current');
+                menuLink.html(menuLink.find('a').text());
+
     	 	});
     	 				 	         	         	    	 
 	         function alertTruncatedAttendees(alertMsg,hasTruncated){         	
@@ -173,11 +178,11 @@
 			}
 			
 		</script>
-		
 		<sakai:view_content>
-			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>      			
-			<h:outputText id="iframeId" value="#{CopyMeetingSignupMBean.iframeId}" style="display:none"/>	
+			<h:outputText id="iframeId" value="#{CopyMeetingSignupMBean.iframeId}" style="display:none"/>
 			<h:form id="meeting">
+				<%@ include file="/signup/menu/signupMenu.jsp" %>
+				<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>
 				<div class="page-header">
 					<sakai:view_title value="#{msgs.event_copy_meeting_page_title}"/>
 				</div>
@@ -313,13 +318,7 @@
 						</h:panelGroup>
 						<h:panelGroup rendered="#{CopyMeetingSignupMBean.customTsType}" layout="block" styleClass="col-lg-6">
 							<h:outputText value="#{CopyMeetingSignupMBean.signupMeeting.startTime}" styleClass="longtext">
-								<f:convertDateTime pattern="EEEEEEEE, " timeZone="#{UserTimeZone.userTimeZone}"/>
-							</h:outputText>
-							<h:outputText value="#{CopyMeetingSignupMBean.signupMeeting.startTime}" styleClass="longtext">
-								<f:convertDateTime dateStyle="long" timeZone="#{UserTimeZone.userTimeZone}"/>
-							</h:outputText>
-							<h:outputText value="#{CopyMeetingSignupMBean.signupMeeting.startTime}" styleClass="longtext">
-								<f:convertDateTime pattern=", h:mm a" timeZone="#{UserTimeZone.userTimeZone}"/>
+								<f:convertDateTime pattern="#{UserLocale.fullDateTimeFormat}" timeZone="#{UserTimeZone.userTimeZone}"/>
 							</h:outputText>		
 						</h:panelGroup>
 					</div>
@@ -334,13 +333,7 @@
 						</h:panelGroup>
 						<h:panelGroup rendered="#{CopyMeetingSignupMBean.customTsType}" styleClass="col-lg-6" layout="block">
 							<h:outputText value="#{CopyMeetingSignupMBean.signupMeeting.endTime}" styleClass="longtext">
-								<f:convertDateTime pattern="EEEEEEEE, " timeZone="#{UserTimeZone.userTimeZone}"/>
-							</h:outputText>
-							<h:outputText value="#{CopyMeetingSignupMBean.signupMeeting.endTime}" styleClass="longtext">
-									<f:convertDateTime dateStyle="long" timeZone="#{UserTimeZone.userTimeZone}"/>
-							</h:outputText>
-							<h:outputText value="#{CopyMeetingSignupMBean.signupMeeting.endTime}" styleClass="longtext">
-								<f:convertDateTime pattern=", h:mm a" timeZone="#{UserTimeZone.userTimeZone}"/>
+								<f:convertDateTime pattern="#{UserLocale.fullDateTimeFormat}" timeZone="#{UserTimeZone.userTimeZone}"/>
 							</h:outputText>
 						</h:panelGroup>
 					</div>

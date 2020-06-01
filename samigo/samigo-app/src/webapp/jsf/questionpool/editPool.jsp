@@ -35,7 +35,7 @@
 
 <%@ include file="/js/delivery.js" %>
 
-<script type="text/JavaScript">
+<script>
 var textcheckall="<h:outputText value="#{questionPoolMessages.t_checkAll}"/>";
 var textuncheckall="<h:outputText value="#{questionPoolMessages.t_uncheckAll}"/>";
 <%@ include file="/js/samigotree.js" %>
@@ -47,8 +47,8 @@ function textCounter(field, maxlimit) {
 }
 
 </script>
-<script type="text/javascript" src="/library/js/spinner.js"></script>
-          <script type="text/javascript">
+<script src="/library/js/spinner.js"></script>
+          <script>
               function flagFolders() {
                   collapseRowsByLevel(<h:outputText value="#{questionpool.htmlIdLevel}"/>);
                   flagRows();
@@ -95,7 +95,7 @@ function textCounter(field, maxlimit) {
   </h1>
 </div>
 
-<h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+<h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
 
 <h:outputText rendered="#{questionpool.importToAuthoring == 'true'}" value="#{questionPoolMessages.msg_imp_editpool}"/>
 
@@ -138,7 +138,7 @@ function textCounter(field, maxlimit) {
 </h:panelGroup>
 
   <h:inputHidden id="createdDate" value="#{questionpool.currentPool.dateCreated}">
-  <f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/>
+    <f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/>
   </h:inputHidden>
 <div>
   <h:commandButton id="Update" rendered="#{questionpool.importToAuthoring == 'false'}" action="#{questionpool.getOutcomeEdit}" value="#{questionPoolMessages.update}">

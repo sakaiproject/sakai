@@ -7,7 +7,7 @@
 		$tlang.getString("archive.createsite.info.2")
 	</p>
 	
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $alertMessage</div>#end
 	<form action="#toolForm("$action")" method="post" enctype="multipart/form-data">
 		
 		<strong class="reqStarInline"> * </strong>

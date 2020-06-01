@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/common :: head" />
+<body>
+  <div th:replace="fragments/common :: jQuery" />
+  <div class="portletBody">
+    <div id="menu" th:include="fragments/menus :: main (group)" />
+    <div class="page-header">
+      <h1 th:if="${groupForm.groupId == null}" th:text="#{groups.header.new}"></h1>
+      <h1 th:if="${groupForm.groupId != null}" th:text="#{groups.header.edit}"></h1>
+    </div>
+    <div class="row">
+      <div class="col-sm-8">
+        <div class="sak-banner-error" th:if="${errorMessage != null}" th:text="${errorMessage}"></div>
+        <p th:text="#{groups.instruction}"></p>
+      </div>
+    </div>
+    <form id="creategroup-form" action="#" th:action="@{/saveGroup}" th:object="${groupForm}" method="post">
+      <input type="hidden" id="groupId" name="groupId" th:field="*{groupId}"/>
+      <input type="hidden" id="filterByGroupId" name="filterByGroupId" th:field="*{filterByGroupId}"/>
+      <div class="form-group row">
+        <div class="col-sm-8">
+          <label for="groupTitle" class="form-control-label block" th:text="|* #{groups.title}|">* Group Title</label>
+          <input name="groupTitle" id="groupTitle" type="text" th:field="*{groupTitle}" size="50" maxlength="99" class="form-control" th:placeholder="#{groups.title}" required/>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-sm-8">
+          <label for="groupDescription" class="form-control-label block" th:text="#{groups.description}">Description</label>
+          <textarea name="groupDescription" class="form-control" rows="10" cols="80" th:field="*{groupDescription}" th:placeholder="#{groups.description}"></textarea>
+        </div>
+      </div>
+      <div class="checkbox">
+        <label for="groupAllowViewMembership" class="form-control-label block">
+          <input id="groupAllowViewMembership" class="form-control" type="checkbox" th:field="*{groupAllowViewMembership}" th:checked="${groupForm.groupAllowViewMembership}"/>
+          <span th:text="#{groups.allowviewmembership}"></span>
+        </label>
+      </div>
+      <div class="form-group row" th:if="${!joinableSetList.isEmpty()}">
+        <div class="col-sm-8">
+          <label for="groupJoinableSet" class="form-control-label block" th:text="#{groups.joinableset}">Joinable Set</label>
+          <select class="form-control" id="groupJoinableSet" th:field="*{joinableSetName}">
+            <option value="" th:text="#{groups.none}">
+            <option th:each="joinableSet : ${joinableSetList}" th:value="${joinableSet}" th:text="${joinableSet}">
+          </select>
+        </div>
+      </div>
+      <div id="joinableOptionsDiv" class="form-group row" th:if="${!joinableSetList.isEmpty()}">
+        <div class="col-sm-8">
+          <div class="well">
+            <div class="checkbox">
+              <label for="groupAllowPreviewMembership" class="form-control-label block">
+                <input id="groupAllowPreviewMembership" class="form-control" type="checkbox" th:field="*{groupAllowPreviewMembership}" th:checked="${groupForm.groupAllowPreviewMembership}"/>
+                <span th:text="#{groups.joinableset.allowpreviewmembership}"></span>
+              </label>
+            </div>
+            <div class="checkbox">
+              <label for="groupUnjoinable" class="form-control-label block">
+                <input id="groupUnjoinable" class="form-control" type="checkbox" th:field="*{groupUnjoinable}" th:checked="${groupForm.groupUnjoinable}"/>
+                <span th:text="#{groups.joinableset.allowunjoin}"></span>
+              </label>
+            </div>
+            <label for="joinableSetNumOfMembers" class="form-control-label block" th:text="#{groups.joinableset.maxmembers}">Max members:</label>
+            <input name="joinableSetNumOfMembers" id="joinableSetNumOfMembers" type="number" th:field="*{joinableSetNumOfMembers}" min="1" max="999" class="form-control"/>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row" th:if="${!groupList.isEmpty() || !sectionList.isEmpty()}">
+        <div class="col-sm-8">
+          <label for="groupMembershipFilter" class="form-control-label block" th:text="#{groups.filter.membership}">Filter membership</label>
+          <select class="form-control" id="groupMembershipFilter" th:field="*{filterByGroupId}">
+            <option value="" th:text="#{groups.none}">
+            <option th:each="group : ${groupList}" th:value="${group.id}" th:text="|#{groups.filter.membership.group} ${group.title}|">
+            <option th:each="section : ${sectionList}" th:value="${section.id}" th:text="|#{groups.filter.membership.section} ${section.title}|">
+          </select>
+        </div>
+      </div>
+      <div class="form-group row">
+          <div class="col-sm-3">
+            <label for="groupMembersFrom" class="form-control-label block" th:text="#{groups.available.members}">Available Members</label>
+            <select name="groupMembersFrom" id="groupMembersFrom" class="form-control" multiple="multiple" size="8">
+              <option th:if="${groupForm.groupMembers == null || !groupForm.groupMembers.contains(siteRole.id)}" th:each="siteRole : ${siteRoleList}" th:value="${siteRole.id}" th:text="|#{groups.role} ${siteRole.id}|"></option>
+              <option th:if="${groupForm.groupMembers == null || !groupForm.groupMembers.contains(siteSection.title)}" th:each="siteSection : ${sectionList}" th:value="${siteSection.title}" th:text="|#{groups.section} ${siteSection.title}|"></option>
+              <option th:if="${groupForm.groupMembers == null || !groupForm.groupMembers.contains(siteMember.id)}" th:each="siteMember : ${siteMemberList}" th:value="${siteMember.id}" th:text="|${siteMember.sortName} (${siteMember.eid})|"></option>
+            </select>
+          </div>
+          <div class="col-sm-2">
+            <label for="groupMembersFrom_rightAll" class="form-control-label block" th:text="#{groups.membership.controls}">Membership controls</label>
+            <button data-toggle="tooltip" th:title="#{groups.multiselect.move.all.right}" type="button" id="groupMembersFrom_rightAll" class="btn btn-block"><i class="glyphicon glyphicon-forward"></i></button>
+            <button data-toggle="tooltip" th:title="#{groups.multiselect.move.selected.right}" type="button" id="groupMembersFrom_rightSelected" class="btn btn-block"><i class="glyphicon glyphicon-chevron-right"></i></button>
+            <button data-toggle="tooltip" th:title="#{groups.multiselect.move.selected.left}" type="button" id="groupMembersFrom_leftSelected" class="btn btn-block"><i class="glyphicon glyphicon-chevron-left"></i></button>
+            <button data-toggle="tooltip" th:title="#{groups.multiselect.move.all.left}" type="button" id="groupMembersFrom_leftAll" class="btn btn-block"><i class="glyphicon glyphicon-backward"></i></button>
+          </div>
+          <div class="col-sm-3">
+            <label for="groupMembersFrom_to" class="form-control-label block" th:text="#{groups.assigned.members}">Assigned Members</label>
+            <select name="groupMembers" th:field="*{groupMembers}" id="groupMembersFrom_to" class="form-control" multiple="multiple" size="8">
+              <option th:if="${groupForm.groupMembers != null && groupForm.groupMembers.contains(siteRole.id)}" th:each="siteRole : ${siteRoleList}" th:value="${siteRole.id}" th:text="|#{groups.role} ${siteRole.id}|"></option>
+              <option th:if="${groupForm.groupMembers != null && groupForm.groupMembers.contains(siteSection.title)}" th:each="siteSection : ${sectionList}" th:value="${siteSection.title}" th:text="|#{groups.section} ${siteSection.title}|"></option>
+              <option th:if="${groupForm.groupMembers != null && groupForm.groupMembers.contains(siteMember.id)}" th:each="siteMember : ${siteMemberList}" th:value="${siteMember.id}" th:text="|${siteMember.sortName} (${siteMember.eid})|"></option>
+            </select>
+          </div>
+      </div>
+      <div class="act">
+        <input th:if="${groupForm.groupId == null}" accesskey="s" disabled="disabled" id="create-group-submit-button" type="submit" class="active" th:value="#{groups.button.create}">
+        <input th:if="${groupForm.groupId != null}" accesskey="s" id="save-group-submit-button" type="submit" class="active" th:value="#{groups.button.save}">
+        <a th:href="@{/}" accesskey="x" id="create-group-cancel-button" class="btn btn-default" th:text="#{groups.button.cancel}">Cancel</a>
+      </div>
+    </form>
+  </div>
+  <script th:replace="fragments/javascript :: groupJs" />
+</body>
+</html>

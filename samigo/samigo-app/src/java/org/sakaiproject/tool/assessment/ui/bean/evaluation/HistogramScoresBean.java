@@ -19,8 +19,6 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.bean.evaluation;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 
@@ -31,20 +29,20 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.faces.model.SelectItem;
 
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
-
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
-/**
- * <p>JSF bean for displaying the Histogram page.</p>
- */
-public class HistogramScoresBean
-  implements Serializable
-{
+/* For evaluation: Histogram Scores backing bean. */
+@ManagedBean(name="histogramScores")
+@SessionScoped
+public class HistogramScoresBean implements Serializable {
   private String assessmentName;
 
   /** Use serialVersionUID for interoperability. */
@@ -794,6 +792,110 @@ publishedId = ppublishedId;
   {
     numResponses = pnumResponses;
   }
+
+public String getHistogramChartOptions() {
+    String chartOptions = "[[";
+    for (HistogramBarBean hb : getHistogramBars()) {
+      chartOptions =
+          chartOptions.concat("['" + hb.getRangeInfo() + "'," + hb.getNumStudents() + "],");
+    }
+    chartOptions = chartOptions.substring(0, chartOptions.lastIndexOf(","));
+    chartOptions = chartOptions.concat("]]");
+    return chartOptions;
+  }
+
+  public String getHistogramChartReader() {
+    String reader_at =
+        ContextUtil.getLocalizedString(
+            "org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "reader_at");
+    String reader_through =
+        ContextUtil.getLocalizedString(
+            "org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "reader_through");
+    String reader_after =
+        ContextUtil.getLocalizedString(
+            "org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "reader_after");
+    String reader_lt =
+        ContextUtil.getLocalizedString(
+            "org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "reader_lt");
+    String reader_end =
+        ContextUtil.getLocalizedString(
+            "org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "reader_end");
+    String reader_earned =
+        ContextUtil.getLocalizedString(
+            "org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "reader_earned");
+    String reader_starting =
+        ContextUtil.getLocalizedString(
+            "org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "reader_starting");
+    String chartReader = "";
+
+    for (HistogramBarBean hb : getHistogramBars()) {
+      String range = hb.getRangeInfo();
+      boolean side = true;
+      String firstVal = "";
+      String lastVal = "";
+      String atOrAfter = "";
+      String throughOrLess = "";
+
+      for (int i = 0; i < range.length(); i++) {
+        switch (range.charAt(i)) {
+          case '[':
+            atOrAfter = reader_at;
+            break;
+          case ']':
+            throughOrLess = reader_through;
+            break;
+          case '(':
+            atOrAfter = reader_after;
+            break;
+          case ')':
+            throughOrLess = reader_lt;
+            break;
+          case ',':
+            side = false;
+            break;
+          default:
+            if (side) {
+              firstVal = firstVal.concat(Character.toString(range.charAt(i)));
+            } else {
+              lastVal = lastVal.concat(Character.toString(range.charAt(i)));
+            }
+	    break;
+        }
+      }
+      String resString = "students";
+      String scoreOrScores = "scores";
+      int responses = hb.getNumStudents();
+      if (responses == 1) {
+        resString = "student";
+        scoreOrScores = "a score";
+      }
+      chartReader =
+          chartReader.concat(
+              "<span>"
+                  + responses
+                  + " "
+                  + resString
+                  + " "
+                  + reader_earned
+                  + " "
+                  + scoreOrScores
+                  + " "
+                  + reader_starting
+                  + " "
+                  + atOrAfter
+                  + " "
+                  + firstVal
+                  + " "
+                  + throughOrLess
+                  + " "
+                  + lastVal
+                  + " "
+                  + reader_end
+                  + "</span>");
+    }
+    return chartReader;
+  }
+
 
   /**
    * HistogramBar arrray

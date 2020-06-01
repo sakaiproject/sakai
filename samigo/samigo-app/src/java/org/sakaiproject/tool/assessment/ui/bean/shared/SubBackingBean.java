@@ -25,20 +25,14 @@ package org.sakaiproject.tool.assessment.ui.bean.shared;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
-/**
- * <p> </p>
- * <p>Description: A Sub Backing Bean</p>
- * <p>Copyright: Copyright (c) 2004</p>
- * <p>Organization: Sakai Project</p>
- * @author Ed Smiley
- * @version $id: $
- */
 
-public class SubBackingBean implements Serializable
-{
-  /**
-	 * 
-	 */
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
+
+@ManagedBean(name="subbackingbean")
+@SessionScoped
+public class SubBackingBean implements Serializable {
+
 	private static final long serialVersionUID = -116744576891046455L;
 private String title;
   private String name;

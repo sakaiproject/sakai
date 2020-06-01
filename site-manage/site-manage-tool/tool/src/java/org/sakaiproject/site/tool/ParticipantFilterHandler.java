@@ -39,6 +39,8 @@ import org.sakaiproject.site.util.SiteConstants;
 import org.sakaiproject.site.util.SiteParticipantHelper;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.comparator.GroupTitleComparator;
+import org.sakaiproject.util.comparator.RoleIdComparator;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -54,8 +56,8 @@ public class ParticipantFilterHandler
     private static final CourseManagementService CMS = (CourseManagementService) ComponentManager.get( CourseManagementService.class );
 
     // Comparators
-    private static final Comparator<Role>       SORT_BY_ROLE_TITLE      = (Role role1, Role role2)              -> role1.getId().compareTo( role2.getId() );
-    private static final Comparator<Group>      SORT_BY_GROUP_TITLE     = (Group group1, Group group2)          -> group1.getTitle().compareTo( group2.getTitle() );
+    private static final Comparator<Role>       SORT_BY_ROLE_TITLE      = new RoleIdComparator();
+    private static final Comparator<Group>      SORT_BY_GROUP_TITLE     = new GroupTitleComparator();
     private static final Comparator<Section>    SORT_BY_SECTION_TITLE   = (Section section1, Section section2)  -> section1.getTitle().compareTo( section2.getTitle() );
 
     /**

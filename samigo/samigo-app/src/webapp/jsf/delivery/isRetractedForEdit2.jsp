@@ -52,7 +52,7 @@
 <%@ include file="/jsf/delivery/assessmentDeliveryHeading.jsp" %>
 </f:subview>
 
-  <h:panelGroup styleClass="messageSamigo">
+  <h:panelGroup styleClass="sak-banner-error">
     <h:panelGrid  columns="1">
 	   <h:outputText value="#{deliveryMessages.is_retracted_for_edit2}" />
        <h:outputText value="#{deliveryMessages.feedback_not_available}"/>

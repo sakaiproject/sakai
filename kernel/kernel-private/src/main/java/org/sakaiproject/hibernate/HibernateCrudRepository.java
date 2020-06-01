@@ -156,6 +156,12 @@ public abstract class HibernateCrudRepository<T, ID extends Serializable> implem
 
     @Override
     @Transactional
+    public void persist(T entity) {
+        sessionFactory.getCurrentSession().persist(entity);
+    }
+
+    @Override
+    @Transactional
     public void update(T entity) {
         sessionFactory.getCurrentSession().update(entity);
     }

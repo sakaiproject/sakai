@@ -130,6 +130,14 @@ public interface AssessmentAccessControlIfc
 
   void setFeedbackDate(Date feedbackDate);
 
+  Date getFeedbackEndDate();
+
+  void setFeedbackEndDate(Date feedbackEndDate);
+
+  Double getFeedbackScoreThreshold();
+
+  void setFeedbackScoreThreshold(Double feedbackScoreThreshold);
+
   Date getRetractDate();
 
   void setRetractDate(Date retractDate);

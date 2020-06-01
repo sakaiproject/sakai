@@ -34,6 +34,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.sakaiproject.authz.api.AuthzGroup.RealmLockMode;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.section.api.coursemanagement.Course;
@@ -127,8 +128,9 @@ public class CourseSectionImpl implements CourseSection, Comparable<CourseSectio
 		this.course = new CourseImpl(group.getContainingSite());
 		this.title = group.getTitle();
 		this.description = group.getDescription();
-		this.isLocked = group.isLocked(Group.LockMode.ALL);
-		this.isLockedForDeletion = group.isLocked(Group.LockMode.DELETE);
+		RealmLockMode lockMode = group.getRealmLock();
+		this.isLocked = RealmLockMode.ALL.equals(lockMode) || RealmLockMode.MODIFY.equals(lockMode);
+		this.isLockedForDeletion = RealmLockMode.ALL.equals(lockMode) || RealmLockMode.DELETE.equals(lockMode);
 
 		ResourceProperties props = group.getProperties();
 		this.category = props.getProperty(CourseSectionImpl.CATEGORY);

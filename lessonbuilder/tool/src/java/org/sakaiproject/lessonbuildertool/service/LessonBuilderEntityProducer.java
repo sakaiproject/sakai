@@ -47,27 +47,39 @@ import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.InetAddress;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
+import java.util.UUID;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.io.InputStream;
+import java.io.FileInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
 
 import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.select.Elements;
+import org.sakaiproject.authz.api.AuthzRealmLockException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -99,6 +111,7 @@ import org.sakaiproject.lessonbuildertool.cc.ZipLoader;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.tool.beans.OrphanPageFinder;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
+import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.site.api.Group;
@@ -175,6 +188,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
    private GradebookIfc gradebookIfc;
    private LessonBuilderAccessAPI lessonBuilderAccessAPI;
    private MessageSource messageSource;
+	private LTIService ltiService;
    public void setLessonBuilderAccessAPI(LessonBuilderAccessAPI l) {
        lessonBuilderAccessAPI = l;
    }
@@ -714,7 +728,6 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 	   Node node = allChildrenNodes.item(i);
 	   if (node.getNodeType() == Node.ELEMENT_NODE) {
-
 	       Element itemElement = (Element) node;
 	       if (itemElement.getTagName().equals("item")) {
 		   String s = itemElement.getAttribute("sequence");
@@ -734,7 +747,58 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		       if (sakaiId.startsWith(prefix))
 			   sakaiId = "/group/" + siteId + "/" + sakaiId.substring(prefix.length());
 		       else
-			   log.error("sakaiId not recognized " + sakaiId);
+			   log.error("sakaiId not recognized: {}", sakaiId);
+		   } else if (type == SimplePageItem.BLTI) {
+			   try {
+				   // We need to import the BLTI tool to the new site and update the sakaiid
+				   String[] bltiId = sakaiId.split("/");
+				   Long ltiContentId = Long.valueOf(bltiId[2]);
+
+				   Map<String, Object> ltiContent = ltiService.getContentDao(ltiContentId, oldSiteId, securityService.isSuperUser());
+				   String launchUrl = (String) ltiContent.get(LTIService.LTI_LAUNCH);
+				   String ltiTitle = (String) ltiContent.get(LTIService.LTI_TITLE);
+				   String xmlStr = (String) ltiContent.get(LTIService.LTI_XMLIMPORT);
+				   String ltiCustom = (String) ltiContent.get(LTIService.LTI_CUSTOM);
+				   Long ltiToolId = getLong(ltiContent.get(LTIService.LTI_TOOL_ID));
+				   sakaiId = importLTITool(siteId, launchUrl, ltiTitle, xmlStr, ltiCustom, ltiToolId);
+			   } catch (Exception e) {
+				   log.warn("Unable to import LTI tool to new site: {}", e);
+			   }
+	           } else if (type == SimplePageItem.TEXT) {
+			String html = itemElement.getAttribute("html");
+			Pattern idPattern = Pattern.compile("(https?://[^/]+/access/basiclti/site)/" + Pattern.quote(oldSiteId) + "/content:([0-9]+)");
+			Matcher matcher = idPattern.matcher(html);
+			StringBuffer sb = new StringBuffer();
+			boolean foundLtiLink = false;
+			while(matcher.find()) {
+				String urlFirstPart = matcher.group(1);
+				Long ltiContentId = Long.valueOf(matcher.group(2));
+				log.info("Updating reference: {}", matcher.group(0));
+				foundLtiLink = true;
+				try {
+					Map<String, Object> ltiContent = ltiService.getContentDao(ltiContentId, oldSiteId, securityService.isSuperUser());
+					String launchUrl = (String) ltiContent.get(LTIService.LTI_LAUNCH);
+					String ltiTitle = (String) ltiContent.get(LTIService.LTI_TITLE);
+					String xmlStr = (String) ltiContent.get(LTIService.LTI_XMLIMPORT);
+					String ltiCustom = (String) ltiContent.get(LTIService.LTI_CUSTOM);
+					Long ltiToolId = getLong(ltiContent.get(LTIService.LTI_TOOL_ID));
+					sakaiId = importLTITool(siteId, launchUrl, ltiTitle, xmlStr, ltiCustom, ltiToolId);
+					String[] bltiId = sakaiId.split("/");
+					ltiContentId = Long.valueOf(bltiId[2]);
+				} catch (Exception e) {
+					log.warn("Unable to import LTI tool to new site: {}", e);
+				} finally {
+					String updatedReference = urlFirstPart + "/" + siteId + "/content:" + ltiContentId;
+					log.info("New reference: {}", updatedReference);
+					matcher.appendReplacement(sb, Matcher.quoteReplacement(updatedReference));
+				}
+			}
+
+			if(foundLtiLink) {
+				matcher.appendTail(sb);
+				explanation = sb.toString();
+				log.info("Updated at least one LTI reference lesson HTML");
+			}
 		   } else if (type == SimplePageItem.PAGE) {
 		       // sakaiId should be the new page ID
 		       Long newPageId = pageMap.get(Long.valueOf(sakaiId));
@@ -989,31 +1053,25 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	   return;
 
        for (SimplePageItem item: items) {
-	   if (item.getType() == SimplePageItem.TEXT) {
-	       String s = item.getHtml();
-	       if (s != null) {
-		   String fixed = fixUrls(s, oldServer, siteId, fromSiteId, itemMap);
-		   if (!s.equals(fixed)) {
-		       item.setHtml(fixed);
-		       simplePageToolDao.quickUpdate(item);
-		   }
-	       }
-	   }
+           if (item.getType() == SimplePageItem.TEXT) {
+               String s = item.getHtml();
+               if (StringUtils.isNotBlank(s)) {
+                   String fixed = fixUrls(s, oldServer, siteId, fromSiteId, itemMap);
+                   if (!StringUtils.equals(s ,fixed)) {
+                       item.setHtml(fixed);
+                       simplePageToolDao.quickUpdate(item);
+                   }
+               }
+           }
        }
 
     }
 
-
     public String fixUrls(String s, String oldServer, String siteId, String fromSiteId, Map<Long,Long> itemMap) {
-
-	ContentCopyContext context = new ContentCopyContext(fromSiteId, siteId, oldServer);
-
-       // should use CopyContent in kernel once KNL-737 is implemented. I'm including a copy of
-       // it for the moment
-	return convertHtmlContent(context, s, null, itemMap);
-
+        ContentCopyContext context = new ContentCopyContext(fromSiteId, siteId, oldServer);
+        String htmlWithAttachments = transferAttachmentFiles(s, fromSiteId, siteId);
+        return convertHtmlContent(context, htmlWithAttachments, null, itemMap);
    }
-
 
    public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans,
 		       Set userListAllowImport) {
@@ -1579,8 +1637,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	  for (Group group: delGroups) {
 	      try {
 	        site.deleteGroup(group);
-	      } catch (IllegalStateException e) {
-	        log.error(".fixupGroupRefs: Group with id {} cannot be removed because is locked", group.getId());
+	      } catch (AuthzRealmLockException arle) {
+	        log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
 	      }
 	  }
 	  try {
@@ -1702,6 +1760,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	messageSource = s;
     }
 
+	public void setLtiService(LTIService s) {
+		ltiService = s;
+	}
+
     // sitestats support
 
     public boolean entityExists(String id) {
@@ -1785,19 +1847,16 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	}
     }
 
-    private String convertHtmlContent(ContentCopyContext context,
-				      String content, String contentUrl, Map<Long,Long> itemMap) {
-	
+    private String convertHtmlContent(ContentCopyContext context, String content, String contentUrl, Map<Long,Long> itemMap) {
 	// this old code (below) seems to have come from an old version of the kerne's reference migrator.
 	// It's too complex for me to verify that it's right.
 	// At this point the kernel just does string replacements. So I'm going to
-	// replace /access/content/group/NNN with the new value
+	// replace NNN with the new value
 	// and also fix up the dummy references.
 
-	String oldurl = "/access/content/group/" + context.getOldSiteId().replace(" ", "%20");
-	String newurl = "/access/content/group/" + context.getNewSiteId().replace(" ", "%20");
-
-	content = content.replace(oldurl, newurl);
+        String oldSiteReference = context.getOldSiteId();
+        String newSiteReference = context.getNewSiteId();
+        content = StringUtils.replace(content, oldSiteReference, newSiteReference);
 
 	// no point doing this code unless we actually have a dummy url in it
 	if (content.indexOf(ITEMDUMMY) >= 0) {
@@ -1819,36 +1878,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	    content = newcontent.toString();
 	}
 
-	if (false) {
-	StringBuilder output = new StringBuilder();
-	Matcher matcher = attributePattern.matcher(content);
-	int contentPos = 0;
-
-	StringBuffer newContent = new StringBuffer();
-	while (matcher.find()) {
-	    String url = matcher.group(3);
-
-	    // processUrl does a parse of the URL. It will fail if there is a space
-	    // in it. But spaces are often used by humans, since they actually work.
-	    // And a CKEditor bug inserts them. So handle them correctly.
-	    url = url.replace(" ", "%20");
-	    url = processUrl(context, url, contentUrl, itemMap);
-	    // Content up to the match.
-	    int copyTo = matcher.start(3);
-	    // Start the second copy after the match.
-	    int copyFrom = matcher.end(3);
-	    int copyEnd = matcher.end();
-	    
-	    output.append(content.substring(contentPos, copyTo));
-	    output.append(url);
-	    output.append(content.substring(copyFrom, copyEnd));
-	    contentPos = copyEnd;
-	}
-	    output.append(content.substring(contentPos));
-	    return output.toString();
-	} // end of if false
-
-	return content;
+        return content;
 
     }
 
@@ -2179,5 +2209,159 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
     private long idFromRef (String reference) {
         return idFromRef(reference,4);
     }
+
+    /**
+     * Parses an HTML content, extracts the URLs of the HTML content and transfer the missing files into the new site.
+     */
+    private String transferAttachmentFiles(String msgBody, String oldSiteId, String newSiteId) {
+        String replacedBody = msgBody;
+        String serverURL = ServerConfigurationService.getServerUrl();
+        String collectionPrefix = "/access/content/";
+        if(StringUtils.isNotBlank(msgBody)) {
+            org.jsoup.nodes.Document doc = Jsoup.parse(msgBody);
+
+            Elements links = doc.select("a[href]");
+            Elements media = doc.select("[src]");
+            Elements imports = doc.select("link[href]");
+            List<String> references = new ArrayList<String>();
+            // href ...
+            for (org.jsoup.nodes.Element link : links) {
+                references.add(link.attr("abs:href"));
+            }
+
+            // img ...
+            for (org.jsoup.nodes.Element src : media) {
+                references.add(src.attr("abs:src"));
+            }
+
+            // js, css, ...
+            for (org.jsoup.nodes.Element link : imports) {
+                references.add(link.attr("abs:href"));
+            }
+
+            for (String reference : references) {
+                if (reference.contains(oldSiteId) && reference.contains(collectionPrefix)) {
+                    try {
+                        String oldReferenceId = reference;
+                        oldReferenceId = StringUtils.replace(oldReferenceId, collectionPrefix, "/");
+                        oldReferenceId = StringUtils.replace(oldReferenceId, serverURL, StringUtils.EMPTY);
+                        //Try secure and non-secure URLs too, for instances with a mix of configurations.
+                        oldReferenceId = StringUtils.replace(oldReferenceId, StringUtils.replace(serverURL, "https://", "http://"), StringUtils.EMPTY);
+                        oldReferenceId = StringUtils.replace(oldReferenceId, StringUtils.replace(serverURL, "http://", "https://"), StringUtils.EMPTY);
+                        String newReferenceId = StringUtils.replace(oldReferenceId, oldSiteId, newSiteId);
+                        contentHostingService.copy(oldReferenceId, newReferenceId);
+                        replacedBody = StringUtils.replace(replacedBody, oldSiteId, newSiteId);
+                        } catch(Exception e) {
+                            log.error("Error transfering file from site {} to site {}.", oldSiteId, newSiteId, e);
+                        }
+                }
+            }
+        }
+        return replacedBody;
+    }
+
+	private String importLTITool(String siteId, String launchUrl, String bltiTitle, String strXml, String custom, Long ltiToolId)
+			throws Exception
+	{
+		if ( ltiService == null ) return null;
+
+		// If there is no launch url saved in the lti content get it from the corresponding tool
+		if (launchUrl == null) {
+			Map<String, Object> ltiTool = ltiService.getToolDao(ltiToolId, siteId, securityService.isSuperUser());
+			launchUrl = (String) ltiTool.get(LTIService.LTI_LAUNCH);
+		}
+		String toolUrl = launchUrl;
+		int pos = toolUrl.indexOf("?");
+		if ( pos > 0 ) {
+			toolUrl = toolUrl.substring(0, pos);
+		}
+
+		// Check for global tool configurations (prefer global)
+		Map<String,Object> theTool = null;
+		List<Map<String,Object>> tools = ltiService.getToolsDao(null,null,0,0,"!admin");
+		String lastLaunch = "";
+		for ( Map<String,Object> tool : tools ) {
+			String toolLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
+			// Prefer the longest match
+			if (toolUrl.startsWith(toolLaunch) && toolLaunch.length() > lastLaunch.length()) {
+				theTool = tool;
+				lastLaunch = toolLaunch;
+			}
+		}
+
+		// Check for within-site tool configurations (prefer global)
+		if ( theTool == null ) {
+			tools = ltiService.getToolsDao(null,null,0,0,siteId);
+			lastLaunch = "";
+			for ( Map<String,Object> tool : tools ) {
+				String toolLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
+				// Prefer the longest match
+				if ( toolUrl.startsWith(toolLaunch) && toolLaunch.length() > lastLaunch.length()) {
+					theTool = tool;
+					lastLaunch = toolLaunch;
+				}
+			}
+		}
+
+		// If we still do not have a tool configuration throw an error
+		if ( theTool == null ) {
+			log.error("LORI Launch configuration not found- "+toolUrl);
+			throw new Exception("LORI Launch configuration not found");
+		}
+
+		// Found a tool - time to insert content
+		Map<String,Object> theContent = null;
+
+		Properties props = new Properties ();
+		String toolId = getLong(theTool.get(LTIService.LTI_ID)).toString();
+		props.setProperty(LTIService.LTI_TOOL_ID,toolId);
+		props.setProperty(LTIService.LTI_PLACEMENTSECRET, UUID.randomUUID().toString());
+		props.setProperty(LTIService.LTI_TITLE, bltiTitle);
+		props.setProperty(LTIService.LTI_PAGETITLE, bltiTitle);
+		props.setProperty(LTIService.LTI_LAUNCH,launchUrl);
+		props.setProperty(LTIService.LTI_SITE_ID,siteId);
+
+		if ( strXml != null) props.setProperty(LTIService.LTI_XMLIMPORT,strXml);
+		if ( custom != null ) props.setProperty(LTIService.LTI_CUSTOM,custom);
+
+		log.debug("Inserting content associated with toolId="+toolId);
+
+		// Insert as admin into siteId, on error throw upwards
+		Object result = ltiService.insertContentDao(props, "!admin");
+		if ( result instanceof String ) {
+			log.error("Could not insert content - "+result);
+		} else {
+			log.debug("Adding LTI tool "+result);
+		}
+		if ( result instanceof Long ) theContent = ltiService.getContentDao((Long) result, siteId);
+
+		String sakaiId = null;
+		if ( theContent != null ) {
+			sakaiId = "/blti/" + theContent.get(LTIService.LTI_ID);
+		}
+		return sakaiId;
+	}
+
+	private Long getLong(Object key) {
+		Long retval = getLongNull(key);
+		if (retval != null)
+			return retval;
+		return new Long(-1);
+	}
+
+	private Long getLongNull(Object key) {
+		if (key == null)
+			return null;
+		if (key instanceof Number)
+			return new Long(((Number) key).longValue());
+		if (key instanceof String) {
+			try {
+				return new Long((String) key);
+			} catch (Exception e) {
+				return null;
+			}
+		}
+		return null;
+	}
 
 }

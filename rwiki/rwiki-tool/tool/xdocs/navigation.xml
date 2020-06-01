@@ -3,12 +3,12 @@
     <title>Sakai RWiki Tool</title>
     <body>
         <breadcrumbs>
-            <item name="Sakai Project" href="http://www.sakaiproject.org"/>
+            <item name="Sakai Project" href="https://www.sakailms.org/"/>
             <item name="Sakai RWiki" href="../../index.html"/>
             <item name="Sakai RWiki Tool" href="index.html"/>
         </breadcrumbs>
         <menu name="Overview">
-                <item name="Sakai Project" href="http://www.sakaiproject.org"/>
+                <item name="Sakai Project" href="https://www.sakailms.org/"/>
                 <item name="Sakai RWiki" href="../../index.html">                    
                     <item name="RWiki Tool" href="../sakai-rwiki/index.html"/>
                     <item name="RWiki Service" href="../sakai-rwiki-service/index.html"/>

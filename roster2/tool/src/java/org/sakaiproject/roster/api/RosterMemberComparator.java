@@ -40,36 +40,42 @@ import java.text.ParseException;
 import java.text.RuleBasedCollator;
 
 import lombok.extern.slf4j.Slf4j;
-import lombok.RequiredArgsConstructor;
 
 /**
  * <code>Comparator</code> for <code>RosterMember</code>s.
- * 
+ *
  * @author d.b.robinson@lancaster.ac.uk
  */
-@RequiredArgsConstructor
 @Slf4j
 public class RosterMemberComparator implements Comparator<RosterMember> {
-	private final boolean firstNameLastName;
-	private final RuleBasedCollator collator_ini = (RuleBasedCollator)Collator.getInstance();
+
+    private final boolean firstNameLastName;
+    private RuleBasedCollator collator;
+
+    public RosterMemberComparator(boolean firstNameLastName) {
+
+        this.firstNameLastName = firstNameLastName;
+
+        try {
+            RuleBasedCollator collator_ini = (RuleBasedCollator) Collator.getInstance();
+            collator = new RuleBasedCollator(collator_ini.getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
+        } catch (ParseException pe) {
+            log.error("ERROR: Failed to setup collator", pe);
+        }
+    }
 	
-	/**
-	 * Compares two <code>RosterMember</code> objects according to the sorting
-	 * order configured in this instance of <code>RosterMemberComparator</code>.
-	 * 
-	 * @see java.text.Collator#compare(java.lang.String, java.lang.String)
-	 */
-	public int compare(RosterMember member1, RosterMember member2) {
-		try{
-			RuleBasedCollator collator= new RuleBasedCollator(collator_ini.getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
-			if (firstNameLastName) {
-				return collator.compare (member1.getDisplayName(),member2.getDisplayName());
-			} else {
-				return collator.compare (member1.getSortName(),member2.getSortName());
-			}
-		} catch (ParseException e) {
-			log.error("ERROR: EnrollmentTableBean had an issue parsing users: " + member1.getSortName() + " and " + member2.getSortName(),e);
-		}
-		return Collator.getInstance().compare(member1.getSortName(),member2.getSortName());
-	}
+    /**
+     * Compares two <code>RosterMember</code> objects according to the sorting
+     * order configured in this instance of <code>RosterMemberComparator</code>.
+     *
+     * @see java.text.Collator#compare(java.lang.String, java.lang.String)
+     */
+    public int compare(RosterMember member1, RosterMember member2) {
+
+        if (firstNameLastName) {
+            return this.collator.compare (member1.getDisplayName(),member2.getDisplayName());
+        } else {
+            return this.collator.compare (member1.getSortName(),member2.getSortName());
+        }
+    }
 }

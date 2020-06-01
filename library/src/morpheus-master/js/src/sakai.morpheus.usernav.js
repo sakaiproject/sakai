@@ -3,6 +3,7 @@
  */
 
 function userNavEscHandler(e){
+
   if (e.keyCode === 27) { // esc keycode
     toggleUserNav(e);
   }
@@ -12,8 +13,10 @@ function userNavEscHandler(e){
  * Toggle user nav in header: 
  */
 
-function toggleUserNav(event){
+function toggleUserNav(event) {
+
   event.preventDefault();
+
   $PBJQ('.Mrphs-userNav__subnav').toggleClass('is-hidden');
 
   if (!$PBJQ('.Mrphs-userNav__subnav').hasClass('is-hidden')) {
@@ -25,7 +28,7 @@ function toggleUserNav(event){
     $PBJQ('body').prepend(overlay);
 
     // ESC key also closes it
-    $PBJQ(document).on('keyup',userNavEscHandler);
+    $PBJQ(document).on('keyup.usernav',userNavEscHandler);
 
   } else {
     $PBJQ('.user-dropdown-overlay').remove();
@@ -285,11 +288,17 @@ $PBJQ(document).ready( function(){
   
   currentHeaderWidth = $PBJQ(".Mrphs-mainHeader").width();
 
-
 	$PBJQ('.Mrphs-headerLogo').on('click', function() {
 		// scroll to top on banner click/touch
 		document.body.scrollTop = 0;
 		document.body.scrollLeft = 0;
 		$PBJQ(window).trigger('scroll');
 	});
+
+  /////////////////////////////////////////////////
+  // Add become user to body as a class
+  ////////////////////////////////////////////////
+  if (portal && portal.user && portal.user.impersonatorDisplayId) {
+    $PBJQ("body").addClass("Mrphs-become-user-enabled");
+  }
 });

@@ -1,0 +1,30 @@
+<!-- start: chef_assignments_instructor_grading_submission_withgrader.vm  -->
+
+<!-- GRADER JAVASCRIPT -->
+<script>window.top.includeWebjarLibrary("flatpickr");</script>
+#module("/webcomponents/grader/sakai-grader.js")
+<script>
+  ASN.currentGradingSubmission = "$formattedText.escapeUrl( $!submissionReference )";
+</script>
+<!-- END GRADER JAVASCRIPT -->
+
+<div class="portletBody">
+
+    <sakai-grader
+        id="sakai-grader-$assignment.Id"
+        tool="assignments"
+        gradable-id="$assignment.Id"
+        submission-id="$submission.Id"
+        user-list-url="#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$formattedText.escapeUrl($assignmentReference)")"
+        current-student-id="$!submitterId"
+        has-associated-rubric="$!hasAssociatedRubric"
+        #if ($!hasAssociatedRubric)
+        token="$!rbcs-token"
+        tool-id="sakai.assignment"
+        entity-id="$assignment.Id"
+        evaluated-item-id="$submission.Id"
+        #end
+    >
+    </sakai-grader>
+</div>
+<!-- end: check_assignments_instructor_grading_submission.vm  -->

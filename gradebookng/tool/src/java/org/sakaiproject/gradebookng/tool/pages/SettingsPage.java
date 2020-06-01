@@ -37,6 +37,7 @@ import org.sakaiproject.gradebookng.tool.panels.SettingsGradeEntryPanel;
 import org.sakaiproject.gradebookng.tool.panels.SettingsGradeReleasePanel;
 import org.sakaiproject.gradebookng.tool.panels.SettingsGradingSchemaPanel;
 import org.sakaiproject.gradebookng.tool.panels.SettingsStatisticsPanel;
+import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.ConflictingCategoryNameException;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
@@ -137,9 +138,6 @@ public class SettingsPage extends BasePage {
 						catNames.add(cat.getName());
 						if (catWeight == null) {
 							error(getString("settingspage.update.failure.categorymissingweight"));
-						}
-						else if (catWeight.compareTo(BigDecimal.ZERO) == 0) {
-							error(getString("settingspage.update.failure.categoryweightzero"));
 						}
 						else if (catWeight.signum() == -1) {
 							totalWeight = totalWeight.add(BigDecimal.valueOf(cat.getWeight()));
@@ -299,14 +297,14 @@ public class SettingsPage extends BasePage {
 	public void renderHead(final IHeaderResponse response) {
 		super.renderHead(response);
 
-		final String version = this.serverConfigService.getString("portal.cdn.version", "");
+		final String version = PortalUtils.getCDNQuery();
 
 		// Drag and Drop (requires jQueryUI)
 		response.render(
-				JavaScriptHeaderItem.forUrl(String.format("/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js?version=%s", version)));
+				JavaScriptHeaderItem.forUrl(String.format("/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js%s", version)));
 
-		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-settings.css?version=%s", version)));
-		response.render(JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-settings.js?version=%s", version)));
+		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-settings.css%s", version)));
+		response.render(JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-settings.js%s", version)));
 
 	}
 

@@ -11,7 +11,7 @@
 
 	<sakai:view_container>
 		<sakai:view_content>
-			<h:outputText value="#{SyllabusTool.alertMessage}" styleClass="alertMessage" rendered="#{SyllabusTool.alertMessage != null}" />
+			<h:outputText value="#{SyllabusTool.alertMessage}" styleClass="sak-banner-error" rendered="#{SyllabusTool.alertMessage != null}" />
 			<h:form>
 		  	<sakai:tool_bar_message value="#{msgs.previewNotice}" /> 
 				<h4><h:outputText value="#{SyllabusTool.syllabusDataTitle}"/></h4>

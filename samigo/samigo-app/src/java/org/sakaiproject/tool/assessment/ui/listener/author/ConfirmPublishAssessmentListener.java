@@ -39,7 +39,7 @@ import javax.faces.model.SelectItem;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.spring.SpringBeanLocator;
@@ -60,7 +60,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.PublishRepublishNotificat
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.TextFormat;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * <p>Title: Samigo</p>2
@@ -285,9 +285,9 @@ public class ConfirmPublishAssessmentListener
     
     // SAM-1088
     // if late submissions not allowed and late submission date is null, set late submission date to due date
+    final boolean autoSubmitEnabled = ServerConfigurationService.getBoolean("samigo.autoSubmit.enabled", true);
     if (assessmentSettings.getLateHandling() != null && AssessmentAccessControlIfc.NOT_ACCEPT_LATE_SUBMISSION.toString().equals(assessmentSettings.getLateHandling()) &&
     		retractDate == null && dueDate != null && assessmentSettings.getAutoSubmit()) {
-    	boolean autoSubmitEnabled = ServerConfigurationService.getBoolean("samigo.autoSubmit.enabled", false);
     	if (autoSubmitEnabled) {
     		retractDate = dueDate;
     		assessmentSettings.setRetractDate(dueDate);
@@ -295,7 +295,6 @@ public class ConfirmPublishAssessmentListener
     }
     // if auto-submit is enabled, make sure late submission date is set
     if (assessmentSettings.getAutoSubmit() && retractDate == null) {
-    	boolean autoSubmitEnabled = ServerConfigurationService.getBoolean("samigo.autoSubmit.enabled", false);
     	if (autoSubmitEnabled) {
     		String dateError4 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_required_with_auto_submit");
     		context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, dateError4, null));
@@ -391,11 +390,41 @@ public class ConfirmPublishAssessmentListener
     	}
 
     	//check feedback - if at specific time then time should be defined.
-    	if((assessmentSettings.getFeedbackDelivery()).equals("2") && ((assessmentSettings.getFeedbackDateString()==null) || (assessmentSettings.getFeedbackDateString().equals("")))){
-    		error=true;
-    		String date_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","date_error");
-    		context.addMessage(null,new FacesMessage(date_err));
-    	}
+		if(assessmentSettings.getFeedbackDelivery().equals("2")) {
+			if(StringUtils.isBlank(assessmentSettings.getFeedbackDateString())){
+				error=true;
+				String date_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","date_error");
+				context.addMessage(null,new FacesMessage(date_err));
+			}
+
+			if(StringUtils.isNotBlank(assessmentSettings.getFeedbackEndDateString()) && assessmentSettings.getFeedbackDate().after(assessmentSettings.getFeedbackEndDate())){
+				String feedbackDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","invalid_feedback_ranges");
+				context.addMessage(null,new FacesMessage(feedbackDateErr));
+				error=true;
+			}
+
+			boolean scoreThresholdEnabled = assessmentSettings.getFeedbackScoreThresholdEnabled();
+			//Check if the value is empty
+			boolean scoreThresholdError = StringUtils.isBlank(assessmentSettings.getFeedbackScoreThreshold());
+			//If the threshold value is not empty, check if is a valid percentage
+			if (!scoreThresholdError) {
+				String submittedScoreThreshold = StringUtils.replace(assessmentSettings.getFeedbackScoreThreshold(), ",", ".");
+				try {
+					Double doubleInput = new Double(submittedScoreThreshold);
+					if(doubleInput.compareTo(new Double("0.0")) == -1 || doubleInput.compareTo(new Double("100.0")) == 1){
+						throw new Exception();
+					}
+				} catch(Exception ex) {
+					scoreThresholdError = true;
+				}
+			}
+			//If the threshold is enabled and is not valid, display an error.
+			if(scoreThresholdEnabled && scoreThresholdError){
+				error = true;
+				String str_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","feedback_score_threshold_required");
+				context.addMessage(null,new FacesMessage(str_err));
+			}
+		}
     }
     else {
     	if (assessmentSettings.getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
@@ -442,15 +471,16 @@ public class ConfirmPublishAssessmentListener
    
     if (!isFromActionSelect) {
     	// To convertFormattedTextToPlaintext for the fields that have been through convertPlaintextToFormattedTextNoHighUnicode
-    	assessmentSettings.setTitle(FormattedText.convertFormattedTextToPlaintext(assessmentSettings.getTitle()));
-    	assessmentSettings.setAuthors(FormattedText.convertFormattedTextToPlaintext(assessmentSettings.getAuthors()));
-    	assessmentSettings.setFinalPageUrl(FormattedText.convertFormattedTextToPlaintext(assessmentSettings.getFinalPageUrl()));
-    	assessmentSettings.setBgColor(FormattedText.convertFormattedTextToPlaintext(assessmentSettings.getBgColor()));
-    	assessmentSettings.setBgImage(FormattedText.convertFormattedTextToPlaintext(assessmentSettings.getBgImage()));
-    	assessmentSettings.setKeywords(FormattedText.convertFormattedTextToPlaintext(assessmentSettings.getKeywords()));
-    	assessmentSettings.setObjectives(FormattedText.convertFormattedTextToPlaintext(assessmentSettings.getObjectives()));
-    	assessmentSettings.setRubrics(FormattedText.convertFormattedTextToPlaintext(assessmentSettings.getRubrics()));
-    	assessmentSettings.setPassword(FormattedText.convertFormattedTextToPlaintext(StringUtils.trim(assessmentSettings.getPassword())));
+    	FormattedText formattedText = ComponentManager.get(FormattedText.class);
+    	assessmentSettings.setTitle(formattedText.convertFormattedTextToPlaintext(assessmentSettings.getTitle()));
+    	assessmentSettings.setAuthors(formattedText.convertFormattedTextToPlaintext(assessmentSettings.getAuthors()));
+    	assessmentSettings.setFinalPageUrl(formattedText.convertFormattedTextToPlaintext(assessmentSettings.getFinalPageUrl()));
+    	assessmentSettings.setBgColor(formattedText.convertFormattedTextToPlaintext(assessmentSettings.getBgColor()));
+    	assessmentSettings.setBgImage(formattedText.convertFormattedTextToPlaintext(assessmentSettings.getBgImage()));
+    	assessmentSettings.setKeywords(formattedText.convertFormattedTextToPlaintext(assessmentSettings.getKeywords()));
+    	assessmentSettings.setObjectives(formattedText.convertFormattedTextToPlaintext(assessmentSettings.getObjectives()));
+    	assessmentSettings.setRubrics(formattedText.convertFormattedTextToPlaintext(assessmentSettings.getRubrics()));
+    	assessmentSettings.setPassword(formattedText.convertFormattedTextToPlaintext(StringUtils.trim(assessmentSettings.getPassword())));
     }
     
     if (error){
@@ -464,7 +494,7 @@ public class ConfirmPublishAssessmentListener
     	assessment = s.save(assessmentSettings, true);
 
     	//unEscape the TextFormat.convertPlaintextToFormattedTextNoHighUnicode in s.save()
-    	assessment.setTitle(FormattedText.convertFormattedTextToPlaintext(assessment.getTitle()));
+    	assessment.setTitle(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(assessment.getTitle()));
     	assessmentSettings.setAssessment(assessment);
     }
     

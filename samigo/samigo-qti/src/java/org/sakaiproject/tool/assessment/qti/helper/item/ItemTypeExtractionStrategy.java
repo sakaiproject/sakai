@@ -176,7 +176,12 @@ import org.sakaiproject.tool.assessment.qti.constants.AuthoringConstantStrings;
       if (qmdItemType != null) itemType = qmdItemType;
     }
 
-    log.debug("returning itemType: " + itemType);
+    //not exact type found, returning itemIntrospect if not default
+    if(!AuthoringConstantStrings.ESSAY.equals(itemIntrospectItemType)){
+      return itemIntrospectItemType;
+    }
+
+    log.debug("returning guessed itemType: " + itemType);
     return itemType;
   }
 

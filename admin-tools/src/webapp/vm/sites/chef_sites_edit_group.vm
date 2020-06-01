@@ -12,7 +12,7 @@
 		<h3>
 			$tlang.getString("sitedigrp.edisit") $!site.Id / $tlang.getString("sitedigrp.grp") $!group.Id
 		</h3>
-		#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("sitedigrp.alert") $validator.escapeHtml($alertMessage)</div>#end
+		#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("sitedigrp.alert") $formattedText.escapeHtml($alertMessage)</div>#end
 		<div class="instruction">
 			$tlang.getString("sitedigrp.revandmod")
 		</div>
@@ -25,7 +25,7 @@
 				<tr>
 					<td>$tlang.getString("sitedigrp.grp2")</td>
 					<td>
-						$validator.escapeHtml($group.Id)
+						$formattedText.escapeHtml($group.Id)
 					</td>
 				</tr>
 				<tr>
@@ -65,7 +65,7 @@
 								</label>
 							</th>
 							<td>
-								<input type="text" disabled name="param_$paramName" id="param_$paramName" value="$validator.escapeHtml($paramValue)" />
+								<input type="text" disabled name="param_$paramName" id="param_$paramName" value="$formattedText.escapeHtml($paramValue)" />
 							</td>
 						</tr>
 					#end

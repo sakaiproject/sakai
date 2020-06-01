@@ -34,10 +34,12 @@ import org.sakaiproject.poll.logic.PollVoteManager;
 import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Vote;
+import org.sakaiproject.poll.tool.constants.NavigationConstants;
 import org.sakaiproject.poll.tool.params.OptionViewParameters;
+import org.sakaiproject.poll.tool.params.OptionBatchViewParameters;
 import org.sakaiproject.poll.tool.params.PollViewParameters;
 import org.sakaiproject.poll.tool.params.VoteBean;
-import org.sakaiproject.util.FormattedText;
+
 
 import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.messageutil.MessageLocator;
@@ -164,10 +166,16 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 
 		UIOutput.make(tofill, "polls-html", null).decorate(new UIFreeAttributeDecorator(langMap));
 
+		// Menu links
+		UIBranchContainer actions = UIBranchContainer.make(tofill,"actions:",Integer.toString(0));
+		UIInternalLink.make(actions, NavigationConstants.NAVIGATE_MAIN, UIMessage.make(NavigationConstants.NAVIGATE_MAIN_MESSAGE), new SimpleViewParameters(PollToolProducer.VIEW_ID));
+		if (this.isAllowedPollAdd()) {
+			UIInternalLink.make(actions, NavigationConstants.NAVIGATE_ADD, UIMessage.make(NavigationConstants.NAVIGATE_ADD_MESSAGE), new PollViewParameters(AddPollProducer.VIEW_ID, "New 0"));
+		}
+		if (this.isSiteOwner()) {
+			UIInternalLink.make(actions, NavigationConstants.NAVIGATE_PERMISSIONS, UIMessage.make(NavigationConstants.NAVIGATE_PERMISSIONS_MESSAGE), new SimpleViewParameters(PermissionsProducer.VIEW_ID));
+		}
 
-		
-
-		
 		UIForm newPoll = UIForm.make(tofill, "add-poll-form");
 		log.debug("Poll of id: " + ecvp.id);
 		if (ecvp.id == null || "New 0".equals(ecvp.id)) {
@@ -202,6 +210,8 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 			UIMessage.make(actionBlock,"options-title","new_poll_option_title");
 			UIInternalLink.make(actionBlock,"option-add",UIMessage.make("new_poll_option_add"),
 					new OptionViewParameters(PollOptionProducer.VIEW_ID, null, poll.getPollId().toString()));
+			UIInternalLink.make(actionBlock,"option-add-batch",UIMessage.make("new_poll_option_add_batch"),
+					new OptionBatchViewParameters(PollOptionBatchProducer.VIEW_ID, poll.getPollId().toString()));
 
 			List<Vote> votes = pollVoteManager.getAllVotesForPoll(poll);
 			if (votes != null && votes.size() > 0 ) {
@@ -222,12 +232,12 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 				UIInternalLink editOption = UIInternalLink.make(oRow,"option-edit",UIMessage.make("new_poll_option_edit"),
 						new OptionViewParameters(PollOptionProducer.VIEW_ID, o.getOptionId().toString()));
 
-				editOption.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("new_poll_option_edit") +":" + FormattedText.convertFormattedTextToPlaintext(o.getText())));
+				editOption.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("new_poll_option_edit") +":" + externalLogic.convertFormattedTextToPlaintext(o.getText())));
 
 				UIInternalLink deleteOption = UIInternalLink.make(oRow,"option-delete",UIMessage.make("new_poll_option_delete"),
 						new OptionViewParameters(PollOptionDeleteProducer.VIEW_ID,o.getOptionId().toString()));
 
-				deleteOption.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("new_poll_option_delete") +":" + FormattedText.convertFormattedTextToPlaintext(o.getText())));
+				deleteOption.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("new_poll_option_delete") +":" + externalLogic.convertFormattedTextToPlaintext(o.getText())));
 
 			}
 		}
@@ -355,6 +365,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 		togo.add(new NavigationCase(null, new SimpleViewParameters(VIEW_ID)));
 		togo.add(new NavigationCase("added", new SimpleViewParameters(PollToolProducer.VIEW_ID)));
 		togo.add(new NavigationCase("option", new OptionViewParameters(PollOptionProducer.VIEW_ID, null, null)));
+		togo.add(new NavigationCase("option_batch", new OptionViewParameters(PollOptionBatchProducer.VIEW_ID, null, null)));
 		togo.add(new NavigationCase("cancel", new SimpleViewParameters(PollToolProducer.VIEW_ID)));
 		return togo;
 	}
@@ -412,7 +423,13 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 		//}
 	}
 
+    private boolean isAllowedPollAdd() {
+        return externalLogic.isUserAdmin() || externalLogic.isAllowedInLocation(PollListManager.PERMISSION_ADD, externalLogic.getCurrentLocationReference());
+    }
+
+    private boolean isSiteOwner() {
+        return externalLogic.isUserAdmin() || externalLogic.isAllowedInLocation("site.upd", externalLogic.getCurrentLocationReference());
+    }
 
 }
-
 

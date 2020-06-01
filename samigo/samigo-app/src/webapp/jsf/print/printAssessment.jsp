@@ -21,11 +21,11 @@
     
   <%@ include file="/jsf/delivery/deliveryjQuery.jsp" %>
   
-	<script type="text/javascript" src="/samigo-app/js/selection.author.preview.js"></script>
+	<script src="/samigo-app/js/selection.author.preview.js"></script>
 		
 	<link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
 		
-	<script type="text/JavaScript">		
+	<script>		
 		jQuery(window).load(function(){
 			
 			$('input:hidden[id^=hiddenSerializedCoords_]').each(function(){
@@ -45,7 +45,7 @@
 	</script>
 	    
   
-  <script type="text/JavaScript">
+  <script>
 function resetSelectMenus(){
   var selectlist = document.getElementsByTagName("SELECT");
 
@@ -85,13 +85,11 @@ document.links[newindex].onclick();
   <h:form id="assessmentForm">
   
   <!-- HEADINGS (NOT PRINTED) -->
-      <p>        
-        <h:commandLink action="#{pdfAssessment.getActionString}">
+        <h:commandLink styleClass="printReturnLink" action="#{pdfAssessment.getActionString}">
           <h:outputText value="#{printMessages.back_to_assessmt}" rendered="#{pdfAssessment.actionString == 'editAssessment'}" escape="false" />
-		  <h:outputText value="#{printMessages.back_to_landingpage}" rendered="#{pdfAssessment.actionString != 'editAssessment'}" escape="false" />
+          <h:outputText value="#{printMessages.back_to_landingpage}" rendered="#{pdfAssessment.actionString != 'editAssessment'}" escape="false" />
         </h:commandLink>
-      </p>
-      
+
     <h:messages/>
     
     <div id="header">

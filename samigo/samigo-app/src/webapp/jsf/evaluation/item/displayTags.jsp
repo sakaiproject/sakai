@@ -1,6 +1,6 @@
-<script type="text/javascript">includeWebjarLibrary('select2');</script>
+<script>includeWebjarLibrary('select2');</script>
 
-<script type="text/javascript">
+<script>
 
     $(document).ready(function () {
         $(".tag_selector_<h:outputText value="#{question.itemId}"/>").select2({

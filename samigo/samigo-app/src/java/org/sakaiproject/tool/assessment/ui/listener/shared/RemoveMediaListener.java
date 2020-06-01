@@ -94,6 +94,7 @@ public class RemoveMediaListener implements ActionListener
       throw new IllegalArgumentException("Media id not associated with grading item " + mediaId + " " + itemGradingId);
     }
 
+    delivery.getSubmissionFiles().remove(itemGradingId+"_"+mediaId);
     mediaService.remove(mediaId, itemGradingId);
 
     // #2. update time based on server

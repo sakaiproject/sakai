@@ -33,7 +33,7 @@
 		  		#foreach ($announcementEntry in $mergedAnnouncementsCollection)
 					#if ($announcementEntry.isVisible())
 						<tr> 
-							<td headers="announcementSite"><h5><label for="site$siteNumber">$validator.escapeHtml($announcementEntry.getDisplayName())</label></h5></td>
+							<td headers="announcementSite"><h5><label for="site$siteNumber">$formattedText.escapeHtml($announcementEntry.getDisplayName())</label></h5></td>
 							<td headers="checkbox">
 								<input type="checkbox" id="site$siteNumber" name="$announcementEntry.getReference()" value="$announcementEntry.getReference()"
 								#if($announcementEntry.isMerged())

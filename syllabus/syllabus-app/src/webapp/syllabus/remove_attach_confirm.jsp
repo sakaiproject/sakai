@@ -15,10 +15,10 @@
 				<h3>
 					<h:outputText value="#{msgs.bar_delete_items}" />
 				</h3>	
-				<div class="alertMessage">
+				<div class="sak-banner-warn">
 					<h:outputText value="#{msgs.delAttConfAlert}" />
 				</div>	
-				<h:dataTable value="#{SyllabusTool.prepareRemoveAttach}" var="eachAttach" summary="#{msgs.del_conf_listsummary}">
+				<h:dataTable value="#{SyllabusTool.prepareRemoveAttach}" styleClass="table table-bordered table-striped" var="eachAttach" summary="#{msgs.del_conf_listsummary}">
 					<h:column>
 						<f:facet name="header">
 							<h:outputText value="#{msgs.title}" />

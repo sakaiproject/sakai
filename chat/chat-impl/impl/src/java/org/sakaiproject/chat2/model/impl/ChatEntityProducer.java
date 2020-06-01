@@ -46,6 +46,7 @@ import org.w3c.dom.NodeList;
 import org.sakaiproject.chat2.model.ChatChannel;
 import org.sakaiproject.chat2.model.ChatManager;
 import org.sakaiproject.chat2.model.ChatMessage;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
@@ -64,7 +65,7 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
-import org.sakaiproject.util.Web;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * @author chrismaurer
@@ -404,7 +405,7 @@ public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
                //{
                //   groups += "<li>" + i.next() + "</li>";
                //}
-               String body = Web.escapeHtml(message.getBody());
+               String body = ComponentManager.get(FormattedText.class).escapeHtml(message.getBody());
 
                sw
                      .write("<!DOCTYPE html>\n"

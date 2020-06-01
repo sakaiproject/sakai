@@ -388,7 +388,7 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 				Query q = session.getNamedQuery(HQL_FIND_SAKAI_PERSON_BY_AGENT_AND_TYPE);
 				q.setParameter(AGENT_UUID, agentUuid, StringType.INSTANCE);
 				q.setParameter(TYPE_UUID, recordType.getUuid(), StringType.INSTANCE);
-				// q.setCacheable(false);
+				q.setCacheable(true);
 				return q.uniqueResult();
 			}
 		};

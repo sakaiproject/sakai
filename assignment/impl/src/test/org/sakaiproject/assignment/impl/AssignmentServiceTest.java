@@ -22,9 +22,14 @@
 package org.sakaiproject.assignment.impl;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.mockito.ArgumentMatchers.anyCollection;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.time.Duration;
@@ -40,6 +45,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -48,7 +54,6 @@ import java.util.stream.IntStream;
 
 import javax.annotation.Resource;
 
-import org.hibernate.NonUniqueResultException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -67,24 +72,32 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.Xml;
 import org.sakaiproject.util.api.FormattedText;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.github.javafaker.Faker;
 
@@ -97,16 +110,19 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
     private static final Faker faker = new Faker();
 
+    @Autowired private AssignmentEventObserver assignmentEventObserver;
+    @Autowired private AssignmentService assignmentService;
     @Autowired private AuthzGroupService authzGroupService;
+    @Autowired private EntityManager entityManager;
+    @Autowired private FormattedText formattedText;
+    @Autowired private GradebookService gradebookService;
     @Autowired private SecurityService securityService;
     @Autowired private SessionManager sessionManager;
-    @Autowired private AssignmentService assignmentService;
-    @Autowired private EntityManager entityManager;
     @Autowired private ServerConfigurationService serverConfigurationService;
     @Autowired private SiteService siteService;
-    @Autowired private FormattedText formattedText;
     @Resource(name = "org.sakaiproject.time.api.UserTimeService")
     private UserTimeService userTimeService;
+    @Autowired private UserDirectoryService userDirectoryService;
 
     private ResourceLoader resourceLoader;
 
@@ -524,6 +540,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
         try {
             AssignmentSubmission fetchSubmission = assignmentService.getSubmission(assignment.getId(), submitterId);
+            Assert.assertNotNull(fetchSubmission);
             Assert.assertEquals(submission.getId(), fetchSubmission.getId());
             Assert.assertTrue(fetchSubmission.getUserSubmission());
         } catch (Exception e) {
@@ -540,10 +557,11 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         }
 
         try {
-            assignmentService.getSubmission(assignment.getId(), submitterId);
-            Assert.fail("NonUniqueResultException expected");
+            AssignmentSubmission finalSubmission = assignmentService.getSubmission(assignment.getId(), submitterId);
+            Assert.assertNotNull(finalSubmission);
+            Assert.assertEquals(submission.getId(), finalSubmission.getId());
         } catch (Exception e) {
-            Assert.assertEquals(NonUniqueResultException.class, e.getClass());
+            Assert.fail("No exception should be thrown\n" + e.toString());
         }
     }
 
@@ -772,12 +790,13 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     public void allowAddSubmissionCheckGroups() {
         String context = UUID.randomUUID().toString();
         String contextReference = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
+        String siteReference = "/site/" + context;
         Assignment assignment = createNewAssignment(context);
         // permissions
         when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, contextReference)).thenReturn(false);
         when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, contextReference)).thenReturn(false);
         when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, "/site/" + context)).thenReturn(true);
-        when(siteService.siteReference(context)).thenReturn("/site/" + context);
+        when(siteService.siteReference(context)).thenReturn(siteReference);
 
         // test with no groups
         Assert.assertTrue(assignmentService.allowAddSubmissionCheckGroups(assignment));
@@ -800,7 +819,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Assert.assertFalse(assignmentService.allowAddSubmissionCheckGroups(assignment));
 
         // give group B asn.all.groups and should be allowed now
-        when(securityService.unlock(AssignmentServiceConstants.SECURE_ALL_GROUPS, contextReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ALL_GROUPS, siteReference)).thenReturn(true);
         Assert.assertTrue(assignmentService.allowAddSubmissionCheckGroups(assignment));
     }
 
@@ -878,6 +897,93 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Assert.assertThat(countNoUsers, is(0)); // should have 0 submissions submitted
     }
 
+    @Test
+    public void gradeUpdateFromAssignmentEventObeserver() {
+        char ds = DecimalFormatSymbols.getInstance(Locale.ENGLISH).getDecimalSeparator();
+        when(formattedText.getDecimalSeparator()).thenReturn(Character.toString(ds));
+        configureScale(100, Locale.ENGLISH);
+
+        String context = UUID.randomUUID().toString();
+        String gradebookId = UUID.randomUUID().toString();
+        String submitterId = UUID.randomUUID().toString();
+        String instructorId = UUID.randomUUID().toString();
+        Long itemId = new Random().nextLong();
+        try {
+            AssignmentSubmission newSubmission = createNewSubmission(context, submitterId);
+            Assignment assignment = newSubmission.getAssignment();
+            assignment.getProperties().put(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, itemId.toString());
+            assignment.setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);
+            assignment.setScaleFactor(assignmentService.getScaleFactor());
+
+            String assignmentRef = AssignmentReferenceReckoner.reckoner().submission(newSubmission).reckon().getReference();
+            when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, assignmentRef)).thenReturn(true);
+
+            Event event = createMockEvent(context, gradebookId, itemId, submitterId, "25", instructorId);
+
+            org.sakaiproject.service.gradebook.shared.Assignment gradebookAssignment = mock(org.sakaiproject.service.gradebook.shared.Assignment.class);
+            when(gradebookAssignment.getName()).thenReturn(itemId.toString());
+            when(gradebookService.getAssignmentByNameOrId(context, itemId.toString())).thenReturn(gradebookAssignment);
+            User mockUser = mock(User.class);
+            when(mockUser.getId()).thenReturn(submitterId);
+            when(userDirectoryService.getUser(submitterId)).thenReturn(mockUser);
+            assignmentEventObserver.update(null, event);
+
+            AssignmentSubmission updatedSubmission = assignmentService.getSubmission(newSubmission.getId());
+
+            Assert.assertEquals(Boolean.TRUE, updatedSubmission.getGraded());
+            Assert.assertEquals("2500", updatedSubmission.getGrade());
+            Assert.assertEquals(instructorId, updatedSubmission.getGradedBy());
+        } catch (Exception e) {
+            Assert.fail("Could not create submission\n" + e.toString());
+        }
+    }
+
+    @Test
+    public void mergeAssignmentFromXML() {
+        String context = UUID.randomUUID().toString();
+        String xml = readResourceToString("/importAssignment.xml");
+        Document doc = Xml.readDocument(xml);
+
+        if (doc != null) {
+            // Mock everything needed to have permission
+            Site siteMock = mock(Site.class);
+            Collection<Group> groupCollection = new ArrayList<>();
+            Group groupMock = mock(Group.class);
+            when(groupMock.getReference()).thenReturn("reference");
+            groupCollection.add(groupMock);
+            when(siteMock.getGroups()).thenReturn(groupCollection);
+            Set<String> references = new HashSet<>();
+            references.add("reference");
+            when(authzGroupService.getAuthzGroupsIsAllowed(anyString(), anyString(), anyCollection())).thenReturn(references);
+            try {
+                when(siteService.getSite(context)).thenReturn(siteMock);
+            } catch (IdUnusedException e) {
+                Assert.fail("Site mock failed");
+            }
+
+            when(securityService.unlock("asn.new", "/assignment/a/SITE_ID")).thenReturn(true);
+            when(securityService.unlock("asn.revise", "/assignment/a/SITE_ID")).thenReturn(true);
+            when(securityService.unlock("asn.read", "/assignment/a/SITE_ID")).thenReturn(true);
+
+            // verify the root element
+            Element root = doc.getDocumentElement();
+            // the children
+            NodeList children = root.getChildNodes();
+            int length = children.getLength();
+
+            for (int i = 0; i < length; i++) {
+                Node child = children.item(i);
+                if (child.getNodeType() != Node.ELEMENT_NODE) continue;
+
+                Element element = (Element) child;
+                if ("org.sakaiproject.assignment.api.AssignmentService".equals(element.getTagName())) {
+                    assignmentService.merge(context, element, null, null, null, null, null);
+                    Assert.assertEquals(1, assignmentService.getAssignmentsForContext(context).size());
+                }
+            }
+        }
+    }
+
     private AssignmentSubmission createNewSubmission(String context, String submitterId) throws UserNotDefinedException, IdUnusedException {
         Assignment assignment = createNewAssignment(context);
         String addSubmissionRef = AssignmentReferenceReckoner.reckoner().context(context).subtype("s").reckon().getReference();
@@ -905,6 +1011,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         String groupRef = "/site/" + context + "/group/" + groupSubmitter;
         assignment.getGroups().add(groupRef);
         String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        when(siteService.siteReference(context)).thenReturn("/site/" + context);
         when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, assignmentReference)).thenReturn(true);
         when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference())).thenReturn(true);
         assignmentService.updateAssignment(assignment);
@@ -990,5 +1097,31 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         });
         duplicateSubmission.setDateCreated(Instant.now().plusSeconds(5));
         return duplicateSubmission;
+    }
+
+    private Event createMockEvent(String context, String gradebookId, Long itemId, String studentUid, String grade, String grader) {
+        String[] parts = new String[] {
+                "/gradebookng",
+                gradebookId,
+                itemId.toString(),
+                studentUid,
+                grade,
+                "OK",
+                "INSTRUCTOR"
+        };
+
+        Event event = mock(Event.class);
+        when(event.getEvent()).thenReturn("gradebook.updateItemScore");
+        when(event.getModify()).thenReturn(true);
+        when(event.getResource()).thenReturn(String.join("/", parts));
+        when(event.getUserId()).thenReturn(grader);
+        when(event.getContext()).thenReturn(context);
+        return event;
+    }
+
+    private String readResourceToString(String resource) {
+        InputStream is = this.getClass().getResourceAsStream(resource);
+        BufferedReader br = new BufferedReader(new InputStreamReader(is));
+        return br.lines().collect(Collectors.joining("\n"));
     }
 }

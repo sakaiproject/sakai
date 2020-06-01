@@ -40,6 +40,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
+import org.sakaiproject.authz.api.AuthzRealmLockException;
 import org.sakaiproject.authz.api.GroupFullException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.GroupProvider;
@@ -172,8 +173,8 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 					if(member.isProvided()) {
 						try {
 							group.insertMember(member.getUserId(), member.getRole().getId(), member.isActive(), false);
-						} catch (IllegalStateException e) {
-							log.error(".update: User with id {} cannot be inserted in group with id {} because the group is locked", member.getUserId(), group.getId());
+						} catch (AuthzRealmLockException arle) {
+							log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
 							return;
 						}
 					}
@@ -333,7 +334,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 	 * constructed by finding the official section from CM and converting it to a CourseSection.
 	 * 
 	 * @param site The site in which we are adding a CourseSection 
-	 * @param sectionId The Enterprise ID of the section to add.
+	 * @param sectionEid The Enterprise ID of the section to add.
 	 * 
 	 * @return The CourseSection that was added to the site
 	 */
@@ -732,7 +733,9 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 			return null;
 		} catch (GroupFullException e) {
 			throw new SectionFullException("section full");
- 		}
+ 		} catch (AuthzRealmLockException arle) {
+			log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
+		}
 		
 		// Return the membership record that the app understands
 		String userUid = sessionManager.getCurrentSessionUserId();
@@ -843,6 +846,8 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 			} catch (AuthzPermissionException e) {
 				errorDroppingSection = true;
 				log.error("Permission denied while " + userUid + " attempted to unjoin authzGroup " + sectionUuid);
+			} catch (AuthzRealmLockException arle) {
+				log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
 			}
 		}
 
@@ -855,7 +860,9 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 				log.debug("Error unjoining newly joined group " + newSectionUuid);
 			} catch (AuthzPermissionException e) {
 				log.error("Permission denied while " + userUid + " attempted to unjoin authzGroup " + newSectionUuid);
-			} 
+			} catch (AuthzRealmLockException arle) {
+				log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
+			}
 			return;
 		} 	
 		
@@ -901,8 +908,8 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		
 		try {
 			group.insertMember(userUid, role, true, false);
-		} catch (IllegalStateException e) {
-			log.error(".addTaToSection: User with id {} cannot be inserted in group with id {} because the group is locked", userUid, group.getId());
+		} catch (AuthzRealmLockException arle) {
+			log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
 			return null;
 		}
 
@@ -944,8 +951,8 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		}
 		try {
 			group.insertMember(userUid, studentRole, true, false);
-		} catch (IllegalStateException e) {
-			log.error(".addStudentToSection: User with id {} cannot be inserted in group with id {} because the group is locked", userUid, group.getId());
+		} catch (AuthzRealmLockException arle) {
+			log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
 			return null;
 		}
 
@@ -1003,8 +1010,8 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 			String userUid = (String)iter.next();
 			try {
 				group.deleteMember(userUid);
-			} catch (IllegalStateException e) {
-				log.error(".setSectionMemberships: User with id {} cannot be deleted from group with id {} because the group is locked", userUid, group.getId());
+			} catch (AuthzRealmLockException arle) {
+				log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
 			}
 		}
 		
@@ -1013,8 +1020,8 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 			String userUid = (String)iter.next();
 			try {
 				group.insertMember(userUid, sakaiRoleString, true, false);
-			} catch (IllegalStateException e) {
-				log.error(".setSectionMemberships: User with id {} cannot be inserted in group with id {} because the group is locked", userUid, group.getId());
+			} catch (AuthzRealmLockException arle) {
+				log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
 			}
 		}
 
@@ -1058,8 +1065,8 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 			log.error("unable to find site: ", e);
 		} catch (PermissionException e) {
 			log.error("access denied while attempting to save site: ", e);
-		} catch (IllegalStateException e) {
-			log.error(".dropSectionMembership: User with id {} cannot be deleted from group with id {} because the group is locked", userUid, group.getId());
+		} catch (AuthzRealmLockException arle) {
+			log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
 		}
 	}
 
@@ -1095,8 +1102,8 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 				if (group.getMember(studentUid) != null) {
 					try {
 						group.deleteMember(studentUid);
-					} catch (IllegalStateException e) {
-						log.error(".dropEnrollmentFromCategory: User with id {} cannot be deleted from group with id {} because the group is locked", studentUid, group.getId());
+					} catch (AuthzRealmLockException arle) {
+						log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
 						return;
 					}
 				}
@@ -1439,8 +1446,8 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 			}
 			try {
 				site.deleteGroup(group);
-			} catch (IllegalStateException e) {
-				log.error(".disbandSections: Group with id {} cannot be removed because is locked", group.getId());
+			} catch (AuthzRealmLockException arle) {
+				log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
 			}
 		}
 

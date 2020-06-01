@@ -6,8 +6,7 @@
 	Confirm Tools
 	</h3>
 	#if ($alertMessage)
-		<div class="alertMessage">$tlang.getString("sitinfimp.alert") $alertMessage</div>
-		<div class="clear"></div>
+		<div class="sak-banner-error">$tlang.getString("sitinfimp.alert") $alertMessage</div>
 	#end
 	<p class="step">
 	Confirm the copying of other sites' material to this site

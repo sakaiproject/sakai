@@ -89,29 +89,12 @@ public class HelperCommand implements HttpCommand
 
 		String[] parts = requestPath.split("/");
 
-		String helperId = null;
-		
-		// SAK-13408 - Tomcat and WAS have different URL structures; Attempting to add a 
-		// link or image would lead to site unavailable errors in websphere if the tomcat
-		// URL structure is used.
-		if("websphere".equals(ServerConfigurationService.getString("servlet.container"))) {
-			if (parts.length < 5)
-			{
-				throw new IllegalArgumentException(
-						"You must provide a helper name to request.");
-			}
-
-			helperId = parts[4];
+		if (parts.length < 3)
+		{
+			throw new IllegalArgumentException("You must provide a helper name to request.");
 		}
-		else {
-			if (parts.length < 3)
-			{
-				throw new IllegalArgumentException(
-						"You must provide a helper name to request.");
-			}
 
-			helperId = parts[2];
-		}
+		String helperId = parts[2];
 
 		ActiveTool helperTool = activeToolManager.getActiveTool(helperId);
 		// put state info in toolSession to communicate with helper
@@ -120,38 +103,16 @@ public class HelperCommand implements HttpCommand
 				.append(request.getServletPath());
 
 		StringBuffer toolPath = new StringBuffer();
-		
-		// SAK-13408 - Tomcat and WAS have different URL structures; Attempting to add a 
-		// link or image would lead to site unavailable errors in websphere if the tomcat
-		// URL structure is used.
-		if("websphere".equals(ServerConfigurationService.getString("servlet.container"))){
-			String tid = org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
-			context.append("/tool/");
-			context.append(tid);
-		
-			for (int i = 3; i < 5; i++)
-			{
-				context.append('/');
-				context.append(parts[i]);
-			}
-			for (int i = 5; i < parts.length; i++)
-			{
-				toolPath.append('/');
-				toolPath.append(parts[i]);
-			}
-		} else {
 
-			for (int i = 1; i < 3; i++)
-			{
-				context.append('/');
-				context.append(parts[i]);
-			}
-			for (int i = 3; i < parts.length; i++)
-			{
-				toolPath.append('/');
-				toolPath.append(parts[i]);
-			}
-
+		for (int i = 1; i < 3; i++)
+		{
+			context.append('/');
+			context.append(parts[i]);
+		}
+		for (int i = 3; i < parts.length; i++)
+		{
+			toolPath.append('/');
+			toolPath.append(parts[i]);
 		}
 
 		request.removeAttribute(Tool.NATIVE_URL);

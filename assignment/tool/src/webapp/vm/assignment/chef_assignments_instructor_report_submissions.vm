@@ -2,7 +2,7 @@
 <div class="portletBody sakai-asn-grade-report">
 	#navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
 
-	#if ($alertMessage)<div class="alertMessage"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div><div class="clear"></div>#end
+	#if ($alertMessage)<div class="sak-banner-error"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>#end
 
 	<div class="page-header">
 		<h1>
@@ -24,7 +24,7 @@
 							<option value="" >$tlang.getString('please_select_group')</option>
 						#end
 						#foreach($aGroup in $groups)
-							<option value="$!aGroup.Reference" #if($!viewString.equals($!aGroup.Reference))selected="selected"#end >$validator.escapeHtml($aGroup.Title)</option>
+							<option value="$!aGroup.Reference" #if($!viewString.equals($!aGroup.Reference))selected="selected"#end >$formattedText.escapeHtml($aGroup.Title)</option>
 						#end
 					#end
 					#viewFilterPanel("viewFilterForm", "viewgroup", $viewSelectOptions, "doChange_submission_list_option")
@@ -147,7 +147,7 @@
 								#if( $isAnon )
 									$anonymousSubmissionId
 								#else
-									$validator.escapeHtml($!submitterName)
+									$formattedText.escapeHtml($!submitterName)
 								#end
 							#end
 							#if ($!submission.MultiGroup)
@@ -156,7 +156,7 @@
 							</td>
 							<td headers="assignment">
 								#assignmentTitleIcon($assignment)
-								$validator.escapeHtml($!assignment.Title)
+								$formattedText.escapeHtml($!assignment.Title)
 							</td>
 							#if($!isAdditionalNotesEnabled)
 							<td headers="notes">

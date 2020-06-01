@@ -48,6 +48,11 @@
             <property-name>triggerEventManager</property-name>
             <value>#{Components["org.sakaiproject.api.app.scheduler.events.TriggerEventManager"]}</value>
         </managed-property>
+        <managed-property>
+            <description>formattedText</description>
+            <property-name>formattedText</property-name>
+            <value>#{Components["org.sakaiproject.util.api.FormattedText"]}</value>
+        </managed-property>
 	</managed-bean>
 		
 	<navigation-rule>

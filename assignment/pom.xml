@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
-        <version>20-SNAPSHOT</version>
+        <version>21-SNAPSHOT</version>
         <relativePath>../master/pom.xml</relativePath>
     </parent>
 
@@ -16,7 +16,6 @@
 
     <modules>
         <module>api</module>
-        <module>bundles</module>
         <module>impl</module>
         <module>tool</module>
     </modules>

@@ -27,6 +27,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 
 import lombok.extern.slf4j.Slf4j;
@@ -40,21 +42,12 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
 import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolTreeImpl;
 
-/**
- * This holds question pool information.
- *
- * Used to be org.navigoproject.ui.web.form.questionpool.QuestionPoolForm
- *
- * @author Rachel Gollub <rgollub@stanford.edu>
- * @author Lydia Li<lydial@stanford.edu>
- * $Id$
- */
+/* Question Pool share backing bean. */
 @Slf4j
-public class QuestionPoolShareBean implements Serializable
-{
-	/**
-	 * 
-	 */
+@ManagedBean(name="questionpoolshare")
+@SessionScoped
+public class QuestionPoolShareBean implements Serializable {
+
 	private static final long serialVersionUID = -1154189308380595101L;
 
 	// QuestionPool

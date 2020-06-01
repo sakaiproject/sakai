@@ -53,7 +53,7 @@ public class FriendIgnoreBullhornHandler extends AbstractBullhornHandler {
     }
 
     @Override
-    public Optional<List<BullhornData>> handleEvent(Event e, Cache<String, Map> countCache) {
+    public Optional<List<BullhornData>> handleEvent(Event e, Cache<String, Long> countCache) {
 
         String from = e.getUserId();
 

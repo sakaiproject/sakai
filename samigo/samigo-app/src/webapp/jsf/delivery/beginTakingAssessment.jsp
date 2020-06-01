@@ -67,9 +67,9 @@
     <h:outputText value="\"#{delivery.assessmentTitle}\" #{deliveryMessages.t_for} #{delivery.courseName} " escape="false"/>
   </div>
 
-  <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+  <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
   
-  <div class="bs-callout-primary">
+  <div class="sak-banner-info">
     <!-- ASSESSMENT INTRODUCTION -->
     <h:outputText value="<br/>#{delivery.instructorMessage}<br/>" escape="false" rendered="#{delivery.instructorMessage != null && delivery.instructorMessage != ''}"/>
 
@@ -79,10 +79,17 @@
 
 <div class="tier2">
 <h:panelGrid columns="1" border="0">
-	<!--  Due Message -->
-	<h:panelGroup rendered="#{delivery.firstTimeTaking}">
-		<h:outputText value="#{deliveryMessages.begin_assessment_msg_due} <b>#{delivery.dayDueDateString}</b>." rendered="#{(delivery.dueDate!=null && delivery.dueDate ne '')}" escape="false"/>
-    	<h:outputText value="#{deliveryMessages.begin_assessment_msg_no_due}" rendered="#{(delivery.dueDate==null || delivery.dueDate eq '')}" escape="false"/>
+    <!--  Due Message -->
+    <h:panelGroup rendered="#{delivery.firstTimeTaking}">
+        <h:panelGroup rendered="#{(delivery.dueDate != null && delivery.dueDate ne '')}">
+            <h:outputText value="#{deliveryMessages.begin_assessment_msg_due} " escape="false"/>
+            <h:outputText value="#{delivery.dueDate}">
+                <f:convertDateTime dateStyle="full" timeStyle="short" timeZone="#{delivery.userTimeZone}" />
+            </h:outputText>
+            <h:outputText value="." />
+        </h:panelGroup>
+
+        <h:outputText value="#{deliveryMessages.begin_assessment_msg_no_due}" rendered="#{(delivery.dueDate==null || delivery.dueDate eq '')}" escape="false"/>
     </h:panelGroup>
     
 	<h:outputText value="#{deliveryMessages.begin_assessment_msg_no_due}" rendered="#{(delivery.dueDate==null || delivery.dueDate eq '') && !delivery.firstTimeTaking && !delivery.hasTimeLimit}" escape="false"/>

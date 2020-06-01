@@ -41,6 +41,7 @@ import org.sakaiproject.gradebookng.tool.actions.Action;
 import org.sakaiproject.gradebookng.tool.actions.ActionResponse;
 import org.sakaiproject.gradebookng.tool.model.GbGradeTableData;
 import org.sakaiproject.gradebookng.tool.model.GbGradebookData;
+import org.sakaiproject.portal.util.PortalUtils;
 
 public class GbGradeTable extends Panel implements IHeaderContributor {
 
@@ -107,16 +108,17 @@ public class GbGradeTable extends Panel implements IHeaderContributor {
 	public void renderHead(final IHeaderResponse response) {
 		final GbGradeTableData gbGradeTableData = (GbGradeTableData) getDefaultModelObject();
 
-		final String version = serverConfigService.getString("portal.cdn.version", "");
+		final String version = PortalUtils.getCDNQuery();
 
+		response.render(JavaScriptHeaderItem.forUrl("/library/js/view-preferences.js"));
 		response.render(JavaScriptHeaderItem.forUrl("/library/js/sakai-reminder.js"));
 
 		response.render(
-				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-gbgrade-table.js?version=%s", version)));
+				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-gbgrade-table.js%s", version)));
 
 		response.render(
-				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/webjars/handsontable/6.2.2/handsontable.full.min.js?version=%s", version)));
-		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/webjars/handsontable/6.2.2/handsontable.full.min.css?version=%s", version)));
+				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/webjars/handsontable/6.2.2/handsontable.full.min.js%s", version)));
+		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/webjars/handsontable/6.2.2/handsontable.full.min.css%s", version)));
 
 		final GbGradebookData gradebookData = new GbGradebookData(
 				gbGradeTableData,

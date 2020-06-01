@@ -2,11 +2,12 @@
 <script type="text/javascript">includeLatestJQuery('content_dropbox_multiple');</script>
 
 <div class="portletBody specialLink">
+	#contentMenu("dropboxUploadMultiple")
 	<div class="page-header">
 		<h1>$tlang.getString("multiple.file.upload")</h1>
 	</div>
 	#if ($alertMessage)
-		<br /><div class="sak-banner-error">$clang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
+		<br /><div class="sak-banner-error">$clang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>
 	#end
 	<p class="instruction">
 		$tlang.getString("instr.upload")
@@ -61,7 +62,7 @@
 		</div>
 		
 		<p class="act">
-			<input type="button" class="active" name="savechanges" id="saveChanges" onclick="showNotif('submitnotifxxx','saveChanges','addContentForm');document.getElementById('addContentForm').action='#toolLinkParam("ResourcesAction" "doMultipleFoldersUpload" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';submitform('addContentForm');" value="$tlang.getString("label.continue")" accesskey="s" />
+			<input type="button" class="active" name="savechanges" id="saveChanges" onclick="showNotif('submitnotifxxx','saveChanges','addContentForm');document.getElementById('addContentForm').action='#toolLinkParam("ResourcesAction" "doMultipleFoldersUpload" "sakai_csrf_token=$formattedText.escapeUrl($sakai_csrf_token)")';submitform('addContentForm');" value="$tlang.getString("label.continue")" accesskey="s" />
 			<input type="button" name="cancel" onclick="document.getElementById('addContentForm').action='#toolLink("ResourcesAction" "doCancel")';submitform('addContentForm');" value="$tlang.getString("label.cancel")" accesskey="x" />
 		</p>
 		<p id="submitnotifxxx" class="sak-banner-info" style="visibility:hidden">$tlang.getString("processmessage.file")</p>

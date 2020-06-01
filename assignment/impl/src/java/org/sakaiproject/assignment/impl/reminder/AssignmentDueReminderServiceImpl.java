@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2003-2019 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 /*
   Copyright (c) 2003-2018 The Apereo Foundation
 
@@ -20,12 +35,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.assignment.api.AssignmentService;
-import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.reminder.AssignmentDueReminderService;
 import org.sakaiproject.authz.api.Member;
-import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
@@ -36,19 +48,21 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.time.api.UserTimeService;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 
-import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -57,24 +71,17 @@ import java.util.Set;
  */
 @Slf4j
 public class AssignmentDueReminderServiceImpl implements AssignmentDueReminderService {
-    private static final String DATE_FORMAT = "MMM dd, yyyy '@' hh:mm aa";
+    @Setter private AssignmentService assignmentService;
+    @Setter private EmailService emailService;
+    @Setter private PreferencesService preferencesService;
+    @Setter private ScheduledInvocationManager scheduledInvocationManager;
+    @Setter private ServerConfigurationService serverConfigurationService;
+    @Setter private SessionManager sessionManager;
+    @Setter private SiteService siteService;
+    @Setter private UserDirectoryService userDirectoryService;
+    @Setter private UserTimeService userTimeService;
+
     private List<String> additionalHeaders = new ArrayList<>();
-    @Setter
-    private EmailService emailService;
-    @Setter
-    private AssignmentService assignmentService;
-    @Setter
-    private SiteService siteService;
-    @Setter
-    private UserDirectoryService userDirectoryService;
-    @Setter
-    private PreferencesService preferencesService;
-    @Setter
-    private ScheduledInvocationManager scheduledInvocationManager;
-    @Setter
-    private SecurityService securityService;
-    @Setter
-    private ServerConfigurationService serverConfigurationService;
 
     public void init() {
         log.debug("AssignmentDueReminderService init()");
@@ -111,63 +118,67 @@ public class AssignmentDueReminderServiceImpl implements AssignmentDueReminderSe
         scheduledInvocationManager.deleteDelayedInvocation("org.sakaiproject.assignment.api.reminder.AssignmentDueReminderService", assignmentId);
     }
 
-    public void execute(String opaqueContext) {
-        log.debug("AssignmentDueReminderService execute");
+    public void execute(String assignmentId) {
+        log.debug("Assignment email reminder job starting");
+
+        Session sakaiSession = sessionManager.getCurrentSession();
+        sakaiSession.setUserId("admin");
+        sakaiSession.setUserEid("admin");
 
         try {
-            Assignment assignment = assignmentService.getAssignment(opaqueContext);
+            Assignment assignment = assignmentService.getAssignment(assignmentId);
             Site site = siteService.getSite(assignment.getContext());
 
             // Do not send reminders if the site is unpublished or softly deleted
             if (site.isPublished() && !site.isSoftlyDeleted()) {
-                SecurityAdvisor advisor = (userId, function, reference) -> {
-
-                    if (function.equals(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT)
-                        || function.equals(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION)
-                        || function.equals(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT)) {
-                        return SecurityAdvisor.SecurityAdvice.ALLOWED;
-                    } else {
-                        return SecurityAdvisor.SecurityAdvice.NOT_ALLOWED;
+                for (Member member : site.getMembers()) {
+                    if (member.isActive() && assignmentService.canSubmit(assignment, member.getUserId()) && !assignmentService.allowAddAssignment(assignment.getContext()) && checkEmailPreference(member)) {
+                        sendEmailReminder(site, assignment, member);
                     }
-                };
-                securityService.pushAdvisor(advisor);
-                try {
-                    for (Member member : site.getMembers()) {
-                        if (member.isActive() && assignmentService.canSubmit(assignment, member.getUserId()) && checkEmailPreference(member)) {
-                            sendEmailReminder(site, assignment, member);
-                        }
-                    }
-                } finally {
-                    securityService.popAdvisor(advisor);
                 }
             }
         } catch (IdUnusedException | PermissionException e) {
-            log.error(e.getMessage(), e);
+            log.warn("Assignment email reminder job failed, {}", e.getMessage(), e);
+        } finally {
+            sakaiSession.invalidate();
         }
     }
 
     private void sendEmailReminder(Site site, Assignment assignment, Member submitter) {
-        log.debug("SendEmailReminder: '" + assignment.getTitle() + "' to " + submitter.getUserDisplayId());
+        log.debug("SendEmailReminder: '{}' to {}", assignment.getTitle(), submitter.getUserDisplayId());
+
+        String submitterUserId = submitter.getUserId();
+        ResourceLoader rl = new ResourceLoader(submitterUserId, "assignment");
 
         String assignmentTitle = assignment.getTitle();
         if (assignment.getTitle().length() > 11) {
             assignmentTitle = assignment.getTitle().substring(0, 11) + "[...]";
         }
 
-        String courseName = site.getTitle();
+        String siteTitleWithLink = "<a href=\"" + site.getUrl() + "\">" + site.getTitle() + "</a>";
 
-        Locale locale = new ResourceLoader().getLocale(submitter.getUserId());
-        SimpleDateFormat sdf = (locale != null)
-                                    ? new SimpleDateFormat(DATE_FORMAT, locale) : new SimpleDateFormat(DATE_FORMAT);
+        DateTimeFormatter dtfForBody = DateTimeFormatter
+            .ofLocalizedDateTime(FormatStyle.FULL, FormatStyle.LONG)
+            .withLocale(rl.getLocale())
+            .withZone(userTimeService.getLocalTimeZone(submitterUserId).toZoneId());
+
+        DateTimeFormatter dtfForSubject = DateTimeFormatter
+            .ofLocalizedDateTime(FormatStyle.SHORT, FormatStyle.LONG)
+            .withLocale(rl.getLocale())
+            .withZone(userTimeService.getLocalTimeZone(submitterUserId).toZoneId());
+
         Instant dueDate = assignment.getDueDate();
-        String formattedDateDue = sdf.format(Date.from(dueDate));
+        String localizedDateForSubject = dtfForSubject
+            .format(dueDate)
+            .replaceFirst(":00 ", " "); // Get rid of the seconds as subject length is limited
+        String localizedDateForBody = dtfForBody.format(dueDate);
 
-        String toStr = getUserEmail(submitter.getUserId());
+        String toStr = getUserEmail(submitterUserId);
         if (StringUtils.isEmpty(toStr)) {
             return;
         }
-        String headerToStr = getUserDisplayName(submitter.getUserId()) + " <" + getUserEmail(submitter.getUserId()) + ">";
-        String fromStr = "\"" + courseName + "\" <" + getSetupRequest() + ">";
+        String headerToStr = getUserDisplayName(submitterUserId) + " <" + toStr + ">";
+        String fromStr = "\"" + site.getTitle() + "\" <" + getSetupRequest() + ">";
 
         Set<Member> instructors = new HashSet<>();
         for (Member member : site.getMembers()) {
@@ -176,31 +187,28 @@ public class AssignmentDueReminderServiceImpl implements AssignmentDueReminderSe
             }
         }
         String replyToStr = getReplyTo(instructors);
-        log.debug("Reply to string: " + replyToStr);
+        log.debug("Reply to string: {}", replyToStr);
 
-        String subject = "Assignment '" + assignmentTitle + "' Due on " + formattedDateDue;
+        String subject = rl.getFormattedMessage("email.reminder.subject", assignmentTitle, localizedDateForSubject);
 
         StringBuilder body = new StringBuilder();
-        body.append("Hello ");
-        body.append(getUserFirstName(submitter.getUserId()));
+        body.append(rl.getFormattedMessage("email.reminder.hello", getUserFirstName(submitterUserId)));
         body.append(",<br />");
         body.append("<br />");
         int totalHours = serverConfigurationService.getInt("assignment.reminder.hours", 24);
-        String hoursMod = (totalHours % 24 == 0) ? "." : " and " + (totalHours % 24) + " hours.";
-        String timeText = (totalHours < 25) ? totalHours + " hours." : (totalHours / 24) + " days" + hoursMod;
-        body.append(String.format("Reminder: An assignment of yours is due within %s", timeText));
+        String hoursMod = (totalHours % 24 == 0) ? "." : " " + rl.getFormattedMessage("email.reminder.andhours", (totalHours % 24));
+        String timeText = (totalHours < 25) ? rl.getFormattedMessage("email.reminder.hours", totalHours) : rl.getFormattedMessage("email.reminder.days", (totalHours / 24)) + hoursMod;
+        body.append(rl.getFormattedMessage("email.reminder.duewithin", timeText));
         body.append("<br />");
         body.append("<ul>");
-        body.append("<li> Assignment : ").append(assignment.getTitle()).append("</li>");
-        body.append("<li> Due        : ").append(formattedDateDue).append("</li>");
-        body.append("<li> Class      : ").append(courseName).append("</li>");
+        body.append("<li> ").append(rl.getFormattedMessage("email.reminder.assignment", assignment.getTitle())).append("</li>");
+        body.append("<li> ").append(rl.getFormattedMessage("email.reminder.duedate", localizedDateForBody)).append("</li>");
+        body.append("<li> ").append(rl.getFormattedMessage("email.reminder.site", siteTitleWithLink)).append("</li>");
         body.append("</ul>");
-        body.append("<br />");
-        body.append("Have a nice day!");
         body.append("<br />");
         body.append("- ").append(getServiceName());
 
-        log.debug("Email To: '" + toStr + "' body: " + body.toString());
+        log.debug("Email To: '{}' body: {}", toStr, body.toString());
 
         emailService.send(fromStr, toStr, subject, body.toString(), headerToStr, replyToStr, additionalHeaders);
     }

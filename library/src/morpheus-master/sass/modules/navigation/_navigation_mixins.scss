@@ -1,0 +1,29 @@
+@mixin sitesNavStyling() {
+	padding: ($standard-space * 2);
+	border-top: $sites-nav-menu-item-border-top;
+	border-right: $sites-nav-menu-item-border-right;
+	border-bottom: $sites-nav-menu-item-border-bottom;
+	border-left: $sites-nav-menu-item-border-left;
+	background: $sites-nav-menu-item-background;
+	text-align: center;
+	text-decoration: none;
+	color: $sites-nav-menu-item-color;
+	border-radius: $sites-nav-menu-item-border-radius;
+	&:hover, &:focus {
+		z-index: 1;		// to avoid missing borders from overlap when hovering
+		border-top: $sites-nav-menu-item-hover-border-top;
+		border-right: $sites-nav-menu-item-hover-border-right;
+		border-bottom: $sites-nav-menu-item-hover-border-bottom;
+		border-left: $sites-nav-menu-item-hover-border-left;
+		background: $sites-nav-menu-item-hover-background;
+		color: $sites-nav-menu-item-hover-color;
+	}
+
+	&:focus {
+		outline-offset: -#{$focus-outline-width};	// to match the width of the default link focus to fit in the link container
+	}
+
+	&:active {
+		outline: 0 none;	// hiding on click
+	}
+}

@@ -35,6 +35,7 @@ import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
@@ -57,7 +58,9 @@ import lombok.NoArgsConstructor;
 @EntityListeners(MetadataListener.class)
 @JsonPropertyOrder({"id", "toolId", "itemId", "rubricId", "parameters", "metadata"})
 @NoArgsConstructor
-@Table(name = "rbc_tool_item_rbc_assoc")
+@Table(name = "rbc_tool_item_rbc_assoc",
+  indexes = { @Index(name = "rbc_tool_item_owner",  columnList="toolId, itemId, ownerId") }
+)
 @ToString(exclude = {"rubric", "parameters"})
 public class ToolItemRubricAssociation implements Modifiable, Serializable, Cloneable  {
 
@@ -66,6 +69,7 @@ public class ToolItemRubricAssociation implements Modifiable, Serializable, Clon
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "rbc_tool_item_rbc_seq")
     private Long id;
 
+    @Column(length=99)
     private String toolId;
     private String itemId;
 

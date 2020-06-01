@@ -204,7 +204,11 @@ function postAjax(id, params, msgs){
 			d().reject();
 		},
 		success: function success(data){
-			showMessage(msgs.saved, true);
+			var successText = msgs.saved;
+			if (params.delete !== null && params.delete) {
+				successText = msgs.deleted;
+			}
+			showMessage(successText, true);
 			d().resolve();
 		}
 	});
@@ -314,7 +318,7 @@ function showConfirmDeleteAttachment(deleteButton, msgs, event){
 }
 
 function showConfirmDelete(deleteButton, msgs, event){
-	var title = $(deleteButton).parent().find(".editItemTitle").html();
+	var title = $(deleteButton).parent().parent().find(".syllabusItemTitle").html();
 	$('<div></div>').appendTo('body')
 		.html('<div><div class="messageError">' + msgs.noUndoWarning + '</div><h6>' + msgs.confirmDelete + " '" + title + "'?</h6></div>")
 		.dialog({

@@ -13,7 +13,7 @@
 		<configuration name="reset.button" value="true" type="final" />
 		<configuration name="desp" value="[Change this text when configuring the tool. It should give some idea of the purpose of the URL and prompt the tool maintain user to change this annotation via the tool menu if needed]" />
 		<configuration name="TargetPageName" value="[Target Page Name - will be used as the label for the link to the URL]" />
-		<configuration name="TargetPageUrl" value="http://sakaiproject.org/" />
+		<configuration name="TargetPageUrl" value="https://www.sakailms.org/" />
 		
 		<!-- Allow this to be set -->
 		<configuration name="functions.require" /> 

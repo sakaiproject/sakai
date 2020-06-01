@@ -46,6 +46,7 @@ import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.samigo.util.SamigoConstants;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentTemplateData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AttachmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
@@ -90,6 +91,9 @@ public class AssessmentService {
 	public static final int UPDATE_SUCCESS = 0;
 	public static final int UPDATE_ERROR_DRAW_SIZE_TOO_LARGE = 1;
 	private SecurityService securityService = ComponentManager.get(SecurityService.class);
+
+	// versioning title string that it will look for/use, followed by a number
+	private static final String VERSION_START = "  - ";
 
 	/**
 	 * Creates a new QuestionPoolService object.
@@ -1353,5 +1357,55 @@ public class AssessmentService {
 		}
 		
 		return stringWithAttachment;
+	}
+
+	public List<AssessmentData> getDeletedAssessments(String siteId) {
+		return PersistenceService.getInstance().getAssessmentFacadeQueries().getDeletedAssessments(siteId);
+	}
+
+	public void restoreAssessment(Long assessmentId) {
+		PersistenceService.getInstance().getAssessmentFacadeQueries().restoreAssessment(assessmentId);
+	}
+
+	/**
+	 * Append "  - 2", "  - 3", etc. incrementing as you go.
+	 * @param original title
+	 * @return title with versioning
+	 */
+	public static String renameDuplicate(String title) {
+		if (title == null) {
+			title = "";
+		}
+
+		String rename = "";
+		int index = title.lastIndexOf(VERSION_START);
+
+		// If it is versioned
+		if (index > -1) {
+			String mainPart = "";
+			String versionPart = title.substring(index);
+			if(index > 0) {
+				mainPart = title.substring(0, index);
+			}
+
+			int nIndex = index + VERSION_START.length();
+			String version = title.substring(nIndex);
+
+			int versionNumber = 0;
+			try {
+				versionNumber = Integer.parseInt(version);
+				if (versionNumber < 2) {
+					versionNumber = 2;
+				}
+				versionPart = VERSION_START + (versionNumber + 1);
+				rename = mainPart + versionPart;
+			} catch (NumberFormatException ex) {
+				rename = title + VERSION_START + "2";
+			}
+		} else {
+			rename = title + VERSION_START + "2";
+		}
+
+		return rename;
 	}
 }

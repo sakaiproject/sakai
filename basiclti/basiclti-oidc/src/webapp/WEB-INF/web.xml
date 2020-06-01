@@ -14,9 +14,19 @@
     <servlet-class>org.sakaiproject.lti13.OIDCServlet</servlet-class>
   </servlet>
 
+  <servlet>
+    <servlet-name>LTI11AnonymousServlet</servlet-name>
+    <servlet-class>org.sakaiproject.lti11.LTI11AnonymousServlet</servlet-class>
+  </servlet>
+
   <servlet-mapping>
     <servlet-name>OIDCServlet</servlet-name>
     <url-pattern>/lti13/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>LTI11AnonymousServlet</servlet-name>
+    <url-pattern>/lti11/*</url-pattern>
   </servlet-mapping>
 
   <listener>

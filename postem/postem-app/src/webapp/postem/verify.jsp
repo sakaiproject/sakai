@@ -15,10 +15,19 @@
 </jsp:useBean>
 <f:view>
 	<sakai:view title="#{msgs.title_verify}">
-		<script src="/library/js/spinner.js" type="text/javascript"></script>
+		<script src="/library/js/spinner.js"></script>
+		<script>includeLatestJQuery("postemVerify");</script>
+		<script>
+			$(document).ready(function() {
+				var menuLink = $('#postemAddMenuLink');
+				var menuLinkSpan = menuLink.closest('span');
+				menuLinkSpan.addClass('current');
+				menuLinkSpan.html(menuLink.text());
+			});
+		</script>
 		<sakai:view_content>
 			<h:form>
-			
+			<%@ include file="/postem/postemMenu.jsp" %>
 		 <sakai:tool_bar_message value="#{msgs.title_verify}" />
 			
 			<h:messages globalOnly="true" />

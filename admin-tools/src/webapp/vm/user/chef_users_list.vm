@@ -11,8 +11,8 @@
 		$tlang.getString("uselis.users")
 	</h3>
 
-		#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("useconrem.alert") $validator.escapeHtml($alertMessage)</div>#end
-		#if ($successMessage)<div class="sak-banner-success">$validator.escapeHtml($successMessage)</div>#end
+		#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("useconrem.alert") $formattedText.escapeHtml($alertMessage)</div>#end
+		#if ($successMessage)<div class="sak-banner-success">$formattedText.escapeHtml($successMessage)</div>#end
 		<div class="instruction">
 			$tlang.getString("uselis.theare")
 		</div>
@@ -89,18 +89,18 @@
 				<tr>
 					<td headers="Eid">
 		#if ($service.allowUpdateUser($user.Id))
-						<a href="#toolLinkParam("$action" "doEdit" "id=$validator.escapeUrl($user.Id)")">
-							$validator.escapeHtml($user.Eid)
+						<a href="#toolLinkParam("$action" "doEdit" "id=$formattedText.escapeUrl($user.Id)")">
+							$formattedText.escapeHtml($user.Eid)
 						</a>
 		#else
-						$validator.escapeHtml($user.Eid)
+						$formattedText.escapeHtml($user.Eid)
 		#end
 					</td>
-					<td headers="Name">$validator.escapeHtml($user.SortName)</td>
-					<td headers="Email">$validator.escapeHtml($user.Email)</td>
-					<td headers="Type" class="hidden-xs">$validator.escapeHtml($user.Type)</td>
+					<td headers="Name">$formattedText.escapeHtml($user.SortName)</td>
+					<td headers="Email">$formattedText.escapeHtml($user.Email)</td>
+					<td headers="Type" class="hidden-xs">$formattedText.escapeHtml($user.Type)</td>
 					<td headers="Status" class="hidden-xs">#if($!user.Properties.getProperty("disabled")) $tlang.getString("disabled") #else $tlang.getString("enabled") #end</td>
-					<td headers="Id" class="hidden-xs">$validator.escapeHtml($user.Id)
+					<td headers="Id" class="hidden-xs">$formattedText.escapeHtml($user.Id)
 					</td>
 				</tr>
 	#end

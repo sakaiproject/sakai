@@ -317,4 +317,8 @@ public interface PublishedAssessmentFacadeQueriesAPI
   public List getAllAssessmentsGradingDataByAgentAndSiteId(final String agentId, final String siteId);
 
   public List getQuestionsIdList(final Long publishedAssessmentId);
+
+  public List<PublishedAssessmentData> getPublishedDeletedAssessments(String siteId);
+
+  public void restorePublishedAssessment(Long publishedAssessmentId);
 }

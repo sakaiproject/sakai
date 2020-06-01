@@ -3,11 +3,11 @@
 <div class="portletBody">
     <div class="instruction">$tlang.getString("zipdownload.sure")</div>
     #if ($alertMessage)
-        <div class="sak-banner-error">$tlang.getString("label.alert") $validator.escapeHtml($alertMessage)</div>
+        <div class="sak-banner-error">$tlang.getString("label.alert") $formattedText.escapeHtml($alertMessage)</div>
     #end
     
     <form action="#toolForm("ResourcesAction")" id="zipDownloadFileForm" name="zipDownloadFileForm" method="post" >
-        <input type="hidden" name="collectionId" value="$validator.escapeHtml($collectionId)" />
+        <input type="hidden" name="collectionId" value="$formattedText.escapeHtml($collectionId)" />
         #if ($zipDownloadItems.size()>0)
             <table class ="listHier lines" cellspacing="0" summary="$tlang.getString("zipdownload.table")" border="0" cellpadding="0">
                 <tr>

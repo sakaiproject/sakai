@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject.mailsender</groupId>
         <artifactId>mailsender</artifactId>
-        <version>20-SNAPSHOT</version><!-- ProjectVersion -->
+        <version>21-SNAPSHOT</version><!-- ProjectVersion -->
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -13,11 +13,6 @@
     <groupId>org.sakaiproject.mailsender</groupId>
     <artifactId>mailsender-impl</artifactId>
     <description>Mail Sender Internal Implementation (uses internal mail service)</description>
-    <organization>
-        <name>Sakai Project</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2007</inceptionYear>
     <packaging>sakai-component</packaging>
     <properties>
         <deploy.target>components</deploy.target>
@@ -52,7 +47,7 @@
         <!-- java mail -->
         <dependency>
             <groupId>com.sun.mail</groupId>
-            <artifactId>javax.mail</artifactId>
+            <artifactId>jakarta.mail</artifactId>
         </dependency>
 
         <!-- internal -->

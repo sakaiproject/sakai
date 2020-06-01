@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/common :: head" />
+<body>
+  <div th:replace="fragments/common :: jQuery" />
+  <div class="portletBody">
+    <div id="menu" th:include="fragments/menus :: main (autogroups)" />
+    <div class="page-header"><h1 th:text="#{autogroups.header.wizard}"></h1></div>
+    <div th:replace="fragments/wizard :: step (step4)"></div>
+    <br/>
+    <div class="row">
+      <div class="col-sm-8">
+        <p th:utext="#{autogroups.step4.info}">Below is a preview of the groups to be created. Select Save below to create these groups, or Back to make changes.</p>
+      </div>
+    </div>
+    <div class="row" >
+      <div class="col-sm-8">
+        <form id="autogroups-wizard-step4-form" th:action="@{/autogroups/confirmAutoGroups}" th:object="${autoGroupsForm}" method="post">
+          <input type="hidden" name="wizardAction" id="wizardAction" value=""/>
+          <input type="hidden" th:field="*{selectedRoleList}" name="selectedRoleList">
+          <input type="hidden" th:field="*{selectedSectionList}" name="selectedSectionList">
+          <input type="hidden" th:field="*{sectionsOption}" name="sectionsOption">
+          <input type="hidden" th:field="*{splitOptions}" name="splitOptions">
+          <input type="hidden" th:field="*{structureConfigurationOption}" name="structureConfigurationOption">
+          <input type="hidden" th:field="*{groupTitleByGroup}" name="sgroupTitleByGroup">
+          <input type="hidden" th:field="*{groupNumberByGroup}" name="groupNumberByGroup">
+          <input type="hidden" th:field="*{groupTitleByUser}" name="sgroupTitleByUser">
+          <input type="hidden" th:field="*{groupNumberByUser}" name="groupNumberByUser">
+          <input type="hidden" th:field="*{useManuallyAddedUsers}" name="useManuallyAddedUsers">
+          <input type="hidden" th:value="${serializedAutoGroupsMap}" name="serializedAutoGroupsMap">
+          <div class="form-row">
+            <label for="allowViewMembership"><input id="allowViewMembership" type="checkbox" name="allowViewMembership" th:field="*{allowViewMembership}"><span th:text="#{autogroups.step4.allow.membership}">Allow members to see who else is in their Group.</span></label>
+          </div>
+          <div class="act">
+            <input accesskey="c" type="submit" class="active" id="autogroups-creategroups-button-top" th:value="#{autogroups.button.create}" onclick="SPNR.disableControlsAndSpin( this, null );">
+            <a accesskey="b" id="autogroups-back-button-top" class="btn btn-default" th:text="#{autogroups.button.back}">Back</a>&nbsp;
+            <a th:href="@{/}" accesskey="x" id="autogroups-cancel-button-top" class="btn btn-default" th:text="#{autogroups.button.cancel}">Cancel</a>&nbsp;
+           </div>
+           <div th:each="autoGroup : ${autoGroupsMap.entrySet()}">
+             <h3 th:text="#{autogroups.step4.group.label(${autoGroup.key}, ${autoGroup.value.size()})}">Group title (X Members)</h3>
+             <div class="sak-banner-warn" th:text="#{autogroups.step4.no.roles}" th:if="${autoGroup.value.isEmpty()}">The site does not have users with the role, an empty group will be created.</div>
+             <table th:if="${!autoGroup.value.isEmpty()}" class="table table-bordered table-striped table-hover">
+               <thead>
+                 <tr>
+                   <th th:text="#{autogroups.step4.table.name}">Name</th>
+                   <th th:text="#{autogroups.step4.table.eid}">User Eid</th>
+                   <th th:text="#{autogroups.step4.table.role}">Role</th>
+                   <th th:if="${!sectionMemberMap.isEmpty()}" th:text="#{autogroups.step4.table.section}">Section(s)/Roster(s)</th>
+                 </tr>
+               </thead>
+               <tbody>
+                 <tr th:each="user : ${autoGroup.value}">
+                   <td th:if="${userMap.get(user) != null}" th:text="${userMap.get(user).displayName}">Obi Wan Kenobi</td>
+                   <td th:if="${userMap.get(user) != null}" th:text="${userMap.get(user).eid}">obiwan</td>
+                   <td th:text="${userRoleMap.get(user)}">Master Jedi</td>
+                   <td th:if="${!sectionMemberMap.isEmpty()}" th:text="${sectionMemberMap.get(user)}">Jedi Order/Not Sith</td>
+                 </tr>
+               </tbody>
+              </table>
+          </div>
+          <div class="act">
+            <input accesskey="c" type="submit" class="active" id="autogroups-creategroups-button" th:value="#{autogroups.button.create}" onclick="SPNR.disableControlsAndSpin( this, null );">
+            <a accesskey="b" id="autogroups-back-button" class="btn btn-default" th:text="#{autogroups.button.back}">Back</a>&nbsp;
+            <a th:href="@{/}" accesskey="x" id="autogroups-cancel-button" class="btn btn-default" th:text="#{autogroups.button.cancel}">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script th:replace="fragments/javascript :: autoGroupsStep4Js" />
+</body>
+</html>

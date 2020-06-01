@@ -129,8 +129,8 @@ public interface PrivateMessageManager {
      * @param message
      * @param recipients
      */
-    void savePrivateMessage(Message message);
-    void savePrivateMessage(Message message, boolean logEvent);
+    Message savePrivateMessage(Message message);
+    Message savePrivateMessage(Message message, boolean logEvent);
             
     /**
      * find message count for type

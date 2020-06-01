@@ -20,6 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.MockitoAnnotations;
+import org.sakaiproject.gradebookng.business.util.FormatHelper;
 
 public class TestGradebookNgBusinessService {
 
@@ -34,5 +35,50 @@ public class TestGradebookNgBusinessService {
 	@Test
 	public void injectionOk() {
 		Assert.assertNotNull(service);
+	}
+	
+	@Test
+	public void testCourseGradeRoundingUp() {
+		double d = 89.4455D;
+		String s = "89.4455";
+
+		String rounded = FormatHelper.formatGradeForDisplay(d);
+		Assert.assertEquals(rounded, "89.45");
+
+		rounded = FormatHelper.formatGradeForDisplay(s);
+		Assert.assertEquals(rounded, "89.45");
+
+		rounded = FormatHelper.formatStringAsPercentage(s);
+		Assert.assertEquals(rounded, "89.45%");
+	}
+	
+	@Test
+	public void testCourseGradeRoundingDown() {
+		double d = 89.4449D;
+		String s = "89.4449";
+
+		String rounded = FormatHelper.formatGradeForDisplay(d);
+		Assert.assertEquals(rounded, "89.44");
+
+		rounded = FormatHelper.formatGradeForDisplay(s);
+		Assert.assertEquals(rounded, "89.44");
+
+		rounded = FormatHelper.formatStringAsPercentage(s);
+		Assert.assertEquals(rounded, "89.44%");
+	}
+
+	@Test
+	public void testDropTrailingZero() {
+		double d = 89.0000D;
+		String s = "89.000000";
+
+		String rounded = FormatHelper.formatGradeForDisplay(d);
+		Assert.assertEquals(rounded, "89");
+
+		rounded = FormatHelper.formatGradeForDisplay(s);
+		Assert.assertEquals(rounded, "89");
+
+		rounded = FormatHelper.formatStringAsPercentage(s);
+		Assert.assertEquals(rounded, "89%");
 	}
 }

@@ -4,17 +4,12 @@
   <parent>
     <artifactId>user</artifactId>
     <groupId>org.sakaiproject.user</groupId>
-    <version>20-SNAPSHOT</version>
+    <version>21-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>sakai-user-tool-admin-prefs</name>
   <groupId>org.sakaiproject.user</groupId>
   <artifactId>sakai-user-tool-admin-prefs</artifactId>
-  <organization>
-    <name>Sakai Project</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2005</inceptionYear>
   <packaging>war</packaging>
   <dependencies>
     <dependency>

@@ -23,6 +23,7 @@ package org.sakaiproject.authz.api;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 import org.sakaiproject.entity.api.Edit;
@@ -287,4 +288,59 @@ public interface AuthzGroup extends Edit, Comparable, Serializable
 	 * @return true if any changes were made, false if not.
 	 */
 	boolean keepIntersection(AuthzGroup other);
+
+	/**
+	 * Get the lock that exists for this AuthzGroup
+	 * <ul>
+	 *     <li>If no lock is present then return {@code RealmLockMode.NONE}</li>
+	 *     <li>If both {@code RealmLockMode.DELETE} and {@code RealmLockMode.MODIFY} locks are present then return {@code RealmLockMode.ALL}</li>
+	 *     <li>otherwise return the specific lock that exists</li>
+	 * </ul>
+	 *
+	 * @return RealmLockMode
+	 */
+	RealmLockMode getRealmLock();
+
+	/**
+	 * Get the lock for a specific entity reference for this AuthzGroup
+	 *
+	 * @param reference the entity reference to check for a lock
+	 * @return RealmLockMode
+	 */
+	RealmLockMode getLockForReference(String reference);
+
+	/**
+	 * Sets the current lock for the given entity reference for this AuthzGroup
+	 *
+	 * @param reference the entity reference
+	 * @param type the lock type, setting this to {@code RealmLockMode.NONE} will remove the lock
+	 */
+	void setLockForReference(String reference, RealmLockMode type);
+
+	/**
+	 * Get all the references that have a lock on this realm.
+	 *
+	 * @return a List of arrays where the array contains the following positional data:
+	 * <ol start="0">
+	 *     <li>reference</li>
+	 *     <li>the lock mode</li>
+	 * </ol>
+	 */
+	List<String[]> getRealmLocks();
+
+	/**
+	 * Modes by which a realm can be locked
+	 * <ul>
+	 *     <li>NONE: no lock exists</li>
+	 *     <li>ALL: combination of all locks, except NONE</li>
+	 *     <li>DELETE: group can't be deleted</li>
+	 *     <li>MODIFY: members can't be removed or added</li>
+	 * </ul>
+	 */
+	enum RealmLockMode {
+		NONE,      // 0
+		ALL,       // 1
+		DELETE,    // 2
+		MODIFY     // 3
+	};
 }

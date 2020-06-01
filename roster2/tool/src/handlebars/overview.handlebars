@@ -2,14 +2,14 @@
 <div class="sakai-table-toolBar">
     <!-- header for overview part -->
     <div class="page-header">
-        <h1>{{translate 'navbar_overview'}}</h1>
+        <h1>{{tr 'navbar_overview'}}</h1>
      </div>
     <div class="sakai-table-filterContainer">
         <div class="sakai-table-viewFilter">
-            <label for="roster-roles-selector">{{translate 'roles_label'}}</label>
-            <span class="skip">{{translate 'screenreader_comboBox'}}</span>
+            <label for="roster-roles-selector">{{tr 'roles_label'}}</label>
+            <span class="skip">{{tr 'screenreader_comboBox'}}</span>
             <select id="roster-roles-selector">
-                <option value="all">{{translate 'roster_sections_all'}}</option>
+                <option value="all">{{tr 'roster_sections_all'}}</option>
                 {{#each roles}}
                 <option id="roster-role-option-{{this}}" value="{{this}}">{{this}}</option>
                 {{/each}}
@@ -18,10 +18,10 @@
 
         {{#if viewGroup}}
         <div class="sakai-table-viewFilter">
-            <label for="roster-groups-selector">{{translate 'groups'}}</label>
-            <span class="skip">{{translate 'screenreader_comboBox'}}</span>
+            <label for="roster-groups-selector">{{tr 'groups'}}</label>
+            <span class="skip">{{tr 'screenreader_comboBox'}}</span>
             <select id="roster-groups-selector">
-                <option value="all">{{translate 'roster_sections_all'}}</option>
+                <option value="all">{{tr 'roster_sections_all'}}</option>
                 {{#each siteGroups}}
                 <option id="roster-group-option-{{id}}" value="{{id}}">{{title}}</option>
                 {{/each}}
@@ -30,11 +30,11 @@
         {{/if}}
 
         <div class="sakai-table-searchFilter">
-            <label for="roster-search-field">{{translate 'roster_search_text'}}</label>
+            <label for="roster-search-field">{{tr 'roster_search_text'}}</label>
             <div class="sakai-table-searchFilterControls act">
                 <input id="roster-search-field" type="text" value="{{#if searchQuery}}{{searchQuery}}{{/if}}" class="sakai-table-searchFilter-searchField" />
-                <input id="roster-search-button" class="active" type="button" value="{{translate 'roster_search_button'}}" />
-                <input id="roster_form_clear_button" type="button" value="{{translate 'roster_clear_button'}}" />
+                <input id="roster-search-button" class="active" type="button" value="{{tr 'roster_search_button'}}" />
+                <input id="roster_form_clear_button" type="button" value="{{tr 'roster_clear_button'}}" />
             </div>
         </div>
     </div>
@@ -42,15 +42,15 @@
     <div class="sakai-table-buttonContainer">
         <div id="roster_hide_options" class="sakai-table-viewFilter">
             <input type="checkbox" id="roster-hide-pictures-checkbox" />
-            <label for="roster-hide-pictures-checkbox">{{translate 'roster_hide_pictures'}}</label>
+            <label for="roster-hide-pictures-checkbox">{{tr 'roster_hide_pictures'}}</label>
 
             <input type="checkbox" id="roster-hide-names-checkbox" />
-            <label for="roster-hide-names-checkbox">{{translate 'roster_hide_names'}}</label>
+            <label for="roster-hide-names-checkbox">{{tr 'roster_hide_names'}}</label>
         </div>
 
         <div id="buttonContainer">
-            <button class="roster-print-button" title="{{translate 'print_roster_tooltip'}}">{{translate 'print_roster'}}</button>
-            <button id="roster-export-button" title="{{translate 'export_roster_tooltip'}}">{{translate 'export_roster'}}</button>
+            <button class="roster-print-button" title="{{tr 'print_roster_tooltip'}}">{{tr 'print_roster'}}</button>
+            <button id="roster-export-button" title="{{tr 'export_roster_tooltip'}}">{{tr 'export_roster'}}</button>
         </div>
     </div>
 
@@ -58,15 +58,15 @@
         {{#if viewOfficialPhoto}}
         <div id="roster_type_selector" class="sakai-table-viewFilter">
             <fieldset class="roundedBorder">
-                <legend>{{translate 'picture_source_group'}}</legend>
+                <legend>{{tr 'picture_source_group'}}</legend>
                 <span>
                     <input type="radio" name="roster_picture_type" value="official" id="roster_official_picture_button" {{#if checkOfficialPicturesButton}}checked{{/if}} />
-                    <label for="roster_official_picture_button">{{translate 'roster_show_official_pictures'}}</label>
+                    <label for="roster_official_picture_button">{{tr 'roster_show_official_pictures'}}</label>
                 </span>
 
                 <span>
                     <input type="radio" name="roster_picture_type" value="profile" id="roster_profile_picture_button" {{#unless checkOfficialPicturesButton}}checked{{/unless}} />
-                    <label for="roster_profile_picture_button">{{translate 'roster_show_profile_pictures'}}</label>
+                    <label for="roster_profile_picture_button">{{tr 'roster_show_profile_pictures'}}</label>
                 </span>
             </fieldset>
         </div>
@@ -74,20 +74,20 @@
 
         <div class="sakai-table-viewFilter">
             <fieldset class="roundedBorder">
-                <legend>{{translate 'layout_group'}}</legend>
+                <legend>{{tr 'layout_group'}}</legend>
                 <span>
-                    <input type="radio" id="roster-card-view-radio" name="roster_view_type" checked />
-                    <label for="roster-card-view-radio">{{translate 'roster_card_view'}}</label>
+                    <input type="radio" id="roster-card-view-radio" name="roster_view_type" {{#if defaultOverviewModeCards}}checked{{/if}} />
+                    <label for="roster-card-view-radio">{{tr 'roster_card_view'}}</label>
                 </span>
 
                 <span>
-                    <input type="radio" id="roster-photo-view-radio" name="roster_view_type" />
-                    <label for="roster-photo-view-radio">{{translate 'roster_photo_view'}}</label>
+                    <input type="radio" id="roster-photo-view-radio" name="roster_view_type" {{#if defaultOverviewModePhotogrid}}checked{{/if}}/>
+                    <label for="roster-photo-view-radio">{{tr 'roster_photo_view'}}</label>
                 </span>
 
                 <span>
-                    <input type="radio" id="roster-spreadsheet-view-radio" name="roster_view_type" />
-                    <label for="roster-spreadsheet-view-radio">{{translate 'roster_spreadsheet_view'}}</label>
+                    <input type="radio" id="roster-spreadsheet-view-radio" name="roster_view_type" {{#if defaultOverviewModeSpreadsheet}}checked{{/if}}/>
+                    <label for="roster-spreadsheet-view-radio">{{tr 'roster_spreadsheet_view'}}</label>
                 </span>
             </fieldset>
         </div>

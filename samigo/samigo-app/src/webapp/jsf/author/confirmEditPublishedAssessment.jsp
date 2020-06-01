@@ -38,7 +38,7 @@
  <div class="portletBody">
   <h3><h:outputText value="#{authorMessages.edit_published_assessment_heading_conf}"/></h3>
  <h:form id="editPublishedAssessmentForm">
-     <div class="bs-callout-danger tier1">
+     <div class="sak-banner-error tier1">
        <h:outputText value="#{authorMessages.warning}" />
    	   <br/>
        <h:outputText value="#{authorMessages.edit_published_assessment_heading_conf_info_1}" />

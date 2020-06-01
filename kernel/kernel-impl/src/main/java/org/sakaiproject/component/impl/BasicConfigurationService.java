@@ -22,6 +22,7 @@
 package org.sakaiproject.component.impl;
 
 import com.opencsv.CSVParser;
+import com.opencsv.CSVParserBuilder;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -604,7 +605,14 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
                     rv = new String[0];
                     this.addConfigItem(new ConfigItemImpl(name, rv, TYPE_ARRAY, SOURCE_GET_STRINGS), SOURCE_GET_STRINGS);
                 } else {
-                    CSVParser csvParser = new CSVParser(',','"','\\',false,true); // should configure this for default CSV parsing
+                    CSVParser csvParser = new CSVParserBuilder()
+                    //new CSVParser(',','"','\\',false,true); // should configure this for default CSV parsing
+                    .withSeparator(',')
+                    .withQuoteChar('"')
+                    .withEscapeChar('\\')
+                    .withStrictQuotes(false)
+                    .withIgnoreLeadingWhiteSpace(true)
+                    .build();
                     try {
                         rv = csvParser.parseLine(value);
                         this.addConfigItem(new ConfigItemImpl(name, rv, TYPE_ARRAY, SOURCE_GET_STRINGS), SOURCE_GET_STRINGS);

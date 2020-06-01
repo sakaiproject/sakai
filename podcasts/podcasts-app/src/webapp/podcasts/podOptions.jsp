@@ -13,11 +13,24 @@
     <link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
     <link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
 
-    <script type="text/javascript" src="/library/js/headscripts.js"></script>
+    <script src="/library/js/headscripts.js"></script>
 
   <sakai:view toolCssHref="./css/podcaster.css">
-  <script type="text/javascript" src="./scripts/popupscripts.js"></script>
+  <script src="./scripts/popupscripts.js"></script>
+
+  <script>includeLatestJQuery('podOptions.jsp');</script>
+  <script>
+      $(document).ready(function(){
+          initializePopover("podMainForm\\:popover", "<h:outputText value="#{msgs.popup_text}" />");
+          var menuLink = $('#podcastOptionsMenuLink');
+          var menuLinkSpan = menuLink.closest('span');
+          menuLinkSpan.addClass('current');
+          menuLinkSpan.html(menuLink.text());
+  });
+  </script>
+
   <h:form enctype="multipart/form-data">
+    <%@ include file="/podcasts/podcastMenu.jsp" %>
     <div>  <!-- Page title and Instructions -->
       <div class="page-header">
         <h1><h:outputText value="#{msgs.options_title}" /></h1>

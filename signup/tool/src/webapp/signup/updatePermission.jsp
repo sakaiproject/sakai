@@ -11,11 +11,22 @@
 	<sakai:view_container title="Signup Tool">
 		<style type="text/css">
 			@import url("/sakai-signup-tool/css/signupStyle.css");
-		</style>	
-		
+		</style>
+
+		<h:outputText value="#{Portal.latestJQuery}" escape="false"/>
+		<script>
+			//initialization of the page
+			jQuery(document).ready(function() {
+				var menuLink = $('#signupPermissionMenuLink');
+				menuLink.addClass('current');
+				menuLink.html(menuLink.find('a').text());
+			});
+		</script>
+
 		<sakai:view_content>
-			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>      			
 			<h:form id="meeting">
+				<%@ include file="/signup/menu/signupMenu.jsp" %>
+				<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>
 				<div class="page-header">
 					<sakai:view_title value="#{msgs.permission_page_title}"/>
 				</div>

@@ -364,6 +364,13 @@
       <!-- ISO8601 Date Format ex 2003-12-12T09:20:00-->
 
       <qtimetadatafield>
+        <fieldlabel>FEEDBACK_DELIVERY_END_DATE</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!-- ISO8601 Date Format ex 2003-12-12T09:20:00-->
+
+      <qtimetadatafield>
         <fieldlabel>EDIT_FEEDBACK_DELIVERY</fieldlabel>
         <fieldentry>True</fieldentry>
       </qtimetadatafield>

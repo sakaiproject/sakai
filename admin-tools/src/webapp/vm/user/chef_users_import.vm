@@ -10,7 +10,7 @@
 		</h3>
 		#if ($alertMessage)
 			<div class="sak-banner-error">
-				$tlang.getString("useconrem.alert") $validator.escapeHtml($alertMessage)
+				$tlang.getString("useconrem.alert") $formattedText.escapeHtml($alertMessage)
 			</div>
 		#end
 		
@@ -58,17 +58,17 @@
 					<tbody>
 					#foreach ($user in $importedUsers)
 						<tr>
-							<td headers="Eid">$validator.escapeHtml($user.eid)</td>
-							<td headers="FirstName">$validator.escapeHtml($user.firstName)</td>
-							<td headers="LastName">$validator.escapeHtml($user.lastName)</td>
-							<td headers="Email">$validator.escapeHtml($user.email)</td>
-							<td headers="Password">$validator.escapeHtml($user.password)</td>
-							<td headers="Type">$validator.escapeHtml($user.type)</td>
+							<td headers="Eid">$formattedText.escapeHtml($user.eid)</td>
+							<td headers="FirstName">$formattedText.escapeHtml($user.firstName)</td>
+							<td headers="LastName">$formattedText.escapeHtml($user.lastName)</td>
+							<td headers="Email">$formattedText.escapeHtml($user.email)</td>
+							<td headers="Password">$formattedText.escapeHtml($user.password)</td>
+							<td headers="Type">$formattedText.escapeHtml($user.type)</td>
 							<td headers="Properties">
 								#set ($paramNames = $user.Properties.PropertyNames)
 								#foreach ($paramName in $paramNames)
 									#set ($paramValue = $user.Properties.getPropertyFormatted($paramName))
-									$validator.escapeHtml($paramName) = $validator.escapeHtml($paramValue)<br />
+									$formattedText.escapeHtml($paramName) = $formattedText.escapeHtml($paramValue)<br />
 								#end
 							</td>
 						</tr>

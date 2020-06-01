@@ -129,9 +129,6 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 	static final String ICONSTYLE = "\n.portletTitle .action .help img {\n        background: url({}/help.gif) center right no-repeat !important;\n}\n.portletTitle .action .help img:hover, .portletTitle .action .help img:focus {\n        background: url({}/help_h.gif) center right no-repeat\n}\n.portletTitle .title img {\n        background: url({}/reload.gif) center left no-repeat;\n}\n.portletTitle .title img:hover, .portletTitle .title img:focus {\n        background: url({}/reload_h.gif) center left no-repeat\n}\n";
 
 	public static final String VIEW_ID = "ShowItem";
-	
-	private static final String NAMESPACE= "Mrphs-sakai-";
-	private static final String LESSONS_NAMESPACE = "Mrphs-container Mrphs-sakai-lessonbuildertool";
 
 	public String getViewID() {
 		return VIEW_ID;
@@ -400,7 +397,6 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 	    // that will be checked. THat's not the case when the URL is directly present.
 	    // in that case we have to get it from the item.
 	    String source = params.getSource();
-	    String getNamespaceClass = "";
 	    if (item == null && (source == null || !source.startsWith("CREATE/"))) {
 		UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.not_available"));
 		return;
@@ -410,24 +406,20 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 		source = myUrl()+ "/portal/tool/" + simplePageBean.getCurrentTool(simplePageBean.FORUMS_TOOL_ID)
 			+ "/discussionForum/message/dfViewThreadDirect.jsf?&messageId=" + params.getMessageId()
 			+ "&topicId=" + params.getTopicId() + "&forumId=" + params.getForumId();
-		getNamespaceClass+=NAMESPACE+"assignment-grades";
 	    }
 	    if (source.startsWith("CREATE/")) {
 		if (source.startsWith("CREATE/ASSIGN/")) {
 		    List<UrlItem> createLinks = assignmentEntity.createNewUrls(simplePageBean);
 		    Integer i = new Integer(source.substring("CREATE/ASSIGN/".length()));
 		    source = createLinks.get(i).Url;
-		    getNamespaceClass+=NAMESPACE+"assignment-grades";
 		} else if (source.startsWith("CREATE/QUIZ/")) {
 		    List<UrlItem> createLinks = quizEntity.createNewUrls(simplePageBean);
 		    Integer i = new Integer(source.substring("CREATE/QUIZ/".length()));
 		    source = createLinks.get(i).Url;
-		    getNamespaceClass+=NAMESPACE+"samigo";
 		} else if (source.startsWith("CREATE/FORUM/")) {
 		    List<UrlItem> createLinks = forumEntity.createNewUrls(simplePageBean);
 		    Integer i = new Integer(source.substring("CREATE/FORUM/".length()));
 		    source = createLinks.get(i).Url;
-		    getNamespaceClass+=NAMESPACE+"forums";
 		}
 	    } else if (item.getAttribute("multimediaUrl") != null)
 		source = item.getAttribute("multimediaUrl");
@@ -444,7 +436,6 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 			source = myUrl()+ "/portal/tool/" + simplePageBean.getCurrentTool(simplePageBean.FORUMS_TOOL_ID)
 					+"/discussionForum/message/dfViewThreadDirect.jsf?&messageId=" + params.getMessageId()
 					+ "&topicId=" + params.getTopicId() + "&forumId=" + params.getForumId();
-			getNamespaceClass+=NAMESPACE+"forums";
 			break;
 		case SimplePageItem.ASSIGNMENT:
 		case SimplePageItem.ASSESSMENT:
@@ -454,15 +445,12 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 		    switch (item.getType()) {
 		    case SimplePageItem.ASSIGNMENT:
 			    lessonEntity = assignmentEntity.getEntity(item.getSakaiId());
-			    getNamespaceClass+=NAMESPACE+"assignment-grades";
 			    break;
 		    case SimplePageItem.ASSESSMENT:
 			    lessonEntity = quizEntity.getEntity(item.getSakaiId(),simplePageBean);
-			    getNamespaceClass+=NAMESPACE+"samigo";
 			    break;
 		    case SimplePageItem.FORUM:
 			    lessonEntity = forumEntity.getEntity(item.getSakaiId());
-			    getNamespaceClass+=NAMESPACE+"forums";
 			    break;
 		    case SimplePageItem.BLTI:
 			if (bltiEntity != null)
@@ -478,7 +466,6 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 		}
 
 	    UIComponent iframe = UILink.make(tofill, "iframe1", source)
-				.decorate(new UIFreeAttributeDecorator("data-namespace", LESSONS_NAMESPACE + " " + getNamespaceClass))
 				.decorate(new UIFreeAttributeDecorator("allow", String.join(";",
 						Optional.ofNullable(ServerConfigurationService.getStrings("browser.feature.allow"))
 								.orElseGet(() -> new String[]{}))));

@@ -1,35 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>How do I enable student peer review for an assignment?</title>
+<title>How do I export/archive an individual site?</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta content="sakai.assignment" name="description">
-<meta content="peer review, peer assessment, peer evaluation" name="search">
+<meta content="" name="description">
 <link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="/library/js/jquery/featherlight/0.4.0/featherlight.min.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="/library/js/jquery/featherlight/0.4.0/featherlight.min.js" type="text/javascript" charset="utf-8"></script><script type="text/javascript" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    includeWebjarLibrary('featherlight');
     $(document).ready(function(){
-      $("a[rel^='featherlight']").featherlight({
+      $("a.screensteps-image-zoom").featherlight({
         type: { image:true },
-    closeOnClick: 'anywhere'
+        closeOnClick: 'anywhere'
       }); 
     });   
-  </script>
+</script>
 </head>
 <body>
-  <div id="wrapper"><div id="article-content">
-<div id="article-header"><h1 class="article-title">How do I export/archive an individual site?</h1></div>
-<div id="article-description">  <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+  <div><div>
+<div><h1 class="article-title">How do I export/archive an individual site?</h1></div>
+<div>    <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
   <p>Exporting or archiving a site will create folder containing archive files which can be used for offline data retention or for transfer to another instance of Sakai. By default, site archives are placed on the file server in the following location: $CATALINA_HOME/sakai/archive/</p>
 <p><em>Note: Exporting/archiving a site copies all of the site content into an archive file, but does NOT copy user data.</em></p>
 </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="go-to-site-archive">
-    <h2 id="go-to-site-archive" class="step-title screensteps-heading">Go to Site Archive.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1" id="go-to-site-archive">
+    <h2 class="step-title screensteps-heading">Go to Site Archive.</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/001/000/980/original/05c3731a-6e81-4776-801a-c78db98d3969.png" alt="Go to Site Archive." height="146" width="197">
+    <img src="https://media.screensteps.com/image_assets/assets/003/340/922/original/2f3f13f4-d4cd-424d-86fb-6a9ec845fb52.png" alt="" height="122" width="197">
 </div>
  
       <div class="step-instructions screensteps-textblock">
@@ -37,41 +38,46 @@
 </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="in-the-export-from-site-field-enter-the-site-id">
-    <h2 id="in-the-export-from-site-field-enter-the-site-id" class="step-title screensteps-heading">In the Export from site field, enter the site id.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1" id="in-the-export-from-site-field-enter-the-site-id">
+    <h2 class="step-title screensteps-heading">In the Export from site field, enter the site id.</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/001/000/978/original/a5539d9b-430c-455c-8ee4-5b081d4f68e8.png" alt="In the Export from site field, enter the site id." height="293" width="685">
+    <a href="https://media.screensteps.com/image_assets/assets/003/298/540/original/e6b9a801-b8e4-4895-87cf-fadf5d8df7c4.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/298/540/medium/e6b9a801-b8e4-4895-87cf-fadf5d8df7c4.png" alt="" height="382" width="855">
+    </a>
 </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="check-the-zip-box-to-create-a-zipped-archive-file-for-download">
-    <h2 id="check-the-zip-box-to-create-a-zipped-archive-file-for-download" class="step-title screensteps-heading">Check the Zip box to create a zipped archive file for download. </h2>
+
+      <div class="step screensteps-section screensteps-depth-1" id="check-the-zip-box-to-create-a-zipped-archive-file-for-download">
+    <h2 class="step-title screensteps-heading">Check the Zip box to create a zipped archive file for download. </h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/001/000/976/original/29070022-094f-4301-8e38-5c28fbe19c7b.png" alt="Check the Zip box to create a zipped archive file for download." height="287" width="698">
+    <img src="https://media.screensteps.com/image_assets/assets/001/000/976/original/29070022-094f-4301-8e38-5c28fbe19c7b.png" alt="" height="287" width="698">
 </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="click-archive">
-    <h2 id="click-archive" class="step-title screensteps-heading">Click Archive.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1" id="click-archive">
+    <h2 class="step-title screensteps-heading">Click Archive.</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/001/000/984/original/4fc84958-6e65-4cb8-87ef-5a8e1d64c71e.png" alt="Click Archive." height="295" width="703">
+    <a href="https://media.screensteps.com/image_assets/assets/003/298/538/original/22de020f-e48d-4d22-a4c6-a67da1ea7c13.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/298/538/medium/22de020f-e48d-4d22-a4c6-a67da1ea7c13.png" alt="" height="384" width="855">
+    </a>
 </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="archive-progress-will-be-displayed">
-    <h3 id="archive-progress-will-be-displayed" class="step-title screensteps-heading">Archive progress will be displayed.</h3>
+    <h3 class="step-title screensteps-heading">Archive progress will be displayed.</h3>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/001/000/982/original/d77bf557-4604-4fa5-9769-21cb2bba48dc.png" class="screensteps-image-zoom">
-      <img src="https://media.screensteps.com/image_assets/assets/001/000/982/medium/d77bf557-4604-4fa5-9769-21cb2bba48dc.png" alt="Archive progress will be displayed." height="707" width="855">
+    <a href="https://media.screensteps.com/image_assets/assets/003/298/542/original/17f16839-1fe8-455f-8615-844ae533a444.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/298/542/medium/17f16839-1fe8-455f-8615-844ae533a444.png" alt="" height="558" width="855">
     </a>
 </div>
  
   </div>
  
   </div>
- 
+
+
 </div>
 </div></div>
 </body>

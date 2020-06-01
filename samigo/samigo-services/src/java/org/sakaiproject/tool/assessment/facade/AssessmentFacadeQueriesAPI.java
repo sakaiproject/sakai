@@ -185,8 +185,9 @@ public interface AssessmentFacadeQueriesAPI {
 
 	public void removeAllItems(Long sourceSectionId);
 
-	public boolean assessmentTitleIsUnique(Long assessmentBaseId, String title,
-			Boolean isTemplate);
+	public boolean assessmentTitleIsUnique(Long assessmentBaseId, String title, Boolean isTemplate);
+
+	public boolean assessmentTitleIsUnique(Long assessmentBaseId, String title, Boolean isTemplate, String siteId);
 
 	public List getAssessmentByTemplate(Long templateId);
 
@@ -244,4 +245,7 @@ public interface AssessmentFacadeQueriesAPI {
 	public Set prepareItemAttachmentSet(ItemData newItem,
 										Set itemAttachmentSet, String protocol, String toContext);
 
+    public List<AssessmentData> getDeletedAssessments(String siteId);
+
+    public void restoreAssessment(Long assessmentId);
 }

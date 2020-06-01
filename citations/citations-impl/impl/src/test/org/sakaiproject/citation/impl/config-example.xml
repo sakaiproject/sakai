@@ -1,0 +1,11 @@
+<map id="saveciteClients">
+    <entry>
+        <string>en</string>
+        <list>
+            <map>
+                <entry><string>id</string><string>saveciteClients</string></entry>
+                <entry><string>test</string><string>Test</string></entry>
+            </map>
+        </list>
+    </entry>
+</map>

@@ -58,6 +58,7 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
+import org.sakaiproject.util.RequestFilter;
 
 @Slf4j
 public class SkinnableLogin extends HttpServlet implements Login {
@@ -240,7 +241,7 @@ public class SkinnableLogin extends HttpServlet implements Login {
 				session.setAttribute(ATTR_RETURN_URL, Web.returnUrl(req, null));
 
 				String containerCheckPath = this.getServletConfig().getInitParameter("container");
-				String containerCheckUrl = Web.serverUrl(req) + containerCheckPath;
+				String containerCheckUrl = RequestFilter.serverUrl(req) + containerCheckPath;
 
 				// support query parms in url for container auth
 				String queryString = req.getQueryString();

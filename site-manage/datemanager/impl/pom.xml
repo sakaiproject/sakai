@@ -1,0 +1,105 @@
+<?xml version="1.0"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+		xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.sakaiproject.sitemanage</groupId>
+		<artifactId>sakai-site-datemanager-base</artifactId>
+		<version>21-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+
+	<name>sakai-site-datemanager-impl</name>
+	<groupId>org.sakaiproject.datemanager.impl</groupId>
+	<artifactId>sakai-site-datemanager-impl</artifactId>
+	<packaging>sakai-component</packaging>
+
+	<dependencies>
+		<!-- Project dependencies -->
+		<dependency>
+			<groupId>org.sakaiproject.datemanager.api</groupId>
+			<artifactId>sakai-site-datemanager-api</artifactId>
+			<version>${project.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<!-- Sakai dependencies -->
+		<dependency>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-kernel-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-component-manager</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-kernel-util</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.assignment</groupId>
+			<artifactId>sakai-assignment-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.samigo</groupId>
+			<artifactId>samigo-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.samigo</groupId>
+			<artifactId>samigo-services</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.samigo</groupId>
+			<artifactId>samigo-hibernate</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.edu-services.gradebook</groupId>
+			<artifactId>gradebook-service-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.signup</groupId>
+			<artifactId>signup-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.calendar</groupId>
+			<artifactId>sakai-calendar-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.msgcntr</groupId>
+			<artifactId>messageforums-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.announcement</groupId>
+			<artifactId>sakai-announcement-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.message</groupId>
+			<artifactId>sakai-message-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.lessonbuilder</groupId>
+			<artifactId>lessonbuilder-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<!-- Third dependencies -->
+		<dependency>
+			<groupId>com.googlecode.json-simple</groupId>
+			<artifactId>json-simple</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+		</dependency>
+	</dependencies>
+</project>

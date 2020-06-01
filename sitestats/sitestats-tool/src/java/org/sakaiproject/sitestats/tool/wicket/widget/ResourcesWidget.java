@@ -233,7 +233,7 @@ public class ResourcesWidget extends Panel {
 			
 			private void processData() {
 				if(totalDistinctFileReads == -1) {
-					Report r = Locator.getFacade().getReportManager().getReport(getCommonReportDefition(), true, null, false, null);
+					Report r = Locator.getFacade().getReportManager().getReport(getCommonReportDefition(), true, null, false);
 					try{
 						totalDistinctFileReads = 0;
 						for(Stat s : r.getReportData()) {
@@ -347,7 +347,7 @@ public class ResourcesWidget extends Panel {
 			
 			private void processData() {
 				if(mostOpenedFile == null) {
-					Report r = Locator.getFacade().getReportManager().getReport(getCommonReportDefition(), true, null, false, null);
+					Report r = Locator.getFacade().getReportManager().getReport(getCommonReportDefition(), true, null, false);
 					try{
 						boolean first = true;
 						for(Stat s : r.getReportData()) {
@@ -465,7 +465,7 @@ public class ResourcesWidget extends Panel {
 			
 			private void processData() {
 				if(user == null) {
-					Report r = Locator.getFacade().getReportManager().getReport(getCommonReportDefition(), true, null, false, null);
+					Report r = Locator.getFacade().getReportManager().getReport(getCommonReportDefition(), true, null, false);
 					try{
 						boolean first = true;
 						for(Stat s : r.getReportData()) {

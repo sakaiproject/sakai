@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.function.Consumer;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -44,15 +45,26 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import org.sakaiproject.authz.api.GroupProvider;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.coursemanagement.api.CourseManagementService;
+import org.sakaiproject.coursemanagement.api.Enrollment;
+import org.sakaiproject.coursemanagement.api.EnrollmentSet;
+import org.sakaiproject.coursemanagement.api.Membership;
+import org.sakaiproject.coursemanagement.api.Section;
+import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.IdUsedException;
+import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.exception.GbAccessDeniedException;
 import org.sakaiproject.gradebookng.business.exception.GbException;
@@ -73,7 +85,6 @@ import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.section.api.SectionManager;
-import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
@@ -99,11 +110,14 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.user.api.CandidateDetailProvider;
+import org.sakaiproject.user.api.Preferences;
+import org.sakaiproject.user.api.PreferencesEdit;
+import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * Business service for GradebookNG
@@ -147,14 +161,27 @@ public class GradebookNgBusinessService {
 	private GradebookExternalAssessmentService gradebookExternalAssessmentService;
 
 	@Setter
+	private PreferencesService preferencesService;
+
+	@Setter
 	private SectionManager sectionManager;
+
+	@Setter
+	private CourseManagementService courseManagementService;
+
+	@Setter
+	private GroupProvider groupProvider;
 
 	@Setter
 	private SecurityService securityService;
 
 	@Setter
 	private RubricsService rubricsService;
+	
+	@Setter
+	private FormattedText formattedText;
 
+	public static final String GB_PREF_KEY = "GBNG-";
 	public static final String ASSIGNMENT_ORDER_PROP = "gbng_assignment_order";
 	public static final String ICON_SAKAI = "icon-sakai--";
 	public static final String ALL = "all";
@@ -271,7 +298,7 @@ public class GradebookNgBusinessService {
 																// are visible
 																// to this TA
 					} else {
-						userUuids.clear(); // TA can't view anyone
+						userUuids.removeAll(sectionManager.getSectionEnrollmentsForStudents(givenSiteId, userUuids).getStudentUuids()); // TA can view/grade students without section
 					}
 				}
 			}
@@ -339,7 +366,7 @@ public class GradebookNgBusinessService {
 
 		for (final User u : users) {
 			gbUsers.add(new GbUser(u, getStudentNumber(u, site))
-							.setSections(userSections.getOrDefault(u.getId(), Collections.emptyList())));
+							.setSections(userSections.getOrDefault(u.getEid(), Collections.emptyList())));
 		}
 
 		return gbUsers;
@@ -707,12 +734,12 @@ public class GradebookNgBusinessService {
 		// Fix a problem when the grades comes from the old Gradebook API with locale separator, always compare the values using the same
 		// separator
 		if (StringUtils.isNotBlank(oldGradeAdjusted)) {
-			oldGradeAdjusted = oldGradeAdjusted.replace(",".equals(FormattedText.getDecimalSeparator()) ? "." : ",",
-					",".equals(FormattedText.getDecimalSeparator()) ? "," : ".");
+			oldGradeAdjusted = oldGradeAdjusted.replace(",".equals(formattedText.getDecimalSeparator()) ? "." : ",",
+					",".equals(formattedText.getDecimalSeparator()) ? "," : ".");
 		}
 		if (StringUtils.isNotBlank(storedGradeAdjusted)) {
-			storedGradeAdjusted = storedGradeAdjusted.replace(",".equals(FormattedText.getDecimalSeparator()) ? "." : ",",
-					",".equals(FormattedText.getDecimalSeparator()) ? "," : ".");
+			storedGradeAdjusted = storedGradeAdjusted.replace(",".equals(formattedText.getDecimalSeparator()) ? "." : ",",
+					",".equals(formattedText.getDecimalSeparator()) ? "," : ".");
 		}
 
 		if (gradingType == GradingType.PERCENTAGE) {
@@ -739,8 +766,8 @@ public class GradebookNgBusinessService {
 
 				oldGradeAdjusted = FormatHelper.formatDoubleToMatch(oldGradePointsFromPercentage, storedGradeAdjusted);
 
-				oldGradeAdjusted = oldGradeAdjusted.replace(",".equals(FormattedText.getDecimalSeparator()) ? "." : ",",
-					",".equals(FormattedText.getDecimalSeparator()) ? "," : ".");
+				oldGradeAdjusted = oldGradeAdjusted.replace(",".equals(formattedText.getDecimalSeparator()) ? "." : ",",
+					",".equals(formattedText.getDecimalSeparator()) ? "," : ".");
 			}
 
 			// we dont need processing of the stored grade as the service does that when persisting.
@@ -1047,18 +1074,59 @@ public class GradebookNgBusinessService {
 
 	private Map<String, List<String>> getUserSections(String siteId) {
 
-		Map<String, List<String>> userSections = new HashMap<>();
-		for (CourseSection cs : sectionManager.getSections(siteId)) {
-			for (EnrollmentRecord er : sectionManager.getSectionEnrollments(cs.getUuid())) {
-				String userId = er.getUser().getUserUid();
+		final Map<String, List<String>> userSections = new HashMap<>();
+
+		String[] sectionIds = null;
+
+		try {
+			sectionIds = groupProvider.unpackId(siteService.getSite(siteId).getProviderGroupId());
+		} catch (IdUnusedException idue) {}
+
+		if (sectionIds == null || sectionIds.length == 0) {
+			log.debug("No section ids found for {}. Returning an empty map ...", siteId);
+			return userSections;
+		}
+
+		for (String sectionId : sectionIds) {
+			Section section = null;
+			try {
+				section = courseManagementService.getSection(sectionId);
+			} catch (IdNotFoundException idNotFoundException) {}
+
+			if (section == null) {
+				log.debug("Section '{}'  not found, skipping ...", sectionId);
+				continue;
+			}
+
+			EnrollmentSet enrollmentSet = section.getEnrollmentSet();
+
+			Set<Membership> memberships = courseManagementService.getSectionMemberships(sectionId);
+
+			if ((memberships == null || memberships.size() == 0) && enrollmentSet == null) {
+				log.debug("Section '{}' does not have any direct memberships or enrollments. Skipping ...", sectionId);
+				continue;
+			}
+
+			final Section finalSection = section;
+			Consumer<String> collect = (userId) -> {
 				List<String> sections = userSections.get(userId);
 				if (sections == null) {
-					userSections.put(userId, new ArrayList<>(Arrays.asList(cs.getTitle())));
+					userSections.put(userId, new ArrayList<>(Arrays.asList(finalSection.getTitle())));
 				} else {
-				    sections.add(cs.getTitle());
+					sections.add(finalSection.getTitle());
 				}
+			};
+
+			if (enrollmentSet != null) {
+				Set<Enrollment> enrollments = courseManagementService.getEnrollments(enrollmentSet.getEid());
+				enrollments.forEach(e -> collect.accept(e.getUserId()));
+			}
+			
+			if (memberships != null) {
+				memberships.forEach(m -> collect.accept(m.getUserId()));
 			}
 		}
+
 		return userSections;
 	}
 
@@ -1095,7 +1163,7 @@ public class GradebookNgBusinessService {
 
 		for (User u : users) {
 			gbUsers.add(new GbUser(u, getStudentNumber(u, site))
-							.setSections(userSections.getOrDefault(u.getId(), Collections.emptyList())));
+							.setSections(userSections.getOrDefault(u.getEid(), Collections.emptyList())));
 		}
 
 		return gbUsers;
@@ -2378,6 +2446,10 @@ public class GradebookNgBusinessService {
 		return rval;
 	}
 
+	public GradeDefinition getGradeForStudentForItem(String studentId, Long assignmentId) {
+		return this.gradebookService.getGradeDefinitionForStudentForItem(getCurrentSiteId(), assignmentId, studentId);
+	}
+
 	/**
 	 * Get the category score for the given student.
 	 *
@@ -2771,6 +2843,49 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
+	 * Get the user's custom GbUiSettings from PreferencesService
+	 *
+	 * @return String
+	 */
+	public String getUserGbPreference(final String prefName) {
+		final String siteId = getCurrentSiteId();
+		final String currentUserId = getCurrentUser().getId();
+		Preferences userPrefs = preferencesService.getPreferences(currentUserId);
+		ResourceProperties rp = userPrefs.getProperties(GB_PREF_KEY + siteId);
+		return rp.getProperty(prefName);
+	}
+
+	/**
+	 * Set the user's custom GbUiSettings in PreferencesService
+	 *
+	 * @return
+	 */
+	public void setUserGbPreference(final String prefName, final String prefValue) {
+		final String siteId = getCurrentSiteId();
+		final String currentUserId = getCurrentUser().getId();
+		PreferencesEdit prefsEdit = null;
+		try {
+			prefsEdit = preferencesService.edit(currentUserId);
+		}
+		catch (IdUnusedException e) {
+			try {
+				prefsEdit = preferencesService.add(currentUserId);
+			} catch (PermissionException e1) {
+				log.warn("setUserGbPreference PermissionException attempting to add prefs for user {}, prefName={}", currentUserId, prefName);
+			} catch (IdUsedException e1) {
+				log.warn("setUserGbPreference IdUsedException attempting to add prefs for user {}, prefName={}", currentUserId, prefName);
+			}
+		} catch (PermissionException e) {
+			log.warn("setUserGbPreference PermissionException attempting to edit prefs for user {}, prefName={}", currentUserId, prefName);
+		} catch (InUseException e) {
+			log.warn("setUserGbPreference InUseException attempting to edit prefs for user {}, prefName={}", currentUserId, prefName);
+		}
+		ResourcePropertiesEdit props = prefsEdit.getPropertiesEdit(GB_PREF_KEY + siteId);
+		props.addProperty(prefName, prefValue);
+		preferencesService.commit(prefsEdit);
+	}
+
+	/**
 	 * Helper to check if a user is roleswapped
 	 *
 	 * @return true if ja, false if nay.
@@ -2828,6 +2943,8 @@ public class GradebookNgBusinessService {
 		// "Lesson Builder" is currently hardcoded in SimplePageBean.java (no localization required)
 		} else if (StringUtils.equals(externalAppName, "Lesson Builder")) {
 			iconClass = getLessonBuilderIconClass();
+		} else if (StringUtils.equals(externalAppName, "Attendance")) {
+			iconClass = getAttendanceIconClass();
 		}
 		return iconClass;
 	}
@@ -2843,6 +2960,7 @@ public class GradebookNgBusinessService {
 		mapping.put(this.toolManager.getLocalizedToolProperty("sakai.assignment", "title"), getAssignmentsIconClass());
 		mapping.put(this.toolManager.getLocalizedToolProperty("sakai.samigo", "title"), getSamigoIconClass());
 		mapping.put("Lesson Builder", getLessonBuilderIconClass());
+		mapping.put("Attendance", getAttendanceIconClass());
 
 		return mapping;
 	}
@@ -2861,6 +2979,10 @@ public class GradebookNgBusinessService {
 
 	private String getLessonBuilderIconClass() {
 		return ICON_SAKAI + "sakai-lessonbuildertool";
+	}
+
+	private String getAttendanceIconClass() {
+		return ICON_SAKAI + "sakai-attendance";
 	}
 
 	// Return a CandidateDetailProvider or null if it's not enabled

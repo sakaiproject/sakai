@@ -36,7 +36,7 @@
 <!-- content... -->
  <div class="portletBody container-fluid">
 
-<script type="text/javascript">
+<script>
 function textCounter(field, maxlimit) {
 	if (field.value.length > maxlimit) // if too long...trim it!
 		field.value = field.value.substring(0, maxlimit);
@@ -48,7 +48,7 @@ function textCounter(field, maxlimit) {
 <h3 class="insColor insBak insBor">
 <h:outputText value="#{questionPoolMessages.add_p}"/>
 </h3>
-<h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+<h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
 <p>
     <h:outputText value="#{questionPoolMessages.add_p_required}"/>
 </p>

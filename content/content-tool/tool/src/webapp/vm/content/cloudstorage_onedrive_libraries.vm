@@ -1,0 +1,11 @@
+<!-- Start of cloudstorage_onedrive_libraries.vm-->
+<script>
+  function doAttachSubmitOneDrive(itemId, cloneObject) {
+    document.getElementById('doattachonedriveitemid').setAttribute('value',itemId);
+    document.getElementById('onedriveitemidclone').setAttribute('value',cloneObject);
+    var f = document.getElementById('doattachitem');
+    f.submit();
+    return false;
+  }
+</script>
+<!-- End of cloudstorage_onedrive_libraries.vm-->

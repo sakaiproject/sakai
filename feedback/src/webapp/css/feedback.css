@@ -39,68 +39,6 @@
 
 #feedback-error-message-wrapper, #feedback-info-message-wrapper {
     display: none;
-    text-align: center;
-    margin-top: 10px;
-}
-
-#feedback-error-message-wrapper > div {
-    display: inline-block;
-    padding: 5px;
-    border: 1px red solid;
-    border-radius: 1em 1em 1em 1em;
-    color: red;
-}
-
-#feedback-error-message-wrapper > div:before {
-	content: "\f06a"; /* fa-exclamation-circle */
-    font-family: FontAwesome;
-    font-style: normal;
-    font-weight: normal;
-    text-decoration: inherit;
-/*--adjust as necessary--*/
-    color: red;
-    font-size: 18px;
-}
-
-#feedback-info-message-wrapper > div{
-    display: inline-block;
-    padding: 5px;
-    border: 1px green solid;
-    border-radius: 1em 1em 1em 1em;
-    color: green;
-}
-
-#feedback-info-message-wrapper > div:before {
-	content: "\f05a"; /* fa-info-circle */
-    font-family: FontAwesome;
-    font-style: normal;
-    font-weight: normal;
-    text-decoration: inherit;
-/*--adjust as necessary--*/
-    color: green;
-    font-size: 18px;
-}
-
-#feedback-error-message-wrapper span, #feedback-info-message-wrapper span {
-    margin-right: 12px;
-    margin-left: 0px;
-}
-
-#feedback-error-message-wrapper a, #feedback-info-message-wrapper a {
-    margin-right: 0px;
-    padding: 0px;
-    text-decoration: none;
-}
-
-#feedback-error-message-wrapper a:before, #feedback-info-message-wrapper a:before {
-    content: "\f00d"; /* fa-times */
-    font-family: FontAwesome;
-    font-style: normal;
-    font-weight: normal;
-    text-decoration: inherit;
-/*--adjust as necessary--*/
-    color: red;
-    font-size: 18px;
 }
 
 .feedback-explanation {

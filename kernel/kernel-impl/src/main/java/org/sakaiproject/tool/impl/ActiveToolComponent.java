@@ -141,12 +141,7 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
                                 .getProperty(TOOL_PORTLET_CONTEXT_PATH);
 		}
 
-		// KNL-352 - in Websphere ServletContext.getNamedDispatcher(...) will initialize the given Servlet.
-		// However Websphere's normal Servlet initialization happens later at com.ibm.ws.wswebcontainer.webapp.WebApp.initialize(WebApp.java:293).
-		// As a result, Websphere ends up trying to initialize the Servlet twice, causing the observed mapping clash exceptions.
-
-		if (!"websphere".equals(serverConfigurationService().getString("servlet.container")) &&
-		    portletContext == null )
+		if (portletContext == null )
 		{
 			// try getting the RequestDispatcher, just to test - but DON'T SAVE IT!
 			// Tomcat's RequestDispatcher is NOT thread safe and must be gotten from the context
@@ -880,13 +875,6 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 
 			public void sendRedirect(String url) throws IOException
 			{
-				// SAK-13408 - Relative redirections are based on the request URI. This fix addresses the problem 
-				// of Websphere having a different request URI than Tomcat. Instead, the relative URL will be
-				// converted to an absolute URL.
-				if ("websphere".equals(serverConfigurationService().getString("servlet.container")))
-				{
-			    	url = createAbsoluteURL(url);
-				}
 				super.sendRedirect(rewriteURL(url));
 			}
 

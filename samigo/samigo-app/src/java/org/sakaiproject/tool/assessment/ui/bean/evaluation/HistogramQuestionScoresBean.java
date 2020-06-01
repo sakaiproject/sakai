@@ -28,31 +28,17 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
+
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 
-/**
- * <p>
- * Title: sakaiproject.org
- * </p>
- *
- * <p>
- * Description: AAM - form class for edit/access.jsp
- * </p>
- *
- * <p>
- * Copyright: Copyright (c) 2003
- * </p>
- *
- * Used to be org.navigoproject.ui.web.form.evaluation.HistogramQuestionScoresForm.java
- *
- * @author Huong Nguyen
- * @version 1.0
- */
+/* For evaluation: Histogram Question Scores backing bean. */
 @Slf4j
-public class HistogramQuestionScoresBean
-  implements Serializable
-{
+@ManagedBean(name="histogramquestionscores")
+@SessionScoped
+public class HistogramQuestionScoresBean implements Serializable {
   private String assessmentName;
   private String title;
 

@@ -28,6 +28,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 
@@ -62,6 +65,8 @@ import org.sakaiproject.user.api.PreferencesService;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@ManagedBean(name="mfSynopticBean")
+@RequestScoped
 public class MessageForumSynopticBean {
 
 	/**
@@ -195,11 +200,15 @@ public class MessageForumSynopticBean {
 	private final String TAB_EXCLUDED_SITES = "exclude";
 	
 	/** Preferences service (injected dependency) */
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.user.api.PreferencesService\"]}")
 	protected PreferencesService preferencesService = null;
 	
 	/** Dependency Injected   */
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.site.api.SiteService\"]}")
 	private SiteService siteService;
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.tool.api.SessionManager\"]}")
 	private SessionManager sessionManager;
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.tool.api.ToolManager\"]}")
 	private ToolManager toolManager;
 
 	
@@ -221,24 +230,31 @@ public class MessageForumSynopticBean {
 	private boolean sitesToViewSet = false;
 
 	/** Needed if within a site so we only need stats for this site */
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.MessageForumsMessageManager\"]}")
 	private MessageForumsMessageManager messageManager;
 
 	/** Needed to grab unread counts for sites current user has group membership in */
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.MessageForumsForumManager\"]}")
 	private MessageForumsForumManager forumsManager;
 	
 	/** Needed to get topics if tool within a site */
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager\"]}")
 	private DiscussionForumManager forumManager;
 
 	/** Needed to grab unread message count if tool within site */
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager\"]}")
 	private PrivateMessageManager pvtMessageManager;
 
 	/** Needed to get forum message counts as well as Uuids for private messages and discussions */
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.MessageForumsTypeManager\"]}")
 	private MessageForumsTypeManager typeManager;
 
 	/** Needed to set up the counts for the private messages and forums */
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.AreaManager\"]}")
 	private AreaManager areaManager;
 	
 	/** Needed to determine if user has read permission of topic */
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager\"]}")
 	private UIPermissionsManager uiPermissionsManager;
 	
 	public void setMessageManager(MessageForumsMessageManager messageManager) {

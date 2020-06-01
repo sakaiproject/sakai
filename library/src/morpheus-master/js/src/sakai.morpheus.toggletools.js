@@ -15,24 +15,60 @@ portal.updateToolsCollapsedPref = function (collapsed) {
 	}
 };
 
+portal.updateMaximisedToolsPref = function (maximised) {
+
+	if (portal.user.id) {
+		var url = '/direct/userPrefs/updateKey/' + portal.user.id + '/sakai:portal:sitenav?toolMaximised=' + maximised;
+		$PBJQ.ajax(url, {method: 'PUT', cache: false});
+	}
+};
+
+portal.maximiseTool = function () {
+
+  document.getElementsByTagName("body").item(0).classList.add("tool-maximised");
+  portal.updateMaximisedToolsPref(true);
+  $PBJQ("sakai-maximise-button").each((i ,e) => e.setMaximised());
+
+  $PBJQ(document)
+    .off('keyup.usernav')
+    .on("keyup.maximise", e => {
+
+      // Exit fullscreen mode on escape
+      if (e.keyCode === 27) {
+        e.stopPropagation();
+        $PBJQ(document).off("keyup.maximise");
+        $PBJQ("sakai-maximise-button").each((i ,e) => e.minimise());
+      }
+    });
+}
+
+portal.minimiseTool = function () {
+
+  document.getElementsByTagName("body").item(0).classList.remove("tool-maximised");
+  portal.updateMaximisedToolsPref(false);
+  $PBJQ(document).off("keyup.maximise");
+  $PBJQ("sakai-maximise-button").each((i ,e) => e.setMinimised());
+}
+
 portal.toggleMinimizeNav = function () {
 
-	$PBJQ('body').toggleClass('Mrphs-toolMenu-collapsed');
-	// Remove any popout div for subsites.  Popout only displayed when portal.showSubsitesAsFlyout is set to true.
-	$PBJQ('#subSites.floating').css({'display': 'none'});
+  $PBJQ("body").toggleClass("Mrphs-toolMenu-collapsed");
 
-	var el = $PBJQ(this);
-	el.toggleClass('min max').parent().toggleClass('min max');
+  // Remove any popout div for subsites.  Popout only displayed when portal.showSubsitesAsFlyout is set to true.
+  $PBJQ('#subSites.floating').css({'display': 'none'});
 
-	if (portal.toolsCollapsed) {
-		portal.updateToolsCollapsedPref(false);
-		portal.toolsCollapsed = false;
-		el.attr('aria-pressed', false);
-	} else {
-		portal.updateToolsCollapsedPref(true);
-		portal.toolsCollapsed = true;
-		el.attr('aria-pressed', true);
-	}
+  var el = $PBJQ("#toolsNav-toggle-li button");
+  el.toggleClass('min max').parent().toggleClass('min max');
+
+  if (portal.toolsCollapsed) {
+    portal.updateToolsCollapsedPref(false);
+    portal.toolsCollapsed = false;
+    el.attr('aria-pressed', false);
+  } else {
+    portal.updateToolsCollapsedPref(true);
+    portal.toolsCollapsed = true;
+    el.attr('aria-pressed', true);
+  }
 };
 
 $PBJQ("#toolsNav-toggle-li button").on("click", portal.toggleMinimizeNav);

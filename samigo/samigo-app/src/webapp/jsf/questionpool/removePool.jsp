@@ -38,7 +38,7 @@
             <div class="portletBody">
                 <h:form id="removePoolForm">
                     <h3 style="insColor insBak"><h:outputText value="#{questionPoolMessages.rm_p_confirm}" /></h3>
-                    <div class="messageWarning">
+                    <div class="sak-banner-warn">
                         <h:outputText value="#{questionPoolMessages.remove_sure_p}" />
                     </div>
                     <div class="tier1">

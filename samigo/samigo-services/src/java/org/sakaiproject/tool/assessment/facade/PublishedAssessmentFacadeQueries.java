@@ -253,6 +253,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 				.getUnlimitedSubmissions());
 		publishedAccessControl.setMarkForReview(a.getMarkForReview());
 		publishedAccessControl.setHonorPledge(a.getHonorPledge());
+		publishedAccessControl.setFeedbackEndDate(a.getFeedbackEndDate());
+		publishedAccessControl.setFeedbackScoreThreshold(a.getFeedbackScoreThreshold());
 		publishedAccessControl.setAssessmentBase(p);
 		return publishedAccessControl;
 	}
@@ -382,7 +384,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 			publishedItem.setItemAttachmentSet(publishedItemAttachmentSet);
 			publishedItem.setAnswerOptionsRichCount(item.getAnswerOptionsRichCount());
 			publishedItem.setAnswerOptionsSimpleOrRich(item.getAnswerOptionsSimpleOrRich());
-			publishedItem.setIsExtraCredit(item.getIsExtraCredit()==null?Boolean.FALSE:item.getIsExtraCredit());
+			publishedItem.setIsExtraCredit(item.getIsExtraCredit());
 
 			h.add(publishedItem);
 		}
@@ -933,10 +935,11 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 	public Integer getNumberOfSubmissions(final String publishedAssessmentId, final String agentId) {
 		final HibernateCallback<List<Number>> hcb = session -> session.createQuery(
-				"select count(a) from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade")
+				"select count(a) from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade and a.status > :status")
 				.setLong("id", Long.parseLong(publishedAssessmentId))
 				.setString("agent", agentId)
 				.setBoolean("forgrade", true)
+				.setInteger("status", AssessmentGradingData.REMOVED)
 				.list();
 		List<Number> list = getHibernateTemplate().execute(hcb);
 
@@ -946,10 +949,11 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	public List<AssessmentGradingData> getNumberOfSubmissionsOfAllAssessmentsByAgent(final String agentId) {
 		final HibernateCallback<List<AssessmentGradingData>> hcb = session -> session.createQuery(
 				"select new AssessmentGradingData(a.publishedAssessmentId, count(a)) " +
-						"from AssessmentGradingData as a where a.agentId = :agent and a.forGrade= :forgrade " +
+						"from AssessmentGradingData as a where a.agentId = :agent and a.forGrade= :forgrade and a.status > :status " +
 						"group by a.publishedAssessmentId")
 				.setString("agent", agentId)
 				.setBoolean("forgrade", true)
+				.setInteger("status", AssessmentGradingData.REMOVED)
 				.list();
 		return getHibernateTemplate().execute(hcb);
 	}
@@ -964,12 +968,13 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 						"select new AssessmentGradingData("
 								+ " a.publishedAssessmentId, count(a)) "
 								+ " from AssessmentGradingData as a, AuthorizationData as az "
-								+ " where a.agentId=:agentId and a.forGrade=:forGrade "
+								+ " where a.agentId=:agentId and a.forGrade=:forGrade and a.status > :status"
 								+ " and (az.agentIdString=:siteId or az.agentIdString in (:groupIds)) "
 								+ " and az.functionId=:functionId and az.qualifierId=a.publishedAssessmentId"
 								+ " group by a.publishedAssessmentId");
                 q.setString("agentId", agentId);
                 q.setBoolean("forGrade", true);
+                q.setInteger("status", AssessmentGradingData.REMOVED);
                 q.setString("siteId", siteId);
                 q.setParameterList("groupIds", groupIds);
                 q.setString("functionId", "TAKE_PUBLISHED_ASSESSMENT");
@@ -983,12 +988,13 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 						"select new AssessmentGradingData("
 								+ " a.publishedAssessmentId, count(a)) "
 								+ " from AssessmentGradingData as a, AuthorizationData as az "
-								+ " where a.agentId=:agentId and a.forGrade=:forGrade "
+								+ " where a.agentId=:agentId and a.forGrade=:forGrade and a.status > :status "
 								+ " and az.agentIdString=:siteId "
 								+ " and az.functionId=:functionId and az.qualifierId=a.publishedAssessmentId"
 								+ " group by a.publishedAssessmentId");
                 q.setString("agentId", agentId);
                 q.setBoolean("forGrade", true);
+                q.setInteger("status", AssessmentGradingData.REMOVED);
                 q.setString("siteId", siteId);
                 q.setString("functionId", "TAKE_PUBLISHED_ASSESSMENT");
                 return q.list();
@@ -1062,11 +1068,13 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 							true);
 		}
 		else {
+			assessment.setLastModifiedBy(AgentFacade.getAgentString());
+			assessment.setLastModifiedDate(new Date());
 			assessment.setStatus(PublishedAssessmentIfc.DEAD_STATUS);
 			try {
 				saveOrUpdate(assessment);
 				RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.logic.RubricsService");
-				rubricsService.deleteRubricAssociationsByItemIdPrefix(RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + assessmentId + ".", RubricsConstants.RBCS_TOOL_SAMIGO);
+				rubricsService.softDeleteRubricAssociationsByItemIdPrefix(RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + assessmentId + ".", RubricsConstants.RBCS_TOOL_SAMIGO);
 			} catch (Exception e) {
 				log.warn(e.getMessage());
 			}			
@@ -1320,7 +1328,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 			query = "select distinct new PublishedAssessmentData(p.publishedAssessmentId, p.title, "
 				+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate, "
 				+ " c.feedbackDate, f.feedbackDelivery, f.feedbackComponentOption, f.feedbackAuthoring, c.lateHandling, "
-				+ " c.unlimitedSubmissions, c.submissionsAllowed, em.scoringType, p.status, p.lastModifiedDate, c.timeLimit) "
+				+ " c.unlimitedSubmissions, c.submissionsAllowed, em.scoringType, p.status, p.lastModifiedDate, c.timeLimit, c.feedbackEndDate, c.feedbackScoreThreshold) "
 				+ " from PublishedAssessmentData as p, PublishedAccessControl as c,"
 				+ " PublishedFeedback as f, AuthorizationData as az, PublishedEvaluationModel as em"
 				+ " where c.assessment.publishedAssessmentId=p.publishedAssessmentId "
@@ -1334,7 +1342,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 			query = "select new PublishedAssessmentData(p.publishedAssessmentId, p.title, "
 				+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate, "
 				+ " c.feedbackDate, f.feedbackDelivery, f.feedbackComponentOption, f.feedbackAuthoring, c.lateHandling, "
-				+ " c.unlimitedSubmissions, c.submissionsAllowed, em.scoringType, p.status, p.lastModifiedDate, c.timeLimit) "
+				+ " c.unlimitedSubmissions, c.submissionsAllowed, em.scoringType, p.status, p.lastModifiedDate, c.timeLimit, c.feedbackEndDate, c.feedbackScoreThreshold) "
 				+ " from PublishedAssessmentData as p, PublishedAccessControl as c,"
 				+ " PublishedFeedback as f, AuthorizationData as az, PublishedEvaluationModel as em"
 				+ " where c.assessment.publishedAssessmentId=p.publishedAssessmentId "
@@ -1379,7 +1387,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 							.getRetractDate(), p.getFeedbackDate(), p
 							.getFeedbackDelivery(), p.getFeedbackComponentOption(), p.getFeedbackAuthoring(), p
 							.getLateHandling(), p.getUnlimitedSubmissions(), p
-							.getSubmissionsAllowed(), p.getScoringType(), p.getStatus(), p.getLastModifiedDate(), p.getTimeLimit());
+							.getSubmissionsAllowed(), p.getScoringType(), p.getStatus(), p.getLastModifiedDate(), p.getTimeLimit(), p.getFeedbackEndDate(), p.getFeedbackScoreThreshold());
 			pubList.add(f);
 		}
 		return pubList;
@@ -1460,7 +1468,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 				+ " a.comments, a.status, a.gradedBy, a.gradedDate, a.attemptDate,"
 				+ " a.timeElapsed) "
 				+ " from AssessmentGradingData a, PublishedAssessmentData p"
-				+ " where a.publishedAssessmentId = p.publishedAssessmentId  and a.forGrade = :forgrade and a.agentId = :agent"
+				+ " where a.publishedAssessmentId = p.publishedAssessmentId  and a.forGrade = :forgrade and a.agentId = :agent and a.status > :status"
 				+ " order by p.publishedAssessmentId DESC, a.submittedDate DESC";
 
 		/*
@@ -1475,6 +1483,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
             Query q = session.createQuery(query);
             q.setBoolean("forgrade", true);
             q.setString("agent", agentId);
+            q.setInteger("status", AssessmentGradingData.REMOVED);
             return q.list();
         };
 		List<AssessmentGradingData> list = getHibernateTemplate().execute(hcb);
@@ -1526,9 +1535,10 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
      */
 	public Integer getTotalSubmissionForEachAssessment(final Long publishedAssessmentId) {
 		final HibernateCallback<List<Number>> hcb = session -> session
-				.createQuery("select count(a) from AssessmentGradingData a where a.forGrade = :forgrade and a.publishedAssessmentId = :id")
+				.createQuery("select count(a) from AssessmentGradingData a where a.forGrade = :forgrade and a.publishedAssessmentId = :id and a.status > :status")
 				.setBoolean("forgrade", true)
 				.setLong("id", publishedAssessmentId)
+				.setInteger("status", AssessmentGradingData.REMOVED)
 				.list();
 		List<Number> l = getHibernateTemplate().execute(hcb);
 
@@ -1537,10 +1547,11 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 	public Integer getTotalSubmission(final String agentId, final Long publishedAssessmentId) {
 		final HibernateCallback<List<Number>> hcb = session -> session
-				.createQuery("select count(a) from AssessmentGradingData a where a.forGrade = :forgrade and a.agentId = :agent and a.publishedAssessmentId = :id")
+				.createQuery("select count(a) from AssessmentGradingData a where a.forGrade = :forgrade and a.agentId = :agent and a.publishedAssessmentId = :id and a.status > :status")
 				.setBoolean("forgrade", true)
 				.setString("agent", agentId)
 				.setLong("id", publishedAssessmentId)
+				.setInteger("status", AssessmentGradingData.REMOVED)
 				.list();
 		List<Number> l = getHibernateTemplate().execute(hcb);
 
@@ -1912,7 +1923,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 				+ " a.timeElapsed) "
 				+ " from AssessmentGradingData a, PublishedAssessmentData p, AuthorizationData az"
 				+ " where a.publishedAssessmentId = p.publishedAssessmentId"
-				+ " and a.forGrade=:forGrade and a.agentId=:agentId"
+				+ " and a.forGrade=:forGrade and a.status > :status and a.agentId=:agentId"
 				+ " and (az.agentIdString=:siteId or az.agentIdString in (:groupIds)) "
 				+ " and az.functionId=:functionId and az.qualifierId=p.publishedAssessmentId"
 				+ " and (p.status=:activeStatus or p.status=:editStatus) ";
@@ -1920,6 +1931,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 			final HibernateCallback<List<AssessmentGradingData>> hcb_last = session -> {
                 Query q = session.createQuery(hql + order_last);
                 q.setBoolean("forGrade", true);
+                q.setInteger("status", AssessmentGradingData.REMOVED);
                 q.setString("agentId", agentId);
                 q.setString("siteId", siteId);
                 q.setParameterList("groupIds", groupIds);
@@ -1935,6 +1947,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 			final HibernateCallback<List<AssessmentGradingData>> hcb_highest = session -> {
                 Query q = session.createQuery(hql + order_highest);
                 q.setBoolean("forGrade", true);
+                q.setInteger("status", AssessmentGradingData.REMOVED);
                 q.setString("agentId", agentId);
                 q.setString("siteId", siteId);
                 q.setParameterList("groupIds", groupIds);
@@ -1957,7 +1970,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 				+ " a.timeElapsed) "
 				+ " from AssessmentGradingData a, PublishedAssessmentData p, AuthorizationData az"
 				+ " where a.publishedAssessmentId = p.publishedAssessmentId"
-				+ " and a.forGrade=:forGrade and a.agentId=:agentId"
+				+ " and a.forGrade=:forGrade and a.status > :status and a.agentId=:agentId"
 				+ " and az.agentIdString=:siteId "
 				+ " and az.functionId=:functionId and az.qualifierId=p.publishedAssessmentId"
 				+ " order by p.publishedAssessmentId DESC, a.submittedDate DESC";
@@ -1965,6 +1978,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 			final HibernateCallback<List<AssessmentGradingData>> hcb_last = session -> {
                 Query q = session.createQuery(hql + order_last);
                 q.setBoolean("forGrade", true);
+                q.setInteger("status", AssessmentGradingData.REMOVED);
                 q.setString("agentId", agentId);
                 q.setString("siteId", siteId);
                 q.setString("functionId", "TAKE_PUBLISHED_ASSESSMENT");
@@ -1977,6 +1991,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 			final HibernateCallback<List<AssessmentGradingData>> hcb_highest = session -> {
                 Query q = session.createQuery(hql + order_highest);
                 q.setBoolean("forGrade", true);
+                q.setInteger("status", AssessmentGradingData.REMOVED);
                 q.setString("agentId", agentId);
                 q.setString("siteId", siteId);
                 q.setString("functionId", "TAKE_PUBLISHED_ASSESSMENT");
@@ -2075,7 +2090,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 					"select new PublishedAssessmentData(p.publishedAssessmentId, p.title, "
 							+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate, "
 							+ " c.feedbackDate, f.feedbackDelivery, f.feedbackComponentOption, f.feedbackAuthoring, c.lateHandling, "
-							+ " c.unlimitedSubmissions, c.submissionsAllowed) "
+							+ " c.unlimitedSubmissions, c.submissionsAllowed, c.feedbackEndDate, c.feedbackScoreThreshold) "
 							+ " from PublishedAssessmentData as p, PublishedAccessControl as c,"
 							+ " PublishedFeedback as f"
 							+ " where c.assessment.publishedAssessmentId=p.publishedAssessmentId "
@@ -2574,11 +2589,12 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	public List<AssessmentGradingData> getAllAssessmentsGradingDataByAgentAndSiteId(final String agentId, final String siteId) {
 		final HibernateCallback<List<AssessmentGradingData>> hcb = session -> session.createQuery(
             		"select a " + " from AssessmentGradingData as a, AuthorizationData as az " +
-							"where a.agentId=:agentId and a.forGrade=:forGrade " +
+							"where a.agentId=:agentId and a.forGrade=:forGrade and a.status > :status " +
 							"and az.agentIdString=:siteId " +
 							"and az.functionId=:functionId and az.qualifierId=a.publishedAssessmentId")
 				.setString("agentId", agentId)
 				.setBoolean("forGrade", true)
+				.setInteger("status", AssessmentGradingData.REMOVED)
 				.setString("siteId", siteId)
 				.setString("functionId", "OWN_PUBLISHED_ASSESSMENT")
 				.list();
@@ -2751,4 +2767,40 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 				.list();
 		return getHibernateTemplate().execute(hcb);
 	}
+
+
+    public List<PublishedAssessmentData> getPublishedDeletedAssessments(final String siteAgentId) {
+        final HibernateCallback<List<PublishedAssessmentData>> hcb = session -> session.createQuery(
+            "select new PublishedAssessmentData(p.publishedAssessmentId, p.title, p.lastModifiedDate) " +
+                "from PublishedAssessmentData p, AuthorizationData z " +
+                "where p.publishedAssessmentId=z.qualifierId and z.functionId=:functionId " +
+                "and z.agentIdString=:siteId and p.status=:inactiveStatus ")
+                .setString("functionId", "OWN_PUBLISHED_ASSESSMENT")
+                .setString("siteId", siteAgentId)
+                .setInteger("inactiveStatus", AssessmentIfc.DEAD_STATUS)
+                .list();
+        return getHibernateTemplate().execute(hcb);
+    }
+
+    public void restorePublishedAssessment(Long publishedAssessmentId) {
+    	PublishedAssessmentData assessment = (PublishedAssessmentData) getHibernateTemplate().load(PublishedAssessmentData.class, publishedAssessmentId);
+    	assessment.setLastModifiedBy(AgentFacade.getAgentString());
+    	assessment.setLastModifiedDate(new Date());
+    	assessment.setStatus(AssessmentIfc.ACTIVE_STATUS);
+
+    	RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.logic.RubricsService");
+    	rubricsService.restoreRubricAssociationsByItemIdPrefix(RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + publishedAssessmentId + ".", RubricsConstants.RBCS_TOOL_SAMIGO);
+
+    	int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
+    	while (retryCount > 0) {
+    		try {
+    			getHibernateTemplate().update(assessment);
+    			retryCount = 0;
+    		} catch (Exception e) {
+    			log.warn("problem updating asssessment: " + e.getMessage());
+    			retryCount = PersistenceService.getInstance().getPersistenceHelper()
+    					.retryDeadlock(e, retryCount);
+    		}
+    	}
+    }
 }

@@ -340,7 +340,7 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	    }
 
 	    if (loc == null) {
-	        log.info("getLocale() Locale not found in preferences or session, returning default");
+	        log.debug("getLocale() Locale not found in preferences or session, returning default");
 	        loc = Locale.getDefault();
 	    } 
 	    	
@@ -684,20 +684,17 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 			bundle = loadBundle(context, loc);
 		}
 
-        if (ServerConfigurationService.getBoolean("load.bundles.from.db", false)) {
+		if (!ComponentManager.isTestingMode()) {
+			Map<String, String> bundleFromDbMap = getMessageBundleService().getBundle(baseName, context, loc);
+			if (!bundleFromDbMap.isEmpty()) {
+				// skip if there are no modified bundle data
+				Map<String, Object> bundleMap = getBundleAsMap(bundle);
+				bundleMap.putAll(bundleFromDbMap);
+				bundle = new MapResourceBundle(bundleMap, baseName, loc);
 
-            Map<String, String> bundleFromDbMap = getMessageBundleService().getBundle(baseName, context, loc);
-            if (!bundleFromDbMap.isEmpty()) {
-                // skip if there are no modified bundle data
-                Map<String, Object> bundleMap = getBundleAsMap(bundle);
-                bundleMap.putAll(bundleFromDbMap);
-                bundle = new MapResourceBundle(bundleMap, baseName, loc);
-            }
-            if (log.isDebugEnabled()) {
-                log.debug("Bundle from db added " + bundleFromDbMap.size() +
-                        " properties to " + baseName + "/" + context + "/" + loc.toString());
-            }
-        }
+				log.debug("Bundle from db added {} properties to [{}|{}|{}]", bundleFromDbMap.size(), baseName, context, loc);
+			}
+		}
 		return bundle;
 	}
 
@@ -743,16 +740,11 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 			// IGNORE FAILURE
 		}
 
-		if (ServerConfigurationService.getBoolean("load.bundles.from.db", false)) {
-		    // typically bundles with an empty context are from shared
-		    // and we are not adding bundles with an empty context to MessageBundleService
-	        if (StringUtils.isNotBlank(context)) {
-	            getMessageBundleService().saveOrUpdate(baseName, context, newBundle, loc);
-	            setBundle(loc, newBundle);
-	        }
-		} else {
-		    setBundle(loc, newBundle);
+		if (StringUtils.isNotBlank(context) && !ComponentManager.isTestingMode()) {
+			getMessageBundleService().saveOrUpdate(baseName, context, newBundle, loc);
 		}
+
+	    setBundle(loc, newBundle);
 		return newBundle;
 	}
 

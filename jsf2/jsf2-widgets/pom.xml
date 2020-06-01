@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject.jsf2</groupId>
         <artifactId>jsf2</artifactId>
-        <version>20-SNAPSHOT</version>
+        <version>21-SNAPSHOT</version>
     </parent>
 
     <name>Sakai JSF 2 Widgets (jsf2-widgets)</name>
@@ -33,6 +33,10 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>

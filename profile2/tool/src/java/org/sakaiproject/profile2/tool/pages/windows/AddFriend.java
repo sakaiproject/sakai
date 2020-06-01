@@ -35,7 +35,8 @@ import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.tool.components.ProfileImage;
 import org.sakaiproject.profile2.tool.models.FriendAction;
 import org.sakaiproject.profile2.util.ProfileConstants;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
+
 
 public class AddFriend extends Panel {
 
@@ -53,6 +54,9 @@ public class AddFriend extends Panel {
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileConnectionsLogic")
 	private ProfileConnectionsLogic connectionsLogic;
 	
+	@SpringBean(name="org.sakaiproject.util.api.FormattedText")
+	private FormattedText formattedText;
+	
 	/*
 	 * userX is the current user
 	 * userY is the user to add
@@ -62,7 +66,7 @@ public class AddFriend extends Panel {
         super(id);
 
         //get friendName
-        final String friendName = FormattedText.processFormattedText(sakaiProxy.getUserDisplayName(userY), new StringBuffer());
+        final String friendName = formattedText.processFormattedText(sakaiProxy.getUserDisplayName(userY), new StringBuffer());
         
         //window setup
 		window.setTitle(new StringResourceModel("title.friend.add", null, new Object[]{ friendName } )); 

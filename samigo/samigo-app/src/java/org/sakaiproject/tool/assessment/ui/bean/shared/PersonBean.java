@@ -21,13 +21,14 @@
 
 package org.sakaiproject.tool.assessment.ui.bean.shared;
 
-
-
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,27 +41,17 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
 
-/**
- * <p> </p>
- * <p>Description: Person Bean with some properties</p>
- * <p>Copyright: Copyright (c) 2004</p>
- * <p>Organization: Sakai Project</p>
- * @author Ed Smiley
- * @version $id: $
- */
+/* For shared: Person backing bean. */
 @Slf4j
-public class PersonBean implements Serializable
-{
-  /**
-	 * 
-	 */
+@ManagedBean(name="person")
+@SessionScoped
+public class PersonBean implements Serializable {
+
 	private static final long serialVersionUID = 1884634498046475698L;
   private String anonymousId;
   private String previewFromPage;
   
   public PersonBean(){}
-  {
-  }
 
   public String getAgentString()
   {
@@ -75,7 +66,7 @@ public class PersonBean implements Serializable
   public String getId()
   {
     DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
-    if (delivery.getAnonymousLogin())
+    if (delivery.isAnonymousLogin())
       return getAnonymousId();
     else
       return getAgentString();
@@ -95,7 +86,6 @@ public class PersonBean implements Serializable
   {
     this.anonymousId=anonymousId;
   }
-
 
   public boolean getIsAdmin()
   {

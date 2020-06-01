@@ -48,8 +48,6 @@ import org.tsugi.basiclti.BasicLTIUtil;
 
 import org.tsugi.contentitem.objects.ContentItemResponse;
 
-import org.tsugi.jackson.JacksonUtil;
-
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.lti.api.BLTIProcessor;
@@ -81,9 +79,8 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
-
+import org.sakaiproject.util.api.FormattedText;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -765,7 +762,7 @@ public class ProviderServlet extends HttpServlet {
         final String context_label = (String) payload.get(BasicLTIConstants.CONTEXT_LABEL);
 
         // Site title is editable; cannot but null/empty after HTML stripping, and cannot exceed max length
-        String context_title = FormattedText.stripHtmlFromText(context_title_orig, true, true);
+        String context_title = ComponentManager.get(FormattedText.class).stripHtmlFromText(context_title_orig, true, true);
         SiteTitleValidationStatus status = SiteService.validateSiteTitle(context_title_orig, context_title);
 
         if (SiteTitleValidationStatus.STRIPPED_TO_EMPTY.equals(status)) {

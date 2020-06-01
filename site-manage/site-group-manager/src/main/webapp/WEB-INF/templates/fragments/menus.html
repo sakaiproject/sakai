@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<body>
+  <div th:fragment="main (current)">
+    <ul class="navIntraTool">
+      <li role="presentation"><span th:class="${current}=='index' ? 'current'">
+        <span th:if="${current}=='index'" th:text="#{menu.group.list}">Group List</span>
+        <a th:unless="${current}=='index'" href="#" th:href="@{/index}" th:text="#{menu.group.list}">Group List</a>
+      </span></li>
+      <li role="presentation"><span th:class="${current}=='group' ? 'current'">
+        <span th:if="${current}=='group'" th:text="#{menu.create}">Create New Group</span>
+        <a th:unless="${current}=='group'" href="#" th:href="@{/group}" th:text="#{menu.create}">Create New Group</a>
+      </span></li>
+      <li role="presentation"><span th:class="${current}=='joinableset' ? 'current'">
+        <span th:if="${current}=='joinableset'" th:text="#{menu.joinable.create}">Create New Joinable Set</span>
+        <a th:unless="${current}=='joinableset'" href="#" th:href="@{/joinableset}" th:text="#{menu.joinable.create}">Create New Joinable Set</a>
+      </span></li>
+      <li role="presentation"><span th:class="${current}=='autogroups' ? 'current'">
+        <span th:if="${current}=='autogroups'" th:text="#{menu.auto.groups}">Auto groups</span>
+        <a th:unless="${current}=='autogroups'" href="#" th:href="@{/autogroups}" th:text="#{menu.auto.groups}">Auto groups</a>
+      </span></li>
+      <li role="presentation"><span th:class="${current}=='import' ? 'current'">
+        <span th:if="${current}=='import'" th:text="#{menu.bulk.creation}">Bulk creation</span>
+        <a th:unless="${current}=='import'" href="#" th:href="@{/import}" th:text="#{menu.bulk.creation}">Bulk creation</a>
+      </span></li>
+    </ul>
+  </div>
+</body>
+</html>

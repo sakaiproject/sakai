@@ -4,18 +4,13 @@
   <parent>
     <groupId>org.sakaiproject</groupId>
     <artifactId>master</artifactId>
-    <version>20-SNAPSHOT</version>
+    <version>21-SNAPSHOT</version>
     <relativePath>../master/pom.xml</relativePath>
   </parent>
 
   <name>Course Management Provider</name>
   <groupId>org.sakaiproject.cmprovider</groupId>
   <artifactId>cmprovider</artifactId>
-  <organization>
-      <name>Sakai Project</name>
-      <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2015</inceptionYear>
 
   <packaging>sakai-component</packaging>
   <properties>

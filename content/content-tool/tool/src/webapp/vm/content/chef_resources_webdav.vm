@@ -64,25 +64,18 @@
 </style>
 
 <div class="portletBody specialLink">
-	<ul class="navIntraTool actionToolBar">
-        #if("$!dropboxMode" == "true")
-		<li class="firstToolBarItem"><span><a href="#toolLink("ResourcesAction" "doCancel")">$tlang.getString("list.site.dropbox")</a></span></li>
-        #else
-		<li class="firstToolBarItem"><span><a href="#toolLink("ResourcesAction" "doCancel")">$tlang.getString("list.site")</a></span></li>
-        #end
-		<li><span class="current">$tlang.getString('dav.webdav')</span></li>
-	</ul>
+	#contentMenu("webdav")
 	#if($menu)#toolbar($menu)#end
 	<div id="davdocs_intro">
 		<div class="page-header">
-			<h1>$tlang.getString("dav.webdav")</h1>
+			<h1>$clang.getString("dav.webdav")</h1>
 		</div>
-		<p>$tlang.getString("dav.graf1").</p>
-		<p>$tlang.getString("dav.graf2") <strong>$tlang.getString("dav.graf3")</strong>. $tlang.getString("dav.graf4").</p>
-		<p>$tlang.getString("dav.graf5") <strong>$tlang.getString("dav.graf6")</strong> $tlang.getString("dav.graf7") <strong>$tlang.getString("dav.graf8")</strong> $tlang.getString("dav.graf9").</p>
-			<div class="sak-banner-error">$tlang.getString("dav.copyrt")</div>
+		<p>$clang.getString("dav.graf1").</p>
+		<p>$clang.getString("dav.graf2") <strong>$clang.getString("dav.graf3")</strong>. $clang.getString("dav.graf4").</p>
+		<p>$clang.getString("dav.graf5") <strong>$clang.getString("dav.graf6")</strong> $clang.getString("dav.graf7") <strong>$clang.getString("dav.graf8")</strong> $clang.getString("dav.graf9").</p>
+			<div class="sak-banner-error">$clang.getString("dav.copyrt")</div>
 		<div id="davdocs_step1">
-			<p><strong>$tlang.getString("dav.graf10") - </strong> $tlang.getString("dav.graf11"):</p>
+			<p><strong>$clang.getString("dav.graf10") - </strong> $clang.getString("dav.graf11"):</p>
 
 	<p class="form-group">
 <input class="form-control" id="webDavUrl" type="text" value="
@@ -113,7 +106,7 @@ ${server_url}${dav_group}$site_id
 	
 	#if($isWinIEBrowser)
 		<p class="shorttext">
-			$tlang.getString("dav.xpie")
+			$clang.getString("dav.xpie")
 		</p>
 		<p class="indnt3">
 			#if("$!inMyWorkspace" == "true")
@@ -137,7 +130,7 @@ ${server_url}${dav_group}$site_id
 	#end
 	<![endif]-->
 	</div>
-        <p><strong>$tlang.getString("dav.graf12") - </strong> $tlang.getString("dav.graf13")</p>
+        <p><strong>$clang.getString("dav.graf12") - </strong> $clang.getString("dav.graf13")</p>
 </div>
 	<iframe src="$webdav_instructions"
 		width="100%"
@@ -152,6 +145,6 @@ ${server_url}${dav_group}$site_id
 	</script>	
 		
 	<div class="act">
-		<input type="button" class="active" value="$tlang.getString("dav.cancel")" onclick="window.location='#toolLink("ResourcesAction" "doCancel")'" />
+		<input type="button" class="active" value="$clang.getString("dav.cancel")" onclick="window.location='#toolLink("ResourcesAction" "doCancel")'" />
 	</div>
 </div>

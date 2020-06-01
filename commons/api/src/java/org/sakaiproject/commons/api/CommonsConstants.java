@@ -17,7 +17,10 @@ package org.sakaiproject.commons.api;
 
 public interface CommonsConstants {
 
+    public enum PostType { POST, COMMENT };
+
     public static final String ASSIGNMENT = "ASSIGNMENT";
+    public static final String SEARCH = "SEARCH";
     public static final String SITE = "SITE";
     public static final String SOCIAL = "SOCIAL";
 }

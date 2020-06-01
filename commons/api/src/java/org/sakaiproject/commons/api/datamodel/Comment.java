@@ -27,6 +27,7 @@ import java.util.TimeZone;
 
 import org.apache.commons.text.StringEscapeUtils;
 import org.sakaiproject.commons.api.CommonsManager;
+import org.sakaiproject.commons.api.CommonsReferenceReckoner;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.util.BaseResourceProperties;
@@ -58,6 +59,9 @@ public class Comment implements Entity {
 
     @Getter @Setter
     private String postId;
+
+    @Getter @Setter
+    private Post post;
 
     @Getter @Setter
     private String url;
@@ -120,10 +124,10 @@ public class Comment implements Entity {
     }
 
     public String getReference() {
-        return CommonsManager.REFERENCE_ROOT + Entity.SEPARATOR + "comments" + Entity.SEPARATOR + id;
+        return CommonsReferenceReckoner.reckoner().comment(this).reckon().getReference();
     }
 
-    public String getReference(String arg0) {
+    public String getReference(String base) {
         return getReference();
     }
 
@@ -132,7 +136,6 @@ public class Comment implements Entity {
     }
 
     public Element toXml(Document arg0, Stack arg1) {
-        // TODO Auto-generated method stub
         return null;
     }
 }

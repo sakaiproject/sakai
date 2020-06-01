@@ -19,12 +19,7 @@
 
 package org.sakaiproject.signup.tool.jsf;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.TimeZone;
-
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
 
 import org.sakaiproject.signup.logic.SakaiFacade;
 import org.sakaiproject.util.ResourceLoader;

@@ -4,17 +4,12 @@
     <name>Sakai SiteStats Implementation</name>
     <groupId>org.sakaiproject.sitestats</groupId>
     <artifactId>sitestats-impl</artifactId>
-    <organization>
-        <name>Universidade Fernando Pessoa</name>
-        <url>http://www.ufp.pt</url>
-    </organization>
-    <inceptionYear>2006</inceptionYear>
 
     <!-- Parent: Sakai SiteStats base -->
     <parent>
         <groupId>org.sakaiproject.sitestats</groupId>
         <artifactId>sitestats</artifactId>
-        <version>20-SNAPSHOT</version><!-- sitestats.version -->
+        <version>21-SNAPSHOT</version><!-- sitestats.version -->
     </parent>
 
     <!-- Packaging -->
@@ -200,7 +195,7 @@
 
         <!-- JFreeChart -->
         <dependency>
-            <groupId>jfree</groupId>
+            <groupId>org.jfree</groupId>
             <artifactId>jfreechart</artifactId>
         </dependency>
 
@@ -225,8 +220,6 @@
             <artifactId>mysql-connector-java</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- <dependency> <groupId>com.oracle</groupId> <artifactId>ojdbc14</artifactId>
-            <scope>test</scope> </dependency> -->
         <dependency>
             <groupId>org.dom4j</groupId>
             <artifactId>dom4j</artifactId>
@@ -248,11 +241,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.easymock</groupId>
-            <artifactId>easymock</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <scope>test</scope>
@@ -268,6 +256,9 @@
         <testResources>
             <testResource>
                 <directory>src/test</directory>
+            </testResource>
+            <testResource>
+                <directory>src/webapp</directory>
             </testResource>
         </testResources>
     </build>

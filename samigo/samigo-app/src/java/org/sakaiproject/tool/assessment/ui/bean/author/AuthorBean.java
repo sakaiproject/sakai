@@ -29,8 +29,11 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
@@ -42,6 +45,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -51,16 +55,13 @@ import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.springframework.web.client.HttpClientErrorException;
 
-/**
- * General authoring information.
- * @author Ed Smiley
- *
- * @version $Id$
- */
+/* For author: Assessment Authoring backing bean. */
 @Slf4j
-public class AuthorBean implements Serializable
-{
+@ManagedBean(name="author")
+@SessionScoped
+public class AuthorBean implements Serializable {
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 4216587136245498157L;
@@ -134,6 +135,8 @@ public class AuthorBean implements Serializable
   private AssessmentService assessmentService = new AssessmentService();
   private PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
   private RubricsService rubricsService = ComponentManager.get(RubricsService.class);
+  private UserTimeService userTimeService = ComponentManager.get(UserTimeService.class);
+
   /* ------------------------------------ /*
   
   /**
@@ -948,6 +951,10 @@ public class AuthorBean implements Serializable
 	  }
   }
 
+  public TimeZone getUserTimeZone() {
+    return userTimeService.getLocalTimeZone();
+  }
+
   public boolean isGroupFilterEnabled() {
     return this.groupFilterEnabled;
   }
@@ -957,11 +964,15 @@ public class AuthorBean implements Serializable
   }
 
 	public Boolean questionHasRubric(Long assessmentId, Long questionId, boolean isPublished) {
-		if(!isPublished && rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_SAMIGO, assessmentId + "." + questionId)){
-			return Boolean.TRUE;
-		}
-		if(isPublished && rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_SAMIGO,RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + assessmentId + "." + questionId)){
-			return Boolean.TRUE;
+		try {
+			if(!isPublished && rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_SAMIGO, assessmentId + "." + questionId)){
+				return Boolean.TRUE;
+			}
+			if(isPublished && rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_SAMIGO, RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + assessmentId + "." + questionId)){
+				return Boolean.TRUE;
+			}
+		} catch(HttpClientErrorException hcee) {
+			log.debug("Current user doesn't have permission to get a rubric: {}", hcee.getMessage());
 		}
 		return Boolean.FALSE;
 	}

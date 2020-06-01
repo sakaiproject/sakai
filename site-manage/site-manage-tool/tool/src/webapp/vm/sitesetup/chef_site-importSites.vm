@@ -18,7 +18,7 @@
 		#end
 	#end
 	#if ($materialFound)
-		<div class="alertMessage">
+		<div class="sak-banner-warn">
 			#if ($hideImportedContent)
 				$tlang.getString("sitinfimp.material.hidden.warn")
 			#else
@@ -34,8 +34,7 @@
 		$tlang.getString("import.reuse2")
 	</p>
 	#if ($alertMessage)
-		<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>
-		<div class="clear"></div>
+		<div class="sak-banner-error">$tlang.getString("gen.alert") $alertMessage</div>
 	#end
 	<p class="instruction">
 	$tlang.getString("import.choose")
@@ -57,7 +56,7 @@
 						<th>
 							<label>
 								<input type="checkbox" class="import-sites-tool-toggle"/>
-								$validator.escapeHtml($site.getTitle())
+								$formattedText.escapeHtml($site.getTitle())
 							</label>
 						</th>
 					#end
@@ -100,14 +99,14 @@
 												#foreach ($pageTool in $pageTools)
 													#if ($pageTool.getTool().getId() == $toolId)
 														#set($toolFound = true)
-													#elseif (($toolId == "sakai.gradebook.tool" || $toolId == "sakai.gradebookng") && ($pageTool.getTool().getId() == "sakai.gradebook.tool" || $pageTool.getTool().getId() == "sakai.gradebookng"))
+													#elseif ($toolId.contains("sakai.gradebook") && $pageTool.getTool().getId().contains("sakai.gradebook"))
 														#set($toolFound = true)
 													#end
 												#end
 											#end
 										
 											#set ($toolsWithContent = $!siteToolsWithContent.get($site.getId()))
-											#if(($toolId == "sakai.gradebook.tool" || $toolId == "sakai.gradebookng") && ($toolsWithContent.contains("sakai.gradebook.tool") || $toolsWithContent.contains("sakai.gradebookng")))
+											#if($toolId.contains("sakai.gradebook") && $toolsWithContent.contains("sakai.gradebook"))
 												## Take the default
 											#elseif(!$toolsWithContent.contains($toolId))
 												#set($toolFound = false)
@@ -122,7 +121,7 @@
 													#if ($!selectedSites.contains($site.Id))
 													checked="checked"
 													#end />
-												<label  class="skip" for="toolSite$toolCount$siteCount">$tlang.getString('import.choose.label1')  $toolTitle $tlang.getString('import.choose.label2') $validator.escapeHtml($site.getTitle())</label>
+												<label  class="skip" for="toolSite$toolCount$siteCount">$tlang.getString('import.choose.label1')  $toolTitle $tlang.getString('import.choose.label2') $formattedText.escapeHtml($site.getTitle())</label>
                                                 #if ($importOptions.get(${toolId}).isPresent())
                                                 <a id="toolSite${toolCount}${siteCount}-options-link" style="display: none;" href="javascript:;" class="siteimport-options-link" data-options-id="${toolCount}-${siteCount}-options" title="$tlang.getString('import.options.title')">
                                                     <span title="$tlang.getString('import.options.title')">$tlang.getString('import.options.title').toLowerCase()</span>
@@ -153,7 +152,7 @@
 		</div>
 		
 		#if ($addMissingTools)
-			<p class="messageConfirmation">$tlang.getString("import.newtool")</p>
+			<p class="sak-banner-warn">$tlang.getString("import.newtool")</p>
 		#end
 		
 		<input type="hidden" name="back" value="$!backIndex" />

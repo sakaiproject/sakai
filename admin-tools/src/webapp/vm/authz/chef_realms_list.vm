@@ -7,7 +7,7 @@
 #if($menu)
 	#toolbar($menu)
 #end
-			#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("realm.list.alert") $validator.escapeHtml($alertMessage)</div>#end
+			#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("realm.list.alert") $formattedText.escapeHtml($alertMessage)</div>#end
 		<div class="instruction clear">
 			$tlang.getString("realm.list.these")
 		</div>
@@ -71,15 +71,15 @@
 			<tr>
 				<td headers="Id">
 						#if ($service.allowUpdate($realm.Id))
-							<a href="#toolLinkParam("$action" "doEdit" "id=$validator.escapeUrl($realm.Id)")" title="$tlang.getString("realm.edit.edit") $validator.escapeHtml($realm.Id)">
-								$validator.escapeHtml($realm.Id)
+							<a href="#toolLinkParam("$action" "doEdit" "id=$formattedText.escapeUrl($realm.Id)")" title="$tlang.getString("realm.edit.edit") $formattedText.escapeHtml($realm.Id)">
+								$formattedText.escapeHtml($realm.Id)
 							</a>
 						#elseif ($viewAllowed)
-							<a href="#toolLinkParam("$action" "doView" "id=$validator.escapeUrl($realm.Id)")" title="$tlang.getString("realm.view.view") $validator.escapeHtml($realm.Id)">
-								$validator.escapeHtml($realm.Id)
+							<a href="#toolLinkParam("$action" "doView" "id=$formattedText.escapeUrl($realm.Id)")" title="$tlang.getString("realm.view.view") $formattedText.escapeHtml($realm.Id)">
+								$formattedText.escapeHtml($realm.Id)
 							</a>
 						#else
-							$validator.escapeHtml($realm.Id)
+							$formattedText.escapeHtml($realm.Id)
 						#end
 				</td>
 ##				<td headers="Description">$!validator.escapeHtml($!realm.Description)</td>

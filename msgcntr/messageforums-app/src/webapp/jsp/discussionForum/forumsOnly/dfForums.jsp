@@ -17,42 +17,19 @@ org.sakaiproject.tool.cover.SessionManager.getCurrentToolSession().
 
 <f:view>
   <sakai:view title="#{msgs.cdfm_discussion_forums}" toolCssHref="/messageforums-tool/css/msgcntr.css">
-  		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-		<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
-		<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
-
+  		<script>includeLatestJQuery("msgcntr");</script>
+		<script src="/messageforums-tool/js/sak-10625.js"></script>
+		<script src="/messageforums-tool/js/forum.js"></script>
+		<script>
+			$(document).ready(function () {
+				var menuLink = $('#forumsMainMenuLink');
+				var menuLinkSpan = menuLink.closest('span');
+				menuLinkSpan.addClass('current');
+				menuLinkSpan.html(menuLink.text());
+			});
+		</script>
 	<h:form id="msgForum">
-  <sakai:tool_bar>
-    <h:commandLink id="newForum" rendered="#{ForumTool.newForum}"
-      action="#{ForumTool.processActionNewForum}" immediate="true">
-        <h:outputText value="#{msgs.cdfm_new_forum}" />
-    </h:commandLink>
-    <h:commandLink id="organizeForum" rendered="#{ForumTool.instructor}"
-      action="#{ForumTool.processActionTemplateOrganize}" immediate="true">
-        <h:outputText value="#{msgs.cdfm_organize}" />
-    </h:commandLink>
-    <h:commandLink id="templateSettings" rendered="#{ForumTool.instructor}"
-      action="#{ForumTool.processActionTemplateSettings}" immediate="true">
-        <h:outputText value="#{msgs.cdfm_template_setting}" />
-    </h:commandLink>
-    <h:commandLink id="statList" rendered="#{ForumTool.instructor}"
-      action="#{ForumTool.processActionStatistics}" immediate="true">
-        <h:outputText value="#{msgs.stat_list}" />
-    </h:commandLink>
-    <h:commandLink id="pendingQueue" rendered="#{ForumTool.displayPendingMsgQueue}"
-      action="#{ForumTool.processPendingMsgQueue}" immediate="true">
-        <h:outputText value="#{msgs.cdfm_msg_pending_queue} #{msgs.cdfm_openb}#{ForumTool.numPendingMessages}#{msgs.cdfm_closeb}" />
-    </h:commandLink>
-    <h:commandLink id="viewRanks" rendered="#{ForumTool.instructor && ForumTool.ranksEnabled}"
-      action="#{ForumTool.processPendingMsgQueue}" immediate="true">
-        <h:outputText value="#{msgs.ranks}" />
-    </h:commandLink>
-    <h:commandLink id="watch"
-      action="#{ForumTool.processActionWatch}" immediate="true">
-        <h:outputText value="#{msgs.watch}" />
-    </h:commandLink>
-  </sakai:tool_bar>
-
+	<%@ include file="/jsp/discussionForum/menu/forumsMenu.jsp" %>
 	<h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" />
         <div class="page-header">
             <h1><h:outputText value="#{msgs.cdfm_discussion_forums}" /></h1>
@@ -66,7 +43,7 @@ org.sakaiproject.tool.cover.SessionManager.getCurrentToolSession().
     	thisId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
  		 }
 	%>
-			<script type="text/javascript">
+			<script>
 			function resize(){
   				mySetMainFrameHeight('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
   			}

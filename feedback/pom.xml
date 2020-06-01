@@ -13,15 +13,11 @@
 	<parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
-        <version>20-SNAPSHOT</version>
+        <version>21-SNAPSHOT</version>
         <relativePath>../master/pom.xml</relativePath>
     </parent>
 
-  	<organization>
-    	<name>University of Oxford</name>
-    	<url>http://www.ox.ax.uk</url>
-  	</organization>
-    <inceptionYear>2005</inceptionYear>
+
 
   	<developers>
     	<developer>
@@ -33,7 +29,7 @@
 	<pluginRepositories>
 		<pluginRepository>
 			<id>mc-release</id>
-			<url>http://mc-repo.googlecode.com/svn/maven2/releases</url>
+			<url>https://mc-repo.googlecode.com/svn/maven2/releases</url>
 		</pluginRepository>
     </pluginRepositories>
 
@@ -106,7 +102,7 @@
         </dependency>
         <dependency>
             <groupId>com.sun.mail</groupId>
-            <artifactId>javax.mail</artifactId>
+            <artifactId>jakarta.mail</artifactId>
         </dependency>
         <dependency>
             <groupId>net.tanesha.recaptcha4j</groupId>

@@ -37,6 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
 
+import org.sakaiproject.authz.api.AuthzRealmLockException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -228,11 +229,8 @@ public class BaseSite implements Site
 	/**
 	 * Construct from another Site, exact.
 	 * 
-	 * @param site
-	 *        The other site to copy values from.
-	 * @param exact
-	 *        If true, we copy ids - else we generate new ones for site, page
-	 *        and tools.
+	 * @param other
+	 * 		  the source site
 	 */
 	public BaseSite(BaseSiteService siteService, Site other)
 	{
@@ -242,7 +240,7 @@ public class BaseSite implements Site
 	/**
 	 * Construct from another Site.
 	 * 
-	 * @param site
+	 * @param other
 	 *        The other site to copy values from.
 	 * @param exact
 	 *        If true, we copy ids - else we generate new ones for site, page
@@ -1729,24 +1727,21 @@ public class BaseSite implements Site
 	 */
 	public void removeGroup(Group group)
 	{
-		if(group.isLocked(Group.LockMode.ALL) || group.isLocked(Group.LockMode.DELETE)) {
-			log.error("Error, cannot remove a locked group");
-			return;
+		try {
+			deleteGroup(group);
+		} catch (AuthzRealmLockException arle) {
+			log.warn(arle.getMessage());
 		}
-		// remove it
-		m_groups.remove(group);
-
-		// track so we can clean up related on commit
-		m_deletedGroups.add(group);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public void deleteGroup(Group group) throws IllegalStateException
+	public void deleteGroup(Group group) throws AuthzRealmLockException
 	{
-		if(group.isLocked(Group.LockMode.ALL) || group.isLocked(Group.LockMode.DELETE)) {
-			throw new IllegalStateException("Error, cannot remove group: " + group.getId() + " because it is locked");
+		RealmLockMode lockMode = getRealmLock();
+		if(RealmLockMode.ALL.equals(lockMode) || RealmLockMode.DELETE.equals(lockMode)) {
+			throw new AuthzRealmLockException("Can't remove a locked group " + group.getId());
 		}
 		// remove it
 		m_groups.remove(group);
@@ -1962,6 +1957,26 @@ public class BaseSite implements Site
 		boolean changed = getAzg().keepIntersection(other);
 		if (changed) m_azgChanged = true;
 		return changed;
+	}
+
+	@Override
+	public RealmLockMode getRealmLock() {
+		return getAzg().getRealmLock();
+	}
+
+	@Override
+	public RealmLockMode getLockForReference(String reference) {
+		return getAzg().getLockForReference(reference);
+	}
+
+	@Override
+	public void setLockForReference(String reference, RealmLockMode lockMode) {
+		throw new UnsupportedOperationException("Realm locks are currently not supported for Sites");
+	}
+
+	@Override
+	public List<String[]> getRealmLocks() {
+		return getAzg().getRealmLocks();
 	}
 
 	public boolean isSoftlyDeleted() {

@@ -37,7 +37,7 @@ public class LTI13ObjectTest {
 
 		LaunchJWT lj = new LaunchJWT();
 		lj.launch_presentation.width = 42;
-		lj.issuer = "https://www.sakaiproject.org/";
+		lj.issuer = "https://www.sakailms.org/";
 		lj.audience = "42_34989754987548";  // Client Id
 		lj.deployment_id = "42_this_field_sucks";  // Client Id
 		lj.subject = "142";  // formerly user_id in LTI 1.1
@@ -56,7 +56,7 @@ public class LTI13ObjectTest {
 
 		lj.tool_platform = new ToolPlatform();
 		lj.tool_platform.name = "Sakai";
-		lj.tool_platform.url = "https://www.sakaiproject.org";
+		lj.tool_platform.url = "https://www.sakailms.org/";
 
 		lj.lti11_transition = new LTI11Transition();
 		lj.lti11_transition.user_id = "142";
@@ -117,7 +117,7 @@ public class LTI13ObjectTest {
 				.signWith(key)
 				.compact();
 
-		assertEquals(2183, jws.length());
+		assertEquals(2174, jws.length());
 		Matcher m = base64url_pattern.matcher(jws);
 		good = m.find();
 		if (!good) {

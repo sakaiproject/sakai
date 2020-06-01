@@ -14,33 +14,47 @@
 		margin: 15px;
 	}
 </style>
+<script> ## This needs to be closed in order for the loads to happen before we use "$"
+includeLatestJQuery('sakai_filepicker_attach.vm');
+</script>
 
 <script type="text/javascript">
 	<!--
-		function openCopyrightWindow(theURL,winName,winSettings) 
-		{ 
-		  window.open(theURL,winName,winSettings);
-		  return false;
-		}
-		function submitform(id)
+	function openCopyrightWindow(theURL,winName,winSettings) 
+	{ 
+		window.open(theURL,winName,winSettings);
+		return false;
+	}
+	function submitform(id)
+	{
+		var theForm = document.getElementById(id);
+		if(theForm && theForm.onsubmit)
 		{
-			var theForm = document.getElementById(id);
-			if(theForm && theForm.onsubmit)
-			{
-				theForm.onsubmit();
-			}
-			if(theForm && theForm.submit)
-			{
-				theForm.submit();
-			}
+			theForm.onsubmit();
 		}
+		if(theForm && theForm.submit)
+		{
+			theForm.submit();
+		}
+	}
 	//-->
 </script>
+
+#if($!googledriveOn && $!googledriveUserAccount)
+	## Load the Google Drive dependencies only when the Google Drive integration is enabled.
+	#parse("/vm/content/cloudstorage_googledrive_libraries.vm")
+#end
+
+#if($!onedriveOn)
+	## Load the One Drive dependencies only when the One Drive integration is enabled.
+	#parse("/vm/content/cloudstorage_onedrive_libraries.vm")
+#end
+
 <script src="/library/js/spinner.js" type="text/javascript"></script>
 
 <div class="portletBody specialLink" id="portletBody">
 	#if ($alertMessage)
-		<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" ></div>
+		<div class="alertMessage">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div><div style="display:block;clear:both" ></div>
 	#end
 	<h3 id="page-title">
 		#if($helper_title)
@@ -64,22 +78,21 @@
 	<form name="doattachitem" style="display:none" id="doattachitem" action="#toolForm("FilePickerAction" "Main")" method=post enctype="multipart/form-data">
 	<input type="hidden" name="sakai_action" value="doAttachitem">
 	<input type="hidden" name="itemId" id="doattachitemid" />
+	<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+#if($!onedriveOn)
 	<input type="hidden" name="onedriveItemId" id="doattachonedriveitemid" />
 	<input type="hidden" name="onedriveItemClone" id="onedriveitemidclone" />
-	<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+#end
+#if($!googledriveOn)
+	<input type="hidden" name="googledriveItemId" id="doattachgoogledriveitemid" />
+	<input type="hidden" name="googledriveItemClone" id="googledriveitemidclone" />
+	<input type="hidden" name="googledriveJson" id="googledrivejson" />
+#end
 	</form>
 
 	<script type="text/javascript">
 	function doattachsubmit(itemId) {
 	   document.getElementById('doattachitemid').setAttribute('value',itemId);
-	   var f = document.getElementById('doattachitem');
-	   f.submit();
-	   return false;
-	}
-
-	function doattachsubmitonedrive(itemId, cloneObject) {
-	   document.getElementById('doattachonedriveitemid').setAttribute('value',itemId);
-	   document.getElementById('onedriveitemidclone').setAttribute('value',cloneObject);
 	   var f = document.getElementById('doattachitem');
 	   f.submit();
 	   return false;
@@ -97,7 +110,7 @@
 
 	<form name="attachForm" id="attachForm" action="#toolForm("FilePickerAction" "Main")" method="post" enctype="multipart/form-data">
 		<input type="hidden" name="source" value="0" />
-		<input type="hidden" name="collectionId" value="$validator.escapeHtml($collectionId)" />
+		<input type="hidden" name="collectionId" value="$formattedText.escapeHtml($collectionId)" />
 		<input type="hidden" name="from" value="list" />
 		<input type="hidden" name="sakai_action" id="sakai_action" value="" />
         <input type="hidden" name="navRoot" id="navRoot" value="" />
@@ -123,11 +136,11 @@
 						<td headers="item">
 								<span class="$att_item.iconClass" aria-hidden="true"></span>
 								<span class="sr-only">$!att_item.hoverText</span>
-								<a href="$att_item.accessUrl" target="_blank" title="$tlang.getString('gen.type'): $att_item.hoverText   [$tlang.getString('gen.newwin')]">$validator.escapeHtml($att_item.displayName)</a>	
+								<a href="$att_item.accessUrl" target="_blank" title="$tlang.getString('gen.type'): $att_item.hoverText   [$tlang.getString('gen.newwin')]">$formattedText.escapeHtml($att_item.displayName)</a>	
 						</td>
 						<td headers="action">
 							<div class="itemAction">
-								<a href="#toolLinkParam("FilePickerAction" "doRemoveitem" "itemId=$validator.escapeUrl($att_item.id)")" title="$tlang.getString('att.remove')"><i class="fa fa-remove"></i> $tlang.getString("att.remove") <span class="skip">$validator.escapeHtml($att_item.displayName)</span></a>
+								<a href="#toolLinkParam("FilePickerAction" "doRemoveitem" "itemId=$formattedText.escapeUrl($att_item.id)")" title="$tlang.getString('att.remove')"><i class="fa fa-remove"></i> $tlang.getString("att.remove") <span class="skip">$formattedText.escapeHtml($att_item.displayName)</span></a>
 							</div>
 						</td>
 					</tr>
@@ -138,7 +151,7 @@
 		#end	
 
 		<ul class="nav nav-tabs" id="resourceTabs">
-			<li class="nav-item #if(!$!navigating_resources && !$!navigating_onedrive) active #end">
+			<li class="nav-item #if(!$!navigating_resources && !$!navigating_onedrive  && !$!navigating_googledrive) active #end">
 				<a class="nav-link" href="#pickerUploadOption">$tlang.getString("att.upl")</a>
 			</li>
 			<li class="nav-item">
@@ -152,15 +165,20 @@
 				<a class="nav-link" href="#pickerOneDrive"><span class="fa fa-windows" aria-hidden="true"></span> $tlang.getString("onedrive.integration")</a>
 			</li>
 			#end
+			#if($!googledriveOn)
+			<li class="nav-item #if($!navigating_googledrive) active #end ">
+				<a class="nav-link" href="#pickerGoogleDrive"><span class="fa fa-google" aria-hidden="true"></span> $tlang.getString("googledrive.integration")</a>
+			</li>
+			#end
 		</ul>
 
 		<div class="container_filepicker">
 			<div class="tab-content panel panel-default joinLabel">
-				<div role="tabpanel" class="tab-pane #if(!$!navigating_resources && !$!navigating_onedrive) active #end panel-body" id="pickerUploadOption">
+				<div role="tabpanel" class="tab-pane #if(!$!navigating_resources && !$!navigating_onedrive && !$!navigating_googledrive) active #end panel-body" id="pickerUploadOption">
 					<div class="form-inline">
 						<div class="form-group">
 						    <label for="upload">$tlang.getString("att.upl")</label>
-						    <input type="file" name="upload" id="upload" class="upload" onchange="showNotif('submitnotifxxx','attachButton','attachForm'); document.getElementById('attachForm').action='#toolLinkParam("FilePickerAction" "doAttachupload" "special=upload&sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';submitform('attachForm');" #if($disable_attach_links) disabled="disabled"#end />
+						    <input type="file" name="upload" id="upload" class="upload" onchange="showNotif('submitnotifxxx','attachButton','attachForm'); document.getElementById('attachForm').action='#toolLinkParam("FilePickerAction" "doAttachupload" "special=upload&sakai_csrf_token=$formattedText.escapeUrl($sakai_csrf_token)")';submitform('attachForm');" #if($disable_attach_links) disabled="disabled"#end />
 							<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
 						</div>
 						<div class="form-group">
@@ -203,16 +221,16 @@
 										<span class="sr-only">$tlang.getString('gen.folder1')</span>
 										#foreach ($item in $collectionPath)
 											#if($item.isLast())
-												$validator.escapeHtml("$item.name")
+												$formattedText.escapeHtml("$item.name")
 												#if($upOneLevel)
-													<a href="#toolLinkParam("FilePickerAction" "doNavigate" "collectionId=$validator.escapeUrl($upOneLevel.id)&navRoot=$validator.escapeUrl($upOneLevel.root)")" title= "$tlang.getString('sh.one')">
+													<a href="#toolLinkParam("FilePickerAction" "doNavigate" "collectionId=$formattedText.escapeUrl($upOneLevel.id)&navRoot=$formattedText.escapeUrl($upOneLevel.root)")" title= "$tlang.getString('sh.one')">
 														<span class="fa fa-level-up" aria-hidden="true"></span>
 														<span class="sr-only">$tlang.getString('sh.one')</span>
 													</a>
 												#end
 											#else
-												<a href="#toolLinkParam("FilePickerAction" "doNavigate" "collectionId=$validator.escapeUrl($item.id)&navRoot=$validator.escapeUrl($item.root)")" title ="$tlang.getString('sh.go')">
-													$validator.escapeHtml("$item.name")
+												<a href="#toolLinkParam("FilePickerAction" "doNavigate" "collectionId=$formattedText.escapeUrl($item.id)&navRoot=$formattedText.escapeUrl($item.root)")" title ="$tlang.getString('sh.go')">
+													$formattedText.escapeHtml("$item.name")
 												</a> /
 												#set($upOneLevel = $item)
 											#end
@@ -227,17 +245,17 @@
 									<tr>
 										<th id="title">
 											#if ($expandallflag && "$expandallflag" == "$TRUE")
-												<a href="#toolLinkParam("FilePickerAction" "doUnexpandall" "collectionId=$validator.escapeUrl($collectionId)")" title ="$tlang.getString('collapseall')">
+												<a href="#toolLinkParam("FilePickerAction" "doUnexpandall" "collectionId=$formattedText.escapeUrl($collectionId)")" title ="$tlang.getString('collapseall')">
 													<span class="fa fa-compress" aria-hidden="true"></span>
 													<span class="sr-only">$tlang.getString('collapseall')</span>
 												</a>								 
 											#else
-												<a href="#toolLinkParam("FilePickerAction" "doExpandall" "collectionId=$validator.escapeUrl($collectionId)")" title ="$stlang.getString('label.expand.all')">
+												<a href="#toolLinkParam("FilePickerAction" "doExpandall" "collectionId=$formattedText.escapeUrl($collectionId)")" title ="$stlang.getString('label.expand.all')">
 													<span class="fa fa-expand" aria-hidden="true"></span>
 													<span class="sr-only">$stlang.getString('label.expand.all')</span>
 												</a>								 
 											#end
-											<a href="#toolLinkParam("FilePickerAction" "doSort" "criteria=title&collectionId=$validator.escapeUrl($collectionId)")" title ="$tlang.getString('sh.sorttit')"> 
+											<a href="#toolLinkParam("FilePickerAction" "doSort" "criteria=title&collectionId=$formattedText.escapeUrl($collectionId)")" title ="$tlang.getString('sh.sorttit')"> 
 												$tlang.getString("gen.title1")
 												#if ($currentSortAsc.equals("true")) 
 													<span class="fa fa-chevron-up" aria-hidden="true"></span>
@@ -280,19 +298,19 @@
 														#if ($item.isEmpty() || !$item.canRead())
 															<span class="$item.iconClass" aria-hidden="true"></span>
 															<span class="sr-only">$tlang.getString('gen.folder1')</span>
-															$validator.escapeHtml(${item.name})
+															$formattedText.escapeHtml(${item.name})
 														#else
 															#if (!$item.isExpanded())
-																<a href="#toolLinkParam("FilePickerAction" "doExpand_collection" "collectionId=$validator.escapeUrl($item.Id)")" title="$tlang.getString('sh.open')">
+																<a href="#toolLinkParam("FilePickerAction" "doExpand_collection" "collectionId=$formattedText.escapeUrl($item.Id)")" title="$tlang.getString('sh.open')">
 																<span class="sr-only">$tlang.getString('sh.open')</span>
 															#else
-																<a href="#toolLinkParam("FilePickerAction" "doCollapse_collection" "collectionId=$validator.escapeUrl($item.Id)")" title="$tlang.getString('sh.close')">
+																<a href="#toolLinkParam("FilePickerAction" "doCollapse_collection" "collectionId=$formattedText.escapeUrl($item.Id)")" title="$tlang.getString('sh.close')">
 																<span class="sr-only">$tlang.getString('sh.close')</span>
 															#end
 																	<span class="$item.iconClass" aria-hidden="true"></span>
 																</a>
-															<a href="#toolLinkParam("FilePickerAction" "doNavigate" "collectionId=${validator.escapeUrl(${item.id})}&navRoot=$validator.escapeUrl($item.root)")" title="$tlang.getString('sh.go')">
-																$validator.escapeHtml(${item.name})
+															<a href="#toolLinkParam("FilePickerAction" "doNavigate" "collectionId=${validator.escapeUrl(${item.id})}&navRoot=$formattedText.escapeUrl($item.root)")" title="$tlang.getString('sh.go')">
+																$formattedText.escapeHtml(${item.name})
 															</a>
 														#end
 													#else
@@ -316,20 +334,20 @@
 																title="$tlang.getString('gen.copycomf') $tlang.getString('gen.type'): $item.hoverText  [$tlang.getString('gen.newwin')]"
 																onclick="openCopyrightWindow('${item.accessUrl}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false;" 
 																>
-																	$validator.escapeHtml($item.name)
+																	$formattedText.escapeHtml($item.name)
 																</a>
 																&#169;
 															#else
 																<a href="$item.accessUrl" target="$item.target"
 																title="$tlang.getString('gen.type'): $item.hoverText  [$tlang.getString('gen.newwin')]"
 																>
-																	$validator.escapeHtml($item.name)
+																	$formattedText.escapeHtml($item.name)
 																</a>
 															#end
 														#else
 															<span class="$item.iconClass" aria-hidden="true"></span>
 															<span class="sr-only">$!item.hoverText</span>
-															$validator.escapeHtml($item.name)
+															$formattedText.escapeHtml($item.name)
 															#if ($item.hasCopyrightAlert())
 																&#169;
 															#end
@@ -351,7 +369,7 @@
 																		|
 																	#end
 																	#set ($itemsOnLine = $itemsOnLine + 1)
-																	<a href="#" onclick="return doattachsubmit('$validator.escapeUrl(${item.id})')" title ="$tlang.getString('att.copy')">$tlang.getString("att.copy") <span class="skip">$validator.escapeHtml($item.name)</span></a>
+																	<a href="#" onclick="return doattachsubmit('$formattedText.escapeUrl(${item.id})')" title ="$tlang.getString('att.copy')">$tlang.getString("att.copy") <span class="skip">$formattedText.escapeHtml($item.name)</span></a>
 																#end
 															#end
 														#end
@@ -368,7 +386,7 @@
 												<th colspan="3">
 												<h4>
 													<a href="#toolLink("FilePickerAction" "doHideOtherSites")" title= "$tlang.getString('list.hide')">
-														<span class="fa fa-caret-down" aria-hidden="true"></span><span class="sr-only">$tlang.getString('list.hide')</span> $validator.escapeHtml("$tlang.getString('list.hide')")
+														<span class="fa fa-caret-down" aria-hidden="true"></span><span class="sr-only">$tlang.getString('list.hide')</span> $formattedText.escapeHtml("$tlang.getString('list.hide')")
 													</a>
 												</h4>
 												</th>
@@ -445,21 +463,21 @@
 																#if ($root.isEmpty() || !$root.canRead())
 																	<span class="$root.iconClass" aria-hidden="true"></span>
 																	<span class="sr-only">$tlang.getString('gen.folder1')</span>
-																	$validator.escapeHtml(${root.name})
+																	$formattedText.escapeHtml(${root.name})
 																#else
 																	#if (!$root.isExpanded())
-																		<a href="#toolLinkParam("FilePickerAction" "doExpand_collection" "collectionId=$validator.escapeUrl($root.Id)")" title="$tlang.getString('sh.open')">
+																		<a href="#toolLinkParam("FilePickerAction" "doExpand_collection" "collectionId=$formattedText.escapeUrl($root.Id)")" title="$tlang.getString('sh.open')">
 																		<span class="sr-only">$tlang.getString('sh.open')</span>
 																	#else
-																		<a href="#toolLinkParam("FilePickerAction" "doCollapse_collection" "collectionId=$validator.escapeUrl($root.Id)")" title="$tlang.getString('sh.close')">
+																		<a href="#toolLinkParam("FilePickerAction" "doCollapse_collection" "collectionId=$formattedText.escapeUrl($root.Id)")" title="$tlang.getString('sh.close')">
 																		<span class="sr-only">$tlang.getString('sh.close')</span>
 																	#end
 																		<span class="$root.iconClass" aria-hidden="true"></span>
-																		$validator.escapeHtml(${root.name})
+																		$formattedText.escapeHtml(${root.name})
 																	</a>
 						#*
-																	<a href="#toolLinkParam("FilePickerAction" "doNavigate" "collectionId=${validator.escapeUrl(${root.id})}&navRoot=$validator.escapeUrl($root.root)")" title="$tlang.getString('sh.go')">
-																		$validator.escapeHtml(${root.name})
+																	<a href="#toolLinkParam("FilePickerAction" "doNavigate" "collectionId=${validator.escapeUrl(${root.id})}&navRoot=$formattedText.escapeUrl($root.root)")" title="$tlang.getString('sh.go')">
+																		$formattedText.escapeHtml(${root.name})
 																	</a>
 						*#
 																#end
@@ -485,20 +503,20 @@
 																	title="$tlang.getString('gen.copycomf') $tlang.getString('gen.type'): $root.hoverText  [$tlang.getString('gen.newwin')]"
 																	onclick="openCopyrightWindow('${root.accessUrl}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false;" 
 																	>
-																		$validator.escapeHtml($root.name)
+																		$formattedText.escapeHtml($root.name)
 																	</a>
 																	&#169;
 																#else
 																	<a href="$root.accessUrl" target="$root.target"
 																	title="$tlang.getString('gen.type'): $root.hoverText  [$tlang.getString('gen.newwin')]"
 																	>
-																		$validator.escapeHtml($root.name)
+																		$formattedText.escapeHtml($root.name)
 																	</a>
 																#end
 															#else
 																<span class="$root.iconClass" aria-hidden="true"></span>
 																<span class="sr-only">$!root.hoverText</span>
-																$validator.escapeHtml($root.name)
+																$formattedText.escapeHtml($root.name)
 																#if ($root.hasCopyrightAlert())
 																	&#169;
 																#end
@@ -519,7 +537,7 @@
 																				|
 																			#end
 																			#set ($itemsOnLine = $itemsOnLine + 1)
-																			<a href="#" onclick="return doattachsubmit('$validator.escapeUrl(${root.id})')" title ="$tlang.getString('att.copy')">$tlang.getString("att.copy") <span class="skip">$validator.escapeHtml($item.name)</span></a>
+																			<a href="#" onclick="return doattachsubmit('$formattedText.escapeUrl(${root.id})')" title ="$tlang.getString('att.copy')">$tlang.getString("att.copy") <span class="skip">$formattedText.escapeHtml($item.name)</span></a>
 																		#end
 																	#end
 																#end
@@ -534,7 +552,7 @@
 												<th colspan="3">
 												<h4>
 													<a href="#toolLink("FilePickerAction" "doShowOtherSites")" title= "$tlang.getString('list.show')">
-														<span class="fa fa-caret-right" aria-hidden="true"></span><span class="sr-only">$tlang.getString('list.show')</span> $validator.escapeHtml("$tlang.getString('list.show')")
+														<span class="fa fa-caret-right" aria-hidden="true"></span><span class="sr-only">$tlang.getString('list.show')</span> $formattedText.escapeHtml("$tlang.getString('list.show')")
 													</a>
 												</h4>
 												</th>
@@ -554,76 +572,21 @@
 				############################################# Begin OneDrive section
 				<div role="tabpanel" class="tab-pane panel-body #if($!navigating_onedrive) active #end" id="pickerOneDrive">
 					<div class="form-inline">
-						#if($!onedriveOn)
-							<h4>
-								<span class="fa fa-windows" aria-hidden="true"></span>
-								$tlang.getString('onedrive.integration')
-							</h4>
-							#if(!$!onedriveUserAccount)
-								<span aria-hidden="true"> $tlang.getString('onedrive.set_account')</span>
-								<a href="#toolLink("FilePickerAction" "doOneDrive")" title= "$tlang.getString('onedrive.set_account')">
-									<input type="button" aria-hidden="true" value="$tlang.getString('onedrive.configure')" />
-								</a>
-							#else
-								<span aria-hidden="true"> $tlang.getFormattedMessage('onedrive.configured', $!onedriveUserAccount)</span>
-								<input type="button" name="refreshOneDriveButton" id="refreshOneDriveButton" class="refreshOneDriveButton" onclick="document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doRefreshOneDrive")'; submitform('attachForm');" value="$tlang.getString('onedrive.refresh')" />
-								<input type="button" name="revokeOneDriveButton" id="revokeOneDriveButton" class="revokeOneDriveButton" onclick="document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doRevokeOneDrive")'; submitform('attachForm');" value="$tlang.getString('onedrive.revoke')" />
-								<table class="listHier lines" cellspacing="0" border="0" summary="$tlang.getString("onedrive.table_summary")">
-									<tr>
-										<th id="title">
-											$tlang.getString("onedrive.title")
-										</th>
-										<th id="action-clone">
-											$tlang.getString("onedrive.clone")
-										</th>
-										<th id="action-link">
-											$tlang.getString("onedrive.link")
-										</th>
-									</tr>
-									#foreach($onedriveItem in $onedriveItems)
-										#set($itemcount = $itemcount + 1)
-										#set ($width = "$!{onedriveItem.depth}${unit}")
-										<tr
-											#if ($itemcount % 2==0)
-												class="odd"
-											#else
-												class="even"
-											#end>
-											<td headers="title" style="text-indent: $width" class="specialLink">
-												#if ($onedriveItem.isFolder())
-													#set($folderClass = "fa fa-folder-o")
-													#if($onedriveItem.hasChildren() && !$onedriveItem.isExpanded())
-														#set($folderClass = "fa fa-folder")
-													#elseif($onedriveItem.hasChildren() && $onedriveItem.isExpanded())
-														#set($folderClass = "fa fa-folder-open")
-													#end
-													<a	#if($onedriveItem.hasChildren() && !$onedriveItem.isExpanded()) href="#toolLinkParam("FilePickerAction" "doNavigate" "onedriveCollectionId=${validator.escapeUrl(${onedriveItem.oneDriveItemId})}&onedriveCollectionDepth=${onedriveItem.depth}")" title="$tlang.getString('sh.go')" #end
-													><span class="$folderClass" aria-hidden="true"></span>
-													<span class="sr-only">$tlang.getString('gen.folder1')</span>
-												#else
-													##$onedriveItem.file.mimeType
-													<a href="$onedriveItem.downloadUrl"><span class="$contentTypeImageService.getContentTypeImageClass($onedriveItem.file.mimeType)" aria-hidden="true"></span>
-												#end
-												$validator.escapeHtml(${onedriveItem.name})</a>
-											</td>
-											<td headers="action-clone">
-												#if (!$onedriveItem.isFolder())
-													<a href="#" onclick="return doattachsubmitonedrive('$validator.escapeUrl(${onedriveItem.oneDriveItemId})',true)" title ="$tlang.getString('att.copy')">$tlang.getString("att.copy") <span class="skip">$validator.escapeHtml($onedriveItem.name)</span></a>
-												#end
-											<td headers="action-link">
-												#if (!$onedriveItem.isFolder())
-													<a href="#" onclick="return doattachsubmitonedrive('$validator.escapeUrl(${onedriveItem.oneDriveItemId})',false)" title ="$tlang.getString('onedrive.attach_link')">$tlang.getString('onedrive.attach_link') <span class="skip">$validator.escapeHtml($onedriveItem.name)</span></a>
-												#end
-											</td>
-										</tr>
-									#end
-								</table>
-							#end
-						#end
-
+					#if($!onedriveOn)
+						#parse("/vm/content/cloudstorage_onedrive_picker.vm")
+					#end
 					</div>
 				</div>
 				############################################# end of OneDrive section
+				############################################# Begin GoogleDrive section
+				<div role="tabpanel" class="tab-pane panel-body #if($!navigating_googledrive) active #end" id="pickerGoogleDrive">
+					<div class="form-inline">
+					#if($!googledriveOn)
+						#parse("/vm/content/cloudstorage_googledrive_picker.vm")
+					#end
+					</div>
+				</div>
+				############################################# end of GoogleDrive section
 				</div>
 				<p class="act" >
 									<input type="button" name="attachButton" id="attachButton"  accesskey="s"
@@ -636,13 +599,17 @@
 			</div>
 		</div>	
 
-
-		
-<script> ## This needs to be closed in order for the loads to happen before we use "$"
-includeLatestJQuery('sakai_filepicker_attach.vm');
-</script>
-
 <script>
+$(document).ready(function () {
+	$('.googlethumbnail').on('mouseenter', function () {
+		$(this).addClass('googlethumbnailbig');
+		$(this).removeClass('googlethumbnailsmall');
+	}).on('mouseleave', function () {
+		$(this).addClass('googlethumbnailsmall');
+		$(this).removeClass('googlethumbnailbig');
+	});
+});	
+
 if ( $(window).width() > portalSmallBreakPoint() ) { ## Don't go modal when mobile..
 	$('#page-title').hide();
 	$("#portletBody").dialog({

@@ -41,6 +41,11 @@
   									iso8601: $(this).attr('id').replace(idPrefix,'').replace(':dataEndDate','dataEndDateISO8601')}
   				});
   			});
+
+			var menuLink = $('#syllabusMenuBulkEditLink');
+			menuLink.addClass('current');
+			menuLink.find('a').removeAttr('href');
+
   });
   $(function() {
   	//Setup the current values of the start dates (to compare and adjust the end dates when changed)
@@ -185,8 +190,8 @@
 	}
  </script>
 <div>
-	<span id="successInfo" class="success popupMessage" style="display:none; float: left;"></span>
-	<span id="warningInfo" class="alertMessage popupMessage" style="display:none; float: left;"></span>
+	<span id="successInfo" class="sak-banner-success popupMessage" style="display:none; float: left;"></span>
+	<span id="warningInfo" class="sak-banner-warn popupMessage" style="display:none; float: left;"></span>
 </div>
         <script type="text/javascript">
         	// if redirected, just open in another window else
@@ -201,8 +206,9 @@
         	}
         </script>
 
-        <h:form id="syllabusMainEdit">  	      
-   	      <h:messages globalOnly="true" styleClass="alertMessage" rendered="#{!empty facesContext.maximumSeverity}" />
+        <h:form id="syllabusMainEdit">
+          <%@ include file="mainMenu.jsp" %>
+   	      <h:messages globalOnly="true" styleClass="sak-banner-error" rendered="#{!empty facesContext.maximumSeverity}" />
 	      <syllabus:syllabus_if test="#{SyllabusTool.syllabusItem.redirectURL}">
 		     <sakai:tool_bar_message value="#{msgs.mainEditNotice}" />
 		     <h:dataTable id="dataTable" value="#{SyllabusTool.entries}" var="eachEntry" summary="#{msgs.mainEditListSummary}" styleClass="listHier lines nolines"

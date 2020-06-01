@@ -9,16 +9,25 @@
 	<sakai:view title="#{msgs.pvt_msgs_label} #{msgs.pvt_settings}">
 <!--jsp/privateMsg/pvtMsgSettings.jsp-->
 	<%-- gsilver:moved this function here from the top  to avoid validation errors (content before the DOCTYPE)--%>
-	<script language="Javascript" type="text/javascript">
+	<script>
 		function displayEmail() {
 	
 			document.forms[0].email.disabled = false
 		}
 	</script>
 <h:form id="pvtMsgSettings">
-       		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-			<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
-			<script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
+       		<script>includeLatestJQuery("msgcntr");</script>
+			<script src="/messageforums-tool/js/sak-10625.js"></script>
+			<script src="/messageforums-tool/js/messages.js"></script>
+			<script>
+				$(document).ready(function() {
+					var menuLink = $('#messagesSettingsMenuLink');
+					var menuLinkSpan = menuLink.closest('span');
+					menuLinkSpan.addClass('current');
+					menuLinkSpan.html(menuLink.text());
+				});
+			</script>
+			<%@ include file="/jsp/privateMsg/pvtMenu.jsp" %>
 			<h1><h:outputText value="#{msgs.pvt_msgs_label} #{msgs.pvt_settings}" /></h1>
 			<h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/>
 			
@@ -44,13 +53,14 @@
 				onchange="this.form.submit();"
 				valueChangeListener="#{PrivateMessagesTool.processPvtMsgSettingsRevise}"
 				layout="pageDirection"
-				styleClass="checkbox inlineForm table-inline">
+				styleClass="checkbox inlineForm">
 			          <f:selectItem itemValue="yes" itemLabel="#{msgs.pvt_yes}" />
 				  <f:selectItem itemValue="no" itemLabel="#{msgs.pvt_no}" />
+				  <f:selectItem itemValue="default" itemLabel="#{msgs.pvt_default}" />
 			      </h:selectOneRadio> 
 		             <h:outputLabel for="fwd_email"><h:outputText value="#{msgs.pvt_emailfor}" /></h:outputLabel>
 		             <h:inputText value="#{PrivateMessagesTool.forwardPvtMsgEmail}" id="fwd_email"
-		               disabled="#{PrivateMessagesTool.forwardPvtMsg == 'no'}" />
+		               disabled="#{!('yes'.equals(PrivateMessagesTool.forwardPvtMsg))}" />
 		           </h:panelGroup>
 		         
 		         

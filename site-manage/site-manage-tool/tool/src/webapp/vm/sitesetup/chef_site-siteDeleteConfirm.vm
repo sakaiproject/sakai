@@ -7,10 +7,10 @@
 			$tlang.getString("sitegen.sitedel.remov")
 		#end
 	</h3>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitegen.sitedel.alert") $alertMessage</div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("sitegen.sitedel.alert") $alertMessage</div>#end
 	<form action="#toolForm("$action")" method="post">
 	#if($removals && $removals.size() != 0)
-		<div class="alertMessage">
+		<div class="sak-banner-warn">
 			#if($softDelete)
 				$tlang.getString("sitegen.sitedel.soft")
 			#else
@@ -39,7 +39,7 @@
 			<ul class="attachList indnt2">
 				#foreach($site in $removals)
 					<li>	<input type="hidden" name="selectedMembers" value="$site.getId()" />
-							$validator.escapeHtml($site.getTitle())
+							$formattedText.escapeHtml($site.getTitle())
 					</li>
 				#end
 			</ul>

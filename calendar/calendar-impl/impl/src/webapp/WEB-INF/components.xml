@@ -38,6 +38,7 @@
 		destroy-method="destroy">
 		<property name="calendarService"><ref bean="org.sakaiproject.calendar.api.CalendarService"/></property>
 		<property name="timeService"><ref bean="org.sakaiproject.time.api.TimeService"/></property>
+		<property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
 	</bean>
 
     <!-- Just handles preloading of the institional calendars -->
@@ -64,6 +65,7 @@
 		<property name="clock">
 			<bean class="java.time.Clock" factory-method="systemUTC"/>
 		</property>
+		<property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
 	</bean>
 
 	<bean id="org.sakaiproject.calendar.api.OpaqueUrlDao" 

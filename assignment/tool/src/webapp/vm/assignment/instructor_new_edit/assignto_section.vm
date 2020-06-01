@@ -1,0 +1,152 @@
+#**
+"Assign To" Section
+This section contains the options for setting the assignee of this assignment. The assignee
+can be either all members of the site, all members of selected groups, or the selected groups themselves
+(making it a group assignment).
+*#
+
+## variable init
+#set( $class = "" )
+#set($releaseToSiteMsg = [ $tlang.getString("displayto.site") ])
+#set($releaseToGroupsMsg = [ $tlang.getString("displayto.selected") ])
+#if( !$!groupsList )
+	#set( $class = "disabled" )
+#end
+#set( $selectedGroupsNotFound = false )
+#if(($value_AssignTo == $value_AssignTo_Groups || $value_AssignTo == $value_AssignTo_IndividualsFromGroups))
+	#set( $selectedGroupsNotFound = true )
+	#foreach( $group in $!groupsList )
+		#foreach( $aGroupRef in $assignmentGroups )
+			#set( $aGroup = $!site.getGroup( $!aGroupRef ) )
+			#if( $!group.Id == $!aGroup.Id )
+				#set( $selectedGroupsNotFound = false )
+			#end
+		#end
+	#end
+#end
+#set($peerAssessment = false)
+#if($!value_UsePeerAssessment.equals("true"))
+	#set($peerAssessment = true)
+#end
+
+<p class="text-muted small">$tlang.getString("gen.cant.change.after.draft")</p>
+
+## Radio Option 1: Each individual member of the site
+#if($allowAddSiteAssignment)
+	<div class="radio">
+		<label for="site">
+		#set($showGB = "")
+		#set($disableIndividual = $!assignment && !$assignment.draft && $value_AssignTo == $value_AssignTo_Groups)
+		#if( !$!allowGroupAssignmentsInGradebook )
+			#set($showGB = "if (document.getElementById('addToGradebook') !=null){$('#addToGradebook').fadeOut('slow'); ASN.resizeFrame()};")
+		#end
+		<input type="radio" name="$name_AssignTo" id="site" value="$value_AssignTo_Individuals"
+			onclick="$showGB$('#groupTableContainer').fadeOut('slow'); ASN_INE.validateGroupSelection();ASN_INE.handleAssignToChangeForPeerAssessment(); ASN.resizeFrame();"
+			#if( $value_AssignTo == $value_AssignTo_Individuals || $selectedGroupsNotFound ) checked="checked" #end
+			#if($disableIndividual) disabled="disabled" #end/>
+		$tlang.getString("displayto.site")
+		</label>
+	</div>
+#end
+
+## Radio Option 2: Each individual member of the selected groups
+	<div class="radio">
+		<label class="$class" for="groups">
+		#set($hideGB = "")
+		#if( !$!allowGroupAssignmentsInGradebook )
+			#set($hideGB = "if (document.getElementById('addToGradebook') != null){document.getElementById('addToGradebook').style.display = 'none';document.getElementById('$!name_Addtogradebook').checked=false};")
+		#end
+		<input type="radio" name="$name_AssignTo" id="groups" value="$value_AssignTo_IndividualsFromGroups"
+			onclick="$hideGB$('#groupTableContainer').fadeIn('slow'); ASN_INE.validateGroupSelection();ASN_INE.handleAssignToChangeForPeerAssessment();ASN.resizeFrame();"
+			#if( $value_AssignTo == $value_AssignTo_IndividualsFromGroups && !$selectedGroupsNotFound ) checked="checked"
+			#elseif(!$!groupsList || $disableIndividual) disabled="disabled"
+			#end />
+		$tlang.getString("displayto.selected")
+		</label>
+	</div>
+
+## Radio Option 3: Group assignment (selected groups)
+#if($group_submissions_enabled)
+	#set($disableGroupAssignment = !$!groupsList || $peerAssessment || ($!assignment && !$assignment.draft && $value_AssignTo != $value_AssignTo_Groups))
+	<div class="radio">
+		<label for="groupAssignment" id="groupAssignmentCheckboxLabel" class="#if($disableGroupAssignment)disabled#end">
+			<input type="radio" id="groupAssignment" name="$name_AssignTo" value="$value_AssignTo_Groups"
+				onclick="$hideGB$('#groupTableContainer').fadeIn('slow'); ASN_INE.validateGroupSelection(); ASN_INE.handleAssignToChangeForPeerAssessment(); ASN.resizeFrame();"
+				#if ($value_AssignTo == $value_AssignTo_Groups && $!groupsList && !$selectedGroupsNotFound) checked="checked" #end
+				#if ($disableGroupAssignment) disabled="disabled" #end
+			/>
+			$tlang.getFormattedMessage("group.issubmit", $releaseToGroupsMsg.toArray())
+			<span id="msgNoGroupAssignmentPeerInUse" style="display:#if($peerAssessment) inline;#else none;#end">$tlang.getString("settings.access.noGroupAssignmentPeerInUse")</span>
+		</label>
+	</div>
+#end
+
+## Message Area 1
+	<div id="messages">
+	#if( $selectedGroupsNotFound )
+		#if( $!groupsList.size() > 0 )
+			<div id="msgSelectedGroupsGoneOtherGroupsPresent" class="sak-banner-info">$tlang.getFormattedMessage("settings.access.selectedGroupsGoneOtherGroupsPresent", $releaseToSiteMsg.toArray())</div>
+		#else
+			<div id="msgSelectedGroupsGoneNoGroups" class="sak-banner-info">$tlang.getFormattedMessage("settings.access.selectedGroupsGoneNoGroups", $releaseToSiteMsg.toArray())</div>
+		#end
+	#elseif( !$!groupsList )
+		<div id="msgNoGroupsPresent" class="sak-banner-info">$tlang.getString( "settings.access.noGroupsPresent" )</div>
+	#end
+	</div>
+
+## Groups multiselect, visible when Option 2 or 3 is chosen
+	#if( ($value_AssignTo == $value_AssignTo_Groups || $value_AssignTo == $value_AssignTo_IndividualsFromGroups) && !$selectedGroupsNotFound )
+		#set( $listDisplay = "block" )
+	#else
+		#set( $listDisplay = "none" )
+	#end
+	<div id="groupTableContainer" class="row" style="display:$listDisplay">
+		<div class="col-sm-offset-1 col-sm-9">
+			<label for="selectedGroups" class="sr-only">$tlang.getString("settings.access.selectGroups")</label>
+			<select id="selectedGroups" name="selectedGroups" multiple="multiple">
+				#foreach ($group in $!groupsList)
+					#set($description = $formattedText.escapeHtml($group.Description))
+					#set($selected=false)
+					#foreach($aGroupRef in $assignmentGroups)
+						#set($aGroup = $!site.getGroup($!aGroupRef))
+						#if ($!group.Id == $!aGroup.Id)
+							#set($selected = true)
+							#set($groupDisabled = $groupsWithUserSubmission.contains($aGroup))
+						#end
+					#end
+					<option value="$group.Id" #if($selected) selected #end #if($groupDisabled) disabled #end>$formattedText.escapeHtml($group.Title) #if("$!description" != "") ($description) #end</option>
+				#end
+			</select>
+			## Message Area 2
+			#set( $selectGroupsDisplay = "block" )
+			#if( (($value_AssignTo == $value_AssignTo_Groups || $value_AssignTo == $value_AssignTo_IndividualsFromGroups || $!assignment.Access == $groupAccess) && !$selectedGroupsNotFound) || $selectedGroupsNotFound || $value_AssignTo == $value_AssignTo_Individuals )
+				#set( $selectGroupsDisplay = "none" )
+			#end
+			#set($noMembersInCommonDisplay = false)
+			#if($value_AssignTo == $value_AssignTo_Groups && !$selectedGroupsNotFound)
+				#set($noMembersInCommonDisplay = true)
+			#end
+			<div id="msgNoMembersInCommon" class="sak-banner-info #if($noMembersInCommonDisplay == true)is-hidden#end">
+				<span>$tlang.getString( "settings.access.noMembersInCommon" )</span>
+				<div class="checkNowWidget">
+					<button type="button" id="checkNowButton" onclick="ASN_INE.checkGroupsNow(this, '$!site.id', '$!assignment.Reference');">
+						$tlang.getString("settings.access.checkNow")
+					</button>
+				</div>
+			</div>
+			<div id="msgNoMembersInCommonSuccess" class="sak-banner-success is-hidden msgNoMembersInCommonSuccess">
+				$tlang.getString("settings.access.checkSuccess")
+			</div>
+			<div id="msgNoMembersInCommonError" class="sak-banner-error is-hidden msgNoMembersInCommonError">
+				<span id="checkGroupsFailed" class="checkGroupsFailed">$tlang.getString("settings.access.checkFailure")</span>
+				<span id="checkGroupsError" class="checkGroupsError">$tlang.getString("settings.access.checkError")</span>
+				<ul id="checkGroupsErrorReport"></ul>
+			</div>
+			#if ($multipleGroupUsers)
+			<div id="multipleGroupError" class="indnt2 sak-banner-error">
+				$tlang.getString("group.user.multiple.warning")
+				<div>$multipleGroupUsers</div>
+			</div>
+			#end
+		</div>
+	</div>

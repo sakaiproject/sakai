@@ -1,0 +1,31 @@
+#jumptotop {
+    position: fixed;
+    right: 40px;
+    bottom: 40px;
+    height: 60px;
+    width: 60px;
+    background-image: url(images/jumptotop.png);
+    background-size: 60px;
+    border-radius: 30px;
+
+    &.hidden {
+        display: none;
+    }
+
+    &.visible {
+        cursor: pointer;
+        &:hover {
+            box-shadow: 1px 1px 3px #555;
+            border-radius: 50%;
+            opacity: 1 !important;
+        }
+    }
+
+    @media #{$tablet} {
+        display: none !important;
+    }
+
+    @media #{$phone} {
+        display: none !important;
+    }
+}

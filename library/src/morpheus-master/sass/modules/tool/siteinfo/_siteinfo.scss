@@ -30,6 +30,140 @@
 		min-width: 100%;
 		padding-right: 0.5em;
 	}
+	#date-manager-form {
+		.panel-heading {
+			padding: 0;
+
+			.panel-title {
+				padding: 0;
+
+				a {
+					padding: 13.2px 15px;
+					display: block;
+					text-decoration: none;
+
+					&::before {
+						font-family: FontAwesome;
+						margin-right: 5px;
+						width: 15px;
+						display: inline-block;
+					}
+					&[aria-expanded=true] {
+						&::before {
+							content: "\f063";
+						}
+					}
+					&:not([aria-expanded=true]) {
+						&::before {
+							content: "\f061";
+						}	
+					}
+
+					span {
+						text-decoration: underline;
+					}
+				}
+			}
+		}
+
+		.panel-body {
+			> p:last-of-type {
+				margin-bottom: 0;
+			}
+		}
+
+		.table-datemanager {
+			margin-bottom: 0;
+			table-layout: fixed;
+
+			td {
+				&.ajax-error {
+					background-color: $errorBanner-bgcolor;
+				}
+
+				> div {
+					position: relative;
+				}
+
+				.datepicker {
+					width: calc(100% - 35px);
+					display: inline-block;
+					min-width: initial !important;
+				}
+
+				.ui-datepicker-trigger {
+					position: absolute;
+					top: 0;
+					right: 0;
+				}
+
+				.day-of-week {
+					text-transform: capitalize;
+				}
+
+			}
+
+		}
+
+		.modal {
+			.modal-header {
+				.close {
+					opacity: 1;
+				}
+			}
+			.modal-body {
+				#modified-dates {
+					margin-bottom: 0;
+				}
+			}
+			.modal-footer {
+				&.act {
+					margin-top: 0;
+					margin-bottom: 0;
+				}
+			}
+		}
+	}
+
+  /*Start of Site Group Manager*/
+  .wizard-step-active {
+    background-color: $primary-color;
+    color: $button-primary-text-color;
+  }
+
+  .optGroupSelect {
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    background: none repeat scroll 0 0 #EEEEEE;
+    padding: 0.5em;
+  }
+
+  .optGroupSelectSelected {
+    background: none repeat scroll 0 0 #ccc;
+  }
+
+  .group-locked-info-collapsed::before {
+    content: '\f0da';
+    font-family: 'FontAwesome';
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .group-locked-info-expanded::before {
+    content: '\f0d7';
+    font-family: 'FontAwesome';
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .selectSectionDiv {
+     padding-left: 21px;
+   }
+  /*End of Site Group Manager*/
+
 }
 
 #toolSelectionList{

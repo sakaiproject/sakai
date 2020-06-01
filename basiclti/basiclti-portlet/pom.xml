@@ -5,17 +5,12 @@
     <parent>
         <artifactId>basiclti</artifactId>
         <groupId>org.sakaiproject.basiclti</groupId>
-        <version>20-SNAPSHOT</version>
+        <version>21-SNAPSHOT</version>
     </parent>
 
     <name>BasicLTI Portlet (imsblti)</name>
     <groupId>org.sakaiproject.basiclti</groupId>
     <artifactId>imsblti</artifactId>
-    <organization>
-        <name>Sakai Project</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2009</inceptionYear>
     <packaging>war</packaging>
 
     <dependencies>

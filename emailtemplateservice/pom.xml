@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.sakaiproject</groupId>
     <artifactId>master</artifactId>
-    <version>20-SNAPSHOT</version>
+    <version>21-SNAPSHOT</version>
     <relativePath>../master/pom.xml</relativePath>
   </parent>
 
@@ -13,7 +13,7 @@
   <packaging>pom</packaging>
   <organization>
     <name>Sakai Project</name>
-    <url>http://sakaiproject.org/</url>
+    <url>https://www.sakailms.org/</url>
   </organization>
   <inceptionYear>2007</inceptionYear>
 

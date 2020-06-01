@@ -6,14 +6,14 @@
 	<artifactId>content-review-service-impl</artifactId>
 	<organization>
 		<name>Sakai Project</name>
-		<url>http://www.sakaiproject.org/</url>
+		<url>https://www.sakailms.org/</url>
 	</organization>
 	<packaging>jar</packaging>
 
 	<parent>
 		<groupId>org.sakaiproject.contentreview</groupId>
 		<artifactId>content-review-impl</artifactId>
-		<version>20-SNAPSHOT</version>
+		<version>21-SNAPSHOT</version>
 	</parent>
 
 	<dependencies>

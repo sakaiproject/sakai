@@ -5,7 +5,7 @@
 	<form name = "duplicateSiteForm" method = "post" action="#toolForm($action)">
 		<input type="hidden" name="eventSubmit_doDuplicate_site_option" value="x" />
 		<input type="hidden" name="option" value="cancel" />
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitdup.alert") $alertMessage</div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("sitdup.alert") $alertMessage</div>#end
 			#if (!$!siteDuplicated)
 				<p class="instruction">
 					#if ($!isCourseSite)

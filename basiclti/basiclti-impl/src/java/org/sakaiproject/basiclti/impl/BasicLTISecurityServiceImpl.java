@@ -21,6 +21,7 @@ package org.sakaiproject.basiclti.impl;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,7 @@ import java.util.Enumeration;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.w3c.dom.Document;
@@ -39,26 +41,27 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.apache.http.client.utils.URIBuilder;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityAccessOverloadException;
 import org.sakaiproject.entity.api.EntityCopyrightException;
-import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityNotDefinedException;
 import org.sakaiproject.entity.api.EntityPermissionException;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.util.StringUtil;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.util.ResourceLoader;
@@ -67,7 +70,6 @@ import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.lti.api.LTIExportService;
 import org.sakaiproject.lti.api.LTIExportService.ExportType;
 import org.sakaiproject.lti.api.LTIService;
-//import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 
@@ -82,6 +84,13 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 	public static final String SERVICE_NAME = BasicLTISecurityServiceImpl.class.getName();
 
 	private static ResourceLoader rb = new ResourceLoader("basicltisvc");
+	
+	@Setter private FormattedText formattedText;
+	@Setter private SiteService siteService;
+	@Setter private ToolManager toolManager;
+	@Setter private SessionManager sessionManager;
+	@Setter private EntityManager entityManager;
+	@Setter private SecurityService securityService;
 
 	public static final String MIME_TYPE_BLTI="ims/basiclti";
 	public static final String REFERENCE_ROOT="/basiclti";
@@ -107,7 +116,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 		String contextId = ref.getContext();
 		try
 		{
-			Site site = SiteService.getSiteVisit(contextId);
+			Site site = siteService.getSiteVisit(contextId);
 			if ( site != null ) return true;
 		}
 		catch(IdUnusedException ex)
@@ -147,7 +156,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 		try
 		{
 			// register as an entity producer
-			EntityManager.registerEntityProducer(this,REFERENCE_ROOT);
+			entityManager.registerEntityProducer(this,REFERENCE_ROOT);
 		}
 		catch (Throwable t)
 		{
@@ -176,7 +185,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 
 	public boolean isSuperUser(String userId)
 	{
-		return SecurityService.isSuperUser(userId);
+		return securityService.isSuperUser(userId);
 	}
 
 
@@ -281,16 +290,18 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 
 		byte[] bytesEncoded = Base64.encodeBase64(login_hint.getBytes());
 		String encoded_login_hint = new String(bytesEncoded);
-		String redirect = oidc_endpoint.trim();
-		redirect += "?iss=" + java.net.URLEncoder.encode(SakaiBLTIUtil.getOurServerUrl());
-		redirect += "&login_hint=" + encoded_login_hint;
-		if ( StringUtils.isNotEmpty(launch_url)) {
-			redirect += "&target_link_uri=" + java.net.URLEncoder.encode(launch_url);
-		}
 		try {
-			res.sendRedirect(redirect);
+			URIBuilder redirect = new URIBuilder(oidc_endpoint.trim());
+			redirect.addParameter("iss", SakaiBLTIUtil.getOurServerUrl());
+			redirect.addParameter("login_hint", encoded_login_hint);
+			if (StringUtils.isNotBlank(launch_url)) {
+				redirect.addParameter("target_link_uri", launch_url);
+			}
+			res.sendRedirect(redirect.build().toString());
 		} catch (IOException unlikely) {
 			log.error("failed redirect {}", unlikely.getMessage());
+		} catch (URISyntaxException e) {
+			log.error("Syntax exception building the URL with the params: {}.", e.getMessage());
 		}
 
 	}
@@ -361,7 +372,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 				// decide on security
 				if (!checkSecurity(ref))
 				{
-					throw new EntityPermissionException(SessionManager.getCurrentSessionUserId(), "basiclti", ref.getReference());
+					throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(), "basiclti", ref.getReference());
 				}
 
 				String refId = ref.getId();
@@ -464,7 +475,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 					if ( splashParm == null && splash != null && splash.trim().length() > 1 )
 					{
 							// XSS Note: Administrator-created tools can put HTML in the splash.
-							if ( siteId != null ) splash = FormattedText.escapeHtml(splash,false);
+							if ( siteId != null ) splash = formattedText.escapeHtml(splash,false);
 							doSplash(req, res, splash, rb);
 							return;
 					}
@@ -547,7 +558,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 					String splashParm = req.getParameter("splash");
 					if ( splashParm == null )
 					{
-						ToolConfiguration placement = SiteService.findTool(refId);
+						ToolConfiguration placement = siteService.findTool(refId);
 						Properties config = placement == null ? null : placement.getConfig();
 
 						if ( placement != null )
@@ -555,7 +566,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 							// XSS Note: Only the Administrator can set overridesplash - so we allow HTML
 							String splash = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"overridesplash", placement));
 							String send_session = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"ext_sakai_encrypted_session", placement));
-							if ( splash == null && send_session != null && send_session.equals("true") && ! SecurityService.isSuperUser() )
+							if ( splash == null && send_session != null && send_session.equals("true") && ! securityService.isSuperUser() )
 							{
 								splash = rb.getString("session.warning", "<p><span style=\"color:red\">Warning:</span> This tool makes use of your logged in session.  This means that the tool can access your data in this system.  Only continue to this tool if you are willing to share your data with this tool.</p>");
 							}
@@ -563,7 +574,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 							{
 								// This may be user-set so no HTML
 								splash = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"splash", placement));
-								if ( splash != null ) splash = FormattedText.escapeHtml(splash,false);
+								if ( splash != null ) splash = formattedText.escapeHtml(splash,false);
 							}
 
 							// XSS Note: Only the Administrator can set defaultsplash - so we allow HTML
@@ -593,7 +604,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 					if ( retval != null && retval.length > 1 ) refstring = retval[1];
 					Event event = LocalEventTrackingService.newEvent(EVENT_BASICLTI_LAUNCH, refstring, ref.getContext(),  false, NotificationService.NOTI_OPTIONAL);
 					// SAK-24069 - Extend Sakai session lifetime on LTI tool launch
-					Session session = SessionManager.getCurrentSession();
+					Session session = sessionManager.getCurrentSession();
 					if (session !=null) {
 						int seconds = ServerConfigurationService.getInt(SakaiBLTIUtil.BASICLTI_LAUNCH_SESSION_TIMEOUT, 10800);
 						if ( seconds != 0 ) session.setMaxInactiveInterval(seconds);
@@ -672,7 +683,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 			org.w3c.dom.NodeList nodeList = root.getElementsByTagName("basicLTI");
 
 			try {
-				Site site = SiteService.getSite(siteId);
+				Site site = siteService.getSite(siteId);
 
 				for(int i=0; i < nodeList.getLength(); i++)
 				{
@@ -686,7 +697,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 					sitePage.setTitleCustom(true);
 
 					ToolConfiguration toolConfiguration = sitePage.addTool();
-					toolConfiguration.setTool(TOOL_REGISTRATION, ToolManager.getTool(TOOL_REGISTRATION));
+					toolConfiguration.setTool(TOOL_REGISTRATION, toolManager.getTool(TOOL_REGISTRATION));
 					toolConfiguration.setTitle(basicLTI.getToolTitle());
 
 					for(Object key: basicLTI.getSiteToolProperties().keySet())
@@ -694,7 +705,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 						toolConfiguration.getPlacementConfig().setProperty((String)key, (String)basicLTI.getSiteToolProperties().get(key));
 					}
 
-					SiteService.save(site);
+					siteService.save(site);
 				}
 			} catch (Exception e) {
 				log.warn("Failed to merge site: {}, error: {}", siteId, e);
@@ -713,7 +724,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 
 			int count = 0;
 			try {
-				Site site = SiteService.getSite(siteId);
+				Site site = siteService.getSite(siteId);
 				log.info("SITE: {} : {}", site.getId(), site.getTitle());
 				Element basicLtiList = doc.createElement("org.sakaiproject.basiclti.service.BasicLTISecurityService");
 

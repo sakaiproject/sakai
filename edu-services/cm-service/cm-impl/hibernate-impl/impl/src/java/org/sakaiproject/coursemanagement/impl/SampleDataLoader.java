@@ -361,63 +361,73 @@ public class SampleDataLoader implements BeanFactoryAware {
 
 			loadDiscussionSection("Discussion 1 " + CC1, as.getEid(), co1Eid,
 					discussionCategory.getCategoryCode(), null, null, null,
-					new boolean[]{false, false, false, false, false, false, false}, studentMemberCount, incrementStudentCount());
+					new boolean[]{false, false, false, false, false, false, false}, studentMemberCount, incrementStudentCount(30));
 
 			loadDiscussionSection("Discussion 2 " + CC1, as.getEid(), co1Eid,
 					discussionCategory.getCategoryCode(), "B Building 202",
 					getTime("10:00" + AMPM[0]), getTime("11:30" + AMPM[0]),
-					new boolean[]{false, true, false, true, false, false, false}, studentMemberCount, incrementStudentCount());
+					new boolean[]{false, true, false, true, false, false, false}, studentMemberCount, incrementStudentCount(30));
 
 			loadDiscussionSection("Discussion 3 " + CC1, as.getEid(), co1Eid,
 					discussionCategory.getCategoryCode(), "B Hall 11",
 					getTime("9:00" + AMPM[0]), getTime("10:30" + AMPM[0]),
-					new boolean[]{false, true, false, true, false, false, false}, studentMemberCount, incrementStudentCount());
+					new boolean[]{false, true, false, true, false, false, false}, studentMemberCount, incrementStudentCount(30));
 
 			loadDiscussionSection("Discussion 4 " + CC1, as.getEid(), co1Eid,
 					discussionCategory.getCategoryCode(), "C Building 100",
 					getTime("1:30" + AMPM[1]), getTime("3:00" + AMPM[1]),
-					new boolean[]{false, true, false, true, false, false, false}, studentMemberCount, incrementStudentCount());
+					new boolean[]{false, true, false, true, false, false, false}, studentMemberCount, incrementStudentCount(30));
 
 			loadDiscussionSection("Discussion 5 " + CC1, as.getEid(), co1Eid,
 					discussionCategory.getCategoryCode(), "Building 10",
 					getTime("9:00" + AMPM[0]), getTime("10:00" + AMPM[0]),
-					new boolean[]{true, false, true, false, true, false, false}, studentMemberCount, incrementStudentCount());
+					new boolean[]{true, false, true, false, true, false, false}, studentMemberCount, incrementStudentCount(30));
 
 			loadDiscussionSection("Discussion 6 " + CC1, as.getEid(), co1Eid,
 					discussionCategory.getCategoryCode(), "Hall 200",
 					getTime("4:00" + AMPM[1]), getTime("5:00" + AMPM[1]),
-					new boolean[]{true, false, true, false, true, false, false}, studentMemberCount, incrementStudentCount());
+					new boolean[]{true, false, true, false, true, false, false}, studentMemberCount, incrementStudentCount(30));
+
+			loadDiscussionSection("Discussion 7 (mega-roster) " + CC1, as.getEid(), co1Eid,
+					discussionCategory.getCategoryCode(), "Main Lecture Hall",
+					getTime("4:00" + AMPM[1]), getTime("5:00" + AMPM[1]),
+					new boolean[]{true, false, true, false, true, false, false}, studentMemberCount, incrementStudentCount(1000));
 
 			// Discussion sections, second Course Offering
 
 			loadDiscussionSection("Discussion 1 " + CC2, as.getEid(), co2Eid,
 					discussionCategory.getCategoryCode(), null, null, null,
-					new boolean[]{false, false, false, false, false, false, false}, studentMemberCount, incrementStudentCount());
+					new boolean[]{false, false, false, false, false, false, false}, studentMemberCount, incrementStudentCount(30));
 
 			loadDiscussionSection("Discussion 2 " + CC2, as.getEid(), co2Eid,
 					discussionCategory.getCategoryCode(), "2 Building A",
 					getTime("11:30" + AMPM[0]), getTime("1:00" + AMPM[1]),
-					new boolean[]{false, true, false, true, false, false, false}, studentMemberCount, incrementStudentCount());
+					new boolean[]{false, true, false, true, false, false, false}, studentMemberCount, incrementStudentCount(30));
 
 			loadDiscussionSection("Discussion 3 " + CC2, as.getEid(), co2Eid,
 					discussionCategory.getCategoryCode(), "101 Hall A",
 					getTime("10:00" + AMPM[0]), getTime("11:00" + AMPM[0]),
-					new boolean[]{true, false, true, false, true, false, false}, studentMemberCount, incrementStudentCount());
+					new boolean[]{true, false, true, false, true, false, false}, studentMemberCount, incrementStudentCount(30));
 
 			loadDiscussionSection("Discussion 4 " + CC2, as.getEid(), co2Eid,
 					discussionCategory.getCategoryCode(), "202 Building",
 					getTime("8:00" + AMPM[0]), getTime("9:00" + AMPM[0]),
-					new boolean[]{true, false, true, false, true, false, false}, studentMemberCount, incrementStudentCount());
+					new boolean[]{true, false, true, false, true, false, false}, studentMemberCount, incrementStudentCount(30));
 
 			loadDiscussionSection("Discussion 5 " + CC2, as.getEid(), co2Eid,
 					discussionCategory.getCategoryCode(), "11 Hall B",
 					getTime("2:00" + AMPM[1]), getTime("3:30" + AMPM[1]),
-					new boolean[]{false, true, false, true, false, false, false}, studentMemberCount, incrementStudentCount());
+					new boolean[]{false, true, false, true, false, false, false}, studentMemberCount, incrementStudentCount(30));
 
 			loadDiscussionSection("Discussion 6 " + CC2, as.getEid(), co2Eid,
 					discussionCategory.getCategoryCode(), "100 Building C",
 					getTime("3:00" + AMPM[1]), getTime("4:00" + AMPM[1]),
-					new boolean[]{true, false, true, false, true, false, false}, studentMemberCount, incrementStudentCount());
+					new boolean[]{true, false, true, false, true, false, false}, studentMemberCount, incrementStudentCount(30));
+
+			loadDiscussionSection("Discussion 7 (mega-roster) " + CC2, as.getEid(), co2Eid,
+					discussionCategory.getCategoryCode(), "Main Lecture Hall",
+					getTime("3:00" + AMPM[1]), getTime("4:00" + AMPM[1]),
+					new boolean[]{true, false, true, false, true, false, false}, studentMemberCount, incrementStudentCount(1000));
 		}
 
 		if(log.isInfoEnabled()) log.info("Finished loading sample CM data");
@@ -477,8 +487,8 @@ public class SampleDataLoader implements BeanFactoryAware {
 		if(log.isDebugEnabled()) log.debug("Created section " + secEid);
 	}
 
-	protected int incrementStudentCount() {
-		studentMemberCount += 30;
+	protected int incrementStudentCount(int increment) {
+		studentMemberCount += increment;
 		return studentMemberCount;
 	}
 

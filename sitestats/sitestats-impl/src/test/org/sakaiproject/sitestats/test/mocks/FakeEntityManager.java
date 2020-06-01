@@ -18,8 +18,6 @@
  */
 package org.sakaiproject.sitestats.test.mocks;
 
-import java.util.List;
-
 import org.mockito.Mockito;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;

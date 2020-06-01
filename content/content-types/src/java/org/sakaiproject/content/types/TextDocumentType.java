@@ -63,7 +63,7 @@ public class TextDocumentType extends BaseResourceType
 	private static final String RESOURCEBUNDLE = "resource.bundle.type";
 	private String resourceClass = ServerConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
 	private String resourceBundle = ServerConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
-	private ResourceLoader rb = new Resource().getLoader(resourceClass, resourceBundle);
+	private ResourceLoader rb = Resource.getResourceLoader(resourceClass, resourceBundle);
 	
 	protected EnumMap<ActionType, List<ResourceToolAction>> actionMap = new EnumMap<ActionType, List<ResourceToolAction>>(ActionType.class);
 	protected Map<String, ResourceToolAction> actions = new HashMap<String, ResourceToolAction>();	

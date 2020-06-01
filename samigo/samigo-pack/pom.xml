@@ -5,17 +5,12 @@
 	<parent>
 		<groupId>org.sakaiproject.samigo</groupId>
 		<artifactId>samigo</artifactId>
-		<version>20-SNAPSHOT</version>
+		<version>21-SNAPSHOT</version>
 	</parent>
     
 	<name>Sakai Samigo Component Package (samigo-pack)</name>
 	<groupId>org.sakaiproject.samigo</groupId>
 	<artifactId>samigo-pack</artifactId>
-	<organization>
-		<name>Sakai Project</name>
-		<url>http://sakaiproject.org/</url>
-	</organization>
-	<inceptionYear>2004</inceptionYear>
 	<packaging>sakai-component</packaging>
     
 	<properties>

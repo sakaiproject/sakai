@@ -78,6 +78,7 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
+import org.sakaiproject.util.RequestFilter;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -110,7 +111,7 @@ public class SiteHandler extends WorksiteHandler
 	// SAK-29180 - Normalize the properties, keeping the legacy pda sakai.properties names through Sakai-11 at least
 	private static final String BYPASS_URL_PROP = "portal.bypass";
 	private static final String LEGACY_BYPASS_URL_PROP = "portal.pda.bypass";
-	private static final String DEFAULT_BYPASS_URL = "\\.jpg$|\\.gif$|\\.js$|\\.png$|\\.jpeg$|\\.prf$|\\.css$|\\.zip$|\\.pdf\\.mov$|\\.json$|\\.jsonp$\\.xml$|\\.ajax$|\\.xls$|\\.xlsx$|\\.doc$|\\.docx$|uvbview$|linktracker$|hideshowcolumns$";
+	private static final String DEFAULT_BYPASS_URL = "\\.jpg$|\\.gif$|\\.js$|\\.png$|\\.jpeg$|\\.prf$|\\.css$|\\.zip$|\\.pdf\\.mov$|\\.json$|\\.jsonp$\\.xml$|\\.ajax$|\\.xls$|\\.xlsx$|\\.doc$|\\.docx$|uvbview$|linktracker$|hideshowcolumns$|scormplayerpage$|scormcompletionpage$";
 
 	// Make sure to lower-case the matching regex (i.e. don't use IResourceListener below)
 	private static final String BYPASS_QUERY_PROP = "portal.bypass.query";
@@ -127,6 +128,12 @@ public class SiteHandler extends WorksiteHandler
 	// SAK-27774 - We are going inline default but a few tools need a crutch 
 	// This is Sakai 11 only so please do not back-port or merge this default value
 	private static final String IFRAME_SUPPRESS_DEFAULT = ":all:sakai.gradebook.gwt.rpc:com.rsmart.certification:sakai.rsf.evaluation:kaltura.media:kaltura.my.media";
+
+	private static final String SAK_PROP_SHOW_FAV_STARS = "portal.favoriteSitesBar.showFavoriteStars";
+	private static final boolean SAK_PROP_SHOW_FAV_STARS_DFLT = true;
+
+	private static final String SAK_PROP_SHOW_FAV_STARS_ON_ALL = "portal.favoriteSitesBar.showFavStarsOnAllSites";
+	private static final boolean SAK_PROP_SHOW_FAV_STARS_ON_ALL_DFLT = true;
 
 	private static final long AUTO_FAVORITES_REFRESH_INTERVAL_MS = 30000;
 
@@ -545,7 +552,12 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("isUserSite", false);
 		}
 		
+		rcontext.put("showFavStarsInSitesBar",ServerConfigurationService.getBoolean(SAK_PROP_SHOW_FAV_STARS, SAK_PROP_SHOW_FAV_STARS_DFLT));
+		rcontext.put("showFavStarsOnAllFavSites",ServerConfigurationService.getBoolean(SAK_PROP_SHOW_FAV_STARS_ON_ALL, SAK_PROP_SHOW_FAV_STARS_ON_ALL_DFLT));
+		
 		addLocale(rcontext, site, session.getUserId());
+
+		addTimeInfo(rcontext);
 		
 		includeSiteNav(rcontext, req, session, siteId);
 
@@ -568,8 +580,15 @@ public class SiteHandler extends WorksiteHandler
 		}catch(Exception e){}
 		//End - log the visit into SAKAI_EVENT		
 
-		rcontext.put("currentUrlPath", Web.serverUrl(req) + req.getContextPath()
+		rcontext.put("currentUrlPath", RequestFilter.serverUrl(req) + req.getContextPath()
 				+ URLUtils.getSafePathInfo(req));
+
+		rcontext.put("usePortalSearch", ServerConfigurationService.getBoolean("portal.search.enabled", true)
+		    && ServerConfigurationService.getBoolean("search.enable", false));
+		rcontext.put("portalSearchPageSize", ServerConfigurationService.getString("portal.search.pageSize", "10"));
+
+		//Show a confirm dialog when publishing an unpublished site.
+		rcontext.put("publishSiteDialogEnabled", ServerConfigurationService.getBoolean("portal.publish.site.confirm.enabled", false));
 
 		//Find any quick links ready for display in the top navigation bar,
 		//they can be set per site or for the whole portal.
@@ -885,6 +904,7 @@ public class SiteHandler extends WorksiteHandler
 
 			int tabDisplayLabel = 1;
 			boolean toolsCollapsed = false;
+			boolean toolMaximised = false;
 
 			if (loggedIn) 
 			{
@@ -903,10 +923,15 @@ public class SiteHandler extends WorksiteHandler
 				try {
 					toolsCollapsed = props.getBooleanProperty("toolsCollapsed");
 				} catch (Exception any) {}
+
+				try {
+					toolMaximised = props.getBooleanProperty("toolMaximised");
+				} catch (Exception any) {}
 			}
 
 			rcontext.put("tabDisplayLabel", tabDisplayLabel);
 			rcontext.put("toolsCollapsed", Boolean.valueOf(toolsCollapsed));
+			rcontext.put("toolMaximised", Boolean.valueOf(toolMaximised));
 			
 			SiteView siteView = portal.getSiteHelper().getSitesView(
 					SiteView.View.DHTML_MORE_VIEW, req, session, siteId);
@@ -922,7 +947,7 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("tabsAddLogout", Boolean.valueOf(addLogout));
 			if (addLogout)
 			{
-				String logoutUrl = Web.serverUrl(req)
+				String logoutUrl = RequestFilter.serverUrl(req)
 						+ ServerConfigurationService.getString("portalPath")
 						+ "/logout_gallery";
 				rcontext.put("tabsLogoutUrl", logoutUrl);
@@ -935,7 +960,7 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("tabsAddLogout", Boolean.valueOf(addLogout));
 			if (addLogout)
 			{
-				String logoutUrl = Web.serverUrl(req)
+				String logoutUrl = RequestFilter.serverUrl(req)
 						+ ServerConfigurationService.getString("portalPath")
 						+ "/logout_gallery";
 				rcontext.put("tabsLogoutUrl", logoutUrl);

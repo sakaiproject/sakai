@@ -146,19 +146,9 @@ public class SaveCommand implements HttpCommand
 				returnAction = WikiPageAction.EMBED_ATTACHMENT_RETURN_ACTION;
 			}
 			
-			// SAK-13408 - Tomcat and WAS have different URL structures; Attempting to add a 
-			// link or image would lead to site unavailable errors in websphere if the tomcat
-			// URL structure is used.
-			if("websphere".equals(ServerConfigurationService.getString("servlet.container"))){
-				session.setAttribute(ATTACHMENT_HELPER + Tool.HELPER_DONE_URL,
-						request.getContextPath() + request.getServletPath()
-						+ "/tool/" + tid + vb.getActionUrl(returnAction, true));
-			}
-			else {
-				session.setAttribute(ATTACHMENT_HELPER + Tool.HELPER_DONE_URL,
-						request.getContextPath() + request.getServletPath()
-						+ vb.getActionUrl(returnAction, true));
-			}
+			session.setAttribute(ATTACHMENT_HELPER + Tool.HELPER_DONE_URL,
+					request.getContextPath() + request.getServletPath()
+					+ vb.getActionUrl(returnAction, true));
 
 			session.setAttribute(FilePickerHelper.FILE_PICKER_ATTACH_LINKS,
 					FilePickerHelper.FILE_PICKER_ATTACH_LINKS);
@@ -179,16 +169,8 @@ public class SaveCommand implements HttpCommand
 			session.setAttribute(FilePickerHelper.FILE_PICKER_FROM_TEXT,
 					fromText);
 
-			if("websphere".equals(ServerConfigurationService.getString("servlet.container"))){
-				 //WS-57 - In Websphere the URL which the user is directed to contains a duplicate tool id. This fix will remove the 
-				 //dulpicate tool id that is passed in to the method sendRedirect() as the url being built
-				 response.sendRedirect("helper/" + ATTACHMENT_HELPER + "/tool");
-			}
-			else{
-				response.sendRedirect(request.getContextPath()
-						+ request.getServletPath() + "/helper/" + ATTACHMENT_HELPER
-						+ "/tool");
-			}
+			response.sendRedirect(request.getContextPath()
+					+ request.getServletPath() + "/helper/" + ATTACHMENT_HELPER + "/tool");
 
 			return;
 		}

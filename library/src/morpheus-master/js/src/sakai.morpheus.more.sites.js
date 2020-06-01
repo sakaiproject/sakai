@@ -364,6 +364,18 @@ $PBJQ(document).ready(function($){
   var container = $PBJQ('#selectSite');
   var favoritesPane = $PBJQ('#otherSitesCategorWrap');
   var organizePane = $PBJQ('#organizeFavorites');
+  var topNavPane = $PBJQ('#topnav');
+
+  // Keep a copy of the order of the sites across the top bar in case a user
+  // unpins and then repins a site to the top bar without refreshing: the order
+  // of the sites should remain the same
+  var setInitialTopBarSiteDisplayOrder = function() {
+    return $PBJQ('.Mrphs-sitesNav__favbtn', topNavPane).map(function () {
+      return $PBJQ(this).data('site-id');
+    }).toArray();
+  };
+  
+  var initialTopBarSiteDisplayOrder = setInitialTopBarSiteDisplayOrder();
 
   // Build up a map of siteid => list item.  Do this instead of an ID
   // selector to cope with Site IDs containing strange characters.
@@ -497,6 +509,89 @@ $PBJQ(document).ready(function($){
       return $PBJQ(this).attr('data-site-id');
     }).toArray();
   }
+  
+  /**
+   * @func syncFavoritesToServer
+   * @desc Reusable method to sync fav changes to the server
+   * @param {Array} favs  - List of SiteIds to be used as favourites
+   * @param {Function} onError  - Error function to be called on AJAX failure 
+   */
+  var syncFavoritesToServer = function(favs, onError) {
+
+    if (!onError) {
+      onError = function (err) {};
+    }
+    
+    var newState = {
+      favoriteSiteIds: favs,
+      autoFavoritesEnabled: autoFavoritesEnabled,
+    };
+
+    $PBJQ.ajax({
+      url: '/portal/favorites/update',
+      method: 'POST',
+      data: {
+        userFavorites: JSON.stringify(newState),
+      },
+      error: onError
+    });
+
+    // Update the list
+    favoritesList = favs;
+  }
+        
+  /**
+   * @func topNavFavorite
+   * @desc Toggles favouriting from the top navigation
+   * @param {*} event  - jQuery Event for item clicked
+   */
+  var toggleTopNavFavorite = function(event) {
+    event.preventDefault();
+    
+    var thisFavButton = $PBJQ(event.target);
+    var newFavId = thisFavButton.data("site-id");
+    
+    getUserFavorites(function(list){
+      var favs = list; 
+      var ind = favs.indexOf(newFavId); 
+
+      if(ind === -1) {
+        // Add Fav
+        var favIdIndex = initialTopBarSiteDisplayOrder.indexOf(newFavId);
+        if(favIdIndex !== -1) {
+          // Inserting the site id into the previous location of the favorites array to 
+          // maintain the site's location on the top bar, if toggled off then back on 
+          // without a page reload:
+          favs.splice(favIdIndex, 0, newFavId);
+        } else {
+          // Was not in the original list of favorites, so we'll add the site to the end:
+          favs.push(newFavId);
+        }
+      } else {
+        // Remove Fav
+        favs.splice(ind,1)
+      }
+
+      // Toggle the classes, so the opposite star appears
+      thisFavButton.toggleClass("non-fav");
+      thisFavButton.toggleClass("fav");
+      
+      // Use plain JS to toggle the value of the aria-checked attribute
+      var thisFavButtonForJS = thisFavButton[0];
+      if(thisFavButtonForJS.getAttribute("aria-checked") === "true") {
+        thisFavButtonForJS.setAttribute("aria-checked", "false");
+      } else {
+        thisFavButtonForJS.setAttribute("aria-checked", "true");
+      }
+      
+      syncFavoritesToServer(favs);
+    });
+  };
+
+  // Add the fav toggle to the top-nav buttons
+  $PBJQ(".Mrphs-sitesNav__favbtn").each(function(i, e) {
+    return $PBJQ(e).click(toggleTopNavFavorite);
+  });
 
   var loadFromServer = function (attempt) {
     if (syncInProgress) {

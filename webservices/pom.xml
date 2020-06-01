@@ -10,16 +10,10 @@
   	<parent>
 		<groupId>org.sakaiproject</groupId>
 		<artifactId>master</artifactId>
-		<version>20-SNAPSHOT</version>
+		<version>21-SNAPSHOT</version>
 		<relativePath>../master/pom.xml</relativePath>
 	</parent>
-  	
-  	<organization>
-    	<name>Sakai Foundation</name>
-    	<url>http://sakaiproject.org/</url>
-  	</organization>
-  	
-  	<inceptionYear>2005</inceptionYear>
+
   	
     <developers>
         <developer>

@@ -69,7 +69,7 @@ public class RoleViewTest extends SakaiKernelTestBase {
     }
 
     @After
-    public void tearDown() throws IdUnusedException, PermissionException, InUseException, TypeException, ServerOverloadException, AuthzPermissionException {
+    public void tearDown() throws IdUnusedException, PermissionException, InUseException, TypeException, ServerOverloadException, AuthzPermissionException, AuthzRealmLockException {
         _chs.removeCollection(PHOTOS_COLLECTION);
         _ags.removeAuthzGroup(_chs.getReference(PHOTOS_COLLECTION));
     }

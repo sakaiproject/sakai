@@ -10,7 +10,7 @@
       <script>
         var deletedText = '<h:outputText value="#{eventLogMessages.assessment_deleted}" />';
       </script>
-      <script type="text/javascript" src="/samigo-app/js/eventInfo.js"></script>
+      <script src="/samigo-app/js/eventInfo.js"></script>
       </head>
     <body onload="<%= request.getAttribute("html.body.onload") %>;initHelpValue('<h:outputText value="#{eventLogMessages.search_hint}"/>', 'eventLogId:filteredUser');">
 
@@ -136,7 +136,7 @@
 
 	 <h:panelGroup styleClass="#{eventLog.isDeleted(log.assessmentId) ? 'eventLogDeleted' : ''}">
 	  <h:outputText value="#{log.startDate}">
-	  <f:convertDateTime pattern="#{generalMessages.output_data_picker_w_sec}"/>
+	    <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
 	  </h:outputText>
      </h:panelGroup>
 	</h:column>
@@ -156,7 +156,7 @@
 
 	 <h:panelGroup styleClass="#{eventLog.isDeleted(log.assessmentId) ? 'eventLogDeleted' : ''}">
 	  <h:outputText value="#{log.endDate}">
-	  	<f:convertDateTime pattern="#{generalMessages.output_data_picker_w_sec}"/>
+	    <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
 	  </h:outputText>
      </h:panelGroup>
 	</h:column>

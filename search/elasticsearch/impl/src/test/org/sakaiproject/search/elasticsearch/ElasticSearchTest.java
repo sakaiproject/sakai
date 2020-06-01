@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.*;
@@ -422,6 +422,11 @@ public class ElasticSearchTest {
             assertEquals(list.get(0).getReference(),resourceName);
             SearchResult result = list.get(0);
             assertTrue(result.getSearchResult().toLowerCase().contains("<b>"));
+
+            // Searching the title of the file should also return results
+            list = elasticSearchService.search("keyboard", siteIds, 0, 10);
+            assertNotNull(list.get(0) ) ;
+            assertEquals(list.get(0).getReference(),resourceName);
         } catch (InvalidSearchQueryException e) {
             log.error(e.getMessage(), e);
             fail();

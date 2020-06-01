@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
-        <version>20-SNAPSHOT</version>
+        <version>21-SNAPSHOT</version>
         <relativePath>../master/pom.xml</relativePath>
     </parent>
 
@@ -14,10 +14,6 @@
     <artifactId>pack</artifactId>
     <packaging>pom</packaging>
 
-    <organization>
-        <name>Sakai Project</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
 
     <properties>
         <maven.prereq.version>2.0.10</maven.prereq.version>
@@ -64,7 +60,7 @@
         <pluginRepository>
             <id>maven2-central-repo</id>
             <name>Maven2 Central Repo</name>
-            <url>http://repo1.maven.org/maven2/</url>
+            <url>https://repo1.maven.org/maven2/</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -74,7 +70,7 @@
         </pluginRepository>
         <pluginRepository>
             <id>Sakai Plugin Repo</id>
-            <url>http://source.sakaiproject.org/maven2</url>
+            <url>https://source.sakaiproject.org/maven2</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -89,7 +85,7 @@
             <id>sakai-maven2-snapshots</id>
             <name>Sakai Maven Repo Snapshots</name>
             <layout>default</layout>
-            <url>http://source.sakaiproject.org/maven2-snapshots</url>
+            <url>https://source.sakaiproject.org/maven2-snapshots</url>
             <releases>
                 <enabled>false</enabled>
             </releases>
@@ -101,7 +97,7 @@
             <id>sakai-maven2</id>
             <name>Sakai Maven Repository</name>
             <layout>default</layout>
-            <url>http://source.sakaiproject.org/maven2</url>
+            <url>https://source.sakaiproject.org/maven2</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -113,7 +109,7 @@
             <id>default</id>
             <name>Maven Repository Switchboard</name>
             <layout>default</layout>
-            <url>http://repo1.maven.org/maven2</url>
+            <url>https://repo1.maven.org/maven2</url>
             <releases>
                 <enabled>true</enabled>
             </releases>

@@ -3,7 +3,7 @@
 	<h3 class ="insCo insBor insBak">
 		$tlang.getString("site.creating")
 	</h3>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $alertMessage</div>#end
 	<form action="#toolForm("$action")" method="post">
 		<table class ="itemSummary" cellspacing="0" summary="info on the new project site">
 			<tr>
@@ -11,7 +11,7 @@
 					$tlang.getString("site.sname")
 				</th>
 				<td>
-					$validator.escapeHtml($title)
+					$formattedText.escapeHtml($title)
 				</td>
 			</tr>
 			<tr>
@@ -19,7 +19,7 @@
 					$tlang.getString("site.descr")
 				</th>
 				<td>
-					$validator.escapeHtml($description)
+					$formattedText.escapeHtml($description)
 				</td>
 			</tr>
 			<tr>
@@ -27,7 +27,7 @@
 					$tlang.getString("site.short")
 				</th>
 				<td>
-					$validator.escapeHtml($short_description)
+					$formattedText.escapeHtml($short_description)
 				</td>
 			</tr>
 		</table>

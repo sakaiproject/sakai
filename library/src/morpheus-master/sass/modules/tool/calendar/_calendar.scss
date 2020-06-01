@@ -1,14 +1,19 @@
 @import "_calendar_variables";
-
+@import "_calendar_mixins";
 
 .#{$namespace}sakai-schedule {
-
-	input, textarea{
-		max-width: 100%;
+	
+	.page-header {
+		@include display-flex;
+		@include justify-content(space-between);
+		@include align-items(flex-end);
+		
+		.sakai-sideHeading {
+			text-align: right;
+		}
 	}
 
 	.shorttext label {
-		vertical-align: top;
 		min-width: 10em;
 		@media #{$phone}{
 			min-width: 96%;
@@ -39,224 +44,345 @@
 			}
 		}
 	}
+	
+	.step {
+		padding: $standard-spacing;
+	}
 
-	table.calendar{
-		font-size: 0.8em;
-		background-color: lighten($calendar-event-background-color,40%);
+	.sakai-table-toolBar {
+		border-bottom: 1px solid $page-header-border-color;
+	}
+	
+	.sakai-table-viewFilter {
+		input[type="submit"] {
+			margin-top: 0;
+			margin-bottom: 0;
 
-		tr{
-			td, th{
-				text-align: center;
-				border-collapse: collapse;
+			&:last-of-type {
+				margin-right: 0;	// align flush to right edge
+			}
+		}
+		
+		.ui-datepicker-trigger {
+			margin-left: $standard-space;
+		}
+		
+		.datepicker {
+			width: 100%;
+			line-height: 2; 		// to match the date picker buttons' height
+		}
+		
+		@media #{$smallPhone}{
+			@include flex-direction(row);	// override tables default
+			@include align-items(center);	// override tables default
+		}
+	}
+	
+	.showListOfEvents > .sakai-table-viewFilter {
+		margin-top: $standard-spacing;
+		padding-top: $standard-spacing;
+		border-top: 1px solid $page-header-border-color;
+	}
+	
+	.customDateRange {
+		margin: 0 40px;		// indent to denote hierarchy
+		
+		@media #{$smallPhone} {
+			margin: 0;
+		}
+		
+		.sakai-table-viewFilter {
+			margin-top: $standard-spacing;
+			
+			label {
+				min-width: max-content;
+				text-align: right;
+			}
+		}
+		
+		.act {
+			justify-content: right;
+		}
+	}
+	
+	table.calendar {
+		table-layout: fixed;
+		width: 100%;
+		border-collapse: collapse;
+		font-size: $default-font-size;
+		background-color: $calendar-table-background-color;
+
+		td, th {
+			text-align: center;
+			border-collapse: collapse;
+		}
+		
+		th {
+			color: $calendar-column-heading-color;
+			font-weight: normal;
+			line-height: $calendar-table-header-line-height;
+			
+			.viewLinkControl {
+				text-align: left;
+			}
+		}
+		
+		td {
+			position: relative;		// needed for children elements being stretched to full cell size with position: absolute
+		}
+		
+		.event {
+			a {
+				overflow-x: hidden;
+				white-space: nowrap;
+				text-overflow: ellipsis;		// if an event name is too long for the cell
+				color: $calendar-event-text-color;
+			}
+
+			@media #{$miniCalendarSize} {
+				.calendarMonthView-date::after {
+					content: "";
+					@include eventIndicator();
+				}
+			}
+		}
+		
+		&.calendar-week .event a {
+				white-space: normal;
+		}
+
+		.bgActivity a {
+			background-color: $calendar-event-background-color;
+			color: $calendar-event-text-color;
+			
+			&::after {
+				content: "";
+				@include eventIndicator();
 			}
 		}
 
-		.event{
-			background-color: lighten($calendar-event-background-color,10%);
-			border:  #bbb;
+		.borderGrayYear::after {
+			content: '';
+			position: absolute;
+			top: 0;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			display: block;
+			border: 1px solid $calendar-day-border-color;
+		}
+
+		.borderGrayDay {
+			border: 1px solid $calendar-day-border-color;
+		}
+		
+		.borderGrayDayWeek {
+			border-top: 1px solid $calendar-day-border-color;
+			border-bottom: 1px solid $calendar-day-border-color;
+		}
+
+		.borderGrayBackground {
+			position: relative;
+			vertical-align: top;
+			border: 1px solid $calendar-day-border-color;
 
 			a {
 				color: $calendar-event-text-color;
 			}
 		}
 
-		.bgActivity {
-		    background-color: lighten($calendar-event-background-color,10%);
-		    border: 1px solid #0064cd;
-		    text-align: right;
-		    a {
-				color: $calendar-event-text-color;
-			}
-		}
-
-		.bgWithoutActivity {
-		    background-color: #fff;
-		    border: 1px solid #bbb;
-		    text-align: right;
-		}
-
-		.borderGrayYear {
-		    background-color: #eee;
-		    border: 1px solid #bbb;
-		    text-align: right;
-		}
-
-		.borderGrayDayWeek {
-		    border-bottom: none;
-		    border-collapse: collapse;
-		    border-left: 1px solid #bbb;
-		    border-right: 1px solid #bbb;
-		    border-top: 1px solid #bbb;
-		}
-
-		.borderGrayBackground {
-		    background-color: lighten($calendar-event-background-color,10%);
-		    border-bottom: #bbb;
-		    border-left: #bbb;
-		    border-right: #bbb;
-		    border-top: #bbb;
-		    a {
-				color: $calendar-event-text-color;
-			}
-		}
-
 		.borderGrayTodayBgCenter {
-		    background-color: lighten($calendar-event-background-color,10%);
-		    border-left: 1px solid #bbb;
-		    border-right: 1px solid #bbb;
-		    border-top: #bbb;
+			background-color: $calendar-event-background-color;
+			border-left: 1px solid $calendar-event-border-color;
+			border-right: 1px solid $calendar-event-border-color;
+			border-top: 1px solid $calendar-day-border-color;
 		}
 
 		.borderGrayTodayEmptyMiddleBottom {
-		    background-color: white;
-		    border: 1px solid #bbb;
+			background-color: $calendar-day-background-color;
+			border-top: 1px solid $calendar-day-border-color;
+			border-bottom: 1px solid $calendar-day-border-color;
 		}
 
 		.borderGrayTodayEmptyMiddleCenter {
-		    background-color: white;
-		    border-left: 1px solid #bbb;
-		    border-right: 1px solid #bbb;
-		    border-top: 1px solid #bbb;
+			background-color: $calendar-day-background-color;
+			border-top: 1px solid $calendar-day-border-color;
 		}
 
 		.borderGrayTodayLeftBottom {
-		    border-bottom: 1px solid #bbb;
-		    border-left: 1px solid #bbb;
-		    border-right: 1px solid #bbb;
-		    border-top: 1px solid #bbb;
+			border-bottom: 1px solid $calendar-day-border-color;
+			border-left: 1px double $calendar-day-today-border-color;	// using "double" here to resolve the border-collapse conflict
+			border-right: 1px solid $calendar-day-border-color;
+			border-top: 1px solid $calendar-day-border-color;
 		}
 
 		.borderGrayTodayLeftCenter {
-		    border-left: 1px solid #bbb;
-		    border-right: 1px solid #bbb;
-		    border-top: 1px solid #bbb;
+			border-left: 1px double $calendar-day-today-border-color;	// using "double" here to resolve the border-collapse conflict
+			border-right: 1px solid $calendar-day-border-color;
+			border-top: 1px double $calendar-day-border-color;
 		}
 
 		.borderGrayTodayMiddleCenter {
-		    border-left: 1px solid #bbb;
-		    border-right: 1px solid #bbb;
-		    border-top: 1px solid #bbb;
+			border-left: 1px solid $calendar-day-border-color;
+			border-right: 1px solid $calendar-day-border-color;
+			border-top: 1px solid $calendar-day-border-color;
 		}
 
 		.borderGrayTodayRightBottom {
-		    border-bottom: 1px solid #bbb;
-		    border-left: 1px solid #bbb;
-		    border-right: 1px solid #bbb;
-		    border-top: 1px solid #bbb;
+			border-bottom: 1px solid $calendar-day-border-color;
+			border-left: 1px solid $calendar-day-border-color;
+			border-right: 1px solid $calendar-event-border-color;
+			border-top: 1px solid $calendar-day-border-color;
 		}
 
 		.borderGrayTodayRightCenter {
-		    border-left: 1px solid #bbb;
-		    border-right: 1px solid #bbb;
-		    border-top: 1px solid #bbb;
+			border-left: 1px solid $calendar-day-border-color;
+			border-right: 1px solid $calendar-day-today-border-color;
+			border-top: 1px solid $calendar-day-border-color;
 		}
 
 		.borderOnlyLeftDay {
-		    background-color: lighten($calendar-event-background-color,10%);
-		    border-left: #bbb;
-		}
-
-		.borderOnlyLeft {
-		    border-left: 1px solid #bbb
+			border-right: 1px solid $calendar-day-border-color;
+			background-color: $calendar-event-background-color;
 		}
 
 		.borderToday {
-			border: 2px solid $calendar-event-background-color;
+			position: relative;		// for making the cell dimensions match
+			
+			a {
+				color: $calendar-today-event-text-color;
+			}
+			
+			.calendarMonthView-date {
+				background-color: $calendar-day-today-background-color;
+			}
+			
+			@media #{$miniCalendarSize} {
+				.squareCalendarDays {
+					background-color: $calendar-day-today-background-color;			// fill full cell with the "today color"
+				}
+			}
+			
+			&.event .calendarMonthView-date {
+					background-color: $calendar-today-event-background-color;
+			}
 		}
 
 		.borderTodayCenter {
-			border: 1px solid #bbb;
-			background-color: lighten($calendar-event-background-color,45%);
+			border-top: 1px solid $calendar-day-border-color;
+			border-left: 1px double $calendar-day-today-border-color;	// using "double" here to resolve the border-collapse conflict
+			border-right: 1px double $calendar-day-today-border-color;	// using "double" here to resolve the border-collapse conflict
+			border-bottom: 1px solid $calendar-day-border-color;
 		}
 
 		.borderTodayTop {
-		    border-left: 1px solid #fff;
-		    border-right: 1px solid #fff;
-		    border-top: 1px solid #fff;
-		    background-color: lighten($calendar-event-background-color,35%);
+			border-left: 1px double $calendar-day-today-border-color;	// using "double" here to resolve the border-collapse conflict
+			border-right: 1px double $calendar-day-today-border-color;
+			border-top: 1px double $calendar-day-today-border-color;
+			background-color: $calendar-day-today-background-color;
 		}
 
 		.borderTodayWithActivity {
-		    background-color: lighten($calendar-event-background-color,10%);
-		    border: 2px solid $calendar-event-background-color;
-		    text-align: right;
-		    a {
-				color: $calendar-event-text-color;
+			background-color: $calendar-today-event-background-color;
+
+			a {
+				color: $calendar-today-event-text-color;
+				
+				&::after {
+					content: "";
+					@include eventIndicator();
+				}
 			}
 		}
 
 		.borderTodayWithoutActivity {
-		    background-color: #777;
-		    border: 1px solid #bbb;
-		    text-align: right;
-		}
+			background-color: $calendar-day-today-background-color;
 
-		.borderTodayWithoutActivity a {
-		    color: #fff
-		}
-
-		.borderTopLeft {
-		    background-color: lighten($calendar-event-background-color,10%);
-		    border-left: #bbb;
-		    border-right: #bbb;
-		    border-top: #bbb;
-		    a {
-				color: $calendar-event-text-color;
+			a {
+				color: $calendar-day-today-text-color;
 			}
 		}
 
+		.borderTopLeft {
+			border: 1px solid $calendar-day-border-color;
+		}
+
 		.borderTopLeftWhite {
-		    border-left: 1px solid #bbb;
-		    border-right: 1px solid #bbb;
-		    border-top: 1px solid #bbb;
+			border-left: 1px solid $calendar-day-border-color;
+			border-right: 1px solid $calendar-day-border-color;
+			border-top: 1px solid $calendar-day-border-color;
 		}
 
 		.borderWhiteYear {
-		    background-color: lighten($calendar-event-background-color,10%);
-		    border: 1px solid #fff;
-		    text-align: center;
+			border: 1px solid #fff;
+			text-align: center;
 		}
 
 		.borderWhite {
-		    border-bottom: none;
-		    border-left: 1px solid #fff;
-		    border-right: 1px solid #fff;
-		    border-top: 1px solid #fff;
+			border-bottom: none;
+			border-left: 1px solid #fff;
+			border-right: 1px solid #fff;
+			border-top: 1px solid #fff;
 		}
 
 		.borderGrayTodayCenter, .borderOnlyLeftTodayCenter {
-		    border-left: 1px solid #bbb;
-		    border-right: 1px solid #bbb;
-		    border-top: 1px solid #bbb;
+			border-left: 1px double $calendar-day-today-border-color;	// using "double" here to resolve the border-collapse conflict
+			border-right: 1px solid $calendar-day-today-border-color;
+			border-top: 1px solid $calendar-day-border-color;
 		}
 
 		.borderGrayTodayEmptyRightBottom, .borderGrayTodayEmptyRightCenter {
-		    background-color: white;
-		    border-left: 1px solid #bbb;
-		    border-right: 1px solid #000;
-		    border-top: 1px solid #bbb;
+			border-right: 1px solid $calendar-day-today-border-color;
+			border-top: 1px solid $calendar-day-border-color;
+			border-bottom: 1px solid $calendar-day-border-color;
 		}
 
-		.borderGrayTodayMiddleBottom, .borderFullGray, .borderGrayMonth {
-		    border: 1px solid #bbb;
+		.borderGrayTodayMiddleBottom, .borderFullGray {
+			border: 1px solid $calendar-day-border-color;
+		}
+
+		.borderGrayMonth {
+			position: relative;		// for making the cell dimensions match below
+			width: 14%;				// 100% table width divided evenly by seven days
+			border: 1px solid transparent;
+			vertical-align: top;
+			
+			&:after {
+				content:'';
+				display: block;
+				margin-top: 100%;		// make the cells height match its width
+			}
 		}
 
 		.borderTodayBottom, .borderGrayTodayBottom, .borderOnlyLeftTodayBottom {
-		    border-left: 1px solid #bbb;
-		    border-right: 1px solid #bbb;
-		    border-bottom: 1px solid #bbb;
-			background-color: lighten($calendar-event-background-color,45%);
+			border-left: 1px double $calendar-day-today-border-color;	// using "double" here to resolve the border-collapse conflict
+			border-right: 1px double $calendar-day-today-border-color;
+			border-top: 1px solid $calendar-day-today-border-color;
+			border-bottom: 1px double $calendar-day-today-border-color;
 		}
 
 		.timeCells {
-		    background: #eee
+			width: 5%;
+			border: 1px solid $calendar-day-border-color;
+			background: $calendar-day-header-background-color;
+			white-space: nowrap;
+			
+			@media #{$tablet}{
+				width: 10%;		// provide similar pixel width for the text at smaller total widths
+			}
+			
+			@media #{$phone}{
+				width: 15%;		// provide similar pixel width for the text at smaller total widths
+			}
 		}
 	}
 
 	table.fieldsTable {
+		width: 75%;
+		
 		@media #{$phone}{
 			display: inline-table;
-			width:100% !important;
+			width:100%;
 		}
 	}
 
@@ -264,32 +390,256 @@
 		margin: $standard-spacing 0;
 		
 		a {
-			@extend .button;
+			@include sakai_secondary_button();
 		}
 	}
 
-	.calendarLegend{
-		font-size: 0.8em;
-		margin: 0 0 1.5em 0;
-	}
-
-	#calendarForm{
-		.sectionContainerNav{
-			width: 93% !important;
+	.calendarYearContainer {
+		margin: $standard-spacing 0 $standard-spacing -#{$standard-spacing};	// to compensate for .calendarYearItem padding (added below to each month) to left-align properly
+		
+		@media #{$tablet} {
+			text-align: center;		// center the months for smaller devices when there is only room for fewer month wide
 		}
 	}
 
 	.calendarYearItem {
-		max-width: 20em;
+		max-width: 23em;
 		min-width: 17em;
 		display: inline-block;
-		padding: 4px;
+		padding: $standard-spacing;
+		vertical-align: top;		// align all of the calendars to their top row
+		
+		td {
+			position: relative;
+			border: 1px solid transparent;
+			text-align: center;
+			
+			a, &.borderGrayYear {
+				line-height: 2;		// make the days square-shaped
+			}
+			a {
+				display: block;		// make the days square-shaped
+				padding: 0.5em;
+				border: 1px solid $calendar-day-border-color;
+				text-align: center;
+				text-decoration: none;
+				
+				&:hover, &:focus {
+					outline-offset: -#{$focus-outline-offset};
+					text-decoration: none;
+				}
+				
+				&:hover {
+					border: 1px solid $calendar-event-text-color;
+				}
+			}
+		}
+	}
+	
+	.calendar-month th {
+		width: calc(100% / 7);	// 7 days in a week
+		line-height: $calendar-table-header-line-height;
+	}
+
+	.calendarMonthView-date {
+		display: block;
+		margin: 0;
+		padding: 0 $standard-space;
+		border-bottom: 1px dotted $calendar-day-border-color;		// subtle separator between date and events
+		text-align: right;
+		color: $calendar-day-header-text-color;
+		line-height: 1.5;
+		text-decoration: none;
+		
+		&, &:hover, &:focus {
+			background-color: $calendar-day-header-background-color;
+			text-decoration: none;
+		}
+		&:focus {
+			outline-offset: -#{$focus-outline-offset};
+		}
+		
+		@media #{$miniCalendarSize} {
+			position: absolute;
+			top: 0;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			@include display-flex;
+			@include justify-content(center);
+			@include align-items(center);
+			border-bottom: 0 none;			// hide when table becomes too narrow to display the individual events
+			text-align: center;
+			color: $calendar-event-text-color;
+			
+			&, &:hover, &:focus {
+				background-color: transparent;
+			}
+		}
+	}
+	
+	.event .calendarMonthView-date, .event .calendarMonthView-date:hover, .event .calendarMonthView-date:focus {
+		background-color: $calendar-event-background-color;
+	}
+	
+	.calendarMonthView-event {
+		position: absolute;
+		top: 1.5em;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		padding: $standard-space 0.5em;	// standard-space to match date spacing
+		text-align: left;
+		white-space: nowrap;
+		overflow-x: hidden;
+		overflow-y: auto;				// if there are more events than height can show, add scrollbar to the cell
+		text-overflow: ellipsis;		// if an event name is too wide for the cell
+
+		@media #{$tablet} {
+			padding: 0 $standard-space;	// reduce the amount of space around the event when the table is narrower for smaller screens
+		}
+		
+		@media #{$miniCalendarSize} {
+			display: none;	// hide events when table becomes too narrow to display these individual events
+		}
+		
+		a {
+			display: block;
+			font-size: 12px;
+			line-height: 2;
+		}
+		
+		span.icon {
+			margin-right: $standard-space;
+		}
+	}
+	
+	.calendar-day .timeCells {
+		height: 4em; 		// two times the line-height of cells (2 x 2)
+		vertical-align: top;
+	}
+	
+	.calendar-day td, .calendar-week td {
+		line-height: 2;
+		height: 2em;		// for empty cells in a row of rowspans
+		
+		a {
+			line-height: 1.4;
+		}
+	}
+	
+	.calendar-week th {
+		width: calc( (100% - 8%) / 7);		// after subtracting the times column width, divide by seven days in a week
+		
+		&.timeCellsHeading {
+			width: 8%;
+		}
+		
+		&.timeCells {
+			height: 2em;
+			vertical-align: top;
+		}
+	}
+	.calendarDayView-event, .calendarWeekView-event {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		overflow-x: hidden;
+		overflow-y: auto;
+		border: 1px solid #fff;
+		background-color: $calendar-event-background-color;
+		font-size: $default-font-size-small;
+		line-height: 1.4;
+		text-align: left;
+		
+		&:hover {
+			border: 1px solid $link-color;
+		}
+
+		a {
+			position: absolute;
+			top: 0;
+			right: 0;
+			bottom: 0;
+			left: 0;
+			padding: 2px;
+			text-decoration: none;
+			
+			&:focus {
+				outline-offset: -#{$focus-outline-width};	// to provide enough space for the outline to appear with overflow:hidden
+			}
+		}
+	}
+	
+	.calendarDayView-event .icon {
+		margin-right: $standard-space;
+	}
+	
+	.squareCalendarDays {
+		position: absolute;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		border: 1px solid $calendar-day-border-color;
+		
+		@media #{$miniCalendarSize} {
+			&:hover, &:focus {
+				border: 1px solid $link-color;
+			}
+		}
+	}
+	
+	@media #{$miniCalendarSize} {
+		.calendarMonthView-notCurrentMonthDate > .squareCalendarDays {
+			border-color: transparent;		// to distinguish current month days from non-current month days
+			
+			&:hover, &:focus {
+				border: 1px solid $link-color;
+			}
+		}
+	}
+	
+	.calendarEventTypesLegend {
+		margin: $standard-spacing 0;
+		
+		h2 {
+			margin: 0;
+			padding: $standard-spacing;
+			border: 1px solid $calendar-day-border-color;
+			background-color: $calendar-day-header-background-color;
+			text-align: center;
+		}
+		
+		.calendarLegend {
+			@include display-flex;
+			@include flex-wrap(wrap);
+			margin: 0;
+			padding: $standard-spacing;
+			border: 1px solid $calendar-day-border-color;
+			border-top: 0 none;
+			
+			li {
+				@include display-flex;
+				@include align-items(center);
+				width: 200px;
+				min-height: 2em;				// accommodates line wrapping within individual list items
+				margin: $standard-spacing;
+				line-height: 1;
+			}
+			span.icon {
+				margin-right: $standard-space;
+			}
+		}
 	}
 }
 
 // Icons used in more than one tool so not restricted by a specific namespace.
 .icon{
 	@extend .fa;
+	@extend .fa-fw;
 	&.icon-calendar-academic-calendar				{	@extend .fa-graduation-cap}
 	&.icon-calendar-activity						{	@extend .fa-rocket}
 	&.icon-calendar-cancellation					{	@extend .fa-calendar-times-o}

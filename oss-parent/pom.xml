@@ -27,18 +27,13 @@
     <name>Sakai Project OSS Parent</name>
     <description>Top level POM for the Sakai Open Source CLE - Used for Release/Metadata</description>
 
-    <url>http://sakaiproject.org</url>
-    <organization>
-        <name>Sakai Project</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2003</inceptionYear>
+    <url>https://www.sakailms.org/</url>
     <developers>
         <developer>
             <id>sakai-core-team</id>
             <name>Sakai Core Team</name>
             <email>sakai-core-team@sakaiproject.org</email>
-            <url>http://sakaiproject.org</url>
+            <url>https://www.sakailms.org/</url>
             <organization>Apereo</organization>
             <organizationUrl>http://apereo.org</organizationUrl>
         </developer>

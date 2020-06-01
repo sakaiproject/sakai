@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2003-2019 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.gradebookng.tool.chart;
 
 import org.apache.wicket.markup.head.IHeaderResponse;
@@ -9,6 +24,7 @@ import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.model.GbChartData;
+import org.sakaiproject.portal.util.PortalUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -40,15 +56,16 @@ public abstract class BaseChart extends WebComponent {
 
 	@Override
 	public void renderHead(final IHeaderResponse response) {
-		final String version = serverConfigService.getString("portal.cdn.version", "");
+
+		final String version = PortalUtils.getCDNQuery();
 
 		// chart requires ChartJS
 		response.render(
-				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/webjars/chartjs/2.7.0/Chart.min.js?version=%s", version)));
+				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/webjars/chartjs/2.7.0/Chart.min.js%s", version)));
 
 		// our chart functions
 		response.render(
-				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-chart.js?version=%s", version)));
+				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-chart.js%s", version)));
 
 		// render immediately (for all subclasses)
 		final GbChartData data = getData();

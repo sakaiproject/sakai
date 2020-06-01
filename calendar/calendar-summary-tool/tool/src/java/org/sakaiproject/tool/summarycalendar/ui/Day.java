@@ -33,6 +33,7 @@ public class Day implements Serializable {
 	public final static String	STYLE_SELECTEDDAY				= "calSelectedDay";
 	public final static String	STYLE_WITH_ACTIVITY				= "calDayWithActivity";
 	public final static String	STYLE_WITHOUT_ACTIVITY			= "calDayWithoutActivity";
+	public final static String	STYLE_OTHER_WITH_ACTIVITY		= "calOtherDayWithActivity";
 	public final static String	STYLE_OTHER_WITHOUT_ACTIVITY	= "calOtherDayWithNoActivity";
 	private transient ResourceLoader				msgs					= new ResourceLoader("calendar");
 
@@ -84,6 +85,10 @@ public class Day implements Serializable {
 		StringBuilder buff = new StringBuilder();
 		if(isToday) buff.append(" " + STYLE_TODAY + " ");
 		if(occursInOtherMonth && !hasEvents) buff.append(" " + STYLE_OTHER_WITHOUT_ACTIVITY + " ");
+		else if(occursInOtherMonth && hasEvents) { 
+			buff.append(" " + STYLE_OTHER_WITH_ACTIVITY + " ");
+			if(isSelected) buff.append(" " + STYLE_SELECTEDDAY + " ");
+		}
 		else{
 			if(hasEvents) buff.append(" " + STYLE_WITH_ACTIVITY + " ");
 			else buff.append(" " + STYLE_WITHOUT_ACTIVITY + " ");

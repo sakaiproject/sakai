@@ -45,13 +45,14 @@ import javax.faces.context.FacesContext;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
-import com.opencsv.CSVWriter;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Workbook;
-
 import org.sakaiproject.signup.tool.jsf.SignupMeetingWrapper;
 import org.sakaiproject.signup.tool.jsf.SignupMeetingsBean;
 import org.sakaiproject.signup.tool.util.Utilities;
+
+import com.opencsv.CSVWriter;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
@@ -297,9 +298,9 @@ public class DownloadEventBean extends SignupMeetingsBean {
 	private void csvSpreadsheet(OutputStream os, List<SignupMeetingWrapper> meetingWrappers) throws IOException {
 		
 		CSVExport export = new CSVExport(meetingWrappers, getSakaiFacade());
+
 		
-		CSVWriter writer = new CSVWriter(new OutputStreamWriter(os), ',');
-	    
+		CSVWriter writer = new CSVWriter(new OutputStreamWriter(os), ',', CSVWriter.DEFAULT_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, downloadVersion);
 		//header
 		List<String> header = export.getHeaderRow();
 		

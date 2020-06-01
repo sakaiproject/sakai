@@ -32,16 +32,15 @@ import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 import javax.faces.render.Renderer;
 
-import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.util.TextFormat;
-import org.sakaiproject.tool.cover.ToolManager; 
-import org.sakaiproject.util.EditorConfiguration;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.Web;
+import org.sakaiproject.util.api.FormattedText;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *
@@ -178,8 +177,10 @@ public class RichTextEditArea extends Renderer
 
 
   private void encodeCK(ResponseWriter writer, String value, String identity, String outCol, 
-         String outRow, String justArea, String clientId, boolean valueHasRichText, String hasToggle, boolean columnsNotDefined, String mode) throws IOException
-  {
+         String outRow, String justArea, String clientId, boolean valueHasRichText, String hasToggle, boolean columnsNotDefined, String mode) throws IOException {
+
+    String componentId = StringUtils.isBlank(identity) ? clientId : clientId.contains(":") ? clientId.substring(0, clientId.indexOf(":") + 1) + identity : identity;
+
     //If no specific mode is set, it's delivery by default
 	boolean disableWysiwyg = false;
     if (mode == null) {
@@ -220,33 +221,33 @@ public class RichTextEditArea extends Renderer
     if(shouldToggle && !disableWysiwyg)
     {    	
     	String show_editor = rb.getString("show_editor");
-    	writer.write("<div class=\"toggle_link_container\"><a class=\"toggle_link\" id=\"" +clientId+ "_toggle\" href=\"javascript:show_editor('" +  clientId + "', '" + samigoFrameId + "');\">" + show_editor + "</a></div>\n");
+    	writer.write("<div class=\"toggle_link_container\"><a class=\"toggle_link\" id=\"" +componentId+ "_toggle\" href=\"javascript:show_editor('" + componentId + "', '" + samigoFrameId + "');\">" + show_editor + "</a></div>\n");
     }
     else {
-        	value = FormattedText.escapeHtmlFormattedTextarea((String) value);
+        	value = ComponentManager.get(FormattedText.class).escapeHtmlFormattedTextarea((String) value);
     }
-    
-    writer.write("<textarea name=\"" + clientId + "_textinput\" id=\"" + clientId + "_textinput\" " + getIdentityAttribute(identity) + " rows=\""+ textBoxRows + "\" cols=\""+ textBoxCols + "\" class=\"simple_text_area\">");
+
+    String inputTextArea = "<textarea name='%s' id='%s' rows='%d' cols='%d' class='%s'>";
+    writer.write(String.format(inputTextArea, clientId + "_textinput", componentId + "_textinput", textBoxRows, textBoxCols, "simple_text_area"));
     writer.write((String) value);
     writer.write("</textarea>");
     if (!disableWysiwyg) 
     	if (shouldToggle) {
-    		writer.write("<input type=\"hidden\" name=\"" + clientId + "_textinput_current_status\" id=\"" + clientId + "_textinput_current_status\" value=\"firsttime\">");
+    		writer.write("<input type=\"hidden\" name=\"" + clientId + "_textinput_current_status\" id=\"" + componentId + "_textinput_current_status\" value=\"firsttime\">");
     	}
     	else if(hasToggle.equals("plain") && !valueHasRichText){
-        	writer.write("<input type=\"hidden\" name=\"" + clientId + "_textinput_current_status\" id=\"" + clientId + "_textinput_current_status\" value=\"fckonly\" data-first=\"" + clientId + "\" data-second=\"" + samigoFrameId + "\">");
+        	writer.write("<input type=\"hidden\" name=\"" + clientId + "_textinput_current_status\" id=\"" + componentId + "_textinput_current_status\" value=\"fckonly\" data-first=\"" + componentId + "\" data-second=\"" + samigoFrameId + "\">");
         }
     	else {
-    		writer.write("<input type=\"hidden\" name=\"" + clientId + "_textinput_current_status\" id=\"" + clientId + "_textinput_current_status\" value=\"fckonly\">");
+    		writer.write("<input type=\"hidden\" name=\"" + clientId + "_textinput_current_status\" id=\"" + componentId + "_textinput_current_status\" value=\"fckonly\">");
     	}
 	//if toggling is off or the content is already rich, make the editor show up immediately if hasToggle is not plain
 	if(!shouldToggle && (!hasToggle.equals("plain") || valueHasRichText)){
-		writer.write("<script type=\"text/javascript\" defer=\"1\">chef_setupformattedtextarea('" + clientId + "', false, '" + samigoFrameId +"');</script>");
+		writer.write("<script type=\"text/javascript\" defer=\"1\">chef_setupformattedtextarea('" + componentId + "', false, '" + samigoFrameId +"');</script>");
     }
   }
 
-  public void decode(FacesContext context, UIComponent component)
-  {
+  public void decode(FacesContext context, UIComponent component) {
     if (null == context || null == component ||
         ! (component instanceof org.sakaiproject.jsf.component.RichTextEditArea))
     {
@@ -255,11 +256,10 @@ public class RichTextEditArea extends Renderer
 
     String clientId = component.getClientId(context);
 
-    Map requestParameterMap = context.getExternalContext()
-      .getRequestParameterMap();
+    Map requestParameterMap = context.getExternalContext().getRequestParameterMap();
 
     String newValue = (String) requestParameterMap.get(clientId + "_textinput");
-    String current_status = (String) requestParameterMap.get(clientId + "_textinput_current_status");    
+    String current_status = (String) requestParameterMap.get(clientId + "_textinput_current_status");
     String finalValue = newValue;
     
     // if use hid the FCK editor, we treat it as text editor
@@ -270,7 +270,7 @@ public class RichTextEditArea extends Renderer
 		StringBuilder alertMsg = new StringBuilder();
 		try
 		{
-			finalValue = FormattedText.processFormattedText(newValue, alertMsg);
+			finalValue = ComponentManager.get(FormattedText.class).processFormattedText(newValue, alertMsg);
 			if (alertMsg.length() > 0)
 			{
 				log.debug(alertMsg.toString());
@@ -283,15 +283,5 @@ public class RichTextEditArea extends Renderer
     org.sakaiproject.jsf.component.RichTextEditArea comp = (org.sakaiproject.jsf.component.RichTextEditArea) component;
     comp.setSubmittedValue(finalValue);
   }
-  
-  private String getIdentityAttribute(String identity){
-	  if(identity != null){
-		  StringBuilder buf = new StringBuilder(" identity=\"");
-		  buf.append(identity);
-		  buf.append("\" ");
-		  return buf.toString();
-      }else{
-    	  return " ";
-      }
-  }
+
 }

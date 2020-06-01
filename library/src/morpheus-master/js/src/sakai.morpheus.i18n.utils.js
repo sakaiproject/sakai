@@ -4,13 +4,14 @@
     return;
   }
 
-  portal.i18n = portal.i18n || {};
-  portal.i18n.translations = portal.i18n.translations || {};
+
+  window.sakai = window.sakai || {};
+  window.sakai.translations = window.sakai.translations || {};
 
   portal.i18n.loadProperties = function (options) {
 
     if (!options.namespace) {
-      console.log("You must supply at least a namespace. Doing nothing ...");
+      console.error("You must supply at least a namespace. Doing nothing ...");
       return;
     }
 
@@ -23,25 +24,25 @@
     options = Object.assign(defaults, options);
 
     if (options.debug) {
-      console.log('resourceClass: ' + options.resourceClass);
-      console.log('resourceBundle: ' + options.resourceBundle);
-      console.log('namespace: ' + options.namespace);
+      console.debug('resourceClass: ' + options.resourceClass);
+      console.debug('resourceBundle: ' + options.resourceBundle);
+      console.debug('namespace: ' + options.namespace);
     }
 
-    portal.i18n.translations[options.namespace] = portal.i18n.translations[options.namespace] || {};
+    window.sakai.translations[options.namespace] = window.sakai.translations[options.namespace] || {};
 
-    var storageKey = portal.locale + options.resourceClass + options.resourceBundle;
+    var storageKey = portal.locale + options.resourceBundle;
     if (sessionStorage.getItem(storageKey) !== null) {
       if (options.debug) {
-        console.log("Returning " + storageKey + " from sessions storage ...");
+        console.debug("Returning " + storageKey + " from sessions storage ...");
       }
-      portal.i18n.translations[options.namespace] = JSON.parse(sessionStorage[storageKey]);
+      window.sakai.translations[options.namespace] = JSON.parse(sessionStorage[storageKey]);
       if (options.callback) {
         options.callback();
       }
     } else {
       if (options.debug) {
-        console.log(storageKey + " not in sessions storage. Pulling from webservice ...");
+        console.debug(storageKey + " not in sessions storage. Pulling from webservice ...");
       }
       $PBJQ.ajax({
         url: '/sakai-ws/rest/i18n/getI18nProperties' + portal.portalCDNQuery,
@@ -55,15 +56,15 @@
 
           var keyValue = pair.split('=');
           if (keyValue.length == 2) {
-            portal.i18n.translations[options.namespace][keyValue[0]] = keyValue[1];
+            window.sakai.translations[options.namespace][keyValue[0]] = keyValue[1];
           }
 
           if (options.debug) {
-            console.log('Updated translations: ');
-            console.log(portal.i18n.translations[options.namespace]);
+            console.debug('Updated translations: ');
+            console.debug(window.sakai.translations[options.namespace]);
           }
         });
-        sessionStorage[storageKey] = JSON.stringify(portal.i18n.translations[options.namespace]);
+        sessionStorage[storageKey] = JSON.stringify(window.sakai.translations[options.namespace]);
 
           if (options.callback) {
             options.callback();
@@ -78,14 +79,14 @@
   portal.i18n.tr = function (namespace, key, options) {
 
     if (!namespace || !key) {
-      console.log('You must supply a namespace and a key.');
+      console.error('You must supply a namespace and a key. Doing nothing.');
       return;
     }
 
-    var ret = portal.i18n.translations[namespace][key];
+    var ret = window.sakai.translations[namespace][key];
 
     if (!ret) {
-      console.log(namespace + '#key ' + key + ' not found. Returning key ...');
+      console.warn(namespace + '#key ' + key + ' not found. Returning key ...');
       return key;
     }
 

@@ -1,11 +1,12 @@
 ## version: $Id$
 <!-- chef_resources_cwiz_finish.vm, use with org.sakaiproject.tool.content.ResourcesAction.java -->
 <div class="portletBody specialLink">
+	#contentMenu("resources")
 	<h3>
 		$title 
 	</h3>
 	#if ($alertMessage)
-		<div class="sak-banner-error">$tlang.getString("label.alert") $validator.escapeHtml($alertMessage)</div>
+		<div class="sak-banner-error">$tlang.getString("label.alert") $formattedText.escapeHtml($alertMessage)</div>
 	#end
 	<p class="instruction">
 		$instruction
@@ -25,7 +26,7 @@
 				<label for="name${DOT}$i">
 					$tlang.getString("name.file") 
 				</label>
-				<input type="text" size="40" id="displayName${DOT}$i" name="displayName${DOT}$i" value="$validator.escapeHtml("$!item.name")" />
+				<input type="text" size="40" id="displayName${DOT}$i" name="displayName${DOT}$i" value="$formattedText.escapeHtml("$!item.name")" />
 			</p>
 			<p class="instruction">$tlang.getString("instr.title")</p>
 			#parse("/vm/resources/sakai_properties.vm")

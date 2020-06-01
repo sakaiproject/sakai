@@ -4,17 +4,12 @@
   <name>Sakai Entity Broker Components Pack</name>
   <groupId>org.sakaiproject.entitybroker</groupId>
   <artifactId>entitybroker-pack</artifactId>
-  <organization>
-    <name>Sakai Project</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2007</inceptionYear>
   <packaging>sakai-component</packaging>
 <!-- the base is parent -->
   <parent>
     <artifactId>entitybroker</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>20-SNAPSHOT</version><!--entitybroker.version-->
+    <version>21-SNAPSHOT</version><!--entitybroker.version-->
   </parent>
   <properties>
     <deploy.target>components</deploy.target>

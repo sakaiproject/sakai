@@ -39,6 +39,7 @@ import java.util.Vector;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
+import org.sakaiproject.authz.api.AuthzRealmLockException;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.SecurityService;
@@ -606,6 +607,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			functionManager().registerFunction(SECURE_UPDATE_USER_OWN_PASSWORD);
 			functionManager().registerFunction(SECURE_UPDATE_USER_OWN_TYPE);
 			functionManager().registerFunction(SECURE_UPDATE_USER_ANY);
+			functionManager().registerFunction(SECURE_VIEW_USER_ANY);
 			functionManager().registerFunction("user.studentnumber.visible");
 			
 
@@ -1519,11 +1521,11 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		UserEdit edit = addUser(id, eid);
 
 		// fill in the fields
-		edit.setLastName(formattedText().sanitizeUserInput(lastName));
-		edit.setFirstName(formattedText().sanitizeUserInput(firstName));
-		edit.setEmail(formattedText().sanitizeUserInput(email));
+		edit.setLastName(lastName);
+		edit.setFirstName(firstName);
+		edit.setEmail(email);
 		edit.setPassword(pw);
-		edit.setType(formattedText().sanitizeUserInput(type));
+		edit.setType(type);
 
 		ResourcePropertiesEdit props = edit.getPropertiesEdit();
 		if (properties != null)
@@ -1635,8 +1637,13 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		{
 			log.warn("removeUser: removing realm for : " + ref + " : " + e);
 		}
-		catch (GroupNotDefinedException ignore)
+		catch (GroupNotDefinedException gnde)
 		{
+			log.warn(gnde.getMessage());
+		}
+		catch (AuthzRealmLockException arle)
+		{
+			log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
 		}
 
 		// Remove from cache.
@@ -1769,43 +1776,45 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		edit.m_lastModifiedInstant = Instant.now();
 	}
 
-    /**
-     * Adjust the id - trim it to null. Note: eid case insensitive option does NOT apply to id.
-     *
-     * @param id
-     *        The id to clean up.
-     * @return A cleaned up id.
-     */
-    protected String cleanId(String id) {
-        if(StringUtils.isEmpty(id)){
-            return null;
-        }
-        // if we are not doing separate id and eid, use the eid rules
-        if (!m_separateIdEid) {
-            id = cleanEid(id);
-        }
-        id = formattedText().sanitizeUserInput(id);
-        // max length for an id is 99 chars
+	/**
+	 * Adjust the id - trim it to null. Note: eid case insensitive option does NOT apply to id.
+	 *
+	 * @param id
+	 *        The id to clean up.
+	 * @return A cleaned up id.
+	 */
+	protected String cleanId(String id)
+	{
+		// if we are not doing separate id and eid, use the eid rules
+		if (!m_separateIdEid) {
+		    id = cleanEid(id);
+		}
+		id = StringUtils.lowerCase(id);
+		id = StringUtils.trimToNull(id);
+		// max length for an id is 99 chars
         id = StringUtils.abbreviate(id, 99);
-        return id;
-    }
+		return id;
+	}
 
-    /**
-     * Adjust the eid - trim it to null, and lower case IF we are case insensitive.
-     *
-     * @param eid
-     *        The eid to clean up.
-     * @return A cleaned up eid.
-     */
-    protected String cleanEid(String eid) {
-        if(StringUtils.isEmpty(eid)){
-            return null;
-        }
+	/**
+	 * Adjust the eid - trim it to null, and lower case IF we are case insensitive.
+	 *
+	 * @param eid
+	 *        The eid to clean up.
+	 * @return A cleaned up eid.
+	 */
+	protected String cleanEid(String eid)
+	{
         eid = StringUtils.lowerCase(eid);
-        eid = formattedText().sanitizeUserInput(eid);
+        eid = StringUtils.trimToNull(eid);
+
+        if (eid != null) {
+            // remove all instances of these chars <>,;:\"
+            eid = StringUtils.replaceChars(eid, "<>,;:\\/", "");
+        }
         // NOTE: length check is handled later on
         return eid;
-    }
+	}
 
 	protected UserEdit getCachedUser(String ref)
 	{
@@ -2030,7 +2039,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 					return false;
 				}
 				user.setEid(newEmail);
-				user.setEmail(formattedText().sanitizeUserInput(newEmail));
+				user.setEmail(newEmail);
 				((BaseUserEdit) user).setEvent(SECURE_UPDATE_USER_ANY);
 				commitEdit(user);
 				return true;
@@ -2174,7 +2183,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			// if the id is not null (a new user, rather than a reconstruction)
 			// and not the anon (id == "") user,
 			// add the automatic (live) properties
-			if (StringUtils.isNotEmpty(m_id)) addLiveProperties(this);
+			if ((m_id != null) && (m_id.length() > 0)) addLiveProperties(this);
 			
 			//KNL-567 lazy set the properties to be lazy so they get loaded
 			props.setLazy(true);
@@ -2214,13 +2223,13 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 			m_id = cleanId(el.getAttribute("id"));
 			m_eid = cleanEid(el.getAttribute("eid"));
-			m_firstName = formattedText().sanitizeUserInput(el.getAttribute("first-name"));
-			m_lastName = formattedText().sanitizeUserInput(el.getAttribute("last-name"));
-			setEmail(el.getAttribute("email"));
+			m_firstName = StringUtils.trimToNull(el.getAttribute("first-name"));
+			m_lastName = StringUtils.trimToNull(el.getAttribute("last-name"));
+			setEmail(StringUtils.trimToNull(el.getAttribute("email")));
 			m_pw = el.getAttribute("pw");
-			m_type = formattedText().sanitizeUserInput(el.getAttribute("type"));
-			m_createdUserId = formattedText().sanitizeUserInput(el.getAttribute("created-id"));
-			m_lastModifiedUserId = formattedText().sanitizeUserInput(el.getAttribute("modified-id"));
+			m_type = StringUtils.trimToNull(el.getAttribute("type"));
+			m_createdUserId = StringUtils.trimToNull(el.getAttribute("created-id"));
+			m_lastModifiedUserId = StringUtils.trimToNull(el.getAttribute("modified-id"));
 
 			String time = StringUtils.trimToNull(el.getAttribute("created-time"));
 			if (time != null)
@@ -2315,15 +2324,15 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		public BaseUserEdit(String id, String eid, String email, String firstName, String lastName, String type, String pw,
 				String createdBy, Instant createdOn, String modifiedBy, Instant modifiedOn)
 		{
-			m_id = cleanId(id);
-			m_eid = cleanEid(eid);
-			m_firstName = formattedText().sanitizeUserInput(firstName);
-			m_lastName = formattedText().sanitizeUserInput(lastName);
-			m_type = formattedText().sanitizeUserInput(type);
+			m_id = id;
+			m_eid = eid;
+			m_firstName = firstName;
+			m_lastName = lastName;
+			m_type = type;
 			setEmail(email);
 			m_pw = pw;
-			m_createdUserId = formattedText().sanitizeUserInput(createdBy);
-			m_lastModifiedUserId = formattedText().sanitizeUserInput(modifiedBy);
+			m_createdUserId = createdBy;
+			m_lastModifiedUserId = modifiedBy;
 			if (createdOn != null) m_createdInstant = createdOn;
 			if (modifiedBy != null) m_lastModifiedInstant = modifiedOn;
 
@@ -2628,7 +2637,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		 */
 		public String getFirstName()
 		{
-			if (StringUtils.isEmpty(m_firstName)) return StringUtils.EMPTY;
+			if (m_firstName == null) return "";
 			return m_firstName;
 		}
 
@@ -2637,7 +2646,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		 */
 		public String getLastName()
 		{
-			if (StringUtils.isEmpty(m_lastName)) return StringUtils.EMPTY;
+			if (m_lastName == null) return "";
 			return m_lastName;
 		}
 
@@ -2682,7 +2691,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		 */
 		public String getEmail()
 		{
-			if (StringUtils.isEmpty(m_email)) return StringUtils.EMPTY;
+			if (m_email == null) return "";
 			return m_email;
 		}
 
@@ -2714,8 +2723,8 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 			BaseUserEdit that = (BaseUserEdit) o;
 
-			if (m_id != null ? !m_id.equals(that.m_id) : that.m_id != null) return false;
-			if (m_eid != null ? !m_eid.equals(that.m_eid) : that.m_eid != null) return false;
+			if (m_id != null ? !m_id.equalsIgnoreCase(that.m_id) : that.m_id != null) return false;
+			if (m_eid != null ? !m_eid.equalsIgnoreCase(that.m_eid) : that.m_eid != null) return false;
 
 			return true;
 		}
@@ -2731,7 +2740,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 				// Maintains consistency with Sakai 2.4.x behavior.
 				id = "";
 			}
-			return id.hashCode();
+			return cleanId(id).hashCode();
 		}
 
 		/**
@@ -2800,7 +2809,8 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		public void setFirstName(String name)
 		{
 		    if(!m_restrictedFirstName) {
-		    	m_firstName = formattedText().sanitizeUserInput(name);
+		        // https://jira.sakaiproject.org/browse/SAK-20226 - removed html from name
+		    	m_firstName = formattedText().convertFormattedTextToPlaintext(name);
 		    	m_sortName = null;
 		    }
 		}
@@ -2811,7 +2821,8 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		public void setLastName(String name)
 		{
 			if(!m_restrictedLastName) {
-		    	m_lastName = formattedText().sanitizeUserInput(name);
+                // https://jira.sakaiproject.org/browse/SAK-20226 - removed html from name
+		    	m_lastName = formattedText().convertFormattedTextToPlaintext(name);
 		    	m_sortName = null;
 		    }
 		}
@@ -2822,7 +2833,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		public void setEmail(String email)
 		{
 			if(!m_restrictedEmail) {
-				m_email = formattedText().sanitizeUserInput(email);
+				m_email = email;
 			}
 		}
 
@@ -2857,7 +2868,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		{
 			if(!m_restrictedType) {
 
-				m_type = formattedText().sanitizeUserInput(type);
+				m_type = type;
 
 			}
 		}

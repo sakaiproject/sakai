@@ -5,17 +5,12 @@
 	<parent>
 		<artifactId>providers-base</artifactId>
 		<groupId>org.sakaiproject</groupId>
-		<version>20-SNAPSHOT</version>
+		<version>21-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<name>sakai-provider-pack</name>
 	<groupId>org.sakaiproject</groupId>
 	<artifactId>sakai-provider-pack</artifactId>
-	<organization>
-		<name>University of Michigan</name>
-		<url>http://sakaiproject.org/</url>
-	</organization>
-	<inceptionYear>2003</inceptionYear>
 	<packaging>sakai-component</packaging>
 	<properties>
 		<deploy.target>components</deploy.target>
@@ -28,10 +23,6 @@
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-unboundid-provider</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-jldap-provider</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject</groupId>

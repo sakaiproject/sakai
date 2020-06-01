@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
-        <version>20-SNAPSHOT</version>
+        <version>21-SNAPSHOT</version>
         <relativePath>../master/pom.xml</relativePath>
     </parent>
 
@@ -254,6 +254,12 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+        	<groupId>com.fasterxml.jackson.module</groupId>
+        	<artifactId>jackson-module-parameter-names</artifactId>
+        	<version>${sakai.jackson.version}</version>
+        	<scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jdk8</artifactId>
             <scope>compile</scope>
@@ -496,11 +502,6 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-text</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore</artifactId>
             <scope>compile</scope>
@@ -590,7 +591,7 @@
         <!-- mail -->
         <dependency>
             <groupId>com.sun.mail</groupId>
-            <artifactId>javax.mail</artifactId>
+            <artifactId>jakarta.mail</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -679,6 +680,11 @@
         <dependency>
             <groupId>net.minidev</groupId>
             <artifactId>asm</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.json-simple</groupId>
+            <artifactId>json-simple</artifactId>
             <scope>compile</scope>
         </dependency>
     </dependencies>

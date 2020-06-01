@@ -1,6 +1,6 @@
 # RSS Portlet for Sakai
 
-An RSS/Atom feed reader portlet for Sakai, based on http://github.com/steveswinsburg/simple-rss-portlet but modified for a [Sakai] (https://sakaiproject.org/) build. This is currently included in Sakai 11.
+An RSS/Atom feed reader portlet for Sakai, based on http://github.com/steveswinsburg/simple-rss-portlet but modified for a [Sakai] (https://www.sakailms.org/) build. This is currently included in Sakai 11.
 
 ### Features
 * Renders all forms of RSS and Atom feeds

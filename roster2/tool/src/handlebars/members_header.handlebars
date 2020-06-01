@@ -2,37 +2,37 @@
     <div class="roster-table-header-group">
         <div class="roster-table-row">
             {{#if viewPicture}}
-            <div class="roster-table-cell" id="roster-picture-header-cell">{{translate 'facet_picture'}}</div>
+            <div class="roster-table-cell" id="roster-picture-header-cell">{{tr 'facet_picture'}}</div>
             {{/if}}
             {{#unless hideNames}}
-            <div class="roster-table-cell">{{translate 'facet_name'}}</div>
+            <div class="roster-table-cell">{{tr 'facet_name'}}</div>
             {{/unless}}
             {{#if viewUserNamePronunciation}}
-            <div class="roster-table-cell">{{translate 'facet_user_name_pronunciation'}}</div>
+            <div class="roster-table-cell">{{tr 'facet_user_name_pronunciation'}}</div>
             {{/if}}
             {{#if viewUserDisplayId}}
-            <div class="roster-table-cell">{{translate 'facet_userId'}}</div>
+            <div class="roster-table-cell">{{tr 'facet_userId'}}</div>
             {{/if}}
             {{#if enrollmentsMode}}
-            <div class="roster-table-cell">{{translate 'facet_status'}}</div>
-            <div class="roster-table-cell">{{translate 'facet_credits'}}</div>
+            <div class="roster-table-cell">{{tr 'facet_status'}}</div>
+            <div class="roster-table-cell">{{tr 'facet_credits'}}</div>
             {{else}}
-            <div class="roster-table-cell">{{translate 'facet_role'}}</div>
+            <div class="roster-table-cell">{{tr 'facet_role'}}</div>
             {{/if}}
             {{#if showVisits}}
                 {{#if ../viewSiteVisits}}
-            <div class="roster-table-cell">{{translate 'total_visits'}}</div>
-            <div class="roster-table-cell">{{translate 'last_visit'}}</div>
+            <div class="roster-table-cell">{{tr 'total_visits'}}</div>
+            <div class="roster-table-cell">{{tr 'last_visit'}}</div>
                 {{/if}}
             {{/if}} <!-- showVisits -->
             {{#if viewGroup}}
-            <div class="roster-table-cell roster-group-cell">{{translate 'facet_groups'}}</div>
+            <div class="roster-table-cell roster-group-cell">{{tr 'facet_groups'}}</div>
             {{/if}}
             {{#if viewEmail}}
-            <div class="roster-table-cell">{{translate 'facet_email'}}</div>
+            <div class="roster-table-cell">{{tr 'facet_email'}}</div>
             {{/if}}
             {{#if viewUserProperty}}
-            <div class="roster-table-cell">{{translate 'facet_userProperties'}}</div>
+            <div class="roster-table-cell">{{tr 'facet_userProperties'}}</div>
             {{/if}}
         </div>
     </div>

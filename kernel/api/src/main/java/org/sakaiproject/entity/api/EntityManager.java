@@ -22,6 +22,7 @@
 package org.sakaiproject.entity.api;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * <p>
@@ -89,4 +90,8 @@ public interface EntityManager
 	 * @return true if the reference is valid, false if not.
 	 */
 	boolean checkReference(String ref);
+
+	default Optional<String> getUrl(String ref, Entity.UrlType urlType) {
+		return Optional.empty();
+	}
 }

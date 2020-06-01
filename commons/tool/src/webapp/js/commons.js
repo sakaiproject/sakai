@@ -15,6 +15,8 @@ Handlebars.registerPartial('comment', Handlebars.partials['comment']);
 Handlebars.registerPartial('wrapped_comment', Handlebars.partials['wrapped_comment']);
 Handlebars.registerPartial('inplace_comment_editor', Handlebars.partials['inplace_comment_editor']);
 
+var commonsHelpers = {};
+
 commons.states = {
         POSTS: 'posts',
         POST: 'post',
@@ -35,6 +37,8 @@ commons.switchState = function (state, arg) {
     $("#commons-post-editor").toggle(commons.currentUserPermissions.postCreate);
 
     if (commons.states.POSTS === state) {
+        $('#commons-toolbar > li > span').removeClass('current');
+        $('#commons-main-link > span').addClass('current');
 
         var templateData = {
                 currentUserId: commons.userId,
@@ -270,6 +274,8 @@ commons.switchState = function (state, arg) {
             }
         });
     } else if (commons.states.POST === state) {
+        $('#commons-toolbar > li > span').removeClass('current');
+        $('#commons-main-link > span').addClass('current');
         var url = "/direct/commons/post.json?postId=" + arg.postId;
         $.ajax( { url : url, dataType: "json", cache: false, timeout: commons.AJAX_TIMEOUT })
             .done(function (data) {
@@ -304,10 +310,12 @@ commons.switchState = function (state, arg) {
 
     var languagesLoaded = function () {
 
-        commons.i18n = portal.i18n.translations['commons'];
-
         if (commons.embedder === 'SITE') {
             commons.utils.renderTemplate('toolbar', {} ,'commons-toolbar');
+
+            $('#commons-main-link>span>a').click(function (e) {
+                commons.switchState(commons.states.POSTS);
+            });
 
             $('#commons-permissions-link>span>a').click(function (e) {
                 commons.switchState(commons.states.PERMISSIONS);
@@ -342,10 +350,15 @@ commons.switchState = function (state, arg) {
 
     $(document).ready(function () {
 
-        portal.i18n.loadProperties({
-            namespace: 'commons',
-            callback: function () { languagesLoaded(); }
+      import("/webcomponents/sakai-i18n.js").then(m => {
+
+        m.loadProperties({bundle: 'commons'}).then(i18n => {
+
+          commons.i18n = i18n;
+          commonsHelpers["tr"] =  (key, options) => new Handlebars.SafeString(m.tr("commons", key, options.hash));
+          languagesLoaded();
         });
+      });
     });
 
     if (CKEDITOR) {

@@ -70,6 +70,12 @@
 			$('.rwiki_help_popup_link').blur(function(){
 					hidePopup(this.name)
 				});
+
+			var menuLink = $('#historyLink');
+			var menuLinkSpan = menuLink.closest('span');
+			menuLinkSpan.addClass('current');
+			menuLinkSpan.html(menuLink.text());
+
 			});
 	</script>		
 	<div id="rwiki_head" ><!-- avoid min height in IEX-->			    

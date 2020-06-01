@@ -1,0 +1,96 @@
+<div th:fragment="tool_fragment" th:id="${collapseId}" class="panel-collapse collapse">
+	<div class="panel-body">
+		<p th:if="${items == null or items.isEmpty()}" th:text="#{items.empty}">There are no items to modify in this tool.</p>
+		<table th:unless="${items == null or items.isEmpty()}" class="table table-condensed table-striped table-bordered table-datemanager">
+			<thead>
+				<tr>
+					<th th:text="#{column.title}">Title</th>
+					<th:block th:switch="${toolId}">
+						<th:block th:case="'gradebookItems'"></th:block>
+						<th th:case="'assignments'" th:text="#{column.open.date}">Open Date</th>
+						<th th:case="'assessments'" th:text="#{column.available.date}">Available Date</th>
+						<th th:case="'signupMeetings'" th:text="#{column.start.date}">Start Date</th>
+						<th th:case="'resources'" th:text="#{column.show.from.date}">Show From Date</th>
+						<th th:case="'calendarEvents'" th:text="#{column.start.date}">Start Date</th>
+						<th th:case="'forums'" th:text="#{column.open.date}">Open Date</th>
+						<th th:case="'announcements'" th:text="#{column.start.date}">Start Date</th>
+						<th th:case="'lessons'" th:text="#{column.hide.until}">Hide Until Date</th>
+					</th:block>
+					<th:block th:switch="${toolId}">
+						<th:block th:case="'lessons'"></th:block>
+						<th th:case="'assignments'" th:text="#{column.due.date}">Due Date</th>
+						<th th:case="'assessments'" th:text="#{column.due.date}">Due Date</th>
+						<th th:case="'signupMeetings'" th:text="#{column.end.date}">End Date</th>
+						<th th:case="'gradebookItems'" th:text="#{column.due.date}">Due Date</th>
+						<th th:case="'resources'" th:text="#{column.show.until}">Show Until Date</th>
+						<th th:case="'calendarEvents'" th:text="#{column.end.date}">End Date</th>
+						<th th:case="'forums'" th:text="#{column.close.date}">Close Date</th>
+						<th th:case="'announcements'" th:text="#{column.end.date}">End Date</th>
+					</th:block>
+					<th:block th:switch="${toolId}">
+						<th:block th:case="'gradebookItems'"></th:block>
+						<th:block th:case="'signupMeetings'"></th:block>
+						<th:block th:case="'resources'"></th:block>
+						<th:block th:case="'calendarEvents'"></th:block>
+						<th:block th:case="'forums'"></th:block>
+						<th:block th:case="'announcements'"></th:block>
+						<th:block th:case="'lessons'"></th:block>
+						<th th:case="'assignments'" th:text="#{column.accept.until}">Accept Until Date</th>
+						<th th:case="'assessments'" th:text="#{column.accept.until}">Accept Until Date</th>
+					</th:block>
+				</tr>
+			</thead>
+			<tbody>
+				<th:block th:each="item, iter : ${items}">
+					<tr>
+						<td>
+							<a th:href="@{${item.url}}" target="_blank">
+								<span th:text="${item.title}">Item title</span>
+								<span th:if="${item.extraInfo != 'false'}" th:text="${'(' + item.extraInfo + ')'}">Extra</span>
+							</a>
+						</td>
+						<th:block th:switch="${toolId}">
+							<th:block th:case="'gradebookItems'"></th:block>
+							<td th:case="*">
+								<div>
+									<input type="text" class="form-control datepicker" />
+									<input type="hidden" th:value="${item.open_date}" th:attr="data-idx=${iter.index},data-tool=${toolId}" data-field="open_date" />
+									<div><small class="text-muted day-of-week"></small></div>
+									<div><small class="errors"></small></div>
+								</div>
+							</td>
+						</th:block>
+						<th:block th:switch="${toolId}">
+							<th:block th:case="'lessons'"></th:block>
+							<td th:case="*">
+								<div>
+									<input type="text" class="form-control datepicker" />
+									<input type="hidden" th:value="${item.due_date}" th:attr="data-idx=${iter.index},data-tool=${toolId}" data-field="due_date" />
+									<div><small class="text-muted day-of-week"></small></div>
+									<div><small class="errors"></small></div>
+								</div>
+							</td>
+						</th:block>
+						<th:block th:switch="${toolId}">
+							<th:block th:case="'gradebookItems'"></th:block>
+							<th:block th:case="'signupMeetings'"></th:block>
+							<th:block th:case="'resources'"></th:block>
+							<th:block th:case="'calendarEvents'"></th:block>
+							<th:block th:case="'forums'"></th:block>
+							<th:block th:case="'announcements'"></th:block>
+							<th:block th:case="'lessons'"></th:block>
+							<td th:case="*">
+								<div>
+									<input type="text" class="form-control datepicker" />
+									<input type="hidden" th:value="${item.accept_until}" th:attr="data-idx=${iter.index},data-tool=${toolId}" data-field="accept_until" />
+									<div><small class="text-muted day-of-week"></small></div>
+									<div><small class="errors"></small></div>
+								</div>
+							</td>
+						</th:block>
+					</tr>
+				</th:block>
+			</tbody>
+		</table>
+	</div>
+</div>

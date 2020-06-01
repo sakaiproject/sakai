@@ -5,17 +5,12 @@
 	<parent>
 		<groupId>org.sakaiproject.samigo</groupId>
 		<artifactId>samigo</artifactId>
-		<version>20-SNAPSHOT</version>
+		<version>21-SNAPSHOT</version>
 	</parent>
     
 	<name>Sakai Samigo Lite Service Implementaiton (samlite-impl)</name>
 	<groupId>org.sakaiproject.samigo</groupId>
 	<artifactId>samlite-impl</artifactId>
-	<organization>
-		<name>Sakai Project</name>
-		<url>http://www.sakaiproject.org/</url>
-	</organization>
-	<inceptionYear>2007</inceptionYear>
 	<packaging>jar</packaging>
     
 	<dependencies>

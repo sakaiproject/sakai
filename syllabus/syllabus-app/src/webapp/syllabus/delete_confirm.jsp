@@ -21,7 +21,7 @@
 		  	<h3>
 					<h:outputText  value="#{msgs.delConfNotice}" />
 			</h3>	
-			<div class="alertMessage">
+			<div class="sak-banner-warn">
 				<h:outputText  value="#{msgs.delConfAlert}" />
 			</div>
 				<h:dataTable value="#{SyllabusTool.selectedEntries}" var="eachEntry"  summary="#{msgs.del_conf_listsummary}" styleClass="listHier lines nolines">

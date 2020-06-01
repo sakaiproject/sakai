@@ -20,9 +20,9 @@
 --%>
 -->
 
-<script type="text/javascript" src="/library/webjars/jquery-blockui/2.65/jquery.blockUI.js"></script>
+<script src="/library/webjars/jquery-blockui/2.65/jquery.blockUI.js"></script>
 
-<script type="text/javascript">
+<script>
      var honorPledgeIsChecked = true;
      var scoringType = <h:outputText value="#{delivery.scoringType}"/>;
      var autoSubmit = <h:outputText value="#{delivery.settings.autoSubmit}"/>;
@@ -31,11 +31,8 @@
      var please_wait = "<h:outputText value="#{deliveryMessages.please_wait} "/>";
      var submitButtonValue = "<h:outputText value='#{deliveryMessages.begin_assessment_}' />";
      var selector = "input[value='" + submitButtonValue + "']";
-
-     var time_30_warning = "<h:outputText value="#{deliveryMessages.time_30_warning} "/><h:outputText value="#{deliveryMessages.time_30_warning_2} " />";
-     var time_due_warning = "<h:outputText value="#{deliveryMessages.time_due_warning_1} "/><h:outputText value="#{deliveryMessages.time_due_warning_2} " />";     
      var newAttemptAutoSubmitWarning = "<h:outputText value="#{deliveryMessages.begin_assessment_msg_attempt_autosubmit_warn_average}" rendered="#{delivery.scoringType == 4}" /><h:outputText value="#{deliveryMessages.begin_assessment_msg_attempt_autosubmit_warn_last} " rendered="#{delivery.scoringType == 2}" />";
-     
+
      $(document).ready(function(){
 
                 var timerSave = false;

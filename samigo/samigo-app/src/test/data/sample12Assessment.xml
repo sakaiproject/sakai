@@ -417,6 +417,15 @@ FEEDBACK_DELIVERY_DATE</fieldlabel>
 
 <qtimetadatafield>
 <fieldlabel>
+FEEDBACK_DELIVERY_END_DATE</fieldlabel>
+
+<fieldentry>
+</fieldentry>
+
+</qtimetadatafield>
+
+<qtimetadatafield>
+<fieldlabel>
 EDIT_FEEDBACK_DELIVERY</fieldlabel>
 
 <fieldentry>

@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.faces.event.ActionEvent;
 
 import lombok.Getter;
@@ -41,6 +43,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Precision;
 
 import org.sakaiproject.jsf2.model.PhaseAware;
+import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
@@ -51,14 +54,11 @@ import org.sakaiproject.tool.assessment.util.AttachmentUtil;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.util.ResourceLoader;
 
-/**
- * <p>Description: class form for evaluating question scores</p>
- *
- */
+/* For evaluation: Question Scores backing bean. */
 @Slf4j
-public class QuestionScoresBean
-  implements Serializable, PhaseAware
-{
+@ManagedBean(name="questionScores")
+@SessionScoped
+public class QuestionScoresBean implements Serializable, PhaseAware {
   @Setter
   private String assessmentId;
   @Setter
@@ -155,7 +155,7 @@ public class QuestionScoresBean
   @Getter @Setter
   private Map userIdMap;
   @Getter @Setter
-  private Map agentResultsByItemGradingId;
+  private Map<Long, AgentResults> agentResultsByItemGradingId;
   @Getter @Setter
   private boolean anyItemGradingAttachmentListModified;
   @Getter @Setter
@@ -592,5 +592,9 @@ public void clear(ActionEvent event) {
 
 	public boolean isHasAssociatedRubric() {
 		return hasAssociatedRubric;
+	}
+
+	public String getCDNQuery() {
+		return PortalUtils.getCDNQuery();
 	}
 }

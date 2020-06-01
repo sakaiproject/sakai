@@ -248,9 +248,9 @@ public class Assignments extends AbstractWebService {
     		
     		// If necessary, update the assignment grade in the Gradebook
 
-    		String associateGradebookAssignment = assign.getProperties().get(AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+			String associateGradebookAssignment = assign.getProperties().get(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
     		String sReference = AssignmentReferenceReckoner.reckoner().submission(sub).reckon().getReference();
-    		
+
     		// update grade in gradebook
     		integrateGradebook(aReference, associateGradebookAssignment, null, null, -1, null, sReference, "update", context);
 
@@ -571,11 +571,11 @@ public class Assignments extends AbstractWebService {
     			{
     				Assignment a = assignmentService.getAssignment(assignmentRef);
 
-    				if (updateRemoveSubmission.equals("update")
-    						&& a.getProperties().get(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK) != null
-    						&& !a.getProperties().get(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK).equals(AssignmentServiceConstants.GRADEBOOK_INTEGRATION_NO)
-    						&& a.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE)
-    				{
+					if (updateRemoveSubmission.equals("update")
+							&& a.getProperties().get(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK) != null
+							&& !a.getProperties().get(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK).equals(AssignmentConstants.GRADEBOOK_INTEGRATION_NO)
+							&& a.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE)
+					{
     					if (submissionRef == null)
     					{
     						// bulk add all grades for assignment into gradebook

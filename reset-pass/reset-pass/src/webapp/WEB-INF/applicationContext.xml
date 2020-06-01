@@ -3,42 +3,37 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<!--  Spring messageSource replaces JSF message-bundle from faces-config.xml -->
-	<bean id="messageSource"
-		class="org.sakaiproject.util.ResourceLoaderMessageSource"
-		depends-on="TLABPostProcessorLoader">
-    <property name="basename"
-			value="classpath:org/sakaiproject/tool/resetpass/bundle/Messages" />
-    <property name="cacheSeconds" value="10" />
+    <!--  Spring messageSource replaces JSF message-bundle from faces-config.xml -->
+    <bean id="messageSource"
+        class="org.sakaiproject.util.ResourceLoaderMessageSource"
+        depends-on="TLABPostProcessorLoader">
+        <property name="basename" value="classpath:org/sakaiproject/tool/resetpass/bundle/Messages" />
+        <property name="cacheSeconds" value="10" />
   </bean>
 
      <bean id="userGuard" parent="writeGuardParent">
-     <property name="guardedPath" value="userBean"/>
-     <property name="guard">
-         <bean class="org.sakaiproject.tool.resetpass.UserValidator">
-         <property name="userDirectoryService"
-			ref="org.sakaiproject.user.api.UserDirectoryService" />
-			<property name="serverConfigurationService"
-			ref="org.sakaiproject.component.api.ServerConfigurationService" />
-			<property name="securityService"
-			ref="org.sakaiproject.authz.api.SecurityService" />
-			<property name="toolManager"
-			ref="org.sakaiproject.tool.api.ToolManager" />
- 	 </bean>
-     </property>
+        <property name="guardedPath" value="userBean"/>
+        <property name="guard">
+            <bean class="org.sakaiproject.tool.resetpass.UserValidator">
+                <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+                <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+                <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+                <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+            </bean>
+        </property>
    </bean>
-  
-<bean parent="requestAddressibleParent">
-    <property name="value" value="formHandler, userBean" />
-  </bean>
-  
+
+    <bean parent="requestAddressibleParent">
+        <property name="value" value="formHandler, userBean" />
+    </bean>
+
     <!-- Scope for the user bean -->
     <bean id="UserScope" parent="beanScopeParent">
-    <property name="copyPreservingBeans" value="userBean"/>
-  </bean>
+        <property name="copyPreservingBeans" value="userBean"/>
+    </bean>
 
- <bean id="ignoreFossilizedValues" class="uk.org.ponder.springutil.BooleanFactory">
-<property name="value" value="true" />
-</bean>
+    <bean id="ignoreFossilizedValues" class="uk.org.ponder.springutil.BooleanFactory">
+        <property name="value" value="true" />
+    </bean>
 
 </beans>

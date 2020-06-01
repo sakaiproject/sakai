@@ -1,0 +1,85 @@
+<!-- Start of cloudstorage_googledrive_libraries.vm-->
+<script>includeWebjarLibrary("jstree");</script>
+<script src="/sakai-content-tool/js/jstree/dist/jstreeButtons.js"></script>
+<script>
+  jQuery(function() {
+    var firstTime = true;
+    var mytree = jQuery('#container-jstree').jstree({
+      'core' : {
+        data : function (node, cb) {
+          var url = '/direct/contentajax/doNavigateGoogleDrive.json';
+          if (node.id !== '#') url += '?googledriveCollectionId=' + node.id;
+          jQuery.ajax({
+            url: url,
+            data: function (node) {
+              return {'id' : node.id};
+            }
+          }).done(function (data) {
+            if (firstTime) {
+              #if ($googledriveJson)
+                var json = '$googledriveJson';
+                var jsonData = JSON.parse(json);
+                cb(jsonData);
+              #else
+                cb(data.contentajax_collection[0].data);
+              #end
+              firstTime = false;
+            } else {
+              cb(data.contentajax_collection[0].data);
+            }
+          });
+        }
+      },
+      plugins: ['actions']
+    });
+    mytree.on('changed.jstree', function (e, data) {
+        if(data.node.li_attr['data-view'].includes('/edit')){
+          var urleditable= data.node.li_attr['data-view'];
+          var win2 = window.open(urleditable, '_blank');
+        }
+        if(data.node.li_attr['data-url'] != null){
+          var urlImages=data.node.li_attr['data-url'];
+          var urlNotReady= urlImages.indexOf("=download");
+          var urlReady= urlImages.substring(0, urlNotReady);
+          var win = window.open(urlReady, '_blank');
+        }
+      });
+    mytree.jstree(true).add_action("all", {
+      "id": "action_link",
+      "class": "fa fa-link",
+      "title": "Attach a link",
+      "text": "",
+      "after": true,
+      "selector": "a",
+      "event": "click",
+      "callback": function(node_id, node, action_id, action_el){
+        return doAttachSubmitGoogleDrive(node.id, false);
+      }
+    });
+    mytree.jstree(true).add_action("all", {
+      "id": "action_copy",
+      "class": "fa fa-files-o",
+      "title": "Attach a copy",
+      "text": "",
+      "after": true,
+      "selector": "a",
+      "event": "click",
+      "callback": function(node_id, node, action_id, action_el){
+        return doAttachSubmitGoogleDrive(node.id, true);
+      }
+    });
+  });
+
+  function doAttachSubmitGoogleDrive(itemId, cloneObject) {
+    document.getElementById('doattachgoogledriveitemid').setAttribute('value',itemId);
+    document.getElementById('googledriveitemidclone').setAttribute('value',cloneObject);
+    var json = jQuery('#container-jstree').jstree(true).get_json('#', {flat:false});
+    var jsonStr = JSON.stringify(json);
+    document.getElementById('googledrivejson').setAttribute('value',jsonStr);
+    var f = document.getElementById('doattachitem');
+    f.submit();
+    return false;
+  }
+
+</script>
+<!-- End of cloudstorage_googledrive_libraries.vm-->

@@ -13,14 +13,16 @@
 	<h3 rsf:id="addconf.confirming">Confirming Add Participant(s)</h3>
 	<!-- alert message -->
 	<div rsf:id="error-row:">
-		<div class="alertMessage" rsf:id="error">We Have Errors!</div>
+		<div class="sak-banner-error" rsf:id="error">We Have Errors!</div>
 	</div>
 	<div rsf:id="info-row:">
-		<div class="information" rsf:id="info">We Have Infos!</div>
+		<div class="sak-banner-info" rsf:id="info">We Have Infos!</div>
 	</div>
 	<div rsf:id="content:">
-		<h4 class="instruction" rsf:id="msg=addconf.finish"></h4>
-		<span rsf:id="emailnoti"></span>
+		<p class="instruction">
+			<span rsf:id="msg=addconf.finish"></span>
+			<span rsf:id="emailnoti"></span>
+		</p>
 		<form rsf:id="confirm" action="Add.html">
 			<input rsf:id="csrfToken" name="csrfToken" id="csrfToken" type="hidden"/>
 			<div class="table-responsive">

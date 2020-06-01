@@ -9,12 +9,13 @@
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
-        <version>20-SNAPSHOT</version>
+        <version>21-SNAPSHOT</version>
         <relativePath>../master/pom.xml</relativePath>
     </parent>
 
     <modules>
         <module>onedrive</module>
+        <module>googledrive</module>
     </modules>
 
 </project>

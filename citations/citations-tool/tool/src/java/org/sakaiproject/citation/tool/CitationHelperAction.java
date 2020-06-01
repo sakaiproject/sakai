@@ -633,8 +633,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		
 		String resourceClass = scs.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
 		String resourceBundle = scs.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
-		srb = new Resource().getLoader(resourceClass, resourceBundle);		
-		
+		srb = Resource.getResourceLoader(resourceClass, resourceBundle);
+
 		if(scs != null) {
 			defaultListPageSize = scs.getInt("citations.default.list.page.size", DEFAULT_LIST_PAGE_SIZE);
 		} else {

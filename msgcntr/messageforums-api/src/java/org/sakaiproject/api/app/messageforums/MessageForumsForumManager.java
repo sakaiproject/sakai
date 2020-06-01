@@ -111,9 +111,9 @@ public interface MessageForumsForumManager {
     /**
      * Save a discussion forum topic
      */
-    public void saveDiscussionForumTopic(DiscussionTopic topic);
-    public void saveDiscussionForumTopic(DiscussionTopic topic, boolean parentForumDraftStatus);
-    public void saveDiscussionForumTopic(DiscussionTopic topic, boolean parentForumDraftStatus, String currentUser, boolean logEvent);
+    public DiscussionTopic saveDiscussionForumTopic(DiscussionTopic topic);
+    public DiscussionTopic saveDiscussionForumTopic(DiscussionTopic topic, boolean parentForumDraftStatus);
+    public DiscussionTopic saveDiscussionForumTopic(DiscussionTopic topic, boolean parentForumDraftStatus, String currentUser, boolean logEvent);
     /**
      * Create and save an empty private discussion forum topic
      */
@@ -130,8 +130,12 @@ public interface MessageForumsForumManager {
      * Delete a private forum topic
      */
     public void deletePrivateForumTopic(PrivateTopic topic);
-    
-    
+
+    /**
+     * Create an empty message
+     */
+    Message createMessage(final DiscussionTopic topic);
+
     /**
      * Create and save an empty open discussion forum topic
      */

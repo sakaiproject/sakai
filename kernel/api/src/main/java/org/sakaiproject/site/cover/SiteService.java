@@ -289,6 +289,14 @@ public class SiteService
 
 		service.removeSite(param0);
 	}
+
+	public static void removeSite(org.sakaiproject.site.api.Site param0, boolean param1) throws org.sakaiproject.exception.PermissionException, org.sakaiproject.exception.IdUnusedException
+	{
+		org.sakaiproject.site.api.SiteService service = getInstance();
+		if (service == null) return;
+
+		service.removeSite(param0, param1);
+	}
 	
 	public static java.lang.String siteReference(java.lang.String param0)
 	{

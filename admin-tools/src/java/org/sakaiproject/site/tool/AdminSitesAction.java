@@ -25,7 +25,6 @@ import static org.sakaiproject.site.api.SiteService.SITE_TITLE_MAX_LENGTH;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -38,6 +37,7 @@ import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzRealmLockException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
@@ -77,9 +77,10 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.comparator.ToolTitleComparator;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -125,6 +126,7 @@ public class AdminSitesAction extends PagedResourceActionII
 	private EventTrackingService eventTrackingService;
 	private SecurityService securityService;
 	private UserTimeService userTimeService;
+	private FormattedText formattedText;
 
 	public AdminSitesAction() {
 		super();
@@ -137,6 +139,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		eventTrackingService = ComponentManager.get(EventTrackingService.class);
 		securityService = ComponentManager.get(SecurityService.class);
 		userTimeService = ComponentManager.get(UserTimeService.class);
+		formattedText = ComponentManager.get(FormattedText.class);
 		
 		
 	}
@@ -885,12 +888,6 @@ public class AdminSitesAction extends PagedResourceActionII
 	 */
 	private List findNonHelperTools()
 	{
-		class ToolTitleComparator implements Comparator{
-			public int compare(Object tool0, Object tool1) {
-				return ((Tool)tool0).getTitle().compareTo( ((Tool)tool1).getTitle() );
-			}
-		}
-		
 		// get all tools
 		Set all = toolManager.findTools(null, null);
 
@@ -1400,7 +1397,7 @@ public class AdminSitesAction extends PagedResourceActionII
 
 		// Site title is editable; cannot but null/empty after HTML stripping, and cannot exceed max length
 		String titleOrig = data.getParameters().getString("title");
-		String titleStripped = FormattedText.stripHtmlFromText(titleOrig, true, true);
+		String titleStripped = formattedText.stripHtmlFromText(titleOrig, true, true);
 		SiteTitleValidationStatus status = siteService.validateSiteTitle(titleOrig, titleStripped);
 
 		if (SiteTitleValidationStatus.STRIPPED_TO_EMPTY.equals(status)) {
@@ -1865,8 +1862,8 @@ public class AdminSitesAction extends PagedResourceActionII
 		{
 			try {
 				site.deleteGroup(group);
-			} catch (IllegalStateException e) {
-				log.error(".doCancel_group: Group with id {} cannot be removed because is locked", group.getId());
+			} catch (AuthzRealmLockException arle) {
+				log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
 			}
 		}
 
@@ -1893,8 +1890,8 @@ public class AdminSitesAction extends PagedResourceActionII
 		// remove the page (no confirm)
 		try {
 			site.deleteGroup(group);
-		} catch (IllegalStateException e) {
-			log.error(".doRemove_group: Group with id {} cannot be removed because is locked", group.getId());
+		} catch (AuthzRealmLockException arle) {
+			log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
 		}
 
 		// done with the page
@@ -2690,7 +2687,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		 * resource reference or outputting that reference as a URL.
 		 */
 		boolean isSimpleResourceName = alias.equals(Validator.escapeResourceName(alias));
-		boolean isSimpleUrl = alias.equals(Validator.escapeUrl(alias));
+		boolean isSimpleUrl = alias.equals(formattedText.escapeUrl(alias));
 		if ( !(isSimpleResourceName) || !(isSimpleUrl) ) {
 			addAlert(state, rb.getFormattedMessage("sitedipag.alias.isinval", new Object[]{alias}));
 			log.warn("{}.updateSiteInfo: {}", this, rb.getFormattedMessage("sitedipag.alias.isinval", new Object[]{alias}));

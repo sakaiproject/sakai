@@ -20,10 +20,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import lombok.extern.slf4j.Slf4j;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.SessionScoped;
+
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
-import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.samlite.api.Question;
 import org.sakaiproject.tool.assessment.samlite.api.QuestionGroup;
@@ -31,13 +33,17 @@ import org.sakaiproject.tool.assessment.samlite.api.SamLiteService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
-import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.TextFormat;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.FormattedText;
 import org.w3c.dom.Document;
 
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
+@ManagedBean(name="samLiteBean")
+@SessionScoped
 public class SamLiteBean implements Serializable {
 	private static final long serialVersionUID = -3122436861866172596L;
 	public static final String DEFAULT_CHARSET = "ascii-us";
@@ -49,9 +55,13 @@ public class SamLiteBean implements Serializable {
 	private String outcome;
 	
 	private boolean isVisible = true;
-	
+
+	@ManagedProperty(value="#{author}")
 	private AuthorBean authorBean;
+	@ManagedProperty(value="#{authorization}")
 	private AuthorizationBean authorizationBean;
+	@Setter @ManagedProperty(value="#{Components[\"org.sakaiproject.util.api.FormattedText\"]}")
+	private FormattedText formattedText;
 
 	private ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.SamLite");
 	
@@ -64,6 +74,7 @@ public class SamLiteBean implements Serializable {
 	}
 
 	private QuestionGroup questionGroup;
+	@ManagedProperty(value="#{org_sakaiproject_tool_assessment_services_samlite_SamLiteService}")
 	private SamLiteService samLiteService;
 
 	public void setSamLiteService(SamLiteService samLiteService) {
@@ -98,7 +109,7 @@ public class SamLiteBean implements Serializable {
 	    Iterator iter = list.iterator();
 		while (iter.hasNext()) {
 			AssessmentFacade assessmentFacade= (AssessmentFacade) iter.next();
-			assessmentFacade.setTitle(FormattedText.convertFormattedTextToPlaintext(assessmentFacade.getTitle()));
+			assessmentFacade.setTitle(formattedText.convertFormattedTextToPlaintext(assessmentFacade.getTitle()));
 		}
 	    List allAssessments = new ArrayList<>();
 	    if (authorizationBean.getEditAnyAssessment() || authorizationBean.getEditOwnAssessment()) {

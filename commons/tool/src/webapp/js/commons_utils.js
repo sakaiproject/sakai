@@ -65,7 +65,7 @@ commons.utils = {
                                                                 image: image,
                                                                 url: url,
                                                                 description: description,
-                                                                siteName: siteName}));
+                                                                siteName: siteName}, {helpers: commonsHelpers}));
             }
         });
     },
@@ -367,7 +367,7 @@ commons.utils = {
     renderTemplate: function (name, data, output) {
 
         var template = Handlebars.templates[name];
-        document.getElementById(output).innerHTML = template(data);
+        document.getElementById(output).innerHTML = template(data, {helpers: commonsHelpers});
     },
     renderPost: function (post, output) {
 
@@ -443,7 +443,7 @@ commons.utils = {
                         savedComment.formattedCreatedDate = commons.utils.formatDate(savedComment.createdDate);
                         savedComment.orderClass = 'commons-comment-recent';
                         savedComment.isRecent = true;
-                        var wrappedComment = Handlebars.templates['wrapped_comment'] (savedComment);
+                        var wrappedComment = Handlebars.templates['wrapped_comment'] (savedComment, {helpers: commonsHelpers});
                         $('#commons-comments-container-' + post.id).append(wrappedComment);
 
                         self.addHandlersToComment(savedComment);
@@ -493,7 +493,7 @@ commons.utils = {
 
                 // Add the next batch of placeholders to the post list
                 var t = Handlebars.templates['posts_placeholders'];
-                $('#commons-posts').append(t({ posts: posts }));
+                $('#commons-posts').append(t({ posts: posts }, {helpers: commonsHelpers}));
 
                 $(document).ready(function () {
 

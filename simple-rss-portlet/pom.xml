@@ -13,11 +13,9 @@
     <parent>
 		<groupId>org.sakaiproject</groupId>
 		<artifactId>master</artifactId>
-		<version>20-SNAPSHOT</version>
+		<version>21-SNAPSHOT</version>
 		<relativePath>../master/pom.xml</relativePath>
   	</parent>
-  	
-    <inceptionYear>2011</inceptionYear>
 	
 	<licenses>
 		<license>
@@ -78,9 +76,9 @@
 		</dependency>
 		
 		<dependency>
-			<groupId>rome</groupId>
+			<groupId>com.rometools</groupId>
 			<artifactId>rome</artifactId>
-			<version>1.0</version>
+			<version>1.12.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jdom</groupId>

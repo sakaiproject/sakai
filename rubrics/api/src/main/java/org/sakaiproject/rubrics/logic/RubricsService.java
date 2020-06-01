@@ -36,8 +36,9 @@ public interface RubricsService {
 
     public static final String REFERENCE_ROOT = Entity.SEPARATOR + "rubrics";
 
-    boolean hasAssociatedRubric(String toolId,
-                                String associatedToolItemId);
+    boolean hasAssociatedRubric(String toolId, String associatedToolItemId);
+
+    boolean hasAssociatedRubric(String toolId, String associatedToolItemId, String siteId);
 
     Optional<ToolItemRubricAssociation> getRubricAssociation(String toolId,
                                                              String associatedToolItemId) throws Exception;
@@ -48,14 +49,9 @@ public interface RubricsService {
                                String associatedToolItemId,
                                Map<String, String> params);
 
-    void saveRubricEvaluation(String toolId,
-                              String associatedToolItemId,
-                              String evaluatedItemId,
-                              String evaluatedItemOwnerId,
-                              String evaluatorId,
-                              Map<String, String> params);
-
     String generateJsonWebToken(String tool);
+
+    String generateJsonWebToken(String tool, String siteId);
 
     String getCurrentSessionId();
 
@@ -63,7 +59,14 @@ public interface RubricsService {
 
     String getRubricEvaluationObjectId(String associationId, String userId, String toolId);
 
-    void deleteRubricAssociation(String query, String toolId);
+    void deleteRubricAssociation(String toolId, String itemId);
+    void softDeleteRubricAssociation(String toolId, String itemId);
+    void restoreRubricAssociation(String toolId, String itemId);
 
     void deleteRubricAssociationsByItemIdPrefix(String itemId, String toolId);
+    void softDeleteRubricAssociationsByItemIdPrefix(String itemId, String toolId);
+    void restoreRubricAssociationsByItemIdPrefix(String itemId, String toolId);
+
+    void deleteSiteRubrics(String siteId);
+
 }

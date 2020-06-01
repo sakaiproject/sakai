@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+		xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.sakaiproject.sitemanage</groupId>
+		<artifactId>sakai-site-datemanager-base</artifactId>
+		<version>21-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+
+	<name>sakai-site-datemanager-api</name>
+	<groupId>org.sakaiproject.datemanager.api</groupId>
+	<artifactId>sakai-site-datemanager-api</artifactId>
+	<packaging>jar</packaging>
+
+	<properties>
+		<deploy.target>shared</deploy.target>
+	</properties>
+
+	<dependencies>
+		<!-- Sakai dependencies -->
+		<!-- Third dependencies -->
+		<dependency>
+			<groupId>com.googlecode.json-simple</groupId>
+			<artifactId>json-simple</artifactId>
+			<version>${json.simple.version}</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+</project>

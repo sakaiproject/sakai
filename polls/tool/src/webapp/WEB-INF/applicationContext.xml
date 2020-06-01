@@ -69,8 +69,7 @@
 		<property name="guardedPath" value="option" />
 		<property name="guard">
 			<bean class="org.sakaiproject.poll.tool.validators.OptionValidator">
-				
-				
+				<property name="externalLogic" ref="org.sakaiproject.poll.logic.ExternalLogic"/>
 			</bean>
 		</property>
 	</bean>

@@ -25,26 +25,20 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
+
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener;
 
-/**
- * <p> </p>
- * <p>Description: Backing Bean with some properties</p>
- * <p>Copyright: Copyright (c) 2004</p>
- * <p>Organization: Sakai Project</p>
- * @author Ed Smiley
- * @version $id: $
- */
 @Slf4j
-public class BackingBean implements Serializable
-{
-  /**
-	 * 
-	 */
+@ManagedBean(name="backingbean")
+@SessionScoped
+public class BackingBean implements Serializable {
+
 	private static final long serialVersionUID = -1137408628089300518L;
 
   private String prop1;

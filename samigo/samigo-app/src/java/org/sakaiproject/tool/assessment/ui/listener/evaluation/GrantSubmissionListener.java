@@ -32,8 +32,13 @@ import javax.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.shared.MediaService;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
@@ -56,6 +61,7 @@ public class GrantSubmissionListener
 {
   private static EvaluationListenerUtil util;
   private static BeanSort bs;
+  private final EventTrackingService eventTrackingService = ComponentManager.get( EventTrackingService.class );
 
   /**
    * Increases submissions remaining by 1.
@@ -78,29 +84,8 @@ public class GrantSubmissionListener
 	String publishedAssessmentId = ContextUtil.lookupParam("publishedId");
 
 	GradingService gradingService = new GradingService();
-	MediaService mediaService = new MediaService();
-
-	List itemGradingIds = gradingService.getItemGradingIds(gradingId);
-
-	for(int i = 0; i < itemGradingIds.size(); i++){
-		Long itemGradingId = (Long) itemGradingIds.get(i);
-		//for each grading item, check if question is file upload type or an audio recording type
-		int itemType = gradingService.getTypeId(itemGradingId).intValue();
-		if(itemType == 6 || itemType == 7){
-			//if is file upload or recording type, check if there is file/media uploaded
-			List<MediaData> mediaDatas = gradingService.getMediaArray(itemGradingId.toString());
-			for(int j = 0; j < mediaDatas.size(); j++) {
-				//if there are file(s) uploaded, delete them
-				String mediaId = ((MediaData)mediaDatas.get(j)).getMediaId().toString();
-				mediaService.remove(mediaId);
-			}
-		}
-	}
-
-    AssessmentGradingData ag = (AssessmentGradingData) gradingService.load(gradingIdParam);  
-    Collection collectionOfOne = new ArrayList();
-    collectionOfOne.add(ag);
-    gradingService.deleteAll(collectionOfOne);
+	AssessmentGradingData ag = (AssessmentGradingData) gradingService.load(gradingIdParam);  
+    gradingService.removeAssessmentGradingData(ag); // This will just flip the STATUS column, no hard deletes
 
     Collection agentList = totalScores.getAgents();
     for(Iterator i = agentList.iterator(); i.hasNext();) {
@@ -139,5 +124,15 @@ public class GrantSubmissionListener
 
     gradingService.notifyDeleteToGradebook(gradingList, totalScores.getPublishedAssessment(), deletedStudentId);
 
+    // Now post an event so support teams know who deleted the submission
+    eventTrackingService.post(
+    		eventTrackingService.newEvent(
+    				SamigoConstants.EVENT_SUBMISSION_DELETE, 
+    				"siteId=" + AgentFacade.getCurrentSiteId() + ", publishedAssessmentId=" + publishedAssessmentId + ", agentId=" + deletedStudentId + ", assessmentGradingID=" + gradingId,
+    				AgentFacade.getCurrentSiteId(), 
+    				true, 
+    				NotificationService.NOTI_NONE
+    		)
+    );
   }
 }

@@ -1,20 +1,21 @@
 <!-- sakai_quota.vm, version: $Revision$, use with org.sakaiproject.tool.content.ResourcesAction.java -->
 <div class="portletBody specialLink">
+	#contentMenu("quota")
 	#if ($alertMessage)
-		<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
+		<div class="sak-banner-error">$clang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>
 	#end
 	<div class="page-header">
-		<h1>$tlang.getString("quota.quota")</h1>
+		<h1>$clang.getString("quota.quota")</h1>
 	</div>
 	<div class="instruction">
-		$tlang.getString("quota.instr")
+		$clang.getString("quota.instr")
 	</div>
 	<div class="highlightPanel">
-	$tlang.getFormattedMessage("quota.using.param", $usagePercent, $usage, $quota)
+	$clang.getFormattedMessage("quota.using.param", $usagePercent, $usage, $quota)
 	</div>
 	<form action="#toolForm("ResourcesAction")" name="quotaForm" method="post" >
 		<p class ="act">
-			<input type="submit" class="active"  name="eventSubmit_doCancel" value="$tlang.getString("gen.back")" accesskey="x" />
+			<input type="submit" class="active"  name="eventSubmit_doCancel" value="$clang.getString("gen.back")" accesskey="x" />
 		</p>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>

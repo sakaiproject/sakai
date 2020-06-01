@@ -41,6 +41,7 @@ import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.api.privacy.PrivacyManager;
+import org.sakaiproject.authz.api.AuthzRealmLockException;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Member;
@@ -519,8 +520,8 @@ RESTful, ActionsExecutable {
                         // Every user added via this EB is defined as non-provided
                         try {
                             group.insertMember(userId, role.getId(), m != null ? m.isActive() : true, false);
-                        } catch (IllegalStateException e) {
-                            log.error(".getGroupMemberships: User with id {} cannot be inserted in group with id {} because the group is locked", userId, group.getId());
+                        } catch (AuthzRealmLockException arle) {
+                            log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
                         }
                     }
                 }
@@ -532,8 +533,8 @@ RESTful, ActionsExecutable {
                 // replace the current membership with the provided list
                 try {
                     group.deleteMembers();
-                } catch (IllegalStateException e) {
-                    log.error(".getGroupMemberships: Members from group with id {} cannot be deleted because the group is locked", group.getId());
+                } catch (AuthzRealmLockException arle) {
+                    log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
                 }
                 for (String user : userIds) {
                     String userId = userEntityProvider.findAndCheckUserId(null, user.trim());
@@ -549,8 +550,8 @@ RESTful, ActionsExecutable {
                         try {
                             group.insertMember(userId, role.getId(), m != null ? m.isActive() : true,
                                 false);
-                        } catch (IllegalStateException e) {
-                            log.error(".getGroupMemberships: User with id {} cannot be inserted in group with id {} because the group is locked", userId, group.getId());
+                        } catch (AuthzRealmLockException arle) {
+                            log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
                         }
                     }
                 }
@@ -564,8 +565,8 @@ RESTful, ActionsExecutable {
                     }
                     try {
                         group.deleteMember(userId);
-                    } catch (IllegalStateException e) {
-                        log.error(".getGroupMemberships: User with id {} cannot be deleted from group with id {} because the group is locked", userId, group.getId());
+                    } catch (AuthzRealmLockException arle) {
+                        log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
                     }
                 }
             } else {
@@ -898,8 +899,8 @@ RESTful, ActionsExecutable {
                 try {
                     sg.group.insertMember(userIds[i], roleId, active, false);
                     saveGroupMembership(sg.site, sg.group);
-                } catch (IllegalStateException e) {
-                    log.error(".createEntity: User with id {} cannot be inserted in group with id {} because the group is locked", userIds[i], sg.group.getId());
+                } catch (AuthzRealmLockException arle) {
+                    log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
                 }
             }
             if (i == 0) {
@@ -976,8 +977,8 @@ RESTful, ActionsExecutable {
                 try {
                     sg.group.deleteMember(userIds[i]);
                     saveGroupMembership(sg.site, sg.group);
-                } catch (IllegalStateException e) {
-                    log.error(".deleteEntity: User with id {} cannot be deleted from group with id {} because the group is locked", userIds[i], sg.group.getId());
+                } catch (AuthzRealmLockException arle) {
+                    log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
                 }
             }
         }
@@ -1276,8 +1277,8 @@ RESTful, ActionsExecutable {
                 // Every user added via this EB is defined as non-provided
                 try {
                     group.insertMember(userId, role.getId(), m != null ? m.isActive() : true, false);
-                } catch (IllegalArgumentException e) {
-                    log.error(".addUsersToGroup: User with id {} cannot be inserted in group with id {} because the group is locked", userId, group.getId());
+                } catch (AuthzRealmLockException arle) {
+                    log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
                 }
             }
         }

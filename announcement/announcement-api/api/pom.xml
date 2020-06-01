@@ -5,22 +5,28 @@
     <parent>
         <groupId>org.sakaiproject.announcement</groupId>
         <artifactId>announcement</artifactId>
-        <version>20-SNAPSHOT</version>
+        <version>21-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <name>sakai-announcement-api</name>
     <groupId>org.sakaiproject.announcement</groupId>
     <artifactId>sakai-announcement-api</artifactId>
-    <organization>
-        <name>The Sakai Foundation</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2003</inceptionYear>
     <packaging>jar</packaging>
 
     <properties>
         <deploy.target>shared</deploy.target>
     </properties>
+    
+    <build>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/bundle</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
 
 </project>

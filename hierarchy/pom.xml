@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
-        <version>20-SNAPSHOT</version>
+        <version>21-SNAPSHOT</version>
         <relativePath>../master/pom.xml</relativePath>
     </parent>
 
@@ -13,12 +13,6 @@
     <artifactId>hierarchy</artifactId>
 
     <packaging>pom</packaging>
-
-    <organization>
-        <name>Apereo Foundation</name>
-        <url>http://apereo.org</url>
-    </organization>
-    <inceptionYear>2007</inceptionYear>
 
     <description>
         Hierarchy is meant to provide a high performance basic hierarchy to associate data

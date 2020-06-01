@@ -353,19 +353,19 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 		String isoStartTime = params.get(HIDDEN_ISO_STARTTIME);
 
 		if(DateFormatterUtil.isValidISODate(isoStartTime)){
-			this.signupMeeting.setStartTime(DateFormatterUtil.parseISODate(isoStartTime));
+			this.signupMeeting.setStartTime(sakaiFacade.getTimeService().parseISODateInUserTimezone(isoStartTime));
 		}
 
 		String isoEndTime = params.get(HIDDEN_ISO_ENDTIME);
 
 		if(DateFormatterUtil.isValidISODate(isoEndTime)){
-			this.signupMeeting.setEndTime(DateFormatterUtil.parseISODate(isoEndTime));
+			this.signupMeeting.setEndTime(sakaiFacade.getTimeService().parseISODateInUserTimezone(isoEndTime));
 		}
 
 		String isoUntilTime = params.get(HIDDEN_ISO_UNTILTIME);
 
 		if(DateFormatterUtil.isValidISODate(isoUntilTime)){
-			setRepeatUntil(DateFormatterUtil.parseISODate(isoUntilTime));
+			setRepeatUntil(sakaiFacade.getTimeService().parseISODateInUserTimezone(isoUntilTime));
 		}
 		Date eventEndTime = signupMeeting.getEndTime();
 		Date eventStartTime = signupMeeting.getStartTime();
@@ -382,16 +382,16 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 
 		/*user defined own TS case*/
 		if(isUserDefinedTS()){
-			eventEndTime= getUserDefineTimeslotBean().getEventEndTime();
-			eventStartTime = getUserDefineTimeslotBean().getEventStartTime();		
-			/*pass the value since they may be null*/
-			this.signupMeeting.setStartTime(eventStartTime);
-			this.signupMeeting.setEndTime(eventEndTime);
-			
 			if(getUserDefineTimeslotBean().getDestTSwrpList()==null || getUserDefineTimeslotBean().getDestTSwrpList().isEmpty()){
 				validationError = true;
 				Utilities.addErrorMessage(Utilities.rb.getString("event.create_custom_defined_TS_blocks"));
 				return;
+			} else {
+				eventEndTime = getUserDefineTimeslotBean().getEventEndTime();
+				eventStartTime = getUserDefineTimeslotBean().getEventStartTime();
+				/*pass the value since they may be null*/
+				this.signupMeeting.setStartTime(eventStartTime);
+				this.signupMeeting.setEndTime(eventEndTime);
 			}
 				
 		}

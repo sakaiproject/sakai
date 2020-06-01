@@ -4,7 +4,7 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
     
    <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"  
-       class="org.sakaiproject.user.tool.entity.UserPrefsEntityProvider" init-method="init">
+       class="org.sakaiproject.user.tool.entity.UserPrefsEntityProvider">
        <property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService" />
        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
     </bean>

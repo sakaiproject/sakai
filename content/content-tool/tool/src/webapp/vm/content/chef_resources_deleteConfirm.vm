@@ -1,30 +1,31 @@
 <!-- chef_resources_deleteConfirm.vm, version: $Revision:  $, use with org.sakaiproject.tool.content.ResourcesAction.java -->
 <div class="portletBody specialLink">
+	#contentMenu("trash")
 	#if ($alertMessage)
-		<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
+		<div class="sak-banner-error">$clang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>
 	#end
-	<div class="sak-banner-error">$tlang.getString("del.sure")</div>
+	<div class="sak-banner-error">$clang.getString("del.sure")</div>
 	<h3>
-		$tlang.getString("del.del")
+		$clang.getString("del.del")
 	</h3>
 	<form action="#toolForm("ResourcesAction")" name="deleteFileForm" method="post" >
 		<input type="hidden" name="deleteResourceIds" value="$deleteResourceIds" />
 		<input type="hidden" name="view" value="general" />
-		<input type="hidden" name="collectionId" value="$validator.escapeHtml($collectionId)" />
+		<input type="hidden" name="collectionId" value="$formattedText.escapeHtml($collectionId)" />
 		#if ($deleteItems.size()>0)
-			<table class ="listHier lines" cellspacing="0" summary="$tlang.getString("del.table")" border="0" cellpadding="0">
+			<table class ="listHier lines" cellspacing="0" summary="$clang.getString("del.table")" border="0" cellpadding="0">
 				<tr>
 					<th id="title">
-						$tlang.getString("gen.title")
+						$clang.getString("gen.title")
 					</th>
 					<th id="size">
-						$tlang.getString("gen.size")
+						$clang.getString("gen.size")
 					</th>
 					<th id="created">
-						$tlang.getString("gen.created")
+						$clang.getString("gen.created")
 					</th>
 					<th id="last">
-						$tlang.getString("gen.lastmod")
+						$clang.getString("gen.lastmod")
 					</th>
 				</tr>
 				#foreach ($member in $deleteItems)
@@ -34,7 +35,7 @@
 								<span class="$member.iconClass" aria-hidden="true"></span>
 								<span class="sr-only">$!member.label</span>
 								<a href="$member.url" target="_blank">
-									$validator.escapeHtml($member.name)
+									$formattedText.escapeHtml($member.name)
 								</a>
 							</h4>
 						</td>
@@ -51,8 +52,8 @@
 				#end
 			</table>
 			<p class ="act">
-				<input type="submit" class="active"  name="eventSubmit_doDelete" value="$tlang.getString("del.del1")" accesskey="s" />
-				<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("gen.cancel")" accesskey="x" />
+				<input type="submit" class="active"  name="eventSubmit_doDelete" value="$clang.getString("del.del1")" accesskey="s" />
+				<input type="submit" name="eventSubmit_doCancel" value="$clang.getString("gen.cancel")" accesskey="x" />
 			</p>
 		#end
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />

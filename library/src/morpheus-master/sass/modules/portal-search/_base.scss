@@ -1,0 +1,80 @@
+.sakai-search-input {
+  margin-left: $top-header-item-spacing;
+  padding-left: $top-header-item-spacing;
+  border-left: $top-header-separators-thickness solid $topNav-alt-color;
+  
+  input, a {
+    display: inline-block;
+  }
+
+  input {
+    height: $top-header-icon-size;
+  }
+  a {
+    width: $top-header-icon-size;
+    height: $top-header-icon-size;
+    &:hover, &:focus {
+      color: $topNav-text-color;
+      background: rgba(0,0,0,.2);
+      border-radius:50%;
+    }
+    &:active {
+      background: rgba(0,0,0,.4);
+    }
+  }
+}
+
+.sakai-search-results {
+  position: absolute;
+  right: 0;
+  background-color: white;
+  color: black;
+  border: 1px solid black;
+  padding: 5px;
+  z-index: 99;
+
+  a {
+    color: black;
+    text-decoration: none;
+  }
+
+  .search-result-container {
+
+    padding-bottom: 9px;
+    border-bottom: 1px solid black;
+
+    text-align: left;
+
+    a { display: inline-block; }
+
+    .search-result-title-label {
+      font-weight: bold;
+      margin-right: 10px;
+    }
+
+    .search-result-site-title {
+      font-weight: bold;
+    }
+
+    .search-result-tool-icon {
+      font-size: 1.5em;
+      margin-right: 10px;
+    }
+
+    margin-bottom: 15px;
+    .search-result {
+      width: 600px;
+      @media #{$phone} {
+        width: 400px;
+      }
+    }
+
+    .search-result-toolname {
+      font-weight: bold;
+    }
+  }
+
+  .pager-previous-link {
+    margin-right: 50px;
+  }
+}

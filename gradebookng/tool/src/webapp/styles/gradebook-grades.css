@@ -88,7 +88,6 @@
   line-height: 1em;
   max-width: 80%;
   max-width: calc(100% - 50px);
-  margin-top: 10px;
   font-size: 12px;
 }
 #gradebookGradesToolbar .gb-item-summary.warn-items-hidden .gb-item-summary-counts {
@@ -639,6 +638,11 @@ div.wicket-modal div.w_right > div {
 .gradesToolbar1 .captionToggleContainer
 {
   margin-left: auto;
+}
+
+.captionToggleContainer {
+    display: flex;
+    align-items: center;
 }
 
 .gradesToolbar2

@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.sakaiproject</groupId>
 		<artifactId>master</artifactId>
-		<version>20-SNAPSHOT</version>
+		<version>21-SNAPSHOT</version>
 		<relativePath>../master/pom.xml</relativePath>
 	</parent>
 	<name>Profile2</name>
@@ -12,11 +12,6 @@
 	<artifactId>profile2</artifactId>
 	<packaging>pom</packaging>
 	<!-- ProjectVersion -->
-	<organization>
-		<name>The Sakai Foundation</name>
-		<url>http://www.sakaiproject.org</url>
-	</organization>
-	<inceptionYear>2008</inceptionYear>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<wicket.version>6.30.0</wicket.version>
@@ -73,12 +68,12 @@
 			<dependency>
 				<groupId>org.twitter4j</groupId>
 				<artifactId>twitter4j-core</artifactId>
-				<version>4.0.6</version>
+				<version>4.0.7</version>
 			</dependency>
 			<dependency>
 				<groupId>org.wicketstuff</groupId>
 				<artifactId>wicketstuff-objectautocomplete</artifactId>
-				<version>6.18.0</version>
+				<version>${wicket.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.imgscalr</groupId>

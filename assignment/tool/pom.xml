@@ -6,18 +6,13 @@
     <parent>
         <groupId>org.sakaiproject.assignment</groupId>
         <artifactId>assignment</artifactId>
-        <version>20-SNAPSHOT</version>
+        <version>21-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <name>sakai-assignment-tool</name>
     <groupId>org.sakaiproject.assignment</groupId>
     <artifactId>sakai-assignment-tool</artifactId>
-    <organization>
-        <name>The Sakai Foundation</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2003</inceptionYear>
     <packaging>war</packaging>
 
     <dependencies>
@@ -40,10 +35,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>sakai-assignment-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>sakai-assignment-bundles</artifactId>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.contentreview</groupId>
@@ -110,6 +101,10 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+        </dependency>
+        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
         </dependency>
@@ -135,6 +130,10 @@
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
             <version>${sakai.poi.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
         </dependency>
         <dependency>
             <groupId>org.powermock</groupId>

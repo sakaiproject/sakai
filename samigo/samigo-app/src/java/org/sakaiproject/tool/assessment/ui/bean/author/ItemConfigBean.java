@@ -18,8 +18,6 @@
  * limitations under the License.
  *
  **********************************************************************************/
-
-
 package org.sakaiproject.tool.assessment.ui.bean.author;
 
 import java.io.Serializable;
@@ -28,6 +26,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.SessionScoped;
 import javax.faces.model.SelectItem;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -37,39 +38,55 @@ import org.sakaiproject.util.ResourceLoader;
 
 /**
  *
- * <p> </p>
+ * <p>For author: Item configuration backing bean.</p>
  * <p>Description: Describes global item settings for authoring.
  * Describes what item types the will be supported.
  * To change, modify the itemConfig properties in the faces.config file.
  * Also developers could add an administrative configuration later.</p>
  *
  */
-public class ItemConfigBean implements Serializable
-{
-  /**
-	 * 
-	 */
+@ManagedBean(name="itemConfig")
+@SessionScoped
+public class ItemConfigBean implements Serializable {
+
 	private static final long serialVersionUID = 5017545754149103817L;
 
 private static final String msgResource =
     "org.sakaiproject.tool.assessment.bundle.AuthorMessages";
 
+  @ManagedProperty(value="true")
   private boolean showFileUpload;
+  @ManagedProperty(value="true")
   private boolean showEssay;
+  @ManagedProperty(value="true")
   private boolean showAudio;
+  @ManagedProperty(value="true")
   private boolean showMatching;
+  @ManagedProperty(value="true")
   private boolean showTrueFalse;
+  @ManagedProperty(value="true")
   private boolean showMultipleChoiceSingleCorrect;
+  @ManagedProperty(value="true")
   private boolean showMultipleChoiceMultipleCorrect;
+  @ManagedProperty(value="true")
   private boolean showSurvey;
+  @ManagedProperty(value="true")
   private boolean showFillInTheBlank;
+  @ManagedProperty(value="true")
   private boolean showFillInNumeric;
+  @ManagedProperty(value="false")
   private boolean showExtendedMatchingItems;
+  @ManagedProperty(value="true")
   private boolean selectFromQuestionPool;
+  @ManagedProperty(value="false")
   private boolean selectFromQuestionBank;
+  @ManagedProperty(value="true")
   private boolean showMatrixSurvey;
+  @ManagedProperty(value="true")
   private boolean showCalculatedQuestion; // CALCULATED_QUESTION
+  @ManagedProperty(value="true")
   private boolean showImageMapQuestion; //IMAGEMAP_QUESTION
+  @ManagedProperty(value="true")
   private boolean showSearchQuestion; //SEARCH QUESTION
 
   /**
@@ -339,8 +356,6 @@ private static final String msgResource =
   {
     List<SelectItem> list = new ArrayList<SelectItem>();
 
-    
-
     if (isShowAllMultipleChoice())
       list.add(new SelectItem(String.valueOf(TypeIfc.MULTIPLE_CHOICE),
         getResourceDisplayName("multiple_choice_type")));
@@ -385,9 +400,6 @@ private static final String msgResource =
     if (isShowExtendedMatchingItems())
         list.add(new SelectItem(String.valueOf(TypeIfc.EXTENDED_MATCHING_ITEMS),
       		  getResourceDisplayName("extended_matching_items")));
-    
-    if (isSelectFromQuestionPool())
-      list.add(new SelectItem("10", getResourceDisplayName("import_from_q")));
 
     if (isShowCalculatedQuestion())
         list.add(new SelectItem(String.valueOf(TypeIfc.CALCULATED_QUESTION), getResourceDisplayName("calculated_question"))); // CALCULATED_QUESTION
@@ -404,11 +416,11 @@ private static final String msgResource =
     	if (ToolManager.getTool("sakai.questionbank.client") != null
 			&& !ServerConfigurationService
 					.getString(
-							"stealthTools@org.sakaiproject.tool.api.ActiveToolManager")
+							"stealthTools@org.sakaiproject.tool.api.ActiveToolManager", "")
 					.contains("sakai.questionbank.client")
 			&& !ServerConfigurationService
 					.getString(
-							"hiddenTools@org.sakaiproject.tool.api.ActiveToolManager")
+							"hiddenTools@org.sakaiproject.tool.api.ActiveToolManager", "")
 					.contains("sakai.questionbank.client")) {
 
 			list.add(new SelectItem("100",
@@ -425,7 +437,10 @@ private static final String msgResource =
     };
     
     Collections.sort(list, comparator);
-    
+    if (isSelectFromQuestionPool()) {
+      list.add(new SelectItem("10", getResourceDisplayName("import_from_q")));
+    }
+
     List<SelectItem> ret = new ArrayList<SelectItem>();
     ret.add(new SelectItem("", getResourceDisplayName("select_qtype")));
     ret.addAll(list);

@@ -165,9 +165,12 @@ public class FakeBeginDeliveryActionListener implements ActionListener
 
     AssessmentAccessControlIfc control = (AssessmentAccessControlIfc)pubAssessment.getAssessmentAccessControl();
     Date currentDate = new Date();
-    if (feedback.getShowDateFeedback() && control.getFeedbackDate()!= null && currentDate.after(control.getFeedbackDate()))
-    {
-        delivery.setFeedbackOnDate(true); 
+    if (feedback.getShowDateFeedback()) {
+        if(control.getFeedbackDate()!= null && control.getFeedbackEndDate() == null ) {
+            delivery.setFeedbackOnDate(currentDate.after(control.getFeedbackDate()));
+        } else if(control.getFeedbackDate()!= null && control.getFeedbackEndDate() != null ) {
+            delivery.setFeedbackOnDate(currentDate.after(control.getFeedbackDate()) && currentDate.before(control.getFeedbackEndDate()));
+        }
     }
 
     // settings

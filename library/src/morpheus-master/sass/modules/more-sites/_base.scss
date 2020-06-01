@@ -818,7 +818,7 @@ li.organizeFavorites:not(.active) .favoriteCountAndWarning.maxFavoritesReached {
 		border-radius: $button-radius;
 		padding: 0.6em;
 
-		&[aria-checked="true"] :first-child, &[aria-checked="false"] :last-child {
+		&[aria-checked="true"] :last-child, &[aria-checked="false"] :first-child {
 			background: $button-primary-hover-background;
 			color: $button-primary-text-color;
 		}

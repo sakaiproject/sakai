@@ -19,20 +19,15 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.bean.misc;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 
-/**
- * Encapsulate build information
- * formerly in org.navigoproject.ui.web.debug;
- *
- * @author <a href="mailto:lance@indiana.edu">Lance Speelmon</a>
- * @version $Id$
- */
-public class BuildInfoBean
-{
+/* Build Information. */
+@ManagedBean(name="buildinfo")
+@SessionScoped
+public class BuildInfoBean {
   private String buildVersion;
   private String buildTime;
   private String buildTag;

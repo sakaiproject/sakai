@@ -33,7 +33,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -44,7 +43,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
-import javax.annotation.PostConstruct;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator;
@@ -114,8 +112,6 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
     private static final String RUBRICS_TOKEN_SIGNING_SHARED_SECRET_PROPERTY = "rubrics.integration.token-secret";
     private static final String SITE_CONTEXT_TYPE = "site";
 
-    private static final String SERVER_ID_PROPERTY = "sakai.serverId";
-
     private static final String JWT_ISSUER = "sakai";
     private static final String JWT_AUDIENCE = "rubrics";
     private static final String JWT_CUSTOM_CLAIM_TOOL_ID = "toolId";
@@ -169,24 +165,22 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         // register as an entity producer
         entityManager.registerEntityProducer(this, REFERENCE_ROOT);
 
-        setFunction(RBCS_PERMISSIONS_EVALUATOR);
-        setFunction(RBCS_PERMISSIONS_EDITOR);
-        setFunction(RBCS_PERMISSIONS_EVALUEE);
-        setFunction(RBCS_PERMISSIONS_ASSOCIATOR);
+        functionManager.registerFunction(RBCS_PERMISSIONS_EVALUATOR);
+        functionManager.registerFunction(RBCS_PERMISSIONS_EDITOR);
+        functionManager.registerFunction(RBCS_PERMISSIONS_EVALUEE);
+        functionManager.registerFunction(RBCS_PERMISSIONS_ASSOCIATOR);
 
         hasAssociatedRubricCache = memoryService.<String, Boolean>getCache("org.sakaiproject.rubrics.logic.hasAssociatedRubricCache");
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    private void setFunction(String function) {
-        functionManager.registerFunction(function);
-    }
-
-    @PostConstruct
-    private void postConstruct() {
-
+    private String buildCookieString() {
+        return new StringBuilder()
+            .append(serverConfigurationService.getString("sakai.cookieName", "JSESSIONID"))
+            .append("=")
+            .append(sessionManager.getCurrentSession().getId())
+            .append(".")
+            .append(serverConfigurationService.getServerId())
+            .toString();
     }
 
     private String getCurrentSiteId(String method){
@@ -198,10 +192,14 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
     }
 
     public String generateJsonWebToken(String tool) {
-        return generateJsonWebToken(tool, getCurrentSiteId("generateJsonWebToken"));
+        return generateJsonWebToken(tool, null);
     }
 
     public String generateJsonWebToken(String tool, String siteId) {
+
+        if (StringUtils.isBlank(siteId)) {
+            siteId = getCurrentSiteId("generateJsonWebToken");
+        }
 
         String token = null;
         String userId = sessionManager.getCurrentSessionUserId();
@@ -262,8 +260,13 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         return token;
     }
 
+    public boolean hasAssociatedRubric(String tool, String id) {
+        return hasAssociatedRubric(tool, id, getCurrentSiteId("hasAssociatedRubric"));
+    }
 
-    public boolean hasAssociatedRubric(String tool, String id ) {
+    public boolean hasAssociatedRubric(String tool, String id, String siteId ) {
+
+        siteId = StringUtils.isEmpty(siteId) ? getCurrentSiteId("hasAssociatedRubric") : siteId;
 
         String cacheKey = tool + "#" + id;
         Boolean isAssociated = hasAssociatedRubricCache.get(cacheKey);
@@ -273,7 +276,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         } else {
             boolean exists = false;
             try {
-                Optional<ToolItemRubricAssociation> association = getRubricAssociation(tool, id);
+                Optional<ToolItemRubricAssociation> association = getRubricAssociation(tool, id, siteId);
                 exists = association.isPresent();
                 hasAssociatedRubricCache.put(cacheKey, exists);
             } catch (Exception e){
@@ -325,12 +328,12 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                     log.debug("resultPost: {}", resultPost);
                 } else {
                     String input = "{\"toolId\" : \""+tool+"\",\"itemId\" : \"" + id + "\",\"rubricId\" : " + params.get(RubricsConstants.RBCS_LIST) + ",\"metadata\" : {\"created\" : \"" + created + /*"\",\"modified\" : \"" + nowTime +*/ "\",\"ownerId\" : \"" + owner +
-					"\",\"ownerType\" : \"" + ownerType + "\",\"creatorId\" : \"" + creatorId + "\"},\"parameters\" : {" + setConfigurationParameters(params, oldParams) + "}}";
+                    "\",\"ownerType\" : \"" + ownerType + "\",\"creatorId\" : \"" + creatorId + "\"},\"parameters\" : {" + setConfigurationParameters(params, oldParams) + "}}";
                     log.debug("Existing association update {}", input);
-                    if(Long.valueOf(params.get(RubricsConstants.RBCS_LIST)) != oldRubricId){
+                    if (!Long.valueOf(params.get(RubricsConstants.RBCS_LIST)).equals(oldRubricId)) {
                         deleteRubricEvaluationsForAssociation(associationHref, tool);
                     }
-                    String resultPut = putRubricResource(associationHref, input, tool);
+                    String resultPut = putRubricResource(associationHref, input, tool, null);
                     //update the actual one.
                     log.debug("resultPUT: {}",  resultPut);
                 }
@@ -351,99 +354,6 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         }
     }
 
-    public void saveRubricEvaluation(String toolId, String associatedItemId, String evaluatedItemId,
-            String evaluatedItemOwnerId, String evaluatorId, Map<String,String> params) {
-
-        String evaluationUri = null;
-        String created = "";
-        String owner = "";
-
-        try {
-            // Check for an existing evaluation
-            Evaluation existingEvaluation = null;
-            String rubricEvaluationId = null;
-
-            try {
-                TypeReferences.ResourcesType<Resource<Evaluation>> resourceParameterizedTypeReference =
-                        new TypeReferences.ResourcesType<Resource<Evaluation>>() {};
-
-                URI apiBaseUrl = new URI(serverConfigurationService.getServerUrl() + RBCS_SERVICE_URL_PREFIX);
-                Traverson traverson = new Traverson(apiBaseUrl, MediaTypes.HAL_JSON);
-
-                Traverson.TraversalBuilder builder = traverson.follow("evaluations", "search",
-                        "by-tool-item-and-associated-item-and-evaluated-item-ids");
-
-                HttpHeaders headers = new HttpHeaders();
-                headers.add("Authorization", String.format("Bearer %s", generateJsonWebToken(toolId)));
-                builder.withHeaders(headers);
-
-                Map<String, Object> parameters = new HashMap<>();
-                parameters.put("toolId", toolId);
-                parameters.put("itemId", associatedItemId);
-                parameters.put("evaluatedItemId", evaluatedItemId);
-                parameters.put("evaluatorId", evaluatorId);
-
-                Resources<Resource<Evaluation>> evaluationResources = builder.withTemplateParameters(parameters).toObject(
-                        resourceParameterizedTypeReference);
-
-                // Should only be one matching this search criterion
-                if (evaluationResources.getContent().size() > 1) {
-                    throw new IllegalStateException(String.format("Number of evaluation resources greater than one for request: %s",
-                            evaluationResources.getLink(Link.REL_SELF).toString()));
-                }
-
-                for (Resource<Evaluation> evaluationResource : evaluationResources) {
-                    existingEvaluation = evaluationResource.getContent();
-                    evaluationUri = evaluationResource.getLink(Link.REL_SELF).getHref();
-                }
-
-            } catch (Exception ex){
-                log.info("Exception on saveRubricEvaluation: " + ex.getMessage());
-                //no previous evaluation
-            }
-
-            // Get the actual association (necessary to get the rubrics association resource for persisting the evaluation)
-            Resource<ToolItemRubricAssociation> rubricToolItemAssociationResource = getRubricAssociationResource(
-                    toolId, associatedItemId, null).get();
-
-            String criterionJsonData = createCriterionJsonPayload(associatedItemId, evaluatedItemId, params, rubricToolItemAssociationResource);
-
-            if (existingEvaluation == null) { // Create a new one
-
-                String input = String.format("{ \"evaluatorId\" : \"%s\",\"evaluatedItemId\" : \"%s\", " +
-                        "\"evaluatedItemOwnerId\" : \"%s\"," +
-                        "\"overallComment\" : \"%s\", " +
-                        "\"toolItemRubricAssociation\" : \"%s\", " +
-                        "\"criterionOutcomes\" : [ %s ] " +
-                        "}", evaluatorId, evaluatedItemId, evaluatedItemOwnerId, "",
-                        rubricToolItemAssociationResource.getLink(Link.REL_SELF).getHref(), criterionJsonData);
-
-                String requestUri = serverConfigurationService.getServerUrl() + RBCS_SERVICE_URL_PREFIX + "evaluations/";
-                String resultPost = postRubricResource(requestUri, input, toolId, null);
-                log.debug("resultPost: " +  resultPost);
-
-            } else { // Update existing evaluation
-
-                // Resource IDs return as null when using Spring HATEOAS due to https://github.com/spring-projects/spring-hateoas/issues/67
-                // so ID is not added and the resource URI is where it is derived from.
-                String input = String.format("{ \"evaluatorId\" : \"%s\",\"evaluatedItemId\" : \"%s\", " +
-                        "\"evaluatedItemOwnerId\" : \"%s\", \"overallComment\" : \"%s\", \"toolItemRubricAssociation\" : \"%s\", \"criterionOutcomes\" : [ %s ], " + 
-                        "\"metadata\" : {\"created\" : \"%s\", \"ownerId\" : \"%s\", \"ownerType\" : \"%s\", \"creatorId\" : \"%s\"} }", evaluatorId, evaluatedItemId, evaluatedItemOwnerId, existingEvaluation.getOverallComment(),
-                        rubricToolItemAssociationResource.getLink(Link.REL_SELF).getHref(), criterionJsonData, existingEvaluation.getMetadata().getCreated(), existingEvaluation.getMetadata().getOwnerId(), 
-						existingEvaluation.getMetadata().getOwnerType(), existingEvaluation.getMetadata().getCreatorId());
-
-                String resultPut = putRubricResource(evaluationUri, input, toolId);
-                //lets update the actual one.
-                log.debug("resultPUT: " +  resultPut);
-            }
-
-        } catch (Exception e) {
-            //TODO If we have an error here, maybe we should return say something to the user
-            log.error("Error in SaveRubricEvaluation " + e.getMessage());
-        }
-
-    }
-
     private String createCriterionJsonPayload(String associatedItemId, String evaluatedItemId,
                                               Map<String,String> formPostParameters,
                                               Resource<ToolItemRubricAssociation> association) throws Exception {
@@ -454,14 +364,15 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         int index = 0;
         boolean pointsAdjusted = false;
         String points = null;
-        String selectedRatingId = null;
+
+        String siteId = formPostParameters.get("siteId");
 
         String inlineRubricUri = String.format("%s?%s", association.getLink("rubric").getHref(), "projection=inlineRubric");
 
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.add("Authorization", String.format("Bearer %s", generateJsonWebToken(association.getContent().getToolId())));
+        headers.add("Authorization", String.format("Bearer %s", generateJsonWebToken(association.getContent().getToolId(), siteId)));
         HttpEntity<?> requestEntity = new HttpEntity<>(headers);
         ResponseEntity<Rubric> rubricEntity = restTemplate.exchange(inlineRubricUri, HttpMethod.GET, requestEntity, Rubric.class);
 
@@ -476,7 +387,8 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
             }
             index++;
 
-            final String selectedRatingPoints = criterionData.getValue().get(RubricsConstants.RBCS_PREFIX + evaluatedItemId + "-"+ associatedItemId + "-criterion");
+            String selectedRatingPoints = criterionData.getValue().get(RubricsConstants.RBCS_PREFIX + evaluatedItemId + "-"+ associatedItemId + "-criterion");
+            String selectedRatingId = criterionData.getValue().get(RubricsConstants.RBCS_PREFIX + evaluatedItemId + "-"+ associatedItemId + "-criterionrating");
 
             if (StringUtils.isNotBlank(criterionData.getValue().get(RubricsConstants.RBCS_PREFIX + evaluatedItemId + "-" + associatedItemId + "-criterion-override"))) {
                 pointsAdjusted = true;
@@ -486,15 +398,8 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                 points = selectedRatingPoints;
             }
 
-            Criterion criterion = criterions.get(criterionData.getKey());
-            Optional<Rating> rating = criterion.getRatings().stream().filter(c -> String.valueOf(c.getPoints()).equals(selectedRatingPoints)).findFirst();
-
-            if (rating.isPresent()) {
-                selectedRatingId =  String.valueOf(rating.get().getId());
-            }
-
             if (StringUtils.isEmpty(points)){
-                points = "0";
+                points = "0.0";
             }
 
             criterionJsonData += String.format("{ \"criterionId\" : \"%s\", \"points\" : \"%s\", " +
@@ -582,7 +487,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         return getRubricAssociation(toolId, associatedToolItemId, getCurrentSiteId("getRubricAssociation"));
     }
 
-	/**
+    /**
      * Returns the ToolItemRubricAssociation for the given tool and associated item ID, wrapped as an Optional.
      * @param toolId the tool id, something like "sakai.assignment"
      * @param associatedToolItemId the id of the associated element within the tool
@@ -618,11 +523,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                 "by-tool-item-ids");
 
         HttpHeaders headers = new HttpHeaders();
-        if(siteId != null) {
-            headers.add("Authorization", String.format("Bearer %s", generateJsonWebToken(toolId, siteId)));
-        } else {
-            headers.add("Authorization", String.format("Bearer %s", generateJsonWebToken(toolId)));
-        }
+        headers.add("Authorization", String.format("Bearer %s", generateJsonWebToken(toolId, siteId)));
         builder.withHeaders(headers);
 
         Map<String, Object> parameters = new HashMap<>();
@@ -689,13 +590,9 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
             conn.setDoOutput(true);
             conn.setDoInput(true);
             conn.setRequestMethod("POST");
-            String cookie = "JSESSIONID=" + sessionManager.getCurrentSession().getId() + "" + System.getProperty(SERVER_ID_PROPERTY);
+            String cookie = buildCookieString();
             conn.setRequestProperty("Cookie", cookie);
-            if(siteId != null){
-                conn.setRequestProperty("Authorization", "Bearer " + generateJsonWebToken(toolId, siteId));
-            } else {
-                conn.setRequestProperty("Authorization", "Bearer " + generateJsonWebToken(toolId));
-            }
+            conn.setRequestProperty("Authorization", "Bearer " + generateJsonWebToken(toolId, siteId));
             try(OutputStream os = conn.getOutputStream()) {
                 os.write(json.getBytes("UTF-8"));
                 os.close();
@@ -736,7 +633,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
      * @param json The json to post.
      * @return
      */
-    private String putRubricResource(String targetUri,String json, String toolId) throws IOException {
+    private String putRubricResource(String targetUri,String json, String toolId, String siteId) throws IOException {
         log.debug(String.format("PUT to URI '%s' body:", targetUri, json));
 
         HttpURLConnection conn = null;
@@ -749,9 +646,9 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
             conn.setDoOutput(true);
             conn.setDoInput(true);
             conn.setRequestMethod("PUT");
-            String cookie = "JSESSIONID=" + sessionManager.getCurrentSession().getId() + "" + System.getProperty(SERVER_ID_PROPERTY);
+            String cookie = buildCookieString();
             conn.setRequestProperty("Cookie", cookie);
-            conn.setRequestProperty("Authorization", "Bearer " + generateJsonWebToken(toolId));
+            conn.setRequestProperty("Authorization", "Bearer " + generateJsonWebToken(toolId, siteId));
 
             try(OutputStream os = conn.getOutputStream()) {
                 os.write(json.getBytes("UTF-8"));
@@ -787,39 +684,141 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
      * Delete all the rubric associations starting with itemId.
      * @param itemId The formatted item id.
      */
-	public void deleteRubricAssociationsByItemIdPrefix(String itemId, String toolId) {
-		try{
-			TypeReferences.ResourcesType<Resource<ToolItemRubricAssociation>> resourceParameterizedTypeReference =
-					new TypeReferences.ResourcesType<Resource<ToolItemRubricAssociation>>() {};
+    public void deleteRubricAssociationsByItemIdPrefix(String itemId, String toolId) {
+        try{
+            TypeReferences.ResourcesType<Resource<ToolItemRubricAssociation>> resourceParameterizedTypeReference =
+                    new TypeReferences.ResourcesType<Resource<ToolItemRubricAssociation>>() {};
 
-			URI apiBaseUrl = new URI(serverConfigurationService.getServerUrl() + RBCS_SERVICE_URL_PREFIX);
-			Traverson traverson = new Traverson(apiBaseUrl, MediaTypes.HAL_JSON);
+            URI apiBaseUrl = new URI(serverConfigurationService.getServerUrl() + RBCS_SERVICE_URL_PREFIX);
+            Traverson traverson = new Traverson(apiBaseUrl, MediaTypes.HAL_JSON);
 
-			Traverson.TraversalBuilder builder = traverson.follow("rubric-associations", "search", "by-item-id-prefix");
+            Traverson.TraversalBuilder builder = traverson.follow("rubric-associations", "search", "by-item-id-prefix");
 
-			HttpHeaders headers = new HttpHeaders();
-			headers.add("Authorization", String.format("Bearer %s", generateJsonWebToken(toolId)));
-			builder.withHeaders(headers);
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Authorization", String.format("Bearer %s", generateJsonWebToken(toolId)));
+            builder.withHeaders(headers);
 
-			Map<String, Object> parameters = new HashMap<>();
-			parameters.put("toolId", toolId);
-			parameters.put("itemId", itemId);
+            Map<String, Object> parameters = new HashMap<>();
+            parameters.put("toolId", toolId);
+            parameters.put("itemId", itemId);
 
-			Resources<Resource<ToolItemRubricAssociation>> associationResources = builder.withTemplateParameters(
-					parameters).toObject(resourceParameterizedTypeReference);
+            Resources<Resource<ToolItemRubricAssociation>> associationResources = builder.withTemplateParameters(
+                    parameters).toObject(resourceParameterizedTypeReference);
 
-			for (Resource<ToolItemRubricAssociation> associationResource : associationResources) {
-				String associationHref = associationResource.getLink(Link.REL_SELF).getHref();
-				deleteRubricEvaluationsForAssociation(associationHref, toolId);
-				deleteRubricResource(associationHref, toolId, null);
-				hasAssociatedRubricCache.remove(toolId + "#" + itemId);
-			}
+            for (Resource<ToolItemRubricAssociation> associationResource : associationResources) {
+                String associationHref = associationResource.getLink(Link.REL_SELF).getHref();
+                deleteRubricEvaluationsForAssociation(associationHref, toolId);
+                deleteRubricResource(associationHref, toolId, null);
+                hasAssociatedRubricCache.remove(toolId + "#" + itemId);
+            }
         } catch (Exception e) {
             log.warn("Error deleting rubric association for id {} : {}", itemId, e.getMessage());
         }
     }
 
-    public void deleteRubricEvaluationsForAssociation(String associationHref, String tool){
+    public void softDeleteRubricAssociationsByItemIdPrefix(String itemId, String toolId) {
+        try{
+            TypeReferences.ResourcesType<Resource<ToolItemRubricAssociation>> resourceParameterizedTypeReference =
+                    new TypeReferences.ResourcesType<Resource<ToolItemRubricAssociation>>() {};
+
+            URI apiBaseUrl = new URI(serverConfigurationService.getServerUrl() + RBCS_SERVICE_URL_PREFIX);
+            Traverson traverson = new Traverson(apiBaseUrl, MediaTypes.HAL_JSON);
+
+            Traverson.TraversalBuilder builder = traverson.follow("rubric-associations", "search", "by-item-id-prefix");
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Authorization", String.format("Bearer %s", generateJsonWebToken(toolId)));
+            builder.withHeaders(headers);
+
+            Map<String, Object> parameters = new HashMap<>();
+            parameters.put("toolId", toolId);
+            parameters.put("itemId", itemId);
+
+            Resources<Resource<ToolItemRubricAssociation>> associationResources = builder.withTemplateParameters(parameters).toObject(resourceParameterizedTypeReference);
+
+            for (Resource<ToolItemRubricAssociation> associationResource : associationResources) {
+                String associationHref = associationResource.getLink(Link.REL_SELF).getHref();
+                ToolItemRubricAssociation association = associationResource.getContent();
+                String created = association.getMetadata().getCreated().toString();
+                String owner = association.getMetadata().getOwnerId();
+                String ownerType = association.getMetadata().getOwnerType();
+                String creatorId = association.getMetadata().getCreatorId();
+                Map <String,Boolean> oldParams = association.getParameters();
+                oldParams.put(RubricsConstants.RBCS_SOFT_DELETED, true);
+                String input = "{\"toolId\" : \""+toolId+"\",\"itemId\" : \"" + association.getItemId() + "\",\"rubricId\" : " + association.getRubricId() + ",\"metadata\" : {\"created\" : \"" + created + "\",\"ownerId\" : \"" + owner +
+                "\",\"ownerType\" : \"" + ownerType + "\",\"creatorId\" : \"" + creatorId + "\"},\"parameters\" : {" + setConfigurationParametersForDuplication(oldParams) + "}}";
+                log.debug("Soft delete association {}", input);
+                String resultPut = putRubricResource(associationHref, input, toolId, null);
+                log.debug("resultPUT: {}",  resultPut);
+            }
+        } catch (Exception e) {
+            log.warn("Error soft deleting rubric association for item id prefix {} : {}", itemId, e.getMessage());
+        }
+    }
+
+    public void restoreRubricAssociation(String toolId, String itemId) {
+        try{
+            Optional<Resource<ToolItemRubricAssociation>> associationResource = getRubricAssociationResource(toolId, itemId, null);
+            if (associationResource.isPresent()) {
+                String associationHref = associationResource.get().getLink(Link.REL_SELF).getHref();
+                ToolItemRubricAssociation association = associationResource.get().getContent();
+                String created = association.getMetadata().getCreated().toString();
+                String owner = association.getMetadata().getOwnerId();
+                String ownerType = association.getMetadata().getOwnerType();
+                String creatorId = association.getMetadata().getCreatorId();
+                Map <String,Boolean> oldParams = association.getParameters();
+                oldParams.put(RubricsConstants.RBCS_SOFT_DELETED, false);
+                String input = "{\"toolId\" : \""+toolId+"\",\"itemId\" : \"" + association.getItemId() + "\",\"rubricId\" : " + association.getRubricId() + ",\"metadata\" : {\"created\" : \"" + created + "\",\"ownerId\" : \"" + owner +
+                "\",\"ownerType\" : \"" + ownerType + "\",\"creatorId\" : \"" + creatorId + "\"},\"parameters\" : {" + setConfigurationParametersForDuplication(oldParams) + "}}";
+                log.debug("Restoring association {}", input);
+                String resultPut = putRubricResource(associationHref, input, toolId, null);
+                log.debug("resultPUT: {}",  resultPut);
+            }
+        } catch (Exception e) {
+            log.warn("Error restoring rubric association for item id prefix {} : {}", itemId, e.getMessage());
+        }
+    }
+
+    public void restoreRubricAssociationsByItemIdPrefix(String itemId, String toolId) {
+        try{
+            TypeReferences.ResourcesType<Resource<ToolItemRubricAssociation>> resourceParameterizedTypeReference =
+                    new TypeReferences.ResourcesType<Resource<ToolItemRubricAssociation>>() {};
+
+            URI apiBaseUrl = new URI(serverConfigurationService.getServerUrl() + RBCS_SERVICE_URL_PREFIX);
+            Traverson traverson = new Traverson(apiBaseUrl, MediaTypes.HAL_JSON);
+
+            Traverson.TraversalBuilder builder = traverson.follow("rubric-associations", "search", "by-item-id-prefix");
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Authorization", String.format("Bearer %s", generateJsonWebToken(toolId)));
+            builder.withHeaders(headers);
+
+            Map<String, Object> parameters = new HashMap<>();
+            parameters.put("toolId", toolId);
+            parameters.put("itemId", itemId);
+
+            Resources<Resource<ToolItemRubricAssociation>> associationResources = builder.withTemplateParameters(parameters).toObject(resourceParameterizedTypeReference);
+            for (Resource<ToolItemRubricAssociation> associationResource : associationResources) {
+                String associationHref = associationResource.getLink(Link.REL_SELF).getHref();
+                ToolItemRubricAssociation association = associationResource.getContent();
+                String created = association.getMetadata().getCreated().toString();
+                String owner = association.getMetadata().getOwnerId();
+                String ownerType = association.getMetadata().getOwnerType();
+                String creatorId = association.getMetadata().getCreatorId();
+                Map <String,Boolean> oldParams = association.getParameters();
+                oldParams.put(RubricsConstants.RBCS_SOFT_DELETED, false);
+                String input = "{\"toolId\" : \""+toolId+"\",\"itemId\" : \"" + association.getItemId() + "\",\"rubricId\" : " + association.getRubricId() + ",\"metadata\" : {\"created\" : \"" + created + "\",\"ownerId\" : \"" + owner +
+                "\",\"ownerType\" : \"" + ownerType + "\",\"creatorId\" : \"" + creatorId + "\"},\"parameters\" : {" + setConfigurationParametersForDuplication(oldParams) + "}}";
+                log.debug("Restoring association {}", input);
+                String resultPut = putRubricResource(associationHref, input, toolId, null);
+                log.debug("resultPUT: {}",  resultPut);
+            }
+        } catch (Exception e) {
+            log.warn("Error restoring rubric association for id {} : {}", itemId, e.getMessage());
+        }
+    }
+
+    private void deleteRubricEvaluationsForAssociation(String associationHref, String tool){
         try{
             String [] assocSplitted = associationHref.split("/");
             Long associationId = Long.valueOf(assocSplitted[assocSplitted.length-1]);
@@ -831,7 +830,30 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         } catch (Exception e) {
             log.warn("Error deleting rubric association for tool {} and association {} : {}", tool, associationHref, e.getMessage());
         }
-	}
+    }
+
+    public void softDeleteRubricAssociation(String toolId, String id){
+        try{
+            Optional<Resource<ToolItemRubricAssociation>> associationResource = getRubricAssociationResource(toolId, id, null);
+            if (associationResource.isPresent()) {
+                String associationHref = associationResource.get().getLink(Link.REL_SELF).getHref();
+                ToolItemRubricAssociation association = associationResource.get().getContent();
+                String created = association.getMetadata().getCreated().toString();
+                String owner = association.getMetadata().getOwnerId();
+                String ownerType = association.getMetadata().getOwnerType();
+                String creatorId = association.getMetadata().getCreatorId();
+                Map <String,Boolean> oldParams = association.getParameters();
+                oldParams.put(RubricsConstants.RBCS_SOFT_DELETED, true);
+                String input = "{\"toolId\" : \""+toolId+"\",\"itemId\" : \"" + association.getItemId() + "\",\"rubricId\" : " + association.getRubricId() + ",\"metadata\" : {\"created\" : \"" + created + "\",\"ownerId\" : \"" + owner +
+                "\",\"ownerType\" : \"" + ownerType + "\",\"creatorId\" : \"" + creatorId + "\"},\"parameters\" : {" + setConfigurationParametersForDuplication(oldParams) + "}}";
+                log.debug("Soft delete association {}", input);
+                String resultPut = putRubricResource(associationHref, input, toolId, null);
+                log.debug("resultPUT: {}",  resultPut);
+            }
+        } catch (Exception e) {
+            log.warn("Error soft deleting rubric association for tool {} and id {} : {}", toolId, id, e.getMessage());
+        }
+    }
 
     public void deleteRubricAssociation(String tool, String id){
         try{
@@ -858,7 +880,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         try{
             log.debug("Deleting rubric resource : {}", query);
             URL url = new URL(query);
-            String cookie = "JSESSIONID=" + sessionManager.getCurrentSession().getId() + System.getProperty(SERVER_ID_PROPERTY);
+            String cookie = buildCookieString();
             conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("DELETE");
             conn.setRequestProperty("Accept", "application/json");
@@ -898,7 +920,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         try{
             URL url = new URL(serverConfigurationService.getServerUrl() + RBCS_SERVICE_URL_PREFIX + "evaluations/search/by-tool-item-and-associated-item-and-evaluated-item-ids?toolId="+toolId+"&itemId="+associatedToolItemId+"&evaluatedItemId="+evaluatedItemId);
 
-            String cookie = "JSESSIONID=" + sessionManager.getCurrentSession().getId() + "" + System.getProperty(SERVER_ID_PROPERTY);
+            String cookie = buildCookieString();
 
             conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
@@ -1030,31 +1052,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
     public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options, boolean cleanup) {
 
         if (cleanup){
-            try {
-                TypeReferences.ResourcesType<Resource<Rubric>> resourceParameterizedTypeReference = new TypeReferences.ResourcesType<Resource<Rubric>>() {};
-                URI apiBaseUrl = new URI(serverConfigurationService.getServerUrl() + RBCS_SERVICE_URL_PREFIX);
-                Traverson traverson = new Traverson(apiBaseUrl, MediaTypes.HAL_JSON);
-                Traverson.TraversalBuilder builder = traverson.follow("rubrics", "search", "rubrics-from-site");
-
-                HttpHeaders headers = new HttpHeaders();
-                headers.add("Authorization", String.format("Bearer %s", generateJsonWebToken(RubricsConstants.RBCS_TOOL, toContext)));
-                builder.withHeaders(headers);
-
-                Map<String, Object> parameters = new HashMap<>();
-                parameters.put("siteId", toContext);
-                Resources<Resource<Rubric>> rubricResources = builder.withTemplateParameters(parameters).toObject(resourceParameterizedTypeReference);
-                for (Resource<Rubric> rubricResource : rubricResources) {
-                    String [] rubricSplitted = rubricResource.getLink(Link.REL_SELF).getHref().split("/");
-                    Collection<Resource<ToolItemRubricAssociation>> assocs = getRubricAssociationByRubric(rubricSplitted[rubricSplitted.length-1],toContext);
-                    for(Resource<ToolItemRubricAssociation> associationResource : assocs){
-                        String associationHref = associationResource.getLink(Link.REL_SELF).getHref();
-                        deleteRubricResource(associationHref, RubricsConstants.RBCS_TOOL, toContext);
-                    }
-                    deleteRubricResource(rubricResource.getLink(Link.REL_SELF).getHref(), RubricsConstants.RBCS_TOOL, toContext);
-                }
-            } catch(Exception e){
-                log.error("Rubrics - transferCopyEntities: error trying to delete rubric -> {}" , e.getMessage());
-            }
+            deleteSiteRubrics(toContext);
         }
         return transferCopyEntities(fromContext, toContext, ids, null);
     }
@@ -1235,6 +1233,34 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         Resources<Resource<ToolItemRubricAssociation>> associationResources = builder.withTemplateParameters(parameters).toObject(resourceParameterizedTypeReference);
 
         return associationResources.getContent();
+    }
+
+    public void deleteSiteRubrics(String siteId) {
+        try {
+            TypeReferences.ResourcesType<Resource<Rubric>> resourceParameterizedTypeReference = new TypeReferences.ResourcesType<Resource<Rubric>>() {};
+            URI apiBaseUrl = new URI(serverConfigurationService.getServerUrl() + RBCS_SERVICE_URL_PREFIX);
+            Traverson traverson = new Traverson(apiBaseUrl, MediaTypes.HAL_JSON);
+            Traverson.TraversalBuilder builder = traverson.follow("rubrics", "search", "rubrics-from-site");
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Authorization", String.format("Bearer %s", generateJsonWebToken(RubricsConstants.RBCS_TOOL, siteId)));
+            builder.withHeaders(headers);
+
+            Map<String, Object> parameters = new HashMap<>();
+            parameters.put("siteId", siteId);
+            Resources<Resource<Rubric>> rubricResources = builder.withTemplateParameters(parameters).toObject(resourceParameterizedTypeReference);
+            for (Resource<Rubric> rubricResource : rubricResources) {
+                String [] rubricSplitted = rubricResource.getLink(Link.REL_SELF).getHref().split("/");
+                Collection<Resource<ToolItemRubricAssociation>> assocs = getRubricAssociationByRubric(rubricSplitted[rubricSplitted.length-1],siteId);
+                for(Resource<ToolItemRubricAssociation> associationResource : assocs){
+                    String associationHref = associationResource.getLink(Link.REL_SELF).getHref();
+                    deleteRubricResource(associationHref, RubricsConstants.RBCS_TOOL, siteId);
+                }
+                deleteRubricResource(rubricResource.getLink(Link.REL_SELF).getHref(), RubricsConstants.RBCS_TOOL, siteId);
+            }
+        } catch(Exception e){
+            log.error("Rubrics: error trying to delete rubric -> {}" , e.getMessage());
+        }
     }
 
 }

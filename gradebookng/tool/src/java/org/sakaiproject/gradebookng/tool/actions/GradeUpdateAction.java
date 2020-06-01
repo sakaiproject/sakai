@@ -132,7 +132,8 @@ public class GradeUpdateAction extends InjectableAction implements Serializable 
 		target.addChildren(page, FeedbackPanel.class);
 
 		final String rawOldGrade = params.get("oldScore").textValue();
-		final String rawNewGrade = params.get("newScore").textValue();
+		// Adding a zero to allow to score a decimal value less than 1 without adding a zero before
+		final String rawNewGrade = "0" + params.get("newScore").textValue();
 
 		if (StringUtils.isNotBlank(rawNewGrade)
 				&& (!NumberUtil.isValidLocaleDouble(rawNewGrade) || FormatHelper.validateDouble(rawNewGrade) < 0)) {

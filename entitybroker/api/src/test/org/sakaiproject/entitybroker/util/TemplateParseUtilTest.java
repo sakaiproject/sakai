@@ -493,6 +493,11 @@ public class TemplateParseUtilTest extends TestCase {
          assertNotNull(e.getMessage());
       }
 
+      // Unicode test in input
+      input = "/cigüeña/stuff/坂井.png";
+      result = TemplateParseUtil.parseTemplate(input, preprocessedTemplates);
+      assertNotNull(result);
+      assertEquals("cigüeña", result.segmentValues.get(TemplateParseUtil.PREFIX));
    }
 
 }

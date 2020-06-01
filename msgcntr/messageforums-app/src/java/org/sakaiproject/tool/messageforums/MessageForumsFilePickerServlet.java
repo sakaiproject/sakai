@@ -23,7 +23,9 @@ package org.sakaiproject.tool.messageforums;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
@@ -74,7 +76,7 @@ public class MessageForumsFilePickerServlet extends JsfTool  implements HttpServ
         // available to the JSF
 
         // build up the target that will be dispatched to
-        String target = req.getPathInfo();
+        String target = checkUrlRequirements(req, req.getPathInfo());
 
         // see if we have a helper request
         if (sendToHelper(req, res, target)) {
@@ -172,6 +174,34 @@ public class MessageForumsFilePickerServlet extends JsfTool  implements HttpServ
         req.removeAttribute(Tool.NATIVE_URL);
         req.removeAttribute(URL_PATH);
         req.removeAttribute(URL_EXT);
+    }
+
+    /**
+     * Method to check that the message detail is provided so the detail can be displayed
+     * @param req The HTTP request
+     * @param target The path to navigate to
+     * @return In case that the requirements are met, the path received as param. If the requierement are no met, the
+     * main page of Private Messages Tool
+     */
+    private String checkUrlRequirements(HttpServletRequest req, String target) {
+        String newTarget = target;
+        final List<String> pagesRequireMsgDetailInBean = new ArrayList<>();
+        pagesRequireMsgDetailInBean.add("/privateMsg/pvtMsgDetail");
+        pagesRequireMsgDetailInBean.add("/pvtMsgReply");
+        pagesRequireMsgDetailInBean.add("/pvtMsgReplyAll");
+        pagesRequireMsgDetailInBean.add("/pvtMsgForward");
+
+        final PrivateMessagesTool backingBean = (PrivateMessagesTool) req.getSession().getAttribute("PrivateMessagesTool");
+        if (pagesRequireMsgDetailInBean.contains(target) && (backingBean == null || backingBean.getDetailMsg() == null)) {
+            newTarget = "/privateMsg/pvtMsgHpView";
+        } else if ("/privateMsg/pvtMsgDirectAccess".equals(target)) {
+            final String[] currentMsgDetail = req.getParameterMap().get("current_msg_detail");
+            // Sometimes the param is not a null String but the word "null"
+            if (currentMsgDetail == null || currentMsgDetail.length == 0 || "null".equals(currentMsgDetail[0])) {
+                newTarget = "/privateMsg/pvtMsgHpView";
+            }
+        }
+        return newTarget;
     }
 
     protected boolean sendToHelper(HttpServletRequest req, HttpServletResponse res, String target) 

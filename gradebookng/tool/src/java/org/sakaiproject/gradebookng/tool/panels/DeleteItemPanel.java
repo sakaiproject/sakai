@@ -19,9 +19,11 @@ import java.text.MessageFormat;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
@@ -48,6 +50,10 @@ public class DeleteItemPanel extends BasePanel {
 
 		final Form<Long> form = new Form("form", Model.of(assignmentId));
 
+		final Assignment assignment = DeleteItemPanel.this.businessService.getAssignment(assignmentId);
+		final String assignmentTitle = assignment.getName();
+		form.add(new Label("confirmationMessage", new StringResourceModel( "delete.warning", null, new Object[] { assignmentTitle })).setEscapeModelStrings(false));
+
 		final GbAjaxButton submit = new GbAjaxButton("submit") {
 			private static final long serialVersionUID = 1L;
 
@@ -65,6 +71,7 @@ public class DeleteItemPanel extends BasePanel {
 			}
 
 		};
+
 		form.add(submit);
 
 		final GbAjaxButton cancel = new GbAjaxButton("cancel") {

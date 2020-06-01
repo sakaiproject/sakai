@@ -13,7 +13,7 @@
 				$tlang.getString("newsc.other.confirm")
 			</h3>
 		#end
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $alertMessage</div>#end
 	<p class="step">
 		$tlang.getString("newsc.selection")
 	</p>
@@ -68,7 +68,7 @@
 					$tlang.getString("newsc.site")
 				</th>
 				<td>
-					$validator.escapeHtml($title)
+					$formattedText.escapeHtml($title)
 				</td>
 			</tr>
 			#if ( $!siteUrls.Empty )
@@ -92,7 +92,7 @@
 					#end
 				</th>
 				<td>
-					$validator.escapeHtml($!siteUrl)
+					$formattedText.escapeHtml($!siteUrl)
 				</td>
 			</tr>
 			#set ( $siteUrlIdx = $siteUrlIdx + 1 )
@@ -112,20 +112,20 @@
 							#set($newToolTitle = "")
 							#foreach($t in $toolRegistrationList)
 								#if ($t.getId() == $newTool)
-									#set($newToolTitle = $validator.escapeHtml($t.getTitle()))
+									#set($newToolTitle = $formattedText.escapeHtml($t.getTitle()))
 								#end
 							#end
 							#if ($newTool == "sakai.mailbox")
 								$!newToolTitle 
 								#if ($!allowPageOrderHelper)
-									($validator.escapeHtml($!toolRegistrationTitleList.get($!newTool)))
+									($formattedText.escapeHtml($!toolRegistrationTitleList.get($!newTool)))
 								#end
 								: $!emailId@$serverName
 							#elseif ($!multipleToolIdTitleMap.containsKey($newTool))
 								## show tool title
-								$validator.escapeHtml($!multipleToolIdTitleMap.get($newTool))
+								$formattedText.escapeHtml($!multipleToolIdTitleMap.get($newTool))
 								#if ($!allowPageOrderHelper)
-									($validator.escapeHtml($!toolRegistrationTitleList.get($!newTool)))
+									($formattedText.escapeHtml($!toolRegistrationTitleList.get($!newTool)))
 								#end
 								## show tool configuration
 								#if ($!multipleToolIdTitleMap.containsKey($toolId))
@@ -134,7 +134,7 @@
 										##show configurations
 										(	
 											#foreach ($property in $!properties.keySet())
-												$property : $validator.escapeHtml($properties.get($property))
+												$property : $formattedText.escapeHtml($properties.get($property))
 											#end
 										)
 									#end
@@ -145,7 +145,7 @@
 								#if (!$!attributeHashtable.isEmpty())
 									## show attributes
 												(#foreach ($attribute in $!attributeHashtable.keySet())
-										$validator.escapeHtml($!attributeHashtable.get($attribute))
+										$formattedText.escapeHtml($!attributeHashtable.get($attribute))
 												#end)
 											#end
 										#else
@@ -156,7 +156,7 @@
 														#set($importSiteIds = $importSiteTools.get($tId))
 														#foreach($importSiteId in $importSiteIds)
 															#set($importSite = $siteService.getSite($importSiteId))
-															$validator.escapeHtml($importSite.getTitle()),
+															$formattedText.escapeHtml($importSite.getTitle()),
 														#end
 													)
 												#end
@@ -260,7 +260,7 @@
 					$tlang.getString("newsc.sitecont")
 				</th>
 				<td>
-					$validator.escapeHtml($!siteContactName)
+					$formattedText.escapeHtml($!siteContactName)
 				</td>
 			</tr>
 			<tr>
@@ -271,7 +271,7 @@
 				#if ($!siteContactEmail=="")
 					<span>$tlang.getString("newsc.sitecont2.none")</span>
 				#else
-					$validator.escapeHtml($!siteContactEmail)
+					$formattedText.escapeHtml($!siteContactEmail)
 				#end
 					
 				</td>
@@ -284,7 +284,7 @@
 				#if ($short_description =="")
 					<span>$tlang.getString("newsc.short.none")</span>
 				#else
-					$validator.escapeHtml($short_description)
+					$formattedText.escapeHtml($short_description)
 				#end	
 
 				</td>
@@ -300,7 +300,7 @@
 					#if ($locale_string_selected == "")
 						<span>$tlang.getString("newsc.language.none")</span>
 					#else
-						$validator.escapeHtml($locale_string_selected.getDisplayName())
+						$formattedText.escapeHtml($locale_string_selected.getDisplayName())
 					#end						
 				</td>
 			</tr>

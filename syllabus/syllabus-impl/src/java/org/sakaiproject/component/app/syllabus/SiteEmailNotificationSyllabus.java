@@ -21,20 +21,15 @@
 package org.sakaiproject.component.app.syllabus;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
-import org.sakaiproject.util.ResourceLoader;
-import java.util.Vector;
-
-import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
 import org.sakaiproject.api.app.syllabus.SyllabusData;
 import org.sakaiproject.api.app.syllabus.SyllabusItem;
 import org.sakaiproject.api.app.syllabus.SyllabusManager;
 import org.sakaiproject.api.app.syllabus.SyllabusService;
-import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Reference;
@@ -43,8 +38,12 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.NotificationAction;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SiteEmailNotification;
+import org.sakaiproject.util.api.FormattedText;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class SiteEmailNotificationSyllabus extends SiteEmailNotification
@@ -126,7 +125,7 @@ public class SiteEmailNotificationSyllabus extends SiteEmailNotification
 	
 	protected String plainTextContent(Event event) {
 		String content = htmlContent(event);
-		content = FormattedText.convertFormattedTextToPlaintext(content);
+		content = ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(content);
 		return content;
 	}
 	

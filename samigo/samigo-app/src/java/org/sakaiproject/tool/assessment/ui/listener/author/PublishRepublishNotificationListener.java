@@ -67,14 +67,14 @@ public class PublishRepublishNotificationListener implements ValueChangeListener
 			AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) ContextUtil.lookupBean("assessmentSettings");
 			currentSiteId = assessmentService.getAssessmentSiteId(assessmentSettings.getAssessmentId().toString());
 			title = assessmentSettings.getTitle();
-			startDateString = assessmentSettings.getStartDateString();
+			startDateString = assessmentSettings.getStartDateInClientTimezoneString();
 		}
 		else {
 			PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
 			PublishedAssessmentSettingsBean publishedAssessmentSettings = (PublishedAssessmentSettingsBean) ContextUtil.lookupBean("publishedSettings");
 			currentSiteId = publishedAssessmentService.getPublishedAssessmentOwner(publishedAssessmentSettings.getAssessmentId());
 			title = publishedAssessmentSettings.getTitle();
-			startDateString = publishedAssessmentSettings.getStartDateString();
+			startDateString = publishedAssessmentSettings.getStartDateInClientTimezoneString();
 		}
 		String newPos = ae.getNewValue().toString();
 		log.debug("**** ae.getNewValue : " + newPos);

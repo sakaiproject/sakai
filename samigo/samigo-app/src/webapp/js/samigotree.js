@@ -549,7 +549,7 @@ function abledButton(){
   for (var i = 0; i < inputs.length; i++) {
     if (inputs[i].name.indexOf("Submit") >=0) {
       inputs[i].disabled=false;
-	  inputs[i].className='enabled';
+	  inputs[i].className='active';
 	}
   }
 }

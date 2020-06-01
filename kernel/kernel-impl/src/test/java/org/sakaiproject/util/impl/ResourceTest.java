@@ -46,9 +46,8 @@ public class ResourceTest {
 	@Test
 	public void test() {
 		// KNL-888 Check that multiple calls to getLoader() return the correct loader.
-		Resource resource = new Resource();
-		ResourceLoader loader1 = resource.getLoader(ContentHostingService.class.getName(), "bundle1");
-		ResourceLoader loader2 = resource.getLoader(ContentHostingService.class.getName(), "bundle2");
+		ResourceLoader loader1 = Resource.getResourceLoader(ContentHostingService.class.getName(), "bundle1");
+		ResourceLoader loader2 = Resource.getResourceLoader(ContentHostingService.class.getName(), "bundle2");
 		assertEquals("Bundle 1", loader1.getString("example"));
 		assertEquals("Bundle 2", loader2.getString("example"));
 	}
