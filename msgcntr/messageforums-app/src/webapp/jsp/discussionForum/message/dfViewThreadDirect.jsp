@@ -42,21 +42,23 @@
 		return;
 
 	}else if(forumTool.getHasTopicAccessPrivileges(request.getParameter("topicId"))){
-		target = "/jsp/discussionForum/message/dfViewThread.jsf?messageId="
+		String forumsToolId = null;
+		try {
+			String siteId = ToolManager.getCurrentPlacement().getContext();
+			if (SiteService.getSite(siteId).getToolForCommonId("sakai.forums") != null) {
+				forumsToolId = SiteService.getSite(siteId).getToolForCommonId("sakai.forums").getId();
+			}
+		}
+		catch (Exception e) {
+			log.warn("dfViewThreadDirect - error while trying to get Forums tool id : {}", e.getMessage());
+			return;
+		}
+		target =  portalPath + "/tool/" + forumsToolId + "/discussionForum/message/dfViewThread.jsf?messageId="
 				+ request.getParameter("messageId") + "&topicId="
 				+ request.getParameter("topicId") + "&forumId="
 				+ request.getParameter("forumId");
-	
 		forumTool.processActionDisplayThread();
-	
-		// dispatch to the target
-		RequestDispatcher dispatcher = getServletContext()
-				.getRequestDispatcher(target);
-		try {
-			dispatcher.forward(request, response);
-		} catch (ServletException e) {
-			log.error(e.getMessage(), e);
-		}
+		response.sendRedirect(target);
 	}else{
 		%>
 	  	<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
