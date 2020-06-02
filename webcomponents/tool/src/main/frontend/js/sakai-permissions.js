@@ -52,6 +52,7 @@ class SakaiPermissions extends SakaiElement {
     return {
       tool: String,
       bundleKey: { attribute: 'bundle-key', type: String },
+      onRefresh: { attribute: 'on-refresh', type: String },
       roles: {type: Array},
       groups: Array,
     };
@@ -159,7 +160,11 @@ class SakaiPermissions extends SakaiElement {
       .then(res => {
 
         if (res.ok) {
-          window.location.reload();
+          if (this.onRefresh) {
+            window.location.href = this.onRefresh;
+          } else {
+            window.location.reload();
+          }
         } else {
           throw new Error("Network response was not ok.");
         }
@@ -193,7 +198,11 @@ class SakaiPermissions extends SakaiElement {
   }
 
   cancelPermissions() {
-    window.location.reload();
+    if (this.onRefresh) {
+      window.location.href = this.onRefresh;
+    } else {
+      window.location.reload();
+    }
   }
 
   attachHandlers() {
