@@ -697,17 +697,17 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		m_entityManager.registerEntityProducer(this, REFERENCE_ROOT);
 
 		// register functions
-		m_functionManager.registerFunction(AUTH_ADD_CALENDAR);
-		m_functionManager.registerFunction(AUTH_REMOVE_CALENDAR_OWN);
-		m_functionManager.registerFunction(AUTH_REMOVE_CALENDAR_ANY);
-		m_functionManager.registerFunction(AUTH_MODIFY_CALENDAR_OWN);
-		m_functionManager.registerFunction(AUTH_MODIFY_CALENDAR_ANY);
-		m_functionManager.registerFunction(AUTH_IMPORT_CALENDAR);
-		m_functionManager.registerFunction(AUTH_SUBSCRIBE_CALENDAR);
-		m_functionManager.registerFunction(AUTH_READ_CALENDAR);
-		m_functionManager.registerFunction(AUTH_ALL_GROUPS_CALENDAR);
-		m_functionManager.registerFunction(AUTH_OPTIONS_CALENDAR);
-		m_functionManager.registerFunction(AUTH_VIEW_AUDIENCE);
+		m_functionManager.registerFunction(AUTH_ADD_CALENDAR, true);
+		m_functionManager.registerFunction(AUTH_REMOVE_CALENDAR_OWN, true);
+		m_functionManager.registerFunction(AUTH_REMOVE_CALENDAR_ANY, true);
+		m_functionManager.registerFunction(AUTH_MODIFY_CALENDAR_OWN, true);
+		m_functionManager.registerFunction(AUTH_MODIFY_CALENDAR_ANY, true);
+		m_functionManager.registerFunction(AUTH_IMPORT_CALENDAR, true);
+		m_functionManager.registerFunction(AUTH_SUBSCRIBE_CALENDAR, true);
+		m_functionManager.registerFunction(AUTH_READ_CALENDAR, true);
+		m_functionManager.registerFunction(AUTH_ALL_GROUPS_CALENDAR, true);
+		m_functionManager.registerFunction(AUTH_OPTIONS_CALENDAR, true);
+		m_functionManager.registerFunction(AUTH_VIEW_AUDIENCE, true);
 		
 		// setup cache
 		SimpleConfiguration cacheConfig = new SimpleConfiguration(0);

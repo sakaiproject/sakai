@@ -177,13 +177,13 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
 
             // register functions
             if(functionManager.getRegisteredFunctions(ChatFunctions.CHAT_FUNCTION_PREFIX).size() == 0) {
-                functionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_READ);
-                functionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_NEW);
-                functionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_DELETE_ANY);
-                functionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_DELETE_OWN);
-                functionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_DELETE_CHANNEL);
-                functionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_NEW_CHANNEL);
-                functionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_EDIT_CHANNEL);
+                functionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_READ, true);
+                functionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_NEW, true);
+                functionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_DELETE_ANY, true);
+                functionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_DELETE_OWN, true);
+                functionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_DELETE_CHANNEL, true);
+                functionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_NEW_CHANNEL, true);
+                functionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_EDIT_CHANNEL, true);
             }
 
             pollInterval = serverConfigurationService.getInt("chat.pollInterval", 5000);

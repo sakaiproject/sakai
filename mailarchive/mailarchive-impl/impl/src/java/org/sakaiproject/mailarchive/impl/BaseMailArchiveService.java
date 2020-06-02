@@ -122,9 +122,9 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 			edit.setAction(new SiteEmailNotificationMail());
 
 			// register functions
-			functionManager.registerFunction(eventId(SECURE_READ));
-			functionManager.registerFunction(eventId(SECURE_ADD));
-			functionManager.registerFunction(eventId(SECURE_REMOVE_ANY));
+			functionManager.registerFunction(eventId(SECURE_READ), true);
+			functionManager.registerFunction(eventId(SECURE_ADD), true);
+			functionManager.registerFunction(eventId(SECURE_REMOVE_ANY), true);
 
 			// entity producer registration
 			m_entityManager.registerEntityProducer(this, REFERENCE_ROOT);
