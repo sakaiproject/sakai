@@ -37,6 +37,8 @@ import javax.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
+
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
@@ -835,12 +837,6 @@ public class ItemModifyListener implements ActionListener
 	         }
 	       }
 	       
-	       // if match was not found, must be a distractor
-	       /*if (choicebean.getMatch() == null || "".equals(choicebean.getMatch())) {
-	    	   choicebean.setMatch(MatchItemBean.CONTROLLING_SEQUENCE_DISTRACTOR);
-	    	   choicebean.setIsCorrect(Boolean.TRUE);
-	    	   choicebean.setControllingSequence(MatchItemBean.CONTROLLING_SEQUENCE_DISTRACTOR);
-	       }*/
 	       imageMapItemBeanList.add(choicebean);
 	     }
 
@@ -899,7 +895,7 @@ public class ItemModifyListener implements ActionListener
        }
        
        // if match was not found, must be a distractor
-       if (choicebean.getMatch() == null || "".equals(choicebean.getMatch())) {
+       if (StringUtils.isBlank(choicebean.getMatch())) {
     	   choicebean.setMatch("*" + RB_AUTHOR_MESSAGES.getString("none_above") + "*");
     	   choicebean.setIsCorrect(Boolean.TRUE);
     	   choicebean.setControllingSequence(MatchItemBean.CONTROLLING_SEQUENCE_DISTRACTOR);

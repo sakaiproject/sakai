@@ -1826,12 +1826,8 @@ public class DeliveryActionListener
       iter2 = shuffled.iterator();
 
       int i = 0;
-      ResourceLoader d_rb = null;
-      ResourceLoader a_rb = null;
-      if (d_rb == null || a_rb == null) { 	 
-  		d_rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
-  		a_rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
-  	  }
+      ResourceLoader d_rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
+      ResourceLoader a_rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
       choices.add(new SelectItem("0", d_rb.getString("matching_select"), "")); // default value for choice
       while (iter2.hasNext())
       {
