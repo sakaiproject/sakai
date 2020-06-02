@@ -115,6 +115,8 @@ $(document).ready(function(){
 					 $tlang.getString("stuviewsubm.asshasnot")
 				#elseif (($submissionType==2) || ($submissionType==5))
 				 	$tlang.getString("stuviewsubm.assattonly")
+				#elseif ($submissionType==5)
+                    $tlang.getString("stuviewsubm.externaltool")
 				#end
 				#if($assignment.AllowPeerAssessment)
 					<div class="highlight">
@@ -159,6 +161,16 @@ $(document).ready(function(){
 						#if (!$assignment.HideDueDate || $!allowUpdateAssignment)
 							$!service.getUsersLocalDateTimeString($!assignment.DueDate)
 						#end
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-lg-4 col-sm-6 col-xs-12">
+					<div class="itemSummaryHeader">$tlang.getString("gen.external.header")</div>
+				</div>
+				<div class="col-lg-4 col-sm-6 col-xs-12">
+					<div class="itemSummaryValue">
+						$assignment.ContentId
 					</div>
 				</div>
 			</div>
@@ -303,6 +315,16 @@ $(document).ready(function(){
 		
 		#if (!$!assignment.Instructions.isEmpty())
 			<div class="textPanel">$formattedText.escapeHtmlFormattedText($!assignment.Instructions)</div>
+		#end
+
+		#if ($submissionType==6)
+		External Tool LTI Launch:
+        <a href="#toolLinkParam("$action" "doView_external_tool_launch" "assignmentId=$formattedText.escapeUrl($assignmentReference)")">iframe</a>
+        |
+        <a href="$externalToolLaunch" target="_blank">New window</a>
+
+		## External Tool (LTI) Launch Attachments
+		#externalLaunch($assignment.ContentId)
 		#end
 
 		## Assignment Attachments

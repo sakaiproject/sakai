@@ -494,7 +494,7 @@
 			</label>
 			<div class="col-sm-10">
 				<div id="tempContentId">
-                    <input type="number" id="contentId" name="$name_ContentId">
+                    <input type="number" id="contentId" name="$name_ContentId" value="$value_ContentId">
 				</div>
 			</div>
 		</div>

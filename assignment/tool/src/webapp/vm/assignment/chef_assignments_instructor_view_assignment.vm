@@ -193,6 +193,14 @@
 					#end
 				</td>
 			</tr>
+			<tr>
+				<th>
+					$tlang.getString("gen.externaltool")
+				</th>
+				<td>
+					$assignment.ContentId
+				</td>
+			</tr>
 			<tr> 
 				<th>
 					$tlang.getString("gen.honple")

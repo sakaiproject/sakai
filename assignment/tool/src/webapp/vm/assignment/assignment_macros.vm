@@ -368,6 +368,11 @@
     #end
 #end
 
+## macro for rendering external tool launch
+#macro( externalLaunch $ContentId )
+ THIS IS AN LTI LAUNCH MACRO $ContentId
+#end
+
 ## macro for rendering student's progress bar
 #macro( progressBar $progressStatus)
     #if (!$!progressStatus.isEmpty())

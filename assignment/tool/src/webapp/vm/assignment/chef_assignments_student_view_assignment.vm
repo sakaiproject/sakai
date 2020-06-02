@@ -4,6 +4,7 @@
 <div class="portletBody">
 		<h3>
 		$tlang.getString("viewassig.viewass1") 	
+YADA YADA
 	</h3>
 	#if ($alertMessage)<div class="sak-banner-error"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>#end
 		#if (!$hideAssignmentFlag)
@@ -19,6 +20,14 @@
 					$formattedText.escapeHtml($!creator)
 				</td>
 			</tr>
+            <tr>
+                <th>
+                    $tlang.getString("gen.externaltool")
+                </th>
+                <td>
+                    $assignment.ContentId
+                </td>
+            </tr>
 			<tr> 
 				<th>
 					$tlang.getString("gen.open")

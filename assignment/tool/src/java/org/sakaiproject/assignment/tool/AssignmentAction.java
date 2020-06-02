@@ -233,6 +233,8 @@ import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.comparator.UserSortNameComparator;
+import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -786,6 +788,11 @@ public class AssignmentAction extends PagedResourceActionII {
      */
     private static final String MODE_LIST_DELETED_ASSIGNMENTS = "Assignment.mode_list_removed_assignments";
 
+    /**
+     * The view to launch an external tool
+     */
+    private static final String MODE_EXTERNAL_TOOL_LAUNCH = "Assignment.mode_external_tool_launch";
+
     /* ************************* vm names ************************** */
     /**
      * The student view of assignment
@@ -879,6 +886,10 @@ public class AssignmentAction extends PagedResourceActionII {
      * The instructor view to list deleted assignment
      */
     private static final String TEMPLATE_INSTRUCTOR_LIST_DELETED_ASSIGNMENTS = "_instructor_list_deleted_assignments";
+    /**
+     * The student view of showing an assignment submission
+     */
+    private static final String TEMPLATE_VIEW_LAUNCH = "_view_launch";
     /**
      * The options page
      */
@@ -1108,6 +1119,7 @@ public class AssignmentAction extends PagedResourceActionII {
     private UserDirectoryService userDirectoryService;
     private UserTimeService userTimeService;
     private RangeAndGroupsDelegate rangeAndGroups;
+    private LTIService ltiService;
 
     public AssignmentAction() {
         super();
@@ -1141,6 +1153,7 @@ public class AssignmentAction extends PagedResourceActionII {
         toolManager = ComponentManager.get(ToolManager.class);
         userDirectoryService = ComponentManager.get(UserDirectoryService.class);
         userTimeService = ComponentManager.get(UserTimeService.class);
+        ltiService = ComponentManager.get(LTIService.class);
         rangeAndGroups = new RangeAndGroupsDelegate(assignmentService, rb, siteService, securityService, formattedText);
     }
 
@@ -1322,6 +1335,7 @@ public class AssignmentAction extends PagedResourceActionII {
             context.put("allowGradeSubmission", state.getAttribute(STATE_ALLOW_GRADE_SUBMISSION));
         }
 
+        log.debug("MODE = {}", mode);
         switch (mode) {
             case MODE_LIST_ASSIGNMENTS:
                 // build the context for the student assignment view
@@ -1477,6 +1491,10 @@ public class AssignmentAction extends PagedResourceActionII {
             case MODE_PERMISSIONS:
                 template = build_permissions_context(portlet, context, data, state);
                 state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
+                break;
+            case MODE_EXTERNAL_TOOL_LAUNCH:
+                // build the context for launch external tool (LTI)
+                template = build_view_external_tool_launch_context(portlet, context, data, state);
                 break;
         }
 
@@ -1682,6 +1700,19 @@ public class AssignmentAction extends PagedResourceActionII {
             if (assignment.getTypeOfSubmission() == Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) {
                 context.put("nonElectronicType", Boolean.TRUE);
             }
+            if (assignment.getTypeOfSubmission() == Assignment.SubmissionType.EXTERNAL_TOOL_SUBMISSION) {
+                context.put("externalTool", Boolean.TRUE);
+                try {
+                    Site site = siteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
+                    Long contentKey = assignment.getContentId().longValue();
+                    Map<String, Object> content = ltiService.getContent(contentKey, site.getId());
+                    String content_launch = ltiService.getContentLaunch(content);
+                    context.put("externalToolLaunch", content_launch);
+                } catch(org.sakaiproject.exception.IdUnusedException e ) {
+                    // Send error to template
+                    context.put("externalToolLaunch", null);
+                }
+            }
 
             User submitter = (User) state.getAttribute("student");
             if (submitter == null) {
@@ -1803,6 +1834,16 @@ public class AssignmentAction extends PagedResourceActionII {
         return template + TEMPLATE_STUDENT_VIEW_SUBMISSION;
 
     } // build_student_view_submission_context
+
+    /**
+     * build the external tool launch (LTI) view
+     */
+    private String build_view_external_tool_launch_context(VelocityPortlet portlet, Context context, RunData data, SessionState state) {
+
+        String template = getContext(data).get("template");
+        return template + TEMPLATE_VIEW_LAUNCH;
+
+    } // build_view_external_tool_launch_context
 
     /**
      * Determines if the attachments have been modified
@@ -2350,6 +2391,9 @@ public class AssignmentAction extends PagedResourceActionII {
             context.put("typeOfGradeString", getTypeOfGradeString(assignment.getTypeOfGrade()));
             if (assignment.getTypeOfSubmission() == Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) {
                 context.put("nonElectronicType", Boolean.TRUE);
+            }
+            if (assignment.getTypeOfSubmission() == Assignment.SubmissionType.EXTERNAL_TOOL_SUBMISSION) {
+                context.put("externalTool", Boolean.TRUE);
             }
 
             context.put("users", assignmentService.getSubmissionSubmittersAsUsers(submission));
@@ -5325,6 +5369,18 @@ public class AssignmentAction extends PagedResourceActionII {
     /**
      * Action is to view the content of one specific assignment submission
      */
+    public void doView_external_tool_launch(RunData data) {
+        SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+        if (state.getAttribute(STATE_MESSAGE) == null) {
+            state.setAttribute(STATE_MODE, MODE_EXTERNAL_TOOL_LAUNCH);
+        }
+
+    } // doView_submission_list_option
+
+
+    /**
+     * Action is to view the content of one specific assignment submission
+     */
     public void doChange_submission_list_option(RunData data) {
         SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
         ParameterParser params = data.getParameters();
@@ -6576,8 +6632,12 @@ public class AssignmentAction extends PagedResourceActionII {
         state.setAttribute(NEW_ASSIGNMENT_TITLE, title);
 
         // put the input value into the state attributes
-        Integer contentId = Integer.valueOf((String) params.getString(NEW_ASSIGNMENT_CONTENT_ID));
-        state.setAttribute(NEW_ASSIGNMENT_CONTENT_ID, contentId);
+        try {
+            Integer contentId = Integer.valueOf((String) params.getString(NEW_ASSIGNMENT_CONTENT_ID));
+            state.setAttribute(NEW_ASSIGNMENT_CONTENT_ID, contentId);
+        } catch (NumberFormatException e) {
+            state.setAttribute(NEW_ASSIGNMENT_CONTENT_ID, null);
+        }
 
         String order = params.getString(NEW_ASSIGNMENT_ORDER);
         state.setAttribute(NEW_ASSIGNMENT_ORDER, order);
@@ -9147,6 +9207,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
                 // put the names and values into vm file
                 state.setAttribute(NEW_ASSIGNMENT_TITLE, a.getTitle());
+                state.setAttribute(NEW_ASSIGNMENT_CONTENT_ID, a.getContentId());
                 state.setAttribute(NEW_ASSIGNMENT_ORDER, a.getPosition());
 
                 if (serverConfigurationService.getBoolean("assignment.visible.date.enabled", false)) {
