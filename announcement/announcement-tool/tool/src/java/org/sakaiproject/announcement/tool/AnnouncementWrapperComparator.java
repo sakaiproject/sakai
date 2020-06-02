@@ -30,7 +30,7 @@ import org.sakaiproject.entity.api.ResourceProperties;
  * Comparator for announcements.
  */
 @Slf4j
-class AnnouncementWrapperComparator implements Comparator<AnnouncementWrapper> {
+public class AnnouncementWrapperComparator implements Comparator<AnnouncementWrapper> {
 
     private static RuleBasedCollator collator_ini = (RuleBasedCollator)Collator.getInstance();
     private Collator collator = Collator.getInstance();

@@ -42,7 +42,11 @@ import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
 import org.sakaiproject.announcement.api.AnnouncementService;
+import org.sakaiproject.announcement.tool.AnnouncementAction;
+import org.sakaiproject.announcement.tool.AnnouncementWrapper;
+import org.sakaiproject.announcement.tool.AnnouncementWrapperComparator;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityPermissionException;
@@ -76,6 +80,7 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.MergedList;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.api.FormattedText;
 
 /**
@@ -130,6 +135,7 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		//we use this zero value to determine if we need to look up from the tool config, or use the defaults if still not set.
 		int numberOfAnnouncements = NumberUtils.toInt((String)params.get("n"), 0);
 		int numberOfDaysInThePast = NumberUtils.toInt((String)params.get("d"), 0);
+		boolean announcementSortAsc = NumberUtils.toInt((String)params.get("a"), 0) == 1 ? true:false;
 		
 		//get currentUserId for permissions checks, although unused for motdView and onlyPublic
 		String currentUserId = sessionManager.getCurrentSessionUserId();
@@ -213,6 +219,7 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 
 		log.debug("numberOfAnnouncements: {}", numberOfAnnouncements);
 		log.debug("numberOfDaysInThePast: {}", numberOfDaysInThePast);
+		log.debug("announcementSortAsc: {}", announcementSortAsc);
 		
 		//get the Sakai Time for the given java Date
 		Time t = timeService.newTime(getTimeForDaysInPast(numberOfDaysInThePast).getTime());
@@ -220,10 +227,17 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		//get the announcements for each channel
 		List<Message> announcements = new ArrayList<Message>();
 		
+		boolean enableReorder = ComponentManager.get(ServerConfigurationService.class).getBoolean(AnnouncementAction.SAK_PROP_ANNC_REORDER, AnnouncementAction.SAK_PROP_ANNC_REORDER_DEFAULT);
+		String sortCurrentOrder = AnnouncementAction.SORT_DATE;
+		if (enableReorder){
+			sortCurrentOrder = AnnouncementAction.SORT_MESSAGE_ORDER;
+		}
+		ViewableFilter msgFilter = AnnouncementAction.SORT_MESSAGE_ORDER.equals(sortCurrentOrder) ? null:new ViewableFilter(null, t, numberOfAnnouncements);
+		
 		//for each channel
 		for(String channel: channels) {
 			try {
-				announcements.addAll(announcementService.getMessages(channel, new ViewableFilter(null, t, numberOfAnnouncements), true, false));
+				announcements.addAll(announcementService.getMessages(channel, msgFilter, announcementSortAsc, false));
 			} catch (PermissionException | IdUnusedException | NullPointerException ex) {
 				//user may not have access to view the channel but get all public messages in this channel
 				AnnouncementChannel announcementChannel = (AnnouncementChannel)announcementService.getChannelPublic(channel);
@@ -243,6 +257,29 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 			log.debug("announcements.size(): {}", announcements.size());
 		}
 		
+		if (AnnouncementAction.SORT_MESSAGE_ORDER.equals(sortCurrentOrder)) {
+			try {
+				List<AnnouncementWrapper> messageList = new ArrayList<>();
+				AnnouncementChannel defaultChannel = (AnnouncementChannel) announcementService.getChannel("/announcement/channel/" + siteId + "/main");
+				for (Message msg : announcements) {
+					AnnouncementChannel curChannel = (AnnouncementChannel) announcementService.getChannel(msg.getReference().replace("msg", "channel").replaceAll("main/(.*)", "main"));
+					messageList.add(new AnnouncementWrapper((AnnouncementMessage) msg, curChannel, defaultChannel, null, null));
+				}
+				SortedIterator<AnnouncementWrapper> rvSorted = new SortedIterator<>(messageList.iterator(), new AnnouncementWrapperComparator(sortCurrentOrder, announcementSortAsc));
+				
+				List<Message> subrv = new ArrayList();
+				for (int index = 0; index < announcements.size(); index++) {
+					subrv.add(rvSorted.next());
+				}
+				announcements = subrv;
+			} catch (Exception e) {
+				if(log.isDebugEnabled()) {
+					log.warn("Error sorting announcements by " + AnnouncementAction.SORT_MESSAGE_ORDER + "." + e.getMessage());
+				}
+			}
+
+		}
+		
 		//convert raw announcements into decorated announcements
 		List<DecoratedAnnouncement> decoratedAnnouncements = new ArrayList<DecoratedAnnouncement>();
 	
@@ -257,11 +294,15 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 			}
 		}
 		
-		//sort
-		Collections.sort(decoratedAnnouncements);
-		
-		//reverse so it is date descending. This could be dependent on a parameter that specifies the sort order
-		Collections.reverse(decoratedAnnouncements);
+		if (!AnnouncementAction.SORT_MESSAGE_ORDER.equals(sortCurrentOrder) || channels.size() > 1) {
+			//sort
+			Collections.sort(decoratedAnnouncements);
+			
+			if (!announcementSortAsc) {
+				//reverse so it is date descending. This could be dependent on a parameter that specifies the sort order
+				Collections.reverse(decoratedAnnouncements);
+			}
+		}
 		
 		//trim to final number, within bounds of list size.
 		if(numberOfAnnouncements > decoratedAnnouncements.size()) {
