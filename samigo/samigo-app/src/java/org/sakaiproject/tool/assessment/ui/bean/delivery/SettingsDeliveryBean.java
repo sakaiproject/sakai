@@ -26,6 +26,7 @@ package org.sakaiproject.tool.assessment.ui.bean.delivery;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
+import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -60,6 +61,7 @@ public class SettingsDeliveryBean implements Serializable
   private String background;
   private String itemNumbering;
   private String displayScoreDuringAssessments;
+  private String secureDeliveryModule;
 
   /**
    * Maximum number of attemtps allowed.
@@ -341,6 +343,15 @@ public class SettingsDeliveryBean implements Serializable
   public void setDisplayScoreDuringAssessments(String displayScoreDuringAssessments){
 	  this.displayScoreDuringAssessments = displayScoreDuringAssessments;
   }
+
+  public String getSecureDeliveryModule()
+  {
+	  return secureDeliveryModule;
+  }
+  
+  public void setSecureDeliveryModule(String secureDeliveryModule){
+	  this.secureDeliveryModule = secureDeliveryModule;
+  }
   
   public void setAssessmentAccessControl(PublishedAssessmentIfc pubAssessment){
 
@@ -385,6 +396,8 @@ public class SettingsDeliveryBean implements Serializable
         setBgcolor(data.getEntry());
       else if (data.getLabel().equals(AssessmentMetaDataIfc.BGIMAGE))
         setBackground(data.getEntry());
+      else if (data.getLabel().equals(SecureDeliveryServiceAPI.MODULE_KEY))
+        setSecureDeliveryModule(data.getEntry());
     }
   }
 

@@ -148,4 +148,11 @@ public interface SecureDeliveryServiceAPI {
 	 * @return the reference. null if the module is not avaliable or if the module rejected the context 
 	 */
 	public SecureDeliveryModuleIfc getModuleReference( String moduleId, Object context );
+
+	public String getAlternativeDeliveryUrl( String moduleId, Long assessmentId, String uid );
+
+	public String getInstructorReviewUrl( String moduleId, Long assessmentId, String studentId );
+
+	public boolean isSecureDeliveryAvaliable( Long publishedAssessmentId );
+
 }

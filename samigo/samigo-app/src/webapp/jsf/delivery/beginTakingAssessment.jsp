@@ -47,6 +47,11 @@
 <h:form id="takeAssessmentForm">
   <h:inputHidden id="timerId" value="#{delivery.timerId}" rendered="#{delivery.timerId!=null}" />
 
+<!-- Secure Delivery HTML (aka Proctoring or Lockdown)-->
+<h:panelGroup rendered="#{delivery.actionString!='previewAssessment'}">
+  <h:outputText value="#{delivery.secureDeliveryHTMLFragment}" escape="false" />
+</h:panelGroup>
+
 <!-- DONE BUTTON FOR PREVIEW -->
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
   <div class="sak-banner-info">

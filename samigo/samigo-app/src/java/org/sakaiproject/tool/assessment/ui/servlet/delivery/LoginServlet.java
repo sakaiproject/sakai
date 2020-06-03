@@ -239,6 +239,9 @@ public class LoginServlet
         else if ("accessDenied".equals(nextAction)) {
         	path = "/jsf/delivery/accessDenied.faces";
         }
+        else if ("secureDeliveryError".equals(nextAction)) {
+        	path = "/jsf/delivery/secureDeliveryError.faces";
+        }
         else {
         	path = "/jsf/delivery/assessmentNotAvailable.faces";
         }
@@ -258,6 +261,8 @@ public class LoginServlet
     	  }
       }
       if ("true".equals(req.getParameter("fromDirect"))) {
+        String deliveryValidate = delivery.validate();
+
         // send the user directly into taking the assessment... they already clicked start from the direct servlet
         if (delivery.getNavigation().trim() != null && "1".equals(delivery.getNavigation().trim())) {
           LinearAccessDeliveryActionListener linearDeliveryListener = new LinearAccessDeliveryActionListener();
@@ -273,7 +278,7 @@ public class LoginServlet
         }
         
         //TODO: Should be something a bit more robust as validate() can retun a lot of things...
-        if ("takeAssessment".equals(delivery.validate())) {
+        if ("takeAssessment".equals(deliveryValidate)) {
           path = "/jsf/delivery/deliverAssessment.faces";
         }
         

@@ -74,7 +74,5 @@
     class="org.sakaiproject.tool.assessment.shared.impl.assessment.SecureDeliveryServiceImpl"
     init-method="init">
   </bean>
+  <bean id="ldbSecurityModule" class="org.sakaiproject.tool.assessment.services.assessment.SecureDeliveryProctorio" />
 </beans>
-
-
-
