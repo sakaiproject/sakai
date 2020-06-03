@@ -1316,7 +1316,7 @@ public class DeliveryBean implements Serializable {
       setSecureDeliveryHTMLFragment( "" );
       setBlockDelivery( false );
       SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
-      if ( "takeAssessment".equals(results) && secureDelivery.isSecureDeliveryAvaliable() ) {
+      if ( "takeAssessment".equals(results) && secureDelivery.isSecureDeliveryAvaliable(publishedAssessment.getPublishedAssessmentId()) ) {
    
     	  String moduleId = publishedAssessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
     	  if ( moduleId != null && ! SecureDeliveryServiceAPI.NONE_ID.equals( moduleId ) ) {
@@ -1824,7 +1824,7 @@ public class DeliveryBean implements Serializable {
     return timeExpired;
   }
 
-  private void removeTimedAssessmentFromQueue(){
+  public void removeTimedAssessmentFromQueue(){
     if (adata==null) {
       return;
     }
@@ -2079,7 +2079,26 @@ public class DeliveryBean implements Serializable {
     if (isTimeRunning() && getTimeExpired() && !turnIntoTimedAssessment){
       return "timeExpired";
     }
-    
+
+    // TODO: special case for Proctorio
+    if (isViaUrlLogin) {
+        SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+        if ( secureDelivery.isSecureDeliveryAvaliable(publishedAssessment.getPublishedAssessmentId()) ) {
+     
+      	  String moduleId = publishedAssessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
+      	  if ( moduleId != null && ! SecureDeliveryServiceAPI.NONE_ID.equals( moduleId ) ) {
+      		  HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+      		  PhaseStatus status = secureDelivery.validatePhase(moduleId, Phase.ASSESSMENT_START, publishedAssessment, request );
+      		  setBlockDelivery( PhaseStatus.FAILURE == status );
+      		  setSecureDeliveryHTMLFragment(secureDelivery.getHTMLFragment(moduleId, publishedAssessment, request, Phase.ASSESSMENT_START, status, new ResourceLoader().getLocale()));
+      		  if ( PhaseStatus.FAILURE == status ) {
+      			  return "secureDeliveryError";
+                }
+      	  }    	  
+        }
+    	
+    }
+
     return "safeToProceed";
   }
   

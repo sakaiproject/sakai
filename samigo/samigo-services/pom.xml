@@ -153,6 +153,14 @@
             <groupId>org.mariuszgromada.math</groupId>
             <artifactId>MathParser.org-mXparser</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+        </dependency>
 
         <!-- Unit test dependencies -->
         <dependency>

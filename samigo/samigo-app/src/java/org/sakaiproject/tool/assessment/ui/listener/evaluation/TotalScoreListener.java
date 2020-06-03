@@ -44,10 +44,11 @@ import javax.faces.event.ValueChangeListener;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.beanutils.BeanUtils;
-
+import org.elasticsearch.common.lang3.StringUtils;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
+import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
@@ -65,6 +66,7 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
@@ -573,6 +575,14 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
 	
 	TotalScoresBean bean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
 	Map agentResultsByAssessmentGradingIdMap = new HashMap();
+
+	SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+	String moduleId = null;
+    if ( secureDelivery.isSecureDeliveryAvaliable() ) {
+        moduleId = p.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
+    }
+
+
     while (iter.hasNext())
     {
       AgentResults results = new AgentResults();
@@ -596,6 +606,12 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
     	  if (gdata.getForGrade()) {
     		  results.setTotalAutoScore(gdata.getTotalAutoScore().toString());
     		  results.setForGrade(Boolean.TRUE);
+
+    		  // If the student took the assessment, then provide a view of their proctoring (if available)
+    		  if (StringUtils.isNotBlank(moduleId)) {
+    			  results.setAlternativeInstructorReviewUrl( secureDelivery.getInstructorReviewUrl(moduleId, new Long(p.getPublishedAssessmentId()), gdata.getAgentId()) );
+    		  }
+    		  
     	  }
     	  else {
     		  results.setTotalAutoScore("-");

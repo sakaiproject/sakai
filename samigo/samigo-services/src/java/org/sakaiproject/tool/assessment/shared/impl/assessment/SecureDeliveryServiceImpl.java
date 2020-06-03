@@ -20,6 +20,7 @@ import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.SortedSet;
@@ -29,6 +30,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.Resource;
 
@@ -36,6 +39,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.RegisteredSecureDeliveryModuleIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SecureDeliveryModuleIfc;
+import org.sakaiproject.tool.assessment.services.assessment.SecureDeliveryProctorio;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 
 /**
@@ -105,10 +109,29 @@ public class SecureDeliveryServiceImpl implements SecureDeliveryServiceAPI {
 	 * @returns true if at least one secure delivery module implementation is available.
 	 */
 	public boolean isSecureDeliveryAvaliable() {
-		
-		return secureDeliveryModules.size() > 0;
+		for ( Map.Entry<String, SecureDeliveryModuleIfc> entry : secureDeliveryModules.entrySet() ) {
+			if (entry.getValue().isEnabled()) {
+				return true;
+			}
+		}
+
+		return false;
 	}
-	
+
+	/**
+	 * @param publishedAssessmentId
+	 * @return true if the module with publishedAssessmentId is using SecureDelivery.
+	 */
+	public boolean isSecureDeliveryAvaliable(Long publishedAssessmentId) {
+		for ( Map.Entry<String, SecureDeliveryModuleIfc> entry : secureDeliveryModules.entrySet() ) {
+			if (entry.getValue().isEnabled(publishedAssessmentId)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	/**
 	 * @param moduleId
 	 * @return true if the module with moduleId is availabe.
@@ -119,6 +142,7 @@ public class SecureDeliveryServiceImpl implements SecureDeliveryServiceAPI {
 			return true;
 		return secureDeliveryModules.get( moduleId ) != null;
 	}
+
 
 	/**
 	 * @return A set of RegisteredSecureDeliveryModuleIfc entries with the module name internationalized 
@@ -186,7 +210,7 @@ public class SecureDeliveryServiceImpl implements SecureDeliveryServiceAPI {
 		
 		SecureDeliveryModuleIfc module = secureDeliveryModules.get( moduleId );
 		
-		if ( moduleId == null || NONE_ID.equals( moduleId ) || module == null || !module.isEnabled() )
+		if ( moduleId == null || NONE_ID.equals( moduleId ) || module == null || !module.isEnabled(assessment.getPublishedAssessmentId()) )
 			return PhaseStatus.SUCCESS;
 		
 		try {
@@ -241,11 +265,12 @@ public class SecureDeliveryServiceImpl implements SecureDeliveryServiceAPI {
 		
 		SecureDeliveryModuleIfc module = secureDeliveryModules.get( moduleId );
 		
-		if ( moduleId == null || NONE_ID.equals( moduleId ) || module == null  || !module.isEnabled() )
+		if ( moduleId == null || NONE_ID.equals( moduleId ) || module == null  || !module.isEnabled(assessment.getPublishedAssessmentId()) )
 			return "";
 		
 		try {
-			return module.getHTMLFragment(assessment, request, phase, status, locale );
+			String tmep = module.getHTMLFragment(assessment, request, phase, status, locale );
+			return tmep;
 		}
 		catch ( Exception e ) {
 			
@@ -336,7 +361,39 @@ public class SecureDeliveryServiceImpl implements SecureDeliveryServiceAPI {
 			return password;
 		}
 	}
-	
+
+
+	/**
+	 * Provide the student a custom URL to begin the secured delivery of the assessment.
+	 * This alternative URL could take the user to a commercial service where they would 
+	 * begin a proctored environment with lots of browser checks and maybe user verification.
+	 * Sakai could then be iframed in this newly-locked down browser.
+	 */
+	@Override
+	public String getAlternativeDeliveryUrl(String moduleId, Long assessmentId, String uid) {
+		SecureDeliveryModuleIfc module = secureDeliveryModules.get( moduleId );
+
+		if ( moduleId == null || assessmentId == null || uid == null || NONE_ID.equals( moduleId ) || module == null ) {
+			return "";
+		}
+		
+		return module.getAlternativeDeliveryUrl(assessmentId, uid);
+	}
+
+	/**
+	 * Provide the instructor a custom URL to review a specific student's proctored taking of the assessment.
+	 * This alternative URL could take the user to a commercial service.
+	 */
+	@Override
+	public String getInstructorReviewUrl(String moduleId, Long assessmentId, String studentId) {
+		SecureDeliveryModuleIfc module = secureDeliveryModules.get( moduleId );
+
+		if ( moduleId == null || assessmentId == null || studentId == null || NONE_ID.equals( moduleId ) || module == null ) {
+			return "";
+		}
+		
+		return module.getInstructorReviewUrl(assessmentId, studentId);
+	}
 
 	/**
 	 * Looks for the spring-context.xml file on the plugin JAR and loads the beans that implement the
@@ -345,9 +402,20 @@ public class SecureDeliveryServiceImpl implements SecureDeliveryServiceAPI {
 	 * @param secureDeliveryPlugin the path to the plugin JAR file
 	 */
 	private void handlePlugin( String secureDeliveryPlugin ) {
-	
 		try
 		{
+			// This is a built-in integration with no additional JAR file
+			if (secureDeliveryPlugin.equalsIgnoreCase("proctorio")) {
+				ApplicationContext appCtx = new AnnotationConfigApplicationContext(SecureDeliveryProctorio.class);
+				SecureDeliveryModuleIfc secureDeliveryModuleBean = (SecureDeliveryModuleIfc) appCtx.getBean("secureDeliveryProctorio");
+				log.info("handlePlugin Proctorio: {}", secureDeliveryModuleBean.toString());
+				if ( secureDeliveryModuleBean.initialize() ) {
+					secureDeliveryModules.put( "Proctorio", secureDeliveryModuleBean );
+				}
+				return;
+			}
+
+			// This is the JAR method where the vendor sends a custom file
 			File file = new File( secureDeliveryPlugin );
 			if ( !file.exists() ) {
 				log.warn( "Secure delivery plugin " + secureDeliveryPlugin + " not found" );
@@ -381,4 +449,5 @@ public class SecureDeliveryServiceImpl implements SecureDeliveryServiceAPI {
 			log.error( "Unable to load secure delivery plugin " + secureDeliveryPlugin, e );
 		}
 	}
+
 }

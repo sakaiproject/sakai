@@ -35,7 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-
+import org.elasticsearch.common.lang3.StringUtils;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
@@ -139,10 +139,10 @@ public class SelectActionListener implements ActionListener {
     }
     
     // filter out the one that the given user do not have right to access
-    List takeableList = getTakeableList(publishedAssessmentList,  h, updatedAssessmentNeedResubmitList, updatedAssessmentList);
+    List<PublishedAssessmentFacade> takeableList = getTakeableList(publishedAssessmentList,  h, updatedAssessmentNeedResubmitList, updatedAssessmentList);
     
     // 1c. prepare delivery bean
-    List takeablePublishedList = new ArrayList();
+    List<DeliveryBeanie> takeablePublishedList = new ArrayList<>();
     for (int i = 0; i < takeableList.size(); i++) {
       // note that this object is PublishedAssessmentFacade(assessmentBaseId,
       // title, releaseTo, startDate, dueDate, retractDate,lateHandling,
@@ -193,7 +193,7 @@ public class SelectActionListener implements ActionListener {
     List recentSubmittedList =
     	publishedAssessmentService.getBasicInfoOfLastOrHighestOrAverageSubmittedAssessmentsByScoringOption( AgentFacade.getAgentString(), AgentFacade.getCurrentSiteId(),"2".equals(select.getDisplayAllAssessments()));
    
-    Map publishedAssessmentHash = getPublishedAssessmentHash(publishedAssessmentList);
+    Map<Long, PublishedAssessmentFacade> publishedAssessmentHash = getPublishedAssessmentHash(publishedAssessmentList);
     List submittedAssessmentGradingList = new ArrayList();
 
     boolean hasHighest;
@@ -427,18 +427,27 @@ public class SelectActionListener implements ActionListener {
     	Collections.reverse(submittedAssessmentGradingList);
     }
 
+    // If secure delivery modules are installed, then insert their html fragments      
+    select.setSecureDeliveryHTMLFragments( "" );
+    SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+
+    if ( secureDelivery.isSecureDeliveryAvaliable() ) {
+        HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+        select.setSecureDeliveryHTMLFragments( secureDelivery.getInitialHTMLFragments(request, new ResourceLoader().getLocale() ) );
+
+        for (DeliveryBeanie db : takeablePublishedList) {
+            // We have to refetch the published assessment because the hash above doesn't have the metadata
+            PublishedAssessmentFacade paf = publishedAssessmentService.getPublishedAssessment(db.getAssessmentId());
+            final String moduleId = paf.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
+
+            db.setAlternativeDeliveryUrl( secureDelivery.getAlternativeDeliveryUrl(moduleId, new Long(db.getAssessmentId()), AgentFacade.getAgentString()) );
+        }
+    }
+
     // set the managed beanlist properties that we need
     select.setTakeableAssessments(takeablePublishedList);
     select.setReviewableAssessments(submittedAssessmentGradingList);
 
-    // If secure delivery modules are installed, then insert their html fragments      
-    select.setSecureDeliveryHTMLFragments( "" );
-    SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
-    if ( secureDelivery.isSecureDeliveryAvaliable() ) {
-    	
-    	HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-    	select.setSecureDeliveryHTMLFragments( secureDelivery.getInitialHTMLFragments(request, new ResourceLoader().getLocale() ) );
-    }
   }
 
   /**
@@ -560,8 +569,8 @@ public class SelectActionListener implements ActionListener {
   // agent is authorizaed and filter out the one that does not meet the
   // takeable criteria.
   // SAK-1464: we also want to filter out assessment released To Anonymous Users
-  private List getTakeableList(List assessmentList, Map <Long,Integer> h, List updatedAssessmentNeedResubmitList, List updatedAssessmentList) {
-    List takeableList = new ArrayList();
+  private List<PublishedAssessmentFacade> getTakeableList(List assessmentList, Map <Long,Integer> h, List updatedAssessmentNeedResubmitList, List updatedAssessmentList) {
+    List<PublishedAssessmentFacade> takeableList = new ArrayList<>();
     GradingService gradingService = new GradingService();
     Map<Long, StudentGradingSummaryData> numberRetakeHash = gradingService.getNumberRetakeHash(AgentFacade.getAgentString());
     Map<Long, Integer> actualNumberRetake = gradingService.getActualNumberRetakeHash(AgentFacade.getAgentString());
@@ -856,10 +865,10 @@ public class SelectActionListener implements ActionListener {
     return timeElapsedInString;
   }
 
-  public Map getPublishedAssessmentHash(List publishedAssessmentList){
-    Map h = new HashMap();
+  public Map<Long, PublishedAssessmentFacade> getPublishedAssessmentHash(List<PublishedAssessmentFacade> publishedAssessmentList){
+    Map<Long, PublishedAssessmentFacade> h = new HashMap<>();
     for (int i=0; i<publishedAssessmentList.size();i++){
-      PublishedAssessmentFacade p = (PublishedAssessmentFacade)publishedAssessmentList.get(i);
+      PublishedAssessmentFacade p = publishedAssessmentList.get(i);
       h.put(p.getPublishedAssessmentId(), p);
     }
     return h;
