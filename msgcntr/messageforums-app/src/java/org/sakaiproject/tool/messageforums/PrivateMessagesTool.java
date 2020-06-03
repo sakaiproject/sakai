@@ -125,7 +125,6 @@ public class PrivateMessagesTool {
   private static final String MESSAGECENTER_PRIVACY_TEXT = "messagecenter.privacy.text";
 
   private static final String MESSAGECENTER_BUNDLE = "org.sakaiproject.api.app.messagecenter.bundle.Messages";
-  private static final String PERMISSIONS_BUNDLE = "org.sakaiproject.api.app.messagecenter.bundle.permissions";
  
   private static final ResourceLoader rb = new ResourceLoader(MESSAGECENTER_BUNDLE);
   
@@ -175,6 +174,8 @@ public class PrivateMessagesTool {
 
   private static final String HIDDEN_SEARCH_FROM_ISO_DATE = "searchFromDateISO8601";
   private static final String HIDDEN_SEARCH_TO_ISO_DATE = "searchToDateISO8601";
+  
+  private Boolean fromPermissions = false;
 
   /**
    *Dependency Injected 
@@ -250,6 +251,7 @@ public class PrivateMessagesTool {
   public static final String MESSAGE_STATISTICS_PG="pvtMsgStatistics";
   public static final String MESSAGE_HOME_PG="pvtMsgHpView";
   public static final String MESSAGE_REPLY_PG="pvtMsgReply";
+  public static final String PERMISSIONS_PG = "/jsp/privateMsg/permissions";
 
   public static final String MESSAGE_FORWARD_PG="pvtMsgForward";
   
@@ -4385,45 +4387,12 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	@SuppressWarnings("unchecked")
 	public String processActionPermissions()
 	{
-		ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
-		ToolSession toolSession = sessionManager.getCurrentToolSession();
-
-		try {
-			String url = "../sakai.permissions.helper.helper/tool?" +
-			"session." + PermissionsHelper.DESCRIPTION + "=" +
-			org.sakaiproject.util.Web.escapeUrl(getResourceBundleString("pvt_properties_desc")) +
-			"&session." + PermissionsHelper.TARGET_REF + "=" +
-			siteService.getSite(toolManager.getCurrentPlacement().getContext()).getReference() +
-			"&session." + PermissionsHelper.PREFIX + "=" +
-			DefaultPermissionsManager.MESSAGE_FUNCTION_PREFIX + DefaultPermissionsManager.MESSAGE_FUNCITON_PREFIX_PERMISSIONS;
-
-			// Set permission descriptions
-			if (toolSession != null) {
-				ResourceLoader pRb = new ResourceLoader(PERMISSIONS_BUNDLE);
-				HashMap<String, String> pRbValues = new HashMap<>();
-				for (Iterator<Entry<String, String>> iEntries = pRb.entrySet().iterator();iEntries.hasNext();)
-				{
-					Entry<String, String> entry = iEntries.next();
-					String key = entry.getKey();
-					pRbValues.put(key, entry.getValue());
-				}
-
-				toolSession.setAttribute("permissionDescriptions", pRbValues); 
-				
-				// set group awareness
-				 String groupAware = toolManager.getCurrentTool().getRegisteredConfig().getProperty("groupAware");
-				 toolSession.setAttribute("groupAware", groupAware != null ? Boolean.valueOf(groupAware) : Boolean.FALSE);
-			}
-
-			// Invoke Permissions helper
-			context.redirect(url);
+		if(fromPermissions) {
+			fromPermissions = false;
+			return null;
 		}
-		catch (IOException e) {
-			throw new RuntimeException("Failed to redirect to helper", e);
-		}catch (IdUnusedException e){
-			throw new RuntimeException("Failed to redirect to helper", e);
-		}
-		return null;
+		fromPermissions = true;
+		return PERMISSIONS_PG;
 	}
 
 	/**

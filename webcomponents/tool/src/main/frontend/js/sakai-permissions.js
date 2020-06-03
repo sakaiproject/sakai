@@ -144,7 +144,7 @@ class SakaiPermissions extends SakaiElement {
 
     document.body.style.cursor = "wait";
 
-    const boxes = document.querySelectorAll(`#${this.tool}-permissions-table input[type="checkbox"]`);
+    const boxes = document.querySelectorAll(`#${this.tool.replace('.', '\\.')}-permissions-table input[type="checkbox"]`);
     const myData = {};
     const params = `ref=${this.groupReference}&` + Array.from(boxes).reduce((acc,b) => {
 
@@ -166,7 +166,7 @@ class SakaiPermissions extends SakaiElement {
       })
       .catch(error => {
 
-        document.querySelector(`#${this.tool}-failure-message`).style.display = "inline-block";
+        document.querySelector(`#${this.tool.replace('.', '\\.')}-failure-message`).style.display = "inline-block";
         console.error(`Failed to save permissions for tool ${this.tool}`, error)
       })
       .finally(() => document.body.style.cursor = "default");
