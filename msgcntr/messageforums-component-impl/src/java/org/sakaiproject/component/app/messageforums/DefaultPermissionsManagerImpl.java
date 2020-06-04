@@ -58,28 +58,28 @@ public void init()
          functionManager.registerFunction(DefaultPermissionsManager.MESSAGE_FUNCTION_EMAIL);
      }
      if (!registered.contains(DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_ALL_PARTICIPANTS)) {
-         functionManager.registerFunction(DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_ALL_PARTICIPANTS);
+         functionManager.registerFunction(DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_ALL_PARTICIPANTS, true);
      }
      if (!registered.contains(DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_GROUPS)) {
-         functionManager.registerFunction(DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_GROUPS);
+         functionManager.registerFunction(DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_GROUPS, true);
      }
      if (!registered.contains(DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_MYGROUPS)) {
-         functionManager.registerFunction(DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_MYGROUPS);
+         functionManager.registerFunction(DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_MYGROUPS, true);
      }
      if (!registered.contains(DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_ROLES)) {
-         functionManager.registerFunction(DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_ROLES);
+         functionManager.registerFunction(DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_ROLES, true);
      }
      if (!registered.contains(DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_USERS)) {
-         functionManager.registerFunction(DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_USERS);
+         functionManager.registerFunction(DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_USERS, true);
      }
      if (!registered.contains(DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_MYGROUPMEMBERS)) {
-         functionManager.registerFunction(DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_MYGROUPMEMBERS);
+         functionManager.registerFunction(DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_MYGROUPMEMBERS, true);
      }
      if (!registered.contains(DefaultPermissionsManager.MESSAGE_FUNCTION_VIEW_HIDDEN_GROUPS)) {
-         functionManager.registerFunction(DefaultPermissionsManager.MESSAGE_FUNCTION_VIEW_HIDDEN_GROUPS);
+         functionManager.registerFunction(DefaultPermissionsManager.MESSAGE_FUNCTION_VIEW_HIDDEN_GROUPS, true);
      }
      if (!registered.contains(DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_MYGROUPROLES)) {
-    	 functionManager.registerFunction(DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_MYGROUPROLES);
+    	 functionManager.registerFunction(DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_MYGROUPROLES, true);
      }
      
 /*    functionManager.registerFunction(DefaultPermissionsManager.FUNCTION_NEW_FORUM);
