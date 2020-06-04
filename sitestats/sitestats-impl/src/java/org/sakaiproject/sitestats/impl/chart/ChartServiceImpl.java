@@ -589,7 +589,6 @@ public class ChartServiceImpl implements ChartService {
         periodaxis.setLabelInfo(aperiodaxislabelinfo);
         // date range
         if(firstDate != null || lastDate != null) {
-        	periodaxis.setAutoRange(false);
         	if(firstDate != null) {
         		if(StatsManager.CHARTTIMESERIES_MONTH.equals(timePeriod) || StatsManager.CHARTTIMESERIES_YEAR.equals(timePeriod)) {
         			periodaxis.setFirst(new org.jfree.data.time.Month(firstDate));
