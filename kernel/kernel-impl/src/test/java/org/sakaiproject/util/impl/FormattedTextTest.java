@@ -1178,7 +1178,7 @@ public class FormattedTextTest {
     
     @Test
     public void testH5PEmbed() {
-    	// SAK-43740
+    	// SAK-43740: h5p.com will always have a sub-domain. h5p.org will never have a sub-domain.
     	StringBuilder errorMessages = new StringBuilder();
     	String h5pEmbed = "<iframe src=\"https://falcon.h5p.com/content/1290422385430463737/embed\" width=\"1088\" height=\"673\" frameborder=\"0\" allowfullscreen=\"allowfullscreen\" " + 
     			"allow=\"geolocation *; microphone *; camera *; midi *; encrypted-media *\"></iframe><script src=\"https://falcon.h5p.com/js/h5p-resizer.js\" charset=\"UTF-8\"></script>";
@@ -1186,6 +1186,27 @@ public class FormattedTextTest {
     	String result = formattedText.processFormattedText(h5pEmbed, errorMessages, Level.HIGH);
     	Assert.assertFalse( result.contains("<script") );
     	Assert.assertTrue( result.contains("falcon.h5p.com") );
+    	
+    	h5pEmbed = "<iframe src=\"https://h5p.com/content/1290422385430463737/embed\" width=\"1088\" height=\"673\" frameborder=\"0\" allowfullscreen=\"allowfullscreen\" " + 
+    			"allow=\"geolocation *; microphone *; camera *; midi *; encrypted-media *\"></iframe><script src=\"https://falcon.h5p.com/js/h5p-resizer.js\" charset=\"UTF-8\"></script>";
+    	
+    	result = formattedText.processFormattedText(h5pEmbed, errorMessages, Level.HIGH);
+    	Assert.assertFalse( result.contains("<script") );
+    	Assert.assertFalse( result.contains("h5p.com") );
+    	
+    	h5pEmbed = "<iframe src=\"https://h5p.org/content/1290422385430463737/embed\" width=\"1088\" height=\"673\" frameborder=\"0\" allowfullscreen=\"allowfullscreen\" " + 
+    			"allow=\"geolocation *; microphone *; camera *; midi *; encrypted-media *\"></iframe><script src=\"https://falcon.h5p.com/js/h5p-resizer.js\" charset=\"UTF-8\"></script>";
+    	
+    	result = formattedText.processFormattedText(h5pEmbed, errorMessages, Level.HIGH);
+    	Assert.assertFalse( result.contains("<script") );
+    	Assert.assertTrue( result.contains("h5p.org") );
+    	
+    	h5pEmbed = "<iframe src=\"https://EVILSITE-h5p.org/content/1290422385430463737/embed\" width=\"1088\" height=\"673\" frameborder=\"0\" allowfullscreen=\"allowfullscreen\" " + 
+    			"allow=\"geolocation *; microphone *; camera *; midi *; encrypted-media *\"></iframe><script src=\"https://falcon.h5p.com/js/h5p-resizer.js\" charset=\"UTF-8\"></script>";
+    	
+    	result = formattedText.processFormattedText(h5pEmbed, errorMessages, Level.HIGH);
+    	Assert.assertFalse( result.contains("<script") );
+    	Assert.assertFalse( result.contains("h5p.org") );
     }
     
     @Test
