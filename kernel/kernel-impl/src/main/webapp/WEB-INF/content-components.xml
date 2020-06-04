@@ -1,10 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-   <bean id="org.sakaiproject.content.api.ContentPrintService"
-	class="org.sakaiproject.content.impl.BasicContentPrintService">
+    <bean id="org.sakaiproject.content.api.ContentPrintService"
+	    class="org.sakaiproject.content.impl.BasicContentPrintService">
+    </bean>
+
+    <bean id="org.sakaiproject.content.api.repository.FileConversionQueueItemRepository"
+          class="org.sakaiproject.content.impl.repository.FileConversionQueueItemRepositoryImpl">
+        <constructor-arg ref="entityManagerFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.content.api.FileConversionService"
+        class="org.sakaiproject.content.impl.FileConversionServiceImpl"
+        destroy-method="destroy"
+        init-method="init"
+        lazy-init="true">
+        <property name="transactionTemplate">
+            <bean class="org.springframework.transaction.support.TransactionTemplate">
+                <constructor-arg ref="jpaTransactionManager"/>
+            </bean>
+        </property>
     </bean>
 
     <!-- database beans -->
@@ -18,6 +35,7 @@
             init-method="init" destroy-method="destroy">
 
         <property name="fileSystemHandler">          <ref bean="org.sakaiproject.content.api.FileSystemHandler"/>            </property>
+        <property name="fileConversionService" ref="org.sakaiproject.content.api.FileConversionService" />
         <property name="memoryService">              <ref bean="org.sakaiproject.memory.api.MemoryService"/>                 </property>
         <property name="functionManager">			<ref bean="org.sakaiproject.authz.api.FunctionManager"/>				</property>
         <property name="aliasService">               <ref bean="org.sakaiproject.alias.api.AliasService"/>                   </property>
@@ -142,6 +160,7 @@
 		<property name="annotatedClasses">
 			<list>
 				<value>org.sakaiproject.content.hbm.Lock</value>
+				<value>org.sakaiproject.content.hbm.FileConversionQueueItem</value>
 			</list>
 		</property>
 	</bean>

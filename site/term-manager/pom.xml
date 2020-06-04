@@ -18,7 +18,7 @@
 
    <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-      <my.wicket.version>6.30.0</my.wicket.version>
+      <my.wicket.version>8.8.0</my.wicket.version>
    </properties>
 
    <dependencyManagement>
@@ -55,12 +55,6 @@
             <artifactId>wicket-extensions</artifactId>
             <version>${my.wicket.version}</version>
          </dependency>
-         <dependency>
-            <groupId>org.apache.wicket</groupId>
-            <artifactId>wicket-datetime</artifactId>
-            <version>${my.wicket.version}</version>
-         </dependency>
-
       </dependencies>
    </dependencyManagement>
 

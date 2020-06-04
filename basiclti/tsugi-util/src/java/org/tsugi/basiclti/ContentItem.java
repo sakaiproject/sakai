@@ -35,6 +35,9 @@ import net.oauth.SimpleOAuthValidator;
 import net.oauth.server.OAuthServlet;
 import net.oauth.signature.OAuthSignatureMethod;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -84,6 +87,12 @@ public class ContentItem {
 	public static final String LINEITEM = "lineItem";
 	public static final String CUSTOM = "custom";
 	public static final String ICON = "icon";
+	public static final String CONTENT_ITEMS = "content_items";
+	public static final String NO_CONTENT_ITEMS = "Missing content_items= parameter from ContentItem return";
+	public static final String BAD_CONTENT_MESSAGE = "CONTENT_ITEMS is wrong type ";
+	public static final String NO_DATA_MESSAGE = "Missing data= parameter from ContentItem return";
+	public static final String NO_GRAPH_MESSAGE = "A content_item must include a @graph";
+	public static final String BAD_DATA_MESSAGE = "data= parameter is wrong type ";
 
 	HttpServletRequest servletRequest = null;
 
@@ -104,22 +113,24 @@ public class ContentItem {
 	{
 		this.servletRequest = req;
 
-		String content_items = req.getParameter("content_items");
-		if ( content_items == null || content_items.length() < 1 ) {
-			throw new java.lang.RuntimeException("Missing content_items= parameter from ContentItem return");
+		String contentItems = req.getParameter(CONTENT_ITEMS);
+		if ( StringUtils.isEmpty(contentItems) ) {
+			throw new java.lang.RuntimeException(NO_CONTENT_ITEMS);
 		}
 
-		Object cit = JSONValue.parse(content_items);
+		Object cit = JSONValue.parse(contentItems);
 		if ( cit != null && cit instanceof JSONObject ) {
 			contentItem = (JSONObject) cit;
 		} else {
-			throw new java.lang.RuntimeException("content_items is wrong type "+cit.getClass().getName());
+			throw new java.lang.RuntimeException(BAD_CONTENT_MESSAGE + cit.getClass().getName());
 		}
 
 		String returnedData = req.getParameter("data");
-		if ( returnedData == null || returnedData.length() < 1 ) {
-			throw new java.lang.RuntimeException("Missing data= parameter from ContentItem return");
+		if ( StringUtils.isEmpty(returnedData) ) {
+			throw new java.lang.RuntimeException(NO_DATA_MESSAGE);
 		}
+
+		returnedData = StringEscapeUtils.unescapeJson(returnedData);
 
 		Object dat = JSONValue.parse(returnedData);
 		JSONObject dataJson = null;
@@ -139,7 +150,7 @@ public class ContentItem {
 
 		graph = getArray(contentItem,BasicLTIConstants.GRAPH);
 		if ( graph == null ) {
-			throw new java.lang.RuntimeException("A content_item must include a @graph");
+			throw new java.lang.RuntimeException(NO_GRAPH_MESSAGE);
 		}
 	}
 
@@ -218,7 +229,7 @@ public class ContentItem {
 		for ( Object i : graph ) {
 			if ( ! (i instanceof JSONObject) ) continue;
 			JSONObject item = (JSONObject) i;
-			String type = getString(item,BasicLTIConstants.TYPE);
+			String type = getString(item, BasicLTIConstants.TYPE);
 			if ( type == null ) continue;
 			if ( type.equals(itemType) ) return item;
 		}

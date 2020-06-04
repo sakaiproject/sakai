@@ -877,6 +877,7 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 
 	public static final String STATE_TOOL = "tool";
 	public static final String STATE_TOOL_KEY = "tool_key";
+	public static final String STATE_BUNDLE_KEY = "bundle_key";
 
 	public static final String STATE_MESSAGE = "message";
 	public static final String STATE_NOTIF = "notification";
@@ -921,6 +922,10 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 	protected String build_permissions_context(VelocityPortlet portlet, Context context, RunData data, SessionState state) {
 		String toolKey = (String) state.getAttribute(STATE_TOOL_KEY);
 		context.put("toolKey", toolKey);
+		String bundleKey = (String) state.getAttribute(STATE_BUNDLE_KEY);
+		if(StringUtils.isNotBlank(bundleKey)){
+			context.put("bundleKey", bundleKey);
+		}
 		context.put("permissions", rb.getString("permissions"));
 		return MODE_PERMISSIONS;
 	}
