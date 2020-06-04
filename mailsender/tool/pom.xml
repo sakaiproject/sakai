@@ -37,25 +37,7 @@
 				<filtering>false</filtering>
 			</resource>
 		</resources>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-war-plugin</artifactId>
-				<configuration>
-					<packagingExcludes>WEB-INF/bundle/*.properties,WEB-INF/bundle</packagingExcludes>
-					<webResources>
-						<resource>
-							<!-- move bundle/*.properties into classes in order to make them accessible from classpath -->
-							<directory>${basedir}/src/webapp/WEB-INF/bundle</directory>
-							<includes>
-								<include>*.properties</include>
-							</includes>
-							<targetPath>WEB-INF/classes</targetPath>
-						</resource>
-					</webResources>
-				</configuration>
-			</plugin>
-		</plugins>
+		
 	</build>
 
 	<dependencies>

@@ -500,6 +500,11 @@ public class ExternalLogicImpl implements ExternalLogic
 	{
 		return getCurrentSite().getReference();
 	}
+	
+	public String getCurrentToolURL()
+	{
+		return configService.getPortalUrl() + getCurrentLocationId() + "/tool/" + sessionManager.getCurrentToolSession().getPlacementId();
+	}
 
 	public boolean isUserSiteAdmin(String userId, String locationId)
 	{
