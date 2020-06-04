@@ -1561,17 +1561,24 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 				.setString("label", label)
 				.setString("entry", entry)
 				.list();
-		List<PublishedAssessmentData> l = getHibernateTemplate().execute(hcb);
+        List<PublishedAssessmentData> list = getHibernateTemplate().execute(hcb);
 
-		if (!l.isEmpty()) {
-			PublishedAssessmentData p = l.get(0);
-			p.setSectionSet(getSectionSetForAssessment(p));
-			PublishedAssessmentFacade f = new PublishedAssessmentFacade(p);
-			f.setFeedbackComponentOption(p.getAssessmentFeedback().getFeedbackComponentOption());
-			return f;
-		}
-		return null;
-	}
+        switch (list.size()) {
+            case 0:
+                log.warn("No matching assessment where ALIAS = {}", entry);
+                break;
+            case 1:
+                PublishedAssessmentData data = list.get(0);
+                data.setSectionSet(getSectionSetForAssessment(data));
+                PublishedAssessmentFacade assessment = new PublishedAssessmentFacade(data);
+                assessment.setFeedbackComponentOption(data.getAssessmentFeedback().getFeedbackComponentOption());
+                return assessment;
+            default:
+                log.warn("More than 1 assessment found with the same ALIAS = {}, this should be unique.", entry);
+                break;
+        }
+        return null;
+    }
 
 	public void saveOrUpdateMetaData(PublishedMetaData meta) {
 		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
