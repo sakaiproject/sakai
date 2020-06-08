@@ -112,7 +112,6 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
-import org.sakaiproject.util.comparator.UserSortNameComparator;
 
 /**
  * <p>
@@ -2896,7 +2895,6 @@ public class AssignmentAction extends PagedResourceActionII {
                             log.warn(this + ":setAssignmentFormContext cannot get user " + e.getMessage() + " user id=" + userId);
                         }
                     }
-                    Collections.sort(usersList, new UserSortNameComparator());
                     roleUsers.put(r.getId(), usersList);
                 }
             }
