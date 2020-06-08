@@ -52,6 +52,7 @@ class SakaiPermissions extends SakaiElement {
     return {
       tool: String,
       bundleKey: { attribute: 'bundle-key', type: String },
+      onRefresh: { attribute: 'on-refresh', type: String },
       roles: {type: Array},
       groups: Array,
     };
@@ -144,7 +145,7 @@ class SakaiPermissions extends SakaiElement {
 
     document.body.style.cursor = "wait";
 
-    const boxes = document.querySelectorAll(`#${this.tool}-permissions-table input[type="checkbox"]`);
+    const boxes = document.querySelectorAll(`#${this.tool.replace('.', '\\.')}-permissions-table input[type="checkbox"]`);
     const myData = {};
     const params = `ref=${this.groupReference}&` + Array.from(boxes).reduce((acc,b) => {
 
@@ -159,14 +160,18 @@ class SakaiPermissions extends SakaiElement {
       .then(res => {
 
         if (res.ok) {
-          window.location.reload();
+          if (this.onRefresh) {
+            window.location.href = this.onRefresh;
+          } else {
+            window.location.reload();
+          }
         } else {
           throw new Error("Network response was not ok.");
         }
       })
       .catch(error => {
 
-        document.querySelector(`#${this.tool}-failure-message`).style.display = "inline-block";
+        document.querySelector(`#${this.tool.replace('.', '\\.')}-failure-message`).style.display = "inline-block";
         console.error(`Failed to save permissions for tool ${this.tool}`, error)
       })
       .finally(() => document.body.style.cursor = "default");
@@ -193,7 +198,11 @@ class SakaiPermissions extends SakaiElement {
   }
 
   cancelPermissions() {
-    window.location.reload();
+    if (this.onRefresh) {
+      window.location.href = this.onRefresh;
+    } else {
+      window.location.reload();
+    }
   }
 
   attachHandlers() {

@@ -258,15 +258,15 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         entityManager.registerEntityProducer(this, REFERENCE_ROOT);
 
         // register functions
-        functionManager.registerFunction(SECURE_ALL_GROUPS);
-        functionManager.registerFunction(SECURE_ADD_ASSIGNMENT);
-        functionManager.registerFunction(SECURE_ADD_ASSIGNMENT_SUBMISSION);
-        functionManager.registerFunction(SECURE_REMOVE_ASSIGNMENT);
-        functionManager.registerFunction(SECURE_ACCESS_ASSIGNMENT);
-        functionManager.registerFunction(SECURE_UPDATE_ASSIGNMENT);
-        functionManager.registerFunction(SECURE_GRADE_ASSIGNMENT_SUBMISSION);
-        functionManager.registerFunction(SECURE_ASSIGNMENT_RECEIVE_NOTIFICATIONS);
-        functionManager.registerFunction(SECURE_SHARE_DRAFTS);
+        functionManager.registerFunction(SECURE_ALL_GROUPS, true);
+        functionManager.registerFunction(SECURE_ADD_ASSIGNMENT, true);
+        functionManager.registerFunction(SECURE_ADD_ASSIGNMENT_SUBMISSION, true);
+        functionManager.registerFunction(SECURE_REMOVE_ASSIGNMENT, true);
+        functionManager.registerFunction(SECURE_ACCESS_ASSIGNMENT, true);
+        functionManager.registerFunction(SECURE_UPDATE_ASSIGNMENT, true);
+        functionManager.registerFunction(SECURE_GRADE_ASSIGNMENT_SUBMISSION, true);
+        functionManager.registerFunction(SECURE_ASSIGNMENT_RECEIVE_NOTIFICATIONS, true);
+        functionManager.registerFunction(SECURE_SHARE_DRAFTS, true);
 
         // this is needed to avoid a circular dependency, notice we set the AssignmentService proxy and not this
         assignmentSupplementItemService.setAssignmentService(applicationContext.getBean(AssignmentService.class));
