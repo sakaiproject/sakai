@@ -62,7 +62,7 @@ CKEDITOR.plugins.add( 'audiorecorder',
 {
 	 requires : ['flash', 'iframedialog' ],
    //http://alfonsoml.blogspot.com/2009/12/plugin-localization-in-ckeditor-vs.html
-   lang: ['en'],
+   lang: ['en', 'es'],
 
    init: function( editor )
    {
