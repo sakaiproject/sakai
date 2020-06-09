@@ -10,9 +10,9 @@ CKEDITOR.addPluginLang = function( plugin, lang, obj )
     CKEDITOR.plugins.setLang( plugin, lang, obj );
 }
 
-CKEDITOR.addPluginLang('contentitem','en',
+CKEDITOR.addPluginLang('contentitem','es',
     {
-	tooltip:'Insert Content Item',
-	title: 'Select Content Item'
+	tooltip:'Insertar ítem de contenido',
+	title: 'Seleccionar ítem de contenido'
     }
 );
