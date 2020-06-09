@@ -8,14 +8,13 @@
     <cache:annotation-driven cache-manager="org.sakaiproject.ignite.SakaiCacheManager"/>
 
     <bean id="org.sakaiproject.ignite.SakaiCacheManager"
-          class="org.apache.ignite.cache.spring.SpringCacheManager">
-        <property name="igniteInstanceName" value="${serverName}"/>
-        <property name="configuration" ref="org.sakaiproject.ignite.SakaiIgniteConfiguration"/>
+          class="org.sakaiproject.ignite.IgniteSpringCacheManager">
         <property name="dynamicCacheConfiguration">
             <bean class="org.apache.ignite.configuration.CacheConfiguration">
                 <property name="cacheMode" value="REPLICATED"/>
             </bean>
         </property>
+        <property name="ignite" ref="org.sakaiproject.ignite.SakaiIgnite"/>
     </bean>
 
     <bean id="org.sakaiproject.ignite.SakaiIgnite"
@@ -143,6 +142,9 @@
                 </bean>
                 <bean parent="org.sakaiproject.ignite.cache.transactional">
                     <property name="name" value="org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData.assessmentGradingAttachmentSet"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.content.hbm.FileConversionQueueItem"/>
                 </bean>
             </list>
         </property>
