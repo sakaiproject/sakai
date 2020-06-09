@@ -137,7 +137,7 @@ public class SiteStatsPersistenceConfig {
         p.setProperty("hibernate.query.substitutions", "true 1, false 0, yes 'Y', no 'N'");
         p.setProperty("hibernate.jdbc.use_streams_for_binary", "true");
         p.setProperty("hibernate.cache.use_query_cache", "true");
-        p.setProperty("hibernate.cache.region.factory_class", "org.hibernate.cache.SingletonEhCacheRegionFactory");
+        p.setProperty("hibernate.cache.use_second_level_cache", "false");
         return p;
     }
 

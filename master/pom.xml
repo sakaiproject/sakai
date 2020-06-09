@@ -40,6 +40,8 @@
     <sakai.hikaricp.version>3.4.2</sakai.hikaricp.version>
     <sakai.httpclient.version>4.5.12</sakai.httpclient.version>
     <sakai.httpcore.version>4.4.13</sakai.httpcore.version>
+    <sakai.httpmime.version>4.5.10</sakai.httpmime.version>
+    <sakai.ignite.version>2.7.2</sakai.ignite.version>
     <sakai.jackson.version>2.10.1</sakai.jackson.version>
     <sakai.jsoup.version>1.12.1</sakai.jsoup.version>
     <sakai.woodstox.version>5.2.1</sakai.woodstox.version>
@@ -266,7 +268,7 @@
     </pluginRepository>
   </pluginRepositories>
   <repositories>
-   <repository>
+    <repository>
       <id>central</id>
       <name>Maven Repository Switchboard</name>
       <layout>default</layout>
@@ -330,6 +332,17 @@
             <enabled>true</enabled>
         </releases>
     </repository>
+    <repository>
+      <id>gridgain</id>
+      <name>Gridgain Systems</name>
+      <url>http://gridgainsystems.com/nexus/content/repositories/external</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+    </repository>
   </repositories>
 
   <dependencyManagement>
@@ -388,6 +401,36 @@
       </dependency>
       <!-- shared/lib -->
       <!-- 3rd party APIs/Implementations -->
+      <dependency>
+        <groupId>org.apache.ignite</groupId>
+        <artifactId>ignite-core</artifactId>
+        <version>${sakai.ignite.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.ignite</groupId>
+        <artifactId>ignite-spring</artifactId>
+        <version>${sakai.ignite.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.ignite</groupId>
+        <artifactId>ignite-slf4j</artifactId>
+        <version>${sakai.ignite.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.ignite</groupId>
+        <artifactId>ignite-hibernate-core</artifactId>
+        <version>${sakai.ignite.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.ignite</groupId>
+        <artifactId>ignite-hibernate_4.2</artifactId>
+        <version>${sakai.ignite.version}</version>
+        <scope>provided</scope>
+      </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-core</artifactId>
@@ -618,6 +661,12 @@
         <groupId>javax.activation</groupId>
         <artifactId>javax.activation-api</artifactId>
         <version>1.2.0</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>javax.cache</groupId>
+        <artifactId>cache-api</artifactId>
+        <version>1.0.0</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -883,12 +932,6 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-ehcache</artifactId>
-        <version>${sakai.hibernate.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
         <groupId>org.javassist</groupId>
         <artifactId>javassist</artifactId>
         <version>3.25.0-GA</version>
@@ -1094,13 +1137,6 @@
         <groupId>com.opencsv</groupId>
         <artifactId>opencsv</artifactId>
         <version>${sakai.opencsv.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <!-- Added to shared by the kernel (duplicate definition in kernel/pom.xml) -->
-      <dependency>
-        <groupId>com.h2database</groupId>
-        <artifactId>h2</artifactId>
-        <version>1.4.199</version>
         <scope>provided</scope>
       </dependency>
       <!-- Elasticsearch -->
