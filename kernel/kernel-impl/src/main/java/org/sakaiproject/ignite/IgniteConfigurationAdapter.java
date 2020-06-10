@@ -51,7 +51,7 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
             port = serverConfigurationService.getInt("ignite.port", 49000);
             range = serverConfigurationService.getInt("ignite.range", 10);
             mode = serverConfigurationService.getString("ignite.mode", "worker");
-            name = serverConfigurationService.getServerName();
+            name = StringUtils.defaultIfBlank(serverConfigurationService.getServerName(), "localhost");
             node = serverConfigurationService.getServerId();
 
             // disable banner

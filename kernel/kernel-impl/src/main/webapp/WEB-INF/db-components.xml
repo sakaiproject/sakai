@@ -431,8 +431,8 @@
 
 	<!--  The "Global" JPA Entity Manager Factory -->
 	<bean id="entityManagerFactory"
-		  class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
-		  depends-on="org.sakaiproject.ignite.SakaiIgnite">
+		  class="org.sakaiproject.ignite.IgniteEntityManagerFactoryBean">
+		<property name="ignite" ref="org.sakaiproject.ignite.SakaiIgniteConfiguration" />
 		<property name="jpaVendorAdapter">
 			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
 		</property>
@@ -454,7 +454,6 @@
 				<prop key="hibernate.enable_lazy_load_no_trans">true</prop>
 				<prop key="hibernate.current_session_context_class">org.springframework.orm.hibernate4.SpringSessionContext</prop>
 				<prop key="org.apache.ignite.hibernate.default_access_type">READ_ONLY</prop>
-				<prop key="org.apache.ignite.hibernate.ignite_instance_name">${serverName}</prop>
 			</props>
 		</property>
 	</bean>
