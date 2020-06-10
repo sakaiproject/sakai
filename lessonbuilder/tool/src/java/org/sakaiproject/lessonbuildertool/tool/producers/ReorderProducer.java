@@ -190,8 +190,9 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 				    }
 				    else {
 					    String text = i.getHtml();
-					    if (text == null)
+					    if (text == null) {
 						    text = "";
+					    }
 					    text = FormattedText.convertFormattedTextToPlaintext(text);
 					    if (text.length() > 100)
 						    text = text.substring(0, 100);

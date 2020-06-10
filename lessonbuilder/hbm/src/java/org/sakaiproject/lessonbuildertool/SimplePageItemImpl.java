@@ -179,7 +179,7 @@ public class SimplePageItemImpl implements SimplePageItem  {
     // are too long. The main case this will happen is if we generate a name, which we do for URLs
     // and uploaded files.
 	private String maxlength(String s, int maxlen) {
-	    int len = s==null?0:s.length();
+	    int len = s == null ? 0 : s.length();
 	    if (s == null || len <= maxlen)
 		return s;
 	    int toremove = len - maxlen;
