@@ -88,21 +88,20 @@
               }
 
               if (enabled) {
-                  $('#assessmentSettingsAction\\:markForReview1').removeAttr("disabled");
-                  $('#assessmentSettingsAction\\:markForReview1').parent().removeClass("placeholder");
-                  QuesFormatRadios.forEach( function(v, i, a) {
-                      $('label[for="' + v + '"]').removeClass("placeholder");
-                      $("#" + v).removeAttr("disabled");
-                  });
+			$('#assessmentSettingsAction\\:linear_access_warning').hide();
+			$('#assessmentSettingsAction\\:markForReview1').removeAttr("disabled").parent().removeClass("placeholder");
+			QuesFormatRadios.forEach( function(v, i, a) {
+                      		$('label[for="' + v + '"]').removeClass("placeholder");
+                      		$("#" + v).removeAttr("disabled");
+                  	});
               } else {
-                  $('#assessmentSettingsAction\\:markForReview1').attr("disabled", true);
-                  $('#assessmentSettingsAction\\:markForReview1').prop("checked", false);
-                  $('#assessmentSettingsAction\\:markForReview1').parent().addClass("placeholder");
-                  QuesFormatRadios.forEach( function(v, i, a) {
-                      $('#assessmentSettingsAction\\:assessmentFormat\\:0').click();
-                      $('label[for="' + v + '"]').addClass("placeholder");
-                      $("#" + v).attr("disabled", true);
-                  });
+			$('#assessmentSettingsAction\\:linear_access_warning').show();
+			$('#assessmentSettingsAction\\:markForReview1').attr("disabled", true).prop("checked", false).parent().addClass("placeholder");
+			QuesFormatRadios.forEach( function(v, i, a) {
+                      		$('#assessmentSettingsAction\\:assessmentFormat\\:0').click();
+                      		$('label[for="' + v + '"]').addClass("placeholder");
+                      		$("#" + v).attr("disabled", true);
+                  	});
               }
           };
 
@@ -709,7 +708,7 @@
           <li><t:radio renderLogicalId="true" for="itemNavigation" index="1" /></li>
         </ul>
         <div class="info-text help-block small">
-          <h:outputText value="#{assessmentSettingsMessages.linear_access_warning} "/>
+          <h:outputText id="linear_access_warning" value="#{assessmentSettingsMessages.linear_access_warning} "/>
         </div>
     </div>
   </h:panelGroup>
