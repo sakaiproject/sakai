@@ -45,6 +45,7 @@ import net.fortuna.ical4j.model.TimeZoneRegistryFactory;
 import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.parameter.Value;
 import net.fortuna.ical4j.model.property.*;
+import net.fortuna.ical4j.util.MapTimeZoneCache;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -713,6 +714,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		SimpleConfiguration cacheConfig = new SimpleConfiguration(0);
 		cacheConfig.setStatisticsEnabled(true);
 		cache = this.m_memoryService.createCache("org.sakaiproject.calendar.cache", cacheConfig);
+		System.setProperty("net.fortuna.ical4j.timezone.cache.impl", MapTimeZoneCache.class.getName());
 
 		m_eventTrackingService.addObserver(this);
 		pdfExportService = new PDFExportService(m_timeService, rb);
