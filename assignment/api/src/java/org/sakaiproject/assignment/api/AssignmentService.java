@@ -92,6 +92,17 @@ public interface AssignmentService extends EntityProducer {
     public boolean allowAddAssignment(String context);
 
     /**
+     * Check permissions for adding an Assignment.
+     *
+     * @param context -
+     *                Describes the portlet context - generated with DefaultId.getChannel().
+     * @param user -
+     *             The user for which the permission will be checked
+     * @return True if the provided User is allowed to add an Assignment, false if not.
+     */
+    public boolean allowAddAssignment(String context, String userId);
+
+    /**
      * Check permissions for updating an Assignment based on context.
      *
      * @param context -
@@ -144,6 +155,16 @@ public interface AssignmentService extends EntityProducer {
      * @return The Collection (Group) of groups defined for the context of this site that the end user has add assignment permissions in, empty if none.
      */
     public Collection<Group> getGroupsAllowAddAssignment(String context);
+
+    /**
+     * Get the collection of Groups defined for the context of this site that the end user has add assignment permissions in.
+     * @param context -
+     *                Describes the portlet context - generated with DefaultId.getChannel().
+     * @param userId -
+     *               The user for which the permission will be checked
+     * @return The Collection (Group) of groups defined for the context of this site that the end user has add assignment permissions in, empty if none.
+     */
+    public Collection<Group> getGroupsAllowAddAssignment(String context, String userId);
 
     /**
      * Get the collection of Groups defined for the context of this site that the end user has update assignment permissions in.
