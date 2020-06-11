@@ -24,6 +24,10 @@ import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 
+import java.util.Map;
+import java.util.TreeMap;
+
+import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 
 @Slf4j
@@ -123,6 +127,22 @@ System.err.println("encrypt1="+encrypt1);
 		assertEquals(encrypt1, encrypt2);
 		String decrypt = SakaiBLTIUtil.decryptSecret(encrypt2, key);
 		assertEquals(plain, decrypt);
+	}
+
+	@Test
+	public void testLaunchCodes() {
+		Map<String, Object> content = new TreeMap<String, Object>();
+		content.put(LTIService.LTI_ID, "42");
+		content.put(LTIService.LTI_PLACEMENTSECRET, "xyzzy");
+
+		String launch_code_key = SakaiBLTIUtil.getLaunchCodeKey(content);
+		assertEquals(launch_code_key,"launch_code:42");
+
+		String launch_code = SakaiBLTIUtil.getLaunchCode(content);
+		assertTrue(SakaiBLTIUtil.checkLaunchCode(content, launch_code));
+
+		content.put(LTIService.LTI_PLACEMENTSECRET, "wrong");
+		assertFalse(SakaiBLTIUtil.checkLaunchCode(content, launch_code));
 	}
 
 }

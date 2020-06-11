@@ -61,6 +61,7 @@ public interface LTIService extends LTISubstitutionsFilter {
             "frameheight:integer:label=bl_frameheight:allowed=true",
             "toolorder:integer:label=bl_toolorder:maxlength=2",
             "newpage:checkbox:label=bl_newpage",
+            "protect:checkbox:label=bl_protect:role=admin",
             "debug:checkbox:label=bl_debug",
             "custom:textarea:label=bl_custom:rows=5:cols=25:allowed=true:maxlength=16384",
             "launch:url:label=bl_launch:maxlength=1024:allowed=true",
@@ -218,6 +219,7 @@ public interface LTIService extends LTISubstitutionsFilter {
     String LTI_SETTINGS_EXT = "settings_ext";
     String LTI_CONTENTITEM = "contentitem";
     String LTI_NEWPAGE = "newpage";
+    String LTI_PROTECT = "protect";
     String LTI_DEBUG = "debug";
     String LTI_CUSTOM = "custom";
     String LTI_ROLEMAP = "rolemap";

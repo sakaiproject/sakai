@@ -150,6 +150,8 @@ public class SakaiBLTIUtil {
 	// The path for servlet bits that neither sets nor uses cookies
 	public static final String LTI1_ANON_PATH = "/imsoidc/lti11/";
 
+	public static final String SESSION_LAUNCH_CODE = "launch_code:";
+
 		public static boolean rosterEnabled() {
 			String allowRoster = ServerConfigurationService.getString(BASICLTI_ROSTER_ENABLED, BASICLTI_ROSTER_ENABLED_DEFAULT);
 			return "true".equals(allowRoster);
@@ -2435,6 +2437,47 @@ public class SakaiBLTIUtil {
 			retval.setProperty(BASICLTI_PORTLET_ASSIGNMENT, aTitle.trim());
 		}
 		return retval;
+	}
+
+	/**
+	 * getLaunchCodeKey - Return the launch code key for a content item
+	 */
+	public static String getLaunchCodeKey(Map<String, Object> content) {
+		int id = getInt(content.get(LTIService.LTI_ID));
+		return SESSION_LAUNCH_CODE + id;
+	}
+
+	/**
+	 * getLaunchCode - Return the launch code for a content item
+	 */
+	public static String getLaunchCode(Map<String, Object> content) {
+		long now = (new java.util.Date()).getTime();
+		int id = getInt(content.get(LTIService.LTI_ID));
+		String placement_secret = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
+		String base_string = id + ":" + now + ":" + placement_secret;
+		String signature = LegacyShaUtil.sha256Hash(base_string);
+		String retval = id + ":" + now + ":" + signature;
+		return retval;
+	}
+
+	/**
+	 * checkLaunchCode - check to see if a launch code is properly signed and not expired
+	 */
+	public static boolean checkLaunchCode(Map<String, Object> content, String launch_code) {
+		long now = (new java.util.Date()).getTime();
+		int id = getInt(content.get(LTIService.LTI_ID));
+		String placement_secret = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
+		String [] pieces = launch_code.split(":");
+		if ( pieces.length != 3 ) return false;
+		int code_id = getInt(pieces[0]);
+		long code_now = getLong(pieces[1]);
+		String code_sig = pieces[2];
+		if ( code_id != id ) return false;
+		if ( now > (code_now + 300) ) return false; // expired
+		String base_string = id + ":" + code_now + ":" + placement_secret;
+		String signature = LegacyShaUtil.sha256Hash(base_string);
+		if ( ! signature.equals(code_sig) ) return false;
+		return true;
 	}
 
 	public static boolean isPlacement(String placement_id) {

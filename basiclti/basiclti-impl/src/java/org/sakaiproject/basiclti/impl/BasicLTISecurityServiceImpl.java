@@ -446,12 +446,23 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 						throw new EntityNotDefinedException("Could not load content item");
 					}
 
+					// Check to see if we need launch protection
+					int protect = SakaiBLTIUtil.getInt(content.get(LTIService.LTI_PROTECT));
+					if ( protect > 0 ) {
+						Session session = sessionManager.getCurrentSession();
+						String launch_code_key = SakaiBLTIUtil.getLaunchCodeKey(content);
+						String launch_code = (String) session.getAttribute(launch_code_key);
+
+						if ( launch_code == null || ! SakaiBLTIUtil.checkLaunchCode(content, launch_code) ) {
+					        throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(), "basiclti", ref.getReference());
+						}
+					}
+
 					String siteId = (String) content.get(LTIService.LTI_SITE_ID);
 					if ( siteId == null || ! siteId.equals(ref.getContext()) )
 					{
 						throw new EntityNotDefinedException("Incorrect site");
 					}
-
 
 					Long toolKey = SakaiBLTIUtil.getLongKey(content.get(LTIService.LTI_TOOL_ID));
 					if ( toolKey >= 0 ) tool = ltiService.getToolDao(toolKey, ref.getContext());
