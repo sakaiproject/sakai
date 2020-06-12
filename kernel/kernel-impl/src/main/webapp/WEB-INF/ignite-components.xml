@@ -152,15 +152,15 @@
     </bean>
 
     <bean id="org.sakaiproject.ignite.cache.atomic" class="org.apache.ignite.configuration.CacheConfiguration" abstract="true">
-        <property name="cacheMode" value="PARTITIONED"/>
         <property name="atomicityMode" value="ATOMIC"/>
-        <property name="writeSynchronizationMode" value="FULL_SYNC"/>
+        <property name="cacheMode" value="REPLICATED"/>
+        <property name="writeSynchronizationMode" value="PRIMARY_SYNC"/>
     </bean>
 
     <bean id="org.sakaiproject.ignite.cache.transactional" class="org.apache.ignite.configuration.CacheConfiguration" abstract="true">
-        <property name="cacheMode" value="PARTITIONED"/>
         <property name="atomicityMode" value="TRANSACTIONAL"/>
-        <property name="writeSynchronizationMode" value="FULL_SYNC"/>
+        <property name="cacheMode" value="REPLICATED"/>
+        <property name="writeSynchronizationMode" value="PRIMARY_SYNC"/>
     </bean>
 
 </beans>
