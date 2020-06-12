@@ -639,6 +639,7 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String NEW_ASSIGNMENT_SECTION = "new_assignment_section";
     private static final String NEW_ASSIGNMENT_SUBMISSION_TYPE = "new_assignment_submission_type";
     private static final String NEW_ASSIGNMENT_CONTENT_ID = "new_assignment_content_id";
+    private static final String NEW_ASSIGNMENT_CONTENT_LAUNCH_NEW_WINDOW = "new_assignment_content_launch_new_window";
     private static final String NEW_ASSIGNMENT_CATEGORY = "new_assignment_category";
     private static final String NEW_ASSIGNMENT_GRADE_TYPE = "new_assignment_grade_type";
     private static final String NEW_ASSIGNMENT_GRADE_POINTS = "new_assignment_grade_points";
@@ -1839,6 +1840,32 @@ public class AssignmentAction extends PagedResourceActionII {
      * build the external tool launch (LTI) view
      */
     private String build_view_external_tool_launch_context(VelocityPortlet portlet, Context context, RunData data, SessionState state) {
+        String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
+        context.put("context", contextString);
+
+        User user = (User) state.getAttribute(STATE_USER);
+        if (log.isDebugEnabled())
+            log.debug(this + " BUILD SUBMISSION GROUP ERROR WITH USER " + user.getId() + " NAME " + user.getDisplayName());
+        String currentAssignmentReference = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
+        Assignment assignment = getAssignment(currentAssignmentReference, "build_student_view_submission_context", state);
+
+        if (assignment != null) {
+            context.put("assignment", assignment);
+        }
+
+        try {
+            Site site = siteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
+            Long contentKey = assignment.getContentId().longValue();
+            Map<String, Object> content = ltiService.getContent(contentKey, site.getId());
+            String content_launch = ltiService.getContentLaunch(content);
+            context.put("source", content_launch);
+            context.put("placement", "assignment_launch_"+contentKey);
+        } catch(org.sakaiproject.exception.IdUnusedException e ) {
+            // Send error to template
+            context.put("source", null);
+        }
+
+        context.put("browser-feature-allow", String.join(";", serverConfigurationService.getStrings("browser.feature.allow")));
 
         String template = getContext(data).get("template");
         return template + TEMPLATE_VIEW_LAUNCH;
@@ -2786,6 +2813,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("name_Section", NEW_ASSIGNMENT_SECTION);
         context.put("name_SubmissionType", NEW_ASSIGNMENT_SUBMISSION_TYPE);
         context.put("name_ContentId", NEW_ASSIGNMENT_CONTENT_ID);
+        context.put("name_ContentLaunchNewWindow", NEW_ASSIGNMENT_CONTENT_LAUNCH_NEW_WINDOW);
         context.put("name_Category", NEW_ASSIGNMENT_CATEGORY);
         context.put("name_GradeAssignment", NEW_ASSIGNMENT_GRADE_ASSIGNMENT);
         context.put("name_GradeType", NEW_ASSIGNMENT_GRADE_TYPE);
@@ -2826,6 +2854,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("value_Sections", state.getAttribute(NEW_ASSIGNMENT_SECTION));
         context.put("value_SubmissionType", state.getAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE));
         context.put("value_ContentId", state.getAttribute(NEW_ASSIGNMENT_CONTENT_ID));
+        context.put("value_ContentLaunchNewWindow", state.getAttribute(NEW_ASSIGNMENT_CONTENT_LAUNCH_NEW_WINDOW));
 
         // information related to gradebook categories
         putGradebookCategoryInfoIntoContext(state, context);
@@ -3338,6 +3367,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("value_Sections", state.getAttribute(NEW_ASSIGNMENT_SECTION));
         context.put("value_SubmissionType", state.getAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE));
         context.put("value_ContentId", state.getAttribute(NEW_ASSIGNMENT_CONTENT_ID));
+        context.put("value_ContentLaunchNewWindow", state.getAttribute(NEW_ASSIGNMENT_CONTENT_LAUNCH_NEW_WINDOW));
         context.put("value_GradeType", state.getAttribute(NEW_ASSIGNMENT_GRADE_TYPE));
         String maxGrade = (String) state.getAttribute(NEW_ASSIGNMENT_GRADE_POINTS);
         context.put("value_GradePoints", displayGrade(state, maxGrade, assignmentService.getScaleFactor()));
@@ -6639,6 +6669,13 @@ public class AssignmentAction extends PagedResourceActionII {
             state.setAttribute(NEW_ASSIGNMENT_CONTENT_ID, null);
         }
 
+        boolean contentLaunchNewWindow = params.getBoolean(NEW_ASSIGNMENT_CONTENT_LAUNCH_NEW_WINDOW);
+		if ( contentLaunchNewWindow ) {
+			state.setAttribute(NEW_ASSIGNMENT_CONTENT_LAUNCH_NEW_WINDOW, Boolean.TRUE);
+		} else {
+			state.setAttribute(NEW_ASSIGNMENT_CONTENT_LAUNCH_NEW_WINDOW, Boolean.FALSE);
+		}
+
         String order = params.getString(NEW_ASSIGNMENT_ORDER);
         state.setAttribute(NEW_ASSIGNMENT_ORDER, order);
 
@@ -7668,6 +7705,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
             Integer contentId = (Integer) state.getAttribute(NEW_ASSIGNMENT_CONTENT_ID);
 
+            Boolean contentLaunchNewWindow = (Boolean) state.getAttribute(NEW_ASSIGNMENT_CONTENT_LAUNCH_NEW_WINDOW);
+
             String description = (String) state.getAttribute(NEW_ASSIGNMENT_DESCRIPTION);
 
             String checkAddDueTime = state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE) != null ? (String) state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE) : null;
@@ -7807,7 +7846,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         visibleTime, openTime, dueTime, closeTime, hideDueDate, enableCloseDate, emailReminder, rangeAndGroupSettings.isGroupSubmit, rangeAndGroupSettings.groups,
                         usePeerAssessment, peerPeriodTime, peerAssessmentAnonEval, peerAssessmentStudentViewReviews, peerAssessmentNumReviews, peerAssessmentInstructions,
                         submitReviewRepo, generateOriginalityReport, checkTurnitin, checkInternet, checkPublications, checkInstitution, excludeBibliographic, excludeQuoted,
-					   	excludeSelfPlag, storeInstIndex, studentPreview, excludeType, excludeValue, contentId);
+					   	excludeSelfPlag, storeInstIndex, studentPreview, excludeType, excludeValue, contentId, contentLaunchNewWindow);
 
                 //RUBRICS, Save the binding between the assignment and the rubric
                 rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, a.getId(), getRubricConfigurationParameters(params));
@@ -8650,7 +8689,8 @@ public class AssignmentAction extends PagedResourceActionII {
                                   boolean studentPreview,
                                   int excludeType,
                                   int excludeValue,
-								  Integer contentId) {
+								  Integer contentId,
+								  boolean contentLaunchNewWindow) {
         a.setTitle(title);
         a.setContext((String) state.getAttribute(STATE_CONTEXT_STRING));
         a.setSection(section);
@@ -8668,6 +8708,7 @@ public class AssignmentAction extends PagedResourceActionII {
         a.setVisibleDate(visibleTime);
         if (closeTime != null) a.setCloseDate(closeTime);
 		a.setContentId(contentId);
+		a.setContentLaunchNewWindow(contentLaunchNewWindow);
 
         Map<String, String> p = a.getProperties();
         p.put("s_view_report", Boolean.toString(allowStudentViewReport));
@@ -9208,6 +9249,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 // put the names and values into vm file
                 state.setAttribute(NEW_ASSIGNMENT_TITLE, a.getTitle());
                 state.setAttribute(NEW_ASSIGNMENT_CONTENT_ID, a.getContentId());
+                state.setAttribute(NEW_ASSIGNMENT_CONTENT_LAUNCH_NEW_WINDOW, a.getContentLaunchNewWindow());
                 state.setAttribute(NEW_ASSIGNMENT_ORDER, a.getPosition());
 
                 if (serverConfigurationService.getBoolean("assignment.visible.date.enabled", false)) {
@@ -11381,6 +11423,7 @@ public class AssignmentAction extends PagedResourceActionII {
         state.setAttribute(NEW_ASSIGNMENT_GRADE_TYPE, UNGRADED_GRADE_TYPE.ordinal());
         state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, "");
         state.setAttribute(NEW_ASSIGNMENT_CONTENT_ID, null);
+        state.setAttribute(NEW_ASSIGNMENT_CONTENT_LAUNCH_NEW_WINDOW, null);
         state.setAttribute(NEW_ASSIGNMENT_DESCRIPTION, "");
         boolean checkAddDueDate = (state.getAttribute(CALENDAR) != null || state.getAttribute(ADDITIONAL_CALENDAR) != null) && serverConfigurationService.getBoolean(SAK_PROP_DUE_DATE_TO_CALENDAR_DEFAULT, DUE_DATE_TO_CALENDAR_DEFAULT);
         state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, Boolean.toString(checkAddDueDate));
@@ -11455,6 +11498,7 @@ public class AssignmentAction extends PagedResourceActionII {
         state.removeAttribute(NEW_ASSIGNMENT_OPENHOUR);
         state.removeAttribute(NEW_ASSIGNMENT_OPENMIN);
         state.removeAttribute(NEW_ASSIGNMENT_CONTENT_ID);
+        state.removeAttribute(NEW_ASSIGNMENT_CONTENT_LAUNCH_NEW_WINDOW);
 
         state.removeAttribute(ALLPURPOSE_RELEASE_MONTH);
         state.removeAttribute(ALLPURPOSE_RELEASE_DAY);

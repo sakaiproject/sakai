@@ -195,7 +195,7 @@
 			</tr>
 			<tr>
 				<th>
-					$tlang.getString("gen.externaltool")
+					$tlang.getString("external.tool.label")
 				</th>
 				<td>
 					$assignment.ContentId

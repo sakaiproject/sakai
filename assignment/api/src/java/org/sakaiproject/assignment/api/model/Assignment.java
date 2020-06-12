@@ -255,6 +255,9 @@ public class Assignment {
     @Column(name = "CONTENT_ID")
     private Integer contentId = null;
 
+    @Column(name = "CONTENT_LAUNCH_NEW_WINDOW")
+    private Boolean contentLaunchNewWindow = Boolean.FALSE;
+
     public enum Access {
         SITE,
         GROUP
