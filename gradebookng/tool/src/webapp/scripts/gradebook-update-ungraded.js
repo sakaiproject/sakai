@@ -10,6 +10,11 @@ function GradebookUpdateUngraded($content, dontDisableInputs) {
   this.$content = $content;
   this.dontDisableInputs = dontDisableInputs;
   this.setupConfirmation();
+ 
+  // Attempt to re-enable any disabled inputs
+  if (this.dontDisableInputs) {
+    this.$content.find(":input").prop("disabled", false);
+  }
 };
 
 GradebookUpdateUngraded.prototype.setupConfirmation = function(){
