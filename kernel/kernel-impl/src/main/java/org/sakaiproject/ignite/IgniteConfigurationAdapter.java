@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ignite.configuration.CacheConfiguration;
+import org.apache.ignite.configuration.DeploymentMode;
 import org.apache.ignite.configuration.IgniteConfiguration;
 import org.apache.ignite.logger.slf4j.Slf4jLogger;
 import org.apache.ignite.spi.communication.tcp.TcpCommunicationSpi;
@@ -73,6 +74,8 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
                 igniteConfiguration.setClientMode(false);
             }
 
+            igniteConfiguration.setDeploymentMode(DeploymentMode.CONTINUOUS);
+
             igniteConfiguration.setGridLogger(new Slf4jLogger());
 
             igniteConfiguration.setCacheConfiguration(cacheConfiguration);
@@ -129,7 +132,7 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
 
     private void configurePort() {
         if (port < 1024) {
-            port = dynamicPort(name.hashCode());
+            port = dynamicPort((name + node).hashCode());
         }
     }
 
