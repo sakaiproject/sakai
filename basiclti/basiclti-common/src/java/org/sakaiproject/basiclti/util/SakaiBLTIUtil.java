@@ -2472,8 +2472,10 @@ public class SakaiBLTIUtil {
 		int code_id = getInt(pieces[0]);
 		long code_now = getLong(pieces[1]);
 		String code_sig = pieces[2];
+		long delta = now - code_now;
 		if ( code_id != id ) return false;
-		if ( now > (code_now + 300) ) return false; // expired
+		// Five minutes
+		if ( delta > (5*60*1000) ) return false; // expired
 		String base_string = id + ":" + code_now + ":" + placement_secret;
 		String signature = LegacyShaUtil.sha256Hash(base_string);
 		if ( ! signature.equals(code_sig) ) return false;

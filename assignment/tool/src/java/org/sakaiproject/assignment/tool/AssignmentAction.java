@@ -85,6 +85,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -1849,9 +1850,12 @@ public class AssignmentAction extends PagedResourceActionII {
         String currentAssignmentReference = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
         Assignment assignment = getAssignment(currentAssignmentReference, "build_student_view_submission_context", state);
 
-        if (assignment != null) {
-            context.put("assignment", assignment);
+        if (assignment == null) {
+			String template = getContext(data).get("template");
+			return template + TEMPLATE_VIEW_LAUNCH;
         }
+
+        context.put("assignment", assignment);
 
         try {
             Site site = siteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
@@ -1860,6 +1864,33 @@ public class AssignmentAction extends PagedResourceActionII {
             String content_launch = ltiService.getContentLaunch(content);
             context.put("source", content_launch);
             context.put("placement", "assignment_launch_"+contentKey);
+
+			// Copy title and description from Assignment to content if mis-match
+			int protect = SakaiBLTIUtil.getInt(content.get(LTIService.LTI_PROTECT));
+			String assignmentTitle = StringUtils.trimToEmpty(assignment.getTitle());
+			String assignmentDesc = StringUtils.trimToEmpty(assignment.getInstructions());
+			String contentTitle = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_TITLE));
+			String contentDesc = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_DESCRIPTION));
+			if ( protect < 1 || !assignmentTitle.equals(contentTitle) || !assignmentDesc.equals(contentDesc) ) {
+				Map<String, Object> updates = new TreeMap<String, Object>();
+				updates.put(LTIService.LTI_TITLE, assignmentTitle);
+				updates.put(LTIService.LTI_DESCRIPTION, assignmentDesc);
+				updates.put(LTIService.LTI_PROTECT, new Integer(1));
+				// This is using the Dao access since 99% of the time we are launching as a student
+				// after the unstructor update the assignment on that side, and the student is
+				// the first to launch after the change.
+				ltiService.updateContentDao(contentKey, updates);
+				log.debug("Content Item id={} updated.", contentKey);
+			}
+
+			// Unlock this assignment for one launch...
+	        String launch_code_key = SakaiBLTIUtil.getLaunchCodeKey(content);
+			String launch_code = SakaiBLTIUtil.getLaunchCode(content);
+			if ( launch_code_key != null && launch_code != null ) {
+				Session session = sessionManager.getCurrentSession();
+				session.setAttribute(launch_code_key, launch_code);
+
+			}
         } catch(org.sakaiproject.exception.IdUnusedException e ) {
             // Send error to template
             context.put("source", null);

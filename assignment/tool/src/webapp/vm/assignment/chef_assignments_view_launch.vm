@@ -1,11 +1,26 @@
 <!-- start: chef_assignments_view_launch.vm  -->
 <div class="portletBody">
+#if ($!assignment)
 <script>includeLatestJQuery('assignments');</script>
 ## Some taken from basiclti/web-ifp/src/bundle/vm/main.vm
 #if ($!assignment.ContentLaunchNewWindow == true)
 <p>
-<a href="$source" onclick="window.open('$!source','BasicLTI'); return false;" target="LTI">$tlang.getString("external.tool.new.window")</a>
+<a href="$source" class="btn btn-primary" id="launch$placement" role="button"
+   onclick="launch$placement(); return false;" target="LTI">$tlang.getString("external.tool.new.window")</a>
 </p>
+<script>
+function launch$placement(){
+    window.open('$!source','BasicLTI');
+    document.getElementById('launch$placement').setAttribute('onclick', 'location.reload(); return false;');
+    $('#launch$placement').text('$tlang.getString("external.tool.launched")');
+}
+
+// In 4 minutes this link will expire - so we need to refresh the page
+setTimeout(function(){
+    document.getElementById('launch$placement').setAttribute('onclick', 'location.reload(); return false;');
+    $('#launch$placement').text('$tlang.getString("external.tool.expired")');
+}, 4*60*1000);
+</script>
 #else
 <div class="wcwomenu"> ##style="padding:0; margin:-.3em -2em -1em -2em">
 <iframe
@@ -57,6 +72,9 @@ $(document).ready( function() {
 
 </script>
 </div>
+#end
+#else
+<h4>$tlang.getString("external.tool.notavail")</h4>
 #end
 
 

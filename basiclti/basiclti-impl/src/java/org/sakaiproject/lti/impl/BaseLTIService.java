@@ -355,6 +355,16 @@ public abstract class BaseLTIService implements LTIService {
 	}
 
 	@Override
+	public Object updateContentDao(Long key, Map<String, Object> newProps)
+	{
+		// siteId can be null if isAdmin is false, the item is just patched in place
+		String siteId = null;
+		boolean isAdmin = true;
+		boolean isMaintain = true;
+		return updateContentDao(key, newProps, siteId, isAdmin, isMaintain);
+	}
+
+	@Override
 	public Object updateContentDao(Long key, Map<String, Object> newProps, String siteId)
 	{
 		return updateContentDao(key, (Object) newProps, siteId, true, true);

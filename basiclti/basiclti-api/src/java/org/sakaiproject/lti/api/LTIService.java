@@ -56,6 +56,7 @@ public interface LTIService extends LTISubstitutionsFilter {
             "tool_id:integer:hidden=true",
             "SITE_ID:text:label=bl_content_site_id:required=true:maxlength=99:role=admin",
             "title:text:label=bl_title:required=true:allowed=true:maxlength=1024",
+            "description:textarea:label=bl_description:maxlength=4096",
             "pagetitle:text:label=bl_pagetitle:required=true:allowed=true:maxlength=1024",
             "fa_icon:text:label=bl_fa_icon:allowed=true:maxlength=1024",
             "frameheight:integer:label=bl_frameheight:allowed=true",
@@ -440,6 +441,8 @@ public interface LTIService extends LTISubstitutionsFilter {
     Object updateContent(Long key, Map<String, Object> newProps, String siteId);
 
     Object updateContent(Long key, Properties newProps, String siteId);
+
+    Object updateContentDao(Long key, Map<String, Object> newProps);
 
     Object updateContentDao(Long key, Map<String, Object> newProps, String siteId);
 

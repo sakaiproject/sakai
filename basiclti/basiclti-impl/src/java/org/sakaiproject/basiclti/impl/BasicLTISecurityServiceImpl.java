@@ -452,6 +452,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 						Session session = sessionManager.getCurrentSession();
 						String launch_code_key = SakaiBLTIUtil.getLaunchCodeKey(content);
 						String launch_code = (String) session.getAttribute(launch_code_key);
+						session.removeAttribute(launch_code_key);  // You get one try
 
 						if ( launch_code == null || ! SakaiBLTIUtil.checkLaunchCode(content, launch_code) ) {
 					        throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(), "basiclti", ref.getReference());
