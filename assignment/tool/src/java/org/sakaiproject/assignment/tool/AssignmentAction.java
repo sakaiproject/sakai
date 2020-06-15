@@ -1876,8 +1876,8 @@ public class AssignmentAction extends PagedResourceActionII {
 				updates.put(LTIService.LTI_TITLE, assignmentTitle);
 				updates.put(LTIService.LTI_DESCRIPTION, assignmentDesc);
 				updates.put(LTIService.LTI_PROTECT, new Integer(1));
-				// This is using the Dao access since 99% of the time we are launching as a student
-				// after the unstructor update the assignment on that side, and the student is
+				// This useds the Dao access since 99% of the time we are launching as a student
+				// after the instructor updates the assignment, and the student is
 				// the first to launch after the change.
 				ltiService.updateContentDao(contentKey, updates);
 				log.debug("Content Item id={} updated.", contentKey);
