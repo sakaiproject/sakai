@@ -1121,7 +1121,7 @@ public class ReportsEditPage extends BasePage {
 	private List<String> getRoles() {
 		Set<String> siteIdWithRoles = new HashSet<>(Arrays.asList(siteId));
 
-		if ("!admin".equals(siteId)) {
+		if ("!admin".equals(siteId) || "~admin".equals(siteId)) {
 			siteIdWithRoles.add("!site.template");
 			siteIdWithRoles.add("!site.user");
 			Locator.getFacade().getSiteService().getSiteTypes().stream().map(s -> "!site.template." + s).forEach(siteIdWithRoles::add);
@@ -1202,7 +1202,7 @@ public class ReportsEditPage extends BasePage {
 
 		// check WHO
 		if(getReportParams().getWho().equals(ReportManager.WHO_ROLE)){
-			if(!siteId.equals("!admin") && site.getUsersHasRole(getReportParams().getWhoRoleId()).isEmpty())
+			if(!siteId.equals("!admin") && !siteId.equals("~admin") && site.getUsersHasRole(getReportParams().getWhoRoleId()).isEmpty())
 				error((String) new ResourceModel("report_err_emptyrole").getObject());	
 		}else if(getReportParams().getWho().equals(ReportManager.WHO_GROUPS)){
 			if(getReportParams().getWhoGroupId() == null || getReportParams().getWhoGroupId().equals(""))
