@@ -1172,7 +1172,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
             if(maxResults > 0) {
                 q.setMaxResults(maxResults);
             }
-            log.debug("getEventStats(): " + q.getQueryString());
+            log.debug("getEventStats(): {}", q.getQueryString());
             List<Object[]> records = q.list();
             List<Stat> results = new ArrayList<>();
             Set<String> siteUserIds = null;
@@ -2728,7 +2728,6 @@ if (log.isDebugEnabled()) {
 			// User: new approach		
 			if(totalsBy.contains(T_USER)) {
 				if(queryType == Q_TYPE_EVENT && anonymousEvents != null && anonymousEvents.size() > 0) {
-					if(dbVendor.equals("oracle")) {
 						// unfortunately, this produces results different from the expected:
 						//	- hibernate-oracle bug (sometimes) producing duplicate lines
 						//	- hack fix in getEventStats() method
@@ -2736,9 +2735,6 @@ if (log.isDebugEnabled()) {
 						groupFields.add("s.userId");
 						// it should be: ( but doesn't work in Hibernate :( )
 						//groupFields.add("(CASE WHEN s.eventId not in (:anonymousEvents) THEN s.userId ELSE '-' END)");
-					} else {
-						groupFields.add("s.userId");
-					}
 				} else {
 					groupFields.add("s.userId");
 				}
