@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 import org.sakaiproject.sitestats.api.SitePresence;
+import org.springframework.util.comparator.NullSafeComparator;
 
 public class SitePresenceImpl implements SitePresence, Serializable {
 	private static final long	serialVersionUID	= 1L;
@@ -40,9 +41,9 @@ public class SitePresenceImpl implements SitePresence, Serializable {
 		if (val != 0) return val;
 		val = Long.signum(duration - other.getDuration());
 		if (val != 0) return val;
-		val = date.compareTo(other.getDate());
+		val = NullSafeComparator.NULLS_HIGH.compare(date, other.getDate());
 		if (val != 0) return val;
-		val = lastVisitStartTime.compareTo(other.getLastVisitStartTime());
+		val = NullSafeComparator.NULLS_HIGH.compare(lastVisitStartTime, other.getLastVisitStartTime());
 		if (val != 0) return val;
 		val = Long.signum(id - other.getId());
 		return val;
