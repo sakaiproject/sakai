@@ -283,7 +283,7 @@
             <artifactId>ignite-hibernate-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.ignite</groupId>
+            <groupId>org.gridgain</groupId>
             <artifactId>ignite-hibernate_4.2</artifactId>
         </dependency>
         <dependency>
