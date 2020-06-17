@@ -64,7 +64,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.util.convert.IConverter;
 import org.apache.wicket.util.convert.converter.IntegerConverter;
-
+import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -1119,16 +1119,24 @@ public class ReportsEditPage extends BasePage {
 	}
 	
 	private List<String> getRoles() {
+		Set<String> siteIdWithRoles = new HashSet<>(Arrays.asList(siteId));
+
+		if ("!admin".equals(siteId) || "~admin".equals(siteId)) {
+			siteIdWithRoles.add("!site.template");
+			siteIdWithRoles.add("!site.user");
+			Locator.getFacade().getSiteService().getSiteTypes().stream().map(s -> "!site.template." + s).forEach(siteIdWithRoles::add);
+		}
+
 		List<String> roles = new ArrayList<String>();
-		try{
-			Set<Role> roleSet = Locator.getFacade().getSiteService().getSite(siteId).getRoles();
-			Iterator<Role> i = roleSet.iterator();
-			while(i.hasNext()){
-				Role r = i.next();
-				roles.add(r.getId());
+		try {
+			for (String s : siteIdWithRoles) {
+				Set<Role> roleSet = Locator.getFacade().getAuthzGroupService().getAuthzGroup(s).getRoles();
+				for (Role r : roleSet) {
+					roles.add(r.getId());
+				}
 			}
-		}catch(IdUnusedException e){
-			log.warn("Site does not exist: " + siteId);
+		}catch(GroupNotDefinedException e){
+			log.warn("Site does not exist: {}", siteIdWithRoles);
 			
 		}
 		return roles;
@@ -1194,7 +1202,7 @@ public class ReportsEditPage extends BasePage {
 
 		// check WHO
 		if(getReportParams().getWho().equals(ReportManager.WHO_ROLE)){
-			if(site.getUsersHasRole(getReportParams().getWhoRoleId()).isEmpty())
+			if(!siteId.equals("!admin") && !siteId.equals("~admin") && site.getUsersHasRole(getReportParams().getWhoRoleId()).isEmpty())
 				error((String) new ResourceModel("report_err_emptyrole").getObject());	
 		}else if(getReportParams().getWho().equals(ReportManager.WHO_GROUPS)){
 			if(getReportParams().getWhoGroupId() == null || getReportParams().getWhoGroupId().equals(""))
