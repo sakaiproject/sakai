@@ -5,19 +5,25 @@
   "main": "sakai-element.js",
   "scripts": {
     "build": "webpack --config conf/webpack.config.js -p",
-    "empathise": "empathise install"
+    "empathise": "empathise install",
+    "storybook": "npm install && empathise install --assets-directory=js/assets && start-storybook -p 6006",
+    "build-storybook": "build-storybook"
   },
   "keywords": [],
   "author": "",
   "license": "ECL-2.0",
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.9.0",
+    "@fortawesome/fontawesome-svg-core": "^1.2.28",
+    "@fortawesome/free-solid-svg-icons": "^5.13.0",
+    "@popperjs/core": "^2.4.2",
     "@webcomponents/webcomponentsjs": "^2.2.10",
     "lit-element": "^2.1.0",
     "sortablejs": "^1.9.0"
   },
   "devDependencies": {
-    "@adrianfish/empathise": "^0.1.1",
+    "@adrianfish/empathise": "^0.1.7",
+    "@babel/core": "^7.10.2",
     "@ckeditor/ckeditor5-adapter-ckfinder": "^11.0.5",
     "@ckeditor/ckeditor5-autoformat": "^11.0.5",
     "@ckeditor/ckeditor5-basic-styles": "^11.1.4",
@@ -40,8 +46,15 @@
     "@ckeditor/ckeditor5-paste-from-office": "^11.1.0",
     "@ckeditor/ckeditor5-table": "^14.0.0",
     "@ckeditor/ckeditor5-theme-lark": "^14.2.0",
+    "@storybook/addon-cssresources": "^5.3.19",
+    "@storybook/addon-knobs": "^5.3.19",
+    "@storybook/theming": "^5.3.19",
+    "@storybook/web-components": "^5.3.19",
+    "babel-loader": "^8.1.0",
+    "fetch-mock": "^9.10.1",
     "postcss-loader": "^3.0.0",
     "raw-loader": "^3.1.0",
+    "regenerator-runtime": "^0.13.5",
     "style-loader": "^1.0.0",
     "webpack": "^4.41.2",
     "webpack-cli": "^3.3.10"
