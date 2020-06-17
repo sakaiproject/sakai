@@ -17,7 +17,7 @@
             #if (${useBullhornAlerts})
             <div class="Mrphs-sitesNav__menuitem portal-bullhorns-buttons">
                 <a id="Mrphs-bullhorn" href="javascript:void(0);" title="${rloader.sit_academic_bullhorn_title}" aria-haspopup="true">
-                    <span class="icon-sakai--academic-bullhorn"></span>
+                    <span class="icon-sakai--alerts"></span>
                 </a>
             </div>
             #end

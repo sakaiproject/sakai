@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<registration>
+	<tool id="sakai.webapi"
+		title="Sakai Web API"
+		description="Sakai Web API.">
+    </tool>
+</registration>
+

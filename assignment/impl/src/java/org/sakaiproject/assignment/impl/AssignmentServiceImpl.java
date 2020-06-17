@@ -157,6 +157,9 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.taggable.api.TaggingManager;
 import org.sakaiproject.taggable.api.TaggingProvider;
+import org.sakaiproject.tasks.api.Priorities;
+import org.sakaiproject.tasks.api.Task;
+import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -234,6 +237,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Setter private ServerConfigurationService serverConfigurationService;
     @Setter private SiteService siteService;
     @Setter private TaggingManager taggingManager;
+    @Setter private TaskService taskService;
     @Setter private TimeService timeService;
     @Setter private ToolManager toolManager;
     @Setter private UserDirectoryService userDirectoryService;
@@ -1025,6 +1029,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_REMOVE_ASSIGNMENT, null);
         }
 
+        taskService.removeTaskByReference(reference);
+
         assignmentDueReminderService.removeScheduledReminder(assignment.getId());
         assignmentRepository.softDeleteAssignment(assignment.getId());
 
@@ -1253,6 +1259,16 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         assignment.setDateModified(Instant.now());
         assignment.setModifier(sessionManager.getCurrentSessionUserId());
         assignmentRepository.merge(assignment);
+
+        Task task = new Task();
+        task.setSiteId(assignment.getContext());
+        task.setReference(reference);
+        task.setSystem(true);
+        task.setDescription(assignment.getTitle());
+        task.setDue(assignment.getDueDate());
+        taskService.createTask(task, allowAddSubmissionUsers(reference)
+                .stream().map(User::getId).collect(Collectors.toSet()),
+                Priorities.HIGH);
 
         eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT, reference, true));
     }

@@ -32,4 +32,5 @@
      <import resource="time-components.xml" />
      <import resource="messagebundle-components.xml" />
      <import resource="ignite-components.xml" />
+     <import resource="tasks-components.xml" />
 </beans>

@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<registration>
+	<tool id="sakai.dashboard"
+		title="Dashboard"
+		description="Sakai Dashboard Tool">
+
+        <category name="course" />
+        <category name="project" />
+        <category name="myworkspace" />
+
+    </tool>
+</registration>
+

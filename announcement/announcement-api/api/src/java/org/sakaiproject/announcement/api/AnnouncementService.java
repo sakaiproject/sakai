@@ -22,6 +22,7 @@
 package org.sakaiproject.announcement.api;
 
 import java.util.List;
+import java.util.Map;
 
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
@@ -196,5 +197,6 @@ public interface AnnouncementService extends MessageService
 	 * @exception NullPointerException
 	 */
 	public List getMessages(String channelReference, Filter filter, boolean order, boolean merged) throws IdUnusedException, PermissionException, NullPointerException;
-	
+
+	public Map<String, List<AnnouncementMessage>> getAllAnnouncementsForCurrentUser();
 }
