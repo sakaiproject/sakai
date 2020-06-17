@@ -752,7 +752,7 @@ span.author_mcLabelText {
     background: transparent url(/library/image/play.png) no-repeat center 2px;
 }
 #audio-visual-container #audio-upload {
-    float: right;
+    margin-left: 50px;
     width: 140px;
     border-radius: 5px;
     height: 40px;
