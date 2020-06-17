@@ -48,7 +48,7 @@
 					<div id="hiddenSites" class="panel-collapse collapse">
 						<div class="panel-body">
 							<p class="instruction">
-								tlang.getString("sitinfimp.hiddensites.info")
+								$tlang.getString("sitinfimp.hiddensites.info")
 							</p>
 							#foreach($hiddenSite in $hiddenSites)
 								#set ($siteIDCounter = $siteIDCounter + 1)
