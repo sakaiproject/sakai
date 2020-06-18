@@ -27,7 +27,7 @@
 <div class="portletBody specialLink container-fluid">
 
 	#if ($alertMessage)
-		<div class="sak-banner-error">$validator.escapeHtml($alertMessage)</div>
+		<div class="sak-banner-error">$formattedText.escapeHtml($alertMessage)</div>
 	#end
 
 	<form action="#toolForm("$action")" method="post">
@@ -37,15 +37,15 @@
 					<span>
 						#if ($termSelection)
 							#if( $searchText )
-								$allMsgNumber $tlang.getString("list.sites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type2") "$validator.escapeHtml($!searchText)" $tlang.getString("list.text") "$validator.escapeHtml($!termDisplay)" $tlang.getString("list.aca")
+								$allMsgNumber $tlang.getString("list.sites") "$formattedText.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type2") "$formattedText.escapeHtml($!searchText)" $tlang.getString("list.text") "$formattedText.escapeHtml($!termDisplay)" $tlang.getString("list.aca")
 							#else
-								$allMsgNumber $tlang.getString("list.sites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type1") "$validator.escapeHtml($!termDisplay)" $tlang.getString("list.aca")
+								$allMsgNumber $tlang.getString("list.sites") "$formattedText.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type1") "$formattedText.escapeHtml($!termDisplay)" $tlang.getString("list.aca")
 							#end
 						#else
 							#if( $searchText )
-								$allMsgNumber $tlang.getString("list.sites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type1") "$validator.escapeHtml($!searchText)".
+								$allMsgNumber $tlang.getString("list.sites") "$formattedText.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type1") "$formattedText.escapeHtml($!searchText)".
 							#else
-								$allMsgNumber $tlang.getString("list.sites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type3")
+								$allMsgNumber $tlang.getString("list.sites") "$formattedText.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type3")
 							#end
 						#end
 
@@ -93,7 +93,7 @@
 							#end
 							<td headers="title">
 								<a href="$site.Url" target="_top">
-									$validator.escapeHtml($site.getTitle())
+									$formattedText.escapeHtml($site.getTitle())
 								</a>
 								<a href="#" id="$site.Id" class="getSiteDesc" title="$tlang.getString('list.moreinfotooltip')">
 									<img src="#imageLink("sakai/information_gray.png")" border="0" title ="$tlang.getString('list.moreinfotooltip')" alt ="$tlang.getString('list.moreinfotooltip')" />
@@ -102,11 +102,11 @@
 
 							<td headers="type">
 								#set($type = $site.Type)
-								$validator.escapeHtml($!type)
+								$formattedText.escapeHtml($!type)
 							</td>
 
 							<td headers="owner">
-								$validator.escapeHtml($site.CreatedBy.DisplayName)
+								$formattedText.escapeHtml($site.CreatedBy.DisplayName)
 							</td>
 
 							<td headers="joinable">
@@ -119,8 +119,8 @@
 								## SAK-24423 - otherwise, provide the ability to join from the site browser
 								#else
 									#if( !$currentUser.Id || $currentUser.Id == "" )
-										<a href="#toolLinkParam( "$action" "doJoin" "id=$validator.escapeUrl( $site.Id )" )"
-											title="$tlang.getString( "list.join" ) $validator.escapeHtml( $site.Title )">
+										<a href="#toolLinkParam( "$action" "doJoin" "id=$formattedText.escapeUrl( $site.Id )" )"
+											title="$tlang.getString( "list.join" ) $formattedText.escapeHtml( $site.Title )">
 											$tlang.getString( "join.joinNow" )
 										</a>
 									#else
@@ -152,8 +152,8 @@
 											$tlang.getString( "list.joinableButExclude" )
 
 										#else
-											<a href="#toolLinkParam( "$action" "doJoin" "id=$validator.escapeUrl( $site.Id )" )"
-												title="$tlang.getString( "list.join" ) $validator.escapeHtml( $site.Title )">
+											<a href="#toolLinkParam( "$action" "doJoin" "id=$formattedText.escapeUrl( $site.Id )" )"
+												title="$tlang.getString( "list.join" ) $formattedText.escapeHtml( $site.Title )">
 												$tlang.getString( "join.joinNow" )
 											</a>
 										#end
@@ -195,15 +195,15 @@
 					<span>
 						#if ($termSelection)
 							#if( $searchText )
-								$allMsgNumber $tlang.getString("list.sites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type2") "$validator.escapeHtml($!searchText)" $tlang.getString("list.text") "$validator.escapeHtml($!termDisplay)" $tlang.getString("list.aca")
+								$allMsgNumber $tlang.getString("list.sites") "$formattedText.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type2") "$formattedText.escapeHtml($!searchText)" $tlang.getString("list.text") "$formattedText.escapeHtml($!termDisplay)" $tlang.getString("list.aca")
 							#else
-								$allMsgNumber $tlang.getString("list.sites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type1") "$validator.escapeHtml($!termDisplay)" $tlang.getString("list.aca")
+								$allMsgNumber $tlang.getString("list.sites") "$formattedText.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type1") "$formattedText.escapeHtml($!termDisplay)" $tlang.getString("list.aca")
 							#end
 						#else
 							#if( $searchText )
-								$allMsgNumber $tlang.getString("list.sites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type1") "$validator.escapeHtml($!searchText)".
+								$allMsgNumber $tlang.getString("list.sites") "$formattedText.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type1") "$formattedText.escapeHtml($!searchText)".
 							#else
-								$allMsgNumber $tlang.getString("list.sites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type3")
+								$allMsgNumber $tlang.getString("list.sites") "$formattedText.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type3")
 							#end
 						#end
 
@@ -229,15 +229,15 @@
 			<span>
 				#if ($termSelection)
 					#if( $searchText )
-						$tlang.getString("list.nosites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type2") "$validator.escapeHtml($!searchText)" $tlang.getString("list.text") "$validator.escapeHtml($termDisplay)" $tlang.getString("list.aca")
+						$tlang.getString("list.nosites") "$formattedText.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type2") "$formattedText.escapeHtml($!searchText)" $tlang.getString("list.text") "$formattedText.escapeHtml($termDisplay)" $tlang.getString("list.aca")
 					#else
-						$tlang.getString("list.nosites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type2") $tlang.getString("list.text") $validator.escapeHtml("$termDisplay") $tlang.getString("list.aca")
+						$tlang.getString("list.nosites") "$formattedText.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type2") $tlang.getString("list.text") $formattedText.escapeHtml("$termDisplay") $tlang.getString("list.aca")
 					#end
 				#else
 					#if( $searchText )
-						$tlang.getString("list.nosites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type1") "$validator.escapeHtml($!searchText)".
+						$tlang.getString("list.nosites") "$formattedText.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type1") "$formattedText.escapeHtml($!searchText)".
 					#else
-						$tlang.getString("list.nosites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type3")
+						$tlang.getString("list.nosites") "$formattedText.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type3")
 					#end
 				#end
 

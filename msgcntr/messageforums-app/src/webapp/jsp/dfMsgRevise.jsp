@@ -16,10 +16,19 @@
 			<style type="text/css">
 				@import url("/messageforums-tool/css/msgcntr.css");
 			</style>
-            <script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-       		<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
-       		<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
-			<script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
+            <script>includeLatestJQuery("msgcntr");</script>
+       		<script src="/messageforums-tool/js/sak-10625.js"></script>
+       		<script src="/messageforums-tool/js/forum.js"></script>
+			<script src="/messageforums-tool/js/messages.js"></script>
+        <script>
+            $(document).ready(function () {
+                var menuLink = $('#forumsMainMenuLink');
+                var menuLinkSpan = menuLink.closest('span');
+                menuLinkSpan.addClass('current');
+                menuLinkSpan.html(menuLink.text());
+            });
+        </script>
+        <%@ include file="/jsp/discussionForum/menu/forumsMenu.jsp" %>
      <h3><h:outputText value="#{msgs.cdfm_revise_forum_msg}" /></h3>
 
 			<table class="topicBloc topicBlocLone">

@@ -1,6 +1,6 @@
 <!-- sakai_properties.vm -->
 
-<script type="text/javascript">includeLatestJQuery('sakai_properties');</script>
+<script>includeLatestJQuery('sakai_properties');</script>
 <script>
     includeWebjarLibrary('bootstrap-multiselect');
 
@@ -15,7 +15,35 @@
             enableFiltering: true,
             enableCaseInsensitiveFiltering: true
         });
+
+        $('#addFolderInput').click(function(){
+            var index = document.getElementById("lastIndex");		
+            $('#access_groups${DOT}'+index.value).multiselect({
+                selectAllText: '$tlang.getString("access.edit.selectall")',
+                nonSelectedText: '$tlang.getString("access.edit.selectone")',
+                allSelectedText: '$tlang.getString("access.edit.allselected")',
+                nSelectedText: ' $tlang.getString("access.edit.groupsselected")',
+                filterPlaceholder: '$tlang.getString("access.edit.searchgroup")',
+                enableFiltering: true,
+                enableCaseInsensitiveFiltering: true
+            });
+            var content = $('#access_groups${DOT}'+index.value).closest('.multiselect-native-select').contents();
+            $('#access_groups${DOT}'+index.value).closest('.multiselect-native-select').replaceWith(content);
+        });
+
+        $('#copyToClipboardLink').on('click', function() {
+            const input = document.getElementById('fileURLHodlder');
+            if (input !== null) {
+                input.style.overflow = 'auto';
+                input.select();
+                input.setSelectionRange(0, 99999);
+                document.execCommand('copy');
+            }
+            return false;
+        });
+
     });
+
 </script>
 <style>
 button.btn.btn-default.multiselect-clear-filter{
@@ -511,7 +539,7 @@ button.btn.btn-default.multiselect-clear-filter{
 						#end
 					</div>
 					
-					#if($model.isGroupPossible())		
+					#if($model.isGroupPossible())
 						#set($theGroups = $model.possibleGroups)
 						<div id="groupTable${DOT}$i" style="display:$listDisplay">
 							<caption class="skip" style="display:none">$tlang.getString("edit.access4")</caption></br>
@@ -522,10 +550,10 @@ button.btn.btn-default.multiselect-clear-filter{
 										#set($selected = true)
 									#end
 									#set($description = "")
-									#set($description = $validator.escapeHtml($group.Description))
+									#set($description = $formattedText.escapeHtml($group.Description))
 									#if($model.isPossible($group))
 										<option id="access_groups_${group.Id}${DOT}$i" name="access_groups${DOT}$i" value="$group.Id" #if($selected) selected #end>
-									    	$validator.escapeHtml($group.title) #if("$!description" != "") ($!description) #end
+									    	$formattedText.escapeHtml($group.title) #if("$!description" != "") ($!description) #end
 										</option>
 									#end
 								#end
@@ -568,7 +596,7 @@ button.btn.btn-default.multiselect-clear-filter{
 									#if("$!TYPE_UPLOAD" == "$!{type.id}")$tlang.getString("props.creator.upl")#else$tlang.getString("props.creator")#end
 								</th>
 								<td>
-									$validator.escapeHtml("$model.createdBy")
+									$formattedText.escapeHtml("$model.createdBy")
 								</td>
 							</tr>
 							<tr>
@@ -576,7 +604,7 @@ button.btn.btn-default.multiselect-clear-filter{
 									#if("$!TYPE_UPLOAD" == "$!{type.id}")$tlang.getString("props.creatime.upl")#else$tlang.getString("props.creatime")#end
 								</th>
 								<td>
-									$validator.escapeHtml("$model.createdTime")
+									$formattedText.escapeHtml("$model.createdTime")
 								</td>
 							</tr>
 						#end
@@ -585,7 +613,7 @@ button.btn.btn-default.multiselect-clear-filter{
 								$tlang.getString("props.modby")
 							</th>
 							<td>
-								$validator.escapeHtml("$model.modifiedBy")
+								$formattedText.escapeHtml("$model.modifiedBy")
 							</td>
 						</tr>
 						<tr>
@@ -593,7 +621,7 @@ button.btn.btn-default.multiselect-clear-filter{
 								$tlang.getString("props.modtime")
 							</th>
 							<td>
-								$validator.escapeHtml("$model.modifiedTime")
+								$formattedText.escapeHtml("$model.modifiedTime")
 							</td>
 						</tr>
 						<tr>
@@ -602,7 +630,7 @@ button.btn.btn-default.multiselect-clear-filter{
 							</th>
 							<td>
 								<div class="form-group">
-									<a class="textPanelFooter" href="#fileURLHolder" onclick="document.getElementById('fileURLHolder').style.overflow='auto';document.getElementById('fileURLHolder').select();document.execCommand('copy');return false;">$tlang.getString("props.select")</a>
+									<a class="textPanelFooter" id="copyToClipboardLink" href="#">$tlang.getString("props.select")</a>
 									<a class="textPanelFooter" href="$model.accessUrl" target ="_blank">$tlang.getString("props.open")</a>
 									#if($shortUrlEnabled)
 										<span class="textPanelFooter">

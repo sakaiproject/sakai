@@ -11,8 +11,8 @@
 				@import url("/sakai-signup-tool/css/signupStyle.css");
 		</style>
 <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
-		<script TYPE="text/javascript" LANGUAGE="JavaScript" src="/sakai-signup-tool/js/signupScript.js"></script>
-		<script type="text/javascript">
+		<script src="/sakai-signup-tool/js/signupScript.js"></script>
+		<script>
 				var origClassNames=new Array();
 				var lastActiveId;
 				var previousBgColor; 
@@ -30,8 +30,12 @@
 					
 					//due to recuring meetings, make sure even/odd Rows display correctly
 					reprocessEvenOddRowClasses();
-					
-					});
+
+					var menuLink = $('#signupExportMenuLink');
+					menuLink.addClass('current');
+					menuLink.html(menuLink.find('a').text());
+
+				});
 				
 
 				function reprocessEvenOddRowClasses(){
@@ -166,8 +170,9 @@
 		</script>
 		
 		<sakai:view_content>
-			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/> 
 			<h:form id="items">
+				<%@ include file="/signup/menu/signupMenu.jsp" %>
+				<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>
 				<div class="page-header">
 					<sakai:view_title value="#{msgs.signup_download}"/>
 				</div>

@@ -1,43 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-	    <artifactId>sakai-acadtermmanage</artifactId>
-	    <groupId>org.sakaiproject.acadtermmanage</groupId>
-	    <version>21-SNAPSHOT</version>   
-		<relativePath>../pom.xml</relativePath>
-  	</parent>
-	
-	<name>sakai-acadtermmanage- API</name>
-	<artifactId>sakai-acadtermmanage-api</artifactId>
+   <modelVersion>4.0.0</modelVersion>
+   <parent>
+       <artifactId>sakai-acadtermmanage</artifactId>
+       <groupId>org.sakaiproject.acadtermmanage</groupId>
+       <version>21-SNAPSHOT</version>   
+      <relativePath>../pom.xml</relativePath>
+     </parent>
+   
+   <name>sakai-acadtermmanage- API</name>
+   <artifactId>sakai-acadtermmanage-api</artifactId>
 
-	<packaging>jar</packaging>
+   <packaging>jar</packaging>
 
-	<properties>
-    	<deploy.target>shared</deploy.target>
-  	</properties>
+   <properties>
+       <deploy.target>shared</deploy.target>
+     </properties>
 
-  	<dependencies>
+     <dependencies>
 
-		<!-- Sakai dependencies -->
+      <!-- Sakai dependencies -->
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-api</artifactId>
         </dependency>
 
         <dependency>
-        	<groupId>org.sakaiproject.edu-services.course-management</groupId>
-        	<artifactId>coursemanagement-api</artifactId>
+           <groupId>org.sakaiproject.edu-services.course-management</groupId>
+           <artifactId>coursemanagement-api</artifactId>
         </dependency>
-        
-	<dependency>
-        	<groupId>commons-beanutils</groupId>
-        	<artifactId>commons-beanutils</artifactId>
+        <dependency>
+           <groupId>commons-beanutils</groupId>
+           <artifactId>commons-beanutils</artifactId>
         </dependency>
-        
-  	</dependencies>
-	
-	<build />
-	 
-	
+     </dependencies>
+   
+   <build />
+    
+   
 </project>

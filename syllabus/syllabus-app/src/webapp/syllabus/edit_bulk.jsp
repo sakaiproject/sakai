@@ -15,7 +15,7 @@
 <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
 
 
-	<script type="text/javascript">
+	<script>
 		jQuery(document).ready(function() {
 			localDatePicker({
 				input: '#syllabusEdit\\:dataStartDate',
@@ -33,6 +33,11 @@
 				val: '<h:outputText value="#{SyllabusTool.bulkEntry.endDate}"><f:convertDateTime pattern="yyyy-MM-dd"/></h:outputText>',
 				ashidden: {iso8601: 'dataEndDateISO8601'}
 			});
+
+			var menuLink = $('#syllabusMenuBulkAddItemLink');
+			menuLink.addClass('current');
+			menuLink.find('a').removeAttr('href');
+
 		});
 		$(function() {
 			$('.timeInput').timepicker({
@@ -139,13 +144,13 @@
 			background: none repeat scroll 0 0 #CCCCCC;
 		}
 	</style>
-			<h:outputText value="#{SyllabusTool.alertMessage}" styleClass="sak-banner-error" rendered="#{SyllabusTool.alertMessage != null}" />
-				
-			<sakai:tool_bar_message value="#{msgs.add_sylla_bulk}" /> 
-			<sakai:doc_section>
-				<h:outputText value="#{msgs.newSyllabusBulkForm}"/>
-			</sakai:doc_section>
 			<h:form id="syllabusEdit">
+				<%@ include file="mainMenu.jsp" %>
+				<h:outputText value="#{SyllabusTool.alertMessage}" styleClass="sak-banner-error" rendered="#{SyllabusTool.alertMessage != null}" />
+				<sakai:tool_bar_message value="#{msgs.add_sylla_bulk}" /> 
+				<sakai:doc_section>
+					<h:outputText value="#{msgs.newSyllabusBulkForm}"/>
+				</sakai:doc_section>
 				<h:panelGrid columns="1" styleClass="jsfFormTable">
 					<h:panelGroup styleClass="shorttext">
 						<h:outputLabel for="title">

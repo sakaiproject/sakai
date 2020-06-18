@@ -100,7 +100,9 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 				} catch (Exception ee) {
 					log.warn(siteId + " contains a page (" + page.getTitle() + ") without a valid tool registration");
 				}
-				return toolId != null && toolId.toLowerCase().contains("sakai.gradebook");
+				if (toolId != null && toolId.toLowerCase().contains("sakai.gradebook")) {
+					return true;
+				}
 			}
 		} catch (Exception e) {
 			log.warn(e.getMessage());

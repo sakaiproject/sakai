@@ -12,13 +12,13 @@
         <style type="text/css">
             @import url("/sakai-signup-tool/css/signupStyle.css");
         </style>
-        
+
 <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
-        <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
-        <script type="text/javascript" src="/sakai-signup-tool/js/signupScript.js"></script>
-        <script type="text/javascript" src="/sakai-signup-tool/js/newMeetingStep1.js"></script>  
-        
-    	<script type="text/javascript">
+        <script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+        <script src="/sakai-signup-tool/js/signupScript.js"></script>
+        <script src="/sakai-signup-tool/js/newMeetingStep1.js"></script>
+
+		<script>
 	         //initialization of the page
 	         jQuery(document).ready(function() {
 
@@ -27,7 +27,7 @@
                     useTime: 1,
                     parseFormat: 'YYYY-MM-DD HH:mm:ss',
                     allowEmptyDate: false,
-                    val: '<h:outputText value="#{NewSignupMeetingBean.signupMeeting.startTime}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
+                    val: '<h:outputText value="#{NewSignupMeetingBean.signupMeeting.startTime}"><f:convertDateTime timeZone="#{UserTimeZone.userTimeZone}" pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
                     ashidden: {
                             iso8601: 'startTimeISO8601',
                             month:"meeting_startTime_month",
@@ -43,7 +43,7 @@
                     useTime: 1,
                     parseFormat: 'YYYY-MM-DD HH:mm:ss',
                     allowEmptyDate: false,
-                    val: '<h:outputText value="#{NewSignupMeetingBean.signupMeeting.endTime}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
+                    val: '<h:outputText value="#{NewSignupMeetingBean.signupMeeting.endTime}"><f:convertDateTime timeZone="#{UserTimeZone.userTimeZone}" pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
                     ashidden: {
                             iso8601: 'endTimeISO8601',
                             month:"meeting_endTime_month",
@@ -59,7 +59,7 @@
                     useTime: 0,
                     parseFormat: 'YYYY-MM-DD',
                     allowEmptyDate: false,
-                    val: '<h:outputText value="#{NewSignupMeetingBean.repeatUntil}"><f:convertDateTime pattern="yyyy-MM-dd"/></h:outputText>',
+                    val: '<h:outputText value="#{NewSignupMeetingBean.repeatUntil}"><f:convertDateTime timeZone="#{UserTimeZone.userTimeZone}" pattern="yyyy-MM-dd"/></h:outputText>',
                     ashidden: {
                             iso8601: 'untilISO8601',
                             month:"meeting_until_month",
@@ -77,14 +77,20 @@
 				
 		         sakai.toggleExactDateVisibility();
 	        		sakai.initSignupBeginAndEndsExact();
+
+                var menuLink = $('#signupAddMeetingMenuLink');
+                menuLink.addClass('current');
+                menuLink.html(menuLink.find('a').text());
+
 	         });
 			 
 		</script>
 
     	
         <sakai:view_content>
-     		<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>
-            <h:form id="meeting" >              
+            <h:form id="meeting" >
+                <%@ include file="/signup/menu/signupMenu.jsp" %>
+                <h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>
                 <div class="page-header">
                     <sakai:view_title value="#{msgs.create_new_event} #{msgs.basic}"/>
                 </div>

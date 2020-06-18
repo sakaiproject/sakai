@@ -38,7 +38,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -146,8 +146,8 @@ public class ExternalLogicImplTest {
 
 	@Test
 	public void init() throws Exception {
-		verify(functionManager).registerFunction(ExternalLogic.PERM_ADMIN);
-		verify(functionManager).registerFunction(ExternalLogic.PERM_SEND);
+		verify(functionManager).registerFunction(ExternalLogic.PERM_ADMIN, true);
+		verify(functionManager).registerFunction(ExternalLogic.PERM_SEND, true);
 	}
 
 	@Test

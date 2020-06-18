@@ -250,6 +250,10 @@ ASN.setupAssignNew = function(){
         if (this.checked) {
             $(this).parent('label').addClass('selectedItem');
             ($(this).parents('.groupCell').children('.countDisplay').text(thisCount + 1));
+            var usersCount = Number($(this).parents('.groupCell').find('input.selectedItem').length);
+            if (usersCount === thisCount+1) {
+                $(this).parents('.groupCell').find('.selectAllMembers').prop('checked', true);
+            }
         }
         else {
             ($(this).parents('.groupCell').children('.countDisplay').text(thisCount - 1));
@@ -273,7 +277,7 @@ ASN.setupAssignNew = function(){
     });
     $(".groupCell").each(function(){
         if ($(this).find('input.selectAllMembers:checked').length) {
-            $(this).children('.countDisplay').text($(this).find('input').prop('checked', 'checked').length);
+            $(this).children('.countDisplay').text($(this).find('input.selectedItem').prop('checked', 'checked').length);
         }
         else {
             $(this).children('.countDisplay').text($(this).find('.countHolder').text());
@@ -812,6 +816,15 @@ ASN.toggleSendFeedbackPanel = function()
     ASN.swapDisplay(expandImg, collapseImg);
 }
 
+ASN.toggleAssignamentInstructionPanel = function()
+{
+    var panel = document.getElementById("assignamentInstructionPanelContent");
+    $(panel).slideToggle(200);
+    var expandImg = document.getElementById("expandAssignamentInstruction");
+    var collapseImg = document.getElementById("collapseAssignamentInstruction");
+    ASN.swapDisplay(expandImg, collapseImg);
+}
+
 ASN.swapDisplay = function(elem1, elem2)
 {
     var tmpDisplay = elem1.style.display;
@@ -948,3 +961,13 @@ ASN.changeVisibleDate = function()
 		$('.visibleDatePanel').hide();
 	}
 }
+
+$(document).ready(function() {
+	var infoIcon = $('#infoImg');
+	if (infoIcon.length === 1) {
+		infoIcon.popover({html : true});
+		infoIcon.click(function (e) {
+			e.preventDefault();			// override # in href from popping to the top of the page
+		});
+	}
+});

@@ -6,23 +6,27 @@
 	<bean
 		id="org.sakaiproject.gradebookng.business.GradebookNgBusinessService"
 		class="org.sakaiproject.gradebookng.business.GradebookNgBusinessService">
-		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+		<property name="courseManagementService" ref="org.sakaiproject.coursemanagement.api.CourseManagementService" />
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 		<property name="serverConfigService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
 		<property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
 		<property name="gradebookPermissionService" ref="org.sakaiproject.service.gradebook.GradebookPermissionService" />
 		<property name="gradebookFrameworkService" ref="org.sakaiproject.service.gradebook.GradebookFrameworkService"/>
 		<property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService"/>
 		<property name="sectionManager" ref="org.sakaiproject.section.api.SectionManager"/>
+		<property name="groupProvider" ref="org.sakaiproject.authz.api.GroupProvider"/>
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
 		<property name="rubricsService" ref="org.sakaiproject.rubrics.logic.RubricsService" />
 		<property name="gradebookExternalAssessmentService" ref="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService"/>
+		<property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
 	</bean>
 
 	<bean
 		parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
 		class="org.sakaiproject.gradebookng.rest.GradebookNgEntityProvider">
+		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
 		<property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />

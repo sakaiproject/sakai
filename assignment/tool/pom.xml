@@ -37,10 +37,6 @@
             <artifactId>sakai-assignment-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>sakai-assignment-bundles</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.sakaiproject.contentreview</groupId>
             <artifactId>content-review-api</artifactId>
         </dependency>

@@ -27,6 +27,9 @@ should be included in file importing DeliveryMessages
 <h:outputText value="#{question.text}"  escape="false"/>
 <f:verbatim><br /></f:verbatim>
 
+  <!-- ATTACHMENTS -->
+  <%@ include file="/jsf/delivery/item/attachment.jsp" %>
+
   <h:dataTable value="#{question.mediaArray}" var="media">
     <h:column>
 
@@ -41,7 +44,7 @@ should be included in file importing DeliveryMessages
 		<h:outputText value="#{media.duration} #{deliveryMessages.secs}, #{deliveryMessages.recorded_on} " rendered="#{!media.durationIsOver}" />
 		<h:outputText value="#{question.duration} #{deliveryMessages.secs}, #{deliveryMessages.recorded_on} " rendered="#{media.durationIsOver}" />
       <h:outputText value="#{media.createdDate}">
-        <f:convertDateTime pattern="#{evaluationMessages.grading_date_no_time_format}" timeZone="#{author.userTimeZone}" />
+        <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
       </h:outputText>
       <h:outputText value="#{evaluationMessages.close_bracket}"/>
       <f:verbatim><br /></f:verbatim>    
@@ -54,3 +57,11 @@ should be included in file importing DeliveryMessages
 	  
 	</h:column>
   </h:dataTable>
+
+  <h:panelGrid rendered="#{delivery.feedbackComponent.showItemLevel && question.feedbackIsNotEmpty}">
+    <h:panelGroup>
+      <h:outputLabel for="feedSC" styleClass="answerkeyFeedbackCommentLabel" value="#{commonMessages.feedback}: " />
+      <h:outputText id="feedSC" value="#{question.feedback}" escape="false" />
+    </h:panelGroup>
+    <h:outputText value=" " />
+  </h:panelGrid>

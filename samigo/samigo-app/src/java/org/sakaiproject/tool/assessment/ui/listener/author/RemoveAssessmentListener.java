@@ -270,12 +270,6 @@ public class RemoveAssessmentListener implements ActionListener
             return false;
         }
 
-        //Alert user to remove submissions associated with the assessment before delete the assessment
-        int submissions = publishedAssessmentService.getTotalSubmissionForEachAssessment(publishedAssessment.getPublishedAssessmentId().toString());
-        if (submissions > 0) {
-            author.setOutcome("removeError");
-            return false;
-        }
         return true;
     }
 

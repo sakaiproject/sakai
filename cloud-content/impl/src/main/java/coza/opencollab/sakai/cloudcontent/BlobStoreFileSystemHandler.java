@@ -9,33 +9,30 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.Date;
-
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.io.Closeables;
-import com.google.inject.Module;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.jclouds.ContextBuilder;
-import org.jclouds.apis.ApiMetadata;
+import org.jclouds.aws.s3.AWSS3ProviderMetadata;
 import org.jclouds.blobstore.BlobStore;
 import org.jclouds.blobstore.BlobStoreContext;
 import org.jclouds.blobstore.domain.Blob;
 import org.jclouds.blobstore.domain.StorageMetadata;
-import org.jclouds.blobstore.options.PutOptions;
 import org.jclouds.http.HttpRequest;
 import org.jclouds.io.Payload;
 import org.jclouds.io.Payloads;
 import org.jclouds.logging.slf4j.config.SLF4JLoggingModule;
-import org.jclouds.aws.s3.AWSS3ProviderMetadata;
 import org.jclouds.openstack.swift.v1.SwiftApiMetadata;
 import org.jclouds.osgi.ApiRegistry;
 import org.jclouds.osgi.ProviderRegistry;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.FileSystemHandler;
 import org.springframework.util.FileCopyUtils;
+
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.io.Closeables;
+import com.google.inject.Module;
 
 /**
  * The jclouds BlobStore implementation of FileSystemHandler.

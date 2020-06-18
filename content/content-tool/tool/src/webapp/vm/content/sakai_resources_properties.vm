@@ -1,12 +1,13 @@
 ## version: $Id$
 <!-- sakai_resources_properties.vm, use with org.sakaiproject.tool.content.ResourcesAction.java -->
 <div class="portletBody specialLink">
+	#contentMenu("resources")
 	<h3>
 		$tlang.getString("action.props") 
 	</h3>
 	
 	#if ($alertMessage)
-		<div class="sak-banner-error">$tlang.getString("label.alert") $validator.escapeHtml($alertMessage)</div>
+		<div class="sak-banner-error">$tlang.getString("label.alert") $formattedText.escapeHtml($alertMessage)</div>
 	#end
 
 	<p class="instruction">
@@ -25,13 +26,13 @@
 					<label for="displayName${DOT}$i">
 						$tlang.getString("label.display") 
 					</label>
-					<input type="text" class="form-control" id="displayName${DOT}$i" name="displayName${DOT}$i" value="$validator.escapeHtml("$!item.name")" maxlength="512"/>
+					<input type="text" class="form-control" id="displayName${DOT}$i" name="displayName${DOT}$i" value="$formattedText.escapeHtml("$!item.name")" maxlength="512"/>
 				#else
 					<label for="displayName_display${DOT}$i">
 						$tlang.getString("label.display") 
 					</label>
-					<input type="text" size="40" id="displayName_display${DOT}$i" disabled="disabled" value="$validator.escapeHtml("$!item.name")" />
-					<input type="hidden" id="displayName${DOT}$i" name="displayName${DOT}$i" value="$validator.escapeHtml("$!item.name")" />
+					<input type="text" size="40" id="displayName_display${DOT}$i" disabled="disabled" value="$formattedText.escapeHtml("$!item.name")" />
+					<input type="hidden" id="displayName${DOT}$i" name="displayName${DOT}$i" value="$formattedText.escapeHtml("$!item.name")" />
 				#end
 			</div>
 			#parse("/vm/resources/sakai_properties.vm")

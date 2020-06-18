@@ -31,12 +31,14 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.cheftool.ControllerState;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.util.CalendarUtil;
+import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.tool.api.SessionBindingEvent;
 import org.sakaiproject.tool.api.SessionBindingListener;
-import org.sakaiproject.util.FormattedText;
+
 
 /**
  * Maintains user interface state for the MyCalendar action class.
@@ -553,7 +555,7 @@ public class CalendarActionState
 		 */
 		public String getAddfieldValue(String fieldname)
 		{
-			fieldname = FormattedText.unEscapeHtml(fieldname);
+			fieldname = ComponentManager.get(FormattedText.class).unEscapeHtml(fieldname);
 			Set addfieldsKey = addFieldsMap.keySet();
 
 			Iterator it = addfieldsKey.iterator();

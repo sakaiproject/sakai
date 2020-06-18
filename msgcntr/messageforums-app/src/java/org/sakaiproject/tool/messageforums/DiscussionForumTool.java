@@ -138,8 +138,11 @@ import org.sakaiproject.tool.messageforums.ui.PermissionBean;
 import org.sakaiproject.tool.messageforums.ui.SiteGroupBean;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.comparator.GroupTitleComparator;
+import org.sakaiproject.util.comparator.RoleIdComparator;
+
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 import org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation;
 import org.sakaiproject.rubrics.logic.RubricsConstants;
@@ -321,6 +324,9 @@ public class DiscussionForumTool {
   // compose
   @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.MessageForumsMessageManager\"]}")
   private MessageForumsMessageManager messageManager;
+  @Setter
+  @ManagedProperty(value="#{Components[\"org.sakaiproject.util.api.FormattedText\"]}")
+  private FormattedText formattedText;
   private String composeTitle;
   private String composeBody;
   private String composeLabel;
@@ -710,6 +716,8 @@ public class DiscussionForumTool {
             if (decoTopic != null) decoForum.addTopic(decoTopic);
           }
 
+          String forumDefaultAssignName = forum.getDefaultAssignName();
+
           //iterate over all topics in the decoratedForum to add the unread message
           //counts to update the sypnoptic tool
           for (DiscussionTopicBean dTopicBean : decoForum.getTopics()) {
@@ -717,6 +725,8 @@ public class DiscussionForumTool {
             if (uiPermissionsManager.isRead(dTopicBean.getTopic(), decoForum.getForum(), userId)) {
                 unreadMessagesCount += dTopicBean.getUnreadNoMessages();
             }
+
+            setTopicGradeAssign(dTopicBean, forumDefaultAssignName);
           }
         }
 
@@ -734,6 +744,17 @@ public class DiscussionForumTool {
     //update synoptic info for forums only:
     setForumSynopticInfoHelper(userId, getSiteId(), unreadMessagesCount, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
     return forums;
+  }
+
+  public void setTopicGradeAssign(DiscussionTopicBean bean, String defaultGradeAssign) {
+
+    if (StringUtils.isNotEmpty(bean.getTopic().getDefaultAssignName())) {
+      bean.setGradeAssign(bean.getTopic().getDefaultAssignName());
+    } else {
+      if (StringUtils.isNotEmpty(defaultGradeAssign)) {
+        bean.setGradeAssign(defaultGradeAssign);
+      }
+    }
   }
   
   public void setForumSynopticInfoHelper(String userId, String siteId,
@@ -1034,7 +1055,7 @@ public class DiscussionForumTool {
       return gotoMain();
     }
     StringBuilder alertMsg = new StringBuilder();
-    selectedForum.getForum().setExtendedDescription(FormattedText.processFormattedText(selectedForum.getForum().getExtendedDescription(), alertMsg));
+    selectedForum.getForum().setExtendedDescription(formattedText.processFormattedText(selectedForum.getForum().getExtendedDescription(), alertMsg));
     selectedForum.setMarkForDeletion(true);
     return FORUM_SETTING;
   }
@@ -1409,7 +1430,7 @@ public class DiscussionForumTool {
     }
     
     StringBuilder alertMsg = new StringBuilder();
-    forum.setExtendedDescription(FormattedText.processFormattedText(forum.getExtendedDescription(), alertMsg));
+    forum.setExtendedDescription(formattedText.processFormattedText(forum.getExtendedDescription(), alertMsg));
 	if(forum.getShortDescription()!=null && forum.getShortDescription().length() > 255){
 		forum.setShortDescription(forum.getShortDescription().substring(0, 255));
 	}
@@ -1430,9 +1451,6 @@ public class DiscussionForumTool {
     if (!isNew && beforeChangeHM != null) {
       updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), forum.getId(), null, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
     }
-
-    //RUBRICS, Save the binding between the forum and the rubric
-    //rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_FORUMS, RubricsConstants.RBCS_FORUM_ENTITY_PREFIX + forum.getId(), getRubricConfigurationParameters());
 
     selectedForum.getForum().setId(forum.getId());
     return forum;
@@ -1799,9 +1817,6 @@ public class DiscussionForumTool {
     	}
     }
 
-    //RUBRICS, Save the binding between the topic and the rubric
-    //rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_FORUMS, RubricsConstants.RBCS_TOPIC_ENTITY_PREFIX + selectedTopic.getTopic().getId(), getRubricConfigurationParameters());
-
     return processReturnToOriginatingPage();
     //reset();
     //return MAIN;
@@ -1899,7 +1914,7 @@ public class DiscussionForumTool {
     	}
 
     	StringBuilder alertMsg = new StringBuilder();
-    	topic.setExtendedDescription(FormattedText.processFormattedText(topic.getExtendedDescription(), alertMsg));
+    	topic.setExtendedDescription(formattedText.processFormattedText(topic.getExtendedDescription(), alertMsg));
     	
     	if ("<br/>".equals(topic.getExtendedDescription()))
     	{
@@ -1996,7 +2011,7 @@ public class DiscussionForumTool {
     }
     //in case XSS was slipped in, make sure we remove it:
     StringBuilder alertMsg = new StringBuilder();
-    selectedTopic.getTopic().setExtendedDescription(FormattedText.processFormattedText(selectedTopic.getTopic().getExtendedDescription(), alertMsg));
+    selectedTopic.getTopic().setExtendedDescription(formattedText.processFormattedText(selectedTopic.getTopic().getExtendedDescription(), alertMsg));
     selectedTopic.setMarkForDeletion(true);
     return TOPIC_SETTING;
   }
@@ -2812,6 +2827,8 @@ public class DiscussionForumTool {
 
 	  Map msgIdReadStatusMap = forumManager.getReadStatusForMessagesWithId(msgIds, getUserId());
 
+	  String forumDefaultAssignName = forum.getDefaultAssignName();
+
 	  Iterator iter = temp_topics.iterator();
 	  while (iter.hasNext())
 	  {
@@ -2857,6 +2874,8 @@ public class DiscussionForumTool {
 				  decoTopic.setTotalNoMessages(forumManager.getTotalViewableMessagesWhenMod(topic));
 				  decoTopic.setUnreadNoMessages(forumManager.getNumUnreadViewableMessagesWhenMod(topic));
 			  }
+
+			  setTopicGradeAssign(decoTopic, forumDefaultAssignName);
 
 			  decoForum.addTopic(decoTopic);
 		  }
@@ -3160,6 +3179,8 @@ public class DiscussionForumTool {
     		decoTopic.setTotalNoMessages(forumManager.getTotalViewableMessagesWhenMod(topic));
     		decoTopic.setUnreadNoMessages(forumManager.getNumUnreadViewableMessagesWhenMod(topic));
     	}
+
+        setTopicGradeAssign(decoTopic, selectedForum.getForum().getDefaultAssignName());
 
     	Iterator iter = temp_messages.iterator();
 
@@ -3775,7 +3796,7 @@ public class DiscussionForumTool {
     {
       StringBuilder alertMsg = new StringBuilder();
       aMsg.setTitle(getComposeTitle());
-      aMsg.setBody(FormattedText.processFormattedText(getComposeBody(), alertMsg));
+      aMsg.setBody(formattedText.processFormattedText(getComposeBody(), alertMsg));
       
       if(getUserNameOrEid()!=null){
       aMsg.setAuthor(getUserNameOrEid());
@@ -4166,42 +4187,47 @@ public class DiscussionForumTool {
 	  } 
   }
   
-  private String processDfMsgGrdHelper(String userId, String msgAssignmentName){
-	  selectedMessageCount = 0;
+  private String processDfMsgGrdHelper(String userId, String msgAssignmentName) {
+
+    selectedMessageCount = 0;
 	  
-  	grade_too_large_make_sure = false;
+    grade_too_large_make_sure = false;
   	
-	  selectedAssign = DEFAULT_GB_ITEM; 
-	  resetGradeInfo();
+    selectedAssign = DEFAULT_GB_ITEM;
+    resetGradeInfo();
 
-	  String gradebookUid = toolManager.getCurrentPlacement().getContext();
+    String gradebookUid = toolManager.getCurrentPlacement().getContext();
 
-	  String topicDefaultAssignment = null;
-	  if(selectedTopic != null){
-		  topicDefaultAssignment = selectedTopic.getTopic().getDefaultAssignName();
-	  }
-	  String forumDefaultAssignment = selectedForum.getForum().getDefaultAssignName();
+    String topicDefaultAssignment = null;
+    if (selectedTopic != null) {
+      topicDefaultAssignment = selectedTopic.getTopic().getDefaultAssignName();
+    }
+    String forumDefaultAssignment = selectedForum.getForum().getDefaultAssignName();
 
-	  String selAssignmentName = null;
-	  if (msgAssignmentName !=null && msgAssignmentName.trim().length()>0) {
-		  selAssignmentName = msgAssignmentName;
-	  } else if (topicDefaultAssignment != null && topicDefaultAssignment.trim().length() > 0) {
-		  selAssignmentName = topicDefaultAssignment;
-	  } else if (forumDefaultAssignment != null && forumDefaultAssignment.trim().length() > 0) {
-		  selAssignmentName = forumDefaultAssignment;
-	  }
+    String selAssignmentName = null;
+    if (msgAssignmentName !=null && msgAssignmentName.trim().length()>0) {
+      selAssignmentName = msgAssignmentName;
+    } else if (topicDefaultAssignment != null && topicDefaultAssignment.trim().length() > 0) {
+      selAssignmentName = topicDefaultAssignment;
+      if (selectedTopic != null) {
+        selectedTopic.setGradeAssign(topicDefaultAssignment);
+      }
+    } else if (forumDefaultAssignment != null && forumDefaultAssignment.trim().length() > 0) {
+      selAssignmentName = forumDefaultAssignment;
+      selectedForum.setGradeAssign(forumDefaultAssignment);
+    }
 
-	  if (selAssignmentName != null) {
-		  setUpGradeInformation(gradebookUid, selAssignmentName, userId);  
-	  } else {
-		  // this is the "Select a gradebook item" selection
-		  allowedToGradeItem = false;
-		  selGBItemRestricted = true;
-	  }
+    if (selAssignmentName != null) {
+      setUpGradeInformation(gradebookUid, selAssignmentName, userId);
+    } else {
+      // this is the "Select a gradebook item" selection
+      allowedToGradeItem = false;
+      selGBItemRestricted = true;
+    }
 
-	  return GRADE_MESSAGE; 
+    return GRADE_MESSAGE;
   }
-  
+
   private void setUpGradeInformation(String gradebookUid, String selAssignmentName, String studentId) {
 	  GradebookService gradebookService = getGradebookService();
 	  if (gradebookService == null) return;
@@ -4246,7 +4272,7 @@ public class DiscussionForumTool {
 		  GradeDefinition gradeDef = gradebookService.getGradeDefinitionForStudentForItem(gradebookUid, assignment.getId(), studentId);
 
 		  if (gradeDef.getGrade() != null) {
-		      String decSeparator = FormattedText.getDecimalSeparator();
+		      String decSeparator = formattedText.getDecimalSeparator();
 		      gbItemScore = StringUtils.replace(gradeDef.getGrade(), (",".equals(decSeparator)?".":","), decSeparator);
 		  }
 
@@ -4552,7 +4578,7 @@ public class DiscussionForumTool {
 
 		StringBuilder alertMsg = new StringBuilder();
 		dMsg.setTitle(getComposeTitle());
-		dMsg.setBody(FormattedText.processFormattedText(currentBody, alertMsg));
+		dMsg.setBody(formattedText.processFormattedText(currentBody, alertMsg));
 		dMsg.setDraft(Boolean.FALSE);
 		dMsg.setModified(new Date());
 
@@ -5893,26 +5919,18 @@ public class DiscussionForumTool {
     } 
         
     String eventRef = "";
-    String evaluatedItemId = "";
     String evaluatedItemTitle = "";
     if(selectedMessage != null){
         eventRef = getEventReference(selectedMessage.getMessage());
-        evaluatedItemId = studentUid+"."+selectedMessage.getMessage().getUuid();
         evaluatedItemTitle = selectedMessage.getMessage().getTitle();
     }else if(selectedTopic != null){
         eventRef = getEventReference(selectedTopic.getTopic());
-        evaluatedItemId = studentUid+"."+selectedTopic.getTopic().getUuid();
         evaluatedItemTitle = selectedTopic.getTopic().getTitle();
     }else if(selectedForum != null){
         eventRef = getEventReference(selectedForum.getForum());
-        evaluatedItemId = studentUid+"."+selectedForum.getForum().getUuid();
         evaluatedItemTitle = selectedForum.getForum().getTitle();
     }
 
-    evaluatedItemId = getRubricAssociationId() + "." + studentUid;
-    if(rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, getRubricAssociationId())){
-        rubricsService.saveRubricEvaluation(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, getRubricAssociationId(), evaluatedItemId, studentUid, getUserId(), getRubricConfigurationParameters());
-    }
     LRS_Statement statement = forumManager.getStatementForGrade(studentUid, evaluatedItemTitle, gradeAsDouble).orElse(null);
     Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_GRADE, eventRef, null, true, NotificationService.NOTI_OPTIONAL, statement);
     eventTrackingService.post(event);
@@ -6445,13 +6463,8 @@ public class DiscussionForumTool {
    */
   private List sortRoles(Set roles) {
 	  final List rolesList = new ArrayList();
-	  
 	  rolesList.addAll(roles);
-	  
-	  final AuthzGroupComparator authzGroupComparator = new AuthzGroupComparator("id", true);
-	  
-	  Collections.sort(rolesList, authzGroupComparator);
-	  
+	  Collections.sort(rolesList, new RoleIdComparator());
 	  return rolesList;
   }
   /**
@@ -6466,17 +6479,10 @@ public class DiscussionForumTool {
    */
   private Collection sortGroups(Collection groups) {
 	  List sortGroupsList = new ArrayList();
-
 	  sortGroupsList.addAll(groups);
-	  
-	  final GroupComparator groupComparator = new GroupComparator("title", true);
-	  
-	  Collections.sort(sortGroupsList, groupComparator);
-	  
+	  Collections.sort(sortGroupsList, new GroupTitleComparator());
 	  groups.clear();
-	  
 	  groups.addAll(sortGroupsList);
-	  
 	  return groups;
   }
   /**
@@ -6553,7 +6559,7 @@ public class DiscussionForumTool {
   	PermissionLevel contributorLevel = permissionLevelManager.getDefaultContributorPermissionLevel();
   	  	
   	StringBuilder sBuffer = new StringBuilder();  	
-  	sBuffer.append("<script type=\"text/javascript\">\n");   	  	
+  	sBuffer.append("<script>\n");
   	sBuffer.append("var ownerLevelArray = " + ownerLevel + ";\n");
   	sBuffer.append("var authorLevelArray = " + authorLevel + ";\n");
   	sBuffer.append("var noneditingAuthorLevelArray = " + noneditingAuthorLevel + ";\n");
@@ -7562,7 +7568,7 @@ public class DiscussionForumTool {
     }
     //in case XSS was slipped in, make sure we remove it:
     StringBuilder alertMsg = new StringBuilder();
-    selectedForum.getForum().setExtendedDescription(FormattedText.processFormattedText(selectedForum.getForum().getExtendedDescription(), alertMsg));
+    selectedForum.getForum().setExtendedDescription(formattedText.processFormattedText(selectedForum.getForum().getExtendedDescription(), alertMsg));
     selectedForum.getForum().setTitle(getResourceBundleString(DUPLICATE_COPY_TITLE, new Object [] {selectedForum.getForum().getTitle()} ));
 
     selectedForum.setMarkForDuplication(true);
@@ -7637,7 +7643,7 @@ public class DiscussionForumTool {
     }
     //in case XSS was slipped in, make sure we remove it:
     StringBuilder alertMsg = new StringBuilder();
-    selectedTopic.getTopic().setExtendedDescription(FormattedText.processFormattedText(selectedTopic.getTopic().getExtendedDescription(), alertMsg));
+    selectedTopic.getTopic().setExtendedDescription(formattedText.processFormattedText(selectedTopic.getTopic().getExtendedDescription(), alertMsg));
     selectedTopic.getTopic().setTitle(getResourceBundleString(DUPLICATE_COPY_TITLE, new Object[] {selectedTopic.getTopic().getTitle()}));
     selectedTopic.setMarkForDuplication(true);
     return TOPIC_SETTING;
@@ -9204,16 +9210,16 @@ public class DiscussionForumTool {
 		return (allowedToGradeItem && (getRubricAssociationId() != null));
 	}
 
-	public String getRubricAssociationId(){
+    public String getRubricAssociationId() {
+        String gradeAssign = selectedTopic != null ? selectedTopic.getGradeAssign()
+                : selectedForum != null ? selectedForum.getGradeAssign()
+                : null;
 
-		String gradeAssign = selectedTopic.getGradeAssign();
-
-		if ((selectedTopic != null || selectedForum != null) && rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, gradeAssign)) {
-			return gradeAssign;
-		} else {
-			return null;
-		}
-	}
+        if (gradeAssign != null && rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, gradeAssign)) {
+            return gradeAssign;
+        }
+        return null;
+    }
 
 	public String getCDNQuery() {
 		return PortalUtils.getCDNQuery();

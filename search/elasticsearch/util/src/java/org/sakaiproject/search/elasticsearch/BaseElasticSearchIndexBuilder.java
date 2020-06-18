@@ -23,6 +23,7 @@ import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.filteredQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
+import static org.elasticsearch.index.query.QueryBuilders.simpleQueryStringQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 import static org.elasticsearch.search.facet.FacetBuilders.termsFacet;
@@ -1135,7 +1136,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
             query = query.must(termQuery(SearchService.FIELD_TYPE, "sakai:" + termType));
             query = query.must(matchQuery(SearchService.FIELD_CONTENTS, termValue));
         } else {
-            query = query.must(matchQuery(SearchService.FIELD_CONTENTS, searchTerms));
+            query = query.must(simpleQueryStringQuery(searchTerms));
         }
 
         return pairOf(builders.getLeft(), query);

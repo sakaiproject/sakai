@@ -73,8 +73,6 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		response.render(StringHeaderItem.forString(request.getAttribute("sakai.html.head").toString()));
 		response.render(JavaScriptHeaderItem.forUrl(COMMONSCRIPT));
 
-		// include (this) tool style (CSS)
-		response.render(CssHeaderItem.forUrl(StatsManager.SITESTATS_WEBAPP+"/css/sitestats.css"));
 	}
 	
 	@Override

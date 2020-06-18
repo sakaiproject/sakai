@@ -55,6 +55,7 @@ import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.springframework.web.client.HttpClientErrorException;
 
 /* For author: Assessment Authoring backing bean. */
 @Slf4j
@@ -963,11 +964,15 @@ public class AuthorBean implements Serializable {
   }
 
 	public Boolean questionHasRubric(Long assessmentId, Long questionId, boolean isPublished) {
-		if(!isPublished && rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_SAMIGO, assessmentId + "." + questionId)){
-			return Boolean.TRUE;
-		}
-		if(isPublished && rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_SAMIGO,RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + assessmentId + "." + questionId)){
-			return Boolean.TRUE;
+		try {
+			if(!isPublished && rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_SAMIGO, assessmentId + "." + questionId)){
+				return Boolean.TRUE;
+			}
+			if(isPublished && rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_SAMIGO, RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + assessmentId + "." + questionId)){
+				return Boolean.TRUE;
+			}
+		} catch(HttpClientErrorException hcee) {
+			log.debug("Current user doesn't have permission to get a rubric: {}", hcee.getMessage());
 		}
 		return Boolean.FALSE;
 	}

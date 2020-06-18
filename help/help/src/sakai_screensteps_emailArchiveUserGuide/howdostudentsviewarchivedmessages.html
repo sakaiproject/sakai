@@ -1,34 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>How do I enable student peer review for an assignment?</title>
+<title>How do students view archived messages?</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta content="sakai.assignment" name="description">
-<meta content="peer review, peer assessment, peer evaluation" name="search">
+<meta content="" name="description">
 <link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="/library/js/jquery/featherlight/0.4.0/featherlight.min.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="/library/js/jquery/featherlight/0.4.0/featherlight.min.js" type="text/javascript" charset="utf-8"></script><script type="text/javascript" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    includeWebjarLibrary('featherlight');
     $(document).ready(function(){
-      $("a[rel^='featherlight']").featherlight({
+      $("a.screensteps-image-zoom").featherlight({
         type: { image:true },
-    closeOnClick: 'anywhere'
+        closeOnClick: 'anywhere'
       }); 
     });   
-  </script>
+</script>
 </head>
 <body>
-  <div id="wrapper"><div id="article-content">
-<div id="article-header"><h1 class="article-title">How do students view archived messages?</h1></div>
-<div id="article-description">  <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+  <div><div>
+<div><h1 class="article-title">How do students view archived messages?</h1></div>
+<div>    <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
   <p>Typically, students have read-only permissions for Email Archive.</p>
 </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="go-to-email-archive">
-    <h2 id="go-to-email-archive" class="step-title screensteps-heading">Go to Email Archive.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Go to Email Archive.</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/001/058/193/original/aa7f3c0d-0d67-4d2a-b145-da5e44309ee3.png" alt="" height="126" width="199">
+    <img src="https://media.screensteps.com/image_assets/assets/003/296/512/original/3e4eee6d-e062-4363-bcb3-5a9965f8033c.png" alt="" height="117" width="213">
 </div>
  
       <div class="step-instructions screensteps-textblock">
@@ -36,12 +37,12 @@
 </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="viewing-email-archive-messages">
-    <h2 id="viewing-email-archive-messages" class="step-title screensteps-heading">Viewing Email Archive messages.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Viewing Email Archive messages.</h2>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/001/058/192/original/4696d1fa-89ba-45a4-902f-555b73617385.png" class="screensteps-image-zoom">
-      <img src="https://media.screensteps.com/image_assets/assets/001/058/192/medium/4696d1fa-89ba-45a4-902f-555b73617385.png" alt="" height="380" width="855">
+    <a href="https://media.screensteps.com/image_assets/assets/003/148/338/original/08ba783c-5a03-4574-a413-cf0f6cc3b889.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/148/338/medium/08ba783c-5a03-4574-a413-cf0f6cc3b889.png" alt="" height="316" width="855">
     </a>
 </div>
  
@@ -54,7 +55,8 @@
 </div>
  
   </div>
- 
+
+
 </div>
 </div></div>
 </body>

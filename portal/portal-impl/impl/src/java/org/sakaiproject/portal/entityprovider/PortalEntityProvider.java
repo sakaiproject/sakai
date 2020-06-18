@@ -219,7 +219,7 @@ public class PortalEntityProvider extends AbstractEntityProvider implements Auto
 
 		String currentUserId = getCheckedCurrentUser();
 
-		ResourceLoader rl = new Resource().getLoader("org.sakaiproject.portal.api.PortalService", "profile-popup");
+		ResourceLoader rl = Resource.getResourceLoader("org.sakaiproject.portal.api.PortalService", "profile-popup");
 
 		UserProfile userProfile = (UserProfile) profileLogic.getUserProfile(ref.getId());
 

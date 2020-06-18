@@ -76,7 +76,7 @@ remove the javascript onclick stuff.
 <!-- JAVASCRIPT -->
 <%@ include file="/js/delivery.js" %>
 
-<script type="text/JavaScript">
+<script>
 
 function saveTime()
 {
@@ -116,10 +116,10 @@ function saveTime()
 <%-- PART/ITEM DATA TABLES --%>
 
   <h:panelGroup styleClass="sak-banner-warn">
-	  <h:outputText value="#{deliveryMessages.submit_warning_1}" escape="false"/>
-	  <h:outputText value="#{deliveryMessages.submit_warning_2}" escape="false"/>
-	  <h:outputText value="#{deliveryMessages.submit_warning_3_non_linear}" rendered="#{delivery.navigation ne '1'}" escape="false"/>
-	  <h:outputText value="#{deliveryMessages.submit_warning_3_linear}" rendered="#{delivery.navigation eq '1'}" escape="false"/>
+	  <h:outputText value="#{deliveryMessages.submit_warning_1} " escape="false"/>
+	  <h:outputText value="#{deliveryMessages.submit_warning_2} " escape="false"/>
+	  <h:outputText value="#{deliveryMessages.submit_warning_3_non_linear} " rendered="#{delivery.navigation ne '1'}" escape="false"/>
+	  <h:outputText value="#{deliveryMessages.submit_warning_3_linear} " rendered="#{delivery.navigation eq '1'}" escape="false"/>
   </h:panelGroup>
 
   <h:panelGroup layout="block">
@@ -127,7 +127,7 @@ function saveTime()
         <h:panelGroup layout="block" styleClass="col-sm-2">
             <h:outputLabel value="#{deliveryMessages.course_name}"/>
         </h:panelGroup>
-        <h:panelGroup layout="block" styleClass="col-sm-2">
+        <h:panelGroup layout="block" styleClass="col-sm-10">
             <h:outputText value="#{delivery.courseName}" />
         </h:panelGroup>
     </h:panelGroup>
@@ -135,7 +135,7 @@ function saveTime()
         <h:panelGroup layout="block" styleClass="col-sm-2">
             <h:outputLabel  value="#{deliveryMessages.creator}" />
         </h:panelGroup>
-        <h:panelGroup layout="block" styleClass="col-sm-2">
+        <h:panelGroup layout="block" styleClass="col-sm-10">
             <h:outputText value="#{delivery.creatorName}"/>
         </h:panelGroup>
     </h:panelGroup>
@@ -143,7 +143,7 @@ function saveTime()
         <h:panelGroup layout="block" styleClass="col-sm-2">
             <h:outputLabel value="#{deliveryMessages.assessment_title}"/>
         </h:panelGroup>
-        <h:panelGroup layout="block" styleClass="col-sm-2">
+        <h:panelGroup layout="block" styleClass="col-sm-10">
             <h:outputText value="#{delivery.assessmentTitle}" escape="false"/>
         </h:panelGroup>
     </h:panelGroup>
@@ -184,7 +184,7 @@ function saveTime()
               && delivery.navigation ne '1'}" 
     />
   <h:commandButton id="save" type="submit" value="#{commonMessages.action_save}"
-     action="#{delivery.save_work}"
+     action="#{delivery.saveWork}"
      style="display:none"
      rendered="#{delivery.actionString=='previewAssessment'
                   || delivery.actionString=='takeAssessment'

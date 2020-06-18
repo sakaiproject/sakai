@@ -37,6 +37,8 @@ import javax.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
+
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
@@ -73,8 +75,8 @@ import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.user.api.UserDirectoryService;
-
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * <p>Title: Samigo</p>
@@ -87,6 +89,7 @@ public class ItemModifyListener implements ActionListener
   //private String scalename;  // used for multiple choice Survey
 
   private RubricsService rubricsService = ComponentManager.get(RubricsService.class);
+  private static final ResourceLoader RB_AUTHOR_MESSAGES = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");  
 
   /**
    * Standard process action method.
@@ -132,8 +135,8 @@ public class ItemModifyListener implements ActionListener
       String nextpage= null;
       ItemBean bean = new ItemBean();
       AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
-      boolean isEditPendingAssessmentFlow = author.getIsEditPendingAssessmentFlow();
-      log.debug("**** isEditPendingAssessmentFlow : " + isEditPendingAssessmentFlow);
+      final boolean isEditPendingAssessmentFlow = author.getIsEditPendingAssessmentFlow();
+      log.debug("**** isEditPendingAssessmentFlow : {}", isEditPendingAssessmentFlow);
       ItemService delegate = null;
       AssessmentService assessdelegate= null;
       if (isEditPendingAssessmentFlow) {
@@ -212,7 +215,7 @@ public class ItemModifyListener implements ActionListener
         itemauthorbean.setItemNo(String.valueOf(itemfacade.getSequence().intValue() ));
       }
 
-      bean.setExtraCredit(itemfacade.getIsExtraCredit()==null?false:itemfacade.getIsExtraCredit());
+      bean.setExtraCredit(itemfacade.getIsExtraCredit());
 
       Double score = itemfacade.getScore();
       if (score == null)
@@ -556,7 +559,6 @@ public class ItemModifyListener implements ActionListener
 		}
 		answerbeanlist.add(answerbean);
          }
-
 			  // set correct choice for single correct
 			  if (Long.valueOf(itemauthorbean.getItemType()).equals(TypeFacade.MULTIPLE_CHOICE)) {
 				  Iterator iter2 = correctlist.iterator();
@@ -835,12 +837,6 @@ public class ItemModifyListener implements ActionListener
 	         }
 	       }
 	       
-	       // if match was not found, must be a distractor
-	       /*if (choicebean.getMatch() == null || "".equals(choicebean.getMatch())) {
-	    	   choicebean.setMatch(MatchItemBean.CONTROLLING_SEQUENCE_DISTRACTOR);
-	    	   choicebean.setIsCorrect(Boolean.TRUE);
-	    	   choicebean.setControllingSequence(MatchItemBean.CONTROLLING_SEQUENCE_DISTRACTOR);
-	       }*/
 	       imageMapItemBeanList.add(choicebean);
 	     }
 
@@ -899,8 +895,8 @@ public class ItemModifyListener implements ActionListener
        }
        
        // if match was not found, must be a distractor
-       if (choicebean.getMatch() == null || "".equals(choicebean.getMatch())) {
-    	   choicebean.setMatch(MatchItemBean.CONTROLLING_SEQUENCE_DISTRACTOR);
+       if (StringUtils.isBlank(choicebean.getMatch())) {
+    	   choicebean.setMatch("*" + RB_AUTHOR_MESSAGES.getString("none_above") + "*");
     	   choicebean.setIsCorrect(Boolean.TRUE);
     	   choicebean.setControllingSequence(MatchItemBean.CONTROLLING_SEQUENCE_DISTRACTOR);
        }
@@ -921,13 +917,13 @@ public class ItemModifyListener implements ActionListener
     while (iter.hasNext()){
     	ItemMetaDataIfc meta= (ItemMetaDataIfc) iter.next();
        if (meta.getLabel().equals(ItemMetaDataIfc.OBJECTIVE)){
-	 bean.setObjective(FormattedText.convertFormattedTextToPlaintext(meta.getEntry()));
+	 bean.setObjective(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(meta.getEntry()));
        }
        if (meta.getLabel().equals(ItemMetaDataIfc.KEYWORD)){
-	 bean.setKeyword(FormattedText.convertFormattedTextToPlaintext(meta.getEntry()));
+	 bean.setKeyword(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(meta.getEntry()));
        }
        if (meta.getLabel().equals(ItemMetaDataIfc.RUBRIC)){
-	 bean.setRubric(FormattedText.convertFormattedTextToPlaintext(meta.getEntry()));
+	 bean.setRubric(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(meta.getEntry()));
        }
        if (meta.getLabel().equals(ItemMetaDataIfc.RANDOMIZE)){
 	 bean.setRandomized(meta.getEntry());

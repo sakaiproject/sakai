@@ -105,7 +105,7 @@ can be either all members of the site, all members of selected groups, or the se
 			<label for="selectedGroups" class="sr-only">$tlang.getString("settings.access.selectGroups")</label>
 			<select id="selectedGroups" name="selectedGroups" multiple="multiple">
 				#foreach ($group in $!groupsList)
-					#set($description = $validator.escapeHtml($group.Description))
+					#set($description = $formattedText.escapeHtml($group.Description))
 					#set($selected=false)
 					#foreach($aGroupRef in $assignmentGroups)
 						#set($aGroup = $!site.getGroup($!aGroupRef))
@@ -114,7 +114,7 @@ can be either all members of the site, all members of selected groups, or the se
 							#set($groupDisabled = $groupsWithUserSubmission.contains($aGroup))
 						#end
 					#end
-					<option value="$group.Id" #if($selected) selected #end #if($groupDisabled) disabled #end>$validator.escapeHtml($group.Title) #if("$!description" != "") ($description) #end</option>
+					<option value="$group.Id" #if($selected) selected #end #if($groupDisabled) disabled #end>$formattedText.escapeHtml($group.Title) #if("$!description" != "") ($description) #end</option>
 				#end
 			</select>
 			## Message Area 2

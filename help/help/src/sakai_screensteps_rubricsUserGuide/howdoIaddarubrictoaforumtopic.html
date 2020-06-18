@@ -1,30 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>How do I enable student peer review for an assignment?</title>
+<title>How do I add a rubric to a forum topic?</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta content="sakai.assignment" name="description">
-<meta content="peer review, peer assessment, peer evaluation" name="search">
+<meta content="" name="description">
 <link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="/library/js/jquery/featherlight/0.4.0/featherlight.min.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="/library/js/jquery/featherlight/0.4.0/featherlight.min.js" type="text/javascript" charset="utf-8"></script><script type="text/javascript" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    includeWebjarLibrary('featherlight');
     $(document).ready(function(){
-      $("a[rel^='featherlight']").featherlight({
+      $("a.screensteps-image-zoom").featherlight({
         type: { image:true },
-    closeOnClick: 'anywhere'
+        closeOnClick: 'anywhere'
       }); 
     });   
-  </script>
+</script>
 </head>
 <body>
-  <div id="wrapper"><div id="article-content">
-<div id="article-header"><h1 class="article-title">How do I add a rubric to a forum topic?</h1></div>
-<div id="article-description">    <div class="step screensteps-section screensteps-depth-1" id="go-to-the-forum-tool">
-    <h2 id="go-to-the-forum-tool" class="step-title screensteps-heading">Go to Forums.</h2>
+  <div><div>
+<div><h1 class="article-title">How do I add a rubric to a forum topic?</h1></div>
+<div>    <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+  <p><em>Note: In order to attach a rubric to a forum, you must first<a href="content.hlp?docId=howdoiadditemstothegradebook"> create a gradebook item</a> and<a href="content.hlp?docId=howdoiaddarubrictoagradebookitem"> attach the rubric to that item</a>. Then, you may select the gradebook item with rubric attached to associate with your forum or topic.</em></p>
+</div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="go-to-the-forum-tool">
+    <h2 class="step-title screensteps-heading">Go to Forums.</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/002/328/345/original/5fb66e65-1415-44b6-8e0e-815b27c7551a.png" alt="" height="122" width="201">
+    <img src="https://media.screensteps.com/image_assets/assets/003/332/119/original/09b9fb95-d931-4a51-aa8b-ee0a79117a65.png" alt="" height="119" width="221">
 </div>
  
       <div class="step-instructions screensteps-textblock">
@@ -32,58 +37,56 @@
 </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="select-the-topic-settings">
-    <h2 id="select-the-topic-settings" class="step-title screensteps-heading">Go to Topic Settings for a new or existing forum topic.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1" id="select-the-topic-settings">
+    <h2 class="step-title screensteps-heading">Go to Topic Settings for a new or existing forum topic.</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/002/328/320/original/312c37bf-ac47-44af-bf61-5eb4eb8721ba.png" alt="" height="226" width="492">
+    <a href="https://media.screensteps.com/image_assets/assets/003/241/223/original/02ba0f1c-e445-4980-896b-374f2e95473b.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/241/223/medium/02ba0f1c-e445-4980-896b-374f2e95473b.png" alt="" height="275" width="855">
+    </a>
 </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="scroll-to-the-grading-rubric-area">
-    <h2 id="scroll-to-the-grading-rubric-area" class="step-title screensteps-heading">In the Grading section, choose the gradebook item to associate with this topic.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1" id="scroll-to-the-grading-rubric-area">
+    <h2 class="step-title screensteps-heading">In the Grading section, choose the Gradebook item to associate with this topic.</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/002/328/338/original/8e6e3027-eafb-4e6c-8163-6edf4b80d1e3.png" alt="" height="119" width="775">
+    <img src="https://media.screensteps.com/image_assets/assets/003/332/117/original/724dc178-060a-46d0-a27f-23662c194e26.png" alt="" height="90" width="724">
 </div>
  
       <div class="step-instructions screensteps-textblock">
-  <p><em>Note: You must have an existing gradebook item in order to associate the forum topic with that item. If there are no existing items, you will need to go to the Gradebook to create the item first.</em></p>
+  <p><em>Note: You must have an existing Gradebook item in order to associate the forum topic with that item, and the gradebook item must already have the rubric attached. If there are no existing items, you will need to go to the Gradebook to create the item first.</em></p>
 </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="scroll-down-until-you-reach-the-grading-options-which-has-now-been-added">
-    <h2 id="scroll-down-until-you-reach-the-grading-options-which-has-now-been-added" class="step-title screensteps-heading">Configure the rubric options.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Preview the rubric.</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/002/328/330/original/d28fff73-0cb9-4b5b-b660-7c69ffd4f488.png" alt="" height="217" width="412">
+    <a href="https://media.screensteps.com/image_assets/assets/003/332/114/original/d206111d-3005-4531-a56a-97a1f58277bb.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/332/114/medium/d206111d-3005-4531-a56a-97a1f58277bb.png" alt="" height="300" width="855">
+    </a>
 </div>
  
       <div class="step-instructions screensteps-textblock">
-  <ol>
-<li>Select the <strong>Use the following rubric to grade this assignment </strong>radio button.</li>
-<li>Choose the desired rubric from the drop-down menu. <em>Note: You must have existing rubrics in your site before they will display in the menu. Shared rubrics must first be copied to your site before they will be available for selection.</em>
-</li>
-<li>(Optional) <strong>Preview</strong> the selected rubric to make sure that it is the correct one.</li>
-<li>(Optional) Check the box for <strong>Adjust individual student scores</strong> if you would like to be able to change the number of points awarded for individual criteria ratings while grading student posts on a per-student basis.</li>
-<li>(Optional) Check the box for <strong>Hide Rubric from student</strong> if you do not want students to see the rubric prior to posting.</li>
-</ol>
+  <p>Once you have selected a gradebook item with a rubric, you may select Preview Rubric to see what the selected rubric looks like.</p>
+<p><em>Note: If you want to select a different rubric, you will need to go to the Gradebook and modify the gradebook item to use the new rubric. If you need to make changes to the rubric itself, you will need to go to the Rubrics tool and modify the rubric criteria and ratings.  </em></p>
 </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="click-use-the-following-rubric-to-grade-this-assignment">
-    <h2 id="click-use-the-following-rubric-to-grade-this-assignment" class="step-title screensteps-heading">Select Save when you have finished setting up the topic.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Select Save when you have finished setting up the topic.</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/002/328/334/original/d56ef81b-8620-4e9a-8526-6a0875bf79e8.png" alt="" height="47" width="528">
+    <img src="https://media.screensteps.com/image_assets/assets/003/241/219/original/44857fc5-5a0a-48ee-b497-1797ed6f00d5.png" alt="" height="49" width="606">
 </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="enter-a-rubric-title">
-    <h2 id="enter-a-rubric-title" class="step-title screensteps-heading">Your forum topic now has a rubric attached.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Your forum topic now has a rubric attached.</h2>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/002/328/325/original/fc305cfb-7e11-4c4f-855e-edec0ee5df5a.png" class="screensteps-image-zoom">
+    <a href="https://media.screensteps.com/image_assets/assets/002/328/325/original/fc305cfb-7e11-4c4f-855e-edec0ee5df5a.png" class="screensteps-image-zoom">
       <img src="https://media.screensteps.com/image_assets/assets/002/328/325/medium/fc305cfb-7e11-4c4f-855e-edec0ee5df5a.png" alt="" height="190" width="855">
     </a>
 </div>
@@ -93,7 +96,8 @@
 </div>
  
   </div>
- 
+
+
 </div>
 </div></div>
 </body>

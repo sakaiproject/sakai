@@ -1,14 +1,15 @@
 <!-- chef_resources_deleteFinish.vm, version: $Revision:  $, use with org.sakaiproject.tool.content.ResourcesAction.java -->
 <div class="portletBody specialLink">
+	#contentMenu("resources")
 	#if ($alertMessage)
-		<div class="sak-banner-error">$tlang.getString("label.alert") $validator.escapeHtml($alertMessage)</div>
+		<div class="sak-banner-error">$tlang.getString("label.alert") $formattedText.escapeHtml($alertMessage)</div>
 	#end
 	<div class="sak-banner-error">$tlang.getString("del.sure")</div>
 	<h3>
 		$tlang.getString("del.del")
 	</h3>
 	<form action="#toolForm("ResourcesAction")" name="deleteFileForm" method="post" >
-		<input type="hidden" name="collectionId" value="$validator.escapeHtml($collectionId)" />
+		<input type="hidden" name="collectionId" value="$formattedText.escapeHtml($collectionId)" />
 		#if ($deleteItems.size()>0)
 			<table class ="listHier lines" cellspacing="0" summary="$tlang.getString("del.table")" border="0" cellpadding="0">
 				<tr>
@@ -32,7 +33,7 @@
 								<span class="$member.iconClass" aria-hidden="true"></span>
 								<span class="sr-only">$!member.label</span>
 								<a href="$member.accessUrl" target="_blank">
-									$validator.escapeHtml($member.name)
+									$formattedText.escapeHtml($member.name)
 								</a>
 							</h4>
 						</td>
@@ -40,7 +41,7 @@
 							$member.size
 						</td>
 						<td headers="created">
-							$validator.escapeHtml($member.createdBy)
+							$formattedText.escapeHtml($member.createdBy)
 						</td>
 						<td headers="last">
 							$member.modifiedTime

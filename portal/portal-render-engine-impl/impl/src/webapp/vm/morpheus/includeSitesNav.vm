@@ -23,9 +23,9 @@
                             #if (${userIsLoggedIn} && ${site.siteId} != "!gateway" && ($showFavStarsOnAllFavSites || !$showFavStarsOnAllFavSites && ${site.isCurrentSite}))
                                 ## If a site is favorited across the top, indicate it as so; if not, provide the option to do so in-place
                                 #if (${site.favorite})
-                                    <a class="Mrphs-sitesNav__favbtn fav" href="#" data-site-id="${site.siteId}" role="switch" aria-checked="true" aria-label="$rloader.getFormattedMessage("site_fav_toggle", $site.fullTitle)"></a>
+                                    <a class="Mrphs-sitesNav__favbtn fav" href="#" data-site-id="${site.siteId}" role="switch" aria-checked="true" title="$rloader.getFormattedMessage("site_fav_toggle", $site.fullTitle)"></a>
                                 #else
-                                    <a class="Mrphs-sitesNav__favbtn non-fav" href="#" data-site-id="${site.siteId}" role="switch" aria-checked="false" aria-label="$rloader.getFormattedMessage("site_fav_toggle", $site.fullTitle)"></a>
+                                    <a class="Mrphs-sitesNav__favbtn non-fav" href="#" data-site-id="${site.siteId}" role="switch" aria-checked="false" title="$rloader.getFormattedMessage("site_fav_toggle", $site.fullTitle)"></a>
                                 #end
                             #end
                         #end
@@ -35,7 +35,7 @@
                             #end
                             <span>#if ( ( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ) )${site.shortDescription}#else${site.siteTitleTrunc}#end</span>
                         </a>
-                        <a class="Mrphs-sitesNav__dropdown" href="#" data-site-id="${site.siteId}" aria-haspopup="true" aria-label="$rloader.getFormattedMessage("sit_open_menu", $site.fullTitle)"></a>
+                        <a class="Mrphs-sitesNav__dropdown" href="#" data-site-id="${site.siteId}" aria-haspopup="true" title="$rloader.getFormattedMessage("sit_open_menu", $site.fullTitle)"></a>
                     </li>
 
                 #end ## END of IF (${site.isMyWorkspace})

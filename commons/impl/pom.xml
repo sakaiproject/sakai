@@ -6,13 +6,17 @@
     <name>COMMONS IMPL</name>
     <artifactId>commons-impl</artifactId>
     <groupId>org.sakaiproject.commons</groupId>
-    <packaging>jar</packaging>
+    <packaging>sakai-component</packaging>
 
     <parent>
         <artifactId>commons</artifactId>
         <groupId>org.sakaiproject.commons</groupId>
         <version>21-SNAPSHOT</version>
     </parent>
+
+   <properties>
+      <deploy.target>components</deploy.target>
+  </properties>
 
     <dependencies>
         <dependency>
@@ -50,6 +54,22 @@
         <dependency>
             <groupId>org.sakaiproject.delegatedaccess</groupId>
             <artifactId>delegatedaccess-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.search</groupId>
+            <artifactId>search-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

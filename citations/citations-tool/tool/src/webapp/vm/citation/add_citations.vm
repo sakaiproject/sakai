@@ -34,7 +34,7 @@ doubleDeep = true;
 	<div class="indnt1">
 		#if ($alertMessage)
 			<br />
-			<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
+			<div class="alertMessage">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>
 			<div class="clear" ></div>
 		#end
 

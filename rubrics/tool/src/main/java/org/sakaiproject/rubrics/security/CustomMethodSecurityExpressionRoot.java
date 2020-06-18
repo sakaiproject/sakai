@@ -25,6 +25,7 @@ package org.sakaiproject.rubrics.security;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.rubrics.logic.AuthenticatedRequestContext;
 import org.sakaiproject.rubrics.logic.Role;
 import org.sakaiproject.rubrics.logic.model.Criterion;
@@ -71,11 +72,14 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
 
     private AuthenticatedRequestContext authenticatedRequestContext;
 
+    private SecurityService securityService;
+
     public CustomMethodSecurityExpressionRoot(RubricRepository rubricRepository,
                                               CriterionRepository criterionRepository,
                                               RatingRepository ratingRepository,
                                               EvaluationRepository evaluationRepository,
                                               ToolItemRubricAssociationRepository toolItemRubricAssociationRepository,
+                                              SecurityService securityService,
                                               Authentication authentication) {
         super(authentication);
         authenticatedRequestContext = (AuthenticatedRequestContext) super.authentication.getPrincipal();
@@ -85,6 +89,7 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
         repositories.put(Rating.class.getSimpleName(), ratingRepository);
         repositories.put(Evaluation.class.getSimpleName(), evaluationRepository);
         repositories.put(ToolItemRubricAssociation.class.getSimpleName(), toolItemRubricAssociationRepository);
+        this.securityService = securityService;
     }
 
     /**
@@ -139,12 +144,11 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
     private boolean isAuthorizedToAccessContextResource(Long resourceId, String resourceType) {
         boolean allowed = authenticatedRequestContext.isSuperUser();
         if (!allowed) {
+            String currentUserId = authenticatedRequestContext.getUserId();
             Modifiable resource = repositories.get(resourceType).findOne(resourceId);
-            allowed = resource.getModified().getOwnerId().equalsIgnoreCase(
-                    authenticatedRequestContext.getContextId())
-                    && resource.getModified().getOwnerType().equalsIgnoreCase(
-                    authenticatedRequestContext.getContextType())
-                    || resource.getModified().getCreatorId().equalsIgnoreCase(authenticatedRequestContext.getUserId());
+            // Allow if the current user is an editor on the source site, or created the source resource.
+            allowed = securityService.unlock(currentUserId, "rubrics.editor", "/site/" + resource.getModified().getOwnerId())
+                || resource.getModified().getCreatorId().equalsIgnoreCase(currentUserId);
         }
         return allowed;
     }

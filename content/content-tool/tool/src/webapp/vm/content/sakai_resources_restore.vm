@@ -1,5 +1,6 @@
 ## version: $Id$
 <div class="portletBody specialLink">
+	#contentMenu("trash")
 	<form name="restoreForm" id="restoreForm" action="#toolForm("ResourcesAction")" method="post">
 		<input name="folderId" id="folderId" value="$folderId" type="hidden" />
 		<input name="sakai_action" id="sakai_action" value="doRestore" type="hidden" />
@@ -7,12 +8,12 @@
 		#set($rootFolderId="")
 		<div class="page-header">
 			<h1>
-				$tlang.getString("restore.title")
+				$clang.getString("restore.title")
 				$rootFolderId
                 #*
                 #foreach ($item in $collectionPath)
 					#set($rootFolderId=$item.id)
-					$validator.escapeHtml("$item.name")
+					$formattedText.escapeHtml("$item.name")
 				#end
                 *#
 			</h1>
@@ -22,48 +23,48 @@
 		
 		## display restore success message
 		#if ($!restoredResources)
-			<br /><div id="messageSuccessHolder" class="sak-banner-success">$tlang.getFormattedMessage("restore.success", $restoredResources)</div>
+			<br /><div id="messageSuccessHolder" class="sak-banner-success">$clang.getFormattedMessage("restore.success", $restoredResources)</div>
 		#end
 		## display remove success message
 		#if ($!removedResources)
-			<br /><div id="messageSuccessHolder" class="sak-banner-success">$tlang.getFormattedMessage("remove.success", $removedResources)</div>
+			<br /><div id="messageSuccessHolder" class="sak-banner-success">$clang.getFormattedMessage("remove.success", $removedResources)</div>
 		#end
 		#if ($alertMessage)
-			<br /><div class="messageValidation">$validator.escapeHtml($alertMessage)</div><div class="clear"></div>
+			<br /><div class="messageValidation">$formattedText.escapeHtml($alertMessage)</div><div class="clear"></div>
 		#end
 			<div class="navPanel">
 				<div class="navIntraToolLink viewNav act">
 						<span>
-								<input id="restore-button" type="button" class="active" value="$tlang.getString("restore.restore")"
+								<input id="restore-button" type="button" class="active" value="$clang.getString("restore.restore")"
 									onclick="this.disabled = true; submitThis('restoreForm','restore')"
-									disabled="disabled" alt="$tlang.getString("restore.restore")" class="active"/>
-								<input id="remove-button" type="button" value="$tlang.getString("restore.remove")"
+									disabled="disabled" alt="$clang.getString("restore.restore")" class="active"/>
+								<input id="remove-button" type="button" value="$clang.getString("restore.remove")"
 									onclick="this.disabled = true; submitThis('restoreForm','remove')"
-									disabled="disabled" alt="$tlang.getString("restore.remove")" />
-								<input id="cancel-button" type="button" value="$tlang.getString("restore.cancel")"
+									disabled="disabled" alt="$clang.getString("restore.remove")" />
+								<input id="cancel-button" type="button" value="$clang.getString("restore.cancel")"
 									onclick="submitThis('restoreForm','cancel');" class="enabled"
-									alt="$tlang.getString("restore.cancel")" />
+									alt="$clang.getString("restore.cancel")" />
 						</span>
 				</div>
 			</div>	
 		#if (!$noRestoreItems)
-            	<p class="instruction">$tlang.getString("restore.instruct") #if($!cleanupInterval)$tlang.getFormattedMessage("restore.cleanup", $!cleanupInterval)#end</p>
-		<table class="table table-striped  table-hover" id="restoreList" summary="$tlang.getString("restore.summary")" border="0" cellspacing="0" cellpadding="0">
-			<caption class="skip" style="display: none;">$tlang.getString("restore.caption")</caption>
+            	<p class="instruction">$clang.getString("restore.instruct") #if($!cleanupInterval)$clang.getFormattedMessage("restore.cleanup", $!cleanupInterval)#end</p>
+		<table class="table table-striped  table-hover" id="restoreList" summary="$clang.getString("restore.summary")" border="0" cellspacing="0" cellpadding="0">
+			<caption class="skip" style="display: none;">$clang.getString("restore.caption")</caption>
 			<tbody>
 			<tr>
 				<th id="checkboxes">
 						<input type="checkbox" name="selectall" id="selectall" title="$clang.getString("list.select")"
-							onclick="toggleSelectAll(this, 'selectedMembers')" value="" /><label for="selectall" class="skip">$tlang.getString('list.select')"</label>
+							onclick="toggleSelectAll(this, 'selectedMembers')" value="" /><label for="selectall" class="skip">$clang.getString('list.select')"</label>
 				</th>
 				<th id="title">
-					$tlang.getString("gen.title")
+					$clang.getString("gen.title")
 				</th>
 				<th id="creator">
-					$tlang.getString("restore.removedBy")
+					$clang.getString("restore.removedBy")
 				</th>
 				<th id="modified">
-					$tlang.getString("restore.removedOn")
+					$clang.getString("restore.removedOn")
 				</th>
 			</tr>
 			## for indentation
@@ -84,8 +85,8 @@
 						</td>
 						<td style="text-indent:$width">
 							<h4><span class="fa fa-folder" aria-hidden="true"></span>
-							<span class="sr-only">$tlang.getString('gen.folder1')</span>
-							$validator.escapeHtml($folderName)</h4>
+							<span class="sr-only">$clang.getString('gen.folder1')</span>
+							$formattedText.escapeHtml($folderName)</h4>
 						</td>
 						<td colspan="2"></td>
 					</tr>
@@ -97,21 +98,21 @@
 					<tr>
 						<td headers="checkboxes">
 						#set($collectionId=$contentService.getContainingCollectionId($member.id))
-							<input type="checkbox" name="selectedMembers" id="root.members$num" value="$member.id" onclick="adjustCount(this)"/><label for="root.members$num" class="skip">$tlang.getString('att.select') $validator.escapeHtml($member.name)</label>
+							<input type="checkbox" name="selectedMembers" id="root.members$num" value="$member.id" onclick="adjustCount(this)"/><label for="root.members$num" class="skip">$clang.getString('att.select') $formattedText.escapeHtml($member.name)</label>
 						</td>
 						<td headers="title" style="text-indent: $width" class="specialLink">
 							<h5>
 								#if($member.isFolder())
 									<span class="$contentTypeImageService.getContentTypeImageClass("folder")" aria-hidden="true"></span>
-									<span class="sr-only">$tlang.getString('gen.folder1')</span>
+									<span class="sr-only">$clang.getString('gen.folder1')</span>
 								#else
 									<span class="$contentTypeImageService.getContentTypeImageClass("$member.type")" aria-hidden="true"></span>
 								#end
-								$validator.escapeHtml($member.name)
+								$formattedText.escapeHtml($member.name)
 							</h5>	
 						</td>
 						<td headers="creator">
-							$validator.escapeHtml($member.modifiedBy)
+							$formattedText.escapeHtml($member.modifiedBy)
 						</td>
 						<td headers="modified">
 							$member.ModifiedTime
@@ -123,7 +124,7 @@
 			</tbody>
 		</table>
 		#else
-			<div class="sak-banner-info">$tlang.get("restore.empty")</div>
+			<div class="sak-banner-info">$clang.get("restore.empty")</div>
 		#end
 		
 		<input type="hidden" id="selectAll-count" value="0" />

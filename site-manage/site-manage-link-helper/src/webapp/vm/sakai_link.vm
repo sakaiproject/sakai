@@ -7,7 +7,7 @@
     <div class="sak-banner-error">$tlang.getString("gen.alert") $alertMessage</div>
 #end
 #if ($parentId)
-<p>$tlang.getString('java.currentparent') $validator.escapeHtml($parentTitle) ($parentId) </p>
+<p>$tlang.getString('java.currentparent') $formattedText.escapeHtml($parentTitle) ($parentId) </p>
         <form action="#toolForm("")" method="post" name="customizeForm" >
                 <p class="act">
                         <input type="submit" accesskey ="s" class="active" name="$doRemove" value="$tlang.getString('gen.remove')" onclick="SPNR.disableControlsAndSpin( this, null );" />
@@ -25,7 +25,7 @@
     #if ($!currentSite && ($site.Id != $!currentSite.Id))
         #set ($siteIDCounter = $siteIDCounter + 1)
             <option id="site_$siteIDCounter" value="$site.getId()" />
-                $validator.escapeHtml($site.getTitle())
+                $formattedText.escapeHtml($site.getTitle())
             </option>
         </p>
     #end

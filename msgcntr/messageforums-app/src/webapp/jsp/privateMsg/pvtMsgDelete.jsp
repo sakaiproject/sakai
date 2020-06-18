@@ -10,9 +10,9 @@
 	<sakai:view title="#{msgs.pvt_delcon}">
 <!--Y:\msgcntr\messageforums-app\src\webapp\jsp\privateMsg\pvtMsgDelete.jsp-->
     <h:form id="pvtMsgDelete">
-           		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-       		<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
-       		<script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
+           		<script>includeLatestJQuery("msgcntr");</script>
+       		<script src="/messageforums-tool/js/sak-10625.js"></script>
+       		<script src="/messageforums-tool/js/messages.js"></script>
     <div class="breadCrumb specialLink">
     	<h3>
 	 	    <h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"/> /

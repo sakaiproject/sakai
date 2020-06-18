@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -37,7 +38,7 @@ import org.apache.wicket.markup.html.link.DownloadLink;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.time.Duration;
-
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.model.GbCourseGrade;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
@@ -49,8 +50,9 @@ import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.panels.BasePanel;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.api.FormattedText;
 
 public class ExportPanel extends BasePanel {
 
@@ -286,10 +288,9 @@ public class ExportPanel extends BasePanel {
 			tempFile = File.createTempFile("gradebookTemplate", ".csv");
 
 			//CSV separator is comma unless the comma is the decimal separator, then is ;
-			try (OutputStreamWriter fstream = new OutputStreamWriter(new FileOutputStream(tempFile), StandardCharsets.UTF_8.name())){
-
-				fstream.write(BOM);
-				CSVWriter csvWriter = new CSVWriter(fstream, ".".equals(FormattedText.getDecimalSeparator()) ? CSVWriter.DEFAULT_SEPARATOR : CSV_SEMICOLON_SEPARATOR, CSVWriter.DEFAULT_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.RFC4180_LINE_END);
+			try (OutputStreamWriter fstream = new OutputStreamWriter(new FileOutputStream(tempFile), StandardCharsets.ISO_8859_1.name())){
+				FormattedText formattedText = ComponentManager.get(FormattedText.class);
+				CSVWriter csvWriter = new CSVWriter(fstream, ".".equals(formattedText.getDecimalSeparator()) ? CSVWriter.DEFAULT_SEPARATOR : CSV_SEMICOLON_SEPARATOR, CSVWriter.DEFAULT_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.RFC4180_LINE_END);
 				
 				// Create csv header
 				final List<String> header = new ArrayList<>();
@@ -310,8 +311,13 @@ public class ExportPanel extends BasePanel {
 				}
 
 				// get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment from the map
-				final List<Assignment> assignments = this.businessService.getGradebookAssignments();
-				
+				SortType sortBy = SortType.SORT_BY_SORTING;
+				final String userGbUiCatPref = this.businessService.getUserGbPreference("GROUP_BY_CAT");
+				if (this.businessService.categoriesAreEnabled() && (StringUtils.isBlank(userGbUiCatPref) || BooleanUtils.toBoolean(userGbUiCatPref))) {
+					sortBy = SortType.SORT_BY_CATEGORY;
+				}
+				final List<Assignment> assignments = this.businessService.getGradebookAssignments(sortBy);
+
 				// no assignments, give a template
 				if (assignments.isEmpty()) {
 					// with points
@@ -331,7 +337,7 @@ public class ExportPanel extends BasePanel {
 				assignments.forEach(assignment -> {
 					final String assignmentPoints = FormatHelper.formatGradeForDisplay(assignment.getPoints().toString());
 					if (!isCustomExport || this.includeGradeItemScores) {
-						header.add(assignment.getName() + " [" + StringUtils.removeEnd(assignmentPoints, FormattedText.getDecimalSeparator() + "0") + "]");
+						header.add(assignment.getName() + " [" + StringUtils.removeEnd(assignmentPoints, formattedText.getDecimalSeparator() + "0") + "]");
 					}
 					if (!isCustomExport || this.includeGradeItemComments) {
 						header.add(String.join(" ", COMMENTS_COLUMN_PREFIX, assignment.getName()));
@@ -391,7 +397,7 @@ public class ExportPanel extends BasePanel {
 							if (gradeInfo != null) {
 								if (!isCustomExport || this.includeGradeItemScores) {
 									String grade = FormatHelper.formatGradeForDisplay(gradeInfo.getGrade());
-									line.add(StringUtils.removeEnd(grade, FormattedText.getDecimalSeparator() + "0"));
+									line.add(StringUtils.removeEnd(grade, formattedText.getDecimalSeparator() + "0"));
 								}
 								if (!isCustomExport || this.includeGradeItemComments) {
 									line.add(gradeInfo.getGradeComment());

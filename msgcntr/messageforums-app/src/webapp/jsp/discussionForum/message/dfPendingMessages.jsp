@@ -10,9 +10,9 @@
 	<sakai:view toolCssHref="/messageforums-tool/css/msgcntr.css">
 		<h:form id="msgForum" styleClass="specialLink">
 			
-	       		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-       		<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
-		<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
+	       		<script>includeLatestJQuery("msgcntr");</script>
+       		<script src="/messageforums-tool/js/sak-10625.js"></script>
+		<script src="/messageforums-tool/js/forum.js"></script>
 
 
 			<h3>
@@ -23,7 +23,7 @@
       	<h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
 				<h:outputText value="#{msgs.cdfm_msg_pending_queue_title}" />
 			</h3>
-			<script type="text/javascript">
+			<script>
 				$(document).ready(function() {
 				$('.table table-hover table-striped table-bordered tr th a').fadeTo("fast",0.50)	
 			    //deactivate remove link if nothing checked

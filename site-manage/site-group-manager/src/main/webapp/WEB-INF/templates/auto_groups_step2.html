@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/common :: head" />
+<body>
+  <div th:replace="fragments/common :: jQuery" />
+  <div class="portletBody">
+    <div id="menu" th:include="fragments/menus :: main (autogroups)" />
+    <div class="page-header"><h1 th:text="#{autogroups.header.wizard}"></h1></div>
+    <div th:replace="fragments/wizard :: step (step2)"></div><br/>
+    <div class="row" th:if="${step2ErrorMessage != null}">
+      <div class="col-sm-8">
+        <div class="sak-banner-error" th:text="${step2ErrorMessage}">You must at least select a role or a section.</div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-8">
+        <div class="well">
+          <div th:text="#{autogroups.step2.role.info}">We see that you have selected to make groups of participants in the following role(s):</div>
+            <ul>
+              <li th:each="role : ${autoGroupsForm.selectedRoleList}"><span th:text="${role}"></span></li>
+            </ul>
+          </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-8">
+        <p th:text="#{autogroups.step2.info}">You now have the option to draw group members from specific section(s)/Roster(s). Would you like to do this?</p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-8">
+        <form id="autogroups-wizard-step2-form" th:action="@{/autogroups/submitStep2}" th:object="${autoGroupsForm}" method="post">
+          <input type="hidden" name="wizardAction" id="wizardAction" value=""/>
+          <input type="hidden" th:field="*{selectedRoleList}" name="selectedRoleList">
+          <div class="radio">
+            <label for="sectionOptionDontUseSections"><input id="sectionOptionDontUseSections" type="radio" name="sectionOption" checked value="0" th:field="*{sectionsOption}"><span th:utext="#{autogroups.step2.no.section}">No - (Include all site participants, regardless of section/roster, who fit the role(s) selected in Step 1)</span></label>
+          </div>
+          <div class="radio" th:if="${!sectionList.isEmpty()}">
+            <label for="sectionOptionUseSections"><input id="sectionOptionUseSections" type="radio" name="sectionOption" value="1" th:field="*{sectionsOption}"><span th:utext="#{autogroups.step2.choose.section}">Yes - (Select members from specific section/rosters, who fit the role(s) selected in Step 1)</span></label>
+          </div>
+          <div id="selectSectionDiv" class="selectSectionDiv" th:if="${!sectionList.isEmpty()}" th:style="${autoGroupsForm.sectionsOption == 0 ? 'display:none' : 'display:block'}">
+            <p th:text="#{autogroups.step2.info2}">Which section(s)/roster(s) should be included in the groups?</p>
+            <table class="table table-hovered table-bordered table-striped">
+            <thead>
+              <tr>
+                <th><input type="checkbox" id="group-manager-select-all-sections"/><label for="group-manager-select-all-sections" th:text="| #{autogroups.step2.table.selectallnone}|"></label></th>
+                <th th:text="#{autogroups.step2.table.sectionroster}">Section/Roster</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="section : ${sectionList}">
+                <td><input th:id="${section.id}" type="checkbox" name="selectedSectionList" th:field="*{selectedSectionList}" th:value="${section.id}"/></td>
+                <td><label th:for="${section.id}" th:text="${section.title}"></label></td>
+              </tr>
+              <tr>
+                <td><input id="useManuallyAddedUsers" type="checkbox" name="useManuallyAddedUsers" th:field="*{useManuallyAddedUsers}"/></td>
+                <td><label for="useManuallyAddedUsers" th:text="#{autogroups.manually.added}"></label></td>
+              </tr>
+            </tbody>
+            </table>
+          </div>
+          <div class="act">
+            <input accesskey="c" type="submit" class="active" id="autogroups-continue-button" th:value="#{autogroups.button.continue}" onclick="SPNR.disableControlsAndSpin( this, null );">
+            <a accesskey="b" id="autogroups-back-button" class="btn btn-default" th:text="#{autogroups.button.back}">Back</a>&nbsp;
+            <a th:href="@{/}" accesskey="x" id="autogroups-cancel-button" class="btn btn-default" th:text="#{autogroups.button.cancel}">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script th:replace="fragments/javascript :: autoGroupsStep2Js" />
+</body>
+</html>

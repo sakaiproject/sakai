@@ -104,7 +104,7 @@ public class MailboxAction extends PagedResourceActionII
 
 	private static final int FORM_ALIAS_MAX_LENGTH = 99;
 
-        private static final String FORM_ITEM_NUMBER  = "item_number";
+	private static final String FORM_ITEM_NUMBER = "item_number";
 
 	/** List request parameters. */
 	private static final String VIEW_ID = "view-id";
@@ -144,15 +144,15 @@ public class MailboxAction extends PagedResourceActionII
 	/** paging */
 	
 	private static final String STATE_MSG_VIEW_ID = "msg-id";
-    
-    	/** State to cache the count of messages */
-    
+
+	/** State to cache the count of messages */
+
 	private static final String STATE_COUNT = "state-cached-count";
     
 	private static final String STATE_COUNT_SEARCH = "state-cached-count-search";   
 
 	/** Default for search suppression threshold */
-        private final int MESSAGE_THRESHOLD_DEFAULT = 2500;
+	private final int MESSAGE_THRESHOLD_DEFAULT = 2500;
 
 	private AliasService aliasService;
 
@@ -185,27 +185,24 @@ public class MailboxAction extends PagedResourceActionII
 		}
 	
 		// We must talk to the Storage to count the messages
-        	try
-		{
+		try {
 			MailArchiveChannel channel = MailArchiveService.getMailArchiveChannel((String) state.getAttribute(STATE_CHANNEL_REF));
 
 			int cCount = 0;
 			if(search == null) {
-			    cCount = channel.getCount();
+				cCount = channel.getCount();
 			} else {
-                cCount = channel.getCount((Filter) getSearchFilter(search, 0, 0));
+				cCount = channel.getCount((Filter) getSearchFilter(search, 0, 0));
 			}
 
 			lastCount = new Integer(cCount);
 			state.setAttribute(STATE_COUNT, lastCount);
 			state.setAttribute(STATE_COUNT_SEARCH, search);
 			return cCount;
+		} catch (Exception e) {
+		 	log.warn("failed search={} exception={}", search, e.getMessage());
 		}
-		catch (Exception e)
-		{
-		 	log.warn("failed search={} exeption={}", search, e.getMessage());
-		}
-        	return 0;
+		return 0;
 	}
 
 	/*
@@ -220,8 +217,7 @@ public class MailboxAction extends PagedResourceActionII
 		boolean ascending = ((Boolean) state.getAttribute(STATE_ASCENDING)).booleanValue();
 		int sort = ((Integer) state.getAttribute(STATE_SORT)).intValue();		
 		String search = (String) state.getAttribute(STATE_SEARCH);
-		
-		
+
 		try
 		{
 			MailArchiveChannel channel = MailArchiveService.getMailArchiveChannel((String) state.getAttribute(STATE_CHANNEL_REF));
@@ -268,8 +264,7 @@ public class MailboxAction extends PagedResourceActionII
 			String channel = StringUtils.trimToNull(config.getInitParameter(PARAM_CHANNEL));
 			if (channel == null)
 			{
-				channel = MailArchiveService.channelReference(ToolManager.getCurrentPlacement().getContext(),
-						SiteService.MAIN_CONTAINER);
+				channel = MailArchiveService.channelReference(ToolManager.getCurrentPlacement().getContext(), SiteService.MAIN_CONTAINER);
 			}
 			state.setAttribute(STATE_CHANNEL_REF, channel);
 
@@ -317,7 +312,7 @@ public class MailboxAction extends PagedResourceActionII
 		}
 
 		// Put this back only for Confirm
-		String deleteConfirm  = (String) state.getAttribute(STATE_DELETE_CONFIRM_ID);
+		String deleteConfirm = (String) state.getAttribute(STATE_DELETE_CONFIRM_ID);
 		state.removeAttribute(STATE_DELETE_CONFIRM_ID);
 
 		if ("list".equals(mode))
@@ -395,14 +390,14 @@ public class MailboxAction extends PagedResourceActionII
 		 	log.warn("Cannot find channel {}", channelRef);
 		}
 
-                // Read a single message
-                List messagePage = readResourcesPage(state, viewPos, viewPos);
+		// Read a single message
+		List messagePage = readResourcesPage(state, viewPos, viewPos);
 		if ( messagePage != null ) {
 			Message msg = (Message) messagePage.get(0);
 			context.put("email",msg);
 			allowDelete = channel.allowRemoveMessage(msg);
 			// Sadly this is the only way to send this to a menu pick :(
-                	state.setAttribute(STATE_DELETE_CONFIRM_ID, msg.getId());
+			state.setAttribute(STATE_DELETE_CONFIRM_ID, msg.getId());
 		} else {
 		 	log.warn("Could not retrieve message {}", channelRef);
 			context.put("message", rb.getString("thiemames1"));
@@ -413,25 +408,18 @@ public class MailboxAction extends PagedResourceActionII
 		context.put("contentTypeImageService", ContentTypeImageService.getInstance());
 
 		// build the menu
-		Menu bar = new MenuImpl(portlet, rundata, (String) state.getAttribute(STATE_ACTION));
+		buildMenu(context, "view");
 
-		// bar.add( new MenuEntry(rb.getString("listall"), "doList"));
-		// addViewPagingMenus(bar, state);
-
-		if (((Boolean) state.getAttribute(STATE_VIEW_HEADERS)).booleanValue())
-		{
-			bar.add(new MenuEntry(rb.getString("hidehead"), "doHide_headers"));
+		Menu submenu = new MenuImpl(portlet, rundata, (String) state.getAttribute(STATE_ACTION));
+		if (((Boolean) state.getAttribute(STATE_VIEW_HEADERS)).booleanValue()) {
+			submenu.add(new MenuEntry(rb.getString("hidehead"), "doHide_headers"));
+		} else {
+			submenu.add(new MenuEntry(rb.getString("viehea"), "doView_headers"));
 		}
-		else
-		{
-			bar.add(new MenuEntry(rb.getString("viehea"), "doView_headers"));
+		if (allowDelete) {
+			submenu.add(new MenuEntry(rb.getString("del"), "doRemove"));
 		}
-		if (allowDelete) bar.add(new MenuEntry(rb.getString("del"), "doRemove"));
-
-		// make sure there's not leading or trailing dividers
-		bar.adjustDividers();
-
-		context.put(Menu.CONTEXT_MENU, bar);
+		context.put("submenu", submenu);
 
 		return (String) getContext(rundata).get("template") + "-view";
 
@@ -445,7 +433,7 @@ public class MailboxAction extends PagedResourceActionII
 		// get the message
 		context.put("tlang", rb);
 
-                String id = (String) state.getAttribute(STATE_DELETE_CONFIRM_ID);
+		String id = (String) state.getAttribute(STATE_DELETE_CONFIRM_ID);
 
 		MailArchiveMessage message = null;
 		try
@@ -492,22 +480,7 @@ public class MailboxAction extends PagedResourceActionII
 		context.put("mailarchive_title", toolTitle);
 
 		// build the menu
-		Menu bar = new MenuImpl(portlet, rundata, (String) state.getAttribute(STATE_ACTION));
-
-		if (SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()))
-		{
-			bar.add(new MenuDivider());
-
-			// add options if allowed
-			addOptionsMenu(bar, (JetspeedRunData) rundata);
-
-			bar.add(new MenuEntry(rb.getString("perm"), "doPermissions"));
-		}
-
-		// make sure there's not leading or trailing dividers
-		bar.adjustDividers();
-
-		context.put(Menu.CONTEXT_MENU, bar);
+		buildMenu(context, "list");
 
 		// Decide if we are going to allow searching...
 		int numMessages = sizeResources(state);
@@ -762,27 +735,23 @@ public class MailboxAction extends PagedResourceActionII
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
 
 		// Grab and remove immedaitely
-                String msgId = (String) state.getAttribute(STATE_DELETE_CONFIRM_ID);
-                state.removeAttribute(STATE_DELETE_CONFIRM_ID);
+		String msgId = (String) state.getAttribute(STATE_DELETE_CONFIRM_ID);
+		state.removeAttribute(STATE_DELETE_CONFIRM_ID);
 		state.removeAttribute(STATE_COUNT);
 		state.removeAttribute(STATE_COUNT_SEARCH);
 
 		// remove
-		try
-		{
+		try {
 			MailArchiveChannel channel = MailArchiveService.getMailArchiveChannel((String) state.getAttribute(STATE_CHANNEL_REF));
 			
-			if (msgId != null)
+			if (msgId != null) {
 				channel.removeMessage(msgId);
-			else
+			} else {
 				addAlert(state, rb.getString("thimeshas"));
-		}
-		catch (PermissionException e)
-		{
+			}
+		} catch (PermissionException e) {
 			addAlert(state, rb.getString("youdonot3"));
-		}
-		catch (IdUnusedException e)
-		{
+		} catch (IdUnusedException e) {
 			addAlert(state, rb.getString("thimeshas"));
 		}
 
@@ -832,6 +801,9 @@ public class MailboxAction extends PagedResourceActionII
 	 */
 	public String buildOptionsPanelContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
 	{
+
+		// build the menu
+		buildMenu(context, "options");
 
 		context.put("tlang", rb);
 		// provide "pagesize" with the current page size setting
@@ -903,14 +875,11 @@ public class MailboxAction extends PagedResourceActionII
 		state.setAttribute(STATE_OPTION_ALIAS, alias);
 
 		MailArchiveChannel channel = null;
-		try
-		{
+		try  {
 			channel = MailArchiveService.getMailArchiveChannel((String) state.getAttribute(STATE_CHANNEL_REF));
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			addAlert(state, rb.getString("cannot1"));
-            channel = null;
+			channel = null;
 		}
 
 		if (channel == null)
@@ -975,19 +944,15 @@ public class MailboxAction extends PagedResourceActionII
 
 				if (ok)
 				{
-					try
-					{
+					try {
 						if ( alias == null ) {
 							aliasService.removeTargetAliases(channel.getReference());
 						} else {
 							aliasService.setAlias(alias, channel.getReference());
 						}
-					}
-          catch (IdInvalidException iie) {
-              addAlert(state, rb.getString("theemaali4"));
-          }
-					catch (Exception any)
-					{
+					} catch (IdInvalidException iie) {
+						addAlert(state, rb.getString("theemaali4"));
+					} catch (Exception any) {
 						addAlert(state, rb.getString("theemaali2"));
 					}
 				}
@@ -1116,7 +1081,7 @@ public class MailboxAction extends PagedResourceActionII
 			String key = entry.getKey();
 			pRbValues.put(key, entry.getValue());
 		}
-		state.setAttribute("permissionDescriptions",  pRbValues);
+		state.setAttribute("permissionDescriptions", pRbValues);
 		
 	} // doPermissions
 
@@ -1143,8 +1108,7 @@ public class MailboxAction extends PagedResourceActionII
 		/**
 		 * Does this object satisfy the criteria of the filter?
 		 * 
-		 * @param o
-		 *        The object to test.
+		 * @param o The object to test.
 		 * @return true if the object is accepted by the filter, false if not.
 		 */
 		public boolean accept(Object o)
@@ -1172,15 +1136,35 @@ public class MailboxAction extends PagedResourceActionII
 		}
 	}
 
-        /**
-         * get the Message Threshold - above which searching is disabled
-         */
-        private int getMessageThreshold()
-        {
-                return ServerConfigurationService.getInt("sakai.mailbox.search-threshold",
-                                MESSAGE_THRESHOLD_DEFAULT);
-        }
+	/**
+	 * get the Message Threshold - above which searching is disabled
+	 */
+	private int getMessageThreshold() {
+		return ServerConfigurationService.getInt("sakai.mailbox.search-threshold", MESSAGE_THRESHOLD_DEFAULT);
+	}
 
-
+	private void buildMenu(Context context, String page) {
+		//build the menu
+		Menu bar = new MenuImpl();
+		MenuEntry list = new MenuEntry(rb.getString("listall"), "doList");
+		MenuEntry options = new MenuEntry(rb.getString("options"), "doOptions");
+		MenuEntry permissions = new MenuEntry(rb.getString("perm"), "doPermissions");
+		switch(page) {
+			case "list":
+				list.setIsCurrent(true);
+				break;
+			case MODE_OPTIONS:
+				options.setIsCurrent(true);
+				break;
+			default:
+		}
+		bar.add(list);
+		if(allowedToOptions()) {
+			bar.add(options);
+		}
+		bar.add(permissions);
+		
+		context.put(Menu.CONTEXT_MENU, bar);
+    }
 } // MailboxAction
 

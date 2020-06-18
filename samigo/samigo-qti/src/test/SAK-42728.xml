@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<questestinterop>
+  <assessment title="Cheese2">
+    <section title="Default">
+      <item ident="question_1_1" title="Multiple Choice">
+        <presentation>
+          <material>
+            <mattext texttype="text/html"><![CDATA[Which statement regarding the sodium-potassium pump is correct?<br>]]></mattext>
+          </material>
+          <response_lid ident="response" rcardinality="Single" rtiming="No">
+            <render_choice shuffle="Yes">
+              <response_label ident="A" rarea="Ellipse" rrange="Exact" rshuffle="Yes">
+                <material>
+                  <mattext texttype="text/html"><![CDATA[The cell"s plasma membrane is more soluble to sodium ions than potassium ions.]]></mattext>
+                </material>
+              </response_label>
+              <response_label ident="B" rarea="Ellipse" rrange="Exact" rshuffle="Yes">
+                <material>
+                  <mattext texttype="text/html"><![CDATA[The concentration of sodium ions should be higher inside the cell compartment.]]></mattext>
+                </material>
+              </response_label>
+              <response_label ident="C" rarea="Ellipse" rrange="Exact" rshuffle="Yes">
+                <material>
+                  <mattext texttype="text/html"><![CDATA[The concentration of potassium ions should be higher outside the cell compartment.]]></mattext>
+                </material>
+              </response_label>
+              <response_label ident="D" rarea="Ellipse" rrange="Exact" rshuffle="Yes">
+                <material>
+                  <mattext texttype="text/html"><![CDATA[The active transport involves pumping out three sodium ions and pumping in two potassium ions.]]></mattext>
+                </material>
+              </response_label>
+            </render_choice>
+          </response_lid>
+        </presentation>
+        <resprocessing>
+          <outcomes>
+            <decvar defaultval="0.0" maxvalue="1.0" minvalue="0.0" varname="que_score" vartype="Decimal"/>
+          </outcomes>
+          <respcondition>
+            <conditionvar>
+              <varequal case="No" respident="response">A</varequal>
+            </conditionvar>
+            <setvar action="Set" varname="que_score">0.0</setvar>
+            <displayfeedback feedbacktype="Response" linkrefid="InCorrect"/>
+          </respcondition>
+          <respcondition>
+            <conditionvar>
+              <varequal case="No" respident="response">B</varequal>
+            </conditionvar>
+            <setvar action="Set" varname="que_score">0.0</setvar>
+            <displayfeedback feedbacktype="Response" linkrefid="InCorrect"/>
+          </respcondition>
+          <respcondition>
+            <conditionvar>
+              <varequal case="No" respident="response">C</varequal>
+            </conditionvar>
+            <setvar action="Set" varname="que_score">0.0</setvar>
+            <displayfeedback feedbacktype="Response" linkrefid="InCorrect"/>
+          </respcondition>
+          <respcondition>
+            <conditionvar>
+              <varequal case="No" respident="response">D</varequal>
+            </conditionvar>
+            <setvar action="Set" varname="que_score">1.0</setvar>
+            <displayfeedback feedbacktype="Response" linkrefid="Correct"/>
+          </respcondition>
+        </resprocessing>
+        <itemfeedback ident="Correct" view="All">
+          <material>
+            <mattext texttype="text/html"><![CDATA[Chapter: Chapter 1, The Cell in Health and Illness
+Page: 4
+Objective: N/A
+Difficulty: Moderate
+Heading: The Sodium Potassium Pump
+Integrated Process: Nursing Process
+Client Need: Physiological Integrity: Physiological Adaptation
+Cognitive Level: Comprehension [Understanding] 
+Concept: Cellular Regulation]]></mattext>
+          </material>
+        </itemfeedback>
+        <itemfeedback ident="InCorrect" view="All">
+          <material>
+            <mattext texttype="text/html"><![CDATA[Chapter: Chapter 1, The Cell in Health and Illness
+Page: 4
+Objective: N/A
+Difficulty: Moderate
+Heading: The Sodium Potassium Pump
+Integrated Process: Nursing Process
+Client Need: Physiological Integrity: Physiological Adaptation
+Cognitive Level: Comprehension [Understanding] 
+Concept: Cellular Regulation]]></mattext>
+          </material>
+        </itemfeedback>
+        <itemfeedback ident="A" view="All"/>
+        <itemfeedback ident="B" view="All"/>
+        <itemfeedback ident="C" view="All"/>
+        <itemfeedback ident="D" view="All"/>
+      </item>
+    </section>
+  </assessment>
+</questestinterop>

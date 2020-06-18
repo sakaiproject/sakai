@@ -39,9 +39,9 @@
 		<property name="siteEmailNotificationAnnc"><ref bean="org.sakaiproject.announcement.impl.SiteEmailNotificationAnnc"/></property>
  		<property name="containerTableName"><value>ANNOUNCEMENT_CHANNEL</value></property>
  		<property name="resourceTableName"><value>ANNOUNCEMENT_MESSAGE</value></property>
- 		
  		<property name="locksInDb"><value>false</value></property>
  		<property name="autoDdl"><value>${auto.ddl}</value></property>
+ 		<property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
 	</bean>
 
 	<bean id="org.sakaiproject.announcement.impl.SiteEmailNotificationAnnc"
@@ -53,6 +53,7 @@
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
+		<property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
 	</bean>
 	
 	<bean id="org.sakaiproject.user.api.UserNotificationPreferencesRegistration.announcement"

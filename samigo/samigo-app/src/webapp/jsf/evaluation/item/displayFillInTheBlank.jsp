@@ -36,7 +36,7 @@ include file for displaying fill in the blank questions
      </h:graphicImage>
   </h:column>
   <h:column>
-   <h:outputText value="#{answer.sequence}#{evaluationMessages.dot} #{answer.text}" escape="false" />
+   <h:outputText value="#{answer.sequence}#{evaluationMessages.dot} #{answer.text}" escape="true" /> 
   </h:column>
  </h:dataTable>
  </h:column>

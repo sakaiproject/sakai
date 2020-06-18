@@ -164,7 +164,7 @@
 .criterion {
     &.sakai-rubric-criterion,
     &.sakai-rubric-criterion-preview,
-    &.sakai-rubric-criterion-grading,
+    &.sakai-rubric-criteria-grading,
     &.sakai-rubric-criterion-student,
     &.sakai-rubric-criterion-readonly {
         width: 100%;
@@ -294,6 +294,10 @@
                         color: $rubrics-item-points-color;
                         font-style: italic;
                     }
+
+                    .popover {
+                        max-width: 300px;
+                    }
                 }
             }
 
@@ -373,6 +377,10 @@ sakai-rubric-student-comment {
 [class*="edit-popover"] {
     width: 400px;
 
+    .popover-content {
+        word-break: break-word;
+    }
+
     .buttons {
         text-align: right;
 
@@ -425,16 +433,5 @@ sakai-rubric-student-comment {
     .first-row {
         @include display-flex;
         @include justify-content(space-between);
-    }
-}
-
-.hide-input-arrows {
-    -moz-appearance: textfield;
-    &::-webkit-inner-spin-button,
-    &::-webkit-outer-spin-button {
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        appearance: none;
-        margin: 0;
     }
 }

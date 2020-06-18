@@ -75,7 +75,7 @@ public class SakaiI18n extends AbstractWebService {
             if (StringUtils.isNotBlank(resourceClass) && StringUtils.isNotBlank(resourceBundle)) {
                 try {
                     // load from spring using SakaiApplicationContext
-                    rb = new Resource().getLoader(resourceClass, resourceBundle);
+                    rb = Resource.getResourceLoader(resourceClass, resourceBundle);
                     if (rb == null) {
                         // load from shared lib
                         rb = new ResourceLoader(resourceBundle, Class.forName(resourceClass).getClassLoader());

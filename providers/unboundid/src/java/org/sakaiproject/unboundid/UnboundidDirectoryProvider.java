@@ -47,6 +47,7 @@ import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.api.UserFactory;
 import org.sakaiproject.user.api.UsersShareEmailUDP;
 
+import com.unboundid.ldap.sdk.BindRequest;
 import com.unboundid.ldap.sdk.BindResult;
 import com.unboundid.ldap.sdk.DereferencePolicy;
 import com.unboundid.ldap.sdk.LDAPConnectionOptions;
@@ -303,18 +304,17 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
                         serverSet = new SingleServerSet(ldapHost[0], ldapPort[0], connectOptions);
                 }
 
+                BindRequest bindRequest = new SimpleBindRequest(ldapUser, ldapPassword);
+                try {
+                    log.info("Creating LDAP connection pool of size {}", poolMaxConns);
+                    connectionPool = new LDAPConnectionPool(serverSet, bindRequest, poolMaxConns);
+                    connectionPool.setRetryFailedOperationsDueToInvalidConnections(retryFailedOperationsDueToInvalidConnections);
+               } catch (com.unboundid.ldap.sdk.LDAPException e) {
+                   log.error("Could not init LDAP pool", e);
+                   return false;
+              }
 
-		SimpleBindRequest bindRequest = new SimpleBindRequest(ldapUser, ldapPassword);
-		try {
-			log.info("Creating LDAP connection pool of size " + poolMaxConns);
-			connectionPool = new LDAPConnectionPool(serverSet, bindRequest, poolMaxConns);
-			connectionPool.setRetryFailedOperationsDueToInvalidConnections(retryFailedOperationsDueToInvalidConnections);
-		} catch (com.unboundid.ldap.sdk.LDAPException e) {
-			log.error("Could not init LDAP pool", e);
-			return false;
-		}
-
-		return true;
+             return true;
         }
 
 	/**

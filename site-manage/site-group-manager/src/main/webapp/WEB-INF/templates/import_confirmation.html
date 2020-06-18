@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/common :: head" />
+<body>
+  <div th:replace="fragments/common :: jQuery" />
+  <div class="portletBody">
+    <div id="menu" th:include="fragments/menus :: main (import)" />
+    <div class="page-header"><h1 th:text="#{import.confirmation.header}"></h1></div>
+    <p th:text="#{import.confirmation.instructions}"></p>
+    <div class="sak-banner-error" th:text="#{import.confirmation.error}" th:if="${membershipErrors}"></div>
+    <div th:each="importedGroup : ${importedGroups}">
+      <h3 th:text="|#{import.confirmation.group} ${importedGroup.key}|"></h3>
+      <div class="sak-banner-warn" th:text="#{import.confirmation.group.exists}" th:if="${importedGroup.value == true}"></div>
+      <table class="table table-hover table-striped table-bordered">
+        <thead>
+          <th th:text="#{import.confirmation.table.newusers}">New user(s)</th>
+          <th th:text="#{import.confirmation.table.existingusers}">Existing user(s)</th>
+          <th th:text="#{import.confirmation.table.nonmembers}">Non member user(s)</th>
+          <th th:text="#{import.confirmation.table.invalidusers}">Invalid user(s)</th>
+        </thead>
+        <tbody>
+          <td th:text="${newMemberMap.get(importedGroup.key)}"></td>
+          <td th:text="${existingMemberMap.get(importedGroup.key)}"></td>
+          <td th:text="${nonMemberMap.get(importedGroup.key)}"></td>
+          <td th:text="${nonExistingMemberMap.get(importedGroup.key)}"></td>
+        </tbody>
+      </table>
+    </div>
+    <form id="bulkcreation-confirmation-form" action="#" th:action="@{/confirmImport}" method="post">
+      <input type="hidden" th:value="${importedGroupMap}" name="importedGroupMap" id="importedGroupMap"/>
+        <div class="act">
+          <input th:if="${!membershipErrors}" accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" id="bulk-creation-submit-button" type="submit" class="active" th:value="#{import.button.create.bulk}">
+          <a th:href="@{/import}" accesskey="b" href="#" id="bulk-creation-back-button" class="btn btn-default" th:text="#{import.button.back}">back</a>&nbsp;
+          <a th:href="@{/}" accesskey="x" id="bulk-creation-cancel-button" class="btn btn-default" th:text="#{import.button.cancel}">Cancel</a>
+        </div>
+      </form>
+  </div>
+</body>
+</html>

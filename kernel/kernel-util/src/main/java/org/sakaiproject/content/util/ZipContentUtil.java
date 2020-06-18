@@ -83,7 +83,7 @@ public class ZipContentUtil {
     private static final String DEFAULT_RESOURCEBUNDLE = "org.sakaiproject.localization.bundle.content.content";
     private static final String RESOURCECLASS = "resource.class.content";
     private static final String RESOURCEBUNDLE = "resource.bundle.content";
-	private static ResourceLoader rb = new Resource().getLoader(ServerConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS), ServerConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE));
+	private static ResourceLoader rb = Resource.getResourceLoader(ServerConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS), ServerConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE));
 	
     public static int getMaxZipExtractFiles() {
         if(MAX_ZIP_EXTRACT_FILES == null){
@@ -164,6 +164,7 @@ public class ZipContentUtil {
 				temp = File.createTempFile("sakai_content-", ".tmp");
 				ContentCollection collection = ContentHostingService.getCollection(reference.getId());
 				out = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(temp),BUFFER_SIZE),java.nio.charset.StandardCharsets.UTF_8);
+				out.setLevel(ServerConfigurationService.getInt("zip.compression.level", 1));
 				storeContentCollection(reference.getId(),collection,out);
 			} finally {
 				if (out != null) {

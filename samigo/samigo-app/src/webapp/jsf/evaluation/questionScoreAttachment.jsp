@@ -38,7 +38,7 @@
   </h:panelGroup>
 
   <h:panelGroup rendered="#{!description.hasItemGradingAttachment}">
-  	<h:commandButton value="#{assessmentSettingsMessages.add_attachments}" action="#{description.addAttachmentsRedirect}"/>
+    <h:commandButton value="#{assessmentSettingsMessages.add_attachments}" action="#{description.addAttachmentsRedirect}"/>
   </h:panelGroup>
 
   <h:panelGroup rendered="#{description.hasItemGradingAttachment}">

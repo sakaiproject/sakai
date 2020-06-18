@@ -2,10 +2,10 @@
 ## modify Email Archive, and other multiple tools
 ##   - did some work on producing valid ids for inputs that would be good to validate 
 <div class="portletBody">
-<script>includeLatestJQuery('chef_site-modifyENW.vm');</script>
-#javascript("/library/js/fontIconPicker/2.0.1-cs/jquery.fonticonpicker.min.js")
-#css("/library/js/fontIconPicker/2.0.1-cs/css/jquery.fonticonpicker.css")
-#css("/library/js/fontIconPicker/2.0.1-cs/themes/grey-theme/jquery.fonticonpicker.grey.min.css")
+<script>
+	includeLatestJQuery('chef_site-modifyENW.vm');
+       	includeWebjarLibrary('fontawesome-iconpicker');
+</script>
 	#if($menu)#toolbar($menu)#end
 	<h3>
 		$tlang.getString("multipleTools.custom")
@@ -142,7 +142,7 @@
 									<label for="title_$toolId">
 										$!tlang.getString("multipleTools.title")
 									</label>
-									<input type="text" name="title_$toolId" id="title_$toolId" value="$validator.escapeHtml($!multipleToolIdTitleMap.get($toolId))" size="20" maxlength="$!maxToolTitleLength"/><span class="instruction"> $tlang.getFormattedMessage("multipleTools.title.suggest", $maxToolTitleLength)</span>
+									<input type="text" name="title_$toolId" id="title_$toolId" value="$formattedText.escapeHtml($!multipleToolIdTitleMap.get($toolId))" size="20" maxlength="$!maxToolTitleLength"/><span class="instruction"> $tlang.getFormattedMessage("multipleTools.title.suggest", $maxToolTitleLength)</span>
 								</p>
 						 #set($attributeHashtable=false)
 							#set($attributeHashtable=$!multipleToolConfiguration.get($toolId))
@@ -152,7 +152,7 @@
 										<label for="$attributeInputName">
 											$clang.getString($attribute)
 										</label>
-										<input type="text" name="$attributeInputName" id="$attributeInputName" value="$validator.escapeHtml($!attributeHashtable.get($attribute))" size="50" />
+										<input type="text" name="$attributeInputName" id="$attributeInputName" value="$formattedText.escapeHtml($!attributeHashtable.get($attribute))" size="50" />
 								</p>
 								#end
 						#end

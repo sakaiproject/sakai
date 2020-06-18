@@ -69,7 +69,8 @@ public class PageListProducer
     public ServerConfigurationService serverConfigurationService;
     public String ALLOW_TITLE_EDIT = "org.sakaiproject.site.tool.helper.order.rsf.PageListProducer.allowTitleEdit";
     public String ALLOW_REORDER = "site-manage.pageorder.allowreorder";
-    
+    private final static int MAX_TOOL_TITLE_LENGTH = 20;
+
     public String getViewID() {
         return VIEW_ID;
     }
@@ -98,7 +99,7 @@ public class PageListProducer
                     UIBranchContainer.make(pageForm, "page-row:", page.getId());
     
                 UIOutput.make(pagerow, "page-name", page.getTitle());
-                UIInput.make(pagerow, "page-name-input", "#{SitePageEditHandler.nil}", page.getTitle());
+                UIInput.make(pagerow, "page-name-input", "#{SitePageEditHandler.nil}", page.getTitle()).decorate(new UIFreeAttributeDecorator("maxlength", String.valueOf(MAX_TOOL_TITLE_LENGTH)));
                 UIMessage.make(pagerow, "page-name-label", "title");
                 
                 //nameLabel.decorate(new UILabelTargetDecorator(name));

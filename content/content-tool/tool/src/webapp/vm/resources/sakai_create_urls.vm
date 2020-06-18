@@ -1,10 +1,11 @@
 <!-- resources/sakai_create_urls.vm, use with org.sakaiproject.tool.content.ResourcesHelperAction.java -->
 <div class="portletBody specialLink">
+	#contentMenu("resources")
 	<h3>
 		$tlang.getString("create.urls")
 	</h3>
 	#if ($itemAlertMessage)
-		<div class="sak-banner-error">$tlang.getString("label.alert") $validator.escapeHtml($itemAlertMessage)</div>
+		<div class="sak-banner-error">$tlang.getString("label.alert") $formattedText.escapeHtml($itemAlertMessage)</div>
 	#end
 	<ol class="breadcrumb">
 		<li><span>
@@ -12,9 +13,15 @@
 		</span></li>
 		##<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0"  alt="$tlang.getString("gen.folder")" />
 		#foreach ($folder in $model.collectionPath)
-			<li><span>$validator.escapeHtml($folder.name)</span></li>
+			<li><span>$formattedText.escapeHtml($folder.name)</span></li>
 		#end
 	</ol>
+
+	#if ($itemAlertMessage)
+		<div id="resourceAlert" class="sak-banner-success">$itemAlertMessage</div>
+	#else
+		<div id="resourceAlert" class="sak-banner-error hide"></div>
+	#end
 
 	<p class="instruction">
 		$tlang.getString("instr.urls")
@@ -116,7 +123,7 @@
 		#end
 		
 		<p class="act">
-			<input type="button" class="active" name="savechanges" id="saveChanges" onclick="showNotif('submitnotifxxx','saveChanges','addContentForm');document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doAddUrls")&flow=save';submitform('addContentForm');" value="$tlang.getString("label.urlnow")" accesskey="s" />
+			<input type="button" class="active" name="savechanges" id="saveChanges" value="$tlang.getString("label.urlnow")" accesskey="s" />
 			<input type="button" name="cancel" onclick="document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doCancel")';submitform('addContentForm');" value="$tlang.getString("label.cancel")" accesskey="x" />
 		</p>
 		<p id="submitnotifxxx"  class="sak-banner-info"  style="visibility:hidden">$tlang.getString("processmessage.url")</p>
@@ -124,3 +131,16 @@
 	</form>
 </div>
 #parse("/vm/resources/sakai_properties_scripts.vm")
+<script>
+	// Client side copyright check
+	var submitButton = document.getElementById("saveChanges");
+	submitButton.addEventListener("click", function()
+	{
+		if (checkCopyright(submitButton))
+		{
+			showNotif('submitnotifxxx','saveChanges','addContentForm');
+			document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doAddUrls")&flow=save';
+			submitform('addContentForm');
+		}
+	});
+</script>

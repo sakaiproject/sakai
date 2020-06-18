@@ -38,13 +38,16 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.RunData;
@@ -89,17 +92,18 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.FileItem;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.api.FormattedText;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ResourcesHelperAction extends VelocityPortletPaneledAction 
 {
-	 
+	private static final SecurityService securityService  = ComponentManager.get(SecurityService.class);
+
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("types");
 	private static ResourceLoader metaLang = new ResourceLoader("metadata");
@@ -158,6 +162,11 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
 	/** We need to send a single email with every D&D upload reported in it */
 	private static final String DRAGNDROP_FILENAME_REFERENCE_LIST = "dragndrop_filename_reference_list";
+
+
+	private static final String STATE_HOME_COLLECTION_ID = ResourcesAction.PREFIX + ResourcesAction.REQUEST + "collection_home";
+	private static final String STATE_COLLECTION_ID = ResourcesAction.PREFIX + ResourcesAction.REQUEST + "collection_id";
+	private static final String STATE_RESOURCES_TYPE_REGISTRY = ResourcesAction.PREFIX + ResourcesAction.SYS + "type_registry";
 
 	private static NotificationEdit neDropbox;
 	private static NotificationEdit neResource;
@@ -242,7 +251,36 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			SessionState state)
 	{
 		log.debug("{}.buildMainPanelContext()", this);
+		/********** Start of top menu attributes ********************************/
+		String siteId = ToolManager.getCurrentPlacement().getContext();
+		String homeCollectionId = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
+		String collectionId = (String) state.getAttribute (STATE_COLLECTION_ID);
+		boolean atHome = StringUtils.isNotBlank(collectionId) && collectionId.equals(homeCollectionId);
+		boolean allowUpdateSite = SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext());
+		ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
+		if(registry == null) {
+			registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
+			state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
+		}
+		Map<String,Boolean> statusMap = registry.getMapOfResourceTypesForContext(siteId);
+		boolean dropboxMode = ResourcesAction.RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(ResourcesAction.STATE_MODE_RESOURCES));
+		boolean inMyWorkspace = SiteService.isUserSite(siteId);
+		boolean isSpecialSite = StringUtils.equalsAny(siteId, "!admin", "~admin");
+
+		context.put("canDeleteResource", canDeleteResource());
+		context.put("clang", contentResourceBundle);
 		context.put("tlang", rb);
+		context.put("siteId", siteId);
+		context.put("atHome", atHome);
+		context.put("inMyWorkspace", inMyWorkspace);
+		context.put("dropboxMode", dropboxMode);
+		context.put("showDropboxOptions", atHome && allowUpdateSite && dropboxMode);
+		context.put("showQuota", !isSpecialSite && (dropboxMode || allowUpdateSite));
+		context.put("showPermissions", !inMyWorkspace && !isSpecialSite && !dropboxMode && allowUpdateSite);
+		context.put("showOptions", statusMap != null && !statusMap.isEmpty() && !isSpecialSite && allowUpdateSite && !dropboxMode);
+		context.put("showJumpToResourceForm", isSpecialSite);
+		context.put("showWebdavLink", ServerConfigurationService.getBoolean("resources.show_webdav.link", Boolean.TRUE));
+		/********** End of top menu attributes ********************************/
 		context.put("metaLang", metaLang);
 
 		context.put("validator", new Validator());
@@ -863,7 +901,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		else if(ResourceType.TYPE_HTML.equals(resourceType) || ResourceType.MIME_TYPE_HTML.equals(mimetype))
 		{
 			StringBuilder alertMsg = new StringBuilder();
-			content = FormattedText.processHtmlDocument(content, alertMsg);
+			content = ComponentManager.get(FormattedText.class).processHtmlDocument(content, alertMsg);
 			pipe.setRevisedMimeType(ResourceType.MIME_TYPE_HTML);
 			pipe.setRevisedResourceProperty(ResourceProperties.PROP_CONTENT_ENCODING, ResourcesAction.UTF_8_ENCODING);
 			pipe.setNotification(noti);
@@ -1135,7 +1173,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		}
 		else if (fileitem.getFileName().length() > 0)
 		{
-			String filename = Validator.getFileName(fileitem.getFileName());
+			String filename = FilenameUtils.getName(fileitem.getFileName());
 			InputStream stream = fileitem.getInputStream();
 			pipe.setRevisedContentStream(stream);
 			String contentType = fileitem.getContentType().replaceAll("\"", "");
@@ -1547,7 +1585,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			}
 			else if (fileitem.getFileName().length() > 0)
 			{
-				String filename = Validator.getFileName(fileitem.getFileName());
+				String filename = FilenameUtils.getName(fileitem.getFileName());
 				pipe.setRevisedContentStream( fileitem.getInputStream() );
 				String contentType = fileitem.getContentType().replaceAll("\"", "");
 				pipe.setRevisedMimeType(contentType);
@@ -2281,7 +2319,26 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		state.setAttribute(DRAGNDROP_FILENAME_REFERENCE_LIST, soFar);
 
 	} // addAlert
-	
+
+    /**
+     * Check if you have 'content.delete.any' or 'content.delete.own' in the site
+     * @return true if user can delete
+     */
+    public boolean canDeleteResource() {
+        boolean canDeleteResource = false;
+        try {
+            Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+            canDeleteResource = securityService.unlock(
+                    ContentHostingService.AUTH_RESOURCE_REMOVE_ANY, site.getReference())
+                    || securityService.unlock(
+                            ContentHostingService.AUTH_RESOURCE_REMOVE_OWN, site.getReference());
+
+        } catch (IdUnusedException e) {
+            log.debug("ResourcesHelperAction.canDeleteResource: cannot find current site");
+        }
+        return canDeleteResource;
+    }
+
 /*
 	private String getUniqueFileName(String uploadFileName, String resourceGroup) throws org.sakaiproject.exception.PermissionException, org.sakaiproject.exception.TypeException
 	{

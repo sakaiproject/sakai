@@ -18,8 +18,6 @@
  * limitations under the License.
  *
  **********************************************************************************/
-
-
 package org.sakaiproject.tool.assessment.ui.bean.author;
 
 import java.io.Serializable;
@@ -47,7 +45,6 @@ import org.sakaiproject.util.ResourceLoader;
  * Also developers could add an administrative configuration later.</p>
  *
  */
-
 @ManagedBean(name="itemConfig")
 @SessionScoped
 public class ItemConfigBean implements Serializable {
@@ -359,8 +356,6 @@ private static final String msgResource =
   {
     List<SelectItem> list = new ArrayList<SelectItem>();
 
-    
-
     if (isShowAllMultipleChoice())
       list.add(new SelectItem(String.valueOf(TypeIfc.MULTIPLE_CHOICE),
         getResourceDisplayName("multiple_choice_type")));
@@ -405,9 +400,6 @@ private static final String msgResource =
     if (isShowExtendedMatchingItems())
         list.add(new SelectItem(String.valueOf(TypeIfc.EXTENDED_MATCHING_ITEMS),
       		  getResourceDisplayName("extended_matching_items")));
-    
-    if (isSelectFromQuestionPool())
-      list.add(new SelectItem("10", getResourceDisplayName("import_from_q")));
 
     if (isShowCalculatedQuestion())
         list.add(new SelectItem(String.valueOf(TypeIfc.CALCULATED_QUESTION), getResourceDisplayName("calculated_question"))); // CALCULATED_QUESTION
@@ -445,7 +437,10 @@ private static final String msgResource =
     };
     
     Collections.sort(list, comparator);
-    
+    if (isSelectFromQuestionPool()) {
+      list.add(new SelectItem("10", getResourceDisplayName("import_from_q")));
+    }
+
     List<SelectItem> ret = new ArrayList<SelectItem>();
     ret.add(new SelectItem("", getResourceDisplayName("select_qtype")));
     ret.addAll(list);

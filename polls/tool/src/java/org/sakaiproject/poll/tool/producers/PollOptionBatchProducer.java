@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2003-2020 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 /**********************************************************************************
  Copyright (c) 2019 Apereo Foundation
 
@@ -24,9 +39,11 @@ import java.util.Map;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import org.sakaiproject.poll.logic.ExternalLogic;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
+import org.sakaiproject.poll.tool.constants.NavigationConstants;
 import org.sakaiproject.poll.tool.params.OptionBatchViewParameters;
 import org.sakaiproject.poll.tool.params.PollViewParameters;
 import org.sakaiproject.poll.tool.params.VoteBean;
@@ -39,6 +56,7 @@ import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIELBinding;
 import uk.org.ponder.rsf.components.UIForm;
+import uk.org.ponder.rsf.components.UIInternalLink;
 import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
@@ -48,6 +66,7 @@ import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
 import uk.org.ponder.rsf.view.ComponentChecker;
 import uk.org.ponder.rsf.view.ViewComponentProducer;
+import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
@@ -62,6 +81,7 @@ public class PollOptionBatchProducer implements ViewComponentProducer,ViewParams
     private LocaleGetter localeGetter;
     private PollListManager pollListManager;
     private TargettedMessageList targettedMessageList;
+    private ExternalLogic externalLogic;
 
     public String getViewID() {
         return VIEW_ID;
@@ -75,6 +95,16 @@ public class PollOptionBatchProducer implements ViewComponentProducer,ViewParams
         langMap.put("xml:lang", locale);
 
         UIOutput.make(tofill, "polls-html", null).decorate(new UIFreeAttributeDecorator(langMap));
+
+        // Menu links
+        UIBranchContainer actions = UIBranchContainer.make(tofill,"actions:",Integer.toString(0));
+        UIInternalLink.make(actions, NavigationConstants.NAVIGATE_MAIN, UIMessage.make(NavigationConstants.NAVIGATE_MAIN_MESSAGE), new SimpleViewParameters(PollToolProducer.VIEW_ID));
+        if (this.isAllowedPollAdd()) {
+            UIInternalLink.make(actions, NavigationConstants.NAVIGATE_ADD, UIMessage.make(NavigationConstants.NAVIGATE_ADD_MESSAGE), new PollViewParameters(AddPollProducer.VIEW_ID, "New 0"));
+        }
+        if (this.isSiteOwner()) {
+            UIInternalLink.make(actions, NavigationConstants.NAVIGATE_PERMISSIONS, UIMessage.make(NavigationConstants.NAVIGATE_PERMISSIONS_MESSAGE), new SimpleViewParameters(PermissionsProducer.VIEW_ID));
+        }
 
         if (targettedMessageList.size() > 0) {
             for (int i = 0; i < targettedMessageList.size(); i ++ ) {
@@ -145,6 +175,14 @@ public class PollOptionBatchProducer implements ViewComponentProducer,ViewParams
             String viewId = AddPollProducer.VIEW_ID;
             result.resultingView = new PollViewParameters(viewId, optvp.pollId);
         }
+    }
+
+    private boolean isAllowedPollAdd() {
+        return externalLogic.isUserAdmin() || externalLogic.isAllowedInLocation(PollListManager.PERMISSION_ADD, externalLogic.getCurrentLocationReference());
+    }
+
+    private boolean isSiteOwner() {
+        return externalLogic.isUserAdmin() || externalLogic.isAllowedInLocation("site.upd", externalLogic.getCurrentLocationReference());
     }
 
 }

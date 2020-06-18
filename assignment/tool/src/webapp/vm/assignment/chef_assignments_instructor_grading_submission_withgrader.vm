@@ -1,11 +1,10 @@
-<!-- start: chef_assignments_instructor_grading_submission.vm  -->
-#set( $H = '-' )
-#javascript("/library/js/lang-datepicker/lang-datepicker.js")
+<!-- start: chef_assignments_instructor_grading_submission_withgrader.vm  -->
 
 <!-- GRADER JAVASCRIPT -->
+<script>window.top.includeWebjarLibrary("flatpickr");</script>
 #module("/webcomponents/grader/sakai-grader.js")
 <script>
-  ASN.currentGradingSubmission = "$validator.escapeUrl( $!submissionReference )";
+  ASN.currentGradingSubmission = "$formattedText.escapeUrl( $!submissionReference )";
 </script>
 <!-- END GRADER JAVASCRIPT -->
 
@@ -14,10 +13,9 @@
     <sakai-grader
         id="sakai-grader-$assignment.Id"
         tool="assignments"
-        max-grade="$!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint)"
         gradable-id="$assignment.Id"
         submission-id="$submission.Id"
-        user-list-url="#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")"
+        user-list-url="#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$formattedText.escapeUrl($assignmentReference)")"
         current-student-id="$!submitterId"
         has-associated-rubric="$!hasAssociatedRubric"
         #if ($!hasAssociatedRubric)

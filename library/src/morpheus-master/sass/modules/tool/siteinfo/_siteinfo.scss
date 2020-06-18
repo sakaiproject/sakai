@@ -124,6 +124,46 @@
 			}
 		}
 	}
+
+  /*Start of Site Group Manager*/
+  .wizard-step-active {
+    background-color: $primary-color;
+    color: $button-primary-text-color;
+  }
+
+  .optGroupSelect {
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    background: none repeat scroll 0 0 #EEEEEE;
+    padding: 0.5em;
+  }
+
+  .optGroupSelectSelected {
+    background: none repeat scroll 0 0 #ccc;
+  }
+
+  .group-locked-info-collapsed::before {
+    content: '\f0da';
+    font-family: 'FontAwesome';
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .group-locked-info-expanded::before {
+    content: '\f0d7';
+    font-family: 'FontAwesome';
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .selectSectionDiv {
+     padding-left: 21px;
+   }
+  /*End of Site Group Manager*/
+
 }
 
 #toolSelectionList{

@@ -1,6 +1,6 @@
 <%-- Headings for item edit pages, needs to have msg=AuthorMessages.properties.  --%>
 <!-- Core files -->
-<script type="text/JavaScript">
+<script>
 function changeTypeLink(field){
 
 var newindex = 0;
@@ -13,6 +13,13 @@ for (i=0; i<document.links.length; i++) {
 
 document.links[newindex].onclick();
 }
+
+jQuery(document).ready(function() {
+	var itemType = "${itemauthor.currentItem.itemType}";
+	if ( itemType == 2 || itemType == 12 ) {
+		$('#itemFormHeading\\:changeQType2').find('option[value=1]').attr('selected', true);
+	}
+});
 
 //Display the EMI question example
 function displayEMIHelp(){
@@ -37,6 +44,15 @@ function displayEMIHelp(){
 <%-- --%>
 
 <ul class="navIntraTool actionToolbar" role="menu">
+    <h:panelGroup rendered="#{authorization.createAssessment or authorization.editAnyAssessment or authorization.editOwnAssessment or authorization.gradeAnyAssessment or authorization.gradeOwnAssessment}">
+        <li role="menuitem">
+            <span>
+                <h:commandLink title="#{generalMessages.t_assessment}" action="author" immediate="true">
+                    <h:outputText value="#{generalMessages.assessment}" />
+                </h:commandLink>
+            </span>
+        </li>
+    </h:panelGroup>
     <h:panelGroup rendered="#{authorization.createAssessment}">
         <li role="menuitem">
             <span>
@@ -44,15 +60,6 @@ function displayEMIHelp(){
                     <f:param name="action" value="create_assessment_title" />
                     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorAssessmentListener" />
                     <h:outputText value="#{generalMessages.add}" />
-                </h:commandLink>
-            </span>
-        </li>
-    </h:panelGroup>
-    <h:panelGroup rendered="#{authorization.createAssessment or authorization.editAnyAssessment or authorization.editOwnAssessment or authorization.gradeAnyAssessment or authorization.gradeOwnAssessment}">
-        <li role="menuitem">
-            <span>
-                <h:commandLink title="#{generalMessages.t_assessment}" action="author" immediate="true">
-                    <h:outputText value="#{generalMessages.assessment}" />
                 </h:commandLink>
             </span>
         </li>
@@ -170,7 +177,7 @@ function displayEMIHelp(){
 
 <!-- CHANGE TYPE -->
 <div class="form-group row">
-    <h:outputLabel styleClass="col-md-2" value="#{authorMessages.change_q_type} &#160;" escape="false" rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow || (itemauthor.target == 'questionpool' && itemauthor.itemType == '')}"/>
+    <h:outputLabel for="changeQType2" styleClass="col-md-2" value="#{authorMessages.change_q_type} &#160;" escape="false" rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow || (itemauthor.target == 'questionpool' && itemauthor.itemType == '')}"/>
   <div class="col-md-10">
 <%-- todo:
 listener set selectFromQuestionPool, eliminating the rendered attribute

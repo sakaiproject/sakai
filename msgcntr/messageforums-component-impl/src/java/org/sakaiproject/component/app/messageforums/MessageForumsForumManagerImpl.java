@@ -743,7 +743,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         forum.setSortIndex(Integer.valueOf(0));
         forum.setShortDescription("short-desc");
         forum.setExtendedDescription("ext desc");
-        forum.setAutoForward(Boolean.FALSE);
+        forum.setAutoForward(PrivateForumImpl.AUTO_FOWARD_DEFAULT);
         forum.setAutoForwardEmail("");
         forum.setPreviewPaneEnabled(Boolean.FALSE);
         forum.setModified(new Date());
@@ -916,6 +916,16 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
             topicReturn = (DiscussionTopic) getSessionFactory().getCurrentSession().merge(topic);
         }
 
+        //now schedule any jobs that are needed for the open/close dates
+        //this will require having the ID of the topic (if its a new one)
+        if(topicReturn.getId() == null){
+        	Topic topicTmp = getTopicByUuid(topicReturn.getUuid());
+        	if(topicTmp != null){
+        		//set the ID so that the forum scheduler can schedule any needed jobs
+        		topicReturn.setId(topicTmp.getId());
+        	}
+        }
+        
         if(topicReturn.getId() != null){
         	ForumScheduleNotificationCover.scheduleAvailability(topicReturn);
         }

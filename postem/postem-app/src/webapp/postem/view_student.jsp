@@ -15,9 +15,18 @@
 </jsp:useBean>
 <f:view>
 	<sakai:view title="#{msgs.title_view}">
+		<script>includeLatestJQuery("postemViewStudent");</script>
+		<script>
+			$(document).ready(function() {
+				var menuLink = $('#postemMainMenuLink');
+				var menuLinkSpan = menuLink.closest('span');
+				menuLinkSpan.addClass('current');
+				menuLinkSpan.html(menuLink.text());
+			});
+		</script>
 		<sakai:view_content>
 			<h:form>
-				
+			<%@ include file="/postem/postemMenu.jsp" %>
 		  	<sakai:tool_bar_message value="#{msgs.view_student}" />
 		  	<sakai:panel_edit>
 		  		<h:outputLabel styleClass="shorttext" for="participant"><h:outputText value="#{msgs.choose_username}"/></h:outputLabel>

@@ -33,14 +33,13 @@
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{authorMessages.item_display_author}"/></title>
-      <script type="text/javascript" src="/samigo-app/js/authoring.js"></script>
+      <script src="/samigo-app/js/authoring.js"></script>
       </head>
 <body onload="<%= request.getAttribute("html.body.onload") %>">
 
 <div class="portletBody container-fluid">
 <!-- content... -->
 <!-- FORM -->
-
 
 <!-- HEADING -->
 <%@ include file="/jsf/author/item/itemHeadings.jsp" %>
@@ -83,25 +82,22 @@
     <br/>
     
     <div class="form-group row">
-        <h:outputLabel value="#{authorMessages.answer_point_value_display}" styleClass="col-md-2 form-control-label"/>
+        <h:outputLabel for="itemScore" value="#{authorMessages.answer_point_value_display}" styleClass="col-md-2 form-control-label"/>
         <div class="col-md-5 samigo-inline-radio">
-            <h:selectOneRadio value="#{itemauthor.currentItem.itemScoreDisplayFlag}" >
-                <f:selectItem itemValue="true" itemLabel="#{authorMessages.yes}" />
-                <f:selectItem itemValue="false" itemLabel="#{authorMessages.no}" />
+            <h:selectOneRadio value="#{itemauthor.currentItem.itemScoreDisplayFlag}" id="itemScore">
+                <f:selectItem itemValue="false" itemLabel="#{authorMessages.yes}" />
+                <f:selectItem itemValue="true" itemLabel="#{authorMessages.no}" />
             </h:selectOneRadio>
         </div>
     </div>    
 
-    <!-- Extra Credit -->
-    <%@ include file="/jsf/author/inc/extraCreditSetting.jspf" %>
-
-  <!-- 2 TEXT -->
+    <!-- 2 TEXT -->
     <div class="form-group row">
-        <h:outputLabel value="#{authorMessages.q_text}" styleClass="col-md-4 col-lg-2 form-control-label"/>
+        <h:outputLabel for="questionItemText_textinput" value="#{authorMessages.q_text}" styleClass="col-md-4 col-lg-2 form-control-label"/>
         <!-- WYSIWYG -->
         <div class="col-md-8">
             <h:panelGrid>
-            <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="yes" mode="author">
+            <samigo:wysiwyg identity="questionItemText" rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="yes" mode="author">
                 <f:validateLength maximum="60000"/>
             </samigo:wysiwyg>
             </h:panelGrid>
@@ -117,7 +113,7 @@
     -->
 
     <div class="longtext">
-        <h:outputLabel value="#{authorMessages.answer} " /> </div>
+        <h:outputLabel for="selectscale" value="#{authorMessages.answer} " /> </div>
         <div class="samigo-radio">
             <h:selectOneRadio layout="pageDirection" value="#{itemauthor.currentItem.scaleName}" id="selectscale">
                 <f:selectItem itemValue="YES" itemLabel="#{authorMessages.yes_no}" />
@@ -137,7 +133,7 @@
 
     <!-- 4 PART -->
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{itemauthor.target == 'assessment' && !author.isEditPoolFlow}">    
-        <h:outputLabel rendered="#{itemauthor.target == 'assessment'}" value="#{authorMessages.assign_to_p}" styleClass="col-md-4 col-lg-2 form-control-label"/>
+        <h:outputLabel for="assignToPart" rendered="#{itemauthor.target == 'assessment'}" value="#{authorMessages.assign_to_p}" styleClass="col-md-4 col-lg-2 form-control-label"/>
         <div class="col-md-8">
             <h:selectOneMenu rendered="#{itemauthor.target == 'assessment'}" id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
                 <f:selectItems  value="#{itemauthor.sectionSelectList}" />
@@ -147,7 +143,7 @@
 
     <!-- 5 POOL -->
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow}">
-        <h:outputLabel rendered="#{itemauthor.target == 'assessment'}" value="#{authorMessages.assign_to_question_p}" 
+        <h:outputLabel for="assignToPool" rendered="#{itemauthor.target == 'assessment'}" value="#{authorMessages.assign_to_question_p}" 
                     styleClass="col-md-4 col-lg-2 form-control-label"/>
         <div class="col-md-8">                    
             <h:selectOneMenu id="assignToPool" value="#{itemauthor.currentItem.selectedPool}">
@@ -159,11 +155,11 @@
 
     <!-- FEEDBACK -->
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}">
-        <h:outputLabel value="#{commonMessages.feedback_optional}" styleClass="col-md-4 col-lg-2 form-control-label"/>
+        <h:outputLabel for="questionFeedbackGeneral_textinput" value="#{commonMessages.feedback_optional}" styleClass="col-md-4 col-lg-2 form-control-label"/>
         <!-- WYSIWYG -->
         <div class="col-md-8">
             <h:panelGrid>
-                <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.generalFeedback}" hasToggle="yes" mode="author">
+                <samigo:wysiwyg identity="questionFeedbackGeneral" rows="140" value="#{itemauthor.currentItem.generalFeedback}" hasToggle="yes" mode="author">
                     <f:validateLength maximum="60000"/>
                 </samigo:wysiwyg>
             </h:panelGrid>
@@ -192,7 +188,6 @@
             </div>
         </div> 
     </h:panelGroup>
-
 
     <%@ include file="/jsf/author/item/tags.jsp" %>
 

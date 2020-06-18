@@ -477,35 +477,38 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
     }
 
     public LessonSubmission getSubmission(String userId) {
-	if (assignment == null)
-	    assignment = getAssignment(id);
-	if (assignment == null) {
-	    log.warn("can't find assignment " + id);
-	    return null;
-	}
 
-	User user = null;
-	AssignmentSubmission submission = null;
-	try {
-	    user = UserDirectoryService.getUser(userId);
-	    submission = assignmentService.getSubmission(assignment.getId(), user);
-	} catch (Exception e) {
-		log.warn(e.getMessage());
-	    return null;
-	}
+		if (assignment == null) {
+			assignment = getAssignment(id);
+		}
 
-	if (submission == null || !submission.getSubmitted())
-	    return null;
+		if (assignment == null) {
+			log.warn("can't find assignment {}", id);
+			return null;
+		}
 
-	LessonSubmission ret= new LessonSubmission(null);
+		AssignmentSubmission submission = null;
+		try {
+			submission = assignmentService.getSubmission(assignment.getId(), UserDirectoryService.getUser(userId));
+		} catch (Exception e) {
+			log.warn(e.getMessage());
+			return null;
+		}
 
-	if (submission.getGradeReleased())  {
-	    String grade = submission.getGrade();
-	    ret.setGradeString(grade);
-	}
+		if (submission == null || !submission.getSubmitted()) {
+			return null;
+		}
 
-	return ret;
+		LessonSubmission ret = new LessonSubmission(null);
 
+		if (submission.getGradeReleased())	{
+			String grade = submission.getGrade();
+			ret.setGradeString(grade);
+		}
+
+		ret.setUserSubmission(submission.getUserSubmission());
+
+		return ret;
     }
 
 // we can do this for real, but the API will cause us to get all the submissions in full, not just a count.
@@ -886,4 +889,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	return assignment.getContext();
     }
 
+	public Integer getScaleFactor() {
+		return assignment.getScaleFactor();
+	}
 }

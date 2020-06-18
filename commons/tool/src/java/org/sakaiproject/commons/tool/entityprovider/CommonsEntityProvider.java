@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
@@ -120,12 +121,13 @@ public class CommonsEntityProvider extends AbstractEntityProvider implements Req
 
         boolean isUserSite = sakaiProxy.isUserSite(siteId);
 
-        QueryBean query = new QueryBean();
-        query.commonsId = commonsId;
-        query.siteId = siteId;
-        query.embedder = embedder;
-        query.isUserSite = isUserSite;
-        query.callerId = userId;
+
+        QueryBean query = QueryBean.builder()
+            .commonsId(commonsId)
+            .siteId(siteId)
+            .embedder(embedder)
+            .userSite(isUserSite)
+            .callerId(userId).build();
 
         try {
             posts = commonsManager.getPosts(query);
@@ -181,10 +183,10 @@ public class CommonsEntityProvider extends AbstractEntityProvider implements Req
             throw new EntityException("You must supply a postId" , "", HttpServletResponse.SC_BAD_REQUEST);
         }
 
-        Post post = commonsManager.getPost(postId, true);
+        Optional<Post> opPost = commonsManager.getPost(postId, true);
 
-        if (post != null) {
-            return new ActionReturn(post);
+        if (opPost.isPresent()) {
+            return new ActionReturn(opPost.get());
         } else {
             throw new EntityException("No post with id '" + postId + "'" , "", HttpServletResponse.SC_NOT_FOUND);
         }
@@ -215,7 +217,7 @@ public class CommonsEntityProvider extends AbstractEntityProvider implements Req
         Post post = new Post();
 
         if (!isNew) {
-            post = commonsManager.getPost(id, false);
+            post = commonsManager.getPost(id, false).get();
             post.setContent(content);
         } else {
             post.setCreatorId(userId);

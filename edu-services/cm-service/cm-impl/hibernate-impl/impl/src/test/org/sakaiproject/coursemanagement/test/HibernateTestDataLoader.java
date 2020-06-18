@@ -20,9 +20,9 @@
  **********************************************************************************/
 package org.sakaiproject.coursemanagement.test;
 
-import java.util.Calendar;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -172,9 +172,10 @@ public class HibernateTestDataLoader extends HibernateDaoSupport implements Data
 		co1.setTitle("Bio 101: It's all about the gene");
 		co1.setDescription("Fall 2006 Bio 101 Offering");
 		
-		// Make this almost always a "current" course offering (until 2020, that is)
-		co1.setStartDate(new Date(0));
-		co1.setEndDate(new Date(1577836800000L));
+		// Make this a "current" course offering
+		Instant now = Instant.now();
+		co1.setStartDate(Date.from(now.minus(30, ChronoUnit.DAYS)));
+		co1.setEndDate(Date.from(now.plus(90, ChronoUnit.DAYS)));
 		
 		getHibernateTemplate().save(co1);
 
@@ -186,9 +187,9 @@ public class HibernateTestDataLoader extends HibernateDaoSupport implements Data
 		co2.setTitle("Chem 101: It's all about the gene");
 		co2.setDescription("Fall 2006 Chem 101 Offering");
 		
-		// Make this almost never a "current" course offering (until 2020, that is)
-		co2.setStartDate(new Date(1577836800000L));
-		co2.setEndDate(new Date(1577836800000L));
+		// Make this to be never a "current" course offering
+		co2.setStartDate(Date.from(now.plus(120, ChronoUnit.DAYS)));
+		co2.setEndDate(Date.from(now.plus(240, ChronoUnit.DAYS)));
 
 		getHibernateTemplate().save(co2);
 
@@ -206,12 +207,11 @@ public class HibernateTestDataLoader extends HibernateDaoSupport implements Data
 		co4.setEid("ENG101_F2006_02");
 		co4.setTitle("English 101: Intro to literature");
 		co4.setDescription("Fall 2006 Eng 101 Offering");
-		//we need this one to be active
-		Calendar cal = new GregorianCalendar();
-		cal.add(Calendar.MONTH, -1);
-		co4.setStartDate(cal.getTime());
-		cal.add(Calendar.MONTH, +7);
-		co4.setEndDate(cal.getTime());
+
+		// Make this a "current" course offering
+		co4.setStartDate(Date.from(now.minus(30, ChronoUnit.DAYS)));
+		co4.setEndDate(Date.from(now.plus(90, ChronoUnit.DAYS)));
+
 		getHibernateTemplate().save(co4);
 
 		// Add these course offerings to course sets

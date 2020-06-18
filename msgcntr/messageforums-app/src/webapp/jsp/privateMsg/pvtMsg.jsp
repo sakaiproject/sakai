@@ -41,20 +41,25 @@
     <script>
         $(document).ready(function() {
 
+            var menuLink = $('#messagesMainMenuLink');
+            var menuLinkSpan = menuLink.closest('span');
+            menuLinkSpan.addClass('current');
+            menuLinkSpan.html(menuLink.text());
+
             var notEmptyTableTd = $("#prefs_pvt_form\\:pvtmsgs td:not(:empty)").length;
             if (notEmptyTableTd > 0) {
                 var table = $("#prefs_pvt_form\\:pvtmsgs").DataTable({
                     "paging": false,
-                    "aaSorting": [[6, "desc"]],
+                    "aaSorting": [[4, "desc"]],
                     "columns": [
                         {"bSortable": false, "bSearchable": false},
                         {"bSortable": true, "bSearchable": false},
                         {"bSortable": false, "bSearchable": false},
                         {"bSortable": true, "bSearchable": true},
+                        {"bSortable": true, "bSearchable": false},
                         {"bSortable": true, "bSearchable": true},
                         <h:outputText value="{\"bSortable\": true, \"bSearchable\": false}," rendered="#{PrivateMessagesTool.selectedTopic.topic.title != 'pvt_sent' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_received' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_drafts' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_deleted' }"/>
-                        {"bSortable": true, "bSearchable": false},
-                        {"bSortable": true, "bSearchable": false}
+                        {"bSortable": true, "bSearchable": true}
                     ],
                     "language": {
                         "search": <h:outputText value="'#{msgs.datatables_sSearch}'" />,
@@ -78,16 +83,16 @@
             if (notEmptyTableTdThread > 0) {
                 var tableThread = $("#prefs_pvt_form\\:threaded_pvtmsgs").DataTable({
                     "paging": false,
-                    "aaSorting": [[6, "desc"]],
+                    "aaSorting": [[4, "desc"]],
                     "columns": [
                         {"bSortable": false, "bSearchable": false},
                         {"bSortable": true, "bSearchable": false},
                         {"bSortable": false, "bSearchable": false},
                         {"bSortable": true, "bSearchable": true},
+                        {"bSortable": true, "bSearchable": false},
                         {"bSortable": true, "bSearchable": true},
                         <h:outputText value="{\"bSortable\": true, \"bSearchable\": false}," rendered="#{PrivateMessagesTool.selectedTopic.topic.title != 'pvt_sent' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_received' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_drafts' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_deleted' }"/>
-                        {"bSortable": true, "bSearchable": false},
-                        {"bSortable": true, "bSearchable": false}
+                        {"bSortable": true, "bSearchable": true}
                     ],
                     "language": {
                         "search": <h:outputText value="'#{msgs.datatables_sSearch}'" />,
@@ -110,18 +115,13 @@
     });
     </script>
 
-			<sakai:tool_bar>
-                <h:commandLink id="composeMessage"
-                    action="#{PrivateMessagesTool.processPvtMsgCompose}" immediate="true">
-                        <h:outputText value="#{msgs.pvt_compose}" />
-                </h:commandLink>
- 			</sakai:tool_bar>
+    <%@ include file="/jsp/privateMsg/pvtMenu.jsp" %>
 
 			<%@ include file="topNav.jsp" %>
  
  			<h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/> 
  			<!-- Display successfully moving checked messsages to Deleted folder -->
-  			<h:outputText value="#{PrivateMessagesTool.multiDeleteSuccessMsg}" styleClass="success" rendered="#{PrivateMessagesTool.multiDeleteSuccess}" />
+  			<h:outputText value="#{PrivateMessagesTool.multiDeleteSuccessMsg}" styleClass="sak-banner-success" rendered="#{PrivateMessagesTool.multiDeleteSuccess}" />
 
   		<%@ include file="msgHeader.jsp"%>
 		<%-- gsilver:this table needs a render atrtibute that will make it not display if there are no messages - and a companion text block classed as "instruction" that will render instead--%>
@@ -171,23 +171,6 @@
             <f:param value="#{rcvdItems.msg.id}" name="current_msg_detail"/>
           </h:commandLink>
 		  </h:column>
-		  <h:column rendered="#{PrivateMessagesTool.selectedTopic.topic.title != 'pvt_sent'}">
-		    <f:facet name="header">
-				<h:outputLink value="#" onclick="return false;"><h:outputText value="#{msgs.pvt_authby}"/></h:outputLink>
-		    </f:facet>
-		     <h:outputText value="#{rcvdItems.msg.author}" rendered="#{rcvdItems.hasRead}"/>
-		     <h:outputText styleClass="unreadMsg" value="#{rcvdItems.msg.author}" rendered="#{!rcvdItems.hasRead}"/>
-		  </h:column>
-		  		  <h:column rendered="#{PrivateMessagesTool.selectedTopic.topic.title != 'pvt_received' && 
-		  PrivateMessagesTool.selectedTopic.topic.title != 'pvt_drafts' &&
-		  PrivateMessagesTool.selectedTopic.topic.title != 'pvt_deleted' }">
-		    <f:facet name="header">
-				<h:outputLink value="#" onclick="return false;"><h:outputText value="#{msgs.pvt_to}"/></h:outputLink>
-		    </f:facet>
-		     <h:outputText value="#{rcvdItems.sendToStringDecorated}" rendered="#{rcvdItems.hasRead}" />
-		     <h:outputText styleClass="unreadMsg" value="#{rcvdItems.sendToStringDecorated}" rendered="#{!rcvdItems.hasRead}"/>
-		  </h:column>
-
 		  <h:column>
 		    <f:facet name="header">
 				<h:outputLink value="#" onclick="return false;"><h:outputText value="#{msgs.pvt_date}"/></h:outputLink>
@@ -207,6 +190,22 @@
 			   <f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{PrivateMessagesTool.userTimeZone}" locale="#{PrivateMessagesTool.userLocale}"/>
 			 </h:outputText>
 		  </h:column>
+		  <h:column rendered="#{PrivateMessagesTool.selectedTopic.topic.title != 'pvt_sent'}">
+		    <f:facet name="header">
+				<h:outputLink value="#" onclick="return false;"><h:outputText value="#{msgs.pvt_authby}"/></h:outputLink>
+		    </f:facet>
+		     <h:outputText value="#{rcvdItems.msg.author}" rendered="#{rcvdItems.hasRead}"/>
+		     <h:outputText styleClass="unreadMsg" value="#{rcvdItems.msg.author}" rendered="#{!rcvdItems.hasRead}"/>
+		  </h:column>
+		  		  <h:column rendered="#{PrivateMessagesTool.selectedTopic.topic.title != 'pvt_received' && 
+		  PrivateMessagesTool.selectedTopic.topic.title != 'pvt_drafts' &&
+		  PrivateMessagesTool.selectedTopic.topic.title != 'pvt_deleted' }">
+		    <f:facet name="header">
+				<h:outputLink value="#" onclick="return false;"><h:outputText value="#{msgs.pvt_to}"/></h:outputLink>
+		    </f:facet>
+		     <h:outputText value="#{rcvdItems.sendToStringDecorated}" rendered="#{rcvdItems.hasRead}" />
+		     <h:outputText styleClass="unreadMsg" value="#{rcvdItems.sendToStringDecorated}" rendered="#{!rcvdItems.hasRead}"/>
+		  </h:column>
 		  <h:column>
 		    <f:facet name="header">
 			   <h:outputLink value="#" onclick="return false;"><h:outputText value="#{msgs.pvt_label}"/></h:outputLink>
@@ -220,8 +219,7 @@
 	                          value="#{PrivateMessagesTool.decoratedPvtMsgs}" 
 	  	                        var="rcvdItems" 
 	  	                        rendered="#{PrivateMessagesTool.selectView == 'threaded'}"
-	                        	 expanded="true"
-								 columnClasses="attach,attach,attack,specialLink,bogus,bogus,bogus">
+								 columnClasses="check,attach,reply,specialLink,created,date,bogus">
 		 	<h:column>
 		    <f:facet name="header">
 				<h:panelGroup>
@@ -258,6 +256,17 @@
             <f:param value="#{rcvdItems.msg.id}" name="current_msg_detail"/>
           </h:commandLink>
 		  </h:column>
+		  <h:column>
+		    <f:facet name="header">
+		       <h:outputText value="#{msgs.pvt_date}"/>
+		    </f:facet>
+		     <h:outputText value="#{rcvdItems.msg.created}" rendered="#{rcvdItems.hasRead}">
+			     <f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{PrivateMessagesTool.userTimeZone}" locale="#{PrivateMessagesTool.userLocale}"/>
+			 </h:outputText>
+		     <h:outputText styleClass="unreadMsg" value="#{rcvdItems.msg.created}" rendered="#{!rcvdItems.hasRead}">
+			     <f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{PrivateMessagesTool.userTimeZone}" locale="#{PrivateMessagesTool.userLocale}"/>
+			 </h:outputText>
+		  </h:column>
 		  <h:column rendered="#{PrivateMessagesTool.selectedTopic.topic.title != 'pvt_sent'}">
 		    <f:facet name="header">
 		       <h:outputText value="#{msgs.pvt_authby}"/>
@@ -273,17 +282,6 @@
 		    </f:facet>
 		     <h:outputText value="#{rcvdItems.sendToStringDecorated}" rendered="#{rcvdItems.hasRead}"/>
 		     <h:outputText styleClass="unreadMsg" value="#{rcvdItems.sendToStringDecorated}" rendered="#{!rcvdItems.hasRead}"/>
-		  </h:column>
-		  <h:column>
-		    <f:facet name="header">
-		       <h:outputText value="#{msgs.pvt_date}"/>
-		    </f:facet>
-		     <h:outputText value="#{rcvdItems.msg.created}" rendered="#{rcvdItems.hasRead}">
-			     <f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{PrivateMessagesTool.userTimeZone}" locale="#{PrivateMessagesTool.userLocale}"/>
-			 </h:outputText>
-		     <h:outputText styleClass="unreadMsg" value="#{rcvdItems.msg.created}" rendered="#{!rcvdItems.hasRead}">
-			     <f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{PrivateMessagesTool.userTimeZone}" locale="#{PrivateMessagesTool.userLocale}"/>
-			 </h:outputText>
 		  </h:column>
 		  <h:column>
 		    <f:facet name="header">

@@ -75,7 +75,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.DateFormatterUtil;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.api.FormattedText;
 
 @Slf4j
 @Getter @Setter
@@ -95,6 +95,7 @@ public class ChatTool {
    private static final String PAGE_DELETE_MESSAGE_CONFIRM = "deleteMessageConfirm";
    private static final String PAGE_SYNOPTIC = "synoptic";
    private static final String PAGE_SYNOPTIC_OPTIONS = "synopticOptions";
+   private static final String PAGE_PERMISSIONS = "permissions";
    
    private static final String PERMISSION_ERROR = "perm_error";
    
@@ -121,6 +122,8 @@ public class ChatTool {
    
    private static final String HIDDEN_START_ISO_DATE = "chatStartDateISO8601";
    private static final String HIDDEN_END_ISO_DATE = "chatEndDateISO8601";
+   
+   private Boolean fromPermissions = false;
 
    @ManagedProperty(value="#{Components[\"org.sakaiproject.chat2.model.ChatManager\"]}")
    private ChatManager chatManager;
@@ -314,38 +317,12 @@ public class ChatTool {
    @SuppressWarnings("unchecked")
    public String processActionPermissions()
    {
-      ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
-      ToolSession toolSession = SessionManager.getCurrentToolSession();
-
-      try {
-          String url = "sakai.permissions.helper.helper/tool?" +
-                  "session." + PermissionsHelper.DESCRIPTION + "=" +
-                  org.sakaiproject.util.Web.escapeUrl(getPermissionsMessage()) +
-                  "&session." + PermissionsHelper.TARGET_REF + "=" +
-                  getWorksite().getReference() +
-                  "&session." + PermissionsHelper.PREFIX + "=" +
-                  getChatFunctionPrefix();
-
-          // Set permission descriptions
-          if (toolSession != null) {
-        	  ResourceLoader pRb = new ResourceLoader("permissions");
-        	  HashMap<String, String> pRbValues = new HashMap<String, String>();
-        	  for (Iterator<Entry<String, String>> mapIter = pRb.entrySet().iterator();mapIter.hasNext();)
-        	  {
-        		  Entry<String, String> entry = mapIter.next();
-        		  pRbValues.put(entry.getKey(), entry.getValue());
-        	  }
-
-        	  toolSession.setAttribute("permissionDescriptions", pRbValues); 
-          }
-
-          // Invoke Permissions helper
-          context.redirect(url);
-      }
-      catch (IOException e) {
-          throw new RuntimeException("Failed to redirect to helper", e);
-      }
-      return null;
+       if(fromPermissions) {
+           fromPermissions = false;
+           return null;
+       }
+       fromPermissions = true;
+       return PAGE_PERMISSIONS;
    }
      
    public String processActionSynopticOptions() {
@@ -1262,7 +1239,7 @@ public class ChatTool {
     * @return
     */
    public String getFramePlacementId() {
-      return Validator.escapeJavascript("Main" + getToolManager().getCurrentPlacement().getId());
+      return ComponentManager.get(FormattedText.class).escapeJavascript("Main" + getToolManager().getCurrentPlacement().getId());
    }
    
    

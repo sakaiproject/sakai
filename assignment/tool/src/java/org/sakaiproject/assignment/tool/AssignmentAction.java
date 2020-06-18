@@ -15,11 +15,43 @@
  */
 package org.sakaiproject.assignment.tool;
 
-import static org.sakaiproject.assignment.api.AssignmentConstants.*;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.*;
-import static org.sakaiproject.assignment.api.model.Assignment.GradeType.*;
+import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_RESUBMIT_CLOSEDAY;
+import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_RESUBMIT_CLOSEHOUR;
+import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_RESUBMIT_CLOSEMIN;
+import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_RESUBMIT_CLOSEMONTH;
+import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_RESUBMIT_CLOSEYEAR;
+import static org.sakaiproject.assignment.api.AssignmentConstants.GRADEBOOK_INTEGRATION_ADD;
+import static org.sakaiproject.assignment.api.AssignmentConstants.GRADEBOOK_INTEGRATION_ASSOCIATE;
+import static org.sakaiproject.assignment.api.AssignmentConstants.GRADEBOOK_INTEGRATION_NO;
+import static org.sakaiproject.assignment.api.AssignmentConstants.GRADE_SUBMISSION_ASSIGNMENT_ID;
+import static org.sakaiproject.assignment.api.AssignmentConstants.GRADE_SUBMISSION_FEEDBACK_ATTACHMENT;
+import static org.sakaiproject.assignment.api.AssignmentConstants.GRADE_SUBMISSION_FEEDBACK_COMMENT;
+import static org.sakaiproject.assignment.api.AssignmentConstants.GRADE_SUBMISSION_FEEDBACK_TEXT;
+import static org.sakaiproject.assignment.api.AssignmentConstants.GRADE_SUBMISSION_GRADE;
+import static org.sakaiproject.assignment.api.AssignmentConstants.GRADE_SUBMISSION_SUBMISSION_ID;
+import static org.sakaiproject.assignment.api.AssignmentConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK;
+import static org.sakaiproject.assignment.api.AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT;
+import static org.sakaiproject.assignment.api.AssignmentConstants.STATE_CONTEXT_STRING;
+import static org.sakaiproject.assignment.api.AssignmentServiceConstants.NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING;
+import static org.sakaiproject.assignment.api.AssignmentServiceConstants.PROP_ASSIGNMENT_GROUP_FILTER_ENABLED;
+import static org.sakaiproject.assignment.api.AssignmentServiceConstants.REFERENCE_ROOT;
+import static org.sakaiproject.assignment.api.AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT;
+import static org.sakaiproject.assignment.api.model.Assignment.GradeType.CHECK_GRADE_TYPE;
+import static org.sakaiproject.assignment.api.model.Assignment.GradeType.GRADE_TYPE_NONE;
+import static org.sakaiproject.assignment.api.model.Assignment.GradeType.LETTER_GRADE_TYPE;
+import static org.sakaiproject.assignment.api.model.Assignment.GradeType.PASS_FAIL_GRADE_TYPE;
+import static org.sakaiproject.assignment.api.model.Assignment.GradeType.SCORE_GRADE_TYPE;
+import static org.sakaiproject.assignment.api.model.Assignment.GradeType.UNGRADED_GRADE_TYPE;
+import static org.sakaiproject.assignment.api.model.Assignment.GradeType.values;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
@@ -27,13 +59,41 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.text.*;
-import java.time.*;
+import java.text.Collator;
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.text.RuleBasedCollator;
+import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.time.format.FormatStyle;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.SortedSet;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -43,8 +103,138 @@ import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import javax.servlet.ServletException;
 import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.sakaiproject.announcement.api.AnnouncementChannel;
+import org.sakaiproject.announcement.api.AnnouncementMessage;
+import org.sakaiproject.announcement.api.AnnouncementMessageEdit;
+import org.sakaiproject.announcement.api.AnnouncementMessageHeaderEdit;
+import org.sakaiproject.announcement.api.AnnouncementService;
+import org.sakaiproject.assignment.api.AssignmentConstants;
+import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
+import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
+import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.ContentReviewResult;
+import org.sakaiproject.assignment.api.model.Assignment;
+import org.sakaiproject.assignment.api.model.AssignmentAllPurposeItem;
+import org.sakaiproject.assignment.api.model.AssignmentAllPurposeItemAccess;
+import org.sakaiproject.assignment.api.model.AssignmentModelAnswerItem;
+import org.sakaiproject.assignment.api.model.AssignmentNoteItem;
+import org.sakaiproject.assignment.api.model.AssignmentSubmission;
+import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
+import org.sakaiproject.assignment.api.model.AssignmentSupplementItemAttachment;
+import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
+import org.sakaiproject.assignment.api.model.AssignmentSupplementItemWithAttachment;
+import org.sakaiproject.assignment.api.model.PeerAssessmentAttachment;
+import org.sakaiproject.assignment.api.model.PeerAssessmentItem;
+import org.sakaiproject.assignment.api.reminder.AssignmentDueReminderService;
+import org.sakaiproject.assignment.api.taggable.AssignmentActivityProducer;
+import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider;
+import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider.Pager;
+import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider.Sort;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroup.RealmLockMode;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.calendar.api.Calendar;
+import org.sakaiproject.calendar.api.CalendarEvent;
+import org.sakaiproject.calendar.api.CalendarEventEdit;
+import org.sakaiproject.calendar.api.CalendarService;
+import org.sakaiproject.cheftool.Context;
+import org.sakaiproject.cheftool.JetspeedRunData;
+import org.sakaiproject.cheftool.PagedResourceActionII;
+import org.sakaiproject.cheftool.PortletConfig;
+import org.sakaiproject.cheftool.RunData;
+import org.sakaiproject.cheftool.VelocityPortlet;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.content.api.ContentTypeImageService;
+import org.sakaiproject.content.api.FilePickerHelper;
+import org.sakaiproject.contentreview.dao.ContentReviewConstants;
+import org.sakaiproject.contentreview.service.ContentReviewService;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
+import org.sakaiproject.entity.api.EntityPropertyTypeException;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.LearningResourceStoreService;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Actor;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Object;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VERB;
+import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.event.api.SessionState;
+import org.sakaiproject.exception.IdInvalidException;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.InUseException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.SakaiException;
+import org.sakaiproject.exception.ServerOverloadException;
+import org.sakaiproject.javax.PagingPosition;
+import org.sakaiproject.message.api.MessageHeader;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
+import org.sakaiproject.rubrics.logic.RubricsService;
+import org.sakaiproject.scoringservice.api.ScoringAgent;
+import org.sakaiproject.scoringservice.api.ScoringComponent;
+import org.sakaiproject.scoringservice.api.ScoringService;
+import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
+import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
+import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
+import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.taggable.api.TaggingHelperInfo;
+import org.sakaiproject.taggable.api.TaggingManager;
+import org.sakaiproject.taggable.api.TaggingProvider;
+import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.time.api.UserTimeService;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.user.api.CandidateDetailProvider;
+import org.sakaiproject.user.api.Preferences;
+import org.sakaiproject.user.api.PreferencesService;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.DateFormatterUtil;
+import org.sakaiproject.util.FileItem;
+import org.sakaiproject.util.ParameterParser;
+import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.SortedIterator;
+import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.comparator.UserSortNameComparator;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opencsv.CSVParser;
@@ -55,74 +245,6 @@ import com.opencsv.exceptions.CsvException;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
-import org.sakaiproject.announcement.api.*;
-import org.sakaiproject.assignment.api.*;
-import org.sakaiproject.assignment.api.model.Assignment;
-import org.sakaiproject.assignment.api.model.*;
-import org.sakaiproject.assignment.api.reminder.AssignmentDueReminderService;
-import org.sakaiproject.assignment.api.taggable.AssignmentActivityProducer;
-import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider;
-import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider.Pager;
-import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider.Sort;
-import org.sakaiproject.authz.api.*;
-import org.sakaiproject.authz.api.AuthzGroup.RealmLockMode;
-import org.sakaiproject.calendar.api.Calendar;
-import org.sakaiproject.calendar.api.CalendarEvent;
-import org.sakaiproject.calendar.api.CalendarEventEdit;
-import org.sakaiproject.calendar.api.CalendarService;
-import org.sakaiproject.cheftool.*;
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.content.api.*;
-import org.sakaiproject.contentreview.dao.ContentReviewConstants;
-import org.sakaiproject.contentreview.service.ContentReviewService;
-import org.sakaiproject.entity.api.*;
-import org.sakaiproject.event.api.*;
-import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Actor;
-import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Object;
-import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
-import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb;
-import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VERB;
-import org.sakaiproject.exception.*;
-import org.sakaiproject.javax.PagingPosition;
-import org.sakaiproject.message.api.MessageHeader;
-import org.sakaiproject.rubrics.logic.RubricsConstants;
-import org.sakaiproject.rubrics.logic.RubricsService;
-import org.sakaiproject.scoringservice.api.ScoringAgent;
-import org.sakaiproject.scoringservice.api.ScoringComponent;
-import org.sakaiproject.scoringservice.api.ScoringService;
-import org.sakaiproject.service.gradebook.shared.*;
-import org.sakaiproject.site.api.Group;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.taggable.api.TaggingHelperInfo;
-import org.sakaiproject.taggable.api.TaggingManager;
-import org.sakaiproject.taggable.api.TaggingProvider;
-import org.sakaiproject.time.api.TimeService;
-import org.sakaiproject.tool.api.*;
-import org.sakaiproject.user.api.CandidateDetailProvider;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.util.FileItem;
-import org.sakaiproject.util.ParameterParser;
-import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.SortedIterator;
-import org.sakaiproject.util.Validator;
-import org.sakaiproject.util.api.FormattedText;
-
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
  * <p>
@@ -212,6 +334,14 @@ public class AssignmentAction extends PagedResourceActionII {
      * Additional calendar tool
      */
     private static final String ADDITIONAL_CALENDAR_TOOL_READY = "additional_calendar_tool_ready";
+    /**
+     * Sakai property key to change the default value for the 'Add due date to calendar' checkbox
+     */
+    private static final String SAK_PROP_DUE_DATE_TO_CALENDAR_DEFAULT = "asn.due.date.to.calendar.default";
+    /**
+     * Default value for the 'Add due date to calendar' checkbox
+     */
+    private static final boolean DUE_DATE_TO_CALENDAR_DEFAULT = true;
     /**
      * The announcement tool
      */
@@ -451,12 +581,10 @@ public class AssignmentAction extends PagedResourceActionII {
     /**
      * ****************** flags controls the grade assignment page layout *******************
      */
-    private static final String GRADE_ASSIGNMENT_EXPAND_FLAG = "grade_assignment_expand_flag";
     private static final String GRADE_SUBMISSION_EXPAND_FLAG = "grade_submission_expand_flag";
     /**
      * ****************** instructor's grade submission *****************************
      */
-    private static final String GRADE_SUBMISSION_ASSIGNMENT_EXPAND_FLAG = "grade_submission_assignment_expand_flag";
     private static final String GRADE_SUBMISSION_ALLOW_RESUBMIT = "grade_submission_allow_resubmit";
     private static final String GRADE_SUBMISSION_DONE = "grade_submission_done";
     private static final String GRADE_SUBMISSION_SUBMIT = "grade_submission_submit";
@@ -890,7 +1018,6 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String INVOKE_BY_LINK = "link";
     private static final String INVOKE_BY_PORTAL = "portal";
     private static final String SUBMISSIONS_SEARCH_ONLY = "submissions_search_only";
-    private static final String USE_SAKAI_GRADER = "use_sakai_grader";
     /*************** search related *******************/
     private static final String STATE_SEARCH = "state_search";
     private static final String FORM_SEARCH = "form_search";
@@ -968,6 +1095,7 @@ public class AssignmentAction extends PagedResourceActionII {
     private GradebookExternalAssessmentService gradebookExternalAssessmentService;
     private LearningResourceStoreService learningResourceStoreService;
     private NotificationService notificationService;
+	private PreferencesService preferencesService;
 	private RubricsService rubricsService;
     private SecurityService securityService;
     private ServerConfigurationService serverConfigurationService;
@@ -977,6 +1105,7 @@ public class AssignmentAction extends PagedResourceActionII {
     private TimeService timeService;
     private ToolManager toolManager;
     private UserDirectoryService userDirectoryService;
+    private UserTimeService userTimeService;
     private RangeAndGroupsDelegate rangeAndGroups;
 
     public AssignmentAction() {
@@ -1000,6 +1129,7 @@ public class AssignmentAction extends PagedResourceActionII {
         gradebookService = (GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
         learningResourceStoreService = ComponentManager.get(LearningResourceStoreService.class);
         notificationService = ComponentManager.get(NotificationService.class);
+		preferencesService  = ComponentManager.get(PreferencesService.class);
 		rubricsService  = ComponentManager.get(RubricsService.class);
         securityService = ComponentManager.get(SecurityService.class);
         serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
@@ -1009,6 +1139,7 @@ public class AssignmentAction extends PagedResourceActionII {
         timeService = ComponentManager.get(TimeService.class);
         toolManager = ComponentManager.get(ToolManager.class);
         userDirectoryService = ComponentManager.get(UserDirectoryService.class);
+        userTimeService = ComponentManager.get(UserTimeService.class);
         rangeAndGroups = new RangeAndGroupsDelegate(assignmentService, rb, siteService, securityService, formattedText);
     }
 
@@ -1342,6 +1473,10 @@ public class AssignmentAction extends PagedResourceActionII {
             case MODE_STUDENT_VIEW_ASSIGNMENT_HONORPLEDGE:
                 template = build_student_view_assignment_honorPledge_context(portlet, context, data, state);
                 break;
+            case MODE_PERMISSIONS:
+                template = build_permissions_context(portlet, context, data, state);
+                state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
+                break;
         }
 
         if (template == null) {
@@ -1359,7 +1494,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         return template;
 
-    } // buildNormalContext
+    } // buildMainPanelContext
 
     /**
      * local function for getting assignment object
@@ -1980,7 +2115,7 @@ public class AssignmentAction extends PagedResourceActionII {
 		//TODO keep/remove/add what necessary
 
         User user = (User) state.getAttribute(STATE_USER);
-        String aReference = (String) state.getAttribute(PREVIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
+        String aReference = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
 
         Assignment assignment = getAssignment(aReference, "build_student_confirm_submission_context", state);
         if (assignment != null) {
@@ -2022,19 +2157,19 @@ public class AssignmentAction extends PagedResourceActionII {
                 context.put("returnedFeedback", Boolean.TRUE);
                 state.removeAttribute(RETURNED_FEEDBACK);
             }
+            if (assignment.getContentReview()) {
+                context.put("plagiarismStudentPreview", state.getAttribute("plagiarismStudentPreview"));
+                context.put("plagiarismFileTypes", state.getAttribute("plagiarismFileTypes"));
+                context.put("plagiarismFileSize", state.getAttribute("plagiarismFileSize"));
+                context.put("plagiarismNote", state.getAttribute("plagiarismNote"));
+                context.put("name_plagiarism_eula_agreement", SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT);
+                context.put("value_plagiarism_eula_agreement", state.getAttribute(SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT));
+                context.put("plagiarismEULALink", state.getAttribute("eulaServiceLink"));
+                context.put("name_check_plagiarism_eula_agreement", SUBMISSION_REVIEW_CHECK_SERVICE_EULA_AGREEMENT);
+            }
         }
 
         context.put("text", state.getAttribute(PREVIEW_SUBMISSION_TEXT));
-        if(assignment.getContentReview()) {
-	        	context.put("plagiarismStudentPreview", state.getAttribute("plagiarismStudentPreview"));
-	        	context.put("plagiarismFileTypes", state.getAttribute("plagiarismFileTypes"));
-	        	context.put("plagiarismFileSize", state.getAttribute("plagiarismFileSize"));
-	        	context.put("plagiarismNote", state.getAttribute("plagiarismNote"));
-	        	context.put("name_plagiarism_eula_agreement", SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT);
-	        	context.put("value_plagiarism_eula_agreement", state.getAttribute(SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT));
-	        	context.put("plagiarismEULALink", state.getAttribute("eulaServiceLink"));
-	        	context.put("name_check_plagiarism_eula_agreement", SUBMISSION_REVIEW_CHECK_SERVICE_EULA_AGREEMENT);
-        }
         Map<String, Reference> submissionAttachmentReferences = new HashMap<>();
         stripInvisibleAttachments(state.getAttribute(PREVIEW_SUBMISSION_ATTACHMENTS)).forEach(r -> submissionAttachmentReferences.put(r.getId(), r));
         context.put("submissionAttachmentReferences", submissionAttachmentReferences);
@@ -2113,19 +2248,19 @@ public class AssignmentAction extends PagedResourceActionII {
                 context.put("returnedFeedback", Boolean.TRUE);
                 state.removeAttribute(RETURNED_FEEDBACK);
             }
+            if (assignment.getContentReview()) {
+                context.put("plagiarismStudentPreview", state.getAttribute("plagiarismStudentPreview"));
+                context.put("plagiarismFileTypes", state.getAttribute("plagiarismFileTypes"));
+                context.put("plagiarismFileSize", state.getAttribute("plagiarismFileSize"));
+                context.put("plagiarismNote", state.getAttribute("plagiarismNote"));
+                context.put("name_plagiarism_eula_agreement", SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT);
+                context.put("value_plagiarism_eula_agreement", state.getAttribute(SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT));
+                context.put("plagiarismEULALink", state.getAttribute("eulaServiceLink"));
+                context.put("name_check_plagiarism_eula_agreement", SUBMISSION_REVIEW_CHECK_SERVICE_EULA_AGREEMENT);
+            }
         }
 
         context.put("text", state.getAttribute(PREVIEW_SUBMISSION_TEXT));
-        if(assignment.getContentReview()) {
-	        	context.put("plagiarismStudentPreview", state.getAttribute("plagiarismStudentPreview"));
-	        	context.put("plagiarismFileTypes", state.getAttribute("plagiarismFileTypes"));
-	        	context.put("plagiarismFileSize", state.getAttribute("plagiarismFileSize"));
-	        	context.put("plagiarismNote", state.getAttribute("plagiarismNote"));
-	        	context.put("name_plagiarism_eula_agreement", SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT);
-	        	context.put("value_plagiarism_eula_agreement", state.getAttribute(SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT));
-	        	context.put("plagiarismEULALink", state.getAttribute("eulaServiceLink"));
-	        	context.put("name_check_plagiarism_eula_agreement", SUBMISSION_REVIEW_CHECK_SERVICE_EULA_AGREEMENT);
-        }
 
         Map<String, Reference> submissionAttachmentReferences = new HashMap<>();
         stripInvisibleAttachments(state.getAttribute(PREVIEW_SUBMISSION_ATTACHMENTS)).forEach(r -> submissionAttachmentReferences.put(r.getId(), r));
@@ -2936,6 +3071,7 @@ public class AssignmentAction extends PagedResourceActionII {
                             log.warn(this + ":setAssignmentFormContext cannot get user " + e.getMessage() + " user id=" + userId);
                         }
                     }
+                    Collections.sort(usersList, new UserSortNameComparator());
                     roleUsers.put(r.getId(), usersList);
                 }
             }
@@ -3167,7 +3303,6 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("value_opendate_notification_low", AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_LOW);
         context.put("value_opendate_notification_high", AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_HIGH);
         context.put("value_CheckAddHonorPledge", state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE));
-        context.put("honor_pledge_text", serverConfigurationService.getString("assignment.honor.pledge", rb.getString("gen.honple2")));
 
         context.put("value_CheckAnonymousGrading", Boolean.FALSE);
 
@@ -3405,7 +3540,6 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("value_CheckAnonymousGrading", assignmentService.assignmentUsesAnonymousGrading(assignment.get()));
         context.put("value_grade", displayGrade(state, (String) state.getAttribute(GRADE_SUBMISSION_GRADE), scaleFactor));
 
-        context.put("assignment_expand_flag", state.getAttribute(GRADE_SUBMISSION_ASSIGNMENT_EXPAND_FLAG));
 
         // is this a non-electronic submission type of assignment
         context.put("nonElectronic", (assignment.isPresent() && assignment.get().getTypeOfSubmission() == Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) ? Boolean.TRUE : Boolean.FALSE);
@@ -3573,31 +3707,23 @@ public class AssignmentAction extends PagedResourceActionII {
         String siteId = (String) state.getAttribute(STATE_CONTEXT_STRING);
         String toolId = toolManager.getCurrentPlacement().getId();
 
-        List<BasicUser> submitters
-            = userSubmissions.stream().map(ss -> {
-
-                BasicUser bu = new BasicUser(ss.getUser());
-                String ref = AssignmentReferenceReckoner.reckoner().submission(ss.submission).reckon().getReference();
-                bu.url = serverConfigurationService.getPortalUrl() + "/site/" + siteId + "/tool/" + toolId + "?assignmentId=" + assignmentRef + "&submissionId=" + ref + "&panel=Main&sakai_action=doGrade_submission";
-                return bu;
-            }).collect(Collectors.toList());
-
-        try {
-            String jsonSubmitters = new ObjectMapper().writeValueAsString(submitters);
-            context.put("jsonSubmitters", jsonSubmitters);
-        } catch (Exception e) {
-            log.error("Failed to set jsonSubmitters variable in grading template", e);
-        }
-
         String template = (String) getContext(data).get("template");
 
-        boolean useSakaiGrader = false;
-        try {
-            Site site = siteService.getSite(siteId);
-            ToolConfiguration tc = site.getToolForCommonId(ASSIGNMENT_TOOL_ID);
-            useSakaiGrader = BooleanUtils.toBoolean(tc.getPlacementConfig().getProperty(USE_SAKAI_GRADER));
-        } catch (IdUnusedException iue) {
-            log.warn("No site for {}", siteId);
+        boolean useSakaiGrader = serverConfigurationService.getBoolean("assignment.usegraderbydefault", true);
+
+        Preferences prefs = preferencesService.getPreferences(sessionManager.getCurrentSessionUserId());
+        ResourceProperties props = prefs.getProperties("viewpreferences");
+        if (props != null) {
+            try {
+                String assignmentsViewPrefs = (String) props.getProperty("assignments");
+                if (assignmentsViewPrefs != null) {
+                    ObjectMapper m = new ObjectMapper();
+                    Map<String, Object> prefsMap = m.readValue(URLDecoder.decode(assignmentsViewPrefs, "UTF-8"), Map.class);
+                    useSakaiGrader = (Boolean) prefsMap.get("usegrader");
+                }
+            } catch (Exception e) {
+                log.error("Failed to parse assignments view preferences", e);
+            }
         }
 
         if (useSakaiGrader) {
@@ -3967,7 +4093,7 @@ public class AssignmentAction extends PagedResourceActionII {
         if (timeValue == null) {
             timeValue = Instant.now().truncatedTo(ChronoUnit.DAYS);
         }
-        LocalDateTime bTime = timeValue.atZone(timeService.getLocalTimeZone().toZoneId()).toLocalDateTime();
+        LocalDateTime bTime = timeValue.atZone(userTimeService.getLocalTimeZone().toZoneId()).toLocalDateTime();
         state.setAttribute(month, bTime.getMonthValue());
         state.setAttribute(day, bTime.getDayOfMonth());
         state.setAttribute(year, bTime.getYear());
@@ -4245,7 +4371,6 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("submissionTypeTable", submissionTypeTable());
         context.put("attachments", state.getAttribute(ATTACHMENTS));
         context.put("contentTypeImageService", contentTypeImageService);
-        context.put("assignment_expand_flag", state.getAttribute(GRADE_ASSIGNMENT_EXPAND_FLAG));
         context.put("submission_expand_flag", state.getAttribute(GRADE_SUBMISSION_EXPAND_FLAG));
 
         add2ndToolbarFields(data, context);
@@ -4414,6 +4539,8 @@ public class AssignmentAction extends PagedResourceActionII {
             Map<String, Reference> attachmentReferences = new HashMap<>();
             assignment.getAttachments().forEach(r -> attachmentReferences.put(r, entityManager.newReference(r)));
             context.put("attachmentReferences", attachmentReferences);
+
+            supplementItemIntoContext(state, context, assignment, null);
         }
 
         if (taggingManager.isTaggable() && assignment != null) {
@@ -4438,7 +4565,6 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("hideAssignmentFlag", state.getAttribute(VIEW_ASSIGNMENT_HIDE_ASSIGNMENT_FLAG));
         context.put("hideStudentViewFlag", state.getAttribute(VIEW_ASSIGNMENT_HIDE_STUDENT_VIEW_FLAG));
         context.put("contentTypeImageService", contentTypeImageService);
-        context.put("honor_pledge_text", serverConfigurationService.getString("assignment.honor.pledge", rb.getString("gen.honple2")));
 
         String template = (String) getContext(data).get("template");
         return template + TEMPLATE_INSTRUCTOR_VIEW_ASSIGNMENT;
@@ -4503,6 +4629,7 @@ public class AssignmentAction extends PagedResourceActionII {
             Map<String, Reference> assignmentAttachmentReferences = new HashMap<>();
             assignment.getAttachments().forEach(r -> assignmentAttachmentReferences.put(r, entityManager.newReference(r)));
             context.put("assignmentAttachmentReferences", assignmentAttachmentReferences);
+            context.put("value_CheckAnonymousGrading", assignmentService.assignmentUsesAnonymousGrading(assignment));
         }
         String submissionId = "";
         SecurityAdvisor secAdv = (userId, function, reference) -> {
@@ -4650,7 +4777,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         }
                     }
                 }
-                context.put("totalReviews", userSubmissions.size());
+                context.put("totalReviews", peerAssessmentItems.size());
                 //first setup map to make the navigation logic easier:
                 Map<String, List<PeerAssessmentItem>> itemMap = new HashMap<String, List<PeerAssessmentItem>>();
                 for (String userSubmissionId : userSubmissions) {
@@ -4669,12 +4796,12 @@ public class AssignmentAction extends PagedResourceActionII {
                     String userSubmissionId = userSubmissions.get(i);
                     if (userSubmissionId.equals(submissionId)) {
                         //we found the right submission, now find the items
-                        context.put("reviewNumber", (i + 1));
                         List<PeerAssessmentItem> submissionItems = itemMap.get(submissionId);
                         if (submissionItems != null) {
                             for (int j = 0; j < submissionItems.size(); j++) {
                                 PeerAssessmentItem item = submissionItems.get(j);
                                 if (item.getId().getAssessorUserId().equals(assessorId)) {
+                                    context.put("reviewNumber", (peerAssessmentItems.indexOf(item) + 1));
                                     context.put("anonNumber", i + 1);
                                     boolean goPT = false;
                                     boolean goNT = false;
@@ -4736,7 +4863,6 @@ public class AssignmentAction extends PagedResourceActionII {
             }
         }
 
-        context.put("assignment_expand_flag", state.getAttribute(GRADE_SUBMISSION_ASSIGNMENT_EXPAND_FLAG));
         context.put("user", sessionUser);
         context.put("submissionTypeTable", submissionTypeTable());
         context.put("instructorAttachments", state.getAttribute(ATTACHMENTS));
@@ -5071,6 +5197,10 @@ public class AssignmentAction extends PagedResourceActionII {
 
         ParameterParser params = data.getParameters();
         String assignmentReference = params.getString("assignmentReference");
+
+        if (assignmentReference == null) {
+            assignmentReference = params.getString("assignmentId");
+        }
         state.setAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE, assignmentReference);
 
         User u = (User) state.getAttribute(STATE_USER);
@@ -5204,40 +5334,8 @@ public class AssignmentAction extends PagedResourceActionII {
     } // doView_submission_list_option
 
     public void doConfirm_submission(RunData data) {
-		//TODO remove unnecessary code
         SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-
-        ParameterParser params = data.getParameters();
-        String aReference = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
-        state.setAttribute(PREVIEW_SUBMISSION_ASSIGNMENT_REFERENCE, aReference);
-        Assignment a = getAssignment(aReference, "doPreview_submission", state);
-
-        String[] groupChoice = params.getStrings("selectedGroups");
-        if (groupChoice != null && ArrayUtils.isNotEmpty(groupChoice)) {
-            state.setAttribute(VIEW_SUBMISSION_GROUP, groupChoice[0]);
-        }
-
-        saveSubmitInputs(state, params);
-
-        // retrieve the submission text (as formatted text)
-        String text = processFormattedTextFromBrowser(state, params.getCleanString(VIEW_SUBMISSION_TEXT), true);
-        if (text == null) {
-            text = state.getAttribute(VIEW_SUBMISSION_TEXT) != null ? (String) state.getAttribute(VIEW_SUBMISSION_TEXT) : (String) state.getAttribute(PREVIEW_SUBMISSION_TEXT);
-        }
-        state.setAttribute(PREVIEW_SUBMISSION_TEXT, text);
-        state.setAttribute(VIEW_SUBMISSION_TEXT, text);
-
-        // assign the EULA attribute
-        String eulaAgreementYes = params.getString(SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT);
-        if(StringUtils.isEmpty(eulaAgreementYes)) {
-            eulaAgreementYes = "false";
-        }
-        state.setAttribute(SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT, eulaAgreementYes);
-
-        // get attachment input and generate alert message according to assignment submission type
-        checkSubmissionTextAttachmentInput(data, state, a, text);
-        state.setAttribute(PREVIEW_SUBMISSION_ATTACHMENTS, state.getAttribute(ATTACHMENTS));
-
+        doSave_submission(data);
         if (state.getAttribute(STATE_MESSAGE) == null) {
             state.setAttribute(STATE_MODE, MODE_STUDENT_CONFIRM_SUBMISSION);
         }
@@ -5659,7 +5757,7 @@ public class AssignmentAction extends PagedResourceActionII {
                                 if (assignmentRef != null) {
                                     String associateGradebookAssignment = a.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
                                     // update grade in gradebook
-                                    assignmentToolUtils.integrateGradebook(stateToMap(state), assignmentRef, associateGradebookAssignment, null, null, null, -1, null, submissionId, "update", -1);
+                                    addAlerts(state, assignmentToolUtils.integrateGradebook(stateToMap(state), assignmentRef, associateGradebookAssignment, null, null, null, -1, null, submissionId, "update", -1));
                                 }
                             }
                         }
@@ -7169,10 +7267,10 @@ public class AssignmentAction extends PagedResourceActionII {
         int min = Integer.valueOf(params.getString(minString));
         state.setAttribute(minString, min);
         // validate date
-        if (!Validator.checkDate(day, month, year)) {
+        if (!DateFormatterUtil.checkDate(day, month, year)) {
             addAlert(state, rb.getFormattedMessage("date.invalid", rb.getString(invalidBundleMessage)));
         }
-        return LocalDateTime.of(year, month, day, hour, min, 0).atZone(timeService.getLocalTimeZone().toZoneId()).toInstant();
+        return LocalDateTime.of(year, month, day, hour, min, 0).atZone(userTimeService.getLocalTimeZone().toZoneId()).toInstant();
     }
 
     /**
@@ -7180,7 +7278,6 @@ public class AssignmentAction extends PagedResourceActionII {
      */
     public void doHide_submission_assignment_instruction(RunData data) {
         SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-        state.setAttribute(GRADE_SUBMISSION_ASSIGNMENT_EXPAND_FLAG, Boolean.FALSE);
 
         // save user input
         readGradeForm(data, state, "read");
@@ -7196,7 +7293,6 @@ public class AssignmentAction extends PagedResourceActionII {
         }
 
         SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-        state.setAttribute(GRADE_SUBMISSION_ASSIGNMENT_EXPAND_FLAG, Boolean.FALSE);
 
         // save user input
         saveReviewGradeForm(data, state, "read");
@@ -7210,7 +7306,6 @@ public class AssignmentAction extends PagedResourceActionII {
 
 
         SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-        state.setAttribute(GRADE_SUBMISSION_ASSIGNMENT_EXPAND_FLAG, Boolean.TRUE);
 
         // save user input
         saveReviewGradeForm(data, state, "read");
@@ -7221,7 +7316,6 @@ public class AssignmentAction extends PagedResourceActionII {
      */
     public void doShow_submission_assignment_instruction(RunData data) {
         SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-        state.setAttribute(GRADE_SUBMISSION_ASSIGNMENT_EXPAND_FLAG, Boolean.TRUE);
 
         // save user input
         readGradeForm(data, state, "read");
@@ -7778,6 +7872,7 @@ public class AssignmentAction extends PagedResourceActionII {
             AssignmentModelAnswerItem mAnswer = assignmentSupplementItemService.getModelAnswer(aId);
             if (mAnswer != null) {
                 assignmentSupplementItemService.cleanAttachment(mAnswer);
+                mAnswer.setAttachmentSet(new HashSet<>());
                 assignmentSupplementItemService.removeModelAnswer(mAnswer);
             }
         } else if (state.getAttribute(MODELANSWER_TEXT) != null) {
@@ -7816,7 +7911,9 @@ public class AssignmentAction extends PagedResourceActionII {
             AssignmentAllPurposeItem nAllPurpose = assignmentSupplementItemService.getAllPurposeItem(aId);
             if (nAllPurpose != null) {
                 assignmentSupplementItemService.cleanAttachment(nAllPurpose);
+                nAllPurpose.setAttachmentSet(new HashSet<>());
                 assignmentSupplementItemService.cleanAllPurposeItemAccess(nAllPurpose);
+                nAllPurpose.setAccessSet(new HashSet<>());
                 assignmentSupplementItemService.removeAllPurposeItem(nAllPurpose);
             }
         } else if (state.getAttribute(ALLPURPOSE_TITLE) != null) {
@@ -8039,15 +8136,15 @@ public class AssignmentAction extends PagedResourceActionII {
 
                 if (!"remove".equals(addUpdateRemoveAssignment) && gradeType == SCORE_GRADE_TYPE) {
                     try {
-                        assignmentToolUtils.integrateGradebook(stateToMap(state), assignmentReference, associateGradebookAssignment, addUpdateRemoveAssignment, aOldTitle, title, Integer.parseInt(gradePoints), dueTime, null, null, category);
+                        addAlerts(state, assignmentToolUtils.integrateGradebook(stateToMap(state), assignmentReference, associateGradebookAssignment, addUpdateRemoveAssignment, aOldTitle, title, Integer.parseInt(gradePoints), dueTime, null, null, category));
 
                         // add all existing grades, if any, into Gradebook
-                        assignmentToolUtils.integrateGradebook(stateToMap(state), assignmentReference, associateGradebookAssignment, null, null, null, -1, null, null, "update", category);
+                        addAlerts(state, assignmentToolUtils.integrateGradebook(stateToMap(state), assignmentReference, associateGradebookAssignment, null, null, null, -1, null, null, "update", category));
 
                         // if the assignment has been assoicated with a different entry in gradebook before, remove those grades from the entry in Gradebook
                         if (StringUtils.trimToNull(oAssociateGradebookAssignment) != null && !oAssociateGradebookAssignment.equals(associateGradebookAssignment)) {
                             // remove all previously associated grades, if any, into Gradebook
-                            assignmentToolUtils.integrateGradebook(stateToMap(state), assignmentReference, oAssociateGradebookAssignment, null, null, null, -1, null, null, "remove", category);
+                            addAlerts(state, assignmentToolUtils.integrateGradebook(stateToMap(state), assignmentReference, oAssociateGradebookAssignment, null, null, null, -1, null, null, "remove", category));
 
                             // if the old assoicated assignment entry in GB is an external one, but doesn't have anything assoicated with it in Assignment tool, remove it
                             removeNonAssociatedExternalGradebookEntry(context, assignmentReference, oAssociateGradebookAssignment, gradebookUid);
@@ -8057,11 +8154,11 @@ public class AssignmentAction extends PagedResourceActionII {
                         log.warn(this + ":initIntegrateWithGradebook " + nE.getMessage());
                     }
                 } else {
-                    assignmentToolUtils.integrateGradebook(stateToMap(state), assignmentReference, associateGradebookAssignment, "remove", null, null, -1, null, null, null, category);
+                    addAlerts(state, assignmentToolUtils.integrateGradebook(stateToMap(state), assignmentReference, associateGradebookAssignment, "remove", null, null, -1, null, null, null, category));
                 }
             } else {
                 // remove all previously associated grades, if any, into Gradebook
-                assignmentToolUtils.integrateGradebook(stateToMap(state), assignmentReference, oAssociateGradebookAssignment, null, null, null, -1, null, null, "remove", category);
+                addAlerts(state, assignmentToolUtils.integrateGradebook(stateToMap(state), assignmentReference, oAssociateGradebookAssignment, null, null, null, -1, null, null, "remove", category));
 
                 // need to remove the associated gradebook entry if 1) it is external and 2) no other assignment are associated with it
                 removeNonAssociatedExternalGradebookEntry(context, assignmentReference, oAssociateGradebookAssignment, gradebookUid);
@@ -8793,7 +8890,7 @@ public class AssignmentAction extends PagedResourceActionII {
             int year = (Integer) state.getAttribute(yearString);
             int hour = (Integer) state.getAttribute(hourString);
             int min = (Integer) state.getAttribute(minString);
-            return LocalDateTime.of(year, month, day, hour, min, 0).atZone(timeService.getLocalTimeZone().toZoneId()).toInstant();
+            return LocalDateTime.of(year, month, day, hour, min, 0).atZone(userTimeService.getLocalTimeZone().toZoneId()).toInstant();
         } else {
             return null;
         }
@@ -8865,15 +8962,33 @@ public class AssignmentAction extends PagedResourceActionII {
 
         Assignment a = getAssignment(assignmentId, "doView_assignment", state);
 
-        // get resubmission option into state
-        assignment_resubmission_option_into_state(a, null, state);
+        String siteId = a.getContext();
 
-        // assignment read event
-        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ACCESS_ASSIGNMENT, assignmentId, false));
+        //String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 
-        if (state.getAttribute(STATE_MESSAGE) == null) {
-            state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_VIEW_ASSIGNMENT);
+        boolean allowSubmitAssignment = assignmentService.allowAddSubmission(siteId);
+        boolean allowAddAssignment = assignmentService.allowAddAssignment(siteId);
+
+        if (allowSubmitAssignment && !allowAddAssignment) {
+            // Retrieve the status of the assignment
+            String assignStatus = getAssignmentStatus(assignmentId, state);
+            if (assignStatus != null && !assignStatus.equals(rb.getString("gen.open")) && !allowAddAssignment) {
+                addAlert(state, rb.getFormattedMessage("gen.notavail", assignStatus));
+            }
+            doView_submission(data);
+        } else {
+            // get resubmission option into state
+            assignment_resubmission_option_into_state(a, null, state);
+
+            // assignment read event
+            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ACCESS_ASSIGNMENT, assignmentId, false));
+
+            if (state.getAttribute(STATE_MESSAGE) == null) {
+                state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_VIEW_ASSIGNMENT);
+            }
         }
+
+        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ACCESS_ASSIGNMENT, assignmentId, false));
 
     } // doView_Assignment
 
@@ -9397,10 +9512,10 @@ public class AssignmentAction extends PagedResourceActionII {
                 String title = assignment.getTitle();
 
                 // remove rubric association if there is one
-                rubricsService.deleteRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, id);
+                rubricsService.softDeleteRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, id);
 				
                 // remove from Gradebook
-                assignmentToolUtils.integrateGradebook(stateToMap(state), ref, associateGradebookAssignment, "remove", null, null, -1, null, null, null, -1);
+                addAlerts(state, assignmentToolUtils.integrateGradebook(stateToMap(state), ref, associateGradebookAssignment, "remove", null, null, -1, null, null, null, -1));
 
                 // we use to check "assignment.delete.cascade.submission" setting. But the implementation now is always remove submission objects when the assignment is removed.
                 // delete assignment and its submissions altogether
@@ -9479,6 +9594,9 @@ public class AssignmentAction extends PagedResourceActionII {
                             }
                         }
 
+                        // remove rubric association if there is one
+                        rubricsService.deleteRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, id);
+
                         assignmentService.deleteAssignment(a);
                     }
 
@@ -9520,6 +9638,8 @@ public class AssignmentAction extends PagedResourceActionII {
                     if (a != null) {
                         a.setDeleted(false);
                         assignmentService.updateAssignment(a);
+
+                        rubricsService.restoreRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, id);
 
                         // restore email reminder only if reminder is set and the due date is after 1 day
                         if (BooleanUtils.toBoolean(a.getProperties().get(NEW_ASSIGNMENT_REMINDER_EMAIL))
@@ -9599,7 +9719,6 @@ public class AssignmentAction extends PagedResourceActionII {
         putSubmissionInfoIntoState(state, assignmentId, submissionId, viewSubsOnlySelected);
 
         if (state.getAttribute(STATE_MESSAGE) == null) {
-            state.setAttribute(GRADE_SUBMISSION_ASSIGNMENT_EXPAND_FLAG, Boolean.FALSE);
             state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_SUBMISSION);
             state.setAttribute(FROM_VIEW, (String) params.getString("option"));
             // assignment read event
@@ -9721,7 +9840,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 // integrate with Gradebook
                 String associateGradebookAssignment = a.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
 
-                assignmentToolUtils.integrateGradebook(stateToMap(state), aReference, associateGradebookAssignment, null, null, null, -1, null, null, "update", -1);
+                addAlerts(state, assignmentToolUtils.integrateGradebook(stateToMap(state), aReference, associateGradebookAssignment, null, null, null, -1, null, null, "update", -1));
             }
         }
     }
@@ -9731,7 +9850,6 @@ public class AssignmentAction extends PagedResourceActionII {
      */
     public void doExpand_grade_assignment(RunData data) {
         SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-        state.setAttribute(GRADE_ASSIGNMENT_EXPAND_FLAG, Boolean.TRUE);
 
     } // doExpand_grade_assignment
 
@@ -9740,7 +9858,6 @@ public class AssignmentAction extends PagedResourceActionII {
      */
     public void doCollapse_grade_assignment(RunData data) {
         SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-        state.setAttribute(GRADE_ASSIGNMENT_EXPAND_FLAG, Boolean.FALSE);
 
     } // doCollapse_grade_assignment
 
@@ -9781,7 +9898,6 @@ public class AssignmentAction extends PagedResourceActionII {
         Assignment a = getAssignment(assignmentId, "doGrade_assignment", state);
         if (a != null) {
             state.setAttribute(EXPORT_ASSIGNMENT_ID, a.getId());
-            state.setAttribute(GRADE_ASSIGNMENT_EXPAND_FLAG, Boolean.FALSE);
             state.setAttribute(GRADE_SUBMISSION_EXPAND_FLAG, Boolean.TRUE);
             state.setAttribute(GRADE_SUBMISSION_SHOW_STUDENT_DETAILS, params.getBoolean(GRADE_SUBMISSION_SHOW_STUDENT_DETAILS));
             state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_ASSIGNMENT);
@@ -9954,7 +10070,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 doView(data);
             } else if ("permissions".equals(option)) {
                 // permissions
-                doPermissions(data);
+                doPermissions(data, null);
             } else if ("new".equals(option)) {
                 doNew_assignment(data, null);
             } else if ("returngrade".equals(option)) {
@@ -10178,27 +10294,29 @@ public class AssignmentAction extends PagedResourceActionII {
             // Restrict file picker configuration if using content-review (Turnitin):
             String assignmentRef = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
             assignment = getAssignment(assignmentRef, "doAttachments", state);
-            assignmentUser = userDirectoryService.getCurrentUser().getDisplayName();
-            if (assignment.getContentReview()) {
-                state.setAttribute(FilePickerHelper.FILE_PICKER_MAX_ATTACHMENTS, FilePickerHelper.CARDINALITY_MULTIPLE);
-                state.setAttribute(FilePickerHelper.FILE_PICKER_SHOW_URL, Boolean.FALSE);
+            if (assignment != null) {
+                assignmentUser = userDirectoryService.getCurrentUser().getDisplayName();
+                if (assignment.getContentReview()) {
+                    state.setAttribute(FilePickerHelper.FILE_PICKER_MAX_ATTACHMENTS, FilePickerHelper.CARDINALITY_MULTIPLE);
+                    state.setAttribute(FilePickerHelper.FILE_PICKER_SHOW_URL, Boolean.FALSE);
+                }
+
+                if (assignment.getTypeOfSubmission() == Assignment.SubmissionType.SINGLE_ATTACHMENT_SUBMISSION) {
+                    singleAttachment = true;
+                }
+
+                // need also to upload local file if any
+                doAttachUpload(data, false);
+
+                // TODO: file picker to save in dropbox? -ggolden
+                // User[] users = { userDirectoryService.getCurrentUser() };
+                // state.setAttribute(ResourcesAction.STATE_SAVE_ATTACHMENT_IN_DROPBOX, users);
+
+                // Always omit inline attachments. Even if content-review is not enabled,
+                // this could be a resubmission to an assignment that was previously content-review enabled,
+                // in which case the file will be present and should be omitted.
+                omitInlineAttachments = true;
             }
-
-            if (assignment.getTypeOfSubmission() == Assignment.SubmissionType.SINGLE_ATTACHMENT_SUBMISSION) {
-                singleAttachment = true;
-            }
-
-            // need also to upload local file if any
-            doAttachUpload(data, false);
-
-            // TODO: file picker to save in dropbox? -ggolden
-            // User[] users = { userDirectoryService.getCurrentUser() };
-            // state.setAttribute(ResourcesAction.STATE_SAVE_ATTACHMENT_IN_DROPBOX, users);
-
-            // Always omit inline attachments. Even if content-review is not enabled,
-            // this could be a resubmission to an assignment that was previously content-review enabled,
-            // in which case the file will be present and should be omitted.
-            omitInlineAttachments = true;
         } else if (MODE_INSTRUCTOR_NEW_EDIT_ASSIGNMENT.equals(mode)) {
             setNewAssignmentParameters(data, false);
             assignmentTitle = (String) state.getAttribute(NEW_ASSIGNMENT_TITLE);
@@ -10473,7 +10591,7 @@ public class AssignmentAction extends PagedResourceActionII {
                                             String aReference = AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference();
                                             String associateGradebookAssignment = a.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
                                             // update grade in gradebook
-                                            assignmentToolUtils.integrateGradebook(stateToMap(state), aReference, associateGradebookAssignment, null, null, null, -1, null, submissionId, "update", -1);
+                                            addAlerts(state, assignmentToolUtils.integrateGradebook(stateToMap(state), aReference, associateGradebookAssignment, null, null, null, -1, null, submissionId, "update", -1));
                                         }
                                     }
                                 }
@@ -10789,7 +10907,7 @@ public class AssignmentAction extends PagedResourceActionII {
             state.setAttribute(ALLOW_RESUBMIT_CLOSEHOUR, closeHour);
             int closeMin = Integer.valueOf(params.getString(ALLOW_RESUBMIT_CLOSEMIN));
             state.setAttribute(ALLOW_RESUBMIT_CLOSEMIN, closeMin);
-            resubmitCloseTime = LocalDateTime.of(closeYear, closeMonth, closeDay, closeHour, closeMin, 0, 0).atZone(timeService.getLocalTimeZone().toZoneId()).toInstant();
+            resubmitCloseTime = LocalDateTime.of(closeYear, closeMonth, closeDay, closeHour, closeMin, 0, 0).atZone(userTimeService.getLocalTimeZone().toZoneId()).toInstant();
             state.setAttribute(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, String.valueOf(resubmitCloseTime.toEpochMilli()));
             // no need to show alert if the resubmission setting has not changed
             if (properties == null || change_resubmit_option(state, properties)) {
@@ -10803,7 +10921,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 if (state.getAttribute(NEW_ASSIGNMENT_PAST_CLOSE_DATE) != null) {
                     addAlert(state, rb.getString("acesubdea5"));
                 }
-                if (!Validator.checkDate(closeDay, closeMonth, closeYear)) {
+                if (!DateFormatterUtil.checkDate(closeDay, closeMonth, closeYear)) {
                     addAlert(state, rb.getFormattedMessage("date.invalid", rb.getString("date.resubmission.closedate")));
                 }
             }
@@ -11095,7 +11213,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // open date is shifted forward by the offset
         Instant tOpen = t.plusSeconds(openDateOffset);
-        LocalDateTime ldtOpen = LocalDateTime.ofInstant(tOpen, ZoneId.systemDefault());
+        LocalDateTime ldtOpen = LocalDateTime.ofInstant(tOpen, userTimeService.getLocalTimeZone().toZoneId());
         minute = ldtOpen.getMinute();
         hour = ldtOpen.getHour();
         month = ldtOpen.getMonthValue();
@@ -11117,7 +11235,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // due date is shifted forward by the offset
         Instant tDue = t.plusSeconds(dueDateOffset);
-        LocalDateTime ldtDue = LocalDateTime.ofInstant(tDue, ZoneId.systemDefault());
+        LocalDateTime ldtDue = LocalDateTime.ofInstant(tDue, userTimeService.getLocalTimeZone().toZoneId());
         minute = ldtDue.getMinute();
         hour = ldtDue.getHour();
         month = ldtDue.getMonthValue();
@@ -11144,7 +11262,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // Accept until date is shifted forward by the offset
         Instant tAccept = t.plusSeconds(acceptUntilDateOffset);
-        LocalDateTime ldtAccept = LocalDateTime.ofInstant(tAccept, ZoneId.systemDefault());
+        LocalDateTime ldtAccept = LocalDateTime.ofInstant(tAccept, userTimeService.getLocalTimeZone().toZoneId());
         minute = ldtAccept.getMinute();
         hour = ldtAccept.getHour();
         month = ldtAccept.getMonthValue();
@@ -11167,7 +11285,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // Peer evaluation date is shifted forward by the offset
         Instant tPeer = t.plusSeconds(peerEvaluationDateOffset);
-        LocalDateTime ldtPeer = LocalDateTime.ofInstant(tPeer, ZoneId.systemDefault());
+        LocalDateTime ldtPeer = LocalDateTime.ofInstant(tPeer, userTimeService.getLocalTimeZone().toZoneId());
         minute = ldtPeer.getMinute();
         hour = ldtPeer.getHour();
         month = ldtPeer.getMonthValue();
@@ -11189,7 +11307,8 @@ public class AssignmentAction extends PagedResourceActionII {
         state.setAttribute(NEW_ASSIGNMENT_GRADE_TYPE, UNGRADED_GRADE_TYPE.ordinal());
         state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, "");
         state.setAttribute(NEW_ASSIGNMENT_DESCRIPTION, "");
-        state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, Boolean.FALSE.toString());
+        boolean checkAddDueDate = (state.getAttribute(CALENDAR) != null || state.getAttribute(ADDITIONAL_CALENDAR) != null) && serverConfigurationService.getBoolean(SAK_PROP_DUE_DATE_TO_CALENDAR_DEFAULT, DUE_DATE_TO_CALENDAR_DEFAULT);
+        state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, Boolean.toString(checkAddDueDate));
         state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, Boolean.FALSE.toString());
 
         String defaultNotification = serverConfigurationService.getString("announcement.default.notification", "n");
@@ -11642,63 +11761,11 @@ public class AssignmentAction extends PagedResourceActionII {
         }
     }
 
-    /**
-     * Fire up the permissions editor
-     */
-    public void doPermissions(RunData data) {
-        SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-        if (!alertGlobalNavigation(state, data)) {
-            // we are changing the view, so start with first page again.
-            resetPaging(state);
-
-            // clear search form
-            doSearch_clear(data, null);
-
-            if (siteService.allowUpdateSite((String) state.getAttribute(STATE_CONTEXT_STRING))) {
-                // get into helper mode with this helper tool
-                startHelper(data.getRequest(), "sakai.permissions.helper");
-
-                String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
-                String siteRef = siteService.siteReference(contextString);
-
-                // setup for editing the permissions of the site for this tool, using the roles of this site, too
-                state.setAttribute(PermissionsHelper.TARGET_REF, siteRef);
-
-                // ... with this description
-                state.setAttribute(PermissionsHelper.DESCRIPTION, rb.getString("setperfor") + " "
-                        + siteService.getSiteDisplay(contextString));
-
-                // ... showing only locks that are prpefixed with this
-                state.setAttribute(PermissionsHelper.PREFIX, "asn.");
-
-                // ... pass the resource loader object
-                ResourceLoader pRb = new ResourceLoader("permissions");
-                HashMap<String, String> pRbValues = new HashMap<String, String>();
-                for (Iterator<Map.Entry<String, Object>> iEntries = pRb.entrySet().iterator(); iEntries.hasNext(); ) {
-                    Map.Entry<String, Object> entry = iEntries.next();
-                    pRbValues.put(entry.getKey(), (String) entry.getValue());
-
-                }
-                state.setAttribute("permissionDescriptions", pRbValues);
-
-                String groupAware = toolManager.getCurrentTool().getRegisteredConfig().getProperty("groupAware");
-                state.setAttribute("groupAware", groupAware != null ? Boolean.valueOf(groupAware) : Boolean.FALSE);
-
-                // disable auto-updates while leaving the list view
-                justDelivered(state);
-            }
-
-            // reset the global navigaion alert flag
-            if (state.getAttribute(ALERT_GLOBAL_NAVIGATION) != null) {
-                state.removeAttribute(ALERT_GLOBAL_NAVIGATION);
-            }
-
-            // switching back to assignment list view
-            state.setAttribute(STATE_SELECTED_VIEW, MODE_LIST_ASSIGNMENTS);
-            doList_assignments(data);
-        }
-
-    } // doPermissions
+    public void doPermissions(RunData runData, Context context) {
+        SessionState state = ((JetspeedRunData) runData).getPortletSessionState(((JetspeedRunData) runData).getJs_peid());
+        state.setAttribute(STATE_MODE, "permissions");
+        state.setAttribute(STATE_TOOL_KEY, "asn");
+    }
 
     /**
      * transforms the Iterator to List
@@ -12906,7 +12973,7 @@ public class AssignmentAction extends PagedResourceActionII {
                                 if (entryName.contains("timestamp")) {
                                     byte[] timeStamp = readIntoBytes(zipFile.getInputStream(entry), entryName, entry.getSize());
                                     UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userEid);
-                                    r.setSubmissionTimestamp(new String(timeStamp));
+                                    r.setSubmissionTimestamp(StringUtils.stripToEmpty(StringUtils.chomp(new String(timeStamp))));
                                     submissionTable.put(userEid, r);
                                 }
                             }
@@ -13092,7 +13159,19 @@ public class AssignmentAction extends PagedResourceActionII {
 
                     // if the current submission lacks timestamp while the timestamp exists inside the zip file
                     if (StringUtils.trimToNull(w.getSubmissionTimeStamp()) != null && submission.getDateSubmitted() == null) {
-                        submission.setDateSubmitted(Instant.ofEpochMilli(Long.parseLong(w.getSubmissionTimeStamp())));
+                        Instant timestamp = Instant.now(); // default is now
+                        if (StringUtils.isNumeric(w.getSubmissionTimeStamp())) {
+                            // if timestamp in file is a numeric
+                            timestamp = Instant.ofEpochMilli(Long.parseLong(w.getSubmissionTimeStamp()));
+                        } else {
+                            // otherwise should be 2020-03-06T16:10:21Z
+                            try {
+                                timestamp = Instant.parse(w.getSubmissionTimeStamp());
+                            } catch (DateTimeParseException dtpe) {
+                                log.warn("Could not parse timestamp {} for submission {}, {}", w.getSubmissionTimeStamp(), submission.getId(), dtpe.toString());
+                            }
+                        }
+                        submission.setDateSubmitted(timestamp);
                         submission.setSubmitted(true);
                     }
 
@@ -13106,7 +13185,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         if (releaseGrades && graded) {
                             // update grade in gradebook
                             if (associateGradebookAssignment != null) {
-                                assignmentToolUtils.integrateGradebook(stateToMap(state), aReference, associateGradebookAssignment, null, null, null, -1, null, sReference, "update", -1);
+                                addAlerts(state, assignmentToolUtils.integrateGradebook(stateToMap(state), aReference, associateGradebookAssignment, null, null, null, -1, null, sReference, "update", -1));
                             }
                         }
                     } catch (PermissionException e) {
@@ -13114,6 +13193,12 @@ public class AssignmentAction extends PagedResourceActionII {
                     }
                 }
             }
+        }
+    }
+        
+    private void addAlerts(SessionState state, List<String> alerts) {
+        for (String alert : alerts) {
+            addAlert(state, alert);
         }
     }
 
@@ -13631,7 +13716,7 @@ public class AssignmentAction extends PagedResourceActionII {
             // only if in the single file upload case, need to warn user to upload a local file
             addAlert(state, rb.getString("choosefile7"));
         } else if (fileitem.getFileName().length() > 0) {
-            String filename = Validator.getFileName(fileitem.getFileName());
+            String filename = FilenameUtils.getName(fileitem.getFileName());
             InputStream fileContentStream = fileitem.getInputStream();
             String contentType = fileitem.getContentType();
 
@@ -13643,7 +13728,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     addAlert(state, rb.getFormattedMessage("attempty", filename));
                 } else {
                     // we just want the file name part - strip off any drive and path stuff
-                    String name = Validator.getFileName(filename);
+                    String name = FilenameUtils.getName(filename);
                     String resourceId = Validator.escapeResourceName(name);
 
                     // make a set of properties to add for the new resource
@@ -13792,21 +13877,17 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("context", siteId);
 
         Boolean submissionsSearchOnly = (Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY);
-        Boolean useSakaiGrader = (Boolean) state.getAttribute(USE_SAKAI_GRADER);
 
-        if (submissionsSearchOnly == null || useSakaiGrader == null) {
-            System.out.println("TRYING TOOL ...");
+        if (submissionsSearchOnly == null) {
             try {
                 Site site = siteService.getSite(siteId);
                 ToolConfiguration tc = site.getToolForCommonId(ASSIGNMENT_TOOL_ID);
                 submissionsSearchOnly = BooleanUtils.toBoolean(tc.getPlacementConfig().getProperty(SUBMISSIONS_SEARCH_ONLY));
-                useSakaiGrader = BooleanUtils.toBoolean(tc.getPlacementConfig().getProperty(USE_SAKAI_GRADER));
             } catch (Exception e) {
             }
         }
 
         context.put(SUBMISSIONS_SEARCH_ONLY, submissionsSearchOnly);
-        context.put(USE_SAKAI_GRADER, useSakaiGrader);
 
         String template = (String) getContext(data).get("template");
         return template + TEMPLATE_OPTIONS;
@@ -13831,9 +13912,6 @@ public class AssignmentAction extends PagedResourceActionII {
         boolean submissionsSearchOnly = params.getBoolean(SUBMISSIONS_SEARCH_ONLY);
         state.setAttribute(SUBMISSIONS_SEARCH_ONLY, submissionsSearchOnly);
 
-        boolean useSakaiGrader = params.getBoolean(USE_SAKAI_GRADER);
-        state.setAttribute(USE_SAKAI_GRADER, useSakaiGrader);
-
         // save the option into tool configuration
         try {
             boolean changed = false;
@@ -13844,12 +13922,6 @@ public class AssignmentAction extends PagedResourceActionII {
                 changed = true;
                 // save the change
                 tc.getPlacementConfig().setProperty(SUBMISSIONS_SEARCH_ONLY, Boolean.toString(submissionsSearchOnly));
-            }
-            currentSetting = tc.getPlacementConfig().getProperty(USE_SAKAI_GRADER);
-            if (currentSetting == null || !currentSetting.equals(Boolean.toString(useSakaiGrader))) {
-                changed = true;
-                // save the change
-                tc.getPlacementConfig().setProperty(USE_SAKAI_GRADER, Boolean.toString(useSakaiGrader));
             }
             if (changed) {
                 siteService.save(site);
@@ -14528,17 +14600,49 @@ public class AssignmentAction extends PagedResourceActionII {
                     AssignmentSubmission s1 = u1.getSubmission();
                     AssignmentSubmission s2 = u2.getSubmission();
 
-
                     if (s1 == null) {
                         result = -1;
                     } else if (s2 == null) {
                         result = 1;
                     } else {
-                        String ts1 = s1.getProperties().get(AssignmentConstants.REVIEW_SCORE);
-                        String ts2 = s2.getProperties().get(AssignmentConstants.REVIEW_SCORE);
-                        int score1 = ts1 != null ? Integer.parseInt(ts1) : 0;
-                        int score2 = ts2 != null ? Integer.parseInt(ts2) : 0;
-                        result = score1 > score2 ? 1 : -1;
+                        List<ContentReviewResult> r1 = assignmentService.getContentReviewResults(s1);
+                        List<ContentReviewResult> r2 = assignmentService.getContentReviewResults(s2);
+
+                        if (CollectionUtils.isEmpty(r1) && CollectionUtils.isEmpty(r2)) {
+                            result = 0;
+                        } else if (CollectionUtils.isEmpty(r1)) {
+                            result = -1;
+                        } else if (CollectionUtils.isEmpty(r2)) {
+                            result = 1;
+                        } else {
+                            int score1 = -99;
+                            int score2 = -99;
+
+                            // Find the highest score in all of the possible submissions
+                            for (ContentReviewResult crr1 : r1) {
+                                if (score1 <= -2 && crr1.isPending()) {
+                                    score1 = -2;
+                                } else if (score1 <= -1 && StringUtils.equals(crr1.getReviewReport(), "Error")) {
+                                    // Yes, "Error" appears to be magic throughout the review code
+                                    // Error should appear before pending
+                                    score1 = -1;
+                                } else if (crr1.getReviewScore() > score1) {
+                                    score1 = crr1.getReviewScore();
+                                }
+                            }
+
+                            for (ContentReviewResult crr2 : r2) {
+                                if (score2 <= -2 && crr2.isPending()) {
+                                    score2 = -2;
+                                } else if (score2 <= -1 && StringUtils.equals(crr2.getReviewReport(), "Error")) {
+                                    score2 = -1;
+                                } else if (crr2.getReviewScore() > score2) {
+                                    score2 = crr2.getReviewScore();
+                                }
+                            }
+
+                            result = score1 == score2 ? 0 : (score1 > score2 ? 1 : -1);
+                        }
                     }
                 }
 

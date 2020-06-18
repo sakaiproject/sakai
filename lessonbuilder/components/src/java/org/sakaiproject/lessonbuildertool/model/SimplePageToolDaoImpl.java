@@ -420,7 +420,12 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		DetachedCriteria d = DetachedCriteria.forClass(SimplePageItem.class).add(Restrictions.eq("sakaiId", sakaiId));
 		return (List<SimplePageItem>) getHibernateTemplate().findByCriteria(d);
 	}
-	
+
+	public List<SimplePageItem> findPageItemsByPageId(long pageId) {
+		DetachedCriteria d = DetachedCriteria.forClass(SimplePageItem.class).add(Restrictions.eq("pageId", pageId));
+		return (List<SimplePageItem>) getHibernateTemplate().findByCriteria(d);
+	}
+
     // find the student's page. In theory we keep them from doing a second page. With
     // group pages that means students in more than one group can only do one. So return the first
     // Different versions if item is controlled by group or not. That lets us use simple
@@ -948,8 +953,11 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 
 		List<SimplePageItem> pageItems = findPageItemsBySakaiId(Long.toString(pageId));
 		if (pageItems.size() == 0) {
-			log.error("No page items found for lessons page with id: {}", pageId);
-			return null;
+			pageItems = findPageItemsByPageId(pageId);
+			if (pageItems.size() == 0) {
+				log.error("No page items found for lessons page with id: {}", pageId);
+				return null;
+			}
 		}
 		long pageItemId = pageItems.get(0).getId();
 		SimplePage page = getPage(pageId);

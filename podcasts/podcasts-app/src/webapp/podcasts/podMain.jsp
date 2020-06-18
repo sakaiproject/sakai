@@ -17,11 +17,16 @@
 </script>
 <script>
     $(document).ready(function(){
-        initializePopover("podMainForm\\:popover", "<h:outputText value="#{msgs.popup_text}" />"); 
+        initializePopover("podMainForm\\:popover", "<h:outputText value="#{msgs.popup_text}" />");
+        var menuLink = $('#podcastMainMenuLink');
+        var menuLinkSpan = menuLink.closest('span');
+        menuLinkSpan.addClass('current');
+        menuLinkSpan.html(menuLink.text());
     });
 </script>
 
 <h:form id="podMainForm">
+    <%@ include file="/podcasts/podcastMenu.jsp" %>
 
     <%-- if Resources tool not exist, if instructor, display error message
       		if student, display no podcasts exists --%>
@@ -30,12 +35,6 @@
     </h:panelGroup>
 
 	<h:panelGroup rendered="#{podHomeBean.resourceToolExists && podHomeBean.canAccessFolder}" >
-		<sakai:tool_bar rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasNewPerm}">
-        	  <sakai:tool_bar_item action="podcastAdd" value="#{msgs.add}" rendered="#{podHomeBean.hasNewPerm || podHomeBean.canUpdateSite}" />
-	          <sakai:tool_bar_item action="podcastOptions" value="#{msgs.options}" rendered="#{podHomeBean.canUpdateSite}" />
-			  <sakai:tool_bar_item action="#{podHomeBean.processPermissions}" value="#{msgs.permissions}" rendered="#{podHomeBean.canUpdateSite}" /> 
-		</sakai:tool_bar>
-
 		<h:outputText value="#{msgs.no_access}" styleClass="validation" rendered="#{! podHomeBean.hasAllGroups && ! podHomeBean.hasReadPerm }" />
       
 		<h:panelGroup rendered="#{podHomeBean.hasReadPerm || podHomeBean.hasAllGroups}"> 

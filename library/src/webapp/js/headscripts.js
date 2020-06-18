@@ -283,7 +283,7 @@ function setMainFrameHeightWithMax(id, maxHeight)
 		clearTimeout(MainFrameHeightTimeOut);
 		MainFrameHeightTimeOut = false;
 	}
-	MainFrameHeightTimeOut = setTimeout("setMainFrameHeightNow('"+id+"',"+maxHeight+")", 1000);
+	MainFrameHeightTimeOut = setTimeout( function() { setMainFrameHeightNow(id, maxHeight); }, 1000);
 }
 
 function setMainFrameHeight(id)
@@ -794,21 +794,21 @@ function includeWebjarLibrary(library) {
 		document.write('\x3Cscript src="' + webjars + 'dropzone/'+libraryVersion + '/min/dropzone.min.js' + ver + '">' + '\x3C/script>');
 		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'dropzone/'+libraryVersion + '/min/dropzone.min.css' + ver + '"/>');
 	} else if (library == 'select2') {
-		libraryVersion = "4.0.8";
+		libraryVersion = "4.0.12";
 		document.write('\x3Cscript src="' + webjars + 'select2/' + libraryVersion + '/js/select2.full.min.js' + ver + '">' + '\x3C/script>');
 		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'select2/' + libraryVersion + '/css/select2.min.css' + ver + '"/>');
 	} else if (library == 'datatables') {
 		libraryVersion = "1.10.20";
 		document.write('\x3Cscript src="' + webjars + 'datatables/' + libraryVersion + '/js/jquery.dataTables.min.js' + ver + '">' + '\x3C/script>');
 	} else if (library == 'ckeditor') {
-		libraryVersion = "4.13.0";
+		libraryVersion = "4.14.0";
 		document.write('\x3Cscript src="' + webjars + 'ckeditor/' + libraryVersion + '/full/ckeditor.js' + ver + '">' + '\x3C/script>');
 	} else if (library == 'awesomplete') {
-		libraryVersion = "1.1.4";
+		libraryVersion = "1.1.5";
 		document.write('\x3Cscript src="' + webjars + 'awesomplete/' + libraryVersion + '/awesomplete.min.js' + ver + '">' + '\x3C/script>');
 		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'awesomplete/' + libraryVersion + '/awesomplete.css' + ver + '"/>');
 	} else if (library == 'mathjs') {
-		libraryVersion = "6.2.3";
+		libraryVersion = "6.5.0";
 		document.write('\x3Cscript src="' + webjars + 'mathjs/' + libraryVersion + '/dist/math.min.js' + ver + '">' + '\x3C/script>');
 	} else if (library == 'handlebars') {
 		libraryVersion = "4.0.6";
@@ -821,6 +821,23 @@ function includeWebjarLibrary(library) {
 		libraryVersion = "3.3.8";
 		document.write('\x3Cscript src="' + webjars + 'jstree/' + libraryVersion + '/jstree.min.js' + ver + '">' + '\x3C/script>');
 		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'jstree/' + libraryVersion + '/themes/default/style.min.css' + ver + '"/>');
+	} else if (library == 'multiselect-two-sides') {
+		libraryVersion = "2.5.5";
+		document.write('\x3Cscript src="' + webjars + 'multiselect-two-sides/' + libraryVersion + '/dist/js/multiselect.min.js' + ver + '">' + '\x3C/script>');
+	} else if (library == 'fontawesome-iconpicker') {
+		libraryVersion = "1.4.1";
+		document.write('\x3Cscript src="' + webjars + 'fontawesome-iconpicker/' + libraryVersion + '/dist/js/fontawesome-iconpicker.min.js' + ver + '">' + '\x3C/script>');
+		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'fontawesome-iconpicker/' + libraryVersion + '/dist/css/fontawesome-iconpicker.min.css' + ver + '"/>');
+	} else if (library === "flatpickr") {
+		libraryVersion = "4.6.3";
+		document.write('\x3Cscript src="' + webjars + 'flatpickr/' + libraryVersion + '/dist/flatpickr.min.js' + ver + '">\x3C/script>');
+		document.write('\x3Cscript src="' + webjars + 'flatpickr/' + libraryVersion + '/dist/plugins/confirmDate/confirmDate.js' + ver + '">\x3C/script>');
+		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'flatpickr/' + libraryVersion + '/dist/flatpickr.min.css' + ver + '"/>');
+		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'flatpickr/' + libraryVersion + '/dist/plugins/confirmDate/confirmDate.css' + ver + '"/>');
+		let lang = portal.locale.split("-")[0];
+		if (lang !== "en") {
+			document.write('\x3Cscript src="' + webjars + 'flatpickr/' + libraryVersion + '/dist/l10n/' + lang + '.js' + ver + '">\x3C/script>');
+		}
 	} else {
 		if (library.endsWith(".js")) {
 			document.write('\x3Cscript src="' + webjars + library + ver + '">' + '\x3C/script>');
@@ -836,28 +853,24 @@ function portalSmallBreakPoint() { return 800; }
 function portalMediumBreakPoint() { return 800; } 
 
 // A function to add an icon picker to a text input field
-var fontawesome_icons = false;
 function fontawesome_icon_picker(selector) {
-	if ( fontawesome_icons ) { // Already loaded
-		$(selector).fontIconPicker({
-			source: fontawesome_icons,
-			extraClass: 'fa',
-			placeHolder: '',
-			emptyIconValue: 'none'
-		});
-	} else {
-		$.getJSON( '/library/js/fontIconPicker/2.0.1-cs/icons.json', function( data ) {
-			fontawesome_icons = data;
-			$(selector).fontIconPicker({
-				source: fontawesome_icons,
-				extraClass: 'fa',
-				placeHolder: '',
-				emptyIconValue: 'none'
-			});
-		}).error(function() { 
-			window.console && console.log("Could not load icons for icon picker."); 
-		});
-	}
+	// Set the input to read only
+	$(selector).prop('readonly', true);
+	// Add the class to make this a form control
+	$(selector).addClass('form-control icp icp-auto');
+	// Add an input group to the parent to enable the preview icon
+	$(selector).parent().addClass("input-group");
+	// Add the preview icon
+	$(selector).before('<span class="input-group-addon"></span>');
+	// Enable the iconpicker
+	$(selector).iconpicker({
+		'hideOnSelect' : true, 
+		'collision': true
+	});
+	$(selector).parent().on('iconpickerShown', function(event) {
+		// Focus on the popover window since this attachs to the input-group
+		event.iconpickerInstance.popover.find('input').focus()
+	});
 }
 
 // Return the correct width for a modal dialog.

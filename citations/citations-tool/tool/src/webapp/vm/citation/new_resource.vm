@@ -176,7 +176,7 @@
  
 	</div>
 	<form id="fossils">
-		<input type="hidden" name="displayName" id="displayName_fossil" value="$validator.escapeHtml("$!resourceTitle")" />
+		<input type="hidden" name="displayName" id="displayName_fossil" value="$formattedText.escapeHtml("$!resourceTitle")" />
 		<input type="hidden" name="access_mode" id="access_mode_fossil" value="$!{contentProperties.accessMode}" />
 #foreach ($group in $!{contentProperties.possibleGroups})
 		<input type="hidden" name="access_groups" id="access_groups_${group.Id}_fossil" value="$group.Id" />	

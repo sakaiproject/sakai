@@ -32,10 +32,10 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
     <head><%= request.getAttribute("html.head") %>
         <title><h:outputText value="#{authorMessages.search_question}" /></title>
-        <script type="text/javascript" src="/samigo-app/js/authoring.js"></script>
+        <script src="/samigo-app/js/authoring.js"></script>
 
 
-        <script type="text/JavaScript">
+        <script>
             <%@ include file="/js/samigotree.js" %>
 
             function textCounter(field, maxlimit) {
@@ -48,11 +48,11 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
             });
         </script>
 
-        <script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
-        <script type="text/javascript" src="/library/js/spinner.js"></script>
-        <script type="text/javascript">includeWebjarLibrary('select2');</script>
+        <script src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
+        <script src="/library/js/spinner.js"></script>
+        <script>includeWebjarLibrary('select2');</script>
 
-        <script type="text/javascript">
+        <script>
             function initPage()
             {
                 disableIt();

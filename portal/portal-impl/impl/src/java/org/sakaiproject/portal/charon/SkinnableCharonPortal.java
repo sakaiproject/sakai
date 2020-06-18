@@ -132,6 +132,7 @@ import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
+import org.sakaiproject.util.RequestFilter;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -156,7 +157,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	 * messages.
 	 */
 	private static ResourceLoader rloader = new ResourceLoader("sitenav");
-	private static ResourceLoader cmLoader = new Resource().getLoader("org.sakaiproject.portal.api.PortalService", "connection-manager");
+	private static ResourceLoader cmLoader = Resource.getResourceLoader("org.sakaiproject.portal.api.PortalService", "connection-manager");
 
 	/**
 	 * Parameter value to indicate to look up a tool ID within a site
@@ -531,7 +532,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		PortalRenderContext rcontext = startPageContext(siteType, title, siteSkin, req, site);
 
 		// Make the top Url where the "top" url is
-		String portalTopUrl = Web.serverUrl(req)
+		String portalTopUrl = RequestFilter.serverUrl(req)
 		+ ServerConfigurationService.getString("portalPath") + "/";
 		if (prefix != null) portalTopUrl = portalTopUrl + prefix + "/";
 
@@ -673,7 +674,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		// Reset is different for Portlets
 		if (isPortletPlacement(placement))
 		{
-			resetActionUrl = Web.serverUrl(req)
+			resetActionUrl = RequestFilter.serverUrl(req)
 			+ ServerConfigurationService.getString("portalPath")
 			+ URLUtils.getSafePathInfo(req) + "?sakai.state.reset=true";
 		}
@@ -724,7 +725,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				
 		if (renderResult.getJSR168HelpUrl() != null)
 		{
-			toolMap.put("toolJSR168Help", Web.serverUrl(req) + renderResult.getJSR168HelpUrl());
+			toolMap.put("toolJSR168Help", RequestFilter.serverUrl(req) + renderResult.getJSR168HelpUrl());
 		}
 
 		// Must have site.upd to see the Edit button
@@ -733,7 +734,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			if (securityService.unlock(SiteService.SECURE_UPDATE_SITE, site
 					.getReference()))
 			{
-				String editUrl = Web.serverUrl(req) + renderResult.getJSR168EditUrl();
+				String editUrl = RequestFilter.serverUrl(req) + renderResult.getJSR168EditUrl();
 				toolMap.put("toolJSR168Edit", editUrl);
 				toolMap.put("toolJSR168EditEncode", URLUtils.encodeUrl(editUrl));
 			}
@@ -1334,6 +1335,12 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		headJs.append("/library/js/headscripts.js");
 		headJs.append(PortalUtils.getCDNQuery());
 		headJs.append("\"></script>\n");
+
+		String [] parts = getParts(req);
+		if ((parts.length > 2) && (parts[1].equals("tool"))) {
+			headJs.append("<script src=\""+PortalUtils.getWebjarsPath()+"momentjs/"+PortalUtils.MOMENTJS_VERSION+"/min/moment-with-locales.min.js"+PortalUtils.getCDNQuery()+"\"></script>\n");
+		}
+
 		headJs.append("<script type=\"text/javascript\">var sakai = sakai || {}; sakai.editor = sakai.editor || {}; " +
 				"sakai.editor.editors = sakai.editor.editors || {}; " +
 				"sakai.editor.editors.ckeditor = sakai.editor.editors.ckeditor || {}; " +
@@ -1400,13 +1407,16 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		}
 
 		StringBuilder bodyonload = new StringBuilder();
+		String bodyclass = "Mrphs-container";
 		if (p != null)
 		{
 			String element = Web.escapeJavascript("Main" + p.getId());
 			bodyonload.append("setMainFrameHeight('" + element + "');");
+			bodyclass += " Mrphs-" + p.getToolId().replace(".","-");
 		}
 		bodyonload.append("setFocus(focus_path);");
 		req.setAttribute("sakai.html.body.onload", bodyonload.toString());
+		req.setAttribute("sakai.html.body.class", bodyclass.toString());
 
 		portalService.getRenderEngine(portalContext, req).setupForward(req, res, p, skin);
 	}
@@ -1793,7 +1803,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		{
 
 			// for the main login/out link
-			String logInOutUrl = Web.serverUrl(req);
+			String logInOutUrl = RequestFilter.serverUrl(req);
 			String message = null;
 			String image1 = null;
 
@@ -1879,6 +1889,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				if (!impersonatorDisplayId.isEmpty())
 				{
 					message = rloader.getFormattedMessage("sit_return", impersonatorDisplayId);
+					rcontext.put("impersonatorDisplayId", impersonatorDisplayId);
 				}
 
 				// check for a logout text override

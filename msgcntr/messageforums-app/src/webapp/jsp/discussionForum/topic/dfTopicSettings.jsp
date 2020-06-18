@@ -10,9 +10,9 @@
 <f:view>
 	<sakai:view toolCssHref="/messageforums-tool/css/msgcntr.css">
       <h:form id="revise">
-        <script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-        <script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
-		<script type="text/javascript">
+        <script>includeLatestJQuery("msgcntr");</script>
+        <script src="/messageforums-tool/js/messages.js"></script>
+		<script>
 			$(document).ready(function(){
 				//fade permission block and then disable all the inputs/selects in the permission include so as not to confuse people
 				$('#permissionReadOnly').fadeTo("fast", 0.50);
@@ -26,8 +26,13 @@
 					resizeFrame('grow');
 					return false;
 				});
+				var menuLink = $('#forumsMainMenuLink');
+				var menuLinkSpan = menuLink.closest('span');
+				menuLinkSpan.addClass('current');
+				menuLinkSpan.html(menuLink.text());
 			});
 		</script>
+		<%@ include file="/jsp/discussionForum/menu/forumsMenu.jsp" %>
 		<%
 	  	String thisId = request.getParameter("panel");
   		if (thisId == null) 
@@ -35,15 +40,15 @@
     		thisId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
   		}
 		%>
-       		<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
-       		<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>			
+       		<script src="/messageforums-tool/js/sak-10625.js"></script>
+       		<script src="/messageforums-tool/js/forum.js"></script>			
 		<%--//designNote: this just feels weird - presenting somehting that sort of looks like the form used to create the topic (with an editable permissions block!) to comfirm deletion --%>
 <!--jsp/discussionForum/topic/dfTopicSettings.jsp-->
 		<%--<sakai:tool_bar_message value="#{msgs.cdfm_delete_topic_title}"/>--%>
         
-		<h:outputText id="alert-delete" styleClass="messageAlert" style="display:block" value="#{msgs.cdfm_delete_topic}" rendered="#{ForumTool.selectedTopic.markForDeletion}"/>
-        <h:outputText styleClass="messageAlert" value="#{msgs.cdfm_duplicate_topic_confirm}" rendered="#{ForumTool.selectedTopic.markForDuplication}" style="display:block" />
-		<div class="topicBloc" style="padding:0 .5em"><h:messages styleClass="messageAlert" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" />
+		<h:outputText id="alert-delete" styleClass="sak-banner-warn" style="display:block" value="#{msgs.cdfm_delete_topic}" rendered="#{ForumTool.selectedTopic.markForDeletion}"/>
+        <h:outputText styleClass="sak-banner-warn" value="#{msgs.cdfm_duplicate_topic_confirm}" rendered="#{ForumTool.selectedTopic.markForDuplication}" style="display:block" />
+		<div class="topicBloc" style="padding:0 .5em"><h:messages styleClass="sak-banner-warn" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" />
 			<p>
 				<span class="title">
 					<h:graphicImage url="/images/silk/lock.png" alt="#{msgs.cdfm_forum_locked}" rendered="#{ForumTool.selectedTopic.topic.locked=='true'}"  style="margin-right:.3em"/>

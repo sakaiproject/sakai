@@ -77,8 +77,8 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.FormattedText;
 
 @Slf4j
 @ManagedBean(name="mfStatisticsBean")
@@ -480,6 +480,8 @@ public class MessageForumStatisticsBean {
 	/** Needed to determine if user has read permission of topic */
 	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager\"]}")
 	private UIPermissionsManager uiPermissionsManager;
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.util.api.FormattedText\"]}")
+	private FormattedText formattedText;
 	
 	public void setMessageManager(MessageForumsMessageManager messageManager){
 		this.messageManager = messageManager;
@@ -513,6 +515,10 @@ public class MessageForumStatisticsBean {
 
 	public void setEventTrackingService(EventTrackingService eventTrackingService) {
 		this.eventTrackingService = eventTrackingService;
+	}
+
+	public void setFormattedText(FormattedText formattedText) {
+		this.formattedText = formattedText;
 	}
 
 	public void setSecurityService(SecurityService securityService) {
@@ -2594,14 +2600,17 @@ public class MessageForumStatisticsBean {
 	} 
 	
 	public void setDefaultSelectedAssign(){
-		if(!gradebookItemChosen){
-			if(selectedAllTopicsTopicId != null && !"".equals(selectedAllTopicsTopicId)){
-				String defaultAssignName = forumManager.getTopicById(Long.parseLong(selectedAllTopicsTopicId)).getDefaultAssignName();
-				setDefaultSelectedAssign(defaultAssignName);
-			}else{
-				String defaultAssignName = forumManager.getForumById(Long.parseLong(selectedAllTopicsForumId)).getDefaultAssignName();
-				setDefaultSelectedAssign(defaultAssignName);
-			}			
+		if (!gradebookItemChosen) {
+			String defaultAssignName;
+			if (StringUtils.isNotBlank(selectedAllTopicsTopicId)) {
+				defaultAssignName = forumManager.getTopicById(Long.parseLong(selectedAllTopicsTopicId)).getDefaultAssignName();
+			} else {
+				defaultAssignName = forumManager.getForumById(Long.parseLong(selectedAllTopicsForumId)).getDefaultAssignName();
+			}
+			if (StringUtils.isNotBlank(defaultAssignName)) {
+				Assignment assignment = getGradebookService().getAssignmentByNameOrId(toolManager.getCurrentPlacement().getContext(), defaultAssignName);
+				setDefaultSelectedAssign(assignment.getName());
+			}
 		}
 		gradebookItemChosen = false;
 	}
@@ -2626,18 +2635,13 @@ public class MessageForumStatisticsBean {
 		selAssignName = "";
 	}
 	
-	private void setDefaultSelectedAssign(String assign){
+	private void setDefaultSelectedAssign(final String assign){
 		selectedAssign = DEFAULT_GB_ITEM;
 		selAssignName = "";
-		if(assign != null){
-			for (SelectItem item : getAssignments()) {
-				if(assign.equals(item.getLabel())){
-					selectedAssign = item.getValue().toString();
-					selAssignName = assign;
-				}
-			}
-		}
-		
+		getAssignments().stream().filter(item -> item.getLabel().equals(assign)).findAny().ifPresent(item -> {
+			selectedAssign = item.getValue().toString();
+			selAssignName = assign;
+		});
 	}
 	
 	private Map<String, DecoratedGradebookAssignment> getGradebookAssignment(){
@@ -2674,7 +2678,7 @@ public class MessageForumStatisticsBean {
 				Map studentIdFunctionMap = gradebookService.getViewableStudentsForItemForCurrentUser(gradebookUid, assignment.getId());
 				List<GradeDefinition> grades = gradebookService.getGradesForStudentsForItem(gradebookUid, assignment.getId(), new ArrayList(studentIdFunctionMap.keySet()));
 				//add grade values to return map
-				String decSeparator = FormattedText.getDecimalSeparator();
+				String decSeparator = formattedText.getDecimalSeparator();
 				for(GradeDefinition gradeDef : grades){
 					String studentUuid = gradeDef.getStudentUid();		  
 					DecoratedGradebookAssignment gradeAssignment = new DecoratedGradebookAssignment();

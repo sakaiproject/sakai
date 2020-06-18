@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/common :: head" />
+<body>
+  <div th:replace="fragments/common :: jQuery" />
+  <div class="portletBody">
+    <div id="menu" th:include="fragments/menus :: main (joinableset)" />
+    <div class="page-header">
+      <h1 th:if="${joinableSetForm.joinableSetId == null}" th:text="#{joinableset.header.new}"></h1>
+      <h1 th:if="${joinableSetForm.joinableSetId != null}" th:text="#{joinableset.header.edit}"></h1>
+    </div>
+    <div class="row">
+      <div class="col-sm-6">
+        <div class="sak-banner-error" th:if="${errorMessage != null}" th:text="${errorMessage}"></div>
+        <p th:text="#{joinableset.instruction}">joinable sets consist of automatically created groups that users can elect to join.  Each group in a set begins with the set name and ends with a unique number.  An individual can join one group per set.</p>
+      </div>
+    </div>
+    <form id="createnewjoinableset-form" action="#" th:action="@{/saveJoinableSet}" th:object="${joinableSetForm}" method="post">
+      <input type="hidden" th:if="${joinableSetForm.joinableSetId != null}" name="joinableSetId" th:value="${joinableSetForm.joinableSetId}">
+        <div class="form-group row" id="setName">
+          <div class="col-sm-6"> 
+            <label for="groupTitle" class="form-control-label" th:text="|* #{joinableset.setname}|">Set name:</label>
+            <input class="form-control" name="groupTitle" id="groupTitle" type="text" th:placeholder="#{joinableset.setname}" th:field="*{groupTitle}" required/>
+          </div>
+        </div>
+        <div class="form-group row" th:if="${joinableSetForm.joinableSetId == null}">
+          <div class="col-sm-6">
+            <label class="form-control-label" for="groupNumber" th:text="|* #{joinableset.numberofgroups}|">Number of groups:</label>
+            <input class="form-control" name="groupNumber" id="groupNumber" type="number" min="1" max="999" th:field="*{groupNumber}"/>
+          </div>
+        </div>
+        <div class="form-group row" th:if="${joinableSetForm.joinableSetId == null}">
+          <div class="col-sm-6">
+            <label class="form-control-label" for="groupMaxMembers" th:text="|* #{joinableset.maxmembers}|" th:field="*{groupMaxMembers}">Max members per group:</label>
+            <input class="form-control" name="groupMaxMembers" id="groupMaxMembers" type="number" min="1" max="999" th:field="*{groupMaxMembers}"/>
+          </div>
+        </div>
+        <div class="checkbox" th:if="${joinableSetForm.joinableSetId == null}">
+          <label for="allowPreviewMembership">
+            <input class="form-control" name="allowPreviewMembership" id="allowPreviewMembership" type="checkbox" th:field="*{allowPreviewMembership}">
+            <span th:text="#{joinableset.allow.previewmembership}">Allow user to see group membership before joining</span>
+          </label>
+        </div>
+        <div class="checkbox" th:if="${joinableSetForm.joinableSetId == null}">
+          <label for="allowViewMembership">
+            <input class="form-control" name="allowViewMembership" id="allowViewMembership" type="checkbox" th:field="*{allowViewMembership}">
+            <span th:text="#{joinableset.allow.viewmembership}">Allow members to see the other members of these groups after joining</span>
+          </label>
+        </div>
+        <div class="checkbox">
+          <label for="allowUnjoin">
+            <input class="form-control" name="allowUnjoin" id="allowUnjoin" type="checkbox" th:field="*{allowUnjoin}">
+            <span th:text="#{joinableset.allow.unjoin}">Allow members to unjoin (leave) groups in this set after joining</span>
+          </label>
+        </div>
+        <div class="row" th:if="${joinableSetForm.joinableSetId != null}">
+          <div class="col-sm-6">
+            <div class="panel-group" id="accordion">
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h4 class="panel-title">
+                    <a data-parent="#accordion" data-toggle="collapse" href="#groupCollapsible" th:text="|#{joinableset.current.groups} (${joinableSetGroups.size()})|">Current Groups:</a>
+                  </h4>
+                </div>
+                <div id="groupCollapsible" class="panel-collapse collapse">
+                  <ul class="list-group">
+                    <li class="list-group-item" th:each="group : ${joinableSetGroups}"><span th:text="${group.title}"></span></li>
+                  </ul>
+                </div>
+              </div>
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h4 class="panel-title">
+                    <a data-parent="#accordion" data-toggle="collapse" href="#additionalGroupsCollapsible" th:text="#{joinableset.additional.groups}">Generate Additional Groups</a>
+                  </h4>
+                </div>
+                <div id="additionalGroupsCollapsible" class="panel-collapse collapse">
+                  <div class="col-sm-12">
+                    <div class="sak-banner-info" th:text="#{joinableset.additional.instructions}">These groups will be added after saving the joinable set.</div>
+                    <label class="form-control-label" for="groupNumber" th:text="#{joinableset.numberofgroups}">Number of groups:</label>
+                    <input class="form-control" name="groupNumber" id="groupNumber" type="number" min="0" max="999" th:field="*{groupNumber}"/>
+                    <label class="form-control-label" for="groupMaxMembers" th:text="#{joinableset.maxmembers}" th:field="*{groupMaxMembers}">Max members per group:</label>
+                    <input class="form-control" name="groupMaxMembers" id="groupMaxMembers" type="number" min="1" max="999" th:field="*{groupMaxMembers}" value="1"/>
+                    <div class="checkbox">
+                      <label for="allowPreviewMembership">
+                        <input class="form-control" name="allowPreviewMembership" id="allowPreviewMembership" type="checkbox" th:field="*{allowPreviewMembership}">
+                        <span th:text="#{joinableset.allow.previewmembership}">Allow user to see group membership before joining</span>
+                      </label>
+                    </div>
+                    <div class="checkbox">
+                      <label for="allowViewMembership">
+                        <input class="form-control" name="allowViewMembership" id="allowViewMembership" type="checkbox" th:field="*{allowViewMembership}">
+                        <span th:text="#{joinableset.allow.viewmembership}">Allow members to see the other members of these groups after joining</span>
+                      </label>
+                    </div>
+                  </div>
+                  <div class="clearfix"></div>
+                </div>
+              </div>
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h4 class="panel-title">
+                    <a data-parent="#accordion" data-toggle="collapse" href="#notJoinedUsersCollapsible" th:text="|#{joinableset.unjoined.users} (${notJoinedUserList.size()})|">Users who have not yet joined a group in this set</a>
+                  </h4>
+                </div>
+                <div id="notJoinedUsersCollapsible" class="panel-collapse collapse">
+                  <ul class="list-group">
+                    <li class="list-group-item" th:each="user : ${notJoinedUserList}"><span th:text="|${user.displayName} (${user.eid})|"></span></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="act">
+          <input th:if="${joinableSetForm.joinableSetId == null}" accesskey="s" disabled="disabled" id="create-joinableset-submit-button" type="submit" class="active" th:value="#{joinableset.button.add}">
+          <input th:if="${joinableSetForm.joinableSetId != null}" accesskey="s" id="save-joinableset-submit-button" type="submit" class="active" th:value="#{joinableset.button.save}">
+          <a th:href="@{/deleteJoinableSet(joinableSetId=${joinableSetForm.joinableSetId})}" th:if="${joinableSetForm.joinableSetId != null}" accesskey="d" id="delete-joinableset-submit-button" type="submit" class="active" th:value="#{joinableset.button.delete}">Delete Joinable Set</a>
+          <a th:href="@{/}" accesskey="x" id="create-joinableset-cancel-button" class="btn btn-default" th:text="#{joinableset.button.cancel}">Cancel</a>
+        </div>
+        <div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" id="confirmation-modal">
+          <div class="modal-dialog modal-md">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span class="fa fa-times" aria-hidden="true"></span></button>
+                <h4 th:text="#{joinableset.modal.confirm}" class="modal-title">Confirm</h4>
+              </div>
+              <div class="modal-body">
+                <div class="sak-banner-warn" th:text="#{joinableset.modal.confirm.instruction}">You are about delete the following joinable set.</div>
+              </div>
+              <div class="modal-footer act">
+                <button type="button" class="active" id="modal-btn-confirm" th:text="#{joinableset.button.delete}" onclick="SPNR.disableControlsAndSpin( this, null );">Delete the joinable set</button>
+                <button type="button" class="btn btn-default" id="modal-btn-cancel" th:text="#{joinableset.button.cancel}">Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+    </form>
+  </div>
+  <script th:replace="fragments/javascript :: joinableSetJs" />
+</body>
+</html>

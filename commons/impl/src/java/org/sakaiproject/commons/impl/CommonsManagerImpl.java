@@ -15,14 +15,7 @@
  */
 package org.sakaiproject.commons.impl;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -44,7 +37,8 @@ import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.profile2.model.BasicConnection;
 import org.sakaiproject.profile2.util.ProfileConstants;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
+
 
 /**
  * @author Adrian Fish (adrian.r.fish@gmail.com)
@@ -56,6 +50,7 @@ public class CommonsManagerImpl implements CommonsManager, Observer {
     private PersistenceManager persistenceManager;
     private ProfileConnectionsLogic profileConnectionsLogic;
     private SakaiProxy sakaiProxy;
+    private FormattedText formattedText;
 
     public void init() {
 
@@ -82,13 +77,12 @@ public class CommonsManagerImpl implements CommonsManager, Observer {
 
     private List<Post> getPosts(String siteId) throws Exception {
 
-        QueryBean query = new QueryBean();
-        query.siteId = siteId;
+        QueryBean query = QueryBean.builder().siteId(siteId).build();
         return commonsSecurityManager.filter(persistenceManager.getAllPost(query), siteId, CommonsConstants.SITE);
     }
 
-    public Post getPost(String postId, boolean loadComments) {
-        return persistenceManager.getPost(postId, loadComments);
+    public Optional<Post> getPost(String postId, boolean loadComments) {
+        return Optional.ofNullable(persistenceManager.getPost(postId, loadComments));
     }
 
     public List<Post> getPosts(QueryBean query) throws Exception {
@@ -96,22 +90,22 @@ public class CommonsManagerImpl implements CommonsManager, Observer {
         Cache cache = sakaiProxy.getCache(POST_CACHE);
 
         // Social commons caches are keyed on the owner's user id
-        String key = (query.isUserSite) ? query.callerId : query.commonsId;
+        String key = (query.isUserSite()) ? query.getCallerId() : query.getCommonsId();
 
         List<Post> posts = (List<Post>) cache.get(key);
         if (posts == null) {
             log.debug("Cache miss or expired on id: {}", key);
-            if (query.isUserSite) {
+            if (query.isUserSite()) {
                 log.debug("Getting posts for a user site ...");
-                query.fromIds.add(query.callerId);
-                query.fromIds.addAll(getConnectionUserIds(sakaiProxy.getCurrentUserId()));
+                query.getFromIds().add(query.getCallerId());
+                query.getFromIds().addAll(getConnectionUserIds(sakaiProxy.getCurrentUserId()));
             }
             List<Post> unfilteredPosts = persistenceManager.getAllPost(query, true);
             cache.put(key, unfilteredPosts);
-            return commonsSecurityManager.filter(unfilteredPosts, query.siteId, query.embedder);
+            return commonsSecurityManager.filter(unfilteredPosts, query.getSiteId(), query.getEmbedder());
         } else {
             log.debug("Cache hit on id: {}", key);
-            return commonsSecurityManager.filter(posts, query.siteId, query.embedder);
+            return commonsSecurityManager.filter(posts, query.getSiteId(), query.getEmbedder());
         }
     }
 
@@ -119,7 +113,7 @@ public class CommonsManagerImpl implements CommonsManager, Observer {
 
         if (commonsSecurityManager.canCurrentUserEditPost(post)) {
             try {
-                post.setContent(FormattedText.processFormattedText(post.getContent(), new StringBuilder(), true, false));
+                post.setContent(formattedText.processFormattedText(post.getContent(), new StringBuilder(), true, false));
                 Post newOrUpdatedPost = persistenceManager.savePost(post);
                 if (newOrUpdatedPost != null) {
                     String commonsId = post.getCommonsId();
@@ -171,6 +165,10 @@ public class CommonsManagerImpl implements CommonsManager, Observer {
         }
 
         return false;
+    }
+
+    public Optional<Comment> getComment(String commentId) {
+        return persistenceManager.getComment(commentId);
     }
 
     public Comment saveComment(String commonsId, Comment comment) {

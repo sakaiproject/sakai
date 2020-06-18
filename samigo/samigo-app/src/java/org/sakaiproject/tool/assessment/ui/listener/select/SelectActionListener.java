@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package org.sakaiproject.tool.assessment.ui.listener.select;
 
 import java.util.ArrayList;
@@ -35,7 +34,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
@@ -71,8 +69,7 @@ import org.sakaiproject.util.ResourceLoader;
  * @version $Id$
  */
 @Slf4j
-public class SelectActionListener
-    implements ActionListener {
+public class SelectActionListener implements ActionListener {
   private static final String AVG_SCORE = EvaluationModelIfc.AVERAGE_SCORE.toString();
   private static final String HIGH_SCORE = EvaluationModelIfc.HIGHEST_SCORE.toString();
   private static final String LAST_SCORE = EvaluationModelIfc.LAST_SCORE.toString();
@@ -101,7 +98,7 @@ public class SelectActionListener
     AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
     PersonBean personBean = (PersonBean) ContextUtil.lookupBean("person");
     DeliveryBean deliveryBean = (DeliveryBean) ContextUtil.lookupBean("delivery");
-    if (!deliveryBean.getAnonymousLogin() && !authzBean.getTakeAssessment())
+    if (!deliveryBean.isAnonymousLogin() && !authzBean.getTakeAssessment())
       return;
 
     // get service and managed bean

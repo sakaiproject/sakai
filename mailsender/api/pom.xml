@@ -20,10 +20,10 @@
     </properties>
 
     <dependencies>
-    	<dependency>
-    		<groupId>org.springframework</groupId>
-    		<artifactId>spring-webmvc</artifactId>
-    	</dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-api</artifactId>
@@ -46,4 +46,16 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    
+    <build>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/bundle</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
+    </build>
 </project>

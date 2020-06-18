@@ -94,7 +94,6 @@ import org.sakaiproject.assignment.api.reminder.AssignmentDueReminderService;
 import org.sakaiproject.assignment.api.taggable.AssignmentActivityProducer;
 import org.sakaiproject.assignment.impl.sort.AnonymousSubmissionComparator;
 import org.sakaiproject.assignment.impl.sort.AssignmentSubmissionComparator;
-import org.sakaiproject.assignment.impl.sort.UserComparator;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
@@ -144,6 +143,7 @@ import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation;
+import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
@@ -172,11 +172,13 @@ import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.LinkMigrationHelper;
+import org.sakaiproject.util.comparator.UserSortNameComparator;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
@@ -228,6 +230,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Setter private RubricsService rubricsService;
     @Setter private SecurityService securityService;
     @Setter private SessionManager sessionManager;
+    @Setter private SearchService searchService;
     @Setter private ServerConfigurationService serverConfigurationService;
     @Setter private SiteService siteService;
     @Setter private TaggingManager taggingManager;
@@ -255,15 +258,15 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         entityManager.registerEntityProducer(this, REFERENCE_ROOT);
 
         // register functions
-        functionManager.registerFunction(SECURE_ALL_GROUPS);
-        functionManager.registerFunction(SECURE_ADD_ASSIGNMENT);
-        functionManager.registerFunction(SECURE_ADD_ASSIGNMENT_SUBMISSION);
-        functionManager.registerFunction(SECURE_REMOVE_ASSIGNMENT);
-        functionManager.registerFunction(SECURE_ACCESS_ASSIGNMENT);
-        functionManager.registerFunction(SECURE_UPDATE_ASSIGNMENT);
-        functionManager.registerFunction(SECURE_GRADE_ASSIGNMENT_SUBMISSION);
-        functionManager.registerFunction(SECURE_ASSIGNMENT_RECEIVE_NOTIFICATIONS);
-        functionManager.registerFunction(SECURE_SHARE_DRAFTS);
+        functionManager.registerFunction(SECURE_ALL_GROUPS, true);
+        functionManager.registerFunction(SECURE_ADD_ASSIGNMENT, true);
+        functionManager.registerFunction(SECURE_ADD_ASSIGNMENT_SUBMISSION, true);
+        functionManager.registerFunction(SECURE_REMOVE_ASSIGNMENT, true);
+        functionManager.registerFunction(SECURE_ACCESS_ASSIGNMENT, true);
+        functionManager.registerFunction(SECURE_UPDATE_ASSIGNMENT, true);
+        functionManager.registerFunction(SECURE_GRADE_ASSIGNMENT_SUBMISSION, true);
+        functionManager.registerFunction(SECURE_ASSIGNMENT_RECEIVE_NOTIFICATIONS, true);
+        functionManager.registerFunction(SECURE_SHARE_DRAFTS, true);
 
         // this is needed to avoid a circular dependency, notice we set the AssignmentService proxy and not this
         assignmentSupplementItemService.setAssignmentService(applicationContext.getBean(AssignmentService.class));
@@ -596,7 +599,12 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     public Collection<Group> getGroupsAllowAddAssignment(String context) {
-        return getGroupsAllowFunction(SECURE_ADD_ASSIGNMENT, context, null);
+        return getGroupsAllowAddAssignment(context, null);
+    }
+
+    @Override
+    public Collection<Group> getGroupsAllowAddAssignment(String context, String userId) {
+        return getGroupsAllowFunction(SECURE_ADD_ASSIGNMENT, context, userId);
     }
 
     @Override
@@ -649,10 +657,15 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     public boolean allowAddAssignment(String context) {
+        return allowAddAssignment(context, null);
+    }
+
+    @Override
+    public boolean allowAddAssignment(String context, String userId) {
         String resourceString = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
-        if (permissionCheck(SECURE_ADD_ASSIGNMENT, resourceString, null)) return true;
+        if (permissionCheck(SECURE_ADD_ASSIGNMENT, resourceString, userId)) return true;
         // if not, see if the user has any groups to which adds are allowed
-        return (!getGroupsAllowAddAssignment(context).isEmpty());
+        return (!getGroupsAllowAddAssignment(context, userId).isEmpty());
     }
 
     @Override
@@ -820,15 +833,18 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             assignmentFromXml.setId(null);
             assignmentFromXml.setContext(siteId);
 
-            if (serverConfigurationService.getBoolean(SAK_PROP_ASSIGNMENT_IMPORT_SUBMISSIONS, false) && !assignmentFromXml.getIsGroup()) {
-                // here it's imported exactly as it was including all submissions
-                // except for group submissions as group ids will never be the same
+            if (serverConfigurationService.getBoolean(SAK_PROP_ASSIGNMENT_IMPORT_SUBMISSIONS, false)) {
                 Set<AssignmentSubmission> submissions = assignmentFromXml.getSubmissions();
-                List<String> submitters = submissions.stream().flatMap(s -> s.getSubmitters().stream()).map(AssignmentSubmissionSubmitter::getSubmitter).collect(Collectors.toList());
-                // only if all submitters can be found do we import submissions
-                if (submitters.containsAll(userDirectoryService.getUsers(submitters))) {
-                    submissions.forEach(s -> s.setId(null));
-                    submissions.forEach(s -> s.getSubmitters().forEach(u -> u.setId(null)));
+                if (submissions != null) {
+	                List<String> submitters = submissions.stream().flatMap(s -> s.getSubmitters().stream()).map(AssignmentSubmissionSubmitter::getSubmitter).collect(Collectors.toList());
+	                // only if all submitters can be found do we import submissions
+	                if (submitters.containsAll(userDirectoryService.getUsers(submitters).stream().map(user -> user.getId()).collect(Collectors.toList()))) {
+                        submissions.forEach(s -> s.setId(null));
+                        submissions.forEach(s -> s.getSubmitters().forEach(u -> u.setId(null)));
+	                }
+                }
+                else {
+	                assignmentFromXml.setSubmissions(new HashSet<>());
                 }
             } else {
                 // here it is importing the assignment only
@@ -1222,12 +1238,12 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         if (!allowUpdateAssignment(reference)) {
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT, null);
         }
-        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT, reference, true));
 
         assignment.setDateModified(Instant.now());
         assignment.setModifier(sessionManager.getCurrentSessionUserId());
         assignmentRepository.update(assignment);
 
+        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT, reference, true));
     }
 
     @Override
@@ -1728,7 +1744,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 				log.warn("Creating a list of users, user = {}, {}", member.getUserId(), e.getMessage());
 			}
 		});
-        users.sort(new UserComparator());
+        users.sort(new UserSortNameComparator());
         return users;
     }
 
@@ -2733,7 +2749,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 || permissionCheck(SECURE_SHARE_DRAFTS, siteService.siteReference(assignment.getContext()), null); // any role user with share draft permission
     }
 
-    private boolean permissionCheck(String permission, String resource, String user) {
+    public boolean permissionCheck(String permission, String resource, String user) {
         boolean access = false;
         if (!StringUtils.isAnyBlank(resource, permission)) {
             if (StringUtils.isBlank(user)) {
@@ -2931,6 +2947,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         try {
             out = new ZipOutputStream(outputStream);
+            out.setLevel(serverConfigurationService.getInt("zip.compression.level", 1));
 
             // create the folder structure - named after the assignment's title
             final String root = escapeInvalidCharsEntry(Validator.escapeZipEntry(assignmentTitle)) + Entity.SEPARATOR;
@@ -3227,6 +3244,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         ZipOutputStream out = null;
         try {
             out = new ZipOutputStream(outputStream);
+            out.setLevel(serverConfigurationService.getInt("zip.compression.level", 1));
 
             // create the folder structure - named after the assignment's title
             final String root = escapeInvalidCharsEntry(Validator.escapeZipEntry(assignmentTitle)) + Entity.SEPARATOR;
@@ -3914,7 +3932,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     AssignmentNoteItem oNoteItem = assignmentSupplementItemService.getNoteItem(oAssignmentId);
                     if (oNoteItem != null) {
                         AssignmentNoteItem nNoteItem = assignmentSupplementItemService.newNoteItem();
-                        //assignmentSupplementItemService.saveNoteItem(nNoteItem);
                         nNoteItem.setAssignmentId(nAssignment.getId());
                         nNoteItem.setNote(oNoteItem.getNote());
                         nNoteItem.setShareWith(oNoteItem.getShareWith());
@@ -4135,7 +4152,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 emailService.sendToUsers(filteredUsers, emailUtil.getHeaders(null, "releasegrade"), emailUtil.getNotificationMessage(submission, "releasegrade"));
             }
         }
-        if (StringUtils.isNotBlank(resubmitNumber) && StringUtils.equals(AssignmentConstants.ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_EACH, assignmentProperties.get(AssignmentConstants.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE))) {
+        if (StringUtils.isNotBlank(resubmitNumber) && StringUtils.equals(AssignmentConstants.ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_EACH, assignmentProperties.get(AssignmentConstants.ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_VALUE))) {
             // send email to every submitters
             if (!filteredUsers.isEmpty()) {
                 // send the message immidiately
@@ -4242,6 +4259,24 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         return reviewResults;
     }
 
+    public List<ContentReviewResult> getSortedContentReviewResults(AssignmentSubmission s){
+        List<ContentReviewResult> reviewResults = getContentReviewResults(s);
+
+        Comparator<ContentReviewResult> byReviewScore = Comparator.comparing(r ->
+        {
+            if (r.isPending()) {
+                return -2;
+            }
+            else if (StringUtils.equals(r.getReviewReport(), "Error")) {
+                return -1;
+            }
+            return r.getReviewScore();
+        });
+
+        reviewResults.sort(byReviewScore.reversed());
+        return reviewResults;
+    }
+
     @Override
     public boolean isContentReviewVisibleForSubmission(AssignmentSubmission submission)
     {
@@ -4320,7 +4355,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 return contentReviewService.getReviewReportStudent(contentId, assignmentReference, userDirectoryService.getCurrentUser().getId());
             }
         } catch (Exception e) {
-            log.warn(":getReviewReport(ContentResource) {}", e.getMessage());
+            log.debug(":getReviewReport(ContentResource) {}", e.getMessage());
             return "Error";
         }
     }

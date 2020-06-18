@@ -41,6 +41,11 @@
   									iso8601: $(this).attr('id').replace(idPrefix,'').replace(':dataEndDate','dataEndDateISO8601')}
   				});
   			});
+
+			var menuLink = $('#syllabusMenuBulkEditLink');
+			menuLink.addClass('current');
+			menuLink.find('a').removeAttr('href');
+
   });
   $(function() {
   	//Setup the current values of the start dates (to compare and adjust the end dates when changed)
@@ -201,7 +206,8 @@
         	}
         </script>
 
-        <h:form id="syllabusMainEdit">  	      
+        <h:form id="syllabusMainEdit">
+          <%@ include file="mainMenu.jsp" %>
    	      <h:messages globalOnly="true" styleClass="sak-banner-error" rendered="#{!empty facesContext.maximumSeverity}" />
 	      <syllabus:syllabus_if test="#{SyllabusTool.syllabusItem.redirectURL}">
 		     <sakai:tool_bar_message value="#{msgs.mainEditNotice}" />

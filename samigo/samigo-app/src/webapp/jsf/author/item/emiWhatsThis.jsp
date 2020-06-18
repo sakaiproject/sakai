@@ -12,7 +12,7 @@
 <head><%=request.getAttribute("html.head")%>
 <title><h:outputText
 		value="#{authorMessages.example_emi_question}" escape="false" /></title>
-<script type="text/javascript">
+<script>
 	$(document).ready(function() {
 		$('#closeBut').click(function() {
 			window.close();

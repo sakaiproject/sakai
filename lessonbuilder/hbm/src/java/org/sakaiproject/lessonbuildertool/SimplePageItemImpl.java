@@ -179,9 +179,7 @@ public class SimplePageItemImpl implements SimplePageItem  {
     // are too long. The main case this will happen is if we generate a name, which we do for URLs
     // and uploaded files.
 	private String maxlength(String s, int maxlen) {
-	    if (s == null)
-		s = "";  // oracle turns "" into null
-	    int len = s.length();
+	    int len = s == null ? 0 : s.length();
 	    if (s == null || len <= maxlen)
 		return s;
 	    int toremove = len - maxlen;
@@ -266,27 +264,18 @@ public class SimplePageItemImpl implements SimplePageItem  {
 	}
 
 	public void setSakaiId(String s) {
-	        if (s == null)
-		    s = "";
 		sakaiId = s;
 	}
 
 	public void setName(String s) {
-	        if (s == null)
-		    s = "";
 		name = maxlength(s, MAXNAME);
 	}
 
 	public void setHtml(String html) {
-		if( html == null ) {
-			html = "";
-		}
 		this.html = html;
 	}
 
 	public void setDescription(String desc) {
-		if (desc == null)
-		    desc = "";
 		description = desc;
 	}
 
@@ -307,8 +296,6 @@ public class SimplePageItemImpl implements SimplePageItem  {
 	}
 
 	public void setAlt(String alt) {
-		if (alt == null)
-		    alt = "";
 		this.alt = alt;
 	}
 

@@ -1,20 +1,20 @@
 <!-- chef_resources_more.vm, version: $Revision:  $, use with org.sakaiproject.tool.content.ResourcesAction.java -->
 <div class="portletBody specialLink">
 	<h3>
-		$tlang.getString("more.view")
+		$clang.getString("more.view")
 	</h3>
 	#if ($alertMessage)
-		<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
+		<div class="sak-banner-error">$clang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>
 	#end
 	<div class ="breadCrumb specialLink">
 		<h3>
-			$tlang.getString("gen.location")
+			$clang.getString("gen.location")
 			<span class="$contentTypeImageService.getContentTypeImageClass("folder")" aria-hidden="true"></span>
 			#foreach ($i in $item.collectionPath)
 				#if($velocityCount > 1)
 					/
 				#end
-				$validator.escapeHtml("$i.name")
+				$formattedText.escapeHtml("$i.name")
 			#end
 		</h3>
 	</div>		
@@ -23,7 +23,7 @@
 		<table class="itemSummary" cellspacing="0">
 			<tr> 
 				<th> 
-					$tlang.getString("gen.title")
+					$clang.getString("gen.title")
 				</th>
 				<td>
 					#if ($dropboxMode && $homeCollectionId.equals($id))
@@ -31,30 +31,30 @@
 					#elseif ($item.isFolder())
 						#if ($item.hasCopyrightAlert()) ## if there is a copyright alert, show the alert page first
 							<a href="" onclick="openCopyrightWindow('$item.url','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false;">
-								$validator.escapeHtml($item.name))
+								$formattedText.escapeHtml($item.name))
 							</a>
 							&#169;
 						#else
-							<a href="$item.url" target="_blank">$validator.escapeHtml($item.name)</a>
+							<a href="$item.url" target="_blank">$formattedText.escapeHtml($item.name)</a>
 						#end
 					#else
-						$validator.escapeHtml($item.name)
+						$formattedText.escapeHtml($item.name)
 					#end
 				</td>
 			</tr>
 			<tr> 
 				<th> 
-					$tlang.getString("gen.description")
+					$clang.getString("gen.description")
 				</th>
 				<td>
-					<span class="chefPre">$validator.escapeHtml($item.description)</span>
+					<span class="chefPre">$formattedText.escapeHtml($item.description)</span>
 				</td>
 			</tr>
 			#if (! $item.isFolder() && $!copyrightTypes)
 				## don't show copyright info for collection
 				<tr> 
 					<th> 
-						$tlang.getString("gen.cpr")
+						$clang.getString("gen.cpr")
 					</th>
 					<td>
 						#if (!$item.copyrightStatus.isEmpty() && $item.copyrightStatus != $publicdomain)
@@ -62,14 +62,14 @@
 							#foreach ($copyrightType in $copyrightTypes)
 								#if ($item.copyrightStatus == $copyrightType.type)
 									#set ($found = true)
-									<span class="chefPre">$validator.escapeHtml($copyrightType.text)</span>
+									<span class="chefPre">$formattedText.escapeHtml($copyrightType.text)</span>
 								#end
 							#end
 							#if (!$found)
-								<span class="chefPre">$tlang.getString("copyright.notDefined")</span>
+								<span class="chefPre">$clang.getString("copyright.notDefined")</span>
 							#end
 						#else
-							<span class="chefPre">$tlang.getString("copyright.notDefined")</span>
+							<span class="chefPre">$clang.getString("copyright.notDefined")</span>
 						#end
 					</td>
 				</tr>
@@ -78,12 +78,12 @@
 				## do not show the access in dropbox 
 				<tr> 
 					<th> 
-						$tlang.getString("edit.access1")
+						$clang.getString("edit.access1")
 					</th>
 					<td>
 						<span class="chefPre">
 							#if($pubview) 
-								$tlang.getString("more.yes") 
+								$clang.getString("more.yes") 
 							#else
 								$item.getLongAccessLabel()
 							#end
@@ -94,16 +94,16 @@
 			#if (!($dropboxMode && $collectionId==$homeCollection))
 				<tr> 
 					<th> 
-						$tlang.getString("gen.created")
+						$clang.getString("gen.created")
 					</th>
 					<td> 
-						$validator.escapeHtml($item.createdBy)
+						$formattedText.escapeHtml($item.createdBy)
 					</td>
 				</tr>
 			#end
 			<tr> 
 				<th> 
-					$tlang.getString("gen.creatime")
+					$clang.getString("gen.creatime")
 				</th>
 				<td>
 					$item.createdTime
@@ -111,7 +111,7 @@
 			</tr>
 			<tr> 
 				<th> 
-					$tlang.getString("gen.lastmod")
+					$clang.getString("gen.lastmod")
 				</th>
 				<td>
 					$item.modifiedTime
@@ -120,17 +120,17 @@
 			#if (!($dropboxMode && $collectionId==$homeCollection))
 				<tr> 
 					<th> 
-						$tlang.getString("gen.lastby")
+						$clang.getString("gen.lastby")
 					</th>
 					<td>
-						$validator.escapeHtml($item.modifiedBy)
+						$formattedText.escapeHtml($item.modifiedBy)
 					</td>
 				</tr>
 			#end
 			#if(! $item.isUrl() && ! $item.isCollection() && "$!{item.mimetype}" != "")
 				<tr> 
 					<th> 
-						$tlang.getString("gen.type")
+						$clang.getString("gen.type")
 					</th>
 					<td>
 						$item.mimetype
@@ -139,7 +139,7 @@
 			#end
 			<tr> 
 				<th> 
-					$tlang.getString("gen.size")
+					$clang.getString("gen.size")
 				</th>
 				<td>
 					$item.sizzle
@@ -148,7 +148,7 @@
 			#if ($item.isUrl())
 				<tr> 
 					<th> 
-						$tlang.getString("gen.original")
+						$clang.getString("gen.original")
 					</th>
 					<td>
 						$contentString
@@ -157,7 +157,7 @@
 			#end
 			<tr>
 				<th> 
-					$tlang.getString("gen.stored")
+					$clang.getString("gen.stored")
 				</th>
 				<td>
 					<a href="$item.accessUrl" target="$item.target">
@@ -170,11 +170,11 @@
   	#parse("/vm/resources/sakai_metadata-display.vm")
 	<form name="moreForm" action="#toolForm("ResourcesAction")" method="post" >
 		<p class="act">
-			<input type="hidden" name="collectionId" value="$validator.escapeHtml($collectionId)" />
+			<input type="hidden" name="collectionId" value="$formattedText.escapeHtml($collectionId)" />
 			<input type="hidden" name="id" value="$id" />
 			<input type="hidden" name="from" value = "list" />
 			<input type="hidden" name="view" value="general" />
-			<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("more.cancel")" accesskey="x" />
+			<input type="submit" name="eventSubmit_doCancel" value="$clang.getString("more.cancel")" accesskey="x" />
 		</p>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>

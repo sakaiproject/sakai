@@ -9,8 +9,19 @@
 
   <f:view>
     <sakai:view toolCssHref="./css/podcaster.css">
+      <script>includeLatestJQuery("podDelete");</script>
+      <script>
+        $(document).ready(function() {
 
+          var menuLink = $('#podcastMainMenuLink');
+          var menuLinkSpan = menuLink.closest('span');
+          menuLinkSpan.addClass('current');
+          menuLinkSpan.html(menuLink.text());
+
+        });
+      </script>
     <h:form>
+        <%@ include file="/podcasts/podcastMenu.jsp" %>
         <h:outputText value="#{msgs.del_confirm}" styleClass="sak-banner-warn" />
         <h:panelGroup style="display:block;">
              <h:outputText value="#{podHomeBean.selectedPodcast.title}" />

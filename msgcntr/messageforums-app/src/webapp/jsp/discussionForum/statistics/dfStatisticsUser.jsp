@@ -19,7 +19,7 @@
   <sakai:view>
   	<h:form id="dfStatisticsForm" rendered="#{ForumTool.instructor}">
 		<!--discussionForum/statistics/dfStatisticsUser.jsp-->
-		<script type="text/javascript">
+		<script>
 
 	
 			var iframeId = '<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>';
@@ -93,14 +93,14 @@
 			
 		</script>
 		
-  	    <script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-		<script type="text/javascript" src="/messageforums-tool/js/dialog.js"></script>
-		<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
+  	    <script>includeLatestJQuery("msgcntr");</script>
+		<script src="/messageforums-tool/js/dialog.js"></script>
+		<script src="/messageforums-tool/js/forum.js"></script>
 		<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />
 		<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/msgcntr_statistics.css" />
        	
   	
-  		<script type="text/javascript">
+  		<script>
   			$(document).ready(function() {
 				$(".messageBody").each(function(index){
 					var msgBody = $(this).html();
@@ -109,6 +109,10 @@
 					$("#wordCountSpan" + wordCountId).html(getWordCount(msgBody));
 	  				//fckeditor_word_count_fromMessage(msgBody,'wordCountSpan' + wordCountId);
 				});
+				var menuLink = $('#forumsStatisticsMenuLink');
+				var menuLinkSpan = menuLink.closest('span');
+				menuLinkSpan.addClass('current');
+				menuLinkSpan.html(menuLink.text());
 			});
 			
 			function dialogLinkClick(link){
@@ -116,6 +120,8 @@
 				dialogutil.openDialog('dialogDiv', 'dialogFrame', position.top);
 			}
 		</script>
+
+		<%@ include file="/jsp/discussionForum/menu/forumsMenu.jsp" %>
 
 		<div id="dialogDiv" title="Grade Messages" style="display:none">
 			<h:commandButton type="button" styleClass="closeDialogFrame" onclick="dialogutil.closeDialog($(this).parent().attr('id'), $('#dialogFrame').attr('id'));" value="#{msgs.close_window}"/>

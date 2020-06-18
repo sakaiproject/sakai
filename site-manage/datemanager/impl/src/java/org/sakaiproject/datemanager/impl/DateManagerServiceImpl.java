@@ -13,25 +13,20 @@
 
 package org.sakaiproject.datemanager.impl;
 
-import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Locale;
-import java.util.TimeZone;
+import java.util.Map;
 
-import lombok.extern.slf4j.Slf4j;
-import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-
 import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementMessageEdit;
@@ -49,20 +44,20 @@ import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentEntity;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.datemanager.api.DateManagerConstants;
 import org.sakaiproject.datemanager.api.DateManagerService;
+import org.sakaiproject.datemanager.api.model.DateManagerError;
 import org.sakaiproject.datemanager.api.model.DateManagerUpdate;
 import org.sakaiproject.datemanager.api.model.DateManagerValidation;
-import org.sakaiproject.datemanager.api.model.DateManagerError;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.signup.logic.SignupMeetingService;
 import org.sakaiproject.signup.model.SignupMeeting;
@@ -82,10 +77,12 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
-import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.api.FormattedText;
+
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class DateManagerServiceImpl implements DateManagerService {
@@ -101,13 +98,14 @@ public class DateManagerServiceImpl implements DateManagerService {
 	@Setter private SignupMeetingService signupService;
 	@Setter private ContentHostingService contentHostingService;
 	@Setter private CalendarService calendarService;
-	@Setter private TimeService timeService;
 	@Setter private MessageForumsForumManager forumManager;
 	@Setter private AnnouncementService announcementService;
 	@Setter private SiteService siteService;
 	@Setter private ServerConfigurationService serverConfigurationService;
 	@Setter private SimplePageToolDao simplePageToolDao;
+	@Setter private TimeService timeService;
 	@Setter private UserTimeService userTimeService;
+	@Setter private FormattedText formattedText;
 
 	private static final ResourceLoader rb = new ResourceLoader("datemanager");
 	private final Map<String, Calendar> calendarMap = new HashMap<>();
@@ -155,20 +153,6 @@ public class DateManagerServiceImpl implements DateManagerService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Instant parseStringToInstant(String timestamp, TimeZone userTimeZone) {
-		try {
-			return DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
-				.withZone(userTimeZone.toZoneId())
-				.parse(timestamp, Instant::from);
-		} catch (DateTimeParseException e) {
-			return null;
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public boolean currentSiteContainsTool(String commonId) {
 		try {
 			Site site = siteService.getSite(getCurrentSiteId());
@@ -192,21 +176,6 @@ public class DateManagerServiceImpl implements DateManagerService {
 		return toolTitle;
 	}
 
-	private TimeZone getUserTimeZone() {
-		TimeZone timezone;
-		final Preferences prefs = prefService.getPreferences(getCurrentUserId());
-		final ResourceProperties props = prefs.getProperties(TimeService.APPLICATION_ID);
-		final String tzPref = props.getProperty(TimeService.TIMEZONE_KEY);
-
-		if (StringUtils.isNotBlank(tzPref)) {
-			timezone = TimeZone.getTimeZone(tzPref);
-		} else {
-			timezone = TimeZone.getDefault();
-		}
-
-		return timezone;
-	}
-
 	private String getUrlForTool(String tool) {
 		try {
 			Site site = siteService.getSite(getCurrentSiteId());
@@ -219,9 +188,16 @@ public class DateManagerServiceImpl implements DateManagerService {
 
 	private String formatToUserDateFormat(Date date) {
 		if (date == null) return "";
-		SimpleDateFormat df = new SimpleDateFormat(DateManagerConstants.DATEPICKER_DATETIME_FORMAT);
-		df.setTimeZone(userTimeService.getLocalTimeZone());
-		return df.format(date);
+		Instant instant = date.toInstant();
+		return formatToUserInstantFormat(instant);
+	}
+	
+	private String formatToUserInstantFormat(Instant instant) {
+		if (instant == null) return "";
+		ZonedDateTime userDate = ZonedDateTime.ofInstant(instant, userTimeService.getLocalTimeZone().toZoneId());
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DateManagerConstants.DATEPICKER_DATETIME_FORMAT);
+		String text = userDate.format(formatter);
+		return text;
 	}
 
 	/***** ASSIGNMENTS *****/
@@ -283,11 +259,9 @@ public class DateManagerServiceImpl implements DateManagerService {
 					continue;
 				}
 
-				TimeZone userTimeZone = getUserTimeZone();
-
-				Instant openDate = parseStringToInstant((String)jsonAssignment.get("open_date"), userTimeZone);
-				Instant dueDate = parseStringToInstant((String)jsonAssignment.get("due_date"), userTimeZone);
-				Instant acceptUntil = parseStringToInstant((String)jsonAssignment.get("accept_until"), userTimeZone);
+				Instant openDate = userTimeService.parseISODateInUserTimezone((String)jsonAssignment.get("open_date")).toInstant();
+				Instant dueDate = userTimeService.parseISODateInUserTimezone((String)jsonAssignment.get("due_date")).toInstant();
+				Instant acceptUntil = userTimeService.parseISODateInUserTimezone((String)jsonAssignment.get("accept_until")).toInstant();
 
 				boolean errored = false;
 
@@ -371,9 +345,9 @@ public class DateManagerServiceImpl implements DateManagerService {
 			JSONObject assobj = new JSONObject();
 			assobj.put("id", assessment.getAssessmentBaseId());
 			assobj.put("title", assessment.getTitle());
-			assobj.put("due_date", control.getDueDate());
-			assobj.put("open_date", control.getStartDate());
-			assobj.put("accept_until", control.getRetractDate());
+			assobj.put("due_date", formatToUserDateFormat(control.getDueDate()));
+			assobj.put("open_date", formatToUserDateFormat(control.getStartDate()));
+			assobj.put("accept_until", formatToUserDateFormat(control.getRetractDate()));
 			assobj.put("is_draft", true);
 			assobj.put("late_handling", lateHandling);
 			assobj.put("tool_title", toolTitle);
@@ -388,9 +362,9 @@ public class DateManagerServiceImpl implements DateManagerService {
 			JSONObject assobj = new JSONObject();
 			assobj.put("id", assessment.getPublishedAssessmentId());
 			assobj.put("title", assessment.getTitle());
-			assobj.put("due_date", control.getDueDate());
-			assobj.put("open_date", control.getStartDate());
-			assobj.put("accept_until", control.getRetractDate());
+			assobj.put("due_date", formatToUserDateFormat(control.getDueDate()));
+			assobj.put("open_date", formatToUserDateFormat(control.getStartDate()));
+			assobj.put("accept_until", formatToUserDateFormat(control.getRetractDate()));
 			assobj.put("is_draft", false);
 			assobj.put("late_handling", lateHandling);
 			assobj.put("tool_title", toolTitle);
@@ -419,11 +393,9 @@ public class DateManagerServiceImpl implements DateManagerService {
 
 				/* VALIDATE IF USER CAN UPDATE THE ASSESSMENT */
 
-				TimeZone userTimeZone = getUserTimeZone();
-
-				Instant openDate = parseStringToInstant((String)jsonAssessment.get("open_date"), userTimeZone);
-				Instant dueDate = parseStringToInstant((String)jsonAssessment.get("due_date"), userTimeZone);
-				Instant acceptUntil = parseStringToInstant((String)jsonAssessment.get("accept_until"), userTimeZone);
+				Instant openDate = userTimeService.parseISODateInUserTimezone((String)jsonAssessment.get("open_date")).toInstant();
+				Instant dueDate = userTimeService.parseISODateInUserTimezone((String)jsonAssessment.get("due_date")).toInstant();
+				Instant acceptUntil = userTimeService.parseISODateInUserTimezone((String)jsonAssessment.get("accept_until")).toInstant();
 				boolean isDraft = Boolean.parseBoolean(jsonAssessment.get("is_draft").toString());
 
 				Object assessment;
@@ -583,8 +555,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 					continue;
 				}
 
-				TimeZone userTimeZone = getUserTimeZone();
-				Instant dueDate = parseStringToInstant((String)jsonItem.get("due_date"), userTimeZone);
+				Instant dueDate = userTimeService.parseISODateInUserTimezone((String)jsonItem.get("due_date")).toInstant();
 
 				if (dueDate == null) {
 					errors.add(new DateManagerError("due_date", rb.getString("error.due.date.not.found"), "gradebookItems", toolTitle, idx));
@@ -673,9 +644,8 @@ public class DateManagerServiceImpl implements DateManagerService {
 					continue;
 				}
 
-				TimeZone userTimeZone = getUserTimeZone();
-				Instant openDate = parseStringToInstant((String)jsonMeeting.get("open_date"), userTimeZone);
-				Instant dueDate = parseStringToInstant((String)jsonMeeting.get("due_date"), userTimeZone);
+				Instant openDate = userTimeService.parseISODateInUserTimezone((String)jsonMeeting.get("open_date")).toInstant();
+				Instant dueDate = userTimeService.parseISODateInUserTimezone((String)jsonMeeting.get("due_date")).toInstant();
 				boolean errored = false;
 				if (openDate == null) {
 					errors.add(new DateManagerError("open_date", rb.getString("error.open.date.not.found"), "signupMeetings", toolTitle, idx));
@@ -740,9 +710,9 @@ public class DateManagerServiceImpl implements DateManagerService {
 			ResourceProperties contentResourceProps = res.getProperties();
 			robj.put("id", res.getId());
 			robj.put("title", contentResourceProps.getProperty(ResourceProperties.PROP_DISPLAY_NAME));
-			if(res.getRetractDate() != null) robj.put("due_date", formatToUserDateFormat(new Date(res.getRetractDate().getTime())));
+			if(res.getRetractInstant() != null) robj.put("due_date", formatToUserInstantFormat(res.getRetractInstant()));
 			else robj.put("due_date", null);
-			if(res.getReleaseDate() != null) robj.put("open_date", formatToUserDateFormat(new Date(res.getReleaseDate().getTime())));
+			if(res.getReleaseInstant() != null) robj.put("open_date", formatToUserInstantFormat(res.getReleaseInstant()));
 			else robj.put("open_date", null);
 			robj.put("extraInfo", StringUtils.defaultIfBlank(res.getProperties().getProperty(ResourceProperties.PROP_CONTENT_TYPE), rb.getString("itemtype.folder")));
 			robj.put("tool_title", toolTitle);
@@ -773,9 +743,8 @@ public class DateManagerServiceImpl implements DateManagerService {
 					continue;
 				}
 
-				TimeZone userTimeZone = getUserTimeZone();
-				Instant openDate = parseStringToInstant((String)jsonResource.get("open_date"), userTimeZone);
-				Instant dueDate = parseStringToInstant((String)jsonResource.get("due_date"), userTimeZone);
+				Instant openDate = userTimeService.parseISODateInUserTimezone((String)jsonResource.get("open_date")).toInstant();
+				Instant dueDate = userTimeService.parseISODateInUserTimezone((String)jsonResource.get("due_date")).toInstant();
 				boolean errored = false;
 				if (openDate == null) {
 					errors.add(new DateManagerError("open_date", rb.getString("error.open.date.not.found"), "resources", toolTitle, idx));
@@ -848,16 +817,16 @@ public class DateManagerServiceImpl implements DateManagerService {
 			if (update.object instanceof ContentCollectionEdit) {
 				ContentCollectionEdit cce = (ContentCollectionEdit) update.object;
 				if(update.dueDate != null) {
-					cce.setRetractDate(timeService.newTime(Date.from(update.dueDate).getTime()));
+					cce.setRetractInstant(Instant.from(update.dueDate));
 				}
-				cce.setReleaseDate(timeService.newTime(Date.from(update.openDate).getTime()));
+				cce.setReleaseInstant(Instant.from(update.openDate));
 				contentHostingService.commitCollection(cce);
 			} else {
 				ContentResourceEdit cre = (ContentResourceEdit) update.object;
 				if(update.dueDate != null) {
-					cre.setRetractDate(timeService.newTime(Date.from(update.dueDate).getTime()));
+					cre.setRetractInstant(Instant.from(update.dueDate));
 				}
-				cre.setReleaseDate(timeService.newTime(Date.from(update.openDate).getTime()));
+				cre.setReleaseInstant(Instant.from(update.openDate));
 				contentHostingService.commitResource(cre, NotificationService.NOTI_NONE);
 			}
 		}
@@ -889,7 +858,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 				cobj.put("open_date", formatToUserDateFormat(new Date(calendarEvent.getRange().firstTime().getTime())));
 				cobj.put("due_date", formatToUserDateFormat(new Date(calendarEvent.getRange().lastTime().getTime())));
 				cobj.put("tool_title", toolTitle);
-				cobj.put("url", url + "?eventReference=" + Validator.escapeUrl(calendarEvent.getReference()) + "&panel=Main&sakai_action=doDescription&sakai.state.reset=true");
+				cobj.put("url", url + "?eventReference=" + formattedText.escapeUrl(calendarEvent.getReference()) + "&panel=Main&sakai_action=doDescription&sakai.state.reset=true");
 				cobj.put("extraInfo", "false");
 				jsonCalendar.add(cobj);
 			}
@@ -926,9 +895,8 @@ public class DateManagerServiceImpl implements DateManagerService {
 					continue;
 				}
 
-				TimeZone userTimeZone = getUserTimeZone();
-				Instant openDate = parseStringToInstant((String)jsonEvent.get("open_date"), userTimeZone);
-				Instant dueDate = parseStringToInstant((String)jsonEvent.get("due_date"), userTimeZone);
+				Instant openDate = userTimeService.parseISODateInUserTimezone((String)jsonEvent.get("open_date")).toInstant();
+				Instant dueDate = userTimeService.parseISODateInUserTimezone((String)jsonEvent.get("due_date")).toInstant();
 				boolean errored = false;
 				if (openDate == null) {
 					errors.add(new DateManagerError("open_date", rb.getString("error.open.date.not.found"), "calendarEvents", toolTitle, idx));
@@ -1070,9 +1038,8 @@ public class DateManagerServiceImpl implements DateManagerService {
 					continue;
 				}
 
-				TimeZone userTimeZone = getUserTimeZone();
-				Instant openDate = parseStringToInstant((String)jsonForum.get("open_date"), userTimeZone);
-				Instant dueDate = parseStringToInstant((String)jsonForum.get("due_date"), userTimeZone);
+				Instant openDate = userTimeService.parseISODateInUserTimezone((String)jsonForum.get("open_date")).toInstant();
+				Instant dueDate = userTimeService.parseISODateInUserTimezone((String)jsonForum.get("due_date")).toInstant();
 				boolean errored = false;
 				if (openDate == null) {
 					errors.add(new DateManagerError("open_date", rb.getString("error.open.date.not.found"), "forums", toolTitle, idx));
@@ -1184,7 +1151,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 					aobj.put("open_date", null);
 				}
 				aobj.put("tool_title", toolTitle);
-				aobj.put("url", url + "?itemReference=" + Validator.escapeUrl(announcement.getReference()) + "&panel=Main&sakai_action=doShowmetadata&sakai.state.reset=true");
+				aobj.put("url", url + "?itemReference=" + formattedText.escapeUrl(announcement.getReference()) + "&panel=Main&sakai_action=doShowmetadata&sakai.state.reset=true");
 				aobj.put("extraInfo", "false");
 				jsonAnnouncements.add(aobj);
 			}
@@ -1221,9 +1188,8 @@ public class DateManagerServiceImpl implements DateManagerService {
 					continue;
 				}
 
-				TimeZone userTimeZone = getUserTimeZone();
-				Instant openDate = parseStringToInstant((String)jsonAnnouncement.get("open_date"), userTimeZone);
-				Instant dueDate = parseStringToInstant((String)jsonAnnouncement.get("due_date"), userTimeZone);
+				Instant openDate = userTimeService.parseISODateInUserTimezone((String)jsonAnnouncement.get("open_date")).toInstant();
+				Instant dueDate = userTimeService.parseISODateInUserTimezone((String)jsonAnnouncement.get("due_date")).toInstant();
 				boolean errored = false;
 				if (openDate == null) {
 					errors.add(new DateManagerError("open_date", rb.getString("error.open.date.not.found"), "announcements", toolTitle, idx));
@@ -1359,8 +1325,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 					continue;
 				}
 
-				TimeZone userTimeZone = getUserTimeZone();
-				Instant openDate = parseStringToInstant((String)jsonItem.get("open_date"), userTimeZone);
+				Instant openDate = userTimeService.parseISODateInUserTimezone((String)jsonItem.get("open_date")).toInstant();
 				if (openDate == null) {
 					errors.add(new DateManagerError("due_date", rb.getString("error.release.date.not.found"), "lessons", toolTitle, idx));
 					continue;

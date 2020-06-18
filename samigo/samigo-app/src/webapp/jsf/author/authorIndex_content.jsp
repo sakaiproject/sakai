@@ -36,11 +36,11 @@
 <body onload="<%= request.getAttribute("html.body.onload") %>">
     <div class="portletBody container-fluid">
 
-    <script type="text/JavaScript">includeWebjarLibrary('datatables');</script>
-    <script type="text/JavaScript">includeWebjarLibrary('bootstrap-multiselect');</script>
-    <script type="text/javascript" src="/samigo-app/js/info.js"></script>
-    <script type="text/javascript" src="/samigo-app/js/naturalSort.js"></script>
-    <script type="text/javascript">
+    <script>includeWebjarLibrary('datatables');</script>
+    <script>includeWebjarLibrary('bootstrap-multiselect');</script>
+    <script src="/samigo-app/js/info.js"></script>
+    <script src="/samigo-app/js/naturalSort.js"></script>
+    <script>
         $(document).ready(function() {
             jQuery.extend(jQuery.fn.dataTableExt.oSort, {
                 "span-asc": function (a, b) {
@@ -68,7 +68,7 @@
                     "paging": true,
                     "lengthMenu": [[5, 10, 20, 50, 100, 200, -1], [5, 10, 20, 50, 100, 200, <h:outputText value="'#{authorFrontDoorMessages.assessment_view_all}'" />]],
                     "pageLength": 20,
-                    "aaSorting": [[9, "desc"]],
+                    "aaSorting": [[2, "desc"]],
                     "columns": [
                         {"bSortable": true, "bSearchable": true, "type": "span"},
                         {"bSortable": false, "bSearchable": false},

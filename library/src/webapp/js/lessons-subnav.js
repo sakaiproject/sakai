@@ -401,9 +401,6 @@
                 var sub_pages = self.data[page_id];
                 sub_pages.forEach(function(sub_page) {
                     if (prereqData.hasOwnProperty(sub_page.sakaiPageId)) {
-                        if ($PBJQ.inArray(sub_page.itemId, prereqData[sub_page.sakaiPageId].invisible) >= 0) {
-			    $PBJQ(sub_page.submenu_item).remove();
-			}
                         if (sub_page.prerequisite == 'true' && $PBJQ.inArray(sub_page.itemId, prereqData[sub_page.sakaiPageId].unavailable) >= 0) {
                             var $link = $PBJQ(sub_page.submenu_item).find('> a');
                             $link.addClass('has-prerequisite');

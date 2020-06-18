@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/common :: head" />
+<body>
+  <div th:replace="fragments/common :: jQuery" />
+  <div class="portletBody">
+    <div id="menu" th:include="fragments/menus :: main (autogroups)" />
+    <div class="page-header"><h1 th:text="#{autogroups.header.wizard}"></h1></div>
+    <div th:replace="fragments/wizard :: step (step1)"></div>
+    <br/>
+    <div class="row" th:if="${step1ErrorMessage != null}">
+      <div class="col-sm-8">
+        <div class="sak-banner-error" th:text="${step1ErrorMessage}">You must at least select a role.</div>
+      </div>
+    </div>    
+    <div class="row" th:if="${!siteRoleList.isEmpty()}">
+      <div class="col-sm-8">
+        <p th:text="#{autogroups.step1.info}">Let's start with the first step. Please select which site role(s) to include in the groups you are creating.</p>
+      </div>
+    </div>
+    <div class="row" th:if="${!siteRoleList.isEmpty()}">
+      <div class="col-sm-8">
+          <form id="autogroups-wizard-step1-form" th:action="@{/autogroups/submitStep1}" th:object="${autoGroupsForm}" method="post">
+            <table class="table table-bordered table-striped table-hover">
+            <thead>
+              <tr>
+                <th><input type="checkbox" id="group-manager-select-all-roles" th:text="| #{autogroups.step1.table.selectallnone}|"/></th>
+                <th><label for="group-manager-select-all-roles" th:text="#{autogroups.step1.table.role}"></label></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="role : ${siteRoleList}">
+                <td><input th:id="${role.id}" type="checkbox" name="selectedRoleList" th:field="*{selectedRoleList}" th:value="${role.id}"/></td>
+                <td><label th:for="${role.id}" th:text="${role.id}"></label></td>
+              </tr>
+            </tbody>
+            </table>
+            <div class="act">
+              <input accesskey="x" type="submit" class="active" id="autogroups-continue-button" th:value="#{autogroups.button.continue}" onclick="SPNR.disableControlsAndSpin( this, null );">
+              <a th:href="@{/}" accesskey="x" id="autogroups-cancel-button" class="btn btn-default" th:text="#{autogroups.button.cancel}">Cancel</a>
+            </div>
+          </form>
+      </div>
+    </div>
+  </div>
+  <script th:replace="fragments/javascript :: autoGroupsStep1Js" />
+</body>
+</html>

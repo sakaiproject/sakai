@@ -91,6 +91,13 @@ public class FormatHelper {
 				.setScale(decimalPlaces, RoundingMode.HALF_UP);
 	}
 
+	// Helper method to consistently round numbers as above with doubles
+	private static BigDecimal convertStringToBigDecimal(final String score, final int decimalPlaces) {
+		return new BigDecimal(score)
+				.setScale(10, RoundingMode.HALF_UP)
+				.setScale(decimalPlaces, RoundingMode.HALF_UP);
+	}
+
 	/**
 	 * Convert a double score to match the number of decimal places exhibited in the toMatch string representation of a number
 	 *
@@ -133,7 +140,7 @@ public class FormatHelper {
 			return null;
 		}
 
-		final BigDecimal decimal = new BigDecimal(string).setScale(2, RoundingMode.HALF_UP);
+		final BigDecimal decimal = convertStringToBigDecimal(string, 2);
 
 		return formatDoubleAsPercentage(decimal.doubleValue());
 	}
@@ -181,17 +188,15 @@ public class FormatHelper {
 
 		String s;
 		try {
-			final DecimalFormat dfParse = (DecimalFormat) NumberFormat.getInstance(Locale.ROOT);
-			dfParse.setParseBigDecimal(true);
-			final BigDecimal d = (BigDecimal) dfParse.parse(grade);
+			final BigDecimal d = convertStringToBigDecimal(grade, 2);
 
 			final DecimalFormat dfFormat = (DecimalFormat) NumberFormat.getInstance(rl.getLocale());
 			dfFormat.setMinimumFractionDigits(0);
 			dfFormat.setMaximumFractionDigits(2);
 			dfFormat.setGroupingUsed(true);
 			s = dfFormat.format(d);
-		} catch (final NumberFormatException | ParseException e) {
-			log.debug("Bad format, returning original string: {}", grade);
+		} catch (final NumberFormatException e) {
+			log.warn("Bad format, returning original string: {}", grade);
 			s = grade;
 		}
 
@@ -230,7 +235,7 @@ public class FormatHelper {
 
 			s = df.format(d);
 		} catch (final NumberFormatException | ParseException e) {
-			log.debug("Bad format, returning original string: {}", grade);
+			log.warn("Bad format, returning original string: {}", grade);
 			s = grade;
 		}
 

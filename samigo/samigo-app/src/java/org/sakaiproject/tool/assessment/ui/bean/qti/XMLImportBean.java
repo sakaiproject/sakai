@@ -34,13 +34,10 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
-import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
 
-import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.spring.SpringBeanLocator;
@@ -53,7 +50,6 @@ import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
-import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.qti.QTIService;
@@ -63,9 +59,12 @@ import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.FormattedText;
 import org.w3c.dom.Document;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>Bean for QTI Import Data</p>
@@ -346,14 +345,12 @@ public class XMLImportBean implements Serializable {
     List list = assessmentService.getBasicInfoOfAllActiveAssessments(
                      AssessmentFacadeQueries.TITLE,true);
 	TimeUtil tu = new TimeUtil();
-	String display_dateFormat= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_data_picker_w_sec");
-	SimpleDateFormat displayFormat = new SimpleDateFormat(display_dateFormat, new ResourceLoader().getLocale());
     Iterator iter = list.iterator();
 	while (iter.hasNext()) {
 		AssessmentFacade assessmentFacade= (AssessmentFacade) iter.next();
-		assessmentFacade.setTitle(FormattedText.convertFormattedTextToPlaintext(assessmentFacade.getTitle()));
+		assessmentFacade.setTitle(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(assessmentFacade.getTitle()));
 		try {
-			String lastModifiedDateDisplay = tu.getDisplayDateTime(displayFormat, assessmentFacade.getLastModifiedDate(), false);
+			String lastModifiedDateDisplay = tu.getDateTimeWithTimezoneConversion(assessmentFacade.getLastModifiedDate());
 			assessmentFacade.setLastModifiedDateForDisplay(lastModifiedDateDisplay);  
 		} catch (Exception ex) {
 			log.warn("Unable to format date: " + ex.getMessage());

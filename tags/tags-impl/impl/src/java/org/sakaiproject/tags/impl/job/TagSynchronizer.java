@@ -22,7 +22,7 @@ package org.sakaiproject.tags.impl.job;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;

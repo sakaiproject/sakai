@@ -1,9 +1,9 @@
 <div class="portletBody">
 <script type="text/javascript" src="/library/js/headscripts.js"></script>
-<script>includeLatestJQuery('lti_content_insert.vm');</script>
-<script type="text/javascript" src="/library/js/fontIconPicker/2.0.1-cs/jquery.fonticonpicker.min.js"></script>
-<link rel="stylesheet" type="text/css" href="/library/js/fontIconPicker/2.0.1-cs/css/jquery.fonticonpicker.css" />
-<link rel="stylesheet" type="text/css" href="/library/js/fontIconPicker/2.0.1-cs/themes/grey-theme/jquery.fonticonpicker.grey.min.css" />
+<script>
+	includeLatestJQuery('lti_content_insert.vm');
+	includeWebjarLibrary("fontawesome-iconpicker");
+</script>
 	<h3>
 #if ( $oldContentId )
 		$tlang.getString("update.tool.link")
@@ -11,8 +11,8 @@
 		$tlang.getString("add.tool.to.site")
 #end
 	</h3>
-	#if ($messageSuccess)<div class="sak-banner-success">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div>#end
-	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+	#if ($messageSuccess)<div class="sak-banner-success">$tlang.getString("gen.success") $formattedText.escapeHtml($messageSuccess)</div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>#end
 	<form action="#toolForm("")" method="post" name="customizeForm" >
 ## Let admins still see stealthed tools in the list
 #if ( !$isAdmin && $tool_id && $tool_visible == 1 )
@@ -36,7 +36,7 @@
    </select>
 </p>
    #if ( $tool_description )
-   <p>$validator.escapeHtml($tool_description)</p>
+   <p>$formattedText.escapeHtml($tool_description)</p>
    #end
 #else
 <p>$tlang.getString("content.no.tools")</p>

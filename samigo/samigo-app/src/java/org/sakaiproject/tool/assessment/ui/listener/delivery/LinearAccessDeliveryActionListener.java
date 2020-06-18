@@ -57,6 +57,7 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
 import org.sakaiproject.tool.assessment.util.SamigoLRSStatements;
+import org.sakaiproject.util.api.FormattedText;
 
 @Slf4j
 public class LinearAccessDeliveryActionListener extends DeliveryActionListener
@@ -180,7 +181,7 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
           eventLogData.setAssessmentId(Long.valueOf(id));
           eventLogData.setProcessId(delivery.getAssessmentGradingId());
           eventLogData.setStartDate(new Date());
-          eventLogData.setTitle(publishedAssessment.getTitle());
+          eventLogData.setTitle(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(publishedAssessment.getTitle()));
           eventLogData.setUserEid(agentEid); 
           String site_id= AgentFacade.getCurrentSiteId();
           if(site_id == null) {
@@ -212,7 +213,7 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
     			  int timeRemaining = Integer.parseInt(delivery.getTimeLimit()) - Integer.parseInt(delivery.getTimeElapse());
     			  eventRef.append(timeRemaining);
     		  }
-    		  Event event = eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_TAKE, eventRef.toString(), site_id, true, NotificationService.NOTI_REQUIRED, SamigoLRSStatements.getStatementForTakeAssessment(delivery.getAssessmentTitle(), delivery.getPastDue(), publishedAssessment.getReleaseTo(), false));
+    		  Event event = eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_TAKE, eventRef.toString(), site_id, true, NotificationService.NOTI_REQUIRED, SamigoLRSStatements.getStatementForTakeAssessment(delivery.getAssessmentTitle(), delivery.isPastDue(), publishedAssessment.getReleaseTo(), false));
     		  eventTrackingService.post(event);
     	  }
     	  else if (action == DeliveryBean.TAKE_ASSESSMENT_VIA_URL) {
@@ -229,7 +230,7 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
     		  }
     		  PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
     		  String siteId = publishedAssessmentService.getPublishedAssessmentOwner(Long.valueOf(delivery.getAssessmentId()));
-    		  Event event = eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_TAKE, eventRef.toString(), siteId, true, NotificationService.NOTI_REQUIRED, SamigoLRSStatements.getStatementForTakeAssessment(delivery.getAssessmentTitle(), delivery.getPastDue(), publishedAssessment.getReleaseTo(), true));
+    		  Event event = eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_TAKE, eventRef.toString(), siteId, true, NotificationService.NOTI_REQUIRED, SamigoLRSStatements.getStatementForTakeAssessment(delivery.getAssessmentTitle(), delivery.isPastDue(), publishedAssessment.getReleaseTo(), true));
     		  eventTrackingService.post(event);
     	  }    	  
       }

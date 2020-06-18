@@ -24,5 +24,6 @@
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
 		<property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
 		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
+		<property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
 	</bean>
 </beans>

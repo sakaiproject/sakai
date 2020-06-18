@@ -24,12 +24,14 @@ package org.sakaiproject.content.types;
 import static org.sakaiproject.content.api.ResourceToolAction.*;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +52,9 @@ import org.sakaiproject.content.util.BaseResourceType;
 import org.sakaiproject.content.util.BaseResourceAction.Localizer;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.exception.ZipFileNumberException;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.Resource;
@@ -69,7 +74,7 @@ public class FileUploadType extends BaseResourceType
 	private static final String RESOURCEBUNDLE = "resource.bundle.type";
 	private String resourceClass = ServerConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
 	private String resourceBundle = ServerConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
-	private ResourceLoader rb = new Resource().getLoader(resourceClass, resourceBundle);
+	private ResourceLoader rb = Resource.getResourceLoader(resourceClass, resourceBundle);
 	// private static ResourceLoader rb = new ResourceLoader("types");
 	
 	private Localizer localizer(final String string) {
@@ -198,6 +203,15 @@ public class FileUploadType extends BaseResourceType
 		public void initializeAction(Reference reference) {
 			try {
 					contentHostingService.expandZippedResource(reference.getId());
+			} catch (ZipFileNumberException e) {
+				log.warn("The ZIP file cannot be expanded because contains more files than the maximum allowed.", e);
+				ToolSession toolSession = SessionManager.getCurrentToolSession();
+				Collection<String> errorMessages = (Collection<String>) toolSession.getAttribute("resources.request.message_list");
+				if(errorMessages == null) {
+					errorMessages = new TreeSet();
+					toolSession.setAttribute("resources.request.message_list", errorMessages);
+				}
+				errorMessages.add(rb.getString("alert.zip.filenumber"));
 			} catch (Exception e) {
 				log.error("Exception extracting zip content", e);
 			}

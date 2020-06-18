@@ -28,7 +28,7 @@
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{authorImportExport.export_a} #{authorImportExport.dash} #{assessmentBean.title}" /></title>
-<script type="text/JavaScript">
+<script>
 function getSelectedType(qtiUrl, cpUrl, emtUrl, e2mt){
   if ( $("#exportAssessmentForm\\:exportType\\:0").prop("checked") ) {
     window.open( qtiUrl, '_qti_export', 'toolbar=yes,menubar=yes,personalbar=no,width=600,height=500,scrollbars=yes,resizable=yes');

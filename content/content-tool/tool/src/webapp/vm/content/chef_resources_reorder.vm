@@ -3,37 +3,38 @@
 <!-- this is the reorder template -->
 
 <div class="portletBody specialLink">
+	#contentMenu("resources")
 	<form name="reorderForm" id="reorderForm" action="#toolForm("ResourcesAction")" method="post">
 		<input name="folderId" id="folderId" value="$folderId" type="hidden" />
 		<input name="sakai_action" id="sakai_action" value="doSaveOrder" type="hidden" />
 		<input name="flow" id="flow" value="save" type="hidden" />
 		<div class ="breadCrumb specialLink">
 			<h3>
-				$tlang.getString("sort.title")
+				$clang.getString("sort.title")
 				<span class = "$contentTypeImageService.getContentTypeImageClass("folder")" aria-hidden="true"></span>
-				<span class="sr-only">$tlang.getString('gen.folder1')</span>
+				<span class="sr-only">$clang.getString('gen.folder1')</span>
 				#foreach ($item in $collectionPath)
-					$validator.escapeHtml("$item.name")
+					$formattedText.escapeHtml("$item.name")
 					#if(! $item.isLast()) / #end
 				#end
 			</h3>
 		</div>
 		<div class="instruction">
-			$tlang.getString("sort.instruction.general")
-				<span id="inputKbdMessage" class="sr-only">$tlang.getString('sort.instruction.general.hidden')</span>
+			$clang.getString("sort.instruction.general")
+				<span id="inputKbdMessage" class="sr-only">$clang.getString('sort.instruction.general.hidden')</span>
 		</div>
 		
 		<ul class="itemAction noPrint">
 			<li style="display:inline">
-				<span id="undo-last-inact" style="padding:0 .3em 0 0;border:none">$tlang.getString("sort.undo.last.label")</span>
-				<a href="#" id="undo-last"  style="display:none">$tlang.getString("sort.undo.last.label")</a>
+				<span id="undo-last-inact" style="padding:0 .3em 0 0;border:none">$clang.getString("sort.undo.last.label")</span>
+				<a href="#" id="undo-last"  style="display:none">$clang.getString("sort.undo.last.label")</a>
 			</li>
 			<li style="display:inline;border-left:1px solid #ccc;padding-left:1em">
-				<span id="undo-all-inact"  style="padding:0 .3em 0 0;border:none">$tlang.getString("sort.undo.all.label")</span>
-					<a id="undo-all" href="#"  style="display:none">$tlang.getString("sort.undo.all.label")</a>
+				<span id="undo-all-inact"  style="padding:0 .3em 0 0;border:none">$clang.getString("sort.undo.all.label")</span>
+					<a id="undo-all" href="#"  style="display:none">$clang.getString("sort.undo.all.label")</a>
 			</li>
 			<li style="display:inline;color:#000">
-				<span id="failedValidMessage" style="display:none">$tlang.getString("sort.fail.valid.message")</span>
+				<span id="failedValidMessage" style="display:none">$clang.getString("sort.fail.valid.message")</span>
 				<span id="messageHolder" class="sak-banner-success-inline" style="display:none"></span>
 			</li>
 		</ul>	
@@ -59,16 +60,16 @@
 								#else
 									<span class = "$contentTypeImageService.getContentTypeImageClass("$member.type")" aria-hidden="true"></span>
 								#end
-								$validator.escapeHtml($member.name)
+								$formattedText.escapeHtml($member.name)
 						</div>
 						<div class="col-lg-4 col-md-4 hidden-xs hidden-sm">
-							$validator.escapeHtml($member.createdBy)
+							$formattedText.escapeHtml($member.createdBy)
 						</div>
 						<div class="col-lg-2 col-md-2 hidden-xs hidden-sm">
 							$member.ModifiedTime
 						</span>
 						<span headers="position" style="display:none">
-							<select name="position_$validator.escapeUrl("$member.id")" class="selectSet" style="display:none" tabindex="-1">
+							<select name="position_$formattedText.escapeUrl("$member.id")" class="selectSet" style="display:none" tabindex="-1">
 								#foreach($i in [1..$collectionMembers.size()])
 									<option value="$i"#if("$i" == "$count") selected="selected"#end>$i</option>
 								#end
@@ -80,8 +81,8 @@
 			#end
 		</ul>
 		<p class="act" style="margin:0;padding:.3em 0;">
-			<input id="save" value="$tlang.getString("sort.save")" type="button" class="active" onclick="submitThis('reorderForm','save');" /> 
-			<input id="cancel" value="$tlang.getString("sort.cancel")" type="button" onclick="submitThis('reorderForm','cancel');" />																			
+			<input id="save" value="$clang.getString("sort.save")" type="button" class="active" onclick="submitThis('reorderForm','save');" /> 
+			<input id="cancel" value="$clang.getString("sort.cancel")" type="button" onclick="submitThis('reorderForm','cancel');" />																			
 		</p>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>						

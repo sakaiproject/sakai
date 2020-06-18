@@ -6,7 +6,7 @@
 	<h3>
 		$tlang.getString("alias.aliases")
 	</h3>
-	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("alias.alert.message") $validator.escapeHtml($alertMessage)</div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("alias.alert.message") $formattedText.escapeHtml($alertMessage)</div>#end
 	<div class="instruction">
 		$tlang.getString("alias.list.defined")
 	</div>
@@ -93,15 +93,15 @@
 						<td headers="Id">
 							<h4>
 								#if ($service.allowEdit($alias.Id))
-									<a href="#toolLinkParam("$action" "doEdit" "id=$validator.escapeUrl($alias.Id)")">
-										$validator.escapeHtml($alias.Id)
+									<a href="#toolLinkParam("$action" "doEdit" "id=$formattedText.escapeUrl($alias.Id)")">
+										$formattedText.escapeHtml($alias.Id)
 									</a>
 								#else
-									$validator.escapeHtml($alias.Id)
+									$formattedText.escapeHtml($alias.Id)
 								#end
 							</h4>	
 						</td>
-						<td headers="Target">$validator.escapeHtml($alias.Target)</td>
+						<td headers="Target">$formattedText.escapeHtml($alias.Target)</td>
 					</tr>
 				#end
 		</table>

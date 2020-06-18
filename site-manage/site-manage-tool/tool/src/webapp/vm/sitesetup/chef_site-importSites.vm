@@ -56,7 +56,7 @@
 						<th>
 							<label>
 								<input type="checkbox" class="import-sites-tool-toggle"/>
-								$validator.escapeHtml($site.getTitle())
+								$formattedText.escapeHtml($site.getTitle())
 							</label>
 						</th>
 					#end
@@ -121,7 +121,7 @@
 													#if ($!selectedSites.contains($site.Id))
 													checked="checked"
 													#end />
-												<label  class="skip" for="toolSite$toolCount$siteCount">$tlang.getString('import.choose.label1')  $toolTitle $tlang.getString('import.choose.label2') $validator.escapeHtml($site.getTitle())</label>
+												<label  class="skip" for="toolSite$toolCount$siteCount">$tlang.getString('import.choose.label1')  $toolTitle $tlang.getString('import.choose.label2') $formattedText.escapeHtml($site.getTitle())</label>
                                                 #if ($importOptions.get(${toolId}).isPresent())
                                                 <a id="toolSite${toolCount}${siteCount}-options-link" style="display: none;" href="javascript:;" class="siteimport-options-link" data-options-id="${toolCount}-${siteCount}-options" title="$tlang.getString('import.options.title')">
                                                     <span title="$tlang.getString('import.options.title')">$tlang.getString('import.options.title').toLowerCase()</span>

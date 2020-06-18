@@ -19,7 +19,7 @@ ${includeLatestJQuery}
 		$tlang.getString("usecre.entthe")
 	</h3>
 
-	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("useconrem.alert") $validator.escapeHtml($alertMessage)</div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("useconrem.alert") $formattedText.escapeHtml($alertMessage)</div>#end
 
 	<form class="form-horizontal" name="user-create_edit" id="user-create_edit" action="#toolForm("$action")" method="post" autocomplete="on">
 		<fieldset>
@@ -39,7 +39,7 @@ ${includeLatestJQuery}
 						#if(!$user)<span class="red">*</span>#end $tlang.getString("useconrem.useid")
 					</label>
 					<div class="col-sm-3">
-						#if(!$user)<input class="form-control sakai-glow" type="text" name="eid" id="user_eid" placeholder="$tlang.getString("useconrem.useid.placeholder")" oninput="USER.validateUserId();" onkeyup="USER.validateUserId();" autocomplete="off" #if($valueEid)value="$validator.escapeHtml($valueEid)"#end />#else$validator.escapeHtml($user.Eid)#end
+						#if(!$user)<input class="form-control sakai-glow" type="text" name="eid" id="user_eid" placeholder="$tlang.getString("useconrem.useid.placeholder")" oninput="USER.validateUserId();" onkeyup="USER.validateUserId();" autocomplete="off" #if($valueEid)value="$formattedText.escapeHtml($valueEid)"#end />#else$formattedText.escapeHtml($user.Eid)#end
 					</div>
 				</div>
 			#end
@@ -50,7 +50,7 @@ ${includeLatestJQuery}
 						$tlang.getString("usecre.firnam")
 					</label>
 					<div class="col-sm-3">
-						<input class="form-control sakai-glow" type="text" name="first-name" id="first-name" placeholder="$tlang.getString("usecre.firnam.placeholder")" #if($user)value="$validator.escapeHtml($user.FirstName)"#elseif($valueFirstName)value="$validator.escapeHtml($valueFirstName)"#end/>
+						<input class="form-control sakai-glow" type="text" name="first-name" id="first-name" placeholder="$tlang.getString("usecre.firnam.placeholder")" #if($user)value="$formattedText.escapeHtml($user.FirstName)"#elseif($valueFirstName)value="$formattedText.escapeHtml($valueFirstName)"#end/>
 					</div>
 				</div>
 
@@ -59,7 +59,7 @@ ${includeLatestJQuery}
 						$tlang.getString("usecre.lasnam")
 					</label>
 					<div class="col-sm-3">
-						<input class="form-control sakai-glow" type="text" name="last-name" id="last-name" placeholder="$tlang.getString("usecre.lasnam.placeholder")" #if($user)value="$validator.escapeHtml($user.LastName)"#elseif($valueLastName)value="$validator.escapeHtml($valueLastName)"#end/>
+						<input class="form-control sakai-glow" type="text" name="last-name" id="last-name" placeholder="$tlang.getString("usecre.lasnam.placeholder")" #if($user)value="$formattedText.escapeHtml($user.LastName)"#elseif($valueLastName)value="$formattedText.escapeHtml($valueLastName)"#end/>
 					</div>
 				</div>
 			#end
@@ -69,7 +69,7 @@ ${includeLatestJQuery}
 					#if ($emailRequired) <span class="red">*</span> #end $tlang.getString("useconrem.ema")
 				</label>
 				<div class="col-sm-3">
-					<input class="form-control sakai-glow" type="text" name="email" id="email" placeholder="$tlang.getString("useconrem.ema.placeholder")" oninput="USER.validateEmail();" onkeyup="USER.validateEmail();" autocomplete="off"#if($user)value="$validator.escapeHtml($user.Email)"#elseif($valueEmail)value="$validator.escapeHtml($valueEmail)"#end #if ($emailRequired) required='required' #end/>
+					<input class="form-control sakai-glow" type="text" name="email" id="email" placeholder="$tlang.getString("useconrem.ema.placeholder")" oninput="USER.validateEmail();" onkeyup="USER.validateEmail();" autocomplete="off"#if($user)value="$formattedText.escapeHtml($user.Email)"#elseif($valueEmail)value="$formattedText.escapeHtml($valueEmail)"#end #if ($emailRequired) required='required' #end/>
 				</div>
 				<div class="col-sm-offset-2 col-sm-10" id="emailWarningMsg" style="display:none">
 					<div class="validationAlert sak-banner-error">

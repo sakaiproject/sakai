@@ -14,11 +14,11 @@
 	<packaging>war</packaging>
 	<properties>
 		<!-- This is used in re-write rules as well -->
-		<ckeditor.version>4.13.0</ckeditor.version>
+		<ckeditor.version>4.14.0</ckeditor.version>
 		<bootstrap-version>3.3.7</bootstrap-version>
 		<font-awesome-version>4.7.0</font-awesome-version>
 		<!-- Default extra plugins enabled -->
-		<ckeditor-extra-plugins>sakaipreview,image2,audiorecorder,contentitem,movieplayer,wordcount,notification,autosave,bt_table</ckeditor-extra-plugins>
+		<ckeditor-extra-plugins>sakaipreview,image2,audiorecorder,contentitem,html5video,wordcount,notification,autosave,bt_table</ckeditor-extra-plugins>
 		<!-- Empty defaults for a11y-->
 		<ckeditor-a11y-extra-plugins></ckeditor-a11y-extra-plugins>
 	</properties>
@@ -57,9 +57,9 @@
 		     have a scope of runtime -->
 		<!--Used in ELFinder, inside CK Editor, file editor -->
 		<dependency>
-			<groupId>org.webjars</groupId>
+			<groupId>org.webjars.npm</groupId>
 			<artifactId>codemirror</artifactId>
-			<version>5.49.0</version>
+			<version>5.52.0</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
@@ -84,6 +84,12 @@
 			<groupId>org.webjars</groupId>
 			<artifactId>ckeditor-image2</artifactId>
 			<version>${ckeditor.image2.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars.bower</groupId>
+			<artifactId>github-com-bahriddin-ckeditor-html5-video</artifactId>
+			<version>${ckeditor.html5video.version}</version>
 			<scope>runtime</scope>
 		</dependency>
 		<!--Used in Resources, drag&drop resources -->
@@ -159,6 +165,12 @@
 			<version>1.2.2</version>
 			<scope>runtime</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>jqplot</artifactId>
+			<version>1.0.9.d96a669-1</version>
+			<scope>runtime</scope>
+		</dependency>
 		<!--Used in the portal, notify the user about forbidden HTML entities (AntiSamy) -->
 		<dependency>
 			<groupId>org.webjars.npm</groupId>
@@ -170,7 +182,7 @@
 		<dependency>
 			<groupId>org.webjars.bower</groupId>
 			<artifactId>elfinder</artifactId>
-			<version>2.1.50</version>
+			<version>2.1.53</version>
 			<scope>runtime</scope>
 			<exclusions>
 				<!-- The exclusions are because the bower versions don't have concat/min versions -->
@@ -201,7 +213,7 @@
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>select2</artifactId>
-            <version>4.0.8</version>
+            <version>4.0.12</version>
             <scope>runtime</scope>
         </dependency>
 		<!--Used in Lessons, embed calendar item -->
@@ -238,9 +250,9 @@
 		</dependency>
 		<!--Used in Tests&Quizzes, Gradebook, Forums, autocomplete with previous inputs -->
 		<dependency>
-			<groupId>org.webjars</groupId>
+			<groupId>org.webjars.npm</groupId>
 			<artifactId>awesomplete</artifactId>
-			<version>1.1.4</version>
+			<version>1.1.5</version>
 		</dependency>
 		<!--Used in Profile, record name pronunciation -->
 		<dependency>
@@ -252,19 +264,48 @@
 		<dependency>
 			<groupId>org.webjars.npm</groupId>
 			<artifactId>webrtc-adapter</artifactId>
-			<version>7.2.9</version>
+			<version>7.5.0</version>
 		</dependency>
 		<!--Used in Tests&Quizzes, validation of fill in numeric questions -->
 		<dependency>
 			<groupId>org.webjars.npm</groupId>
 			<artifactId>mathjs</artifactId>
-			<version>6.2.3</version>
+			<version>6.5.0</version>
 		</dependency>
 		<!--Used in feedback tool-->
 		<dependency>
 			<groupId>org.webjars.bower</groupId>
 			<artifactId>multifile</artifactId>
 			<version>2.2.2</version>
+		</dependency>
+		<!--Used in the site group manager helper-->
+		<dependency>
+			<groupId>org.webjars.bower</groupId>
+			<artifactId>multiselect-two-sides</artifactId>
+			<version>2.5.5</version>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>pdf-js</artifactId>
+			<version>2.3.200</version>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>viewerjs</artifactId>
+			<version>0.5.8</version>
+		</dependency>
+		<!--Used in the BasicLTI and Site Manage-->
+		<dependency>
+			<groupId>org.webjars.npm</groupId>
+			<artifactId>fontawesome-iconpicker</artifactId>
+			<!-- Newer versions of this only compatible with FontAwesome 5 -->
+			<!-- Might be able to pass icon list to newer versions -->
+			<version>1.4.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars.npm</groupId>
+			<artifactId>flatpickr</artifactId>
+			<version>4.6.3</version>
 		</dependency>
 	</dependencies>
 	<profiles>
@@ -449,7 +490,7 @@
 					</plugin>
 					<plugin>
 						<artifactId>maven-clean-plugin</artifactId>
-						<version>2.6.1</version>
+						<version>3.1.0</version>
 						<executions>
 							<execution>
 								<id>remove-skin</id>

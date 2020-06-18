@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2003-2020 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.assignment.impl;
 
 import java.text.DecimalFormat;
@@ -26,7 +41,6 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
 
 @Slf4j
@@ -160,8 +174,10 @@ public class EmailUtil {
         buffer.append(resourceLoader.getString("noti.site.url")).append(" <a href=\"").append(siteUrl).append("\">").append(siteUrl).append("</a>").append(NEW_LINE);
         // assignment title and due date
         buffer.append(resourceLoader.getString("assignment.title")).append(" ").append(assignment.getTitle()).append(NEW_LINE);
-	String formattedDueDate = assignmentService.getUsersLocalDateTimeString(assignment.getDueDate());
-        buffer.append(resourceLoader.getString("noti.assignment.duedate")).append(" ").append(formattedDueDate).append(NEW_LINE).append(NEW_LINE);
+        if(!assignment.getHideDueDate()) {
+            String formattedDueDate = assignmentService.getUsersLocalDateTimeString(assignment.getDueDate());
+            buffer.append(resourceLoader.getString("noti.assignment.duedate")).append(" ").append(formattedDueDate).append(NEW_LINE).append(NEW_LINE);
+        }
         // submitter name and id
         String submitterNames = "";
         String submitterIds = "";
@@ -194,7 +210,7 @@ public class EmailUtil {
         // submit text
         String text = StringUtils.trimToNull(submission.getSubmittedText());
         if (text != null) {
-            buffer.append(resourceLoader.getString("gen.submittedtext")).append(NEW_LINE).append(NEW_LINE).append(Validator.escapeHtmlFormattedText(text)).append(NEW_LINE).append(NEW_LINE);
+            buffer.append(resourceLoader.getString("gen.submittedtext")).append(NEW_LINE).append(NEW_LINE).append(formattedText.escapeHtmlFormattedText(text)).append(NEW_LINE).append(NEW_LINE);
         }
 
         // attachment if any

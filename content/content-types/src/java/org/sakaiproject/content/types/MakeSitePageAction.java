@@ -49,7 +49,7 @@ public class MakeSitePageAction extends BaseServiceLevelAction {
 	private static final String RESOURCEBUNDLE = "resource.bundle.type";
 	private String resourceClass = ServerConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
 	private String resourceBundle = ServerConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
-	private ResourceLoader rb = new Resource().getLoader(resourceClass, resourceBundle);
+	private ResourceLoader rb = Resource.getResourceLoader(resourceClass, resourceBundle);
 
 	public boolean available(ContentEntity entity) {;
 		return ServerConfigurationService.getBoolean("content.make.site.page",true)

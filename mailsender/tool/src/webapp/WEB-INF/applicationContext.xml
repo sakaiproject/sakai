@@ -10,7 +10,7 @@
 				class="org.sakaiproject.util.ResourceLoaderMessageSource"
 				depends-on="TLABPostProcessorLoader">
 				<property name="basename">
-					<value>classpath:Messages</value>
+					<value>mailsender</value>
 				</property>
 				<property name="cacheSeconds">
 					<value>10</value>

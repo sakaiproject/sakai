@@ -9,8 +9,19 @@
 
   <f:view>
     <sakai:view toolCssHref="css/podcaster.css">
-    <h:form id="podFeedRev" >
+      <script>includeLatestJQuery("podFeedRevise");</script>
+      <script>
+        $(document).ready(function() {
 
+          var menuLink = $('#podcastMainMenuLink');
+          var menuLinkSpan = menuLink.closest('span');
+          menuLinkSpan.addClass('current');
+          menuLinkSpan.html(menuLink.text());
+
+        });
+      </script>
+    <h:form id="podFeedRev" >
+    <%@ include file="/podcasts/podcastMenu.jsp" %>
     <div>  <!-- Page title and Instructions -->
       <div class="page-header">
         <h1><h:outputText value="#{msgs.podfeed_revise_title}" /></h1>

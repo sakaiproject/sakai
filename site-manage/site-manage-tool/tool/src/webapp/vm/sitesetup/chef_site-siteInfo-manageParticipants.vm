@@ -24,7 +24,7 @@
     </div>
 
     #if ($alertMessage)
-        <div class="sak-banner-error">$validator.escapeHtml($alertMessage)</div>
+        <div class="sak-banner-error">$formattedText.escapeHtml($alertMessage)</div>
     #end
 
     <div class="sakai-table-toolBar">
@@ -88,7 +88,7 @@
                                 </a>
                             </th>
                         #end
-                        #if ($!isCourseSite)
+                        #if ($!isCourseSite && $!hasCredits)
                             <th id="credits" scope="col">
                                 <a href="#toolLinkParam("$action" "doSort_roster" "criterion=participant_credits")" title="$tlang.getString("sitegen.siteinfolist.sortcred")">
                                     $tlang.getString("sitegen.siteinfolist.credits")
@@ -143,7 +143,7 @@
                             <th scope="row">
                                 #set ($participantName=$participant.getName())
                                 #if ($participantName != ", ")
-                                    $validator.escapeHtml($participantName)
+                                    $formattedText.escapeHtml($participantName)
                                 #end
                             </th>
                             <td headers="id">
@@ -158,7 +158,7 @@
                                     $partSection
                                 </td>
                             #end
-                            #if ($!isCourseSite)
+                            #if ($!isCourseSite && $!hasCredits)
                                 <td headers="credits">
                                     #set($partCredits = "")
                                     #set($partCredits = $participant.getCredits())
@@ -218,7 +218,7 @@
                                     </td>
                                 #end
                                 <td class="screenOnly">
-                                    #if ($participant.isRemoveable())
+                                    #if ($participant.isRemoveable() && $hasAllowedRole == "true")
                                         ## if in Home site, cannot move the site user from it
                                         #if (!$!isMyWorkspace || ($!isMyWorkspace && !$uniqname.equals($!siteUserId)))
                                             <label class="skip" for="remove_$uniqname">$tlang.getString("sitegen.siteinfolist.remove") $participant.getDisplayId()</label>
@@ -275,7 +275,7 @@
                     #set($roleDesc="${propertiesKey}${RoleId}")
                     #set($description = $tlang.getString($roleDesc,""))
                 #end
-                $validator.escapeHtml($!description)
+                $formattedText.escapeHtml($!description)
             </dd>
         #end
     </dl>

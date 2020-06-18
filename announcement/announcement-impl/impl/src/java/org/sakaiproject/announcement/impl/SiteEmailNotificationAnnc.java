@@ -53,9 +53,9 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.EmailNotification;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SiteEmailNotification;
+import org.sakaiproject.util.api.FormattedText;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -84,6 +84,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 	@Setter private UserDirectoryService userDirectoryService;
 	@Setter private ServerConfigurationService serverConfigurationService;
 	@Setter private UserTimeService userTimeService;
+	@Setter private FormattedText formattedText;
 
 	/**
 	 * Construct.
@@ -533,27 +534,27 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		if (AnnouncementService.SECURE_ANNC_ADD.equals(event.getEvent()))
 		{
 			if(!serverConfigurationService.getBoolean("notify.email.from.replyable", false)) {
-				buf.append(FormattedText.convertFormattedTextToPlaintext(rb.getFormattedMessage("noti.header.sender.info.add", title, url, hdr.getFrom().getDisplayName())));
+				buf.append(formattedText.convertFormattedTextToPlaintext(rb.getFormattedMessage("noti.header.sender.info.add", title, url, hdr.getFrom().getDisplayName())));
 			}
 			else {
-				buf.append(FormattedText.convertFormattedTextToPlaintext(rb.getFormattedMessage("noti.header.add", title, url)));
+				buf.append(formattedText.convertFormattedTextToPlaintext(rb.getFormattedMessage("noti.header.add", title, url)));
 			}
 
 		}
 		else
 		{
 			if(!serverConfigurationService.getBoolean("notify.email.from.replyable", false)) {
-				buf.append(FormattedText.convertFormattedTextToPlaintext(rb.getFormattedMessage("noti.header.sender.info.update", title, url, hdr.getFrom().getDisplayName())));
+				buf.append(formattedText.convertFormattedTextToPlaintext(rb.getFormattedMessage("noti.header.sender.info.update", title, url, hdr.getFrom().getDisplayName())));
 			}
 			else {
-				buf.append(FormattedText.convertFormattedTextToPlaintext(rb.getFormattedMessage("noti.header.update", title, url)));
+				buf.append(formattedText.convertFormattedTextToPlaintext(rb.getFormattedMessage("noti.header.update", title, url)));
 			}
 		}
 		
 		buf.append(" ").append(rb.getString("at_date")).append(" ");
         buf.append(userTimeService.shortLocalizedTimestamp(hdr.getInstant(), rb.getLocale()));
 		buf.append(newline);
-		buf.append(FormattedText.convertFormattedTextToPlaintext(msg.getBody()));
+		buf.append(formattedText.convertFormattedTextToPlaintext(msg.getBody()));
 		buf.append(newline);
 
 		// add any attachments

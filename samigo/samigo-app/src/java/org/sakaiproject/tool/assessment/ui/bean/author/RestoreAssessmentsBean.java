@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2003-2020 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 /**********************************************************************************
  Copyright (c) 2019 Apereo Foundation
 
@@ -27,6 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
@@ -41,7 +57,8 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceH
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
+
 
 @ManagedBean(name = "restoreAssessmentsBean", eager = true)
 @SessionScoped
@@ -64,7 +81,7 @@ public class RestoreAssessmentsBean implements Serializable {
             log.debug("Adding deleted assessment to the list {} - {}.", assessment.getAssessmentId(), assessment.getTitle());
             DataAssessment dataAssessment = new DataAssessment();
             dataAssessment.setId(assessment.getAssessmentId());
-            dataAssessment.setTitle(FormattedText.convertFormattedTextToPlaintext(assessment.getTitle()));
+            dataAssessment.setTitle(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(assessment.getTitle()));
             dataAssessment.setLastModifiedDate(assessment.getLastModifiedDate());
             dataAssessment.setDraft(true);
             dataAssessment.setSelected(false);
@@ -77,7 +94,7 @@ public class RestoreAssessmentsBean implements Serializable {
             log.debug("Adding deleted published assessment to the list {} - {}.", publishedAssessment.getAssessmentId(), publishedAssessment.getTitle());
             DataAssessment dataAssessment = new DataAssessment();
             dataAssessment.setId(publishedAssessment.getPublishedAssessmentId());
-            dataAssessment.setTitle(FormattedText.convertFormattedTextToPlaintext(publishedAssessment.getTitle()));
+            dataAssessment.setTitle(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(publishedAssessment.getTitle()));
             dataAssessment.setLastModifiedDate(publishedAssessment.getLastModifiedDate());
             dataAssessment.setDraft(false);
             dataAssessment.setSelected(false);

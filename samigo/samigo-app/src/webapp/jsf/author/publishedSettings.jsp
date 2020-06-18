@@ -43,18 +43,18 @@
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{assessmentSettingsMessages.sakai_assessment_manager} #{assessmentSettingsMessages.dash} #{assessmentSettingsMessages.settings}" /></title>
-      <script type="text/javascript" src="/samigo-app/jsf/widget/hideDivision/hideDivision.js"></script>
-      <script type="text/javascript" src="/samigo-app/jsf/widget/colorpicker/colorpicker.js"></script>
-      <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
-      <script type="text/javascript" src="/samigo-app/js/authoring.js"></script>
+      <script src="/samigo-app/jsf/widget/hideDivision/hideDivision.js"></script>
+      <script src="/samigo-app/jsf/widget/colorpicker/colorpicker.js"></script>
+      <script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+      <script src="/samigo-app/js/authoring.js"></script>
 
-      <script type="text/javascript">
+      <script>
       if (needJQuery) {
          document.write('\x3Clink href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css?version=" rel="stylesheet">');
       }
       </script>
 
-      <script type="text/javascript">
+      <script>
         $(document).ready(function() {
           // set up the accordion for settings
           var accordionPanel = 1;
@@ -629,9 +629,11 @@
           <li><t:radio renderLogicalId="true" for="feedbackDelivery" index="2" /></li>
           <li><t:radio renderLogicalId="true" for="feedbackDelivery" index="3" /></li>
         </ul>
-        <div id="feedbackByDatePanel" style="display:none;">
-            <h:outputLabel for="feedbackDate" value="#{assessmentSettingsMessages.feedback_start_date}"/> <h:inputText value="#{publishedSettings.feedbackDateString}" size="25" id="feedbackDate" /></br>
-            <h:outputLabel for="feedbackEndDate" value="#{assessmentSettingsMessages.feedback_end_date}"/> <h:inputText value="#{publishedSettings.feedbackEndDateString}" size="25" id="feedbackEndDate" /></br>
+        <div id="feedbackByDatePanel" class="feedbackByDatePanel"  style="display:none;">
+            <h:outputLabel for="feedbackDate" value="#{assessmentSettingsMessages.feedback_start_date}"/> <h:inputText value="#{publishedSettings.feedbackDateString}" size="25" id="feedbackDate" />
+            <div class="hidden-lg"><div class="clearfix"></div></div>
+            <h:outputLabel for="feedbackEndDate" value="#{assessmentSettingsMessages.feedback_end_date}"/> <h:inputText value="#{publishedSettings.feedbackEndDateString}" size="25" id="feedbackEndDate" />
+            <div class="clearfix"></div><br/>
             <h:selectBooleanCheckbox value="#{publishedSettings.feedbackScoreThresholdEnabled}" id="feedbackScoreThresholdEnabled"/> <h:outputLabel for="feedbackScoreThresholdEnabled" value="#{assessmentSettingsMessages.feedback_score_threshold}"/> <h:inputText id="feedbackScoreThreshold" size="4" value="#{publishedSettings.feedbackScoreThreshold}"/>&#37;
         </div>
       </div>

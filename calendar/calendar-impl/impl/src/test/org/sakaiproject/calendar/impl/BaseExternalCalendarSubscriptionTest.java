@@ -68,6 +68,7 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.util.api.FormattedText;
 
 import net.sf.ehcache.CacheManager;
 
@@ -98,6 +99,8 @@ public class BaseExternalCalendarSubscriptionTest {
     private SessionManager sessionManager;
     @Mock
     private TimeService timeService;
+    @Mock
+    private FormattedText formattedText;
 
     private CacheManager cacheManager;
 
@@ -124,6 +127,7 @@ public class BaseExternalCalendarSubscriptionTest {
         service.setTimeService(timeService);
         service.setSessionManager(sessionManager);
         service.setClock(Clock.systemUTC());
+        service.setFormattedText(formattedText);
 
         Time time = mock(Time.class);
         when(time.toString()).thenReturn(new Date().toString());

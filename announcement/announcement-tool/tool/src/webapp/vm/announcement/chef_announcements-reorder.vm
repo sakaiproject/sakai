@@ -111,10 +111,10 @@
 							<input type="hidden" size="3" id="holder$count"  value="$count"/>
 						</span>	
 						<span class="title col-md-4 col-sm-4 col-xs-12">
-							$validator.escapeHtml($validator.limit($ann_item.Header.subject, 45))
+							$formattedText.escapeHtml($validator.limit($ann_item.Header.subject, 45))
 						</span>
 						<span class="author col-md-2 col-sm-2 col-xs-12">
-							$validator.escapeHtml($ann_item.Header.From.DisplayName)
+							$formattedText.escapeHtml($ann_item.Header.From.DisplayName)
 						</span>
 						<span  class="date col-md-2 col-sm-2 col-xs-12"> 
 							$ann_item.Header.Date.toStringLocalFull()

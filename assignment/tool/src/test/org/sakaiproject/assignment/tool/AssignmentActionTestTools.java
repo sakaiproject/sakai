@@ -42,7 +42,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * Tests for AssignmentAction
@@ -55,6 +55,8 @@ public class AssignmentActionTestTools {
     private AssignmentAction assignmentAction;
     @Mock
     private AssignmentService assignmentService;
+    @Mock
+    private FormattedText formattedText;
 
     @Before
     public void setUp() {
@@ -71,9 +73,9 @@ public class AssignmentActionTestTools {
         });
         
         when(ComponentManager.get(SessionManager.class).getCurrentSession()).thenReturn(mock(Session.class));
-        when(FormattedText.getDecimalSeparator()).thenReturn(".");
+        when(formattedText.getDecimalSeparator()).thenReturn(".");
         
-        when(FormattedText.getNumberFormat()).thenReturn(NumberFormat.getInstance(Locale.ENGLISH));
+        when(formattedText.getNumberFormat()).thenReturn(NumberFormat.getInstance(Locale.ENGLISH));
         assignmentAction = new AssignmentAction();
 
         Mockito.when(ComponentManager.get(AssignmentService.class)).thenReturn(assignmentService);

@@ -7,6 +7,9 @@
 		@media #{$phone} {	// position the buttons for mobile
 			margin-top: 0;
 			margin-bottom: -22px;
+			sakai-maximise-button {
+				display: none;
+			}
     }
       &.home {
 			top: 0px;
@@ -16,7 +19,8 @@
 
 .#{$namespace}multipleTools{
 	.#{$namespace}container {
-		border: 1px solid $overview-portlet-border-color;
+		border: $overview-portlet-border;
+		border-radius: $overview-portlet-border-radius;
 		box-shadow: $overview-portlet-shadow;
 		margin-bottom: $standard-spacing;
 
@@ -33,7 +37,7 @@
 			@include align-items(center);
 			@include justify-content(space-between);
 			background-color: $overview-portlet-title-background-color;
-			border-bottom: 1px solid $overview-portlet-border-color;
+			border-bottom: $overview-portlet-border;
 			padding: $standard-spacing;
 		}
 
@@ -169,6 +173,11 @@
 		}
 	}
 
+  sakai-maximise-button {
+    color: $tool-nav-link-color;
+    font-size: 1.1em;
+  }
+
 }
 
 .#{$namespace}toolBody{
@@ -202,7 +211,7 @@
 
 		h1, h2, h3
 		{
-			margin: $standard-spacing 0 0 0; // vertical margins will collapse into one
+			margin: 0;
 			padding: 0;
 			line-height: 1;
 		}

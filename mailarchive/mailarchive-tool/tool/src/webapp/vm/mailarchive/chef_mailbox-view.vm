@@ -1,6 +1,12 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/email/chef_mailbox-view.vm,v 1.2 2005/05/06 18:51:57 gsilver.umich.edu Exp $ -->
 <div class="portletBody">
 	#if($menu)#toolbar($menu)#end
+	<div class="page-header">
+		<h1>$tlang.getString("lis.viewmessage")</h1>
+	</div>
+	#if($submenu)
+		#toolbar($submenu)
+	#end
 	<div class="navPanel">
 		<div class="itemNav">
 				#if ($goPPButton)
@@ -20,7 +26,7 @@
 				#end
 			</div>
 	</div>	
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	
    #if ("$email.Header.Subject" == "")
        #set ($email.Header.Subject = $tlang.getString("err_no_subject"))
@@ -32,11 +38,11 @@
 		</tr>
 		<tr>
 			<th>$tlang.getString("gen.fro3")</th>
-			<td>$validator.escapeHtml($email.Header.FromAddress)</td>
+			<td>$formattedText.escapeHtml($email.Header.FromAddress)</td>
 		</tr>
 		<tr>
 			<th>$tlang.getString("gen.sub2")</th>
-			<td>$validator.escapeHtml($email.Header.Subject)</td>
+			<td>$formattedText.escapeHtml($email.Header.Subject)</td>
 		</tr>
 		#if ($viewheaders)
 			<tr>
@@ -45,7 +51,7 @@
 					<ul class="textPanelFooter instruction attachList" style="width:50em;overflow:hidden; margin:0 !important">
 						#set($headers = $email.Header.MailHeaders)
 						#foreach ($header in $headers)
-							<li>$validator.escapeHtml($header)</li>
+							<li>$formattedText.escapeHtml($header)</li>
 						#end
 					</ul>
 				</td>
@@ -53,7 +59,7 @@
 		#end
 		<tr>
 			<th>$tlang.getString("gen.bod2")</th>
-			<td>$validator.escapeHtmlFormattedText($email.FormattedBody)</td>
+			<td>$formattedText.escapeHtmlFormattedText($email.FormattedBody)</td>
 		</tr>
 		#set ($attachments = $email.Header.Attachments)
 		#if (!$attachments.isEmpty())
@@ -69,7 +75,7 @@
 								<li><img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt ="$props.getProperty($props.NamePropContentType)" />
 							#end
 							<a href="$attachment.Url" target="_new">
-							$validator.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>
+							$formattedText.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>
 							#if (!$props.getBooleanProperty($props.NamePropIsCollection))
 								($props.getPropertyFormatted($props.NamePropContentLength))
 							#end

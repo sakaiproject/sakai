@@ -99,8 +99,8 @@ public class ExternalLogicImpl implements ExternalLogic
 		log.debug("init");
 
 		// register Sakai permissions for this tool
-		functionManager.registerFunction(PERM_ADMIN);
-		functionManager.registerFunction(PERM_SEND);
+		functionManager.registerFunction(PERM_ADMIN, true);
+		functionManager.registerFunction(PERM_SEND, true);
 	}
 
 	/**
@@ -499,6 +499,11 @@ public class ExternalLogicImpl implements ExternalLogic
 	public String getCurrentLocationId()
 	{
 		return getCurrentSite().getReference();
+	}
+	
+	public String getCurrentToolURL()
+	{
+		return configService.getPortalUrl() + getCurrentLocationId() + "/tool/" + sessionManager.getCurrentToolSession().getPlacementId();
 	}
 
 	public boolean isUserSiteAdmin(String userId, String locationId)

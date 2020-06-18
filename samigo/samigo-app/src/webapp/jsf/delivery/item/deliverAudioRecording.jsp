@@ -25,21 +25,23 @@ should be included in file importing DeliveryMessages
 --%>
 -->
 
-<script type="text/javascript" src="/library/js/swfobject/swfobject.js"></script>
-<script type="text/javascript" src="/library/js/recorder/recorder.js"></script>
-<script type="text/javascript" src="/library/js/recorder/jRecorder.js"></script>
-<script type="text/javascript" src="/library/js/sakai-recorder.js"></script>
-<script type="text/javascript" src="/library/js/sakai-recorder.js"></script>
-<script type="text/javascript">includeWebjarLibrary('featherlight');</script>
+<script src="/library/js/swfobject/swfobject.js"></script>
+<script src="/library/js/recorder/recorder.js"></script>
+<script src="/library/js/recorder/jRecorder.js"></script>
+<script src="/library/js/sakai-recorder.js"></script>
+<script src="/library/js/sakai-recorder.js"></script>
+<script>includeWebjarLibrary('featherlight');</script>
 <script>
   $(document).ready(function() {
     if (typeof initiatedFeatherlight === "undefined") {
       var $elems = $("a[id$='deliverAudioRecording:openRecord']");
       $elems.each(function(index, elem) {
-        var questionId = $(elem).parent().find("input[name=questionId]").val();
-        elem.dataset.featherlight = ".audioRecordingPopup-" + questionId;
-        elem.dataset.featherlightPersist = true;
-        elem.dataset.featherlightBeforeClose = "$('.audioRecordingPopup-" + questionId + " #audio-stop:enabled').click();";
+        setTimeout(function() {
+          var questionId = $(elem).parent().find("input[name=questionId]").val();
+          elem.dataset.featherlight = ".audioRecordingPopup-" + questionId;
+          elem.dataset.featherlightPersist = true;
+          elem.dataset.featherlightBeforeClose = "$('.audioRecordingPopup-" + questionId + " #audio-stop:enabled').click();";
+        }, 0);
       });
       initiatedFeatherlight = true;
     }
@@ -64,7 +66,7 @@ should be included in file importing DeliveryMessages
 
   <h:panelGrid cellpadding="10" columns="1">
     <h:panelGroup>
-      <script type="text/javascript">
+      <script>
         var audio = new Audio();
         var deliveryProtocol = <h:outputText value="'#{delivery.protocol}'"/>;
         var hasNoMedia = <h:outputText value="'#{question.hasNoMedia}'"/>;
@@ -83,7 +85,7 @@ should be included in file importing DeliveryMessages
 		<h:outputText styleClass="recordedOn#{question.itemData.itemId}" value="#{question.mediaArray[0].duration} #{deliveryMessages.secs}, #{deliveryMessages.recorded_on} " rendered="#{!question.mediaArray[0].durationIsOver}" />
 		<h:outputText value="#{question.mediaArray[0].duration} #{deliveryMessages.secs}, #{deliveryMessages.recorded_on} " rendered="#{question.mediaArray[0].durationIsOver}" />
       <h:outputText value="#{question.mediaArray[0].createdDate}">
-        <f:convertDateTime pattern="#{deliveryMessages.delivery_date_format}" timeZone="#{author.userTimeZone}" />
+        <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{delivery.userTimeZone}" />
       </h:outputText>
       <f:verbatim></span></f:verbatim>
       <h:outputText value="#{deliveryMessages.close_bracket}"/>

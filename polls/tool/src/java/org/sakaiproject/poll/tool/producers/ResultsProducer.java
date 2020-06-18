@@ -39,6 +39,7 @@ import org.sakaiproject.poll.logic.PollVoteManager;
 import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Vote;
+import org.sakaiproject.poll.tool.constants.NavigationConstants;
 import org.sakaiproject.poll.tool.params.PollViewParameters;
 
 import uk.org.ponder.localeutil.LocaleGetter;
@@ -51,6 +52,7 @@ import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UIInternalLink;
 import uk.org.ponder.rsf.components.UILink;
+import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UIVerbatim;
@@ -132,9 +134,17 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
         langMap.put("xml:lang", locale);
 
 		UIOutput.make(tofill, "polls-html", null).decorate(new UIFreeAttributeDecorator(langMap));
-		
-		
-		
+
+		// Menu links
+		UIBranchContainer actions = UIBranchContainer.make(tofill,"actions:",Integer.toString(0));
+		UIInternalLink.make(actions, NavigationConstants.NAVIGATE_MAIN, UIMessage.make(NavigationConstants.NAVIGATE_MAIN_MESSAGE), new SimpleViewParameters(PollToolProducer.VIEW_ID));
+		if (this.isAllowedPollAdd()) {
+			UIInternalLink.make(actions, NavigationConstants.NAVIGATE_ADD, UIMessage.make(NavigationConstants.NAVIGATE_ADD_MESSAGE), new PollViewParameters(AddPollProducer.VIEW_ID, "New 0"));
+		}
+		if (this.isSiteOwner()) {
+			UIInternalLink.make(actions, NavigationConstants.NAVIGATE_PERMISSIONS, UIMessage.make(NavigationConstants.NAVIGATE_PERMISSIONS_MESSAGE), new SimpleViewParameters(PermissionsProducer.VIEW_ID));
+		}
+
 		//get the number of votes
 		int voters = pollVoteManager.getDisctinctVotersForPoll(poll);
 		int totalVoters = externalLogic.getNumberUsersCanVote();
@@ -300,7 +310,13 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 
 	}
 
+    private boolean isAllowedPollAdd() {
+        return externalLogic.isUserAdmin() || externalLogic.isAllowedInLocation(PollListManager.PERMISSION_ADD, externalLogic.getCurrentLocationReference());
+    }
 
+    private boolean isSiteOwner() {
+        return externalLogic.isUserAdmin() || externalLogic.isAllowedInLocation("site.upd", externalLogic.getCurrentLocationReference());
+    }
 
 	private static class CollatedVote {
 		private Long optionId ;

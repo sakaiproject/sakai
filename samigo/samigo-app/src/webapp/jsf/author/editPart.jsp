@@ -35,8 +35,8 @@
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{authorMessages.create_modify_p}" /></title>
       <!-- AUTHORING -->
-      <script type="text/javascript" src="/samigo-app/js/authoring.js"></script>
-      <script type="text/javascript" src="/library/js/spinner.js"></script>
+      <script src="/samigo-app/js/authoring.js"></script>
+      <script src="/library/js/spinner.js"></script>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 

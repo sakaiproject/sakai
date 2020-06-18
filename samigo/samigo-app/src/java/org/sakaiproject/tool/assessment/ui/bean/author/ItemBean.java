@@ -120,10 +120,10 @@ public class ItemBean
 
 // for matching and calculated questions only
   private String instruction;  // matching's question text
-  private ArrayList matchItemBeanList;  // store List of MatchItemBean, used for Matching only
+  @Getter @Setter private List<MatchItemBean> matchItemBeanList;  // store List of MatchItemBean, used for Matching only
   private MatchItemBean currentMatchPair;  // do not need this ?   store List of MatchItemBeans, used for Matching only
   
-  private ArrayList imageMapItemBeanList;
+  @Getter @Setter private List<ImageMapItemBean> imageMapItemBeanList;
 
 // begin DELETEME
   private String[] matches;
@@ -681,16 +681,6 @@ public class ItemBean
     this.multipleChoiceAnswers= list;
   }
 
-  public void setMatchItemBeanList(ArrayList list)
-  {
-    this.matchItemBeanList= list;
-  }
-  
-  public void setImageMapItemBeanList(ArrayList list)
-  {
-	  this.imageMapItemBeanList= list;
-  }
-
   /**
    * getSelfSequenceList examines the MatchItemBean list and returns a list of SelectItemOptions that
    * correspond to beans that have a controlling sequence of "Self", meaning that they do not depend 
@@ -703,9 +693,9 @@ public class ItemBean
 	  String selfSequence = MatchItemBean.CONTROLLING_SEQUENCE_DEFAULT;
 	  String distractorSequence = MatchItemBean.CONTROLLING_SEQUENCE_DISTRACTOR;
 	  
-	  SelectItem selfOption = new SelectItem(selfSequence, selfSequence, selfSequence);
+	  SelectItem selfOption = new SelectItem(selfSequence, "*" + RB_AUTHOR_MESSAGES.getString("new") + "*", RB_AUTHOR_MESSAGES.getString("new_desc"));
 	  options.add(selfOption);
-	  SelectItem distractorOption = new SelectItem(distractorSequence, distractorSequence, distractorSequence);
+	  SelectItem distractorOption = new SelectItem(distractorSequence, "*" + RB_AUTHOR_MESSAGES.getString("none_above") + "*", RB_AUTHOR_MESSAGES.getString("none_above_desc"));
 	  options.add(distractorOption);
 	  
 	  List<SelectItem> subOptions = new ArrayList<SelectItem>();
@@ -729,16 +719,10 @@ public class ItemBean
 	  }
 	  if (subOptions.size() > 0) {
 		  SelectItem[] selectItems = subOptions.toArray(new SelectItem[]{});
-		  SelectItemGroup group = new SelectItemGroup("Existing");
-		  group.setSelectItems(selectItems);
+		  SelectItemGroup group = new SelectItemGroup(RB_AUTHOR_MESSAGES.getString("existing"), RB_AUTHOR_MESSAGES.getString("existing_desc"), false, selectItems);
 		  options.add(group);
 	  }
 	  return options;
-  }
-
-  public ArrayList getMatchItemBeanList()
-  {
-	return matchItemBeanList;
   }
 
   public void setCurrentMatchPair(MatchItemBean param)
@@ -752,11 +736,6 @@ public class ItemBean
         return currentMatchPair;
   }
   
-  public ArrayList getImageMapItemBeanList()
-  {
-	  return imageMapItemBeanList;
-  }
-
   /**
    * Is question to be randomized?
    * @return true or false
@@ -1161,7 +1140,7 @@ public class ItemBean
   public String addMatchPair() {
       if (!isMatchError()){
 	    // get existing list
-	    ArrayList<MatchItemBean> list = getMatchItemBeanList();
+	    List<MatchItemBean> list = getMatchItemBeanList();
 	    MatchItemBean newpair = null;
 	    MatchItemBean currpair = this.getCurrentMatchPair();
 	    if (!currpair.getSequence().equals( Long.valueOf(-1))) {
@@ -1185,7 +1164,7 @@ public class ItemBean
 	    newpair.setIsCorrect(Boolean.TRUE);
 	    newpair.setControllingSequence(currpair.getControllingSequence());
 	    if (MatchItemBean.CONTROLLING_SEQUENCE_DISTRACTOR.equals(newpair.getControllingSequence())) {
-	  	  newpair.setMatch(MatchItemBean.CONTROLLING_SEQUENCE_DISTRACTOR);
+	  	  newpair.setMatch("*" + RB_AUTHOR_MESSAGES.getString("none_above") + "*");
 	    } else if (!MatchItemBean.CONTROLLING_SEQUENCE_DEFAULT.equals(newpair.getControllingSequence())) {
 	  	  Iterator<MatchItemBean> listIter = list.iterator();
 	  	  while (listIter.hasNext()) {

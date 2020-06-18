@@ -182,6 +182,11 @@ public interface ExternalLogic
 	 * @return the current location id of the current user
 	 */
 	String getCurrentLocationId();
+	
+	/**
+	 * @return the current tool URL of the current user
+	 */
+	String getCurrentToolURL();
 
 	/**
 	 * Get a list of the permission keys for the tool

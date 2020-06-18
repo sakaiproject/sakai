@@ -20,11 +20,39 @@ div#questionProgressPanel>div.tier1>table>tbody>tr:hover {
 table.table.stat-table {
   margin-bottom: 0;
 }
+
+div.progress-stat {
+  overflow: hidden;
+  height: 20px;
+  background-color: #f5f5f5;
+  border-radius: 0;
+}
+
 span.progress-num {
   padding-left: 2px;
-  color: #000;
+  color: #000000;
   font-weight: bold;
+  float: left;
+  width: 110px;
+  background-color: #DDD;
+  border-right: 1px solid #000;
+  font-size: 12px;
+  line-height: 20px;
+  text-align: center;
 }
+ul.question-with-progress {
+	list-style: none;
+	padding: 0;
+}
+
+.question-with-progress li {
+	padding-bottom: 4px;
+}
+
+table.presentation p {
+	margin: 0;
+}
+
 .progress {
   margin-bottom: 0;
 }
@@ -724,7 +752,7 @@ span.author_mcLabelText {
     background: transparent url(/library/image/play.png) no-repeat center 2px;
 }
 #audio-visual-container #audio-upload {
-    float: right;
+    margin-left: 50px;
     width: 140px;
     border-radius: 5px;
     height: 40px;
@@ -1416,6 +1444,10 @@ input[type='reset'].linearButton {
 	padding: 6px 12px;
 }
 
+.MathJax_Display {
+  text-align: left !important;
+}
+
 .input-group-btn button.multiselect-clear-filter{
 	padding: 6px 12px;
 	font-size: 14px;
@@ -1453,4 +1485,68 @@ label#itemForm\:noFeedbackMsg {
 
 .attachment-table {
   width: 40% !important;
+}
+
+table.stats-bar {
+  margin-bottom: 0px;
+}
+
+table.stats-bar td {
+  width: 50%;
+}
+
+table.stats-bar th {
+  border: 0px;
+  background-color: #f9f9f9;
+}
+
+table.table.panel-body.stats-bod td {
+  background-color: #ffffff;
+  padding: 4px;
+}
+
+div.question-text.panel-heading {
+  background-color: #c6e5ff;
+}
+
+td.stats-info-column {
+  width: 300px;
+  vertical-align: top;
+}
+
+#chartdiv .jqplot-point-label {
+  font-weight: bold;
+  font-size: 12pt;
+}
+
+td.stats-info-column td {
+  font-size: .95em;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+
+.stats-info-column caption {
+  background-color: #f5f5f5;
+  padding: 0;
+  border-bottom: 0;
+  color: #333;
+}
+
+td.stats-answers {
+  width: 43%;
+  padding-left: 10px;
+}
+
+td.stats-correctness {
+  width: 7%;
+  padding-left: 10px;
+}
+
+.sam-data-discrepancy-ol {
+	margin-top: 10px;
+}
+
+.feedbackByDatePanel {
+  padding-left: 2em;
 }

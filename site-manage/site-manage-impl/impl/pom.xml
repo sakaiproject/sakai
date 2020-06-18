@@ -90,6 +90,10 @@
             <version>1.0</version>
         </dependency>
         <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.userauditservice</groupId>
             <artifactId>userauditservice-api</artifactId>
         </dependency>

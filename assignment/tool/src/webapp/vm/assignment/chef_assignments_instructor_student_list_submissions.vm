@@ -23,7 +23,7 @@
 						<option value="" >$tlang.getString('please_select_group')</option>
 					#end
 					#foreach($aGroup in $groups)
-						<option value="$!aGroup.Reference" #if($!viewGroup.equals($!aGroup.Reference))selected="selected"#end >$validator.escapeHtml($aGroup.Title)</option>
+						<option value="$!aGroup.Reference" #if($!viewGroup.equals($!aGroup.Reference))selected="selected"#end >$formattedText.escapeHtml($aGroup.Title)</option>
 					#end
 				#end
 				#viewFilterPanel("viewFilterForm", "viewgroup", $viewSelectOptions, "doChange_submission_list_option")
@@ -72,15 +72,15 @@
 									<div class="spinnerBesideContainer">
 								#set( $userSpinnerID = "userSpinner_" + $member.Id )
 								#if (!$studentListShowSet.contains($member.Id))
-										<a href="javascript:void(0)" onclick="SPNR.insertSpinnerInPreallocated( this, null, '$userSpinnerID' ); location='#toolLinkParam("AssignmentAction" "doShow_student_submission" "studentId=$validator.escapeUrl($member.Id)")'; return false;"
+										<a href="javascript:void(0)" onclick="SPNR.insertSpinnerInPreallocated( this, null, '$userSpinnerID' ); location='#toolLinkParam("AssignmentAction" "doShow_student_submission" "studentId=$formattedText.escapeUrl($member.Id)")'; return false;"
 											title="$tlang.getString("stulistsunbm.shostuass")" name="studentLink" >
 										<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("stulistsunbm.shostuass")" width="13" height="13" border="0" />
 								#else
-										<a href="javascript:void(0)" onclick="SPNR.insertSpinnerInPreallocated( this, null, '$userSpinnerID' ); location='#toolLinkParam("AssignmentAction" "doHide_student_submission" "studentId=$validator.escapeUrl($member.Id)")'; return false;"
+										<a href="javascript:void(0)" onclick="SPNR.insertSpinnerInPreallocated( this, null, '$userSpinnerID' ); location='#toolLinkParam("AssignmentAction" "doHide_student_submission" "studentId=$formattedText.escapeUrl($member.Id)")'; return false;"
 											title="$tlang.getString("stulistsunbm.hidstuass")" name="studentLink" >
 										<img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("stulistsunbm.hidstuass")" width="13" height="13" border="0" />
 								#end
-										$validator.escapeHtml($submitterName)
+										$formattedText.escapeHtml($submitterName)
 										</a>
 										<div id="$userSpinnerID" class="allocatedSpinPlaceholder"></div>
 									</div>
@@ -103,12 +103,12 @@
 										<td headers="studentname"/>
 										<td headers="assignment">
 											#if (!$isAnon)
-												<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignmentReference)&submissionId=$validator.escapeUrl($submissionReference)&option=lisofass2")" title="$validator.escapeHtml($assignment.Title)">$validator.escapeHtml($assignment.Title)</a>
+												<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$formattedText.escapeUrl($assignmentReference)&submissionId=$formattedText.escapeUrl($submissionReference)&option=lisofass2")" title="$formattedText.escapeHtml($assignment.Title)">$formattedText.escapeHtml($assignment.Title)</a>
 												#if ($allowAddAssignment && $allowSubmitByInstructor)
-												#set( $submitSpinnerID = "submitFor_" + $member.Id + "_" + $validator.escapeUrl($assignmentReference) )
+												#set( $submitSpinnerID = "submitFor_" + $member.Id + "_" + $formattedText.escapeUrl($assignmentReference) )
 												<div class="itemAction spinnerBesideContainer">
 													#if ($assignment.DueDate.isAfter($currentTime))
-														<a onclick="SPNR.insertSpinnerInPreallocated( this, null, '$submitSpinnerID' );" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignmentReference)&submitterId=$validator.escapeUrl($member.id)")">
+														<a onclick="SPNR.insertSpinnerInPreallocated( this, null, '$submitSpinnerID' );" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$formattedText.escapeUrl($assignmentReference)&submitterId=$formattedText.escapeUrl($member.id)")">
 															$tlang.getString("submitforstudent")
 														</a>
 													#else
@@ -118,7 +118,7 @@
 												</div>
 												#end
 											#else
-												$validator.escapeHtml($assignment.Title) ($tlang.getString("grading.anonymous.title"))
+												$formattedText.escapeHtml($assignment.Title) ($tlang.getString("grading.anonymous.title"))
 											#end
 										</td>
 										<td headers="submitted">
@@ -133,9 +133,9 @@
 													#set ($submissionSubmitter = $!service.getSubmissionSubmittee($submission))
 													#if ($!submissionSubmitter.isPresent())
 														#set ($submitterId = $!submissionSubmitter.get().getSubmitter())
-														<br />$tlang.getString("listsub.submitted.by") $validator.escapeHtml($studentMembersMap.get($submitterId).getDisplayName())
+														<br />$tlang.getString("listsub.submitted.by") $formattedText.escapeHtml($studentMembersMap.get($submitterId).getDisplayName())
 														#if($member.getId() != $submitterId)
-															($tlang.getString("listsub.submitted.on.behalf") $validator.escapeHtml($member.sortName))
+															($tlang.getString("listsub.submitted.on.behalf") $formattedText.escapeHtml($member.sortName))
 														#end
 													#end
 												#elseif ($!submission.DateSubmitted)

@@ -8,7 +8,7 @@
 			<a href="$printableVersionUrl" title="$!tlang.getString('java.print')" target="_blank" rel="noreferrer">$!tlang.getString('java.print')</a>
 		</div>
 	</div>
-	#if ($alertMessage)<div class="sak-banner-warn">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>#end
+	#if ($alertMessage)<div class="sak-banner-warn">$tlang.getString('gen.alert') $formattedText.escapeHtml($alertMessage)</div>#end
 	<div class="sakai-table-toolBar">
 		<div class="sakai-table-filterContainer">
 			#calendarView()
@@ -59,9 +59,9 @@
 
                     <div class="calendarMonthView-event">
                     #foreach ($m in $eventsn)
-                        <a href="#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($m.getReference())")" 
-                           title="$validator.escapeHtml($m.getDisplayName()) - $validator.escapeHtml($m.getSiteName())">
-                        <span class="icon $eventIconMap.get($m.getType())" title="$localizedEventTypes.get($m.getType())"></span>$validator.escapeHtml($m.getDisplayName())
+                        <a href="#toolLinkParam("$action" "doDescription" "eventReference=$formattedText.escapeUrl($m.getReference())")" 
+                           title="$formattedText.escapeHtml($m.getDisplayName()) - $formattedText.escapeHtml($m.getSiteName())">
+                        <span class="icon $eventIconMap.get($m.getType())" title="$localizedEventTypes.get($m.getType())"></span>$formattedText.escapeHtml($m.getDisplayName())
                         </a>
                     #end
                     </div>

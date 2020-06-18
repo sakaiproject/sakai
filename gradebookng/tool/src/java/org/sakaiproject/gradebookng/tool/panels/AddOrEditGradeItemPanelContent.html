@@ -49,14 +49,10 @@
 				<label wicket:for="duedate" class="col-xs-3 control-label">
 					<wicket:message key="label.addgradeitem.due" />
 				</label>
-				<div class="col-xs-4">
-                    <div class="input-group">
-                        <input wicket:id="duedate" type="text" class="form-control gb-datepicker" aria-describedby="duedate-help"/>
-                        <span class="input-group-btn">
-                            <button class="btn btn-sm btn-default invoke-datepicker-btn" type="button"><span class="glyphicon glyphicon-calendar"></span></button>
-                            <button class="btn btn-sm btn-default clear-datepicker-btn" type="button"><span class="glyphicon glyphicon-remove"></span></button>
-                        </span>
-                    </div>
+				<div class="col-xs-6 form-inline">
+                    <input wicket:id="duedate" type="text" class="form-control gb-datepicker" aria-describedby="duedate-help"/>
+                    <button class="btn btn-sm btn-default invoke-datepicker-btn" type="button"><span class="glyphicon glyphicon-calendar"></span></button>
+                    <button class="btn btn-sm btn-default clear-datepicker-btn" type="button"><span class="glyphicon glyphicon-remove"></span></button>
                     <script>
                         var initDatePickers = function () {
                             $('.gb-datepicker').each(function() {
@@ -75,12 +71,12 @@
                                 })
     
                                 // setup input button to trigger date-time picker
-                                $datepicker.siblings().find(".invoke-datepicker-btn").click(function() {
+                                $datepicker.parent().find(".invoke-datepicker-btn").click(function() {
                                     $datepicker.focus();
                                 });
     
                                 // add clear action if present
-                                $datepicker.siblings().find(".clear-datepicker-btn").click(function() {
+                                $datepicker.parent().find(".clear-datepicker-btn").click(function() {
                                     $datepicker.val("");
 				    // Clear the hidden date too, possibly a better way to do this
 	    			    $datepicker.siblings("#duedate_iso8601").val("")

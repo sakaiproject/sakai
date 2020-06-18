@@ -59,7 +59,9 @@ public interface PreferencesService extends EntityProducer
 
 	/** Prefs key under which stuff like the editor typepreferences stored. */
 	static final String EDITOR_PREFS_TYPE = "editor:type";
-	
+
+	/** Prefs key under which stuff like the editor typepreferences stored. */
+	public static final String SITENAV_PREFS_EXCLUDE_KEY = "exclude";
 
 	/**
 	 * Access a set of preferences associated with this id.

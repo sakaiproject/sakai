@@ -1,19 +1,20 @@
 /* Global namespace */
 
-@import "customization"; //it is copied from the user supplied file by maven
-
 $namespace : "Mrphs-" !default;
-$skin-name : "morpheus-default" !default; // This is used for bootstrap font behaviour.
 
-$break-tiny-end:	400px;
-$break-small-end: 	800px;
-$break-medium-end: 	1030px;
+$break-tiny-end:	400px !default;
+$break-small-end: 	800px !default;
+$break-medium-end: 	1030px !default;
 
-$smallPhone:    "only screen and (max-width : #{$break-tiny-end})";
+$smallPhone:    "only screen and (max-width : #{$break-tiny-end})" !default;
 $phone  :       "only screen and (max-width : #{$break-small-end})" !default;
 $tablet :       "only screen and (max-width : #{$break-medium-end})" !default;
 $desktop:       "only screen and (min-width : #{$break-medium-end + 1})" !default;
 $nonPhone:      "only screen and (min-width : #{$break-small-end + 1})" !default;
+
+/* The standard spacing for items in Sakai */
+$standard-spacing: 16px !default;
+$standard-space: 4px !default; 		// the width of a keyboard space
 
 // For the "More Sites" drawer, just use one column if there's not
 // enough room to show two side-by-side.
@@ -23,39 +24,50 @@ $more-sites-single-column: "only screen and (max-width : #{$break-more-sites-sin
 /* Typography*/
 
 //Google family Fonts URL
-$font-family-url: "https://fonts.googleapis.com/css?family=Open+Sans:400,500,700" !default;
+$font-family-url: "https://fonts.googleapis.com/css?family=Open+Sans:400,600,700" !default;
 @import url(#{$font-family-url});
 
 //Typography variables
-$font-family: "Open Sans",sans-serif;
 $default-font-size: 14px !default;
-$default-font-size-small: 12px;
+$default-font-size-small: 12px !default;
 $default-font-weight: 400 !default;										// 400 or 700 as you wish
-$default-line-height: 1.42857;											// 20px / 14px = 1.42857
-$header-font-family: $font-family;
-$header-font-weight: 700 !default;										// 400 or 700 as you wish
+$default-line-height: 1.42857 !default;											// 20px / 14px = 1.42857
 
 /* Color palette */
-$background-color: 			 #FFFFFF !default;
-$background-color-secondary: #000036 !default;
 
-$primary-color:    			 #15597e !default;
+$primary-color: #15597e !default;
+$alt-colour: 				 #d36f00 !default;
 $primary-color-highContrast: darken( $primary-color, 4% ) !default;	// for use of primary on non-white light backgrounds, such as greys
 $primary-color-shadow:			 adjust-hue( $primary-color, 5 ) !default;	// To give primary a darker shadow
-$secondary-color:  			 #F00 !default;
-$alt-colour: 				 #d36f00 !default;
-
+$background-color: 			 #FFFFFF !default;
+$background-color-secondary: #000036 !default;
 $text-color:				 #212121 !default;
 $text-color-disabled:		 #767676 !default;
-
-$body-background-color: #FAFAFA !default;
+$secondary-color: #42AAE0 !default;
+$body-background-color: #fff !default;
 
 $portal-background-color: $background-color !default;
 $portal-mask-background:  rgba(0,0,0,0.5) !default;
 
+//Built to be used for padding
+//https://material-components.github.io/material-components-web-catalog/#/component/menu
+$material-menu-padding: calc( #{$standard-spacing} / 2) 0 !default;
+$material-menu-item-padding: calc(#{$standard-spacing} / 2) $standard-spacing !default;
+
+//Built to be used for box-shadow
+//https://material-components.github.io/material-components-web-catalog/#/component/elevation
+$material-elevation-1dp: 0 2px 1px -1px rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 1px 3px 0 rgba(0,0,0,.12) !default;
+$material-elevation-2dp: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12) !default;
+$material-elevation-3dp: 0 3px 3px -2px rgba(0,0,0,.2), 0 3px 4px 0 rgba(0,0,0,.14), 0 1px 8px 0 rgba(0,0,0,.12) !default;
+$material-elevation-4dp: 0 2px 4px -1px rgba(0,0,0,.2), 0 4px 5px 0 rgba(0,0,0,.14), 0 1px 10px 0 rgba(0,0,0,.12) !default;
+$material-elevation-5dp: 0 3px 5px -1px rgba(0,0,0,.2), 0 5px 8px 0 rgba(0,0,0,.14), 0 1px 14px 0 rgba(0,0,0,.12) !default;
+$material-elevation-6dp: 0 3px 5px -1px rgba(0,0,0,.2), 0 6px 10px 0 rgba(0,0,0,.14), 0 1px 18px 0 rgba(0,0,0,.12) !default;
+$material-elevation-7dp: 0 4px 5px -2px rgba(0,0,0,.2), 0 7px 10px 1px rgba(0,0,0,.14), 0 2px 16px 1px rgba(0,0,0,.12) !default;
+$material-elevation-8dp: 0 5px 5px -3px rgba(0,0,0,.2), 0 8px 10px 1px rgba(0,0,0,.14), 0 3px 14px 2px rgba(0,0,0,.12) !default;
+
 /* Tool tabs */
 $tool-background-color:		 $background-color !default;
-$tool-menu-background-color:			 $body-background-color !default;
+$tool-menu-background-color: $body-background-color !default;
 $tool-menu-color: 			 #424242 !default;
 $tool-border-color:			 #E5E5E5 !default;
 
@@ -78,8 +90,21 @@ $tool-tab-active-highlight-color:                         $primary-color !defaul
 $tool-nav-link-color: #666 !default;
 
 $main-content-background: $background-color !default;
-$top-header-background: $background-color-secondary !default;
-$sites-nav-background: $tool-menu-background-color !default;
+
+$top-header-background: $primary-color !default;
+$top-header-separators-thickness: 0px !default;
+$top-header-item-spacing: calc(#{$standard-spacing} / 2) !default;
+$top-header-text-display: none !default;
+$top-header-icon-size: calc(#{$standard-spacing} * 2) !default;
+$top-header-sites-padding-top: 6px !default;
+$top-header-profile-border-thickness: 2px !default;
+$top-header-profile-border-color-top: $secondary-color !default;
+$top-header-profile-border-color-right: $secondary-color !default;
+$top-header-profile-border-color-bottom: $alt-colour !default;
+$top-header-profile-border-color-left: $background-color-secondary !default;
+$top-header-profile-border-color-inner: #fff !default;
+
+$sites-nav-background: $body-background-color !default;
 
 $breadcrumbs-color:			$text-color !default;
 $breadcrumbs-tool-color:	$primary-color !default;
@@ -94,42 +119,53 @@ $link-active-background-color: transparent !default;
 $link-hover-background-color: transparent !default;
 
 /* General button design */
-$button-radius:                 3px;
-$button-text-transform:         none;
+$button-radius: 4px !default;
+$button-text-transform: none !default;
+$button-radius-pill:            16px !default;
 
 // Default (non-primary) button design:
-$button-text-color:             #333;
-$button-background:             linear-gradient(#fff, #f9f9f9);
-$button-border-color:           #ccc;
+$button-text-color: $primary-color !default;
+$button-background: $background-color !default;
+$button-border-color: $button-text-color !default;
+$button-font-weight: 600 !default;
+$button-shadow: none !default;
 // hover and focus states:
-$button-hover-text-color:       $button-text-color;
-$button-hover-background:       $button-background;
-$button-hover-border-color:     #999;
+$button-hover-text-color: $button-text-color !default;
+$button-hover-background: #F7F9FA !default;
+$button-hover-border-color: $button-hover-text-color !default;
+$button-hover-shadow: none !default;
 // active state:
-$button-active-text-color:      $button-text-color;
-$button-active-background:      linear-gradient(#f9f9f9, #fff);	//note: inverse order from above
-$button-active-border-color:    $button-hover-border-color;
-$button-active-shadow-color:    rgba(0, 0, 0, 0.3);
+$button-active-text-color:$button-text-color !default;
+$button-active-background: #E3EBF0 !default;
+$button-active-border-color:    $button-hover-border-color !default;
+$button-active-shadow-color: rgba(0,0,0,0) !default;
+$button-active-shadow: none !default;
 // disabled state:
-$button-disabled-text-color:    #717171;
-$button-disabled-background:    #f6f6f6;
-$button-disabled-border-color:  #dbdbdb;
-$button-disabled-shadow:        none;
-$button-disabled-font-weight:   300;
+$button-disabled-text-color:    #717171 !default;
+$button-disabled-background:    #f6f6f6 !default;
+$button-disabled-border-color:  #dbdbdb !default;
+$button-disabled-shadow:        none !default;
+$button-disabled-font-weight:   300 !default;
 
 // Primary action button design:
-$button-primary-text-color:                 #fff;
-$button-primary-background:                 $primary-color;
-$button-primary-border-color:               #326b97;
+$button-primary-text-color:                 #fff !default;
+$button-primary-background:                 $primary-color !default;
+$button-primary-border-color:               $primary-color !default;
+$button-primary-text-transform: none !default;
+$button-primary-font-weight: 600 !default;
+$button-primary-shadow: $material-elevation-2dp !default;
 // hover and focus states for primary action button:
-$button-primary-hover-text-color:           $button-primary-text-color;
-$button-primary-hover-background:           #176691;
-$button-primary-hover-border-color:         #124466;
+$button-primary-hover-text-color:           $button-primary-text-color !default;
+$button-primary-hover-background:           #266688 !default;
+$button-primary-hover-border-color:         #266688 !default;
+$button-primary-hover-shadow: $material-elevation-4dp !default;
 // active state for primary action button:
-$button-primary-active-text-color:          $button-primary-text-color;
-$button-primary-active-background:          $button-primary-hover-background;
-$button-primary-active-border-color:        $button-primary-hover-border-color;
-$button-primary-active-shadow-color:        $button-active-shadow-color;
+$button-primary-active-text-color:          $button-primary-text-color !default;
+$button-primary-active-background:          #5a93ab !default;
+$button-primary-active-border-color:        $button-primary-active-background !default;
+$button-primary-active-shadow-color:        $button-active-shadow-color !default;
+$button-primary-active-shadow:              $material-elevation-4dp !default;
+
 /* end of General button design */
 
 $info-color:                $primary-color  !default;
@@ -141,7 +177,7 @@ $warn-color:                darken($warn-background-color, 35%) !default;
 $error-background-color:    #f2dede !default;
 $error-color:               darken($error-background-color, 30%) !default;
 $instruction-size:          $default-font-size-small;
-$instruction-color:         #555;
+$instruction-color: #5c5c5c !default;
 
 /* Sakai Banners */
 // Information (info) banner
@@ -173,6 +209,9 @@ $errorBanner-icon: ".fa-ban";
 $swapped-view-enabled: false !default;
 $swapped-view-primary: 		 #bf360c !default;
 
+/* Admin Become User view */
+$become-user-primary: #52b387 !default;
+
 /* This is the gradient in the header of the page */
 $header-gradient-a: #fafafa !default;
 $header-gradient-b: $header-gradient-a !default;
@@ -185,35 +224,42 @@ $topNav-text-color:                         #fff !default; 		// used for links a
 $topNav-alt-color:                     		#9c9c9c !default;	// used for topNav spacers
 
 /* Favorites */
-$sites-nav-menu-item-border-thickness:		1px !default;
+$sites-nav-menu-item-border-thickness: 1px !default;
+$sites-nav-menu-item-border-radius: $button-radius-pill !default;
 /* Favorites - item */
-$sites-nav-menu-item-background:            #FFFFFF !default;
-$sites-nav-menu-item-color:                 #4C4C4C !default;
-$sites-nav-menu-item-border-color:          #E5E5E5 !default;
+$sites-nav-menu-item-background: hsla(0, 0%, 92%, 1) !default;
+
+$sites-nav-menu-item-color: hsla(0, 0%, 25%, 1) !default;
+$sites-nav-menu-item-border-color: $sites-nav-menu-item-background !default;
 $sites-nav-menu-item-border-top:            $sites-nav-menu-item-border-thickness solid $sites-nav-menu-item-border-color !default;
 $sites-nav-menu-item-border-right:          $sites-nav-menu-item-border-top !default;
 $sites-nav-menu-item-border-bottom:         $sites-nav-menu-item-border-top !default;
 $sites-nav-menu-item-border-left:           $sites-nav-menu-item-border-top !default;
+
 /* Favorites - item hovered */
-$sites-nav-menu-item-hover-background:      #FFFFFF !default;
-$sites-nav-menu-item-hover-color:           #191919 !default;
-$sites-nav-menu-item-hover-border-color:    #7F7F7F !default;
+$sites-nav-menu-item-hover-background: hsla(0, 0%, 82%, 1) !default;
+$sites-nav-menu-item-hover-color: rgba(0,0,0,1) !default;
+$sites-nav-menu-item-hover-border-color:      $sites-nav-menu-item-hover-background !default;
+
 $sites-nav-menu-item-hover-border-top:      $sites-nav-menu-item-border-thickness solid $sites-nav-menu-item-hover-border-color !default;
 $sites-nav-menu-item-hover-border-right:    $sites-nav-menu-item-hover-border-top !default;
 $sites-nav-menu-item-hover-border-bottom:   $sites-nav-menu-item-hover-border-top !default;
 $sites-nav-menu-item-hover-border-left:     $sites-nav-menu-item-hover-border-top !default;
+
 /* Favorites - item selected */
-$sites-nav-menu-item-selected-background:   $primary-color !default;
-$sites-nav-menu-item-selected-color:        #FFFFFF !default;
-$sites-nav-menu-item-selected-border-color: #326B97 !default;
+$sites-nav-menu-item-selected-background: hsla(200, 31%, 84%,1) !default;
+$sites-nav-menu-item-selected-color: hsl(201, 71%, 20%) !default;
+$sites-nav-menu-item-selected-border-color: $sites-nav-menu-item-selected-background !default;
+$sites-nav-menu-item-selected-font-weight:  600 !default
 $sites-nav-menu-item-selected-border-top:   $sites-nav-menu-item-border-thickness solid $sites-nav-menu-item-selected-border-color !default;
 $sites-nav-menu-item-selected-border-right: $sites-nav-menu-item-selected-border-top !default;
 $sites-nav-menu-item-selected-border-bottom:$sites-nav-menu-item-selected-border-top !default;
 $sites-nav-menu-item-selected-border-left:  $sites-nav-menu-item-selected-border-top !default;
+
 /* Favorites - item selected and hovered */
-$sites-nav-menu-item-selected-hover-background:   lighten($sites-nav-menu-item-selected-background, 5%) !default;
-$sites-nav-menu-item-selected-hover-color:        #FFFFFF !default;
-$sites-nav-menu-item-selected-hover-border-color: $sites-nav-menu-item-selected-border-color !default;
+$sites-nav-menu-item-selected-hover-background:   hsla(200, 31%, 76%,1) !default;
+$sites-nav-menu-item-selected-hover-color: hsl(201, 71%, 20%) !default;
+$sites-nav-menu-item-selected-hover-border-color: $sites-nav-menu-item-selected-hover-background !default;
 $sites-nav-menu-item-selected-hover-border-top:   $sites-nav-menu-item-border-thickness solid $sites-nav-menu-item-selected-hover-border-color !default;
 $sites-nav-menu-item-selected-hover-border-right: $sites-nav-menu-item-selected-hover-border-top !default;
 $sites-nav-menu-item-selected-hover-border-bottom:$sites-nav-menu-item-selected-hover-border-top !default;
@@ -222,8 +268,13 @@ $sites-nav-menu-item-selected-hover-border-left:  $sites-nav-menu-item-selected-
 $sites-nav-submenu-background:              $sites-nav-menu-item-hover-background !default;
 $sites-nav-submenu-topleft-border-color:    $sites-nav-menu-item-hover-background !default;
 $sites-nav-submenu-border-color:            $sites-nav-menu-item-hover-border-color !default;
+$sites-nav-submenu-border: none !default;
+$sites-nav-submenu-top: $standard-spacing !default;
+$sites-nav-submenu-padding: $material-menu-padding !default;
+$sites-nav-submenu-shadow: $material-elevation-8dp !default;
 /* Favorites - tool selected submenu */
-$sites-nav-selected-submenu-border-color: $sites-nav-menu-item-selected-hover-border-color !default;
+$sites-nav-selected-submenu-border-color: #fff !default;
+$sites-nav-selected-submenu-border: none !default;
 $sites-nav-selected-submenu-topleft-border-color: $sites-nav-menu-item-selected-hover-background !default;
 /* Favorites - tool submenu items */
 $sites-nav-submenu-item-text-size:          13px !default;
@@ -232,6 +283,8 @@ $sites-nav-submenu-item-color:              #4C4C4C !default;
 $sites-nav-submenu-item-icon-color:         #666666 !default;
 $sites-nav-submenu-item-divider-color:      #E5E5E5 !default;
 $sites-nav-submenu-item-left-border-color:  transparent !default;
+$sites-nav-submenu-item-left-border: none !default;
+$sites-nav-submenu-item-padding: $material-menu-item-padding !default;
 /* Favorites - tool submenu items hovered */
 $sites-nav-submenu-item-hover-background:   #ECECEC !default;
 $sites-nav-submenu-item-hover-color:        #191919 !default;
@@ -300,8 +353,9 @@ $all-sites-close-action-hover-color:                      #4C4C4C !default;
 
 /* Wide tool menu, icons on left */
 $tool-menu-icon-on-left: true !default;
-$tool-menu-width: 200px !default;
-$tool-menu-width-collapsed: 42px !default;
+$tool-menu-width: 200px + $standard-spacing !default;
+$tool-menu-padding: calc(#{$standard-spacing} / 2) 0 0 0 !default;
+$tool-menu-width-collapsed: 52px !default;
 $tool-menu-collapseButton-height: $tool-menu-width-collapsed !default;
 
 /* Narrow tool menu, icons centered */
@@ -311,16 +365,22 @@ $tool-menu-collapseButton-height: $tool-menu-width-collapsed !default;
     $tool-menu-collapseButton-height: $tool-menu-width-collapsed;
 }
 
-$tool-menu-item-separator-color:                           #E5E5E5 !default;
+$tool-menu-item-separator-color: #fff !default;
 $tool-menu-item-text-color:                                #333333 !default;
 $tool-menu-item-icon-color:                                #666666 !default;
 $tool-menu-item-text-weight:                               normal !default;
-$tool-menu-item-background-color:                          #FAFAFA !default;
-$tool-menu-item-border-left:                               4px solid transparent !default;
+$tool-menu-item-background-color: #fff !default;
+$tool-menu-item-border-left: none !default;
+$tool-menu-item-border-radius: 0 calc(#{$button-radius-pill} * 1.5) calc(#{$button-radius-pill} * 1.5) 0 !default;
+$tool-menu-item-padding: calc( #{$standard-spacing} / 2) 0 calc( #{$standard-spacing} / 2) $standard-spacing !default;
+$tool-menu-item-margin-right: calc( #{$standard-spacing} / 2) !default;
 $tool-menu-item-hover-text-color:                          #191919 !default;
 $tool-menu-item-hover-icon-color:                          #424242 !default;
-$tool-menu-item-hover-background-color:                    #ECECEC !default;
-$tool-menu-item-hover-border-left:                         4px solid #7F7F7F !default;
+$tool-menu-item-hover-background-color: hsla(0, 0%, 92%, 1) !default;
+$tool-menu-item-hover-border-left: $tool-menu-item-border-left !default;
+$tool-menu-item-collapsed-border-radius:                   0 !default;
+$tool-menu-item-collapsed-margin:                          0 !default;
+$tool-menu-item-collapsed-padding: $tool-menu-item-padding !default;
 $tool-menu-item-hidden-text-color:                         $tool-menu-item-text-color !default;
 $tool-menu-item-hidden-icon-color:                         $tool-menu-item-icon-color !default;
 $tool-menu-item-hidden-background-color:                   $tool-menu-item-background-color !default;
@@ -329,14 +389,14 @@ $tool-menu-item-hidden-hover-text-color:                   $tool-menu-item-hover
 $tool-menu-item-hidden-hover-icon-color:                   $tool-menu-item-hover-icon-color !default;
 $tool-menu-item-hidden-hover-background-color:             $tool-menu-item-hover-background-color !default;
 $tool-menu-item-hidden-hover-border-left:                  $tool-menu-item-hover-border-left !default;
-$tool-menu-item-selected-text-color:                       $primary-color !default;
-$tool-menu-item-selected-icon-color:                       $primary-color !default;
-$tool-menu-item-selected-background-color:                 #FFFFFF !default;
-$tool-menu-item-selected-border-left:                      4px solid $primary-color !default;
-$tool-menu-item-selected-hover-text-color:                 $primary-color !default;
-$tool-menu-item-selected-hover-icon-color:                 $primary-color !default;
-$tool-menu-item-selected-hover-background-color:           #FFFFFF !default;
-$tool-menu-item-selected-hover-border-left:                4px solid $primary-color !default;
+$tool-menu-item-selected-text-color: hsl(201, 71%, 20%) !default;
+$tool-menu-item-selected-icon-color: hsl(201, 71%, 20%) !default;
+$tool-menu-item-selected-background-color: hsla(200, 31%, 84%,1) !default;
+$tool-menu-item-selected-border-left: $tool-menu-item-border-left !default;
+$tool-menu-item-selected-hover-text-color: hsl(201, 71%, 20%) !default;
+$tool-menu-item-selected-hover-icon-color: hsl(201, 71%, 20%) !default;
+$tool-menu-item-selected-hover-background-color: hsla(200, 31%, 76%,1) !default;
+$tool-menu-item-selected-hover-border-left: $tool-menu-item-border-left !default;
 
 $tool-menu-collapse-text-color:                            $tool-menu-item-text-color !default;
 $tool-menu-collapse-icon-color:                            $tool-menu-item-text-color !default;
@@ -367,16 +427,41 @@ $tool-sub-menu-current-background-color: $background-color !default;
 $tool-sub-menu-current-hover-color: $tool-menu-color !default;
 $tool-sub-menu-current-hover-background-color: $background-color !default;
 
+/* Tool menu - lessons subpage menu enabled - top level pages */
+$tool-lessons-toplevel-menu-icon-padding: $material-menu-item-padding !default;
+$tool-lessons-toplevel-menu-text-padding: $material-menu-item-padding !default;
+$tool-lessons-subpage-menu-text-padding: calc(#{$standard-spacing} / 2) $standard-spacing calc(#{$standard-spacing} / 2) calc(#{$standard-spacing} * 2) !default;
+$tool-lessons-toplevel-menu-selected-background-color: $tool-menu-item-background-color !default;
+$tool-lessons-toplevel-menu-expanded-background-color: $tool-menu-item-selected-background-color !default;
+$tool-lessons-toplevel-menu-expanded-selected-background-color:$tool-menu-item-selected-background-color !default;
+$tool-lessons-toplevel-menu-sliding-background-color: $tool-menu-item-background-color !default;
 
+/* Tool menu - lessons subpage menu enabled - sub pages */
+$tool-lessons-subpage-menu-fontsize: .9em !default;
+$tool-lessons-subpage-menu-border-radius: 0 $button-radius-pill $button-radius-pill 0 !default;
+$tool-lessons-subpage-menu-selected-background-color: $tool-menu-item-selected-background-color !default;
+$tool-lessons-subpage-menu-selected-parent-background-color: $tool-menu-item-background-color !default;
+$tool-lessons-subpage-menu-expanded-background-color: $tool-menu-item-background-color !default;
+
+/* Lessons tool */
+$lessons-column-border:none !default;
+$lessons-item-border-top: 1px solid $sites-nav-menu-item-background !default;
+$lessons-item-border-right: none !default;
+$lessons-item-border-bottom: none !default;
+$lessons-item-border-left: none !default;
+$lessons-item-hover-background: #fff !default;
+$lessons-item-hover-shadow: $material-elevation-4dp !default;
+$lessons-item-edit-display: none !default;
+$lessons-item-edit-hover-display: inline-block !default;
 /* Navigation Hierarchy */
 $hierarchy-size: 3.5em !default;
 
 /* Golden Ratio width for 16px font http://www.pearsonified.com/typography/ */
 $measure: 960px !default;
 
-/* The standard spacing for items in Sakai */
-$standard-spacing: 10px !default;
-$standard-space: 4px !default; 		// the width of a keyboard space
+
+
+
 
 $banner-height: 52px !default;
 
@@ -403,7 +488,7 @@ $siteDelete-border: 1px solid $info-color !default;
 //$sakai-custom-icons : ( sakai-message-bundle-manager : ( extend : fa-edit ) );
 
 /* Footer */
-$footer-background-color: $tool-menu-background-color;
+$footer-background-color: $body-background-color !default;
 $footer-border-color: $tool-border-color;
 $footer-font-size: 12px;
 $footer-color: $text-color;
@@ -413,18 +498,27 @@ $footer-link-separator: #ccc;
 $col1of2-width: 48% !default;
 $col2of2-width: 48% !default;
 
-/* From NYU 11 Skin */
 $divider-shadow: 0 1px 5px rgba(0,0,0,.3) !default;
-$overview-portlet-border-color: $tool-border-color !default;
-$overview-portlet-shadow: 1px 1px 5px rgba(0,0,0,0.2) !default;
+$divider-shadow-fixed: 0 1px 0 $tool-border-color !default;
+$overview-portlet-border: none !default;
+$overview-portlet-border-radius: $button-radius !default;
+$overview-portlet-shadow: $material-elevation-1dp !default;
 $overview-portlet-title-background-color: $tool-tab-background-color !default;
 
-$instruction-color: #5c5c5c !default;
 $instruction-background-color: #fff !default;
 
 /* focus styles for all control elements (e.g. buttons, form controls, links, etc) */
-$focus-outline-width: 3px;
-$focus-outline-style: solid;
-$focus-outline-color: #5b9dd9;
-$sakai-focus-outline: $focus-outline-width $focus-outline-style $focus-outline-color;
-$focus-outline-offset: 2px;
+$focus-outline-width: 3px !default;
+$focus-outline-style: solid !default;
+$focus-outline-color: #5b9dd9 !default;
+$sakai-focus-outline: $focus-outline-width $focus-outline-style $focus-outline-color !default;
+$focus-outline-offset: 2px !default;
+
+$font-family: "Open Sans",sans-serif !default;
+$header-font-family: $font-family !default;
+$header-font-weight: 700 !default;										// 400 or 700 as you wish
+
+$skin-name : "morpheus-default" !default; // This is used for bootstrap font behaviour.
+
+$sites-nav-selected-submenu-border-color: transparent !default;
+$sites-nav-submenu-top: -#{$standard-spacing} !default; //fallback to calc( #{$default-font-size} + #{$sites-nav-menu-item-border-thickness})

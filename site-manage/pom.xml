@@ -24,7 +24,6 @@
                 <module>site-manage-impl/pack</module>
                 <module>site-manage-tool/tool</module>
                 <module>site-manage-util/util</module>
-                <module>site-manage-group-helper/tool</module>
                 <module>site-manage-participant-helper</module>
                 <module>site-manage-link-helper</module>  
             </modules>
@@ -42,11 +41,9 @@
                 <module>site-manage-impl/impl</module>
                 <module>site-manage-tool/tool</module>
                 <module>site-manage-util/util</module>
-                <module>site-manage-group-helper/tool</module>
-                <module>site-manage-group-section-role-helper/tool</module>
-                <module>site-manage-group-section-role-helper/pack</module>
                 <module>site-manage-participant-helper</module>
                 <module>site-manage-link-helper</module>
+                <module>site-group-manager</module>
             </modules>
         </profile>
     </profiles>
@@ -68,11 +65,6 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>sakai-site-manage-impl</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>sakai-site-manage-group-section-role-helper</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

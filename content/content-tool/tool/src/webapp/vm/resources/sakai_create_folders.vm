@@ -1,10 +1,11 @@
 <!-- resources/sakai_create_folders.vm, use with org.sakaiproject.tool.content.ResourcesHelperAction.java -->
 <div class="portletBody specialLink">
+	#contentMenu("resources")
 	<h3>
 		$tlang.getString("create.folder")
 	</h3>
 	#if ($itemAlertMessage)
-		<div class="sak-banner-error">$tlang.getString("label.alert") $validator.escapeHtml($itemAlertMessage)</div>
+		<div class="sak-banner-error">$tlang.getString("label.alert") $formattedText.escapeHtml($itemAlertMessage)</div>
 	#end
 	<ol class="breadcrumb">
 		<li><span>
@@ -12,7 +13,7 @@
 		</span></li>
 		##<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0"  alt="$tlang.getString("gen.folder")" />
 		#foreach ($item in $model.collectionPath)
-			<li><span>$validator.escapeHtml($item.name)</span></li>
+			<li><span>$formattedText.escapeHtml($item.name)</span></li>
 		#end
 	</ol>
 		<p class="instruction">
@@ -60,7 +61,7 @@
 			#end
 		</div>
 		<p class="act">
-			<a href="#" onclick="addFileInput();return false">$tlang.getString("label.addFolder")</a>
+			<a href="#" id="addFolderInput" onclick="addFileInput();return false">$tlang.getString("label.addFolder")</a>
 		</p>
 #*
 		#if ($model.resourceTypeDef.hasNotificationDialog())

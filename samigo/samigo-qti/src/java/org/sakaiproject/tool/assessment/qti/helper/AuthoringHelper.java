@@ -45,7 +45,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
@@ -82,7 +82,7 @@ import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.util.TextFormat;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * <p>Copyright: Copyright (c) 2004</p>
@@ -164,7 +164,7 @@ public class AuthoringHelper
         factory.getAssessmentHelperInstance(this.qtiVersion);
       Assessment assessmentXml = assessmentHelper.readXMLDocument(is);
       assessmentXml.setIdent(assessmentId);
-      assessmentXml.setTitle(FormattedText.convertFormattedTextToPlaintext(assessment.getTitle()));
+      assessmentXml.setTitle(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(assessment.getTitle()));
       assessmentHelper.setDescriptiveText(assessment.getDescription(),
                                           assessmentXml);
 
@@ -694,8 +694,8 @@ public class AuthoringHelper
           // Item Attachment
           exHelper.makeItemAttachmentSet(item);
           
-          section.addItem(item); // many to one
-          itemService.saveItem(item);
+          item = itemService.saveItem(item);
+          section.addItem(item);
           EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/saved itemId=" + item.getItemId().toString(), true));
         } // ... end for each item
         
@@ -839,7 +839,7 @@ public class AuthoringHelper
                item.setLastModifiedBy(me);
                item.setLastModifiedDate(questionpool.getLastModified());
                item.setStatus(ItemDataIfc.ACTIVE_STATUS);
-               itemService.saveItem(item);
+               item = itemService.saveItem(item);
                EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/saved itemId=" + item.getItemId().toString(), true));
                
                QuestionPoolItemData questionPoolItem = new QuestionPoolItemData();
@@ -882,7 +882,7 @@ public class AuthoringHelper
       Item itemXml = new Item(document, QTIVersion.VERSION_1_2);
       exHelper.updateItem(item, itemXml);
       ItemService itemService = new ItemService();
-      itemService.saveItem(item);
+      item = itemService.saveItem(item);
     }
     catch (Exception e)
     {

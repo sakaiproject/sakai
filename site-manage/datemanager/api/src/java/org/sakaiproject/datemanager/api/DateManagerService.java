@@ -13,12 +13,9 @@
 
 package org.sakaiproject.datemanager.api;
 
-import java.time.Instant;
 import java.util.Locale;
-import java.util.TimeZone;
 
 import org.json.simple.JSONArray;
-
 import org.sakaiproject.datemanager.api.model.DateManagerValidation;
 
 public interface DateManagerService {
@@ -27,7 +24,6 @@ public interface DateManagerService {
 	public String getCurrentSiteId();
 	public Locale getUserLocale();
 	public String getMessage(String messageId);
-	public Instant parseStringToInstant(String timestamp, TimeZone userTimeZone);
 	public boolean currentSiteContainsTool(String commonId);
 	public String getToolTitle(String commonId);
 

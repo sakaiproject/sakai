@@ -1,5 +1,7 @@
 <div class="portletBody">
-	
+	#if($menu)
+		#toolbar($menu)
+	#end
 	<h3>
 		$tlang.getString("archive.download.heading")
 	</h3>

@@ -302,7 +302,7 @@ public class Foorm {
 	public void formInputStart(StringBuffer sb, String field, String type, String label,
 			boolean required, Object loader) {
 		// Checkbox and radio no longer call this
-		sb.append("<p id=\"");
+		sb.append("<div id=\"");
 		sb.append(field);
 		sb.append("-input\" class=\"foorm-"+type+"\" style=\"clear:both;\">");
 
@@ -331,7 +331,7 @@ public class Foorm {
 	 */
 	public void formInputEnd(StringBuffer sb, String field, String type, String label, boolean required,
 			Object loader) {
-		sb.append("</p>\n");
+		sb.append("</div>\n");
 	}
 
 	/**
@@ -350,7 +350,9 @@ public class Foorm {
 			value = "";
 		StringBuffer sb = new StringBuffer();
 		formInputStart(sb, field, "text", label, required, loader);
-		sb.append("<input type=\"text\" id=\"");
+		sb.append("<div id=\"div_");
+		sb.append(field);
+		sb.append("\"><input type=\"text\" id=\"");
 		sb.append(field);
 		sb.append("\" name=\"");
 		sb.append(field);
@@ -358,7 +360,7 @@ public class Foorm {
 		sb.append(size);
 		sb.append("\" style=\"border:1px solid #555;padding:5px;font-size:1em;width:300px\" value=\"");
 		sb.append(htmlSpecialChars(value));
-		sb.append("\"/>");
+		sb.append("\"/></div>");
 		formInputEnd(sb, field, "text", label, required, loader);
 		return sb.toString();
 	}
@@ -820,7 +822,7 @@ public class Foorm {
 	 * @param loader
 	 */
 	public void formOutputStart(StringBuffer sb, String field, String label, Object loader) {
-		sb.append("<p class=\"foorm-text\" id=\""+field+"\">\n");
+		sb.append("<div class=\"foorm-text\" id=\""+field+"\">\n");
 		if (label != null) {
 			sb.append("<b>");
 			sb.append(getI18N(label, loader));
@@ -836,7 +838,7 @@ public class Foorm {
 	 * @param loader
 	 */
 	public void formOutputEnd(StringBuffer sb, String field, String label, Object loader) {
-		sb.append("</p>\n");
+		sb.append("</div>\n");
 	}
 
 	/**

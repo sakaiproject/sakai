@@ -23,11 +23,13 @@ package org.sakaiproject.content.impl;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.SocketException;
 import java.net.URI;
@@ -46,6 +48,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.SortedSet;
@@ -63,21 +66,30 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.tika.io.TikaInputStream;
-import org.apache.tika.metadata.Metadata;
+import fr.opensagres.odfdom.converter.xhtml.XHTMLConverter;
+
 import org.apache.tika.detect.DefaultDetector;
 import org.apache.tika.detect.Detector;
+import org.apache.tika.io.TikaInputStream;
+import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MimeTypes;
-
 import org.apache.tika.parser.txt.CharsetDetector;
 import org.apache.tika.parser.txt.CharsetMatch;
+
+import org.odftoolkit.odfdom.doc.OdfTextDocument;
+
+import org.zwobble.mammoth.DocumentConverter;
+import org.zwobble.mammoth.Result;
+
 import org.sakaiproject.authz.api.AuthzRealmLockException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -150,6 +162,7 @@ import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.exception.ZipFileNumberException;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.memory.api.CacheRefresher;
 import org.sakaiproject.memory.api.MemoryService;
@@ -280,7 +293,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 	/** Dependency: MemoryService. */
 	protected MemoryService m_memoryService = null;
 
-    	/**
+	@Setter
+	private FileConversionService fileConversionService;
+
+	/**
 	 * Use a timer for repeating actions
 	 */
 	private Timer virusScanTimer = new Timer(true);
@@ -842,7 +858,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 			// Get resource bundle
 			String resourceClass = m_serverConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
 			String resourceBundle = m_serverConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
-			rb = new Resource().getLoader(resourceClass, resourceBundle);
+			rb = Resource.getResourceLoader(resourceClass, resourceBundle);
 
 			m_relativeAccessPoint = REFERENCE_ROOT;
 
@@ -918,12 +934,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 
 			log.info("init(): site quota: " + m_siteQuota + ", dropbox quota: " + m_dropBoxQuota + ", body path: " + m_bodyPath + " volumes: "+ buf.toString());
 
-            int virusScanPeriod = m_serverConfigurationService.getInt(VIRUS_SCAN_CHECK_PERIOD_PROPERTY, VIRUS_SCAN_PERIOD);
-            int virusScanDelay = m_serverConfigurationService.getInt(VIRUS_SCAN_START_DELAY_PROPERTY, VIRUS_SCAN_DELAY);
+			int virusScanPeriod = m_serverConfigurationService.getInt(VIRUS_SCAN_CHECK_PERIOD_PROPERTY, VIRUS_SCAN_PERIOD);
+			int virusScanDelay = m_serverConfigurationService.getInt(VIRUS_SCAN_START_DELAY_PROPERTY, VIRUS_SCAN_DELAY);
 
-            virusScanDelay += new Random().nextInt(60); // add some random delay to get the servers out of sync
-            virusScanTimer.schedule(new VirusTimerTask(), (virusScanDelay * 1000), (virusScanPeriod * 1000) );
+ 			virusScanDelay += new Random().nextInt(60); // add some random delay to get the servers out of sync
+			virusScanTimer.schedule(new VirusTimerTask(), (virusScanDelay * 1000), (virusScanPeriod * 1000) );
 
+			fileConversionService.startIfEnabled();
 		}
 		catch (Exception t)
 		{
@@ -4006,8 +4023,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 			name = name.substring(0, name.length() - 1);
 		}
 
+		final String uuid = idManager.createUuid();
 		// form a name based on the attachments collection, a unique folder id, and the given name
-		String collection = ATTACHMENTS_COLLECTION + idManager.createUuid() + Entity.SEPARATOR;
+		String collection = ATTACHMENTS_COLLECTION + uuid + Entity.SEPARATOR;
 		String id = collection + name;
 
 		if (id.length() > MAXIMUM_RESOURCE_ID_LENGTH)
@@ -4019,8 +4037,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		addAndCommitAttachmentCollection(collection, name, null);
 
 		// and add the resource
-		return addResource(id, type, content, properties, new ArrayList(), NotificationService.NOTI_NONE);
+		ContentResource resource = addResource(id, type, content, properties, new ArrayList(), NotificationService.NOTI_NONE);
 
+		if (fileConversionService.canConvert(type)) {
+			fileConversionService.convert(id);
+		}
+
+		return resource;
 	} // addAttachmentResource
 
 	/**
@@ -4111,9 +4134,14 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		addAndCommitAttachmentCollection(collection, name, siteCreator);
 
 		// and add the resource
-		return addResource(id, type, content, properties, new ArrayList(), NotificationService.NOTI_NONE);
+		ContentResource resource = addResource(id, type, content, properties, new ArrayList(), NotificationService.NOTI_NONE);
 
-			} // addAttachmentResource
+		if (fileConversionService.canConvert(type)) {
+			fileConversionService.convert(id);
+		}
+
+		return resource;
+	} // addAttachmentResource
 
 	/**
 	 * Create a new resource as an attachment to some other resource in the system, locked for update. Must commitResource() to make official, or cancelResource() when done! The new resource will be placed into a newly created collecion in the attachment
@@ -7051,7 +7079,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 			else
 			{
 				// use the last part, the file name part of the id, for the download file name
-				String fileName = Validator.getFileName(ref.getId());
+				String fileName = FilenameUtils.getName(ref.getId());
 				String disposition = null;
 
 				if (Validator.letBrowserInline(contentType))
@@ -14275,7 +14303,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
         if (zipManifest == null) {
             log.error("Zip file for resource ("+resourceId+") has no zip manifest, cannot extract");
         } else if (zipManifest.size() >= maxZipExtractSize) {
-            log.warn("Zip file for resource ("+resourceId+") is too large to be expanded, size("+zipManifest.size()+") exceeds the max=("+maxZipExtractSize+") as specified in setting content.zip.expand.maxfiles");
+            log.warn("Zip file for resource {} is too large to be expanded, size {} exceeds the max {} as specified in setting content.zip.expand.maxfiles", resourceId, zipManifest.size(), maxZipExtractSize);
+            throw new ZipFileNumberException(resourceId);
         } else {
             // zip is not too large to extract so check if files are too large
             long totalSize = 0;
@@ -14347,7 +14376,44 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
     	
     	return url;
     }
-    
+
+    public Optional<String> getHtmlForRef(String ref) {
+
+        try {
+            ContentResource cr = getResource(ref);
+
+            byte[] content = cr.getContent();
+            String contentType = cr.getContentType();
+
+            switch (cr.getContentType()) {
+                case DOCX_MIMETYPE:
+                    try (InputStream in = cr.streamContent()) {
+                        Result<String> result = new DocumentConverter().convertToHtml(in);
+                        String html = result.getValue();
+                        if (log.isDebugEnabled()) {
+                            result.getWarnings().forEach(w -> log.debug("Warning while converting {} to html: {}", ref, w));
+                        }
+                        return Optional.of(html);
+                    }
+                case ODT_MIMETYPE:
+                    try (InputStream in = cr.streamContent()) {
+                        OdfTextDocument document = OdfTextDocument.loadDocument(in);
+                        StringWriter sw = new StringWriter();
+                        XHTMLConverter.getInstance().convert( document, sw, null );
+                        return Optional.of(sw.toString());
+                    } catch ( Throwable e ) {
+                        e.printStackTrace();
+                    }
+
+                    return Optional.of("");
+                default:
+            }
+        } catch (Exception e) {
+            log.error("Failed to get html for ref {}", ref, e);
+        }
+        return Optional.empty();
+    }
+
     /**
      * Helper to get the value for a given macro.
      * @param macroName

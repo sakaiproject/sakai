@@ -54,7 +54,7 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 
 <div class="portletBody specialLink" id="portletBody">
 	#if ($alertMessage)
-		<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" ></div>
+		<div class="alertMessage">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div><div style="display:block;clear:both" ></div>
 	#end
 	<h3 id="page-title">
 		#if($helper_title)
@@ -110,7 +110,7 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 
 	<form name="attachForm" id="attachForm" action="#toolForm("FilePickerAction" "Main")" method="post" enctype="multipart/form-data">
 		<input type="hidden" name="source" value="0" />
-		<input type="hidden" name="collectionId" value="$validator.escapeHtml($collectionId)" />
+		<input type="hidden" name="collectionId" value="$formattedText.escapeHtml($collectionId)" />
 		<input type="hidden" name="from" value="list" />
 		<input type="hidden" name="sakai_action" id="sakai_action" value="" />
         <input type="hidden" name="navRoot" id="navRoot" value="" />
@@ -136,11 +136,11 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 						<td headers="item">
 								<span class="$att_item.iconClass" aria-hidden="true"></span>
 								<span class="sr-only">$!att_item.hoverText</span>
-								<a href="$att_item.accessUrl" target="_blank" title="$tlang.getString('gen.type'): $att_item.hoverText   [$tlang.getString('gen.newwin')]">$validator.escapeHtml($att_item.displayName)</a>	
+								<a href="$att_item.accessUrl" target="_blank" title="$tlang.getString('gen.type'): $att_item.hoverText   [$tlang.getString('gen.newwin')]">$formattedText.escapeHtml($att_item.displayName)</a>	
 						</td>
 						<td headers="action">
 							<div class="itemAction">
-								<a href="#toolLinkParam("FilePickerAction" "doRemoveitem" "itemId=$validator.escapeUrl($att_item.id)")" title="$tlang.getString('att.remove')"><i class="fa fa-remove"></i> $tlang.getString("att.remove") <span class="skip">$validator.escapeHtml($att_item.displayName)</span></a>
+								<a href="#toolLinkParam("FilePickerAction" "doRemoveitem" "itemId=$formattedText.escapeUrl($att_item.id)")" title="$tlang.getString('att.remove')"><i class="fa fa-remove"></i> $tlang.getString("att.remove") <span class="skip">$formattedText.escapeHtml($att_item.displayName)</span></a>
 							</div>
 						</td>
 					</tr>
@@ -178,7 +178,7 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 					<div class="form-inline">
 						<div class="form-group">
 						    <label for="upload">$tlang.getString("att.upl")</label>
-						    <input type="file" name="upload" id="upload" class="upload" onchange="showNotif('submitnotifxxx','attachButton','attachForm'); document.getElementById('attachForm').action='#toolLinkParam("FilePickerAction" "doAttachupload" "special=upload&sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';submitform('attachForm');" #if($disable_attach_links) disabled="disabled"#end />
+						    <input type="file" name="upload" id="upload" class="upload" onchange="showNotif('submitnotifxxx','attachButton','attachForm'); document.getElementById('attachForm').action='#toolLinkParam("FilePickerAction" "doAttachupload" "special=upload&sakai_csrf_token=$formattedText.escapeUrl($sakai_csrf_token)")';submitform('attachForm');" #if($disable_attach_links) disabled="disabled"#end />
 							<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
 						</div>
 						<div class="form-group">
@@ -221,16 +221,16 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 										<span class="sr-only">$tlang.getString('gen.folder1')</span>
 										#foreach ($item in $collectionPath)
 											#if($item.isLast())
-												$validator.escapeHtml("$item.name")
+												$formattedText.escapeHtml("$item.name")
 												#if($upOneLevel)
-													<a href="#toolLinkParam("FilePickerAction" "doNavigate" "collectionId=$validator.escapeUrl($upOneLevel.id)&navRoot=$validator.escapeUrl($upOneLevel.root)")" title= "$tlang.getString('sh.one')">
+													<a href="#toolLinkParam("FilePickerAction" "doNavigate" "collectionId=$formattedText.escapeUrl($upOneLevel.id)&navRoot=$formattedText.escapeUrl($upOneLevel.root)")" title= "$tlang.getString('sh.one')">
 														<span class="fa fa-level-up" aria-hidden="true"></span>
 														<span class="sr-only">$tlang.getString('sh.one')</span>
 													</a>
 												#end
 											#else
-												<a href="#toolLinkParam("FilePickerAction" "doNavigate" "collectionId=$validator.escapeUrl($item.id)&navRoot=$validator.escapeUrl($item.root)")" title ="$tlang.getString('sh.go')">
-													$validator.escapeHtml("$item.name")
+												<a href="#toolLinkParam("FilePickerAction" "doNavigate" "collectionId=$formattedText.escapeUrl($item.id)&navRoot=$formattedText.escapeUrl($item.root)")" title ="$tlang.getString('sh.go')">
+													$formattedText.escapeHtml("$item.name")
 												</a> /
 												#set($upOneLevel = $item)
 											#end
@@ -245,17 +245,17 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 									<tr>
 										<th id="title">
 											#if ($expandallflag && "$expandallflag" == "$TRUE")
-												<a href="#toolLinkParam("FilePickerAction" "doUnexpandall" "collectionId=$validator.escapeUrl($collectionId)")" title ="$tlang.getString('collapseall')">
+												<a href="#toolLinkParam("FilePickerAction" "doUnexpandall" "collectionId=$formattedText.escapeUrl($collectionId)")" title ="$tlang.getString('collapseall')">
 													<span class="fa fa-compress" aria-hidden="true"></span>
 													<span class="sr-only">$tlang.getString('collapseall')</span>
 												</a>								 
 											#else
-												<a href="#toolLinkParam("FilePickerAction" "doExpandall" "collectionId=$validator.escapeUrl($collectionId)")" title ="$stlang.getString('label.expand.all')">
+												<a href="#toolLinkParam("FilePickerAction" "doExpandall" "collectionId=$formattedText.escapeUrl($collectionId)")" title ="$stlang.getString('label.expand.all')">
 													<span class="fa fa-expand" aria-hidden="true"></span>
 													<span class="sr-only">$stlang.getString('label.expand.all')</span>
 												</a>								 
 											#end
-											<a href="#toolLinkParam("FilePickerAction" "doSort" "criteria=title&collectionId=$validator.escapeUrl($collectionId)")" title ="$tlang.getString('sh.sorttit')"> 
+											<a href="#toolLinkParam("FilePickerAction" "doSort" "criteria=title&collectionId=$formattedText.escapeUrl($collectionId)")" title ="$tlang.getString('sh.sorttit')"> 
 												$tlang.getString("gen.title1")
 												#if ($currentSortAsc.equals("true")) 
 													<span class="fa fa-chevron-up" aria-hidden="true"></span>
@@ -298,19 +298,19 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 														#if ($item.isEmpty() || !$item.canRead())
 															<span class="$item.iconClass" aria-hidden="true"></span>
 															<span class="sr-only">$tlang.getString('gen.folder1')</span>
-															$validator.escapeHtml(${item.name})
+															$formattedText.escapeHtml(${item.name})
 														#else
 															#if (!$item.isExpanded())
-																<a href="#toolLinkParam("FilePickerAction" "doExpand_collection" "collectionId=$validator.escapeUrl($item.Id)")" title="$tlang.getString('sh.open')">
+																<a href="#toolLinkParam("FilePickerAction" "doExpand_collection" "collectionId=$formattedText.escapeUrl($item.Id)")" title="$tlang.getString('sh.open')">
 																<span class="sr-only">$tlang.getString('sh.open')</span>
 															#else
-																<a href="#toolLinkParam("FilePickerAction" "doCollapse_collection" "collectionId=$validator.escapeUrl($item.Id)")" title="$tlang.getString('sh.close')">
+																<a href="#toolLinkParam("FilePickerAction" "doCollapse_collection" "collectionId=$formattedText.escapeUrl($item.Id)")" title="$tlang.getString('sh.close')">
 																<span class="sr-only">$tlang.getString('sh.close')</span>
 															#end
 																	<span class="$item.iconClass" aria-hidden="true"></span>
 																</a>
-															<a href="#toolLinkParam("FilePickerAction" "doNavigate" "collectionId=${validator.escapeUrl(${item.id})}&navRoot=$validator.escapeUrl($item.root)")" title="$tlang.getString('sh.go')">
-																$validator.escapeHtml(${item.name})
+															<a href="#toolLinkParam("FilePickerAction" "doNavigate" "collectionId=${validator.escapeUrl(${item.id})}&navRoot=$formattedText.escapeUrl($item.root)")" title="$tlang.getString('sh.go')">
+																$formattedText.escapeHtml(${item.name})
 															</a>
 														#end
 													#else
@@ -334,20 +334,20 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 																title="$tlang.getString('gen.copycomf') $tlang.getString('gen.type'): $item.hoverText  [$tlang.getString('gen.newwin')]"
 																onclick="openCopyrightWindow('${item.accessUrl}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false;" 
 																>
-																	$validator.escapeHtml($item.name)
+																	$formattedText.escapeHtml($item.name)
 																</a>
 																&#169;
 															#else
 																<a href="$item.accessUrl" target="$item.target"
 																title="$tlang.getString('gen.type'): $item.hoverText  [$tlang.getString('gen.newwin')]"
 																>
-																	$validator.escapeHtml($item.name)
+																	$formattedText.escapeHtml($item.name)
 																</a>
 															#end
 														#else
 															<span class="$item.iconClass" aria-hidden="true"></span>
 															<span class="sr-only">$!item.hoverText</span>
-															$validator.escapeHtml($item.name)
+															$formattedText.escapeHtml($item.name)
 															#if ($item.hasCopyrightAlert())
 																&#169;
 															#end
@@ -369,7 +369,7 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 																		|
 																	#end
 																	#set ($itemsOnLine = $itemsOnLine + 1)
-																	<a href="#" onclick="return doattachsubmit('$validator.escapeUrl(${item.id})')" title ="$tlang.getString('att.copy')">$tlang.getString("att.copy") <span class="skip">$validator.escapeHtml($item.name)</span></a>
+																	<a href="#" onclick="return doattachsubmit('$formattedText.escapeUrl(${item.id})')" title ="$tlang.getString('att.copy')">$tlang.getString("att.copy") <span class="skip">$formattedText.escapeHtml($item.name)</span></a>
 																#end
 															#end
 														#end
@@ -386,7 +386,7 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 												<th colspan="3">
 												<h4>
 													<a href="#toolLink("FilePickerAction" "doHideOtherSites")" title= "$tlang.getString('list.hide')">
-														<span class="fa fa-caret-down" aria-hidden="true"></span><span class="sr-only">$tlang.getString('list.hide')</span> $validator.escapeHtml("$tlang.getString('list.hide')")
+														<span class="fa fa-caret-down" aria-hidden="true"></span><span class="sr-only">$tlang.getString('list.hide')</span> $formattedText.escapeHtml("$tlang.getString('list.hide')")
 													</a>
 												</h4>
 												</th>
@@ -463,21 +463,21 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 																#if ($root.isEmpty() || !$root.canRead())
 																	<span class="$root.iconClass" aria-hidden="true"></span>
 																	<span class="sr-only">$tlang.getString('gen.folder1')</span>
-																	$validator.escapeHtml(${root.name})
+																	$formattedText.escapeHtml(${root.name})
 																#else
 																	#if (!$root.isExpanded())
-																		<a href="#toolLinkParam("FilePickerAction" "doExpand_collection" "collectionId=$validator.escapeUrl($root.Id)")" title="$tlang.getString('sh.open')">
+																		<a href="#toolLinkParam("FilePickerAction" "doExpand_collection" "collectionId=$formattedText.escapeUrl($root.Id)")" title="$tlang.getString('sh.open')">
 																		<span class="sr-only">$tlang.getString('sh.open')</span>
 																	#else
-																		<a href="#toolLinkParam("FilePickerAction" "doCollapse_collection" "collectionId=$validator.escapeUrl($root.Id)")" title="$tlang.getString('sh.close')">
+																		<a href="#toolLinkParam("FilePickerAction" "doCollapse_collection" "collectionId=$formattedText.escapeUrl($root.Id)")" title="$tlang.getString('sh.close')">
 																		<span class="sr-only">$tlang.getString('sh.close')</span>
 																	#end
 																		<span class="$root.iconClass" aria-hidden="true"></span>
-																		$validator.escapeHtml(${root.name})
+																		$formattedText.escapeHtml(${root.name})
 																	</a>
 						#*
-																	<a href="#toolLinkParam("FilePickerAction" "doNavigate" "collectionId=${validator.escapeUrl(${root.id})}&navRoot=$validator.escapeUrl($root.root)")" title="$tlang.getString('sh.go')">
-																		$validator.escapeHtml(${root.name})
+																	<a href="#toolLinkParam("FilePickerAction" "doNavigate" "collectionId=${validator.escapeUrl(${root.id})}&navRoot=$formattedText.escapeUrl($root.root)")" title="$tlang.getString('sh.go')">
+																		$formattedText.escapeHtml(${root.name})
 																	</a>
 						*#
 																#end
@@ -503,20 +503,20 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 																	title="$tlang.getString('gen.copycomf') $tlang.getString('gen.type'): $root.hoverText  [$tlang.getString('gen.newwin')]"
 																	onclick="openCopyrightWindow('${root.accessUrl}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false;" 
 																	>
-																		$validator.escapeHtml($root.name)
+																		$formattedText.escapeHtml($root.name)
 																	</a>
 																	&#169;
 																#else
 																	<a href="$root.accessUrl" target="$root.target"
 																	title="$tlang.getString('gen.type'): $root.hoverText  [$tlang.getString('gen.newwin')]"
 																	>
-																		$validator.escapeHtml($root.name)
+																		$formattedText.escapeHtml($root.name)
 																	</a>
 																#end
 															#else
 																<span class="$root.iconClass" aria-hidden="true"></span>
 																<span class="sr-only">$!root.hoverText</span>
-																$validator.escapeHtml($root.name)
+																$formattedText.escapeHtml($root.name)
 																#if ($root.hasCopyrightAlert())
 																	&#169;
 																#end
@@ -537,7 +537,7 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 																				|
 																			#end
 																			#set ($itemsOnLine = $itemsOnLine + 1)
-																			<a href="#" onclick="return doattachsubmit('$validator.escapeUrl(${root.id})')" title ="$tlang.getString('att.copy')">$tlang.getString("att.copy") <span class="skip">$validator.escapeHtml($item.name)</span></a>
+																			<a href="#" onclick="return doattachsubmit('$formattedText.escapeUrl(${root.id})')" title ="$tlang.getString('att.copy')">$tlang.getString("att.copy") <span class="skip">$formattedText.escapeHtml($item.name)</span></a>
 																		#end
 																	#end
 																#end
@@ -552,7 +552,7 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 												<th colspan="3">
 												<h4>
 													<a href="#toolLink("FilePickerAction" "doShowOtherSites")" title= "$tlang.getString('list.show')">
-														<span class="fa fa-caret-right" aria-hidden="true"></span><span class="sr-only">$tlang.getString('list.show')</span> $validator.escapeHtml("$tlang.getString('list.show')")
+														<span class="fa fa-caret-right" aria-hidden="true"></span><span class="sr-only">$tlang.getString('list.show')</span> $formattedText.escapeHtml("$tlang.getString('list.show')")
 													</a>
 												</h4>
 												</th>

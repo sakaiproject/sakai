@@ -28,19 +28,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.Stack;
+import java.util.TreeSet;
 import java.util.Vector;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
 import org.sakaiproject.api.app.syllabus.GatewaySyllabus;
 import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
 import org.sakaiproject.api.app.syllabus.SyllabusData;
@@ -48,7 +41,6 @@ import org.sakaiproject.api.app.syllabus.SyllabusItem;
 import org.sakaiproject.api.app.syllabus.SyllabusManager;
 import org.sakaiproject.api.app.syllabus.SyllabusService;
 import org.sakaiproject.authz.api.FunctionManager;
-//permission convert
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -62,22 +54,29 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
-//permission convert
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.Placement;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.cover.LinkMigrationHelper;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author rshastri TODO To change the template for this generated type comment go to Window -
@@ -112,6 +111,11 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
   private ContentHostingService contentHostingService;
   private SiteService siteService;
   private EntityManager entityManager;
+  @Setter private TimeService timeService;
+  @Setter private UserDirectoryService userDirectoryService;
+  @Setter private ToolManager toolManager;
+  @Setter private SessionManager sessionManager;
+  @Setter private EventTrackingService eventTrackingService;
 
   protected NotificationService notificationService = null;
   protected String m_relativeAccessPoint = null;
@@ -528,7 +532,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
                           if(syllabusItem == null)
                           {
                             syllabusItem = syllabusManager
-                              .createSyllabusItem(UserDirectoryService
+                              .createSyllabusItem(userDirectoryService
                                   .getCurrentUser().getId(), page, syElement
                                   .getAttribute(SYLLABUS_REDIRECT_URL));
                           } 
@@ -715,7 +719,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
                 if (toSyItem == null)
                 {
                   toSyItem = syllabusManager.createSyllabusItem(
-                      UserDirectoryService.getCurrentUser().getId(), toPage,
+                      userDirectoryService.getCurrentUser().getId(), toPage,
                       fromSyllabusItem.getRedirectURL());
                 }
                 else if (fromSyllabusItem.getRedirectURL() != null) {
@@ -806,10 +810,10 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
     }
 
 		Event event =
-		  	EventTrackingService.newEvent(bre.getEvent(), bre.getReference(), 
+		  	eventTrackingService.newEvent(bre.getEvent(), bre.getReference(), 
 			    true, priority);
 		
-		EventTrackingService.post(event);
+		eventTrackingService.post(event);
   }
   
   public class BaseResourceEdit implements Entity, Edit
@@ -832,7 +836,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 
 		public BaseResourceEdit(String id, SyllabusData data)
 		{
-	    Placement placement = ToolManager.getCurrentPlacement();
+	    Placement placement = toolManager.getCurrentPlacement();
 			String currentSiteId = placement.getContext();
 			
 			m_id = id;
@@ -972,11 +976,11 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 	{
 		ResourcePropertiesEdit p = r.getPropertiesEdit();
 
-		String current = SessionManager.getCurrentSessionUserId();
+		String current = sessionManager.getCurrentSessionUserId();
 		p.addProperty(ResourceProperties.PROP_CREATOR, current);
 		p.addProperty(ResourceProperties.PROP_MODIFIED_BY, current);
 
-		String now = TimeService.newTime().toString();
+		String now = timeService.newTime().toString();
 		p.addProperty(ResourceProperties.PROP_CREATION_DATE, now);
 		p.addProperty(ResourceProperties.PROP_MODIFIED_DATE, now);
 
@@ -1013,15 +1017,15 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
     }
 
 		Event event =
-		  	EventTrackingService.newEvent(bre.getEvent(), bre.getReference(), 
+		  	eventTrackingService.newEvent(bre.getEvent(), bre.getReference(), 
 			    true, priority);
 		
-		EventTrackingService.post(event);
+		eventTrackingService.post(event);
 	}
 
 	public void deletePostedSyllabus(SyllabusData data)
 	{
-		Placement placement = ToolManager.getCurrentPlacement();
+		Placement placement = toolManager.getCurrentPlacement();
 		String siteId = placement.getContext();
 		deletePostedSyllabus(data, siteId);
 	}
@@ -1058,10 +1062,10 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
     priority = NotificationService.NOTI_NONE;
 
 		Event event =
-		  	EventTrackingService.newEvent(bre.getEvent(), bre.getReference(), 
+		  	eventTrackingService.newEvent(bre.getEvent(), bre.getReference(), 
 			    true, priority);
 		
-		EventTrackingService.post(event);
+		eventTrackingService.post(event);
 	}
 	
 	public String trimToNull(String value)
@@ -1140,7 +1144,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 					if (toSyItem == null) 
 					{
 						toSyItem = syllabusManager.createSyllabusItem(
-								UserDirectoryService.getCurrentUser().getId(),
+								userDirectoryService.getCurrentUser().getId(),
 								toPage, redirectUrl);
 					}
 					else if (fromSyllabusItem.getRedirectURL() !=null) {
@@ -1173,7 +1177,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 								oldAttachment.getProperties().getProperty(
 										ResourceProperties.PROP_DISPLAY_NAME), 
 										toContext, 
-										ToolManager.getTool("sakai.syllabus").getTitle(), oldAttachment.getContentType(),
+										toolManager.getTool("sakai.syllabus").getTitle(), oldAttachment.getContentType(),
 										oldAttachment.getContent(), oldAttachment.getProperties());
 							SyllabusAttachment thisSyllabusAttach = syllabusManager.createSyllabusAttachmentObject(
 								attachment.getId(), 
@@ -1216,15 +1220,15 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
     priority = NotificationService.NOTI_NONE;
 
 		Event event =
-		  	EventTrackingService.newEvent(bre.getEvent(), bre.getReference(), 
+		  	eventTrackingService.newEvent(bre.getEvent(), bre.getReference(), 
 			    false, priority);
 		
-		EventTrackingService.post(event);
+		eventTrackingService.post(event);
 	}
 
 	public void draftChangeSyllabus(SyllabusData data)
 	{
-		Placement placement = ToolManager.getCurrentPlacement();
+		Placement placement = toolManager.getCurrentPlacement();
 		String siteId = placement.getContext();
 		draftChangeSyllabus(data, siteId);
 	}
@@ -1239,10 +1243,10 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
     priority = NotificationService.NOTI_NONE;
 
 		Event event =
-		  	EventTrackingService.newEvent(bre.getEvent(), bre.getReference(), 
+		  	eventTrackingService.newEvent(bre.getEvent(), bre.getReference(), 
 			    true, priority);
 		
-		EventTrackingService.post(event);
+		eventTrackingService.post(event);
 	}
 
 	public void draftNewSyllabus(SyllabusData data)
@@ -1258,10 +1262,10 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
     priority = NotificationService.NOTI_NONE;
 
 		Event event =
-		  	EventTrackingService.newEvent(bre.getEvent(), bre.getReference(), 
+		  	eventTrackingService.newEvent(bre.getEvent(), bre.getReference(), 
 			    true, priority);
 		
-		EventTrackingService.post(event);
+		eventTrackingService.post(event);
 	}
 	
 	//permission convert
@@ -1280,7 +1284,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 
 	private String getCurrentSiteReference() {
 		//sakai2 - use Placement to get context instead of getting currentSitePageId from PortalService in sakai.
-		Placement placement = ToolManager.getCurrentPlacement();
+		Placement placement = toolManager.getCurrentPlacement();
 		String currentSiteId = placement.getContext(); 
 		return siteService.siteReference(currentSiteId);
 

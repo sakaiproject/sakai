@@ -596,13 +596,13 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 		String isoStartTime = params.get(HIDDEN_ISO_STARTTIME);
 
 		if(DateFormatterUtil.isValidISODate(isoStartTime)){
-			this.signupMeeting.setStartTime(DateFormatterUtil.parseISODate(isoStartTime));
+			this.signupMeeting.setStartTime(sakaiFacade.getTimeService().parseISODateInUserTimezone(isoStartTime));
 		}
 
 		String isoEndTime = params.get(HIDDEN_ISO_ENDTIME);
 
 		if(DateFormatterUtil.isValidISODate(isoEndTime)){
-			this.signupMeeting.setEndTime(DateFormatterUtil.parseISODate(isoEndTime));
+			this.signupMeeting.setEndTime(sakaiFacade.getTimeService().parseISODateInUserTimezone(isoEndTime));
 		}
 
 		Date eventEndTime = this.signupMeeting.getEndTime();

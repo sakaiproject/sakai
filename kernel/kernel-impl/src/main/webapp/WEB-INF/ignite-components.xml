@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:cache="http://www.springframework.org/schema/cache"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd">
+
+    <cache:annotation-driven cache-manager="org.sakaiproject.ignite.SakaiCacheManager"/>
+
+    <bean id="org.sakaiproject.ignite.SakaiCacheManager"
+          class="org.sakaiproject.ignite.IgniteSpringCacheManager">
+        <property name="dynamicCacheConfiguration">
+            <bean class="org.apache.ignite.configuration.CacheConfiguration">
+                <property name="cacheMode" value="REPLICATED"/>
+            </bean>
+        </property>
+        <property name="ignite" ref="org.sakaiproject.ignite.SakaiIgnite"/>
+    </bean>
+
+    <bean id="org.sakaiproject.ignite.SakaiIgnite"
+          class="org.sakaiproject.ignite.EagerIgniteSpringBean"
+          destroy-method="destroy">
+        <property name="configuration" ref="org.sakaiproject.ignite.SakaiIgniteConfiguration"/>
+    </bean>
+
+
+    <bean id="org.sakaiproject.ignite.SakaiIgniteConfiguration"
+          class="org.sakaiproject.ignite.IgniteConfigurationAdapter">
+        <property name="cacheConfiguration">
+            <list>
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
+                    <property name="name" value="org.hibernate.cache.spi.UpdateTimestampsCache"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
+                    <property name="name" value="org.hibernate.cache.internal.StandardQueryCache"/>
+                </bean>
+                <!-- Entity Caches -->
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.coursemanagement.impl.AcademicSessionCmImpl"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.coursemanagement.impl.CrossListingCmImpl"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.coursemanagement.impl.EnrollmentCmImpl"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.coursemanagement.impl.EnrollmentSetCmImpl"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.coursemanagement.impl.MeetingCmImpl"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.coursemanagement.impl.MembershipCmImpl"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.coursemanagement.impl.AbstractMembershipContainerCmImpl"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.coursemanagement.impl.SectionCategoryCmImpl"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.lessonbuildertool.ChecklistItemStatusImpl"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.lessonbuildertool.SimplePageImpl"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.lessonbuildertool.SimplePageCommentImpl"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.lessonbuildertool.SimplePageGroupImpl"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.lessonbuildertool.SimplePageItemImpl"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.lessonbuildertool.SimplePagePropertyImpl"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.lessonbuildertool.SimpleStudentPageImpl"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.component.common.edu.person.PersonImpl"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.api.common.type.Type"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.component.common.type.TypeImpl"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.taggable.impl.LinkImpl"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.messagebundle.api.MessageBundleProperty"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.assignment.api.model.Assignment"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.assignment.api.model.Assignment.attachments"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.assignment.api.model.Assignment.properties"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.assignment.api.model.Assignment.groups"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.assignment.api.model.AssignmentSubmission"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.assignment.api.model.AssignmentSubmission.submitters"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.assignment.api.model.AssignmentSubmission.attachments"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.assignment.api.model.AssignmentSubmission.feedbackAttachments"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.assignment.api.model.AssignmentSubmission.properties"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.chat2.model.ChatChannel"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.chat2.model.ChatMessage"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.content.hbm.Lock"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer.answerFeedbackSet"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData.itemGradingAttachmentSet"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData.itemGradingSet"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData.assessmentGradingAttachmentSet"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.content.hbm.FileConversionQueueItem"/>
+                </bean>
+            </list>
+        </property>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+    </bean>
+
+    <bean id="org.sakaiproject.ignite.cache.atomic" class="org.apache.ignite.configuration.CacheConfiguration" abstract="true">
+        <property name="atomicityMode" value="ATOMIC"/>
+        <property name="cacheMode" value="REPLICATED"/>
+        <property name="writeSynchronizationMode" value="PRIMARY_SYNC"/>
+    </bean>
+
+    <bean id="org.sakaiproject.ignite.cache.transactional" class="org.apache.ignite.configuration.CacheConfiguration" abstract="true">
+        <property name="atomicityMode" value="TRANSACTIONAL"/>
+        <property name="cacheMode" value="REPLICATED"/>
+        <property name="writeSynchronizationMode" value="PRIMARY_SYNC"/>
+    </bean>
+
+</beans>

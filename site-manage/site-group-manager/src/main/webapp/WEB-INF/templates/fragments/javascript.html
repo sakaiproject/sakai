@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<body>
+<script th:fragment="wizardJs" th:inline="javascript">
+  /*<![CDATA[*/
+  var wizardFunctions = {
+
+    previousWizardStep: function (step) {
+      var wizardAction = document.getElementById('wizardAction');
+      if (wizardAction !== 'undefined') {
+        wizardAction.value = step;
+        document.forms[0].submit();
+      }
+    }
+
+  }
+  /*]]>*/
+</script>
+<script th:fragment="indexJs" th:inline="javascript">
+  /*<![CDATA[*/
+  var indexFunctions = {
+
+    checkSubmitButton : function () {
+      var anyCheckboxEnabled = false;
+      $(':checkbox').each(function() {
+        if(this.checked) {
+          $('#delete-groups-submit-button').attr('disabled', false);
+          anyCheckboxEnabled = true;
+        }
+      });
+
+      if(!anyCheckboxEnabled) {
+        $('#delete-groups-submit-button').attr('disabled', true);
+      }
+    }
+
+  }
+
+  $('#delete-groups-cancel-button').click(function(e) {
+    e.preventDefault;
+    window.location = window.location.href.replace('/sakai-site-group-manager.helper', '');
+  });
+
+  $('#group-manager-index-select-all').click(function(e) {
+    var selectAllChecked = this.checked;
+    $(':checkbox').each(function() {
+      this.checked = selectAllChecked;
+    });
+
+    $('#delete-groups-submit-button').attr('disabled', !selectAllChecked );
+  });
+
+  $('.group-locked-info-collapsed').on('keypress', function(event) {
+    $(this).click();
+  });
+
+  var confirmationModal = function(callback){
+    $('#group-manager-form').on('submit', function(e){
+      e.preventDefault();
+      $('#confirmation-modal').modal('show');
+      $('#deleted-groups-list').empty();
+      $(':checkbox').each(function() {
+        if(this.checked && this.name == 'deletedGroupList') {
+          $('#deleted-groups-list').append('<li>' + this.getAttribute('groupinfo') + '</li>');
+        }
+      });
+    });
+
+    $('#modal-btn-confirm').on('click', function(){
+      callback(true);
+      $('#confirmation-modal').modal('hide');
+    });
+
+    $('#modal-btn-cancel').on('click', function(){
+      callback(false);
+      $('#confirmation-modal').modal('hide');
+    });
+  };
+
+  confirmationModal(function(confirm) {
+    if (confirm) {
+      document.getElementById('group-manager-form').submit();
+    }
+  });
+  /*]]>*/
+</script>
+
+<script th:fragment="joinableSetJs" th:inline="javascript">
+  /*<![CDATA[*/
+  $(document).ready(function() {
+    //Disable the submit button
+    $('#create-joinableset-submit-button').prop('disabled', true);
+
+    //Enable or disable the submit button depending on the required fields
+    $('input[type="text"], input[type="number"]').keyup(function() {
+      $(':input[type="submit"]').prop('disabled', !($('#groupTitle').val() != '' && $('#groupNumber').val() != '' && $('#groupMaxMembers').val() != ''));
+    });
+  });
+
+  var confirmationModal = function(callback){
+    $('#delete-joinableset-submit-button').on('click', function(e){
+      e.preventDefault();
+      $('#confirmation-modal').modal('show');
+    });
+
+   $('#modal-btn-confirm').on('click', function(){
+     $('#confirmation-modal').modal('hide');
+     window.location.replace($('#delete-joinableset-submit-button').attr('href'));
+   });
+
+   $('#modal-btn-cancel').on('click', function(){
+     callback(false);
+     $('#confirmation-modal').modal('hide');
+   });
+
+  };
+
+  confirmationModal(function(confirm) {
+    if (confirm) {
+      document.getElementById('group-manager-form').submit();
+    }
+  });
+/*]]>*/
+</script>
+
+<script th:fragment="groupJs" th:inline="javascript">
+  /*<![CDATA[*/
+  // Load the multiselect two sides library
+  includeWebjarLibrary('multiselect-two-sides');
+
+  $(document).ready(function() {
+    // Initialize tooltips
+    $('[data-toggle="tooltip"]').tooltip();
+
+    //Disable or enable the submit depending on the group title value.
+    $('#create-group-submit-button').prop('disabled', $('#groupTitle').val() === '');
+
+    //Enable or disable the submit button depending on the required fields
+    $('input[type="text"]').keyup(function() {
+      $(':input[type="submit"]').prop('disabled', $(this).val() === '');
+    });
+
+    $('#groupMembershipFilter').on('change', function() {
+      const groupParams = {
+        filterByGroupId: this.value,
+        groupId: $('#groupId').val(),
+        currentTitle: $('#groupTitle').val(),
+        currentDescription: $('#groupDescription').val()
+      };
+      window.location = 'group?'+new URLSearchParams(groupParams);
+    });
+
+    if ($('#groupJoinableSet').val() == '') {
+      $('#joinableOptionsDiv').hide();
+    }
+
+    $('#groupJoinableSet').on('change', function() {
+      this.value != '' ? $('#joinableOptionsDiv').show() : $('#joinableOptionsDiv').hide();
+    });
+
+    //Initialize the multiselect component
+    var searchPlaceHolderText = /*[[#{groups.multiselect.search}]]*/;
+    $('#groupMembersFrom').multiselect({
+      sort: false,
+      startUp: true,
+      search: {
+        left: '<input type="text" name="q" class="form-control" placeholder="'+searchPlaceHolderText+'" />',
+        right: '<input type="text" name="q" class="form-control" placeholder="'+searchPlaceHolderText+'" />',
+      }
+    });
+
+  });
+  /*]]>*/
+</script>
+
+<script th:fragment="autoGroupsStep1Js" th:inline="javascript">
+  /*<![CDATA[*/
+  $('#group-manager-select-all-roles').click(function(e) {
+    var selectAllChecked = this.checked;
+    $(':checkbox').each(function() {
+      this.checked = selectAllChecked;
+    });
+  });
+  /*]]>*/
+</script>
+
+<script th:fragment="autoGroupsStep2Js" th:inline="javascript">
+  /*<![CDATA[*/
+  $("input[name='sectionsOption']").change(function(){
+    this.value === '0' ? $('#selectSectionDiv').fadeOut() : $('#selectSectionDiv').fadeIn();
+  });
+
+  $('#group-manager-select-all-sections').click(function(e) {
+    var selectAllChecked = this.checked;
+    $(':checkbox').each(function() {
+      this.checked = selectAllChecked;
+    });
+  });
+
+  $("#autogroups-back-button").on('click', function () {
+    $('#wizardAction').val('back');
+    $('#autogroups-wizard-step2-form').submit();
+  });
+  /*]]>*/
+</script>
+
+<script th:fragment="autoGroupsStep3Js" th:inline="javascript">
+  /*<![CDATA[*/
+  $("input[name='structureConfigurationOption']").change(function(){
+    this.value === '1' ? $('#mixtureStructureOptions').fadeOut() : $('#mixtureStructureOptions').fadeIn();
+  });
+
+  $("input[name='splitOptions']").change(function(){
+    var groupSelectedClass = 'optGroupSelectSelected';
+    if (this.value === '1') {
+      $('#splitByGroups').removeClass(groupSelectedClass);
+      $('#splitByUsers').addClass(groupSelectedClass);
+      $('#splitByGroupsOptions').fadeOut();
+      $('#splitByUsersOptions').fadeIn();
+    } else {
+      $('#splitByUsers').removeClass(groupSelectedClass);
+      $('#splitByGroups').addClass(groupSelectedClass);
+      $('#splitByUsersOptions').fadeOut();
+      $('#splitByGroupsOptions').fadeIn();
+    }
+  });
+
+  $("#autogroups-back-button").on('click', function () {
+    $('#wizardAction').val('back');
+    $('#autogroups-wizard-step3-form').submit();
+  });
+  /*]]>*/
+</script>
+
+<script th:fragment="autoGroupsStep4Js" th:inline="javascript">
+  /*<![CDATA[*/
+  $("#autogroups-back-button-top,#autogroups-back-button").on('click', function () {
+    $('#wizardAction').val('back');
+    $('#autogroups-wizard-step4-form').submit();
+  });
+  /*]]>*/
+</script>
+
+</body>
+</html>

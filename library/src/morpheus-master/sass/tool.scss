@@ -1,5 +1,6 @@
-@import "defaults";
+@import "customization"; //it is copied from the user supplied file by maven
 
+@import "defaults";
 @import "base/bootstrap-defaults";
 @import "base/extendables";
 @import "base/defaults";
@@ -13,6 +14,7 @@
 @import "modules/navigation/breadCrumbs";
 @import "modules/toolmenu";
 @import "modules/tool/base";
+@import "modules/tool/elements";
 @import "modules/tool/menu";
 @import "modules/tool/table";
 
@@ -62,7 +64,7 @@
 @import "modules/tutorial/base";
 @import "modules/profile-popup/base";
 @import "modules/reorderer/base";
-@import "modules/topbar-search/base";
+@import "modules/portal-search/base";
 @import "modules/pager/base";
 @import "modules/bullhorn-alerts/base";
 @import "modules/connection-manager/base";

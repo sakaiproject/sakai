@@ -69,13 +69,13 @@ public class CommonsCommentBullhornHandler extends AbstractBullhornHandler {
         String postId = pathParts[4];
 
         // To is always going to be the author of the original post
-        Post post = commonsManager.getPost(postId, true);
-        if (post != null) {
+        Optional<Post> post = commonsManager.getPost(postId, true);
+        if (post.isPresent()) {
             if ("SOCIAL".equals(siteId)) {
                 return Optional.empty();
             }
 
-            String postCreator = post.getCreatorId();
+            String postCreator = post.get().getCreatorId();
 
             String url = null;
             String siteTitle = null;
@@ -102,12 +102,12 @@ public class CommonsCommentBullhornHandler extends AbstractBullhornHandler {
             List<String> sentAlready = new ArrayList<>();
 
             // Now, send an alert to anybody else who has commented on this post.
-            for (Comment comment : post.getComments()) {
+            for (Comment comment : post.get().getComments()) {
 
                 String to = comment.getCreatorId();
 
                 // If we're commenting on our own post, no alert needed
-                if (to.equals(post.getCreatorId()) || to.equals(commentCreator)) {
+                if (to.equals(postCreator) || to.equals(commentCreator)) {
                     continue;
                 }
 

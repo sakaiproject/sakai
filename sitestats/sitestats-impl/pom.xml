@@ -147,10 +147,6 @@
 
         <!-- needed by hibernate unit tests -->
         <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-ehcache</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
         </dependency>
@@ -195,7 +191,7 @@
 
         <!-- JFreeChart -->
         <dependency>
-            <groupId>jfree</groupId>
+            <groupId>org.jfree</groupId>
             <artifactId>jfreechart</artifactId>
         </dependency>
 
@@ -220,8 +216,6 @@
             <artifactId>mysql-connector-java</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- <dependency> <groupId>com.oracle</groupId> <artifactId>ojdbc14</artifactId>
-            <scope>test</scope> </dependency> -->
         <dependency>
             <groupId>org.dom4j</groupId>
             <artifactId>dom4j</artifactId>
@@ -243,11 +237,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.easymock</groupId>
-            <artifactId>easymock</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <scope>test</scope>
@@ -263,6 +252,9 @@
         <testResources>
             <testResource>
                 <directory>src/test</directory>
+            </testResource>
+            <testResource>
+                <directory>src/webapp</directory>
             </testResource>
         </testResources>
     </build>

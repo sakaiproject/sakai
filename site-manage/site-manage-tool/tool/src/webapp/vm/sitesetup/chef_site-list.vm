@@ -111,7 +111,7 @@
 								<input type="checkbox" name="toggleAllSelected" value="" id="toggleAllSelected" title="$tlang.getString('check.all')" />
 							</th>
 							<th id="title" scope="col">
-								<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=$validator.escapeUrl($sortby_title)")" title="$tlang.getString('list.sortbytitle')">
+								<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=$formattedText.escapeUrl($sortby_title)")" title="$tlang.getString('list.sortbytitle')">
 									$tlang.getString("list.worksite")
 									#if ($currentSortedBy.equals($sortby_title))
 										#if ($currentSortAsc.equals("true"))
@@ -124,7 +124,7 @@
 							</th>
 							#if($show_id_column)
 								<th id="id" scope="col" class="hidden-xs">
-									<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=$validator.escapeUrl($sortby_id)")" title="$tlang.getString('list.sortbyid')">
+									<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=$formattedText.escapeUrl($sortby_id)")" title="$tlang.getString('list.sortbyid')">
 										$tlang.getString("list.id")
 										#if ($currentSortedBy.equals($sortby_id))
 											#if ($currentSortAsc.equals("true"))
@@ -137,7 +137,7 @@
 								</th>
 							#end
 							<th id="type" scope="col" class="hidden-xs">
-								<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=$validator.escapeUrl($sortby_type)")" title="$tlang.getString('list.sortbytype')">
+								<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=$formattedText.escapeUrl($sortby_type)")" title="$tlang.getString('list.sortbytype')">
 									$tlang.getString("list.type")
 									#if ($currentSortedBy.equals($sortby_type))
 										#if ($currentSortAsc.equals("true"))
@@ -149,7 +149,7 @@
 								</a>
 							</th>
 							<th id="createdBy" scope="col" class="hidden-xs">
-								<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=$validator.escapeUrl($sortby_createdby)")" title="$tlang.getString('list.sortbycreator')">
+								<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=$formattedText.escapeUrl($sortby_createdby)")" title="$tlang.getString('list.sortbycreator')">
 									$tlang.getString("list.creator")
 									#if ($currentSortedBy.equals($sortby_createdby))
 										#if ($currentSortAsc.equals("true"))
@@ -164,7 +164,7 @@
 								$tlang.getString("list.term")
 							</th>
 							<th id="published" scope="col">
-								<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=$validator.escapeUrl($sortby_publish)")" title="$tlang.getString('list.sortbystatus')">
+								<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=$formattedText.escapeUrl($sortby_publish)")" title="$tlang.getString('list.sortbystatus')">
 									$tlang.getString("list.status")
 									#if ($currentSortedBy.equals($sortby_publish))
 										#if ($currentSortAsc.equals("true"))
@@ -176,7 +176,7 @@
 								</a>
 							</th>
 							<th id="createdOn" scope="col">
-								<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=$validator.escapeUrl($sortby_createdon)")" title="$tlang.getString('list.sortbycreation')">
+								<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=$formattedText.escapeUrl($sortby_createdon)")" title="$tlang.getString('list.sortbycreation')">
 									$tlang.getString("list.creationdate")
 									#if ($currentSortedBy.equals($sortby_createdon))
 										#if ($currentSortAsc.equals("true"))
@@ -202,15 +202,15 @@
 							#end
 								<td headers="checkbox" class="screenOnly attach">
 									#if ($service.allowUpdateSite($site.Id))
-										<input type="checkbox" name="selectedMembers" value="$validator.escapeHtml($site.getId())" id="site$siteCount" class="siteSelectCheckbox" />
-										<label class="skip" for="site$siteCount">Select $validator.escapeHtml($site.getTitle())</label>
+										<input type="checkbox" name="selectedMembers" value="$formattedText.escapeHtml($site.getId())" id="site$siteCount" class="siteSelectCheckbox" />
+										<label class="skip" for="site$siteCount">Select $formattedText.escapeHtml($site.getTitle())</label>
 									#end
 								</td>
 								<td headers="title">
 									#if (!$service.allowAccessSite($site.Id))
-										<label class="unpublishedLabel">$validator.escapeHtml($site.getTitle())</label>
+										<label class="unpublishedLabel">$formattedText.escapeHtml($site.getTitle())</label>
 									#else
-										<a href="$site.Url" target="_top">$validator.escapeHtml($site.getTitle())</a>
+										<a href="$site.Url" target="_top">$formattedText.escapeHtml($site.getTitle())</a>
 									#end
 									<a href="#" id="$site.Id" class="getSiteDesc" title="$tlang.getString('list.moreinfotooltip')">
 										<img src="#imageLink("sakai/information_gray.png")" border="0" title="$tlang.getString('list.moreinfotooltip')" alt="$tlang.getString('list.moreinfotooltip')" />
@@ -218,7 +218,7 @@
 								</td>
 								#if($show_id_column)
 									<td headers="id" class="hidden-xs">
-										$validator.escapeHtml($site.getId())
+										$formattedText.escapeHtml($site.getId())
 									</td>
 								#end
 								<td headers="type" class="hidden-xs">
@@ -228,7 +228,7 @@
 								</td>
 								<td headers="createdBy" class="hidden-xs">
 									#if ($site.CreatedBy)
-										$validator.escapeHtml($site.CreatedBy.DisplayId)
+										$formattedText.escapeHtml($site.CreatedBy.DisplayId)
 									#end
 								</td>
 								<td headers="term" class="hidden-xs">
@@ -261,9 +261,9 @@
 					<div class="sakai-table-noResultsMessage">
 						$tlang.getString("list.nosites")
 						#if ($!searchString && !$searchString.equals(""))
-							$tlang.getString("list.thatmatch") "$validator.escapeHtml($!searchString)"
+							$tlang.getString("list.thatmatch") "$formattedText.escapeHtml($!searchString)"
 						#end
-						$tlang.getString("list.inthe") "$validator.escapeHtml($views.get($!viewSelected))".
+						$tlang.getString("list.inthe") "$formattedText.escapeHtml($views.get($!viewSelected))".
 					</div>
 				#end
 			</div>

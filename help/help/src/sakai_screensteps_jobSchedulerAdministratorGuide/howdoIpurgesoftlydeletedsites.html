@@ -1,34 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>How do I enable student peer review for an assignment?</title>
+<title>How do I purge softly deleted sites?</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta content="sakai.assignment" name="description">
-<meta content="peer review, peer assessment, peer evaluation" name="search">
+<meta content="" name="description">
 <link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="/library/js/jquery/featherlight/0.4.0/featherlight.min.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="/library/js/jquery/featherlight/0.4.0/featherlight.min.js" type="text/javascript" charset="utf-8"></script><script type="text/javascript" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    includeWebjarLibrary('featherlight');
     $(document).ready(function(){
-      $("a[rel^='featherlight']").featherlight({
+      $("a.screensteps-image-zoom").featherlight({
         type: { image:true },
-    closeOnClick: 'anywhere'
+        closeOnClick: 'anywhere'
       }); 
     });   
-  </script>
+</script>
 </head>
 <body>
-  <div id="wrapper"><div id="article-content">
-<div id="article-header"><h1 class="article-title">How do I purge softly deleted sites?</h1></div>
-<div id="article-description">  <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+  <div><div>
+<div><h1 class="article-title">How do I purge softly deleted sites?</h1></div>
+<div>    <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
   <p>Softly deleted sites are no longer accessible to users, but their files and tool content still remain on the server. To completely remove these sites and all of their data from the system, the administrator may run a Quartz job to expunge softly deleted sites.</p>
 </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="go-to-job-scheduler">
-    <h2 id="go-to-job-scheduler" class="step-title screensteps-heading">Go to Job Scheduler.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1" id="go-to-job-scheduler">
+    <h2 class="step-title screensteps-heading">Go to Job Scheduler.</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/000/901/922/original/65323f25-98af-4d9d-85c1-4f2219a96565.png" alt="Go to Job Scheduler." height="125" width="199">
+    <img src="https://media.screensteps.com/image_assets/assets/003/340/737/original/cb3c7539-d259-4796-be42-83f1980079c5.png" alt="" height="125" width="200">
 </div>
  
       <div class="step-instructions screensteps-textblock">
@@ -36,29 +37,33 @@
 </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="click-jobs">
-    <h2 id="click-jobs" class="step-title screensteps-heading">Click Jobs.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1" id="click-jobs">
+    <h2 class="step-title screensteps-heading">Click Jobs.</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/000/901/928/original/0f93d888-ccf3-4223-aa92-e7078e64f0e0.png" alt="Click Jobs." height="185" width="242">
-</div>
- 
-  </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="click-new-job">
-    <h2 id="click-new-job" class="step-title screensteps-heading">Click New Job.</h2>
-      <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/000/901/913/original/2e529c59-d107-4035-9f81-a0691b190a82.png" class="screensteps-image-zoom">
-      <img src="https://media.screensteps.com/image_assets/assets/000/901/913/medium/2e529c59-d107-4035-9f81-a0691b190a82.png" alt="Click New Job." height="233" width="855">
+    <a href="https://media.screensteps.com/image_assets/assets/003/316/200/original/36efc998-12e5-4429-97cc-88566d009faf.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/316/200/medium/36efc998-12e5-4429-97cc-88566d009faf.png" alt="" height="142" width="855">
     </a>
 </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="give-your-new-job-a-name">
-    <h2 id="give-your-new-job-a-name" class="step-title screensteps-heading">Give your new job a name.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1" id="click-new-job">
+    <h2 class="step-title screensteps-heading">Click New Job.</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/000/901/904/original/748673ad-2ae7-4e71-a8e6-87f24b22e121.png" alt="Give your new job a name." height="274" width="414">
+    <a href="https://media.screensteps.com/image_assets/assets/003/316/204/original/f9a47a32-1f9e-4fee-9c46-6d4ed93a2f55.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/316/204/medium/f9a47a32-1f9e-4fee-9c46-6d4ed93a2f55.png" alt="" height="379" width="855">
+    </a>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="give-your-new-job-a-name">
+    <h2 class="step-title screensteps-heading">Give your new job a name.</h2>
+      <div class="image screensteps-image">
+    <a href="https://media.screensteps.com/image_assets/assets/003/316/190/original/3e8afc37-460a-46e9-8a3f-455c58070095.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/316/190/medium/3e8afc37-460a-46e9-8a3f-455c58070095.png" alt="" height="231" width="855">
+    </a>
 </div>
  
       <div class="step-instructions screensteps-textblock">
@@ -66,35 +71,43 @@
 </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="select-expunge-softly-deleted-sites-from-the-type-drop-down-menu">
-    <h2 id="select-expunge-softly-deleted-sites-from-the-type-drop-down-menu" class="step-title screensteps-heading">Select Expunge Softly Deleted Sites from the Type drop-down menu.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1" id="select-expunge-softly-deleted-sites-from-the-type-drop-down-menu">
+    <h2 class="step-title screensteps-heading">Select Expunge Softly Deleted Sites from the Type drop-down menu.</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/000/901/906/original/694e05ca-b355-4580-9c62-c0c65a02b459.png" alt="Select Expunge Softly Deleted Sites from the Type drop-down menu." height="570" width="427">
+    <a href="https://media.screensteps.com/image_assets/assets/003/316/196/original/a12440c6-547c-4366-b94a-814d25ff6b2b.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/316/196/medium/a12440c6-547c-4366-b94a-814d25ff6b2b.png" alt="" height="507" width="855">
+    </a>
 </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="click-post">
-    <h2 id="click-post" class="step-title screensteps-heading">Click Post.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Click Post.</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/000/901/924/original/5a5fc639-f04d-4bc6-b8ff-cdfcc3be3451.png" alt="Click Post." height="256" width="423">
+    <a href="https://media.screensteps.com/image_assets/assets/003/316/194/original/54b18e66-9700-4bc9-9a3b-96a5a1956c30.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/316/194/medium/54b18e66-9700-4bc9-9a3b-96a5a1956c30.png" alt="" height="237" width="855">
+    </a>
 </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="click-on-the-triggers-link-for-the-job">
-    <h2 id="click-on-the-triggers-link-for-the-job" class="step-title screensteps-heading">Click on the Triggers link for the job.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1" id="click-on-the-triggers-link-for-the-job">
+    <h2 class="step-title screensteps-heading">Click on the Triggers link for the job.</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/000/901/910/original/11332344-78eb-4394-9368-79ee924d2241.png" alt="Click on the Triggers link for the job." height="335" width="792">
+    <a href="https://media.screensteps.com/image_assets/assets/003/316/192/original/cce594ac-1575-4f23-a32e-bbb4a043e367.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/316/192/medium/cce594ac-1575-4f23-a32e-bbb4a043e367.png" alt="" height="562" width="855">
+    </a>
 </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="click-run-job-now">
-    <h2 id="click-run-job-now" class="step-title screensteps-heading">Click Run Job Now.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1" id="click-run-job-now">
+    <h2 class="step-title screensteps-heading">Click Run Job Now.</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/000/901/915/original/b0ed8533-e3b1-4d67-86dd-7db0c538207e.png" alt="Click Run Job Now." height="184" width="504">
+    <a href="https://media.screensteps.com/image_assets/assets/003/316/202/original/16e1a5b8-5cb6-4bdd-b958-e444e4181798.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/316/202/medium/16e1a5b8-5cb6-4bdd-b958-e444e4181798.png" alt="" height="168" width="855">
+    </a>
 </div>
  
       <div class="step-instructions screensteps-textblock">
@@ -102,71 +115,82 @@
 </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="click-run-now-again-to-confirm">
-    <h3 id="click-run-now-again-to-confirm" class="step-title screensteps-heading">Click Run Now again to confirm.</h3>
+    <h3 class="step-title screensteps-heading">Click Run Now again to confirm.</h3>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/000/901/920/original/f1a87eb8-28b7-47d7-b0c6-cbadc05647ab.png" alt="Click Run Now again to confirm." height="227" width="496">
+    <a href="https://media.screensteps.com/image_assets/assets/003/316/198/original/e7ef43b4-7783-480b-95c9-f42659f5dd4a.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/316/198/medium/e7ef43b4-7783-480b-95c9-f42659f5dd4a.png" alt="" height="207" width="855">
+    </a>
 </div>
  
   </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="click-on-event-log-to-view-the-log">
-    <h3 id="click-on-event-log-to-view-the-log" class="step-title screensteps-heading">Click on Event Log to view the log.</h3>
+    <h3 class="step-title screensteps-heading">Click on Event Log to view the log.</h3>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/000/901/908/original/f3dadd9c-7614-4e6e-bc96-fbeaa1386349.png" alt="Click on Event Log to view the log." height="327" width="810">
+    <a href="https://media.screensteps.com/image_assets/assets/003/316/188/original/cab31c49-411e-4bf2-8d63-e8496c1c9681.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/316/188/medium/cab31c49-411e-4bf2-8d63-e8496c1c9681.png" alt="" height="408" width="855">
+    </a>
 </div>
  
   </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="notice-that-the-purge-soft-deletes-job-will-be-listed-as-fired-and-completed">
-    <h3 id="notice-that-the-purge-soft-deletes-job-will-be-listed-as-fired-and-completed" class="step-title screensteps-heading">Notice that the Purge Soft Deletes job will be listed as fired and completed.</h3>
+    <h3 class="step-title screensteps-heading">Notice that the Purge Soft Deletes job will be listed as fired and completed.</h3>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/000/901/902/original/eea8b2f4-39b0-4663-94be-767269bce8f4.png" class="screensteps-image-zoom">
-      <img src="https://media.screensteps.com/image_assets/assets/000/901/902/medium/eea8b2f4-39b0-4663-94be-767269bce8f4.png" alt="Notice that the Purge Soft Deletes job will be listed as fired and completed." height="313" width="855">
+    <a href="https://media.screensteps.com/image_assets/assets/003/316/206/original/c6c32826-01dc-4370-8e12-c63e984e33b3.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/316/206/medium/c6c32826-01dc-4370-8e12-c63e984e33b3.png" alt="" height="327" width="855">
     </a>
 </div>
  
   </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="or-click-new-trigger">
-    <h2 id="or-click-new-trigger" class="step-title screensteps-heading">Or, click New Trigger.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1" id="or-click-new-trigger">
+    <h2 class="step-title screensteps-heading">Or, click New Trigger.</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/000/901/917/original/c0910e4f-621c-4891-837a-1a138f871bf1.png" alt="Or, click New Trigger." height="183" width="477">
+    <a href="https://media.screensteps.com/image_assets/assets/003/319/885/original/197099a3-7149-4ab1-aa24-1339ddc22c16.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/319/885/medium/197099a3-7149-4ab1-aa24-1339ddc22c16.png" alt="" height="178" width="855">
+    </a>
 </div>
  
       <div class="step-instructions screensteps-textblock">
   <p>If you prefer to purge the softly deleted sites on a schedule, rather than by running the job manually, click the <strong>New Trigger </strong>button to add a trigger for the job scheduler.</p>
 </div>
  
-        <div class="step screensteps-section screensteps-depth-2" id="enter-a-trigger-name-and-cron-expression">
-    <h3 id="enter-a-trigger-name-and-cron-expression" class="step-title screensteps-heading">Enter a Trigger Name and Cron Expression.</h3>
+        <div class="step screensteps-section screensteps-depth-2">
+    <h3 class="step-title screensteps-heading">Enter a Trigger Name and Cron Expression.</h3>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/000/901/912/original/8c22fe35-6e6b-406b-bd1b-b91ac84d0278.png" alt="Enter a Trigger Name and Cron Expression." height="254" width="447">
+    <a href="https://media.screensteps.com/image_assets/assets/003/319/889/original/de78aa8e-e09a-4860-afa9-91c7cb886007.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/319/889/medium/de78aa8e-e09a-4860-afa9-91c7cb886007.png" alt="" height="230" width="855">
+    </a>
 </div>
  
   </div>
  
-        <div class="step screensteps-section screensteps-depth-2" id="click-post_1">
-    <h3 id="click-post_1" class="step-title screensteps-heading">Click Post.</h3>
+        <div class="step screensteps-section screensteps-depth-2">
+    <h3 class="step-title screensteps-heading">Click Post.</h3>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/000/901/926/original/148ba72a-cd63-4f8d-aae9-31501c1b2781.png" alt="Click Post." height="269" width="444">
+    <a href="https://media.screensteps.com/image_assets/assets/003/319/887/original/82c1aeed-9b21-4a7e-8e1d-13b956991143.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/319/887/medium/82c1aeed-9b21-4a7e-8e1d-13b956991143.png" alt="" height="229" width="855">
+    </a>
 </div>
  
   </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="the-new-trigger-for-this-job-will-be-displayed">
-    <h3 id="the-new-trigger-for-this-job-will-be-displayed" class="step-title screensteps-heading">The new trigger for this job will be displayed.</h3>
+    <h3 class="step-title screensteps-heading">The new trigger for this job will be displayed.</h3>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/000/901/919/original/a5418724-82f8-42b6-9b8e-fabcd9ff6813.png" class="screensteps-image-zoom">
-      <img src="https://media.screensteps.com/image_assets/assets/000/901/919/medium/a5418724-82f8-42b6-9b8e-fabcd9ff6813.png" alt="The new trigger for this job will be displayed." height="262" width="855">
+    <a href="https://media.screensteps.com/image_assets/assets/003/319/890/original/ed8b2e03-ecbb-4d78-904e-b44d1d93d38d.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/319/890/medium/ed8b2e03-ecbb-4d78-904e-b44d1d93d38d.png" alt="" height="250" width="855">
     </a>
 </div>
  
   </div>
  
   </div>
- 
+
+
 </div>
 </div></div>
 </body>

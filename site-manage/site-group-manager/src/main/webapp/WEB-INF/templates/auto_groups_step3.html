@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/common :: head" />
+<body>
+  <div th:replace="fragments/common :: jQuery" />
+  <div class="portletBody">
+    <div id="menu" th:include="fragments/menus :: main (autogroups)" />
+    <div class="page-header"><h1 th:text="#{autogroups.header.wizard}"></h1></div>
+    <div th:replace="fragments/wizard :: step (step3)"></div><br/>
+    <div class="row">
+      <div class="col-sm-8">
+        <div class="well">
+          <div th:text="#{autogroups.step3.role.info}">We see that you have selected to make groups of participants in the following role(s):</div>
+            <ul>
+              <li th:each="role : ${autoGroupsForm.selectedRoleList}"><span th:text="${role}"></span></li>
+            </ul>
+          <div th:if="${!selectedSectionList.isEmpty() || autoGroupsForm.useManuallyAddedUsers}" th:text="#{autogroups.step3.section.info}">who are included in the following section(s)/roster(s):</div>
+            <ul th:if="${!selectedSectionList.isEmpty() || autoGroupsForm.useManuallyAddedUsers}">
+              <li th:each="section : ${selectedSectionList}"><span th:text="${section.title}"></span></li>
+              <li th:if="${autoGroupsForm.useManuallyAddedUsers}"><span th:text="#{autogroups.manually.added}"></span></li>
+            </ul>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-8">
+        <p th:text="#{autogroups.step3.info}">Now you are ready to define the group membership format/structure. Please select an option below.</p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-8">
+        <form id="autogroups-wizard-step3-form" th:action="@{/autogroups/submitStep3}" th:object="${autoGroupsForm}" method="post">
+          <input type="hidden" name="wizardAction" id="wizardAction" value=""/>
+          <input type="hidden" th:field="*{selectedRoleList}" name="selectedRoleList">
+          <input type="hidden" th:field="*{selectedSectionList}" name="selectedSectionList">
+          <input type="hidden" th:field="*{sectionsOption}" name="sectionsOption">
+          <input type="hidden" th:field="*{useManuallyAddedUsers}" name="useManuallyAddedUsers">
+          <div class="radio">
+            <label for="pureConfiguration"><input id="pureConfiguration" type="radio" name="structureConfigurationOption" checked value="0" th:field="*{structureConfigurationOption}"><span th:text="#{autogroups.step3.option.mixture}">Create groups containing a random mixture of users with the role XX, YY and ZZ </label>
+          </div>
+          <div id="mixtureStructureOptions" class="col-sm-offset-1" th:style="${autoGroupsForm.structureConfigurationOption == 1 ? 'display:none': 'display:block'}">
+            <div id="splitByGroups" th:class="${autoGroupsForm.splitOptions == 0 ? 'optGroupSelect optGroupSelectSelected' : 'optGroupSelect'}">
+              <div class="radio">
+                <label for="splitByGroup"><input id="splitByGroup" type="radio" name="splitOptions" checked value="0" th:field="*{splitOptions}"><span th:text="#{autogroups.step3.split.by.groups}">Split by number of groups needed</label>
+              </div>
+              <div id="splitByGroupsOptions" th:style="${autoGroupsForm.splitOptions == 0 ? 'display:block' : 'display:none'}">
+                <div th:if="${autoGroupsForm.splitOptions == 0 && splitOptionsError != null}" class="sak-banner-error" th:text="${splitOptionsError}">Error message.</div>
+                <div class="form-group form-required">
+                  <label for="groupTitleByGroup" class="form-control-label block" th:text="#{autogroups.step3.group.title}">Group Title</label>
+                  <input name="groupTitleByGroup" id="groupTitleByGroup" type="text" th:field="*{groupTitleByGroup}" th:placeholder="#{autogroups.step3.group.title}" class="form-control">
+                  <p th:text="#{autogroups.step3.title.info}">Note: Numbers will be appended to the title for each group. For example, a title of 'Team' will result in 'Team-1', 'Team-2', etc</p>
+                </div>
+                <div class="form-group form-required">
+                  <label for="groupNumberByGroup" class="form-control-label block" th:text="#{autogroups.step3.number.groups}">Number of groups</label>
+                  <input name="groupNumberByGroup" id="groupNumberByGroup" type="number" min="0" max="999" class="form-control" th:field="*{groupNumberByGroup}">
+                </div>
+              </div>
+            </div>
+            <div id="splitByUsers" class="optGroupSelect" th:class="${autoGroupsForm.splitOptions == 1 ? 'optGroupSelect optGroupSelectSelected' : 'optGroupSelect'}">
+              <div class="radio">
+                <label for="splitByUser"><input id="splitByUser" type="radio" name="splitOptions" value="1" th:field="*{splitOptions}"><span th:text="#{autogroups.step3.split.by.users}">Split by number of users needed per group </label>
+              </div>
+              <div id="splitByUsersOptions" th:style="${autoGroupsForm.splitOptions == 1 ? 'display:block' : 'display:none'}" >
+                <div th:if="${autoGroupsForm.splitOptions == 1 && splitOptionsError != null}" class="sak-banner-error" th:text="${splitOptionsError}">Error message.</div>
+                <div class="form-group form-required">
+                  <label for="groupTitleByUser" class="form-control-label block" th:text="#{autogroups.step3.group.title}">Group Title</label>
+                  <input name="groupTitleByUser" id="groupTitleByUser" type="text" th:field="*{groupTitleByUser}" th:placeholder="#{autogroups.step3.group.title}" class="form-control">
+                  <p th:text="#{autogroups.step3.title.info}">Note: Numbers will be appended to the title for each group. For example, a title of 'Team' will result in 'Team-1', 'Team-2', etc</p>
+                </div>
+                <div class="form-group form-required">
+                  <label for="groupNumberByUser" class="form-control-label block" th:text="#{autogroups.step3.number.users}">Number of users</label>
+                  <input name="groupNumberByUser" id="groupNumberByUser" type="number" min="0" max="999" class="form-control" th:field="*{groupNumberByUser}">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="radio">
+            <label for="mixtureConfiguration"><input id="mixtureConfiguration" type="radio" name="structureConfigurationOption" value="1" th:field="*{structureConfigurationOption}"><span th:text="#{autogroups.step3.option.pure}">Create N groups: X group(s) of users with the role XX and Y group(s) of users with the role YY.</span></label>
+          </div>
+          <div class="act">
+            <input accesskey="c" type="submit" class="active" id="autogroups-continue-button" th:value="#{autogroups.button.continue}">
+            <a accesskey="b" id="autogroups-back-button" class="btn btn-default" th:text="#{autogroups.button.back}">Back</a>&nbsp;
+            <a th:href="@{/}" accesskey="x" id="autogroups-cancel-button" class="btn btn-default" th:text="#{autogroups.button.cancel}">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script th:replace="fragments/javascript :: autoGroupsStep3Js" />
+</body>
+</html>

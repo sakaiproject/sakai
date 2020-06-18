@@ -45,49 +45,7 @@
 #set($num = 0)
 <div class="portletBody specialLink">
 	#set($itemsOnLine = 0)
-		<ul class="navIntraTool actionToolBar">
-			#if($canDeleteResource)
-				## view restore deleted resources area if the user has revise permission
-				<li><span><a href="#toolLinkParam("ResourcesAction" "doViewTrash" "siteId=$validator.escapeUrl(${site.id})")" title="$clang.getString('trash')">$clang.getString("trash")</a></span></li>
-			#end
-			#if($showDropboxMultipleFoldersUpload)
-			<li class="hidden-xs"><span><a href="#toolLinkParam("ResourcesAction" "doDropboxMultipleFoldersUpload" "siteId=$validator.escapeUrl(${site.id})")" title="$tlang.getString("multiple.file.upload")">$tlang.getString("multiple.file.upload")</a></span></li>
-			#end
-			#if($showWebdavLink)
-			<li class="hidden-xs"><span><a href="#toolLink("ResourcesAction" "doShow_webdav")" title="$tlang.getString('dav.webdav')">$tlang.getString("dav.webdav")</a></span></li>
-			#end
-			#if($showPermissions)
-			<li><span><a href="#toolLinkParam("ResourcesAction" "doPermissions" "collectionId=$validator.escapeUrl(${site.id})")" title="$clang.getString('list.sPerm')">$clang.getString("list.sPerm")</a></span></li>
-			#end
-			#if($showOptions)
-			<li><span><a href="#toolLinkParam("ResourcesAction" "doOptions" "siteId=$validator.escapeUrl(${site.id})")" title="$clang.getString('list.options')">$clang.getString("list.options")</a></span></li>
-			#end
-			#if($showDropboxOptions)
-			<li><span><a href="#toolLinkParam("ResourcesAction" "doDropboxOptions" "siteId=$validator.escapeUrl(${site.id})")" title="$clang.getString('list.options')">$clang.getString("list.options")</a></span></li>
-			#end
-			#if($showQuota)
-			<li><span><a href="#toolLinkParam("ResourcesAction" "doShowQuota" "siteId=$validator.escapeUrl(${site.id})")" title="$clang.getString('list.quota')">$clang.getString("list.quota")</a></span></li>
-			#end
-			##SAK-30085
-			#if($showJumpToResourceForm)
-			<li class="inputItem">
-				<span class="formItem form-inline">
-					<form id="jumpToResourceForm" class="inlineForm form-group" action="#toolForm("ResourcesAction")" method="post">
-						<input type="hidden" name="source" value="0" />	
-						<input type="hidden" name="navRoot" value="" />
-						<input type="hidden" name="criteria" value="title" />
-						<input type="hidden" name="sakai_action" value="doNavigate" />
-						<input type="hidden" name="rt_action" value="" />
-						<input type="hidden" name="selectedItemId" value="" />
-						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-						<input type="text" class="form-control" name="collectionId" value="" required />
-						<input type="submit" value="$clang.getString('list.jumptoresource')"/>
-					</form>
-				</span>
-			</li>
-			#end
-		</ul>
-		</ul>
+	#contentMenu("resources")
 	<div class="page-header">
 		#if("$!dropboxMode" == "true")
 			<h1>$clang.getString("list.site.dropbox")</h1>
@@ -113,7 +71,7 @@
 			<input type="hidden" value="$content_print_result_url_title" id="content_print_result_url_title" />
 		#end
 		<input type="hidden" name="source" id="source" value="0" />
-		<input type="hidden" name="collectionId" id="collectionId" value="$validator.escapeHtml($collectionId)" />
+		<input type="hidden" name="collectionId" id="collectionId" value="$formattedText.escapeHtml($collectionId)" />
 		<input type="hidden" name="navRoot" id="navRoot" value="" />
 		<input type="hidden" name="criteria" id="criteria" value="title" />
 		<input type="hidden" name="sakai_action" id="sakai_action" value="" />
@@ -150,20 +108,20 @@
         #set($qid=$item.id.replaceAll("'","\\'").replaceAll("\"", "&quot;"))
         #if($item.isLast())
           <li class="active">
-            $validator.escapeHtml("$item.name")
+            $formattedText.escapeHtml("$item.name")
           </li>
         #elseif($item.canRead())
           <li>
             <a href="#"
               onclick="document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$qid';document.getElementById('navRoot').value='$item.root';document.getElementById('showForm').submit();"
               title= "$tlang.getString('sh.go')">
-               $validator.escapeHtml("$item.name")
+               $formattedText.escapeHtml("$item.name")
             </a>
           </li>
           #set($upOneLevel = $item)
         #else
           <li class="active">
-            $validator.escapeHtml("$item.name")
+            $formattedText.escapeHtml("$item.name")
           </li>
         #end
       #end
@@ -181,7 +139,7 @@
               <select name="dropboxGroupFilter_groupId" id="dropboxGroupFilter_groupId" onchange="document.getElementById('sakai_action').value='doSetDropboxGroupIdFilter';document.getElementById('showForm').submit();">
                   <option value=""#if($!dropboxGroupFilter_groupId || $dropboxGroupFilter_groupId.equals("")) selected="selected"#end>$tlang.getString("grp.all")</option>
                   #foreach($group in $dropboxGroupFilter_groups)
-                      <option value="$group.getId()"#if($group.getId().equals($dropboxGroupFilter_groupId)) selected="selected"#end>$validator.escapeHtml($group.getTitle())</option>
+                      <option value="$group.getId()"#if($group.getId().equals($dropboxGroupFilter_groupId)) selected="selected"#end>$formattedText.escapeHtml($group.getTitle())</option>
                   #end
               </select>
             </div>
@@ -400,7 +358,7 @@
 							<input type="checkbox" name="selectedMembers" id="list$num" 
 									#if($selectedItems.contains($item.id))checked="checked"#end
 									onclick="#foreach($key in $item.multipleItemActions.keySet())adjustCount(this, '$key');#end;adjustShowHideCount(this);adjustCount(this,'zipdownload');"
- 									value="$dqid" /><label for="list$num" class="skip">$clang.getString("att.select"): $validator.escapeHtml($item.name)</label>
+ 									value="$dqid" /><label for="list$num" class="skip">$clang.getString("att.select"): $formattedText.escapeHtml($item.name)</label>
 							#foreach($key in $item.multipleItemActions.keySet())$counter.increment("$key") $counter.increment("selectall")#if($selectedItems.contains($item.id))$counter.increment("${key}selected")#end#end
 							$counter.increment("zipdownload") $counter.increment("selectall")#if($selectedItems.contains($item.id))$counter.increment("zipdownloadselected")#end
 							<input type="hidden" name="itemHidden" id="itemHidden" value="$item.hidden" />
@@ -424,7 +382,7 @@
 											#else
 												onclick="document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$qid';thisForm=document.getElementById('showForm');thisForm.action+='#$qid';thisForm.submit();""
 											#end
-											title= "$item.expandLabel"><span class="sr-only">$item.expandLabel: $validator.escapeHtml($item.name)</span></a>
+											title= "$item.expandLabel"><span class="sr-only">$item.expandLabel: $formattedText.escapeHtml($item.name)</span></a>
 									#end
 									
 								#else
@@ -448,29 +406,29 @@
 									<a href="#" 
 										title="$tlang.getString('gen.copycomf') $item.hoverText [$tlang.getString('gen.newwin')]"
 										onclick="openCopyrightWindow('${item.accessUrl}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false;">
-										$validator.escapeHtml($item.name)
+										$formattedText.escapeHtml($item.name)
 									</a>
 									&#169;
 								#elseif($item.isCollection())
     								#if($item.isTooBigNav())
-                      <span class="resource-name visible-sm-inline-block visible-xs-inline-block truncate">$validator.escapeHtml($item.name)</span>
-                      <span class="resource-name hidden-sm hidden-xs">$validator.escapeHtml($item.name)</span>
+                      <span class="resource-name visible-sm-inline-block visible-xs-inline-block truncate">$formattedText.escapeHtml($item.name)</span>
+                      <span class="resource-name hidden-sm hidden-xs">$formattedText.escapeHtml($item.name)</span>
 									#else
 										<a href="#"
-    										onclick="document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$qid';document.getElementById('navRoot').value='$validator.escapeUrl($item.root)';document.getElementById('showForm').submit();"
+    										onclick="document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$qid';document.getElementById('navRoot').value='$formattedText.escapeUrl($item.root)';document.getElementById('showForm').submit();"
     										title= "$item.hoverText">
-                        <span class="resource-name visible-sm-inline-block visible-xs-inline-block truncate">$validator.escapeHtml($item.name)</span>
-                        <span class="resource-name hidden-sm hidden-xs">$validator.escapeHtml($item.name)</span>
+                        <span class="resource-name visible-sm-inline-block visible-xs-inline-block truncate">$formattedText.escapeHtml($item.name)</span>
+                        <span class="resource-name hidden-sm hidden-xs">$formattedText.escapeHtml($item.name)</span>
     									</a>
 									#end	
 								#else
 									#if($item.isTooBigNav())
-                        <span class="resource-name visible-sm-inline-block visible-xs-inline-block truncate">$validator.escapeHtml($item.name)</span>
-                        <span class="resource-name hidden-sm hidden-xs">$validator.escapeHtml($item.name)</span>
+                        <span class="resource-name visible-sm-inline-block visible-xs-inline-block truncate">$formattedText.escapeHtml($item.name)</span>
+                        <span class="resource-name hidden-sm hidden-xs">$formattedText.escapeHtml($item.name)</span>
 									#else
 										<a href="$item.accessUrl" target="$item.target" title="$item.hoverText">
-                        <span class="resource-name visible-sm-inline-block visible-xs-inline-block truncate">$validator.escapeHtml($item.name)</span>
-                        <span class="resource-name hidden-sm hidden-xs">$validator.escapeHtml($item.name)</span>
+                        <span class="resource-name visible-sm-inline-block visible-xs-inline-block truncate">$formattedText.escapeHtml($item.name)</span>
+                        <span class="resource-name hidden-sm hidden-xs">$formattedText.escapeHtml($item.name)</span>
     									</a>
 									#end
 								#end
@@ -481,8 +439,8 @@
 									<span class="fa fa-lock" aria-hidden="true"></span>
 									<span class="sr-only">$clang.getString('locked')</span>
 								#end
-                <span class="visible-sm-inline-block visible-xs-inline-block truncate">$validator.escapeHtml($item.name)</span>
-                <span class="hidden-sm hidden-xs">$validator.escapeHtml($item.name)</span>
+                <span class="visible-sm-inline-block visible-xs-inline-block truncate">$formattedText.escapeHtml($item.name)</span>
+                <span class="hidden-sm hidden-xs">$formattedText.escapeHtml($item.name)</span>
 								#if ($item.hasCopyrightAlert())
 									&#169;
 								#end
@@ -514,7 +472,7 @@
 					<td headers="actions2" class="attach actions2">
                         <div class="btn-group  pull-right">
                             <button type="button" class="btn resources-dropdown btn-xs dropdown-toggle" aria-expanded="false" data-toggle="dropdown" title="$clang.getString('gen.actions')">
-                                <span class="sr-only">$validator.escapeHtml($item.name) $clang.getString('gen.actions')</span>
+                                <span class="sr-only">$formattedText.escapeHtml($item.name) $clang.getString('gen.actions')</span>
                                 <span class="hidden-xs hidden-sm">$clang.getString('gen.actions')</span>
                                 <span class="caret"></span>
                             </button>
@@ -551,7 +509,7 @@
 							<span class="resource-access">$item.getShortAccessLabel()#if(!$item.isAvailable()) $clang.getString('access.hidden')#end</span>
 						</td>
 						<td headers="creator" class="creator hidden-sm hidden-xs">
-							<span class="resource-creator">$validator.escapeHtml($item.createdBy)</span>
+							<span class="resource-creator">$formattedText.escapeHtml($item.createdBy)</span>
 						</td>
 						<td headers="modified" class="modified hidden-sm hidden-xs">
 							<span class="resource-modified">$item.ModifiedTime</span>
@@ -586,7 +544,7 @@
 							<a href="#" onclick="document.getElementById('sakai_action').value='doHideOtherSites';document.getElementById('showForm').submit();"
 								title= "$clang.getString('list.copycontent')">
 								<span class="fa fa-caret-down" aria-hidden="true"></span>
-								$validator.escapeHtml("$clang.getString('list.copycontent')")
+								$formattedText.escapeHtml("$clang.getString('list.copycontent')")
 							</a>
 						</h3>
                         <small class="muted">$tlang.getString('notes.expandfolder')</small>
@@ -722,25 +680,25 @@
 											<a href="#" 
 												title="$tlang.getString('gen.copycomf') $item.hoverText [$tlang.getString('gen.newwin')]"
 												onclick="openCopyrightWindow('${item.accessUrl}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false;">
-												$validator.escapeHtml($item.name)
+												$formattedText.escapeHtml($item.name)
 											</a>
 											&#169;
 										#elseif($item.isCollection())
 											#if($item.isTooBigNav())
-												$validator.escapeHtml($item.name)    											
+												$formattedText.escapeHtml($item.name)    											
 											#else
 													<a href="#"
-														onclick="document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$qid';document.getElementById('navRoot').value='$validator.escapeUrl($item.root)';document.getElementById('showForm').submit();"
+														onclick="document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$qid';document.getElementById('navRoot').value='$formattedText.escapeUrl($item.root)';document.getElementById('showForm').submit();"
 														title= "$item.hoverText">
-														$validator.escapeHtml(${item.name})
+														$formattedText.escapeHtml(${item.name})
 													</a>
 											#end
 										#else
 											#if($item.isTooBigNav())
-												$validator.escapeHtml($item.name)    											
+												$formattedText.escapeHtml($item.name)    											
 											#else
 												<a href="$item.accessUrl" target="$item.target" title="$item.hoverText">
-    												$validator.escapeHtml($item.name)
+    												$formattedText.escapeHtml($item.name)
     											</a>
 											#end
 										#end
@@ -751,7 +709,7 @@
 											<span class="fa fa-lock" aria-hidden="true"></span>
 											<span class="sr-only">$clang.getString('locked')</span>
 										#end
-										$validator.escapeHtml($item.name)
+										$formattedText.escapeHtml($item.name)
 										#if ($item.hasCopyrightAlert())
 											&#169;
 										#end
@@ -770,7 +728,7 @@
 									<span class="resource-access">$item.getShortAccessLabel()#if(!$item.isAvailable()) $clang.getString('access.hidden')#end</span>
 								</td>
 								<td class="creator hidden-sm hidden-xs" headers="creator">
-									<span class="resource-creator">$validator.escapeHtml($item.createdBy)</span>
+									<span class="resource-creator">$formattedText.escapeHtml($item.createdBy)</span>
 								</td>
 								<td class="modified hidden-sm hidden-xs" headers="modified">
 									<span class="resource-modified">$item.ModifiedTime</span>
@@ -800,7 +758,7 @@
 								title= "$clang.getString('list.copycontent')">
 								<span class="fa fa-caret-right" aria-hidden="true"></span>
 								<span class="sr-only">$clang.getString('list.copycontent')</span>
-								$validator.escapeHtml("$clang.getString('list.copycontent')")
+								$formattedText.escapeHtml("$clang.getString('list.copycontent')")
 							</a>
 						</h3>
 						</th>

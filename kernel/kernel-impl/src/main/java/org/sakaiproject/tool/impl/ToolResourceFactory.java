@@ -40,7 +40,7 @@ public class ToolResourceFactory {
 		String resourceBundle = serverConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
 
 		// Resource starts up the ComponentManager through the cover.
-		return new Resource().getLoader(resourceClass, resourceBundle);
+		return Resource.getResourceLoader(resourceClass, resourceBundle);
 	}
 
 	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {

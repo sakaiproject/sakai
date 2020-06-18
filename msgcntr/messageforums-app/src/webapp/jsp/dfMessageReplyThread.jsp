@@ -14,23 +14,27 @@
 		<f:verbatim><input type="hidden" id="currentMessageId" name="currentMessageId" value="</f:verbatim><h:outputText value="#{ForumTool.selectedMessage.message.id}"/><f:verbatim>"/></f:verbatim>
 		<f:verbatim><input type="hidden" id="currentTopicId" name="currentTopicId" value="</f:verbatim><h:outputText value="#{ForumTool.selectedTopic.topic.id}"/><f:verbatim>"/></f:verbatim>
 		<f:verbatim><input type="hidden" id="currentForumId" name="currentForumId" value="</f:verbatim><h:outputText value="#{ForumTool.selectedForum.forum.id}"/><f:verbatim>"/></f:verbatim>
-             <script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-       		<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
-       		<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
-       		<script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
-        <h:outputText styleClass="alertMessage" value="#{msgs.cdfm_reply_deleted}" rendered="#{ForumTool.errorSynch}" />
-		<script type="text/javascript">
-				$(document).ready(function() {
-					$('#openLinkBlock').hide();
-					jQuery('.toggle').click(function(e) { 
-						$('#replytomessage').toggle('slow');
-						$('.toggleParent').toggle();					
-						resizeFrame('grow')
-				});					
-				});
-			</script>
-	
+             <script>includeLatestJQuery("msgcntr");</script>
+       		<script src="/messageforums-tool/js/sak-10625.js"></script>
+       		<script src="/messageforums-tool/js/forum.js"></script>
+       		<script src="/messageforums-tool/js/messages.js"></script>
+        <script>
+            $(document).ready(function () {
+                var menuLink = $('#forumsMainMenuLink');
+                var menuLinkSpan = menuLink.closest('span');
+                menuLinkSpan.addClass('current');
+                menuLinkSpan.html(menuLink.text());
 
+                $('#openLinkBlock').hide();
+                jQuery('.toggle').click(function(e) {
+                    $('#replytomessage').toggle('slow');
+                    $('.toggleParent').toggle();
+                    resizeFrame('grow');
+                });
+            });
+        </script>
+        <%@ include file="/jsp/discussionForum/menu/forumsMenu.jsp" %>
+        <h:outputText styleClass="alertMessage" value="#{msgs.cdfm_reply_deleted}" rendered="#{ForumTool.errorSynch}" />
 		  <h3><h:outputText value="#{msgs.cdfm_reply_thread_tool_bar_message}"  /></h3>
 	
 		<table class="topicBloc topicBlocLone">
@@ -133,10 +137,10 @@
 		</div>
             <sakai:inputRichText textareaOnly="#{PrivateMessagesTool.mobileSession}" value="#{ForumTool.composeBody}" id="df_compose_body" rows="#{ForumTool.editorRows}" cols="132">
 			</sakai:inputRichText>
-			<%-- pre-morpheus would need this: script type="text/javascript">
+			<%-- pre-morpheus would need this: script>
 				CKEDITOR.on('instanceReady', function() {resizeFrame('grow')});
 			</script --%>
-		<script language="javascript" type="text/javascript">
+		<script>
 			var textareas = document.getElementsByTagName("textarea");
 			var rteId = textareas.item(1).id;
 			
@@ -242,7 +246,7 @@
          <h:outputText styleClass="sak-banner-info" style="display:none" value="#{msgs.cdfm_processing_submit_message}" />
 		</div>
 
-<script type="text/javascript">
+<script>
 setTimeout(function(){ 
   var _div = document.getElementsByTagName('div');
   for(i=0;i<_div.length; i++)

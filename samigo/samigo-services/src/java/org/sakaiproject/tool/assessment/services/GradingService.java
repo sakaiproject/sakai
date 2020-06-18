@@ -172,9 +172,9 @@ public class GradingService
  /**
   * Get all submissions for a published assessment from the back end.
   */
-  public List getAllSubmissions(String publishedId)
+  public List<AssessmentGradingData> getAllSubmissions(String publishedId)
   {
-    List results = null;
+    List<AssessmentGradingData> results = null;
     try {
       results = PersistenceService.getInstance().
            getAssessmentGradingFacadeQueries().getAllSubmissions(publishedId);
@@ -1579,8 +1579,7 @@ public class GradingService
 	  notiValues.put("submissionDate", adata.getSubmittedDate());
 
 	  String confirmationNumber = adata.getAssessmentGradingId() + "-" + adata.getPublishedAssessmentId() + "-"
-
-			  + adata.getAgentId() + "-" + adata.getSubmittedDate().toString();
+			  + adata.getAgentId() + "-" + adata.getSubmittedDate().getTime();
 	  notiValues.put( "confirmationNumber", confirmationNumber );
 
 	  EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_AUTO, notiValues.toString(), AgentFacade.getCurrentSiteId(), false, SamigoConstants.NOTI_EVENT_ASSESSMENT_SUBMITTED));
@@ -2683,6 +2682,14 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	    }
   }
   
+  public void removeAssessmentGradingData(AssessmentGradingData data) {
+	  try {
+		  PersistenceService.getInstance().getAssessmentGradingFacadeQueries().removeAssessmentGradingData(data);
+	  } catch (Exception e) {
+		  log.error("Exception thrown from removeAssessmentGradingData", e);
+	  }
+  }
+
   public boolean getHasGradingData(Long publishedAssessmentId) {
 	  boolean hasGradingData = false;
 	    try {

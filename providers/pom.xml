@@ -17,8 +17,6 @@
     <module>component</module>
     <module>federating</module>
     <module>imsent</module>
-    <module>jldap</module>
-    <module>jldap-mock</module>
     <module>userdetail</module>
     <module>kerberos</module>
     <module>openldap</module>
@@ -37,11 +35,6 @@
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-coursemanagement-authz-provider-impl</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-jldap-provider</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

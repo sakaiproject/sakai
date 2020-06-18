@@ -21,7 +21,7 @@ package org.sakaiproject.lessonbuildertool.util;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
-import org.sakaiproject.rsf.copies.Web;
+import org.sakaiproject.util.RequestFilter;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -51,7 +51,7 @@ public class SakaiBaseURLProviderFactory implements ApplicationContextAware, Fac
   // This method adjusts the  protocol and port from a "correctly" computed 
   // URL to be closer to reality, via the hackery from Sakai "Web" utils.
   public static String fixSakaiURL(HttpServletRequest req, String computed) {
-    String serverURL = Web.serverUrl(req);
+    String serverURL = RequestFilter.serverUrl(req);
     int endprotpos = computed.indexOf("://");
     int slashpos = computed.indexOf('/', endprotpos + 3);
     return serverURL + computed.substring(slashpos);

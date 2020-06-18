@@ -94,22 +94,6 @@
     <!-- Place configuration for your caches following -->
 
     <cache 
-      name="org.hibernate.cache.UpdateTimestampsCache"
-      maxElementsInMemory="10000"
-      eternal="false"
-      timeToIdleSeconds="300"
-      timeToLiveSeconds="300"
-      overflowToDisk="false" />
-
-    <cache 
-      name="org.hibernate.cache.StandardQueryCache"
-      maxElementsInMemory="10000"
-      eternal="false"
-      timeToIdleSeconds="300"
-      timeToLiveSeconds="300"
-      overflowToDisk="false" />
-
-    <cache 
       name="org.sakaiproject.component.common.superstructure.NodeParentChildMapImpl"
       maxElementsInMemory="10000"
       eternal="false"

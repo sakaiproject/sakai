@@ -1,4 +1,5 @@
 <!--jsp/discussionForum/area/dfAreaInclude.jsp-->
+<script src="/rubrics-service/webcomponents/sakai-rubrics-utils.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 <script type="module" src="/rubrics-service/webcomponents/rubric-association-requirements.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 <h:panelGrid columns="1" cellpadding="3" rendered="#{empty ForumTool.forums}">
 	<h:panelGroup>
@@ -43,7 +44,7 @@ $(document).ready(function() {
 	setupdfAIncMenus();
 });
 </script>
-<h:outputText escape="false" value="<script type='text/javascript'>$(document).ready(function() {setupLongDesc()});</script>"  rendered="#{!ForumTool.showShortDescription}"/>
+<h:outputText escape="false" value="<script>$(document).ready(function() {setupLongDesc()});</script>"  rendered="#{!ForumTool.showShortDescription}"/>
 
 			<h:outputText styleClass="showMoreText"  style="display:none" value="#{msgs.cdfm_show_more_full_description}"  />
 

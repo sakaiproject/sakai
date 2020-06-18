@@ -11,14 +11,14 @@
 <f:view>
 	<sakai:view title="#{msgs.cdfm_default_template_settings}" toolCssHref="/messageforums-tool/css/msgcntr.css">
 	<h:form id="revise">
-        <script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-		<script type="text/javascript" src="/messageforums-tool/js/datetimepicker.js"></script>             		             		
-       		<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
-		<script type="text/javascript" src="/messageforums-tool/js/permissions_header.js"></script>
-		<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
-		<script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
+        <script>includeLatestJQuery("msgcntr");</script>
+		<script src="/messageforums-tool/js/datetimepicker.js"></script>             		             		
+       		<script src="/messageforums-tool/js/sak-10625.js"></script>
+		<script src="/messageforums-tool/js/permissions_header.js"></script>
+		<script src="/messageforums-tool/js/forum.js"></script>
+		<script src="/messageforums-tool/js/messages.js"></script>
 		<link href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" rel="stylesheet" type="text/css" />
-		<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+		<script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
 
 <%
 	  	String thisId = request.getParameter("panel");
@@ -27,12 +27,20 @@
     		thisId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
   		}
 	%>
-	<script type="text/javascript">
+	<script>
 		function resize(){
   			mySetMainFrameHeight('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
   		}
+
+         $(document).ready(function() {
+             var menuLink = $('#forumsTemplateSettingsMenuLink');
+             var menuLinkSpan = menuLink.closest('span');
+             menuLinkSpan.addClass('current');
+             menuLinkSpan.html(menuLink.text());
+         });
+
 	</script> 
-<script type="text/javascript">
+<script>
 	function setDatesEnabled(radioButton){
 		$(".openDateSpan").toggle();
 		$(".closeDateSpan").toggle();
@@ -51,6 +59,7 @@
 <!--jsp/discussionForum/area/dfTemplateSettings.jsp-->
 
 
+				<%@ include file="/jsp/discussionForum/menu/forumsMenu.jsp" %>
 				<div class="page-header">
 					<h1><h:outputText value="#{msgs.cdfm_default_template_settings}" /></h1>
 				</div>
@@ -100,7 +109,7 @@
            </h:panelGrid>
 
            
-            <script type="text/javascript">
+            <script>
                   localDatePicker({
                   	input:'.openDate',
                   	allowEmptyDate:true,

@@ -17,12 +17,12 @@
 	</div>
 	<script type="text/javascript"> var a = document.MyCalendar; </script>
 	#if ($alertMessage)
-		<div class="sak-banner-warn">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>
+		<div class="sak-banner-warn">$tlang.getString('gen.alert') $formattedText.escapeHtml($alertMessage)</div>
 	#end
 	<p class="instruction">
 		$tlang.getString('cust.toadd')
 	</p>
-	<form name="Options" action="#toolForm("$action")" method="post">
+	<form id="optionsForm" name="Options" action="#toolForm('$action')" method="post">
 		<span class="shorttext">
 			<label for="textfield">
 				$tlang.getString('cust.fname'):
@@ -32,9 +32,8 @@
 		<span  class="act">
 			<input type="submit" name="eventSubmit_doAddfield" value="$tlang.getString('cust.add')" />
 		</span >
-
+				<table class="table table-striped table-bordered table-hover" cellspacing="0" summary="$tlang.getString('cust.list')">
 			#if (!$addFieldsCalendarsCollectionIsEmpty)
-				<table class="listHier fieldsTable lines nolines" cellspacing="0" summary="$tlang.getString('cust.list')">
 					<tr> 
 						<th id="fieldname">$tlang.getString('cust.fname')</th>
 						<th id="checkbox">$tlang.getString('cust.rem')</th>
@@ -80,7 +79,7 @@
 							<label for="freq">$tlang.getString("new.freq")</label>
 						</td>
 						<td headers="checkbox"><input type="checkbox" id="freq" name="" value=""  disabled="disabled" /></td>
-					</tr>						
+					</tr>
 					<tr>
 						<td headers="fieldname">
 							<label for="itemtype">$tlang.getString("new.itemtype")</label>
@@ -98,7 +97,7 @@
 					#set ($addedFieldsCount=$addedFieldsCount + 1)
 						<tr> 
 							<td headers="fieldname">
-								<label for="addedFields$addedFieldsCount">$validator.escapeHtml($fieldEntry)</label>
+								<label for="addedFields$addedFieldsCount">$formattedText.escapeHtml($fieldEntry)</label>
 							</td>
 							<td headers="checkbox">
 								<input type="checkbox" id="addedFields$addedFieldsCount"  name="$fieldEntry" value="$tlang.getString('cust.true')"  />
@@ -108,11 +107,54 @@
 				</table>
 			#end
 		<p class="act">
-				<input type="submit" class="active" name="eventSubmit_doUpdate" value="$tlang.getString('cust.save')" accesskey="s" />
+				<input id="saveEventsButton" type="submit" class="active"  value="$tlang.getString('cust.save')" accesskey="s" />
+				<input id="saveEventsSubmission" type="submit" name="eventSubmit_doUpdate" class="hidden" />
 				<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" accesskey="x" />
 		</p>
+		<div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" id="confirmation-modal">
+			<div class="modal-dialog modal-md">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span class="fa fa-times" aria-hidden="true"></span></button>
+					<h4 class="modal-title">$tlang.getString('gen.confirm.type')</h4>
+				</div>
+				<div class="modal-body">
+					<div class="sak-banner-warn">$tlang.getString('java.alert.areyou')</div>
+					<ul id="deleted-event-list"></ul>
+				</div>
+				<div class="modal-footer act">
+					<button type="button" class="active" id="modal-btn-confirm">$tlang.getString('gen.save')</button>
+					<button type="button" class="btn btn-default" id="modal-btn-cancel">$tlang.getString('gen.cancel')</button>
+				</div>
+				</div>
+			</div>
+		  </div>
 		<input type="hidden" name="state" value="$state" />
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 </div>
 
+<script>
+  var confirmationModal = function(callback){
+    $('#saveEventsButton').on('click', function(e) {
+      e.preventDefault();
+      $('#confirmation-modal').modal('show');
+    });
+
+    $('#modal-btn-confirm').on('click', function(){
+      callback(true);
+      $('#confirmation-modal').modal('hide');
+    });
+
+    $('#modal-btn-cancel').on('click', function(){
+      callback(false);
+      $('#confirmation-modal').modal('hide');
+    });
+  };
+
+  confirmationModal(function(confirm) {
+    if (confirm) {
+      $('#saveEventsSubmission').click();
+    }
+  });
+</script>

@@ -57,7 +57,7 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 <h:inputHidden id="elapsed" value="#{delivery.timeElapse}" />
 <h:inputHidden id="outoftime" value="#{delivery.timeOutSubmission}"/>
 
-<script type="text/JavaScript">
+<script>
 function isFromLink() {
   if (${delivery.actionMode} == 5) {
     return true;

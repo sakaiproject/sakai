@@ -1,37 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>How do I enable student peer review for an assignment?</title>
+<title>How do I link to a parent site?</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta content="sakai.assignment" name="description">
-<meta content="peer review, peer assessment, peer evaluation" name="search">
+<meta content="" name="description">
 <link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="/library/js/jquery/featherlight/0.4.0/featherlight.min.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="/library/js/jquery/featherlight/0.4.0/featherlight.min.js" type="text/javascript" charset="utf-8"></script><script type="text/javascript" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    includeWebjarLibrary('featherlight');
     $(document).ready(function(){
-      $("a[rel^='featherlight']").featherlight({
+      $("a.screensteps-image-zoom").featherlight({
         type: { image:true },
-    closeOnClick: 'anywhere'
+        closeOnClick: 'anywhere'
       }); 
     });   
-  </script>
+</script>
 </head>
 <body>
-  <div id="wrapper"><div id="article-content">
-<div id="article-header"><h1 class="article-title">How do I link to a parent site?</h1></div>
-<div id="article-description">  <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+  <div><div>
+<div><h1 class="article-title">How do I link to a parent site?</h1></div>
+<div>    <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
   <p>Parent sites can be useful in managing large courses with many sections, or a program that has a central site.  </p>
-<p>For example: Course ABC1234 has 15 sections. There are three TAs in this course who are each managing five sections. There can be a parent course called ABC1234 and then three child courses (Sections 1234,2345,3456; Sections 4567,5678,6789; Sections 7891,8912,9123).  TAs are assigned only to the sections they manage. The content, announcements, communications, etc., can take place at the parent course level. Graded items and gradebooks will be housed at the child course level. </p>
-<p>Or another example: The Nursing program has a site where all nursing students get information and communicate with program administrators. This site would be the parent site and each of the 15 Nursing courses can be child courses to the parent site.</p>
-<p><em>Note: Participants will only access the sites in which they are enrolled. So in the Nursing example above, students would only see the nursing courses in which they are enrolled, and the parent site.  They would not see the other Nursing child courses in which they are not enrolled. In the ABC1234 example, students would only see their own child courses and the parent site, not all three child courses.</em></p>
+<p>For example, Course ABC1234 has 15 sections. There are three TAs in this course who are each managing five sections. There can be a parent course called ABC1234 and then three child courses (Sections 1234,2345,3456; Sections 4567,5678,6789; Sections 7891,8912,9123).  TAs are assigned only to the sections they manage. The content, announcements, communications, etc., can take place at the parent course level. Graded items and gradebooks will be housed at the child course level. </p>
+<p>Or another example, the Nursing program has a site where all nursing students get information and communicate with program administrators. This site would be the parent site and each of the 15 Nursing courses can be child courses to the parent site.</p>
+<p><em>Note: Participants will only access the sites in which they are enrolled. So in the Nursing example above, students would only see the nursing courses in which they are enrolled, and the parent site. They would not see the other Nursing child courses in which they are not enrolled. In the ABC1234 example, students would only see their own child courses and the parent site, not all three child courses.</em></p>
 </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="go-to-site-info">
-    <h2 id="go-to-site-info" class="step-title screensteps-heading">Go to Site Info.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Go to Site Info.</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/001/330/252/original/ae3e005f-2a93-44b5-9812-3b7aafef0a20.png" alt="Site Info tool highlighted in the site Tool Menu." height="129" width="193">
+    <img src="https://media.screensteps.com/image_assets/assets/003/336/098/original/8fb359ff-13e7-45e9-8e00-feed41c232ca.png" alt="" height="115" width="208">
 </div>
  
       <div class="step-instructions screensteps-textblock">
@@ -39,11 +40,13 @@
 </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="click-link-to-parent-site">
-    <h2 id="click-link-to-parent-site" class="step-title screensteps-heading">Click Link to Parent Site.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1" id="click-link-to-parent-site">
+    <h2 class="step-title screensteps-heading">Click Link to Parent Site.</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/001/322/870/original/cd9bc9ec-1e4b-4bdd-a2be-d6c1556dd348.png" alt="Link to Parent Site tab highlighted in Site Info tabs." height="68" width="730">
+    <a href="https://media.screensteps.com/image_assets/assets/003/274/877/original/cf6b6c30-f230-4692-8226-e0d0e7472456.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/274/877/medium/cf6b6c30-f230-4692-8226-e0d0e7472456.png" alt="" height="66" width="855">
+    </a>
 </div>
  
       <div class="step-instructions screensteps-textblock">
@@ -51,12 +54,12 @@
 </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="select-the-parent-site-from-the-drop-down-menu">
-    <h2 id="select-the-parent-site-from-the-drop-down-menu" class="step-title screensteps-heading">Select the parent site from the drop-down menu.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1" id="select-the-parent-site-from-the-drop-down-menu">
+    <h2 class="step-title screensteps-heading">Select the parent site from the drop-down menu.</h2>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/001/322/872/original/bcbabe65-df01-4ed5-adaf-ee00b05675e0.png" class="screensteps-image-zoom">
-      <img src="https://media.screensteps.com/image_assets/assets/001/322/872/medium/bcbabe65-df01-4ed5-adaf-ee00b05675e0.png" alt="Select the parent site from the drop-down menu." height="253" width="855">
+    <a href="https://media.screensteps.com/image_assets/assets/003/274/875/original/e3a7ee5c-4dfa-4229-874d-81f40583968c.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/274/875/medium/e3a7ee5c-4dfa-4229-874d-81f40583968c.png" alt="" height="351" width="855">
     </a>
 </div>
  
@@ -65,11 +68,13 @@
 </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="click-set-link">
-    <h2 id="click-set-link" class="step-title screensteps-heading">Click Set Link.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1" id="click-set-link">
+    <h2 class="step-title screensteps-heading">Click Set Link.</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/001/322/876/original/2a84a528-3874-45a1-bd06-670f11d4f6fb.png" alt="Selected parent site shown with Set Link button highlighted." height="223" width="854">
+    <a href="https://media.screensteps.com/image_assets/assets/003/274/873/original/5cd2a069-8145-434e-a2c9-ace9c64d6b3f.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/274/873/medium/5cd2a069-8145-434e-a2c9-ace9c64d6b3f.png" alt="" height="208" width="855">
+    </a>
 </div>
  
       <div class="step-instructions screensteps-textblock">
@@ -77,11 +82,13 @@
 </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="example-child-sites-in-the-parent-site">
-    <h2 id="example-child-sites-in-the-parent-site" class="step-title screensteps-heading">Example: Child sites in the parent site.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1" id="example-child-sites-in-the-parent-site">
+    <h2 class="step-title screensteps-heading">Example: Child Sites in the Parent Site</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/001/322/868/original/5232838f-3d72-4a30-a4f7-7fffe09a1a66.png" alt="Example: Child sites highlighted in the parent site tool menu." height="515" width="717">
+    <a href="https://media.screensteps.com/image_assets/assets/003/274/868/original/f70a1420-b48f-43d4-a5e4-951abe084b70.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/274/868/medium/f70a1420-b48f-43d4-a5e4-951abe084b70.png" alt="" height="584" width="855">
+    </a>
 </div>
  
       <div class="step-instructions screensteps-textblock">
@@ -90,11 +97,13 @@
 </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="example-parent-sites-in-the-child-site">
-    <h2 id="example-parent-sites-in-the-child-site" class="step-title screensteps-heading">Example: Parent sites in the child site.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1" id="example-parent-sites-in-the-child-site">
+    <h2 class="step-title screensteps-heading">Example: Parent Sites in the Child Site</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/001/322/878/original/6d95206f-e09a-4486-b513-5723ede7d646.png" alt="Example: Parent site link highlighted in the child site breadcrumbs." height="222" width="712">
+    <a href="https://media.screensteps.com/image_assets/assets/003/274/871/original/48670e45-9253-4d23-808b-f69e7b10eac8.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/274/871/medium/48670e45-9253-4d23-808b-f69e7b10eac8.png" alt="" height="298" width="855">
+    </a>
 </div>
  
       <div class="step-instructions screensteps-textblock">
@@ -102,7 +111,8 @@
 </div>
  
   </div>
- 
+
+
 </div>
 </div></div>
 </body>

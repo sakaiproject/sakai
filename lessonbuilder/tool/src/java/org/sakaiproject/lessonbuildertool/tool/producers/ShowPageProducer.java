@@ -120,6 +120,7 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
+import org.sakaiproject.util.comparator.UserSortNameComparator;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -3960,21 +3961,23 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	}
 
 	private static String getUserDisplayName(String owner) {
-
-		if (owner== null) {
-			return "";
-		}
-
-		User user = null;
+		String userDisplayName = StringUtils.EMPTY;
 		try {
-			user = UserDirectoryService.getUser(owner);
+			User user = UserDirectoryService.getUser(owner);
+			userDisplayName = String.format("%s (%s)", user.getSortName(), user.getEid());
 		} catch (UserNotDefinedException e) {
 			log.info("Owner #: " + owner + " does not have an associated user.");
 		}
-		if (user==null || user.getDisplayName()==null){
-			return "";
+		return userDisplayName;
+	}
+
+	private static User getUser(String userId) {
+		try {
+			return UserDirectoryService.getUser(userId);
+		} catch (UserNotDefinedException e) {
+			log.error("User {} does not exist", userId);
 		}
-		return user.getDisplayName();
+		return null;
 	}
 
 	//Get the twitter widget hashtag and other settings from the user.
@@ -4511,7 +4514,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				initValues.add(entry.id);
 			}
 		}
-		if (groupsSet == null || groupsSet.size() == 0) {
+		if (groupsSet == null || groupsSet.size() == 0 || initValues.isEmpty()) {
 			initValues.add("");
 		}
 
@@ -4889,7 +4892,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		}
 
 		UIOutput gradeBook = UIOutput.make(form, "gradeBookDiv");
-		if(simplePageBean.isStudentPage(page)) {
+		if(simplePageBean.isStudentPage(page) || simplePageBean.getCurrentTool(simplePageBean.GRADEBOOK_TOOL_ID) == null) {
 			gradeBook.decorate(new UIStyleDecorator("noDisplay"));
 		}
 		
@@ -4933,7 +4936,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			UIOutput.make(form, "cssDefaultInstructions", messageLocator.getMessage("simplepage.css-default-instructions"));
 			UIOutput.make(form, "cssUploadLabel", messageLocator.getMessage("simplepage.css-upload-label"));
 			UIOutput.make(form, "cssUpload");
-			boolean showSetOwner = ServerConfigurationService.getBoolean("lessonbuilder.show.set.owner", true);
+			boolean showSetOwner = ServerConfigurationService.getBoolean("lessonbuilder.show.set.owner", false);
 			if (showSetOwner){
 				//Set the changeOwner dropdown in the settings dialog
 				UIOutput.make(form, "ownerDefaultInstructions", messageLocator.getMessage("simplepage.owner-default-instructions")
@@ -4944,9 +4947,23 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				List<String> possOwners = new LinkedList<>();
 				boolean isOwned = page.isOwned();
 				String owner = page.getOwner();
-				possOwners.addAll(simplePageBean.getCurrentSite().getUsers());
 				Set<String> siteUsersCanUpdate = simplePageBean.getCurrentSite().getUsersIsAllowed(SimplePage.PERMISSION_LESSONBUILDER_UPDATE);
-				possOwners.removeAll(siteUsersCanUpdate);
+
+				// Sort the site member list before filling the "possOwners" list
+				List<Member> siteMemberList = new ArrayList<Member>(simplePageBean.getCurrentSite().getMembers());
+				Collections.sort(siteMemberList, new Comparator<Member>() {
+					public int compare(Member lhs, Member rhs) {
+						UserSortNameComparator userComparator = new UserSortNameComparator();
+						return userComparator.compare(getUser(lhs.getUserId()), getUser(rhs.getUserId()));
+					}
+				});
+				siteMemberList.forEach(member -> {
+					String userId = member.getUserId();
+					if (!siteUsersCanUpdate.contains(userId)) {
+						possOwners.add(userId);
+					}
+				});
+
 				if (isOwned){
 					if (possOwners.contains(owner)){
 						int i = possOwners.indexOf(owner);

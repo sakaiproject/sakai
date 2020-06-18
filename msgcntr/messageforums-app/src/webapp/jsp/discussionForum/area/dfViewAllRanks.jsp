@@ -16,11 +16,11 @@
 <link rel="stylesheet" href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" type="text/css" />
 <link rel="stylesheet" href="/messageforums-tool/css/forum_rank.css" type="text/css" />
 
-<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-<script type="text/javascript" src="/messageforums-tool/js/json2.js"></script>
-<script type="text/javascript" src="/messageforums-tool/js/fluidframework-min.js"></script>
-<script type="text/javascript" src="/messageforums-tool/js/Scroller.js"></script>
-<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
+<script>includeLatestJQuery("msgcntr");</script>
+<script src="/messageforums-tool/js/json2.js"></script>
+<script src="/messageforums-tool/js/fluidframework-min.js"></script>
+<script src="/messageforums-tool/js/Scroller.js"></script>
+<script src="/messageforums-tool/js/forum.js"></script>
 
 
     <h:form id="addRank">
@@ -98,13 +98,13 @@
                         thisId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
                 }
             %>
-            <script type="text/javascript">
+            <script>
                 function resize(){
                     mySetMainFrameHeight('<%=org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
                 }
             </script>
 
-            <script type="text/javascript">
+            <script>
                 resize();
                 //find the anchor
                 document.location.href=document.location.href + "#boldMsg";

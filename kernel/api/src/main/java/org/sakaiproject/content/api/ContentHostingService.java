@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.TreeSet;
@@ -244,6 +245,20 @@ public interface ContentHostingService extends EntityProducer
     public static final String RESOURCES_ZIP_ENABLE_COMPRESS = "content.zip.compress.enabled";
 
 	static final String ID_LENGTH_EXCEPTION = "id_length_exception";
+
+	public static final String DOC_MIMETYPE = "application/msword";
+	public static final String DOCX_MIMETYPE
+		= "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+	public static final String ODT_MIMETYPE = "application/vnd.oasis.opendocument.text";
+	public static final String ODP_MIMETYPE = "application/vnd.oasis.opendocument.presentation";
+	public static final String PDF_MIMETYPE = "application/pdf";
+	public static final String PPT_MIMETYPE = "application/vnd.ms-powerpoint";
+	public static final String PPTX_MIMETYPE = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+
+	/** Used as a property key to indicate that a document has a preview copy. The value will be
+	 * the preview document's id
+	 */
+	public static final String PREVIEW = "PREVIEW";
 
 	/**
     * For a given id, return its UUID (creating it if it does not already exist)
@@ -2081,4 +2096,5 @@ public interface ContentHostingService extends EntityProducer
 
 	public String expandMacros(String url);
 
+	public Optional<String> getHtmlForRef(String ref);
 }

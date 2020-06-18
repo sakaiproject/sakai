@@ -116,7 +116,7 @@ public class ImportQuestionsToAuthoringFromSearch implements ActionListener
             setRelativePathInAttachment(itemfacade.getItemAttachmentList());
             itemfacade.setSequence(null);
             itemfacade.setSection(null);
-            delegate.saveItem(itemfacade);
+            itemfacade = delegate.saveItem(itemfacade);
 
             EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/saved  itemId=" + itemfacade.getItemId().toString(), true));
 
@@ -233,7 +233,7 @@ public class ImportQuestionsToAuthoringFromSearch implements ActionListener
                 itemfacade.setSequence(insertPosIntvalue + 1);
               }
 
-              delegate.saveItem(itemfacade);
+              itemfacade = delegate.saveItem(itemfacade);
 
               EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/saved  itemId=" + itemfacade.getItemId().toString(), true));
 

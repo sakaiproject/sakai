@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Stack;
 import java.util.Set;
 
@@ -96,6 +97,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.LinkMigrationHelper;
 import org.sakaiproject.util.MergedList;
 import org.sakaiproject.util.ResourceLoader;
@@ -130,14 +132,14 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	@Setter private FunctionManager functionManager;
 	@Setter private AliasService aliasService;
 	@Setter private ToolManager toolManager;
+	@Setter private FormattedText formattedText;
 	@Resource(name="org.sakaiproject.util.api.LinkMigrationHelper")
 	private LinkMigrationHelper linkMigrationHelper;
+
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Constructors, Dependencies and their setter methods
 	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	
 
 
 	/** Dependency: NotificationService. */
@@ -182,17 +184,17 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			edit.setAction(siteEmailNotificationAnnc);
 
 			// register functions
-			functionManager.registerFunction(eventId(SECURE_READ));
-			functionManager.registerFunction(eventId(SECURE_ADD));
-			functionManager.registerFunction(eventId(SECURE_REMOVE_ANY));
-			functionManager.registerFunction(eventId(SECURE_REMOVE_OWN));
-			functionManager.registerFunction(eventId(SECURE_UPDATE_ANY));
-			functionManager.registerFunction(eventId(SECURE_UPDATE_OWN));
-			functionManager.registerFunction(eventId(SECURE_ALL_GROUPS));
+			functionManager.registerFunction(eventId(SECURE_READ), true);
+			functionManager.registerFunction(eventId(SECURE_ADD), true);
+			functionManager.registerFunction(eventId(SECURE_REMOVE_ANY), true);
+			functionManager.registerFunction(eventId(SECURE_REMOVE_OWN), true);
+			functionManager.registerFunction(eventId(SECURE_UPDATE_ANY), true);
+			functionManager.registerFunction(eventId(SECURE_UPDATE_OWN), true);
+			functionManager.registerFunction(eventId(SECURE_ALL_GROUPS), true);
 
 			// Sakai v2.4: UI end says hidden, 'under the covers' says draft
 			// Done so import from old sites causes drafts to 'become' hidden in new sites
-			functionManager.registerFunction(eventId(SECURE_READ_DRAFT));
+			functionManager.registerFunction(eventId(SECURE_READ_DRAFT), true);
 
 			// entity producer registration
 			m_entityManager.registerEntityProducer(this, REFERENCE_ROOT);
@@ -924,20 +926,20 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 							+ "<title>"
 							+ rb.getString("announcement")
 							+ ": "
-							+ Validator.escapeHtml(hdr.getSubject())
+							+ formattedText.escapeHtml(hdr.getSubject())
 							+ "</title>" + "</head>\n<body>");
 
 			out.println("<h1>" + rb.getString("announcement") + "</h1>");
 
 			// header
 			out.println("<table><tr><td><b>" + rb.getString("from_colon") + "</b></td><td>"
-					+ Validator.escapeHtml(hdr.getFrom().getDisplayName()) + "</td></tr>");
-			out.println("<tr><td><b>" + rb.getString("date_colon") + "</b></td><td>" + Validator.escapeHtml(hdr.getDate().toStringLocalFull())
+					+ formattedText.escapeHtml(hdr.getFrom().getDisplayName()) + "</td></tr>");
+			out.println("<tr><td><b>" + rb.getString("date_colon") + "</b></td><td>" + formattedText.escapeHtml(hdr.getDate().toStringLocalFull())
 					+ "</td></tr>");
-			out.println("<tr><td><b>" + rb.getString("subject_colon") + "</b></td><td>" + Validator.escapeHtml(hdr.getSubject()) + "</td></tr></table>");
+			out.println("<tr><td><b>" + rb.getString("subject_colon") + "</b></td><td>" + formattedText.escapeHtml(hdr.getSubject()) + "</td></tr></table>");
 
 			// body
-			out.println("<p>" + Validator.escapeHtmlFormattedText(msg.getBody()) + "</p>");
+			out.println("<p>" + formattedText.escapeHtmlFormattedText(msg.getBody()) + "</p>");
 
 			// attachments
 			List attachments = hdr.getAttachments();
@@ -947,8 +949,8 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 				for (Iterator iAttachments = attachments.iterator(); iAttachments.hasNext();)
 				{
 					Reference attachment = (Reference) iAttachments.next();
-					out.println("<a href=\"" + Validator.escapeHtml(attachment.getUrl()) + "\">"
-							+ Validator.escapeHtml(attachment.getUrl()) + "</a><br />");
+					out.println("<a href=\"" + formattedText.escapeHtml(attachment.getUrl()) + "\">"
+							+ formattedText.escapeHtml(attachment.getUrl()) + "</a><br />");
 				}
 				out.println("</p>");
 			}
@@ -1809,6 +1811,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 
 		} // setSubject
 
+
 		/**
 		 * Serialize the resource into XML, adding an element to the doc under the top of the stack element.
 		 * 
@@ -1944,5 +1947,32 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 
 	public void clearMessagesCache(String channelRef){
 		m_threadLocalManager.set(channelRef + ".msgs", null);
+	}
+
+	public Optional<String> getEntityUrl(Reference r, Entity.UrlType urlType) {
+
+		//Reference r = getReference(ref);
+		if (Entity.UrlType.PORTAL == urlType) {
+			if (r != null) {
+				String siteId = r.getContext();
+				Site site;
+				try {
+					site = m_siteService.getSite(siteId);
+					ToolConfiguration tc = site.getToolForCommonId("sakai.announcements");
+					if (tc != null) {
+						return Optional.of(m_serverConfigurationService.getPortalUrl() + "/directtool/" + tc.getId()
+							+ "?itemReference=" + r.getReference() + "&sakai_action=doShowmetadata");
+					} else {
+						log.error("No announcements tool in site {}", siteId);
+					}
+				} catch (IdUnusedException iue) {
+					log.error("Failed to get site site for id {}", siteId);
+				}
+			} else {
+				log.error("Failed to get reference for {}", r.getReference());
+			}
+		}
+
+		return Optional.of(super.getEntityUrl(r));
 	}
 }

@@ -14,7 +14,7 @@
 
 		## join/unjoin action info is the only value of "alertMessage", so style it as information rather than error
 		#if ($alertMessage)
-			<div class="sak-banner-info" id="messageHolder">$validator.escapeHtml($alertMessage)</div>
+			<div class="sak-banner-info" id="messageHolder">$formattedText.escapeHtml($alertMessage)</div>
 		#end
 
 		<div class="sakai-table-toolBar">
@@ -52,16 +52,16 @@
 						#foreach ($site in $openSites)
 							<tr>
 								<td headers="worksite" class="attach noWrap">
-									$validator.escapeHtml($site.Title)
+									$formattedText.escapeHtml($site.Title)
 								</td>
 								<td headers="action">
-									<a href="#toolLinkParam("$action" "doJoin" "itemReference=$validator.escapeUrl($site.Id)")"
+									<a href="#toolLinkParam("$action" "doJoin" "itemReference=$formattedText.escapeUrl($site.Id)")"
 											title="$tlang.getString('mb.joinsite') $!validator.escapeHtml($!site.Title)">
 										$tlang.getString('mb.join')
 									</a>
 								</td>
 								<td headers="description" class="specialLink">
-									#if ($validator.escapeHtml($site.Description) != '')
+									#if ($formattedText.escapeHtml($site.Description) != '')
 										$!membershipTextEdit.doPlainTextAndLimit($site.Description,65,"...")
 										<span class="itemAction"><a class="getSiteDesc" id="$site.Id" href="#">$tlang.getString("list.desc.more")</a></span>
 									#end

@@ -17,13 +17,13 @@
 	<sakai:view title="#{msgs.pvt_reply}">
 		<link rel="stylesheet" href="/messageforums-tool/css/messages.css" type="text/css" />
 		<link rel="stylesheet" href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" type="text/css" />
-		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-		<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
-		<script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
-		<script type="text/javascript">includeWebjarLibrary('select2');</script>
-
+		<script>includeLatestJQuery("msgcntr");</script>
+		<script src="/messageforums-tool/js/sak-10625.js"></script>
+		<script src="/messageforums-tool/js/messages.js"></script>
+		<script>includeWebjarLibrary('select2');</script>
+        <%@ include file="/jsp/privateMsg/pvtMenu.jsp" %>
 	<h:form id="pvtMsgReply">
-		<script type="text/javascript">
+		<script>
 				function clearSelection(selectObject)
 				{
 					for (var i=0; i<selectObject.options.length; i++)
@@ -59,6 +59,12 @@
 				  	addTagSelector(document.getElementById('pvtMsgReply:list1'));
 				  	addTagSelector(document.getElementById('pvtMsgReply:list2'));
 				  	resize();
+
+                    var menuLink = $('#messagesMainMenuLink');
+                    var menuLinkSpan = menuLink.closest('span');
+                    menuLinkSpan.addClass('current');
+                    menuLinkSpan.html(menuLink.text());
+
 				});
 		</script>
 
@@ -244,14 +250,14 @@
 					<div class="col-xs-12 col-sm-10">
 						<h:panelGroup styleClass="shorttext">
 							<h:inputText value="#{PrivateMessagesTool.replyToSubject}" id="subject" size="45" styleClass="form-control">
-								<f:validateLength minimum="1" maximum="255"/>
+								<f:validateLength maximum="255"/>
 							</h:inputText>
 						</h:panelGroup>
 					</div>
 				</div>
 		  </div>
 		  
-			<h4><h:outputText value="#{msgs.pvt_message}" /></h4>
+			<h4><h:outputText value="#{msgs.pvt_star}" styleClass="reqStar"/><h:outputText value="#{msgs.pvt_message}" /></h4>
 	        <sakai:panel_edit>
 	          <sakai:doc_section>
 			  <sakai:inputRichText textareaOnly="#{PrivateMessagesTool.mobileSession}" rows="#{ForumTool.editorRows}" cols="132" id="df_compose_body" value="#{PrivateMessagesTool.replyToBody}">	 

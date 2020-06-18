@@ -125,6 +125,7 @@ public class GbGradebookData {
 		private String categoryColor;
 		private String categoryWeight;
 		private boolean isCategoryExtraCredit;
+		private boolean isCategoryEqualWeight;
 
 		private boolean hidden;
 
@@ -166,6 +167,7 @@ public class GbGradebookData {
 		private String weight;
 		private Double totalPoints;
 		private boolean isExtraCredit;
+		private boolean isEqualWeight;
 		private String color;
 		private boolean hidden;
 		private List<String> dropInfo;
@@ -550,6 +552,7 @@ public class GbGradebookData {
 					userSettings.getCategoryColor(a1.getCategoryName()),
 					nullable(categoryWeight),
 					a1.isCategoryExtraCredit(),
+					a1.isCategoryEqualWeight(),
 
 					!this.uiSettings.isAssignmentVisible(a1.getId())));
 
@@ -565,6 +568,7 @@ public class GbGradebookData {
 						nullable(categoryWeight),
 						getCategoryPoints(a1.getCategoryId()),
 						a1.isCategoryExtraCredit(),
+						a1.isCategoryEqualWeight(),
 						userSettings.getCategoryColor(a1.getCategoryName()),
 						!this.uiSettings.isCategoryScoreVisible(a1.getCategoryName()),
 						FormatHelper.formatCategoryDropInfo(this.categories.stream()
@@ -590,6 +594,7 @@ public class GbGradebookData {
 							nullable(categoryWeight),
 							category.getTotalPoints(),
 							category.getExtraCredit(),
+							category.getEqualWeight(),
 							userSettings.getCategoryColor(category.getName()),
 							!this.uiSettings.isCategoryScoreVisible(category.getName()),
 							FormatHelper.formatCategoryDropInfo(category)));

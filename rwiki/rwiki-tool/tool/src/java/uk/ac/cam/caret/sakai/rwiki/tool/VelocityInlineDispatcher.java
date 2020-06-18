@@ -22,7 +22,6 @@
 package uk.ac.cam.caret.sakai.rwiki.tool;
 
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
 
@@ -34,16 +33,14 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.exception.MethodInvocationException;
-import org.sakaiproject.util.FormattedText;
-import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.time.cover.TimeService;
-
+import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.velocity.util.SLF4JLogChute;
+
 import uk.ac.cam.caret.sakai.rwiki.service.exception.PermissionException;
-import uk.ac.cam.caret.sakai.rwiki.service.exception.ReadPermissionException;
-import uk.ac.cam.caret.sakai.rwiki.tool.bean.ResourceLoaderBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.ViewBean;
-import uk.ac.cam.caret.sakai.rwiki.tool.bean.helper.ResourceLoaderHelperBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.command.Dispatcher;
 import uk.ac.cam.caret.sakai.rwiki.utils.UserDisplayHelper;
 
@@ -146,7 +143,7 @@ public class VelocityInlineDispatcher implements Dispatcher
 
 		public String escapeHtml(String val)
 		{
-			return FormattedText.escapeHtml(val, false);
+			return ComponentManager.get(FormattedText.class).escapeHtml(val, false);
 		}
 
 		public String formatDisplayName(String name)

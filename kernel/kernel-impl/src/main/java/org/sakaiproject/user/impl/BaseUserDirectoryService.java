@@ -1789,6 +1789,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		if (!m_separateIdEid) {
 		    id = cleanEid(id);
 		}
+		id = StringUtils.lowerCase(id);
 		id = StringUtils.trimToNull(id);
 		// max length for an id is 99 chars
         id = StringUtils.abbreviate(id, 99);
@@ -2722,8 +2723,8 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 			BaseUserEdit that = (BaseUserEdit) o;
 
-			if (m_id != null ? !m_id.equals(that.m_id) : that.m_id != null) return false;
-			if (m_eid != null ? !m_eid.equals(that.m_eid) : that.m_eid != null) return false;
+			if (m_id != null ? !m_id.equalsIgnoreCase(that.m_id) : that.m_id != null) return false;
+			if (m_eid != null ? !m_eid.equalsIgnoreCase(that.m_eid) : that.m_eid != null) return false;
 
 			return true;
 		}
@@ -2739,7 +2740,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 				// Maintains consistency with Sakai 2.4.x behavior.
 				id = "";
 			}
-			return id.hashCode();
+			return cleanId(id).hashCode();
 		}
 
 		/**

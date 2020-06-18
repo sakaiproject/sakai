@@ -21,26 +21,28 @@
 
 package org.sakaiproject.content.tool;
 
+import static org.sakaiproject.content.util.IdUtil.isolateName;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.Arrays;
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
-import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -48,7 +50,7 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -62,29 +64,29 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
-import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentEntity;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.ContentResourceFilter;
 import org.sakaiproject.content.api.ContentTypeImageService;
 import org.sakaiproject.content.api.FilePickerHelper;
+import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.api.InteractionAction;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceToolActionPipe;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ResourceTypeRegistry;
 import org.sakaiproject.content.api.ServiceLevelAction;
-import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.tool.ResourcesAction.ChefPathItem;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdLengthException;
 import org.sakaiproject.exception.IdUniquenessException;
@@ -96,7 +98,6 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.googledrive.model.GoogleDriveItem;
-import org.sakaiproject.googledrive.model.GoogleDriveItemComparator;
 import org.sakaiproject.googledrive.model.GoogleDriveUser;
 import org.sakaiproject.googledrive.service.GoogleDriveService;
 import org.sakaiproject.onedrive.model.OneDriveItem;
@@ -107,11 +108,11 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolException;
-import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.FileItem;
@@ -121,7 +122,7 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 
-import static org.sakaiproject.content.util.IdUtil.isolateName;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * The FilePickerAction drives the FilePicker helper.<br />
@@ -165,7 +166,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 	private static final String RESOURCEBUNDLE = "resource.bundle.shared";
 	private String resourceClass = ServerConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
 	private String resourceBundle = ServerConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
-	private ResourceLoader srb = new Resource().getLoader(resourceClass, resourceBundle);
+	private ResourceLoader srb = Resource.getResourceLoader(resourceClass, resourceBundle);
 	
 	/** CloudStorage **/
 	private boolean onedriveOn = ServerConfigurationService.getBoolean(OneDriveService.ONEDRIVE_ENABLED, Boolean.FALSE);
@@ -1331,7 +1332,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 		}
 		else if (fileitem.getFileName().length() > 0)
 		{
-			String filename = Validator.getFileName(fileitem.getFileName());
+			String filename = FilenameUtils.getName(fileitem.getFileName());
 			InputStream fileContentStream = fileitem.getInputStream();
 			
 			// Store contentLength as long for future-proofing, though in many cases this
@@ -1346,7 +1347,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 			else if(fileContentStream != null)
 			{
 				// we just want the file name part - strip off any drive and path stuff
-				String name = Validator.getFileName(filename);
+				String name = FilenameUtils.getName(filename);
 				String resourceId = Validator.escapeResourceName(name);
 
 				ContentHostingService contentService = (ContentHostingService) toolSession.getAttribute (STATE_CONTENT_SERVICE);
@@ -1992,7 +1993,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 				InputStream contentStream = resource.streamContent();
 				String contentType = resource.getContentType();
-				String filename = Validator.getFileName(itemId);
+				String filename = FilenameUtils.getName(itemId);
 				String resourceId = Validator.escapeResourceName(filename);
 
 				String siteId = toolManager.getCurrentPlacement().getContext();

@@ -132,16 +132,18 @@ public class GradeUpdateAction extends InjectableAction implements Serializable 
 		target.addChildren(page, FeedbackPanel.class);
 
 		final String rawOldGrade = params.get("oldScore").textValue();
-		final String rawNewGrade = params.get("newScore").textValue();
-		final String oldGrade = FormatHelper.formatGradeFromUserLocale(rawOldGrade);
-		final String newGrade = FormatHelper.formatGradeFromUserLocale(rawNewGrade);
+		// Adding a zero to allow to score a decimal value less than 1 without adding a zero before
+		final String rawNewGrade = "0" + params.get("newScore").textValue();
 
-		if (StringUtils.isNotBlank(newGrade)
-				&& (!NumberUtil.isValidLocaleDouble(newGrade) || FormatHelper.validateDouble(newGrade) < 0)) {
+		if (StringUtils.isNotBlank(rawNewGrade)
+				&& (!NumberUtil.isValidLocaleDouble(rawNewGrade) || FormatHelper.validateDouble(rawNewGrade) < 0)) {
 			target.add(page.updateLiveGradingMessage(page.getString("feedback.error")));
 
 			return new ArgumentErrorResponse("Grade not valid");
 		}
+
+		final String oldGrade = FormatHelper.formatGradeFromUserLocale(rawOldGrade);
+		final String newGrade = FormatHelper.formatGradeFromUserLocale(rawNewGrade);
 
 		final String assignmentId = params.get("assignmentId").asText();
 		final String studentUuid = params.get("studentId").asText();

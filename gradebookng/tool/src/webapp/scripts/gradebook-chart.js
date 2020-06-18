@@ -12,6 +12,18 @@
  * @returns
  */
 
+var GbChart = {};
+
+$(document).ready(function() {
+	// need TrimPath to load before parsing templates
+	GbChart.templates = {
+		chartStudentsGradeMessage: TrimPath.parseTemplate(
+			$("#chartStudentsGradeMessage").html().trim().toString()),
+		chartYourGradeMessage: TrimPath.parseTemplate(
+			$("#chartYourGradeMessage").html().trim().toString()),
+	};
+});
+
 var myChart;
 
 function renderChart(gbChartData) {
@@ -70,12 +82,13 @@ function renderChart(gbChartData) {
 				displayColors: false,
 				callbacks: {
 					title: function(tooltipItem, data) {
+						var chartMessage = GbChart.templates['chartStudentsGradeMessage'].process();
 						switch(chartType) {
 						case 'bar':
-							return tooltipItem[0].yLabel + ' student(s): ' + tooltipItem[0].xLabel;
+							return chartMessage.replace('{0}', tooltipItem[0].yLabel).replace('{1}', tooltipItem[0].xLabel);
 							break;
 						case 'horizontalBar':
-							return tooltipItem[0].xLabel + ' student(s): ' + tooltipItem[0].yLabel;
+							return chartMessage.replace('{0}', tooltipItem[0].xLabel).replace('{1}', tooltipItem[0].yLabel);
 						}
 
 					},
@@ -85,12 +98,12 @@ function renderChart(gbChartData) {
 							switch(chartType) {
 							case 'bar':
 								if (window.studentGradeRange != null && window.studentGradeRange == tooltipItem[0].xLabel) {
-									return 'Your grade';
+									return GbChart.templates['chartYourGradeMessage'].process();
 								}
 								break;
 							case 'horizontalBar':
 								if (window.studentGradeRange != null && window.studentGradeRange == tooltipItem[0].yLabel) {
-									return 'Your grade';
+									return GbChart.templates['chartYourGradeMessage'].process();
 								}
 							}
 						}

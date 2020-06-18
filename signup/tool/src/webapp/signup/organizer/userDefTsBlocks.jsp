@@ -8,17 +8,17 @@
 	   <jsp:setProperty name="msgs" property="baseName" value="messages"/>
 	</jsp:useBean>
 	<sakai:view_container title="Signup Tool">
-			<style type="text/css">
-				@import url("/sakai-signup-tool/css/signupStyle.css");
-			</style>
-<h:outputText value="#{Portal.latestJQuery}" escape="false"/>
-			<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
-			<script TYPE="text/javascript" LANGUAGE="JavaScript" src="/sakai-signup-tool/js/signupScript.js"></script>			
-			
-		<script TYPE="text/javascript" LANGUAGE="JavaScript">
+		<style type="text/css">
+			@import url("/sakai-signup-tool/css/signupStyle.css");
+		</style>
+		<h:outputText value="#{Portal.latestJQuery}" escape="false"/>
+		<script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+		<script src="/sakai-signup-tool/js/signupScript.js"></script>
+
+		<script>
 			var prefix="meeting_userDefinedTS_";
-			
-			function initLocalDatePicker(pos){
+
+			function initLocalDatePicker(pos) {
 					localDatePicker({
 						input: '#meeting\\:userDefinedTS\\:'+pos+'\\:startTime',
 						useTime: 1,
@@ -51,8 +51,8 @@
 								ampm: prefix + pos + "_endTime_ampm"}
 					});
 			}
-				
-			function setCustomEndtimeMonthDateYear(pos){
+
+			function setCustomEndtimeMonthDateYear(pos) {
 				var yearTag = document.getElementById(prefix + pos + "_startTime_year");
 				if(!yearTag)
 					return;
@@ -78,42 +78,30 @@
 			function delayedRecalcDate(){
 				if (!wait){
 						wait = true;
-						for(i=0; i<30; i++){//control 30 ts
-						 setCustomEndtimeMonthDateYear(i);
-						}
-					  	setTimeout("wait=false;", 1500);//1.5 sec
-					}			
+						jQuery('.timeSlot').each( function(index, data) {
+							var inputId = this.id;
+							if (inputId !== '' && inputId.endsWith('startTime')) {
+								// Get the input position
+								var inputPosition = inputId.replace('meeting:userDefinedTS:', '').replace(':startTime', '');
+								setCustomEndtimeMonthDateYear(inputPosition);
+							}
+							setTimeout("wait=false;", 1500);//1.5 sec
+						});
+					}
 			}
-			
-			//JSF issue for onclick, this goes around 
-			function confirmTsCancel(link,msg){
-				if (link.onclick == confirmDelete) {
-				    return;
-				  }
-				                
-				  deleteClick = link.onclick;
-				  deleteMsg = msg;
-				  link.onclick = confirmDelete;
-			}
-			function confirmDelete() {
-				  var ans = confirm(deleteMsg);
-				  if (ans) {
-				    return deleteClick();
-				  } else {
-				    return false;
-				  }
-			}	
-				
-		</script>
-		<script type="text/javascript">			
+
 			jQuery(document).ready(function(){
+				jQuery('.timeSlot').each( function(index, data) {
+					var inputId = this.id;
+					if (inputId !== '' && inputId.endsWith('startTime')) {
+						// Get the input position
+						var inputPosition = inputId.replace('meeting:userDefinedTS:', '').replace(':startTime', '');
+						initLocalDatePicker(inputPosition);
+					}
+				});
 				var MIN_ATTENDEES = 1;
 				var MAX_ATTENDEES = 500;
-			    
-				for(i = 0 ; i < 30 ; i++){
-					initLocalDatePicker(i);
-				}
-				
+
 				/**
 				* check input is only numeric
 				*/
@@ -160,14 +148,19 @@
 					}
 					
 				});
-        	});									
+
+                var menuLink = $('#signupAddMeetingMenuLink');
+                menuLink.addClass('current');
+                menuLink.html(menuLink.find('a').text());
+
+        	});
     	</script>
 				
 		<sakai:view_content>
-			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>
 			<script src="/library/js/spinner.js"></script>
-				
 			<h:form id="meeting">
+				<%@ include file="/signup/menu/signupMenu.jsp" %>
+				<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>
 				<div class="page-header">
 					<sakai:view_title value="#{msgs.event_view_userDefined_Timeslot_page_title}"/>
 				</div>
@@ -187,7 +180,7 @@
 											<h:graphicImage value="/images/new.png" alt="New time slot" title="#{msgs.title_tip_delete_this_ts}"  styleClass="openCloseImageIcon" rendered="#{tsWrapper.newTimeslotBlock && UserDefineTimeslotBean.placeOrderBean != UserDefineTimeslotBean.newMeetingBeanOrderName}"/>
 							        		<h:graphicImage value="/images/ts_delete.png" alt="delete slot" title="#{msgs.title_tip_delete_this_ts}" style="border:none;cursor:pointer;" styleClass="openCloseImageIcon"/>
 							        	</h:commandLink>
-							        	<h:commandLink action="#{UserDefineTimeslotBean.deleteTSblock}" rendered="#{!tsWrapper.newlyAddedTS && UserDefineTimeslotBean.placeOrderBean != UserDefineTimeslotBean.copyBeanOrderName }" actionListener="#{UserDefineTimeslotBean.validateTimeslots}" onmousedown="confirmTsCancel(this,'#{msgs.confirm_cancel}');">
+							        	<h:commandLink action="#{UserDefineTimeslotBean.deleteTSblock}" rendered="#{!tsWrapper.newlyAddedTS && UserDefineTimeslotBean.placeOrderBean != UserDefineTimeslotBean.copyBeanOrderName }" actionListener="#{UserDefineTimeslotBean.validateTimeslots}" onclick="return confirm('#{msgs.confirm_cancel}');">
 							        		<h:graphicImage value="/images/ts_delete.png" alt="delete slot" title="#{msgs.title_tip_delete_this_ts}" style="border:none;cursor:pointer;" styleClass="openCloseImageIcon" />
 							        	</h:commandLink>
 								</t:column>
@@ -197,8 +190,8 @@
 									</f:facet>
 						    		<h:panelGrid columns="1">
 							    		<h:panelGroup styleClass="titleText">
-											<h:inputText id="startTime" value="#{tsWrapper.timeSlot.startTimeString}"/>
-											<h:inputHidden id="hiddenStartTime" value="#{tsWrapper.timeSlot.startTime}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:inputHidden>
+											<h:inputText styleClass="timeSlot" id="startTime" value="#{tsWrapper.timeSlot.startTimeString}"/>
+											<h:inputHidden id="hiddenStartTime" value="#{tsWrapper.timeSlot.startTime}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" timeZone="#{UserTimeZone.userTimeZone}" /></h:inputHidden>
 										</h:panelGroup>
 										<h:message for="startTime" errorClass="alertMessageInline"/>
 									</h:panelGrid>
@@ -210,7 +203,7 @@
 									<h:panelGrid columns="1">
 										<h:panelGroup styleClass="titleText">
 											<h:inputText id="endTime" value="#{tsWrapper.timeSlot.endTimeString}"/>
-											<h:inputHidden id="hiddenEndTime" value="#{tsWrapper.timeSlot.endTime}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:inputHidden>
+											<h:inputHidden id="hiddenEndTime" value="#{tsWrapper.timeSlot.endTime}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" timeZone="#{UserTimeZone.userTimeZone}" /></h:inputHidden>
 										</h:panelGroup>
 										<h:message for="endTime" errorClass="alertMessageInline"/>
 									</h:panelGrid>

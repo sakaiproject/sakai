@@ -43,6 +43,7 @@ import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityPermissionException;
 import org.sakaiproject.entity.api.Reference;
@@ -75,7 +76,7 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.MergedList;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * Allows some basic functions on announcements.
@@ -323,10 +324,11 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 	*/
 	private List<DecoratedAttachment> decorateAttachments(List<Reference> attachments) {
 	      List<DecoratedAttachment> decoAttachments = new ArrayList<DecoratedAttachment>();
+	      FormattedText FormattedText = ComponentManager.get(FormattedText.class);
 	      for(Reference attachment : attachments){
 	         DecoratedAttachment da = new DecoratedAttachment();
-	         da.setId(Validator.escapeHtml(attachment.getId()));
-	         da.setName(Validator.escapeHtml(attachment.getProperties().getPropertyFormatted(attachment.getProperties().getNamePropDisplayName())));
+	         da.setId(FormattedText.escapeHtml(attachment.getId()));
+	         da.setName(FormattedText.escapeHtml(attachment.getProperties().getPropertyFormatted(attachment.getProperties().getNamePropDisplayName())));
 	         da.setType(attachment.getProperties().getProperty(attachment.getProperties().getNamePropContentType()));
 	         
 	         da.setUrl(attachment.getUrl());

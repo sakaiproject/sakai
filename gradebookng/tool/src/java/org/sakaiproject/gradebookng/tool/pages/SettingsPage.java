@@ -139,9 +139,6 @@ public class SettingsPage extends BasePage {
 						if (catWeight == null) {
 							error(getString("settingspage.update.failure.categorymissingweight"));
 						}
-						else if (catWeight.compareTo(BigDecimal.ZERO) == 0) {
-							error(getString("settingspage.update.failure.categoryweightzero"));
-						}
 						else if (catWeight.signum() == -1) {
 							totalWeight = totalWeight.add(BigDecimal.valueOf(cat.getWeight()));
 							error(getString("settingspage.update.failure.categoryweightnegative"));
