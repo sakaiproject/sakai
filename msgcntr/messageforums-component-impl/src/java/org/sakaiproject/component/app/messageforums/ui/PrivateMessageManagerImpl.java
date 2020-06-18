@@ -2186,10 +2186,7 @@ return topicTypeUuid;
 
   private boolean errMaxMessageRespond(PrivateMessage rrepMsg) {
 	  int max = ServerConfigurationService.getInt("msgcntr.no.reply.max.respond", 5);
-	  if (getNumMessageRespond(rrepMsg.getCreatedBy(), rrepMsg.getInReplyTo().getId()) > max) {
-		  return true;
-	  }
-	  return false;
+	  return getNumMessageRespond(rrepMsg.getCreatedBy(), rrepMsg.getInReplyTo().getId()) > max;
   }
   
   private int getNumMessageRespond(final String userId, final Long messageId) {
