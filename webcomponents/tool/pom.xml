@@ -91,6 +91,8 @@
                             <excludes>
                                 <exclude>js/**</exclude>
                                 <exclude>conf/**</exclude>
+                                <exclude>stories/**</exclude>
+                                <exclude>.storybook/**</exclude>
                             </excludes>
                             <followSymlinks>false</followSymlinks>
                         </fileset>
@@ -113,6 +115,14 @@
                     <webResources>
                         <resource>
                             <directory>src/main/frontend</directory>
+                            <excludes>
+                                <exclude>conf/**</exclude>
+                                <exclude>js/**</exclude>
+                                <exclude>node_modules/**</exclude>
+                                <exclude>stories/**</exclude>
+                                <exclude>.storybook/**</exclude>
+                                <exclude>package*.json</exclude>
+                            </excludes>
                         </resource>
                     </webResources>
                 </configuration>

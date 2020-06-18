@@ -6,7 +6,7 @@
 // http://docs.cksource.com/ckeditor_api/symbols/CKEDITOR.plugins.html
 var ContentItemIFrameWindow = null;
 CKEDITOR.plugins.add( 'contentitem',
-{ requires : [ 'iframedialog' ], lang: ['en'],
+{ requires : [ 'iframedialog' ], lang: ['en', 'es'],
     // The plugin initialization logic goes inside this method.
     // http://docs.cksource.com/ckeditor_api/symbols/CKEDITOR.pluginDefinition.html#init
     init: function( editor )
@@ -16,7 +16,7 @@ CKEDITOR.plugins.add( 'contentitem',
         var height = 480, width = 750;
         CKEDITOR.dialog.addIframe(
                'ContentItemDialog',
-               'Select Content Item',
+               editor.lang.contentitem.title,
                sakai.editor.contentItemUrl, width, height,
                function()
                {
@@ -105,10 +105,16 @@ CKEDITOR.plugins.add( 'contentitem',
                                     }
                                     console.log(iframeString);
 			                        editor.insertHtml(iframeString, 'unfiltered_html');
+                                } else if ( item['@type'] == 'ContentItem' && item['mediaType'].startsWith('image/') && item.placementAdvice.displayWidth && item.placementAdvice.displayWidth > 10 ) {
+                                   editor.insertHtml( '<img src="' + CKEDITOR.tools.htmlEncode(item.url) + '" class="lti-image" width="' + CKEDITOR.tools.htmlEncode(item.placementAdvice.displayWidth) + '" alt="' + CKEDITOR.tools.htmlEncode(item.title)  + '" /><br/>' );
+                                } else if ( item['@type'] == 'ContentItem' && item['mediaType'].startsWith('image/') && item.placementAdvice.displayHeight && item.placementAdvice.displayHeight > 10 ) {
+                                   editor.insertHtml( '<img src="' + CKEDITOR.tools.htmlEncode(item.url) + '" class="lti-image" height="' + CKEDITOR.tools.htmlEncode(item.placementAdvice.displayHeight) + '" alt="' + CKEDITOR.tools.htmlEncode(item.title)  + '" /><br/>' );
+                                } else if ( item['@type'] == 'ContentItem' && item['mediaType'].startsWith('image/') ) {
+                                   editor.insertHtml( '<img src="' + CKEDITOR.tools.htmlEncode(item.url) + '" class="lti-image" alt="' + CKEDITOR.tools.htmlEncode(item.title)  + '" /><br/>' );
                                 } else if ( item['@type'] == 'ContentItem') {
-				    editor.insertHtml( '<a href="' + CKEDITOR.tools.htmlEncode(item.url) + '" target="_blank" class="lti-contentitem">'+CKEDITOR.tools.htmlEncode(item.title)+'</a><br/>' );
+                                    editor.insertHtml( '<a href="' + CKEDITOR.tools.htmlEncode(item.url) + '" target="_blank" class="lti-contentitem">'+CKEDITOR.tools.htmlEncode(item.title)+'</a><br/>' );
                                 } else if ( item['@type'] == 'FileItem' && item['mediaType'].startsWith('image/') ) {
-				    editor.insertHtml( '<img src="' + CKEDITOR.tools.htmlEncode(item.url) + '" target="_blank" class="lti-image"><br/>' );
+                                   editor.insertHtml( '<img src="' + CKEDITOR.tools.htmlEncode(item.url) + '" class="lti-image" alt="' + CKEDITOR.tools.htmlEncode(item.title)  + '" /><br/>' );
                                 } else {
                                     console.log('Not handled: '+item['@type']);
                                 }
@@ -126,7 +132,7 @@ CKEDITOR.plugins.add( 'contentitem',
 	editor.ui.addButton( 'ContentItem',
         {
             // Toolbar button tooltip.
-            label: 'Insert ContentItem',
+            label: editor.lang.contentitem.tooltip,
             // Reference to the plugin command name.
             command: 'ContentItemDialog',
             // Button's icon file path.

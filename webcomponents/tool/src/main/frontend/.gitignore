@@ -1,3 +1,6 @@
 **/*.js
 !js/**/*.js
+!src/**/*.js
 !conf/*.js
+!stories/*.js
+!.storybook/*.js

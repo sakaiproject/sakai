@@ -431,14 +431,16 @@
 
 	<!--  The "Global" JPA Entity Manager Factory -->
 	<bean id="entityManagerFactory"
-		  class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		  class="org.sakaiproject.ignite.IgniteEntityManagerFactoryBean">
+		<property name="ignite" ref="org.sakaiproject.ignite.SakaiIgniteConfiguration" />
 		<property name="jpaVendorAdapter">
-			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"/>
+			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
 		</property>
 		<property name="jpaDialect">
-			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaDialect"/>
+			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaDialect" />
 		</property>
-		<property name="persistenceUnitManager" ref="org.sakaiproject.springframework.orm.hibernate.SakaiPersistenceUnitManager"/>
+		<property name="persistenceUnitManager" ref="org.sakaiproject.springframework.orm.hibernate.SakaiPersistenceUnitManager" />
+
 		<property name="jpaProperties">
 			<props>
 				<prop key="hibernate.dialect">${hibernate.dialect}</prop>
@@ -446,11 +448,12 @@
 				<prop key="hibernate.query.substitutions">true 1, false 0, yes 'Y', no 'N'</prop>
 				<prop key="hibernate.jdbc.use_streams_for_binary">true</prop>
 				<prop key="hibernate.cache.use_query_cache">true</prop>
-				<prop key="hibernate.cache.region.factory_class">org.hibernate.cache.SingletonEhCacheRegionFactory</prop>
+				<prop key="hibernate.use_second_level_cache">true</prop>
+				<prop key="hibernate.cache.region.factory_class">org.apache.ignite.cache.hibernate.HibernateRegionFactory</prop>
 				<prop key="hibernate.generate_statistics">true</prop>
 				<prop key="hibernate.enable_lazy_load_no_trans">true</prop>
-				<prop key="net.sf.ehcache.configurationResourceName">/org/sakaiproject/memory/api/ehcache.xml</prop>
 				<prop key="hibernate.current_session_context_class">org.springframework.orm.hibernate4.SpringSessionContext</prop>
+				<prop key="org.apache.ignite.hibernate.default_access_type">READ_ONLY</prop>
 			</props>
 		</property>
 	</bean>
@@ -494,5 +497,4 @@
 		</property>
 	</bean>
 
-	<!-- hibernate cache config in kernel/api/src/main/java/org/sakaiproject/memory/api/ehcache.xml -->
 </beans>

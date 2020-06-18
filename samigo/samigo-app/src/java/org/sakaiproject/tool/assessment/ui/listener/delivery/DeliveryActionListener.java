@@ -1826,11 +1826,9 @@ public class DeliveryActionListener
       iter2 = shuffled.iterator();
 
       int i = 0;
-      ResourceLoader rb = null;
-      if (rb == null) { 	 
-  		rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
-  	  }
-      choices.add(new SelectItem("0", rb.getString("matching_select"), "")); // default value for choice
+      ResourceLoader d_rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
+      ResourceLoader a_rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
+      choices.add(new SelectItem("0", d_rb.getString("matching_select"), "")); // default value for choice
       while (iter2.hasNext())
       {
         AnswerIfc answer = (AnswerIfc) iter2.next();
@@ -1844,7 +1842,7 @@ public class DeliveryActionListener
       GradingService gs = new GradingService();
       if (gs.hasDistractors(item)) {
         String noneOfTheAboveOption = Character.toString(alphabet.charAt(i++));
-        newAnswers.add(noneOfTheAboveOption + "." + " None of the Above");
+        newAnswers.add(noneOfTheAboveOption + ". " + a_rb.getString("none_above"));
         choices.add(new SelectItem(NONE_OF_THE_ABOVE.toString(), noneOfTheAboveOption, ""));
       }
 
