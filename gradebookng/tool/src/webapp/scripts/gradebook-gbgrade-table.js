@@ -660,8 +660,8 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     editor: false,
     width: GbGradeTable.settings.showPoints ? 220 : 140,
     sortCompare: function(a, b) {
-        var a_points = parseFloat(a[1]);
-        var b_points = parseFloat(b[1]);
+        const a_points = parseFloat(a[1]);
+        const b_points = parseFloat(b[1]);
         const aIsNaN = isNaN(a_points);
         const bIsNaN = isNaN(b_points);
 
