@@ -149,7 +149,7 @@ public abstract class UserAuthnComponent implements AuthenticationManager
 				String disabled = user.getProperties().getProperty("disabled");
 				if (disabled != null && "true".equals(disabled))
 				{
-					throw new AuthenticationException("Account Disabled: The users authentication has been disabled");
+					throw new AuthenticationException("Account Disabled: The user's authentication has been disabled");
 				}
 				Authentication rv = new org.sakaiproject.util.Authentication(user.getId(), user.getEid());
 				return rv;
