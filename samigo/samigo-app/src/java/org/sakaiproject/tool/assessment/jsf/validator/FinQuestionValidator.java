@@ -79,7 +79,7 @@ public class FinQuestionValidator implements Validator {
 		        BigDecimal rango1 = new BigDecimal(number1);
 		        BigDecimal rango2 = new BigDecimal(number2);
 		        if (rango1.compareTo(rango2) != -1) {
-		        	String error=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.DeliveryMessages", "fin_invalid_characters_error");
+		        	String error= (String) ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.DeliveryMessages", "fin_first_greater_than_second_error");
 		        	throw new ValidatorException(new FacesMessage(error));
 		        }
 		    }
