@@ -30,6 +30,6 @@ public interface Login {
 	
 	public static final String EXCEPTION_INVALID = "invalid";
 	
-	public static final String EXCEPTION_DISABLED = "disabled";
+	public static final String EXCEPTION_DISABLED = "Account Disabled: The user's authentication has been disabled";
 	
 }
