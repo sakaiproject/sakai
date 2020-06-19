@@ -660,20 +660,20 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     editor: false,
     width: GbGradeTable.settings.showPoints ? 220 : 140,
     sortCompare: function(a, b) {
-        const a_points = parseFloat(a[1]);
-        const b_points = parseFloat(b[1]);
-        const aIsNaN = isNaN(a_points);
-        const bIsNaN = isNaN(b_points);
+        const a_percent = parseFloat(a[1]);
+        const b_percent = parseFloat(b[1]);
+        const aIsNaN = isNaN(a_percent);
+        const bIsNaN = isNaN(b_percent);
 
         // treat NaN as less than real numbers
-        if (a_points > b_points || (!aIsNaN && bIsNaN)) {
+        if (a_percent > b_percent || (!aIsNaN && bIsNaN)) {
             return 1;
         }
-        if (a_points < b_points || (aIsNaN && !bIsNaN)) {
+        if (a_percent < b_percent || (aIsNaN && !bIsNaN)) {
             return -1;
         }
         return 0;
-    },
+    }
   });
 
   if (GbGradeTable.settings.isStudentNumberVisible) {
