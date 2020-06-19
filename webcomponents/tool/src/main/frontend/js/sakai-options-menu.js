@@ -31,7 +31,6 @@ export class SakaiOptionsMenu extends LitElement {
     };
   }
 
-
   constructor() {
 
     super();
@@ -39,6 +38,16 @@ export class SakaiOptionsMenu extends LitElement {
     this.invokerSize = "small";
     this.invokerTooltip = "Open Menu";
   }
+
+  set placement(value) {
+
+    this._placement = value;
+    if (this.popper) {
+      this.popper.setOptions({ placement: value });
+    }
+  }
+
+  get placement() { return this._placement; }
 
   firstUpdated(changed) {
 
@@ -48,7 +57,7 @@ export class SakaiOptionsMenu extends LitElement {
     this.invoker = this.shadowRoot.querySelector("#invoker");
     this.invoker.addEventListener("keydown", (e) => this._handleEscape(e));
 
-    createPopper(this.invoker, this.content,
+    this.popper = createPopper(this.invoker, this.content,
       {
         placement: this.placement,
         modifiers: [
@@ -80,7 +89,7 @@ export class SakaiOptionsMenu extends LitElement {
   render() {
 
     return html`
-      <a id="invoker" href="javascript:;" @click=${this._toggle} title="${this.invokerTooltip}"><sakai-icon type="menu" size="${this.invokerSize}" /></a>
+      <a id="invoker" href="javascript:;" @click=${this._toggle} aria-haspopup="true" title="${this.invokerTooltip}"><sakai-icon type="menu" size="${this.invokerSize}" /></a>
       <slot name="content"></slot>
     `;
   }

@@ -11,7 +11,11 @@ export class SakaiCourseCard extends LitElement {
       :host {
         display: block;
         width: var(--sakai-course-card-width, 402px);
-        font-family: var(--sakai-course-card-font-family, roboto, arial, sans-serif);
+        font-family: var(--sakai-font-family, roboto, arial, sans-serif);
+      }
+
+      a {
+        text-decoration: none;
       }
       .info-block {
         height: var(--sakai-course-card-info-height, 90px);
@@ -130,6 +134,7 @@ export class SakaiCourseCard extends LitElement {
       title: "Course Title",
       code: "Course Code",
       favourite: false,
+      url: "http://www.ebay.co.uk",
       alerts: [],
     };
 
@@ -157,8 +162,10 @@ export class SakaiCourseCard extends LitElement {
 
   set courseData(value) {
 
+    const oldValue = this._courseData;
     this._courseData = value;
     this._courseData.alerts = this._courseData.alerts || [];
+    this.requestUpdate("courseData", oldValue);
   }
 
   get courseData() {
@@ -200,6 +207,7 @@ export class SakaiCourseCard extends LitElement {
       if (r.ok) {
         this._courseData.favourite = e.target.checked;
         this.requestUpdate();
+        this.dispatchEvent(new CustomEvent(e.target.checked ? "favourited" : "unfavourited", { detail: { id: this._courseData.id }, bubbles: true }));
       } else {
         throw new Error(`Failed to add/remove site with id ${this._courseData.id}`);
       }
@@ -217,13 +225,15 @@ export class SakaiCourseCard extends LitElement {
     return html`
       <div class="info-block" style="background-image: ${this._courseData.image ? `url(${this._courseData.image})` : ""}">
         <div class="top-bar">
-          <div class="title-block">
-            ${this._courseData.favourite ? html`<sakai-icon class="favourite" type="favourite" size="small"></sakai-icon>` : ""}
-            <span>${this.courseData.title}</span>
-          </div>
-          <sakai-options-menu title="${this.i18n["options_menu_tooltip"]}">
+          <a href="${this._courseData.url}" title="${this.i18n["visit"]} ${this._courseData.title}">
+            <div class="title-block">
+              ${this._courseData.favourite ? html`<sakai-icon class="favourite" type="favourite" size="small"></sakai-icon>` : ""}
+              <span>${this.courseData.title}</span>
+            </div>
+          </a>
+          <sakai-options-menu invoker-tooltip="${this.i18n["options_menu_tooltip"]}">
             <div slot="content" id="course-options">
-              <div id="favourite-block"><label><input type="checkbox" @click=${this._toggleFavourite} />${this.i18n["favourite_this_course"]}</label></div>
+              <div id="favourite-block"><label><input type="checkbox" @click=${this._toggleFavourite} .checked=${this._courseData.favourite}>${this.i18n["favourite_this_course"]}</label></div>
               <div id="tools-block">
                 <div id="tools-title">${this.i18n["select_tools_to_display"]}</div>
                 <div id="tools">
@@ -235,11 +245,15 @@ export class SakaiCourseCard extends LitElement {
             </div>
           </sakai-options-menu>
         </div>
-        <div class="code-block">${this._courseData.code}</div>
+        <a href="${this._courseData.url}" title="${this.i18n["visit"]} ${this._courseData.title}">
+          <div class="code-block">${this._courseData.code}</div>
+        </a>
       </div>
-      <div class="tool-alerts-block">
-        ${this._tools.map(t => html`<div><a href="${this._toolUrls[t]}" title="${this.i18n[t + "_tooltip"]}"><sakai-icon type="${t}" size="small" class="alert" ?has-alerts=${this._courseData.alerts.includes(t)}></a></div>`)}
-      </div>
+      <a href="${this._courseData.url}" title="${this.i18n["visit"]} ${this._courseData.title}">
+        <div class="tool-alerts-block">
+          ${this._tools.map(t => html`<div><a href="${this._toolUrls[t]}" title="${this.i18n[t + "_tooltip"]}"><sakai-icon type="${t}" size="small" class="alert" ?has-alerts=${this._courseData.alerts.includes(t)}></a></div>`)}
+        </div>
+      </a>
     `;
   }
 }
