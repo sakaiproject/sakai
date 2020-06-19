@@ -29,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.gradebookng.business.GradeSaveResponse;
 import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
@@ -39,6 +40,7 @@ import org.sakaiproject.service.gradebook.shared.CategoryScoreData;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.util.NumberUtil;
+import org.sakaiproject.util.api.FormattedText;
 
 public class GradeUpdateAction extends InjectableAction implements Serializable {
 
@@ -132,8 +134,11 @@ public class GradeUpdateAction extends InjectableAction implements Serializable 
 		target.addChildren(page, FeedbackPanel.class);
 
 		final String rawOldGrade = params.get("oldScore").textValue();
-		// Adding a zero to allow to score a decimal value less than 1 without adding a zero before
-		final String rawNewGrade = "0" + params.get("newScore").textValue();
+		String rawNewGrade = StringUtils.trimToEmpty(params.get("newScore").textValue());
+		final String decimal = ComponentManager.get(FormattedText.class).getDecimalSeparator();
+		if (rawNewGrade.startsWith(decimal)) {
+			rawNewGrade = "0" + rawNewGrade;  // prepend a 0 so this passes validation (ie. ".1 " becomes "0.1")
+		}
 
 		if (StringUtils.isNotBlank(rawNewGrade)
 				&& (!NumberUtil.isValidLocaleDouble(rawNewGrade) || FormatHelper.validateDouble(rawNewGrade) < 0)) {
