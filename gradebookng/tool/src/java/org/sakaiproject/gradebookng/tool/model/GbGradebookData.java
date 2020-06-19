@@ -420,41 +420,39 @@ public class GbGradebookData {
 			}
 		});
 
-		for (final GbStudentGradeInfo studentGradeInfo : GbGradebookData.this.studentGradeInfoList) {
-			// String[0] = A+ (95%) [133/140] -- display string
-			// String[1] = 95 -- raw percentage for sorting
-			// String[2] = 1 -- '1' if an override, '0' if calculated
-			final String[] gradeData = new String[3];
-
-			final GbCourseGrade gbCourseGrade = studentGradeInfo.getCourseGrade();
-			final CourseGrade courseGrade = gbCourseGrade.getCourseGrade();
-
-			gradeData[0] = gbCourseGrade.getDisplayString();
-
-			if (StringUtils.isNotBlank(courseGrade.getEnteredGrade())) {
-				gradeData[2] = "1";
-			} else {
-				gradeData[2] = "0";
-			}
-
-			if (StringUtils.isNotBlank(courseGrade.getEnteredGrade())) {
-				Double mappedGrade = this.courseGradeMap.get(courseGrade.getEnteredGrade());
-				if (mappedGrade == null) {
-					mappedGrade = new Double(0);
-				}
-				gradeData[1] = FormatHelper.formatGradeForDisplay(mappedGrade);
-			} else {
-				if (courseGrade.getPointsEarned() == null) {
-					gradeData[1] = "0";
-				} else {
-					gradeData[1] = FormatHelper.formatGradeForDisplay(courseGrade.getCalculatedGrade());
-				}
-			}
-
-			result.add(gradeData);
+		for (final GbStudentGradeInfo studentGradeInfo : studentGradeInfoList) {
+			result.add(getCourseGradeData(studentGradeInfo.getCourseGrade(), courseGradeMap));
 		}
 
 		return result;
+	}
+
+	/**
+	 * Returns the following data about the course grade, needed by the client-side grades table:
+	 * String[0] = A+ (95%) [133/140] -- display string
+	 * String[1] = 95 -- raw percentage for sorting
+	 * String[2] = 1 -- '1' if an override, '0' if calculated
+	 * @param gbCourseGrade the course grade, with an appropriate display string already set
+	 * @param courseGradeMap grading scale map in use
+	 * @return course grade information
+	 */
+	public static String[] getCourseGradeData(GbCourseGrade gbCourseGrade, Map<String, Double> courseGradeMap) {
+		final String[] gradeData = new String[3];
+		gradeData[0] = gbCourseGrade.getDisplayString();
+		gradeData[2] = "0";
+
+		final CourseGrade courseGrade = gbCourseGrade.getCourseGrade();
+		if (courseGrade == null) {
+			gradeData[1] = "";
+		} else if (StringUtils.isNotBlank(courseGrade.getEnteredGrade())) {
+			Double mappedGrade = courseGradeMap.get(courseGrade.getEnteredGrade());
+			gradeData[1] = FormatHelper.formatGradeForDisplay(mappedGrade);
+			gradeData[2] = "1";
+		} else {
+			gradeData[1] = FormatHelper.formatGradeForDisplay(courseGrade.getCalculatedGrade());
+		}
+
+		return gradeData;
 	}
 
 	private List<Score> gradeList() {
