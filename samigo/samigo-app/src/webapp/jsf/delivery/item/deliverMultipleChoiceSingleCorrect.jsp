@@ -90,29 +90,14 @@ should be included in file importing DeliveryMessages
 
   </h:panelGroup>
   <script>
-    $('div.mcscFixUp').each(function(index1,elBlockToFix) {
+      var elBlockToFix = $($('script')[$('script').length - 1].parentElement).find('div.mcscFixUp')[0];
       $(elBlockToFix).find('div.mcscFixUpSource td').each(function(index,elLabelAndInputToMove) {
         var contentsToMove = $(elLabelAndInputToMove).contents();
         if (typeof contentsToMove !== 'undefined') {
           $(elBlockToFix).find('div.mcscFixUpTarget:first').replaceWith(contentsToMove);
         }
       });
-      $(elBlockToFix).find('li.samigo-question-answer label').each(function(index2, answerLabel) {
-        var properImage = $(answerLabel).parent('li').find(':span')[0];
-        if (typeof properImage !== 'undefined') {
-          answerLabel.append(properImage);
-        }
-        var properRadio = $(answerLabel).parent('li').find(':radio')[0];
-        if (typeof properRadio !== 'undefined') {
-          answerLabel.append(properRadio);
-        }
-        var properLabel = $(answerLabel).parent('li').children('span.mcAnswerText')[0];
-        if (typeof properLabel !== 'undefined') {
-          answerLabel.append(properLabel);
-        }
-      });
       $(elBlockToFix).find('div.mcscFixUpSource').remove();
-    });
   </script>
 
   <h:panelGroup
