@@ -33,9 +33,10 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.gradebookng.business.GradeSaveResponse;
 import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
-import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.gradebookng.business.model.GbCourseGrade;
+import org.sakaiproject.gradebookng.tool.model.GbGradebookData;
 import org.sakaiproject.service.gradebook.shared.CategoryScoreData;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.tool.gradebook.Gradebook;
@@ -53,20 +54,15 @@ public class GradeUpdateAction extends InjectableAction implements Serializable 
 	}
 
 	private class GradeUpdateResponse implements ActionResponse {
-		private String courseGrade;
-		private String points;
+		private String[] courseGradeData;
 		private String categoryScore;
 		private List<Long> droppedItems;
-		private boolean isOverride;
 		private boolean extraCredit;
 
-		public GradeUpdateResponse(final boolean extraCredit, final String courseGrade, final String points, final boolean isOverride,
-				final String categoryScore, List<Long> droppedItems) {
-			this.courseGrade = courseGrade;
+		public GradeUpdateResponse(final boolean extraCredit, final String[] courseGradeData, final String categoryScore, List<Long> droppedItems) {
+			this.courseGradeData = courseGradeData;
 			this.categoryScore = categoryScore;
 			this.droppedItems = droppedItems;
-			this.points = points;
-			this.isOverride = isOverride;
 			this.extraCredit = extraCredit;
 		}
 
@@ -79,9 +75,9 @@ public class GradeUpdateAction extends InjectableAction implements Serializable 
 			ObjectNode result = mapper.createObjectNode();
 
 			ArrayNode courseGradeArray = mapper.createArrayNode();
-			courseGradeArray.add(courseGrade);
-			courseGradeArray.add(points);
-			courseGradeArray.add(isOverride ? 1 : 0);
+			for (String data : courseGradeData) {
+				courseGradeArray.add(data);
+			}
 
 			result.put("courseGrade", courseGradeArray);
 			result.put("categoryScore", categoryScore);
@@ -179,29 +175,17 @@ public class GradeUpdateAction extends InjectableAction implements Serializable 
 		}
 
 		final CourseGrade studentCourseGrade = businessService.getCourseGrade(studentUuid);
+		final Gradebook gradebook = businessService.getGradebook();
+		final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(
+				gradebook,
+				page.getCurrentRole(),
+				businessService.isCourseGradeVisible(businessService.getCurrentUser().getId()),
+				page.getUiSettings().getShowPoints(),
+				true);
+		final GbCourseGrade gbcg = new GbCourseGrade(studentCourseGrade);
+		gbcg.setDisplayString(courseGradeFormatter.format(studentCourseGrade));
 
-		boolean isOverride = false;
-		String grade = "-";
-		String points = "0";
-
-		if (studentCourseGrade != null) {
-			final GradebookUiSettings uiSettings = page.getUiSettings();
-			final Gradebook gradebook = businessService.getGradebook();
-			final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(
-					gradebook,
-					page.getCurrentRole(),
-					businessService.isCourseGradeVisible(businessService.getCurrentUser().getId()),
-					uiSettings.getShowPoints(),
-					true);
-
-			grade = courseGradeFormatter.format(studentCourseGrade);
-			if (studentCourseGrade.getPointsEarned() != null) {
-				points = FormatHelper.formatDoubleToDecimal(studentCourseGrade.getPointsEarned());
-			}
-			if (studentCourseGrade.getEnteredGrade() != null) {
-				isOverride = true;
-			}
-		}
+		final String[] courseGradeData = GbGradebookData.getCourseGradeData(gbcg, gradebook.getSelectedGradeMapping().getGradeMap());
 
 		Optional<CategoryScoreData> catData = categoryId == null ?
 				Optional.empty() : businessService.getCategoryScoreForStudent(Long.valueOf(categoryId), studentUuid, true);
@@ -212,9 +196,7 @@ public class GradeUpdateAction extends InjectableAction implements Serializable 
 
 		return new GradeUpdateResponse(
 				result.equals(GradeSaveResponse.OVER_LIMIT),
-				grade,
-				points,
-				isOverride,
+				courseGradeData,
 				categoryScore,
 				droppedItems);
 	}
