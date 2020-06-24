@@ -69,6 +69,7 @@ import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.util.comparator.NullSafeComparator;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -1766,7 +1767,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		public int compareTo(SitePresenceConsolidation other) {
 			int val = sitePresence.compareTo(other.sitePresence);
 			if (val != 0) return val;
-			val = firstPresEndDate.compareTo(other.firstPresEndDate);
+			val = NullSafeComparator.NULLS_HIGH.compare(firstPresEndDate, other.firstPresEndDate);
 			if (val != 0) return val;
 			return (firstEventIsPresEnd?1:0) - (other.firstEventIsPresEnd?1:0);
 		}
