@@ -1,7 +1,7 @@
 import {SakaiElement} from "./sakai-element.js";
 import {html} from "./assets/lit-element/lit-element.js";
 
-class SakaiGroupPicker extends SakaiElement {
+export class SakaiGroupPicker extends SakaiElement {
 
   constructor() {
 
@@ -63,5 +63,6 @@ class SakaiGroupPicker extends SakaiElement {
   }
 }
 
-export {SakaiGroupPicker};
-customElements.define("sakai-group-picker", SakaiGroupPicker);
+if (!customElements.get("sakai-group-picker")) {
+  customElements.define("sakai-group-picker", SakaiGroupPicker);
+}
