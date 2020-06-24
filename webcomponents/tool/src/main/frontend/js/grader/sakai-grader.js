@@ -11,7 +11,7 @@ import { Submission } from "./submission.js";
 import "/rubrics-service/webcomponents/rubric-association-requirements.js";
 import "/rubrics-service/webcomponents/sakai-rubric-grading-button.js";
 
-class SakaiGrader extends gradableDataMixin(SakaiElement) {
+export class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
   constructor() {
 
@@ -713,7 +713,8 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
       const numDecimals = number.includes(".") ? number.split(".")[1].length : 0;
 
-      if (numDecimals == 2) {
+      // If the user has highlighted the current entry, they want to replace it.
+      if (numDecimals == 2 && ((e.target.selectionEnd - e.target.selectionStart) < e.target.value.length)) {
         e.preventDefault();
         return false;
       }
@@ -898,4 +899,6 @@ class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 }
 
-customElements.define("sakai-grader", SakaiGrader);
+if (!customElements.get("sakai-grader")) {
+  customElements.define("sakai-grader", SakaiGrader);
+}
