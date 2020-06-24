@@ -139,6 +139,11 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 	private static String ATTR_SEARCH_LAST_FIELD = "SEARCH_LAST_FIELD";
 	private static String ATTR_SEARCH_MAP = "search_map";
 
+	// Parameters for Content Item Flows
+	private static String FLOW_PARAMETER = "flow";
+	private static String FLOW_PARAMETER_EDITOR = "editor";
+	private static String FLOW_PARAMETER_ASSIGNMENT = "assignment";
+
 	/**
 	 * Service Implementations
 	 */
@@ -1194,7 +1199,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 					} else {
 						returnUrl += "?ltiItemId=/blti/" + retval;
 					}
-					if (returnUrl.indexOf("panel=CKEditorPostConfig") > 0) {
+					if (returnUrl.indexOf("panel=ContentItemPostConfig") > 0) {
 						switchPanel(state, "Forward");
 					} else {
 						switchPanel(state, "Redirect");
@@ -1413,10 +1418,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			// Extract the content item data
 			JSONObject item = contentItem.getItemOfType(ContentItem.TYPE_LTILINKITEM);
 			if (item == null) {
-				// Compliance with earlier draft
-				item = contentItem.getItemOfType(ContentItem.TYPE_LTILINK_OLD);
-			}
-			if (item == null) {
 				addAlert(state, rb.getString("error.contentitem.no.ltilink"));
 				switchPanel(state, errorPanel);
 				return;
@@ -1490,6 +1491,13 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		String lti_msg = data.getParameters().getString("lti_msg");
 		if (lti_msg != null) {
 			state.setAttribute(STATE_SUCCESS, rb.getString("success.deleted"));
+		}
+
+		String flow = data.getParameters().getString(FLOW_PARAMETER);
+		if (flow == null) {
+			addAlert(state, rb.getString("error.missing.flow"));
+			switchPanel(state, "Error");
+			return;
 		}
 
 		// Retrieve the tool associated with the content item
@@ -1692,6 +1700,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 					continue;
 				}
 				item.put("launch", contentUrl);
+<<<<<<< HEAD
 
 				// Extract the lineItem material
 				String label = reqProps.getProperty(LTIService.LTI_TITLE);
@@ -1713,20 +1722,31 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 					handleLineItem(state, sakaiLineItem, toolKey, content);
 				}
 
+=======
+				item.put("content_key", contentKey);
+>>>>>>> SAK-32679 - MVP of the tool selector
 				new_content.add(item);
 				goodcount++;
 			}
 		}
-		log.debug("Forwarding to EditorDone");
+
+		String forward;
+		if ( flow.equals(FLOW_PARAMETER_ASSIGNMENT) ) {
+			forward = "AssignmentDone";
+		} else {
+			forward = "CKEditorDone";
+		}
+
+		log.debug("Forwarding to {}", forward);
 		state.setAttribute(STATE_CONTENT_ITEM, new_content);
 		state.setAttribute(STATE_CONTENT_ITEM_FAILURES, failures);
 		state.setAttribute(STATE_CONTENT_ITEM_SUCCESSES, new Integer(goodcount));
 
 		String sakaiSession = data.getParameters().getString(RequestFilter.ATTR_SESSION);
 		if (sakaiSession == null) {
-			switchPanel(state, "EditorDone");
+			switchPanel(state, forward);
 		} else {
-			switchPanel(state, "EditorDone&" + RequestFilter.ATTR_SESSION + "=" + sakaiSession);
+			switchPanel(state, forward + "&" + RequestFilter.ATTR_SESSION + "=" + sakaiSession);
 		}
 	}
 
@@ -1926,7 +1946,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		return reqProps;
 	}
 
-	public String buildEditorDonePanelContext(VelocityPortlet portlet, Context context,
+	public String buildCKEditorDonePanelContext(VelocityPortlet portlet, Context context,
 			RunData data, SessionState state) {
 		context.put("tlang", rb);
 		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
@@ -2001,6 +2021,15 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			return "lti_error";
 		}
 
+		String flow = data.getParameters().getString(FLOW_PARAMETER);
+		if (flow == null && previousPost != null) {
+			flow = previousPost.getProperty(FLOW_PARAMETER);
+		}
+		if (flow == null) {
+			addAlert(state, rb.getString("error.missing.return"));
+			return "lti_error";
+		}
+
 		Map<String, Object> content = null;
 		Map<String, Object> tool = null;
 
@@ -2052,6 +2081,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		String contentReturn = serverConfigurationService.getToolUrl() + "/" + placement.getId()
 				+ "/sakai.basiclti.admin.helper.helper"
 				+ "?eventSubmit_doContentItemPut=Save"
+				+ "&" + FLOW_PARAMETER + "=" + flow
 				+ "&" + RequestFilter.ATTR_SESSION + "=" + URLEncoder.encode(sessionid + "." + suffix)
 				+ "&returnUrl=" + URLEncoder.encode(returnUrl)
 				+ "&panel=PostContentItem"
@@ -2133,6 +2163,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		String formInput = ltiService.formInput(previousData, contentForm);
 		context.put("formInput", formInput);
+		context.put("flow", flow);
 
 		return "lti_content_config";
 	}
@@ -2140,7 +2171,16 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 	// Special panel for  FCKEditor
 	// Add New: panel=Config&tool_id=14
 	// Edit existing: panel=Config&id=12
+	// TODO: Remove this
 	public String buildCKEditorPanelContext(VelocityPortlet portlet, Context context,
+			RunData data, SessionState state) {
+		return buildContentItemMainPanelContext(portlet, context, data, state);
+	}
+
+	// Special panel for  ContentItem support (CKEditor or Assignments)
+	// Add New: panel=ContentItemMain&tool_id=14
+	// Edit existing: panel=ContentItemMain&id=12
+	public String buildContentItemMainPanelContext(VelocityPortlet portlet, Context context,
 			RunData data, SessionState state) {
 		context.put("tlang", rb);
 		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
@@ -2154,12 +2194,42 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			addAlert(state, rb.getString("error.maintain.edit"));
 			return "lti_error";
 		}
+		//
+		String flow = data.getParameters().getString(FLOW_PARAMETER);
+		if (flow == null && previousPost != null) {
+			flow = previousPost.getProperty(FLOW_PARAMETER);
+		}
+		if (flow == null) {
+			flow = FLOW_PARAMETER_EDITOR;
+		}
 
 		Placement placement = toolManager.getCurrentPlacement();
 
 		// Get the lauchable and content editor tools...
-		List<Map<String, Object>> toolsLaunch = ltiService.getToolsLaunch(placement.getContext());
+		List<Map<String, Object>> toolsDirect;
+		if ( flow.equals(FLOW_PARAMETER_ASSIGNMENT) ) {
+			toolsDirect = ltiService.getToolsAssessmentSelection(placement.getContext());
+		} else {
+			// TODO: SHould this really be for the editor?
+			toolsDirect = ltiService.getToolsLaunch(placement.getContext());
+		}
 		List<Map<String, Object>> toolsCI = ltiService.getToolsContentEditor(placement.getContext());
+
+		// Lets do duplicate removal
+		List<Map<String, Object>> toolsLaunch = new ArrayList<Map<String, Object>> ();
+		for (Map<String, Object> lt : toolsDirect) {
+			Long ltKey = foorm.getLongNull(lt.get(LTIService.LTI_ID));
+			boolean found = false;
+			for (Map<String, Object> cit : toolsCI) {
+				Long ciKey = foorm.getLongNull(cit.get(LTIService.LTI_ID));
+				if ( ciKey.equals(ltKey) ) {
+					found = true;
+					break;
+				}
+			}
+			if ( ! found ) toolsLaunch.add(lt);
+		}
+
 
 		// If we have not tools at all, tell the user...
 		if ((toolsLaunch.size() + toolsCI.size()) < 1) {
@@ -2217,11 +2287,13 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		if (!doContent) {
 			String returnUrl = serverConfigurationService.getToolUrl() + "/" + placement.getId()
 					+ "/sakai.basiclti.admin.helper.helper"
-					+ "?panel=CKEditorPostConfig"
+					+ "?panel=ContentItemPostConfig"
+					+ "&" + FLOW_PARAMETER + "=" + flow
 					+ "&" + RequestFilter.ATTR_SESSION + "=" + URLEncoder.encode(sessionid + "." + suffix);
 
 			String configUrl = serverConfigurationService.getToolUrl() + "/" + placement.getId()
 					+ "/sakai.basiclti.admin.helper.helper"
+					+ "&" + FLOW_PARAMETER + "=" + flow
 					+ "?panel=ContentConfig"
 					+ "&returnUrl=" + URLEncoder.encode(returnUrl)
 					+ "&tool_id=" + tool.get(LTIService.LTI_ID)
@@ -2233,6 +2305,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		String contentReturn = serverConfigurationService.getToolUrl() + "/" + placement.getId()
 				+ "/sakai.basiclti.admin.helper.helper"
 				+ "?eventSubmit_doContentItemEditorHandle=Save"
+				+ "&" + FLOW_PARAMETER + "=" + flow
 				+ "&" + RequestFilter.ATTR_SESSION + "=" + URLEncoder.encode(sessionid + "." + suffix)
 				+ "&panel=PostContentItem"
 				+ "&tool_id=" + tool.get(LTIService.LTI_ID);
@@ -2248,9 +2321,13 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		// to the access servlet.
 		Properties contentData = new Properties();
 
-		// TODO: Expand the MIME type
-		contentData.setProperty(ContentItem.ACCEPT_MEDIA_TYPES, ContentItem.MEDIA_ALL);
-		contentData.setProperty(ContentItem.ACCEPT_MULTIPLE, "true");
+		if ( flow.equals(FLOW_PARAMETER_ASSIGNMENT) ) {
+			contentData.setProperty(ContentItem.ACCEPT_MEDIA_TYPES, ContentItem.MEDIA_LTILINKITEM);
+			contentData.setProperty(ContentItem.ACCEPT_MULTIPLE, "false");
+		} else {
+			contentData.setProperty(ContentItem.ACCEPT_MEDIA_TYPES, ContentItem.MEDIA_ALL);
+			contentData.setProperty(ContentItem.ACCEPT_MULTIPLE, "true");
+		}
 		contentData.setProperty("remember", "the answer is 42");  // An example
 
 		contentLaunch = ContentItem.buildLaunch(contentLaunch, contentReturn, contentData);
@@ -2260,7 +2337,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		return "lti_content_redirect";
 	}
 
-	public String buildCKEditorPostConfigPanelContext(VelocityPortlet portlet, Context context,
+	public String buildContentItemPostConfigPanelContext(VelocityPortlet portlet, Context context,
 			RunData data, SessionState state) {
 		context.put("tlang", rb);
 		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
@@ -2305,6 +2382,32 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		context.put("goodcount", new Integer(1));
 		return "lti_editor_done";
 	}
+
+	public String buildAssignmentDonePanelContext(VelocityPortlet portlet, Context context,
+			RunData data, SessionState state) {
+		context.put("tlang", rb);
+		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
+		JSONArray new_content = (JSONArray) state.getAttribute(STATE_CONTENT_ITEM);
+		List<String> failures = (List<String>) state.getAttribute(STATE_CONTENT_ITEM_FAILURES);
+		Integer goodcount = (Integer) state.getAttribute(STATE_CONTENT_ITEM_SUCCESSES);
+		state.removeAttribute(STATE_CONTENT_ITEM);
+		state.removeAttribute(STATE_CONTENT_ITEM_FAILURES);
+		state.removeAttribute(STATE_CONTENT_ITEM_SUCCESSES);
+		context.put("new_content", new_content);
+		context.put("goodcount", goodcount);
+		if (failures.size() > 0) {
+			context.put("failures", failures);
+		}
+
+		if ( new_content.size() > 0 ) {
+			JSONObject job = (JSONObject) new_content.get(0);
+			context.put("contentId", foorm.getLong(job.get("content_key")));
+			context.put("contentTitle", (String) job.get("title"));
+		}
+
+		return "lti_assignment_return";
+	}
+
 
 	public String buildContentDeletePanelContext(VelocityPortlet portlet, Context context,
 			RunData data, SessionState state) {

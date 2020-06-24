@@ -43,6 +43,7 @@ $tlang.getString("need.tool.info")
 #end
                 <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
                 <input type="hidden" name="tool_id" value="$tool_id" />
+                <input type="hidden" name="flow" value="$flow" />
 #if ( $returnUrl ) 
                 <input type="hidden" name="returnUrl" value="$returnUrl" />
 #end

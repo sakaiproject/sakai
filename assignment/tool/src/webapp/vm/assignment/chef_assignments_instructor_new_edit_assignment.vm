@@ -57,6 +57,13 @@
 		var lblUseReview=document.getElementById('lblReviewService');
 		var reviewSwitchNe1 = document.getElementById('review.switch.ne.1');
 		var reviewSwitchNe2 = document.getElementById('review.switch.ne.2');
+		if(document.getElementById('subType').value == 6)
+        {
+			document.getElementById('External_Tool_Fieldset').style.display = 'block';
+        } else {
+			document.getElementById('External_Tool_Fieldset').style.display = 'none';
+        }
+
 		if(document.getElementById('subType').value != 4)
 		{
 			#if ($allowReviewService)
@@ -560,20 +567,28 @@
 			</div>
 		</div>
 
-		<div #if ($value_SubmissionType != 6) style = "display:none"#end>
+		<div #if ($value_SubmissionType != 6) style = "display:none"#end  id="External_Tool_Fieldset">
 		<fieldset>
 		<h4>
 			$tlang.getString("external.tool.label")
 		</h4>
 		<div class="form-group row">
-			<label class="col-sm-2 control-label" for="tempContentId">
+			<label class="col-sm-12 control-label block" for="tempContentId">
 				$tlang.getString("launchContentId")
 			</label>
-			<div class="col-sm-10">
-				<div id="tempContentId">
-					<input type="number" id="contentId" name="$name_ContentId" value="$value_ContentId">
-				</div>
+			<div class="col-sm-6" id="tempContentId">
+					<input type="text" disabled id="returnContentTitle" name="$name_ContentTitle" size="30"
+                        class="form-control" maxlength="100"
+                        placeholder="$tlang.getString('external.tool.placeholder')" value="$!value_ContentTitle">
+					<input type="hidden" id="returnContentId" name="$name_ContentId" value="$value_ContentId">
 			</div>
+        </div>
+		<div class="form-group row">
+			<div class="col-sm-6" id="tempContentId">
+                    <a title="$tlang.getString('external.tool.find')" target="sakai-basiclti-admin-iframe" onclick="showExternalIframe(this.title, false);"
+                        class="btn btn-primary" role="button"
+                        href="$findExternalToolUrl">$tlang.getString('external.tool.find')</a>
+            </div>
 		</div>
 
 		<div class="checkbox">
@@ -588,6 +603,50 @@
 		</div>
 		</fieldset>
 		</div>
+        <div id="external-modal-iframe-div" style="display:none" tabindex="-1" role="dialog">
+            <iframe name="sakai-basiclti-admin-iframe" id="sakai-basiclti-admin-iframe" src="/library/image/sakai/spinner.gif" tabindex="0"></iframe>
+        </div>
+<style>
+.ui-widget-overlay.ui-front {
+    opacity:.75;
+}
+</style>
+<script>
+//<![CDATA[
+function showExternalIframe(title, doreload) {
+    $("#external-modal-iframe-div").dialog({
+        title: title,
+        width: modalDialogWidth(),
+        height: modalDialogHeight(),
+        modal: true,
+        draggable: false,
+        open: function() {
+            $("#external-modal-iframe-div").dialog("option", "width", modalDialogWidth());
+            $("#external-modal-iframe-div").dialog("option", "height", modalDialogHeight());
+            $('#sakai-basiclti-admin-iframe').attr('width', '100%');
+            $('#sakai-basiclti-admin-iframe').attr('height', '100%');
+            // https://stackoverflow.com/questions/1202079/prevent-jquery-ui-dialog-from-setting-focus-to-first-textbox
+            $(this).parent().focus();
+        },
+        close: function() {
+            if ( doreload ) {
+                location.reload();
+            } else {
+                $('#sakai-basiclti-admin-iframe').attr('src','/library/image/sakai/spinner.gif');
+            }
+        }
+    });
+
+    $(window).resize(function() {
+        $("#external-modal-iframe-div").dialog("option", "width", modalDialogWidth());
+        $("#external-modal-iframe-div").dialog("option", "height", modalDialogHeight());
+        $('#sakai-basiclti-admin-iframe').attr('width', '100%');
+        $('#sakai-basiclti-admin-iframe').attr('height', '100%');
+    });
+}
+//]]>
+</script>
+
 
 		## whether to show the instructor notification choices
 		#if ($!name_assignment_instructor_notifications)

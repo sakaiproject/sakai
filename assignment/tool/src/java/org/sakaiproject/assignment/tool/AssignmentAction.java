@@ -220,6 +220,7 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.user.api.CandidateDetailProvider;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
@@ -3187,6 +3188,13 @@ public class AssignmentAction extends PagedResourceActionII {
             log.warn(this + ":setAssignmentFormContext role cast problem " + e.getMessage() + " site =" + contextString);
         }
 
+        Placement placement = toolManager.getCurrentPlacement();
+        // String contentReturn = SakaiBLTIUtil.getOurServerUrl() + "/portal/tool/" + placement.getId() +
+        String contentReturn = serverConfigurationService.getToolUrl() + "/" + placement.getId()
+                + "/sakai.basiclti.admin.helper.helper"
+                + "?panel=ContentItemMain"
+				+ "&flow=assignment";
+         context.put("findExternalToolUrl", contentReturn);
     } // setAssignmentFormContext
 
     /**
