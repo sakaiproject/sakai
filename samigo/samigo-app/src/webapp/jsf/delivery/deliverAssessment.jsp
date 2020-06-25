@@ -40,8 +40,8 @@
       <script src="/sakai-editor/editor-launch.js"></script>
       <script src="/samigo-app/js/saveForm.js"></script>
       <script src="/samigo-app/js/finInputValidator.js"></script>
-      <script src="/rubrics-service/webcomponents/sakai-rubrics-utils.js<h:outputText value="#{studentScores.CDNQuery}" />"></script>
-      <script type="module" src="/rubrics-service/webcomponents/rubric-association-requirements.js<h:outputText value="#{questionScores.CDNQuery}" />"></script>
+      <script src="/webcomponents/rubrics/sakai-rubrics-utils.js<h:outputText value="#{studentScores.CDNQuery}" />"></script>
+      <script type="module" src="/webcomponents/rubrics/rubric-association-requirements.js<h:outputText value="#{questionScores.CDNQuery}" />"></script>
 
     <h:panelGroup rendered="#{delivery.actionString == 'reviewAssessment'}">
       <script>

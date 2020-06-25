@@ -19,9 +19,8 @@
 	<script src="/messageforums-tool/js/messages.js"></script>
 	<script src="/messageforums-tool/js/datetimepicker.js"></script>
 	<script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
-	<script src="/rubrics-service/webcomponents/sakai-rubrics-utils.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
-	<script type="module" src="/rubrics-service/webcomponents/rubric-association-requirements.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
-	<link href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" rel="stylesheet" type="text/css" />
+	<script src="/webcomponents/rubrics/sakai-rubrics-utils.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
+	<script type="module" src="/webcomponents/rubrics/rubric-association-requirements.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 	
 	<%
 	  	String thisId = request.getParameter("panel");
