@@ -43,7 +43,7 @@ should be included in file importing DeliveryMessages
   <%@ include file="/jsf/delivery/item/attachment.jsp" %>
 
 
-  <h:panelGroup layout="block" styleClass="mcscFixUp">
+  <h:panelGroup layout="block" styleClass="mcscFixUp mcscFixUpClassForSelector-#{question.itemData.itemId}">
   <h:panelGroup layout="block" styleClass="mcscFixUpSource">
   <h:selectOneRadio id="samigo-mc-select-one" required="false" value="#{question.responseId}" layout="pagedirection"
                     disabled="#{delivery.actionString=='reviewAssessment' || delivery.actionString=='gradeAssessment'}" >
@@ -89,16 +89,16 @@ should be included in file importing DeliveryMessages
   </t:dataList>
 
   </h:panelGroup>
-  <script>
-      var elBlockToFix = $($('script')[$('script').length - 1].parentElement).find('div.mcscFixUp')[0];
-      $(elBlockToFix).find('div.mcscFixUpSource td').each(function(index,elLabelAndInputToMove) {
-        var contentsToMove = $(elLabelAndInputToMove).contents();
-        if (typeof contentsToMove !== 'undefined') {
-          $(elBlockToFix).find('div.mcscFixUpTarget:first').replaceWith(contentsToMove);
-        }
-      });
-      $(elBlockToFix).find('div.mcscFixUpSource').remove();
-  </script>
+  <h:outputText value="<script>" escape="false" />
+  <h:outputText value="    var elBlockToFix = $('.mcscFixUpClassForSelector-#{question.itemData.itemId}');" escape="false" />
+  <h:outputText value="    $(elBlockToFix).find('div.mcscFixUpSource td').each(function(index,elLabelAndInputToMove) {" escape="false" />
+  <h:outputText value="      var contentsToMove = $(elLabelAndInputToMove).contents();" escape="false" />
+  <h:outputText value="      if (typeof contentsToMove !== 'undefined') {" escape="false" />
+  <h:outputText value="        $(elBlockToFix).find('div.mcscFixUpTarget:first').replaceWith(contentsToMove);" escape="false" />
+  <h:outputText value="      }" escape="false" />
+  <h:outputText value="    });" escape="false" />
+  <h:outputText value="    $(elBlockToFix).find('div.mcscFixUpSource').remove();" escape="false" />
+  <h:outputText value="</script>" escape="false" />
 
   <h:panelGroup
     rendered="#{question.itemData.hasRationale && question.itemData.typeId != 3}" >
