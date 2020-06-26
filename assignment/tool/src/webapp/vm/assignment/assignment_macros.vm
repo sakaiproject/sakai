@@ -561,7 +561,7 @@
 	#end
 #end
 #macro( rubricsRequirements )
-    #javascript("/rubrics-service/webcomponents/sakai-rubrics-utils.js")
-    #module("/rubrics-service/webcomponents/rubric-association-requirements.js")
+    #javascript("/webcomponents/rubrics/sakai-rubrics-utils.js")
+    #module("/webcomponents/rubrics/rubric-association-requirements.js")
 #end
 <!-- end: assignment_macros.vm -->

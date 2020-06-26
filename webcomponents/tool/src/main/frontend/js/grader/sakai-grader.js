@@ -8,8 +8,8 @@ import "../sakai-group-picker.js";
 import "../sakai-document-viewer.js";
 import { gradableDataMixin } from "./sakai-gradable-data-mixin.js";
 import { Submission } from "./submission.js";
-import "/rubrics-service/webcomponents/rubric-association-requirements.js";
-import "/rubrics-service/webcomponents/sakai-rubric-grading-button.js";
+import "/webcomponents/rubrics/rubric-association-requirements.js";
+import "/webcomponents/rubrics/sakai-rubric-grading-button.js";
 
 export class SakaiGrader extends gradableDataMixin(SakaiElement) {
 

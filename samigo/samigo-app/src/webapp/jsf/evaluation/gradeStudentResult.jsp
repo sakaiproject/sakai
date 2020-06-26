@@ -41,8 +41,8 @@ $Id$
     <script src="/samigo-app/js/jquery.dynamiclist.student.preview.js"></script>
     <script src="/samigo-app/js/selection.student.preview.js"></script>
     <script src="/samigo-app/js/selection.author.preview.js"></script>
-    <script src="/rubrics-service/webcomponents/sakai-rubrics-utils.js<h:outputText value="#{studentScores.CDNQuery}" />"></script>
-    <script type="module" src="/rubrics-service/webcomponents/rubric-association-requirements.js<h:outputText value="#{studentScores.CDNQuery}" />"></script>
+    <script src="/webcomponents/rubrics/sakai-rubrics-utils.js<h:outputText value="#{studentScores.CDNQuery}" />"></script>
+    <script type="module" src="/webcomponents/rubrics/rubric-association-requirements.js<h:outputText value="#{studentScores.CDNQuery}" />"></script>
 
     <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.student.css">
     <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
