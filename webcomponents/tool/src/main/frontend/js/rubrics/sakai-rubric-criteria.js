@@ -16,6 +16,9 @@ export class SakaiRubricCriteria extends RubricsElement {
     return {
       token: { type: String },
       rubricId: { attribute: "rubric-id", type: String },
+      weighted: { type: Boolean },
+      totalWeight: { attribute: "total-weight", type: String },
+      validWeight: { attribute: "valid-weight", type: Boolean },
       criteria: { type: Array }
     };
   }
@@ -58,6 +61,34 @@ export class SakaiRubricCriteria extends RubricsElement {
             <p>
               ${c.description}
             </p>
+            ${this.weighted ? html`
+                <div class="form-inline weight-field">
+                    <div class="form-group input-group-sm ${this.validWeight ? "" : "has-error"}">
+                      <label
+                          for="weight_input_${c.id}"
+                          class="control-label"
+                          title="${!this.validWeight ? tr("total_weight_wrong") : ""}"
+                      >
+                        <sr-lang key="weight">Weight</sr-lang>
+                      </label>
+                      <input
+                        id="weight_input_${c.id}"
+                        data-criterion-id="${c.id}"
+                        type="text"
+                        class="form-control"
+                        placeholder="0.0"
+                        @input="${this.debounce(this.emitWeightChanged, 500)}"
+                        value="${c.weight.toLocaleString(this.locale)}"
+                        title="${!this.validWeight ? tr("total_weight_wrong") : ""}"
+                      >
+                      <span class="control-label"
+                          title="${!this.validWeight ? tr("total_weight_wrong") : ""}"
+                      >
+                        <sr-lang key="percent_sign">%</sr-lang>
+                      </span>
+                    </div>
+                </div>` : ""
+              }
             <div class="add-criterion-item">
               <span tabindex="0" role="button" data-criterion-id="${c.id}" title="${tr("add_rating")} ${c.title}" class="fa fa-plus" @click="${this.addRating}" data-rating-pos="0"></span>
             </div>
@@ -95,11 +126,34 @@ export class SakaiRubricCriteria extends RubricsElement {
         </div>
       `)}
       </div>
+      ${this.weighted ? html`
+        <br>
+        <div class="total-weight ${this.validWeight ? "" : "has-error"}">
+          <span class="control-label">${tr('total_weight', [this.totalWeight])}</span>
+        </div>`
+        : ""
+      }
       <br>
-      <button class="add-criterion" @click="${this.createCriterion}">
-        <span tabindex="0" role="button" class="add fa fa-plus"></span>
-        <sr-lang key="add_criterion">Add Criterion</sr-lang>
-      </button>
+      <div>
+        ${this.weighted ? html`
+          <button class="save-weights" @click="${this.saveWeights}" ?disabled="${!this.validWeight}">
+            <span tabindex="0" role="button" class="add fa fa-save"></span>
+            <sr-lang key="save_weights">Save Weights</sr-lang>
+          </button>`
+          : ""
+        }
+        <button class="add-criterion" @click="${this.createCriterion}">
+          <span tabindex="0" role="button" class="add fa fa-plus"></span>
+          <sr-lang key="add_criterion">Add Criterion</sr-lang>
+        </button>
+      </div>
+      ${this.weighted ? html`
+        <br>
+        <div class="save-success has-success fade">
+          <span class="control-label">${tr("saved_successfully")}</span>
+        </div>`
+        : ""
+      }
     `;
   }
 
@@ -129,6 +183,18 @@ export class SakaiRubricCriteria extends RubricsElement {
 
   letShareKnow() {
     this.dispatchEvent(new SharingChangeEvent());
+  }
+
+  debounce(fn, delay) {
+
+    var timer = null;
+    return function() {
+      var args = arguments;
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        fn.apply(this, args);
+      }, delay);
+    };
   }
 
   handleSortedCriterionRatings(e) {
@@ -192,6 +258,25 @@ export class SakaiRubricCriteria extends RubricsElement {
     this.criteriaMap.delete(e.detail.id);
     this.requestUpdate();
     this.letShareKnow();
+    this.dispatchEvent(new CustomEvent('refresh-total-weight', { detail: { criteria: this.criteria } }));
+  }
+
+  emitWeightChanged(e) {
+
+    if (e.target.value == '') {
+      e.target.value = 0;
+    }
+    e.target.value = e.target.value.replace(',', '.');
+    var value = parseFloat(e.target.value);
+    if (isNaN(value)) {
+      value = 0;
+    }
+    var id = parseInt(e.target.getAttribute('data-criterion-id'));
+    if (isNaN(id)) {
+      return;
+    }
+    this.dispatchEvent(new CustomEvent('weight-changed', { detail: { criterionId: id, value, criteria: this.criteria } }));
+    this.requestUpdate();
   }
 
   addRating(e) {
@@ -273,6 +358,7 @@ export class SakaiRubricCriteria extends RubricsElement {
     if (!nc.ratings) {
       nc.ratings = [];
     }
+    this.dispatchEvent(new CustomEvent('criterion-created', { detail: { criterion: nc } }));
     this.criteria.push(nc);
     this.criteriaMap.set(nc.id, nc);
 
@@ -304,6 +390,11 @@ export class SakaiRubricCriteria extends RubricsElement {
 
     var sakaiItemDelete = this.querySelector(`sakai-item-delete[criterion-id="${e.detail.id}"]`);
     sakaiItemDelete.requestUpdate("criterion", criterion);
+  }
+
+  saveWeights(e) {
+
+    this.dispatchEvent(new CustomEvent('save-weights'));
   }
 
   createCriterion(e) {

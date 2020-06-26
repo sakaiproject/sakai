@@ -72,6 +72,7 @@ public class Criterion implements Modifiable, Serializable, Cloneable {
 
     @Lob
     private String description;
+    private double weight;
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "rbc_criterion_ratings")
@@ -99,6 +100,7 @@ public class Criterion implements Modifiable, Serializable, Cloneable {
         Criterion clonedCriterion = new Criterion();
         clonedCriterion.setId(null);
         clonedCriterion.setTitle(this.title);
+        clonedCriterion.setWeight(this.weight);
         clonedCriterion.setDescription(this.description);
         clonedCriterion.setRatings(this.getRatings().stream().map(rating -> {
             Rating clonedRating = null;

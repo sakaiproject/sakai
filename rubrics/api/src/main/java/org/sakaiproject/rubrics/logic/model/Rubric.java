@@ -70,6 +70,7 @@ public class Rubric implements Modifiable, Serializable, Cloneable {
 
     private String title;
     private String description;
+    private boolean weighted;
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "rbc_rubric_criterions")
@@ -104,6 +105,7 @@ public class Rubric implements Modifiable, Serializable, Cloneable {
         Rubric clonedRubric = new Rubric();
         clonedRubric.setId(null);
         clonedRubric.setTitle(this.title);
+        clonedRubric.setWeighted(this.weighted);
         clonedRubric.setDescription(this.description);
         Metadata metadata = new Metadata();
         metadata.setLocked(false);
@@ -125,6 +127,7 @@ public class Rubric implements Modifiable, Serializable, Cloneable {
         Rubric clonedRubric = new Rubric();
         clonedRubric.setId(null);
         clonedRubric.setTitle(this.title);
+        clonedRubric.setWeighted(this.weighted);
         clonedRubric.setDescription(this.description);
         Metadata metadata = new Metadata();
         metadata.setLocked(false);

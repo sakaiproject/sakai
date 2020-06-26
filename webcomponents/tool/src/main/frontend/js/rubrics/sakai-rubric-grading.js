@@ -70,6 +70,19 @@ export class SakaiRubricGrading extends RubricsElement {
           <div class="criterion-detail">
             <h4 class="criterion-title">${c.title}</h4>
             <p>${c.description}</p>
+            ${this.rubric.weighted ?
+              html`
+                <div class="criterion-weight">
+                    <span>
+                      <sr-lang key="weight">Weight</sr-lang>
+                    </span>
+                    <span>${c.weight}</span>
+                    <span>
+                      <sr-lang key="percent_sign">%</sr-lang>
+                    </span>
+                </div>`
+              : ""
+            }
           </div>
           <div class="criterion-ratings" style="margin-bottom: 15px !important;">
             <div class="cr-table">
@@ -78,7 +91,17 @@ export class SakaiRubricGrading extends RubricsElement {
                 <div class="rating-item ${this.selectedRatings.includes(r.id) ? "selected" : ""}" tabindex="0" data-rating-id="${r.id}" id="rating-item-${r.id}" data-criterion-id="${c.id}" @keypress=${this.toggleRating} @click=${this.toggleRating}>
                   <h5 class="criterion-item-title">${r.title}</h5>
                   <p>${r.description}</p>
-                  <span class="points" data-points="${r.points}">${r.points.toLocaleString(this.locale)} <sr-lang key="points">Points</sr-lang></span>
+                  <span class="points" data-points="${r.points}">
+                    ${this.rubric.weighted && r.points > 0 ?
+                      html`
+                        <b>
+                          (${(r.points * (c.weight / 100)).toFixed(2)})
+                        </b>`
+                      : ""
+                    }
+                    ${r.points.toLocaleString(this.locale)}
+                    <sr-lang key="points">Points</sr-lang>
+                  </span>
                 </div>
               `)}
               </div>
@@ -270,9 +293,15 @@ export class SakaiRubricGrading extends RubricsElement {
       var ratingElements = this.querySelectorAll(`#criterion_row_${criterion.id} .rating-item`);
       ratingElements.forEach(i => i.classList.remove('selected'));
       clickedRatingElement.classList.add("selected");
-      criterion.selectedvalue = rating.points;
+      var auxPoints;
+      if (this.rubric.weighted) {
+        auxPoints = (rating.points * (criterion.weight / 100)).toFixed(2);
+      } else {
+        auxPoints = rating.points;
+      }
+      criterion.selectedvalue = auxPoints;
       criterion.selectedRatingId = rating.id;
-      criterion.pointoverride = rating.points;
+      criterion.pointoverride = auxPoints;
     }
 
     var selector = `#rbcs-${this.evaluatedItemId.replace(/./g, "\\.")}-${this.entityId.replace(/./g, "\\.")}-criterion-override-${criterionId}`;

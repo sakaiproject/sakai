@@ -33,7 +33,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @Projection(name = "inlineRubric", types = { Rubric.class })
-@JsonPropertyOrder({"id", "title", "description", "metadata", "criterions"})
+@JsonPropertyOrder({"id", "title", "description", "weighted", "metadata", "criterions"})
 public interface InlineRubric {
 
     Long getId();
@@ -41,6 +41,8 @@ public interface InlineRubric {
     String getTitle();
 
     String getDescription();
+
+    boolean getWeighted();
 
     List<InlineCriterion> getCriterions();
 
