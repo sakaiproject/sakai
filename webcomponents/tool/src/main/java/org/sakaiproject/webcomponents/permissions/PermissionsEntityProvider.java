@@ -119,6 +119,9 @@ public class PermissionsEntityProvider extends AbstractEntityProvider implements
 
 
             List<String> available = functionManager.getRegisteredFunctions(tool);
+            if (!groupRef.equals("/site/" + siteId)) {
+            	available = available.stream().filter(p -> (p.indexOf("all.groups") == -1)).collect(Collectors.toList());
+            }
             Map<String, Object> data = new HashMap<>();
             data.put("on", on);
             data.put("available", available);

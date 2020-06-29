@@ -9,6 +9,17 @@ import "./sakai-group-picker.js";
  *
  * <sakai-permissions tool="roster" />
  *
+ * Other attributes:
+ * 
+ * bundle-key: Allows to set the bundle name (f.ex: "announcement" or "org.sakaiproject.api.app.messagecenter.bundle.Messages"). By default, it will take the tool attribute value.
+ * on-refresh: Allows to set the return page location. By default, it will refresh the current URL.
+ * group-reference: Allows to set reference to get permissions from. By default, "/site/${portal.siteId}". Order is important. This attribute must be set before the tool attribute.
+ * disabled-groups: Disables all other options apart form "Site" in the Site/Group selector. By default, false (groups are shown). Order is important. This attribute must be set before the tool attribute.
+ *
+ * Usage, from the Podcasts tool:
+ *
+ * <sakai-permissions group-reference="/content/group/%SITE_ID%/Podcasts/" disabled-groups=true tool="content" bundle-key="org.sakaiproject.api.podcasts.bundle.Messages" />
+ *
  * This component needs to be able to lookup a tool's translations, and this happens via the
  * sakai-i18n.js module, loading the translations from a Sakai web service. The translations need
  * to be jarred and put in TOMCAT/lib, and the permission translation keys need to start with "perm-",
@@ -51,6 +62,8 @@ class SakaiPermissions extends SakaiElement {
 
     return {
       tool: String,
+      groupReference: { attribute: 'group-reference', type: String },
+      disableGroups: { attribute: 'disabled-groups', type: Boolean },
       bundleKey: { attribute: 'bundle-key', type: String },
       onRefresh: { attribute: 'on-refresh', type: String },
       roles: {type: Array},
@@ -134,7 +147,9 @@ class SakaiPermissions extends SakaiElement {
 
         this.on = data.on;
         this.available = data.available;
-        this.groups = data.groups;
+        if (!this.disableGroups) {
+          this.groups = data.groups;
+        }
         this.roles = Object.keys(this.on);
         this.roleNameMappings = data.roleNameMappings;
       })
