@@ -92,7 +92,6 @@ import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Object;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VERB;
-import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService;
@@ -119,6 +118,9 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   public static final String REAL_REPLY = "msgcntr.messages.user.real.reply";  
   public static final String FROM_REPLY = "msgcntr.messages.header.from.reply";
   
+  private static final String FROM_ADDRESS = "msgcntr.notification.from.address";
+  private static final String USER_NOT_DEFINED = "cannot find user with id ";
+
   private final PreferencesService preferencesService = ComponentManager.get( PreferencesService.class );
   
   private AreaManager areaManager;
@@ -1082,6 +1084,114 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 
 	}
 
+  private String currentUserAsString(PrivateMessage message, boolean isMailArchive) {
+	    String currentUserAsString = getCurrentUser();
+	    if (isMailArchive || currentUserAsString == null) {
+	        currentUserAsString = message.getCreatedBy();
+	    }
+	    return currentUserAsString;
+  }
+
+  private User currentUser(PrivateMessage message, boolean isMailArchive){
+	    User currentUser = userDirectoryService.getCurrentUser();
+	    if (isMailArchive || currentUser == null) {
+	        try {
+	            currentUser = userDirectoryService.getUser(message.getCreatedBy());
+	        } catch (UserNotDefinedException e) {
+	            log.error(USER_NOT_DEFINED + message.getCreatedBy() + " " + e.getMessage());
+	            throw new IllegalArgumentException(USER_NOT_DEFINED + message.getCreatedBy());
+	        }
+	    }
+	    return currentUser;
+  }
+
+  private Message saveMessage(Message message, boolean isMailArchive, String contextId, String currentUserAsString){
+	  Message pmessage;
+      if (isMailArchive) {
+	        pmessage = messageManager.saveOrUpdateMessage(message, false, DiscussionForumService.MESSAGES_TOOL_ID, currentUserAsString, contextId);
+      } else {
+	        pmessage = savePrivateMessage(message, false);
+      }
+      return pmessage;
+  }
+
+  private boolean getForwardingEnabled(Map<User, Boolean> recipients, Map<String, PrivateForum> pfMap, String currentUserAsString, String contextId, List recipientList, List<InternetAddress> fAddresses) throws MessagingException{
+	  boolean forwardingEnabled = false;
+	  //this only needs to be done if the message is not being sent
+	  int submitterEmailReceiptPref;
+	  for (Iterator<Entry<User, Boolean>> i = recipients.entrySet().iterator(); i.hasNext();)
+		  {
+		  Entry<User, Boolean> entrySet = i.next();
+		  User u = entrySet.getKey();
+		  Boolean bcc = entrySet.getValue();
+		  String userId = u.getId();
+		  String mailAFoward = u.getEmail();
+
+		  submitterEmailReceiptPref = 0;
+		  submitterEmailReceiptPref = ServerConfigurationService.getInt("prefs.msg.notification", submitterEmailReceiptPref);
+		  Preferences submitterPrefs = preferencesService.getPreferences( userId );
+		  ResourceProperties props = submitterPrefs.getProperties( NotificationService.PREFS_TYPE + "sakai:messageforums" );
+
+		  try {
+			  submitterEmailReceiptPref = (int) props.getLongProperty("2");
+		  } catch (EntityPropertyNotDefinedException | EntityPropertyTypeException ex) {
+			  /* User hasn't changed preference */
+		  }
+
+		  PrivateForum pf = null;
+		  pf = pfMap.get(userId);
+
+		  PrivateForum oldPf = forumManager.getPrivateForumByOwnerAreaNull(userId);
+		  if (pf != null && (pf.getAutoForward()==PrivateForumImpl.AUTO_FOWARD_YES) && pf.getAutoForwardEmail() != null){
+			  forwardingEnabled = true;
+			  fAddresses.add(new InternetAddress(pf.getAutoForwardEmail()));
+		  }
+		  else if (pf != null && (pf.getAutoForward()==PrivateForumImpl.AUTO_FOWARD_DEFAULT) && submitterEmailReceiptPref==PrivateForumImpl.AUTO_FOWARD_YES){
+			  pf.setAutoForwardEmail(mailAFoward);
+			  forwardingEnabled = true;
+			  fAddresses.add(new InternetAddress(pf.getAutoForwardEmail()));
+		  }
+		  //only check for default settings if the pf is null
+		  else if (pf == null && oldPf != null && (oldPf.getAutoForward()==PrivateForumImpl.AUTO_FOWARD_YES) && oldPf.getAutoForwardEmail() != null) {
+			  forwardingEnabled = true;
+			  fAddresses.add(new InternetAddress(oldPf.getAutoForwardEmail()));
+		  }
+		  else if (pf == null && oldPf != null && (oldPf.getAutoForward()==PrivateForumImpl.AUTO_FOWARD_DEFAULT) && submitterEmailReceiptPref==PrivateForumImpl.AUTO_FOWARD_YES) {
+			  oldPf.setAutoForwardEmail(mailAFoward);
+			  forwardingEnabled = true;
+			  fAddresses.add(new InternetAddress(oldPf.getAutoForwardEmail()));
+		  }
+
+		  /** determine if current user is equal to recipient */
+		  Boolean isRecipientCurrentUser =
+				  (currentUserAsString.equals(userId) ? Boolean.TRUE : Boolean.FALSE);
+
+		  PrivateMessageRecipientImpl receiver = new PrivateMessageRecipientImpl(
+				  userId, typeManager.getReceivedPrivateMessageType(), contextId,
+				  isRecipientCurrentUser, bcc);
+		  recipientList.add(receiver);
+		  }
+	  return forwardingEnabled;
+  }
+
+  private String getSystemAndReplyEmail(String defaultEmail, User currentUser, Message savedMessage, List replyEmail, String contextId) throws MessagingException{
+	    String systemEmail;
+
+	    if (!ServerConfigurationService.getBoolean("msgcntr.notification.user.real.from", false)) {
+		    systemEmail = ServerConfigurationService.getString(FROM_ADDRESS, defaultEmail);
+	    } else  {
+		    if (currentUser.getEmail() != null)
+			    systemEmail = currentUser.getEmail();
+		    else
+			    systemEmail = ServerConfigurationService.getString(FROM_ADDRESS, defaultEmail);
+	    }
+		if (("all".equals(ServerConfigurationService.getString(REAL_REPLY, "none")) || contextId.contains(ServerConfigurationService.getString(REAL_REPLY, "none"))) && systemEmail.equalsIgnoreCase(ServerConfigurationService.getString(FROM_ADDRESS, defaultEmail))) {
+			replyEmail.add(new InternetAddress(buildMailReply(savedMessage)));
+			systemEmail = ServerConfigurationService.getString("msgcntr.notification.from.address.reply", defaultEmail);
+		}
+	    return systemEmail;
+  }
+
   /**
    * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#sendPrivateMessage(org.sakaiproject.api.app.messageforums.PrivateMessage, java.util.Set, boolean)
    */
@@ -1113,19 +1223,9 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 	    contextId = ((PrivateMessageRecipientImpl)message.getRecipients().get(0)).getContextId();
 	    isMailArchive = true;
 	}
-    String currentUserAsString = getCurrentUser();
-    if (isMailArchive || currentUserAsString == null) {
-        currentUserAsString = message.getCreatedBy();
-    }
-    User currentUser = userDirectoryService.getCurrentUser();
-    if (isMailArchive || currentUser == null) {
-        try {
-            currentUser = userDirectoryService.getUser(message.getCreatedBy());
-        } catch (UserNotDefinedException e) {
-            log.error("cannot find user with id " + message.getCreatedBy() + " " + e.getMessage());
-            throw new IllegalArgumentException("cannot find user with id " + message.getCreatedBy());
-        }
-    }
+    String currentUserAsString = currentUserAsString(message, isMailArchive);
+
+    User currentUser = currentUser(message, isMailArchive);
     List recipientList = new UniqueArrayList();
 
     /** test for draft message */
@@ -1137,11 +1237,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 
       recipientList.add(receiver);
       message.setRecipients(recipientList);
-      if (isMailArchive) {
-          message = (PrivateMessage)messageManager.saveOrUpdateMessage(message, false, DiscussionForumService.MESSAGES_TOOL_ID, currentUserAsString, contextId);
-      } else {
-          message = (PrivateMessage)savePrivateMessage(message, false);
-      }
+      saveMessage(message, isMailArchive, contextId, currentUserAsString);
       return;
     }
 
@@ -1152,17 +1248,6 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 
     /** determines if default in sakai.properties is set, if not will make a reasonable default */
     String defaultEmail = ServerConfigurationService.getString("setup.request","postmaster@" + ServerConfigurationService.getServerName());
-    String systemEmail = ServerConfigurationService.getString("msgcntr.notification.from.address", defaultEmail);
-    InternetAddress[] replyEmail  = null;
-    
-    if (!ServerConfigurationService.getBoolean("msgcntr.notification.user.real.from", false)) {
-    	systemEmail = ServerConfigurationService.getString("msgcntr.notification.from.address", defaultEmail);
-    } else  {
-    	if (currentUser.getEmail() != null)
-    		systemEmail = currentUser.getEmail();
-    	else
-    		systemEmail = ServerConfigurationService.getString("msgcntr.notification.from.address", defaultEmail);
-    }
     
     Area currentArea = null;
     List<PrivateForum> privateForums = null;
@@ -1189,75 +1274,9 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     		pfMap.put(pf1.getOwner(), pf1);
     	}
 
-		boolean forwardingEnabled = false;
-		List<InternetAddress> fAddresses = new ArrayList<InternetAddress>();
+		List<InternetAddress> fAddresses = new ArrayList();
+		boolean forwardingEnabled = getForwardingEnabled(recipients, pfMap, currentUserAsString, contextId, recipientList, fAddresses);
 		//this only needs to be done if the message is not being sent
-		int submitterEmailReceiptPref;
-    	for (Iterator<Entry<User, Boolean>> i = recipients.entrySet().iterator(); i.hasNext();)
-    	{
-    		Entry<User, Boolean> entrySet = (Entry<User, Boolean>) i.next();
-    		User u = (User) entrySet.getKey();
-    		Boolean bcc = (Boolean) entrySet.getValue();
-    		String userId = u.getId();
-    		String mailAFoward = u.getEmail();
-
-
-
-    		//boolean forwardingEnabled = false;
-    		//String forwardAddress = null;
-    		submitterEmailReceiptPref = 0;
-    		submitterEmailReceiptPref = ServerConfigurationService.getInt("prefs.msg.notification", submitterEmailReceiptPref);
-    		Preferences submitterPrefs = preferencesService.getPreferences( userId );
-    		ResourceProperties props = submitterPrefs.getProperties( NotificationService.PREFS_TYPE + "sakai:messageforums" );
-
-    		try {
-    			submitterEmailReceiptPref = (int) props.getLongProperty("2");
-    		} catch (EntityPropertyNotDefinedException | EntityPropertyTypeException ex) {
-    			/* User hasn't changed preference */
-    		}
-
-    		PrivateForum pf = null;
-    		if (pfMap.containsKey(userId))
-    			pf = pfMap.get(userId);
-
-    		if (pf != null && (pf.getAutoForward()==PrivateForumImpl.AUTO_FOWARD_YES) && pf.getAutoForwardEmail() != null){
-    			forwardingEnabled = true;
-				fAddresses.add(new InternetAddress(pf.getAutoForwardEmail()));
-				//forwardAddress = pf.getAutoForwardEmail();
-    		}
-    		if (pf != null && (pf.getAutoForward()==PrivateForumImpl.AUTO_FOWARD_DEFAULT) && submitterEmailReceiptPref==PrivateForumImpl.AUTO_FOWARD_YES){
-				pf.setAutoForwardEmail(mailAFoward);
-				forwardingEnabled = true;
-				fAddresses.add(new InternetAddress(pf.getAutoForwardEmail()));
-    		}
-    		if( pf == null)  
-    		{
-    			//only check for default settings if the pf is null
-    			PrivateForum oldPf = forumManager.getPrivateForumByOwnerAreaNull(userId);
-    			if (oldPf != null && (oldPf.getAutoForward()==PrivateForumImpl.AUTO_FOWARD_YES) && oldPf.getAutoForwardEmail() != null) {
-					//forwardAddress = oldPf.getAutoForwardEmail();
-    				forwardingEnabled = true;
-					fAddresses.add(new InternetAddress(oldPf.getAutoForwardEmail()));
-    			}
-        		if (oldPf != null && (oldPf.getAutoForward()==PrivateForumImpl.AUTO_FOWARD_DEFAULT) && submitterEmailReceiptPref==PrivateForumImpl.AUTO_FOWARD_YES) {
-					oldPf.setAutoForwardEmail(mailAFoward);
-					forwardingEnabled = true;
-					fAddresses.add(new InternetAddress(oldPf.getAutoForwardEmail()));
-    			}
-
-    		}
-
-    		/** determine if current user is equal to recipient */
-    		Boolean isRecipientCurrentUser = 
-    			(currentUserAsString.equals(userId) ? Boolean.TRUE : Boolean.FALSE);      
-
-
-    			PrivateMessageRecipientImpl receiver = new PrivateMessageRecipientImpl(
-    					userId, typeManager.getReceivedPrivateMessageType(), contextId,
-    					isRecipientCurrentUser, bcc);
-    			recipientList.add(receiver);                    
-    		}      
-
     
     /** add sender as a saved recipient */
     PrivateMessageRecipientImpl sender = new PrivateMessageRecipientImpl(
@@ -1268,22 +1287,13 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 
     message.setRecipients(recipientList);
 
-	Message savedMessage;
-	if (isMailArchive) {
-		savedMessage = messageManager.saveOrUpdateMessage(message, false, DiscussionForumService.MESSAGES_TOOL_ID, currentUserAsString, contextId);
-	} else {
-		savedMessage = savePrivateMessage(message, false);
-	}
+	Message savedMessage = saveMessage(message, isMailArchive, contextId, currentUserAsString);
 
     message.setId(savedMessage.getId());
 
     String bodyString = buildMessageBody(message);
-	
-	if (("all".equals(ServerConfigurationService.getString(REAL_REPLY, "none")) || contextId.contains(ServerConfigurationService.getString(REAL_REPLY, "none"))) && systemEmail.equalsIgnoreCase(ServerConfigurationService.getString("msgcntr.notification.from.address", defaultEmail))) {
-		replyEmail = new InternetAddress[1];
-		replyEmail[0] = new InternetAddress(buildMailReply(savedMessage));
-		systemEmail = ServerConfigurationService.getString("msgcntr.notification.from.address.reply", defaultEmail);
-	}
+    List<InternetAddress> replyEmail  = new ArrayList<>();
+    String systemEmail = getSystemAndReplyEmail(defaultEmail, currentUser, savedMessage, replyEmail, contextId);
 
 	if (asEmail)
 	{
@@ -1291,8 +1301,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 	//we need to add som headers
 	additionalHeaders.add("From: " + systemEmail);
 	additionalHeaders.add("Subject: " + message.getTitle());
-	if (replyEmail != null) {
-		additionalHeaders.add("Reply-To: " + replyEmail[0].getAddress());
+	if (!replyEmail.isEmpty()) {
+		additionalHeaders.add("Reply-To: " + replyEmail.get(0));
 	}
 	emailService.sendToUsers(recipients.keySet(), additionalHeaders, bodyString);
 	}   	
@@ -1302,7 +1312,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 		InternetAddress fAddressesArr[] = new InternetAddress[fAddresses.size()];
 		fAddressesArr = fAddresses.toArray(fAddressesArr);
 		emailService.sendMail(new InternetAddress(systemEmail), fAddressesArr, message.getTitle(), 
-				bodyString, null, replyEmail, additionalHeaders);
+				bodyString, null, replyEmail.toArray(new InternetAddress[1]), additionalHeaders);
 	}
 
 
@@ -1341,8 +1351,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 		  try {
 			  currentUser = userDirectoryService.getUser(message.getCreatedBy());
 		  } catch (UserNotDefinedException e) {
-			  log.error("cannot find user with id " + message.getCreatedBy() + " " + e.getMessage());
-			  throw new IllegalArgumentException("cannot find user with id " + message.getCreatedBy());
+			  log.error(USER_NOT_DEFINED + message.getCreatedBy() + " " + e.getMessage());
+			  throw new IllegalArgumentException(USER_NOT_DEFINED + message.getCreatedBy());
 		  }
 	  }
 	  StringBuilder body = new StringBuilder(message.getBody());
@@ -2081,42 +2091,49 @@ return topicTypeUuid;
 	  return currentMessage;
   }
   
-  public PrivateMessage getPvtMsgReplyMessage(PrivateMessage currentMessage, MimeMessage msg, StringBuilder[] bodyBuf, List<Reference> attachments, String from) throws MessagingException {
-		
+  private PrivateMessage createResponseMessage(PrivateMessage currentMessage, MimeMessage msg, String from) throws MessagingException {
 	  PrivateMessage rrepMsg = messageManager.createPrivateMessage() ;
+
+	  rrepMsg.setTitle(msg.getSubject());
 	  try {
-		  rrepMsg.setTitle(msg.getSubject());
-		  try {
-			  rrepMsg.setCreatedBy(userDirectoryService.getUserByEid(from).getId());
-		  } catch (UserNotDefinedException e) {
-			  rrepMsg.setCreatedBy(getUserIdByFowardMail(currentMessage.getId(), from));
-			  if (rrepMsg.getCreatedBy() == null) {
-				  log.warn("Exception: Sender's email does not belong in Sakai, nor is it recognized as an automatic forwarding address. If you have replied to this email from an address other than the one you have configured for email forwarding, please reply from that address.");
-				  throw new MessagingException("683 - Sender's email does not belong in Sakai, nor is it recognized as an automatic forwarding address. If you have replied to this email from an address other than the one you have configured for email forwarding, please reply from that address."); 
-			  }
-		  }
-		  User userFrom;
-		  try {
-			  userFrom = userDirectoryService.getUser(rrepMsg.getCreatedBy());
-			  from = userFrom.getEmail();
-		  } catch (UserNotDefinedException e1) {
+		  rrepMsg.setCreatedBy(userDirectoryService.getUserByEid(from).getId());
+	  } catch (UserNotDefinedException e) {
+		  rrepMsg.setCreatedBy(getUserIdByFowardMail(currentMessage.getId(), from));
+		  if (rrepMsg.getCreatedBy() == null) {
 			  log.warn("Exception: Sender's email does not belong in Sakai, nor is it recognized as an automatic forwarding address. If you have replied to this email from an address other than the one you have configured for email forwarding, please reply from that address.");
 			  throw new MessagingException("683 - Sender's email does not belong in Sakai, nor is it recognized as an automatic forwarding address. If you have replied to this email from an address other than the one you have configured for email forwarding, please reply from that address.");
 		  }
-		  rrepMsg.setAuthor(userFrom.getSortName().concat(" ("+from+")"));
-		  rrepMsg.setInReplyTo(currentMessage);
-		  if (errRecipient(currentMessage.getRecipients(), rrepMsg)) {
-			  log.warn("Exception: Sender's email address does not belong to any of the mail original recipients.  If you are replying from an address different than the one from which you received the email, please use the correct email address to reply to it.");
-			  throw new MessagingException("359 - Sender's email address does not belong to any of the mail original recipients.  If you are replying from an address different than the one from which you received the email, please use the correct email address to reply to it.");
-		  }
-		  if (errMaxMessageRespond(rrepMsg)) {
-			  log.warn("Exception: The maximum number of responses for the sender's mail address has been exceeded.  For security reasons, please reply to this mail from Sakai's private messages tool.");
-			  throw new MessagingException("682 - The maximum number of responses for the sender's mail address has been exceeded.  For security reasons, please reply to this mail from Sakai's private messages tool.");
-		  }
-	  } catch (MessagingException e){
-		  log.warn(e.getMessage(), e);
-		  throw e;
 	  }
+	  User userFrom;
+	  String fromMail = from;
+	  try {
+		  userFrom = userDirectoryService.getUser(rrepMsg.getCreatedBy());
+		  fromMail = userFrom.getEmail();
+	  } catch (UserNotDefinedException e1) {
+		  log.warn("Exception: Sender's email does not belong in Sakai, nor is it recognized as an automatic forwarding address. If you have replied to this email from an address other than the one you have configured for email forwarding, please reply from that address.");
+		  throw new MessagingException("683 - Sender's email does not belong in Sakai, nor is it recognized as an automatic forwarding address. If you have replied to this email from an address other than the one you have configured for email forwarding, please reply from that address.");
+	  }
+	  rrepMsg.setAuthor(userFrom.getSortName().concat(" ("+fromMail+")"));
+	  rrepMsg.setInReplyTo(currentMessage);
+	  if (errRecipient(currentMessage.getRecipients(), rrepMsg)) {
+		  log.warn("Exception: Sender's email address does not belong to any of the mail original recipients.  If you are replying from an address different than the one from which you received the email, please use the correct email address to reply to it.");
+		  throw new MessagingException("359 - Sender's email address does not belong to any of the mail original recipients.  If you are replying from an address different than the one from which you received the email, please use the correct email address to reply to it.");
+	  }
+	  if (errMaxMessageRespond(rrepMsg)) {
+		  log.warn("Exception: The maximum number of responses for the sender's mail address has been exceeded.  For security reasons, please reply to this mail from Sakai's private messages tool.");
+		  throw new MessagingException("682 - The maximum number of responses for the sender's mail address has been exceeded.  For security reasons, please reply to this mail from Sakai's private messages tool.");
+	  }
+
+	  rrepMsg.setDraft(Boolean.FALSE);
+	  rrepMsg.setDeleted(Boolean.FALSE);
+	  rrepMsg.setApproved(Boolean.FALSE);
+	  return rrepMsg;
+  }
+
+  public PrivateMessage getPvtMsgReplyMessage(PrivateMessage currentMessage, MimeMessage msg, StringBuilder[] bodyBuf, List<Reference> attachments, String from) throws MessagingException {
+
+	  PrivateMessage rrepMsg = createResponseMessage(currentMessage, msg, from);
+
 	  if (!StringUtils.isNotBlank(bodyBuf[0].toString())) {
 		  bodyBuf[0].insert(0, "<pre>");
 		  bodyBuf[0].insert(bodyBuf[0].length(), "</pre>");
@@ -2124,9 +2141,6 @@ return topicTypeUuid;
 	  } else {
 		  rrepMsg.setBody(bodyBuf[1].toString());
 	  }
-	  rrepMsg.setDraft(Boolean.FALSE);
-	  rrepMsg.setDeleted(Boolean.FALSE);
-	  rrepMsg.setApproved(Boolean.FALSE);
 	  rrepMsg.setLabel(currentMessage.getLabel());
 
 	  StringBuilder sendToString = new StringBuilder("");

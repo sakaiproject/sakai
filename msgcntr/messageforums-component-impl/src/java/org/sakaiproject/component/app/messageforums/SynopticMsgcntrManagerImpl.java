@@ -1334,15 +1334,13 @@ public class DecoratedForumInfo{
 				Thread.currentThread().interrupt();
 			}
 			
-			numOfAttempts--;
-			
 			if (numOfAttempts <= 0) {
 				log.info("SynopticMsgcntrManagerImpl: incrementMessagesSynopticToolInfo: HibernateOptimisticLockingFailureException no more retries left");
 				log.error(holfe.getMessage(), holfe);
 			} else {
 				log.info("SynopticMsgcntrManagerImpl: incrementMessagesSynopticToolInfo: HibernateOptimisticLockingFailureException: attempts left: "
 						+ numOfAttempts);
-				incrementMessagesSynopticToolInfo(userIds, siteId, numOfAttempts);
+				incrementMessagesSynopticToolInfo(userIds, siteId, numOfAttempts-1);
 			}
 		}
 	}	
