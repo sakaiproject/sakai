@@ -120,6 +120,7 @@ From its inception, the Sakai project has been envisioned and designed for globa
 | sv_SE | Swedish |
 | tr_TR | Turkish |
 | zh_CN | Chinese |
+| ar | Arabic |
 
 ### Other languages
 
