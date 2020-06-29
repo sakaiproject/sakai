@@ -11,6 +11,10 @@
         <component-class>org.sakaiproject.tool.section.jsf.RowGroupDataTable</component-class>
     </component>
 
+    <validator>
+        <validator-id>SectionTitleValidator</validator-id>
+        <validator-class>org.sakaiproject.tool.section.jsf.validator.SectionTitleValidator</validator-class>
+    </validator>
 
     <render-kit>
         <renderer>
