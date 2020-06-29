@@ -343,7 +343,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
               <span>${this.assignmentsI18n["allow.resubmit.number"]}:</span>
               <select aria-label="${this.i18n["attempt_selector_label"]}" @change=${e => this.resubmitNumber = e.target.value}>
                 ${Array(10).fill().map((_, i) => html`
-                  <option value="${i + 1}" .selected=${this.submission.allowResubmitNumber == (i + 1)}>${i + 1}</option>
+                  <option value="${i + 1}" .selected=${this.submission.allowResubmitNumber === (i + 1)}>${i + 1}</option>
                 `)}
                 <option value="-1" .selected=${this.submission.allowResubmitNumber === "-1"}>${this.i18n["unlimited"]}</option>
               </select>
@@ -713,7 +713,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       const numDecimals = number.includes(".") ? number.split(".")[1].length : 0;
 
       // If the user has highlighted the current entry, they want to replace it.
-      if (numDecimals == 2 && ((e.target.selectionEnd - e.target.selectionStart) < e.target.value.length)) {
+      if (numDecimals === 2 && ((e.target.selectionEnd - e.target.selectionStart) < e.target.value.length)) {
         e.preventDefault();
         return false;
       }
@@ -746,6 +746,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         this.toggleInlineFeedback(null, true);
       }
       this.submission = this.submissions[currentIndex - 1];
+      this.showResubmission = this.submission.allowResubmitNumber > 0 ? true : false;
     }
   }
 
@@ -756,6 +757,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     }
 
     this.submission = this.submissions.find(s => s.id === e.target.value);
+    this.showResubmission = this.submission.allowResubmitNumber > 0 ? true : false;
   }
 
   next() {
@@ -770,6 +772,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         this.toggleInlineFeedback(null, true);
       }
       this.submission = this.submissions[currentIndex + 1];
+      this.showResubmission = this.submission.allowResubmitNumber > 0 ? true : false;
     }
   }
 
