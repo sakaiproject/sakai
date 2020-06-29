@@ -49,10 +49,14 @@
 				<label wicket:for="duedate" class="col-xs-3 control-label">
 					<wicket:message key="label.addgradeitem.due" />
 				</label>
-				<div class="col-xs-6 form-inline">
-                    <input wicket:id="duedate" type="text" class="form-control gb-datepicker" aria-describedby="duedate-help"/>
-                    <button class="btn btn-sm btn-default invoke-datepicker-btn" type="button"><span class="glyphicon glyphicon-calendar"></span></button>
-                    <button class="btn btn-sm btn-default clear-datepicker-btn" type="button"><span class="glyphicon glyphicon-remove"></span></button>
+				<div class="col-xs-6">
+					<div class="input-group">
+						<input wicket:id="duedate" type="text" class="form-control gb-datepicker" aria-describedby="duedate-help" />
+						<span class="input-group-btn">
+							<button class="btn btn-sm btn-default invoke-datepicker-btn" type="button"><span class="glyphicon glyphicon-calendar"></span></button>
+							<button class="btn btn-sm btn-default clear-datepicker-btn" type="button"><span class="glyphicon glyphicon-remove"></span></button>
+						</span>
+					</div>
                     <script>
                         var initDatePickers = function () {
                             $('.gb-datepicker').each(function() {
