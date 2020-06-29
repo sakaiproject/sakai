@@ -32,7 +32,7 @@
                 "siteTitle": "$!{siteTitle}",
                 "shortDescription" : "$!{shortDescription}",
                 "toolsCollapsed": #if ($toolsCollapsed) true #else false #end,
-                "locale": "$!{locale}",
+                "locale": "$!{locale}" || "en-US",
                 "serverTimeMillis": "$!{serverTimeMillis}",
                 "user": {
                     "id": "$!{userId}",
