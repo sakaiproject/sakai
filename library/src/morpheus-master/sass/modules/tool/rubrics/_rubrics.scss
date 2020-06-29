@@ -322,6 +322,47 @@
                 color: $rubrics-crit-item-title-color;
             }
         }
+        .criterion-weight {
+            margin-bottom: -5px;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            flex-wrap:wrap;
+            > span {
+                &:first-child {
+                    font-size: 12px;
+                    margin-right: 8px;
+                }
+                &:last-child {
+                    font-size: 12px;
+                }
+            }
+        }
+        .weight-field {
+            .form-group {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                flex-wrap: wrap;
+                margin-top: 10px;
+                margin-bottom: -5px;
+                > {
+                    label {
+                        margin: 0;
+                        font-weight: inherit;
+                        margin-right: 5px;
+                    }
+                    input {
+                        max-width: 60px;
+                        text-align: center;
+                        margin-right: 5px;
+                    }
+                    span {
+                        font-size: 12px;
+                    }
+                }
+            }
+        }
 
         &.grading {
             .rating-item {

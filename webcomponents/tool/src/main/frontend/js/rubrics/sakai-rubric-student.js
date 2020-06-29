@@ -86,6 +86,7 @@ class SakaiRubricStudent extends RubricsElement {
       ${this.preview || this.forcePreview ? html`
         <sakai-rubric-criterion-preview
           criteria="${JSON.stringify(this.rubric.criterions)}"
+          ?weighted=${this.rubric.weighted}
         ></sakai-rubric-criterion-preview>
         ` : html`
         <sakai-rubric-criterion-student
@@ -94,6 +95,7 @@ class SakaiRubricStudent extends RubricsElement {
           evaluation-details="${JSON.stringify(this.evaluation.criterionOutcomes)}"
           ?preview="${this.preview}"
           entity-id="${this.entityId}"
+          ?weighted=${this.rubric.weighted}
         ></sakai-rubric-criterion-student>
       `}
     `;
