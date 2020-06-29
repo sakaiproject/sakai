@@ -50,6 +50,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 /**
@@ -185,15 +186,20 @@ public class SakaiMessageHandlerTest {
     }
     
     @Test
-    public void testNoReply() throws Exception {
+    public void testNoReply() {
         String fromReply = serverConfigurationService.getString(FROM_REPLY, StringUtils.EMPTY);
 
-        if (!StringUtils.isBlank(fromReply)) {
-            SmartClient client = createClient();
-	        client.from("sender@example.com");
-	        client.to("reply-msg-id_0000000@sakai.example.com");
-	        writeData(client, "/simple-email.txt");
-	    }
+        try {
+            if (!StringUtils.isBlank(fromReply)) {
+                SmartClient client = createClient();
+                client.from("sender@example.com");
+                client.to("reply-msg-id_0000000@sakai.example.com");
+                writeData(client, "/simple-email.txt");
+            }
+            assertTrue(Boolean.TRUE);
+        }catch (Exception e){
+            assertTrue(Boolean.FALSE);
+        }
     }
 
     @Test
