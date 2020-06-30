@@ -245,7 +245,11 @@
                 <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
                 <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
                 <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+<<<<<<< HEAD
 		        <property name="learningResourceStoreService" ref="org.sakaiproject.event.api.LearningResourceStoreService"/>
+=======
+                <property name="learningResourceStoreService" ref="org.sakaiproject.event.api.LearningResourceStoreService"/>
+>>>>>>> b1a2b88d9e677e93e77fe294fc4df90648928926
             </bean>
         </property>
          <property name="transactionAttributes">
