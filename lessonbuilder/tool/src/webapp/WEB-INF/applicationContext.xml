@@ -378,7 +378,6 @@ simplePageBean.addForumSummary
 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
 		<property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao"/>
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
-		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
 	</bean>
 
 	<bean id="org.sakaiproject.lessonbuildertool.ccexport.CCUtils"
