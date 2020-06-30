@@ -24,17 +24,8 @@ package org.sakaiproject.email.impl;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Properties;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
@@ -53,6 +44,7 @@ import javax.mail.internet.MimeMultipart;
 import javax.mail.internet.MimeUtility;
 
 import lombok.extern.slf4j.Slf4j;
+import lombok.Setter;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
@@ -60,6 +52,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.AddressValidationException;
+import org.sakaiproject.email.api.AttachmentSizeException;
 import org.sakaiproject.email.api.Attachment;
 import org.sakaiproject.email.api.CharacterSet;
 import org.sakaiproject.email.api.ContentType;
@@ -77,6 +70,7 @@ import org.sakaiproject.user.api.User;
  * </p>
  */
 @Slf4j
+@Setter
 public class BasicEmailService implements EmailService
 {
 	protected static final String PROTOCOL_SMTP = "smtp";
@@ -140,16 +134,10 @@ public class BasicEmailService implements EmailService
 	public static final String MAIL_SENDFROMSAKAI = "mail.sendfromsakai";
 	public static final String MAIL_SENDFROMSAKAI_EXCEPTIONS = "mail.sendfromsakai.exceptions";
 	public static final String MAIL_SENDFROMSAKAI_FROMTEXT = "mail.sendfromsakai.fromtext";
-	public static final String MAIL_SENDFROMSAKAI_MAXSIZE = "mail.sendfromsakai.maxsize";
 
 	protected static final String CONTENT_TYPE = ContentType.TEXT_PLAIN;
 
 	protected ServerConfigurationService serverConfigurationService;
-
-	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService)
-	{
-		this.serverConfigurationService = serverConfigurationService;
-	}
 
 	/** The protocol to use when connecting to the mail server */
 	private String protocol;
@@ -159,130 +147,31 @@ public class BasicEmailService implements EmailService
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/** Configuration: smtp server to use. */
-	protected String m_smtp = null;
-
-	/**
-	 * Configuration: smtp server to use.
-	 * 
-	 * @param value
-	 *        The smtp server string.
-	 */
-	public void setSmtp(String value)
-	{
-		m_smtp = value;
-	}
+	protected String smtp = null;
 
 	/** Configuration: smtp server port to use. */
-	protected String m_smtpPort = null;
-
-	/**
-	 * Configuration: smtp server port to use.
-	 * 
-	 * @param value
-	 *        The smtp server port string.
-	 */
-	public void setSmtpPort(String value)
-	{
-		m_smtpPort = value;
-	}
+	protected String smtpPort = null;
 
 	/** Configuration: smtp user for use with authenticated SMTP. */
-	protected String m_smtpUser = null;
-
-	/**
-	 * Configuration: smtp user for use with authenticated SMTP.
-	 * 
-	 * @param value
-	 *        The smtp user string.
-	 */
-	public void setSmtpUser(String value)
-	{
-	 	m_smtpUser = value;
-	}
+	protected String smtpUser = null;
 
 	/** Configuration: smtp password for use with authenticated SMTP. */
-	protected String m_smtpPassword = null;
-
-  	/**
-	 * Configuration: smtp password for use with authenticated SMTP.
-	 * 
-	 * @param value
-	 *        The smtp password string.
-	 */
- 	public void setSmtpPassword(String value)
-	{
-		m_smtpPassword = value;
-	}
+	protected String smtpPassword = null;
 
  	/** Configuration: send over SSL (or not) */
- 	protected boolean m_smtpUseSSL;
-
-	/**
-	 * Configuration: send over SSL (or not)
-	 * 
-	 * @param useSSL
-	 *            The setting
-	 */
-	public void setSmtpUseSSL(boolean useSSL)
-	{
-		m_smtpUseSSL = useSSL;
-	}
+	protected boolean smtpUseSSL;
 
 	/** Configuration: send using TLS (or not). */
-	protected boolean m_smtpUseTLS = false;
-
-	/**
-	 * Configuration: send using TLS (or not)
-	 * 
-	 * @param value
-	 *        The setting
-	 */
-	public void setSmtpUseTLS(boolean value)
-	{
-		m_smtpUseTLS = value;
-	}
+	protected boolean smtpUseTLS = false;
 
 	/** Configuration: set the mail.debug property so we can get proper output from javamail (or not). */
-	protected boolean m_smtpDebug = false;
-
-	/**
-	 * Configuration: set the mail.debug property so we can get proper output from javamail (or not).
-	 * 
-	 * @param value
-	 *        The setting
-	 */
-	public void setSmtpDebug(boolean value)
-	{
-		m_smtpDebug = value;
-	}
+	protected boolean smtpDebug = false;
 
 	/** Configuration: optional smtp mail envelope return address. */
-	protected String m_smtpFrom = null;
-
-	/**
-	 * Configuration: smtp mail envelope return address.
-	 * 
-	 * @param value
-	 *        The smtp mail from address string.
-	 */
-	public void setSmtpFrom(String value)
-	{
-		m_smtpFrom = value;
-	}
+	protected String smtpFrom = null;
 
 	/** Configuration: set to go into test mode, where mail is not really sent out. */
-	protected boolean m_testMode = false;
-
-	/**
-	 * Configuration: set test mode.
-	 * 
-	 * @param value
-	 *        The test mode value
-	 */
-	public void setTestMode(boolean value)
-	{
-		m_testMode = value;
-	}
+	protected boolean testMode = false;
 
 	/**
 	 * Configuration: turns off transport sending.  This can be turned off to allow pr
@@ -291,13 +180,8 @@ public class BasicEmailService implements EmailService
 	 */
 	protected boolean allowTransport = true;
 
-	public void setAllowTransport(boolean allowTransport)
-	{
-		this.allowTransport = allowTransport;
-	}
-
 	/** The max # recipients to include in each message. */
-	protected int m_maxRecipients = 100;
+	protected int maxRecipients = 100;
 
 	/**
 	 * Set max # recipients to include in each message.
@@ -307,54 +191,26 @@ public class BasicEmailService implements EmailService
 	 */
 	public void setMaxRecipients(String setting)
 	{
-		m_maxRecipients = Integer.parseInt(setting);
+		maxRecipients = Integer.parseInt(setting);
 
 		// validate - if invalid, restore to the default
-		if (m_maxRecipients < 1) m_maxRecipients = 100;
+		if (maxRecipients < 1) maxRecipients = 100;
 	}
 
 	/** Configuration: use a connection to the SMTP for only one message (or not). */
-	protected boolean m_oneMessagePerConnection = false;
-
-	/**
-	 * Configuration: set use a connection to the SMTP for only one message (or not)
-	 * 
-	 * @param value
-	 *        The setting
-	 */
-	public void setOneMessagePerConnection(boolean value)
-	{
-		m_oneMessagePerConnection = value;
-	}
+	protected boolean oneMessagePerConnection = false;
 
 	/** Hostname to use for SMTP HELO commands */
-	protected String m_smtpLocalhost = null;
-
-	/**
-	 * Hostname to use for SMTP HELO commands.
-	 * RFC1123 section 5.2.5 and RFC2821 section 4.1.1.1
-	 * 
-	 *  @param value
-	 *  		The hostname (eg foo.example.com)
-	 */
-	public void setSmtpLocalhost(String value)
-	{
-		m_smtpLocalhost = value;
-	}
+	protected String smtpLocalhost = null;
 
 	/** Configuration: send partial email or fail on any errors */
-	protected boolean m_sendPartial = true;
-
-	public void setSendPartial(boolean sendPartial)
-	{
-		m_sendPartial = sendPartial;
-	}
+	protected boolean sendPartial = true;
 
 	/** Configuration: Socket connection timeout value in milliseconds. Default is infinite timeout. */
-	protected String m_smtpConnectionTimeout = null;
+	protected String smtpConnectionTimeout = null;
 	
 	/** Configuration: Socket I/O timeout value in milliseconds. Default is infinite timeout. */
-	protected String m_smtpTimeout = null;
+	protected String smtpTimeout = null;
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -366,7 +222,7 @@ public class BasicEmailService implements EmailService
 	public void init()
 	{
 		// set the protocol to be used
-		if (m_smtpUseSSL)
+		if (smtpUseSSL)
 		{
 			protocol = PROTOCOL_SMTPS;
 		}
@@ -376,35 +232,35 @@ public class BasicEmailService implements EmailService
 		}
 
 		// if no m_mailfrom set, set to the postmaster
-		if (m_smtpFrom == null)
+		if (smtpFrom == null)
 		{
-			m_smtpFrom = POSTMASTER + "@" + serverConfigurationService.getServerName();
+			smtpFrom = POSTMASTER + "@" + serverConfigurationService.getServerName();
 		}
 		// initialize timeout values
-		m_smtpConnectionTimeout = serverConfigurationService.getString(propName(MAIL_CONNECTIONTIMEOUT_T), null);
-		m_smtpTimeout = serverConfigurationService.getString(propName(MAIL_TIMEOUT_T), null);
+		smtpConnectionTimeout = serverConfigurationService.getString(propName(MAIL_CONNECTIONTIMEOUT_T), null);
+		smtpTimeout = serverConfigurationService.getString(propName(MAIL_TIMEOUT_T), null);
 
 		// check for smtp protocol labeled values for backwards compatibility
 		if (PROTOCOL_SMTPS.equals(protocol))
 		{
-			if (m_smtpConnectionTimeout == null)
-				m_smtpConnectionTimeout = serverConfigurationService.getString(propName(MAIL_CONNECTIONTIMEOUT_T, PROTOCOL_SMTP), null);
+			if (smtpConnectionTimeout == null)
+				smtpConnectionTimeout = serverConfigurationService.getString(propName(MAIL_CONNECTIONTIMEOUT_T, PROTOCOL_SMTP), null);
 		
-			if (m_smtpTimeout == null)
-				m_smtpTimeout = serverConfigurationService.getString(propName(MAIL_TIMEOUT_T, PROTOCOL_SMTP), null);
+			if (smtpTimeout == null)
+				smtpTimeout = serverConfigurationService.getString(propName(MAIL_TIMEOUT_T, PROTOCOL_SMTP), null);
 		}
 
 		// promote these to the system properties, to keep others (James) from messing with them
-		if (m_smtp != null) System.setProperty(propName(MAIL_HOST_T), m_smtp);
-		if (m_smtpPort != null) System.setProperty(propName(MAIL_PORT_T), m_smtpPort);
-		System.setProperty(propName(MAIL_FROM_T), m_smtpFrom);
-		if (m_smtpConnectionTimeout != null) System.setProperty(propName(MAIL_CONNECTIONTIMEOUT_T), m_smtpConnectionTimeout);
-		if (m_smtpTimeout != null) System.setProperty(propName(MAIL_TIMEOUT_T), m_smtpTimeout);
+		if (smtp != null) System.setProperty(propName(MAIL_HOST_T), smtp);
+		if (smtpPort != null) System.setProperty(propName(MAIL_PORT_T), smtpPort);
+		System.setProperty(propName(MAIL_FROM_T), smtpFrom);
+		if (smtpConnectionTimeout != null) System.setProperty(propName(MAIL_CONNECTIONTIMEOUT_T), smtpConnectionTimeout);
+		if (smtpTimeout != null) System.setProperty(propName(MAIL_TIMEOUT_T), smtpTimeout);
 
-		log.info("init(): smtp: " + m_smtp + ((m_smtpPort != null) ? (":" + m_smtpPort) : "") + " bounces to: " + m_smtpFrom
-				+ " maxRecipients: " + m_maxRecipients + " testMode: " + m_testMode
-				+ ((m_smtpConnectionTimeout != null) ? (" smtpConnectionTimeout: " + m_smtpConnectionTimeout) : "")
-				+ ((m_smtpTimeout != null) ? (" smtpTimeout: " + m_smtpTimeout) : ""));
+		log.info("init(): smtp: {}{} bounces to: {} maxRecipients: {} testMode: {} {} {}"
+                    , smtp, smtpPort != null ? (":" + smtpPort) : "", smtpFrom, maxRecipients, testMode
+				    , smtpConnectionTimeout != null ? (" smtpConnectionTimeout: " + smtpConnectionTimeout) : ""
+				    , smtpTimeout != null ? (" smtpTimeout: " + smtpTimeout) : "");
 	}
 
 	/**
@@ -440,31 +296,29 @@ public class BasicEmailService implements EmailService
 	public void sendMail(InternetAddress from, InternetAddress[] to, String subject, String content,
 			Map<RecipientType, InternetAddress[]> headerTo, InternetAddress[] replyTo,
 			List<String> additionalHeaders, List<Attachment> attachments) {
+
 		try {
 			sendMailMessagingException(from, to, subject, content, headerTo, replyTo, additionalHeaders, attachments);
-		}
-		catch (MessagingException e)
-		{
+		} catch (AttachmentSizeException|MessagingException e) {
 			log.error("Email.sendMail: exception: " + e.getMessage(), e);
 		}
 	}
 
 	public void sendMailMessagingException(InternetAddress from, InternetAddress[] to, String subject, String content,
 			Map<RecipientType, InternetAddress[]> headerTo, InternetAddress[] replyTo,
-			List<String> additionalHeaders, List<Attachment> attachments) throws MessagingException
-			{
+			List<String> additionalHeaders, List<Attachment> attachments) throws AttachmentSizeException, MessagingException {
 		// some timing for debug
 		long start = 0;
 		if (log.isDebugEnabled()) start = System.currentTimeMillis();
 
 		// if in test mode, use the test method
-		if (m_testMode)
+		if (testMode)
 		{
 			testSendMail(from, to, subject, content, headerTo, replyTo, additionalHeaders, attachments);
 			return;
 		}
 
-		if (m_smtp == null)
+		if (smtp == null)
 		{
 			log.error("Unable to send mail as no smtp server is defined. Please set smtp@org.sakaiproject.email.api.EmailService value in sakai.properties");
 			return;
@@ -524,20 +378,21 @@ public class BasicEmailService implements EmailService
 		// and we already dealt with the message id
 		if (additionalHeaders != null)
 		{
-			for (String header : additionalHeaders)
-			{
-				if (header.toLowerCase().startsWith(EmailHeaders.CONTENT_TYPE.toLowerCase() + ": "))
+			for (String header : additionalHeaders) {
+				if (header.toLowerCase().startsWith(EmailHeaders.CONTENT_TYPE.toLowerCase() + ": ")) {
 					contentTypeHeader = header;
-				else if (header.toLowerCase().startsWith(EmailHeaders.MULTIPART_SUBTYPE.toLowerCase() + ": "))
+				} else if (header.toLowerCase().startsWith(EmailHeaders.MULTIPART_SUBTYPE.toLowerCase() + ": ")) {
 					multipartSubtype = header.substring(header.indexOf(":") + 1).trim();
-				else if (!header.toLowerCase().startsWith(EmailHeaders.MESSAGE_ID.toLowerCase() + ": "))
+				} else if (!header.toLowerCase().startsWith(EmailHeaders.MESSAGE_ID.toLowerCase() + ": ")) {
 					msg.addHeaderLine(header);
+				}
 			}
 		}
 
 		// date
-		if (msg.getHeader(EmailHeaders.DATE) == null)
+		if (msg.getHeader(EmailHeaders.DATE) == null) {
 			msg.setSentDate(new Date(System.currentTimeMillis()));
+		}
 
 		// set the message sender
 		msg.setFrom(from);
@@ -546,8 +401,9 @@ public class BasicEmailService implements EmailService
 		setRecipients(headerTo, msg);
 
 		// set the reply to
-		if ((replyTo != null) && (msg.getHeader(EmailHeaders.REPLY_TO) == null))
+		if ((replyTo != null) && (msg.getHeader(EmailHeaders.REPLY_TO) == null)) {
 			msg.setReplyTo(replyTo);
+		}
 
 		// update to be Postmaster if necessary
 		checkFrom(msg);
@@ -567,36 +423,40 @@ public class BasicEmailService implements EmailService
 		}
 		else if (canUseCharset(content, CharacterSet.ISO_8859_1) && canUseCharset(subject, CharacterSet.ISO_8859_1))
 		{
-			if (contentTypeHeader != null && charset != null)
+			if (contentTypeHeader != null && charset != null) {
 				contentTypeHeader = contentTypeHeader.replaceAll(charset, CharacterSet.ISO_8859_1);
-			else if (contentTypeHeader != null)
+			} else if (contentTypeHeader != null) {
 				contentTypeHeader += "; charset=" + CharacterSet.ISO_8859_1;
+			}
 			charset = CharacterSet.ISO_8859_1;
 		}
 		else if (canUseCharset(content, CharacterSet.WINDOWS_1252) && canUseCharset(subject, CharacterSet.WINDOWS_1252))
 		{
-			if (contentTypeHeader != null && charset != null)
+			if (contentTypeHeader != null && charset != null) {
 				contentTypeHeader = contentTypeHeader.replaceAll(charset, CharacterSet.WINDOWS_1252);
-			else if (contentTypeHeader != null)
+			} else if (contentTypeHeader != null) {
 				contentTypeHeader += "; charset=" + CharacterSet.WINDOWS_1252;
+			}
 			charset = CharacterSet.WINDOWS_1252;
 		}
 		else
 		{
 			// catch-all - UTF-8 should be able to handle anything
-			if (contentTypeHeader != null && charset != null) 
+			if (contentTypeHeader != null && charset != null) {
 				contentTypeHeader = contentTypeHeader.replaceAll(charset, CharacterSet.UTF_8);
-			else if (contentTypeHeader != null)
+			} else if (contentTypeHeader != null) {
 				contentTypeHeader += "; charset=" + CharacterSet.UTF_8;
-			else
+			} else {
 				contentTypeHeader = EmailHeaders.CONTENT_TYPE + ": "
 						+ ContentType.TEXT_PLAIN + "; charset="
 						+ CharacterSet.UTF_8;
+			}
 			charset = CharacterSet.UTF_8;
 		}
 
-		if ((subject != null) && (msg.getHeader(EmailHeaders.SUBJECT) == null))
+		if ((subject != null) && (msg.getHeader(EmailHeaders.SUBJECT) == null)) {
 			msg.setSubject(subject, charset);
+		}
 
 		// extract just the content type value from the header
 		String contentType = null;
@@ -626,9 +486,7 @@ public class BasicEmailService implements EmailService
 		}
 
 		sendMessageAndLog(to, start, msg, session);
-			}
-
-
+	}
 
 	/**
 	 * fix up From and ReplyTo if we need it to be from Postmaster
@@ -641,83 +499,84 @@ public class BasicEmailService implements EmailService
 	    InternetAddress[] replyTo = null;
 
 	    try {
-		Address[] fromA = msg.getFrom();
-		if (fromA == null || fromA.length == 0) {
-		    log.info("message from missing");
-		    return;
-		} else if (fromA.length > 1) {
-		    log.info("message from more than 1");
-		    return;
-		} else if (fromA instanceof InternetAddress[]) {
-		    from = (InternetAddress) fromA[0];
-		} else {
-		    log.info("message from not InternetAddress");
-		    return;
-		}
-		
-		Address[] replyToA = msg.getReplyTo();
-		if (replyToA == null)
-		    replyTo = null;
-		else if (replyToA instanceof InternetAddress[])
-		    replyTo = (InternetAddress[]) replyToA;
-		else {
-		    log.info("message replyto isn't internet address");
-		    return;
-		}
-		
-		// should we replace from address with a Sakai address?
-		if (sendFromSakai != null && !sendFromSakai.equalsIgnoreCase("false")) {
-		    // exceptions -- addresses to leave alone. Our own addresses are always exceptions.
-		    // you can also configure a regexp of exceptions.
-		    if (!from.getAddress().toLowerCase().endsWith("@" + serverConfigurationService.getServerName().toLowerCase()) && 
-			(sendExceptions == null || sendExceptions.equals("") || !from.getAddress().toLowerCase().matches(sendExceptions))) {
-			
-			// not an exception. do the replacement.
-			// First, decide on the replacement address. The config variable
-			// may be the replacement address. If not, use postmaster
-			if (sendFromSakai.indexOf("@") < 0)
-			    sendFromSakai = POSTMASTER + "@" + serverConfigurationService.getServerName();
-		    
-			// put the original from into reply-to, unless a replyto exists
-			if (replyTo == null || replyTo.length == 0 || replyTo[0].getAddress().equals("")) {
-			    replyTo = new InternetAddress[1];
-			    replyTo[0] = from;
-			    msg.setReplyTo(replyTo);
+			Address[] fromA = msg.getFrom();
+			if (fromA == null || fromA.length == 0) {
+				log.info("message from missing");
+				return;
+			} else if (fromA.length > 1) {
+				log.info("message from more than 1");
+				return;
+			} else if (fromA instanceof InternetAddress[]) {
+				from = (InternetAddress) fromA[0];
+			} else {
+				log.info("message from not InternetAddress");
+				return;
 			}
-			// for some reason setReplyTo doesn't work, though setFrom does. Have to create the
-			// actual header line
-			if (msg.getHeader(EmailHeaders.REPLY_TO) == null)
-			    msg.addHeader(EmailHeaders.REPLY_TO, from.getAddress());
 			
-			// and use the new from address
-			// biggest issue is the "personal address", i.e. the comment text
+			Address[] replyToA = msg.getReplyTo();
+			if (replyToA == null) {
+				replyTo = null;
+			} else if (replyToA instanceof InternetAddress[]) {
+				replyTo = (InternetAddress[]) replyToA;
+			} else {
+				log.info("message replyto isn't internet address");
+				return;
+			}
 
-			String origFromText = from.getPersonal();
-			String origFromAddress = from.getAddress();
-			String fromTextPattern = serverConfigurationService.getString(MAIL_SENDFROMSAKAI_FROMTEXT, "{}");
+			// should we replace from address with a Sakai address?
+			if (sendFromSakai != null && !sendFromSakai.equalsIgnoreCase("false")) {
+				// exceptions -- addresses to leave alone. Our own addresses are always exceptions.
+				// you can also configure a regexp of exceptions.
+				if (!from.getAddress().toLowerCase().endsWith("@" + serverConfigurationService.getServerName().toLowerCase()) &&
+						(sendExceptions == null || sendExceptions.equals("") || !from.getAddress().toLowerCase().matches(sendExceptions))) {
 
-			String fromText = null;
-			if (origFromText != null && !origFromText.equals(""))
-			    fromText = fromTextPattern.replace("{}", origFromText + " (" + origFromAddress + ")");
-			else
-			    fromText = fromTextPattern.replace("{}", origFromAddress);
-		    
-			from = new InternetAddress(sendFromSakai);
-			try {
-			    from.setPersonal(fromText);
-			} catch (Exception e) {}
-			
-			msg.setFrom(from);
-		    }
-		}
+					// not an exception. do the replacement.
+					// First, decide on the replacement address. The config variable
+					// may be the replacement address. If not, use postmaster
+					if (sendFromSakai.indexOf("@") < 0) {
+						sendFromSakai = POSTMASTER + "@" + serverConfigurationService.getServerName();
+					}
+
+					// put the original from into reply-to, unless a replyto exists
+					if (replyTo == null || replyTo.length == 0 || replyTo[0].getAddress().equals("")) {
+						replyTo = new InternetAddress[1];
+						replyTo[0] = from;
+						msg.setReplyTo(replyTo);
+					}
+					// for some reason setReplyTo doesn't work, though setFrom does. Have to create the
+					// actual header line
+					if (msg.getHeader(EmailHeaders.REPLY_TO) == null) {
+						msg.addHeader(EmailHeaders.REPLY_TO, from.getAddress());
+					}
+
+					// and use the new from address
+					// biggest issue is the "personal address", i.e. the comment text
+
+					String origFromText = from.getPersonal();
+					String origFromAddress = from.getAddress();
+					String fromTextPattern = serverConfigurationService.getString(MAIL_SENDFROMSAKAI_FROMTEXT, "{}");
+
+					String fromText = null;
+					if (origFromText != null && !origFromText.equals("")) {
+						fromText = fromTextPattern.replace("{}", origFromText + " (" + origFromAddress + ")");
+					} else {
+						fromText = fromTextPattern.replace("{}", origFromAddress);
+					}
+
+					from = new InternetAddress(sendFromSakai);
+					try {
+						from.setPersonal(fromText);
+					} catch (Exception e) {}
+
+					msg.setFrom(from);
+				}
+			}
 	    } catch (javax.mail.internet.AddressException e) {
-		log.info("checkfrom address exception " + e);
+			log.info("checkfrom address exception " + e);
 	    } catch (javax.mail.MessagingException e) {
-		log.info("checkfrom messaging exception " + e);
+			log.info("checkfrom messaging exception " + e);
 	    }
-
 	}
-
 
 	/**
 	 * {@inheritDoc}
@@ -726,7 +585,7 @@ public class BasicEmailService implements EmailService
 			List<String> additionalHeaders)
 	{
 		// if in test mode, use the test method
-		if (m_testMode)
+		if (testMode)
 		{
 			testSend(fromStr, toStr, subject, content, headerToStr, replyToStr, additionalHeaders);
 			return;
@@ -788,13 +647,13 @@ public class BasicEmailService implements EmailService
 			return;
 		}
 
-		if (m_testMode)
+		if (testMode)
 		{
 			log.info("sendToUsers: users: " + usersToStr(users) + " headers: " + listToStr(headers) + " message:\n" + message);
 			return;
 		}
 
-		if (m_smtp == null)
+		if (smtp == null)
 		{
 			log.warn("sendToUsers: smtp not set");
 			return;
@@ -813,7 +672,7 @@ public class BasicEmailService implements EmailService
 		}
 
 		// form the list of to: addresses from the users users collection
-		ArrayList<InternetAddress> addresses = new ArrayList<InternetAddress>();
+		List<InternetAddress> addresses = new ArrayList<>();
 		for (User user : users)
 		{
 			String email = user.getEmail();
@@ -852,19 +711,19 @@ public class BasicEmailService implements EmailService
 	}
 
 	private List<Address[]> getMessageSets(List<InternetAddress> addresses) {
-		// how many separate messages do we need to send to keep each one at or under m_maxRecipients?
-		int numMessageSets = ((addresses.size() - 1) / m_maxRecipients) + 1;
+		// how many separate messages do we need to send to keep each one at or under maxRecipients?
+		int numMessageSets = ((addresses.size() - 1) / maxRecipients) + 1;
 
 		// make an array for each and store them all in the collection
-		ArrayList<Address[]> messageSets = new ArrayList<Address[]>();
+		List<Address[]> messageSets = new ArrayList<>();
 		int posInAddresses = 0;
 		for (int i = 0; i < numMessageSets; i++)
 		{
 			// all but the last one are max size
-			int thisSize = m_maxRecipients;
+			int thisSize = maxRecipients;
 			if (i == numMessageSets - 1)
 			{
-				thisSize = addresses.size() - ((numMessageSets - 1) * m_maxRecipients);
+				thisSize = addresses.size() - ((numMessageSets - 1) * maxRecipients);
 			}
 
 			// size an array
@@ -904,10 +763,11 @@ public class BasicEmailService implements EmailService
 			msg.saveChanges();
 
 			if (log.isDebugEnabled()) time3 = System.currentTimeMillis();
-			if(m_smtpUser != null && m_smtpPassword != null)
-				transport.connect(m_smtp,m_smtpUser,m_smtpPassword);
-			else
+			if (smtpUser != null && smtpPassword != null) {
+				transport.connect(smtp,smtpUser,smtpPassword);
+			} else {
 				transport.connect();
+			}
 
 			if (log.isDebugEnabled()) time4 = System.currentTimeMillis();
 
@@ -921,7 +781,7 @@ public class BasicEmailService implements EmailService
 					transport.sendMessage(msg, toAddresses);
 
 					// if we need to use the connection for just one send, and we have more, close and re-open
-					if ((m_oneMessagePerConnection) && (i.hasNext()))
+					if ((oneMessagePerConnection) && (i.hasNext()))
 					{
 						if (log.isDebugEnabled()) timeTmp = System.currentTimeMillis();
 						transport.close();
@@ -994,31 +854,35 @@ public class BasicEmailService implements EmailService
 	{
 		Properties props = new Properties();
 
-		props.put(propName(MAIL_HOST_T), m_smtp);
+		props.put(propName(MAIL_HOST_T), smtp);
 		// Set localhost name
-		if (m_smtpLocalhost != null)
-			props.put(propName(MAIL_LOCALHOST_T), m_smtpLocalhost);
-		if (m_smtpPort != null) props.put(propName(MAIL_PORT_T), m_smtpPort);
-		props.put(propName(MAIL_FROM_T), m_smtpFrom);
-		props.put(propName(MAIL_SENDPARTIAL_T), Boolean.valueOf(m_sendPartial));
-		if (m_smtpConnectionTimeout != null) props.put(propName(MAIL_CONNECTIONTIMEOUT_T), m_smtpConnectionTimeout);
-		if (m_smtpTimeout != null) props.put(propName(MAIL_TIMEOUT_T), m_smtpTimeout);
+		if (smtpLocalhost != null) {
+			props.put(propName(MAIL_LOCALHOST_T), smtpLocalhost);
+		}
+		if (smtpPort != null) props.put(propName(MAIL_PORT_T), smtpPort);
+		props.put(propName(MAIL_FROM_T), smtpFrom);
+		props.put(propName(MAIL_SENDPARTIAL_T), Boolean.valueOf(sendPartial));
+		if (smtpConnectionTimeout != null) props.put(propName(MAIL_CONNECTIONTIMEOUT_T), smtpConnectionTimeout);
+		if (smtpTimeout != null) props.put(propName(MAIL_TIMEOUT_T), smtpTimeout);
 
 		// smtpUser and smtpPassword are set, so assume mail.smtp.auth
-		if(m_smtpUser != null && m_smtpPassword != null)
+		if (smtpUser != null && smtpPassword != null) {
 			props.put(propName(MAIL_AUTH_T), Boolean.TRUE.toString());
+		}
 
-		if(m_smtpUseTLS)
+		if (smtpUseTLS) {
 			props.put(propName(MAIL_TLS_ENABLE_T), Boolean.TRUE.toString());
+		}
 
-		if (m_smtpUseSSL)
+		if (smtpUseSSL)
 		{
 			props.put(propName(MAIL_SOCKET_FACTORY_CLASS_T), SSL_FACTORY);
 			props.put(propName(MAIL_SOCKET_FACTORY_FALLBACK_T), Boolean.FALSE.toString());
 		}
 
-		if (m_smtpDebug)
+		if (smtpDebug) {
 			props.put(MAIL_DEBUG, Boolean.TRUE.toString());
+		}
 
 		return props;
 	}
@@ -1029,14 +893,12 @@ public class BasicEmailService implements EmailService
 	 * @see org.sakaiproject.email.api.EmailService#send(EmailMessage)
 	 * For temporary backward compatibility
 	 */
-	public List<EmailAddress> send(EmailMessage msg) throws AddressValidationException,
-	NoRecipientsException
-	{
-		List<EmailAddress> addresses = new ArrayList<EmailAddress>();
+	public List<EmailAddress> send(EmailMessage msg) throws AddressValidationException, NoRecipientsException {
+
+		List<EmailAddress> addresses = new ArrayList<>();
 		try {
 			addresses = send(msg,true);
-		}
-		catch (MessagingException e) {
+		} catch (AttachmentSizeException|MessagingException e) {
 			log.error("Email.sendMail: exception: " + e.getMessage(), e);
 		}
 		return addresses;
@@ -1047,9 +909,9 @@ public class BasicEmailService implements EmailService
 	 * @see org.sakaiproject.email.api.EmailService#send(EmailMessage)
 	 */
 	public List<EmailAddress> send(EmailMessage msg, boolean messagingException) throws AddressValidationException,
-			NoRecipientsException, MessagingException
+			AttachmentSizeException, NoRecipientsException, MessagingException
 	{
-		ArrayList<EmailAddress> invalids = new ArrayList<EmailAddress>();
+		ArrayList<EmailAddress> invalids = new ArrayList<>();
 
 		InternetAddress from = null;
 		// convert and validate the 'from' address
@@ -1146,7 +1008,7 @@ public class BasicEmailService implements EmailService
 			sendMailMessagingException(from, actual, msg.getSubject(),
 					msg.getBody(), headerTo, replyTo, headers,
 					msg.getAttachments());
-		} catch (MessagingException e) {
+		} catch (AttachmentSizeException|MessagingException e) {
 			// Just log it, if user doesn't want it thrown
 			if (messagingException == false) {
 				log.error("Email.sendMail: exception: " + e.getMessage(), e);
@@ -1311,60 +1173,63 @@ public class BasicEmailService implements EmailService
 	 * @throws MessagingException
 	 */
 	protected void setContent(String content, List<Attachment> attachments, MimeMessage msg,
-			String contentType, String charset, String multipartSubtype) throws MessagingException
-	{
+			String contentType, String charset, String multipartSubtype) throws AttachmentSizeException, MessagingException {
+
 		ArrayList<MimeBodyPart> embeddedAttachments = new ArrayList<MimeBodyPart>();
-		if (attachments != null && attachments.size() > 0)
-		{
-			int maxAttachmentSize = serverConfigurationService.getInt(MAIL_SENDFROMSAKAI_MAXSIZE, 25000000);
-			int attachmentRunningTotal = 0;
+		if (attachments != null && attachments.size() > 0) {
+			int maxAttachmentSize = serverConfigurationService.getInt(MAIL_SENDFROMSAKAI_MAXSIZE, DEFAULT_MAXSIZE);
+			long attachmentRunningTotal = 0L;
 
 			// Add attachments to messages
-			for (Attachment attachment : attachments)
-			{
+			for (Attachment attachment : attachments) {
 				// attach the file to the message
 				MimeBodyPart mbp = createAttachmentPart(attachment);
-				int mbpSize = mbp.getSize();
-				if ( (attachmentRunningTotal + mbpSize) < maxAttachmentSize )
-				{
+				long mbpSize = (long) mbp.getSize();
+
+				if (mbpSize == -1L) {
+					// This is normal. See MimeBodyPart documentation.
+					mbpSize = attachment.getSizeIfFile().orElse(-1L);
+				}
+
+				if (mbpSize == -1L) {
+					log.warn("Failed to get size of email attachment. This could result in the limit being exceeded");
+				}
+
+				if ( (attachmentRunningTotal + mbpSize) < maxAttachmentSize ) {
 					embeddedAttachments.add(mbp);
 					attachmentRunningTotal = attachmentRunningTotal + mbpSize;
-				}
-				else
-				{
-					log.debug("Removed attachment from mail message because it was too large: " + mbpSize);
+				} else {
+					throw new AttachmentSizeException("Attachments too large", attachmentRunningTotal + mbpSize);
 				}
 			}
 		}
 
 		// if no direct attachments, keep the message simple and add the content as text.
-		if (embeddedAttachments.size() == 0)
-		{
+		if (embeddedAttachments.size() == 0) {
 			// if no contentType specified, go with text/plain
-			if (contentType == null)
+			if (contentType == null) {
 				msg.setText(content, charset);
-			else
+			} else {
 				msg.setContent(content, contentType);
-		}
-		// the multipart was constructed (ie. attachments available), use it as the message content
-		else
-		{
+			}
+		} else {
+			// the multipart was constructed (ie. attachments available), use it as the message content
 			// create a multipart container
 			Multipart multipart = (multipartSubtype != null) ? new MimeMultipart(multipartSubtype) : new MimeMultipart();
 
 			// create a body part for the message text
 			MimeBodyPart msgBodyPart = new MimeBodyPart();
-			if (contentType == null)
+			if (contentType == null) {
 				msgBodyPart.setText(content, charset);
-			else
+			} else {
 				msgBodyPart.setContent(content, contentType);
+			}
 
 			// add the message part to the container
 			multipart.addBodyPart(msgBodyPart);
 
 			// add attachments
-			for (MimeBodyPart attachPart : embeddedAttachments)
-			{
+			for (MimeBodyPart attachPart : embeddedAttachments) {
 				multipart.addBodyPart(attachPart);
 			}
 
@@ -1674,31 +1539,34 @@ public class BasicEmailService implements EmailService
 				}
 				else if (canUseCharset(message, CharacterSet.ISO_8859_1) && canUseCharset(getSubject(), CharacterSet.ISO_8859_1))
 				{
-					if (contentType != null && charset != null)
+					if (contentType != null && charset != null) {
 						contentType = contentType.replaceAll(charset, CharacterSet.ISO_8859_1);
-					else if (contentType != null)
+					} else if (contentType != null) {
 						contentType += "; charset=" + CharacterSet.ISO_8859_1;
+					}
 					charset = CharacterSet.ISO_8859_1;
 				}
 				else if (canUseCharset(message, CharacterSet.WINDOWS_1252) && canUseCharset(getSubject(), CharacterSet.WINDOWS_1252))
 				{
-					if (contentType != null && charset != null)
+					if (contentType != null && charset != null) {
 						contentType = contentType.replaceAll(charset, CharacterSet.WINDOWS_1252);
-					else if (contentType != null)
+					} else if (contentType != null) {
 						contentType += "; charset=" + CharacterSet.WINDOWS_1252;
+					}
 					charset = CharacterSet.WINDOWS_1252;
 				}
 				else
 				{
 					// catch-all - UTF-8 should be able to handle anything
-					if (contentType != null && charset != null) 
+					if (contentType != null && charset != null) {
 						contentType = contentType.replaceAll(charset, CharacterSet.UTF_8);
-					else if (contentType != null)
+					} else if (contentType != null) {
 						contentType += "; charset=" + CharacterSet.UTF_8;
-					else
+					} else {
 						contentType = EmailHeaders.CONTENT_TYPE + ": "
 								+ ContentType.TEXT_PLAIN + "; charset="
 								+ CharacterSet.UTF_8;
+					}
 					charset = CharacterSet.UTF_8;
 				}
 				
@@ -1728,8 +1596,9 @@ public class BasicEmailService implements EmailService
 				}
 
 				// make sure correct charset is used for subject
-				if ( getSubject() != null ) 
+				if ( getSubject() != null ) {
 					setSubject(getSubject(), charset); 
+				}
 
 				// if we have a full Content-Type header, set it NOW (after setting the body of the message so that format=flowed is preserved)
 				if (contentType != null  && !contentType.contains("multipart/"))
@@ -1781,11 +1650,11 @@ public class BasicEmailService implements EmailService
 						
 						// Accomodate Section 2.1.1 of http://tools.ietf.org/html/rfc2822 (line length should not exceed 78 characters and must not exceed 998)
 						String tempTitle = MimeUtility.encodeText(title, "UTF-8", null);
-						if ( name.length() + tempTitle.length() + email.length() > 78 )
+						if ( name.length() + tempTitle.length() + email.length() > 78 ) {
 							tempTitle = tempTitle.replace(" ", "\n ");
+						}
 						
-						final String[] lines = 
-							(name + tempTitle + email).split("\r\n|\r|\n");
+						final String[] lines = (name + tempTitle + email).split("\r\n|\r|\n");
 						for (String temp: lines) 
 						{
 							 addHeaderLine(temp);
