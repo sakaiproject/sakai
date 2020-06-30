@@ -128,7 +128,7 @@ export class SakaiRubric extends RubricsElement {
               <sakai-rubric-criteria-readonly
                 criteria="${JSON.stringify(this.rubric.criterions)}"
                 token="${this.token}"
-                ?weighted=${this.rubric.weighted}
+                .weighted=${this.rubric.weighted}
               />`
             : html`
               <sakai-rubric-criteria
@@ -139,7 +139,7 @@ export class SakaiRubric extends RubricsElement {
                 @save-weights="${this.handleSaveWeights}"
                 @weight-changed="${this.handleCriterionWeightChange}"
                 @refresh-total-weight="${this.handleRefreshTotalWeight}"
-                ?weighted=${this.rubric.weighted}
+                .weighted=${this.rubric.weighted}
                 total-weight="${this.totalWeight}"
                 ?valid-weight="${this.validWeight}"
               />`
