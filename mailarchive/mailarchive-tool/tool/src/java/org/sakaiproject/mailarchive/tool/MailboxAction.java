@@ -30,7 +30,6 @@ import java.util.Map.Entry;
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
-import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.PagedResourceActionII;
@@ -337,6 +336,13 @@ public class MailboxAction extends PagedResourceActionII
 		else if (MODE_OPTIONS.equals(mode)) 
 		{
 			return buildOptionsPanelContext(portlet, context, rundata, state);
+		}
+		
+
+		else if (MODE_PERMISSIONS.equals(mode)) 
+		{
+			state.setAttribute(STATE_MODE, "list");
+			return build_permissions_context(portlet, context, rundata, state);
 		}
 
 		else
@@ -1053,36 +1059,12 @@ public class MailboxAction extends PagedResourceActionII
 	 */
 	public void doPermissions(RunData data, Context context)
 	{
-		// get into helper mode with this helper tool
-		startHelper(data.getRequest(), "sakai.permissions.helper");
 
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		state.setAttribute(STATE_MODE, MODE_PERMISSIONS);
+		state.setAttribute(STATE_TOOL_KEY, "mail");
+		state.setAttribute(STATE_BUNDLE_KEY, "mailarchive");
 
-		String channelRefStr = (String) state.getAttribute(STATE_CHANNEL_REF);
-		Reference channelRef = EntityManager.newReference(channelRefStr);
-		String siteRef = SiteService.siteReference(channelRef.getContext());
-
-		// setup for editing the permissions of the site for this tool, using the roles of this site, too
-		state.setAttribute(PermissionsHelper.TARGET_REF, siteRef);
-
-		// ... with this description
-		state.setAttribute(PermissionsHelper.DESCRIPTION, rb.getString("setperm")
-				+ SiteService.getSiteDisplay(channelRef.getContext()));
-
-		// ... showing only locks that are prpefixed with this
-		state.setAttribute(PermissionsHelper.PREFIX, "mail.");
-
-		// ... pass the resource loader object
-		ResourceLoader pRb = new ResourceLoader("permissions");
-		HashMap<String, String> pRbValues = new HashMap<String, String>();
-		for (Iterator<Entry<String, String>> iKeys = pRb.entrySet().iterator();iKeys.hasNext();)
-		{
-			Entry<String, String> entry = iKeys.next(); 
-			String key = entry.getKey();
-			pRbValues.put(key, entry.getValue());
-		}
-		state.setAttribute("permissionDescriptions", pRbValues);
-		
 	} // doPermissions
 
 	private Search getSearchFilter(String search, int first, int last)

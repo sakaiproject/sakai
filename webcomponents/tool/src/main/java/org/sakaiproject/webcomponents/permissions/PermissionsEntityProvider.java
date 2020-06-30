@@ -103,7 +103,7 @@ public class PermissionsEntityProvider extends AbstractEntityProvider implements
                 Set<String> filteredFunctions = new TreeSet<>();
                 if (tool != null) {
                     for (String function : functions) {
-                        if (function.startsWith(tool)) {
+                        if (function.startsWith(tool + ".")) {
                             filteredFunctions.add(function);
                         }
                     }
@@ -118,7 +118,7 @@ public class PermissionsEntityProvider extends AbstractEntityProvider implements
                     Collectors.toMap(Role::getId, r -> authzGroupService.getRoleName(r.getId())));
 
 
-            List<String> available = functionManager.getRegisteredFunctions(tool);
+            List<String> available = functionManager.getRegisteredFunctions(tool + ".");
             if (!groupRef.equals("/site/" + siteId)) {
             	available = available.stream().filter(p -> (p.indexOf("all.groups") == -1)).collect(Collectors.toList());
             }
