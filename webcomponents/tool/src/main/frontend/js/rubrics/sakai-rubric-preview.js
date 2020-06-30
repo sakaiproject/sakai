@@ -47,7 +47,7 @@ export class SakaiRubricPreview extends RubricsElement {
         token="${this.token}"
         criteria="${JSON.stringify(this.rubric.criterions)}"
         gradeFieldId="${this.gradeFieldId}"
-        ?weighted=${this.rubric.weighted}
+        .weighted=${this.rubric.weighted}
         ></sakai-rubric-criterion-preview>
     `;
   }

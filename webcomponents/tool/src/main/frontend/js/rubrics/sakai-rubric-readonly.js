@@ -49,7 +49,7 @@ export class SakaiRubricReadonly extends RubricsElement {
 
       <div class="collapse-details" role="tabpanel" aria-labelledby="rubric_toggle_${this.rubric.id}" id="collapse_shared_${this.rubric.id}">
         <div class="rubric-details style-scope sakai-rubric">
-          <sakai-rubric-criteria-readonly criteria="${JSON.stringify(this.rubric.criterions)}" ?weighted=${this.rubric.weighted}></sakai-rubric-criteria-readonly>
+          <sakai-rubric-criteria-readonly criteria="${JSON.stringify(this.rubric.criterions)}" .weighted=${this.rubric.weighted}></sakai-rubric-criteria-readonly>
         </div>
       </div>
     `;
