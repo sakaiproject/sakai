@@ -53,7 +53,6 @@ import org.sakaiproject.lessonbuildertool.util.ResourceLoaderMessageSource;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.user.api.PreferencesService;
 
@@ -75,7 +74,6 @@ public class CCExport {
     @Setter private SessionManager sessionManager;
     @Setter private SimplePageToolDao simplePageToolDao;
     @Setter private SiteService siteService;
-    @Setter private ToolManager toolManager;
 
     private ResourceLoaderMessageSource messageSource;
 
@@ -504,7 +502,7 @@ public class CCExport {
     public boolean outputLessons(CCConfig ccConfig, ZipPrintStream out) {
         out.println("  <organization identifier=\"page\" structure=\"rooted-hierarchy\">");
         out.println("    <item identifier=\"I_1\">");
-        List<SimplePageItem> sitePages = simplePageToolDao.findItemsInSite(toolManager.getCurrentPlacement().getContext());
+        List<SimplePageItem> sitePages = simplePageToolDao.findItemsInSite(ccConfig.getSiteId());
 
         sitePages.forEach(i -> ccConfig.getPagesDone().add(Long.valueOf(i.getSakaiId())));
         sitePages.forEach(i -> lessonsExport.outputLessonPage(ccConfig, out, Long.valueOf(i.getSakaiId()), i.getName(), 6, true));
@@ -739,7 +737,7 @@ public class CCExport {
                 }
             }
         } catch (Exception e) {
-            log.error("Lessons export error outputting file, {}", e.toString());
+            log.warn("Lessons export error outputting to file, {}", e.toString());
             setErrKey("simplepage.exportcc-fileerr", e.getMessage(), ccConfig.getLocale());
         }
     }
