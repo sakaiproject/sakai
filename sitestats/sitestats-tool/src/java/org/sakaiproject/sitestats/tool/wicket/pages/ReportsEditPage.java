@@ -1130,12 +1130,9 @@ public class ReportsEditPage extends BasePage {
 		Set<String> roles = new HashSet<String>();
 		for (String s : siteIdWithRoles) {
 			try {
-				Set<Role> roleSet = Locator.getFacade().getAuthzGroupService().getAuthzGroup(s).getRoles();
-				for (Role r : roleSet) {
-					roles.add(r.getId());
-				}
+				Set<Role> roleSet = Locator.getFacade().getAuthzGroupService().getAuthzGroup(s).getRoles().forEach(r -> roles.add(r.getId()));
 			} catch (GroupNotDefinedException e) {
-				log.warn("AuthzGroup does not exist, skipping: {}", s);
+				log.debug("AuthzGroup does not exist, skipping: {}", s);
 			}
 		}
 		return new ArrayList<String>(roles);
