@@ -33,17 +33,21 @@
 					changeSelect(selectObject);
 				}
 				
-				function fadeInBcc(){
+				function fadeInBcc(clearSelected){
 					$('.bccLink').fadeOut(); 
 					$('.bcc').fadeIn();
-					clearSelection(document.getElementById('pvtMsgReply:list2'));
+					if (clearSelected) {
+						clearSelection(document.getElementById('pvtMsgReply:list2'));
+					}
 					resize();
 				}
 				
-				function fadeOutBcc(){
+				function fadeOutBcc(clearSelected){
 					$('.bccLink').fadeIn(); 
 					$('.bcc').fadeOut();
-					clearSelection(document.getElementById('pvtMsgReply:list2'));
+					if (clearSelected) {
+						clearSelection(document.getElementById('pvtMsgReply:list2'));
+					}
 					resize();
 				}
 				
@@ -54,7 +58,7 @@
 				$(document).ready(function() {
 				  	if(document.getElementById('pvtMsgReply:list2').selectedIndex != -1){
 				  		//BCC has selected items, so show it
-				  		fadeInBcc();
+				  		fadeInBcc(false);
 				  	}
 				  	addTagSelector(document.getElementById('pvtMsgReply:list1'));
 				  	addTagSelector(document.getElementById('pvtMsgReply:list2'));
@@ -156,7 +160,7 @@
 								</f:verbatim>
 								<h:graphicImage url="/../../library/image/silk/add.png" title="#{msgs.pvt_addBcc}" alt="#{msgs.pvt_addBcc}"/>
 								<f:verbatim>
-									<a href="#" onclick="fadeInBcc();">
+									<a href="#" onclick="fadeInBcc(true);">
 								</f:verbatim>
 								<h:outputText value="#{msgs.pvt_addBcc}"/>
 								<f:verbatim>
@@ -172,7 +176,7 @@
 									</f:verbatim>
 									<h:graphicImage url="/../../library/image/silk/cancel.png" title="#{msgs.pvt_removeBcc}" alt="#{msgs.pvt_removeBcc}"/>
 									<f:verbatim>
-										<a href="#" onclick="fadeOutBcc();">
+										<a href="#" onclick="fadeOutBcc(true);">
 									</f:verbatim>
 									<h:outputText value="#{msgs.pvt_removeBcc}"/>
 									<f:verbatim>
