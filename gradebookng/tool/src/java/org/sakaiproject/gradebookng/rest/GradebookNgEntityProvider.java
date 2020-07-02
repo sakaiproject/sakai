@@ -142,8 +142,8 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		}
 		checkValidSite(siteId);
 
-		// check instructor
-		checkInstructor(siteId);
+		// check instructor or TA
+		checkInstructorOrTA(siteId);
 
 		// update the order
 		this.businessService.updateAssignmentOrder(siteId, assignmentId, order);
@@ -198,8 +198,8 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		}
 		checkValidSite(siteId);
 
-		// check instructor
-		checkInstructor(siteId);
+		// check instructor or TA
+		checkInstructorOrTA(siteId);
 
 		// update the order
 		try {
