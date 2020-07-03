@@ -1722,9 +1722,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 					handleLineItem(state, sakaiLineItem, toolKey, content);
 				}
 
-=======
 				item.put("content_key", contentKey);
->>>>>>> SAK-32679 - MVP of the tool selector
+				item.put("tool_title", (String) tool.get(LTIService.LTI_TITLE));
 				new_content.add(item);
 				goodcount++;
 			}
@@ -2403,6 +2402,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			JSONObject job = (JSONObject) new_content.get(0);
 			context.put("contentId", foorm.getLong(job.get("content_key")));
 			context.put("contentTitle", (String) job.get("title"));
+			context.put("toolTitle", (String) job.get("tool_title"));
 		}
 
 		return "lti_assignment_return";

@@ -5,12 +5,12 @@
 ## Some taken from basiclti/web-ifp/src/bundle/vm/main.vm
 #if ($!assignment.ContentLaunchNewWindow == true)
 <p>
-<a href="$source" class="btn btn-primary" id="launch$placement" role="button"
+<a href="$value_ContentLaunchURL" class="btn btn-primary" id="launch$placement" role="button"
    onclick="launch$placement(); return false;" target="LTI">$tlang.getString("external.tool.new.window")</a>
 </p>
 <script>
 function launch$placement(){
-    window.open('$!source','BasicLTI');
+    window.open('$!value_ContentLaunchURL','BasicLTI');
     document.getElementById('launch$placement').setAttribute('onclick', 'location.reload(); return false;');
     $('#launch$placement').text('$tlang.getString("external.tool.launched")');
 }
@@ -33,7 +33,7 @@ setTimeout(function(){
     scrolling="auto"
     allowfullscreen="true"
     allow="$!browser-feature-allow"
-    src="$!source">
+    src="$!value_ContentLaunchURL">
 </iframe>
 <script>
 window.addEventListener('message', function(e) {

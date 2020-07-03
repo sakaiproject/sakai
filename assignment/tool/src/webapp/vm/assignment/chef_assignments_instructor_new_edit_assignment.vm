@@ -577,10 +577,19 @@
 				$tlang.getString("launchContentId")
 			</label>
 			<div class="col-sm-6" id="tempContentId">
-					<input type="text" disabled id="returnContentTitle" name="$name_ContentTitle" size="30"
+					<input type="text" readonly id="returnToolTitle" name="$name_ContentTitle" size="30"
                         class="form-control" maxlength="100"
                         placeholder="$tlang.getString('external.tool.placeholder')" value="$!value_ContentTitle">
 					<input type="hidden" id="returnContentId" name="$name_ContentId" value="$value_ContentId">
+                    <script>
+                        window.returnContentTitle = function (newTitle) {
+                            setTimeout(function(){
+                                if ( confirm('$tlang.getString("launchContentTitle")'+" "+newTitle) ) {
+                                    $("#new_assignment_title").val(newTitle);
+                                }
+                            }, 500);
+                        };
+                    </script>
 			</div>
         </div>
 		<div class="form-group row">

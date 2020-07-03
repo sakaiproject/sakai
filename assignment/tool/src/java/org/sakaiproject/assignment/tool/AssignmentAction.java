@@ -641,6 +641,7 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String NEW_ASSIGNMENT_SECTION = "new_assignment_section";
     private static final String NEW_ASSIGNMENT_SUBMISSION_TYPE = "new_assignment_submission_type";
     private static final String NEW_ASSIGNMENT_CONTENT_ID = "new_assignment_content_id";
+    private static final String NEW_ASSIGNMENT_CONTENT_TITLE = "new_assignment_content_title";
     private static final String NEW_ASSIGNMENT_CONTENT_LAUNCH_NEW_WINDOW = "new_assignment_content_launch_new_window";
     private static final String NEW_ASSIGNMENT_CATEGORY = "new_assignment_category";
     private static final String NEW_ASSIGNMENT_GRADE_TYPE = "new_assignment_grade_type";
@@ -1705,16 +1706,7 @@ public class AssignmentAction extends PagedResourceActionII {
             }
             if (assignment.getTypeOfSubmission() == Assignment.SubmissionType.EXTERNAL_TOOL_SUBMISSION) {
                 context.put("externalTool", Boolean.TRUE);
-                try {
-                    Site site = siteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
-                    Long contentKey = assignment.getContentId().longValue();
-                    Map<String, Object> content = ltiService.getContent(contentKey, site.getId());
-                    String content_launch = ltiService.getContentLaunch(content);
-                    context.put("externalToolLaunch", content_launch);
-                } catch(org.sakaiproject.exception.IdUnusedException e ) {
-                    // Send error to template
-                    context.put("externalToolLaunch", null);
-                }
+                putExternalToolIntoContext(context, assignment, state);
             }
 
             User submitter = (User) state.getAttribute("student");
@@ -1863,7 +1855,7 @@ public class AssignmentAction extends PagedResourceActionII {
             Long contentKey = assignment.getContentId().longValue();
             Map<String, Object> content = ltiService.getContent(contentKey, site.getId());
             String content_launch = ltiService.getContentLaunch(content);
-            context.put("source", content_launch);
+            context.put("value_ContentLaunchURL", content_launch);
             context.put("placement", "assignment_launch_"+contentKey);
 
 			// Copy title and description from Assignment to content if mis-match
@@ -1894,7 +1886,7 @@ public class AssignmentAction extends PagedResourceActionII {
 			}
         } catch(org.sakaiproject.exception.IdUnusedException e ) {
             // Send error to template
-            context.put("source", null);
+            context.put("value_ContentLaunchURL", null);
         }
 
         context.put("browser-feature-allow", String.join(";", serverConfigurationService.getStrings("browser.feature.allow")));
@@ -2845,6 +2837,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("name_Section", NEW_ASSIGNMENT_SECTION);
         context.put("name_SubmissionType", NEW_ASSIGNMENT_SUBMISSION_TYPE);
         context.put("name_ContentId", NEW_ASSIGNMENT_CONTENT_ID);
+        context.put("name_ContentTitle", NEW_ASSIGNMENT_CONTENT_TITLE);
         context.put("name_ContentLaunchNewWindow", NEW_ASSIGNMENT_CONTENT_LAUNCH_NEW_WINDOW);
         context.put("name_Category", NEW_ASSIGNMENT_CATEGORY);
         context.put("name_GradeAssignment", NEW_ASSIGNMENT_GRADE_ASSIGNMENT);
@@ -2886,6 +2879,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("value_Sections", state.getAttribute(NEW_ASSIGNMENT_SECTION));
         context.put("value_SubmissionType", state.getAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE));
         context.put("value_ContentId", state.getAttribute(NEW_ASSIGNMENT_CONTENT_ID));
+        context.put("value_ContentTitle", state.getAttribute(NEW_ASSIGNMENT_CONTENT_TITLE));
         context.put("value_ContentLaunchNewWindow", state.getAttribute(NEW_ASSIGNMENT_CONTENT_LAUNCH_NEW_WINDOW));
 
         // information related to gradebook categories
@@ -3406,6 +3400,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("value_Sections", state.getAttribute(NEW_ASSIGNMENT_SECTION));
         context.put("value_SubmissionType", state.getAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE));
         context.put("value_ContentId", state.getAttribute(NEW_ASSIGNMENT_CONTENT_ID));
+        context.put("value_ContentTitle", state.getAttribute(NEW_ASSIGNMENT_CONTENT_TITLE));
         context.put("value_ContentLaunchNewWindow", state.getAttribute(NEW_ASSIGNMENT_CONTENT_LAUNCH_NEW_WINDOW));
         context.put("value_GradeType", state.getAttribute(NEW_ASSIGNMENT_GRADE_TYPE));
         String maxGrade = (String) state.getAttribute(NEW_ASSIGNMENT_GRADE_POINTS);
@@ -4637,8 +4632,14 @@ public class AssignmentAction extends PagedResourceActionII {
             context.put("assignment", assignment);
             context.put("assignmentReference", assignmentId);
 
+            // In case we need to launch an external tool to test it - doView_external_tool_launch
+            state.setAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE, assignmentId);
+
             // put the resubmit information into context
             assignment_resubmission_option_into_context(context, state);
+
+            // put external tool information into context
+            putExternalToolIntoContext(context, assignment, state);
 
             // put creator information into context
             putCreatorIntoContext(context, assignment);
@@ -4697,6 +4698,28 @@ public class AssignmentAction extends PagedResourceActionII {
         } catch (Exception ee) {
             context.put("creator", creatorId);
             log.warn(this + ":build_instructor_view_assignment_context " + ee.getMessage());
+        }
+    }
+
+    private void putExternalToolIntoContext(Context context, Assignment assignment, SessionState state) {
+        try {
+            Site site = siteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
+            Long contentKey = assignment.getContentId().longValue();
+            if ( contentKey < 1 ) return;
+            Map<String, Object> content = ltiService.getContent(contentKey, site.getId());
+            context.put("value_ContentId", contentKey);
+            String content_launch = ltiService.getContentLaunch(content);
+            context.put("value_ContentLaunchURL", content_launch);
+            Long toolKey = new Long(content.get(LTIService.LTI_TOOL_ID).toString());
+            if (toolKey != null) {
+                Map<String, Object> tool = ltiService.getTool(toolKey, site.getId());
+                String toolTitle = (String) tool.get(LTIService.LTI_TITLE);
+                context.put("value_ContentTitle", toolTitle);
+            }
+
+        } catch(org.sakaiproject.exception.IdUnusedException e ) {
+            context.put("value_ContentTitle", null);
+            context.put("value_ContentLaunchURL", null);
         }
     }
 
@@ -6708,6 +6731,8 @@ public class AssignmentAction extends PagedResourceActionII {
             state.setAttribute(NEW_ASSIGNMENT_CONTENT_ID, null);
         }
 
+        state.setAttribute(NEW_ASSIGNMENT_CONTENT_TITLE, (String) params.getString(NEW_ASSIGNMENT_CONTENT_TITLE));
+
         boolean contentLaunchNewWindow = params.getBoolean(NEW_ASSIGNMENT_CONTENT_LAUNCH_NEW_WINDOW);
 		if ( contentLaunchNewWindow ) {
 			state.setAttribute(NEW_ASSIGNMENT_CONTENT_LAUNCH_NEW_WINDOW, Boolean.TRUE);
@@ -7743,6 +7768,8 @@ public class AssignmentAction extends PagedResourceActionII {
             String gradePoints = (String) state.getAttribute(NEW_ASSIGNMENT_GRADE_POINTS);
 
             Integer contentId = (Integer) state.getAttribute(NEW_ASSIGNMENT_CONTENT_ID);
+
+            String contentTitle = (String) state.getAttribute(NEW_ASSIGNMENT_CONTENT_TITLE);
 
             Boolean contentLaunchNewWindow = (Boolean) state.getAttribute(NEW_ASSIGNMENT_CONTENT_LAUNCH_NEW_WINDOW);
 
@@ -9288,6 +9315,21 @@ public class AssignmentAction extends PagedResourceActionII {
                 // put the names and values into vm file
                 state.setAttribute(NEW_ASSIGNMENT_TITLE, a.getTitle());
                 state.setAttribute(NEW_ASSIGNMENT_CONTENT_ID, a.getContentId());
+                try {
+                    Site site = siteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
+                    Long contentKey = a.getContentId().longValue();
+                    Map<String, Object> content = ltiService.getContent(contentKey, site.getId());
+                    Long toolKey = new Long(content.get(LTIService.LTI_TOOL_ID).toString());
+                    if (toolKey != null) {
+                        Map<String, Object> tool = ltiService.getTool(toolKey, site.getId());
+						String toolTitle = (String) tool.get(LTIService.LTI_TITLE);
+	                    state.setAttribute(NEW_ASSIGNMENT_CONTENT_TITLE, toolTitle);
+					}
+
+                } catch(org.sakaiproject.exception.IdUnusedException e ) {
+                    // Send error to template
+                    state.setAttribute(NEW_ASSIGNMENT_CONTENT_TITLE, null);
+                }
                 state.setAttribute(NEW_ASSIGNMENT_CONTENT_LAUNCH_NEW_WINDOW, a.getContentLaunchNewWindow());
                 state.setAttribute(NEW_ASSIGNMENT_ORDER, a.getPosition());
 
@@ -11462,6 +11504,7 @@ public class AssignmentAction extends PagedResourceActionII {
         state.setAttribute(NEW_ASSIGNMENT_GRADE_TYPE, UNGRADED_GRADE_TYPE.ordinal());
         state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, "");
         state.setAttribute(NEW_ASSIGNMENT_CONTENT_ID, null);
+        state.setAttribute(NEW_ASSIGNMENT_CONTENT_TITLE, null);
         state.setAttribute(NEW_ASSIGNMENT_CONTENT_LAUNCH_NEW_WINDOW, null);
         state.setAttribute(NEW_ASSIGNMENT_DESCRIPTION, "");
         boolean checkAddDueDate = (state.getAttribute(CALENDAR) != null || state.getAttribute(ADDITIONAL_CALENDAR) != null) && serverConfigurationService.getBoolean(SAK_PROP_DUE_DATE_TO_CALENDAR_DEFAULT, DUE_DATE_TO_CALENDAR_DEFAULT);
@@ -11537,6 +11580,7 @@ public class AssignmentAction extends PagedResourceActionII {
         state.removeAttribute(NEW_ASSIGNMENT_OPENHOUR);
         state.removeAttribute(NEW_ASSIGNMENT_OPENMIN);
         state.removeAttribute(NEW_ASSIGNMENT_CONTENT_ID);
+        state.removeAttribute(NEW_ASSIGNMENT_CONTENT_TITLE);
         state.removeAttribute(NEW_ASSIGNMENT_CONTENT_LAUNCH_NEW_WINDOW);
 
         state.removeAttribute(ALLPURPOSE_RELEASE_MONTH);
