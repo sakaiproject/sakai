@@ -103,34 +103,14 @@ $(document).ready(function(){
         }
     });
 
-    $("#prefs_form_search\\:pvtmsgs\\:checkAll, #prefs_form_search\\:threaded_pvtmsgs\\:checkAll").click(function () {
-        $('input:checkbox').not(this).prop('checked', this.checked);
-        if(this.checked){
-            toggleBulkOperations(true, 'prefs_form_search');
-        }else{
-            toggleBulkOperations(false, 'prefs_form_search');
-        }
-    });
-
     $('#prefs_pvt_form\\:search_by_date').change( function(){
       $('#prefs_pvt_form\\:pvt_beg_date, #prefs_pvt_form\\:pvt_end_date').toggleClass('showed');
     });
 
     $('#prefs_pvt_form\\:advanced_search_button').mousedown( function(){
       var searchByDateCheckbox = $('#prefs_pvt_form\\:search_by_date');
-      if(searchByDateCheckbox.is(":checked")){
+      if(searchByDateCheckbox.is(":checked") && !$('#prefs_pvt_form\\:pvt_beg_date').hasClass('showed')){
           $('#prefs_pvt_form\\:pvt_beg_date, #prefs_pvt_form\\:pvt_end_date').toggleClass('showed');
-      }
-    });
-
-    $('#prefs_form_search\\:search_by_date').change( function(){
-      $('#prefs_form_search\\:pvt_beg_date, #prefs_form_search\\:pvt_end_date').toggleClass('showed');
-    });
-
-    $('#prefs_form_search\\:advanced_search_button').mousedown( function(){
-      var searchByDateCheckbox = $('#prefs_form_search\\:search_by_date');
-      if(searchByDateCheckbox.is(":checked")){
-          $('#prefs_form_search\\:pvt_beg_date, #prefs_form_search\\:pvt_end_date').toggleClass('showed');
       }
     });
 
