@@ -13,7 +13,7 @@
 #else
 <i class="fa fa-globe" aria-hidden="true"></i>
 #end
-<a href="$sakai_ActionURL.setPanel("CKEditor")&tool_id=$tool.get("id")">$tool.get('title')</a></li>
+<a href="$sakai_ActionURL.setPanel("ContentItemMain")&flow=$flow&tool_id=$tool.get("id")">$tool.get('title')</a></li>
 #end
 </ul>
 #end
@@ -27,7 +27,7 @@
 #else
 <i class="fa fa-globe" aria-hidden="true"></i>
 #end
-<a href="$sakai_ActionURL.setPanel("CKEditor")&tool_id=$tool.get("id")">$tool.get('title')</a>
+<a href="$sakai_ActionURL.setPanel("ContentItemMain")&flow=$flow&tool_id=$tool.get("id")">$tool.get('title')</a>
 <i class="fa fa-search" style="color:blue;" aria-hidden="true"></i>
 </li>
 #end
