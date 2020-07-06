@@ -1644,7 +1644,7 @@
       <value>What actions can instructors perform on individual Gradebook items?</value>
     </property>
     <property name="location">
-      <value>/sakai_screensteps_gradebookUserGuide/whatactionscaninstructorsperformonindividualGradebookitems.html</value>
+      <value>/sakai_screensteps_gradebookUserGuide/whatactionscaninstructorsperformonindividualgradebookitems.html</value>
     </property>
   </bean>
   <bean id="howdoinstructorsviewandprintindividualstudentgrades" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -4053,7 +4053,7 @@
       <value>How do I add a rubric to a Gradebook item?</value>
     </property>
     <property name="location">
-      <value>/sakai_screensteps_rubricsUserGuide/howdoIaddarubrictoaGradebookitem.html</value>
+      <value>/sakai_screensteps_rubricsUserGuide/howdoIaddarubrictoagradebookitem.html</value>
     </property>
   </bean>
   <bean id="howdoIgradeanassignmentusingarubric" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -4332,7 +4332,7 @@
       <value>What is the Sign-up tool?</value>
     </property>
     <property name="location">
-      <value>/sakai_screensteps_signUpUserGuide/whatistheSignuptool.html</value>
+      <value>/sakai_screensteps_signUpUserGuide/whatistheSignUptool.html</value>
     </property>
     <property name="defaultForTool">
       <value>sakai.signup</value>
@@ -4346,7 +4346,7 @@
       <value>What are Sign-up meeting types?</value>
     </property>
     <property name="location">
-      <value>/sakai_screensteps_signUpUserGuide/whatareSignupmeetingtypes.html</value>
+      <value>/sakai_screensteps_signUpUserGuide/whatareSignUpmeetingtypes.html</value>
     </property>
   </bean>
   <bean id="howdoIviewmeetingsinSignUp" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -4357,7 +4357,7 @@
       <value>How do I view meetings in Sign-up?</value>
     </property>
     <property name="location">
-      <value>/sakai_screensteps_signUpUserGuide/howdoIviewmeetingsinSignup.html</value>
+      <value>/sakai_screensteps_signUpUserGuide/howdoIviewmeetingsinSignUp.html</value>
     </property>
   </bean>
   <bean id="howdoIcreateameeting" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -4434,7 +4434,7 @@
       <value>How can I use the Sign-up tool in my site?</value>
     </property>
     <property name="location">
-      <value>/sakai_screensteps_signUpUserGuide/howcanIusetheSignuptoolinmysite.html</value>
+      <value>/sakai_screensteps_signUpUserGuide/howcanIusetheSignUptoolinmysite.html</value>
     </property>
   </bean>
   <bean id="howdoImanuallyadduserstomeetings" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -4467,7 +4467,7 @@
       <value>How do I modify Sign-up tool permissions?</value>
     </property>
     <property name="location">
-      <value>/sakai_screensteps_signUpUserGuide/howdoImodifySignuptoolpermissions.html</value>
+      <value>/sakai_screensteps_signUpUserGuide/howdoImodifySignUptoolpermissions.html</value>
     </property>
   </bean>
   <bean id="siteInfoUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
