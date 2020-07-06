@@ -44,10 +44,8 @@
 	<bean id="permissionsProducer"
 		class="org.sakaiproject.poll.tool.producers.PermissionsProducer">
 		
-		<property name="messageLocator" ref="messageLocator" />
 		<property name="localeGetter" ref="requestLocaleProxy" />
 		<property name="externalLogic" ref="org.sakaiproject.poll.logic.ExternalLogic"/>
-		<property name="site" ref="sakai-Site" />
 	</bean>
 
 

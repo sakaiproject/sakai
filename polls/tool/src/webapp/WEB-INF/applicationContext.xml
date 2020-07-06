@@ -50,7 +50,7 @@
 		class="org.sakaiproject.util.ResourceLoaderMessageSource"
 		depends-on="TLABPostProcessorLoader">
 		<property name="basename"
-			value="classpath:org/sakaiproject/poll/bundle/Messages" />
+			value="org/sakaiproject/poll/bundle/Messages" />
 		<property name="cacheSeconds" value="10" />
 	</bean>
 	<bean id="voteGuard" parent="writeGuardParent">

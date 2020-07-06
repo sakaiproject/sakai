@@ -28,15 +28,10 @@ import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.poll.logic.ExternalLogic;
 import org.sakaiproject.rsf.helper.HelperViewParameters;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.tool.api.ToolSession;
 
 import uk.org.ponder.localeutil.LocaleGetter;
-import uk.org.ponder.messageutil.MessageLocator;
-import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
@@ -46,14 +41,12 @@ import uk.org.ponder.rsf.view.ComponentChecker;
 import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
-import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
 @Slf4j
-public class PermissionsProducer implements ViewComponentProducer,NavigationCaseReporter, ViewParamsReporter {
+public class PermissionsProducer implements ViewComponentProducer,NavigationCaseReporter {
 
 	public static final String VIEW_ID = "votePermissions";
 
-	private MessageLocator messageLocator;
 	private LocaleGetter localeGetter;
 
 	private static final String PERMISSION_PREFIX ="poll";
@@ -65,63 +58,28 @@ public class PermissionsProducer implements ViewComponentProducer,NavigationCase
 		return VIEW_ID;
 	}
 
-	public void setMessageLocator(MessageLocator messageLocator) {
-
-		this.messageLocator = messageLocator;
-	}
-
 	public void setLocaleGetter(LocaleGetter localeGetter) {
 		this.localeGetter = localeGetter;
-	}
-
-
-
-	
-
-	Map<String, String> perms = null;
-
-	public void setRoleperms(Map<String, String> perms)
-	{
-		this.perms = perms;
 	}
 
 	private ExternalLogic externalLogic;    
 	public void setExternalLogic(ExternalLogic externalLogic) {
 		this.externalLogic = externalLogic;
 	}
-	
-	public Site site;
-
 
 	public void fillComponents(UIContainer tofill, ViewParameters arg1,
 			ComponentChecker arg2) {
 
-		ToolSession session = externalLogic.getCurrentToolSession();
-		session.setAttribute(PermissionsHelper.TARGET_REF, site.getReference());
-	    session.setAttribute(PermissionsHelper.DESCRIPTION, messageLocator.getMessage("set.perms", new Object[]{site.getTitle()}));
-	    session.setAttribute(PermissionsHelper.PREFIX, PERMISSION_PREFIX + ".");
-
 		String locale = localeGetter.get().toString();
-        Map<String, String> langMap = new HashMap<String, String>();
-        langMap.put("lang", locale);
-        langMap.put("xml:lang", locale);
+		Map<String, String> langMap = new HashMap<String, String>();
+		langMap.put("lang", locale);
+		langMap.put("xml:lang", locale);
 
 		UIOutput.make(tofill, "polls-html", null).decorate(new UIFreeAttributeDecorator(langMap));
-	    
-	    List<String> perms = externalLogic.getPermissionKeys();
-	    HashMap<String, String> pRbValues = new HashMap<String, String>();
-	    for (int i = 0 ; i < perms.size(); i++) {
-	    	String perm = perms.get(i);
-	    	String descr = messageLocator.getMessage("desc-" + perm);
-	    	pRbValues.put("desc-" + perm, descr);
-	    }
-	    
-	    session.setAttribute("permissionDescriptions",  pRbValues);
-	    UIOutput.make(tofill, HelperViewParameters.HELPER_ID, HELPER);
-	    UICommand.make(tofill, HelperViewParameters.POST_HELPER_BINDING, "", null);
-
-
-
+		
+		UIOutput output = UIOutput.make(tofill, "permissions-wc", "");
+		UIFreeAttributeDecorator locationDecorator = new UIFreeAttributeDecorator("on-refresh", externalLogic.getCurrentToolURL());
+		output.decorate(locationDecorator);
 	}
 
 	public List<NavigationCase> reportNavigationCases() {
@@ -130,10 +88,6 @@ public class PermissionsProducer implements ViewComponentProducer,NavigationCase
 		togo.add(new NavigationCase("Success", new SimpleViewParameters(PollToolProducer.VIEW_ID)));
 		togo.add(new NavigationCase("Cancel", new SimpleViewParameters(PollToolProducer.VIEW_ID)));
 		return togo;
-	}
-
-	public ViewParameters getViewParameters() {
-		return new HelperViewParameters();
 	}	
 
 }
