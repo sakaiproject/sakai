@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.sakaiproject</groupId>
+		<artifactId>master</artifactId>
+		<version>21-SNAPSHOT</version>
+		<relativePath>../master/pom.xml</relativePath>
+	</parent>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<wicket.version>8.8.0</wicket.version>
+	</properties>
+
+	<name>Sakai Wicket 8 Base POM</name>
+	<groupId>org.sakaiproject.wicket</groupId>
+	<artifactId>wicket8</artifactId>
+	<packaging>pom</packaging>
+
+	<modules>
+		<module>tool</module>
+	</modules>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.apache.wicket</groupId>
+				<artifactId>wicket-core</artifactId>
+				<version>${wicket.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+</project>

@@ -20,6 +20,7 @@ import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.IRequestHandler;
 import org.apache.wicket.request.cycle.AbstractRequestCycleListener;
 import org.apache.wicket.request.cycle.RequestCycle;
+import org.apache.wicket.request.resource.PackageResourceReference;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 import org.sakaiproject.acadtermmanage.tool.pages.SemesterPage;
 
@@ -48,7 +49,8 @@ public class AcademicSessionAdminApplication extends WebApplication {
 		getApplicationSettings().setPageExpiredErrorPage(getHomePage());
 		getApplicationSettings().setAccessDeniedPage(getHomePage());
 		
-
+		// Disable Wicket's loading of jQuery - we load Sakai's preferred version in BasePage.java
+		getJavaScriptLibrarySettings().setJQueryReference(new PackageResourceReference(AcademicSessionAdminApplication.class, "empty.js"));
 		
 		getRequestCycleListeners().add(new AbstractRequestCycleListener() {
 			@Override

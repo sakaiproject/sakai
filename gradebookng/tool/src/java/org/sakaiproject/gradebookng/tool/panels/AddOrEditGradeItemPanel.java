@@ -16,10 +16,8 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
 import java.text.MessageFormat;
-import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -45,7 +43,6 @@ import org.sakaiproject.service.gradebook.shared.GradebookHelper;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.InvalidGradeItemNameException;
 import org.sakaiproject.tool.gradebook.Gradebook;
-import org.sakaiproject.util.DateFormatterUtil;
 
 /**
  * The panel for the add and edit grade item window
@@ -56,9 +53,7 @@ import org.sakaiproject.util.DateFormatterUtil;
 public class AddOrEditGradeItemPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
-	private static String HIDDEN_DUEDATE_ISO8601 = "duedate_iso8601";
 
-	private Date dueDate;
 	private GbModalWindow window;
 
 	IModel<Long> model;
@@ -174,27 +169,8 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 		}
 	}
 
-	private void setISODates() {
-		final String dueDateString = StringUtils.trimToNull(
-				getRequest().getRequestParameters().getParameterValue(HIDDEN_DUEDATE_ISO8601).toString(""));
-		//Allow for clearing the due date
-
-		if (dueDateString == null) {
-			this.dueDate = null;
-		}
-		else if (DateFormatterUtil.isValidISODate(dueDateString)) {
-			this.dueDate = DateFormatterUtil.parseISODate(dueDateString);
-		}
-		else {
-			error(new ResourceModel("error.addgradeitem.duedate").getObject());
-		}
-	}
-
 	private void createGradeItem(final AjaxRequestTarget target, final Form<?> form, final boolean createAnother) {
 		final Assignment assignment = (Assignment) form.getModelObject();
-
-		setISODates();
-		assignment.setDueDate(AddOrEditGradeItemPanel.this.dueDate);
 
 		boolean validated = true;
 

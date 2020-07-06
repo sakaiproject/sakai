@@ -86,11 +86,11 @@ import org.sakaiproject.sitestats.tool.wicket.components.LastJobRun;
 import org.sakaiproject.sitestats.tool.wicket.components.Menus;
 import org.sakaiproject.sitestats.tool.wicket.components.StylableSelectOptions;
 import org.sakaiproject.sitestats.tool.wicket.components.StylableSelectOptionsGroup;
-import org.sakaiproject.sitestats.tool.wicket.components.SakaiDateTimeField;
 import org.sakaiproject.sitestats.tool.wicket.models.EventModel;
 import org.sakaiproject.sitestats.tool.wicket.models.ReportDefModel;
 import org.sakaiproject.sitestats.tool.wicket.models.ToolModel;
 import org.sakaiproject.sitestats.tool.wicket.util.Comparators;
+import org.sakaiproject.wicket.component.SakaiDateTimeField;
 
 /**
  * @author Nuno Fernandes
@@ -184,8 +184,6 @@ public class ReportsEditPage extends BasePage {
 	public void renderHead(IHeaderResponse response) {
 		super.renderHead(response);
 		response.render(JavaScriptHeaderItem.forUrl(JQUERYSCRIPT));
-		response.render(JavaScriptHeaderItem.forUrl(JQUERYUISCRIPT));
-		response.render(JavaScriptHeaderItem.forUrl(DATEPICKERSCRIPT));
 		response.render(JavaScriptHeaderItem.forUrl(StatsManager.SITESTATS_WEBAPP + "/script/reports.js"));
 		StringBuilder onDomReady = new StringBuilder();
 		onDomReady.append("checkWhatSelection();");
@@ -547,10 +545,10 @@ public class ReportsEditPage extends BasePage {
 		startDate = ZonedDateTime.ofInstant(getReportParams().getWhenFrom().toInstant(), sys);
 		endDate = ZonedDateTime.ofInstant(getReportParams().getWhenTo().toInstant(), sys);
 		SakaiDateTimeField startDateField = new SakaiDateTimeField("whenFrom", new PropertyModel<>(this, "startDate"), sys);
-		startDateField.setUseTime(false);
+		startDateField.setUseTime(false).setAllowEmptyDate(false); // OWLTODO: this doesn't seem to be respected like it is for user activity... investigate... maybe it only works for dates with times? check nightly too
 		form.add(startDateField);
 		SakaiDateTimeField endDateField = new SakaiDateTimeField("whenTo", new PropertyModel<>(this, "endDate"), sys);
-		endDateField.setUseTime(false);
+		endDateField.setUseTime(false).setAllowEmptyDate(false);
 		form.add(endDateField);
 	}
 	

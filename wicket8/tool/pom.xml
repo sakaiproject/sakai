@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.sakaiproject.wicket</groupId>
+		<artifactId>wicket8</artifactId>
+		<version>21-SNAPSHOT</version>
+	</parent>
+
+	<name>Sakai Wicket 8 Tool</name>
+	<groupId>org.sakaiproject.wicket</groupId>
+	<artifactId>wicket8-tool</artifactId>
+	<packaging>jar</packaging>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.wicket</groupId>
+			<artifactId>wicket-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-kernel-util</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.portal</groupId>
+			<artifactId>sakai-portal-util</artifactId>
+		</dependency>
+	</dependencies>
+
+</project>
