@@ -545,7 +545,7 @@ public class ReportsEditPage extends BasePage {
 		startDate = ZonedDateTime.ofInstant(getReportParams().getWhenFrom().toInstant(), sys);
 		endDate = ZonedDateTime.ofInstant(getReportParams().getWhenTo().toInstant(), sys);
 		SakaiDateTimeField startDateField = new SakaiDateTimeField("whenFrom", new PropertyModel<>(this, "startDate"), sys);
-		startDateField.setUseTime(false).setAllowEmptyDate(false); // OWLTODO: this doesn't seem to be respected like it is for user activity... investigate... maybe it only works for dates with times? check nightly too
+		startDateField.setUseTime(false).setAllowEmptyDate(false);
 		form.add(startDateField);
 		SakaiDateTimeField endDateField = new SakaiDateTimeField("whenTo", new PropertyModel<>(this, "endDate"), sys);
 		endDateField.setUseTime(false).setAllowEmptyDate(false);
