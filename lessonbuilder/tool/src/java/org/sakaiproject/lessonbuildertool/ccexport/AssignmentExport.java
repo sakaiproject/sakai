@@ -27,7 +27,7 @@ import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
-import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.api.FormattedText;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +38,7 @@ public class AssignmentExport {
     @Setter private AssignmentService assignmentService;
     @Setter private CCUtils ccUtils;
     @Setter private ContentHostingService contentHostingService;
+    @Setter private FormattedText formattedText;
 
     private List<CCAssignmentItem> getItemsInSite(String siteId) {
         List<CCAssignmentItem> list = new ArrayList<>();
@@ -233,7 +234,7 @@ public class AssignmentExport {
                 if (URL != null) {
                     out.append("<li><a href=\"").append(URL).append("\">").append(StringEscapeUtils.escapeHtml4(URL)).append("</a>\n");
                 } else {
-                    URL = prefix + Validator.escapeUrl(location);  // else it's in the normal site content
+                    URL = prefix + formattedText.escapeUrl(location);  // else it's in the normal site content
                     URL = URL.replaceAll("//", "/");
                     out.append("<li><a href=\"").append(URL).append("\">").append(StringEscapeUtils.escapeHtml4(lastAtom)).append("</a><br/>\n");
                     ccConfig.addDependency(ccResourceItem, sakaiId);

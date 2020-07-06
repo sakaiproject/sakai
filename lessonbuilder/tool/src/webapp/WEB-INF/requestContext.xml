@@ -40,7 +40,6 @@
 		<property name="simplePageBean" ref="simplePageBean" />
 		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
-		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
 		
 		<property name="simplePageToolDao">
 			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
@@ -59,6 +58,7 @@
 		<property name="lessonBuilderAccessService" ref="org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService" />
 		<property name="richTextEvolver" ref="richTextEvolver" />
 		<property name="imageToMimeMap" ref="org.sakaiproject.lessonbuildertool.util.ImageToMimeMap"/>
+		<property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
 	</bean>
 	
 	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.ReorderProducer" >
@@ -68,6 +68,8 @@
 			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
 		</property>
 		<property name="localeGetter" ref="requestLocaleProxy" />
+		<property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
 	</bean>
 
 	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.PreviewProducer" >
@@ -286,9 +288,7 @@
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
 		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
 		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
-		<property name="simplePageToolDao">
-			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
-		</property>
+		<property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
 		<property name="httpServletResponse" ref="httpServletResponse" />
 		<property name="multipartMap" ref="multipartMap" />
 		<property name="forumEntity" ref="org.sakaiproject.lessonbuildertool.service.ForumEntity"/>
@@ -300,7 +300,16 @@
 		<property name="lessonsAccess" ref="org.sakaiproject.lessonbuildertool.service.LessonsAccess"/>
 		<property name="lessonBuilderAccessService" ref="org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService" />
 		<property name="ltiService" ref="org.sakaiproject.lti.api.LTIService" />
+		<property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
+		<property name="contentTypeImageService" ref="org.sakaiproject.content.api.ContentTypeImageService"/>
+		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+		<property name="notificationService" ref="org.sakaiproject.event.api.NotificationService"/>
+		<property name="idManager" ref="org.sakaiproject.id.api.IdManager"/>
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+		<property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
+		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
 	</bean>
+	
 	<!-- Over-riding the CommonsMultipartResolver to have multiple files incoming under the same form input name  -->
 	<bean id="commonsMultipartResolver" class="org.sakaiproject.lessonbuildertool.resolver.MultiCommonsMultipartResolver">
 	</bean>

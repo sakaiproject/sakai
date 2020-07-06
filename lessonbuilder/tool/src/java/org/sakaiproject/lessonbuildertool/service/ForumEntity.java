@@ -67,7 +67,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
 import org.springframework.orm.hibernate4.HibernateTemplate;
 import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
@@ -848,11 +848,12 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	    }
 
 	    String shortText = null;
+	    FormattedText formattedText = ComponentManager.get(FormattedText.class);
 	    if (texthtml) {
 		ourTopic.setExtendedDescription(text.replaceAll("\\$IMS-CC-FILEBASE\\$", base));
-		shortText = FormattedText.convertFormattedTextToPlaintext(text);
+		shortText = formattedText.convertFormattedTextToPlaintext(text);
 	    } else {
-		ourTopic.setExtendedDescription(FormattedText.convertPlaintextToFormattedText(text));
+		ourTopic.setExtendedDescription(formattedText.convertPlaintextToFormattedText(text));
 		shortText = text;
 	    }
 	    shortText = org.apache.commons.lang3.StringUtils.abbreviate(shortText,254);
