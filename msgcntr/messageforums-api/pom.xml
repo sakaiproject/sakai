@@ -31,6 +31,10 @@
 		  <groupId>org.sakaiproject.scheduler</groupId>
 		  <artifactId>scheduler-api</artifactId>
 		</dependency>
+		<dependency>
+		  <groupId>com.sun.mail</groupId>
+		  <artifactId>javax.mail</artifactId>
+		</dependency>
 	</dependencies>
 	<build>
 		<resources />

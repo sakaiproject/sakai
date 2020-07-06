@@ -18,6 +18,10 @@ package org.sakaiproject.api.app.messageforums;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
+import org.sakaiproject.entity.api.Reference;
 
 public interface SynopticMsgcntrManager {
 	
@@ -92,4 +96,8 @@ public interface SynopticMsgcntrManager {
 	public void updateSynopticMessagesForForumComparingOldMessagesCount(String siteId, Long forumId, Long topicId, HashMap<String, Integer> previousCountHM);
 	
 	public void updateAllSiteTitles(String siteId, String siteTitle);
+	
+	public PrivateMessageManager getPvtMessageManager();
+	
+	public void sendPrivateMessageDesktop(PrivateMessage pmReturn, MimeMessage msg, StringBuilder[] bodyBuf, List<Reference> attachments, String from) throws MessagingException;
 }

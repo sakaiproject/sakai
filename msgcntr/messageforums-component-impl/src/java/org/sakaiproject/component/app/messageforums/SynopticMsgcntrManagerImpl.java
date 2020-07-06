@@ -27,18 +27,24 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+
 import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Query;
 import org.hibernate.type.StringType;
 import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
+import org.sakaiproject.api.app.messageforums.PrivateMessage;
+import org.sakaiproject.api.app.messageforums.PrivateMessageRecipient;
 import org.sakaiproject.api.app.messageforums.SynopticMsgcntrItem;
 import org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
@@ -48,9 +54,11 @@ import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.SynopticMsgcntrItemImpl;
 import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.user.api.User;
 
 @Slf4j
 public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements SynopticMsgcntrManager {
@@ -1291,4 +1299,49 @@ public class DecoratedForumInfo{
 
 		getHibernateTemplate().execute(hcb);
 	}
+	
+	public void sendPrivateMessageDesktop(PrivateMessage currentMessage, MimeMessage msg, StringBuilder[] bodyBuf, List<Reference> attachments, String from) throws MessagingException {
+		PrivateMessage rrepMsg = getPvtMessageManager().getPvtMsgReplyMessage(currentMessage, msg, bodyBuf, attachments, from);
+		getPvtMessageManager().processPvtMsgReplySentAction(currentMessage, rrepMsg);
+		if (!rrepMsg.getDraft()){
+			Map<User, Boolean> recipients = getPvtMessageManager().getRecipients(rrepMsg.getRecipients());
+			incrementSynopticToolInfo(recipients.keySet(), rrepMsg, false);
+		}
+	}
+	  
+	private void incrementSynopticToolInfo(Set<User> recipients, PrivateMessage rrepMsg, boolean updateCurrentUser){
+		  
+		String siteId = ((PrivateMessageRecipient)rrepMsg.getRecipients().get(0)).getContextId();
+		String currentUser = rrepMsg.getAuthorId();
+		List<String> userIds = new ArrayList<>();
+		for (User user : recipients) {
+			if (updateCurrentUser || (!currentUser.equals(user.getId())))
+				userIds.add(user.getId());
+		}
+		incrementMessagesSynopticToolInfo(userIds, siteId, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+	}
+	  
+	private void incrementMessagesSynopticToolInfo(List<String> userIds, String siteId, int numOfAttempts) {
+		try {
+			incrementMessagesSynopticToolInfo(userIds, siteId);
+		} catch (HibernateOptimisticLockingFailureException holfe) {
+			// failed, so wait and try again
+			try {
+				Thread.sleep(SynopticMsgcntrManager.OPT_LOCK_WAIT);
+			} catch (InterruptedException e) {
+				log.error(e.getMessage(), e);
+				// Restore interrupted state...
+				Thread.currentThread().interrupt();
+			}
+			
+			if (numOfAttempts <= 0) {
+				log.info("SynopticMsgcntrManagerImpl: incrementMessagesSynopticToolInfo: HibernateOptimisticLockingFailureException no more retries left");
+				log.error(holfe.getMessage(), holfe);
+			} else {
+				log.info("SynopticMsgcntrManagerImpl: incrementMessagesSynopticToolInfo: HibernateOptimisticLockingFailureException: attempts left: "
+						+ numOfAttempts);
+				incrementMessagesSynopticToolInfo(userIds, siteId, numOfAttempts-1);
+			}
+		}
+	}	
 }
