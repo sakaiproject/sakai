@@ -2461,7 +2461,7 @@ public class SimplePageBean {
 		
 		if (itemId != null && itemId != -1) {
 			SimplePageItem ret = findItem(itemId);
-			if (ret != null && (ret.getSakaiId().equals(Long.toString(getCurrentPageId())) || ret.getType() == SimplePageItem.STUDENT_CONTENT)) {
+			if (ret != null && ((Long.toString(getCurrentPageId()).equals(ret.getSakaiId())) || ret.getType() == SimplePageItem.STUDENT_CONTENT)) {
 				try {
 					updatePageItem(ret.getId());
 				} catch (PermissionException e) {
