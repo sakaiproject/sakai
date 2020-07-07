@@ -302,11 +302,12 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 	display:inline;
 }
 span.mm-file-input-name {
-    margin-bottom: 0px;
+    margin-bottom: 0;
+    margin-right: 14px;
 }
 .mm-file-input-delete {
 	cursor: pointer;
-    color: red;
+    color: #ff0000;
 }
 div.mm-file-group {
     border: 1px solid #D3D3D3;
@@ -2218,6 +2219,10 @@ legend.noBottomSpacing {
     width: 99%;
     margin-bottom: 10px;
 }
+.edit-form-input.col-sm-2 {
+    padding-left: 0;
+    padding-right: 0;
+}
 
 p.checkbox{
     margin-top: 0px;
@@ -2225,4 +2230,27 @@ p.checkbox{
 
 #mm-path {
     margin: 0px;
+}
+
+button.accordionBtn {
+    color: #333 !important; /*have to override Sakai button color*/
+    background-color: transparent !important;
+    border: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+button.accordionBtn:focus {
+    outline: none !important;
+}
+button.accordionBtn:before {
+    font-family: "FontAwesome";
+    content: "\f0d7";
+    color: #333;
+    padding-right: 5px;
+}
+button.accordionBtn.collapsed:before {
+    font-family: "FontAwesome";
+    content: "\f0da";
+    color: #333;
+    padding-right: 5px;
 }
