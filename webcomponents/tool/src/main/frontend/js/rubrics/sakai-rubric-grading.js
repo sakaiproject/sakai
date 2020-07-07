@@ -73,13 +73,13 @@ export class SakaiRubricGrading extends RubricsElement {
             ${this.rubric.weighted ?
               html`
                 <div class="criterion-weight">
-                    <span>
-                      <sr-lang key="weight">Weight</sr-lang>
-                    </span>
-                    <span>${c.weight}</span>
-                    <span>
-                      <sr-lang key="percent_sign">%</sr-lang>
-                    </span>
+                  <span>
+                    <sr-lang key="weight">Weight</sr-lang>
+                  </span>
+                  <span>${c.weight}</span>
+                  <span>
+                    <sr-lang key="percent_sign">%</sr-lang>
+                  </span>
                 </div>`
               : ""
             }
@@ -185,7 +185,7 @@ export class SakaiRubricGrading extends RubricsElement {
               c.selectedvalue = ratingItem.points;
             }
           } else {
-            c.pointoverride = 0;
+            c.pointoverride = ed.points;
             c.selectedvalue = ed.points;
           }
 
