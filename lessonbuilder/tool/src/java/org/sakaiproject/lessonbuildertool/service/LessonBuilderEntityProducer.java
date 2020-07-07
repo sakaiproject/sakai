@@ -444,7 +444,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		addAttr(doc, itemElement, "sequence", new Integer(item.getSequence()).toString());
 		addAttr(doc, itemElement, "type", new Integer(item.getType()).toString());
 		addAttr(doc, itemElement, "sakaiid", item.getSakaiId());
-		if (!item.getSakaiId().equals(SimplePageItem.DUMMY)) {
+		if (!(SimplePageItem.DUMMY).equals(item.getSakaiId())) {
 		    if (item.getType() == SimplePageItem.FORUM || item.getType() == SimplePageItem.ASSESSMENT || item.getType() == SimplePageItem.ASSIGNMENT) {
 			LessonEntity e = null;
 			if (item.getType() == SimplePageItem.FORUM)

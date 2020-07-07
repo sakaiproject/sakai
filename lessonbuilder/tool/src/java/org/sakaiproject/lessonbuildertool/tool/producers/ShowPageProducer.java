@@ -3679,7 +3679,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		boolean fake = !usable;  // by default, fake output if not available
 		String itemString = Long.toString(i.getId());
 
-		if (i.getSakaiId().equals(SimplePageItem.DUMMY)) {
+		if ((SimplePageItem.DUMMY).equals(i.getSakaiId())) {
 		    fake = true; // dummy is fake, but still available
 		} else if (i.getType() == SimplePageItem.RESOURCE || i.getType() == SimplePageItem.URL) {
 			if (usable) {
