@@ -1068,8 +1068,8 @@ public class Foorm {
 
 			Object dataField = getField(parms, field);
 			String sdf = null;
-			if (dataField instanceof String)
-				sdf = (String) dataField;
+			if (dataField instanceof String) sdf = (String) dataField;
+			sdf = StringUtils.trim(sdf);
 			if (sdf != null && sdf.length() < 1) {
 				sdf = null;
 				dataField = null;
