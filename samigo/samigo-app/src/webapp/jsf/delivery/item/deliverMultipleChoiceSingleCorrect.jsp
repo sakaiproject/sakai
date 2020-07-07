@@ -56,15 +56,15 @@ should be included in file importing DeliveryMessages
     <h:panelGroup rendered="#{delivery.feedback eq 'true' && delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}">
       <h:panelGroup id="image"
         rendered="#{(selection.answer.isCorrect eq 'true' || (question.itemData.partialCreditFlag && selection.answer.partialCredit gt 0)) && selection.response}"
-        styleClass="icon-sakai--check feedBackCheck">
+        styleClass="icon-sakai--check feedBackCheck imageClassForSelector">
       </h:panelGroup>
       <h:panelGroup id="image2"
         rendered="#{((question.itemData.partialCreditFlag && (selection.answer.partialCredit le 0 || selection.answer.partialCredit == null)) || (selection.answer.isCorrect != null && !selection.answer.isCorrect)) && selection.response}"
-        styleClass="icon-sakai--delete feedBackCross">
+        styleClass="icon-sakai--delete feedBackCross imageClassForSelector">
       </h:panelGroup>
       <h:panelGroup id="noimage"
         rendered="#{!selection.response}"
-        styleClass="icon-sakai--check feedBackNone">
+        styleClass="icon-sakai--check feedBackNone imageClassForSelector">
       </h:panelGroup>
     </h:panelGroup>
     <h:panelGroup layout="block" styleClass="mcscFixUpTarget"></h:panelGroup>
@@ -89,16 +89,30 @@ should be included in file importing DeliveryMessages
   </t:dataList>
 
   </h:panelGroup>
-  <h:outputText value="<script>" escape="false" />
-  <h:outputText value="    var elBlockToFix = $('.mcscFixUpClassForSelector-#{question.itemData.itemId}');" escape="false" />
-  <h:outputText value="    $(elBlockToFix).find('div.mcscFixUpSource td').each(function(index,elLabelAndInputToMove) {" escape="false" />
-  <h:outputText value="      var contentsToMove = $(elLabelAndInputToMove).contents();" escape="false" />
-  <h:outputText value="      if (typeof contentsToMove !== 'undefined') {" escape="false" />
-  <h:outputText value="        $(elBlockToFix).find('div.mcscFixUpTarget:first').replaceWith(contentsToMove);" escape="false" />
-  <h:outputText value="      }" escape="false" />
-  <h:outputText value="    });" escape="false" />
-  <h:outputText value="    $(elBlockToFix).find('div.mcscFixUpSource').remove();" escape="false" />
-  <h:outputText value="</script>" escape="false" />
+  <script>
+      <h:outputText value="var elBlockToFix = $('.mcscFixUpClassForSelector-#{question.itemData.itemId}');" escape="false" />
+      $(elBlockToFix).find('div.mcscFixUpSource td').each(function(index,elLabelAndInputToMove) {
+        var contentsToMove = $(elLabelAndInputToMove).contents();
+        if (typeof contentsToMove !== 'undefined') {
+          $(elBlockToFix).find('div.mcscFixUpTarget:first').replaceWith(contentsToMove);
+        }
+      });
+      $(elBlockToFix).find('li.samigo-question-answer label').each(function(index2, answerLabel) {
+        var properImage = $(answerLabel).parent('li').find('span.imageClassForSelector')[0];
+        if (typeof properImage !== 'undefined') {
+          answerLabel.append(properImage);
+        }
+        var properRadio = $(answerLabel).parent('li').find(':radio')[0];
+        if (typeof properRadio !== 'undefined') {
+          answerLabel.append(properRadio);
+        }
+        var properLabel = $(answerLabel).parent('li').children('span.mcAnswerText')[0];
+        if (typeof properLabel !== 'undefined') {
+          answerLabel.append(properLabel);
+        }
+      });
+      $(elBlockToFix).find('div.mcscFixUpSource').remove();
+  </script>
 
   <h:panelGroup
     rendered="#{question.itemData.hasRationale && question.itemData.typeId != 3}" >
