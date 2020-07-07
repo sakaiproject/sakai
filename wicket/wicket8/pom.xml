@@ -4,19 +4,25 @@
 
 	<parent>
 		<groupId>org.sakaiproject.wicket</groupId>
-		<artifactId>wicket8</artifactId>
+		<artifactId>wicket-tool-base</artifactId>
 		<version>21-SNAPSHOT</version>
 	</parent>
 
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<wicket8.version>8.8.0</wicket8.version>
+	</properties>
+
 	<name>Sakai Wicket 8 Tool</name>
 	<groupId>org.sakaiproject.wicket</groupId>
-	<artifactId>wicket8-tool</artifactId>
+	<artifactId>wicket-tool-8</artifactId>
 	<packaging>jar</packaging>
 
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.wicket</groupId>
 			<artifactId>wicket-core</artifactId>
+			<version>${wicket8.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.kernel</groupId>

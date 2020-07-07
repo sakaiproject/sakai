@@ -54,7 +54,7 @@
       </dependency>
       <dependency>
          <groupId>org.sakaiproject.wicket</groupId>
-         <artifactId>wicket8-tool</artifactId>
+         <artifactId>wicket-tool-8</artifactId>
       </dependency>
 
    </dependencies>

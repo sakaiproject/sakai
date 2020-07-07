@@ -62,7 +62,7 @@
     <!-- Sakai Wicket library -->
     <dependency>
         <groupId>org.sakaiproject.wicket</groupId>
-        <artifactId>wicket6-tool</artifactId>
+        <artifactId>wicket-tool-6</artifactId>
     </dependency>
 
     <!-- Apache Wicket -->

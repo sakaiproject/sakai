@@ -9,28 +9,14 @@
 		<relativePath>../master/pom.xml</relativePath>
 	</parent>
 
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<wicket.version>6.30.0</wicket.version>
-	</properties>
-
-	<name>Sakai Wicket 6 Base POM</name>
+	<name>Sakai Wicket Base POM</name>
 	<groupId>org.sakaiproject.wicket</groupId>
-	<artifactId>wicket6</artifactId>
+	<artifactId>wicket-tool-base</artifactId>
 	<packaging>pom</packaging>
 
 	<modules>
-		<module>tool</module>
+		<module>wicket6</module>
+		<module>wicket8</module>
 	</modules>
-
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.apache.wicket</groupId>
-				<artifactId>wicket-core</artifactId>
-				<version>${wicket.version}</version>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
 
 </project>
