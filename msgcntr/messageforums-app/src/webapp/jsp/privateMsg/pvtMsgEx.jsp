@@ -16,7 +16,7 @@
 		<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
 		<script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
 
-		<h:form id="prefs_form_search">
+		<h:form id="prefs_pvt_form">
 
 			<%@ include file="topNav.jsp" %>
 
@@ -33,7 +33,7 @@
 					<h:outputLabel value="#{msgs.cdfm_checkall}"/>
 				</h:panelGroup>
 		    </f:facet>
-				<h:selectBooleanCheckbox value="#{rcvdItems.isSelected}" onclick="updateCount(this.checked); toggleBulkOperations(anyChecked(), 'prefs_form_search');" />
+				<h:selectBooleanCheckbox value="#{rcvdItems.isSelected}" onclick="updateCount(this.checked); toggleBulkOperations(anyChecked(), 'prefs_pvt_form');" />
 		  </h:column>
 		  <h:column>
 				<f:facet name="header">
@@ -100,7 +100,7 @@
 					<h:outputLabel value="#{msgs.cdfm_checkall}"/>
 				</h:panelGroup>
 		    </f:facet>
-		    <h:selectBooleanCheckbox value="#{rcvdItems.isSelected}" onclick="updateCount(this.checked); toggleBulkOperations(anyChecked(), 'prefs_form_search');" />
+		    <h:selectBooleanCheckbox value="#{rcvdItems.isSelected}" onclick="updateCount(this.checked); toggleBulkOperations(anyChecked(), 'prefs_pvt_form');" />
 		  </h:column>
 		  <h:column>
 				<f:facet name="header">
@@ -158,7 +158,7 @@
      // needed to 'enable' bulk operations
      numberChecked = <h:outputText value="#{PrivateMessagesTool.numberChecked}" />;
 
-     toggleBulkOperations(numberChecked > 0, 'prefs_form_search');
+     toggleBulkOperations(numberChecked > 0, 'prefs_pvt_form');
      </script>
  
    	</h:form>
