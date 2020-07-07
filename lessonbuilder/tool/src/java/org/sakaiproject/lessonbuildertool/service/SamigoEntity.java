@@ -38,6 +38,7 @@ import org.w3c.dom.Document;
 
 import uk.org.ponder.messageutil.MessageLocator;
 
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.db.cover.SqlService;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
@@ -70,7 +71,8 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
 import org.sakaiproject.tool.assessment.services.qti.QTIService;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
+
 
 /**
  * Interface to Message Forums, the forum that comes with Sakai
@@ -346,7 +348,7 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	    assessment = getPublishedAssessment(id);
 	if (assessment == null)
 	    return null;
-	return FormattedText.convertFormattedTextToPlaintext(assessment.getTitle());
+	return ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(assessment.getTitle());
     }
 
     public String getDescription(){

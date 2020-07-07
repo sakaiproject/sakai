@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import uk.org.ponder.localeutil.LocaleGetter;
@@ -56,8 +57,9 @@ import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.Status;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
 import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.util.api.FormattedText;
+
 
 /**
  * Uses the Fluid reorderer to reorder elements on the page.
@@ -70,6 +72,8 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 	private SimplePageBean simplePageBean;
 	private SimplePageToolDao simplePageToolDao;
 	private ShowPageProducer showPageProducer;
+	@Setter private FormattedText formattedText;
+	@Setter private SessionManager sessionManager;
 
 	public MessageLocator messageLocator;
 	public LocaleGetter localeGetter;                                                                                             
@@ -95,7 +99,7 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
                 UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()))
 		    .decorate(new UIFreeAttributeDecorator("xml:lang", localeGetter.get().getLanguage()));        
 
-		ToolSession toolSession = SessionManager.getCurrentToolSession();
+		ToolSession toolSession = sessionManager.getCurrentToolSession();
 		String secondPageString = (String)toolSession.getAttribute("lessonbuilder.selectedpage");
 		Long secondPageId = null;
 		if (secondPageString != null) 
@@ -193,7 +197,7 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 					    if (text == null) {
 						    text = "";
 					    }
-					    text = FormattedText.convertFormattedTextToPlaintext(text);
+					    text = formattedText.convertFormattedTextToPlaintext(text);
 					    if (text.length() > 100)
 						    text = text.substring(0, 100);
 					    UIOutput.make(row, "text-snippet", text);
@@ -249,7 +253,7 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 			}
 
 			UIForm form = UIForm.make(tofill, "form");
-			Object sessionToken = SessionManager.getCurrentSession().getAttribute("sakai.csrf.token");
+			Object sessionToken = sessionManager.getCurrentSession().getAttribute("sakai.csrf.token");
 			if (sessionToken != null)
 			    UIInput.make(form, "csrf", "simplePageBean.csrfToken", sessionToken.toString());
 
