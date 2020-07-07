@@ -152,6 +152,11 @@ public class ExternalLogicImpl implements ExternalLogic {
 		log.debug("getCurrentLocationReference");
         return developerHelperService.getCurrentLocationReference();
 	}
+	
+	public String getCurrentToolURL()
+	{
+		return serverConfigurationService.getPortalUrl() + getCurrentLocationReference() + "/tool/" + getCurrentToolSession().getPlacementId();
+	}
 
 	public boolean isAllowedInLocation(String permission, String locationReference, String userReference) {
 		log.debug("isAllowed in location( " + permission + " , " + locationReference + " , " + userReference);
