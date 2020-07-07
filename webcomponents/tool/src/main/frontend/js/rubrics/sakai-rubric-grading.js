@@ -162,7 +162,7 @@ export class SakaiRubricGrading extends RubricsElement {
               c.selectedvalue = ratingItem.points;
             }
           } else {
-            c.pointoverride = 0;
+            c.pointoverride = ed.points;
             c.selectedvalue = ed.points;
           }
 

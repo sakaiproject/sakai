@@ -66,33 +66,24 @@
                 <configuration>
                     <filesets>
                         <fileset>
-                            <directory>src/main/frontend/node_modules</directory>
-                            <followSymlinks>false</followSymlinks>
-                        </fileset>
-                        <fileset>
-                            <directory>src/main/frontend/assets</directory>
-                            <includes>
-                                <include>**/*</include>
-                            </includes>
-                            <followSymlinks>false</followSymlinks>
-                        </fileset>
-                        <fileset>
-                            <directory>src/main/frontend/dist</directory>
-                            <includes>
-                                <include>**/*</include>
-                            </includes>
-                            <followSymlinks>false</followSymlinks>
-                        </fileset>
-                        <fileset>
                             <directory>src/main/frontend</directory>
                             <includes>
-                                <include>**/*.js</include>
+                                <include>**</include>
                             </includes>
                             <excludes>
                                 <exclude>js/**</exclude>
                                 <exclude>conf/**</exclude>
+                                <exclude>stories/**</exclude>
+                                <exclude>test/**</exclude>
+                                <exclude>.storybook/**</exclude>
+                                <exclude>package.json</exclude>
+                                <exclude>package-lock.json</exclude>
+                                <exclude>.gitignore</exclude>
+                                <exclude>.jshintrc</exclude>
                             </excludes>
-                            <followSymlinks>false</followSymlinks>
+                        </fileset>
+                        <fileset>
+                            <directory>src/main/frontend/js/assets</directory>
                         </fileset>
                     </filesets>
                 </configuration>
