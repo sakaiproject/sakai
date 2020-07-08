@@ -127,13 +127,14 @@ public interface LTIService extends LTISubstitutionsFilter {
             "allowroster:checkbox:label=bl_allowroster",
             "allowsettings:checkbox:label=bl_allowsettings",
             // Hide these from end users until they are working in the various Sakai tools
-            "pl_header:header:fields=pl_launch,pl_linkselection,pl_importitem,pl_fileitem,pl_contenteditor,pl_assessmentselection",
+            "pl_header:header:fields=pl_launch,pl_linkselection",
             "pl_launch:checkbox:label=bl_pl_launch",
             "pl_linkselection:checkbox:label=bl_pl_linkselection",
+            "pl_placement:header:fields=pl_assessmentselection,pl_importitem,pl_fileitem,pl_contenteditor",
+            "pl_assessmentselection:checkbox:label=bl_pl_assessmentselection:role=admin",
             "pl_contenteditor:checkbox:label=bl_pl_contenteditor",
             "pl_importitem:checkbox:label=bl_pl_importitem:role=admin",
             "pl_fileitem:checkbox:label=bl_pl_fileitem:role=admin",
-            "pl_assessmentselection:checkbox:label=bl_pl_assessmentselection:role=admin",
             "newpage:radio:label=bl_newpage:choices=off,on,content",
             "debug:radio:label=bl_debug:choices=off,on,content",
             // LTI 1.x user-entered custom

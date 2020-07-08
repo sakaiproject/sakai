@@ -36,6 +36,11 @@ $(document).ready( function() {
 $tlang.getString("tool.patch.body")
 </p>
 </div>
+<div id="contentItemDialog" title="$tlang.getString("tool.content.title")" style="display:none">
+<p>
+$tlang.getString("tool.content.body")
+</p>
+</div>
 <script>
 ## Create a variable that is a dollar sign for later
 #set ( $d = "$")  
@@ -50,7 +55,25 @@ function checkRadioSettings() {
         }
     }
 }
+
+function checkCheckboxCombos() {
+   var launch = $d("#pl_launch").is(":checked");
+   var deeplink = $d("#pl_linkselection").is(":checked");
+   var importitem = $d("#pl_importitem").is(":checked");
+   var file = $d("#pl_fileitem").is(":checked");
+
+   if ( (file || importitem ) && ! deeplink ) {
+      $( "#contentItemDialog" ).dialog();
+   }
+}
+
 $(document).ready( function() {
+    $("#pl_importitem").change(function(){
+        checkCheckboxCombos();
+    });
+    $("#pl_fileitem").change(function(){
+        checkCheckboxCombos();
+    });
     $("#pl_linkselection").change(function(){
         checkRadioSettings();
     });
