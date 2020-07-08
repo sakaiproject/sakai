@@ -35,6 +35,12 @@ $(document).ready( function() {
         $('#lti13_platform_public').css('font-family', '"Courier New", monospace');
         $('#lti13_platform_public').css('white-space', 'pre');
 
+        $( "#foorm_output_lti13_client_id" ).after(
+            ' <button onclick="copyToClipboardNoScroll(this, $(\'#foorm_output_lti13_client_id\').text());return false;">' +
+            '<i class="fa fa-clipboard" aria-hidden="true"></i> $tlang.getString('gen.clipboard')</button>' +
+            '</p>'
+        );
+
         $( "#lti13_client_id" ).after(
             '<p class="foorm-text" id="lti13_keyset_url">' +
             '<b>$tlang.getString('lti13_keyset_url')</b><br/><span id="foorm_output_lti13_keyset_url">$keySetUrl</span> ' +

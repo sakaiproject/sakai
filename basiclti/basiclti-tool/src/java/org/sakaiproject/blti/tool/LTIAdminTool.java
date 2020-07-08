@@ -564,6 +564,47 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		switchPanel(state, "Main");
 	}
 
+	public String buildToolPostInsertPanelContext(VelocityPortlet portlet, Context context,
+			RunData data, SessionState state) {
+		context.put("tlang", rb);
+		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
+		if (!ltiService.isMaintain(getSiteId(state))) {
+			addAlert(state, rb.getString("error.maintain.view"));
+			return "lti_error";
+		}
+		context.put("messageSuccess", state.getAttribute(STATE_SUCCESS));
+		String[] mappingForm = ltiService.getToolModel(getSiteId(state));
+		String id = data.getParameters().getString(LTIService.LTI_ID);
+		if (id == null) {
+			addAlert(state, rb.getString("error.id.not.found"));
+			return "lti_main";
+		}
+		Long key = new Long(id);
+		Map<String, Object> tool = ltiService.getTool(key, getSiteId(state));
+		if (tool == null) {
+			return "lti_main";
+		}
+
+		context.put("clientId", tool.get(LTIService.LTI13_CLIENT_ID));
+
+		String keySetUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/keyset/" + tool.get(LTIService.LTI_ID);
+		context.put("keySetUrl", keySetUrl);
+		String tokenUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/token/" + tool.get(LTIService.LTI_ID);
+		context.put("tokenUrl", tokenUrl);
+		String authOIDC = SakaiBLTIUtil.getOurServerUrl() + "/imsoidc/lti13/oidc_auth";
+		context.put("authOIDC", authOIDC);
+
+		String site_id = (String) tool.get(LTIService.LTI_SITE_ID);
+		String issuerURL = SakaiBLTIUtil.getIssuer(site_id);
+		context.put("issuerURL", issuerURL);
+
+		String deploymentId = SakaiBLTIUtil.getDeploymentId(site_id);
+		context.put("deploymentId", deploymentId);
+
+		state.removeAttribute(STATE_SUCCESS);
+		return "lti_tool_post_insert";
+	}
+
 	public String buildToolViewPanelContext(VelocityPortlet portlet, Context context,
 			RunData data, SessionState state) {
 		context.put("tlang", rb);
@@ -824,7 +865,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			}
 		}
 
-// StringUtils.trimToNull((String) tool.get(ltiService.LTI_SITE_ID)
 		// Handle the incoming LTI 1.3 data
 		String form_lti13 = reqProps.getProperty("lti13");
 		String form_lti13_tool_public = StringUtils.trimToNull(reqProps.getProperty("lti13_tool_public"));
@@ -835,16 +875,18 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		String old_lti13_platform_public = null;
 		String old_lti13_platform_private = null;
 		if (tool != null) {
-			old_lti13_client_id = StringUtils.trimToNull((String) tool.get("lti13_client_id"));
+			old_lti13_client_id = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_CLIENT_ID));
 			old_lti13_tool_public = StringUtils.trimToNull((String) tool.get("lti13_tool_public"));
 			old_lti13_platform_public = StringUtils.trimToNull((String) tool.get("lti13_platform_public"));
 			old_lti13_platform_private = StringUtils.trimToNull((String) tool.get("lti13_platform_private"));
 		}
 
+		boolean displayPostInsert = false;
 		if ("1".equals(form_lti13)) {
 			KeyPair kp = null;
 			if (old_lti13_client_id == null) {
-				reqProps.setProperty("lti13_client_id", UUID.randomUUID().toString());
+				reqProps.setProperty(LTIService.LTI13_CLIENT_ID, UUID.randomUUID().toString());
+				displayPostInsert = true;
 			}
 
 			if (old_lti13_platform_public == null || old_lti13_platform_private == null) {
@@ -890,6 +932,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		Object retval = null;
 		if (key == null) {
 			retval = ltiService.insertTool(reqProps, getSiteId(state));
+System.out.println("retval="+retval);
 			success = rb.getString("success.created");
 		} else {
 			retval = ltiService.updateTool(key, reqProps, getSiteId(state));
@@ -904,7 +947,12 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 
 		state.setAttribute(STATE_SUCCESS, success);
-		switchPanel(state, "ToolSystem");
+		if ( displayPostInsert ) {
+			if ( key == null ) key = new Long(retval.toString());
+			switchPanel(state, "ToolPostInsert&id="+key);
+		} else {
+			switchPanel(state, "ToolSystem");
+		}
 	}
 
 	/**
