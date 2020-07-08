@@ -120,6 +120,7 @@
                 <module>webcomponents</module>
                 <module>webjars</module>
                 <module>webservices</module>
+                <module>wicket</module>
             </modules>
         </profile>
         <profile>
@@ -205,6 +206,7 @@
                 <module>web</module>
                 <module>webjars</module>
                 <module>webservices</module>
+                <module>wicket</module>
                 <module>yaft</module>
             </modules>
         </profile>

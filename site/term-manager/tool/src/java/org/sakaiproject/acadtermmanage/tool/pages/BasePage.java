@@ -24,8 +24,10 @@ import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.markup.head.CssReferenceHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.head.JavaScriptReferenceHeaderItem;
 import org.apache.wicket.markup.head.OnLoadHeaderItem;
+import org.apache.wicket.markup.head.PriorityHeaderItem;
 import org.apache.wicket.markup.head.StringHeaderItem;
 import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.WebPage;
@@ -35,6 +37,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.acadtermmanage.logic.AcademicSessionLogic;
 import org.sakaiproject.acadtermmanage.logic.AcademicSessionSakaiProxy;
+import org.sakaiproject.portal.util.PortalUtils;
 
 
 public class BasePage extends WebPage implements IHeaderContributor {
@@ -160,8 +163,12 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		String skinRepo = sakaiProxy.getSkinRepoProperty();
 		String toolCSS = sakaiProxy.getToolSkinCSS(skinRepo);
 		String toolBaseCSS = skinRepo + "/tool_base.css";
-		
-		//Sakai additions				
+
+		final String version = PortalUtils.getCDNQuery();
+
+		// Force Wicket to use Sakai's version of jQuery
+		response.render(new PriorityHeaderItem(JavaScriptHeaderItem.forUrl(String.format("/library/webjars/jquery/1.12.4/jquery.min.js%s", version))));
+
 		response.render(JavaScriptReferenceHeaderItem.forUrl("/library/js/headscripts.js"));
 		response.render(CssReferenceHeaderItem.forUrl(toolBaseCSS));
 		response.render(CssReferenceHeaderItem.forUrl(toolCSS));

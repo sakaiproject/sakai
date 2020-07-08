@@ -78,7 +78,6 @@ import org.sakaiproject.gradebookng.tool.panels.BulkEditItemsPanel;
 import org.sakaiproject.gradebookng.tool.panels.SortGradeItemsPanel;
 import org.sakaiproject.gradebookng.tool.panels.ToggleGradeItemsToolbarPanel;
 import org.sakaiproject.portal.util.PortalUtils;
-import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GraderPermission;
 import org.sakaiproject.service.gradebook.shared.GradingType;
@@ -581,14 +580,6 @@ public class GradebookPage extends BasePage {
 		super.renderHead(response);
 
 		final String version = PortalUtils.getCDNQuery();
-
-		// Drag and Drop/Date Picker (requires jQueryUI)
-		response.render(JavaScriptHeaderItem
-				.forUrl(String.format("/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js%s", version)));
-
-		// Include Sakai Date Picker
-		response.render(JavaScriptHeaderItem
-				.forUrl(String.format("/library/js/lang-datepicker/lang-datepicker.js%s", version)));
 
 		// tablesorted used by student grade summary
 		response.render(JavaScriptHeaderItem.forScript("includeWebjarLibrary('jquery.tablesorter')", null));

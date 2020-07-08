@@ -79,6 +79,10 @@
 			<artifactId>sakai-portal-util</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.sakaiproject.wicket</groupId>
+			<artifactId>wicket-tool-6</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 		</dependency>

@@ -1881,6 +1881,17 @@
         <version>${sakai.version}</version>
         <type>pom</type>
       </dependency>
+      <!-- Sakai Wicket -->
+      <dependency>
+        <groupId>org.sakaiproject.wicket</groupId>
+        <artifactId>wicket-tool-6</artifactId>
+        <version>${sakai.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.wicket</groupId>
+        <artifactId>wicket-tool-8</artifactId>
+        <version>${sakai.version}</version>
+      </dependency>
       <!-- JUNIT -->
       <dependency>
         <groupId>junit</groupId>

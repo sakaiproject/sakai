@@ -58,7 +58,13 @@
       <groupId>org.sakaiproject.sitestats</groupId>
       <artifactId>sitestats-bundle</artifactId>
     </dependency>
-    
+
+    <!-- Sakai Wicket library -->
+    <dependency>
+        <groupId>org.sakaiproject.wicket</groupId>
+        <artifactId>wicket-tool-6</artifactId>
+    </dependency>
+
     <!-- Apache Wicket -->
     <dependency>
       <groupId>org.apache.wicket</groupId>

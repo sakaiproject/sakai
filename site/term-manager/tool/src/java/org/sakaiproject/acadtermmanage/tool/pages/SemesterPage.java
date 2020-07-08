@@ -15,8 +15,11 @@
  */
 package org.sakaiproject.acadtermmanage.tool.pages;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -40,6 +43,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.acadtermmanage.exceptions.DuplicateKeyException;
 import org.sakaiproject.acadtermmanage.exceptions.NoSuchKeyException;
@@ -48,6 +52,7 @@ import org.sakaiproject.acadtermmanage.tool.AcademicTermConstants;
 import org.sakaiproject.acadtermmanage.tool.util.ComparatorFactory;
 import org.sakaiproject.acadtermmanage.tool.wicketstuff.ActionLink;
 import org.sakaiproject.acadtermmanage.tool.wicketstuff.ActionPanel;
+import org.sakaiproject.wicket.component.SakaiDateTimeField;
 
 import lombok.extern.slf4j.Slf4j;
 // TODO fromDate must not be after startDate => validator
@@ -153,8 +158,8 @@ public class SemesterPage extends BasePage implements AcademicTermConstants{
 	        super(id, new CompoundPropertyModel<Semester>(sem));
 	        add(new RequiredTextField<String>(PROP_EID));
 	        add(new TextField<String>(PROP_TITLE));
-	        add(new TextField(PROP_START));
-	        add(new TextField(PROP_END));
+	        add(new SakaiDateTimeField(PROP_START, new PropertyModel<>(this, PROP_START), ZoneId.systemDefault()).setAllowEmptyDate(false).setUseTime(false));
+	        add(new SakaiDateTimeField(PROP_END, new PropertyModel<>(this, PROP_END), ZoneId.systemDefault()).setAllowEmptyDate(false).setUseTime(false));
 	        add(new TextField<String>(PROP_DESC){
 	       
 				private static final long serialVersionUID = 1L;
@@ -212,8 +217,25 @@ public class SemesterPage extends BasePage implements AcademicTermConstants{
 			}
 			clearForm();			
         }
-		
-		
+
+		public ZonedDateTime getStartDate() {
+			Date startDate = getModelObject().getStartDate(); // this could be sql.Date so we have to convert to util.Date below
+			return startDate == null ? null : ZonedDateTime.ofInstant(new Date(startDate.getTime()).toInstant(), ZoneId.systemDefault());
+		}
+
+		public void setStartDate(ZonedDateTime zoned)	{
+			getModelObject().setStartDate(zoned == null ? null : Date.from(zoned.toInstant()));
+		}
+
+		public ZonedDateTime getEndDate() {
+			Date endDate = getModelObject().getEndDate(); // this could be sql.Date so we have to convert to util.Date below
+			return endDate == null ? null : ZonedDateTime.ofInstant(new Date(endDate.getTime()).toInstant(), ZoneId.systemDefault());
+		}
+
+		public void setEndDate(ZonedDateTime zoned)	{
+			getModelObject().setEndDate(zoned == null ? null : Date.from(zoned.toInstant()));
+		}
+
 		public void setUpdateEID(String originalEID) {
 			this.updateEID = originalEID;			
 		}
