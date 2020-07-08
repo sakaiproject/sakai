@@ -670,6 +670,10 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		context.put("formInput", formInput);
 
+		String site_id = (String) tool.get(LTIService.LTI_SITE_ID);
+		String issuerURL = SakaiBLTIUtil.getIssuer(site_id);
+		context.put("issuerURL", issuerURL);
+
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_tool_insert";
 	}

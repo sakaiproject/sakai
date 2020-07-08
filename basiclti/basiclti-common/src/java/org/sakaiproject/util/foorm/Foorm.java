@@ -827,6 +827,7 @@ public class Foorm {
 			sb.append("<b>");
 			sb.append(getI18N(label, loader));
 			sb.append("</b><br/>");
+			sb.append("<span id=\"foorm_output_"+field+"\">\n");
 		}
 	}
 
