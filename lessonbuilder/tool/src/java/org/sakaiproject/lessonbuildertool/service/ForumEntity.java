@@ -1090,7 +1090,7 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 		membershipItem = permissionLevelManager.
 		    createDBMembershipItem(newGroupName, "Contributor", MembershipItem.TYPE_GROUP);
 		membershipItem.setPermissionLevel(contributorLevel);
-		permissionLevelManager.saveDBMembershipItem(membershipItem);	
+		membershipItem = permissionLevelManager.saveDBMembershipItem(membershipItem);	
 		oldMembershipItemSet.add(membershipItem);
 	    }
 
