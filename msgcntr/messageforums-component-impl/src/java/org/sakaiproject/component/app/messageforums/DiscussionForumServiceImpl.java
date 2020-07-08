@@ -653,7 +653,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 								//add the gradebook assignment associated with the topic	
 								newTopic.setDefaultAssignName(fromTopic.getDefaultAssignName());
 
-								forumManager.saveDiscussionForumTopic(newTopic, newForum.getDraft(), currentUserId, false);
+								newTopic = forumManager.saveDiscussionForumTopic(newTopic, newForum.getDraft(), currentUserId, false);
 								
 								//add the ref's for the old and new topic
 								transversalMap.put("forum_topic/" + fromTopicId, "forum_topic/" + newTopic.getId());

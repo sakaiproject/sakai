@@ -313,14 +313,14 @@ public interface DiscussionForumManager
    * Saves the topic. Depending on whether the topic is new or existing, fires the appropriate Sakai event and LRS statement.
    * @param topic the topic
    */
-  public void saveTopic(DiscussionTopic topic);
+  public DiscussionTopic saveTopic(DiscussionTopic topic);
 
   /**
    * Saves the topic. Depending on whether the topic is new or existing, fires an appropriate Sakai event and LRS statement.
    * @param topic the topic
    * @param draft whether to save as a draft
    */
-  public void saveTopic(DiscussionTopic topic, boolean draft);
+  public DiscussionTopic saveTopic(DiscussionTopic topic, boolean draft);
 
   /**
    * Saves the topic. Fires the given Sakai event and LRS statement.
@@ -328,7 +328,7 @@ public interface DiscussionForumManager
    * @param draft whether to save as draft
    * @param params the event to fire and LRS statement to record. Can be null (no event will be fired).
    */
-  public void saveTopic(DiscussionTopic topic, boolean draft, ForumsTopicEventParams params);
+  public DiscussionTopic saveTopic(DiscussionTopic topic, boolean draft, ForumsTopicEventParams params);
 
   /**
    * Saves the topic. Fires the given Sakai event and LRS statement.
@@ -337,7 +337,7 @@ public interface DiscussionForumManager
    * @param params the event to fire and LRS statement to record. Can be null (no event will be fired).
    * @param currentUser id of the user saving the topic
    */
-  public void saveTopic(DiscussionTopic topic, boolean draft, ForumsTopicEventParams params, String currentUser);
+  public DiscussionTopic saveTopic(DiscussionTopic topic, boolean draft, ForumsTopicEventParams params, String currentUser);
   /**
    * @param topic
    */
