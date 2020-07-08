@@ -98,6 +98,7 @@ import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.app.messageforums.MembershipItem;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.ForumBySortIndexAscAndCreatedDateDesc;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -1935,7 +1936,7 @@ public class DiscussionForumTool {
         saveTopicAttach(topic);
         setObjectPermissions(topic);
 
-        forumManager.saveTopic(topic, draft);
+        topic = forumManager.saveTopic(topic, draft);
 
 	//anytime a forum settings change, we should update synoptic info for forums
         //since permissions could have changed.
@@ -6618,38 +6619,25 @@ public class DiscussionForumTool {
   }
   
   public void setObjectPermissions(Object target){
-  	Set membershipItemSet = null;
-  	Set oldMembershipItemSet = null;
-    
-  	DiscussionForum forum = null;
   	Area area = null;
-  	//Topic topic = null;
+  	DiscussionForum forum = null;
   	DiscussionTopic topic = null;
-  	
-    /** get membership item set */    
+
+  	Set<DBMembershipItem> oldMembershipItemSet = null;
+  	Set<DBMembershipItem> membershipItemSet = new HashSet<>();
+
     if (target instanceof DiscussionForum){
     	forum = ((DiscussionForum) target);
-    	//membershipItemSet = forum.getMembershipItemSet();
-    	//membershipItemSet = uiPermissionsManager.getForumItemsSet(forum);
     	oldMembershipItemSet = uiPermissionsManager.getForumItemsSet(forum);
-    }
-    else if (target instanceof Area){
+    } else if (target instanceof Area){
     	area = ((Area) target);
-    	//membershipItemSet = area.getMembershipItemSet();
-    	//membershipItemSet = uiPermissionsManager.getAreaItemsSet();
     	oldMembershipItemSet = uiPermissionsManager.getAreaItemsSet(area);
-    }
-    else if (target instanceof Topic){
-    	//topic = ((Topic) target);
-    	//membershipItemSet = topic.getMembershipItemSet();
+    } else if (target instanceof Topic){
     	topic = ((DiscussionTopic) target);
-    	//membershipItemSet = uiPermissionsManager.getTopicItemsSet(topic);
     	oldMembershipItemSet = uiPermissionsManager.getTopicItemsSet(topic);
     }
 
-    membershipItemSet = new HashSet();
-
-    if(permissions!=null ){
+    if (permissions != null) {
       for (PermissionBean permBean : permissions) {
         //for group awareness
         //DBMembershipItem membershipItem = permissionLevelManager.createDBMembershipItem(permBean.getItem().getName(), permBean.getSelectedLevel(), DBMembershipItem.TYPE_ROLE);
@@ -6661,37 +6649,22 @@ public class DiscussionForumTool {
 
         membershipItemSet.add(membershipItem);
       }
-      
-      if( ((area != null && area.getId() != null) || 
-      		(forum != null && forum.getId() != null) || 
-      		(topic != null && topic.getId() != null)) 
-      		&& oldMembershipItemSet != null)
-      	permissionLevelManager.deleteMembershipItems(oldMembershipItemSet);
-      
-      if (target instanceof DiscussionForum){
-      	forum.setMembershipItemSet(membershipItemSet);
-      	
-      //	if (ThreadLocalManager.get("message_center_permission_set") == null || !((Boolean)ThreadLocalManager.get("message_center_permission_set")).booleanValue())
-		//{
-			//this.uiPermissionsManager.initMembershipForSite();
-	//	}
 
-		//Set forumItemsInThread = (Set) ThreadLocalManager.get("message_center_membership_forum");
-     //ThreadLocalManager.set("message_center_membership_forum",membershipItemSet);
-		//Set thisForumItemSet = new HashSet();
-		//Iterator iter = forumItemsInThread.iterator();
-		//thisForumItemSet.add((DBMembershipItem)thisItem);
-		
-      	//forumManager.saveForum(forum);
+      if (forum != null) {
+        final DiscussionForum f = forum;
+        forum.setMembershipItemSet(membershipItemSet);
+        membershipItemSet.forEach(i -> ((DBMembershipItemImpl) i).setForum(f));
+      } else if (area != null) {
+        final Area a = area;
+        area.setMembershipItemSet(membershipItemSet);
+        membershipItemSet.forEach(i -> ((DBMembershipItemImpl) i).setArea(a));
+      } else if (topic != null) {
+        final Topic t = topic;
+        topic.setMembershipItemSet(membershipItemSet);
+        membershipItemSet.forEach(i -> ((DBMembershipItemImpl) i).setTopic(t));
       }
-      else if (area != null){
-      	area.setMembershipItemSet(membershipItemSet);
-      	//areaManager.saveArea(area);
-      }
-      else if (topic != null){
-      	topic.setMembershipItemSet(membershipItemSet);
-      	//forumManager.saveTopic((DiscussionTopic) topic);
-      }
+
+      permissionLevelManager.deleteMembershipItems(oldMembershipItemSet);
     }
     siteMembers = null;
   }
@@ -7797,7 +7770,7 @@ public class DiscussionForumTool {
 	LRS_Statement statement = forumManager.getStatementForUserPosted(newTopic.getTitle(), SAKAI_VERB.interacted).orElse(null);
 	ForumsTopicEventParams params = new ForumsTopicEventParams(ForumsTopicEventParams.TopicEvent.ADD, statement);
 
-	forumManager.saveTopic(newTopic, fromTopic.getDraft(), params);
+	newTopic = forumManager.saveTopic(newTopic, fromTopic.getDraft(), params);
 	selectedTopic = new DiscussionTopicBean(newTopic, forum, uiPermissionsManager, forumManager);
 
 	//copy rubrics
