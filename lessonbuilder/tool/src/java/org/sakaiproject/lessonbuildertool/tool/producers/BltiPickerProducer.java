@@ -135,7 +135,7 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 		if (bltiTool != null)
 		    UIOutput.make(tofill, "mainhead", bltiTool.title);
 		else if (appStoresOnly) {
-			UIOutput.make(tofill, "mainhead", messageLocator.getMessage("simplepage.blti.launcher"));
+			UIOutput.make(tofill, "mainhead", messageLocator.getMessage("simplepage.blti.app"));
 		} else {
 			UIOutput.make(tofill, "mainhead", messageLocator.getMessage("simplepage.blti.chooser"));
 		}
