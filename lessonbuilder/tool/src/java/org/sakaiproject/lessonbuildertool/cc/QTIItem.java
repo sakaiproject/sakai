@@ -59,7 +59,7 @@ package org.sakaiproject.lessonbuildertool.cc;
 import java.util.List;
 import java.util.Vector;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 /*
  * This class has been created as both QTI assessments and QTI item banks can appear in the same cartridge.

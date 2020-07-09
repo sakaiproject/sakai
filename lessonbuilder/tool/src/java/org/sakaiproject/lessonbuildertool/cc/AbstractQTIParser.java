@@ -59,8 +59,8 @@ package org.sakaiproject.lessonbuildertool.cc;
 import java.util.Iterator;
 import java.util.List;
 
-import org.jdom.Element;
-import org.jdom.Namespace;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 
 public abstract class AbstractQTIParser extends AbstractParser {
 
