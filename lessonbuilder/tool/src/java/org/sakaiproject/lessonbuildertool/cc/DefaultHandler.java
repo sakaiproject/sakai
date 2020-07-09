@@ -56,7 +56,7 @@ package org.sakaiproject.lessonbuildertool.cc;
  *
  **********************************************************************************/
 
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 
 public class DefaultHandler implements AssessmentHandler, DiscussionHandler, AuthorizationHandler,
