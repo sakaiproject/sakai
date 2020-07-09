@@ -73,11 +73,11 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.jdom.Element;
-import org.jdom.Namespace;
-import org.jdom.filter.ElementFilter;
-import org.jdom.output.DOMOutputter;
-import org.jdom.output.XMLOutputter;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
+import org.jdom2.filter.ElementFilter;
+import org.jdom2.output.DOMOutputter;
+import org.jdom2.output.XMLOutputter;
 
 import org.jsoup.Jsoup;
 
@@ -892,7 +892,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		} else {
 		  Element quizXml = (Element)resource.getChild(QUESTIONS, ns.qticc_ns()).clone();
 		  // we work in jdom. Qti parser needs w3c
-		  quizDoc = new DOMOutputter().output(new org.jdom.Document(quizXml));
+		  quizDoc = new DOMOutputter().output(new org.jdom2.Document(quizXml));
 		}
 
 		  QtiImport imp = new QtiImport();
