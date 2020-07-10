@@ -7693,11 +7693,15 @@ extends VelocityPortletStateAction
 	public void doDefaultview( RunData rundata, Context context )
 	{
 		CalendarActionState state = (CalendarActionState)getState(context, rundata, CalendarActionState.class);
-		SessionState sstate = ((JetspeedRunData) rundata).getPortletSessionState(((JetspeedRunData) rundata).getJs_peid());
 		String view = state.getState();
-		Placement placement = ToolManager.getCurrentPlacement();
-		placement.getPlacementConfig().setProperty( PORTLET_CONFIG_DEFAULT_VIEW, view );
-		saveOptions();
+
+		// Basic data validation
+		if (StringUtils.equalsAny(view, "day", "week", "month", "year", "list"))
+		{
+			Placement placement = ToolManager.getCurrentPlacement();
+			placement.getPlacementConfig().setProperty( PORTLET_CONFIG_DEFAULT_VIEW, view );
+			saveOptions();
+		}
 	}
 	
 	/**
