@@ -70,7 +70,7 @@ If you can't find your  "at institution.edu" on the Apereo signup page then send
 
 ## Community supported versions
 
-Sakai 20.0 ([release](http://source.sakaiproject.org/release/20.0/) | [Features](https://confluence.sakaiproject.org/display/DOC/Sakai+20.0+Complete+Feature+Summary) | [notes](https://confluence.sakaiproject.org/display/DOC/Sakai+20+Release+Notes))
+Sakai 20.1 ([release](http://source.sakaiproject.org/release/20.1/) | [Features](https://confluence.sakaiproject.org/display/DOC/Sakai+20.1+Complete+Feature+Summary) | [notes](https://confluence.sakaiproject.org/display/DOC/Sakai+20+Release+Notes))
 Is the community supported release of Sakai 20.
 
 Sakai 19.4 ([release](http://source.sakaiproject.org/release/19.4/) | [notes](https://confluence.sakaiproject.org/display/DOC/Sakai+19+Release+Notes))
@@ -86,7 +86,7 @@ For full history of supported releases please see our [release information on co
 
 ## Under Development
 
-[Sakai 20.1](https://confluence.sakaiproject.org/display/REL/Sakai+20+Straw+person) is the current developement release of Sakai 20. It is expected to release Q3 2020.
+[Sakai 20.2](https://confluence.sakaiproject.org/display/REL/Sakai+20+Straw+person) is the current developement release of Sakai 20. It is expected to release Q4 2020.
 
 [Sakai 19.5](https://confluence.sakaiproject.org/display/REL/Sakai+19+Straw+person) is the current developement release of Sakai 19. It is expected to release Q3 2020.
 
