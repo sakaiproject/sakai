@@ -17,8 +17,8 @@
        				"cdfm_profile_information":<h:outputText value="\"#{msgs.cdfm_profile_information}\"" />
        			};
        		</script>
-           		<script>includeLatestJQuery("msgcntr");</script>
-           	<script src="/library/webjars/qtip2/3.0.3/jquery.qtip.min.js"></script>
+           	<script>includeLatestJQuery("msgcntr");</script>
+           	<script>includeWebjarLibrary("qtip2");</script>
        		<script src="/messageforums-tool/js/sak-10625.js"></script>
        		<script src="/messageforums-tool/js/messages.js"></script>
 			<script>

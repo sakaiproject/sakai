@@ -1783,6 +1783,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				rcontext.put("bullhornsPollInterval", bullhornAlertInterval);
 			}
 
+			String faviconURL = ServerConfigurationService.getString("portal.favicon.url");
+			rcontext.put("faviconURL", faviconURL);
+
 			// SAK-25931 - Do not remove this from session here - removal is done by /direct
 	                Session s = SessionManager.getCurrentSession();
 			String userWarning = (String) s.getAttribute("userWarning");
