@@ -960,7 +960,7 @@ public interface SakaiProxy {
 	public boolean isStudentProfileEnabled();
 
 	/**
-	 * Is the profile2.profile.name.pronunciation.enabled flag set in sakai.properties? If not set, defaults to false.
+	 * Is the profile2.profile.name.pronunciation.enabled flag set in sakai.properties? If not set, defaults to true
 	 *
 	 * @return <code>true</code> if the profile2.profile.name.pronunciation.enabled flag is set, otherwise returns <code>false</code>.
 	 */
