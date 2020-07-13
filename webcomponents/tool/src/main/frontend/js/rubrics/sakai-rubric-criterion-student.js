@@ -139,7 +139,7 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
             c.pointoverride = ed.points;
             c.selectedvalue = selectedRatingItem.points;
           } else {
-            c.pointoverride = "";
+            c.pointoverride = ed.points;
             c.selectedvalue = ed.points;
           }
 
