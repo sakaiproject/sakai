@@ -27,7 +27,7 @@
     </h1>
   </div>
 
-  <h:panelGroup layout="block" styleClass="pull-right clear">
+  <h:panelGroup layout="block" styleClass="sakai-table-buttonContainer act pull-right clear">
     <h:commandButton action="eventLog" value="#{eventLogMessages.previous}" disabled="#{!eventLog.hasPreviousPage}" title="#{eventLogMessages.previous}" styleClass="button">
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogPreviousPageListener" />
     </h:commandButton>
