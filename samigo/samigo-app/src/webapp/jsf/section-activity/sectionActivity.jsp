@@ -31,7 +31,7 @@
   </div>
 
   <h:panelGroup layout="block" styleClass="form-group">
- 		 <h:outputLabel value="#{sectionActivityMessages.view_student}" style="instruction"/>
+ 		 <h:outputLabel value="#{sectionActivityMessages.view_student}" />
  		 <h:outputText escape="false" value="&#160;" />			
  		 <h:selectOneMenu value="#{sectionActivity.selectedUser}" id="studentName" required="true" onchange="document.forms[0].submit();">
       	 	 <f:selectItems value="#{sectionActivity.displayNamesList}" />  
