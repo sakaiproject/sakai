@@ -5,11 +5,9 @@
         <input type="hidden" name="option" value="cancel" />
         <div class="page-header">
             <h1>$tlang.getString("manover.header") <span class="highlight">$!site.Title</span></h1>
-        <div>
+            <p class="instruction"> $tlang.getString("manover.instr") </p>
+        </div>
         #if ($alertMessage)<div class="sak-banner-error">$tlang.getString("manover.alert") $formattedText.escapeHtml($alertMessage)</div>#end
-        <p class="instruction">
-            $tlang.getString("manover.instr")
-        </p>
         <h3>
            $tlang.getString("manover.layout")
         </h3>
