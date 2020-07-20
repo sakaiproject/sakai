@@ -78,6 +78,7 @@ import org.tsugi.jackson.JacksonUtil;
 import org.tsugi.lti13.LTI13KeySetUtil;
 import org.tsugi.lti13.LTI13Util;
 import org.tsugi.lti13.LTI13JwtUtil;
+import org.tsugi.lti13.LTI13ConstantsUtil;
 
 import org.tsugi.oauth2.objects.AccessToken;
 import org.tsugi.lti13.objects.Endpoint;
@@ -770,9 +771,9 @@ public class LTI13Servlet extends HttpServlet {
 				if ( roleMap.containsKey(role.getId()) ) {
 					roles.add(roleMap.get(role.getId()));
 				} else if (ComponentManager.get(AuthzGroupService.class).isAllowed(ims_user_id, SiteService.SECURE_UPDATE_SITE, "/site/" + site.getId())) {
-					roles.add("Instructor");
+					roles.add(LTI13ConstantsUtil.ROLE_INSTRUCTOR);
 				} else {
-					roles.add("Learner");
+					roles.add(LTI13ConstantsUtil.ROLE_LEARNER);
 				}
 				jo.put("roles", roles);
 
