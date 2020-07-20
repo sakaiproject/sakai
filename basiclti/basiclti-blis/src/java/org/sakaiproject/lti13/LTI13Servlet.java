@@ -557,14 +557,15 @@ public class LTI13Servlet extends HttpServlet {
 		}
 		JSONObject jso = (JSONObject) js;
 
+		// An empty / null score given means to delete the score
 		Long scoreGiven = SakaiBLTIUtil.getLongNull(jso.get("scoreGiven"));
 		Long scoreMaximum = SakaiBLTIUtil.getLongNull(jso.get("scoreMaximum"));
 		String userId = SakaiBLTIUtil.getStringNull(jso.get("userId"));  // TODO: LTI13 quirk - should be subject
 		String comment = SakaiBLTIUtil.getStringNull(jso.get("comment"));
 		log.debug("scoreGivenStr={} scoreMaximumStr={} userId={} comment={}", scoreGiven, scoreMaximum, userId, comment);
 
-		if (scoreGiven == null || userId == null) {
-			LTI13Util.return400(response, "Missing scoreGiven or userId");
+		if (userId == null) {
+			LTI13Util.return400(response, "Missing userId");
 			return;
 		}
 
@@ -598,9 +599,14 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
+		// Note when scoreGiven is null, it means to delete the score
 		Object retval;
 		if ( assignment_id == null ) {
-			retval = SakaiBLTIUtil.setGradeLTI13(site, sat.tool_id, content, userId, assignment_name, scoreGiven, scoreMaximum, comment);
+			if ( scoreGiven == null ) {
+				retval = SakaiBLTIUtil.deleteGradeLTI13(site, sat.tool_id, content, userId, assignment_name, comment);
+			} else {
+				retval = SakaiBLTIUtil.setGradeLTI13(site, sat.tool_id, content, userId, assignment_name, scoreGiven, scoreMaximum, comment);
+			}
 			log.debug("Lineitem retval={}",retval);
 		} else {
 			// TODO: Could make a new method collapsing these tool calls into a single scan
@@ -610,7 +616,11 @@ public class LTI13Servlet extends HttpServlet {
 				return;
 			}
 			assignment_name = assnObj.getName();
-			retval = SakaiBLTIUtil.setGradeLTI13(site, sat.tool_id, content, userId, assignment_name, scoreGiven, scoreMaximum, comment);
+			if ( scoreGiven == null ) {
+				retval = SakaiBLTIUtil.deleteGradeLTI13(site, sat.tool_id, content, userId, assignment_name, comment);
+			} else {
+				retval = SakaiBLTIUtil.setGradeLTI13(site, sat.tool_id, content, userId, assignment_name, scoreGiven, scoreMaximum, comment);
+			}
 			log.debug("Lineitem retval={}",retval);
 		}
 	}
