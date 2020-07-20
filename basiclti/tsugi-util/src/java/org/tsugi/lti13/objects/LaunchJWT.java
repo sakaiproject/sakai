@@ -10,6 +10,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.MapSerializer;
 
+import org.tsugi.lti13.LTI13ConstantsUtil;
+
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
 
@@ -19,8 +21,8 @@ public class LaunchJWT extends BaseJWT {
 
 	public static String MESSAGE_TYPE_LAUNCH = "LtiResourceLinkRequest";
 	public static String MESSAGE_TYPE_DEEP_LINK = "LtiDeepLinkingRequest";
-	public static String ROLE_LEARNER = "http://purl.imsglobal.org/vocab/lis/v2/membership#Learner";
-	public static String ROLE_INSTRUCTOR = "http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor";
+	public static String ROLE_LEARNER = LTI13ConstantsUtil.ROLE_LEARNER;
+	public static String ROLE_INSTRUCTOR = LTI13ConstantsUtil.ROLE_INSTRUCTOR;
 
 	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/deployment_id")
 	public String deployment_id;
