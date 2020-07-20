@@ -752,6 +752,8 @@ public class LTI13Servlet extends HttpServlet {
 
 				if (releaseName != 0) {
 					jo.put("name", user.getDisplayName());
+					jo.put("given_name", user.getFirstName());
+					jo.put("family_name", user.getLastName());
 				}
 				if (releaseEmail != 0) {
 					jo.put("email", user.getEmail());
