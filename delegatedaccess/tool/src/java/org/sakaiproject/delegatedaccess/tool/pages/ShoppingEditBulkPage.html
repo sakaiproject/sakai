@@ -1,8 +1,11 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org">
+ 
 <body>
 <wicket:extend>
 	<script type="text/javascript">
+				includeWebjarLibrary('bootstrap-multiselect');
+				
 				$(document).ready(function() {
 					$( "#tabs" ).tabs();
 					$( "#shoppingtabs" ).tabs();
@@ -28,19 +31,53 @@
 					});
 
 					//make the select box pretty:
-					$("#showAuthTools").asmSelect({selectClass: "shoppingSetting showAuthTools", removeClass: "asmListItemRemove shoppingSetting"})
-					.each(function(index){
-						if(index < 1){
-							$("#showPublicTools").asmSelect({selectClass: "shoppingSetting showPublicTools", removeClass: "asmListItemRemove shoppingSetting"})
-							.each(function(index){
-								//only need to run this once :)
-								if(index < 1){
-									setShoppingToolOptionsEnabled(true, function(){setShoppingToolOptionsEnabled(false);});
-								}
-							});
+					// $("#showAuthTools").asmSelect({selectClass: "shoppingSetting showAuthTools", removeClass: "asmListItemRemove shoppingSetting"})
+					// .each(function(index){
+					// 	if(index < 1){
+					// 		$("#showPublicTools").asmSelect({selectClass: "shoppingSetting showPublicTools", removeClass: "asmListItemRemove shoppingSetting"})
+					// 		.each(function(index){
+					// 			//only need to run this once :)
+					// 			if(index < 1){
+					// 				setShoppingToolOptionsEnabled(true, function(){setShoppingToolOptionsEnabled(false);});
+					// 			}
+					// 		});
+					// 	}
+					// });
+
+					
+					$('#showPublicTools').multiselect({
+						filterPlaceholder: window.sakai.translations.search.search_placeholder,
+						enableCaseInsensitiveFiltering: true,
+						includeSelectAllOption: true,
+						maxHeight:200,
+						onChange: function(option, checked, select) {
+							console.log(option, option[0].parentElement,checked,select);
+							if (checked) {
+								//Add it to the showAuthTools form data
+								console.log(`#showAuthTools option[value='${option[0].value}']`);
+								document.querySelector(`#showAuthTools option[value='${option[0].value}']`).selected = true;
+								
+								//Add it to the showAuthTools visual
+								// document.querySelector(`#shoppingtabs-2 .multiselect-container input[value='${option[0].value}']`).checked = true;
+								$('#showAuthTools').multiselect('select', option[0].value);
+								
+								document.querySelector(`#shoppingtabs-2 .multiselect-container input[value='${option[0].value}']`).disabled = true;
+								$('#showAuthTools').multiselect('refresh');
+							}
+						},
+						onSelectAll: function(){
+							$('#showAuthTools').multiselect('selectAll');
 						}
 					});
+					$('#showAuthTools').multiselect({
+						filterPlaceholder: window.sakai.translations.search.search_placeholder,
+						enableCaseInsensitiveFiltering: true,
+						includeSelectAllOption: true,
+						maxHeight:200
+					});
+
 					
+
 					$("#showPublicToolsSelectAll").click(function() {
 						$("#showPublicTools").children().attr("selected", "selected").end().change();
 						setShoppingToolOptionsEnabled(true, function(){setShoppingToolOptionsEnabled(false);});
@@ -106,17 +143,13 @@
 				}
 	</script>
 	<div wicket:id="formFeedback" id="formFeedback">[formFeedback]</div>
-	<br/>
-	<div style="font-size: 150%">
-		<span><wicket:message key="shoppingAdminBulkTitle"/></span>
-		<span class="instruction"><a href="#" onclick="$('.instruction').toggle();"><img src="/library/image/silk/information.png"/></a></span>
-	</div>
-	<br/>
-	
-	<span class="instruction information" style="white-space: normal; display:none">
+	<div class="page-header">
+		<h1><wicket:message key="shoppingAdminBulkTitle"/></h1>
+	</div>	
+	<div class="sak-banner-info">
 		<wicket:message key="shoppingAdminBulkInstructions"/>
-		<a href="#" onclick="$('.instruction').toggle();" style="float: right;"><img src="/library/image/silk/cross.png"/></a>
-	</span>
+		<a href="#" onclick="$('.sak-banner-info').hide();" style="float: right;"><i class="fa fa-times-circle" aria-hidden="true"></i></a>
+	</div>
 	<form wicket:id="form">
 		<div id="tabs">
 			<ul>
@@ -181,14 +214,14 @@
 							        <li><a href="#shoppingtabs-2"><wicket:message key=".auth"/></a></li>
 							    </ul>
 							    <div id="shoppingtabs-1">
-							        <select id="showPublicTools" wicket:id="showPublicTools" name="showPublicTools" onchange="setShoppingToolOptionsEnabled(true, function(){setShoppingToolOptionsEnabled(false);});"  multiple="multiple" class="shoppingSetting" style="height: 100px">
+							        <!-- <select id="showPublicTools" wicket:id="showPublicTools" name="showPublicTools" onchange="setShoppingToolOptionsEnabled(true, function(){setShoppingToolOptionsEnabled(false);});"  multiple="multiple" class="shoppingSetting" style="height: 100px">
+									</select> -->
+									<select id="showPublicTools" wicket:id="showPublicTools" name="showPublicTools" multiple="multiple" class="shoppingSetting" style="height: 100px">
 									</select>
-									<a id="showPublicToolsSelectAll" class="shoppingSetting" href="javascript:void(0);"><wicket:message key="selectAll"/></a>
 							    </div>
 							    <div id="shoppingtabs-2">
 							        <select id="showAuthTools" wicket:id="showAuthTools" name="showAuthTools" multiple="multiple" class="shoppingSetting" style="height: 100px">
 									</select>
-									<a id="showAuthToolsSelectAll" class="shoppingSetting" href="javascript:void(0);"><wicket:message key="selectAll"/></a>
 							    </div>
 							</div>
 						</td>
@@ -211,7 +244,7 @@
 				<br/>
 				<textarea wicket:id="addSitesInput" rows="10" cols="80"></textarea>
 				<br/>
-				<input wicket:id="addAddSites" type="submit" value="Add" />
+				<input wicket:id="addAddSites" class="btn-primary" type="submit" value="Add" />
 				<br/>
 				<br/>	
 				<span style="font-weight: bold"><wicket:message key="sitesToBeAdded"/>:</span>
@@ -220,11 +253,11 @@
 				<br/>
 			</div>
 		</div>
-		<br/>
-		<br/>
-
-        <input wicket:id="update" type="submit" value="Save" /> &nbsp; <input wicket:id="cancel" type="submit" value="Cancel" />
-    </form>
+		<div class="act">
+			<input wicket:id="update" type="submit" value="Save" class="active" />
+			<input wicket:id="cancel" type="submit" value="Cancel" />
+		</div>
+		</form>
 	<div wicket:id="formFeedback2" id="formFeedback2">[formFeedback]</div>	
 </wicket:extend>
 </body>
