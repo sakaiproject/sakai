@@ -2120,8 +2120,8 @@ public class SakaiBLTIUtil {
 
 	// Boolean.TRUE - Grade deleted
 	public static Object deleteGradeLTI13(Site site, Long tool_id, Map<String, Object> content, String user_id,
-			String assignment) {
-		return handleGradebookLTI13(site, tool_id, content, user_id, assignment, null, null, null, false, true);
+			String assignment, String comment) {
+		return handleGradebookLTI13(site, tool_id, content, user_id, assignment, null, null, comment, false, true);
 	}
 
 	// Quite a long bit of code
@@ -2175,7 +2175,8 @@ public class SakaiBLTIUtil {
 				retval = retMap;
 			} else if (isDelete) {
 				g.setAssignmentScoreString(siteId, assignmentObject.getId(), user_id, null, "External Outcome");
-				g.setAssignmentScoreComment(siteId, assignmentObject.getId(), user_id, null);
+				// Since LTI 13 uses update semantics on grade delete, we accept the comment if it is there
+				g.setAssignmentScoreComment(siteId, assignmentObject.getId(), user_id, comment);
 
 				log.info("Delete Score site={} assignment={} user_id={}", siteId, assignment, user_id);
 				message = "Result deleted";
