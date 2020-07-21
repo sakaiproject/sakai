@@ -1127,19 +1127,15 @@ public class ReportsEditPage extends BasePage {
 			Locator.getFacade().getSiteService().getSiteTypes().stream().map(s -> "!site.template." + s).forEach(siteIdWithRoles::add);
 		}
 
-		List<String> roles = new ArrayList<String>();
-		try {
-			for (String s : siteIdWithRoles) {
-				Set<Role> roleSet = Locator.getFacade().getAuthzGroupService().getAuthzGroup(s).getRoles();
-				for (Role r : roleSet) {
-					roles.add(r.getId());
-				}
+		Set<String> roles = new HashSet<String>();
+		for (String s : siteIdWithRoles) {
+			try {
+				Locator.getFacade().getAuthzGroupService().getAuthzGroup(s).getRoles().forEach(r -> roles.add(r.getId()));
+			} catch (GroupNotDefinedException e) {
+				log.debug("AuthzGroup does not exist, skipping: {}", s);
 			}
-		}catch(GroupNotDefinedException e){
-			log.warn("Site does not exist: {}", siteIdWithRoles);
-			
 		}
-		return roles;
+		return new ArrayList<String>(roles);
 	}
 	
 	private boolean isToolSuported(final ToolInfo toolInfo) {
