@@ -1152,6 +1152,18 @@ public class BasicLTIUtil {
 		return timestamp;
 	}
 
+	// Parse and return a JSONObject (empty if necessary)
+	// Use this when there is no way to recover from broken JSON except start over
+	public static JSONObject parseJSONObject(String str)
+	{
+		JSONObject content_json = null;
+		if ( str != null ) {
+			content_json = (JSONObject) JSONValue.parse(str);
+		}
+		if ( content_json == null ) content_json = new JSONObject();
+		if ( ! (content_json instanceof JSONObject) ) content_json = new JSONObject();
+		return content_json;
+	}
 
 	// Parse a provider profile with lots of error checking...
 	public static JSONArray forceArray(Object obj) 

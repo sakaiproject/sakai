@@ -917,4 +917,9 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	return publishedAssessmentFacadeQueries.getPublishedAssessmentSiteId(Long.toString(id));
     }
 
+	@Override
+    public void preShowItem(SimplePageItem simplePageItem)
+    {
+    }
+
 }

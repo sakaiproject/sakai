@@ -57,6 +57,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.db.cover.SqlService;
 import org.sakaiproject.id.cover.IdManager;
+import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
@@ -1248,5 +1249,10 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	public void setSimplePageBean(SimplePageBean simplePageBean) {
 		this.simplePageBean = simplePageBean;
 	}
+
+	@Override
+    public void preShowItem(SimplePageItem simplePageItem)
+    {
+    }
 
 }

@@ -735,5 +735,10 @@ public class JForumEntity implements LessonEntity, ForumInterface {
 		this.simplePageBean = simplePageBean;
 	}
 
+	@Override
+	public void preShowItem(SimplePageItem simplePageItem)
+	{
+	}
+
 
 }
