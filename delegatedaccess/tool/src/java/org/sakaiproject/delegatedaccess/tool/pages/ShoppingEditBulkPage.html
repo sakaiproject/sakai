@@ -3,145 +3,8 @@
  
 <body>
 <wicket:extend>
-	<script type="text/javascript">
-				includeWebjarLibrary('bootstrap-multiselect');
-				
-				$(document).ready(function() {
-					$( "#tabs" ).tabs();
-					$( "#shoppingtabs" ).tabs();
-
-					localDatePicker({
-						input: '#shoppingVisibilityStart',
-						useTime: 0,
-						parseFormat: 'YYYY-MM-DD',
-						allowEmptyDate: true,
-						ashidden: {
-							iso8601: 'shoppingVisibilityStartISO8601'
-						}
-					});
-
-					localDatePicker({
-						input: '#shoppingVisibilityEnd',
-						useTime: 0,
-						parseFormat: 'YYYY-MM-DD',
-						allowEmptyDate: true,
-						ashidden: {
-							iso8601: 'shoppingVisibilityEndISO8601'
-						}
-					});
-
-					//make the select box pretty:
-					// $("#showAuthTools").asmSelect({selectClass: "shoppingSetting showAuthTools", removeClass: "asmListItemRemove shoppingSetting"})
-					// .each(function(index){
-					// 	if(index < 1){
-					// 		$("#showPublicTools").asmSelect({selectClass: "shoppingSetting showPublicTools", removeClass: "asmListItemRemove shoppingSetting"})
-					// 		.each(function(index){
-					// 			//only need to run this once :)
-					// 			if(index < 1){
-					// 				setShoppingToolOptionsEnabled(true, function(){setShoppingToolOptionsEnabled(false);});
-					// 			}
-					// 		});
-					// 	}
-					// });
-
-					
-					$('#showPublicTools').multiselect({
-						filterPlaceholder: window.sakai.translations.search.search_placeholder,
-						enableCaseInsensitiveFiltering: true,
-						includeSelectAllOption: true,
-						maxHeight:200,
-						onChange: function(option, checked, select) {
-							console.log(option, option[0].parentElement,checked,select);
-							if (checked) {
-								//Add it to the showAuthTools form data
-								console.log(`#showAuthTools option[value='${option[0].value}']`);
-								document.querySelector(`#showAuthTools option[value='${option[0].value}']`).selected = true;
-								
-								//Add it to the showAuthTools visual
-								// document.querySelector(`#shoppingtabs-2 .multiselect-container input[value='${option[0].value}']`).checked = true;
-								$('#showAuthTools').multiselect('select', option[0].value);
-								
-								document.querySelector(`#shoppingtabs-2 .multiselect-container input[value='${option[0].value}']`).disabled = true;
-								$('#showAuthTools').multiselect('refresh');
-							}
-						},
-						onSelectAll: function(){
-							$('#showAuthTools').multiselect('selectAll');
-						}
-					});
-					$('#showAuthTools').multiselect({
-						filterPlaceholder: window.sakai.translations.search.search_placeholder,
-						enableCaseInsensitiveFiltering: true,
-						includeSelectAllOption: true,
-						maxHeight:200
-					});
-
-					
-
-					$("#showPublicToolsSelectAll").click(function() {
-						$("#showPublicTools").children().attr("selected", "selected").end().change();
-						setShoppingToolOptionsEnabled(true, function(){setShoppingToolOptionsEnabled(false);});
-						return false;
-					}); 
-					$("#showAuthToolsSelectAll").click(function() {
-						$(".showPublicTools option:not(.asmOptionDisabled)").each(
-							function(i, elem){
-								$("#showAuthTools").children("[value='" + $(elem).val() + "']").attr("selected", "selected").end().change();
-							}
-						);
-						setShoppingToolOptionsEnabled(true, function(){setShoppingToolOptionsEnabled(false);});
-						return false;
-					});
-				});
-				
-				function setShoppingSettingsDisabled(disabled){
-					$(".shoppingSetting").attr("disabled", disabled).end().change();
-					if(disabled){
-						$("a.shoppingSetting").hide();
-					}else{
-						$("a.shoppingSetting").show();
-					}
-					//always set these to disabled
-					$(".shoppingSettingDisabled").attr("disabled", true).end().change();
-					$("a.shoppingSettingDisabled").hide();
-					if(!disabled){
-						setShoppingToolOptionsEnabled(true, function(){setShoppingToolOptionsEnabled(false);});
-					}
-				}
-				
-				function setShoppingToolOptionsEnabled(first, callback){
-					if(first){
-						//remove all the public tool options which were added to the auth list
-						//these will be readded below:
-						$("#showAuthTools").children(".publicTool").attr("selected", "").attr('disabled', true).end().change();
-						$("#showAuthTools").children(".publicTool").removeClass("publicTool");
-					}
-					$(".showPublicTools option").each(function (i, elem) {
-						if("" !== $(elem).val()){
-							$(".showAuthTools option").each(function (j, elem2) {
-								if($(elem).val() === $(elem2).val()){
-									if($(elem).hasClass("asmOptionDisabled")){
-										if(first){
-											//add the selected public option to the auth options list to
-											//show to the user that public tools will show up for auth users as well
-											$("#showAuthTools").children("[value='" + $(elem).val() + "']").attr("selected", "selected").attr('disabled', true).end().change();
-										}else{
-											//hide the "remove" link for auth tools that are in the public tools list
-											$("li.asmListItem[rel='" + $(elem2).attr("rel") +"'] a.asmListItemRemove").hide();
-											$("#showAuthTools").children("[value='" + $(elem).val() + "']").addClass("publicTool");
-										}
-									}
-								}
-							});
-						}
-					});
-					if(callback != null){
-						//call back to ourselves and manipulate the <select> tag.  This is because
-						//we have to wait for change() to complete first before modifying.
-						callback();
-					}
-				}
-	</script>
+	<script type="text/javascript" src="/library/webjars/jquery-i18n-properties/1.2.2/jquery.i18n.properties.min.js"></script>
+	
 	<div wicket:id="formFeedback" id="formFeedback">[formFeedback]</div>
 	<div class="page-header">
 		<h1><wicket:message key="shoppingAdminBulkTitle"/></h1>
@@ -259,6 +122,7 @@
 		</div>
 		</form>
 	<div wicket:id="formFeedback2" id="formFeedback2">[formFeedback]</div>	
+	<script type="text/javascript" src="/delegatedaccess-tool/javascript/ShoppingEditBulkPage.js"></script>
 </wicket:extend>
 </body>
 </html>
