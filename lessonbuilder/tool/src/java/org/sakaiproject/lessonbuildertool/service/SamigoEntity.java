@@ -920,6 +920,7 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	@Override
     public void preShowItem(SimplePageItem simplePageItem)
     {
+		// Not yet used
     }
 
 }

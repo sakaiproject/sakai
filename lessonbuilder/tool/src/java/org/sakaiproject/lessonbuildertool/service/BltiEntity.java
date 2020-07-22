@@ -32,9 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -286,7 +284,7 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 			// SAK-40044 - The pre-21 workaround is to pass description in settings
 			// once SAK-43996 is done, this can be deleted
 			String content_settings = (String) content.get(LTIService.LTI_SETTINGS);
-			JSONObject content_json = org.tsugi.basiclti.BasicLTIUtil.parseJSONObject(content_settings);
+			JSONObject content_json = BasicLTIUtil.parseJSONObject(content_settings);
 			String json_description = (String) content_json.get(LTIService.LTI_DESCRIPTION);
 
 			if ( (item_name != null && ! item_name.equals(content_title)) ||
