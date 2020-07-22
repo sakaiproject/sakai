@@ -13,15 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.elfinder.sakai;
-
-import cn.bluejoe.elfinder.service.FsItem;
-import cn.bluejoe.elfinder.service.FsVolume;
+package org.sakaiproject.elfinder;
 
 /**
- * This is a FsVolume that's aware of the site it's in.
+ * This is a ToolFsVolume that's aware of the site it's in.
  */
-public interface SiteVolume extends FsVolume {
+public interface ToolFsVolume extends SakaiFsVolume {
 
     /**
      * The SiteId that this FsVolume is for.
@@ -30,17 +27,17 @@ public interface SiteVolume extends FsVolume {
     String getSiteId();
 
     /**
-     * The SiteVolumeFactory that created this SiteVolume.
+     * The ToolFsVolumeFactory that created this ToolFsVolume.
      * This is mainly used to discover the prefix.
      * @return The SiteVolumeFactory.
      */
-    SiteVolumeFactory getSiteVolumeFactory();
+    ToolFsVolumeFactory getToolVolumeFactory();
 
     /**
      * Is the item writeable by the current user.
      * @param item The FsItem.
      * @return <code>true</code> if the passed item is writeable by the current user.
      */
-    boolean isWriteable(FsItem item);
+    boolean isWriteable(SakaiFsItem item);
 
 }

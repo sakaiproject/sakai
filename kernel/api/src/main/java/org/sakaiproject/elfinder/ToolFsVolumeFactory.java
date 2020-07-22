@@ -13,24 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.elfinder.sakai.msgcntr;
-
-import cn.bluejoe.elfinder.service.FsVolume;
-import org.sakaiproject.api.app.messageforums.BaseForum;
+package org.sakaiproject.elfinder;
 
 /**
- * Created by buckett on 13/08/15.
+ * This is a factory that tools need to implement which will be called by the service when a new
+ * instance of the FsVolume is required for a site. This needs to be high performance as it will be called multiple
+ * times in a request.
  */
-public class ForumMsgCntrFsItem extends MsgCntrFsItem {
+public interface ToolFsVolumeFactory {
 
-    private BaseForum forum;
+    String getPrefix();
 
-    public ForumMsgCntrFsItem(BaseForum forum, String id, FsVolume volume) {
-        super(id, volume);
-        this.forum = forum;
-    }
+    ToolFsVolume getVolume(String siteId);
 
-    public BaseForum getForum() {
-        return forum;
-    }
+    String getToolId();
+
 }
