@@ -899,5 +899,6 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	@Override
     public void preShowItem(SimplePageItem simplePageItem)
     {
+		// Not currently used
     }
 }
