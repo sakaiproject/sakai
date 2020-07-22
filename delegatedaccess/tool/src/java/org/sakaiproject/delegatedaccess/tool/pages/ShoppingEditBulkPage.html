@@ -11,9 +11,10 @@
 	</div>	
 	<div class="sak-banner-info">
 		<wicket:message key="shoppingAdminBulkInstructions"/>
-		<a href="#" onclick="$('.sak-banner-info').hide();" style="float: right;"><i class="fa fa-times-circle" aria-hidden="true"></i></a>
+		<a href="#" wicket:message="aria-label:hideInstructions" name="hideSakBanner" onclick="$('.sak-banner-info').hide();" style="float: right;"><i class="fa fa-times-circle" aria-hidden="true"></i></a>
 	</div>
-	<form wicket:id="form">
+	
+	<form wicket:id="form" class="form-horizontal">
 		<div id="tabs">
 			<ul>
 				<li>
@@ -37,89 +38,100 @@
 				<br/>
 			</div>
 			<div id="tabs-2">
-				<span style="font-weight: bold"><wicket:message key="shoppingPeriodSettings"/>:</span>
-				<br/>
-				<table>
-					<tr>
-						<td align="right">
-							<span style="font-weight: bold"><wicket:message key="startDate"/></span>
-						</td>
-						<td>
-							<input wicket:id="shoppingVisibilityStart" id="shoppingVisibilityStart" type="text" />
-						</td>
-					</tr>
-                    <tr>
-                        <td align="right">
-                        	<span style="font-weight: bold"><wicket:message key="endDate"/></span>
-                        </td>
-                        <td>
-							<input wicket:id="shoppingVisibilityEnd" id="shoppingVisibilityEnd" type="text" />
-						</td>
-					</tr>
+				<legend><wicket:message key="shoppingPeriodSettings"/></legend>
+					
+				<div class="form-group">
+					<label for="shoppingVisibilityStart" class="col-sm-2 control-label"><wicket:message key="startDate"/></label>
+					<div class="col-sm-4">
+						<input wicket:id="shoppingVisibilityStart" class="form-control" id="shoppingVisibilityStart"  name="shoppingVisibilityStart" type="text" />
+					</div>
+				</div>
+			
+				<div class="form-group">
+					<label for="shoppingVisibilityEnd" class="col-sm-2 control-label"><wicket:message key="endDate"/></label>
+					<div class="col-sm-4">
+						<input wicket:id="shoppingVisibilityEnd" class="form-control" id="shoppingVisibilityEnd" name="shoppingVisibilityEnd" type="text" />
+					</div>
+				</div>
+				
+				<div class="form-group">
 					<wicket:enclosure child="shoppingRole">
-						<tr>
-							<td align="right">
-								<span style="font-weight: bold"><wicket:message key="shoppersBecome"/></span>
-							</td>
-							<td>
-								<select name="shoppingRole" wicket:id="shoppingRole"></select>
-							</td>
-						</tr>
+						<div id="shoppingRoleLabel"  class="col-sm-2 control-label"><wicket:message key="shoppersBecome"/></div>
+						<div class="col-sm-4">
+							<select wicket:message="name:shoppingRole" aria-labelledby="shoppingRoleLabel" wicket:id="shoppingRole" class="form-control"></select>
+						</div>
 					</wicket:enclosure>
-					<tr>
-						<td align="right" valign="top">
-							<span style="font-weight: bold"><wicket:message key="showToolsHeader"/></span>
-						</td>
-						<td>
-							<div id="shoppingtabs">
-								<ul>
-							        <li><a href="#shoppingtabs-1"><wicket:message key=".anon"/></a></li>
-							        <li><a href="#shoppingtabs-2"><wicket:message key=".auth"/></a></li>
-							    </ul>
-							    <div id="shoppingtabs-1">
-									<select id="showPublicTools" wicket:id="showPublicTools" name="showPublicTools" multiple="multiple" class="shoppingSetting" style="height: 100px">
-									</select>
-							    </div>
-							    <div id="shoppingtabs-2">
-							        <select id="showAuthTools" wicket:id="showAuthTools" name="showAuthTools" multiple="multiple" class="shoppingSetting" style="height: 100px">
-									</select>
-							    </div>
+				</div>
+				
+				<div class="form-group">
+					<div class="col-sm-2 control-label"><wicket:message key="showToolsHeader"/></div>	
+					<div class="col-sm-6">
+						<div id="shoppingtabs">
+							<ul>
+								<li><a href="#shoppingtabs-1"><wicket:message key=".anon"/></a></li>
+								<li><a href="#shoppingtabs-2"><wicket:message key=".auth"/></a></li>
+							</ul>
+							<div id="shoppingtabs-1">
+								<label for="showPublicTools" class="control-label"><wicket:message key="showPublicToolsHeader"/></label>
+								<select id="showPublicTools" wicket:id="showPublicTools" name="showPublicTools"  multiple="multiple" class="shoppingSetting form-control">
+								</select>
 							</div>
-						</td>
-					</tr>
-					<tr>
-						<td align="right" valign="top">
-							<span style="font-weight: bold"><wicket:message key="advanced"/></span>
-						</td>
-						<td>
+							<div id="shoppingtabs-2">
+								<label for="showAuthTools" class="control-label"><wicket:message key="showAuthToolsHeader"/></label>
+								<select id="showAuthTools" wicket:id="showAuthTools" name="showAuthTools"  multiple="multiple" class="shoppingSetting form-control">
+								</select>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<div class="col-sm-2 control-label"><wicket:message key="advanced"/></div>
+					
+					<div class="col-sm-10">
+						<label for="revokeInstructorOverrideCheckbox">
 							<input type="checkbox" wicket:id="revokeInstructorOverrideCheckbox" id="revokeInstructorOverrideCheckbox"/>
-		                	<label for="revokeInstructorOverrideCheckbox"><wicket:message key="shoppingPeriodRevokeInstructorEditable"/></label>
-		                	<br/>
-		                	<input type="checkbox" wicket:id="revokePublicOptCheckbox" id="revokePublicOptCheckbox"/>
-		                	<label for="revokePublicOptCheckbox"><wicket:message key="shoppingPeriodRevokePublicOptCheckbox"/></label>
-						</td>
-					</tr>
-				</table>
-				<br/>
-				<span style="font-weight: bold"><wicket:message key="siteIds"/>:</span>&nbsp;<span class="instruction"><wicket:message key="siteIdsInfo"/></span>
-				<br/>
-				<textarea wicket:id="addSitesInput" rows="10" cols="80"></textarea>
-				<br/>
-				<input wicket:id="addAddSites" class="btn-primary" type="submit" value="Add" />
-				<br/>
-				<br/>	
-				<span style="font-weight: bold"><wicket:message key="sitesToBeAdded"/>:</span>
-				<br/>
-				<table class="table" wicket:id="addSites"/>
-				<br/>
+							<wicket:message key="shoppingPeriodRevokeInstructorEditable"/>
+						</label>
+					</div>
+					<div class="col-sm-10 col-sm-offset-2">
+						<label for="revokePublicOptCheckbox">
+							<input type="checkbox" wicket:id="revokePublicOptCheckbox" id="revokePublicOptCheckbox"/>
+							<wicket:message key="shoppingPeriodRevokePublicOptCheckbox"/>
+						</label>
+					</div>
+				</div>		
+				
+				<fieldset>
+					<legend><wicket:message key="sitesToBeAdded"/></legend>
+					<div class="form-group">
+						<div id="addSitesInputLabel" class="col-sm-2 control-label"><wicket:message key="siteIds"/></div>
+						<div class="col-sm-6">
+							<textarea wicket:id="addSitesInput" aria-labelledby="addSitesInputLabel" class="form-control col-sm-10" wicket:message="placeholder:siteIdsInfo,name:addSitesInput" rows="10" cols="80">
+							</textarea>
+						
+							<input wicket:id="addAddSites" wicket:message="aria-label:add" class="btn-primary" type="submit" value="Add" />
+						</div>
+					</div>
+					
+					<div class="form-group">
+						<table class="table col-sm-6 col-sm-offset-2" wicket:id="addSites"/>
+					</div>
+				</fieldset>
+				<div class="act">
+					<input wicket:id="update" type="submit" wicket:message="aria-label:save" value="Save" class="active" />
+					<input wicket:id="cancel" type="submit" wicket:message="aria-label:cancel" value="Cancel" />
+				</div>
+			
+					
+				
+				
 			</div>
 		</div>
-		<div class="act">
-			<input wicket:id="update" type="submit" value="Save" class="active" />
-			<input wicket:id="cancel" type="submit" value="Cancel" />
-		</div>
+		
 		</form>
-	<div wicket:id="formFeedback2" id="formFeedback2">[formFeedback]</div>	
+		<div wicket:id="formFeedback2" id="formFeedback2">[formFeedback]</div>
+	
 	<script type="text/javascript" src="/delegatedaccess-tool/javascript/ShoppingEditBulkPage.js"></script>
 </wicket:extend>
 </body>
