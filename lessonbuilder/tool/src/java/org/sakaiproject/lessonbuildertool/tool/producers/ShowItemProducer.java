@@ -471,6 +471,9 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 		    else if ("SETTINGS".equals(source));
 		    else
 			source = (lessonEntity==null)?"dummy":lessonEntity.getUrl();
+
+			// Notify the Entity they are about to be launched from an item
+			lessonEntity.preShowItem(item);
 		}
 
 	    UIComponent iframe = UILink.make(tofill, "iframe1", source)

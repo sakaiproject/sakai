@@ -37,6 +37,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Precision;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 import org.sakaiproject.api.privacy.PrivacyManager;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -1026,9 +1027,25 @@ public class SakaiBLTIUtil {
 			if (title == null) {
 				title = (String) tool.get(LTIService.LTI_TITLE);
 			}
+
+			// SAK-43966 - Prior to Sakai-21 there is no description field in Content
+			String description = (String) content.get(LTIService.LTI_DESCRIPTION);
+
+			// SAK-40044 - If there is no description, we fall back to the pre-21 description in JSON
+			if (description == null) {
+				String content_settings = (String) content.get(LTIService.LTI_SETTINGS);
+				JSONObject content_json = org.tsugi.basiclti.BasicLTIUtil.parseJSONObject(content_settings);
+				description = (String) content_json.get(LTIService.LTI_DESCRIPTION);
+			}
+
+			// All else fails, use pre-SAK-40044 title as description
+			if (description == null) {
+				description = title;
+			}
+
 			if (title != null) {
 				setProperty(ltiProps, BasicLTIConstants.RESOURCE_LINK_TITLE, title);
-                setProperty(ltiProps, BasicLTIConstants.RESOURCE_LINK_DESCRIPTION, title);
+				setProperty(ltiProps, BasicLTIConstants.RESOURCE_LINK_DESCRIPTION, description);
 				setProperty(lti13subst, LTICustomVars.RESOURCELINK_TITLE, title);
 				setProperty(lti13subst, LTICustomVars.RESOURCELINK_DESCRIPTION, title);
 			}

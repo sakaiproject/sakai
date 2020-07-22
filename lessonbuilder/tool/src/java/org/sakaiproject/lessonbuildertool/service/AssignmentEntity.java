@@ -45,6 +45,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.cover.EntityManager;  
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
 import org.sakaiproject.memory.api.Cache;
@@ -892,4 +893,10 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	public Integer getScaleFactor() {
 		return assignment.getScaleFactor();
 	}
+
+	@Override
+    public void preShowItem(SimplePageItem simplePageItem)
+    {
+		// Not currently used
+    }
 }
