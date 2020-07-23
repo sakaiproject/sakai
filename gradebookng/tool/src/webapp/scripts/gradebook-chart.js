@@ -71,10 +71,10 @@ function renderChart(gbChartData) {
 						fontFamily: 'Monospace',
 						autoskip: true,
 						maxRotation: 0,
-            // Include a space to even out the plusses and minuses
-            callback: function(value, index, values) {
-                return value + (value.length < 2 ? ' ' : '');
-            }
+						// Include a space to even out the plusses and minuses
+						callback: function(value, index, values) {
+							return value + (value.length < 2 ? ' ' : '');
+						}
 					},
 					scaleLabel: {
 						display: true,
