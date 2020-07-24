@@ -511,3 +511,6 @@ $skin-name : "morpheus-default" !default; // This is used for bootstrap font beh
 
 $sites-nav-selected-submenu-border-color: transparent !default;
 $sites-nav-submenu-top: -#{$standard-spacing} !default; //fallback to calc( #{$default-font-size} + #{$sites-nav-menu-item-border-thickness})
+
+//SAK-43981
+$theme-switcher-enabled: true !default;

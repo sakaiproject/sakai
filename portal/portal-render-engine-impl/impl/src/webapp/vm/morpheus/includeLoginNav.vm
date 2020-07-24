@@ -160,6 +160,19 @@
 
                                     #end ## END of IF (${tabsSites.tutorial})
 
+                                    #if (${tabsSites.themeSwitcher})
+
+                                        <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented">
+                                            <button role="switch" aria-checked="true"
+                                                id="themeSwitcher" class="Mrphs-userNav__submenuitem--themeSwitcher switch">
+                                                <span>dark</span>
+                                                <span>light</span>
+                                            </button>
+                                            <label for="themeSwitcher" class="switch">${rloader.sit_themeSwitcher}</label>
+                                        </li>
+
+                                    #end ## END of IF (${tabsSites.themeSwitcher})
+
                             #end ## END of IF (${site.isMyWorkspace})
 
                         #end ## END of FOREACH ( $site in $tabsSites.tabsSites )

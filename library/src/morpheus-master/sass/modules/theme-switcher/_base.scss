@@ -1,0 +1,203 @@
+$css4: true;
+$compatibility: true;
+//Here we transfer the variables from the map to the :root element
+//it is nessesary to define the variables in sass map instead of :root, for compatibility reasons.
+$variables: (
+--sak-color-white:     hsl(0, 0%, 100%),
+--sak-color-black-100: hsl(0, 0%, 98%),
+--sak-color-black-150: hsl(0, 0%, 96%),
+--sak-color-black-200: hsl(0, 0%, 94%),
+--sak-color-black-300: hsl(0, 0%, 82%),
+--sak-color-black-400: hsl(210, 4%, 73%),
+--sak-color-black-500: hsl(210, 3%, 55%),
+--sak-color-black-600: hsl(213, 4%, 43%),
+--sak-color-black-700: hsl(210, 4%, 32%),
+--sak-color-black-800: hsl(210, 5%, 25%),
+--sak-color-black-850: hsl(210, 8%, 14%),
+--sak-color-black-900: hsl(0, 0%, 8%),
+--sak-color-black-1000: hsl(0, 0%, 1%),
+
+--sak-color-blue-50:  hsl(203, 76%, 90%),
+--sak-color-blue-100: hsl(203, 76%, 75%),
+--sak-color-blue-200: hsl(203, 76%, 52%), //#279be1
+--sak-color-blue-300: hsl(203, 76%, 40%),
+--sak-color-blue-400: hsl(203, 76%, 25%), //#0f4b6f
+--sak-color-blue-500: hsl(203, 76%, 25%),
+--sak-color-blue-600: hsl(203, 76%, 16%),
+--sak-color-blue-700: hsl(203, 76%, 7%),
+--sak-theme-switch-ease: background-color 0.6s cubic-bezier(0.76, 0, 0.24, 1) 
+);
+
+
+@if($css4) {
+    :root {
+        @each $variable, $value in $variables {
+        #{$variable}: $value;
+        }
+    }
+    }
+
+    //this is the "magic" function
+    @function var($variable) {
+    @if($css4) {
+        @return unquote('var(' + $variable + ')');
+    } @else {
+        @return map-get($variables, $variable);
+    }
+    }
+
+    //the mixin temporally sets the $css4 variable to false, compiles the css3 fallback, then makes the variable true again and compiles the css4 code. It should contain properties that use css4 variables, otherwise there will be unnessesary duplication of properties.
+    @mixin css4 {
+    @if ($css4) {
+        $css4-backup: $css4;
+        @if($compatibility) {
+        $css4: false !global;
+        @content;
+        }
+        $css4: true !global;
+        @content;
+        $css4: $css4-backup;
+    } 
+    @else {
+        @content;
+    }
+}
+@if $theme-switcher-enabled {
+    button.switch {
+        margin: 0;
+        padding: 0;
+        width: 70px;
+        height: 26px;
+        border: 2px solid black;
+        display: inline-block;
+        margin-right: 0.25em;
+        line-height: 20px;
+        vertical-align: middle;
+        text-align: center;
+        font: 12px "Open Sans", "Arial", serif;
+    }
+    
+    button.switch span {
+        padding: 0 4px;
+        pointer-events: none;
+    }
+    
+    [role="switch"][aria-checked="false"] :first-child,
+    [role="switch"][aria-checked="true"] :last-child {
+        background: #262;
+        color: #eef;
+    }
+    
+    [role="switch"][aria-checked="false"] :last-child,
+    [role="switch"][aria-checked="true"] :first-child {
+        color: #bbd;
+    }
+    
+    label.switch {
+        font: 16px "Open Sans", "Arial", sans-serif;
+        line-height: 20px;
+        user-select: none;
+        vertical-align: middle;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        -webkit-user-select: none;
+        -o-user-select: none;
+}
+
+
+
+
+
+
+    //the body does not use fallback, its styles will be visible only in compatible browsers
+    html {
+        * {
+            transition:var(--sak-theme-switch-ease);
+        }
+        &.sak-dark-theme {
+            * {
+                color: var(--sak-color-black-200);
+                
+            }
+            // Header
+            .Mrphs-mainHeader .Mrphs-headerLogo {
+                // background-color: var(--sak-color-black-900);
+                
+            }
+            .Mrphs-mainHeader {
+                box-shadow: none;
+            }
+
+            //Favorites
+            #topnav_container,
+            .Mrphs-siteHierarchy{
+                color: var(--sak-color-black-200);
+                background-color: var(--sak-color-black-900);
+                border-color:var(--sak-color-black-900);
+            }
+            #linkNav ul li.Mrphs-sitesNav__menuitem,
+            #toolMenu ul li .Mrphs-toolsNav__menuitem--link, #subSites ul li .Mrphs-toolsNav__menuitem--link,
+            #linkNav ul li.Mrphs-sitesNav__menuitem .link-container,
+            #linkNav ul li.Mrphs-sitesNav__menuitem .Mrphs-sitesNav__submenu .Mrphs-sitesNav__submenuitem .Mrphs-sitesNav__submenuitem-link, #linkNav ul li.Mrphs-sitesNav__menuitem .Mrphs-sitesNav__submenu .Mrphs-sitesNav__submenuitem a
+             {
+                color: var(--sak-color-black-200);
+                background-color: var(--sak-color-black-850);
+
+            }
+            
+            //Tool Menu
+            #toolMenuWrap {
+                color: var(--sak-color-black-200);
+                background-color: var(--sak-color-black-850);
+                border-color: var(--sak-color-black-850);
+            }
+            #toolMenu ul li:first-of-type a, #subSites ul li:first-of-type a,
+            #toolMenu ul li, #subSites ul li,
+            #toolMenu ul li.Mrphs-collapseTools, #toolMenu ul li.Mrphs-collapseTools, #subSites ul li.Mrphs-collapseTools, #subSites ul li.Mrphs-collapseTools,
+            .Mrphs-toolTitleNav .Mrphs-toolTitleNav__link {
+                border-color: var(--sak-color-black-850);
+                background-color: var(--sak-color-black-850);
+            }
+            
+            //Pagebody
+            body.Mrphs-portalBody,
+            .Mrphs-portalWrapper,
+            .Mrphs-mainContent,
+            .portletBody,
+            .breadcrumb {
+                color: var(--sak-color-black-200);
+                background-color: var(--sak-color-black-900);
+                border-color:var(--sak-color-black-900);
+            }
+            .Mrphs-multipleTools .Mrphs-container .Mrphs-container--toolTitleNav,
+            .Mrphs-toolBody
+            {
+                color: var(--sak-color-black-200);
+                
+
+            }
+            .Mrphs-multipleTools .Mrphs-container {
+                box-shadow: $material-elevation-3dp;
+            }
+
+            //Tool Tabs
+            .navIntraTool li span a {
+                background:var(--sak-color-black-850);
+            }
+
+            //Footer
+            .Mrphs-container--footer{
+                color: var(--sak-color-black-200);
+                background-color: var(--sak-color-black-900);
+                border-color:var(--sak-color-black-900);
+            }
+        }
+    }
+    // the p and button tags uses the css4 mixin so a fall-back is provided and they will work on all browsers.
+    p {
+        text-align: justify;
+    @include css4 {
+        color: var(--color);
+    }
+    }
+}

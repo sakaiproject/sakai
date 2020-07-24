@@ -36,6 +36,11 @@ body.is-logged-out{
 
 		text-align: center;
 		@include transition( width 0.5s linear 0s );
+
+		.sak-dark-theme & {
+			background: red;
+		}
+
 		.#{$namespace}headerLogo--institution{
 			background: url($logo) no-repeat center center;
 			width: 		$logo-width;
