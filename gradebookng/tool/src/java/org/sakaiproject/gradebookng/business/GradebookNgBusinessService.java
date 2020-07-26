@@ -2130,30 +2130,22 @@ public class GradebookNgBusinessService {
 	 * @param assignment
 	 * @return
 	 */
-	public boolean updateAssignment(final Assignment assignment) {
+	public void updateAssignment(final Assignment assignment) {
 		final String siteId = getCurrentSiteId();
 		final Gradebook gradebook = getGradebook(siteId);
 
 		// need the original name as the service needs that as the key...
 		final Assignment original = this.getAssignment(assignment.getId());
 
-		try {
-			this.gradebookService.updateAssignment(gradebook.getUid(), original.getId(), assignment);
+		this.gradebookService.updateAssignment(gradebook.getUid(), original.getId(), assignment);
 
-			EventHelper.postUpdateAssignmentEvent(gradebook, assignment, getUserRoleOrNone());
+		EventHelper.postUpdateAssignmentEvent(gradebook, assignment, getUserRoleOrNone());
 
-			if (original.getCategoryId() != null && assignment.getCategoryId() != null
-					&& original.getCategoryId().longValue() != assignment.getCategoryId().longValue()) {
-				updateAssignmentCategorizedOrder(gradebook.getUid(), assignment.getCategoryId(), assignment.getId(),
-						Integer.MAX_VALUE);
-			}
-
-			return true;
-		} catch (final Exception e) {
-			log.error("An error occurred updating the assignment", e);
+		if (original.getCategoryId() != null && assignment.getCategoryId() != null
+				&& original.getCategoryId().longValue() != assignment.getCategoryId().longValue()) {
+			updateAssignmentCategorizedOrder(gradebook.getUid(), assignment.getCategoryId(), assignment.getId(),
+					Integer.MAX_VALUE);
 		}
-
-		return false;
 	}
 
 	/**

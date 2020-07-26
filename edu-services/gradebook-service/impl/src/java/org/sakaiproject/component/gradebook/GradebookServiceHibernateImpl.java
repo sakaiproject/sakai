@@ -614,6 +614,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 	}
 
+
 	@Override
 	public Long addAssignment(final String gradebookUid, final org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition) {
 		if (!getAuthz().isUserAbleToEditAssessments(gradebookUid)) {
@@ -621,22 +622,19 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			throw new GradebookSecurityException();
 		}
 
-		// Ensure that points is > zero.
-		final Double points = assignmentDefinition.getPoints();
-		if ((points == null) || (points <= 0)) {
-			throw new AssignmentHasIllegalPointsException("Points must be > 0");
-		}
+		GradebookHelper.validateAssignmentNameAndPoints(assignmentDefinition);
 
 		final Gradebook gradebook = getGradebook(gradebookUid);
+		final String validatedName = StringUtils.trimToNull(assignmentDefinition.getName());
 
 		// if attaching to category
 		if (assignmentDefinition.getCategoryId() != null) {
-			return createAssignmentForCategory(gradebook.getId(), assignmentDefinition.getCategoryId(), assignmentDefinition.getName(),
-					points, assignmentDefinition.getDueDate(), !assignmentDefinition.isCounted(), assignmentDefinition.isReleased(),
+			return createAssignmentForCategory(gradebook.getId(), assignmentDefinition.getCategoryId(), validatedName,
+					assignmentDefinition.getPoints(), assignmentDefinition.getDueDate(), !assignmentDefinition.isCounted(), assignmentDefinition.isReleased(),
 					assignmentDefinition.isExtraCredit(), assignmentDefinition.getCategorizedSortOrder());
 		}
 
-		return createAssignment(gradebook.getId(), assignmentDefinition.getName(), points, assignmentDefinition.getDueDate(),
+		return createAssignment(gradebook.getId(), validatedName, assignmentDefinition.getPoints(), assignmentDefinition.getDueDate(),
 				!assignmentDefinition.isCounted(), assignmentDefinition.isReleased(), assignmentDefinition.isExtraCredit(), assignmentDefinition.getSortOrder());
 	}
 
@@ -649,15 +647,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 					gradebookUid, assignmentId);
 			throw new GradebookSecurityException();
 		}
-
-		// validate the name
+		
+		GradebookHelper.validateAssignmentNameAndPoints(assignmentDefinition);
 		final String validatedName = StringUtils.trimToNull(assignmentDefinition.getName());
-		if (validatedName == null) {
-			throw new ConflictingAssignmentNameException("You cannot save an assignment without a name");
-		}
-
-		// name cannot contain these chars as they are reserved for special columns in import/export
-		GradebookHelper.validateGradeItemName(validatedName);
 
 		final Gradebook gradebook = this.getGradebook(gradebookUid);
 
