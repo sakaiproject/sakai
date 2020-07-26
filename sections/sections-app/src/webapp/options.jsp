@@ -87,10 +87,12 @@
             <h:commandButton
                 id="updateSectionsButton"
                 action="#{optionsBean.update}"
+                value="#{msgs.confirm}"
                 style="display:none" />
             <h:commandButton
                 id="confirmExternallyManagedButton" 
                 action="#{optionsBean.confirmExternallyManaged}"
+                value="#{msgs.confirm}"
                 style="display:none" />
         </t:div>
 

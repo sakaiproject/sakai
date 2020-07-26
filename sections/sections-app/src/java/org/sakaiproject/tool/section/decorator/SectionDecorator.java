@@ -41,7 +41,6 @@ import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.Meeting;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
-import org.sakaiproject.tool.section.jsf.RowGroupable;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -53,7 +52,7 @@ import org.sakaiproject.component.cover.ComponentManager;
  *
  */
 @Slf4j
-public class SectionDecorator implements RowGroupable,Serializable, Comparable{
+public class SectionDecorator implements Serializable, Comparable{
     private static final long serialVersionUID = 1L;
 
     public static final int NAME_TRUNCATION_LENGTH = 20;
@@ -615,14 +614,6 @@ public class SectionDecorator implements RowGroupable,Serializable, Comparable{
         public boolean isWednesday() {
             return meeting.isWednesday();
         }
-    }
-
-    public String getRowGroupId() {
-        return section.getCategory();
-    }
-
-    public String getRowGroupTitle() {
-        return categoryForDisplay;
     }
 
 }

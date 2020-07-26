@@ -21,10 +21,11 @@
 						<h:inputText
 							id="titleInput"
 							required="true"
+							requiredMessage="#{msgs.sectionTitle.validator.notEmpty}"
 							maxlength="99"
 							value="#{section.title}">
 							<f:validator validatorId="SectionTitleValidator"/>
-                        </h:inputText>
+						</h:inputText>
 					</h:panelGroup>
 
 					<% // Max Size %>
@@ -42,7 +43,8 @@
 							<h:message for="maxEnrollmentInput" styleClass="validationEmbedded"/>
 							<t:radio for="limit" index="1" />
 							<h:outputText value=" &nbsp; " escape="false"/>
-							<h:inputText id="maxEnrollmentInput" value="#{section.maxEnrollments}"/>
+							<h:inputText id="maxEnrollmentInput" value="#{section.maxEnrollments}"
+							    converterMessage="Please enter digits only." />
 						</t:div>
 					</h:panelGroup>
 
@@ -96,8 +98,8 @@
 											<f:selectItem itemValue="true" itemLabel="#{confBean.capAM}"/>
 											<f:selectItem itemValue="false" itemLabel="#{confBean.capPM}"/>
 										</t:selectOneRadio>
-										<t:radio for="startTimeAm" index="0" />
-										<t:radio for="startTimeAm" index="1" />
+										<span class="noIndent"><t:radio for="startTimeAm" index="0" /></span>
+										<span class="noIndent"><t:radio for="startTimeAm" index="1" /></span>
 										<h:outputText value=" &nbsp; &nbsp; " escape="false" />
 									</t:div>
 										
@@ -107,8 +109,8 @@
 											<f:selectItem itemValue="true" itemLabel="#{confBean.capAM}"/>
 											<f:selectItem itemValue="false" itemLabel="#{confBean.capPM}"/>
 										</t:selectOneRadio>
-										<t:radio for="endTimeAm" index="0" />
-										<t:radio for="endTimeAm" index="1" />
+										<span class="noIndent"><t:radio for="endTimeAm" index="0" /></span>
+										<span class="noIndent"><t:radio for="endTimeAm" index="1" /></span>
 										<h:outputText value=" &nbsp; &nbsp; " escape="false" />
 									</t:div>
 			
