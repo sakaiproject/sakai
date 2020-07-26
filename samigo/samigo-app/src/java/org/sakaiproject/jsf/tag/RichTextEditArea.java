@@ -24,101 +24,34 @@ package org.sakaiproject.jsf.tag;
 import javax.faces.component.UIComponent;
 import javax.faces.el.ValueBinding;
 import javax.faces.webapp.UIComponentTag;
+
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.faces.application.Application;
 import javax.faces.context.FacesContext;
 
 public class RichTextEditArea extends UIComponentTag
 {
+  @Setter @Getter 
   private String identity;
+  @Setter @Getter 
   private String value;
+  @Setter @Getter 
   private String columns;
+  @Setter @Getter 
   private String rows;
+  @Setter @Getter 
   private String justArea;
+  @Setter @Getter 
   private String hasToggle;
+  @Setter @Getter 
   private String mode;
+  @Setter @Getter 
   private String reset;
+  @Setter @Getter 
+  private String maxCharCount;
 
-  public void setIdentity(String newIdentity)
-  {
-	  identity = newIdentity;
-  }
-
-  public String getIdentity()
-  {
-    return identity;
-  }
-  
-  public void setValue(String newValue)
-  {
-    value = newValue;
-  }
-
-  public String getValue()
-  {
-    return value;
-  }
-
-  public void setColumns(String newC)
-  {
-    columns = newC;
-  }
-
-  public String getColumns()
-  {
-    return columns;
-  }
-
-  public void setRows(String newRows)
-  {
-    rows = newRows;
-  }
-
-  public String getRows()
-  {
-    return rows;
-  }
-
-  public void setJustArea(String newJ)
-  {
-    justArea = newJ;
-  }
-
-  public String getJustArea()
-  {
-    return justArea;
-  }
-
-  public void setHasToggle(String hasT)
-  {
-	  hasToggle = hasT;
-  }
-   
-  public String getHasToggle()
-  {
-	  return hasToggle;
-  }
-
-  public void setMode(String mode)
-  {
-	  this.mode = mode;
-  }
-   
-  public String getMode()
-  {
-	  return mode;
-  }
-
-  
-  public void setReset(String newR)
-  {
-	  reset = newR;
-  }
-   
-  public String getReset()
-  {
-	  return reset;
-  }
-  
   public String getComponentType()
 	{
 		return "SakaiRichTextEditArea";
@@ -140,6 +73,7 @@ public class RichTextEditArea extends UIComponentTag
     setString(component, "hasToggle", hasToggle);
     setString(component, "mode", mode);
     setString(component, "reset", reset);
+    setString(component, "maxCharCount", maxCharCount);
 	}
 
 	public void release()
@@ -153,6 +87,7 @@ public class RichTextEditArea extends UIComponentTag
     hasToggle = null;
     mode = null;
     reset = null;
+    maxCharCount = null;
   }
 
   public static void setString(UIComponent component, String attributeName,
