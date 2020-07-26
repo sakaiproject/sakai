@@ -45,6 +45,11 @@ public class ExternalLogicStubb implements ExternalLogic {
 		return null;
 	}
 
+	public String getCurrentToolURL() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	public String currentUserId = null;
 	public String getCurrentUserId() {
 		return currentUserId;

@@ -1,5 +1,6 @@
 <!-- resources/sakai_create_folders.vm, use with org.sakaiproject.tool.content.ResourcesHelperAction.java -->
 <div class="portletBody specialLink">
+	#contentMenu("resources")
 	<h3>
 		$tlang.getString("create.folder")
 	</h3>
@@ -60,7 +61,7 @@
 			#end
 		</div>
 		<p class="act">
-			<a href="#" onclick="addFileInput();return false">$tlang.getString("label.addFolder")</a>
+			<a href="#" id="addFolderInput" onclick="addFileInput();return false">$tlang.getString("label.addFolder")</a>
 		</p>
 #*
 		#if ($model.resourceTypeDef.hasNotificationDialog())

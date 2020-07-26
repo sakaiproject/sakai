@@ -222,7 +222,6 @@ $(document).ready(function() {
     newGradeItemPopoverMessage: TrimPath.parseTemplate(
        $("#newGradeItemPopoverMessage").html().trim().toString()),
   };
-
 });
 
 GbGradeTable.courseGradeRenderer = function (instance, td, row, col, prop, value, cellProperties) {
@@ -661,17 +660,20 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     editor: false,
     width: GbGradeTable.settings.showPoints ? 220 : 140,
     sortCompare: function(a, b) {
-        var a_points = parseFloat(a[1]);
-        var b_points = parseFloat(b[1]);
+        const a_percent = parseFloat(a[1]);
+        const b_percent = parseFloat(b[1]);
+        const aIsNaN = isNaN(a_percent);
+        const bIsNaN = isNaN(b_percent);
 
-        if (a_points > b_points) {
+        // treat NaN as less than real numbers
+        if (a_percent > b_percent || (!aIsNaN && bIsNaN)) {
             return 1;
         }
-        if (a_points < b_points) {
+        if (a_percent < b_percent || (aIsNaN && !bIsNaN)) {
             return -1;
         }
         return 0;
-    },
+    }
   });
 
   if (GbGradeTable.settings.isStudentNumberVisible) {
@@ -1245,11 +1247,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   on("click", ".gb-dropdown-menu .gb-message-students", function (event) {
 
     $(`#gb-messager-for-${event.target.dataset.assignmentId}`)
-      .dialog({ width: 500, close: function () { $(this).dialog("destroy"); } })
-      .on("submission-message-sent", function (e) {
-        $(this).dialog("destroy");
-        $(this).off("submission-message-sent");
-      });
+      .dialog({ width: 500, close: function () { $(this).dialog("destroy"); } });
   }).
   // View Course Grade Statistics
   on("click", ".gb-dropdown-menu .gb-view-course-grade-statistics", function() {
@@ -2665,7 +2663,7 @@ GbGradeTable.setupKeyboardNavigation = function() {
 
         $dropdown.dropdown("toggle");
         setTimeout(function() {
-          $(".dropdown-menu:visible a:first").focus();
+          $(".dropdown-menu:visible li:not(.hidden):first a").focus();
         });
       }
 
@@ -3267,7 +3265,7 @@ GbGradeTable.focusColumnForAssignmentId = function(assignmentId, showPopupForNew
             $selectedField.attr('data-content',GbGradeTable.templates['newGradeItemPopoverMessage'].process());
             $selectedField.attr('data-title',GbGradeTable.templates['newGradeItemPopoverTitle'].process());
 
-            $('body').on('click keyup touchend', function (e) {
+            $('body, button').on('click keyup touchend', function (e) {
               if ($(e.target).data('toggle') !== 'popover'
                   && $(e.target).parents('.popover.in').length === 0) { 
                   $('[data-toggle="popover"]').popover('hide');

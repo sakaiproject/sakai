@@ -31,8 +31,8 @@ import java.util.*;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import org.jdom.Element;
-import org.jdom.Namespace;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 
 import uk.org.ponder.messageutil.MessageLocator;
 
@@ -41,10 +41,12 @@ import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentNoteItem;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.cover.EntityManager;  
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
 import org.sakaiproject.memory.api.Cache;
@@ -57,7 +59,8 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
+
 
 /**
  * Interface to Assignment
@@ -767,7 +770,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 		Element instructionsElement = resource.getChild("text", ns);
 		String type = instructionsElement.getAttributeValue("texttype");
 		if ("text/plain".equals(type))
-		    instructions = FormattedText.convertPlaintextToFormattedText(instructions);
+		    instructions = ComponentManager.get(FormattedText.class).convertPlaintextToFormattedText(instructions);
 		else
 		    instructions = instructions.replaceAll("\\$IMS-CC-FILEBASE\\$", base);
 		a.setInstructions(instructions);
@@ -850,7 +853,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 		// unfortunately we can only store plain text. Replacing IMS-CC-FILEBASE may be futile in this case,
 		// but it seems better to do it than not.
 		if ("text/html".equals(type))
-		    note = FormattedText.convertFormattedTextToPlaintext(note.replaceAll("\\$IMS-CC-FILEBASE\\$", base));
+		    note = ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(note.replaceAll("\\$IMS-CC-FILEBASE\\$", base));
 		
 		AssignmentNoteItem nNote = assignmentSupplementItemService.newNoteItem();
 		nNote.setAssignmentId(a.getId());
@@ -892,4 +895,10 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	public Integer getScaleFactor() {
 		return assignment.getScaleFactor();
 	}
+
+	@Override
+    public void preShowItem(SimplePageItem simplePageItem)
+    {
+		// Not currently used
+    }
 }

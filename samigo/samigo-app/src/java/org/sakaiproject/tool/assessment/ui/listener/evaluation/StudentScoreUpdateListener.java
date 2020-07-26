@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -130,13 +131,6 @@ public class StudentScoreUpdateListener
       for (SectionContentsBean part : parts) {
         List<ItemContentsBean> items = part.getItemContents();
         for (ItemContentsBean question : items) {
-          // Persist the rubric evaluation
-          String entityId = RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + tbean.getPublishedId() + "." + question.getItemData().getItemId();
-          if(rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_SAMIGO, entityId)){
-            String evaluatedItemId = bean.getAssessmentGradingId() + "." + question.getItemData().getItemId();
-            rubricsService.saveRubricEvaluation(RubricsConstants.RBCS_TOOL_SAMIGO, entityId, evaluatedItemId, bean.getStudentId(), SessionManager.getCurrentSessionUserId(), paramUtil.getRubricConfigurationParameters(entityId, evaluatedItemId));
-          }
-
           List<ItemGradingData> gradingarray = question.getItemGradingDataArray();
           log.debug("****1. pub questionId = " + question.getItemData().getItemId());
           log.debug("****2. Gradingarray length = " + gradingarray.size());
@@ -311,13 +305,14 @@ public class StudentScoreUpdateListener
     			List<ItemGradingData> gradingarray = question.getItemGradingDataArray();
     			log.debug("Gradingarray length2 = " + gradingarray.size());
     			for (ItemGradingData itemGradingData : gradingarray) {
-    			    List<ItemGradingAttachment> oldList = itemGradingData.getItemGradingAttachmentList();
+					Set<ItemGradingAttachment> oldList = itemGradingData.getItemGradingAttachmentSet();
     				List<ItemGradingAttachment> newList = question.getItemGradingAttachmentList();
     				if ((oldList == null || oldList.isEmpty()) && (newList == null || newList.isEmpty())) {
     					continue;
     				}
-    				
-    				Map<Long, ItemGradingAttachment> map = getAttachmentIdHash(oldList);
+					final Map<Long, ItemGradingAttachment> map
+						= (oldList != null) ? oldList.stream()
+							.collect(Collectors.toMap(a -> a.getAttachmentId(), a -> a)) : new HashMap<>();
                     for (ItemGradingAttachment itemGradingAttachment : newList) {
                         if (map.get(itemGradingAttachment.getAttachmentId()) != null) {
                             // exist already, remove it from map
@@ -347,11 +342,5 @@ public class StudentScoreUpdateListener
     			}
     		}
     	}
-    }
-
-    private Map<Long, ItemGradingAttachment> getAttachmentIdHash(List<ItemGradingAttachment> list){
-    	Map<Long, ItemGradingAttachment> map = new HashMap<>();
-    	if (list != null) list.forEach(a -> map.put(a.getAttachmentId(), a));
-    	return map;
     }
 }

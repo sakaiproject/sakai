@@ -283,7 +283,7 @@ function setMainFrameHeightWithMax(id, maxHeight)
 		clearTimeout(MainFrameHeightTimeOut);
 		MainFrameHeightTimeOut = false;
 	}
-	MainFrameHeightTimeOut = setTimeout("setMainFrameHeightNow('"+id+"',"+maxHeight+")", 1000);
+	MainFrameHeightTimeOut = setTimeout( function() { setMainFrameHeightNow(id, maxHeight); }, 1000);
 }
 
 function setMainFrameHeight(id)
@@ -804,7 +804,7 @@ function includeWebjarLibrary(library) {
 		libraryVersion = "1.1.1";
 		document.write('\x3Cscript src="' + webjars + 'datatables.net-rowgroup/js/dataTables.rowGroup.min.js' + ver + '">' + '\x3C/script>');
 	} else if (library == 'ckeditor') {
-		libraryVersion = "4.13.1";
+		libraryVersion = "4.14.0";
 		document.write('\x3Cscript src="' + webjars + 'ckeditor/' + libraryVersion + '/full/ckeditor.js' + ver + '">' + '\x3C/script>');
 	} else if (library == 'awesomplete') {
 		libraryVersion = "1.1.5";
@@ -817,7 +817,7 @@ function includeWebjarLibrary(library) {
 		libraryVersion = "4.0.6";
 		document.write('\x3Cscript src="' + webjars + 'handlebars/' + libraryVersion + '/handlebars.runtime.min.js' + ver + '">' + '\x3C/script>');
 	} else if (library == 'qtip2') {
-		libraryVersion = "3.0.3";
+		libraryVersion = "3.0.3-1";
 		document.write('\x3Cscript src="' + webjars + 'qtip2/' + libraryVersion + '/jquery.qtip.min.js' + ver + '">' + '\x3C/script>');
 		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'qtip2/' + libraryVersion + '/jquery.qtip.min.css' + ver + '"/>');
 	} else if (library == 'jstree') {
@@ -827,6 +827,20 @@ function includeWebjarLibrary(library) {
 	} else if (library == 'multiselect-two-sides') {
 		libraryVersion = "2.5.5";
 		document.write('\x3Cscript src="' + webjars + 'multiselect-two-sides/' + libraryVersion + '/dist/js/multiselect.min.js' + ver + '">' + '\x3C/script>');
+	} else if (library == 'fontawesome-iconpicker') {
+		libraryVersion = "1.4.1";
+		document.write('\x3Cscript src="' + webjars + 'fontawesome-iconpicker/' + libraryVersion + '/dist/js/fontawesome-iconpicker.min.js' + ver + '">' + '\x3C/script>');
+		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'fontawesome-iconpicker/' + libraryVersion + '/dist/css/fontawesome-iconpicker.min.css' + ver + '"/>');
+	} else if (library === "flatpickr") {
+		libraryVersion = "4.6.3";
+		document.write('\x3Cscript src="' + webjars + 'flatpickr/' + libraryVersion + '/dist/flatpickr.min.js' + ver + '">\x3C/script>');
+		document.write('\x3Cscript src="' + webjars + 'flatpickr/' + libraryVersion + '/dist/plugins/confirmDate/confirmDate.js' + ver + '">\x3C/script>');
+		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'flatpickr/' + libraryVersion + '/dist/flatpickr.min.css' + ver + '"/>');
+		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'flatpickr/' + libraryVersion + '/dist/plugins/confirmDate/confirmDate.css' + ver + '"/>');
+		let lang = portal.locale.split("-")[0];
+		if (lang !== "en") {
+			document.write('\x3Cscript src="' + webjars + 'flatpickr/' + libraryVersion + '/dist/l10n/' + lang + '.js' + ver + '">\x3C/script>');
+		}
 	} else {
 		if (library.endsWith(".js")) {
 			document.write('\x3Cscript src="' + webjars + library + ver + '">' + '\x3C/script>');
@@ -842,28 +856,24 @@ function portalSmallBreakPoint() { return 800; }
 function portalMediumBreakPoint() { return 800; } 
 
 // A function to add an icon picker to a text input field
-var fontawesome_icons = false;
 function fontawesome_icon_picker(selector) {
-	if ( fontawesome_icons ) { // Already loaded
-		$(selector).fontIconPicker({
-			source: fontawesome_icons,
-			extraClass: 'fa',
-			placeHolder: '',
-			emptyIconValue: 'none'
-		});
-	} else {
-		$.getJSON( '/library/js/fontIconPicker/2.0.1-cs/icons.json', function( data ) {
-			fontawesome_icons = data;
-			$(selector).fontIconPicker({
-				source: fontawesome_icons,
-				extraClass: 'fa',
-				placeHolder: '',
-				emptyIconValue: 'none'
-			});
-		}).error(function() { 
-			window.console && console.log("Could not load icons for icon picker."); 
-		});
-	}
+	// Set the input to read only
+	$(selector).prop('readonly', true);
+	// Add the class to make this a form control
+	$(selector).addClass('form-control icp icp-auto');
+	// Add an input group to the parent to enable the preview icon
+	$(selector).parent().addClass("input-group");
+	// Add the preview icon
+	$(selector).before('<span class="input-group-addon"></span>');
+	// Enable the iconpicker
+	$(selector).iconpicker({
+		'hideOnSelect' : true, 
+		'collision': true
+	});
+	$(selector).parent().on('iconpickerShown', function(event) {
+		// Focus on the popover window since this attachs to the input-group
+		event.iconpickerInstance.popover.find('input').focus()
+	});
 }
 
 // Return the correct width for a modal dialog.
@@ -902,3 +912,39 @@ function maxZIndex(elems)
 
     return maxIndex;
 }
+
+// Adapted from
+// https://dev.to/mornir/-how-to-easily-copy-text-to-clipboard-a1a
+// Added avoiding the scrolling effect by appending the new input
+// tag as a child of a nearby element (the parent element)
+// Usage:
+// <a href="#" onclick="copyToClipboardNoScroll(this, 'texttocopy');return false;">Copy</a>
+// <a href="#" onclick="copyToClipboardNoScroll(this, $('#pass').text());return false;">Copy</a>
+// <a href="#" onclick="copyToClipboardNoScroll(this, $('#myInput').val());return false;">Copy</a>
+function copyToClipboardNoScroll(parent_element, textToCopy) {
+  // 1) Add the text to the DOM (usually achieved with a hidden input field)
+  const input = document.createElement('input');
+
+  // 1.5) Move off to the left but inline with the current item to avoid scroll effects
+  input.style.position = 'absolute';
+  input.style.left = '-1000px';
+  parent_element.appendChild(input);
+  input.value = textToCopy.trim();
+
+  // 2) Select the text
+  input.focus();
+  input.select();
+
+  // 3) Copy text to clipboard
+  const isSuccessful = document.execCommand('copy');
+
+  // 4) Catch errors
+  if (!isSuccessful) {
+    console.error('Failed to copy text.');
+  }
+
+  // Remove the new input tag
+  input.remove();
+}
+
+

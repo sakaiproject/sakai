@@ -61,6 +61,15 @@
 		margin-left: 20px;
 	}
 
+	a#infoImg{
+		color: lightblue;
+		font-size: 1.2em;
+		margin-right: 5px;
+		vertical-align: middle;
+		text-decoration: none;
+		cursor: pointer;
+	}
+
 	#sendFeedbackPanel, #allowResubmissionPanel{
 		.discTria{
 			font-weight: bold;
@@ -356,7 +365,7 @@
 	.userList {
 	  margin-left: 36px !important;
 	  .selectedItem {
-	    background: #def;
+	    background-color: #def;
 	    color: #000;
 	    font-weight: bold;
 	  }
@@ -537,6 +546,7 @@
 		@include align-items(flex-end);
 		-webkit-flex-wrap: wrap;
 		flex-wrap: wrap;
+		grader-toggle { margin-left: 20px; }
 	}
 
 	#honor-pledge-agreement {

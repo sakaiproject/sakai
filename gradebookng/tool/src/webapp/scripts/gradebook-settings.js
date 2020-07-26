@@ -3,21 +3,11 @@
  *************************************************************************************/
 
 /**************************************************************************************
- * A GradebookSettings to encapsulate all the settings page features 
- */
-function GradebookSettings($container) {
-  this.$container = $container;
-
-  this.categories = new GradebookCategorySettings($container.find("#settingsCategories"));
-};
-
-
-/**************************************************************************************
  * A GradebookCategorySettings to encapsulate all the category settings features 
  */
 function GradebookCategorySettings($container) {
   this.$container = $container;
-  this.$table = this.$container.find("table");
+  this.$table = this.$container.find("#table-categories");
 
   // only if categories are enabled
   if (this.$table.length > 0) {
@@ -43,7 +33,6 @@ GradebookCategorySettings.prototype.setupSortableCategories = function() {
       update: $.proxy(self.updateCategoryOrders, self)
     });
 };
-
 
 GradebookCategorySettings.prototype.setupKeyboardSupport = function() {
   var self = this;
@@ -77,6 +66,49 @@ GradebookCategorySettings.prototype.updateCategoryOrders = function() {
   });
 };
 
+
+/**************************************************************************************
+ * A GradebookGradingSchemaSettings to encapsulate all the grading schema settings features 
+ */
+function GradebookGradingSchemaSettings($container) {
+  this.$container = $container;
+  this.tableId = "#table-grading-schema";
+  this.setupKeyboardSupport();
+}
+
+GradebookGradingSchemaSettings.prototype.setupKeyboardSupport = function() {
+  var self = this;
+
+  $('body').on("keydown", self.tableId, function(event) {
+    // add new row upon return
+    if (event.keyCode == 13) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      self.$container.find(".btn-add-mapping").trigger("click");
+    }
+  });
+}
+
+GradebookGradingSchemaSettings.prototype.focusLastRow = function() {
+  // get the first input#text in the last row of the table
+  var $input = $('body').find(this.tableId + " .gb-schema-row:last :text:first");
+  // attempt to set focus
+  $input.focus();
+  // Wicket may try to set focus on the input last focused before form submission
+  // so set this manually to our desired input
+  Wicket.Focus.setFocusOnId($input.attr("id"));
+}
+
+/**************************************************************************************
+ * A GradebookSettings to encapsulate all the settings page features 
+ */
+function GradebookSettings($container) {
+  this.$container = $container;
+  this.categories = new GradebookCategorySettings($container.find("#settingsCategories"));
+  this.gradingschemas = new GradebookGradingSchemaSettings($container.find("#settingsGradingSchema"));
+};
+
 /**************************************************************************************
  * Initialise
  */
@@ -84,5 +116,4 @@ $(function() {
   sakai.gradebookng = {
     settings: new GradebookSettings($("#gradebookSettings"))
   };
-      
 });

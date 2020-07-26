@@ -104,6 +104,12 @@
 					$('#worldReadNo').show();
 				}
 			});
+
+			var menuLink = $('#infoLink');
+			var menuLinkSpan = menuLink.closest('span');
+			menuLinkSpan.addClass('current');
+			menuLinkSpan.html(menuLink.text());
+
 			});
 	</script>
 	<div id="rwiki_head" ><!-- avoid min height in IEX-->

@@ -57,6 +57,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.db.cover.SqlService;
 import org.sakaiproject.id.cover.IdManager;
+import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
@@ -67,7 +68,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
 import org.springframework.orm.hibernate4.HibernateTemplate;
 import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
@@ -848,11 +849,12 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	    }
 
 	    String shortText = null;
+	    FormattedText formattedText = ComponentManager.get(FormattedText.class);
 	    if (texthtml) {
 		ourTopic.setExtendedDescription(text.replaceAll("\\$IMS-CC-FILEBASE\\$", base));
-		shortText = FormattedText.convertFormattedTextToPlaintext(text);
+		shortText = formattedText.convertFormattedTextToPlaintext(text);
 	    } else {
-		ourTopic.setExtendedDescription(FormattedText.convertPlaintextToFormattedText(text));
+		ourTopic.setExtendedDescription(formattedText.convertPlaintextToFormattedText(text));
 		shortText = text;
 	    }
 	    shortText = org.apache.commons.lang3.StringUtils.abbreviate(shortText,254);
@@ -1089,7 +1091,7 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 		membershipItem = permissionLevelManager.
 		    createDBMembershipItem(newGroupName, "Contributor", MembershipItem.TYPE_GROUP);
 		membershipItem.setPermissionLevel(contributorLevel);
-		permissionLevelManager.saveDBMembershipItem(membershipItem);	
+		membershipItem = permissionLevelManager.saveDBMembershipItem(membershipItem);	
 		oldMembershipItemSet.add(membershipItem);
 	    }
 
@@ -1247,5 +1249,10 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	public void setSimplePageBean(SimplePageBean simplePageBean) {
 		this.simplePageBean = simplePageBean;
 	}
+
+	@Override
+    public void preShowItem(SimplePageItem simplePageItem)
+    {
+    }
 
 }

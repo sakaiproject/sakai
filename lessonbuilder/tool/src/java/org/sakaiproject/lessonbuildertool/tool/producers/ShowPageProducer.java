@@ -63,6 +63,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Member;
@@ -107,7 +108,6 @@ import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.portal.util.CSSUtils;
 import org.sakaiproject.portal.util.PortalUtils;
-import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
@@ -117,9 +117,9 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.Web;
+import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.comparator.UserSortNameComparator;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -168,11 +168,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	
 	private SimplePageBean simplePageBean;
 	private SimplePageToolDao simplePageToolDao;
-	private AuthzGroupService authzGroupService;
-	private SecurityService securityService;
-	private SiteService siteService;
+	@Setter private AuthzGroupService authzGroupService;
+	@Setter private SecurityService securityService;
+
 	private FormatAwareDateInputEvolver dateevolver;
 	@Setter private UserTimeService userTimeService;
+	@Setter private FormattedText formattedText;
 	private HttpServletRequest httpServletRequest;
 	private HttpServletResponse httpServletResponse;
 	// have to do it here because we need it in urlCache. It has to happen before Spring initialization
@@ -906,19 +907,19 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    UIOutput.make(tofill, (pageItem.getPageId() == 0 ? "helpnewwindow" : "helpnewwindow2"), 
 				  messageLocator.getMessage("simplepage.opens-in-new"));
 		    UILink.make(tofill, "directurl").
-			decorate(new UIFreeAttributeDecorator("rel", "#Main" + Web.escapeJavascript(placement.getId()) + "_directurl")).
+			decorate(new UIFreeAttributeDecorator("rel", "#Main" + StringEscapeUtils.escapeEcmaScript(placement.getId()) + "_directurl")).
 			decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.direct-link")));
 		    // if (inline) {
 			UIOutput.make(tofill, "directurl-div").
-			    decorate(new UIFreeAttributeDecorator("id", "Main" + Web.escapeJavascript(placement.getId()) + "_directurl"));
+			    decorate(new UIFreeAttributeDecorator("id", "Main" + StringEscapeUtils.escapeEcmaScript(placement.getId()) + "_directurl"));
 			// in general 2.9 doesn't have the url shortener
 			if (majorVersion >= 10) {
 			    UIOutput.make(tofill, "directurl-input").
-				decorate(new UIFreeAttributeDecorator("onclick", "toggleShortUrlOutput('" + myUrl() + "/portal/directtool/" + placement.getId() + "/', this, 'Main" + Web.escapeJavascript(placement.getId()) + "_urlholder');"));
+				decorate(new UIFreeAttributeDecorator("onclick", "toggleShortUrlOutput('" + myUrl() + "/portal/directtool/" + placement.getId() + "/', this, 'Main" + StringEscapeUtils.escapeEcmaScript(placement.getId()) + "_urlholder');"));
 			    UIOutput.make(tofill, "directurl-shorten", messageLocator.getMessage("simplepage.short-url"));
 			}
 			UIOutput.make(tofill, "directurl-textarea", myUrl() + "/portal/directtool/" + placement.getId() + "/").
-			    decorate(new UIFreeAttributeDecorator("class", "portlet title-tools Main" + Web.escapeJavascript(placement.getId()) + "_urlholder"));
+			    decorate(new UIFreeAttributeDecorator("class", "portlet title-tools Main" + StringEscapeUtils.escapeEcmaScript(placement.getId()) + "_urlholder"));
 			// } else
 			UIOutput.make(tofill, "directimage").decorate(new UIFreeAttributeDecorator("alt",
 				messageLocator.getMessage("simplepage.direct-link")));
@@ -3637,18 +3638,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		this.simplePageBean = simplePageBean;
 	}
 
-	public void setAuthzGroupService(AuthzGroupService authzGroupService) {
-		this.authzGroupService = authzGroupService;
-	}
-
-	public void setSecurityService(SecurityService securityService) {
-		this.securityService = securityService;
-	}
-
-	public void setSiteService(SiteService siteService) {
-		this.siteService = siteService;
-	}
-
 	public void setHttpServletRequest(HttpServletRequest httpServletRequest) {
 		this.httpServletRequest = httpServletRequest;
 	}
@@ -3678,7 +3667,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		boolean fake = !usable;  // by default, fake output if not available
 		String itemString = Long.toString(i.getId());
 
-		if (i.getSakaiId().equals(SimplePageItem.DUMMY)) {
+		if ((SimplePageItem.DUMMY).equals(i.getSakaiId())) {
 		    fake = true; // dummy is fake, but still available
 		} else if (i.getType() == SimplePageItem.RESOURCE || i.getType() == SimplePageItem.URL) {
 			if (usable) {
@@ -3960,21 +3949,23 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	}
 
 	private static String getUserDisplayName(String owner) {
-
-		if (owner== null) {
-			return "";
-		}
-
-		User user = null;
+		String userDisplayName = StringUtils.EMPTY;
 		try {
-			user = UserDirectoryService.getUser(owner);
+			User user = UserDirectoryService.getUser(owner);
+			userDisplayName = String.format("%s (%s)", user.getSortName(), user.getEid());
 		} catch (UserNotDefinedException e) {
 			log.info("Owner #: " + owner + " does not have an associated user.");
 		}
-		if (user==null || user.getDisplayName()==null){
-			return "";
+		return userDisplayName;
+	}
+
+	private static User getUser(String userId) {
+		try {
+			return UserDirectoryService.getUser(userId);
+		} catch (UserNotDefinedException e) {
+			log.error("User {} does not exist", userId);
 		}
-		return user.getDisplayName();
+		return null;
 	}
 
 	//Get the twitter widget hashtag and other settings from the user.
@@ -4889,7 +4880,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		}
 
 		UIOutput gradeBook = UIOutput.make(form, "gradeBookDiv");
-		if(simplePageBean.isStudentPage(page)) {
+		if(simplePageBean.isStudentPage(page) || simplePageBean.getCurrentTool(simplePageBean.GRADEBOOK_TOOL_ID) == null) {
 			gradeBook.decorate(new UIStyleDecorator("noDisplay"));
 		}
 		
@@ -4933,7 +4924,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			UIOutput.make(form, "cssDefaultInstructions", messageLocator.getMessage("simplepage.css-default-instructions"));
 			UIOutput.make(form, "cssUploadLabel", messageLocator.getMessage("simplepage.css-upload-label"));
 			UIOutput.make(form, "cssUpload");
-			boolean showSetOwner = ServerConfigurationService.getBoolean("lessonbuilder.show.set.owner", true);
+			boolean showSetOwner = ServerConfigurationService.getBoolean("lessonbuilder.show.set.owner", false);
 			if (showSetOwner){
 				//Set the changeOwner dropdown in the settings dialog
 				UIOutput.make(form, "ownerDefaultInstructions", messageLocator.getMessage("simplepage.owner-default-instructions")
@@ -4944,9 +4935,23 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				List<String> possOwners = new LinkedList<>();
 				boolean isOwned = page.isOwned();
 				String owner = page.getOwner();
-				possOwners.addAll(simplePageBean.getCurrentSite().getUsers());
 				Set<String> siteUsersCanUpdate = simplePageBean.getCurrentSite().getUsersIsAllowed(SimplePage.PERMISSION_LESSONBUILDER_UPDATE);
-				possOwners.removeAll(siteUsersCanUpdate);
+
+				// Sort the site member list before filling the "possOwners" list
+				List<Member> siteMemberList = new ArrayList<Member>(simplePageBean.getCurrentSite().getMembers());
+				Collections.sort(siteMemberList, new Comparator<Member>() {
+					public int compare(Member lhs, Member rhs) {
+						UserSortNameComparator userComparator = new UserSortNameComparator();
+						return userComparator.compare(getUser(lhs.getUserId()), getUser(rhs.getUserId()));
+					}
+				});
+				siteMemberList.forEach(member -> {
+					String userId = member.getUserId();
+					if (!siteUsersCanUpdate.contains(userId)) {
+						possOwners.add(userId);
+					}
+				});
+
 				if (isOwned){
 					if (possOwners.contains(owner)){
 						int i = possOwners.indexOf(owner);
@@ -5477,13 +5482,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			mmDisplayType = null;
 		    if ("1".equals(mmDisplayType)) {
 			// embed code
-			return FormattedText.escapeHtml(i.getAttribute("multimediaEmbedCode"),false);
+			return formattedText.escapeHtml(i.getAttribute("multimediaEmbedCode"),false);
 		    } else if ("3".equals(mmDisplayType)) {
 			// oembed
-			return FormattedText.escapeHtml(i.getAttribute("multimediaUrl"),false);
+			return formattedText.escapeHtml(i.getAttribute("multimediaUrl"),false);
 		    } else if ("4".equals(mmDisplayType)) {
 			// iframe
-			return FormattedText.escapeHtml(i.getItemURL(simplePageBean.getCurrentSiteId(),simplePageBean.getCurrentPage().getOwner()),false);
+			return formattedText.escapeHtml(i.getItemURL(simplePageBean.getCurrentSiteId(),simplePageBean.getCurrentPage().getOwner()),false);
 		    }
 		}		
 
@@ -5495,11 +5500,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		{
 			if(isURL)
 			{
-				itemPath+= "/<a target=\"_blank\" href=\"\" class=\"" + URLEncoder.encode(pathId) + "\">" + FormattedText.escapeHtml(itemPathTokens[tokenIndex],false) + "</a>";
+				itemPath+= "/<a target=\"_blank\" href=\"\" class=\"" + URLEncoder.encode(pathId) + "\">" + formattedText.escapeHtml(itemPathTokens[tokenIndex],false) + "</a>";
 				isURL = false;
 			}
 			else
-			    itemPath+="/" + FormattedText.escapeHtml(itemPathTokens[tokenIndex],false);
+			    itemPath+="/" + formattedText.escapeHtml(itemPathTokens[tokenIndex],false);
 			
 			isURL = itemPathTokens[tokenIndex].equals("urls") ? true: false;
 		}

@@ -21,7 +21,6 @@ import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.feedback.IFeedbackMessageFilter;
 import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
-import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 
 import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
@@ -74,10 +73,6 @@ public class ImportExportPage extends BasePage {
 		super.renderHead(response);
 
 		final String version = PortalUtils.getCDNQuery();
-
-		// Include Sakai Date Picker
-		response.render(JavaScriptHeaderItem.forUrl(String.format("/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js%s", version)));
-		response.render(JavaScriptHeaderItem.forUrl(String.format("/library/js/lang-datepicker/lang-datepicker.js%s", version)));
 
 		// Gradebook Import/Export styles
 		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-importexport.css%s", version)));

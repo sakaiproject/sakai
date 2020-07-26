@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import lombok.Setter;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.hibernate.Criteria;
@@ -120,22 +121,22 @@ public class DetailedEventsManagerImpl extends HibernateDaoSupport implements De
 	@Setter private ContentHostingService contentHostServ;
 	@Setter private AuthzGroupService authzServ;
 	// Samigo services cannot be injected by Spring
-	private final AssessmentService assessServ = new AssessmentService();
-	private final PublishedAssessmentService pubAssessServ = new PublishedAssessmentService();
-	private final GradingService samGradeServ = new GradingService();
-	private final ItemService samItemServ = new ItemService();
-	private final PublishedItemService samPubItemServ = new PublishedItemService();
-
-	/* Begin Spring methods */
+	private AssessmentService assessServ;
+	private PublishedAssessmentService pubAssessServ;
+	private GradingService samGradeServ;
+	private ItemService samItemServ;
+	private PublishedItemService samPubItemServ;
 
 	public void init()
 	{
-		// empty
-	}
-
-	public void destroy()
-	{
-		// empty
+		boolean testsEnabled = BooleanUtils.toBoolean(System.getProperty("sakai.tests.enabled"));
+		if (!testsEnabled) {
+			assessServ = new AssessmentService();
+			pubAssessServ = new PublishedAssessmentService();
+			samGradeServ = new GradingService();
+			samItemServ = new ItemService();
+			samPubItemServ = new PublishedItemService();
+		}
 	}
 
 	/* End Spring methods */

@@ -174,10 +174,10 @@ public class BasicContentTypeImageService implements ContentTypeImageService
 		String imageClassFileBundle = serverConfigurationService.getString(IMAGECLASSFILEBUNDLE, DEFAULT_IMAGECLASSFILEBUNDLE);
 		String nameFileBundle = serverConfigurationService.getString(NAMEFILEBUNDLE, DEFAULT_NAMEFILEBUNDLE);
 		
-		m_contentTypeExtensions = new Resource().getLoader(resourceClass, extensionFileBundle);
-		m_contentTypeImages = new Resource().getLoader(resourceClass, imageFileBundle);
-		m_contentTypeImageClasses = new Resource().getLoader(resourceClass, imageClassFileBundle);
-		m_contentTypeDisplayNames = new Resource().getLoader(resourceClass, nameFileBundle);
+		m_contentTypeExtensions = Resource.getResourceLoader(resourceClass, extensionFileBundle);
+		m_contentTypeImages = Resource.getResourceLoader(resourceClass, imageFileBundle);
+		m_contentTypeImageClasses = Resource.getResourceLoader(resourceClass, imageClassFileBundle);
+		m_contentTypeDisplayNames = Resource.getResourceLoader(resourceClass, nameFileBundle);
 		
 		// read the content type extensions file, using extension as the key
 		if (m_contentTypeExtensions != null) {

@@ -46,20 +46,6 @@
   	</managed-bean>
 
   <managed-bean>
-    <description>Bean to hold current/changed permissions</description>
-    <managed-bean-name>podPerms</managed-bean-name>
-    <managed-bean-class>org.sakaiproject.tool.podcasts.podPermBean</managed-bean-class>
-    <managed-bean-scope>session</managed-bean-scope>
-
-     <!--	 Needed to access the services of PodcastService -->
-     <managed-property>
-		<description>podcastService</description>
-		<property-name>podcastService</property-name>
-		<value>#{Components["org.sakaiproject.api.app.podcasts.PodcastService"]}</value>
-	 </managed-property>
-   </managed-bean>
-
-  <managed-bean>
     <description>Bean to hold display option (Public / Site)</description>
     <managed-bean-name>podOptions</managed-bean-name>
     <managed-bean-class>org.sakaiproject.tool.podcasts.podOptionsBean</managed-bean-class>

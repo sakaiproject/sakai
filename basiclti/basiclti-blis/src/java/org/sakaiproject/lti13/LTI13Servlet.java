@@ -78,6 +78,7 @@ import org.tsugi.jackson.JacksonUtil;
 import org.tsugi.lti13.LTI13KeySetUtil;
 import org.tsugi.lti13.LTI13Util;
 import org.tsugi.lti13.LTI13JwtUtil;
+import org.tsugi.lti13.LTI13ConstantsUtil;
 
 import org.tsugi.oauth2.objects.AccessToken;
 import org.tsugi.lti13.objects.Endpoint;
@@ -396,10 +397,17 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
+		JSONObject jsonHeader = LTI13JwtUtil.jsonJwtHeader(client_assertion);
+		if (jsonHeader == null) {
+			LTI13Util.return400(response, "Could not parse Jwt Header in client_assertion");
+			log.error("Could not parse Jwt Header in client_assertion\n{}", client_assertion);
+			return;
+		}
+
 		Long toolKey = getLongKey(tool_id);
 		if (toolKey < 1) {
 			LTI13Util.return400(response, "Invalid tool key");
-			log.error("Invalis tool key {}", tool_id);
+			log.error("Invalid tool key {}", tool_id);
 			return;
 		}
 
@@ -411,18 +419,12 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		String tool_public = (String) tool.get(LTIService.LTI13_TOOL_PUBLIC);
-		if (tool_public == null) {
-			LTI13Util.return400(response, "Could not find tool public key");
-			log.error("Could not find tool public key {}", tool_id);
-			return;
-		}
-
-		Key publicKey = LTI13Util.string2PublicKey(tool_public);
-		if (publicKey == null) {
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			LTI13Util.return400(response, "Could not deserialize tool public key");
-			log.error("Could not deserialize tool public key {}", tool_id);
+		// Get the correct public key.
+		Key publicKey = null;
+		try {
+			publicKey = SakaiBLTIUtil.getPublicKey(tool, client_assertion);
+		} catch (Exception e) {
+			LTI13Util.return400(response, e.getMessage());
 			return;
 		}
 
@@ -556,14 +558,15 @@ public class LTI13Servlet extends HttpServlet {
 		}
 		JSONObject jso = (JSONObject) js;
 
+		// An empty / null score given means to delete the score
 		Long scoreGiven = SakaiBLTIUtil.getLongNull(jso.get("scoreGiven"));
 		Long scoreMaximum = SakaiBLTIUtil.getLongNull(jso.get("scoreMaximum"));
 		String userId = SakaiBLTIUtil.getStringNull(jso.get("userId"));  // TODO: LTI13 quirk - should be subject
 		String comment = SakaiBLTIUtil.getStringNull(jso.get("comment"));
 		log.debug("scoreGivenStr={} scoreMaximumStr={} userId={} comment={}", scoreGiven, scoreMaximum, userId, comment);
 
-		if (scoreGiven == null || userId == null) {
-			LTI13Util.return400(response, "Missing scoreGiven or userId");
+		if (userId == null) {
+			LTI13Util.return400(response, "Missing userId");
 			return;
 		}
 
@@ -597,9 +600,14 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
+		// Note when scoreGiven is null, it means to delete the score
 		Object retval;
 		if ( assignment_id == null ) {
-			retval = SakaiBLTIUtil.setGradeLTI13(site, sat.tool_id, content, userId, assignment_name, scoreGiven, scoreMaximum, comment);
+			if ( scoreGiven == null ) {
+				retval = SakaiBLTIUtil.deleteGradeLTI13(site, sat.tool_id, content, userId, assignment_name, comment);
+			} else {
+				retval = SakaiBLTIUtil.setGradeLTI13(site, sat.tool_id, content, userId, assignment_name, scoreGiven, scoreMaximum, comment);
+			}
 			log.debug("Lineitem retval={}",retval);
 		} else {
 			// TODO: Could make a new method collapsing these tool calls into a single scan
@@ -609,7 +617,11 @@ public class LTI13Servlet extends HttpServlet {
 				return;
 			}
 			assignment_name = assnObj.getName();
-			retval = SakaiBLTIUtil.setGradeLTI13(site, sat.tool_id, content, userId, assignment_name, scoreGiven, scoreMaximum, comment);
+			if ( scoreGiven == null ) {
+				retval = SakaiBLTIUtil.deleteGradeLTI13(site, sat.tool_id, content, userId, assignment_name, comment);
+			} else {
+				retval = SakaiBLTIUtil.setGradeLTI13(site, sat.tool_id, content, userId, assignment_name, scoreGiven, scoreMaximum, comment);
+			}
 			log.debug("Lineitem retval={}",retval);
 		}
 	}
@@ -751,6 +763,8 @@ public class LTI13Servlet extends HttpServlet {
 
 				if (releaseName != 0) {
 					jo.put("name", user.getDisplayName());
+					jo.put("given_name", user.getFirstName());
+					jo.put("family_name", user.getLastName());
 				}
 				if (releaseEmail != 0) {
 					jo.put("email", user.getEmail());
@@ -767,9 +781,9 @@ public class LTI13Servlet extends HttpServlet {
 				if ( roleMap.containsKey(role.getId()) ) {
 					roles.add(roleMap.get(role.getId()));
 				} else if (ComponentManager.get(AuthzGroupService.class).isAllowed(ims_user_id, SiteService.SECURE_UPDATE_SITE, "/site/" + site.getId())) {
-					roles.add("Instructor");
+					roles.add(LTI13ConstantsUtil.ROLE_INSTRUCTOR);
 				} else {
-					roles.add("Learner");
+					roles.add(LTI13ConstantsUtil.ROLE_LEARNER);
 				}
 				jo.put("roles", roles);
 

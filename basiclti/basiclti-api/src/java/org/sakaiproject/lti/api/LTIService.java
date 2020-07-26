@@ -127,13 +127,14 @@ public interface LTIService extends LTISubstitutionsFilter {
             "allowroster:checkbox:label=bl_allowroster",
             "allowsettings:checkbox:label=bl_allowsettings",
             // Hide these from end users until they are working in the various Sakai tools
-            "pl_header:header:fields=pl_launch,pl_linkselection,pl_importitem,pl_fileitem,pl_contenteditor,pl_assessmentselection",
+            "pl_header:header:fields=pl_launch,pl_linkselection",
             "pl_launch:checkbox:label=bl_pl_launch",
             "pl_linkselection:checkbox:label=bl_pl_linkselection",
+            "pl_placement:header:fields=pl_assessmentselection,pl_importitem,pl_fileitem,pl_contenteditor",
+            "pl_assessmentselection:checkbox:label=bl_pl_assessmentselection:role=admin",
             "pl_contenteditor:checkbox:label=bl_pl_contenteditor",
             "pl_importitem:checkbox:label=bl_pl_importitem:role=admin",
             "pl_fileitem:checkbox:label=bl_pl_fileitem:role=admin",
-            "pl_assessmentselection:checkbox:label=bl_pl_assessmentselection:role=admin",
             "newpage:radio:label=bl_newpage:choices=off,on,content",
             "debug:radio:label=bl_debug:choices=off,on,content",
             // LTI 1.x user-entered custom
@@ -144,18 +145,27 @@ public interface LTIService extends LTISubstitutionsFilter {
             "splash:textarea:label=bl_splash:rows=5:cols=25:maxlength=16384",
             // LTI 1.3 expansion space (See SAK-33772)
             "lti13:radio:label=bl_lti13:choices=off,on:role=admin",
+
+            // The core values from LTI 1.3 tools (we prefer keyset over explicit key)
             "lti13_client_id:text:hide=insert:label=bl_lti13_client_id:maxlength=1024:role=admin",
-            "lti13_tool_public:textarea:hide=insert:label=bl_lti13_tool_public:maxlength=1M:role=admin",
-            // The tool keyset is a future feature - we can unhide it in the UI when Sakai supports this
-            "lti13_tool_keyset:textarea:hidden=true:label=bl_lti13_tool_keyset:maxlength=1M:role=admin",
-            // The tool kid is internal (comes through on launch and we store it and cache the public key)
-            "lti13_tool_kid:text:hidden=true:label=bl_lti13_tool_kid:maxlength=1024:role=admin",
-            "lti13_tool_private:textarea:hide=insert:label=bl_lti13_tool_private:maxlength=1M:role=admin",
-            "lti13_platform_public:textarea:hide=insert:label=bl_lti13_platform_public:maxlength=1M:role=admin",
-            "lti13_platform_private:textarea:hidden=true:label=bl_lti13_platform_private:maxlength=1M:role=admin",
+            // TODO: Change this from 1M to 1024 after this is 21-only - SAK-43709
+            "lti13_tool_keyset:textarea:label=bl_lti13_tool_keyset:maxlength=1M:role=admin",
             "lti13_oidc_endpoint:text:label=bl_lti13_oidc_endpoint:maxlength=1024:role=admin",
             "lti13_oidc_redirect:text:label=bl_lti13_oidc_redirect:maxlength=1024:role=admin",
+
+            "lti13_platform_public:textarea:hide=insert:label=bl_lti13_platform_public:maxlength=1M:role=admin",
+            "lti13_platform_private:textarea:hidden=true:label=bl_lti13_platform_private:maxlength=1M:role=admin",
             "lti13_settings:textarea:hidden=true:maxlength=1M:role=admin",
+
+            // These two are for situations where there is no keyset url for the tool which
+            // hopefully will happen less and less often
+            "lti13_legacy_key:header:fields=lti13_tool_public,lti13_tool_private",
+            "lti13_tool_public:textarea:hide=insert:label=bl_lti13_tool_public:maxlength=1M:role=admin",
+            "lti13_tool_private:textarea:hide=insert:label=bl_lti13_tool_private:maxlength=1M:role=admin",
+
+            // TODO: This is purely legacy and can be removed after this is 21-only - SAK-43709
+            // we don't even need to remove the column during 21-upgrade - it was never used
+            "lti13_tool_kid:text:hidden=true:label=bl_lti13_tool_kid:maxlength=1024:role=admin",
 
             // SHA256 Support (See SAK-33898)
             "sha256:radio:label=bl_sha256:hidden=true:role=admin:choices=off,on,content",
@@ -268,6 +278,8 @@ public interface LTIService extends LTISubstitutionsFilter {
     // LTI 1.3
     String LTI13 = "lti13";
     String LTI13_CLIENT_ID = "lti13_client_id";
+    String LTI13_TOOL_KID = "lti13_tool_kid";
+    String LTI13_TOOL_KEYSET = "lti13_tool_keyset";
     String LTI13_TOOL_PUBLIC = "lti13_tool_public";
     String LTI13_TOOL_PRIVATE = "lti13_tool_private";
     String LTI13_PLATFORM_PUBLIC = "lti13_platform_public";

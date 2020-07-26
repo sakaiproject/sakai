@@ -15,9 +15,12 @@
  */
 package org.sakaiproject.sitestats.impl;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.util.Properties;
+
+import javax.annotation.PreDestroy;
+import javax.annotation.Resource;
+
 import org.hibernate.SessionFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
@@ -28,10 +31,9 @@ import org.springframework.orm.hibernate4.HibernateTransactionManager;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBuilder;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import javax.annotation.PreDestroy;
-import javax.annotation.Resource;
-import java.io.IOException;
-import java.util.Properties;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class SiteStatsPersistenceConfig {
@@ -135,7 +137,7 @@ public class SiteStatsPersistenceConfig {
         p.setProperty("hibernate.query.substitutions", "true 1, false 0, yes 'Y', no 'N'");
         p.setProperty("hibernate.jdbc.use_streams_for_binary", "true");
         p.setProperty("hibernate.cache.use_query_cache", "true");
-        p.setProperty("hibernate.cache.region.factory_class", "org.hibernate.cache.SingletonEhCacheRegionFactory");
+        p.setProperty("hibernate.cache.use_second_level_cache", "false");
         return p;
     }
 

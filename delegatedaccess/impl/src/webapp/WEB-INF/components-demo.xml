@@ -12,6 +12,7 @@
 		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
 		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
 		<property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService"/>
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 	</bean>

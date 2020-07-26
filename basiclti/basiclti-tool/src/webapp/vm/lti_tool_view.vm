@@ -10,7 +10,7 @@
         <p class="act">
         <input type="submit" accesskey ="x" name="doDone" value="$tlang.getString('gen.done')"
         onclick="location = '$sakai_ActionURL.setPanel("ToolSystem")';return false;" class="active">
-        <input type="submit" accesskey ="v" name="doShow" value="$tlang.getString('gen.toggle.priv')"
+        <input type="submit" id="lti13_tool_toggle" style="display:none;" accesskey ="v" name="doShow" value="$tlang.getString('gen.toggle.priv')"
         onclick="$('#lti13_tool_private').toggle();return false;"> 
 	</form>
 #if ( ! $isAdmin )
@@ -22,7 +22,9 @@ $(document).ready( function() {
         $(window).resize( function() {
                 setMainFrameHeight('sakai-basiclti-admin-iframe');
         });
+        $('#lti13_platform_public').hide();
         $('#lti13_tool_private').hide();
+        $('#lti13_tool_public').hide();
 
         $('#lti13_tool_public').css('font-family', '"Courier New", monospace');
         $('#lti13_tool_public').css('white-space', 'pre');
@@ -33,16 +35,41 @@ $(document).ready( function() {
         $('#lti13_platform_public').css('font-family', '"Courier New", monospace');
         $('#lti13_platform_public').css('white-space', 'pre');
 
+        $( "#foorm_output_lti13_client_id" ).after(
+            ' <button onclick="copyToClipboardNoScroll(this, $(\'#foorm_output_lti13_client_id\').text());return false;">' +
+            '<i class="fa fa-clipboard" aria-hidden="true"></i> $tlang.getString('gen.clipboard')</button>' +
+            '</p>'
+        );
+
         $( "#lti13_client_id" ).after(
             '<p class="foorm-text" id="lti13_keyset_url">' +
-            '<b>$tlang.getString('lti13_keyset_url')</b><br/>$keySetUrl</p>' +
+            '<b>$tlang.getString('lti13_keyset_url')</b><br/><span id="foorm_output_lti13_keyset_url">$keySetUrl</span> ' +
+            '<button onclick="copyToClipboardNoScroll(this, $(\'#foorm_output_lti13_keyset_url\').text());return false;">' +
+            '<i class="fa fa-clipboard" aria-hidden="true"></i> $tlang.getString('gen.clipboard')</button>' +
+            '</p>' +
             '<p class="foorm-text" id="lti13_token_url">' +
-            '<b>$tlang.getString('lti13_token_url')</b><br/>$tokenUrl</p>' +
+            '<b>$tlang.getString('lti13_token_url')</b><br/><span id="foorm_output_lti13_token_url">$tokenUrl</span> ' +
+            '<button onclick="copyToClipboardNoScroll(this, $(\'#foorm_output_lti13_token_url\').text());return false;">' +
+            '<i class="fa fa-clipboard" aria-hidden="true"></i> $tlang.getString('gen.clipboard')</button>' +
+            '</p>' +
             '<p class="foorm-text" id="lti13_oidc_auth">' +
-            '<b>$tlang.getString('lti13_oidc_auth')</b><br/>$authOIDC</p>' +
+            '<b>$tlang.getString('lti13_oidc_auth')</b><br/><span id="foorm_output_lti13_oidc_auth">$authOIDC</span> ' +
+            '<button onclick="copyToClipboardNoScroll(this, $(\'#foorm_output_lti13_oidc_auth\').text());return false;">' +
+            '<i class="fa fa-clipboard" aria-hidden="true"></i> $tlang.getString('gen.clipboard')</button>' +
+            '</p>' +
             '<p class="foorm-text" id="lti13_issuer">' +
-            '<b>$tlang.getString('lti13_issuer')</b><br/>$issuerURL</p>' +
-            '		</p>');
+            '<b>$tlang.getString('lti13_issuer')</b><br/><span id="foorm_output_lti13_issuer">$issuerURL</span> ' +
+            '<button onclick="copyToClipboardNoScroll(this, $(\'#foorm_output_lti13_issuer\').text());return false;">' +
+            '<i class="fa fa-clipboard" aria-hidden="true"></i> $tlang.getString('gen.clipboard')</button>' +
+            '</p>');
+
+        // If we have a keyset - it is as if the tool public and private key
+        // don't exist
+        var keyset = '$keySetUrl';
+        if ( keyset.length == 0 ) {
+            $('#lti13_tool_public').show();
+            $('#lti13_tool_toggle').show();
+        }
 });
 </script>
 

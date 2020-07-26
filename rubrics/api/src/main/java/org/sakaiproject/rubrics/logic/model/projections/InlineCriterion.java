@@ -32,7 +32,7 @@ import org.springframework.data.rest.core.config.Projection;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @Projection(name = "inlineCriterion", types = { Criterion.class })
-@JsonPropertyOrder({"id", "title", "description", "metadata", "ratings"})
+@JsonPropertyOrder({"id", "title", "weight", "description", "metadata", "ratings"})
 public interface InlineCriterion {
 
     Long getId();
@@ -40,6 +40,8 @@ public interface InlineCriterion {
     String getTitle();
 
     String getDescription();
+
+    double getWeight();
 
     List<Rating> getRatings();
 

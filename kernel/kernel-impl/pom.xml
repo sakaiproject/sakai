@@ -105,6 +105,32 @@
             <version>${sakai.poi.version}</version>
         </dependency>
         <dependency>
+            <groupId>fr.opensagres.xdocreport</groupId>
+            <artifactId>fr.opensagres.xdocreport.document</artifactId>
+            <version>2.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>fr.opensagres.xdocreport</groupId>
+            <artifactId>org.apache.poi.xwpf.converter.xhtml</artifactId>
+            <version>1.0.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.odftoolkit</groupId>
+            <artifactId>odftoolkit</artifactId>
+            <version>1.0.0-BETA1</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.opensagres.xdocreport</groupId>
+            <artifactId>fr.opensagres.xdocreport.converter.odt.odfdom</artifactId>
+            <version>2.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.zwobble.mammoth</groupId>
+            <artifactId>mammoth</artifactId>
+            <version>1.4.1</version>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-private</artifactId>
         </dependency>
@@ -141,6 +167,11 @@
             <artifactId>commons-collections4</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.12</version>
+        </dependency>
+        <dependency>
             <groupId>com.opencsv</groupId>
             <artifactId>opencsv</artifactId>
         </dependency>
@@ -162,10 +193,6 @@
             <artifactId>ehcache-core</artifactId>
             <version>${sakai.ehcache.version}</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-ehcache</artifactId>
         </dependency>
         <dependency>
             <groupId>org.terracotta</groupId>
@@ -235,9 +262,33 @@
             <artifactId>spring-tx</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-jpa</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ignite</groupId>
+            <artifactId>ignite-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ignite</groupId>
+            <artifactId>ignite-spring</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ignite</groupId>
+            <artifactId>ignite-hibernate-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.gridgain</groupId>
+            <artifactId>ignite-hibernate_4.2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ignite</groupId>
+            <artifactId>ignite-slf4j</artifactId>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
@@ -264,7 +315,7 @@
         <dependency>
             <groupId>org.owasp.antisamy</groupId>
             <artifactId>antisamy</artifactId>
-            <version>1.5.8</version>
+            <version>1.5.9</version>
         </dependency>
         <dependency>
             <groupId>xml-apis</groupId>
@@ -290,7 +341,7 @@
         <dependency>
             <groupId>org.subethamail</groupId>
             <artifactId>subethasmtp</artifactId>
-            <version>3.1.6</version>
+            <version>3.1.7</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -359,7 +410,7 @@
         <dependency>
             <groupId>org.passay</groupId>
             <artifactId>passay</artifactId>
-            <version>1.5.0</version>
+            <version>1.6.0</version>
         </dependency>
     </dependencies>
 

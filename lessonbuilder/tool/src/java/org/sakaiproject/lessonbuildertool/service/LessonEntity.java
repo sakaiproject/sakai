@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.Map;
 import java.util.Date;
 
+import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 
@@ -197,4 +198,7 @@ public interface LessonEntity {
     public String getSiteId();
     
     public void setSimplePageBean(SimplePageBean simplePageBean); 
+
+	// Let an entity know that it is about to be shown - optional
+	public void preShowItem(SimplePageItem simplePageItem);
 }

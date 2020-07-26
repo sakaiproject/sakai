@@ -877,6 +877,7 @@ public class Validator
 
 	/**
 	 * Validate whether the date input is valid
+	 * @deprecated {@link org.sakaiproject.util.DateFormatterUtil#checkDate(int, int, int)}
 	 */
 	public static boolean checkDate(int day, int month, int year)
 	{

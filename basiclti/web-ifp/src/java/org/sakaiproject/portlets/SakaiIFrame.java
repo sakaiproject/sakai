@@ -21,51 +21,45 @@
 
 package org.sakaiproject.portlets;
 
-import java.io.PrintWriter;
 import java.io.IOException;
-
+import java.io.PrintWriter;
+import java.util.Enumeration;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Enumeration;
 
-import javax.portlet.GenericPortlet;
-import javax.portlet.RenderRequest;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
-import javax.portlet.RenderResponse;
-import javax.portlet.PortletException;
-import javax.portlet.PortletURL;
-import javax.portlet.PortletContext;
+import javax.portlet.GenericPortlet;
 import javax.portlet.PortletConfig;
+import javax.portlet.PortletContext;
+import javax.portlet.PortletException;
 import javax.portlet.PortletMode;
 import javax.portlet.PortletSession;
-
-import lombok.extern.slf4j.Slf4j;
-
-import org.sakaiproject.portlet.util.VelocityHelper;
-import org.sakaiproject.portlet.util.JSPHelper;
-import org.sakaiproject.util.FormattedText;
-import org.sakaiproject.util.ResourceLoader;
-
-import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.tool.api.Placement;
-import org.sakaiproject.tool.cover.ToolManager;
-
+import javax.portlet.PortletURL;
+import javax.portlet.RenderRequest;
+import javax.portlet.RenderResponse;
 import javax.servlet.ServletRequest;
-import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.VelocityContext;
-import org.apache.velocity.context.Context;
 import org.apache.velocity.app.VelocityEngine;
-
+import org.apache.velocity.context.Context;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
-
+import org.sakaiproject.component.cover.ServerConfigurationService;
 // lti service
 import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.portlet.util.JSPHelper;
+import org.sakaiproject.portlet.util.VelocityHelper;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.FormattedText;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * a simple SakaiIFrame Portlet
@@ -81,7 +75,7 @@ public class SakaiIFrame extends GenericPortlet {
 	// private static ResourceBundle rb =  ResourceBundle.getBundle("iframe");
 	protected static ResourceLoader rb = new ResourceLoader("iframe");
 
-	protected final FormattedText validator = new FormattedText();
+	protected final FormattedText formattedText = ComponentManager.get(FormattedText.class);
 
 	private final VelocityHelper vHelper = new VelocityHelper();
 
@@ -148,7 +142,7 @@ public class SakaiIFrame extends GenericPortlet {
 		PortletSession pSession = request.getPortletSession(true);
 		String str = (String) pSession.getAttribute(ALERT_MESSAGE);
 		pSession.removeAttribute(ALERT_MESSAGE);
-		if ( str != null && str.length() > 0 ) context.put("alertMessage", validator.escapeHtml(str, false));
+		if ( str != null && str.length() > 0 ) context.put("alertMessage", formattedText.escapeHtml(str, false));
 	}
 
 	// Render the portlet - this is not supposed to change the state of the portlet
@@ -227,7 +221,7 @@ public class SakaiIFrame extends GenericPortlet {
 
 				Context context = new VelocityContext();
 				context.put("tlang", rb);
-				context.put("validator", validator);
+				context.put("validator", formattedText);
 				context.put("source",source);
 				context.put("height",height);
 				context.put("browser-feature-allow", String.join(";", ServerConfigurationService.getStrings("browser.feature.allow")));
@@ -345,7 +339,7 @@ public class SakaiIFrame extends GenericPortlet {
 
 			Context context = new VelocityContext();
 			context.put("tlang", rb);
-			context.put("validator", validator);
+			context.put("validator", formattedText);
 			sendAlert(request,context);
 
 			PortletURL url = response.createActionURL();

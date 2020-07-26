@@ -1,4 +1,4 @@
-<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+// <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
@@ -13,8 +13,7 @@
 			<h:inputHidden id="currentTopicId" value="#{ForumTool.selectedTopic.topic.id}"/>
 			<h:inputHidden id="currentForumId" value="#{ForumTool.selectedForum.forum.id}"/>
 			<script>includeLatestJQuery("msgcntr");</script>
-			<script src="/library/webjars/qtip2/3.0.3/jquery.qtip.min.js"></script>
-			<link rel="stylesheet" type="text/css" href="/library/webjars/qtip2/3.0.3/jquery.qtip.min.css" />
+			<script>includeWebjarLibrary("qtip2");</script>
 			<script src="/messageforums-tool/js/forum.js"></script>
 			<script src="/messageforums-tool/js/sak-10625.js"></script>
 			<script src="/messageforums-tool/js/messages.js"></script>
@@ -46,8 +45,14 @@
 					msgBody = msgBody.replace(/\n/g,',').replace(/\s/g,' ').replace(/  ,/g,',');
 					fckeditor_word_count_fromMessage(msgBody, "counttotal");
 
+					var menuLink = $('#forumsMainMenuLink');
+					var menuLinkSpan = menuLink.closest('span');
+					menuLinkSpan.addClass('current');
+					menuLinkSpan.html(menuLink.text());
+
 					});
 			</script>
+            <%@ include file="/jsp/discussionForum/menu/forumsMenu.jsp" %>
 
 			<%--breadcrumb and thread nav grid--%>
 			<h:panelGroup layout="block" styleClass="navPanel row">

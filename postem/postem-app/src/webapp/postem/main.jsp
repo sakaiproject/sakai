@@ -15,15 +15,19 @@
 </jsp:useBean>
 <f:view>
 	<sakai:view title="#{msgs.title_list}">
+		<script>includeLatestJQuery("postemMain");</script>
+		<script>
+			$(document).ready(function() {
+				var menuLink = $('#postemMainMenuLink');
+				var menuLinkSpan = menuLink.closest('span');
+				menuLinkSpan.addClass('current');
+				menuLinkSpan.html(menuLink.text());
+			});
+		</script>
 		<h:form>
-            <sakai:tool_bar rendered="#{PostemTool.editable}">
-			  	<sakai:tool_bar_item
-			    	action="#{PostemTool.processCreateNew}"
-					value="#{msgs.bar_new}" 
-					rendered="#{PostemTool.editable}"/>
-   	        </sakai:tool_bar>
+			<%@ include file="/postem/postemMenu.jsp" %>
 			<sakai:view_content>
-
+				<h:outputText styleClass="sak-banner-info" value="#{msgs.no_gradebooks}" rendered="#{!PostemTool.gradebooksExist}" />
 				<sakai:flat_list rendered="#{PostemTool.gradebooksExist}" value="#{PostemTool.gradebooks}" var="gradebook" binding="#{PostemTool.gradebookTable}" styleClass="table table-bordered table-striped">
 					<h:column>
 						<f:facet name="header">
@@ -110,8 +114,6 @@
 						</h:commandLink>
 					</h:column>
 				</sakai:flat_list>
-
-				<h:outputText styleClass="sak-banner-warn" value="#{msgs.no_gradebooks}" rendered="#{!PostemTool.gradebooksExist}" />
 			</sakai:view_content>
 
 		</h:form>

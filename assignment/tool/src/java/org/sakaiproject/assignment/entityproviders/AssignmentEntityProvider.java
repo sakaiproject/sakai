@@ -48,6 +48,8 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
@@ -73,6 +75,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.ResourceLoader;
 
 @Slf4j
 @Setter
@@ -81,6 +84,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         AutoRegisterEntityProvider, PropertyProvideable, Outputable, Inputable {
 
     public final static String ENTITY_PREFIX = "assignment";
+
+    private static ResourceLoader rb = new ResourceLoader("assignment");
 
     private AssignmentService assignmentService;
     private AssignmentToolUtils assignmentToolUtils;
@@ -485,18 +490,21 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             throw new EntityException("Failed to setup user", siteId);
         }
 
+        SimpleAssignment simpleAssignment = new SimpleAssignment(assignment);
+
         // A list of mappings of submission id to student id list
         List<SimpleSubmission> submissions
-            = assignment.getSubmissions().stream().map(as -> new SimpleSubmission(as)).collect(Collectors.toList());
+            = assignment.getSubmissions().stream().map(as -> new SimpleSubmission(as, simpleAssignment.isAnonymousGrading())).collect(Collectors.toList());
 
         Map<String, Object> data = new HashMap<>();
 
-        List<SimpleGroup> groups = site.getGroups().stream().map(g -> new SimpleGroup(g)).collect(Collectors.toList());
+        List<SimpleGroup> groups = site.getGroups().stream().map(SimpleGroup::new).collect(Collectors.toList());
 
-        data.put("gradable", new SimpleAssignment(assignment));
+        data.put("gradable", simpleAssignment);
         data.put("submissions", submissions);
         data.put("students", students);
         data.put("groups", groups);
+        data.put("showOfficialPhoto", serverConfigurationService.getBoolean("assignment.show.official.photo", true));
         String lOptions = serverConfigurationService.getString("assignment.letterGradeOptions", "A+,A,A-,B+,B,B-,C+,C,C-,D+,D,D-,E,F");
         data.put("letterGradeOptions", lOptions);
 
@@ -547,8 +555,11 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             Set<AssignmentSubmissionSubmitter> submitters = s.getSubmitters();
 
             if (submitters.size() > 0) {
-                //String rawGrade = assignmentService.getGradeForSubmitter(s, submitters.iterator().next().getSubmitter());
-                return assignmentService.getGradeDisplay(s.getGrade(), assignment.getTypeOfGrade(), assignment.getScaleFactor());
+                if (assignment.getTypeOfGrade() == Assignment.GradeType.PASS_FAIL_GRADE_TYPE) {
+                    return s.getGrade() == null ? "ungraded" : s.getGrade();
+                } else {
+                    return assignmentService.getGradeDisplay(s.getGrade(), assignment.getTypeOfGrade(), assignment.getScaleFactor());
+                }
             } else {
                 return "";
             }
@@ -616,6 +627,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         if (assignment.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE) {
             grade = assignmentToolUtils.scalePointGrade(grade, assignment.getScaleFactor(), alerts);
+        } else if (assignment.getTypeOfGrade() == Assignment.GradeType.PASS_FAIL_GRADE_TYPE && grade.equals("ungraded")) {
+            grade = null;
         }
 
         Map<String, Object> options = new HashMap<>();
@@ -636,8 +649,12 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         final List<Reference> attachmentRefs = attachmentKeys.stream().map(k -> {
             FileItem item = (FileItem) params.get(k);
             try {
+                // make a set of properties to add for the new resource
+                ResourcePropertiesEdit props = contentHostingService.newResourceProperties();
+                props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, item.getName());
+                props.addProperty(ResourceProperties.PROP_DESCRIPTION, item.getName());
                 ContentResource cr = contentHostingService.addAttachmentResource(item.getName(),
-                    courseId, "Assignments", item.getContentType(), item.getInputStream(), null);
+                    courseId, "Assignments", item.getContentType(), item.getInputStream(), props);
 
                 return entityManager.newReference(cr.getReference());
             } catch (Exception e) {
@@ -656,8 +673,10 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         submission = assignmentToolUtils.gradeSubmission(submission, gradeOption, options, alerts);
 
+        boolean anonymousGrading = assignmentService.assignmentUsesAnonymousGrading(assignment);
+
         if (submission != null) {
-            return new ActionReturn(new SimpleSubmission(submission));
+            return new ActionReturn(new SimpleSubmission(submission, anonymousGrading));
         } else {
             throw new EntityException("Failed to set grade on " + submissionId, "", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
@@ -1097,6 +1116,10 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         private boolean anonymousGrading;
 
+        private Boolean allowPeerAssessment;
+
+        private String maxGradePoint;
+
         public SimpleAssignment() {
         }
 
@@ -1133,6 +1156,9 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             this.groups = a.getGroups();
             this.access = a.getTypeOfAccess().toString();
             this.instructions = a.getInstructions();
+            if (a.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE) {
+                this.maxGradePoint = assignmentService.getMaxPointGradeDisplay(a.getScaleFactor(), a.getMaxGradePoint());
+            }
 
             this.anonymousGrading = assignmentService.assignmentUsesAnonymousGrading(a);
 
@@ -1205,6 +1231,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             if (assignmentAllPurposeItem != null) {
                 this.allPurposeItemText = assignmentAllPurposeItem.getText();
             }
+
+            this.allowPeerAssessment = a.getAllowPeerAssessment();
         }
     }
 
@@ -1214,13 +1242,17 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         private String id;
         private String displayName;
 
-        public SimpleSubmitter(AssignmentSubmissionSubmitter ass) {
+        public SimpleSubmitter(AssignmentSubmissionSubmitter ass, boolean anonymousGrading) {
 
             super();
 
             this.id = ass.getSubmitter();
             try {
-                this.displayName = userDirectoryService.getUser(this.id).getDisplayName();
+                if (!anonymousGrading) {
+                    this.displayName = userDirectoryService.getUser(this.id).getDisplayName();
+                } else {
+                    this.displayName = ass.getSubmission().getId() + " " + rb.getString("grading.anonymous.title");
+                }
             } catch (UserNotDefinedException e) {
                 this.displayName = this.id;
             }
@@ -1236,6 +1268,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         private Instant dateSubmitted;
         private Boolean submitted;
         private Set<String> submittedAttachments;
+        private Map<String, String> previewableAttachments = new HashMap<>();
         private List<SimpleSubmitter> submitters;
         private Boolean userSubmission;
         private Boolean late;
@@ -1248,7 +1281,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         private Set<String> feedbackAttachments;
         private Map<String, String> properties = new HashMap<>();
 
-        public SimpleSubmission(AssignmentSubmission as) {
+        public SimpleSubmission(AssignmentSubmission as, boolean anonymousGrading) {
 
             super();
 
@@ -1262,9 +1295,36 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                     this.late = dateSubmitted.compareTo(as.getAssignment().getDueDate()) > 0;
                 }
                 this.submittedAttachments = as.getAttachments();
+
+                SecurityAdvisor securityAdvisor = (String userId, String function, String reference) -> {
+
+                    if (ContentHostingService.AUTH_RESOURCE_READ.equals(function)) {
+                        return SecurityAdvisor.SecurityAdvice.ALLOWED;
+                    } else {
+                        return SecurityAdvisor.SecurityAdvice.NOT_ALLOWED;
+                    }
+                };
+
+                try {
+                    securityService.pushAdvisor(securityAdvisor);
+                    this.submittedAttachments.forEach(ref -> {
+
+                        try {
+                            ResourceProperties props = contentHostingService.getProperties(ref.replaceFirst("\\/content", ""));
+                            String previewId = props.getProperty(ContentHostingService.PREVIEW);
+                            if (StringUtils.isNotEmpty(previewId)) {
+                                previewableAttachments.put(ref, contentHostingService.getResource(previewId).getReference());
+                            }
+                        } catch (Exception e) {
+                            log.warn("Could not access properties for resource {}, {}", ref, e.toString());
+                        }
+                    });
+                } finally {
+                    securityService.popAdvisor(securityAdvisor);
+                }
             }
             this.submitters
-                = as.getSubmitters().stream().map(ass -> new SimpleSubmitter(ass)).collect(Collectors.toList());
+                = as.getSubmitters().stream().map(ass -> new SimpleSubmitter(ass, anonymousGrading)).collect(Collectors.toList());
             this.groupId = as.getGroupId();
             this.userSubmission = as.getUserSubmission();
             this.returned = as.getReturned();
@@ -1281,6 +1341,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
     public class SimpleGroup {
 
         private String id;
+        private String reference;
         private String title;
         private Set<String> users;
 
@@ -1289,6 +1350,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             super();
 
             this.id = g.getId();
+            this.reference = g.getReference();
             this.title = g.getTitle();
             this.users = g.getUsers();
         }

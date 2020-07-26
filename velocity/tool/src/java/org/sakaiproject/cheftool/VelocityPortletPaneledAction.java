@@ -428,7 +428,10 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 				}
 
 				// the vm file needs a path and an extension
-				template = "/vm/" + template + ".vm";
+				if(!template.equals(MODE_PERMISSIONS)) {
+					template = "/vm/" + template;
+				}
+				template += ".vm";
 
 				// setup for old style alert
 				StringBuilder buf = new StringBuilder();
@@ -458,7 +461,7 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 				}
 				if (sbNotif.length() > 0)
 				{
-							setVmReference("flashNotif", sbNotif.toString(), req);
+					setVmReference("flashNotif", sbNotif.toString(), req);
 					setVmReference("flashNotifCloseTitle",rb.getString("flashNotifCloseTitle"),req);
 				}
 
@@ -873,12 +876,15 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 	public static final String STATE_FLOAT = "float";
 
 	public static final String STATE_TOOL = "tool";
+	public static final String STATE_TOOL_KEY = "tool_key";
+	public static final String STATE_BUNDLE_KEY = "bundle_key";
 
 	public static final String STATE_MESSAGE = "message";
 	public static final String STATE_NOTIF = "notification";
 
 	/** Standard modes. */
 	public static final String MODE_OPTIONS = "options";
+	public static final String MODE_PERMISSIONS = "permissions";
 
 	/**
 	 * Handle a request to set options.
@@ -912,6 +918,17 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 		}
 
 	} // doOptions
+
+	protected String build_permissions_context(VelocityPortlet portlet, Context context, RunData data, SessionState state) {
+		String toolKey = (String) state.getAttribute(STATE_TOOL_KEY);
+		context.put("toolKey", toolKey);
+		String bundleKey = (String) state.getAttribute(STATE_BUNDLE_KEY);
+		if(StringUtils.isNotBlank(bundleKey)){
+			context.put("bundleKey", bundleKey);
+		}
+		context.put("permissions", rb.getString("permissions"));
+		return MODE_PERMISSIONS;
+	}
 
 	/**
 	 * Complete the options process with a save.

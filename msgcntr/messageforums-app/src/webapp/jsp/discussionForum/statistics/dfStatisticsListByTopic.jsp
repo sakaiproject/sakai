@@ -27,6 +27,7 @@
 %>
 <f:view>
   <sakai:view >
+    <%@ include file="/jsp/discussionForum/menu/forumsMenu.jsp" %>
   	<h:form id="dfStatisticsForm" rendered="#{ForumTool.instructor}">
 <!-- discussionForum/statistics/dfStatisticsList.jsp-->
 	<script>
@@ -151,6 +152,10 @@
 
 			$(document).ready(function() {
 				$('.selAssignVal').val('<h:outputText value="#{mfStatisticsBean.selectedAssign}"/>');
+				var menuLink = $('#forumsStatisticsMenuLink');
+				var menuLinkSpan = menuLink.closest('span');
+				menuLinkSpan.addClass('current');
+				menuLinkSpan.html(menuLink.text());
 			});
 		</script>
 		

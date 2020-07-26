@@ -61,6 +61,7 @@ import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.service.gradebook.shared.InvalidGradeItemNameException;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
@@ -87,6 +88,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.web.client.HttpClientErrorException;
 
 /**
  * <p>Title: Samigo</p>2
@@ -261,9 +263,13 @@ public class PublishAssessmentListener
           PublishedItemData itemData = (PublishedItemData) itemObj;
           EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/publish, publishedItemId=" + itemData.getItemIdString(), true));
 
-          Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, assessmentSettings.getAssessmentId().toString() + "." + itemData.getOriginalItemId().toString());
-          if (rubricAssociation.isPresent()) {
-            rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + pub.getPublishedAssessmentId().toString() + "." + itemData.getItemIdString(), rubricAssociation.get().getFormattedAssociation());
+          try {
+            Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, assessmentSettings.getAssessmentId().toString() + "." + itemData.getOriginalItemId().toString());
+            if (rubricAssociation.isPresent()) {
+              rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + pub.getPublishedAssessmentId().toString() + "." + itemData.getItemIdString(), rubricAssociation.get().getFormattedAssociation());
+            }
+          } catch(HttpClientErrorException hcee) {
+            log.debug("Current user doesn't have permission to get a rubric: {}", hcee.getMessage());
           }
         }
       }
@@ -278,6 +284,12 @@ public class PublishAssessmentListener
         // Add a global message (not bound to any component) to the faces context indicating the failure
         String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
                                                  "gradebook_exception_min_points");
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(err));
+        throw new AbortProcessingException(gbe);
+    } catch (InvalidGradeItemNameException gbe) {
+        log.warn(gbe.getMessage(), gbe);
+        String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
+                                                 "gradebook_exception_title_invalid");
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(err));
         throw new AbortProcessingException(gbe);
     } catch (Exception e) {

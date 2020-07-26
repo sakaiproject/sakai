@@ -17,9 +17,18 @@
 
 <f:view>
   <sakai:view title="#{msgs.title_new}">
-      <script src="/library/js/spinner.js" type="text/javascript"></script>
+      <script src="/library/js/spinner.js"></script>
+      <script>includeLatestJQuery("postemCreateGradebook");</script>
+      <script>
+          $(document).ready(function() {
+              var menuLink = $('#postemAddMenuLink');
+              var menuLinkSpan = menuLink.closest('span');
+              menuLinkSpan.addClass('current');
+              menuLinkSpan.html(menuLink.text());
+          });
+      </script>
       <h:form enctype="multipart/form-data">
-      
+        <%@ include file="/postem/postemMenu.jsp" %>
       	<div class="page-header">
           <h1><h:outputText value="#{msgs.create_update}"/></h1>
         </div>
@@ -61,13 +70,12 @@
           </div>
 
 					<div class="form-group row">
-						<h:outputLabel value="#{msgs.gradebook_feedbackavail}" styleClass="form-group-label col-xs-2" />
+						<h:outputLabel for="release" value="#{msgs.gradebook_feedbackavail}" styleClass="form-group-label col-xs-2" />
 						<div class="col-xs-4">
 						  <h:selectBooleanCheckbox id="release" value="#{PostemTool.currentGradebook.release}" />
-						  <h:outputLabel for="release"><h:outputText value="#{msgs.release}"/></h:outputLabel>
+						  <h:outputLabel for="release" value="#{msgs.release}" />
 						</div>
-
-					</div>											
+					</div>
 				</sakai:panel_titled>
 
 				<br />

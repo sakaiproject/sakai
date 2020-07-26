@@ -15,9 +15,18 @@
 </jsp:useBean>
 <f:view>
 	<sakai:view title="#{msgs.title_view}">
+		<script>includeLatestJQuery("postemViewGrades");</script>
+		<script>
+			$(document).ready(function() {
+				var menuLink = $('#postemMainMenuLink');
+				var menuLinkSpan = menuLink.closest('span');
+				menuLinkSpan.addClass('current');
+				menuLinkSpan.html(menuLink.text());
+			});
+		</script>
 		<sakai:view_content>
 			<h:form>
-				
+			<%@ include file="/postem/postemMenu.jsp" %>
 		  	<sakai:tool_bar_message value="#{msgs.grade_view}" />
 		  	
 		  	<%-- <sakai:panel_edit>

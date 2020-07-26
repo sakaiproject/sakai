@@ -21,7 +21,7 @@
 		<script src="/messageforums-tool/js/sak-10625.js"></script>
 		<script src="/messageforums-tool/js/messages.js"></script>
 		<script>includeWebjarLibrary('select2');</script>
-
+        <%@ include file="/jsp/privateMsg/pvtMenu.jsp" %>
 	<h:form id="pvtMsgReply">
 		<script>
 				function clearSelection(selectObject)
@@ -33,17 +33,21 @@
 					changeSelect(selectObject);
 				}
 				
-				function fadeInBcc(){
+				function fadeInBcc(clearSelected){
 					$('.bccLink').fadeOut(); 
 					$('.bcc').fadeIn();
-					clearSelection(document.getElementById('pvtMsgReply:list2'));
+					if (clearSelected) {
+						clearSelection(document.getElementById('pvtMsgReply:list2'));
+					}
 					resize();
 				}
 				
-				function fadeOutBcc(){
+				function fadeOutBcc(clearSelected){
 					$('.bccLink').fadeIn(); 
 					$('.bcc').fadeOut();
-					clearSelection(document.getElementById('pvtMsgReply:list2'));
+					if (clearSelected) {
+						clearSelection(document.getElementById('pvtMsgReply:list2'));
+					}
 					resize();
 				}
 				
@@ -54,11 +58,17 @@
 				$(document).ready(function() {
 				  	if(document.getElementById('pvtMsgReply:list2').selectedIndex != -1){
 				  		//BCC has selected items, so show it
-				  		fadeInBcc();
+				  		fadeInBcc(false);
 				  	}
 				  	addTagSelector(document.getElementById('pvtMsgReply:list1'));
 				  	addTagSelector(document.getElementById('pvtMsgReply:list2'));
 				  	resize();
+
+                    var menuLink = $('#messagesMainMenuLink');
+                    var menuLinkSpan = menuLink.closest('span');
+                    menuLinkSpan.addClass('current');
+                    menuLinkSpan.html(menuLink.text());
+
 				});
 		</script>
 
@@ -150,7 +160,7 @@
 								</f:verbatim>
 								<h:graphicImage url="/../../library/image/silk/add.png" title="#{msgs.pvt_addBcc}" alt="#{msgs.pvt_addBcc}"/>
 								<f:verbatim>
-									<a href="#" onclick="fadeInBcc();">
+									<a href="#" onclick="fadeInBcc(true);">
 								</f:verbatim>
 								<h:outputText value="#{msgs.pvt_addBcc}"/>
 								<f:verbatim>
@@ -166,7 +176,7 @@
 									</f:verbatim>
 									<h:graphicImage url="/../../library/image/silk/cancel.png" title="#{msgs.pvt_removeBcc}" alt="#{msgs.pvt_removeBcc}"/>
 									<f:verbatim>
-										<a href="#" onclick="fadeOutBcc();">
+										<a href="#" onclick="fadeOutBcc(true);">
 									</f:verbatim>
 									<h:outputText value="#{msgs.pvt_removeBcc}"/>
 									<f:verbatim>
@@ -251,7 +261,7 @@
 				</div>
 		  </div>
 		  
-			<h4><h:outputText value="#{msgs.pvt_message}" /></h4>
+			<h4><h:outputText value="#{msgs.pvt_star}" styleClass="reqStar"/><h:outputText value="#{msgs.pvt_message}" /></h4>
 	        <sakai:panel_edit>
 	          <sakai:doc_section>
 			  <sakai:inputRichText textareaOnly="#{PrivateMessagesTool.mobileSession}" rows="#{ForumTool.editorRows}" cols="132" id="df_compose_body" value="#{PrivateMessagesTool.replyToBody}">	 

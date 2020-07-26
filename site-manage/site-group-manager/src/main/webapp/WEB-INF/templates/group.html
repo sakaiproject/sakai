@@ -12,7 +12,7 @@
     <div class="row">
       <div class="col-sm-8">
         <div class="sak-banner-error" th:if="${errorMessage != null}" th:text="${errorMessage}"></div>
-        <div class="instruction" th:text="#{groups.instruction}"></div>
+        <p th:text="#{groups.instruction}"></p>
       </div>
     </div>
     <form id="creategroup-form" action="#" th:action="@{/saveGroup}" th:object="${groupForm}" method="post">
@@ -61,11 +61,11 @@
               </label>
             </div>
             <label for="joinableSetNumOfMembers" class="form-control-label block" th:text="#{groups.joinableset.maxmembers}">Max members:</label>
-            <input name="joinableSetNumOfMembers" id="joinableSetNumOfMembers" type="number" th:field="*{joinableSetNumOfMembers}" min="0" max="999" class="form-control" th:placeholder="#{groups.joinableset.maxmembers}"/>
+            <input name="joinableSetNumOfMembers" id="joinableSetNumOfMembers" type="number" th:field="*{joinableSetNumOfMembers}" min="1" max="999" class="form-control"/>
           </div>
         </div>
       </div>
-      <div class="form-group row" th:if="${!groupList.isEmpty() && !sectionList.isEmpty()}">
+      <div class="form-group row" th:if="${!groupList.isEmpty() || !sectionList.isEmpty()}">
         <div class="col-sm-8">
           <label for="groupMembershipFilter" class="form-control-label block" th:text="#{groups.filter.membership}">Filter membership</label>
           <select class="form-control" id="groupMembershipFilter" th:field="*{filterByGroupId}">
@@ -80,7 +80,8 @@
             <label for="groupMembersFrom" class="form-control-label block" th:text="#{groups.available.members}">Available Members</label>
             <select name="groupMembersFrom" id="groupMembersFrom" class="form-control" multiple="multiple" size="8">
               <option th:if="${groupForm.groupMembers == null || !groupForm.groupMembers.contains(siteRole.id)}" th:each="siteRole : ${siteRoleList}" th:value="${siteRole.id}" th:text="|#{groups.role} ${siteRole.id}|"></option>
-              <option th:if="${groupForm.groupMembers == null || !groupForm.groupMembers.contains(siteMember.id)}" th:each="siteMember : ${siteMemberList}" th:value="${siteMember.id}" th:text="|${siteMember.displayName} (${siteMember.eid})|"></option>
+              <option th:if="${groupForm.groupMembers == null || !groupForm.groupMembers.contains(siteSection.title)}" th:each="siteSection : ${sectionList}" th:value="${siteSection.title}" th:text="|#{groups.section} ${siteSection.title}|"></option>
+              <option th:if="${groupForm.groupMembers == null || !groupForm.groupMembers.contains(siteMember.id)}" th:each="siteMember : ${siteMemberList}" th:value="${siteMember.id}" th:text="|${siteMember.sortName} (${siteMember.eid})|"></option>
             </select>
           </div>
           <div class="col-sm-2">
@@ -94,13 +95,14 @@
             <label for="groupMembersFrom_to" class="form-control-label block" th:text="#{groups.assigned.members}">Assigned Members</label>
             <select name="groupMembers" th:field="*{groupMembers}" id="groupMembersFrom_to" class="form-control" multiple="multiple" size="8">
               <option th:if="${groupForm.groupMembers != null && groupForm.groupMembers.contains(siteRole.id)}" th:each="siteRole : ${siteRoleList}" th:value="${siteRole.id}" th:text="|#{groups.role} ${siteRole.id}|"></option>
-              <option th:if="${groupForm.groupMembers != null && groupForm.groupMembers.contains(siteMember.id)}" th:each="siteMember : ${siteMemberList}" th:value="${siteMember.id}" th:text="|${siteMember.displayName} (${siteMember.eid})|"></option>
+              <option th:if="${groupForm.groupMembers != null && groupForm.groupMembers.contains(siteSection.title)}" th:each="siteSection : ${sectionList}" th:value="${siteSection.title}" th:text="|#{groups.section} ${siteSection.title}|"></option>
+              <option th:if="${groupForm.groupMembers != null && groupForm.groupMembers.contains(siteMember.id)}" th:each="siteMember : ${siteMemberList}" th:value="${siteMember.id}" th:text="|${siteMember.sortName} (${siteMember.eid})|"></option>
             </select>
           </div>
       </div>
       <div class="act">
-        <input th:if="${groupForm.groupId == null}" accesskey="s" disabled="disabled" id="create-group-submit-button" type="submit" class="active" onclick="SPNR.disableControlsAndSpin( this, null );" th:value="#{groups.button.create}">
-        <input th:if="${groupForm.groupId != null}" accesskey="s" id="save-group-submit-button" type="submit" class="active" onclick="SPNR.disableControlsAndSpin( this, null );" th:value="#{groups.button.save}">
+        <input th:if="${groupForm.groupId == null}" accesskey="s" disabled="disabled" id="create-group-submit-button" type="submit" class="active" th:value="#{groups.button.create}">
+        <input th:if="${groupForm.groupId != null}" accesskey="s" id="save-group-submit-button" type="submit" class="active" th:value="#{groups.button.save}">
         <a th:href="@{/}" accesskey="x" id="create-group-cancel-button" class="btn btn-default" th:text="#{groups.button.cancel}">Cancel</a>
       </div>
     </form>

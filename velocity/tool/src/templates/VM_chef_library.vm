@@ -209,7 +209,7 @@
 	</script>
 #end
   </head>
-  <body #if ($sakai_onload) onload="${sakai_onload}" #end >
+  <body #if ($sakai_onload) onload="${sakai_onload}" #end #if ($sakai_class) class="${sakai_class}" #end >
 #end
 ## no comment
 #end

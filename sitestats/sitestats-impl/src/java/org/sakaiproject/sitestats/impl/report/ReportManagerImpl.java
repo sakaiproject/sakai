@@ -47,7 +47,10 @@ import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamSource;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.fop.apps.FOPException;
 import org.apache.fop.apps.FOUserAgent;
 import org.apache.fop.apps.Fop;
@@ -112,92 +115,47 @@ import org.sakaiproject.util.ResourceLoader;
  */
 @Slf4j
 public class ReportManagerImpl extends HibernateDaoSupport implements ReportManager, Observer {
-	private static ResourceLoader	msgs			= new ResourceLoader("Messages");
+
 	private ReportFormattedParams	formattedParams	= new ReportFormattedParamsImpl();
 
 	/** FOP */
 	private FopFactory				fopFactory		= FopFactory.newInstance();
 	private Templates				cachedXmlFoXSLT	= null;
 	private static final String		XML_FO_XSL_FILE	= "xmlReportToFo.xsl";
-	
+
 	/** Date formatters. */
 	private SimpleDateFormat		dateMonthFrmt 	= new SimpleDateFormat("yyyy-MM");
 	private SimpleDateFormat		dateYearFrmt  	= new SimpleDateFormat("yyyy");
 
-	/** Spring bean members */
-
 	/** Sakai services */
-	private StatsManager			M_sm;
-	private StatsAuthz				M_sa;
-	private EventRegistryService	M_ers;
-	private SiteService				M_ss;
-	private UserDirectoryService	M_uds;
-	private ContentHostingService	M_chs;
-	private ToolManager				M_tm;
-	private UserTimeService			M_uts;
-	private EventTrackingService	M_ets;
-	private MemoryService			M_ms;
+	@Setter private ResourceLoader resourceLoader;
+	@Setter private StatsManager statsManager;
+	@Setter private StatsAuthz statsAuthz;
+	@Setter private EventRegistryService eventRegistryService;
+	@Setter private SiteService siteService;
+	@Setter private UserDirectoryService userDirectoryService;
+	@Setter private ContentHostingService contentHostingService;
+	@Setter private ToolManager toolManager;
+	@Setter private UserTimeService userTimeService;
+	@Setter private EventTrackingService eventTrackingService;
+	@Setter private MemoryService memoryService;
 	
 	/** Caching */
-	private Cache<String, Object>					cacheReportDef			= null;
-	
-
-	// ################################################################
-	// Spring bean methods
-	// ################################################################
-	public void setStatsManager(StatsManager statsManager) {
-		this.M_sm = statsManager;
-	}
-
-	public void setStatsAuthz(StatsAuthz statsAuthz) {
-		this.M_sa = statsAuthz;
-	}
-	
-	public void setEventRegistryService(EventRegistryService eventRegistryService) {
-		this.M_ers = eventRegistryService;
-	}
-	
-	public void setSiteService(SiteService siteService) {
-		this.M_ss = siteService;
-	}
-
-	public void setUserService(UserDirectoryService userService) {
-		this.M_uds = userService;
-	}
-
-	public void setContentService(ContentHostingService contentService) {
-		this.M_chs = contentService;
-	}
-	
-	public void setToolManager(ToolManager toolManager) {
-		this.M_tm = toolManager;
-	}
-
-	public void setUserTimeService(UserTimeService timeService) {
-		M_uts = timeService;
-	}
-
-	public void setEventTrackingService(EventTrackingService eventTrackingService) {
-		this.M_ets = eventTrackingService;
-	}
-
-	public void setMemoryService(MemoryService memoryService) {
-		this.M_ms = memoryService;
-	}
-	
-	/** This one is needed for unit testing */
-	public void setResourceLoader(ResourceLoader msgs) {
-		this.msgs = msgs;
-	}
+	private Cache<String, Object> cacheReportDef = null;
 	
 	public void init(){
+		boolean testsEnabled = BooleanUtils.toBoolean(System.getProperty("sakai.tests.enabled"));
+		if (!testsEnabled) {
+			resourceLoader = new ResourceLoader("Messages");
+		}
+
 		// Initialize cacheReportDef and event observer for cacheReportDef invalidation across cluster
-		M_ets.addPriorityObserver(this);
-		cacheReportDef = M_ms.getCache(ReportDef.class.getName());
+		eventTrackingService.addPriorityObserver(this);
+		cacheReportDef = memoryService.getCache(ReportDef.class.getName());
 	}
 	
 	public void destroy(){
-		M_ets.deleteObserver(this);
+		eventTrackingService.deleteObserver(this);
 	}
 
 	/** EventTrackingService observer for cache invalidation. */
@@ -255,9 +213,9 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	public int getReportRowCount(ReportDef reportDef, boolean restrictToToolsInSite) {
 		ReportProcessedParams rpp = processReportParams(reportDef.getReportParams(), restrictToToolsInSite, null);
 		if(reportDef.getReportParams().getWhat().equals(ReportManager.WHAT_RESOURCES)){
-			return M_sm.getResourceStatsRowCount(rpp.siteId, rpp.resourceAction, rpp.resourceIds, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, rpp.totalsBy);
+			return statsManager.getResourceStatsRowCount(rpp.siteId, rpp.resourceAction, rpp.resourceIds, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, rpp.totalsBy);
 		}else{
-			return M_sm.getEventStatsRowCount(rpp.siteId, rpp.events, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, rpp.totalsBy);
+			return statsManager.getEventStatsRowCount(rpp.siteId, rpp.events, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, rpp.totalsBy);
 		}
 	}
 	
@@ -271,18 +229,18 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		Report report = new Report();
 		List<Stat> data = null;
 		if (reportDef.getReportParams().getWhat().equals(ReportManager.WHAT_RESOURCES)) {
-			data = M_sm.getResourceStats(rpp.siteId, rpp.resourceAction, rpp.resourceIds, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, pagingPosition, rpp.totalsBy, rpp.sortBy, rpp.sortAscending, rpp.maxResults);
+			data = statsManager.getResourceStats(rpp.siteId, rpp.resourceAction, rpp.resourceIds, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, pagingPosition, rpp.totalsBy, rpp.sortBy, rpp.sortAscending, rpp.maxResults);
 		} else if(reportDef.getReportParams().getWhat().equals(ReportManager.WHAT_VISITS)
 				|| reportDef.getReportParams().getWhat().equals(ReportManager.WHAT_EVENTS)) {
-			data = M_sm.getEventStats(rpp.siteId, rpp.events, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, pagingPosition, rpp.totalsBy, rpp.sortBy, rpp.sortAscending, rpp.maxResults);
+			data = statsManager.getEventStats(rpp.siteId, rpp.events, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, pagingPosition, rpp.totalsBy, rpp.sortBy, rpp.sortAscending, rpp.maxResults);
 		} else if(reportDef.getReportParams().getWhat().equals(ReportManager.WHAT_PRESENCES)) {
-			data = M_sm.getPresenceStats(rpp.siteId, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, pagingPosition, rpp.totalsBy, rpp.sortBy, rpp.sortAscending, rpp.maxResults);
+			data = statsManager.getPresenceStats(rpp.siteId, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, pagingPosition, rpp.totalsBy, rpp.sortBy, rpp.sortAscending, rpp.maxResults);
 		} else if(reportDef.getReportParams().getWhat().equals(ReportManager.WHAT_VISITS_TOTALS)) {
-			data = M_sm.getVisitsTotalsStats(rpp.siteId, rpp.iDate, rpp.fDate, pagingPosition, rpp.totalsBy, rpp.sortBy, rpp.sortAscending, rpp.maxResults);
+			data = statsManager.getVisitsTotalsStats(rpp.siteId, rpp.iDate, rpp.fDate, pagingPosition, rpp.totalsBy, rpp.sortBy, rpp.sortAscending, rpp.maxResults);
 		} else if(reportDef.getReportParams().getWhat().equals(ReportManager.WHAT_ACTIVITY_TOTALS)) {
-			data = M_sm.getActivityTotalsStats(rpp.siteId, rpp.events, rpp.iDate, rpp.fDate, pagingPosition, rpp.totalsBy, rpp.sortBy, rpp.sortAscending, rpp.maxResults);
+			data = statsManager.getActivityTotalsStats(rpp.siteId, rpp.events, rpp.iDate, rpp.fDate, pagingPosition, rpp.totalsBy, rpp.sortBy, rpp.sortAscending, rpp.maxResults);
 		} else if (reportDef.getReportParams().getWhat().equals(ReportManager.WHAT_LESSONPAGES)) {
-			data = M_sm.getLessonBuilderStats(rpp.siteId, rpp.resourceAction, rpp.resourceIds, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, pagingPosition, rpp.totalsBy, rpp.sortBy, rpp.sortAscending, rpp.maxResults);
+			data = statsManager.getLessonBuilderStats(rpp.siteId, rpp.resourceAction, rpp.resourceIds, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, pagingPosition, rpp.totalsBy, rpp.sortBy, rpp.sortAscending, rpp.maxResults);
 		}
 		
 		// add missing info in report and its parameters
@@ -298,7 +256,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			if (siteId == null) {
 				siteId = reportDef.getReportParams().getSiteId();
 			}
-			M_sm.logEvent(reportDef, StatsManager.LOG_ACTION_VIEW, siteId, true);
+			statsManager.logEvent(reportDef, StatsManager.LOG_ACTION_VIEW, siteId, true);
 		}
 
 		return report;
@@ -319,9 +277,9 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			if(params.getWhatEventSelType().equals(ReportManager.WHAT_EVENTS_BYTOOL)){
 				Iterator<ToolInfo> iT = null;
 				if(rpp.siteId != null) {
-					iT = M_ers.getEventRegistry(rpp.siteId, restrictToToolsInSite).iterator();
+					iT = eventRegistryService.getEventRegistry(rpp.siteId, restrictToToolsInSite).iterator();
 				}else{
-					iT = M_ers.getEventRegistry().iterator();
+					iT = eventRegistryService.getEventRegistry().iterator();
 				}
 				while (iT.hasNext()){
 					ToolInfo t = iT.next();
@@ -377,7 +335,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		if(params.getWhen().equals(ReportManager.WHEN_ALL)){
 			if(rpp.siteId != null) {
                 // ADRIAN
-				rpp.iDate = M_sm.getInitialActivityDate(rpp.siteId);
+				rpp.iDate = statsManager.getInitialActivityDate(rpp.siteId);
 			}else{
 				rpp.iDate = null;
 			}
@@ -411,21 +369,21 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		rpp.inverseUserSelection = false;
 		if(params.getWho().equals(ReportManager.WHO_ALL)){
 			try{
-				Site site = M_ss.getSite(rpp.siteId);
+				Site site = siteService.getSite(rpp.siteId);
 				rpp.userIds.addAll(site.getUsers());
 			}catch(IdUnusedException e){
 				log.error("No site with specified siteId.");
 			}
 		}else if(params.getWho().equals(ReportManager.WHO_ROLE) && rpp.siteId != null){
 			try{
-				Site site = M_ss.getSite(rpp.siteId);
+				Site site = siteService.getSite(rpp.siteId);
 				rpp.userIds.addAll(site.getUsersHasRole(params.getWhoRoleId()));
 			}catch(IdUnusedException e){
 				log.error("No site with specified siteId.");
 			}
 		}else if(params.getWho().equals(ReportManager.WHO_GROUPS) && rpp.siteId != null){
 			try{
-				Site site = M_ss.getSite(rpp.siteId);
+				Site site = siteService.getSite(rpp.siteId);
 				rpp.userIds.addAll(site.getGroup(params.getWhoGroupId()).getUsers());
 			}catch(IdUnusedException e){
 				log.error("No site with specified siteId.");
@@ -561,19 +519,19 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	 * @see org.sakaiproject.sitestats.api.report.ReportManager#saveReportDefinition(org.sakaiproject.sitestats.api.report.ReportDef)
 	 */
 	public boolean saveReportDefinition(final ReportDef reportDef) {
-		if(reportDef.getSiteId() == null && !M_sa.isSiteStatsAdminPage()) {
+		if(reportDef.getSiteId() == null && !statsAuthz.isSiteStatsAdminPage()) {
 			return false;
 		}
 		boolean isNew = reportDef.getId() == 0;
 		try{
 			if(reportDef.getCreatedBy() == null) {
-				reportDef.setCreatedBy(M_uds.getCurrentUser().getId());
+				reportDef.setCreatedBy(userDirectoryService.getCurrentUser().getId());
 			}
 			if(reportDef.getCreatedOn() == null) {
 				reportDef.setCreatedOn(new Date());
 			}
 			if(reportDef.getModifiedBy() == null) {
-				reportDef.setModifiedBy(M_uds.getCurrentUser().getId());
+				reportDef.setModifiedBy(userDirectoryService.getCurrentUser().getId());
 			}
 			if(reportDef.getModifiedOn() == null) {
 				reportDef.setModifiedOn(new Date());
@@ -606,17 +564,15 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			log.warn("saveReportDefinition(): unable to generate xml string from report parameters.", e);
 			return false;
 		}
-		HibernateCallback<Void> hcb = session -> {
-            session.saveOrUpdate(reportDef);
-            return null;
-        };
+
 		try {
-			getHibernateTemplate().execute(hcb);
+			getHibernateTemplate().saveOrUpdate(reportDef);
+			cacheReportDef.clear();
 			String siteId = reportDef.getSiteId();
-			if(siteId == null) {
+			if (siteId == null) {
 				siteId = reportDef.getReportParams().getSiteId();
 			}
-			M_sm.logEvent(reportDef, isNew ? StatsManager.LOG_ACTION_NEW : StatsManager.LOG_ACTION_EDIT, siteId, false);
+			statsManager.logEvent(reportDef, isNew ? StatsManager.LOG_ACTION_NEW : StatsManager.LOG_ACTION_EDIT, siteId, false);
 			return true;
 		} catch (DataAccessException dae) {
 			log.error("Could not save report definition: {}", dae.getMessage(), dae);
@@ -628,26 +584,16 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	 * @see org.sakaiproject.sitestats.api.report.ReportManager#removeReportDefinition(org.sakaiproject.sitestats.api.report.ReportDef)
 	 */
 	public boolean removeReportDefinition(final ReportDef reportDef) {
-		HibernateCallback<Boolean> hcb = session -> {
-			ReportDef persistedReportDef = (ReportDef) session.get(ReportDef.class, reportDef.getId());
-			if (persistedReportDef != null) {
-				session.delete(persistedReportDef);
-				return true;
+		ReportDef persistedReportDef = getHibernateTemplate().get(ReportDef.class, reportDef.getId());
+		if (persistedReportDef != null) {
+			getHibernateTemplate().delete(persistedReportDef);
+			cacheReportDef.clear();
+			String siteId = persistedReportDef.getSiteId();
+			if (siteId == null) {
+				siteId = persistedReportDef.getReportParams().getSiteId();
 			}
-            return false;
-        };
-		try {
-			Boolean success = getHibernateTemplate().execute(hcb);
-			if (success) {
-				String siteId = reportDef.getSiteId();
-				if (siteId == null) {
-					siteId = reportDef.getReportParams().getSiteId();
-				}
-				M_sm.logEvent(reportDef, StatsManager.LOG_ACTION_DELETE, siteId, false);
-				return true;
-			}
-		} catch (DataAccessException dae) {
-			log.error("Could not remove report definition: {}", dae.getMessage(), dae);
+			statsManager.logEvent(persistedReportDef, StatsManager.LOG_ACTION_DELETE, siteId, false);
+			return true;
 		}
 		return false;
 	}
@@ -707,43 +653,43 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		// Add the column headers
 		int ix = 0;
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_SITE)){
-            headerRow.createCell(ix++).setCellValue(msgs.getString("th_site"));
+            headerRow.createCell(ix++).setCellValue(resourceLoader.getString("th_site"));
         }
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_USER)) {
-			headerRow.createCell(ix++).setCellValue(msgs.getString("th_id"));
-			headerRow.createCell(ix++).setCellValue(msgs.getString("th_user"));
+			headerRow.createCell(ix++).setCellValue(resourceLoader.getString("th_id"));
+			headerRow.createCell(ix++).setCellValue(resourceLoader.getString("th_user"));
 		}
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_TOOL)) {
-			headerRow.createCell(ix++).setCellValue(msgs.getString("th_tool"));
+			headerRow.createCell(ix++).setCellValue(resourceLoader.getString("th_tool"));
 		}
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_EVENT)) {
-			headerRow.createCell(ix++).setCellValue(msgs.getString("th_event"));
+			headerRow.createCell(ix++).setCellValue(resourceLoader.getString("th_event"));
 		}
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_RESOURCE)) {
-			headerRow.createCell(ix++).setCellValue(msgs.getString("th_resource"));
+			headerRow.createCell(ix++).setCellValue(resourceLoader.getString("th_resource"));
 		}
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_RESOURCE_ACTION)) {
-			headerRow.createCell(ix++).setCellValue(msgs.getString("th_action"));
+			headerRow.createCell(ix++).setCellValue(resourceLoader.getString("th_action"));
 		}
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_DATE)
 			|| isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_DATEMONTH)
 			|| isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_DATEYEAR)) {
-			headerRow.createCell(ix++).setCellValue(msgs.getString("th_date"));
+			headerRow.createCell(ix++).setCellValue(resourceLoader.getString("th_date"));
 		}
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_LASTDATE)) {
-			headerRow.createCell(ix++).setCellValue(msgs.getString("th_lastdate"));
+			headerRow.createCell(ix++).setCellValue(resourceLoader.getString("th_lastdate"));
 		}
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_TOTAL)) {
-			headerRow.createCell(ix++).setCellValue(msgs.getString("th_total"));
+			headerRow.createCell(ix++).setCellValue(resourceLoader.getString("th_total"));
 		}
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_VISITS)) {
-			headerRow.createCell(ix++).setCellValue(msgs.getString("th_visits"));
+			headerRow.createCell(ix++).setCellValue(resourceLoader.getString("th_visits"));
 		}
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_UNIQUEVISITS)) {
-			headerRow.createCell(ix++).setCellValue(msgs.getString("th_uniquevisitors"));
+			headerRow.createCell(ix++).setCellValue(resourceLoader.getString("th_uniquevisitors"));
 		}
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_DURATION)) {
-			headerRow.createCell(ix++).setCellValue(msgs.getString("th_duration") + " (" + msgs.getString("minutes_abbr") + ")");
+			headerRow.createCell(ix++).setCellValue(resourceLoader.getString("th_duration") + " (" + resourceLoader.getString("minutes_abbr") + ")");
 		}
 
 		// Fill the spreadsheet cells
@@ -754,7 +700,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			ix = 0;
 			if (isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_SITE)) {
                 try {
-                    Site site = M_ss.getSite(se.getSiteId());
+                    Site site = siteService.getSite(se.getSiteId());
                     row.createCell(ix++).setCellValue(site.getTitle());
                 } catch (IdUnusedException e) {
                     logger.debug("can't find site with id: " + se.getSiteId());
@@ -768,33 +714,33 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 				if (userId != null) {
 	    			if(("-").equals(userId)) {
 	    				userEid = "-";
-	    				userName = msgs.getString("user_anonymous");
+	    				userName = resourceLoader.getString("user_anonymous");
 	    			}else if(EventTrackingService.UNKNOWN_USER.equals(userId)) {
 	    				userEid = "-";
-	    				userName = msgs.getString("user_anonymous_access");
+	    				userName = resourceLoader.getString("user_anonymous_access");
 	    			}else{
 	    				try{
-	    					User user = M_uds.getUser(userId);
+	    					User user = userDirectoryService.getUser(userId);
 	    					userEid = user.getDisplayId();
-	    					userName = M_sm.getUserNameForDisplay(user);
+	    					userName = statsManager.getUserNameForDisplay(user);
 	    				}catch(UserNotDefinedException e1){
 	    					userEid = userId;
-	    					userName = msgs.getString("user_unknown");
+	    					userName = resourceLoader.getString("user_unknown");
 	    				}
 	    			}
 	    		}else{
-	    			userName = msgs.getString("user_unknown");
+	    			userName = resourceLoader.getString("user_unknown");
 	    		}
 				row.createCell(ix++).setCellValue(userEid);
 				row.createCell(ix++).setCellValue(userName);
 			}
 			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_TOOL)) {
 				EventStat es = (EventStat) se;
-				row.createCell(ix++).setCellValue(M_ers.getToolName(es.getToolId()));
+				row.createCell(ix++).setCellValue(eventRegistryService.getToolName(es.getToolId()));
 			}
 			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_EVENT)) {
 				EventStat es = (EventStat) se;
-				row.createCell(ix++).setCellValue(M_ers.getEventName(es.getEventId()));
+				row.createCell(ix++).setCellValue(eventRegistryService.getEventName(es.getEventId()));
 			}
 			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_RESOURCE)) {
 				ResourceStat rs = (ResourceStat) se;
@@ -806,7 +752,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			}
 			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_DATE)) {
 				java.sql.Date sqlDate = (java.sql.Date) se.getDate();
-				row.createCell(ix++).setCellValue(M_uts.shortLocalizedDate(sqlDate.toLocalDate(), msgs.getLocale()));
+				row.createCell(ix++).setCellValue(userTimeService.shortLocalizedDate(sqlDate.toLocalDate(), resourceLoader.getLocale()));
 			}
 			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_DATEMONTH)) {
 				row.createCell(ix++).setCellValue(dateMonthFrmt.format(se.getDate()));			
@@ -816,7 +762,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			}
 			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_LASTDATE)) {
 				java.sql.Date sqlDate = (java.sql.Date) se.getDate();
-				row.createCell(ix++).setCellValue(M_uts.shortLocalizedDate(sqlDate.toLocalDate(), msgs.getLocale()));
+				row.createCell(ix++).setCellValue(userTimeService.shortLocalizedDate(sqlDate.toLocalDate(), resourceLoader.getLocale()));
 			}
             if(report.getReportDefinition().getReportParams().getSiteId() != null && !"".equals(report.getReportDefinition().getReportParams().getSiteId())) {
             }
@@ -866,44 +812,44 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 
 		// Add the headers
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_SITE)){
-            appendQuoted(sb, msgs.getString("th_site"));
+            appendQuoted(sb, resourceLoader.getString("th_site"));
             isFirst = false;
         }
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_USER)) {
 			 if(!isFirst) {
 				sb.append(",");
 			}
-			appendQuoted(sb, msgs.getString("th_id"));
+			appendQuoted(sb, resourceLoader.getString("th_id"));
 			sb.append(",");
-			appendQuoted(sb, msgs.getString("th_user"));
+			appendQuoted(sb, resourceLoader.getString("th_user"));
 			isFirst = false;
 		}
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_TOOL)) {
 			if(!isFirst) {
 				sb.append(",");
 			}
-			appendQuoted(sb, msgs.getString("th_tool"));
+			appendQuoted(sb, resourceLoader.getString("th_tool"));
 			isFirst = false;
 		}
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_EVENT)) {
 			if(!isFirst) {
 				sb.append(",");
 			}
-			appendQuoted(sb, msgs.getString("th_event"));
+			appendQuoted(sb, resourceLoader.getString("th_event"));
 			isFirst = false;
 		}
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_RESOURCE)) {
 			if(!isFirst) {
 				sb.append(",");
 			}
-			appendQuoted(sb, msgs.getString("th_resource"));
+			appendQuoted(sb, resourceLoader.getString("th_resource"));
 			isFirst = false;
 		}
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_RESOURCE_ACTION)) {
 			if(!isFirst) {
 				sb.append(",");
 			}
-			appendQuoted(sb, msgs.getString("th_action"));
+			appendQuoted(sb, resourceLoader.getString("th_action"));
 			isFirst = false;
 		}
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_DATE)
@@ -912,42 +858,42 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			if(!isFirst) {
 				sb.append(",");
 			}
-			appendQuoted(sb, msgs.getString("th_date"));
+			appendQuoted(sb, resourceLoader.getString("th_date"));
 			isFirst = false;
 		}
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_LASTDATE)) {
 			if(!isFirst) {
 				sb.append(",");
 			}
-			appendQuoted(sb, msgs.getString("th_lastdate"));
+			appendQuoted(sb, resourceLoader.getString("th_lastdate"));
 			isFirst = false;
 		}
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_TOTAL)) {
 			if(!isFirst) {
 				sb.append(",");
 			}
-			appendQuoted(sb, msgs.getString("th_total"));
+			appendQuoted(sb, resourceLoader.getString("th_total"));
 			isFirst = false;
 		}
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_VISITS)) {
 			if(!isFirst) {
 				sb.append(",");
 			}
-			appendQuoted(sb, msgs.getString("th_visits"));
+			appendQuoted(sb, resourceLoader.getString("th_visits"));
 			isFirst = false;
 		}
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_UNIQUEVISITS)) {
 			if(!isFirst) {
 				sb.append(",");
 			}
-			appendQuoted(sb, msgs.getString("th_uniquevisitors"));
+			appendQuoted(sb, resourceLoader.getString("th_uniquevisitors"));
 			isFirst = false;
 		}
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_DURATION)) {
 			if(!isFirst) {
 				sb.append(",");
 			}
-			appendQuoted(sb, msgs.getString("th_duration") + " (" + msgs.getString("minutes_abbr") + ")");
+			appendQuoted(sb, resourceLoader.getString("th_duration") + " (" + resourceLoader.getString("minutes_abbr") + ")");
 			isFirst = false;
 		}
 		sb.append("\n");
@@ -960,7 +906,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			//site
 			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_SITE)){
                 try {
-                    Site site = M_ss.getSite(se.getSiteId());
+                    Site site = siteService.getSite(se.getSiteId());
                     appendQuoted(sb, site.getTitle());
                 } catch (IdUnusedException e) {
                     logger.debug("can't find site with id: " +se.getSiteId());
@@ -979,23 +925,23 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 				if (userId != null) {
 	    			if(("-").equals(userId)) {
 	    				userEid = "-";
-	    				userName = msgs.getString("user_anonymous");
+	    				userName = resourceLoader.getString("user_anonymous");
 	    			}else if(EventTrackingService.UNKNOWN_USER.equals(userId)) {
 	    				userEid = "-";
-	    				userName = msgs.getString("user_anonymous_access");
+	    				userName = resourceLoader.getString("user_anonymous_access");
 	    			}else{
 	    				try{
-	    					User user = M_uds.getUser(userId);
+	    					User user = userDirectoryService.getUser(userId);
 	    					userEid = user.getDisplayId();
-	    					userName = M_sm.getUserNameForDisplay(user);
+	    					userName = statsManager.getUserNameForDisplay(user);
 	    				}catch(UserNotDefinedException e1){
 	    					userEid = userId;
-	    					userName = msgs.getString("user_unknown");
+	    					userName = resourceLoader.getString("user_unknown");
 	    				}
 	    			}
 	    		}else{
     				userEid = "-";
-	    			userName = msgs.getString("user_unknown");
+	    			userName = resourceLoader.getString("user_unknown");
 	    		}
 				appendQuoted(sb, userEid);
 				sb.append(",");
@@ -1008,7 +954,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 					sb.append(",");
 				}
 				EventStat es = (EventStat) se;
-				appendQuoted(sb, M_ers.getToolName(es.getToolId()));
+				appendQuoted(sb, eventRegistryService.getToolName(es.getToolId()));
 				isFirst = false;
 			}
 			// event
@@ -1017,7 +963,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 					sb.append(",");
 				}
 				EventStat es = (EventStat) se;
-				appendQuoted(sb, M_ers.getEventName(es.getEventId()));
+				appendQuoted(sb, eventRegistryService.getEventName(es.getEventId()));
 				isFirst = false;
 			}
 			// resource
@@ -1044,7 +990,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 					sb.append(",");
 				}
 				java.sql.Date sqlDate = (java.sql.Date) se.getDate();
-				appendQuoted(sb, M_uts.shortLocalizedDate(sqlDate.toLocalDate(), msgs.getLocale()));
+				appendQuoted(sb, userTimeService.shortLocalizedDate(sqlDate.toLocalDate(), resourceLoader.getLocale()));
 				isFirst = false;
 			}
 			// date (year-month)
@@ -1069,7 +1015,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 					sb.append(",");
 				}
 				java.sql.Date sqlDate = (java.sql.Date) se.getDate();
-				appendQuoted(sb, M_uts.shortLocalizedDate(sqlDate.toLocalDate(), msgs.getLocale()));
+				appendQuoted(sb, userTimeService.shortLocalizedDate(sqlDate.toLocalDate(), resourceLoader.getLocale()));
 				isFirst = false;
 			}
 			// total
@@ -1206,7 +1152,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	}
 
 	private boolean isAnonymousEvent(String eventId) {
-		for(ToolInfo ti : M_ers.getEventRegistry()){
+		for(ToolInfo ti : eventRegistryService.getEventRegistry()){
 			for(EventInfo ei : ti.getEvents()){
 				if(ei.getEventId().equals(eventId)){
 					return ei.isAnonymous();
@@ -1234,13 +1180,13 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 				userEid = "-";
 			}else{
 				try{
-					userEid = M_uds.getUser(userId).getDisplayId();
+					userEid = userDirectoryService.getUser(userId).getDisplayId();
 				}catch(UserNotDefinedException e1){
 					userEid = userId;
 				}
 			}
 		}else{
-			userEid = msgs.getString("user_unknown");
+			userEid = resourceLoader.getString("user_unknown");
 		}
 		return userEid;
 	}
@@ -1249,22 +1195,22 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		String userName = null;
 		if (userId != null) {
 			if(("-").equals(userId)) {
-				userName = msgs.getString("user_anonymous");
+				userName = resourceLoader.getString("user_anonymous");
 			}else if(EventTrackingService.UNKNOWN_USER.equals(userId)) {
-				userName = msgs.getString("user_anonymous_access");
+				userName = resourceLoader.getString("user_anonymous_access");
 			}else{
-				userName = M_sm.getUserNameForDisplay(userId);
+				userName = statsManager.getUserNameForDisplay(userId);
 			}
 		}else{
-			userName = msgs.getString("user_unknown");
+			userName = resourceLoader.getString("user_unknown");
 		}
 		return userName;
 	}
 	
 	public String getSiteGroupTitle(String groupId) {
 		try{
-			Placement placement = M_tm.getCurrentPlacement();
-			Site site = M_ss.getSite(placement.getContext());
+			Placement placement = toolManager.getCurrentPlacement();
+			Site site = siteService.getSite(placement.getContext());
 			return site.getGroup(groupId).getTitle();
 		}catch(IdUnusedException e){
 			log.warn("ReportManager: unable to get group title with id: " + groupId);
@@ -1299,9 +1245,9 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		public String getReportSite(Report report) {
 			String site = report.getReportDefinition().getReportParams().getSiteId();
 			if(site != null) {
-				return M_ss.getSiteDisplay(site);
+				return siteService.getSiteDisplay(site);
 			}else{
-				return msgs.getString("report_reportsite_all");
+				return resourceLoader.getString("report_reportsite_all");
 			}
 		}
 		
@@ -1312,7 +1258,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			String title = report.getReportDefinition().getTitle(); 
 			if(title != null && title.length() != 0) {
 				if(isStringLocalized(title)) {
-					return msgs.getString(report.getReportDefinition().getTitleBundleKey());
+					return resourceLoader.getString(report.getReportDefinition().getTitleBundleKey());
 				}else{
 					return title;
 				}
@@ -1328,7 +1274,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			String description = report.getReportDefinition().getDescription(); 
 			if(description != null && description.length() != 0) {
 				if(isStringLocalized(description)) {
-					return msgs.getString(report.getReportDefinition().getDescriptionBundleKey());
+					return resourceLoader.getString(report.getReportDefinition().getDescriptionBundleKey());
 				}else{
 					return description;
 				}
@@ -1356,7 +1302,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 				report.setReportGenerationDate(new Date());
 			}
 			Instant time = report.getReportGenerationDate().toInstant();
-			return M_uts.shortLocalizedTimestamp(time, msgs.getLocale());
+			return userTimeService.shortLocalizedTimestamp(time, resourceLoader.getLocale());
 		}
 
 		/* (non-Javadoc)
@@ -1365,30 +1311,30 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		public String getReportActivityBasedOn(Report report) {
 			if(report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_VISITS)
 				|| report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_VISITS_TOTALS))
-				return msgs.getString("report_what_visits");
+				return resourceLoader.getString("report_what_visits");
 			else if(report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_PRESENCES))
-				return msgs.getString("report_what_presences");
+				return resourceLoader.getString("report_what_presences");
 			else if(report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_EVENTS)
 				|| report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_ACTIVITY_TOTALS)){
 				StringBuilder buff = new StringBuilder();
-				buff.append(msgs.getString("report_what_events"));
+				buff.append(resourceLoader.getString("report_what_events"));
 				String eventSelType = report.getReportDefinition().getReportParams().getWhatEventSelType();
 				if(eventSelType != null) {
 					if(eventSelType.equals(ReportManager.WHAT_EVENTS_BYTOOL)){
 						buff.append(" (");
-						buff.append(msgs.getString("report_what_events_bytool"));
+						buff.append(resourceLoader.getString("report_what_events_bytool"));
 						buff.append(")");
 					}else{
 						buff.append(" (");
-						buff.append(msgs.getString("report_what_events_byevent"));
+						buff.append(resourceLoader.getString("report_what_events_byevent"));
 						buff.append(")");
 					}
 				}
 				return buff.toString();
 			}else if(report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_RESOURCES)) { 
-				return msgs.getString("report_what_resources");
+				return resourceLoader.getString("report_what_resources");
 			}else{
-				return msgs.getString("report_what_events");
+				return resourceLoader.getString("report_what_events");
 			}			
 		}
 		
@@ -1397,16 +1343,16 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		 */
 		public String getReportActivitySelectionTitle(Report report) {
 			if(report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_VISITS))
-				return msgs.getString("report_what_visits");
+				return resourceLoader.getString("report_what_visits");
 			else if(report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_PRESENCES))
-				return msgs.getString("report_what_presences");
+				return resourceLoader.getString("report_what_presences");
 			else if(report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_EVENTS)){
 				if(report.getReportDefinition().getReportParams().getWhatEventSelType().equals(ReportManager.WHAT_EVENTS_BYTOOL))
-					return msgs.getString("reportres_summ_act_tools_selected");
+					return resourceLoader.getString("reportres_summ_act_tools_selected");
 				else 
-					return msgs.getString("reportres_summ_act_events_selected");
+					return resourceLoader.getString("reportres_summ_act_events_selected");
 			}else
-				return msgs.getString("reportres_summ_act_rsrc_selected");
+				return resourceLoader.getString("reportres_summ_act_rsrc_selected");
 		}
 		
 		/* (non-Javadoc)
@@ -1426,11 +1372,11 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 					if(listSize > 0) {
 						for(int i=0; i<listSize - 1; i++){
 							String toolId = list.get(i);
-							buff.append(M_ers.getToolName(toolId));
+							buff.append(eventRegistryService.getToolName(toolId));
 							buff.append(", ");
 						}
 						String toolId = list.get(listSize - 1);
-						buff.append(M_ers.getToolName(toolId));
+						buff.append(eventRegistryService.getToolName(toolId));
 					}
 					return buff.toString();
 				}else{
@@ -1441,11 +1387,11 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 					if(listSize > 0) {
 						for(int i=0; i<listSize - 1; i++){
 							String eventId = list.get(i);
-							buff.append(M_ers.getEventName(eventId));
+							buff.append(eventRegistryService.getEventName(eventId));
 							buff.append(", ");
 						}
 						String eventId = list.get(listSize - 1);
-						buff.append(M_ers.getEventName(eventId));
+						buff.append(eventRegistryService.getEventName(eventId));
 					}
 					return buff.toString();
 				}
@@ -1456,41 +1402,41 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 						|| report.getReportDefinition().getReportParams().getWhatResourceIds().size() == 0 )
 					return null;
 				if(list.contains("all"))
-					return msgs.getString("report_what_all");
+					return resourceLoader.getString("report_what_all");
 				StringBuilder buff = new StringBuilder();
 				String siteId = report.getReportDefinition().getReportParams().getSiteId();
-				String resourcesCollectionId = M_chs.getSiteCollection(siteId);
-				String dropboxCollectionId = M_chs.getDropboxCollection(siteId);
+				String resourcesCollectionId = contentHostingService.getSiteCollection(siteId);
+				String dropboxCollectionId = contentHostingService.getDropboxCollection(siteId);
 				String attachmentsCollectionId = resourcesCollectionId.replaceFirst(StatsManager.RESOURCES_DIR, StatsManager.ATTACHMENTS_DIR);
 				for(int i=0; i<list.size(); i++){
 					String resourceId = list.get(i);
 					try{
 						if(resourceId.endsWith("/")) {
 							if(StatsManager.RESOURCES_DIR.equals(resourceId) || resourceId.equals(resourcesCollectionId)) {
-								buff.append(M_tm.getTool(StatsManager.RESOURCES_TOOLID).getTitle());
+								buff.append(toolManager.getTool(StatsManager.RESOURCES_TOOLID).getTitle());
 							}else if(StatsManager.DROPBOX_DIR.equals(resourceId) || resourceId.equals(dropboxCollectionId)) {
-								buff.append(M_tm.getTool(StatsManager.DROPBOX_TOOLID).getTitle());
+								buff.append(toolManager.getTool(StatsManager.DROPBOX_TOOLID).getTitle());
 							}else if(resourceId.startsWith(dropboxCollectionId)) {
-								buff.append(M_tm.getTool(StatsManager.DROPBOX_TOOLID).getTitle());
+								buff.append(toolManager.getTool(StatsManager.DROPBOX_TOOLID).getTitle());
 								buff.append(": ");
-								ContentCollection cc = M_chs.getCollection(resourceId);
+								ContentCollection cc = contentHostingService.getCollection(resourceId);
 								String ccName = cc.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);	
 								buff.append(ccName);
 							}else if(StatsManager.ATTACHMENTS_DIR.equals(resourceId) || resourceId.equals(attachmentsCollectionId)) {
-								buff.append(msgs.getString("report_content_attachments"));
+								buff.append(resourceLoader.getString("report_content_attachments"));
 							}else if(resourceId.startsWith(attachmentsCollectionId)) {
-								buff.append(msgs.getString("report_content_attachments"));
+								buff.append(resourceLoader.getString("report_content_attachments"));
 								buff.append(": ");
-								ContentCollection cc = M_chs.getCollection(resourceId);
+								ContentCollection cc = contentHostingService.getCollection(resourceId);
 								String ccName = cc.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);	
 								buff.append(ccName);
 							}else{
-								ContentCollection cc = M_chs.getCollection(resourceId);
+								ContentCollection cc = contentHostingService.getCollection(resourceId);
 								String ccName = cc.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);	
 								buff.append(ccName);
 							}
 						}else{
-							ContentResource cr = M_chs.getResource(resourceId);
+							ContentResource cr = contentHostingService.getResource(resourceId);
 							String crName = cr.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);	
 							buff.append(crName);
 						}
@@ -1517,7 +1463,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		public String getReportResourceActionTitle(Report report) {
 			if(report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_RESOURCES)
 					&& report.getReportDefinition().getReportParams().getWhatResourceAction() != null)
-					return msgs.getString("reportres_summ_act_rsrc_action");
+					return resourceLoader.getString("reportres_summ_act_rsrc_action");
 			return null;
 		}
 		
@@ -1527,7 +1473,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		public String getReportResourceAction(Report report) {
 			if(report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_RESOURCES)
 					&& report.getReportDefinition().getReportParams().getWhatResourceAction() != null){
-				return msgs.getString("action_" + report.getReportDefinition().getReportParams().getWhatResourceAction());
+				return resourceLoader.getString("action_" + report.getReportDefinition().getReportParams().getWhatResourceAction());
 			}else
 				return null;
 		}
@@ -1537,15 +1483,15 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		 */
 		public String getReportTimePeriod(Report report) {
 			if(report.getReportDefinition().getReportParams().getWhen().equals(ReportManager.WHEN_ALL)){
-				return msgs.getString("report_when_all");
+				return resourceLoader.getString("report_when_all");
 			}else{
 				ReportParams rp = report.getReportDefinition().getReportParams();
 				ZonedDateTime from = ZonedDateTime.ofInstant(rp.getWhenFrom().toInstant(), ZoneId.systemDefault());
 				ZonedDateTime to = ZonedDateTime.ofInstant(rp.getWhenTo().toInstant(), ZoneId.systemDefault());
-				String timeZoneMsg = msgs.getFormattedMessage("report_server_time_zone", M_sm.getLocalSakaiName());
+				String timeZoneMsg = resourceLoader.getFormattedMessage("report_server_time_zone", statsManager.getLocalSakaiName());
 
-				return M_uts.shortLocalizedDate(from.toLocalDate(), msgs.getLocale())
-						+ " - " + M_uts.shortLocalizedDate(to.toLocalDate(), msgs.getLocale()) + " " + timeZoneMsg;
+				return userTimeService.shortLocalizedDate(from.toLocalDate(), resourceLoader.getLocale())
+						+ " - " + userTimeService.shortLocalizedDate(to.toLocalDate(), resourceLoader.getLocale()) + " " + timeZoneMsg;
 			}
 		}
 		
@@ -1554,15 +1500,15 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		 */
 		public String getReportUserSelectionType(Report report) {
 			if(report.getReportDefinition().getReportParams().getWho().equals(ReportManager.WHO_ALL))
-				return msgs.getString("report_who_all");
+				return resourceLoader.getString("report_who_all");
 			else if(report.getReportDefinition().getReportParams().getWho().equals(ReportManager.WHO_GROUPS))
-				return msgs.getString("report_who_group");
+				return resourceLoader.getString("report_who_group");
 			else if(report.getReportDefinition().getReportParams().getWho().equals(ReportManager.WHO_ROLE))
-				return msgs.getString("report_who_role");
+				return resourceLoader.getString("report_who_role");
 			else if(report.getReportDefinition().getReportParams().getWho().equals(ReportManager.WHO_CUSTOM))
-				return msgs.getString("report_who_custom");
+				return resourceLoader.getString("report_who_custom");
 			else 
-				return msgs.getString("report_who_not_match");
+				return resourceLoader.getString("report_who_not_match");
 		}
 		
 		/* (non-Javadoc)
@@ -1572,11 +1518,11 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			if(report.getReportDefinition().getReportParams().getWho().equals(ReportManager.WHO_ALL))
 				return null;
 			else if(report.getReportDefinition().getReportParams().getWho().equals(ReportManager.WHO_GROUPS))
-				return msgs.getString("reportres_summ_usr_group_selected");
+				return resourceLoader.getString("reportres_summ_usr_group_selected");
 			else if(report.getReportDefinition().getReportParams().getWho().equals(ReportManager.WHO_ROLE))
-				return msgs.getString("reportres_summ_usr_role_selected");
+				return resourceLoader.getString("reportres_summ_usr_role_selected");
 			else if(report.getReportDefinition().getReportParams().getWho().equals(ReportManager.WHO_CUSTOM))
-				return msgs.getString("reportres_summ_usr_users_selected");
+				return resourceLoader.getString("reportres_summ_usr_users_selected");
 			else 
 				return null;		
 		}

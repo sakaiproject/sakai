@@ -281,6 +281,7 @@ public class AccessServlet extends VmServlet
 			}
 
 			setVmReference("validator", new Validator(), req);
+			setVmReference("formattedText", formattedText, req);
 			setVmReference("props", props, req);
 			setVmReference("tlang", rb, req);
 
@@ -438,6 +439,7 @@ public class AccessServlet extends VmServlet
 		ResourceProperties props = new BaseResourceProperties();
 		setVmReference("props", props, req);
 		setVmReference("validator", new Validator(), req);
+		setVmReference("formattedText", formattedText, req);
 		setVmReference("sample", Boolean.TRUE.toString(), req);
 		setVmReference("tlang", rb, req);
 		res.setContentType("text/html; charset=UTF-8");

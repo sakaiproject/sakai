@@ -62,7 +62,7 @@ with the following values (watch for extra spaces while pasting and slashes matt
     Check: Allow tool title to be changed
     Use "LTI Content Item / Deep Link Endpoint" from Tsugi as Launch URL in Sakai
     Check: Allow launch URL to be changed
-    Set the key to something other than 12345
+    Set the key to something *other than* 12345 - like 8675309
     Set the secret to be 'secret'
     Check: Send Names, Send Email, All services
     Un-Check: Allow the tool to be launched as a link
@@ -72,6 +72,7 @@ with the following values (watch for extra spaces while pasting and slashes matt
     Check: Supports LTI 1.3
     Paste in the LTI 1.3 OpenID Connect Endpoint from Tsugi
     Paste in the LTI 1.3 Tool Redirect Endpoint from Tsugi
+    Paste in the LTI 1.3 Tool Keyset URL (use the one without the issues parameter)
     Launch type - Inherit
 
 Press `Save` to create the Sakai end of the Tool security contract.  Then in Sakai
@@ -91,8 +92,8 @@ and copy values from the Sakai tool view back into Tsugi:
     LTI 1.3 Platform OAuth2 Bearer Token Retrieval URL
     Leave LTI 1.3 Platform OAuth2 Bearer Token Audience Value blank
     LTI 1.3 Platform OIDC Authentication URL
-    Copy the Tool Public Key from Sakai to Tsugi
-    Copy the Tool Private Key from Sakai to Tsugi
+    Leave the Tool Public Key blank - this is legacy now
+    Leave the Tool Private Key blank - this is legacy now
 
 Add the Tool in Tsugi.
 (<a href="IMG_TSUGI/03-Tsugi-Issuer-Added.png" target="_blank">Image</a>)
@@ -100,7 +101,7 @@ Add the Tool in Tsugi.
 Then we need to add a Tenant in Tsugi.  In the `Manage Keys` area of Tsugi
 admin, select `Tenant Keys` and `Insert New Key`.  Fill in the data:
 
-    LTI 1.1: OAuth Consumer Key (should not be 12345)
+    LTI 1.1: OAuth Consumer Key (i.e. not 12345 - like 8675309)
     LTI 1.1: OAuth Consumer Secret  (should be 'secret')
     LTI 1.3: Deployment ID - set to 1
     Pick your issuer from the drop down.
@@ -146,5 +147,6 @@ LTI 1.1 data.  When you continue, it should launch again into LMSTest.
 
 Look under "Home" / "Tsugi User Object" and the User's id should be the same as in the LTI Advantage launch.
 
-If you go into "Names and Roles" / "Debug Log" it should complain about missing bits.
+If you go into "Names and Roles" / "Debug Log" it should complain about missing bits because that is LTI
+Advantage only.
 

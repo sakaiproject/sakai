@@ -1131,6 +1131,11 @@
 
         <!-- Frame & related tags -->
         <tag name="iframe" action="validate">
+            <attribute name="allow">
+                <regexp-list>
+                    <regexp name="anything"/>
+                </regexp-list>
+            </attribute>
             <attribute name="height"/>
             <attribute name="width"/>
             <attribute name="frameborder">
@@ -1358,6 +1363,16 @@
             <attribute name="controls">
                 <literal-list>
                     <literal value="controls"/>
+                </literal-list>
+                <regexp-list>
+                    <regexp name="boolean"/>
+                </regexp-list>
+            </attribute>
+            <attribute name="controlslist">
+                <literal-list>
+                    <literal value="nodownload"/>
+                    <literal value="nofullscreen"/>
+                    <literal value="noremoteplayback"/>
                 </literal-list>
                 <regexp-list>
                     <regexp name="boolean"/>

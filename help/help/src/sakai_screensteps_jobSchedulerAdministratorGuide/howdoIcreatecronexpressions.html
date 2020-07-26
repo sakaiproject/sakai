@@ -1,41 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>How do I enable student peer review for an assignment?</title>
+<title>How do I create cron expressions?</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta content="sakai.assignment" name="description">
-<meta content="peer review, peer assessment, peer evaluation" name="search">
+<meta content="" name="description">
 <link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="/library/js/jquery/featherlight/0.4.0/featherlight.min.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="/library/js/jquery/featherlight/0.4.0/featherlight.min.js" type="text/javascript" charset="utf-8"></script><script type="text/javascript" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    includeWebjarLibrary('featherlight');
     $(document).ready(function(){
-      $("a[rel^='featherlight']").featherlight({
+      $("a.screensteps-image-zoom").featherlight({
         type: { image:true },
-    closeOnClick: 'anywhere'
+        closeOnClick: 'anywhere'
       }); 
     });   
-  </script>
+</script>
 </head>
 <body>
-  <div id="wrapper"><div id="article-content">
-<div id="article-header"><h1 class="article-title">How do I create cron expressions?</h1></div>
-<div id="article-description">  <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
-  <p>For more information about cron expressions, go to: <a rel="nofollow" href="http://www.quartz-scheduler.org/documentation/quartz-2.1.x/tutorials/crontrigger.html" target="_blank">http://www.quartz-scheduler.org/documentation/quartz-2.1.x/tutorials/crontrigger.html</a></p>
+  <div><div>
+<div><h1 class="article-title">How do I create cron expressions?</h1></div>
+<div>    <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+  <p>For more information about cron expressions, go to: <a href="https://www.quartz-scheduler.net/documentation/quartz-3.x/tutorial/crontrigger.html">https://www.quartz-scheduler.net/documentation/quartz-3.x/tutorial/crontrigger.html</a> </p>
 </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="introduction">
-    <h2 id="introduction" class="step-title screensteps-heading">Introduction</h2>
+
+      <div class="step screensteps-section screensteps-depth-1" id="introduction">
+    <h2 class="step-title screensteps-heading">Introduction</h2>
       <div class="step-instructions screensteps-textblock">
   <p>cron is a UNIX tool that has been around for a long time, so its scheduling capabilities are powerful and proven. The CronTrigger class is based on the scheduling capabilities of cron.</p>
 <p>CronTrigger uses “cron expressions”, which are able to create firing schedules such as: “At 8:00am every Monday through Friday” or “At 1:30am every last Friday of the month”.</p>
 </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="format">
-    <h2 id="format" class="step-title screensteps-heading">Format</h2>
+
+      <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Format</h2>
       <div class="step-instructions screensteps-textblock">
   <p>A cron expression is a string comprised of 6 or 7 fields separated by white space. Fields can contain any of the allowed values, along with various combinations of the allowed special characters for that field. The fields are as follows:</p>
 <p><strong>Field Name	Mandatory	Allowed Values	Allowed Special Characters</strong></p>
@@ -51,9 +52,9 @@
 </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="special-characters">
-    <h2 id="special-characters" class="step-title screensteps-heading">Special characters</h2>
+
+      <div class="step screensteps-section screensteps-depth-1" id="special-characters">
+    <h2 class="step-title screensteps-heading">Special characters</h2>
       <div class="step-instructions screensteps-textblock">
   <p>* (“all values”) - used to select all values within a field. For example, “*” in the minute field means “every minute”.</p>
 <p>? (“no specific value”) - useful when you need to specify something in one of the two fields in which the character is allowed, but not the other. For example, if I want my trigger to fire on a particular day of the month (say, the 10th), but don’t care what day of the week that happens to be, I would put “10” in the day-of-month field, and “?” in the day-of-week field. See the examples below for clarification.</p>
@@ -68,9 +69,9 @@
 </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="examples">
-    <h2 id="examples" class="step-title screensteps-heading">Examples</h2>
+
+      <div class="step screensteps-section screensteps-depth-1" id="examples">
+    <h2 class="step-title screensteps-heading">Examples</h2>
       <div class="step-instructions screensteps-textblock">
   <p>Here are some full examples:</p>
 <p>**Expression**	**Meaning**</p>
@@ -90,7 +91,8 @@
 </div>
  
   </div>
- 
+
+
 </div>
 </div></div>
 </body>

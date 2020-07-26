@@ -710,12 +710,17 @@
 								
 			if(root && root.childNodes)
 			{
-				for(var i = 0; i < root.childNodes.length; i++)
-				{
-					var newChild = copyTree(root.childNodes[i], index);
-					if(newChild)
+				var className = root.className;
+				if(className == null || className.includes('multiselect-native-select') || !root.className.includes('multiselect')) {
+					for(var i = 0; i < root.childNodes.length; i++)
 					{
-						newElement.appendChild(newChild);
+						if(className != 'multiselect-native-select' || root.childNodes[i].type == 'select-multiple') {
+							var newChild = copyTree(root.childNodes[i], index);
+							if(newChild)
+							{
+								newElement.appendChild(newChild);
+							}
+						}
 					}
 				}
 			}
@@ -783,6 +788,10 @@
 			if( root.id.match( /^selectCondition${DOT}\d+$/ ) )
 			{
 				newElement.onchange = handleSelectConditionChange;
+			}
+			if( root.id.match( /^groupTable${DOT}\d+$/ ) )
+			{
+				newElement.style.display = "none";
 			}
 			
 		}

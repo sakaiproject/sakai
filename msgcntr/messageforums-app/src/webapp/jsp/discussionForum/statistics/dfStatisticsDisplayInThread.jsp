@@ -20,16 +20,15 @@
 					msgBody = msgBody.replace(/\n/g,',').replace(/\s/g,' ').replace(/  ,/g,',');
 	  				fckeditor_word_count_fromMessage(msgBody,'wordCountSpan');
 				});
+				var menuLink = $('#forumsStatisticsMenuLink');
+				var menuLinkSpan = menuLink.closest('span');
+				menuLinkSpan.addClass('current');
+				menuLinkSpan.html(menuLink.text());
 			});
 		</script>
 		<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/msgcntr_statistics.css" />
-  	
-  		<sakai:tool_bar>
-			<h:outputLink id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyDisplayInThread}');" title="#{msgs.cdfm_print}">
-				<h:graphicImage url="/../../library/image/silk/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
-			</h:outputLink>
-  		</sakai:tool_bar>
-  	
+		<%@ include file="/jsp/discussionForum/menu/forumsMenu.jsp" %>
+
         <f:verbatim><div class="breadCrumb"><h3></f:verbatim>
 		<h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"
 			      	rendered="#{ForumTool.messagesandForums}" />
@@ -65,7 +64,13 @@
 		<h:outputText value=" / "/>
 		<h:outputText value="#{ForumTool.selectedTopic.topic.title}" />
 		<f:verbatim></h3></div></f:verbatim>
-          	  
+
+		<h:panelGroup id="forumsAction">
+			<h:outputLink styleClass="button" id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyDisplayInThread}');" title="#{msgs.cdfm_print}">
+				<h:graphicImage url="/../../library/image/silk/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
+			</h:outputLink>
+		</h:panelGroup>
+
   		<mf:hierDataTable id="allMessagesForOneTopic" value="#{ForumTool.messages}" var="msgDecorateBean" noarrows="true" styleClass="table table-hover table-striped table-bordered messagesThreaded" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">	
    			<h:column id="_msg_subject" >
    			<h:panelGroup layout="block" rendered="#{ForumTool.selectedMsgId!=msgDecorateBean.message.id}" styleClass="hierItemBlock">

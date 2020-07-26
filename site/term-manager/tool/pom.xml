@@ -31,22 +31,17 @@
          <artifactId>wicket-core</artifactId>
       </dependency>
       <dependency>
-         <groupId>org.apache.wicket</groupId>
-         <artifactId>wicket-datetime</artifactId>
-      </dependency>
-      <dependency>
             <groupId>org.apache.wicket</groupId>
             <artifactId>wicket-extensions</artifactId>
       </dependency>
-            
       <dependency>
          <groupId>org.apache.wicket</groupId>
          <artifactId>wicket-spring</artifactId>
        </dependency>
     
       <!-- Sakai dependencies -->
-          <dependency>
-              <groupId>org.sakaiproject.kernel</groupId>
+      <dependency>
+         <groupId>org.sakaiproject.kernel</groupId>
          <artifactId>sakai-kernel-api</artifactId>
       </dependency>
       <dependency>
@@ -56,6 +51,10 @@
       <dependency>
          <groupId>org.sakaiproject.kernel</groupId>
          <artifactId>sakai-kernel-util</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.sakaiproject.wicket</groupId>
+         <artifactId>wicket-tool-8</artifactId>
       </dependency>
 
    </dependencies>

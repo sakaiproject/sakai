@@ -50,8 +50,7 @@ import org.apache.pluto.spi.PortalCallbackService;
 import org.apache.pluto.spi.PortletURLProvider;
 import org.w3c.tidy.Tidy;
 
-import org.sakaiproject.util.Web;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.util.BufferedServletResponse;
@@ -67,6 +66,7 @@ import org.sakaiproject.portal.render.portlet.services.state.PortletStateAccess;
 import org.sakaiproject.portal.render.portlet.services.state.PortletStateEncoder;
 import org.sakaiproject.portal.render.portlet.servlet.SakaiServletActionRequest;
 import org.sakaiproject.portal.render.portlet.servlet.SakaiServletRequest;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Placement;
@@ -310,7 +310,7 @@ public class PortletToolRenderService implements ToolRenderService
 				final PrintWriter printWriter = new PrintWriter(result);
 				log.error(bufferedException.getMessage(), bufferedException);
 				String storedContent = "<div class=\"portlettraceback\">\n" +
-					FormattedText.escapeHtml(result.toString(),true) +
+					ComponentManager.get(FormattedText.class).escapeHtml(result.toString(),true) +
 					"\n</pre>\n";
 				return storedContent;
 			}
@@ -360,7 +360,7 @@ public class PortletToolRenderService implements ToolRenderService
 				try 
 				{ 
 					renderResponse();
-					return Web.escapeHtml(PortletStateAccess.getPortletState(req, window.getId().getStringId())
+					return ComponentManager.get(FormattedText.class).escapeHtml(PortletStateAccess.getPortletState(req, window.getId().getStringId())
 						.getTitle());
 				}
 				catch(Exception e)

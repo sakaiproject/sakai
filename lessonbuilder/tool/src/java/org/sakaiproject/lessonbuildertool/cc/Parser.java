@@ -63,10 +63,10 @@ import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.jdom.Element;
-import org.jdom.Attribute;
-import org.jdom.JDOMException;
-import org.jdom.xpath.XPath;
+import org.jdom2.Element;
+import org.jdom2.Attribute;
+import org.jdom2.JDOMException;
+import org.jdom2.xpath.XPath;
 
 /**
  * 
@@ -207,13 +207,15 @@ public class Parser extends AbstractParser {
   preProcessResources(Element the_manifest,
 		  DefaultHandler the_handler) {
 	  XPath path;
-	  List<Attribute> results;
+	  List<?> results;
 	  try {
 		  path = XPath.newInstance(FILE_QUERY);
 		  path.addNamespace(ns.getNs());
 		  results = path.selectNodes(the_manifest);
-		  for (Attribute result : results) {
-			  the_handler.preProcessFile(result.getValue()); 
+		  for (Object result : results) {
+		      if (result instanceof Attribute) {
+                  the_handler.preProcessFile(((Attribute) result).getValue());
+              }
 		  }
 	  } catch (JDOMException | ClassCastException e) {
 		  log.info("Error processing xpath for files", e);

@@ -1889,5 +1889,19 @@ $.datepicker._gotoToday = function (id) {
 // wrapper function for sakaidatepicker plugin. keeps the $ off the page
 var localDatePicker = function(opts) {
 	return $(opts.input).sakaiDateTimePicker(opts);
-}
+};
+
+var SDP = SDP || {};
+SDP.initSakaiDatePicker = function(inputField, value, useTime, allowEmptyDate)
+{
+    localDatePicker(
+    {
+        input: '#'+inputField,
+        useTime: useTime,
+        parseFormat: useTime ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD',
+        allowEmptyDate: allowEmptyDate,
+        val: value,
+        ashidden: { iso8601: inputField+'ISO8601' }
+    });
+};
 

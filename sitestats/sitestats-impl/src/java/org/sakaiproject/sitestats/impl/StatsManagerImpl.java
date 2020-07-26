@@ -39,10 +39,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 import org.apache.commons.digester.Digester;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.criterion.Expression;
+import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentTypeImageService;
@@ -117,7 +119,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	@Getter @Setter private float	chartTransparency		= 0.80f;
 	@Getter @Setter private boolean	itemLabelsVisible		= false;
 	@Getter @Setter private boolean	lastJobRunDateVisible	= true;
-	private boolean					isEventContextSupported	= false;
+	@Getter @Setter private boolean eventContextSupported   = false;
 	@Getter @Setter private boolean	enableReportExport		= true;
 	@Getter @Setter private boolean	sortUsersByDisplayName	= false;
 	@Getter @Setter private boolean	displayDetailedEvents	= false;
@@ -125,7 +127,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	/** Controller fields */
 	@Getter @Setter private boolean	showAnonymousAccessEvents = true;
 
-	@Setter private static ResourceLoader resourceLoader = new ResourceLoader("Messages");
+	@Setter private ResourceLoader resourceLoader;
 
 	/** Sakai services */
 	@Setter private EventRegistryService		eventRegistryService;
@@ -142,12 +144,16 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	@Setter private ContentTypeImageService		contentTypeImageService;
 	
 	/** Caching */
-	private Cache<String, PrefsData>						cachePrefsData							= null;
+	private Cache<String, PrefsData> cachePrefsData = null;
 
 	// ################################################################
 	// Spring init/destroy methods
 	// ################################################################	
-	public void init(){
+	public void init() {
+		boolean testsEnabled = BooleanUtils.toBoolean(System.getProperty("sakai.tests.enabled"));
+		if (!testsEnabled) {
+			resourceLoader = new ResourceLoader("Messages");
+		}
 		// Set default properties if not set by spring/sakai.properties
 		checkAndSetDefaultPropertiesIfNotSet();
 		
@@ -159,7 +165,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		cachePrefsData = memoryService.getCache(PrefsData.class.getName());
 		
 		logger.info("init(): - (Event.getContext()?, site visits enabled, charts background color, charts in 3D, charts transparency, item labels visible on bar charts) : " +
-							isEventContextSupported+','+enableSiteVisits+','+chartBackgroundColor+','+chartIn3D+','+chartTransparency+','+itemLabelsVisible);
+				eventContextSupported +','+enableSiteVisits+','+chartBackgroundColor+','+chartIn3D+','+chartTransparency+','+itemLabelsVisible);
 
 		// To avoid a circular dependency in spring we set the StatsManager in the EventRegistryService here
 		eventRegistryService.setStatsManager(this);
@@ -213,109 +219,99 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		return (PrefsData) digester.parse( input );
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.StatsManager#getPreferences(java.lang.String, boolean)
-	 */
-	public PrefsData getPreferences(final String siteId, final boolean includeUnselected){
-		if(siteId == null){
-			throw new IllegalArgumentException("Null siteId");
-		}else{
-			PrefsData prefsdata = null;
-			Object cached = cachePrefsData.get(siteId);
-			if(cached != null){
-				prefsdata = (PrefsData) cached;
-				log.debug("Getting preferences for site "+siteId+" from cache");
-			}else{
-				HibernateCallback<Prefs> hcb = session -> {
-                    Criteria c = session.createCriteria(PrefsImpl.class)
-                            .add(Expression.eq("siteId", siteId));
-                    try{
-                        Prefs prefs = (Prefs) c.uniqueResult();
-                        return prefs;
-                    }catch(Exception e){
-                        log.warn("Exception in getPreferences() ",e);
-                        return null;
-                    }
-                };
-				Prefs prefs = getHibernateTemplate().execute(hcb);
-				if(prefs == null){
-					// get default settings
+	@Override
+	public PrefsData getPreferences(final String siteId, final boolean includeUnselected) {
+		if (siteId == null) throw new IllegalArgumentException("Site Id was null");
+
+		PrefsData prefsdata = null;
+		PrefsData cached = cachePrefsData.get(siteId);
+		if (cached != null) {
+			prefsdata = cached;
+			log.debug("Getting preferences for site {} from cache", siteId);
+		} else {
+			HibernateCallback<Prefs> hcb = session -> {
+				Criteria c = session.createCriteria(PrefsImpl.class).add(Restrictions.eq("siteId", siteId));
+				try {
+					Prefs prefs = (Prefs) c.uniqueResult();
+					return prefs;
+				} catch (Exception e) {
+					log.warn("Error getting preferences for site {}", siteId, e);
+					return null;
+				}
+			};
+			Prefs prefs = getHibernateTemplate().execute(hcb);
+			if (prefs == null) {
+				// get default settings
+				prefsdata = new PrefsData();
+				prefsdata.setChartIn3D(isChartIn3D());
+				prefsdata.setChartTransparency(getChartTransparency());
+				prefsdata.setItemLabelsVisible(isItemLabelsVisible());
+				prefsdata.setToolEventsDef(eventRegistryService.getEventRegistry());
+			} else {
+				try {
+					// parse from stored preferences
+					prefsdata = parseSitePrefs(new ByteArrayInputStream(prefs.getPrefs().getBytes()));
+					// preferences doesn't store additionalToolIds, add them back
+					EventUtil.addMissingAdditionalToolIds(prefsdata.getToolEventsDef(), eventRegistryService.getEventRegistry());
+				} catch (Exception e) {
+					log.warn("Failure parsing stored preferences for site {}", siteId, e);
 					prefsdata = new PrefsData();
-					prefsdata.setChartIn3D(isChartIn3D());
-					prefsdata.setChartTransparency(getChartTransparency());
-					prefsdata.setItemLabelsVisible(isItemLabelsVisible());
 					prefsdata.setToolEventsDef(eventRegistryService.getEventRegistry());
-				}else{
-					try{
-						// parse from stored preferences
-						prefsdata = parseSitePrefs(new ByteArrayInputStream(prefs.getPrefs().getBytes()));
-						// preferences doesn't store additionalToolIds, add them back
-						EventUtil.addMissingAdditionalToolIds(prefsdata.getToolEventsDef(), eventRegistryService.getEventRegistry());
-					}catch(Exception e){
-						// something failed, use default
-						log.warn("Exception in parseSitePrefs() ",e);
-						prefsdata = new PrefsData();
-						prefsdata.setToolEventsDef(eventRegistryService.getEventRegistry());
-					}
 				}
-				cachePrefsData.put(siteId, prefsdata);
 			}
-			
-			if(prefsdata.isUseAllTools()) {
-				List<ToolInfo> allTools = eventRegistryService.getEventRegistry();
-				for(ToolInfo ti : allTools) {
-					ti.setSelected(true);
-					for(EventInfo ei : ti.getEvents()) {
-						ei.setSelected(true);
-					}
+			cachePrefsData.put(siteId, prefsdata);
+		}
+
+		if (prefsdata.isUseAllTools()) {
+			List<ToolInfo> allTools = eventRegistryService.getEventRegistry();
+			for (ToolInfo ti : allTools) {
+				ti.setSelected(true);
+				for (EventInfo ei : ti.getEvents()) {
+					ei.setSelected(true);
 				}
-				prefsdata.setToolEventsDef(allTools);
 			}
-			if(includeUnselected){
-				// include unselected tools/events (for Preferences listing)
-				prefsdata.setToolEventsDef(EventUtil.getUnionWithAllDefaultToolEvents(prefsdata.getToolEventsDef(), eventRegistryService.getEventRegistry()));
-			}
-			if(prefsdata.isListToolEventsOnlyAvailableInSite()){
-				// intersect with tools available in site
-				prefsdata.setToolEventsDef(EventUtil.getIntersectionWithAvailableToolsInSite(siteService, prefsdata.getToolEventsDef(), siteId));
-			}else{
-				// intersect with tools available in sakai installation
-				prefsdata.setToolEventsDef(EventUtil.getIntersectionWithAvailableToolsInSakaiInstallation(toolManager, prefsdata.getToolEventsDef()));
-			}
+			prefsdata.setToolEventsDef(allTools);
+		}
+		if (includeUnselected) {
+			// include unselected tools/events (for Preferences listing)
+			prefsdata.setToolEventsDef(EventUtil.getUnionWithAllDefaultToolEvents(prefsdata.getToolEventsDef(), eventRegistryService.getEventRegistry()));
+		}
+		if (prefsdata.isListToolEventsOnlyAvailableInSite()) {
+			// intersect with tools available in site
+			prefsdata.setToolEventsDef(EventUtil.getIntersectionWithAvailableToolsInSite(siteService, prefsdata.getToolEventsDef(), siteId));
+		} else {
+			// intersect with tools available in sakai installation
+			prefsdata.setToolEventsDef(EventUtil.getIntersectionWithAvailableToolsInSakaiInstallation(toolManager, prefsdata.getToolEventsDef()));
+		}
 
-			prefsdata.setToolEventsDef(EventUtil.addMissingAdditionalToolIds(prefsdata.getToolEventsDef(), eventRegistryService.getEventRegistry()));
+		prefsdata.setToolEventsDef(EventUtil.addMissingAdditionalToolIds(prefsdata.getToolEventsDef(), eventRegistryService.getEventRegistry()));
 
-			return prefsdata;
-		}		
+		return prefsdata;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.StatsManager#setPreferences(java.lang.String, org.sakaiproject.sitestats.api.PrefsData)
 	 */
-	public boolean setPreferences(final String siteId, final PrefsData prefsdata){
-		if(siteId == null){
-			throw new IllegalArgumentException("Null siteId");
-		}else if(prefsdata == null){
-			throw new IllegalArgumentException("Null preferences");
-		}else{
-			HibernateCallback hcb = session -> {
-                    Criteria c = session.createCriteria(PrefsImpl.class).add(Expression.eq("siteId", siteId));
-                    Prefs prefs = (Prefs) c.uniqueResult();
-                    if(prefs == null){
-                        prefs = new PrefsImpl();
-                        prefs.setSiteId(siteId);
-                    }
-                    prefs.setPrefs(prefsdata.toXmlPrefs());
-                    session.saveOrUpdate(prefs);
-                    return null;
-            };
-			try {
-				getHibernateTemplate().execute(hcb);
-				logEvent(prefsdata, LOG_ACTION_EDIT, siteId, false);
-				return true;
-			} catch (DataAccessException dae) {
-				log.warn("Exception while saving preferences: {}", dae.getMessage(), dae);
-			}
+	public boolean setPreferences(final String siteId, final PrefsData prefsdata) {
+		if (siteId == null || prefsdata == null) throw new IllegalArgumentException("Site Id or preferences were null");
+		HibernateCallback<Void> hcb = session -> {
+				Criteria c = session.createCriteria(PrefsImpl.class).add(Restrictions.eq("siteId", siteId));
+				Prefs prefs = (Prefs) c.uniqueResult();
+				if (prefs == null) {
+					prefs = new PrefsImpl();
+					prefs.setSiteId(siteId);
+				}
+				prefs.setPrefs(prefsdata.toXmlPrefs());
+				session.saveOrUpdate(prefs);
+				return null;
+		};
+		try {
+			getHibernateTemplate().execute(hcb);
+			cachePrefsData.remove(siteId);
+			logEvent(prefsdata, LOG_ACTION_EDIT, siteId, false);
+			return true;
+		} catch (DataAccessException dae) {
+			log.warn("Exception while saving preferences: {}", dae.getMessage(), dae);
 		}
 		return false;
 	}
@@ -1176,7 +1172,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
             if(maxResults > 0) {
                 q.setMaxResults(maxResults);
             }
-            log.debug("getEventStats(): " + q.getQueryString());
+            log.debug("getEventStats(): {}", q.getQueryString());
             List<Object[]> records = q.list();
             List<Stat> results = new ArrayList<>();
             Set<String> siteUserIds = null;
@@ -2732,7 +2728,6 @@ if (log.isDebugEnabled()) {
 			// User: new approach		
 			if(totalsBy.contains(T_USER)) {
 				if(queryType == Q_TYPE_EVENT && anonymousEvents != null && anonymousEvents.size() > 0) {
-					if(dbVendor.equals("oracle")) {
 						// unfortunately, this produces results different from the expected:
 						//	- hibernate-oracle bug (sometimes) producing duplicate lines
 						//	- hack fix in getEventStats() method
@@ -2740,9 +2735,6 @@ if (log.isDebugEnabled()) {
 						groupFields.add("s.userId");
 						// it should be: ( but doesn't work in Hibernate :( )
 						//groupFields.add("(CASE WHEN s.eventId not in (:anonymousEvents) THEN s.userId ELSE '-' END)");
-					} else {
-						groupFields.add("s.userId");
-					}
 				} else {
 					groupFields.add("s.userId");
 				}
@@ -3640,13 +3632,6 @@ if (log.isDebugEnabled()) {
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.StatsManager#isEventContextSupported()
-	 */
-	public boolean isEventContextSupported() {
-		return isEventContextSupported;
-	}
-
-	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.StatsManager#logEvent(java.lang.Object, java.lang.String)
 	 */
 	public void logEvent(Object object, String logAction) {
@@ -3754,16 +3739,16 @@ if (log.isDebugEnabled()) {
 	private void checkForEventContextSupport() {
 		try{
 			Event.class.getMethod("getContext", null);
-			isEventContextSupported = true;
+			eventContextSupported = true;
 			logger.info("init(): - Event.getContext() method IS supported.");
 		}catch(SecurityException e){
-			isEventContextSupported = false;
+			eventContextSupported = false;
 			logger.warn("init(): - security exception while checking for Event.getContext() method.", e);
 		}catch(NoSuchMethodException e){
-			isEventContextSupported = false;
+			eventContextSupported = false;
 			logger.info("init(): - Event.getContext() method is NOT supported.");
 		}catch(Exception e){
-			isEventContextSupported = false;
+			eventContextSupported = false;
 			logger.warn("init(): - unknown exception while checking for Event.getContext() method.", e);
 		}
 	}

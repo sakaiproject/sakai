@@ -576,6 +576,11 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	{
 		if (ref == null) return null;
 
+		// Used to resolve Site objects; "!site" refers to "!admin" site
+		if ("!site".equals(ref)) {
+			ref = "!admin";
+		}
+
 		MessageChannel channel = (MessageChannel) m_threadLocalManager.get(ref);
 		if (channel == null)
 		{
@@ -2219,8 +2224,8 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		 */
 		public String getContext()
 		{
-			return m_context;
-
+			// Used to resolve Site objects; "!site" refers to "!admin" site
+			return "!site".equals(m_context) ? "!admin" : m_context;
 		} // getContext
 
 		/**

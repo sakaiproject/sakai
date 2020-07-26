@@ -31,6 +31,8 @@ import java.util.Map;
 import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.lang3.BooleanUtils;
 import org.osid.assessment.AssessmentException;
 import org.osid.shared.Type;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
@@ -90,7 +92,7 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable<ItemDat
   protected Date createdDate;
   protected String lastModifiedBy;
   protected Date lastModifiedDate;
-  protected Boolean isExtraCredit;
+  protected Boolean isExtraCredit = Boolean.FALSE;
   protected Set itemTextSet;
   protected Set itemMetaDataSet;
   protected Set itemTagSet;
@@ -665,8 +667,9 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable<ItemDat
   }
 
   public void setIsExtraCredit(Boolean isExtraCredit) {
-      this.isExtraCredit = isExtraCredit;
-      this.data.setIsExtraCredit(isExtraCredit);
+    isExtraCredit = BooleanUtils.toBoolean(isExtraCredit);
+    this.isExtraCredit = isExtraCredit;
+    this.data.setIsExtraCredit(isExtraCredit);
   }
 
   public Boolean getIsExtraCredit() throws DataFacadeException {

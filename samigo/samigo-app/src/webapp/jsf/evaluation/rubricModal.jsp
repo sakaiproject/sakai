@@ -7,10 +7,8 @@
 			tool-id="sakai.samigo"
 			entity-id='<h:outputText value="pub.#{questionScores.publishedId}.#{questionScores.itemId}"/>'
 			evaluated-item-id='<h:outputText value="#{description.assessmentGradingId}.#{questionScores.itemId}" />'
+			evaluated-item-owner-id='<h:outputText value="#{description.idString}" />'
 			item-id='<h:outputText value="#{description.assessmentGradingId}"/>'
-			<h:panelGroup rendered="#{description.rubricStateDetails != ''}">
-				state-details='<h:outputText value="#{description.rubricStateDetails}"/>'
-			</h:panelGroup>>
 		</sakai-rubric-grading>
 	</div>
 </h:panelGroup>

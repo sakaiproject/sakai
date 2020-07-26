@@ -64,7 +64,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.util.convert.IConverter;
 import org.apache.wicket.util.convert.converter.IntegerConverter;
-
+import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -86,11 +86,11 @@ import org.sakaiproject.sitestats.tool.wicket.components.LastJobRun;
 import org.sakaiproject.sitestats.tool.wicket.components.Menus;
 import org.sakaiproject.sitestats.tool.wicket.components.StylableSelectOptions;
 import org.sakaiproject.sitestats.tool.wicket.components.StylableSelectOptionsGroup;
-import org.sakaiproject.sitestats.tool.wicket.components.SakaiDateTimeField;
 import org.sakaiproject.sitestats.tool.wicket.models.EventModel;
 import org.sakaiproject.sitestats.tool.wicket.models.ReportDefModel;
 import org.sakaiproject.sitestats.tool.wicket.models.ToolModel;
 import org.sakaiproject.sitestats.tool.wicket.util.Comparators;
+import org.sakaiproject.wicket.component.SakaiDateTimeField;
 
 /**
  * @author Nuno Fernandes
@@ -184,8 +184,6 @@ public class ReportsEditPage extends BasePage {
 	public void renderHead(IHeaderResponse response) {
 		super.renderHead(response);
 		response.render(JavaScriptHeaderItem.forUrl(JQUERYSCRIPT));
-		response.render(JavaScriptHeaderItem.forUrl(JQUERYUISCRIPT));
-		response.render(JavaScriptHeaderItem.forUrl(DATEPICKERSCRIPT));
 		response.render(JavaScriptHeaderItem.forUrl(StatsManager.SITESTATS_WEBAPP + "/script/reports.js"));
 		StringBuilder onDomReady = new StringBuilder();
 		onDomReady.append("checkWhatSelection();");
@@ -547,10 +545,10 @@ public class ReportsEditPage extends BasePage {
 		startDate = ZonedDateTime.ofInstant(getReportParams().getWhenFrom().toInstant(), sys);
 		endDate = ZonedDateTime.ofInstant(getReportParams().getWhenTo().toInstant(), sys);
 		SakaiDateTimeField startDateField = new SakaiDateTimeField("whenFrom", new PropertyModel<>(this, "startDate"), sys);
-		startDateField.setUseTime(false);
+		startDateField.setUseTime(false).setAllowEmptyDate(false);
 		form.add(startDateField);
 		SakaiDateTimeField endDateField = new SakaiDateTimeField("whenTo", new PropertyModel<>(this, "endDate"), sys);
-		endDateField.setUseTime(false);
+		endDateField.setUseTime(false).setAllowEmptyDate(false);
 		form.add(endDateField);
 	}
 	
@@ -1119,19 +1117,23 @@ public class ReportsEditPage extends BasePage {
 	}
 	
 	private List<String> getRoles() {
-		List<String> roles = new ArrayList<String>();
-		try{
-			Set<Role> roleSet = Locator.getFacade().getSiteService().getSite(siteId).getRoles();
-			Iterator<Role> i = roleSet.iterator();
-			while(i.hasNext()){
-				Role r = i.next();
-				roles.add(r.getId());
-			}
-		}catch(IdUnusedException e){
-			log.warn("Site does not exist: " + siteId);
-			
+		Set<String> siteIdWithRoles = new HashSet<>(Arrays.asList(siteId));
+
+		if ("!admin".equals(siteId) || "~admin".equals(siteId)) {
+			siteIdWithRoles.add("!site.template");
+			siteIdWithRoles.add("!site.user");
+			Locator.getFacade().getSiteService().getSiteTypes().stream().map(s -> "!site.template." + s).forEach(siteIdWithRoles::add);
 		}
-		return roles;
+
+		Set<String> roles = new HashSet<String>();
+		for (String s : siteIdWithRoles) {
+			try {
+				Locator.getFacade().getAuthzGroupService().getAuthzGroup(s).getRoles().forEach(r -> roles.add(r.getId()));
+			} catch (GroupNotDefinedException e) {
+				log.debug("AuthzGroup does not exist, skipping: {}", s);
+			}
+		}
+		return new ArrayList<String>(roles);
 	}
 	
 	private boolean isToolSuported(final ToolInfo toolInfo) {
@@ -1194,7 +1196,7 @@ public class ReportsEditPage extends BasePage {
 
 		// check WHO
 		if(getReportParams().getWho().equals(ReportManager.WHO_ROLE)){
-			if(site.getUsersHasRole(getReportParams().getWhoRoleId()).isEmpty())
+			if(!siteId.equals("!admin") && !siteId.equals("~admin") && site.getUsersHasRole(getReportParams().getWhoRoleId()).isEmpty())
 				error((String) new ResourceModel("report_err_emptyrole").getObject());	
 		}else if(getReportParams().getWho().equals(ReportManager.WHO_GROUPS)){
 			if(getReportParams().getWhoGroupId() == null || getReportParams().getWhoGroupId().equals(""))

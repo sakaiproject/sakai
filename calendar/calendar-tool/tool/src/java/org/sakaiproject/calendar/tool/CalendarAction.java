@@ -38,20 +38,16 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.Vector;
 import java.util.stream.Collectors;
-import java.util.Map.Entry;
-
-import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
-import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEdit;
@@ -83,8 +79,8 @@ import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.entitybroker.EntityBroker;
-import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.EntityReference;
+import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.exception.IdInvalidException;
@@ -106,9 +102,10 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.CalendarChannelReferenceMaker;
-import org.sakaiproject.util.CalendarReferenceToChannelConverter;
 import org.sakaiproject.util.CalendarEventType;
+import org.sakaiproject.util.CalendarReferenceToChannelConverter;
 import org.sakaiproject.util.CalendarUtil;
+import org.sakaiproject.util.DateFormatterUtil;
 import org.sakaiproject.util.EntryProvider;
 import org.sakaiproject.util.FileItem;
 import org.sakaiproject.util.MergedList;
@@ -117,6 +114,8 @@ import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * The schedule tool.
@@ -1436,73 +1435,45 @@ extends VelocityPortletStateAction
 		 * Handles the user clicking on the save button on the page to add or
 		 * remove additional attributes for all calendar events.
 		 */
-		public void doUpdate(
-		RunData runData,
-		Context context,
-		CalendarActionState state,
-		SessionState sstate)
-		{
-			
-			if (sstate.getAttribute(CalendarAction.SSTATE_ATTRIBUTE_DELFIELDS_CONFIRM).equals("Y") && state.getDelfieldAlertOff() )
-			{
-				String errorCode = rb.getString("java.alert.areyou");
-				List delFields = (List) sstate.getAttribute(SSTATE_ATTRIBUTE_DELFIELDS);
-				
-				errorCode = errorCode.concat((String)(delFields.get(0)));
-				for(int i=1; i<delFields.size(); i++)
-				{
-					errorCode = errorCode.concat(", " + (String)(delFields.get(i)));
-				}
-				errorCode = errorCode.concat(rb.getString("java.alert.ifyes"));
-				addAlert(sstate, errorCode);
+		public void doUpdate( RunData runData, Context context, CalendarActionState state, SessionState sstate) {
+			if ("Y".equals(sstate.getAttribute(CalendarAction.SSTATE_ATTRIBUTE_DELFIELDS_CONFIRM)) && state.getDelfieldAlertOff() ) {
 				state.setDelfieldAlertOff(false);
-			}
-			else
-			{
+			} else {
 				state.setDelfieldAlertOff(true);
 				String addfields = (String) sstate.getAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDFIELDS_CALENDARS);
-				while (addfields.startsWith(ADDFIELDS_DELIMITER))
-				{
+				while (addfields.startsWith(ADDFIELDS_DELIMITER)) {
 					addfields = addfields.substring(ADDFIELDS_DELIMITER.length());
 				}
-				
+
 				String calId = state.getPrimaryCalendarReference();
-				try
-				{
+				try {
 					CalendarEdit edit = CalendarService.editCalendar(calId);
 					edit.setEventFields(addfields);
 					CalendarService.commitCalendar(edit);
-				}
-				catch (IdUnusedException e)
-				{
+				} catch (IdUnusedException e) {
 					context.put(ALERT_MSG_KEY,rb.getString("java.alert.thereisno")); 
 					log.debug(".doUpdate customize calendar IdUnusedException"+e);
 					return;
-				}
-				catch (PermissionException e)
-				{
+				} catch (PermissionException e) {
 					context.put(ALERT_MSG_KEY,rb.getString("java.alert.youdonthave"));
 					log.debug(".doUpdate customize calendar "+e);
 					return;
-				}
-				catch (InUseException e)
-				{
+				} catch (InUseException e) {
 					context.put(ALERT_MSG_KEY,rb.getString("java.alert.someone")); 
 					log.debug(".doUpdate() for CustomizeCalendar: " + e);
 					return;
 				}
-				
+
 				sstate.setAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDFIELDS_CALENDARS, addfields);
-				
 				sstate.setAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDFIELDS_PAGE, CalendarAction.PAGE_MAIN);
 			}
-			
+
 			// Go back to whatever state we were in beforehand.
 			state.setReturnState(CalendarAction.STATE_INITED);
 			enableObserver(sstate, true);
-			
+
 		} // doUpdate
-		
+
 		/* (non-Javadoc)
 		 * @see org.chefproject.actions.schedulePages.SchedulePage#getMenuHandlerID()
 		 */
@@ -2508,6 +2479,11 @@ extends VelocityPortletStateAction
 		else if (stateName.equals(STATE_SET_FREQUENCY))
 		{
 			buildFrequencyContext(portlet, context, runData, state);
+		}
+		else if (stateName.equals(MODE_PERMISSIONS))
+		{
+			template = build_permissions_context(portlet, context, runData, getSessionState(runData));
+			state.setState(state.getPrevState());
 		}
 
 		if (stateName.equals("description") 
@@ -6005,7 +5981,7 @@ extends VelocityPortletStateAction
 			state.setState("new");
 			state.setIsPastAlertOff(false);
 		}
-		else if (!Validator.checkDate(Integer.parseInt(day), Integer.parseInt(month), Integer.parseInt(year)))
+		else if (!DateFormatterUtil.checkDate(Integer.parseInt(day), Integer.parseInt(month), Integer.parseInt(year)))
 		{
 			addAlert(sstate, rb.getString("date.invalid"));
 			state.setNewData(state.getPrimaryCalendarReference(), title,description,Integer.parseInt(month),Integer.parseInt(day),year,houri,Integer.parseInt(minute),Integer.parseInt(dhour),Integer.parseInt(dminute),type,timeType,location, addfieldsMap, intentionStr);
@@ -6391,7 +6367,7 @@ extends VelocityPortletStateAction
 					state.setNewData(calId, title,description,Integer.parseInt(month),Integer.parseInt(day),year,houri,Integer.parseInt(minute),Integer.parseInt(dhour),Integer.parseInt(dminute),type,timeType,location, addfieldsMap, intentionStr);
 					state.setState("revise");
 				}
-				else if (!Validator.checkDate(Integer.parseInt(day), Integer.parseInt(month), Integer.parseInt(year)))
+				else if (!DateFormatterUtil.checkDate(Integer.parseInt(day), Integer.parseInt(month), Integer.parseInt(year)))
 				{
 					addAlert(sstate, rb.getString("date.invalid"));
 					state.setNewData(calId, title,description,Integer.parseInt(month),Integer.parseInt(day),year,houri,Integer.parseInt(minute),Integer.parseInt(dhour),Integer.parseInt(dminute),type,timeType,location, addfieldsMap, intentionStr);
@@ -7717,11 +7693,15 @@ extends VelocityPortletStateAction
 	public void doDefaultview( RunData rundata, Context context )
 	{
 		CalendarActionState state = (CalendarActionState)getState(context, rundata, CalendarActionState.class);
-		SessionState sstate = ((JetspeedRunData) rundata).getPortletSessionState(((JetspeedRunData) rundata).getJs_peid());
 		String view = state.getState();
-		Placement placement = ToolManager.getCurrentPlacement();
-		placement.getPlacementConfig().setProperty( PORTLET_CONFIG_DEFAULT_VIEW, view );
-		saveOptions();
+
+		// Basic data validation
+		if (StringUtils.equalsAny(view, "day", "week", "month", "year", "list"))
+		{
+			Placement placement = ToolManager.getCurrentPlacement();
+			placement.getPlacementConfig().setProperty( PORTLET_CONFIG_DEFAULT_VIEW, view );
+			saveOptions();
+		}
 	}
 	
 	/**
@@ -7729,41 +7709,14 @@ extends VelocityPortletStateAction
 	 */
 	public void doPermissions(RunData data, Context context)
 	{
-		// get into helper mode with this helper tool
-		startHelper(data.getRequest(), "sakai.permissions.helper");
-
 		// setup the parameters for the helper
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		CalendarActionState cstate = (CalendarActionState) getState(context, data, CalendarActionState.class);
 
-		String calendarRefStr = cstate.getPrimaryCalendarReference();
-		Reference calendarRef = EntityManager.newReference(calendarRefStr);
-		String siteRef = SiteService.siteReference(calendarRef.getContext());
+		cstate.setPrevState(cstate.getState());
+		cstate.setState(MODE_PERMISSIONS);
 
-		// setup for editing the permissions of the site for this tool, using the roles of this site, too
-		state.setAttribute(PermissionsHelper.TARGET_REF, siteRef);
-
-		// ... with this description
-		state.setAttribute(PermissionsHelper.DESCRIPTION, rb.getString("java.set")
-				+ SiteService.getSiteDisplay(calendarRef.getContext()));
-
-		// ... showing only locks that are prpefixed with this
-		state.setAttribute(PermissionsHelper.PREFIX, "calendar.");
-		// ... pass the resource loader object
-		ResourceLoader pRb = new ResourceLoader("permissions");
-		HashMap<String, String> pRbValues = new HashMap<String, String>();
-		for (Iterator<Entry<String, String>> iKeys = pRb.entrySet().iterator();iKeys.hasNext();)
-		{
-			Entry entry = iKeys.next();
-			String key = (String)entry.getKey();
-			pRbValues.put(key, (String)entry.getValue());
-
-		}
-		state.setAttribute("permissionDescriptions",  pRbValues);
-		
-		String groupAware = ToolManager.getCurrentTool().getRegisteredConfig().getProperty("groupAware");
-		state.setAttribute("groupAware", groupAware != null?Boolean.valueOf(groupAware):Boolean.FALSE);
-		state.removeAttribute("menu"); //Menu not required in the permission view
+		state.setAttribute(STATE_TOOL_KEY, "calendar");
 	}
 
 	/**

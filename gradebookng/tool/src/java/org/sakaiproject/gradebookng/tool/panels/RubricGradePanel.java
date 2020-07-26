@@ -74,13 +74,13 @@ public class RubricGradePanel extends BasePanel {
         sakaiRubricGrading.add(AttributeModifier.append("tool-id", RubricsConstants.RBCS_TOOL_GRADEBOOKNG));
         sakaiRubricGrading.add(AttributeModifier.append("entity-id", assignmentId));
         sakaiRubricGrading.add(AttributeModifier.append("evaluated-item-id", assignmentId + "." + studentUuid));
-		sakaiRubricGrading.add(AttributeModifier.append("token", rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_GRADEBOOKNG)));
+        sakaiRubricGrading.add(AttributeModifier.append("evaluated-item-owner-id", studentUuid));
+        sakaiRubricGrading.add(AttributeModifier.append("token", rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_GRADEBOOKNG)));
         form.add(sakaiRubricGrading);
 
         final GbAjaxButton submit = new GbAjaxButton("submit") {
             @Override
             public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                rubricsService.saveRubricEvaluation(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignmentId.toString(), assignmentId + "." + studentUuid, studentUuid, getCurrentUserId(), getRubricParameters(""));
                 target.appendJavaScript(String.format("GbGradeTable.instance.setDataAtCell(rubricGradingRow, rubricGradingCol, rubricGradingPoints.toString());", studentUuid, assignmentId));
                 RubricGradePanel.this.window.close(target);
             }
@@ -106,6 +106,8 @@ public class RubricGradePanel extends BasePanel {
 
 		final String version = PortalUtils.getCDNQuery();
 		response.render(StringHeaderItem.forString(
-			"<script type=\"module\" src=\"/rubrics-service/webcomponents/rubric-association-requirements.js" + version + "\"></script>"));
+			"<script src=\"/webcomponents/rubrics/sakai-rubrics-utils.js" + version + "\"></script>"));
+		response.render(StringHeaderItem.forString(
+			"<script type=\"module\" src=\"/webcomponents/rubrics/rubric-association-requirements.js" + version + "\"></script>"));
     }
 }

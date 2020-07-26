@@ -73,17 +73,18 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.jdom.Element;
-import org.jdom.Namespace;
-import org.jdom.filter.ElementFilter;
-import org.jdom.output.DOMOutputter;
-import org.jdom.output.XMLOutputter;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
+import org.jdom2.filter.ElementFilter;
+import org.jdom2.output.DOMOutputter;
+import org.jdom2.output.XMLOutputter;
 
 import org.jsoup.Jsoup;
 
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.content.cover.ContentTypeImageService;
@@ -100,8 +101,8 @@ import org.sakaiproject.lessonbuildertool.service.ForumInterface;
 import org.sakaiproject.lessonbuildertool.service.GroupPermissionsService;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.lessonbuildertool.service.QuizEntity;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.api.FormattedText;
 
 /* PJN NOTE:
  * This class is an example of what an implementer might want to do as regards overloading DefaultHandler.
@@ -253,7 +254,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	  page = simplePageBean.addPage(title, false);  // add new top level page
 	  if (description != null && !description.trim().equals("")) {
 	      SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), 1, SimplePageItem.TEXT, "", "");
-	      item.setHtml(Validator.escapeHtml(description));
+	      item.setHtml(ComponentManager.get(FormattedText.class).escapeHtml(description));
 	      simplePageBean.saveItem(item);
 	      sequences.add(2);
 	  } else
@@ -648,7 +649,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 			  }
 		      }
 
-		      htmlString = FormattedText.getHtmlBody(html.toString());
+		      htmlString = ComponentManager.get(FormattedText.class).getHtmlBody(html.toString());
 		      
 		      htmlString = fixupInlineReferences(htmlString);
 		      
@@ -892,7 +893,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		} else {
 		  Element quizXml = (Element)resource.getChild(QUESTIONS, ns.qticc_ns()).clone();
 		  // we work in jdom. Qti parser needs w3c
-		  quizDoc = new DOMOutputter().output(new org.jdom.Document(quizXml));
+		  quizDoc = new DOMOutputter().output(new org.jdom2.Document(quizXml));
 		}
 
 		  QtiImport imp = new QtiImport();

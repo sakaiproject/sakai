@@ -13,25 +13,20 @@
 
 package org.sakaiproject.datemanager.impl;
 
-import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Locale;
-import java.util.TimeZone;
+import java.util.Map;
 
-import lombok.extern.slf4j.Slf4j;
-import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-
 import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementMessageEdit;
@@ -49,20 +44,20 @@ import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentEntity;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.datemanager.api.DateManagerConstants;
 import org.sakaiproject.datemanager.api.DateManagerService;
+import org.sakaiproject.datemanager.api.model.DateManagerError;
 import org.sakaiproject.datemanager.api.model.DateManagerUpdate;
 import org.sakaiproject.datemanager.api.model.DateManagerValidation;
-import org.sakaiproject.datemanager.api.model.DateManagerError;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.signup.logic.SignupMeetingService;
 import org.sakaiproject.signup.model.SignupMeeting;
@@ -82,10 +77,12 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
-import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.api.FormattedText;
+
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class DateManagerServiceImpl implements DateManagerService {
@@ -108,6 +105,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 	@Setter private SimplePageToolDao simplePageToolDao;
 	@Setter private TimeService timeService;
 	@Setter private UserTimeService userTimeService;
+	@Setter private FormattedText formattedText;
 
 	private static final ResourceLoader rb = new ResourceLoader("datemanager");
 	private final Map<String, Calendar> calendarMap = new HashMap<>();
@@ -190,9 +188,16 @@ public class DateManagerServiceImpl implements DateManagerService {
 
 	private String formatToUserDateFormat(Date date) {
 		if (date == null) return "";
-		SimpleDateFormat df = new SimpleDateFormat(DateManagerConstants.DATEPICKER_DATETIME_FORMAT);
-		df.setTimeZone(userTimeService.getLocalTimeZone());
-		return df.format(date);
+		Instant instant = date.toInstant();
+		return formatToUserInstantFormat(instant);
+	}
+	
+	private String formatToUserInstantFormat(Instant instant) {
+		if (instant == null) return "";
+		ZonedDateTime userDate = ZonedDateTime.ofInstant(instant, userTimeService.getLocalTimeZone().toZoneId());
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DateManagerConstants.DATEPICKER_DATETIME_FORMAT);
+		String text = userDate.format(formatter);
+		return text;
 	}
 
 	/***** ASSIGNMENTS *****/
@@ -340,9 +345,9 @@ public class DateManagerServiceImpl implements DateManagerService {
 			JSONObject assobj = new JSONObject();
 			assobj.put("id", assessment.getAssessmentBaseId());
 			assobj.put("title", assessment.getTitle());
-			assobj.put("due_date", control.getDueDate());
-			assobj.put("open_date", control.getStartDate());
-			assobj.put("accept_until", control.getRetractDate());
+			assobj.put("due_date", formatToUserDateFormat(control.getDueDate()));
+			assobj.put("open_date", formatToUserDateFormat(control.getStartDate()));
+			assobj.put("accept_until", formatToUserDateFormat(control.getRetractDate()));
 			assobj.put("is_draft", true);
 			assobj.put("late_handling", lateHandling);
 			assobj.put("tool_title", toolTitle);
@@ -357,9 +362,9 @@ public class DateManagerServiceImpl implements DateManagerService {
 			JSONObject assobj = new JSONObject();
 			assobj.put("id", assessment.getPublishedAssessmentId());
 			assobj.put("title", assessment.getTitle());
-			assobj.put("due_date", control.getDueDate());
-			assobj.put("open_date", control.getStartDate());
-			assobj.put("accept_until", control.getRetractDate());
+			assobj.put("due_date", formatToUserDateFormat(control.getDueDate()));
+			assobj.put("open_date", formatToUserDateFormat(control.getStartDate()));
+			assobj.put("accept_until", formatToUserDateFormat(control.getRetractDate()));
 			assobj.put("is_draft", false);
 			assobj.put("late_handling", lateHandling);
 			assobj.put("tool_title", toolTitle);
@@ -705,9 +710,9 @@ public class DateManagerServiceImpl implements DateManagerService {
 			ResourceProperties contentResourceProps = res.getProperties();
 			robj.put("id", res.getId());
 			robj.put("title", contentResourceProps.getProperty(ResourceProperties.PROP_DISPLAY_NAME));
-			if(res.getRetractDate() != null) robj.put("due_date", formatToUserDateFormat(new Date(res.getRetractDate().getTime())));
+			if(res.getRetractInstant() != null) robj.put("due_date", formatToUserInstantFormat(res.getRetractInstant()));
 			else robj.put("due_date", null);
-			if(res.getReleaseDate() != null) robj.put("open_date", formatToUserDateFormat(new Date(res.getReleaseDate().getTime())));
+			if(res.getReleaseInstant() != null) robj.put("open_date", formatToUserInstantFormat(res.getReleaseInstant()));
 			else robj.put("open_date", null);
 			robj.put("extraInfo", StringUtils.defaultIfBlank(res.getProperties().getProperty(ResourceProperties.PROP_CONTENT_TYPE), rb.getString("itemtype.folder")));
 			robj.put("tool_title", toolTitle);
@@ -812,16 +817,16 @@ public class DateManagerServiceImpl implements DateManagerService {
 			if (update.object instanceof ContentCollectionEdit) {
 				ContentCollectionEdit cce = (ContentCollectionEdit) update.object;
 				if(update.dueDate != null) {
-					cce.setRetractDate(timeService.newTime(Date.from(update.dueDate).getTime()));
+					cce.setRetractInstant(Instant.from(update.dueDate));
 				}
-				cce.setReleaseDate(timeService.newTime(Date.from(update.openDate).getTime()));
+				cce.setReleaseInstant(Instant.from(update.openDate));
 				contentHostingService.commitCollection(cce);
 			} else {
 				ContentResourceEdit cre = (ContentResourceEdit) update.object;
 				if(update.dueDate != null) {
-					cre.setRetractDate(timeService.newTime(Date.from(update.dueDate).getTime()));
+					cre.setRetractInstant(Instant.from(update.dueDate));
 				}
-				cre.setReleaseDate(timeService.newTime(Date.from(update.openDate).getTime()));
+				cre.setReleaseInstant(Instant.from(update.openDate));
 				contentHostingService.commitResource(cre, NotificationService.NOTI_NONE);
 			}
 		}
@@ -853,7 +858,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 				cobj.put("open_date", formatToUserDateFormat(new Date(calendarEvent.getRange().firstTime().getTime())));
 				cobj.put("due_date", formatToUserDateFormat(new Date(calendarEvent.getRange().lastTime().getTime())));
 				cobj.put("tool_title", toolTitle);
-				cobj.put("url", url + "?eventReference=" + Validator.escapeUrl(calendarEvent.getReference()) + "&panel=Main&sakai_action=doDescription&sakai.state.reset=true");
+				cobj.put("url", url + "?eventReference=" + formattedText.escapeUrl(calendarEvent.getReference()) + "&panel=Main&sakai_action=doDescription&sakai.state.reset=true");
 				cobj.put("extraInfo", "false");
 				jsonCalendar.add(cobj);
 			}
@@ -1146,7 +1151,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 					aobj.put("open_date", null);
 				}
 				aobj.put("tool_title", toolTitle);
-				aobj.put("url", url + "?itemReference=" + Validator.escapeUrl(announcement.getReference()) + "&panel=Main&sakai_action=doShowmetadata&sakai.state.reset=true");
+				aobj.put("url", url + "?itemReference=" + formattedText.escapeUrl(announcement.getReference()) + "&panel=Main&sakai_action=doShowmetadata&sakai.state.reset=true");
 				aobj.put("extraInfo", "false");
 				jsonAnnouncements.add(aobj);
 			}
@@ -1243,12 +1248,18 @@ public class DateManagerServiceImpl implements DateManagerService {
 	@Override
 	public JSONArray getLessonsForContext(String siteId) {
 		JSONArray jsonLessons = new JSONArray();
-		String url = getUrlForTool(DateManagerConstants.COMMON_ID_LESSONS);
-		List<SimplePageItem> items = simplePageToolDao.findItemsInSite(siteId);
+		jsonLessons = addAllSubpages(simplePageToolDao.findItemsInSite(siteId), null, jsonLessons, "false");
+		return jsonLessons;
+	}
+
+	private JSONArray addAllSubpages(List<SimplePageItem> items, Long pageId, JSONArray jsonLessons, String extraInfo) {
 		if (items != null) {
+			String url = getUrlForTool(DateManagerConstants.COMMON_ID_LESSONS);
 			String toolTitle = toolManager.getTool(DateManagerConstants.COMMON_ID_LESSONS).getTitle();
 			for (SimplePageItem item : items) {
-				if (item.getType() == SimplePageItem.PAGE) {
+				if (item.getType() == SimplePageItem.PAGE // Avoid creating a infinite loop
+					&& !Long.valueOf(item.getSakaiId()).equals(pageId) 
+					&& !jsonLessons.toString().contains("\"id\":\""+item.getSakaiId()+"\"")) {
 					JSONObject lobj = new JSONObject();
 					lobj.put("id", Long.parseLong(item.getSakaiId()));
 					lobj.put("title", item.getName());
@@ -1260,39 +1271,16 @@ public class DateManagerServiceImpl implements DateManagerService {
 					}
 					lobj.put("tool_title", toolTitle);
 					lobj.put("url", url);
-					lobj.put("extraInfo", "false");
+					lobj.put("extraInfo", extraInfo);
 					jsonLessons.add(lobj);
-					jsonLessons = addAllSubpages(Long.parseLong(item.getSakaiId()), jsonLessons);
+					long itemId = Long.parseLong(item.getSakaiId());
+					jsonLessons = addAllSubpages(simplePageToolDao.findItemsOnPage(itemId), itemId, jsonLessons, rb.getString("tool.lessons.extra.subpage"));
 				}
 			}
 		}
 		return jsonLessons;
 	}
 
-	private JSONArray addAllSubpages(Long pageId, JSONArray jsonLessons) {
-		List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(pageId);
-		String url = getUrlForTool(DateManagerConstants.COMMON_ID_LESSONS);
-		for (SimplePageItem item : items) {
-			String toolTitle = toolManager.getTool(DateManagerConstants.COMMON_ID_LESSONS).getTitle();
-			if (item.getType() == SimplePageItem.PAGE) {
-				JSONObject lobj = new JSONObject();
-				lobj.put("id", Long.parseLong(item.getSakaiId()));
-				lobj.put("title", item.getName());
-				SimplePage page = simplePageToolDao.getPage(Long.parseLong(item.getSakaiId()));
-				if(page.getReleaseDate() != null) {
-					lobj.put("open_date", formatToUserDateFormat(page.getReleaseDate()));
-				} else {
-					lobj.put("open_date", null);
-				}
-				lobj.put("tool_title", toolTitle);
-				lobj.put("url", url);
-				lobj.put("extraInfo", rb.getString("tool.lessons.extra.subpage"));
-				jsonLessons.add(lobj);
-				jsonLessons = addAllSubpages(Long.parseLong(item.getSakaiId()), jsonLessons);
-			}
-		}
-		return jsonLessons;
-	}
 
 	/**
 	 * {@inheritDoc}

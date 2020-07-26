@@ -1,6 +1,12 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/email/chef_mailbox-view.vm,v 1.2 2005/05/06 18:51:57 gsilver.umich.edu Exp $ -->
 <div class="portletBody">
 	#if($menu)#toolbar($menu)#end
+	<div class="page-header">
+		<h1>$tlang.getString("lis.viewmessage")</h1>
+	</div>
+	#if($submenu)
+		#toolbar($submenu)
+	#end
 	<div class="navPanel">
 		<div class="itemNav">
 				#if ($goPPButton)

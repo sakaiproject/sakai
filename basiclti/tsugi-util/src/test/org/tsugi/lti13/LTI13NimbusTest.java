@@ -121,4 +121,54 @@ public class LTI13NimbusTest {
 		assertNotNull(publicKey);
 
 	}
+
+    // https://www.javadoc.io/doc/com.nimbusds/nimbus-jose-jwt/4.2/src-html/com/nimbusds/jose/jwk/JWKSet.html
+    @Test
+    public void testKeySetParse()
+        throws java.text.ParseException, com.nimbusds.jose.JOSEException
+    {
+		String kid = "49e4cfe6d3280fec019c92abe85b2747ffd98d19845b99373dbadc741286288c";
+
+        String json = "{\n" +
+            "\"keys\": [\n" +
+                "{\n" +
+                    "\"kty\": \"RSA\",\n" +
+                    "\"alg\": \"RS256\",\n" +
+                    "\"e\": \"AQAB\",\n" +
+                    "\"n\": \"sEhARJcwaQwI1FyzNLrGN1gUklL8Dwqte2TzHdNztskzdwXhca5HDMwIWmQ6oLoPaoyP10BzNUdV8iyrKncDPc2eZRIOwNhHF2mmWr1Ed2d2uK5ME0CYSV2XXgUyFV2dyB8IQmP9QoPgRyLE1HvwkovB7N87xv21ACOqMCad5EXJH4SIltdAoYKjuDfTTQJbnWwO6LLK0jK2-H-bdqj7_EBAHLFiOs5g9_ndts-oGndC75wCIdEgAG77ZLWVZ7ikhKhlMTirxW-tDgDoLpzUNiS2x4mTM8omxtP8yfThKW-wUUtgSA0KCuM_PCA55IZa1d9HQQyQVBZ7Dt-EMaAW9Q\",\n" +
+                    "\"kid\": \"49e4cfe6d3280fec019c92abe85b2747ffd98d19845b99373dbadc741286288c\",\n" +
+                    "\"use\": \"sig\"\n" +
+                "}\n" +
+            "]\n" +
+        "}\n";
+
+		String actual_public_key_string = "-----BEGIN PUBLIC KEY-----\n"
+			+"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsEhARJcwaQwI1FyzNLrG\n"
+			+"N1gUklL8Dwqte2TzHdNztskzdwXhca5HDMwIWmQ6oLoPaoyP10BzNUdV8iyrKncD\n"
+			+"Pc2eZRIOwNhHF2mmWr1Ed2d2uK5ME0CYSV2XXgUyFV2dyB8IQmP9QoPgRyLE1Hvw\n"
+			+"kovB7N87xv21ACOqMCad5EXJH4SIltdAoYKjuDfTTQJbnWwO6LLK0jK2+H+bdqj7\n"
+			+"/EBAHLFiOs5g9/ndts+oGndC75wCIdEgAG77ZLWVZ7ikhKhlMTirxW+tDgDoLpzU\n"
+			+"NiS2x4mTM8omxtP8yfThKW+wUUtgSA0KCuM/PCA55IZa1d9HQQyQVBZ7Dt+EMaAW\n"
+			+"9QIDAQAB\n"
+			+"-----END PUBLIC KEY-----\n";
+
+
+		// https://docs.oracle.com/javase/7/docs/api/java/security/interfaces/RSAPublicKey.html
+		Key publicKey = LTI13Util.string2PublicKey(actual_public_key_string);
+		java.security.interfaces.RSAKey rsaPublicKey = (java.security.interfaces.RSAKey) publicKey;
+		System.out.println("rsaPublicKey="+rsaPublicKey);
+
+        com.nimbusds.jose.jwk.JWKSet localKeys = com.nimbusds.jose.jwk.JWKSet.parse(json);
+        System.out.println("JWKSet="+localKeys);
+
+		com.nimbusds.jose.jwk.RSAKey nimbusPublic = (com.nimbusds.jose.jwk.RSAKey) localKeys.getKeyByKeyId(kid);
+		System.out.println("nimbusPublic="+nimbusPublic);
+
+		Key publicKey2 = nimbusPublic.toRSAPublicKey();
+		java.security.interfaces.RSAKey rsaPublicKey2 = (java.security.interfaces.RSAKey) publicKey2;
+		System.out.println("rsaPublicKey2="+rsaPublicKey2);
+
+		assertEquals(rsaPublicKey, rsaPublicKey2);
+
+    }
 }

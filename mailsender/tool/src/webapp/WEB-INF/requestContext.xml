@@ -42,9 +42,7 @@
 	</bean>
 
 	<bean class="org.sakaiproject.mailsender.tool.producers.PermissionsProducer">
-		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
 		<property name="externalLogic" ref="org.sakaiproject.mailsender.logic.ExternalLogic" />
-		<property name="messageLocator" ref="messageLocator" />
 	</bean>
 
 	<bean class="org.sakaiproject.mailsender.tool.producers.ResultsProducer">
@@ -70,4 +68,9 @@
         <property name="height" value="400" />
         -->
     </bean>
+
+    <bean class="org.springframework.web.multipart.commons.CommonsMultipartResolver" id="multipartResolver"> 
+        <property name="maxUploadSize" value="20971520" />
+    </bean>
+
 </beans>

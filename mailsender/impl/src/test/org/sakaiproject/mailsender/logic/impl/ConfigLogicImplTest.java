@@ -37,7 +37,7 @@ import org.junit.runner.RunWith;
 
 import org.mockito.Answers;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.mailsender.logic.ConfigLogic;

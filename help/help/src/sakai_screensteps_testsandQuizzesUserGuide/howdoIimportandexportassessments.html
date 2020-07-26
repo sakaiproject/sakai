@@ -1,36 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>How do I enable student peer review for an assignment?</title>
+<title>How do I import and export assessments? </title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta content="sakai.assignment" name="description">
-<meta content="peer review, peer assessment, peer evaluation" name="search">
+<meta content="" name="description">
 <link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="/library/js/jquery/featherlight/0.4.0/featherlight.min.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="/library/js/jquery/featherlight/0.4.0/featherlight.min.js" type="text/javascript" charset="utf-8"></script><script type="text/javascript" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    includeWebjarLibrary('featherlight');
     $(document).ready(function(){
-      $("a[rel^='featherlight']").featherlight({
+      $("a.screensteps-image-zoom").featherlight({
         type: { image:true },
-    closeOnClick: 'anywhere'
+        closeOnClick: 'anywhere'
       }); 
     });   
-  </script>
+</script>
 </head>
 <body>
-  <div id="wrapper"><div id="article-content">
-<div id="article-header"><h1 class="article-title">How do I import and export assessments? </h1></div>
-<div id="article-description">  <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
-  <p>The import and export operations allow you to download an assessment or question pool created in the Tests &amp; Quizzes tool into an external file, and to upload from such an external file, or a format-compliant file obtained elsewhere, into an assessment or question pool.  The file comprises the entire assessment, including its title, settings, questions, and other options.</p>
-<p>Three export formats are available, IMS QTI 1.2, IMS Content Packaging, and Markup text.  Content Packaging will capture links and attachments in your questions and package the file as a .zip file; you must transfer links and attachments yourself if you use IMS QTI.  Both formats create an XML file of your questions with all the components labeled according to the IMS standards.</p>
+  <div><div>
+<div><h1 class="article-title">How do I import and export assessments? </h1></div>
+<div>    <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+  <p>The import and export operations allow you to download an assessment or question pool created in the Tests &amp; Quizzes tool into an external file, and to upload from such an external file, or a format-compliant file obtained elsewhere, into an assessment or question pool. The file comprises the entire assessment, including its title, settings, questions, and other options.</p>
+<p>Three export formats are available, IMS QTI 1.2, IMS Content Packaging, and Markup text. Content Packaging will capture links and attachments in your questions and package the file as a .zip file; you must transfer links and attachments yourself if you use IMS QTI. Both formats create an XML file of your questions with all the components labeled according to the IMS standards.</p>
 <p><em>Tip: Many publishers provide test bank cartridges in IMS format. You may want to use this option if you are importing questions provided by your textbook publisher.</em></p>
 </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="go-to-tests-quizzes">
-    <h2 id="go-to-tests-quizzes" class="step-title screensteps-heading">Go to Tests &amp; Quizzes.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Go to Tests &amp; Quizzes.</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/002/156/037/original/eebca303-0280-4011-8d8f-4416c7631e24.png" alt="" height="121" width="200">
+    <img src="https://media.screensteps.com/image_assets/assets/003/337/627/original/03aa81ed-dbbd-4a10-8223-0b7f21e20637.png" alt="" height="119" width="215">
 </div>
  
       <div class="step-instructions screensteps-textblock">
@@ -38,29 +39,31 @@
 </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="click-add">
-    <h2 id="click-add" class="step-title screensteps-heading">Click Add.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Click Add.</h2>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/002/156/035/original/4324ad1e-eec4-4df5-87ba-d2300e46e9fe.png" class="screensteps-image-zoom">
-      <img src="https://media.screensteps.com/image_assets/assets/002/156/035/medium/4324ad1e-eec4-4df5-87ba-d2300e46e9fe.png" alt="" height="95" width="855">
+    <a href="https://media.screensteps.com/image_assets/assets/003/316/440/original/b9794523-5207-4e9d-af90-d299a5149e75.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/316/440/medium/b9794523-5207-4e9d-af90-d299a5149e75.png" alt="" height="86" width="855">
     </a>
 </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="to-import-an-assessment-click-import">
-    <h2 id="to-import-an-assessment-click-import" class="step-title screensteps-heading">To import an assessment, click Import.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1" id="to-import-an-assessment-click-import">
+    <h2 class="step-title screensteps-heading">To import an assessment, click Import.</h2>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/002/156/029/original/98e7fb04-da11-427e-9c07-9d80e5af7e99.png" class="screensteps-image-zoom">
-      <img src="https://media.screensteps.com/image_assets/assets/002/156/029/medium/98e7fb04-da11-427e-9c07-9d80e5af7e99.png" alt="" height="274" width="855">
+    <a href="https://media.screensteps.com/image_assets/assets/003/316/442/original/98e7fb04-da11-427e-9c07-9d80e5af7e99.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/316/442/medium/98e7fb04-da11-427e-9c07-9d80e5af7e99.png" alt="" height="274" width="855">
     </a>
 </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="select-your-file-and-click-import">
-    <h3 id="select-your-file-and-click-import" class="step-title screensteps-heading">Select your file, and click Import.</h3>
+    <h3 class="step-title screensteps-heading">Select your file, and click Import.</h3>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/002/156/031/original/2f6722cb-2e45-4280-9bb8-51f5b8192795.png" alt="" height="298" width="839">
+    <a href="https://media.screensteps.com/image_assets/assets/003/316/436/original/1d559ddd-8f88-4ad6-8a0a-e0cb8b10e0b6.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/316/436/medium/1d559ddd-8f88-4ad6-8a0a-e0cb8b10e0b6.png" alt="" height="259" width="855">
+    </a>
 </div>
  
       <div class="step-instructions screensteps-textblock">
@@ -72,45 +75,45 @@
   </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="view-your-assessment">
-    <h3 id="view-your-assessment" class="step-title screensteps-heading">View your assessment.</h3>
+    <h3 class="step-title screensteps-heading">View your assessment.</h3>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/002/156/033/original/ff0a6d77-84b0-4723-adad-70c84b5d0354.png" class="screensteps-image-zoom">
-      <img src="https://media.screensteps.com/image_assets/assets/002/156/033/medium/ff0a6d77-84b0-4723-adad-70c84b5d0354.png" alt="" height="387" width="855">
+    <a href="https://media.screensteps.com/image_assets/assets/003/317/091/original/ff0a6d77-84b0-4723-adad-70c84b5d0354.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/317/091/medium/ff0a6d77-84b0-4723-adad-70c84b5d0354.png" alt="" height="389" width="855">
     </a>
 </div>
  
       <div class="step-instructions screensteps-textblock">
-  <p>In the lower area of Tests &amp; Quizzes, you will see a new assessment.  (It will have the title of the downloaded assessment, not a title from your external file name.)  You may now edit the assessment questions, or select Settings to change the title and other settings.</p>
+  <p>In the lower area of Tests &amp; Quizzes, you will see a new assessment. (It will have the title of the downloaded assessment, not a title from your external file name.) You may now edit the assessment questions, or select Settings to change the title and other settings.</p>
 </div>
  
   </div>
  
   </div>
- 
-    <div class="step screensteps-section screensteps-depth-1" id="to-export-an-assessment">
-    <h2 id="to-export-an-assessment" class="step-title screensteps-heading">To export an assessment.</h2>
+
+      <div class="step screensteps-section screensteps-depth-1" id="to-export-an-assessment">
+    <h2 class="step-title screensteps-heading">To export an assessment.</h2>
       <div class="step-instructions screensteps-textblock">
   <p>The export will create a new file on your system, suitable for saving for further use or porting to another IMS-compliant system.</p>
 </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="click-export-for-the-assessment-you-want-to-export">
-    <h3 id="click-export-for-the-assessment-you-want-to-export" class="step-title screensteps-heading">Click Export for the assessment you want to export.</h3>
+    <h3 class="step-title screensteps-heading">Click Export for the assessment you want to export.</h3>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/002/156/026/original/62cd3ef5-4525-417c-a243-fce645d70208.png" class="screensteps-image-zoom">
-      <img src="https://media.screensteps.com/image_assets/assets/002/156/026/medium/62cd3ef5-4525-417c-a243-fce645d70208.png" alt="" height="563" width="855">
+    <a href="https://media.screensteps.com/image_assets/assets/003/317/095/original/62cd3ef5-4525-417c-a243-fce645d70208.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/317/095/medium/62cd3ef5-4525-417c-a243-fce645d70208.png" alt="" height="566" width="855">
     </a>
 </div>
  
       <div class="step-instructions screensteps-textblock">
-  <p>Use the drop-down menu next to the assessment title.  Click <strong>Export</strong>.</p>
+  <p>Use the drop-down menu next to the assessment title. Click <strong>Export</strong>.</p>
 </div>
  
   </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="choose-the-export-type-and-export">
-    <h3 id="choose-the-export-type-and-export" class="step-title screensteps-heading">Choose the export type and export.</h3>
+    <h3 class="step-title screensteps-heading">Choose the export type and export.</h3>
       <div class="image screensteps-image">
-    <a rel="nofollow" href="https://media.screensteps.com/image_assets/assets/002/156/039/original/96b0e76f-e0a6-43d0-ad23-63c00bc682b9.png" class="screensteps-image-zoom">
+    <a href="https://media.screensteps.com/image_assets/assets/002/156/039/original/96b0e76f-e0a6-43d0-ad23-63c00bc682b9.png" class="screensteps-image-zoom">
       <img src="https://media.screensteps.com/image_assets/assets/002/156/039/medium/96b0e76f-e0a6-43d0-ad23-63c00bc682b9.png" alt="" height="406" width="855">
     </a>
 </div>
@@ -123,19 +126,20 @@
   </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="save-download-the-file-to-your-own-system">
-    <h3 id="save-download-the-file-to-your-own-system" class="step-title screensteps-heading">Save (download) the file to your own system.</h3>
+    <h3 class="step-title screensteps-heading">Save (download) the file to your own system.</h3>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/002/156/041/original/679cecf6-056d-4de2-ac67-b721dcb37f93.png" alt="" height="160" width="604">
 </div>
  
       <div class="step-instructions screensteps-textblock">
-  <p>The exact prompts and steps will depend on your browser, but you may be prompted for the action to take.  The resulting file can be stored for later import.</p>
+  <p>The exact prompts and steps will depend on your browser. The resulting file can be stored for later import.</p>
 </div>
  
   </div>
  
   </div>
- 
+
+
 </div>
 </div></div>
 </body>

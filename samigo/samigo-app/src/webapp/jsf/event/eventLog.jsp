@@ -23,25 +23,23 @@
 
   <div class="page-header">
     <h1>
-      <h:outputText value="#{eventLog.siteTitle} "/>
-      <small>
-        <h:outputText value="#{eventLogMessages.log}"/>
-      </small>
+      <h:outputText value="#{eventLogMessages.log}"/>
     </h1>
   </div>
 
-  <h:panelGroup layout="block" styleClass="pull-right">
-    <h:commandButton action="eventLog" value="#{eventLogMessages.previous}" disabled="#{!eventLog.hasPreviousPage}" title="#{eventLogMessages.previous}">
-        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogPreviousPageListener" />
+  <h:panelGroup layout="block" styleClass="sakai-table-buttonContainer act pull-right clear">
+    <h:commandButton action="eventLog" value="#{eventLogMessages.previous}" disabled="#{!eventLog.hasPreviousPage}" title="#{eventLogMessages.previous}" styleClass="button">
+      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogPreviousPageListener" />
     </h:commandButton>
-    <h:commandButton action="eventLog" value="#{eventLogMessages.next}" disabled="#{!eventLog.hasNextPage}" title="#{eventLogMessages.previous}">
-        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogNextPageListener" />
+    <h:commandButton action="eventLog" value="#{eventLogMessages.next}" disabled="#{!eventLog.hasNextPage}" title="#{eventLogMessages.previous}" styleClass="button">
+      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogNextPageListener" />
     </h:commandButton>
   </h:panelGroup>
 
  <div class="divContainer row">
    <div class="divLeft col-lg-6 col-md-4 col-sm-5 col-xs-12">
-     <h:outputLabel value="#{eventLogMessages.filterBy}"  />
+     <h:outputLabel value="#{eventLogMessages.filterBy}" />
+     <h:outputText value="&#160;" escape="false" />
      <h:selectOneMenu value="#{eventLog.filteredAssessmentId}" id="assessmentTitle"
          required="true" onchange="document.forms[0].submit();">
         <f:selectItems value="#{eventLog.assessments}"/>
@@ -50,7 +48,7 @@
    </div>
    <div class="divRight col-md-8 col-lg-6 col-sm-7 col-xs-12">
       <h:inputText id="IE_hidden" value="" disabled="true" style="display: none;" />
-      <h:inputText id="filteredUser" value="#{eventLog.filteredUser}" size="30"
+      <h:inputText id="filteredUser" value="#{eventLog.filteredUser}" size="30" autocomplete="off"
          onfocus="resetHelpValue('#{eventLogMessages.search_hint}', 'eventLogId:filteredUser')"
          onclick="resetHelpValue('#{eventLogMessages.search_hint}', 'eventLogId:filteredUser')"/>
       <h:outputText value="&#160;" escape="false" />

@@ -86,6 +86,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.DateFormatterUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.comparator.GroupTitleComparator;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 
 import javax.faces.application.FacesMessage;
@@ -124,7 +125,6 @@ public class PrivateMessagesTool {
   private static final String MESSAGECENTER_PRIVACY_TEXT = "messagecenter.privacy.text";
 
   private static final String MESSAGECENTER_BUNDLE = "org.sakaiproject.api.app.messagecenter.bundle.Messages";
-  private static final String PERMISSIONS_BUNDLE = "org.sakaiproject.api.app.messagecenter.bundle.permissions";
  
   private static final ResourceLoader rb = new ResourceLoader(MESSAGECENTER_BUNDLE);
   
@@ -150,6 +150,8 @@ public class PrivateMessagesTool {
   private static final String SELECT_RECIPIENT_LIST_FOR_REPLY = "pvt_select_reply_recipients_list";
   private static final String MISSING_SUBJECT = "pvt_missing_subject";
   private static final String MISSING_SUBJECT_DRAFT = "pvt_missing_subject_draft";
+  private static final String MISSING_BODY = "pvt_missing_body";
+  private static final String MISSING_BODY_DRAFT = "pvt_missing_body_draft";
   private static final String SELECT_MSG_RECIPIENT = "pvt_select_msg_recipient";
   private static final String MULTIPLE_WINDOWS = "pvt_multiple_windows";
   
@@ -172,6 +174,8 @@ public class PrivateMessagesTool {
 
   private static final String HIDDEN_SEARCH_FROM_ISO_DATE = "searchFromDateISO8601";
   private static final String HIDDEN_SEARCH_TO_ISO_DATE = "searchToDateISO8601";
+  
+  private Boolean fromPermissions = false;
 
   /**
    *Dependency Injected 
@@ -247,6 +251,7 @@ public class PrivateMessagesTool {
   public static final String MESSAGE_STATISTICS_PG="pvtMsgStatistics";
   public static final String MESSAGE_HOME_PG="pvtMsgHpView";
   public static final String MESSAGE_REPLY_PG="pvtMsgReply";
+  public static final String PERMISSIONS_PG = "/jsp/privateMsg/permissions";
 
   public static final String MESSAGE_FORWARD_PG="pvtMsgForward";
   
@@ -1658,7 +1663,11 @@ public void processChangeSelectView(ValueChangeEvent eve)
 		  setErrorMessage(getResourceBundleString(MISSING_SUBJECT));
 		  return null;
 	  }
-
+	  if(StringUtils.isEmpty(getComposeBody()))
+	  {
+		  setErrorMessage(getResourceBundleString(MISSING_BODY));
+		  return null;
+	  }
 	  if(getSelectedComposeToList().size()<1 && getSelectedComposeBccList().size() < 1)
 	  {
 		  setErrorMessage(getResourceBundleString(SELECT_MSG_RECIPIENT));
@@ -1701,7 +1710,11 @@ public void processChangeSelectView(ValueChangeEvent eve)
       setErrorMessage(getResourceBundleString(MISSING_SUBJECT));
       return null;
     }
-
+    if(StringUtils.isEmpty(getComposeBody()))
+    {
+      setErrorMessage(getResourceBundleString(MISSING_BODY));
+      return null;
+    }
     if(getSelectedComposeToList().size()<1)
     {
       setErrorMessage(getResourceBundleString(SELECT_MSG_RECIPIENT));
@@ -1820,7 +1833,11 @@ public void processChangeSelectView(ValueChangeEvent eve)
       setErrorMessage(getResourceBundleString(MISSING_SUBJECT_DRAFT));
       return null ;
     }
-
+    if(StringUtils.isEmpty(getComposeBody()))
+    {
+      setErrorMessage(getResourceBundleString(MISSING_BODY_DRAFT));
+      return null ;
+    }
     PrivateMessage dMsg = null;
     if(getDetailMsg() != null && getDetailMsg().getMsg() != null && getDetailMsg().getMsg().getDraft()){
     	dMsg =constructMessage(true, getDetailMsg().getMsg()) ;
@@ -2280,6 +2297,11 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	  }
   }
   public String processPvtMsgPreviewReplyBack(){
+	  for (MembershipItem membershipItem : totalComposeToList) {
+	    if (membershipItem.getUser() != null && membershipItem.getUser().getId().equals(getDetailMsg().getPreviewReplyTmpMsg().getMsg().getCreatedBy())) {
+	      selectedComposeToList.remove(membershipItem.getId());
+	    }
+	  }
 	  this.setDetailMsg(getDetailMsg().getPreviewReplyTmpMsg());
 	  return MESSAGE_REPLY_PG;
   }
@@ -2341,7 +2363,6 @@ public void processChangeSelectView(ValueChangeEvent eve)
     			selectedComposeToList.add(membershipItem.getId());
     		}
     	}
-
     	
     	if(StringUtils.isEmpty(getReplyToSubject()))
     	{
@@ -2349,6 +2370,14 @@ public void processChangeSelectView(ValueChangeEvent eve)
     			setErrorMessage(getResourceBundleString(MISSING_SUBJECT_DRAFT));
     		}else{
     			setErrorMessage(getResourceBundleString(MISSING_SUBJECT));
+    		}
+    		return null ;
+    	}
+    	if(StringUtils.isEmpty(getReplyToBody())) {
+    		if(isDraft) {
+    			setErrorMessage(getResourceBundleString(MISSING_BODY_DRAFT));
+    		} else {
+    			setErrorMessage(getResourceBundleString(MISSING_BODY));
     		}
     		return null ;
     	}
@@ -2547,6 +2576,14 @@ public void processChangeSelectView(ValueChangeEvent eve)
 			 setErrorMessage(getResourceBundleString(MISSING_SUBJECT));
 		 }
 		 return null ;
+	 }
+	 if(StringUtils.isEmpty(getForwardBody()))  {
+		 if(isDraft) {
+			 setErrorMessage(getResourceBundleString(MISSING_BODY_DRAFT));
+		 } else {
+			 setErrorMessage(getResourceBundleString(MISSING_BODY));
+		 }
+		 return null;
 	 }
 
     	PrivateMessage rrepMsg = messageManager.createPrivateMessage() ;
@@ -2749,6 +2786,14 @@ public void processChangeSelectView(ValueChangeEvent eve)
 			  setErrorMessage(getResourceBundleString(MISSING_SUBJECT));
 		  }
 		  return null ;
+	  }
+	  if(StringUtils.isEmpty(getForwardBody())) {
+		  if(isDraft) {
+			  setErrorMessage(getResourceBundleString(MISSING_BODY_DRAFT));
+		  } else {
+			  setErrorMessage(getResourceBundleString(MISSING_BODY));
+		  }
+		  return null;
 	  }
 
 	  PrivateMessage rrepMsg = messageManager.createPrivateMessage() ;
@@ -4342,45 +4387,12 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	@SuppressWarnings("unchecked")
 	public String processActionPermissions()
 	{
-		ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
-		ToolSession toolSession = sessionManager.getCurrentToolSession();
-
-		try {
-			String url = "../sakai.permissions.helper.helper/tool?" +
-			"session." + PermissionsHelper.DESCRIPTION + "=" +
-			org.sakaiproject.util.Web.escapeUrl(getResourceBundleString("pvt_properties_desc")) +
-			"&session." + PermissionsHelper.TARGET_REF + "=" +
-			siteService.getSite(toolManager.getCurrentPlacement().getContext()).getReference() +
-			"&session." + PermissionsHelper.PREFIX + "=" +
-			DefaultPermissionsManager.MESSAGE_FUNCTION_PREFIX + DefaultPermissionsManager.MESSAGE_FUNCITON_PREFIX_PERMISSIONS;
-
-			// Set permission descriptions
-			if (toolSession != null) {
-				ResourceLoader pRb = new ResourceLoader(PERMISSIONS_BUNDLE);
-				HashMap<String, String> pRbValues = new HashMap<>();
-				for (Iterator<Entry<String, String>> iEntries = pRb.entrySet().iterator();iEntries.hasNext();)
-				{
-					Entry<String, String> entry = iEntries.next();
-					String key = entry.getKey();
-					pRbValues.put(key, entry.getValue());
-				}
-
-				toolSession.setAttribute("permissionDescriptions", pRbValues); 
-				
-				// set group awareness
-				 String groupAware = toolManager.getCurrentTool().getRegisteredConfig().getProperty("groupAware");
-				 toolSession.setAttribute("groupAware", groupAware != null ? Boolean.valueOf(groupAware) : Boolean.FALSE);
-			}
-
-			// Invoke Permissions helper
-			context.redirect(url);
+		if(fromPermissions) {
+			fromPermissions = false;
+			return null;
 		}
-		catch (IOException e) {
-			throw new RuntimeException("Failed to redirect to helper", e);
-		}catch (IdUnusedException e){
-			throw new RuntimeException("Failed to redirect to helper", e);
-		}
-		return null;
+		fromPermissions = true;
+		return PERMISSIONS_PG;
 	}
 
 	/**
@@ -4525,15 +4537,10 @@ public void processChangeSelectView(ValueChangeEvent eve)
 		  List<Group> sortGroupsList = new ArrayList<>();
 
 		  sortGroupsList.addAll(groups);
-		  
-		  final GroupComparator groupComparator = new GroupComparator("title", true);
-		  
+		  final GroupTitleComparator groupComparator = new GroupTitleComparator();
 		  Collections.sort(sortGroupsList, groupComparator);
-		  
 		  groups.clear();
-		  
 		  groups.addAll(sortGroupsList);
-		  
 		  return groups;
 	  }
 	  

@@ -6,7 +6,8 @@
   <div class="portletBody">
     <div id="menu" th:include="fragments/menus :: main (autogroups)" />
     <div class="page-header"><h1 th:text="#{autogroups.header.wizard}"></h1></div>
-    <div th:replace="fragments/wizard :: step (step1)" />
+    <div th:replace="fragments/wizard :: step (step1)"></div>
+    <br/>
     <div class="row" th:if="${step1ErrorMessage != null}">
       <div class="col-sm-8">
         <div class="sak-banner-error" th:text="${step1ErrorMessage}">You must at least select a role.</div>
@@ -14,7 +15,7 @@
     </div>    
     <div class="row" th:if="${!siteRoleList.isEmpty()}">
       <div class="col-sm-8">
-        <div class="instruction" th:text="#{autogroups.step1.info}">Let's start with the first step. Please select which site role(s) to include in the groups you are creating.</div>
+        <p th:text="#{autogroups.step1.info}">Let's start with the first step. Please select which site role(s) to include in the groups you are creating.</p>
       </div>
     </div>
     <div class="row" th:if="${!siteRoleList.isEmpty()}">
@@ -23,14 +24,14 @@
             <table class="table table-bordered table-striped table-hover">
             <thead>
               <tr>
-                <th><input type="checkbox" id="selectAllRoles" th:text="| #{autogroups.step1.table.selectallnone}|"/></th>
-                <th th:text="#{autogroups.step1.table.role}"></th>
+                <th><input type="checkbox" id="group-manager-select-all-roles" th:text="| #{autogroups.step1.table.selectallnone}|"/></th>
+                <th><label for="group-manager-select-all-roles" th:text="#{autogroups.step1.table.role}"></label></th>
               </tr>
             </thead>
             <tbody>
               <tr th:each="role : ${siteRoleList}">
-                <td><input type="checkbox" name="selectedRoleList" th:field="*{selectedRoleList}" th:value="${role.id}"/></td>
-                <td th:text="${role.id}"></td>
+                <td><input th:id="${role.id}" type="checkbox" name="selectedRoleList" th:field="*{selectedRoleList}" th:value="${role.id}"/></td>
+                <td><label th:for="${role.id}" th:text="${role.id}"></label></td>
               </tr>
             </tbody>
             </table>

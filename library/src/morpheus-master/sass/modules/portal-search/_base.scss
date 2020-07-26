@@ -15,17 +15,11 @@
     height: $top-header-icon-size;
     &:hover, &:focus {
       color: $topNav-text-color;
-      @if $top-header-as-material {
-        background: rgba(0,0,0,.2);
-        border-radius:50%;
-      } @else {
-        text-shadow: 0 0 5px rgba(165, 165, 165, 0.95); /* same as profile picture hover */
-      }
+      background: rgba(0,0,0,.2);
+      border-radius:50%;
     }
-    @if $top-header-as-material {
-      &:active {
-        background: rgba(0,0,0,.4);
-      }
+    &:active {
+      background: rgba(0,0,0,.4);
     }
   }
 }

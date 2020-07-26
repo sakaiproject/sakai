@@ -19,6 +19,9 @@
 		         //due to recuring meetings, make sure even/odd Rows display correctly
 		         reprocessEvenOddRowClasses();
 
+					var menuLink = $('#signupMainMenuLink');
+					menuLink.addClass('current');
+					menuLink.html(menuLink.find('a').text());
 				});
 	         var origClassNames=new Array();
 	         var lastActiveId;
@@ -161,35 +164,11 @@
 		         	return false;
 		         };		         	
 		</script>
-			
-		<h:form id="addMeeting">
-			<h:panelGroup>
-				<f:verbatim><ul class="navIntraTool actionToolbar" role="menu"></f:verbatim> 
-				<h:panelGroup rendered="#{SignupMeetingsBean.allowedToCreate}">
-						<f:verbatim><li role="menuitem" class="firstToolBarItem"> <span></f:verbatim>
-							<h:commandLink value="#{msgs.add_new_event}" action="#{SignupMeetingsBean.addMeeting}" rendered="#{SignupMeetingsBean.allowedToCreate}"/>
-					<f:verbatim></span></li></f:verbatim>
-				 </h:panelGroup>
-				 
-				<h:panelGroup rendered="#{SignupPermissionsUpdateBean.showPermissionLink}"> 	
-					<f:verbatim><li role="menuitem" ><span></f:verbatim>	
-						<h:commandLink value="#{msgs.permission_feature_link}" action="#{SignupPermissionsUpdateBean.processPermission}" rendered="#{SignupPermissionsUpdateBean.showPermissionLink}"/>
-					<f:verbatim></span></li></f:verbatim>
-				</h:panelGroup>
-				
-				<h:panelGroup>
-					<f:verbatim><li role="menuitem" ><span></f:verbatim>
-						<h:commandLink value="#{msgs.event_pageTop_link_for_download}" action="#{DownloadEventBean.downloadSelections}" />
-					<f:verbatim></span></li></f:verbatim>
-				</h:panelGroup>
-				
-			  <f:verbatim></ul></f:verbatim>
-			</h:panelGroup>
-		</h:form>
 
 		<sakai:view_content>
-			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/> 
 			<h:form id="items">
+				<%@ include file="/signup/menu/signupMenu.jsp" %>
+				<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/> 
 				<div class="page-header">
 					<sakai:view_title value="#{msgs.signup_tool}"/>
 				</div>

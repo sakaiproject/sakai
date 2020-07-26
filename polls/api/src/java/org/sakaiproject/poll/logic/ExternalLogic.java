@@ -63,6 +63,11 @@ public interface ExternalLogic {
 	 */
 	public String getCurrentLocationReference();
 	
+	/**
+	 * @return the current tool URL of the current user
+	 */
+	String getCurrentToolURL();
+	
 
 	/**
 	 * @return the current sakai user id (not username)

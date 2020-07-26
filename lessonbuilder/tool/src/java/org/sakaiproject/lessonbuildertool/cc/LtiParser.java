@@ -60,8 +60,8 @@ import java.io.IOException;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.jdom.Element;
-import org.jdom.Namespace;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 
 @Slf4j
 public class LtiParser extends AbstractParser implements ContentParser {

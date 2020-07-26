@@ -36,10 +36,12 @@ should be included in file importing DeliveryMessages
     if (typeof initiatedFeatherlight === "undefined") {
       var $elems = $("a[id$='deliverAudioRecording:openRecord']");
       $elems.each(function(index, elem) {
-        var questionId = $(elem).parent().find("input[name=questionId]").val();
-        elem.dataset.featherlight = ".audioRecordingPopup-" + questionId;
-        elem.dataset.featherlightPersist = true;
-        elem.dataset.featherlightBeforeClose = "$('.audioRecordingPopup-" + questionId + " #audio-stop:enabled').click();";
+        setTimeout(function() {
+          var questionId = $(elem).parent().find("input[name=questionId]").val();
+          elem.dataset.featherlight = ".audioRecordingPopup-" + questionId;
+          elem.dataset.featherlightPersist = true;
+          elem.dataset.featherlightBeforeClose = "$('.audioRecordingPopup-" + questionId + " #audio-stop:enabled').click();";
+        }, 0);
       });
       initiatedFeatherlight = true;
     }

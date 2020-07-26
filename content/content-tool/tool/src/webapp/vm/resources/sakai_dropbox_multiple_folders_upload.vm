@@ -2,6 +2,7 @@
 <script type="text/javascript">includeLatestJQuery('content_dropbox_multiple');</script>
 
 <div class="portletBody specialLink">
+	#contentMenu("dropboxUploadMultiple")
 	<div class="page-header">
 		<h1>$tlang.getString("multiple.file.upload")</h1>
 	</div>

@@ -26,6 +26,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
@@ -73,6 +74,9 @@ public class Criterion implements Modifiable, Serializable, Cloneable {
     @Lob
     private String description;
 
+    @Column(columnDefinition = "double default 0")
+    private Double weight = 0D;
+
     @OneToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "rbc_criterion_ratings")
     @OrderColumn(name = "order_index")
@@ -99,6 +103,7 @@ public class Criterion implements Modifiable, Serializable, Cloneable {
         Criterion clonedCriterion = new Criterion();
         clonedCriterion.setId(null);
         clonedCriterion.setTitle(this.title);
+        clonedCriterion.setWeight(this.weight);
         clonedCriterion.setDescription(this.description);
         clonedCriterion.setRatings(this.getRatings().stream().map(rating -> {
             Rating clonedRating = null;

@@ -33,7 +33,6 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
@@ -99,10 +98,6 @@ public class AgentResults
   private Double scoreSummation=new Double("0");
   private Double averageScore= new Double("0");
 
-  @Getter
-  @Setter
-  private String rubricStateDetails;
-  
   public AgentResults() {
   }
 
@@ -450,16 +445,6 @@ public class AgentResults
 	}
 	
 	public String addAttachmentsRedirect() {
-
-		// We need to make sure that the state details are reapplied to the agent beans
-		QuestionScoresBean questionScoresBean = (QuestionScoresBean) ContextUtil.lookupBean("questionScores");
-		questionScoresBean.getAgentResultsByItemGradingId().values().forEach(ar -> {
-
-			String evalId = ar.getAssessmentGradingId() + "." + questionScoresBean.getItemId();
-			String entityId = RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + questionScoresBean.getPublishedId() + "." + questionScoresBean.getItemId();
-			String rubricStateDetails = ContextUtil.lookupParam(RubricsConstants.RBCS_PREFIX + evalId + "-" + entityId + "-state-details");
-			ar.setRubricStateDetails(rubricStateDetails);
-		});
 
 		// 1. redirect to add attachment
 		try	{

@@ -4,6 +4,7 @@
 </script>
 
 <div class="portletBody specialLink">
+    #contentMenu("resources")
     <h3>$tlang.getString("create.uploads")</h3>
     <ol class="breadcrumb">
         <li><span>$tlang.getString("gen.location")</span></li>
@@ -32,11 +33,11 @@
         <input type="hidden" name="requestStateId" id="requestStateId" value="$!{requestStateId}" />
 
         #if($model.resourceTypeDef.hasRightsDialog() && $!copyrightTypes)
-            <h4>
-                <span class="reqStar">*</span>
-                $tlang.getString("cright.status.all")
-            </h4>
             <div class="form-group">
+                <h4>
+                    <span class="reqStar">*</span>
+                    <label for="copyright">$tlang.getString("cright.status.all")</label>
+                </h4>
                 <select class="copyrightStatus" name="copyright" id="copyright">
             #foreach ($copyright in $copyrightTypes)
                     <option value="$copyright.getType()" #if($copyright_defaultType == $copyright.getType())selected="selected"#end #if ($!copyright.getLicenseUrl())title="${copyright.getLicenseUrl()}"#end >

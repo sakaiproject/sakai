@@ -40,6 +40,15 @@ $Id$
 **********************************************************************************/
 --%>
 -->
+<script>
+  $(document).ready(function(){
+    // The current class is assigned using Javascript because we don't use facelets and the include directive does not support parameters.
+    var currentLink = $('#histogram\\:histogramScoresMenuLink');
+    currentLink.addClass('current');
+    // Remove the link of the current option
+    currentLink.html(currentLink.find('a').text());
+  });
+</script>
     <!-- content... -->
     <div class="portletBody container-fluid">
 
@@ -53,94 +62,17 @@ $Id$
         <!-- HEADINGS -->
         <%@ include file="/jsf/evaluation/evaluationHeadings.jsp" %>
 
-        <div class="page-header">
+        <h:panelGroup layout="block" styleClass="page-header">
           <h1>
             <h:outputText value="#{evaluationMessages.stat_view}#{evaluationMessages.column} " escape="false" />
-            <small>
-              <h:outputText value="#{histogramScores.assessmentName} " escape="false" />
-            </small>
+            <small><h:outputText value="#{histogramScores.assessmentName} " escape="false" /></small>
           </h1>
-        </div>
+        </h:panelGroup>
 
-        <!-- Per UX, for formatting -->
-        <div class="textBelowHeader">
-          <h:outputText value="" />
-        </div>
-
-        <h:outputText
-          value="<ul class='navIntraTool actionToolbar' role='menu'><li role='menuitem' class='firstToolBarItem'><span>"
-          rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}" escape="false" />
-
-        <h:commandLink title="#{evaluationMessages.t_submissionStatus}" action="submissionStatus" immediate="true"
-          rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
-          <h:outputText value="#{evaluationMessages.sub_status}" />
-          <f:param name="allSubmissions" value="true" />
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
-        </h:commandLink>
-
-        <h:outputText value="</span><li role='menuitem'><span>"
-          rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}" escape="false" />
-
-        <h:commandLink title="#{evaluationMessages.t_totalScores}" action="totalScores" immediate="true"
-          rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
-          <h:outputText value="#{commonMessages.total_scores}" />
-        </h:commandLink>
-
-        <h:outputText value="</span><li role='menuitem'><span>"
-          rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}" escape="false" />
-
-        <h:commandLink title="#{evaluationMessages.t_questionScores}" action="questionScores" immediate="true"
-          rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
-          <h:outputText value="#{evaluationMessages.q_view}" />
-        </h:commandLink>
-
-        <h:outputText value="</span><li role='menuitem'><span class='current'>"
-          rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}" escape="false" />
-
-        <h:outputText value="#{evaluationMessages.stat_view}"
-          rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}" />
-
-
-        <h:outputText value="</span><li role='menuitem'><span>"
-          rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}" escape="false" />
-
-        <h:commandLink title="#{evaluationMessages.t_itemAnalysis}" action="detailedStatistics" immediate="true"
-          rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
-          <h:outputText value="#{evaluationMessages.item_analysis}" />
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />
-        </h:commandLink>
-
-        <h:outputText value="</span><li role='menuitem'><span>"
-          rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}" escape="false" />
-
-        <h:commandLink title="#{commonMessages.export_action}" action="exportResponses" immediate="true"
-          rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
-          <h:outputText value="#{commonMessages.export_action}" />
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ExportResponsesListener" />
-        </h:commandLink>
-
-        <h:outputText value="</span><li role='menuitem'><span>" escape="false"
-          rendered="#{totalScores.hasFileUpload}" />
-
-        <h:commandLink title="#{evaluationMessages.t_title_download_file_submissions}" action="downloadFileSubmissions"
-          immediate="true" rendered="#{totalScores.hasFileUpload}">
-          <h:outputText value="#{evaluationMessages.title_download_file_submissions}" />
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetQuestionScoreListener" />
-          <f:actionListener
-            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.DownloadFileSubmissionsListener" />
-        </h:commandLink>
-
-        <h:outputText value="</span></li></ul>"
-          rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}" escape="false" />
-
-        <f:verbatim><br /></f:verbatim>
+        <!-- EVALUATION SUBMENU -->
+        <%@ include file="/jsf/evaluation/evaluationSubmenu.jsp" %>
 
         <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table" />
-
-
 
         <div class="tier1">
 
@@ -447,8 +379,44 @@ $Id$
 
               <h:dataTable columnClasses="stats-answers" styleClass="table panel-body stats-bod stats-bar"
                 value="#{item.histogramBars}" var="bar"
-                rendered="#{item.questionType == '8' or item.questionType == '9' or item.questionType == '11' or item.questionType == '14' or item.questionType == '16'}">
+                rendered="#{item.questionType == '8'}">
                 <!-- FILL_IN_BLANK (8) -->
+                <h:column>
+                  <f:facet name="header">
+                    <h:outputText value="#{evaluationMessages.stats_ans_opt}" />
+                  </f:facet>
+                  <h:panelGroup styleClass="answer-bar-label" layout="block">
+                    <h:outputText value="#{bar.label}" escape="true"> 
+                      <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter" />
+                    </h:outputText>
+                  </h:panelGroup>
+                </h:column>
+                <h:column>
+                  <f:facet name="header">
+                    <h:outputText value="#{evaluationMessages.stats_num_correct_responses}" />
+                  </f:facet>
+                  <h:panelGroup>
+                    <span class="progress-num">
+                      <h:outputText value="#{bar.numStudentsText}" />
+                    </span>
+                    <div class="progress-stat">
+                      <h:outputText value="<div class=\" progress-bar progress-bar-success\" role=\"progressbar\"
+                        aria-valuenow=\"#{bar.columnHeight}\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width:
+                        #{bar.columnHeight}%;\">"
+                        escape="false">
+                      </h:outputText>
+                      &nbsp;
+                    </div>
+                    <div class="num-students-text hide">
+                      <h:outputText value=" #{bar.numStudentsText}" />
+                    </div>
+                  </h:panelGroup>
+                </h:column>
+              </h:dataTable>
+
+              <h:dataTable columnClasses="stats-answers" styleClass="table panel-body stats-bod stats-bar"
+                value="#{item.histogramBars}" var="bar"
+                rendered="#{item.questionType == '9' or item.questionType == '11' or item.questionType == '14' or item.questionType == '16'}">
                 <!-- MATCHING (9) -->
                 <!-- FILL_IN_NUMERIC (11) -->
                 <!-- EXTENDED_MATCHING_ITEMS (14) -->

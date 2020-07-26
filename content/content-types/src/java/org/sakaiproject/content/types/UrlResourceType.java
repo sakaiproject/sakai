@@ -59,7 +59,7 @@ public class UrlResourceType extends BaseResourceType
 	private ServerConfigurationService serverConfigurationService =  (ServerConfigurationService) ComponentManager.get("org.sakaiproject.component.api.ServerConfigurationService");;
 	private String resourceClass = serverConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
 	private String resourceBundle = serverConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
-	private ResourceLoader rb = new Resource().getLoader(resourceClass, resourceBundle);
+	private ResourceLoader rb = Resource.getResourceLoader(resourceClass, resourceBundle);
 
 	// private static ResourceLoader rb = new ResourceLoader("types");
 	

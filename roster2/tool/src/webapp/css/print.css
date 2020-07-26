@@ -182,6 +182,9 @@
 .view_mode_spreadsheet .roster-table .roster-table-row .roster-hide-pictures {
     display: none;
 }
+.namePronunciation .nameAudioPlayer, .namePronunciation .audioPlayer {
+    display: none;
+}
 
 /*
     The following rules are hacks to avoid the following:

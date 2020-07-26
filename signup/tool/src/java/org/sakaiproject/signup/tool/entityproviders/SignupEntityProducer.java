@@ -259,15 +259,15 @@ public class SignupEntityProducer implements MeetingTypes, EntityProducer, Entit
 	@Override
 	//this method is for replace data
 	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> transferOptions, boolean cleanup) {
-		// TODO Auto-generated method stub
-		String currentUserId = getSakaiFacade().getCurrentUserId();
-		List<SignupMeeting> oldMeetings = getSignupMeetingService().getAllSignupMeetings(toContext, currentUserId);
-
-		//removes meetings before adding new ones
-		try {
-			getSignupMeetingService().removeMeetings(oldMeetings);
-		} catch (Exception e1) {
-			log.warn("remove oldmeeting error:" + e1.getMessage());
+		if (cleanup) {
+			String currentUserId = getSakaiFacade().getCurrentUserId();
+			List<SignupMeeting> oldMeetings = getSignupMeetingService().getAllSignupMeetings(toContext, currentUserId);
+			//removes meetings before adding new ones
+			try {
+				getSignupMeetingService().removeMeetings(oldMeetings);
+			} catch (Exception e1) {
+				log.warn("remove oldmeeting error:" + e1.getMessage());
+			}
 		}
 		return transferCopyEntities(fromContext, toContext, ids, transferOptions);
 	}

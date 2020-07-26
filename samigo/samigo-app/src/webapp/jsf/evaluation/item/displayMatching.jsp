@@ -33,7 +33,8 @@ include file for displaying matching questions
        <h:outputText value="" rendered="#{!answer.isCorrect}" title="#{evaluationMessages.alt_incorrect}" styleClass="icon-sakai--delete feedBackCross" />
      </h:column>
      <h:column>
-       <h:outputText value="#{answer.text}" escape="false" />
+		 <h:outputText value="#{evaluationMessages.none_above}" rendered="#{answer.text eq 'none_above'}" />	
+		 <h:outputText value="#{answer.text}" escape="false" rendered="#{answer.text ne 'none_above'}" />
      </h:column>
    </h:dataTable>
  </h:column>

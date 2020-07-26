@@ -26,6 +26,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
@@ -71,6 +72,9 @@ public class Rubric implements Modifiable, Serializable, Cloneable {
     private String title;
     private String description;
 
+    @Column(columnDefinition = "boolean default false", nullable = false)
+    private Boolean weighted = Boolean.FALSE;
+
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "rbc_rubric_criterions")
     @OrderColumn(name = "order_index")
@@ -104,6 +108,7 @@ public class Rubric implements Modifiable, Serializable, Cloneable {
         Rubric clonedRubric = new Rubric();
         clonedRubric.setId(null);
         clonedRubric.setTitle(this.title);
+        clonedRubric.setWeighted(this.weighted);
         clonedRubric.setDescription(this.description);
         Metadata metadata = new Metadata();
         metadata.setLocked(false);
@@ -125,6 +130,7 @@ public class Rubric implements Modifiable, Serializable, Cloneable {
         Rubric clonedRubric = new Rubric();
         clonedRubric.setId(null);
         clonedRubric.setTitle(this.title);
+        clonedRubric.setWeighted(this.weighted);
         clonedRubric.setDescription(this.description);
         Metadata metadata = new Metadata();
         metadata.setLocked(false);

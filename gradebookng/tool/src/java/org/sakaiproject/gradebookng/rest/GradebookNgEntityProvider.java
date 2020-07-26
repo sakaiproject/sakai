@@ -27,6 +27,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.EmailService;
@@ -54,14 +57,12 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
-import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-
 
 /**
  * This entity provider is to support some of the Javascript front end pieces. It never was built to support third party access, and never
@@ -79,6 +80,9 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 
 	private static final String MESSAGE_UNGRADED = "1";
 	private static final String MESSAGE_GRADED = "2";
+
+	@Setter
+	private AuthzGroupService authzGroupService;
 
 	@Setter
 	private EmailService emailService;
@@ -138,8 +142,8 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		}
 		checkValidSite(siteId);
 
-		// check instructor
-		checkInstructor(siteId);
+		// check instructor or TA
+		checkInstructorOrTA(siteId);
 
 		// update the order
 		this.businessService.updateAssignmentOrder(siteId, assignmentId, order);
@@ -194,8 +198,8 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		}
 		checkValidSite(siteId);
 
-		// check instructor
-		checkInstructor(siteId);
+		// check instructor or TA
+		checkInstructorOrTA(siteId);
 
 		// update the order
 		try {
@@ -238,16 +242,13 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		final String siteId = (String) params.get("siteId");
 		final long assignmentId = NumberUtils.toLong((String) params.get("assignmentId"));
 		final String action = (String) params.get("action");
-		final String groupId = (String) params.get("groupId");
+		final String groupRef = (String) params.get("groupRef");
 		final String minScoreString  = (String) params.get("minScore");
 		final String maxScoreString = (String) params.get("maxScore");
 
-		final String subject = (String) params.get("subject");
-		final String body = (String) params.get("body");
-
 		// check params supplied are valid
-		if (StringUtils.isBlank(siteId) || assignmentId == 0 || StringUtils.isBlank(subject) || StringUtils.isBlank(body)) {
-			throw new IllegalArgumentException("You must supply siteId, assignmentId, subject and body");
+		if (StringUtils.isBlank(siteId) || assignmentId == 0 || StringUtils.isEmpty(groupRef)) {
+			throw new IllegalArgumentException("You must supply siteId, groupRef and assignmentId");
 		}
 
 		checkInstructorOrTA(siteId);
@@ -255,28 +256,15 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		final Double minScore = (!StringUtils.isEmpty(minScoreString)) ? Double.valueOf(minScoreString) : null;
 		final Double maxScore = (!StringUtils.isEmpty(maxScoreString)) ? Double.valueOf(maxScoreString) : null;
 
-		Site site = null;
-		try {
-			site = siteService.getSite(siteId);
-		} catch(IdUnusedException idue) {
-			throw new IllegalArgumentException("siteId " + siteId + " is invalid");
-		}
-
 		Set<String> recipients = null;
-		if (StringUtils.isEmpty(groupId)) {
-			// Start with the site users
-			recipients = site.getUsers();
+		try {
+			AuthzGroup authzGroup = authzGroupService.getAuthzGroup(groupRef);
+			recipients = authzGroup.getUsers();
 			// Remove the instructors
-			recipients.removeAll(site.getUsersIsAllowed(Authz.PERMISSION_GRADE_ALL));
-		} else {
-			Group group = site.getGroup(groupId);
-			if (group == null) {
-				throw new IllegalArgumentException("Invalid groupId supplied.");
-			}
-			// Start with the group users
-			recipients = group.getUsers();
-			// Remove the instructors
-			recipients.removeAll(group.getUsersIsAllowed(Authz.PERMISSION_GRADE_ALL));
+			recipients.removeAll(authzGroup.getUsersIsAllowed(Authz.PERMISSION_GRADE_ALL));
+			recipients.removeAll(authzGroup.getUsersIsAllowed(Authz.PERMISSION_GRADE_SECTION));
+		} catch (GroupNotDefinedException gnde) {
+			throw new IllegalArgumentException("No group defined for " + groupRef);
 		}
 
 		List<GradeDefinition> grades

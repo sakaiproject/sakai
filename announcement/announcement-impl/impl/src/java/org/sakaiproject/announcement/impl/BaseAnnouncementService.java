@@ -184,17 +184,17 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			edit.setAction(siteEmailNotificationAnnc);
 
 			// register functions
-			functionManager.registerFunction(eventId(SECURE_READ));
-			functionManager.registerFunction(eventId(SECURE_ADD));
-			functionManager.registerFunction(eventId(SECURE_REMOVE_ANY));
-			functionManager.registerFunction(eventId(SECURE_REMOVE_OWN));
-			functionManager.registerFunction(eventId(SECURE_UPDATE_ANY));
-			functionManager.registerFunction(eventId(SECURE_UPDATE_OWN));
-			functionManager.registerFunction(eventId(SECURE_ALL_GROUPS));
+			functionManager.registerFunction(eventId(SECURE_READ), true);
+			functionManager.registerFunction(eventId(SECURE_ADD), true);
+			functionManager.registerFunction(eventId(SECURE_REMOVE_ANY), true);
+			functionManager.registerFunction(eventId(SECURE_REMOVE_OWN), true);
+			functionManager.registerFunction(eventId(SECURE_UPDATE_ANY), true);
+			functionManager.registerFunction(eventId(SECURE_UPDATE_OWN), true);
+			functionManager.registerFunction(eventId(SECURE_ALL_GROUPS), true);
 
 			// Sakai v2.4: UI end says hidden, 'under the covers' says draft
 			// Done so import from old sites causes drafts to 'become' hidden in new sites
-			functionManager.registerFunction(eventId(SECURE_READ_DRAFT));
+			functionManager.registerFunction(eventId(SECURE_READ_DRAFT), true);
 
 			// entity producer registration
 			m_entityManager.registerEntityProducer(this, REFERENCE_ROOT);

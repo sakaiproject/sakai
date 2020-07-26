@@ -48,6 +48,7 @@ import org.springframework.context.MessageSource;
 
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -63,7 +64,8 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
+
 
 /**
  * <p>
@@ -315,10 +317,11 @@ public class AjaxServer extends HttpServlet
 	else
 	    filter = FILTER_DEFAULT;
 
+	FormattedText formattedText = ComponentManager.get(FormattedText.class);
 	if (filter.equals(FILTER_NONE)) {
-	    html = FormattedText.processHtmlDocument(contents, error);
+	    html = formattedText.processHtmlDocument(contents, error);
 	} else if (filter.equals(FILTER_DEFAULT)) {
-	    html = FormattedText.processFormattedText(contents, error);
+	    html = formattedText.processFormattedText(contents, error);
 	} else if (ftInstance != null) {
 	    try {
 		// now filter is set. Implement it. Depends upon whether we have the anti-samy code
@@ -332,15 +335,15 @@ public class AjaxServer extends HttpServlet
 	    } catch (Exception e) {
 		// this should never happen. If it does, emulate what the anti-samy
 		// code does if antisamy is disabled. It always filters
-		html = FormattedText.processFormattedText(contents, error);
+		html = formattedText.processFormattedText(contents, error);
 	    }
 	} else {
 	    // don't have antisamy. For LOW, use old instructor behavior, since
 	    // LOW is the default. For high, it makes sense to filter
 	    if (filter.equals(FILTER_HIGH))
-		html = FormattedText.processFormattedText(contents, error);
+		html = formattedText.processFormattedText(contents, error);
 	    else
-		html = FormattedText.processHtmlDocument(contents, error);
+		html = formattedText.processHtmlDocument(contents, error);
 	    
 	}
 	return html;

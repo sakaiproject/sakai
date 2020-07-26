@@ -23,33 +23,30 @@ include file for displaying multiple choice single correct survey questions
 --%>
 -->
 
-  <h:outputText value="#{question.text}"  escape="false"/>
+  <h:outputText value="#{question.text}" escape="false"/>
+  <br/><br/>
   <h:dataTable value="#{question.itemTextArray}" var="itemText">
    <h:column>
-   <h:dataTable value="#{itemText.answerArraySorted}" var="answer" width="100%">
-    <h:column>
+   <t:dataList value="#{itemText.answerArraySorted}" var="answer" layout="unorderedList" style="list-style-type:none;">
+
       <h:graphicImage id="image8" rendered="#{answer.isCorrect || (question.partialCreditFlag && answer.partialCredit gt 0)}"
          alt="#{evaluationMessages.alt_correct}" url="/images/delivery/checkmark.gif" >
       </h:graphicImage>
       <h:graphicImage id="image9" rendered="#{!answer.isCorrect}"
         alt=" " url="/images/delivery/spacer.gif" >
        </h:graphicImage>
-    </h:column>
-    <h:column>
-      <h:outputText value="#{answer.label}. " escape="false"
-        rendered="#{question.hint == '***'}" />
-    </h:column>
-    <h:column><%-- radio button, select answer --%>
+
+      <h:outputText value="#{answer.label}. " escape="false" rendered="#{question.hint == '***'}" />
+
       <h:selectOneRadio id="samigo-mc-single-choice" value="#{question.hint}" disabled="true" rendered="#{question.hint != '***'}">
         <f:selectItem itemLabel="#{answer.label}. " itemValue="#{answer.sequence}"/>
       </h:selectOneRadio>
-    </h:column>
-    <h:column>
+
       <h:outputLabel for="samigo-mc-single-choice" styleClass="mcAnswerText" value="#{answer.text}" escape="false" >
         <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter" />
-      </h:outputLabel>
-    </h:column>
-   </h:dataTable>
+      </h:outputLabel><br/><br/>
+
+   </t:dataList>
    </h:column>
   </h:dataTable>
   

@@ -135,16 +135,17 @@ public class AutoGroupsController {
         // Clean the list if the 'dont use sections' option has been selected
         if (GroupManagerConstants.SECTIONS_OPTION_DONT_USE_SECTIONS == autoGroupsForm.getSectionsOption()) {
             autoGroupsForm.setSelectedSectionList(new ArrayList<String>());
+            autoGroupsForm.setUseManuallyAddedUsers(false);
         }
 
         // Display an error if 'use sections' option has been selected and the list is empty.
-        if (GroupManagerConstants.SECTIONS_OPTION_USE_SECTIONS == autoGroupsForm.getSectionsOption() && autoGroupsForm.getSelectedSectionList().isEmpty()) {
+        if (GroupManagerConstants.SECTIONS_OPTION_USE_SECTIONS == autoGroupsForm.getSectionsOption() && autoGroupsForm.getSelectedSectionList().isEmpty() && !autoGroupsForm.isUseManuallyAddedUsers()) {
             model.addAttribute("step2ErrorMessage", messageSource.getMessage("autogroups.step2.error.emptysections", null, sakaiService.getCurrentUserLocale()));
             return showStep2(model, autoGroupsForm);
         }
 
         // At least one of the lists, roles or sections, should have a value, perform a validation.
-        if (autoGroupsForm.getSelectedRoleList().isEmpty() && autoGroupsForm.getSelectedSectionList().isEmpty()) {
+        if (autoGroupsForm.getSelectedRoleList().isEmpty() && autoGroupsForm.getSelectedSectionList().isEmpty() && !autoGroupsForm.isUseManuallyAddedUsers()) {
             model.addAttribute("step2ErrorMessage", messageSource.getMessage("autogroups.step2.error.emptylists", null, sakaiService.getCurrentUserLocale()));
             return showStep2(model, autoGroupsForm);
         }
@@ -203,13 +204,16 @@ public class AutoGroupsController {
         if (GroupManagerConstants.STRUCTURE_CONFIGURATION_MIXTURE == autoGroupsForm.getStructureConfigurationOption()) {
             boolean titleError = false;
             boolean numberError = false;
+            String numberErrorMessage = StringUtils.EMPTY;
 
             if (GroupManagerConstants.SPLIT_OPTIONS_BY_GROUP == autoGroupsForm.getSplitOptions()) {
                 titleError = StringUtils.isBlank(autoGroupsForm.getGroupTitleByGroup());
                 numberError = autoGroupsForm.getGroupNumberByGroup() <= 0 || autoGroupsForm.getGroupNumberByGroup() > 999;
+                numberErrorMessage = messageSource.getMessage("autogroups.step3.group.number.required", null, userLocale);
             } else {
                 titleError = StringUtils.isBlank(autoGroupsForm.getGroupTitleByUser());
                 numberError = autoGroupsForm.getGroupNumberByUser() <= 0 || autoGroupsForm.getGroupNumberByUser() > 999;
+                numberErrorMessage = messageSource.getMessage("autogroups.step3.userspergroup.number.required", null, userLocale);
             }
 
             // Validate the title is not empty.
@@ -220,7 +224,7 @@ public class AutoGroupsController {
 
             // Validate the number of groups is inside the range.
             if (numberError) {
-                model.addAttribute("splitOptionsError", messageSource.getMessage("autogroups.step3.group.number.required", null, userLocale));
+                model.addAttribute("splitOptionsError", numberErrorMessage);
                 return showStep3(model, autoGroupsForm);
             }
 
@@ -248,6 +252,7 @@ public class AutoGroupsController {
         List<String> selectedRoleList = autoGroupsForm.getSelectedRoleList();
         List<String> selectedSectionList = autoGroupsForm.getSelectedSectionList();
         int sectionsOption = autoGroupsForm.getSectionsOption();
+        boolean useManuallyAddedUsers = autoGroupsForm.isUseManuallyAddedUsers();
         int structureConfigurationOption = autoGroupsForm.getStructureConfigurationOption();
         int splitOption = autoGroupsForm.getSplitOptions();
 
@@ -269,7 +274,7 @@ public class AutoGroupsController {
         // Build the list of users that will compose the groups.
         // If the user decided to not use sections, pick all the members of the site. 
         // If the user decided to use sections, pick all the members of the site that belongs to those sections.
-        if (GroupManagerConstants.SECTIONS_OPTION_DONT_USE_SECTIONS == sectionsOption || selectedSectionList.isEmpty()) {
+        if (GroupManagerConstants.SECTIONS_OPTION_DONT_USE_SECTIONS == sectionsOption) {
             // Do not filter by section, use all the members of the site filtering by the selected roles
             filteredMembers = site.getMembers().stream().filter(m -> selectedRoleList.contains(m.getRole().getId())).collect(Collectors.toList());
         } else {
@@ -296,6 +301,13 @@ public class AutoGroupsController {
                     }
                 }
             }
+
+            if (useManuallyAddedUsers) {
+                // Add non-provided members filtering by the selected roles.
+                List<Member> nonProvidedSiteMembers = site.getMembers().stream().filter(m -> !m.isProvided() && selectedRoleList.contains(m.getRole().getId())).collect(Collectors.toList());
+                filteredMembers.addAll(nonProvidedSiteMembers);
+            }
+
         }
 
         // Fill the user and the member objects to display the names and the eid in the UI.
@@ -328,12 +340,22 @@ public class AutoGroupsController {
                 String groupPrefix = autoGroupsForm.getGroupTitleByGroup();
                 int groupNumber = autoGroupsForm.getGroupNumberByGroup();
                 int groupSize = filteredMembers.size() / groupNumber;
+                int remainingUsers = filteredMembers.size() % groupNumber;
 
+                // Use one, two or three digits to represent the suffix depending on the size of the number of groups, %01d %02d or %03d
+                String indexFormat = String.format("%%0%dd", String.valueOf(groupNumber).length());
                 for (int groupIndex = 1 ; groupIndex <= groupNumber; groupIndex++) {
-                    String groupTitle = String.format("%s-%d", groupPrefix, groupIndex);
+                    String groupTitle = String.format("%s-"+indexFormat, groupPrefix, groupIndex);
                     List<String> randomMemberList = new ArrayList<String>();
                     List<Member> memberSubList = filteredMembers.stream().limit(groupSize).collect(Collectors.toList());
                     filteredMembers.removeAll(memberSubList);
+
+                    // Distribute the rest of the users in the first groups, we can take the first as they are already randomized. 
+                    if (groupIndex <= remainingUsers && !filteredMembers.isEmpty()) {
+                        memberSubList.add(filteredMembers.get(0));
+                        filteredMembers.remove(0);
+                    }
+
                     // If there are remaining members, assign them to the last group.
                     if (groupIndex == groupNumber && !filteredMembers.isEmpty()) {
                         memberSubList.addAll(filteredMembers);
@@ -347,8 +369,10 @@ public class AutoGroupsController {
                 int groupNumber = autoGroupsForm.getGroupNumberByUser();
                 List<List<Member>> partitionedMemberList = ListUtils.partition(filteredMembers, groupNumber);
                 int groupIndex = 1;
+                // Use one, two or three digits to represent the suffix depending on the size of the number of groups, %01d %02d or %03d
+                String indexFormat = String.format("%%0%dd", String.valueOf(partitionedMemberList.size()).length());
                 for (List<Member> groupMembers : partitionedMemberList) {
-                    String groupTitle = String.format("%s-%d", groupPrefix, groupIndex);
+                    String groupTitle = String.format("%s-"+indexFormat, groupPrefix, groupIndex);
                     groupIndex++;
                     List<String> randomMemberList = new ArrayList<String>();
                     groupMembers.forEach(member -> { randomMemberList.add(member.getUserId()); });

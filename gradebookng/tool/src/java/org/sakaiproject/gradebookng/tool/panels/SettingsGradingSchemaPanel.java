@@ -301,8 +301,8 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 				// repaint table
 				target.add(SettingsGradingSchemaPanel.this.schemaWrap);
 
-				// Note that we don't need to worry about showing warnings about modifications here as the change notifications will handle
-				// that once a value has been added to the schema
+				// focus the new grading schema input
+				target.appendJavaScript("sakai.gradebookng.settings.gradingschemas.focusLastRow();");
 			}
 		};
 		addMapping.setDefaultFormProcessing(false);

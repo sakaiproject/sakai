@@ -50,7 +50,7 @@ public class ContentUserNotificationPreferencesRegistrationImpl extends UserNoti
 		
 		String resourceClass = getServerConfigurationService().getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
 		String resourceBundle = getServerConfigurationService().getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
-		ResourceLoader loader = new Resource().getLoader(resourceClass, resourceBundle);
+		ResourceLoader loader = Resource.getResourceLoader(resourceClass, resourceBundle);
 		return loader;
 	}
 

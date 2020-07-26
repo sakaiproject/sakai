@@ -157,7 +157,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	 * messages.
 	 */
 	private static ResourceLoader rloader = new ResourceLoader("sitenav");
-	private static ResourceLoader cmLoader = new Resource().getLoader("org.sakaiproject.portal.api.PortalService", "connection-manager");
+	private static ResourceLoader cmLoader = Resource.getResourceLoader("org.sakaiproject.portal.api.PortalService", "connection-manager");
 
 	/**
 	 * Parameter value to indicate to look up a tool ID within a site
@@ -1335,6 +1335,12 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		headJs.append("/library/js/headscripts.js");
 		headJs.append(PortalUtils.getCDNQuery());
 		headJs.append("\"></script>\n");
+
+		String [] parts = getParts(req);
+		if ((parts.length > 2) && (parts[1].equals("tool"))) {
+			headJs.append("<script src=\""+PortalUtils.getWebjarsPath()+"momentjs/"+PortalUtils.MOMENTJS_VERSION+"/min/moment-with-locales.min.js"+PortalUtils.getCDNQuery()+"\"></script>\n");
+		}
+
 		headJs.append("<script type=\"text/javascript\">var sakai = sakai || {}; sakai.editor = sakai.editor || {}; " +
 				"sakai.editor.editors = sakai.editor.editors || {}; " +
 				"sakai.editor.editors.ckeditor = sakai.editor.editors.ckeditor || {}; " +
@@ -1401,13 +1407,16 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		}
 
 		StringBuilder bodyonload = new StringBuilder();
+		String bodyclass = "Mrphs-container";
 		if (p != null)
 		{
 			String element = Web.escapeJavascript("Main" + p.getId());
 			bodyonload.append("setMainFrameHeight('" + element + "');");
+			bodyclass += " Mrphs-" + p.getToolId().replace(".","-");
 		}
 		bodyonload.append("setFocus(focus_path);");
 		req.setAttribute("sakai.html.body.onload", bodyonload.toString());
+		req.setAttribute("sakai.html.body.class", bodyclass.toString());
 
 		portalService.getRenderEngine(portalContext, req).setupForward(req, res, p, skin);
 	}
@@ -1773,6 +1782,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				int bullhornAlertInterval = ServerConfigurationService.getInt("portal.bullhorns.poll.interval", 240000);
 				rcontext.put("bullhornsPollInterval", bullhornAlertInterval);
 			}
+
+			String faviconURL = ServerConfigurationService.getString("portal.favicon.url");
+			rcontext.put("faviconURL", faviconURL);
 
 			// SAK-25931 - Do not remove this from session here - removal is done by /direct
 	                Session s = SessionManager.getCurrentSession();

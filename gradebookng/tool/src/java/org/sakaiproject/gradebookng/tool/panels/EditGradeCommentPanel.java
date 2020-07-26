@@ -18,6 +18,7 @@ package org.sakaiproject.gradebookng.tool.panels;
 import java.io.Serializable;
 import java.util.Map;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
@@ -94,7 +95,7 @@ public class EditGradeCommentPanel extends BasePanel {
 					EditGradeCommentPanel.this.comment = updatedComment.getGradeComment();
 
 					// store the instructor feedback comment
-					target.appendJavaScript(String.format("GbGradeTable.saveNewPrediction('%s');", updatedComment.getGradeComment()));
+					target.appendJavaScript(String.format("GbGradeTable.saveNewPrediction(\"%s\");", StringEscapeUtils.escapeJson(updatedComment.getGradeComment())));
 
 					// trigger a close
 					EditGradeCommentPanel.this.window.close(target);

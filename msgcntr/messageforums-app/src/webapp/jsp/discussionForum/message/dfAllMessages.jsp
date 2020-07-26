@@ -23,7 +23,8 @@
 <script src="/messageforums-tool/js/forum_movethread.js"></script>
 
 <script src="/messageforums-tool/js/sak-10625.js"></script>
-<script type="module" src="/rubrics-service/webcomponents/rubric-association-requirements.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
+<script src="/webcomponents/rubrics/sakai-rubrics-utils.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
+<script type="module" src="/webcomponents/rubrics/rubric-association-requirements.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 
 <!--jsp/discussionForum/message/dfAllMessages.jsp-->
 		<link rel="stylesheet" type="text/css" href="../../css/TableSorter.css" />
@@ -35,6 +36,12 @@
  			$('#msgForum\\:messagesInHierDataTable').threadsSorter();
 			//add handles to list for thread operat
 			instrumentThreads('msgForum\\:messagesInHierDataTable');
+
+			var menuLink = $('#forumsMainMenuLink');
+			var menuLinkSpan = menuLink.closest('span');
+			menuLinkSpan.addClass('current');
+			menuLinkSpan.html(menuLink.text());
+
  		});
 
         function disableMoveLink() {
@@ -85,6 +92,7 @@
          }
 
  		</script>
+		<%@ include file="/jsp/discussionForum/menu/forumsMenu.jsp" %>
 		<h:outputText styleClass="showMoreText"  style="display:none" value="#{msgs.cdfm_show_more_full_description}"  />
 
 	<%--//
@@ -123,26 +131,6 @@
             <%@ include file="moveThreadPicker.jsp" %>
         </f:subview>
 
-		<sakai:tool_bar separator="#{msgs.cdfm_toolbar_separator}">
-   			<h:commandLink action="#{ForumTool.processAddMessage}" id="df_componse_message_dfAllMessages"
-		            rendered="#{ForumTool.selectedTopic.isNewResponse && !ForumTool.selectedTopic.locked && !ForumTool.selectedForum.locked == 'true'}">
-					<h:outputText value="#{msgs.cdfm_container_title_thread}"/>
-				</h:commandLink>
-
-			<h:commandLink action="#{ForumTool.processActionDisplayFlatView}">
-					<h:outputText value="#{msgs.cdfm_flat_view}"/>
-				</h:commandLink>
-
-      			<h:commandLink action="#{ForumTool.processActionTopicSettings}" id="topic_setting"
-      				rendered="#{ForumTool.selectedTopic.changeSettings}">
-					<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
-					<h:outputText value="#{msgs.cdfm_topic_settings}"/>
-				</h:commandLink>
-				
-				<h:outputLink id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyUrl}');">
-					<h:graphicImage url="/../../library/image/silk/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
-				</h:outputLink>
- 		</sakai:tool_bar>
  		<h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" />
  			<h:panelGroup styleClass="itemNav">
 			   <h:outputText styleClass="button formButtonDisabled" value="#{msgs.cdfm_previous_topic}"  rendered="#{!ForumTool.selectedTopic.hasPreviousTopic}" />
@@ -183,7 +171,20 @@
 					  <f:verbatim></h1></div></f:verbatim>
 				 </h:panelGroup>
 			</h:panelGrid>
-		
+
+		<h:panelGroup id="forumActions" layout="block">
+			<h:commandLink styleClass="button" value="#{msgs.cdfm_container_title_thread}" action="#{ForumTool.processAddMessage}" id="df_componse_message_dfAllMessages" 
+				rendered="#{ForumTool.selectedTopic.isNewResponse && !ForumTool.selectedTopic.locked && !ForumTool.selectedForum.locked == 'true'}"/>&nbsp;
+			<h:commandLink styleClass="button" value="#{msgs.cdfm_flat_view}" action="#{ForumTool.processActionDisplayFlatView}"/>&nbsp;
+			<h:commandLink styleClass="button" action="#{ForumTool.processActionTopicSettings}" id="topic_setting" rendered="#{ForumTool.selectedTopic.changeSettings}">&nbsp;
+				<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
+				<h:outputText value="#{msgs.cdfm_topic_settings}"/>
+			</h:commandLink>&nbsp;
+			<h:outputLink styleClass="button" id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyUrl}');">
+				<h:graphicImage url="/../../library/image/silk/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
+			</h:outputLink>
+ 		</h:panelGroup>
+
 			<h:panelGrid columns="1" width="100%"  styleClass="topicBloc topicBlocLone specialLink"  cellspacing="0" cellpadding="0">
 				<h:panelGroup>
 					<h:outputText styleClass="highlight title" id="draft" value="#{msgs.cdfm_draft}" rendered="#{ForumTool.selectedTopic.topic.draft == 'true'}"/>
@@ -191,12 +192,12 @@
 					<h:graphicImage url="/images/silk/date_delete.png" title="#{msgs.topic_restricted_message}" alt="#{msgs.topic_restricted_message}" rendered="#{ForumTool.selectedTopic.topic.availability == 'false'}" style="margin-right:.5em"/>
 					<h:graphicImage url="/images/silk/lock.png" alt="#{msgs.cdfm_forum_locked}" rendered="#{ForumTool.selectedForum.forum.locked == 'true' || ForumTool.selectedTopic.topic.locked == 'true'}" style="margin-right:.5em"/>
 					<%-- Rubrics marker --%>
-					<h:panelGroup rendered="#{ForumTool.selectedForum.hasRubric == 'true'}" >
+					<h:panelGroup rendered="#{ForumTool.selectedTopic.hasRubric == 'true'}" >
 					  <sakai-rubric-student-preview-button
 						  token="<h:outputText value="#{ForumTool.rbcsToken}" />"
 						  display="icon"
 						  tool-id="sakai.gradebookng"
-						  entity-id="<h:outputText value="#{ForumTool.selectedForum.gradeAssign}" />">
+						  entity-id="<h:outputText value="#{ForumTool.selectedTopic.gradeAssign}" />">
 					  </sakai-rubric-student-preview-button>
 					</h:panelGroup>
 					<h:outputText value="#{ForumTool.selectedTopic.topic.title}" styleClass="title"/>
@@ -271,7 +272,7 @@
    				</h:panelGroup>
 			<%--//designNote: need a rendered attribute here that will toggle the display of the table (if messages) or a textblock (class="instruction") if there are no messages--%>
 			<h:outputText styleClass="messageAlert" value="#{msgs.cdfm_postFirst_warning}" rendered="#{ForumTool.selectedTopic != null && ForumTool.needToPostFirst}"/>				
-			<h:outputText value="#{msgs.cdfm_no_messages}" rendered="#{ForumTool.selectedTopic == null || (empty ForumTool.selectedTopic.messages && !ForumTool.needToPostFirst)}"  styleClass="instruction" style="display:block"/>
+			<h:outputText value="#{msgs.cdfm_no_messages}" rendered="#{ForumTool.selectedTopic == null || (empty ForumTool.selectedTopic.messages && !ForumTool.needToPostFirst)}"  styleClass="sak-banner-info" style="display:block"/>
 			<%--//gsilver: need a rendered attribute here that will toggle the display of the table (if messages) or a textblock (class="instruction") if there are no messages--%> 						
             <div id="checkbox">
 			<mf:hierDataTable styleClass="specialLink allMessages" id="messagesInHierDataTable" rendered="#{!empty ForumTool.messages}"  value="#{ForumTool.messages}" var="message" expanded="#{ForumTool.expanded}"

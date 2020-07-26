@@ -45,8 +45,6 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	public static final String		COMMONSCRIPT		= StatsManager.SITESTATS_WEBAPP+"/script/common.js";
 	public static final String		JQUERYSCRIPT		= "/library/webjars/jquery/1.12.4/jquery.min.js";
 	public static final String		LAST_PAGE			= "lastSiteStatsPage";
-	public static final String		DATEPICKERSCRIPT	= "/library/js/lang-datepicker/lang-datepicker.js";
-	public static final String		JQUERYUISCRIPT		= "/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js";
 
 	public BasePage(){
 		// Set Sakai Locale
@@ -73,8 +71,6 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		response.render(StringHeaderItem.forString(request.getAttribute("sakai.html.head").toString()));
 		response.render(JavaScriptHeaderItem.forUrl(COMMONSCRIPT));
 
-		// include (this) tool style (CSS)
-		response.render(CssHeaderItem.forUrl(StatsManager.SITESTATS_WEBAPP+"/css/sitestats.css"));
 	}
 	
 	@Override

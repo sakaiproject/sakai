@@ -4,10 +4,10 @@
 
 <div class="portletBody">
 <script type="text/javascript" src="/library/js/headscripts.js"></script>
-<script>includeLatestJQuery('web-ifp edit.vm');</script>
-<script type="text/javascript" src="/library/js/fontIconPicker/2.0.1-cs/jquery.fonticonpicker.min.js"></script>
-<link rel="stylesheet" type="text/css" href="/library/js/fontIconPicker/2.0.1-cs/css/jquery.fonticonpicker.css" />
-<link rel="stylesheet" type="text/css" href="/library/js/fontIconPicker/2.0.1-cs/themes/grey-theme/jquery.fonticonpicker.grey.min.css" />
+<script>
+	includeLatestJQuery('web-ifp edit.vm');
+	includeWebjarLibrary('fontawesome-iconpicker');
+</script>
 	<h3>
 		$tlang.getString("gen.custom")
 	</h3>

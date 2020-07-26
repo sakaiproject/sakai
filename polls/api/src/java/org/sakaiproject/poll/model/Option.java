@@ -43,4 +43,8 @@ public class Option {
     public String getId() {
         return optionId+"";
     }
+
+    public void setId(Long id) {	
+        this.optionId = id;	
+    }
 }

@@ -307,7 +307,7 @@ function setupMessageNav(messageType){
             last = $("#lastPendingItemTitleHolder").text();
         }
 		//go to first new or pending message
-        $('#messNavHolder').append("<span class='jumpToNew specialLink'><a href='#" + messageType + "newMess0'>" + tofirst + "</a></span>");
+        $('#messNavHolder').append("<span class='jumpToNew specialLink'><a class='button' href='#" + messageType + "newMess0'>" + tofirst + "</a></span>");
         //instrument link targets (clicking on "New" goes to next one, same with "Pending")
 		$("." + messageType).each(function(intIndex){
             var parentRow = $(this).parents('tr');
@@ -864,9 +864,15 @@ $(document).ready(function(){
         $buttonContainer.find('.messageProgress').fadeIn('slow')
     });
 
-});
+    $('body').on('total-points-updated', function (e) {
 
-// rubrics-specific code
+        var gradeField = document.getElementById("msgForum:dfMsgGradeGradePoint");
+        if (gradeField) {
+            gradeField.value = e.detail.value;
+        }
+    });
+});
+/*
 rubricsEventHandlers = function () {
 
   $('body').on('total-points-updated', function (e) {
@@ -876,8 +882,5 @@ rubricsEventHandlers = function () {
       gradeField.value = e.detail.value;
     }
   });
-
-  $('body').on('rubric-ratings-changed', function (e) {
-    rubricChanged = true;
-  });
 }
+*/
