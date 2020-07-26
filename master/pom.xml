@@ -1819,6 +1819,11 @@
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.jsf2</groupId>
+        <artifactId>jsf2-spreadsheet</artifactId>
+        <version>${sakai.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.jsf2</groupId>
         <artifactId>jsf2-tool</artifactId>
         <version>${sakai.version}</version>
       </dependency>
