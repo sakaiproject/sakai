@@ -718,7 +718,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 			Category persistedCategory = null;
 			if (categoryId != null) {
 				persistedCategory = getCategory(categoryId);
-				if (persistedCategory.isDropScores()) {
+				if (persistedCategory.isDropScores() && !persistedCategory.isEqualWeightAssignments()) {
 					List<GradebookAssignment> thisCategoryAssignments = getAssignmentsForCategory(categoryId);
 					for (GradebookAssignment thisAssignment : thisCategoryAssignments) {
 						if (!Objects.equals(thisAssignment.getPointsPossible(), points)) {
