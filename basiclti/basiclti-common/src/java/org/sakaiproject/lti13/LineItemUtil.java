@@ -120,11 +120,6 @@ public class LineItemUtil {
 			lineItem.scoreMaximum = 100.0;
 		}
 
-System.out.println("createLineItem="+lineItem.toString());
-System.out.println("SakaiLineItem.label="+lineItem.label);
-System.out.println("SakaiLineItem.scoreMaximum="+lineItem.scoreMaximum);
-System.out.println("SakaiLineItem.includeInComputation="+lineItem.includeInComputation);
-System.out.println("SakaiLineItem.releaseToStudent="+lineItem.releaseToStudent);
 		if ( lineItem.label == null ) {
 			throw new RuntimeException("lineitem.label is required");
 		}
@@ -134,7 +129,6 @@ System.out.println("SakaiLineItem.releaseToStudent="+lineItem.releaseToStudent);
 		}
 
 		String external_id = constructExternalId(tool_id, content, lineItem);
-System.out.println("external_id="+external_id);
 
 		Assignment assignmentObject = null;
 

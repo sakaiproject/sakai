@@ -71,7 +71,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.lti.api.LTIService;
-import static org.sakaiproject.lti13.LineItemUtil.getLineItem;
+import org.sakaiproject.lti13.LineItemUtil;
 
 import org.tsugi.basiclti.BasicLTIUtil;
 import org.tsugi.jackson.JacksonUtil;
@@ -1399,7 +1399,7 @@ public class LTI13Servlet extends HttpServlet {
 
 		// Return the line item metadata
 		if ( ! results ) {
-			SakaiLineItem item = getLineItem(signed_placement, a);
+			SakaiLineItem item = LineItemUtil.getLineItem(signed_placement, a);
 
 			response.setContentType(SakaiLineItem.MIME_TYPE);
 			String json_out = JacksonUtil.prettyPrint(item);
