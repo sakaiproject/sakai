@@ -207,7 +207,13 @@ body.is-logged-out{
 	text-align: center;
 	border-right: 1px solid $tool-border-color;
 	@include transition( left 0.25s linear 0s );
-
+	
+	.sak-dark-theme & {
+		background: var(--sak-dark-theme-background);
+		transition:var(--sak-theme-switch-ease);
+		border-color: var(--sak-dark-theme-border-color);
+	}
+	
 	@media #{$phone}{
 		left: -100%;
 		position: absolute;

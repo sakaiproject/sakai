@@ -14,6 +14,10 @@
 .#{$namespace}portalWrapper {
 	position: relative;
 	background: $main-content-background;
+	transition:var(--sak-theme-switch-ease);
+	.sak-dark-theme & {
+		background: $main-content-background--theme-dark;
+	}
 }
 
 #pageBody{
@@ -64,6 +68,10 @@
 
 .#{$namespace}mainContent{
 	background: $main-content-background;
+	transition:var(--sak-theme-switch-ease);
+	.sak-dark-theme & {
+		background: $main-content-background--theme-dark;
+	}
 }
 
 .#{$namespace}pageColumns--single {
@@ -85,6 +93,11 @@
 	margin-top: auto; 	// push the footer to the bottom of the page
 	background-color: $footer-background-color;
 	border-top: 1px solid $footer-border-color;
+	transition:var(--sak-theme-switch-ease);
+	.sak-dark-theme & {
+		background-color: $footer-background-color--theme-dark;
+		border-color: $footer-border-color--theme-dark;
+	}
 }
 
 .#{$namespace}noJs.js-warn-no-js {

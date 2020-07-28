@@ -25,7 +25,15 @@ $variables: (
 --sak-color-blue-500: hsl(203, 76%, 25%),
 --sak-color-blue-600: hsl(203, 76%, 16%),
 --sak-color-blue-700: hsl(203, 76%, 7%),
---sak-theme-switch-ease: background-color 0.6s cubic-bezier(0.76, 0, 0.24, 1) 
+
+--sak-theme-switch-ease: background-color 0.6s cubic-bezier(0.76, 0, 0.24, 1), 
+--sak-dark-theme-background: var(--sak-color-blue-700),
+--sak-dark-theme-background-2: var(--sak-color-blue-600),
+--sak-dark-theme-background-3: var(--sak-color-blue-500),
+--sak-dark-theme-background-active: var(--sak-color-blue-500),
+--sak-dark-theme-background-active-2: var(--sak-color-blue-400),
+--sak-dark-theme-border-color: var(--sak-color-blue-400),
+--sak-dark-theme-color: var(--sak-color-black-300)
 );
 
 
@@ -102,102 +110,20 @@ $variables: (
         -ms-user-select: none;
         -webkit-user-select: none;
         -o-user-select: none;
-}
+    }
 
-
-
-
-
-
-    //the body does not use fallback, its styles will be visible only in compatible browsers
     html {
-        * {
-            transition:var(--sak-theme-switch-ease);
-        }
         &.sak-dark-theme {
             * {
-                color: var(--sak-color-black-200);
-                
-            }
-            // Header
-            .Mrphs-mainHeader .Mrphs-headerLogo {
-                // background-color: var(--sak-color-black-900);
-                
-            }
-            .Mrphs-mainHeader {
-                box-shadow: none;
-            }
-
-            //Favorites
-            #topnav_container,
-            .Mrphs-siteHierarchy{
-                color: var(--sak-color-black-200);
-                background-color: var(--sak-color-black-900);
-                border-color:var(--sak-color-black-900);
-            }
-            #linkNav ul li.Mrphs-sitesNav__menuitem,
-            #toolMenu ul li .Mrphs-toolsNav__menuitem--link, #subSites ul li .Mrphs-toolsNav__menuitem--link,
-            #linkNav ul li.Mrphs-sitesNav__menuitem .link-container,
-            #linkNav ul li.Mrphs-sitesNav__menuitem .Mrphs-sitesNav__submenu .Mrphs-sitesNav__submenuitem .Mrphs-sitesNav__submenuitem-link, #linkNav ul li.Mrphs-sitesNav__menuitem .Mrphs-sitesNav__submenu .Mrphs-sitesNav__submenuitem a
-             {
-                color: var(--sak-color-black-200);
-                background-color: var(--sak-color-black-850);
-
-            }
-            
-            //Tool Menu
-            #toolMenuWrap {
-                color: var(--sak-color-black-200);
-                background-color: var(--sak-color-black-850);
-                border-color: var(--sak-color-black-850);
-            }
-            #toolMenu ul li:first-of-type a, #subSites ul li:first-of-type a,
-            #toolMenu ul li, #subSites ul li,
-            #toolMenu ul li.Mrphs-collapseTools, #toolMenu ul li.Mrphs-collapseTools, #subSites ul li.Mrphs-collapseTools, #subSites ul li.Mrphs-collapseTools,
-            .Mrphs-toolTitleNav .Mrphs-toolTitleNav__link {
-                border-color: var(--sak-color-black-850);
-                background-color: var(--sak-color-black-850);
-            }
-            
-            //Pagebody
-            body.Mrphs-portalBody,
-            .Mrphs-portalWrapper,
-            .Mrphs-mainContent,
-            .portletBody,
-            .breadcrumb {
-                color: var(--sak-color-black-200);
-                background-color: var(--sak-color-black-900);
-                border-color:var(--sak-color-black-900);
-            }
-            .Mrphs-multipleTools .Mrphs-container .Mrphs-container--toolTitleNav,
-            .Mrphs-toolBody
-            {
-                color: var(--sak-color-black-200);
-                
-
-            }
-            .Mrphs-multipleTools .Mrphs-container {
-                box-shadow: $material-elevation-3dp;
-            }
-
-            //Tool Tabs
-            .navIntraTool li span a {
-                background:var(--sak-color-black-850);
-            }
-
-            //Footer
-            .Mrphs-container--footer{
-                color: var(--sak-color-black-200);
-                background-color: var(--sak-color-black-900);
-                border-color:var(--sak-color-black-900);
+                color: var(--sak-dark-theme-color); 
             }
         }
     }
-    // the p and button tags uses the css4 mixin so a fall-back is provided and they will work on all browsers.
-    p {
-        text-align: justify;
-    @include css4 {
-        color: var(--color);
-    }
-    }
 }
+
+
+
+
+
+
+
