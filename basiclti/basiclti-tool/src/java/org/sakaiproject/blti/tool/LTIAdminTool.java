@@ -1430,7 +1430,15 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			// Extract the lineItem material
 			String label = reqProps.getProperty(LTIService.LTI_TITLE);
 			JSONObject lineItem = getObject(item, ContentItem.LINEITEM);
-			SakaiLineItem sakaiLineItem = new SakaiLineItem();
+			String lineItemStr = lineItem.toString();
+			SakaiLineItem sakaiLineItem = null;
+			try {
+				sakaiLineItem = (SakaiLineItem) new ObjectMapper().readValue(lineItemStr, SakaiLineItem.class);
+				state.setAttribute(STATE_LINE_ITEM, sakaiLineItem);
+			} catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
+				log.warn("Could not parse input as SakaiLineItem {}",lineItemStr);
+				sakaiLineItem = new SakaiLineItem();
+			}
 
 			if ( label != null && lineItem != null ) {
 				sakaiLineItem.label = label;
@@ -1688,7 +1696,15 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 				// Extract the lineItem material
 				String label = reqProps.getProperty(LTIService.LTI_TITLE);
 				JSONObject lineItem = getObject(item, ContentItem.LINEITEM);
-				SakaiLineItem sakaiLineItem = new SakaiLineItem();
+				String lineItemStr = lineItem.toString();
+				SakaiLineItem sakaiLineItem = null;
+				try {
+					sakaiLineItem = (SakaiLineItem) new ObjectMapper().readValue(lineItemStr, SakaiLineItem.class);
+					handleLineItem(state, sakaiLineItem, toolKey, content);
+				} catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
+					log.warn("Could not parse input as SakaiLineItem {}",lineItemStr);
+					sakaiLineItem = new SakaiLineItem();
+				}
 
 				if ( label != null && lineItem != null ) {
 					sakaiLineItem.label = label;

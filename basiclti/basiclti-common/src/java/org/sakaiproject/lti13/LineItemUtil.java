@@ -162,7 +162,8 @@ public class LineItemUtil {
 					Boolean releaseToStudent = lineItem.releaseToStudent == null ? Boolean.TRUE : lineItem.releaseToStudent; // Default to true
 					Boolean includeInComputation = lineItem.includeInComputation == null ? Boolean.TRUE : lineItem.includeInComputation; // Default true
 					assignmentObject.setReleased(releaseToStudent); // default true
-					assignmentObject.setUngraded(! includeInComputation); // default false
+					assignmentObject.setCounted(includeInComputation); // default true
+					assignmentObject.setUngraded(false);
 					assignmentId = g.addAssignment(context_id, assignmentObject);
 					assignmentObject.setId(assignmentId);
 					// Update sets the external values while add does not.
@@ -234,10 +235,11 @@ public class LineItemUtil {
 			assignmentObject.setName(lineItem.label);
 		}
 
-        Boolean releaseToStudent = lineItem.releaseToStudent == null ? Boolean.TRUE : lineItem.releaseToStudent; // Default to true
-        Boolean includeInComputation = lineItem.includeInComputation == null ? Boolean.TRUE : lineItem.includeInComputation; // Default true
-        assignmentObject.setReleased(releaseToStudent); // default true
-        assignmentObject.setUngraded(! includeInComputation); // default false
+		Boolean releaseToStudent = lineItem.releaseToStudent == null ? Boolean.TRUE : lineItem.releaseToStudent; // Default to true
+		Boolean includeInComputation = lineItem.includeInComputation == null ? Boolean.TRUE : lineItem.includeInComputation; // Default true
+		assignmentObject.setReleased(releaseToStudent); // default true
+		assignmentObject.setCounted(includeInComputation); // default true
+		assignmentObject.setUngraded(false);
 
 		pushAdvisor();
 		try {
