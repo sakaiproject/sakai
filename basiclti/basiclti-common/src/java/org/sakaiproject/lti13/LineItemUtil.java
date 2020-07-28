@@ -40,7 +40,6 @@ import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameExcept
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.lti13.util.SakaiLineItem;
-import org.tsugi.ags2.objects.Result;
 
 /**
  * Some Sakai Utility code for IMS Basic LTI This is mostly code to support the
