@@ -39,8 +39,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
-import org.tsugi.ags2.objects.LineItem;
-import org.tsugi.ags2.objects.Result;
+import org.sakaiproject.lti13.util.SakaiLineItem;
 
 /**
  * Some Sakai Utility code for IMS Basic LTI This is mostly code to support the
@@ -85,7 +84,7 @@ public class LineItemUtil {
 	 * Someday if we had a longer field I would store this as JSON.
 	 */
 	// TODO: Remember to dream that someday this will be JSON :)
-	public static String constructExternalId(Long tool_id, Map<String, Object> content, LineItem lineItem)
+	public static String constructExternalId(Long tool_id, Map<String, Object> content, SakaiLineItem lineItem)
 	{
 		String retval = tool_id.toString();
 		if ( content == null ) {
@@ -106,12 +105,16 @@ public class LineItemUtil {
 		return retval;
 	}
 
-	public static Assignment createLineItem(Site site, Long tool_id, Map<String, Object> content, LineItem lineItem) {
+	public static Assignment createLineItem(Site site, Long tool_id, Map<String, Object> content, SakaiLineItem lineItem) {
+		String context_id = site.getId();
+		return createLineItem(context_id, tool_id, content, lineItem);
+	}
+
+	public static Assignment createLineItem(String context_id, Long tool_id, Map<String, Object> content, SakaiLineItem lineItem) {
 		// Look up the assignment so we can find the max points
 		GradebookService g = (GradebookService) ComponentManager
 				.get("org.sakaiproject.service.gradebook.GradebookService");
 
-		String context_id = site.getId();
 		if (lineItem.scoreMaximum == null) {
 			lineItem.scoreMaximum = 100.0;
 		}
@@ -151,13 +154,16 @@ public class LineItemUtil {
 				try {
 					assignmentObject = new Assignment();
 					assignmentObject.setPoints(Double.valueOf(lineItem.scoreMaximum));
-					// We are using the sctual grade and points possible in the GB
+					// We are using the actual grade and points possible in the GB
 					assignmentObject.setExternallyMaintained(false);
 					assignmentObject.setExternalId(external_id);
 					assignmentObject.setExternalAppName(GB_EXTERNAL_APP_NAME);
 					assignmentObject.setName(lineItem.label);
-					assignmentObject.setReleased(true);
-					assignmentObject.setUngraded(true);
+					Boolean releaseToStudent = lineItem.releaseToStudent == null ? Boolean.TRUE : lineItem.releaseToStudent; // Default to true
+					Boolean includeInComputation = lineItem.includeInComputation == null ? Boolean.TRUE : lineItem.includeInComputation; // Default true
+					assignmentObject.setReleased(releaseToStudent); // default true
+					assignmentObject.setCounted(includeInComputation); // default true
+					assignmentObject.setUngraded(false);
 					assignmentId = g.addAssignment(context_id, assignmentObject);
 					assignmentObject.setId(assignmentId);
 					// Update sets the external values while add does not.
@@ -193,14 +199,14 @@ public class LineItemUtil {
 		return assignmentObject;
 	}
 
-	public static Assignment updateLineItem(Site site, Long tool_id, Long assignment_id, LineItem lineItem) {
+	public static Assignment updateLineItem(Site site, Long tool_id, Long assignment_id, SakaiLineItem lineItem) {
 		GradebookService g = (GradebookService) ComponentManager
 				.get("org.sakaiproject.service.gradebook.GradebookService");
 
 		String context_id = site.getId();
 
 		if ( assignment_id == null ) {
-			throw new RuntimeException("tool_id is required");
+			throw new RuntimeException("assignment_id is required");
 		}
 
 		if ( tool_id == null ) {
@@ -228,6 +234,12 @@ public class LineItemUtil {
 		if ( lineItem.label != null ) {
 			assignmentObject.setName(lineItem.label);
 		}
+
+		Boolean releaseToStudent = lineItem.releaseToStudent == null ? Boolean.TRUE : lineItem.releaseToStudent; // Default to true
+		Boolean includeInComputation = lineItem.includeInComputation == null ? Boolean.TRUE : lineItem.includeInComputation; // Default true
+		assignmentObject.setReleased(releaseToStudent); // default true
+		assignmentObject.setCounted(includeInComputation); // default true
+		assignmentObject.setUngraded(false);
 
 		pushAdvisor();
 		try {
@@ -370,7 +382,7 @@ public class LineItemUtil {
 	 * @param filter Optional line item with resourceId or tag used to filter returned results
 	 * @return A List of LineItems - an empty list is returned if none exist
 	 */
-	public static List<LineItem> getLineItemsForTool(String signed_placement, Site site, Long tool_id, LineItem filter) {
+	public static List<SakaiLineItem> getLineItemsForTool(String signed_placement, Site site, Long tool_id, SakaiLineItem filter) {
 
 		String context_id = site.getId();
 		if ( tool_id == null ) {
@@ -379,7 +391,7 @@ public class LineItemUtil {
 		GradebookService g = (GradebookService) ComponentManager
 				.get("org.sakaiproject.service.gradebook.GradebookService");
 
-		List<LineItem> retval = new ArrayList<>();
+		List<SakaiLineItem> retval = new ArrayList<>();
 
 		pushAdvisor();
 		try {
@@ -401,7 +413,7 @@ public class LineItemUtil {
 				String[] parts = external_id.split(ID_SEPARATOR_REGEX);
 				if ( parts.length < 1 || ! parts[0].equals(tool_id.toString()) ) continue;
 
-				LineItem item = getLineItem(signed_placement, gAssignment);
+				SakaiLineItem item = getLineItem(signed_placement, gAssignment);
 
 				if ( filter != null ) {
 					if ( filter.resourceLinkId != null && ! filter.resourceLinkId.equals(item.resourceLinkId)) continue;
@@ -421,8 +433,8 @@ public class LineItemUtil {
 		return retval;
 	}
 
-	public static LineItem getLineItem(String signed_placement, Assignment assignment) {
-		LineItem li = new LineItem();
+	public static SakaiLineItem getLineItem(String signed_placement, Assignment assignment) {
+		SakaiLineItem li = new SakaiLineItem();
 		li.label = assignment.getName();
 		li.scoreMaximum = assignment.getPoints();
 
@@ -447,9 +459,9 @@ public class LineItemUtil {
 	 * @param site The site we are looking at
 	 * @param tool_id The tool we are scanning for
 	 * @param filter Optional line item with resourceId or tag used to filter returned results
-	 * @return A List of LineItems - an empty list is returned if none exist
+	 * @return A List of SakaiLineItems - an empty list is returned if none exist
 	 */
-	public static List<LineItem> getPreCreatedLineItems(Site site, Long tool_id, LineItem filter) {
+	public static List<SakaiLineItem> getPreCreatedLineItems(Site site, Long tool_id, SakaiLineItem filter) {
 		// Look up the assignment so we can find the max points
 		LTIService l = (LTIService) ComponentManager
 				.get("org.sakaiproject.lti.api.LTIService");
@@ -466,12 +478,12 @@ public class LineItemUtil {
 			popAdvisor();
 		}
 
-		List<LineItem> retval = new ArrayList<> ();
+		List<SakaiLineItem> retval = new ArrayList<> ();
 		if ( contents == null ) return retval;  // Unlikely
 
 		for (Iterator i = contents.iterator(); i.hasNext();) {
 			Map<String, Object> content = (Map) i.next();
-			LineItem item = getLineItem(content);
+			SakaiLineItem item = getLineItem(content);
 			if ( filter != null ) {
 				if ( filter.resourceLinkId != null && ! filter.resourceLinkId.equals(item.resourceLinkId)) continue;
 				if ( filter.resourceId != null && ! filter.resourceId.equals(item.resourceId)) continue;
@@ -483,7 +495,7 @@ public class LineItemUtil {
 		return retval;
 	}
 
-	public static LineItem getLineItem(Map<String, Object> content) {
+	public static SakaiLineItem getLineItem(Map<String, Object> content) {
 		String context_id = (String) content.get(LTIService.LTI_SITE_ID);
 		String resource_link_id = "content:" + content.get(LTIService.LTI_ID);
 		String placement_secret = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
@@ -491,7 +503,7 @@ public class LineItemUtil {
 		if ( placement_secret != null ) {
 			signed_placement = getSignedPlacement(context_id, resource_link_id, placement_secret);
 		}
-		LineItem li = new LineItem();
+		SakaiLineItem li = new SakaiLineItem();
 		li.label = (String) content.get(LTIService.LTI_TITLE);
 		li.resourceLinkId = resource_link_id;
 		if ( context_id != null && signed_placement != null ) {

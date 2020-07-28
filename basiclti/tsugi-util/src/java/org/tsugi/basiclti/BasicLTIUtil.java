@@ -111,6 +111,7 @@ import org.json.simple.JSONValue;
  * &lt;/basic_lti_link&gt;
  * </pre>
  */
+
 @Slf4j
 public class BasicLTIUtil {
 
@@ -1202,6 +1203,7 @@ public class BasicLTIUtil {
 	public static JSONObject getObject(JSONObject obj, String key)
 	{
 		if ( obj == null ) return null;
+		if ( key == null ) return null;
 		Object o = obj.get(key);
 		if ( o == null ) return null;
 		if ( o instanceof JSONObject ) return (JSONObject) o;
@@ -1212,9 +1214,48 @@ public class BasicLTIUtil {
 	public static String getString(JSONObject obj, String key)
 	{
 		if ( obj == null ) return null;
+		if ( key == null ) return null;
 		Object o = obj.get(key);
 		if ( o == null ) return null;
 		if ( o instanceof String ) return (String) o;
+		return null;
+	}
+
+	// Return a Long or null
+	public static Long getLong(JSONObject obj, String key) {
+		if ( obj == null ) return null;
+		if ( key == null ) return null;
+		Object o = obj.get(key);
+
+		if (o instanceof Number)
+			return new Long(((Number) o).longValue());
+		if (o instanceof String) {
+			if ( ((String)o).length() < 1 ) return new Long(-1);
+			try {
+				return new Long((String) o);
+			} catch (Exception e) {
+				return null;
+			}
+		}
+		return null;
+	}
+
+	// Return a Double or null
+	public static Double getDouble(JSONObject obj, String key) {
+		if ( obj == null ) return null;
+		if ( key == null ) return null;
+		Object o = obj.get(key);
+
+		if (o instanceof Number)
+			return new Double(((Number) o).longValue());
+		if (o instanceof String) {
+			if ( ((String)o).length() < 1 ) return new Double(-1);
+			try {
+				return new Double((String) o);
+			} catch (Exception e) {
+				return null;
+			}
+		}
 		return null;
 	}
 
