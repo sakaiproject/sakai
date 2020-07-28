@@ -13,7 +13,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Generated("com.googlecode.jsonschema2pojo")
 
-/*  application/vnd.ims.lis.v2.lineitem+json
+/*  https://www.imsglobal.org/spec/lti-ags/v2p0#line-item-service
+    application/vnd.ims.lis.v2.lineitem+json
 
     {
 		"id" : "https://lms.example.com/context/2923/lineitems/1",
@@ -22,6 +23,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 		"resourceId" : "a-9334df-33",
 		"tag" : "grade",
 		"resourceLinkId" : "1g3k4dlk49fk"
+		"startDateTime": "2018-03-06T20:05:02Z",
+		"endDateTime": "2018-04-06T22:05:03Z"
 	}
  */
 // TODO: Where did the scoreUrl and resultUrl end up?

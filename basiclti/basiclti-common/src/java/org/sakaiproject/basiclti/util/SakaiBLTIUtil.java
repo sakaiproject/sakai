@@ -73,6 +73,7 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
+import org.sakaiproject.lti13.util.SakaiLineItem;
 import org.tsugi.basiclti.BasicLTIConstants;
 import org.tsugi.basiclti.BasicLTIUtil;
 import org.tsugi.jackson.JacksonUtil;
@@ -2050,7 +2051,9 @@ public class SakaiBLTIUtil {
 				return "Assignment not set in placement";
 			}
 
-			Assignment assignmentObject = getAssignment(site, user_id, assignment, 100L);
+			SakaiLineItem lineItem = new SakaiLineItem();
+			lineItem.scoreMaximum = 100.0D;
+			Assignment assignmentObject = getAssignment(site, user_id, assignment, lineItem);
 			if (assignmentObject == null) {
 				log.warn("assignmentObject or Id is null, cannot proceed with grading in site {} for assignment {}", siteId, assignment);
 			return "Grade failure siteId=" + siteId;
@@ -2114,8 +2117,8 @@ public class SakaiBLTIUtil {
 
 	// Boolean.TRUE - Grade updated
 	public static Object setGradeLTI13(Site site, Long tool_id, Map<String, Object> content, String user_id,
-			String assignment, Long scoreGiven, Long maxPoints, String comment) {
-		return handleGradebookLTI13(site, tool_id, content, user_id, assignment, scoreGiven, maxPoints, comment, false, false);
+			String assignment, Double scoreGiven, SakaiLineItem lineItem, String comment) {
+		return handleGradebookLTI13(site, tool_id, content, user_id, assignment, scoreGiven, lineItem, comment, false, false);
 	}
 
 	// Boolean.TRUE - Grade deleted
@@ -2126,7 +2129,7 @@ public class SakaiBLTIUtil {
 
 	// Quite a long bit of code
 	private static Object handleGradebookLTI13(Site site,  Long tool_id, Map<String, Object> content, String user_id,
-			String assignment, Long scoreGiven, Long maxPoints, String comment, boolean isRead, boolean isDelete) {
+			String assignment, Double scoreGiven, SakaiLineItem lineItem, String comment, boolean isRead, boolean isDelete) {
 
 		// If we are not supposed to lookup or set the grade, we are done
 		if (isRead == false && isDelete == false && scoreGiven == null) {
@@ -2139,7 +2142,7 @@ public class SakaiBLTIUtil {
 		GradebookService g = (GradebookService) ComponentManager
 				.get("org.sakaiproject.service.gradebook.GradebookService");
 
-		Assignment assignmentObject = getAssignment(site, user_id, assignment, maxPoints);
+		Assignment assignmentObject = getAssignment(site, user_id, assignment, lineItem);
 		if (assignmentObject == null) {
 			log.warn("assignmentObject or Id is null, cannot proceed with grading for site {}, assignment {}", siteId, assignment);
 			return "Grade failure siteId=" + siteId;
@@ -2199,14 +2202,16 @@ public class SakaiBLTIUtil {
 		return retval;
 	}
 
-	public static Assignment getAssignment(Site site, String userId, String assignment, Long scoreMaximum) {
+	public static Assignment getAssignment(Site site, String userId, String assignment, SakaiLineItem lineItem) {
 		// Look up the assignment so we can find the max points
 		GradebookService g = (GradebookService) ComponentManager
 				.get("org.sakaiproject.service.gradebook.GradebookService");
 
+		Double scoreMaximum = lineItem.scoreMaximum;
+
 		String siteId = site.getId();
 		if (scoreMaximum == null) {
-			scoreMaximum = 100L;
+			scoreMaximum = 100D;
 		}
 
 		Assignment assignmentObject = null;
@@ -2235,11 +2240,14 @@ public class SakaiBLTIUtil {
 			pushAdvisor();
 			try {
 				assignmentObject = new Assignment();
-				assignmentObject.setPoints(Double.valueOf(scoreMaximum));
+				assignmentObject.setPoints(scoreMaximum);
 				assignmentObject.setExternallyMaintained(false);
 				assignmentObject.setName(assignment);
-				assignmentObject.setReleased(true);
-				assignmentObject.setUngraded(false);
+				// SAK-40043
+				Boolean releaseToStudent = lineItem.releaseToStudent == null ? Boolean.TRUE : lineItem.releaseToStudent; // Default to true
+				Boolean includeInComputation = lineItem.includeInComputation == null ? Boolean.TRUE : lineItem.includeInComputation; // Default true
+				assignmentObject.setReleased(releaseToStudent); // default true
+				assignmentObject.setUngraded(! includeInComputation); // default false
 				Long assignmentId = g.addAssignment(siteId, assignmentObject);
 				assignmentObject.setId(assignmentId);
 				log.info("Added assignment: {} with Id: {}", assignment, assignmentId);
@@ -2518,6 +2526,26 @@ public class SakaiBLTIUtil {
 			}
 			try {
 				return new Long((String) key);
+			} catch (NumberFormatException e) {
+				return null;
+			}
+		}
+		return null;
+	}
+
+	public static Double getDoubleNull(Object key) {
+		if (key == null) {
+			return null;
+		}
+		if (key instanceof Number) {
+			return new Double(((Number) key).longValue());
+		}
+		if (key instanceof String) {
+			if (((String) key).length() < 1) {
+				return null;
+			}
+			try {
+				return new Double((String) key);
 			} catch (NumberFormatException e) {
 				return null;
 			}

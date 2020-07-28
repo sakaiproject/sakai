@@ -71,7 +71,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.lti.api.LTIService;
-import static org.sakaiproject.lti13.LineItemUtil.getLineItem;
+import org.sakaiproject.lti13.LineItemUtil;
 
 import org.tsugi.basiclti.BasicLTIUtil;
 import org.tsugi.jackson.JacksonUtil;
@@ -82,8 +82,12 @@ import org.tsugi.lti13.LTI13ConstantsUtil;
 
 import org.tsugi.oauth2.objects.AccessToken;
 import org.tsugi.lti13.objects.Endpoint;
+import org.tsugi.lti13.objects.LaunchLIS;
+import org.tsugi.ags2.objects.Result;
 
 import org.sakaiproject.lti13.util.SakaiAccessToken;
+import org.sakaiproject.lti13.util.SakaiLineItem;
+
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CommentDefinition;
@@ -96,9 +100,6 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.tsugi.ags2.objects.LineItem;
-import org.tsugi.ags2.objects.Result;
-import org.tsugi.lti13.objects.LaunchLIS;
 
 /**
  *
@@ -139,7 +140,7 @@ public class LTI13Servlet extends HttpServlet {
 
 		String[] parts = uri.split("/");
 
-		LineItem filter = getLineItemFilter(request);
+		SakaiLineItem filter = getLineItemFilter(request);
 
 		// Get a keys for a client_id
 		// /imsblis/lti13/keyset/{tool-id}
@@ -514,16 +515,16 @@ public class LTI13Servlet extends HttpServlet {
 		}
 	}
 
-	protected void handleLineItemScore(String signed_placement, String lineItem, HttpServletRequest request, HttpServletResponse response) {
+	protected void handleLineItemScore(String signed_placement, String lineItemId, HttpServletRequest request, HttpServletResponse response) {
 
-		// Make sure the lineItem id is a long
+		// Make sure the lineItemId is a long
 		Long assignment_id = null;
-		if ( lineItem != null ) {
+		if ( lineItemId != null ) {
 			try {
-				assignment_id = Long.parseLong(lineItem);
+				assignment_id = Long.parseLong(lineItemId);
 			} catch (NumberFormatException e) {
-				LTI13Util.return400(response, "Bad value for assignment_id "+lineItem);
-				log.error("Bad value for assignment_id "+lineItem);
+				LTI13Util.return400(response, "Bad value for assignment_id "+lineItemId);
+				log.error("Bad value for assignment_id "+lineItemId);
 				return;
 			}
 		}
@@ -559,8 +560,8 @@ public class LTI13Servlet extends HttpServlet {
 		JSONObject jso = (JSONObject) js;
 
 		// An empty / null score given means to delete the score
-		Long scoreGiven = SakaiBLTIUtil.getLongNull(jso.get("scoreGiven"));
-		Long scoreMaximum = SakaiBLTIUtil.getLongNull(jso.get("scoreMaximum"));
+		Double scoreGiven = SakaiBLTIUtil.getDoubleNull(jso.get("scoreGiven"));
+		Double scoreMaximum = SakaiBLTIUtil.getDoubleNull(jso.get("scoreMaximum"));
 		String userId = SakaiBLTIUtil.getStringNull(jso.get("userId"));  // TODO: LTI13 quirk - should be subject
 		String comment = SakaiBLTIUtil.getStringNull(jso.get("comment"));
 		log.debug("scoreGivenStr={} scoreMaximumStr={} userId={} comment={}", scoreGiven, scoreMaximum, userId, comment);
@@ -600,13 +601,17 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
+		// In case we are creating the gradebook entry at this very moment
+		SakaiLineItem lineItem = new SakaiLineItem();
+		lineItem.scoreMaximum = scoreMaximum;
+
 		// Note when scoreGiven is null, it means to delete the score
 		Object retval;
 		if ( assignment_id == null ) {
 			if ( scoreGiven == null ) {
 				retval = SakaiBLTIUtil.deleteGradeLTI13(site, sat.tool_id, content, userId, assignment_name, comment);
 			} else {
-				retval = SakaiBLTIUtil.setGradeLTI13(site, sat.tool_id, content, userId, assignment_name, scoreGiven, scoreMaximum, comment);
+				retval = SakaiBLTIUtil.setGradeLTI13(site, sat.tool_id, content, userId, assignment_name, scoreGiven, lineItem, comment);
 			}
 			log.debug("Lineitem retval={}",retval);
 		} else {
@@ -620,7 +625,7 @@ public class LTI13Servlet extends HttpServlet {
 			if ( scoreGiven == null ) {
 				retval = SakaiBLTIUtil.deleteGradeLTI13(site, sat.tool_id, content, userId, assignment_name, comment);
 			} else {
-				retval = SakaiBLTIUtil.setGradeLTI13(site, sat.tool_id, content, userId, assignment_name, scoreGiven, scoreMaximum, comment);
+				retval = SakaiBLTIUtil.setGradeLTI13(site, sat.tool_id, content, userId, assignment_name, scoreGiven, lineItem, comment);
 			}
 			log.debug("Lineitem retval={}",retval);
 		}
@@ -1074,9 +1079,9 @@ public class LTI13Servlet extends HttpServlet {
 		}
 	}
 
-	protected LineItem getLineItemFilter(HttpServletRequest request)
+	protected SakaiLineItem getLineItemFilter(HttpServletRequest request)
 	{
-		LineItem retval = new LineItem();
+		SakaiLineItem retval = new SakaiLineItem();
 		boolean found = false;
 		String tag = request.getParameter("tag");
 		if ( tag != null && tag.length() > 0 ) {
@@ -1120,11 +1125,10 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		LineItem item = (LineItem) getObjectFromPOST(request, response, LineItem.class);
+		SakaiLineItem item = (SakaiLineItem) getObjectFromPOST(request, response, SakaiLineItem.class);
 		if ( item == null )  {
 			return; // Error alredy handled
 		}
-
 
 		Map<String, Object> content = loadContentCheckSignature(signed_placement, response);
 		if (content == null) {
@@ -1154,7 +1158,7 @@ public class LTI13Servlet extends HttpServlet {
 		item.id = getOurServerUrl() + LTI13_PATH + "lineitems/" + signed_placement + "/" + retval.getId();
 
 		log.debug("Lineitem item={}",item);
-		response.setContentType(LineItem.MIME_TYPE);
+		response.setContentType(SakaiLineItem.MIME_TYPE);
 
 		PrintWriter out = response.getWriter();
 		String json_out = JacksonUtil.prettyPrint(item);
@@ -1194,7 +1198,7 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		LineItem item = (LineItem) getObjectFromPOST(request, response, LineItem.class);
+		SakaiLineItem item = (SakaiLineItem) getObjectFromPOST(request, response, SakaiLineItem.class);
 		if ( item == null ) return; // Error alredy handled
 
 
@@ -1250,7 +1254,7 @@ public class LTI13Servlet extends HttpServlet {
 	 * @param request
 	 * @param response
 	 */
-	private void handleLineItemsGet(String signed_placement, boolean all, LineItem filter,
+	private void handleLineItemsGet(String signed_placement, boolean all, SakaiLineItem filter,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		log.debug("signed_placement={}", signed_placement);
 
@@ -1288,30 +1292,30 @@ public class LTI13Servlet extends HttpServlet {
 
 		// If we are only returning a single line item
 		if ( ! all ) {
-			response.setContentType(LineItem.MIME_TYPE);
-			LineItem item = LineItemUtil.getLineItem(content);
+			response.setContentType(SakaiLineItem.MIME_TYPE);
+			SakaiLineItem item = LineItemUtil.getLineItem(content);
 			PrintWriter out = response.getWriter();
 			out.print(JacksonUtil.prettyPrint(item));
 			return;
 		}
 
 		// Return all the line items for the tool
-		List<LineItem> preItems = LineItemUtil.getPreCreatedLineItems(site, sat.tool_id, filter);
+		List<SakaiLineItem> preItems = LineItemUtil.getPreCreatedLineItems(site, sat.tool_id, filter);
 
-		List<LineItem> toolItems = LineItemUtil.getLineItemsForTool(signed_placement, site, sat.tool_id, filter);
+		List<SakaiLineItem> toolItems = LineItemUtil.getLineItemsForTool(signed_placement, site, sat.tool_id, filter);
 
-		response.setContentType(LineItem.MIME_TYPE_CONTAINER);
+		response.setContentType(SakaiLineItem.MIME_TYPE_CONTAINER);
 
 		PrintWriter out = response.getWriter();
 		out.print("[");
 		boolean first = true;
-		for (LineItem item : preItems) {
+		for (SakaiLineItem item : preItems) {
 			out.println(first ? "" : ",");
 			first = false;
 			out.print(JacksonUtil.prettyPrint(item));
 		}
 
-		for (LineItem item : toolItems) {
+		for (SakaiLineItem item : toolItems) {
 			out.println(first ? "" : ",");
 			first = false;
 			out.print(JacksonUtil.prettyPrint(item));
@@ -1395,9 +1399,9 @@ public class LTI13Servlet extends HttpServlet {
 
 		// Return the line item metadata
 		if ( ! results ) {
-			LineItem item = getLineItem(signed_placement, a);
+			SakaiLineItem item = LineItemUtil.getLineItem(signed_placement, a);
 
-			response.setContentType(LineItem.MIME_TYPE);
+			response.setContentType(SakaiLineItem.MIME_TYPE);
 			String json_out = JacksonUtil.prettyPrint(item);
 			log.debug("Returning {}", json_out);
 			PrintWriter out = response.getWriter();
