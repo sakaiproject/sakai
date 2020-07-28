@@ -117,6 +117,7 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.json.simple.JSONObject;
 import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementMessageEdit;
@@ -152,6 +153,7 @@ import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
+import org.tsugi.basiclti.BasicLTIUtil;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
@@ -1869,11 +1871,20 @@ public class AssignmentAction extends PagedResourceActionII {
 				updates.put(LTIService.LTI_TITLE, assignmentTitle);
 				updates.put(LTIService.LTI_DESCRIPTION, assignmentDesc);
 				updates.put(LTIService.LTI_PROTECT, new Integer(1));
-				// This useds the Dao access since 99% of the time we are launching as a student
+
+				// SAK-43709 - Prior to Sakai-21 - also copy these in the settings area
+				String content_settings = (String) content.get(LTIService.LTI_SETTINGS);
+				JSONObject content_json = BasicLTIUtil.parseJSONObject(content_settings);
+				content_json.put(LTIService.LTI_DESCRIPTION, assignmentDesc);
+				content_json.put(LTIService.LTI_PROTECT, new Integer(1));
+				updates.put(LTIService.LTI_SETTINGS, content_json.toString());
+
+				// This uses the Dao access since 99% of the time we are launching as a student
 				// after the instructor updates the assignment, and the student is
 				// the first to launch after the change.
 				ltiService.updateContentDao(contentKey, updates);
 				log.debug("Content Item id={} updated.", contentKey);
+
 			}
 
 			// Unlock this assignment for one launch...

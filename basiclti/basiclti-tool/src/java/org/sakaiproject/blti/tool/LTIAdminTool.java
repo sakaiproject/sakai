@@ -1702,7 +1702,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 					continue;
 				}
 				item.put("launch", contentUrl);
-<<<<<<< HEAD
 
 				// Extract the lineItem material
 				String label = reqProps.getProperty(LTIService.LTI_TITLE);
