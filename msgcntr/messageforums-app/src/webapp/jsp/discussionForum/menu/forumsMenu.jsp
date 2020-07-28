@@ -59,7 +59,8 @@
     <h:panelGroup rendered="#{ForumTool.instructor && ForumTool.ranksEnabled}">
       <li role="menuitem">
         <span id="forumsRanksMenuLink">
-            <h:commandLink value="#{msgs.ranks}" id="viewRanks" action="#{ForumTool.processPendingMsgQueue}" immediate="true"/>
+            <!-- SAK-43983 -->
+            <h:commandLink value="#{msgs.ranks}" id="viewRanks" action="#{ForumTool.processActionViewRanks}" immediate="true"/>
         </span>
       </li>
     </h:panelGroup>
