@@ -329,9 +329,8 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
 
 	@Override
 	public void deleteGradebook(final String uid) throws GradebookNotFoundException {
-        if (log.isDebugEnabled()) {
 			log.debug("Deleting gradebook uid={} by userUid={}", uid, getUserUid());
-		}
+
         final Long gradebookId = getGradebook(uid).getId();
 
         // Worse of both worlds code ahead. We've been quick-marched
@@ -350,9 +349,12 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
         toBeDeleted = hibTempl.findByNamedParam("from GradingEvent as ge where ge.gradableObject.gradebook.id = :gradebookid", "gradebookid", gradebookId);
         numberDeleted = toBeDeleted.size();
         hibTempl.deleteAll(toBeDeleted);
-        if (log.isDebugEnabled()) {
-			log.debug("Deleted {} grading events", numberDeleted);
-		}
+        log.debug("Deleted {} grading events", numberDeleted);
+
+        toBeDeleted = hibTempl.findByNamedParam("from Comment as gc where gc.gradableObject.gradebook.id = :gradebookid", "gradebookid", gradebookId);
+        numberDeleted = toBeDeleted.size();
+        hibTempl.deleteAll(toBeDeleted);
+        log.debug("Deleted {} grade comments", numberDeleted);
 
         toBeDeleted = hibTempl.findByNamedParam("from AbstractGradeRecord as gr where gr.gradableObject.gradebook.id = :gradebookid", "gradebookid", gradebookId);
         numberDeleted = toBeDeleted.size();

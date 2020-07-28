@@ -14470,8 +14470,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		
 		//cleanup
 		try {
-			log.debug("Removing collection: " + collectionId);
+			log.debug("Removing collection: {}", collectionId);
 			removeCollection(collectionId);
+		} catch (IdUnusedException ide) {
+			log.warn("No resources in collection {}.", collectionId);
 		} catch (Exception e) {
 			log.warn("Failed to remove collection {}.", collectionId, e);
 		}
