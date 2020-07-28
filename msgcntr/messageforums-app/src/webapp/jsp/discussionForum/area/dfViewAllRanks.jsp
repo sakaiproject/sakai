@@ -86,7 +86,8 @@
             </h:dataTable>
         </div>
             <f:verbatim><br/></f:verbatim>
-		    <h:graphicImage id="iamgespacer" url="/images/ranksSpaceFiller.jpg" height="20"/>
+
+            <h:graphicImage id="iamgespacer1" url="/images/ranksSpaceFiller.jpg" height="20"/>
 			<div class="act">
           		<h:commandButton type="submit" id="delete_submit" immediate="true" rendered="#{! empty ForumTool.rankBeanList}" action="#{ForumTool.processActionConfirmDeleteRanks}" value="#{msgs.delete_rank}" styleClass="active" />
 			    <h:commandButton action="#{ForumTool.processActionHome}" type="submit" immediate="true"  id="delete_cancel" rendered="#{! empty ForumTool.rankBeanList}" value="#{msgs.cdfm_cancel}" />
