@@ -27,8 +27,8 @@
 %>
 <f:view>
   <sakai:view >
-    <%@ include file="/jsp/discussionForum/menu/forumsMenu.jsp" %>
   	<h:form id="dfStatisticsForm" rendered="#{ForumTool.instructor}">
+		<%@ include file="/jsp/discussionForum/menu/forumsMenu.jsp" %>
 <!-- discussionForum/statistics/dfStatisticsList.jsp-->
 	<script>
 
