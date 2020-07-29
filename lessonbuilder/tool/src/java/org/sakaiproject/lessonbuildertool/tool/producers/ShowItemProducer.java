@@ -34,6 +34,7 @@ import java.net.URLEncoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.lessonbuildertool.SimplePage;
@@ -176,6 +177,10 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 	    ToolConfiguration toolConfiguration = SiteService.findTool(toolSession.getPlacementId());
 	    SitePage sitePage = toolConfiguration.getContainingPage();
 	    String clearAttr = params.getClearAttr();
+		if (StringUtils.isBlank(clearAttr)) {
+			// TODO RSF is not populating viewParams correctly so we get it off the request
+			clearAttr = httpServletRequest.getParameter("clearAttr");
+		}
 	    if (clearAttr != null && !clearAttr.equals("")) {
 		// don't let users clear random attributes
 		if (clearAttr.startsWith("LESSONBUILDER_RETURNURL")) {
