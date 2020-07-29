@@ -13,22 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.elfinder.sakai.content;
+package org.sakaiproject.content.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
-
-import cn.bluejoe.elfinder.controller.ErrorException;
-import cn.bluejoe.elfinder.service.FsItem;
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.content.api.*;
-import org.sakaiproject.elfinder.sakai.SiteVolumeFactory;
-import org.sakaiproject.elfinder.sakai.SakaiFsService;
-import org.sakaiproject.elfinder.sakai.SiteVolume;
+import org.sakaiproject.content.api.ContentCollection;
+import org.sakaiproject.content.api.ContentCollectionEdit;
+import org.sakaiproject.content.api.ContentEntity;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.elfinder.FsType;
+import org.sakaiproject.elfinder.SakaiFsItem;
+import org.sakaiproject.elfinder.SakaiFsService;
+import org.sakaiproject.elfinder.ToolFsVolume;
+import org.sakaiproject.elfinder.ToolFsVolumeFactory;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -41,50 +48,34 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * This is the creator of ContentHosting FsVolumes.
  */
 @Slf4j
-public class ContentSiteVolumeFactory implements SiteVolumeFactory {
+public class ContentToolFsVolumeFactory implements ToolFsVolumeFactory {
 
-    protected ContentHostingService contentHostingService;
-    protected SiteService siteService;
-    protected SecurityService securityService;
-    protected UserDirectoryService userDirectoryService;
-    protected ThreadLocalManager threadLocalManager;
+    @Setter protected ContentHostingService contentHostingService;
+    @Setter protected SakaiFsService sakaiFsService;
+    @Setter protected SiteService siteService;
+    @Setter protected SecurityService securityService;
+    @Setter protected UserDirectoryService userDirectoryService;
+    @Setter protected ThreadLocalManager threadLocalManager;
 
-    public void setContentHostingService(ContentHostingService contentHostingService) {
-        this.contentHostingService = contentHostingService;
-    }
-
-    public void setSiteService(SiteService siteService) {
-        this.siteService = siteService;
-    }
-
-    public SecurityService getSecurityService() {
-        return securityService;
-    }
-
-    public void setSecurityService(SecurityService securityService) {
-        this.securityService = securityService;
-    }
-
-    public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
-        this.userDirectoryService = userDirectoryService;
-    }
-
-    public void setThreadLocalManager(ThreadLocalManager threadLocalManager) {
-        this.threadLocalManager = threadLocalManager;
+    public void init() {
+        sakaiFsService.registerToolVolume(this);
     }
 
     @Override
     public String getPrefix() {
-        return "content";
+        return FsType.CONTENT.toString();
     }
 
     @Override
-    public SiteVolume getVolume(SakaiFsService sakaiFsService, String siteId) {
-        return new ContentSiteVolume(siteId, sakaiFsService);
+    public ToolFsVolume getVolume(String siteId) {
+        return new ContentToolFsVolume(siteId, sakaiFsService);
     }
 
     @Override
@@ -96,9 +87,18 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
      * Volume is a container for a set of files and folder. In Sakai this will typically be the contents of a resources
      * tool or the resources for a tool in a site.
      */
-    public class ContentSiteVolume implements SiteVolume {
+    public class ContentToolFsVolume implements ToolFsVolume {
 
-        private SakaiFsService service;
+        private SakaiFsService sakaiFsService;
+
+        // This is the ID of a site.
+        // TODO What when we're not in a site?
+        protected String siteId;
+
+        public ContentToolFsVolume(String siteId, SakaiFsService sakaiFsService) {
+            this.siteId = siteId;
+            this.sakaiFsService = sakaiFsService;
+        }
 
         @Override
         public String getSiteId() {
@@ -106,14 +106,14 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
         }
 
         @Override
-        public SiteVolumeFactory getSiteVolumeFactory() {
-            return ContentSiteVolumeFactory.this;
+        public ToolFsVolumeFactory getToolVolumeFactory() {
+            return ContentToolFsVolumeFactory.this;
         }
 
 
         @Override
-        public boolean isWriteable(FsItem item) {
-            String id = asId(item);
+        public boolean isWriteable(SakaiFsItem item) {
+            String id = item.getId();
             if (contentHostingService.isCollection(id)) {
                 // Sakai has more fine grain permissions that elfinder so we allow on either of these and then
                 // if the end user can't perform one of the actions later on if will fail.
@@ -124,17 +124,8 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
             }
         }
 
-        // This is the ID of a site.
-        // TODO What when we're not in a site?
-        protected String siteId;
-
-        public ContentSiteVolume(String siteId, SakaiFsService service) {
-            this.siteId = siteId;
-            this.service = service;
-        }
-
-        public void createFile(FsItem fsi) throws IOException {
-            String id = asId(fsi);
+        public void createFile(SakaiFsItem fsi) throws IOException {
+            String id = fsi.getId();
             try {
                 String filename = lastPathSegment(id);
                 String name = filename, ext = "";
@@ -143,10 +134,10 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
                     name = filename.substring(0, index);
                     ext = filename.substring(index + 1);
                 }
-                ContentResourceEdit cre = contentHostingService.addResource(asId(getParent(fsi)), name, ext, 999);
+                ContentResourceEdit cre = contentHostingService.addResource(getParent(fsi).getId(), name, ext, 999);
                 contentHostingService.commitResource(cre, org.sakaiproject.event.api.NotificationService.NOTI_NONE);
-                //update saved ID incase it wasn't the same
-                ((ContentFsItem) fsi).setId(cre.getId());
+                // update saved ID in case it wasn't the same
+                fsi.setId(cre.getId());
                 // This is because the user might not have permission to update the file and elfinder does the upload
                 // in 2 steps. This will get removed at the end of the request.
                 SecurityAdvisor advisor = (userId, function, reference) -> {
@@ -167,13 +158,12 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
 
         }
 
-        public void createFolder(FsItem fsi) throws IOException {
-            String id = asId(fsi);
+        public void createFolder(SakaiFsItem fsi) throws IOException {
+            String id = fsi.getId();
             try {
-                if (fsi instanceof ContentFsItem) {
-                    ContentFsItem cfsi = (ContentFsItem)fsi;
-                    String collectionId = asId(getParent(cfsi));
-                    String path = asId(cfsi);
+                if (FsType.CONTENT.equals(fsi.getType())) {
+                    String collectionId = getParent(fsi).getId();
+                    String path = fsi.getId();
                     String name = lastPathSegment(path);
                     ContentCollectionEdit edit = contentHostingService.addCollection(collectionId, name);
                     ResourcePropertiesEdit props = edit.getPropertiesEdit();
@@ -181,7 +171,7 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
                     contentHostingService.commitCollection(edit);
                     // Directories always end with a trailing slash
                     // The creation appends this if missing, so make sure the item is in sync
-                    cfsi.setId(edit.getId());
+                    fsi.setId(edit.getId());
                 } else {
                     throw new IllegalArgumentException("Can only pass ContentFsItem");
                 }
@@ -206,8 +196,8 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
             return path.substring(start + 1, stop);
         }
 
-        public void deleteFile(FsItem fsi) throws IOException {
-            String id = asId(fsi);
+        public void deleteFile(SakaiFsItem fsi) throws IOException {
+            String id = fsi.getId();
             try {
                 contentHostingService.removeResource(id);
             } catch (SakaiException se) {
@@ -215,8 +205,8 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
             }
         }
 
-        public void deleteFolder(FsItem fsi) throws IOException {
-            String id = asId(fsi);
+        public void deleteFolder(SakaiFsItem fsi) throws IOException {
+            String id = fsi.getId();
             try {
                 contentHostingService.removeCollection(id);
             } catch (SakaiException se) {
@@ -225,37 +215,35 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
 
         }
 
-        public boolean exists(FsItem newFile) {
+        public boolean exists(SakaiFsItem newFile) {
             try {
-                String id = asId(newFile);
+                String id = newFile.getId();
                 if (contentHostingService.isCollection(id)) {
                     contentHostingService.getCollection(id);
                 } else {
                     contentHostingService.getResource(id);
                 }
                 return true;
-            } catch (IdUnusedException iue) {
-                return false; // This one we expect.
-            } catch (SakaiException se) {
+            } catch (SakaiException iue) {
                 return false;
             }
         }
 
-        public FsItem fromPath(String path) {
+        public SakaiFsItem fromPath(String path) {
             // The path is relative to the site's top level folder.
             if (path == null) {
                 return getRoot();
             } else {
-                return new ContentFsItem(this, path);
+                return new SakaiFsItem(path, this, FsType.CONTENT);
             }
         }
 
-        public String getDimensions(FsItem fsi) {
+        public String getDimensions(SakaiFsItem fsi) {
             return null;
         }
 
-        public long getLastModified(FsItem fsi) {
-            String id = asId(fsi);
+        public long getLastModified(SakaiFsItem fsi) {
+            String id = fsi.getId();
             try {
                 ContentEntity contentEntity;
                 if (contentHostingService.isCollection(id)) {
@@ -280,8 +268,8 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
             return 0;
         }
 
-        public String getMimeType(FsItem fsi) {
-            String id = asId(fsi);
+        public String getMimeType(SakaiFsItem fsi) {
+            String id = fsi.getId();
             if (contentHostingService.isCollection(id)) {
                 return "directory";
             } else {
@@ -302,9 +290,9 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
             }
         }
 
-        public String getName(FsItem fsi) {
-            String rootId = asId(getRoot());
-            String id = asId(fsi);
+        public String getName(SakaiFsItem fsi) {
+            String rootId = getRoot().getId();
+            String id = fsi.getId();
             if (rootId.equals(id)) {
                 // Todo this needs i18n
                 return "Resources";
@@ -326,28 +314,27 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
             return lastPathSegment(id);
         }
 
-        public FsItem getParent(FsItem fsi) {
-            String rootId = asId(getRoot());
-            String id = asId(fsi);
+        public SakaiFsItem getParent(SakaiFsItem fsi) {
+            String rootId = getRoot().getId();
+            String id = fsi.getId();
             if (id.startsWith(rootId) && !rootId.equals(id))  {
                 String parentId = contentHostingService.getContainingCollectionId(id);
                 return fromPath(parentId);
             } else {
-                return service.getSiteVolume(siteId).getRoot();
+                return sakaiFsService.getSiteVolume(siteId).getRoot();
             }
         }
 
-        public String getPath(FsItem fsi) throws IOException {
-            String id = asId(fsi);
+        public String getPath(SakaiFsItem fsi) throws IOException {
             // This is need because FsItemEx enforces the slash between directory and file
             // and Sakai directories always have trailing /
-            return id;
+            return fsi.getId();
     //    	int lastSlash = id.lastIndexOf("/");
     //        if(lastSlash < 0) return id;
     //        return id.substring(0, lastSlash);
         }
 
-        public FsItem getRoot() {
+        public SakaiFsItem getRoot() {
             String id = contentHostingService.getSiteCollection(siteId);
             try {
                 contentHostingService.getCollection(id);
@@ -359,8 +346,8 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
             return null;
         }
 
-        public long getSize(FsItem fsi) {
-            String id = asId(fsi);
+        public long getSize(SakaiFsItem fsi) {
+            String id = fsi.getId();
             try {
                 if (contentHostingService.isCollection(id)) {
                     return contentHostingService.getCollectionSize(id);
@@ -375,12 +362,12 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
             return 0;
         }
 
-        public String getThumbnailFileName(FsItem fsi) {
+        public String getThumbnailFileName(SakaiFsItem fsi) {
             return null;
         }
 
-        public boolean hasChildFolder(FsItem fsi) {
-            String id = asId(fsi);
+        public boolean hasChildFolder(SakaiFsItem fsi) {
+            String id = fsi.getId();
             try {
                 // For sites that don't have a root folder yet this will fail.
                 ContentCollection collection = contentHostingService.getCollection(id);
@@ -402,39 +389,37 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
             return false;
         }
 
-        public boolean isFolder(FsItem fsi) {
-            String id = asId(fsi);
+        public boolean isFolder(SakaiFsItem fsi) {
+            String id = fsi.getId();
             return contentHostingService.isCollection(id);
         }
 
         /**
          * For a SubVolume this must always be false so it walks back up the hierarchy.
          */
-        public boolean isRoot(FsItem fsi) {
+        public boolean isRoot(SakaiFsItem fsi) {
             return false;
         }
 
-        public FsItem[] listChildren(FsItem fsi) {
-            String id = asId(fsi);
+        public SakaiFsItem[] listChildren(SakaiFsItem fsi) throws PermissionException {
+            String id = fsi.getId();
             try {
                 ContentCollection collection = contentHostingService.getCollection(id);
-                List<FsItem> items = new ArrayList<>();
+                List<SakaiFsItem> items = new ArrayList<>();
                 for (String member : collection.getMembers()) {
                     items.add(fromPath(member));
                 }
-                return items.toArray(new FsItem[items.size()]);
+                return items.toArray(new SakaiFsItem[0]);
             } catch (IdUnusedException iue) {
                 log.debug("Failed to list children as item can't be found for: "+ id);
-            } catch (PermissionException pe) {
-                throw new ErrorException("errPerm");
             } catch (SakaiException se) {
                 log.warn("Failed to find children of: " + id, se);
             }
-            return new FsItem[0];
+            return new SakaiFsItem[0];
         }
 
-        public InputStream openInputStream(FsItem fsi) throws IOException {
-            String id = asId(fsi);
+        public InputStream openInputStream(SakaiFsItem fsi) throws IOException {
+            String id = fsi.getId();
             try {
                 ContentResource resource = contentHostingService.getResource(id);
                 return resource.streamContent();
@@ -443,8 +428,8 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
             }
         }
 
-        public void writeStream(final FsItem fsi, InputStream is) throws IOException {
-            String id = asId(fsi);
+        public void writeStream(final SakaiFsItem fsi, InputStream is) throws IOException {
+            String id = fsi.getId();
             try {
                 ContentResourceEdit resource = contentHostingService.editResource(id);
                 resource.setContent(is);
@@ -458,8 +443,8 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
             }
         }
 
-        public void rename(FsItem src, FsItem dst) throws IOException {
-            String srcId = asId(src);
+        public void rename(SakaiFsItem src, SakaiFsItem dst) throws IOException {
+            String srcId = src.getId();
             String dstName = getName(dst);
 
             try {
@@ -481,24 +466,16 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
             }
         }
 
-        public String asId(FsItem fsItem) {
-            if (fsItem instanceof ContentFsItem) {
-                return ((ContentFsItem) fsItem).getId();
-            } else {
-                throw new IllegalArgumentException("Passed FsItem must be a SakaiFsItem.");
-            }
-        }
-
         @Override
-        public String getURL(FsItem fsItem) {
-            String id = asId(fsItem);
+        public String getURL(SakaiFsItem fsItem) {
+            String id = fsItem.getId();
             return contentHostingService.getUrl(id);
         }
 
         @Override
-        public void filterOptions(FsItem fsItem, Map<String, Object> map) {
+        public void filterOptions(SakaiFsItem fsItem, Map<String, Object> map) {
             // The preview isn't working properly
-            map.put("disabled", Arrays.asList(new String[]{"search", "zipdl"}));
+            map.put("disabled", Arrays.asList("search", "zipdl"));
             // Disabled chunked uploads
             map.put("uploadMaxConn", "-1");
         }

@@ -22,7 +22,8 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
 import org.json.JSONObject;
-import org.sakaiproject.elfinder.sakai.SakaiFsService;
+import org.sakaiproject.elfinder.SakaiFsService;
+import org.sakaiproject.elfinder.impl.FsItemAdapter;
 
 import cn.bluejoe.elfinder.controller.executor.AbstractJsonCommandExecutor;
 import cn.bluejoe.elfinder.controller.executor.CommandExecutor;
@@ -39,15 +40,15 @@ public class SakaiDuplicateCommandExecutor extends AbstractJsonCommandExecutor i
 		String[] targets = request.getParameterValues("targets[]");
 
 		List<FsItemEx> added = new ArrayList<FsItemEx>();
-		SakaiFsService sfsService = (SakaiFsService)fsService;
-		
+
 		for (String target : targets)
 		{
 			String newId = "";
-			FsItem ftgt = sfsService.fromHash(target);
+			FsItem ftgt = fsService.fromHash(target);
 			FsItemEx ftgtex = new FsItemEx(ftgt, fsService);
-			
-			String tgtId = sfsService.asId(ftgt); 
+
+
+			String tgtId = ((FsItemAdapter) ftgt).getId();
 			
 			//if target is folder
 			if(ftgtex.isFolder()) {
@@ -67,10 +68,10 @@ public class SakaiDuplicateCommandExecutor extends AbstractJsonCommandExecutor i
 				
 				//copy the folder (it will fail if folder is not empty)
 				if(count < 999)
-					newId = sfsService.getContent().copy(tgtId, ftgtex.getParent().getPath()+"/"+newName);
+					newId = ((SakaiFsService) fsService).getContentHostingService().copy(tgtId, ftgtex.getParent().getPath()+"/"+newName);
 			}
 			else //resources will rename on copy
-				newId = sfsService.getContent().copy(tgtId, tgtId);
+				newId = ((SakaiFsService) fsService).getContentHostingService().copy(tgtId, tgtId);
 			
 			try {
 	    		int lastSlash = newId.lastIndexOf("/");

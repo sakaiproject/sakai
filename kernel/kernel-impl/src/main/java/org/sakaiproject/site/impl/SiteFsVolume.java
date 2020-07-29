@@ -13,17 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.elfinder.sakai.site;
-
-import cn.bluejoe.elfinder.service.FsItem;
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.elfinder.sakai.SiteVolumeFactory;
-import org.sakaiproject.elfinder.sakai.ReadOnlyFsVolume;
-import org.sakaiproject.elfinder.sakai.SakaiFsService;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SiteService;
+package org.sakaiproject.site.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,6 +22,16 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import org.sakaiproject.elfinder.FsType;
+import org.sakaiproject.elfinder.SakaiFsItem;
+import org.sakaiproject.elfinder.SakaiFsService;
+import org.sakaiproject.elfinder.ToolFsVolumeFactory;
+import org.sakaiproject.elfinder.ReadOnlyFsVolume;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,15 +44,15 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SiteFsVolume extends ReadOnlyFsVolume {
 
+    private SakaiFsService sakaiFsService;
+    private String siteId;
+    private SiteService siteService;
+
     public String getSiteId() {
         return siteId;
     }
 
-    private String siteId;
-    private SiteService siteService;
-    private SakaiFsService service;
-
-    public SiteFsVolume(String siteId, SakaiFsService service) {
+    public SiteFsVolume(String siteId, SakaiFsService sakaiFsService, SiteService siteService) {
 
         try {
             this.siteId = URLDecoder.decode(siteId, "UTF-8");
@@ -60,32 +60,32 @@ public class SiteFsVolume extends ReadOnlyFsVolume {
             log.error("Failed to decode siteId as UTF-8. Original siteId will be used.");
             this.siteId = siteId;
         }
-        this.service = service;
-        this.siteService = service.getSiteService();
+        this.sakaiFsService = sakaiFsService;
+        this.siteService = siteService;
     }
 
     @Override
-    public boolean exists(FsItem newFile) {
+    public boolean exists(SakaiFsItem newFile) {
         return false;
     }
 
     @Override
-    public FsItem fromPath(String relativePath) {
+    public SakaiFsItem fromPath(String relativePath) {
         return null;
     }
 
     @Override
-    public String getDimensions(FsItem fsi) {
+    public String getDimensions(SakaiFsItem fsi) {
         return null;
     }
 
     @Override
-    public long getLastModified(FsItem fsi) {
+    public long getLastModified(SakaiFsItem fsi) {
         return 0;
     }
 
     @Override
-    public String getMimeType(FsItem fsi) {
+    public String getMimeType(SakaiFsItem fsi) {
         return "directory";
     }
 
@@ -102,61 +102,61 @@ public class SiteFsVolume extends ReadOnlyFsVolume {
     }
 
     @Override
-    public String getName(FsItem fsi) {
+    public String getName(SakaiFsItem fsi) {
         return null;
     }
 
     @Override
-    public FsItem getParent(FsItem fsi) {
+    public SakaiFsItem getParent(SakaiFsItem fsi) {
         return null;
     }
 
     @Override
-    public String getPath(FsItem fsi) throws IOException {
+    public String getPath(SakaiFsItem fsi) throws IOException {
         return null;
     }
 
     @Override
-    public FsItem getRoot() {
-        return new SiteFsItem(this, siteId);
+    public SakaiFsItem getRoot() {
+        return new SakaiFsItem(siteId, this, FsType.SITE);
     }
 
     @Override
-    public long getSize(FsItem fsi) {
+    public long getSize(SakaiFsItem fsi) {
         return 0;
     }
 
     @Override
-    public String getThumbnailFileName(FsItem fsi) {
+    public String getThumbnailFileName(SakaiFsItem fsi) {
         return null;
     }
 
     @Override
-    public boolean hasChildFolder(FsItem fsi) {
+    public boolean hasChildFolder(SakaiFsItem fsi) {
         return true;
     }
 
     @Override
-    public boolean isFolder(FsItem fsi) {
+    public boolean isFolder(SakaiFsItem fsi) {
         // All items here are directories.
         return true;
     }
 
     @Override
-    public boolean isRoot(FsItem fsi) {
+    public boolean isRoot(SakaiFsItem fsi) {
         return true;
     }
 
     @Override
-    public FsItem[] listChildren(FsItem fsi) {
-        List<FsItem> children = new ArrayList<>();
-        String siteId = ((SiteFsItem)fsi).getId();
+    public SakaiFsItem[] listChildren(SakaiFsItem fsi) {
+        List<SakaiFsItem> children = new ArrayList<>();
+        String siteId = fsi.getId();
         try {
             Site site = siteService.getSiteVisit(siteId);
-            for (Map.Entry<String, SiteVolumeFactory> factory : service.getToolVolume().entrySet()) {
+            for (Map.Entry<String, ToolFsVolumeFactory> factory : sakaiFsService.getToolVolumes().entrySet()) {
                 // Check that the tool is present in the site.
                 if (site.getToolForCommonId(factory.getValue().getToolId()) != null) {
-                    FsItem root = factory.getValue().getVolume(service, siteId).getRoot();
+                    SakaiFsItem root = factory.getValue().getVolume(siteId).getRoot();
                     if (root != null) {
                         children.add(root);
                     }
@@ -167,16 +167,16 @@ public class SiteFsVolume extends ReadOnlyFsVolume {
         } catch (IdUnusedException iue) {
             throw new IllegalArgumentException("There is no site with ID: "+ siteId);
         }
-        return children.toArray(new FsItem[0]);
+        return children.toArray(new SakaiFsItem[0]);
     }
 
     @Override
-    public InputStream openInputStream(FsItem fsi) throws IOException {
+    public InputStream openInputStream(SakaiFsItem fsi) throws IOException {
         return null;
     }
 
     @Override
-    public String getURL(FsItem f) {
+    public String getURL(SakaiFsItem f) {
         return null;
     }
 

@@ -520,5 +520,13 @@
         <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
         <property name="filter"><ref bean="org.sakaiproject.search.elasticsearch.filter.impl.SearchSecurityFilter"/></property>
     </bean>
- </beans>
+
+    <bean id="org.sakaiproject.tool.assessment.elfinder.AssessmentToolFsVolumeFactory"
+          class="org.sakaiproject.tool.assessment.elfinder.AssessmentToolFsVolumeFactory"
+          init-method="init">
+        <property name="sakaiFsService" ref="org.sakaiproject.elfinder.SakaiFsService"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+    </bean>
+
+</beans>
 

@@ -13,56 +13,51 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.elfinder.sakai;
-
-import cn.bluejoe.elfinder.service.FsItem;
-import cn.bluejoe.elfinder.service.FsVolume;
+package org.sakaiproject.elfinder;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Map;
 
 /**
  * A FsVolume that doesn't allow changes, this can be extended by volumes that aren't like normal filesystems.
  */
-public abstract class ReadOnlyFsVolume  implements FsVolume {
+public abstract class ReadOnlyFsVolume  implements SakaiFsVolume {
     @Override
-    public void createFile(FsItem fsi) throws IOException {
+    public void createFile(SakaiFsItem fsi) throws IOException {
         throw new UnsupportedOperationException("Can't create files here.");
     }
 
     @Override
-    public void createFolder(FsItem fsi) throws IOException {
+    public void createFolder(SakaiFsItem fsi) throws IOException {
         throw new UnsupportedOperationException("Can't create folders here.");
     }
 
     @Override
-    public void deleteFile(FsItem fsi) throws IOException {
+    public void deleteFile(SakaiFsItem fsi) throws IOException {
         throw new UnsupportedOperationException("Can't delete files here.");
     }
 
     @Override
-    public void deleteFolder(FsItem fsi) throws IOException {
+    public void deleteFolder(SakaiFsItem fsi) throws IOException {
         throw new UnsupportedOperationException("Can't delete files here.");
     }
 
     @Override
-    public void writeStream(FsItem fsi, InputStream is) throws IOException {
+    public void writeStream(SakaiFsItem fsi, InputStream is) throws IOException {
         throw new UnsupportedOperationException("Can't write to files here.");
     }
 
     @Override
-    public void rename(FsItem src, FsItem dst) throws IOException {
+    public void rename(SakaiFsItem src, SakaiFsItem dst) throws IOException {
         throw new UnsupportedOperationException("Can't rename here.");
     }
 
     @Override
-    public void filterOptions(FsItem item, Map<String, Object> map) {
+    public void filterOptions(SakaiFsItem item, Map<String, Object> map) {
         map.put("disabled", Arrays.asList(new String[]{"create", "rm", "duplicate", "rename", "mkfile", "mkdir", "search", "zipdl"}));
         // Disable chunked uploads.
         map.put("uploadMaxConn", "-1");
     }
-
 }

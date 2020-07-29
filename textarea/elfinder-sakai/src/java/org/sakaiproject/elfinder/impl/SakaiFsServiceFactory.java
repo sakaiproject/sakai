@@ -17,6 +17,7 @@ package org.sakaiproject.elfinder.impl;
 
 import cn.bluejoe.elfinder.service.FsService;
 import cn.bluejoe.elfinder.service.FsServiceFactory;
+import lombok.Setter;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -26,11 +27,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class SakaiFsServiceFactory implements FsServiceFactory {
 
-    public void setFsService(FsService fsService) {
-        this.fsService = fsService;
-    }
-
-    protected FsService fsService;
+    @Setter protected FsService fsService;
 
     public FsService getFileService(HttpServletRequest request, ServletContext servletContext) {
         return fsService;
