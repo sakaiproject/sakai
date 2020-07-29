@@ -506,6 +506,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		// clear session attribute if necessary, after calling Samigo
 		String clearAttr = params.getClearAttr();
+		if (StringUtils.isBlank(clearAttr)) {
+			// TODO RSF is not populating viewParams correctly so we get it off the request
+			clearAttr = httpServletRequest.getParameter("clearAttr");
+		}
 
 		if (clearAttr != null && !clearAttr.equals("")) {
 			Session session = SessionManager.getCurrentSession();

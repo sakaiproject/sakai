@@ -120,6 +120,8 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 
     private Cache maintainRolesCache;
 
+    private Cache realmLocksCache;
+
 	/** KNL-1325 provide a more efficent refreshAuthzGroup */
     public static final String REFRESH_MAX_TIME_PROPKEY = "authzgroup.refresh.max.time";
     public static final String REFRESH_INTERVAL_PROPKEY = "authzgroup.refresh.interval";
@@ -229,6 +231,8 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 	 */
 	public void init()
 	{
+		log.info("table: {} external locks: {}", m_realmTableName, m_useExternalLocks);
+
 		try
 		{
 			// The observer will be notified whenever there are new events. Priority observers get notified first, before normal observers.
@@ -246,12 +250,12 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			// pre-cache role and function names
 			cacheRoleNames();
 			cacheFunctionNames();
+
 			m_realmRoleGRCache = m_memoryService.getCache("org.sakaiproject.authz.impl.DbAuthzGroupService.realmRoleGroupCache");
-			log.info("init(): table: " + m_realmTableName + " external locks: " + m_useExternalLocks);
-
 			authzUserGroupIdsCache = m_memoryService.getCache("org.sakaiproject.authz.impl.DbAuthzGroupService.authzUserGroupIdsCache");
+			maintainRolesCache = m_memoryService.getCache("org.sakaiproject.authz.impl.DbAuthzGroupService.maintainRolesCache");
+			realmLocksCache = m_memoryService.getCache("org.sakaiproject.authz.impl.DbAuthzGroupService.realmLocksCache");
 
-            maintainRolesCache = m_memoryService.getCache("org.sakaiproject.authz.impl.DbAuthzGroupService.maintainRolesCache");
             //get the set of maintain roles and cache them on startup
             getMaintainRoles();
 
@@ -298,12 +302,12 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 	{
 		refreshScheduler.shutdown();
 
-		authzUserGroupIdsCache.close();
-
 		// done with event watching
 		eventTrackingService().deleteObserver(this);
 
-        maintainRolesCache.close();
+		authzUserGroupIdsCache.close();
+		maintainRolesCache.close();
+		realmLocksCache.close();
 
 		log.info(this +".destroy()");
 	}
@@ -615,13 +619,16 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			String realmId = extractEntityId(event.getResource());
 
 			if (realmId != null) {
+				if (log.isDebugEnabled()) {
+					log.debug("clear authzUserGroupIdsCache/realmRoleGRCache/realmLocksCache for {}", realmId);
+				}
+
 				for (String user : getAuthzUsersInGroups(new HashSet<String>(Arrays.asList(realmId)))) {
 					authzUserGroupIdsCache.remove(user);
 				}
-				if (log.isDebugEnabled()) {
-					log.debug("DbAuthzGroupService update(): clear realm role cache for " + realmId);
-				}
+
 				m_realmRoleGRCache.remove(realmId);
+				realmLocksCache.remove(realmId);
 			} else {
 				// This should never happen as the events we generate should always have
 				// a /realm/ prefix on the resource.
@@ -826,7 +833,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			Map <String, Map> realmRoleGRCache = (Map<String, Map>)m_realmRoleGRCache.get(realm.getId());
 
 			if (log.isDebugEnabled()) {
-				log.debug("DbAuthzGroupService: found " + realm.getId() + " in cache? " + (realmRoleGRCache != null));
+				log.debug("realmRoleGRCache: found {} in cache? {}", realm.getId(), (realmRoleGRCache != null));
 			}
 
 			if (realmRoleGRCache != null) {
@@ -978,21 +985,32 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				m_realmRoleGRCache.put(realm.getId(), payLoad);
 			}
 
-			// read the realm locks
-			String realmLocksSql = dbAuthzGroupSql.getSelectRealmLocksSql();
-			m_sql.dbRead(conn, realmLocksSql, new String[] {realm.getId()}, (SqlReader) result -> {
-				try {
-					Integer key = result.getInt(1);
-					String reference = result.getString(2);
-					Integer lockType = result.getInt(3);
+			// RealmLock handling
+			Set<RealmLock> cachedRealmLock = (Set<RealmLock>) realmLocksCache.get(realm.getId());
 
-					RealmLock realmLock = new RealmLock(key, reference, RealmLockMode.values()[lockType]);
-					realm.m_realmLocks.add(realmLock);
-				} catch (SQLException se) {
-					log.warn("Could not read locks for realm {}, Exception: {}", realm.getId(), se.getMessage());
-				}
-				return null;
-			});
+			if (log.isDebugEnabled()) {
+				log.debug("cachedRealmLock: found {} in cache? {}", realm.getId(), (cachedRealmLock != null));
+			}
+
+			if (cachedRealmLock != null) {
+				realm.m_realmLocks = cachedRealmLock;
+			} else {
+				String realmLocksSql = dbAuthzGroupSql.getSelectRealmLocksSql();
+				m_sql.dbRead(conn, realmLocksSql, new String[] {realm.getId()}, (SqlReader) result -> {
+					try {
+						Integer key = result.getInt(1);
+						String reference = result.getString(2);
+						Integer lockType = result.getInt(3);
+
+						RealmLock realmLock = new RealmLock(key, reference, RealmLockMode.values()[lockType]);
+						realm.m_realmLocks.add(realmLock);
+					} catch (SQLException se) {
+						log.warn("Could not read locks for realm {}, Exception: {}", realm.getId(), se.getMessage());
+					}
+					return null;
+				});
+				realmLocksCache.put(realm.getId(), realm.m_realmLocks);
+			}
 		}
 
 		/**

@@ -1,4 +1,5 @@
-/** ******************************************************************************** * $URL$
+/** ********************************************************************************
+ * $URL$
  * $Id$
  ***********************************************************************************
  *
@@ -43,6 +44,9 @@ import org.tsugi.basiclti.ContentItem;
 import org.tsugi.basiclti.BasicLTIConstants;
 import org.tsugi.lti13.LTI13Util;
 import org.tsugi.lti13.DeepLinkResponse;
+import org.sakaiproject.lti13.LineItemUtil;
+import org.sakaiproject.lti13.util.SakaiLineItem;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
@@ -50,6 +54,7 @@ import org.json.simple.JSONArray;
 import static org.tsugi.basiclti.BasicLTIUtil.getObject;
 import static org.tsugi.basiclti.BasicLTIUtil.getString;
 
+import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
@@ -102,6 +107,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 	private static String STATE_CONTENT_ITEM = "lti:state_content_item";
 	private static String STATE_CONTENT_ITEM_FAILURES = "lti:state_content_item_failures";
 	private static String STATE_CONTENT_ITEM_SUCCESSES = "lti:state_content_item_successes";
+	private static String STATE_LINE_ITEM = "lti:state_line_item";
 
 	private static String ALLOW_MAINTAINER_ADD_SYSTEM_TOOL = "lti:allow_maintainer_add_system_tool";
 	private static String ALLOW_MAINTAINER_ADD_TOOL_SITE = "lti:allow_maintainer_add_tool_site";
@@ -932,7 +938,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		Object retval = null;
 		if (key == null) {
 			retval = ltiService.insertTool(reqProps, getSiteId(state));
-System.out.println("retval="+retval);
 			success = rb.getString("success.created");
 		} else {
 			retval = ltiService.updateTool(key, reqProps, getSiteId(state));
@@ -1197,6 +1202,11 @@ System.out.println("retval="+retval);
 				}
 			}
 
+			SakaiLineItem sakaiLineItem = (SakaiLineItem) state.getAttribute(STATE_LINE_ITEM);
+			state.removeAttribute(STATE_LINE_ITEM);
+			Long toolKey = new Long(toolId);
+			handleLineItem(state, sakaiLineItem, toolKey, content);
+
 			//Append the LTI item description to the URL so Lessons can use it.
 			String ltiToolDescription = reqProps.getProperty(LTIService.LTI_DESCRIPTION);
 			if(StringUtils.isNotEmpty(ltiToolDescription)){
@@ -1257,6 +1267,26 @@ System.out.println("retval="+retval);
 		}
 
 		switchPanel(state, "ToolSite");
+	}
+
+	// In Sakai-21 when producing a content item for assignments, we will let
+	// assignments finish this job.  This logic is for Sakai-20 and Sakai-19 and for
+	// non-assignments content items in Sakai-21
+	private void handleLineItem(SessionState state, SakaiLineItem sakaiLineItem, Long toolKey, Map<String, Object> content)
+	{
+		if ( sakaiLineItem == null ) return;
+
+		// When we are doing an implicit line item creation, the title is the key
+		// for gradebook column lookup
+		String ltiToolTitle = (String) content.get(LTIService.LTI_TITLE);
+		if(StringUtils.isNotEmpty(ltiToolTitle)){
+			sakaiLineItem.label = ltiToolTitle;
+		}
+
+		Assignment assn = LineItemUtil.createLineItem(getSiteId(state), toolKey, content, sakaiLineItem);
+		if ( assn == null ) {
+			log.warn("Could not create gradebook column while processing LineItem");
+		}
 	}
 
 	public void doContentItemPut(RunData data, Context context) {
@@ -1320,6 +1350,7 @@ System.out.println("retval="+retval);
 			return;
 		}
 
+		state.removeAttribute(STATE_LINE_ITEM);
 		if ( isDeepLink ) {
 			// Parse and validate the incoming DeepLink
 			String pubkey = (String) tool.get(LTIService.LTI13_TOOL_PUBLIC);
@@ -1349,6 +1380,19 @@ System.out.println("retval="+retval);
 			reqProps = extractLTIDeepLink(item, tool, toolKey);
 			reqProps.setProperty(LTIService.LTI_CONTENTITEM, dlr.toString());
 			reqProps.setProperty("returnUrl", returnUrl);
+
+			// Create the gradebook column if we need to do so
+			JSONObject lineItem = getObject(item, DeepLinkResponse.LINEITEM);
+
+			// ContentItemPut
+			String lineItemStr = lineItem.toString();
+			SakaiLineItem sakaiLineItem = null;
+			try {
+				sakaiLineItem = (SakaiLineItem) new ObjectMapper().readValue(lineItemStr, SakaiLineItem.class);
+				state.setAttribute(STATE_LINE_ITEM, sakaiLineItem);
+			} catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
+				log.warn("Could not parse input as SakaiLineItem {}",lineItemStr);
+			}
 
 		} else {
 
@@ -1382,12 +1426,34 @@ System.out.println("retval="+retval);
 			reqProps = extractLTIContentItem(item, tool, toolKey);
 			reqProps.setProperty(LTIService.LTI_CONTENTITEM, contentItem.toString());
 			reqProps.setProperty("returnUrl", returnUrl);
+
+			// Extract the lineItem material
+			String label = reqProps.getProperty(LTIService.LTI_TITLE);
+			JSONObject lineItem = getObject(item, ContentItem.LINEITEM);
+			String lineItemStr = lineItem.toString();
+			SakaiLineItem sakaiLineItem = null;
+			try {
+				sakaiLineItem = (SakaiLineItem) new ObjectMapper().readValue(lineItemStr, SakaiLineItem.class);
+				state.setAttribute(STATE_LINE_ITEM, sakaiLineItem);
+			} catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
+				log.warn("Could not parse input as SakaiLineItem {}",lineItemStr);
+				sakaiLineItem = new SakaiLineItem();
+			}
+
+			if ( label != null && lineItem != null ) {
+				sakaiLineItem.label = label;
+				Double scoreMaximum = ContentItem.getScoreMaximum(lineItem);
+				if ( scoreMaximum != null ) sakaiLineItem.scoreMaximum = scoreMaximum;
+				state.setAttribute(STATE_LINE_ITEM, sakaiLineItem);
+			}
+
 		}
 
 		// Prepare to forward
 		state.removeAttribute(STATE_POST);
 		String title = reqProps.getProperty(LTIService.LTI_TITLE);
 		String url = reqProps.getProperty("launch");
+
 
 		// If we are not complete, we forward back to the configuration screen
 		boolean complete = title != null && url != null;
@@ -1538,6 +1604,20 @@ System.out.println("retval="+retval);
 					continue;
 				}
 				item.put("launch", contentUrl);
+
+				// doContentItemEditorHandle
+				JSONObject lineItem = getObject(item, DeepLinkResponse.LINEITEM);
+
+				// Create the grade column if necessary - We do it right here instead of using state
+				String lineItemStr = lineItem.toString();
+				SakaiLineItem sakaiLineItem = null;
+				try {
+					sakaiLineItem = (SakaiLineItem) new ObjectMapper().readValue(lineItemStr, SakaiLineItem.class);
+					handleLineItem(state, sakaiLineItem, toolKey, content);
+				} catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
+					log.warn("Could not parse input as SakaiLineItem {}",lineItemStr);
+				}
+
 				new_content.add(item);
 				goodcount++;
 			}
@@ -1612,6 +1692,27 @@ System.out.println("retval="+retval);
 					continue;
 				}
 				item.put("launch", contentUrl);
+
+				// Extract the lineItem material
+				String label = reqProps.getProperty(LTIService.LTI_TITLE);
+				JSONObject lineItem = getObject(item, ContentItem.LINEITEM);
+				String lineItemStr = lineItem.toString();
+				SakaiLineItem sakaiLineItem = null;
+				try {
+					sakaiLineItem = (SakaiLineItem) new ObjectMapper().readValue(lineItemStr, SakaiLineItem.class);
+					handleLineItem(state, sakaiLineItem, toolKey, content);
+				} catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
+					log.warn("Could not parse input as SakaiLineItem {}",lineItemStr);
+					sakaiLineItem = new SakaiLineItem();
+				}
+
+				if ( label != null && lineItem != null ) {
+					sakaiLineItem.label = label;
+					Double scoreMaximum = ContentItem.getScoreMaximum(lineItem);
+					if ( scoreMaximum != null ) sakaiLineItem.scoreMaximum = scoreMaximum;
+					handleLineItem(state, sakaiLineItem, toolKey, content);
+				}
+
 				new_content.add(item);
 				goodcount++;
 			}
@@ -1742,6 +1843,13 @@ System.out.println("retval="+retval);
                     "tag": "originality",
                     "guid": "http:\/\/localhost:8888\/tsugi\/lti\/activity\/breakout"
                 },
+				"available": {
+					"startDateTime": "2018-02-06T20:05:02Z",
+					"endDateTime": "2018-03-07T20:05:02Z"
+				},
+				"submission": {
+					"endDateTime": "2018-03-06T20:05:02Z"
+				},
 				"custom": {
 					"quiz_id": "az-123",
 					"duedate": "$Resource.submission.endDateTime"
@@ -1763,7 +1871,7 @@ System.out.println("retval="+retval);
 		if (url == null) {
 			url = (String) tool.get(LTIService.LTI_LAUNCH);
 		}
-		JSONObject lineItem = getObject(item, DeepLinkResponse.LINEITEM);
+
 		JSONObject custom = getObject(item, DeepLinkResponse.CUSTOM);
 		String custom_str = "";
 		if (custom != null) {
@@ -1874,6 +1982,7 @@ System.out.println("retval="+retval);
 		context.put("tlang", rb);
 		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
 		state.removeAttribute(STATE_SUCCESS);
+		state.removeAttribute(STATE_LINE_ITEM);
 
 		Properties previousPost = (Properties) state.getAttribute(STATE_POST);
 		state.removeAttribute(STATE_POST);
@@ -2036,6 +2145,7 @@ System.out.println("retval="+retval);
 		context.put("tlang", rb);
 		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
 		state.removeAttribute(STATE_SUCCESS);
+		state.removeAttribute(STATE_LINE_ITEM);
 
 		Properties previousPost = (Properties) state.getAttribute(STATE_POST);
 		state.removeAttribute(STATE_POST);
