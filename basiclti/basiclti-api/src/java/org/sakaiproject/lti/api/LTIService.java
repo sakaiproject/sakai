@@ -128,11 +128,11 @@ public interface LTIService extends LTISubstitutionsFilter {
                         "allowlineitems:checkbox:label=bl_allowlineitems",
             "allowroster:checkbox:label=bl_allowroster",
             "allowsettings:checkbox:label=bl_allowsettings",
-            // Hide these from end users until they are working in the various Sakai tools
             "pl_header:header:fields=pl_launch,pl_linkselection",
             "pl_launch:checkbox:label=bl_pl_launch",
             "pl_linkselection:checkbox:label=bl_pl_linkselection",
-            "pl_placement:header:fields=pl_assessmentselection,pl_importitem,pl_fileitem,pl_contenteditor",
+            "pl_placement:header:fields=pl_lessonsselection,pl_assessmentselection,pl_content_editor,pl_importitem,pl_fileitem",
+            "pl_lessonsselection:checkbox:label=bl_pl_lessonsselection:role=admin",
             "pl_assessmentselection:checkbox:label=bl_pl_assessmentselection:role=admin",
             "pl_contenteditor:checkbox:label=bl_pl_contenteditor",
             "pl_importitem:checkbox:label=bl_pl_importitem:role=admin",
@@ -260,6 +260,7 @@ public interface LTIService extends LTISubstitutionsFilter {
     String LTI_PL_IMPORTITEM = "pl_importitem";
     String LTI_PL_CONTENTEDITOR = "pl_contenteditor";
     String LTI_PL_ASSESSMENTSELECTION = "pl_assessmentselection";
+    String LTI_PL_LESSONSSELECTION = "pl_lessonsselection";
     String LTI_SEARCH_TOKEN_SEPARATOR_AND = "#&#";
     String LTI_SEARCH_TOKEN_SEPARATOR_OR = "#|#";
     String ESCAPED_LTI_SEARCH_TOKEN_SEPARATOR_AND = "\\#\\&\\#";
@@ -410,6 +411,12 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param siteId
      */
     List<Map<String, Object>> getToolsAssessmentSelection(String siteId);
+
+    /**
+     * Get a list of tools that can be used for Lessons
+     * @param siteId
+     */
+    List<Map<String, Object>> getToolsLessonsSelection(String siteId);
 
     List<Map<String, Object>> getToolsDao(String search, String order, int first, int last, String siteId);
 

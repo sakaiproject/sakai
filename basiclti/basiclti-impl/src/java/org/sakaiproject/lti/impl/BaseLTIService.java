@@ -599,6 +599,13 @@ public abstract class BaseLTIService implements LTIService {
 	}
 
 	@Override
+	public List<Map<String, Object>> getToolsLessonsSelection(String siteId) {
+		// TODO: Once the checkboxes have been around for a while - perhaps as part of Sakai-22
+		// return getTools("lti_tools."+LTIService.LTI_PL_LESSONSSELECTION+" = 1",null,0,0, siteId);
+		return getToolsLaunch(siteId);
+	}
+
+	@Override
 	public List<Map<String, Object>> getToolsDao(String search, String order, int first, int last, String siteId) {
 		return getToolsDao(search, order, first, last, siteId, true);
 	}
