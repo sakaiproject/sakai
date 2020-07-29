@@ -1710,17 +1710,11 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 				SakaiLineItem sakaiLineItem = null;
 				try {
 					sakaiLineItem = (SakaiLineItem) new ObjectMapper().readValue(lineItemStr, SakaiLineItem.class);
-					handleLineItem(state, sakaiLineItem, toolKey, content);
-				} catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
-					log.warn("Could not parse input as SakaiLineItem {}",lineItemStr);
-					sakaiLineItem = new SakaiLineItem();
-				}
-
-				if ( label != null && lineItem != null ) {
-					sakaiLineItem.label = label;
 					Double scoreMaximum = ContentItem.getScoreMaximum(lineItem);
 					if ( scoreMaximum != null ) sakaiLineItem.scoreMaximum = scoreMaximum;
 					handleLineItem(state, sakaiLineItem, toolKey, content);
+				} catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
+					log.warn("Could not parse input as SakaiLineItem {}",lineItemStr);
 				}
 
 				item.put("content_key", contentKey);
