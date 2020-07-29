@@ -914,6 +914,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
             discussionForum.addTopic(topic);
         } else {
             topicReturn = (DiscussionTopic) getSessionFactory().getCurrentSession().merge(topic);
+            topicReturn.setBaseForum(topic.getBaseForum());
         }
 
         //now schedule any jobs that are needed for the open/close dates
