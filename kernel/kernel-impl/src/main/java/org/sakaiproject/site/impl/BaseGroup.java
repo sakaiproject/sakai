@@ -135,7 +135,6 @@ public class BaseGroup implements Group, Identifiable
 		if (exact)
 		{
 			m_id = bOther.m_id;
-			bOther.getRealmLocks().forEach(a -> setLockForReference(a[0], RealmLockMode.valueOf(a[1])));
 		}
 		else
 		{
