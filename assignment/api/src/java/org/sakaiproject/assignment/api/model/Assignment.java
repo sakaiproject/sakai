@@ -252,12 +252,6 @@ public class Assignment {
     @Column(name = "CONTENT_REVIEW")
     private Boolean contentReview = Boolean.FALSE;
 
-    @Column(name = "CONTENT_ID")
-    private Integer contentId = null;
-
-    @Column(name = "CONTENT_LAUNCH_NEW_WINDOW")
-    private Boolean contentLaunchNewWindow = Boolean.FALSE;
-
     public enum Access {
         SITE,
         GROUP
@@ -269,8 +263,7 @@ public class Assignment {
         ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION,     // 2
         TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION, // 3
         NON_ELECTRONIC_ASSIGNMENT_SUBMISSION,      // 4
-        SINGLE_ATTACHMENT_SUBMISSION,              // 5
-        EXTERNAL_TOOL_SUBMISSION                   // 6
+        SINGLE_ATTACHMENT_SUBMISSION               // 5
     }
 
     public enum GradeType {
