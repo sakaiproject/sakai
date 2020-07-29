@@ -1202,7 +1202,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     if (saveForum)
     {
       forum.addTopic(topic);
-      forumManager.saveDiscussionForum(forum, forum.getDraft(), false, currentUser); // event already logged by saveDiscussionForumTopic()
+      forum = forumManager.saveDiscussionForum(forum, forum.getDraft(), false, currentUser); // event already logged by saveDiscussionForumTopic()
       //sak-5146 forumManager.saveDiscussionForum(forum);
     }
 
