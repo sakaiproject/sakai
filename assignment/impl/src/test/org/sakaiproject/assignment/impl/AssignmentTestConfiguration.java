@@ -39,7 +39,6 @@ import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.contentreview.service.ContentReviewService;
-import org.sakaiproject.elfinder.SakaiFsService;
 import org.sakaiproject.email.api.DigestService;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entity.api.EntityManager;
@@ -297,11 +296,6 @@ public class AssignmentTestConfiguration {
     @Bean(name = "org.sakaiproject.rubrics.logic.RubricsService")
     public RubricsService rubricsService() {
         return mock(RubricsService.class);
-    }
-
-    @Bean(name = "org.sakaiproject.elfinder.SakaiFsService")
-    public SakaiFsService sakaiFsService() {
-        return mock(SakaiFsService.class);
     }
 
     @Bean(name = "org.sakaiproject.search.api.SearchService")
