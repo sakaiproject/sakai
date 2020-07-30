@@ -150,6 +150,8 @@ public class SakaiBLTIUtil {
 	// The path for servlet bits that neither sets nor uses cookies
 	public static final String LTI1_ANON_PATH = "/imsoidc/lti11/";
 
+	public static final String SESSION_LAUNCH_CODE = "launch_code:";
+
 		public static boolean rosterEnabled() {
 			String allowRoster = ServerConfigurationService.getString(BASICLTI_ROSTER_ENABLED, BASICLTI_ROSTER_ENABLED_DEFAULT);
 			return "true".equals(allowRoster);
@@ -1689,7 +1691,7 @@ public class SakaiBLTIUtil {
 				accept_unsigned=true
 				auto_create=true
 				can_confirm=false
-				content_item_return_url=http://localhost:8080/portal/tool/6bdb721d-07f9-445b-a973-2190b50654cc/sakai.basiclti.admin.helper.helper?eventSubmit_doContentItemPut=Save&sakai.session=22702e53-60f3-45fd-b8db-a9d803eed3d4.MacBook-Pro-92.local&returnUrl=http%3A%2F%2Flocalhost%3A8080%2Fportal%2Fsite%2F92e7ddf2-1c60-486c-97ae-bc2ffbde8e67%2Ftool%2F4099b420-119a-4c39-9e05-0a933b2e5858%2FBltiPicker%3F3%26itemId%3D-1%26addBefore%3D&panel=PostContentItem&tool_id=13&sakai_csrf_token=458f712764cd597e96be99d2bab6d9da17d63c3834bc3770851a3d93ea8cdb83
+				content_item_return_url=http://localhost:8080/portal/tool/6bdb721d-07f9-445b-a973-2190b50654cc/sakai.basiclti.admin.helper.helper?eventSubmit_doContentItemResponse=Save&sakai.session=22702e53-60f3-45fd-b8db-a9d803eed3d4.MacBook-Pro-92.local&returnUrl=http%3A%2F%2Flocalhost%3A8080%2Fportal%2Fsite%2F92e7ddf2-1c60-486c-97ae-bc2ffbde8e67%2Ftool%2F4099b420-119a-4c39-9e05-0a933b2e5858%2FBltiPicker%3F3%26itemId%3D-1%26addBefore%3D&panel=PostContentItem&tool_id=13&sakai_csrf_token=458f712764cd597e96be99d2bab6d9da17d63c3834bc3770851a3d93ea8cdb83
 				data={"remember":"always bring a towel"}
 
 				"deep_link_return_url": "https://platform.example/deep_links",
@@ -2419,6 +2421,49 @@ public class SakaiBLTIUtil {
 			retval.setProperty(BASICLTI_PORTLET_ASSIGNMENT, aTitle.trim());
 		}
 		return retval;
+	}
+
+	/**
+	 * getLaunchCodeKey - Return the launch code key for a content item
+	 */
+	public static String getLaunchCodeKey(Map<String, Object> content) {
+		int id = getInt(content.get(LTIService.LTI_ID));
+		return SESSION_LAUNCH_CODE + id;
+	}
+
+	/**
+	 * getLaunchCode - Return the launch code for a content item
+	 */
+	public static String getLaunchCode(Map<String, Object> content) {
+		long now = (new java.util.Date()).getTime();
+		int id = getInt(content.get(LTIService.LTI_ID));
+		String placement_secret = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
+		String base_string = id + ":" + now + ":" + placement_secret;
+		String signature = LegacyShaUtil.sha256Hash(base_string);
+		String retval = id + ":" + now + ":" + signature;
+		return retval;
+	}
+
+	/**
+	 * checkLaunchCode - check to see if a launch code is properly signed and not expired
+	 */
+	public static boolean checkLaunchCode(Map<String, Object> content, String launch_code) {
+		long now = (new java.util.Date()).getTime();
+		int id = getInt(content.get(LTIService.LTI_ID));
+		String placement_secret = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
+		String [] pieces = launch_code.split(":");
+		if ( pieces.length != 3 ) return false;
+		int code_id = getInt(pieces[0]);
+		long code_now = getLong(pieces[1]);
+		String code_sig = pieces[2];
+		long delta = now - code_now;
+		if ( code_id != id ) return false;
+		// Five minutes
+		if ( delta > (5*60*1000) ) return false; // expired
+		String base_string = id + ":" + code_now + ":" + placement_secret;
+		String signature = LegacyShaUtil.sha256Hash(base_string);
+		if ( ! signature.equals(code_sig) ) return false;
+		return true;
 	}
 
 	public static boolean isPlacement(String placement_id) {

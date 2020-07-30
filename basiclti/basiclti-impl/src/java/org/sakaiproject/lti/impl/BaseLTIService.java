@@ -355,6 +355,16 @@ public abstract class BaseLTIService implements LTIService {
 	}
 
 	@Override
+	public Object updateContentDao(Long key, Map<String, Object> newProps)
+	{
+		// siteId can be null if isAdmin is false, the item is just patched in place
+		String siteId = null;
+		boolean isAdmin = true;
+		boolean isMaintain = true;
+		return updateContentDao(key, newProps, siteId, isAdmin, isMaintain);
+	}
+
+	@Override
 	public Object updateContentDao(Long key, Map<String, Object> newProps, String siteId)
 	{
 		return updateContentDao(key, (Object) newProps, siteId, true, true);
@@ -580,12 +590,19 @@ public abstract class BaseLTIService implements LTIService {
 
 	@Override
     public List<Map<String, Object>> getToolsContentEditor(String siteId) {
-		return getTools("lti_tools."+LTIService.LTI_PL_CONTENTEDITOR+" = 1",null,0,0, siteId);
+		return getTools("lti_tools."+LTIService.LTI_PL_CONTENTEDITOR+" = 1 AND lti_tools."+LTIService.LTI_PL_LINKSELECTION+" = 1",null,0,0, siteId);
 	}
 
 	@Override
     public List<Map<String, Object>> getToolsAssessmentSelection(String siteId) {
 		return getTools("lti_tools."+LTIService.LTI_PL_ASSESSMENTSELECTION+" = 1",null,0,0, siteId);
+	}
+
+	@Override
+	public List<Map<String, Object>> getToolsLessonsSelection(String siteId) {
+		// TODO: Once the checkboxes have been around for a while - perhaps as part of Sakai-22
+		// return getTools("lti_tools."+LTIService.LTI_PL_LESSONSSELECTION+" = 1",null,0,0, siteId);
+		return getToolsLaunch(siteId);
 	}
 
 	@Override

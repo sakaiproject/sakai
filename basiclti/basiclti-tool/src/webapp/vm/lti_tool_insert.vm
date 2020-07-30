@@ -45,7 +45,7 @@ $tlang.getString("tool.content.body")
 ## Create a variable that is a dollar sign for later
 #set ( $d = "$")  
 function checkRadioSettings() {
-    if ($('#pl_linkselection').is(":checked") || $('#pl_contenteditor').is(":checked")) {
+    if ($('#pl_linkselection').is(":checked") ) {
         var changed = false;
         if ( $("input[name='allowtitle']:checked").val() == 0 ||
              $("input[name='allowlaunch']:checked").val() == 0 ) {

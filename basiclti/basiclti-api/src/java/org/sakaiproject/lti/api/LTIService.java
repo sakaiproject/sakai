@@ -56,11 +56,15 @@ public interface LTIService extends LTISubstitutionsFilter {
             "tool_id:integer:hidden=true",
             "SITE_ID:text:label=bl_content_site_id:required=true:maxlength=99:role=admin",
             "title:text:label=bl_title:required=true:allowed=true:maxlength=1024",
+			// SAK-32679 - COmented out for the future - uncomment in SAK-44019
+            // "description:textarea:label=bl_description:maxlength=4096",
             "pagetitle:text:label=bl_pagetitle:required=true:allowed=true:maxlength=1024",
             "fa_icon:text:label=bl_fa_icon:allowed=true:maxlength=1024",
             "frameheight:integer:label=bl_frameheight:allowed=true",
             "toolorder:integer:label=bl_toolorder:maxlength=2",
             "newpage:checkbox:label=bl_newpage",
+			// SAK-32679 - COmented out for the future - uncomment in SAK-44019
+            // "protect:checkbox:label=bl_protect:role=admin",
             "debug:checkbox:label=bl_debug",
             "custom:textarea:label=bl_custom:rows=5:cols=25:allowed=true:maxlength=16384",
             "launch:url:label=bl_launch:maxlength=1024:allowed=true",
@@ -126,11 +130,11 @@ public interface LTIService extends LTISubstitutionsFilter {
                         "allowlineitems:checkbox:label=bl_allowlineitems",
             "allowroster:checkbox:label=bl_allowroster",
             "allowsettings:checkbox:label=bl_allowsettings",
-            // Hide these from end users until they are working in the various Sakai tools
             "pl_header:header:fields=pl_launch,pl_linkselection",
             "pl_launch:checkbox:label=bl_pl_launch",
             "pl_linkselection:checkbox:label=bl_pl_linkselection",
-            "pl_placement:header:fields=pl_assessmentselection,pl_importitem,pl_fileitem,pl_contenteditor",
+            "pl_placement:header:fields=pl_lessonsselection,pl_assessmentselection,pl_content_editor,pl_importitem,pl_fileitem",
+            "pl_lessonsselection:checkbox:label=bl_pl_lessonsselection:role=admin",
             "pl_assessmentselection:checkbox:label=bl_pl_assessmentselection:role=admin",
             "pl_contenteditor:checkbox:label=bl_pl_contenteditor",
             "pl_importitem:checkbox:label=bl_pl_importitem:role=admin",
@@ -218,6 +222,7 @@ public interface LTIService extends LTISubstitutionsFilter {
     String LTI_SETTINGS_EXT = "settings_ext";
     String LTI_CONTENTITEM = "contentitem";
     String LTI_NEWPAGE = "newpage";
+    String LTI_PROTECT = "protect";
     String LTI_DEBUG = "debug";
     String LTI_CUSTOM = "custom";
     String LTI_ROLEMAP = "rolemap";
@@ -257,6 +262,7 @@ public interface LTIService extends LTISubstitutionsFilter {
     String LTI_PL_IMPORTITEM = "pl_importitem";
     String LTI_PL_CONTENTEDITOR = "pl_contenteditor";
     String LTI_PL_ASSESSMENTSELECTION = "pl_assessmentselection";
+    String LTI_PL_LESSONSSELECTION = "pl_lessonsselection";
     String LTI_SEARCH_TOKEN_SEPARATOR_AND = "#&#";
     String LTI_SEARCH_TOKEN_SEPARATOR_OR = "#|#";
     String ESCAPED_LTI_SEARCH_TOKEN_SEPARATOR_AND = "\\#\\&\\#";
@@ -408,6 +414,12 @@ public interface LTIService extends LTISubstitutionsFilter {
      */
     List<Map<String, Object>> getToolsAssessmentSelection(String siteId);
 
+    /**
+     * Get a list of tools that can be used for Lessons
+     * @param siteId
+     */
+    List<Map<String, Object>> getToolsLessonsSelection(String siteId);
+
     List<Map<String, Object>> getToolsDao(String search, String order, int first, int last, String siteId);
 
     List<Map<String, Object>> getToolsDao(String search, String order, int first, int last, String siteId, boolean isAdmin);
@@ -438,6 +450,8 @@ public interface LTIService extends LTISubstitutionsFilter {
     Object updateContent(Long key, Map<String, Object> newProps, String siteId);
 
     Object updateContent(Long key, Properties newProps, String siteId);
+
+    Object updateContentDao(Long key, Map<String, Object> newProps);
 
     Object updateContentDao(Long key, Map<String, Object> newProps, String siteId);
 

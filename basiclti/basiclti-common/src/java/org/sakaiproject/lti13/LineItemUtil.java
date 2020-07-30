@@ -141,7 +141,7 @@ public class LineItemUtil {
 			Assignment gAssignment = (Assignment) i.next();
 
 			if (lineItem.label.equals(gAssignment.getName())) {
-				throw new RuntimeException("Duplicate label while adding line item {}" + lineItem.label);
+				throw new RuntimeException("Duplicate label while adding line item " + lineItem.label);
 			}
 		}
 
