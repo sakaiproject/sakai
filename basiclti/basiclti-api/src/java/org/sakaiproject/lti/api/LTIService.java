@@ -152,8 +152,7 @@ public interface LTIService extends LTISubstitutionsFilter {
 
             // The core values from LTI 1.3 tools (we prefer keyset over explicit key)
             "lti13_client_id:text:hide=insert:label=bl_lti13_client_id:maxlength=1024:role=admin",
-            // TODO: Change this from 1M to 1024 after this is 21-only - SAK-43709
-            "lti13_tool_keyset:textarea:label=bl_lti13_tool_keyset:maxlength=1M:role=admin",
+            "lti13_tool_keyset:text:label=bl_lti13_tool_keyset:maxlength=1024:role=admin",
             "lti13_oidc_endpoint:text:label=bl_lti13_oidc_endpoint:maxlength=1024:role=admin",
             "lti13_oidc_redirect:text:label=bl_lti13_oidc_redirect:maxlength=1024:role=admin",
 
@@ -166,10 +165,6 @@ public interface LTIService extends LTISubstitutionsFilter {
             "lti13_legacy_key:header:fields=lti13_tool_public,lti13_tool_private",
             "lti13_tool_public:textarea:hide=insert:label=bl_lti13_tool_public:maxlength=1M:role=admin",
             "lti13_tool_private:textarea:hide=insert:label=bl_lti13_tool_private:maxlength=1M:role=admin",
-
-            // TODO: This is purely legacy and can be removed after this is 21-only - SAK-43709
-            // we don't even need to remove the column during 21-upgrade - it was never used
-            "lti13_tool_kid:text:hidden=true:label=bl_lti13_tool_kid:maxlength=1024:role=admin",
 
             // SHA256 Support (See SAK-33898)
             "sha256:radio:label=bl_sha256:hidden=true:role=admin:choices=off,on,content",
