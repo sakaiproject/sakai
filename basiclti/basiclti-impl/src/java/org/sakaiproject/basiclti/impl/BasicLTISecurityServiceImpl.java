@@ -40,6 +40,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import org.json.simple.JSONObject;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.sakaiproject.authz.api.SecurityService;
@@ -446,12 +448,33 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 						throw new EntityNotDefinedException("Could not load content item");
 					}
 
+					// Check to see if we need launch protection
+					int protect = SakaiBLTIUtil.getInt(content.get(LTIService.LTI_PROTECT));
+
+					// SAK-43709 - Prior to Sakai-21 there is no protect field in Content
+					// If there is no protect value, we fall back to the pre-21 description in JSON
+					if ( protect < 0 ) {
+						String content_settings = (String) content.get(LTIService.LTI_SETTINGS);
+						JSONObject content_json = org.tsugi.basiclti.BasicLTIUtil.parseJSONObject(content_settings);
+						protect = SakaiBLTIUtil.getInt(content_json.get(LTIService.LTI_PROTECT));
+					}
+
+					if ( protect > 0 ) {
+						Session session = sessionManager.getCurrentSession();
+						String launch_code_key = SakaiBLTIUtil.getLaunchCodeKey(content);
+						String launch_code = (String) session.getAttribute(launch_code_key);
+						session.removeAttribute(launch_code_key);  // You get one try
+
+						if ( launch_code == null || ! SakaiBLTIUtil.checkLaunchCode(content, launch_code) ) {
+					        throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(), "basiclti", ref.getReference());
+						}
+					}
+
 					String siteId = (String) content.get(LTIService.LTI_SITE_ID);
 					if ( siteId == null || ! siteId.equals(ref.getContext()) )
 					{
 						throw new EntityNotDefinedException("Incorrect site");
 					}
-
 
 					Long toolKey = SakaiBLTIUtil.getLongKey(content.get(LTIService.LTI_TOOL_ID));
 					if ( toolKey >= 0 ) tool = ltiService.getToolDao(toolKey, ref.getContext());
