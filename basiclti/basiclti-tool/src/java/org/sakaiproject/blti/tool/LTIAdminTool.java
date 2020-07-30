@@ -1395,13 +1395,15 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			// Create the gradebook column if we need to do so
 			JSONObject lineItem = getObject(item, DeepLinkResponse.LINEITEM);
 
-			String lineItemStr = lineItem.toString();
 			SakaiLineItem sakaiLineItem = null;
-			try {
-				sakaiLineItem = (SakaiLineItem) new ObjectMapper().readValue(lineItemStr, SakaiLineItem.class);
-				state.setAttribute(STATE_LINE_ITEM, sakaiLineItem);
-			} catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
-				log.warn("Could not parse input as SakaiLineItem {}",lineItemStr);
+			if ( lineItem != null ) {
+				String lineItemStr = lineItem.toString();
+				try {
+					sakaiLineItem = (SakaiLineItem) new ObjectMapper().readValue(lineItemStr, SakaiLineItem.class);
+					state.setAttribute(STATE_LINE_ITEM, sakaiLineItem);
+				} catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
+					log.warn("Could not parse input as SakaiLineItem {}",lineItemStr);
+				}
 			}
 
 		} else {
@@ -1436,14 +1438,16 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			// Extract the lineItem material
 			String label = reqProps.getProperty(LTIService.LTI_TITLE);
 			JSONObject lineItem = getObject(item, ContentItem.LINEITEM);
-			String lineItemStr = lineItem.toString();
 			SakaiLineItem sakaiLineItem = null;
-			try {
-				sakaiLineItem = (SakaiLineItem) new ObjectMapper().readValue(lineItemStr, SakaiLineItem.class);
-				state.setAttribute(STATE_LINE_ITEM, sakaiLineItem);
-			} catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
-				log.warn("Could not parse input as SakaiLineItem {}",lineItemStr);
-				sakaiLineItem = new SakaiLineItem();
+			String lineItemStr = lineItem.toString();
+			if ( lineItem != null ) {
+				try {
+					sakaiLineItem = (SakaiLineItem) new ObjectMapper().readValue(lineItemStr, SakaiLineItem.class);
+					state.setAttribute(STATE_LINE_ITEM, sakaiLineItem);
+				} catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
+					log.warn("Could not parse input as SakaiLineItem {}",lineItemStr);
+					sakaiLineItem = new SakaiLineItem();
+				}
 			}
 
 			if ( label != null && lineItem != null ) {
@@ -1626,17 +1630,19 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 				JSONObject lineItem = getObject(item, DeepLinkResponse.LINEITEM);
 
 				// Create the grade column if necessary - We do it right here instead of using state
-				String lineItemStr = lineItem.toString();
 				SakaiLineItem sakaiLineItem = null;
-				try {
-					sakaiLineItem = (SakaiLineItem) new ObjectMapper().readValue(lineItemStr, SakaiLineItem.class);
-					if ( FLOW_PARAMETER_ASSIGNMENT.equals(flow) ) {
-						state.setAttribute(STATE_LINE_ITEM, sakaiLineItem);
-					} else {
-						handleLineItem(state, sakaiLineItem, toolKey, content);
+				if ( lineItem != null ) {
+					String lineItemStr = lineItem.toString();
+					try {
+						sakaiLineItem = (SakaiLineItem) new ObjectMapper().readValue(lineItemStr, SakaiLineItem.class);
+						if ( FLOW_PARAMETER_ASSIGNMENT.equals(flow) ) {
+							state.setAttribute(STATE_LINE_ITEM, sakaiLineItem);
+						} else {
+							handleLineItem(state, sakaiLineItem, toolKey, content);
+						}
+					} catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
+						log.warn("Could not parse input as SakaiLineItem {}",lineItemStr);
 					}
-				} catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
-					log.warn("Could not parse input as SakaiLineItem {}",lineItemStr);
 				}
 
 				new_content.add(item);
@@ -1717,19 +1723,21 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 				// Extract the lineItem material
 				String label = reqProps.getProperty(LTIService.LTI_TITLE);
 				JSONObject lineItem = getObject(item, ContentItem.LINEITEM);
-				String lineItemStr = lineItem.toString();
 				SakaiLineItem sakaiLineItem = null;
-				try {
-					sakaiLineItem = (SakaiLineItem) new ObjectMapper().readValue(lineItemStr, SakaiLineItem.class);
-					Double scoreMaximum = ContentItem.getScoreMaximum(lineItem);
-					if ( scoreMaximum != null ) sakaiLineItem.scoreMaximum = scoreMaximum;
-					if ( FLOW_PARAMETER_ASSIGNMENT.equals(flow) ) {
-						state.setAttribute(STATE_LINE_ITEM, sakaiLineItem);
-					} else {
-						handleLineItem(state, sakaiLineItem, toolKey, content);
+				if ( lineItem != null ) {
+					String lineItemStr = lineItem.toString();
+					try {
+						sakaiLineItem = (SakaiLineItem) new ObjectMapper().readValue(lineItemStr, SakaiLineItem.class);
+						Double scoreMaximum = ContentItem.getScoreMaximum(lineItem);
+						if ( scoreMaximum != null ) sakaiLineItem.scoreMaximum = scoreMaximum;
+						if ( FLOW_PARAMETER_ASSIGNMENT.equals(flow) ) {
+							state.setAttribute(STATE_LINE_ITEM, sakaiLineItem);
+						} else {
+							handleLineItem(state, sakaiLineItem, toolKey, content);
+						}
+					} catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
+						log.warn("Could not parse input as SakaiLineItem {}",lineItemStr);
 					}
-				} catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
-					log.warn("Could not parse input as SakaiLineItem {}",lineItemStr);
 				}
 
 				item.put("content_key", contentKey);
