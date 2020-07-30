@@ -511,11 +511,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			clearAttr = httpServletRequest.getParameter("clearAttr");
 		}
 
-		if (clearAttr != null && !clearAttr.equals("")) {
+		if (StringUtils.isNotBlank(clearAttr)) {
 			Session session = SessionManager.getCurrentSession();
 			// don't let users clear random attributes
 			if (clearAttr.startsWith("LESSONBUILDER_RETURNURL")) {
 				session.setAttribute(clearAttr, null);
+				params.setClearAttr(null);
 			}
 		}
 
