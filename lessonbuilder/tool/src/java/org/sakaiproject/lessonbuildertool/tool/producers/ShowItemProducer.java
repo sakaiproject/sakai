@@ -180,14 +180,15 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 		if (StringUtils.isBlank(clearAttr)) {
 			// TODO RSF is not populating viewParams correctly so we get it off the request
 			clearAttr = httpServletRequest.getParameter("clearAttr");
+			params.setClearAttr(clearAttr);
 		}
-	    if (clearAttr != null && !clearAttr.equals("")) {
-		// don't let users clear random attributes
-		if (clearAttr.startsWith("LESSONBUILDER_RETURNURL")) {
-		    String toolUrl = ServerConfigurationService.getPortalUrl() + "/site/" + sitePage.getSiteId() + "/page/" + sitePage.getId() + "?clearAttr=" + clearAttr;
-		    session.setAttribute(clearAttr, toolUrl);
+		if (StringUtils.isNotBlank(clearAttr)) {
+			// don't let users clear random attributes
+			if (clearAttr.startsWith("LESSONBUILDER_RETURNURL")) {
+				String toolUrl = ServerConfigurationService.getPortalUrl() + "/site/" + sitePage.getSiteId() + "/page/" + sitePage.getId() + "?clearAttr=" + clearAttr;
+				session.setAttribute(clearAttr, toolUrl);
+			}
 		}
-	    }
 
 
 	    String pathOp = params.getPath();
@@ -355,6 +356,7 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 			GeneralViewParameters view = new GeneralViewParameters(ShowPageProducer.VIEW_ID);
 			view.setSendingPage(entry.pageId);
 			view.setItemId(entry.pageItemId);
+			view.setClearAttr(clearAttr);
 			// path defaults to null, which is next
 			String currentToolTitle = simplePageBean.getPageTitle();
 			String returnText = messageLocator.getMessage("simplepage.return").replace("{}",currentToolTitle); 
@@ -385,6 +387,7 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 			view.setSendingPage(sendingPage);;
 			view.setItemId(new Long(((GeneralViewParameters) params).getId()));
 			view.setAddBefore(((GeneralViewParameters) params).getAddBefore());
+			view.setClearAttr(clearAttr);
 			UIInternalLink.make(tofill, "return", ((GeneralViewParameters) params).getTitle() , view);
 			UIOutput.make(tofill, "returnwarning", messageLocator.getMessage("simplepage.return.warning"));
 		    }
