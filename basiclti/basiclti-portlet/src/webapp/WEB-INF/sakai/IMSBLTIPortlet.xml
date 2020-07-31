@@ -46,7 +46,6 @@
                 <configuration name="imsti.debug" />
                 <configuration name="imsti.releasename" />
                 <configuration name="imsti.releaseemail" />
-                <configuration name="imsti.sha256" />
                 <configuration name="imsti.custom" />
                 <configuration name="imsti.allowsettings" />
                 <configuration name="imsti.allowroster" />
@@ -71,7 +70,6 @@
                 <configuration name="final.debug" value="false"/>
                 <configuration name="final.releasename" value="false"/>
                 <configuration name="final.releaseemail" value="false"/>
-                <configuration name="final.sha256" value="false"/>
                 <configuration name="final.custom" value="false"/>
                 <configuration name="final.allowsettings" value="false"/>
                 <configuration name="final.allowroster" value="false"/>
@@ -117,7 +115,6 @@
                 <configuration name="imsti.debug" />
                 <configuration name="imsti.releasename" value="off"/>
                 <configuration name="imsti.releaseemail" value="on"/>
-                <configuration name="imsti.sha256" value="on"/>
                 <configuration name="imsti.custom" />
                 <configuration name="imsti.allowsettings" value="on"/>
                 <configuration name="imsti.allowroster" value="on"/>
@@ -137,7 +134,6 @@
                 <configuration name="final.debug" value="false"/>
                 <configuration name="final.releasename" value="true"/>
                 <configuration name="final.releaseemail" value="true"/>
-                <configuration name="final.sha256" value="true"/>
                 <configuration name="final.custom" value="true"/>
                 <configuration name="final.allowsettings" value="true"/>
                 <configuration name="final.allowroster" value="true"/>

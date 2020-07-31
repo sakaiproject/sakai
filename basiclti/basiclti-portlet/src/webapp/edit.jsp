@@ -66,7 +66,6 @@ Boolean allowRoster = (Boolean) rReq.getAttribute("allowRoster");
         allow(sp,"newpage") || 
         allow(sp,"frameheight") || allow(sp, "debug") ||
         allow(sp, "releasename") || allow(sp,"releaseemail")  ||
-        allow(sp, "sha256") ||
 		allow(sp,"custom") || 
 		allow(sp,"allowsettings") || allow(sp, "allowroster") || 
         allow(sp, "allowoutcomes") || allow(sp, "splash") ||
@@ -239,21 +238,6 @@ if ( document.getElementById("UISwitcher") ) switchui();
 <span class="textPanelFooter"><%=rb.getString("iframe.height.detail") %></span>
 </p>
 <% } %>
-<% if ( allow(sp,"sha256") ) { %>
-	<p>
-		<label for="imsti.sha256">
-			<input type="checkbox" size="10" name="imsti.sha256" id="imsti.sha256"
-			<% if ( ov.getProperty("imsti.sha256",null) != null ) { %>
-            checked="yes" />
-			<% } else { %>
-            />
-			<% } %>
-			<%=rb.getString("sha256.legend") %>
-		</label>
-<span class="textPanelFooter"><%=rb.getString("imsti.sha256.detail") %></span>
-</p>
-<% } %>
-
 <% if ( allow(sp,"debug") ) { %>
 <p>
 <label for="imsti.debug">

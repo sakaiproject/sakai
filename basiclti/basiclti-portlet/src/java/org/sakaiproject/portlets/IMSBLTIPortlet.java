@@ -131,7 +131,6 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		fieldList.add(BASICLTI_PORTLET_RELEASEEMAIL);
 		fieldList.add(BASICLTI_PORTLET_ASSIGNMENT);
 		fieldList.add("newpage");
-		fieldList.add("sha256");
 		fieldList.add(BASICLTI_PORTLET_ALLOWSETTINGS);
 		fieldList.add(BASICLTI_PORTLET_ALLOWROSTER);
 		fieldList.add("splash");
