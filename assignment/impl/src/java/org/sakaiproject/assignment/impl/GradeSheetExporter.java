@@ -27,7 +27,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -334,12 +333,11 @@ public class GradeSheetExporter {
                 }
 
 
-                final List resultsList = new ArrayList(results.keySet());
-            	Collections.sort(resultsList, SUBMITTER_NAME_COMPARATOR);
-                                
-            	for (final Iterator iter = resultsList.iterator(); iter.hasNext(); ) {
+                final List<Submitter> submitters = new ArrayList(results.keySet());
+                Collections.sort(submitters, SUBMITTER_NAME_COMPARATOR);
+
+                for (final Submitter submitter : submitters) {
                     Row sheetRow = sheet.createRow(rowNum++);
-                    Submitter submitter = (Submitter)iter.next();
                     List<Object> rowValues = results.get(submitter);
                     int column = 0;
                     if (submitter.anonymous) {
