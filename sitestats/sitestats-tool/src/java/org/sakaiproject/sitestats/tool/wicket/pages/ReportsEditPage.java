@@ -1119,7 +1119,7 @@ public class ReportsEditPage extends BasePage {
 	}
 	
 	private List<String> getRoles() {
-		Set<String> siteIdWithRoles = new HashSet<>(Arrays.asList(siteId));
+		Set<String> siteIdWithRoles = new HashSet<>(Arrays.asList("/site/" + siteId));
 
 		if ("!admin".equals(siteId) || "~admin".equals(siteId)) {
 			siteIdWithRoles.add("!site.template");
