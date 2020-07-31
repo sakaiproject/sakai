@@ -629,12 +629,6 @@ public class SakaiBLTIUtil {
 			String releasename = toNull(getCorrectProperty(config, BASICLTI_PORTLET_RELEASENAME, placement));
 			String releaseemail = toNull(getCorrectProperty(config, BASICLTI_PORTLET_RELEASEEMAIL, placement));
 
-			// Use SHA256 if requested (SAK-33898)
-			String sha256 = toNull(getCorrectProperty(config, "sha256", placement));
-			if (BASICLTI_PORTLET_ON.equals(sha256)) {
-				setProperty(props, OAuth.OAUTH_SIGNATURE_METHOD, "HMAC-SHA256");
-			}
-
 			User user = UserDirectoryService.getCurrentUser();
 
 			PrivacyManager pm = (PrivacyManager) ComponentManager.get("org.sakaiproject.api.privacy.PrivacyManager");
@@ -1018,14 +1012,6 @@ public class SakaiBLTIUtil {
 			// Place the custom values into the launch
 			addCustomToLaunch(ltiProps, custom);
 
-			// Check which kind of signing we are supposed to do
-			Long toolSHA256 = getLong(tool.get(LTIService.LTI_SHA256));
-			Long contentSHA256 = getLong(content.get(LTIService.LTI_SHA256));
-			if (toolSHA256.equals(1L) || (toolSHA256.equals(2L) && contentSHA256.equals(1L))) {
-				ltiProps.put(OAuth.OAUTH_SIGNATURE_METHOD, "HMAC-SHA256");
-				log.debug("Launching with SHA256 Signing");
-			}
-
 			if (isLTI13) {
 				return postLaunchJWT(toolProps, ltiProps, tool, content, rb);
 			}
@@ -1301,13 +1287,6 @@ public class SakaiBLTIUtil {
 			}
 
 			JSONArray enabledCapabilities = null;
-
-			// Check which kind of signing we are supposed to do
-			Long toolSHA256 = getLong(tool.get(LTIService.LTI_SHA256));
-			if (toolSHA256.equals(1L)) {
-				ltiProps.put(OAuth.OAUTH_SIGNATURE_METHOD, "HMAC-SHA256");
-				log.debug("Launching with SHA256 Signing");
-			}
 
 			// LTI 1.1.2
 			String tool_state = (String) tool.get("tool_state");

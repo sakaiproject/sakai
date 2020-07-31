@@ -84,8 +84,6 @@ public interface LTIService extends LTISubstitutionsFilter {
             // 0=inherit, 1=LTI 1.1, 2=LTI 1.3
             "lti13:radio:hide=insert:label=bl_lti13:choices=inherit,off,on:role=admin",
             "lti13_settings:textarea:hidden=true:maxlength=1M:role=admin",
-            // SHA256 Support (See SAK-33898)
-            "sha256:radio:label=bl_sha256:hidden=true:role=admin:choices=off,on",
             "created_at:autodate",
             "updated_at:autodate"};
     String[] CONTENT_EXTRA_FIELDS = {
@@ -166,8 +164,6 @@ public interface LTIService extends LTISubstitutionsFilter {
             "lti13_tool_public:textarea:hide=insert:label=bl_lti13_tool_public:maxlength=1M:role=admin",
             "lti13_tool_private:textarea:hide=insert:label=bl_lti13_tool_private:maxlength=1M:role=admin",
 
-            // SHA256 Support (See SAK-33898)
-            "sha256:radio:label=bl_sha256:hidden=true:role=admin:choices=off,on,content",
             "lti11_launch_type:radio:label=bl_lti11_launch_type:role=admin:choices=inherit,legacy,lti112",
             "xmlimport:textarea:hidden=true:maxlength=1M",
             "created_at:autodate",
@@ -230,8 +226,6 @@ public interface LTIService extends LTISubstitutionsFilter {
     String LTI_NOTE = "note";
     String LTI_PLACEMENTSECRET = "placementsecret";
     String LTI_OLDPLACEMENTSECRET = "oldplacementsecret";
-    // SHA256 Support (See SAK-33898)
-    String LTI_SHA256 = "sha256";
 
 	// Removed LTI 2.0 - SAK-40065
     // SAK-40065 String LTI_RESOURCE_HANDLER = "resource_handler";
