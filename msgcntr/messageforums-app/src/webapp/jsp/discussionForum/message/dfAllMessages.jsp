@@ -92,7 +92,7 @@
          }
 
  		</script>
-		<%@ include file="/jsp/discussionForum/menu/forumsMenu.jsp" %>
+		
 		<h:outputText styleClass="showMoreText"  style="display:none" value="#{msgs.cdfm_show_more_full_description}"  />
 
 	<%--//
