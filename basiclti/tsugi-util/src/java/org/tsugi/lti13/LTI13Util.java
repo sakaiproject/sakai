@@ -23,6 +23,8 @@ import java.io.PrintWriter;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Base64;
+import java.util.Enumeration;
+import java.util.Properties;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -33,6 +35,8 @@ import org.json.simple.JSONObject;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+
+import org.tsugi.basiclti.BasicLTIUtil;
 
 import org.tsugi.lti13.objects.LaunchJWT;
 import org.tsugi.lti13.objects.LTI11Transition;
@@ -373,5 +377,44 @@ public class LTI13Util {
 	public static void return400(HttpServletResponse response, String error) {
 		return400(response, error, null);
 	}
+
+    public static void substituteCustom(Properties custom, Properties lti2subst)
+    {
+        if ( custom == null || lti2subst == null ) return;
+        Enumeration<?> e = custom.propertyNames();
+        while (e.hasMoreElements()) {
+            String key = (String) e.nextElement();
+            String value =  custom.getProperty(key);
+            if ( value == null || value.length() < 1 ) continue;
+            // Allow both User.id and $User.id
+            if ( value.startsWith("$") && value.length() > 1 ) {
+                value = value.substring(1);
+            }
+            String newValue = lti2subst.getProperty(value);
+            if ( newValue == null ||  newValue.length() < 1 ) continue;
+            setProperty(custom, key, (String) newValue);
+        }
+    }
+
+    // Place the custom values into the launch
+    public static void addCustomToLaunch(Properties ltiProps, Properties custom)
+    {
+        Enumeration<?> e = custom.propertyNames();
+        while (e.hasMoreElements()) {
+            String keyStr = (String) e.nextElement();
+            String value =  custom.getProperty(keyStr);
+            setProperty(ltiProps,"custom_"+keyStr,value);
+            String mapKeyStr = BasicLTIUtil.mapKeyName(keyStr);
+            if ( ! mapKeyStr.equals(keyStr) ) {
+                setProperty(ltiProps,"custom_"+mapKeyStr,value);
+            }
+        }
+    }
+
+	@SuppressWarnings("deprecation")
+    public static void setProperty(Properties props, String key, String value) {
+        BasicLTIUtil.setProperty(props, key, value);
+    }
+
 
 }

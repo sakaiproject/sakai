@@ -981,6 +981,8 @@ public class SakaiBLTIUtil {
 			if (title != null) {
 				setProperty(ltiProps, BasicLTIConstants.RESOURCE_LINK_TITLE, title);
 				setProperty(ltiProps, BasicLTIConstants.RESOURCE_LINK_DESCRIPTION, description);
+				setProperty(lti13subst, LTICustomVars.RESOURCELINK_TITLE, title);
+				setProperty(lti13subst, LTICustomVars.RESOURCELINK_DESCRIPTION, title);
 			}
 
 			User user = UserDirectoryService.getCurrentUser();
@@ -1039,6 +1041,7 @@ public class SakaiBLTIUtil {
 
 			}
 
+			// Construct the ultimate custom values for Launch
 			Properties custom = new Properties();
 
 			String contentCustom = (String) content.get(LTIService.LTI_CUSTOM);
@@ -1048,6 +1051,14 @@ public class SakaiBLTIUtil {
 			String toolCustom = (String) tool.get(LTIService.LTI_CUSTOM);
 			toolCustom = adjustCustom(toolCustom);
 			mergeLTI1Custom(custom, toolCustom);
+
+			// See if there are any locally deployed substitutions
+			ltiService.filterCustomSubstitutions(lti13subst, tool, site);
+
+			log.debug("lti13subst={}", lti13subst);
+			log.debug("before custom={}", custom);
+			LTI13Util.substituteCustom(custom, lti13subst);
+			log.debug("after custom={}", custom);
 
 			log.debug("ltiProps={}", ltiProps);
 			log.debug("custom={}", custom);
@@ -1311,13 +1322,32 @@ public class SakaiBLTIUtil {
 				ltiProps.remove(BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL);
 			}
 
-			String customstr = toNull((String) tool.get(LTIService.LTI_CUSTOM));
-			parseCustom(ltiProps, customstr);
-
 			boolean dodebug = getInt(tool.get(LTIService.LTI_DEBUG)) == 1;
 			if (log.isDebugEnabled()) {
 				dodebug = true;
 			}
+
+			// Merge all the sources of custom vaues and run the substitution
+			Properties custom = new Properties();
+
+			String toolCustom = (String) tool.get(LTIService.LTI_CUSTOM);
+			toolCustom = adjustCustom(toolCustom);
+			mergeLTI1Custom(custom, toolCustom);
+
+			// See if there are any locally deployed substitutions
+			LTIService ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
+			ltiService.filterCustomSubstitutions(lti13subst, tool, site);
+
+			log.debug("lti13subst={}", lti13subst);
+			log.debug("before custom={}", custom);
+			LTI13Util.substituteCustom(custom, lti13subst);
+			log.debug("after custom={}", custom);
+
+			log.debug("ltiProps={}", ltiProps);
+			log.debug("custom={}", custom);
+
+			// Place the custom values into the launch
+			addCustomToLaunch(ltiProps, custom);
 
 			if ( isLTI13 ) {
 				Properties toolProps = new Properties();
