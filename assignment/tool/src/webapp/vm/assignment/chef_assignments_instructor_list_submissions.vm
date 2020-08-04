@@ -103,7 +103,7 @@ function printView(url) {
 						## instructor needs to type in default points in point-based-grading
 						<input type="text" id="defaultGrade_2" name="defaultGrade" value="$!defaultGrade" size="5" />
 					#end
-					<input type="button" accesskey="a" class="active" name="apply" value="$tlang.getString('gen.applygrade')" onclick="SPNR.disableControlsAndSpin( this, escapeList ); ASN.submitForm( 'defaultGradeForm', null, null, null );" title="$tlang.getString("gen.applygrade")" />
+					<input type="button" accesskey="a" class="active" name="apply" value="$tlang.getString('gen.applygrade')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'defaultGradeForm', null, null, null );" title="$tlang.getString("gen.applygrade")" />
 					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 				</form>
 				<grader-toggle tool="assignments"></grader-toggle>
