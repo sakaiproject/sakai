@@ -1,3 +1,5 @@
+/* global includeWebjarLibrary, localDatePicker */
+/* for eslint and codacy */
 includeWebjarLibrary('bootstrap-multiselect');
 				
 $(document).ready(function() {
