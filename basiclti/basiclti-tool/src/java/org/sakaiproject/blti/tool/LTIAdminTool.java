@@ -1645,6 +1645,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 					}
 				}
 
+				// SAK-44019 forgot these
+				// item.put("content_key", contentKey);
+				// item.put("tool_title", (String) tool.get(LTIService.LTI_TITLE));
 				new_content.add(item);
 				goodcount++;
 			}

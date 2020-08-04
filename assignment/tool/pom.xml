@@ -98,6 +98,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.basiclti</groupId>
+            <artifactId>basiclti-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ant</groupId>
             <artifactId>ant</artifactId>
             <version>1.6.5</version>

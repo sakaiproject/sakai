@@ -909,9 +909,6 @@ public class SakaiBLTIUtil {
 
 			log.debug("isLTI13={}", isLTI13);
 
-			JSONArray enabledCapabilities = null;
-
-			//
 			// Start building up the properties
 			Properties ltiProps = new Properties();
 			Properties toolProps = new Properties();
@@ -967,9 +964,9 @@ public class SakaiBLTIUtil {
 			String description = (String) content.get(LTIService.LTI_DESCRIPTION);
 
 			// SAK-40044 - If there is no description, we fall back to the pre-21 description in JSON
+			String content_settings = (String) content.get(LTIService.LTI_SETTINGS);
+			JSONObject content_json = org.tsugi.basiclti.BasicLTIUtil.parseJSONObject(content_settings);
 			if (description == null) {
-				String content_settings = (String) content.get(LTIService.LTI_SETTINGS);
-				JSONObject content_json = org.tsugi.basiclti.BasicLTIUtil.parseJSONObject(content_settings);
 				description = (String) content_json.get(LTIService.LTI_DESCRIPTION);
 			}
 
@@ -983,6 +980,20 @@ public class SakaiBLTIUtil {
 				setProperty(ltiProps, BasicLTIConstants.RESOURCE_LINK_DESCRIPTION, description);
 				setProperty(lti13subst, LTICustomVars.RESOURCELINK_TITLE, title);
 				setProperty(lti13subst, LTICustomVars.RESOURCELINK_DESCRIPTION, title);
+			}
+
+			// Bring in the substitution variables from Assignments via JSON
+			String[] jsonSubst  = {
+				DeepLinkResponse.RESOURCELINK_AVAILABLE_STARTDATETIME,
+				DeepLinkResponse.RESOURCELINK_AVAILABLE_ENDDATETIME,
+				DeepLinkResponse.RESOURCELINK_SUBMISSION_STARTDATETIME,
+				DeepLinkResponse.RESOURCELINK_SUBMISSION_ENDDATETIME
+			};
+
+			for (String subKey : jsonSubst) {
+				String value = StringUtils.trimToNull((String) content_json.get(subKey));
+				if ( value == null ) continue;
+				setProperty(lti13subst, subKey, value);
 			}
 
 			User user = UserDirectoryService.getCurrentUser();
@@ -1359,8 +1370,6 @@ public class SakaiBLTIUtil {
 				Map<String, Object> content = null;
 				return postLaunchJWT(toolProps, ltiProps, tool, content, rb);
 			}
-
-			JSONArray enabledCapabilities = null;
 
 			// LTI 1.1.2
 			String tool_state = (String) tool.get("tool_state");

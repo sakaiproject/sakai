@@ -154,6 +154,7 @@ import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.tsugi.basiclti.BasicLTIUtil;
+import org.tsugi.lti13.DeepLinkResponse;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
@@ -1860,23 +1861,43 @@ public class AssignmentAction extends PagedResourceActionII {
             context.put("value_ContentLaunchURL", content_launch);
             context.put("placement", "assignment_launch_"+contentKey);
 
-			// Copy title and description from Assignment to content if mis-match
+			// Copy title, description, and dates from Assignment to content if mis-match
 			int protect = SakaiBLTIUtil.getInt(content.get(LTIService.LTI_PROTECT));
 			String assignmentTitle = StringUtils.trimToEmpty(assignment.getTitle());
 			String assignmentDesc = StringUtils.trimToEmpty(assignment.getInstructions());
+			Instant visibleDate = assignment.getVisibleDate();
+			String assignmentVisibleDate = StringUtils.trimToEmpty(visibleDate == null ? null : visibleDate.toString());
+			Instant openDate = assignment.getOpenDate();
+			String assignmentOpenDate = StringUtils.trimToEmpty(openDate == null ? null : openDate.toString());
+			Instant dueDate = assignment.getDueDate();
+			String assignmentDueDate = StringUtils.trimToEmpty(dueDate == null ? null : dueDate.toString());
+			Instant closeDate = assignment.getCloseDate();
+			String assignmentCloseDate = StringUtils.trimToEmpty(closeDate == null ? null : closeDate.toString());
+
 			String contentTitle = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_TITLE));
 			String contentDesc = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_DESCRIPTION));
-			if ( protect < 1 || !assignmentTitle.equals(contentTitle) || !assignmentDesc.equals(contentDesc) ) {
+
+			String content_settings = (String) content.get(LTIService.LTI_SETTINGS);
+			JSONObject content_json = BasicLTIUtil.parseJSONObject(content_settings);
+			String contentVisibleDate = StringUtils.trimToEmpty((String) content_json.get(DeepLinkResponse.RESOURCELINK_AVAILABLE_STARTDATETIME));
+			String contentOpenDate = StringUtils.trimToEmpty((String) content_json.get(DeepLinkResponse.RESOURCELINK_SUBMISSION_STARTDATETIME));
+			String contentDueDate = StringUtils.trimToEmpty((String) content_json.get(DeepLinkResponse.RESOURCELINK_SUBMISSION_ENDDATETIME));
+			String contentCloseDate = StringUtils.trimToEmpty((String) content_json.get(DeepLinkResponse.RESOURCELINK_AVAILABLE_ENDDATETIME));
+			if ( protect < 1 || !assignmentTitle.equals(contentTitle) || !assignmentDesc.equals(contentDesc) ||
+				! contentVisibleDate.equals(assignmentVisibleDate) || ! contentOpenDate.equals(assignmentOpenDate) ||
+				! contentDueDate.equals(assignmentDueDate) || ! contentCloseDate.equals(assignmentCloseDate) ) {
 				Map<String, Object> updates = new TreeMap<String, Object>();
 				updates.put(LTIService.LTI_TITLE, assignmentTitle);
 				updates.put(LTIService.LTI_DESCRIPTION, assignmentDesc);
 				updates.put(LTIService.LTI_PROTECT, new Integer(1));
 
 				// SAK-43709 - Prior to Sakai-21 - also copy these in the settings area
-				String content_settings = (String) content.get(LTIService.LTI_SETTINGS);
-				JSONObject content_json = BasicLTIUtil.parseJSONObject(content_settings);
 				content_json.put(LTIService.LTI_DESCRIPTION, assignmentDesc);
 				content_json.put(LTIService.LTI_PROTECT, new Integer(1));
+				content_json.put(DeepLinkResponse.RESOURCELINK_AVAILABLE_STARTDATETIME, assignmentVisibleDate);
+				content_json.put(DeepLinkResponse.RESOURCELINK_SUBMISSION_STARTDATETIME, assignmentOpenDate);
+				content_json.put(DeepLinkResponse.RESOURCELINK_AVAILABLE_ENDDATETIME, assignmentDueDate);
+				content_json.put(DeepLinkResponse.RESOURCELINK_SUBMISSION_ENDDATETIME, assignmentCloseDate);
 				updates.put(LTIService.LTI_SETTINGS, content_json.toString());
 
 				// This uses the Dao access since 99% of the time we are launching as a student
