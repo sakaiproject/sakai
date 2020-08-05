@@ -642,7 +642,6 @@ public class SakaiBLTIUtil {
 				setProperty(props, OAuth.OAUTH_SIGNATURE_METHOD, "HMAC-SHA256");
 			}
 
-			User user = UserDirectoryService.getCurrentUser();
 		if (pagetitle != null) {
 			setProperty(props, BasicLTIConstants.RESOURCE_LINK_TITLE, pagetitle);
 		} else {
@@ -796,6 +795,26 @@ public class SakaiBLTIUtil {
 		}
 	}
 
+	public static void addConsumerData(Properties props) {
+		String defaultName =  ServerConfigurationService.getString("serverName",
+             ServerConfigurationService.getString("serverUrl","localhost.sakailms"));
+
+		String defaultGUID = LegacyShaUtil.sha256Hash(defaultName);
+
+		// Get the organizational information
+		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INSTANCE_GUID,
+				ServerConfigurationService.getString("basiclti.consumer_instance_guid", defaultGUID));
+		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INSTANCE_NAME,
+				ServerConfigurationService.getString("basiclti.consumer_instance_name", defaultName));
+		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INSTANCE_DESCRIPTION,
+				ServerConfigurationService.getString("basiclti.consumer_instance_description", defaultName));
+		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INSTANCE_CONTACT_EMAIL,
+				ServerConfigurationService.getString("basiclti.consumer_instance_contact_email", null));
+		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INSTANCE_URL,
+				ServerConfigurationService.getString("basiclti.consumer_instance_url",
+						ServerConfigurationService.getString("serverUrl", null)));
+	}
+
 	public static void addGlobalData(Site site, Properties props, Properties custom, ResourceLoader rb) {
 		if (rb != null) {
 			String locale = rb.getLocale().toString();
@@ -803,19 +822,7 @@ public class SakaiBLTIUtil {
 			setProperty(custom, LTICustomVars.MESSAGE_LOCALE, locale);
 		}
 
-		// Get the organizational information
-		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INSTANCE_GUID,
-				ServerConfigurationService.getString("basiclti.consumer_instance_guid",
-						ServerConfigurationService.getString("serverName", null)));
-		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INSTANCE_NAME,
-				ServerConfigurationService.getString("basiclti.consumer_instance_name", null));
-		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INSTANCE_DESCRIPTION,
-				ServerConfigurationService.getString("basiclti.consumer_instance_description", null));
-		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INSTANCE_CONTACT_EMAIL,
-				ServerConfigurationService.getString("basiclti.consumer_instance_contact_email", null));
-		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INSTANCE_URL,
-				ServerConfigurationService.getString("basiclti.consumer_instance_url",
-						ServerConfigurationService.getString("serverUrl", null)));
+		addConsumerData(props);
 
 		// Send along the CSS URL
 		String tool_css = ServerConfigurationService.getString("basiclti.consumer.launch_presentation_css_url", null);
@@ -971,7 +978,7 @@ public class SakaiBLTIUtil {
 			}
 			if (title != null) {
 				setProperty(ltiProps, BasicLTIConstants.RESOURCE_LINK_TITLE, title);
-				setProperty(ltiProps, BasicLTIConstants.RESOURCE_LINK_DESCRIPTION, description);
+                setProperty(ltiProps, BasicLTIConstants.RESOURCE_LINK_DESCRIPTION, title);
 				setProperty(lti13subst, LTICustomVars.RESOURCELINK_TITLE, title);
 				setProperty(lti13subst, LTICustomVars.RESOURCELINK_DESCRIPTION, title);
 			}
@@ -1378,7 +1385,7 @@ public class SakaiBLTIUtil {
 
 			Map<String, String> extra = new HashMap<>();
 			ltiProps = BasicLTIUtil.signProperties(ltiProps, launch_url, "POST",
-					consumerkey, secret, null, null, null, extra);
+					consumerkey, secret, extra);
 
 			log.debug("signed ltiProps={}", ltiProps);
 
@@ -1429,16 +1436,11 @@ public class SakaiBLTIUtil {
 				return postError("<p>" + getRB(rb, "error.missing", "Not configured") + "</p>");
 			}
 
-			String org_guid = ServerConfigurationService.getString("basiclti.consumer_instance_guid",
-					ServerConfigurationService.getString("serverName", null));
-			String org_desc = ServerConfigurationService.getString("basiclti.consumer_instance_description", null);
-			String org_url = ServerConfigurationService.getString("basiclti.consumer_instance_url",
-					ServerConfigurationService.getString("serverUrl", null));
-
 			// Look up the LMS-wide secret and key - default key is guid
 			String key = getToolConsumerInfo(launch_url, BASICLTI_PORTLET_KEY);
 			if (key == null) {
-				key = org_guid;
+				key = ServerConfigurationService.getString("basiclti.consumer_instance_guid",
+						ServerConfigurationService.getString("serverName", null));
 			}
 			String secret = getToolConsumerInfo(launch_url, LTIService.LTI_SECRET);
 
@@ -1487,9 +1489,10 @@ public class SakaiBLTIUtil {
 				return postError("<p>" + getRB(rb, "error.nokey", "Error - must have a secret and a key.") + "</p>");
 			}
 
+			addConsumerData(ltiProps);
+
 			Map<String, String> extra = new HashMap<>();
-			ltiProps = BasicLTIUtil.signProperties(ltiProps, launch_url, "POST",
-					key, secret, org_guid, org_desc, org_url, extra);
+			ltiProps = BasicLTIUtil.signProperties(ltiProps, launch_url, "POST", key, secret, extra);
 
 			if (ltiProps == null) {
 				return postError("<p>" + getRB(rb, "error.sign", "Error signing message.") + "</p>");
@@ -1560,12 +1563,6 @@ public class SakaiBLTIUtil {
 				return postError("<p>" + getRB(rb, "error.missing", "Not configured") + "</p>");
 			}
 
-			String org_guid = ServerConfigurationService.getString("basiclti.consumer_instance_guid",
-					ServerConfigurationService.getString("serverName", null));
-			String org_desc = ServerConfigurationService.getString("basiclti.consumer_instance_description", null);
-			String org_url = ServerConfigurationService.getString("basiclti.consumer_instance_url",
-					ServerConfigurationService.getString("serverUrl", null));
-
 			String orig_site_id_null = (String) tool.get("orig_site_id_null");
 			String site_id = null;
 			if ( ! "true".equals(orig_site_id_null) ) {
@@ -1622,8 +1619,8 @@ public class SakaiBLTIUtil {
 	user_id: admin
 			 */
 
-			String context_id = ltiProps.getProperty("context_id");
-			String user_id = (String) ltiProps.getProperty("user_id");
+			String context_id = ltiProps.getProperty(BasicLTIConstants.CONTEXT_ID);
+			String user_id = (String) ltiProps.getProperty(BasicLTIConstants.USER_ID);
 
 			// Lets make a JWT from the LTI 1.x data
 			boolean deepLink = false;
@@ -1633,15 +1630,15 @@ public class SakaiBLTIUtil {
 				deepLink = true;
 			}
 			lj.target_link_uri = launch_url;  // The actual launch URL
-			lj.launch_presentation.css_url = ltiProps.getProperty("launch_presentation_css_url");
-			lj.locale = ltiProps.getProperty("launch_presentation_locale");
-			lj.launch_presentation.return_url = ltiProps.getProperty("launch_presentation_return_url");
+			lj.launch_presentation.css_url = ltiProps.getProperty(BasicLTIConstants.LAUNCH_PRESENTATION_CSS_URL);
+			lj.locale = ltiProps.getProperty(BasicLTIConstants.LAUNCH_PRESENTATION_LOCALE);
+			lj.launch_presentation.return_url = ltiProps.getProperty(BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL);
 			lj.audience = client_id;
 			lj.issuer = getIssuer(site_id);
 			lj.subject = getSubject(user_id, context_id);
-			lj.name = ltiProps.getProperty("lis_person_name_full");
+			lj.name = ltiProps.getProperty(BasicLTIConstants.LIS_PERSON_NAME_FULL);
 			lj.nonce = toolProps.getProperty("nonce");
-			lj.email = ltiProps.getProperty("lis_person_contact_email_primary");
+			lj.email = ltiProps.getProperty(BasicLTIConstants.LIS_PERSON_CONTACT_EMAIL_PRIMARY);
 			lj.issued = new Long(System.currentTimeMillis() / 1000L);
 			lj.expires = lj.issued + 3600L;
 			lj.deployment_id = getDeploymentId(context_id);
@@ -1654,12 +1651,12 @@ public class SakaiBLTIUtil {
 				lj.roles.add(LaunchJWT.ROLE_LEARNER);
 			}
 
-			String resource_link_id = ltiProps.getProperty("resource_link_id");
+			String resource_link_id = ltiProps.getProperty(BasicLTIConstants.RESOURCE_LINK_ID);
 			if ( resource_link_id != null ) {
 				lj.resource_link = new ResourceLink();
 				lj.resource_link.id = resource_link_id;
-				lj.resource_link.title = ltiProps.getProperty("resource_link_title");
-				lj.resource_link.description = ltiProps.getProperty("resource_link_description");
+				lj.resource_link.title = ltiProps.getProperty(BasicLTIConstants.RESOURCE_LINK_TITLE);
+				lj.resource_link.description = ltiProps.getProperty(BasicLTIConstants.RESOURCE_LINK_DESCRIPTION);
 			}
 
 			// Construct the LTI 1.1 -> LTIAdvantage transition claim
@@ -1682,21 +1679,21 @@ public class SakaiBLTIUtil {
 			// Load up the context data
 			lj.context = new Context();
 			lj.context.id = context_id;
-			lj.context.label = ltiProps.getProperty("context_label");
-			lj.context.title = ltiProps.getProperty("context_title");
+			lj.context.label = ltiProps.getProperty(BasicLTIConstants.CONTEXT_LABEL);
+			lj.context.title = ltiProps.getProperty(BasicLTIConstants.CONTEXT_TITLE);
 			lj.context.type.add(Context.COURSE_OFFERING);
 
 			lj.tool_platform = new ToolPlatform();
 			lj.tool_platform.name = "Sakai";
-			lj.tool_platform.version = ltiProps.getProperty("tool_consumer_info_version");
-			lj.tool_platform.product_family_code = ltiProps.getProperty("tool_consumer_info_product_family_code");
-			lj.tool_platform.url = org_url;
-			lj.tool_platform.description = org_desc;
+			lj.tool_platform.version = ltiProps.getProperty(BasicLTIConstants.TOOL_CONSUMER_INFO_VERSION);
+			lj.tool_platform.product_family_code = ltiProps.getProperty(BasicLTIConstants.TOOL_CONSUMER_INFO_PRODUCT_FAMILY_CODE);
+			lj.tool_platform.url = ltiProps.getProperty(BasicLTIConstants.TOOL_CONSUMER_INSTANCE_URL);
+			lj.tool_platform.description = ltiProps.getProperty(BasicLTIConstants.TOOL_CONSUMER_INSTANCE_DESCRIPTION);
 
 			LaunchLIS lis = new LaunchLIS();
-			lis.person_sourcedid = ltiProps.getProperty("lis_person_sourcedid");
-			lis.course_offering_sourcedid = ltiProps.getProperty("lis_course_offering_sourcedid");
-			lis.course_section_sourcedid = ltiProps.getProperty("lis_course_section_sourcedid");
+			lis.person_sourcedid = ltiProps.getProperty(BasicLTIConstants.LIS_PERSON_SOURCEDID);
+			lis.course_offering_sourcedid = ltiProps.getProperty(BasicLTIConstants.LIS_COURSE_OFFERING_SOURCEDID);
+			lis.course_section_sourcedid = ltiProps.getProperty(BasicLTIConstants.LIS_COURSE_SECTION_SOURCEDID);
 			lis.version = new ArrayList<>();
 			lis.version.add("1.0.0");
 			lis.version.add("1.1.0");
