@@ -53,7 +53,7 @@
             </li>
         </h:panelGroup>
         <li role="menuitem">
-            <span>
+            <span class="current">
                 <h:commandLink title=" #{generalMessages.t_questionPool} " action="poolList" immediate="true">
                     <h:outputText value="#{generalMessages.questionPool}" />
                     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.QuestionPoolListener" />
