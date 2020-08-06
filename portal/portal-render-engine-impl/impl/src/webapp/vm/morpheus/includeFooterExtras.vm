@@ -293,7 +293,14 @@
                 //these are global variables...
                 var sakaiPresenceTimeDelay = ${sitePages.sakaiPresenceTimeDelay};
                 var sakaiPresenceFragment = "${sitePages.pageNavPresenceUrl}?output_fragment=yes&auto=true";
-                var sakaiLastPresenceTimeOut = setTimeout('updatePresence()', sakaiPresenceTimeDelay); 
+                var sakaiLastPresenceTimeOut = setTimeout('firstRun()', sakaiPresenceTimeDelay);
+                var firstRun = function() {
+                    if (typeof updatePresence === 'function') {
+                        updatePresence();
+                    } else {
+                        sakaiLastPresenceTimeOut = setTimeout('firstRun()', sakaiPresenceTimeDelay);
+                    }
+                }; 
             </script>
         #end ## END of IF (${sitePages.pageNavPresenceIframe})
         </div><!-- End of div#presenceWrapper -->
