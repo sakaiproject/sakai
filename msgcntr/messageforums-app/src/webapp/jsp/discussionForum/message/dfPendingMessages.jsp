@@ -14,6 +14,8 @@
        		<script src="/messageforums-tool/js/sak-10625.js"></script>
 		<script src="/messageforums-tool/js/forum.js"></script>
 
+		<%@ include file="/jsp/discussionForum/menu/forumsMenu.jsp" %>
+
 
 			<h3>
 				<h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"
@@ -44,8 +46,10 @@
 
 			    });
 
-
-
+				var menuLink = $('#forumsQueueMenuLink');
+				var menuLinkSpan = menuLink.closest('span');
+				menuLinkSpan.addClass('current');
+				menuLinkSpan.html(menuLink.text());
 
 				});
 			</script>
