@@ -748,9 +748,11 @@ public class ItemModifyListener implements ActionListener
               for (AnswerIfc answer : answers) {
                   if (answer.getIsCorrect()) {
                       String text = answer.getText();
-                      String min = text.substring(0, text.indexOf("|"));
-                      String max = text.substring(text.indexOf("|") + 1, text.indexOf(","));
-                      String decimalPlaces = text.substring(text.indexOf(",") + 1);              
+                      String[] partsText = text.split("\\|");
+                      String min = partsText[0];
+                      String[] partsMaxDp = partsText[1].split(",");
+                      String max = partsMaxDp[0];
+                      String decimalPlaces = partsMaxDp[1];
                       variable.setName(itemBean.getText());
                       variable.setSequence(itemBean.getSequence());
                       variable.setMin(min);
@@ -766,9 +768,11 @@ public class ItemModifyListener implements ActionListener
               for (AnswerIfc answer : answers) {
                   if (answer.getIsCorrect()) {
                       String text = answer.getText();
-                      String formulaStr = text.substring(0, text.indexOf("|"));
-                      String tolerance = text.substring(text.indexOf("|") + 1, text.indexOf(","));
-                      String decimalPlaces = text.substring(text.indexOf(",") + 1);
+                      String[] partsText = text.split("\\|");
+                      String formulaStr = partsText[0];
+                      String[] partsTolDp = partsText[1].split(",");
+                      String tolerance = partsTolDp[0];
+                      String decimalPlaces = partsTolDp[1];
                       formula.setName(itemBean.getText());
                       formula.setSequence(itemBean.getSequence());
                       formula.setText(formulaStr);
