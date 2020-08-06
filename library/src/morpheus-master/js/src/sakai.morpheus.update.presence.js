@@ -1,4 +1,49 @@
-function updatePresence(){
+var active_tab_listener_attached = false; // initial load
+
+// Set the name of the hidden property and the change event for visibility
+var hidden, visibilityChange;
+if (typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and later support 
+    hidden = "hidden";
+    visibilityChange = "visibilitychange";
+} else if (typeof document.msHidden !== "undefined") {
+    hidden = "msHidden";
+    visibilityChange = "msvisibilitychange";
+} else if (typeof document.webkitHidden !== "undefined") {
+    hidden = "webkitHidden";
+    visibilityChange = "webkitvisibilitychange";
+}
+
+function updatePresenceTimeout(_ms, _go) {
+    if (window.sakaiLastPresenceTimeOut != null) {
+        clearTimeout(window.sakaiLastPresenceTimeOut);
+        window.sakaiLastPresenceTimeOut = null;
+    }
+    if (_go) {
+        window.sakaiLastPresenceTimeOut = setTimeout('updatePresence()', _ms);
+    }
+}
+
+// Triggers when visibility changes
+function handleVisibilityChange() {
+    if (document.hidden) {
+        console.log("hidden");
+        updatePresenceTimeout(window.sakaiPresenceTimeDelay, false); //stop
+    } else  {
+        console.log("visible");
+        updatePresenceTimeout(window.sakaiPresenceTimeDelay, false); 
+        updatePresence(); //start immediately
+    }
+}
+
+function updatePresence() {
+  if (!active_tab_listener_attached) {
+    document.addEventListener("visibilitychange", handleVisibilityChange, false);
+    active_tab_listener_attached = true;
+  }
+
+  if (document.hidden) {
+    return;
+  }
 
   $PBJQ.ajax({
     url: sakaiPresenceFragment,
@@ -40,12 +85,12 @@ function updatePresence(){
       var chatUrl = $PBJQ('.nav-selected .icon-sakai-chat').attr('href');
 
       $PBJQ('#presenceIframe .presenceList div.inChat span').wrap('<a href="' + chatUrl + '"></a>')
-      sakaiLastPresenceTimeOut = setTimeout('updatePresence()', 30000);
+      updatePresenceTimeout(30000, true); // 30 seconds
     },
 
     // If we get an error, wait 60 seconds before retry
     error: function(request, strError){
-      sakaiLastPresenceTimeOut = setTimeout('updatePresence()', 60000);
+      updatePresenceTimeout(60000, true);
     }
   });
 }
