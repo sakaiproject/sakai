@@ -46,7 +46,6 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.util.PresenceObservingCourier;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.util.RequestFilter;
@@ -113,16 +112,6 @@ public class PresenceTool extends HttpServlet
 		// refresh our presence at the location
 		PresenceService.setPresence(location);
 
-		// If we are a full frame, make sure we have an observing watching 
-		// for presence change at location
-		PresenceObservingCourier observer = (PresenceObservingCourier) toolSession.getAttribute(ATTR_OBSERVER);
-		if (observer == null)
-		{
-			// setup an observer to notify us when presence at this location changes
-			observer = new PresenceObservingCourier(location);
-			toolSession.setAttribute(ATTR_OBSERVER, observer);
-		}
-
 		// get the list of users at the location
 		List<User> users = PresenceService.getPresentUsers(location, placement.getContext());
 		
@@ -155,21 +144,11 @@ public class PresenceTool extends HttpServlet
 			// Check the secondary chat presence that's specific to the site (rather than channel or placement)
 			String chatLocation = CHAT_CONTEXT_PRESENCE_PREFIX + siteId;
 			chatUsers = PresenceService.getPresentUsers(chatLocation, siteId);
-
-			PresenceObservingCourier chatObserver = (PresenceObservingCourier) toolSession.getAttribute(ATTR_CHAT_OBSERVER);
-			if (chatObserver == null)
-			{
-				// Monitor presence changes at chatLocation and deliver them to this window's location with
-				// no sub window (null)
-				chatObserver = new PresenceObservingCourier(location, null, chatLocation);
-				toolSession.setAttribute(ATTR_CHAT_OBSERVER, chatObserver);
-			}
 		}
 
 		// start the response
 		PrintWriter out = startResponse(req, res, "presence");
 
-		sendAutoUpdate(out, req, placement.getId(), placement.getContext());
 		sendPresence(out, users, chatUsers);
 
 		// end the response
@@ -209,33 +188,6 @@ public class PresenceTool extends HttpServlet
 		super.init(config);
 
 		log.info("init()");
-	}
-
-	/**
-	 * Send the HTML / Javascript to invoke an automatic update
-	 * 
-	 * @param out
-	 * @param req
-	 * @param placementId
-	 * @param context
-	 */
-	protected void sendAutoUpdate(PrintWriter out, HttpServletRequest req, String placementId, String context)
-	{
-		// set the refresh of the courier to 1/2 the presence timeout value
-		int updateTime = PresenceService.getTimeout() / 2;
-
-		String userId = SessionManager.getCurrentSessionUserId();
-		StringBuilder url = new StringBuilder(RequestFilter.serverUrl(req));
-		url.append("/courier/");
-		url.append(placementId);
-		url.append("?userId=");
-		url.append(userId);
-
-		out.println("<script>");
-		out.println("updateTime = " + updateTime + "000;");
-		out.println("updateUrl = \"" + url.toString() + "\";");
-		out.println("scheduleUpdate();");
-		out.println("</script>");
 	}
 
 	/**
