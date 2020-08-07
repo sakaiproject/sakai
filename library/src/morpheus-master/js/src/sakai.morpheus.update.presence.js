@@ -1,4 +1,5 @@
-var activeTabListenerAttached = false; // initial load
+var activeTabListenerAttached = false,// initial load
+    handleVisibilityChange = function(){}; 
 
 // Set the name of the hidden property and the change event for visibility
 var hidden, visibilityChange;
@@ -84,11 +85,11 @@ function updatePresence() {
 }
 
 // Triggers when visibility changes
-function handleVisibilityChange() {
+handleVisibilityChange = function(event) {
     if (document.hidden) {
         updatePresenceTimeout(window.sakaiPresenceTimeDelay, false); //stop
     } else  {
         updatePresenceTimeout(window.sakaiPresenceTimeDelay, false); 
         updatePresence(); //start immediately
     }
-}
+};
