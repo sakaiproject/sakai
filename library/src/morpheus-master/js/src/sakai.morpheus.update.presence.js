@@ -1,4 +1,4 @@
-var active_tab_listener_attached = false; // initial load
+var activeTabListenerAttached = false; // initial load
 
 // Set the name of the hidden property and the change event for visibility
 var hidden, visibilityChange;
@@ -14,7 +14,7 @@ if (typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and 
 }
 
 function updatePresenceTimeout(_ms, _go) {
-    if (window.sakaiLastPresenceTimeOut != null) {
+    if (window.sakaiLastPresenceTimeOut !== null) {
         clearTimeout(window.sakaiLastPresenceTimeOut);
         window.sakaiLastPresenceTimeOut = null;
     }
@@ -23,22 +23,10 @@ function updatePresenceTimeout(_ms, _go) {
     }
 }
 
-// Triggers when visibility changes
-function handleVisibilityChange() {
-    if (document.hidden) {
-        console.log("hidden");
-        updatePresenceTimeout(window.sakaiPresenceTimeDelay, false); //stop
-    } else  {
-        console.log("visible");
-        updatePresenceTimeout(window.sakaiPresenceTimeDelay, false); 
-        updatePresence(); //start immediately
-    }
-}
-
 function updatePresence() {
-  if (!active_tab_listener_attached) {
+  if (!activeTabListenerAttached) {
     document.addEventListener("visibilitychange", handleVisibilityChange, false);
-    active_tab_listener_attached = true;
+    activeTabListenerAttached = true;
   }
 
   if (document.hidden) {
@@ -93,4 +81,14 @@ function updatePresence() {
       updatePresenceTimeout(60000, true);
     }
   });
+}
+
+// Triggers when visibility changes
+function handleVisibilityChange() {
+    if (document.hidden) {
+        updatePresenceTimeout(window.sakaiPresenceTimeDelay, false); //stop
+    } else  {
+        updatePresenceTimeout(window.sakaiPresenceTimeDelay, false); 
+        updatePresence(); //start immediately
+    }
 }
