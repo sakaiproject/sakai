@@ -7457,21 +7457,35 @@ public class AssignmentAction extends PagedResourceActionII {
      * @return
      */
     private Instant putTimeInputInState(ParameterParser params, SessionState state, String monthString, String dayString, String yearString, String hourString, String minString, String invalidBundleMessage) {
-        int month = Integer.valueOf(params.getString(monthString));
+        String monthStr = params.getString(monthString);
+        int month = monthStr != null ? Integer.valueOf(monthStr) : 0;
         state.setAttribute(monthString, month);
-        int day = Integer.valueOf(params.getString(dayString));
+
+        String dayStr = params.getString(dayString);
+        int day = dayStr != null ? Integer.valueOf(dayStr) : 0;
         state.setAttribute(dayString, day);
-        int year = Integer.valueOf(params.getString(yearString));
+
+        String yearStr = params.getString(yearString);
+        int year = yearStr != null ? Integer.valueOf(yearStr) : 0;
         state.setAttribute(yearString, year);
-        int hour = Integer.valueOf(params.getString(hourString));
+
+        String hourStr = params.getString(hourString);
+        int hour = hourStr != null ? Integer.valueOf(hourStr) : 0;
         state.setAttribute(hourString, hour);
-        int min = Integer.valueOf(params.getString(minString));
+
+        String minStr = params.getString(minString);
+        int min = minStr != null ? Integer.valueOf(minStr) : 0;
         state.setAttribute(minString, min);
         // validate date
         if (!DateFormatterUtil.checkDate(day, month, year)) {
             addAlert(state, rb.getFormattedMessage("date.invalid", rb.getString(invalidBundleMessage)));
         }
-        return LocalDateTime.of(year, month, day, hour, min, 0).atZone(userTimeService.getLocalTimeZone().toZoneId()).toInstant();
+		try {
+			return LocalDateTime.of(year, month, day, hour, min, 0).atZone(userTimeService.getLocalTimeZone().toZoneId()).toInstant();
+		} catch (java.time.DateTimeException e) {
+            addAlert(state, rb.getFormattedMessage("date.invalid", rb.getString(invalidBundleMessage)));
+			return LocalDateTime.now().atZone(userTimeService.getLocalTimeZone().toZoneId()).toInstant();
+		}
     }
 
     /**
