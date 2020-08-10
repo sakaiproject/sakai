@@ -10,3 +10,5 @@
 /scorm-tool/target/
 /scorm-tool/contentPackages/
 /target/
+.idea
+*.iml
