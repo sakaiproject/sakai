@@ -13863,7 +13863,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		}
 		
 		// now consider those user with affiliated sections
-		List affiliatedSectionEids = affiliatedSectionProvider.getAffiliatedSectionEids(userId, academicSessionEid);
+		List<String> affiliatedSectionEids = affiliatedSectionProvider.getAffiliatedSectionEids(userId, academicSessionEid);
 		if (affiliatedSectionEids != null)
 		{
 			for (int k = 0; k < affiliatedSectionEids.size(); k++) {
