@@ -31,7 +31,7 @@ VM_SFP.doSearch = VM_SFP.doSearch || function(url, buttonElementId, textElementI
 {
     var buttonElement = document.getElementById(buttonElementId);
     VM_SFP.spinButton(buttonElement);
-    var searchText = encodeURIComponent(document.getElementById(textElementId).value);
+    var searchText = document.getElementById(textElementId).value;
     location = encodeURI(url + "&search=" + searchText);
     return true;
 };
