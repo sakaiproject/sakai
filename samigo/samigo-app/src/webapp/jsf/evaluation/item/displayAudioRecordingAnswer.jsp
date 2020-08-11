@@ -29,7 +29,7 @@ should be included in file importing DeliveryMessages
 <h:panelGroup>
   <h:dataTable value="#{description.itemGradingArrayList}" var="itemGradingArrayList" cellpadding="10">
     <h:column>
-      <h:outputText value="#{description.answer}" escape="false" rendered="#{itemGradingArrayList.mediaSize == 0}" />
+      <h:outputText value="#{description.answer}" escape="false" rendered="#{itemGradingArrayList.mediaArray.size() == 0}" />
 	  <h:dataTable value="#{itemGradingArrayList.mediaArray}" var="media">
 	    <h:column>
 
