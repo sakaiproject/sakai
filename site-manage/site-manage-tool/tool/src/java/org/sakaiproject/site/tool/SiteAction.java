@@ -15837,6 +15837,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		Site site = (Site) state.getAttribute("site");
 		SitePage page = (SitePage) state.getAttribute("overview");
 		List<ToolConfiguration> tools = (List<ToolConfiguration>) state.getAttribute("tools");
+		if ( tools == null ) return;
 		ToolConfiguration tool = null;
 
 		for(ToolConfiguration pageTool: tools){
@@ -15844,6 +15845,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				tool = pageTool;
 			}
 		}
+		if ( tool == null ) return;
 		String hints = tool.getLayoutHints();
 		String[] hintArr = hints.split(",");
 		String col = null;
@@ -15922,6 +15924,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		Site site = (Site) state.getAttribute("site");
 		SitePage page = (SitePage) state.getAttribute("overview");
 		List<ToolConfiguration> tools = (List<ToolConfiguration>) state.getAttribute("tools");
+		if ( tools == null ) return;
 		ToolConfiguration tool = null;
 
 		for(ToolConfiguration pageTool: tools){
@@ -15930,6 +15933,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			}
 		}
 
+		if ( tool == null ) return;
 		String hints = tool.getLayoutHints();
 		String[] hintArr = hints.split(",");
 		String col = null;
@@ -16005,7 +16009,9 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		// get the tool
 		Site site = (Site) state.getAttribute("site");
 		SitePage page = (SitePage) state.getAttribute("overview");
+		if ( page == null ) return;
 		ToolConfiguration tool = page.getTool(id);
+		if ( tool == null ) return;
 
 		// move it
 		String hints = tool.getLayoutHints();
@@ -16027,12 +16033,15 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		String id = data.getParameters().getString("id");
+		if ( id == null ) return;
 		
 
 		// get the tool
 		Site site = (Site) state.getAttribute("site");
 		SitePage page = (SitePage) state.getAttribute("overview");
+		if ( page == null ) return;
 		ToolConfiguration tool = page.getTool(id);
+		if ( tool == null ) return;
 
 		// move it
 		String hints = tool.getLayoutHints();
@@ -16215,6 +16224,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 		SitePage page = (SitePage) state.getAttribute("overview");
 		List<ToolConfiguration> tools = (List<ToolConfiguration>) state.getAttribute("tools");
+		if ( tools == null ) return;
 
 		List<ToolConfiguration> removedTools = (List<ToolConfiguration>) state.getAttribute("removedTools");
 		if(removedTools == null){
