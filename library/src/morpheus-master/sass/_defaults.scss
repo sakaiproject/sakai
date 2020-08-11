@@ -33,18 +33,8 @@ $default-font-size-small: 12px !default;
 $default-font-weight: 400 !default;										// 400 or 700 as you wish
 $default-line-height: 1.42857 !default;											// 20px / 14px = 1.42857
 
-/* Color palette */
-
-$primary-color: #15597e !default;
-$alt-colour: 				 #d36f00 !default;
-$primary-color-highContrast: darken( $primary-color, 4% ) !default;	// for use of primary on non-white light backgrounds, such as greys
-$primary-color-shadow:			 adjust-hue( $primary-color, 5 ) !default;	// To give primary a darker shadow
-$background-color: 			 #FFFFFF !default;
-$background-color-secondary: #000036 !default;
-$text-color:				 #212121 !default;
-$text-color-disabled:		 #767676 !default;
-$secondary-color: #42AAE0 !default;
-$body-background-color: #fff !default;
+/* Color palette now resides in sass/themes */
+@import "themes/light";
 
 $portal-background-color: $background-color !default;
 $portal-mask-background:  rgba(0,0,0,0.5) !default;
@@ -168,40 +158,40 @@ $button-primary-active-shadow:              $material-elevation-4dp !default;
 
 /* end of General button design */
 
-$info-color:                $primary-color  !default;
-$info-background-color:     lighten($primary-color, 45%) !default;
-$ok-color:                  #3c763d !default;
-$ok-background-color:        lighten($ok-color, 45%) !default;
-$warn-background-color:     #F6ECB7 !default;
-$warn-color:                darken($warn-background-color, 35%) !default;
-$error-background-color:    #f2dede !default;
-$error-color:               darken($error-background-color, 30%) !default;
-$instruction-size:          $default-font-size-small;
-$instruction-color: #5c5c5c !default;
+$info-color:                $sakai-color-blue-800 !default;
+$info-background-color:     $sakai-color-blue-000 !default;
+$ok-color:                  $sakai-color-green-800 !default;
+$ok-background-color:       $sakai-color-green-000 !default;
+$warn-color:                $sakai-color-gold-800 !default;
+$warn-background-color:     $sakai-color-gold-000 !default;
+$error-color:               $sakai-color-red-800 !default;
+$error-background-color:    $sakai-color-red-000 !default;
+$instruction-size:          $default-font-size-small !default;
+$instruction-color:         $sakai-color-black-700 !default;
 
 /* Sakai Banners */
 // Information (info) banner
-$infoBanner-bordercolor: #5c9bd1;
-$infoBanner-bgcolor: #bde5f8;
-$infoBanner-color: $text-color;
+$infoBanner-bordercolor: $sakai-color-blue-500 !default;
+$infoBanner-bgcolor: $sakai-color-blue-000 !default;
+$infoBanner-color: $sakai-color-blue-800 !default;
 $infoBanner-icon: ".fa-info-circle";
 
 // Success banner
-$successBanner-bordercolor: #52b387;
-$successBanner-bgcolor: #d9f0e7;
-$successBanner-color: $text-color;
+$successBanner-bordercolor: $sakai-color-green-500 !default;
+$successBanner-bgcolor: $sakai-color-green-000 !default;
+$successBanner-color: $sakai-color-green-800 !default;
 $successBanner-icon: ".fa-check-circle";
 
 // Warning (warn) banner
-$warnBanner-bordercolor: #f1ba1b;
-$warnBanner-bgcolor: #fbeec9;
-$warnBanner-color: $text-color;
+$warnBanner-bordercolor: $sakai-color-gold-500 !default;
+$warnBanner-bgcolor: $sakai-color-gold-000 !default;
+$warnBanner-color: $sakai-color-gold-800 !default;
 $warnBanner-icon: ".fa-exclamation-circle";
 
 // Error banner
-$errorBanner-bordercolor: #cf4f16;
-$errorBanner-bgcolor: #f4dcd2;
-$errorBanner-color: $text-color;
+$errorBanner-bordercolor: $sakai-color-red-500 !default;
+$errorBanner-bgcolor: $sakai-color-red-000 !default;
+$errorBanner-color: $sakai-color-red-000 !default;
 $errorBanner-icon: ".fa-ban";
 /* end of Sakai Banners */
 
@@ -418,8 +408,8 @@ $tool-menu-collapse-min-hover-border-top:                  $tool-menu-collapse-b
 $tool-menu-collapse-min-hover-shadow:                      $tool-menu-collapse-shadow !default;
 
 /* Tool sub menu */
-$tool-sub-menu-border-color: darken( $tool-menu-background-color, 10% ) !default;
-$tool-sub-menu-background-color: darken( $tool-menu-background-color, 10% ) !default;
+$tool-sub-menu-border-color: $sakai-color-black-200 !default;
+$tool-sub-menu-background-color: $sakai-color-black-200 !default;
 $tool-sub-menu-hover-background-color: $primary-color !default;
 $tool-sub-menu-hover-color: #FFF !default;
 $tool-sub-menu-current-color: $primary-color !default;

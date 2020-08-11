@@ -1,0 +1,23 @@
+// Light Theme
+@import "themes/base";
+$primary-color:              $sakai-color-blue-500 !default;
+$alt-colour:                 $sakai-color-orange-400 !default;
+$primary-color-highContrast: $sakai-color-blue-600 !default;	// for use of primary on non-white light backgrounds, such as greys
+$background-color:           $sakai-color-white !default;
+$background-color-secondary: $sakai-color-purple-700 !default;
+$text-color:                 $sakai-color-black-800 !default;
+$text-color-disabled:        $sakai-color-black-600 !default;
+$secondary-color:            $sakai-color-blue-200 !default;
+$body-background-color:      $sakai-color-white !default;
+
+:root{
+    --sakai-primary-color--theme-light:              #{$primary-color};
+    --sakai-alt-colour--theme-light:                 #{$alt-colour};
+    --sakai-primary-color-highContrast--theme-light: #{$primary-color-highContrast};
+    --sakai-background-color--theme-light:           #{$background-color};
+    --sakai-background-color-secondary--theme-light: #{$background-color-secondary};
+    --sakai-text-color--theme-light:                 #{$text-color};
+    --sakai-text-color-disabled--theme-light:        #{$text-color-disabled};
+    --sakai-secondary-color--theme-light:            #{$secondary-color};
+    --sakai-body-background-color--theme-light:      #{$body-background-color};
+}

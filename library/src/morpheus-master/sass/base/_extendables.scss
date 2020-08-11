@@ -32,7 +32,7 @@
   border-left-width: 5px;
   border-color: lighten($color, 25%);
   border-left-color: $color;
-  color: darken($color, 30%);
+  color: color-contrast($bgcolor, $sakai-color-black-800, $sakai-color-black-100);
   background-color: $bgcolor;
   h1, h2, h3, h4, h5, h6 {
     margin-top: 0;
@@ -73,7 +73,7 @@
 	}
 	border-left: calc( #{$standard-spacing} / 2) solid $bordercolor;
 	background-color: $bgcolor;
-	color: $color;
+	color: color-contrast($bgcolor, $sakai-color-black-800, $sakai-color-black-100);
 	
 	// display an icon indicating banner type on the left of the text
 	&:before {
