@@ -72,14 +72,15 @@ public class CachingMessageBundleServiceImpl extends MessageBundleServiceImpl {
 
 		Map<String, String> bundle = null;
 		String key = super.getIndexKeyName(baseName, moduleName, loc.toString());
-        if (log.isDebugEnabled()) { log.debug("Retrieve bundle from cache with key=" + key); }
+		log.debug("Retrieve bundle from cache with key = {}", key);
 		
-		bundle = cache.get(key);
-		if (bundle == null) {
-		    // bundle not in cache or expired
-		    bundle = super.getBundle(baseName, moduleName, loc);
-            cache.put(key, bundle);
-            if (log.isDebugEnabled()) { log.debug("Add bundle to cache with key=" + key); }
+		if (cache.containsKey(key)) {
+			bundle = cache.get(key);
+		} else {
+			// bundle not in cache or expired
+			bundle = super.getBundle(baseName, moduleName, loc);
+			cache.put(key, bundle);
+			log.debug("Add bundle to cache with key = {}", key);
 		}
 
 		return bundle;
