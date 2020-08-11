@@ -497,7 +497,7 @@ implements ActionListener
 				error=true;
 			}
 
-			if(StringUtils.isNotBlank(assessmentSettings.getFeedbackEndDateString()) && assessmentSettings.getFeedbackDate().after(assessmentSettings.getFeedbackEndDate())){
+			if(assessmentSettings.getFeedbackDate() == null && StringUtils.isNotBlank(assessmentSettings.getFeedbackEndDateString()) && assessmentSettings.getFeedbackDate().after(assessmentSettings.getFeedbackEndDate())){
 				String feedbackDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","invalid_feedback_ranges");
 				context.addMessage(null,new FacesMessage(feedbackDateErr));
 				error=true;
