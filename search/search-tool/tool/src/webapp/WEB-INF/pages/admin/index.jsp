@@ -20,7 +20,7 @@
       <%= request.getAttribute("sakai.html.head") %>
     </head>
     <body 
-    onload="<%= request.getAttribute("sakai.html.body.onload") %> parent.updCourier(doubleDeep,ignoreCourier); callAllLoaders(); " 
+    onload="<%= request.getAttribute("sakai.html.body.onload") %> callAllLoaders(); " 
     >
 <%@include file="header.jsp"%>
     	<div class="portletBody">    		

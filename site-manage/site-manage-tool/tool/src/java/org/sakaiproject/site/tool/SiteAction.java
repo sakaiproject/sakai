@@ -5585,9 +5585,6 @@ public class SiteAction extends PagedResourceActionII {
 		state.setAttribute(STATE_TEMPLATE_INDEX, "0"); // return to the site
 		// list
 
-		// TODO: hard coding this frame id is fragile, portal dependent, and
-		// needs to be fixed -ggolden
-		// schedulePeerFrameRefresh("sitenav");
 		scheduleTopRefresh();
 
 	} // doSite_delete_confirmed
@@ -7076,9 +7073,6 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				saveSiteSetupQuestionUserAnswers(state, site.getId());
 			}
 			
-			// TODO: hard coding this frame id is fragile, portal dependent, and
-			// needs to be fixed -ggolden
-			// schedulePeerFrameRefresh("sitenav");
 			scheduleTopRefresh();
 
 			resetPaging(state);
@@ -9362,9 +9356,6 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				}
 				state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 
-				// TODO: hard coding this frame id is fragile, portal dependent,
-				// and needs to be fixed -ggolden
-				// schedulePeerFrameRefresh("sitenav");
 				scheduleTopRefresh();
 
 				state.removeAttribute(STATE_JOINABLE);
@@ -10088,10 +10079,6 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 										log.warn(this + " actionForTemplate chef_siteinfo-duplicate:: PermissionException when saving " + newSiteId);
 									}
 
-									// TODO: hard coding this frame id
-									// is fragile, portal dependent, and
-									// needs to be fixed -ggolden
-									// schedulePeerFrameRefresh("sitenav");
 									scheduleTopRefresh();
 
 									// send site notification
@@ -13508,9 +13495,6 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		// add the pre-configured site type tools to a new site
 		addSiteTypeFeatures(state);
 
-		// TODO: hard coding this frame id is fragile, portal dependent, and
-		// needs to be fixed -ggolden
-		// schedulePeerFrameRefresh("sitenav");
 		scheduleTopRefresh();
 
 		resetPaging(state);
@@ -16102,12 +16086,8 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		state.removeAttribute("site");
 		state.removeAttribute("allWidgets");
 
-		// make sure auto-updates are enabled
-		enableObserver(state);
-
 		// TODO: hard coding this frame id is fragile, portal dependent, and needs to be fixed -ggolden
 		schedulePeerFrameRefresh("sitenav");
-
 
 		doContinue(data);
 

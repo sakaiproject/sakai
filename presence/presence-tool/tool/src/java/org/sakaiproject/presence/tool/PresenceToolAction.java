@@ -42,7 +42,6 @@ import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.presence.cover.PresenceService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.util.PresenceObservingCourier;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -77,26 +76,6 @@ public class PresenceToolAction extends VelocityPortletPaneledAction
 	protected void initState(SessionState state, VelocityPortlet portlet, JetspeedRunData rundata)
 	{
 		super.initState(state, portlet, rundata);
-
-		// setup the observer to notify our main panel
-		if (state.getAttribute(STATE_OBSERVER) == null)
-		{
-			// get the current tool placement
-			Placement placement = ToolManager.getCurrentPlacement();
-
-			// location is just placement
-			String location = placement.getId();
-
-			// setup the observer to watch for all presence, disabled so we start in manual mode
-			PresenceObservingCourier courier = new PresenceObservingCourier(location);
-			courier.setResourcePattern(null);
-			courier.disable();
-			state.setAttribute(STATE_OBSERVER, courier);
-
-			// init the display mode
-			state.setAttribute(STATE_DISPLAY_MODE, MODE_SERVERS);
-		}
-
 	} // initState
 
 	/**
@@ -123,23 +102,11 @@ public class PresenceToolAction extends VelocityPortletPaneledAction
 			return template;
 		}
 
-		// inform the observing courier that we just updated the page...
-		// if there are pending requests to do so they can be cleared
-		PresenceObservingCourier observer = (PresenceObservingCourier) state.getAttribute(STATE_OBSERVER);
-		observer.justDelivered();
-
 		// build the menu
 		Menu bar = new MenuImpl();
 		bar.add(new MenuEntry(rb.getString("presence.locations"), "doLocations"));
 		bar.add(new MenuEntry(rb.getString("presence.sessions"), "doSessions"));
 		bar.add(new MenuEntry(rb.getString("presence.servers"), "doServers"));
-		bar.add(new MenuDivider());
-		bar.add(new MenuEntry((observer.getEnabled() ? rb.getString("presence.manualref") : rb.getString("presence.autoref")),
-				"doAuto"));
-		if (!observer.getEnabled())
-		{
-			bar.add(new MenuEntry(rb.getString("presence.ref"), "doRefresh"));
-		}
 		context.put(Menu.CONTEXT_MENU, bar);
 
 		// for locations list mode
@@ -206,9 +173,6 @@ public class PresenceToolAction extends VelocityPortletPaneledAction
 			context.put("total", Integer.valueOf(count));
 		}
 
-		// the url for the online courier, using a 30 second refresh
-		setVmCourier(rundata.getRequest(), 30);
-
 		return template;
 
 	} // buildMainPanelContext
@@ -254,29 +218,6 @@ public class PresenceToolAction extends VelocityPortletPaneledAction
 		state.setAttribute(STATE_DISPLAY_MODE, MODE_SERVERS);
 
 	} // doServers
-
-	/**
-	 * Toggle auto-update
-	 */
-	public void doAuto(RunData data, Context context)
-	{
-		// access the portlet element id to find our state
-		String peid = ((JetspeedRunData) data).getJs_peid();
-		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
-
-		// get the observer
-		PresenceObservingCourier observer = (PresenceObservingCourier) state.getAttribute(STATE_OBSERVER);
-		boolean enabled = observer.getEnabled();
-		if (enabled)
-		{
-			observer.disable();
-		}
-		else
-		{
-			observer.enable();
-		}
-
-	} // doAuto
 
 	public void doSwitch(RunData data, Context context)
 	{

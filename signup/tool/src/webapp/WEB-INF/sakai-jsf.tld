@@ -793,42 +793,6 @@
   </tag>
 
   <tag>
-    <name>courier</name>
-    <tag-class>org.sakaiproject.jsf.tag.CourierTag</tag-class>
-    <body-content>empty</body-content>
-    <description>
-      Place a Sakai Courier in the response.
-    </description>
-
-    <attribute>
-      <name>binding</name>
-      <required>false</required>
-      <rtexprvalue>false</rtexprvalue>
-      <description>
-        Component reference expression for this component.
-      </description>
-    </attribute>
-
-    <attribute>
-      <name>id</name>
-      <required>false</required>
-      <rtexprvalue>false</rtexprvalue>
-      <description>
-        Component id of this component.
-      </description>
-    </attribute>
-
-    <attribute>
-      <name>refresh</name>
-      <required>false</required>
-      <rtexprvalue>false</rtexprvalue>
-      <description>
-        The refresh interval, in seconds
-      </description>
-    </attribute>
-  </tag>
-
-  <tag>
     <name>flat_list</name>
     <tag-class>org.sakaiproject.jsf.tag.FlatListTag</tag-class>
     <body-content>JSP</body-content>

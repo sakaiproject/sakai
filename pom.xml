@@ -59,7 +59,6 @@
                 <module>cloud-storage</module>
                 <module>content</module>
                 <module>content-review</module>
-                <module>courier</module>
                 <module>dav</module>
                 <module>delegatedaccess</module>
                 <module>deploy</module>
@@ -145,7 +144,6 @@
                 <module>cloud-storage</module>
                 <module>content</module>
                 <module>content-review</module>
-                <module>courier</module>
                 <module>dav</module>
                 <module>delegatedaccess</module>
                 <module>deploy</module>

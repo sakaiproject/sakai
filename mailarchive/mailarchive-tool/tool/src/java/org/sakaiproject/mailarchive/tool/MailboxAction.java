@@ -555,10 +555,6 @@ public class MailboxAction extends PagedResourceActionII
 		{
 		}
 
-		// inform the observing courier that we just updated the page...
-		// if there are pending requests to do so they can be cleared
-		justDelivered(state);
-
 		return (String) getContext(rundata).get("template") + "-List";
 
 	} // buildListModeContext
@@ -580,9 +576,6 @@ public class MailboxAction extends PagedResourceActionII
 
 		String position = runData.getParameters().getString(FORM_ITEM_NUMBER);
 		state.setAttribute(FORM_ITEM_NUMBER, Integer.valueOf(position));
-		
-		// disable auto-updates while in view mode
-		disableObservers(state);
 
 	} // doView
 
@@ -597,9 +590,6 @@ public class MailboxAction extends PagedResourceActionII
 
 		// switch to view mode
 		state.setAttribute(STATE_MODE, "list");
-
-		// make sure auto-updates are enabled
-		enableObserver(state);
 
 		state.removeAttribute(STATE_MSG_VIEW_ID);
 
@@ -726,9 +716,6 @@ public class MailboxAction extends PagedResourceActionII
 		// go to remove confirm mode
 		state.setAttribute(STATE_MODE, "confirm-remove");
 
-		// disable auto-updates while in confirm mode
-		disableObservers(state);
-
 	} // doRemove
 
 	/**
@@ -780,9 +767,6 @@ public class MailboxAction extends PagedResourceActionII
 
 		// return to view mode
 		state.setAttribute(STATE_MODE, "view");
-
-		// disable auto-updates while in view mode
-		disableObservers(state);
 
 	} // doRemove_cancel
 
@@ -1012,9 +996,6 @@ public class MailboxAction extends PagedResourceActionII
 				state.removeAttribute(STATE_OPTION_REPLY);
 				state.removeAttribute(STATE_OPTION_SENDTO);
 				state.removeAttribute(STATE_OPTION_ALIAS);
-
-				// re-enable auto-updates when going back to list mode
-				enableObserver(state);
 			}
 		}
 
@@ -1048,9 +1029,6 @@ public class MailboxAction extends PagedResourceActionII
 		state.removeAttribute(STATE_OPTION_REPLY);
 		state.removeAttribute(STATE_OPTION_SENDTO);
 		state.removeAttribute(STATE_OPTION_ALIAS);
-
-		// re-enable auto-updates when going back to list mode
-		enableObserver(state);
 
 	} // doCancel
 

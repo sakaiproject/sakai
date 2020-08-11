@@ -444,9 +444,6 @@ public class UsersAction extends PagedResourceActionII
 		// add the search commands
 		addSearchMenus(bar, state, rb.getString("useact.search"));
 
-		// add the refresh commands
-		addRefreshMenus(bar, state);
-
 		if (bar.size() > 0)
 		{
 			context.put(Menu.CONTEXT_MENU, bar);
@@ -673,9 +670,6 @@ public class UsersAction extends PagedResourceActionII
 			catch (UserLockedException e)
 			{
 			}
-
-			// disable auto-updates while not in list mode
-			disableObservers(state);
 		}
 		catch (UserNotDefinedException e)
 		{
@@ -684,9 +678,6 @@ public class UsersAction extends PagedResourceActionII
 			Object[] params = new Object[]{id};
 			addAlert(state, rb.getFormattedMessage("useact.use_notfou", params));
 			state.removeAttribute("mode");
-
-			// make sure auto-updates are enabled
-			enableObserver(state);
 		}
 
 		return "_view";
@@ -786,9 +777,6 @@ public class UsersAction extends PagedResourceActionII
 		// mark the user as new, so on cancel it can be deleted
 		state.setAttribute("new", "true");
 
-		// disable auto-updates while not in list mode
-		disableObservers(state);
-
 	} // doNew
 
 	/**
@@ -849,9 +837,6 @@ public class UsersAction extends PagedResourceActionII
 			//cleanup
 			state.removeAttribute("importedUsers");
 			state.removeAttribute("mode");
-			
-			// make sure auto-updates are enabled
-			enableObserver(state);
 		}
 		
 	} // doImport
@@ -874,9 +859,6 @@ public class UsersAction extends PagedResourceActionII
 			UserEdit user = userDirectoryService.editUser(id);
 			state.setAttribute("user", user);
 			state.setAttribute("mode", "edit");
-
-			// disable auto-updates while not in list mode
-			disableObservers(state);
 		}
 		catch (UserNotDefinedException e)
 		{
@@ -885,25 +867,16 @@ public class UsersAction extends PagedResourceActionII
 			Object[] params = new Object[]{id};
 			addAlert(state, rb.getFormattedMessage("useact.use_notfou", params));
 			state.removeAttribute("mode");
-
-			// make sure auto-updates are enabled
-			enableObserver(state);
 		}
 		catch (UserPermissionException e)
 		{
 			addAlert(state, rb.getFormattedMessage("useact.youdonot1", new Object[]{id}));
 			state.removeAttribute("mode");
-
-			// make sure auto-updates are enabled
-			enableObserver(state);
 		}
 		catch (UserLockedException e)
 		{
 			addAlert(state, rb.getFormattedMessage("useact.somels", new Object[]{id}));
 			state.removeAttribute("mode");
-
-			// make sure auto-updates are enabled
-			enableObserver(state);
 		}
 
 	} // doEdit
@@ -926,9 +899,6 @@ public class UsersAction extends PagedResourceActionII
 			UserEdit user = userDirectoryService.editUser(id);
 			state.setAttribute("user", user);
 			state.setAttribute("mode", "edit");
-
-			// disable auto-updates while not in list mode
-			disableObservers(state);
 		}
 		catch (UserNotDefinedException e)
 		{
@@ -937,25 +907,16 @@ public class UsersAction extends PagedResourceActionII
 			Object[] params = new Object[]{id};
 			addAlert(state, rb.getFormattedMessage("useact.use_notfou", params));
 			state.removeAttribute("mode");
-
-			// make sure auto-updates are enabled
-			enableObserver(state);
 		}
 		catch (UserPermissionException e)
 		{
 			addAlert(state, rb.getFormattedMessage("useact.youdonot1", new Object[]{id}));
 			state.removeAttribute("mode");
-
-			// make sure auto-updates are enabled
-			enableObserver(state);
 		}
 		catch (UserLockedException e)
 		{
 			addAlert(state, rb.getFormattedMessage("useact.somels", new Object[]{id}));
 			state.removeAttribute("mode");
-
-			// make sure auto-updates are enabled
-			enableObserver(state);
 		}
 
 	} // doModify
@@ -1020,9 +981,6 @@ public class UsersAction extends PagedResourceActionII
 
 		// return to main mode
 		state.removeAttribute("mode");
-
-		// make sure auto-updates are enabled
-		enableObserver(state);
 
 		if ((user != null) && ((Boolean) state.getAttribute("create-login")).booleanValue())
 		{
@@ -1103,9 +1061,6 @@ public class UsersAction extends PagedResourceActionII
 		// return to main mode
 		state.removeAttribute("mode");
 
-		// make sure auto-updates are enabled
-		enableObserver(state);
-
 	} // doCancel
 	
 	/**
@@ -1129,9 +1084,6 @@ public class UsersAction extends PagedResourceActionII
 
 		// return to main mode
 		state.removeAttribute("mode");
-
-		// make sure auto-updates are enabled
-		enableObserver(state);
 
 	} // doCancelImport
 
@@ -1215,9 +1167,6 @@ public class UsersAction extends PagedResourceActionII
 
 		// go to main mode
 		state.removeAttribute("mode");
-
-		// make sure auto-updates are enabled
-		enableObserver(state);
 
 	} // doRemove_confirmed
 

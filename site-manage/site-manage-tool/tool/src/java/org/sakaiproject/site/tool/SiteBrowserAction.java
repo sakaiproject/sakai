@@ -201,13 +201,6 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 			// The default is pubview.
 			state.setAttribute(SiteHelper.SITE_PICKER_PERMISSION, org.sakaiproject.site.api.SiteService.SelectionType.PUBVIEW);
 		}
-
-		// setup the observer to notify our main panel
-		/*
-		 * if (state.getAttribute(STATE_OBSERVER) == null) { // the delivery location for this tool String deliveryId = clientWindowId(state, portlet.getID()); // the html element to update on delivery String elementId =
-		 * mainPanelUpdateId(portlet.getID()); // the event resource reference pattern to watch for String pattern = SiteService.siteReference(""); state.setAttribute(STATE_OBSERVER, new EventObservingCourier(deliveryId, elementId, pattern)); } // make
-		 * sure the observer is in sync with state updateObservationOfChannel(state, portlet.getID());
-		 */
 	} // initState
 
 	/**
@@ -218,9 +211,6 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 	 */
 	private void updateObservationOfChannel(SessionState state, String peid)
 	{
-		/*
-		 * EventObservingCourier observer = (EventObservingCourier) state.getAttribute(STATE_OBSERVER); // the delivery location for this tool String deliveryId = clientWindowId(state, peid); observer.setDeliveryId(deliveryId);
-		 */
 	} // updateObservationOfChannel
 
 
@@ -300,16 +290,8 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 		// build the menu
 		Menu menu = MenuBuilder.buildMenuForSiteBrowser(portlet, data, state, context, rb);
 
-		// add the refresh commands
-		// %%% we want manual only
-		addRefreshMenus(menu, state);
-
 		MenuBuilder.addMenuToContext(menu, context);
 
-		// }
-		// inform the observing courier that we just updated the page...
-		// if there are pending requests to do so they can be cleared
-		// justDelivered(state);
 		if (cms != null) 
 		{
 			Map<String, String> smap =new HashMap<String, String>();
@@ -615,9 +597,6 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 			Site site = SiteService.getSite(id);
 			state.setAttribute("siteId", id);
 			state.setAttribute(MODE, "visit");
-
-			// disable auto-updates while in view mode
-			// ((EventObservingCourier) state.getAttribute(STATE_OBSERVER)).disable();
 		}
 		catch (IdUnusedException e)
 		{
@@ -625,9 +604,6 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 
 			addAlert(state, rb.getFormattedMessage("notfound", new Object[]{id}));
 			state.removeAttribute(MODE);
-
-			// make sure auto-updates are enabled
-			// enableObserver(state);
 		}
 
 	} // doVisit

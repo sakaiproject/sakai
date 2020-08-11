@@ -2295,9 +2295,6 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			context.put( "resourcesAddAction", Boolean.TRUE );
 		}
 
-		// make sure observers are disabled
-		VelocityPortletPaneledAction.disableObservers(state);
-
 		String template = "";
 		Mode mode = (Mode) state.getAttribute(CitationHelper.STATE_HELPER_MODE);
 		if(mode == null)
@@ -5385,9 +5382,6 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 				toolSession.removeAttribute(aName);
 			}
 		}
-
-		// re-enable observers
-		VelocityPortletPaneledAction.enableObservers(sessionState);
 	}
 
 	public void doSortCollection( RunData data )

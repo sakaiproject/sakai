@@ -19,11 +19,8 @@
  *
  **********************************************************************************/
  
-var courierRunning = false;
-
 var focus_path;
 
-var ignoreCourier = false;
 var doubleDeep = false;
 
 function inIframe () {
@@ -168,31 +165,6 @@ function buildQueryString(theFormName)
 		}
 	}
 	return qs;
-}
-
-// use if peer w/ courier, both frames in "top" parent
-function updCourier(dd, ic)
-{
-	if (ic) return;
-
-	if (dd)
-	{
-		parent.updCourier(false, false);
-		return;
-	}
-
-	if ((!courierRunning) && (window.courier) && (window.courier.location.toString().length > 1))
-	{
-		courierRunning = true;
-		window.courier.location.replace(window.courier.location);
-	}
-
-        // If we are using the httpCourier for event delivery, speed it up
-	try {
-		if ( httpCourier ) {
-		        setTimeout('httpCourier()', 200);
-		}
-	} catch (error) {}
 }
 
 function formSubmitOnEnter(field, event)
@@ -510,26 +482,6 @@ function setFocus(elements)
 	if(focal_point && focal_point.focus)
 	{
 		focal_point.focus();
-	}
-}
-
-// return the url with auto=courier appended, sensitive to ? already in there or not
-function addAuto(loc)
-{
-	var str = loc.toString();
-
-	// not if already there
-	if (str.indexOf("auto=courier") !== -1) return str;
-	
-	if (str.indexOf("?") !== -1)
-	{
-		// has a ?
-		return str + '&auto=courier';
-	}
-	else
-	{
-		// has no ?
-		return str + '?auto=courier';
 	}
 }
 

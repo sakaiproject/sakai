@@ -953,13 +953,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	private static void addObservingPattern(String pattern, SessionState state)
 	{
 		log.debug("ResourcesAction.addObservingPattern()");
-//		// get the observer and add the pattern
-//		ContentObservingCourier o = (ContentObservingCourier) state.getAttribute(STATE_OBSERVER);
-//		o.addResourcePattern(ContentHostingService.getReference(pattern));
-//
-//		// add it back to state
-//		state.setAttribute(STATE_OBSERVER, o);
-
 	}	// addObservingPattern
 
 	/**
@@ -3522,13 +3515,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	private static void removeObservingPattern(String pattern, SessionState state)
 	{
 		log.debug("ResourcesAction.removeObservingPattern()");
-//		// get the observer and remove the pattern
-//		ContentObservingCourier o = (ContentObservingCourier) state.getAttribute(STATE_OBSERVER);
-//		o.removeResourcePattern(ContentHostingService.getReference(pattern));
-//
-//		// add it back to state
-//		state.setAttribute(STATE_OBSERVER, o);
-
 	}	// removeObservingPattern
 
 	/**
@@ -4548,10 +4534,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		context.put("expandallflag", state.getAttribute(STATE_EXPAND_ALL_FLAG));
 		state.removeAttribute(STATE_NEED_TO_EXPAND_ALL);
 		
-		// inform the observing courier that we just updated the page...
-		// if there are pending requests to do so they can be cleared
-		justDelivered(state);
-
 		// pick the "show" template based on the standard template name
 		// String template = (String) getContext(data).get("template");
 		
@@ -9080,11 +9062,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
  	private void updateObservation(SessionState state, String peid)
  	{
 		log.debug("{}.updateObservation()", this);
-// 		ContentObservingCourier observer = (ContentObservingCourier) state.getAttribute(STATE_OBSERVER);
-//
-// 		// the delivery location for this tool
-// 		String deliveryId = clientWindowId(state, peid);
-// 		observer.setDeliveryId(deliveryId);
 	}
 
 	public static List<ContentResource> createUrls(SessionState state, ResourceToolActionPipe pipe)

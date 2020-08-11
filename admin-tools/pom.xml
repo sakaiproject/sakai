@@ -31,10 +31,6 @@
             <artifactId>archive-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.courier</groupId>
-            <artifactId>sakai-courier-api</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.sakaiproject.velocity</groupId>
             <artifactId>sakai-velocity-tool-api</artifactId>
         </dependency>
