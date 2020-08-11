@@ -65,9 +65,7 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 		log.info("init()");
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public void notifyAddedParticipant(boolean newNonOfficialAccount,
 			User user, Site site) {
 		ResourceLoader rb = new ResourceLoader(user.getId(), "UserNotificationProvider");
@@ -134,9 +132,7 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public void notifyNewUserEmail(User user, String newUserPassword,
 			Site site) {
 		ResourceLoader rb = new ResourceLoader("UserNotificationProvider");
@@ -179,9 +175,7 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 		}
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public void notifyTemplateUse(Site templateSite, User currentUser, Site site) {
 		// send an email to track who are using the template
 		String from = getSetupRequestEmailAddress();
@@ -217,9 +211,7 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 		}
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public void notifySiteCreation(Site site, List<String> notifySites, boolean courseSite, String termTitle, String requestEmail, boolean sendToRequestEmail, boolean sendToUser) {
 		// send emails
 		String id = site.getId();
@@ -293,9 +285,7 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 		}
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public boolean notifyCourseRequestAuthorizer(String instructorId, String requestEmail, String replyToEmail, String termTitle, String requestSectionInfo, String siteTitle, String siteId, String additionalInfo, String serverName)
 	{
 		try {
@@ -364,9 +354,7 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 		}
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public String notifyCourseRequestSupport(String requestEmail, String serverName, String request, String termTitle, int requestListSize, String requestSectionInfo,
 			String officialAccountName, String siteTitle, String siteId, String additionalInfo, boolean requireAuthorizer, String authorizerNotified, String authorizerNotNotified)
 	{
@@ -460,9 +448,7 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public void notifyCourseRequestRequester(String requestEmail, String supportEmailContent, String termTitle)
 	{
 		User currentUser = userDirectoryService.getCurrentUser();
@@ -512,7 +498,7 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 		}
 		return from;
 	}
-	
+	@Override
 	public void notifySiteImportCompleted(String toEmail, Locale locale, String siteId, String siteTitle){
 		if(toEmail != null && !"".equals(toEmail)){
 			String headerTo = toEmail;

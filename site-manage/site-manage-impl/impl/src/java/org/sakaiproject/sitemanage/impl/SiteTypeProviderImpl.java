@@ -37,66 +37,50 @@ public class SiteTypeProviderImpl implements org.sakaiproject.sitemanage.api.Sit
 
 	private static ResourceLoader rb = new ResourceLoader("SiteTypeProvider");
 	
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public List<String> getTypes()
 	{
 		List<String> rv = new ArrayList<String>();
 		return rv;
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public List<String> getTypesForSiteList()
 	{
 		return new ArrayList<String>();
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public List<String> getTypesForSiteCreation()
 	{
 		return new ArrayList<String>();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public HashMap<String, String> getTemplateForSiteTypes()
 	{
 		return new HashMap<String, String>();	
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public String getSiteTitle(String type, List<String> params)
 	{
 		return "";
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public String getSiteDescription(String type, List<String> params)
 	{
 		return "";
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public String getSiteShortDescription(String type, List<String> params)
 	{
 		return "";
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public String getSiteAlias(String type, List<String> params)
 	{
 		return "";
