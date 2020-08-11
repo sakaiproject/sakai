@@ -173,7 +173,7 @@ public class SchedulerManagerImpl implements ApplicationContextAware, Lifecycle,
         {
           JobDetail detail = scheduler.getJobDetail(key);
           if (detail == null) {
-              log.warn("detail is null for key {} in init, skipping", key);
+              log.warn("JobDetail is null skipping job with key = {}", key);
               continue;
           }
           String bean = detail.getJobDataMap().getString(JobBeanWrapper.SPRING_BEAN_NAME);
