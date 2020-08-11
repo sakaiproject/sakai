@@ -220,7 +220,7 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 	/**
 	 * {@inheritDoc}
 	 */
-	public void notifySiteCreation(Site site, List notifySites, boolean courseSite, String termTitle, String requestEmail, boolean sendToRequestEmail, boolean sendToUser) {
+	public void notifySiteCreation(Site site, List<String> notifySites, boolean courseSite, String termTitle, String requestEmail, boolean sendToRequestEmail, boolean sendToUser) {
 		// send emails
 		String id = site.getId();
 		String title = site.getTitle();
