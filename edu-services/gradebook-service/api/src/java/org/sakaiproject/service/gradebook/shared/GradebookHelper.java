@@ -23,12 +23,19 @@ public class GradebookHelper {
      * Validate a grade item title by checking against the reserved characters
      * @param title
      * @throws InvalidGradeItemNameException
+     * @throws ConflictingAssignmentNameException
+     * returns validatedName
      */
-    public static void validateGradeItemName(final String title) throws InvalidGradeItemNameException {
-        if (StringUtils.isBlank(title)
-            || StringUtils.startsWithAny(title, GradebookService.INVALID_CHARS_AT_START_OF_GB_ITEM_NAME)) {
+    public static String validateGradeItemName(String title) throws InvalidGradeItemNameException, ConflictingAssignmentNameException {
+		// validate the name
+		title = StringUtils.trimToNull(title);
+        if (StringUtils.isBlank(title)) {
+			throw new ConflictingAssignmentNameException("You cannot save an assignment without a name");
+        }
+        else if (StringUtils.startsWithAny(title, GradebookService.INVALID_CHARS_AT_START_OF_GB_ITEM_NAME)) {
             throw new InvalidGradeItemNameException("Grade Item name is invalid: " + title);
         }
+        return title;
     }
 
     /**
@@ -37,24 +44,16 @@ public class GradebookHelper {
      * @throws InvalidGradeItemNameException
      * @throws AssignmentHasIllegalPointsException
      * @throws ConflictingAssignmentNameException
+     * @return validated name
      */
     
-	public static void validateAssignmentNameAndPoints(final org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition) 
+	public static String validateAssignmentNameAndPoints(final org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition) 
 		throws InvalidGradeItemNameException, AssignmentHasIllegalPointsException, ConflictingAssignmentNameException {
 		// Ensure that points is > zero.
 		final Double points = assignmentDefinition.getPoints();
 		if ((points == null) || (points <= 0)) {
 			throw new AssignmentHasIllegalPointsException("Points must be > 0");
 		}	
-		
-		// validate the name
-		final String validatedName = StringUtils.trimToNull(assignmentDefinition.getName());
-		if (validatedName == null) {
-			throw new ConflictingAssignmentNameException("You cannot save an assignment without a name");
-		}
-
-		// name cannot contain these chars as they are reserved for special columns in import/export
-		validateGradeItemName(validatedName);
-		
+		return validateGradeItemName(assignmentDefinition.getName());
 	}
 }

@@ -622,10 +622,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			throw new GradebookSecurityException();
 		}
 
-		GradebookHelper.validateAssignmentNameAndPoints(assignmentDefinition);
+		final String validatedName = GradebookHelper.validateAssignmentNameAndPoints(assignmentDefinition);
 
 		final Gradebook gradebook = getGradebook(gradebookUid);
-		final String validatedName = StringUtils.trimToNull(assignmentDefinition.getName());
 
 		// if attaching to category
 		if (assignmentDefinition.getCategoryId() != null) {
@@ -648,8 +647,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			throw new GradebookSecurityException();
 		}
 		
-		GradebookHelper.validateAssignmentNameAndPoints(assignmentDefinition);
-		final String validatedName = StringUtils.trimToNull(assignmentDefinition.getName());
+		final String validatedName = GradebookHelper.validateAssignmentNameAndPoints(assignmentDefinition);
 
 		final Gradebook gradebook = this.getGradebook(gradebookUid);
 
