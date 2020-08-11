@@ -209,7 +209,7 @@ public class GradeImportConfirmationStep extends BasePanel {
 						getSession().error(MessageHelper.getString("importExport.error.pointsmodification", assignment.getName()));
 						GradeImportConfirmationStep.this.errors = true;
 						errorColumns.add(item);
-                        log.warn("An error occurred updating the assignment", e);
+						log.warn("An error occurred updating the assignment", e);
 					}
 
 					assignmentMap.put(StringUtils.trim(assignment.getName()), assignment.getId());
