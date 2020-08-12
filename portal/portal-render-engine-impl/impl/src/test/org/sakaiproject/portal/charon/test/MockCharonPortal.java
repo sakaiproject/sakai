@@ -357,13 +357,9 @@ public class MockCharonPortal extends HttpServlet
 		rcontext.put("pageNavHelpUrl", "helpUrl");
 		// rcontext.put("pageNavSitHelp", "sit_help");
 
-		// rcontext.put("pageNavSitPresenceTitle", "sit_presencetitle");
-		// rcontext.put("pageNavSitPresenceFrameTitle",
-		// "sit_presenceiframetit");
 		rcontext.put("pageNavToolsCount", l.size());
 		rcontext.put("pageNavShowPresenceLoggedIn", Boolean.valueOf(true));
 		rcontext.put("pageNavPresenceUrl", "presenceUrl");
-		rcontext.put("pageNavPresenceIframe", Boolean.valueOf(false));
                 rcontext.put("sakaiPresenceTimeDelay", Integer.valueOf(3000));
 		// rcontext.put("pageNavSitContentshead", "sit_contentshead");
 

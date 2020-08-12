@@ -87,17 +87,6 @@ public class AliasesAction extends PagedResourceActionII
 	} // initState
 
 	/**
-	 * Setup our observer to be watching for change events for our channel.
-	 * 
-	 * @param peid
-	 *        The portlet id.
-	 * @deprecated this is unused
-	 */
-	private void updateObservationOfChannel(SessionState state, String peid)
-	{
-	} // updateObservationOfChannel
-
-	/**
 	 * build the context
 	 */
 	public String buildMainPanelContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)

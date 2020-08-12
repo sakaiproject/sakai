@@ -689,7 +689,6 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 						newChannel);
 				state.setAttribute(STATE_CHANNEL_REF, channel_ref);
 				log.debug("newChannel: {}", channel_ref);
-				// updateObservationOfChannel(state, peid);
 
 				// update the tool config
 				Placement placement = ToolManager.getCurrentPlacement();

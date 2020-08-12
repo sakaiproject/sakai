@@ -280,14 +280,6 @@
                 ${rloader.sit_presencetitle}
                 <a href="#" id="presenceClose" class="trayPopupClose Mrphs-presence__area--title--close"> </a>
             </div>
-
-        #if (${sitePages.pageNavPresenceIframe})
-
-            <iframe name="presenceIframe" id="presenceIframe" class="Mrphs-presence__area--iframe" title="${rloader.sit_presencetitle}" src="${sitePages.pageNavPresenceUrl}?auto=true">
-            </iframe>
-
-        #else
-
             <div id="presenceIframe" class="Mrphs-presence__area--iframe-div"></div>
             <script>
                 //these are global variables...
@@ -295,7 +287,6 @@
                 var sakaiPresenceFragment = "${sitePages.pageNavPresenceUrl}?output_fragment=yes&auto=true";
                 var sakaiLastPresenceTimeOut = setTimeout('updatePresence()', sakaiPresenceTimeDelay); 
             </script>
-        #end ## END of IF (${sitePages.pageNavPresenceIframe})
         </div><!-- End of div#presenceWrapper -->
     </div> <!-- End of div#presenceArea -->
 

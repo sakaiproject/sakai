@@ -1114,11 +1114,6 @@ public class AnnouncementAction extends PagedResourceActionII
 		return SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()) && !isOnWorkspaceTab();
 	}
 
-	/*
-	 * what i've done to make this tool automaticlly updated includes some corresponding imports in buildMail, tell observer just the page is just refreshed in the do() functions related to show the list, enable the obeserver in other do() functions
-	 * related to not show the list, disable the obeserver in the do(), define the session sstate object, and protlet. add initState add updateObservationOfChannel() add state attribute STATE_CHANNEL_REF
-	 */
-
 	/**
 	 * Returns true if it is okay to show the merge button in the menu.
 	 */
@@ -3562,10 +3557,6 @@ public class AnnouncementAction extends PagedResourceActionII
 	} // doSortbyfor
 
 	// ********* ending for sorting *********
-	/*
-	 * what i've done to make this tool automaticlly updated includes some corresponding imports in buildMail, tell observer just the page is just refreshed in the do() functions related to show the list, enable the obeserver in other do() functions
-	 * related to not show the list, disable the obeserver in the do(), define the session sstate object, and protlet. add initState add updateObservationOfChannel() add state attribute STATE_CHANNEL_REF
-	 */
 
 	/**
 	 * Populate the state object, if needed.
@@ -3622,7 +3613,6 @@ public class AnnouncementAction extends PagedResourceActionII
 			state.setAttribute(STATE_SELECTED_VIEW, VIEW_MODE_ALL);
 		}
 
-		// setup the observer to notify our main panel
 		if (state.getAttribute(STATE_INITED) == null)
 		{
 			state.setAttribute(STATE_INITED, STATE_INITED);
@@ -3713,14 +3703,6 @@ public class AnnouncementAction extends PagedResourceActionII
 		
 
 	} // initState
-
-	/**
-	 * Setup our observer to be watching for change events for our channel.
-	 */
-	private void updateObservationOfChannel(MergedList mergedAnnouncementList, RunData runData, SessionState state,
-			AnnouncementActionState annState)
-	{
-	} // updateObservationOfChannel
 
 	/**
 	 * Fire up the permissions editor
@@ -3842,8 +3824,6 @@ public class AnnouncementAction extends PagedResourceActionII
 
 		// commit the change
 		saveOptions();
-
-		updateObservationOfChannel(mergedChannelList, runData, sstate, state);
 
 		state.setStatus(null);
 

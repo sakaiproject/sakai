@@ -922,10 +922,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		String presenceUrl = Web.returnUrl(req, "/presence/"
 				+ getFormattedText().escapeUrl(site.getId()));
 
-		// theMap.put("pageNavSitPresenceTitle",
-		// Web.escapeHtml(rb.getString("sit_presencetitle")));
-		// theMap.put("pageNavSitPresenceFrameTitle",
-		// Web.escapeHtml(rb.getString("sit_presenceiframetit")));
 		theMap.put("pageNavShowPresenceLoggedIn", Boolean.valueOf(showPresence
 				&& loggedIn));
 		theMap.put("pageNavPresenceUrl", presenceUrl);
@@ -933,9 +929,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		//add softly deleted status
 		theMap.put("softlyDeleted", site.isSoftlyDeleted());
 
-		// Retrieve whether or not we are to put presence in a frame
-		theMap.put("pageNavPresenceIframe", Boolean.valueOf(
-			ServerConfigurationService.getBoolean("display.users.present.iframe", false)) );
+		// Initial delay before updating preesnce
 		theMap.put("sakaiPresenceTimeDelay", Integer.valueOf(
 			ServerConfigurationService.getInt("display.users.present.time.delay", 3000)) );
 

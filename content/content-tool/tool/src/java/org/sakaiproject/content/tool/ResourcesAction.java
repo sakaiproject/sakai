@@ -946,16 +946,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	}
 
 	/**
-	 * Add additional resource pattern to the observer
-	 *@param pattern The pattern value to be added
-	 *@param state The state object
-	 */
-	private static void addObservingPattern(String pattern, SessionState state)
-	{
-		log.debug("ResourcesAction.addObservingPattern()");
-	}	// addObservingPattern
-
-	/**
 	* Build the context to show the list of resource properties
 	*/
 	public String buildMoreContext (	VelocityPortlet portlet,
@@ -3508,16 +3498,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	
 	/**
-	 * Remove a resource pattern from the observer
-	 *@param pattern The pattern value to be removed
-	 *@param state The state object
-	 */
-	private static void removeObservingPattern(String pattern, SessionState state)
-	{
-		log.debug("ResourcesAction.removeObservingPattern()");
-	}	// removeObservingPattern
-
-	/**
 	 *
 	 * Whether a resource item can be replaced
 	 * @param p The ResourceProperties object for the resource item
@@ -5983,9 +5963,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 										 collapseAction.finalizeAction(reference);
 										 
 										 folderSortMap.remove(id);
-
-										 // add this folder id into the set to be event-observed
-										 addObservingPattern(id, state);
 									 }
 								 }
 							 }
@@ -6001,9 +5978,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		 }
 		expandedItems.clear();
 		expandedItems.addAll(newSet);
-
-		// remove this folder id into the set to be event-observed
-		removeObservingPattern(collectionId, state);
 
 	}	// doCollapse_collection
 
@@ -6775,9 +6749,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 							expandAction.finalizeAction(reference);
 							
 							expandedItems.add(id);
-
-							// add this folder id into the set to be event-observed
-							addObservingPattern(id, state);
 						}
 					}
 				}
@@ -7221,9 +7192,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		if (state.getAttribute(STATE_MESSAGE) == null)
 		{
 			String oldCollectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
-			// update this folder id in the set to be event-observed
-			removeObservingPattern(oldCollectionId, state);
-			addObservingPattern(collectionId, state);
 
 			state.setAttribute(STATE_COLLECTION_ID, collectionId);
 			
@@ -7241,7 +7209,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					if(id.startsWith(collectionId))
 					{
 						sortMap.remove(id);
-						removeObservingPattern(id, state);
 					}
 				}
 			}
@@ -9054,14 +9021,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
           }
 		
 		return other_sites;
-	}
-
-	/**
-	* Setup our observer to be watching for change events for the collection
- 	*/
- 	private void updateObservation(SessionState state, String peid)
- 	{
-		log.debug("{}.updateObservation()", this);
 	}
 
 	public static List<ContentResource> createUrls(SessionState state, ResourceToolActionPipe pipe)
