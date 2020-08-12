@@ -142,6 +142,12 @@ public class LTI13Servlet extends HttpServlet {
 
 		SakaiLineItem filter = getLineItemFilter(request);
 
+		// /imsblis/lti13/proxy
+		if (parts.length == 4 && "proxy".equals(parts[3])) {
+			handleProxy(request, response);
+			return;
+		}
+
 		// Get a keys for a client_id
 		// /imsblis/lti13/keyset/{tool-id}
 		if (parts.length == 5 && "keyset".equals(parts[3])) {
@@ -293,6 +299,60 @@ public class LTI13Servlet extends HttpServlet {
 		log.error("Unrecognized POST request parts={} request={}", parts.length, uri);
 		LTI13Util.return400(response, "Unrecognized POST request parts="+parts.length+" request="+uri);
 
+	}
+
+	// A very locked down proxy - JSON Only
+	protected void handleProxy(HttpServletRequest request, HttpServletResponse response) {
+		String proxyUrl = request.getParameter("proxyUrl");
+		if ( proxyUrl == null ) {
+			LTI13Util.return400(response, "Missing proxyUrl");
+			return;
+		}
+
+		Session sess = SessionManager.getCurrentSession();
+		if ( sess == null || sess.getUserId() == null ) {
+			LTI13Util.return400(response, "Must be logged in");
+			return;
+		}
+
+		try {
+			java.net.URL url = new java.net.URL(proxyUrl);
+			java.net.HttpURLConnection con = (java.net.HttpURLConnection) url.openConnection();
+			con.setRequestMethod("GET");
+			con.setConnectTimeout(3000);
+			con.setReadTimeout(3000);
+			con.setInstanceFollowRedirects(true);
+
+			java.io.BufferedReader in = new java.io.BufferedReader(
+				new java.io.InputStreamReader(con.getInputStream()));
+			String inputLine;
+			java.lang.StringBuffer content = new StringBuffer();
+			while ((inputLine = in.readLine()) != null) {
+				content.append(inputLine);
+			}
+			if ( content.length() > 10000 ) {
+				in.close();
+				LTI13Util.return400(response, "Content too long");
+				return;
+			}
+			in.close();
+
+			String jsonString = content.toString();
+
+			Object js = JSONValue.parse(jsonString);
+			if (js == null || !(js instanceof JSONObject)) {
+				LTI13Util.return400(response, "Badly formatted JSON");
+				return;
+			}
+
+			response.setContentType(APPLICATION_JSON);
+			PrintWriter out = response.getWriter();
+
+			out.println(((JSONObject) js).toJSONString());
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		}
 	}
 
 	protected void handleKeySet(String tool_id, HttpServletRequest request, HttpServletResponse response) {
