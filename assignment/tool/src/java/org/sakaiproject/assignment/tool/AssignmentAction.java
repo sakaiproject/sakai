@@ -9361,21 +9361,25 @@ public class AssignmentAction extends PagedResourceActionII {
                 // put the names and values into vm file
                 state.setAttribute(NEW_ASSIGNMENT_TITLE, a.getTitle());
                 state.setAttribute(NEW_ASSIGNMENT_CONTENT_ID, a.getContentId());
-                try {
-                    Site site = siteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
-                    Long contentKey = a.getContentId().longValue();
-                    Map<String, Object> content = ltiService.getContent(contentKey, site.getId());
-                    Long toolKey = new Long(content.get(LTIService.LTI_TOOL_ID).toString());
-                    if (toolKey != null) {
-                        Map<String, Object> tool = ltiService.getTool(toolKey, site.getId());
-						String toolTitle = (String) tool.get(LTIService.LTI_TITLE);
-	                    state.setAttribute(NEW_ASSIGNMENT_CONTENT_TITLE, toolTitle);
-					}
-
-                } catch(org.sakaiproject.exception.IdUnusedException e ) {
-                    // Send error to template
-                    state.setAttribute(NEW_ASSIGNMENT_CONTENT_TITLE, null);
+                if ( a.getContentId() != null ) {
+                   try {
+                        Site site = siteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
+                        Long contentKey = a.getContentId().longValue();
+                        Map<String, Object> content = ltiService.getContent(contentKey, site.getId());
+                        Long toolKey = new Long(content.get(LTIService.LTI_TOOL_ID).toString());
+                        if (toolKey != null) {
+                            Map<String, Object> tool = ltiService.getTool(toolKey, site.getId());
+                            String toolTitle = (String) tool.get(LTIService.LTI_TITLE);
+                            state.setAttribute(NEW_ASSIGNMENT_CONTENT_TITLE, toolTitle);
+                        }
+                    } catch(org.sakaiproject.exception.IdUnusedException e ) {
+                        // Send error to template
+                        state.setAttribute(NEW_ASSIGNMENT_CONTENT_TITLE, null);
+                    }
+                } else {
+                        state.setAttribute(NEW_ASSIGNMENT_CONTENT_TITLE, null);
                 }
+
                 state.setAttribute(NEW_ASSIGNMENT_CONTENT_LAUNCH_NEW_WINDOW, a.getContentLaunchNewWindow());
                 state.setAttribute(NEW_ASSIGNMENT_ORDER, a.getPosition());
 
