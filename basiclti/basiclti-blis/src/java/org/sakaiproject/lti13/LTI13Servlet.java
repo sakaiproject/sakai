@@ -326,7 +326,7 @@ public class LTI13Servlet extends HttpServlet {
 			java.io.BufferedReader in = new java.io.BufferedReader(
 				new java.io.InputStreamReader(con.getInputStream()));
 			String inputLine;
-			java.lang.StringBuffer content = new StringBuffer();
+			StringBuffer content = new StringBuffer();
 			while ((inputLine = in.readLine()) != null) {
 				content.append(inputLine);
 			}
