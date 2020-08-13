@@ -114,6 +114,10 @@ function importLTI13Config() {
 }
 
 $(document).ready( function() {
+
+    $("#lti13_legacy_key").hide();
+    $("#lti13_tool_public-input").hide();
+    $("#lti13_tool_private-input").hide();
     $("#pl_importitem").change(function(){
         checkCheckboxCombos();
     });
