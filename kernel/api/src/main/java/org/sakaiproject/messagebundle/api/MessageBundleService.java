@@ -178,6 +178,12 @@ public interface MessageBundleService {
     public void saveOrUpdate(String baseName, String moduleName, ResourceBundle newBundle, Locale loc);
 
     /**
+     * delete an existing MessageBundleProperty
+     * @param mbp the bundle property to delete
+     */
+    void deleteMessageBundleProperty(MessageBundleProperty mbp);
+
+    /**
      *
      * @param baseName - retrieve values for this baseName
      * @param moduleName - retrieve values for this moduleName
