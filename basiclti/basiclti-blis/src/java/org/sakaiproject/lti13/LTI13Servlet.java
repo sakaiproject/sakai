@@ -315,6 +315,7 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
+		// https://stackoverflow.com/a/43708457/1994792
 		try {
 			java.net.URL url = new java.net.URL(proxyUrl);
 			java.net.HttpURLConnection con = (java.net.HttpURLConnection) url.openConnection();
@@ -323,34 +324,35 @@ public class LTI13Servlet extends HttpServlet {
 			con.setReadTimeout(3000);
 			con.setInstanceFollowRedirects(true);
 
-			java.io.BufferedReader in = new java.io.BufferedReader(
-				new java.io.InputStreamReader(con.getInputStream()));
-			String inputLine;
-			StringBuffer content = new StringBuffer();
-			while ((inputLine = in.readLine()) != null) {
-				content.append(inputLine);
+			try ( java.io.BufferedReader in = new java.io.BufferedReader(
+				new java.io.InputStreamReader(con.getInputStream())) )
+			{
+				String inputLine;
+				StringBuffer content = new StringBuffer();
+				while ((inputLine = in.readLine()) != null) {
+					content.append(inputLine);
+				}
+				if ( content.length() > 10000 ) {
+					LTI13Util.return400(response, "Content too long");
+					return;
+				}
+
+				String jsonString = content.toString();
+
+				Object js = JSONValue.parse(jsonString);
+				if (js == null || !(js instanceof JSONObject)) {
+					LTI13Util.return400(response, "Badly formatted JSON");
+					return;
+				}
+
+				response.setContentType(APPLICATION_JSON);
+				PrintWriter out = response.getWriter();
+
+				out.println(((JSONObject) js).toJSONString());
+			} catch (Exception e) {
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			}
-			if ( content.length() > 10000 ) {
-				in.close();
-				LTI13Util.return400(response, "Content too long");
-				return;
-			}
-			in.close();
-
-			String jsonString = content.toString();
-
-			Object js = JSONValue.parse(jsonString);
-			if (js == null || !(js instanceof JSONObject)) {
-				LTI13Util.return400(response, "Badly formatted JSON");
-				return;
-			}
-
-			response.setContentType(APPLICATION_JSON);
-			PrintWriter out = response.getWriter();
-
-			out.println(((JSONObject) js).toJSONString());
 		} catch (Exception e) {
-			log.error(e.getMessage(), e);
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
 	}

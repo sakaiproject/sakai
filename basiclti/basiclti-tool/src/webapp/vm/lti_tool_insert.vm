@@ -108,7 +108,7 @@ function importLTI13Config() {
         }
     })
     .fail(function() {
-        console.log( "error retrieving tool configuration" );
+        alert("$tlang.getString("tool.import.error")" );
     });
 
 }
