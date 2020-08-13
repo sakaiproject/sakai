@@ -91,6 +91,21 @@ function importLTI13Config() {
                 jQuery("#description").val(data.description);
             }
         }
+        if ( data.deepLinkUrl ) {
+            let doDeepLink = confirm("$tlang.getString("tool.import.deeplink") "+data.deepLinkUrl);
+            if ( doDeepLink ) {
+                jQuery("#launch").val(data.deepLinkUrl);
+                jQuery("#lti13_on-input").prop("checked", true);
+                jQuery("#allowtitle_allow-input").prop("checked", true);
+                jQuery("#allowlaunch_allow-input").prop("checked", true);
+                jQuery("#allowconsumerkey_allow-input").prop("checked", true);
+                jQuery("#pl_launch").prop("checked", false);
+                jQuery("#pl_linkselection").prop("checked", true);
+                jQuery("#pl_lessonsselection").prop("checked", true);
+                jQuery("#pl_assessmentselection").prop("checked", true);
+                jQuery("#pl_contenteditor").prop("checked", true);
+            }
+        }
     })
     .fail(function() {
         console.log( "error retrieving tool configuration" );
@@ -121,7 +136,10 @@ $(document).ready( function() {
     var issuerURL = '$issuerURL';
 
     $( "#lti13-input" ).after(
-            '<p><input type="submit" onclick="importLTI13Config();return false;" class="btn btn-primary" value="$tlang.getString("tool.import.lti13")"/></p>' +
+            '<p><input type="submit" onclick="importLTI13Config();return false;" class="btn btn-primary" value="$tlang.getString("tool.import.lti13")"/>' +
+            '</p>');
+
+    $( "#lti13-input" ).after(
             '<p class="foorm-text" id="lti13_issuer_url">' +
             '<b>$tlang.getString('lti13_issuer_url')</b><br/>$issuerURL</p>' +
             '</p>');
