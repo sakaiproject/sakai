@@ -36,7 +36,6 @@ import java.util.TimerTask;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
-import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
@@ -110,6 +109,7 @@ public class MessageBundleServiceImpl implements MessageBundleService {
         }
     }
 
+    @Override
     @Transactional(readOnly = true)
     public int getSearchCount(String searchQuery, String module, String baseName, String locale) {
         Number count = 0;
@@ -155,6 +155,7 @@ public class MessageBundleServiceImpl implements MessageBundleService {
      * @param newBundle
      * @param loc
      */
+    @Override
     @Transactional
     public void saveOrUpdate(String baseName, String moduleName, ResourceBundle newBundle, Locale loc) {
         if (enabled && newBundle != null && loc != null && (StringUtils.isNotBlank(baseName) && StringUtils.isNotBlank(moduleName))) {
@@ -205,6 +206,7 @@ public class MessageBundleServiceImpl implements MessageBundleService {
         indexedList.add(keyName);
     }
 
+    @Override
     @Transactional(readOnly = true)
     public List<MessageBundleProperty> search(String searchQuery, String module, String baseName, String locale) {
 
@@ -247,11 +249,13 @@ public class MessageBundleServiceImpl implements MessageBundleService {
         return map;
     }
 
+    @Override
     @Transactional(readOnly = true)
     public MessageBundleProperty getMessageBundleProperty(long id) {
         return (MessageBundleProperty) sessionFactory.getCurrentSession().get(MessageBundleProperty.class, id);
     }
 
+    @Override
     @Transactional
     public void updateMessageBundleProperty(MessageBundleProperty mbp) {
         if (mbp == null) return;
@@ -261,6 +265,7 @@ public class MessageBundleServiceImpl implements MessageBundleService {
         sessionFactory.getCurrentSession().merge(mbp);
     }
 
+    @Override
     @Transactional
     public void deleteMessageBundleProperty(MessageBundleProperty mbp) {
         try {
@@ -288,6 +293,7 @@ public class MessageBundleServiceImpl implements MessageBundleService {
         return results.get(0);
     }
 
+    @Override
     @Transactional(readOnly = true)
     public Map<String, String> getBundle(String baseName, String moduleName, Locale loc) {
         Map<String, String> map = new HashMap<>();
@@ -309,23 +315,26 @@ public class MessageBundleServiceImpl implements MessageBundleService {
         return map;
     }
 
-    protected String getIndexKeyName(String baseName, String moduleName, String loc) {
+    static String getIndexKeyName(String baseName, String moduleName, String loc) {
         String context = moduleName != null ? moduleName : "";
         return context + "_" + baseName + "_" + loc;
     }
 
+    @Override
     @Transactional(readOnly = true)
     public int getModifiedPropertiesCount() {
         String query = "select count(*) from MessageBundleProperty where value != null";
         return executeCountQuery(query);
     }
 
+    @Override
     @Transactional(readOnly = true)
     public int getAllPropertiesCount() {
         String query = "select count(*) from MessageBundleProperty";
         return executeCountQuery(query);
     }
 
+    @Override
     @Transactional(readOnly = true)
     public List<MessageBundleProperty> getAllProperties(String locale, String basename, String module) {
 
@@ -345,6 +354,7 @@ public class MessageBundleServiceImpl implements MessageBundleService {
         return (List<MessageBundleProperty>) query.list();
     }
 
+    @Override
     @Transactional
     public int revertAll(final String locale) {
        Query query = sessionFactory.getCurrentSession().createQuery("update MessageBundleProperty set value = null where locale = :locale");
@@ -358,6 +368,7 @@ public class MessageBundleServiceImpl implements MessageBundleService {
         }
     }
 
+    @Override
     @Transactional
     public int importProperties(List<MessageBundleProperty> properties) {
         int rows = 0;
@@ -375,6 +386,7 @@ public class MessageBundleServiceImpl implements MessageBundleService {
         return rows;
     }
 
+    @Override
     @Transactional(readOnly = true)
     public List<String> getAllModuleNames() {
         Criteria query = sessionFactory.getCurrentSession().createCriteria(MessageBundleProperty.class)
@@ -386,6 +398,7 @@ public class MessageBundleServiceImpl implements MessageBundleService {
         return results;
     }
 
+    @Override
     @Transactional(readOnly = true)
     public List<String> getAllBaseNames() {
         Criteria query = sessionFactory.getCurrentSession().createCriteria(MessageBundleProperty.class)
@@ -396,6 +409,7 @@ public class MessageBundleServiceImpl implements MessageBundleService {
 
     }
 
+    @Override
     @Transactional
     public void revert(MessageBundleProperty mbp) {
         if (mbp == null) return;
@@ -417,6 +431,7 @@ public class MessageBundleServiceImpl implements MessageBundleService {
         return count.intValue();
     }
 
+    @Override
     @Transactional(readOnly = true)
     public List<MessageBundleProperty> getModifiedProperties(int sortOrder, int sortField, int startingIndex, int pageSize) {
         String orderBy = "asc";
@@ -465,6 +480,7 @@ public class MessageBundleServiceImpl implements MessageBundleService {
         queue.add(call);
     }
 
+    @Override
     @Transactional(readOnly = true)
     public List<String> getLocales() {
         return (List<String>) sessionFactory.getCurrentSession().getNamedQuery("findLocales").list();
@@ -497,6 +513,7 @@ public class MessageBundleServiceImpl implements MessageBundleService {
         /**
          * step through queue and call the real saveOrUpdateInternal method to do the work
          */
+        @Override
         public void run() {
             List<SaveOrUpdateCall> queueList = new ArrayList<>(queue);
             transactionTemplate.execute(
