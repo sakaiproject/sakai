@@ -240,12 +240,36 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 
 		// OK
 		if (validated) {
+
+			Long assignmentId = null;
+			boolean success = true;
+
+			try {
+				if (AddOrEditGradeItemPanel.this.mode == UiMode.EDIT) {
+					assignmentId = assignment.getId();
+					AddOrEditGradeItemPanel.this.businessService.updateAssignment(assignment);
+				} 
+				else {
+					assignmentId = AddOrEditGradeItemPanel.this.businessService.addAssignment(assignment);
+				}
+				rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignmentId.toString(), getRubricParameters(""));
+			}
+			catch (final AssignmentHasIllegalPointsException e) {
+				error(new ResourceModel("error.addgradeitem.points").getObject());
+				success = false;
+			} catch (final ConflictingAssignmentNameException e) {
+				error(new ResourceModel("error.addgradeitem.title").getObject());
+				success = false;
+			} catch (final ConflictingExternalIdException e) {
+				error(new ResourceModel("error.addgradeitem.exception").getObject());
+				success = false;
+			} catch (final Exception e) {
+				error(new ResourceModel("error.addgradeitem.exception").getObject());
+				success = false;
+			}
+				
 			if (AddOrEditGradeItemPanel.this.mode == UiMode.EDIT) {
-
-				final boolean success = AddOrEditGradeItemPanel.this.businessService.updateAssignment(assignment);
-
 				if (success) {
-					rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignment.getId().toString(), getRubricParameters(""));
 					getSession().success(MessageFormat.format(getString("message.edititem.success"), assignment.getName()));
 					setResponsePage(getPage().getPageClass(),
 							new PageParameters().add(GradebookPage.FOCUS_ASSIGNMENT_ID_PARAM, assignment.getId()));
@@ -255,27 +279,7 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 				}
 
 			} else {
-
-				Long assignmentId = null;
-
-				boolean success = true;
-				try {
-					assignmentId = AddOrEditGradeItemPanel.this.businessService.addAssignment(assignment);
-				} catch (final AssignmentHasIllegalPointsException e) {
-					error(new ResourceModel("error.addgradeitem.points").getObject());
-					success = false;
-				} catch (final ConflictingAssignmentNameException e) {
-					error(new ResourceModel("error.addgradeitem.title").getObject());
-					success = false;
-				} catch (final ConflictingExternalIdException e) {
-					error(new ResourceModel("error.addgradeitem.exception").getObject());
-					success = false;
-				} catch (final Exception e) {
-					error(new ResourceModel("error.addgradeitem.exception").getObject());
-					success = false;
-				}
 				if (success) {
-					rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignmentId.toString(), getRubricParameters(""));
 					final String successMessage = MessageFormat.format(getString("notification.addgradeitem.success"), assignment.getName());
 					getSession()
 							.success(successMessage);

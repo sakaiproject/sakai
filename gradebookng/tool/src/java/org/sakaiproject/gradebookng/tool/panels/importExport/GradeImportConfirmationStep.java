@@ -202,11 +202,14 @@ public class GradeImportConfirmationStep extends BasePanel {
 					final Assignment assignment = GradeImportConfirmationStep.this.businessService.getAssignment(item.getItemTitle());
 					assignment.setPoints(points);
 
-					final boolean updated = GradeImportConfirmationStep.this.businessService.updateAssignment(assignment);
-					if (!updated) {
+					try {
+						GradeImportConfirmationStep.this.businessService.updateAssignment(assignment);
+					}
+					catch (final Exception e) {
 						getSession().error(MessageHelper.getString("importExport.error.pointsmodification", assignment.getName()));
 						GradeImportConfirmationStep.this.errors = true;
 						errorColumns.add(item);
+						log.warn("An error occurred updating the assignment", e);
 					}
 
 					assignmentMap.put(StringUtils.trim(assignment.getName()), assignment.getId());
