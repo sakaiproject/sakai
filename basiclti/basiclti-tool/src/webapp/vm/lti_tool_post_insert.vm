@@ -15,12 +15,6 @@
     <i class="fa fa-clipboard" aria-hidden="true"></i> $tlang.getString('gen.clipboard')</button>
     </p>
 
-    <p class="foorm-text" id="lti13_deployment_id">
-    <b>$tlang.getString('lti13_deployment_id')</b><br/>$deploymentId
-    <button onclick="copyToClipboardNoScroll(this, '$deploymentId');return false;">
-    <i class="fa fa-clipboard" aria-hidden="true"></i> $tlang.getString('gen.clipboard')</button>
-    </p>
-
     <p class="foorm-text" id="lti13_keyset_url">
     <b>$tlang.getString('lti13_keyset_url')</b><br/>$keySetUrl
     <button onclick="copyToClipboardNoScroll(this, '$keySetUrl');return false;">
@@ -39,6 +33,13 @@
     <button onclick="copyToClipboardNoScroll(this, '$authOIDC');return false;">
     <i class="fa fa-clipboard" aria-hidden="true"></i> $tlang.getString('gen.clipboard')</button>
     </p>
+
+    <p class="foorm-text" id="lti13_deployment_id">
+    <b>$tlang.getString('lti13_deployment_id')</b><br/>$deploymentId
+    <button onclick="copyToClipboardNoScroll(this, '$deploymentId');return false;">
+    <i class="fa fa-clipboard" aria-hidden="true"></i> $tlang.getString('gen.clipboard')</button>
+    </p>
+
 <p>
 <a class="btn btn-primary" accesskey="x" href="$sakai_ActionURL.setPanel("ToolSystem")">$tlang.getString('gen.done')</a>
 </p>

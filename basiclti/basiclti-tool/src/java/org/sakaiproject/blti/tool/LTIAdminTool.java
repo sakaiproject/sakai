@@ -720,6 +720,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		String issuerURL = SakaiBLTIUtil.getIssuer(site_id);
 		context.put("issuerURL", issuerURL);
 
+		String proxyUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/proxy";
+		context.put("proxyUrl", proxyUrl);
+
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_tool_insert";
 	}
@@ -817,6 +820,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		String site_id = null;
 		String issuerURL = SakaiBLTIUtil.getIssuer(site_id);
 		context.put("issuerURL", issuerURL);
+
+		String proxyUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/proxy";
+		context.put("proxyUrl", proxyUrl);
 
 		state.removeAttribute(STATE_POST);
 		state.removeAttribute(STATE_SUCCESS);
