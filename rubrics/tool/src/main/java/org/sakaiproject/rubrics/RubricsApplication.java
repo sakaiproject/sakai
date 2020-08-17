@@ -23,35 +23,42 @@
 package org.sakaiproject.rubrics;
 
 import java.util.Arrays;
+
 import javax.servlet.DispatcherType;
+import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
-import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.impl.SpringCompMgr;
 import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.ToolListener;
 import org.springframework.boot.Banner;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
-import org.springframework.boot.web.support.SpringBootServletInitializer;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Configuration
-@EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class, HibernateJpaAutoConfiguration.class})
-@SpringBootApplication
+@SpringBootApplication(exclude={DataSourceAutoConfiguration.class, HibernateJpaAutoConfiguration.class})
 @Slf4j
 public class RubricsApplication extends SpringBootServletInitializer {
+
+    @Override
+    public void onStartup(ServletContext servletContext) throws ServletException {
+        super.onStartup(servletContext);
+        servletContext.addListener(ToolListener.class);
+    }
 
     /**
      * Required per http://docs.spring.io/spring-boot/docs/current/reference/html/howto-traditional-deployment.html
@@ -69,15 +76,10 @@ public class RubricsApplication extends SpringBootServletInitializer {
     }
 
     @Bean
-    public ServletRegistrationBean rubricsServlet() {
-        ServletRegistrationBean srb = new ServletRegistrationBean(new DispatcherServlet(new AnnotationConfigWebApplicationContext())) {
-            @Override
-            public void onStartup(ServletContext servletContext) throws ServletException {
-                super.onStartup(servletContext);
-                servletContext.addListener(ToolListener.class);
-                // servletContext.addListener(SakaiContextLoaderListener.class);
-            }
-        };
+    public ServletRegistrationBean<Servlet> rubricsServlet() {
+        AnnotationConfigWebApplicationContext wac = new AnnotationConfigWebApplicationContext();
+        wac.setAllowBeanDefinitionOverriding(true);
+        ServletRegistrationBean<Servlet> srb = new ServletRegistrationBean<>(new DispatcherServlet(wac));
         srb.setName("sakai.rubrics");
         srb.setLoadOnStartup(0);
         srb.addUrlMappings("/", "/index");

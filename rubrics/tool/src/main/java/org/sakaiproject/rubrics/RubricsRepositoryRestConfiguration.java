@@ -29,15 +29,20 @@ import org.sakaiproject.rubrics.logic.model.Rating;
 import org.sakaiproject.rubrics.logic.model.Rubric;
 import org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
-import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurerAdapter;
-import org.springframework.hateoas.Resource;
+import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
+import org.springframework.hateoas.EntityModel;
 
 @Configuration
-public class AppRepositoryRestConfiguration extends RepositoryRestConfigurerAdapter {
+@EnableJpaRepositories(entityManagerFactoryRef = "entityManagerFactory", transactionManagerRef = "jpaTransactionManager")
+public class RubricsRepositoryRestConfiguration implements RepositoryRestConfigurer {
 
     @Override
     public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config) {
-        config.exposeIdsFor(Rubric.class, Criterion.class, Rating.class, ToolItemRubricAssociation.class, Evaluation.class, Resource.class, CriterionOutcome.class);
+        config.setBasePath("/rest");
+        config.setReturnBodyOnCreate(true);
+        config.setReturnBodyOnUpdate(true);
+        config.exposeIdsFor(Rubric.class, Criterion.class, Rating.class, ToolItemRubricAssociation.class, Evaluation.class, EntityModel.class, CriterionOutcome.class);
     }
 }

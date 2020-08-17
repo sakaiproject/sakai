@@ -98,7 +98,7 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
      * @return
      */
     public boolean canRead(Long resourceId, String resourceType) {
-        Modifiable resource = repositories.get(resourceType).findOne(resourceId);
+        Modifiable resource = repositories.get(resourceType).findById(resourceId).get();
         boolean result = resource.getModified().isShared() || isAuthorizedToAccessContextResource(resourceId, resourceType);
         if (result) result = verifyResourceSpecificReadRules(resource);
         return result;
@@ -145,7 +145,7 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
         boolean allowed = authenticatedRequestContext.isSuperUser();
         if (!allowed) {
             String currentUserId = authenticatedRequestContext.getUserId();
-            Modifiable resource = repositories.get(resourceType).findOne(resourceId);
+            Modifiable resource = repositories.get(resourceType).findById(resourceId).get();
             // Allow if the current user is an editor on the source site, or created the source resource.
             allowed = securityService.unlock(currentUserId, "rubrics.editor", "/site/" + resource.getModified().getOwnerId())
                 || resource.getModified().getCreatorId().equalsIgnoreCase(currentUserId);

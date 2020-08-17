@@ -22,8 +22,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Query;
 import org.sakaiproject.tool.assessment.data.dao.assessment.FavoriteColChoices;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
-import org.springframework.orm.hibernate4.HibernateCallback;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.HibernateCallback;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 @Slf4j
 public class FavoriteColChoicesFacadeQueries extends HibernateDaoSupport implements FavoriteColChoicesFacadeQueriesAPI {

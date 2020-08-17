@@ -39,9 +39,8 @@ import org.sakaiproject.api.app.postem.data.Template;
 import org.sakaiproject.component.app.postem.data.GradebookImpl;
 import org.sakaiproject.component.app.postem.data.StudentGradesImpl;
 import org.sakaiproject.component.app.postem.data.TemplateImpl;
-import org.springframework.orm.hibernate4.HibernateCallback;
-import org.springframework.orm.hibernate4.HibernateTemplate;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.HibernateCallback;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 public class GradebookManagerImpl extends HibernateDaoSupport implements
 		GradebookManager, Serializable {

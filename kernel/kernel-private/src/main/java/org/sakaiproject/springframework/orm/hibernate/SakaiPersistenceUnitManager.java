@@ -40,7 +40,7 @@ public class SakaiPersistenceUnitManager extends DefaultPersistenceUnitManager {
 
     @Override
     public void preparePersistenceUnitInfos() {
-        MutablePersistenceUnitInfo pui = new MutablePersistenceUnitInfo();
+        MutablePersistenceUnitInfo pui = new SakaiMutablePersistenceUnitInfo();
         pui.setPersistenceUnitName(defaultPersistenceUnitName);
         pui.setExcludeUnlistedClasses(true);
 

@@ -23,6 +23,7 @@
 package org.sakaiproject.rubrics.logic.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation;
 import org.springframework.data.domain.Page;
@@ -38,7 +39,7 @@ public interface ToolItemRubricAssociationRepository extends MetadataRepository<
 
     @Override
     @PreAuthorize("canRead(#id, 'ToolItemRubricAssociation')")
-    ToolItemRubricAssociation findOne(Long id);
+    Optional<ToolItemRubricAssociation> findById(Long id);
 
     @Override
     @Query("select resource from ToolItemRubricAssociation resource where " + QUERY_CONTEXT_CONSTRAINT)
@@ -46,7 +47,7 @@ public interface ToolItemRubricAssociationRepository extends MetadataRepository<
 
     @Override
     @PreAuthorize("canWrite(#id, 'ToolItemRubricAssociation')")
-    void delete(Long id);
+    void deleteById(Long id);
 
     @RestResource(path = "by-tool-item-ids", rel = "by-tool-item-ids")
     @Query("select resource from ToolItemRubricAssociation resource where resource.toolId = :toolId and resource.itemId = :itemId and " + QUERY_CONTEXT_CONSTRAINT)

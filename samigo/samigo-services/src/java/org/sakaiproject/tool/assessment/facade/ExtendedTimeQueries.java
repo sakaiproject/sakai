@@ -24,12 +24,13 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.type.ManyToOneType;
 import org.hibernate.type.StringType;
+import org.hibernate.type.spi.TypeConfiguration;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate4.HibernateCallback;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.HibernateCallback;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 /**
  * @author Leonardo Canessa [lcanessa1 (at) udayton (dot) edu]
@@ -54,7 +55,7 @@ public class ExtendedTimeQueries extends HibernateDaoSupport implements Extended
         try {
             HibernateCallback hcb = (Session s) -> {
                 Query q = s.getNamedQuery(QUERY_GET_ENTRIES_FOR_ASSESSMENT);
-                q.setParameter(ASSESSMENT_ID, ass, new ManyToOneType(null, "org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentBaseData"));
+                q.setParameter(ASSESSMENT_ID, ass, new ManyToOneType(TypeConfiguration::new, "org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentBaseData"));
                 return q.list();
             };
             return (List<ExtendedTime>) getHibernateTemplate().execute(hcb);
@@ -74,7 +75,7 @@ public class ExtendedTimeQueries extends HibernateDaoSupport implements Extended
         try {
             HibernateCallback hcb = (Session s) -> {
                 Query q = s.getNamedQuery(QUERY_GET_ENTRIES_FOR_PUBLISHED);
-                q.setParameter(PUBLISHED_ID, pub, new ManyToOneType(null, "org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData"));
+                q.setParameter(PUBLISHED_ID, pub, new ManyToOneType(TypeConfiguration::new, "org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData"));
                 return q.list();
             };
 
@@ -145,7 +146,7 @@ public class ExtendedTimeQueries extends HibernateDaoSupport implements Extended
         try{
             HibernateCallback hcb = (Session s) -> {
                 Query q = s.getNamedQuery(query);
-                q.setParameter(PUBLISHED_ID, pub, new ManyToOneType(null, "org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData"));
+                q.setParameter(PUBLISHED_ID, pub, new ManyToOneType(TypeConfiguration::new, "org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData"));
                 q.setParameter(secondParam, secondParamValue, new StringType());
                 return q.uniqueResult();
             };

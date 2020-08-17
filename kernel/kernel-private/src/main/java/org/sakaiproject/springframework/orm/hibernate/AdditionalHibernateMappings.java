@@ -24,7 +24,7 @@ package org.sakaiproject.springframework.orm.hibernate;
 import java.io.IOException;
 
 import org.springframework.core.io.Resource;
-import org.springframework.orm.hibernate4.LocalSessionFactoryBuilder;
+import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
 import org.springframework.orm.jpa.persistenceunit.MutablePersistenceUnitInfo;
 
 /**

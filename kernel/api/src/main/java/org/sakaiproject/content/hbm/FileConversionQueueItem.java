@@ -59,7 +59,7 @@ public class FileConversionQueueItem {
     private Integer attempts;
 
     @Column(name = "LAST_ATTEMPT_STARTED")
-    @Type(type = "org.sakaiproject.springframework.orm.hibernate.type.InstantType")
+    @Type(type = "org.hibernate.type.InstantType")
     private Instant lastAttemptStarted;
 
     public enum Status {

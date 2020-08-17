@@ -29,8 +29,8 @@ import java.util.List;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.orm.hibernate4.HibernateCallback;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.HibernateCallback;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;

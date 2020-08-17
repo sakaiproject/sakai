@@ -25,7 +25,7 @@
 
 
     <bean id="helpSessionFactory"
-          class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+          class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
         <property name="dataSource" ref="helpDataSource"/>
         <property name="hibernateProperties">
             <props>
@@ -46,7 +46,7 @@
     </bean>
 
     <bean id="helpTransactionManager"
-          class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+          class="org.springframework.orm.hibernate5.HibernateTransactionManager">
         <property name="sessionFactory">
             <ref bean="helpSessionFactory" />
         </property>

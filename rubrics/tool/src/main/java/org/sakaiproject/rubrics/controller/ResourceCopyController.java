@@ -71,27 +71,27 @@ public class ResourceCopyController {
     @RequestMapping(value = "/rubrics", method = RequestMethod.POST, headers = {X_COPY_HEADER,X_LANG_HEADER})
     ResponseEntity<Rubric> copyRubric(@Param("sourceId") @RequestHeader(value = X_COPY_HEADER) String sourceId, @RequestHeader(value = X_LANG_HEADER) String lang)
             throws CloneNotSupportedException {
-        Rubric sourceRubric = null;
         Rubric clonedRubric = null;
         if ("default".equalsIgnoreCase(sourceId)) {
-            sourceRubric = rubricsConfiguration.getInstance().getDefaultLayoutConfiguration(lang).getDefaultRubric();
+            Rubric sourceRubric = rubricsConfiguration.getInstance().getDefaultLayoutConfiguration(lang).getDefaultRubric();
             clonedRubric = sourceRubric.clone();
         } else {
-            sourceRubric = rubricRepository.findOne(Long.parseLong(sourceId));
+            Rubric sourceRubric = rubricRepository.findById(Long.parseLong(sourceId))
+                    .orElseGet(() -> rubricsConfiguration.getInstance().getDefaultLayoutConfiguration(lang).getDefaultRubric());
             clonedRubric = sourceRubric.clone();
-            clonedRubric.setTitle(sourceRubric.getTitle() + " Copy");
+            clonedRubric.setTitle(clonedRubric.getTitle() + " Copy");
         }
         clonedRubric = rubricRepository.save(clonedRubric);
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(repositoryEntityLinks.linkFor(Rubric.class).slash(clonedRubric.getId()).toUri());
-        return new ResponseEntity<Rubric>(clonedRubric, headers, HttpStatus.CREATED);
+        return new ResponseEntity<>(clonedRubric, headers, HttpStatus.CREATED);
     }
 
     @PreAuthorize("canCopy(#sourceId, 'Rubric')")
     @RequestMapping(value = "/rubrics/clone", method = RequestMethod.POST, headers = {X_COPY_HEADER,X_SITE_HEADER})
     ResponseEntity<Rubric> copyRubricToSite(@Param("sourceId") @RequestHeader(value = X_COPY_HEADER) String sourceId, @RequestHeader(value = X_SITE_HEADER) String site)
             throws CloneNotSupportedException {
-        Rubric sourceRubric = rubricRepository.findOne(Long.parseLong(sourceId));
+        Rubric sourceRubric = rubricRepository.findById(Long.parseLong(sourceId)).get();
         Rubric clonedRubric = sourceRubric.clone(site);
         clonedRubric = rubricRepository.save(clonedRubric);
         HttpHeaders headers = new HttpHeaders();
@@ -109,7 +109,7 @@ public class ResourceCopyController {
             sourceCriterion = rubricsConfiguration.getInstance().getDefaultLayoutConfiguration(lang).getDefaultCriterion();
             clonedCriterion = sourceCriterion.clone();
         } else {
-            sourceCriterion = criterionRepository.findOne(Long.parseLong(sourceId));
+            sourceCriterion = criterionRepository.findById(Long.parseLong(sourceId)).get();
             clonedCriterion = sourceCriterion.clone();
             clonedCriterion.setTitle(sourceCriterion.getTitle() + " Copy");
         }
@@ -129,7 +129,7 @@ public class ResourceCopyController {
             sourceRating = rubricsConfiguration.getInstance().getDefaultLayoutConfiguration(lang).getDefaultRating();
             clonedRating = sourceRating.clone();
         } else {
-            sourceRating = ratingRepository.findOne(Long.parseLong(sourceId));
+            sourceRating = ratingRepository.findById(Long.parseLong(sourceId)).get();
             clonedRating = sourceRating.clone();
             clonedRating.setTitle(sourceRating.getTitle() + " Copy");
         }

@@ -68,8 +68,6 @@ public interface AssignmentRepository extends SerializableRepository<Assignment,
 
     AssignmentSubmission findSubmissionForGroup(String assignmentId, String groupId);
 
-    void initializeAssignment(Assignment assignment);
-
     /**
      * Count submissions for a given assignment.
      * If any of the parameters are null they are not included in the query.

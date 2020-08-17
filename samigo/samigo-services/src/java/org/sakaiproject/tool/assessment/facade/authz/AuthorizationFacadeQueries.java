@@ -33,8 +33,8 @@ import org.sakaiproject.tool.assessment.data.ifc.authz.AuthorizationIfc;
 import org.sakaiproject.tool.assessment.data.ifc.authz.QualifierIfc;
 import org.sakaiproject.tool.assessment.facade.DataFacadeException;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
-import org.springframework.orm.hibernate4.HibernateCallback;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.HibernateCallback;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 @Slf4j
 public class AuthorizationFacadeQueries extends HibernateDaoSupport implements AuthorizationFacadeQueriesAPI{
