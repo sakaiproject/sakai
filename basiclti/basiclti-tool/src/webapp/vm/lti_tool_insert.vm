@@ -67,6 +67,52 @@ function checkCheckboxCombos() {
    }
 }
 
+function importLTI13Config() {
+
+    var importUrl = prompt("$tlang.getString("tool.import.prompt")", '');
+    importUrl = '$proxyUrl' + '?proxyUrl=' + importUrl;
+    console.log(importUrl);
+
+    jQuery.getJSON( importUrl, function(data) {
+        console.log(data);
+        if ( data.oidcConnect ) jQuery("#lti13_oidc_endpoint").val(data.oidcConnect);
+        if ( data.keySetUrl ) jQuery("#lti13_tool_keyset").val(data.keySetUrl);
+        if ( data.oidcRedirect ) jQuery("#lti13_oidc_redirect").val(data.oidcRedirect);
+        if ( data.title ) {
+            let doTitle = confirm("$tlang.getString("tool.import.title") "+data.title);
+            if ( doTitle ) {
+                jQuery("#title").val(data.title);
+                jQuery("#pagetitle").val(data.title);
+            }
+        };
+        if ( data.description ) {
+            let doDescription = confirm("$tlang.getString("tool.import.description") "+data.description);
+            if ( doDescription ) {
+                jQuery("#description").val(data.description);
+            }
+        }
+        if ( data.deepLinkUrl ) {
+            let doDeepLink = confirm("$tlang.getString("tool.import.deeplink") "+data.deepLinkUrl);
+            if ( doDeepLink ) {
+                jQuery("#launch").val(data.deepLinkUrl);
+                jQuery("#lti13_on-input").prop("checked", true);
+                jQuery("#allowtitle_allow-input").prop("checked", true);
+                jQuery("#allowlaunch_allow-input").prop("checked", true);
+                jQuery("#allowconsumerkey_allow-input").prop("checked", true);
+                jQuery("#pl_launch").prop("checked", false);
+                jQuery("#pl_linkselection").prop("checked", true);
+                jQuery("#pl_lessonsselection").prop("checked", true);
+                jQuery("#pl_assessmentselection").prop("checked", true);
+                jQuery("#pl_contenteditor").prop("checked", true);
+            }
+        }
+    })
+    .fail(function() {
+        alert("$tlang.getString("tool.import.error")" );
+    });
+
+}
+
 $(document).ready( function() {
     $("#pl_importitem").change(function(){
         checkCheckboxCombos();
@@ -84,6 +130,10 @@ $(document).ready( function() {
     var toolorderspinner = $("#toolorder").spinner({min:0,max:99});
 
     var issuerURL = '$issuerURL';
+
+    $( "#lti13-input" ).after(
+            '<p><input type="submit" onclick="importLTI13Config();return false;" class="btn btn-primary" value="$tlang.getString("tool.import.lti13")"/>' +
+            '</p>');
 
     $( "#lti13-input" ).after(
             '<p class="foorm-text" id="lti13_issuer_url">' +
