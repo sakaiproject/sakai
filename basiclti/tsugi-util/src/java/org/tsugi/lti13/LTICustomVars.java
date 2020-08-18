@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
  * implied. See the License for the specific language governing
  * permissions and limitations under the License.
- * 
+ *
  */
 package org.tsugi.lti13;
 
@@ -64,7 +64,7 @@ public class LTICustomVars {
 	/**
 	 * USER_SCOPE_MENTOR
 	 *
-	 *  role_scope_mentor message property value. 
+	 *  role_scope_mentor message property value.
 	 */
 	public static final String USER_SCOPE_MENTOR = "User.scope.mentor";
 
@@ -361,14 +361,14 @@ public class LTICustomVars {
 	 * copies of the context; the ID of most recent copy should appear first in the
 	 * list followed by any earlier IDs in reverse chronological order. If the
 	 * context was created from scratch, not as a copy of an existing context,
-	 * then this variable should have an empty value. 
+	 * then this variable should have an empty value.
 	 */
 	public static final String CONTEXT_ID_HISTORY = "Context.id.history";
 
 	/**
 	 * RESOURCELINK_ID
 	 *
-	 *  This is the local identifier for the resource link within the Tool 
+	 *  This is the local identifier for the resource link within the Tool
 	 *  Consumer system from which the launch occurred.
 	 */
 	public static final String RESOURCELINK_ID = "ResourceLink.id";
@@ -391,11 +391,11 @@ public class LTICustomVars {
 	/**
 	 * RESOURCELINK_ID_HISTORY
 	 *
-	 * A comma-separated list of URL-encoded resource link ID values representing 
+	 * A comma-separated list of URL-encoded resource link ID values representing
 	 * the ID of the link from a previous copy of the context; the most recent
 	 * copy should appear first in the list followed by any earlier IDs in reverse
 	 * chronological order. If the link was first added to the current context
-	 * then this variable should have an empty value. 
+	 * then this variable should have an empty value.
 	 */
 	public static final String RESOURCELINK_ID_HISTORY = "ResourceLink.id.history";
 
@@ -858,6 +858,90 @@ public class LTICustomVars {
 	public static final String MEMBERSHIP_STATUS = "Membership.status";
 
 	/**
+	 * MESSAGE_RETURNURL
+	 *
+	 * URL for returning the user to the platform (for example, the launch_presentation.return_url property).
+	 */
+	public static final String MESSAGE_RETURNURL = "Message.returnUrl";
+
+	/**
+	 * MESSAGE_DOCUMENTTARGET
+	 *
+	 * launch_presentation.document_target property.
+	 */
+	public static final String MESSAGE_DOCUMENTTARGET = "Message.documentTarget";
+
+	/**
+	 * MESSAGE_HEIGHT
+	 *
+	 * launch_presentation.height property.
+	 */
+	public static final String MESSAGE_HEIGHT = "Message.height";
+
+	/**
+	 * MESSAGE_WIDTH
+	 *
+	 * launch_presentation.width property.
+	 */
+	public static final String MESSAGE_WIDTH = "Message.width";
+
+	/**
+	 * MESSAGE_LOCALE
+	 *
+	 *  The locale of this launch
+	 */
+	public static final String MESSAGE_LOCALE = "Message.locale";
+
+	/**
+	 * TOOLPLATFORM_PRODUCTFAMILYCODE
+	 *
+	 *  tool_platform.product_family_code property
+	 */
+	public static final String TOOLPLATFORM_PRODUCTFAMILYCODE = "ToolPlatform.productFamilyCode";
+
+	/**
+	 * TOOLPLATFORM_VERSION
+	 *
+	 *  tool_platform.version property
+	 */
+	public static final String TOOLPLATFORM_VERSION = "ToolPlatform.version";
+
+	/**
+	 * TOOLPLATFORMINSTANCE_GUID
+	 *
+	 *  tool_platform.instance_guid property
+	 */
+	public static final String  TOOLPLATFORMINSTANCE_GUID = "ToolPlatformInstance.guid";
+
+	/**
+	 * TOOLPLATFORMINSTANCE_NAME
+	 *
+	 *  tool_platform.instance_name property
+	 */
+	public static final String  TOOLPLATFORMINSTANCE_NAME = "ToolPlatformInstance.name";
+
+	/**
+	 * TOOLPLATFORMINSTANCE_DESCRIPTION
+	 *
+	 *  tool_platform.instance_description property
+	 */
+	public static final String  TOOLPLATFORMINSTANCE_DESCRIPTION = "ToolPlatformInstance.description";
+
+	/**
+	 * TOOLPLATFORMINSTANCE_URL
+	 *
+	 *  tool_platform.instance_url property
+	 */
+	public static final String  TOOLPLATFORMINSTANCE_URL = "ToolPlatformInstance.url";
+
+	/**
+	 * TOOLPLATFORMINSTANCE_CONTACTEMAIL
+	 *
+	 *  tool_platform.instance_contact_email property
+	 */
+	public static final String  TOOLPLATFORMINSTANCE_CONTACTEMAIL = "ToolPlatformInstance.contactEmail";
+
+	/**
 	 * LINEITEM_DATASOURCE
 	 *
 	 *  An identifier for the original source system of the LineItem record.
@@ -865,28 +949,6 @@ public class LTICustomVars {
 	 *  <code>lineItemRecord/lineItem/dataSource  </code>
 	 */
 	public static final String LINEITEM_DATASOURCE = "LineItem.dataSource";
-
-	/**
-	 * MESSAGE_RETURNURL
-	 *
-	 * URL for returning the user to the platform (for example, the launch_presentation.return_url property).
-	 */
-	public static final String MESSAGE_RETURNURL = "Message.returnUrl";
-	
-	/* TODO:
-		Message.documentTarget 	launch_presentation.document_target property.
-		Message.height 	launch_presentation.height property.
-		Message.width 	launch_presentation.width property.
-		Message.locale 	launch_presentation.locale property.
-
-		ToolPlatform.productFamilyCode 	tool_platform.product_family_code property.
-		ToolPlatform.version 	tool_platform.version property.
-		ToolPlatformInstance.guid 	tool_platform.instance_guid property.
-		ToolPlatformInstance.name 	tool_platform.instance_name property.
-		ToolPlatformInstance.description 	tool_platform.instance_description property.
-		ToolPlatformInstance.url 	tool_platform.instance_url property.
-		ToolPlatformInstance.contactEmail 	tool_platform.instance_contact_email property.
-	*/
 
 	/**
 	 * LINEITEM_RESULTVALUE_MAX
@@ -976,7 +1038,7 @@ public class LTICustomVars {
 	/**
 	 * RESULT_SOURCEDID
 	 *
-	 *  The LIS identifier for the Result resource.  
+	 *  The LIS identifier for the Result resource.
 	 */
 	public static final String RESULT_SOURCEDID = "Result.sourcedId";
 
@@ -1016,67 +1078,64 @@ public class LTICustomVars {
 	 */
 	public static final String TOOLCONSUMERINFO_VERSION = "ToolConsumerInfo.version";
 
-
-
-	/**
-	 * TOOLPROXY_CUSTOM_URL
-	 *
-	 *  The endpoint URL for accessing system-wide tool settings.
-	 */
-	public static final String TOOLPROXY_CUSTOM_URL = "ToolProxy.custom.url";
-
-	/**
-	 * TOOLPROXYBINDING_CUSTOM_URL
-	 *
-	 *  The endpoint URL for accessing context-level tool settings.
-	 */
-	public static final String TOOLPROXYBINDING_CUSTOM_URL = "ToolProxyBinding.custom.url";
-
-	/**
-	 * MESSAGE_LOCALE
-	 *
-	 *  The locale of this launch
-	 */
-	public static final String MESSAGE_LOCALE = "Message.locale";
-
 	/**
 	 * ALL_VARIABLES - A list of all of the subsitution variables
 	 */
 	public static final String ALL_VARIABLES [] = {
-		CONTEXT_ORG, COURSEOFFERING_ACADEMICSESSION, COURSEOFFERING_CREDITS,
-		COURSEOFFERING_LABEL, COURSEOFFERING_LONGDESCRIPTION, COURSEOFFERING_SHORTDESCRIPTION,
-		COURSEOFFERING_SOURCEDID, COURSEOFFERING_TITLE, COURSESECTION_COURSENUMBER,
-		COURSESECTION_CREDITS, COURSESECTION_DATASOURCE, COURSESECTION_DEPT,
-		COURSESECTION_ENROLLCONTROL_ALLOWED, COURSESECTION_ENROLLCONTROLL_ACCEPT, COURSESECTION_LABEL,
-		COURSESECTION_LONGDESCRIPTION, COURSESECTION_MAXNUMBEROFSTUDENTS, 
-		COURSESECTION_NUMBEROFSTUDENTS,
-		COURSESECTION_SHORTDESCRIPTION, COURSESECTION_SOURCESECTIONID, COURSESECTION_SOURCEDID,
-		COURSESECTION_TIMEFRAME_BEGIN, COURSESECTION_TIMEFRAME_END, COURSESECTION_TITLE,
-		COURSETEMPLATE_COURSENUMBER, COURSETEMPLATE_CREDITS, COURSETEMPLATE_LABEL,
-		COURSETEMPLATE_LONGDESCRIPTION, COURSETEMPLATE_SHORTDESCRIPTION, COURSETEMPLATE_SOURCEDID,
-		COURSETEMPLATE_TITLE, GROUP_EMAIL, GROUP_ENROLLCONTROL_ACCEPT,
-		GROUP_ENROLLCONTROL_ALLOWED, GROUP_TYPEVALUE, GROUP_LONGDESCRIPTION,
-		GROUP_PARENTID, GROUP_SHORTDESCRIPTION, GROUP_SOURCEDID,
-		GROUP_TIMEFRAME_BEGIN, GROUP_TIMEFRAME_END, GROUP_URL,
-		LINEITEM_DATASOURCE, LINEITEM_RESULTVALUE_MAX, LINEITEM_SOURCEDID,
-		LINEITEM_TYPE, LINEITEM_TYPE_DISPLAYNAME, LTILINK_CUSTOM_URL,
-		MEMBERSHIP_COLLECTIONSOURCEDID, MEMBERSHIP_CREATEDTIMESTAMP, MEMBERSHIP_DATASOURCE,
-		MEMBERSHIP_PERSONSOURCEDID, MEMBERSHIP_ROLE, MEMBERSHIP_SOURCEDID,
-		MEMBERSHIP_STATUS, PERSON_ADDRESS_COUNTRY, PERSON_ADDRESS_LOCALITY,
-		PERSON_ADDRESS_POSTCODE, PERSON_ADDRESS_STATEPR, PERSON_ADDRESS_STREET1,
-		PERSON_ADDRESS_STREET2, PERSON_ADDRESS_STREET3, PERSON_ADDRESS_STREET4,
-		PERSON_ADDRESS_TIMEZONE, PERSON_EMAIL_PERSONAL, PERSON_EMAIL_PRIMARY,
+		USER_ID, USER_IMAGE, USER_USERNAME, USER_ORG, USER_SCOPE_MENTOR,
+		PERSON_ADDRESS_COUNTRY, PERSON_ADDRESS_LOCALITY, PERSON_ADDRESS_POSTCODE,
+		PERSON_ADDRESS_STATEPR, PERSON_ADDRESS_STREET1, PERSON_ADDRESS_STREET2,
+		PERSON_ADDRESS_STREET3, PERSON_ADDRESS_STREET4, PERSON_ADDRESS_TIMEZONE,
+		PERSON_EMAIL_PERSONAL, PERSON_EMAIL_PRIMARY,
 		PERSON_NAME_FAMILY, PERSON_NAME_FULL, PERSON_NAME_GIVEN,
 		PERSON_NAME_MIDDLE, PERSON_NAME_PREFIX, PERSON_NAME_SUFFIX,
-		PERSON_PHONE_HOME, PERSON_PHONE_MOBILE, PERSON_PHONE_PRIMARY,
-		PERSON_PHONE_WORK, PERSON_SMS, PERSON_SOURCEDID,
-		PERSON_WEBADDRESS, 
-		RESOURCELINK_ID, RESOURCELINK_ID_HISTORY,
-		RESOURCELINK_DESCRIPTION, RESOURCELINK_TITLE,
-		RESULT_COMMENT, RESULT_CREATEDTIMESTAMP, RESULT_DATASOURCE,
-		RESULT_RESULTSCORE, RESULT_SOURCEDID, RESULT_URL,
-		TOOLPROXY_CUSTOM_URL, TOOLPROXYBINDING_CUSTOM_URL, USER_ID,
-		USER_IMAGE, USER_ORG, USER_USERNAME
+		PERSON_PHONE_HOME, PERSON_PHONE_MOBILE,
+		PERSON_PHONE_PRIMARY, PERSON_PHONE_WORK,
+		PERSON_SMS,
+		PERSON_SOURCEDID,
+		PERSON_WEBADDRESS,
+		CONTEXT_ID, CONTEXT_ORG, CONTEXT_TYPE, CONTEXT_TYPE_DEFAULT,
+		CONTEXT_LABEL, CONTEXT_TITLE, CONTEXT_SOURCEDID,
+		CONTEXT_ID_HISTORY,
+		RESOURCELINK_ID, RESOURCELINK_TITLE,
+		RESOURCELINK_DESCRIPTION, RESOURCELINK_ID_HISTORY,
+		COURSETEMPLATE_SOURCEDID, COURSETEMPLATE_LABEL, COURSETEMPLATE_TITLE,
+		COURSETEMPLATE_SHORTDESCRIPTION, COURSETEMPLATE_LONGDESCRIPTION,
+		COURSETEMPLATE_COURSENUMBER, COURSETEMPLATE_CREDITS,
+		COURSEOFFERING_SOURCEDID, COURSEOFFERING_LABEL, COURSEOFFERING_TITLE,
+		COURSEOFFERING_SHORTDESCRIPTION, COURSEOFFERING_LONGDESCRIPTION,
+		COURSEOFFERING_COURSENUMBER, COURSEOFFERING_CREDITS,
+		COURSEOFFERING_ACADEMICSESSION,
+		COURSESECTION_SOURCEDID, COURSESECTION_LABEL, COURSESECTION_TITLE,
+		COURSESECTION_SHORTDESCRIPTION, COURSESECTION_LONGDESCRIPTION,
+		COURSESECTION_COURSENUMBER, COURSESECTION_CREDITS,
+		COURSESECTION_MAXNUMBEROFSTUDENTS, COURSESECTION_NUMBEROFSTUDENTS,
+		COURSESECTION_DEPT, COURSESECTION_TIMEFRAME_BEGIN,
+		COURSESECTION_TIMEFRAME_END, COURSESECTION_ENROLLCONTROLL_ACCEPT,
+		COURSESECTION_ENROLLCONTROL_ALLOWED, COURSESECTION_DATASOURCE,
+		COURSESECTION_SOURCESECTIONID,
+		GROUP_SOURCEDID, GROUP_TYPEVALUE, GROUP_EMAIL, GROUP_ENROLLCONTROL_ACCEPT,
+		GROUP_ENROLLCONTROL_ALLOWED, GROUP_LONGDESCRIPTION, GROUP_PARENTID,
+		GROUP_SHORTDESCRIPTION, GROUP_TIMEFRAME_BEGIN,
+		GROUP_TIMEFRAME_END, GROUP_URL,
+		MEMBERSHIP_SOURCEDID, MEMBERSHIP_COLLECTIONSOURCEDID,
+		MEMBERSHIP_CREATEDTIMESTAMP, MEMBERSHIP_DATASOURCE,
+		MEMBERSHIP_PERSONSOURCEDID, MEMBERSHIP_ROLE,
+		MEMBERSHIP_ROLE_LEARNER, MEMBERSHIP_ROLE_INSTRUCTOR,
+		MEMBERSHIP_STATUS,
+		MESSAGE_RETURNURL, MESSAGE_DOCUMENTTARGET, MESSAGE_HEIGHT,
+		MESSAGE_WIDTH, MESSAGE_LOCALE,
+		TOOLPLATFORM_PRODUCTFAMILYCODE, TOOLPLATFORM_VERSION,
+		TOOLPLATFORMINSTANCE_GUID, TOOLPLATFORMINSTANCE_NAME,
+		TOOLPLATFORMINSTANCE_DESCRIPTION, TOOLPLATFORMINSTANCE_URL,
+		TOOLPLATFORMINSTANCE_CONTACTEMAIL, LINEITEM_RESULTVALUE_MAX,
+		LINEITEM_DATASOURCE, LINEITEM_SOURCEDID, LINEITEM_TYPE,
+		LINEITEM_TYPE_DISPLAYNAME, LTILINK_CUSTOM_URL,
+		RESULT_COMMENT, RESULT_CREATEDTIMESTAMP,
+		RESULT_DATASOURCE, RESULT_RESULTSCORE,
+		RESULT_SOURCEDID, RESULT_URL,
+		BASICOUTCOME_URL, BASICOUTCOME_SOURCEDID,
+		TOOLCONSUMERINFO_PRODUCTFAMILYCODE, TOOLCONSUMERINFO_VERSION
 	};
 
 }
