@@ -799,17 +799,33 @@ public class SakaiBLTIUtil {
 		String defaultGUID = LegacyShaUtil.sha256Hash(defaultName);
 
 		// Get the organizational information
+		setProperty(custom, LTICustomVars.TOOLPLATFORMINSTANCE_GUID,
+				ServerConfigurationService.getString("basiclti.consumer_instance_guid", defaultGUID));
 		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INSTANCE_GUID,
 				ServerConfigurationService.getString("basiclti.consumer_instance_guid", defaultGUID));
+
+		setProperty(custom,  LTICustomVars.TOOLPLATFORMINSTANCE_NAME,
+				ServerConfigurationService.getString("basiclti.consumer_instance_name", defaultName));
 		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INSTANCE_NAME,
 				ServerConfigurationService.getString("basiclti.consumer_instance_name", defaultName));
+
+		setProperty(custom, LTICustomVars.TOOLPLATFORMINSTANCE_DESCRIPTION,
+				ServerConfigurationService.getString("basiclti.consumer_instance_description", defaultName));
 		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INSTANCE_DESCRIPTION,
 				ServerConfigurationService.getString("basiclti.consumer_instance_description", defaultName));
-		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INSTANCE_CONTACT_EMAIL,
-				ServerConfigurationService.getString("basiclti.consumer_instance_contact_email", null));
+
+		setProperty(custom, LTICustomVars.TOOLPLATFORMINSTANCE_URL,
+				ServerConfigurationService.getString("basiclti.consumer_instance_url",
+						ServerConfigurationService.getString("serverUrl", null)));
 		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INSTANCE_URL,
 				ServerConfigurationService.getString("basiclti.consumer_instance_url",
 						ServerConfigurationService.getString("serverUrl", null)));
+
+		setProperty(custom, LTICustomVars.TOOLPLATFORMINSTANCE_CONTACTEMAIL,
+				ServerConfigurationService.getString("basiclti.consumer_instance_contact_email", null));
+		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INSTANCE_CONTACT_EMAIL,
+				ServerConfigurationService.getString("basiclti.consumer_instance_contact_email", null));
+
 	}
 
 	// Custom variable substitutions extensions follow the form of
@@ -865,8 +881,12 @@ public class SakaiBLTIUtil {
 		setProperty(props, "ext_lms", "sakai-" + sakaiVersion);
 		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INFO_PRODUCT_FAMILY_CODE, "sakai");
 		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INFO_VERSION, sakaiVersion);
-		setProperty(custom, LTICustomVars.TOOLCONSUMERINFO_PRODUCTFAMILYCODE, "sakai");
-		setProperty(custom, LTICustomVars.TOOLCONSUMERINFO_VERSION, sakaiVersion);
+
+		setProperty(custom, LTICustomVars.TOOLCONSUMERINFO_PRODUCTFAMILYCODE, "sakai"); // Old
+		setProperty(custom, LTICustomVars.TOOLCONSUMERINFO_VERSION, sakaiVersion); // Old
+
+		setProperty(custom, LTICustomVars.TOOLPLATFORM_PRODUCTFAMILYCODE, "sakai"); // Post LTI 1.3
+		setProperty(custom, LTICustomVars.TOOLPLATFORM_VERSION, sakaiVersion); // Post LTI 1.3
 
 		// We pass this along in the Sakai world - it might
 		// might be useful to the external tool
@@ -984,6 +1004,7 @@ public class SakaiBLTIUtil {
 				frameheight = getInt(content.get(LTIService.LTI_FRAMEHEIGHT));
 			}
 			setProperty(toolProps, LTIService.LTI_FRAMEHEIGHT, frameheight + "");
+			setProperty(lti13subst, LTICustomVars.MESSAGE_HEIGHT, frameheight + "");
 
 			int newpage = getInt(tool.get(LTIService.LTI_NEWPAGE));
 			if (newpage == 2) {
