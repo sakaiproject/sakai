@@ -48,6 +48,8 @@ import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService.ConfigData;
+import org.sakaiproject.component.api.ServerConfigurationService.ConfigItem;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -125,6 +127,7 @@ public class SakaiBLTIUtil {
 	public static final String BASICLTI_LAUNCH_SESSION_TIMEOUT = "basiclti.launch.session.timeout";
 	public static final String LTI13_DEPLOYMENT_ID = "lti13.deployment_id";
 	public static final String LTI13_DEPLOYMENT_ID_DEFAULT = "1"; // To match Moodle
+	public static final String LTI_CUSTOM_SUBSTITION_PREFIX =  "lti.custom.substitution.";
 
 	// These are the field names in old school portlet placements
 	public static final String BASICLTI_PORTLET_KEY = "key";
@@ -789,7 +792,7 @@ public class SakaiBLTIUtil {
 		}
 	}
 
-	public static void addConsumerData(Properties props) {
+	public static void addConsumerData(Properties props, Properties custom) {
 		String defaultName =  ServerConfigurationService.getString("serverName",
              ServerConfigurationService.getString("serverUrl","localhost.sakailms"));
 
@@ -809,6 +812,30 @@ public class SakaiBLTIUtil {
 						ServerConfigurationService.getString("serverUrl", null)));
 	}
 
+	// Custom variable substitutions extensions follow the form of
+	// $com.example.Foo.bar
+	// http://www.imsglobal.org/spec/lti/v1p3/#custom-variables
+	public static void addPropertyExtensionData(Properties props, Properties custom) {
+		org.sakaiproject.component.api.ServerConfigurationService serverConfigurationService =
+			(org.sakaiproject.component.api.ServerConfigurationService) ComponentManager.get("org.sakaiproject.component.api.ServerConfigurationService");
+		if ( serverConfigurationService == null ) return;
+
+		ConfigData configData = serverConfigurationService.getConfigData();
+		List<ConfigItem> configItems = configData.getItems();
+		for(ConfigItem configItem : configItems) {
+			String name = configItem.getName();
+			// Be *very* careful here - we only want properties with the prefix
+			if ( ! name.startsWith(LTI_CUSTOM_SUBSTITION_PREFIX) ) continue;
+			Object obj = configItem.getValue();
+			if ( ! (obj instanceof String) ) continue;
+			String value = (String) obj;
+			name = name.substring(LTI_CUSTOM_SUBSTITION_PREFIX.length());
+			name = name.trim();
+			if ( name.length() < 1 ) continue;
+			setProperty(custom, name, value);
+		}
+	}
+
 	public static void addGlobalData(Site site, Properties props, Properties custom, ResourceLoader rb) {
 		if (rb != null) {
 			String locale = rb.getLocale().toString();
@@ -816,7 +843,8 @@ public class SakaiBLTIUtil {
 			setProperty(custom, LTICustomVars.MESSAGE_LOCALE, locale);
 		}
 
-		addConsumerData(props);
+		addPropertyExtensionData(props, custom);
+		addConsumerData(props, custom);
 
 		// Send along the CSS URL
 		String tool_css = ServerConfigurationService.getString("basiclti.consumer.launch_presentation_css_url", null);
@@ -1493,7 +1521,8 @@ public class SakaiBLTIUtil {
 				return postError("<p>" + getRB(rb, "error.nokey", "Error - must have a secret and a key.") + "</p>");
 			}
 
-			addConsumerData(ltiProps);
+			addPropertyExtensionData(ltiProps, null);
+			addConsumerData(ltiProps, null);
 
 			Map<String, String> extra = new HashMap<>();
 			ltiProps = BasicLTIUtil.signProperties(ltiProps, launch_url, "POST", key, secret, extra);
