@@ -1,0 +1,965 @@
+[33mcommit e845052d6f86e8342213bd90782b6b9038d3a70e[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32morigin/SAK-43934_add_locale_de_DE[m[33m)[m
+Merge: 926ae50404 39a9324e51
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Mon Aug 17 18:29:24 2020 +0200
+
+    Merge branch 'SAK-43934_add_locale_de_DE_master' into SAK-43934_add_locale_de_DE
+
+[33mcommit 39a9324e5181f6d51f6ac5dfcb3385596872764d[m[33m ([m[1;31morigin/SAK-43934_add_locale_de_DE_20.x[m[33m, [m[1;32mold-SAK-43934_add_locale_de_DE_master[m[33m)[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Mon Aug 17 18:19:14 2020 +0200
+
+     SAK-43934 added sitedescription
+
+[33mcommit ee020447264503b7a32e316500e943f2ba3a20a3[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Mon Aug 17 18:18:42 2020 +0200
+
+     SAK-43934 added sakai-fck-connector, search-impl, sitemanage
+
+[33mcommit a4fa91192f5511645e33fe656aca6bab51c4d7b5[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Mon Aug 17 18:16:41 2020 +0200
+
+     SAK-43934 added site-manage-link-helpers, user, userauditservice, web-base, webcomponents
+
+[33mcommit b26dafaec00440eafc05fba6fa4239224697be43[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Mon Aug 17 18:11:12 2020 +0200
+
+    SAK-43934 added added elasticsearch-util, postem-tool, sitemanage
+
+[33mcommit 61974f89ad7e4de2be5389bfe8870c439e40f6b1[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Mon Aug 17 18:02:03 2020 +0200
+
+    SAK-43934 added sitemanage, sitestats-bundle, tags-tool
+
+[33mcommit 111628c00be65def58db851cac4fbbae14f16158[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Mon Aug 17 17:49:19 2020 +0200
+
+    SAK-43934 translated syllabus tool
+
+[33mcommit 89c524bff4cc6e47549d4f024574d210c05527cc[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Mon Aug 17 15:41:25 2020 +0200
+
+    SAK-43934 added tools textarea, search, sections, syllabus, taggable, usermembership, velocity
+
+[33mcommit a0394be08c8c7fce09b89735192a202746b7cf8d[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Mon Aug 17 15:30:46 2020 +0200
+
+    SAK-43934 added site tool
+
+[33mcommit a0527a7a161172d1f90fe7616e0fa7ebc9088afc[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Mon Aug 17 15:26:42 2020 +0200
+
+    SAK-43934 translated signup tool
+
+[33mcommit 926ae50404f0e8ff051786ae2499da04e3e2d4a2[m[33m ([m[1;31mupstream/master[m[33m, [m[1;31mjuliansRepo/master[m[33m)[m
+Author: Code Hugger (Matthew Jones) <matthew.jones@learnxp.com>
+Date:   Mon Aug 17 00:31:33 2020 -0400
+
+    SAK-43936 - Gradebook: no points validation when editing a Gradebook … (#8393)
+    
+    Co-authored-by: Sam Ottenhoff <ottenhoff@longsight.com>
+
+[33mcommit 79402bf04040ff387e4a75c8845a3b4e22b53498[m
+Author: Code Hugger (Matthew Jones) <matthew.jones@learnxp.com>
+Date:   Mon Aug 17 00:30:57 2020 -0400
+
+    SAK-40369 - Intermittent startup failure (#8443)
+    
+    Co-authored-by: Earle Nietzel <earle@longsight.com>
+
+[33mcommit 08fcb0ec0208007520561936d82ef69562211b27[m
+Author: Charles Severance <csev@umich.edu>
+Date:   Mon Aug 17 00:23:00 2020 -0400
+
+    SAK-44097 - Add simple configuration URL to avoid mis-typing LTI 1.3 … (#8452)
+    
+    * SAK-44097 - Add simple configuration URL to avoid mis-typing LTI 1.3 info
+    
+    * SAK-44097 - Fix Codacy complaint
+    
+    * SAK-44097 - Suppoert the deepLinkUrl return - nice.
+    
+    * SAK-44097 - Make the try/except structure more hip
+
+[33mcommit 45e387de370322e048df0d1fe20af7e47e6011cf[m
+Author: Adrian Fish <adrian.r.fish@gmail.com>
+Date:   Thu Aug 13 21:33:04 2020 +0100
+
+    SAK-44080 Sections Column displays None for Non Provided Sections (#8455)
+    
+    https://jira.sakaiproject.org/browse/SAK-44080
+    
+    Add the locally configured sections to the list of user sections
+
+[33mcommit 1afc1f01ccdc181021deb0dc545f5f5de0d47868[m
+Author: Earle Nietzel <earle@longsight.com>
+Date:   Thu Aug 13 16:21:50 2020 -0400
+
+    SAK-44102 Kernel MessageBundleService remove @Transaction from class that does cacheing (#8454)
+
+[33mcommit 4117d0a235071dfbad99205085112ab8d0d59562[m
+Author: Charles Severance <csev@umich.edu>
+Date:   Thu Aug 13 15:25:42 2020 -0400
+
+    SAK-44105 - Hide the tool public / private keys (#8456)
+
+[33mcommit 9a7402889773179ff5d1901919dd473e9afe139f[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Thu Aug 13 14:02:45 2020 +0200
+
+    SAK-43934 translating signup tool
+
+[33mcommit 0c19da9e84c9157bf0a25b58e56ac608f2a8ba4c[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Wed Aug 12 16:07:57 2020 +0200
+
+    SAK-43934 added rubrics, samigo
+
+[33mcommit c20c7e66cf477a30a61a974dec21b2c6071d9453[m
+Author: Charles Severance <csev@umich.edu>
+Date:   Wed Aug 12 10:06:36 2020 -0400
+
+    SAK-44098 - Better null checking (#8453)
+
+[33mcommit 53d095ccaf4bf4be858141b9f44f855bdbe6a416[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Wed Aug 12 15:47:29 2020 +0200
+
+    SAK-43934 added presence, rwiki,
+
+[33mcommit d61a5cc214657a5555440b882c752af27c4ebee5[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Wed Aug 12 15:36:51 2020 +0200
+
+    SAK-43934 translated presence, profile2, reset-pass
+
+[33mcommit 6370300507272cf113f492d812104fc70f8acc16[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Wed Aug 12 14:56:31 2020 +0200
+
+    SAK-43934 translated webcomponents tool
+
+[33mcommit ca2102063392b6547a4318ee8d3d1f3622d126e4[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Wed Aug 12 14:31:49 2020 +0200
+
+    SAK-43934 added portal-util
+
+[33mcommit 4f7c058df8edd500c3f8a5655d263fa661fc2c58[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Wed Aug 12 14:13:33 2020 +0200
+
+    SAK-43934 added profile2, translated syllabus-noti-prefs_de_DE.properties, rewrote some text in assignment_de_DE.properties
+
+[33mcommit 46e9ded4016d5946a3d4cb720507337efda9277d[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Wed Aug 12 14:05:25 2020 +0200
+
+    SAK-43934 changed "Email" to "E-Mail"
+
+[33mcommit 802787d43a9007c492947ed2ad720bbc2ef7f7ef[m
+Author: Charles Severance <csev@umich.edu>
+Date:   Tue Aug 11 13:57:28 2020 -0400
+
+    SAK-44046 - Reword to say "assignments" (#8450)
+
+[33mcommit 296455997380526de3fd58dfec87816b2637c6bf[m
+Author: Charles Severance <csev@umich.edu>
+Date:   Tue Aug 11 11:49:24 2020 -0400
+
+    NOJIRA csev-2020-08-11 - Update documentation (#8449)
+
+[33mcommit 8a0b7067a2e7bacfcfc4b643a3d175fc359b1de9[m
+Author: Michael Greene <profmikegreene@gmail.com>
+Date:   Tue Aug 11 11:27:28 2020 -0400
+
+    SAK-43978 Library - expanded hsl color palette (#8385)
+
+[33mcommit ea8d49db52ec1b8602dfd8903cf681d70394cd8f[m
+Author: Charles Severance <csev@umich.edu>
+Date:   Tue Aug 11 10:25:53 2020 -0400
+
+    SAK-44085 - Fix rare NPE in Assignments (#8441)
+
+[33mcommit a987a287820dbd0fa218c411110bc7d211359d79[m
+Author: Charles Severance <csev@umich.edu>
+Date:   Tue Aug 11 10:25:36 2020 -0400
+
+    SAK-44086 - Fix Site Manage NPE(s) Detected by the smoker test (#8442)
+
+[33mcommit 13ef7a786532080b9b8fe2f542ce4d4455dd630a[m
+Author: FerAlvarez95 <fernando_ayr@hotmail.com>
+Date:   Tue Aug 11 15:51:59 2020 +0200
+
+    SAK-44095: Roster does not search with whitespaces (#8447)
+    
+    Co-authored-by: Fernando Alvarez <fernando.alvarez1@um.es>
+
+[33mcommit be4ac28d7f728fffb7cd9f0a7f96ef7ee0ddfce1[m
+Author: David Horwitz <dhorwitz@gmail.com>
+Date:   Tue Aug 11 15:51:17 2020 +0200
+
+    SAK-44089 Update Apache commons-validator 1.7 (#8445)
+
+[33mcommit fa95271f5a3c5b738e71dd1708360862f7d5a263[m
+Author: Earle Nietzel <earle@longsight.com>
+Date:   Tue Aug 11 09:35:30 2020 -0400
+
+    SAK-44094 MessageBundleService check cache for negative lookups (#8446)
+
+[33mcommit da3528a99ec58167bdfd6e4a9c1f7a5189349390[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Tue Aug 11 12:43:52 2020 +0200
+
+    SAK-43934 changed translation portal
+
+[33mcommit 4a3543b11b096e5b926c4278d109df10b774732a[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Tue Aug 11 12:17:24 2020 +0200
+
+    SAK-43934 translated portal
+
+[33mcommit 41b5db69911a842f2e6144737eb35b116762edf8[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Tue Aug 11 11:25:33 2020 +0200
+
+    SAK-43934 added emailtemplateservice, translated polls
+
+[33mcommit 49b16ef4ecf43cb3a10eeb4494dfd1b31d48fdf0[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Tue Aug 11 11:06:23 2020 +0200
+
+    SAK-43934 translated jsf2
+
+[33mcommit 370255f1b622b9193d1fa19ef2ee1aa50fa9d891[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Tue Aug 11 11:05:21 2020 +0200
+
+    SAK-43934 translated lessonbuilder
+
+[33mcommit c4c3151123e47d2eee041fd6296a069315058d7c[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Tue Aug 11 08:24:55 2020 +0200
+
+    SAK-43934 translated mailsender
+
+[33mcommit 0b1b98ce05534624ebe12c203ae83f1153bfbc41[m
+Author: Code Hugger (Matthew Jones) <matthew.jones@learnxp.com>
+Date:   Mon Aug 10 21:21:43 2020 -0400
+
+    SAK-44058 - SAMIGO: Error when clicking Question tab with a File Upload question (#8440)
+
+[33mcommit 7712ef830ad8cb7b2002d044f801a6a1acfd9e33[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Mon Aug 10 20:04:33 2020 +0200
+
+    SAK-43934 translated mailsender
+
+[33mcommit d735caf61194b8c7b47991b6a9ff947d2db127a1[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Mon Aug 10 18:41:17 2020 +0200
+
+    SAK-43934 added message, pasystem, podcasts
+
+[33mcommit 2dc511637513b7f685b741d4db102c1fc7f34985[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Mon Aug 10 18:15:42 2020 +0200
+
+    SAK-43934 added message, mycalendar, myconnections, oauth (not translated)
+
+[33mcommit c7bd81a65fecb842c7eb880347087e2cac6f1aec[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Mon Aug 10 18:00:59 2020 +0200
+
+    SAK-43934 added lessonbuilder, login
+
+[33mcommit b85338bd78f8ab2b1b8ee7e29cbef2498e589461[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Mon Aug 10 17:46:16 2020 +0200
+
+    SAK-43934 added mailarchive (not translated)
+
+[33mcommit 704366b41fac370c81f88d63d62b35ef65e23bfb[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Mon Aug 10 17:40:26 2020 +0200
+
+    SAK-43934 translated jobscheduler, jsf
+
+[33mcommit 86a88def16c4f277bd9a1958a7ff2be3d400efbe[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Mon Aug 10 17:33:05 2020 +0200
+
+    SAK-43934 translated endorsed, feedback, gradebookng, help
+
+[33mcommit e3904612cb880ab17d3d5e2bce62d1474001151a[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Mon Aug 10 17:32:21 2020 +0200
+
+    SAK-43934 translated content
+
+[33mcommit 640867ac155e0ca5f49d51e0b317bd583d9a412d[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Mon Aug 10 16:23:03 2020 +0200
+
+    SAK-43934 translated announcement
+
+[33mcommit c88080795947fa41fc396f102638f4aea714def3[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Fri Aug 7 15:26:46 2020 +0200
+
+    SAK-43934 translating announcement
+
+[33mcommit 026cee44a71db03ce15a2a54cab02037fb29edcd[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Fri Aug 7 15:25:05 2020 +0200
+
+    SAK-43934 added properties of content
+
+[33mcommit a6a00037920262f7eb5d9010f50a62b030f25d63[m
+Author: Jesús María Méndez Pérez <jesusmmp@gmail.com>
+Date:   Thu Aug 6 20:39:08 2020 +0200
+
+    SAK-44059: SAMIGO - Copy and preview text should be separated by | (#8435)
+
+[33mcommit 631723b1a2d2d188f86e81c89e07cd8c689743c4[m
+Author: FerAlvarez95 <fernando_ayr@hotmail.com>
+Date:   Thu Aug 6 20:38:12 2020 +0200
+
+    SAK-44052: SAMIGO - Question pools tab should be selected (#8436)
+    
+    Co-authored-by: Fernando Alvarez <fernando.alvarez1@um.es>
+
+[33mcommit 53ac39cd8452759b932fe91aee55faa647f34a25[m
+Author: Stephen Marquard <stephen.marquard@uct.ac.za>
+Date:   Thu Aug 6 19:21:38 2020 +0200
+
+    SAK-44057 Improve entitybroker DHS getCurrentLocationReference (#8430)
+    
+    There is no need to get the site here, as the transformation from
+    a site id (context) to a site reference is a simple string manipulation
+    for which SiteService already has a method.
+
+[33mcommit 50ff5293d4548d29b9cde7dc59c058554ad2c8f4[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Thu Aug 6 13:47:55 2020 +0200
+
+    SAK-43934 added properties of content, entitybroker
+
+[33mcommit 66ee3a87d127423128111d0b5abc9348797930a7[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Thu Aug 6 13:40:57 2020 +0200
+
+    SAK-43934 added properties of content, content-review, dav, deleted doubled keys in DelegatedAccessApplication.properties
+
+[33mcommit d888d4e14bec333c71f995ade48c4107601d2f07[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Thu Aug 6 13:24:34 2020 +0200
+
+    SAK-43934 added properties of config module, deleted doubled keys in content_type_names.properties
+
+[33mcommit fd45c2a10b6972267aca5c95d5d9248b1bb395bf[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Thu Aug 6 12:52:40 2020 +0200
+
+    SAK-43934 added properties of cloud-storage, translated commons_de_DE.properties
+
+[33mcommit 67b533acc310392d07e818bdebdd1cbd01a1c169[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Thu Aug 6 12:42:14 2020 +0200
+
+    SAK-43934 added citations_de_DE.properties, deleted double keys in citations.properties
+
+[33mcommit 3159d43ae1b54ea1499aa88f577c6ec8a47df8fc[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Thu Aug 6 12:38:13 2020 +0200
+
+    SAK-43934 translated chat_de_DE.properties
+
+[33mcommit 5791241060835844eb958d184bd80203d3ab46c1[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Thu Aug 6 12:37:35 2020 +0200
+
+    SAK-43934 chat-channel_de_DE.properties + chat-message_de_DE.properties added to repository
+
+[33mcommit 56446dfc225ac63ea55728af440c4f529cd9acbb[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Thu Aug 6 12:32:02 2020 +0200
+
+    SAK-43934 calendar_de_DE.properties added to repository
+
+[33mcommit 829161c29005ea479d4ec7a50109e6a6756c801f[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Thu Aug 6 12:29:17 2020 +0200
+
+    SAK-43934 iframe_de_DE.properties added to repository
+
+[33mcommit bd8a5f87fd7bb4e1cc90a70b5eb63caa216a331f[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Thu Aug 6 12:25:38 2020 +0200
+
+    SAK-43934 several properties de_DE in LTI added to repository
+
+[33mcommit 2793b0cc408c36f2c1d0aa41096ea3bd367dd5a3[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Thu Aug 6 12:19:53 2020 +0200
+
+    SAK-43934 basicltisvc_de_DE.properties not translated, but added to repository
+
+[33mcommit ba6020b32a07b62754ee67897d17c5e5eef7e91d[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Thu Aug 6 12:18:40 2020 +0200
+
+    SAK-43934 lti_de_DE.properties not translated, but added to repository
+
+[33mcommit fb825835293fa0b546f7b274e44b87b52e92e114[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Thu Aug 6 12:17:50 2020 +0200
+
+    SAK-43934 blis_de_DE.properties added to repository, but not translated
+
+[33mcommit 7980e52c59587190f86d5cb4a5ccef78cdd6cb81[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Thu Aug 6 12:14:56 2020 +0200
+
+    SAK-43934 LTIReportingJob_de_DE.properties not translated, but added to repository
+
+[33mcommit 748c447c2fcb5582bed6d4c04449efe9efc1d8cd[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Thu Aug 6 11:23:41 2020 +0200
+
+    SAK-43934 translated: assignment-noti-prefs_de_DE.properties
+
+[33mcommit 7b6c9755ab03e68a867e393d63be64bbdd5a5db4[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Thu Aug 6 11:21:58 2020 +0200
+
+    SAK-43934 translated: messages_de_DE.properties
+
+[33mcommit 0b10f628957f112cca0488245b7b412cf0583f78[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Thu Aug 6 11:15:48 2020 +0200
+
+    SAK-43934 translated: siteemaanc_de_DE.properties
+
+[33mcommit 3a4c1b7bc1cbe89e5968d4181c343b49e7f712e7[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Thu Aug 6 11:14:25 2020 +0200
+
+    SAK-43934 translated: annc-noti-prefs_de_DE.properties
+
+[33mcommit 6ba8a64853f50051058baca1205971ad70c908c2[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Thu Aug 6 11:13:08 2020 +0200
+
+    SAK-43934 translated: annc-access_de_DE.properties
+
+[33mcommit a04756c99d59f038fa9f69258d3c13b61fb02c17[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Thu Aug 6 11:12:30 2020 +0200
+
+    SAK-43934 translated: users_de_DE.properties
+
+[33mcommit 1e20dd1d0fdd841c6b4bfdde0fb8a730444755de[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Thu Aug 6 11:10:31 2020 +0200
+
+    SAK-43934 translated: Messages_de_DE.properties
+
+[33mcommit 07b0f97e15900371268173f8d1d1908b76aebe3b[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Thu Aug 6 10:25:37 2020 +0200
+
+    SAK-43934 translated: changed sitesetupgeneric_de_DE.properties
+
+[33mcommit 54c47235de34a4e7cd602e816968a52ed2830ce9[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Thu Aug 6 10:17:15 2020 +0200
+
+    SAK-43934 translated: Messages_de_DE.properties
+
+[33mcommit 69e08c58b5383a9677bfceaf9949ceebc42012f0[m
+Author: Charles Severance <csev@umich.edu>
+Date:   Wed Aug 5 17:16:33 2020 -0400
+
+    SAK-44011 - Make non null defaults for tool_consumer values (#8429)
+
+[33mcommit 543bca601b748a4cd9817cdac1b4e9b667f9f5c6[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Wed Aug 5 19:08:47 2020 +0200
+
+    SAK-43934
+    translating: sites_de_DE.properties, Messages_de_DE.properties, sitesetupgeneric_de_DE.properties
+
+[33mcommit ae5eaa060876b89d7351bebf806b669ee857653e[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Wed Aug 5 18:32:01 2020 +0200
+
+    SAK-43934 translated memory_de_DE.properties
+
+[33mcommit cad595a525ce5f769bb33819cb379c2907b9c888[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Wed Aug 5 18:30:23 2020 +0200
+
+    SAK-43934 translated authz-tool_de_DE.properties
+
+[33mcommit 389c470aa3b5270f54c3e39219acc42bcff1a326[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Wed Aug 5 17:57:01 2020 +0200
+
+    SAK-43934 translated archive_de_DE.properties
+
+[33mcommit 267435e2737a5ecf4c39ba5abf163187b798e5d8[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Wed Aug 5 17:46:24 2020 +0200
+
+    SAK-43934 translated aliases_de_DE.properties
+
+[33mcommit e7857fe80b51b1f6cdd87e81118465219edf89d3[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Wed Aug 5 16:23:46 2020 +0200
+
+    SAK-43934 translated tool-tool-su_de_DE.properties
+
+[33mcommit a1d1783cce8de83c0227da159ee1cda86b32759d[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Wed Aug 5 16:18:51 2020 +0200
+
+    SAK-43934 translated access_de_DE.properties
+
+[33mcommit 16fdf418c3fac4bd56beba7c3967f966c9d6ecc8[m
+Author: Charles Severance <csev@umich.edu>
+Date:   Tue Aug 4 14:19:39 2020 -0400
+
+    SAK-44043 Add Assignment related subsititution variables (#8427)
+    
+    * SAK-44043 - Support the assignment substitution vars
+    
+    * SAK-44043 - Fix missing bit for SAK-44109
+
+[33mcommit 8d2fccb6fa91994c9b9feadae6b04edc4bba739e[m
+Author: David Horwitz <dhorwitz@gmail.com>
+Date:   Tue Aug 4 17:13:28 2020 +0200
+
+    SAK-44050 Update OpenCSV 5.2 (#8422)
+
+[33mcommit 3c0fd598a7546b1af236ca4ba60c60b24c996e1f[m
+Author: David Horwitz <dhorwitz@gmail.com>
+Date:   Tue Aug 4 17:12:47 2020 +0200
+
+    SAK-44036 Update Apache commons-text 1.9 & commons-lang 3.11 (#8419)
+
+[33mcommit fd73b4d646bb4d50800a575b84c369022e493619[m
+Author: Sam Ottenhoff <ottenhoff@longsight.com>
+Date:   Tue Aug 4 11:12:33 2020 -0400
+
+    SAK-44025 grammar and NPE fixes (#8412)
+
+[33mcommit ae0f766355628c240c7a44060babbf1a71180616[m
+Author: Jesús María Méndez Pérez <jesusmmp@gmail.com>
+Date:   Tue Aug 4 15:55:07 2020 +0200
+
+    SAK-43833: 'Assign this grade to all participants without submissions' does not work (#8410)
+
+[33mcommit dff4591e4b0338605c7d64a3245e2c771b1e1934[m
+Author: Charles Severance <csev@umich.edu>
+Date:   Mon Aug 3 21:12:51 2020 -0400
+
+    SAK-44047 - Bring back substitution parameters (#8421)
+    
+    * SAK-44047 - Bring back substitution parameters
+    
+    Begin the forward-post of the LTI 2.0 stuff that was removed.
+    
+    * SAK-44047 - MVP Merging parameters
+
+[33mcommit 4a289bc73f09f4ea160b859688ecfb68daaf353a[m
+Author: Charles Severance <csev@umich.edu>
+Date:   Sun Aug 2 21:38:25 2020 -0400
+
+    SAK-44019 - Add LTI Assignment type (#8415)
+    
+    Sakai-21 only unless you add data columns.
+
+[33mcommit 86c9e70a0d2d7fbcfa47bca9a5139a63dadb3bce[m
+Author: Earle Nietzel <earle@longsight.com>
+Date:   Fri Jul 31 16:27:31 2020 -0400
+
+    19.5 Release
+
+[33mcommit b4cd69417b51f832ffe8fc634e705485395ca8ea[m
+Author: Sam Ottenhoff <ottenhoff@longsight.com>
+Date:   Fri Jul 31 12:15:23 2020 -0400
+
+    SAK-44026 fix regression that broke role choice within course site (#8413)
+
+[33mcommit 517d678738cd53789cfa60ee4da79cd5fe83ae97[m
+Author: Charles Severance <csev@umich.edu>
+Date:   Thu Jul 30 23:57:33 2020 -0400
+
+    SAK-43710 - Remove support for SHA256 signing on LTI 1.1 (#8417)
+    
+    Sakai-21 only
+
+[33mcommit 23ae20d23d66f0a0d1412f17208a44fc46dce43f[m
+Author: Charles Severance <csev@umich.edu>
+Date:   Thu Jul 30 23:09:34 2020 -0400
+
+    SAK-43709 - Change length of keyset_url and remove tool_kid (#8416)
+    
+    Do not back-port to 19 or 20
+
+[33mcommit 02bffdb0cdf9a32e36e95a3929717fa185dcddb7[m
+Author: Earle Nietzel <earle@longsight.com>
+Date:   Thu Jul 30 17:24:41 2020 -0400
+
+    SAK-41806 Lessons not adding clearAttr param to return link (#8414)
+
+[33mcommit c4251992d046b569f5dc7cd9e58059a389e2b218[m
+Author: Charles Severance <csev@umich.edu>
+Date:   Thu Jul 30 13:04:26 2020 -0400
+
+    SAK-44022 - Fix NPE when running cert test (#8411)
+
+[33mcommit 4e4453b54f64c94f8bd5894642e9118a5104df0f[m
+Author: Charles Severance <csev@umich.edu>
+Date:   Thu Jul 30 10:47:04 2020 -0400
+
+    SAK-32679 - Refactor / Cleanup / Prepare for Assignments LTI (#8408)
+    
+    * SAK-32679 - Adding an LTI Assignment type
+    
+    * SAK-32679 - Very minimal MVP
+    
+    * SAK-32679 - Add the launch protect field and feature
+    
+    * SAK-32679 - Clean up UI, suport iframe and new window and resize
+    
+    * SAK-32679 - Missed a file
+    
+    * SAK-32679 - Handle the handoff from assignments to LTI
+    
+    This makes sure that LTI links coming from assignments can't be
+    launched from elsewhere.  It also handles a pretty dynamic set of
+    situations which would lead to double launching (new window scenario)
+    that would trigger 403s - instead we force a re-unlock through a
+    refresh of the "open in a new window" page.
+    
+    * SAK-32679 - Accesslint fix and typo
+    
+    * SAK-32679 - MVP of the tool selector
+    
+    Todo
+    
+    - Restore draft title and id on post errors
+    - Restore old title and id on edit
+    - Test test test - including all the content item stuff
+    
+    * SAK-32679 - Tool title throughout and instructor launch
+    
+    * SAK-32679 - Fix some of the broken flows
+    
+    * SAK-32679 - Catch up with master changes
+    
+    * SAK-32679 - Rename a few things and document
+    
+    * SAK-32679 - Fix small bug, re-enable data model changes
+    
+    * SAK-32679 - Document / cleanup - support subission and available
+    
+    * SAK-32679 - Remove assignments mods and LTI data changes
+    
+    This should now backport to -19 and -20
+
+[33mcommit 396063458b2c8f30184d4d0f0e4b184715d2e00c[m
+Author: Earle Nietzel <earle@longsight.com>
+Date:   Wed Jul 29 12:19:35 2020 -0400
+
+    SAK-41806 Lessons is not clearing the return url from session part 2 (#8407)
+    
+    This same issue is also happening in ShowItemProducer
+
+[33mcommit 9fd23af24034214ccf703129f8b28e9c0a13e8a5[m
+Author: Earle Nietzel <earle@longsight.com>
+Date:   Wed Jul 29 12:18:10 2020 -0400
+
+    SAK-32130 elFinder new service strategy (#8373)
+
+[33mcommit 8417b4efd63e580f9b447bd6141d6a55219c594e[m
+Author: Jesús María Méndez Pérez <jesusmmp@gmail.com>
+Date:   Wed Jul 29 17:47:10 2020 +0200
+
+    SAK-44010: FORUMS - Error when saving a topic that was created automatically (#8406)
+
+[33mcommit d91c05677e58e4539082e0a9d5a6449f69e4f77e[m
+Author: David Horwitz <dhorwitz@gmail.com>
+Date:   Wed Jul 29 07:01:31 2020 +0200
+
+    SAK-43999 Update: ical4j, mockiot, powermock (#8389)
+
+[33mcommit 9ef617cbc82f66b911591f16a89a4a663c2d374c[m
+Author: David Horwitz <dhorwitz@gmail.com>
+Date:   Wed Jul 29 07:01:06 2020 +0200
+
+    SAK-43954 Update Apache Wicket 8.9.0 (#8372)
+
+[33mcommit 4232c2e7e6bd09b304d59b4aad1a7fb4f015fc52[m
+Author: Earle Nietzel <earle@longsight.com>
+Date:   Tue Jul 28 20:40:41 2020 -0400
+
+    SAK-44003 Kernel Add Cache for RealmLocks (#8405)
+
+[33mcommit 6ae0eab55670449caf2419e8cbc0d157baf7af14[m
+Author: Sam Ottenhoff <ottenhoff@longsight.com>
+Date:   Tue Jul 28 17:45:32 2020 -0400
+
+    SAK-43787 draft debugging (#8404)
+
+[33mcommit a7d27cabba7beb5ce10e94b9d16ab234dbc7c904[m
+Author: Sam Ottenhoff <ottenhoff@longsight.com>
+Date:   Tue Jul 28 13:52:26 2020 -0400
+
+    SAK-43877 cleanup stacktraces during hard delete (#8326)
+
+[33mcommit 8d881f58de9b79f8123e5cb67655b07039270c64[m
+Author: Earle Nietzel <earle@longsight.com>
+Date:   Tue Jul 28 10:38:44 2020 -0400
+
+    SAK-41806 Lessons is not clearing the return url (#8396)
+
+[33mcommit 81b0291b5bcf8787c5105987662609fcbf36001f[m
+Author: birkastoana <49560401+birkastoana@users.noreply.github.com>
+Date:   Thu Jul 23 08:33:18 2020 +0200
+
+    Delete turnitin-oc_de_DE.properties
+    
+    (cherry picked from commit 0b1c32a01f45fe217baf7d74fcba866efb8f922d)
+
+[33mcommit 265b07493ea34472c4b1b50b735f55aed5087e15[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Tue Jul 21 17:20:10 2020 +0200
+
+    Assignments and Tests&Quizzes translated de_DE (deployed and reviewed)
+    
+    (cherry picked from commit e54602d9f5bcfc60cf7690fa3063bd3097041f85)
+
+[33mcommit ebe496a95dd1f2828e885b14593606f242ce7c91[m
+Author: Charles Severance <csev@umich.edu>
+Date:   Mon Jul 27 23:15:36 2020 -0400
+
+    SAK-40043 - Add extensions for release and include (#8397)
+
+[33mcommit 110c32c22c05f7870d65755763260ebf20f5c207[m
+Author: Charles Severance <csev@umich.edu>
+Date:   Mon Jul 27 21:25:53 2020 -0400
+
+    SAK-43890 - Support LineItem (#8395)
+    
+    * SAK-43890 - Support LineItem
+    
+    * SAK-43890 - Fix code review issues.
+    
+    * SAK-43890 - More code review issues
+
+[33mcommit b2322605ebeeae448a47dd620f530f9cbaf97dc9[m
+Author: Charles Severance <csev@umich.edu>
+Date:   Mon Jul 27 15:08:10 2020 -0400
+
+    SAK-44000 - Make key pattern in hasAssociatedRubricMap consistent (#8390)
+
+[33mcommit a0bb7cbcd5a0a829d85793e994cbb2c0b28f76ed[m
+Author: jkjanetschek <https://github.com/JKJANETSCHEK/sakai.git>
+Date:   Mon Jul 27 16:25:55 2020 +0200
+
+    Translation messageforums-tool de_DE
+    
+    (cherry picked from commit eddfb8d8fe43f5d6e22d2114adae31cee3163365)
+
+[33mcommit 4303eace87498e6a679f86acbec46e3b1c24ee3f[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Mon Jul 27 19:36:28 2020 +0200
+
+    translated a string in Ressources
+
+[33mcommit 570b6516978399e6f277bc2f0ccba98dcc33d86e[m
+Author: Sam Ottenhoff <ottenhoff@longsight.com>
+Date:   Mon Jul 27 11:37:51 2020 -0400
+
+    SAK-43994 equal weight categories can have differing point values (#8387)
+
+[33mcommit 20f36ad16664796da1acc384dc6bed899f673a78[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Thu Jul 23 11:25:07 2020 +0200
+
+    changed umlauts to utf-8 in  turnitin-oc_de_DE.properties
+
+[33mcommit e141163aa5e19d6b2eb0f08f620c1f1d94e83ef2[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Thu Jul 23 08:59:37 2020 +0200
+
+    translated turnitin-oc_de_DE.properties
+
+[33mcommit 0b1c32a01f45fe217baf7d74fcba866efb8f922d[m
+Author: birkastoana <49560401+birkastoana@users.noreply.github.com>
+Date:   Thu Jul 23 08:33:18 2020 +0200
+
+    Delete turnitin-oc_de_DE.properties
+
+[33mcommit 580ff03f071bfd97dffb54e3002dfa0cff037b2c[m
+Author: Charles Severance <csev@umich.edu>
+Date:   Wed Jul 22 16:18:08 2020 -0400
+
+    SAK-43980 - Auto close dialog (#8384)
+
+[33mcommit 7c1ec9d53ae4e16fb3a000b6ecba08a358569fc2[m
+Author: Earle Nietzel <earle@longsight.com>
+Date:   Wed Jul 22 10:07:22 2020 -0400
+
+    SAK-43928 Forums default for msgcntr.rolesnone (#8376)
+
+[33mcommit 1e7180c0abc38d965b8c2bd4751284fefafdad8f[m
+Author: Charles Severance <csev@umich.edu>
+Date:   Wed Jul 22 08:13:54 2020 -0400
+
+    SAK-40044 - Pass description and name to LTI for launch (#8382)
+    
+    * SAK-40044 - Pass description and name to LTI for launch
+    
+    Note that the case of DBLTIService.java was wrong (it was Db)
+    
+    * SAK-40044 - Fix some Codacy Issues
+    
+    * SAK-40044 - Moar Codacy
+
+[33mcommit 1fa64e950c86e64f80c206bff1a0fc1f9a45cf84[m
+Author: Sam Ottenhoff <ottenhoff@longsight.com>
+Date:   Tue Jul 21 14:47:23 2020 -0400
+
+    SAK-43878 better handling when authzgroup does not exist (#8327)
+    
+    * SAK-43878 better handling when authzgroup does not exist
+    
+    * @ern suggestions
+    
+    * Fix return
+
+[33mcommit e54602d9f5bcfc60cf7690fa3063bd3097041f85[m
+Author: birkastoana <birkastoana@gmail.com>
+Date:   Tue Jul 21 17:20:10 2020 +0200
+
+    Assignments and Tests&Quizzes translated de_DE (deployed and reviewed)
+
+[33mcommit d1d5e6965570493eca725c56b9f5767c670c39c4[m
+Author: Charles Severance <csev@umich.edu>
+Date:   Mon Jul 20 20:08:27 2020 -0400
+
+    SAK-43893 - Handle null grade semantics (#8377)
+
+[33mcommit cb8b184e5825b9db78adaafaf7ba736149cc37d0[m
+Author: Charles Severance <csev@umich.edu>
+Date:   Mon Jul 20 16:23:07 2020 -0400
+
+    SAK-43892 - Use URNs for roles in NRPS (#8375)
+
+[33mcommit 12e093a73b4ec9105e390bb786f302009461343d[m
+Author: Charles Severance <csev@umich.edu>
+Date:   Mon Jul 20 16:13:46 2020 -0400
+
+    SAK-43891 - Add family and given names to NRPS response (#8374)
+
+[33mcommit fbdaab2216fbf4a24696ac716e7e919aa5cd419e[m
+Author: Code Hugger (Matthew Jones) <matthew.jones@learnxp.com>
+Date:   Fri Jul 17 10:38:17 2020 -0400
+
+    SAK-43903 - Fixing Safari Chrome console errors (#8355)
+    
+    Updating qtip2 to 3.0.3-1 which includes the source map
+    Updating default favicon image and making it configurable via properties. (How
+    was this configured before?)
+
+[33mcommit d0698fd76507a6e1c4c45e415b809dee8c3dd84e[m
+Author: Sam Ottenhoff <ottenhoff@longsight.com>
+Date:   Fri Jul 17 10:37:36 2020 -0400
+
+    SAK-43951 make headings in Event Log and User Activity Report more consistent (#8370)
+
+[33mcommit 316da25c3f8f70d72c4ad92aba7dd5c476f51bd0[m
+Author: Sam Ottenhoff <ottenhoff@longsight.com>
+Date:   Fri Jul 17 10:37:17 2020 -0400
+
+    SAK-43802 fix bad div closing tag in Manage Overview (#8368)
+
+[33mcommit 05649e83650e5286839e057e823f2018e93a88a8[m
+Author: Sam Ottenhoff <ottenhoff@longsight.com>
+Date:   Fri Jul 17 10:37:01 2020 -0400
+
+    SAK-42669 dont use c as accesskey (#8371)
+
+[33mcommit f05d4fb09cc881d3f53b204918c828136fd51f2d[m
+Author: Sam Ottenhoff <ottenhoff@longsight.com>
+Date:   Fri Jul 17 10:36:38 2020 -0400
+
+    SAK-43950 no need for col2of2 explicit min-width as it was causing issues with breakpoints in Sakai 20+ for desktops 1050px+ (#8369)
+
+[33mcommit 05c6d3334f66b63e7d910f3e3814594abe08b24d[m
+Author: Jesús María Méndez Pérez <jesusmmp@gmail.com>
+Date:   Wed Jul 15 15:12:39 2020 +0200
+
+    SAK-43943: RUBRIC: Wrong spanish translation 'Criterion' (#8366)
+
+[33mcommit 787beecb975bdada786cba39de3b0c86810df484[m
+Author: Earle Nietzel <earle@longsight.com>
+Date:   Tue Jul 14 14:23:52 2020 -0400
+
+    SAK-43826 Rubrics updated persistence fields WEIGHT, WEIGHTED (#8365)
+
+[33mcommit e93c685e11355f7672a8a5b69bb3b2a98ce39d4a[m
+Author: David Horwitz <dhorwitz@gmail.com>
+Date:   Tue Jul 14 16:57:04 2020 +0200
+
+    SAK-43933 Update Plugin spotbugs & extra-enforcer-rules (#8362)
+
+[33mcommit f4329b9a5a682137a861049effea4d9519453db1[m
+Author: David Horwitz <dhorwitz@gmail.com>
+Date:   Tue Jul 14 16:56:44 2020 +0200
+
+    SAK-43935 Update embedded-ldap-junit 0.8.1 (#8363)
+
+[33mcommit bc4041bb34fe538b8baf52f89728c80054c31fd7[m
+Author: Sam Ottenhoff <ottenhoff@longsight.com>
+Date:   Tue Jul 14 01:37:36 2020 -0400
+
+    SAK-43932 enable pronunciation feature by default (#8360)
+
+[33mcommit 0e2198ea1b54008dfb7c5e29f1bf3072d9639fff[m
+Author: Sam Ottenhoff <ottenhoff@longsight.com>
+Date:   Tue Jul 14 01:37:12 2020 -0400
+
+    SAK-43931 hide audio player in print mode (#8361)
+    
+    * SAK-43931 hide audio player in print mode
+    
+    * Fix Overview header
+
+[33mcommit 4f91e7789ed3ce1dfb03e3b59b498bf48da0312c[m
+Author: Earle Nietzel <earle@longsight.com>
+Date:   Fri Jul 10 19:55:17 2020 -0400
+
+    NOJIRA Update README with 20.1 release
+
+[33mcommit 339ca62edafebc0fe082e7bb6dc3bfc4b42f8c20[m
+Author: Brian Jones <bjones86@uwo.ca>
+Date:   Fri Jul 10 19:14:56 2020 +0000
+
+    SAK-43923: calendar > basic data validation saving default view (#8353)
+
+[33mcommit eae24c0bd1ab9ab195e6a66f3af1c78eb1968c34[m
+Author: Earle Nietzel <earle@longsight.com>
+Date:   Thu Jul 9 17:47:
