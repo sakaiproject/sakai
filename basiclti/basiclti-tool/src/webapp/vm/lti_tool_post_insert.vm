@@ -40,6 +40,21 @@
     <i class="fa fa-clipboard" aria-hidden="true"></i> $tlang.getString('gen.clipboard')</button>
     </p>
 
+    <p>
+    <b>$tlang.getString('lti13_sakai_config')</b><br/>
+#if ($configUrlShort)
+<span id="configUrl" style="display:none;">$configUrl</span>
+<span id="configUrlShort">$configUrlShort
+<button onclick="$('#configUrl').show();$('#configUrlShort').hide();return false;">$tlang.getString('lti13_show')</button>
+</span>
+#else
+$configUrl
+#end
+    <button onclick="copyToClipboardNoScroll(this, '$configUrl');return false;">
+    <i class="fa fa-clipboard" aria-hidden="true"></i> $tlang.getString('gen.clipboard')</button>
+    </p>
+
+
 <p>
 <a class="btn btn-primary" accesskey="x" href="$sakai_ActionURL.setPanel("ToolSystem")">$tlang.getString('gen.done')</a>
 </p>

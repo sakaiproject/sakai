@@ -166,6 +166,12 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
+		// /imsblis/lti13/sakai-config
+		if (parts.length == 4 && "sakai_config".equals(parts[3])) {
+			handleSakaiConfig(request, response);
+			return;
+		}
+
 		// Get a keys for a client_id
 		// /imsblis/lti13/keyset/{tool-id}
 		if (parts.length == 5 && "keyset".equals(parts[3])) {
@@ -378,6 +384,60 @@ public class LTI13Servlet extends HttpServlet {
 			}
 		} catch (Exception e) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		}
+	}
+
+	// Provide LTI Advantage Sakai parameters through JSON
+	protected void handleSakaiConfig(HttpServletRequest request, HttpServletResponse response) {
+		String clientId = request.getParameter("clientId");
+		if ( clientId == null ) {
+			LTI13Util.return400(response, "Missing clientId");
+			return;
+		}
+
+		String key = request.getParameter("key");
+		if ( key == null ) {
+			LTI13Util.return400(response, "Missing key");
+			return;
+		}
+
+		String issuerURL = request.getParameter("issuerURL");
+		if ( issuerURL == null ) {
+			LTI13Util.return400(response, "Missing issuerURL");
+			return;
+		}
+
+		String deploymentId = request.getParameter("deploymentId");
+		if ( deploymentId == null ) {
+			LTI13Util.return400(response, "Missing deploymentId");
+			return;
+		}
+
+		String keySetUrl = getOurServerUrl() + "/imsblis/lti13/keyset/" + key;
+		String tokenUrl = getOurServerUrl() + "/imsblis/lti13/token/" + key;
+		String authOIDC = getOurServerUrl() + "/imsoidc/lti13/oidc_auth";
+
+		String sakaiVersion = ServerConfigurationService.getString("version.sakai", "2");
+
+		JSONObject context_obj = new JSONObject();
+		context_obj.put("issuerURL", issuerURL);
+		context_obj.put("clientId", clientId);
+		context_obj.put("keySetUrl", keySetUrl);
+		context_obj.put("tokenUrl", tokenUrl);
+		context_obj.put("authOIDC", authOIDC);
+		context_obj.put("deploymentId", deploymentId);
+		context_obj.put("productFamilyCode", "sakai");
+		context_obj.put("version", sakaiVersion);
+		context_obj.put("answer", "42");
+
+		response.setContentType(APPLICATION_JSON);
+		try {
+			PrintWriter out = response.getWriter();
+			out.print(JacksonUtil.prettyPrint(context_obj));
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			return;
 		}
 	}
 
