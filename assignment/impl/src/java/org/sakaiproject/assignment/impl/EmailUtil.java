@@ -5,21 +5,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.util.ZipContentUtil;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.User;
@@ -38,7 +40,6 @@ public class EmailUtil {
     private static final String INDENT = "    ";
 
     @Setter private AssignmentService assignmentService;
-    @Setter private DeveloperHelperService developerHelperService;
     @Setter private EntityManager entityManager;
     @Setter private FormattedText formattedText;
     @Setter private ResourceLoader resourceLoader;
@@ -234,8 +235,9 @@ public class EmailUtil {
 
         String siteTitle;
         String siteUrl;
+        Site site = null;
         try {
-            Site site = siteService.getSite(context);
+            site = siteService.getSite(context);
             siteTitle = site.getTitle();
             siteUrl = site.getUrl();
         } catch (Exception e) {
@@ -249,7 +251,7 @@ public class EmailUtil {
         buffer.append(resourceLoader.getString("noti.site.title")).append(" ").append(siteTitle).append(NEW_LINE);
         buffer.append(resourceLoader.getString("noti.site.url")).append(" <a href=\"").append(siteUrl).append("\">").append(siteUrl).append("</a>").append(NEW_LINE).append(NEW_LINE);
         // notification text
-        String linkToToolInSite = "<a href=\"" + developerHelperService.getToolViewURL("sakai.assignment.grades", null, null, null) + "\">" + siteTitle + "</a>";
+        String linkToToolInSite = "<a href=\"" + getAssignmentUrl(assignment) + "\">" + siteTitle + "</a>";
         buffer.append(resourceLoader.getFormattedMessage("noti.releasegrade.text", assignment.getTitle(), linkToToolInSite));
 
         return buffer.toString();
@@ -284,7 +286,7 @@ public class EmailUtil {
             }
         }
 
-        String linkToToolInSite = "<a href=\"" + developerHelperService.getToolViewURL("sakai.assignment.grades", null, null, null) + "\">" + siteTitle + "</a>";
+        String linkToToolInSite = "<a href=\"" + getAssignmentUrl(assignment) + "\">" + siteTitle + "</a>";
         if (assignmentService.canSubmit(assignment, userId)) {
             buffer.append(resourceLoader.getFormattedMessage("noti.releaseresubmission.text", assignment.getTitle(), linkToToolInSite));
         } else {
@@ -324,6 +326,25 @@ public class EmailUtil {
 
     public String getPlainTextNotificationMessage(AssignmentSubmission s, String submissionOrReleaseGrade) {
         return plainTextContent(s, submissionOrReleaseGrade);
+    }
+
+    private String getAssignmentUrl(Assignment assignment) {
+
+        String ref = AssignmentReferenceReckoner.reckoner()
+                        .id(assignment.getId())
+                        .context(assignment.getContext())
+                        .subtype("a")
+                        .reckon()
+                        .getReference();
+
+        Optional<String> url = entityManager.getUrl(ref, Entity.UrlType.PORTAL);
+
+        if (url.isPresent()) {
+            return url.get();
+        } else {
+            log.warn("Failed to get url for assignment {}", assignment.getId());
+            return "";
+        }
     }
 
     private String formatFileSize(long size) {
