@@ -1923,7 +1923,7 @@ public class DiscussionForumTool {
     	}
     	
         topic.setBaseForum(selectedForum.getForum());
-        if(selectedForum.getForum().getRestrictPermissionsForGroups()){
+        if(selectedForum.getForum().getRestrictPermissionsForGroups() && !"true".equalsIgnoreCase(ServerConfigurationService.getString("msgcntr.unrestricted.group.perms"))){
             topic.setRestrictPermissionsForGroups(true);
         }
         if(topic.getCreatedBy()==null&&this.forumManager.getAnonRole()==true){
@@ -8015,7 +8015,9 @@ public class DiscussionForumTool {
             if (currentGroup.getCreateForumForGroup()==true) {
                 groupSelected = true;
                 DiscussionForum forum = forumManager.createForum();
-                forum.setRestrictPermissionsForGroups(forumTemplate.getForum().getRestrictPermissionsForGroups());
+                if (!"true".equalsIgnoreCase(ServerConfigurationService.getString("msgcntr.unrestricted.group.perms"))) {
+                    forum.setRestrictPermissionsForGroups(forumTemplate.getForum().getRestrictPermissionsForGroups());
+                }
                 forum.setModerated(forumTemplate.getForum().getModerated());
                 forum.setAutoMarkThreadsRead(forumTemplate.getForum().getAutoMarkThreadsRead());
                 forum.setPostFirst(forumTemplate.getForum().getPostFirst());
@@ -8102,7 +8104,9 @@ public class DiscussionForumTool {
                 selectedTopic = createTopic(topicTempate.getTopic().getBaseForum().getId());
                 selectedTopic.setGradeAssign(topicTempate.getGradeAssign());
                 DiscussionTopic thisTopic = selectedTopic.getTopic();
-                thisTopic.setRestrictPermissionsForGroups(topicTempate.getTopic().getRestrictPermissionsForGroups());
+                if (!"true".equalsIgnoreCase(ServerConfigurationService.getString("msgcntr.unrestricted.group.perms"))) {
+                   thisTopic.setRestrictPermissionsForGroups(topicTempate.getTopic().getRestrictPermissionsForGroups());
+                }
                 thisTopic.setTitle(topicTempate.getTopic().getTitle() + " - " + currentGroup.getGroup().getTitle());
                 thisTopic.setShortDescription(topicTempate.getTopic().getShortDescription());
                 thisTopic.setExtendedDescription(topicTempate.getTopic().getExtendedDescription());
