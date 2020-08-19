@@ -454,6 +454,17 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
+    public Optional<String> getEntityUrl(Reference ref, Entity.UrlType urlType) {
+
+        try {
+            Assignment a = getAssignment(ref);
+            return Optional.of(this.getDeepLink(a.getContext(), a.getId(), userDirectoryService.getCurrentUser().getId()));
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
     public Collection<String> getEntityAuthzGroups(Reference reference, String userId) {
         Collection<String> references = new ArrayList<>();
 
