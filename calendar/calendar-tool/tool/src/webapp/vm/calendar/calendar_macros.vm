@@ -27,7 +27,7 @@
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		<input type="submit" name="eventSubmit_doDefaultview" value="$tlang.getString('java.default_view')" #if ($isDefaultView) disabled="disabled" #end />
 	</form>
-  #end ## end of isUpdater
+	#end ## end of isUpdater
 </div>
 #end ## end of calendarView macro
 
