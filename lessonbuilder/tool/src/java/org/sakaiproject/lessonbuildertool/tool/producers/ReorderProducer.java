@@ -209,7 +209,11 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 				icon.decorate(this.getImageSourceDecorator(i));
 
 				if (i.getType() == SimplePageItem.TEXT) {
-					String text = FormattedText.convertFormattedTextToPlaintext(i.getHtml());
+					String text = i.getHtml();
+					if (text == null) {
+						text = "";
+					}
+					text = formattedText.convertFormattedTextToPlaintext(text);
 					if (StringUtils.isBlank(text)) {
 						text = messageLocator.getMessage("simplepage.text.item");
 					} else if (StringUtils.length(text) > 50) {
