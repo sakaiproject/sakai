@@ -24,6 +24,7 @@ package org.sakaiproject.jsf2.spreadsheet;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.List;
 
@@ -37,8 +38,10 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
  * NOTE: CSV export capabilities are extremely limited! UTF-16 text (such as
  * Chinese) is not supported correctly, for example. Use Excel-formatted output if at all
  * possible.
+ * @deprecated Please use {@link SpreadsheetDataFileWriterOpenCsv} instead
  */
 @Slf4j
+@Deprecated
 public class SpreadsheetDataFileWriterCsv implements SpreadsheetDataFileWriter {
 	public void writeDataToResponse(List<List<Object>> spreadsheetData, String fileName, HttpServletResponse response) {
 		response.setContentType("text/comma-separated-values");
@@ -49,7 +52,7 @@ public class SpreadsheetDataFileWriterCsv implements SpreadsheetDataFileWriter {
 		OutputStream out = null;
 		try {
 			out = response.getOutputStream();
-			out.write(csvString.getBytes("UTF-8"));
+			out.write(csvString.getBytes(StandardCharsets.UTF_8));
 			out.flush();
 		} catch (IOException e) {
 			log.error(e.getMessage());
