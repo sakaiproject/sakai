@@ -149,7 +149,6 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 			}
 			categoriesMap = this.businessService.getGradebookCategoriesForStudent(userId).stream()
 				.collect(Collectors.toMap(cat -> cat.getName(), cat -> cat));
-			Collections.sort(categoryNames);
 		}
 
 		// build the model for table
