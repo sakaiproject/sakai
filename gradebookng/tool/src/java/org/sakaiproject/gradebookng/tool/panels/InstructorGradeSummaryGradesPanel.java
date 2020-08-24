@@ -124,7 +124,6 @@ public class InstructorGradeSummaryGradesPanel extends BasePanel {
 		}
 		Map<String, CategoryDefinition> categoriesMap = businessService.getGradebookCategories().stream()
 				.collect(Collectors.toMap(cat -> cat.getName(), cat -> cat));
-		Collections.sort(categoryNames);
 
 		// build the model for table
 		final Map<String, Object> tableModel = new HashMap<>();
