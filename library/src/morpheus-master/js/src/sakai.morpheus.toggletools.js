@@ -95,10 +95,10 @@ $PBJQ(document).ready(function () {
             }
             $PBJQ('#subSites').css(subsitesPosition);
             $PBJQ('#subSites').addClass('floating');
-			
+
             // focus on first subsite for accessibility recommendations
             $PBJQ('#subSites').find('li a').first().focus();
-			
+
             if ($PBJQ("#toggleSubsitesLink").position().top < 240) {
                 $PBJQ("#subSites.floating").addClass('ontop');
             }
