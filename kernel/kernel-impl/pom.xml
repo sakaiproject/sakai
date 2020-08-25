@@ -284,7 +284,7 @@
         </dependency>
         <dependency>
             <groupId>org.gridgain</groupId>
-            <artifactId>ignite-hibernate_4.2</artifactId>
+            <artifactId>ignite-hibernate_5.3</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ignite</groupId>

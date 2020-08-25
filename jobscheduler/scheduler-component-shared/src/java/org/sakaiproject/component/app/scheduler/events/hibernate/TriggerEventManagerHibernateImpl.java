@@ -31,7 +31,7 @@ import org.sakaiproject.api.app.scheduler.events.TriggerEvent;
 import org.sakaiproject.api.app.scheduler.events.TriggerEvent.TRIGGER_EVENT_TYPE;
 import org.sakaiproject.api.app.scheduler.events.TriggerEventManager;
 import org.sakaiproject.scheduler.events.hibernate.TriggerEventHibernateImpl;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
 
 /**

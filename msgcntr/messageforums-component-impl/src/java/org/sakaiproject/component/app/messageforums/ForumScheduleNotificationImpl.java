@@ -20,7 +20,7 @@ import java.util.Date;
 import java.util.HashMap;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
+import org.springframework.orm.hibernate5.HibernateOptimisticLockingFailureException;
 
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;

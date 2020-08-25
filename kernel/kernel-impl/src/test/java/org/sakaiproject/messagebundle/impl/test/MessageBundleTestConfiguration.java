@@ -23,27 +23,24 @@ import java.io.IOException;
 import java.util.Properties;
 
 import javax.sql.DataSource;
-import javax.transaction.TransactionManager;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.dialect.HSQLDialect;
 import org.hsqldb.jdbcDriver;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.hibernate.AssignableUUIDGenerator;
 import org.sakaiproject.messagebundle.api.MessageBundleProperty;
 import org.sakaiproject.messagebundle.api.MessageBundleService;
 import org.sakaiproject.messagebundle.impl.MessageBundleServiceImpl;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl;
-import org.sakaiproject.tool.api.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.springframework.orm.hibernate4.HibernateTransactionManager;
-import org.springframework.orm.hibernate4.LocalSessionFactoryBuilder;
+import org.springframework.orm.hibernate5.HibernateTransactionManager;
+import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -72,7 +69,6 @@ public class MessageBundleTestConfiguration {
             e.printStackTrace();
         }
         sfb.addProperties(hibernateProperties);
-        sfb.getIdentifierGeneratorFactory().register("uuid2", AssignableUUIDGenerator.class);
         return sfb.buildSessionFactory();
     }
 

@@ -23,10 +23,8 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>${sakai.spring.groupId}</groupId>
-            <artifactId>${sakai.spring.artifactId}</artifactId>
-            <version>${sakai.spring.version}</version>
-            <scope>provided</scope>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
         </dependency>
     </dependencies>
     <build>

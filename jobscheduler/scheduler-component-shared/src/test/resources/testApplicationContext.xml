@@ -27,7 +27,7 @@
 
    <!-- create a SessionFactory bean from the data source and point it at our HBMs -->
    <bean id="sessionFactory"
-         class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+         class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
       <property name="dataSource" ref="dataSource" />
       <property name="annotatedClasses">
           <list>
@@ -47,7 +47,7 @@
 
    <!-- Create a transaction manager from the SessionFactory -->
    <bean id="transactionManager"
-         class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+         class="org.springframework.orm.hibernate5.HibernateTransactionManager">
        <property name="sessionFactory" ref="sessionFactory" />
    </bean>
 

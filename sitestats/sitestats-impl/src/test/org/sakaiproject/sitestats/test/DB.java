@@ -32,8 +32,8 @@ import org.sakaiproject.sitestats.impl.SitePresenceTotalImpl;
 import org.sakaiproject.sitestats.impl.SiteVisitsImpl;
 import org.sakaiproject.sitestats.impl.UserStatImpl;
 import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate4.HibernateCallback;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.HibernateCallback;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.extern.slf4j.Slf4j;

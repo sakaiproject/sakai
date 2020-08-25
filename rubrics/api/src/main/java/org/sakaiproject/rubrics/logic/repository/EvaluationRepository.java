@@ -23,6 +23,7 @@
 package org.sakaiproject.rubrics.logic.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.sakaiproject.rubrics.logic.model.Evaluation;
 import org.springframework.data.domain.Page;
@@ -44,7 +45,7 @@ public interface EvaluationRepository extends MetadataRepository<Evaluation, Lon
 
     @Override
     @PreAuthorize("canRead(#id, 'Evaluation')")
-    Evaluation findOne(Long id);
+    Optional<Evaluation> findById(Long id);
 
     @Override
     @PreAuthorize("hasRole('ROLE_EVALUATOR')")
@@ -53,7 +54,7 @@ public interface EvaluationRepository extends MetadataRepository<Evaluation, Lon
 
     @Override
     @PreAuthorize("canWrite(#id, 'Evaluation')")
-    void delete(Long id);
+    void deleteById(Long id);
 
     @RestResource(path = "by-association-id", rel = "by-association-id")
     @PreAuthorize("hasAnyRole('ROLE_EVALUATOR', 'ROLE_EVALUEE')")

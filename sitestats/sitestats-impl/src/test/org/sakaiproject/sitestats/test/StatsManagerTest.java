@@ -1095,7 +1095,7 @@ public class StatsManagerTest extends AbstractTransactionalJUnit4SpringContextTe
 		
 		// test paging
 		stats = statsManager.getResourceStats(null, null, null,
-				null, null, null, false, new PagingPosition(0, 0), 
+				null, null, null, false, new PagingPosition(1, 1),
 				null, null, false, 0);
 		assertNotNull(stats);
 		assertEquals(1, stats.size());
@@ -1105,7 +1105,7 @@ public class StatsManagerTest extends AbstractTransactionalJUnit4SpringContextTe
 		
 		// test max results
 		stats = statsManager.getResourceStats(null, null, null,
-				null, null, null, false, new PagingPosition(0, 0), 
+				null, null, null, false, new PagingPosition(1, 1),
 				null, null, false, 1);
 		assertNotNull(stats);
 		assertEquals(1, stats.size());

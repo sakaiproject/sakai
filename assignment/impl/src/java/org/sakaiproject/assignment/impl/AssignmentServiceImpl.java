@@ -1252,7 +1252,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         assignment.setDateModified(Instant.now());
         assignment.setModifier(sessionManager.getCurrentSessionUserId());
-        assignmentRepository.update(assignment);
+        assignmentRepository.merge(assignment);
 
         eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT, reference, true));
     }
@@ -1529,7 +1529,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     public Set<AssignmentSubmission> getSubmissions(Assignment assignment) {
-        assignmentRepository.initializeAssignment(assignment);
         return assignment.getSubmissions();
     }
 

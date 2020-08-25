@@ -22,22 +22,22 @@
 package org.sakaiproject.id.hbm;
 
 import java.io.Serializable;
-import org.hibernate.HibernateException;
-import org.hibernate.engine.spi.SessionImplementor;
-import org.hibernate.id.IdentifierGenerator;
 
+import org.hibernate.HibernateException;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
+import org.hibernate.id.IdentifierGenerator;
 import org.sakaiproject.id.cover.IdManager;
+
+import lombok.NoArgsConstructor;
 
 /**
  * Creates unique identifiers for hibernate based on the Sakai IdManager
  */
+@NoArgsConstructor
 public class IdGenerator implements IdentifierGenerator
 {
-	public IdGenerator() {
-	}
-
-	public Serializable generate(SessionImplementor arg0, Object arg1) throws HibernateException
-	{
+	@Override
+	public Serializable generate(SharedSessionContractImplementor session, Object object) throws HibernateException {
 		return IdManager.createUuid();
 	}
 }

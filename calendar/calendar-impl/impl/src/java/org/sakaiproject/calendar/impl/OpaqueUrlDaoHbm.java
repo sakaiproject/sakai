@@ -21,7 +21,7 @@ import java.util.UUID;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 import org.sakaiproject.calendar.api.OpaqueUrl;
 import org.sakaiproject.calendar.api.OpaqueUrlDao;

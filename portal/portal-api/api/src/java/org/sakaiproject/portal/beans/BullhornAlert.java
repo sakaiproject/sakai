@@ -67,7 +67,7 @@ public class BullhornAlert {
     private String url;
 
     @Column(name="EVENT_DATE", nullable=false)
-    @Type(type = "org.sakaiproject.springframework.orm.hibernate.type.InstantType")
+    @Type(type = "org.hibernate.type.InstantType")
     private Instant eventDate;
 
     @Column(name="DEFERRED", nullable=false)

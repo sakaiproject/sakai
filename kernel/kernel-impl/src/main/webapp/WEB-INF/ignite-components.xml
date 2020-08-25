@@ -29,10 +29,10 @@
         <property name="cacheConfiguration">
             <list>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
-                    <property name="name" value="org.hibernate.cache.spi.UpdateTimestampsCache"/>
+                    <property name="name" value="default-update-timestamps-region"/>
                 </bean>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
-                    <property name="name" value="org.hibernate.cache.internal.StandardQueryCache"/>
+                    <property name="name" value="default-query-results-region"/>
                 </bean>
                 <!-- Entity Caches -->
                 <bean parent="org.sakaiproject.ignite.cache.transactional">

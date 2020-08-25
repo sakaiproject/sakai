@@ -52,7 +52,8 @@
 					<ref bean="javax.sql.DataSource" />
 				</constructor-arg>
 			</bean>
-		</property>	
+		</property>
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 	</bean>
     
 	<!-- Quartz Job -->
