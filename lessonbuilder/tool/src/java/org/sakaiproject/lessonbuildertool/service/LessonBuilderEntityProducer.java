@@ -749,15 +749,16 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		       else
 			   log.error("sakaiId not recognized: {}", sakaiId);
 		   } else if (type == SimplePageItem.BLTI) {
-			   try {
-				   // We need to import the BLTI tool to the new site and update the sakaiid
-				   String[] bltiId = sakaiId.split("/");
-				   Long ltiContentId = Long.valueOf(bltiId[2]);
-				   Map<String, Object> ltiContent = ltiService.getContentDao(ltiContentId, oldSiteId, securityService.isSuperUser());
-				   sakaiId = copyLTIContent(ltiContent, siteId);
-			   } catch (Exception e) {
-				   log.warn("Unable to import LTI tool to new site: {}", e);
-			   }
+				try {
+					// We need to import the BLTI tool to the new site and update the sakaiid
+					String[] bltiId = sakaiId.split("/");
+					Long ltiContentId = Long.valueOf(bltiId[2]);
+					Map<String, Object> ltiContent = ltiService.getContentDao(ltiContentId, oldSiteId, securityService.isSuperUser());
+					String newSakaiId = copyLTIContent(ltiContent, siteId, oldSiteId);
+					if ( newSakaiId != null ) sakaiId = newSakaiId;
+				} catch (Exception e) {
+					log.warn("Unable to import LTI tool to new site: {}", e);
+				}
 			} else if (type == SimplePageItem.TEXT) {
 			String html = itemElement.getAttribute("html");
 			Pattern idPattern = Pattern.compile("(https?://[^/]+/access/basiclti/site)/" + Pattern.quote(oldSiteId) + "/content:([0-9]+)");
@@ -771,7 +772,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				foundLtiLink = true;
 				try {
 					Map<String, Object> ltiContent = ltiService.getContentDao(ltiContentId, oldSiteId, securityService.isSuperUser());
-					sakaiId = copyLTIContent(ltiContent, siteId);
+					String newSakaiId = copyLTIContent(ltiContent, siteId, oldSiteId);
+					if ( newSakaiId != null ) sakaiId = newSakaiId;
 					String[] bltiId = sakaiId.split("/");
 					ltiContentId = Long.valueOf(bltiId[2]);
 				} catch (Exception e) {
@@ -2249,9 +2251,70 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
         return replacedBody;
     }
 
-	private String copyLTIContent(Map<String, Object> ltiContent, String siteId)
+	private String copyLTIContent(Map<String, Object> ltiContent, String siteId, String oldSiteId)
 	{
 
+		// The ultimate tool id for the about to be created content item
+		Long newToolId = null;
+
+		// Check the tool_id - if the tool_id is global we are cool
+		Long ltiToolId = getLong(ltiContent.get(LTIService.LTI_TOOL_ID));
+
+		// Get the tool bypassing security
+		Map<String, Object> ltiTool = ltiService.getToolDao(ltiToolId, siteId, true);
+		if ( ltiTool == null ) {
+			return null;
+		}
+
+		// Lets either verifiy we have a good tool or make a copy if needed
+		String toolSiteId = (String) ltiTool.get(LTIService.LTI_SITE_ID);
+		String toolLaunch = (String) ltiTool.get(LTIService.LTI_LAUNCH);
+		// Global tools have no site id - the simplest case
+		if ( toolSiteId == null ) {
+			newToolId = ltiToolId;
+		} else {
+			// Check if we have a suitable tool already in the site
+			List<Map<String,Object>> tools = ltiService.getTools(null,null,0,0,siteId);
+			for ( Map<String,Object> tool : tools ) {
+				String oldLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
+				if ( oldLaunch == null ) continue;
+				if ( oldLaunch.equals(toolLaunch) ) {
+					newToolId = getLong(tool.get(LTIService.LTI_ID));
+					break;
+				}
+			}
+
+			// If we don't have the tool in the new site, check the tools from the old site
+			if ( newToolId == null ) {
+				tools = ltiService.getToolsDao(null,null,0,0,oldSiteId, true);
+				for ( Map<String,Object> tool : tools ) {
+					String oldLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
+					if ( oldLaunch == null ) continue;
+					if ( oldLaunch.equals(toolLaunch) ) {
+						// Remove stuff that will be regenerated
+						tool.remove(LTIService.LTI_SITE_ID);
+						tool.remove(LTIService.LTI_CREATED_AT);
+						tool.remove(LTIService.LTI_UPDATED_AT);
+						Object newToolInserted = ltiService.insertTool(tool, siteId);
+						if ( newToolInserted instanceof Long ) {
+							newToolId = (Long) newToolInserted;
+							log.debug("Copied tool={} from site={} tosite={} tool={}",ltiToolId,oldSiteId,siteId,newToolInserted);
+							break;
+						} else {
+							log.error("Could not insert tool - "+newToolInserted);
+							return null;
+						}
+					}
+				}
+			}
+
+			if ( newToolId == null ) {
+				log.error("Could not copy tool, launch="+toolLaunch);
+				return null;
+			}
+		}
+
+		// Finally insert the content item...
 		Properties contentProps = new Properties();
 
 		for (Map.Entry<String, Object> entry : ltiContent.entrySet()) {
@@ -2260,6 +2323,9 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			if ( value == null ) continue;
 			contentProps.put(key, value.toString());
 		}
+
+		// Point at the correct (possibly the same) tool id
+		contentProps.put(LTIService.LTI_TOOL_ID, newToolId.toString());
 
 		// Remove stuff that will be regenerated
 		contentProps.remove(LTIService.LTI_SITE_ID);
