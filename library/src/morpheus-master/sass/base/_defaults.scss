@@ -12,6 +12,31 @@ body{
 			padding: $banner-height 0 0 0;
 		}
 	}
+	#maximised-indicator {
+		position: fixed;
+		overflow: hidden;
+		display: none;
+		left: 50%;
+		transform: translateX(-50%);
+		z-index: 100000;
+		div {
+			background-color: white;
+			padding: 7px;
+			border: 1px solid black;
+			border-width: 0 2px 2px 2px;
+			border-radius: 0 0 6px 6px;
+			opacity: 0.7;
+			span {
+				font-weight: bold;
+				margin-right: 5px;
+			}
+		}
+	}
+	&.tool-maximised {
+		#maximised-indicator {
+			display: block;
+		}
+	}
 }
 
 a{

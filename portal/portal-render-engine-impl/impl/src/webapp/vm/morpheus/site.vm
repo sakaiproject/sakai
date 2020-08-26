@@ -6,6 +6,12 @@
 
     <body #if( !${loggedIn} ) class="Mrphs-portalBody is-logged-out" #else class="Mrphs-portalBody ${logoSiteClass} #if ( ${toolsCollapsed} ) Mrphs-toolMenu-collapsed #end #if ( ${toolMaximised} ) tool-maximised #end" #end $pageSiteType>
 
+        <div id="maximised-indicator">
+            <div>
+                <span>${rloader.sit_fullscreen_message}</span><sakai-maximise-button full-screen="true" tabindex="0" />
+            </div>
+        </div>
+
         <noscript>
             <span id="portal_js_warn" class="Mrphs-noJs js-warn-no-js">${rloader.sit_noscript_message}</span>
         </noscript>
