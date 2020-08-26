@@ -3,3 +3,24 @@
 :root{
     --sakai-color-primary--theme-dark: #{$sakai-color-blue-800};
 }
+$primary-color:              $sakai-color-blue-500 !default;
+$alt-colour:                 $sakai-color-orange-400 !default;
+$primary-color-highContrast: $sakai-color-blue-600 !default;	// for use of primary on non-white light backgrounds, such as greys
+$background-color:           $sakai-color-red-800 !default;
+$background-color-secondary: $sakai-color-purple-700 !default;
+$text-color:                 $sakai-color-black-800 !default;
+$text-color-disabled:        $sakai-color-black-600 !default;
+$secondary-color:            $sakai-color-blue-200 !default;
+$body-background-color:      $sakai-color-white !default;
+
+:root{
+    --sakai-primary-color--theme-dark:              #{$primary-color};
+    --sakai-alt-colour--theme-dark:                 #{$alt-colour};
+    --sakai-primary-color-highContrast--theme-dark: #{$primary-color-highContrast};
+    --sakai-background-color--theme-dark:           #{$background-color};
+    --sakai-background-color-secondary--theme-dark: #{$background-color-secondary};
+    --sakai-text-color--theme-dark:                 #{$text-color};
+    --sakai-text-color-disabled--theme-dark:        #{$text-color-disabled};
+    --sakai-secondary-color--theme-dark:            #{$secondary-color};
+    --sakai-body-background-color--theme-dark:      #{$body-background-color};
+}
