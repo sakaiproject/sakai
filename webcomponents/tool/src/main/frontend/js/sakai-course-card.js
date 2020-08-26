@@ -10,75 +10,63 @@ export class SakaiCourseCard extends LitElement {
     return css`
       :host {
         display: block;
-        width: var(--sakai-course-card-width, 402px);
-        font-family: var(--sakai-font-family, roboto, arial, sans-serif);
+        width: var(--sakai-course-card-width);
       }
 
       a {
         text-decoration: none;
       }
       .info-block {
-        height: var(--sakai-course-card-info-height, 90px);
+        height: var(--sakai-course-card-info-height);
         border: solid;
-        border-width: var(--sakai-course-card-border-width, 0);
-        border-color: var(--sakai-course-card-border-color, black);
+        border-width: var(--sakai-course-card-border-width);
+        border-color: var(--sakai-course-card-border-color);
         border-bottom: 0;
-        border-radius: var(--sakai-course-card-border-radius, 4px) var(--sakai-course-card-border-radius, 4px) 0 0;
-        padding: var(--sakai-course-card-padding, 20px);
+        border-radius: var(--sakai-course-card-border-radius) var(--sakai-course-card-border-radius) 0 0;
+        padding: var(--sakai-course-card-padding);
         background: no-repeat;
-        background-color: var(--sakai-course-card-info-block-bg-color, #0f4b6f);
+        background-color: var(--sakai-course-card-info-block-bg-color);
         background-size: cover;
         background-position: center;
       }
         .top-bar { display: flex; justify-content: space-between;}
-          .favourite { color: var(--sakai-icon-favourite-color, yellow); margin-right: 4px; }
+          .favourite { color: var(--sakai-icon-favourite-color); margin-right: 4px; }
           .title-block {
             flex: 2;
-            color: var(--sakai-course-card-title-color, white);
+            color: var(--sakai-course-card-title-color);
           }
           .title-block span {
-            font-size: var(--sakai-course-card-title-font-size, 16px);
+            font-size: var(--sakai-course-card-title-font-size);
           }
           .code-block {
-            color: var(--sakai-course-card-code-color, white);
-            font-size: var(--sakai-course-card-code-font-size, 12px);
+            color: var(--sakai-course-card-code-color);
+            font-size: var(--sakai-course-card-code-font-size);
           }
       .tool-alerts-block {
         display: flex;
         align-items: center;
         justify-content: left;
-        height: var(--sakai-course-card-tool-alerts-height, 40px);
-        padding: var(--sakai-course-card-tool-alerts-padding, 5px);
+        height: var(--sakai-course-card-tool-alerts-height);
+        padding: var(--sakai-course-card-tool-alerts-padding);
         border: solid;
-        border-width: var(--sakai-course-card-border-width, 0);
-        border-color: var(--sakai-course-card-border-color, black);
-        border-radius: 0 0 var(--sakai-course-card-border-radius, 4px) var(--sakai-course-card-border-radius, 4px);
+        border-width: var(--sakai-course-card-border-width);
+        border-color: var(--sakai-course-card-border-color);
+        border-radius: 0 0 var(--sakai-course-card-border-radius) var(--sakai-course-card-border-radius);
         border-top: 0;
-        color: var(--sakai-course-card-tool-alerts-color, black);
-        background-color: var(--sakai-course-card-bg-color, white);
+        color: var(--sakai-course-card-tool-alerts-color);
+        background-color: var(--sakai-course-card-bg-color);
       }
         .tool-alerts-block div { flex: 0; margin-left: 5px; margin-right: 5px; }
         .tool-alerts sakai-icon { margin: 0 5px 0 5px;}
-        .alert { color: var(--sakai-course-card-tool-alert-icon-color, rgb(15,75,111)) }
+        .alert { color: var(--sakai-course-card-tool-alert-icon-color) }
 
-      #course-options { padding: 10px; }
+      #course-options { min-width: 200px; padding: 10px; }
       #course-options input { margin-right: 10px; }
         #favourite-block {
-          color: var(--sakai-course-card-options-menu-favourites-block-color, black);
-          font-size: var(--sakai-course-card-options-menu-favourites-block-font-size, inherit);
-          font-weight: var(--sakai-course-card-options-menu-favourites-block-font-weight, bold);
+          color: var(--sakai-course-card-options-menu-favourites-block-color);
+          font-size: var(--sakai-course-card-options-menu-favourites-block-font-size);
+          font-weight: var(--sakai-course-card-options-menu-favourites-block-font-weight);
         }
-        #tools-block {
-          margin-top: 10px;
-          margin-left: 3px;
-        }
-          #tools-title {
-            font-weight: var(--sakai-course-card-options-menu-tools-title-font-weight, bold);
-          }
-          #tools {
-            margin-top: 5px;
-            margin-left: 10px;
-          }
 
       /*
       #arrow, #arrow::before {
@@ -121,7 +109,6 @@ export class SakaiCourseCard extends LitElement {
       toolUrls: { attribute: "tool-urls", type: Object },
       i18n: Object,
       toolnameMap: Object,
-      _tools: Array,
     };
   }
 
@@ -137,8 +124,6 @@ export class SakaiCourseCard extends LitElement {
       url: "http://www.ebay.co.uk",
       alerts: [],
     };
-
-    this._tools = ["assignments", "gradebook"];
 
     loadProperties("toolname-mappings").then((r) => {
 
@@ -180,27 +165,9 @@ export class SakaiCourseCard extends LitElement {
     return this._toolUrls;
   }
 
-  _toolClicked(e) {
-
-    e.stopPropagation();
-    if (e.target.checked) {
-      if (!this._tools.includes(e.target.value)) {
-        this._tools.push(e.target.value);
-        this._tools = [...this._tools];
-      }
-    } else {
-      if (this._tools.includes(e.target.value)) {
-        this._tools.splice(this._tools.indexOf(e.target.value), 1);
-        this._tools = [...this._tools];
-      }
-    }
-
-    return false;
-  }
-
   _toggleFavourite(e) {
 
-    const url = `/direct/site/${e.target.checked ? "addfavourite" : "removefavourite"}?siteId=${this._courseData.id}`;
+    const url = `/api/${e.target.checked ? "addfavourite" : "removefavourite"}?siteId=${this._courseData.id}`;
 
     fetch(url).then((r) => {
 
@@ -209,7 +176,8 @@ export class SakaiCourseCard extends LitElement {
         this.requestUpdate();
         this.dispatchEvent(new CustomEvent(e.target.checked ? "favourited" : "unfavourited", { detail: { id: this._courseData.id }, bubbles: true }));
       } else {
-        throw new Error(`Failed to add/remove site with id ${this._courseData.id}`);
+        e.target.checked = !e.target.checked;
+        throw new Error(`Failed to favourite/unfavourite site with id ${this._courseData.id}`);
       }
     }).catch((error) =>  console.error(error));
   }
@@ -234,14 +202,6 @@ export class SakaiCourseCard extends LitElement {
           <sakai-options-menu invoker-tooltip="${this.i18n["options_menu_tooltip"]}">
             <div slot="content" id="course-options">
               <div id="favourite-block"><label><input type="checkbox" @click=${this._toggleFavourite} .checked=${this._courseData.favourite}>${this.i18n["favourite_this_course"]}</label></div>
-              <div id="tools-block">
-                <div id="tools-title">${this.i18n["select_tools_to_display"]}</div>
-                <div id="tools">
-                  ${Object.keys(this.toolnameMap).map(k => html`
-                  <div><label><input type="checkbox" value="${k}" .checked=${this._tools.includes(k)} @click=${this._toolClicked} />${this.toolnameMap[k]}</label></div>
-                  `)}
-                </div>
-              </div>
             </div>
           </sakai-options-menu>
         </div>
@@ -251,7 +211,7 @@ export class SakaiCourseCard extends LitElement {
       </div>
       <a href="${this._courseData.url}" title="${this.i18n["visit"]} ${this._courseData.title}">
         <div class="tool-alerts-block">
-          ${this._tools.map(t => html`<div><a href="${this._toolUrls[t]}" title="${this.i18n[t + "_tooltip"]}"><sakai-icon type="${t}" size="small" class="alert" ?has-alerts=${this._courseData.alerts.includes(t)}></a></div>`)}
+          ${this._courseData.alerts.map(t => html`<div><a href="${this._toolUrls[t]}" title="${this.i18n[t + "_tooltip"]}"><sakai-icon type="${t}" size="small" has-alerts></a></div>`)}
         </div>
       </a>
     `;

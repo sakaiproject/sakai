@@ -60,6 +60,7 @@
                 <module>content</module>
                 <module>content-review</module>
                 <module>courier</module>
+                <module>dashboard</module>
                 <module>dav</module>
                 <module>delegatedaccess</module>
                 <module>deploy</module>
@@ -117,6 +118,7 @@
                 <module>usermembership</module>
                 <module>velocity</module>
                 <module>web</module>
+                <module>webapi</module>
                 <module>webcomponents</module>
                 <module>webjars</module>
                 <module>webservices</module>
@@ -146,6 +148,7 @@
                 <module>content</module>
                 <module>content-review</module>
                 <module>courier</module>
+                <module>dashboard</module>
                 <module>dav</module>
                 <module>delegatedaccess</module>
                 <module>deploy</module>
@@ -204,6 +207,7 @@
                 <module>velocity</module>
                 <module>warehouse</module>
                 <module>web</module>
+                <module>webapi</module>
                 <module>webjars</module>
                 <module>webservices</module>
                 <module>wicket</module>

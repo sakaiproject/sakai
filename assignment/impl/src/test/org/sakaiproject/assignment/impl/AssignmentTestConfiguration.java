@@ -57,6 +57,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
+import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.taggable.api.TaggingManager;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.time.api.UserTimeService;
@@ -320,5 +321,10 @@ public class AssignmentTestConfiguration {
     @Bean(name = "org.springproject.transaction.support.TransactionTemplate")
     public TransactionTemplate transactionTemplate() {
         return mock(TransactionTemplate.class);
+    }
+
+    @Bean(name = "org.sakaiproject.tasks.api.TaskService")
+    public TaskService taskService() {
+        return mock(TaskService.class);
     }
 }

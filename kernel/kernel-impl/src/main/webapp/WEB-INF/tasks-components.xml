@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="org.sakaiproject.tasks.api.TaskService"
+        class="org.sakaiproject.tasks.impl.TaskServiceImpl">
+    </bean>
+
+	<bean id="tasksHibernateMappings"
+          class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+		<property name="annotatedClasses">
+			<list>
+				<value>org.sakaiproject.tasks.api.Task</value>
+				<value>org.sakaiproject.tasks.api.UserTask</value>
+			</list>
+		</property>
+	</bean>
+
+</beans>

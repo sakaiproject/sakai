@@ -32,8 +32,6 @@ import org.sakaiproject.util.ResourceLoader;
  */
 public class MessageHelper {
 
-	private static final String BASE_NAME = "org.sakaiproject.gradebookng.GradebookNgApplication";
-
 	/**
 	 * Get a simple message from the bundle
 	 *
@@ -42,7 +40,7 @@ public class MessageHelper {
 	 */
 	public static String getString(final String key) {
 		try {
-			return ResourceBundle.getBundle(BASE_NAME, getUserPreferredLocale()).getString(key);
+			return ResourceBundle.getBundle("gradebookng", getUserPreferredLocale()).getString(key);
 		} catch (final MissingResourceException e) {
 			return '!' + key + '!';
 		}

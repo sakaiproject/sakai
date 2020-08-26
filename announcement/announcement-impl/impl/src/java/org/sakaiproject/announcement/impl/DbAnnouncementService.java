@@ -24,7 +24,9 @@ package org.sakaiproject.announcement.impl;
 // import
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import lombok.Setter;
@@ -33,6 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
@@ -290,7 +293,7 @@ public class DbAnnouncementService extends BaseAnnouncementService
 			return (Message) super.getResource(channel, id);
 		}
 
-		public List getMessages(MessageChannel channel)
+		public List<AnnouncementMessage> getMessages(MessageChannel channel)
 		{
 			return super.getAllResources(channel);
 		}
@@ -598,5 +601,22 @@ public class DbAnnouncementService extends BaseAnnouncementService
 			// if no realm, no pub view
 			return false;
 		}
+	}
+
+	public Map<String, List<AnnouncementMessage>> getAllAnnouncementsForCurrentUser() {
+
+		Map<String, List<AnnouncementMessage>> allAnnouncements = new HashMap<>();
+
+		// First grab all the current user's sites
+		m_siteService.getUserSites().forEach(site -> {
+
+			String channelRef = channelReference(site.getId(), "main");
+			try {
+				allAnnouncements.put(site.getId(), (List<AnnouncementMessage>) getMessages(channelRef, null, true, true));
+			} catch (Exception e) {
+			}
+		});
+
+		return	allAnnouncements;
 	}
 }
