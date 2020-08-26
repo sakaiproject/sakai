@@ -515,9 +515,7 @@ public class MockCharonPortal extends HttpServlet
 				while ((thisLine = br.readLine()) != null) { // while loop begins here
 					log.debug(thisLine);
 					if ( thisLine.indexOf("Error:") < 0 ) continue;
-					if ( thisLine.indexOf("<nav>") > 0 ) continue;
-					if ( thisLine.indexOf("<main>") > 0 ) continue;
-					if ( thisLine.indexOf("<header>") > 0 ) continue;
+					if ( thisLine.indexOf("is not recognized") > 0 ) continue;
 					log.info("Context Dump is " + rcontext.dump());
 					throw new RuntimeException("Error in HTML see "+errorFile+" "+thisLine);
 				} 
