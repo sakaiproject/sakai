@@ -169,7 +169,7 @@ public class SectionActivityListener implements ActionListener, ValueChangeListe
         Map<String, String> nameMap = new HashMap();
         for (EnrollmentRecord enr : list) {
             String uid = enr.getUser().getUserUid();
-            String displayName = enr.getUser().getDisplayName() + " (" + enr.getUser().getDisplayId() + ")";
+            String displayName = enr.getUser().getSortName() + " (" + enr.getUser().getDisplayId() + ")";
 
             nameMap.put(uid, displayName);
         }
