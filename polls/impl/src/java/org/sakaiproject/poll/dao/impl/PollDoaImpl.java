@@ -24,7 +24,7 @@ package org.sakaiproject.poll.dao.impl;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 
 import org.sakaiproject.genericdao.hibernate.HibernateGeneralGenericDao;

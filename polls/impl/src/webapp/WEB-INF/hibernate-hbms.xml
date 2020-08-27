@@ -9,5 +9,4 @@
 		class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
 		<property name="mappingResources" ref="org.sakaiproject.poll.hbmMappingList" />
 	</bean>
-
 </beans>

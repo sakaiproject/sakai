@@ -42,7 +42,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.hibernate.CacheMode;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.DetachedCriteria;
@@ -1473,8 +1473,8 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	    
 	    // normal case -- no flag
 	    if (needsList == null || needsList.size() == 0) {
-		return 0;
-	    }	    
+	      return 0;
+	    }
 
 	    // there is a flag, do something more carefully avoiding race conditions
 	    //   There is a possible timing issue if someone copies data into the site after the

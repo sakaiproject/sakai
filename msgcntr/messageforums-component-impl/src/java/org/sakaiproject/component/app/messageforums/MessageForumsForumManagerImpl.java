@@ -34,7 +34,7 @@ import java.util.TreeSet;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.collection.internal.PersistentSet;
 import org.sakaiproject.hibernate.HibernateUtils;
 

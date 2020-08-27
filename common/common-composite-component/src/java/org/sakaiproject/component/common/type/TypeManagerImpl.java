@@ -24,7 +24,7 @@ package org.sakaiproject.component.common.type;
 import lombok.extern.slf4j.Slf4j;
 
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 
 import org.sakaiproject.api.common.type.Type;

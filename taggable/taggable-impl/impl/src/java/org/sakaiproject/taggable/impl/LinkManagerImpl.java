@@ -22,7 +22,7 @@ package org.sakaiproject.taggable.impl;
 
 import java.util.List;
 
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.type.StringType;
 import org.sakaiproject.exception.IdUnusedException;
