@@ -30,7 +30,7 @@ $gray-lighter:           lighten($gray-base, 93.5%); // #eee
 //** Background color for `<body>`.
 // $body-bg:               #fff
 //** Global text color on `<body>`.
-// $text-color:            $gray-dark
+// var(--sakai-text-color):            $gray-dark
 
 //** Global textual link color.
 // $link-color:            $brand-primary
@@ -213,7 +213,7 @@ $icon-font-path: if($bootstrap-sass-asset-helper, "bootstrap/", "../" + $skin-na
 // $input-bg-disabled:              $gray-lighter
 
 //** Text color for `<input>`s
- $input-color:                    $text-color ;
+ $input-color:                    var(--sakai-text-color) ;
 //** `<input>` border color
 // $input-border:                   #ccc
 
@@ -453,12 +453,12 @@ $icon-font-path: if($bootstrap-sass-asset-helper, "bootstrap/", "../" + $skin-na
 // $nav-disabled-link-hover-color:             $gray-light
 
 //== Tabs
-$nav-tabs-border-color:                     darken( $tool-border-color, 10% );
+$nav-tabs-border-color:                     var(--sakai-border-color);
 
-$nav-tabs-link-hover-border-color:          darken( $tool-border-color, 10% );
+$nav-tabs-link-hover-border-color:          var(--sakai-border-color-hover);
 
-$nav-tabs-active-link-hover-bg:             darken( $tool-tab-background-color, 10% );
-$nav-tabs-active-link-hover-color:          $primary-color;
+$nav-tabs-active-link-hover-bg:             var(--sakai-background-color-hover);
+$nav-tabs-active-link-hover-color:          var(--sakai-primary-color);
 $nav-tabs-active-link-hover-border-color:   $tool-tab-background-color;
 
 // $nav-tabs-justified-link-border-color:            #ddd
@@ -778,7 +778,7 @@ $nav-tabs-active-link-hover-border-color:   $tool-tab-background-color;
 // $thumbnail-border-radius:     $border-radius-base
 
 //** Custom text color for thumbnail captions
-// $thumbnail-caption-color:     $text-color
+// $thumbnail-caption-color:     var(--sakai-text-color)
 //** Padding around the thumbnail caption
 // $thumbnail-caption-padding:   9px
 

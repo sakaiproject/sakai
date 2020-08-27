@@ -9,7 +9,7 @@
 
 .topic-filter{
 	background: $tool-menu-background-color;
-	border: 1px solid darken( $tool-menu-background-color, 20% );
+	border: 1px solid var(--sakai-border-color);
 	margin: 1em 0;
 	padding: 1em;
 	.topic-header-h3{
@@ -243,11 +243,11 @@
 			font-size: 1em;
 			padding: 0.3em 0.2em 0.1em 0;
 			a{
-				color: $text-color;
+				color: var(--sakai-text-color);
 				text-decoration: none;
-				border-bottom: 1px dotted darken( $tool-background-color, 15% );
-				&:hover{
-					border-bottom: 1px dotted darken( $tool-background-color, 10% );
+				border-bottom: 1px solid var(--sakai-border-color);
+				&:hover, &:focus{
+					color: $link-hover-color;
 				}
 			}
 		}

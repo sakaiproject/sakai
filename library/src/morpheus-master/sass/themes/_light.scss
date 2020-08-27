@@ -1,24 +1,36 @@
 // Light Theme
 @import "themes/base";
-$primary-color:              $sakai-color-blue-500 !default;
-$alt-colour:                 $sakai-color-orange-400 !default;
-$primary-color-highContrast: $sakai-color-blue-600 !default;	// for use of primary on non-white light backgrounds, such as greys
-$background-color:           $sakai-color-white !default;
-$background-color-secondary: $sakai-color-purple-700 !default;
-$text-color:                 $sakai-color-black-800 !default;
-$text-color-disabled:        $sakai-color-black-600 !default;
-$secondary-color:            $sakai-color-blue-200 !default;
-$body-background-color:      $sakai-color-white !default;
+
+// var(--sakai-primary-color):              $sakai-color-blue-500 !default;
+// $alt-colour:                 $sakai-color-orange-400 !default;
+// var(--sakai-primary-color)-highContrast: $sakai-color-blue-600 !default;	// for use of primary on non-white light backgrounds, such as greys
+// var(--sakai-background-color):           $sakai-color-white !default;
+// var(--sakai-background-color)-secondary: $sakai-color-purple-700 !default;
+// var(--sakai-text-color):                 $sakai-color-gray-800 !default;
+// var(--sakai-text-color)-disabled:        $sakai-color-gray-600 !default;
+// $secondary-color:            $sakai-color-blue-200 !default;
+// var(--sakai-background-color):      $sakai-color-white !default;
 
 :root{
-    --sakai-primary-color--theme-light:              #{$primary-color};
-    --sakai-alt-colour--theme-light:                 #{$alt-colour};
-    --sakai-primary-color-highContrast--theme-light: #{$primary-color-highContrast};
-    --sakai-background-color--theme-light:           #{$background-color};
-    --sakai-background-color:           #{$background-color};
-    --sakai-background-color-secondary--theme-light: #{$background-color-secondary};
-    --sakai-text-color--theme-light:                 #{$text-color};
-    --sakai-text-color-disabled--theme-light:        #{$text-color-disabled};
-    --sakai-secondary-color--theme-light:            #{$secondary-color};
-    --sakai-body-background-color--theme-light:      #{$body-background-color};
+
+    --sakai-primary-color:                   var(--sakai-color-blue-5);
+    --sakai-primary-color-hover:             var(--sakai-color-blue-6);
+    --sakai-alt-colour:                      var(--sakai-color-orange-4);
+    --sakai-primary-color-highContrast:      var(--sakai-color-blue-6);
+    --sakai-background-color:                var(--sakai-color-white);
+    --sakai-background-color-hover:          var(--sakai-color-gray-0);
+    --sakai-background-color-tint-5:         var(--sakai-color-gray-0);
+    --sakai-background-color-tint-10:        var(--sakai-color-gray-2);
+    --sakai-background-color-tint-15:        var(--sakai-color-gray-3);
+    --sakai-tool-background-alternate:       var(--sakai-background-color-tint-5);
+    --sakai-border-color:                    var(--sakai-color-gray-5);
+    --sakai-top-header-background:           var(--sakai-primary-color);
+    --sakai-sites-nav-background:            var(--sakai-background-color);
+    --sakai-sites-nav-menu-item-background:  var(--sakai-color-gray-2);
+    --sakai-background-color-secondary:      var(--sakai-color-purple-7);
+    --sakai-text-color:                      var(--sakai-color-gray-8);
+    --sakai-text-color-hover:                var(--sakai-color-gray-9);
+    --sakai-text-color-disabled:             var(--sakai-color-gray-6);
+    --sakai-secondary-color:                 var(--sakai-color-blue-2);
+    --sakai-body-background-color:           var(--sakai-background-color);
 }

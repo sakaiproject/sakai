@@ -169,7 +169,7 @@
         }
 
         .roster-table-row {
-            background: $body-background-color;
+            background: var(--sakai-body-background-color);
             border: 1px solid #ccc;
             @include border-radius(5px);
             padding: 5px;

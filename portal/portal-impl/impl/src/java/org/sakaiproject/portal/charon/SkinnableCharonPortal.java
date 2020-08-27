@@ -1739,10 +1739,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
                         		}
                         	}
 						}
-						
-						if(sakaiThemeSwitcherEnabled) {
-							rcontext.put("themeSwitcher", true);
-						}
+
+                        if(sakaiThemeSwitcherEnabled) {
+                            rcontext.put("themeSwitcher", true);
+                        }
 			// rcontext.put("bottomNavSitNewWindow",
 			// Web.escapeHtml(rb.getString("site_newwindow")));
 

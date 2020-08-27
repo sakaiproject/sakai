@@ -1,13 +1,13 @@
 @import "base/compass";
 
 body{
-	color: 		 $text-color;
+	color: 		 var(--sakai-text-color);
 	font-family: $font-family;
 	font-size: 	 $default-font-size !important; // Bootstrap Tool error
 	font-weight: $default-font-weight;
 	line-height: $default-line-height;
 	&.#{$namespace}portalBody{
-		background-color: $body-background-color;
+		background-color: var(--sakai-body-background-color);
 		@media #{$phone}{
 			padding: $banner-height 0 0 0;
 		}
@@ -40,9 +40,9 @@ body{
 }
 
 a{
-	color: $text-color;
+	color: var(--sakai-text-color);
 	&:hover{  // This means a:hover
-		color: $text-color;
+		color: var(--sakai-text-color);
 		text-decoration: none;
 	}
 	&[href]{  // This means a[href]
@@ -81,7 +81,7 @@ a{
 }
 
 input, textarea{
-	color: $text-color;
+	color: var(--sakai-text-color);
 	font-family: $font-family;
 	font-size: 	 $default-font-size;
 	max-width: 100%;
@@ -154,14 +154,14 @@ input[type="checkbox"], input[type="radio"]{
 		opacity: 0.5;
 		& + label{
 			cursor: not-allowed;
-			color: $text-color-disabled;
+			color: var(--sakai-text-color-disabled);
 		}
 	}
 }
 
 label.disabled{
 	cursor: not-allowed;
-	color: $text-color-disabled;
+	color: var(--sakai-text-color-disabled);
 }
 
 input[type="checkbox"]{
@@ -174,8 +174,8 @@ input[type="checkbox"]{
 input[type="radio"]{
 	@include border-radius(24px);
 	&:checked{
-		background: $text-color;                // fallback support
-		background: radial-gradient(circle at center, $text-color 0%, $text-color 48%, $background-color 58%);
+		background: var(--sakai-text-color);                // fallback support
+		background: radial-gradient(circle at center, var(--sakai-text-color) 0%, var(--sakai-text-color) 48%, var(--sakai-background-color) 58%);
 	}
 }
 

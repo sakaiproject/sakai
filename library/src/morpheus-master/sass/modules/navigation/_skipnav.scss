@@ -7,9 +7,9 @@
 	a{
 		&:focus{
 			@media #{$desktop}{
-				background-color: $primary-color;
-				border: 1px solid $background-color;
-				color: $background-color;
+				background-color: var(--sakai-primary-color);
+				border: 1px solid var(--sakai-background-color);
+				color: var(--sakai-background-color);
 				display: block !important;
 				font-size: 0.9em;
 				left: 5px;

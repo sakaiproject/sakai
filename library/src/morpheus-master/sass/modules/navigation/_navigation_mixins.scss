@@ -4,28 +4,20 @@
 	border-right: $sites-nav-menu-item-border-right;
 	border-bottom: $sites-nav-menu-item-border-bottom;
 	border-left: $sites-nav-menu-item-border-left;
-	background: $sites-nav-menu-item-background;
+	background: var(--sakai-sites-nav-menu-item-background);
 	text-align: center;
 	text-decoration: none;
-	color: $sites-nav-menu-item-color;
+	color: var(--sakai-sites-nav-menu-item-color);
 	border-radius: $sites-nav-menu-item-border-radius;
-	.sak-dark-theme & {
-		background: $sites-nav-menu-item-background--theme-dark;
-		border-color: $sites-nav-menu-item-background--theme-dark;
-		color: $sites-nav-menu-item-color--theme-dark;
-	}
+
 	&:hover, &:focus {
 		z-index: 1;		// to avoid missing borders from overlap when hovering
 		border-top: $sites-nav-menu-item-hover-border-top;
 		border-right: $sites-nav-menu-item-hover-border-right;
 		border-bottom: $sites-nav-menu-item-hover-border-bottom;
 		border-left: $sites-nav-menu-item-hover-border-left;
-		background: $sites-nav-menu-item-hover-background;
-		color: $sites-nav-menu-item-hover-color;
-		.sak-dark-theme & {
-			background: $sites-nav-menu-item-hover-background--theme-dark;
-			border-color: $sites-nav-menu-item-hover-border-color--theme-dark;
-		}
+		background: var(--sakai-sites-nav-menu-item-hover-background);
+		color: var(--sakai-sites-nav-menu-item-hover-color);
 	}
 
 	&:focus {

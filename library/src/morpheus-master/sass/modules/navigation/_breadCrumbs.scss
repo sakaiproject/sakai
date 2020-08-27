@@ -2,13 +2,12 @@
 	background: $tool-background-color;
 	min-height: $hierarchy-size;
 	transition:var(--sak-theme-switch-ease);
-	.sak-dark-theme & {
-		background: $tool-background-color--theme-dark;
-		
-	}
+	// .sak-dark-theme & {
+	// 	background: $tool-background-color--theme-dark;
+	// }
 
 	h1{
-		color: $background-color;
+		color: var(--sakai-background-color);
 		font-weight: 300;
 		margin: 0;
 	}

@@ -21,11 +21,11 @@
  	}
 
  	#adv_input{
- 		background: darken( $tool-background-color, 5% );
+ 		background: var(--sakai-color-gray-0);
  		margin: 1em 0em 1em 0em;
  		padding: 0 0 1em 0;
  		.header{
- 			background: darken( $tool-background-color, 10% );
+ 			background: var(--sakai-color-gray-0);
  			display: block;
  			font-size: 1em;
  			font-weight: 600;
@@ -70,10 +70,10 @@
  		h1{
  			margin: 2em 0 0.8em 0;
  			padding: 0 0 0.5em 0;
- 			border-bottom: 1px solid darken( $tool-background-color, 10% );
+ 			border-bottom: 1px solid var(--sakai-border-color);
  		}
  		h2{
- 			border-bottom: 1px solid darken( $tool-background-color, 10% );
+ 			border-bottom: 1px solid var(--sakai-border-color);
  			margin: 2em 0 0.8em 0;
  			padding: 0 0 0.5em 0;
  		}

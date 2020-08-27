@@ -4,7 +4,7 @@ table{
 	}
 	&.listHier{
 		font-size: $default-font-size;
-		border: 1px solid darken($tool-background-color, 10%);
+		border: 1px solid var(--sakai-border-color);
 		background-color: $tool-background-color;
     	margin: 1em 0;
 		@media #{$phone}{
@@ -14,7 +14,7 @@ table{
 		}
 		tr{
 			td {
-				border-right: 1px solid darken($tool-background-color, 10%);
+				border-right: 1px solid var(--sakai-border-color);
 				padding: 0.25em;
 				font-family: $font-family;
 				font-size:   $default-font-size;
@@ -28,9 +28,9 @@ table{
 				}
 			}
 			&:nth-child(odd){
-				background: darken($tool-background-color, 5%);
+				background: var(--sakai-tool-background-alternate);
 				td{
-					border-right: 1px solid darken($tool-background-color, 15%);
+					border-right: 1px solid var(--sakai-border-color);
 				}
 			}
 		}

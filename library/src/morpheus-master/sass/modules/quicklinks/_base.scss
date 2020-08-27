@@ -32,7 +32,7 @@
     font-family: $header-font-family;
     font-weight: $header-font-weight;
     font-size: $default-font-size;
-    color: $text-color;
+    color: var(--sakai-text-color);
     background-color: $tool-menu-background-color;
     box-shadow: 5px 0 50px 0px rgba(0,0,0,0.5);
     position: absolute;
@@ -105,12 +105,12 @@
       overflow: hidden;
       padding: 0.3em 0.7em;
       list-style: none;
-      background: darken( $background-color, 5% );
+      background: var(--sakai-background-color);
       margin: 0.3em 0;
       a{
         @include display-flex;
         @include align-items(center);
-        color: $text-color;
+        color: var(--sakai-text-color);
         font-family: $header-font-family;
         font-size: 0.9em;
         font-weight: $header-font-weight;
@@ -121,7 +121,7 @@
         }
       }
       &.is-selected{
-        border: 1px solid darken( $tool-border-color, 30% );
+        border: 1px solid var(--sakai-border-color);
       }
 
       #quicklink-icon{

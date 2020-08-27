@@ -111,16 +111,16 @@
             float: right;
 
             .fa {
-              color: $text-color !important;
+              color: var(--sakai-text-color) !important;
             }
           }
           .fa.fa-arrows {
-            color: $text-color !important;
+            color: var(--sakai-text-color) !important;
           }
 
           .editItemTitle {
             font-weight: bold;
-            color: $primary-color;
+            color: var(--sakai-primary-color);
             padding-left: 0;
             margin-left: 0;
             display: inline-block;

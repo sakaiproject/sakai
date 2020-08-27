@@ -79,7 +79,7 @@ body{
 					font-weight: 300;
 					background: $tool-background-color;
 					margin: 0;
-					border-bottom:  1px solid darken( $tool-menu-background-color, 5% );
+					border-bottom:  1px solid var(--sakai-border-color);
 					position: relative;
 				}
 			}
@@ -131,7 +131,7 @@ body{
 			.Mrphs-mainHeader{
 				&.is-maximized{
 					.siteNavWrap{
-						background: $primary-color;
+						background: var(--sakai-primary-color);
 						margin-top: -3em;
 						min-height: 100%;
 						padding-top: 3em;
@@ -157,18 +157,18 @@ body{
 						margin: 1.5em;
 						&.is-selected{
 							a{
-								background: $background-color;
+								background: var(--sakai-background-color);
 							}
 						}
 						a{
-							background: darken( $background-color-secondary, 5% );
+							background: var(--sakai-background-color-secondary);
 							border-right: 0px none;
 						}
 						&.#{$namespace}sitesNav__menuitem--myworkspace{
-							background: $primary-color;
+							background: var(--sakai-primary-color);
 							margin: 0 0 0 0;
 							a{
-								background: $primary-color;
+								background: var(--sakai-primary-color);
 							}
 						}
 					}

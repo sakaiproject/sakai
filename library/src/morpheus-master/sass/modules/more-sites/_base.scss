@@ -187,7 +187,7 @@ body.active-more-sites{
 	}
 
 	.tab-bar .tab-btn.tab-disabled{
-		color: lighten( $text-color, 50% );
+		color: var(--sakai-text-color-disabled);
 	}
 
 	.tab-bar .tab-btn.tab-disabled:hover{
@@ -418,7 +418,7 @@ ul.favoriteSiteList{
 	}
 
 	label{
-		color: $text-color;
+		color: var(--sakai-text-color);
 	}
 
 	margin: 1em 1em 1em 0;
@@ -688,9 +688,9 @@ li.organizeFavorites:not(.active) .favoriteCountAndWarning.maxFavoritesReached {
 		display: none;
 	}
 	a{
-		color: darken($background-color-secondary, 10%);
+		color: var(--sakai-background-color-secondary);
 		.fullTitle{
-			color: darken($background-color-secondary, 10%);
+			color: var(--sakai-background-color-secondary);
 		}
 	}
 }
@@ -812,8 +812,8 @@ li.organizeFavorites:not(.active) .favoriteCountAndWarning.maxFavoritesReached {
 	padding-left: 1em;
 
 	button {
-		color: $text-color !important;
-		background: $background-color;
+		color: var(--sakai-text-color) !important;
+		background: var(--sakai-background-color);
 		border-color: $button-primary-border-color;
 		border-radius: $button-radius;
 		padding: 0.6em;
