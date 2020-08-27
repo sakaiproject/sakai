@@ -606,6 +606,17 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		String deploymentId = SakaiBLTIUtil.getDeploymentId(site_id);
 		context.put("deploymentId", deploymentId);
 
+		String configUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/sakai_config";
+		configUrl += "?key=" + URLEncoder.encode(tool.get(LTIService.LTI_ID).toString());
+		configUrl += "&clientId=" + URLEncoder.encode(tool.get(LTIService.LTI13_CLIENT_ID).toString());
+		configUrl += "&issuerURL=" + URLEncoder.encode(issuerURL);
+		configUrl += "&deploymentId=" + URLEncoder.encode(deploymentId);
+		context.put("configUrl", configUrl);
+		if ( configUrl.length() > 30 ) {
+			String configUrlShort = configUrl.substring(0,30) + " ...";
+			context.put("configUrlShort", configUrlShort);
+		}
+
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_tool_post_insert";
 	}
@@ -720,6 +731,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		String issuerURL = SakaiBLTIUtil.getIssuer(site_id);
 		context.put("issuerURL", issuerURL);
 
+		String proxyUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/proxy";
+		context.put("proxyUrl", proxyUrl);
+
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_tool_insert";
 	}
@@ -817,6 +831,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		String site_id = null;
 		String issuerURL = SakaiBLTIUtil.getIssuer(site_id);
 		context.put("issuerURL", issuerURL);
+
+		String proxyUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/proxy";
+		context.put("proxyUrl", proxyUrl);
 
 		state.removeAttribute(STATE_POST);
 		state.removeAttribute(STATE_SUCCESS);

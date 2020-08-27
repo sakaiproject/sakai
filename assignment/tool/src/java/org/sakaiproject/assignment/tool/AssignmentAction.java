@@ -44,6 +44,8 @@ import static org.sakaiproject.assignment.api.model.Assignment.GradeType.SCORE_G
 import static org.sakaiproject.assignment.api.model.Assignment.GradeType.UNGRADED_GRADE_TYPE;
 import static org.sakaiproject.assignment.api.model.Assignment.GradeType.values;
 
+import org.sakaiproject.util.CalendarUtil;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -8657,7 +8659,7 @@ public class AssignmentAction extends PagedResourceActionII {
         if (c != null && e != null && assignment != null) {
             CalendarEventEdit edit = c.getEditEvent(e.getId(), org.sakaiproject.calendar.api.CalendarService.EVENT_ADD_CALENDAR);
 
-            edit.setField(AssignmentConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID, assignment.getId());
+            edit.setField(CalendarUtil.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID, assignment.getId());
             edit.setField(AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED, assignmentService.getUsersLocalDateTimeString(assignment.getOpenDate()));
 
             c.commitEvent(edit);
@@ -9330,21 +9332,25 @@ public class AssignmentAction extends PagedResourceActionII {
                 // put the names and values into vm file
                 state.setAttribute(NEW_ASSIGNMENT_TITLE, a.getTitle());
                 state.setAttribute(NEW_ASSIGNMENT_CONTENT_ID, a.getContentId());
-                try {
-                    Site site = siteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
-                    Long contentKey = a.getContentId().longValue();
-                    Map<String, Object> content = ltiService.getContent(contentKey, site.getId());
-                    Long toolKey = new Long(content.get(LTIService.LTI_TOOL_ID).toString());
-                    if (toolKey != null) {
-                        Map<String, Object> tool = ltiService.getTool(toolKey, site.getId());
-						String toolTitle = (String) tool.get(LTIService.LTI_TITLE);
-	                    state.setAttribute(NEW_ASSIGNMENT_CONTENT_TITLE, toolTitle);
-					}
-
-                } catch(org.sakaiproject.exception.IdUnusedException e ) {
-                    // Send error to template
-                    state.setAttribute(NEW_ASSIGNMENT_CONTENT_TITLE, null);
+                if ( a.getContentId() != null ) {
+                   try {
+                        Site site = siteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
+                        Long contentKey = a.getContentId().longValue();
+                        Map<String, Object> content = ltiService.getContent(contentKey, site.getId());
+                        Long toolKey = new Long(content.get(LTIService.LTI_TOOL_ID).toString());
+                        if (toolKey != null) {
+                            Map<String, Object> tool = ltiService.getTool(toolKey, site.getId());
+                            String toolTitle = (String) tool.get(LTIService.LTI_TITLE);
+                            state.setAttribute(NEW_ASSIGNMENT_CONTENT_TITLE, toolTitle);
+                        }
+                    } catch(org.sakaiproject.exception.IdUnusedException e ) {
+                        // Send error to template
+                        state.setAttribute(NEW_ASSIGNMENT_CONTENT_TITLE, null);
+                    }
+                } else {
+                        state.setAttribute(NEW_ASSIGNMENT_CONTENT_TITLE, null);
                 }
+
                 state.setAttribute(NEW_ASSIGNMENT_CONTENT_LAUNCH_NEW_WINDOW, a.getContentLaunchNewWindow());
                 state.setAttribute(NEW_ASSIGNMENT_ORDER, a.getPosition());
 

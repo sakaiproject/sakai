@@ -156,11 +156,15 @@ public class SchedulerManagerImpl implements ApplicationContextAware, Lifecycle,
     	  sqlService.ddl(this.getClass().getClassLoader(), "init_locks2");
       }
 
-      // start scheduler and load jobs
+      // create a new scheduler factory
       SchedulerFactory schedFactory = new StdSchedulerFactory(qrtzProperties);
       scheduler = schedFactory.getScheduler();
       scheduler.setJobFactory(jobFactory);
-
+      // skip the rest of the job load if startScheduler is false
+      if (startScheduler == false) {
+    	  log.info("Scheduler is disabled, skipping job load in init()");
+    	  return;
+      }
       // loop through persisted jobs removing both the job and associated
       // triggers for jobs where the associated job class is not found
       Set<JobKey> jobKeys = scheduler.getJobKeys(GroupMatcher.jobGroupEquals(Scheduler.DEFAULT_GROUP));
@@ -168,6 +172,10 @@ public class SchedulerManagerImpl implements ApplicationContextAware, Lifecycle,
         try
         {
           JobDetail detail = scheduler.getJobDetail(key);
+          if (detail == null) {
+              log.warn("JobDetail is null skipping job with key = {}", key);
+              continue;
+          }
           String bean = detail.getJobDataMap().getString(JobBeanWrapper.SPRING_BEAN_NAME);
           // We now have jobs that don't explicitly reference a spring bean
           if (bean != null && !bean.isEmpty()) {
@@ -615,7 +623,7 @@ public class SchedulerManagerImpl implements ApplicationContextAware, Lifecycle,
                 log.error("Failed to start the scheduler.", e);
             }
         } else {
-            log.info("Scheduler is disabled");
+            log.info("Scheduler is disabled, skipping start()");
         }
     }
 

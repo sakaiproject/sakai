@@ -1,4 +1,25 @@
-function updatePresence(){
+var activeTabListenerAttached = false,// initial load
+    handleVisibilityChange = function(){}; 
+
+function updatePresenceTimeout(_ms, _go) {
+    if (window.sakaiLastPresenceTimeOut !== null) {
+        clearTimeout(window.sakaiLastPresenceTimeOut);
+        window.sakaiLastPresenceTimeOut = null;
+    }
+    if (_go) {
+        window.sakaiLastPresenceTimeOut = setTimeout('updatePresence()', _ms);
+    }
+}
+
+function updatePresence() {
+  if (!activeTabListenerAttached) {
+    document.addEventListener("visibilitychange", handleVisibilityChange, false);
+    activeTabListenerAttached = true;
+  }
+
+  if (document.hidden) {
+    return;
+  }
 
   $PBJQ.ajax({
     url: sakaiPresenceFragment,
@@ -40,12 +61,22 @@ function updatePresence(){
       var chatUrl = $PBJQ('.nav-selected .icon-sakai-chat').attr('href');
 
       $PBJQ('#presenceIframe .presenceList div.inChat span').wrap('<a href="' + chatUrl + '"></a>')
-      sakaiLastPresenceTimeOut = setTimeout('updatePresence()', 30000);
+      updatePresenceTimeout(30000, true); // 30 seconds
     },
 
     // If we get an error, wait 60 seconds before retry
     error: function(request, strError){
-      sakaiLastPresenceTimeOut = setTimeout('updatePresence()', 60000);
+      updatePresenceTimeout(60000, true);
     }
   });
 }
+
+// Triggers when visibility changes
+handleVisibilityChange = function(event) {
+    if (document.hidden) {
+        updatePresenceTimeout(window.sakaiPresenceTimeDelay, false); //stop
+    } else  {
+        updatePresenceTimeout(window.sakaiPresenceTimeDelay, false); 
+        updatePresence(); //start immediately
+    }
+};

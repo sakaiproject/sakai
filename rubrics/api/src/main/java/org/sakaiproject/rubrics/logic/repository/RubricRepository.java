@@ -23,6 +23,7 @@
 package org.sakaiproject.rubrics.logic.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.sakaiproject.rubrics.logic.model.Rubric;
 import org.springframework.data.domain.Page;
@@ -38,7 +39,7 @@ public interface RubricRepository extends MetadataRepository<Rubric, Long> {
 
     @Override
     @PreAuthorize("canRead(#id, 'Rubric')")
-    Rubric findOne(Long id);
+    Optional<Rubric> findById(Long id);
 
     @Override
     @Query("select resource from Rubric resource where " + QUERY_CONTEXT_CONSTRAINT)
@@ -46,7 +47,7 @@ public interface RubricRepository extends MetadataRepository<Rubric, Long> {
 
     @Override
     @PreAuthorize("canWrite(#id, 'Rubric')")
-    void delete(Long id);
+    void deleteById(Long id);
 
     @RestResource(path = "shared-only", rel = "shared-only")
     @PreAuthorize("hasRole('ROLE_EDITOR')")

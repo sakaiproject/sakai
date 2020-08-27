@@ -112,15 +112,12 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     @Transactional
     public void deleteSubmission(String submissionId) {
         Session session = sessionFactory.getCurrentSession();
-        AssignmentSubmission submission = (AssignmentSubmission) session.get(AssignmentSubmission.class, submissionId);
+        AssignmentSubmission submission = session.get(AssignmentSubmission.class, submissionId);
         if (submission != null) {
             log.info("Deleting submission {}", submission);
             Assignment assignment = submission.getAssignment();
-            // must call refresh here to ensure the collections are initialized before changing, this is due to lazy loaded entities
-            session.refresh(assignment);
             assignment.getSubmissions().remove(submission);
-            session.update(assignment);
-            session.flush();
+            session.delete(submission);
         }
     }
 
@@ -245,11 +242,6 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
                 .add(Restrictions.eq("assignment.id", assignmentId))
                 .add(Restrictions.eq("groupId", groupId))
                 .uniqueResult();
-    }
-
-    @Override
-    public void initializeAssignment(Assignment assignment) {
-        sessionFactory.getCurrentSession().refresh(assignment);
     }
 
     @Override

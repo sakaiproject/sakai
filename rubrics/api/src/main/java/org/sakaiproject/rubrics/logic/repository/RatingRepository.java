@@ -22,6 +22,8 @@
 
 package org.sakaiproject.rubrics.logic.repository;
 
+import java.util.Optional;
+
 import org.sakaiproject.rubrics.logic.model.Rating;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,7 +36,7 @@ public interface RatingRepository extends MetadataRepository<Rating, Long> {
 
     @Override
     @PreAuthorize("canRead(#id, 'Rating')")
-    Rating findOne(Long id);
+    Optional<Rating> findById(Long id);
 
     @Override
     @Query("select resource from Rating resource where " + QUERY_CONTEXT_CONSTRAINT)
@@ -42,5 +44,5 @@ public interface RatingRepository extends MetadataRepository<Rating, Long> {
 
     @Override
     @PreAuthorize("canWrite(#id, 'Rating')")
-    void delete(Long id);
+    void deleteById(Long id);
 }

@@ -29,22 +29,27 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.configuration.reloading.InvariantReloadingStrategy;
 
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
+import org.springframework.util.StringUtils;
 
 @Slf4j
 public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedAccessDao {
+
+	@Setter private ServerConfigurationService serverConfigurationService;
+
 	private PropertiesConfiguration statements;
 	private static int ORACLE_IN_CLAUSE_SIZE_LIMIT = 1000;
 	private boolean oracle = false;
@@ -52,16 +57,14 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 	 * init
 	 */
 	public void init() {
-		log.info("init()");
-		
 		//setup the vendor
-		String vendor = ServerConfigurationService.getInstance().getString("vendor@org.sakaiproject.db.api.SqlService", null);
+		String vendor = serverConfigurationService.getString("vendor@org.sakaiproject.db.api.SqlService");
 
-		//initialise the statements
-		initStatements(vendor);
-		
-		if(vendor != null && "oracle".equals(vendor)){
-			oracle = true;
+		if (StringUtils.hasText(vendor)) {
+			// initialise the statements
+			initStatements(vendor);
+
+			if ("oracle".equals(vendor)) oracle = true;
 		}
 	}
 	

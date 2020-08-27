@@ -452,9 +452,9 @@
 				<prop key="hibernate.cache.region.factory_class">org.apache.ignite.cache.hibernate.HibernateRegionFactory</prop>
 				<prop key="hibernate.generate_statistics">true</prop>
 				<prop key="hibernate.enable_lazy_load_no_trans">true</prop>
-				<prop key="hibernate.current_session_context_class">org.springframework.orm.hibernate4.SpringSessionContext</prop>
+				<prop key="hibernate.current_session_context_class">org.springframework.orm.hibernate5.SpringSessionContext</prop>
 				<prop key="org.apache.ignite.hibernate.default_access_type">READ_ONLY</prop>
-				<prop key="hibernate.cache.query_cache_factory">org.sakaiproject.hibernate.IgniteStandardQueryCacheFactory</prop>
+				<!-- prop key="hibernate.cache.query_cache_factory">org.sakaiproject.hibernate.IgniteStandardQueryCacheFactory</prop -->
 			</props>
 		</property>
 	</bean>
@@ -467,7 +467,7 @@
 
 	<!--  The "Global" Transaction Manager -->
 	<bean id="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"
-		  class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		  class="org.springframework.orm.hibernate5.HibernateTransactionManager">
 		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </bean>
 

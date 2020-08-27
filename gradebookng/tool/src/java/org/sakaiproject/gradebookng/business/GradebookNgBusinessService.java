@@ -61,6 +61,7 @@ import org.sakaiproject.coursemanagement.api.Membership;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
+import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
@@ -1076,6 +1077,22 @@ public class GradebookNgBusinessService {
 
 		final Map<String, List<String>> userSections = new HashMap<>();
 
+		// First off, add the locally authored sections, ie: the sections internal to Sakai.
+
+		for (CourseSection cs : sectionManager.getSections(siteId)) {
+			for (EnrollmentRecord er : sectionManager.getSectionEnrollments(cs.getUuid())) {
+				String userId = er.getUser().getUserUid();
+				List<String> sections = userSections.get(userId);
+				if (sections == null) {
+					userSections.put(userId, new ArrayList<>(Arrays.asList(cs.getTitle())));
+				} else {
+					sections.add(cs.getTitle());
+				}
+			}
+		}
+
+		// Now add the sections coming in from external providers, ie: course management
+
 		String[] sectionIds = null;
 
 		try {
@@ -1163,7 +1180,7 @@ public class GradebookNgBusinessService {
 
 		for (User u : users) {
 			gbUsers.add(new GbUser(u, getStudentNumber(u, site))
-							.setSections(userSections.getOrDefault(u.getEid(), Collections.emptyList())));
+							.setSections(userSections.getOrDefault(u.getId(), Collections.emptyList())));
 		}
 
 		return gbUsers;
@@ -2130,30 +2147,22 @@ public class GradebookNgBusinessService {
 	 * @param assignment
 	 * @return
 	 */
-	public boolean updateAssignment(final Assignment assignment) {
+	public void updateAssignment(final Assignment assignment) {
 		final String siteId = getCurrentSiteId();
 		final Gradebook gradebook = getGradebook(siteId);
 
 		// need the original name as the service needs that as the key...
 		final Assignment original = this.getAssignment(assignment.getId());
 
-		try {
-			this.gradebookService.updateAssignment(gradebook.getUid(), original.getId(), assignment);
+		this.gradebookService.updateAssignment(gradebook.getUid(), original.getId(), assignment);
 
-			EventHelper.postUpdateAssignmentEvent(gradebook, assignment, getUserRoleOrNone());
+		EventHelper.postUpdateAssignmentEvent(gradebook, assignment, getUserRoleOrNone());
 
-			if (original.getCategoryId() != null && assignment.getCategoryId() != null
-					&& original.getCategoryId().longValue() != assignment.getCategoryId().longValue()) {
-				updateAssignmentCategorizedOrder(gradebook.getUid(), assignment.getCategoryId(), assignment.getId(),
-						Integer.MAX_VALUE);
-			}
-
-			return true;
-		} catch (final Exception e) {
-			log.error("An error occurred updating the assignment", e);
+		if (original.getCategoryId() != null && assignment.getCategoryId() != null
+				&& original.getCategoryId().longValue() != assignment.getCategoryId().longValue()) {
+			updateAssignmentCategorizedOrder(gradebook.getUid(), assignment.getCategoryId(), assignment.getId(),
+					Integer.MAX_VALUE);
 		}
-
-		return false;
 	}
 
 	/**

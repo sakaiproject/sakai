@@ -175,7 +175,9 @@ $( document ).ready(function() {
   });
 
   $('.fillInNumericInput').change( function() {
-    validateFinInput(this);
+    if (validateFinInput(this)) {
+      $(this).popover('destroy');
+    }
   });
 
   $('.fillInNumericInput').keyup( throttle(function(){
@@ -190,7 +192,9 @@ $( document ).ready(function() {
     ) {
         return;
     }
-    validateFinInput(this);
+    if (validateFinInput(this)) {
+      $(this).popover('destroy');
+    }
   }));
 
 });

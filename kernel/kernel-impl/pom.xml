@@ -284,7 +284,7 @@
         </dependency>
         <dependency>
             <groupId>org.gridgain</groupId>
-            <artifactId>ignite-hibernate_4.2</artifactId>
+            <artifactId>ignite-hibernate_5.3</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ignite</groupId>
@@ -315,7 +315,7 @@
         <dependency>
             <groupId>org.owasp.antisamy</groupId>
             <artifactId>antisamy</artifactId>
-            <version>1.5.9</version>
+            <version>1.5.10</version>
         </dependency>
         <dependency>
             <groupId>xml-apis</groupId>

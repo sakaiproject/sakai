@@ -21,6 +21,7 @@
 package org.sakaiproject.coursemanagement.impl;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -29,8 +30,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.TemporalType;
+
 import org.hibernate.Hibernate;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.sakaiproject.coursemanagement.api.AcademicSession;
 import org.sakaiproject.coursemanagement.api.CanonicalCourse;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
@@ -42,8 +45,8 @@ import org.sakaiproject.coursemanagement.api.Membership;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.SectionCategory;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
-import org.springframework.orm.hibernate4.HibernateCallback;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.HibernateCallback;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -309,7 +312,7 @@ public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport im
 		/**
 		 * select * from CM_MEMBER_CONTAINER_T where start_date <= now() and end_date>=now() and class_discr='org.sakaiproject.coursemanagement.impl.CourseOfferingCmImpl' and canonical_course in (select MEMBER_CONTAINER_ID from CM_MEMBER_CONTAINER_T where enterprise_id= ? and CLASS_DISCR='org.sakaiproject.coursemanagement.impl.CanonicalCourseCmImpl');
 		 */
-		CanonicalCourse canonicalCourse = null;
+		final CanonicalCourse canonicalCourse;
 		try {
 			canonicalCourse = this.getCanonicalCourse(eid);
 		}
@@ -317,11 +320,14 @@ public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport im
 			//its quite possible someone ask for a course that doesn't exits
 			return new ArrayList<CourseOffering>();
 		}
-		
-		List<CourseOffering> ret = new ArrayList<CourseOffering>((List<CourseOffering>) getHibernateTemplate().findByNamedQueryAndNamedParam("findActiveCourseOfferingsInCanonicalCourse", 
-				"canonicalCourse", canonicalCourse));
-		
-		return ret;
+
+		HibernateCallback<List<CourseOffering>> hc = session -> {
+			return session.getNamedQuery("findActiveCourseOfferingsInCanonicalCourse")
+					.setParameter("now", new Date(), TemporalType.TIMESTAMP)
+					.setParameter("canonicalCourse", canonicalCourse)
+					.list();
+		};
+		return new ArrayList<>(getHibernateTemplate().execute(hc));
 	}
 	
 	

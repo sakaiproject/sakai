@@ -142,6 +142,18 @@ public class LTI13Servlet extends HttpServlet {
 
 		SakaiLineItem filter = getLineItemFilter(request);
 
+		// /imsblis/lti13/proxy
+		if (parts.length == 4 && "proxy".equals(parts[3])) {
+			handleProxy(request, response);
+			return;
+		}
+
+		// /imsblis/lti13/sakai-config
+		if (parts.length == 4 && "sakai_config".equals(parts[3])) {
+			handleSakaiConfig(request, response);
+			return;
+		}
+
 		// Get a keys for a client_id
 		// /imsblis/lti13/keyset/{tool-id}
 		if (parts.length == 5 && "keyset".equals(parts[3])) {
@@ -293,6 +305,116 @@ public class LTI13Servlet extends HttpServlet {
 		log.error("Unrecognized POST request parts={} request={}", parts.length, uri);
 		LTI13Util.return400(response, "Unrecognized POST request parts="+parts.length+" request="+uri);
 
+	}
+
+	// A very locked down proxy - JSON Only
+	protected void handleProxy(HttpServletRequest request, HttpServletResponse response) {
+		String proxyUrl = request.getParameter("proxyUrl");
+		if ( proxyUrl == null ) {
+			LTI13Util.return400(response, "Missing proxyUrl");
+			return;
+		}
+
+		Session sess = SessionManager.getCurrentSession();
+		if ( sess == null || sess.getUserId() == null ) {
+			LTI13Util.return400(response, "Must be logged in");
+			return;
+		}
+
+		// https://stackoverflow.com/a/43708457/1994792
+		try {
+			java.net.URL url = new java.net.URL(proxyUrl);
+			java.net.HttpURLConnection con = (java.net.HttpURLConnection) url.openConnection();
+			con.setRequestMethod("GET");
+			con.setConnectTimeout(3000);
+			con.setReadTimeout(3000);
+			con.setInstanceFollowRedirects(true);
+
+			try ( java.io.BufferedReader in = new java.io.BufferedReader(
+				new java.io.InputStreamReader(con.getInputStream())) )
+			{
+				String inputLine;
+				StringBuffer content = new StringBuffer();
+				while ((inputLine = in.readLine()) != null) {
+					content.append(inputLine);
+				}
+				if ( content.length() > 10000 ) {
+					LTI13Util.return400(response, "Content too long");
+					return;
+				}
+
+				String jsonString = content.toString();
+
+				Object js = JSONValue.parse(jsonString);
+				if (js == null || !(js instanceof JSONObject)) {
+					LTI13Util.return400(response, "Badly formatted JSON");
+					return;
+				}
+
+				response.setContentType(APPLICATION_JSON);
+				PrintWriter out = response.getWriter();
+
+				out.println(((JSONObject) js).toJSONString());
+			} catch (Exception e) {
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			}
+		} catch (Exception e) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		}
+	}
+
+	// Provide LTI Advantage Sakai parameters through JSON
+	protected void handleSakaiConfig(HttpServletRequest request, HttpServletResponse response) {
+		String clientId = request.getParameter("clientId");
+		if ( clientId == null ) {
+			LTI13Util.return400(response, "Missing clientId");
+			return;
+		}
+
+		String key = request.getParameter("key");
+		if ( key == null ) {
+			LTI13Util.return400(response, "Missing key");
+			return;
+		}
+
+		String issuerURL = request.getParameter("issuerURL");
+		if ( issuerURL == null ) {
+			LTI13Util.return400(response, "Missing issuerURL");
+			return;
+		}
+
+		String deploymentId = request.getParameter("deploymentId");
+		if ( deploymentId == null ) {
+			LTI13Util.return400(response, "Missing deploymentId");
+			return;
+		}
+
+		String keySetUrl = getOurServerUrl() + "/imsblis/lti13/keyset/" + key;
+		String tokenUrl = getOurServerUrl() + "/imsblis/lti13/token/" + key;
+		String authOIDC = getOurServerUrl() + "/imsoidc/lti13/oidc_auth";
+
+		String sakaiVersion = ServerConfigurationService.getString("version.sakai", "2");
+
+		JSONObject context_obj = new JSONObject();
+		context_obj.put("issuerURL", issuerURL);
+		context_obj.put("clientId", clientId);
+		context_obj.put("keySetUrl", keySetUrl);
+		context_obj.put("tokenUrl", tokenUrl);
+		context_obj.put("authOIDC", authOIDC);
+		context_obj.put("deploymentId", deploymentId);
+		context_obj.put("productFamilyCode", "sakai");
+		context_obj.put("version", sakaiVersion);
+		context_obj.put("answer", "42");
+
+		response.setContentType(APPLICATION_JSON);
+		try {
+			PrintWriter out = response.getWriter();
+			out.print(JacksonUtil.prettyPrint(context_obj));
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			return;
+		}
 	}
 
 	protected void handleKeySet(String tool_id, HttpServletRequest request, HttpServletResponse response) {

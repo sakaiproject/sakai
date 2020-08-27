@@ -1,0 +1,144 @@
+{
+  "userId": "brian",
+  "givenName": "Brian",
+  "projects": [
+      {
+        "id": "footsoc",
+        "title": "Football Society",
+        "code": "FOOTSOC",
+        "url": "http://www.open.ac.uk",
+        "favourite": false,
+        "project": true
+      },
+      {
+        "id": "tennissoc",
+        "title": "Tennis Society",
+        "code": "TENSOC",
+        "url": "http://www.open.ac.uk",
+        "favourite": false,
+        "project": true
+      }
+  ],
+  "terms": [
+    {
+      "id": "spring2020",
+      "name": "Spring 2020",
+      "courses": [
+        {
+          "id": "bio",
+          "title": "Biogeochemical Oceanography",
+          "code": "BCO 104",
+          "url": "http://www.facebook.com",
+          "alerts": ["forums"],
+          "favourite": false,
+          "course": true
+        },
+        {
+          "id": "fre",
+          "title": "French 101",
+          "code": "LING",
+          "url": "http://www.ebay.co.uk",
+          "alerts": ["assignments", "forums"],
+          "favourite": true,
+          "course": true
+        }
+      ]
+    },
+    {
+      "id": "summer2020",
+      "name": "Summer 2020",
+      "courses": [{
+        "id": "geo101",
+        "title": "Geology 101",
+        "code": "GEO101",
+        "url": "http://www.eggs.com",
+        "favourite": true,
+        "course": true
+      },
+      {
+        "id": "spa102",
+        "title": "Spanish 102",
+        "code": "LING",
+        "url": "http://www.elpais.es",
+        "alerts": ["assignments"],
+        "favourite": true,
+        "course": true
+      }]
+    }
+  ],
+  "widgetpanel" : {
+    "widgets": [
+      { "id": "picker", "state": "remove", "data": [] },
+      { "id": "calendar", "state": "view", "data": [] },
+      { "id": "forums", "state": "view", "data": [] },
+      { "id": "grades", "state": "view", "data": {
+                                            "totalSubmissions": 21,
+                                            "assignments": [
+                                            {
+                                              "id": "grade1",
+                                              "siteTitle": "Bio 101",
+                                              "assignmentTitle": "Aphids",
+                                              "newCount": 4,
+                                              "averageScore": 63,
+                                              "url": "http://www.weed.com"
+                                            },
+                                            {
+                                              "id": "grade2",
+                                              "siteTitle": "French 101",
+                                              "assignmentTitle": "Some French Speaking",
+                                              "newCount": 7,
+                                              "averageScore": 81,
+                                              "url": "http://www.weed.com"
+                                            },
+                                            {
+                                              "id": "grade3",
+                                              "siteTitle": "Rowing Club",
+                                              "assignmentTitle": "Stamina",
+                                              "newCount": 5,
+                                              "averageScore": 35,
+                                              "url": "http://www.weed.com"
+                                            },
+                                            {
+                                              "id": "grade4",
+                                              "siteTitle": "Computing 203",
+                                              "assignmentTitle": "Goto statements",
+                                              "newCount": 15,
+                                              "averageScore": 51,
+                                              "url": "http://www.weed.com"
+                                            }
+                                            ]
+                                          }
+      },
+      { "id": "tasks", "state": "view","data": []},
+      { "id": "announcements", "state": "view", "data": [
+                                          {
+                                            "id": "announcement1",
+                                            "siteId": "bio101",
+                                            "siteTitle": "Bio 101",
+                                            "title": "New resources are available",
+                                            "author": "Brian Jones",
+                                            "url": "http://www.nasa.com"
+                                          },
+                                          {
+                                            "id": "announcement2",
+                                            "siteId": "french201",
+                                            "siteTitle": "French 201",
+                                            "title": "Bonjour, mes ami",
+                                            "author": "Earle Nietzel",
+                                            "url": "http://www.petit.fr/"
+                                          },
+                                          {
+                                            "id": "announcement3",
+                                            "siteId": "footballclub",
+                                            "siteTitle": "Football Club",
+                                            "title": "Penalties!",
+                                            "author": "Adrian Fish",
+                                            "url": "http://www.petit.fr/"
+                                          }
+                                        ]}
+    ],
+    "layout": [{ "widgets": ["tasks", "forums", "grades"] }, { "widgets": ["calendar", "announcements"] }]
+  }
+}
+
+

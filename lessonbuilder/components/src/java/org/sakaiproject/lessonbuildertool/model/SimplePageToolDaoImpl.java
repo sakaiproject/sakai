@@ -42,7 +42,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.hibernate.CacheMode;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.DetachedCriteria;
@@ -53,8 +53,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
 import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate4.HibernateTemplate;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.HibernateTemplate;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
@@ -1473,8 +1473,8 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	    
 	    // normal case -- no flag
 	    if (needsList == null || needsList.size() == 0) {
-		return 0;
-	    }	    
+	      return 0;
+	    }
 
 	    // there is a flag, do something more carefully avoiding race conditions
 	    //   There is a possible timing issue if someone copies data into the site after the

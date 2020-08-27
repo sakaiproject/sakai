@@ -1,0 +1,113 @@
+import { LitElement, html, css } from "./assets/lit-element/lit-element.js";
+import "./sakai-icon.js";
+import "./sakai-button.js";
+import { loadProperties as lp} from "./sakai-i18n.js";
+
+class SakaiDialogContent extends LitElement {
+
+  static get properties() {
+
+    return {
+      title: String,
+    };
+  }
+
+  constructor() {
+
+    super();
+
+    lp("dialog-content").then(r => this.baseI18n = r);
+  }
+
+
+  close() {
+    this.dispatchEvent(new Event('close-overlay', { bubbles: true }));
+  }
+
+  cancel() {
+    this.close();
+  }
+
+  loadProperties(options) {
+    return lp(options);
+  }
+
+  content() {}
+
+  buttons() {}
+
+  shouldUpdate(changed) {
+    return this.baseI18n;
+  }
+
+  render() {
+
+    return html`
+      <div id="container">
+        <div id="titlebar">
+          <div id="title">${this.title()}</div>
+          <div id="close">
+            <a href="javascript:;" @click=${this.close} title="${this.baseI18n["close"]} ${this.title()}">
+              <sakai-icon type="close"></sakai-icon>
+            </a>
+          </div>
+        </div>
+        <div id="content">
+          ${this.content()}
+        </div>
+        <div id="buttonbar">
+          ${this.buttons()}
+          <sakai-button @click=${this.cancel}>${this.baseI18n["cancel"]}</sakai-button>
+        </div>
+    `;
+  }
+
+  static get styles() {
+
+    return css`
+      #container {
+        background-color: white;
+        font-family: var(--sakai-font-family);
+        min-width: 400px;
+      }
+        #titlebar {
+          padding: 14px;
+          display: flex;
+          font-size: 16px;
+          align-items: center;
+          background-color: white;
+          border-bottom: black solid 1px;
+        }
+          #title {
+            flex: 2;
+          }
+          #close {
+            flex: 1;
+            text-align: right;
+          }
+        #content {
+          background-color: var(--sakai-modal-content-bg);
+          padding: 20px;
+        }
+          div.label {
+            margin-bottom: 4px;
+            font-weight: bold;
+          }
+          div.input {
+            margin-bottom: 10px;
+          }
+
+      #buttonbar {
+        background-color: var(--sakai-modal-content-bg);
+        display: flex;
+        justify-content: flex-end;
+        padding: 12px 4px 12px 16px;
+      }
+        sakai-button {
+          margin-left: 10px;
+        }
+    `;
+  }
+}
+
+export { SakaiDialogContent };

@@ -43,7 +43,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.criterion.Restrictions;
@@ -91,8 +91,8 @@ import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
 import org.sakaiproject.tool.gradebook.facades.Authz;
 import org.sakaiproject.util.ResourceLoader;
-import org.springframework.orm.hibernate4.HibernateCallback;
-import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
+import org.springframework.orm.hibernate5.HibernateCallback;
+import org.springframework.orm.hibernate5.HibernateOptimisticLockingFailureException;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -614,6 +614,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 	}
 
+
 	@Override
 	public Long addAssignment(final String gradebookUid, final org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition) {
 		if (!getAuthz().isUserAbleToEditAssessments(gradebookUid)) {
@@ -621,22 +622,18 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			throw new GradebookSecurityException();
 		}
 
-		// Ensure that points is > zero.
-		final Double points = assignmentDefinition.getPoints();
-		if ((points == null) || (points <= 0)) {
-			throw new AssignmentHasIllegalPointsException("Points must be > 0");
-		}
+		final String validatedName = GradebookHelper.validateAssignmentNameAndPoints(assignmentDefinition);
 
 		final Gradebook gradebook = getGradebook(gradebookUid);
 
 		// if attaching to category
 		if (assignmentDefinition.getCategoryId() != null) {
-			return createAssignmentForCategory(gradebook.getId(), assignmentDefinition.getCategoryId(), assignmentDefinition.getName(),
-					points, assignmentDefinition.getDueDate(), !assignmentDefinition.isCounted(), assignmentDefinition.isReleased(),
+			return createAssignmentForCategory(gradebook.getId(), assignmentDefinition.getCategoryId(), validatedName,
+					assignmentDefinition.getPoints(), assignmentDefinition.getDueDate(), !assignmentDefinition.isCounted(), assignmentDefinition.isReleased(),
 					assignmentDefinition.isExtraCredit(), assignmentDefinition.getCategorizedSortOrder());
 		}
 
-		return createAssignment(gradebook.getId(), assignmentDefinition.getName(), points, assignmentDefinition.getDueDate(),
+		return createAssignment(gradebook.getId(), validatedName, assignmentDefinition.getPoints(), assignmentDefinition.getDueDate(),
 				!assignmentDefinition.isCounted(), assignmentDefinition.isReleased(), assignmentDefinition.isExtraCredit(), assignmentDefinition.getSortOrder());
 	}
 
@@ -649,15 +646,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 					gradebookUid, assignmentId);
 			throw new GradebookSecurityException();
 		}
-
-		// validate the name
-		final String validatedName = StringUtils.trimToNull(assignmentDefinition.getName());
-		if (validatedName == null) {
-			throw new ConflictingAssignmentNameException("You cannot save an assignment without a name");
-		}
-
-		// name cannot contain these chars as they are reserved for special columns in import/export
-		GradebookHelper.validateGradeItemName(validatedName);
+		
+		final String validatedName = GradebookHelper.validateAssignmentNameAndPoints(assignmentDefinition);
 
 		final Gradebook gradebook = this.getGradebook(gradebookUid);
 

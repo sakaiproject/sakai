@@ -162,20 +162,21 @@ public class BulkEditItemsPanel extends BasePanel {
 
 			final List<Assignment> assignments = (List<Assignment>) form.getModelObject();
 
-			boolean result = false;
-			for (final Assignment a : assignments) {
+			try {
+				for (final Assignment a : assignments) {
 
-				log.debug("Bulk edit assignment: {}", a);
-				result = BulkEditItemsPanel.this.businessService.updateAssignment(a);
-			}
-			for (int count=0; count < BulkEditItemsPanel.this.getDeletableItemsList().size(); count++){
-				BulkEditItemsPanel.this.businessService.removeAssignment(BulkEditItemsPanel.this.getDeletableItemsList().get(count));
-			}
-			BulkEditItemsPanel.this.clearDeletableItemsList();
-			if (result) {
+					log.debug("Bulk edit assignment: {}", a);
+					BulkEditItemsPanel.this.businessService.updateAssignment(a);
+				}
+				for (int count=0; count < BulkEditItemsPanel.this.getDeletableItemsList().size(); count++){
+					BulkEditItemsPanel.this.businessService.removeAssignment(BulkEditItemsPanel.this.getDeletableItemsList().get(count));
+				}
+				BulkEditItemsPanel.this.clearDeletableItemsList();
 				getSession().success(getString("bulkedit.update.success"));
-			} else {
+			}
+			catch (final Exception e) {
 				getSession().error(getString("bulkedit.update.error"));
+				log.warn("An error occurred updating the assignment", e);
 			}
 			setResponsePage(GradebookPage.class);
 		}

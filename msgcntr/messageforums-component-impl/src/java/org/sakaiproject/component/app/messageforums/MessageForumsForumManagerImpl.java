@@ -34,7 +34,7 @@ import java.util.TreeSet;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.collection.internal.PersistentSet;
 import org.sakaiproject.hibernate.HibernateUtils;
 
@@ -78,8 +78,8 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
-import org.springframework.orm.hibernate4.HibernateCallback;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.HibernateCallback;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 import lombok.extern.slf4j.Slf4j;
 

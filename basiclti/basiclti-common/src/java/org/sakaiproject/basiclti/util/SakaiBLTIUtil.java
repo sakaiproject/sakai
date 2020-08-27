@@ -48,6 +48,8 @@ import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService.ConfigData;
+import org.sakaiproject.component.api.ServerConfigurationService.ConfigItem;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -125,6 +127,7 @@ public class SakaiBLTIUtil {
 	public static final String BASICLTI_LAUNCH_SESSION_TIMEOUT = "basiclti.launch.session.timeout";
 	public static final String LTI13_DEPLOYMENT_ID = "lti13.deployment_id";
 	public static final String LTI13_DEPLOYMENT_ID_DEFAULT = "1"; // To match Moodle
+	public static final String LTI_CUSTOM_SUBSTITION_PREFIX =  "lti.custom.substitution.";
 
 	// These are the field names in old school portlet placements
 	public static final String BASICLTI_PORTLET_KEY = "key";
@@ -789,24 +792,64 @@ public class SakaiBLTIUtil {
 		}
 	}
 
-	public static void addConsumerData(Properties props) {
+	public static void addConsumerData(Properties props, Properties custom) {
 		String defaultName =  ServerConfigurationService.getString("serverName",
              ServerConfigurationService.getString("serverUrl","localhost.sakailms"));
 
 		String defaultGUID = LegacyShaUtil.sha256Hash(defaultName);
 
 		// Get the organizational information
+		setProperty(custom, LTICustomVars.TOOLPLATFORMINSTANCE_GUID,
+				ServerConfigurationService.getString("basiclti.consumer_instance_guid", defaultGUID));
 		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INSTANCE_GUID,
 				ServerConfigurationService.getString("basiclti.consumer_instance_guid", defaultGUID));
+
+		setProperty(custom,  LTICustomVars.TOOLPLATFORMINSTANCE_NAME,
+				ServerConfigurationService.getString("basiclti.consumer_instance_name", defaultName));
 		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INSTANCE_NAME,
 				ServerConfigurationService.getString("basiclti.consumer_instance_name", defaultName));
+
+		setProperty(custom, LTICustomVars.TOOLPLATFORMINSTANCE_DESCRIPTION,
+				ServerConfigurationService.getString("basiclti.consumer_instance_description", defaultName));
 		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INSTANCE_DESCRIPTION,
 				ServerConfigurationService.getString("basiclti.consumer_instance_description", defaultName));
-		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INSTANCE_CONTACT_EMAIL,
-				ServerConfigurationService.getString("basiclti.consumer_instance_contact_email", null));
+
+		setProperty(custom, LTICustomVars.TOOLPLATFORMINSTANCE_URL,
+				ServerConfigurationService.getString("basiclti.consumer_instance_url",
+						ServerConfigurationService.getString("serverUrl", null)));
 		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INSTANCE_URL,
 				ServerConfigurationService.getString("basiclti.consumer_instance_url",
 						ServerConfigurationService.getString("serverUrl", null)));
+
+		setProperty(custom, LTICustomVars.TOOLPLATFORMINSTANCE_CONTACTEMAIL,
+				ServerConfigurationService.getString("basiclti.consumer_instance_contact_email", null));
+		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INSTANCE_CONTACT_EMAIL,
+				ServerConfigurationService.getString("basiclti.consumer_instance_contact_email", null));
+
+	}
+
+	// Custom variable substitutions extensions follow the form of
+	// $com.example.Foo.bar
+	// http://www.imsglobal.org/spec/lti/v1p3/#custom-variables
+	public static void addPropertyExtensionData(Properties props, Properties custom) {
+		org.sakaiproject.component.api.ServerConfigurationService serverConfigurationService =
+			(org.sakaiproject.component.api.ServerConfigurationService) ComponentManager.get("org.sakaiproject.component.api.ServerConfigurationService");
+		if ( serverConfigurationService == null ) return;
+
+		ConfigData configData = serverConfigurationService.getConfigData();
+		List<ConfigItem> configItems = configData.getItems();
+		for(ConfigItem configItem : configItems) {
+			String name = configItem.getName();
+			// Be *very* careful here - we only want properties with the prefix
+			if ( ! name.startsWith(LTI_CUSTOM_SUBSTITION_PREFIX) ) continue;
+			Object obj = configItem.getValue();
+			if ( ! (obj instanceof String) ) continue;
+			String value = (String) obj;
+			name = name.substring(LTI_CUSTOM_SUBSTITION_PREFIX.length());
+			name = name.trim();
+			if ( name.length() < 1 ) continue;
+			setProperty(custom, name, value);
+		}
 	}
 
 	public static void addGlobalData(Site site, Properties props, Properties custom, ResourceLoader rb) {
@@ -816,7 +859,8 @@ public class SakaiBLTIUtil {
 			setProperty(custom, LTICustomVars.MESSAGE_LOCALE, locale);
 		}
 
-		addConsumerData(props);
+		addPropertyExtensionData(props, custom);
+		addConsumerData(props, custom);
 
 		// Send along the CSS URL
 		String tool_css = ServerConfigurationService.getString("basiclti.consumer.launch_presentation_css_url", null);
@@ -837,8 +881,12 @@ public class SakaiBLTIUtil {
 		setProperty(props, "ext_lms", "sakai-" + sakaiVersion);
 		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INFO_PRODUCT_FAMILY_CODE, "sakai");
 		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INFO_VERSION, sakaiVersion);
-		setProperty(custom, LTICustomVars.TOOLCONSUMERINFO_PRODUCTFAMILYCODE, "sakai");
-		setProperty(custom, LTICustomVars.TOOLCONSUMERINFO_VERSION, sakaiVersion);
+
+		setProperty(custom, LTICustomVars.TOOLCONSUMERINFO_PRODUCTFAMILYCODE, "sakai"); // Old
+		setProperty(custom, LTICustomVars.TOOLCONSUMERINFO_VERSION, sakaiVersion); // Old
+
+		setProperty(custom, LTICustomVars.TOOLPLATFORM_PRODUCTFAMILYCODE, "sakai"); // Post LTI 1.3
+		setProperty(custom, LTICustomVars.TOOLPLATFORM_VERSION, sakaiVersion); // Post LTI 1.3
 
 		// We pass this along in the Sakai world - it might
 		// might be useful to the external tool
@@ -956,6 +1004,7 @@ public class SakaiBLTIUtil {
 				frameheight = getInt(content.get(LTIService.LTI_FRAMEHEIGHT));
 			}
 			setProperty(toolProps, LTIService.LTI_FRAMEHEIGHT, frameheight + "");
+			setProperty(lti13subst, LTICustomVars.MESSAGE_HEIGHT, frameheight + "");
 
 			int newpage = getInt(tool.get(LTIService.LTI_NEWPAGE));
 			if (newpage == 2) {
@@ -1493,7 +1542,8 @@ public class SakaiBLTIUtil {
 				return postError("<p>" + getRB(rb, "error.nokey", "Error - must have a secret and a key.") + "</p>");
 			}
 
-			addConsumerData(ltiProps);
+			addPropertyExtensionData(ltiProps, null);
+			addConsumerData(ltiProps, null);
 
 			Map<String, String> extra = new HashMap<>();
 			ltiProps = BasicLTIUtil.signProperties(ltiProps, launch_url, "POST", key, secret, extra);
@@ -2285,12 +2335,10 @@ public class SakaiBLTIUtil {
 		GradebookService g = (GradebookService) ComponentManager
 				.get("org.sakaiproject.service.gradebook.GradebookService");
 
-		Double scoreMaximum = lineItem.scoreMaximum;
-
 		String siteId = site.getId();
-		if (scoreMaximum == null) {
-			scoreMaximum = 100D;
-		}
+
+		if ( lineItem == null ) lineItem = new SakaiLineItem();
+		Double scoreMaximum = lineItem.scoreMaximum == null ? 100D : lineItem.scoreMaximum;
 
 		Assignment assignmentObject = null;
 

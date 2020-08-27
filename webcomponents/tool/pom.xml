@@ -74,6 +74,7 @@
                                 <exclude>js/**</exclude>
                                 <exclude>conf/**</exclude>
                                 <exclude>stories/**</exclude>
+                                <exclude>storybook-resources/**</exclude>
                                 <exclude>test/**</exclude>
                                 <exclude>.storybook/**</exclude>
                                 <exclude>package.json</exclude>
@@ -85,9 +86,31 @@
                         <fileset>
                             <directory>src/main/frontend/js/assets</directory>
                         </fileset>
+                        <fileset>
+                            <directory>src/main/frontend/node_modules</directory>
+                        </fileset>
                     </filesets>
                 </configuration>
             </plugin>
+            <!--plugin>
+                <groupId>org.sakaiproject.maven.plugins</groupId>
+                <artifactId>sakai</artifactId>
+                <version>1.4.6-SNAPSHOT</version>
+                <executions>
+                    <execution>
+                        <id>copyjs</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>copyjs</goal>
+                        </goals>
+                        <configuration>
+                            <sourceDir>src/main/frontend/js</sourceDir>
+                            <targetDir>src/main/frontend</targetDir>
+                            <query>version=${buildNumber}</query>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
@@ -160,7 +183,7 @@
                         </goals>
                         <configuration>
                             <arguments>
-                                run empathise -- --query=?version=${buildNumber}
+                                run empathise -- --query=version=${buildNumber}
                             </arguments>
                         </configuration>
                     </execution>
@@ -179,5 +202,33 @@
             </plugin>
         </plugins>
     </build>
+
+    <!--profiles>
+        <profile>
+            <id>jsdev</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.sakaiproject.maven.plugins</groupId>
+                        <artifactId>sakai</artifactId>
+                        <version>1.4.6-SNAPSHOT</version>
+                        <executions>
+                            <execution>
+                                <id>copyjs</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>copyjs</goal>
+                                </goals>
+                                <configuration combine.self="override">
+                                    <sourceDir>src/main/frontend/js</sourceDir>
+                                    <targetDir>src/main/frontend</targetDir>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles-->
 
 </project>

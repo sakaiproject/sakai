@@ -17,6 +17,7 @@ sakai-demo.zip
 velocity.log
 node_modules
 webcomponents/tool/src/main/frontend/dist
+rubrics/tool/src/main/frontend
 bower_components
 rebel.xml
 rsf/sakai-rsf-web/templates/overlays

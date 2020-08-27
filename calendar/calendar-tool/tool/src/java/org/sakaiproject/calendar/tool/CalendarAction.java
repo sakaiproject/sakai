@@ -3136,6 +3136,7 @@ extends VelocityPortletStateAction
 		context.put("selectedView", rb.getString("java.byyear"));
 		
 		context.put("isDefaultView", isDefaultView(state, ToolManager.getCurrentPlacement()));
+		context.put("isUpdater", SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()));
 		
 		context.put("dayOfWeekNames", calObj.getCalendarDaysOfWeekNames(false));
 	} // buildYearContext
@@ -3220,6 +3221,7 @@ extends VelocityPortletStateAction
 		context.put("selectedView", rb.getString("java.bymonth"));
 		
 		context.put("isDefaultView", isDefaultView(state, ToolManager.getCurrentPlacement()));
+		context.put("isUpdater", SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()));
 		
 		context.put("dayOfWeekNames", calObj.getCalendarDaysOfWeekNames(false));
 		
@@ -3536,6 +3538,7 @@ extends VelocityPortletStateAction
 		context.put("selectedView", rb.getString("java.byday"));
 		
 		context.put("isDefaultView", isDefaultView(state, ToolManager.getCurrentPlacement()));
+		context.put("isUpdater", SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()));
 		
 		context.put("dayName", calendarUtilGetDay(calObj.getDay_Of_Week(true)));
 
@@ -3750,6 +3753,7 @@ extends VelocityPortletStateAction
 		context.put("selectedView", rb.getString("java.byweek"));
 		
 		context.put("isDefaultView", isDefaultView(state, ToolManager.getCurrentPlacement()));
+		context.put("isUpdater", SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()));
 
 		context.put("dayOfWeekNames", calObj.getCalendarDaysOfWeekNames(false));
 		
@@ -7319,6 +7323,7 @@ extends VelocityPortletStateAction
 		context.put("selectedView", rb.getString("java.listeve"));
 		
 		context.put("isDefaultView", isDefaultView(state, ToolManager.getCurrentPlacement()));
+		context.put("isUpdater", SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()));
 		
 		context.put("tlang",rb);
 
