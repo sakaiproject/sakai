@@ -31,7 +31,7 @@ import javax.faces.context.FacesContext;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.sakaiproject.jsf.util.LocaleUtil;
+import org.sakaiproject.jsf2.util.LocaleUtil;
 import org.sakaiproject.section.api.SectionManager;
 import org.sakaiproject.section.api.SectionManager.ExternalIntegrationConfig;
 import org.sakaiproject.section.api.coursemanagement.Course;

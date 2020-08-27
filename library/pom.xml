@@ -230,6 +230,12 @@
 			<version>1.10.20</version>
 			<scope>runtime</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.webjars.bowergithub.datatables</groupId>
+			<artifactId>dist-datatables-rowgroup</artifactId>
+			<version>1.1.1</version>
+			<scope>runtime</scope>
+		</dependency>
 		<!--Used in Tests&Quizzes, Assignments, Site Info, Resources, Announcements, Sites, selector of multiple items (groups, tools) -->
   		<dependency>
 			<groupId>org.webjars</groupId>

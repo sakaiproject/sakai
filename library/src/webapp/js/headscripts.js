@@ -800,6 +800,9 @@ function includeWebjarLibrary(library) {
 	} else if (library == 'datatables') {
 		libraryVersion = "1.10.20";
 		document.write('\x3Cscript src="' + webjars + 'datatables/' + libraryVersion + '/js/jquery.dataTables.min.js' + ver + '">' + '\x3C/script>');
+	} else if (library == 'datatables-rowgroup') {
+		libraryVersion = "1.1.1";
+		document.write('\x3Cscript src="' + webjars + 'datatables.net-rowgroup/js/dataTables.rowGroup.min.js' + ver + '">' + '\x3C/script>');
 	} else if (library == 'ckeditor') {
 		libraryVersion = "4.14.0";
 		document.write('\x3Cscript src="' + webjars + 'ckeditor/' + libraryVersion + '/full/ckeditor.js' + ver + '">' + '\x3C/script>');

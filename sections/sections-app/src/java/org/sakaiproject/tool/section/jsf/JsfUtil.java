@@ -27,13 +27,13 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.jsf.util.ConversionUtil;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -205,7 +205,7 @@ public class JsfUtil {
 		} catch (ParseException pe) {
 			throw new RuntimeException("A bad date made it through validation!  This should never happen!");
 		}
-		return ConversionUtil.convertDateToTime(date, am);
+		return convertDateToTime(date, am);
 	}
 
 	public static String convertTimeToString(Time time) {
@@ -251,5 +251,37 @@ public class JsfUtil {
 		};
 	}
 
+	/**
+	 * The JSF DateTimeConverter can not convert into java.sql.Time (or into
+	 * java.util.Calendar, for that matter!).  So we do the conversion manually.
+	 *
+	 * @param date The date containing the time.
+	 * @param am Whether this should be am (true) or pm (false)
+	 * @return
+	 */
+	private static Time convertDateToTime(Date date, boolean am) {
+		if(date == null) {
+			return null;
+		}
+
+		Calendar cal = new GregorianCalendar();
+		cal.setTime(date);
+		int hourOfDay = cal.get(Calendar.HOUR_OF_DAY);
+
+		if(am) {
+			// Check to make sure that the hours are indeed am hours
+			if( hourOfDay > 11) {
+				cal.set(Calendar.HOUR_OF_DAY, hourOfDay -12);
+				date.setTime(cal.getTimeInMillis());
+			}
+		} else {
+			// Check to make sure that the hours are indeed pm hours
+			if(cal.get(Calendar.HOUR_OF_DAY) < 11) {
+				cal.set(Calendar.HOUR_OF_DAY, hourOfDay + 12);
+				date.setTime(cal.getTimeInMillis());
+			}
+		}
+		return new Time(date.getTime());
+	}
 
 }

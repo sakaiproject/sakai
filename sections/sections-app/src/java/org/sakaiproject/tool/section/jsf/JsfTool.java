@@ -36,7 +36,7 @@ import org.sakaiproject.section.api.facade.manager.Context;
  *
  */
 @Slf4j
-public class JsfTool extends org.sakaiproject.jsf.util.JsfTool {
+public class JsfTool extends org.sakaiproject.jsf2.util.JsfTool {
 
 	private static final long serialVersionUID = 1L;
 
