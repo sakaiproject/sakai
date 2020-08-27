@@ -109,6 +109,7 @@ From its inception, the Sakai project has been envisioned and designed for globa
 | ------ | ------ |
 | en_US | English (Default) |
 | ca_ES | Catalán |
+| de_DE | German |
 | es_ES | Español |
 | eu | Euskera |
 | fa_IR | Farsi |
