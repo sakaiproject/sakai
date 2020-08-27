@@ -749,22 +749,17 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		       else
 			   log.error("sakaiId not recognized: {}", sakaiId);
 		   } else if (type == SimplePageItem.BLTI) {
-			   try {
-				   // We need to import the BLTI tool to the new site and update the sakaiid
-				   String[] bltiId = sakaiId.split("/");
-				   Long ltiContentId = Long.valueOf(bltiId[2]);
-
-				   Map<String, Object> ltiContent = ltiService.getContentDao(ltiContentId, oldSiteId, securityService.isSuperUser());
-				   String launchUrl = (String) ltiContent.get(LTIService.LTI_LAUNCH);
-				   String ltiTitle = (String) ltiContent.get(LTIService.LTI_TITLE);
-				   String xmlStr = (String) ltiContent.get(LTIService.LTI_XMLIMPORT);
-				   String ltiCustom = (String) ltiContent.get(LTIService.LTI_CUSTOM);
-				   Long ltiToolId = getLong(ltiContent.get(LTIService.LTI_TOOL_ID));
-				   sakaiId = importLTITool(siteId, launchUrl, ltiTitle, xmlStr, ltiCustom, ltiToolId);
-			   } catch (Exception e) {
-				   log.warn("Unable to import LTI tool to new site: {}", e);
-			   }
-	           } else if (type == SimplePageItem.TEXT) {
+				try {
+					// We need to import the BLTI tool to the new site and update the sakaiid
+					String[] bltiId = sakaiId.split("/");
+					Long ltiContentId = Long.valueOf(bltiId[2]);
+					Map<String, Object> ltiContent = ltiService.getContentDao(ltiContentId, oldSiteId, securityService.isSuperUser());
+					String newSakaiId = copyLTIContent(ltiContent, siteId, oldSiteId);
+					if ( newSakaiId != null ) sakaiId = newSakaiId;
+				} catch (Exception e) {
+					log.warn("Unable to import LTI tool to new site: {}", e);
+				}
+			} else if (type == SimplePageItem.TEXT) {
 			String html = itemElement.getAttribute("html");
 			Pattern idPattern = Pattern.compile("(https?://[^/]+/access/basiclti/site)/" + Pattern.quote(oldSiteId) + "/content:([0-9]+)");
 			Matcher matcher = idPattern.matcher(html);
@@ -777,12 +772,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				foundLtiLink = true;
 				try {
 					Map<String, Object> ltiContent = ltiService.getContentDao(ltiContentId, oldSiteId, securityService.isSuperUser());
-					String launchUrl = (String) ltiContent.get(LTIService.LTI_LAUNCH);
-					String ltiTitle = (String) ltiContent.get(LTIService.LTI_TITLE);
-					String xmlStr = (String) ltiContent.get(LTIService.LTI_XMLIMPORT);
-					String ltiCustom = (String) ltiContent.get(LTIService.LTI_CUSTOM);
-					Long ltiToolId = getLong(ltiContent.get(LTIService.LTI_TOOL_ID));
-					sakaiId = importLTITool(siteId, launchUrl, ltiTitle, xmlStr, ltiCustom, ltiToolId);
+					String newSakaiId = copyLTIContent(ltiContent, siteId, oldSiteId);
+					if ( newSakaiId != null ) sakaiId = newSakaiId;
 					String[] bltiId = sakaiId.split("/");
 					ltiContentId = Long.valueOf(bltiId[2]);
 				} catch (Exception e) {
@@ -2260,84 +2251,99 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
         return replacedBody;
     }
 
-	private String importLTITool(String siteId, String launchUrl, String bltiTitle, String strXml, String custom, Long ltiToolId)
-			throws Exception
+	private String copyLTIContent(Map<String, Object> ltiContent, String siteId, String oldSiteId)
 	{
-		if ( ltiService == null ) return null;
 
-		// If there is no launch url saved in the lti content get it from the corresponding tool
-		if (launchUrl == null) {
-			Map<String, Object> ltiTool = ltiService.getToolDao(ltiToolId, siteId, securityService.isSuperUser());
-			launchUrl = (String) ltiTool.get(LTIService.LTI_LAUNCH);
-		}
-		String toolUrl = launchUrl;
-		int pos = toolUrl.indexOf("?");
-		if ( pos > 0 ) {
-			toolUrl = toolUrl.substring(0, pos);
-		}
+		// The ultimate tool id for the about to be created content item
+		Long newToolId = null;
 
-		// Check for global tool configurations (prefer global)
-		Map<String,Object> theTool = null;
-		List<Map<String,Object>> tools = ltiService.getToolsDao(null,null,0,0,"!admin");
-		String lastLaunch = "";
-		for ( Map<String,Object> tool : tools ) {
-			String toolLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
-			// Prefer the longest match
-			if (toolUrl.startsWith(toolLaunch) && toolLaunch.length() > lastLaunch.length()) {
-				theTool = tool;
-				lastLaunch = toolLaunch;
-			}
+		// Check the tool_id - if the tool_id is global we are cool
+		Long ltiToolId = getLong(ltiContent.get(LTIService.LTI_TOOL_ID));
+
+		// Get the tool bypassing security
+		Map<String, Object> ltiTool = ltiService.getToolDao(ltiToolId, siteId, true);
+		if ( ltiTool == null ) {
+			return null;
 		}
 
-		// Check for within-site tool configurations (prefer global)
-		if ( theTool == null ) {
-			tools = ltiService.getToolsDao(null,null,0,0,siteId);
-			lastLaunch = "";
+		// Lets either verifiy we have a good tool or make a copy if needed
+		String toolSiteId = (String) ltiTool.get(LTIService.LTI_SITE_ID);
+		String toolLaunch = (String) ltiTool.get(LTIService.LTI_LAUNCH);
+		// Global tools have no site id - the simplest case
+		if ( toolSiteId == null ) {
+			newToolId = ltiToolId;
+		} else {
+			// Check if we have a suitable tool already in the site
+			List<Map<String,Object>> tools = ltiService.getTools(null,null,0,0,siteId);
 			for ( Map<String,Object> tool : tools ) {
-				String toolLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
-				// Prefer the longest match
-				if ( toolUrl.startsWith(toolLaunch) && toolLaunch.length() > lastLaunch.length()) {
-					theTool = tool;
-					lastLaunch = toolLaunch;
+				String oldLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
+				if ( oldLaunch == null ) continue;
+				if ( oldLaunch.equals(toolLaunch) ) {
+					newToolId = getLong(tool.get(LTIService.LTI_ID));
+					break;
 				}
 			}
+
+			// If we don't have the tool in the new site, check the tools from the old site
+			if ( newToolId == null ) {
+				tools = ltiService.getToolsDao(null,null,0,0,oldSiteId, true);
+				for ( Map<String,Object> tool : tools ) {
+					String oldLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
+					if ( oldLaunch == null ) continue;
+					if ( oldLaunch.equals(toolLaunch) ) {
+						// Remove stuff that will be regenerated
+						tool.remove(LTIService.LTI_SITE_ID);
+						tool.remove(LTIService.LTI_CREATED_AT);
+						tool.remove(LTIService.LTI_UPDATED_AT);
+						Object newToolInserted = ltiService.insertTool(tool, siteId);
+						if ( newToolInserted instanceof Long ) {
+							newToolId = (Long) newToolInserted;
+							log.debug("Copied tool={} from site={} tosite={} tool={}",ltiToolId,oldSiteId,siteId,newToolInserted);
+							break;
+						} else {
+							log.error("Could not insert tool - "+newToolInserted);
+							return null;
+						}
+					}
+				}
+			}
+
+			if ( newToolId == null ) {
+				log.error("Could not copy tool, launch="+toolLaunch);
+				return null;
+			}
 		}
 
-		// If we still do not have a tool configuration throw an error
-		if ( theTool == null ) {
-			log.error("LORI Launch configuration not found- "+toolUrl);
-			throw new Exception("LORI Launch configuration not found");
+		// Finally insert the content item...
+		Properties contentProps = new Properties();
+
+		for (Map.Entry<String, Object> entry : ltiContent.entrySet()) {
+			String key = entry.getKey();
+			Object value = entry.getValue();
+			if ( value == null ) continue;
+			contentProps.put(key, value.toString());
 		}
 
-		// Found a tool - time to insert content
-		Map<String,Object> theContent = null;
+		// Point at the correct (possibly the same) tool id
+		contentProps.put(LTIService.LTI_TOOL_ID, newToolId.toString());
 
-		Properties props = new Properties ();
-		String toolId = getLong(theTool.get(LTIService.LTI_ID)).toString();
-		props.setProperty(LTIService.LTI_TOOL_ID,toolId);
-		props.setProperty(LTIService.LTI_PLACEMENTSECRET, UUID.randomUUID().toString());
-		props.setProperty(LTIService.LTI_TITLE, bltiTitle);
-		props.setProperty(LTIService.LTI_PAGETITLE, bltiTitle);
-		props.setProperty(LTIService.LTI_LAUNCH,launchUrl);
-		props.setProperty(LTIService.LTI_SITE_ID,siteId);
+		// Remove stuff that will be regenerated
+		contentProps.remove(LTIService.LTI_SITE_ID);
+		contentProps.remove(LTIService.LTI_CREATED_AT);
+		contentProps.remove(LTIService.LTI_UPDATED_AT);
 
-		if ( strXml != null) props.setProperty(LTIService.LTI_XMLIMPORT,strXml);
-		if ( custom != null ) props.setProperty(LTIService.LTI_CUSTOM,custom);
+		// Most secrets are in the tool, it is rare to override in the content
+		contentProps.remove(LTIService.LTI_SECRET);
+		contentProps.remove("launch_url"); // Derived on retrieval
 
-		log.debug("Inserting content associated with toolId="+toolId);
-
-		// Insert as admin into siteId, on error throw upwards
-		Object result = ltiService.insertContentDao(props, "!admin");
-		if ( result instanceof String ) {
+		Object result = ltiService.insertContent(contentProps, siteId);
+		String sakaiId = null;
+		if ( result instanceof Long ) {
+			sakaiId = "/blti/" + result.toString();
+		} else if ( result instanceof String ) {
 			log.error("Could not insert content - "+result);
 		} else {
 			log.debug("Adding LTI tool "+result);
-		}
-		if ( result instanceof Long ) theContent = ltiService.getContentDao((Long) result, siteId);
-
-		String sakaiId = null;
-		if ( theContent != null ) {
-			sakaiId = "/blti/" + theContent.get(LTIService.LTI_ID);
 		}
 		return sakaiId;
 	}
