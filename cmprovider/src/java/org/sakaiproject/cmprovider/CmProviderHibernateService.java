@@ -16,7 +16,7 @@
 package org.sakaiproject.cmprovider;
 
 import org.hibernate.Hibernate;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.coursemanagement.impl.EnrollmentSetCmImpl;
 import org.springframework.orm.hibernate5.HibernateCallback;

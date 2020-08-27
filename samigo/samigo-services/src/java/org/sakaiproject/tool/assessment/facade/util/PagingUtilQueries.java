@@ -26,7 +26,7 @@ import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 import org.springframework.orm.hibernate5.HibernateCallback;

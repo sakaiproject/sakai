@@ -25,7 +25,7 @@ import java.util.Iterator;
 
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.hibernate.collection.internal.PersistentSet;
 import org.hibernate.type.StringType;

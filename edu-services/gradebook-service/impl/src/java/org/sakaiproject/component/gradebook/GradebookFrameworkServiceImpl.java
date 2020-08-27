@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.sakaiproject.service.gradebook.shared.GradebookExistsException;
 import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;

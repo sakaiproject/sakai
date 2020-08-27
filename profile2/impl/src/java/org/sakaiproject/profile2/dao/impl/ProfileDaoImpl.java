@@ -22,7 +22,7 @@ import java.util.List;
 import org.hibernate.CacheMode;
 import org.hibernate.FetchMode;
 import org.hibernate.LockMode;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.Transformers;
 import org.hibernate.type.BooleanType;
