@@ -2331,12 +2331,10 @@ public class SakaiBLTIUtil {
 		GradebookService g = (GradebookService) ComponentManager
 				.get("org.sakaiproject.service.gradebook.GradebookService");
 
-		Double scoreMaximum = lineItem.scoreMaximum;
-
 		String siteId = site.getId();
-		if (scoreMaximum == null) {
-			scoreMaximum = 100D;
-		}
+
+		if ( lineItem == null ) lineItem = new SakaiLineItem();
+		Double scoreMaximum = lineItem.scoreMaximum == null ? 100D : lineItem.scoreMaximum;
 
 		Assignment assignmentObject = null;
 
