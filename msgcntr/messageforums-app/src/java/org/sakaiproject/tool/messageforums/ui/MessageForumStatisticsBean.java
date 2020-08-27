@@ -2895,7 +2895,7 @@ public class MessageForumStatisticsBean {
 		}
 		catch (NumberFormatException e) 
 		{
-			log.error(e.getMessage(), e);
+			log.warn("Could not parse grade [{}] as a Double, {}", validateString, e.getMessage());
 			return false;
 		}
 	}
