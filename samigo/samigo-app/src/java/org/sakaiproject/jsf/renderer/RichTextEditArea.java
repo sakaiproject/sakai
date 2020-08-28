@@ -100,6 +100,14 @@ public class RichTextEditArea extends Renderer
     String tmpCol = (String) component.getAttributes().get("columns");
     String tmpRow = (String) component.getAttributes().get("rows");
     String mode = (String) component.getAttributes().get("mode");
+    String tmpMaxCharCount = (String) component.getAttributes().get("maxCharCount");
+    
+    //Get max character parameter
+    int maxCharCount = 0;
+    if (tmpMaxCharCount != null) 
+    {
+    	maxCharCount = new Integer(tmpMaxCharCount).intValue();
+    }
 
     int col;
     int row;
@@ -168,17 +176,17 @@ public class RichTextEditArea extends Renderer
 
       if (tmpCol == null) {
     	  encodeCK(writer, (String) value, identity, outCol, 
-              outRow, justArea, clientId, valueHasRichText, hasToggle, true, mode);
+              outRow, justArea, clientId, valueHasRichText, hasToggle, true, mode, maxCharCount);
       }
       else {
     	  encodeCK(writer, (String) value, identity, outCol, 
-                  outRow, justArea, clientId, valueHasRichText, hasToggle, false, mode);
+                  outRow, justArea, clientId, valueHasRichText, hasToggle, false, mode, maxCharCount);
       }
   }
 
 
   private void encodeCK(ResponseWriter writer, String value, String identity, String outCol, 
-         String outRow, String justArea, String clientId, boolean valueHasRichText, String hasToggle, boolean columnsNotDefined, String mode) throws IOException {
+         String outRow, String justArea, String clientId, boolean valueHasRichText, String hasToggle, boolean columnsNotDefined, String mode, int maxCharCount) throws IOException {
 
     String componentId = StringUtils.isBlank(identity) ? clientId : clientId.contains(":") ? clientId.substring(0, clientId.indexOf(":") + 1) + identity : identity;
 
@@ -221,7 +229,7 @@ public class RichTextEditArea extends Renderer
     if(shouldToggle && !disableWysiwyg)
     {    	
     	String show_editor = rb.getString("show_editor");
-    	writer.write("<div class=\"toggle_link_container\"><a class=\"toggle_link\" id=\"" +componentId+ "_toggle\" href=\"javascript:show_editor('" + componentId + "', '" + samigoFrameId + "');\">" + show_editor + "</a></div>\n");
+    	writer.write("<div class=\"toggle_link_container\"><a class=\"toggle_link\" id=\"" +componentId+ "_toggle\" href=\"javascript:show_editor('" + componentId + "', '" + samigoFrameId + "', " + maxCharCount + ");\">" + show_editor + "</a></div>\n");
     }
     else {
         	value = ComponentManager.get(FormattedText.class).escapeHtmlFormattedTextarea((String) value);
@@ -243,7 +251,7 @@ public class RichTextEditArea extends Renderer
     	}
 	//if toggling is off or the content is already rich, make the editor show up immediately if hasToggle is not plain
 	if(!shouldToggle && (!hasToggle.equals("plain") || valueHasRichText)){
-		writer.write("<script type=\"text/javascript\" defer=\"1\">chef_setupformattedtextarea('" + componentId + "', false, '" + samigoFrameId +"');</script>");
+		writer.write("<script type=\"text/javascript\" defer=\"1\">chef_setupformattedtextarea('" + componentId + "', false, '" + samigoFrameId +"', " + maxCharCount + ");</script>");
     }
   }
 

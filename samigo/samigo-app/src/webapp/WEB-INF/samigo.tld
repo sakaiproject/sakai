@@ -215,6 +215,16 @@
       <description>
       </description>
     </attribute>
+
+    <attribute>
+      <name>maxCharCount</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+	int value, max number of characters allowed
+      </description>
+    </attribute>
+
   </tag>
 
   <!-- ==== OBSOLETE display a tag for a set of navigation links ==== -->
