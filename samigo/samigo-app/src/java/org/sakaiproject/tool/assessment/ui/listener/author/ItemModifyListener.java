@@ -733,54 +733,75 @@ public class ItemModifyListener implements ActionListener
   }
 
   private void populateItemTextForCalculatedQuestion(ItemAuthorBean itemauthorbean, ItemFacade itemfacade, ItemBean bean) {
-      CalculatedQuestionBean calcQuestionBean = new CalculatedQuestionBean();
-      String instructions = itemfacade.getInstruction();
-      GradingService gs = new GradingService();
-      List<String> variables = gs.extractVariables(instructions);
-      List<ItemTextIfc> list = itemfacade.getItemTextArray();
-      for (ItemTextIfc itemBean : list) {
-          if (variables.contains(itemBean.getText())) {
-              CalculatedQuestionVariableBean variable = new CalculatedQuestionVariableBean();
-              List<AnswerIfc> answers = itemBean.getAnswerArray();
-              for (AnswerIfc answer : answers) {
-                  if (answer.getIsCorrect()) {
-                      String text = answer.getText();
-                      String min = text.substring(0, text.indexOf("|"));
-                      String max = text.substring(text.indexOf("|") + 1, text.indexOf(","));
-                      String decimalPlaces = text.substring(text.indexOf(",") + 1);              
-                      variable.setName(itemBean.getText());
-                      variable.setSequence(itemBean.getSequence());
-                      variable.setMin(min);
-                      variable.setMax(max);
-                      variable.setDecimalPlaces(decimalPlaces);
-                      calcQuestionBean.addVariable(variable);
-                      break;
-                  }
+
+    CalculatedQuestionBean calcQuestionBean = new CalculatedQuestionBean();
+    String instructions = itemfacade.getInstruction();
+    GradingService gs = new GradingService();
+    List<String> variables = gs.extractVariables(instructions);
+    List<ItemTextIfc> list = itemfacade.getItemTextArray();
+    for (ItemTextIfc itemBean : list) {
+      if (variables.contains(itemBean.getText())) {
+        CalculatedQuestionVariableBean variable = new CalculatedQuestionVariableBean();
+        List<AnswerIfc> answers = itemBean.getAnswerArray();
+        for (AnswerIfc answer : answers) {
+          if (answer.getIsCorrect()) {
+            String text = answer.getText();
+            variable.setName(itemBean.getText());
+            variable.setSequence(itemBean.getSequence());
+            String[] partsText = text.split("\\|");
+            if (partsText != null && partsText.length == 2) {
+              String min = partsText[0];
+              variable.setMin(min);
+              String[] partsMaxDp = partsText[1].split(",");
+              if (partsMaxDp != null && partsMaxDp.length == 2) {
+                String max = partsMaxDp[0];
+                variable.setMax(max);
+                String decimalPlaces = partsMaxDp[1];
+                variable.setDecimalPlaces(decimalPlaces);
+              } else {
+                log.error("Calculated question answer text {} is not formatted correctly.", text);
               }
-          } else {
-              CalculatedQuestionFormulaBean formula = new CalculatedQuestionFormulaBean();
-              List<AnswerIfc> answers = itemBean.getAnswerArray();
-              for (AnswerIfc answer : answers) {
-                  if (answer.getIsCorrect()) {
-                      String text = answer.getText();
-                      String formulaStr = text.substring(0, text.indexOf("|"));
-                      String tolerance = text.substring(text.indexOf("|") + 1, text.indexOf(","));
-                      String decimalPlaces = text.substring(text.indexOf(",") + 1);
-                      formula.setName(itemBean.getText());
-                      formula.setSequence(itemBean.getSequence());
-                      formula.setText(formulaStr);
-                      formula.setTolerance(tolerance);
-                      formula.setDecimalPlaces(decimalPlaces);
-                      calcQuestionBean.addFormula(formula);
-                      break;
-                  }
-              }
+            } else {
+              log.error("Calculated question answer text {} is not formatted correctly.", text);
+            }
+            calcQuestionBean.addVariable(variable);
+            break;
           }
+        }
+      } else {
+        CalculatedQuestionFormulaBean formula = new CalculatedQuestionFormulaBean();
+        List<AnswerIfc> answers = itemBean.getAnswerArray();
+        for (AnswerIfc answer : answers) {
+          if (answer.getIsCorrect()) {
+            String text = answer.getText();
+            formula.setName(itemBean.getText());
+            formula.setSequence(itemBean.getSequence());
+            String[] partsText = text.split("\\|");
+            if (partsText != null && partsText.length == 2) {
+              String formulaStr = partsText[0];
+              formula.setText(formulaStr);
+              String[] partsTolDp = partsText[1].split(",");
+              if (partsTolDp != null && partsTolDp.length == 2) {
+                String tolerance = partsTolDp[0];
+                formula.setTolerance(tolerance);
+                String decimalPlaces = partsTolDp[1];
+                formula.setDecimalPlaces(decimalPlaces);
+              } else {
+                log.error("Calculated question answer text {} is not formatted correctly.", text);
+              }
+            } else {
+              log.error("Calculated question answer text {} is not formatted correctly.", text);
+            }
+            calcQuestionBean.addFormula(formula);
+            break;
+          }
+        }
       }
-      // extract the calculation formulas and populate the calcQuestionBean (we are ignoring the error returns for now)
-      CalculatedQuestionExtractListener.createCalculationsFromInstructions(calcQuestionBean, instructions, gs);
-      CalculatedQuestionExtractListener.validateCalculations(calcQuestionBean, gs);
-      bean.setCalculatedQuestion(calcQuestionBean);
+    }
+    // extract the calculation formulas and populate the calcQuestionBean (we are ignoring the error returns for now)
+    CalculatedQuestionExtractListener.createCalculationsFromInstructions(calcQuestionBean, instructions, gs);
+    CalculatedQuestionExtractListener.validateCalculations(calcQuestionBean, gs);
+    bean.setCalculatedQuestion(calcQuestionBean);
   }
   
   private void populateItemTextForImageMapQuestion(ItemAuthorBean itemauthorbean, ItemFacade itemfacade, ItemBean bean)  {
