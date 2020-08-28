@@ -60,6 +60,7 @@ function renderChart(gbChartData) {
 						display: true,
 						labelString: xAxisLabel,
 						fontSize: 14,
+						fontFamily: 'Monospace',
 						fontStyle: 'bold'
 					}
 				}],
@@ -67,8 +68,13 @@ function renderChart(gbChartData) {
 					ticks: {
 						beginAtZero:true,
 						fontStyle: 'bold',
+						fontFamily: 'Monospace',
 						autoskip: true,
-						maxRotation: 0
+						maxRotation: 0,
+						// Include a space to even out the plusses and minuses
+						callback: function(value, index, values) {
+							return value + (value.length < 2 ? ' ' : '');
+						}
 					},
 					scaleLabel: {
 						display: true,
