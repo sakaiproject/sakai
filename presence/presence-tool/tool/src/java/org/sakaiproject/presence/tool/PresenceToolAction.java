@@ -65,7 +65,7 @@ public class PresenceToolAction extends VelocityPortletPaneledAction
 
 	protected static final String MODE_SERVERS = "servers";
 
-    protected ClusterService clusterService;
+	protected ClusterService clusterService;
 
 	public PresenceToolAction() {
 		clusterService = (ClusterService) ComponentManager.get(ClusterService.class);
@@ -76,6 +76,12 @@ public class PresenceToolAction extends VelocityPortletPaneledAction
 	protected void initState(SessionState state, VelocityPortlet portlet, JetspeedRunData rundata)
 	{
 		super.initState(state, portlet, rundata);
+
+		// init the display mode
+		if (state.getAttribute(STATE_DISPLAY_MODE) == null) {
+			state.setAttribute(STATE_DISPLAY_MODE, MODE_SERVERS);
+		}
+
 	} // initState
 
 	/**
@@ -219,6 +225,9 @@ public class PresenceToolAction extends VelocityPortletPaneledAction
 
 	} // doServers
 
+	/**
+	 * Change node state between Allow new sessions and Stop new sessions
+	 */
 	public void doSwitch(RunData data, Context context)
 	{
 		// We look at the status in the request so that if someone else has changed the status
@@ -227,14 +236,6 @@ public class PresenceToolAction extends VelocityPortletPaneledAction
 		String status = data.getParameters().getString("status");
 		clusterService.markClosing(id, !ClusterService.Status.CLOSING.toString().equals(status));
 	}
-
-	/**
-	 * The action for when the user want's an update
-	 */
-	public void doRefresh(RunData data, Context context)
-	{
-
-	} // doRefresh
 
 } // PresenceToolAction
 
