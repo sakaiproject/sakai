@@ -38,6 +38,6 @@ public interface AffiliatedSectionProvider {
 	 * @param academicSessionEid
 	 * @return
 	 */
-	public List getAffiliatedSectionEids(String userId, String academicSessionEid);
+	public List<String> getAffiliatedSectionEids(String userId, String academicSessionEid);
 
 }
