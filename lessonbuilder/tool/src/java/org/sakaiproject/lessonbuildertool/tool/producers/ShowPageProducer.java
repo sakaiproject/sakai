@@ -44,6 +44,7 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.UsageSession;
@@ -3129,6 +3130,19 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						String folderName = folderPath[folderPath.length-1];
 						if (dataDirectory.endsWith("//")){
 							folderName = simplePageBean.getCurrentSite().getTitle();
+						} else {
+							try {
+								ContentHostingService contentHostingService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
+								ContentCollection collection = contentHostingService.getCollection(dataDirectory.replace("//", "/"));
+								if (collection != null) {
+									String displayName = collection.getProperties().getProperty(collection.getProperties().getNamePropDisplayName());
+									if (displayName != null && displayName != "") {
+										folderName = displayName;
+									}
+								}
+							} catch (Exception e) {
+								log.error("Error getting content resource" + e);
+							}
 						}
 						String html = "<p><b>" + folderName + "</b></p><div data-copyright=\"true\" class=\"no-highlight\" data-description=\"true\" data-directory='" +dataDirectory+ "' data-files=\"true\" data-folder-listing=\"true\"></div>";
 						UIVerbatim.make(tableRow, "content", html);
