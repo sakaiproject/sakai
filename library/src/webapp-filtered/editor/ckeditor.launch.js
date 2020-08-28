@@ -30,6 +30,21 @@ sakai.editor.editors.ckeditor = sakai.editor.editors.ckeditor || {} ;
 var basePath = "/library/editor/ckextraplugins/";
 var webJars = "/library/webjars/"
 
+// Update properties in one object from another: https://stackoverflow.com/a/12534361/3708872
+// I believe this is available as lodash.merge but don't see that available here yet and this looked like the simplest version of that
+function objectMerge(obj/*, ...*/) {
+    for (var i=1; i<arguments.length; i++) {
+        for (var prop in arguments[i]) {
+            var val = arguments[i][prop];
+            if (typeof val == "object") // this also applies to arrays or null!
+                objectMerge(obj[prop], val);
+            else
+                obj[prop] = val;
+        }
+    }
+    return obj;
+}
+
 // Please note that no more parameters should be added to this signature.
 // The config object allows for name-based config options to be passed.
 // The w and h parameters should be removed as soon as their uses can be migrated.
@@ -216,9 +231,8 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         templates_replaceContent: false
     };
 
-    if (config != null && config.baseFloatZIndex) {
-	ckconfig.baseFloatZIndex = config.baseFloatZIndex;
-    }
+    // Merge config values into ckconfig
+    ckconfig = objectMerge(ckconfig, config);
 
     if (config && config.toolbarSet && ckconfig['toolbar_' + config.toolbarSet]) {
         ckconfig.toolbar = config.toolbarSet;
