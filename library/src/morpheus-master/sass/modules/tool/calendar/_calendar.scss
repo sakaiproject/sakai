@@ -555,7 +555,7 @@
 		text-align: left;
 		
 		&:hover {
-			border: 1px solid $link-color;
+			border: 1px solid var(--link-color);
 		}
 
 		a {
@@ -587,7 +587,7 @@
 		
 		@media #{$miniCalendarSize} {
 			&:hover, &:focus {
-				border: 1px solid $link-color;
+				border: 1px solid var(--link-color);
 			}
 		}
 	}
@@ -597,7 +597,7 @@
 			border-color: transparent;		// to distinguish current month days from non-current month days
 			
 			&:hover, &:focus {
-				border: 1px solid $link-color;
+				border: 1px solid var(--link-color);
 			}
 		}
 	}

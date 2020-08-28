@@ -459,7 +459,7 @@ $nav-tabs-link-hover-border-color:          var(--sakai-border-color-hover);
 
 $nav-tabs-active-link-hover-bg:             var(--sakai-background-color-hover);
 $nav-tabs-active-link-hover-color:          var(--sakai-primary-color);
-$nav-tabs-active-link-hover-border-color:   $tool-tab-background-color;
+$nav-tabs-active-link-hover-border-color:   var(--tool-tab-background-color);
 
 // $nav-tabs-justified-link-border-color:            #ddd
 // $nav-tabs-justified-active-link-border-color:     $body-bg
@@ -474,11 +474,11 @@ $nav-tabs-active-link-hover-border-color:   $tool-tab-background-color;
 //
 //##
 
-// $pagination-color:                     $link-color
+// $pagination-color:                     var(--link-color)
 // $pagination-bg:                        #fff
 // $pagination-border:                    #ddd
 
-// $pagination-hover-color:               $link-hover-color
+// $pagination-hover-color:               var(--link-hover-color)
 // $pagination-hover-bg:                  $gray-lighter
 // $pagination-hover-border:              #ddd
 
@@ -801,7 +801,7 @@ $nav-tabs-active-link-hover-border-color:   $tool-tab-background-color;
 // $badge-bg:                    $gray-light
 
 //** Badge text color in active nav link
-// $badge-active-color:          $link-color
+// $badge-active-color:          var(--link-color)
 //** Badge background color in active nav link
 // $badge-active-bg:             #fff
 

@@ -78,7 +78,7 @@
 
 			td {
 				&.ajax-error {
-					background-color: $errorBanner-bgcolor;
+					background-color: var(--errorBanner-bgcolor);
 				}
 
 				> div {
@@ -128,7 +128,7 @@
   /*Start of Site Group Manager*/
   .wizard-step-active {
     background-color: var(--sakai-primary-color);
-    color: $button-primary-text-color;
+    color: var(--button-primary-text-color);
   }
 
   .optGroupSelect {

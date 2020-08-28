@@ -30,7 +30,7 @@
         padding: 0;
         a {
           background-color: #FFFFFF !important;
-          color: $tool-tab-active-highlight-color !important;
+          color: var(--tool-tab-active-highlight-color) !important;
           pointer-events: none;
         }
       }
@@ -42,7 +42,7 @@
     margin: 0;
     padding: 0;
     width: 280px;
-    border-bottom: 1px solid $tool-border-color;
+    border-bottom: 1px solid var(--tool-border-color);
     @media #{$phone} {
       display: block;
       position: relative;

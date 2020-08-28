@@ -84,12 +84,12 @@ body.is-logged-out{
 								border-radius: 0 5px 5px 0;
 								
 								line-height: 40px;
-								background: $tool-menu-item-hover-background-color;
-								border-top: 1px solid $tool-menu-item-separator-color;
-								border-right: 1px solid $tool-menu-item-separator-color;
-								border-bottom: 1px solid $tool-menu-item-separator-color;
+								background: var(--tool-menu-item-hover-background-color);
+								border-top: 1px solid var(--tool-menu-item-separator-color);
+								border-right: 1px solid var(--tool-menu-item-separator-color);
+								border-bottom: 1px solid var(--tool-menu-item-separator-color);
 								border-radius: $tool-menu-item-border-radius;
-								border-left-color: $tool-menu-item-hover-background-color;
+								border-left-color: var(--tool-menu-item-hover-background-color);
 								padding: 0 10px;
 								margin: 0;
 							}
@@ -100,7 +100,7 @@ body.is-logged-out{
 							}
 							&:hover, &:focus {
 								.#{$namespace}toolsNav__menuitem--title{
-									background: $tool-menu-item-hidden-hover-background-color;
+									background: var(--tool-menu-item-hidden-hover-background-color);
 								}
 							}
 						}
@@ -112,7 +112,7 @@ body.is-logged-out{
 						.Mrphs-toolsNav__menuitem--link{
 							&:hover, &:focus {
 								.#{$namespace}toolsNav__menuitem--title{
-									background: $tool-menu-item-selected-hover-background-color;
+									background: var(--tool-menu-item-selected-hover-background-color);
 								}
 							}
 						}
@@ -121,7 +121,7 @@ body.is-logged-out{
 						.Mrphs-toolsNav__menuitem--link{
 							&:hover{
 								.#{$namespace}toolsNav__menuitem--title{
-									background: $tool-menu-item-selected-hover-background-color;
+									background: var(--tool-menu-item-selected-hover-background-color);
 								}
 							}
 						}
@@ -196,7 +196,7 @@ body.is-logged-out{
 	#toolMenu {
 		position: relative;
 	}
-	background: $tool-menu-background-color;
+	background: var(--tool-menu-background-color);
 	display: block;
 	min-width: $tool-menu-width;
 	width: $tool-menu-width;
@@ -205,7 +205,7 @@ body.is-logged-out{
 	@include flex-basis( $tool-menu-width );
 	padding: $tool-menu-padding;
 	text-align: center;
-	border-right: 1px solid $tool-border-color;
+	border-right: 1px solid var(--tool-border-color);
 	@include transition( left 0.25s linear 0s );
 	
 	.sak-dark-theme & {
@@ -246,7 +246,7 @@ body.is-logged-out{
 .#{$namespace}toolsNav__title--current-site{
 	display: none;
 	@media #{$phone}{
-		color: $tool-background-color;
+		color: var(--tool-background-color);
 		background: var(--sakai-primary-color-hover);
 		display: block;
 		font-size: 1.1em;
@@ -275,7 +275,7 @@ body.is-logged-out{
 		padding: 0 0 0 0;
 	}
 	@media #{$phone}{
-		background: $tool-menu-background-color;
+		background: var(--tool-menu-background-color);
 		padding-top: 4px;
 	}
 }
@@ -289,8 +289,8 @@ nav#subSites{
 			max-width: #{$tool-menu-width * 2 };
 			margin-top: -4em;
 		}
-		border-left: 1px solid $tool-menu-item-separator-color;
-		border-right: 1px solid $tool-menu-item-separator-color;
+		border-left: 1px solid var(--tool-menu-item-separator-color);
+		border-right: 1px solid var(--tool-menu-item-separator-color);
 		
 		&.ontop{
 			ul{
@@ -308,7 +308,7 @@ nav#subSites{
 			position: absolute;
 			pointer-events: none;
 			border-color: transparent;
-			border-right-color: $tool-menu-item-separator-color;
+			border-right-color: var(--tool-menu-item-separator-color);
 			border-width: 7px;
 		}		
 		ul li a .#{$namespace}toolsNav__menuitem--icon {
@@ -328,7 +328,7 @@ nav#subSites{
 		}
 		
 		li{
-			border-bottom: 1px solid $tool-menu-item-separator-color;
+			border-bottom: 1px solid var(--tool-menu-item-separator-color);
 
 			&.#{$namespace}collapseTools
 			{
@@ -345,16 +345,16 @@ nav#subSites{
 				border-bottom: none;
 				cursor:pointer;
 				font-size: 1em;
-				color: $tool-menu-collapse-text-color;
-				background-color: $tool-menu-collapse-background-color;
-				box-shadow: $tool-menu-collapse-shadow;
+				color: var(--tool-menu-collapse-text-color);
+				background-color: var(--tool-menu-collapse-background-color);
+				box-shadow: var(--tool-menu-collapse-shadow);
 
 				&:hover, &:focus
 				{
-					color: $tool-menu-collapse-hover-text-color;
+					color: var(--tool-menu-collapse-hover-text-color);
 					border-top: $tool-menu-collapse-hover-border-top;
-					background-color: $tool-menu-collapse-hover-background-color;
-					box-shadow: $tool-menu-collapse-hover-shadow;
+					background-color: var(--tool-menu-collapse-hover-background-color);
+					box-shadow: var(--tool-menu-collapse-hover-shadow);
 				}
 			
 				&:active 
@@ -366,17 +366,17 @@ nav#subSites{
 				{
 					justify-content:center; /* center the arrows when collapsed */
 					width: calc(#{$tool-menu-width-collapsed} - 1px); /* width of sidebar minus border edge */
-					color: $tool-menu-collapse-min-text-color;
+					color: var(--tool-menu-collapse-min-text-color);
 					border-top: $tool-menu-collapse-min-border-top;
-					background-color: $tool-menu-collapse-min-background-color;
-					box-shadow: $tool-menu-collapse-min-shadow;
+					background-color: var(--tool-menu-collapse-min-background-color);
+					box-shadow: var(--tool-menu-collapse-min-shadow);
 
 					&:hover, &:focus
 					{
-						color: $tool-menu-collapse-min-hover-text-color;
+						color: var(--tool-menu-collapse-min-hover-text-color);
 						border-top: $tool-menu-collapse-min-hover-border-top;
-						background-color: $tool-menu-collapse-min-hover-background-color;
-						box-shadow: $tool-menu-collapse-min-hover-shadow;
+						background-color: var(--tool-menu-collapse-min-hover-background-color);
+						box-shadow: var(--tool-menu-collapse-min-hover-shadow);
 					}
 			
 					&:active 
@@ -391,7 +391,7 @@ nav#subSites{
 					
 					span.fa-angle-double-left
 					{
-						color: $tool-menu-collapse-icon-color;
+						color: var(--tool-menu-collapse-icon-color);
 					}
 					
 					&:focus 
@@ -411,7 +411,7 @@ nav#subSites{
 	
 			// add a top border to the first tool to prevent jitter on hover when collapsed
 			&:first-of-type a {
-				border-top: 1px solid $tool-menu-item-separator-color;
+				border-top: 1px solid var(--tool-menu-item-separator-color);
 			}
 	
 			.Mrphs-toolsNav__menuitem--link{
@@ -421,12 +421,12 @@ nav#subSites{
 				@if not($tool-menu-icon-on-left) {
 					@include flex-direction(column);
 				}
-				background-color: $tool-menu-item-background-color;
+				background-color: var(--tool-menu-item-background-color);
 				font-size: 1em;
 				line-height: 1.5;
 				font-weight: $tool-menu-item-text-weight;
 				text-decoration: none;
-				color: $tool-menu-item-text-color;
+				color: var(--tool-menu-item-text-color);
 				
 				@if $tool-menu-icon-on-left {
 					text-align: left;
@@ -451,15 +451,15 @@ nav#subSites{
 				}
 
 				&:hover, &:focus {
-					color: $tool-menu-item-hover-text-color;
-					background: $tool-menu-item-hover-background-color;
+					color: var(--tool-menu-item-hover-text-color);
+					background: var(--tool-menu-item-hover-background-color);
 
 					&:before{
 						border-left: $tool-menu-item-hover-border-left;
 					}
 
 					.#{$namespace}toolsNav__menuitem--icon{
-						color: $tool-menu-item-hover-icon-color;
+						color: var(--tool-menu-item-hover-icon-color);
 					}
 				}
 				
@@ -477,7 +477,7 @@ nav#subSites{
 					@else {
 						border-width: 1px;
 						border-style: solid;
-						border-color: darken( $tool-menu-background-color, 10% );
+						border-color: darken( var(--tool-menu-background-color), 10% );
 						height:  5.5em;
 					}
 					overflow: hidden;
@@ -485,7 +485,7 @@ nav#subSites{
 				
 				.#{$namespace}toolsNav__menuitem--icon{
 					@extend .fa-fw;
-					color: $tool-menu-item-icon-color;
+					color: var(--tool-menu-item-icon-color);
 					
 					@if $tool-menu-icon-on-left {
 						display: inline-block;
@@ -519,8 +519,8 @@ nav#subSites{
 				&.is-invisible {
 					position: relative;
 					font-style: italic;
-					color: $tool-menu-item-hidden-text-color;
-					background: $tool-menu-item-hidden-background-color;
+					color: var(--tool-menu-item-hidden-text-color);
+					background: var(--tool-menu-item-hidden-background-color);
 
 					&:before{
 						border-left: $tool-menu-item-hidden-border-left;
@@ -541,20 +541,20 @@ nav#subSites{
 					}
 
 					&:hover{
-						color: $tool-menu-item-hidden-hover-text-color;
-						background: $tool-menu-item-hidden-hover-background-color;
+						color: var(--tool-menu-item-hidden-hover-text-color);
+						background: var(--tool-menu-item-hidden-hover-background-color);
 
 						&:before{
 							border-left: $tool-menu-item-hidden-hover-border-left;
 						}
 
 						.#{$namespace}toolsNav__menuitem--icon{
-							color: $tool-menu-item-hidden-hover-icon-color;
+							color: var(--tool-menu-item-hidden-hover-icon-color);
 						}
 					}
 					
 					.#{$namespace}toolsNav__menuitem--icon{
-						color: $tool-menu-item-hidden-icon-color;
+						color: var(--tool-menu-item-hidden-icon-color);
 					}
 				}
 			}
@@ -563,15 +563,15 @@ nav#subSites{
 				margin-right: -1px;
 
 				.Mrphs-toolsNav__menuitem--link{
-					color: $tool-menu-item-selected-text-color;
-					background: $tool-menu-item-selected-background-color;
+					color: var(--tool-menu-item-selected-text-color);
+					background: var(--tool-menu-item-selected-background-color);
 
 					&:before{
 						border-left: $tool-menu-item-selected-border-left;
 					}
 
 					.#{$namespace}toolsNav__menuitem--icon{
-						color: $tool-menu-item-selected-icon-color;
+						color: var(--tool-menu-item-selected-icon-color);
 					}
 
 					.#{$namespace}toolsNav__menuitem--title{
@@ -579,15 +579,15 @@ nav#subSites{
 					}
 
 					&:hover{
-						color: $tool-menu-item-selected-hover-text-color;
-						background: $tool-menu-item-selected-hover-background-color;
+						color: var(--tool-menu-item-selected-hover-text-color);
+						background: var(--tool-menu-item-selected-hover-background-color);
 
 						&:before{
 							border-left: $tool-menu-item-selected-hover-border-left;
 						}
 
 						.#{$namespace}toolsNav__menuitem--icon{
-							color: $tool-menu-item-selected-hover-icon-color;
+							color: var(--tool-menu-item-selected-hover-icon-color);
 						}
 					}
 					@media #{$phone}{
@@ -595,7 +595,7 @@ nav#subSites{
 							border: none;
 						}
 						@else {
-							border: 1px solid $tool-menu-item-separator-color;
+							border: 1px solid var(--tool-menu-item-separator-color);
 						}
 					}
 				}
@@ -603,13 +603,13 @@ nav#subSites{
 			.#{$namespace}toolsNav__subnav{
 				padding: 0 0 0 0;
 				li{
-					border-bottom: 1px solid $tool-sub-menu-border-color;
+					border-bottom: 1px solid var(--tool-sub-menu-border-color);
 					a{
 						padding: 0.6em 0 0.6em 0em;
-						background: $tool-sub-menu-background-color;
+						background: var(--tool-sub-menu-background-color);
 						&:hover{
-							background: $tool-sub-menu-hover-background-color;
-							color: $tool-sub-menu-hover-color;
+							background: var(--tool-sub-menu-hover-background-color);
+							color: var(--tool-sub-menu-hover-color);
 						}
 						@media #{$phone}{
 							padding: 0.6em 0.6em;
@@ -617,21 +617,21 @@ nav#subSites{
 					}
 					&.is-current{
 						a{
-							background: $tool-sub-menu-current-background-color;
-							color: $tool-sub-menu-current-color;
+							background: var(--tool-sub-menu-current-background-color);
+							color: var(--tool-sub-menu-current-color);
 							.#{$namespace}toolsNav__menuitem--title{
 								font-weight: 700;
 							}
 							&:hover{
-								background: $tool-sub-menu-current-hover-background-color;
-								color: $tool-sub-menu-current-hover-color;
+								background: var(--tool-sub-menu-current-hover-background-color);
+								color: var(--tool-sub-menu-current-hover-color);
 							}
 						}
 					}
 				}
 			}
 			.#{$namespace}toolsNav__category {
-				background-color: $tool-sub-menu-background-color;
+				background-color: var(--tool-sub-menu-background-color);
 				@media #{$phone}{
 					display: none;
 				}
@@ -674,7 +674,7 @@ body {
 					}
 
 					&:hover {
-						background-color: $tool-menu-item-hover-background-color;
+						background-color: var(--tool-menu-item-hover-background-color);
 					}
 				}
 
@@ -698,11 +698,11 @@ body {
 						padding-left: 0; 	// remove space from text to icon
 						width: calc(#{$tool-menu-width} - calc(#{$standard-spacing} * 2));
 						.Mrphs-toolsNav__menuitem--title {
-							color: $tool-menu-item-text-color;
+							color: var(--tool-menu-item-text-color);
 						}
 						&:hover {
 							.Mrphs-toolsNav__menuitem--title {
-								color: $tool-menu-item-hover-text-color;
+								color: var(--tool-menu-item-hover-text-color);
 							}
 						}
 					}
@@ -738,42 +738,42 @@ body {
 			}
 
 			&.expanded {
-				background-color: $tool-lessons-toplevel-menu-expanded-background-color;
+				background-color: var(--tool-lessons-toplevel-menu-expanded-background-color);
 				&.is-current {
 					> .Mrphs-toolsNav__menuitem--link {
-						background-color: $tool-lessons-toplevel-menu-expanded-selected-background-color;
+						background-color: var(--tool-lessons-toplevel-menu-expanded-selected-background-color);
 						&:hover {
-							background-color: $tool-menu-item-selected-hover-background-color;
+							background-color: var(--tool-menu-item-selected-hover-background-color);
 						}
 					}
 				}
 				&.is-parent-of-current {
 					> .Mrphs-toolsNav__menuitem--link {
-						background-color: $tool-lessons-subpage-menu-selected-parent-background-color;
+						background-color: var(--tool-lessons-subpage-menu-selected-parent-background-color);
 						.#{$namespace}toolsNav__menuitem--icon {
-							color: $tool-menu-item-icon-color !important;
+							color: var(--tool-menu-item-icon-color) !important;
 						}
 						.#{$namespace}toolsNav__menuitem--title {
-							color: $tool-menu-item-text-color !important;
+							color: var(--tool-menu-item-text-color) !important;
 							font-weight: normal !important;
 						}
 						&:hover {
-							color: $tool-menu-item-hover-text-color !important;
+							color: var(--tool-menu-item-hover-text-color) !important;
 							&:before {
 								border-left: $tool-menu-item-hover-border-left !important;
 							}
 
 							.#{$namespace}toolsNav__menuitem--icon {
-								color: $tool-menu-item-hidden-icon-color !important;
+								color: var(--tool-menu-item-hidden-icon-color) !important;
 							}
 						}
 					}
 				}
 
 				> .Mrphs-toolsNav__menuitem--link {
-					background-color: $tool-lessons-subpage-menu-expanded-background-color;
+					background-color: var(--tool-lessons-subpage-menu-expanded-background-color);
 					&:hover {
-						background-color: darken($tool-lessons-toplevel-menu-expanded-background-color, 10%);
+						background-color: var(--tool-lessons-toplevel-menu-expanded-hover-background-color);
 					}
 
 					.#{$namespace}toolsNav__menuitem--icon {
@@ -789,7 +789,7 @@ body {
 			}
 
 			&.sliding-down {
-					background-color: $tool-lessons-toplevel-menu-sliding-background-color;
+					background-color: var(--tool-lessons-toplevel-menu-sliding-background-color);
 					.Mrphs-toolsNav__menuitem--link {
 							.#{$namespace}toolsNav__menuitem--icon {
 									-webkit-transition-duration: 0.5s;
@@ -806,9 +806,9 @@ body {
 									-webkit-transform: rotate(90deg);
 									transform: rotate(90deg);
 							}
-							background-color: $tool-lessons-toplevel-menu-sliding-background-color;
+							background-color: var(--tool-lessons-toplevel-menu-sliding-background-color);
 							&:hover {
-									background-color: $tool-lessons-toplevel-menu-sliding-background-color;
+									background-color: var(--tool-lessons-toplevel-menu-sliding-background-color);
 							}
 					}
 			}
@@ -868,30 +868,30 @@ body {
 						font-size: $tool-lessons-subpage-menu-fontsize;
 						text-overflow: ellipsis;
 						white-space: nowrap;
-						color: $tool-menu-item-text-color !important;
+						color: var(--tool-menu-item-text-color) !important;
 						text-decoration: none;
 
 						&:hover {
 							border-left: $tool-menu-item-hover-border-left !important;
-							background-color: $tool-menu-item-hover-background-color !important;
-							color: $tool-menu-item-hover-text-color !important;
+							background-color: var(--tool-menu-item-hover-background-color) !important;
+							color: var(--tool-menu-item-hover-text-color) !important;
 						}
 
 						&.is-invisible {
-							color: $tool-menu-item-hidden-text-color !important;
+							color: var(--tool-menu-item-hidden-text-color) !important;
 							font-style: italic;
 							position: relative;
 
 							.#{$namespace}toolsNav__menuitem--icon {
 								font-style: normal !important;
-								color: $tool-menu-item-hidden-icon-color !important;
+								color: var(--tool-menu-item-hidden-icon-color) !important;
 							}
 
 							&:hover {
-								color: $tool-menu-item-hidden-hover-text-color !important;
+								color: var(--tool-menu-item-hidden-hover-text-color) !important;
 
 								.#{$namespace}toolsNav__menuitem--icon {
-									color: $tool-menu-item-hidden-hover-icon-color !important;
+									color: var(--tool-menu-item-hidden-hover-icon-color) !important;
 								}
 							}
 
@@ -905,7 +905,7 @@ body {
 							}
 						}
 						&.has-prerequisite {
-							color: $tool-menu-item-hidden-text-color !important;
+							color: var(--tool-menu-item-hidden-text-color) !important;
 							position: relative;
 
 							&.disabled {
@@ -913,7 +913,7 @@ body {
 							}
 
 							&:hover {
-								color: $tool-menu-item-hidden-hover-text-color !important;
+								color: var(--tool-menu-item-hidden-hover-text-color) !important;
 
 								&:after {
 									@extend .fa-lg;
@@ -931,14 +931,14 @@ body {
 
 						a {
 							font-weight: bold !important;
-							color: $tool-menu-item-selected-text-color !important;
+							color: var(--tool-menu-item-selected-text-color) !important;
 							border-left: $tool-menu-item-selected-border-left !important;
 							margin-right: 0;
-							background: $tool-lessons-subpage-menu-selected-background-color;
+							background: var(--tool-lessons-subpage-menu-selected-background-color);
 							&:hover {
-								color: $tool-menu-item-selected-hover-text-color !important;
+								color: var(--tool-menu-item-selected-hover-text-color) !important;
 								border-left: $tool-menu-item-selected-hover-border-left !important;
-								background-color: $tool-menu-item-selected-hover-background-color !important;
+								background-color: var(--tool-menu-item-selected-hover-background-color) !important;
 							}
 						}
 					}
@@ -948,16 +948,16 @@ body {
 			&.is-current {
 				> .Mrphs-toolsNav__menuitem--link {
 					&:hover {
-						background-color: $tool-menu-item-selected-hover-background-color;
+						background-color: var(--tool-menu-item-selected-hover-background-color);
 					}
 				}
 				.lessons-goto-top-page {
 					.Mrphs-toolsNav__menuitem--title {
-						color: $tool-menu-item-selected-text-color !important;
+						color: var(--tool-menu-item-selected-text-color) !important;
 					}
 					&:hover {
 						.Mrphs-toolsNav__menuitem--title {
-							color: $tool-menu-item-selected-hover-text-color !important;
+							color: var(--tool-menu-item-selected-hover-text-color) !important;
 						}
 					}
 				}
@@ -966,11 +966,11 @@ body {
 			&.is-current.is-parent-of-current {
 				.lessons-goto-top-page {
 					.Mrphs-toolsNav__menuitem--title {
-						color: $tool-menu-item-text-color !important;
+						color: var(--tool-menu-item-text-color) !important;
 					}
 					&:hover {
 						.Mrphs-toolsNav__menuitem--title {
-							color: $tool-menu-item-hover-text-color !important;
+							color: var(--tool-menu-item-hover-text-color) !important;
 						}
 					}
 				}
@@ -1001,7 +1001,7 @@ body {
 						}
 					}
 					&.expanded:not(.is-current) .#{$namespace}toolsNav__menuitem--link {
-						background-color: $tool-menu-item-background-color;		// when tool menu is collapsed and Lessons isn't the current tool
+						background-color: var(--tool-menu-item-background-color);		// when tool menu is collapsed and Lessons isn't the current tool
 					}
 					&.is-parent-of-current, &.expanded.is-parent-of-current {
 						.#{$namespace}toolsNav__menuitem--link {
@@ -1009,10 +1009,10 @@ body {
 								border-left: $tool-menu-item-selected-border-left;	// when tool menu is collapsed and a subpage is the current page, add highlight border to the Lessons parent tool item
 							}
 							.#{$namespace}toolsNav__menuitem--icon {
-								color: $tool-menu-item-selected-icon-color !important;
+								color: var(--tool-menu-item-selected-icon-color) !important;
 							}
 							&:hover .#{$namespace}toolsNav__menuitem--icon {
-								color: $tool-menu-item-selected-hover-icon-color !important;
+								color: var(--tool-menu-item-selected-hover-icon-color) !important;
 							}
 						}
 					}

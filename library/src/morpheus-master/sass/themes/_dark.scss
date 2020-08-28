@@ -18,16 +18,15 @@
   --sakai-primary-color-hover:             var(--sakai-color-blue-6);
   --sakai-alt-colour:                      var(--sakai-color-orange-4);
   --sakai-primary-color-highContrast:      var(--sakai-color-blue-6);
-  --sakai-background-color:                var(--sakai-color-blue-8);
+  --sakai-background-color:                var(--sakai-color-gray-8);
   --sakai-background-color-hover:          var(--sakai-color-gray-0);
   --sakai-background-color-tint-5:         var(--sakai-color-gray-0);
   --sakai-background-color-tint-10:        var(--sakai-color-gray-1);
   --sakai-background-color-tint-15:        var(--sakai-color-gray-2);
   --sakai-tool-background-alternate:       var(--sakai-background-color-tint-5);
-  --sakai-border-color:                    var(--sakai-color-blue-5);
+  --sakai-border-color:                    var(--sakai-color-gray-5);
   --sakai-top-header-background:           var(--sakai-background-color);
   --sakai-sites-nav-background:            var(--sakai-background-color);
-  --sakai-sites-nav-menu-item-background:  var(--sakai-color-gray-2);
   --sakai-background-color-secondary:      var(--sakai-color-purple-7);
   --sakai-text-color:                      var(--sakai-color-gray-2);
   --sakai-text-color-hover:                var(--sakai-color-gray-3);
@@ -35,3 +34,4 @@
   --sakai-secondary-color:                 var(--sakai-color-blue-2);
   --sakai-body-background-color:           var(--sakai-background-color);
 }
+$sites-nav-menu-item-background: var(--sakai-color-gray-8) !default;

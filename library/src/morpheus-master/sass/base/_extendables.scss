@@ -1,5 +1,6 @@
 @import "base/compass";
 @import "themes/base";
+@import "themes/light";
 .blurry{
 	@include filter( blur(0.1em) );
 }
@@ -51,17 +52,17 @@
 }
 
 .bs-callout-primary, .bs-callout-info, .messageInformation, .messageInstruction, .messageProgress {
-  @include bs-callout($infoBanner-color, $infoBanner-bgcolor, $infoBanner-bordercolor);
+  @include bs-callout(var(--infoBanner-color), var(--infoBanner-bgcolor), var(--infoBanner-bordercolor));
 }
 
 .bs-callout-success, .messageValidation, .messageSuccess {
-  @include bs-callout($successBanner-color, $successBanner-bgcolor, $successBanner-bordercolor);
+  @include bs-callout(var(--successBanner-color), var(--successBanner-bgcolor), var(--successBanner-bordercolor));
 }
 .bs-callout-warn, .bs-callout-alert, .messageWarning, .messageConfirmation {
-  @include bs-callout($warnBanner-color, $warnBanner-bgcolor, $warnBanner-bordercolor);
+  @include bs-callout(var(--warnBanner-color), var(--warnBanner-bgcolor), var(--warnBanner-bordercolor));
 }
 .bs-callout-danger, .bs-callout-error, .messageError {
-  @include bs-callout($errorBanner-color, $errorBanner-bgcolor, $errorBanner-bordercolor);
+  @include bs-callout(var(--errorBanner-color), var(--errorBanner-bgcolor), var(--errorBanner-bordercolor));
 }
 
 @mixin sakai-banner($bordercolor, $bgcolor, $color, $icon, $isInline: false) {
@@ -124,28 +125,28 @@
 }
 
 .sak-banner-info {
-	@include sakai-banner($infoBanner-bordercolor, $infoBanner-bgcolor, $infoBanner-color, $infoBanner-icon, false);
+	@include sakai-banner(var(--infoBanner-bordercolor), var(--infoBanner-bgcolor), var(--infoBanner-color), $infoBanner-icon, false);
 }
 .sak-banner-info-inline {
-	@include sakai-banner($infoBanner-bordercolor, $infoBanner-bgcolor, $infoBanner-color, $infoBanner-icon, true);
+	@include sakai-banner(var(--infoBanner-bordercolor), var(--infoBanner-bgcolor), var(--infoBanner-color), $infoBanner-icon, true);
 }
 .sak-banner-success {
-	@include sakai-banner($successBanner-bordercolor, $successBanner-bgcolor, $successBanner-color, $successBanner-icon, false);
+	@include sakai-banner(var(--successBanner-bordercolor), var(--successBanner-bgcolor), var(--successBanner-color), $successBanner-icon, false);
 }
 .sak-banner-success-inline {
-	@include sakai-banner($successBanner-bordercolor, $successBanner-bgcolor, $successBanner-color, $successBanner-icon, true);
+	@include sakai-banner(var(--successBanner-bordercolor), var(--successBanner-bgcolor), var(--successBanner-color), $successBanner-icon, true);
 }
 .sak-banner-warn {
-	@include sakai-banner($warnBanner-bordercolor, $warnBanner-bgcolor, $warnBanner-color, $warnBanner-icon, false);
+	@include sakai-banner(var(--warnBanner-bordercolor), var(--warnBanner-bgcolor), var(--warnBanner-color), $warnBanner-icon, false);
 }
 .sak-banner-warn-inline {
-	@include sakai-banner($warnBanner-bordercolor, $warnBanner-bgcolor, $warnBanner-color, $warnBanner-icon, true);
+	@include sakai-banner(var(--warnBanner-bordercolor), var(--warnBanner-bgcolor), var(--warnBanner-color), $warnBanner-icon, true);
 }
 .sak-banner-error {
-	@include sakai-banner($errorBanner-bordercolor, $errorBanner-bgcolor, $errorBanner-color, $errorBanner-icon, false);
+	@include sakai-banner(var(--errorBanner-bordercolor), var(--errorBanner-bgcolor), var(--errorBanner-color), $errorBanner-icon, false);
 }
 .sak-banner-error-inline {
-	@include sakai-banner($errorBanner-bordercolor, $errorBanner-bgcolor, $errorBanner-color, $errorBanner-icon, true);
+	@include sakai-banner(var(--errorBanner-bordercolor), var(--errorBanner-bgcolor), var(--errorBanner-color), $errorBanner-icon, true);
 }
 .sak-banner-dismiss {
 	padding-right: calc(#{$standard-spacing} + 1.2em + #{$standard-spacing});		// allow enough room for dismiss "X"
@@ -194,7 +195,7 @@
 	}
 	
 	&:focus {
-		box-shadow: 0px 0px $focus-outline-width $focus-outline-width $focus-outline-color;
+		box-shadow: 0px 0px $focus-outline-width $focus-outline-width var(--focus-outline-color);
 	}
 	
 	&[disabled="disabled"],&[disabled],&[disabled="true"] {
@@ -209,20 +210,20 @@
 	> li{
 		&.active, &.selected, &.activeTab{
 			> a{
-				background: $tool-tab-active-background-color;
+				background: var(--tool-tab-active-background-color);
 				border-top: 1px solid #ddd;
 				border-left: 1px solid #ddd;
 				border-right: 1px solid #ddd;
-				border-bottom: 1px solid $tool-tab-active-background-color !important;
+				border-bottom: 1px solid var(--tool-tab-active-background-color) !important;
 				color: var(--sakai-primary-color);
 				&:hover{
-					background: $tool-tab-active-background-color;
+					background: var(--tool-tab-active-background-color);
 					color: var(--sakai-primary-color);
 				}
 			}
 		}
 		> a{
-			background: $tool-tab-background-color;
+			background: var(--tool-tab-background-color);
 			border: 1px solid #ddd !important;
 			color: var(--sakai-text-color);
 			cursor: pointer;
@@ -268,6 +269,7 @@
 	}
 
 	&:focus {
+		outline-color: var(--focus-outline-color);
 		outline: $sakai-focus-outline;
 		outline-offset: $focus-outline-offset;
 	}
@@ -298,11 +300,11 @@
 
 	&[disabled="disabled"], &[disabled], &[disabled="true"], &[class="disabled"] {
 		&, &:hover, &:active, &:focus {
-			color: $button-disabled-text-color;
+			color: var(--button-disabled-text-color);
 			text-decoration: none;
-			background: $button-disabled-background;
-			border-color: $button-disabled-border-color;
-			box-shadow: $button-disabled-shadow;
+			background: var(--button-disabled-background);
+			border-color: var(--button-disabled-border-color);
+			box-shadow: var(--button-disabled-shadow);
 			cursor: not-allowed;
 		}
 	}
@@ -310,38 +312,38 @@
 
 // the primary button is the primary action task at hand (as opposed to secondary actions that are less utilized)
 @mixin sakai_primary_button() {
-	@include sakai_button(	$button-primary-text-color,
-							$button-primary-background,
-							$button-primary-border-color,
-							$button-primary-hover-text-color,
-							$button-primary-hover-background,
-							$button-primary-hover-border-color,
-							$button-primary-active-text-color,
-							$button-primary-active-background,
-							$button-primary-active-border-color,
+	@include sakai_button(	var(--button-primary-text-color),
+							var(--button-primary-background),
+							var(--button-primary-border-color),
+							var(--button-primary-hover-text-color),
+							var(--button-primary-hover-background),
+							var(--button-primary-hover-border-color),
+							var(--button-primary-active-text-color),
+							var(--button-primary-active-background),
+							var(--button-primary-active-border-color),
 							$button-primary-text-transform,
 							$button-primary-font-weight,
-							$button-primary-shadow,
-							$button-primary-hover-shadow,
-							$button-primary-active-shadow);
+							var(--button-primary-shadow),
+							var(--button-primary-hover-shadow),
+							var(--button-primary-active-shadow));
 }
 
 // the standard button design for non-primary action buttons (opposite of sakai_primary_button above)
 @mixin sakai_secondary_button() {
-	@include sakai_button(	$button-text-color,
-							$button-background,
-							$button-border-color,
-							$button-hover-text-color,
-							$button-hover-background,
-							$button-hover-border-color,
-							$button-active-text-color,
-							$button-active-background,
-							$button-active-border-color,
+	@include sakai_button(	var(--button-text-color),
+							var(--button-background),
+							var(--button-border-color),
+							var(--button-hover-text-color),
+							var(--button-hover-background),
+							var(--button-hover-border-color),
+							var(--button-active-text-color),
+							var(--button-active-background),
+							var(--button-active-border-color),
 							$button-text-transform,
 							$button-font-weight,
-							$button-shadow,
-							$button-hover-shadow,
-							$button-active-shadow);
+							var(--button-shadow),
+							var(--button-hover-shadow),
+							var(--button-active-shadow));
 }
 
 button.btn-primary, .act .active {
@@ -475,9 +477,9 @@ label.panelGridLabel{
 /*** Drop files bar for Resources & Dropbox ***/
 .dropzone {
 	overflow: visible;
-	border: 2px dashed $tool-menu-color !important;
+	border: 2px dashed var(--tool-menu-color) !important;
 	border-radius: 5px;
-	background-color: $tool-menu-background-color !important;
+	background-color: var(--tool-menu-background-color) !important;
 	&:hover {
 		filter:brightness(.85);
 	}

@@ -9,7 +9,7 @@
 	background: var(--sakai-background-color);
 	box-shadow: 0 0 5px rgba( var(--sakai-text-color) , 0.25 );
 	.logo{
-		background: $top-header-background url($logo) no-repeat center center;
+		background: var(--top-header-background) url($logo) no-repeat center center;
 		background-size: $logo-width $logo-height;
 		width: 100%;
 		height: 64px;
@@ -24,9 +24,9 @@
   		text-align: center;
 	}
 	.alertMessage{
-		background: $error-background-color;
-		border: $error-color;
-		color: $error-color;
+		background: var(--error-background-color);
+		border: var(--error-color);
+		color: var(--error-color);
 		padding: 0.8em;
 		text-align: center;
 	}
@@ -66,12 +66,12 @@
 
 	&.with-errors{
 		input[type="text"],input[type="password"]{			
-			border: 1px solid $error-color;
-			background: $error-background-color;
+			border: 1px solid var(--error-color);
+			background: var(--error-background-color);
 		}
 
 		input[type="password"].capsLockOnDisplay {
-			background: $error-background-color url("images/capsLock.png") no-repeat right;
+			background: var(--error-background-color) url("images/capsLock.png") no-repeat right;
 		}
 	}
 
@@ -120,7 +120,7 @@
 }
 
 #loginPortalMask{
-	background: $portal-mask-background;
+	background: var(--portal-mask-background);
 	position: fixed;
 	height: 100%;
 	width:  100%;

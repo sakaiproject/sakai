@@ -6,7 +6,7 @@
 		li {
 			span {
 				a {
-					border-bottom: 1px solid $tool-border-color;
+					border-bottom: 1px solid var(--tool-border-color);
 					display: inline-block;
 				}
 			}
@@ -97,11 +97,12 @@
 		.mainList {
 			div:hover {
 				&.canEdit {
-					background-color: $lessons-item-hover-background;
-					box-shadow: $lessons-item-hover-shadow;
+					background-color: var(--lessons-item-hover-background);
+					box-shadow: var(--lessons-item-hover-shadow);
 				}
 			}
 			.canEdit {
+				border-color: var(--lessons-item-border-top-color);
 				border-top: $lessons-item-border-top;
 				border-right: $lessons-item-border-right;
 				border-bottom: $lessons-item-border-bottom;

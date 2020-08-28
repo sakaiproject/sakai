@@ -1,6 +1,5 @@
 function themeSwitcher(){
 
-
     let themeSwitcher = document.getElementById("themeSwitcher");
 
     SAK_THEME_SELECTION_KEY = portal.user.id + "#theme";
@@ -8,7 +7,7 @@ function themeSwitcher(){
     if(themeSwitcher != null) {
         
         initTheme(); // on page load, if user has already selected a specific theme -> apply it
-    
+
         themeSwitcher.addEventListener('click', setTheme, false);
 
     }
@@ -19,14 +18,12 @@ function themeSwitcher(){
         if (themeSwitcher.getAttribute("aria-checked") === "true") {
             themeSwitcher.setAttribute("aria-checked", "false");
             document.firstElementChild.classList.add('sakai-dark-theme');
-            // document.firstElementChild.setAttribute('data-theme', 'sakai-dark-theme');
             localStorage.setItem('sakai-theme', 'dark');
         }
         // Set to light mode
         else {
             themeSwitcher.setAttribute("aria-checked", "true");
             document.firstElementChild.classList.remove('sakai-dark-theme');
-            // document.firstElementChild.setAttribute('data-theme', 'sakai-light-theme');
             localStorage.setItem('sakai-theme', 'light')
         }
     }

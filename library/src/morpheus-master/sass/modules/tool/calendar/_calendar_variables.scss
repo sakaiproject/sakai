@@ -16,7 +16,7 @@ $calendar-day-text-color: var(--sakai-primary-color);
 
 // day headers for month view
 $calendar-day-header-background-color: #fafafa;
-$calendar-day-header-text-color: $link-color;
+$calendar-day-header-text-color: var(--link-color);
 
 // today in the calendar
 $calendar-day-today-border-color: #666;
@@ -26,7 +26,7 @@ $calendar-day-today-text-color: #333;
 // a day with event(s)
 $calendar-event-border-color: var(--sakai-primary-color);
 $calendar-event-background-color: #f9f9ff;
-$calendar-event-text-color: $link-color;
+$calendar-event-text-color: var(--link-color);
 $calendar-event-indicator-color: #666;
 
 // today with event(s)

@@ -79,7 +79,7 @@
 	  box-shadow: 1px 1px 8px 4px rgba(0, 0, 0, 0.25);
 	}
 	.qtip-tipped {
-	  background-color: $tool-background-color;
+	  background-color: var(--tool-background-color);
 	  border: 4px solid var(--sakai-primary-color);
 	}
 */

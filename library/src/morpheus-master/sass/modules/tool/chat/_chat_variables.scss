@@ -6,7 +6,7 @@
 $footerApp__chat__border--color: 		var(--sakai-primary-color);
 $footerApp__chat__color: 		 		var(--sakai-text-color);
 $footerApp__chat__color-lighter: 		 		var(--sakai-text-color-disabled);
-$footerApp__chat__background: 	 		$tool-background-color;
+$footerApp__chat__background: 	 		var(--tool-background-color);
 
 $footerApp__chat__a__color: 	 		var(--sakai-primary-color);
 $footerApp__chat__a--hover__color: 		var(--sakai-primary-color-hover);

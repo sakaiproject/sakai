@@ -158,7 +158,7 @@
         }
 
         .roster-member:nth-child(odd){
-            background: $tool-tab-background-color;
+            background: var(--tool-tab-background-color);
         }
     }
 

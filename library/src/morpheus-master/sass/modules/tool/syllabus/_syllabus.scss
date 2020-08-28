@@ -16,7 +16,7 @@
       @extend .fa;
       @extend .fa-pencil;
 
-      color: $link-color;
+      color: var(--link-color);
 
       position: absolute;
       right: 0;

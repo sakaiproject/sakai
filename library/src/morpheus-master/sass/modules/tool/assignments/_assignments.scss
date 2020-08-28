@@ -6,7 +6,7 @@
     margin-left: 20px;
   }
 	#req-new_assignment_grade_points{
-		color: $error-color;
+		color: var(--error-color);
 	    margin: 9px 0 0 -13px;
 		position: absolute;
 	}
@@ -28,7 +28,7 @@
 		label{
 			&:after{
 				content: "*";
-				color: $error-color;
+				color: var(--error-color);
 				position: relative;
 				top: 3px;
 			}
@@ -38,7 +38,7 @@
 	#gradeOverridePanel{
 		margin-left: 50px;
 		width:100%;
-		background-color: $tool-background-color;
+		background-color: var(--tool-background-color);
 		.row-override:nth-child(odd){
 			background: var(--sakai-color-gray-0);
 		}

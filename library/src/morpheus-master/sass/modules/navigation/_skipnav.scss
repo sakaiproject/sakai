@@ -47,17 +47,17 @@
 
 			// Sites row
 			&.#{$namespace}skipNav__menuitem.#{$namespace}skipNav__menuitem--worksite {
-				background: $sites-nav-background;
+				background: var(--sites-nav-background);
 				position: relative;
-				border-bottom: 1px solid $sites-nav-menu-item-border-color;
+				border-bottom: 1px solid var(--sites-nav-menu-item-border-color);
 
 				a {
 					float: right;
-					color: $sites-nav-menu-item-color;
+					color: var(--sites-nav-menu-item-color);
 					padding: 0 10px 0 14px;
 					position: relative;
-					background: $sites-nav-background;
-					border-bottom: 1px solid $sites-nav-menu-item-border-color;
+					background: var(--sites-nav-background);
+					border-bottom: 1px solid var(--sites-nav-menu-item-border-color);
 
 					&:before {
 						content: '';
@@ -65,7 +65,7 @@
 						height: 80%;
 						left: 0;
 						top: 10%;
-						border-left: 1px solid $sites-nav-menu-item-border-color;
+						border-left: 1px solid var(--sites-nav-menu-item-border-color);
 					}
 				}
 			}
@@ -73,13 +73,13 @@
 			// Tool row
 			&.#{$namespace}skipNav__menuitem.#{$namespace}skipNav__menuitem--tools {
 				@include display-flex;
-				background: $portal-background-color;
-				box-shadow: $divider-shadow-fixed;
+				background: var(--portal-background-color);
+				box-shadow: var(--divider-shadow-fixed);
 				
 
 				a {
 					float: left;
-					color: $sites-nav-menu-item-color;
+					color: var(--sites-nav-menu-item-color);
 					padding: 0 14px 0 10px;
 					position: relative;
 
@@ -89,17 +89,17 @@
 						height: 80%;
 						right: 0;
 						top: 10%;
-						border-right: 1px solid $tool-menu-item-separator-color;
+						border-right: 1px solid var(--tool-menu-item-separator-color);
 					}
 				}
 				
 				a.#{$namespace}skipNav--toolName {
-					color: $link-color;
+					color: var(--link-color);
 				}
 				a.manage-overview-link-mobile {
 					display: inline-block;
 					margin-left: auto; 			// push this link to the far right
-					color: $link-color;
+					color: var(--link-color);
 
 					span {
 						padding-right: $standard-space;

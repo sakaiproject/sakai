@@ -1,10 +1,11 @@
 @mixin sitesNavStyling() {
 	padding: ($standard-space * 2);
+	border-color: var(--sites-nav-menu-item-border-color);
 	border-top: $sites-nav-menu-item-border-top;
 	border-right: $sites-nav-menu-item-border-right;
 	border-bottom: $sites-nav-menu-item-border-bottom;
 	border-left: $sites-nav-menu-item-border-left;
-	background: var(--sakai-sites-nav-menu-item-background);
+	background: $sites-nav-menu-item-background;
 	text-align: center;
 	text-decoration: none;
 	color: var(--sakai-sites-nav-menu-item-color);
@@ -12,6 +13,7 @@
 
 	&:hover, &:focus {
 		z-index: 1;		// to avoid missing borders from overlap when hovering
+		border-color: var(--sites-nav-menu-item-hover-border-color);
 		border-top: $sites-nav-menu-item-hover-border-top;
 		border-right: $sites-nav-menu-item-hover-border-right;
 		border-bottom: $sites-nav-menu-item-hover-border-bottom;

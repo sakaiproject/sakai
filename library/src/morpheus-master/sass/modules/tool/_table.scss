@@ -5,7 +5,7 @@ table{
 	&.listHier{
 		font-size: $default-font-size;
 		border: 1px solid var(--sakai-border-color);
-		background-color: $tool-background-color;
+		background-color: var(--tool-background-color);
     	margin: 1em 0;
 		@media #{$phone}{
 			display: block;
