@@ -15,26 +15,13 @@
  */
 package org.sakaiproject.webservices;
 
-import lombok.extern.slf4j.Slf4j;
-
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SiteService.SelectionType;
-import org.sakaiproject.site.api.SiteService.SortType;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
-import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
-import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
-import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
-import org.sakaiproject.tool.assessment.samlite.api.QuestionGroup;
-import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.sakaiproject.tool.assessment.services.QuestionPoolService;
-import org.sakaiproject.tool.assessment.facade.QuestionPoolIteratorFacade;
-import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
-import org.sakaiproject.tool.assessment.services.qti.QTIService;
-import org.sakaiproject.util.FormattedText;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
@@ -48,13 +35,24 @@ import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService.SelectionType;
+import org.sakaiproject.site.api.SiteService.SortType;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
+import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
+import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
+import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
+import org.sakaiproject.tool.assessment.samlite.api.QuestionGroup;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.services.qti.QTIService;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Expose Test and Quizzes via web services
@@ -97,7 +95,7 @@ public class TestsAndQuizzes extends AbstractWebService {
         Session session = establishSession(sessionid);
 		Document document = null;
 
-		QuestionGroup questionGroup = samLiteService.parse(FormattedText.escapeHtml(title, false), FormattedText.escapeHtml(description, false), FormattedText.escapeHtml(textdata, false));
+		QuestionGroup questionGroup = samLiteService.parse(formattedText.escapeHtml(title, false), formattedText.escapeHtml(description, false), formattedText.escapeHtml(textdata, false));
 		if (questionGroup == null) {
 			throw new RuntimeException("WS TestsAndQuizzes.createAssessmentFromText(): SamLiteService.parse() returned a null QuestionGroup");
 		}
