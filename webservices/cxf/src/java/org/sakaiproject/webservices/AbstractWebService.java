@@ -45,6 +45,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.AuthenticationManager;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
 import org.sakaiproject.tool.assessment.samlite.api.SamLiteService;
@@ -94,6 +95,7 @@ public class AbstractWebService {
     protected ActivityService activityService;
     protected QuestionPoolServiceAPI questionPoolServiceImpl;
     protected LessonBuilderAccessAPI lessonBuilderAccessAPI;
+    protected FormattedText formattedText;
 
     /**
      * Get the Session related to the given sessionid
@@ -282,6 +284,11 @@ public class AbstractWebService {
     @WebMethod(exclude = true)
     public void setLessonBuilderAccessAPI(LessonBuilderAccessAPI lessonBuilderAccessAPI) {
         this.lessonBuilderAccessAPI = lessonBuilderAccessAPI;
+    }
+    
+    @WebMethod(exclude = true)
+    public void setFormattedText(FormattedText formattedText) {
+        this.formattedText = formattedText;
     }
 
 }

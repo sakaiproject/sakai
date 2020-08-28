@@ -76,7 +76,6 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ArrayUtil;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.util.Xml;
@@ -1338,7 +1337,7 @@ public class SakaiScript extends AbstractWebService {
             // check description
             if (description != null) {
                 StringBuilder alertMsg = new StringBuilder();
-                description = FormattedText.processFormattedText(description, alertMsg);
+                description = formattedText.processFormattedText(description, alertMsg);
                 if (description == null) {
                     throw new RuntimeException("Site description markup rejected: " + alertMsg.toString());
                 }
@@ -1449,7 +1448,7 @@ public class SakaiScript extends AbstractWebService {
             // check description
             if (description != null) {
                 StringBuilder alertMsg = new StringBuilder();
-                description = FormattedText.processFormattedText(description, alertMsg);
+                description = formattedText.processFormattedText(description, alertMsg);
                 if (description == null) {
                     throw new RuntimeException("Site description markup rejected: " + alertMsg.toString());
                 }
@@ -2292,7 +2291,7 @@ public class SakaiScript extends AbstractWebService {
             // check description
             if (description != null) {
                 StringBuilder alertMsg = new StringBuilder();
-                description = FormattedText.processFormattedText(description, alertMsg);
+                description = formattedText.processFormattedText(description, alertMsg);
                 if (description == null) {
                     throw new RuntimeException("Site description markup rejected: " + alertMsg.toString());
                 }
@@ -3874,7 +3873,7 @@ public class SakaiScript extends AbstractWebService {
             // check short description
             if (shortDescription != null) {
                 StringBuilder alertMsg = new StringBuilder();
-                shortDescription = FormattedText.processFormattedText(shortDescription, alertMsg);
+                shortDescription = formattedText.processFormattedText(shortDescription, alertMsg);
                 if (shortDescription == null) {
                     throw new RuntimeException("Site short description markup rejected: " + alertMsg.toString());
                 }
