@@ -270,22 +270,6 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 			{
 				initStateShowNewlines(state, config);
 			}
-
-			// // setup the observer to notify our main panel
-			// if (state.getAttribute(STATE_OBSERVER) == null)
-			// {
-			// // the delivery location for this tool
-			// String deliveryId = clientWindowId(state, portlet.getID());
-			//				
-			// // the html element to update on delivery
-			// String elementId = mainPanelUpdateId(portlet.getID());
-			//
-			// // the event resource reference pattern to watch for
-			// Reference r = new Reference(channel);
-			// String pattern = service.messageReference(r.getContext(), r.getId(), "");
-			//
-			// state.setAttribute(STATE_OBSERVER, new EventObservingCourier(deliveryId, elementId, pattern));
-			// }
 		}
 
 	} // initState
@@ -392,10 +376,6 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 		{
 			addAlert(state, rb.getString("youdonot"));
 		}
-
-		// inform the observing courier that we just updated the page...
-		// if there are pending requests to do so they can be cleared
-		justDelivered(state);
 
 		String rv = (String) getContext(rundata).get("template") + "-List";
 
@@ -709,7 +689,6 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 						newChannel);
 				state.setAttribute(STATE_CHANNEL_REF, channel_ref);
 				log.debug("newChannel: {}", channel_ref);
-				// updateObservationOfChannel(state, peid);
 
 				// update the tool config
 				Placement placement = ToolManager.getCurrentPlacement();
@@ -786,9 +765,6 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 		// we are done with customization... back to the main mode
 		state.removeAttribute(STATE_MODE);
 
-		// enable auto-updates while in view mode
-		enableObservers(state);
-
 	} // doUpdate
 
 	/**
@@ -805,9 +781,6 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 
 		// cancel the options
 		cancelOptions();
-
-		// enable auto-updates while in view mode
-		enableObservers(state);
 
 	} // doCancel
 

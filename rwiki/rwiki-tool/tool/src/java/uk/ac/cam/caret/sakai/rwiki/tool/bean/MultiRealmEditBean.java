@@ -53,7 +53,7 @@ public class MultiRealmEditBean
 
 	public String getBodyOnLoad()
 	{
-		return "onload=\""+request.getAttribute("sakai.html.body.onload") + "; parent.updCourier(doubleDeep,ignoreCourier); callAllLoaders(); \"";
+		return "onload=\""+request.getAttribute("sakai.html.body.onload") + "; callAllLoaders(); \"";
 	}
 
 	public String getPageName()

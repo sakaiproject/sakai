@@ -29,7 +29,7 @@
       <title><%= org.sakaiproject.search.tool.Messages.getString("jsp_sakai_search_title") %></title>
     </head>
     <body 
-    onload="<%= request.getAttribute("sakai.html.body.onload") %> parent.updCourier(doubleDeep, ignoreCourier); callAllLoaders();" 
+    onload="<%= request.getAttribute("sakai.html.body.onload") %> callAllLoaders();" 
     >
       <table border="0" cellpadding="0" cellspacing="0" width="100%" class="toolTitle" summary="layout">
 	<tr>

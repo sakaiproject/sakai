@@ -909,10 +909,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 		state.removeAttribute(STATE_NEED_TO_EXPAND_ALL);
         List cPath = getCollectionPath(state);
         context.put ("collectionPath", cPath);
-		// inform the observing courier that we just updated the page...
-		// if there are pending requests to do so they can be cleared
-		// justDelivered(state);
-
 		// pick the template based on whether client wants links or copies
 		String template = TEMPLATE_SELECT;
 		

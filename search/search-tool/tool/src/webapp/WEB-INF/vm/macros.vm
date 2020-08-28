@@ -35,7 +35,7 @@
 #end
     </head>
     <body 
-    onload="callAllLoaders(); setMainFrameHeightNoScroll('${sakai_tool_placement_id}');parent.updCourier(doubleDeep,ignoreCourier);  "
+    onload="callAllLoaders(); setMainFrameHeightNoScroll('${sakai_tool_placement_id}'); "
     >  
 <script type="text/javascript" >
 var placementid = "Main${sakai_tool_placement_id_js}";

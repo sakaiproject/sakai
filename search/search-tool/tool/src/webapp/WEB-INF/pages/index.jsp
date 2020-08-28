@@ -56,7 +56,7 @@
     </script>
     </head>
     <body 
-    onload="callAllLoaders(); setMainFrameHeightNoScroll('<%= request.getAttribute("sakai.tool.placement.id") %>');parent.updCourier(doubleDeep,ignoreCourier);  "
+    onload="callAllLoaders(); setMainFrameHeightNoScroll('<%= request.getAttribute("sakai.tool.placement.id") %>'); "
     >  
 <%@include file="header.jsp"%>
     	<div class="portletBody">    		

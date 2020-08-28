@@ -1355,16 +1355,10 @@ public class AssignmentAction extends PagedResourceActionII {
                 template = build_student_view_assignment_context(portlet, context, data, state);
                 break;
             case MODE_STUDENT_VIEW_GROUP_ERROR:
-                // disable auto-updates while leaving the list view
-                justDelivered(state);
-
                 // build the context for showing group submission error
                 template = build_student_view_group_error_context(portlet, context, data, state);
                 break;
             case MODE_STUDENT_VIEW_SUBMISSION:
-                // disable auto-updates while leaving the list view
-                justDelivered(state);
-
                 // build the context for showing one assignment submission
                 template = build_student_view_submission_context(portlet, context, data, state);
                 break;
@@ -1385,8 +1379,6 @@ public class AssignmentAction extends PagedResourceActionII {
             case MODE_STUDENT_VIEW_GRADE_PRIVATE:
             case MODE_STUDENT_VIEW_GRADE:
                 context.put("site", s);
-                // disable auto-updates while leaving the list view
-                justDelivered(state);
                 // build the context for showing one graded submission
                 template = build_student_view_grade_context(portlet, context, data, state);
                 break;
@@ -1395,17 +1387,11 @@ public class AssignmentAction extends PagedResourceActionII {
                 boolean allowAddSiteAssignment = assignmentService.allowAddSiteAssignment(contextString);
                 context.put("allowAddSiteAssignment", allowAddSiteAssignment);
 
-                // disable auto-updates while leaving the list view
-                justDelivered(state);
-
                 // build the context for the instructor's create new assignment view
                 template = build_instructor_new_edit_assignment_context(portlet, context, data, state);
                 break;
             case MODE_INSTRUCTOR_DELETE_ASSIGNMENT:
                 if (state.getAttribute(DELETE_ASSIGNMENT_IDS) != null) {
-                    // disable auto-updates while leaving the list view
-                    justDelivered(state);
-
                     // build the context for the instructor's delete assignment
                     template = build_instructor_delete_assignment_context(portlet, context, data, state);
                 }
@@ -1421,9 +1407,6 @@ public class AssignmentAction extends PagedResourceActionII {
                 context.put("allowAddAssignment", allowAddAssignment);
                 context.put("showStudentPhoto", serverConfigurationService.getBoolean("assignment.show.official.photo", true));
                 if (allowGradeSubmission != null && (Boolean) allowGradeSubmission) {
-                    // if allowed for grading, disable auto-updates while leaving the list view
-                    justDelivered(state);
-
                     // build the context for the instructor's grade submission
                     template = build_instructor_grade_submission_context(portlet, context, data, state);
                 }
@@ -1440,9 +1423,6 @@ public class AssignmentAction extends PagedResourceActionII {
                 break;
             case MODE_INSTRUCTOR_VIEW_ASSIGNMENT:
                 context.put("site", s);
-                // disable auto-updates while leaving the list view
-                justDelivered(state);
-
                 // build the context for view one assignment
                 template = build_instructor_view_assignment_context(portlet, context, data, state);
                 break;
@@ -1473,9 +1453,6 @@ public class AssignmentAction extends PagedResourceActionII {
                 break;
             case MODE_INSTRUCTOR_REORDER_ASSIGNMENT:
                 context.put("site", s);
-
-                // disable auto-updates while leaving the list view
-                justDelivered(state);
 
                 // build the context for the instructor's create new assignment view
                 template = build_instructor_reorder_assignment_context(portlet, context, data, state);
@@ -2656,10 +2633,6 @@ public class AssignmentAction extends PagedResourceActionII {
 
         add2ndToolbarFields(data, context);
 
-        // inform the observing courier that we just updated the page...
-        // if there are pending requests to do so they can be cleared
-        justDelivered(state);
-
         pagingInfoToContext(state, context);
 
         // put site object into context
@@ -2737,10 +2710,6 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("assignments", assignments.iterator());
 
         add2ndToolbarFields(data, context);
-
-        // inform the observing courier that we just updated the page...
-        // if there are pending requests to do so they can be cleared
-        justDelivered(state);
 
         pagingInfoToContext(state, context);
 
@@ -11349,21 +11318,6 @@ public class AssignmentAction extends PagedResourceActionII {
 
             state.setAttribute(STATE_SECTION_STRING, "001");
         }
-
-        // // setup the observer to notify the Main panel
-        // if (state.getAttribute(STATE_OBSERVER) == null)
-        // {
-        // // the delivery location for this tool
-        // String deliveryId = clientWindowId(state, portlet.getID());
-        //
-        // // the html element to update on delivery
-        // String elementId = mainPanelUpdateId(portlet.getID());
-        //
-        // // the event resource reference pattern to watch for
-        // String pattern = assignmentService.assignmentReference((String) state.getAttribute (STATE_CONTEXT_STRING), "");
-        //
-        // state.setAttribute(STATE_OBSERVER, new MultipleEventsObservingCourier(deliveryId, elementId, pattern));
-        // }
 
         if (state.getAttribute(STATE_MODE) == null) {
             state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);

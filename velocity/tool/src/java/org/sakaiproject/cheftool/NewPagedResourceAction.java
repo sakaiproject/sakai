@@ -31,7 +31,6 @@ import org.sakaiproject.cheftool.api.Menu;
 import org.sakaiproject.cheftool.api.MenuItem;
 import org.sakaiproject.cheftool.menu.MenuEntry;
 import org.sakaiproject.cheftool.menu.MenuField;
-import org.sakaiproject.courier.api.ObservingCourier;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.event.api.SessionState;
 
@@ -578,22 +577,6 @@ public abstract class NewPagedResourceAction extends VelocityPortletPaneledActio
 		// start paging again from the top of the list
 		resetPaging(state);
 
-		// if we are searching, turn off auto refresh
-		if (search != null)
-		{
-			ObservingCourier observer = (ObservingCourier) state.getAttribute(STATE_OBSERVER);
-			if (observer != null)
-			{
-				observer.disable();
-			}
-		}
-
-		// else turn it back on
-		else
-		{
-			enableObserver(state);
-		}
-
 	} // doSearch
 
 	/**
@@ -610,9 +593,6 @@ public abstract class NewPagedResourceAction extends VelocityPortletPaneledActio
 
 		// start paging again from the top of the list
 		resetPaging(state);
-
-		// turn on auto refresh
-		enableObserver(state);
 
 	} // doSearch_clear
 
@@ -648,67 +628,6 @@ public abstract class NewPagedResourceAction extends VelocityPortletPaneledActio
 		return -1;
 
 	} // findResourceInList
-
-	/**
-	 * Toggle auto-update
-	 */
-	public void doAuto(RunData data, Context context)
-	{
-		// access the portlet element id to find our state
-		String peid = ((JetspeedRunData) data).getJs_peid();
-		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
-
-		// get the observer
-		ObservingCourier observer = (ObservingCourier) state.getAttribute(STATE_OBSERVER);
-		if (observer != null)
-		{
-			boolean enabled = observer.getEnabled();
-			if (enabled)
-			{
-				observer.disable();
-				state.setAttribute(STATE_MANUAL_REFRESH, "manual");
-			}
-			else
-			{
-				observer.enable();
-				state.removeAttribute(STATE_MANUAL_REFRESH);
-			}
-		}
-
-	} // doAuto
-
-	/**
-	 * The action for when the user want's an update
-	 */
-	public void doRefresh(RunData data, Context context)
-	{
-		// access the portlet element id to find our state
-		String peid = ((JetspeedRunData) data).getJs_peid();
-		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
-
-	} // doRefresh
-
-	/**
-	 * Enable the observer, unless we are in search mode, where we want it disabled.
-	 */
-	public void enableObserver(SessionState state)
-	{
-		// get the observer
-		ObservingCourier observer = (ObservingCourier) state.getAttribute(STATE_OBSERVER);
-		if (observer != null)
-		{
-			// we leave it disabled if we are searching, or if the user has last selected to be manual
-			if ((state.getAttribute(STATE_SEARCH) != null) || (state.getAttribute(STATE_MANUAL_REFRESH) != null))
-			{
-				observer.disable();
-			}
-			else
-			{
-				observer.enable();
-			}
-		}
-
-	} // enableObserver
 
 	/**
 	 * The action for toggling paging status: show all(no paging) or paging

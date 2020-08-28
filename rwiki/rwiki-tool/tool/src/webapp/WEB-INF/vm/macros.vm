@@ -11,7 +11,7 @@
  			href="${util.escapeHtml(${viewBean.rssAccessUrl})}" type="application/rss+xml" />
  			  #end
     </head>
-    <body onload="setMainFrameHeightNoScroll('${request.getAttribute("sakai.tool.placement.id")}');setFocus(focus_path);parent.updCourier(doubleDeep,ignoreCourier); ${extraonload} callAllLoaders(); "  >
+    <body onload="setMainFrameHeightNoScroll('${request.getAttribute("sakai.tool.placement.id")}');setFocus(focus_path); ${extraonload} callAllLoaders(); "  >
 
 
   	#if (${request.getAttribute("headerScriptSource")}) 

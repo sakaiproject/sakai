@@ -1304,17 +1304,6 @@
         <version>${sakai.genericdao.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.sakaiproject.courier</groupId>
-        <artifactId>sakai-courier-api</artifactId>
-        <version>${sakai.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.courier</groupId>
-        <artifactId>sakai-courier-util</artifactId>
-        <version>${sakai.version}</version>
-      </dependency>
-      <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-help-api</artifactId>
         <version>${sakai.version}</version>
