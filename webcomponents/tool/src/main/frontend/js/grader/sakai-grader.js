@@ -90,6 +90,14 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
     this.submittedTextMode = this._submission.submittedText;
 
+    // If there's no submitted text and at least one attachment, show the first attachment
+    // by default.
+    if (!this.submittedTextMode && this._submission.submittedAttachments
+          && this._submission.submittedAttachments.length > 0) {
+      this.selectedAttachmentRef = this._submission.submittedAttachments[0];
+      this.selectedPreviewRef = this.submission.previewableAttachments[this.selectedAttachmentRef] || this.selectedAttachmentRef;
+    }
+
     if (this.feedbackCommentEditor) {
       this.feedbackCommentEditor.setData(this._submission.feedbackComment, () => this.modified = false);
     }
