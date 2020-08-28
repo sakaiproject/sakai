@@ -1122,7 +1122,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		     String folder = pageElement.getAttribute("folder");
 		     if (StringUtils.isNotEmpty(folder))
 			 page.setFolder(folder);
-		     //get new page's Date Release property
+			 //get new page's Date Release property
 			 String dateString = pageElement.getAttribute("releasedate");
 			 if (StringUtils.isNotEmpty(dateString)){
 			 	DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");

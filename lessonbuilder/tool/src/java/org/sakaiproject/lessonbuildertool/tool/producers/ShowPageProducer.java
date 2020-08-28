@@ -32,37 +32,8 @@
 
 package org.sakaiproject.lessonbuildertool.tool.producers;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.net.HttpURLConnection;
-import java.net.ProtocolException;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TimeZone;
-
-import javax.crypto.Cipher;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.DatatypeConverter;
-
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -121,27 +92,10 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.comparator.UserSortNameComparator;
-
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.builtin.UVBProducer;
-import uk.org.ponder.rsf.components.UIBoundBoolean;
-import uk.org.ponder.rsf.components.UIBranchContainer;
-import uk.org.ponder.rsf.components.UICommand;
-import uk.org.ponder.rsf.components.UIComponent;
-import uk.org.ponder.rsf.components.UIContainer;
-import uk.org.ponder.rsf.components.UIELBinding;
-import uk.org.ponder.rsf.components.UIForm;
-import uk.org.ponder.rsf.components.UIInitBlock;
-import uk.org.ponder.rsf.components.UIInput;
-import uk.org.ponder.rsf.components.UIInternalLink;
-import uk.org.ponder.rsf.components.UILink;
-import uk.org.ponder.rsf.components.UIOutput;
-import uk.org.ponder.rsf.components.UISelect;
-import uk.org.ponder.rsf.components.UISelectChoice;
-import uk.org.ponder.rsf.components.UIVerbatim;
+import uk.org.ponder.rsf.components.*;
 import uk.org.ponder.rsf.components.decorators.UIDisabledDecorator;
 import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
 import uk.org.ponder.rsf.components.decorators.UIStyleDecorator;
@@ -156,6 +110,21 @@ import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
+
+import javax.crypto.Cipher;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.DatatypeConverter;
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.net.HttpURLConnection;
+import java.net.ProtocolException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.util.*;
 
 /**
  * This produces the primary view of the page. It also handles the editing of
@@ -1734,8 +1703,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						if (sPage != null) {
 							Date rDate = sPage.getReleaseDate();
 							String rDateString = "";
-							if (rDate != null)
+							if (rDate != null) {
 								rDateString = rDate.toString();
+							}
 							UIOutput.make(tableRow, "subpagereleasedate", rDateString);
 						}
 					}
@@ -3986,13 +3956,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		}
 
 		if (fake) {
-		    ID = ID + "-fake";
-		    UIOutput link = UIOutput.make(container, ID, i.getName());
-		    link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
-		    // fake and available occurs when prerequisites aren't the issue (it's avaiable)
-		    // so the item must be nonexistent or otherwise unavalable.
-		    if (available) {
-		    	if(i.getType() == SimplePageItem.PAGE){
+			ID = ID + "-fake";
+			UIOutput link = UIOutput.make(container, ID, i.getName());
+			link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
+			// fake and available occurs when prerequisites aren't the issue (it's avaiable)
+			// so the item must be nonexistent or otherwise unavalable.
+			if (available) {
+				if (i.getType() == SimplePageItem.PAGE) {
 					// set up locale
 					Locale M_locale = null;
 					String langLoc[] = localegetter.get().toString().split("_");
@@ -4005,17 +3975,17 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					} else {
 						M_locale = new Locale(langLoc[0]);
 					}
-
 					String releaseString = simplePageBean.getReleaseString(i, M_locale);
-		    		link.decorate(new UITooltipDecorator(releaseString));
-				}else {
+					link.decorate(new UITooltipDecorator(releaseString));
+				} else {
 					link.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.not_usable")));
 				}
+			} else {
+				link.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.complete_required")));
 			}
-		    else
-			link.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.complete_required")));
-		} else
-		    UIOutput.make(container, ID + "-text", i.getName());
+		} else {
+			UIOutput.make(container, ID + "-text", i.getName());
+		}
 
 		if (note != null) {
 			UIOutput.make(container, ID + "-note", note + " ");

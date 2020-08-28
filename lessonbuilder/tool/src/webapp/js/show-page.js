@@ -1693,43 +1693,41 @@ $(document).ready(function() {
 					});
 				}
 
-			    var pagenext = row.find(".page-next").text();
-			    if(pagenext === "true") {
-				$("#item-next").prop("checked", true);
-				$("#item-next").attr("defaultChecked", true);
-			    }else {
-				$("#item-next").prop("checked", false);
-			    }
-
-			    var pagebutton = row.find(".page-button").text();
-			    if(pagebutton === "true") {
-				$("#item-button").prop("checked", true);
-				$("#item-button").attr("defaultChecked", true);
-			    }else {
-				$("#item-button").prop("checked", false);
-			    }
-
-			    var pagehidden = row.find(".page-hidden").text();
-			    if(pagehidden === "true") {
-			    	$("#hide2").prop("checked", true);
-			    	$("#hide2").attr("defaultChecked", true);
+				let pagenext = row.find(".page-next").text();
+				if(pagenext === "true") {
+					$("#item-next").prop("checked", true);
+					$("#item-next").attr("defaultChecked", true);
 				}else {
-			    	$("#hide2").prop("checked", false);
+					$("#item-next").prop("checked", false);
 				}
 
-			    $("#change-page-p").show();
-			    $("#change-page").attr("href", 
-				$("#change-page").attr("href").replace("itemId=-1", "itemId=" + itemid));
-
-			    var groups = row.find(".item-groups").text();
-			    var grouplist = $("#grouplist");
-			    if ($('#grouplist input').size() > 0) {
-				$("#editgroups").show();
-				$("#grouplist").show();
-				if (groups !== null) {
-				    checkgroups(grouplist, groups);
+				let pagebutton = row.find(".page-button").text();
+				if(pagebutton === "true") {
+					$("#item-button").prop("checked", true);
+					$("#item-button").attr("defaultChecked", true);
+				}else {
+					$("#item-button").prop("checked", false);
 				}
-			    }
+
+				let pagehidden = row.find(".page-hidden").text();
+				if(pagehidden === "true") {
+					$("#hide2").prop("checked", true).attr("defaultChecked", true);
+				}else {
+					$("#hide2").prop("checked", false);
+				}
+
+				$("#change-page-p").show();
+				$("#change-page").attr("href", $("#change-page").attr("href").replace("itemId=-1", "itemId=" + itemid));
+
+				let groups = row.find(".item-groups").text();
+				let grouplist = $("#grouplist");
+				if ($('#grouplist input').size() > 0) {
+					$("#editgroups").show();
+					$("#grouplist").show();
+					if (groups !== null) {
+						checkgroups(grouplist, groups);
+					}
+				}
 
 			} else if(type !== '') {
 				// Must be an assignment, assessment, forum

@@ -1896,30 +1896,24 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 			fields[i+1] = pageIds.get(i);
 		}
 
-		ArrayList groups = new ArrayList();
 		try {
-			Collection coll = siteService.getSite(siteId).getGroupsWithMember(userId);
-			Iterator<Group> iterator = coll.iterator();
-			while(iterator.hasNext()){
-				Group currGroup = iterator.next();
-				groups.add(currGroup.getId());
-			}
-		}catch(Exception impossible){
-			log.error("Exception getting groups for site: " + impossible);
-		}
-		final LessonsSubNavBuilder lessonsSubNavBuilder = new LessonsSubNavBuilder(siteId, canSeeAll, groups);
+			final List groupIds = siteService.getSite(siteId).getGroupsWithMember(userId).stream().map(Group::getId).collect(Collectors.toList());
 
-		sqlService.dbRead(sql, fields, new SqlReader() {
-			public Object readSqlResultRecord(final ResultSet result) {
+			final LessonsSubNavBuilder lessonsSubNavBuilder = new LessonsSubNavBuilder(siteId, canSeeAll, groupIds);
+
+			sqlService.dbRead(sql, fields, (SqlReader) result -> {
 				try {
 					return lessonsSubNavBuilder.processResult(result);
 				} catch (SQLException e) {
 					return null;
 				}
-			}
-		});
+			});
 
-		return lessonsSubNavBuilder.toJSON();
+			return lessonsSubNavBuilder.toJSON();
+		}catch(Exception impossible){
+			log.error("Exception getting groups for site: " + impossible);
+			return null;
+		}
 	}
 
     // returns top level pages; null if none
