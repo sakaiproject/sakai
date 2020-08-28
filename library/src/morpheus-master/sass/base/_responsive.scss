@@ -131,7 +131,7 @@ body{
 			.Mrphs-mainHeader{
 				&.is-maximized{
 					.siteNavWrap{
-						background: var(--sakai-primary-color);
+						background: var(--sakai-primary-color-1);
 						margin-top: -3em;
 						min-height: 100%;
 						padding-top: 3em;
@@ -157,7 +157,7 @@ body{
 						margin: 1.5em;
 						&.is-selected{
 							a{
-								background: var(--sakai-background-color);
+								background: var(--sakai-background-color-1);
 							}
 						}
 						a{
@@ -165,10 +165,10 @@ body{
 							border-right: 0px none;
 						}
 						&.#{$namespace}sitesNav__menuitem--myworkspace{
-							background: var(--sakai-primary-color);
+							background: var(--sakai-primary-color-1);
 							margin: 0 0 0 0;
 							a{
-								background: var(--sakai-primary-color);
+								background: var(--sakai-primary-color-1);
 							}
 						}
 					}

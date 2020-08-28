@@ -153,7 +153,7 @@ body.is-logged-out{
 							font-style: italic;
 							position: relative;
 							&:hover {
-								background: var(--sakai-primary-color);
+								background: var(--sakai-primary-color-1);
 								.#{$namespace}toolsNav__menuitem--title {
 									position: relative;
 									float: none;
@@ -208,12 +208,6 @@ body.is-logged-out{
 	border-right: 1px solid var(--tool-border-color);
 	@include transition( left 0.25s linear 0s );
 	
-	.sak-dark-theme & {
-		background: var(--sak-dark-theme-background);
-		transition:var(--sak-theme-switch-ease);
-		border-color: var(--sak-dark-theme-border-color);
-	}
-	
 	@media #{$phone}{
 		left: -100%;
 		position: absolute;
@@ -234,7 +228,7 @@ body.is-logged-out{
 				padding: 0px 0 0 5px;
 				overflow: hidden;
 				@include border-radius( $icon-size );
-				box-shadow:  0 0 5px rgba( var(--sakai-background-color) ,0.5);
+				box-shadow:  0 0 5px rgba( var(--sakai-background-color-1) ,0.5);
 			}
 		}
 	}
@@ -247,7 +241,7 @@ body.is-logged-out{
 	display: none;
 	@media #{$phone}{
 		color: var(--tool-background-color);
-		background: var(--sakai-primary-color-hover);
+		background: var(--sakai-primary-color-2);
 		display: block;
 		font-size: 1.1em;
 		width: 100%;
@@ -477,7 +471,7 @@ nav#subSites{
 					@else {
 						border-width: 1px;
 						border-style: solid;
-						border-color: darken( var(--tool-menu-background-color), 10% );
+						border-color: var(--tool-menu-hover-background-color);
 						height:  5.5em;
 					}
 					overflow: hidden;

@@ -13,7 +13,7 @@
 
 .#{$namespace}portalWrapper {
 	position: relative;
-	background: var(--sakai-background-color);
+	background: var(--sakai-background-color-1);
 	transition:var(--sak-theme-switch-ease);
 
 }
@@ -65,7 +65,7 @@
 }
 
 .#{$namespace}mainContent{
-	background: var(--sakai-background-color);
+	background: var(--sakai-background-color-1);
 	transition:var(--sak-theme-switch-ease);
 }
 
@@ -86,7 +86,7 @@
 // Note: this is the footer container; see _footer.scss for the rest of the design of the footer
 .#{$namespace}container--footer {
 	margin-top: auto; 	// push the footer to the bottom of the page
-	background-color: var(--sakai-background-color);
+	background-color: var(--sakai-background-color-1);
 	border-top: 1px solid var(--sakai-border-color);
 	transition:var(--sak-theme-switch-ease);
 }

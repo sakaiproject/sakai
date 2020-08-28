@@ -28,7 +28,7 @@ table{
 				}
 			}
 			&:nth-child(odd){
-				background: var(--sakai-tool-background-alternate);
+				background: var(--sakai-background-color-2);
 				td{
 					border-right: 1px solid var(--sakai-border-color);
 				}

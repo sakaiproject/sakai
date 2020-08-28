@@ -418,7 +418,7 @@ ul.favoriteSiteList{
 	}
 
 	label{
-		color: var(--sakai-text-color);
+		color: var(--sakai-text-color-1);
 	}
 
 	margin: 1em 1em 1em 0;
@@ -489,9 +489,8 @@ ul#otherSiteTools{
 			&:hover {
 				background: var(--all-sites-tool-menu-hover-background-color);
 				color: var(--all-sites-tool-menu-hover-text-color);
-				border-color: var(--all-sites-tool-menu-hover-left-border-color);
 				border-left: $all-sites-tool-menu-hover-left-border;
-
+				border-color: var(--all-sites-tool-menu-hover-left-border-color);
 				.otherSiteToolIcon{
 					color: var(--all-sites-tool-menu-hover-icon-color);
 				}
@@ -690,9 +689,9 @@ li.organizeFavorites:not(.active) .favoriteCountAndWarning.maxFavoritesReached {
 		display: none;
 	}
 	a{
-		color: var(--sakai-background-color-secondary);
+		color: var(--sakai-secondary-color-2);
 		.fullTitle{
-			color: var(--sakai-background-color-secondary);
+			color: var(--sakai-secondary-color-2);
 		}
 	}
 }
@@ -814,8 +813,8 @@ li.organizeFavorites:not(.active) .favoriteCountAndWarning.maxFavoritesReached {
 	padding-left: 1em;
 
 	button {
-		color: var(--sakai-text-color) !important;
-		background: var(--sakai-background-color);
+		color: var(--sakai-text-color-1) !important;
+		background: var(--sakai-background-color-1);
 		border-color: var(--button-primary-border-color);
 		border-radius: $button-radius;
 		padding: 0.6em;

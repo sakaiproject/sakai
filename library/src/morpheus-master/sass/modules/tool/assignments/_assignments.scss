@@ -505,7 +505,7 @@
 		padding: 4px 8px;
 		background-color: $assignments-disclosure-bg;
 		border-color: $assignments-disclosure-bg;
-		color: var(--sakai-primary-color);
+		color: var(--sakai-primary-color-1);
 
 		&::before {
 			content: "";
@@ -515,7 +515,7 @@
 			width: $standard-spacing;
 			height: $standard-spacing;
 			border: 7px solid transparent;
-			border-bottom-color: var(--sakai-primary-color);
+			border-bottom-color: var(--sakai-primary-color-1);
 		}
 	}
 
@@ -568,7 +568,7 @@
 
 		.progress-bar-empty {
 			background-color: transparent;
-			color: var(--sakai-text-color);
+			color: var(--sakai-text-color-1);
 		}
 
 		.progress-bar-active {
@@ -580,7 +580,7 @@
 		background-position: center center;
 		background-size: cover;
 		border-radius: 80px;
-		border: 1px solid var(--sakai-background-color-secondary);
+		border: 1px solid var(--sakai-border-color);
 		float: left;
 		height: 80px;
 		padding: 5px 0px;

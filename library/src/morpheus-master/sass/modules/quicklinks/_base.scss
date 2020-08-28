@@ -32,7 +32,7 @@
     font-family: $header-font-family;
     font-weight: $header-font-weight;
     font-size: $default-font-size;
-    color: var(--sakai-text-color);
+    color: var(--sakai-text-color-1);
     background-color: var(--tool-menu-background-color);
     box-shadow: 5px 0 50px 0px rgba(0,0,0,0.5);
     position: absolute;
@@ -105,12 +105,12 @@
       overflow: hidden;
       padding: 0.3em 0.7em;
       list-style: none;
-      background: var(--sakai-background-color);
+      background: var(--sakai-background-color-1);
       margin: 0.3em 0;
       a{
         @include display-flex;
         @include align-items(center);
-        color: var(--sakai-text-color);
+        color: var(--sakai-text-color-1);
         font-family: $header-font-family;
         font-size: 0.9em;
         font-weight: $header-font-weight;

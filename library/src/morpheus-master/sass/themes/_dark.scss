@@ -1,37 +1,25 @@
 // Dark Theme
 @import "themes/base";
 
-//SEE IF I CAN DELETE THESE ENTIRELY
-// var(--sakai-primary-color):              $sakai-color-blue-500 !default;
-// $alt-colour:                 $sakai-color-orange-400 !default;
-// var(--sakai-primary-color)-highContrast: $sakai-color-blue-600 !default;	// for use of primary on non-white light backgrounds, such as greys
-// var(--sakai-background-color):           $sakai-color-red-800 !default;
-// var(--sakai-background-color)-secondary: $sakai-color-purple-700 !default;
-// var(--sakai-text-color):                 $sakai-color-gray-800 !default;
-// var(--sakai-text-color)-disabled:        $sakai-color-gray-600 !default;
-// $secondary-color:            $sakai-color-blue-200 !default;
-// var(--sakai-background-color):      $sakai-color-white !default;
-
 :root.sakai-dark-theme {
 
   --sakai-primary-color:                   var(--sakai-color-blue-5);
-  --sakai-primary-color-hover:             var(--sakai-color-blue-6);
+  --sakai-primary-color-2:             var(--sakai-color-blue-6);
   --sakai-alt-colour:                      var(--sakai-color-orange-4);
   --sakai-primary-color-highContrast:      var(--sakai-color-blue-6);
-  --sakai-background-color:                var(--sakai-color-gray-8);
+  --sakai-background-color:                var(--sakai-color-gray-10);
   --sakai-background-color-hover:          var(--sakai-color-gray-0);
   --sakai-background-color-tint-5:         var(--sakai-color-gray-0);
   --sakai-background-color-tint-10:        var(--sakai-color-gray-1);
   --sakai-background-color-tint-15:        var(--sakai-color-gray-2);
-  --sakai-tool-background-alternate:       var(--sakai-background-color-tint-5);
+  --sakai-tool-background-alternate:       var(--sakai-background-color-2);
   --sakai-border-color:                    var(--sakai-color-gray-5);
-  --sakai-top-header-background:           var(--sakai-background-color);
-  --sakai-sites-nav-background:            var(--sakai-background-color);
+  --sakai-top-header-background:           var(--sakai-background-color-1);
+  --sakai-sites-nav-background:            var(--sakai-background-color-1);
   --sakai-background-color-secondary:      var(--sakai-color-purple-7);
   --sakai-text-color:                      var(--sakai-color-gray-2);
   --sakai-text-color-hover:                var(--sakai-color-gray-3);
   --sakai-text-color-disabled:             var(--sakai-color-gray-4);
   --sakai-secondary-color:                 var(--sakai-color-blue-2);
-  --sakai-body-background-color:           var(--sakai-background-color);
+  --sakai-body-background-color:           var(--sakai-background-color-1);
 }
-$sites-nav-menu-item-background: var(--sakai-color-gray-8) !default;

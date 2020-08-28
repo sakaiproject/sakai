@@ -6,8 +6,8 @@
 	width: 29em;
 	min-height: 14em;
 
-	background: var(--sakai-background-color);
-	box-shadow: 0 0 5px rgba( var(--sakai-text-color) , 0.25 );
+	background: var(--sakai-background-color-1);
+	box-shadow: 0 0 5px rgba( var(--sakai-text-color-1) , 0.25 );
 	.logo{
 		background: var(--top-header-background) url($logo) no-repeat center center;
 		background-size: $logo-width $logo-height;
@@ -20,7 +20,7 @@
 	h1{
 		padding: 0.6em;
   		font-size: 1.8em;
-  		color: var(--sakai-primary-color);
+  		color: var(--sakai-primary-color-1);
   		text-align: center;
 	}
 	.alertMessage{
@@ -77,7 +77,7 @@
 
 	&.loadedByAjax{
 		z-index: 1010;
-		box-shadow: 0 0 15px rgba( var(--sakai-text-color) , 0.25 );
+		box-shadow: 0 0 15px rgba( var(--sakai-text-color-1) , 0.25 );
 	}
 
 	@media #{$phone}{
@@ -104,7 +104,7 @@
 		padding: 0.6em;
 		font-size: 1.4em;
 		font-weight: 700;
-		color: var(--sakai-primary-color);
+		color: var(--sakai-primary-color-1);
 		text-align: center;
 	}
 
@@ -130,5 +130,5 @@
 }
 
 .capsLockOnDisplay {
-	background: var(--sakai-background-color) url("images/capsLock.png") no-repeat right;
+	background: var(--sakai-background-color-1) url("images/capsLock.png") no-repeat right;
 }

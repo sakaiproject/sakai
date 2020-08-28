@@ -130,7 +130,7 @@
 		text-decoration:none !important;
 	}
 	#spinner {
-		color: var(--sakai-primary-color);
+		color: var(--sakai-primary-color-1);
 		width:100%;
 		height:128px;
 		position: absolute;
@@ -147,7 +147,7 @@
 				&:before{
 					position: relative;
 					top: 5px;
-					color: var(--sakai-text-color);
+					color: var(--sakai-text-color-1);
 					padding: 0 0 0 26px;
 				}
 			}
@@ -251,7 +251,7 @@
 	/* SAK-32371 : Resources doesnt use font awesome icons */
 	.fa {
 		display : inline;
-		color : var(--sakai-primary-color);
+		color : var(--sakai-primary-color-1);
 		text-decoration: none;
 	}
 	

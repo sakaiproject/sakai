@@ -102,12 +102,11 @@
 				}
 			}
 			.canEdit {
-				border-color: var(--lessons-item-border-top-color);
 				border-top: $lessons-item-border-top;
 				border-right: $lessons-item-border-right;
 				border-bottom: $lessons-item-border-bottom;
 				border-left: $lessons-item-border-left;
-		
+				border-color: var(--lessons-item-border-top-color);
 			}
 			div.item,
 			div.textType,

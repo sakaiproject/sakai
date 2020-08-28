@@ -17,7 +17,7 @@ body.is-logged-out{
 		a {
 			&:focus, &:hover, &:active {
 				text-decoration: underline;
-				color: var(--sakai-text-color);
+				color: var(--sakai-text-color-1);
 			}
 		}
 	}
@@ -31,7 +31,7 @@ body.is-logged-out{
 		width: 100%;
 		padding: 0 $standard-spacing;
 		height: $banner-height;
-		background: var(--sakai-top-header-background);
+		background: var(--top-header-background);
 
 		text-align: center;
 		@include transition( width 0.5s linear 0s );
@@ -102,7 +102,7 @@ body.is-logged-out{
 	}
 
 	@media #{$phone}{
-		background: var(--sakai-primary-color);
+		background: var(--sakai-primary-color-1);
 		position: fixed;
 		top: 0;
 		width: 100%;
@@ -111,7 +111,7 @@ body.is-logged-out{
 }
 
 .userNav_link{
-	color: var(--sakai-text-color);
+	color: var(--sakai-text-color-1);
 	font-family: $header-font-family;
 	font-size: 0.9em;
 	font-weight: $header-font-weight;
@@ -131,7 +131,7 @@ body.is-logged-out{
 	right: 0em;
 	width: 20em;
 	z-index: 99;
-	box-shadow: 0 0 4px rgba( var(--sakai-text-color) ,0.35);
+	box-shadow: 0 0 4px rgba( var(--sakai-text-color-1) ,0.35);
 	list-style: none;
 	padding: 0 0 0 0;
 	li{
@@ -145,12 +145,12 @@ body.is-logged-out{
 			display: block;
 			padding: 0.65em;
 			text-decoration: none;
-			color: var(--sakai-primary-color-highContrast);
+			color: var(--sakai-primary-color-2);
 			line-height: 1em;
 			&:focus, &:hover, &:active
 			{
 				text-decoration: underline;
-    			color: var(--sakai-primary-color-highContrast);
+    			color: var(--sakai-primary-color-2);
 			}
 			.toolMenuIcon{
 				@extend .fa-fw;			// standardize the width of all icons for proper text alignment
@@ -168,7 +168,7 @@ body.is-logged-out{
 	}
 	.#{$namespace}userNav__submenuitem--fullname-and-id{
 		padding-top: 1em;
-		color: var(--sakai-text-color);
+		color: var(--sakai-text-color-1);
 		display: inline-block;
 		margin-bottom: 5px;
 		width: 10em;
@@ -215,7 +215,7 @@ body.is-logged-out{
 
 .#{$namespace}topHeader{
 	background: var(--top-header-background);
-	color: var(--sakai-background-color);
+	color: var(--sakai-background-color-1);
 	font-size: 1em;
 	height: auto;
 	width: 100%;
@@ -347,7 +347,7 @@ body.is-logged-out{
 				text-decoration: none;
 				text-transform: capitalize; 	// standardizes the capitalization of the first letter of each word, regardless of role name (e.g. "access" becomes "Access")
 				@media #{$phone} {
-					color: var(--sakai-primary-color);
+					color: var(--sakai-primary-color-1);
 				}
 
 				@media #{$nonPhone} {
@@ -695,18 +695,18 @@ body.is-logged-out{
 			}
 			.#{$namespace}userData{
 				@media #{$phone}{
-					color: var(--sakai-text-color);
+					color: var(--sakai-text-color-1);
 					display: block;
 					font-weight: 400;
 					padding: 0.7em 0.65em;
 				}
 			}
 			a{
-				color: var(--sakai-primary-color);
+				color: var(--sakai-primary-color-1);
 				padding: 0.25em 0.25em;
 				&:hover, &:active
 				{
-					color: var(--sakai-primary-color-hover);
+					color: var(--sakai-primary-color-2);
 				}
 			}
 		}
@@ -821,7 +821,7 @@ body.is-logged-out{
 {
 	@include display-flex;
 	@include align-items(center);
-	background-color: var(--sakai-sites-nav-background);
+	background-color: var(--sites-nav-background);
 	min-height: $banner-height;
 	padding: 0 $standard-spacing;		// space on the sides; top and bottom spacing will be determined by children
 	transition:var(--sak-theme-switch-ease);
@@ -864,11 +864,11 @@ body.is-logged-out{
 				}
 				
 				.link-container, .#{$namespace}sitesNav__dropdown, .#{$namespace}sitesNav__favbtn {
-						border-color: var(--sites-nav-menu-item-hover-border-color);
 						border-top: $sites-nav-menu-item-hover-border-top;
 						border-right: $sites-nav-menu-item-hover-border-right;
 						border-bottom: $sites-nav-menu-item-hover-border-bottom;
 						border-left: $sites-nav-menu-item-hover-border-left;
+						border-color: var(--sites-nav-menu-item-hover-border-color);
 						background: var(--sites-nav-menu-item-hover-background);
 				}
 			}
@@ -893,10 +893,10 @@ body.is-logged-out{
 				&.is-clicked{
 					@include transform( rotate(180deg) );
 					top: 40%;
-					border-color: var(--sites-nav-menu-item-hover-border-color);
 					border-right: $sites-nav-menu-item-hover-border-left;	// using the left variable because of the item rotation (right is left)
 					border-bottom: $sites-nav-menu-item-hover-border-top;	// using top variable because of the item rotation (bottom is top)
 					border-left: $sites-nav-menu-item-hover-border-right;	// using the right variable because of the item rotation (left is right)
+					border-color: var(--sites-nav-menu-item-hover-border-color);
 					background: var(--sites-nav-menu-item-hover-background);
 				}
 			}
@@ -975,20 +975,20 @@ body.is-logged-out{
 
 				.link-container, .#{$namespace}sitesNav__dropdown, .#{$namespace}sitesNav__favbtn {
 					background: var(--sites-nav-menu-item-selected-background);
-					border-color: var(--sites-nav-menu-item-selected-border-color);
 					border-top: $sites-nav-menu-item-selected-border-top;
 					border-right: $sites-nav-menu-item-selected-border-right;
 					border-bottom: $sites-nav-menu-item-selected-border-bottom;
 					border-left: $sites-nav-menu-item-selected-border-left;
+					border-color: var(--sites-nav-menu-item-selected-border-color);
 					color: var(--sites-nav-menu-item-selected-color);
 					font-weight: $sites-nav-menu-item-selected-font-weight;
 
 					&:hover, &:focus {
-						border-color: var(--sites-nav-menu-item-selected-hover-border-color);
 						border-top: $sites-nav-menu-item-selected-hover-border-top;
 						border-right: $sites-nav-menu-item-selected-hover-border-right;
 						border-bottom: $sites-nav-menu-item-selected-hover-border-bottom;
 						border-left: $sites-nav-menu-item-selected-hover-border-left;
+						border-color: var(--sites-nav-menu-item-selected-hover-border-color);
 						background: var(--sites-nav-menu-item-selected-hover-background);
 					}
 				}
@@ -1000,11 +1000,11 @@ body.is-logged-out{
 					}
 					
 					.link-container, .#{$namespace}sitesNav__dropdown, .#{$namespace}sitesNav__favbtn {
-						border-color: var(--sites-nav-menu-item-selected-hover-border-color);
 						border-top: $sites-nav-menu-item-selected-hover-border-top;
 						border-right: $sites-nav-menu-item-selected-hover-border-right;
 						border-bottom: $sites-nav-menu-item-selected-hover-border-bottom;
 						border-left: $sites-nav-menu-item-selected-hover-border-left;
+						border-color: var(--sites-nav-menu-item-selected-hover-border-color);
 						background: var(--sites-nav-menu-item-selected-hover-background);
 					}
 				}
@@ -1045,8 +1045,8 @@ body.is-logged-out{
 							left: 0;
 							display: inline-block;
 							height: 100%;
-							border-color: var(--sites-nav-submenu-item-border-color);
 							border-left: $sites-nav-submenu-item-left-border;
+							border-color: var(--sites-nav-submenu-item-border-color);
 						}
 
 						&:hover, &:active, &:focus {
@@ -1118,7 +1118,7 @@ body.is-logged-out #linkNav .#{$namespace}sitesNav__menuitem .#{$namespace}sites
 
 #show-all-sites-mobile{
 	color: var(--sakai-background-color-secondary);
-	background: var(--sakai-background-color-hover);
+	background: var(--sakai-background-color-2);
 	display: none;
 	cursor: pointer;
 	position: absolute;
@@ -1143,7 +1143,7 @@ body.is-logged-out #linkNav .#{$namespace}sitesNav__menuitem .#{$namespace}sites
 		right: 10px;
 		border-left: 0px none;
 		> div {
-			color: var(--sakai-secondary-color);
+			color: var(--sakai-secondary-color-1);
 			@include transform( rotateZ(45deg) );
 		}
 	}
@@ -1161,25 +1161,25 @@ body.is-logged-out #linkNav .#{$namespace}sitesNav__menuitem .#{$namespace}sites
 	@include justify-content(center);
 	margin: $standard-spacing $standard-spacing 0 $standard-spacing;
 	padding: $standard-spacing;
-	
+
 	&.is-softly-deleted{
 		color: var(--siteDelete-color);
 		background-color: var(--siteDelete-background);
-		border-color: var(--siteDelete-border-color);
 		border: $siteDelete-border;
-		
+		border-color: var(--siteDelete-border-color);
+
 		p {
 			margin: 0;
 			padding: 0;
 		}
 	}
-	
+
 	&.is-unpublished{
 		color: var(--siteUnpublish-color);
 		background-color: var(--siteUnpublish-background);
-		border-color: var(--siteUnpublish-border-color);
 		border: $siteUnpublish-border;
-		
+		border-color: var(--siteUnpublish-border-color);
+
 		h4{
 			display: inline-block;
 			margin: 0;

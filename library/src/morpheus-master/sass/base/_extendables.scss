@@ -16,7 +16,7 @@
 
 .space_mobile{
 	@media #{$phone}{
-		background: var(--sakai-background-color-tint-5);
+		background: var(--sakai-background-color-2);
 		border-top:    1px solid var(--sakai-border-color);
 		border-bottom: 1px solid var(--sakai-border-color);
 		margin: 0.5em -1.02em;
@@ -174,11 +174,11 @@
 }
 
 .select{
-	background-color: var(--sakai-background-color);
+	background-color: var(--sakai-background-color-1);
 	background-image: url("images/icon-arrow-down.png");
 	background-position: right 50%;
 	background-repeat: no-repeat;
-	color: var(--sakai-text-color);
+	color: var(--sakai-text-color-1);
 	font-family: $font-family;
 	font-size: #{$default-font-size - 1};
 	padding: 0.3em 2.2em 0.3em 0.5em;
@@ -215,17 +215,17 @@
 				border-left: 1px solid #ddd;
 				border-right: 1px solid #ddd;
 				border-bottom: 1px solid var(--tool-tab-active-background-color) !important;
-				color: var(--sakai-primary-color);
+				color: var(--sakai-primary-color-1);
 				&:hover{
 					background: var(--tool-tab-active-background-color);
-					color: var(--sakai-primary-color);
+					color: var(--sakai-primary-color-1);
 				}
 			}
 		}
 		> a{
 			background: var(--tool-tab-background-color);
 			border: 1px solid #ddd !important;
-			color: var(--sakai-text-color);
+			color: var(--sakai-text-color-1);
 			cursor: pointer;
 			margin: 0 0em 0 0.5em;
 			text-decoration: none;
@@ -303,6 +303,7 @@
 			color: var(--button-disabled-text-color);
 			text-decoration: none;
 			background: var(--button-disabled-background);
+			border:1px solid;
 			border-color: var(--button-disabled-border-color);
 			box-shadow: var(--button-disabled-shadow);
 			cursor: not-allowed;
