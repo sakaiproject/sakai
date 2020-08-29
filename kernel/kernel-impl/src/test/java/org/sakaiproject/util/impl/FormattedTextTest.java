@@ -68,8 +68,7 @@ public class FormattedTextTest {
         // instantiate the services we need for our test
         final IdManager idManager = new UuidV4IdComponent();
         final ThreadLocalManager threadLocalManager = new ThreadLocalComponent();
-        BasicConfigurationService basicConfigurationService = new BasicConfigurationService(); // cannot use home or server methods
-        basicConfigurationService.setThreadLocalManager(threadLocalManager);
+        serverConfigurationService = new BasicConfigurationService(); // cannot use home or server methods
         sessionManager = new SessionComponent() {
             @Override
             protected ToolManager toolManager() {
@@ -95,9 +94,8 @@ public class FormattedTextTest {
         };
 
         // add in the config so we can test it
-        basicConfigurationService.registerConfigItem(BasicConfigItem.makeDefaultedConfigItem("content.cleaner.errors.handling", "return", "FormattedTextTest"));
-        basicConfigurationService.registerConfigItem(BasicConfigItem.makeDefaultedConfigItem("content.cleaner.referrer-policy", "noopener", "FormattedTextTest"));
-        serverConfigurationService = basicConfigurationService;
+        serverConfigurationService.registerConfigItem(BasicConfigItem.makeDefaultedConfigItem("content.cleaner.errors.handling", "return", "FormattedTextTest"));
+        serverConfigurationService.registerConfigItem(BasicConfigItem.makeDefaultedConfigItem("content.cleaner.referrer-policy", "noopener", "FormattedTextTest"));
 
         ComponentManager.testingMode = true;
         // instantiate what we are testing
@@ -1226,15 +1224,5 @@ public class FormattedTextTest {
         Assert.assertEquals("", result);
     }
 
-    @Test
-    public void testLocalIframeSrc() {
-        String url = serverConfigurationService.getServerUrl() + "/access/basiclti/site/0f68e843-1f0c-473d-b469-852a49ea0f05/content:62";
-        String contentItemIframe = "<iframe allowfullscreen=\"true\" class=\"lti-iframe\" height=\"402\" mozallowfullscreen=\"true\" src=\""
-                + url + "\" title=\"Test LTI Content Item Iframe\" webkitallowfullscreen=\"true\" width=\"608\"></iframe>";
-        StringBuilder errorMessages = new StringBuilder();
-        String result = formattedText.processFormattedText(contentItemIframe, errorMessages, Level.HIGH);
-        Assert.assertTrue(errorMessages.indexOf("src") == -1);
-        Assert.assertTrue(result.contains("src=\"" + url + "\""));
-    }
 
 }
