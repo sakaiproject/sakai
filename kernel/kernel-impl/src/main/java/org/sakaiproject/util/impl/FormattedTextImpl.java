@@ -65,6 +65,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import lombok.Setter;
@@ -174,39 +175,48 @@ public class FormattedTextImpl implements FormattedText
             ClassLoader current = FormattedTextImpl.class.getClassLoader();
             // Allow lookup of the policy files in sakai home - KNL-1047
             String sakaiHomePath = getSakaiHomeDir();
-            File lowFile = new File(sakaiHomePath, "antisamy" + File.separator + "low-security-policy.xml");
-            if (lowFile.canRead()) {
-                log.info("AntiSamy found override for low policy file at: {}", lowFile.getName());
+            URL lowPolicyUrl;
+            URL highPolicyUrl;
+            File lowPolicyFile = new File(sakaiHomePath, "antisamy" + File.separator + "low-security-policy.xml");
+            if (lowPolicyFile.canRead()) {
+                log.info("AntiSamy found override for low policy file at: {}", lowPolicyFile.getName());
+                lowPolicyUrl = lowPolicyFile.toURI().toURL();
             } else {
                 // use default file from classpath
-                lowFile = new File(current.getResource("antisamy/low-security-policy.xml").getFile());
+                lowPolicyUrl = current.getResource("antisamy/low-security-policy.xml");
             }
-            File highFile = new File(sakaiHomePath, "antisamy" + File.separator + "high-security-policy.xml");
-            if (highFile.canRead()) {
-                log.info("AntiSamy found override for high policy file at: {}", highFile.getName());
+            File highPolicyFile = new File(sakaiHomePath, "antisamy" + File.separator + "high-security-policy.xml");
+            if (highPolicyFile.canRead()) {
+                log.info("AntiSamy found override for high policy file at: {}", highPolicyFile.getName());
+                highPolicyUrl = highPolicyFile.toURI().toURL();
             } else {
                 // use default file from classpath
-                highFile = new File(current.getResource("antisamy/high-security-policy.xml").getFile());
+                highPolicyUrl = current.getResource("antisamy/high-security-policy.xml");
             }
-            Policy policyHigh = readPolicyFile(highFile);
+            Policy policyHigh = readPolicyFile(highPolicyUrl);
             antiSamyHigh = new AntiSamy(policyHigh);
-            Policy policyLow = readPolicyFile(lowFile);
+            Policy policyLow = readPolicyFile(lowPolicyUrl);
             antiSamyLow = new AntiSamy(policyLow);
 
             // TODO should we attempt to fallback to internal files if the parsing/init fails of external ones?
-            log.info("AntiSamy INIT default security level ({}), policy files read: high={}, low={}",  defaultLowSecurity() ? "LOW" : "HIGH", highFile.getAbsolutePath(), lowFile.getAbsolutePath());
+            log.info("AntiSamy INIT default security level ({}), policy files read: high={}, low={}",  defaultLowSecurity() ? "LOW" : "HIGH", highPolicyFile.getAbsolutePath(), lowPolicyFile.getAbsolutePath());
         } catch (Exception e) {
             throw new IllegalStateException("Unable to startup the antisamy html code cleanup handler (cannot complete startup): " + e, e);
         }
 
     }
 
-    private Policy readPolicyFile(File file) throws PolicyException {
-        if (file != null) {
+    private Policy readPolicyFile(URL url) throws PolicyException {
+        if (url != null) {
             try {
+                InputSource is = new InputSource(url.toExternalForm());
                 DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                dbf.setFeature(Policy.EXTERNAL_GENERAL_ENTITIES, false);
+                dbf.setFeature(Policy.EXTERNAL_PARAM_ENTITIES, false);
+                dbf.setFeature(Policy.DISALLOW_DOCTYPE_DECL, true);
+                dbf.setFeature(Policy.LOAD_EXTERNAL_DTD, false);
                 DocumentBuilder builder = dbf.newDocumentBuilder();
-                Document document = builder.parse(file);
+                Document document = builder.parse(is);
                 document.getDocumentElement().normalize();
                 NodeList regexps = document.getElementsByTagName("common-regexps");
                 IntStream.range(0, regexps.getLength()).mapToObj(regexps::item).forEach(node -> {
@@ -232,16 +242,15 @@ public class FormattedTextImpl implements FormattedText
                     try (ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray())) {
                         return Policy.getInstance(bais);
                     } catch (IOException ioe) {
-                        log.warn("InputStream failure while performing policy file transformation of file: {}", file.getAbsolutePath(), ioe);
+                        log.warn("InputStream failure while performing policy file transformation of file: {}", url, ioe);
                     }
                 } catch (IOException ioe) {
-                    log.warn("OutputStream failure while performing policy file transformation of file: {}", file.getAbsolutePath(), ioe);
+                    log.warn("OutputStream failure while performing policy file transformation of file: {}", url, ioe);
                 }
             } catch (TransformerException | ParserConfigurationException | SAXException | IOException e) {
-                log.warn("XML failure while updating policy file: {}", file.getAbsolutePath(), e);
+                log.warn("XML failure while updating policy file: {}", url, e);
+                return Policy.getInstance(url);
             }
-            log.warn("Could not update antisamy policy, attempting to use policy file without updating");
-            return Policy.getInstance(file);
         }
         log.warn("Could not create antisamy policy from a null file");
         return Policy.getInstance();
