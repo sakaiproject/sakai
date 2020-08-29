@@ -32,6 +32,7 @@ import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
@@ -52,11 +53,14 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
 public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implements SectionAwareServiceHelper {
 
 	public boolean isUserAbleToGrade(String siteid, String userUid) {
-		return (getSectionAwareness().isSiteMemberInRole(siteid, userUid, Role.INSTRUCTOR) || getSectionAwareness().isSiteMemberInRole(siteid, userUid, Role.TA));
+		return 
+				getSectionAwareness().isSiteMemberInRole(siteid, userUid, Role.INSTRUCTOR) || 
+				getSectionAwareness().isSiteMemberInRole(siteid, userUid, Role.TA) || 
+				SecurityService.unlock("assessment.grade.any", "/site/" + siteid);
 	}
 
 	public boolean isUserAbleToGradeAll(String siteid, String userUid) {
-		return getSectionAwareness().isSiteMemberInRole(siteid, userUid, Role.INSTRUCTOR);
+		return getSectionAwareness().isSiteMemberInRole(siteid, userUid, Role.INSTRUCTOR) || SecurityService.unlock("assessment.grade.any", "/site/" + siteid);
 	}
 
 	public boolean isUserAbleToGradeSection(String sectionUid, String userUid) {
@@ -64,7 +68,7 @@ public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implemen
 	}
 
 	public boolean isUserAbleToEdit(String siteid, String userUid) {
-		return getSectionAwareness().isSiteMemberInRole(siteid, userUid, Role.INSTRUCTOR);
+		return getSectionAwareness().isSiteMemberInRole(siteid, userUid, Role.INSTRUCTOR) || SecurityService.unlock("assessment.edit.any", "/site/" + siteid);
 	}
 
 	public boolean isUserGradable(String siteid, String userUid) {
