@@ -3141,7 +3141,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 									}
 								}
 							} catch (Exception e) {
-								log.error("Error getting content collection: " + dataDirectory.replace("//", "/"), e);
+								log.error("Error getting content collection", e);
 							}
 						}
 						String html = "<p><b>" + folderName + "</b></p><div data-copyright=\"true\" class=\"no-highlight\" data-description=\"true\" data-directory='" +dataDirectory+ "' data-files=\"true\" data-folder-listing=\"true\"></div>";
