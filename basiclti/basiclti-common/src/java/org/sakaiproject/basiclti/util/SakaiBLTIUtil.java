@@ -2345,7 +2345,7 @@ public class SakaiBLTIUtil {
 			} else {
 				Double assignmentPoints = assignmentObject.getPoints();
 				Double assignedGrade = null;
-				if ( scoreMaximum == null || assignmentPointsassignmentPoints.equals(scoreMaximum) ) {
+				if ( scoreMaximum == null || assignmentPoints.equals(scoreMaximum) ) {
 					assignedGrade = scoreGiven;
 				} else {
 					assignedGrade = (scoreGiven / scoreMaximum) * assignmentPoints;
