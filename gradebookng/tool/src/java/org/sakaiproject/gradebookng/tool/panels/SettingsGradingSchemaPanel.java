@@ -488,9 +488,12 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		@Override
 		protected void onUpdate(final AjaxRequestTarget t) {
 			this.target = t;
+			this.target.prependJavaScript("sakai.gradebookng.settings.gradingschemas.getFocusedCell();");
 			refreshGradingSchemaTable();
 			refreshCourseGradeChart(this.target);
 			refreshMessages();
+			this.target.appendJavaScript("sakai.gradebookng.settings.gradingschemas.focusPreviousCell();");
+			this.target.appendJavaScript("sakai.gradebookng.settings.gradingschemas.addCategoryFunction();");
 		}
 
 		/**

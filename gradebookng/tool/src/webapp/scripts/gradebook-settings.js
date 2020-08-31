@@ -1,9 +1,9 @@
 /**************************************************************************************
- *                    Gradebook Settings Javascript                                      
+ *                    Gradebook Settings Javascript
  *************************************************************************************/
 
 /**************************************************************************************
- * A GradebookCategorySettings to encapsulate all the category settings features 
+ * A GradebookCategorySettings to encapsulate all the category settings features
  */
 function GradebookCategorySettings($container) {
   this.$container = $container;
@@ -68,11 +68,12 @@ GradebookCategorySettings.prototype.updateCategoryOrders = function() {
 
 
 /**************************************************************************************
- * A GradebookGradingSchemaSettings to encapsulate all the grading schema settings features 
+ * A GradebookGradingSchemaSettings to encapsulate all the grading schema settings features
  */
 function GradebookGradingSchemaSettings($container) {
   this.$container = $container;
   this.tableId = "#table-grading-schema";
+  this.addCategory = false;
   this.setupKeyboardSupport();
 }
 
@@ -84,10 +85,17 @@ GradebookGradingSchemaSettings.prototype.setupKeyboardSupport = function() {
     if (event.keyCode == 13) {
       event.preventDefault();
       event.stopPropagation();
-
-      self.$container.find(".btn-add-mapping").trigger("click");
+      self.addCategory = true;
+      $(document.activeElement).change();
     }
   });
+}
+
+GradebookGradingSchemaSettings.prototype.addCategoryFunction = function() {
+  if (this.addCategory) {
+    this.$container.find(".btn-add-mapping").trigger("click");
+    this.addCategory = false;
+  }
 }
 
 GradebookGradingSchemaSettings.prototype.focusLastRow = function() {
@@ -100,8 +108,26 @@ GradebookGradingSchemaSettings.prototype.focusLastRow = function() {
   Wicket.Focus.setFocusOnId($input.attr("id"));
 }
 
+GradebookGradingSchemaSettings.prototype.getFocusedCell = function() {
+
+  if (document.activeElement.classList.contains("schema-input")) {
+    sakai.gradebookng.settings.gradingschemas.cellName = document.activeElement.getAttribute('name');
+  }
+}
+
+GradebookGradingSchemaSettings.prototype.focusPreviousCell = function() {
+
+  // This is a trick to focus the previous focused cell after table re-render
+  var cellName = sakai.gradebookng.settings.gradingschemas.cellName;
+  var inputSameName = document.querySelector(`#table-grading-schema input[name="${cellName}"]`);
+  if (inputSameName) {
+    inputSameName.focus();
+  }
+  sakai.gradebookng.settings.gradingschemas.cellName = '';
+}
+
 /**************************************************************************************
- * A GradebookSettings to encapsulate all the settings page features 
+ * A GradebookSettings to encapsulate all the settings page features
  */
 function GradebookSettings($container) {
   this.$container = $container;
