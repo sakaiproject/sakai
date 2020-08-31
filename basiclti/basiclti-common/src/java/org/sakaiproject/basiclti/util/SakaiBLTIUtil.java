@@ -84,6 +84,7 @@ import org.tsugi.lti13.LTICustomVars;
 import org.tsugi.lti13.LTI13KeySetUtil;
 import org.tsugi.lti13.LTI13Util;
 import org.tsugi.lti13.LTI13JwtUtil;
+import org.sakaiproject.lti13.LineItemUtil;
 import org.tsugi.lti13.objects.BasicOutcome;
 import org.tsugi.lti13.objects.Context;
 import org.tsugi.lti13.objects.DeepLink;
@@ -975,7 +976,7 @@ public class SakaiBLTIUtil {
 			addRoleInfo(ltiProps, lti13subst, context, (String) tool.get("rolemap"));
 			addUserInfo(ltiProps, lti13subst, tool);
 
-			String resource_link_id = "content:" + content.get(LTIService.LTI_ID);
+			String resource_link_id = getResourceLinkId(content);
 			setProperty(ltiProps, BasicLTIConstants.RESOURCE_LINK_ID, resource_link_id);
 
 			setProperty(toolProps, "launch_url", launch_url);
@@ -1135,7 +1136,7 @@ public class SakaiBLTIUtil {
 			addCustomToLaunch(ltiProps, custom);
 
 			if (isLTI13) {
-				return postLaunchJWT(toolProps, ltiProps, tool, content, rb);
+				return postLaunchJWT(toolProps, ltiProps, site, tool, content, rb);
 			}
 			return postLaunchHTML(toolProps, ltiProps, rb);
 		}
@@ -1425,7 +1426,7 @@ public class SakaiBLTIUtil {
 				toolProps.put(LTIService.LTI_DEBUG, dodebug ? "1" : "0");
 
 				Map<String, Object> content = null;
-				return postLaunchJWT(toolProps, ltiProps, tool, content, rb);
+				return postLaunchJWT(toolProps, ltiProps, site, tool, content, rb);
 			}
 
 			// LTI 1.1.2
@@ -1607,7 +1608,7 @@ public class SakaiBLTIUtil {
 		}
 
 		public static String[] postLaunchJWT(Properties toolProps, Properties ltiProps,
-				Map<String, Object> tool, Map<String, Object> content, ResourceLoader rb) {
+				Site site, Map<String, Object> tool, Map<String, Object> content, ResourceLoader rb) {
 			log.debug("postLaunchJWT LTI 1.3");
 			String launch_url = toolProps.getProperty("secure_launch_url");
 			if (launch_url == null) {
@@ -1793,7 +1794,8 @@ public class SakaiBLTIUtil {
 				endpoint.scope.add(Endpoint.SCOPE_LINEITEM);
 
 				if ( allowOutcomes != 0 && outcomesEnabled() ) {
-					endpoint.lineitem = getOurServerUrl() + LTI13_PATH + "lineitem/" + signed_placement;
+					SakaiLineItem defaultLineItem = LineItemUtil.getDefaultLineItem(site, content);
+					if ( defaultLineItem != null ) endpoint.lineitem = defaultLineItem.id;
 				}
 				if ( allowOutcomes != 0 && outcomesEnabled() ) {
 					endpoint.lineitems = getOurServerUrl() + LTI13_PATH + "lineitems/" + signed_placement;
@@ -1946,6 +1948,14 @@ public class SakaiBLTIUtil {
 			return signature + suffix;
 		}
 
+		/*
+		 * get a signed placement from a content item
+		 */
+		public static String getResourceLinkId(Map<String, Object> content) {
+			String resource_link_id = "content:" + content.get(LTIService.LTI_ID);
+			return resource_link_id;
+		}
+
 		public static String getSignedPlacement(String context_id, String resource_link_id, String placementSecret) {
 			if (placementSecret == null) {
 				return null;
@@ -1954,6 +1964,20 @@ public class SakaiBLTIUtil {
 			String base_string = placementSecret + suffix;
 			String signature = LegacyShaUtil.sha256Hash(base_string);
 			return signature + suffix;
+		}
+
+		/*
+		 * get a signed placement from a content item
+		 */
+		public static String getSignedPlacement(Map<String, Object> content) {
+			String context_id = (String) content.get(LTIService.LTI_SITE_ID);
+			String placement_secret = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
+			String resource_link_id = getResourceLinkId(content);
+			String signed_placement = null;
+			if ( placement_secret != null ) {
+				signed_placement = getSignedPlacement(context_id, resource_link_id, placement_secret);
+			}
+			return signed_placement;
 		}
 
 		public static String[] postError(String str) {
@@ -2264,6 +2288,12 @@ public class SakaiBLTIUtil {
 			return new Boolean(false);
 		}
 
+		Double scoreMaximum = null;
+		if ( lineItem != null ) {
+			scoreMaximum = lineItem.scoreMaximum;
+		}
+		if ( scoreMaximum <= 0 ) scoreMaximum = null;
+
 		String siteId = site.getId();
 
 		// Look up the assignment so we can find the max points
@@ -2313,7 +2343,14 @@ public class SakaiBLTIUtil {
 				message = "Result deleted";
 				retval = Boolean.TRUE;
 			} else {
-				g.setAssignmentScoreString(siteId, assignmentObject.getId(), user_id, scoreGiven.toString(), "External Outcome");
+				Double assignmentPoints = assignmentObject.getPoints();
+				Double assignedGrade = null;
+				if ( scoreMaximum == null || assignmentPoints.equals(scoreMaximum) ) {
+					assignedGrade = scoreGiven;
+				} else {
+					assignedGrade = (scoreGiven / scoreMaximum) * assignmentPoints;
+				}
+				g.setAssignmentScoreString(siteId, assignmentObject.getId(), user_id, assignedGrade.toString(), "External Outcome");
 				g.setAssignmentScoreComment(siteId, assignmentObject.getId(), user_id, comment);
 
 				log.info("Stored Score={} assignment={} user_id={} score={}", siteId, assignment, user_id, scoreGiven);
