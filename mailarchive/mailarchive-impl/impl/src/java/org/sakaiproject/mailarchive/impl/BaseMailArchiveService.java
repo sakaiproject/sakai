@@ -29,19 +29,9 @@ import java.util.Vector;
 
 import javax.mail.internet.MimeUtility;
 
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.lang3.StringUtils;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.api.FunctionManager;
-import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entity.api.ContextObserver;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
@@ -67,14 +57,18 @@ import org.sakaiproject.message.api.MessageChannelEdit;
 import org.sakaiproject.message.api.MessageHeader;
 import org.sakaiproject.message.api.MessageHeaderEdit;
 import org.sakaiproject.message.util.BaseMessage;
-import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.Xml;
-import org.sakaiproject.util.Web;
+import org.sakaiproject.util.api.FormattedText;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
@@ -95,6 +89,7 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 	@Setter protected AliasService aliasService;
 
 	@Setter private FunctionManager functionManager;
+	@Setter private FormattedText formattedText;
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -826,8 +821,8 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 				List attachments, String[] body) throws PermissionException
 		{
 			StringBuilder alertMsg = new StringBuilder();
-			final String cleanedHtml = FormattedText.processFormattedText(body[1], alertMsg);
-			final String cleanedText = FormattedText.encodeUnicode(body[0]);
+			final String cleanedHtml = formattedText.processFormattedText(body[1], alertMsg);
+			final String cleanedText = formattedText.encodeUnicode(body[0]);
 
 			MailArchiveMessageEdit edit = (MailArchiveMessageEdit) addMessage();
 			MailArchiveMessageHeaderEdit archiveHeaders = edit.getMailArchiveHeaderEdit();
@@ -1078,7 +1073,7 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 						{
 							// convert from plaintext messages to formatted text messages
 							m_body = element.getChildNodes().item(0).getNodeValue();
-							if (m_body != null) m_body = FormattedText.convertPlaintextToFormattedText(m_body);
+							if (m_body != null) m_body = formattedText.convertPlaintextToFormattedText(m_body);
 						}
 						if (m_body == null)
 						{
@@ -1137,7 +1132,7 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 		 */
 		public String getHtmlBody()
 		{
-			return FormattedText.getHtmlBody(m_html_body);
+			return formattedText.getHtmlBody(m_html_body);
 		} // getHtmlBody
 
 		/**
@@ -1150,7 +1145,7 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 			if ( getHtmlBody() != null && getHtmlBody().length() > 0 )
 				return getHtmlBody();
 			else 
-				return Web.encodeUrlsAsHtml( FormattedText.convertPlaintextToFormattedText(m_body) );
+				return formattedText.encodeUrlsAsHtml( formattedText.convertPlaintextToFormattedText(m_body) );
 				
 		} // getHtmlBody
 
