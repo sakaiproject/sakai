@@ -241,6 +241,12 @@ public class LTI13Servlet extends HttpServlet {
 
 		String[] parts = uri.split("/");
 
+		// /imsblis/lti13/lineitems/{signed-placement}/{lineitem-id}
+		if (parts.length == 5 && "lineitem".equals(parts[3])) {
+			log.error("Attempt to modify on-demand line item request={}", uri);
+			LTI13Util.return400(response, "Attempt to modify an 'on-demand' line item");
+			return;
+		}
 
 		// Handle lineitems created by the tool
 		// /imsblis/lti13/lineitems/{signed-placement}/{lineitem-id}
@@ -251,8 +257,8 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		log.error("Unrecognized DELETE request parts={} request={}", parts.length, uri);
-		LTI13Util.return400(response, "Unrecognized DELETE request parts="+parts.length+" request="+uri);
+		log.error("Unrecognized PUT request parts={} request={}", parts.length, uri);
+		LTI13Util.return400(response, "Unrecognized PUT request parts="+parts.length+" request="+uri);
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -1355,15 +1361,13 @@ public class LTI13Servlet extends HttpServlet {
 		// If we are only returning a single line item
 		if ( ! all ) {
 			response.setContentType(SakaiLineItem.MIME_TYPE);
-			SakaiLineItem item = LineItemUtil.getLineItem(content);
+			SakaiLineItem item = LineItemUtil.getDefaultLineItem(site, content);
 			PrintWriter out = response.getWriter();
 			out.print(JacksonUtil.prettyPrint(item));
 			return;
 		}
 
-		// Return all the line items for the tool
-		List<SakaiLineItem> preItems = LineItemUtil.getPreCreatedLineItems(site, sat.tool_id, filter);
-
+		// Find the line items created for this tool
 		List<SakaiLineItem> toolItems = LineItemUtil.getLineItemsForTool(signed_placement, site, sat.tool_id, filter);
 
 		response.setContentType(SakaiLineItem.MIME_TYPE_CONTAINER);
@@ -1371,11 +1375,6 @@ public class LTI13Servlet extends HttpServlet {
 		PrintWriter out = response.getWriter();
 		out.print("[");
 		boolean first = true;
-		for (SakaiLineItem item : preItems) {
-			out.println(first ? "" : ",");
-			first = false;
-			out.print(JacksonUtil.prettyPrint(item));
-		}
 
 		for (SakaiLineItem item : toolItems) {
 			out.println(first ? "" : ",");
