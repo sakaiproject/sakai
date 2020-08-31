@@ -13,21 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.portal.beans.bullhornhandlers;
+package org.sakaiproject.profile2.model;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
-import javax.inject.Inject;
+import javax.annotation.Resource;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.portal.api.BullhornData;
+import org.sakaiproject.messaging.api.BullhornData;
+import org.sakaiproject.messaging.api.bullhornhandlers.AbstractBullhornHandler;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -40,10 +39,10 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class FriendRequestBullhornHandler extends AbstractBullhornHandler {
 
-    @Inject
+    @Resource
     private ServerConfigurationService serverConfigurationService;
 
-    @Inject
+    @Resource
     private SiteService siteService;
 
     @Override
@@ -52,7 +51,7 @@ public class FriendRequestBullhornHandler extends AbstractBullhornHandler {
     }
 
     @Override
-    public Optional<List<BullhornData>> handleEvent(Event e, Cache<String, Long> countCache) {
+    public Optional<List<BullhornData>> handleEvent(Event e) {
 
         String from = e.getUserId();
 
@@ -66,7 +65,6 @@ public class FriendRequestBullhornHandler extends AbstractBullhornHandler {
             String toolId = site.getToolForCommonId("sakai.profile2").getId();
             String url = serverConfigurationService.getPortalUrl() + "/site/" + siteId
                                                                         + "/tool/" + toolId + "/connections";
-            countCache.remove(to);
             return Optional.of(Collections.singletonList(new BullhornData(from, to, siteId, "", url)));
         } catch (IdUnusedException idue) {
             log.error("No site for id: " + siteId);

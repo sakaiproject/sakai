@@ -49,6 +49,7 @@ import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.hibernate.AssignableUUIDGenerator;
+import org.sakaiproject.messaging.api.MessagingService;
 import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
@@ -326,5 +327,10 @@ public class AssignmentTestConfiguration {
     @Bean(name = "org.sakaiproject.tasks.api.TaskService")
     public TaskService taskService() {
         return mock(TaskService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.messaging.api.MessagingService")
+    public MessagingService messagingService() {
+        return mock(MessagingService.class);
     }
 }

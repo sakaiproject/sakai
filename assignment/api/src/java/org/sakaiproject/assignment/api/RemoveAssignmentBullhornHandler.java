@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.portal.beans.bullhornhandlers;
+package org.sakaiproject.assignment.api;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,10 +23,9 @@ import java.util.Optional;
 import javax.annotation.Resource;
 
 import org.hibernate.SessionFactory;
-import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.portal.api.BullhornData;
+import org.sakaiproject.messaging.api.BullhornData;
+import org.sakaiproject.messaging.api.bullhornhandlers.AbstractBullhornHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
@@ -51,7 +50,8 @@ public class RemoveAssignmentBullhornHandler extends AbstractBullhornHandler {
     }
 
     @Override
-    public Optional<List<BullhornData>> handleEvent(Event e, Cache<String, Long> countCache) {
+    public Optional<List<BullhornData>> handleEvent(Event e) {
+
         List<String> users = new ArrayList<>();
 
         String from = e.getUserId();
@@ -85,8 +85,6 @@ public class RemoveAssignmentBullhornHandler extends AbstractBullhornHandler {
             log.error("Failed to delete bullhorn request event", e1);
         }
 
-        users.forEach(countCache::remove);
-        countCache.remove(from);
         return Optional.empty();
     }
 }

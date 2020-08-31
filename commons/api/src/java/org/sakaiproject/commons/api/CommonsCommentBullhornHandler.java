@@ -13,25 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.portal.beans.bullhornhandlers;
+package org.sakaiproject.commons.api;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
-import javax.inject.Inject;
+import javax.annotation.Resource;
 
-import org.sakaiproject.commons.api.CommonsEvents;
-import org.sakaiproject.commons.api.CommonsManager;
 import org.sakaiproject.commons.api.datamodel.Comment;
 import org.sakaiproject.commons.api.datamodel.Post;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.portal.api.BullhornData;
+import org.sakaiproject.messaging.api.BullhornData;
+import org.sakaiproject.messaging.api.bullhornhandlers.AbstractBullhornHandler;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 
@@ -43,13 +40,13 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class CommonsCommentBullhornHandler extends AbstractBullhornHandler {
 
-    @Inject
+    @Resource
     private CommonsManager commonsManager;
 
-    @Inject
+    @Resource
     private ServerConfigurationService serverConfigurationService;
 
-    @Inject
+    @Resource
     private SiteService siteService;
 
     @Override
@@ -58,7 +55,7 @@ public class CommonsCommentBullhornHandler extends AbstractBullhornHandler {
     }
 
     @Override
-    public Optional<List<BullhornData>> handleEvent(Event e, Cache<String, Long> countCache) {
+    public Optional<List<BullhornData>> handleEvent(Event e) {
 
         String commentCreator = e.getUserId();
 
@@ -96,7 +93,6 @@ public class CommonsCommentBullhornHandler extends AbstractBullhornHandler {
             // First, send an alert to the post author
             if (!commentCreator.equals(postCreator)) {
                 bhEvents.add(new BullhornData(commentCreator, postCreator, siteId, siteTitle, url));
-                countCache.remove(postCreator);
             }
 
             List<String> sentAlready = new ArrayList<>();
@@ -113,7 +109,6 @@ public class CommonsCommentBullhornHandler extends AbstractBullhornHandler {
 
                 if (!sentAlready.contains(to)) {
                     bhEvents.add(new BullhornData(commentCreator, to, siteId, siteTitle, url));
-                    countCache.remove(to);
                     sentAlready.add(to);
                 }
             }

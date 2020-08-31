@@ -44,8 +44,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import javax.annotation.Resource;
 
-import java.util.List;
-
 /**
  */
 @Slf4j
@@ -80,7 +78,6 @@ public class LoginController extends AbstractSakaiApiController {
         Authentication a = authenticationManager.authenticate(e);
 
         Session s = sessionManager.startSession();
-        sessionManager.setCurrentSession(s);
 
         if (s == null) {
             log.warn("/api/login failed to establish session for username={} ip={}", username, ipAddress);
@@ -88,7 +85,9 @@ public class LoginController extends AbstractSakaiApiController {
         } else {
             // We do not care too much on the off-chance that this fails - folks simply won't show up in presense
             // and events won't be trackable back to people / IP Addresses - but if it fails - there is nothing
-            // we can do anyways.
+            // we can do anyway.
+
+            sessionManager.setCurrentSession(s);
 
             usageSessionService.login(a.getUid(), username, ipAddress, "/api/login", UsageSessionService.EVENT_LOGIN_WS);
 

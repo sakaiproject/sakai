@@ -13,24 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.portal.beans.bullhornhandlers;
+package org.sakaiproject.assignment.api;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
-import javax.inject.Inject;
+import javax.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.assignment.api.AssignmentConstants;
-import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.portal.api.BullhornData;
+import org.sakaiproject.messaging.api.BullhornData;
+import org.sakaiproject.messaging.api.bullhornhandlers.AbstractBullhornHandler;
 
 import org.springframework.stereotype.Component;
 
@@ -40,7 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class GradeAssignmentBullhornHandler extends AbstractBullhornHandler {
 
-    @Inject
+    @Resource
     private AssignmentService assignmentService;
 
     @Override
@@ -49,7 +46,7 @@ public class GradeAssignmentBullhornHandler extends AbstractBullhornHandler {
     }
 
     @Override
-    public Optional<List<BullhornData>> handleEvent(Event e, Cache<String, Long> countCache) {
+    public Optional<List<BullhornData>> handleEvent(Event e) {
 
         // Sometimes events are literally fired for LRS purposes. We don't want alerts for those.
         if (e.getLrsStatement() != null) {
@@ -75,7 +72,6 @@ public class GradeAssignmentBullhornHandler extends AbstractBullhornHandler {
                         if (StringUtils.isNotBlank(url)) { 
                             bhEvents.add(new BullhornData(from, to.getSubmitter(), siteId, title, url));
                         }
-                        countCache.remove(to.getSubmitter());
                     } catch(Exception exc) {
                         log.error("Error retrieving deep link for assignment {} and user {} on site {}", assignment.getId(), to.getSubmitter(), siteId, exc);
                     }

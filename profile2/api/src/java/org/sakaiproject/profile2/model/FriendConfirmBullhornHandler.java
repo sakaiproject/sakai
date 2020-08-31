@@ -13,20 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.portal.beans.bullhornhandlers;
+package org.sakaiproject.profile2.model;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import javax.annotation.Resource;
-import javax.inject.Inject;
 
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.portal.api.BullhornData;
+import org.sakaiproject.messaging.api.BullhornData;
+import org.sakaiproject.messaging.api.bullhornhandlers.AbstractBullhornHandler;
 import org.sakaiproject.profile2.logic.ProfileLinkLogic;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
@@ -44,7 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class FriendConfirmBullhornHandler extends AbstractBullhornHandler {
 
-    @Inject
+    @Resource
     private ProfileLinkLogic profileLinkLogic;
 
     @Resource(name = "org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
@@ -59,7 +57,7 @@ public class FriendConfirmBullhornHandler extends AbstractBullhornHandler {
     }
 
     @Override
-    public Optional<List<BullhornData>> handleEvent(Event e, Cache<String, Long> countCache) {
+    public Optional<List<BullhornData>> handleEvent(Event e) {
 
         String from = e.getUserId();
 
@@ -83,8 +81,6 @@ public class FriendConfirmBullhornHandler extends AbstractBullhornHandler {
             log.error("Failed to delete bullhorn request event", e1);
         }
         String url = profileLinkLogic.getInternalDirectUrlToUserConnections(to);
-        countCache.remove(to);
-        countCache.remove(from);
         return Optional.of(Collections.singletonList(new BullhornData(from, to, "", "", url)));
     }
 }
