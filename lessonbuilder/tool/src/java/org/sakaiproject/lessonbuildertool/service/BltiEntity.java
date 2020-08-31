@@ -505,7 +505,6 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 		props.setProperty(LTIService.LTI_CONSUMERKEY, LTIService.LTI_SECRET_INCOMPLETE);
 		props.setProperty(LTIService.LTI_SECRET, LTIService.LTI_SECRET_INCOMPLETE);
 		props.setProperty(LTIService.LTI_ALLOWLAUNCH, "1");
-		props.setProperty(LTIService.LTI_ALLOWCUSTOM, "1");
 		props.setProperty(LTIService.LTI_ALLOWTITLE, "1");
 		props.setProperty(LTIService.LTI_ALLOWPAGETITLE, "1");
 		props.setProperty(LTIService.LTI_ALLOWOUTCOMES, "1");

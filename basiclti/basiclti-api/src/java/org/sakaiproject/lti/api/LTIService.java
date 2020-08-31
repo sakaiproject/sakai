@@ -145,7 +145,6 @@ public interface LTIService extends LTISubstitutionsFilter {
             "custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=16384",
             "rolemap:textarea:label=bl_rolemap:rows=5:cols=25:maxlength=16384:role=admin",
             // Tool declared settings from web services (formerly in LTI 2.x)
-            "allowcustom:checkbox:label=bl_allowcustom",
             "splash:textarea:label=bl_splash:rows=5:cols=25:maxlength=16384",
             // LTI 1.3 expansion space (See SAK-33772)
             "lti13:radio:label=bl_lti13:choices=off,on:role=admin",
@@ -227,7 +226,6 @@ public interface LTIService extends LTISubstitutionsFilter {
     String LTI_CUSTOM = "custom";
     String LTI_ROLEMAP = "rolemap";
     String LTI_SPLASH = "splash";
-    String LTI_ALLOWCUSTOM = "allowcustom";
     String LTI_XMLIMPORT = "xmlimport";
     String LTI_CREATED_AT = "created_at";
     String LTI_UPDATED_AT = "updated_at";
