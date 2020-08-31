@@ -74,9 +74,14 @@ import java.io.FileNotFoundException;
 
 import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.apache.commons.lang3.StringUtils;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
 import org.sakaiproject.authz.api.AuthzRealmLockException;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -510,6 +515,28 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		    addAttr(doc, itemElement, "samewindow", item.isSameWindow() ? "true" : "false");
 		
 		String attrString = item.getAttributeString(); //json encoded attributes
+
+		final JSONParser jsonParser = new JSONParser(); // JSON parser used to parse the attribute string into a JSON object
+
+		try {
+			JSONObject attributeObj = (JSONObject) jsonParser.parse(attrString); // Get full attribute string as JSON object
+			JSONArray checklistArr = (JSONArray) attributeObj.get("checklistItems"); // Get the checklist JSON array from the object
+
+			if (checklistArr != null && !checklistArr.isEmpty()) {
+				for (Object checklistObj : checklistArr) { // Iterate through each checklist item to check for links
+					JSONObject checklistObjJson = (JSONObject) checklistObj;
+					if (checklistObjJson != null && checklistObjJson.get("link") != null && (Long) checklistObjJson.get("link") > 0L) { // Null safe check if it is a linked checklist item
+						checklistObjJson.put("link", -2L); // This is a linked checklist item so set it to -2 to indicate link needs to be updated
+					}
+				}
+			}
+			attributeObj.put("checklistItems", checklistArr); // Update the JSON object for the JSON attribute with the modified checklist
+
+			attrString = attributeObj.toJSONString(); // Replace the attribute string with the version with the modified checklist
+		} catch (ParseException e) {
+			log.error("Exception caught while parsing checklist array. No modifications will be made to attribute string.", e.getMessage(), e);
+		}
+
 		if (attrString != null) {
 		    Element attributeElement = doc.createElement("attributes");
 		    attributeElement.setTextContent(attrString);
@@ -875,7 +902,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		       item.setGroupOwned(s.equals("true"));
 
 		   if (RESTORE_GROUPS) {
-		       String groupString = mergeGroups(itemElement, "ownerGroup", siteGroups);
+		       String groupString = mergeGroups(itemElement, "ownerGroup", siteGroups, fromSiteId);
 		       if (groupString != null)
 			   item.setOwnerGroups(groupString);
 		   }
@@ -890,7 +917,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		   // awareness comes from the other tools, enabling this produces
 		   // inconsistent results
 		   if (RESTORE_GROUPS) {
-		       String groupString = mergeGroups(itemElement, "group", siteGroups);
+		       String groupString = mergeGroups(itemElement, "groups", siteGroups, fromSiteId);
 		       if (groupString != null)
 			   item.setGroups(groupString);
 		   }
@@ -997,31 +1024,41 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
        return needFix;
     }
 
-    String mergeGroups(Element itemElement, String attr, Collection<Group> siteGroups) {
+    String mergeGroups(Element itemElement, String attr, Collection<Group> siteGroups, String fromSiteId) {
 
 	// not currently doing this, although the code has been tested.
 	// The problem is that other tools don't do it. Since much of our group
 	// awareness comes from the other tools, enabling this produces
 	// inconsistent results
 
-	NodeList groups = itemElement.getElementsByTagName(attr);
+	String groups = itemElement.getAttribute(attr);
 	String groupString = null;
-	
-	// translate groups from title to ID
-	if (groups != null && siteGroups != null) {
-	    for (int n = 0; n < groups.getLength(); n ++) {
-		Element group = (Element)groups.item(n);
-		String title = group.getAttribute("title");
-		if (title != null && !title.equals("")) {
-		    for (Group g: siteGroups) {
-			if (title.equals(g.getTitle())) {
-			    if (groupString == null)
-				groupString = g.getId();
-			    else
-				groupString = groupString + "," + g.getId();
+	Site oldSite = null;
+	try {
+		oldSite = siteService.getSite(fromSiteId);
+	} catch (Exception e) {
+		log.debug("site " + fromSiteId + " not found.", e);
+	}
+	// For each old group, get the corresponding new group id
+	if (!groups.isEmpty() && siteGroups != null && oldSite != null) {
+		final String[] parts = groups.split(",");
+		for (int n = 0; n < parts.length; n ++) {
+			final Group group = oldSite.getGroup(parts[n]);
+			final String providerID = group.getProviderGroupId();
+			if(providerID == null ) { // only transfer groups which are not old rosters
+				final String title = group.getTitle();
+				if (title != null && !title.equals("")) {
+					for (Group g : siteGroups) {
+						if (title.equals(g.getTitle())) {
+							if (groupString == null) {
+								groupString = g.getId();
+							} else {
+								groupString = groupString + "," + g.getId();
+							}
+						}
+					}
+				}
 			}
-		    }
-		}
 	    }
 	}
 

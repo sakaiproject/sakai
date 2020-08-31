@@ -3445,9 +3445,18 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 									UIVerbatim.make(row, "select-checklistitem-linked-details", tooltipContent);
 								}
-							}
+								UIOutput.make(row, "select-checklistitem-name", checklistItemName).decorate(new UIStyleDecorator("checklist-checkbox-label"));
 
-							UIOutput.make(row, "select-checklistitem-name", checklistItemName).decorate(new UIStyleDecorator("checklist-checkbox-label"));
+							} else if (checklistItem.getLink() < -1L) {	// getLink will give out -2 for items that were once linked but broke during site duplication.
+								input.decorate(new UIDisabledDecorator(true));
+								UIOutput.make(row, "select-checklistitem-link-broken");
+								String toolTipMessage = "simplepage.checklist.external.link.details.broken";
+								String tooltipContent = messageLocator.getMessage(toolTipMessage);
+								UIVerbatim.make(row, "select-checklistitem-linked-details", tooltipContent);
+								UIOutput.make(row, "select-checklistitem-name", checklistItemName).decorate(new UIStyleDecorator("checklist-checkbox-label link-broken"));
+							} else {
+								UIOutput.make(row, "select-checklistitem-name", checklistItemName).decorate(new UIStyleDecorator("checklist-checkbox-label"));
+							}
 							index++;
 						}
 					}
