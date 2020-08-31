@@ -70,6 +70,8 @@
 		<property name="localeGetter" ref="requestLocaleProxy" />
 		<property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+		<property name="imageToMimeMap" ref="org.sakaiproject.lessonbuildertool.util.ImageToMimeMap"/>
+		<property name="contentTypeImageService" ref="org.sakaiproject.content.api.ContentTypeImageService" />
 	</bean>
 
 	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.PreviewProducer" >
