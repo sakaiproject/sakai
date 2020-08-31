@@ -19,42 +19,21 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.portal.api;
+package org.sakaiproject.messaging.api;
 
 import java.util.List;
+import java.util.Optional;
 
-import org.sakaiproject.portal.beans.BullhornAlert;
-import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.event.api.Event;
 
 /**
- * Service for the bullhorn alerts at the top of the portal
+ * A handler of events for the bullhorns service. Produces <code>BullhornData</code> objects for 
+ * the service to add to the bullhorn alerts table
  *
  * @author Adrian Fish <adrian.r.fish@gmail.com>
  */
-public interface BullhornService {
+public interface BullhornHandler {
 
-    /**
-     * @param userId The user to retrieve the alert count for
-     * @return the number of current alerts for the specified user
-     */
-    public long getAlertCount(String userId);
-
-    /**
-     * @param userId The user to retrieve alerts for
-     * @return the list of current alerts for the specified user
-     */
-    public List<BullhornAlert> getAlerts(String userId);
-
-    /**
-     * @param userId The user to clear the alert for
-     * @param alertId The alert to clear
-     * @return boolean to indicate success
-     */
-    public boolean clearAlert(String userId, long alertId);
-
-    /**
-     * @param userId The user to clear the alerts for
-     * @return boolean to indicate success
-     */
-    public boolean clearAllAlerts(String userId);
+    public List<String> getHandledEvents();
+    public Optional<List<BullhornData>> handleEvent(Event e);
 }

@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.portal.service;
+package org.sakaiproject.messaging.impl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.function.Function;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,27 +26,24 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
-import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ignite.IgniteMessaging;
+
 import org.hibernate.SessionFactory;
-import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.lessonbuildertool.SimplePage;
-import org.sakaiproject.lessonbuildertool.SimplePageComment;
-import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
-import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
-import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.ignite.EagerIgniteSpringBean;
 import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.portal.api.BullhornData;
-import org.sakaiproject.portal.api.BullhornHandler;
-import org.sakaiproject.portal.api.BullhornService;
-import org.sakaiproject.portal.beans.BullhornAlert;
+import org.sakaiproject.messaging.api.MessageListener;
+import org.sakaiproject.messaging.api.MessagingService;
+import org.sakaiproject.messaging.api.BullhornData;
+import org.sakaiproject.messaging.api.BullhornHandler;
+import org.sakaiproject.messaging.api.BullhornAlert;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -61,34 +56,34 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class BullhornServiceImpl implements BullhornService, Observer {
+public class MessagingServiceImpl implements MessagingService, Observer {
 
     private static final List<String> HANDLED_EVENTS = new ArrayList<>();
 
-    @Inject
+    @Resource
+    private EagerIgniteSpringBean ignite;
+
+    @Resource
     private EventTrackingService eventTrackingService;
-    @Inject
+    @Resource
     private MemoryService memoryService;
     @Resource(name = "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager")
     private PlatformTransactionManager transactionManager;
-    @Inject
+    @Resource
     private UserDirectoryService userDirectoryService;
-    @Inject
+    @Resource
     private SecurityService securityService;
-    @Inject
+    @Resource
     private ServerConfigurationService serverConfigurationService;
-    @Resource(name = "org.sakaiproject.lessonbuildertool.model.SimplePageToolDao")
-    private SimplePageToolDao simplePageToolDao;
-    @Inject
+    @Resource
     private SiteService siteService;
     @Resource(name = "org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
     private SessionFactory sessionFactory;
 
-    private Cache<String, Long> countCache = null;
+    private IgniteMessaging messaging;
 
     @Autowired
     private List<BullhornHandler> handlers;
@@ -98,20 +93,24 @@ public class BullhornServiceImpl implements BullhornService, Observer {
     public void init() {
 
         if (serverConfigurationService.getBoolean("portal.bullhorns.enabled", true)) {
-            HANDLED_EVENTS.add(LessonBuilderEvents.COMMENT_CREATE);
             HANDLED_EVENTS.add(SiteService.EVENT_SITE_PUBLISH);
 
             handlers.forEach(h -> {
                 h.getHandledEvents().forEach(he -> {
+
                     HANDLED_EVENTS.add(he);
                     handlerMap.put(he, h);
                 });
             });
 
+            if (log.isDebugEnabled()) {
+                HANDLED_EVENTS.forEach(e -> log.debug("BH EVENT: {}", e));
+            }
+
             eventTrackingService.addLocalObserver(this);
         }
 
-        countCache = memoryService.getCache("bullhorn_alert_count_cache");
+        messaging = ignite.message(ignite.cluster().forLocal());
     }
 
     public void update(Observable o, final Object arg) {
@@ -130,56 +129,12 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                 try {
                     BullhornHandler handler = handlerMap.get(event);
                     if (handler != null) {
-                        Optional<List<BullhornData>> result = handler.handleEvent(e, countCache);
+                        Optional<List<BullhornData>> result = handler.handleEvent(e);
                         if (result.isPresent()) {
                             result.get().forEach(bd -> {
-
                                 doInsert(from, bd.getTo(), event, ref, bd.getTitle(),
                                                 bd.getSiteId(), e.getEventTime(), bd.getUrl());
                             });
-                        }
-                    } else if (LessonBuilderEvents.COMMENT_CREATE.equals(event)) {
-                        try {
-                            long commentId = Long.parseLong(pathParts[pathParts.length - 1]);
-                            SimplePageComment comment = simplePageToolDao.findCommentById(commentId);
-
-                            String url = simplePageToolDao.getPageUrl(comment.getPageId());
-
-                            if (url != null) {
-                                List<String> done = new ArrayList<>();
-                                // Alert tutor types.
-                                List<User> receivers = securityService.unlockUsers(
-                                    SimplePage.PERMISSION_LESSONBUILDER_UPDATE, "/site/" + context);
-                                for (User receiver : receivers) {
-                                    String to = receiver.getId();
-                                    if (!to.equals(from)) {
-                                        doInsert(from, to, event, ref, "title", context, e.getEventTime(), url);
-                                        done.add(to);
-                                        countCache.remove(to);
-                                    }
-                                }
-
-                                // Get all the comments in the same item
-                                List<SimplePageComment> comments
-                                    = simplePageToolDao.findCommentsOnItems(
-                                        Arrays.asList(new Long[] {comment.getItemId()}));
-
-                                if (comments.size() > 1) {
-                                    // Not the first, alert all the other commenters unless they already have been
-                                    for (SimplePageComment c : comments) {
-                                        String to = c.getAuthor();
-                                        if (!to.equals(from) && !done.contains(to)) {
-                                            doInsert(from, to, event, ref, "title", context, e.getEventTime(), url);
-                                            done.add(to);
-                                            countCache.remove(to);
-                                        }
-                                    }
-                                }
-                            } else {
-                                log.error("null url for page {}", comment.getPageId());
-                            }
-                        } catch (NumberFormatException nfe) {
-                            log.error("Caught number format exception whilst handling events", nfe);
                         }
                     } else if (SiteService.EVENT_SITE_PUBLISH.equals(event)) {
                         final String siteId = pathParts[2];
@@ -198,7 +153,6 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                                 for (BullhornAlert da : deferredAlerts) {
                                     da.setDeferred(false);
                                     sessionFactory.getCurrentSession().update(da);
-                                    countCache.remove(da.getToUser());
                                 }
                             }
                         });
@@ -235,6 +189,7 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                 }
 
                 sessionFactory.getCurrentSession().persist(ba);
+                send("USER#" + to, ba);
             }
         });
     }
@@ -245,7 +200,6 @@ public class BullhornServiceImpl implements BullhornService, Observer {
         sessionFactory.getCurrentSession().createQuery("delete BullhornAlert where id = :id and toUser = :toUser")
                     .setLong("id", alertId).setString("toUser", userId)
                     .executeUpdate();
-        countCache.remove(userId);
         return true;
     }
 
@@ -256,41 +210,7 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                 .add(Restrictions.eq("deferred", false))
                 .add(Restrictions.eq("toUser", userId)).list();
 
-        for (BullhornAlert alert : alerts) {
-            try {
-                User fromUser = userDirectoryService.getUser(alert.getFromUser());
-                alert.setFromDisplayName(fromUser.getDisplayName());
-                if (StringUtils.isNotBlank(alert.getSiteId())) {
-                    alert.setSiteTitle(siteService.getSite(alert.getSiteId()).getTitle());
-                }
-            } catch (UserNotDefinedException unde) {
-                alert.setFromDisplayName(alert.getFromUser());
-            } catch (IdUnusedException iue) {
-                alert.setSiteTitle(alert.getSiteId());
-            }
-        }
-
-        return alerts;
-    }
-
-    @Transactional
-    public long getAlertCount(String userId) {
-
-        Long count = (Long) countCache.get(userId);
-
-        if (count != null) {
-            log.debug("bullhorn_alert_count_cache hit");
-            return count;
-        } else {
-            log.debug("bullhorn_alert_count_cache miss");
-
-            count = (Long) sessionFactory.getCurrentSession().createCriteria(BullhornAlert.class)
-                .add(Restrictions.eq("toUser", userId))
-                .add(Restrictions.eq("deferred", false))
-                .setProjection(Projections.rowCount()).uniqueResult();
-            countCache.put(userId, count);
-            return count;
-        }
+        return alerts.stream().map(this::decorateAlert).collect(Collectors.toList());
     }
 
     @Transactional
@@ -300,7 +220,37 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                 "delete BullhornAlert where toUser = :toUser and deferred = :deferred")
                 .setString("toUser", userId).setBoolean("deferred", false)
                 .executeUpdate();
-        countCache.remove(userId);
         return true;
     }
+
+    private BullhornAlert decorateAlert(BullhornAlert alert) {
+
+        try {
+            User fromUser = userDirectoryService.getUser(alert.getFromUser());
+            alert.setFromDisplayName(fromUser.getDisplayName());
+            if (StringUtils.isNotBlank(alert.getSiteId())) {
+                alert.setSiteTitle(siteService.getSite(alert.getSiteId()).getTitle());
+            }
+        } catch (UserNotDefinedException unde) {
+            alert.setFromDisplayName(alert.getFromUser());
+        } catch (IdUnusedException iue) {
+            alert.setSiteTitle(alert.getSiteId());
+        }
+
+        return alert;
+    }
+
+    public void listen(String topic, MessageListener listener) {
+
+        messaging.localListen(topic, (nodeId, message) -> {
+
+            listener.read(decorateAlert((BullhornAlert) message));
+            return true;
+        });
+    }
+
+    public void send(String topic, BullhornAlert ba) {
+        messaging.send(topic, ba);
+    }
+
 }

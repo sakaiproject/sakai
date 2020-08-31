@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.portal.beans.bullhornhandlers;
+package org.sakaiproject.assignment.api;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,7 +25,6 @@ import java.util.Set;
 import java.time.Instant;
 
 import javax.annotation.Resource;
-import javax.inject.Inject;
 
 import org.hibernate.SessionFactory;
 
@@ -33,12 +32,11 @@ import static org.sakaiproject.assignment.api.AssignmentConstants.EVENT_ADD_ASSI
 import static org.sakaiproject.assignment.api.AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_ACCESS;
 import static org.sakaiproject.assignment.api.AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT;
 
-import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.portal.api.BullhornData;
+import org.sakaiproject.messaging.api.BullhornData;
+import org.sakaiproject.messaging.api.bullhornhandlers.AbstractBullhornHandler;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 
@@ -52,10 +50,10 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class AddAssignmentBullhornHandler extends AbstractBullhornHandler {
 
-    @Inject
+    @Resource
     private AssignmentService assignmentService;
 
-    @Inject
+    @Resource
     private AuthzGroupService authzGroupService;
 
     @Resource(name = "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager")
@@ -64,7 +62,7 @@ public class AddAssignmentBullhornHandler extends AbstractBullhornHandler {
     @Resource(name = "org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
     private SessionFactory sessionFactory;
 
-    @Inject
+    @Resource
     private SiteService siteService;
 
     @Override
@@ -73,7 +71,7 @@ public class AddAssignmentBullhornHandler extends AbstractBullhornHandler {
     }
 
     @Override
-    public Optional<List<BullhornData>> handleEvent(Event e, Cache<String, Long> countCache) {
+    public Optional<List<BullhornData>> handleEvent(Event e) {
 
         String from = e.getUserId();
 
@@ -87,9 +85,9 @@ public class AddAssignmentBullhornHandler extends AbstractBullhornHandler {
             Assignment assignment = assignmentService.getAssignment(assignmentId);
             switch (e.getEvent()) {
                 case EVENT_ADD_ASSIGNMENT:
-                    return bhAlreadyExists(ref) ? Optional.empty() : Optional.of(handleAdd(from, siteId, assignmentId, assignment, countCache));
+                    return bhAlreadyExists(ref) ? Optional.empty() : Optional.of(handleAdd(from, siteId, assignmentId, assignment));
                 case EVENT_UPDATE_ASSIGNMENT_ACCESS:
-                    return Optional.of(handleUpdateAccess(from, ref, siteId, assignmentId, assignment, countCache));
+                    return Optional.of(handleUpdateAccess(from, ref, siteId, assignmentId, assignment));
                 default:
                     return Optional.empty();
             }
@@ -100,7 +98,7 @@ public class AddAssignmentBullhornHandler extends AbstractBullhornHandler {
         return Optional.empty();
     }
 
-    private List<BullhornData> handleAdd(String from, String siteId, String assignmentId, Assignment assignment, Cache<String, Long> countCache) 
+    private List<BullhornData> handleAdd(String from, String siteId, String assignmentId, Assignment assignment) 
         throws Exception {
 
         List<BullhornData> bhEvents = new ArrayList<>();
@@ -111,7 +109,6 @@ public class AddAssignmentBullhornHandler extends AbstractBullhornHandler {
             String title = assignment.getTitle();
             Set<String> groupIds = assignment.getGroups();
             Collection<String> groupsUsers = authzGroupService.getAuthzUsersInGroups(groupIds);
-
             // Get all the members of the site with read ability
             for (String to : site.getUsersIsAllowed(SECURE_ACCESS_ASSIGNMENT)) {
                 //  If this is a grouped assignment, is 'to' in one of the groups?
@@ -119,7 +116,6 @@ public class AddAssignmentBullhornHandler extends AbstractBullhornHandler {
                     if (!from.equals(to) && !securityService.isSuperUser(to)) {
                         String url = assignmentService.getDeepLink(siteId, assignmentId, to);
                         bhEvents.add(new BullhornData(from, to, siteId, title, url));
-                        countCache.remove(to);
                     }
                 }
             }
@@ -128,7 +124,7 @@ public class AddAssignmentBullhornHandler extends AbstractBullhornHandler {
         return bhEvents;
     }
 
-    private List<BullhornData> handleUpdateAccess(String from, String ref, String siteId, String assignmentId, Assignment assignment, Cache<String, Long> countCache)
+    private List<BullhornData> handleUpdateAccess(String from, String ref, String siteId, String assignmentId, Assignment assignment)
         throws Exception {
 
         Site site = siteService.getSite(siteId);
@@ -145,8 +141,6 @@ public class AddAssignmentBullhornHandler extends AbstractBullhornHandler {
             return null;
         });
 
-        users.forEach(u -> countCache.remove(u));
-
         List<BullhornData> bhEvents = new ArrayList<>();
 
         if (assignment.getTypeOfAccess() != Assignment.Access.GROUP) {
@@ -157,7 +151,6 @@ public class AddAssignmentBullhornHandler extends AbstractBullhornHandler {
                 if (!from.equals(to) && !securityService.isSuperUser(to)) {
                     String url = assignmentService.getDeepLink(siteId, assignmentId, to);
                     bhEvents.add(new BullhornData(from, to, siteId, title, url));
-                    countCache.remove(to);
                 }
             }
         } else {
@@ -170,11 +163,8 @@ public class AddAssignmentBullhornHandler extends AbstractBullhornHandler {
                 if (!from.equals(to) && !securityService.isSuperUser(to)) {
                     String url = assignmentService.getDeepLink(siteId, assignmentId, to);
                     bhEvents.add(new BullhornData(from, to, siteId, title, url));
-                    countCache.remove(to);
                 }
             }
-
-            groupsUsers.forEach(u -> countCache.remove(u));
         }
 
         return bhEvents;

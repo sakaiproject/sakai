@@ -13,29 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.portal.beans.bullhornhandlers;
+package org.sakaiproject.announcement.api;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 import javax.annotation.Resource;
-import javax.inject.Inject;
 
-import org.sakaiproject.announcement.api.AnnouncementMessage;
-import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
-import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.portal.api.BullhornData;
-import org.sakaiproject.portal.beans.BullhornAlert;
+import org.sakaiproject.messaging.api.BullhornAlert;
+import org.sakaiproject.messaging.api.BullhornData;
+import org.sakaiproject.messaging.api.bullhornhandlers.AbstractBullhornHandler;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -55,19 +50,19 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class AnnouncementsBullhornHandler extends AbstractBullhornHandler {
 
-    @Inject
+    @Resource
     private AnnouncementService announcementService;
 
-    @Inject
+    @Resource
     private EntityManager entityManager;
 
-    @Inject
+    @Resource
     private ServerConfigurationService serverConfigurationService;
 
     @Resource(name = "org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
     private SessionFactory sessionFactory;
 
-    @Inject
+    @Resource
     private SiteService siteService;
 
     @Resource(name = "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager")
@@ -79,7 +74,7 @@ public class AnnouncementsBullhornHandler extends AbstractBullhornHandler {
     }
 
     @Override
-    public Optional<List<BullhornData>> handleEvent(Event e, Cache<String, Long> countCache) {
+    public Optional<List<BullhornData>> handleEvent(Event e) {
 
         String from = e.getUserId();
 
@@ -114,7 +109,6 @@ public class AnnouncementsBullhornHandler extends AbstractBullhornHandler {
                                     .add(Restrictions.eq("event", AnnouncementService.SECURE_ANNC_ADD))
                                     .add(Restrictions.eq("ref", ref)).list();
 
-                            alerts.forEach(a -> countCache.remove(a.getToUser()));
 
                             sessionFactory.getCurrentSession().createQuery("delete BullhornAlert where event = :event and ref = :ref")
                                 .setString("event", AnnouncementService.SECURE_ANNC_ADD)
@@ -156,7 +150,6 @@ public class AnnouncementsBullhornHandler extends AbstractBullhornHandler {
                     for (String  to : usersList) {
                         if (!from.equals(to) && !securityService.isSuperUser(to)) {
                             bhEvents.add(new BullhornData(from, to, siteId, title, url));
-                            countCache.remove(to);
                         }
                     }
                     return Optional.of(bhEvents);

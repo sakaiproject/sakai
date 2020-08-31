@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.portal.beans.bullhornhandlers;
+package org.sakaiproject.messaging.api.bullhornhandlers;
 
 import java.util.Arrays;
 
-import javax.inject.Inject;
+import javax.annotation.Resource;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.portal.api.BullhornHandler;
+import org.sakaiproject.messaging.api.BullhornHandler;
 
-abstract class AbstractBullhornHandler implements BullhornHandler {
+public abstract class AbstractBullhornHandler implements BullhornHandler {
 
-    @Inject
+    @Resource
     protected SecurityService securityService;
 
     protected SecurityAdvisor unlock(final String[] functions) {
