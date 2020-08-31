@@ -2288,6 +2288,12 @@ public class SakaiBLTIUtil {
 			return new Boolean(false);
 		}
 
+		Double scoreMaximum = null;
+		if ( lineItem != null ) {
+			scoreMaximum = lineItem.scoreMaximum;
+		}
+		if ( scoreMaximum <= 0 ) scoreMaximum = null;
+
 		String siteId = site.getId();
 
 		// Look up the assignment so we can find the max points
@@ -2337,7 +2343,14 @@ public class SakaiBLTIUtil {
 				message = "Result deleted";
 				retval = Boolean.TRUE;
 			} else {
-				g.setAssignmentScoreString(siteId, assignmentObject.getId(), user_id, scoreGiven.toString(), "External Outcome");
+				Double assignmentPoints = assignmentObject.getPoints();
+				Double assignedGrade = null;
+				if ( scoreMaximum == null || assignmentPointsassignmentPoints.equals(scoreMaximum) ) {
+					assignedGrade = scoreGiven;
+				} else {
+					assignedGrade = (scoreGiven / scoreMaximum) * assignmentPoints;
+				}
+				g.setAssignmentScoreString(siteId, assignmentObject.getId(), user_id, assignedGrade.toString(), "External Outcome");
 				g.setAssignmentScoreComment(siteId, assignmentObject.getId(), user_id, comment);
 
 				log.info("Stored Score={} assignment={} user_id={} score={}", siteId, assignment, user_id, scoreGiven);
