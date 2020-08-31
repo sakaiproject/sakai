@@ -3135,13 +3135,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								ContentHostingService contentHostingService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
 								ContentCollection collection = contentHostingService.getCollection(dataDirectory.replace("//", "/"));
 								if (collection != null) {
-									String displayName = collection.getProperties().getProperty(collection.getProperties().getNamePropDisplayName());
-									if (displayName != null && displayName != "") {
+									String displayName = collection.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+									if (!StringUtils.isBlank(displayName)) {
 										folderName = displayName;
 									}
 								}
 							} catch (Exception e) {
-								log.error("Error getting content resource" + e);
+								log.error("Error getting content collection: " + dataDirectory.replace("//", "/"), e);
 							}
 						}
 						String html = "<p><b>" + folderName + "</b></p><div data-copyright=\"true\" class=\"no-highlight\" data-description=\"true\" data-directory='" +dataDirectory+ "' data-files=\"true\" data-folder-listing=\"true\"></div>";
