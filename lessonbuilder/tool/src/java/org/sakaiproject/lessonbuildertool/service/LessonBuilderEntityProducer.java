@@ -49,6 +49,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.InetAddress;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -1148,6 +1150,18 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		     String folder = pageElement.getAttribute("folder");
 		     if (StringUtils.isNotEmpty(folder))
 			 page.setFolder(folder);
+			 //get new page's Date Release property
+			 String dateString = pageElement.getAttribute("releasedate");
+			 if (StringUtils.isNotEmpty(dateString)){
+			 	DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+			 	Date date = formatter.parse(dateString);
+			 	page.setReleaseDate(date);
+			 }
+			 //get new page's Hidden property
+			 String hiddenString = pageElement.getAttribute("hidden");
+			 if (StringUtils.isNotEmpty(hiddenString)){
+			 	page.setHidden(Boolean.valueOf(hiddenString));
+			 }
 		     // Carry over the custom CSS sheet if present. These are of the form
 		     // "/group/SITEID/LB-CSS/whatever.css", so we need to map the SITEID
 		     String cssSheet = pageElement.getAttribute("csssheet");

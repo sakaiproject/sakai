@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.Iterator;
 import java.util.stream.Collectors;
 
 import lombok.Setter;
@@ -94,6 +95,7 @@ import org.sakaiproject.lessonbuildertool.SimpleStudentPageImpl;
 import org.sakaiproject.lessonbuildertool.api.LessonBuilderConstants;
 import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
 import org.sakaiproject.lessonbuildertool.util.LessonsSubNavBuilder;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
@@ -1872,7 +1874,8 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 				" p2.releaseDate AS pageReleaseDate," +
 				" log.complete AS completed," +
 				" i.required," +
-				" i.prerequisite" +
+				" i.prerequisite," +
+				" i.groups" +
 				" FROM lesson_builder_pages p" +
 				" INNER JOIN SAKAI_SITE_TOOL s" +
 				"   ON p.toolId = s.page_id" +
@@ -1893,19 +1896,24 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 			fields[i+1] = pageIds.get(i);
 		}
 
-		final LessonsSubNavBuilder lessonsSubNavBuilder = new LessonsSubNavBuilder(siteId, canSeeAll);
+		try {
+			final List groupIds = siteService.getSite(siteId).getGroupsWithMember(userId).stream().map(Group::getId).collect(Collectors.toList());
 
-		sqlService.dbRead(sql, fields, new SqlReader() {
-			public Object readSqlResultRecord(final ResultSet result) {
+			final LessonsSubNavBuilder lessonsSubNavBuilder = new LessonsSubNavBuilder(siteId, canSeeAll, groupIds);
+
+			sqlService.dbRead(sql, fields, (SqlReader) result -> {
 				try {
 					return lessonsSubNavBuilder.processResult(result);
 				} catch (SQLException e) {
 					return null;
 				}
-			}
-		});
+			});
 
-		return lessonsSubNavBuilder.toJSON();
+			return lessonsSubNavBuilder.toJSON();
+		}catch(Exception impossible){
+			log.error("Exception getting groups for site: " + impossible);
+			return null;
+		}
 	}
 
     // returns top level pages; null if none

@@ -904,8 +904,15 @@ h3.author {
 }
 .item-group-titles {
 	font-style: italic;
-	color: #930;
+	color: #666666;
 	padding-left: 1em;
+}
+.item-group-titles.released {
+    color:#390;
+}
+
+.item-group-titles.not-released {
+    color: #930;
 }
 .page-picker-note {
 	font-style: italic;

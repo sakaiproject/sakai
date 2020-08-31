@@ -24,41 +24,10 @@
 
 package org.sakaiproject.lessonbuildertool.tool.beans;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Method;
-import java.math.BigDecimal;
-import java.net.URL;
-import java.net.URLConnection;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.TimeZone;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.servlet.http.HttpServletResponse;
-
+import com.opencsv.CSVParser;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -70,7 +39,6 @@ import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
@@ -147,15 +115,28 @@ import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
 import org.springframework.web.multipart.MultipartFile;
 import org.tsugi.basiclti.ContentItem;
-
-import com.opencsv.CSVParser;
-
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIInternalLink;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.net.URL;
+import java.net.URLConnection;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Backing bean for Simple pages
@@ -2986,14 +2967,12 @@ public class SimplePageBean {
 		}
 
 		SimplePageItem i = findItem(itemId);
-		
 		if (i == null) {
 			return "failure";
 		} else {
 			i.setName(name);
 			i.setDescription(description);
 			i.setRequired(required);
-
 			i.setPrerequisite(prerequisite);
 			i.setSubrequirement(subrequirement);
 			i.setNextPage(subpageNext);
@@ -3042,6 +3021,7 @@ public class SimplePageBean {
 						page.setReleaseDate(releaseDate);
 					else
 						page.setReleaseDate(null);
+					page.setHidden(hidePage);
 					update(page);
 				}
 			} else {
@@ -3551,27 +3531,28 @@ public class SimplePageBean {
 	}
 
 	public String getReleaseString(SimplePageItem i, Locale locale) {
-	     if (i.getType() == SimplePageItem.PAGE) {
-		 SimplePage page = getPage(Long.valueOf(i.getSakaiId()));
-		 if (page == null)
-		     return null;
-		 if (page.isHidden())
-		     return messageLocator.getMessage("simplepage.hiddenpage");
-		 // for index of pages we need to show even out of date release dates
-		 if (page.getReleaseDate() != null) { // && page.getReleaseDate().after(new Date())) {
-		     Date releaseDate = page.getReleaseDate();
-		     Date date = new Date();
-		     if (date.before(releaseDate)) {
-		        DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, locale);
-		        TimeZone tz = userTimeService.getLocalTimeZone();
-		        String releaseDateStr = df.format(page.getReleaseDate());
-		        df.setTimeZone(tz);
-		        return messageLocator.getMessage("simplepage.pagenotreleased").replace("{}", releaseDateStr);
-		     }
-		     return null;
-		 }
-	     }
-	     return null;
+		if (i.getType() == SimplePageItem.PAGE) {
+			SimplePage page = getPage(Long.valueOf(i.getSakaiId()));
+			if (page == null) {
+				return null;
+			}
+			if (page.isHidden()) {
+				return messageLocator.getMessage("simplepage.hiddenpage");
+			}
+			// for index of pages we need to show even out of date release dates
+			if (page.getReleaseDate() != null ) {
+				DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale);
+				TimeZone tz = userTimeService.getLocalTimeZone();
+				df.setTimeZone(tz);
+				String releaseDate = df.format(page.getReleaseDate());
+				if(Instant.now().isBefore(page.getReleaseDate().toInstant())){
+					return messageLocator.getMessage("simplepage.pagenotreleased").replace("{}", releaseDate);
+				} else{
+					return messageLocator.getMessage("simplepage.pagereleased").replace("{}", releaseDate);
+				}
+			}
+		}
+		return null;
 	 }
 
 
@@ -5059,16 +5040,16 @@ public class SimplePageBean {
 		    return (boolean)ret;
 		}
 		// item is page, and it is hidden or not released
-		if (item.getType() == SimplePageItem.BREAK)
-		    return true;  // breaks are always visible to all users
-		else if (item.getType() == SimplePageItem.PAGE) {
-		  if (!item.isRequired()) {
-		    SimplePage itemPage = getPage(Long.valueOf(item.getSakaiId()));
-		    if (itemPage.isHidden())
-			return false;
-		    if (itemPage.getReleaseDate() != null && itemPage.getReleaseDate().after(new Date()))
-			return false;
-		  }
+		if (item.getType() == SimplePageItem.BREAK) {
+			return true;  // breaks are always visible to all users
+		} else if (item.getType() == SimplePageItem.PAGE) {
+			SimplePage itemPage = getPage(Long.valueOf(item.getSakaiId()));
+			if (itemPage.isHidden()) {
+				return false;
+			}
+			if (itemPage.getReleaseDate() != null && itemPage.getReleaseDate().after(new Date())) {
+				return true;
+			}
 		} else if (page != null && isStudentPage(page) && (item.getType() == SimplePageItem.RESOURCE || item.getType() == SimplePageItem.MULTIMEDIA)) {
 
 		    // check for inline types. No resource to check. Since this section is for student page, no groups either
