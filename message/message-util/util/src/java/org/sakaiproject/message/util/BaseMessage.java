@@ -97,8 +97,8 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.DoubleStorageUser;
 import org.sakaiproject.util.EntityCollections;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.api.FormattedText;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -171,6 +171,8 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 
 	/** Dependency: EntityManager. */
 	@Setter protected EntityManager m_entityManager;
+	
+	@Setter protected FormattedText m_formattedText;
 
 	/**
 	 * Access this service from the inner classes.
@@ -3302,7 +3304,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		{
 			this(channel, "");
 
-			m_body = FormattedText.decodeFormattedTextAttribute(el, "body");
+			m_body = m_formattedText.decodeFormattedTextAttribute(el, "body");
 
 			// the children (header, body)
 			NodeList children = el.getChildNodes();
@@ -3328,7 +3330,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 						{
 							// convert from plaintext messages to formatted text messages
 							m_body = element.getChildNodes().item(0).getNodeValue();
-							if (m_body != null) m_body = FormattedText.convertPlaintextToFormattedText(m_body);
+							if (m_body != null) m_body = m_formattedText.convertPlaintextToFormattedText(m_body);
 						}
 						if (m_body == null)
 						{
@@ -3491,7 +3493,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 
 			m_header.toXml(doc, stack);
 
-			FormattedText.encodeFormattedTextAttribute(message, "body", getBody());
+			m_formattedText.encodeFormattedTextAttribute(message, "body", getBody());
 
 			/*
 			 * // Note: the old way to set the body - CDATA is too sensitive to the characters within -ggolden Element body = doc.createElement("body"); message.appendChild(body); body.appendChild(doc.createCDATASection(getBody()));

@@ -38,8 +38,8 @@ import org.sakaiproject.mailarchive.api.MailArchiveService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.util.EmailNotification;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.SiteEmailNotification;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * <p>
@@ -195,7 +195,7 @@ public class SiteEmailNotificationMail extends SiteEmailNotification
 		if ( msg.getBody() != null && msg.getBody().length() > 0 )
 			buf.append( msg.getBody() );
 		else
-			buf.append(FormattedText.convertFormattedTextToPlaintext(msg.getHtmlBody()));
+			buf.append(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(msg.getHtmlBody()));
 
 		// add any attachments
 		List attachments = hdr.getAttachments();
