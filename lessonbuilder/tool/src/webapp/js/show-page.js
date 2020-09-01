@@ -490,11 +490,12 @@ $(document).ready(function() {
 			$("#change-resource-version-p").hide();
 			$("#change-blti-p").hide();
 			$("#change-page-p").hide();
-			$("#pagestuff").hide();
+			$(".pageItem").hide();
 			$("#newwindowstuff").hide();
 			$("#formatstuff").hide();
 			$("#edit-height").hide();
 			$("#prereqstuff").hide();
+			$(".reqCheckbox").hide();
 			$("#pathdiv").hide();
 			$("#editgroups").hide();
 			$("#resource-group-inherited").hide();
@@ -1730,6 +1731,7 @@ $(document).ready(function() {
 			$(this).closest('div.item').addClass('editInProgress');
 			$("#require-label2").hide();
 			$("#item-required2").hide();
+            $(".reqCheckbox").hide();
 			$("#assignment-dropdown-selection").hide();
 			$("#assignment-points").hide();
 			$("#assignment-points").hide();
@@ -1746,13 +1748,16 @@ $(document).ready(function() {
 			$("#change-page-p").hide();	
 			$("#edit-item-object-p").hide();	
 			$("#edit-item-settings-p").hide();	
-			$("#pagestuff").hide();
+			$(".pageItem").hide();
 			$("#newwindowstuff").hide();
 			$("#formatstuff").hide();
 			$("#edit-height").hide();
 			$("#pathdiv").hide();
 			$("#editgroups").after($("#grouplist"));
-			
+            $("#stylingstuff").show();
+            $("#prereqstuff").show();
+            $("#visibility-header").show();
+
 			var row = $(this).parent().parent().parent();
 			var itemid = row.find(".current-item-id2").text();
 
@@ -1817,7 +1822,8 @@ $(document).ready(function() {
 			var editsettingsurl = row.find(".edit-settings-url").text();
 			
 			if(type === 'page') {
-	                    $("#pagestuff").show();
+	                    $(".pageItem").show();
+	                    $(".reqCheckbox").hide();
 
 				var sbpgreleasedate = row.find(".subpagereleasedate").text();
 				localDatePicker({
@@ -1968,6 +1974,7 @@ $(document).ready(function() {
 					}
 					
 					$("#item-required2").show();
+                    $(".reqCheckbox").show();
 					
 					$("#assignment-points").show();
 					$("#assignment-points-label").show();
@@ -1984,6 +1991,7 @@ $(document).ready(function() {
 					}
 				}else if(type === '4') {
 					// Pass / Fail
+                    $(".reqCheckbox").show();
 					$("#require-label2").show();
 					$("#require-label2").html(msg("simplepage.require_pass_assignment"));
 					$("#item-required2").show();
@@ -1998,7 +2006,7 @@ $(document).ready(function() {
 					}
 				}else if(type === '2') {
 					// Letter Grade
-					
+					$(".reqCheckbox").show();
 					$("#require-label2").show();
 					$("#require-label2").text(msg("simplepage.require_atleast"));
 					$("#item-required2").show();
@@ -2019,6 +2027,7 @@ $(document).ready(function() {
 					// Nothing more that we need to do
 				}else if(type === '5') {
 					// Checkmark
+                    $(".reqCheckbox").show();
 					$("#require-label2").show();
 					$("#require-label2").text(msg("simplepage.require_checkmark"));
 					$("#item-required2").show();
@@ -2884,6 +2893,7 @@ $(document).ready(function() {
 	$('#subpage-error-container').hide();
 	$("#require-label2").hide();
 	$("#item-required2").hide();
+    $(".reqCheckbox").hide();
 	$("#assignment-dropdown-selection").hide();
 	$("#edit-youtube-error-container").hide();
 	$("#messages").hide();
@@ -3001,6 +3011,17 @@ function closeMultimediaEditDialog() {
 }
 
 function closeAddMultimediaDialog() {
+	//clear all sticky values so that the dialog can be fully usable if reopened
+	$('#mm-url-name').val('');
+	$('#mm-url').val('');
+	$("[name='mm-file']").val('');
+	// collapse resources/URL sections. expand file upload section...returns window to its initial state
+	$('#new-url-section').collapse();
+	$('#existing-resource-section').collapse();
+	$('#new-file-section').collapse('show');
+	// show the Resource and URL sections in case those were hidden on cancel
+	$('#new-url-panel').show();
+	$('#existing-resource-panel').show();
 	$("#add-multimedia-dialog").dialog("close");
 	oldloc.focus();
     $(oldloc).closest('div.item').removeClass('editInProgress');
@@ -3326,7 +3347,8 @@ $(function() {
 	});
 
 	function mmFileInputDelete() {
-	    $(this).parent().parent().remove();
+	    $(this).parent().parent().remove();	//remove file name
+		$('.selector-helper').val('');		//remove file from the visible input/picker as well
 	}
 	function mmFileInputChanged() {
 	    var previousTitle = $("#mm-name").val();
@@ -3340,7 +3362,7 @@ $(function() {
 		if ($('.fileTitles')[0]) {
 			doingNames = true;
 		}
-		// user has chosen a file. 
+		// user has chosen a file.
 		// Add another button for user to pick more files
 		lastInput.parent().after(lastInput.parent().clone());
 		// find the new button and put this trigger on it
@@ -3351,7 +3373,7 @@ $(function() {
 		$('.add-another-file').last().show().parent().addClass('add-another-file-div');
 		// Loop through the new files in reverse order so that they can be added just after the lastInput element.
 		for (i = lastInput[0].files.length-1; i >= 0; i--) {
-			var newStuff = '<p><span class="mm-file-input-name">' + lastInput[0].files[i].name + '</span><span title="' + msg('simplepage.remove_from_uploads') + '"><span class="mm-file-input-delete fa fa-times"></span></span>';
+			var newStuff = '<p><span class="mm-file-input-name h5">' + lastInput[0].files[i].name + '</span>';
 			if (doingNames) {
 				var valueContent = '';
 				if(i === 0 && previousTitle){
@@ -3359,17 +3381,21 @@ $(function() {
 				}
 				newStuff = newStuff + '<label for="link-title">Link title</label><input id="link-title" class="mm-file-input-names" type="text" size="30" maxlength="255" ' + valueContent + '/></p>';
 			} else {
-				newStuff = newStuff + '</p>';
+			    newStuff = newStuff + '<div><label for="link-title"> Custom name for uploaded file [optional]: </label><input id="link-title" class="mm-file-input-names" type="text" size="30" maxlength="255"/></div>';
 			}
+			newStuff = newStuff + '</p>'
 			lastInput.after(newStuff);
 			lastInput.parent().addClass('mm-file-group');
-			$('.mm-file-input-delete').on('click', mmFileInputDelete);
-		}		
+		}
+		var nextStuff = '<span class="remove-upload" title="' + msg('simplepage.remove_from_uploads') + '"><span class="mm-file-input-delete fa fa-trash"></span></span>';
+		lastInput.after(nextStuff);
+		$('.mm-file-input-delete').on('click', mmFileInputDelete);
 		// hide the original button as a new one has been created with the annotation of the new number of files.  
 		lastInput.hide();
+		lastInput.removeClass('selector-helper');	//this empty class is used as a selector for deletion...we do NOT want to clear existing files' inputs, so they should not have this class; only the clones [created above] should.
 		// Hide the add from resources link and add URL section as one can't upload files and do these at the same time.
-		$('.mm-url-section').hide();
-		$('.mm-resources-section').hide();
+		$('#new-url-panel').hide();
+		$('#existing-resource-panel').hide();
 	    }
 	};
 
@@ -3384,7 +3410,7 @@ var addAboveLI = null;
 function buttonOpenDropdown() {
     oldloc = $("#dropdown");
     addAboveItem = "";
-    openDropdown($("#moreDiv"), $("#dropdown"), msg("simplepage.more-tools"));
+    openDropdown($("#moreDiv"), $("#dropdown"), msg("simplepage.more-tools"), true);
 }
 
 function buttonOpenDropdownc() {
@@ -3415,20 +3441,36 @@ function buttonOpenDropdownb() {
     return false;
 }
 
-function openDropdown(dropDiv, button, title) {
+function openDropdown(dropDiv, button, title, dropDown) {
     closeDropdowns();
     hideMultimedia();
     dropDiv.dialog('option', 'title', title);
-    dropDiv.dialog('option', 'position', { my: 'left top', at: 'left bottom', of: button });
+    if (dropDown) {
+        dropDiv.dialog('option', 'position', { my: 'left top', at: 'left bottom', of: button });
+	} else {
+        dropDiv.dialog('option', 'width', calculateDropDownModalWidth());
+	}
     dropDiv.dialog('open');
     dropDiv.find("a").first().focus();
     if (addAboveItem === '')
 	dropDiv.find(".addContentMessage").show();
     else
 	dropDiv.find(".addContentMessage").hide();
-    //jquery-ui#position does not work properly with large scrolls : https://bugs.jqueryui.com/ticket/15253. (if the ticket is solved, remove the line below)
-    $("[aria-describedby='addContentDiv']").offset({top : button.offset().top + button.height()});
     return false;
+}
+
+function calculateDropDownModalWidth() {
+    var wWidth = $(window).width();
+    var pbr = 768;
+    var dWidth = wWidth * 0.7;
+    if ( wWidth <= pbr ) {
+        dWidth = pbr * 0.7;
+        if ( dWidth > (wWidth * 0.95) ) {
+            dWidth = wWidth * 0.95;
+        }
+    }
+    if ( dWidth < 300 ) dWidth = 300; // Should not happen
+    return Math.round(dWidth);
 }
 
 function closeDropdowns() {

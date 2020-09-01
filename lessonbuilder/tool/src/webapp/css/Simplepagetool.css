@@ -22,7 +22,7 @@
 }
 
 .ui-dialog label {
-   padding-left: 0.5em;  
+   padding-left: 0px;
    padding-right: 0.5em;
    font-weight: normal;
 }
@@ -191,22 +191,26 @@ div.action span .nextbutton, .Mrphs-siteHierarchy span .nextbutton{
 .indent {
     margin-left: 10px;
 }
-.grouplist {
-    margin-left: 20px;
-    border:1px solid #bbb;
-    background: #ddd;
-    padding: 5px;
-}
 .controlsPanel {
     padding:0;
     background:none;
     border: 1px solid transparent;
 }
 .controlsPanel .shorttext, .controlsPanel .longtext, .controlsPanel .filepicker{
-    margin:.4em 0
+    margin:.4em 0 0 0;
+}
+
+.controlsPanel .edit-header {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+span.group-name{
+    margin-left: 10px;
 }
 .controlsPanel .act {
-    margin:1em 0;
+    margin: 0;
+    padding: 0;
 }
 .controlsPanel .act .deleteButton, .act .deleteButton {
     background: none !important;
@@ -297,15 +301,47 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 .mm-file-input {
 	display:inline;
 }
-.mm-file-input-name {
-        margin-right: 0.5em;
+span.mm-file-input-name {
+    margin-bottom: 0;
+    margin-right: 14px;
 }
 .mm-file-input-delete {
-        color: red;
 	cursor: pointer;
+    color: #ff0000;
+}
+div.mm-file-group {
+    border: 1px solid #D3D3D3;
+    padding: 8px;
+    margin-bottom: 5px;
+}
+.multimedia-url-box{
+    width: 75%;
+    display: block;
+    margin-bottom: 5px;
 }
 .mm-file-input-itemname {
 	margin-left: 1.0em;
+}
+a[href].collapse-toggle {
+    font-size: 14px;
+    font-weight: bold;
+    border: 1px solid lightgray;
+    padding: 7px;
+    margin-bottom: 5px;
+    border-radius: 3px;
+    background-color: #f3f3f3;
+    display: block;
+    text-decoration: none;
+}
+a[href].collapse-toggle:hover {
+    cursor: pointer;
+    text-decoration: underline;
+    background-color: #f3f3f3;
+}
+span.remove-upload {
+    margin-left: 6px;
+    font-size: 22px;
+    float: right;
 }
 .add-another-file-div {
 	padding: 10px;
@@ -2015,11 +2051,6 @@ nav.Mrphs-container--toolTitleNav .Mrphs-directUrl__dropDown .active {
     margin-left: 2em;
 }
 
-.stylingstuff {
-    padding: .5em;
-    margin: .5em 0;
-    border: 1px solid #ccc;
-}
 
 .Mrphs-sakai-lessonbuildertool .navIntraTool.top-next-prev {
     margin-top: 20px;
@@ -2127,6 +2158,98 @@ form#revise[action$=dfReviseForumSettingsAttach] #forum_grading {
     width: 100%;
 }
 .row.row-no-margin {
-    margin-left:0;
-    margin-right:0;
+    margin-left: 0;
+    margin-right: 0;
+}
+.blueLessonsIcon {
+    color: #0033FF;
+}
+.darkblueLessonsIcon {
+    color: #000099;
+}
+.darkgrayLessonsIcon {
+    color: #686868;
+}
+.greenLessonsIcon {
+    color: #006633;
+}
+.redLessonsIcon {
+    color: #900000;
+}
+.orangeLessonsIcon {
+    color: #e68a00;
+}
+/* SAK-44158 */
+#addContentDiv {
+    background: #fff !important;
+    -webkit-box-shadow: none !important;
+    -moz-box-shadow: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 1em 0 0 0 !important;
+}
+
+#addContentDiv .panel-heading h4 {
+    margin: 0 !important;
+}
+
+body div[role="dialog"] {
+    width: 60% !important;
+    left: 20% !important;
+}
+
+#path.instruction {
+    margin: 5px;
+}
+
+p.noTopSpacing {
+    margin-top: 0px;
+}
+
+legend.noBottomSpacing {
+    padding-bottom: 0px;
+}
+.itemDesc {
+    padding-left: 0px !important; /* important needed to override bootstrap grid-layout */
+}
+
+.edit-form-input.description{
+    width: 99%;
+    margin-bottom: 10px;
+}
+.edit-form-input.col-sm-2 {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+p.checkbox{
+    margin-top: 0px;
+}
+
+#mm-path {
+    margin: 0px;
+}
+
+button.accordionBtn {
+    color: #333 !important; /*have to override Sakai button color*/
+    background-color: transparent !important;
+    border: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+button.accordionBtn:focus {
+    outline: none !important;
+}
+button.accordionBtn:before {
+    font-family: "FontAwesome";
+    content: "\f0d7";
+    color: #333;
+    padding-right: 5px;
+}
+button.accordionBtn.collapsed:before {
+    font-family: "FontAwesome";
+    content: "\f0da";
+    color: #333;
+    padding-right: 5px;
 }
