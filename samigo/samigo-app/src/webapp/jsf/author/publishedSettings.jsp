@@ -109,6 +109,11 @@
           $('#assessmentSettingsAction\\:itemNavigation\\:1').change(checkNav);
           checkNav();
 
+          // Copy to clipboard
+          $("#copyToClipboard").click(function() {
+              copyToClipboardNoScroll(this, "<h:outputText value='#{publishedSettings.publishedUrl}' />");
+          });
+
           // SAM-2323 jquery-UI datepicker
           localDatePicker({
               input: '#assessmentSettingsAction\\:startDate',
@@ -245,6 +250,10 @@
                         styleClass="form-control-label col-md-2"/>
         <div class=" col-md-10">
             <h:outputText value="#{publishedSettings.publishedUrl}" />
+            <button type="button" id="copyToClipboard" title="<h:outputText value='#{assessmentSettingsMessages.copyToClipboard}' />">
+                <span class="fa fa-clipboard" aria-hidden="true"></span>
+                <span class="sr-only"><h:outputText value="#{assessmentSettingsMessages.copyToClipboard}" /></span>
+            </button>
         </div>
     </div>
 
