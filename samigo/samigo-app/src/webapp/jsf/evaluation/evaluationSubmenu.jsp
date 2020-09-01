@@ -19,6 +19,7 @@
 --%>
 <h:panelGroup>
   <ul class='navIntraTool actionToolbar' role='menu'>
+    <h:panelGroup rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
     <li role='menuitem'>
       <h:panelGroup id="submissionStatusMenuLink">
         <h:commandLink title="#{evaluationMessages.t_submissionStatus}" action="submissionStatus" immediate="true">
@@ -28,6 +29,8 @@
         </h:commandLink>
       </h:panelGroup>
     </li>
+    </h:panelGroup>
+    <h:panelGroup rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
     <li role='menuitem'>
       <h:panelGroup id="totalScoresMenuLink">
         <h:commandLink title="#{evaluationMessages.t_totalScores}" action="totalScores" immediate="true">
@@ -37,6 +40,8 @@
         </h:commandLink>
       </h:panelGroup>
     </li>
+    </h:panelGroup>
+    <h:panelGroup rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
     <li role='menuitem'>
       <h:panelGroup id="questionScoresMenuLink">
         <h:commandLink title="#{evaluationMessages.t_questionScores}" action="questionScores" immediate="true">
@@ -48,6 +53,7 @@
         </h:commandLink>
       </h:panelGroup>
     </li>
+    </h:panelGroup>
     <li role='menuitem'>
       <h:panelGroup id="histogramScoresMenuLink">
         <h:commandLink title="#{evaluationMessages.t_histogram}" action="histogramScores" immediate="true">
@@ -57,6 +63,7 @@
         </h:commandLink>
       </h:panelGroup>
     </li>
+    <h:panelGroup rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
     <li role='menuitem'>
       <h:panelGroup id="detailedStatisticsMenuLink">
         <h:commandLink title="#{evaluationMessages.t_itemAnalysis}" action="detailedStatistics" immediate="true">
@@ -66,6 +73,8 @@
         </h:commandLink>
       </h:panelGroup>
     </li>
+    </h:panelGroup>
+    <h:panelGroup rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
     <li role='menuitem'>
       <h:panelGroup id="exportResponsesMenuLink">
         <h:commandLink title="#{commonMessages.export_action}" action="exportResponses" immediate="true">
@@ -74,6 +83,7 @@
         </h:commandLink>
       </h:panelGroup>
     </li>
+    </h:panelGroup>
     <h:panelGroup rendered="#{totalScores.hasFileUpload}">
       <li role='menuitem'>
         <h:panelGroup id="downloadFileSubmissionsMenuLink">
