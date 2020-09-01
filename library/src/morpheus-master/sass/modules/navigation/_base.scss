@@ -131,7 +131,7 @@ body.is-logged-out{
 	right: 0em;
 	width: 20em;
 	z-index: 99;
-	box-shadow: 0 0 4px rgba( var(--sakai-text-color-1) ,0.35);
+	box-shadow: 0 0 4px var(--sakai-text-color-1);
 	list-style: none;
 	padding: 0 0 0 0;
 	li{
@@ -850,8 +850,9 @@ body.is-logged-out{
 			}
 
 			&.dropdown-is-visible {
-				background: var(--sakai-sites-nav-menu-item-hover-background);
+				background: var(--sites-nav-menu-item-hover-background);
 				border-radius: $sites-nav-menu-item-border-radius $sites-nav-menu-item-border-radius 0 0;
+				box-shadow: 0 5px 5px -3px rgba(0,0,0,.6);
 				&:after {
 					content: "";
 					border-bottom: var(--sites-nav-selected-submenu-border);
@@ -923,7 +924,8 @@ body.is-logged-out{
 				width: max-content; // if the content is wider than the site title, expand to the longest tool name
 				border: $sites-nav-submenu-border;
 				background: var(--sites-nav-menu-item-background);
-
+				box-shadow: 0 5px 5px -3px rgba(0,0,0,.6);
+				border-radius: 0 0 $sites-nav-menu-item-border-radius $sites-nav-menu-item-border-radius;
 				.#{$namespace}sitesNav__submenuitem {
 					display: block;
 					border: 0px none;
@@ -1117,7 +1119,7 @@ body.is-logged-out #linkNav .#{$namespace}sitesNav__menuitem .#{$namespace}sites
 }
 
 #show-all-sites-mobile{
-	color: var(--sakai-background-color-secondary);
+	color: var(--sakai-background-color-2);
 	background: var(--sakai-background-color-2);
 	display: none;
 	cursor: pointer;

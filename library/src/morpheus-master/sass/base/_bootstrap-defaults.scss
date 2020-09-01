@@ -455,7 +455,7 @@ $icon-font-path: if($bootstrap-sass-asset-helper, "bootstrap/", "../" + $skin-na
 //== Tabs
 $nav-tabs-border-color:                     var(--sakai-border-color);
 
-$nav-tabs-link-hover-border-color:          var(--sakai-border-color-hover);
+$nav-tabs-link-hover-border-color:          var(--sakai-border-color);
 
 $nav-tabs-active-link-hover-bg:             var(--sakai-background-color-2);
 $nav-tabs-active-link-hover-color:          var(--sakai-primary-color-1);

@@ -228,7 +228,7 @@ body.is-logged-out{
 				padding: 0px 0 0 5px;
 				overflow: hidden;
 				@include border-radius( $icon-size );
-				box-shadow:  0 0 5px rgba( var(--sakai-background-color-1) ,0.5);
+				box-shadow:  var(--elevation-4dp);
 			}
 		}
 	}

@@ -1,4 +1,28 @@
-// define HSL color variable
+   // Color palette generation
+    // Use defineColorHSL to generate an 11 shade palette for a color.
+    // @include defineColorHSL(color, hue, saturation, lightness)
+    // @param color
+    //      Type: string
+    //      expects a CSS custom property name
+    // @param hue
+    //      Type: integer
+    //      expects an integer 0-255
+    // @param saturation
+    //      Type: percentage
+    //      expects a percentage 0-100%
+    // @param lightness
+    //      Type: percentage
+    //      expects a percentage 0-100%
+    // @returns 11 CSS Custom Properties available in :root
+    //      named color-0 through color-10
+    //      The HSL you provide in the parameters will be in the
+    //      middle of the range at -5.
+    // Example 
+    // @include defineColorHSL(--myschool-gray, 214, 3%, 55%);
+    //      returns --myschool-gray-5: hsl(214, 3%, 55%;
+    //
+    // Sakai comes predefined with gray, blue, lightblue, teal, gold,
+    // green, orange, purple, and red palettes available for you to use.
 @mixin defineColorHSL($color, $hue, $saturation, $lightness){
   #{$color}: unquote("hsl(#{$hue}, #{$saturation}, #{$lightness})");
   #{$color}-h: #{$hue};

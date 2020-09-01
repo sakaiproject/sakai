@@ -7,7 +7,7 @@
 	min-height: 14em;
 
 	background: var(--sakai-background-color-1);
-	box-shadow: 0 0 5px rgba( var(--sakai-text-color-1) , 0.25 );
+	box-shadow: var(--elevation-4dp);
 	.logo{
 		background: var(--top-header-background) url($logo) no-repeat center center;
 		background-size: $logo-width $logo-height;
@@ -77,7 +77,7 @@
 
 	&.loadedByAjax{
 		z-index: 1010;
-		box-shadow: 0 0 15px rgba( var(--sakai-text-color-1) , 0.25 );
+		box-shadow: var(--elevation-8dp);
 	}
 
 	@media #{$phone}{

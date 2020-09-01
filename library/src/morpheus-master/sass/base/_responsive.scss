@@ -99,7 +99,7 @@ body{
 							overflow: hidden;
 						}
 						@else {
-							border-left: 2px solid darken( var(--tool-menu-background-color), 10% );
+							border-left: 2px var(--sakai-background-color-2);
 							display: inline-block;
 							margin: -4px -4px 0px 0; //FIX for inline-block extra space.
 							width: calc( 25% - 1px );
@@ -161,7 +161,7 @@ body{
 							}
 						}
 						a{
-							background: var(--sakai-background-color-secondary);
+							background: var(--sakai-background-color-2);
 							border-right: 0px none;
 						}
 						&.#{$namespace}sitesNav__menuitem--myworkspace{
