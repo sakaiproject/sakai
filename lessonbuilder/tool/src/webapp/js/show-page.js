@@ -361,6 +361,14 @@ $(document).ready(function() {
 			draggable: false
 		});
 
+        $('#layout-dialog').dialog({
+            autoOpen: false,
+            width: modalDialogWidth(),
+            modal: true,
+            resizable: false,
+            draggable: false
+        });
+
 		$('#addContentDiv').dialog({
 			autoOpen: false,
 			modal: false,
@@ -401,7 +409,7 @@ $(document).ready(function() {
 			var modalDialogList = ['#subpage-dialog', '#edit-item-dialog', '#edit-multimedia-dialog',
 			'#add-multimedia-dialog', '#edit-title-dialog', '#new-page-dialog', '#remove-page-dialog',
 			'#youtube-dialog', '#movie-dialog', '#import-cc-dialog', '#export-cc-dialog',
-		        '#comments-dialog', '#student-dialog', '#question-dialog', '#delete-confirm'];
+		        '#comments-dialog', '#student-dialog', '#question-dialog', '#layout-dialog', '#delete-confirm'];
 			for (var i = 0; i < modalDialogList.length; i++) {
 				$(modalDialogList[i]).dialog("option", "width", modalDialogWidth());
 			}
@@ -1535,6 +1543,77 @@ $(document).ready(function() {
 			$("#grouplist").show();
 		    });
 
+		$('.layout-link').click(function() {
+            oldloc = $(this);
+            closeDropdowns();
+            $('li').removeClass('editInProgress');
+
+            $('#layout-error-container').hide();
+
+            $('#layout-dialog').dialog('open');
+            setupdialog($('#layout-dialog'));
+            return false;
+		});
+
+		$('.layout-option').click(function() {
+			$('.layout-option').each(function(){
+				$(this).css('border-color', '#fff');
+			});
+			$(this).css('border-color', '#025aa5');
+			$(this).find("input:radio").prop('checked', true);
+		});
+
+		$('#layout-color-scheme-selection').on('change', function(){
+			var colorChoice = $(this).val();
+			$('.addSectionTitleExample').each(function(){
+				this.className='addSectionTitleExample col' + colorChoice + '-header';
+			});
+			$('.addSectionColumn').each(function(){
+				this.className='addSectionColumn col' + colorChoice;
+			})
+		});
+
+        $('#layout-section-collapsible').on('change', function(){
+            $('span.collapsible-section').toggle();
+            if(!$(this).is(':checked')) {
+                $('#layout-section-start-collapsed').prop('checked', false);
+            }
+        });
+
+        $('#layout-section-start-collapsed').on('change', function(){
+            if($(this).is(':checked')) {
+                $('#layout-section-collapsible').prop('checked', true);
+                $('span.collapsible-section').show();
+            }
+        });
+
+        $('#layout-section-title').on('keyup', function(){
+            var sectionTitle = $(this).val();
+            var collapsibleInput = $('#layout-section-collapsible');
+            $('.addSectionTitleText').text(sectionTitle);
+            collapsibleInput.prop('disabled', !sectionTitle);
+            $('#layout-section-start-collapsed').prop('disabled', !sectionTitle);
+            if (!sectionTitle) {
+                $('span.collapsible-section').hide();
+            } else if (collapsibleInput.is(':checked')) {
+                $('span.collapsible-section').show();
+            }
+        });
+
+        $('#layout-section-show-borders').on('change', function(){
+            if($(this).is(':checked')) {
+                $('.addSectionColumn').each(function(){
+                    $(this).css('border-color', '#aaa');
+                    $(this).css('border-style', 'solid');
+                });
+            } else {
+                $('.addSectionColumn').each(function(){
+                    $(this).css('border-color', '#ddd');
+                    $(this).css('border-style', 'dashed');
+                });
+            }
+        });
+
 		$('#add-comments-link').click(function() {
 			$("#comments-addBefore").val(addAboveItem);
                         $("#add-comments").click();
@@ -1603,7 +1682,46 @@ $(document).ready(function() {
 			setupdialog($("#movie-dialog"));
 			return false;
 		});
-		
+
+        $("#subpage-button").click(function(){
+            if($(this).is(":checked")){
+                if($("#subpage-btncolor-forced").is(":visible")){
+                    //do nothing, color selector still needs hidden.
+                }else{
+                    $("#subpage-buttonColorLabel").removeClass("disabled");
+                    $("#subpage-btncolor-selection").removeClass("disabled");
+                }
+                //remove button warning regardless
+                $("#subpage-needbtn").hide();
+            }else{
+                //if its not checked, make sure "disabled" class is there.
+
+                $("#subpage-buttonColorLabel").addClass("disabled");
+                $("#subpage-btncolor-selection").addClass("disabled");
+                $("#subpage-needbtn").show();
+            }
+        });
+
+		$("#item-button").click(function(){
+			if($(this).is(":checked")){
+				if($("#btncolor-forced").is(":visible")){
+					//do nothing, color selector still needs hidden.
+				}else{
+					$("#buttonColorLabel").removeClass("disabled");
+					$("#btncolor-selection").removeClass("disabled");
+					$("#btncolor-selection").removeProp("disabled");
+				}
+				//remove button warning regardless
+				$("#needbtn").hide();
+			}else{
+				//if its not checked, make sure "disabled" class is there.
+
+                $("#buttonColorLabel").addClass("disabled");
+                $("#btncolor-selection").addClass("disabled");
+				$("#needbtn").show();
+			}
+		});
+
 		$(".edit-link").click(function(){
 			oldloc = $(this);
 			closeDropdowns();
@@ -1643,6 +1761,35 @@ $(document).ready(function() {
 
 			$("select[name=indent-level-selection]").val(row.find(".indentLevel").text());
 			$("#customCssClass").val(row.find(".custom-css-class").text());
+
+			var colorArray = ["none",
+                "ngray",
+                "nblack",
+                "nblue",
+                "nblue2",
+                "nred",
+                "nrudy",
+                "nnavy",
+                "nnavy2",
+                "ngreen"];
+			var classList = row.find(".usebutton").attr('class').split(' ');
+
+			var color = null;
+            classList.forEach(function(source){
+            	if(colorArray.indexOf(source) != -1 && color === null){
+            		color = source;
+				}
+			});
+
+            if(color !== null){
+            	$("select[name=btncolor-selection]").val(color);
+			}else{
+            	$("select[name=btncolor-selection]").val("none");
+			}
+
+			var forcedColorSection = row.parent().parent().parent().parent();
+            var forcedColumnColor = row.parent().parent().parent();
+            var forcedColor = (forcedColorSection.hasClass("hasColor")  && !forcedColumnColor.hasClass("noColor"));
 
 			var prereq = row.find(".prerequisite-info").text();
 
@@ -1702,9 +1849,28 @@ $(document).ready(function() {
 				if(pagebutton === "true") {
 					$("#item-button").prop("checked", true);
 					$("#item-button").attr("defaultChecked", true);
-				}else {
-					$("#item-button").prop("checked", false);
-				}
+					if(!forcedColor) {
+                        $("#buttonColorLabel").removeClass("disabled");
+                        $("#btncolor-selection").removeClass("disabled");
+                        $("#btncolor-selection").removeProp("disabled");
+                        $("#btncolor-forced").hide();
+                    }else{
+                        $("#buttonColorLabel").addClass("disabled");
+                        $("#btncolor-selection").addClass("disabled");
+                        $("#btncolor-selection").prop("disabled", true);
+                        $("#btncolor-forced").show();
+					}
+					$("#needbtn").hide();
+			    }else{
+                    $("#item-button").prop("checked", false);
+                    $("#buttonColorLabel").addClass("disabled");
+                    $("#btncolor-selection").addClass("disabled");
+                    $("#btncolor-selection").prop("disabled", true);
+					$("#needbtn").show();
+					if(forcedColor){
+						$("#btncolor-forced").show();
+					}
+                }
 
 				let pagehidden = row.find(".page-hidden").text();
 				if(pagehidden === "true") {
@@ -2284,7 +2450,8 @@ $(document).ready(function() {
 				$('#add-twitter-dialog').dialog('isOpen')||
 				$('#column-dialog').dialog('isOpen') ||
 			        $('#student-dialog').dialog('isOpen') ||
-			        $('#question-dialog').dialog('isOpen'))) {
+			        $('#question-dialog').dialog('isOpen') ||
+					$('#layout-dialog').dialog('isOpen'))) {
 		    unhideMultimedia();
                     $('.edit-col').removeClass('edit-colHidden');
                     $('div.item').removeClass('editInProgress');
@@ -2369,7 +2536,7 @@ $(document).ready(function() {
 		var tail_cols = addAboveLI.parent().parent().nextAll();
 		var section = addAboveLI.parent().parent().parent();
 		var sectionId = "sectionid" + (nextid++);
-		section.prev('.sectionHeader').parent().after('<div><h3 class="sectionHeader skip"><span class="sectionHeaderText"></span><span class="sectionCollapsedIcon fa-bars" aria-hidden="true" style="display:none"></span><span class="toggleCollapse">' + msg('simplepage.clickToCollapse') + '</span><span aria-hidden="true" class="collapseIcon fa-toggle-up"></span></h3><div class="section"><div class="column"><div class="editsection"><span class="sectionedit"><h3 class="offscreen">' + msg('simplepage.break-here') + '</h3><a href="/' + newitem + '" title="' + msg('simplepage.join-items') + '" class="section-merge-link" onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></a></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen"><span aria-hidden="true" class="fa-columns fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span><div border="0" role="list" style="z-index: 1;" class="indent mainList"><div class="item breaksection" role="listitem"><span style="display:none" class="item itemid">' + newitem + '</span></div></div></div></div></div>');
+		section.prev('.sectionHeader').parent().after('<div><h3 class="sectionHeader skip"><span aria-hidden="true" class="collapseIcon fa-caret-down"></span><span class="sectionHeaderText"></span><span class="toggleCollapse">' + msg('simplepage.clickToCollapse') + '</span></h3><div class="section"><div class="column"><div class="editsection"><span class="sectionedit"><h3 class="offscreen">' + msg('simplepage.break-here') + '</h3><a href="/' + newitem + '" title="' + msg('simplepage.join-items') + '" class="section-merge-link" onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></a></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen" style="text-decoration: none;"><span aria-hidden="true" class="fa-cog fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span><div border="0" role="list" style="z-index: 1;" class="indent mainList"><div class="breakitem breaksection" role="listitem"><span style="display:none" class="itemid">' + newitem + '</span></div></div></div></div></div>');
 		// now go to new section
 		section = section.prev('.sectionHeader').parent().next().children(".section");
 
@@ -2407,7 +2574,7 @@ $(document).ready(function() {
 		// current section DIV
 		var tail_uls = addAboveLI.parent().nextAll();
 		var column = addAboveLI.parent().parent();
-		column.after('<div class="column"><div class="editsection"><span class="sectionedit"><h3 class="offscreen">' + msg('simplepage.break-column-here') + '</h3><a href="/' + newitem + '" title="' + msg('simplepage.join-items') + '" class="column-merge-link" onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></a></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen"><span aria-hidden="true" class="fa-cog fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span><ul border="0" role="list" style="z-index: 1;" class="indent mainList"><li class="breaksection" role="listcolumn"><span style="display:none" class="itemid">' + newitem + '</span></li></ul></div>');
+		column.after('<div class="column"><div class="editsection"><span class="sectionedit"><h3 class="offscreen">' + msg('simplepage.break-column-here') + '</h3><a href="/' + newitem + '" title="' + msg('simplepage.join-items') + '" class="column-merge-link" onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></a></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen" style="text-decoration: none;"><span aria-hidden="true" class="fa-cog fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span><div border="0" role="list" style="z-index: 1;" class="indent mainList"><div class="breakitem breakcolumn" role="listcolumn"><span style="display:none" class="itemid">' + newitem + '</span></div></div></div>');
 
 		// now go to new section
 		column = column.next();
@@ -2475,20 +2642,59 @@ $(document).ready(function() {
 	$('.columnopen').click(columnOpenLink);
 	function columnOpenLink(e) {
 	    var itemid = $(this).closest('.editsection').find('.column-merge-link,.section-merge-link').attr('href').substring(1);
+	    var sectionSettings = $('#sectionSettings');
+	    var columnLabel = $('#columnColorLabel');
+	    var sectionLabel = $('#sectionColorLabel');
+	    var columnStyling = $('#column-styling-header');
+	    var sectionStyling = $('#section-styling-header');
+	    if ($(this).closest('.editsection').find('.section-merge-link').length > 0) {
+            sectionSettings.show();
+            sectionLabel.show();
+            sectionStyling.show();
+            columnLabel.hide();
+            columnStyling.hide();
+            $('#isSection').val('true');
+		} else {
+            sectionSettings.hide();
+            sectionLabel.hide();
+            sectionStyling.hide();
+            columnLabel.show();
+            columnStyling.show();
+            $('#isSection').val('false');
+		}
 	    $('.currentlyediting').removeClass('currentlyediting');
 	    var col = $(this).closest('.column');
 	    col.addClass('currentlyediting');
 	    $('#columndouble').prop('checked', col.hasClass('double'));
 	    $('#columnsplit').prop('checked', col.hasClass('split'));
 	    $('#columnitem').val(itemid);
-	    $('#columntrans').prop('selected', col.hasClass('coltrans'));
-	    $('#columngray').prop('selected', col.hasClass('colgray'));
-	    $('#columnred').prop('selected', col.hasClass('colred'));
-	    $('#columnblue').prop('selected', col.hasClass('colblue'));
-	    $('#columngreen').prop('selected', col.hasClass('colgreen'));
-	    $('#columnyellow').prop('selected', col.hasClass('colyellow'));
+	    $('#columnbackground > option').each(function() {
+	    	var checkClass = 'col' + $(this).val();
+            var hasColClass = col.hasClass(checkClass);
+            if (hasColClass) {
+                $(this).prop('selected', true);
+                $('#show-borders').prop('checked', true);
+            } else if (col.hasClass(checkClass + '-trans')) {
+                $(this).prop('selected', true);
+                $('#show-borders').prop('checked', false);
+            } else if (checkClass === 'colnone' && col.hasClass('coltrans')){
+                $(this).prop('selected', true);
+                $('#show-borders').prop('checked', false);
+            } else if (checkClass === 'colnone' && !col.hasClass('coltrans')) {
+                $(this).prop('selected', true);
+                $('#show-borders').prop('checked', true);
+            } else {
+                $(this).prop('selected', false);
+            }
+		});
 	    $('#collapsible').prop('checked', col.parent('.section').hasClass('collapsible'));
 	    $('#defaultClosed').prop('checked', col.parent('.section').hasClass('defaultClosed'));
+	    if(col.hasClass('noColor')){
+            $('#force-button-color').prop('checked', false);
+		}else {
+            $('#force-button-color').prop('checked', col.parent('.section').hasClass("hasColor"));
+        }
+
 	    $('#sectionTitle').val(col.parent('.section').prev().find('.sectionHeaderText').text());
 		if(!$("#sectionTitle").val()) {
 			$("#collapsible").prop('checked', false);
@@ -2514,6 +2720,7 @@ $(document).ready(function() {
 
 	$('#column-submit').click(function(){
 		var itemid = $('#columnitem').val();
+		var isSection = $('#isSection').val() === 'true';
 		var width = $('#columndouble').prop('checked') ? 2 : 1;
 		var split = $('#columnsplit').prop('checked') ? 2 : 1;
 		var col =  $('.currentlyediting');
@@ -2521,19 +2728,22 @@ $(document).ready(function() {
 		var header = section.prev('.sectionHeader');
 		var color_index = $('#columnbackground')[0].selectedIndex; 
 		var color = '';
-		switch (color_index) {
-		case 0: color = ''; break;
-		case 1: color = 'trans'; break;
-		case 2: color = 'gray'; break;
-		case 3: color = 'red'; break;
-		case 4: color = 'blue'; break;
-		case 5: color = 'green'; break;
-		case 6: color = 'yellow'; break;
+		var forceBtnColor = $("#force-button-color").prop('checked');
+		if (color_index !== 0) {
+            color = $('#columnbackground').val();
 		}
 		var collapsible = $('#collapsible').prop('checked') ? 1 : 0;
 		var defaultClosed = $('#defaultClosed').prop('checked') ? 1 : 0;
 		var sectionTitle = $('#sectionTitle').val();
-		setColumnProperties(itemid, width, split, color);
+        var showBorders = $('#show-borders').prop('checked');
+        if (!showBorders) {
+            if (color === '') {
+                color = 'trans';
+            } else {
+                color = color + '-trans';
+            }
+        }
+		setColumnProperties(itemid, width, split, color, forceBtnColor);
 		if (width === 2)
 		    col.addClass('double');		    
 		else
@@ -2542,10 +2752,21 @@ $(document).ready(function() {
 		    col.addClass('split');
 		else
 		    col.removeClass('split');
-		col.removeClass('coltrans colgray colred colblue colgreen colyellow');
+		col.removeClass('coltrans colgray colred colblue colgreen colyellow colngray colngray-trans colnblack colnblack-trans colnblue colnblue-trans' +
+			' colnblue2 colnblue2-trans colnred colnred-trans colnrudy colnrudy-trans colnnavy colnnavy-trans colnnavy2 colnnavy2-trans colngreen colngreen-trans' +
+			' colgray-trans colred-trans colblue-trans colgreen-trans colyellow-trans');
 		if (color !== '')
 		    col.addClass('col' + color);
-		fixupColAttrs();
+
+		if (isSection) {
+            header.removeClass('coltrans-header colgray-header colred-header colblue-header colgreen-header colyellow-header colngray-header colngray-trans-header colnblack-header colnblack-trans-header colnblue-header colnblue-trans-header' +
+                ' colnblue2-header colnblue2-trans-header colnred-header colnred-trans-header colnrudy-header colnrudy-trans-header colnnavy-header colnnavy-trans-header colnnavy2-header colnnavy2-trans-header colngreen-header colngreen-trans-header' +
+                ' colgray-trans-header colred-trans-header colblue-trans-header colgreen-trans-header colyellow-trans-header');
+            if(color !== '')
+                header.addClass('col' + color + '-header');
+        }
+
+        fixupColAttrs();
 		fixupHeights();
 		setSectionCollapsible(itemid, collapsible, sectionTitle, defaultClosed);
 		header.find('.sectionHeaderText').text(sectionTitle);
@@ -2557,7 +2778,6 @@ $(document).ready(function() {
 		if (collapsible) {
 			section.addClass('collapsible');
 			header.addClass('collapsibleSectionHeader');
-			setCollapsedStatus(header, false);
 			var sectionId = section.attr('id');
 			if (typeof sectionId === 'undefined' || sectionId === null || sectionId === '') {
 			    sectionId = 'sectionid' + (nextid++);
@@ -2567,14 +2787,15 @@ $(document).ready(function() {
 		} else {
 			section.removeClass('collapsible');
 			header.removeClass('collapsibleSectionHeader');
-			setCollapsedStatus(header, false);
 			header.removeAttr('aria-controls');
 			header.removeAttr('aria-expanded');
 		}
 		if (defaultClosed) {
 			section.addClass('defaultClosed');
+			setCollapsedStatus(header, true);
 		} else {
 			section.removeClass('defaultClosed');
+			setCollapsedStatus(header, false);
 		}
 		if($('.collapsibleSectionHeader').length) {
 			$('#expandCollapseButtons').show();
@@ -2582,6 +2803,7 @@ $(document).ready(function() {
 			$('#expandCollapseButtons').hide();
 		}
 		$('#column-dialog').dialog('close');
+		$document.reload();
 		return false;
 	    });
 
@@ -2725,20 +2947,18 @@ $(document).ready(function() {
 function setCollapsedStatus(header, collapse) {
     if (collapse === null) {
 	// toggle
-	collapse = header.find('.collapseIcon').hasClass("fa-toggle-up");
+	collapse = header.find('.collapseIcon').hasClass("fa-caret-down");
     }
     if (collapse) {
-	header.find('.collapseIcon').addClass("fa-toggle-down");
-	header.find('.collapseIcon').removeClass("fa-toggle-up");
-	header.find('.sectionCollapsedIcon').show();
+	header.find('.collapseIcon').addClass("fa-caret-right");
+	header.find('.collapseIcon').removeClass("fa-caret-down");
 	header.find('.toggleCollapse').text(msg('simplepage.clickToExpand'));
 	header.attr('aria-expanded', 'false');
 	header.addClass('closedSectionHeader');
 	header.removeClass('openSectionHeader');
     } else {
-	header.find('.collapseIcon').removeClass("fa-toggle-down");
-	header.find('.collapseIcon').addClass("fa-toggle-up");
-	header.find('.sectionCollapsedIcon').hide();
+	header.find('.collapseIcon').removeClass("fa-caret-right");
+	header.find('.collapseIcon').addClass("fa-caret-down");
 	header.find('.toggleCollapse').text(msg('simplepage.clickToCollapse'));
 	header.attr('aria-expanded', 'true');
 	header.addClass('openSectionHeader');
@@ -2837,6 +3057,11 @@ function closeStudentDialog() {
 
 function closeQuestionDialog() {
 	$('#question-dialog').dialog('close');
+	oldloc.focus();
+}
+
+function closeLayoutDialog() {
+	$('#layout-dialog').dialog('close');
 	oldloc.focus();
 }
 
@@ -3181,6 +3406,10 @@ function buttonOpenDropdownb() {
     oldloc = $(this);
     addAboveItem = '-' + $(this).closest('.column').find('div.mainList').children().last().find("span.itemid").text();
     addAboveLI = $(this).closest('.column').find('div.mainList').children().last().closest("div.item");
+    if (addAboveLI.length === 0) {
+        // Unable to find item (due to an empty section or column). Target break instead
+        addAboveLI = $(this).closest('.column').find('div.mainList').children().last().closest("div.breakitem");
+    }
     $(".addbreak").show();
     openDropdown($("#addContentDiv"), $("#dropdownc"), msg('simplepage.add-item-column'));
     return false;
@@ -3436,7 +3665,7 @@ function deleteBreak(itemId, type) {
 	    }});
 }
 
-function setColumnProperties(itemId, width, split, color) {
+function setColumnProperties(itemId, width, split, color, forceBtnColor) {
     var errors = '';
     var url = location.protocol + '//' + location.host + 
 	'/lessonbuilder-tool/ajax';
@@ -3445,7 +3674,7 @@ function setColumnProperties(itemId, width, split, color) {
     $.ajax({type: "POST",
 	    async: false,
 	    url: url,
-		data: {op: 'setcolumnproperties', itemid: itemId, width: width, split: split, csrf: csrf, color: color},
+		data: {op: 'setcolumnproperties', itemid: itemId, width: width, split: split, csrf: csrf, color: color, forceBtn: forceBtnColor},
 	    success: function(data){
 		ok = data;
 	    }});
