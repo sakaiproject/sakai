@@ -1,6 +1,6 @@
 .navIntraTool{
 	margin: 0;
-	border-bottom: 1px solid $tool-border-color;
+	border-bottom: 1px solid var(--tool-border-color);
 	padding: 0 1em 0 0;
 	//max-width: calc(100% - 170px);
 	font-size: 0;
@@ -16,11 +16,11 @@
 		span{
 			display: inline;
 			a{
-				background: $tool-tab-background-color;
-				border-top: 1px solid $tool-tab-border-color;
-				border-left: 1px solid $tool-tab-border-color;
-				border-right: 1px solid $tool-tab-border-color;
-				color: $tool-tab-text-color;
+				background: var(--tool-tab-background-color);
+				border-top: 1px solid var(--tool-tab-border-color);
+				border-left: 1px solid var(--tool-tab-border-color);
+				border-right: 1px solid var(--tool-tab-border-color);
+				color: var(--tool-tab-text-color);
 				font-size: $tool-tab-text-size;
 				font-weight: $tool-tab-text-weight;
 				display: block;
@@ -33,13 +33,13 @@
 				letter-spacing: $tool-tab-text-letter-spacing;
 
 				&:hover, &:focus {
-					color: $tool-tab-hover-text-color;
-					background: $tool-tab-hover-background-color;
+					color: var(--tool-tab-hover-text-color);
+					background: var(--tool-tab-hover-background-color);
 					text-decoration: none;
 					position: relative;
 
 					&:before{
-						border-top: 4px solid $tool-tab-hover-highlight-color;
+						border-top: 4px solid var(--tool-tab-hover-highlight-color);
 						content: "";
 						display: block;
 						position: absolute;
@@ -55,12 +55,12 @@
 				}
 			}
 			&.current{
-				color: $tool-tab-active-text-color;
+				color: var(--tool-tab-active-text-color);
 				font-size: $tool-tab-active-text-size;
-				background-color: $tool-tab-active-background-color;
-				border-top: 1px solid $tool-tab-border-color;
-				border-left: 1px solid $tool-tab-border-color;
-				border-right: 1px solid $tool-tab-border-color;
+				background-color: var(--tool-tab-active-background-color);
+				border-top: 1px solid var(--tool-tab-border-color);
+				border-left: 1px solid var(--tool-tab-border-color);
+				border-right: 1px solid var(--tool-tab-border-color);
 				position: relative;
 				margin: 0;
 				padding: 0 0.6em;
@@ -70,7 +70,7 @@
 				margin-bottom: -1px;
 
 				&:before {
-					border-top: 4px solid $tool-tab-active-highlight-color;
+					border-top: 4px solid var(--tool-tab-active-highlight-color);
 					content: "";
 					display: block;
 					position: absolute;
@@ -79,7 +79,7 @@
 					top: -1px;
 				}
 				&:after{
-					border-bottom: 1px solid $tool-tab-active-background-color;
+					border-bottom: 1px solid var(--tool-tab-active-background-color);
 					content: '';
 					display: block;
 					position: absolute;
@@ -112,7 +112,7 @@
 
 .instruction{
 	font-size: $instruction-size;
-	color: $instruction-color;
+	color: var(--instruction-color);
 }
 
 .listNav{

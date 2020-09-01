@@ -9,11 +9,11 @@ The new skin of Sakai is made on SASS. SASS (**S**yntactically **A**wesome **S**
 In SASS, you can use variables on your skin allowing a greater skin customization for every member of the community.
 
 	$font-stack:    Helvetica, sans-serif;
-	$primary-color: #333;
+	var(--sakai-primary-color): #333;
 
 	body {
   		font: 100% $font-stack;
-  		color: $primary-color;
+  		color: var(--sakai-primary-color);
 	}
 
 **Nesting: **
@@ -93,7 +93,7 @@ Now that Sakai has no iframes, we must avoid conflicts in our tools with the des
 
 	.Mrphs-sakai-forums{
     	a{
-        	color: darken( $primary-color, 15% );
+        	color: darken( var(--sakai-primary-color), 15% );
         }
     }
 

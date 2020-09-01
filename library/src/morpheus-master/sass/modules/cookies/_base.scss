@@ -3,8 +3,8 @@
 	position: fixed;
 	bottom: 0;
 	width: 100%;
-	background-color: $primary-color;
-	color: $background-color;
+	background-color: var(--sakai-primary-color-1);
+	color: var(--sakai-background-color-1);
 	z-index: 50;
 	.cookie-notice-content{
 		max-width: $measure;
@@ -12,7 +12,7 @@
 		padding: 0.5em;
 	}
 	a{
-		color: $background-color-secondary;
+		color: var(--sakai-secondary-color-2);
 	}
 	.cookie-notice-text{
 		display: inline;

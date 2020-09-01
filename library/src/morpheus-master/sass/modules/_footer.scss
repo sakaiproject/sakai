@@ -7,7 +7,7 @@
 	@include flex-wrap(wrap);
 	padding: $standard-spacing;
 	font-size: $footer-font-size;
-	color: $footer-color;
+	color: var(--footer-color);
 	
 	@media #{$tablet} {
 		@include flex-direction(column);
@@ -23,7 +23,7 @@
 		li{
 			display: inline-block;
 			padding: 0 $standard-spacing;
-			border-right: 1px solid $footer-link-separator;
+			border-right: 1px solid var(--footer-link-separator);
 			
 			&:first-child {
 				padding-left: 0;

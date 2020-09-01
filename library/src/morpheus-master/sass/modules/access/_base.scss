@@ -6,10 +6,10 @@
 	width: 29em;
 	min-height: 14em;
 
-	background: $background-color;
-	box-shadow: 0 0 5px rgba( $text-color , 0.25 );
+	background: var(--sakai-background-color-1);
+	box-shadow: var(--elevation-4dp);
 	.logo{
-		background: $top-header-background url($logo) no-repeat center center;
+		background: var(--top-header-background) url($logo) no-repeat center center;
 		background-size: $logo-width $logo-height;
 		width: 100%;
 		height: 64px;
@@ -20,13 +20,13 @@
 	h1{
 		padding: 0.6em;
   		font-size: 1.8em;
-  		color: $primary-color;
+  		color: var(--sakai-primary-color-1);
   		text-align: center;
 	}
 	.alertMessage{
-		background: $error-background-color;
-		border: $error-color;
-		color: $error-color;
+		background: var(--error-background-color);
+		border: var(--error-color);
+		color: var(--error-color);
 		padding: 0.8em;
 		text-align: center;
 	}
@@ -45,7 +45,7 @@
 		input[type="text"],input[type="password"]{
 			display: inline-block;
 			min-width: 56%;
-			border: 1px solid darken($background-color-secondary, 15%);
+			border: 1px solid var(--sakai-border-color);
 			padding: 0.3em;
 			@media #{$phone}{
 				display: block;
@@ -66,18 +66,18 @@
 
 	&.with-errors{
 		input[type="text"],input[type="password"]{			
-			border: 1px solid $error-color;
-			background: $error-background-color;
+			border: 1px solid var(--error-color);
+			background: var(--error-background-color);
 		}
 
 		input[type="password"].capsLockOnDisplay {
-			background: $error-background-color url("images/capsLock.png") no-repeat right;
+			background: var(--error-background-color) url("images/capsLock.png") no-repeat right;
 		}
 	}
 
 	&.loadedByAjax{
 		z-index: 1010;
-		box-shadow: 0 0 15px rgba( $text-color , 0.25 );
+		box-shadow: var(--elevation-8dp);
 	}
 
 	@media #{$phone}{
@@ -104,7 +104,7 @@
 		padding: 0.6em;
 		font-size: 1.4em;
 		font-weight: 700;
-		color: $primary-color;
+		color: var(--sakai-primary-color-1);
 		text-align: center;
 	}
 
@@ -120,7 +120,7 @@
 }
 
 #loginPortalMask{
-	background: $portal-mask-background;
+	background: var(--portal-mask-background);
 	position: fixed;
 	height: 100%;
 	width:  100%;
@@ -130,5 +130,5 @@
 }
 
 .capsLockOnDisplay {
-	background: $background-color url("images/capsLock.png") no-repeat right;
+	background: var(--sakai-background-color-1) url("images/capsLock.png") no-repeat right;
 }

@@ -14,20 +14,20 @@
 //$header-font-weight: 300 !default;
 
 /* Color palette */
-//$background-color: #454545 !default;
-//$background-color-secondary: #F8F8F8 !default;
+//var(--sakai-background-color-1): #454545 !default;
+//var(--sakai-background-color-1)-secondary: #F8F8F8 !default;
 
 //$tool-background-color: #ffffff !default;
 //$tool-menu-color: #F8F8F8 !default;
 
-//$primary-color: #43a7c8 !default;
+//var(--sakai-primary-color-1): #43a7c8 !default;
 //$secondary-color: #F00 !default;
 
-//$text-color: #363636 !default;
+//var(--sakai-text-color-1): #363636 !default;
 
 /* Linknav button colors */
-//$button-text-color:	 #777 !default;
-//$button-border-color: #C0C0C0 !default;
+//var(--button-text-color):	 #777 !default;
+//var(--button-border-color): #C0C0C0 !default;
 //$button-background-color: #F0F0F0 !default;
 //$button-background-secondary-color: #FFF !default;
 /* General button colors */
@@ -41,7 +41,7 @@
 //$errorcolor: #f2dede !default;
 //$warncolor: #fcf8e3 !default;
 
-//$swapped-view-primary: #CE9466 !default;
+//var(--swapped-view-primary): #CE9466 !default;
 
 
 /* Main Menu */

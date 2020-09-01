@@ -158,7 +158,7 @@
         }
 
         .roster-member:nth-child(odd){
-            background: $tool-tab-background-color;
+            background: var(--tool-tab-background-color);
         }
     }
 
@@ -169,7 +169,7 @@
         }
 
         .roster-table-row {
-            background: $body-background-color;
+            background: var(--sakai-background-color-1);
             border: 1px solid #ccc;
             @include border-radius(5px);
             padding: 5px;

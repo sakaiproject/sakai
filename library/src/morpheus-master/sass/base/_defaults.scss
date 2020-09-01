@@ -1,13 +1,13 @@
 @import "base/compass";
 
 body{
-	color: 		 $text-color;
+	color: 		 var(--sakai-text-color-1);
 	font-family: $font-family;
 	font-size: 	 $default-font-size !important; // Bootstrap Tool error
 	font-weight: $default-font-weight;
 	line-height: $default-line-height;
 	&.#{$namespace}portalBody{
-		background-color: $body-background-color;
+		background-color: var(--sakai-background-color-1);
 		@media #{$phone}{
 			padding: $banner-height 0 0 0;
 		}
@@ -40,25 +40,26 @@ body{
 }
 
 a{
-	color: $text-color;
+	color: var(--sakai-text-color-1);
 	&:hover{  // This means a:hover
-		color: $text-color;
+		color: var(--sakai-text-color-1);
 		text-decoration: none;
 	}
 	&[href]{  // This means a[href]
-		color: $link-color;
+		color: var(--link-color);
 		&:focus{
+			outline-color: var(--focus-outline-color);
 			outline: $sakai-focus-outline;
 			outline-offset: $focus-outline-offset;
 		}
 		&:hover{
-			color: $link-hover-color;
-			background-color: $link-hover-background-color;
+			color: var(--link-hover-color);
+			background-color: var(--link-hover-background-color);
 			text-decoration:underline;
 		}
 		&:active{
-			color: $link-active-color;
-			background-color: $link-active-background-color;
+			color: var(--link-active-color);
+			background-color: var(--link-active-background-color);
 			outline: 0;		// no focus outline on click
 		}
 		&.btn{
@@ -81,7 +82,7 @@ a{
 }
 
 input, textarea{
-	color: $text-color;
+	color: var(--sakai-text-color-1);
 	font-family: $font-family;
 	font-size: 	 $default-font-size;
 	max-width: 100%;
@@ -144,7 +145,7 @@ input[type="checkbox"], input[type="radio"]{
 	@include appearance(none);
 	&:focus
 	{
-		box-shadow: 0px 0px $focus-outline-width $focus-outline-width $focus-outline-color;
+		box-shadow: 0px 0px $focus-outline-width $focus-outline-width var(--focus-outline-color);
 		outline: 0 none; // to override Bootstrap
 		outline-offset: 0; // to override Bootstrap
 	}
@@ -154,14 +155,14 @@ input[type="checkbox"], input[type="radio"]{
 		opacity: 0.5;
 		& + label{
 			cursor: not-allowed;
-			color: $text-color-disabled;
+			color: var(--sakai-text-color-disabled);
 		}
 	}
 }
 
 label.disabled{
 	cursor: not-allowed;
-	color: $text-color-disabled;
+	color: var(--sakai-text-color-disabled);
 }
 
 input[type="checkbox"]{
@@ -174,8 +175,8 @@ input[type="checkbox"]{
 input[type="radio"]{
 	@include border-radius(24px);
 	&:checked{
-		background: $text-color;                // fallback support
-		background: radial-gradient(circle at center, $text-color 0%, $text-color 48%, $background-color 58%);
+		background: var(--sakai-text-color-1);                // fallback support
+		background: radial-gradient(circle at center, var(--sakai-text-color-1) 0%, var(--sakai-text-color-1) 48%, var(--sakai-background-color-1) 58%);
 	}
 }
 
@@ -222,11 +223,11 @@ legend {
 }
 
 .formButtonDisabled, .formButtonDisabled:hover, .formButtonDisabled:active {
-	color: $button-disabled-text-color;
+	color: var(--button-disabled-text-color);
 	text-decoration: none;
-	background: $button-disabled-background;
-	border: 1px solid $button-disabled-border-color;
-	box-shadow: $button-disabled-shadow;
+	background: var(--button-disabled-background);
+	border: 1px solid var(--button-disabled-border-color);
+	box-shadow: var(--button-disabled-shadow);
 	cursor: not-allowed;
 	white-space: nowrap;
 }

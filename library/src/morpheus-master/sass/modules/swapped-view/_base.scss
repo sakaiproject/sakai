@@ -2,7 +2,7 @@
 	.#{$namespace}portalWrapper{
 		&.swapped-view{
 			.#{$namespace}topHeader, .#{$namespace}headerLogo {
-				background: $swapped-view-primary;
+				background: var(--swapped-view-primary);
 			}
 		}
 	}
@@ -11,6 +11,6 @@
 // Admin Become User view
 body.Mrphs-become-user-enabled {
 	.#{$namespace}topHeader, .#{$namespace}headerLogo {
-		background: $become-user-primary;
+		background: var(--become-user-primary);
 	}
 }

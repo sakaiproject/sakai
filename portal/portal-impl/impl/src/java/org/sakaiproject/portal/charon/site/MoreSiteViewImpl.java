@@ -181,6 +181,9 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 		} else {
 			renderContextMap.put("tutorial", false);
 		}
+
+		renderContextMap.put("themeSwitcher", serverConfigurationService.getBoolean("portal.themeswitcher", true));
+
 		List<Map> l = siteHelper.convertSitesToMaps(request, mySites, prefix,
 				currentSiteId, myWorkspaceSiteId,
 				/* includeSummary */false, /* expandSite */false,

@@ -228,6 +228,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 	private boolean sakaiTutorialEnabled = true;
 	
+	private boolean sakaiThemeSwitcherEnabled = true;
+
 	private String handlerPrefix;
 
 	private PageFilter pageFilter = new PageFilter() {
@@ -1736,6 +1738,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
                         			log.error(e1.getMessage(), e1);
                         		}
                         	}
+						}
+
+                        if(sakaiThemeSwitcherEnabled) {
+                            rcontext.put("themeSwitcher", true);
                         }
 			// rcontext.put("bottomNavSitNewWindow",
 			// Web.escapeHtml(rb.getString("site_newwindow")));
@@ -2026,6 +2032,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		gatewaySiteUrl = ServerConfigurationService.getString("gatewaySiteUrl", null);
 		
 		sakaiTutorialEnabled = ServerConfigurationService.getBoolean("portal.use.tutorial", true);
+
+		sakaiThemeSwitcherEnabled = ServerConfigurationService.getBoolean("portal.themeswitcher", true);
 
 		basicAuth = new BasicAuth();
 		basicAuth.init();

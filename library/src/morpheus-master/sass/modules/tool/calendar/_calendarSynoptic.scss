@@ -155,7 +155,7 @@
 				
 				&:hover {
 					margin: -1px; 	// to prevent border jitter
-					border: 1px solid $link-color;
+					border: 1px solid var(--link-color);
 				}
 			}
 
