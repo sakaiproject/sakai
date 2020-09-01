@@ -56,10 +56,10 @@ public class LTI13Util {
 		byte[] privateKey = kp.getPrivate().getEncoded();
 
 		String publicRSA = "-----BEGIN PUBLIC KEY-----\n"
-				+ Base64Encode(privateKey)
+				+ base64Encode(privateKey)
 				+ "\n-----END PUBLIC KEY-----\n";
 		String privateRSA = "-----BEGIN PRIVATE KEY-----\n"
-				+ Base64Encode(privateKey)
+				+ base64Encode(privateKey)
 				+ "\n-----END PRIVATE KEY-----\n";
 
 		// If we need a pem style for these keys
@@ -77,10 +77,10 @@ public class LTI13Util {
 		privateKey = kp.getPrivate().getEncoded();
 
 		publicRSA = "-----BEGIN RSA PUBLIC KEY-----\n"
-				+ Base64Encode(privateKey)
+				+ base64Encode(privateKey)
 				+ "\n-----END RSA PUBLIC KEY-----\n";
 		privateRSA = "-----BEGIN RSA PRIVATE KEY-----\n"
-				+ Base64Encode(privateKey)
+				+ base64Encode(privateKey)
 				+ "\n-----END RSA PRIVATE KEY-----\n";
 
 		returnMap.put("tool_public", publicRSA);
@@ -90,7 +90,7 @@ public class LTI13Util {
 
 	}
 
-	public static String Base64Encode(byte[] input) {
+	public static String base64Encode(byte[] input) {
 		Base64.Encoder encoder = Base64.getEncoder();
 		String retval = encoder.encodeToString(input);
 		return retval;
@@ -131,7 +131,7 @@ public class LTI13Util {
 	 */
 	public static String getKeyB64(Key key) {
 		byte[] encodeArray = key.getEncoded();
-		String publicRSA = Base64Encode(encodeArray);
+		String publicRSA = base64Encode(encodeArray);
 		return publicRSA;
 	}
 
@@ -164,7 +164,7 @@ public class LTI13Util {
 
 	public static String getPrivateB64(Key key) {
 		byte[] encodeArray = key.getEncoded();
-		String privateRSA = Base64Encode(encodeArray);
+		String privateRSA = base64Encode(encodeArray);
 		return privateRSA;
 	}
 
@@ -361,7 +361,7 @@ public class LTI13Util {
 			// return Base64.getEncoder().encodeToString((md.digest(convertme));
 			// md.update(input.getBytes());
 			// byte[] output = Base64.encode(md.digest());
-			String hash = Base64Encode(md.digest(input.getBytes()));
+			String hash = base64Encode(md.digest(input.getBytes()));
 			return hash;
 		} catch (NoSuchAlgorithmException e) {
 			throw new RuntimeException(e);
@@ -390,7 +390,7 @@ public class LTI13Util {
 			SecretKeySpec secret_key = new SecretKeySpec(secret.getBytes(), "HmacSHA256");
 			sha256_HMAC.init(secret_key);
 
-			String hash = Base64Encode(sha256_HMAC.doFinal(message.getBytes()));
+			String hash = base64Encode(sha256_HMAC.doFinal(message.getBytes()));
 			return hash;
 		}
 		catch (Exception e){
