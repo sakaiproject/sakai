@@ -93,11 +93,6 @@
                 %>
             </script>
             <script src="/library/js/spinner.js"></script>
-            <!-- RUBRICS JAVASCRIPT -->
-            <script>
-              rubricsEventHandlers();
-            </script>
-            <!-- END RUBRICS JAVASCRIPT -->
 
             <script>
                 $(document).ready(function() {
