@@ -1063,8 +1063,8 @@ public class GradebookNgBusinessService {
 		stopwatch.timeWithContext("buildGradeMatrixForImportExport", "putCourseGradesInMatrix", stopwatch.getTime());
 
 		// ------------- Assignments -------------
-		putAssignmentsInMatrixForExport(matrix, gbStudents, studentUUIDs, assignments, gradebook, currentUserUuid, role);
-		stopwatch.timeWithContext("buildGradeMatrixForImportExport", "putAssignmentsInMatrix", stopwatch.getTime());
+		putAssignmentsAndCategoryItemsInMatrix(matrix, gbStudents, studentUUIDs, assignments, gradebook, currentUserUuid, role, settings);
+		stopwatch.timeWithContext("buildGradeMatrixForImportExport", "putAssignmentsAndCategoryItemsInMatrix", stopwatch.getTime());
 
 		// ------------- Sorting -------------
 		List<GbStudentGradeInfo> items = sortGradeMatrix(matrix, settings);

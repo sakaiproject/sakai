@@ -80,7 +80,6 @@ public class ExportPanel extends BasePanel {
 	boolean includeStudentDisplayId = false;
 	boolean includeGradeItemScores = true;
 	boolean includeGradeItemComments = true;
-	boolean includeCategoryPoints = false;
 	boolean includeCategoryAverages = false;
 	boolean includeCourseGrade = false;
 	boolean includePoints = false;
@@ -197,20 +196,6 @@ public class ExportPanel extends BasePanel {
 			protected void onUpdate(final AjaxRequestTarget ajaxRequestTarget) {
 				ExportPanel.this.includeLastLogDate = !ExportPanel.this.includeLastLogDate;
 				setDefaultModelObject(ExportPanel.this.includeLastLogDate);
-			}
-		});
-		add(new AjaxCheckBox("includeCategoryPoints", Model.of(this.includeCategoryPoints)) {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onUpdate(final AjaxRequestTarget ajaxRequestTarget) {
-				ExportPanel.this.includeCategoryPoints = !ExportPanel.this.includeCategoryPoints;
-				setDefaultModelObject(ExportPanel.this.includeCategoryPoints);
-			}
-
-			@Override
-			public boolean isVisible() {
-				return ExportPanel.this.businessService.categoriesAreEnabled();
 			}
 		});
 		add(new AjaxCheckBox("includeCategoryAverages", Model.of(this.includeCategoryAverages)) {
@@ -380,23 +365,17 @@ public class ExportPanel extends BasePanel {
 							header.add(String.join(" ", COMMENTS_COLUMN_PREFIX, a1.getName()));
 						}
 						
-						if (isCustomExport && (this.includeCategoryPoints || this.includeCategoryAverages)
+						if (isCustomExport && this.includeCategoryAverages
 								&& a1.getCategoryId() != null && (a2 == null || !a1.getCategoryId().equals(a2.getCategoryId()))) {
 							// Find the correct category in the ArrayList to extract the points
 							final CategoryDefinition cd = categories.stream().filter(cat -> a1.getCategoryId().equals(cat.getId())).findAny().orElse(null);
 							final String catPoints = (cd != null) ? FormatHelper.formatGradeForDisplay(cd.getTotalPoints().toString()) : "";
 							final String catWeight = (cd != null) ? FormatHelper.formatGradeForDisplay(cd.getWeight().toString()) : "";
 							
-							if (this.includeCategoryPoints) {
-								header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("label.category"), a1.getCategoryName(),
-										"(" + StringUtils.removeEnd(catPoints, formattedText.getDecimalSeparator() + "0") + ")"
-								));
-							}
-							if (this.includeCategoryPoints) {
-								header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("label.category"), a1.getCategoryName(),
-										"(" + StringUtils.removeEnd(catWeight, formattedText.getDecimalSeparator() + "0") + ")"
-								));
-							}
+							header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("label.category"), a1.getCategoryName(),
+									"(" + StringUtils.removeEnd(catWeight, formattedText.getDecimalSeparator() + "0") + ")"
+							));
+
 						}
 					}
 				}
@@ -449,7 +428,7 @@ public class ExportPanel extends BasePanel {
 					if (isCustomExport && this.includeSectionMembership) {
 						line.add((userSections.size() > 0) ? userSections.get(0) : getString("sections.label.none"));
 					}
-					if (!isCustomExport || this.includeGradeItemScores || this.includeGradeItemComments || this.includeCategoryPoints) {
+					if (!isCustomExport || this.includeGradeItemScores || this.includeGradeItemComments || this.includeCategoryAverages) {
 						final Map<Long, Double> categoryAverages = studentGradeInfo.getCategoryAverages();
 
 						for (int i = 0; i < assignments.size(); i++) {
@@ -475,9 +454,10 @@ public class ExportPanel extends BasePanel {
 								}
 							}
 
-							if (isCustomExport && (this.includeCategoryPoints || this.includeCategoryAverages)
+							if (isCustomExport && this.includeCategoryAverages
 									&& a1.getCategoryId() != null && (a2 == null || !a1.getCategoryId().equals(a2.getCategoryId()))) {
 								final Double average = categoryAverages.get(a1.getCategoryId());
+								System.out.println("zz10: " + average);
 								
 								final String formattedAverage = FormatHelper.formatGradeForDisplay(average);
 								line.add(StringUtils.removeEnd(formattedAverage, formattedText.getDecimalSeparator() + "0"));
