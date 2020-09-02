@@ -1382,7 +1382,8 @@ $(document).ready(function() {
 			var itemId = row.find(".question-id").text();
 			$("#questionEditId").val(itemId);
 			
-			var questionText = row.find(".questionText").text();
+			$("#activeQuestion").val(row.find(".raw-question-text").prop("name"));
+			var questionText = row.find(".raw-question-text").val();
 			$("#question-text-input").val(questionText);
 			
 			resetMultipleChoiceAnswers();
@@ -3355,7 +3356,9 @@ function prepareQuestionDialog() {
 
 	updateMultipleChoiceAnswers();
 	updateShortanswers();
-	
+
+	$("input[name='" + $("#activeQuestion").val() + "'").val($("#question-text-input").val());
+
 	// RSF bugs out if we don't undisable these before submitting
 	$("#multipleChoiceSelect").prop("disabled", false);
 	$("#shortanswerSelect").prop("disabled", false);

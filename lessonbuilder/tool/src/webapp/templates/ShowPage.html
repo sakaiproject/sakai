@@ -410,9 +410,9 @@
 		  <li id="error-item" rsf:id="error-item:"><span id="error-item-text" rsf:id="error-item-text">missing page</span></li>
 		</ul>
 		<div class="itemclass" rsf:id="itemContainer:" role="main" style="z-index: 1;">
-
+			<input type="hidden" id="activeQuestion" />
             <div style="display:none" rsf:id="current-item-id"></div>
-			
+
 			<h2 rsf:id="msg=simplepage.maincontent" class="offscreen" id="maintablelabel"></h2>
 <!-- WARNING: javascript for add-break-section adds section, ul, li, and sectionedit markup, so if you change here, keep it in sync -->
 			<div rsf:id="sectionWrapper:"><!-- start section wrapper -->
@@ -867,6 +867,7 @@
                                 <img src="/library/image/silk/text_list_bullets.png" class="item-image question-image"/>
                                 <span class="offscreen" rsf:id="questionNote"></span>
                                 <h3 class="questionText" rsf:id="questionText"></h3>
+                                <input type="hidden" class="raw-question-text" rsf:id="raw-question-text" />
                                 <div class="multiplechoiceDiv" rsf:id="multipleChoiceDiv">
                                     <form action="#" rsf:id="multipleChoiceForm" class="multipleChoiceForm">
 				      <input type="hidden" rsf:id="csrf4" />
