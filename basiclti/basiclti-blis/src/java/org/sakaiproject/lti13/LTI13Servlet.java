@@ -123,11 +123,29 @@ public class LTI13Servlet extends HttpServlet {
 		if (ltiService == null) {
 			ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
 		}
+
+		// Lets try to load from properties
+		if (tokenKeyPair == null) {
+			// lti.advantage.lti13servlet.public=MIIBIjANBgkqhkiG9w [snip] Yfu3RbCda/nq4lipjRQIDAQAB
+			String publicB64 = ServerConfigurationService.getString("lti.advantage.lti13servlet.public", null);
+			String privateB64 = ServerConfigurationService.getString("lti.advantage.lti13servlet.private", null);
+			if ( publicB64 != null && privateB64 != null) {
+				tokenKeyPair = LTI13Util.strings2KeyPair(publicB64, privateB64);
+				if ( tokenKeyPair == null ) {
+					Logger.getLogger(LTI13Servlet.class.getName()).log(Level.SEVERE, "Could not load tokenKeyPair from sakai.properties");
+				} else {
+					Logger.getLogger(LTI13Servlet.class.getName()).log(Level.INFO, "Loaded tokenKeyPair from sakai.properties");
+				}
+			}
+		}
+
+		// Lets make a new key
 		if (tokenKeyPair == null) {
 			try {
 				KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
 				keyGen.initialize(2048);
 				tokenKeyPair = keyGen.genKeyPair();
+				Logger.getLogger(LTI13Servlet.class.getName()).log(Level.INFO, "Generated tokenKeyPair");
 			} catch (NoSuchAlgorithmException ex) {
 				Logger.getLogger(LTI13Servlet.class.getName()).log(Level.SEVERE, "Unable to generate tokenKeyPair", ex);
 			}

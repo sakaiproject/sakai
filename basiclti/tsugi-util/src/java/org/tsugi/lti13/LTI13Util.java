@@ -54,13 +54,12 @@ public class LTI13Util {
 		KeyPair kp = keyGen.genKeyPair();
 		byte[] publicKey = kp.getPublic().getEncoded();
 		byte[] privateKey = kp.getPrivate().getEncoded();
-		Base64.Encoder encoder = Base64.getEncoder();
 
 		String publicRSA = "-----BEGIN PUBLIC KEY-----\n"
-				+ encoder.encodeToString(privateKey)
+				+ base64Encode(privateKey)
 				+ "\n-----END PUBLIC KEY-----\n";
 		String privateRSA = "-----BEGIN PRIVATE KEY-----\n"
-				+ encoder.encodeToString(privateKey)
+				+ base64Encode(privateKey)
 				+ "\n-----END PRIVATE KEY-----\n";
 
 		// If we need a pem style for these keys
@@ -78,10 +77,10 @@ public class LTI13Util {
 		privateKey = kp.getPrivate().getEncoded();
 
 		publicRSA = "-----BEGIN RSA PUBLIC KEY-----\n"
-				+ encoder.encodeToString(privateKey)
+				+ base64Encode(privateKey)
 				+ "\n-----END RSA PUBLIC KEY-----\n";
 		privateRSA = "-----BEGIN RSA PRIVATE KEY-----\n"
-				+ encoder.encodeToString(privateKey)
+				+ base64Encode(privateKey)
 				+ "\n-----END RSA PRIVATE KEY-----\n";
 
 		returnMap.put("tool_public", publicRSA);
@@ -89,6 +88,12 @@ public class LTI13Util {
 
 		return returnMap;
 
+	}
+
+	public static String base64Encode(byte[] input) {
+		Base64.Encoder encoder = Base64.getEncoder();
+		String retval = encoder.encodeToString(input);
+		return retval;
 	}
 
 	public static String stripPKCS8(String input) {
@@ -120,18 +125,47 @@ public class LTI13Util {
 		}
 	}
 
+	/*
+	 * The B64 Format is like the PEM format but no headers and all one line - it
+	 * is like the SSH format
+	 */
+	public static String getKeyB64(Key key) {
+		byte[] encodeArray = key.getEncoded();
+		String publicRSA = base64Encode(encodeArray);
+		return publicRSA;
+	}
+
+	public static String getPublicB64(KeyPair kp) {
+		return getKeyB64(kp.getPublic());
+	}
+
+
 	public static String getPublicEncoded(KeyPair kp) {
 		return getPublicEncoded(kp.getPublic());
 	}
 
 	public static String getPublicEncoded(Key key) {
-		byte[] encodeArray = key.getEncoded();
-		Base64.Encoder encoder = Base64.getEncoder();
+		return getPublicEncoded(getKeyB64(key));
+	}
+
+	public static String getPublicEncoded(String keyStr) {
+		// Don't double convert
+		if ( keyStr.startsWith("-----BEGIN ") ) return keyStr;
 
 		String publicRSA = "-----BEGIN PUBLIC KEY-----\n"
-				+ breakKeyIntoLines(encoder.encodeToString(encodeArray))
+				+ breakKeyIntoLines(keyStr)
 				+ "\n-----END PUBLIC KEY-----\n";
 		return publicRSA;
+	}
+
+	public static String getPrivateB64(KeyPair kp) {
+		return getKeyB64(kp.getPrivate());
+	}
+
+	public static String getPrivateB64(Key key) {
+		byte[] encodeArray = key.getEncoded();
+		String privateRSA = base64Encode(encodeArray);
+		return privateRSA;
 	}
 
 	public static String getPrivateEncoded(KeyPair kp) {
@@ -139,11 +173,15 @@ public class LTI13Util {
 	}
 
 	public static String getPrivateEncoded(Key key) {
-		byte[] encodeArray = key.getEncoded();
-		Base64.Encoder encoder = Base64.getEncoder();
+		return getPrivateEncoded(getPrivateB64(key));
+	}
+
+	public static String getPrivateEncoded(String keyStr) {
+		// Don't double convert
+		if ( keyStr.startsWith("-----BEGIN ") ) return keyStr;
 
 		String privateRSA = "-----BEGIN PRIVATE KEY-----\n"
-				+ breakKeyIntoLines(encoder.encodeToString(encodeArray))
+				+ breakKeyIntoLines(keyStr)
 				+ "\n-----END PRIVATE KEY-----\n";
 		return privateRSA;
 	}
@@ -194,6 +232,19 @@ public class LTI13Util {
 		} catch (NoSuchAlgorithmException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public static KeyPair strings2KeyPair(String pubKeyStr, String privKeyStr) {
+		if ( pubKeyStr == null || privKeyStr == null) return null;
+		String pubEncoded = LTI13Util.getPublicEncoded(pubKeyStr);
+        String privEncoded = LTI13Util.getPrivateEncoded(privKeyStr);
+		if ( pubEncoded == null || privEncoded == null) return null;
+
+		PublicKey pubKey = (PublicKey) LTI13Util.string2PublicKey(pubEncoded);
+        PrivateKey privKey = (PrivateKey) LTI13Util.string2PrivateKey(privEncoded);
+		if ( pubKey == null || privKey == null) return null;
+		KeyPair retval = new KeyPair(pubKey, privKey);
+		return retval;
 	}
 
 	// https://www.imsglobal.org/spec/lti/v1p3/migr#lti-1-1-migration-claim
@@ -310,7 +361,7 @@ public class LTI13Util {
 			// return Base64.getEncoder().encodeToString((md.digest(convertme));
 			// md.update(input.getBytes());
 			// byte[] output = Base64.encode(md.digest());
-			String hash = Base64.getEncoder().encodeToString(md.digest(input.getBytes()));
+			String hash = base64Encode(md.digest(input.getBytes()));
 			return hash;
 		} catch (NoSuchAlgorithmException e) {
 			throw new RuntimeException(e);
@@ -339,7 +390,7 @@ public class LTI13Util {
 			SecretKeySpec secret_key = new SecretKeySpec(secret.getBytes(), "HmacSHA256");
 			sha256_HMAC.init(secret_key);
 
-			String hash = Base64.getEncoder().encodeToString(sha256_HMAC.doFinal(message.getBytes()));
+			String hash = base64Encode(sha256_HMAC.doFinal(message.getBytes()));
 			return hash;
 		}
 		catch (Exception e){
