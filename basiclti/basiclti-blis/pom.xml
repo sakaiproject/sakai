@@ -104,7 +104,14 @@
 		<artifactId>commons-io</artifactId>
 		<scope>provided</scope>
 	</dependency>
-
+	<dependency>
+		<groupId>org.apache.ignite</groupId>
+		<artifactId>ignite-core</artifactId>
+	</dependency>
+	<dependency>
+		<groupId>org.apache.ignite</groupId>
+		<artifactId>ignite-spring</artifactId>
+	</dependency>
 
         <!-- for the entityprovider -->
         <dependency>

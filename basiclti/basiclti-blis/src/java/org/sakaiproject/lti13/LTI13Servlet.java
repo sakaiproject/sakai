@@ -44,6 +44,9 @@ import java.security.KeyPairGenerator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.ignite.Ignite;
+import org.apache.ignite.IgniteCache;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -117,11 +120,23 @@ public class LTI13Servlet extends HttpServlet {
 	// TODO: Rotate these after a while
 	private KeyPair tokenKeyPair = null;
 
+    protected static Ignite ignite = null;
+    protected static IgniteCache<String, String> igniteCache = null;
+
+	private static final String CACHE_NAME = LTI13Servlet.class.getName() + "_cache";
+	private static final String CACHE_PUBLIC = "key::public";
+	private static final String CACHE_PRIVATE = "key::private";
+
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 		if (ltiService == null) {
 			ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
+		}
+
+        if (igniteCache == null) {
+            Ignite ignite = (Ignite) ComponentManager.get("org.sakaiproject.ignite.SakaiIgnite");
+            igniteCache = ignite.getOrCreateCache(CACHE_NAME);
 		}
 
 		// Lets try to load from properties
@@ -139,13 +154,31 @@ public class LTI13Servlet extends HttpServlet {
 			}
 		}
 
+		// Get it from the cluster cache
+		if (tokenKeyPair == null) {
+			String publicB64 = igniteCache.get(CACHE_PUBLIC);
+			String privateB64 = igniteCache.get(CACHE_PRIVATE);
+			if ( publicB64 != null && privateB64 != null) {
+				tokenKeyPair = LTI13Util.strings2KeyPair(publicB64, privateB64);
+				if ( tokenKeyPair == null ) {
+					Logger.getLogger(LTI13Servlet.class.getName()).log(Level.SEVERE, "Could not parse tokenKeyPair from Ignite Cache");
+				} else {
+					Logger.getLogger(LTI13Servlet.class.getName()).log(Level.INFO, "Loaded tokenKeyPair from Ignite Cache");
+				}
+			}
+        }
+
 		// Lets make a new key
 		if (tokenKeyPair == null) {
 			try {
 				KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
 				keyGen.initialize(2048);
 				tokenKeyPair = keyGen.genKeyPair();
-				Logger.getLogger(LTI13Servlet.class.getName()).log(Level.INFO, "Generated tokenKeyPair");
+				String publicB64 = LTI13Util.getPublicB64(tokenKeyPair);
+				String privateB64 = LTI13Util.getPrivateB64(tokenKeyPair);
+				igniteCache.put(CACHE_PUBLIC, publicB64);
+				igniteCache.put(CACHE_PRIVATE, privateB64);
+				Logger.getLogger(LTI13Servlet.class.getName()).log(Level.INFO, "Generated tokenKeyPair and stored in Ignite Cache");
 			} catch (NoSuchAlgorithmException ex) {
 				Logger.getLogger(LTI13Servlet.class.getName()).log(Level.SEVERE, "Unable to generate tokenKeyPair", ex);
 			}
