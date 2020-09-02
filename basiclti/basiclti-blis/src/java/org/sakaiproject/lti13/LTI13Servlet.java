@@ -44,9 +44,6 @@ import java.security.KeyPairGenerator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.ignite.Ignite;
-import org.apache.ignite.IgniteCache;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -76,6 +73,8 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti13.LineItemUtil;
 
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.tsugi.basiclti.BasicLTIUtil;
 import org.tsugi.jackson.JacksonUtil;
 import org.tsugi.lti13.LTI13KeySetUtil;
@@ -120,8 +119,8 @@ public class LTI13Servlet extends HttpServlet {
 	// TODO: Rotate these after a while
 	private KeyPair tokenKeyPair = null;
 
-    protected static Ignite ignite = null;
-    protected static IgniteCache<String, String> igniteCache = null;
+    private CacheManager cacheManager;
+    private Cache cache;
 
 	private static final String CACHE_NAME = LTI13Servlet.class.getName() + "_cache";
 	private static final String CACHE_PUBLIC = "key::public";
@@ -134,10 +133,8 @@ public class LTI13Servlet extends HttpServlet {
 			ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
 		}
 
-        if (igniteCache == null) {
-            Ignite ignite = (Ignite) ComponentManager.get("org.sakaiproject.ignite.SakaiIgnite");
-            igniteCache = ignite.getOrCreateCache(CACHE_NAME);
-		}
+        cacheManager = (CacheManager) ComponentManager.get("org.sakaiproject.ignite.SakaiCacheManager");
+        cache = cacheManager.getCache(CACHE_NAME);
 
 		// Lets try to load from properties
 		if (tokenKeyPair == null) {
@@ -156,10 +153,10 @@ public class LTI13Servlet extends HttpServlet {
 
 		// Get it from the cluster cache
 		if (tokenKeyPair == null) {
-			String publicB64 = igniteCache.get(CACHE_PUBLIC);
-			String privateB64 = igniteCache.get(CACHE_PRIVATE);
+			Cache.ValueWrapper publicB64 = cache.get(CACHE_PUBLIC);
+			Cache.ValueWrapper privateB64 = cache.get(CACHE_PRIVATE);
 			if ( publicB64 != null && privateB64 != null) {
-				tokenKeyPair = LTI13Util.strings2KeyPair(publicB64, privateB64);
+				tokenKeyPair = LTI13Util.strings2KeyPair((String) publicB64.get(), (String) privateB64.get());
 				if ( tokenKeyPair == null ) {
 					Logger.getLogger(LTI13Servlet.class.getName()).log(Level.SEVERE, "Could not parse tokenKeyPair from Ignite Cache");
 				} else {
@@ -176,8 +173,8 @@ public class LTI13Servlet extends HttpServlet {
 				tokenKeyPair = keyGen.genKeyPair();
 				String publicB64 = LTI13Util.getPublicB64(tokenKeyPair);
 				String privateB64 = LTI13Util.getPrivateB64(tokenKeyPair);
-				igniteCache.put(CACHE_PUBLIC, publicB64);
-				igniteCache.put(CACHE_PRIVATE, privateB64);
+				cache.put(CACHE_PUBLIC, publicB64);
+				cache.put(CACHE_PRIVATE, privateB64);
 				Logger.getLogger(LTI13Servlet.class.getName()).log(Level.INFO, "Generated tokenKeyPair and stored in Ignite Cache");
 			} catch (NoSuchAlgorithmException ex) {
 				Logger.getLogger(LTI13Servlet.class.getName()).log(Level.SEVERE, "Unable to generate tokenKeyPair", ex);
