@@ -53,6 +53,7 @@ public class SiteEmailNotificationMail extends SiteEmailNotification
 
 	private EntityManager entityManager = ComponentManager.get(EntityManager.class);
 	private SiteService siteService = ComponentManager.get(SiteService.class);
+	private FormattedText formattedText = ComponentManager.get(FormattedText.class);
 	
 	/**
 	 * Construct.
@@ -195,7 +196,7 @@ public class SiteEmailNotificationMail extends SiteEmailNotification
 		if ( msg.getBody() != null && msg.getBody().length() > 0 )
 			buf.append( msg.getBody() );
 		else
-			buf.append(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(msg.getHtmlBody()));
+			buf.append(formattedText.convertFormattedTextToPlaintext(msg.getHtmlBody()));
 
 		// add any attachments
 		List attachments = hdr.getAttachments();
