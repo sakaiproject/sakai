@@ -369,12 +369,15 @@ public class ExportPanel extends BasePanel {
 								&& a1.getCategoryId() != null && (a2 == null || !a1.getCategoryId().equals(a2.getCategoryId()))) {
 							// Find the correct category in the ArrayList to extract the points
 							final CategoryDefinition cd = categories.stream().filter(cat -> a1.getCategoryId().equals(cat.getId())).findAny().orElse(null);
-							final String catPoints = (cd != null) ? FormatHelper.formatGradeForDisplay(cd.getTotalPoints().toString()) : "";
-							final String catWeight = (cd != null) ? FormatHelper.formatGradeForDisplay(cd.getWeight().toString()) : "";
-							
-							header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("label.category"), a1.getCategoryName(),
-									"(" + StringUtils.removeEnd(catWeight, formattedText.getDecimalSeparator() + "0") + ")"
-							));
+							String catWeightString = "";
+							if (cd != null) {
+								if (cd.getWeight() != null) {
+									catWeightString = "(" + FormatHelper.formatDoubleAsPercentage(cd.getWeight() * 100) + ")";
+								}
+							}
+
+							// Add the category name plus weight if available
+							header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("label.category"), a1.getCategoryName(), catWeightString));
 
 						}
 					}
@@ -457,7 +460,6 @@ public class ExportPanel extends BasePanel {
 							if (isCustomExport && this.includeCategoryAverages
 									&& a1.getCategoryId() != null && (a2 == null || !a1.getCategoryId().equals(a2.getCategoryId()))) {
 								final Double average = categoryAverages.get(a1.getCategoryId());
-								System.out.println("zz10: " + average);
 								
 								final String formattedAverage = FormatHelper.formatGradeForDisplay(average);
 								line.add(StringUtils.removeEnd(formattedAverage, formattedText.getDecimalSeparator() + "0"));
