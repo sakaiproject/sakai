@@ -64,9 +64,8 @@ import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserNotificationPreferencesRegistration;
 import org.sakaiproject.user.api.UserNotificationPreferencesRegistrationService;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.Web;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * UserPrefsTool is the Sakai end-user tool to view and edit one's preferences.
@@ -575,14 +574,15 @@ public class UserPrefsTool
 	 */
 	public static String getUserSpecificSiteTitle( Site site, boolean truncate )
 	{
+		FormattedText formattedText = ComponentManager.get(FormattedText.class);
 		String retVal = SiteService.getUserSpecificSiteTitle( site, UserDirectoryService.getCurrentUser().getId() );
 		if (truncate)
 		{
-			return Web.escapeHtml( FormattedText.makeShortenedText( retVal, null, null, null ) );
+			return formattedText.escapeHtml( formattedText.makeShortenedText( retVal, null, null, null ) );
 		}
 		else
 		{
-			return Web.escapeHtml( retVal );
+			return formattedText.escapeHtml( retVal );
 		}
 	}
 
