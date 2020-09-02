@@ -2,18 +2,25 @@ package org.sakaiproject.ignite;
 
 import org.apache.ignite.Ignite;
 import org.apache.ignite.cache.spring.SpringCacheManager;
-import org.springframework.context.event.ContextRefreshedEvent;
+import org.apache.ignite.configuration.IgniteConfiguration;
 
 import lombok.Setter;
 
 public class IgniteSpringCacheManager extends SpringCacheManager {
 
-    @Setter private Ignite ignite;
+    @Setter private Ignite sakaiIgnite;
+    @Setter private IgniteConfiguration igniteConfiguration;
 
     @Override
-    public void onApplicationEvent(ContextRefreshedEvent event) {
-        if (ignite == null) {
-            throw new IllegalArgumentException("Ignite startup issue, please check the log for failures");
-        }
+    public IgniteConfiguration getConfiguration() {
+        return igniteConfiguration;
+    }
+
+    public void init() {
+        // this configuration is required so that SpringCacheManager looks up the existing
+        // ignite instance that was started by Hibernate
+        setConfiguration(null);
+        setConfigurationPath(null);
+        setIgniteInstanceName(igniteConfiguration.getIgniteInstanceName());
     }
 }
