@@ -370,7 +370,7 @@ public class ExportPanel extends BasePanel {
 							// Find the correct category in the ArrayList to extract the points
 							final CategoryDefinition cd = categories.stream().filter(cat -> a1.getCategoryId().equals(cat.getId())).findAny().orElse(null);
 							String catWeightString = "";
-							if (cd != null) {
+							if (cd != null && this.businessService.getGradebookCategoryType() == GbCategoryType.WEIGHTED_CATEGORY) {
 								if (cd.getWeight() != null) {
 									catWeightString = "(" + FormatHelper.formatDoubleAsPercentage(cd.getWeight() * 100) + ")";
 								}
