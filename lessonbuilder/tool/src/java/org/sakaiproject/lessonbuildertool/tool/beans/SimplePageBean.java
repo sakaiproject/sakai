@@ -3812,11 +3812,13 @@ public class SimplePageBean {
 
 	    if (StringUtils.isBlank(mimeType)) {
 		String s = item.getSakaiId();
-		int j = s.lastIndexOf(".");
-		if (j >= 0)
-		    s = s.substring(j+1);
-		mimeType = contentTypeImageService.getContentType(s);
-		// log.info("type " + s + ">" + mimeType);
+		    if (s != null) {
+		        int j = s.lastIndexOf(".");
+		        if (j >= 0)
+			        s = s.substring(j+1);
+		        mimeType = ContentTypeImageService.getContentType(s);
+		        // log.info("type " + s + ">" + mimeType);
+		    }
 	    }
 
 	    // if still nothing, call it octet-stream just so we don't return null
