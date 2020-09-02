@@ -163,10 +163,13 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	/** We need to send a single email with every D&D upload reported in it */
 	private static final String DRAGNDROP_FILENAME_REFERENCE_LIST = "dragndrop_filename_reference_list";
 
-
 	private static final String STATE_HOME_COLLECTION_ID = ResourcesAction.PREFIX + ResourcesAction.REQUEST + "collection_home";
 	private static final String STATE_COLLECTION_ID = ResourcesAction.PREFIX + ResourcesAction.REQUEST + "collection_id";
 	private static final String STATE_RESOURCES_TYPE_REGISTRY = ResourcesAction.PREFIX + ResourcesAction.SYS + "type_registry";
+
+	public static final String MSG_KEY_CREATE_URLS_INVALID_URLS = "createUrls.invalid.urls";
+	public static final String MSG_KEY_CREATE_URLS_REQUIRED_FIELD_URL = "createUrls.requiredField.url";
+	public static final String MSG_KEY_CREATE_URLS_REQUIRED_FIELD_NAME = "createUrls.requiredfield.name";
 
 	private static NotificationEdit neDropbox;
 	private static NotificationEdit neResource;
@@ -481,7 +484,11 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		ResourcesAction.copyrightChoicesIntoContext(state, context);
 		ResourcesAction.publicDisplayChoicesIntoContext(state, context);
 		ResourceConditionsHelper.buildConditionContext(context, state);
-		
+
+		context.put("invalidURLsError", contentResourceBundle.getString(MSG_KEY_CREATE_URLS_INVALID_URLS));
+		context.put("urlRequiredError", contentResourceBundle.getString(MSG_KEY_CREATE_URLS_REQUIRED_FIELD_URL));
+		context.put("nameRequiredError", contentResourceBundle.getString(MSG_KEY_CREATE_URLS_REQUIRED_FIELD_NAME));
+
 		int requestStateId = ResourcesAction.preserveRequestState(state, new String[]{ResourcesAction.PREFIX + ResourcesAction.REQUEST});
 		context.put("requestStateId", requestStateId);
 		

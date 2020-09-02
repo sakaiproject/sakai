@@ -62,6 +62,7 @@
 			}
 		}
 		var hasDisplayNameTag = false;
+		var hasUrlTag = false;
 		var inputTags = document.getElementsByTagName("input");
 		for(var i = 0; i < inputTags.length && ! hasDisplayNameTag; i++)
 		{
@@ -69,6 +70,10 @@
 			if(tag.id && tag.id.match(/^displayName${DOT}\d+$/))
 			{
 				hasDisplayNameTag = true;
+			}
+			if(tag.id && tag.id.match(/^content${DOT}\d+$/) && tag.type === "url")
+			{
+				hasUrlTag = true;
 			}
 		}
 		for(var i = 0; i < inputTags.length; i++)
@@ -82,7 +87,15 @@
 				if(hasDisplayNameTag)
 				{
 					tag.onchange = seedDisplayNameValue;
+					if(hasUrlTag)
+					{
+						tag.oninput = checkWebLinksForEnableSubmit;
+					}
 				}
+			}
+			else if(tag.id && tag.id.match(/^displayName${DOT}\d+$/) && hasUrlTag)
+			{
+				tag.oninput = checkWebLinksForEnableSubmit;
 			}
 			else if(tag.id && tag.id.match(/^changeMimetype${DOT}\d+$/))
 			{
@@ -1102,7 +1115,6 @@
 				}
 				target_element.value = displayName;
 			}
-			document.getElementById('saveChanges').disabled=false;
 			target_element.focus();
 			target_element.select();
 		}
@@ -1138,6 +1150,7 @@
 		if (requireChoice && copyrightSelect !== null && copyrightSelect.selectedIndex < 1)
 		{
 			$('.sak-banner-error').html('$tlang.getString("label.alert") $copyrightError');
+			$('.sak-banner-error').removeClass('hide');
 			$('.sak-banner-error').show();
 			window.scrollTo(0, 0);
 			copyrightSelect.focus();
@@ -1150,6 +1163,116 @@
 		$('.sak-banner-error').hide();
 		submitButton.disabled = true;
 		return true;
+	}
+	function checkWebLinksForEnableSubmit()
+	{
+		var urls = document.querySelectorAll('*[id^="content_"]');
+		var names = document.querySelectorAll('*[id^="displayName_"]');
+		var submit = document.getElementById("saveChanges");
+		var invalid = false;
+
+		for (let element of urls)
+		{
+			if (!element.checkValidity() || element.value === "")
+			{
+				invalid = true;
+				break;
+			}
+		}
+
+		if (!invalid)
+		{
+			for (let element of names)
+			{
+				if (element.value === "")
+				{
+					invalid = true;
+					break;
+				}
+			}
+		}
+
+		submit.disabled = invalid;
+	}
+	function webLinksInputValid()
+	{
+		var existingAlerts = $('#resourceAlert').html(); // There could be alerts generated from copyright enforcement
+		var urls = document.querySelectorAll('*[id^="content_"]');
+		var names = document.querySelectorAll('*[id^="displayName_"]');
+		var noErrors = true;
+
+		// Capture any invalid URLs provided
+		var invalidURLs = [];
+		var emptyURLs = [];
+		urls.forEach(function(element)
+		{
+			if (!element.checkValidity())
+			{
+				invalidURLs.push(element.value);
+			}
+			else if (element.value === "")
+			{
+				emptyURLs.push(element.value);
+			}
+		});
+
+		// Report on any empty URLs found
+		if (emptyURLs.length > 0 )
+		{
+			if (existingAlerts.length > 0)
+			{
+				existingAlerts += "<br/>";
+			}
+			$('#resourceAlert').html(existingAlerts + '$tlang.getString("label.alert") $urlRequiredError');
+			noErrors = false;
+		}
+
+		// Report on any empty names found
+		for (let element of names)
+		{
+			if (element.value === "")
+			{
+				existingAlerts = $('#resourceAlert').html();
+				if (existingAlerts.length > 0)
+				{
+					existingAlerts += "<br/>";
+				}
+
+				$('#resourceAlert').html(existingAlerts + '$tlang.getString("label.alert") $nameRequiredError');
+				noErrors = false;
+				break;
+			}
+		}
+
+		// Report on any invalid URLs found
+		if (invalidURLs.length > 0)
+		{
+			var html = "<ul>"
+			for (i = 0; i < invalidURLs.length; i++)
+			{
+				html += "<li>" + invalidURLs[i] + "</li>"
+			}
+			html += "</ul>";
+
+			existingAlerts = $('#resourceAlert').html();
+			if (existingAlerts.length > 0)
+			{
+				existingAlerts += "<br/>";
+			}
+
+			$('#resourceAlert').html(existingAlerts + '$tlang.getString("label.alert") $invalidURLsError' + html);
+			noErrors = false;
+		}
+
+		// If errors were detected, display error messages
+		if (!noErrors)
+		{
+			$('#resourceAlert').removeClass('hide');
+			$('#resourceAlert').show();
+			window.scrollTo(0, 0);
+		}
+
+		return noErrors;
 	}
 	function changeMimeType(index)
 	{

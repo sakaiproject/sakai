@@ -50,14 +50,16 @@
 					<input type="hidden" name="exists${DOT}$i" id="exists${DOT}$i" value="true" />
 					<input type="hidden" name="extension${DOT}$i" id="extension${DOT}$i" value=".URL" />
 					<div class="form-group">
+						<span class="reqStar">*</span>
 						<label for="content${DOT}$i">$tlang.getString("label.urls")</label>
 						## TODO add onchange event handler to seed file-name into displayName field
-						<input type="text" name="content${DOT}$i" id="content${DOT}$i" class="form-control" maxlength="512"/>
+						<input type="url" name="content${DOT}$i" id="content${DOT}$i" class="form-control" maxlength="512"/>
 						#if($ezproxyPrefix)
 						  <a class="indnt2" href="#" id="ezproxyTrigger${DOT}$i" title="$tlang.getString("label.ezproxy")">$tlang.getString("label.ezproxy")</a>
 						#end
 					</div>
 					<div class="form-group">
+						<span class="reqStar">*</span>
 						<label for="displayName${DOT}$i">$tlang.getString("label.website")</label> 
 						<input type="text" id="displayName${DOT}$i" name="displayName${DOT}$i" class="form-control" maxlength="512"/> 
 						<a href="#" id="propsTrigger${DOT}$i">$tlang.getString("edit.show")</a>
@@ -123,7 +125,7 @@
 		#end
 		
 		<p class="act">
-			<input type="button" class="active" name="savechanges" id="saveChanges" value="$tlang.getString("label.urlnow")" accesskey="s" />
+			<input type="button" class="active" name="savechanges" id="saveChanges" value="$tlang.getString("label.urlnow")" accesskey="s" disabled />
 			<input type="button" name="cancel" onclick="document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doCancel")';submitform('addContentForm');" value="$tlang.getString("label.cancel")" accesskey="x" />
 		</p>
 		<p id="submitnotifxxx"  class="sak-banner-info"  style="visibility:hidden">$tlang.getString("processmessage.url")</p>
@@ -132,11 +134,18 @@
 </div>
 #parse("/vm/resources/sakai_properties_scripts.vm")
 <script>
-	// Client side copyright check
+	// Client side validation
 	var submitButton = document.getElementById("saveChanges");
 	submitButton.addEventListener("click", function()
 	{
-		if (checkCopyright(submitButton))
+		var alertDiv = document.getElementById("resourceAlert");
+		if (alertDiv)
+		{
+			alertDiv.classList.add("hide");
+			alertDiv.innerHTML = "";
+		}
+
+		if (checkCopyright(submitButton) && webLinksInputValid())
 		{
 			showNotif('submitnotifxxx','saveChanges','addContentForm');
 			document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doAddUrls")&flow=save';
