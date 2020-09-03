@@ -26,7 +26,7 @@ import java.io.InputStream;
 import org.sakaiproject.exception.ServerOverloadException;
 
 /**
-* <p>ContentResource is the core interface for a Resource object in the GenericContentHostingService.</p>
+* <p>ContentResource is the core interface for a Resource object in the ContentHostingService.</p>
 */
 public interface ContentResource
 	extends ContentEntity

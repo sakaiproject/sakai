@@ -41,6 +41,8 @@ class SakaiDocumentViewer extends SakaiElement {
 
     return {
       ref: String,
+      preview: { type: Object },
+      content: { type: Object },
       height: String,
       //INTERNAL
       documentMarkup: String,
@@ -49,13 +51,13 @@ class SakaiDocumentViewer extends SakaiElement {
     };
   }
 
-  set ref(newValue) {
+  set preview(newValue) {
 
-    this._ref = newValue;
+    this._preview = newValue;
     this.loadDocumentMarkup(newValue);
   }
 
-  get ref() { return this._ref; }
+  get preview() { return this._preview; }
 
   shouldUpdate(changed) {
     return this.i18n;
@@ -64,7 +66,7 @@ class SakaiDocumentViewer extends SakaiElement {
   render() {
 
     return html`
-      <div class="document-link">${this.i18n["viewing"]}: <a href="/access${this.ref}" target="_blank" rel="noopener">${this.fileNameFromRef(this.ref)}</a></div>
+      <div class="document-link">${this.i18n["viewing"]}: <a href="/access${this.content.ref}" target="_blank" rel="noopener">${this.content.name}</a></div>
       <div class="preview-outer">
         <div class="preview-middle">
           <div class="preview-inner ${this.nomargins ? "nomargins" : ""}" >
@@ -75,22 +77,25 @@ class SakaiDocumentViewer extends SakaiElement {
     `;
   }
 
-  fileNameFromRef(ref) { return ref.substring(ref.lastIndexOf("\/") + 1); }
+  loadDocumentMarkup(preview) {
 
-  loadDocumentMarkup(documentRef) {
+    let ref = preview.ref;
+    const type = preview.type;
 
     this.nomargins = false;
 
-    if (documentRef.endsWith("\.pdf") || documentRef.endsWith("\.PDF")) {
+    if (type === "application/pdf") {
       this.nomargins = true;
       // Let PDFJS handle this. We can just literally use the viewer, like Firefox and Chrome do.
-      this.documentMarkup = `<iframe src="/library/webjars/pdf-js/2.3.200/web/viewer.html?file=/access/${encodeURIComponent(documentRef)}" width="100%" height="${this.height}" />`;
-    } else if (documentRef.endsWith("\.odp") || documentRef.endsWith("\.ODP")) {
+      this.documentMarkup = `<iframe src="/library/webjars/pdf-js/2.3.200/web/viewer.html?file=/access/${encodeURIComponent(ref)}" width="100%" height="${this.height}" />`;
+    } else if (type === "application/vnd.oasis.opendocument.presentation") {
       this.nomargins = true;
-      this.documentMarkup = `<iframe src="/library/webjars/viewerjs/0.5.8/ViewerJS#/access${documentRef}" width="100%" height="${this.height}" />`;
+      this.documentMarkup = `<iframe src="/library/webjars/viewerjs/0.5.8/ViewerJS#/access${ref}" width="100%" height="${this.height}" />`;
+    } else if (type.includes("image/")) {
+      this.documentMarkup = `<img src="/access/${ref}" />`;
     } else {
-      let contentIndex = documentRef.indexOf("\/content\/");
-      const ref = contentIndex >= 0 ? documentRef.substring(contentIndex + 8) : documentRef;
+      let contentIndex = ref.indexOf("\/content\/");
+      ref = contentIndex >= 0 ? ref.substring(contentIndex + 8) : ref;
 
       fetch(`/direct/content/${portal.siteId}/htmlForRef.html?ref=${ref}`,
               {cache: "no-cache", credentials: "same-origin"})
