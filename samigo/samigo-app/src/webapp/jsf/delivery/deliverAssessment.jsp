@@ -3,7 +3,6 @@
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
 <%@ taglib uri="http://java.sun.com/upload" prefix="corejsf" %>
-<%@ taglib uri='http://java.sun.com/jsp/jstl/core' prefix="c" %>
 <!DOCTYPE html
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -255,18 +254,10 @@ document.links[newindex].onclick();
 <h:inputHidden id="hasTimeLimit" value="#{delivery.hasTimeLimit}"/>   
 <h:inputHidden id="showTimeWarning" value="#{delivery.showTimeWarning}"/>
 <h:inputHidden id="showTimer" value="#{delivery.showTimer}"/>
-<c:if test="${not empty delivery.dueDate}">
-	<h:inputHidden id="dueDate" value="#{delivery.dueDate.time}"/>
-</c:if>
-<c:if test="${not empty delivery.retractDate}">
-	<h:inputHidden id="retractDate" value="#{delivery.retractDate.time}"/>
-</c:if>
-<c:if test="${not empty delivery.minutesLeft}">
-	<h:inputHidden id="minutesLeft" value="#{delivery.minutesLeft}"/>
-</c:if>
-<c:if test="${not empty delivery.secondsLeft}">
-	<h:inputHidden id="secondsLeft" value="#{delivery.secondsLeft}"/>
-</c:if>
+<h:inputHidden id="dueDate" value="#{delivery.dueDate.time}" rendered="#{delivery.dueDate != null}" />
+<h:inputHidden id="retractDate" value="#{delivery.retractDate.time}" rendered="#{delivery.retractDate != null}" />
+<h:inputHidden id="minutesLeft" value="#{delivery.minutesLeft}" rendered="#{delivery.minutesLeft != null}" />
+<h:inputHidden id="secondsLeft" value="#{delivery.secondsLeft}" rendered="#{delivery.secondsLeft != null}" />
 
 <!-- DONE BUTTON FOR PREVIEW -->
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
