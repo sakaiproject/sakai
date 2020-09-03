@@ -29,12 +29,9 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -47,35 +44,32 @@ import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
 import javax.servlet.http.HttpServletRequest;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.lang3.StringUtils;
-
-import org.sakaiproject.authz.api.PermissionsHelper;
-import org.sakaiproject.chat2.model.ChatMessage;
 import org.sakaiproject.chat2.model.ChatChannel;
-import org.sakaiproject.chat2.model.ChatManager;
 import org.sakaiproject.chat2.model.ChatFunctions;
+import org.sakaiproject.chat2.model.ChatManager;
+import org.sakaiproject.chat2.model.ChatMessage;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.DateFormatterUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Getter @Setter
@@ -131,6 +125,12 @@ public class ChatTool {
    private ServerConfigurationService serverConfigurationService;
    @ManagedProperty(value="#{Components[\"org.sakaiproject.tool.api.ActiveToolManager\"]}")
    private ToolManager toolManager;
+   @ManagedProperty(value="#{Components[\"org.sakaiproject.user.api.UserDirectoryService\"]}")
+   private UserDirectoryService userDirectoryService;
+   @ManagedProperty(value="#{Components[\"org.sakaiproject.tool.api.SessionManager\"]}")
+   private SessionManager sessionManager;
+   @ManagedProperty(value="#{Components[\"org.sakaiproject.site.api.SiteService\"]}")
+   private SiteService siteService;
    
    /** The current channel the user is in */
    private DecoratedChatChannel currentChannel = null;
@@ -436,7 +436,7 @@ public class ChatTool {
    public Site getWorksite() {
        if (worksite == null) {
            try {
-               worksite = SiteService.getSite(getToolManager().getCurrentPlacement().getContext());
+               worksite = siteService.getSite(getToolManager().getCurrentPlacement().getContext());
            }
            catch (IdUnusedException e) {
                throw new RuntimeException(e);
@@ -784,7 +784,7 @@ public class ChatTool {
    public DecoratedChatMessage getCurrentMessage() {
       DecoratedChatMessage tmpCurrent = null;
       if (currentMessage == null) {         
-         String messageId = (String)SessionManager.getCurrentToolSession().getAttribute("current_message");
+         String messageId = (String)sessionManager.getCurrentToolSession().getAttribute("current_message");
          if(messageId != null) {
             ChatMessage message = getChatManager().getMessage(messageId);
             if(message==null) return null;            
@@ -1168,7 +1168,7 @@ public class ChatTool {
    {
       User sender = null;
       try {
-         sender = UserDirectoryService.getUser(message.getOwner());
+         sender = userDirectoryService.getUser(message.getOwner());
       } catch(UserNotDefinedException e) {
           // Expected some users will get deleted.
          log.debug("Failed to find user for ID: "+ message.getOwner(), e);
