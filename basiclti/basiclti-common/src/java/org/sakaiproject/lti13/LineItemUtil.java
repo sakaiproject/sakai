@@ -421,6 +421,9 @@ public class LineItemUtil {
 				if ( parts.length < 1 || ! parts[0].equals(tool_id.toString()) ) continue;
 
 				SakaiLineItem item = getLineItem(signed_placement, gAssignment);
+				if ( parts.length > 1 ) {
+					item.resourceLinkId = "content:" + parts[1];
+				}
 
 				if ( filter != null ) {
 					if ( filter.resourceLinkId != null && ! filter.resourceLinkId.equals(item.resourceLinkId)) continue;
@@ -450,6 +453,7 @@ public class LineItemUtil {
 		String external_id = assignment.getExternalId();
 		if ( external_id != null && external_id.length() > 0 ) {
 			String[] parts = external_id.split(ID_SEPARATOR_REGEX);
+			li.resourceLinkId = (parts.length > 1 && parts[1].trim().length() > 1) ? parts[1].trim() : null;
 			li.resourceId  = (parts.length > 2 && parts[2].trim().length() > 1) ? parts[2].trim() : null;
 			li.tag = (parts.length > 3 && parts[3].trim().length() > 1) ? parts[3].trim() : null;
 		}
