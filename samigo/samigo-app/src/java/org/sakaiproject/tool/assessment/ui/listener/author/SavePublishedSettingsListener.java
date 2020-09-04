@@ -37,7 +37,7 @@ import javax.faces.model.SelectItem;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-
+import org.apache.commons.lang3.math.NumberUtils;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
@@ -555,7 +555,10 @@ implements ActionListener
 
 	// Check if the category has changed.
 	private boolean isCategoryChanged(PublishedAssessmentSettingsBean assessmentSettings, PublishedAssessmentFacade assessment) {
-		return !StringUtils.equals(assessmentSettings.getCategorySelected(), String.valueOf(assessment.getCategoryId()));
+		Long oldCatId = assessment.getCategoryId() != null ? assessment.getCategoryId() : -1;
+		Long newCatId = NumberUtils.toLong(assessmentSettings.getCategorySelected(), -1);
+
+		return (oldCatId > 0 || newCatId > 0) && oldCatId.compareTo(newCatId) != 0;
 	}
 
 	// Check if title has been changed. If yes, update it.
