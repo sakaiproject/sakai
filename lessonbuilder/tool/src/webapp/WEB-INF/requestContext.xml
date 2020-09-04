@@ -39,13 +39,10 @@
 		<property name="messageLocator" ref="messageLocator"/>
 		<property name="simplePageBean" ref="simplePageBean" />
 		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
+		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
-		
-		<property name="simplePageToolDao">
-			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
-		</property>
-		
+		<property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
 		<property name="dateEvolver" ref="fieldDateInputEvolver" />
 		<property name="forumEntity" ref="org.sakaiproject.lessonbuildertool.service.ForumEntity"/>
 		<property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.SamigoEntity"/>
