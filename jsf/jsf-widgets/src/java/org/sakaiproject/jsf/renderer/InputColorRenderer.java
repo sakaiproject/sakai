@@ -177,6 +177,7 @@ public class InputColorRenderer extends Renderer
     writer.write("  src=\"" + COLOR_ICON + "\" ");
     writer.write("  border=\"0\"");
     writer.write("  alt=\"" + CLICKALT + "\" ");
+    writer.write("  tabindex=\"0\" ");
     writer.write("  onclick=\"javascript:TCP.popup(" +
       "document.getElementById('" + clientId + "'),'','" +
       COLOR_PATH + "')\" />");
