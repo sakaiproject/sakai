@@ -1,0 +1,16 @@
+.#{$namespace}sakai-delegatedaccess {
+    .control-label {
+        font-weight: 700;
+    }
+    .form-control.hasDatepicker {
+        width: calc(100% - 55px);
+        display: inline-block;
+        margin-right: calc(#{$standard-spacing} / 2);
+    }
+    .table.col-sm-6 {
+        width:50%;
+    }
+    input[name="addAddSites"] {
+        margin-top:calc(#{$standard-spacing} / 2)
+    }
+}
