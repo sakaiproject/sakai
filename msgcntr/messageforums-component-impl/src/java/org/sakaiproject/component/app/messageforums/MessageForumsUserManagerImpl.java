@@ -21,10 +21,10 @@
 package org.sakaiproject.component.app.messageforums;
 
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.type.StringType;
-import org.springframework.orm.hibernate4.HibernateCallback;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.HibernateCallback;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 import org.sakaiproject.api.app.messageforums.MessageForumsUser;
 import org.sakaiproject.api.app.messageforums.MessageForumsUserManager;

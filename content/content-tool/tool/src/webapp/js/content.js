@@ -227,7 +227,7 @@ var escapeHtml = function (str) {
 
 $(document).ready(function(){
 
-    $('[data-toggle="popover"]').popover()
+    $('main a[data-toggle="popover"]').popover()
 
 
     $('#navigate').prop('disabled',false)

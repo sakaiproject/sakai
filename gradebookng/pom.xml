@@ -37,6 +37,7 @@
 		</dependencies>
 	</dependencyManagement>
 	<modules>
+		<module>bundle</module>
 		<module>tool</module>
 	</modules>
 	<build>

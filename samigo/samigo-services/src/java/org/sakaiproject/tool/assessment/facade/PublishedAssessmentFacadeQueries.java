@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
@@ -79,8 +79,8 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate4.HibernateCallback;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.HibernateCallback;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 @Slf4j
 public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implements PublishedAssessmentFacadeQueriesAPI {
@@ -2768,11 +2768,10 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	}
 
 	public List getQuestionsIdList(final Long publishedAssessmentId) {
-		HibernateCallback<List<Long>> hcb = session -> session
-				.createQuery("select i.itemId from PublishedItemData i, PublishedSectionData s,  PublishedAssessmentData a where a = s.assessment and s = i.section and a.publishedAssessmentId=?")
-				.setLong(0, publishedAssessmentId.longValue())
-				.list();
-		return getHibernateTemplate().execute(hcb);
+		return getHibernateTemplate().execute(session -> session
+				.createQuery("select i.itemId from PublishedItemData i, PublishedSectionData s,  PublishedAssessmentData a where a = s.assessment and s = i.section and a.publishedAssessmentId=?1")
+				.setParameter(1, publishedAssessmentId)
+				.list());
 	}
 
 

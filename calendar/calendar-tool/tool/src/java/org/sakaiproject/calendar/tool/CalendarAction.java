@@ -248,22 +248,6 @@ extends VelocityPortletStateAction
 		return (String[]) destStringList.toArray(new String[destStringList.size()]);
 	}
 	
-	/**
-	 * Enable or disable the observer
-	 * @param enable if true, the observer is enabled, if false, it is disabled
-	 */
-	protected void enableObserver(SessionState sstate, boolean enable)
-	{
-		if (enable)
-		{
-			enableObservers(sstate);
-		}
-		else
-		{
-			disableObservers(sstate);
-		}
-	}
-	
 	// myYear class
 	public class MyYear
 	{
@@ -1028,8 +1012,6 @@ extends VelocityPortletStateAction
 			state.setPrevState("");
 			
 			sstate.removeAttribute(STATE_MODE);
-			
-			enableObserver(sstate, true);
 		} // doCancel
 		
 		/**
@@ -1047,9 +1029,6 @@ extends VelocityPortletStateAction
 			
 			// if we didn't end up in options mode, bail out
 			if (!MODE_OPTIONS.equals(sstate.getAttribute(STATE_MODE))) return;
-			
-			// Disable the observer
-			enableObserver(sstate, false);
 			
 			// Save the previous state so that we can get to it after we're done with the options mode.
 			// if the previous state is Description, we need to remember one more step back
@@ -1118,9 +1097,6 @@ extends VelocityPortletStateAction
 			
 			// commit the change
 			saveOptions();
-			
-			// Turn the observer back on.
-			enableObserver(sstate, true);
 			
 			// Go back to whatever state we were in beforehand.
 			state.setReturnState(CalendarAction.STATE_INITED);
@@ -1271,8 +1247,6 @@ extends VelocityPortletStateAction
 			// Go back to whatever state we were in beforehand.
 			state.setReturnState(CalendarAction.STATE_INITED);
 			
-			enableObserver(sstate, true);
-			
 			String addField = "";
 			addField = runData.getParameters().getString("textfield").trim();
 			String dupAddfield = "N";
@@ -1341,7 +1315,6 @@ extends VelocityPortletStateAction
 			
 			sstate.setAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDFIELDS_CALENDARS, sstate.getAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDFIELDS_CALENDARS_INIT));
 			sstate.setAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDFIELDS_PAGE, CalendarAction.PAGE_MAIN);
-			enableObserver(sstate, true);
 		} // doCancel
 		
 		/**
@@ -1354,9 +1327,6 @@ extends VelocityPortletStateAction
 		CalendarActionState state,
 		SessionState sstate)
 		{
-			// Disable the observer
-			enableObserver(sstate, false);
-			
 			// Save the previous state so that we can get to it after we're done with the options mode.
 			// if the previous state is Description, we need to remember one more step back
 			// coz there is a back link in description view
@@ -1422,8 +1392,6 @@ extends VelocityPortletStateAction
 			// Go back to whatever state we were in beforehand.
 			state.setReturnState(CalendarAction.STATE_INITED);
 			
-			enableObserver(sstate, true);
-
 			sstate.setAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDFIELDS_CALENDARS, addFields);
 			sstate.setAttribute(CalendarAction.SSTATE_ATTRIBUTE_DELFIELDS, delFields);
 			
@@ -1470,7 +1438,6 @@ extends VelocityPortletStateAction
 
 			// Go back to whatever state we were in beforehand.
 			state.setReturnState(CalendarAction.STATE_INITED);
-			enableObserver(sstate, true);
 
 		} // doUpdate
 
@@ -1644,7 +1611,6 @@ extends VelocityPortletStateAction
 			sstate.removeAttribute(SSTATE_ATTRIBUTE_SUBSCRIPTIONS);
 			sstate.removeAttribute(SSTATE_ATTRIBUTE_ADDSUBSCRIPTIONS);
 
-			enableObserver(sstate, true);
 		} // doCancel
 
 		/**
@@ -1658,8 +1624,6 @@ extends VelocityPortletStateAction
 
 			// Go back to whatever state we were in beforehand.
 			state.setReturnState(CalendarAction.STATE_INITED);
-
-			enableObserver(sstate, true);
 
 			String calendarName = runData.getParameters().getString("calendarName")
 					.trim();
@@ -1710,9 +1674,6 @@ extends VelocityPortletStateAction
 
 			// if we didn't end up in options mode, bail out
 			if (!MODE_OPTIONS.equals(sstate.getAttribute(STATE_MODE))) return;
-
-			// Disable the observer
-			enableObserver(sstate, false);
 
 			// Save the previous state so that we can get to it after we're done
 			// with the options mode.
@@ -1816,9 +1777,6 @@ extends VelocityPortletStateAction
 					saveOptions();
 				}
 			}
-
-			// Turn the observer back on.
-			enableObserver(sstate, true);
 
 			// Go back to whatever state we were in beforehand.
 			state.setReturnState(CalendarAction.STATE_INITED);
@@ -3178,6 +3136,7 @@ extends VelocityPortletStateAction
 		context.put("selectedView", rb.getString("java.byyear"));
 		
 		context.put("isDefaultView", isDefaultView(state, ToolManager.getCurrentPlacement()));
+		context.put("isUpdater", SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()));
 		
 		context.put("dayOfWeekNames", calObj.getCalendarDaysOfWeekNames(false));
 	} // buildYearContext
@@ -3262,6 +3221,7 @@ extends VelocityPortletStateAction
 		context.put("selectedView", rb.getString("java.bymonth"));
 		
 		context.put("isDefaultView", isDefaultView(state, ToolManager.getCurrentPlacement()));
+		context.put("isUpdater", SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()));
 		
 		context.put("dayOfWeekNames", calObj.getCalendarDaysOfWeekNames(false));
 		
@@ -3578,6 +3538,7 @@ extends VelocityPortletStateAction
 		context.put("selectedView", rb.getString("java.byday"));
 		
 		context.put("isDefaultView", isDefaultView(state, ToolManager.getCurrentPlacement()));
+		context.put("isUpdater", SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()));
 		
 		context.put("dayName", calendarUtilGetDay(calObj.getDay_Of_Week(true)));
 
@@ -3792,6 +3753,7 @@ extends VelocityPortletStateAction
 		context.put("selectedView", rb.getString("java.byweek"));
 		
 		context.put("isDefaultView", isDefaultView(state, ToolManager.getCurrentPlacement()));
+		context.put("isUpdater", SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()));
 
 		context.put("dayOfWeekNames", calObj.getCalendarDaysOfWeekNames(false));
 		
@@ -7361,6 +7323,7 @@ extends VelocityPortletStateAction
 		context.put("selectedView", rb.getString("java.listeve"));
 		
 		context.put("isDefaultView", isDefaultView(state, ToolManager.getCurrentPlacement()));
+		context.put("isUpdater", SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()));
 		
 		context.put("tlang",rb);
 

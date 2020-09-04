@@ -24,6 +24,9 @@ import org.apache.wicket.request.cycle.IRequestCycleListener;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.Url;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
+import org.sakaiproject.delegatedaccess.tool.pages.AdministratePage;
+import org.sakaiproject.delegatedaccess.tool.pages.SearchAccessPage;
+import org.sakaiproject.delegatedaccess.tool.pages.SearchUsersPage;
 
 import org.sakaiproject.delegatedaccess.tool.pages.UserPage;
 import org.sakaiproject.delegatedaccess.tool.pages.UserPageSiteSearch;
@@ -62,6 +65,9 @@ public class DelegatedAccessApplication extends WebApplication {
 
 		//to put this app into deployment mode, see web.xml
 		mountPage("shopping", UserPageSiteSearch.class);
+		mountPage("searchByUser", SearchUsersPage.class);
+		mountPage("searchByAccess", SearchAccessPage.class);
+		mountPage("adminTools", AdministratePage.class);
 		getRequestCycleListeners().add(new IRequestCycleListener() {
 			 
 			public void onBeginRequest()

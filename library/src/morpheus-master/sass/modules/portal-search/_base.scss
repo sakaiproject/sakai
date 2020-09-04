@@ -1,7 +1,7 @@
 .sakai-search-input {
   margin-left: $top-header-item-spacing;
   padding-left: $top-header-item-spacing;
-  border-left: $top-header-separators-thickness solid $topNav-alt-color;
+  border-left: $top-header-separators-thickness solid var(--topNav-border-color);
   
   input, a {
     display: inline-block;
@@ -14,7 +14,7 @@
     width: $top-header-icon-size;
     height: $top-header-icon-size;
     &:hover, &:focus {
-      color: $topNav-text-color;
+      color: var(--topNav-text-color);
       background: rgba(0,0,0,.2);
       border-radius:50%;
     }

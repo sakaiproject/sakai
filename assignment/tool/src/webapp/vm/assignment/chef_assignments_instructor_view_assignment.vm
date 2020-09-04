@@ -193,6 +193,17 @@
 					#end
 				</td>
 			</tr>
+			#if($assignment.TypeOfSubmission.ordinal() == 6)
+			<tr>
+				<th>
+					$tlang.getString("external.tool.label")
+				</th>
+				<td>
+					$value_ContentTitle <br/>
+					<a href="#toolLinkParam("$action" "doView_external_tool_launch")">$tlang.getString("external.tool.goto")</a>
+				</td>
+			</tr>
+			#end
 			<tr> 
 				<th>
 					$tlang.getString("gen.honple")

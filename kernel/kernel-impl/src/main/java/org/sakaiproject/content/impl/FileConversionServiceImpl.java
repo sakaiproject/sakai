@@ -205,7 +205,7 @@ public class FileConversionServiceImpl implements FileConversionService {
         return enabled && fromTypes.contains(fromType);
     }
 
-    @Transactional(transactionManager = "jpaTransactionManager")
+    @Transactional
     public void convert(String ref) {
 
         if (!enabled) {

@@ -49,7 +49,7 @@
       <jsp:expression>request.getAttribute("sakai.html.head")</jsp:expression>
     </head>
     <jsp:element name="body">
-      <jsp:attribute name="onload"><jsp:expression>request.getAttribute("sakai.html.body.onload")</jsp:expression>parent.updCourier(doubleDeep,ignoreCourier); callAllLoaders();</jsp:attribute>
+      <jsp:attribute name="onload"><jsp:expression>request.getAttribute("sakai.html.body.onload")</jsp:expression> callAllLoaders();</jsp:attribute>
       <jsp:directive.include file="header.jsp"/>
         	<div id="versionhelp" style=" position: absolute; top: -1000px; left: -1000px; visibility: hidden;" 
   		class="rwiki_help_popup" >

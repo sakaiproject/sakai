@@ -3,7 +3,7 @@
   @include display-flex;
   @include align-items(center);
   height: 100%;
-  border-right: 1px solid $topNav-alt-color;
+  border-right: 1px solid var(--topNav-border-color);
 
   .fa-external-link-square{
     @extend .all-sites-icon;
@@ -32,8 +32,8 @@
     font-family: $header-font-family;
     font-weight: $header-font-weight;
     font-size: $default-font-size;
-    color: $text-color;
-    background-color: $tool-menu-background-color;
+    color: var(--sakai-text-color-1);
+    background-color: var(--tool-menu-background-color);
     box-shadow: 5px 0 50px 0px rgba(0,0,0,0.5);
     position: absolute;
     top: 40px;
@@ -52,7 +52,7 @@
       position: absolute;
       pointer-events: none;
       border-color: rgba(255, 255, 255, 0);
-      border-bottom-color: $tool-menu-background-color;
+      border-bottom-color: var(--tool-menu-background-color);
       border-width: 7px;
       margin-left: -7px;
       outline: 0;
@@ -71,10 +71,10 @@
       @include display-flex;
       @include align-items(center);
       border: none;
-      border-bottom: 1px solid $tool-border-color;
+      border-bottom: 1px solid var(--tool-border-color);
       padding: 0 0 $standard-spacing 0;
       margin: 0 0 $standard-spacing 0;
-      background-color: $tool-menu-background-color;
+      background-color: var(--tool-menu-background-color);
       line-height: normal;
 
       .#{$namespace}quickLinks-header--info {
@@ -83,11 +83,11 @@
       #quickLinks-close {
         font-size: 1.5em;
         font-family: $header-font-family;
-        color: $all-sites-close-action-color;
+        color: var(--all-sites-close-action-color);
         padding: 0;
         margin-left: auto;
         &:hover {
-          color: $all-sites-close-action-hover-color;
+          color: var(--all-sites-close-action-hover-color);
         }
       }
     }
@@ -100,17 +100,17 @@
 
     .#{$namespace}quickLinksNav__submenuitem {
       display: block;
-      border: 1px solid $tool-border-color;
+      border: 1px solid var(--tool-border-color);
       white-space: nowrap;
       overflow: hidden;
       padding: 0.3em 0.7em;
       list-style: none;
-      background: darken( $background-color, 5% );
+      background: var(--sakai-background-color-1);
       margin: 0.3em 0;
       a{
         @include display-flex;
         @include align-items(center);
-        color: $text-color;
+        color: var(--sakai-text-color-1);
         font-family: $header-font-family;
         font-size: 0.9em;
         font-weight: $header-font-weight;
@@ -121,7 +121,7 @@
         }
       }
       &.is-selected{
-        border: 1px solid darken( $tool-border-color, 30% );
+        border: 1px solid var(--sakai-border-color);
       }
 
       #quicklink-icon{

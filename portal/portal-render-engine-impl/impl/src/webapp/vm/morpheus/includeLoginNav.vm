@@ -17,7 +17,7 @@
             #if (${useBullhornAlerts})
             <div class="Mrphs-sitesNav__menuitem portal-bullhorns-buttons">
                 <a id="Mrphs-bullhorn" href="javascript:void(0);" title="${rloader.sit_academic_bullhorn_title}" aria-haspopup="true">
-                    <span class="icon-sakai--academic-bullhorn"></span>
+                    <span class="icon-sakai--alerts"></span>
                 </a>
             </div>
             #end
@@ -159,6 +159,19 @@
                                         </li>
 
                                     #end ## END of IF (${tabsSites.tutorial})
+
+                                    #if (${tabsSites.themeSwitcher})
+
+                                        <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented">
+                                            <button role="switch" aria-checked="true"
+                                                id="themeSwitcher" class="Mrphs-userNav__submenuitem--themeSwitcher switch">
+                                                <span>dark</span>
+                                                <span>light</span>
+                                            </button>
+                                            <label for="themeSwitcher" class="switch">${rloader.sit_themeSwitcher}</label>
+                                        </li>
+
+                                    #end ## END of IF (${tabsSites.themeSwitcher})
 
                             #end ## END of IF (${site.isMyWorkspace})
 

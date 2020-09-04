@@ -22,6 +22,7 @@
 package org.sakaiproject.poll.logic.test;
 
 import java.util.Date;
+import java.util.UUID;
 
 import org.sakaiproject.genericdao.api.GenericDao;
 import org.sakaiproject.poll.model.Option;
@@ -105,6 +106,7 @@ public class TestDataPreload {
 		poll1.setDescription("this is some text");
 		poll1.setText("something");
 		poll1.setOwner(USER_UPDATE);
+		poll1.setSiteId(LOCATION1_ID);
 		dao.save(poll1);
 
 		firstPollId = poll1.getPollId();
@@ -113,11 +115,15 @@ public class TestDataPreload {
 		Option option1 = new Option();
 		option1.setText("Option 1");
 		option1.setPollId(poll1.getPollId());
+		option1.setUuid(UUID.randomUUID().toString());
+		option1.setOptionOrder(0);
 		dao.save(option1);
 		
 		Option option2 = new Option();
 		option2.setText("Option 2");
 		option2.setPollId(poll1.getPollId());
+		option2.setUuid(UUID.randomUUID().toString());
+		option2.setOptionOrder(1);
 		dao.save(option2);
 		
 	}

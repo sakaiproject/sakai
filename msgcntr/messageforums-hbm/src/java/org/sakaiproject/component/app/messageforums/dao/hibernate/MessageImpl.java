@@ -31,6 +31,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.util.api.FormattedText;
 
 @Slf4j
 public class MessageImpl extends MutableEntityImpl implements Message
@@ -135,6 +137,11 @@ public class MessageImpl extends MutableEntityImpl implements Message
 	public String getAuthor()
 	{
 		return author;
+	}
+
+	public String getAuthorEscaped()
+	{
+		return ComponentManager.get(FormattedText.class).escapeHtml(author);
 	}
 
 	public void setAuthor(String author)

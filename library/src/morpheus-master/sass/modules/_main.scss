@@ -13,7 +13,9 @@
 
 .#{$namespace}portalWrapper {
 	position: relative;
-	background: $main-content-background;
+	background: var(--sakai-background-color-1);
+	transition:var(--sak-theme-switch-ease);
+
 }
 
 #pageBody{
@@ -58,13 +60,13 @@
 		min-width: $col1of2-width;
 	}
 	#col2of2 {
-		min-width: $col2of2-width;
 		margin-right: $standard-spacing;		// space on the end
 	}
 }
 
 .#{$namespace}mainContent{
-	background: $main-content-background;
+	background: var(--sakai-background-color-1);
+	transition:var(--sak-theme-switch-ease);
 }
 
 .#{$namespace}pageColumns--single {
@@ -84,8 +86,9 @@
 // Note: this is the footer container; see _footer.scss for the rest of the design of the footer
 .#{$namespace}container--footer {
 	margin-top: auto; 	// push the footer to the bottom of the page
-	background-color: $footer-background-color;
-	border-top: 1px solid $footer-border-color;
+	background-color: var(--sakai-background-color-1);
+	border-top: 1px solid var(--sakai-border-color);
+	transition:var(--sak-theme-switch-ease);
 }
 
 .#{$namespace}noJs.js-warn-no-js {

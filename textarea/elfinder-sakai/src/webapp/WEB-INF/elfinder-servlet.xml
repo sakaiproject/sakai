@@ -17,7 +17,7 @@
                   value="org.sakaiproject.elfinder.controller.executors.Sakai%sCommandExecutor"/>
         <property name="classNamePattern2"
                   value="cn.bluejoe.elfinder.controller.executors.%sCommandExecutor"/>
-        <property name="map">
+        <property name="commands">
             <map>
                 <!--
                     <entry key="tree">

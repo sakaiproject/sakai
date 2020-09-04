@@ -86,7 +86,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
  *     - LocalTime implicitly @Temporal(TemporalType.Time)
  *     - LocalDateTime implicitly @Temporal(TemporalType.Timestamp)
  *   - java 8 time Instant is not a supported Type in Hibernate < 5
- *     - So we use a custom type called org.sakaiproject.springframework.orm.hibernate.type.InstantType,
+ *     - So we use a custom type called org.hibernate.type.InstantType,
  *       which stores the time consistent with the use of Instant in UTC in a DATETIME field.
  *       This can be removed after upgrading to Hibernate 5.
  * </pre>
@@ -123,31 +123,31 @@ public class Assignment {
     @Column(name = "SECTION")
     private String section;
 
-    @Type(type = "org.sakaiproject.springframework.orm.hibernate.type.InstantType")
+    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "CREATED_DATE", nullable = false)
     private Instant dateCreated;
 
-    @Type(type = "org.sakaiproject.springframework.orm.hibernate.type.InstantType")
+    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "MODIFIED_DATE")
     private Instant dateModified;
 
-    @Type(type = "org.sakaiproject.springframework.orm.hibernate.type.InstantType")
+    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "VISIBLE_DATE")
     private Instant visibleDate;
 
-    @Type(type = "org.sakaiproject.springframework.orm.hibernate.type.InstantType")
+    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "OPEN_DATE")
     private Instant openDate;
 
-    @Type(type = "org.sakaiproject.springframework.orm.hibernate.type.InstantType")
+    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "DUE_DATE")
     private Instant dueDate;
 
-    @Type(type = "org.sakaiproject.springframework.orm.hibernate.type.InstantType")
+    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "CLOSE_DATE")
     private Instant closeDate;
 
-    @Type(type = "org.sakaiproject.springframework.orm.hibernate.type.InstantType")
+    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "DROP_DEAD_DATE")
     private Instant dropDeadDate;
 
@@ -232,7 +232,7 @@ public class Assignment {
     @Column(name = "ALLOW_PEER_ASSESSMENT")
     private Boolean allowPeerAssessment = Boolean.FALSE;
 
-    @Type(type = "org.sakaiproject.springframework.orm.hibernate.type.InstantType")
+    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "PEER_ASSESSMENT_PERIOD_DATE")
     private Instant peerAssessmentPeriodDate;
 
@@ -252,6 +252,12 @@ public class Assignment {
     @Column(name = "CONTENT_REVIEW")
     private Boolean contentReview = Boolean.FALSE;
 
+    @Column(name = "CONTENT_ID")
+    private Integer contentId = null;
+
+    @Column(name = "CONTENT_LAUNCH_NEW_WINDOW")
+    private Boolean contentLaunchNewWindow = Boolean.FALSE;
+
     public enum Access {
         SITE,
         GROUP
@@ -263,7 +269,8 @@ public class Assignment {
         ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION,     // 2
         TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION, // 3
         NON_ELECTRONIC_ASSIGNMENT_SUBMISSION,      // 4
-        SINGLE_ATTACHMENT_SUBMISSION               // 5
+        SINGLE_ATTACHMENT_SUBMISSION,              // 5
+        EXTERNAL_TOOL_SUBMISSION                   // 6
     }
 
     public enum GradeType {

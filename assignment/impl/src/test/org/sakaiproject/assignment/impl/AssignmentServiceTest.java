@@ -94,6 +94,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.util.AopTestUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -141,7 +142,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         when(resourceLoader.getString("fail")).thenReturn("Fail");
         when(resourceLoader.getString("gen.checked")).thenReturn("Checked");
         when(resourceLoader.getString("assignment.copy")).thenReturn("Copy");
-        ((AssignmentServiceImpl) assignmentService).setResourceLoader(resourceLoader);
+        ((AssignmentServiceImpl) AopTestUtils.getTargetObject(assignmentService)).setResourceLoader(resourceLoader);
         when(userTimeService.getLocalTimeZone()).thenReturn(TimeZone.getDefault());
     }
 

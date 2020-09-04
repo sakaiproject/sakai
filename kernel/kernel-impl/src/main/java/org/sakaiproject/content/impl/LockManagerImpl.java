@@ -27,9 +27,9 @@ import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.orm.hibernate4.HibernateObjectRetrievalFailureException;
-import org.springframework.orm.hibernate4.HibernateSystemException;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.HibernateObjectRetrievalFailureException;
+import org.springframework.orm.hibernate5.HibernateSystemException;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 import org.sakaiproject.content.api.Lock;
 import org.sakaiproject.content.api.LockManager;

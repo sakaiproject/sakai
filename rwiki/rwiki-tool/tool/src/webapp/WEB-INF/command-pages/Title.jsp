@@ -40,7 +40,7 @@
     </head>
     <jsp:element name="body">
       <jsp:attribute name="onload">
-	<jsp:expression>request.getAttribute("sakai.html.body.onload")</jsp:expression>parent.updCourier(doubleDeep, ignoreCourier); callAllLoaders();
+	<jsp:expression>request.getAttribute("sakai.html.body.onload")</jsp:expression> callAllLoaders();
       </jsp:attribute>
       <table border="0" cellpadding="0" cellspacing="0" width="100%" class="toolTitle">
 	<tr>

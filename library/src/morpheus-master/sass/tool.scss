@@ -1,6 +1,10 @@
 @import "customization"; //it is copied from the user supplied file by maven
 
+@import "themes/base";
+@import "themes/light";
+@import "themes/dark";
 @import "defaults";
+
 @import "base/bootstrap-defaults";
 @import "base/extendables";
 @import "base/defaults";
@@ -75,4 +79,11 @@
 @import "modules/jumptotop/base";
 @import "modules/submission-messager/base";
 @import "modules/grader/base";
+@import "modules/button/base";
+@import "modules/dashboard/base";
+@import "modules/courselist/base";
+@import "modules/coursecard/base";
+@import "modules/icon/base";
+@import "modules/widget-panel/base";
+@import "modules/theme-switcher/base";
 @import "modules/multiselect/base";

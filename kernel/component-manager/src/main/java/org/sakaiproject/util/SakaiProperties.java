@@ -25,17 +25,12 @@ package org.sakaiproject.util;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.Set;
-
-import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -45,6 +40,9 @@ import org.springframework.core.io.Resource;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.DefaultPropertiesPersister;
 import org.springframework.util.PropertiesPersister;
+import org.springframework.util.PropertyPlaceholderHelper;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A configurer for "sakai.properties" files. These differ from the usual Spring default properties
@@ -174,23 +172,13 @@ public class SakaiProperties implements BeanFactoryPostProcessorCreator, Initial
         if ( srcProperties.isEmpty() ) {
             return srcProperties;
         }
-        try {
-            Properties parsedProperties = new Properties();
-            PropertyPlaceholderConfigurer resolver = new PropertyPlaceholderConfigurer();
-            resolver.setIgnoreUnresolvablePlaceholders(true);
-            Method parseStringValue = 
-                resolver.getClass().getDeclaredMethod("parseStringValue", String.class, Properties.class, Set.class);
-            parseStringValue.setAccessible(true);
-            for ( Map.Entry<Object, Object> propEntry : srcProperties.entrySet() ) {
-                String parsedPropValue = (String)parseStringValue.invoke(resolver, (String)propEntry.getValue(), srcProperties, new HashSet<Object>());
-                parsedProperties.setProperty((String)propEntry.getKey(), parsedPropValue);
-            }
-            return parsedProperties;
-        } catch ( RuntimeException e ) {
-            throw e;
-        } catch ( Exception e ) {
-            throw new RuntimeException("Failed to dereference properties", e);
+        Properties parsedProperties = new Properties();
+        PropertyPlaceholderHelper helper = new PropertyPlaceholderHelper("${", "}");
+        for (Map.Entry<Object, Object> propEntry : srcProperties.entrySet()) {
+            String parsedPropValue = helper.replacePlaceholders((String) propEntry.getValue(), srcProperties);
+            parsedProperties.setProperty((String) propEntry.getKey(), parsedPropValue);
         }
+        return parsedProperties;
     }
 
     // Delegate properties loading.

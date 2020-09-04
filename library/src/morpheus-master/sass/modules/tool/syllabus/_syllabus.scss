@@ -16,7 +16,7 @@
       @extend .fa;
       @extend .fa-pencil;
 
-      color: $link-color;
+      color: var(--link-color);
 
       position: absolute;
       right: 0;
@@ -111,16 +111,16 @@
             float: right;
 
             .fa {
-              color: $text-color !important;
+              color: var(--sakai-text-color-1) !important;
             }
           }
           .fa.fa-arrows {
-            color: $text-color !important;
+            color: var(--sakai-text-color-1) !important;
           }
 
           .editItemTitle {
             font-weight: bold;
-            color: $primary-color;
+            color: var(--sakai-primary-color-1);
             padding-left: 0;
             margin-left: 0;
             display: inline-block;

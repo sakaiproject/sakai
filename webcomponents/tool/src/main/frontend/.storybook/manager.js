@@ -4,4 +4,6 @@ import sakaiTheme from './sakaiTheme';
 
 addons.setConfig({
   theme: sakaiTheme,
+  enableShortcuts: false,
+  isFullscreen: true,
 });

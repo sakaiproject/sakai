@@ -253,10 +253,6 @@
 
         <!--JSF 2.3 dependencies-->
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>jstl</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.jboss.weld.servlet</groupId>
             <artifactId>weld-servlet-shaded</artifactId>
             <version>${sakai.weld.shaded.version}</version>

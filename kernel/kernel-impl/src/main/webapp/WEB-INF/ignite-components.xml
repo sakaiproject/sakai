@@ -8,13 +8,15 @@
     <cache:annotation-driven cache-manager="org.sakaiproject.ignite.SakaiCacheManager"/>
 
     <bean id="org.sakaiproject.ignite.SakaiCacheManager"
-          class="org.sakaiproject.ignite.IgniteSpringCacheManager">
+          class="org.sakaiproject.ignite.IgniteSpringCacheManager"
+          init-method="init">
         <property name="dynamicCacheConfiguration">
             <bean class="org.apache.ignite.configuration.CacheConfiguration">
                 <property name="cacheMode" value="REPLICATED"/>
             </bean>
         </property>
-        <property name="ignite" ref="org.sakaiproject.ignite.SakaiIgnite"/>
+        <property name="sakaiIgnite" ref="org.sakaiproject.ignite.SakaiIgnite"/>
+        <property name="igniteConfiguration" ref="org.sakaiproject.ignite.SakaiIgniteConfiguration"/>
     </bean>
 
     <bean id="org.sakaiproject.ignite.SakaiIgnite"
@@ -29,10 +31,10 @@
         <property name="cacheConfiguration">
             <list>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
-                    <property name="name" value="org.hibernate.cache.spi.UpdateTimestampsCache"/>
+                    <property name="name" value="default-update-timestamps-region"/>
                 </bean>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
-                    <property name="name" value="org.hibernate.cache.internal.StandardQueryCache"/>
+                    <property name="name" value="default-query-results-region"/>
                 </bean>
                 <!-- Entity Caches -->
                 <bean parent="org.sakaiproject.ignite.cache.transactional">

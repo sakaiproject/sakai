@@ -6,7 +6,7 @@
     margin-left: 20px;
   }
 	#req-new_assignment_grade_points{
-		color: $error-color;
+		color: var(--error-color);
 	    margin: 9px 0 0 -13px;
 		position: absolute;
 	}
@@ -28,7 +28,7 @@
 		label{
 			&:after{
 				content: "*";
-				color: $error-color;
+				color: var(--error-color);
 				position: relative;
 				top: 3px;
 			}
@@ -38,9 +38,9 @@
 	#gradeOverridePanel{
 		margin-left: 50px;
 		width:100%;
-		background-color: $tool-background-color;
+		background-color: var(--tool-background-color);
 		.row-override:nth-child(odd){
-			background: darken($tool-background-color, 5%);
+			background: var(--sakai-color-gray-0);
 		}
 		.row-override{
 			padding: 0.5em 0 0.5em;
@@ -505,7 +505,7 @@
 		padding: 4px 8px;
 		background-color: $assignments-disclosure-bg;
 		border-color: $assignments-disclosure-bg;
-		color: $primary-color;
+		color: var(--sakai-primary-color-1);
 
 		&::before {
 			content: "";
@@ -515,7 +515,7 @@
 			width: $standard-spacing;
 			height: $standard-spacing;
 			border: 7px solid transparent;
-			border-bottom-color: $primary-color;
+			border-bottom-color: var(--sakai-primary-color-1);
 		}
 	}
 
@@ -568,7 +568,7 @@
 
 		.progress-bar-empty {
 			background-color: transparent;
-			color: $text-color;
+			color: var(--sakai-text-color-1);
 		}
 
 		.progress-bar-active {
@@ -580,7 +580,7 @@
 		background-position: center center;
 		background-size: cover;
 		border-radius: 80px;
-		border: 1px solid $background-color-secondary;
+		border: 1px solid var(--sakai-border-color);
 		float: left;
 		height: 80px;
 		padding: 5px 0px;

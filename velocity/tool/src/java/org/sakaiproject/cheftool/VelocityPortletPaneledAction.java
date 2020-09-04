@@ -46,7 +46,6 @@ import org.sakaiproject.cheftool.menu.MenuEntry;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.courier.api.ObservingCourier;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.UsageSessionService;
@@ -138,32 +137,6 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 			setVmReference(SAKAI_CSRF_TOKEN, csrfToken, req);
 		}
 	}
-
-	/**
-	 * Compute the deliver address for the current request. Compute the client window id, based on the float state
-	 * 
-	 * @param state
-	 *        The tool state.
-	 * @param toolId
-	 *        The tool instance id, which might be used as part of the client window id if floating.
-	 * @return The client window id, based on the float state.
-	 */
-	protected String clientWindowId(SessionState state, String toolId)
-	{
-		// TODO: drop the params
-
-		// get the Sakai session
-		Session session = SessionManager.getCurrentSession();
-
-		// get the current tool placement
-		Placement placement = ToolManager.getCurrentPlacement();
-
-		// compute our courier delivery address: this placement in this session
-		String deliveryId = session.getId() + placement.getId();
-
-		return deliveryId;
-
-	} // clientWindowId
 
 	/**
 	 * Compute the courier update html element id for the main panel - add "." and other names for inner panels.
@@ -906,9 +879,6 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 		// go into options mode
 		state.setAttribute(STATE_MODE, MODE_OPTIONS);
 
-		// disable auto-updates while editing
-		disableObservers(state);
-
 		// if we're not in the main panel for this tool, schedule an update of the main panel
 		String currentPanelId = runData.getParameters().getString(ActionURL.PARAM_PANEL);
 		if (!LAYOUT_MAIN.equals(currentPanelId))
@@ -987,65 +957,6 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 		}
 
 		return false;
-	}
-
-	/**
-	 * Disable any observers registered in state in STATE_OBSERVER or STATE_OBSERVER2
-	 * 
-	 * @param state
-	 *        The session state.
-	 */
-	public static void disableObservers(SessionState state)
-	{
-		ObservingCourier observer = (ObservingCourier) state.getAttribute(STATE_OBSERVER);
-		if (observer != null)
-		{
-			observer.disable();
-		}
-
-		observer = (ObservingCourier) state.getAttribute(STATE_OBSERVER2);
-		if (observer != null)
-		{
-			observer.disable();
-		}
-
-	} // disableObservers
-
-	/**
-	 * Enable any observers registered in state in STATE_OBSERVER or STATE_OBSERVER2
-	 * 
-	 * @param state
-	 *        The session state.
-	 */
-	public static void enableObservers(SessionState state)
-	{
-		ObservingCourier observer = (ObservingCourier) state.getAttribute(STATE_OBSERVER);
-		if (observer != null)
-		{
-			observer.enable();
-		}
-
-		observer = (ObservingCourier) state.getAttribute(STATE_OBSERVER2);
-		if (observer != null)
-		{
-			observer.enable();
-		}
-
-	} // enableObservers
-
-	/**
-	 * Tell the main observer we have just delivered.
-	 * 
-	 * @param state
-	 *        The session state.
-	 */
-	public static void justDelivered(SessionState state)
-	{
-		ObservingCourier observer = (ObservingCourier) state.getAttribute(STATE_OBSERVER);
-		if (observer != null)
-		{
-			observer.justDelivered();
-		}
 	}
 
 	/**
@@ -1130,29 +1041,6 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 		if (tool != null)
 		{
 			setVmReference("toolTitle", tool.getTitle(), request);
-		}
-	}
-
-	/**
-	 * Setup the vm context for a courier
-	 * 
-	 * @param request
-	 */
-	protected void setVmCourier(HttpServletRequest request, int refresh)
-	{
-		// the url for the chat courier
-		Placement placement = ToolManager.getCurrentPlacement();
-		if (placement != null)
-		{
-			String userId = SessionManager.getCurrentSessionUserId();
-			StringBuilder url = new StringBuilder(RequestFilter.serverUrl(request));
-			url.append("/courier/");
-			url.append(placement.getId());
-			url.append("?userId=");
-			url.append(userId);
-			
-			setVmReference("courier", url.toString(), request);
-			setVmReference("courierTimeout", Integer.toString(refresh), request);
 		}
 	}
 

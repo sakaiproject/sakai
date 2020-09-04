@@ -1,0 +1,23 @@
+<div class="portletBody">
+#if ( $failures )
+<p>$tlang.getString("contentitem.failures")</p>
+<ul>
+#foreach($failure in $failures)
+<li>$failure</li>
+#end
+</ul>
+#else
+<script>includeLatestJQuery('lti_assignment_return.vm');</script>
+<script>
+window.parent.$("#returnContentId").val($contentId);
+window.parent.$("#returnToolTitle").val("$formattedText.escapeHtml($toolTitle)");
+window.parent.returnContentTitle("$formattedText.escapeHtml($contentTitle)");
+// This is a tweaked SakaiLineItem that compensated for the CI / DL differences
+#if ($new_content)
+window.parent.returnContentItem($new_content);
+#end
+window.parent.$('.ui-dialog-content:visible').dialog('close');
+</script>
+<h4>$tlang.getString("operation.complete")</h4>
+#end
+</div>

@@ -34,7 +34,6 @@ import org.w3c.dom.Element;
 
 import org.sakaiproject.api.privacy.PrivacyManager;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.courier.api.PresenceUpdater;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -59,7 +58,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
  * </p>
  */
 @Slf4j
-public abstract class BasePresenceService implements PresenceService, PresenceUpdater
+public abstract class BasePresenceService implements PresenceService
 {
 
 	/** SessionState key. */

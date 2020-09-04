@@ -34,7 +34,7 @@ import org.springframework.orm.jpa.SharedEntityManagerCreator;
 import org.springframework.transaction.annotation.Transactional;
 
 @NoRepositoryBean
-@Transactional(readOnly = true, transactionManager = "jpaTransactionManager")
+@Transactional(readOnly = true)
 public class FileConversionQueueItemRepositoryImpl extends SimpleJpaRepository<FileConversionQueueItem, Long> implements FileConversionQueueItemRepository {
 
     private final EntityManager entityManager;
@@ -57,13 +57,13 @@ public class FileConversionQueueItemRepositoryImpl extends SimpleJpaRepository<F
         return entityManager.createQuery(query).getResultList();
     }
 
-    @Transactional(transactionManager = "jpaTransactionManager")
+    @Transactional
     @Override
     public <S extends FileConversionQueueItem> S save(S entity) {
         return super.save(entity);
     }
 
-    @Transactional(transactionManager = "jpaTransactionManager")
+    @Transactional
     @Override
     public void delete(FileConversionQueueItem entity) {
         super.delete(entity);

@@ -17,25 +17,27 @@ body.is-logged-out{
 		a {
 			&:focus, &:hover, &:active {
 				text-decoration: underline;
-				color: $text-color;
+				color: var(--sakai-text-color-1);
 			}
 		}
 	}
 }
 
 .#{$namespace}mainHeader{
-		box-shadow: $divider-shadow-fixed;
+		border-bottom:1px solid var(--sakai-border-color);
 		
 		position: relative;
-
 	.#{$namespace}headerLogo{
 		width: 100%;
 		padding: 0 $standard-spacing;
 		height: $banner-height;
-		background: $top-header-background;
+		background: var(--top-header-background);
 
 		text-align: center;
 		@include transition( width 0.5s linear 0s );
+
+
+
 		.#{$namespace}headerLogo--institution{
 			background: url($logo) no-repeat center center;
 			width: 		$logo-width;
@@ -81,7 +83,7 @@ body.is-logged-out{
 			@media #{$phone}{
 				display: none;
 			}
-			background: $sites-nav-background;
+			background: var(--sites-nav-background);
 		}
 	}
 
@@ -93,14 +95,14 @@ body.is-logged-out{
 			position: fixed;
 			top: 0;
 			width: 100%;
-			box-shadow: $divider-shadow;
+			box-shadow: var(--divider-shadow);
 			z-index: 1000;
 			overflow: visible;
 		}
 	}
 
 	@media #{$phone}{
-		background: $primary-color;
+		background: var(--sakai-primary-color-1);
 		position: fixed;
 		top: 0;
 		width: 100%;
@@ -109,7 +111,7 @@ body.is-logged-out{
 }
 
 .userNav_link{
-	color: $text-color;
+	color: var(--sakai-text-color-1);
 	font-family: $header-font-family;
 	font-size: 0.9em;
 	font-weight: $header-font-weight;
@@ -129,7 +131,7 @@ body.is-logged-out{
 	right: 0em;
 	width: 20em;
 	z-index: 99;
-	box-shadow: 0 0 4px rgba( $text-color ,0.35);
+	box-shadow: 0 0 4px var(--sakai-text-color-1);
 	list-style: none;
 	padding: 0 0 0 0;
 	li{
@@ -143,12 +145,12 @@ body.is-logged-out{
 			display: block;
 			padding: 0.65em;
 			text-decoration: none;
-			color: $primary-color-highContrast;
+			color: var(--sakai-primary-color-2);
 			line-height: 1em;
 			&:focus, &:hover, &:active
 			{
 				text-decoration: underline;
-    			color: $primary-color-highContrast;
+    			color: var(--sakai-primary-color-2);
 			}
 			.toolMenuIcon{
 				@extend .fa-fw;			// standardize the width of all icons for proper text alignment
@@ -166,7 +168,7 @@ body.is-logged-out{
 	}
 	.#{$namespace}userNav__submenuitem--fullname-and-id{
 		padding-top: 1em;
-		color: $text-color;
+		color: var(--sakai-text-color-1);
 		display: inline-block;
 		margin-bottom: 5px;
 		width: 10em;
@@ -188,9 +190,9 @@ body.is-logged-out{
 
 	}
 	.#{$namespace}userData{
-		border-bottom: 1px solid $tool-border-color;
+		border-bottom: 1px solid var(--tool-border-color);
 		margin-bottom: 0.5em;
-		background-color: $tool-menu-background-color;
+		background-color: var(--tool-menu-background-color);
 	}
 
 	.#{$namespace}userNav__submenuitem--profile-and-image{
@@ -212,19 +214,19 @@ body.is-logged-out{
 }
 
 .#{$namespace}topHeader{
-	background: $top-header-background;
-	color: $background-color;
+	background: var(--top-header-background);
+	color: var(--sakai-background-color-1);
 	font-size: 1em;
 	height: auto;
 	width: 100%;
-	box-shadow: $divider-shadow;
+	box-shadow: var(--divider-shadow);
 
 	a
 	{
 		@include display-flex;
 		@include align-items( center );
 
-		color: $topNav-text-color;
+		color: var(--topNav-text-color);
 		@media #{$phone} {
 			line-height: 1;
 		}
@@ -247,7 +249,7 @@ body.is-logged-out{
 			@include align-items( center );
 			margin-left: $top-header-item-spacing;
 			padding-left: $top-header-item-spacing;
-			border-left: $top-header-separators-thickness solid $topNav-alt-color;
+			border-left: $top-header-separators-thickness solid var(--topNav-border-color);
 			white-space: nowrap;
 
 				@media #{$phone} {
@@ -343,13 +345,12 @@ body.is-logged-out{
 
 			#roleSwitchAnchor {
 				text-decoration: none;
-				text-transform: capitalize; 	// standardizes the capitalization of the first letter of each word, regardless of role name (e.g. "access" becomes "Access")
 				@media #{$phone} {
-					color: $primary-color;
+					color: var(--sakai-primary-color-1);
 				}
 
 				@media #{$nonPhone} {
-					color: $topNav-text-color;
+					color: var(--topNav-text-color);
 					display: inline-block;
 				}
 
@@ -360,7 +361,7 @@ body.is-logged-out{
 				}
 
 				&.#{$namespace}roleSwitch__exit {
-					color: $topNav-text-color;
+					color: var(--topNav-text-color);
 				}
 			}
 		}
@@ -457,10 +458,10 @@ body.is-logged-out{
 		&.has-avatar:hover .#{$namespace}userNav__submenuitem--profilepicture,
 			&.has-avatar:active .#{$namespace}userNav__submenuitem--profilepicture
 		{
-				box-shadow:inset 0 0 0 2px $top-header-profile-border-color-inner, 0 0 0 2px rgba(0,0,0,.2);
+				box-shadow:inset 0 0 0 2px var(--top-header-profile-border-color-inner), 0 0 0 2px rgba(0,0,0,.2);
 		}
 		&.has-avatar:active .#{$namespace}userNav__submenuitem--profilepicture {
-			box-shadow:inset 0 0 0 2px $top-header-profile-border-color-inner, 0 0 0 2px rgba(0,0,0,.6);
+			box-shadow:inset 0 0 0 2px var(--top-header-profile-border-color-inner), 0 0 0 2px rgba(0,0,0,.6);
 		}
 		
 
@@ -471,7 +472,7 @@ body.is-logged-out{
 		&.has-avatar .#{$namespace}userNav__submenuitem--username:hover,
 			&.has-avatar .#{$namespace}userNav__submenuitem--username:active
 		{
-			color: $topNav-text-color;
+			color: var(--topNav-text-color);
 			text-decoration: underline;
 		}
 	}
@@ -506,7 +507,7 @@ body.is-logged-out{
 			margin-left: 0.5em;
 			font-family: FontAwesome;
 			font-size: 1em;
-			color: $topNav-text-color;
+			color: var(--topNav-text-color);
 		}
 
 		span
@@ -517,7 +518,7 @@ body.is-logged-out{
 		&:hover .#{$namespace}userNav__submenuitem--username, &:active .#{$namespace}userNav__submenuitem--username
 		{
 			text-decoration: none;
-			color: $topNav-text-color;
+			color: var(--topNav-text-color);
 		}
 
 		.#{$namespace}userNav__submenuitem--userid
@@ -538,20 +539,20 @@ body.is-logged-out{
 			background-position: 50%;
 			border-radius:50%;
 			margin: 0 4px 0 0;
-			border: $top-header-profile-border-thickness solid $top-header-profile-border-color-top;			
-			border-right-color: $top-header-profile-border-color-right;
-			border-bottom-color: $top-header-profile-border-color-bottom;
-			border-left-color: $top-header-profile-border-color-left;
+			border: $top-header-profile-border-thickness solid var(--top-header-profile-border-color-top);			
+			border-right-color: var(--top-header-profile-border-color-right);
+			border-bottom-color: var(--top-header-profile-border-color-bottom);
+			border-left-color: var(--top-header-profile-border-color-left);
 			border-radius: 50%;
-			box-shadow:inset 0 0 0 2px $top-header-profile-border-color-inner;
+			box-shadow:inset 0 0 0 2px var(--top-header-profile-border-color-inner);
 			position: relative;
 
 			&:hover, &:active
 			{
-					box-shadow:inset 0 0 0 2px $top-header-profile-border-color-inner, 0 0 0 2px rgba(0,0,0,.2);
+					box-shadow:inset 0 0 0 2px var(--top-header-profile-border-color-inner), 0 0 0 2px rgba(0,0,0,.2);
 			}
 			&:active {
-				background:inset 0 0 0 2px $top-header-profile-border-color-inner, 0 0 0 2px rgba(0,0,0,.4);
+				background:inset 0 0 0 2px var(--top-header-profile-border-color-inner), 0 0 0 2px rgba(0,0,0,.4);
 			}
 			@media #{$phone}
 			{
@@ -616,7 +617,7 @@ body.is-logged-out{
 		margin-left: $top-header-item-spacing;
 		padding: 0;
 		padding-left: $top-header-item-spacing;
-		border-left: $top-header-separators-thickness solid $topNav-alt-color;
+		border-left: $top-header-separators-thickness solid var(--topNav-border-color);
 		@include display-flex;
 		@include align-items(center);
 
@@ -639,7 +640,7 @@ body.is-logged-out{
 		}
 
 		ul{
-			background-color: $tool-tab-background-color;
+			background-color: var(--tool-tab-background-color);
 			text-align: left;
 			padding: 0 0 0 0;
 			margin: 0.48em 1em 0 0.9em;
@@ -658,7 +659,7 @@ body.is-logged-out{
 				position: absolute;
 				pointer-events: none;
 				border-color: transparent;
-				border-bottom-color: $tool-menu-background-color;
+				border-bottom-color: var(--tool-menu-background-color);
 				border-width: 7px;
 				outline: 0;
 				@media #{$phone}{
@@ -693,18 +694,18 @@ body.is-logged-out{
 			}
 			.#{$namespace}userData{
 				@media #{$phone}{
-					color: $text-color;
+					color: var(--sakai-text-color-1);
 					display: block;
 					font-weight: 400;
 					padding: 0.7em 0.65em;
 				}
 			}
 			a{
-				color: $primary-color;
+				color: var(--sakai-primary-color-1);
 				padding: 0.25em 0.25em;
 				&:hover, &:active
 				{
-					color: lighten( $primary-color, 10% );
+					color: var(--sakai-primary-color-2);
 				}
 			}
 		}
@@ -725,7 +726,7 @@ body.is-logged-out{
 /* because #loginLinks appears on the Gateway page when two log-in links are available (e.g. for CAS), the following applies only when you are logged in: */
 .is-maximized #loginLinks
 {
-	border-left: $top-header-separators-thickness solid $topNav-alt-color;
+	border-left: $top-header-separators-thickness solid var(--topNav-border-color);
 }
 
 .#{$namespace}sitesNav__menu{
@@ -739,7 +740,7 @@ body.is-logged-out{
 	display: inline-block;
 	margin-left: $top-header-item-spacing;
 	padding-left: $top-header-item-spacing;
-	border-left: $top-header-separators-thickness solid $topNav-alt-color;
+	border-left: $top-header-separators-thickness solid var(--topNav-border-color);
     white-space: nowrap;
 }
 
@@ -752,7 +753,7 @@ body.is-logged-out{
 	}
 	&:hover {
 		text-decoration: none;
-		color: $topNav-text-color;
+		color: var(--topNav-text-color);
 		background: rgba(0,0,0,.2);
 		border-radius:50%;
 	}
@@ -767,7 +768,7 @@ body.is-logged-out{
 	display: inline-block;
 	margin-left: $top-header-item-spacing;
 	padding-left: $top-header-item-spacing;
-	border-left: $top-header-separators-thickness solid $topNav-alt-color;
+	border-left: $top-header-separators-thickness solid var(--topNav-border-color);
 
 	@media #{$phone}{
 		display: none;
@@ -779,7 +780,7 @@ body.is-logged-out{
 	&:hover, &:active
 	{
 		text-decoration: none;
-		color: $topNav-text-color;
+		color: var(--topNav-text-color);
 
 		i
 		{
@@ -819,9 +820,10 @@ body.is-logged-out{
 {
 	@include display-flex;
 	@include align-items(center);
-	background-color: $sites-nav-background;
+	background-color: var(--sites-nav-background);
 	min-height: $banner-height;
 	padding: 0 $standard-spacing;		// space on the sides; top and bottom spacing will be determined by children
+	transition:var(--sak-theme-switch-ease);
 }
 
 #linkNav{
@@ -839,7 +841,7 @@ body.is-logged-out{
 			margin: 0 $standard-spacing $standard-spacing 0;	// space the items apart, and space vertically if wrapped
 			padding: 0;
 			border-radius: $sites-nav-menu-item-border-radius;
-			background: $sites-nav-menu-item-background;
+			background: var(--sites-nav-menu-item-background);
 			.link-container{
 				@include display-flex;
 				@include align-items( center );
@@ -847,10 +849,12 @@ body.is-logged-out{
 			}
 
 			&.dropdown-is-visible {
-				background: $sites-nav-menu-item-hover-background;
+				background: var(--sites-nav-menu-item-hover-background);
+				border-radius: $sites-nav-menu-item-border-radius $sites-nav-menu-item-border-radius 0 0;
+				box-shadow: 0 5px 5px -3px rgba(0,0,0,.6);
 				&:after {
 					content: "";
-					border-bottom: $sites-nav-selected-submenu-border;
+					border-bottom: var(--sites-nav-selected-submenu-border);
 					width: 100%; // fallback for browsers who don't calculate nested equations
 					width: calc(100% - (2 * #{$sites-nav-menu-item-border-thickness}));	// width minus the left and right border widths
 					position: absolute;
@@ -864,7 +868,8 @@ body.is-logged-out{
 						border-right: $sites-nav-menu-item-hover-border-right;
 						border-bottom: $sites-nav-menu-item-hover-border-bottom;
 						border-left: $sites-nav-menu-item-hover-border-left;
-						background: $sites-nav-menu-item-hover-background;
+						border-color: var(--sites-nav-menu-item-hover-border-color);
+						background: var(--sites-nav-menu-item-hover-background);
 				}
 			}
 
@@ -891,7 +896,8 @@ body.is-logged-out{
 					border-right: $sites-nav-menu-item-hover-border-left;	// using the left variable because of the item rotation (right is left)
 					border-bottom: $sites-nav-menu-item-hover-border-top;	// using top variable because of the item rotation (bottom is top)
 					border-left: $sites-nav-menu-item-hover-border-right;	// using the right variable because of the item rotation (left is right)
-					background: $sites-nav-menu-item-hover-background;
+					border-color: var(--sites-nav-menu-item-hover-border-color);
+					background: var(--sites-nav-menu-item-hover-background);
 				}
 			}
 			
@@ -916,9 +922,9 @@ body.is-logged-out{
 				min-width: 100%;	// at minimum, the menu should be the width of the site title
 				width: max-content; // if the content is wider than the site title, expand to the longest tool name
 				border: $sites-nav-submenu-border;
-				box-shadow: $sites-nav-submenu-shadow;
-				background: $sites-nav-menu-item-background;
-				
+				background: var(--sites-nav-menu-item-background);
+				box-shadow: 0 5px 5px -3px rgba(0,0,0,.6);
+				border-radius: 0 0 $sites-nav-menu-item-border-radius $sites-nav-menu-item-border-radius;
 				.#{$namespace}sitesNav__submenuitem {
 					display: block;
 					border: 0px none;
@@ -932,11 +938,14 @@ body.is-logged-out{
 						@include align-items(center);
 						padding: $sites-nav-submenu-item-padding;
 						text-decoration: none;
-						color: $sites-nav-submenu-item-color;
+						color: var(--sites-nav-submenu-item-color);
 						font-size: $sites-nav-submenu-item-text-size;
 						line-height: 1em;
+						background: var(--sites-nav-submenu-background);
+						
 						&:hover, &:active {
-							color: $sites-nav-submenu-item-color; /* to override default link hover color */
+							color: var(--sites-nav-submenu-item-color); /* to override default link hover color */
+							background: var(--sites-nav-submenu-item-hover-background);
 						}
 						.toolMenuIcon{
 							@extend .fa-fw;
@@ -963,28 +972,32 @@ body.is-logged-out{
 			
 			// Current site is selected:
 			&.is-selected {
-				background: $sites-nav-menu-item-selected-background;
+				background: var(--sites-nav-menu-item-selected-background);
+
 				.link-container, .#{$namespace}sitesNav__dropdown, .#{$namespace}sitesNav__favbtn {
-					background: $sites-nav-menu-item-selected-background;
+					background: var(--sites-nav-menu-item-selected-background);
 					border-top: $sites-nav-menu-item-selected-border-top;
 					border-right: $sites-nav-menu-item-selected-border-right;
 					border-bottom: $sites-nav-menu-item-selected-border-bottom;
 					border-left: $sites-nav-menu-item-selected-border-left;
-					color: $sites-nav-menu-item-selected-color;
+					border-color: var(--sites-nav-menu-item-selected-border-color);
+					color: var(--sites-nav-menu-item-selected-color);
 					font-weight: $sites-nav-menu-item-selected-font-weight;
+
 					&:hover, &:focus {
 						border-top: $sites-nav-menu-item-selected-hover-border-top;
 						border-right: $sites-nav-menu-item-selected-hover-border-right;
 						border-bottom: $sites-nav-menu-item-selected-hover-border-bottom;
 						border-left: $sites-nav-menu-item-selected-hover-border-left;
-						background: $sites-nav-menu-item-selected-hover-background;
+						border-color: var(--sites-nav-menu-item-selected-hover-border-color);
+						background: var(--sites-nav-menu-item-selected-hover-background);
 					}
 				}
 
 				&.dropdown-is-visible {
 					&:after {	// the rest of the properties will inherit from the default case above
 						content: "";
-						border-bottom: $sites-nav-selected-submenu-border
+						border-bottom: var(--sites-nav-selected-submenu-border)
 					}
 					
 					.link-container, .#{$namespace}sitesNav__dropdown, .#{$namespace}sitesNav__favbtn {
@@ -992,12 +1005,13 @@ body.is-logged-out{
 						border-right: $sites-nav-menu-item-selected-hover-border-right;
 						border-bottom: $sites-nav-menu-item-selected-hover-border-bottom;
 						border-left: $sites-nav-menu-item-selected-hover-border-left;
-						background: $sites-nav-menu-item-selected-hover-background;
+						border-color: var(--sites-nav-menu-item-selected-hover-border-color);
+						background: var(--sites-nav-menu-item-selected-hover-background);
 					}
 				}
 
 				.#{$namespace}sitesNav__submenu {
-					border-color: $sites-nav-selected-submenu-border-color;
+					border-color: var(--sites-nav-selected-submenu-border-color);
 				}
 			}
 
@@ -1013,16 +1027,16 @@ body.is-logged-out{
 			}
 
 			.#{$namespace}sitesNav__submenu {
-				background: $sites-nav-submenu-background;
+				background: var(--sites-nav-submenu-background);
 				
 				.#{$namespace}sitesNav__submenuitem {
 					.#{$namespace}sitesNav__submenuitem-link, a {
 						position: relative;
-						background: $sites-nav-submenu-item-background;
-						color: $sites-nav-submenu-item-color;
+						background: var(--sites-nav-submenu-item-background);
+						color: var(--sites-nav-submenu-item-color);
 						
 						.toolMenuIcon {
-							color: $sites-nav-submenu-item-icon-color;
+							color: var(--sites-nav-submenu-item-icon-color);
 						}
 
 						&:before {
@@ -1033,17 +1047,18 @@ body.is-logged-out{
 							display: inline-block;
 							height: 100%;
 							border-left: $sites-nav-submenu-item-left-border;
+							border-color: var(--sites-nav-submenu-item-border-color);
 						}
 
 						&:hover, &:active, &:focus {
-							background: $sites-nav-submenu-item-hover-background;
-							color: $sites-nav-submenu-item-hover-color;
+							background: var(--sites-nav-submenu-item-hover-background);
+							color: var(--sites-nav-submenu-item-hover-color);
 							
 							.toolMenuIcon {
-								color: $sites-nav-submenu-item-hover-icon-color;
+								color: var(--sites-nav-submenu-item-hover-icon-color);
 							}
 							&:before{
-								border-left-color: $sites-nav-submenu-item-hover-left-border-color;
+								border-left-color: var(--sites-nav-submenu-item-hover-left-border-color);
 							}
 						}
 						
@@ -1052,20 +1067,20 @@ body.is-logged-out{
 						}
 					}
 					&.#{$namespace}sitesNav__submenuitem__gotosite {
-						border-top: 1px solid $sites-nav-submenu-item-divider-color;
+						border-top: 1px solid var(--sites-nav-submenu-item-divider-color);
 
 						> a:after {
 							font-family: FontAwesome;
 							content: '\f178';
 							margin-left: 10px;
-							color: $sites-nav-submenu-item-icon-color;
+							color: var(--sites-nav-submenu-item-icon-color);
 						}
 
 						&:hover {
-							border-top: 1px solid $sites-nav-submenu-item-divider-color;
+							border-top: 1px solid var(--sites-nav-submenu-item-divider-color);
 
 							> a:after {
-								color: $sites-nav-submenu-item-hover-icon-color;
+								color: var(--sites-nav-submenu-item-hover-icon-color);
 							}
 						}
 					}
@@ -1103,8 +1118,8 @@ body.is-logged-out #linkNav .#{$namespace}sitesNav__menuitem .#{$namespace}sites
 }
 
 #show-all-sites-mobile{
-	color: $background-color-secondary;
-	background: lighten( $background-color, 5% );
+	color: var(--sakai-background-color-2);
+	background: var(--sakai-background-color-2);
 	display: none;
 	cursor: pointer;
 	position: absolute;
@@ -1113,7 +1128,7 @@ body.is-logged-out #linkNav .#{$namespace}sitesNav__menuitem .#{$namespace}sites
 	top: 0em;
 	right: 0em;
 	width:2.5em;
-	border-left: 1px solid darken( $background-color-secondary, 10% );
+	border-left: 1px solid var(--sakai-border-color);
 	padding: 0 9px;
 	outline: 0;
 	> div{
@@ -1129,7 +1144,7 @@ body.is-logged-out #linkNav .#{$namespace}sitesNav__menuitem .#{$namespace}sites
 		right: 10px;
 		border-left: 0px none;
 		> div {
-			color: $secondary-color;
+			color: var(--sakai-secondary-color-1);
 			@include transform( rotateZ(45deg) );
 		}
 	}
@@ -1147,23 +1162,25 @@ body.is-logged-out #linkNav .#{$namespace}sitesNav__menuitem .#{$namespace}sites
 	@include justify-content(center);
 	margin: $standard-spacing $standard-spacing 0 $standard-spacing;
 	padding: $standard-spacing;
-	
+
 	&.is-softly-deleted{
-		color: $siteDelete-color;
-		background-color: $siteDelete-background;
+		color: var(--siteDelete-color);
+		background-color: var(--siteDelete-background);
 		border: $siteDelete-border;
-		
+		border-color: var(--siteDelete-border-color);
+
 		p {
 			margin: 0;
 			padding: 0;
 		}
 	}
-	
+
 	&.is-unpublished{
-		color: $siteUnpublish-color;
-		background-color: $siteUnpublish-background;
+		color: var(--siteUnpublish-color);
+		background-color: var(--siteUnpublish-background);
 		border: $siteUnpublish-border;
-		
+		border-color: var(--siteUnpublish-border-color);
+
 		h4{
 			display: inline-block;
 			margin: 0;

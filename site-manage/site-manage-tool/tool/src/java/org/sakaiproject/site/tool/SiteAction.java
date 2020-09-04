@@ -5585,9 +5585,6 @@ public class SiteAction extends PagedResourceActionII {
 		state.setAttribute(STATE_TEMPLATE_INDEX, "0"); // return to the site
 		// list
 
-		// TODO: hard coding this frame id is fragile, portal dependent, and
-		// needs to be fixed -ggolden
-		// schedulePeerFrameRefresh("sitenav");
 		scheduleTopRefresh();
 
 	} // doSite_delete_confirmed
@@ -7076,9 +7073,6 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				saveSiteSetupQuestionUserAnswers(state, site.getId());
 			}
 			
-			// TODO: hard coding this frame id is fragile, portal dependent, and
-			// needs to be fixed -ggolden
-			// schedulePeerFrameRefresh("sitenav");
 			scheduleTopRefresh();
 
 			resetPaging(state);
@@ -9362,9 +9356,6 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				}
 				state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 
-				// TODO: hard coding this frame id is fragile, portal dependent,
-				// and needs to be fixed -ggolden
-				// schedulePeerFrameRefresh("sitenav");
 				scheduleTopRefresh();
 
 				state.removeAttribute(STATE_JOINABLE);
@@ -10088,10 +10079,6 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 										log.warn(this + " actionForTemplate chef_siteinfo-duplicate:: PermissionException when saving " + newSiteId);
 									}
 
-									// TODO: hard coding this frame id
-									// is fragile, portal dependent, and
-									// needs to be fixed -ggolden
-									// schedulePeerFrameRefresh("sitenav");
 									scheduleTopRefresh();
 
 									// send site notification
@@ -13508,9 +13495,6 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		// add the pre-configured site type tools to a new site
 		addSiteTypeFeatures(state);
 
-		// TODO: hard coding this frame id is fragile, portal dependent, and
-		// needs to be fixed -ggolden
-		// schedulePeerFrameRefresh("sitenav");
 		scheduleTopRefresh();
 
 		resetPaging(state);
@@ -13863,7 +13847,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		}
 		
 		// now consider those user with affiliated sections
-		List affiliatedSectionEids = affiliatedSectionProvider.getAffiliatedSectionEids(userId, academicSessionEid);
+		List<String> affiliatedSectionEids = affiliatedSectionProvider.getAffiliatedSectionEids(userId, academicSessionEid);
 		if (affiliatedSectionEids != null)
 		{
 			for (int k = 0; k < affiliatedSectionEids.size(); k++) {
@@ -15837,6 +15821,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		Site site = (Site) state.getAttribute("site");
 		SitePage page = (SitePage) state.getAttribute("overview");
 		List<ToolConfiguration> tools = (List<ToolConfiguration>) state.getAttribute("tools");
+		if ( tools == null ) return;
 		ToolConfiguration tool = null;
 
 		for(ToolConfiguration pageTool: tools){
@@ -15844,6 +15829,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				tool = pageTool;
 			}
 		}
+		if ( tool == null ) return;
 		String hints = tool.getLayoutHints();
 		String[] hintArr = hints.split(",");
 		String col = null;
@@ -15922,6 +15908,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		Site site = (Site) state.getAttribute("site");
 		SitePage page = (SitePage) state.getAttribute("overview");
 		List<ToolConfiguration> tools = (List<ToolConfiguration>) state.getAttribute("tools");
+		if ( tools == null ) return;
 		ToolConfiguration tool = null;
 
 		for(ToolConfiguration pageTool: tools){
@@ -15930,6 +15917,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			}
 		}
 
+		if ( tool == null ) return;
 		String hints = tool.getLayoutHints();
 		String[] hintArr = hints.split(",");
 		String col = null;
@@ -16005,7 +15993,9 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		// get the tool
 		Site site = (Site) state.getAttribute("site");
 		SitePage page = (SitePage) state.getAttribute("overview");
+		if ( page == null ) return;
 		ToolConfiguration tool = page.getTool(id);
+		if ( tool == null ) return;
 
 		// move it
 		String hints = tool.getLayoutHints();
@@ -16027,12 +16017,15 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		String id = data.getParameters().getString("id");
+		if ( id == null ) return;
 		
 
 		// get the tool
 		Site site = (Site) state.getAttribute("site");
 		SitePage page = (SitePage) state.getAttribute("overview");
+		if ( page == null ) return;
 		ToolConfiguration tool = page.getTool(id);
+		if ( tool == null ) return;
 
 		// move it
 		String hints = tool.getLayoutHints();
@@ -16093,12 +16086,8 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		state.removeAttribute("site");
 		state.removeAttribute("allWidgets");
 
-		// make sure auto-updates are enabled
-		enableObserver(state);
-
 		// TODO: hard coding this frame id is fragile, portal dependent, and needs to be fixed -ggolden
 		schedulePeerFrameRefresh("sitenav");
-
 
 		doContinue(data);
 
@@ -16215,6 +16204,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 		SitePage page = (SitePage) state.getAttribute("overview");
 		List<ToolConfiguration> tools = (List<ToolConfiguration>) state.getAttribute("tools");
+		if ( tools == null ) return;
 
 		List<ToolConfiguration> removedTools = (List<ToolConfiguration>) state.getAttribute("removedTools");
 		if(removedTools == null){

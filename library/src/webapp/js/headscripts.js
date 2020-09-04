@@ -19,11 +19,8 @@
  *
  **********************************************************************************/
  
-var courierRunning = false;
-
 var focus_path;
 
-var ignoreCourier = false;
 var doubleDeep = false;
 
 function inIframe () {
@@ -168,31 +165,6 @@ function buildQueryString(theFormName)
 		}
 	}
 	return qs;
-}
-
-// use if peer w/ courier, both frames in "top" parent
-function updCourier(dd, ic)
-{
-	if (ic) return;
-
-	if (dd)
-	{
-		parent.updCourier(false, false);
-		return;
-	}
-
-	if ((!courierRunning) && (window.courier) && (window.courier.location.toString().length > 1))
-	{
-		courierRunning = true;
-		window.courier.location.replace(window.courier.location);
-	}
-
-        // If we are using the httpCourier for event delivery, speed it up
-	try {
-		if ( httpCourier ) {
-		        setTimeout('httpCourier()', 200);
-		}
-	} catch (error) {}
 }
 
 function formSubmitOnEnter(field, event)
@@ -513,26 +485,6 @@ function setFocus(elements)
 	}
 }
 
-// return the url with auto=courier appended, sensitive to ? already in there or not
-function addAuto(loc)
-{
-	var str = loc.toString();
-
-	// not if already there
-	if (str.indexOf("auto=courier") !== -1) return str;
-	
-	if (str.indexOf("?") !== -1)
-	{
-		// has a ?
-		return str + '&auto=courier';
-	}
-	else
-	{
-		// has no ?
-		return str + '?auto=courier';
-	}
-}
-
 function showNotif(item, button,formName)
 {
 	if (button !=="noBlock")
@@ -800,6 +752,9 @@ function includeWebjarLibrary(library) {
 	} else if (library == 'datatables') {
 		libraryVersion = "1.10.20";
 		document.write('\x3Cscript src="' + webjars + 'datatables/' + libraryVersion + '/js/jquery.dataTables.min.js' + ver + '">' + '\x3C/script>');
+	} else if (library == 'datatables-rowgroup') {
+		libraryVersion = "1.1.1";
+		document.write('\x3Cscript src="' + webjars + 'datatables.net-rowgroup/js/dataTables.rowGroup.min.js' + ver + '">' + '\x3C/script>');
 	} else if (library == 'ckeditor') {
 		libraryVersion = "4.14.0";
 		document.write('\x3Cscript src="' + webjars + 'ckeditor/' + libraryVersion + '/full/ckeditor.js' + ver + '">' + '\x3C/script>');
@@ -814,7 +769,7 @@ function includeWebjarLibrary(library) {
 		libraryVersion = "4.0.6";
 		document.write('\x3Cscript src="' + webjars + 'handlebars/' + libraryVersion + '/handlebars.runtime.min.js' + ver + '">' + '\x3C/script>');
 	} else if (library == 'qtip2') {
-		libraryVersion = "3.0.3";
+		libraryVersion = "3.0.3-1";
 		document.write('\x3Cscript src="' + webjars + 'qtip2/' + libraryVersion + '/jquery.qtip.min.js' + ver + '">' + '\x3C/script>');
 		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'qtip2/' + libraryVersion + '/jquery.qtip.min.css' + ver + '"/>');
 	} else if (library == 'jstree') {

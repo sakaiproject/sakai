@@ -9,6 +9,7 @@
         <link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
         <link rsf:id="scr=portal-matter" href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
         <script>includeLatestJQuery('Reorder.html');</script>
+        <script src="/library/js/fluid/1.5/MyInfusion.js"></script>
         <script type="text/javascript" src="$context/js/reorder.js"></script>
         <link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/Simplepagetool.css" type="text/css"/>
         <title rsf:id="msg=simplepage.reorder_header"></title>
@@ -24,33 +25,43 @@
             <div class="sak-banner-error" id="error" rsf:id="error">
             </div>
             <div class="layoutReorderer-container fl-container-flex" id="layoutReorderer" style="margin:1em 0">
-                <div class="columnSetup2 fluid-vertical-order">
+                <div class="columnSetup2 fluid-vertical-order row" style="margin-left:0;margin-right:0;">
                     <!-- invalid drag n drop message template --><!-- Column #1 -->
-                    <div class="flc-reorderer-column col1" id="reorderCol1">
-                        <div class="reorderItemsContainer">
-                            <div rsf:id="item:" class="flc-reorderer-module layoutReorderer-module">
-                                <div class="reordSeqContainer">
-                                    <div rsf:id="seq" class="reorderSeq">
+                    <div class="flc-reorderer-column col1 col-md-7 list-group" id="reorderCol1">
+                        <div rsf:id="sectionContainer:" class="section-container">
+                            <div rsf:id="columnContainer:">
+                                <div rsf:id="item:" class="flc-reorderer-module layoutReorderer-module list-group-item">
+                                    <h3 rsf:id="section-label" class="section-label"></h3>
+                                    <div class="reordSeqContainer" style="display:none;">
+                                        <div rsf:id="seq" class="reorderSeq">
+                                        </div>
+                                    </div>
+                                    <div class="reordItemContainer">
+                                        <span rsf:id="import-indicator" class="fa fa-angle-double-right import-indicator" aria-hidden="true"></span>
+                                        <span rsf:id="icon" class="reorder-icon"></span>
+                                        <a href="#" rsf:id="link-button"><span rsf:id="link-button-text"></span></a>
+                                        <a href="#" rsf:id="link"><span rsf:id="link-text"></span></a>
+                                        <span rsf:id="link-fake"></span>
+                                        <span rsf:id="text-snippet" class="reordItemContainerDesc textPanelFooter"></span>
+                                        <span class="reordItemContainerDesc textPanelFooter" style="" rsf:id="description"></span>
+                                        <a rsf:id="previewlink" class="preview-link" data-toggle="modal">
+                                            <span rsf:id="text-snippet2"></span>
+                                        </a>
+                                        <span rsf:id="dellink"></span>
+                                    </div>
+                                    <div class="reordDeleteContainer">
+                                        <a href="javascript:void(0);" class="deleteAnswerTrashLink"><span rsf:id="dellink" class="fa fa-trash-o redLessonsIcon"></span></a>
+                                        <a href="javascript:void(0);" rsf:id="dellinkmoveup" class="deleteAnswerLink"><span class="fa fa fa-compress section-delete-icon" aria-hidden="true"></span><span rsf:id="msg=simplepage.reorder.delete.up" class="sr-only"></span></a>
+                                        <a href="javascript:void(0);" rsf:id="dellinksection" class="deleteAllLink"><span class="fa fa-trash-o section-delete-icon" aria-hidden="true"></span><span rsf:id="msg=simplepage.reorder.delete.all" class="sr-only"></span></a>
                                     </div>
                                 </div>
-                                <div class="reordItemContainer">
-                                    <a href="#" rsf:id="link-button"><span rsf:id="link-button-text"></span></a>
-                                    <a href="#" rsf:id="link"><span rsf:id="link-text"></span></a>
-                                    <span rsf:id="link-fake"></span>
-                                    <div rsf:id="text-snippet" class="reordItemContainerDesc textPanelFooter"></div>
-                                    <div class="reordItemContainerDesc textPanelFooter" style="" rsf:id="description"></div>
-                                    <span rsf:id="dellink"></span>
-                                </div>
-                                <div class="reordDeleteContainer">
-                                    <a href="#" class="deleteAnswerLink"><img src="$context/images/delete.png" rsf:id="dellink">
-                                        </img></a>
-                                </div>
                             </div>
-                        </div><!-- Column #2 -->
+                        </div>
                     </div>
-                    <div class="flc-reorderer-column col2" id="reorderCol2">
-                        <span rsf:id="msg=simplepage.reorder_delebox">Drop off here</span>
-                        <div class="deleteListMessageEmpty reorderItemsContainer" id="deleteListHead"></div>
+                    <div class="flc-reorderer-column col2 panel panel-danger col-md-4 col-md-offset-1" id="reorderCol2">
+                        <div class="deleteListMessageEmpty reorderItemsContainer" id="deleteListHead">
+                            <span rsf:id="msg=simplepage.reorder_delebox">Drop off here</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -59,7 +70,7 @@
                 <a href="#" id="subpage-choose" rsf:id="subpage-choose"><span rsf:id="msg=simplepage.choose_existing_page"></span></a>
             </div>
             <form action="#" rsf:id="form" style="margin-top:2em;clear:both;">
-		<input type="hidden" rsf:id="csrf"/>
+		<input type="hidden" rsf:id="csrf" id="csrf"/>
                 <p class="act">
                     <input type="hidden" rsf:id="otherpage" id="otherpage" />
                     <input type="hidden" rsf:id="order" id="order" />
@@ -67,6 +78,27 @@
                     <input type="submit" rsf:id="cancel" />
                 </p>
             </form>
+
+            <div rsf:id="modal:">
+                <div rsf:id="previewmodal" class="modal fade" role="dialog">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <strong><span rsf:id="msg=simplepage.preview.header"></span></strong>
+                            </div>
+                            <div class="modal-body" style="overflow: auto;">
+                                <span rsf:id="previewcontent"></span>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal"><span rsf:id="msg=simplepage.reorder.close"></span></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+        <script>
+            initlayoutReorderer();
+        </script>
     </body>
 </html>

@@ -1,0 +1,91 @@
+// Dark Theme
+@import "themes/base";
+
+:root.sakai-dark-theme {
+    /****************************************************/
+    // Main theme definition
+    // Start by defining the 12 variables below to create
+    // your theme. If advanced customization is necessary,
+    // continue to the remaining variables.
+    /***************************************************/
+
+    /***************************************************/
+    // Color palette generation
+    // Use defineColorHSL to generate an 11 shade palette for a color.
+    // @include defineColorHSL(colorname, hue, saturation, lightness)
+    // @param colorname
+    //      Type: string
+    //      expects a CSS custom property name
+    // @param hue
+    //      Type: integer
+    //      expects an integer 0-255
+    // @param saturation
+    //      Type: percentage
+    //      expects a percentage 0-100%
+    // @param lightness
+    //      Type: percentage
+    //      expects a percentage 0-100%
+    // @returns 11 CSS Custom Properties available in :root
+    //      named colorname-0 through colorname-10
+    //      The HSL you provide in the parameters will be in the
+    //      middle of the range at -5.
+    // Example 
+    // @include defineColorHSL(--myschool-gray, 214, 3%, 55%);
+    //      returns --myschool-gray-5: hsl(214, 3%, 55%;
+    //
+    // Sakai comes predefined with gray, blue, lightblue, teal, gold,
+    // green, orange, purple, and red palettes available for you to use.
+    /***************************************************/
+
+    // Primary branding color. Suggested: Your institution's main branding color.
+    // Used in the top header, action buttons, etc. Commonly used as the background
+    // color with white text color.
+    --sakai-primary-color-1:                 var(--sakai-color-blue-5);
+
+    // A slightly darker shade of --sakai-primary-color-1
+    // Used for hover effects and higher contrast with white text color
+    --sakai-primary-color-2:                 var(--sakai-color-blue-6);
+
+    // A slightly darker shade of --sakai-primary-color-2
+    // Used for active, focus, selected effects
+    --sakai-primary-color-3:                 var(--sakai-color-blue-7);
+
+    // Primary background color. Suggested: very dark grey
+    // Used on the body and main content containers
+    --sakai-background-color-1:              var(--sakai-color-gray-10);
+
+    // A slightly lighter shade of --sakai-background-color-1
+    // Used in hover effects, alternating table rows
+    --sakai-background-color-2:              var(--sakai-color-gray-9);
+
+    // A slightly lighter shade of --sakai-primary-color-2
+    // Used for active, focus, selected effects
+    --sakai-background-color-3:              var(--sakai-color-gray-8);
+
+    // Secondary branding color. Suggested: An alterate branding color distinct from
+    // what you select for --sakai-primary-color-1
+    // Used in new user tutorial, user profile image border
+    --sakai-secondary-color-1:                      var(--sakai-color-lightblue-5);
+
+    // Tertiary branding color. Suggested: A third branding color distinct from
+    // what you selected for --sakai-primary-color-1 and --sakai-secondary-color-1
+    // Used in user profile image border
+    --sakai-tertiary-color-1:      var(--sakai-color-orange-5);
+
+    // Primary border color used across sakai. Suggested: light gray
+    --sakai-border-color:                    var(--sakai-color-gray-5);
+
+    // Primary text color used across sakai. Suggested: dark gray, near black
+    // Most commonly used against --sakai-background-color-1
+    --sakai-text-color-1:                      var(--sakai-color-gray-0);
+
+    // A slightly darker shade of --sakai-text-color-1
+    // Used in certain hover effects, but NOT a[href] elements
+    --sakai-text-color-2:                var(--sakai-color-gray-1);
+
+    // A lighter shade of --sakai-text-color-1
+    // Used to make elements appear disabled or "grayed out"
+    --sakai-text-color-disabled:             var(--sakai-color-gray-5);
+
+    /************************End main theme definition***********************/
+}

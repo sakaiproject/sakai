@@ -3,56 +3,19 @@
 	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
-	<!-- FsService is often retrieved from HttpRequest -->
-	<!-- while a static FsService is defined here -->
-	<bean id="fsServiceFactory" class="org.sakaiproject.elfinder.impl.SakaiFsServiceFactory">
-		<property name="fsService">
-			<bean class="org.sakaiproject.elfinder.sakai.SakaiFsService">
-				<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
-				<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
-				<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
-				<property name="securityChecker">
-					<bean class="org.sakaiproject.elfinder.impl.SakaiFsSecurityChecker"/>
-				</property>
-				<property name="toolVolume">
-					<set>
-						<bean class="org.sakaiproject.elfinder.sakai.content.ContentSiteVolumeFactory">
-							<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
-							<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
-							<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
-							<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
-							<property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
-						</bean>
-						<bean class="org.sakaiproject.elfinder.sakai.content.DropboxSiteVolumeFactory">
-							<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
-							<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
-							<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
-							<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
-							<property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
-						</bean>
-						<bean class="org.sakaiproject.elfinder.sakai.msgcntr.MsgCntrSiteVolumeFactory">
-							<property name="discussionForumManager" ref="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager"/>
-							<property name="messageForumsForumManager" ref="org.sakaiproject.api.app.messageforums.MessageForumsForumManager"/>
-							<property name="uiPermissionsManager" ref="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager"/>
-							<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
-							<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
-						</bean>
+	<bean id="fsServiceFactory"
+		  class="org.sakaiproject.elfinder.impl.SakaiFsServiceFactory">
+		<property name="fsService" ref="org.sakaiproject.elfinder.impl.SakaiFsServiceAdapter"/>
+	</bean>
 
-						<bean class="org.sakaiproject.elfinder.sakai.assignment.AssignmentSiteVolumeFactory">
-							<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
-							<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
-							<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
-						</bean>
-						<bean class="org.sakaiproject.elfinder.sakai.samigo.SamSiteVolumeFactory">
-							<property name="publishedAssessmentService" >
-								<bean class="org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService"/>
-							</property>
-							<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
-
-						</bean>
-					</set>
-				</property>
-			</bean>
+	<bean id="org.sakaiproject.elfinder.impl.SakaiFsServiceAdapter"
+		  class="org.sakaiproject.elfinder.impl.FsServiceAdapter">
+		<property name="sakaiFsService" ref="org.sakaiproject.elfinder.SakaiFsService"/>
+		<property name="securityChecker">
+			<bean class="org.sakaiproject.elfinder.impl.SakaiFsSecurityChecker"/>
+		</property>
+		<property name="fsServiceConfig">
+			<bean class="org.sakaiproject.elfinder.impl.SakaiFsServiceConfig"/>
 		</property>
 	</bean>
 </beans>

@@ -21,15 +21,6 @@
 	</tag>
 
 	<tag>
-		<tag-name>courier</tag-name>
-		<component> 
-			<component-type>org.sakaiproject.Courier</component-type> 
-			<renderer-type>org.sakaiproject.Courier</renderer-type>
-		</component> 
-	</tag>
-    
-
-	<tag>
 		<tag-name>debug</tag-name>
 		<component> 
 			<component-type>org.sakaiproject.Debug</component-type> 

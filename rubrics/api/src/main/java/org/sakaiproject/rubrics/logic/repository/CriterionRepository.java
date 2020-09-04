@@ -22,6 +22,8 @@
 
 package org.sakaiproject.rubrics.logic.repository;
 
+import java.util.Optional;
+
 import org.sakaiproject.rubrics.logic.model.Criterion;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,7 +36,7 @@ public interface CriterionRepository extends MetadataRepository<Criterion, Long>
 
     @Override
     @PreAuthorize("canRead(#id, 'Criterion')")
-    Criterion findOne(Long id);
+    Optional<Criterion> findById(Long id);
 
     @Override
     @Query("select resource from Criterion resource where " + QUERY_CONTEXT_CONSTRAINT)
@@ -42,5 +44,5 @@ public interface CriterionRepository extends MetadataRepository<Criterion, Long>
 
     @Override
     @PreAuthorize("canWrite(#id, 'Criterion')")
-    void delete(Long id);
+    void deleteById(Long id);
 }

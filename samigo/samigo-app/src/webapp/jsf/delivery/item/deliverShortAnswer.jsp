@@ -40,7 +40,7 @@ should be included in file importing DeliveryMessages
 <%-- If studentRichText is true, show the rich text answer option --%>
 <h:panelGrid rendered="#{delivery.actionString!='reviewAssessment'
             && delivery.actionString!='gradeAssessment' && delivery.studentRichText}">
-	<samigo:wysiwyg rows="240" value="#{question.responseText}" hasToggle="yes">
+	<samigo:wysiwyg rows="240" value="#{question.responseText}" hasToggle="yes" maxCharCount="32000">
 	</samigo:wysiwyg>
 </h:panelGrid>
 

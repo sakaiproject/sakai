@@ -1238,7 +1238,6 @@ GbGradeTable.renderTable = function (elementId, tableData) {
         $togglePanel.find('.gb-item-filter :checkbox[value='+$(this).data('assignmentid')+']').trigger('click');
       } else if ($(this).data('categoryid')) {
         // Skip if column is already not rendered
-        if (!GbGradeTable.isColumnRendered(GbGradeTable.instance, col)) return false;
         var colIndex = GbGradeTable.colForCategoryScore($(this).data('categoryid'));
         var col = GbGradeTable.instance.view.settings.columns[colIndex]._data_;
         $togglePanel.find('.gb-item-category-score-filter :checkbox[value="'+col.categoryName+'"]').trigger('click');

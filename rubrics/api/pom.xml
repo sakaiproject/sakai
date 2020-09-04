@@ -41,7 +41,7 @@
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-rest-webmvc</artifactId>
-            <version>${spring.data.rest.webmvc.version}</version>
+            <version>${sakai.spring.data.rest.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>

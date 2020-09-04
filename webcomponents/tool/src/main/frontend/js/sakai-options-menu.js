@@ -4,24 +4,6 @@ import './sakai-icon.js';
 
 export class SakaiOptionsMenu extends LitElement {
 
-  static get styles() {
-
-    return css`
-      ::slotted(div) {
-        display: none;
-        background-color: var(--sakai-options-menu-background-color, white);
-        border-width: var(--sakai-options-menu-border-width, 1px);
-        border-style: var(--sakai-options-menu-border-style, solid);
-        border-color: var(--sakai-options-menu-border-color, black);
-        font-family: var(--sakai-options-menu-font-family, arial, sans-serif);
-        padding: 5px;
-      }
-      #invoker {
-        color: var(--sakai-options-menu-invoker-color, white);
-      }
-    `;
-  }
-
   static get properties() {
 
     return {
@@ -57,14 +39,7 @@ export class SakaiOptionsMenu extends LitElement {
     this.invoker = this.shadowRoot.querySelector("#invoker");
     this.invoker.addEventListener("keydown", (e) => this._handleEscape(e));
 
-    this.popper = createPopper(this.invoker, this.content,
-      {
-        placement: this.placement,
-        modifiers: [
-          { name: 'offset', options: { offset: [0, 8] }},
-        ]
-      }
-    );
+    this.setupPopper();
   }
 
   _handleEscape(e) {
@@ -79,9 +54,10 @@ export class SakaiOptionsMenu extends LitElement {
   _toggle() {
 
     if (this.showing) {
-      this.content.style.display = "none";
+      this.content.style.visibility = "hidden";
     } else {
-      this.content.style.display = "block";
+      this.content.style.visibility = "visible";
+      //this.content.querySelector("a").focus();
     }
     this.showing = !this.showing;
   }
@@ -89,8 +65,47 @@ export class SakaiOptionsMenu extends LitElement {
   render() {
 
     return html`
-      <a id="invoker" href="javascript:;" @click=${this._toggle} aria-haspopup="true" title="${this.invokerTooltip}"><sakai-icon type="menu" size="${this.invokerSize}" /></a>
+      <a id="invoker" href="javascript:;"
+          @click=${this._toggle}
+          aria-haspopup="true"
+          title="${this.invokerTooltip}"
+          aria-label="${this.invokerTooltip}">
+        <sakai-icon type="menu" size="${this.invokerSize}" />
+      </a>
       <slot name="content"></slot>
+    `;
+  }
+
+  setupPopper() {
+
+    this.popper = createPopper(this.invoker, this.content, {
+        placement: this.placement,
+        modifiers: [
+          { name: 'offset', options: { offset: [0, 8] }},
+        ]
+      }
+    );
+  }
+
+  refresh() {
+    this.setupPopper();
+  }
+
+  static get styles() {
+
+    return css`
+      ::slotted(div) {
+        visibility: hidden;
+        background-color: var(--sakai-options-menu-background-color, white);
+        border-width: var(--sakai-options-menu-border-width, 1px);
+        border-style: var(--sakai-options-menu-border-style, solid);
+        border-color: var(--sakai-options-menu-border-color, black);
+        font-family: var(--sakai-font-family, roboto, arial, sans-serif);
+        padding: 5px;
+      }
+      #invoker {
+        color: var(--sakai-options-menu-invoker-color, white);
+      }
     `;
   }
 }

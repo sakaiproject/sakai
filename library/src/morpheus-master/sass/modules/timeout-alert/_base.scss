@@ -1,7 +1,7 @@
 #timeout_alert_body
 {
 	z-index: 1001;
-	background: $background-color;
+	background: var(--sakai-background-color-1);
 	position: fixed;
 	top: 50%;
 	left: 50%;

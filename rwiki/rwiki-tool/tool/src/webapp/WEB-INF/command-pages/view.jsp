@@ -54,7 +54,7 @@
 	</c:if>
     </head>
     <jsp:element name="body">
-      <jsp:attribute name="onload">setMainFrameHeightNoScroll('<jsp:expression>request.getAttribute("sakai.tool.placement.id")</jsp:expression>');setFocus(focus_path);parent.updCourier(doubleDeep,ignoreCourier); callAllLoaders();</jsp:attribute>
+      <jsp:attribute name="onload">setMainFrameHeightNoScroll('<jsp:expression>request.getAttribute("sakai.tool.placement.id")</jsp:expression>');setFocus(focus_path); callAllLoaders();</jsp:attribute>
       <jsp:directive.include file="header.jsp"/>
       <div id="rwiki_container">
 	<div class="portletBody">

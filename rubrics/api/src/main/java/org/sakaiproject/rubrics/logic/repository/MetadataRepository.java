@@ -50,7 +50,7 @@ public interface MetadataRepository<T extends Modifiable, ID extends Serializabl
      */
     @Override
     @RestResource(exported = false)
-    <S extends T> Iterable<S> save(Iterable<S> iterable);
+    <S extends T> Iterable<S> saveAll(Iterable<S> iterable);
 
     @Override
     @PreAuthorize("canWrite(#resource)")
@@ -74,5 +74,5 @@ public interface MetadataRepository<T extends Modifiable, ID extends Serializabl
      */
     @Override
     @RestResource(exported = false)
-    void delete(Iterable<? extends T> iterable);
+    void deleteAll(Iterable<? extends T> iterable);
 }

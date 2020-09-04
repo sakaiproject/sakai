@@ -42,6 +42,7 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.Session;
@@ -68,19 +69,20 @@ public class SuTool
 	// Service instance variables
 	private AuthzGroupService M_authzGroupService = ComponentManager.get(AuthzGroupService.class);
 
-	private UserDirectoryService M_uds = org.sakaiproject.user.cover.UserDirectoryService.getInstance();
+	private UserDirectoryService M_uds = ComponentManager.get(UserDirectoryService.class);
 
-	private SecurityService M_security = org.sakaiproject.authz.cover.SecurityService.getInstance();
+	private SecurityService M_security = ComponentManager.get(SecurityService.class);
 
-	private SessionManager M_session = org.sakaiproject.tool.cover.SessionManager.getInstance();
+	private SessionManager M_session = ComponentManager.get(SessionManager.class);
 
-	private ServerConfigurationService M_config = org.sakaiproject.component.cover.ServerConfigurationService
-			.getInstance();
+	private ServerConfigurationService M_config = ComponentManager.get(ServerConfigurationService.class);
 	
-	private EventTrackingService M_event_service = org.sakaiproject.event.cover.EventTrackingService.getInstance();
+	private EventTrackingService M_event_service = ComponentManager.get(EventTrackingService.class);
 
 	private UserTimeService userTimeService = (UserTimeService) ComponentManager.get(UserTimeService.class);
-
+ 
+	private SiteService siteService = ComponentManager.get(SiteService.class);
+	
 	// getters for these vars
 	private String username;
 
@@ -281,7 +283,7 @@ public class SuTool
 						try{
 							sakaiSession.setUserId(userinfo.getId());
 							sakaiSession.setUserEid(userinfo.getEid());
-							siteList = org.sakaiproject.site.cover.SiteService.getSites(SelectionType.ACCESS, null, null, null, null, null);
+							siteList = siteService.getSites(SelectionType.ACCESS, null, null, null, null, null);
 						}catch(Exception e){
 							log.info(e.getMessage(), e);
 						}finally{

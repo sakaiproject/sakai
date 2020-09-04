@@ -872,15 +872,4 @@ $(document).ready(function(){
         }
     });
 });
-/*
-rubricsEventHandlers = function () {
 
-  $('body').on('total-points-updated', function (e) {
-
-    var gradeField = document.getElementById("msgForum:dfMsgGradeGradePoint");
-    if (gradeField) {
-      gradeField.value = e.detail.value;
-    }
-  });
-}
-*/

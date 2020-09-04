@@ -55,6 +55,10 @@ public class LTI13ConstantsUtil {
 	public static final String KEY_ACCEPT_COPY_ADVICE = "accept_copy_advice";
 	public static final String KEY_DATA = "data";
 
+	// Roles
+	public static String ROLE_LEARNER = "http://purl.imsglobal.org/vocab/lis/v2/membership#Learner";
+	public static String ROLE_INSTRUCTOR = "http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor";
+
 	// Deep Linking types
 	public static final String LTI_DL_TYPE_LTILINK = "ltiResourceLink";
 	public static final String LTI_DL_TYPE_LINK = "link";

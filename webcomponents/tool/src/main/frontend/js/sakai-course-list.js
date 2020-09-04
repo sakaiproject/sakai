@@ -1,94 +1,96 @@
 import { html, css, LitElement } from "./assets/lit-element/lit-element.js";
 import "./sakai-icon.js";
 import "./sakai-course-card.js";
-import { loadProperties, tr } from "./sakai-i18n.js";
+import { loadProperties } from "./sakai-i18n.js";
 
 export class SakaiCourseList extends LitElement {
-
-  static get styles() {
-
-    return css`
-      :host {
-        display: block;
-        background-color: var(--sakai-course-list-bg-color, rgba(230,230,230,1));
-        width: var(--sakai-course-card-width, 402px);
-        font-family: var(--sakai-font-family, roboto, arial, sans-serif);
-      }
-
-      .course-cards {
-        margin-top: 20px;
-      }
-
-      sakai-course-card {
-        margin-top: var(--sakai-course-list-course-top-margin, 10px);
-      }
-
-      #course-list-controls {
-        display: flex;
-        justify-content: space-between;
-      }
-        #filter {
-          flex: 1;
-          text-align: left;
-        }
-        #sort {
-          flex: 1;
-          text-align: right;
-        }
-    `;
-  }
 
   static get properties() {
 
     return {
-      courseData: { attribute: "course-data", type: Array },
+      userId: { attribute: "user-id", type: String },
+      sites: { type: Array },
       i18n: Object,
-      displayedCourses: Array,
+      displayedSites: { type: Array},
+      currentFilter: String,
+      currentTermFilter: String,
     }
   }
 
   constructor() {
 
     super();
-    this.courseData = [];
-    this.displayedCourses = [];
+    this.sites = [];
+    this.displayedSites = [];
     this.currentFilter = "all";
     loadProperties("courselist").then(r => this.i18n = r);
+    this.loadData();
   }
 
-  set courseData(value) {
+  loadData() {
 
-    this.displayedCourses = value;
+    const url = `/api/users/${this.userId}/sites`;
+    fetch(url, { credentials: "include" })
+      .then(r => {
 
-    this._courseData = value;
+        if (r.ok) {
+          return r.json();
+        } else {
+          throw new Error(`Failed to get sites data from ${url}`);
+        }
+      })
+      .then(r => {
 
-    this._filtered = {};
-    this._filtered.all = [];
-    this._filtered.favourites = [];
-    this._filtered.courses = [];
-    this._filtered.projects = [];
-    this._filtered.active = [];
+        this.sites = r.sites;
+        this.terms = r.terms;
 
-    this._courseData.forEach(cd => {
+        this.termCourses = new Map();
 
-      this._filtered.all.push(cd);
+        for (let i = 0; i < this.sites.length; i++) {
+          if (!this.sites[i].course) continue;
+          let site = this.sites[i];
+          if (!this.termCourses.has(site.term)) {
+            this.termCourses.set(site.term, []);
+          }
+          this.termCourses.get(site.term).push(site);
+        }
+      })
+      .catch(error => console.error(error));
+  }
+
+  set sites(value) {
+
+    this.displayedSites = value;
+
+    this._sites = value;
+
+    this.filtered = {};
+    this.filtered.all = [];
+    this.filtered.favourites = [];
+    this.filtered.courses = [];
+    this.filtered.projects = [];
+    this.filtered.active = [];
+
+    this._sites.forEach(cd => {
+
+      this.filtered.all.push(cd);
 
       if (cd.favourite) {
-        this._filtered.favourites.push(cd);
+        this.filtered.favourites.push(cd);
       }
       if (cd.course) {
-        this._filtered.courses.push(cd);
+        this.filtered.courses.push(cd);
       }
       if (cd.project) {
-        this._filtered.projects.push(cd);
+        this.filtered.projects.push(cd);
       }
       if (cd.alerts && cd.alerts.length > 0) {
-        this._filtered.active.push(cd);
+        this.filtered.active.push(cd);
       }
     });
   }
 
-  get courseData() { return this._courseData; }
+  get sites() { return this._sites; }
 
   shouldUpdate(changed) {
     return this.i18n;
@@ -96,39 +98,40 @@ export class SakaiCourseList extends LitElement {
 
   siteFilterChanged(e) {
 
-    this.displayedCourses = this._filtered[e.target.value];
+    this.displayedSites = this.filtered[e.target.value];
     this.currentFilter = e.target.value;
+    this.currentTermFilter = "none";
   }
 
   addFavourite(e) {
 
-    let newFave = this.courseData.find(cd => cd.id === e.detail.id);
+    let newFave = this.sites.find(cd => cd.id === e.detail.id);
     newFave.favourite = true;
-    this._filtered.favourites.push(newFave);
+    this.filtered.favourites.push(newFave);
   }
 
   removeFavourite(e) {
 
-    let oldFaveIndex = this._filtered.favourites.findIndex(cd => cd.id === e.detail.id);
-    this._filtered.favourites.splice(oldFaveIndex, 1)[0].favourite = false;
+    let oldFaveIndex = this.filtered.favourites.findIndex(cd => cd.id === e.detail.id);
+    this.filtered.favourites.splice(oldFaveIndex, 1)[0].favourite = false;
     if (this.currentFilter === "favourites") {
-      this.displayedCourses = [...this._filtered.favourites];
+      this.displayedSites = [...this.filtered.favourites];
     }
   }
 
   siteSortChanged(e) {
 
-    this.displayedCourses.sort((a, b) => {
+    this.displayedSites.sort((a, b) => {
 
       switch (e.target.value) {
         case "title_a_to_z":
-          return a.title.localeCompare(b.title, "en");
+          return a.title.localeCompare(b.title);
         case "title_z_to_a":
-          return b.title.localeCompare(a.title, "en");
+          return b.title.localeCompare(a.title);
         case "code_a_to_z":
-          return a.code.localeCompare(b.code, "en");
+          return a.code.localeCompare(b.code);
         case "code_z_to_a":
-          return b.code.localeCompare(a.code, "en");
+          return b.code.localeCompare(a.code);
         default:
           return 0;
       }
@@ -138,19 +141,32 @@ export class SakaiCourseList extends LitElement {
     this.requestUpdate();
   }
 
+  termSelected(e) {
+
+    this.displayedSites = this.termCourses.get(e.target.value);
+    //this.currentFilter = "term";
+  }
+
   render() {
 
     return html`
       <div id="course-list-controls">
         <div id="filter">
-          <select aria-label="Course filter" @change=${this.siteFilterChanged}>
+          <select aria-label="Course filter" @change=${this.siteFilterChanged} .value=${this.currentFilter}>
             <option value="all">${this.i18n["view_all_sites"]}</option>
             <option value="favourites">${this.i18n["favourites"]}</option>
             <option value="projects">${this.i18n["all_projects"]}</option>
             <option value="courses">${this.i18n["all_courses"]}</option>
             <option value="active">${this.i18n["new_activity"]}</option>
+            <option value="term">Term</option>
           </select>
         </div>
+        <div id="term-filter">
+          <select @change=${this.termSelected} .value=${this.currentTermFilter}>
+            <option value="none">Choose a term</option>
+            ${this.terms.map(r => html`<option value="${r.id}">${r.name}</option>`)}
+          </select>
+          </div>
         <div id="sort">
           <select aria-label="Sort courses" @change=${this.siteSortChanged}>
             <option value="title_a_to_z">${this.i18n["title_a_to_z"]}</option>
@@ -161,8 +177,38 @@ export class SakaiCourseList extends LitElement {
         </div>
       </div>
       <div>
-        ${this.displayedCourses.map(cd => html`<sakai-course-card @favourited=${this.addFavourite} @unfavourited=${this.removeFavourite} course-data="${JSON.stringify(cd)}">`)}
+        ${this.displayedSites.map(cd => html`<sakai-course-card @favourited=${this.addFavourite} @unfavourited=${this.removeFavourite} course-data="${JSON.stringify(cd)}">`)}
       </div>
+    `;
+  }
+
+  static get styles() {
+
+    return css`
+      :host {
+        display: block;
+        background-color: var(--sakai-tool-bg-color);
+        width: var(--sakai-course-card-width);
+      }
+
+      sakai-course-card {
+        margin-top: var(--sakai-course-list-course-top-margin);
+      }
+
+      #course-list-controls {
+        display: flex;
+        justify-content: space-between;
+      }
+        #filter {
+          flex: 1;
+          text-align: left;
+        }
+        #term-filter {
+          flex: 1;
+        #sort {
+          flex: 1;
+          text-align: right;
+        }
     `;
   }
 }

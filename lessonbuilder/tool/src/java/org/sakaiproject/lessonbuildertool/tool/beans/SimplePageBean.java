@@ -24,41 +24,10 @@
 
 package org.sakaiproject.lessonbuildertool.tool.beans;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Method;
-import java.math.BigDecimal;
-import java.net.URL;
-import java.net.URLConnection;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.TimeZone;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.servlet.http.HttpServletResponse;
-
+import com.opencsv.CSVParser;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -70,7 +39,6 @@ import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
@@ -147,15 +115,28 @@ import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
 import org.springframework.web.multipart.MultipartFile;
 import org.tsugi.basiclti.ContentItem;
-
-import com.opencsv.CSVParser;
-
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIInternalLink;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.net.URL;
+import java.net.URLConnection;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Backing bean for Simple pages
@@ -322,6 +303,8 @@ public class SimplePageBean {
 
 	private String indentLevel;
 	private String customCssClass;
+	private String buttonColor;
+	private boolean forceButtonColor = false;
 
 	private String alt = null;
 	private String order = null;
@@ -372,6 +355,38 @@ public class SimplePageBean {
 	private String twitterDropDown;
 	private String twitterUsername;
 	private String twitterWidgetHeight;
+
+	private String layoutSectionTitle;
+	private boolean layoutSectionCollapsible = false;
+	private boolean layoutSectionStartCollapsed = false;
+	private boolean layoutSectionShowBorders = true;
+	private String layoutSelect;
+	private String layoutColorScheme;
+
+	public static final String NewColors[] = {
+			"none",
+			"ngray",
+			"nblack",
+			"nblue",
+			"nblue2",
+			"nred",
+			"nrudy",
+			"nnavy",
+			"nnavy2",
+			"ngreen"
+	};
+	public static final String NewColorLabels[] = {
+			"Default",
+			"Gray",
+			"Black",
+			"Blue",
+			"Blue Dark",
+			"Red",
+			"Rudy",
+			"Navy",
+			"Navy Dark",
+			"Green"
+	};
 
         // SAK-41846 - Counters to adjust item sequences when multiple files are added simultaneously
         private int totalMultimediaFilesToAdd = 0;
@@ -862,27 +877,38 @@ public class SimplePageBean {
 		this.customCssClass = customCssClass;
 	}
 
+	public String getButtonColor() {
+		return buttonColor;
+	}
+
+	public void setButtonColor(String buttonColor) {
+		this.buttonColor = buttonColor;
+	}
+
 	public void setHidePage(boolean hide) {
 		hidePage = hide;
 	}
 
     // argument is in ISO8601 format, which has -04:00 time zone.
-    // if user's computer is on a different time zone, we want the UI to match 
+    // if user's computer is on a different time zone, we want the UI to match
     // Sakai. Hence we really want to handle everything as local time.
     // That means we want to ignore the time zone on input
-	public void setReleaseDate(String date) {
-	    if (StringUtils.isBlank(date))
-		this.releaseDate = null;
-	    else
-	    try {
-		//  if (date.substring(22,23).equals(":"))
-		//    date = date.substring(0,22) + date.substring(23,25);
-		date = date.substring(0,19);
-		this.releaseDate = isoDateFormat.parse(date);
-	    } catch (Exception e) {
-		log.info("{}bad format releasedate {}", e, date);
-	    }
-	}
+    public void setReleaseDate(String date) {
+        if (StringUtils.isBlank(date)) {
+            this.releaseDate = null;
+        } else {
+            try {
+                if(date.charAt(10) == ' '){	//the raw date that arrives from the datepicker's ISO8601 field might be missing a char [ex. "2019-08-03T13:45:00" is correct, "2019-08-03 13:45:00" is incorrect], so we will force it in here.
+                    date = date.replace(' ', 'T');
+                }
+                date = date.substring(0,19);
+                this.releaseDate = isoDateFormat.parse(date);
+            } catch (Exception e) {
+                log.error("{}bad format releasedate {}", e, date);
+                this.releaseDate = null;
+            }
+        }
+    }
 
 	public Date getReleaseDate() {
 		return this.releaseDate;
@@ -1060,6 +1086,63 @@ public class SimplePageBean {
 
 	public void setTwitterWidgetHeight(String twitterWidgetHeight) {
 		this.twitterWidgetHeight = twitterWidgetHeight;
+	}
+
+
+	public String getLayoutSectionTitle() {
+		return layoutSectionTitle;
+	}
+
+	public void setLayoutSectionTitle(String layoutSectionTitle) {
+		this.layoutSectionTitle = layoutSectionTitle;
+	}
+
+	public boolean isLayoutSectionCollapsible() {
+		return layoutSectionCollapsible;
+	}
+
+	public void setLayoutSectionCollapsible(boolean layoutSectionCollapsible) {
+		this.layoutSectionCollapsible = layoutSectionCollapsible;
+	}
+
+	public boolean isLayoutSectionStartCollapsed() {
+		return layoutSectionStartCollapsed;
+	}
+
+	public void setLayoutSectionStartCollapsed(boolean layoutSectionStartCollapsed) {
+		this.layoutSectionStartCollapsed = layoutSectionStartCollapsed;
+	}
+
+	public boolean isLayoutSectionShowBorders() {
+		return layoutSectionShowBorders;
+	}
+
+	public void setLayoutSectionShowBorders(boolean layoutSectionShowBorders) {
+		this.layoutSectionShowBorders = layoutSectionShowBorders;
+	}
+
+	public boolean isButtonColorForced(){
+		return forceButtonColor;
+	}
+
+	public void setForceButtonColor(boolean forceButtonColor){
+		this.forceButtonColor = forceButtonColor;
+	}
+
+	public String getLayoutSelect() {
+		return layoutSelect;
+	}
+
+	public void setLayoutSelect(String layoutSelect) {
+		this.layoutSelect = layoutSelect;
+	}
+
+	public String getLayoutColorScheme() {
+		return layoutColorScheme;
+	}
+
+	public void setLayoutColorScheme(String layoutColorScheme) {
+		this.layoutColorScheme = layoutColorScheme;
 	}
 
     // hibernate interposes something between us and saveItem, and that proxy gets an
@@ -1339,6 +1422,8 @@ public class SimplePageBean {
 
 		// Set the custom css class
 		item.setAttribute(SimplePageItem.CUSTOMCSSCLASS, customCssClass);
+
+		item.setAttribute(SimplePageItem.BUTTONCOLOR, buttonColor);
 
 		// Is the name hidden from students
 		item.setAttribute(SimplePageItem.NAMEHIDDEN, String.valueOf(nameHidden));
@@ -2801,6 +2886,10 @@ public class SimplePageBean {
 			i.setFormat("button");
 		    else
 			i.setFormat("");
+
+		    if(StringUtils.isNotEmpty(buttonColor)){
+		    	i.setAttribute("btnColor", buttonColor);
+			}
 		} else {
 		    // when itemid is specified, we're changing pages for existing entry
 		    i.setSakaiId(selectedEntity);
@@ -2983,14 +3072,12 @@ public class SimplePageBean {
 		}
 
 		SimplePageItem i = findItem(itemId);
-		
 		if (i == null) {
 			return "failure";
 		} else {
 			i.setName(name);
 			i.setDescription(description);
 			i.setRequired(required);
-
 			i.setPrerequisite(prerequisite);
 			i.setSubrequirement(subrequirement);
 			i.setNextPage(subpageNext);
@@ -3011,6 +3098,7 @@ public class SimplePageBean {
 			// Set the custom css class
 			i.setAttribute(SimplePageItem.CUSTOMCSSCLASS, customCssClass);
 
+			i.setAttribute(SimplePageItem.BUTTONCOLOR, buttonColor);
 			// currently we only display HTML in the same page
 			if (i.getType() == SimplePageItem.RESOURCE)
 			    i.setSameWindow(!newWindow);
@@ -3039,6 +3127,7 @@ public class SimplePageBean {
 						page.setReleaseDate(releaseDate);
 					else
 						page.setReleaseDate(null);
+					page.setHidden(hidePage);
 					update(page);
 				}
 			} else {
@@ -3548,27 +3637,28 @@ public class SimplePageBean {
 	}
 
 	public String getReleaseString(SimplePageItem i, Locale locale) {
-	     if (i.getType() == SimplePageItem.PAGE) {
-		 SimplePage page = getPage(Long.valueOf(i.getSakaiId()));
-		 if (page == null)
-		     return null;
-		 if (page.isHidden())
-		     return messageLocator.getMessage("simplepage.hiddenpage");
-		 // for index of pages we need to show even out of date release dates
-		 if (page.getReleaseDate() != null) { // && page.getReleaseDate().after(new Date())) {
-		     Date releaseDate = page.getReleaseDate();
-		     Date date = new Date();
-		     if (date.before(releaseDate)) {
-		        DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, locale);
-		        TimeZone tz = userTimeService.getLocalTimeZone();
-		        String releaseDateStr = df.format(page.getReleaseDate());
-		        df.setTimeZone(tz);
-		        return messageLocator.getMessage("simplepage.pagenotreleased").replace("{}", releaseDateStr);
-		     }
-		     return null;
-		 }
-	     }
-	     return null;
+		if (i.getType() == SimplePageItem.PAGE) {
+			SimplePage page = getPage(Long.valueOf(i.getSakaiId()));
+			if (page == null) {
+				return null;
+			}
+			if (page.isHidden()) {
+				return messageLocator.getMessage("simplepage.hiddenpage");
+			}
+			// for index of pages we need to show even out of date release dates
+			if (page.getReleaseDate() != null ) {
+				DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale);
+				TimeZone tz = userTimeService.getLocalTimeZone();
+				df.setTimeZone(tz);
+				String releaseDate = df.format(page.getReleaseDate());
+				if(Instant.now().isBefore(page.getReleaseDate().toInstant())){
+					return messageLocator.getMessage("simplepage.pagenotreleased").replace("{}", releaseDate);
+				} else{
+					return messageLocator.getMessage("simplepage.pagereleased").replace("{}", releaseDate);
+				}
+			}
+		}
+		return null;
 	 }
 
 
@@ -3617,13 +3707,9 @@ public class SimplePageBean {
 		   if (i.getAttribute("multimediaUrl") != null)
 		       return getLBItemGroups(i); // for all native LB objects
 		   return getResourceGroups(i, nocache);  // responsible for caching the result
-		   // throws IdUnusedException if necessary
-	       case SimplePageItem.BLTI:
-		   entity = bltiEntity.getEntity(i.getSakaiId());
-		   if (entity == null || !entity.objectExists())
-		       throw new IdUnusedException(i.toString());
 		   // fall through: groups controlled by LB
 	       // for the following items we don't have non-LB items so don't need itemunused
+	       case SimplePageItem.BLTI: // Groups always managed in lessons
 	       case SimplePageItem.TEXT:
 	       case SimplePageItem.RESOURCE_FOLDER:
 	       case SimplePageItem.CHECKLIST:
@@ -3726,11 +3812,13 @@ public class SimplePageBean {
 
 	    if (StringUtils.isBlank(mimeType)) {
 		String s = item.getSakaiId();
-		int j = s.lastIndexOf(".");
-		if (j >= 0)
-		    s = s.substring(j+1);
-		mimeType = contentTypeImageService.getContentType(s);
-		// log.info("type " + s + ">" + mimeType);
+		    if (s != null) {
+		        int j = s.lastIndexOf(".");
+		        if (j >= 0)
+			        s = s.substring(j+1);
+		        mimeType = contentTypeImageService.getContentType(s);
+		        // log.info("type " + s + ">" + mimeType);
+		    }
 	    }
 
 	    // if still nothing, call it octet-stream just so we don't return null
@@ -4526,6 +4614,69 @@ public class SimplePageBean {
 		}
 	}
 
+	public String addLayout() {
+		if (!canEditPage()) {
+			return "permission-fail";
+		}
+		if (!checkCsrf()) {
+			return "permission-fail";
+		}
+
+		SimplePageItem newSection = appendItem("", this.layoutSectionTitle, SimplePageItem.BREAK);
+		newSection.setFormat("section");
+		if (this.layoutSectionCollapsible) {
+			newSection.setAttribute("collapsible", "1");
+		}
+		if (this.layoutSectionStartCollapsed) {
+			newSection.setAttribute("defaultClosed", "1");
+		}
+		if (StringUtils.equals(this.layoutSelect, "left-double")) {
+			newSection.setAttribute("colwidth", "2");
+		}
+
+		String colorScheme = "";
+		if (StringUtils.equals("none", this.layoutColorScheme)) {
+			if (!this.layoutSectionShowBorders) {
+				colorScheme = "trans";
+			}
+		} else {
+			if (this.layoutSectionShowBorders) {
+				colorScheme = this.layoutColorScheme;
+			} else {
+				colorScheme = this.layoutColorScheme + "-trans";
+			}
+		}
+
+		newSection.setAttribute("colcolor", colorScheme);
+		newSection.setAttribute("forceBtn", Boolean.toString(this.forceButtonColor));
+		saveOrUpdate(newSection);
+
+		if (!StringUtils.equals(this.layoutSelect, "single-column")) {
+			SimplePageItem col1 = appendItem("", "", SimplePageItem.BREAK);
+			col1.setFormat("column");
+			col1.setSequence(newSection.getSequence()+1);
+			if (StringUtils.equals(this.layoutSelect, "right-double")) {
+				col1.setAttribute("colwidth", "2");
+			}
+			col1.setAttribute("colcolor", colorScheme);
+			col1.setAttribute("forceBtn", Boolean.toString(forceButtonColor));
+			saveOrUpdate(col1);
+
+			if (StringUtils.equals(this.layoutSelect, "three-equal")) {
+				SimplePageItem col2 = appendItem("", "", SimplePageItem.BREAK);
+				col2.setFormat("column");
+				col2.setSequence(col1.getSequence()+1);
+				col2.setAttribute("colcolor", colorScheme);
+				col2.setAttribute("forceBtn", Boolean.toString(this.forceButtonColor));
+				saveOrUpdate(col2);
+			}
+		}
+
+		setTopRefresh();
+
+		return "success";
+	}
+
 	public String addPages()  {
 		if (!canEditPage())
 			return "permission-fail";
@@ -5060,16 +5211,16 @@ public class SimplePageBean {
 		    return (boolean)ret;
 		}
 		// item is page, and it is hidden or not released
-		if (item.getType() == SimplePageItem.BREAK)
-		    return true;  // breaks are always visible to all users
-		else if (item.getType() == SimplePageItem.PAGE) {
-		  if (!item.isRequired()) {
-		    SimplePage itemPage = getPage(Long.valueOf(item.getSakaiId()));
-		    if (itemPage.isHidden())
-			return false;
-		    if (itemPage.getReleaseDate() != null && itemPage.getReleaseDate().after(new Date()))
-			return false;
-		  }
+		if (item.getType() == SimplePageItem.BREAK) {
+			return true;  // breaks are always visible to all users
+		} else if (item.getType() == SimplePageItem.PAGE) {
+			SimplePage itemPage = getPage(Long.valueOf(item.getSakaiId()));
+			if (itemPage.isHidden()) {
+				return false;
+			}
+			if (itemPage.getReleaseDate() != null && itemPage.getReleaseDate().after(new Date())) {
+				return true;
+			}
 		} else if (page != null && isStudentPage(page) && (item.getType() == SimplePageItem.RESOURCE || item.getType() == SimplePageItem.MULTIMEDIA)) {
 
 		    // check for inline types. No resource to check. Since this section is for student page, no groups either
@@ -5151,10 +5302,16 @@ public class SimplePageBean {
 				return false;
 			    break;
 			case SimplePageItem.BLTI:
-			    if (bltiEntity != null)
-				entity = bltiEntity.getEntity(item.getSakaiId());
-			    if (entity == null || entity.notPublished())
-				return false;
+				if (bltiEntity != null) {
+					entity = bltiEntity.getEntity(item.getSakaiId());
+				}
+				if (entity == null || entity.notPublished()) {
+					return false;
+				} else {
+					// After checking that it exists reset to null so that groups are
+					// checked internal to Lessons
+					entity = null;
+				}
 			}
 		    }
 		} finally {

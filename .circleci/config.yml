@@ -89,6 +89,3 @@ workflows:
   build_and_test:
     jobs:
       - jdk-8
-      - jdk-9
-      - jdk-10
-      - jdk-11

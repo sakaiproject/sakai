@@ -16,18 +16,18 @@
 package org.sakaiproject.messagebundle.impl;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
-import lombok.extern.slf4j.Slf4j;
-
-import org.apache.commons.lang3.StringUtils;
-
-import org.springframework.transaction.annotation.Transactional;
+import java.util.ResourceBundle;
 
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.messagebundle.api.MessageBundleProperty;
+import org.sakaiproject.messagebundle.api.MessageBundleService;
+
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * CachingMessageBundleServiceImpl
@@ -42,80 +42,143 @@ import org.sakaiproject.messagebundle.api.MessageBundleProperty;
  * 
  */
 @Slf4j
-public class CachingMessageBundleServiceImpl extends MessageBundleServiceImpl {
-	private static String CACHE_NAME = "org.sakaiproject.messagebundle.cache.bundles"; 
+public class CachingMessageBundleServiceImpl implements MessageBundleService {
 
-	private MemoryService memoryService;
-	private Cache<String, Map<String, String>> cache;
-	
-	public CachingMessageBundleServiceImpl() {
-		super();
-	}
+    private static String CACHE_NAME = "org.sakaiproject.messagebundle.cache.bundles";
 
-	public void init() {
-		cache = memoryService.getCache(CACHE_NAME);
-		super.init();
-	}
-	
-	public void destroy() {
-		super.destroy();
-		cache.close();
-		cache = null;
-	}
-	
-	@Override
-	@Transactional(readOnly = true)
-	public Map<String, String> getBundle(String baseName, String moduleName, Locale loc) {
-        if (StringUtils.isBlank(baseName) || StringUtils.isBlank(moduleName) || loc == null) {
-            return Collections.emptyMap();
+    @Setter private MessageBundleService dbMessageBundleService;
+    @Setter private MemoryService memoryService;
+
+    private Cache<String, Map<String, String>> cache;
+
+    public void init() {
+        cache = memoryService.getCache(CACHE_NAME);
+    }
+
+    public void destroy() {
+        cache.close();
+        cache = null;
+    }
+
+    @Override
+    public Map<String, String> getBundle(String baseName, String moduleName, Locale locale) {
+        Map<String, String> bundle = null;
+        String key = MessageBundleServiceImpl.getIndexKeyName(baseName, moduleName, locale != null ? locale.toString(): null);
+        log.debug("Retrieve bundle from cache with key = {}", key);
+
+        if (cache.containsKey(key)) {
+            log.debug("Cache contains the key = {}", key);
+            bundle = cache.get(key);
+        } else {
+            // bundle not in cache or expired
+            bundle = dbMessageBundleService.getBundle(baseName, moduleName, locale);
+            log.debug("Add bundle to cache with key = {}", key);
+            cache.put(key, bundle);
         }
 
-		Map<String, String> bundle = null;
-		String key = super.getIndexKeyName(baseName, moduleName, loc.toString());
-        if (log.isDebugEnabled()) { log.debug("Retrieve bundle from cache with key=" + key); }
-		
-		bundle = cache.get(key);
-		if (bundle == null) {
-		    // bundle not in cache or expired
-		    bundle = super.getBundle(baseName, moduleName, loc);
+        // ensure we always return a valid collection
+        if (bundle == null) {
+            log.debug("Null bundle found with key = {}", key);
+            bundle = Collections.emptyMap();
+            // cache the empty for negative lookups this prevents repeated db lookups for this key
             cache.put(key, bundle);
-            if (log.isDebugEnabled()) { log.debug("Add bundle to cache with key=" + key); }
-		}
+        }
 
-		return bundle;
-	}
+        return bundle;
+    }
 
-	@Override
-	@Transactional
-	public void updateMessageBundleProperty(MessageBundleProperty mbp) {
-		String key = super.getIndexKeyName(mbp.getBaseName(), mbp.getModuleName(), mbp.getLocale());
-		
-		super.updateMessageBundleProperty(mbp);
+    @Override
+    public boolean isEnabled() {
+        return dbMessageBundleService.isEnabled();
+    }
 
-		cache.remove(key);
-	}
-	
-	@Override
-	@Transactional
-	public void deleteMessageBundleProperty(MessageBundleProperty mbp) {
-		String key = super.getIndexKeyName(mbp.getBaseName(), mbp.getModuleName(), mbp.getLocale());
+    @Override
+    public List<MessageBundleProperty> search(String search, String module, String baseName, String locale) {
+        return dbMessageBundleService.search(search, module, baseName, locale);
+    }
 
-		super.deleteMessageBundleProperty(mbp);
+    @Override
+    public MessageBundleProperty getMessageBundleProperty(long id) {
+        return dbMessageBundleService.getMessageBundleProperty(id);
+    }
 
-		cache.remove(key);
-	}
+    @Override
+    public void updateMessageBundleProperty(MessageBundleProperty mbp) {
+        String key = MessageBundleServiceImpl.getIndexKeyName(mbp.getBaseName(), mbp.getModuleName(), mbp.getLocale());
+        dbMessageBundleService.updateMessageBundleProperty(mbp);
+        cache.remove(key);
+    }
 
-	@Override
-	@Transactional
-	public void revert(MessageBundleProperty mbp) {
-		String key = super.getIndexKeyName(mbp.getBaseName(), mbp.getModuleName(), mbp.getLocale());
+    @Override
+    public List<MessageBundleProperty> getModifiedProperties(int sortOrder, int sortField, int startingIndex, int pageSize) {
+        return dbMessageBundleService.getModifiedProperties(sortOrder, sortField, startingIndex, pageSize);
+    }
 
-		super.revert(mbp);
-		
-		cache.remove(key);
-	}
-	
-	public void setMemoryService(MemoryService memoryService) {
-		this.memoryService = memoryService;
-	}
+    @Override
+    public List<String> getLocales() {
+        return dbMessageBundleService.getLocales();
+    }
+
+    @Override
+    public int getModifiedPropertiesCount() {
+        return dbMessageBundleService.getModifiedPropertiesCount();
+    }
+
+    @Override
+    public int getAllPropertiesCount() {
+        return dbMessageBundleService.getAllPropertiesCount();
+    }
+
+    @Override
+    public List<MessageBundleProperty> getAllProperties(String locale, String basename, String modulename) {
+        return dbMessageBundleService.getAllProperties(locale, basename, modulename);
+    }
+
+    @Override
+    public int revertAll(String locale) {
+        int count = dbMessageBundleService.revertAll(locale);
+        cache.clear();
+        return count;
+    }
+
+    @Override
+    public int importProperties(List<MessageBundleProperty> properties) {
+        return dbMessageBundleService.importProperties(properties);
+    }
+
+    @Override
+    public List<String> getAllModuleNames() {
+        return dbMessageBundleService.getAllModuleNames();
+    }
+
+    @Override
+    public List<String> getAllBaseNames() {
+        return dbMessageBundleService.getAllBaseNames();
+    }
+
+    @Override
+    public void deleteMessageBundleProperty(MessageBundleProperty mbp) {
+        String key = MessageBundleServiceImpl.getIndexKeyName(mbp.getBaseName(), mbp.getModuleName(), mbp.getLocale());
+        dbMessageBundleService.deleteMessageBundleProperty(mbp);
+        cache.remove(key);
+    }
+
+    @Override
+    public void revert(MessageBundleProperty mbp) {
+        String key = MessageBundleServiceImpl.getIndexKeyName(mbp.getBaseName(), mbp.getModuleName(), mbp.getLocale());
+        dbMessageBundleService.revert(mbp);
+        cache.remove(key);
+    }
+
+    @Override
+    public int getSearchCount(String searchQuery, String module, String baseName, String locale) {
+        return dbMessageBundleService.getSearchCount(searchQuery, module, baseName, locale);
+    }
+
+    @Override
+    public void saveOrUpdate(String baseName, String moduleName, ResourceBundle newBundle, Locale locale) {
+        String key = MessageBundleServiceImpl.getIndexKeyName(baseName, moduleName, locale.toString());
+        dbMessageBundleService.saveOrUpdate(baseName, moduleName, newBundle, locale);
+        cache.remove(key);
+    }
 }

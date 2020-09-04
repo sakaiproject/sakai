@@ -22,7 +22,7 @@ import java.util.List;
 import org.hibernate.CacheMode;
 import org.hibernate.FetchMode;
 import org.hibernate.LockMode;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.Transformers;
 import org.hibernate.type.BooleanType;
@@ -48,8 +48,8 @@ import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.model.WallItem;
 import org.sakaiproject.profile2.model.WallItemComment;
-import org.springframework.orm.hibernate4.HibernateCallback;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.HibernateCallback;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 import lombok.extern.slf4j.Slf4j;
 

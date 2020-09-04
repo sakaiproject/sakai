@@ -290,9 +290,8 @@ public interface AssignmentService extends EntityProducer {
     /**
      * Creates and adds a new Assignment to the service.
      *
-     * @param context -
-     *                Describes the portlet context - generated with DefaultId.getChannel().
-     * @return AssignmentEdit The new Assignment object.
+     * @param context The site id for this assignment
+     * @return Assignment The new Assignment object, ready for editing.
      * @throws IdInvalidException  if the id contains prohibited characers.
      * @throws IdUsedException     if the id is already used in the service.
      * @throws PermissionException if current User does not have permission to do this.

@@ -1,18 +1,24 @@
-<?xml version="1.0"?>
-<web-app id="WebApp_9" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app
+        xmlns="http://java.sun.com/xml/ns/javaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+        version="3.0">
 	<display-name>sakai-sections-tool</display-name>
 	<description>Sakai Sections Tool</description>
 
 	<context-param>
     	<param-name>javax.faces.CONFIG_FILES</param-name>
-    	<param-value>/WEB-INF/faces-application.xml,/WEB-INF/faces-beans.xml,/WEB-INF/faces-navigation.xml</param-value>
+    	<param-value>
+            /WEB-INF/faces-application.xml,
+            /WEB-INF/faces-beans.xml,
+            /WEB-INF/faces-navigation.xml
+        </param-value>
   	</context-param>
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
 		<param-value>
-            /WEB-INF/spring-services.xml
+            /WEB-INF/spring-services.xml,
             /WEB-INF/spring-ui.xml
 		</param-value>
 	</context-param>
@@ -23,13 +29,10 @@
     <listener>
         <listener-class>org.sakaiproject.util.ToolListener</listener-class>
     </listener>
-	<listener>
-		<listener-class>org.apache.myfaces.webapp.StartupServletContextListener</listener-class>
-	</listener>
 
     <servlet>
         <servlet-name>sakai.sections</servlet-name>
-        <servlet-class>org.sakaiproject.jsf.util.JsfTool</servlet-class>
+        <servlet-class>org.sakaiproject.jsf2.util.JsfTool</servlet-class>
         <init-param>
             <param-name>default</param-name>
             <param-value>entry.servlet</param-value>

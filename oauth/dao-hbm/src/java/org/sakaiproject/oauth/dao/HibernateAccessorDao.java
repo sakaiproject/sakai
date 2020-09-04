@@ -24,7 +24,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.sakaiproject.oauth.domain.Accessor;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 public class HibernateAccessorDao extends HibernateDaoSupport implements AccessorDao {
     @Override

@@ -502,6 +502,11 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+            <groupId>commons-net</groupId>
+            <artifactId>commons-net</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore</artifactId>
             <scope>compile</scope>
@@ -521,6 +526,11 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -544,8 +554,8 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.hibernate.javax.persistence</groupId>
-            <artifactId>hibernate-jpa-2.1-api</artifactId>
+            <groupId>javax.persistence</groupId>
+            <artifactId>javax.persistence-api</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -594,7 +604,7 @@
         </dependency>
         <dependency>
             <groupId>org.gridgain</groupId>
-            <artifactId>ignite-hibernate_4.2</artifactId>
+            <artifactId>ignite-hibernate_5.3</artifactId>
             <scope>compile</scope>
         </dependency>
 

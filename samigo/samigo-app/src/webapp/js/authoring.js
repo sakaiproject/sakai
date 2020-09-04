@@ -789,3 +789,22 @@ function toggleCategories(checkbox) {
         }
     }
 }
+
+function expandAccordion(iframId){
+    $('div#jqueryui-accordion > .ui-accordion-content').show();
+    mySetMainFrameHeight(iframId);
+    $("#collapseLink").show();
+    $("#expandLink").hide();
+    $("div#jqueryui-accordion > h3.ui-accordion-header > span").removeClass("ui-icon-triangle-1-e").addClass("ui-icon-triangle-1-s");
+    $("div#jqueryui-accordion > h3.ui-accordion-header").addClass("ui-accordion-header-active ui-state-active");
+}
+
+function collapseAccordion(iframId){
+    $('.ui-accordion-content').hide();
+    mySetMainFrameHeight(iframId);
+    $("#collapseLink").hide();
+    $("#expandLink").show();
+    $("div#jqueryui-accordion > h3.ui-accordion-header > span").removeClass("ui-icon-triangle-1-s").addClass("ui-icon-triangle-1-e");
+    $("div#jqueryui-accordion > h3.ui-accordion-header").removeClass("ui-accordion-header-active ui-state-active");
+}
+

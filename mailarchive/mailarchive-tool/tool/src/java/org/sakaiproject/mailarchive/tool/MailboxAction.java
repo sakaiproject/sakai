@@ -21,13 +21,10 @@
 
 package org.sakaiproject.mailarchive.tool;
 
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
-import java.util.Map.Entry;
 
-import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.cheftool.Context;
@@ -37,7 +34,6 @@ import org.sakaiproject.cheftool.PortletConfig;
 import org.sakaiproject.cheftool.RunData;
 import org.sakaiproject.cheftool.VelocityPortlet;
 import org.sakaiproject.cheftool.api.Menu;
-import org.sakaiproject.cheftool.menu.MenuDivider;
 import org.sakaiproject.cheftool.menu.MenuEntry;
 import org.sakaiproject.cheftool.menu.MenuImpl;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -46,13 +42,12 @@ import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.SessionState;
+import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.javax.Filter;
 import org.sakaiproject.javax.Order;
-import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.javax.Search;
 import org.sakaiproject.javax.SearchFilter;
 import org.sakaiproject.mailarchive.api.MailArchiveChannel;
@@ -65,11 +60,12 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.api.FormattedText;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
@@ -555,10 +551,6 @@ public class MailboxAction extends PagedResourceActionII
 		{
 		}
 
-		// inform the observing courier that we just updated the page...
-		// if there are pending requests to do so they can be cleared
-		justDelivered(state);
-
 		return (String) getContext(rundata).get("template") + "-List";
 
 	} // buildListModeContext
@@ -580,9 +572,6 @@ public class MailboxAction extends PagedResourceActionII
 
 		String position = runData.getParameters().getString(FORM_ITEM_NUMBER);
 		state.setAttribute(FORM_ITEM_NUMBER, Integer.valueOf(position));
-		
-		// disable auto-updates while in view mode
-		disableObservers(state);
 
 	} // doView
 
@@ -597,9 +586,6 @@ public class MailboxAction extends PagedResourceActionII
 
 		// switch to view mode
 		state.setAttribute(STATE_MODE, "list");
-
-		// make sure auto-updates are enabled
-		enableObserver(state);
 
 		state.removeAttribute(STATE_MSG_VIEW_ID);
 
@@ -726,9 +712,6 @@ public class MailboxAction extends PagedResourceActionII
 		// go to remove confirm mode
 		state.setAttribute(STATE_MODE, "confirm-remove");
 
-		// disable auto-updates while in confirm mode
-		disableObservers(state);
-
 	} // doRemove
 
 	/**
@@ -780,9 +763,6 @@ public class MailboxAction extends PagedResourceActionII
 
 		// return to view mode
 		state.setAttribute(STATE_MODE, "view");
-
-		// disable auto-updates while in view mode
-		disableObservers(state);
 
 	} // doRemove_cancel
 
@@ -1012,9 +992,6 @@ public class MailboxAction extends PagedResourceActionII
 				state.removeAttribute(STATE_OPTION_REPLY);
 				state.removeAttribute(STATE_OPTION_SENDTO);
 				state.removeAttribute(STATE_OPTION_ALIAS);
-
-				// re-enable auto-updates when going back to list mode
-				enableObserver(state);
 			}
 		}
 
@@ -1048,9 +1025,6 @@ public class MailboxAction extends PagedResourceActionII
 		state.removeAttribute(STATE_OPTION_REPLY);
 		state.removeAttribute(STATE_OPTION_SENDTO);
 		state.removeAttribute(STATE_OPTION_ALIAS);
-
-		// re-enable auto-updates when going back to list mode
-		enableObserver(state);
 
 	} // doCancel
 
@@ -1107,7 +1081,7 @@ public class MailboxAction extends PagedResourceActionII
 				MailArchiveMessage msg = (MailArchiveMessage) o;
 				if (StringUtils.containsIgnoreCase(msg.getMailArchiveHeader().getSubject(), searchStr)
 					|| StringUtils.containsIgnoreCase(msg.getMailArchiveHeader().getFromAddress(), searchStr)
-					|| StringUtils.containsIgnoreCase(FormattedText.convertFormattedTextToPlaintext(msg.getBody()), searchStr))
+					|| StringUtils.containsIgnoreCase(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(msg.getBody()), searchStr))
 
 				{
 					return false;

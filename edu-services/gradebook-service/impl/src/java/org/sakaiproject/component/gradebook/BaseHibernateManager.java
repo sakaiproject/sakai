@@ -86,8 +86,8 @@ package org.sakaiproject.component.gradebook;
  import org.sakaiproject.tool.gradebook.Permission;
  import org.sakaiproject.tool.gradebook.facades.Authn;
  import org.sakaiproject.event.api.EventTrackingService;
- import org.springframework.orm.hibernate4.HibernateCallback;
- import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+ import org.springframework.orm.hibernate5.HibernateCallback;
+ import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
  import lombok.extern.slf4j.Slf4j;
 
@@ -298,13 +298,8 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     private GradebookAssignment prepareNewAssignment(final String name, final Double points, final Date dueDate, final Boolean isNotCounted, final Boolean isReleased, 
             final Boolean isExtraCredit, final Integer sortOrder, final Integer categorizedSortOrder)
     {
-        final String validatedName = StringUtils.trimToNull(name);
-        if (validatedName == null){
-            throw new ConflictingAssignmentNameException("You cannot save an assignment without a name");
-        }
-
         // name cannot contain these special chars as they are reserved for special columns in import/export
-        GradebookHelper.validateGradeItemName(validatedName);
+        final String validatedName = GradebookHelper.validateGradeItemName(name);
 
         final GradebookAssignment asn = new GradebookAssignment();
         asn.setName(validatedName);

@@ -610,16 +610,6 @@ ${extra}")
     <link type="text/css" href="${url}$!{portalCdnQuery}" rel="stylesheet" $!{attrs}/>
 #end
 
-#macro (sakai_courier)
-#if ($courier)
-<script type="text/javascript">
-updateTime = ${courierTimeout}000;
-updateUrl = "$courier";
-scheduleUpdate();
-</script>
-#end
-#end
-
 #* ------------------------------------------------------------------
 #
 # For CHEF 1.x support
@@ -646,8 +636,6 @@ scheduleUpdate();
 #macro (chatlogLink $chatlogLinkPanel)$sakai_ActionURL.setParameter("$param_panel","$chatlogLinkPanel")#end
 
 #macro (contentLink $contentLinkPanel)$sakai_ActionURL.setParameter("$param_panel","$contentLinkPanel")#end
-
-#macro (contentCourierLink $contentCourierLinkPanel)$sakai_ActionURL.setParameter("$param_panel","$contentCourierLinkPanel")#end
 
 #macro (toolLinkParam $toolLinkJunk $toolLinkAction $toolLinkQuery)$sakai_ActionURL.setParameter("sakai_action","$toolLinkAction").setQueryString("$toolLinkQuery")#end
 

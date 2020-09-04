@@ -1,5 +1,6 @@
 <div class="portletBody">
 #if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $alertMessage</div>#end
+## See also assignment/tool/src/webapp/vm/assignment/chef_assignments_view_launch.vm
 #if ($!popup) 
 <p>
 $tlang.getString("new.page.launch") </p> <p>

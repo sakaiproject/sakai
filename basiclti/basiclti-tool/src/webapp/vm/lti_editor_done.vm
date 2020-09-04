@@ -15,5 +15,6 @@
 #end
 <script>
 var returned_content_item = $new_content;
+window.parent.$('.cke_dialog_ui_button:visible').trigger('click');
 </script>
 </div>

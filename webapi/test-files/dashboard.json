@@ -1,0 +1,8 @@
+{
+    "overview": "This is a great place to <strong>play</strong>",
+    "layout": [
+        { "widgets": ["grades", "calendar"] },
+        { "widgets": ["announcements", "tasks"] }
+    ],
+    "template": 1
+}

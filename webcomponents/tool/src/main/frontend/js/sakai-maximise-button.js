@@ -28,11 +28,11 @@ class SakaiMaximiseButton extends SakaiElement {
     return html`
       ${this.fullScreen ?
       html`
-          <a class="Mrphs-toolTitleNav__link" href="javascript;" title="${this.i18n["normal_view"]}" @click=${this.minimise}>
+          <a class="Mrphs-toolTitleNav__link" href="javascript;" title="${this.i18n["normal_view"]}" aria-label="${this.i18n["normal_view"]}" @click=${this.minimise}>
             <fa-icon i-class="fas compress-arrows-alt" path-prefix="/webcomponents/assets" />
           </a>`
       : html`
-          <a class="Mrphs-toolTitleNav__link" href="javascript;" title="${this.i18n["fullscreen_view"]}" @click=${this.maximise}>
+          <a class="Mrphs-toolTitleNav__link" href="javascript;" title="${this.i18n["fullscreen_view"]}" aria-label="${this.i18n["fullscreen_view"]}" @click=${this.maximise}>
             <fa-icon i-class="fas expand-arrows-alt" path-prefix="/webcomponents/assets" />
           </a>`
       }

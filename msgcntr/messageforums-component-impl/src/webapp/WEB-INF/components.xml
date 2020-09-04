@@ -543,4 +543,15 @@
             </props>
         </property>
     </bean>
+
+    <bean id="org.sakaiproject.component.app.messageforums.elfinder.ForumToolFsVolumeFactory"
+          class="org.sakaiproject.component.app.messageforums.elfinder.ForumToolFsVolumeFactory"
+          init-method="init">
+        <property name="discussionForumManager" ref="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager"/>
+        <property name="messageForumsForumManager" ref="org.sakaiproject.api.app.messageforums.MessageForumsForumManager"/>
+        <property name="sakaiFsService" ref="org.sakaiproject.elfinder.SakaiFsService"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="uiPermissionsManager" ref="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+    </bean>
 </beans>

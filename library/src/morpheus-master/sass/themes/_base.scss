@@ -1,0 +1,369 @@
+   // Color palette generation
+    // Use defineColorHSL to generate an 11 shade palette for a color.
+    // @include defineColorHSL(color, hue, saturation, lightness)
+    // @param color
+    //      Type: string
+    //      expects a CSS custom property name
+    // @param hue
+    //      Type: integer
+    //      expects an integer 0-255
+    // @param saturation
+    //      Type: percentage
+    //      expects a percentage 0-100%
+    // @param lightness
+    //      Type: percentage
+    //      expects a percentage 0-100%
+    // @returns 11 CSS Custom Properties available in :root
+    //      named color-0 through color-10
+    //      The HSL you provide in the parameters will be in the
+    //      middle of the range at -5.
+    // Example 
+    // @include defineColorHSL(--myschool-gray, 214, 3%, 55%);
+    //      returns --myschool-gray-5: hsl(214, 3%, 55%;
+    //
+    // Sakai comes predefined with gray, blue, lightblue, teal, gold,
+    // green, orange, purple, and red palettes available for you to use.
+@mixin defineColorHSL($color, $hue, $saturation, $lightness){
+  #{$color}: unquote("hsl(#{$hue}, #{$saturation}, #{$lightness})");
+  #{$color}-h: #{$hue};
+  #{$color}-s: #{$saturation};
+  #{$color}-l: #{$lightness};
+
+  #{$color}-0: tint-color(hsl($hue, $saturation, $lightness), 10);
+  #{$color}-1: tint-color(hsl($hue, $saturation, $lightness), 8);
+  #{$color}-2: tint-color(hsl($hue, $saturation, $lightness), 6);
+  #{$color}-3: tint-color(hsl($hue, $saturation, $lightness), 4);
+  #{$color}-4: tint-color(hsl($hue, $saturation, $lightness), 2);
+  #{$color}-5: hsl($hue, $saturation, $lightness);
+  #{$color}-6: shade-color(hsl($hue, $saturation, $lightness), 2);
+  #{$color}-7: shade-color(hsl($hue, $saturation, $lightness), 4);
+  #{$color}-8: shade-color(hsl($hue, $saturation, $lightness), 6);
+  #{$color}-9: shade-color(hsl($hue, $saturation, $lightness), 8);
+  #{$color}-10: shade-color(hsl($hue, $saturation, $lightness), 10);
+
+}
+
+// Color contrast
+// See https://github.com/twbs/bootstrap/pull/30168 for reference
+
+// A list of pre-calculated numbers of pow(($value / 255 + .055) / 1.055, 2.4). (from 0 to 255)
+$_luminance-list: .0008 .001 .0011 .0013 .0015 .0017 .002 .0022 .0025 .0027 .003 .0033 .0037 .004 .0044 .0048 .0052 .0056 .006 .0065 .007 .0075 .008 .0086 .0091 .0097 .0103 .011 .0116 .0123 .013 .0137 .0144 .0152 .016 .0168 .0176 .0185 .0194 .0203 .0212 .0222 .0232 .0242 .0252 .0262 .0273 .0284 .0296 .0307 .0319 .0331 .0343 .0356 .0369 .0382 .0395 .0409 .0423 .0437 .0452 .0467 .0482 .0497 .0513 .0529 .0545 .0561 .0578 .0595 .0612 .063 .0648 .0666 .0685 .0704 .0723 .0742 .0762 .0782 .0802 .0823 .0844 .0865 .0887 .0908 .0931 .0953 .0976 .0999 .1022 .1046 .107 .1095 .1119 .1144 .117 .1195 .1221 .1248 .1274 .1301 .1329 .1356 .1384 .1413 .1441 .147 .15 .1529 .1559 .159 .162 .1651 .1683 .1714 .1746 .1779 .1812 .1845 .1878 .1912 .1946 .1981 .2016 .2051 .2086 .2122 .2159 .2195 .2232 .227 .2307 .2346 .2384 .2423 .2462 .2502 .2542 .2582 .2623 .2664 .2705 .2747 .2789 .2831 .2874 .2918 .2961 .3005 .305 .3095 .314 .3185 .3231 .3278 .3325 .3372 .3419 .3467 .3515 .3564 .3613 .3663 .3712 .3763 .3813 .3864 .3916 .3968 .402 .4072 .4125 .4179 .4233 .4287 .4342 .4397 .4452 .4508 .4564 .4621 .4678 .4735 .4793 .4851 .491 .4969 .5029 .5089 .5149 .521 .5271 .5333 .5395 .5457 .552 .5583 .5647 .5711 .5776 .5841 .5906 .5972 .6038 .6105 .6172 .624 .6308 .6376 .6445 .6514 .6584 .6654 .6724 .6795 .6867 .6939 .7011 .7084 .7157 .7231 .7305 .7379 .7454 .7529 .7605 .7682 .7758 .7835 .7913 .7991 .807 .8148 .8228 .8308 .8388 .8469 .855 .8632 .8714 .8796 .8879 .8963 .9047 .9131 .9216 .9301 .9387 .9473 .956 .9647 .9734 .9823 .9911 1;
+
+$white: #fff;
+$black: #000;
+
+@function color-contrast($background, $color-contrast-dark: $color-contrast-dark, $color-contrast-light: $color-contrast-light, $min-contrast-ratio: $min-contrast-ratio) {
+  $foregrounds: $color-contrast-light, $color-contrast-dark, $white, $black;
+  $max-ratio: 0;
+  $max-ratio-color: null;
+
+  @each $color in $foregrounds {
+    $contrast-ratio: contrast-ratio($background, $color);
+    @if $contrast-ratio > $min-contrast-ratio {
+      @return $color;
+    } @else if $contrast-ratio > $max-ratio {
+      $max-ratio: $contrast-ratio;
+      $max-ratio-color: $color;
+    }
+  }
+
+  @warn "Found no color leading to #{$min-contrast-ratio}:1 contrast ratio against #{$background}…";
+
+  @return $max-ratio-color;
+}
+
+@function contrast-ratio($background, $foreground: $color-contrast-light) {
+  $l1: luminance($background);
+  $l2: luminance(opaque($background, $foreground));
+
+  @return if($l1 > $l2, ($l1 + .05) / ($l2 + .05), ($l2 + .05) / ($l1 + .05));
+}
+
+// Return WCAG2.0 relative luminance
+// See https://www.w3.org/WAI/GL/wiki/Relative_luminance
+// See https://www.w3.org/TR/WCAG20-TECHS/G17.html#G17-tests
+@function luminance($color) {
+  $rgb: (
+    "r": red($color),
+    "g": green($color),
+    "b": blue($color)
+  );
+
+  @each $name, $value in $rgb {
+    $value: if($value / 255 < .03928, $value / 255 / 12.92, nth($_luminance-list, $value + 1));
+    $rgb: map-merge($rgb, ($name: $value));
+  }
+
+  @return (map-get($rgb, "r") * .2126) + (map-get($rgb, "g") * .7152) + (map-get($rgb, "b") * .0722);
+}
+
+// Return opaque color
+// opaque(#fff, rgba(0, 0, 0, .5)) => #808080
+@function opaque($background, $foreground) {
+  @return mix(rgba($foreground, 1), $background, opacity($foreground) * 100);
+}
+
+// Request a color level
+@function color-level($color: $primary, $level: 0) {
+  $color-base: if($level > 0, $black, $white);
+  $level: abs($level);
+
+  @return mix($color-base, $color, $level * $theme-color-interval);
+}
+
+// Lighten a color
+@function tint-color($color, $level) {
+    @return mix(white, $color, $level * $theme-color-interval);
+}
+
+// Darken a color
+@function shade-color($color, $level) {
+    @return mix(black, $color, $level * $theme-color-interval);
+}
+
+// Set a specific jump point for requesting color jumps
+$theme-color-interval: 9 !default;
+
+// Sakai color scheme
+$sakai-color-white     : hsl(0, 0%, 100%) !default;      // #ffffff
+$sakai-color-gray : hsl(214, 3%, 55%) !default;          //#898c90
+$sakai-color-lightblue  : hsl(203, 76%, 52%) !default;    // #279be1
+$sakai-color-blue  : hsl(203, 76%, 25%) !default;    // #0f4b6f
+$sakai-color-teal  : hsl(180, 100%, 30%) !default;   // #009b9b
+$sakai-color-gold  : hsl(50, 99%, 43%) !default;     // #dbb701
+$sakai-color-green : hsl(147, 92%, 34%) !default;    // #07a84f
+$sakai-color-orange: hsl(30, 93%, 44%) !default;     // #d97008
+$sakai-color-purple: hsl(240, 94%, 63%) !default;    // #4747f9
+$sakai-color-red   : hsl(357, 100%, 40%) !default;   // #ce000b
+
+$sakai-color-gray-0: tint-color($sakai-color-gray, 10) !default;
+$sakai-color-gray-1: tint-color($sakai-color-gray, 8) !default;
+$sakai-color-gray-2: tint-color($sakai-color-gray, 6) !default;
+$sakai-color-gray-3: tint-color($sakai-color-gray, 4) !default;
+$sakai-color-gray-4: tint-color($sakai-color-gray, 2) !default;
+$sakai-color-gray-5: $sakai-color-gray !default;
+$sakai-color-gray-6: shade-color($sakai-color-gray, 2) !default;
+$sakai-color-gray-7: shade-color($sakai-color-gray, 4) !default;
+$sakai-color-gray-8: shade-color($sakai-color-gray, 6) !default;
+$sakai-color-gray-9: shade-color($sakai-color-gray, 8) !default;
+
+$sakai-color-blue-0: tint-color($sakai-color-blue, 10) !default;
+$sakai-color-blue-1: tint-color($sakai-color-blue, 8) !default;
+$sakai-color-blue-2: tint-color($sakai-color-blue, 6) !default;
+$sakai-color-blue-3: tint-color($sakai-color-blue, 4) !default;
+$sakai-color-blue-4: tint-color($sakai-color-blue, 2) !default;
+$sakai-color-blue-5: $sakai-color-blue !default;
+$sakai-color-blue-6: shade-color($sakai-color-blue, 2) !default;
+$sakai-color-blue-7: shade-color($sakai-color-blue, 4) !default;
+$sakai-color-blue-8: shade-color($sakai-color-blue, 6) !default;
+$sakai-color-blue-9: shade-color($sakai-color-blue, 8) !default;
+
+$sakai-color-lightblue-0: tint-color($sakai-color-lightblue, 10) !default;
+$sakai-color-lightblue-1: tint-color($sakai-color-lightblue, 8) !default;
+$sakai-color-lightblue-2: tint-color($sakai-color-lightblue, 6) !default;
+$sakai-color-lightblue-3: tint-color($sakai-color-lightblue, 4) !default;
+$sakai-color-lightblue-4: tint-color($sakai-color-lightblue, 2) !default;
+$sakai-color-lightblue-5: $sakai-color-lightblue !default;
+$sakai-color-lightblue-6: shade-color($sakai-color-lightblue, 2) !default;
+$sakai-color-lightblue-7: shade-color($sakai-color-lightblue, 4) !default;
+$sakai-color-lightblue-8: shade-color($sakai-color-lightblue, 6) !default;
+$sakai-color-lightblue-9: shade-color($sakai-color-lightblue, 8) !default;
+
+$sakai-color-teal-0: tint-color($sakai-color-teal, 10) !default;
+$sakai-color-teal-1: tint-color($sakai-color-teal, 8) !default;
+$sakai-color-teal-2: tint-color($sakai-color-teal, 6) !default;
+$sakai-color-teal-3: tint-color($sakai-color-teal, 4) !default;
+$sakai-color-teal-4: tint-color($sakai-color-teal, 2) !default;
+$sakai-color-teal-5: $sakai-color-teal !default;
+$sakai-color-teal-6: shade-color($sakai-color-teal, 2) !default;
+$sakai-color-teal-7: shade-color($sakai-color-teal, 4) !default;
+$sakai-color-teal-8: shade-color($sakai-color-teal, 6) !default;
+$sakai-color-teal-9: shade-color($sakai-color-teal, 8) !default;
+
+$sakai-color-gold-0: tint-color($sakai-color-gold, 10) !default;
+$sakai-color-gold-1: tint-color($sakai-color-gold, 8) !default;
+$sakai-color-gold-2: tint-color($sakai-color-gold, 6) !default;
+$sakai-color-gold-3: tint-color($sakai-color-gold, 4) !default;
+$sakai-color-gold-4: tint-color($sakai-color-gold, 2) !default;
+$sakai-color-gold-5: $sakai-color-gold !default;
+$sakai-color-gold-6: shade-color($sakai-color-gold, 2) !default;
+$sakai-color-gold-7: shade-color($sakai-color-gold, 4) !default;
+$sakai-color-gold-8: shade-color($sakai-color-gold, 6) !default;
+$sakai-color-gold-9: shade-color($sakai-color-gold, 8) !default;
+
+$sakai-color-green-0: tint-color($sakai-color-green, 10) !default;
+$sakai-color-green-1: tint-color($sakai-color-green, 8) !default;
+$sakai-color-green-2: tint-color($sakai-color-green, 6) !default;
+$sakai-color-green-3: tint-color($sakai-color-green, 4) !default;
+$sakai-color-green-4: tint-color($sakai-color-green, 2) !default;
+$sakai-color-green-5: $sakai-color-green !default;
+$sakai-color-green-6: shade-color($sakai-color-green, 2) !default;
+$sakai-color-green-7: shade-color($sakai-color-green, 4) !default;
+$sakai-color-green-8: shade-color($sakai-color-green, 6) !default;
+$sakai-color-green-9: shade-color($sakai-color-green, 8) !default;
+
+$sakai-color-orange-0: tint-color($sakai-color-orange, 10) !default;
+$sakai-color-orange-1: tint-color($sakai-color-orange, 8) !default;
+$sakai-color-orange-2: tint-color($sakai-color-orange, 6) !default;
+$sakai-color-orange-3: tint-color($sakai-color-orange, 4) !default;
+$sakai-color-orange-4: tint-color($sakai-color-orange, 2) !default;
+$sakai-color-orange-5: $sakai-color-orange !default;
+$sakai-color-orange-6: shade-color($sakai-color-orange, 2) !default;
+$sakai-color-orange-7: shade-color($sakai-color-orange, 4) !default;
+$sakai-color-orange-8: shade-color($sakai-color-orange, 6) !default;
+$sakai-color-orange-9: shade-color($sakai-color-orange, 8) !default;
+
+$sakai-color-purple-0: tint-color($sakai-color-purple, 10) !default;
+$sakai-color-purple-1: tint-color($sakai-color-purple, 8) !default;
+$sakai-color-purple-2: tint-color($sakai-color-purple, 6) !default;
+$sakai-color-purple-3: tint-color($sakai-color-purple, 4) !default;
+$sakai-color-purple-4: tint-color($sakai-color-purple, 2) !default;
+$sakai-color-purple-5: $sakai-color-purple !default;
+$sakai-color-purple-6: shade-color($sakai-color-purple, 2) !default;
+$sakai-color-purple-7: shade-color($sakai-color-purple, 4) !default;
+$sakai-color-purple-8: shade-color($sakai-color-purple, 6) !default;
+$sakai-color-purple-9: shade-color($sakai-color-purple, 8) !default;
+
+$sakai-color-red-0: tint-color($sakai-color-red, 10) !default;
+$sakai-color-red-1: tint-color($sakai-color-red, 8) !default;
+$sakai-color-red-2: tint-color($sakai-color-red, 6) !default;
+$sakai-color-red-3: tint-color($sakai-color-red, 4) !default;
+$sakai-color-red-4: tint-color($sakai-color-red, 2) !default;
+$sakai-color-red-5: $sakai-color-red !default;
+$sakai-color-red-6: shade-color($sakai-color-red, 2) !default;
+$sakai-color-red-7: shade-color($sakai-color-red, 4) !default;
+$sakai-color-red-8: shade-color($sakai-color-red, 6) !default;
+$sakai-color-red-9: shade-color($sakai-color-red, 8) !default;
+
+
+// The contrast ratio to reach against white, to determine if color changes from "light" to "dark". Acceptable values for WCAG 2.0 are 3, 4.5 and 7.
+// See https://www.w3.org/TR/WCAG20/#visual-audio-contrast-contrast
+$min-contrast-ratio:   4.5 !default;
+
+// Customize the light and dark text colors for use in our color contrast function.
+// These are general purpose variables that can be used across the SASS
+$color-contrast-dark:      $sakai-color-gray-9 !default;
+$color-contrast-light:     $sakai-color-gray-1 !default;
+
+// These classes will generate appropriately shaded text for each color family
+// Can also be called like so if you wish to always keep text color desaturated
+// This will default to using the $color-contrast-light and $color-contrast-dark variables above
+// .class-name { color: color-contrast(var(--sakai-background-color-variable)); background-color: var(--sakai-background-color-variable) } 
+
+.sakai-color-gray-0 { color: color-contrast($sakai-color-gray-0, $sakai-color-gray-9, $sakai-color-gray-1); background-color: $sakai-color-gray-0; }
+.sakai-color-gray-1 { color: color-contrast($sakai-color-gray-1, $sakai-color-gray-9, $sakai-color-gray-1); background-color: $sakai-color-gray-1; }
+.sakai-color-gray-2 { color: color-contrast($sakai-color-gray-2, $sakai-color-gray-9, $sakai-color-gray-1); background-color: $sakai-color-gray-2; }
+.sakai-color-gray-3 { color: color-contrast($sakai-color-gray-3, $sakai-color-gray-9, $sakai-color-gray-1); background-color: $sakai-color-gray-3; }
+.sakai-color-gray-4 { color: color-contrast($sakai-color-gray-4, $sakai-color-gray-9, $sakai-color-gray-1); background-color: $sakai-color-gray-4; }
+.sakai-color-gray-5 { color: color-contrast($sakai-color-gray-5, $sakai-color-gray-9, $sakai-color-gray-1); background-color: $sakai-color-gray-5; }
+.sakai-color-gray-6 { color: color-contrast($sakai-color-gray-6, $sakai-color-gray-9, $sakai-color-gray-1); background-color: $sakai-color-gray-6; }
+.sakai-color-gray-7 { color: color-contrast($sakai-color-gray-7, $sakai-color-gray-9, $sakai-color-gray-1); background-color: $sakai-color-gray-7; }
+.sakai-color-gray-8 { color: color-contrast($sakai-color-gray-8, $sakai-color-gray-9, $sakai-color-gray-1); background-color: $sakai-color-gray-8; }
+.sakai-color-gray-9 { color: color-contrast($sakai-color-gray-9, $sakai-color-gray-9, $sakai-color-gray-1); background-color: $sakai-color-gray-9; }
+
+.sakai-color-blue-0 { color: color-contrast($sakai-color-blue-0, $sakai-color-blue-9, $sakai-color-blue-1); background-color: $sakai-color-blue-0; }
+.sakai-color-blue-1 { color: color-contrast($sakai-color-blue-1, $sakai-color-blue-9, $sakai-color-blue-1); background-color: $sakai-color-blue-1; }
+.sakai-color-blue-2 { color: color-contrast($sakai-color-blue-2, $sakai-color-blue-9, $sakai-color-blue-1); background-color: $sakai-color-blue-2; }
+.sakai-color-blue-3 { color: color-contrast($sakai-color-blue-3, $sakai-color-blue-9, $sakai-color-blue-1); background-color: $sakai-color-blue-3; }
+.sakai-color-blue-4 { color: color-contrast($sakai-color-blue-4, $sakai-color-blue-9, $sakai-color-blue-1); background-color: $sakai-color-blue-4; }
+.sakai-color-blue-5 { color: color-contrast($sakai-color-blue-5, $sakai-color-blue-9, $sakai-color-blue-1); background-color: $sakai-color-blue-5; }
+.sakai-color-blue-6 { color: color-contrast($sakai-color-blue-6, $sakai-color-blue-9, $sakai-color-blue-1); background-color: $sakai-color-blue-6; }
+.sakai-color-blue-7 { color: color-contrast($sakai-color-blue-7, $sakai-color-blue-9, $sakai-color-blue-1); background-color: $sakai-color-blue-7; }
+.sakai-color-blue-8 { color: color-contrast($sakai-color-blue-8, $sakai-color-blue-9, $sakai-color-blue-1); background-color: $sakai-color-blue-8; }
+.sakai-color-blue-9 { color: color-contrast($sakai-color-blue-9, $sakai-color-blue-9, $sakai-color-blue-1); background-color: $sakai-color-blue-9; }
+
+.sakai-color-lightblue-0 { color: color-contrast($sakai-color-lightblue-0, $sakai-color-lightblue-9, $sakai-color-lightblue-1); background-color: $sakai-color-lightblue-0; }
+.sakai-color-lightblue-1 { color: color-contrast($sakai-color-lightblue-1, $sakai-color-lightblue-9, $sakai-color-lightblue-1); background-color: $sakai-color-lightblue-1; }
+.sakai-color-lightblue-2 { color: color-contrast($sakai-color-lightblue-2, $sakai-color-lightblue-9, $sakai-color-lightblue-1); background-color: $sakai-color-lightblue-2; }
+.sakai-color-lightblue-3 { color: color-contrast($sakai-color-lightblue-3, $sakai-color-lightblue-9, $sakai-color-lightblue-1); background-color: $sakai-color-lightblue-3; }
+.sakai-color-lightblue-4 { color: color-contrast($sakai-color-lightblue-4, $sakai-color-lightblue-9, $sakai-color-lightblue-1); background-color: $sakai-color-lightblue-4; }
+.sakai-color-lightblue-5 { color: color-contrast($sakai-color-lightblue-5, $sakai-color-lightblue-9, $sakai-color-lightblue-1); background-color: $sakai-color-lightblue-5; }
+.sakai-color-lightblue-6 { color: color-contrast($sakai-color-lightblue-6, $sakai-color-lightblue-9, $sakai-color-lightblue-1); background-color: $sakai-color-lightblue-6; }
+.sakai-color-lightblue-7 { color: color-contrast($sakai-color-lightblue-7, $sakai-color-lightblue-9, $sakai-color-lightblue-1); background-color: $sakai-color-lightblue-7; }
+.sakai-color-lightblue-8 { color: color-contrast($sakai-color-lightblue-8, $sakai-color-lightblue-9, $sakai-color-lightblue-1); background-color: $sakai-color-lightblue-8; }
+.sakai-color-lightblue-9 { color: color-contrast($sakai-color-lightblue-9, $sakai-color-lightblue-9, $sakai-color-lightblue-1); background-color: $sakai-color-lightblue-9; }
+
+.sakai-color-teal-0 { color: color-contrast($sakai-color-teal-0, $sakai-color-teal-9, $sakai-color-teal-1); background-color: $sakai-color-teal-0; }
+.sakai-color-teal-1 { color: color-contrast($sakai-color-teal-1, $sakai-color-teal-9, $sakai-color-teal-1); background-color: $sakai-color-teal-1; }
+.sakai-color-teal-2 { color: color-contrast($sakai-color-teal-2, $sakai-color-teal-9, $sakai-color-teal-1); background-color: $sakai-color-teal-2; }
+.sakai-color-teal-3 { color: color-contrast($sakai-color-teal-3, $sakai-color-teal-9, $sakai-color-teal-1); background-color: $sakai-color-teal-3; }
+.sakai-color-teal-4 { color: color-contrast($sakai-color-teal-4, $sakai-color-teal-9, $sakai-color-teal-1); background-color: $sakai-color-teal-4; }
+.sakai-color-teal-5 { color: color-contrast($sakai-color-teal-5, $sakai-color-teal-9, $sakai-color-teal-1); background-color: $sakai-color-teal-5; }
+.sakai-color-teal-6 { color: color-contrast($sakai-color-teal-6, $sakai-color-teal-9, $sakai-color-teal-1); background-color: $sakai-color-teal-6; }
+.sakai-color-teal-7 { color: color-contrast($sakai-color-teal-7, $sakai-color-teal-9, $sakai-color-teal-1); background-color: $sakai-color-teal-7; }
+.sakai-color-teal-8 { color: color-contrast($sakai-color-teal-8, $sakai-color-teal-9, $sakai-color-teal-1); background-color: $sakai-color-teal-8; }
+.sakai-color-teal-9 { color: color-contrast($sakai-color-teal-9, $sakai-color-teal-9, $sakai-color-teal-1); background-color: $sakai-color-teal-9; }
+
+.sakai-color-gold-0 { color: color-contrast($sakai-color-gold-0, $sakai-color-gold-9, $sakai-color-gold-1); background-color: $sakai-color-gold-0; }
+.sakai-color-gold-1 { color: color-contrast($sakai-color-gold-1, $sakai-color-gold-9, $sakai-color-gold-1); background-color: $sakai-color-gold-1; }
+.sakai-color-gold-2 { color: color-contrast($sakai-color-gold-2, $sakai-color-gold-9, $sakai-color-gold-1); background-color: $sakai-color-gold-2; }
+.sakai-color-gold-3 { color: color-contrast($sakai-color-gold-3, $sakai-color-gold-9, $sakai-color-gold-1); background-color: $sakai-color-gold-3; }
+.sakai-color-gold-4 { color: color-contrast($sakai-color-gold-4, $sakai-color-gold-9, $sakai-color-gold-1); background-color: $sakai-color-gold-4; }
+.sakai-color-gold-5 { color: color-contrast($sakai-color-gold-5, $sakai-color-gold-9, $sakai-color-gold-1); background-color: $sakai-color-gold-5; }
+.sakai-color-gold-6 { color: color-contrast($sakai-color-gold-6, $sakai-color-gold-9, $sakai-color-gold-1); background-color: $sakai-color-gold-6; }
+.sakai-color-gold-7 { color: color-contrast($sakai-color-gold-7, $sakai-color-gold-9, $sakai-color-gold-1); background-color: $sakai-color-gold-7; }
+.sakai-color-gold-8 { color: color-contrast($sakai-color-gold-8, $sakai-color-gold-9, $sakai-color-gold-1); background-color: $sakai-color-gold-8; }
+.sakai-color-gold-9 { color: color-contrast($sakai-color-gold-9, $sakai-color-gold-9, $sakai-color-gold-1); background-color: $sakai-color-gold-9; }
+
+.sakai-color-green-0 { color: color-contrast($sakai-color-green-0, $sakai-color-green-9, $sakai-color-green-1); background-color: $sakai-color-green-0; }
+.sakai-color-green-1 { color: color-contrast($sakai-color-green-1, $sakai-color-green-9, $sakai-color-green-1); background-color: $sakai-color-green-1; }
+.sakai-color-green-2 { color: color-contrast($sakai-color-green-2, $sakai-color-green-9, $sakai-color-green-1); background-color: $sakai-color-green-2; }
+.sakai-color-green-3 { color: color-contrast($sakai-color-green-3, $sakai-color-green-9, $sakai-color-green-1); background-color: $sakai-color-green-3; }
+.sakai-color-green-4 { color: color-contrast($sakai-color-green-4, $sakai-color-green-9, $sakai-color-green-1); background-color: $sakai-color-green-4; }
+.sakai-color-green-5 { color: color-contrast($sakai-color-green-5, $sakai-color-green-9, $sakai-color-green-1); background-color: $sakai-color-green-5; }
+.sakai-color-green-6 { color: color-contrast($sakai-color-green-6, $sakai-color-green-9, $sakai-color-green-1); background-color: $sakai-color-green-6; }
+.sakai-color-green-7 { color: color-contrast($sakai-color-green-7, $sakai-color-green-9, $sakai-color-green-1); background-color: $sakai-color-green-7; }
+.sakai-color-green-8 { color: color-contrast($sakai-color-green-8, $sakai-color-green-9, $sakai-color-green-1); background-color: $sakai-color-green-8; }
+.sakai-color-green-9 { color: color-contrast($sakai-color-green-9, $sakai-color-green-9, $sakai-color-green-1); background-color: $sakai-color-green-9; }
+
+.sakai-color-orange-0 { color: color-contrast($sakai-color-orange-0, $sakai-color-orange-9, $sakai-color-orange-1); background-color: $sakai-color-orange-0; }
+.sakai-color-orange-1 { color: color-contrast($sakai-color-orange-1, $sakai-color-orange-9, $sakai-color-orange-1); background-color: $sakai-color-orange-1; }
+.sakai-color-orange-2 { color: color-contrast($sakai-color-orange-2, $sakai-color-orange-9, $sakai-color-orange-1); background-color: $sakai-color-orange-2; }
+.sakai-color-orange-3 { color: color-contrast($sakai-color-orange-3, $sakai-color-orange-9, $sakai-color-orange-1); background-color: $sakai-color-orange-3; }
+.sakai-color-orange-4 { color: color-contrast($sakai-color-orange-4, $sakai-color-orange-9, $sakai-color-orange-1); background-color: $sakai-color-orange-4; }
+.sakai-color-orange-5 { color: color-contrast($sakai-color-orange-5, $sakai-color-orange-9, $sakai-color-orange-1); background-color: $sakai-color-orange-5; }
+.sakai-color-orange-6 { color: color-contrast($sakai-color-orange-6, $sakai-color-orange-9, $sakai-color-orange-1); background-color: $sakai-color-orange-6; }
+.sakai-color-orange-7 { color: color-contrast($sakai-color-orange-7, $sakai-color-orange-9, $sakai-color-orange-1); background-color: $sakai-color-orange-7; }
+.sakai-color-orange-8 { color: color-contrast($sakai-color-orange-8, $sakai-color-orange-9, $sakai-color-orange-1); background-color: $sakai-color-orange-8; }
+.sakai-color-orange-9 { color: color-contrast($sakai-color-orange-9, $sakai-color-orange-9, $sakai-color-orange-1); background-color: $sakai-color-orange-9; }
+
+.sakai-color-purple-0 { color: color-contrast($sakai-color-purple-0, $sakai-color-purple-9, $sakai-color-purple-1); background-color: $sakai-color-purple-0; }
+.sakai-color-purple-1 { color: color-contrast($sakai-color-purple-1, $sakai-color-purple-9, $sakai-color-purple-1); background-color: $sakai-color-purple-1; }
+.sakai-color-purple-2 { color: color-contrast($sakai-color-purple-2, $sakai-color-purple-9, $sakai-color-purple-1); background-color: $sakai-color-purple-2; }
+.sakai-color-purple-3 { color: color-contrast($sakai-color-purple-3, $sakai-color-purple-9, $sakai-color-purple-1); background-color: $sakai-color-purple-3; }
+.sakai-color-purple-4 { color: color-contrast($sakai-color-purple-4, $sakai-color-purple-9, $sakai-color-purple-1); background-color: $sakai-color-purple-4; }
+.sakai-color-purple-5 { color: color-contrast($sakai-color-purple-5, $sakai-color-purple-9, $sakai-color-purple-1); background-color: $sakai-color-purple-5; }
+.sakai-color-purple-6 { color: color-contrast($sakai-color-purple-6, $sakai-color-purple-9, $sakai-color-purple-1); background-color: $sakai-color-purple-6; }
+.sakai-color-purple-7 { color: color-contrast($sakai-color-purple-7, $sakai-color-purple-9, $sakai-color-purple-1); background-color: $sakai-color-purple-7; }
+.sakai-color-purple-8 { color: color-contrast($sakai-color-purple-8, $sakai-color-purple-9, $sakai-color-purple-1); background-color: $sakai-color-purple-8; }
+.sakai-color-purple-9 { color: color-contrast($sakai-color-purple-9, $sakai-color-purple-9, $sakai-color-purple-1); background-color: $sakai-color-purple-9; }
+
+.sakai-color-red-0 { color: color-contrast($sakai-color-red-0, $sakai-color-red-9, $sakai-color-red-1); background-color: $sakai-color-red-0; }
+.sakai-color-red-1 { color: color-contrast($sakai-color-red-1, $sakai-color-red-9, $sakai-color-red-1); background-color: $sakai-color-red-1; }
+.sakai-color-red-2 { color: color-contrast($sakai-color-red-2, $sakai-color-red-9, $sakai-color-red-1); background-color: $sakai-color-red-2; }
+.sakai-color-red-3 { color: color-contrast($sakai-color-red-3, $sakai-color-red-9, $sakai-color-red-1); background-color: $sakai-color-red-3; }
+.sakai-color-red-4 { color: color-contrast($sakai-color-red-4, $sakai-color-red-9, $sakai-color-red-1); background-color: $sakai-color-red-4; }
+.sakai-color-red-5 { color: color-contrast($sakai-color-red-5, $sakai-color-red-9, $sakai-color-red-1); background-color: $sakai-color-red-5; }
+.sakai-color-red-6 { color: color-contrast($sakai-color-red-6, $sakai-color-red-9, $sakai-color-red-1); background-color: $sakai-color-red-6; }
+.sakai-color-red-7 { color: color-contrast($sakai-color-red-7, $sakai-color-red-9, $sakai-color-red-1); background-color: $sakai-color-red-7; }
+.sakai-color-red-8 { color: color-contrast($sakai-color-red-8, $sakai-color-red-9, $sakai-color-red-1); background-color: $sakai-color-red-8; }
+.sakai-color-red-9 { color: color-contrast($sakai-color-red-9, $sakai-color-red-9, $sakai-color-red-1); background-color: $sakai-color-red-9; }
+
+// Make the color palette available to the browser and Javascript
+:root {
+  --sakai-theme-color-interval: 9;
+  --sakai-color-contrast-threshold: 60%;
+  --sakai-theme-switch-ease: background-color 0.6s cubic-bezier(0.76, 0, 0.24, 1);
+
+  --sakai-color-white: hsl(0, 0%, 100%);
+  @include defineColorHSL(--sakai-color-gray, 214, 3%, 55%);
+  @include defineColorHSL(--sakai-color-blue, 203, 76%, 25%);
+  @include defineColorHSL(--sakai-color-lightblue, 203, 76%, 52%);
+  @include defineColorHSL(--sakai-color-teal, 180, 100%, 30%);
+  @include defineColorHSL(--sakai-color-gold, 50, 99%, 43%);
+  @include defineColorHSL(--sakai-color-green, 147, 92%, 34%);
+  @include defineColorHSL(--sakai-color-orange, 30, 93%, 44%);
+  @include defineColorHSL(--sakai-color-purple, 240, 94%, 63%);
+  @include defineColorHSL(--sakai-color-red, 357, 100%, 40%);
+
+}

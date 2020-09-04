@@ -324,35 +324,6 @@ public class Web
 	}
 
 	/**
-	 * Send the HTML / Javascript to invoke an automatic update
-	 * 
-	 * @param out
-	 * @param req
-	 *        The request.
-	 * @param placementId
-	 *        The tool's placement id / presence location / part of the delivery address
-	 * @param updateTime
-	 *        The time (seconds) between courier checks
-	 * @deprecated 
-	 *        To avoid inappropriate kernel dependencies, construct this URL in the tool pending relocation of this to courier (see SAK-18481).
-	 */
-	public static void sendAutoUpdate(PrintWriter out, HttpServletRequest req, String placementId, int updateTime)
-	{
-		String userId = ComponentManager.get(SessionManager.class).getCurrentSessionUserId();
-		StringBuilder url = new StringBuilder(serverUrl(req));
-		url.append("/courier/");
-		url.append(placementId);
-		url.append("?userId=");
-		url.append(userId);
-		
-		out.println("<script type=\"text/javascript\" language=\"JavaScript\">");
-		out.println("updateTime = " + updateTime + "000;");
-		out.println("updateUrl = \"" + url.toString() + "\";");
-		out.println("scheduleUpdate();");
-		out.println("</script>");
-	}
-
-	/**
 	 * Compute the URL that would return to this server based on the current request. 
 	 * 
 	 * Note: this method is duplicated in the /sakai-kernel-api/src/main/java/org/sakaiproject/util/RequestFilter.java

@@ -32,8 +32,8 @@ import org.hibernate.criterion.Order;
 import org.hibernate.type.DateType;
 import org.hibernate.type.StringType;
 import org.hibernate.type.Type;
-import org.springframework.orm.hibernate4.HibernateCallback;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.HibernateCallback;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 import uk.ac.cam.caret.sakai.rwiki.component.Messages;
 import uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectImpl;

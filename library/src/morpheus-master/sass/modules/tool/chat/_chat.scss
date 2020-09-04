@@ -115,7 +115,7 @@
 										}
 
 										.newMessages {
-											background: $link-color;
+											background: var(--link-color);
 											border-radius: 50px;
 											padding: 2px 7px;
 											font-size: 10px;
@@ -195,7 +195,7 @@
 											top: 0;
 											right: 8px;
 											cursor: pointer;
-											color: $link-color;
+											color: var(--link-color);
 										}
 									}
 								}
@@ -221,7 +221,7 @@
 						.newMessages {
 							position: absolute;
 							top: -10px;
-							background: $link-color;
+							background: var(--link-color);
 							border-radius: 50px;
 							padding: 2px 7px;
 							font-size: 10px;
@@ -452,7 +452,7 @@
 		    padding: 0px;
 		    display: none;
 
-		    box-shadow: 0 -2px 2px rgba( $text-color, 0.5 );
+		    box-shadow: 0 -2px 2px var(--sakai-color-gray-9);
 			
 			h5{
 				margin-bottom: 5px !important;

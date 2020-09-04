@@ -125,7 +125,6 @@ public final class AssignmentConstants {
     /**
      * Calendar event field for assignment due dates
      */
-    public static final String NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID = "new_assignment_duedate_calendar_assignment_id";
     public static final String NEW_ASSIGNMENT_DUE_DATE_SCHEDULED = "new_assignment_due_date_scheduled";
     public static final String NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED = "new_assignment_open_date_announced";
     /**
@@ -146,6 +145,7 @@ public final class AssignmentConstants {
     public static final String ASSN_SUBMISSION_TYPE_INLINE_AND_ATTACHMENTS_PROP = "inlinatt";
     public static final String ASSN_SUBMISSION_TYPE_NON_ELECTRONIC_PROP = "nonelec";
     public static final String ASSN_SUBMISSION_TYPE_SINGLE_ATTACHMENT_PROP = "singleatt";
+    public static final String ASSN_SUBMISSION_TYPE_EXTERNAL_TOOL = "externaltool";
     public static final String ASSN_SUBMISSION_TYPE_UNKNOWN_PROP = "submission.type.unknown";
     /**
      * Ungraded grade type string

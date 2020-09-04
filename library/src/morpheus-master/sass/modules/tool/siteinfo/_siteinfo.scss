@@ -6,7 +6,7 @@
 		li {
 			min-height: 4em;
 			&:nth-child(odd){
-				background: darken( $tool-background-color, 5% );
+				background: var(--sakai-color-gray-0);
 			}
 		}
 	}
@@ -78,7 +78,7 @@
 
 			td {
 				&.ajax-error {
-					background-color: $errorBanner-bgcolor;
+					background-color: var(--errorBanner-bgcolor);
 				}
 
 				> div {
@@ -127,8 +127,8 @@
 
   /*Start of Site Group Manager*/
   .wizard-step-active {
-    background-color: $primary-color;
-    color: $button-primary-text-color;
+    background-color: var(--sakai-primary-color-1);
+    color: var(--button-primary-text-color);
   }
 
   .optGroupSelect {

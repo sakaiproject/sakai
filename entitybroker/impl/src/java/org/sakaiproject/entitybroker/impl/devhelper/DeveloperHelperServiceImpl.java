@@ -271,8 +271,7 @@ public class DeveloperHelperServiceImpl extends AbstractDeveloperHelperService {
         String location = null;
         try {
             String context = toolManager.getCurrentPlacement().getContext();
-            Site s = siteService.getSite( context );
-            location = s.getReference(); // get the entity reference to the site
+            location = siteService.siteReference(context); // get the entity reference to the site
         } catch (Exception e) {
             // sakai failed to get us a location so we can assume we are not inside the portal
             location = null;

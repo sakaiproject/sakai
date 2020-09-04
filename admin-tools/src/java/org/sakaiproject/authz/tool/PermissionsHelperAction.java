@@ -498,9 +498,6 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 		}
 		context.put("rolesAbilities", rolesAbilities);
 
-		// make sure observers are disabled
-		VelocityPortletPaneledAction.disableObservers(state);
-
 		return getContext(rundata).get("template");
 	}
 	/**
@@ -562,9 +559,6 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 		state.removeAttribute(STATE_MODE);
 		state.removeAttribute(VelocityPortletPaneledAction.STATE_HELPER);
 		state.removeAttribute(STATE_GROUP_AWARE);
-
-		// re-enable observers
-		VelocityPortletPaneledAction.enableObservers(state);
 	}
 
 	/**

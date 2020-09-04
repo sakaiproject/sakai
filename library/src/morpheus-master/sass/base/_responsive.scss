@@ -39,7 +39,7 @@ body{
 				z-index: 1001;
 
 				@if $tool-menu-icon-on-left {
-					background-color: $tool-background-color;
+					background-color: var(--tool-background-color);
 				}
 				#toolSubsitesContainer{
 					overflow-y:auto;
@@ -55,7 +55,7 @@ body{
 					position: absolute;
 					pointer-events: none;
 					border-color: rgba(255, 255, 255, 0);
-					border-bottom-color: $tool-menu-background-color;
+					border-bottom-color: var(--tool-menu-background-color);
 					border-width: $standard-spacing;
 					outline: 0;
 					margin-bottom: -1px; // to overlap the top ul border for the illusion
@@ -77,15 +77,15 @@ body{
 					line-height: 1.05;
 					font-size: 1em;
 					font-weight: 300;
-					background: $tool-background-color;
+					background: var(--tool-background-color);
 					margin: 0;
-					border-bottom:  1px solid darken( $tool-menu-background-color, 5% );
+					border-bottom:  1px solid var(--sakai-border-color);
 					position: relative;
 				}
 			}
 			#toolMenu, #subSites{
 				@if $tool-menu-icon-on-left {
-					background-color: $tool-background-color;
+					background-color: var(--tool-background-color);
 				}
 				ul{
 					list-style: none;
@@ -93,13 +93,13 @@ body{
 					li{
 						@if $tool-menu-icon-on-left {
 							display: block;
-							border-bottom: 1px solid $tool-menu-item-separator-color;
+							border-bottom: 1px solid var(--tool-menu-item-separator-color);
 							width: 100%;
 							white-space: nowrap;
 							overflow: hidden;
 						}
 						@else {
-							border-left: 2px solid darken( $tool-menu-background-color, 10% );
+							border-left: 2px var(--sakai-background-color-2);
 							display: inline-block;
 							margin: -4px -4px 0px 0; //FIX for inline-block extra space.
 							width: calc( 25% - 1px );
@@ -131,7 +131,7 @@ body{
 			.Mrphs-mainHeader{
 				&.is-maximized{
 					.siteNavWrap{
-						background: $primary-color;
+						background: var(--sakai-primary-color-1);
 						margin-top: -3em;
 						min-height: 100%;
 						padding-top: 3em;
@@ -157,18 +157,18 @@ body{
 						margin: 1.5em;
 						&.is-selected{
 							a{
-								background: $background-color;
+								background: var(--sakai-background-color-1);
 							}
 						}
 						a{
-							background: darken( $background-color-secondary, 5% );
+							background: var(--sakai-background-color-2);
 							border-right: 0px none;
 						}
 						&.#{$namespace}sitesNav__menuitem--myworkspace{
-							background: $primary-color;
+							background: var(--sakai-primary-color-1);
 							margin: 0 0 0 0;
 							a{
-								background: $primary-color;
+								background: var(--sakai-primary-color-1);
 							}
 						}
 					}

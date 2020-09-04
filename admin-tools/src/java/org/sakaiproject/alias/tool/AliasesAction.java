@@ -41,7 +41,6 @@ import org.sakaiproject.cheftool.api.MenuItem;
 import org.sakaiproject.cheftool.menu.MenuEntry;
 import org.sakaiproject.cheftool.menu.MenuImpl;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.courier.api.ObservingCourier;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
@@ -86,23 +85,6 @@ public class AliasesAction extends PagedResourceActionII
 		super.initState(state, portlet, rundata);
 
 	} // initState
-
-	/**
-	 * Setup our observer to be watching for change events for our channel.
-	 * 
-	 * @param peid
-	 *        The portlet id.
-	 * @deprecated this is unused
-	 */
-	private void updateObservationOfChannel(SessionState state, String peid)
-	{
-		// EventObservingCourier observer = (EventObservingCourier) state.getAttribute(STATE_OBSERVER);
-		//
-		// // the delivery location for this tool
-		// String deliveryId = clientWindowId(state, peid);
-		// observer.setDeliveryId(deliveryId);
-
-	} // updateObservationOfChannel
 
 	/**
 	 * build the context
@@ -195,9 +177,6 @@ public class AliasesAction extends PagedResourceActionII
 		// add the search commands
 		addSearchMenus(bar, state, rb.getString("alias.list.search.acc"));
 
-		// add the refresh commands
-		addRefreshMenus(bar, state);
-
 		if (bar.size() > 0)
 		{
 			context.put(Menu.CONTEXT_MENU, bar);
@@ -280,10 +259,6 @@ public class AliasesAction extends PagedResourceActionII
 		// mark the alias as new, so on cancel it can be deleted
 		state.setAttribute("new", "true");
 
-		// disable auto-updates while not in list mode
-		ObservingCourier courier = (ObservingCourier) state.getAttribute(STATE_OBSERVER);
-		if (courier != null) courier.disable();
-
 	} // doNew
 
 	/**
@@ -300,10 +275,6 @@ public class AliasesAction extends PagedResourceActionII
 			AliasEdit alias = aliasService.edit(id);
 			state.setAttribute("alias", alias);
 			state.setAttribute("mode", "edit");
-
-			// disable auto-updates while not in list mode
-			ObservingCourier courier = (ObservingCourier) state.getAttribute(STATE_OBSERVER);
-			if (courier != null) courier.disable();
 		}
 		catch (IdUnusedException e)
 		{
@@ -311,28 +282,16 @@ public class AliasesAction extends PagedResourceActionII
 
 			addAlert(state, rb.getFormattedMessage("alias.notfound", new Object[]{id}));
 			state.removeAttribute("mode");
-
-			// make sure auto-updates are enabled
-			ObservingCourier courier = (ObservingCourier) state.getAttribute(STATE_OBSERVER);
-			if (courier != null) courier.enable();
 		}
 		catch (PermissionException e)
 		{
 			addAlert(state, rb.getFormattedMessage("alias.notpermis", new Object[]{id}));
 			state.removeAttribute("mode");
-
-			// make sure auto-updates are enabled
-			ObservingCourier courier = (ObservingCourier) state.getAttribute(STATE_OBSERVER);
-			if (courier != null) courier.enable();
 		}
 		catch (InUseException e)
 		{
 			addAlert(state, rb.getFormattedMessage("alias.someone", new Object[]{id}));
 			state.removeAttribute("mode");
-
-			// make sure auto-updates are enabled
-			ObservingCourier courier = (ObservingCourier) state.getAttribute(STATE_OBSERVER);
-			if (courier != null) courier.enable();
 		}
 
 	} // doEdit
@@ -362,10 +321,6 @@ public class AliasesAction extends PagedResourceActionII
 
 		// return to main mode
 		state.removeAttribute("mode");
-
-		// make sure auto-updates are enabled
-		ObservingCourier courier = (ObservingCourier) state.getAttribute(STATE_OBSERVER);
-		if (courier != null) courier.enable();
 
 	} // doSave
 
@@ -405,10 +360,6 @@ public class AliasesAction extends PagedResourceActionII
 
 		// return to main mode
 		state.removeAttribute("mode");
-
-		// make sure auto-updates are enabled
-		ObservingCourier courier = (ObservingCourier) state.getAttribute(STATE_OBSERVER);
-		if (courier != null) courier.enable();
 
 	} // doCancel
 
@@ -456,10 +407,6 @@ public class AliasesAction extends PagedResourceActionII
 
 		// go to main mode
 		state.removeAttribute("mode");
-
-		// make sure auto-updates are enabled
-		ObservingCourier courier = (ObservingCourier) state.getAttribute(STATE_OBSERVER);
-		if (courier != null) courier.enable();
 
 	} // doRemove_confirmed
 

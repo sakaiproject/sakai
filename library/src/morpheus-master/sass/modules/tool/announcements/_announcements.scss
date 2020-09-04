@@ -23,10 +23,10 @@
 		max-width: 1200px;
 	}
 	.message-body{
-		background-color: darken( $tool-background-color, 5% );
+		background-color: var(--sakai-background-color-2);
 		padding: 15px;
 		margin-bottom: 20px;
-		border: 1px solid darken( $tool-background-color, 10% );
+		border: 1px solid var(--sakai-border-color);
 		border-radius: 4px;		
 	}
 	#groupTable{
@@ -34,7 +34,7 @@
 			padding: 6px 12px;
 			font-size: 14px;
 			line-height: 1.42857143;
-			background-color: #eee;
+			background-color: var(--sakai-color-gray-0);
 		}
 	}
 }

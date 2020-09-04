@@ -517,26 +517,17 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	    }
 	    catch (MissingResourceException e)
 	    {
-	        if (log.isWarnEnabled()) {
-	            log.warn("bundle \'"+baseName +"\'  missing key: \'" + key 
-	                    + "\'  from: " + e.getStackTrace()[3] ); // 3-deep gets us out of ResourceLoader
-	        }
+	        log.warn("bundle \'{}\'  missing key: \'{}\'  from: ", baseName, key, e);
 	        return "[missing key (mre): " + baseName + " " + key + "]";
 	    }
 	    catch (NullPointerException e)
 	    {
-	        if (log.isWarnEnabled()) {
-	            log.warn("bundle \'"+baseName +"\'  null pointer exception: \'" + key 
-	                    + "\'  from: " + e.getStackTrace()[3] ); // 3-deep gets us out of ResourceLoader
-	        }
+	        log.warn("bundle \'{}\'  null pointer exception: \'{}\'  from: ", baseName, key, e);
 	        return "[missing key (npe): " + baseName + " " + key + "]";			
 	    }
 	    catch (ClassCastException e)
 	    {
-	        if (log.isWarnEnabled()) {
-	            log.warn("bundle \'"+baseName +"\'  class cast exception: \'" + key 
-	                    + "\'  from: " + e.getStackTrace()[3] ); // 3-deep gets us out of ResourceLoader
-	        }
+	        log.warn("bundle \'{}\'  class cast exception: \'{}\'  from: ", baseName, key, e);
 	        return "[missing key (clc): " + baseName + " " + key + "]";						
 	    }
 	}

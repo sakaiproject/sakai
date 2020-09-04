@@ -22,6 +22,7 @@
 package org.sakaiproject.poll.logic.test;
 
 import java.util.Date;
+import java.util.UUID;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
@@ -186,9 +187,7 @@ public class PollListManagerTest extends AbstractTransactionalJUnit4SpringContex
 		poll1.setText("something");
 		poll1.setOwner(TestDataPreload.USER_UPDATE);
 		poll1.setSiteId(TestDataPreload.LOCATION1_ID);
-		
-		
-		
+
 		//we should not be able to delete a poll that hasn't been saved
 		try {
 			pollListManager.deletePoll(poll1);
@@ -210,10 +209,12 @@ public class PollListManagerTest extends AbstractTransactionalJUnit4SpringContex
 	    Option option1 = new Option();
 	    option1.setPollId(poll1.getPollId());
 	    option1.setText("asdgasd");
-	    
+	    option1.setOptionOrder(0);
+
 	    Option option2 = new Option();
 	    option2.setPollId(poll1.getPollId());
 	    option2.setText("zsdbsdfb");
+	    option2.setOptionOrder(1);
 	    
 	    pollListManager.saveOption(option2);
 	    pollListManager.saveOption(option1);
@@ -222,8 +223,10 @@ public class PollListManagerTest extends AbstractTransactionalJUnit4SpringContex
 	    vote.setIp("Localhost");
 	    vote.setPollId(poll1.getPollId());
 	    vote.setPollOption(option1.getOptionId());
-	    
-	    
+	    vote.setUserId(TestDataPreload.USER_UPDATE);
+	    vote.setVoteDate(new Date());
+	    vote.setSubmissionId(TestDataPreload.USER_UPDATE + ":" + UUID.randomUUID());
+
 	    pollVoteManager.saveVote(vote);
 	    
 	    Long option1Id = option1.getOptionId();

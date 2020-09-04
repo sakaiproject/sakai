@@ -1,14 +1,15 @@
 .#{$namespace}siteHierarchy{
-	background: $tool-background-color;
+	background: var(--tool-background-color);
 	min-height: $hierarchy-size;
+	transition:var(--sak-theme-switch-ease);
 
 	h1{
-		color: $background-color;
+		color: var(--sakai-background-color-1);
 		font-weight: 300;
 		margin: 0;
 	}
 	a{
-		color: $breadcrumbs-color;
+		color: var(--breadcrumbs-color);
 		margin: 0 $standard-spacing;
 		padding: 0;
 		text-decoration: none;
@@ -60,7 +61,7 @@
 		a.#{$namespace}hierarchy--toolName{
 			@include display-flex;
 			@include align-items(center);
-			color: $breadcrumbs-tool-color;
+			color: var(--breadcrumbs-tool-color);
 			text-transform: uppercase;
 			font-size: 1.25em;
 			font-weight: bold;
@@ -102,7 +103,7 @@
 		left: 0;
 
 		h1{
-			color: $breadcrumbs-tool-color;
+			color: var(--breadcrumbs-tool-color);
 		}
 
 		.#{$namespace}hierarchy--siteName a:hover .#{$namespace}hierarchy--siteName-label {
@@ -113,8 +114,8 @@
 			display: none;
 		}
 		a.#{$namespace}hierarchy--toolName:hover{
-			color: $breadcrumbs-tool-color;
-			border-bottom: 1px solid $breadcrumbs-hover-color;
+			color: var(--breadcrumbs-tool-color);
+			border-bottom: 1px solid var(--breadcrumbs-hover-color);
 		}
 		
 		.#{$namespace}hierarchy--serviceName, .#{$namespace}hierarchy--serviceNameSeparator{
@@ -126,7 +127,7 @@
 		}
 
 		.#{$namespace}hierarchy-item {
-			color: $breadcrumbs-tool-color;
+			color: var(--breadcrumbs-tool-color);
 		}
 
 		.#{$namespace}hierarchy--siteNameSeparator {

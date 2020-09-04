@@ -69,7 +69,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
-/* Leave out until we have JTidy 0.8 in the repository 
+/* Leave out until we have JTidy 0.8 in the repository
  import org.w3c.tidy.Tidy;
  import java.io.ByteArrayOutputStream;
  */
@@ -80,7 +80,7 @@ import org.json.simple.JSONValue;
  * /java_simple_class_to_compute_sha_1_hash.xml
  * <p>
  * Sample Descriptor
- * 
+ *
  * <pre>
  * &lt;?xml&nbsp;version=&quot;1.0&quot;&nbsp;encoding=&quot;UTF-8&quot;?&gt;
  * &lt;basic_lti_link&nbsp;xmlns=&quot;http://www.imsglobal.org/xsd/imsbasiclti_v1p0&quot;&nbsp;xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;&gt;
@@ -111,6 +111,7 @@ import org.json.simple.JSONValue;
  * &lt;/basic_lti_link&gt;
  * </pre>
  */
+
 @Slf4j
 public class BasicLTIUtil {
 
@@ -147,7 +148,7 @@ public class BasicLTIUtil {
 	}
 
 	// expected_oauth_key can be null - if it is non-null it must match the key in the request
-	public static Object validateMessage(HttpServletRequest request, String URL, 
+	public static Object validateMessage(HttpServletRequest request, String URL,
 		String oauth_secret, String expected_oauth_key)
 	{
 		OAuthMessage oam = OAuthServlet.getMessage(request, URL);
@@ -217,7 +218,7 @@ public class BasicLTIUtil {
 	 * "underscore".
 	 * <p>
 	 * e.g. Review:Chapter=1.2.56 would map to custom_review_chapter=1.2.56.
-	 * 
+	 *
 	 * @param propertyName
 	 * @return
 	 */
@@ -235,10 +236,33 @@ public class BasicLTIUtil {
 
 	/**
 	 * Add the necessary fields and sign.
-	 * 
+	 *
 	 * @deprecated See:
 	 *	 {@link BasicLTIUtil#signProperties(Map, String, String, String, String, String, String, String, String, String, Map)}
-	 * 
+	 *
+	 * @param postProp
+	 * @param url
+	 * @param method
+	 * @param oauth_consumer_key
+	 * @param oauth_consumer_secret
+	 * @param extra
+	 * @return
+	 */
+	public static Properties signProperties(Properties postProp, String url,
+			String method, String oauth_consumer_key, String oauth_consumer_secret,
+			Map<String,String> extra) {
+		final Map<String, String> signedMap = signProperties(
+				convertToMap(postProp), url, method, oauth_consumer_key,
+				oauth_consumer_secret, null, null, null, null, null, extra);
+		return convertToProperties(signedMap);
+	}
+
+	/**
+	 * Add the necessary fields and sign.
+	 *
+	 * @deprecated See:
+	 *	 {@link BasicLTIUtil#signProperties(Map, String, String, String, String, String, String, String, String, String, Map)}
+	 *
 	 * @param postProp
 	 * @param url
 	 * @param method
@@ -264,7 +288,7 @@ public class BasicLTIUtil {
 
 	/**
 	 * Add the necessary fields and sign.
-	 * 
+	 *
 	 * @param postProp
 	 * @param url
 	 * @param method
@@ -293,21 +317,38 @@ public class BasicLTIUtil {
 			String tool_consumer_instance_contact_email,
 			Map<String, String> extra) {
 
-		if ( postProp.get(LTI_VERSION) == null ) postProp.put(LTI_VERSION, "LTI-1p0");
-		if ( postProp.get(LTI_MESSAGE_TYPE) == null ) postProp.put(LTI_MESSAGE_TYPE, "basic-lti-launch-request");
-
 		if (tool_consumer_instance_guid != null)
 			postProp.put(TOOL_CONSUMER_INSTANCE_GUID, tool_consumer_instance_guid);
 		if (tool_consumer_instance_description != null)
-			postProp.put(TOOL_CONSUMER_INSTANCE_DESCRIPTION,
-					tool_consumer_instance_description);
+			postProp.put(TOOL_CONSUMER_INSTANCE_DESCRIPTION, tool_consumer_instance_description);
 		if (tool_consumer_instance_url != null)
 			postProp.put(TOOL_CONSUMER_INSTANCE_URL, tool_consumer_instance_url);
 		if (tool_consumer_instance_name != null)
 			postProp.put(TOOL_CONSUMER_INSTANCE_NAME, tool_consumer_instance_name);
 		if (tool_consumer_instance_contact_email != null)
-			postProp.put(TOOL_CONSUMER_INSTANCE_CONTACT_EMAIL,
-					tool_consumer_instance_contact_email);
+			postProp.put(TOOL_CONSUMER_INSTANCE_CONTACT_EMAIL, tool_consumer_instance_contact_email);
+
+		return signProperties(postProp, url, method, oauth_consumer_key, oauth_consumer_secret, extra);
+	}
+
+	/**
+	 * Add the necessary fields and sign.
+	 *
+	 * @param postProp
+	 * @param url
+	 * @param method
+	 * @param oauth_consumer_key
+	 * @param oauth_consumer_secret
+	 * @param extra
+	 * @return
+	 */
+	public static Map<String, String> signProperties(
+			Map<String, String> postProp, String url, String method,
+			String oauth_consumer_key, String oauth_consumer_secret,
+			Map<String, String> extra) {
+
+		if ( postProp.get(LTI_VERSION) == null ) postProp.put(LTI_VERSION, "LTI-1p0");
+		if ( postProp.get(LTI_MESSAGE_TYPE) == null ) postProp.put(LTI_MESSAGE_TYPE, "basic-lti-launch-request");
 
 		if (postProp.get("oauth_callback") == null)
 			postProp.put("oauth_callback", "about:blank");
@@ -352,10 +393,10 @@ public class BasicLTIUtil {
 
 	/**
 	 * Check if the properties are properly signed
-	 * 
+	 *
 	 * @deprecated See:
 	 *			 {@link BasicLTIUtil#checkProperties(Map, String, String, String, String)}
-	 * 
+	 *
 	 * @param postProp
 	 * @param url
 	 * @param method
@@ -364,16 +405,16 @@ public class BasicLTIUtil {
 	 * @return
 	 */
 	public static boolean checkProperties(Properties postProp, String url,
-			String method, String oauth_consumer_key, String oauth_consumer_secret) 
+			String method, String oauth_consumer_key, String oauth_consumer_secret)
 	{
 
-		return checkProperties( convertToMap(postProp), url, method, 
+		return checkProperties( convertToMap(postProp), url, method,
 				oauth_consumer_key, oauth_consumer_secret);
 	}
 
 	/**
 	 * Check if the fields are properly signed
-	 * 
+	 *
 	 * @param postProp
 	 * @param url
 	 * @param method
@@ -418,7 +459,7 @@ public class BasicLTIUtil {
 
 	/**
 	 * Create the HTML to render a POST form and then automatically submit it.
-	 * 
+	 *
 	 * @deprecated Moved to {@link #postLaunchHTML(Map, String, String, boolean, Map)}
 	 * @param cleanProperties
 	 * @param endpoint
@@ -438,7 +479,7 @@ public class BasicLTIUtil {
 
 	/**
 	 * Create the HTML to render a POST form and then automatically submit it.
-	 * 
+	 *
 	 * @deprecated Moved to {@link #postLaunchHTML(Map, String, String, boolean, boolean, Map)}
 	 * @param cleanProperties
 	 * @param endpoint
@@ -460,7 +501,7 @@ public class BasicLTIUtil {
 
 	/**
 	 * Create the HTML to render a POST form and then automatically submit it.
-	 * 
+	 *
 	 * @param cleanProperties
 	 * @param endpoint
 	 *		  The LTI launch url.
@@ -473,7 +514,7 @@ public class BasicLTIUtil {
 	 * @return the HTML ready for IFRAME src = inclusion.
 	 */
 	public static String postLaunchHTML(
-			final Map<String, String> cleanProperties, String endpoint, 
+			final Map<String, String> cleanProperties, String endpoint,
 			String launchtext, boolean debug, Map<String,String> extra) {
 		// Assume autosubmit is true for backwards compatibility
 		boolean autosubmit = true;
@@ -481,7 +522,7 @@ public class BasicLTIUtil {
 	}
 	/**
 	 * Create the HTML to render a POST form and then automatically submit it.
-	 * 
+	 *
 	 * @param cleanProperties
 	 * @param endpoint
 	 *		  The LTI launch url.
@@ -494,8 +535,8 @@ public class BasicLTIUtil {
 	 * @return the HTML ready for IFRAME src = inclusion.
 	 */
 	public static String postLaunchHTML(
-			final Map<String, String> cleanProperties, String endpoint, 
-			String launchtext, boolean autosubmit, boolean debug, 
+			final Map<String, String> cleanProperties, String endpoint,
+			String launchtext, boolean autosubmit, boolean debug,
 			Map<String,String> extra) {
 
 		if (cleanProperties == null || cleanProperties.isEmpty()) {
@@ -624,28 +665,28 @@ public class BasicLTIUtil {
 		return htmltext;
 	}
 
-	/** 
-         * getOAuthURL - Form a GET request signed by OAuth
+	/**
+	 * getOAuthURL - Form a GET request signed by OAuth
 	 * @param method
 	 * @param url
 	 * @param oauth_consumer_key
 	 * @param oauth_secret
 	 */
-	public static String getOAuthURL(String method, String url, 
+	public static String getOAuthURL(String method, String url,
 		String oauth_consumer_key, String oauth_secret)
 	{
 		return getOAuthURL(method, url, oauth_consumer_key, oauth_secret, null);
 	}
 
-	/** 
-         * getOAuthURL - Form a GET request signed by OAuth
+	/**
+	 * getOAuthURL - Form a GET request signed by OAuth
 	 * @param method
 	 * @param url
 	 * @param oauth_consumer_key
 	 * @param oauth_secret
 	 * @param signature
 	 */
-	public static String getOAuthURL(String method, String url, 
+	public static String getOAuthURL(String method, String url,
 		String oauth_consumer_key, String oauth_secret, String signature)
 	{
 		OAuthMessage om = new OAuthMessage(method, url, null);
@@ -668,7 +709,7 @@ public class BasicLTIUtil {
 		}
 	}
 
-	/** 
+	/**
          * getOAuthURL - Form a GET request signed by OAuth
 	 * @param method
 	 * @param url
@@ -687,8 +728,8 @@ public class BasicLTIUtil {
 			HttpURLConnection connection = (HttpURLConnection) urlConn.openConnection();
 			connection.setRequestMethod(method);
 
-			// Since Java won't send Content-length unless we really send 
-			// content - send some data character so we don't 
+			// Since Java won't send Content-length unless we really send
+			// content - send some data character so we don't
 			// send a broken PUT
 			if ( ! "GET".equals(method) ) {
 				connection.setDoOutput(true);
@@ -706,7 +747,7 @@ public class BasicLTIUtil {
 		}
 	}
 
-	/** 
+	/**
          * getResponseCode - Read the HTTP Response
 	 * @param connection
 	 */
@@ -720,7 +761,7 @@ public class BasicLTIUtil {
 	}
 
 
-	/** 
+	/**
          * readHttpResponse - Read the HTTP Response
 	 * @param connection
 	 */
@@ -731,7 +772,7 @@ public class BasicLTIUtil {
 			new InputStreamReader(connection.getInputStream()));
 			String inputLine;
 			StringBuffer response = new StringBuffer();
- 
+
 			while ((inputLine = in.readLine()) != null) {
 				response.append(inputLine);
 			}
@@ -801,7 +842,7 @@ public class BasicLTIUtil {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param launch_info
 	 *		  Variable is mutated by this method.
 	 * @param postProp
@@ -877,9 +918,9 @@ public class BasicLTIUtil {
 	 * The parameter name is mapped to lower case and any character that is
 	 * neither a number or letter is replaced with an "underscore". So if a custom
 	 * entry was as follows:
-	 * 
+	 *
 	 * <parameter name="Vendor:Chapter">1.2.56</parameter>
-	 * 
+	 *
 	 * Would map to: custom_vendor_chapter=1.2.56
 	 */
 	public static String mapKeyName(String keyname) {
@@ -911,7 +952,7 @@ public class BasicLTIUtil {
 	/**
 	 * Mutates the passed Map<String, String> map variable. Puts the key,value
 	 * into the Map if the value is not null and is not empty.
-	 * 
+	 *
 	 * @param map
 	 *		  Variable is mutated by this method.
 	 * @param key
@@ -927,7 +968,7 @@ public class BasicLTIUtil {
 	/**
 	 * Mutates the passed Properties props variable. Puts the key,value into the
 	 * Map if the value is not null and is not empty.
-	 * 
+	 *
 	 * @deprecated See: {@link #setProperty(Map, String, String)}
 	 * @param props
 	 *		  Variable is mutated by this method.
@@ -953,9 +994,9 @@ public class BasicLTIUtil {
 	}
 
 	/**
-	 * Simple utility method deal with a request that has the wrong URL when behind 
+	 * Simple utility method deal with a request that has the wrong URL when behind
      * a proxy.
-	 * 
+	 *
 	 * @param servletUrl
      * @param extUrl
      *   The url that the external world sees us as responding to.  This needs to be
@@ -988,7 +1029,7 @@ public class BasicLTIUtil {
 	/**
 	 * Simple utility method to help with the migration from Properties to
 	 * Map<String, String>.
-	 * 
+	 *
 	 * @param properties
 	 * @return
 	 */
@@ -1001,7 +1042,7 @@ public class BasicLTIUtil {
 	/**
 	 * Simple utility method to help with the migration from Map<String, String>
 	 * to Properties.
-	 * 
+	 *
 	 * @deprecated Should migrate to Map<String, String> signatures.
 	 * @param map
 	 * @return
@@ -1020,7 +1061,7 @@ public class BasicLTIUtil {
 	 * <p>
 	 * Checks if a String is whitespace, empty ("") or null.
 	 * </p>
-	 * 
+	 *
 	 * <pre>
 	 * StringUtils.isBlank(null)	  = true
 	 * StringUtils.isBlank("")		= true
@@ -1028,7 +1069,7 @@ public class BasicLTIUtil {
 	 * StringUtils.isBlank("bob")	 = false
 	 * StringUtils.isBlank("  bob  ") = false
 	 * </pre>
-	 * 
+	 *
 	 * @param str
 	 *		  the String to check, may be null
 	 * @return <code>true</code> if the String is null, empty or whitespace
@@ -1051,7 +1092,7 @@ public class BasicLTIUtil {
 	 * <p>
 	 * Checks if a String is not empty (""), not null and not whitespace only.
 	 * </p>
-	 * 
+	 *
 	 * <pre>
 	 * StringUtils.isNotBlank(null)	  = false
 	 * StringUtils.isNotBlank("")		= false
@@ -1059,7 +1100,7 @@ public class BasicLTIUtil {
 	 * StringUtils.isNotBlank("bob")	 = true
 	 * StringUtils.isNotBlank("  bob  ") = true
 	 * </pre>
-	 * 
+	 *
 	 * @param str
 	 *		  the String to check, may be null
 	 * @return <code>true</code> if the String is not empty and not null and not
@@ -1074,12 +1115,12 @@ public class BasicLTIUtil {
 	 * <p>
 	 * Compares two Strings, returning <code>true</code> if they are equal.
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * <code>null</code>s are handled without exceptions. Two <code>null</code>
 	 * references are considered to be equal. The comparison is case sensitive.
 	 * </p>
-	 * 
+	 *
 	 * <pre>
 	 * StringUtils.equals(null, null)   = true
 	 * StringUtils.equals(null, "abc")  = false
@@ -1087,7 +1128,7 @@ public class BasicLTIUtil {
 	 * StringUtils.equals("abc", "abc") = true
 	 * StringUtils.equals("abc", "ABC") = false
 	 * </pre>
-	 * 
+	 *
 	 * @see java.lang.String#equals(Object)
 	 * @param str1
 	 *		  the first String, may be null
@@ -1105,12 +1146,12 @@ public class BasicLTIUtil {
 	 * Compares two Strings, returning <code>true</code> if they are equal
 	 * ignoring the case.
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * <code>null</code>s are handled without exceptions. Two <code>null</code>
 	 * references are considered equal. Comparison is case insensitive.
 	 * </p>
-	 * 
+	 *
 	 * <pre>
 	 * StringUtils.equalsIgnoreCase(null, null)   = true
 	 * StringUtils.equalsIgnoreCase(null, "abc")  = false
@@ -1118,7 +1159,7 @@ public class BasicLTIUtil {
 	 * StringUtils.equalsIgnoreCase("abc", "abc") = true
 	 * StringUtils.equalsIgnoreCase("abc", "ABC") = true
 	 * </pre>
-	 * 
+	 *
 	 * @see java.lang.String#equalsIgnoreCase(String)
 	 * @param str1
 	 *		  the first String, may be null
@@ -1152,9 +1193,21 @@ public class BasicLTIUtil {
 		return timestamp;
 	}
 
+	// Parse and return a JSONObject (empty if necessary)
+	// Use this when there is no way to recover from broken JSON except start over
+	public static JSONObject parseJSONObject(String str)
+	{
+		JSONObject content_json = null;
+		if ( str != null ) {
+			content_json = (JSONObject) JSONValue.parse(str);
+		}
+		if ( content_json == null ) content_json = new JSONObject();
+		if ( ! (content_json instanceof JSONObject) ) content_json = new JSONObject();
+		return content_json;
+	}
 
 	// Parse a provider profile with lots of error checking...
-	public static JSONArray forceArray(Object obj) 
+	public static JSONArray forceArray(Object obj)
 	{
 		if ( obj == null ) return null;
 		if ( obj instanceof JSONArray ) return (JSONArray) obj;
@@ -1190,6 +1243,7 @@ public class BasicLTIUtil {
 	public static JSONObject getObject(JSONObject obj, String key)
 	{
 		if ( obj == null ) return null;
+		if ( key == null ) return null;
 		Object o = obj.get(key);
 		if ( o == null ) return null;
 		if ( o instanceof JSONObject ) return (JSONObject) o;
@@ -1200,9 +1254,48 @@ public class BasicLTIUtil {
 	public static String getString(JSONObject obj, String key)
 	{
 		if ( obj == null ) return null;
+		if ( key == null ) return null;
 		Object o = obj.get(key);
 		if ( o == null ) return null;
 		if ( o instanceof String ) return (String) o;
+		return null;
+	}
+
+	// Return a Long or null
+	public static Long getLong(JSONObject obj, String key) {
+		if ( obj == null ) return null;
+		if ( key == null ) return null;
+		Object o = obj.get(key);
+
+		if (o instanceof Number)
+			return new Long(((Number) o).longValue());
+		if (o instanceof String) {
+			if ( ((String)o).length() < 1 ) return new Long(-1);
+			try {
+				return new Long((String) o);
+			} catch (Exception e) {
+				return null;
+			}
+		}
+		return null;
+	}
+
+	// Return a Double or null
+	public static Double getDouble(JSONObject obj, String key) {
+		if ( obj == null ) return null;
+		if ( key == null ) return null;
+		Object o = obj.get(key);
+
+		if (o instanceof Number)
+			return new Double(((Number) o).longValue());
+		if (o instanceof String) {
+			if ( ((String)o).length() < 1 ) return new Double(-1);
+			try {
+				return new Double((String) o);
+			} catch (Exception e) {
+				return null;
+			}
+		}
 		return null;
 	}
 

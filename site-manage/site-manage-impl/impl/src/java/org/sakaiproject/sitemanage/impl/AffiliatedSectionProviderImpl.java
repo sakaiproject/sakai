@@ -33,7 +33,7 @@ import org.sakaiproject.sitemanage.api.AffiliatedSectionProvider;
 @Slf4j
 public class AffiliatedSectionProviderImpl implements AffiliatedSectionProvider {
 
-	public List getAffiliatedSectionEids(String userEid, String academicSessionEid)
+	public List<String> getAffiliatedSectionEids(String userEid, String academicSessionEid)
 	{
 		return null;
 	}

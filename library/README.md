@@ -26,13 +26,13 @@ More commands are listed here:  *[https://github.com/sakaiproject/sakai/blob/mas
 
 * <a name="defaults"></a>**Changing Defaults (Basics)**: Below are the list of some important and widely used variables for changing colors, font and other defaults located in file *[/library/src/morpheus-master/sass/_defaults.scss](./library/src/morpheus-master/sass/_defaults.scss)*.
 
-    1. $primary-color : This variable is used for the primary color, which is used in portal header background, tool header background, button colors, tool navigation etc.
+    1. var(--sakai-primary-color) : This variable is used for the primary color, which is used in portal header background, tool header background, button colors, tool navigation etc.
 
-    2. $background-color : This is used to set the background color for the portal.
+    2. var(--sakai-background-color) : This is used to set the background color for the portal.
 
     3. $tool-menu-color : This variable is used for Tool Menu Background color .
 
-    4. $text-color : This is used as the color for all text displayed in the portlets, tool and site menu's etc.
+    4. var(--sakai-text-color) : This is used as the color for all text displayed in the portlets, tool and site menu's etc.
 
     5. $font-family : This is used to set the type of font you want to use as default in your skin. If you want to use any external font remember to modify URL on $font-family-url too 
 

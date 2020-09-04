@@ -16,6 +16,7 @@
     
     <modules>
         <module>jsf2-app</module>
+        <module>jsf2-spreadsheet</module>
         <module>jsf2-tool</module>
         <module>jsf2-tool-sun</module>
         <module>jsf2-widgets</module>
@@ -28,6 +29,11 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>jsf2-app</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>jsf2-spreadsheet</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

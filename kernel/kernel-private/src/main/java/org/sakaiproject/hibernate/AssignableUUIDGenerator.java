@@ -21,11 +21,11 @@ import java.util.Properties;
 
 import org.hibernate.HibernateException;
 import org.hibernate.MappingException;
-import org.hibernate.dialect.Dialect;
-import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.id.Configurable;
 import org.hibernate.id.IdentifierGenerator;
 import org.hibernate.id.UUIDGenerator;
+import org.hibernate.service.ServiceRegistry;
 import org.hibernate.type.Type;
 import org.sakaiproject.component.api.ServerConfigurationService;
 
@@ -39,12 +39,12 @@ public class AssignableUUIDGenerator extends UUIDGenerator implements Identifier
     private static ServerConfigurationService serverConfigurationService;
 
     @Override
-    public void configure(Type type, Properties params, Dialect d) throws MappingException {
-        super.configure(type, params, d);
+    public void configure(Type type, Properties params, ServiceRegistry serviceRegistry) throws MappingException {
+        super.configure(type, params, serviceRegistry);
     }
 
     @Override
-    public Serializable generate(SessionImplementor session, Object object) throws HibernateException {
+    public Serializable generate(SharedSessionContractImplementor session, Object object) throws HibernateException {
         if (serverConfigurationService != null) {
             String[] classes = serverConfigurationService.getStrings(HIBERNATE_ASSIGNABLE_ID_CLASSES);
             if (classes != null) {

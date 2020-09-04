@@ -27,7 +27,7 @@ import java.io.IOException;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.orm.hibernate4.LocalSessionFactoryBuilder;
+import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
 import org.springframework.orm.jpa.persistenceunit.MutablePersistenceUnitInfo;
 
 import lombok.Getter;

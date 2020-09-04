@@ -42,7 +42,6 @@ import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.presence.cover.PresenceService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.util.PresenceObservingCourier;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -66,7 +65,7 @@ public class PresenceToolAction extends VelocityPortletPaneledAction
 
 	protected static final String MODE_SERVERS = "servers";
 
-    protected ClusterService clusterService;
+	protected ClusterService clusterService;
 
 	public PresenceToolAction() {
 		clusterService = (ClusterService) ComponentManager.get(ClusterService.class);
@@ -78,22 +77,8 @@ public class PresenceToolAction extends VelocityPortletPaneledAction
 	{
 		super.initState(state, portlet, rundata);
 
-		// setup the observer to notify our main panel
-		if (state.getAttribute(STATE_OBSERVER) == null)
-		{
-			// get the current tool placement
-			Placement placement = ToolManager.getCurrentPlacement();
-
-			// location is just placement
-			String location = placement.getId();
-
-			// setup the observer to watch for all presence, disabled so we start in manual mode
-			PresenceObservingCourier courier = new PresenceObservingCourier(location);
-			courier.setResourcePattern(null);
-			courier.disable();
-			state.setAttribute(STATE_OBSERVER, courier);
-
-			// init the display mode
+		// init the display mode
+		if (state.getAttribute(STATE_DISPLAY_MODE) == null) {
 			state.setAttribute(STATE_DISPLAY_MODE, MODE_SERVERS);
 		}
 
@@ -123,23 +108,11 @@ public class PresenceToolAction extends VelocityPortletPaneledAction
 			return template;
 		}
 
-		// inform the observing courier that we just updated the page...
-		// if there are pending requests to do so they can be cleared
-		PresenceObservingCourier observer = (PresenceObservingCourier) state.getAttribute(STATE_OBSERVER);
-		observer.justDelivered();
-
 		// build the menu
 		Menu bar = new MenuImpl();
 		bar.add(new MenuEntry(rb.getString("presence.locations"), "doLocations"));
 		bar.add(new MenuEntry(rb.getString("presence.sessions"), "doSessions"));
 		bar.add(new MenuEntry(rb.getString("presence.servers"), "doServers"));
-		bar.add(new MenuDivider());
-		bar.add(new MenuEntry((observer.getEnabled() ? rb.getString("presence.manualref") : rb.getString("presence.autoref")),
-				"doAuto"));
-		if (!observer.getEnabled())
-		{
-			bar.add(new MenuEntry(rb.getString("presence.ref"), "doRefresh"));
-		}
 		context.put(Menu.CONTEXT_MENU, bar);
 
 		// for locations list mode
@@ -206,9 +179,6 @@ public class PresenceToolAction extends VelocityPortletPaneledAction
 			context.put("total", Integer.valueOf(count));
 		}
 
-		// the url for the online courier, using a 30 second refresh
-		setVmCourier(rundata.getRequest(), 30);
-
 		return template;
 
 	} // buildMainPanelContext
@@ -256,28 +226,8 @@ public class PresenceToolAction extends VelocityPortletPaneledAction
 	} // doServers
 
 	/**
-	 * Toggle auto-update
+	 * Change node state between Allow new sessions and Stop new sessions
 	 */
-	public void doAuto(RunData data, Context context)
-	{
-		// access the portlet element id to find our state
-		String peid = ((JetspeedRunData) data).getJs_peid();
-		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
-
-		// get the observer
-		PresenceObservingCourier observer = (PresenceObservingCourier) state.getAttribute(STATE_OBSERVER);
-		boolean enabled = observer.getEnabled();
-		if (enabled)
-		{
-			observer.disable();
-		}
-		else
-		{
-			observer.enable();
-		}
-
-	} // doAuto
-
 	public void doSwitch(RunData data, Context context)
 	{
 		// We look at the status in the request so that if someone else has changed the status
@@ -286,14 +236,6 @@ public class PresenceToolAction extends VelocityPortletPaneledAction
 		String status = data.getParameters().getString("status");
 		clusterService.markClosing(id, !ClusterService.Status.CLOSING.toString().equals(status));
 	}
-
-	/**
-	 * The action for when the user want's an update
-	 */
-	public void doRefresh(RunData data, Context context)
-	{
-
-	} // doRefresh
 
 } // PresenceToolAction
 

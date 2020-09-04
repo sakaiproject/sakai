@@ -17,7 +17,7 @@
 package org.sakaiproject.tool.assessment.facade;
 
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 public class PublishedSectionFacadeQueries extends HibernateDaoSupport
 		implements PublishedSectionFacadeQueriesAPI {

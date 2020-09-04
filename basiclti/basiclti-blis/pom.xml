@@ -105,7 +105,6 @@
 		<scope>provided</scope>
 	</dependency>
 
-
         <!-- for the entityprovider -->
         <dependency>
       		<groupId>org.sakaiproject.entitybroker</groupId>
@@ -116,13 +115,17 @@
       		<groupId>org.sakaiproject.entitybroker</groupId>
       		<artifactId>entitybroker-utils</artifactId>
     	</dependency>
-	<dependency>
-		<groupId>org.springframework</groupId>
-		<artifactId>spring-core</artifactId>
-	</dependency>
         <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-beans</artifactId>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
         </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>

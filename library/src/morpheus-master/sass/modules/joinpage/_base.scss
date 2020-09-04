@@ -2,7 +2,7 @@
     position: fixed;
     width: 100%;
     min-height: 14em;
-    background: $body-background-color;
+    background: var(--sakai-background-color-1);
 
     .join {
         position: fixed;
@@ -17,12 +17,12 @@
     h1 {
         padding: 0.6em;
         font-size: 1.8em;
-        color: $primary-color;
+        color: var(--sakai-primary-color-1);
         text-align: center;
     }
 
     .logo {
-        background: $background-color-secondary url($logo) no-repeat center center;
+        background: var(--sakai-primary-color-1) url($logo) no-repeat center center;
         background-size: $logo-width $logo-height;
         width: 100%;
         height: calc(#{$logo-height} * 2);

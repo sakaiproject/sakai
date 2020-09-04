@@ -35,7 +35,7 @@ import java.util.Vector;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.sakaiproject.tool.api.Tool;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 import org.sakaiproject.api.app.messageforums.ActorPermissions;
 import org.sakaiproject.api.app.messageforums.Area;
@@ -1202,7 +1202,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     if (saveForum)
     {
       forum.addTopic(topic);
-      forumManager.saveDiscussionForum(forum, forum.getDraft(), false, currentUser); // event already logged by saveDiscussionForumTopic()
+      forum = forumManager.saveDiscussionForum(forum, forum.getDraft(), false, currentUser); // event already logged by saveDiscussionForumTopic()
       //sak-5146 forumManager.saveDiscussionForum(forum);
     }
 

@@ -3,27 +3,32 @@
 ## Macro to create the Calendar View picker (to switch between Day, Week, Month, Year, List calendar views)
 #macro(calendarView)
 <!-- drop down menu for different views -->
-<form name="viewForm" method="post" action="#toolForm("CalendarAction")">
-	<div class="sakai-table-viewFilter">
+<div class="sakai-table-viewFilter">
+	<form name="viewForm" method="post" action="#toolForm("CalendarAction")">
 		<input type="hidden" name="eventSubmit_doView" value="view" />
-		<label for="view">$tlang.getString("view.view")</label>
-		<span class="skip">$tlang.getString("view.listnavselect")</span>
-		<select name="view" id="view" size="1" onchange="document.viewForm.submit();">
-			#foreach ($view in ["$tlang.getString('java.byday')", "$tlang.getString('java.byweek')", "$tlang.getString('java.bymonth')", "$tlang.getString('java.byyear')", "$tlang.getString('java.listeve')"])
-				#if ($selectedView.equals($view))
-					<option value="$view" selected="selected" >$view</option>
-				#else
-					<option value="$view" >$view</option>
+		<div class="form-group">
+			<label for="view">$tlang.getString("view.view")</label>
+			<span class="skip">$tlang.getString("view.listnavselect")</span>
+			<select name="view" id="view" size="1" onchange="document.viewForm.submit();">
+				#foreach ($view in ["$tlang.getString('java.byday')", "$tlang.getString('java.byweek')", "$tlang.getString('java.bymonth')", "$tlang.getString('java.byyear')", "$tlang.getString('java.listeve')"])
+					#if ($selectedView.equals($view))
+						<option value="$view" selected="selected" >$view</option>
+					#else
+						<option value="$view" >$view</option>
+					#end
 				#end
-			#end
-		</select>
+			</select>
+		</div>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
+
+	#if ($isUpdater)
 	<form name="defaultViewForm" method="post" action="#toolForm("CalendarAction")">
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		<input type="submit" name="eventSubmit_doDefaultview" value="$tlang.getString('java.default_view')" #if ($isDefaultView) disabled="disabled" #end />
-	</div>
-</form>
+	</form>
+	#end ## end of isUpdater
+</div>
 #end ## end of calendarView macro
 
 

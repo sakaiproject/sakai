@@ -22,7 +22,7 @@ package org.sakaiproject.tool.section.jsf.backingbean;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.sakaiproject.jsf.model.PhaseAware;
+import org.sakaiproject.jsf2.model.PhaseAware;
 
 /**
  * Base class for JSF backing beans wishing to be initialized on page load.

@@ -43,22 +43,40 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
 import static org.tsugi.basiclti.BasicLTIUtil.getArray;
+import static org.tsugi.basiclti.BasicLTIUtil.getObject;
 import static org.tsugi.basiclti.BasicLTIUtil.getString;
+import static org.tsugi.basiclti.BasicLTIUtil.getDouble;
 
+// https://www.imsglobal.org/specs/lticiv1p0/specification
 /* {
-	"@context": "http:\/\/purl.imsglobal.org\/ctx\/lti\/v1\/ContentItem",
-	"@graph": [ {
-		"@type": "LtiLinkItem",
-		"@id": ":item2",
-		"text": "The mascot for the Sakai Project",
-		"title": "The fearsome mascot of the Sakai Project",
-		"url": "http:\/\/localhost:8888\/sakai-api-test\/tool.php?sakai=98765",
-		"icon": {
-			"@id": "fa-bullseye",
-			"width": 50,
-			"height": 50
-		}
-	} ]
+  "@context" : [
+    "http://purl.imsglobal.org/ctx/lti/v1/ContentItem",
+    {
+      "lineItem" : "http://purl.imsglobal.org/ctx/lis/v2/LineItem",
+      "res" : "http://purl.imsglobal.org/ctx/lis/v2p1/Result#"
+    }
+  ],
+  "@graph" : [
+    { "@type" : "LtiLinkItem",
+      "mediaType" : "application/vnd.ims.lti.v1.ltilink",
+      "title" : "Chapter 12 quiz",
+      "lineItem" : {
+        "@type" : "LineItem",
+        "label" : "Chapter 12 quiz",
+        "reportingMethod" : "res:totalScore",
+        "assignedActivity" : {
+          "@id" : "http://toolprovider.example.com/assessment/66400",
+          "activity_id" : "a-9334df-33"
+        },
+        "scoreConstraints" : {
+          "@type" : "NumericLimits",
+          "normalMaximum" : 100,
+          "extraCreditMaximum" : 10,
+          "totalMaximum" : 110
+        }
+      }
+    }
+  ]
 } */
 
 public class ContentItem {
@@ -76,7 +94,6 @@ public class ContentItem {
 	public static final String MEDIA_CC = MEDIA_CC_1_3+","+MEDIA_CC_1_2+","+MEDIA_CC_1_3;
 
 	public static final String TYPE_LTILINKITEM = "LtiLinkItem";
-	public static final String TYPE_LTILINK_OLD = "LtiLink";
 	public static final String TYPE_CONTENTITEM = "ContentItem";
 	public static final String TYPE_FILEITEM = "FileItem";
 	public static final String TYPE_IMPORTITEM = "ImportItem";
@@ -85,6 +102,10 @@ public class ContentItem {
 	public static final String TEXT = "text";
 	public static final String URL = "url";
 	public static final String LINEITEM = "lineItem";
+	public static final String SCORE_CONSTRAINTS = "scoreConstraints";
+	public static final String SCORE_CONSTRAINTS_NORMAL_MAXIMUM = "normalMaximum";
+	public static final String SCORE_CONSTRAINTS_EXTRA_CREDIT_MAXIMUM = "extraCreditMaximum";
+	public static final String SCORE_CONSTRAINTS_TOTAL_MAXIMUM = "totalMaximum";
 	public static final String CUSTOM = "custom";
 	public static final String ICON = "icon";
 	public static final String CONTENT_ITEMS = "content_items";
@@ -287,6 +308,24 @@ public class ContentItem {
 			sb.append(URLEncoder.encode(value));
 		}
 		return sb.toString();
+	}
+
+	/**
+	 * Get the maximum score from a lineItem
+	 *
+	 * This logic is to produce the DeepLink equivalent of maxScore from a Content Item
+	 */
+	public static Double getScoreMaximum(JSONObject lineItem) {
+        if ( lineItem == null ) return null;
+        JSONObject scoreConstraints = getObject(lineItem, SCORE_CONSTRAINTS);
+        if ( scoreConstraints == null ) return null;
+		Double normalMaximum = getDouble(scoreConstraints, SCORE_CONSTRAINTS_NORMAL_MAXIMUM);
+		Double totalMaximum = getDouble(scoreConstraints, SCORE_CONSTRAINTS_TOTAL_MAXIMUM);
+
+		if ( totalMaximum == null ) return normalMaximum;
+		if ( normalMaximum == null ) return totalMaximum;
+		if ( normalMaximum > totalMaximum ) return normalMaximum;
+		return totalMaximum;
 	}
 
 }
