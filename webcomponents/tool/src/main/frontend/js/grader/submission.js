@@ -25,8 +25,6 @@ export class Submission {
         this.groupMembers = init.submitters.map(s => s.displayName).join(", ");
       }
 
-      this.properties = init.properties;
-
       this.submittedAttachments = init.submittedAttachments || [];
       this.previewableAttachments = init.previewableAttachments || [];
 
@@ -49,9 +47,28 @@ export class Submission {
       }
       this.feedbackComment = init.feedbackComment || "";
 
-      this.allowResubmitNumber = this.properties["allow_resubmit_number"];
+      this.resubmitsAllowed = parseInt(init.properties["allow_resubmit_number"] || 0);
+      if (this.resubmitsAllowed > 0) {
+        this.resubmitDate = moment(parseInt(init.properties["allow_resubmit_closeTime"], 10)).valueOf();
+      }
+
+      // We need this for setting the default resubmission date
+      this.assignmentCloseTime = init.assignmentCloseTime.epochSecond * 1000;
     } else {
       this.id = "dummy";
     }
   }
+
+  set resubmitsAllowed(value) {
+
+    let old = this._resubmitsAllowed;
+    this._resubmitsAllowed = value;
+    if (old === 0 && value > 0) {
+      // This is the first time resubmits have been allowed, so set the date to the
+      // assignment's close date, by default.
+      this.resubmitDate = moment(this.assignmentCloseTime).valueOf();
+    }
+  }
+
+  get resubmitsAllowed() { return this._resubmitsAllowed; }
 }
