@@ -21,7 +21,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.messagebundle.api.MessageBundleProperty;
@@ -62,22 +61,27 @@ public class CachingMessageBundleServiceImpl implements MessageBundleService {
     }
 
     @Override
-    public Map<String, String> getBundle(String baseName, String moduleName, Locale loc) {
-        if (StringUtils.isBlank(baseName) || StringUtils.isBlank(moduleName) || loc == null) {
-            return Collections.emptyMap();
-        }
-
+    public Map<String, String> getBundle(String baseName, String moduleName, Locale locale) {
         Map<String, String> bundle = null;
-        String key = MessageBundleServiceImpl.getIndexKeyName(baseName, moduleName, loc.toString());
+        String key = MessageBundleServiceImpl.getIndexKeyName(baseName, moduleName, locale != null ? locale.toString(): null);
         log.debug("Retrieve bundle from cache with key = {}", key);
 
         if (cache.containsKey(key)) {
+            log.debug("Cache contains the key = {}", key);
             bundle = cache.get(key);
         } else {
             // bundle not in cache or expired
-            bundle = dbMessageBundleService.getBundle(baseName, moduleName, loc);
-            cache.put(key, bundle);
+            bundle = dbMessageBundleService.getBundle(baseName, moduleName, locale);
             log.debug("Add bundle to cache with key = {}", key);
+            cache.put(key, bundle);
+        }
+
+        // ensure we always return a valid collection
+        if (bundle == null) {
+            log.debug("Null bundle found with key = {}", key);
+            bundle = Collections.emptyMap();
+            // cache the empty for negative lookups this prevents repeated db lookups for this key
+            cache.put(key, bundle);
         }
 
         return bundle;
@@ -173,6 +177,8 @@ public class CachingMessageBundleServiceImpl implements MessageBundleService {
 
     @Override
     public void saveOrUpdate(String baseName, String moduleName, ResourceBundle newBundle, Locale locale) {
+        String key = MessageBundleServiceImpl.getIndexKeyName(baseName, moduleName, locale.toString());
         dbMessageBundleService.saveOrUpdate(baseName, moduleName, newBundle, locale);
+        cache.remove(key);
     }
 }

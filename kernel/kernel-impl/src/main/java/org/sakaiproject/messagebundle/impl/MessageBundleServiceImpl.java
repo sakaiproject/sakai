@@ -298,7 +298,7 @@ public class MessageBundleServiceImpl implements MessageBundleService {
     public Map<String, String> getBundle(String baseName, String moduleName, Locale loc) {
         Map<String, String> map = new HashMap<>();
 
-        if (enabled && loc != null && StringUtils.isNotBlank(baseName) && StringUtils.isNotBlank(moduleName)) {
+        if (enabled && loc != null && StringUtils.isNoneBlank(baseName, moduleName)) {
             Query query = sessionFactory.getCurrentSession().getNamedQuery("findPropertyWithNullValue");
             query.setString("basename", baseName);
             query.setString("module", moduleName);
@@ -309,15 +309,25 @@ public class MessageBundleServiceImpl implements MessageBundleService {
                 map.put(mbp.getPropertyName(), mbp.getValue());
             }
 
-            if (map.isEmpty() && log.isDebugEnabled())
+            if (map.isEmpty() && log.isDebugEnabled()) {
                 log.debug("can't find any values for: " + getIndexKeyName(baseName, moduleName, loc.toString()));
+            }
         }
         return map;
     }
 
-    static String getIndexKeyName(String baseName, String moduleName, String loc) {
-        String context = moduleName != null ? moduleName : "";
-        return context + "_" + baseName + "_" + loc;
+    /**
+     * This produces a key used to uniquely identify a bundle, it will always return a valid key
+     * @param baseName basename of the bundle
+     * @param moduleName modulename of the bundle
+     * @param locale locale of the bundle
+     * @return a String that uniquely identifies a bundle
+     */
+    public static String getIndexKeyName(String baseName, String moduleName, String locale) {
+        String mName = StringUtils.isNotBlank(moduleName) ? moduleName : "*";
+        String bName = StringUtils.isNotBlank(baseName) ? baseName : "*";
+        String lName = StringUtils.isNotBlank(locale) ? locale : "*";
+        return String.join("_", mName, bName, lName);
     }
 
     @Override

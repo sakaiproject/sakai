@@ -25,17 +25,18 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
+import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sakaiproject.messagebundle.api.MessageBundleProperty;
 import org.sakaiproject.messagebundle.api.MessageBundleService;
+import org.sakaiproject.messagebundle.impl.MessageBundleServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
-import org.springframework.util.Assert;
 
 /**
  * Created by IntelliJ IDEA.
@@ -67,7 +68,7 @@ public class MessageBundleTest extends AbstractTransactionalJUnit4SpringContextT
         baseName = "basename";
         moduleName = "modulename";
 
-        Assert.notNull(messageBundleService);
+        Assert.assertNotNull(messageBundleService);
         resourceBundleEN = ResourceBundle.getBundle("org/sakaiproject/messagebundle/impl/test/bundle", localeEn);
         resourceBundleFr = ResourceBundle.getBundle("org/sakaiproject/messagebundle/impl/test/bundle", localeFr);
 
@@ -89,7 +90,7 @@ public class MessageBundleTest extends AbstractTransactionalJUnit4SpringContextT
         messageBundleService.updateMessageBundleProperty(prop);
 
         MessageBundleProperty loadedProp = messageBundleService.getMessageBundleProperty(prop.getId());
-        Assert.isTrue("newvalue".equals(loadedProp.getValue()));
+        Assert.assertTrue("newvalue".equals(loadedProp.getValue()));
     }
 
     public void testGetModifiedProperties() {
@@ -104,9 +105,9 @@ public class MessageBundleTest extends AbstractTransactionalJUnit4SpringContextT
     @Test
     public void testGetAllProperties(){
         List<MessageBundleProperty> props = messageBundleService.getAllProperties(localeEn.toString(), null, moduleName);
-        Assert.isTrue(4 == props.size());
+        Assert.assertTrue(4 == props.size());
         props = messageBundleService.getAllProperties(localeFr.toString(), null, moduleName);
-        Assert.isTrue(4 == props.size());
+        Assert.assertTrue(4 == props.size());
     }
 
     public void testRevertAll(String locale){
@@ -118,17 +119,17 @@ public class MessageBundleTest extends AbstractTransactionalJUnit4SpringContextT
     @Test
     public void testGetAllModuleNames(){
         List<String> moduleNames = messageBundleService.getAllModuleNames();
-        Assert.notEmpty(moduleNames);
-        Assert.isTrue(moduleNames.size() == 1);
-        Assert.isTrue(moduleName.equals(moduleNames.get(0)));
+        Assert.assertFalse(moduleNames.isEmpty());
+        Assert.assertTrue(moduleNames.size() == 1);
+        Assert.assertTrue(moduleName.equals(moduleNames.get(0)));
     }
 
     @Test
     public void testGetAllBaseNames(){
         List<String> baseNames = messageBundleService.getAllBaseNames();
-        Assert.notEmpty(baseNames);
-        Assert.isTrue(baseNames.size() == 1);
-        Assert.isTrue(baseName.equals(baseNames.get(0)));
+        Assert.assertFalse(baseNames.isEmpty());
+        Assert.assertTrue(baseNames.size() == 1);
+        Assert.assertTrue(baseName.equals(baseNames.get(0)));
     }
 
     @Test
@@ -140,7 +141,7 @@ public class MessageBundleTest extends AbstractTransactionalJUnit4SpringContextT
         messageBundleService.revert(prop);
 
         MessageBundleProperty loadedProp = messageBundleService.getMessageBundleProperty(prop.getId());
-        Assert.isNull(loadedProp.getValue());
+        Assert.assertNull(loadedProp.getValue());
     }
 
     public void testGetSearchCount(){
@@ -157,20 +158,28 @@ public class MessageBundleTest extends AbstractTransactionalJUnit4SpringContextT
             int key = Integer.valueOf(entry.getKey());
             int value = Integer.valueOf(entry.getValue());
             // en values are equal
-            Assert.isTrue(key == value);
+            Assert.assertTrue(key == value);
         }
         for (Map.Entry<String, String> entry : frLoadedData.entrySet()) {
             int key = Integer.valueOf(entry.getKey());
             int value = Integer.valueOf(entry.getValue());
             // fr values value is 1 greater than key
-            Assert.isTrue(key + 1 == value);
+            Assert.assertTrue(key + 1 == value);
         }
     }
 
     @Test
     public void testGetBundleNotFound() {
         Map<String, String> map = messageBundleService.getBundle("asdf", "asdf", localeEn);
-        Assert.notNull(map);
-        Assert.isTrue(map.values().size() == 0);
+        Assert.assertNotNull(map);
+        Assert.assertTrue(map.values().size() == 0);
+    }
+
+    @Test
+    public void testIndexKeyGeneration() {
+        Assert.assertEquals("*_*_*", MessageBundleServiceImpl.getIndexKeyName(null, null, null));
+        Assert.assertEquals("MODULENAME_*_*", MessageBundleServiceImpl.getIndexKeyName(null, "MODULENAME", null));
+        Assert.assertEquals("*_BASENAME_*", MessageBundleServiceImpl.getIndexKeyName("BASENAME", null, null));
+        Assert.assertEquals("*_*_LOCALE", MessageBundleServiceImpl.getIndexKeyName(null, null, "LOCALE"));
     }
 }
