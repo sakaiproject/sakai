@@ -8,8 +8,6 @@
     <context:annotation-config/>
     <context:component-scan base-package="cn.bluejoe.elfinder.controller"/>
 
-    <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter"/>
-
     <!-- find appropriate  command executor for given command-->
     <bean id="commandExecutorFactory"
           class="org.sakaiproject.elfinder.controller.executor.SakaiCommandExecutorFactory">
@@ -27,5 +25,4 @@
             </map>
         </property>
     </bean>
-
 </beans>
