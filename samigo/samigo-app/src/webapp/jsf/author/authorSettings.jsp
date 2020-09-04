@@ -209,21 +209,6 @@
               nSelectedText: nSelectedText
           });
         });
-
-        function expandAccordion(iframId){
-			$('.ui-accordion-content').show();
-			mySetMainFrameHeight(iframId);
-			$("#collapseLink").show();
-			$("#expandLink").hide();
-		}
-
-		function collapseAccordion(iframId){
-			$('.ui-accordion-content').hide();
-			mySetMainFrameHeight(iframId);
-			$("#collapseLink").hide();
-			$("#expandLink").show();
-		}
-		
       </script>
 
       </head>
