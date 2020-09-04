@@ -58,11 +58,10 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       ungradedOnly: Boolean,
       submissionsOnly: Boolean,
       showResubmission: Boolean,
-      resubmitDate: String,
       totalGraded: Number,
       token: { type: String },
       rubric: { type: Object },
-      assignmentsI18n: Object
+      assignmentsI18n: Object,
     };
   }
 
@@ -83,10 +82,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     this.saved = false;
     this.modified = false;
     this.rubricParams = new Map();
-    if (newValue.properties && newValue.properties["allow_resubmit_number"] && newValue.properties["allow_resubmit_number"] !== "0") {
-      this.showResubmission = true;
-      this.resubmitDate = moment(parseInt(newValue.properties["allow_resubmit_closeTime"], 10)).valueOf();
-    }
+    this.showResubmission = this._submission.resubmitsAllowed > 0;
 
     this.submittedTextMode = this._submission.submittedText;
 
@@ -349,15 +345,15 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
           ${this.showResubmission ? html`
             <div class="resubmission-block">
               <span>${this.assignmentsI18n["allow.resubmit.number"]}:</span>
-              <select aria-label="${this.i18n["attempt_selector_label"]}" @change=${e => this.resubmitNumber = e.target.value}>
+              <select aria-label="${this.i18n["attempt_selector_label"]}" @change=${e => this.submission.resubmitsAllowed = parseInt(e.target.value)}>
                 ${Array(10).fill().map((_, i) => html`
-                  <option value="${i + 1}" .selected=${this.submission.allowResubmitNumber === (i + 1)}>${i + 1}</option>
+                  <option value="${i + 1}" .selected=${this.submission.resubmitsAllowed === (i + 1)}>${i + 1}</option>
                 `)}
-                <option value="-1" .selected=${this.submission.allowResubmitNumber === "-1"}>${this.i18n["unlimited"]}</option>
+                <option value="-1" .selected=${this.submission.resubmitsAllowed === "-1"}>${this.i18n["unlimited"]}</option>
               </select>
               <span>${this.assignmentsI18n["allow.resubmit.closeTime"]}:</span>
               <sakai-date-picker
-                epoch-millis="${this.resubmitDate}"
+                epoch-millis="${this.submission.resubmitDate}"
                 @datetime-selected=${this.resubmitDateSelected}>
               </sakai-date-picker>
             </div>
@@ -616,8 +612,8 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     formData.set("submissionId", this.submission.id);
 
     if (this.showResubmission) {
-      formData.set("resubmitNumber", this.resubmitNumber);
-      formData.set("resubmitDate", this.resubmitDate);
+      formData.set("resubmitNumber", this.submission.resubmitsAllowed);
+      formData.set("resubmitDate", this.submission.resubmitDate);
     }
 
     formData.set("siteId", portal.siteId);
@@ -754,7 +750,6 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         this.toggleInlineFeedback(null, true);
       }
       this.submission = this.submissions[currentIndex - 1];
-      this.showResubmission = this.submission.allowResubmitNumber > 0 ? true : false;
     }
   }
 
@@ -765,7 +760,6 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     }
 
     this.submission = this.submissions.find(s => s.id === e.target.value);
-    this.showResubmission = this.submission.allowResubmitNumber > 0 ? true : false;
   }
 
   next() {
@@ -780,7 +774,6 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         this.toggleInlineFeedback(null, true);
       }
       this.submission = this.submissions[currentIndex + 1];
-      this.showResubmission = this.submission.allowResubmitNumber > 0 ? true : false;
     }
   }
 
@@ -886,7 +879,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
   resubmitDateSelected(e) {
 
-    this.resubmitDate = e.detail.epochMillis;
+    this.submission.resubmitDate = e.detail.epochMillis;
     this.modified = true;
   }
 
@@ -901,9 +894,9 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   toggleResubmissionBlock(e) {
 
     if (!e.target.checked) {
-      this.submission.allowResubmitNumber = "0";
+      this.submission.resubmitsAllowed = 0;
     } else {
-      this.submission.allowResubmitNumber = "1";
+      this.submission.resubmitsAllowed = 1;
     }
     this.showResubmission = e.target.checked;
   }
