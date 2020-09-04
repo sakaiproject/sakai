@@ -307,7 +307,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         <div id="feedback-panel" class="grader-panel" title="${this.assignmentsI18n["feedbackcomment"]}" style="display: none;">
           <div class="feedback-title">${this.assignmentsI18n["gen.instrcomment"]}</div>
           <div class="feedback-instruction sak-banner-info">${this.assignmentsI18n["gradingsub.usethebel1"]}</div>
-          <textarea id="grader-feedback-comment">${this.submission.feedbackComment}</textarea>
+          <textarea id="grader-feedback-comment" .value=${this.submission.feedbackComment}></textarea>
           <div class="media-feedback grader-label">
             <span class="feedback-label">${this.i18n["recorded_feedback_label"]}</span>
             <fa-icon size="1.5em" i-class="fas microphone" path-prefix="/webcomponents/assets" style="vertical-align: middle;"></fa-icon>
@@ -475,14 +475,14 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       this.submission.feedbackComment = this.feedbackCommentEditor.getData();
       this.feedbackCommentEditor.destroy();
       feedbackPanel.dialog("destroy");
+      this.requestUpdate();
     }
   }
 
   doneWithFeedbackDialog(e) {
 
     this.toggleFeedback();
-    this.querySelector("#grader-feedback-button").focus();
-    this.requestUpdate();
+    document.getElementById("grader-feedback-button").focus();
   }
 
   togglePrivateNotes(e) {
@@ -506,7 +506,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   doneWithPrivateNotesDialog(e) {
 
     this.togglePrivateNotes();
-    this.querySelector("#grader-private-notes-button").focus();
+    document.getElementById("grader-private-notes-button").focus();
   }
 
   displaySubmittedText(e) {
