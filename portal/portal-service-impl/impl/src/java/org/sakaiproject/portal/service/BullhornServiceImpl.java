@@ -129,8 +129,7 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                 long at = e.getEventTime().getTime();
                 try {
                     BullhornHandler handler = handlerMap.get(event);
-
-                    if (handler != null ) {
+                    if (handler != null) {
                         Optional<List<BullhornData>> result = handler.handleEvent(e, countCache);
                         if (result.isPresent()) {
                             result.get().forEach(bd -> {
