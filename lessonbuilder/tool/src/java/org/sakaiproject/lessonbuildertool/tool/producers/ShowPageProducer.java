@@ -44,11 +44,14 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.lessonbuildertool.ChecklistItemStatus;
 import org.sakaiproject.lessonbuildertool.ChecklistItemStatusImpl;
 import org.sakaiproject.lessonbuildertool.SimpleChecklistItem;
@@ -117,7 +120,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.ProtocolException;
 import java.net.URL;
@@ -141,7 +143,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	private SimplePageToolDao simplePageToolDao;
 	@Setter private AuthzGroupService authzGroupService;
 	@Setter private SecurityService securityService;
-
+	@Setter ContentHostingService contentHostingService;
 	private FormatAwareDateInputEvolver dateevolver;
 	@Setter private UserTimeService userTimeService;
 	@Setter private FormattedText formattedText;
@@ -3125,9 +3127,18 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					if(canSeeAll || simplePageBean.isItemAvailable(i)) {
 						//get directory path from item's attribute
 						String dataDirectory = i.getAttribute("dataDirectory") != null ? i.getAttribute("dataDirectory") : "";
-						String[] folderPath = dataDirectory.split("/");
-						String folderName = folderPath[folderPath.length-1];
-						if (dataDirectory.endsWith("//")){
+						String collectionId = dataDirectory.replace("//", "/");
+						String[] folderPath = collectionId.split("/");
+						String folderName = folderPath[folderPath.length -1];
+						try {
+							// collection name should always be preferred
+							ContentCollection collection = contentHostingService.getCollection(collectionId);
+							folderName = collection.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+						} catch (PermissionException | IdUnusedException | TypeException e) {
+							log.debug("Could not discern folder name from collection {}", collectionId, e);
+						}
+						if (StringUtils.isBlank(folderName)) {
+							// if by chance it is still empty use the sites title
 							folderName = simplePageBean.getCurrentSite().getTitle();
 						}
 						String html = "<p><b>" + folderName + "</b></p><div data-copyright=\"true\" class=\"no-highlight\" data-description=\"true\" data-directory='" +dataDirectory+ "' data-files=\"true\" data-folder-listing=\"true\"></div>";
@@ -4275,18 +4286,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		    // add website.
 		    // Are we running a kernel with KNL-273?
-		    Class contentHostingInterface = ContentHostingService.class;
-		    try {
-			Method expandMethod = contentHostingInterface.getMethod("expandZippedResource", new Class[] { String.class });
-			
 			UIOutput.make(tofill, "addwebsite-li");
 			createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, tofill, "add-website", "simplepage.website", false, true, currentPage, "simplepage.website.tooltip");
-		    } catch (NoSuchMethodException nsme) {
-			// A: No
-		    } catch (Exception e) {
-			// A: Not sure
-			log.warn("SecurityException thrown by expandZippedResource method lookup", e);
-		    }
+
 		    //Adding 'Embed Announcements' component
 		    UIOutput.make(tofill, "announcements-li");
 		    UILink announcementsLink = UIInternalLink.makeURL(tofill, "announcements-link", "#");
