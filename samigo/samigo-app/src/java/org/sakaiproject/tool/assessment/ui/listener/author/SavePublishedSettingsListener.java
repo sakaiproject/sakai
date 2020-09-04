@@ -558,10 +558,7 @@ implements ActionListener
 		Long oldCatId = assessment.getCategoryId() != null ? assessment.getCategoryId() : -1;
 		Long newCatId = NumberUtils.toLong(assessmentSettings.getCategorySelected(), -1);
 
-		if ( (oldCatId > 0 || newCatId > 0) && oldCatId.compareTo(newCatId) != 0) {
-			return true;
-		}
-		return false;
+		return (oldCatId > 0 || newCatId > 0) && oldCatId.compareTo(newCatId) != 0;
 	}
 
 	// Check if title has been changed. If yes, update it.
