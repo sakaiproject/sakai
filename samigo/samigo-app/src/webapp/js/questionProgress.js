@@ -188,7 +188,8 @@
 
 	questionProgress.disableLink = function(link) {
 		link.style.display = 'none';
-		link.parentNode.firstChild.style.display = 'inline-block';
+		link.parentNode.firstChild.style.display = 'inline-block'; // This displays the loading.gif spinner
+		$.blockUI({ message: '<h3>' + please_wait + ' <img src="/library/image/sakai/spinner.gif" /></h3>', overlayCSS: { backgroundColor: '#ccc', opacity: 0.25} });
 		return true;
 	};
 }( window.questionProgress = window.questionProgress || {}, jQuery )) ;
