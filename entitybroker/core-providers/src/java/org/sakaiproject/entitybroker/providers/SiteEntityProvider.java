@@ -85,9 +85,10 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.SiteService.SortType;
-import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
+
 
 /**
  * Creates a provider for dealing with sites
@@ -108,6 +109,8 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
     private UserEntityProvider userEntityProvider;
     private ServerConfigurationService serverConfigurationService;
     private SecurityService securityService;
+    private FormattedText formattedText;
+    private ThreadLocalManager threadLocalManager;
 
     public static String PREFIX = "site";
 
@@ -510,10 +513,10 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
         }
 
         // hardcoding to make this backwards compatible with 2.3 - ServerConfigurationService.CURRENT_PORTAL_PATH, PORTAL_BASE);
-        String portalBase = (String) ThreadLocalManager.get("sakai:request.portal.path");
+        String portalBase = (String) threadLocalManager.get("sakai:request.portal.path");
         if (portalBase == null || "".equals(portalBase) || "/sakai-entitybroker-direct".equals(portalBase)) {
             // this has to be here because the tc will expect it when the portal urls are generated and fail if it is missing -AZ
-            ThreadLocalManager.set("sakai:request.portal.path", "/portal");
+            threadLocalManager.set("sakai:request.portal.path", "/portal");
         }
 
         // get the pages for this site
@@ -708,7 +711,7 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
 
             if (description != null) {
                 StringBuilder alertMsg = new StringBuilder();
-                description = FormattedText.processFormattedText(description, alertMsg);
+                description = formattedText.processFormattedText(description, alertMsg);
                 if (description == null) {
                     throw new IllegalArgumentException("Site description markup rejected: " + alertMsg.toString());
                 }
@@ -778,7 +781,7 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
 
             if (description != null) {
                 StringBuilder alertMsg = new StringBuilder();
-                description = FormattedText.processFormattedText(description, alertMsg);
+                description = formattedText.processFormattedText(description, alertMsg);
                 if (description == null) {
                     throw new IllegalArgumentException("Site description markup rejected: " + alertMsg.toString());
                 }
@@ -883,7 +886,7 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
 
             if (description != null) {
                 StringBuilder alertMsg = new StringBuilder();
-                description = FormattedText.processFormattedText(description, alertMsg);
+                description = formattedText.processFormattedText(description, alertMsg);
                 if (description == null) {
                     throw new IllegalArgumentException("Site description markup rejected: " + alertMsg.toString());
                 }
@@ -929,7 +932,7 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
 
             if (description != null) {
                 StringBuilder alertMsg = new StringBuilder();
-                description = FormattedText.processFormattedText(description, alertMsg);
+                description = formattedText.processFormattedText(description, alertMsg);
                 if (description == null) {
                     throw new IllegalArgumentException("Site description markup rejected: " + alertMsg.toString());
                 }
