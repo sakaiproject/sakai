@@ -306,7 +306,10 @@ implements ActionListener
             
         }
 
-		error = !ExtendedTimeValidator.validateEntries( assessmentSettings.getExtendedTimes(), context, assessmentSettings );
+		boolean extendedTimesValid = ExtendedTimeValidator.validateEntries( assessmentSettings.getExtendedTimes(), context, assessmentSettings );
+		if(!extendedTimesValid) {
+			error = true;
+		}
 
 	    // SAM-1088
 	    // if late submissions not allowed and late submission date is null, set late submission date to due date

@@ -175,7 +175,10 @@ public class ConfirmPublishAssessmentListener
 		error=true;
 	}
 
-	error = !ExtendedTimeValidator.validateEntries( assessmentSettings.getExtendedTimes(), context, assessmentSettings );
+	boolean extendedTimesValid = ExtendedTimeValidator.validateEntries( assessmentSettings.getExtendedTimes(), context, assessmentSettings );
+	if(!extendedTimesValid) {
+		error = true;
+	}
 
     // if due date is null we cannot have late submissions
     if (assessmentSettings.getDueDate() == null && assessmentSettings.getLateHandling() != null && AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.toString().equals(assessmentSettings.getLateHandling()) &&
