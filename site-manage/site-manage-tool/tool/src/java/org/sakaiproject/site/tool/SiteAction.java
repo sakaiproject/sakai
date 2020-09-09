@@ -169,12 +169,12 @@ import org.sakaiproject.userauditservice.api.UserAuditRegistration;
 import org.sakaiproject.userauditservice.api.UserAuditService;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.FileItem;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.LinkMigrationHelper;
 import org.sakaiproject.util.comparator.GroupTitleComparator;
 import org.sakaiproject.util.comparator.ToolTitleComparator;
@@ -233,6 +233,8 @@ public class SiteAction extends PagedResourceActionII {
 	.get(org.sakaiproject.sitemanage.api.SiteTypeProvider.class);
 
 	private AliasService aliasService = ComponentManager.get(AliasService.class);
+	
+	private FormattedText formattedText = ComponentManager.get(FormattedText.class);
 	
 	private static org.sakaiproject.sitemanage.api.model.SiteSetupQuestionService questionService = (org.sakaiproject.sitemanage.api.model.SiteSetupQuestionService) ComponentManager
 	.get(org.sakaiproject.sitemanage.api.model.SiteSetupQuestionService.class);
@@ -1713,7 +1715,7 @@ public class SiteAction extends PagedResourceActionII {
 
 			//Add flash notification when new site is created
 			if(state.getAttribute(STATE_NEW_SITE_STATUS_ID) != null){
-				String siteTitle = Validator.escapeHtml((String)state.getAttribute(STATE_NEW_SITE_STATUS_TITLE));
+				String siteTitle = formattedText.escapeHtml((String)state.getAttribute(STATE_NEW_SITE_STATUS_TITLE));
 				String  flashNotifMsg = "<a title=\"" + siteTitle + "\"href=\"/portal/site/"+
 				state.getAttribute(STATE_NEW_SITE_STATUS_ID) + "\" target=\"_top\">"+
 				siteTitle+"</a>" +" "+
@@ -4929,7 +4931,7 @@ public class SiteAction extends PagedResourceActionII {
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		// read the search form field into the state object
-		String search = StringUtils.trimToNull(Validator.escapeHtml(data.getParameters().getString(FORM_SEARCH)));
+		String search = StringUtils.trimToNull(formattedText.escapeHtml(data.getParameters().getString(FORM_SEARCH)));
 
 		// If there is no search term provided, remove any previous search term from state
 		if (StringUtils.isBlank(search)) {
@@ -8455,7 +8457,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		}
 
 		//Process description so it doesn't give an error on home
-		siteInfo.description = FormattedText.processFormattedText(siteInfo.description, new StringBuilder());
+		siteInfo.description = formattedText.processFormattedText(siteInfo.description, new StringBuilder());
 		
 		Site.setDescription(siteInfo.description);
 		Site.setShortDescription(siteInfo.short_description);
@@ -9847,7 +9849,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					if (state.getAttribute(STATE_MESSAGE) == null) {
 						// duplicated site title is editable; cannot but null/empty after HTML stripping, and cannot exceed max length
 						String titleOrig = params.getString("title");
-						String titleStripped = FormattedText.stripHtmlFromText(titleOrig, true, true);
+						String titleStripped = formattedText.stripHtmlFromText(titleOrig, true, true);
 						if (isSiteTitleValid(titleOrig, titleStripped, state)) {
 							state.setAttribute(SITE_DUPLICATED_NAME, titleStripped);
 
@@ -10878,7 +10880,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		{
 			// site title is editable; cannot but null/empty after HTML stripping, and cannot exceed max length
 			String titleOrig = params.getString("title");
-			String titleStripped = FormattedText.stripHtmlFromText(titleOrig, true, true);
+			String titleStripped = formattedText.stripHtmlFromText(titleOrig, true, true);
 			if (isSiteTitleValid(titleOrig, titleStripped, state)) {
 				siteInfo.title = titleStripped;
 			}
@@ -10887,7 +10889,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		if (params.getString("description") != null) {
 			StringBuilder alertMsg = new StringBuilder();
 			String description = params.getString("description");
-			siteInfo.description = FormattedText.processFormattedText(description, alertMsg);
+			siteInfo.description = formattedText.processFormattedText(description, alertMsg);
 		}
 		if (params.getString("short_description") != null) {
 			siteInfo.short_description = params.getString("short_description");
@@ -10897,7 +10899,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		}
 		String icon = params.getString("iconUrl");
 		if (icon != null) {
-			if (!(icon.isEmpty() || FormattedText.validateURL(icon))) {
+			if (!(icon.isEmpty() || formattedText.validateURL(icon))) {
 				addAlert(state, rb.getString("alert.protocol"));
 			}
 			siteInfo.iconUrl = icon;
@@ -10933,7 +10935,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		if (email != null) {
 			if (!email.isEmpty() && !EmailValidator.getInstance().isValid(email)) {
 				// invalid email
-				addAlert(state, rb.getFormattedMessage("java.invalid.email", new Object[]{FormattedText.escapeHtml(email,false)}));
+				addAlert(state, rb.getFormattedMessage("java.invalid.email", new Object[]{formattedText.escapeHtml(email,false)}));
 			}
 			siteInfo.site_contact_email = email;
 		}
@@ -10970,7 +10972,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			return false;
 		}
 		boolean isSimpleResourceName = aliasId.equals(Validator.escapeResourceName(aliasId));
-		boolean isSimpleUrl = aliasId.equals(Validator.escapeUrl(aliasId));
+		boolean isSimpleUrl = aliasId.equals(formattedText.escapeUrl(aliasId));
 		if ( !(isSimpleResourceName) || !(isSimpleUrl) ) {
 			// The point of these site aliases is to have easy-to-recall,
 			// easy-to-guess URLs. So we take a very conservative approach
@@ -12878,7 +12880,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 							if (attributeInput != null)
 							{
 								// save the attribute input if valid, otherwise generate alert
-								if ( FormattedText.validateURL(attributeInput) )
+								if ( formattedText.validateURL(attributeInput) )
 									attributes.put(attribute, attributeInput);
 								else {
 									addAlert(state, rb.getString("java.invurl"));
