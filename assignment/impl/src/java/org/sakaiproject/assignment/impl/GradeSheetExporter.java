@@ -18,10 +18,14 @@ package org.sakaiproject.assignment.impl;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.NumberFormat;
+import java.text.Collator;
+import java.text.ParseException;
+import java.text.RuleBasedCollator;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,7 +74,28 @@ public class GradeSheetExporter {
     @Setter private FormattedText formattedText;
 
     private ResourceLoader rb = new ResourceLoader("assignment");
+    
+    /**
+    * A comparator that sorts by student sortName
+    */
+    static final Comparator<Submitter> SUBMITTER_NAME_COMPARATOR = new Comparator<Submitter>() {
+        Collator collator;
+        {
+            this.collator = Collator.getInstance();
+            try {
+                this.collator = new RuleBasedCollator(
+                        ((RuleBasedCollator) this.collator).getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
+            } catch (final ParseException e) {
+                log.warn(this + " Cannot init RuleBasedCollator. Will use the default Collator instead.", e);
+            }
+        }
 
+        @Override
+        public int compare(final Submitter s1, final Submitter s2) {
+            return this.collator.compare(s1.sortName, s2.sortName);
+        }
+    };
+    
     /**
      * Access and output the grades spreadsheet for the reference, either for an assignment or all assignments in a context.
      *
@@ -308,11 +333,12 @@ public class GradeSheetExporter {
                 }
 
 
-                // The map is already sorted and so we just iterate over it and output rows.
-                for (Map.Entry<Submitter, List<Object>> entry : results.entrySet()) {
+                final List<Submitter> submitters = new ArrayList(results.keySet());
+                Collections.sort(submitters, SUBMITTER_NAME_COMPARATOR);
+
+                for (final Submitter submitter : submitters) {
                     Row sheetRow = sheet.createRow(rowNum++);
-                    Submitter submitter = entry.getKey();
-                    List<Object> rowValues = entry.getValue();
+                    List<Object> rowValues = results.get(submitter);
                     int column = 0;
                     if (submitter.anonymous) {
                         sheetRow.createCell(column++).setCellValue("");
