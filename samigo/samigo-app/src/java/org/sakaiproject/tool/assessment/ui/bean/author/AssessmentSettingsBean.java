@@ -93,6 +93,7 @@ import org.springframework.web.context.WebApplicationContext;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.tool.assessment.util.ExtendedTimeValidator;
 
 /**
  * For author: Assessment Settings backing bean.
@@ -1936,12 +1937,8 @@ public class AssessmentSettingsBean implements Serializable {
     //Internal to be able to supress error easier
     public void addExtendedTime() {
         ExtendedTime entry = this.extendedTime;
-        if (StringUtils.isBlank(entry.getUser()) && StringUtils.isBlank(entry.getGroup())) {
-            FacesContext context = FacesContext.getCurrentInstance();
-            String errorString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "extended_time_user_and_group_set");
-            context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, errorString, null));
-        }
-        else {
+        FacesContext context = FacesContext.getCurrentInstance();
+        if (ExtendedTimeValidator.validateEntry(entry, context, this)) {
             AssessmentAccessControlIfc accessControl = new AssessmentAccessControl();
             accessControl.setStartDate(this.startDate);
             accessControl.setDueDate(this.dueDate);
