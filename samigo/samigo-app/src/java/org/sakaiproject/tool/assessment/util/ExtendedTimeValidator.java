@@ -157,22 +157,12 @@ public class ExtendedTimeValidator
             }
 
             // If time limit is set, ensure open window is not less than the time limit
-            boolean hasTimer = (entry.getTimeHours() != null && entry.getTimeHours() > 0) || (entry.getTimeMinutes() != null && entry.getTimeMinutes() > 0);
+            boolean hasTimer = TimeLimitValidator.hasTimer( entry.getTimeHours(), entry.getTimeMinutes() );
             if (hasTimer)
             {
                 Date due = entry.getRetractDate() != null ? entry.getRetractDate() : entry.getDueDate();
-                long timerMinutes = 0;
-                if( entry.getTimeHours() != null )
-                {
-                    timerMinutes += entry.getTimeHours().longValue() * 60;
-                }
-                if( entry.getTimeMinutes() != null )
-                {
-                    timerMinutes += entry.getTimeMinutes().longValue();
-                }
-
-                long openWindowMinutes = (due.getTime() - entry.getStartDate().getTime()) / 1000 / 60;
-                if( openWindowMinutes < timerMinutes )
+                boolean availableLongerThanTimer = TimeLimitValidator.availableLongerThanTimer( startDate, due, entry.getTimeHours(), entry.getTimeMinutes(), null, null, null );
+                if( !availableLongerThanTimer )
                 {
                     String errorString = getError( ERROR_KEY_OPEN_WINDOW_LESS_THAN_LIMIT, entry );
                     context.addMessage( null, new FacesMessage( FacesMessage.SEVERITY_WARN, errorString, null ) );
