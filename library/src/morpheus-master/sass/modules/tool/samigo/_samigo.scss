@@ -184,6 +184,10 @@
 	#assessmentSettingsAction input#assessmentSettingsAction\:selTimeAssess {
 		float: none;
 	}
+
+	#assessmentSettingsAction input[name="assessmentSettingsAction\:userOrGroup"] {
+		margin-right: 5px;
+	}
 	
 	#assessmentSettingsAction input[type="checkbox"]{
 		@media #{$tablet}{
