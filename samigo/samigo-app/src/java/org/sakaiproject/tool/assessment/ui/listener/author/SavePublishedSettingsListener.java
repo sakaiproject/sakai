@@ -76,6 +76,7 @@ import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeValidator;
 import org.sakaiproject.tool.assessment.util.TextFormat;
+import org.sakaiproject.tool.assessment.util.TimeLimitValidator;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -305,6 +306,17 @@ implements ActionListener
             error=true;
             
         }
+
+		// if using a time limit, ensure open window is greater than or equal to time limit
+		boolean hasTimer = TimeLimitValidator.hasTimer(assessmentSettings.getTimedHours(), assessmentSettings.getTimedMinutes());
+		if(hasTimer) {
+			Date due = assessmentSettings.getRetractDate() != null ? assessmentSettings.getRetractDate() : assessmentSettings.getDueDate();
+			boolean availableLongerThanTimer = TimeLimitValidator.availableLongerThanTimer(startDate, due, assessmentSettings.getTimedHours(), assessmentSettings.getTimedMinutes(),
+																							"org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "open_window_less_than_time_limit", context);
+			if(!availableLongerThanTimer) {
+				error = true;
+			}
+		}
 
 		boolean extendedTimesValid = ExtendedTimeValidator.validateEntries( assessmentSettings.getExtendedTimes(), context, assessmentSettings );
 		if(!extendedTimesValid) {
