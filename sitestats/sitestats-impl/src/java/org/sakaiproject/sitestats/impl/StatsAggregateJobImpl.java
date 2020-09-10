@@ -35,7 +35,7 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.SchedulerException;
 import org.quartz.StatefulJob;
-import org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper;
+import org.sakaiproject.component.app.scheduler.jobs.SpringStatefulJobBeanWrapper;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.sitestats.api.JobRun;
@@ -139,7 +139,7 @@ public class StatsAggregateJobImpl implements StatefulJob {
 		// WARNING: I cannot currently check if this is running in OTHER cluster nodes!!!
 		try{
 			while(isJobCurrentlyRunning(context)) {
-				String beanId = context.getJobDetail().getJobDataMap().getString(SpringJobBeanWrapper.SPRING_BEAN_NAME);
+				String beanId = context.getJobDetail().getJobDataMap().getString(SpringStatefulJobBeanWrapper.SPRING_BEAN_NAME);
 				log.warn("Another instance of "+beanId+" is currently running - Execution aborted.");
 				return;
 			}
@@ -197,12 +197,12 @@ public class StatsAggregateJobImpl implements StatefulJob {
 	}
 
 	private boolean isJobCurrentlyRunning(JobExecutionContext context) throws SchedulerException {
-		String beanId = context.getJobDetail().getJobDataMap().getString(SpringJobBeanWrapper.SPRING_BEAN_NAME);
+		String beanId = context.getJobDetail().getJobDataMap().getString(SpringStatefulJobBeanWrapper.SPRING_BEAN_NAME);
 		List<JobExecutionContext> jobsRunning = context.getScheduler().getCurrentlyExecutingJobs();
 		
 		int jobsCount = 0;
 		for(JobExecutionContext j : jobsRunning)
-			if(beanId.equals(j.getJobDetail().getJobDataMap().getString(SpringJobBeanWrapper.SPRING_BEAN_NAME))) {
+			if(beanId.equals(j.getJobDetail().getJobDataMap().getString(SpringStatefulJobBeanWrapper.SPRING_BEAN_NAME))) {
 				jobsCount++;
 			}
 		if(jobsCount > 1)

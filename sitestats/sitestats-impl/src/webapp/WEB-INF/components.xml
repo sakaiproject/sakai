@@ -346,7 +346,7 @@
 		<property name="sqlService" ref="org.sakaiproject.db.api.SqlService" />
 	</bean>
 	<bean id="org.sakaiproject.sitestats.api.StatsUpdateJobBeanWrapper"
-		  class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+		  class="org.sakaiproject.component.app.scheduler.jobs.SpringStatefulJobBeanWrapper"
 		  init-method="init">
 		<property name="jobName" value="SiteStats Event Aggregator" />
 		<property name="beanId" value="org.sakaiproject.sitestats.api.StatsAggregateJob" />
@@ -362,7 +362,7 @@
 		<property name="eventRegistryService" ref="org.sakaiproject.sitestats.api.event.EventRegistryService"/>
 	</bean>
 	<bean id="org.sakaiproject.sitestats.api.ConvOldPrefsJobBeanWrapper"
-		  class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+		  class="org.sakaiproject.component.app.scheduler.jobs.SpringStatefulJobBeanWrapper"
 		  init-method="init">
 		<property name="jobName" value="SiteStats old SST_PREFS table conversion" />
 		<property name="beanId" value="org.sakaiproject.sitestats.api.ConvOldPrefsJob" />
