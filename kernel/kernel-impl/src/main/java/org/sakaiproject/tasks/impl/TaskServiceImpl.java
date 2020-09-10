@@ -90,20 +90,20 @@ public class TaskServiceImpl implements TaskService {
             task.setId(optionalCurrentTask.get().getId());
         }
 
-        session.persist(task);
+        final Task mergedTask = (Task) session.merge(task);
 
         if (!optionalCurrentTask.isPresent()) {
             users.forEach(userId -> {
 
                 UserTask userTask = new UserTask();
                 userTask.setUserId(userId);
-                userTask.setTask(task);
+                userTask.setTask(mergedTask);
                 userTask.setPriority(priority);
-                session.persist(userTask);
+                session.merge(userTask);
             });
         }
 
-        return task;
+        return mergedTask;
     }
 
     @Transactional

@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.chat2.model.ChatChannel;
@@ -46,7 +47,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.ContextualUserDisplayService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 /**
  * @author chrismaurer
@@ -66,10 +67,9 @@ public class ChatContentProducer implements EntityContentProducer {
    
    private ContextualUserDisplayService contextualUserDisplayService;
    
-   private SiteService siteService;
-   public void setSiteService(SiteService siteService) {
-	   this.siteService = siteService;
-   }
+   @Setter private SiteService siteService;
+   @Setter private UserDirectoryService userDirectoryService;
+
 
 protected void init() throws Exception {
       log.info("init()");
@@ -225,7 +225,7 @@ protected void init() throws Exception {
    {
       User sender = null;
       try {
-         sender = UserDirectoryService.getUser(user);
+         sender = userDirectoryService.getUser(user);
       } catch(UserNotDefinedException e) {
          log.error(e.getMessage(), e);
          return user;

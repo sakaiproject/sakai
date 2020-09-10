@@ -31,6 +31,7 @@ import org.apache.wicket.markup.head.StringHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -114,13 +115,8 @@ public class BasePage extends WebPage {
 		nav.setMarkupId("gradebook-navbar");
 
 		// grades page
-		this.gradebookPageLink = new Link<Void>("gradebookPageLink") {
+		this.gradebookPageLink = new BookmarkablePageLink<Void>("gradebookPageLink", GradebookPage.class) {
 			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onClick() {
-				setResponsePage(GradebookPage.class);
-			}
 
 			@Override
 			public boolean isVisible() {
@@ -132,13 +128,8 @@ public class BasePage extends WebPage {
 		nav.add(this.gradebookPageLink);
 
 		// import/export page
-		this.importExportPageLink = new Link<Void>("importExportPageLink") {
+		this.importExportPageLink = new BookmarkablePageLink<Void>("importExportPageLink", ImportExportPage.class) {
 			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onClick() {
-				setResponsePage(ImportExportPage.class);
-			}
 
 			@Override
 			public boolean isVisible() {
@@ -149,13 +140,8 @@ public class BasePage extends WebPage {
 		nav.add(this.importExportPageLink);
 
 		// permissions page
-		this.permissionsPageLink = new Link<Void>("permissionsPageLink") {
+		this.permissionsPageLink = new BookmarkablePageLink<Void>("permissionsPageLink", PermissionsPage.class) {
 			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onClick() {
-				setResponsePage(PermissionsPage.class);
-			}
 
 			@Override
 			public boolean isVisible() {
@@ -166,13 +152,8 @@ public class BasePage extends WebPage {
 		nav.add(this.permissionsPageLink);
 
 		// settings page
-		this.settingsPageLink = new Link<Void>("settingsPageLink") {
+		this.settingsPageLink = new BookmarkablePageLink<Void>("settingsPageLink", SettingsPage.class) {
 			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onClick() {
-				setResponsePage(SettingsPage.class);
-			}
 
 			@Override
 			public boolean isVisible() {

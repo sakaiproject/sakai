@@ -1,0 +1,38 @@
+/*** Multiselect filter button bootstrap-multiselect ***/
+.multiselect-native-select {
+
+	.input-group-addon {
+		background: none;
+        color: $input-color;
+        box-shadow: none;
+        z-index: 4;
+        position: absolute;
+        border: none;
+        padding: 0;
+        left: .8em;
+        height:34px;
+        line-height: 34px;
+        opacity: .5;
+    }
+    .input-group .form-control.multiselect-search {
+        padding-left:2em;
+        border-radius: 4px 0 0 4px;
+    }
+    .form-control.multiselect-search:focus + .input-group-addon {
+        $color-rgba: rgba(red($input-border-focus), green($input-border-focus), blue($input-border-focus), .6);
+        border-color: $input-border-focus;
+        outline: 0;
+        @include box-shadow(inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px $color-rgba);
+  }
+	button.multiselect-clear-filter{
+		padding: 6px 12px;
+		font-size: 14px;
+		line-height: 1.42857143;
+		background-color: hsla(0, 0%, 92%, 1);
+		border-color: $input-border;
+		
+	}
+	.multiselect-container>li>a>label {
+        line-height: 24px;
+    }
+}

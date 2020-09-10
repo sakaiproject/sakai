@@ -30,6 +30,7 @@ import org.apache.wicket.markup.head.StringHeaderItem;
 import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.Model;
@@ -90,11 +91,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		hasDelegatedAccess = projectLogic.hasDelegatedAccessNodes(sakaiProxy.getCurrentUserId());
 		hasAccessAdmin = projectLogic.hasAccessAdminNodes(sakaiProxy.getCurrentUserId());
 		//access page link
-		accessPageLink = new Link<Void>("accessPageLink") {
+		accessPageLink = new BookmarkablePageLink<Void>("accessPageLink", UserPage.class) {
 			private static final long serialVersionUID = 1L;
-			public void onClick() {
-				setResponsePage(new UserPage());
-			}
 			@Override
 			public boolean isVisible() {
 				return shoppingPeriodTool || (!shoppingPeriodTool && hasDelegatedAccess); 
@@ -112,11 +110,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 
 
 		//shopping admin link
-		shoppingAdminLink = new Link<Void>("shoppingAdminLink") {
+		shoppingAdminLink = new BookmarkablePageLink<Void>("shoppingAdminLink", ShoppingEditPage.class) {
 			private static final long serialVersionUID = 1L;
-			public void onClick() {
-				setResponsePage(new ShoppingEditPage());
-			}
 			@Override
 			public boolean isVisible() {
 				return !shoppingPeriodTool && hasShoppingAdmin;
@@ -142,11 +137,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		add(shoppingStatsLink);
 
 		//search users link
-		searchUsersLink = new Link<Void>("searchUsersLink") {
+		searchUsersLink = new BookmarkablePageLink<Void>("searchUsersLink", SearchUsersPage.class) {
 			private static final long serialVersionUID = 1L;
-			public void onClick() {
-				setResponsePage(new SearchUsersPage());
-			}
 			@Override
 			public boolean isVisible() {
 				return (sakaiProxy.isSuperUser() || hasAccessAdmin) && !shoppingPeriodTool;
@@ -157,11 +149,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		add(searchUsersLink);
 		
 		//search access link
-		searchAccessLink = new Link<Void>("searchAccessLink") {
+		searchAccessLink = new BookmarkablePageLink<Void>("searchAccessLink", SearchAccessPage.class) {
 			private static final long serialVersionUID = 1L;
-			public void onClick() {
-				setResponsePage(new SearchAccessPage());
-			}
 			@Override
 			public boolean isVisible() {
 				return (sakaiProxy.isSuperUser() || hasAccessAdmin) && !shoppingPeriodTool;
@@ -172,11 +161,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		add(searchAccessLink);
 		
 		//administrate link
-		administrateLink = new Link<Void>("administrateLink") {
+		administrateLink = new BookmarkablePageLink<Void>("administrateLink", AdministratePage.class) {
 			private static final long serialVersionUID = 1L;
-			public void onClick() {
-				setResponsePage(new AdministratePage());
-			}
 			@Override
 			public boolean isVisible() {
 				return sakaiProxy.isSuperUser() && !shoppingPeriodTool;
@@ -272,8 +258,6 @@ public class BasePage extends WebPage implements IHeaderContributor {
 
 		//for datepicker
 		response.render(CssHeaderItem.forUrl("/library/webjars/jquery-ui/1.12.1/jquery-ui.css"));
-		response.render(JavaScriptHeaderItem.forUrl("javascript/jquery.asmselect.js"));
-		response.render(CssHeaderItem.forUrl("css/jquery.asmselect.css"));
 		response.render(JavaScriptHeaderItem.forUrl("/library/js/lang-datepicker/lang-datepicker.js"));
 	}
 
