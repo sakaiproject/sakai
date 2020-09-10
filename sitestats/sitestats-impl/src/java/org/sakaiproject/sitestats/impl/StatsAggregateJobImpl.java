@@ -135,8 +135,8 @@ public class StatsAggregateJobImpl implements StatefulJob {
 		String jobName = context.getJobDetail().getKey().getName();
 		
 		// ABORT if job is currently running in this cluster node.
-		//  -> Required as StatefullJob is only correctly supported in trunk!
-		// WARNING: I cannot currently check if this is running in OTHER cluster nodes!!!
+		// This should never happen, as the job is stateful so quartz should not execute
+		// more than one instance concurrently.
 		try{
 			while(isJobCurrentlyRunning(context)) {
 				String beanId = context.getJobDetail().getJobDataMap().getString(SpringStatefulJobBeanWrapper.SPRING_BEAN_NAME);
