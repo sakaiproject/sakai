@@ -342,34 +342,26 @@ $( document ).ready( function() {
         }
     });
 
-    // Setup extended time checkboxes
-    $('.disable-cb').change(function () {
+    // Setup extended time radios
+    $('input[name="assessmentSettingsAction\\:userOrGroup"]').change(function () {
         var $t = $(this);
-        var $parent = $t.parents('div');
-
-        var $lbl;
-        var $select;
+        var $thisSelect;
+        var $otherSelect;
 
         if($t.attr('id') === 'assessmentSettingsAction:extendedEnableUser') {
-            $lbl = $('label[for="assessmentSettingsAction\\:newEntry-user"]');
-            $select = $('#assessmentSettingsAction\\:newEntry-user');
+            $thisSelect = $('#assessmentSettingsAction\\:newEntry-user');
+            $otherSelect = $('#assessmentSettingsAction\\:newEntry-group');
         } else {
-            $lbl = $('label[for="assessmentSettingsAction\\:newEntry-group"]');
-            $select = $('#assessmentSettingsAction\\:newEntry-group');
+            $thisSelect = $('#assessmentSettingsAction\\:newEntry-group');
+            $otherSelect = $('#assessmentSettingsAction\\:newEntry-user');
         }
 
-        if ($t.is(':checked')) {
-            $lbl.removeClass('disabled');
-            $select.prop('disabled', false);
-        } else {
-            $lbl.addClass('disabled');
-            $select.prop('disabled', 'disabled');
-            $select.val('');
-        }
+        $thisSelect.prop('disabled', false);
+        $otherSelect.prop('disabled', true);
+        $otherSelect.val('');
     });
 
     if($('#assessmentSettingsAction\\:newEntry-user').val() === '') {
-        $('label[for="assessmentSettingsAction\\:newEntry-user"]').addClass('disabled');
         $('#assessmentSettingsAction\\:newEntry-user').prop('disabled', 'disabled');
         $('#assessmentSettingsAction\\:extendedEnableUser').prop('checked', false);
     } else {
@@ -377,7 +369,6 @@ $( document ).ready( function() {
     }
 
     if($('#assessmentSettingsAction\\:newEntry-group').val() === '') {
-        $('label[for="assessmentSettingsAction\\:newEntry-group"]').addClass('disabled');
         $('#assessmentSettingsAction\\:newEntry-group').prop('disabled', 'disabled');
         $('#assessmentSettingsAction\\:extendedEnableGroup').prop('checked', false);
     } else {
