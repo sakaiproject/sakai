@@ -80,6 +80,8 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
   private DiscussionForumManager forumManager;
   private AreaManager areaManager;
   private MemoryService memoryService;
+  private Cache<String, String> roleMapCache;
+  private Cache<String, Boolean> instructorGroupCache;
   private Cache<String, Set<String>> userGroupMembershipCache;
   private UserDirectoryService userDirectoryService;
   private SiteService siteService;
@@ -88,6 +90,8 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
   public void init()
   {
      log.info("init()");
+     instructorGroupCache = memoryService.getCache("org.sakaiproject.component.app.messageforums.ui.UIPermissionsManagerImpl.instructorGroupCache");
+     roleMapCache = memoryService.getCache("org.sakaiproject.component.app.messageforums.ui.UIPermissionsManagerImpl.roleMapCache");
      userGroupMembershipCache = memoryService.getCache("org.sakaiproject.component.app.messageforums.ui.UIPermissionsManagerImpl.userGroupMembershipCache");
   }
 
@@ -259,10 +263,26 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     return false;
   }
 
-  public boolean isInstructorForAllowedGroup(Long objectId, boolean isForum){
+  public boolean isInstructorForAllowedGroup(Long objectId, boolean isForum) {
+	boolean returnVal = false;
 
-    if(objectId == null || !isInstructor()){
+    if (objectId == null) {
         return false;
+    }
+    
+    final String userId = getCurrentUserId();
+    final String cacheKey = userId + "-" + objectId + "-" + (isForum ? 1 : 0);
+    
+    // Check cache to avoid expensive calls
+    Boolean cachedLookup = instructorGroupCache.get(cacheKey);
+    if (cachedLookup != null) {
+    	log.debug("isInstructorForAllowedGroup: objectId={}, userId={}, returnVal={}", objectId, userId, cachedLookup);
+    	return cachedLookup;
+    }
+    
+    if (!isInstructor()) {
+    	instructorGroupCache.put(cacheKey, false);
+    	return false;
     }
 
     final String groupTitle;
@@ -274,12 +294,14 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     log.debug("Allowed group title {} for object {}", groupTitle, objectId);
     try {
       Site site = siteService.getSite(toolManager.getCurrentPlacement().getContext());
-      Set<String> groups = getGroupsWithMember(site, getCurrentUserId());
-      return groups.stream().map(site::getGroup).anyMatch(g -> g.getTitle().equals(groupTitle));
+      Set<String> groups = getGroupsWithMember(site, userId);
+      returnVal = groups.stream().map(site::getGroup).anyMatch(g -> g.getTitle().equals(groupTitle));
     } catch(Exception e){
       log.error("isInstructorForAllowedGroup error: exception {} in forum {}", e.getMessage(), objectId);
     }
-    return false;
+
+    instructorGroupCache.put(cacheKey, returnVal);
+    return returnVal;
   }
 
   /**   
@@ -292,7 +314,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     {
       return true;
     }
-    if (securityService.unlock(siteService.SECURE_UPDATE_SITE, getContextSiteId())){
+    if (securityService.unlock(SiteService.SECURE_UPDATE_SITE, getContextSiteId())){
       if (forum.getRestrictPermissionsForGroups() && isInstructorForAllowedGroup(forum.getId(), true)){
         return true;
       }
@@ -1302,31 +1324,23 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
   /**
    * @return
    */
-  private String getCurrentUserRole() {
+  public String getCurrentUserRole() {
 	  return getCurrentUserRole(getContextId());
   }
   
-  private String getCurrentUserRole(String siteId)
+  public String getCurrentUserRole(String siteId)
   {
 	  log.debug("getCurrentUserRole()");
-	  if(authzGroupService.getUserRole(getCurrentUserId(), "/site/" + siteId)==null&&sessionManager.getCurrentSessionUserId()==null&&getAnonRole(siteId)==true){
-		  return ".anon";
-	  }
-	  return authzGroupService.getUserRole(getCurrentUserId(), "/site/" + siteId);
+	  return getUserRole(siteId, getCurrentUserId());
   }
 
-  private String getUserRole(String siteId, String userId)
+  public String getUserRole(String siteId, String userId)
   {
     log.debug("getCurrentUserRole()");
-    Map roleMap = (Map) threadLocalManager.get("message_center_user_role_map");
-    if(roleMap == null){
-    	roleMap = new HashMap();
-    }
-    String userRole = (String) roleMap.get(siteId + "-" + userId);
+    String userRole = roleMapCache.get(siteId + "-" + userId);
     if(userRole == null){
     	userRole = authzGroupService.getUserRole(userId, "/site/" + siteId);
-    	roleMap.put(siteId + "-" + userId, userRole);
-    	threadLocalManager.set("message_center_user_role_map", roleMap);
+    	roleMapCache.put(siteId + "-" + userId, userRole);
     }
     
     // if user role is still null at this point, check for .anon

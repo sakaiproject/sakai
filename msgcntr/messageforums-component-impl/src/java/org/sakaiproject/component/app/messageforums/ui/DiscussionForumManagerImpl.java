@@ -1782,9 +1782,8 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     }
 
     //SAK-12685 If topic's permission level name is "None", then can't access 
-    User user=userDirectoryService.getCurrentUser();
-    String role=authzGroupService.getUserRole(user.getId(), getContextSiteId());
-    return !forumManager.doesRoleHavePermissionInTopic(t.getId(), role, PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE);
+    final String userRole = uiPermissionsManager.getCurrentUserRole();
+    return !forumManager.doesRoleHavePermissionInTopic(t.getId(), userRole, PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE);
   }
 
   /**

@@ -215,6 +215,10 @@ public interface UIPermissionsManager
   public List getCurrentUserMemberships();
   public List getCurrentUserMemberships(String siteId);
   
+  public String getCurrentUserRole();
+  public String getCurrentUserRole(String siteId);
+  public String getUserRole(String siteId, String userId);
+  
   public Set getAreaItemsSet(Area area);
 
   public Set getForumItemsSet(DiscussionForum forum);
