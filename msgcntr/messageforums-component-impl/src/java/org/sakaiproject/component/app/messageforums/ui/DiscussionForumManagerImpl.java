@@ -21,6 +21,7 @@
 package org.sakaiproject.component.app.messageforums.ui;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -34,6 +35,7 @@ import java.util.Vector;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.tool.api.Tool;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
@@ -121,7 +123,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   private boolean usingHelper = false; // just a flag until moved to database from helper
   private ContentHostingService contentHostingService;
   private MemoryService memoryService;
-  private Cache<String, Set<?>> allowedFunctionsCache;
+  private Cache<String, Set<String>> allowedFunctionsCache;
   private EventTrackingService eventTrackingService;
   private ThreadLocalManager threadLocalManager;
   private ToolManager toolManager;
@@ -2191,87 +2193,107 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 	  return getDBMember(originalSet, name, type, getContextSiteId());
 	}
 
-  public DBMembershipItem getDBMember(Set originalSet, String name,
-      Integer type, String contextSiteId)
+  public DBMembershipItem getDBMember(Set<DBMembershipItem> originalSet, String name, Integer type, String contextSiteId)
   {
-      	
-    DBMembershipItem membershipItem = null;
-    DBMembershipItem membershipItemIter;
+
+	  DBMembershipItem membershipItem = null;
+
+	  if (originalSet != null)
+	  {
+		  for (DBMembershipItem membershipItemIter : originalSet)
+		  {
+			  if (membershipItemIter.getType().equals(type) && membershipItemIter.getName().equals(name))
+			  {
+				  membershipItem = membershipItemIter;
+				  break;
+			  }
+		  }
+	  }
+
+	  if (membershipItem == null || membershipItem.getPermissionLevel() == null)
+	  {
+		  membershipItem = getDefaultPermissionForType(type, name, contextSiteId);
+	  }
+
+	  return membershipItem;
+  }
+
+  public List<DBMembershipItem> getManyDBMembers(Set<DBMembershipItem> originalSet, Set<String> names, Integer type, String contextSiteId)
+  {
+
+	  List<DBMembershipItem> membershipItems = new ArrayList<>();
+
+	  if (originalSet != null)
+	  {
+		  for (DBMembershipItem membershipItemIter : originalSet)
+		  {
+			  if (membershipItemIter.getType().equals(type) && names.contains(membershipItemIter.getName()))
+			  {
+				  if (membershipItemIter == null || membershipItemIter.getPermissionLevel() == null)
+				  {
+					  membershipItemIter = getDefaultPermissionForType(type, membershipItemIter.getName(), contextSiteId);
+				  }
+				  membershipItems.add(membershipItemIter);
+			  }
+		  }
+	  }
+
+	  return membershipItems;
+  }
     
-    if (originalSet != null){
-      Iterator iter = originalSet.iterator();
-      while (iter.hasNext())
-      {
-      	membershipItemIter = (DBMembershipItem) iter.next();
-        if (membershipItemIter.getType().equals(type)
-            && membershipItemIter.getName().equals(name))
-        {
-        	membershipItem = membershipItemIter;
-          break;
-        }
-      }
-    }
-    
-    if (membershipItem == null || membershipItem.getPermissionLevel() == null){    	
+    private DBMembershipItem getDefaultPermissionForType(final Integer type, final String name, final String siteId)
+    {
     	PermissionLevel level = null;
-    	//for groups awareness
-    	if (type.equals(DBMembershipItem.TYPE_ROLE) || type.equals(DBMembershipItem.TYPE_GROUP))
-      { 
-    		
-    		String levelName = null;
-    		
-    		if (membershipItem != null){
-    			/** use level from stored item */
-    			levelName = membershipItem.getPermissionLevelName();
-    		}
-    		else{    	
-    			/** get level from config file */
-    			levelName = ServerConfigurationService.getString(MC_DEFAULT
-              + name);
-    			    			
-    			
-    		}
+    	String levelName = null;
+ 
+    	if (type.equals(DBMembershipItem.TYPE_ROLE)) {
+    	{ 
+    		levelName = ServerConfigurationService.getString(MC_DEFAULT + name);
+    	}
       	        	
-        if (levelName != null && levelName.trim().length() > 0)
+        if (StringUtils.isNotBlank(levelName))
         {
-          level = permissionLevelManager.getPermissionLevelByName(levelName);
-        } else if (name == null || ".anon".equals(name)) {
+        	level = permissionLevelManager.getPermissionLevelByName(levelName);
+        }
+        else if (name == null || ".anon".equals(name)) {
             level = permissionLevelManager.getDefaultNonePermissionLevel();
-        } else{
-        	Collection siteIds = new Vector();
-        	siteIds.add(contextSiteId);        	
-        	
-        	if(type.equals(DBMembershipItem.TYPE_GROUP))
-        	{
+        }
+        else if (type.equals(DBMembershipItem.TYPE_GROUP)) {
         	  level = permissionLevelManager.getDefaultNonePermissionLevel();
-        	}else{
-        		//check cache first:
-        		Set allowedFunctions = null;
-        		String cacheId = contextSiteId + "/" + name;
-        		Object el = allowedFunctionsCache.get(cacheId);
-        		if(el == null){
-        			allowedFunctions = authzGroupService.getAllowedFunctions(name, siteIds);
-        			allowedFunctionsCache.put(cacheId, allowedFunctions);
-        		}else{
-        			allowedFunctions = (Set) el;
-        		}
-        		if (allowedFunctions.contains(SiteService.SECURE_UPDATE_SITE)){        			        	        	
-        			level = permissionLevelManager.getDefaultOwnerPermissionLevel();
-        		}else{
-        			level = permissionLevelManager.getDefaultContributorPermissionLevel();
-        		}
-        	}
-        	
+        }
+        else
+        {
+			//check cache first:
+			final String cacheId = siteId + "/" + name;
+			Set<String> allowedFunctions = allowedFunctionsCache.get(cacheId);
+			if (allowedFunctions == null)
+			{
+				allowedFunctions = authzGroupService.getAllowedFunctions(name, Arrays.asList(siteId));
+				allowedFunctionsCache.put(cacheId, allowedFunctions);
+			}
+			if (allowedFunctions.contains(SiteService.SECURE_UPDATE_SITE))
+			{        			        	        	
+				level = permissionLevelManager.getDefaultOwnerPermissionLevel();
+			}
+			else
+			{
+				level = permissionLevelManager.getDefaultContributorPermissionLevel();
+			}
         }
       }
-    	PermissionLevel noneLevel = permissionLevelManager.getDefaultNonePermissionLevel();
-      membershipItem = new DBMembershipItemImpl();
-      membershipItem.setName(name);
-      membershipItem.setPermissionLevelName((level == null) ? noneLevel.getName() : level.getName() );
-      membershipItem.setType(type);
-      membershipItem.setPermissionLevel((level == null) ? noneLevel : level);      
-    }        
-    return membershipItem;
+
+		// One last null check
+		if (level == null) {
+		  level = permissionLevelManager.getDefaultNonePermissionLevel();
+		}
+	
+		DBMembershipItem membershipItem = new DBMembershipItemImpl();
+		membershipItem.setName(name);
+		membershipItem.setType(type);
+		membershipItem.setPermissionLevel(level);
+		membershipItem.setPermissionLevelName(level.getName());
+
+		return membershipItem;
   }
   
 //Attachment

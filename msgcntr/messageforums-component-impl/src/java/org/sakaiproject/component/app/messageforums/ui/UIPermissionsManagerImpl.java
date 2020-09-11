@@ -1013,7 +1013,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 			initMembershipForSite();
 		}
 
-	Set areaItemsInThread = (Set) threadLocalManager.get("message_center_membership_area");
+	Set<DBMembershipItem> areaItemsInThread = (Set<DBMembershipItem>) threadLocalManager.get("message_center_membership_area");
 	DBMembershipItem item = forumManager.getDBMember(areaItemsInThread, getCurrentUserRole(),
 			DBMembershipItem.TYPE_ROLE);
     
@@ -1039,14 +1039,14 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     return areaItems.iterator();
   }
 
-  public Set getAreaItemsSet(Area area)
+  public Set<DBMembershipItem> getAreaItemsSet(Area area)
   {
 		if (threadLocalManager.get("message_center_permission_set") == null || !((Boolean)threadLocalManager.get("message_center_permission_set")).booleanValue())
 		{
 			initMembershipForSite();
 		}
 		Set allAreaSet = (Set) threadLocalManager.get("message_center_membership_area");
-		Set returnSet = new HashSet();
+		Set<DBMembershipItem> returnSet = new HashSet<>();
 		if(allAreaSet != null)
 		{
 			Iterator iter = allAreaSet.iterator();
@@ -1055,7 +1055,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 				DBMembershipItemImpl thisItem = (DBMembershipItemImpl)iter.next();
 				if(thisItem.getArea() != null && area.getId() != null && area.getId().equals(thisItem.getArea().getId()))
 				{
-					returnSet.add((DBMembershipItem)thisItem);
+					returnSet.add(thisItem);
 				}
 			}
 		}
@@ -1074,9 +1074,9 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 			initMembershipForSite();
 		}
 
-		Set forumItemsInThread = (Set) threadLocalManager.get("message_center_membership_forum");
-		Set thisForumItemSet = new HashSet();
-		Iterator iter = forumItemsInThread.iterator();
+		Set<DBMembershipItem> forumItemsInThread = (Set<DBMembershipItem>) threadLocalManager.get("message_center_membership_forum");
+		Set<DBMembershipItem> thisForumItemSet = new HashSet<>();
+		Iterator<DBMembershipItem> iter = forumItemsInThread.iterator();
 		while(iter.hasNext())
 		{
 			DBMembershipItemImpl thisItem = (DBMembershipItemImpl)iter.next();
@@ -1086,8 +1086,8 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 			}
 		}
 		if(thisForumItemSet.size()==0&&getAnonRole()==true&&".anon".equals(forum.getCreatedBy())&&forum.getTopicsSet()==null){
-			Set newForumMembershipset=forum.getMembershipItemSet();
-	        Iterator iterNewForum = newForumMembershipset.iterator();
+			Set<DBMembershipItem> newForumMembershipset=forum.getMembershipItemSet();
+	        Iterator<DBMembershipItem> iterNewForum = newForumMembershipset.iterator();
 	        while (iterNewForum.hasNext())
 	        {
 	          DBMembershipItem item = (DBMembershipItem)iterNewForum.next();
@@ -1187,7 +1187,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 		}
 
 		Set topicItemsInThread = (Set) threadLocalManager.get("message_center_membership_topic");
-		Set thisTopicItemSet = new HashSet();
+		Set<DBMembershipItem> thisTopicItemSet = new HashSet<>();
 		Iterator iter = topicItemsInThread.iterator();
 		while(iter.hasNext())
 		{
@@ -1211,11 +1211,17 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     	Site currentSite = siteService.getSite(siteId);
     	Set<String> groups = getGroupsWithMember(currentSite, userId);
     	if (groups != null) {
+    		Set<String> groupTitles = new HashSet<>();
             groups.stream().map(currentSite::getGroup)
-                    .map(g -> forumManager.getDBMember(thisTopicItemSet, g.getTitle(), DBMembershipItem.TYPE_GROUP, "/site/" + siteId))
+                    .map(g -> g.getTitle())
                     .filter(Objects::nonNull)
-                    .forEach(topicItems::add);
+                    .forEach(groupTitles::add);
+
+            // Try to get them all in one pass instead of lots of iteration
+            topicItems.addAll(forumManager.getManyDBMembers(thisTopicItemSet, groupTitles, DBMembershipItem.TYPE_GROUP, "/site/" + siteId));
     	}
+    	
+    	
     }
     catch(Exception iue)
     {

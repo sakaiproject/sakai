@@ -498,8 +498,9 @@ public interface DiscussionForumManager
 
   public DBMembershipItem getAreaDBMember(Set originalSet, String name, Integer type);
 
-  public DBMembershipItem getDBMember(Set originalSet, String name, Integer type);
-  public DBMembershipItem getDBMember(Set originalSet, String name, Integer type, String contextSiteId);
+  public DBMembershipItem getDBMember(Set<DBMembershipItem> originalSet, String name, Integer type);
+  public DBMembershipItem getDBMember(Set<DBMembershipItem> originalSet, String name, Integer type, String contextSiteId);
+  public List<DBMembershipItem> getManyDBMembers(Set<DBMembershipItem> originalSet, Set<String> names, Integer type, String contextSiteId);
   
   /**
    * 
