@@ -230,6 +230,10 @@ $Id$
 
   <div class="samigo-question-callout">
   <t:dataList value="#{questionScores.deliveryItem}" var="question">
+  <div id="questionScoreItemAttachments">
+      <%@ include file="/jsf/evaluation/questionScoreItemAttachment.jsp" %>
+  </div>
+
   <h:panelGroup rendered="#{questionScores.typeId == '7'}">
     <f:subview id="displayAudioRecording">
       <%@ include file="/jsf/evaluation/item/displayAudioRecordingQuestion.jsp" %>
