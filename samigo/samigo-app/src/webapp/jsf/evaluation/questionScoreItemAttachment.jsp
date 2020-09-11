@@ -1,9 +1,7 @@
-<!--
-* $Id: attachment.jsp 6874 2006-03-22 17:01:47Z hquinn@stanford.edu $
 <%--
 ***********************************************************************************
 *
-* Copyright (c) 2006 The Sakai Foundation.
+* Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
 *
 * Licensed under the Educational Community License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,15 +13,14 @@
 * distributed under the License is distributed on an "AS IS" BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 * See the License for the specific language governing permissions and
-* limitations under the License. 
+* limitations under the License.
 *
-***********************************************************************************/
+**********************************************************************************/
 --%>
--->
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t"%>
 
 <!-- ATTACHMENTS -->
-<%-- Expects 'question' is an instance of ItemContentsBean --%>
-<t:aliasBean alias="#{itemAttachmentList}" value="#{question.itemData.itemAttachmentList}" >
+<%-- Similar to /jsf/delivery/item/attachment.jsp: attachment.jsp expects 'question' is an instance of ItemContentsBean, while questionScore expects 'question' is a PublishedItemData instance --%>
+<t:aliasBean alias="#{itemAttachmentList}" value="#{question.itemAttachmentList}" >
   <%@ include file="/jsf/shared/itemAttachmentList.jsp" %>
 </t:aliasBean>
