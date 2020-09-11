@@ -33,12 +33,14 @@ import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
+import org.sakaiproject.api.app.messageforums.PermissionLevel;
 import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
 import org.sakaiproject.api.app.messageforums.PermissionManager;
 import org.sakaiproject.api.app.messageforums.Topic;
@@ -222,7 +224,8 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     {
       return true;
     }
-    if (securityService.unlock(siteService.SECURE_UPDATE_SITE, getContextSiteId())){
+
+    if (securityService.unlock(SiteService.SECURE_UPDATE_SITE, getContextSiteId())) {
       if (!forum.getRestrictPermissionsForGroups()){
         return true;
       }
@@ -577,15 +580,18 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
       {
         return true;
       }
-      Iterator iter = getTopicItemsByUser(topicId, userId, siteId);
+
+      // Dont do an expensive lookup if it's a draft
+      if (isForumDraft.equals(Boolean.TRUE) || isTopicDraft.equals(Boolean.TRUE))
+      {
+    	  return false;
+      }
+
+      Iterator<DBMembershipItem> iter = getTopicItemsByUser(topicId, userId, siteId, PermissionLevel.READ);
       while (iter.hasNext())
       {
-        DBMembershipItem item = (DBMembershipItem) iter.next();
-        if (item.getPermissionLevel().getRead().booleanValue()
-            && isForumDraft.equals(Boolean.FALSE)
-//            && forum.getLocked().equals(Boolean.FALSE)
-            && isTopicDraft.equals(Boolean.FALSE))
-//            && topic.getLocked().equals(Boolean.FALSE))
+        DBMembershipItem item = iter.next();
+        if (item.getPermissionLevel().getRead().booleanValue())
         {
           return true;
         }
@@ -875,14 +881,20 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     if (isTopicDraft == null || isTopicDraft.equals(Boolean.TRUE))
     {
       log.debug("This topic is at draft stage {}", topicId);
+      return false;
     }
-      Iterator iter = getTopicItemsByUser(topicId, userId, siteId);
+    
+    if (isForumDraft == null || isForumDraft.equals(Boolean.TRUE))
+    {
+    	log.debug("This forum is at draft stage; topicId={}", topicId);
+    	return false;
+    }
+
+      Iterator iter = getTopicItemsByUser(topicId, userId, siteId, PermissionLevel.MODERATE_POSTINGS);
       while (iter.hasNext())
       {
         DBMembershipItem item = (DBMembershipItem) iter.next();
-        if (item.getPermissionLevel().getModeratePostings().booleanValue()
-            && isForumDraft.equals(Boolean.FALSE)
-            && isTopicDraft.equals(Boolean.FALSE))
+        if (item.getPermissionLevel().getModeratePostings().booleanValue())
         {
           return true;
         }
@@ -907,7 +919,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 
     try
     {
-      Iterator iter = getTopicItemsByUser(topic.getId(), currentUserId, getContextId());
+      Iterator iter = getTopicItemsByUser(topic.getId(), currentUserId, getContextId(), PermissionLevel.IDENTIFY_ANON_AUTHORS);
       while (iter.hasNext())
       {
         DBMembershipItem item = (DBMembershipItem) iter.next();
@@ -953,55 +965,6 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 	  return userMemberships;
   }
 
-  
-  private Iterator<String> getGroupsByCurrentUser()
-  {
-    List<String> memberof = new ArrayList<>();
-    try
-    {
-      Site site = siteService.getSite(toolManager.getCurrentPlacement().getContext());
-	  memberof.addAll(getGroupsWithMember(site, getCurrentUserId()));
-    }
-    catch (IdUnusedException e)
-    {
-      log.debug("Group not found");
-    }
-    return memberof.iterator();
-  }
-  
-  /**
-   * Returns a list of names of the groups/sections
-   * the current user is a member of
-   * @return
-   */
-  private Iterator<String> getGroupNamesByCurrentUser(String siteId)
-  {
-    List<String> memberof = new ArrayList<>();
-    try
-    {
-    	Site site = siteService.getSite(siteId);
-    	getGroupsWithMember(site, getCurrentUserId()).stream()
-                .map(site::getGroup).map(Group::getTitle).forEach(memberof::add);
-    }
-    catch (IdUnusedException e)
-    {
-      log.debug("Group not found");
-    }
-    return memberof.iterator();
-  }
-
-  private DBMembershipItem getAreaItemByUserRole()
-  { 
-  	if (log.isDebugEnabled())
-    {
-      log.debug("getAreaItemByUserRole()");
-    }	 
-    Set membershipItems = forumManager.getDiscussionForumArea()
-      .getMembershipItemSet();
-    return forumManager.getDBMember(membershipItems, getCurrentUserRole(),
-      DBMembershipItem.TYPE_ROLE);
-  }
-  
   private Iterator<DBMembershipItem> getAreaItemsByCurrentUser()
   { 
     log.debug("getAreaItemsByCurrentUser()");
@@ -1085,7 +1048,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 				thisForumItemSet.add((DBMembershipItem)thisItem);
 			}
 		}
-		if(thisForumItemSet.size()==0&&getAnonRole()==true&&".anon".equals(forum.getCreatedBy())&&forum.getTopicsSet()==null){
+		if(getAnonRole() == true && ".anon".equals(forum.getCreatedBy()) && forum.getTopicsSet() == null && thisForumItemSet.isEmpty()) {
 			Set<DBMembershipItem> newForumMembershipset=forum.getMembershipItemSet();
 	        Iterator<DBMembershipItem> iterNewForum = newForumMembershipset.iterator();
 	        while (iterNewForum.hasNext())
@@ -1164,20 +1127,20 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 		return returnSet;
   }
   
-  private Iterator getTopicItemsByCurrentUser(DiscussionTopic topic){
+  private Iterator<DBMembershipItem> getTopicItemsByCurrentUser(DiscussionTopic topic){
 	  return getTopicItemsByUser(topic, getCurrentUserId());
   }
   
-  private Iterator getTopicItemsByUser(DiscussionTopic topic, String userId){
+  private Iterator<DBMembershipItem> getTopicItemsByUser(DiscussionTopic topic, String userId){
 	  return getTopicItemsByUser(topic, userId, getContextId());
   }
   
-  private Iterator getTopicItemsByUser(DiscussionTopic topic, String userId, String siteId)
+  private Iterator<DBMembershipItem> getTopicItemsByUser(DiscussionTopic topic, String userId, String siteId)
   {
-	  return getTopicItemsByUser(topic.getId(), userId, siteId);
+	  return getTopicItemsByUser(topic.getId(), userId, siteId, null);
   }
   
-  private Iterator<DBMembershipItem> getTopicItemsByUser(Long topicId, String userId, String siteId)
+  private Iterator<DBMembershipItem> getTopicItemsByUser(Long topicId, String userId, String siteId, String permLevelNeeded)
   {
 	  List<DBMembershipItem> topicItems = new ArrayList<>();
     
@@ -1198,12 +1161,24 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 			}
 		}
     
-//    Set membershipItems = topic.getMembershipItemSet();
     DBMembershipItem item = forumManager.getDBMember(thisTopicItemSet, getUserRole(siteId, userId),
         DBMembershipItem.TYPE_ROLE, "/site/" + siteId);
 
-    if (item != null){
+    if (item != null)
+    {
       topicItems.add(item);
+      
+      // Does this one role permission have all we need so we can skip the expensive group searching?
+      if (StringUtils.isNotBlank(permLevelNeeded))
+      {
+    	  Boolean hasPermission = permissionLevelManager.getCustomPermissionByName(permLevelNeeded, item.getPermissionLevel());
+    	  log.debug("getTopicItemsByUser permLevelNeeded={}, perm={}, hasPerm={}", permLevelNeeded, item.getPermissionLevel(), hasPermission);
+
+    	  if (hasPermission != null && hasPermission == true)
+    	  {
+    		  return topicItems.iterator();
+    	  }
+      }
     }
 
     //for group awareness

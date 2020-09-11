@@ -2502,7 +2502,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   				  (checkReadPermission && membershipItem.getPermissionLevel().getRead() && checkModeratePermission && membershipItem.getPermissionLevel().getModeratePostings())) {
   			  if (membershipItem.getType().equals(DBMembershipItem.TYPE_ROLE)) {
   				  // add the users who are a member of this role
-  				  log.debug("Adding users in role: " + membershipItem.getName() + " with read: " + membershipItem.getPermissionLevel().getRead());
+  				  log.debug("Adding users in role: {} with read: {}", membershipItem.getName(), membershipItem.getPermissionLevel().getRead());
   				  Set<String> usersInRole = currentSite.getUsersHasRole(membershipItem.getName());
   				  usersAllowed.addAll(usersInRole);
   			  } else if (membershipItem.getType().equals(DBMembershipItem.TYPE_GROUP)) {
