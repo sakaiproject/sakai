@@ -169,6 +169,8 @@
 						assessmentJson.open_date_day_of_week = undefined;
 						assessmentJson.due_date_day_of_week = undefined;
 						assessmentJson.accept_until_day_of_week = undefined;
+						assessmentJson.feedback_start_day_of_week = undefined;
+						assessmentJson.feedback_end_day_of_week = undefined;
 						updates.assessments.push(assessmentJson);
 					/*[/]*/
 
@@ -282,6 +284,12 @@
 						// Disable accept_until date input if no late submissions (assessments) allowed
 						if (dataTool == 'assessments' && dataField == 'accept_until') {
 							var disabled = !updates[dataTool][dataIdx].late_handling;
+							$(elt).prop('disabled', disabled);
+							$td.find('.ui-datepicker-trigger').prop('disabled', disabled);
+						}
+						// Disable feedback start and end date inputs if feedback on date not used (assessments)
+						if (dataTool === 'assessments' && (dataField === 'feedback_start' || dataField === 'feedback_end')) {
+							var disabled = !updates[dataTool][dataIdx].feedback_by_date;
 							$(elt).prop('disabled', disabled);
 							$td.find('.ui-datepicker-trigger').prop('disabled', disabled);
 						}
