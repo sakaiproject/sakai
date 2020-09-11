@@ -82,12 +82,12 @@
         <dependency>
             <groupId>com.google.api-client</groupId>
             <artifactId>google-api-client</artifactId>
-            <version>1.30.9</version>
+            <version>1.30.10</version>
         </dependency>
         <dependency>
             <groupId>com.google.apis</groupId>
             <artifactId>google-api-services-drive</artifactId>
-            <version>v3-rev20200306-1.30.9</version>
+            <version>v3-rev20200813-1.30.10</version>
         </dependency>
     </dependencies>
 
