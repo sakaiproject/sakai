@@ -252,7 +252,7 @@
             <h:outputText value="#{publishedSettings.publishedUrl}" />
             <button type="button" id="copyToClipboard" title="<h:outputText value='#{assessmentSettingsMessages.copyToClipboard}' />">
                 <span class="fa fa-clipboard" aria-hidden="true"></span>
-                <span class="sr-only"><h:outputText value="#{assessmentSettingsMessages.copyToClipboard}" /></span>
+                <span class="sr-only"><h:outputText value="#{assessmentSettingsMessages.copyToClipboard}: #{assessmentSettingsMessages.published_assessment_url}" /></span>
             </button>
         </div>
     </div>
