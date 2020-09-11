@@ -456,6 +456,12 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         }
     }
 
+    private Map<String, GraderUser> getGraderUsersForSite(Site site) {
+
+        return userDirectoryService.getUsers(site.getUsersIsAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION))
+            .stream().collect(Collectors.toMap(User::getId, GraderUser::new));
+    }
+
     @EntityCustomAction(action = "gradable", viewKey = EntityView.VIEW_LIST)
     public ActionReturn getGradableForSite(EntityView view , Map<String, Object> params) {
 
@@ -483,28 +489,18 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             throw new EntityNotFoundException("No site found", siteId, e);
         }
 
-        Map<String, GraderUser> students = new HashMap<>();
-        try {
-            for (String studentId : site.getUsersIsAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION)) {
-                students.put(studentId, new GraderUser(userDirectoryService.getUser(studentId)));
-            }
-        } catch (UserNotDefinedException e) {
-            throw new EntityException("Failed to setup user", siteId);
-        }
-
         SimpleAssignment simpleAssignment = new SimpleAssignment(assignment);
 
         // A list of mappings of submission id to student id list
         List<SimpleSubmission> submissions
             = assignment.getSubmissions().stream().map(as -> new SimpleSubmission(as, simpleAssignment)).collect(Collectors.toList());
 
-        Map<String, Object> data = new HashMap<>();
-
         List<SimpleGroup> groups = site.getGroups().stream().map(SimpleGroup::new).collect(Collectors.toList());
 
+        Map<String, Object> data = new HashMap<>();
         data.put("gradable", simpleAssignment);
         data.put("submissions", submissions);
-        data.put("students", students);
+        data.put("students", getGraderUsersForSite(site));
         data.put("groups", groups);
         data.put("showOfficialPhoto", serverConfigurationService.getBoolean("assignment.show.official.photo", true));
         String lOptions = serverConfigurationService.getString("assignment.letterGradeOptions", "A+,A,A-,B+,B,B-,C+,C,C-,D+,D,D-,E,F");
@@ -567,17 +563,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             }
         }));
 
-        Map<String, GraderUser> students = new HashMap<>();
-        try {
-            for (String studentId : site.getUsersIsAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION)) {
-                students.put(studentId, new GraderUser(userDirectoryService.getUser(studentId)));
-            }
-        } catch (UserNotDefinedException e) {
-            throw new EntityException("Failed to setup user", courseId);
-        }
-
         Map<String, Object> data = new HashMap<>();
-        data.put("students", students);
+        data.put("students", getGraderUsersForSite(site));
         data.put("grades", grades);
 
         return new ActionReturn(data);
