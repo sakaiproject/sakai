@@ -666,22 +666,7 @@ public class SelectActionListener implements ActionListener {
 				}
 			}
     	} else {
-    		// LATE SUBMISSION ARE NOT HANDLED: Test retract date and retakes
-    		if (retractDate == null || retractDate.after(currentDate)) {
-				int actualNumberRetake = 0;
-				if (actualNumberRetakeHash.get(f.getPublishedAssessmentId()) != null) {
-					actualNumberRetake = (actualNumberRetakeHash.get(f.getPublishedAssessmentId()));
-				}
-				if (actualNumberRetake < numberRetake) {
-					returnValue = true;
-				} else {
-					returnValue = false;
-				}
-    		}
-    		else{
-	    		// Retract date has passed: Assessment is not available    		
-	    		returnValue = false;
-    		}
+	    	returnValue = false;
     	}
 	}
 	else {
