@@ -132,7 +132,6 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	@Setter private FunctionManager functionManager;
 	@Setter private AliasService aliasService;
 	@Setter private ToolManager toolManager;
-	@Setter private FormattedText formattedText;
 	@Resource(name="org.sakaiproject.util.api.LinkMigrationHelper")
 	private LinkMigrationHelper linkMigrationHelper;
 
@@ -926,20 +925,20 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 							+ "<title>"
 							+ rb.getString("announcement")
 							+ ": "
-							+ formattedText.escapeHtml(hdr.getSubject())
+							+ m_formattedText.escapeHtml(hdr.getSubject())
 							+ "</title>" + "</head>\n<body>");
 
 			out.println("<h1>" + rb.getString("announcement") + "</h1>");
 
 			// header
 			out.println("<table><tr><td><b>" + rb.getString("from_colon") + "</b></td><td>"
-					+ formattedText.escapeHtml(hdr.getFrom().getDisplayName()) + "</td></tr>");
-			out.println("<tr><td><b>" + rb.getString("date_colon") + "</b></td><td>" + formattedText.escapeHtml(hdr.getDate().toStringLocalFull())
+					+ m_formattedText.escapeHtml(hdr.getFrom().getDisplayName()) + "</td></tr>");
+			out.println("<tr><td><b>" + rb.getString("date_colon") + "</b></td><td>" + m_formattedText.escapeHtml(hdr.getDate().toStringLocalFull())
 					+ "</td></tr>");
-			out.println("<tr><td><b>" + rb.getString("subject_colon") + "</b></td><td>" + formattedText.escapeHtml(hdr.getSubject()) + "</td></tr></table>");
+			out.println("<tr><td><b>" + rb.getString("subject_colon") + "</b></td><td>" + m_formattedText.escapeHtml(hdr.getSubject()) + "</td></tr></table>");
 
 			// body
-			out.println("<p>" + formattedText.escapeHtmlFormattedText(msg.getBody()) + "</p>");
+			out.println("<p>" + m_formattedText.escapeHtmlFormattedText(msg.getBody()) + "</p>");
 
 			// attachments
 			List attachments = hdr.getAttachments();
@@ -949,8 +948,8 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 				for (Iterator iAttachments = attachments.iterator(); iAttachments.hasNext();)
 				{
 					Reference attachment = (Reference) iAttachments.next();
-					out.println("<a href=\"" + formattedText.escapeHtml(attachment.getUrl()) + "\">"
-							+ formattedText.escapeHtml(attachment.getUrl()) + "</a><br />");
+					out.println("<a href=\"" + m_formattedText.escapeHtml(attachment.getUrl()) + "\">"
+							+ m_formattedText.escapeHtml(attachment.getUrl()) + "</a><br />");
 				}
 				out.println("</p>");
 			}
