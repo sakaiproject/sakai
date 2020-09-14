@@ -17,21 +17,23 @@ package org.sakaiproject.site.tool;
 
 import static org.sakaiproject.site.util.SiteConstants.STATE_TEMPLATE_INDEX;
 
-import java.io.UnsupportedEncodingException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -60,6 +62,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -152,9 +155,7 @@ import org.sakaiproject.sitemanage.api.model.SiteSetupQuestionAnswer;
 import org.sakaiproject.sitemanage.api.model.SiteSetupUserAnswer;
 import org.sakaiproject.sitemanage.api.model.SiteTypeQuestions;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
-import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.api.TimeBreakdown;
-import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
@@ -180,7 +181,6 @@ import org.sakaiproject.util.comparator.GroupTitleComparator;
 import org.sakaiproject.util.comparator.ToolTitleComparator;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.math.NumberUtils;
 
 /**
  * <p>
@@ -248,7 +248,7 @@ public class SiteAction extends PagedResourceActionII {
 
 	private MemoryService memoryService = (MemoryService) ComponentManager.get(MemoryService.class);
 	private Cache m_userSiteCache = memoryService.newCache("org.sakaiproject.site.api.SiteService.userSiteCache");
-
+	private UserTimeService userTimeService = ComponentManager.get(UserTimeService.class);
 	private static DeveloperHelperService devHelperService = (DeveloperHelperService) ComponentManager.get(DeveloperHelperService.class);
 
 	private static final String SITE_MODE_SITESETUP = "sitesetup";
@@ -2078,7 +2078,7 @@ public class SiteAction extends PagedResourceActionII {
 			realmId = SiteService.siteReference(site.getId());
 			try {
 				AuthzGroup realm = authzGroupService.getAuthzGroup(realmId);
-				context.put("realmModifiedTime",realm.getModifiedTime().toStringLocalFullZ());
+				context.put("realmModifiedTime",getDateFormat(realm.getModifiedDate()));
 			} catch (GroupNotDefinedException e) {
 				log.warn("{} IdUnusedException {}", this, realmId);
 			}
@@ -2093,14 +2093,14 @@ public class SiteAction extends PagedResourceActionII {
 
 			// Site modified by information
 			User siteModifiedBy = site.getModifiedBy();
-			Time siteModifiedTime = site.getModifiedTime();
+			Date siteModifiedTime = site.getModifiedDate();
 			if( siteModifiedBy != null )
 			{
 				context.put( "siteModifiedBy", siteModifiedBy.getSortName() );
 			}
 			if( siteModifiedTime != null )
 			{
-				context.put( "siteModifiedTime", siteModifiedTime.toStringLocalFull() );
+				context.put( "siteModifiedTime", getDateFormat(siteModifiedTime));
 			}
 
 			try {
@@ -2145,10 +2145,9 @@ public class SiteAction extends PagedResourceActionII {
 				} else {
 					context.put("published", Boolean.FALSE);
 				}
-				Time creationTime = site.getCreatedTime();
+				Date creationTime = site.getCreatedDate();
 				if (creationTime != null) {
-					context.put("siteCreationDate", creationTime
-							.toStringLocalFull());
+					context.put("siteCreationDate", getDateFormat(creationTime));
 				}
 
 				ResourceProperties siteProperties = site.getProperties();
@@ -7460,10 +7459,6 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			String id = site.getId();
 			String title = site.getTitle();
 
-			Time time = TimeService.newTime();
-			String local_time = time.toStringLocalTime();
-			String local_date = time.toStringLocalDate();
-
 			AcademicSession term = null;
 			boolean termExist = false;
 			if (state.getAttribute(STATE_TERM_SELECTED) != null) {
@@ -12600,8 +12595,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	} // orderToolIds
 
 	private void setupFormNamesAndConstants(SessionState state) {
-		TimeBreakdown timeBreakdown = (TimeService.newTime()).breakdownLocal();
-		String mycopyright = COPYRIGHT_SYMBOL + " " + timeBreakdown.getYear()
+		String mycopyright = COPYRIGHT_SYMBOL + " " + Year.now().toString()
 				+ ", " + UserDirectoryService.getCurrentUser().getDisplayName()
 				+ ". All Rights Reserved. ";
 		state.setAttribute(STATE_MY_COPYRIGHT, mycopyright);
@@ -16223,5 +16217,10 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		tools.removeAll(removedTools);
 
 		state.setAttribute("tools", tools);
+	}
+	
+	private String getDateFormat(Date date) {
+		String f = userTimeService.shortPreciseLocalizedTimestamp(date.toInstant(), userTimeService.getLocalTimeZone(), comparator_locale);
+		return f;
 	}
 }
