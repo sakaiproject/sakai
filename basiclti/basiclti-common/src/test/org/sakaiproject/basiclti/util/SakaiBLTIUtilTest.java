@@ -145,5 +145,63 @@ System.err.println("encrypt1="+encrypt1);
 		assertFalse(SakaiBLTIUtil.checkLaunchCode(content, launch_code));
 	}
 
+	@Test
+	public void testConvertLong() {
+		Long l = SakaiBLTIUtil.getLongNull(new Long(2));
+		assertEquals(l, new Long(2));
+		l = SakaiBLTIUtil.getLongNull(new Double(2.2));
+		assertEquals(l, new Long(2));
+		l = SakaiBLTIUtil.getLongNull(null);
+		assertEquals(l, null);
+		l = SakaiBLTIUtil.getLongNull("fred");
+		assertEquals(l, null);
+		l = SakaiBLTIUtil.getLongNull("null");
+		assertEquals(l, null);
+		l = SakaiBLTIUtil.getLongNull("NULL");
+		assertEquals(l, null);
+		// This one is a little weird but it is how it was written - double is different
+		l = SakaiBLTIUtil.getLongNull("");
+		assertEquals(l, new Long(-1));
+		l = SakaiBLTIUtil.getLongNull("2");
+		assertEquals(l, new Long(2));
+		l = SakaiBLTIUtil.getLongNull("2.5");
+		assertEquals(l, null);
+		l = SakaiBLTIUtil.getLongNull(new Float(3.1));
+		assertEquals(l, new Long(3));
+		// Casting truncates
+		l = SakaiBLTIUtil.getLongNull(new Float(3.9));
+		assertEquals(l, new Long(3));
+		l = SakaiBLTIUtil.getLongNull(new Integer(3));
+		assertEquals(l, new Long(3));
+	}
+
+	@Test
+	public void testConvertDouble() {
+		Double d = SakaiBLTIUtil.getDoubleNull(new Double(2.0));
+		assertEquals(d, new Double(2.0));
+		d = SakaiBLTIUtil.getDoubleNull(new Double(2.5));
+		assertEquals(d, new Double(2.5));
+		d = SakaiBLTIUtil.getDoubleNull(null);
+		assertEquals(d, null);
+		d = SakaiBLTIUtil.getDoubleNull("fred");
+		assertEquals(d, null);
+		d = SakaiBLTIUtil.getDoubleNull("null");
+		assertEquals(d, null);
+		d = SakaiBLTIUtil.getDoubleNull("NULL");
+		assertEquals(d, null);
+		d = SakaiBLTIUtil.getDoubleNull("");
+		assertEquals(d, null);
+		d = SakaiBLTIUtil.getDoubleNull("2.0");
+		assertEquals(d, new Double(2.0));
+		d = SakaiBLTIUtil.getDoubleNull("2.5");
+		assertEquals(d, new Double(2.5));
+		d = SakaiBLTIUtil.getDoubleNull("2");
+		assertEquals(d, new Double(2.0));
+		d = SakaiBLTIUtil.getDoubleNull(new Long(3));
+		assertEquals(d, new Double(3.0));
+		d = SakaiBLTIUtil.getDoubleNull(new Integer(3));
+		assertEquals(d, new Double(3.0));
+	}
+
 }
 
