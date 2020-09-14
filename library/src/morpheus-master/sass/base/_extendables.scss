@@ -68,6 +68,7 @@
 		padding: 0 $standard-space;
 	} @else {
 		display: block;
+		clear: both;
 		margin: $standard-spacing 0;
 		padding: $standard-spacing;
 	}
