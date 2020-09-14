@@ -2736,7 +2736,7 @@ public class SakaiBLTIUtil {
 			return null;
 		}
 		if (key instanceof Number) {
-			return new Double(((Number) key).longValue());
+			return ((Number) key).doubleValue();
 		}
 		if (key instanceof String) {
 			if (((String) key).length() < 1) {
