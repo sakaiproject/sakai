@@ -27,27 +27,15 @@ portal.maximiseTool = function () {
 
   document.getElementsByTagName("body").item(0).classList.add("tool-maximised");
   portal.updateMaximisedToolsPref(true);
-  $PBJQ("sakai-maximise-button").each((i ,e) => e.setMaximised());
-
-  $PBJQ(document)
-    .off('keyup.usernav')
-    .on("keyup.maximise", e => {
-
-      // Exit fullscreen mode on escape
-      if (e.keyCode === 27) {
-        e.stopPropagation();
-        $PBJQ(document).off("keyup.maximise");
-        $PBJQ("sakai-maximise-button").each((i ,e) => e.minimise());
-      }
-    });
+  document.querySelectorAll("sakai-maximise-button").forEach(e => e.setMaximised());
+  $PBJQ(document).off('keyup.usernav');
 }
 
 portal.minimiseTool = function () {
 
   document.getElementsByTagName("body").item(0).classList.remove("tool-maximised");
   portal.updateMaximisedToolsPref(false);
-  $PBJQ(document).off("keyup.maximise");
-  $PBJQ("sakai-maximise-button").each((i ,e) => e.setMinimised());
+  document.querySelectorAll("sakai-maximise-button").forEach(e => e.setMinimised());
 }
 
 portal.toggleMinimizeNav = function () {
@@ -70,6 +58,8 @@ portal.toggleMinimizeNav = function () {
     el.attr('aria-pressed', true);
   }
 };
+
+document.querySelector("#maximised-indicator a").addEventListener("click", portal.minimiseTool);
 
 $PBJQ("#toolsNav-toggle-li button").on("click", portal.toggleMinimizeNav);
 
