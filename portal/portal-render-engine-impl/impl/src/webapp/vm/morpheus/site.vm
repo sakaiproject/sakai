@@ -8,7 +8,7 @@
 
         <div id="maximised-indicator">
             <div>
-                <span>${rloader.sit_fullscreen_message}</span><sakai-maximise-button full-screen="true" tabindex="0" />
+                <a href="javascript:;">${rloader.sit_fullscreen_message}</a>
             </div>
         </div>
 
