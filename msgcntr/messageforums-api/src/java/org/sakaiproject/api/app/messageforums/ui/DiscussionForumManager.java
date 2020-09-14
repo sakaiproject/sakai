@@ -639,8 +639,8 @@ public interface DiscussionForumManager
   /** returns true if getAnonymousTopicsInSite() is not empty */
   public boolean isSiteHasAnonymousTopics(final String contextId);
 
-  public String getAllowedGroupForRestrictedForum(final Long forumId, final String permissionName);
-  public String getAllowedGroupForRestrictedTopic(final Long topicId, final String permissionName);
+  public List<String> getAllowedGroupForRestrictedForum(final Long forumId, final String permissionName);
+  public List<String> getAllowedGroupForRestrictedTopic(final Long topicId, final String permissionName);
 
   /**
    * Gets the LRS statement representing the current user creating a post/topic

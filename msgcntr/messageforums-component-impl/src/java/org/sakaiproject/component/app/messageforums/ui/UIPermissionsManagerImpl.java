@@ -120,7 +120,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     private boolean isInstructorForAllowedGroup(Long forumId, boolean isForum) {
         if (forumId == null || !isInstructor()) return false;
 
-        String groupTitle;
+        List<String> groupTitle;
         if (isForum) {
             groupTitle = forumManager.getAllowedGroupForRestrictedForum(forumId, PermissionLevelManager.PERMISSION_LEVEL_NAME_CONTRIBUTOR);
         } else {
@@ -128,9 +128,12 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
         }
         String siteId = toolManager.getCurrentPlacement().getContext();
         try {
-            Site site = siteService.getSite(siteId);
+            Site site = siteService.getSite(toolManager.getCurrentPlacement().getContext());
             Set<String> groups = getGroupsWithMember(site, getCurrentUserId());
-            return groups.stream().map(site::getGroup).anyMatch(g -> g.getTitle().equals(groupTitle));
+            for(String group: groupTitle) {
+          	  if(groups.stream().map(site::getGroup).anyMatch(g -> g.getTitle().equals(group)))
+          		  return true;
+            }
         } catch (IdUnusedException iue) {
             log.warn("Could not fetch site {}, {}", siteId, iue.toString());
         }
