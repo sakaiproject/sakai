@@ -299,6 +299,7 @@
                 <property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
                 <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
                 <property name="learningResourceStoreService" ref="org.sakaiproject.event.api.LearningResourceStoreService"/>
+                <property name="uiPermissionsManager" ref="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager"/>
             </bean>
         </property>
          <property name="transactionAttributes">

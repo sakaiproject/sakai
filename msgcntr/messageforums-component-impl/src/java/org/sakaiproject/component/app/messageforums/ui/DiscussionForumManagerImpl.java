@@ -66,6 +66,7 @@ import org.sakaiproject.api.app.messageforums.TopicControlPermission;
 import org.sakaiproject.api.app.messageforums.events.ForumsTopicEventParams;
 import org.sakaiproject.api.app.messageforums.events.ForumsTopicEventParams.TopicEvent;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
+import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
@@ -128,6 +129,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   private ThreadLocalManager threadLocalManager;
   private ToolManager toolManager;
   private LearningResourceStoreService learningResourceStoreService;
+  private UIPermissionsManager uiPermissionsManager;
   
   public static final int MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST = 1000;
 
@@ -361,6 +363,15 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   public void setSecurityService(SecurityService securityService)
   {
     this.securityService = securityService;
+  }
+
+  /**
+   * @param uiPermissionsManager
+   *          The uiPermissionsManager to set.
+   */
+  public void setUiPermissionsManager(UIPermissionsManager uiPermissionsManager)
+  {
+    this.uiPermissionsManager = uiPermissionsManager;
   }
 
   /**

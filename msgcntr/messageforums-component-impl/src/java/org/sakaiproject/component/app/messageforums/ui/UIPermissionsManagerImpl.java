@@ -245,7 +245,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     
     try
     {
-      Iterator iter = getForumItemsByCurrentUser(forum);
+      Iterator iter = getForumItemsByCurrentUser(forum, PermissionLevel.CHANGE_SETTINGS);
       while (iter.hasNext())
       {
         DBMembershipItem item = (DBMembershipItem) iter.next();
@@ -321,7 +321,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     }
     try
     {
-      Iterator iter = getForumItemsByCurrentUser(forum);
+      Iterator iter = getForumItemsByCurrentUser(forum, PermissionLevel.NEW_TOPIC);
       while (iter.hasNext())
       {
         DBMembershipItem item = (DBMembershipItem) iter.next();
@@ -1048,7 +1048,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 		return returnSet;
   }
   
-  private Iterator getForumItemsByCurrentUser(DiscussionForum forum)
+  private Iterator getForumItemsByCurrentUser(final DiscussionForum forum, final String permLevelNeeded)
   {
     List<DBMembershipItem> forumItems = new ArrayList<>();
     //Set membershipItems = forum.getMembershipItemSet();
@@ -1082,16 +1082,27 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 	          }       
 	        }			
 		}
-    
-//    DBMembershipItem item = forumManager.getDBMember(membershipItems, getCurrentUserRole(),
-//        DBMembershipItem.TYPE_ROLE);
+
 		DBMembershipItem item = forumManager.getDBMember(thisForumItemSet, getCurrentUserRole(),
 			DBMembershipItem.TYPE_ROLE);
     
-    if (item != null){
-      forumItems.add(item);
+    if (item != null)
+    {
+    	forumItems.add(item);
+
+        // Does this one role permission have all we need so we can skip the expensive group searching?
+        if (StringUtils.isNotBlank(permLevelNeeded))
+        {
+      	  Boolean hasPermission = permissionLevelManager.getCustomPermissionByName(permLevelNeeded, item.getPermissionLevel());
+      	  log.debug("getForumItemsByCurrentUser permLevelNeeded={}, perm={}, hasPerm={}", permLevelNeeded, item.getPermissionLevel(), hasPermission);
+
+      	  if (hasPermission != null && hasPermission == true)
+      	  {
+      		  return forumItems.iterator();
+      	  }
+        }
     }
-    
+
 	//  for group awareness
     try {
     	Site currentSite = siteService.getSite(getContextId());
@@ -1109,21 +1120,6 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     	log.error(iue.getMessage(), iue);
     }
 
-//    Iterator iter = membershipItems.iterator();
-//    while (iter.hasNext())
-//    {
-//      DBMembershipItem membershipItem = (DBMembershipItem) iter.next();
-//      if (membershipItem.getType().equals(DBMembershipItem.TYPE_ROLE)
-//          && membershipItem.getName().equals(getCurrentUserRole()))
-//      {
-//        forumItems.add(membershipItem);
-//      }
-//      if (membershipItem.getType().equals(DBMembershipItem.TYPE_GROUP)
-//          && isGroupMember(membershipItem.getName()))
-//      {
-//        forumItems.add(membershipItem);
-//      }
-//    }
     return forumItems.iterator();
   }
 
@@ -1334,6 +1330,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 	  return getUserRole(siteId, getCurrentUserId());
   }
 
+  // TODO: where is the cache busting for role?
   public String getUserRole(String siteId, String userId)
   {
     log.debug("getCurrentUserRole()");
@@ -1417,32 +1414,6 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
         return true;
     }
     return false;
-  }
-  
-  private boolean isRoleMember(String roleId)
-  {
-    log.debug("isRoleMember(String {})", roleId);
-    if (getCurrentUserRole().equals(roleId))
-    {
-      return true;
-    }
-    return false;
-  }
-
-  private boolean isGroupMember(String groupId)
-  {
-    log.debug("setAuthzGroupService(AuthzGroupService {})", authzGroupService);
-    try
-    {
-      Site site = siteService.getSite(toolManager.getCurrentPlacement().getContext());
-      Set<String> groups = getGroupsWithMember(site, getCurrentUserId());
-      return groups.contains(groupId);
-    }
-    catch (IdUnusedException e)
-    {
-      log.debug("Group with id {} not found", groupId);
-      return false;
-    }
   }
   
   private void initMembershipForSite(){
