@@ -26,9 +26,10 @@ body{
 			border-width: 0 2px 2px 2px;
 			border-radius: 0 0 6px 6px;
 			opacity: 0.7;
-			span {
+			a {
 				font-weight: bold;
 				margin-right: 5px;
+                text-decoration: none;
 			}
 		}
 	}
