@@ -2284,12 +2284,8 @@ public class SakaiBLTIUtil {
 			return new Boolean(false);
 		}
 
-		Double scoreMaximum = null;
-		if ( lineItem != null ) {
-			scoreMaximum = lineItem.scoreMaximum;
-		}
-		if ( scoreMaximum <= 0 ) scoreMaximum = null;
-
+		if ( lineItem == null ) lineItem = new SakaiLineItem();
+		Double scoreMaximum = lineItem.scoreMaximum == null ? 100D : lineItem.scoreMaximum;
 		String siteId = site.getId();
 
 		// Look up the assignment so we can find the max points
