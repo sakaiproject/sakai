@@ -145,5 +145,50 @@ System.err.println("encrypt1="+encrypt1);
 		assertFalse(SakaiBLTIUtil.checkLaunchCode(content, launch_code));
 	}
 
+	@Test
+	public void testConvertLong() {
+		Long d = SakaiBLTIUtil.getLongNull(new Long(2));
+		assertEquals(d, new Long(2));
+		d = SakaiBLTIUtil.getLongNull(new Double(2.2));
+		assertEquals(d, new Long(2));
+		d = SakaiBLTIUtil.getLongNull(null);
+		assertEquals(d, null);
+		d = SakaiBLTIUtil.getLongNull("fred");
+		assertEquals(d, null);
+		d = SakaiBLTIUtil.getLongNull("2");
+		assertEquals(d, new Long(2));
+		d = SakaiBLTIUtil.getLongNull("2.5");
+		assertEquals(d, null);
+		d = SakaiBLTIUtil.getLongNull(new Float(3.1));
+		assertEquals(d, new Long(3));
+		// Truncates
+		d = SakaiBLTIUtil.getLongNull(new Float(3.9));
+		assertEquals(d, new Long(3));
+		d = SakaiBLTIUtil.getLongNull(new Integer(3));
+		assertEquals(d, new Long(3));
+	}
+
+	@Test
+	public void testConvertDouble() {
+		Double d = SakaiBLTIUtil.getDoubleNull(new Double(2.0));
+		assertEquals(d, new Double(2.0));
+		d = SakaiBLTIUtil.getDoubleNull(new Double(2.5));
+		assertEquals(d, new Double(2.5));
+		d = SakaiBLTIUtil.getDoubleNull(null);
+		assertEquals(d, null);
+		d = SakaiBLTIUtil.getDoubleNull("fred");
+		assertEquals(d, null);
+		d = SakaiBLTIUtil.getDoubleNull("2.0");
+		assertEquals(d, new Double(2.0));
+		d = SakaiBLTIUtil.getDoubleNull("2.5");
+		assertEquals(d, new Double(2.5));
+		d = SakaiBLTIUtil.getDoubleNull("2");
+		assertEquals(d, new Double(2.0));
+		d = SakaiBLTIUtil.getDoubleNull(new Long(3));
+		assertEquals(d, new Double(3.0));
+		d = SakaiBLTIUtil.getDoubleNull(new Integer(3));
+		assertEquals(d, new Double(3.0));
+	}
+
 }
 
