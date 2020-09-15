@@ -477,7 +477,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     {
       return true;
     }
-    if (securityService.unlock(userId, siteService.SECURE_UPDATE_SITE, getContextSiteId())){
+    if (isInstructor()) {
       if (!forum.getRestrictPermissionsForGroups() && !topic.getRestrictPermissionsForGroups()){
         return true;
       }
@@ -499,7 +499,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
       {
         return true;
       }
-      Iterator iter = getTopicItemsByUser(topic, userId);
+      Iterator iter = getTopicItemsByUser(topic.getId(), userId, getContextId(), PermissionLevel.CHANGE_SETTINGS);
       while (iter.hasNext())
       {
         DBMembershipItem item = (DBMembershipItem) iter.next();
