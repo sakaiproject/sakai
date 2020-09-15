@@ -1192,22 +1192,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     {
     	log.error(iue.getMessage(), iue);
     }
-    
-//    Iterator iter = membershipItems.iterator();
-//    while (iter.hasNext())
-//    {
-//      DBMembershipItem membershipItem = (DBMembershipItem) iter.next();
-//      if (membershipItem.getType().equals(DBMembershipItem.TYPE_ROLE)
-//          && membershipItem.getName().equals(getCurrentUserRole()))
-//      {
-//        topicItems.add(membershipItem);
-//      }
-//      if (membershipItem.getType().equals(DBMembershipItem.TYPE_GROUP)
-//          && isGroupMember(membershipItem.getName()))
-//      {
-//        topicItems.add(membershipItem);
-//      }
-//    }
+
     return topicItems.iterator();
   }
   
@@ -1302,7 +1287,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 	  return getUserRole(siteId, getCurrentUserId());
   }
 
-  // TODO: where is the cache busting for role?
+  // TODO: cache busting for role changes
   public String getUserRole(String siteId, String userId)
   {
     log.debug("getCurrentUserRole()");
