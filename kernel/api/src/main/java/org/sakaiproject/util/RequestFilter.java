@@ -1670,7 +1670,6 @@ public class RequestFilter implements Filter
 				{
 					String transport = null;
 					int port = 0;
-					boolean secure;
 
 					// compute the URL root "back" to this servlet context (rel and full)
 					String forceSecure = System.getProperty("sakai.force.url.secure");
@@ -1678,12 +1677,10 @@ public class RequestFilter implements Filter
 					if (forceSecureInt > 0 && forceSecureInt <= 65535) {
 						transport = "https";
 						port = forceSecureInt;
-						secure = true;
 					} else {
 						// otherwise use the request scheme and port
 						transport = m_req.getScheme();
 						port = m_req.getServerPort();
-						secure = m_req.isSecure();
 					}
 
 					StringBuilder full = new StringBuilder();
