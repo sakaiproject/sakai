@@ -58,6 +58,10 @@ class SakaiDocumentViewer extends SakaiElement {
 
   get preview() { return this._preview; }
 
+  shouldUpdate(changed) {
+    return this.i18n;
+  }
+
   render() {
 
     return html`
