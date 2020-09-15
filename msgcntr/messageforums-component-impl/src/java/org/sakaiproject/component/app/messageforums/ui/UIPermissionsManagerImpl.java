@@ -357,16 +357,22 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
       {
         return true;
       }
-      Iterator iter = getTopicItemsByUser(topic, userId, contextId);
+
+      if (forum == null)
+      {
+    	  return false;
+      }
+
+      if (isLockedOrInDraftStatus(topic, forum))
+      {
+    	  return false;
+      }
+
+      Iterator<DBMembershipItem> iter = getTopicItemsByUser(topic.getId(), userId, contextId, PermissionLevel.NEW_RESPONSE);
       while (iter.hasNext())
       {
-        DBMembershipItem item = (DBMembershipItem) iter.next();
-        if (item.getPermissionLevel().getNewResponse().booleanValue()
-        	&& forum != null
-            && forum.getDraft().equals(Boolean.FALSE)
-            && forum.getLocked().equals(Boolean.FALSE)
-            && topic.getDraft().equals(Boolean.FALSE)
-            && topic.getLocked().equals(Boolean.FALSE))
+        DBMembershipItem item = iter.next();
+        if (item.getPermissionLevel().getNewResponse().booleanValue())
         {
           return true;
         }
@@ -399,15 +405,17 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
       {
         return true;
       }
-      Iterator iter = getTopicItemsByUser(topic, userId, contextId);
+
+      if (isLockedOrInDraftStatus(topic, forum))
+      {
+    	  return false;
+      }
+
+      Iterator<DBMembershipItem> iter = getTopicItemsByUser(topic.getId(), userId, contextId, PermissionLevel.NEW_RESPONSE_TO_RESPONSE);
       while (iter.hasNext())
       {
-        DBMembershipItem item = (DBMembershipItem) iter.next();
-        if (item.getPermissionLevel().getNewResponseToResponse().booleanValue()
-            && forum.getDraft().equals(Boolean.FALSE)
-            && forum.getLocked().equals(Boolean.FALSE)
-            && topic.getDraft().equals(Boolean.FALSE)
-            && topic.getLocked().equals(Boolean.FALSE))
+        DBMembershipItem item = iter.next();
+        if (item.getPermissionLevel().getNewResponseToResponse().booleanValue())
         {
           return true;
         }
@@ -436,17 +444,17 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
       {
         return true;
       }
+
+      if (isLockedOrInDraftStatus(topic, forum))
+      {
+    	  return false;
+      }
+
       Iterator iter = getTopicItemsByCurrentUser(topic);
       while (iter.hasNext())
       {
         DBMembershipItem item = (DBMembershipItem) iter.next();
-        if ((item.getPermissionLevel().getMovePosting().booleanValue()
-            || item.getPermissionLevel().getReviseAny().booleanValue()
-            || item.getPermissionLevel().getReviseOwn().booleanValue())
-            && forum.getDraft().equals(Boolean.FALSE)
-            && forum.getLocked().equals(Boolean.FALSE)
-            && topic.getDraft().equals(Boolean.FALSE)
-            && topic.getLocked().equals(Boolean.FALSE))
+        if (item.getPermissionLevel().getMovePosting().booleanValue() || item.getPermissionLevel().getReviseAny().booleanValue() || item.getPermissionLevel().getReviseOwn().booleanValue())
         {
           return true;
         }
@@ -645,24 +653,17 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
       {
         return true;
       }
-       if (topic.getLocked() == null || topic.getLocked().equals(Boolean.TRUE))
-    {
-      log.debug("This topic is locked {}", topic);
-      return false;
-    }
-    if (topic.getDraft() == null || topic.getDraft().equals(Boolean.TRUE))
-    {
-      log.debug("This topic is at draft stage {}", topic);
-    }
-      Iterator iter = getTopicItemsByUser(topic, userId, contextId);
+
+      if (isLockedOrInDraftStatus(topic, forum))
+      {
+    	  return false;
+      }
+ 
+      Iterator<DBMembershipItem> iter = getTopicItemsByUser(topic.getId(), userId, contextId, PermissionLevel.REVISE_ANY);
       while (iter.hasNext())
       {
-        DBMembershipItem item = (DBMembershipItem) iter.next();
-        if (item.getPermissionLevel().getReviseAny().booleanValue()
-            && forum.getDraft().equals(Boolean.FALSE)
-            && forum.getLocked().equals(Boolean.FALSE)
-            && topic.getDraft().equals(Boolean.FALSE)
-            && topic.getLocked().equals(Boolean.FALSE))
+        DBMembershipItem item = iter.next();
+        if (item.getPermissionLevel().getReviseAny().booleanValue())
         {
           return true;
         }
@@ -694,25 +695,17 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
       {
         return true;
       }
-      
-       if (topic.getLocked() == null || topic.getLocked().equals(Boolean.TRUE))
-    {
-      log.debug("This topic is locked {}", topic);
-      return false;
-    }
-    if (topic.getDraft() == null || topic.getDraft().equals(Boolean.TRUE))
-    {
-      log.debug("This topic is at draft stage {}", topic);
-    }
-      Iterator iter = getTopicItemsByUser(topic, userId, contextId);
+
+      if (isLockedOrInDraftStatus(topic, forum))
+      {
+    	  return false;
+      }
+
+      Iterator<DBMembershipItem> iter = getTopicItemsByUser(topic.getId(), userId, contextId, PermissionLevel.REVISE_OWN);
       while (iter.hasNext())
       {
-        DBMembershipItem item = (DBMembershipItem) iter.next();
-        if (item.getPermissionLevel().getReviseOwn().booleanValue()
-            && forum.getDraft().equals(Boolean.FALSE)
-            && forum.getLocked().equals(Boolean.FALSE)
-            && topic.getDraft().equals(Boolean.FALSE)
-            && topic.getLocked().equals(Boolean.FALSE))
+        DBMembershipItem item = iter.next();
+        if (item.getPermissionLevel().getReviseOwn().booleanValue())
         {
           return true;
         }
@@ -727,7 +720,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     return false;
   }
 
-  /**   
+/**   
    * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isDeleteAny(org.sakaiproject.api.app.messageforums.DiscussionTopic,
    *      org.sakaiproject.api.app.messageforums.DiscussionForum)
    */
@@ -744,24 +737,17 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
       {
         return true;
       }
-        if (topic.getLocked() == null || topic.getLocked().equals(Boolean.TRUE))
-    {
-      log.debug("This topic is locked {}", topic);
-      return false;
-    }
-    if (topic.getDraft() == null || topic.getDraft().equals(Boolean.TRUE))
-    {
-      log.debug("This topic is at draft stage {}", topic);
-    }
-      Iterator iter = getTopicItemsByUser(topic, userId, contextId);
+
+      if (isLockedOrInDraftStatus(topic, forum))
+      {
+    	  return false;
+      }
+
+      Iterator<DBMembershipItem> iter = getTopicItemsByUser(topic.getId(), userId, contextId, PermissionLevel.DELETE_ANY);
       while (iter.hasNext())
       {
-        DBMembershipItem item = (DBMembershipItem) iter.next();
-        if (item.getPermissionLevel().getDeleteAny().booleanValue()
-            && forum.getDraft().equals(Boolean.FALSE)
-            && forum.getLocked().equals(Boolean.FALSE)
-            && topic.getDraft().equals(Boolean.FALSE)
-            && topic.getLocked().equals(Boolean.FALSE))
+        DBMembershipItem item = iter.next();
+        if (item.getPermissionLevel().getDeleteAny().booleanValue())
         {
           return true;
         }
@@ -793,24 +779,17 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
       {
         return true;
       }
-        if (topic.getLocked() == null || topic.getLocked().equals(Boolean.TRUE))
-    {
-      log.debug("This topic is locked {}", topic);
-      return false;
-    }
-    if (topic.getDraft() == null || topic.getDraft().equals(Boolean.TRUE))
-    {
-      log.debug("This topic is at draft stage {}", topic);
-    }
-      Iterator iter = getTopicItemsByUser(topic, userId, contextId);
+
+      if (isLockedOrInDraftStatus(topic, forum))
+      {
+    	  return false;
+      }
+
+      Iterator<DBMembershipItem> iter = getTopicItemsByUser(topic.getId(), userId, contextId, PermissionLevel.DELETE_OWN);
       while (iter.hasNext())
       {
-        DBMembershipItem item = (DBMembershipItem) iter.next();
-        if (item.getPermissionLevel().getDeleteOwn().booleanValue()
-            && forum.getDraft().equals(Boolean.FALSE)
-            && forum.getLocked().equals(Boolean.FALSE)
-            && topic.getDraft().equals(Boolean.FALSE)
-            && topic.getLocked().equals(Boolean.FALSE))
+        DBMembershipItem item = iter.next();
+        if (item.getPermissionLevel().getDeleteOwn().booleanValue())
         {
           return true;
         }
@@ -838,24 +817,17 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
       {
         return true;
       }
-        if (topic.getLocked() == null || topic.getLocked().equals(Boolean.TRUE))
-    {
-      log.debug("This topic is locked {}", topic);
-      return false;
-    }
-    if (topic.getDraft() == null || topic.getDraft().equals(Boolean.TRUE))
-    {
-      log.debug("This topic is at draft stage {}", topic);
-    }
-      Iterator iter = getTopicItemsByCurrentUser(topic);
+
+      if (isLockedOrInDraftStatus(topic, forum))
+      {
+    	  return false;
+      }
+
+      Iterator<DBMembershipItem> iter = getTopicItemsByCurrentUser(topic);
       while (iter.hasNext())
       {
         DBMembershipItem item = (DBMembershipItem) iter.next();
-        if (item.getPermissionLevel().getMarkAsRead().booleanValue()
-            && forum.getDraft().equals(Boolean.FALSE)
-            && forum.getLocked().equals(Boolean.FALSE)
-            && topic.getDraft().equals(Boolean.FALSE)
-            && topic.getLocked().equals(Boolean.FALSE))
+        if (item.getPermissionLevel().getMarkAsRead().booleanValue())
         {
           return true;
         }
@@ -941,10 +913,10 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 
     try
     {
-      Iterator iter = getTopicItemsByUser(topic.getId(), currentUserId, getContextId(), PermissionLevel.IDENTIFY_ANON_AUTHORS);
+      Iterator<DBMembershipItem> iter = getTopicItemsByUser(topic.getId(), currentUserId, getContextId(), PermissionLevel.IDENTIFY_ANON_AUTHORS);
       while (iter.hasNext())
       {
-        DBMembershipItem item = (DBMembershipItem) iter.next();
+        DBMembershipItem item = iter.next();
         if (item.getPermissionLevel().getIdentifyAnonAuthors())
         {
           return true;
@@ -1484,4 +1456,39 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 	public void setMemoryService(MemoryService memoryService) {
 		this.memoryService = memoryService;
 	}
+	
+
+	/*
+	 * Helper method to avoid expensive lookups if the topic or forum is locked or in draft mode
+	 */
+	private boolean isLockedOrInDraftStatus(DiscussionTopic topic, DiscussionForum forum)
+	{
+
+		if (topic.getLocked() == null || topic.getLocked().equals(Boolean.TRUE))
+		{
+			log.debug("This topic is locked {}", topic);
+			return true;
+		}
+
+		if (forum.getLocked() == null || forum.getLocked().equals(Boolean.TRUE))
+		{
+			log.debug("This forum is locked {}", topic);
+			return true;
+		}
+
+		if (topic.getDraft() == null || topic.getDraft().equals(Boolean.TRUE))
+		{
+			log.debug("This topic is at draft stage {}", topic);
+			return true;
+		}
+
+		if (forum.getDraft() == null || forum.getDraft().equals(Boolean.TRUE))
+		{
+			log.debug("This forum is at draft stage {}", topic);
+			return true;
+		}
+
+		return false;
+	}
+
 }
