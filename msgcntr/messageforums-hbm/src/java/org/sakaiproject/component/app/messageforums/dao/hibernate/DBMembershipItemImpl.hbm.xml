@@ -59,7 +59,7 @@
 		    join forum.area as area
 		    left join fetch membership.permissionLevel
 		    where
-		    area.id = :areaId
+		    area.id = :areaId and membership.permissionLevelName != 'None'
 		]]>
   </query>
  
@@ -77,7 +77,7 @@
 		     join membership.topic as topic
 		     left join fetch membership.permissionLevel
 		     where
-		     topic.id in ( :topicIdList )
+		     topic.id in ( :topicIdList ) and membership.permissionLevelName != 'None'
 		 ]]>
   </query>
   

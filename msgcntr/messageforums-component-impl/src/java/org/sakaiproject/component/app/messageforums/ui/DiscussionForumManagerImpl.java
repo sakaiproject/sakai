@@ -2220,9 +2220,20 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 		  }
 	  }
 
-	  if (membershipItem == null || membershipItem.getPermissionLevel() == null)
+	  if (membershipItem != null && membershipItem.getPermissionLevel() == null)
 	  {
 		  membershipItem = getDefaultPermissionForType(type, name, contextSiteId);
+	  }
+	  else if (membershipItem == null)
+	  {
+			// One last null check
+			PermissionLevel level = permissionLevelManager.getDefaultNonePermissionLevel();
+		
+			membershipItem = new DBMembershipItemImpl();
+			membershipItem.setName(name);
+			membershipItem.setType(type);
+			membershipItem.setPermissionLevel(level);
+			membershipItem.setPermissionLevelName(level.getName());
 	  }
 
 	  return membershipItem;
@@ -2239,7 +2250,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 		  {
 			  if (membershipItemIter.getType().equals(type) && names.contains(membershipItemIter.getName()))
 			  {
-				  if (membershipItemIter == null || membershipItemIter.getPermissionLevel() == null)
+				  if (membershipItemIter != null && membershipItemIter.getPermissionLevel() == null)
 				  {
 					  membershipItemIter = getDefaultPermissionForType(type, membershipItemIter.getName(), contextSiteId);
 				  }
