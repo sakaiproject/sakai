@@ -277,6 +277,25 @@ public class RequestFilter implements Filter
 	private String [] loginPaths;
 	private String [] contentExceptions;
 
+    /**
+     * Determine if the request isSecure
+     *
+     * @param req
+     *        The request.
+     * @return boolean True if the properties tell us to assume all requests are secure,
+     *     otherwise look ar the isSecure() method of the request.
+     *
+     * Sometimes we are behind some kind of proxy or load balancer that is doing https
+     * on our behalf and contacting us on port 80.
+     */
+    public static boolean isSecure(HttpServletRequest req)
+    {
+       String forceSecure = System.getProperty("sakai.force.url.secure");
+       int forceSecureInt = NumberUtils.toInt(forceSecure);
+       if (forceSecureInt > 0 && forceSecureInt <= 65535) return true;
+       return req.isSecure();
+    }
+
 	/**
 	 * Compute the URL that would return to this server based on the current request.
 	 *
@@ -290,7 +309,7 @@ public class RequestFilter implements Filter
 	{
 		String transport = null;
 		int port = 0;
-		boolean secure = false;
+		boolean secure;
 
 		// if force.url.secure is set (to a https port number), use https and this port
 		String forceSecure = System.getProperty("sakai.force.url.secure");
@@ -309,6 +328,8 @@ public class RequestFilter implements Filter
 		StringBuilder url = new StringBuilder();
 		url.append(transport);
 		url.append("://");
+
+		// TODO: Should the server name come from serverConfigurationService?
 		url.append(req.getServerName());
 		if (((port != 80) && (!secure)) || ((port != 443) && secure))
 		{
@@ -497,7 +518,7 @@ public class RequestFilter implements Filter
 							{
 								c.setDomain(cookieDomain);
 							}
-							if (req.isSecure() == true)
+							if (isSecure(req))
 							{
 								c.setSecure(true);
 							}
@@ -582,7 +603,7 @@ public class RequestFilter implements Filter
 		{
 			c.setDomain(cookieDomain);
 		}
-		if (req.isSecure() == true)
+		if (isSecure(req))
 		{
 			c.setSecure(true);
 		}
@@ -1249,7 +1270,7 @@ public class RequestFilter implements Filter
 				{
 					c.setDomain(cookieDomain);
 				}
-				if (req.isSecure() == true)
+				if (isSecure(req))
 				{
 					c.setSecure(true);
 				}
@@ -1647,16 +1668,32 @@ public class RequestFilter implements Filter
 				String placementId = (String) m_req.getAttribute(Tool.PLACEMENT_ID);
 				if (placementId != null)
 				{
+					String transport = null;
+					int port = 0;
+
 					// compute the URL root "back" to this servlet context (rel and full)
+					String forceSecure = System.getProperty("sakai.force.url.secure");
+					int forceSecureInt = NumberUtils.toInt(forceSecure);
+					if (forceSecureInt > 0 && forceSecureInt <= 65535) {
+						transport = "https";
+						port = forceSecureInt;
+					} else {
+						// otherwise use the request scheme and port
+						transport = m_req.getScheme();
+						port = m_req.getServerPort();
+					}
+
 					StringBuilder full = new StringBuilder();
-					full.append(m_req.getScheme());
+					full.append(transport);
 					full.append("://");
+
+					// TODO: Should the server name come from serverConfigurationService?
 					full.append(m_req.getServerName());
-					if (((m_req.getServerPort() != 80) && (!m_req.isSecure()))
-							|| ((m_req.getServerPort() != 443) && (m_req.isSecure())))
+					if (((port != 80) && (!isSecure(m_req)))
+							|| ((port != 443) && (isSecure(m_req))))
 					{
 						full.append(":");
-						full.append(m_req.getServerPort());
+						full.append(port);
 					}
 
 					StringBuilder rel = new StringBuilder();
