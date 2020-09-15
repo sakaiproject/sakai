@@ -66,7 +66,7 @@ public class DiscussionForumBean
   
   private Boolean newTopic = null;
   private Boolean changeSettings = null;
-  private ArrayList decoAttachList = null;
+  private ArrayList<DecoratedAttachment> decoAttachList = null;
   private Boolean hasExtendedDescription = null;
   private String locked;
   
@@ -530,10 +530,10 @@ public class DiscussionForumBean
 		return nonePermission.booleanValue();
 	}
 
-	public ArrayList getAttachList()
+	public ArrayList<DecoratedAttachment> getAttachList()
 	{
 		if (decoAttachList == null){
-			decoAttachList = new ArrayList();
+			decoAttachList = new ArrayList<DecoratedAttachment>();
 			List attachList = forum.getAttachments(); 
 			if(attachList != null)
 			{

@@ -105,6 +105,7 @@ public class DiscussionTopicBean
   private static RubricsService rubricsService = ComponentManager.get(RubricsService.class);
 
   private List messages = new ArrayList();
+  private List<DecoratedAttachment> decoAttachList = null;
 
   private SimpleDateFormat ourDateFormat() {
       SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
@@ -1133,14 +1134,17 @@ public class DiscussionTopicBean
 
 	public List<DecoratedAttachment> getAttachList()
 	{
-		List<DecoratedAttachment> decoAttachList = new ArrayList<DecoratedAttachment>();
-		List<Attachment> attachList = forumManager.getTopicAttachments(topic.getId());  
-		if(attachList != null)
+		if (decoAttachList == null)
 		{
-			for(int i=0; i<attachList.size(); i++)
+			decoAttachList = new ArrayList<DecoratedAttachment>();
+			List<Attachment> attachList = forumManager.getTopicAttachments(topic.getId());  
+			if(attachList != null)
 			{
-				DecoratedAttachment decoAttach = new DecoratedAttachment((Attachment)attachList.get(i));
-				decoAttachList.add(decoAttach);
+				for(int i=0; i<attachList.size(); i++)
+				{
+					DecoratedAttachment decoAttach = new DecoratedAttachment((Attachment)attachList.get(i));
+					decoAttachList.add(decoAttach);
+				}
 			}
 		}
 		return decoAttachList;
