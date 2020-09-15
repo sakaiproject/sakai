@@ -309,7 +309,7 @@ public class RequestFilter implements Filter
 	{
 		String transport = null;
 		int port = 0;
-		boolean secure = false;
+		boolean secure;
 
 		// if force.url.secure is set (to a https port number), use https and this port
 		String forceSecure = System.getProperty("sakai.force.url.secure");
@@ -518,7 +518,7 @@ public class RequestFilter implements Filter
 							{
 								c.setDomain(cookieDomain);
 							}
-							if (isSecure(req) == true)
+							if (isSecure(req))
 							{
 								c.setSecure(true);
 							}
@@ -603,7 +603,7 @@ public class RequestFilter implements Filter
 		{
 			c.setDomain(cookieDomain);
 		}
-		if (isSecure(req) == true)
+		if (isSecure(req))
 		{
 			c.setSecure(true);
 		}
@@ -1270,7 +1270,7 @@ public class RequestFilter implements Filter
 				{
 					c.setDomain(cookieDomain);
 				}
-				if (isSecure(req) == true)
+				if (isSecure(req))
 				{
 					c.setSecure(true);
 				}
@@ -1670,7 +1670,7 @@ public class RequestFilter implements Filter
 				{
 					String transport = null;
 					int port = 0;
-					boolean secure = false;
+					boolean secure;
 
 					// compute the URL root "back" to this servlet context (rel and full)
 					String forceSecure = System.getProperty("sakai.force.url.secure");
