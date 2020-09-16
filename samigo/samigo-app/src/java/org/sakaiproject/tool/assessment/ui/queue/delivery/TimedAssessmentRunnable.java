@@ -150,7 +150,7 @@ public class TimedAssessmentRunnable implements Runnable {
               eventLogData.setProcessId(ag.getAssessmentGradingId());
               eventLogData.setStartDate(null);
               eventLogData.setTitle(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(publishedAssessment.getTitle()));
-              eventLogData.setUserEid(ag.getAgentId());
+              eventLogData.setUserEid(UserDirectoryService.getUserEid(ag.getAgentId()));
               eventLogData.setSiteId(siteId);
             }
             eventLogData.setErrorMsg(eventLogMessages.getString("timer_submit"));
