@@ -200,7 +200,8 @@ public class ItemAddListener
 	    }
 	}
 
-	if(StringUtils.length(item.getCorrFeedback()) > MAX_FEEDBACK_CHARS || StringUtils.length(item.getIncorrFeedback()) > MAX_FEEDBACK_CHARS) {
+	if(StringUtils.length(item.getCorrFeedback()) > MAX_FEEDBACK_CHARS || StringUtils.length(item.getIncorrFeedback()) > MAX_FEEDBACK_CHARS
+			|| StringUtils.length(item.getGeneralFeedback()) > MAX_FEEDBACK_CHARS) {
 		String feedbackTooLong = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "feedbackTooLong");
 		context.addMessage(null, new FacesMessage(MessageFormat.format(feedbackTooLong, new Object[]{MAX_FEEDBACK_CHARS})));
 		error = true;
