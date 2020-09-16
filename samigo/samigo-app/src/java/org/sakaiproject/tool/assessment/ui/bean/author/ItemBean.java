@@ -22,6 +22,7 @@
 package org.sakaiproject.tool.assessment.ui.bean.author;
 
 import java.io.Serializable;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,7 +40,7 @@ import javax.faces.model.SelectItemGroup;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.math3.util.Precision;
+import org.apache.commons.lang.StringUtils;
 
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -49,6 +50,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService; 
 import org.sakaiproject.tool.assessment.data.dao.assessment.FavoriteColChoices;
 import org.sakaiproject.tool.assessment.data.dao.assessment.FavoriteColChoicesItem;
+import static org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener.MAX_FEEDBACK_CHARS;
 import org.sakaiproject.util.ResourceLoader;
 
 
@@ -1135,6 +1137,13 @@ public class ItemBean
 	    context.addMessage(null,new FacesMessage(RB_AUTHOR_MESSAGES.getString("match_error")));
 	    return true;
 	}
+
+    // Choice level feedback cannot exceed 4000 characters
+    if(StringUtils.length(currentMatchPair.getCorrMatchFeedback()) > MAX_FEEDBACK_CHARS || StringUtils.length(currentMatchPair.getIncorrMatchFeedback()) > MAX_FEEDBACK_CHARS) {
+        FacesContext context = FacesContext.getCurrentInstance();
+        context.addMessage(null, new FacesMessage(MessageFormat.format(RB_AUTHOR_MESSAGES.getString("feedbackTooLong"), new Object[]{MAX_FEEDBACK_CHARS})));
+        return true;
+    }
 	return false;
     }
 
