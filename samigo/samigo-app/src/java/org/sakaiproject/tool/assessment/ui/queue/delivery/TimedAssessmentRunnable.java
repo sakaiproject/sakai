@@ -45,6 +45,7 @@ import org.sakaiproject.tool.assessment.services.assessment.EventLogService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.api.FormattedText;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -131,10 +132,27 @@ public class TimedAssessmentRunnable implements Runnable {
             service.completeItemGradingData(ag);
             service.saveOrUpdateAssessmentGrading(ag);
 
+            PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+            String siteId = publishedAssessmentService.getPublishedAssessmentOwner(ag.getPublishedAssessmentId());
+            PublishedAssessmentFacade publishedAssessment = publishedAssessmentService.getPublishedAssessment(ag.getPublishedAssessmentId().toString());
+
             EventLogService eventService = new EventLogService();
             EventLogFacade eventLogFacade = new EventLogFacade();
-            List eventLogDataList = eventService.getEventLogData(ag.getAssessmentGradingId());
-            EventLogData eventLogData= (EventLogData) eventLogDataList.get(0);
+            EventLogData eventLogData;
+            // There should already be data for this attempt in the db but there are edge cases where it could be missing
+            List<EventLogData> eventLogDataList = eventService.getEventLogData(ag.getAssessmentGradingId());
+            if (eventLogDataList != null && !eventLogDataList.isEmpty()) {
+              eventLogData = eventLogDataList.get(0);
+            }
+            else {
+              eventLogData = new EventLogData();
+              eventLogData.setAssessmentId(ag.getPublishedAssessmentId());
+              eventLogData.setProcessId(ag.getAssessmentGradingId());
+              eventLogData.setStartDate(null);
+              eventLogData.setTitle(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(publishedAssessment.getTitle()));
+              eventLogData.setUserEid(UserDirectoryService.getUserEid(ag.getAgentId()));
+              eventLogData.setSiteId(siteId);
+            }
             eventLogData.setErrorMsg(eventLogMessages.getString("timer_submit"));
             eventLogData.setEndDate(submitDate);
             if(eventLogData.getStartDate() != null) {
@@ -147,16 +165,12 @@ public class TimedAssessmentRunnable implements Runnable {
             }
             eventLogFacade.setData(eventLogData);
             eventService.saveOrUpdateEventLog(eventLogFacade);
-            PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-            String siteId = publishedAssessmentService.getPublishedAssessmentOwner(ag.getPublishedAssessmentId());
 
             Map<String, Object> notiValues = new HashMap<>();
             notiValues.put("assessmentGradingID", ag.getAssessmentGradingId());
             notiValues.put("userID", ag.getAgentId());
             notiValues.put("submissionDate", submitDate.toString());
             notiValues.put("publishedAssessmentID", ag.getPublishedAssessmentId());
-
-            PublishedAssessmentFacade publishedAssessment = publishedAssessmentService.getPublishedAssessment(ag.getPublishedAssessmentId().toString());
 
             String confirmationNumber = ag.getAssessmentGradingId() + 
                "-" + publishedAssessment.getPublishedAssessmentId() + 
