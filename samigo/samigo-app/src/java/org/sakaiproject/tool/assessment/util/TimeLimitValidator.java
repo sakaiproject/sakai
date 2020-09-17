@@ -46,6 +46,12 @@ public class TimeLimitValidator
      */
     public static boolean availableLongerThanTimer( Date start, Date due, Integer timerHours, Integer timerMinutes, String messageBundle, String messageKey, FacesContext context )
     {
+        // Short circuit: if there's no due date, the quiz is open indefinately which means the timer cannot exceed the availability window
+        if( due == null )
+        {
+            return true;
+        }
+
         long timerTotalMinutes = 0;
         if( timerHours != null )
         {
