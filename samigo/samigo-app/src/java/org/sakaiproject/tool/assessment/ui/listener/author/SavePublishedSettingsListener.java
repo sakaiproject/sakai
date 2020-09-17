@@ -318,7 +318,7 @@ implements ActionListener
 			}
 		}
 
-		boolean extendedTimesValid = ExtendedTimeValidator.validateEntries( assessmentSettings.getExtendedTimes(), context, assessmentSettings );
+		boolean extendedTimesValid = new ExtendedTimeValidator().validateEntries( assessmentSettings.getExtendedTimes(), context, assessmentSettings );
 		if(!extendedTimesValid) {
 			error = true;
 		}
