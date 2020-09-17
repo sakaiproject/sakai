@@ -257,9 +257,9 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
           ${this.gradeScale === "PASS_FAIL_GRADE_TYPE" ? html`
             <span>${this.assignmentsI18n["gen.assign.gra"]}</span>
             <select id="pass-fail-selector" aria-label="${this.i18n["passfail_selector_label"]}" @change=${this.gradeSelected} .value=${this.submission.grade}>
-              <option value="ungraded" ?selected=${this.submission.grade === "ungraded"}>${this.assignmentsI18n["non.submission.grade.select"]}</option>
-              <option value="pass" ?selected=${this.submission.grade === "pass"}>${this.assignmentsI18n["pass"]}</option>
-              <option value="fail" ?selected=${this.submission.grade === "fail"}>${this.assignmentsI18n["fail"]}</option>
+              <option value="ungraded" .selected=${this.submission.grade.match(/^ungraded$/i)}>${this.assignmentsI18n["non.submission.grade.select"]}</option>
+              <option value="pass" .selected=${this.submission.grade.match(/^pass$/i)}>${this.assignmentsI18n["pass"]}</option>
+              <option value="fail" .selected=${this.submission.grade.match(/^fail$/i)}>${this.assignmentsI18n["fail"]}</option>
             </select>
             ${this.renderSaved()}
           ` : ""}
