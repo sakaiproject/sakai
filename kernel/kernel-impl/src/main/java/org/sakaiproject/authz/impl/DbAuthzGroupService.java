@@ -24,18 +24,25 @@ package org.sakaiproject.authz.impl;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.Set;
+import java.util.Vector;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.lang3.StringUtils;
-
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroup.RealmLockMode;
 import org.sakaiproject.authz.api.GroupFullException;
@@ -61,6 +68,11 @@ import org.sakaiproject.util.BaseDbFlatStorage;
 import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.StringUtil;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
@@ -1994,10 +2006,10 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 
 			else
 			{
-				rv[1] = StringUtil.trimToZero(edit.m_providerRealmId);
-				rv[2] = StringUtil.trimToZero(edit.m_maintainRole);
-				rv[3] = StringUtil.trimToZero(edit.m_createdUserId);
-				rv[4] = StringUtil.trimToZero(edit.m_lastModifiedUserId);
+				rv[1] = StringUtils.trimToEmpty(edit.m_providerRealmId);
+				rv[2] = StringUtils.trimToEmpty(edit.m_maintainRole);
+				rv[3] = StringUtils.trimToEmpty(edit.m_createdUserId);
+				rv[4] = StringUtils.trimToEmpty(edit.m_lastModifiedUserId);
 				rv[5] = edit.getCreatedTime();
 				rv[6] = edit.getModifiedTime();
 			}
