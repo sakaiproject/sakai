@@ -61,6 +61,8 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
@@ -70,6 +72,7 @@ import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
@@ -724,11 +727,13 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
     public void removeMediaById(Long mediaId, Long itemGradingId) {
         String mediaLocation = null;
+        String mediaFilename = null;
         int retryCount = persistenceHelper.getRetryCount();
         while (retryCount > 0) {
             try {
                 MediaData mediaData = this.getMedia(mediaId);
                 mediaLocation = mediaData.getLocation();
+                mediaFilename = mediaData.getFilename();
                 getHibernateTemplate().delete(mediaData);
                 retryCount = 0;
             } catch (Exception e) {
@@ -748,6 +753,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             ItemGradingData itemGradingData = getItemGrading(itemGradingId);
             itemGradingData.setAutoScore(Double.valueOf(0));
             saveItemGrading(itemGradingData);
+            EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_ATTACHMENT_DELETE, "itemGradingId="+itemGradingData.getItemGradingId()+", "+mediaFilename, null, true, NotificationService.NOTI_REQUIRED));
         }
     }
 
