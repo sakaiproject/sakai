@@ -7506,6 +7506,9 @@ public class SimplePageBean {
 					break;
 				}
 			}
+			if(totalTokens == 0 && !theirResponse.isEmpty()) {
+				foundAnswer = true;
+			}
 			if(foundAnswer) {
 				correct = true;
 			}else {
