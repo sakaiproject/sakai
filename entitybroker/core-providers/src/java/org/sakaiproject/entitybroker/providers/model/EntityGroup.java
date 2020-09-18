@@ -46,7 +46,6 @@ import org.sakaiproject.entitybroker.entityprovider.annotations.EntitySummary;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityTitle;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -132,7 +131,7 @@ public class EntityGroup implements Group {
         this.maintainRole = group.getMaintainRole();
         this.providerGroupId = group.getProviderGroupId();
         this.owner = group.getCreatedBy() == null ? null : group.getCreatedBy().getId();
-        this.lastModified = group.getModifiedTime() == null ? System.currentTimeMillis() : group.getModifiedTime().getTime();
+        this.lastModified = group.getModifiedDate() == null ? System.currentTimeMillis() : group.getModifiedDate().getTime();
         getUserRoles(); // populate the user roles
         // properties
         ResourceProperties rp = group.getProperties();
@@ -192,7 +191,7 @@ public class EntityGroup implements Group {
     @EntityLastModified
     public long getLastModified() {
         if (group != null) {
-            this.lastModified = group.getModifiedTime() == null ? lastModified : group.getModifiedTime().getTime();
+            this.lastModified = group.getModifiedDate() == null ? lastModified : group.getModifiedDate().getTime();
         }
         return lastModified;
     }
@@ -276,13 +275,6 @@ public class EntityGroup implements Group {
         throw new UnsupportedOperationException();
     }
 
-    public Time getCreatedTime() {
-        if (group != null) {
-            return group.getCreatedTime();
-        }
-        throw new UnsupportedOperationException();
-    }
-    
     public Date getCreatedDate() {
         if (group != null) {
             return group.getCreatedDate();
@@ -295,14 +287,6 @@ public class EntityGroup implements Group {
         }
         throw new UnsupportedOperationException();
     }
-
-    public Time getModifiedTime() {
-        if (group != null) {
-            return group.getModifiedTime();
-        }
-        throw new UnsupportedOperationException();
-    }
-    
     
     public Date getModifiedDate() {
     	if (group != null) {

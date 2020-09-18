@@ -22,6 +22,7 @@
 package org.sakaiproject.site.impl;
 
 import java.io.PrintWriter;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -299,7 +300,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 		String current = sessionManager().getCurrentSessionUserId();
 
 		site.m_lastModifiedUserId = current;
-		site.m_lastModifiedTime = timeService().newTime();
+		site.m_lastModifiedTime = Instant.now();
 	}
 
 	/**
@@ -312,9 +313,9 @@ public abstract class BaseSiteService implements SiteService, Observer
 		site.m_createdUserId = current;
 		site.m_lastModifiedUserId = current;
 
-		Time now = timeService().newTime();
-		site.m_createdTime = now;
-		site.m_lastModifiedTime = (Time) now.clone();
+
+		site.m_createdTime = Instant.now();
+		site.m_lastModifiedTime = Instant.now();
 	}
 
 	/**
@@ -1219,7 +1220,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 		}
 
 		String currentUser = sessionManager().getCurrentSessionUserId();
-		Time lastModifiedTime = timeService().newTime();
+		Instant lastModifiedTime = Instant.now();
 
 		// complete the edit
 		storage().unpublish(siteIds, currentUser, lastModifiedTime);
@@ -2556,7 +2557,8 @@ public abstract class BaseSiteService implements SiteService, Observer
 			Site site = getSite(ref.getId());
 			rv = rb.getFormattedMessage("entdsc.sit_usr", new Object[]{
 					site.getTitle() + " (" + site.getId() + ")",
-					site.getCreatedTime().toStringLocalFull(),
+					//TODO UserTimeService?
+					site.getCreatedDate(),
 					site.getCreatedBy().getDisplayName() + " (" + site.getCreatedBy().getDisplayId() + ")",
 					StringUtils.abbreviate((site.getDescription() == null ? "" : site.getDescription()), 30)});
 		}
@@ -3089,7 +3091,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 		 * @param modifiedOn
 		 *        Time that the site is unpublished
 		 */
-		public void unpublish(List<String> siteIds, String modifiedBy, Time modifiedOn);
+		public void unpublish(List<String> siteIds, String modifiedBy, Instant modifiedOn);
 
 		/**
 		 * Writes site properties
