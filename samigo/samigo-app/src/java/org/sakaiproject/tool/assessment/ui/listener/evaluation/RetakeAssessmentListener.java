@@ -22,7 +22,6 @@
 package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 
 import java.util.Date;
-import java.util.List;
 
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
@@ -31,6 +30,7 @@ import javax.faces.event.ActionListener;
 import org.sakaiproject.tool.assessment.data.dao.grading.StudentGradingSummaryData;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.RetakeAssessmentBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
@@ -48,6 +48,8 @@ public class RetakeAssessmentListener implements ActionListener {
 
 	public void processAction(ActionEvent ae) throws AbortProcessingException {
 		RetakeAssessmentBean retakeAssessment = (RetakeAssessmentBean) ContextUtil.lookupBean("retakeAssessment");
+		AuthorBean authorBean = (AuthorBean) ContextUtil.lookupBean("author");
+		authorBean.setOutcome("retakeConfirm");
 		GradingService gradingService = new GradingService();
 		StudentGradingSummaryData studentGradingSummaryData = (StudentGradingSummaryData) retakeAssessment.getStudentGradingSummaryDataMap().get(retakeAssessment.getAgentId());
 		if (studentGradingSummaryData == null) {
