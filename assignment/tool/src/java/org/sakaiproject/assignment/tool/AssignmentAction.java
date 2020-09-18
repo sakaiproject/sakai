@@ -12507,6 +12507,8 @@ public class AssignmentAction extends PagedResourceActionII {
     public void doRemove_attachment(RunData data) {
         SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
         ParameterParser params = data.getParameters();
+        String assignmentReference = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
+        String siteId = (String) state.getAttribute(STATE_CONTEXT_STRING);
 
         // save submit inputs before refresh the page
         saveSubmitInputs(state, params);
@@ -12524,6 +12526,7 @@ public class AssignmentAction extends PagedResourceActionII {
             for (Reference attachment : attachments) {
                 if (attachment.getId().equals(removeAttachmentId)) {
                     attachments.remove(attachment);
+                    eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ASSIGNMENT_SUBMISSION_ATTACHMENT_DELETE, removeAttachmentId, siteId, true, NotificationService.NOTI_REQUIRED));
                     // refresh state variable
                     if (MODE_STUDENT_REVIEW_EDIT.equals(mode)) {
                         state.setAttribute(PEER_ATTACHMENTS, attachments);
@@ -13895,6 +13898,10 @@ public class AssignmentAction extends PagedResourceActionII {
         ToolSession toolSession = sessionManager.getCurrentToolSession();
         ParameterParser params = data.getParameters();
 
+        String assignmentReference = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
+        String siteId = toolManager.getCurrentPlacement().getContext();
+        Assignment a = getAssignment(assignmentReference, "doAttachUpload", state);
+
         String max_file_size_mb = serverConfigurationService.getString("content.upload.max", "1");
 
         String mode = (String) state.getAttribute(STATE_MODE);
@@ -13949,13 +13956,14 @@ public class AssignmentAction extends PagedResourceActionII {
                     // make an attachment resource for this URL
                     SecurityAdvisor sa = createSubmissionSecurityAdvisor();
                     try {
-                        String siteId = toolManager.getCurrentPlacement().getContext();
 
                         // add attachment
                         // put in a security advisor so we can create citationAdmin site without need
                         // of further permissions
                         securityService.pushAdvisor(sa);
+                        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ASSIGNMENT_SUBMISSION_ATTACHMENT_NEW1, assignmentReference+" "+name, siteId, true, NotificationService.NOTI_REQUIRED));
                         ContentResource attachment = contentHostingService.addAttachmentResource(resourceId, siteId, "Assignments", contentType, fileContentStream, props);
+                        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ASSIGNMENT_SUBMISSION_ATTACHMENT_NEW2, assignmentReference+" "+name, siteId, true, NotificationService.NOTI_REQUIRED));
 
                         Site s = null;
                         try {
@@ -13967,8 +13975,6 @@ public class AssignmentAction extends PagedResourceActionII {
                         // Check if the file is acceptable with the ContentReviewService
                         boolean blockedByCRS = false;
                         if (!inPeerReviewMode && assignmentService.allowReviewService(s)) {
-                            String assignmentReference = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
-                            Assignment a = getAssignment(assignmentReference, "doAttachUpload", state);
                             if (a.getContentReview()) {
                                 if (!contentReviewService.isAcceptableContent(attachment)) {
                                     addAlert(state, rb.getFormattedMessage("review.file.not.accepted", new Object[]{contentReviewService.getServiceName(), getContentReviewAcceptedFileTypesMessage()}));

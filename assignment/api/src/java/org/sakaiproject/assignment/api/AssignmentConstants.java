@@ -123,6 +123,18 @@ public final class AssignmentConstants {
      */
     public static final String EVENT_GRADE_ASSIGNMENT_SUBMISSION = "asn.grade.submission";
     /**
+     * Event for attachment delete in submission.
+     */
+    public static final String EVENT_ASSIGNMENT_SUBMISSION_ATTACHMENT_DELETE = "asn.submission.attachment.delete";
+    /**
+     * Event for attachment before upload in submission.
+     */
+    public static final String EVENT_ASSIGNMENT_SUBMISSION_ATTACHMENT_NEW1 = "asn.submission.attachment.new1";
+    /**
+     * Event for attachment after upload in submission.
+     */
+    public static final String EVENT_ASSIGNMENT_SUBMISSION_ATTACHMENT_NEW2 = "asn.submission.attachment.new2";
+    /**
      * Calendar event field for assignment due dates
      */
     public static final String NEW_ASSIGNMENT_DUE_DATE_SCHEDULED = "new_assignment_due_date_scheduled";
