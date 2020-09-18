@@ -153,16 +153,14 @@ public class DeliveryActionListener
 
       if (delivery.pastDueDate() && (DeliveryBean.TAKE_ASSESSMENT == action || DeliveryBean.TAKE_ASSESSMENT_VIA_URL == action)) {
         if (delivery.isAcceptLateSubmission()) {
-          if(delivery.getTotalSubmissions() > 0) {
-            // Not during a Retake
-            if (delivery.getActualNumberRetake() == delivery.getNumberRetake()) {
-              return;
-            }
+          if(delivery.getTotalSubmissions() > 0 && delivery.getActualNumberRetake() > delivery.getNumberRetake()) {// Not during a Retake
+            log.debug("processAction returning because no retakes left for this overdue, late submission");
+            return;
           }
-        } else {
-          if(delivery.isRetracted(false)){
-              return;
-          }
+        }
+        if(delivery.isRetracted(false)){
+            log.debug("processAction returning because assessment is retracted");
+            return;
         }
       }
       // Clear elapsed time, set not timed out
