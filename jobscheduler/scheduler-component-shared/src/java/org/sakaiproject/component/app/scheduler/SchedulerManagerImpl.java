@@ -165,51 +165,7 @@ public class SchedulerManagerImpl implements ApplicationContextAware, Lifecycle,
     	  log.info("Scheduler is disabled, skipping job load in init()");
     	  return;
       }
-      // loop through persisted jobs removing both the job and associated
-      // triggers for jobs where the associated job class is not found
-      Set<JobKey> jobKeys = scheduler.getJobKeys(GroupMatcher.jobGroupEquals(Scheduler.DEFAULT_GROUP));
-      for (JobKey key : jobKeys) {
-        try
-        {
-          JobDetail detail = scheduler.getJobDetail(key);
-          if (detail == null) {
-              log.warn("JobDetail is null skipping job with key = {}", key);
-              continue;
-          }
-          String bean = detail.getJobDataMap().getString(JobBeanWrapper.SPRING_BEAN_NAME);
-          // We now have jobs that don't explicitly reference a spring bean
-          if (bean != null && !bean.isEmpty()) {
-            Job job = (Job) applicationContext.getBean(bean);
-            if (job == null) {
-                // See if we should be migrating this job.
-                Class<? extends Job> newClass = migration.get(bean);
-                if (newClass != null) {
-                    JobDataMap jobDataMap = detail.getJobDataMap();
-                    jobDataMap.remove(JobBeanWrapper.SPRING_BEAN_NAME);
-                    JobDetail newJob = JobBuilder.newJob(newClass)
-                            .setJobData(jobDataMap)
-                            .requestRecovery(detail.requestsRecovery())
-                            .storeDurably(detail.isDurable())
-                            .withDescription(detail.getDescription())
-                            .withIdentity(key).build();
-                    // Update the existing job by replacing it with the same identity.
-                    scheduler.addJob(newJob, true);
-                    log.info("Migrated job of {} to {}", detail.getJobClass(), newClass);
-                } else {
-                    log.warn("scheduler cannot load class for persistent job:" + key);
-                    scheduler.deleteJob(key);
-                    log.warn("deleted persistent job:" + key);
-                }
-            }
-          }
-        }
-        catch (SchedulerException e)
-        {
-          log.warn("scheduler cannot load class for persistent job:" + key);
-          scheduler.deleteJob(key);
-          log.warn("deleted persistent job:" + key);
-        }
-      }
+
 
       for (TriggerListener tListener : globalTriggerListeners)
       {
@@ -237,6 +193,59 @@ public class SchedulerManagerImpl implements ApplicationContextAware, Lifecycle,
     }
   }
 
+  /*
+   * loop through persisted jobs removing both the job and associated
+   * triggers for jobs where the associated job class is not found
+   */
+  private void cleanUpJobs() throws SchedulerException
+  {
+	  log.info("Checking for existing jobs that need to be cleaned up");
+	  Set<JobKey> jobKeys = scheduler.getJobKeys(GroupMatcher.jobGroupEquals(Scheduler.DEFAULT_GROUP));
+	  for (JobKey key : jobKeys) {
+		  try
+		  {
+			  JobDetail detail = scheduler.getJobDetail(key);
+			  if (detail == null) {
+				  log.warn("JobDetail is null skipping job with key = {}", key);
+				  continue;
+			  }
+			  String bean = detail.getJobDataMap().getString(JobBeanWrapper.SPRING_BEAN_NAME);
+			  // We now have jobs that don't explicitly reference a spring bean
+			  if (bean != null && !bean.isEmpty()) {
+				  Job job = (Job) applicationContext.getBean(bean);
+				  if (job == null) {
+					  // See if we should be migrating this job.
+					  Class<? extends Job> newClass = migration.get(bean);
+					  if (newClass != null) {
+						  JobDataMap jobDataMap = detail.getJobDataMap();
+						  jobDataMap.remove(JobBeanWrapper.SPRING_BEAN_NAME);
+						  JobDetail newJob = JobBuilder.newJob(newClass)
+								  .setJobData(jobDataMap)
+								  .requestRecovery(detail.requestsRecovery())
+								  .storeDurably(detail.isDurable())
+								  .withDescription(detail.getDescription())
+								  .withIdentity(key).build();
+						  // Update the existing job by replacing it with the same identity.
+						  scheduler.addJob(newJob, true);
+						  log.info("Migrated job of {} to {}", detail.getJobClass(), newClass);
+					  } else {
+						  log.warn("scheduler cannot load class for persistent job:" + key);
+						  scheduler.deleteJob(key);
+						  log.warn("deleted persistent job:" + key);
+					  }
+				  }
+			  }
+		  }
+		  catch (SchedulerException e)
+		  {
+			  log.warn("scheduler cannot load class for persistent job:" + key);
+			  scheduler.deleteJob(key);
+			  log.warn("deleted persistent job:" + key);
+		  }
+	  }
+	  log.info("Job check completed, {} jobs found.", jobKeys.size());
+  }
+  
   /**
    * This loads the configurations for quartz.
    * It loads the defaults from the classpath and then loads override values from
@@ -652,6 +661,7 @@ public class SchedulerManagerImpl implements ApplicationContextAware, Lifecycle,
     private void startScheduler() throws SchedulerException {
         if (startSchedulerDelayMinutes <= 0) {
             log.info("Scheduler starting now");
+            cleanUpJobs();
             scheduler.start();
         } else {
             log.info("Scheduler will start in {} minutes", startSchedulerDelayMinutes);
@@ -663,6 +673,7 @@ public class SchedulerManagerImpl implements ApplicationContextAware, Lifecycle,
                 }
                 log.info("Scheduler starting now, after delay of {} minutes", startSchedulerDelayMinutes);
                 try {
+                    cleanUpJobs();
                     scheduler.start();
                 } catch (SchedulerException ex) {
                     throw new RuntimeException("Job Scheduler could not start after delay", ex);
