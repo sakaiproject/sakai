@@ -86,6 +86,7 @@ import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 
 @Slf4j
 public class DateManagerServiceImpl implements DateManagerService {
@@ -348,6 +349,15 @@ public class DateManagerServiceImpl implements DateManagerService {
 			assobj.put("tool_title", toolTitle);
 			assobj.put("url", url);
 			assobj.put("extraInfo", rb.getString("itemtype.draft"));
+			if (AssessmentFeedbackIfc.FEEDBACK_BY_DATE.equals(assessment.getAssessmentFeedback().getFeedbackDelivery())) {
+				assobj.put("feedback_start", formatToUserDateFormat(control.getFeedbackDate()));
+				assobj.put("feedback_end", formatToUserDateFormat(control.getFeedbackEndDate()));
+				assobj.put("feedback_by_date", true);
+			} else {
+				assobj.put("feedback_start", null);
+				assobj.put("feedback_end", null);
+				assobj.put("feedback_by_date", false);
+			}
 			jsonAssessments.add(assobj);
 		}
 		for (PublishedAssessmentFacade paf : pubAssessments) {
@@ -365,6 +375,15 @@ public class DateManagerServiceImpl implements DateManagerService {
 			assobj.put("tool_title", toolTitle);
 			assobj.put("url", url);
 			assobj.put("extraInfo", "false");
+			if (AssessmentFeedbackIfc.FEEDBACK_BY_DATE.equals(assessment.getAssessmentFeedback().getFeedbackDelivery())) {
+				assobj.put("feedback_start", formatToUserDateFormat(control.getFeedbackDate()));
+				assobj.put("feedback_end", formatToUserDateFormat(control.getFeedbackEndDate()));
+				assobj.put("feedback_by_date", true);
+			} else {
+				assobj.put("feedback_start", null);
+				assobj.put("feedback_end", null);
+				assobj.put("feedback_by_date", false);
+			}
 			jsonAssessments.add(assobj);
 		}
 		return jsonAssessments;
@@ -391,6 +410,8 @@ public class DateManagerServiceImpl implements DateManagerService {
 				Instant openDate = userTimeService.parseISODateInUserTimezone((String)jsonAssessment.get("open_date")).toInstant();
 				Instant dueDate = userTimeService.parseISODateInUserTimezone((String)jsonAssessment.get("due_date")).toInstant();
 				Instant acceptUntil = userTimeService.parseISODateInUserTimezone((String)jsonAssessment.get("accept_until")).toInstant();
+				Instant feedbackStart = userTimeService.parseISODateInUserTimezone((String)jsonAssessment.get("feedback_start")).toInstant();
+				Instant feedbackEnd = userTimeService.parseISODateInUserTimezone((String)jsonAssessment.get("feedback_end")).toInstant();
 				boolean isDraft = Boolean.parseBoolean(jsonAssessment.get("is_draft").toString());
 
 				Object assessment;
@@ -423,19 +444,43 @@ public class DateManagerServiceImpl implements DateManagerService {
 					errored = true;
 				}
 
+				Integer feedbackMode = isDraft ? ((AssessmentFacade) assessment).getAssessmentFeedback().getFeedbackDelivery()
+												: ((PublishedAssessmentFacade) assessment).getAssessmentFeedback().getFeedbackDelivery();
+				if (AssessmentFeedbackIfc.FEEDBACK_BY_DATE.equals(feedbackMode)) {
+					if (feedbackStart == null) {
+						errors.add(new DateManagerError("feedback_start", rb.getString("error.feedback.start.not.found"), "assessments", toolTitle, i));
+						errored = true;
+					}
+					if (feedbackEnd == null) {
+						errors.add(new DateManagerError("feedback_end", rb.getString("error.feedback.end.not.found"), "assessments", toolTitle, i));
+						errored = true;
+					}
+					if (feedbackStart != null && feedbackEnd != null && feedbackEnd.isBefore(feedbackStart)) {
+						errors.add(new DateManagerError("feedback_end", rb.getString("error.feedback.start.before.feedback.end"), "assessments", toolTitle, i));
+						errored = true;
+					}
+				}
+
 				if (errored) {
 					continue;
 				}
 
-				log.debug("Open {} ; Due {} ; Until {}", jsonAssessment.get("open_date_label"), jsonAssessment.get("due_date_label"), jsonAssessment.get("accept_until_label"));
+				log.debug("Open {} ; Due {} ; Until {} ; Feedback Start {} ; Feedback End {}", jsonAssessment.get("open_date_label"), jsonAssessment.get("due_date_label"),
+								jsonAssessment.get("accept_until_label"), jsonAssessment.get("feedback_start_label"), jsonAssessment.get("feedback_end_label"));
 				if(StringUtils.isBlank((String)jsonAssessment.get("due_date_label"))) {
 					dueDate = null;
 				}
 				if(StringUtils.isBlank((String)jsonAssessment.get("accept_until_label"))) {
 					acceptUntil = null;
 				}
+				if(StringUtils.isBlank((String)jsonAssessment.get("feedback_start_label"))) {
+					feedbackStart = null;
+				}
+				if(StringUtils.isBlank((String)jsonAssessment.get("feedback_end_label"))) {
+					feedbackEnd = null;
+				}
 
-				DateManagerUpdate update = new DateManagerUpdate(assessment, openDate, dueDate, acceptUntil);
+				DateManagerUpdate update = new DateManagerUpdate(assessment, openDate, dueDate, acceptUntil, feedbackStart, feedbackEnd);
 
 				if (dueDate != null && !update.openDate.isBefore(update.dueDate)) {
 					errors.add(new DateManagerError("open_date", rb.getString("error.open.date.before.due.date"), "assessments", toolTitle, idx));
@@ -477,6 +522,10 @@ public class DateManagerServiceImpl implements DateManagerService {
 				if (lateHandling && update.acceptUntilDate != null) {
 					control.setRetractDate(Date.from(update.acceptUntilDate));
 				}
+				if (AssessmentFeedbackIfc.FEEDBACK_BY_DATE.equals(assessment.getAssessmentFeedback().getFeedbackDelivery())) {
+					control.setFeedbackDate(Date.from(update.feedbackStartDate));
+					control.setFeedbackEndDate(Date.from(update.feedbackEndDate));
+				}
 				assessment.setAssessmentAccessControl(control);
 				assessmentServiceQueries.saveOrUpdate(assessment);
 
@@ -490,6 +539,10 @@ public class DateManagerServiceImpl implements DateManagerService {
 				}
 				if (lateHandling && update.acceptUntilDate != null) {
 					control.setRetractDate(Date.from(update.acceptUntilDate));
+				}
+				if (AssessmentFeedbackIfc.FEEDBACK_BY_DATE.equals(assessment.getAssessmentFeedback().getFeedbackDelivery())) {
+					control.setFeedbackDate(Date.from(update.feedbackStartDate));
+					control.setFeedbackEndDate(Date.from(update.feedbackEndDate));
 				}
 				assessment.setAssessmentAccessControl(control);
 				pubAssessmentServiceQueries.saveOrUpdate(assessment);

@@ -16,11 +16,16 @@ package org.sakaiproject.datemanager.api.model;
 import java.time.Instant;
 
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 @AllArgsConstructor
+@RequiredArgsConstructor
 public class DateManagerUpdate {
-	public Object object;
-	public Instant openDate;
-	public Instant dueDate;
-	public Instant acceptUntilDate;
+	@NonNull public Object object;
+	@NonNull public Instant openDate;
+	@NonNull public Instant dueDate;
+	@NonNull public Instant acceptUntilDate;
+	public Instant feedbackStartDate;
+	public Instant feedbackEndDate;
 }
