@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.sakaiproject.entity.api.Edit;
-import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.user.api.User;
 
 /**

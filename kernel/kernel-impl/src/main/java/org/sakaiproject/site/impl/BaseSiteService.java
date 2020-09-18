@@ -93,7 +93,6 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.SiteTitleAdvisor;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
-import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.ActiveToolManager;
 import org.sakaiproject.tool.api.SessionManager;
