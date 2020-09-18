@@ -3009,7 +3009,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 						" order by a.publishedAssessmentId, a.agentId, a.forGrade desc, a.assessmentGradingId");
 	    
 		query.setTimestamp("currentTime",currentTime);
-		query.setParameterList("status", new ArrayList<Integer>( Arrays.asList(AssessmentGradingData.REMOVED, AssessmentGradingData.IN_PROGRESS, AssessmentGradingData.NO_SUBMISSION ) ));
+		query.setParameterList("status", Arrays.asList(AssessmentGradingData.REMOVED, AssessmentGradingData.NO_SUBMISSION) );
 
 		List<AssessmentGradingData> list = query.list();
 
