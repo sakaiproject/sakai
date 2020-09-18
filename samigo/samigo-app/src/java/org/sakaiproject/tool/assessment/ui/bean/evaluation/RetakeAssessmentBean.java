@@ -26,6 +26,10 @@ import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.assessment.data.dao.grading.StudentGradingSummaryData;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
  * <p>Description: class form for evaluating total scores</p>
@@ -91,5 +95,13 @@ public class RetakeAssessmentBean implements Serializable {
 
 	public void setStudentGradingSummaryDataMap(Map studentGradingSummaryDataMap) {
 		this.studentGradingSummaryDataMap = studentGradingSummaryDataMap;
+	}
+
+	public boolean isAvailable() {
+		PublishedAssessmentService pubAssessmentService = new PublishedAssessmentService();
+		PublishedAssessmentFacade pubAssessment = pubAssessmentService.getPublishedAssessment(publishedAssessmentId.toString());
+		DeliveryBean deliveryBean = (DeliveryBean) ContextUtil.lookupBean("delivery");
+		deliveryBean.setPublishedAssessment(pubAssessment);
+		return deliveryBean.isAvailable() && !deliveryBean.pastDueDate();
 	}
 }
