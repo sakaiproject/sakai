@@ -40,18 +40,21 @@
  <h:form id="retractAssessmentForm">
    <h:inputHidden id="publishedId" value="#{totalScores.publishedId}" />
 
-     <div class="validation tier1">
-       <h:outputText value="#{evaluationMessages.retake_confirmation_1} #{retakeAssessment.studentName} #{evaluationMessages.retake_confirmation_2}" />
-     </div>
+   <h:outputFormat value="#{evaluationMessages.retake_not_available_to_student}" styleClass="sak-banner-warn" rendered="#{!retakeAssessment.isAvailable()}">
+     <f:param value="#{retakeAssessment.studentName}" />
+   </h:outputFormat>
+   <h:outputText value="#{evaluationMessages.retake_confirmation_1} #{retakeAssessment.studentName} #{evaluationMessages.retake_confirmation_2}" />
+
        <p class="act">
-       <h:commandButton id="retake" value="#{evaluationMessages.retake}" type="submit"
-         styleClass="active" action="submissionStatus" >
-          <f:actionListener
-            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.RetakeAssessmentListener" />
-          <f:actionListener
-            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
-       </h:commandButton>
-       <h:commandButton value="#{commonMessages.cancel_action}" type="submit" style="act" action="author" />
+        <h:commandButton id="retake" value="#{evaluationMessages.allow_retake}" type="submit" styleClass="active" action="submissionStatus" rendered="#{retakeAssessment.isAvailable()}" >
+          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.RetakeAssessmentListener" />
+          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
+        </h:commandButton>
+        <h:commandButton id="retakeGoToSettings" value="#{evaluationMessages.allow_retake_go_to_settings}" type="submit" styleClass="active" action="editPublishedAssessmentSettings" rendered="#{!retakeAssessment.isAvailable()}" >
+          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.RetakeAssessmentListener" />
+          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditPublishedSettingsListener" />
+        </h:commandButton>
+        <h:commandButton value="#{commonMessages.cancel_action}" type="submit" style="act" action="submissionStatus" />
        </p>
 
  </h:form>
