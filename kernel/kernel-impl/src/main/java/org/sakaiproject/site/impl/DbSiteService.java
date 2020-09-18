@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlReaderFinishedException;
 import org.sakaiproject.db.api.SqlService;
@@ -2580,21 +2581,21 @@ public abstract class DbSiteService extends BaseSiteService
 
 			else
 			{
-				rv[1] = StringUtil.trimToZero(((BaseSite) edit).m_title);
-				rv[2] = StringUtil.trimToZero(((BaseSite) edit).m_type);
-				rv[3] = StringUtil.trimToZero(((BaseSite) edit).m_shortDescription);
-				rv[4] = StringUtil.trimToZero(((BaseSite) edit).m_description);
-				rv[5] = StringUtil.trimToZero(((BaseSite) edit).m_icon);
-				rv[6] = StringUtil.trimToZero(((BaseSite) edit).m_info);
-				rv[7] = StringUtil.trimToZero(((BaseSite) edit).m_skin);
+				rv[1] = StringUtils.trimToEmpty(((BaseSite) edit).m_title);
+				rv[2] = StringUtils.trimToEmpty(((BaseSite) edit).m_type);
+				rv[3] = StringUtils.trimToEmpty(((BaseSite) edit).m_shortDescription);
+				rv[4] = StringUtils.trimToEmpty(((BaseSite) edit).m_description);
+				rv[5] = StringUtils.trimToEmpty(((BaseSite) edit).m_icon);
+				rv[6] = StringUtils.trimToEmpty(((BaseSite) edit).m_info);
+				rv[7] = StringUtils.trimToEmpty(((BaseSite) edit).m_skin);
 				rv[8] = Integer.valueOf((((BaseSite) edit).m_published) ? 1 : 0);
 				rv[9] = ((((BaseSite) edit).m_joinable) ? "1" : "0");
 				rv[10] = ((((BaseSite) edit).m_pubView) ? "1" : "0");
-				rv[11] = StringUtil.trimToZero(((BaseSite) edit).m_joinerRole);
+				rv[11] = StringUtils.trimToEmpty(((BaseSite) edit).m_joinerRole);
 				rv[12] = isSpecialSite(id) ? "1" : "0";
 				rv[13] = isUserSite(id) ? "1" : "0";
-				rv[14] = StringUtil.trimToZero(((BaseSite) edit).m_createdUserId);
-				rv[15] = StringUtil.trimToZero(((BaseSite) edit).m_lastModifiedUserId);
+				rv[14] = StringUtils.trimToEmpty(((BaseSite) edit).m_createdUserId);
+				rv[15] = StringUtils.trimToEmpty(((BaseSite) edit).m_lastModifiedUserId);
 				rv[16] = edit.getCreatedTime();
 				rv[17] = edit.getModifiedTime();
 				rv[18] = edit.isCustomPageOrdered() ? "1" : "0";
