@@ -628,6 +628,18 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
     /**
      * {@inheritDoc}
      */
+    public long getLong(String name, long dflt)
+    {
+        String value = getString(name);
+
+        if (StringUtils.isEmpty(value)) return dflt;
+
+        return Long.parseLong(value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public int getInt(String name, int dflt)
     {
         String value = getString(name);
@@ -1093,9 +1105,16 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
             }
         } else {
             if (defaultValue instanceof Number) {
-                int num = ((Number) defaultValue).intValue();
-                int intValue = this.getInt(name, num);
-                returnValue = (T) Integer.valueOf(intValue);
+                if (defaultValue instanceof Long) {
+                    long num = ((Number) defaultValue).longValue();
+                    long longValue = this.getLong(name, num);
+                    returnValue = (T) Long.valueOf(longValue);
+                }
+                else {
+                    int num = ((Number) defaultValue).intValue();
+                    int intValue = this.getInt(name, num);
+                    returnValue = (T) Integer.valueOf(intValue);
+                }
             } else if (defaultValue instanceof Boolean) {
                 boolean bool = (Boolean) defaultValue;
                 boolean boolValue = this.getBoolean(name, bool);
