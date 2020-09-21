@@ -2307,12 +2307,10 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   }
 
   private void setIsLate(AssessmentGradingData data, PublishedAssessmentIfc pub){
-    Boolean isLate;
+    Boolean isLate = Boolean.FALSE;
     AssessmentAccessControlIfc a = pub.getAssessmentAccessControl();
     if (a.getDueDate() != null && a.getDueDate().before(new Date())) {
       isLate = Boolean.TRUE;
-    } else {
-      isLate = Boolean.FALSE;
     }
 
     if (isLate) {
