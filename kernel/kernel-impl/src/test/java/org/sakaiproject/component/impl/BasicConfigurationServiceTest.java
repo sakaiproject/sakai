@@ -105,7 +105,7 @@ public class BasicConfigurationServiceTest {
         // https://jira.sakaiproject.org/browse/SAK-22148
         int changed = basicConfigurationService.dereferenceConfig();
         ConfigData cd = basicConfigurationService.getConfigData();
-        Assert.assertEquals(16, cd.getTotalConfigItems());
+        Assert.assertEquals(17, cd.getTotalConfigItems());
         Assert.assertEquals(3, changed); // 4 of them have keys but 1 key is invalid so it will not be replaced
         Assert.assertEquals("Aaron", basicConfigurationService.getConfig("name", "default") );
         Assert.assertEquals("testing name=Aaron testing", basicConfigurationService.getConfig("testKeyNested", "default") );

@@ -50,6 +50,10 @@ public class MockServerConfigurationService implements
 		return null;
 	}
 
+	public long getLong(String name, long dflt) {
+		return 0L;
+	}
+
 	public int getInt(String name, int dflt) {
 		// TODO Auto-generated method stub
 		return 0;

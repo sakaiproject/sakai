@@ -37,7 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -630,11 +630,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
      */
     public long getLong(String name, long dflt)
     {
-        String value = getString(name);
-
-        if (StringUtils.isEmpty(value)) return dflt;
-
-        return Long.parseLong(value);
+        return NumberUtils.toLong(getString(name), dflt);
     }
 
     /**
@@ -642,11 +638,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
      */
     public int getInt(String name, int dflt)
     {
-        String value = getString(name);
-
-        if (StringUtils.isEmpty(value)) return dflt;
-
-        return Integer.parseInt(value);
+        return NumberUtils.toInt(getString(name), dflt);
     }
 
     /**
