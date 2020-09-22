@@ -6,7 +6,7 @@ import {SakaiItemDelete} from "./sakai-item-delete.js";
 import {SakaiRubricCriterionEdit} from "./sakai-rubric-criterion-edit.js";
 import {SakaiRubricCriterionRatingEdit} from "./sakai-rubric-criterion-rating-edit.js";
 import {SharingChangeEvent} from "./sharing-change-event.js";
-import * as Unused from "/webcomponents/assets/sortablejs/Sortable.js";
+import { Sortable } from "/webcomponents/assets/sortablejs/modular/sortable.esm.js";
 import {tr} from "./sakai-rubrics-language.js";
 
 export class SakaiRubricCriteria extends RubricsElement {
