@@ -57,6 +57,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.comparator.UserSortNameComparator;
+import org.springframework.util.comparator.NullSafeComparator;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -91,8 +92,8 @@ public class GradeSheetExporter {
         }
 
         @Override
-        public int compare(final Submitter s1, final Submitter s2) {
-            return this.collator.compare(s1.sortName, s2.sortName);
+        public int compare(final Submitter s1, final Submitter s2) {            
+            return new NullSafeComparator<>(collator, false).compare(s1.getSortName(), s2.getSortName());
         }
     };
     
@@ -464,5 +465,13 @@ public class GradeSheetExporter {
         void setNotes(Optional<List<String>> notes) {
             notes.ifPresent(strings -> this.notes = strings);
         }
+
+		public String getSortName() {
+			return sortName;
+		}
+
+		public void setSortName(String sortName) {
+			this.sortName = sortName;
+		}
     }
 }
