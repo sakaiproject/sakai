@@ -1098,8 +1098,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
         } else {
             if (defaultValue instanceof Number) {
                 if (defaultValue instanceof Long) {
-                    long num = ((Number) defaultValue).longValue();
-                    long longValue = this.getLong(name, num);
+                    long longValue = this.getLong(name, (Long) defaultValue);
                     returnValue = (T) Long.valueOf(longValue);
                 }
                 else {
