@@ -21,6 +21,7 @@
 
 package org.sakai.memory.impl.test;
 
+import java.time.Instant;
 import java.util.Observer;
 
 import org.sakaiproject.event.api.Event;
@@ -163,6 +164,12 @@ public class MockEventTrackingService implements EventTrackingService
 
 	public void delay(Event event, Time fireTime)
 	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void delay(Event event, Instant fireTime) {
 		// TODO Auto-generated method stub
 		
 	}

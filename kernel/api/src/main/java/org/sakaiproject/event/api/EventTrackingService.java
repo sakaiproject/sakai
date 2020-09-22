@@ -21,6 +21,7 @@
 
 package org.sakaiproject.event.api;
 
+import java.time.Instant;
 import java.util.Observer;
 
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
@@ -199,8 +200,20 @@ public interface EventTrackingService
 	 * 
 	 * @param event
 	 * @param fireTime
+	 * @deprecated {@link #delay(Event, Instant)}
 	 */
 	void delay(Event event, Time fireTime);
+	
+	
+	/**
+	 * Schedule an event to be fired at a specific time.  If the time is null or already passed, the
+	 * event is fired immediately.
+	 * 
+	 * @param event
+	 * @param fireTime
+	 * @d
+	 */
+	void delay(Event event, Instant fireTime);
 
 	/**
 	 * Cancel all delayed events for a resource that haven't yet fired.
