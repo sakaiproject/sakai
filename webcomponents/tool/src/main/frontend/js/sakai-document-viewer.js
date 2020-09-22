@@ -78,7 +78,7 @@ class SakaiDocumentViewer extends SakaiElement {
 
   loadDocumentMarkup(preview) {
 
-    const ref = preview.ref;
+    let ref = preview.ref;
     const type = preview.type;
 
     this.nomargins = false;
@@ -94,9 +94,9 @@ class SakaiDocumentViewer extends SakaiElement {
       this.documentMarkup = `<img src="/access/${ref}" />`;
     } else {
       let contentIndex = ref.indexOf("\/content\/");
-      const ref = contentIndex >= 0 ? ref.substring(contentIndex + 8) : ref;
+      ref = contentIndex >= 0 ? ref.substring(contentIndex + 8) : ref;
 
-      fetch(`/direct/content/${portal.siteId}/htmlForRef.html?ref=${previewRef.ref}`,
+      fetch(`/direct/content/${portal.siteId}/htmlForRef.html?ref=${ref}`,
               {cache: "no-cache", credentials: "same-origin"})
         .then(r => {
 
