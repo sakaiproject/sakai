@@ -2307,32 +2307,24 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   }
 
   private void setIsLate(AssessmentGradingData data, PublishedAssessmentIfc pub){
-	  // If submit from timeout popup, we don't record LATE
-	  if (data.getSubmitFromTimeoutPopup()) {
-		  data.setIsLate(false);
-	  }
-	  else {
-		  Boolean isLate = false;
-		  AssessmentAccessControlIfc a = pub.getAssessmentAccessControl();
-		  if (a.getDueDate() != null && a.getDueDate().before(new Date())) {
-			isLate = Boolean.TRUE;
-		  } else {
-			isLate = Boolean.FALSE;
-		  }
+    Boolean isLate = Boolean.FALSE;
+    AssessmentAccessControlIfc a = pub.getAssessmentAccessControl();
+    if (a.getDueDate() != null && a.getDueDate().before(new Date())) {
+      isLate = Boolean.TRUE;
+    }
 
-		  if (isLate) {
-			ExtendedTimeDeliveryService assessmentExtended = new ExtendedTimeDeliveryService((PublishedAssessmentFacade) pub, data.getAgentId());
-			if (assessmentExtended.hasExtendedTime() && assessmentExtended.getDueDate() != null && assessmentExtended.getDueDate().after(new Date())) {
-				isLate = Boolean.FALSE;
-			}
-		  }
+    if (isLate) {
+      ExtendedTimeDeliveryService assessmentExtended = new ExtendedTimeDeliveryService((PublishedAssessmentFacade) pub, data.getAgentId());
+      if (assessmentExtended.hasExtendedTime() && assessmentExtended.getDueDate() != null && assessmentExtended.getDueDate().after(new Date())) {
+          isLate = Boolean.FALSE;
+      }
+    }
 
-		  data.setIsLate(isLate);
-	  }
-	  
+    data.setIsLate(isLate);
+
     if (data.getForGrade())
       data.setStatus(1);
-    
+
     data.setTotalOverrideScore(Double.valueOf(0));
   }
 
