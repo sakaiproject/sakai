@@ -151,4 +151,6 @@ export class SakaiRubricEdit extends RubricsElement {
   }
 }
 
-customElements.define("sakai-rubric-edit", SakaiRubricEdit);
+if (!customElements.get("sakai-rubric-edit")) {
+  customElements.define("sakai-rubric-edit", SakaiRubricEdit);
+}
