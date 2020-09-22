@@ -443,6 +443,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
     public class GraderUser {
 
         private String displayName;
+        private String sortName;
         private String id;
 
         public GraderUser(User sakaiUser) {
@@ -450,6 +451,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             super();
 
             this.displayName = sakaiUser.getDisplayName();
+            this.sortName = sakaiUser.getSortName();
             this.id = sakaiUser.getId();
         }
     }
@@ -1240,6 +1242,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         private String id;
         private String displayName;
+        private String sortName;
 
         public SimpleSubmitter(AssignmentSubmissionSubmitter ass, boolean anonymousGrading) {
 
@@ -1248,7 +1251,9 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             this.id = ass.getSubmitter();
             try {
                 if (!anonymousGrading) {
-                    this.displayName = userDirectoryService.getUser(this.id).getDisplayName();
+                    User user = userDirectoryService.getUser(this.id);
+                    this.displayName = user.getDisplayName();
+                    this.sortName = user.getSortName();
                 } else {
                     this.displayName = ass.getSubmission().getId() + " " + rb.getString("grading.anonymous.title");
                 }

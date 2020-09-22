@@ -31,7 +31,7 @@ export class Submission {
       this.submitters = init.submitters;
 
       if (init.submitters) {
-        this.firstSubmitterName = init.submitters[0].displayName;
+        this.firstSubmitterName = init.submitters[0].sortName;
         this.firstSubmitterId = init.submitters[0].id;
       }
       this.late = init.late;
