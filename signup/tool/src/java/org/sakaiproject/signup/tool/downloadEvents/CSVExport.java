@@ -55,7 +55,7 @@ public class CSVExport {
 	List<SignupMeetingWrapper> wrappers;
 	SakaiFacade sakaiFacade;
 	
-	private ResourceLoader rb = new ResourceLoader("messages");
+	private static final ResourceLoader rb = new ResourceLoader("messages");
 	
 	public CSVExport(List<SignupMeetingWrapper> meetingWrappers, SakaiFacade sakaiFacade) {
 		this.wrappers = meetingWrappers;

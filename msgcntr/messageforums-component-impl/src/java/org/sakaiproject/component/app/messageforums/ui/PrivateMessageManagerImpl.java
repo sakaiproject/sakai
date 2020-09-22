@@ -37,6 +37,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections4.CollectionUtils;
@@ -72,7 +73,6 @@ import org.sakaiproject.component.app.messageforums.TestUtil;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageRecipientImpl;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
@@ -121,14 +121,13 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   private static final String FROM_ADDRESS = "msgcntr.notification.from.address";
   private static final String USER_NOT_DEFINED = "cannot find user with id ";
 
-  private final PreferencesService preferencesService = ComponentManager.get( PreferencesService.class );
-  
+
   private AreaManager areaManager;
   private MessageForumsMessageManager messageManager;
   private MessageForumsForumManager forumManager;
   private MessageForumsTypeManager typeManager;
   private IdManager idManager;
-  private SessionManager sessionManager;  
+  private SessionManager sessionManager;
   private EmailService emailService;
   private ContentHostingService contentHostingService;
   private SecurityService securityService;
@@ -137,7 +136,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   private ToolManager toolManager;
   private UserDirectoryService userDirectoryService;
   private LearningResourceStoreService learningResourceStoreService;
-  
+  @Setter private PreferencesService preferencesService;
+
   private static final String MESSAGES_TITLE = "pvt_message_nav";// Mensajes-->Messages/need to be modified to support internationalization
   
   private static final String PVT_RECEIVED = "pvt_received";     // Recibidos ( 0 mensajes )-->Received ( 8 messages - 8 unread )
@@ -153,10 +153,12 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   private static final String EMAIL_FOOTER4_B = "pvt_email_footer4_b";
   private static final String INIT_VECTOR = "RandomInitVector";
 
+  private ResourceLoader rb;
+
   public void init()
   {
 	log.info("init()");
-    ;
+    rb = new ResourceLoader(MESSAGECENTER_BUNDLE);
   }
   
 	public void setSecurityService(SecurityService securityService) {
@@ -2059,10 +2061,8 @@ return topicTypeUuid;
       return areaManager.getResourceBundleString(key);
   }
   
-  private String getResourceBundleString(String key, Object[] replacementValues) 
-  {
-      final ResourceLoader rb = new ResourceLoader(MESSAGECENTER_BUNDLE);
-      return rb.getFormattedMessage(key, replacementValues);   
+  private String getResourceBundleString(String key, Object[] replacementValues) {
+      return rb.getFormattedMessage(key, replacementValues);
   }
 
   /**

@@ -44,7 +44,7 @@ import org.sakaiproject.util.ResourceLoader;
  */
 public class CSVReader extends Reader
 {
-   private ResourceLoader rb = new ResourceLoader("calendar");
+   private static final ResourceLoader rb = new ResourceLoader("calendar");
    private Map<String, String> defaultHeaderMap = getDefaultColumnMap();
    
 	private static final String COMMENT_LINE_PREFIX = "//";

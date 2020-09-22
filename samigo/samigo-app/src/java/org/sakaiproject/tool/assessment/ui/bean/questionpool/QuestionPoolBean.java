@@ -105,7 +105,11 @@ public class QuestionPoolBean implements Serializable {
 	
 	  /** Use serialVersionUID for interoperability. */
 	  private final static long serialVersionUID = 418920360211039758L;
-  public final static String ORIGIN_TOP = "poolList";
+	  private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages");
+	  private static final ResourceLoader re = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
+	  private static final ResourceLoader rc = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.CommonMessages");
+
+    public final static String ORIGIN_TOP = "poolList";
   public final static String EDIT_POOL = "editPool";
   public final static String EDIT_ASSESSMENT = "editAssessment";
   
@@ -200,7 +204,6 @@ public class QuestionPoolBean implements Serializable {
   private boolean notCurrentPool;
   private String displayNameNotCPool;
 
-  private ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages");
   /**
    * Creates a new QuestionPoolBean object.
    */
@@ -1678,7 +1681,6 @@ public String getAddOrEdit()
 		}
 
         // if dest = source's parent,i.e copying to it's own parent ,  then if there is an existing pool with the same name, copyPool() will create a new pool with Copy prepended in the pool name
-		ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages");
 		String copy = rb.getString("prepend_copy");
 		String of = rb.getString("prepend_of");
 		delegate.copyPool(tree, AgentFacade.getAgentString(),
@@ -2911,8 +2913,6 @@ String poolId = ContextUtil.lookupParam("qpid");
 
 	private String getTypeQuestion(Long typeId) {
 		String type = "";
-		ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
-		ResourceLoader rc = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.CommonMessages");
 		if (typeId == TypeIfc.MULTIPLE_CHOICE.intValue()) {
 			type = rc.getString("multiple_choice_sin");
 		}
@@ -2923,40 +2923,40 @@ String poolId = ContextUtil.lookupParam("qpid");
 			type = rc.getString("multipl_mc_ss");
 		}
 		if (typeId == TypeIfc.MULTIPLE_CHOICE_SURVEY.intValue()) {
-			type = rb.getString("q_mult_surv");
+			type = re.getString("q_mult_surv");
 		}
 		if (typeId == TypeIfc.TRUE_FALSE.intValue()) {
-			type = rb.getString("q_tf");
+			type = re.getString("q_tf");
 		}
 		if (typeId == TypeIfc.ESSAY_QUESTION.intValue()) {
-			type = rb.getString("q_short_ess");
+			type = re.getString("q_short_ess");
 		}
 		if (typeId == TypeIfc.FILE_UPLOAD.intValue()) {
-			type = rb.getString("q_fu");
+			type = re.getString("q_fu");
 		}
 		if (typeId == TypeIfc.AUDIO_RECORDING.intValue()) {
-			type = rb.getString("q_aud");
+			type = re.getString("q_aud");
 		}
 		if (typeId == TypeIfc.FILL_IN_BLANK.intValue()) {
-			type = rb.getString("q_fib");
+			type = re.getString("q_fib");
 		}
 		if (typeId == TypeIfc.MATCHING.intValue()) {
-			type = rb.getString("q_match");
+			type = re.getString("q_match");
 		}
 		if (typeId == TypeIfc.FILL_IN_NUMERIC.intValue()) {
-			type = rb.getString("q_fin");
+			type = re.getString("q_fin");
 		}
 		if (typeId == TypeIfc.EXTENDED_MATCHING_ITEMS.intValue()) {
-			type = rb.getString("q_emi");
+			type = re.getString("q_emi");
 		}
 		if (typeId == TypeIfc.MATRIX_CHOICES_SURVEY.intValue()) {
-			type = rb.getString("q_matrix_choices_surv");
+			type = re.getString("q_matrix_choices_surv");
 		}
 		if (typeId == TypeIfc.CALCULATED_QUESTION.intValue()) {
-			type = rb.getString("q_cq");
+			type = re.getString("q_cq");
 		}
 		if (typeId == TypeIfc.IMAGEMAP_QUESTION.intValue()) {
-			type = rb.getString("q_imq");
+			type = re.getString("q_imq");
 		}
 		return type;
 	}

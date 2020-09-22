@@ -63,7 +63,7 @@ public class SamLiteBean implements Serializable {
 	@Setter @ManagedProperty(value="#{Components[\"org.sakaiproject.util.api.FormattedText\"]}")
 	private FormattedText formattedText;
 
-	private ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.SamLite");
+	private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.SamLite");
 	
 	public void setAuthorBean(AuthorBean authorBean) {
 		this.authorBean = authorBean;

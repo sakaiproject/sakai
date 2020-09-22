@@ -114,7 +114,7 @@ public class ItemAuthorBean implements Serializable {
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 8266438770394956874L;
-
+  private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
   private final static int MAX_DECIMAL_PLACES = 10;
   public final static String FROM_QUESTIONPOOL= "questionpool";
   public final static String FROM_ASSESSMENT= "assessment";
@@ -776,8 +776,7 @@ public class ItemAuthorBean implements Serializable {
 
   public List getSectionSelectList() {
     List list = new ArrayList();
-    
-    ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
+
     AssessmentBean assessbean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
     List<SectionContentsBean> sectionSet = assessbean.getSections();
     Iterator<SectionContentsBean> iter = sectionSet.iterator();
@@ -821,9 +820,7 @@ public class ItemAuthorBean implements Serializable {
 
   public List getSelectRelativeWidthList() {
 	  List<SelectItem> list = new ArrayList();
-	  ResourceLoader rb = new ResourceLoader(
-		"org.sakaiproject.tool.assessment.bundle.AuthorMessages");
-	  
+
 	  final String[] widthLists = {
 			  rb.getString("matrix_width_list_default"),
 			  rb.getString("matrix_width_list_1"),
@@ -854,8 +851,6 @@ public class ItemAuthorBean implements Serializable {
 	public Map getSectionList() {
 		Map items = new Hashtable();
 
-		ResourceLoader rb = new ResourceLoader(
-				"org.sakaiproject.tool.assessment.bundle.AuthorMessages");
 		AssessmentBean assessbean = (AssessmentBean) ContextUtil
 				.lookupBean("assessmentBean");
 		List<SectionContentsBean> sectionSet = assessbean.getSections();

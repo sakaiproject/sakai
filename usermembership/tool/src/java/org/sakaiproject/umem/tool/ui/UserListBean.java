@@ -81,7 +81,7 @@ public class UserListBean {
 	private static final String				CFG_USER_TYPE_LIMIT_TO_LIST		= "userType.limitToList";
 
 	/** Resource bundle */
-	private transient ResourceLoader		msgs				= new ResourceLoader("org.sakaiproject.umem.tool.bundle.Messages");
+	private static final ResourceLoader		msgs				= new ResourceLoader("org.sakaiproject.umem.tool.bundle.Messages");
 
 	/** Controller fields */
 	private List<UserRow>					userRows;

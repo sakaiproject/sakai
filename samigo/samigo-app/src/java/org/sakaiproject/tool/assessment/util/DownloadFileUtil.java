@@ -53,12 +53,13 @@ import org.sakaiproject.util.ResourceLoader;
 @Slf4j
 public class DownloadFileUtil {
 
+	private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
+
 	public void processWholeSiteOrOneSection(HttpServletRequest req, HttpServletResponse res, ArrayList<ItemDataIfc> idataList, ArrayList<String> userUidList) {
 		processWholeSiteOrOneSection(req, res, idataList, userUidList, null);
 	}
 
 	public void processWholeSiteOrOneSection(HttpServletRequest req, HttpServletResponse res, ArrayList<ItemDataIfc> idataList, ArrayList<String> userUidList, String sectionName){
-		ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
 		res.setContentType("application/x-zip-compressed");
 		TotalScoresBean totalScores = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
 
@@ -445,7 +446,6 @@ public class DownloadFileUtil {
 	}
 
 	private String getPartNumAndQuestionNum(ItemDataIfc item) {
-		ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
 		Integer partNum = item.getSection().getSequence();
 		Integer questionNum = item.getSequence();
 		StringBuilder partAndQues = new StringBuilder(rb.getString("part"));
