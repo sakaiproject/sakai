@@ -83,7 +83,7 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
             //User configuration for metrics update freqency
             igniteConfiguration.setMetricsUpdateFrequency(serverConfigurationService.getLong("ignite.metrics.update.freq", IgniteConfiguration.DFLT_METRICS_UPDATE_FREQ));
 
-            igniteConfiguration.setMetricsLogFrequency(serverConfigurationService.getLong("ignite.metrics.log.freq", IgniteConfiguration.DFLT_METRICS_LOG_FREQ));
+            igniteConfiguration.setMetricsLogFrequency(serverConfigurationService.getLong("ignite.metrics.log.freq", 0L));
 
 
             // local node network configuration
