@@ -148,7 +148,7 @@ public class UploadRenderer extends Renderer {
             Part part = request.getPart(name);
             if (part != null) return new WrappedUpload(part);
         } catch (Exception e) {
-            log.error("Failed to get upload part from request. Null will be returned.", e);
+            log.warn("Failed to get upload part from request, NULL will be returned, {}", e.toString());
         }
         return null;
     }
