@@ -19,9 +19,7 @@ package org.sakaiproject.tool.assessment.util;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import org.apache.commons.lang3.StringUtils;
 import org.mariuszgromada.math.mxparser.Expression;
 import org.sakaiproject.tool.assessment.services.GradingService;
 
@@ -31,7 +29,8 @@ public class SamigoExpressionParser
 
   public static String INFINITY = "Infinity";
   public static String NaN = "NaN";
-  public static Pattern oldLogPattern;
+  public static String[] oldSamigoParserVars = {"SIN", "COS", "TAN", "ASIN", "ACOS", "ATAN", "ABS", "EXP", "SGN", "SQRT", "LOG10", "LN", "PI", "E", "SIGN", "LOG", "log"};
+  public static String[] newSamigoParserVars = {"sin", "cos", "tan", "asin", "acos", "atan", "abs", "exp", "sgn", "sqrt", "log10", "ln", "pi", "e", "sgn",  "ln",  "ln"};
 
   /**
    * finalructor.
@@ -45,8 +44,6 @@ public class SamigoExpressionParser
 
     token = "";
     token_type = TOKENTYPE.NOTHING;
-
-    oldLogPattern = Pattern.compile("log\\([^,]*\\)");
   }
 
   /**
@@ -65,28 +62,16 @@ public class SamigoExpressionParser
   {
     try
     {
-      // mxParser wants "pi" not "PI"
-      expr = new_expr.toLowerCase();
+      expr = new_expr.trim();
       // mxParser doesn't understand log(e) they do understand ln(e)
-      Matcher matcher = oldLogPattern.matcher(expr);
-      if (matcher.matches()) {
-          expr = expr.replaceAll("log", "ln");
+      // mxParser wants "pi" not "PI"
+      final int cnt = oldSamigoParserVars.length;
+      for (int i = 0; i < cnt; i++) {
+    	  // Only match whole words, e.g., don't match a variable called "applePies"
+    	  expr = expr.replaceAll("\\b" + oldSamigoParserVars[i] + "\\b", newSamigoParserVars[i]);
       }
-      // mxParser doesn't understand SIGN they do understand SGN
-      expr = expr.replaceAll("sign", "sgn");
 
       ans = BigDecimal.valueOf(0.0);
-
-      // get the first character in expr
-      getFirstChar();
-
-      getToken();
-      
-      // check whether the given expression is empty
-      if (token_type == TOKENTYPE.DELIMETER && expr_c == '\0')
-      {
-          throw new SamigoExpressionError(row(), col(), 4);
-      }
 
       Expression e = null;
       try {
@@ -112,15 +97,6 @@ public class SamigoExpressionParser
     }
 
     return ans_str;
-  }
-
-
-  /**
-   * checks if the given char c is a minus
-   */
-  boolean isMinus(final char c)
-  {
-    return c == '-';
   }
 
   /**
