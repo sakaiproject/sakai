@@ -79,6 +79,12 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
             igniteConfiguration.setGridLogger(new Slf4jLogger());
 
             igniteConfiguration.setCacheConfiguration(cacheConfiguration);
+	    
+            //User configuration for metrics update freqency
+            igniteConfiguration.setMetricsUpdateFrequency(serverConfigurationService.getLong("ignite.metrics.update.freq", IgniteConfiguration.DFLT_METRICS_UPDATE_FREQ));
+
+            igniteConfiguration.setMetricsLogFrequency(serverConfigurationService.getLong("ignite.metrics.log.freq", 0L));
+
 
             // local node network configuration
             TcpCommunicationSpi tcpCommunication = new TcpCommunicationSpi();
