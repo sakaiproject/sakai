@@ -67,7 +67,7 @@ public class CommonsContentProducer implements EntityContentProducer {
     private List<String> addingEvents = new ArrayList<>();
     private List<String> removingEvents = new ArrayList<>();
 
-    private ResourceLoader rl = new ResourceLoader("commons");
+    private static final ResourceLoader rl = new ResourceLoader("commons");
 
     public void init() {
 

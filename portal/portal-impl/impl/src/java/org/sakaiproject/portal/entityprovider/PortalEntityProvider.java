@@ -80,6 +80,8 @@ public class PortalEntityProvider extends AbstractEntityProvider implements Auto
 	private final static String CONNECTIONSEARCH_CACHE = "org.sakaiproject.portal.entityprovider.connectionSearchCache";
 	private final static String WORKSPACE_IDS_KEY = "workspaceIds";
 
+	private static final ResourceLoader rl = new ResourceLoader("bullhorns");
+
 	private BullhornService bullhornService;
 	private MemoryService memoryService;
 	private SearchService searchService;
@@ -146,7 +148,6 @@ public class PortalEntityProvider extends AbstractEntityProvider implements Auto
 	@EntityCustomAction(action = "bullhornAlerts", viewKey = EntityView.VIEW_LIST)
 	public ActionReturn getBullhornAlerts(EntityView view) {
 
-		ResourceLoader rl = new ResourceLoader("bullhorns");
 		List<BullhornAlert> alerts = bullhornService.getAlerts(getCheckedCurrentUser());
 
 		if (alerts.size() > 0) {

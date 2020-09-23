@@ -35,7 +35,7 @@ public class Day implements Serializable {
 	public final static String	STYLE_WITHOUT_ACTIVITY			= "calDayWithoutActivity";
 	public final static String	STYLE_OTHER_WITH_ACTIVITY		= "calOtherDayWithActivity";
 	public final static String	STYLE_OTHER_WITHOUT_ACTIVITY	= "calOtherDayWithNoActivity";
-	private transient ResourceLoader				msgs					= new ResourceLoader("calendar");
+	private static final ResourceLoader	msgs					= new ResourceLoader("calendar");
 
 	Date						date							= null;
 	String						styleClass						= "";

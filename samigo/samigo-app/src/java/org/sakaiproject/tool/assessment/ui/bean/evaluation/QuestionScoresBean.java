@@ -66,6 +66,7 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 5517587781720762296L;
+  private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
 
   public static final String SHOW_SA_RATIONALE_RESPONSES_INLINE = "2"; 
   public static final String SHOW_SA_RATIONALE_RESPONSES_POPUP = "1"; 
@@ -310,8 +311,7 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
    * @return the max point
    */
   public String getMaxPoint()
-    {  
-	  ResourceLoader rb=new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
+    {
 	try{
 		if (this.getMaxScore() == 1.0)
 			return Precision.round(this.getMaxScore(), 2)+ " " + rb.getString("point");

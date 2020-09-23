@@ -41,7 +41,7 @@ import lombok.Setter;
 @Slf4j
 public class UserLocale {
 
-	private ResourceLoader rb = new ResourceLoader("messages");
+	private static final ResourceLoader rb = new ResourceLoader("messages");
 
 	@Getter @Setter private SakaiFacade sakaiFacade;
 

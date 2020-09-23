@@ -90,7 +90,7 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 
 	private static final int COLUMNS_GROUPING_BY_SLOT = 7;
 
-	private ResourceLoader rb = new ResourceLoader("messages");
+	private static final ResourceLoader rb = new ResourceLoader("messages");
 
 	private String[] tabTitles_Organizor;
 

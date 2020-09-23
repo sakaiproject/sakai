@@ -177,8 +177,8 @@ public class CachingMessageBundleServiceImpl implements MessageBundleService {
 
     @Override
     public void saveOrUpdate(String baseName, String moduleName, ResourceBundle newBundle, Locale locale) {
-        String key = MessageBundleServiceImpl.getIndexKeyName(baseName, moduleName, locale.toString());
+        // We avoid doing invalidation here as were unable to detect where bundles were already loaded
+        // specifically when calling new ResourceLoader()
         dbMessageBundleService.saveOrUpdate(baseName, moduleName, newBundle, locale);
-        cache.remove(key);
     }
 }

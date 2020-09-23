@@ -45,7 +45,7 @@ public class UserAttributeRoleProvider implements RoleProvider {
 	
 	private Set<String> allRoles;
 	
-	private ResourceLoader rb = new ResourceLoader("UserAttributeRoleProvider");
+	private static final ResourceLoader rb = new ResourceLoader("UserAttributeRoleProvider");
 
 	public void init() {
 		if (statusRoles != null) {
