@@ -18,8 +18,9 @@ package org.sakaiproject.tool.assessment.util;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
-import java.util.*;
-import org.apache.commons.lang3.StringUtils;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.mariuszgromada.math.mxparser.Expression;
 import org.sakaiproject.tool.assessment.services.GradingService;
 
@@ -29,6 +30,8 @@ public class SamigoExpressionParser
 
   public static String INFINITY = "Infinity";
   public static String NaN = "NaN";
+
+  // Samigo once had a custom function parser. Now we use a well-supported library called mxParser that is case-sensitive.
   public static String[] oldSamigoParserVars = {"SIN", "COS", "TAN", "ASIN", "ACOS", "ATAN", "ABS", "EXP", "SGN", "SQRT", "LOG10", "LN", "PI", "E", "SIGN", "LOG", "log"};
   public static String[] newSamigoParserVars = {"sin", "cos", "tan", "asin", "acos", "atan", "abs", "exp", "sgn", "sqrt", "log10", "ln", "pi", "e", "sgn",  "ln",  "ln"};
 
