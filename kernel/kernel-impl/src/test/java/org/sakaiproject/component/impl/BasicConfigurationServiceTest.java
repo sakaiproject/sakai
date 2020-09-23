@@ -62,6 +62,7 @@ public class BasicConfigurationServiceTest {
         basicConfigurationService.addConfigItem( new ConfigItemImpl("test6", "test6"), SOURCE);
         basicConfigurationService.addConfigItem( new ConfigItemImpl("test7", "${AZ}"), SOURCE);
         basicConfigurationService.addConfigItem( new ConfigItemImpl("intVal", 11), SOURCE);
+        basicConfigurationService.addConfigItem( new ConfigItemImpl("longVal", 15L), SOURCE);
         basicConfigurationService.addConfigItem( new ConfigItemImpl("booleanVal", true), SOURCE);
         log.info(basicConfigurationService.getConfigData().toString());
     }
@@ -104,7 +105,7 @@ public class BasicConfigurationServiceTest {
         // https://jira.sakaiproject.org/browse/SAK-22148
         int changed = basicConfigurationService.dereferenceConfig();
         ConfigData cd = basicConfigurationService.getConfigData();
-        Assert.assertEquals(16, cd.getTotalConfigItems());
+        Assert.assertEquals(17, cd.getTotalConfigItems());
         Assert.assertEquals(3, changed); // 4 of them have keys but 1 key is invalid so it will not be replaced
         Assert.assertEquals("Aaron", basicConfigurationService.getConfig("name", "default") );
         Assert.assertEquals("testing name=Aaron testing", basicConfigurationService.getConfig("testKeyNested", "default") );
@@ -266,6 +267,19 @@ public class BasicConfigurationServiceTest {
         basicConfigurationService.addConfigItem( booleanVal4, SOURCE);
         boolean booleanValue4 = basicConfigurationService.getBoolean("booleanVal4", false);
         Assert.assertEquals(false, booleanValue4);    
+    }
+
+    @Test
+    public void testSAK_39751() {
+        long longDefault = Long.valueOf(Integer.MAX_VALUE) * 2L;
+        long longVal = basicConfigurationService.getLong("longVal", longDefault);
+        Assert.assertEquals(15L, longVal);
+        longVal = basicConfigurationService.getLong("longVal2", longDefault); // doesn't exist
+        Assert.assertEquals(longDefault, longVal);
+
+        //Testing getConfig default value
+        longVal = basicConfigurationService.getConfig("longVal2", longDefault);
+        Assert.assertEquals(longDefault, longVal);
     }
 
     @Test
