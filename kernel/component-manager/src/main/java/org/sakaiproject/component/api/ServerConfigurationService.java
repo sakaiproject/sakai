@@ -191,6 +191,17 @@ public interface ServerConfigurationService
 	String[] getStrings(String name);
 
 	/**
+	 * Access some named configuration value as a long
+	 *
+	 * @param name
+	 *        The configuration value name.
+	 * @param dflt
+	 *        The value to return if not found.
+	 * @return The configuration value with this name, or the default value if not found.
+	 */
+	long getLong(String name, long dflt);
+
+	/**
 	 * Access some named configuration value as an int.
 	 * 
 	 * @param name
