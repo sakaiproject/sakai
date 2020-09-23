@@ -43,7 +43,7 @@ import org.sakaiproject.util.ResourceLoader;
 @Slf4j
 public class LTIReportingJob implements Job {
 
-    protected final ResourceLoader rb = new ResourceLoader("email");
+    protected static final ResourceLoader rb = new ResourceLoader("email");
 
     private LTIService ltiService;
     private SiteService siteService;

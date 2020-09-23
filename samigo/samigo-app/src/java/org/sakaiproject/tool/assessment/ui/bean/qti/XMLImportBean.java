@@ -75,7 +75,8 @@ import lombok.extern.slf4j.Slf4j;
 public class XMLImportBean implements Serializable {
 	  /** Use serialVersionUID for interoperability. */
 	  private final static long serialVersionUID = 418920360211039758L;
-	  
+	  private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorImportExport");
+
   private int qtiVersion;
   private String uploadFileName;
   private String importType;
@@ -117,7 +118,6 @@ public class XMLImportBean implements Serializable {
 
 	  if (uploadFile!= null && uploadFile.startsWith("SizeTooBig:")) {
 		  Long sizeMax = Long.valueOf(ServerConfigurationService.getString("samigo.sizeMax", "40960"));
-		  ResourceLoader rb =new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorImportExport");
 		  String sizeTooBigMessage = MessageFormat.format(rb.getString("import_size_too_big"), uploadFile.substring(11), Math.round(sizeMax.floatValue()/1024));
 	      FacesMessage message = new FacesMessage(sizeTooBigMessage);
 	      FacesContext.getCurrentInstance().addMessage(null, message);
@@ -174,13 +174,11 @@ public class XMLImportBean implements Serializable {
     catch (FileNotFoundException fnfex)
     {
       fileNotFound = true;
-      ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorImportExport");
       FacesMessage message = new FacesMessage( rb.getString("import_qti_not_found") );
       FacesContext.getCurrentInstance().addMessage(null, message);
     }
     catch (Exception ex)
     {
-      ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorImportExport");
       FacesMessage message = new FacesMessage( rb.getString("import_err") );
       FacesContext.getCurrentInstance().addMessage(null, message);
     }
@@ -290,7 +288,6 @@ public class XMLImportBean implements Serializable {
     if (failedMatchingQuestions.size() > 0)
     {
       String importedFilename = getImportedFilename(uploadFile);	
-      ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorImportExport");
       StringBuffer sb = new StringBuffer("\"");
       sb.append(importedFilename);
       sb.append("\" ");
@@ -473,7 +470,6 @@ public class XMLImportBean implements Serializable {
     }
     catch (Exception ex)
     {
-      ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorImportExport");
       FacesMessage message = new FacesMessage( rb.getString("import_err_pool") );
       FacesContext.getCurrentInstance().addMessage(null, message);
     }

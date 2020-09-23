@@ -77,7 +77,7 @@ public class PresenceTool extends HttpServlet
 	protected static final String CHAT_CONTEXT_PRESENCE_PREFIX = "chat_site_";
 
 	/** Localized messages * */
-	ResourceLoader rb = new ResourceLoader("presence");
+	private static final ResourceLoader rb = new ResourceLoader("presence");
 
 	/**
 	 * Shutdown the servlet.

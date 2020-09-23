@@ -102,9 +102,9 @@ import org.sakaiproject.util.ResourceLoader;
 public class HistogramListener
   implements ActionListener, ValueChangeListener
 {
-  //private static BeanSort bs;
-  //private static ContextUtil cu;
-  //private static EvaluationListenerUtil util;
+	private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
+	private static final ResourceLoader rc = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.CommonMessages");
+
   private GradingService delegate;
 
   /**
@@ -212,8 +212,6 @@ public class HistogramListener
         	log.error("SAK-16437 happens!! publishedId = " + publishedId + ", agentId = " + AgentFacade.getAgentString());
         }
         
-    	ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
-        ResourceLoader rbEval = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
         String assessmentName = "";
 
 		  histogramScores.clearLowerQuartileStudents();
@@ -551,9 +549,9 @@ public class HistogramListener
 							  questionScores.setDiscrimination(Double.toString(discrimination));
                               }
                           }else{
-                              questionScores.setPercentCorrectFromUpperQuartileStudents(rbEval.getString("na"));
-                              questionScores.setPercentCorrectFromLowerQuartileStudents(rbEval.getString("na"));
-                              questionScores.setDiscrimination(rbEval.getString("na"));
+                              questionScores.setPercentCorrectFromUpperQuartileStudents(rb.getString("na"));
+                              questionScores.setPercentCorrectFromLowerQuartileStudents(rb.getString("na"));
+                              questionScores.setDiscrimination(rb.getString("na"));
                           }
 					  }
 
@@ -922,9 +920,7 @@ public class HistogramListener
   private void getEMIScores(Map publishedItemHash,
 			Map publishedAnswerHash, Map emiRequiredCorrectAnswersCount, List scores,
 			HistogramQuestionScoresBean qbean, List answers) {
-		ResourceLoader rb = new ResourceLoader(
-				"org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
-		
+
 		// Answers keyed by answer-id
 		Map answersById = new HashMap();
 		
@@ -1572,8 +1568,6 @@ public class HistogramListener
 	}
 
   private void getTFMCScores(Map publishedAnswerHash, List scores, HistogramQuestionScoresBean qbean, List answers) {
-		ResourceLoader rb = new ResourceLoader(
-				"org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
 		Map texts = new HashMap();
 		Iterator iter = answers.iterator();
 		Map results = new HashMap();
@@ -1715,9 +1709,6 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
     final String INCORRECT = "Incorrect";
     final int COLUMN_MAX_HEIGHT = 100;
     
-    ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
-    ResourceLoader rc = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.CommonMessages");
-    
     // count incorrect and correct to support column height calculation
     Map<String, Integer> results = new HashMap<String, Integer>();
     results.put(CORRECT, Integer.valueOf(0));
@@ -1779,8 +1770,6 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
 	private void getImageMapQuestionScores(Map publishedItemTextHash, Map publishedAnswerHash,
 	    List scores, HistogramQuestionScoresBean qbean, List labels)
 	  {
-		ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
-		ResourceLoader rc = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.CommonMessages");
 		Map texts = new HashMap();
 	    Iterator iter = labels.iterator();
 	    Map results = new HashMap();
@@ -1911,7 +1900,6 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
   private void getMatchingScores(Map publishedItemTextHash, Map publishedAnswerHash,
 		  List scores, HistogramQuestionScoresBean qbean, List labels)
   {
-	ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
     Map texts = new HashMap();
     Iterator iter = labels.iterator();
     Map results = new HashMap();
@@ -2777,8 +2765,6 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
   }
 
   private String getType(int typeId) {
-	  ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
-	  ResourceLoader rc = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.CommonMessages");
 	  if (typeId == TypeIfc.MULTIPLE_CHOICE.intValue()) {
 		  return rc.getString("multiple_choice_sin");
 	  }
@@ -2871,9 +2857,6 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
     if (detailedStatistics==null || detailedStatistics.size()==0) {
     	return spreadsheetRows;
     }
-    
-	ResourceLoader rb = new ResourceLoader(
-			"org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
     
     List<Object> headerList = new ArrayList<Object>();
     

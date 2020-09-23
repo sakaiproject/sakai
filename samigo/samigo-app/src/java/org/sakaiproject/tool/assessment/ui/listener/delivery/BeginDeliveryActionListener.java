@@ -77,6 +77,7 @@ import org.sakaiproject.util.ResourceLoader;
 @Slf4j
 public class BeginDeliveryActionListener implements ActionListener
 {
+  private static final ResourceLoader rl = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
   private RubricsService rubricsService = ComponentManager.get(RubricsService.class);
 
   /**
@@ -408,7 +409,7 @@ public class BeginDeliveryActionListener implements ActionListener
     				delivery.setTimeLimit_minute(minute);
     				delivery.setTimeExpired(false);
     				StringBuilder sb = new StringBuilder();
-    				ResourceLoader rl = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
+
     				if (hour == 0) {
     					if (minute == 1) {
     						sb.append(minute).append(" ").append(rl.getString("time_limit_minute"));

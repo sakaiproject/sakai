@@ -50,7 +50,7 @@ import net.fortuna.ical4j.util.MapTimeZoneCache;
 @Slf4j
 public class IcalendarReader extends Reader
 {
-	private ResourceLoader rb = new ResourceLoader("calendar");
+	private static final ResourceLoader rb = new ResourceLoader("calendar");
 	private Map<String, String> defaultHeaderMap = getDefaultColumnMap();
 	
 	private static final String TITLE_PROPERTY_NAME = "Summary";

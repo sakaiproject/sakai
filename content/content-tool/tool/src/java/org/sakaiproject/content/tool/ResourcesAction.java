@@ -208,7 +208,8 @@ public class ResourcesAction
 	private static final org.sakaiproject.content.copyright.api.CopyrightManager copyrightManager = (org.sakaiproject.content.copyright.api.CopyrightManager)
 			ComponentManager.get("org.sakaiproject.content.copyright.api.CopyrightManager");
 
-	
+	private static final ResourceLoader rl = new ResourceLoader("permissions");
+
 	/**
 	 * Action
 	 *
@@ -4085,9 +4086,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		log.debug("{}.buildListContext()", this);
 		// Issue SAK-19442
 		// ... pass the resource loader object
-		ResourceLoader pRb = new ResourceLoader("permissions");
 		HashMap<String, String> pRbValues = new HashMap<>();
-		for(Iterator<Entry<String, String>> mapIter = pRb.entrySet().iterator(); mapIter.hasNext();)
+		for(Iterator<Entry<String, String>> mapIter = rl.entrySet().iterator(); mapIter.hasNext();)
 		{
 			Entry<String, String> entry = mapIter.next();
 			pRbValues.put(entry.getKey(), entry.getValue());

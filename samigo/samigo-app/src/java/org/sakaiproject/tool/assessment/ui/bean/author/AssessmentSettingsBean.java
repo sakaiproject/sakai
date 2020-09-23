@@ -102,7 +102,6 @@ import org.sakaiproject.tool.assessment.util.ExtendedTimeValidator;
 @ManagedBean(name="assessmentSettings")
 @SessionScoped
 public class AssessmentSettingsBean implements Serializable {
-
     private static final IntegrationContextFactory integrationContextFactory =
       IntegrationContextFactory.getInstance();
     private static final GradebookServiceHelper gbsHelper =
@@ -238,7 +237,7 @@ public class AssessmentSettingsBean implements Serializable {
   
   private SimpleDateFormat displayFormat;
 
-  private ResourceLoader assessmentSettingMessages;
+  private static final ResourceLoader assessmentSettingMessages = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
 
   @Resource(name = "org.sakaiproject.service.gradebook.GradebookService")
   private GradebookService gradebookService;
@@ -260,7 +259,6 @@ public class AssessmentSettingsBean implements Serializable {
 
   public AssessmentSettingsBean(WebApplicationContext context) {
     context.getAutowireCapableBeanFactory().autowireBean(this);
-    this.assessmentSettingMessages = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
   }
 
   public AssessmentFacade getAssessment() {

@@ -241,6 +241,7 @@ public class DiscussionForumTool {
   private static final String FORUMS_TOOL_ID = "sakai.forums";
 
   private static final String MESSAGECENTER_BUNDLE = "org.sakaiproject.api.app.messagecenter.bundle.Messages";
+  private static final ResourceLoader rb = new ResourceLoader(MESSAGECENTER_BUNDLE);
 
   private static final String INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_SETTINGS = "cdfm_insufficient_privileges";
   private static final String INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_ORGANIZE = "cdfm_insufficient_privileges";
@@ -6825,12 +6826,10 @@ public class DiscussionForumTool {
 		 */
 	    public static String getResourceBundleString(String key) 
 	    {
-	        final ResourceLoader rb = new ResourceLoader(MESSAGECENTER_BUNDLE);
 	        return rb.getString(key);
 	    }
 
 	    public static String getResourceBundleString(String key, Object[] args) {
-	    	final ResourceLoader rb = new ResourceLoader(MESSAGECENTER_BUNDLE);
 	    	return rb.getFormattedMessage(key, args);
 	    }
 

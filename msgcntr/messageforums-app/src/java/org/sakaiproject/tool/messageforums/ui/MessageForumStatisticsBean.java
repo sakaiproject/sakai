@@ -371,6 +371,7 @@ public class MessageForumStatisticsBean {
 	private static final String FORUM_TITLE = "forumTitle";
 
 	private static final String MESSAGECENTER_BUNDLE = "org.sakaiproject.api.app.messagecenter.bundle.Messages";
+	private static final ResourceLoader rb = new ResourceLoader(MESSAGECENTER_BUNDLE);
 
 	private static final String FORUM_STATISTICS = "dfStatisticsList";
 	private static final String FORUM_STATISTICS_BY_ALL_TOPICS = "dfStatisticsListByAllTopics";
@@ -2206,14 +2207,11 @@ public class MessageForumStatisticsBean {
 		this.buttonUserName = buttonUserName;
 	}
 
-	public static String getResourceBundleString(String key) 
-	{
-		final ResourceLoader rb = new ResourceLoader(MESSAGECENTER_BUNDLE);
+	public static String getResourceBundleString(String key) {
 		return rb.getString(key);
 	}
 
 	public static String getResourceBundleString(String key, Object[] args) {
-		final ResourceLoader rb = new ResourceLoader(MESSAGECENTER_BUNDLE);
 		return rb.getFormattedMessage(key, args);
 	}
 

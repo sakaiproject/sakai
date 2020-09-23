@@ -63,7 +63,7 @@ public class SuTool
 	protected static final String SU_BECOME_USER = "su.become";
 	protected static final String SU_VIEW_USER = "su.view";
 
-	ResourceLoader msgs = new ResourceLoader("tool-tool-su");
+	private static ResourceLoader msgs = new ResourceLoader("tool-tool-su");
 
 	// Service instance variables
 	private AuthzGroupService M_authzGroupService = ComponentManager.get(AuthzGroupService.class);

@@ -104,7 +104,7 @@ import org.springframework.web.context.WebApplicationContext;
 @ManagedBean(name="publishedSettings")
 @SessionScoped
 public class PublishedAssessmentSettingsBean implements Serializable {
-  
+
   private static final IntegrationContextFactory integrationContextFactory =
     IntegrationContextFactory.getInstance();
   private static final PublishingTargetHelper ptHelper =
@@ -235,7 +235,7 @@ public class PublishedAssessmentSettingsBean implements Serializable {
   private final String HIDDEN_FEEDBACK_DATE_FIELD = "feedbackDateISO8601";
   private final String HIDDEN_FEEDBACK_END_DATE_FIELD = "feedbackEndDateISO8601";
 
-  private ResourceLoader assessmentSettingMessages;
+  private static final ResourceLoader assessmentSettingMessages = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
 
   @Resource(name = "org.sakaiproject.service.gradebook.GradebookService")
   private GradebookService gradebookService;
@@ -257,7 +257,6 @@ public class PublishedAssessmentSettingsBean implements Serializable {
 
   public PublishedAssessmentSettingsBean(WebApplicationContext context) {
     context.getAutowireCapableBeanFactory().autowireBean(this);
-    this.assessmentSettingMessages = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
   }
 
   public PublishedAssessmentFacade getAssessment() {
