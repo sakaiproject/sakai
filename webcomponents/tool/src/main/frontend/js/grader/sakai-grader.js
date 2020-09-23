@@ -227,7 +227,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
             ${this.submission.submittedAttachments.length > 0 ? html`
               <div class="attachments-header">${this.assignmentsI18n["gen.stuatt"]}:</div>
               ${this.submission.submittedAttachments.map(r => html`
-                <span class="attachment-link"><a href="javascript;" data-url="${r.url}" @click=${this.previewAttachment}>${r.name}</a></span>
+                <div class="attachment-link"><a href="javascript;" data-url="${r.url}" @click=${this.previewAttachment}>${r.name}</a></div>
               `)}` : ""}
           </div>
         </div> <!-- /submitted-block -->
