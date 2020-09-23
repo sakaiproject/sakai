@@ -50,6 +50,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.TemplateBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.IndexBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -184,7 +185,9 @@ public class TemplateUpdateListener
       // ignore any author set by the user
       if (!"0".equals(templateIdString)) {
         String author =  (String)template.getCreatedBy();
-        if (author == null || !author.equals(UserDirectoryService.getCurrentUser().getId())) {
+        AuthorizationBean authorizationBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+
+        if (!authorizationBean.isSuperUser() && (author == null || !author.equals(UserDirectoryService.getCurrentUser().getId()))) {
           log.info("trying to update template not your own " + author + " " + UserDirectoryService.getCurrentUser().getId());
           throw new AbortProcessingException("Attempted to update template owned by another author " + author + " " + UserDirectoryService.getCurrentUser().getId());
         }
