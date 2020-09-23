@@ -22,7 +22,6 @@ package org.sakaiproject.signup.tool.jsf;
 import java.util.TimeZone;
 
 import org.sakaiproject.signup.logic.SakaiFacade;
-import org.sakaiproject.util.ResourceLoader;
 
 /**
  * <p>
@@ -34,7 +33,6 @@ import org.sakaiproject.util.ResourceLoader;
 
 public class UserTimeZone {
 
-	private ResourceLoader rb = new ResourceLoader("messages");
 	private SakaiFacade sakaiFacade;
 
 	public SakaiFacade getSakaiFacade() {

@@ -55,6 +55,7 @@ import org.sakaiproject.util.ResourceLoader;
 @SessionScoped
 public class DownloadFileSubmissionsBean implements Serializable {
 
+	private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
 	private String assessmentId;
 	private String assessmentName;
 	private String firstTargetSelected;
@@ -100,7 +101,7 @@ public class DownloadFileSubmissionsBean implements Serializable {
 		List sectionList = totalScores.getSectionFilterSelectItems();
 		int numSection = availableSectionItems.size();
 		SelectItem[] target = new SelectItem[2];
-		ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
+
 		target[0] = new SelectItem(this.SITE, rb.getString("for_all_sections_groups"));
 
 		if (numSection == 1) {
@@ -176,7 +177,6 @@ public class DownloadFileSubmissionsBean implements Serializable {
 		HttpServletRequest req = (HttpServletRequest) context.getExternalContext().getRequest();
 		HttpServletResponse res = (HttpServletResponse) context.getExternalContext().getResponse();
 
-		ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
 		TotalScoresBean totalScores = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
 		StringBuilder zipFilename = new StringBuilder();
 		zipFilename.append(totalScores.getAssessmentName());

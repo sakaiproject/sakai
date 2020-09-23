@@ -81,7 +81,7 @@ public class SiteListBean {
 	private static final String			SORT_USER_STATUS	= "userStatus";
 	private static final String			SORT_SITE_TERM		= "siteTerm";
 	/** Resource bundle */
-	private transient ResourceLoader	msgs				= new ResourceLoader("org.sakaiproject.umem.tool.bundle.Messages");
+	private static final ResourceLoader	msgs				= new ResourceLoader("org.sakaiproject.umem.tool.bundle.Messages");
 	/** Controller fields */
 	private List<UserSitesRow>			userSitesRows;
 	/** Getter vars */

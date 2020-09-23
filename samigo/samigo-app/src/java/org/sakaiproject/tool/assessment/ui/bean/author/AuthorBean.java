@@ -65,6 +65,7 @@ public class AuthorBean implements Serializable {
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 4216587136245498157L;
+  private static final ResourceLoader com = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.CommonMessages");
   private String assessTitle;
   private String assessmentTemplateId; // added by daisyf - 11/1/04
   private String assessmentTypeId;
@@ -735,7 +736,6 @@ public class AuthorBean implements Serializable {
 	  }
 
 	  pendingActionList1 = new ArrayList<SelectItem>();
-	  ResourceLoader com = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.CommonMessages");
 	  AuthorizationBean authorizationBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
 
 	  boolean isEditAnyAssessment = authorizationBean.getEditAnyAssessment();
@@ -762,7 +762,6 @@ public class AuthorBean implements Serializable {
 	  }
 
 	  pendingActionList2 = new ArrayList<SelectItem>();
-	  ResourceLoader com = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.CommonMessages");
 	  AuthorizationBean authorizationBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
 
 	  boolean isEditAnyAssessment = authorizationBean.getEditAnyAssessment();
@@ -830,7 +829,6 @@ public class AuthorBean implements Serializable {
 		  return publishedActionList;
 	  }
 
-	  ResourceLoader com = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.CommonMessages");
 	  AuthorizationBean authorizationBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
 
 	  publishedActionList = new ArrayList<SelectItem>();

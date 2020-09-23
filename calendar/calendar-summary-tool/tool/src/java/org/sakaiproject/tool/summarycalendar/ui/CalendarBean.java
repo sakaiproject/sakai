@@ -92,7 +92,7 @@ public class CalendarBean {
 	private static final String 					MERGED_CALENDARS_PROP 	= "mergedCalendarReferences";
 
 	/** Resource bundle */
-	private transient ResourceLoader				msgs					= new ResourceLoader("calendar");
+	private static final ResourceLoader				msgs					= new ResourceLoader("calendar");
 	
 	private CalendarUtil calendarUtil = new CalendarUtil();
 	

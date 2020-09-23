@@ -68,7 +68,7 @@ public class PrefsBean {
 	public static String						SAKPROP_BASE				= "calendarSummary.";
 
 	/** Resource bundle */
-	private transient ResourceLoader			msgs						= new ResourceLoader("calendar");
+	private static final ResourceLoader			msgs						= new ResourceLoader("calendar");
 	
 	private CalendarUtil calendarUtil = new CalendarUtil();
 	

@@ -31,6 +31,8 @@ import org.sakaiproject.util.ResourceLoader;
 @SessionScoped
 public class PublishRepublishNotificationBean implements Serializable {
 
+	private static final ResourceLoader res = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
+
 	public PublishRepublishNotificationBean() {
 	}
 
@@ -41,7 +43,6 @@ public class PublishRepublishNotificationBean implements Serializable {
 
 	public ArrayList<SelectItem> getNotificationLevelChoices() {
 		ArrayList<SelectItem> list = new ArrayList<SelectItem>();
-		ResourceLoader res = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
 		list.add(new SelectItem("1", res.getString("no_notification")));
 		list.add(new SelectItem("2", res.getString("send_notification")));
 		return list;

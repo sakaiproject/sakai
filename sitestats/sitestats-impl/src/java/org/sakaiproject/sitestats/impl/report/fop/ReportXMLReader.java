@@ -51,7 +51,7 @@ import org.xml.sax.SAXException;
 
 public class ReportXMLReader extends AbstractObjectReader {	
 	/** Resource bundle */
-	private ResourceLoader			msgs		= new ResourceLoader("Messages");
+	private static final ResourceLoader	msgs = new ResourceLoader("Messages");
 	
 	/** Date formatters. */
 	private SimpleDateFormat		dateMonthFrmt = new SimpleDateFormat("yyyy-MM");

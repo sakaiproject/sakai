@@ -129,7 +129,7 @@ public class GenericCalendarImporter implements CalendarImporterService
 	
 	protected Map<String, String> columnMap = null;
 	
-	private static ResourceLoader rb = new ResourceLoader("calendar");
+	private static final ResourceLoader rb = new ResourceLoader("calendar");
 
 	// These are injected at runtime by Spring.
 	private CalendarService calendarService = null;

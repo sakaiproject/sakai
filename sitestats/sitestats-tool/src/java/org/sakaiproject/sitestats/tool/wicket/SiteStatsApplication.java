@@ -50,6 +50,9 @@ import org.sakaiproject.util.ResourceLoader;
 
 
 public class SiteStatsApplication extends WebApplication {
+	private static final ResourceLoader msgs = new ResourceLoader("Messages");
+	private static final ResourceLoader evnts = new ResourceLoader("Events");
+
 	private boolean					debug	= false;
 	
 	private transient SakaiFacade	facade;
@@ -140,9 +143,9 @@ public class SiteStatsApplication extends WebApplication {
 	 * @author Nuno Fernandes
 	 */
 	private static class SiteStatsStringResourceLoader implements IStringResourceLoader {
-		private ResourceLoader	messages	= new ResourceLoader("Messages");
-		private ResourceLoader	events		= new ResourceLoader("Events");
-		private ResourceLoader	nav			= new ResourceLoader("Navigator");
+		private static final ResourceLoader	messages	= new ResourceLoader("Messages");
+		private static final ResourceLoader	events		= new ResourceLoader("Events");
+		private static final ResourceLoader	nav			= new ResourceLoader("Navigator");
 
 		@Override
 		public String loadStringResource(Component component, String key, Locale locale, String style, String variation) {
@@ -164,16 +167,13 @@ public class SiteStatsApplication extends WebApplication {
 
 		@Override
 		public String loadStringResource(Class clazz, String key, Locale locale, String style, String variation) {
-			ResourceLoader msgs = new ResourceLoader("Messages");
 			msgs.setContextLocale(locale);
 			String value = msgs.getString(key, null);
 			if(value == null){
-				ResourceLoader evnts = new ResourceLoader("Events");
 				evnts.setContextLocale(locale);
 				value = evnts.getString(key, null);
 			}
 			if(value == null){
-				ResourceLoader nav = new ResourceLoader("Navigator");
 				nav.setContextLocale(locale);
 				value = nav.getString(key, null);
 			}

@@ -48,6 +48,7 @@ import org.sakaiproject.util.ResourceLoader;
 
 public class ColorPickerRenderer extends Renderer
 {
+  private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
   // icon height and width
   private static final String HEIGHT = "13";
   private static final String WIDTH = "15";
@@ -121,7 +122,6 @@ public class ColorPickerRenderer extends Renderer
   public void encodeEnd(FacesContext context,
     UIComponent component) throws IOException
   {
-	ResourceLoader rb= new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
     ResponseWriter writer = context.getResponseWriter();
     String contextPath = context.getExternalContext()
                          .getRequestContextPath();

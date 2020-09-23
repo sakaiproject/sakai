@@ -29,7 +29,7 @@ import org.sakaiproject.util.ResourceLoader;
 
 public class PrivateMessageDecoratedBean 
 {
-
+  private static final ResourceLoader rl = new ResourceLoader("org.sakaiproject.api.app.messagecenter.bundle.Messages");
   private PrivateMessage msg;
   public PrivateMessageDecoratedBean(PrivateMessage msg)
   {
@@ -189,7 +189,6 @@ public class PrivateMessageDecoratedBean
 	  return msg.getAuthor();
   }
 	public String getLabel(){
-		ResourceLoader rl = new ResourceLoader("org.sakaiproject.api.app.messagecenter.bundle.Messages");
 		return rl.getString(msg.getLabel());
 	}
   public boolean getIsPreview() {
