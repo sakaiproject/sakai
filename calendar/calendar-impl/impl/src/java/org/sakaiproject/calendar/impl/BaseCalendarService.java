@@ -117,7 +117,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
    private DocumentBuilder docBuilder = null;
    
-   private ResourceLoader rb = new ResourceLoader("calendar");
+   private static final ResourceLoader rb = new ResourceLoader("calendar");
    
    private ContentHostingService contentHostingService;
 

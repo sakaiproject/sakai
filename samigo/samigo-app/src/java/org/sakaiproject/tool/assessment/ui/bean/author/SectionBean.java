@@ -70,6 +70,7 @@ public class SectionBean implements Serializable
 
 /** Use serialVersionUID for interoperability. */
 private final static long serialVersionUID = 4216587136245498157L;
+private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
 private String assessmentTitle;
 private String assessmentId;
 private String showMetadata;
@@ -275,8 +276,6 @@ private List attachmentList;
     List<SelectItem> list = new ArrayList<SelectItem>();
     // cannot disable only one radio button in a list, so am generating the list again
 
-    ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
-
     SelectItem selection = new SelectItem();
     selection.setLabel(rb.getString("type_onebyone"));
     selection.setValue("1");
@@ -449,14 +448,12 @@ private List attachmentList;
   
   private String formatPoolDisplayName(String poolName, int poolCount)
   {
-      ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
       String qs = (poolCount == 1) ? rb.getString("q") : rb.getString("qs");
       return FormattedText.convertFormattedTextToPlaintext(poolName) + " (" + poolCount + " " + qs.toLowerCase() + ")";
   }
   
   public String getRandomDrawMsg()
   {
-      ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
       String msg = rb.getString("random_draw_from_que");
       
       if (hideRandom)
@@ -917,8 +914,6 @@ private List attachmentList;
 
 	    List list = new ArrayList();
 
-	    ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
-	    
 	    SelectItem selection = new SelectItem();
 	    selection.setLabel(rb.getString("randomized_per_submission"));
 	    selection.setValue("1");

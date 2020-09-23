@@ -39,6 +39,7 @@ import org.sakaiproject.util.ResourceLoader;
 @Slf4j
 public class UserNotificationProviderImpl implements UserNotificationProvider {
 
+	private static final ResourceLoader rb = new ResourceLoader("UserNotificationProvider");
 	private EmailService emailService; 
 	
 	public void setEmailService(EmailService es) {
@@ -74,8 +75,8 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 	 */
 	public void notifyAddedParticipant(boolean newNonOfficialAccount,
 			User user, Site site) {
-		ResourceLoader rb = new ResourceLoader(user.getId(), "UserNotificationProvider");
-		
+		rb.setContextLocale(rb.getLocale(user.getId()));
+
 		String from = serverConfigurationService.getBoolean(NOTIFY_FROM_CURRENT_USER, false)?
 				getCurrentUserEmailAddress():getSetupRequestEmailAddress();
 		if (from != null) {
@@ -143,7 +144,6 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 	 */
 	public void notifyNewUserEmail(User user, String newUserPassword,
 			Site site) {
-		ResourceLoader rb = new ResourceLoader("UserNotificationProvider");
 		// set the locale to individual receipient's setting
 		rb.setContextLocale(rb.getLocale(user.getId()));
 		
@@ -238,8 +238,6 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 		String currentUserId = currentUser.getId();
 		String currentUserEmail = currentUser.getEmail();
 		
-		ResourceLoader rb = new ResourceLoader("UserNotificationProvider");
-		
 		String message_subject = courseSite ? rb.getString("java.official") + " "
 				+ currentUserName
 				+ " " + rb.getString("java.for") + " " + termTitle : rb.getString("java.site.createdBy") + " " + currentUserName;
@@ -298,9 +296,9 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 	{
 		try {
 			User instructor = userDirectoryService.getUserByEid(instructorId);
-			
-			ResourceLoader rb = new ResourceLoader(instructorId, "UserNotificationProvider");
-			
+
+			rb.setContextLocale(rb.getLocale(instructorId));
+
 			StringBuffer buf = new StringBuffer();
 			
 			String to = instructor.getEmail();	
@@ -368,9 +366,6 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 	public String notifyCourseRequestSupport(String requestEmail, String serverName, String request, String termTitle, int requestListSize, String requestSectionInfo,
 			String officialAccountName, String siteTitle, String siteId, String additionalInfo, boolean requireAuthorizer, String authorizerNotified, String authorizerNotNotified)
 	{
-		ResourceLoader rb = new ResourceLoader("UserNotificationProvider");
-			
-
 		User currentUser = userDirectoryService.getCurrentUser();
 		String currentUserDisplayName = currentUser!=null?currentUser.getDisplayName():"";
 		String currentUserDisplayId = currentUser!=null?currentUser.getDisplayId():"";
@@ -465,12 +460,7 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 	{
 		User currentUser = userDirectoryService.getCurrentUser();
 		String currentUserDisplayName = currentUser!=null?currentUser.getDisplayName():"";
-		String currentUserDisplayId = currentUser!=null?currentUser.getDisplayId():"";
-		String currentUserId = currentUser!=null?currentUser.getId():"";
 		String currentUserEmail = currentUser!=null?currentUser.getEmail():"";
-		
-
-		ResourceLoader rb = new ResourceLoader(currentUserId, "UserNotificationProvider");
 		
 		String from = requestEmail;
 		String to = currentUserEmail;
@@ -516,7 +506,6 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 			String headerTo = toEmail;
 			String replyTo = toEmail;
 			String link = developerHelperService.getLocationReferenceURL(SITE_REF_PREFIX + siteId);
-			ResourceLoader rb = new ResourceLoader("UserNotificationProvider");
 			String message_subject = rb.getFormattedMessage("java.siteImport.confirmation.subject", new Object[]{siteTitle});
 			String message_body = rb.getFormattedMessage("java.siteImport.confirmation", new Object[]{siteTitle, link});
 			emailService.send(getSetupRequestEmailAddress(), toEmail, message_subject, message_body, headerTo, replyTo, null);

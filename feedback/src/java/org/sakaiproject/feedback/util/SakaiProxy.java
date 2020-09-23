@@ -219,8 +219,6 @@ public class SakaiProxy {
             locale = Locale.getDefault();
         }
 
-        final ResourceLoader rb = new ResourceLoader("org.sakaiproject.feedback");
-
         String subjectTemplate = null;
 
         if (feedbackType.equals(Constants.CONTENT)) {

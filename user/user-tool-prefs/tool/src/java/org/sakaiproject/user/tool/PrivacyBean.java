@@ -73,7 +73,7 @@ public class PrivacyBean {
 	private SelectItem[] sites;
 
 	/** * Resource bundle messages */
-	ResourceLoader msgs = new ResourceLoader("user-tool-prefs");
+	private static final ResourceLoader msgs = new ResourceLoader("user-tool-prefs");
 
 	/** Inject PrivacyManager */
 	private PrivacyManager privacyManager;

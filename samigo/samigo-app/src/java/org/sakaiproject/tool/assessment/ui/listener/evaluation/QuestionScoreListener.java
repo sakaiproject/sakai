@@ -103,6 +103,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 	private static BeanSort bs;
 
 	private static final String MSG_BUNDLE = "org.sakaiproject.tool.assessment.bundle.EvaluationMessages";
+	private static final ResourceLoader rb = new ResourceLoader(MSG_BUNDLE);
 	private static final String noAnswer = ContextUtil.getLocalizedString(MSG_BUNDLE, "no_answer");
 	private static final String noneOfTheAbove = ContextUtil.getLocalizedString(MSG_BUNDLE, "none_above");
 
@@ -322,7 +323,6 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 			Map map = getItemScores(Long.valueOf(publishedId), Long
 					.valueOf(itemId), which, isValueChange);
 			log.debug("questionScores(): map .size = " + map.size());
-			ResourceLoader rb = null;
 			List allscores = new ArrayList();
 			Iterator keyiter = map.keySet().iterator();
 			while (keyiter.hasNext()) {
@@ -650,9 +650,6 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 					}
 
 					if ("4".equals(bean.getTypeId())) {
-						if (rb == null) { 	 
-			        		rb = new ResourceLoader(MSG_BUNDLE);
-			        	}
 						if ("true".equals(answerText)) {
 							answerText = rb.getString("true_msg");
 						}

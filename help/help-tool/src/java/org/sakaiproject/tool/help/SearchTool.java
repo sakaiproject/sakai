@@ -37,7 +37,7 @@ import org.sakaiproject.util.ResourceLoader;
 public class SearchTool
 {
 
-  private ResourceLoader msgs = new ResourceLoader("org.sakaiproject.tool.help.bundle.Messages");
+  private static final ResourceLoader msgs = new ResourceLoader("org.sakaiproject.tool.help.bundle.Messages");
    
   private HelpManager helpManager;
   private List searchResults;

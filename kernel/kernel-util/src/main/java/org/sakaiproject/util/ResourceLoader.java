@@ -162,6 +162,8 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	 * 
 	 * @param userId user's internal sakai id (e.g. user.getId())
 	 * @param name  default ResourceBundle base filename
+	 *
+	 * @deprecated
 	 */
 	public ResourceLoader(String userId, String name)
 	{

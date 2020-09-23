@@ -45,7 +45,7 @@ import org.sakaiproject.util.ResourceLoader;
  */
 public class OutlookReader extends CSVReader
 {
-	private static ResourceLoader rb = new ResourceLoader("calendar");
+	private static final ResourceLoader rb = new ResourceLoader("calendar");
    
 	private Map<String, String> defaultHeaderMap = getDefaultColumnMap();
 	

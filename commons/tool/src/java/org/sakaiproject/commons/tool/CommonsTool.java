@@ -46,6 +46,8 @@ public class CommonsTool extends HttpServlet {
     private SakaiProxy sakaiProxy;
     private ServerConfigurationService serverConfigurationService;
 
+    private static final ResourceLoader rl = new ResourceLoader("commons");
+
     public void init(ServletConfig config) throws ServletException {
 
         super.init(config);
@@ -77,7 +79,6 @@ public class CommonsTool extends HttpServlet {
         String siteLanguage = sakaiProxy.getCurrentSiteLocale();
 
         Locale locale = null;
-        ResourceLoader rl = null;
 
         if (siteLanguage != null) {
             String[] parts = siteLanguage.split("_");
@@ -88,10 +89,8 @@ public class CommonsTool extends HttpServlet {
             } else if (parts.length == 3) {
                 locale = new Locale(parts[0], parts[1], parts[2]);
             }
-            rl = new ResourceLoader("org.sakaiproject.commons");
             rl.setContextLocale(locale);
         } else {
-            rl = new ResourceLoader(userId, "org.sakaiproject.commons");
             locale = rl.getLocale();
         }
 

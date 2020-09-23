@@ -218,7 +218,7 @@ public class AssessmentSettingsBean
   
   private SimpleDateFormat displayFormat;
 
-  private ResourceLoader assessmentSettingMessages;
+  private static final ResourceLoader assessmentSettingMessages = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
 
   @Resource(name = "org.sakaiproject.time.api.UserTimeService")
   private UserTimeService userTimeService;
@@ -232,7 +232,6 @@ public class AssessmentSettingsBean
 
   public AssessmentSettingsBean(WebApplicationContext context) {
     context.getAutowireCapableBeanFactory().autowireBean(this);
-      this.assessmentSettingMessages = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
   }
 
   public AssessmentFacade getAssessment() {

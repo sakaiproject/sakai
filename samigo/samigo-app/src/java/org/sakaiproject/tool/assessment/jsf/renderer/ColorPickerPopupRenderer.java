@@ -43,6 +43,7 @@ import org.sakaiproject.util.ResourceLoader;
 
 public class ColorPickerPopupRenderer extends Renderer
 {
+  private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
   // these should be coming from a resource
   // [DIEGO] Now they come from a resource, but as they are static final, really they are not used and
   // I use directly the string returned in getString...
@@ -90,7 +91,6 @@ public class ColorPickerPopupRenderer extends Renderer
   public void encodeEnd(FacesContext context, UIComponent component)
     throws IOException
   {
-	ResourceLoader rb= new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
     ResponseWriter writer = context.getResponseWriter();
     writer.write("<html xmlns=\"http://www.w3.org/1999/xhtml\">\n");
     writer.write("<!--\n");

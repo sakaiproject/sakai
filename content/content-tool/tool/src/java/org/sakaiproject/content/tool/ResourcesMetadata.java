@@ -42,7 +42,7 @@ import org.sakaiproject.util.ResourceLoader;
 public class ResourcesMetadata
 {
 	/** Resource bundle using current language locale */
-	private ResourceLoader rb = new ResourceLoader("content");
+	private static final ResourceLoader rb = new ResourceLoader("content");
     
 	public static final String WIDGET_STRING = "string";
 	public static final String WIDGET_TEXTAREA = "textarea";

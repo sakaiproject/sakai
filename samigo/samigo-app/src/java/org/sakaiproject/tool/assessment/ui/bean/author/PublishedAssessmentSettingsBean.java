@@ -215,7 +215,8 @@ public class PublishedAssessmentSettingsBean
   private final String HIDDEN_RETRACT_DATE_FIELD = "retractDateISO8601";
   private final String HIDDEN_FEEDBACK_DATE_FIELD = "feedbackDateISO8601";
 
-  private ResourceLoader assessmentSettingMessages;
+  private static final ResourceLoader assessmentSettingMessages = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
+
   @Resource(name = "org.sakaiproject.time.api.UserTimeService")
   private UserTimeService userTimeService;
 
@@ -228,7 +229,6 @@ public class PublishedAssessmentSettingsBean
 
   public PublishedAssessmentSettingsBean(WebApplicationContext context) {
     context.getAutowireCapableBeanFactory().autowireBean(this);
-    this.assessmentSettingMessages = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
   }
 
   public PublishedAssessmentFacade getAssessment() {

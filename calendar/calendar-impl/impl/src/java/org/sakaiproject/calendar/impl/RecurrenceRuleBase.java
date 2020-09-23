@@ -56,7 +56,7 @@ public abstract class RecurrenceRuleBase implements RecurrenceRule
 	private Time until = null;
 
 	/*For i18n of recurrence rule description*/
-	protected ResourceLoader rb = new ResourceLoader("calendar");
+	protected static final ResourceLoader rb = new ResourceLoader("calendar");
 
 	/**
 	* Construct.
