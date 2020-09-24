@@ -2975,17 +2975,17 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		if ( ! entity.isAvailable() )
 		{
 			// schedule an event to tell when resource becomes available
-			if (entity.getReleaseDate() != null)
+			if (entity.getReleaseInstant() != null)
 			{
 				eventTrackingService.delay(eventTrackingService.newEvent(EVENT_RESOURCE_AVAILABLE, ref,
-																							false, priority), entity.getReleaseDate());
+																							false, priority), entity.getReleaseInstant());
 				entity.getProperties().addProperty(PROP_AVAIL_NOTI, Boolean.FALSE.toString());
 			}
 			// schedule an event to tell when resource becomes unavailable
-			if ( entity.getRetractDate() != null )
+			if ( entity.getRetractInstant() != null )
 			{
 				eventTrackingService.delay(eventTrackingService.newEvent(EVENT_RESOURCE_UNAVAILABLE, ref,
-																							false, priority), entity.getRetractDate());
+																							false, priority), entity.getRetractInstant());
 				entity.getProperties().addProperty(PROP_AVAIL_NOTI, Boolean.FALSE.toString());
 			}
 		}
@@ -3005,10 +3005,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 			}
 			
 			// schedule an event to tell when resource becomes unavailable
-			if ( entity.getRetractDate() != null )
+			if ( entity.getRetractInstant() != null )
 			{
 				eventTrackingService.delay(eventTrackingService.newEvent(EVENT_RESOURCE_UNAVAILABLE, ref,
-																							false, priority), entity.getRetractDate());
+																							false, priority), entity.getRetractInstant());
 				entity.getProperties().addProperty(PROP_AVAIL_NOTI, Boolean.FALSE.toString());
 			}
 		}

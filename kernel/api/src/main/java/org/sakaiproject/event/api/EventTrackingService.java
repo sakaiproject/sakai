@@ -25,7 +25,6 @@ import java.time.Instant;
 import java.util.Observer;
 
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
-import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
 
 /**
@@ -194,15 +193,6 @@ public interface EventTrackingService
 	 */
 	void setEventDelayHandler(EventDelayHandler handler);
 
-	/**
-	 * Schedule an event to be fired at a specific time.  If the time is null or already passed, the
-	 * event is fired immediately.
-	 * 
-	 * @param event
-	 * @param fireTime
-	 * @deprecated {@link #delay(Event, Instant)}
-	 */
-	void delay(Event event, Time fireTime);
 	
 	
 	/**

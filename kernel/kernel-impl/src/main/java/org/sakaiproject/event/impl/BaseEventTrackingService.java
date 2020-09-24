@@ -379,11 +379,6 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 		}
 	}
 	
-	@Override
-	public void delay(Event event, Time fireTime) {
-		delay(event, Instant.ofEpochMilli(fireTime.getTime()));
-	}
-	
 	public void cancelDelays(String resource)
 	{
 		if (delayHandler != null)
