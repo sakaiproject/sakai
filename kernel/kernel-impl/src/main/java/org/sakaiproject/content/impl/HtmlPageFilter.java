@@ -22,8 +22,6 @@ package org.sakaiproject.content.impl;
 
 import java.text.MessageFormat;
 
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentFilter;
 import org.sakaiproject.content.api.ContentResource;
@@ -33,7 +31,9 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.api.FormattedText;
+
+import lombok.Setter;
 
 /**
  * Simple filter that adds header and footer fragments to HTML pages, it can detect
@@ -46,9 +46,9 @@ public class HtmlPageFilter implements ContentFilter {
 
 	private static final String MATHJAX_SRC_PATH_SAKAI_PROP = "portal.mathjax.src.path";
 
-	private EntityManager entityManager;
-	
-	private ServerConfigurationService serverConfigurationService;
+	@Setter private EntityManager entityManager;	
+	@Setter private ServerConfigurationService serverConfigurationService;
+	@Setter private FormattedText formattedText;
 	
 	/** If <code>false</false> then this filter is disabled. */
 	private boolean enabled = true;
@@ -75,13 +75,7 @@ public class HtmlPageFilter implements ContentFilter {
 "    <script type=\"text/x-mathjax-config\">\nMathJax.Hub.Config('{'\nmessageStyle: \"none\",\ntex2jax: '{' inlineMath: [[''\\\\('',''\\\\)'']] '}'\n'}');\n</script>\n" +
 "    <script src=\"{0}\" type=\"text/javascript\"></script>\n" ;
 
-	public void setEntityManager(EntityManager entityManager) {
-		this.entityManager = entityManager;
-	}
-	
-	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
-		this.serverConfigurationService = serverConfigurationService;
-	}
+
 	
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
@@ -139,7 +133,7 @@ public class HtmlPageFilter implements ContentFilter {
 		if (title == null) {
 			title = content.getId();
 		}
-		return Validator.escapeHtml(title);
+		return formattedText.escapeHtml(title);
 	}
 
 	private String getSkinRepo() {
