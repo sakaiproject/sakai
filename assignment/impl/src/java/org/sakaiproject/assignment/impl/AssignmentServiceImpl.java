@@ -181,7 +181,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
@@ -245,6 +244,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     private boolean allowSubmitByInstructor;
     private boolean exposeContentReviewErrorsToUI;
+    private boolean createGroupsOnImport;
 
     private static ResourceLoader rb = new ResourceLoader("assignment");
 
@@ -257,6 +257,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
 
         exposeContentReviewErrorsToUI = serverConfigurationService.getBoolean("contentreview.expose.errors.to.ui", true);
+        createGroupsOnImport = serverConfigurationService.getBoolean("assignment.create.groups.on.import", true);
 
         // register as an entity producer
         entityManager.registerEntityProducer(this, REFERENCE_ROOT);
@@ -3701,33 +3702,37 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     nAssignment.setScaleFactor(oAssignment.getScaleFactor());
                     nAssignment.setReleaseGrades(oAssignment.getReleaseGrades());
 
-                    // group assignment
-                    if (oAssignment.getTypeOfAccess() == GROUP) {
-                        nAssignment.setTypeOfAccess(GROUP);
-                        Site oSite = siteService.getSite(oAssignment.getContext());
-                        Site nSite = siteService.getSite(nAssignment.getContext());
+                    if (!createGroupsOnImport) {
+                        nAssignment.setTypeOfAccess(SITE);
+                    } else {
+                        // group assignment
+                        if (oAssignment.getTypeOfAccess() == GROUP) {
+                            nAssignment.setTypeOfAccess(GROUP);
+                            Site oSite = siteService.getSite(oAssignment.getContext());
+                            Site nSite = siteService.getSite(nAssignment.getContext());
 
-                        boolean siteChanged = false;
-                        Collection<Group> nGroups = nSite.getGroups();
-                        for (String groupId : oAssignment.getGroups()) {
-                            Group oGroup = oSite.getGroup(groupId);
-                            Optional<Group> existingGroup = nGroups.stream().filter(g -> StringUtils.equals(g.getTitle(), oGroup.getTitle())).findAny();
-                            Group nGroup;
-                            if (existingGroup.isPresent()) {
-                                // found a matching group
-                                nGroup = existingGroup.get();
-                            } else {
-                                // create group
-                                nGroup = nSite.addGroup();
-                                nGroup.setTitle(oGroup.getTitle());
-                                nGroup.setDescription(oGroup.getDescription());
-                                nGroup.getProperties().addProperty("group_prop_wsetup_created", Boolean.TRUE.toString());
-                                siteChanged = true;
+                            boolean siteChanged = false;
+                            Collection<Group> nGroups = nSite.getGroups();
+                            for (String groupId : oAssignment.getGroups()) {
+                                Group oGroup = oSite.getGroup(groupId);
+                                Optional<Group> existingGroup = nGroups.stream().filter(g -> StringUtils.equals(g.getTitle(), oGroup.getTitle())).findAny();
+                                Group nGroup;
+                                if (existingGroup.isPresent()) {
+                                    // found a matching group
+                                    nGroup = existingGroup.get();
+                                } else {
+                                    // create group
+                                    nGroup = nSite.addGroup();
+                                    nGroup.setTitle(oGroup.getTitle());
+                                    nGroup.setDescription(oGroup.getDescription());
+                                    nGroup.getProperties().addProperty("group_prop_wsetup_created", Boolean.TRUE.toString());
+                                    siteChanged = true;
+                                }
+                                nAssignment.getGroups().add(nGroup.getReference());
                             }
-                            nAssignment.getGroups().add(nGroup.getReference());
+                            if (siteChanged) siteService.save(nSite);
+                            nAssignment.setIsGroup(oAssignment.getIsGroup());
                         }
-                        if (siteChanged) siteService.save(nSite);
-                        nAssignment.setIsGroup(oAssignment.getIsGroup());
                     }
 
                     // review service
@@ -3735,7 +3740,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                     // attachments
                     Set<String> oAttachments = oAssignment.getAttachments();
-                    List<Reference> nAttachments = entityManager.newReferenceList();
                     for (String oAttachment : oAttachments) {
                         Reference oReference = entityManager.newReference(oAttachment);
                         String oAttachmentId = oReference.getId();
