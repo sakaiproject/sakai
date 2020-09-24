@@ -17,7 +17,7 @@
     "sortablejs": "1.10.2"
   },
   "devDependencies": {
-    "@adrianfish/empathise": "^0.1.1",
+    "@adrianfish/empathise": "^0.1.9",
     "@ckeditor/ckeditor5-adapter-ckfinder": "^11.0.5",
     "@ckeditor/ckeditor5-autoformat": "^11.0.5",
     "@ckeditor/ckeditor5-basic-styles": "^11.1.4",
@@ -40,6 +40,8 @@
     "@ckeditor/ckeditor5-paste-from-office": "^11.1.0",
     "@ckeditor/ckeditor5-table": "^14.0.0",
     "@ckeditor/ckeditor5-theme-lark": "^14.2.0",
+    "dependencies": "0.0.1",
+    "is-windows": "^1.0.2",
     "postcss-loader": "^3.0.0",
     "raw-loader": "^3.1.0",
     "style-loader": "^1.0.0",
