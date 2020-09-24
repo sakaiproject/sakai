@@ -451,21 +451,29 @@ public class GradingServiceTest {
         Assert.assertNotNull(result);
         Assert.assertEquals("1E12", result);
 
+        // mixed-case functions
         result = gradingService.processFormulaIntoValue("qNor(0.5, 2, 1)", 2);
         Assert.assertNotNull(result);
         Assert.assertEquals("2", result);
         result = gradingService.processFormulaIntoValue("cNor(0.7, 3, 1)", 2);
         Assert.assertNotNull(result);
         Assert.assertEquals("0.01", result);
+        // test lowercasing
         result = gradingService.processFormulaIntoValue("pi + E", 2);
         Assert.assertNotNull(result);
         Assert.assertEquals("5.86", result);
+        // speed of light
         result = gradingService.processFormulaIntoValue("[c]*3", 2);
         Assert.assertNotNull(result);
         Assert.assertEquals("899377374", result);
+        // golden ratio
         result = gradingService.processFormulaIntoValue("3*[phi]", 2);
         Assert.assertNotNull(result);
         Assert.assertEquals("4.85", result);
+        // binomial coefficient
+        result = gradingService.processFormulaIntoValue("C(8,3)", 2);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("56", result);
     }
 
     @Test(expected = SamigoExpressionError.class)
