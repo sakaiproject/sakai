@@ -29,6 +29,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.regex.Pattern;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Element;
@@ -767,7 +770,12 @@ public class ItemHelper12Impl extends ItemHelperBase
   {
     if ( (fibAns != null) && (fibAns.trim().length() > 0))
     {
-      List fibList = parseFillInBlank(fibAns);
+      String markers_pair = StringEscapeUtils.unescapeHtml4(itemXml.getFieldentry("MARKERS_PAIR"));
+      if ((StringUtils.isEmpty(markers_pair)) || markers_pair.length() != 2) {
+        markers_pair = "{}";
+      }
+      List fibList = parseFillInBlank(fibAns, markers_pair);
+
       Map valueMap = null;
       //Set newSet = null;
       String mattext = null;
@@ -854,14 +862,16 @@ public class ItemHelper12Impl extends ItemHelperBase
    * @param fib
    * @return
    */
-  private static String padFibWithNonbreakSpacesText(String fib)
+  private static String padFibWithNonbreakSpacesText(String fib, String marker_left, String marker_right)
   {
+	String fibTmp=fib;
 
-    if (fib.startsWith("{"))
+    if (fibTmp.startsWith(marker_left))
     {
-      fib = NBSP + fib;
+      fibTmp = NBSP + fibTmp;
     }
-    return fib.replaceAll("\\}\\{", "}" + NBSP + "{");
+    String regExp = Pattern.quote("" + marker_right) + Pattern.quote("" + marker_left);
+    return fibTmp.replaceAll(regExp, marker_right + NBSP + marker_left);
   }
 
   /**
@@ -1585,18 +1595,21 @@ public class ItemHelper12Impl extends ItemHelperBase
    * @param input
    * @return list of Maps
    */
-  private static List parseFillInBlank(String input)
-  {
-    input = padFibWithNonbreakSpacesText(input);
+   private static List parseFillInBlank(String input, String markers_pair) {
+    String marker_left = "" + markers_pair.charAt(0);
+    String marker_right = "" + markers_pair.charAt(1);
+    String inputTmp = input;
+    inputTmp = padFibWithNonbreakSpacesText(inputTmp, marker_left, marker_right);
+
 
     Map tempMap = null;
     List storeParts = new ArrayList();
-    if (input == null)
+    if (inputTmp == null)
     {
       return storeParts;
     }
 
-    StringTokenizer st = new StringTokenizer(input, "}");
+    StringTokenizer st = new StringTokenizer(inputTmp, marker_right);
     String tempToken = "";
     String[] splitArray = null;
 
@@ -1606,7 +1619,8 @@ public class ItemHelper12Impl extends ItemHelperBase
       tempMap = new HashMap();
 
       //split out text and answer parts from token
-      splitArray = tempToken.trim().split("\\{", 2);
+      String splitRegEx = Pattern.quote("" + marker_left);
+      splitArray = tempToken.trim().split(splitRegEx, 2);
       tempMap.put("text", splitArray[0].trim());
       if (splitArray.length > 1)
       {

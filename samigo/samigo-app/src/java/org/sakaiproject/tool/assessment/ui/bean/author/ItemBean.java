@@ -153,6 +153,7 @@ public class ItemBean
   private String origSection;  // section id for the item to be added to
   private String selectedSection="0";  // section id for the item to be assigned to
 
+  private String markersPair = "{}";
 
   private boolean caseSensitiveForFib=false;
   private boolean mutuallyExclusiveForFib=false;
@@ -1273,6 +1274,22 @@ public class ItemBean
 			this.setImageMapItemBeanList(list);
 		}
 	}
+
+  /**
+   * ￼ * for fib questions
+   *
+   * @param param the pair of markers
+   */
+  public void setMarkersPair(String param) {
+    String paramTmp = param;
+    if ((paramTmp == null) || (paramTmp.length() < 2)) paramTmp = "{}";
+    this.markersPair = paramTmp;
+  }
+
+  /** for fib questions, the pair of markers ￼ * @return ￼ */
+  public String getMarkersPair() {
+    return markersPair;
+  }
 
   /**
    * for fib, case sensitive for grading?
