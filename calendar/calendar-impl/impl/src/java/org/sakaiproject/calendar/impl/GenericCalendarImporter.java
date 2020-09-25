@@ -156,8 +156,6 @@ public class GenericCalendarImporter implements CalendarImporterService
 		return rv;
 	}
 
-	private static ResourceLoader rb = new ResourceLoader("calendar");
-
 	// These are injected at runtime by Spring.
 	private CalendarService calendarService = null;
 
