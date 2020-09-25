@@ -59,7 +59,8 @@ portal.toggleMinimizeNav = function () {
   }
 };
 
-document.querySelector("#maximised-indicator a").addEventListener("click", portal.minimiseTool);
+const indicator = document.querySelector("#maximised-indicator a");
+indicator && indicator.addEventListener("click", portal.minimiseTool);
 
 $PBJQ("#toolsNav-toggle-li button").on("click", portal.toggleMinimizeNav);
 
