@@ -246,6 +246,7 @@
                   class="org.sakaiproject.content.impl.HtmlPageFilter">
               <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
               <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+              <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
             </bean>
 
     <bean id="org.sakaiproject.elfinder.SakaiFsService"
