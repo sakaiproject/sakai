@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Element;
@@ -767,7 +769,13 @@ public class ItemHelper12Impl extends ItemHelperBase
   {
     if ( (fibAns != null) && (fibAns.trim().length() > 0))
     {
-      List fibList = parseFillInBlank(fibAns);
+      String markers_pair = StringEscapeUtils.unescapeHtml4(itemXml.getFieldentry("MARKERS_PAIR"));
+      if ((StringUtils.isEmpty(markers_pair)) || markers_pair.length() != 2) {
+        markers_pair = "{}";
+      }
+      GradingService gradingService = new GradingService();
+      List fibList = gradingService.parseFillInBlank(fibAns, markers_pair);
+
       Map valueMap = null;
       //Set newSet = null;
       String mattext = null;
@@ -846,22 +854,6 @@ public class ItemHelper12Impl extends ItemHelperBase
         }
       }
     }
-  }
-
-  /**
-   * we ensure that answer text between brackets is always nonempty, also that
-   * starting text is nonempty, we use a non-breaking space for this purpose
-   * @param fib
-   * @return
-   */
-  private static String padFibWithNonbreakSpacesText(String fib)
-  {
-
-    if (fib.startsWith("{"))
-    {
-      fib = NBSP + fib;
-    }
-    return fib.replaceAll("\\}\\{", "}" + NBSP + "{");
   }
 
   /**
@@ -1575,55 +1567,6 @@ public class ItemHelper12Impl extends ItemHelperBase
 	}
   */
   
-  /**
-   *  Get list of form:
-   *  {ans=red, text=Roses are},
-   *  {ans=blue, text=and violets are},
-   *  {ans=null, text=.}
-   *  From String of form "Roses are {red} and violets are {blue}."
-   *
-   * @param input
-   * @return list of Maps
-   */
-  private static List parseFillInBlank(String input)
-  {
-    input = padFibWithNonbreakSpacesText(input);
-
-    Map tempMap = null;
-    List storeParts = new ArrayList();
-    if (input == null)
-    {
-      return storeParts;
-    }
-
-    StringTokenizer st = new StringTokenizer(input, "}");
-    String tempToken = "";
-    String[] splitArray = null;
-
-    while (st.hasMoreTokens())
-    {
-      tempToken = st.nextToken();
-      tempMap = new HashMap();
-
-      //split out text and answer parts from token
-      splitArray = tempToken.trim().split("\\{", 2);
-      tempMap.put("text", splitArray[0].trim());
-      if (splitArray.length > 1)
-      {
-
-        tempMap.put("ans", (splitArray[1]));
-      }
-      else
-      {
-        tempMap.put("ans", null);
-      }
-
-      storeParts.add(tempMap);
-    }
-
-    return storeParts;
-  }
-
   
   private static List parseFillInNumeric(String input)
   {

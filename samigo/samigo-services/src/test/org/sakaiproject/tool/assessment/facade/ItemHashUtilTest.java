@@ -256,6 +256,8 @@ public class ItemHashUtilTest {
             PermissionException {
         final ItemData item = new ItemData();
         item.setTypeId(TypeIfc.FILL_IN_BLANK);
+        final ItemMetaDataIfc metaData1 = newItemMetaData(item, ItemMetaDataIfc.MARKERS_PAIR, 0);
+        item.setItemMetaDataSet(Sets.newSet(metaData1));
         final ItemText itemText = new ItemText(item, 1L, resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[0])), null);
         item.setItemTextSet(Sets.newSet(itemText));
         item.setInstruction(resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[1])));
@@ -290,6 +292,9 @@ public class ItemHashUtilTest {
             throws NoSuchAlgorithmException, IOException, ServerOverloadException {
         final ItemData item = new ItemData();
         item.setTypeId(TypeIfc.FILL_IN_BLANK);
+        
+        final ItemMetaDataIfc metaData1 = newItemMetaData(item, ItemMetaDataIfc.MARKERS_PAIR, 0);
+        item.setItemMetaDataSet(Sets.newSet(metaData1));
 
         // have to explicitly initialize this collection, else NPE in getText()
         final ItemText itemText = new ItemText(item, 1L, null, null);

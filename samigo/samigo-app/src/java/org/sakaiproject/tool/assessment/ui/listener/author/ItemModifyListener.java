@@ -28,7 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
+import java.util.regex.Pattern;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
@@ -474,9 +474,10 @@ public class ItemModifyListener implements ActionListener
 
 			  }
 			  for (int i=0; i<answerArray.length; i++) {
-		    		  // due to http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6325587  
-		    	 	  // we need to call Matcher.quoteReplacement()
-			    	  replaced = orig.replaceFirst("\\{\\}", java.util.regex.Matcher.quoteReplacement("{"+answerArray[i]+"}"));
+				  // due to http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6325587  
+				  // we need to call Matcher.quoteReplacement()
+				  replaced = orig.replaceFirst(Pattern.quote("" + bean.getMarkersPair().charAt(0)) + Pattern.quote("" + bean.getMarkersPair().charAt(1)),
+						  java.util.regex.Matcher.quoteReplacement(bean.getMarkersPair().charAt(0) + answerArray[i] + bean.getMarkersPair().charAt(1)));
 				  orig = replaced;
 			  }
 
@@ -991,6 +992,11 @@ public class ItemModifyListener implements ActionListener
        if (meta.getLabel().equals(ItemMetaDataIfc.CASE_SENSITIVE_FOR_FIB)){
     	   bean.setCaseSensitiveForFib(Boolean.valueOf(meta.getEntry()).booleanValue());
        }
+
+      // If metadata doesn't exist, by default it is "{}".
+      if (meta.getLabel().equals(ItemMetaDataIfc.MARKERS_PAIR)) {
+        bean.setMarkersPair(meta.getEntry());
+      }
 
        // get settings for mutually exclusive for fib. 
        // If metadata doesn't exist, by default it is false. 

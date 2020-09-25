@@ -38,26 +38,30 @@
         <fieldlabel>ITEM_TAGS</fieldlabel>
         <fieldentry/>
       </qtimetadatafield>
-	  <qtimetadatafield>
+      <qtimetadatafield>
         <fieldlabel>ATTACHMENT</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>MARKERS_PAIR</fieldlabel>
         <fieldentry/>
       </qtimetadatafield>
     </qtimetadata>
   </itemmetadata>
-   <rubric>
-      <material>
-        <mattext/>
-      </material>
-    </rubric>
+  <rubric>
+    <material>
+      <mattext/>
+    </material>
+  </rubric>
   <presentation label="FIB">
     <flow>
-    <!-- unused: flow/material-->
-    <!-- <material><mattext/></material> -->
-    <flow class="Block">
-      <material>
-        <mattext />
-      </material>
-    </flow>
+      <!-- unused: flow/material-->
+      <!-- <material><mattext/></material> -->
+      <flow class="Block">
+        <material>
+          <mattext />
+        </material>
+      </flow>
     </flow>
   </presentation>
   <resprocessing>

@@ -85,6 +85,7 @@ import org.sakaiproject.tool.assessment.facade.PublishedItemFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.services.FinFormatException;
+import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PublishedItemService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
@@ -240,6 +241,15 @@ public class ItemAddListener
     
     if(iType.equals(TypeFacade.FILL_IN_BLANK.toString())){
 	
+    	int markerError = isErrorMarkersFIB();
+    	if (markerError > 0) {
+    		err =ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "pool_badmarkers_error_" + markerError);
+    		context.addMessage(null, new FacesMessage(err));
+    		item.setOutcome("fillInBlackItem");
+    		item.setPoolOutcome("fillInBlackItem");
+    		return;
+    	}
+
     	if(isErrorFIB()){
     		err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","pool_missingBracket_error");
     		context.addMessage(null,new FacesMessage(err));
@@ -391,6 +401,14 @@ public class ItemAddListener
 		tagsListToJson += "]";
 		return tagsListToJson;
 	}
+
+	public int isErrorMarkersFIB() {
+		ItemAuthorBean itemauthorbean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
+		ItemBean item = itemauthorbean.getCurrentItem();
+		GradingService gradingService = new GradingService();
+		return gradingService.checkMarkersFIB(item.getMarkersPair());
+	}
+
 
 	private void checkEMI() {
 		ItemAuthorBean itemauthorbean = (ItemAuthorBean) ContextUtil
@@ -614,68 +632,12 @@ public class ItemAddListener
 
     }
 
-    public boolean isErrorFIB() {
-	ItemAuthorBean itemauthorbean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
-	ItemBean item =itemauthorbean.getCurrentItem();
-	int index=0;
-	boolean FIBerror=false;
-//	String err="";
-	boolean hasOpen=false;
-	int opencount=0;
-	int closecount=0;
-	boolean notEmpty=false;
-	int indexOfOpen=-1;
-	String text=item.getItemText();
-	while(index<text.length()){ 
-	    char c=text.charAt(index);
-	    if(c=='{'){
-		opencount++;
-		if(hasOpen){
-		    FIBerror=true;
-		    break;
-		}
-		else{
-		    hasOpen=true;
-		    indexOfOpen=index;
-		}
-	    }
-	    else if(c=='}'){
-		closecount++;
-		if(!hasOpen){
-		    FIBerror=true;
-		    break;
-		}
-		else{
-		    if((notEmpty==true)&&(indexOfOpen+1 !=index)&&(!(text.substring(indexOfOpen+1,index).equals("</p><p>")))){
-		       hasOpen=false;
-                       notEmpty=false;
-		    }
-		    else{
-		    //error for emptyString
-			FIBerror=true;
-			break;
-		   }
-
-		}
-	    }
-       
-	    else{
-           
-		if((hasOpen==true)&&(!Character.isWhitespace(c))){
-	    	notEmpty=true; 
-		}
-	    }
-	
-	
-	    index++;
-     }//end while
-    if((hasOpen==true)||(opencount<1)||(opencount!=closecount)||(FIBerror==true)){
-	return true;
-    }
-    else{ 
-	return false;
-    }
-}
+	public boolean isErrorFIB() {
+		GradingService gradingService = new GradingService();
+		ItemAuthorBean itemauthorbean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
+		ItemBean item =itemauthorbean.getCurrentItem();
+		return gradingService.checkPairErrorsFIB(item.getItemText(), item.getMarkersPair());
+	}
 	
     public boolean isErrorFIN() {
     	ItemAuthorBean itemauthorbean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
@@ -1530,9 +1492,9 @@ public class ItemAddListener
 		else if (item.getTypeId().equals(TypeFacade.FILL_IN_BLANK)) {
 			// this is for fill in blank
 			String entiretext = bean.getItemText();
-			String processedText [] = processFIBFINText(entiretext);
+			String processedText[] = processFIBFINText(entiretext, bean.getMarkersPair());
 			text1.setText(processedText[0]);;
-			Object[] fibanswers = getFIBanswers(processedText[1]).toArray();
+			Object[] fibanswers = getFIBanswers(processedText[1], bean.getMarkersPair()).toArray();
 			for (int i = 0; i < fibanswers.length; i++) {
 				String oneanswer = (String) fibanswers[i];
 				Answer answer1 = new Answer(text1, oneanswer, Long.valueOf(i + 1),
@@ -1549,7 +1511,7 @@ public class ItemAddListener
 		else if (item.getTypeId().equals(TypeFacade.FILL_IN_NUMERIC)) {
 			// this is for fill in numeric
 			String entiretext = bean.getItemText();
-			String processedText [] = processFIBFINText(entiretext);
+			String processedText[] = processFIBFINText(entiretext, "{}");
 			text1.setText(processedText[0]);;
 			Object[] finanswers = getFINanswers(processedText[1]).toArray();
 			for (int i = 0; i < finanswers.length; i++) {
@@ -1872,7 +1834,12 @@ public class ItemAddListener
 	private void preparePublishedTextForFIBFIN(ItemFacade item, ItemBean bean, boolean isFIB) throws FinFormatException {
 		Set<ItemTextIfc> textSet = item.getItemTextSet();
 		String entiretext = bean.getItemText();
-		String processedText[] = processFIBFINText(entiretext);
+    String processedText[];
+    if (isFIB) {
+      processedText = processFIBFINText(entiretext, bean.getMarkersPair());
+    } else {
+      processedText = processFIBFINText(entiretext, "{}");
+    }
 		String updatedText = processedText[0];
 		log.debug("New text without answer is = {}", updatedText);
 
@@ -1880,7 +1847,7 @@ public class ItemAddListener
 			text.setText(updatedText);
 			Object[] answers;
 			if (isFIB) {
-				answers = getFIBanswers(entiretext).toArray();
+        answers = getFIBanswers(entiretext, bean.getMarkersPair()).toArray();
 			} else {
 				answers = getFINanswers(entiretext).toArray();
 			}
@@ -2521,6 +2488,8 @@ public class ItemAddListener
 		if (bean.getMutuallyExclusiveForFib()) {
 			wellformatted = isValidMutualExclusiveFIB(bean);
 		}
+		
+		set.add(new ItemMetaData(item.getData(), ItemMetaDataIfc.MARKERS_PAIR, bean.getMarkersPair()));
 
 		set.add(new ItemMetaData(item.getData(),
 				ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIB, Boolean
@@ -2614,7 +2583,10 @@ public class ItemAddListener
 		  else if (itemMetaData.getLabel().equals(ItemMetaDataIfc.CASE_SENSITIVE_FOR_FIB)){
 			  itemMetaData.setEntry(Boolean.toString(bean.getCaseSensitiveForFib()));
 		  }
-		  else if (itemMetaData.getLabel().equals(ItemMetaDataIfc.KEYWORD)){
+	  	  else if (itemMetaData.getLabel().equals(ItemMetaDataIfc.MARKERS_PAIR)) {
+		      itemMetaData.setEntry(bean.getMarkersPair());
+	  	  }
+	  	  else if (itemMetaData.getLabel().equals(ItemMetaDataIfc.KEYWORD)){
 			  itemMetaData.setEntry(bean.getKeyword());
 		  }else if(itemMetaData.getLabel().equals(ItemMetaDataIfc.MCMS_PARTIAL_CREDIT)){
 			  itemMetaData.setEntry(bean.getMcmsPartialCredit());
@@ -2731,15 +2703,23 @@ public class ItemAddListener
 		}
 	}
 
-  private static List getFIBanswers(String entiretext) {
+	private static ArrayList getFIBanswers(String entiretext, String markers_pair) {
 	  String fixedText = entiretext.replaceAll("&nbsp;", " "); // replace &nbsp to " " (instead of "") just want to reserve the original input
-	  String[] tokens = fixedText.split("[\\}][^\\{]*[\\{]");
-	  List list = new ArrayList();
+	  String[] tokens =
+		fixedText.split(
+			"["
+				+ Pattern.quote("" + markers_pair.charAt(1))
+				+ "][^"
+				+ Pattern.quote("" + markers_pair.charAt(0))
+				+ "]*["
+				+ Pattern.quote("" + markers_pair.charAt(0))
+			+ "]");
+	  ArrayList list = new ArrayList();
 	  if (tokens.length==1) {
-		  String[] afteropen= tokens[0].split("\\{");
+		  String[] afteropen = tokens[0].split(Pattern.quote("" + markers_pair.charAt(0)));
 		  if (afteropen.length>1) {
 			  //	 must have text in between {}
-			  String[] lastpart = afteropen[1].split("\\}");
+			  String[] lastpart = afteropen[1].split(Pattern.quote("" + markers_pair.charAt(1)));
 			  String answer = ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(lastpart[0].replaceAll("&lt;.*?&gt;", ""));
 			  list.add(answer);
 		  }
@@ -2747,14 +2727,14 @@ public class ItemAddListener
 	  else {
 		  for (int i = 0; i < tokens.length; i++) {
 			  if (i == 0) {
-				  String[] firstpart = tokens[i].split("\\{");
+				  String[] firstpart = tokens[i].split(Pattern.quote("" + markers_pair.charAt(0)));
 				  if (firstpart.length>1) {
 					  String answer = ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(firstpart[1].replaceAll("&lt;.*?&gt;", ""));
 					  list.add(answer);
 				  }
 			  }
 			  else if (i == (tokens.length - 1)) {
-				  String[] lastpart = tokens[i].split("\\}");
+				  String[] lastpart = tokens[i].split(Pattern.quote("" + markers_pair.charAt(1)));
 				  String answer = ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(lastpart[0].replaceAll("&lt;.*?&gt;", ""));
 				  list.add(answer);
 			  }
@@ -2893,9 +2873,10 @@ public class ItemAddListener
     // all answer sets have to be identical, case insensitive
 
      String entiretext = bean.getItemText();
-     String processedText [] = processFIBFINText(entiretext);
+     String markers_pair = bean.getMarkersPair();
+     String processedText[] = processFIBFINText(entiretext, markers_pair);
      log.debug("processedText[1]=" + processedText[1]);
-     Object[] fibanswers = getFIBanswers(processedText[1]).toArray();
+     Object[] fibanswers = getFIBanswers(processedText[1], markers_pair).toArray();
       List blanklist = new  ArrayList();
       for (int i = 0; i < fibanswers.length; i++) {
     	log.debug("fibanswers[" + i + "]=" + fibanswers[i]);
@@ -3057,9 +3038,18 @@ public class ItemAddListener
 	  return choices;
   }
 
-  private String [] processFIBFINText(String entiretext) {
+  private String[] processFIBFINText(String entiretext, String markers_pair) {
 	  String[] processedText = new String[2];
-	  Pattern pattern1 = Pattern.compile("[\\{][^\\}]*[\\}]");
+	  Pattern pattern1 =
+		Pattern.compile(
+            "["
+                + Pattern.quote("" + markers_pair.charAt(0))
+                + "][^"
+                + Pattern.quote("" + markers_pair.charAt(1))
+                + "]*["
+                + Pattern.quote("" + markers_pair.charAt(1))
+			+ "]");
+
 	  Matcher matcher1 = pattern1.matcher(entiretext);
 	  StringBuilder textStringBuilder1 = new StringBuilder(); 
 	  String tmpString1 = null;
@@ -3087,7 +3077,16 @@ public class ItemAddListener
 		  tmpString2 = modifiedText.substring(index2, matcher2.start());
 		  log.debug("tmpString2" + tmpString2);
 		  if (tmpString2 != null) {
-			  textStringBuilder2.append(tmpString2.replaceAll("[\\{][^\\}]*[\\}]", "{}"));
+			  textStringBuilder2.append(
+				tmpString2.replaceAll(
+                "["
+                    + Pattern.quote("" + markers_pair.charAt(0))
+                    + "][^"
+                    + Pattern.quote("" + markers_pair.charAt(1))
+                    + "]*["
+                    + Pattern.quote("" + markers_pair.charAt(1))
+					+ "]",
+					Matcher.quoteReplacement(markers_pair)));
 			  textStringBuilder3.append(tmpString2);
 			  log.debug("textStringBuilder2=" + textStringBuilder2);
 			  log.debug("textStringBuilder3=" + textStringBuilder3);
@@ -3098,7 +3097,16 @@ public class ItemAddListener
 	  }
 	  tmpString2 = modifiedText.substring(index2);
 	  if (tmpString2 != null) {
-		  textStringBuilder2.append(tmpString2.replaceAll("[\\{][^\\}]*[\\}]", "{}"));
+		  textStringBuilder2.append(
+			tmpString2.replaceAll(
+              "["
+                  + Pattern.quote("" + markers_pair.charAt(0))
+                  + "][^"
+                  + Pattern.quote("" + markers_pair.charAt(1))
+                  + "]*["
+                  + Pattern.quote("" + markers_pair.charAt(1))
+				+ "]",
+				Matcher.quoteReplacement(markers_pair)));
 		  textStringBuilder3.append(tmpString2);
 		  log.debug("textStringBuilder2=" + textStringBuilder2);
 		  log.debug("textStringBuilder3=" + textStringBuilder3);
