@@ -924,13 +924,13 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
     public Date getModifiedDate(){
 
-        DateFormat dateFm = new SimpleDateFormat("yyyy-MM-dd hh:ss:mm.SSS");
-       	try{
-         modifiedDate=dateFm.parse(getLastModified());
-	}
-	catch(ParseException e){
-	    log.error(e.getMessage(), e);
-       }
+        DateFormat dateFm = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
+        try{
+            modifiedDate=dateFm.parse(getLastModified());
+        }
+        catch(ParseException e){
+             log.error("Could not parse modified date", e);
+        }
     return modifiedDate;
 
     }
