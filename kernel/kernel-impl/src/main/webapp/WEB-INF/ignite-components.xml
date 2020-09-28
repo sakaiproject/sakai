@@ -146,7 +146,7 @@
                     <property name="name" value="org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData.assessmentGradingAttachmentSet"/>
                 </bean>
                 <bean parent="org.sakaiproject.ignite.cache.transactional">
-                    <property name="name" value="org.sakaiproject.content.hbm.FileConversionQueueItem"/>
+                    <property name="name" value="org.sakaiproject.content.api.persistence.FileConversionQueueItem"/>
                 </bean>
                 <bean parent="org.sakaiproject.ignite.cache.transactional">
                     <property name="name" value="org.sakaiproject.rubrics.logic.model.Rubric"/>
