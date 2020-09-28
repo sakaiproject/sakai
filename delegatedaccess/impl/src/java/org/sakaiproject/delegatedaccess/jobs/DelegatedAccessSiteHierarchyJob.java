@@ -82,7 +82,7 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		//this will stop the job if there is already another instance running
 		// or if this is an auto-recover restart attempt
-		if (!jobIsRunning.compareAndSet(false, true) || arg0.isRecovering()){
+		if (!jobIsRunning.compareAndSet(false, true) || (arg0 != null && arg0.isRecovering())){
 			log.warn("Stopping job since this job is/was already running");
 			return;
 		}
