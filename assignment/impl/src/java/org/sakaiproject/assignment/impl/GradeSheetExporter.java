@@ -79,7 +79,7 @@ public class GradeSheetExporter {
     /**
     * A comparator that sorts by student sortName
     */
-    static final Comparator<Submitter> SUBMITTER_NAME_COMPARATOR = new Comparator<Submitter>() {
+    private static final Comparator<Submitter> SUBMITTER_NAME_COMPARATOR = new Comparator<Submitter>() {
         Collator collator;
         {
             this.collator = Collator.getInstance();
@@ -466,12 +466,12 @@ public class GradeSheetExporter {
             notes.ifPresent(strings -> this.notes = strings);
         }
 
-		public String getSortName() {
-			return sortName;
-		}
+        public String getSortName() {
+            return sortName;
+        }
 
-		public void setSortName(String sortName) {
-			this.sortName = sortName;
-		}
+        public void setSortName(String sortName) {
+            this.sortName = sortName;
+        }
     }
 }
