@@ -1603,7 +1603,7 @@ public class DeliveryBean implements Serializable {
     log.debug("***7. addMediaToItemGrading, adata={}", adata);
     itemGradingData.setAnswerText(mediaId + "");
     gradingService.saveItemGrading(itemGradingData);
-    EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_ATTACHMENT_NEW, "itemGradingId="+itemGradingData.getItemGradingId()+", "+mediaData.getFilename(), null, true, NotificationService.NOTI_REQUIRED));
+    EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_ATTACHMENT_NEW, "itemGradingId=" + itemGradingData.getItemGradingId() + ", " + mediaData.getFilename(), null, true, NotificationService.NOTI_REQUIRED));
     // 3. if saveToDB, remove file from file system
     try {
       	if (SAVETODB) {
