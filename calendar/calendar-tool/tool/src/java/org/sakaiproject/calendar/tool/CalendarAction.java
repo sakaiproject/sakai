@@ -7255,7 +7255,7 @@ extends VelocityPortletStateAction
 						Group group = site.getGroup(groupId);
 						if (groupRangeForDisplay.equals("")||groupRangeForDisplay.equals("site")) 
 							eventInGroup = true;
-						if (groupRangeForDisplay.indexOf(group.getTitle()) != -1)
+						if (groupRangeForDisplay.equals(group.getTitle()))
 							eventInGroup = true;
 					}
 					if ( ! eventInGroup )
