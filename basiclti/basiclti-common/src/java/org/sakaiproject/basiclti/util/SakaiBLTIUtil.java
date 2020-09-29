@@ -479,7 +479,7 @@ public class SakaiBLTIUtil {
 		// Fix up the return Url
 		String returnUrl = ServerConfigurationService.getString("basiclti.consumer_return_url", null);
 		if (returnUrl == null) {
-			returnUrl = getOurServerUrl() + LTI11_SERVICE_PATH + "return-url";
+			returnUrl = getOurServerUrl() + LTI1_ANON_PATH + "return-url";
 			Session s = SessionManager.getCurrentSession();
 			if (s != null) {
 				String controllingPortal = (String) s.getAttribute("sakai-controlling-portal");
