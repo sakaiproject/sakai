@@ -2067,7 +2067,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 				if (collection!=null)
 				{
 					//get the resourceId by using collectionName and uploadFileName
-					resourceId = collectionName +"/"+ uploadFileName;
+					resourceId = collectionName +"/"+ Validator.escapeResourceName(uploadFileName);
 					try{
 						//check if resource in collection exists
 						ContentHostingService.getResource(resourceId);
@@ -2093,7 +2093,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 					//So I disable this method call, though it can be enabled again if desired.
 					
 					//String resourceName = getUniqueFileName(uploadFileName, resourceGroup);
-					resourceId = resourceGroup + uploadFileName;
+					resourceId = resourceGroup + Validator.escapeResourceName(uploadFileName);
 					try{
 						//check if resource exists
 						ContentHostingService.getResource(resourceId);
