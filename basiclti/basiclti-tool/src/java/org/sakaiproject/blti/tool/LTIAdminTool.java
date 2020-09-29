@@ -1501,9 +1501,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 	        String redirectPanel = "Redirect";
 		if (sakaiSession != null) {
-			if (sakaiSession != null) {
-				redirectPanel +=  '&' + RequestFilter.ATTR_SESSION + "=" + sakaiSession;
-			}
+			redirectPanel +=  '&' + RequestFilter.ATTR_SESSION + "=" + sakaiSession;
 		}
 		switchPanel(state, redirectPanel);
 	}
