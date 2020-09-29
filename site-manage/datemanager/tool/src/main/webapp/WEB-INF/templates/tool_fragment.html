@@ -28,15 +28,17 @@
 						<th th:case="'announcements'" th:text="#{column.end.date}">End Date</th>
 					</th:block>
 					<th:block th:switch="${toolId}">
-						<th:block th:case="'gradebookItems'"></th:block>
-						<th:block th:case="'signupMeetings'"></th:block>
-						<th:block th:case="'resources'"></th:block>
-						<th:block th:case="'calendarEvents'"></th:block>
-						<th:block th:case="'forums'"></th:block>
-						<th:block th:case="'announcements'"></th:block>
-						<th:block th:case="'lessons'"></th:block>
 						<th th:case="'assignments'" th:text="#{column.accept.until}">Accept Until Date</th>
 						<th th:case="'assessments'" th:text="#{column.accept.until}">Accept Until Date</th>
+						<th:block th:case="*"></th:block>
+					</th:block>
+					<th:block th:switch="${toolId}">
+						<th th:case="'assessments'" th:text="#{column.feedback.start.date}">Show Feedback On</th>
+						<th:block th:case="*"></th:block>
+					</th:block>
+					<th:block th:switch="${toolId}">
+						<th th:case="'assessments'" th:text="#{column.feedback.end.date}">Show Feedback Until</th>
+						<th:block th:case="*"></th:block>
 					</th:block>
 				</tr>
 			</thead>
@@ -87,6 +89,30 @@
 									<div><small class="errors"></small></div>
 								</div>
 							</td>
+						</th:block>
+						<th:block th:switch="${toolId}">
+							<td th:case="'assessments'">
+								<div>
+									<input type="text" class="form-control datepicker" />
+									<input type="hidden" th:value="${item.feedback_start}" th:attr="data-idx=${iter.index},data-tool=${toolId}" data-field="feedback_start" />
+									<div><small class="text-muted day-of-week"></small></div>
+									<div><small class="errors"></small></div>
+								</div>
+							</td>
+							<th:block th:case="*">
+							</th:block>
+						</th:block>
+						<th:block th:switch="${toolId}">
+							<td th:case="'assessments'">
+								<div>
+									<input type="text" class="form-control datepicker" />
+									<input type="hidden" th:value="${item.feedback_end}" th:attr="data-idx=${iter.index},data-tool=${toolId}" data-field="feedback_end" />
+									<div><small class="text-muted day-of-week"></small></div>
+									<div><small class="errors"></small></div>
+								</div>
+							</td>
+							<th:block th:case="*">
+							</th:block>
 						</th:block>
 					</tr>
 				</th:block>

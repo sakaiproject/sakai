@@ -47,7 +47,7 @@ public class EventSummary implements Serializable {
 	private static final long	serialVersionUID	= 4943854683550852507L;
 
 	/** Resource bundle */
-	private transient ResourceLoader msgs 			= new ResourceLoader("calendar");
+	private static final ResourceLoader msgs 			= new ResourceLoader("calendar");
 	
 	private final int	MAX_TEXT_SIZE	= 30;
 

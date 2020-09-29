@@ -16,6 +16,7 @@ export class GraderToggle extends SakaiElement {
 
     return {
       checked: Boolean,
+      uncheckedByDefault: {attribute: "unchecked-by-default", type: Boolean},
       i18n: Object,
       tool: String,
     };
@@ -26,7 +27,7 @@ export class GraderToggle extends SakaiElement {
     this._tool = newValue;
     getViewPreferences(newValue).then(prefs => {
 
-      if (!prefs) {
+      if (!prefs && !this.uncheckedByDefault) {
         this.checked = true;
       } else {
         this.prefs = JSON.parse(prefs);

@@ -5,6 +5,16 @@ export class Submission {
     if (init) {
       this.id = init.id;
 
+      if (init.properties) {
+        // Build a history object for this submission
+        this.history = {
+          grades: init.properties["CHEF:submission_scaled_previous_grades"],
+          comments: init.properties["CHEF:submission_previous_feedback_text"]
+        };
+
+        this.hasHistory = this.history.grades || this.history.comments;
+      }
+
       this.hasRubricEvaluation = init.hasRubricEvaluation;
 
       if (init.dateSubmitted) {
@@ -31,7 +41,7 @@ export class Submission {
       this.submitters = init.submitters;
 
       if (init.submitters) {
-        this.firstSubmitterName = init.submitters[0].displayName;
+        this.firstSubmitterName = init.submitters[0].sortName;
         this.firstSubmitterId = init.submitters[0].id;
       }
       this.late = init.late;

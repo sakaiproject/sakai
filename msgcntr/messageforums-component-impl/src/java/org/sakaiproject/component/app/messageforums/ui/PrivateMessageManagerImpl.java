@@ -37,6 +37,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections4.CollectionUtils;
@@ -72,7 +73,6 @@ import org.sakaiproject.component.app.messageforums.TestUtil;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageRecipientImpl;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
@@ -121,14 +121,13 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   private static final String FROM_ADDRESS = "msgcntr.notification.from.address";
   private static final String USER_NOT_DEFINED = "cannot find user with id ";
 
-  private final PreferencesService preferencesService = ComponentManager.get( PreferencesService.class );
-  
+
   private AreaManager areaManager;
   private MessageForumsMessageManager messageManager;
   private MessageForumsForumManager forumManager;
   private MessageForumsTypeManager typeManager;
   private IdManager idManager;
-  private SessionManager sessionManager;  
+  private SessionManager sessionManager;
   private EmailService emailService;
   private ContentHostingService contentHostingService;
   private SecurityService securityService;
@@ -137,7 +136,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   private ToolManager toolManager;
   private UserDirectoryService userDirectoryService;
   private LearningResourceStoreService learningResourceStoreService;
-  
+  @Setter private PreferencesService preferencesService;
+
   private static final String MESSAGES_TITLE = "pvt_message_nav";// Mensajes-->Messages/need to be modified to support internationalization
   
   private static final String PVT_RECEIVED = "pvt_received";     // Recibidos ( 0 mensajes )-->Received ( 8 messages - 8 unread )
@@ -153,10 +153,12 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   private static final String EMAIL_FOOTER4_B = "pvt_email_footer4_b";
   private static final String INIT_VECTOR = "RandomInitVector";
 
+  private ResourceLoader rb;
+
   public void init()
   {
 	log.info("init()");
-    ;
+    rb = new ResourceLoader(MESSAGECENTER_BUNDLE);
   }
   
 	public void setSecurityService(SecurityService securityService) {
@@ -1115,7 +1117,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
       return pmessage;
   }
 
-  private boolean getForwardingEnabled(Map<User, Boolean> recipients, Map<String, PrivateForum> pfMap, String currentUserAsString, String contextId, List recipientList, List<InternetAddress> fAddresses) throws MessagingException{
+  private boolean getForwardingEnabled(Map<User, Boolean> recipients, Map<String, PrivateForum> pfMap, String currentUserAsString, String contextId, List recipientList, List<InternetAddress> fAddresses, boolean draft) throws MessagingException{
 	  boolean forwardingEnabled = false;
 	  //this only needs to be done if the message is not being sent
 	  int submitterEmailReceiptPref;
@@ -1162,13 +1164,10 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 			  fAddresses.add(new InternetAddress(oldPf.getAutoForwardEmail()));
 		  }
 
-		  /** determine if current user is equal to recipient */
-		  Boolean isRecipientCurrentUser =
-				  (currentUserAsString.equals(userId) ? Boolean.TRUE : Boolean.FALSE);
-
-		  PrivateMessageRecipientImpl receiver = new PrivateMessageRecipientImpl(
-				  userId, typeManager.getReceivedPrivateMessageType(), contextId,
-				  isRecipientCurrentUser, bcc);
+		  // if saving a draft, set the recipient type to "draft received" so that the message will not show up for the recipient yet
+		  String type = draft ? typeManager.getDraftReceivedPrivateMessageType() : typeManager.getReceivedPrivateMessageType();
+		  PrivateMessageRecipientImpl receiver = new PrivateMessageRecipientImpl(userId, type, contextId,
+				  currentUserAsString.equals(userId), bcc);
 		  recipientList.add(receiver);
 		  }
 	  return forwardingEnabled;
@@ -1207,7 +1206,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
       throw new IllegalArgumentException("Null Argument");
     }
 
-    if (recipients.size() == 0 && !message.getDraft().booleanValue())
+    final boolean draft = message.getDraft();
+    if (recipients.isEmpty() && !draft)
     {
       /** for no just return out
         throw new IllegalArgumentException("Empty recipient list");
@@ -1227,19 +1227,6 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 
     User currentUser = currentUser(message, isMailArchive);
     List recipientList = new UniqueArrayList();
-
-    /** test for draft message */
-    if (message.getDraft().booleanValue())
-    {
-      PrivateMessageRecipientImpl receiver = new PrivateMessageRecipientImpl(
-      		currentUserAsString, typeManager.getDraftPrivateMessageType(),
-      		contextId, Boolean.TRUE, false);
-
-      recipientList.add(receiver);
-      message.setRecipients(recipientList);
-      saveMessage(message, isMailArchive, contextId, currentUserAsString);
-      return;
-    }
 
     //build the message body
     List additionalHeaders = new ArrayList(1);
@@ -1275,12 +1262,12 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     	}
 
 		List<InternetAddress> fAddresses = new ArrayList();
-		boolean forwardingEnabled = getForwardingEnabled(recipients, pfMap, currentUserAsString, contextId, recipientList, fAddresses);
+		boolean forwardingEnabled = getForwardingEnabled(recipients, pfMap, currentUserAsString, contextId, recipientList, fAddresses, draft);
 		//this only needs to be done if the message is not being sent
     
     /** add sender as a saved recipient */
     PrivateMessageRecipientImpl sender = new PrivateMessageRecipientImpl(
-    		currentUserAsString, typeManager.getSentPrivateMessageType(),
+    		currentUserAsString, draft ? typeManager.getDraftPrivateMessageType() : typeManager.getSentPrivateMessageType(),
     		contextId, Boolean.TRUE, false);
 
     recipientList.add(sender);
@@ -1290,6 +1277,10 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 	Message savedMessage = saveMessage(message, isMailArchive, contextId, currentUserAsString);
 
     message.setId(savedMessage.getId());
+
+    if (draft) {
+    	return;
+    }
 
     String bodyString = buildMessageBody(message);
     List<InternetAddress> replyEmail  = new ArrayList<>();
@@ -2059,10 +2050,8 @@ return topicTypeUuid;
       return areaManager.getResourceBundleString(key);
   }
   
-  private String getResourceBundleString(String key, Object[] replacementValues) 
-  {
-      final ResourceLoader rb = new ResourceLoader(MESSAGECENTER_BUNDLE);
-      return rb.getFormattedMessage(key, replacementValues);   
+  private String getResourceBundleString(String key, Object[] replacementValues) {
+      return rb.getFormattedMessage(key, replacementValues);
   }
 
   /**

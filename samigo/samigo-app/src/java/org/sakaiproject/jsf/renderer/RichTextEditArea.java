@@ -54,6 +54,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class RichTextEditArea extends Renderer
 {
+  private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
 
   String editor = ServerConfigurationService.getString("wysiwyg.editor");
   
@@ -215,8 +216,7 @@ public class RichTextEditArea extends Renderer
 	  else {
 		  textBoxCols = (new Integer(outCol).intValue()/4);
 	  }
-	  
-	  ResourceLoader rb=new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
+
     //fck's tool bar can get pretty big
     if (new Integer(outRow).intValue() < 300) 
     {

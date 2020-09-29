@@ -450,6 +450,8 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 
 					// Check to see if we need launch protection
 					int protect = SakaiBLTIUtil.getInt(content.get(LTIService.LTI_PROTECT));
+					String launch_code_key = SakaiBLTIUtil.getLaunchCodeKey(content);
+					Session session = sessionManager.getCurrentSession();
 
 					// SAK-43709 - Prior to Sakai-21 there is no protect field in Content
 					// If there is no protect value, we fall back to the pre-21 description in JSON
@@ -460,13 +462,11 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 					}
 
 					if ( protect > 0 ) {
-						Session session = sessionManager.getCurrentSession();
-						String launch_code_key = SakaiBLTIUtil.getLaunchCodeKey(content);
 						String launch_code = (String) session.getAttribute(launch_code_key);
-						session.removeAttribute(launch_code_key);  // You get one try
 
+						// We don't remove the token until later because LTI 1.3 pass through this twice
 						if ( launch_code == null || ! SakaiBLTIUtil.checkLaunchCode(content, launch_code) ) {
-					        throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(), "basiclti", ref.getReference());
+							throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(), "basiclti", ref.getReference());
 						}
 					}
 
@@ -522,6 +522,9 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 					if ( tool != null ) handleLTI112(req, res, tool);
 
 					retval = SakaiBLTIUtil.postLaunchHTML(content, tool, state, nonce, ltiService, rb);
+
+					// Once we are ready to do the actual launch, remove the assignments protection key
+					session.removeAttribute(launch_code_key);  // You get one try
 				}
 				else if (refId.startsWith("export:") && refId.length() > 7)
 				{

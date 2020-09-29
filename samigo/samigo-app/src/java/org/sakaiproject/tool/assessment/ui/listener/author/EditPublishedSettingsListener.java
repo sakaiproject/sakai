@@ -63,22 +63,24 @@ public class EditPublishedSettingsListener
   {
     FacesContext context = FacesContext.getCurrentInstance();
 
-    PublishedAssessmentSettingsBean assessmentSettings = (PublishedAssessmentSettingsBean) ContextUtil.lookupBean(
-                                          "publishedSettings");
+    PublishedAssessmentSettingsBean assessmentSettings = (PublishedAssessmentSettingsBean) ContextUtil.lookupBean("publishedSettings");
     AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
     
     // #1a - load the assessment
-    String assessmentId = (String) FacesContext.getCurrentInstance().
-        getExternalContext().getRequestParameterMap().get("publishedId");
+    String assessmentId;
+    boolean fromRetakeConfirm = "retakeConfirm".equals(author.getOutcome());
+    if (fromRetakeConfirm) {
+        assessmentId = (String) context.getExternalContext().getRequestParameterMap().get("retractAssessmentForm:publishedId");
+    } else {
+        assessmentId = (String) context.getExternalContext().getRequestParameterMap().get("publishedId");
+    }
     PublishedAssessmentService assessmentService = new PublishedAssessmentService();
-    PublishedAssessmentFacade assessment = assessmentService.getSettingsOfPublishedAssessment(
-        assessmentId);
+    PublishedAssessmentFacade assessment = assessmentService.getSettingsOfPublishedAssessment(assessmentId);
 
     //## - permission checking before proceeding - daisyf
     AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
     if (!authzBean.isUserAllowedToPublishAssessment(assessmentId, assessment.getCreatedBy(), true)) {
-        String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
-                                                 "denied_edit_publish_assessment_settings_error");
+        String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "denied_edit_publish_assessment_settings_error");
         context.addMessage(null,new FacesMessage(err));
         author.setOutcome("author");
         return;
@@ -111,7 +113,7 @@ public class EditPublishedSettingsListener
     AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
     assessmentBean.setAssessmentId(assessmentId);
     
-    if (ae == null) {
+    if (ae == null || fromRetakeConfirm) {
     	// From authorIndex
     	author.setFromPage("author");
     }

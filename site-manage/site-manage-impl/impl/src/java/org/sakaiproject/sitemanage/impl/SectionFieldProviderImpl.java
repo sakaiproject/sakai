@@ -32,6 +32,7 @@ import org.sakaiproject.util.ResourceLoader;
 
 @Slf4j
 public class SectionFieldProviderImpl implements SectionFieldProvider {
+	private static final ResourceLoader resourceLoader = new ResourceLoader("SectionFields");
 	private static ServerConfigurationService serverConfigurationService;
 
 	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
@@ -39,7 +40,7 @@ public class SectionFieldProviderImpl implements SectionFieldProvider {
 	}
 
 	public List<SectionField> getRequiredFields() {
-		ResourceLoader resourceLoader = new ResourceLoader("SectionFields");
+
 		List<SectionField> fieldList = new ArrayList<SectionField>();
 
 		fieldList.add(new SectionFieldImpl(resourceLoader.getString("required_fields_subject"), null, serverConfigurationService.getInt("wsetup.sectionfield.required_fields_subject.max",8)));

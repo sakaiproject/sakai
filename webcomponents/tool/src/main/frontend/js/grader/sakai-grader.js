@@ -62,6 +62,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       token: { type: String },
       rubric: { type: Object },
       assignmentsI18n: Object,
+      showingHistory: Boolean,
     };
   }
 
@@ -227,7 +228,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
             ${this.submission.submittedAttachments.length > 0 ? html`
               <div class="attachments-header">${this.assignmentsI18n["gen.stuatt"]}:</div>
               ${this.submission.submittedAttachments.map(r => html`
-                <span class="attachment-link"><a href="javascript;" data-url="${r.url}" @click=${this.previewAttachment}>${r.name}</a></span>
+                <div class="attachment-link"><a href="javascript;" data-url="${r.url}" @click=${this.previewAttachment}>${r.name}</a></div>
               `)}` : ""}
           </div>
         </div> <!-- /submitted-block -->
@@ -325,6 +326,37 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
           <sakai-grader-file-picker button-text="${this.assignmentsI18n["gen.addatt"]}" style="display: inline-block;" title="${this.i18n["add_attachments_tooltip"]}">
           </sakai-grader-file-picker>
         </div>
+        ${this.submission.hasHistory ? html`
+          <div id="grader-submission-history-wrapper">
+            <div id="grader-submission-history-toggle">
+              <a href="javascript:;"
+                @click=${e => this.showingHistory = !this.showingHistory}
+                aria-label="${this.showingHistory ? this.i18n["hide_history_tooltip"] : this.i18n["show_history_tooltip"]}"
+                title="${this.showingHistory ? this.i18n["hide_history_tooltip"] : this.i18n["show_history_tooltip"]}"
+              >
+                ${this.showingHistory ? this.i18n["hide_history"] : this.i18n["show_history"]}
+              </a>
+            </div>
+            <div id="grader-submission-history" style="display: ${this.showingHistory ? "block" : "none"}">
+              ${this.submission.history.comments ? html`
+                <div id="grader-history-comments-wrapper">
+                  <div class="grader-history-title">${this.i18n["feedback_comments"]}</div>
+                  <div class="grader-history-block">
+                    ${unsafeHTML(this.submission.history.comments)}
+                  </div>
+                </div>
+              ` : ""}
+              ${this.submission.history.grades ? html`
+                <div id="grader-history-grades-wrapper">
+                  <div class="grader-history-title">${this.i18n["previous_grades"]}</div>
+                  <div class="grader-history-block">
+                    ${unsafeHTML(this.submission.history.grades)}
+                  </div>
+                </div>
+              ` : ""}
+            </div>
+          </div>
+        ` : ""}
         <div class="grader-label content-button-block">
           <button id="grader-private-notes-button" @click=${this.togglePrivateNotes} aria-haspopup="true" title="${this.i18n["private_notes_tooltip"]}" >${this.assignmentsI18n["note.label"]}</button>
           ${this.submission.privateNotes ? html`<div class="active-indicator" aria-label="${this.i18n["notes_present"]}" title="${this.i18n["notes_present"]}"></div>` : ""}

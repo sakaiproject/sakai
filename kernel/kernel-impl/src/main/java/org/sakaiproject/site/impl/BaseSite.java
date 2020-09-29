@@ -63,13 +63,13 @@ import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.util.Xml;
+import org.sakaiproject.util.api.FormattedText;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import lombok.extern.slf4j.Slf4j;
-
 /**
  * <p>
  * BaseSite is a base implementation of the Site API Site.
@@ -169,7 +169,7 @@ public class BaseSite implements Site
 	protected AuthzGroup m_azg = null;
 
 	private AuthzGroupService authzGroupService;
-
+	private FormattedText formattedText;
 	/**
 	 * Set to true if we have changed our azg, so it need to be written back on
 	 * save.
@@ -203,7 +203,7 @@ public class BaseSite implements Site
 	 */
 	public BaseSite(BaseSiteService siteService, String id)
 	{
-		setupServices(siteService, sessionManager, userDirectoryService);
+		setupServices(siteService, sessionManager, userDirectoryService, formattedText);
 
 		m_id = id;
 
@@ -246,7 +246,7 @@ public class BaseSite implements Site
 	 */
 	public BaseSite(BaseSiteService siteService, Site other, boolean exact)
 	{
-		setupServices(siteService, sessionManager, userDirectoryService);
+		setupServices(siteService, sessionManager, userDirectoryService, formattedText);
 		BaseSite bOther = (BaseSite) other;
 		set(bOther, exact);
 	}
@@ -259,7 +259,7 @@ public class BaseSite implements Site
 	 */
 	public BaseSite(BaseSiteService siteService, Element el, TimeService timeService)
 	{
-		setupServices(siteService, sessionManager, userDirectoryService);
+		setupServices(siteService, sessionManager, userDirectoryService, formattedText);
 
 		// setup for properties
 		m_properties = new BaseResourcePropertiesEdit();
@@ -516,7 +516,7 @@ public class BaseSite implements Site
 			String modifiedBy, Instant modifiedOn, boolean customPageOrdered,
 			boolean isSoftlyDeleted, Date softlyDeletedDate, boolean descriptionLoaded, SessionManager sessionManager, UserDirectoryService userDirectoryService)
 	{
-		setupServices(siteService, sessionManager, userDirectoryService);
+		setupServices(siteService, sessionManager, userDirectoryService, formattedText);
 
 		// setup for properties
 		m_properties = new BaseResourcePropertiesEdit();
@@ -568,7 +568,7 @@ public class BaseSite implements Site
 	 * @param userDirectoryService the UDS
 	 * @throws java.lang.IllegalStateException if the services would be null
 	 */
-	void setupServices(BaseSiteService siteService, SessionManager sessionManager, UserDirectoryService userDirectoryService) {
+	private void setupServices(BaseSiteService siteService, SessionManager sessionManager, UserDirectoryService userDirectoryService, FormattedText formattedText) {
 		this.siteService = siteService;
 		if (this.siteService == null) {
 			this.siteService = (BaseSiteService) ComponentManager.get(SiteService.class);
@@ -589,6 +589,14 @@ public class BaseSite implements Site
 			this.userDirectoryService = (UserDirectoryService) ComponentManager.get(UserDirectoryService.class);
 			if (this.userDirectoryService == null) {
 				throw new IllegalStateException("Cannot get the UserDirectoryService when constructing BaseSite");
+			}
+		}
+		
+		this.formattedText = formattedText;
+		if (this.formattedText == null) {
+			this.formattedText = ComponentManager.get(FormattedText.class);
+			if (this.formattedText == null) {
+				throw new IllegalStateException("Cannot get the FormattedText when constructing BaseSite");
 			}
 		}
 	}

@@ -61,6 +61,8 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     private static final String MESSAGES_TITLE = "cdfm_message_pvtarea";
     private static final String FORUMS_TITLE = "cdfm_discussion_forums";
 
+    private ResourceLoader rb;
+
     private IdManager idManager;
 
     private MessageForumsForumManager forumManager;
@@ -97,6 +99,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
 
 	public void init() {
        log.info("init()");
+       rb = new ResourceLoader(MESSAGECENTER_BUNDLE);
        DEFAULT_AUTO_MARK_READ = serverConfigurationService.getBoolean("msgcntr.forums.default.auto.mark.threads.read", false);
     }
 
@@ -378,16 +381,12 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
      */
     public String getResourceBundleString(String key) 
     {
-    	final ResourceLoader rb = new ResourceLoader(MESSAGECENTER_BUNDLE);
     	return rb.getString(key);
     }
     
     private String getResourceBundleString(String key, Object[] replacementValues) 
     {
-    	final ResourceLoader rb = new ResourceLoader(MESSAGECENTER_BUNDLE);
     	return rb.getFormattedMessage(key, replacementValues);
-    	
-    	
     }
 
 }

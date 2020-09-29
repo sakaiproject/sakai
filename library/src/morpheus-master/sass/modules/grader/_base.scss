@@ -192,6 +192,42 @@ sakai-grader {
         display: inline-block;
       }
     }
+
+    #grader-submission-history-wrapper {
+      border: black solid 1px;
+      border-radius: 5px;
+      padding: 5px;
+      margin-top: 20px;
+
+      #grader-submission-history-toggle {
+        margin: 3px 0px 3px 10px;
+        a {
+          text-decoration: none;
+          font-weight: bold;
+        }
+      }
+
+      #grader-submission-history {
+        margin-left: 5px;
+        h4 { font-size: 13px; margin-top: 15px;}
+        .grader-history-title {
+          font-weight: bold;
+          margin-top: 10px;
+          a {
+          }
+        }
+        .grader-history-block {
+          margin-left: 5px;
+          div,p {
+            font-size: 12px;
+            margin-bottom: 10px;
+          }
+        }
+        #grader-history-grades-wrapper {
+          border-top: 1px black solid;
+        }
+      }
+    }
   }
 
   .submitted-block, .feedback-attachments-block {

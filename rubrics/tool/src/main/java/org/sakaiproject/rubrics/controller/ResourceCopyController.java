@@ -73,11 +73,11 @@ public class ResourceCopyController {
             throws CloneNotSupportedException {
         Rubric clonedRubric = null;
         if ("default".equalsIgnoreCase(sourceId)) {
-            Rubric sourceRubric = rubricsConfiguration.getInstance().getDefaultLayoutConfiguration(lang).getDefaultRubric();
+            Rubric sourceRubric = rubricsConfiguration.getDefaultLayoutConfiguration(lang).getDefaultRubric();
             clonedRubric = sourceRubric.clone();
         } else {
             Rubric sourceRubric = rubricRepository.findById(Long.parseLong(sourceId))
-                    .orElseGet(() -> rubricsConfiguration.getInstance().getDefaultLayoutConfiguration(lang).getDefaultRubric());
+                    .orElseGet(() -> rubricsConfiguration.getDefaultLayoutConfiguration(lang).getDefaultRubric());
             clonedRubric = sourceRubric.clone();
             clonedRubric.setTitle(clonedRubric.getTitle() + " Copy");
         }
@@ -106,7 +106,7 @@ public class ResourceCopyController {
         Criterion sourceCriterion = null;
         Criterion clonedCriterion = null;
         if ("default".equalsIgnoreCase(sourceId)) {
-            sourceCriterion = rubricsConfiguration.getInstance().getDefaultLayoutConfiguration(lang).getDefaultCriterion();
+            sourceCriterion = rubricsConfiguration.getDefaultLayoutConfiguration(lang).getDefaultCriterion();
             clonedCriterion = sourceCriterion.clone();
         } else {
             sourceCriterion = criterionRepository.findById(Long.parseLong(sourceId)).get();
@@ -126,7 +126,7 @@ public class ResourceCopyController {
         Rating sourceRating = null;
         Rating clonedRating = null;
         if ("default".equalsIgnoreCase(sourceId)) {
-            sourceRating = rubricsConfiguration.getInstance().getDefaultLayoutConfiguration(lang).getDefaultRating();
+            sourceRating = rubricsConfiguration.getDefaultLayoutConfiguration(lang).getDefaultRating();
             clonedRating = sourceRating.clone();
         } else {
             sourceRating = ratingRepository.findById(Long.parseLong(sourceId)).get();

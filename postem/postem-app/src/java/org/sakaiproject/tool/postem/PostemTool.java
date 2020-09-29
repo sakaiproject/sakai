@@ -70,7 +70,7 @@ import org.sakaiproject.util.ResourceLoader;
 
 @Slf4j
 public class PostemTool {
-	
+
 	protected GradebookManager gradebookManager;
 	protected ArrayList gradebooks;
 
@@ -126,7 +126,7 @@ public class PostemTool {
 	protected int column = 0;
 
 	public static final String messageBundle = "org.sakaiproject.tool.postem.bundle.Messages";
-	public ResourceLoader msgs = new ResourceLoader(messageBundle);
+	private static final ResourceLoader msgs = new ResourceLoader(messageBundle);
 
 	private ContentHostingService contentHostingService;
 
@@ -474,9 +474,8 @@ public class PostemTool {
 	
 	public static void populateMessage(FacesMessage.Severity severity,
 			String messageId, Object[] args) {
-		final ResourceLoader rb = new ResourceLoader(messageBundle);
 		FacesContext.getCurrentInstance().addMessage(null, 
-		        new FacesMessage(rb.getFormattedMessage(messageId, args)));
+		        new FacesMessage(msgs.getFormattedMessage(messageId, args)));
 	}
 	
 	protected static void clearMessages() {

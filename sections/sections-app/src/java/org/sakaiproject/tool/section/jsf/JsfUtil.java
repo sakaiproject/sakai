@@ -75,6 +75,8 @@ public class JsfUtil {
 	 */
 	public static final String ISO_8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
 
+	private static final ResourceLoader rl = new ResourceLoader("sections");
+
 	/**
 	 * To cut down on configuration noise, allow access to request-scoped beans from
 	 * session-scoped beans, and so on, this method lets the caller try to find
@@ -147,7 +149,6 @@ public class JsfUtil {
      * Gets a localized message from the message bundle.
      */
     public static String getLocalizedMessage(String key) {
-		ResourceLoader rl = new ResourceLoader("sections");
 		return rl.getString(key);
 	}
 
@@ -160,7 +161,6 @@ public class JsfUtil {
      * @return
      */
     public static String getLocalizedMessage(String key, String[] params) {
-		ResourceLoader rl = new ResourceLoader("sections");
 		return rl.getFormattedMessage(key, params);
     }
 
@@ -191,9 +191,9 @@ public class JsfUtil {
 
 		// Set the am/pm flag to ensure that the time is parsed properly
 		if(am) {
-			str = str + " " + DateFormatSymbols.getInstance(new ResourceLoader().getLocale()).getAmPmStrings()[0];
+			str = str + " " + DateFormatSymbols.getInstance(rl.getLocale()).getAmPmStrings()[0];
 		} else {
-			str = str + " " + DateFormatSymbols.getInstance(new ResourceLoader().getLocale()).getAmPmStrings()[1];
+			str = str + " " + DateFormatSymbols.getInstance(rl.getLocale()).getAmPmStrings()[1];
 		}
 
 		String pattern = (str.indexOf(':') != -1) ? JsfUtil.TIME_PATTERN_LONG : JsfUtil.TIME_PATTERN_SHORT;
@@ -212,7 +212,7 @@ public class JsfUtil {
 		if(time == null) {
 			return null;
 		}
-		SimpleDateFormat sdf = new SimpleDateFormat(JsfUtil.TIME_PATTERN_DISPLAY, new ResourceLoader().getLocale());
+		SimpleDateFormat sdf = new SimpleDateFormat(JsfUtil.TIME_PATTERN_DISPLAY, rl.getLocale());
 		sdf.setTimeZone(TimeService.getLocalTimeZone());
 		return sdf.format(time);
 	}

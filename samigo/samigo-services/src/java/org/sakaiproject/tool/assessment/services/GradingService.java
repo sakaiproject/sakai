@@ -90,6 +90,7 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
 import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.sakaiproject.tool.assessment.util.SamigoExpressionError;
 import org.sakaiproject.tool.assessment.util.SamigoExpressionParser;
+import org.sakaiproject.tool.assessment.util.comparator.ImageMapGradingItemComparator;
 
 /**
  * The GradingService calls the back end to get/store grading information. 
@@ -137,6 +138,8 @@ public class GradingService
   // SAK-40942 - Error in calculated questions: the decimal representation .n or n. (where n is a number) does not work
   public static final Pattern CALCQ_FORMULA_ALLOW_POINT_NUMBER = Pattern.compile("([^\\d]|^)([\\.])([\\d])");
   public static final Pattern CALCQ_FORMULA_ALLOW_NUMBER_POINT = Pattern.compile("([\\d])([\\.])([^\\d]|$)");
+  
+  private static final int WRONG_IMAGE_MAP_ANSWER_NON_PARCIAL = -123456789;
 	  
   /**
    * Get all scores for a published assessment from the back end.
@@ -880,9 +883,6 @@ public class GradingService
          throws GradebookServiceException, FinFormatException {
     log.debug("****x1. regrade ="+regrade+" "+(new Date()).getTime());
     try {
-    	boolean imageMapAllOk=true;
-    	boolean NeededAllOk = false;
-    	
       String agent = data.getAgentId();
       
       // note that this itemGradingSet is a partial set of answer submitted. it contains only 
@@ -912,6 +912,11 @@ public class GradingService
 	      });
       }
       
+    //IMAGEMAP_QUESTION - order by itemGradingId if it is an imageMap question
+      if (isImageMapQuestion(tempItemGradinglist, publishedItemHash)) {
+	      tempItemGradinglist.sort(new ImageMapGradingItemComparator());
+      }
+      
       Iterator<ItemGradingData> iter = tempItemGradinglist.iterator();
 
       // fibEmiAnswersMap contains a map of HashSet of answers for a FIB or EMI item,
@@ -931,10 +936,11 @@ public class GradingService
       log.debug("****x2. {}", (new Date()).getTime());
       double autoScore;
       Long itemId = (long)0;
+      Long previousItemId = (long)0;
       int calcQuestionAnswerSequence = 1; // sequence of answers for CALCULATED_QUESTION
-      while(iter.hasNext())
-      {
-        ItemGradingData itemGrading = iter.next();
+      boolean imageMapAlreadyOk = true;
+      boolean neededAllOk = false;
+      for(ItemGradingData itemGrading: tempItemGradinglist){
         
         // CALCULATED_QUESTION - We increment this so we that calculated 
         // questions can know where we are in the sequence of answers.
@@ -952,23 +958,33 @@ public class GradingService
         	log.error("unable to retrive itemDataIfc for: {}", publishedItemHash.get(itemId));
         	continue;
         }
+        
+        Long itemType = item.getTypeId(); 
+        /*
+         * IMAGEMAP_QUESTIONS can have some items for same question, so we need to remember
+         * between iterations if we have some wrong items in a question that has more than one item.
+         */
+        if(TypeIfc.IMAGEMAP_QUESTION.equals(itemType) && !itemId.equals(previousItemId)) {
+        	previousItemId = itemId;
+        	imageMapAlreadyOk = true;
+        }
+        
         for (ItemMetaDataIfc meta : item.getItemMetaDataSet())
         {
           if (meta.getLabel().equals(ItemMetaDataIfc.REQUIRE_ALL_OK))
           {
             if (meta.getEntry().equals("true"))
             {
-          	  NeededAllOk = true;
+          	  neededAllOk = true;
               break;
             }
             if (meta.getEntry().equals("false"))
             {
-          	  NeededAllOk = false;
+          	  neededAllOk = false;
               break;
             }
           }
         }
-        Long itemType = item.getTypeId();  
         itemGrading.setAssessmentGradingId(data.getAssessmentGradingId());
         //itemGrading.setSubmittedDate(new Date());
         itemGrading.setAgentId(agent);
@@ -1003,9 +1019,19 @@ public class GradingService
         		}
         	}
         }
-        if ((TypeIfc.IMAGEMAP_QUESTION.equals(itemType))&&(NeededAllOk)&&((autoScore==-123456789)||!imageMapAllOk)){
-        	autoScore=0;
-        	imageMapAllOk=false;
+        
+        if (TypeIfc.IMAGEMAP_QUESTION.equals(itemType) && neededAllOk){
+        	if(!imageMapAlreadyOk) {
+        		autoScore = 0;
+        	}else if(autoScore == WRONG_IMAGE_MAP_ANSWER_NON_PARCIAL){
+	        	autoScore = 0;
+	        	imageMapAlreadyOk = false;
+	        	//itemGradingSet have items with positive score if the actual answer isnt the first of the question
+	        	for(ItemGradingData imageMapItem: itemGradingSet) {
+	        		if(imageMapItem.getPublishedItemId().equals(itemId))
+	        			imageMapItem.setAutoScore(0.0);
+	        	}
+        	}
         } 
         
         log.debug("**!regrade, autoScore="+autoScore);
@@ -1454,10 +1480,10 @@ public class GradingService
               break;
       case 16:    	  
     	  initScore = getImageMapScore(itemGrading,item, publishedItemTextHash,publishedAnswerHash);
-    	  //if one answer is 0 or negative, and need all OK to be scored, then autoScore=-123456789
+    	  //if one answer is 0 or negative, and need all OK to be scored, then autoScore=WRONG_IMAGE_MAP_ANSWER_NON_PARCIAL
     	  //and we break the case...
     	  
-    	  boolean NeededAllOk = false;
+    	  boolean neededAllOk = false;
     	  Iterator i = item.getItemMetaDataSet().iterator();
           while (i.hasNext())
           {
@@ -1466,13 +1492,13 @@ public class GradingService
             {
               if (meta.getEntry().equals("true"))
               {
-            	  NeededAllOk = true;
+            	  neededAllOk = true;
                 break;
     }
             }
           }
-    	  if (NeededAllOk&&initScore<=0){
-    		  autoScore=-123456789;
+    	  if (neededAllOk && (initScore <= 0)){
+    		  autoScore = WRONG_IMAGE_MAP_ANSWER_NON_PARCIAL;
     		  break;
     	  }
           //if (initScore > 0) {
@@ -2307,32 +2333,24 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   }
 
   private void setIsLate(AssessmentGradingData data, PublishedAssessmentIfc pub){
-	  // If submit from timeout popup, we don't record LATE
-	  if (data.getSubmitFromTimeoutPopup()) {
-		  data.setIsLate(false);
-	  }
-	  else {
-		  Boolean isLate = false;
-		  AssessmentAccessControlIfc a = pub.getAssessmentAccessControl();
-		  if (a.getDueDate() != null && a.getDueDate().before(new Date())) {
-			isLate = Boolean.TRUE;
-		  } else {
-			isLate = Boolean.FALSE;
-		  }
+    Boolean isLate = Boolean.FALSE;
+    AssessmentAccessControlIfc a = pub.getAssessmentAccessControl();
+    if (a.getDueDate() != null && a.getDueDate().before(new Date())) {
+      isLate = Boolean.TRUE;
+    }
 
-		  if (isLate) {
-			ExtendedTimeDeliveryService assessmentExtended = new ExtendedTimeDeliveryService((PublishedAssessmentFacade) pub, data.getAgentId());
-			if (assessmentExtended.hasExtendedTime() && assessmentExtended.getDueDate() != null && assessmentExtended.getDueDate().after(new Date())) {
-				isLate = Boolean.FALSE;
-			}
-		  }
+    if (isLate) {
+      ExtendedTimeDeliveryService assessmentExtended = new ExtendedTimeDeliveryService((PublishedAssessmentFacade) pub, data.getAgentId());
+      if (assessmentExtended.hasExtendedTime() && assessmentExtended.getDueDate() != null && assessmentExtended.getDueDate().after(new Date())) {
+          isLate = Boolean.FALSE;
+      }
+    }
 
-		  data.setIsLate(isLate);
-	  }
-	  
+    data.setIsLate(isLate);
+
     if (data.getForGrade())
       data.setStatus(1);
-    
+
     data.setTotalOverrideScore(Double.valueOf(0));
   }
 
@@ -3388,6 +3406,25 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		  if (item != null && (TypeIfc.CALCULATED_QUESTION).equals(item.getTypeId())) {
 	    	  return true;
 	      }
+	  }
+	  return false;
+  }
+  
+  /**
+   * IMAGE_MAP QUESTION
+   * Simple to check to see if this is a calculated question. It's used in storeGrades() to see if the sort is necessary.
+   */
+  private boolean isImageMapQuestion(List<ItemGradingData> tempItemGradinglist, Map publishedItemHash) {
+	  if (tempItemGradinglist == null) return false;
+	  if (tempItemGradinglist.isEmpty()) return false;
+	  
+	  
+	  for(ItemGradingData itemCheck: tempItemGradinglist){
+		  Long itemId = itemCheck.getPublishedItemId();
+		  ItemDataIfc item = (ItemDataIfc) publishedItemHash.get(itemId);
+		  if (item != null && (TypeIfc.IMAGEMAP_QUESTION).equals(item.getTypeId())) {
+		    return true;
+		  }
 	  }
 	  return false;
   }

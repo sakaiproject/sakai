@@ -53,7 +53,6 @@ import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.tool.UserPrefsTool;
-import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 
@@ -65,8 +64,6 @@ public class UserPrefsEntityProvider extends AbstractEntityProvider implements C
 	private PreferencesService preferencesService;
 	private SessionManager sessionManager;
 	private RequestStorage requestStorage;
-	/** * Resource bundle messages */
-	ResourceLoader msgs = new ResourceLoader("user-tool-prefs");
 
 	public String getEntityPrefix() {
 		return PREFIX;
