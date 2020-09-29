@@ -98,7 +98,7 @@
   <build>
     <resources>
       <resource>
-        <directory>${basedir}/src/java</directory>Ω
+        <directory>${basedir}/src/java</directory>
         <includes>
           <include>**/*.xml</include>
         </includes>
