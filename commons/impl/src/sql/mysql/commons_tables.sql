@@ -8,8 +8,8 @@ CREATE TABLE COMMONS_COMMONS
 
 CREATE TABLE COMMONS_COMMONS_POST
 (
-    COMMONS_ID char(36) references COMMONS_COMMONS(ID),
-    POST_ID char(36) references COMMONS_POST(ID),
+    COMMONS_ID char(36),
+    POST_ID char(36),
     UNIQUE INDEX commons_id_post_id (COMMONS_ID,POST_ID)
 );
 
