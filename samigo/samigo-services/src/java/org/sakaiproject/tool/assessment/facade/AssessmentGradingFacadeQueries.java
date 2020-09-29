@@ -753,7 +753,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             ItemGradingData itemGradingData = getItemGrading(itemGradingId);
             itemGradingData.setAutoScore(Double.valueOf(0));
             saveItemGrading(itemGradingData);
-            EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_ATTACHMENT_DELETE, "itemGradingId="+itemGradingData.getItemGradingId()+", "+mediaFilename, null, true, NotificationService.NOTI_REQUIRED));
+            EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_ATTACHMENT_DELETE, "itemGradingId=" + itemGradingData.getItemGradingId() + ", " + mediaFilename, null, true, NotificationService.NOTI_REQUIRED));
         }
     }
 
