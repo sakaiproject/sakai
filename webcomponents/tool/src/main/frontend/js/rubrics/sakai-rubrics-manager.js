@@ -45,32 +45,41 @@ class SakaiRubricsManager extends RubricsElement {
             <span class="collpase-icon fa fa-chevron-down"></span>
             <sr-lang key="site_rubrics">site_rubrics</sr-lang>
           </div>
-          <div class="hidden-xs"><sr-lang key="site_title">site_title</sr-lang></div>
-          <div class="hidden-xs"><sr-lang key="creator_name">creator_name</sr-lang></div>
-          <div class="hidden-xs"><sr-lang key="modified">modified</sr-lang></div>
-          <div class="actions"><sr-lang key="actions">actions</sr-lang></div>
         </div>
 
-        <div role="tabpanel" aria-labelledby="site-rubrics-title" id="site_rubrics">
-          <sakai-rubrics-list @sharing-change="${this.handleSharingChange}" @copy-share-site="${this.copyShareSite}" token="Bearer ${this.token}"></sakai-rubrics-list>
+      <div role="tabpanel" aria-labelledby="site-rubrics-title" id="site_rubrics">
+        <div class="rubric-title-sorting">
+          <div @click="${this.sortRubrics}"><a href="javascript:void(0)" style="text-decoration: none;"><sr-lang class="site-name" key="site_name">site_name</sr-lang><span class="collpase-icon fa fa-chevron-up site-name sort-element-site"></span></a></div>
+          <div @click="${this.sortRubrics}"><a href="javascript:void(0)" style="text-decoration: none;"><sr-lang class="site-title" key="site_title">site_title</sr-lang><span class="collpase-icon fa site-title sort-element-site"></span></a></div>
+          <div @click="${this.sortRubrics}"><a href="javascript:void(0)" style="text-decoration: none;"><sr-lang class="site-creator" key="creator_name">creator_name</sr-lang><span class="collpase-icon fa site-creator sort-element-site"></span></a></div>
+          <div @click="${this.sortRubrics}"><a href="javascript:void(0)" style="text-decoration: none;"><sr-lang class="site-modified" key="modified">modified</sr-lang><span class="collpase-icon fa site-modified sort-element-site"></span></a></div>
+          <div class="actions"><sr-lang key="actions">actions</sr-lang></div>
         </div>
+        <br>
+        <sakai-rubrics-list id="sakai-rubrics" @sharing-change="${this.handleSharingChange}" @copy-share-site="${this.copyShareSite}" token="Bearer ${this.token}"></sakai-rubrics-list>
+      </div>
 
         <div id="shared-rubrics-title" aria-expanded="${this.sharedRubricsExpanded}" role="tab" aria-multiselectable="true" class="manager-collapse-title" title="${tr("toggle_shared_rubrics")}" tabindex="0" @click="${this.toggleSharedRubrics}">
           <div>
             <span class="collpase-icon fa fa-chevron-down"></span>
             <sr-lang key="shared_rubrics">shared_rubrics</sr-lang>
           </div>
-          <div class="hidden-xs"><sr-lang key="site_title">site_title</sr-lang></div>
-          <div class="hidden-xs"><sr-lang key="creator_name">creator_name</sr-lang></div>
-          <div class="hidden-xs"><sr-lang key="modified">modified</sr-lang></div>
-          <div class="actions"><sr-lang key="actions">actions</sr-lang></div>
         </div>
 
-        <div role="tabpanel" aria-labelledby="shared-rubrics-title" id="shared_rubrics">
-          <div id="sharedlist">
-            <sakai-rubrics-shared-list token="Bearer ${this.token}" id="sakai-rubrics-shared-list" @copy-share-site="${this.copyShareSite}" ></sakai-rubrics-shared-list>
-          </div>
+      <div role="tabpanel" aria-labelledby="shared-rubrics-title" id="shared_rubrics">
+        <div id="sharedlist">
+          <div class="rubric-title-sorting">
+          <div @click="${this.sortRubrics}"><a href="javascript:void(0)" style="text-decoration: none;"><sr-lang class="shared-name" key="site_name">site_name</sr-lang><span class="collpase-icon fa fa-chevron-up shared-name sort-element-shared"></span></a></div>
+          <div @click="${this.sortRubrics}"><a href="javascript:void(0)" style="text-decoration: none;"><sr-lang class="shared-title" key="site_title">site_title</sr-lang><span class="collpase-icon fa shared-title sort-element-shared"></span></a></div>
+          <div @click="${this.sortRubrics}"><a href="javascript:void(0)" style="text-decoration: none;"><sr-lang class="shared-creator" key="creator_name">creator_name</sr-lang><span class="collpase-icon fa shared-creator sort-element-shared"></span></a></div>
+          <div @click="${this.sortRubrics}"><a href="javascript:void(0)" style="text-decoration: none;"><sr-lang class="shared-modified" key="modified">modified</sr-lang><span class="collpase-icon fa shared-modified sort-element-shared"></span></a></div>
+          <div class="actions"><sr-lang key="actions">actions</sr-lang></div>
         </div>
+        <br>
+        <sakai-rubrics-shared-list token="Bearer ${this.token}" id="sakai-rubrics-shared-list" @copy-share-site="${this.copyShareSite}" ></sakai-rubrics-shared-list>
+      </div>
+      <br>
+      </div>
 
       </div>
     `;
@@ -131,6 +140,28 @@ class SakaiRubricsManager extends RubricsElement {
       });
     });
   }
+
+  sortRubrics(event) {
+    const sortInput = event.target.className;
+    const sortInputValue = sortInput.toString().toLowerCase();
+    const rubric = sortInputValue.split('-');
+    const rubricClass = rubric[0];
+    const rubricType = rubric[1];
+    const query = `.${sortInputValue}.sort-element-${rubricClass}`;
+    const arrowUpIcon = 'fa-chevron-up';
+    const arrowDownIcon = 'fa-chevron-down';
+    let ascending = this.querySelector(query).classList.contains(arrowUpIcon);
+    this.querySelectorAll(`.sort-element-${rubricClass}`).forEach((item) => {
+      item.classList.remove(arrowDownIcon);
+      item.classList.remove(arrowUpIcon);
+    });
+    this.querySelector(query).classList.add(ascending ? arrowDownIcon : arrowUpIcon);
+    ascending = !ascending;
+
+    let elementChildSite = this.querySelector(rubricClass === 'site' ? 'sakai-rubrics-list' : 'sakai-rubrics-shared-list');
+    elementChildSite.sortRubrics(rubricType, ascending);
+  }
+
 }
 
 customElements.define("sakai-rubrics-manager", SakaiRubricsManager);
