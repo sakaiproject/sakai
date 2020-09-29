@@ -1445,8 +1445,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			String label = reqProps.getProperty(LTIService.LTI_TITLE);
 			JSONObject lineItem = getObject(item, ContentItem.LINEITEM);
 			SakaiLineItem sakaiLineItem = null;
-			String lineItemStr = lineItem.toString();
 			if ( lineItem != null ) {
+				String lineItemStr = lineItem.toString();
 				try {
 					sakaiLineItem = (SakaiLineItem) new ObjectMapper().readValue(lineItemStr, SakaiLineItem.class);
 					state.setAttribute(STATE_LINE_ITEM, sakaiLineItem);
@@ -1476,7 +1476,11 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		if (!complete) {
 			log.debug("Forwarding to ContentConfig toolKey={}", toolKey);
 			state.setAttribute(STATE_POST, reqProps);
-			switchPanel(state, "ContentConfig");
+			String contentConfig =  "ContentConfig";
+			if (sakaiSession != null) {
+				contentConfig +=  '&' + RequestFilter.ATTR_SESSION + "=" + sakaiSession;
+			}
+			switchPanel(state, contentConfig);
 			return;
 		}
 
@@ -1484,10 +1488,11 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		log.debug("Content Item complete toolKey={}", toolKey);
 		doContentPutInternal(data, context, reqProps);
 
+	        String redirectPanel = "Redirect";
 		if (sakaiSession != null) {
-			switchPanel(state, "Redirect&" + RequestFilter.ATTR_SESSION + "=" + sakaiSession);
+			redirectPanel +=  '&' + RequestFilter.ATTR_SESSION + "=" + sakaiSession;
 		}
-
+		switchPanel(state, redirectPanel);
 	}
 
 	// This is where we receive a multiple item the Response from the external ContentItem / DeepLink
