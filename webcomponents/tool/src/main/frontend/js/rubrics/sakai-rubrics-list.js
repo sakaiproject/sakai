@@ -5,6 +5,11 @@ import {SakaiRubric} from "./sakai-rubric.js";
 import {SharingChangeEvent} from "./sharing-change-event.js";
 import {SakaiRubricsHelpers} from "./sakai-rubrics-helpers.js";
 
+const rubricName = 'name';
+const rubricTitle = 'title';
+const rubricCreator = 'creator';
+const rubricModified = 'modified';
+
 export class SakaiRubricsList extends RubricsElement {
 
   static get properties() {
@@ -127,6 +132,25 @@ export class SakaiRubricsList extends RubricsElement {
       return await this.querySelector(`#rubric_item_${this.rubrics[this.rubrics.length - 1].id} sakai-rubric`).updateComplete;
     })();
   }
+
+ sortRubrics(rubricType, ascending) {
+    switch (rubricType) {
+      case rubricName:
+        this.rubrics.sort((a, b) => ascending ? a.title.localeCompare(b.title) : b.title.localeCompare(a.title));
+        break;
+      case rubricTitle:
+        this.rubrics.sort((a, b) => ascending ? a.metadata.ownerId.localeCompare(b.metadata.ownerId) : b.metadata.ownerId.localeCompare(a.metadata.ownerId));
+        break;
+      case rubricCreator:
+        this.rubrics.sort((a, b) => ascending ? a.metadata.creatorId.localeCompare(b.metadata.creatorId) : b.metadata.creatorId.localeCompare(a.metadata.creatorId));
+        break;
+      case rubricModified:
+        this.rubrics.sort((a, b) => ascending ? a.metadata.modified.localeCompare(b.metadata.modified) : b.metadata.modified.localeCompare(a.metadata.modified));
+        break;
+    }
+    this.requestUpdate('rubrics');
+  }
+
 }
 
 customElements.define("sakai-rubrics-list", SakaiRubricsList);
