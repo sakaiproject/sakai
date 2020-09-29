@@ -102,6 +102,20 @@
     .rubric-details {
         padding: $standard-spacing;
     }
+
+    .rubric-title-sorting {
+        padding: 0px;
+        border-width: $rubrics-title-border-size 0px;
+        font-weight: bold;
+        @include display-flex;
+        @include justify-content(space-between);
+
+        div {
+            font-weight: normal;
+            flex: 1;
+        }
+    }
+
 }
 
 /** External to the tool **/
