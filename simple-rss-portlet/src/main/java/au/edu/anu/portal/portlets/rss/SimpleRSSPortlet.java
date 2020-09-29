@@ -225,10 +225,14 @@ public class SimpleRSSPortlet extends GenericPortlet{
 		String portletTitle = StringEscapeUtils.escapeHtml4(StringUtils.trim(request.getParameter("portletTitle")));
 		String maxItems = StringUtils.trim(request.getParameter("maxItems"));
 		String feedUrl = StringUtils.trim(request.getParameter("feedUrl"));
-		
+		Placement placement = toolMan.getCurrentPlacement();
+
 		//portlet title could be blank, set to default
 		if(StringUtils.isBlank(portletTitle)){
 			portletTitle=Constants.PORTLET_TITLE_DEFAULT;
+			if (placement != null) {
+				portletTitle = placement.getTitle();
+			}
 		}
 
 		boolean feedUrlIsLocked = isPrefLocked(request, PREF_FEED_URL);
@@ -242,7 +246,6 @@ public class SimpleRSSPortlet extends GenericPortlet{
 
 				//Save the page and tool title
 				try{
-					Placement placement = toolMan.getCurrentPlacement();
 					Site siteEdit = siteServ.getSite(placement.getContext());
 					for (SitePage sitePage : siteEdit.getPages()) {
 						for(ToolConfiguration toolConfiguration : sitePage.getTools()){
@@ -394,7 +397,15 @@ public class SimpleRSSPortlet extends GenericPortlet{
 	 */
 	private String getConfiguredPortletTitle(RenderRequest request) {
 		PortletPreferences pref = request.getPreferences();
-		return pref.getValue(PREF_PORTLET_TITLE, Constants.PORTLET_TITLE_DEFAULT);
+		String defaultTitle = Constants.PORTLET_TITLE_DEFAULT;
+		Placement placement = toolMan.getCurrentPlacement();
+
+		//Get the default title from the current placement
+		if (placement != null) {
+			defaultTitle = placement.getTitle();
+		}
+
+		return pref.getValue(PREF_PORTLET_TITLE, defaultTitle);
 	}
 
 	/**
