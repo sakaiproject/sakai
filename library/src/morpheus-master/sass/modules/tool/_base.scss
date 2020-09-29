@@ -61,7 +61,7 @@
 			display: inline-block;
 			font-size: 1em;
 			font-weight: 400;
-			color: var(--tool-nav-link-color);
+			color: var(--button-text-color);
 			margin: 0;
 			position: relative;
 			
@@ -174,7 +174,7 @@
 	}
 
   sakai-maximise-button {
-    color: var(--tool-nav-link-color);
+    color: var(--button-text-color);
     font-size: 1.1em;
   }
 
@@ -192,7 +192,6 @@
 
 .portletBody
 {
-	background: var(--tool-background-color);
 	padding: 0;
 	@media #{$phone}{
 		margin: 2.3em 0 0 0;

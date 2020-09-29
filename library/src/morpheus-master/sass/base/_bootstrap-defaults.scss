@@ -208,14 +208,14 @@ $icon-font-path: if($bootstrap-sass-asset-helper, "bootstrap/", "../" + $skin-na
 //##
 
 //** `<input>` background color
-// $input-bg:                       #fff
+$input-bg:                       var(--sakai-background-color-1);
 //** `<input disabled>` background color
 // $input-bg-disabled:              $gray-lighter
 
 //** Text color for `<input>`s
- $input-color:                    var(--sakai-text-color-1) ;
+$input-color:                    var(--sakai-text-color-1);
 //** `<input>` border color
-// $input-border:                   #ccc
+$input-border:                   var(--sakai-border-color);
 
 // TODO: Rename `$input-border-radius` to `$input-border-radius-base` in v4
 //** Default `.form-control` border radius
@@ -259,7 +259,7 @@ $icon-font-path: if($bootstrap-sass-asset-helper, "bootstrap/", "../" + $skin-na
 //## Dropdown menu container and contents.
 
 //** Background for the dropdown menu.
-// $dropdown-bg:                    #fff
+$dropdown-bg:                    var(--sakai-background-color-1);
 //** Dropdown menu `border-color`.
 // $dropdown-border:                rgba(0,0,0,.15)
 //** Dropdown menu `border-color` **for IE8**.
@@ -268,25 +268,25 @@ $icon-font-path: if($bootstrap-sass-asset-helper, "bootstrap/", "../" + $skin-na
 // $dropdown-divider-bg:            #e5e5e5
 
 //** Dropdown link text color.
-// $dropdown-link-color:            $gray-dark
+$dropdown-link-color:            var(--button-text-color);
 //** Hover color for dropdown links.
-// $dropdown-link-hover-color:      darken($gray-dark, 5%)
+$dropdown-link-hover-color:      var(--button-hover-text-color);
 //** Hover background for dropdown links.
-// $dropdown-link-hover-bg:         #f5f5f5
+$dropdown-link-hover-bg:         var(--button-hover-background);
 
 //** Active dropdown menu item text color.
-// $dropdown-link-active-color:     $component-active-color
+$dropdown-link-active-color:     var(--button-active-text-color);
 //** Active dropdown menu item background color.
-// $dropdown-link-active-bg:        $component-active-bg
+$dropdown-link-active-bg:        var(--button-active-background);
 
 //** Disabled dropdown menu item background color.
-// $dropdown-link-disabled-color:   $gray-light
+$dropdown-link-disabled-color:   var(--button-disabled-text-color);
 
 //** Text color for headers within dropdown menus.
-// $dropdown-header-color:          $gray-light
+$dropdown-header-color:          var(--button-text-color);
 
 //** Deprecated `$dropdown-caret-color` as of v3.1.0
-// $dropdown-caret-color:           #000
+$dropdown-caret-color:           var(--button-text-color);
 
 
 //-- Z-index master list
@@ -817,11 +817,11 @@ $nav-tabs-active-link-hover-border-color:   var(--tool-tab-background-color);
 // $breadcrumb-padding-vertical:   8px
 // $breadcrumb-padding-horizontal: 15px
 //** Breadcrumb background color
-// $breadcrumb-bg:                 #f5f5f5
+$breadcrumb-bg:                 var(--sakai-background-color-2);
 //** Breadcrumb text color
-// $breadcrumb-color:              #ccc
+$breadcrumb-color:              var(--sakai-text-color-1);
 //** Text color of current page in the breadcrumb
-// $breadcrumb-active-color:       $gray-light
+$breadcrumb-active-color:       var(--sakai-text-color-3);
 //** Textual separator for between breadcrumb elements
 // $breadcrumb-separator:          "/"
 
