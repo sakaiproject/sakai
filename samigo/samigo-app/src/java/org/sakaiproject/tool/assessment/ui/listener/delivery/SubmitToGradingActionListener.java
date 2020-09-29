@@ -50,7 +50,6 @@ import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
-import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
@@ -826,16 +825,8 @@ public class SubmitToGradingActionListener implements ActionListener {
 			break;
 		case 6: // File Upload
 		case 7: // Audio
-			GradingService gradingService = new GradingService();
-			for (int m = 0; m < grading.size(); m++) {
-				ItemGradingData itemgrading = grading.get(m);
-				List<MediaData> medias = gradingService.getMediaArray2(itemgrading.getItemGradingId().toString());
-				for(MediaData md : medias) { 
-					delivery.getSubmissionFiles().put(itemgrading.getItemGradingId()+"_"+md.getMediaId(), md);
-				}
-			}
-			handleMarkForReview(grading, adds);
-			break;
+                        handleMarkForReview(grading, adds);
+                        break;
 		case 13: //Matrix Choices question
 			answerModified = false;
 			for (int m = 0; m < grading.size(); m++) {
