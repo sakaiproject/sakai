@@ -3624,7 +3624,7 @@ if (log.isDebugEnabled()) {
 	public Date getInitialActivityDate(String siteId) {
 		Date date = null;
 		try{
-			date = new Date(siteService.getSite(siteId).getCreatedTime().getTime());
+			date = siteService.getSite(siteId).getCreatedDate();
 		}catch(Exception e){
 			return new Date(0);
 		}

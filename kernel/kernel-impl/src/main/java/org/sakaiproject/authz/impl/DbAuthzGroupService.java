@@ -24,6 +24,7 @@ package org.sakaiproject.authz.impl;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -62,7 +63,6 @@ import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.BaseDbFlatStorage;
 import org.sakaiproject.util.BaseResourceProperties;
@@ -1994,7 +1994,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				// if no current user, since we are working up a new user record, use the user id as creator...
 				if (current == null) current = "";
 
-				Time now = timeService().newTime();
+				Instant now = Instant.now();
 
 				rv[1] = "";
 				rv[2] = "";
@@ -2010,8 +2010,8 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				rv[2] = StringUtils.trimToEmpty(edit.m_maintainRole);
 				rv[3] = StringUtils.trimToEmpty(edit.m_createdUserId);
 				rv[4] = StringUtils.trimToEmpty(edit.m_lastModifiedUserId);
-				rv[5] = edit.getCreatedTime();
-				rv[6] = edit.getModifiedTime();
+				rv[5] = edit.getCreatedDate();
+				rv[6] = edit.getModifiedDate();
 			}
 
 			return rv;
@@ -2034,16 +2034,16 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				String createdBy = result.getString(4);
 				String modifiedBy = result.getString(5);
 				java.sql.Timestamp ts = result.getTimestamp(6, sqlService().getCal());
-				Time createdOn = null;
+				Instant createdOn = null;
 				if (ts != null)
 				{
-					createdOn = timeService().newTime(ts.getTime());
+					createdOn = ts.toInstant();
 				}
 				ts = result.getTimestamp(7, sqlService().getCal());
-				Time modifiedOn = null;
+				Instant modifiedOn = null;
 				if (ts != null)
 				{
-					modifiedOn = timeService().newTime(ts.getTime());
+					modifiedOn = ts.toInstant();
 				}
 
 				// the special local integer 'db' id field, read after the field list

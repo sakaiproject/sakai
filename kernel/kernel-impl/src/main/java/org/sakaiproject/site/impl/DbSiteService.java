@@ -23,6 +23,7 @@ package org.sakaiproject.site.impl;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -35,8 +36,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlReaderFinishedException;
@@ -47,10 +46,10 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.time.api.Time;
 import org.sakaiproject.util.BaseDbFlatStorage;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
-import org.sakaiproject.util.StringUtil;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
@@ -410,9 +409,9 @@ public abstract class DbSiteService extends BaseSiteService
 		 * @inheritDoc
 		 */
 		@Override
-		public void unpublish(final List<String> siteIds, final String modifiedBy, final Time modifiedOn)
+		public void unpublish(final List<String> siteIds, final String modifiedBy, final Instant modifiedOn)
 		{
-			final List<String> casedSiteIds = new ArrayList(siteIds.size());
+			final List<String> casedSiteIds = new ArrayList<>(siteIds.size());
 			StringBuilder tag = new StringBuilder("unpublish:");
 			String delim = "";
 			for (String siteId : siteIds)
@@ -431,7 +430,7 @@ public abstract class DbSiteService extends BaseSiteService
 			}, tag.toString());
 		}
 
-		protected void unpublishTx(List<String> siteIds, String modifiedBy, Time modifiedOn)
+		protected void unpublishTx(List<String> siteIds, String modifiedBy, Instant modifiedOn)
 		{
 			// If we're operating on thousands of siteIds, a statement will be used that has an 'in' clause with 1000 occurrences of ", ?".
 			// maxBatchSizeStatement will cache it so we don't have to generate it more than once
@@ -2555,7 +2554,7 @@ public abstract class DbSiteService extends BaseSiteService
 				// if no current user, since we are working up a new user record, use the user id as creator...
 				if (current == null) current = "";
 
-				Time now = timeService().newTime();
+				Instant now = Instant.now();
 
 				rv[1] = "";
 				rv[2] = "";
@@ -2596,8 +2595,8 @@ public abstract class DbSiteService extends BaseSiteService
 				rv[13] = isUserSite(id) ? "1" : "0";
 				rv[14] = StringUtils.trimToEmpty(((BaseSite) edit).m_createdUserId);
 				rv[15] = StringUtils.trimToEmpty(((BaseSite) edit).m_lastModifiedUserId);
-				rv[16] = edit.getCreatedTime();
-				rv[17] = edit.getModifiedTime();
+				rv[16] = edit.getCreatedDate();
+				rv[17] = edit.getModifiedDate();
 				rv[18] = edit.isCustomPageOrdered() ? "1" : "0";
 				rv[19] = edit.isSoftlyDeleted() ? "1" : "0";
 				rv[20] = edit.getSoftlyDeletedDate();
@@ -2692,16 +2691,16 @@ public abstract class DbSiteService extends BaseSiteService
 				String createdBy = result.getString(15);
 				String modifiedBy = result.getString(16);
 				java.sql.Timestamp ts = result.getTimestamp(17, sqlService().getCal());
-				Time createdOn = null;
+				Instant createdOn = null;
 				if (ts != null)
 				{
-					createdOn = timeService().newTime(ts.getTime());
+					createdOn = ts.toInstant();
 				}
 				ts = result.getTimestamp(18, sqlService().getCal());
-				Time modifiedOn = null;
+				Instant modifiedOn = null;
 				if (ts != null)
 				{
-					modifiedOn = timeService().newTime(ts.getTime());
+					modifiedOn = ts.toInstant();
 				}
 				boolean customPageOrdered = "1".equals(result.getString(19)) ? true : false;
 				boolean isSoftlyDeleted = "1".equals(result.getString(20)) ? true : false;
