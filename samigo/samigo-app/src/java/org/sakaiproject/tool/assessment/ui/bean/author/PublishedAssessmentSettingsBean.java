@@ -411,7 +411,7 @@ public class PublishedAssessmentSettingsBean implements Serializable {
       setIpAddresses(assessment);
 
       // publishedUrl
-      generatePublishedURL(assessment);
+      this.publishedUrl = generatePublishedURL(assessment);
 
       // secure delivery
       SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI(); 
@@ -1880,7 +1880,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
     this.categorySelected = categorySelected;
   }
 
-  public void generatePublishedURL(PublishedAssessmentFacade paf) {
+  public String generatePublishedURL(PublishedAssessmentFacade paf) {
       FacesContext context = FacesContext.getCurrentInstance();
       ExternalContext extContext = context.getExternalContext();
 
@@ -1890,6 +1890,6 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
       int index = server.indexOf(extContext.getRequestContextPath() + "/"); // "/samigo-app/"
       server = server.substring(0, index);
       String url = server + extContext.getRequestContextPath();
-      this.publishedUrl = url + "/servlet/Login?id=" + this.alias;
+      return url + "/servlet/Login?id=" + this.alias;
   }
 }

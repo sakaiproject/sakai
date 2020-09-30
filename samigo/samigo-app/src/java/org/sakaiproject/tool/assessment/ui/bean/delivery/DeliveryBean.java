@@ -2555,7 +2555,6 @@ public class DeliveryBean implements Serializable {
 
     public String getPublishedURL() {
         PublishedAssessmentSettingsBean pasBean = (PublishedAssessmentSettingsBean) ContextUtil.lookupBean("publishedSettings");
-        pasBean.generatePublishedURL(publishedAssessment);
-        return pasBean.getPublishedUrl();
+        return pasBean.generatePublishedURL(publishedAssessment);
     }
 }
