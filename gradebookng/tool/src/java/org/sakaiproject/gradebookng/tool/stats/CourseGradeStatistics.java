@@ -1,5 +1,6 @@
 package org.sakaiproject.gradebookng.tool.stats;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -94,13 +95,18 @@ public class CourseGradeStatistics extends BaseStatistics {
 			return "-";
 		}
 
+		Map<String, Double> gpaScoresMap = this.getGPAScoresMapFromBottomPercents(this.bottomPercents);
+		if (gpaScoresMap == null) {
+			// Something was formatted incorrectly so return n/a
+			return "n/a";
+		}
 		// get all of the non null mapped grades
 		// mapped grades will be null if the student doesn't have a course grade yet.
 		final List<String> mappedGrades = this.courseGradeMap.values().stream().filter(c -> c.getMappedGrade() != null)
-				.map(c -> (c.getMappedGrade())).collect(Collectors.toList());
-		Double averageGPA = 0.0;
+				.map(CourseGrade::getMappedGrade).collect(Collectors.toList());
+		double averageGPA = 0.0;
 		for (final String mappedGrade : mappedGrades) {
-			final Double grade = this.bottomPercents.get(mappedGrade);
+			final Double grade = gpaScoresMap.get(mappedGrade);
 			if (grade != null) {
 				averageGPA += grade;
 			} else {
@@ -110,6 +116,29 @@ public class CourseGradeStatistics extends BaseStatistics {
 		averageGPA /= mappedGrades.size();
 
 		return String.format("%.2f", averageGPA);
+	}
+
+	private Map<String, Double> getGPAScoresMapFromBottomPercents(Map<String, Double> bottomPercents) {
+		final Map<String, Double> gpaScoresMap = new HashMap<>();
+
+		final String gradeMapRegex = "^\\w+(\\+?|-?) ?\\(\\d+\\.?\\d*\\)$"; // e.g. "A (4.0)" or "B+ (3.33)"
+
+		for (String gradeLabel : bottomPercents.keySet()) {
+			// Check if mapping is formatted correctly and add store gpa double if so
+			if (gradeLabel.matches(gradeMapRegex)) {
+				try {
+					double gpaValue = Double.parseDouble(gradeLabel.substring(gradeLabel.indexOf("(")+1, gradeLabel.indexOf(")")));
+					gpaScoresMap.put(gradeLabel, gpaValue);
+				} catch (NumberFormatException numberFormatException) {
+					log.debug("Unable to parse gpa double from grade schema map.", numberFormatException);
+					return null;
+				}
+			} else {
+				// One of the grade maps is formatted incorrectly so stop here and return null
+				return null;
+			}
+		}
+		return gpaScoresMap;
 	}
 
 }
