@@ -2551,4 +2551,9 @@ public class DeliveryBean implements Serializable {
     public String getCDNQuery() {
         return PortalUtils.getCDNQuery();
     }
+
+    public String getPublishedURL() {
+        PublishedAssessmentSettingsBean pasBean = (PublishedAssessmentSettingsBean) ContextUtil.lookupBean("publishedSettings");
+        return pasBean.generatePublishedURL(publishedAssessment);
+    }
 }
