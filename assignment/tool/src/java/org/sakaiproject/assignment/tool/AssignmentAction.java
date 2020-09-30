@@ -1834,11 +1834,13 @@ public class AssignmentAction extends PagedResourceActionII {
 
         try {
             Site site = siteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
-            Long contentKey = assignment.getContentId().longValue();
-            Map<String, Object> content = ltiService.getContent(contentKey, site.getId());
-            String content_launch = ltiService.getContentLaunch(content);
-            context.put("value_ContentLaunchURL", content_launch);
-            context.put("placement", "assignment_launch_"+contentKey);
+            if ( assignment.getContentId() != null ) {
+                Long contentKey = assignment.getContentId().longValue();
+                Map<String, Object> content = ltiService.getContent(contentKey, site.getId());
+                String content_launch = ltiService.getContentLaunch(content);
+                context.put("value_ContentLaunchURL", content_launch);
+                context.put("placement", "assignment_launch_"+contentKey);
+            }
 
 			// Copy title, description, and dates from Assignment to content if mis-match
 			int protect = SakaiBLTIUtil.getInt(content.get(LTIService.LTI_PROTECT));
@@ -4707,6 +4709,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
     private void putExternalToolIntoContext(Context context, Assignment assignment, SessionState state) {
         try {
+            if ( assignment == null || assignment.getContentId() == null) return;
             Site site = siteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
             Long contentKey = assignment.getContentId().longValue();
             if ( contentKey < 1 ) return;
