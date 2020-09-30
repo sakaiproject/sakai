@@ -21,6 +21,7 @@
 
 package org.sakaiproject.authz.impl;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -33,27 +34,44 @@ import java.util.Stack;
 import java.util.UUID;
 import java.util.Vector;
 import java.util.stream.Collectors;
-import lombok.extern.slf4j.Slf4j;
 
+import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroup.RealmLockMode;
+import org.sakaiproject.authz.api.AuthzGroupAdvisor;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzPermissionException;
+import org.sakaiproject.authz.api.AuthzRealmLockException;
+import org.sakaiproject.authz.api.FunctionManager;
+import org.sakaiproject.authz.api.GroupAlreadyDefinedException;
+import org.sakaiproject.authz.api.GroupFullException;
+import org.sakaiproject.authz.api.GroupIdInvalidException;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.GroupProvider;
+import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
+import org.sakaiproject.authz.api.RoleProvider;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.impl.DbAuthzGroupService.DbStorage.RealmLock;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-import org.sakaiproject.authz.api.*;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.entity.api.*;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.HttpAccess;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import lombok.extern.slf4j.Slf4j;
 
 
 /**
@@ -175,9 +193,9 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		azGroup.m_createdUserId = current;
 		azGroup.m_lastModifiedUserId = current;
 
-		Time now = timeService().newTime();
+		Instant now = Instant.now();
 		azGroup.m_createdTime = now;
-		azGroup.m_lastModifiedTime = (Time) now.clone();
+		azGroup.m_lastModifiedTime = now;
 	}
 
 	/**
@@ -188,7 +206,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		String current = sessionManager().getCurrentSessionUserId();
 
 		azGroup.m_lastModifiedUserId = current;
-		azGroup.m_lastModifiedTime = timeService().newTime();
+		azGroup.m_lastModifiedTime = Instant.now();
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************

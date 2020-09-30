@@ -29,9 +29,7 @@ import java.util.Set;
 
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzRealmLockException;
-import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.entity.api.Edit;
-import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
 
 /**
@@ -84,20 +82,8 @@ public interface Site extends Edit, Comparable, Serializable, AuthzGroup
 	 * @return the user who last modified this.
 	 */
 	User getModifiedBy();
-
-	/**
-	 * @return the time created.
-	 * @deprecated use {@link #getCreatedDate()}
-	 */
-	Time getCreatedTime();
 	
 	
-
-	/**
-	 * @return the time last modified.
-	 * @deprecated use {@link #getModifiedTime()}
-	 */
-	Time getModifiedTime();
 
 	/** @return The human readable Title of the site. */
 	String getTitle();

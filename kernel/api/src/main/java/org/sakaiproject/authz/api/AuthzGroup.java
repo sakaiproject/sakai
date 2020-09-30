@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.sakaiproject.entity.api.Edit;
-import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
 
 /**
@@ -88,11 +87,6 @@ public interface AuthzGroup extends Edit, Comparable, Serializable
 	 */
 	User getCreatedBy();
 
-	/**
-	 * @return the time created.
-	 * @deprecated use {#link {@link #getCreatedDate()}
-	 */
-	Time getCreatedTime();
 	
 	/**
 	 * Get the date created
@@ -132,12 +126,6 @@ public interface AuthzGroup extends Edit, Comparable, Serializable
 	 * @return the user who last modified this.
 	 */
 	User getModifiedBy();
-
-	/**
-	 * @return the time last modified.
-	 * @deprecated see {@link #getModifiedDate()}
-	 */
-	Time getModifiedTime();
 	
 	/**
 	 * Get date last modified
