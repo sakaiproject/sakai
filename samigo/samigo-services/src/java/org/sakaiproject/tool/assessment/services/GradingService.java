@@ -1309,7 +1309,11 @@ public class GradingService
       AssessmentGradingData d = data; // data is the last submission
       // need to decide what to tell gradebook
       if ((scoringType).equals(EvaluationModelIfc.HIGHEST_SCORE)) {
-        d = getHighestSubmittedAssessmentGrading(pub.getPublishedAssessmentId().toString(), data.getAgentId());
+        // If this next call comes back null, don't overwrite our real AG with a null one
+        final AssessmentGradingData highestAG = getHighestSubmittedAssessmentGrading(pub.getPublishedAssessmentId().toString(), data.getAgentId());
+        if (highestAG != null) {
+          d = highestAG;
+        }
       }
       // Send the average score if average was selected for multiple submissions
       else if (scoringType.equals(EvaluationModelIfc.AVERAGE_SCORE)) {
