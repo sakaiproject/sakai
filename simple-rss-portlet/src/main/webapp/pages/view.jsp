@@ -21,7 +21,6 @@
 <%@ taglib prefix="portlet" uri="http://java.sun.com/portlet" %>
 
 <portlet:defineObjects />
-<link type="text/css" rel="stylesheet"  href="<%=request.getContextPath()%>/css/simple-rss-portlet.css" />
 
 <div class="news-feed">
 
@@ -31,7 +30,7 @@
       			<img src="${SyndFeed.image.url}" alt="${SyndFeed.image.description}" class="news-feed-img"/>
     		</a>
     	</c:if>
-		<p>${SyndFeed.description}</p>
+		<h1>${SyndFeed.description}</h1>
 	</div>
 		
 	<div class="news-items">
@@ -39,27 +38,30 @@
 			<c:forEach items="${SyndFeed.entries}" var="SyndEntry" end="${maxItems}">
 				<li>
 					<c:if test="${not empty Media[SyndEntry.uri] && Media[SyndEntry.uri].image}">
-						<img src="${Media[SyndEntry.uri].url}" class="news-item-img"/>
-					</c:if>
-					<h3>
-					<c:choose>
-						<c:when test="${not empty SyndEntry.link}">
-	      					<a target="_blank" href="${SyndEntry.link}" class="news-item-title">${SyndEntry.title}</a>
-	      				</c:when>
-	      				<c:otherwise>
-		      				${SyndEntry.title}
-		      			</c:otherwise>
-		      		</c:choose>
-		      		</h3>
-	      			<span class="news-item-excerpt">${SyndEntry.description.value}</span>
-	      			
-	      			<c:if test="${not empty Media[SyndEntry.uri] && !Media[SyndEntry.uri].image}">
-						<div class="news-item-attachment">
-							<a href="${Media[SyndEntry.uri].url}">${Media[SyndEntry.uri].displayName}</a>
-							 (${Media[SyndEntry.uri].type}, ${Media[SyndEntry.uri].displayLength})
+						<div class="news-item-img">
+							<img src="${Media[SyndEntry.uri].url}" />
 						</div>
 					</c:if>
-	      				      			
+					<div class="news-item-content">
+						<h2>
+						<c:choose>
+							<c:when test="${not empty SyndEntry.link}">
+								<a target="_blank" href="${SyndEntry.link}" class="news-item-title">${SyndEntry.title}</a>
+							</c:when>
+							<c:otherwise>
+								${SyndEntry.title}
+							</c:otherwise>
+						</c:choose>
+						</h2>
+						<span class="news-item-excerpt">${SyndEntry.description.value}</span>
+						
+						<c:if test="${not empty Media[SyndEntry.uri] && !Media[SyndEntry.uri].image}">
+							<div class="news-item-attachment">
+								<a href="${Media[SyndEntry.uri].url}">${Media[SyndEntry.uri].displayName}</a>
+								(${Media[SyndEntry.uri].type}, ${Media[SyndEntry.uri].displayLength})
+							</div>
+						</c:if>
+					</div>
 	    		</li>
     		</c:forEach>
 			
