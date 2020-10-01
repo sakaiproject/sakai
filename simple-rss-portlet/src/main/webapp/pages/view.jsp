@@ -30,7 +30,7 @@
       			<img src="${SyndFeed.image.url}" alt="${SyndFeed.image.description}" class="news-feed-img"/>
     		</a>
     	</c:if>
-		<h3>${SyndFeed.description}</h3>
+		<h1>${SyndFeed.description}</h1>
 	</div>
 		
 	<div class="news-items">
@@ -43,7 +43,7 @@
 						</div>
 					</c:if>
 					<div class="news-item-content">
-						<h4>
+						<h2>
 						<c:choose>
 							<c:when test="${not empty SyndEntry.link}">
 								<a target="_blank" href="${SyndEntry.link}" class="news-item-title">${SyndEntry.title}</a>
@@ -52,7 +52,7 @@
 								${SyndEntry.title}
 							</c:otherwise>
 						</c:choose>
-						</h4>
+						</h2>
 						<span class="news-item-excerpt">${SyndEntry.description.value}</span>
 						
 						<c:if test="${not empty Media[SyndEntry.uri] && !Media[SyndEntry.uri].image}">
