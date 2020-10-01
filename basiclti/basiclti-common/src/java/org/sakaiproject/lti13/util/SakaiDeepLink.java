@@ -33,28 +33,28 @@ import org.tsugi.lti13.objects.DeepLink;
 */
 
 public class SakaiDeepLink extends DeepLink {
-	
+
 	// SAK-44380 - Add Sakai extensions around oacement for Deep  Link requests
 
 	// Parameters for Content Item Flows
-    public static String PLACEMENT_LESSONS = "lessons";
-    public static String PLACEMENT_EDITOR = "editor";
-    public static String PLACEMENT_ASSIGNMENT = "assignment";
+	public static String PLACEMENT_LESSONS = "lessons";
+	public static String PLACEMENT_EDITOR = "editor";
+	public static String PLACEMENT_ASSIGNMENT = "assignment";
 
-	@JsonProperty("https://www.sakailms.org/spec/lti/claim/extensions")
-    public Map<String, String> sakai_extensions;
+	@JsonProperty("https://www.sakailms.org/spec/lti-dl/extensions")
+	public Map<String, String> sakai_extensions;
 
-	@JsonProperty("https://www.sakailms.org/spec/lti/claim/placement")
-    public String sakai_placement;
+	@JsonProperty("https://www.sakailms.org/spec/lti-dl/placement")
+	public String sakai_placement;
 
-	@JsonProperty("https://www.sakailms.org/spec/lti/claim/accept_lineitem")
-    public Boolean sakai_accept_lineitem;
+	@JsonProperty("https://www.sakailms.org/spec/lti-dl/accept_lineitem")
+	public Boolean sakai_accept_lineitem;
 
-	@JsonProperty("https://www.sakailms.org/spec/lti/claim/accept_available")
-    public Boolean sakai_accept_available;
+	@JsonProperty("https://www.sakailms.org/spec/lti-dl/accept_available")
+	public Boolean sakai_accept_available;
 
-	@JsonProperty("https://www.sakailms.org/spec/lti/claim/accept_submission")
-    public Boolean sakai_accept_submission;
+	@JsonProperty("https://www.sakailms.org/spec/lti-dl/accept_submission")
+	public Boolean sakai_accept_submission;
 
 }
 
