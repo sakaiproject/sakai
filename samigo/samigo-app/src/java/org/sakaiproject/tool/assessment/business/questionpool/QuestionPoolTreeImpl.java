@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import lombok.extern.slf4j.Slf4j;
 import org.osid.shared.SharedException;
@@ -55,7 +56,7 @@ public class QuestionPoolTreeImpl
 	 */
 	private static final long serialVersionUID = 2173986944623441011L;
 
-  private HashMap poolMap;
+  private Map<String, QuestionPoolFacade> poolMap;
   private HashMap poolFamilies;
   private Long currentPoolId;
   private String currentObjectHTMLId;
@@ -64,7 +65,7 @@ public class QuestionPoolTreeImpl
 
   public QuestionPoolTreeImpl()
   {
-    poolMap = new HashMap();
+    poolMap = new HashMap<>();
     poolFamilies = new HashMap();
   }
 
@@ -75,7 +76,7 @@ public class QuestionPoolTreeImpl
   public QuestionPoolTreeImpl(QuestionPoolIteratorFacade iter)
   {
     // this is a table of pools by Id
-    poolMap = new HashMap();
+    poolMap = new HashMap<>();
 
     // this is a cross reference of pool ids by parent id
     // the pool ids in an Arraylist where the key is parent id
@@ -110,8 +111,7 @@ public class QuestionPoolTreeImpl
         Collection sortedList = new ArrayList();
         while(children.hasNext())
         {
-          QuestionPoolFacade pool =
-            (QuestionPoolFacade) poolMap.get(children.next().toString());
+          QuestionPoolFacade pool = poolMap.get(children.next().toString());
           sortedList.add(pool.getData());
         }
 
@@ -127,11 +127,11 @@ public class QuestionPoolTreeImpl
             if (poolMap != null) {
             	// Add at 0 because we want a reverse list.
             	if ("lastModified".equals(sortString)){
-            		ids.add(0, ((QuestionPoolFacade) poolMap.get(next.getQuestionPoolId().toString())).getQuestionPoolId());
+            		ids.add(0, (poolMap.get(next.getQuestionPoolId().toString())).getQuestionPoolId());
             	}
             	// Add to the end of list if not sorted by lastModified.
             	else {
-            		ids.add(((QuestionPoolFacade) poolMap.get(next.getQuestionPoolId().toString())).getQuestionPoolId());
+            		ids.add((poolMap.get(next.getQuestionPoolId().toString())).getQuestionPoolId());
             	}
             }
             else {
@@ -162,7 +162,7 @@ public class QuestionPoolTreeImpl
    */
   public List getChildList(Long parentId)
   {
-    if(! poolFamilies.containsKey(parentId.toString()))
+    if(parentId == null || !poolFamilies.containsKey(parentId.toString()))
     {
       return new ArrayList();
     }
@@ -193,36 +193,20 @@ public class QuestionPoolTreeImpl
    *
    * @return Current QuestionPool.
    */
-  public Object getCurrentObject()
+  public Optional<QuestionPoolFacade> getCurrentObject()
   {
-    return poolMap.get(currentPoolId.toString());
+    return Optional.ofNullable(currentPoolId).map(id->poolMap.get(id.toString()));
   }
 
   /**
    * Get the parent of the object we're currently looking at.
    *
-   * @return The parent pool of the current object, or null if
+   * @return The parent pool of the current object, or empty if
    * it's a root node.
    */
-  public Object getParent()
+  public Optional<QuestionPoolFacade> getParent()
   {
-    if(currentPoolId == null)
-    {
-      return null;
-    }
-
-    QuestionPoolFacade current = (QuestionPoolFacade) getCurrentObject();
-    try
-    {
-      return (poolMap.get(current.getParentPoolId().toString()));
-    }
-    catch(Exception e)
-    {
-      log.error(e.getMessage(), e);
-
-      return null;
-    }
-
+    return getCurrentObject().map(current -> poolMap.get(current.getParentPoolId().toString()));
   }
 
 
@@ -238,39 +222,37 @@ public class QuestionPoolTreeImpl
    */
   public String getCurrentObjectHTMLId()
   {
-    QuestionPoolFacade current = (QuestionPoolFacade) getCurrentObject();
-    try
+    return getCurrentObject().map(current ->
     {
-      QuestionPoolFacade parent = (QuestionPoolFacade) getParent();
-      if(parent == null)
+      try
       {
-        Collection childList = getChildList(new Long("0"));
+        Optional<QuestionPoolFacade> parent = getParent();
+        if(!parent.isPresent())
+        {
+          Collection childList = getChildList(Long.valueOf(0));
 
-        return Integer.toString(
-          ((ArrayList) childList).indexOf(
-            ((QuestionPoolFacade) getCurrentObject()).getQuestionPoolId()) + 1);
+          return Integer.toString(
+            ((ArrayList) childList).indexOf(current.getQuestionPoolId()) + 1);
+        }
+        else
+        {
+          setCurrentId(current.getParentPoolId());
+          String result = getCurrentObjectHTMLId();
+          Collection childList = getChildList(parent.get().getQuestionPoolId());
+          setCurrentId(current.getQuestionPoolId());
+
+          return result + "-" +
+          (
+            ((ArrayList) childList).indexOf(getCurrentObject().get().getQuestionPoolId()) + 1
+          );
+        }
       }
-      else
+      catch(RuntimeException e)
       {
-        setCurrentId(current.getParentPoolId());
-        String result = getCurrentObjectHTMLId();
-        Collection childList = getChildList(parent.getQuestionPoolId());
-        setCurrentId(current.getQuestionPoolId());
-
-        return result + "-" +
-        (
-          ((ArrayList) childList).indexOf(
-            ((QuestionPoolFacade) getCurrentObject()).getQuestionPoolId()) + 1
-        );
+        log.error(e.getMessage(), e);
+        return "0";
       }
-    }
-
-    catch(RuntimeException e)
-    {
-      log.error(e.getMessage(), e);
-      return "0";
-    }
-
+    }).orElse("0");
   }
 
   /**
@@ -281,27 +263,25 @@ public class QuestionPoolTreeImpl
    */
   public String getCurrentLevel()
   {
-    int index1 = 1;
-    QuestionPoolFacade current = (QuestionPoolFacade) getCurrentObject();
-    try
+    return getCurrentObject().map(current ->
     {
-      while(! current.getParentPoolId().toString().equals("0"))
+      int index1 = 1;
+      try
       {
-        current = (QuestionPoolFacade) poolMap.get(current.getParentPoolId().toString())
-;
-        index1++;
+        while(!current.getParentPoolId().toString().equals("0"))
+        {
+          current = poolMap.get(current.getParentPoolId().toString());
+          index1++;
+        }
+      }
+      catch(Exception e)
+      {
+        log.error(e.getMessage(), e);
+        return "0";
       }
 
-      //QuestionPoolFacade parent = (QuestionPoolFacade) getParent();
-    }
-
-    catch(Exception e)
-    {
-      log.error(e.getMessage(), e);
-      return "0";
-    }
-
-    return Integer.toString(index1);
+      return Integer.toString(index1);
+    }).orElse("0");
   }
 
 
@@ -587,8 +567,7 @@ public class QuestionPoolTreeImpl
         ArrayList sortedList = new ArrayList();
         while(children.hasNext())
         {
-          QuestionPoolFacade pool =
-            (QuestionPoolFacade) poolMap.get(children.next().toString());
+          QuestionPoolFacade pool = poolMap.get(children.next().toString());
           sortedList.add(pool.getData());
         }
 
@@ -620,11 +599,11 @@ public class QuestionPoolTreeImpl
             if (next != null) {
             	// Add at 0 because we want a reverse list.
             	if ("lastModified".equals(sortProperty)){
-            		ids.add(0, ((QuestionPoolFacade) poolMap.get(next.getQuestionPoolId().toString())).getQuestionPoolId());
+            		ids.add(0, (poolMap.get(next.getQuestionPoolId().toString())).getQuestionPoolId());
             	}
             	else {
             		// Add at the end , if not sorted by lastModified.
-            		ids.add(((QuestionPoolFacade) poolMap.get(next.getQuestionPoolId().toString())).getQuestionPoolId());
+            		ids.add((poolMap.get(next.getQuestionPoolId().toString())).getQuestionPoolId());
             	}
             }
             else {
@@ -650,22 +629,22 @@ public class QuestionPoolTreeImpl
     	Long rootA=poolIdA;
     	Long rootB=poolIdB;
 
-    	QuestionPoolFacade tempPool=(QuestionPoolFacade)poolMap.get(rootA.toString());
+    	QuestionPoolFacade tempPool=poolMap.get(rootA.toString());
     	while(tempPool!=null){
       		if((tempPool.getParentPoolId()==null)||(((tempPool.getParentPoolId()).toString()).equals("0"))){
         		tempPool=null;
       		}else{
         		rootA = tempPool.getParentPoolId();
-        		tempPool = (QuestionPoolFacade)poolMap.get(rootA.toString());
+        		tempPool = poolMap.get(rootA.toString());
       		}
     	}
-    	tempPool=(QuestionPoolFacade)poolMap.get(rootB.toString());
+    	tempPool=poolMap.get(rootB.toString());
     	while(tempPool!=null){
       		if((tempPool.getParentPoolId()==null)||(((tempPool.getParentPoolId()).toString()).equals("0"))){
         		tempPool=null;
       		}else{
         		rootB = tempPool.getParentPoolId();
-        		tempPool = (QuestionPoolFacade)poolMap.get(rootB.toString());
+        		tempPool = poolMap.get(rootB.toString());
       		}
    	}
     	return rootA.equals(rootB);
@@ -684,7 +663,7 @@ public class QuestionPoolTreeImpl
     try{
       Long tempPoolId = poolA;
       while((tempPoolId !=null)&&(tempPoolId.toString().compareTo("0")>0)){
-        QuestionPoolFacade tempPool = (QuestionPoolFacade)poolMap.get(tempPoolId.toString());
+        QuestionPoolFacade tempPool = poolMap.get(tempPoolId.toString());
         if(tempPool.getParentPoolId().toString().compareTo(poolB.toString())==0) return true;
         tempPoolId = tempPool.getParentPoolId();
       }
@@ -704,14 +683,14 @@ public class QuestionPoolTreeImpl
     Long rootId=poolId;
     int level=0;
 
-    QuestionPoolFacade tempPool=(QuestionPoolFacade)poolMap.get(rootId.toString());
+    QuestionPoolFacade tempPool=poolMap.get(rootId.toString());
     while(tempPool!=null){
       if((tempPool.getParentPoolId()==null)||(((tempPool.getParentPoolId()).toString()).equals("0"))){
         tempPool=null;
       }else{
         level++;
         rootId = tempPool.getParentPoolId();
-        tempPool = (QuestionPoolFacade)poolMap.get(rootId.toString());
+        tempPool = poolMap.get(rootId.toString());
       }
     }
     return level;
