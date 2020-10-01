@@ -2151,6 +2151,11 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		// /acccess/blti/context/tool:12 (does not have a querystring)
 		String contentLaunch = ltiService.getToolLaunch(tool, placement.getContext());
+		if ( contentLaunch.indexOf("?") > 1 ) {
+			contentLaunch += "&flow=" + flow;
+		} else {
+			contentLaunch += "?flow=" + flow;
+		}
 
 		// Can set ContentItemSelection launch values or put in our own data items
 		// which will come back later.  Be mindful of GET length limitations enroute
@@ -2410,6 +2415,11 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		// /acccess/blti/context/tool:12 (does not have a querystring)
 		String contentLaunch = ltiService.getToolLaunch(tool, placement.getContext());
+		if ( contentLaunch.indexOf("?") > 1 ) {
+			contentLaunch += "&flow=" + flow;
+		} else {
+			contentLaunch += "?flow=" + flow;
+		}
 
 		// Can set ContentItemSelection launch values or put in our own data items
 		// which will come back later.  Be mindful of GET length limitations enroute
