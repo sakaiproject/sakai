@@ -1,0 +1,40 @@
+.#{$namespace}sakai-simple-rss {
+    .#{$namespace}toolBody--sakai-simple-rss {
+        padding: 0 $standard-spacing $standard-spacing;
+    }
+    .simple-rss-portlet form p {
+        margin-top: $standard-spacing;
+        margin-bottom: 0;
+    }
+    .news-items ul {
+        padding:0;
+        display:flex;
+        flex-direction: column;
+    }
+    .news-items li {
+        list-style-type: none;
+        display:flex;
+        flex-direction: row;
+        margin-bottom: $standard-spacing;
+    }
+    /** overrides for CSyndFeed **/
+    /** Sakai version **/
+    .news-item-img {
+        flex: 1 0 0 ;
+        margin-right: $standard-spacing;
+    }
+    .news-item-content {
+        flex: 4 0px;
+    }
+    .news-items h4 {
+        margin-top:0;
+        line-height: 1.25;
+    }
+    .news-item-attachment {
+        font-size: 0.9em;
+        flex: auto;
+        background-color: var(--sakai-background-color-2);
+        border: 1px solid var(--sakai-border-color);
+
+    }
+}
