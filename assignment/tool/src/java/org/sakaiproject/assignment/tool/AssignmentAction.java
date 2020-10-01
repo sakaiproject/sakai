@@ -1832,72 +1832,73 @@ public class AssignmentAction extends PagedResourceActionII {
 
         context.put("assignment", assignment);
 
-        try {
-            Site site = siteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
-            Long contentKey = assignment.getContentId().longValue();
-            Map<String, Object> content = ltiService.getContent(contentKey, site.getId());
-            String content_launch = ltiService.getContentLaunch(content);
-            context.put("value_ContentLaunchURL", content_launch);
-            context.put("placement", "assignment_launch_"+contentKey);
+        if ( assignment.getContentId() != null ) {
+            try {
+                Long contentKey = assignment.getContentId().longValue();
+                Site site = siteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
+                Map<String, Object> content = ltiService.getContent(contentKey, site.getId());
+                String content_launch = ltiService.getContentLaunch(content);
+                context.put("value_ContentLaunchURL", content_launch);
+                context.put("placement", "assignment_launch_"+contentKey);
 
-			// Copy title, description, and dates from Assignment to content if mis-match
-			int protect = SakaiBLTIUtil.getInt(content.get(LTIService.LTI_PROTECT));
-			String assignmentTitle = StringUtils.trimToEmpty(assignment.getTitle());
-			String assignmentDesc = StringUtils.trimToEmpty(assignment.getInstructions());
-			Instant visibleDate = assignment.getVisibleDate();
-			String assignmentVisibleDate = StringUtils.trimToEmpty(visibleDate == null ? null : visibleDate.toString());
-			Instant openDate = assignment.getOpenDate();
-			String assignmentOpenDate = StringUtils.trimToEmpty(openDate == null ? null : openDate.toString());
-			Instant dueDate = assignment.getDueDate();
-			String assignmentDueDate = StringUtils.trimToEmpty(dueDate == null ? null : dueDate.toString());
-			Instant closeDate = assignment.getCloseDate();
-			String assignmentCloseDate = StringUtils.trimToEmpty(closeDate == null ? null : closeDate.toString());
+                // Copy title, description, and dates from Assignment to content if mis-match
+                int protect = SakaiBLTIUtil.getInt(content.get(LTIService.LTI_PROTECT));
+                String assignmentTitle = StringUtils.trimToEmpty(assignment.getTitle());
+                String assignmentDesc = StringUtils.trimToEmpty(assignment.getInstructions());
+                Instant visibleDate = assignment.getVisibleDate();
+                String assignmentVisibleDate = StringUtils.trimToEmpty(visibleDate == null ? null : visibleDate.toString());
+                Instant openDate = assignment.getOpenDate();
+                String assignmentOpenDate = StringUtils.trimToEmpty(openDate == null ? null : openDate.toString());
+                Instant dueDate = assignment.getDueDate();
+                String assignmentDueDate = StringUtils.trimToEmpty(dueDate == null ? null : dueDate.toString());
+                Instant closeDate = assignment.getCloseDate();
+                String assignmentCloseDate = StringUtils.trimToEmpty(closeDate == null ? null : closeDate.toString());
 
-			String contentTitle = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_TITLE));
-			String contentDesc = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_DESCRIPTION));
+                String contentTitle = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_TITLE));
+                String contentDesc = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_DESCRIPTION));
 
-			String content_settings = (String) content.get(LTIService.LTI_SETTINGS);
-			JSONObject content_json = BasicLTIUtil.parseJSONObject(content_settings);
-			String contentVisibleDate = StringUtils.trimToEmpty((String) content_json.get(DeepLinkResponse.RESOURCELINK_AVAILABLE_STARTDATETIME));
-			String contentOpenDate = StringUtils.trimToEmpty((String) content_json.get(DeepLinkResponse.RESOURCELINK_SUBMISSION_STARTDATETIME));
-			String contentDueDate = StringUtils.trimToEmpty((String) content_json.get(DeepLinkResponse.RESOURCELINK_SUBMISSION_ENDDATETIME));
-			String contentCloseDate = StringUtils.trimToEmpty((String) content_json.get(DeepLinkResponse.RESOURCELINK_AVAILABLE_ENDDATETIME));
-			if ( protect < 1 || !assignmentTitle.equals(contentTitle) || !assignmentDesc.equals(contentDesc) ||
-				! contentVisibleDate.equals(assignmentVisibleDate) || ! contentOpenDate.equals(assignmentOpenDate) ||
-				! contentDueDate.equals(assignmentDueDate) || ! contentCloseDate.equals(assignmentCloseDate) ) {
-				Map<String, Object> updates = new TreeMap<String, Object>();
-				updates.put(LTIService.LTI_TITLE, assignmentTitle);
-				updates.put(LTIService.LTI_DESCRIPTION, assignmentDesc);
-				updates.put(LTIService.LTI_PROTECT, new Integer(1));
+                String content_settings = (String) content.get(LTIService.LTI_SETTINGS);
+                JSONObject content_json = BasicLTIUtil.parseJSONObject(content_settings);
+                String contentVisibleDate = StringUtils.trimToEmpty((String) content_json.get(DeepLinkResponse.RESOURCELINK_AVAILABLE_STARTDATETIME));
+                String contentOpenDate = StringUtils.trimToEmpty((String) content_json.get(DeepLinkResponse.RESOURCELINK_SUBMISSION_STARTDATETIME));
+                String contentDueDate = StringUtils.trimToEmpty((String) content_json.get(DeepLinkResponse.RESOURCELINK_SUBMISSION_ENDDATETIME));
+                String contentCloseDate = StringUtils.trimToEmpty((String) content_json.get(DeepLinkResponse.RESOURCELINK_AVAILABLE_ENDDATETIME));
+                if ( protect < 1 || !assignmentTitle.equals(contentTitle) || !assignmentDesc.equals(contentDesc) ||
+                        ! contentVisibleDate.equals(assignmentVisibleDate) || ! contentOpenDate.equals(assignmentOpenDate) ||
+                        ! contentDueDate.equals(assignmentDueDate) || ! contentCloseDate.equals(assignmentCloseDate) ) {
+                    Map<String, Object> updates = new TreeMap<String, Object>();
+                    updates.put(LTIService.LTI_TITLE, assignmentTitle);
+                    updates.put(LTIService.LTI_DESCRIPTION, assignmentDesc);
+                    updates.put(LTIService.LTI_PROTECT, new Integer(1));
 
-				// SAK-43709 - Prior to Sakai-21 - also copy these in the settings area
-				content_json.put(LTIService.LTI_DESCRIPTION, assignmentDesc);
-				content_json.put(LTIService.LTI_PROTECT, new Integer(1));
-				content_json.put(DeepLinkResponse.RESOURCELINK_AVAILABLE_STARTDATETIME, assignmentVisibleDate);
-				content_json.put(DeepLinkResponse.RESOURCELINK_SUBMISSION_STARTDATETIME, assignmentOpenDate);
-				content_json.put(DeepLinkResponse.RESOURCELINK_AVAILABLE_ENDDATETIME, assignmentDueDate);
-				content_json.put(DeepLinkResponse.RESOURCELINK_SUBMISSION_ENDDATETIME, assignmentCloseDate);
-				updates.put(LTIService.LTI_SETTINGS, content_json.toString());
+                    // SAK-43709 - Prior to Sakai-21 - also copy these in the settings area
+                    content_json.put(LTIService.LTI_DESCRIPTION, assignmentDesc);
+                    content_json.put(LTIService.LTI_PROTECT, new Integer(1));
+                    content_json.put(DeepLinkResponse.RESOURCELINK_AVAILABLE_STARTDATETIME, assignmentVisibleDate);
+                    content_json.put(DeepLinkResponse.RESOURCELINK_SUBMISSION_STARTDATETIME, assignmentOpenDate);
+                    content_json.put(DeepLinkResponse.RESOURCELINK_AVAILABLE_ENDDATETIME, assignmentDueDate);
+                    content_json.put(DeepLinkResponse.RESOURCELINK_SUBMISSION_ENDDATETIME, assignmentCloseDate);
+                    updates.put(LTIService.LTI_SETTINGS, content_json.toString());
 
-				// This uses the Dao access since 99% of the time we are launching as a student
-				// after the instructor updates the assignment, and the student is
-				// the first to launch after the change.
-				ltiService.updateContentDao(contentKey, updates);
-				log.debug("Content Item id={} updated.", contentKey);
+                    // This uses the Dao access since 99% of the time we are launching as a student
+                    // after the instructor updates the assignment, and the student is
+                    // the first to launch after the change.
+                    ltiService.updateContentDao(contentKey, updates);
+                    log.debug("Content Item id={} updated.", contentKey);
+                }
 
-			}
+                // Unlock this assignment for one launch...
+                String launch_code_key = SakaiBLTIUtil.getLaunchCodeKey(content);
+                String launch_code = SakaiBLTIUtil.getLaunchCode(content);
+                if ( launch_code_key != null && launch_code != null ) {
+                    Session session = sessionManager.getCurrentSession();
+                    session.setAttribute(launch_code_key, launch_code);
 
-			// Unlock this assignment for one launch...
-	        String launch_code_key = SakaiBLTIUtil.getLaunchCodeKey(content);
-			String launch_code = SakaiBLTIUtil.getLaunchCode(content);
-			if ( launch_code_key != null && launch_code != null ) {
-				Session session = sessionManager.getCurrentSession();
-				session.setAttribute(launch_code_key, launch_code);
-
-			}
-        } catch(org.sakaiproject.exception.IdUnusedException e ) {
-            // Send error to template
-            context.put("value_ContentLaunchURL", null);
+                }
+            } catch(org.sakaiproject.exception.IdUnusedException e ) {
+                // Send error to template
+                context.put("value_ContentLaunchURL", null);
+            }
         }
 
         context.put("browser-feature-allow", String.join(";", serverConfigurationService.getStrings("browser.feature.allow")));
@@ -4707,6 +4708,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
     private void putExternalToolIntoContext(Context context, Assignment assignment, SessionState state) {
         try {
+            if ( assignment == null || assignment.getContentId() == null) return;
             Site site = siteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
             Long contentKey = assignment.getContentId().longValue();
             if ( contentKey < 1 ) return;
