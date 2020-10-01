@@ -44,6 +44,9 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import lombok.ToString;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.sakaiproject.rubrics.logic.listener.MetadataListener;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -54,6 +57,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @Data
 @Entity
 @EntityListeners(MetadataListener.class)

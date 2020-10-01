@@ -42,6 +42,9 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import lombok.ToString;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.sakaiproject.rubrics.logic.listener.MetadataListener;
 import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.springframework.data.rest.core.annotation.RestResource;
@@ -55,6 +58,7 @@ import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
 @Data
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @Entity
 @EntityListeners(MetadataListener.class)
 @JsonPropertyOrder({"id", "title", "description", "metadata"})
