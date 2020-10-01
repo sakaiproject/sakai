@@ -1184,7 +1184,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 		    else
 			    systemEmail = ServerConfigurationService.getString(FROM_ADDRESS, defaultEmail);
 	    }
-		if (("all".equals(ServerConfigurationService.getString(REAL_REPLY, "none")) || contextId.contains(ServerConfigurationService.getString(REAL_REPLY, "none"))) && systemEmail.equalsIgnoreCase(ServerConfigurationService.getString(FROM_ADDRESS, defaultEmail))) {
+		if (ServerConfigurationService.getStrings(REAL_REPLY)!=null && ("all".equals(ServerConfigurationService.getString(REAL_REPLY, "none")) || Arrays.asList(ServerConfigurationService.getStrings(REAL_REPLY)).contains(contextId)) && systemEmail.equalsIgnoreCase(ServerConfigurationService.getString(FROM_ADDRESS, defaultEmail))) {
 			replyEmail.add(new InternetAddress(buildMailReply(savedMessage)));
 			systemEmail = ServerConfigurationService.getString("msgcntr.notification.from.address.reply", defaultEmail);
 		}
@@ -1303,7 +1303,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 		InternetAddress fAddressesArr[] = new InternetAddress[fAddresses.size()];
 		fAddressesArr = fAddresses.toArray(fAddressesArr);
 		emailService.sendMail(new InternetAddress(systemEmail), fAddressesArr, message.getTitle(), 
-				bodyString, null, replyEmail.toArray(new InternetAddress[1]), additionalHeaders);
+				bodyString, null, replyEmail.toArray(new InternetAddress[replyEmail.size()]), additionalHeaders);
 	}
 
 
@@ -1452,7 +1452,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 	      getResourceBundleString(EMAIL_FOOTER1) + " " + ServerConfigurationService.getString("ui.service","Sakai") +
 	  " " + getResourceBundleString(EMAIL_FOOTER2) + " \"" +
 	  siteTitle + "\" " + getResourceBundleString(EMAIL_FOOTER3) + "\n";
-	  if (("all".equals(ServerConfigurationService.getString(REAL_REPLY, "none")) || contextId.contains(ServerConfigurationService.getString(REAL_REPLY, "none")))){
+	  if (ServerConfigurationService.getStrings(REAL_REPLY)!=null && ("all".equals(ServerConfigurationService.getString(REAL_REPLY, "none")) || Arrays.asList(ServerConfigurationService.getStrings(REAL_REPLY)).contains(contextId))){
 		  footer = footer +  getResourceBundleString(EMAIL_FOOTER4_A) +
 				  " <a href=\"" +
 				  ServerConfigurationService.getPortalUrl() + 
@@ -2123,7 +2123,7 @@ return topicTypeUuid;
 
 	  PrivateMessage rrepMsg = createResponseMessage(currentMessage, msg, from);
 
-	  if (!StringUtils.isNotBlank(bodyBuf[0].toString())) {
+	  if (StringUtils.isNotBlank(bodyBuf[0].toString())) {
 		  bodyBuf[0].insert(0, "<pre>");
 		  bodyBuf[0].insert(bodyBuf[0].length(), "</pre>");
 		  rrepMsg.setBody(bodyBuf[0].toString());
@@ -2134,7 +2134,7 @@ return topicTypeUuid;
 
 	  StringBuilder sendToString = new StringBuilder("");
 
-	  if (!StringUtils.isNotBlank(currentMessage.getAuthor()))
+	  if (StringUtils.isNotBlank(currentMessage.getAuthor()))
 	  {
 		  sendToString.append(currentMessage.getAuthor());
 	  }
@@ -2235,7 +2235,7 @@ return topicTypeUuid;
 				  log.error(e.getMessage(), e);
 			  }
 
-			  Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_RESPONSE, getEventMessage(currentMessage, DiscussionForumService.MESSAGES_TOOL_ID, rrepMsg.getAuthorId(), ((PrivateMessageRecipientImpl)currentMessage.getRecipients().get(0)).getContextId()), null, true, NotificationService.NOTI_OPTIONAL, statement);
+			  Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_RESPONSE, getEventMessage(currentMessage, DiscussionForumService.MESSAGES_TOOL_ID, rrepMsg.getAuthorId(), ((PrivateMessageRecipientImpl)currentMessage.getRecipients().get(0)).getContextId()), contextId, true, NotificationService.NOTI_OPTIONAL, statement);
 			  eventTrackingService.post(event);
 		  }
 	  }
