@@ -21,9 +21,10 @@ class SakaiRubricStudentButton extends RubricsElement {
       token: { type: String },
       entityId: { attribute: "entity-id", type: String },
       toolId: { attribute: "tool-id", type: String },
-      evaluatedItemId: { attribute: "evaluated-item-id", type: String},
-      hidden: { type: Boolean },
-      instructor: { type: Boolean },
+      evaluatedItemId: { attribute: "evaluated-item-id", type: String },
+      hidden: Boolean,
+      instructor: Boolean,
+      dontCheckAssociation: { attribute: "dont-check-association", type: Boolean },
     };
   }
 
@@ -32,7 +33,7 @@ class SakaiRubricStudentButton extends RubricsElement {
     super.attributeChangedCallback(name, oldValue, newValue);
 
     if (this.token && this.toolId && this.entityId) {
-      this.setHidden();
+      this.setupHidden();
     }
   }
 
@@ -57,19 +58,23 @@ class SakaiRubricStudentButton extends RubricsElement {
     this.rubricsUtils.showRubric(undefined, {"tool-id": this.toolId, "entity-id": this.entityId, "evaluated-item-id": this.evaluatedItemId, "instructor": this.instructor});
   }
 
-  setHidden() {
+  setupHidden() {
 
-    SakaiRubricsHelpers.get("/rubrics-service/rest/rubric-associations/search/by-tool-item-ids", "Bearer " + this.token, { params: {toolId: this.toolId, itemId: this.entityId }})
-    .then(data => {
+    if (this.dontCheckAssociation) {
+      this.hidden = true;
+    } else {
+      SakaiRubricsHelpers.get("/rubrics-service/rest/rubric-associations/search/by-tool-item-ids"
+        , "Bearer " + this.token, { params: { toolId: this.toolId, itemId: this.entityId } }).then(data => {
 
-      const association = data._embedded["rubric-associations"][0];
+        const association = data._embedded["rubric-associations"][0];
 
-      if (!association) {
-        this.hidden = true;
-      } else {
-        this.hidden = association.parameters.hideStudentPreview && !this.instructor;
-      }
-    });
+        if (!association) {
+          this.hidden = true;
+        } else {
+          this.hidden = association.parameters.hideStudentPreview && !this.instructor;
+        }
+      });
+    }
   }
 }
 
