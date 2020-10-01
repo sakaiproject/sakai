@@ -25,6 +25,7 @@ class SakaiRubricStudentButton extends RubricsElement {
       hidden: Boolean,
       instructor: Boolean,
       forcePreview: { attribute: "force-preview", type: Boolean },
+      dontCheckAssociation: { attribute: "dont-check-association", type: Boolean },
     };
   }
 
@@ -33,7 +34,7 @@ class SakaiRubricStudentButton extends RubricsElement {
     super.attributeChangedCallback(name, oldValue, newValue);
 
     if (this.token && this.toolId && this.entityId) {
-      this.setHidden();
+      this.setupHidden();
     }
   }
 
@@ -56,18 +57,23 @@ class SakaiRubricStudentButton extends RubricsElement {
     this.showRubricLightbox(undefined, { "tool-id": this.toolId, "entity-id": this.entityId, "evaluated-item-id": this.evaluatedItemId, "instructor": this.instructor, "force-preview": this.forcePreview }, e.target);
   }
 
-  setHidden() {
+  setupHidden() {
 
-    SakaiRubricsHelpers.get("/rubrics-service/rest/rubric-associations/search/by-tool-item-ids", "Bearer " + this.token, { params: { toolId: this.toolId, itemId: this.entityId } }).then(data => {
+    if (this.dontCheckAssociation) {
+      this.hidden = true;
+    } else {
+      SakaiRubricsHelpers.get("/rubrics-service/rest/rubric-associations/search/by-tool-item-ids"
+        , "Bearer " + this.token, { params: { toolId: this.toolId, itemId: this.entityId } }).then(data => {
 
-      const association = data._embedded["rubric-associations"][0];
+        const association = data._embedded["rubric-associations"][0];
 
-      if (!association) {
-        this.hidden = true;
-      } else {
-        this.hidden = association.parameters.hideStudentPreview && !this.instructor;
-      }
-    });
+        if (!association) {
+          this.hidden = true;
+        } else {
+          this.hidden = association.parameters.hideStudentPreview && !this.instructor;
+        }
+      });
+    }
   }
 }
 
