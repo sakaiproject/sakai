@@ -41,6 +41,9 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import lombok.ToString;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.sakaiproject.rubrics.logic.listener.MetadataListener;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -52,6 +55,7 @@ import lombok.NonNull;
 
 @AllArgsConstructor
 @Data
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @Entity
 @EntityListeners(MetadataListener.class)
 @JsonPropertyOrder({"id", "evaluator_id", "evaluated_item_id", "evaluated_item_owner_id", "overallComment",
