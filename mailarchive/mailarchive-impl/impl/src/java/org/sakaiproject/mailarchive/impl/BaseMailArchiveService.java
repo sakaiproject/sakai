@@ -61,7 +61,6 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.Xml;
-import org.sakaiproject.util.api.FormattedText;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -89,7 +88,6 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 	@Setter protected AliasService aliasService;
 
 	@Setter private FunctionManager functionManager;
-	@Setter private FormattedText formattedText;
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -821,8 +819,8 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 				List attachments, String[] body) throws PermissionException
 		{
 			StringBuilder alertMsg = new StringBuilder();
-			final String cleanedHtml = formattedText.processFormattedText(body[1], alertMsg);
-			final String cleanedText = formattedText.encodeUnicode(body[0]);
+			final String cleanedHtml = m_formattedText.processFormattedText(body[1], alertMsg);
+			final String cleanedText = m_formattedText.encodeUnicode(body[0]);
 
 			MailArchiveMessageEdit edit = (MailArchiveMessageEdit) addMessage();
 			MailArchiveMessageHeaderEdit archiveHeaders = edit.getMailArchiveHeaderEdit();
@@ -1073,7 +1071,7 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 						{
 							// convert from plaintext messages to formatted text messages
 							m_body = element.getChildNodes().item(0).getNodeValue();
-							if (m_body != null) m_body = formattedText.convertPlaintextToFormattedText(m_body);
+							if (m_body != null) m_body = m_formattedText.convertPlaintextToFormattedText(m_body);
 						}
 						if (m_body == null)
 						{
@@ -1132,7 +1130,7 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 		 */
 		public String getHtmlBody()
 		{
-			return formattedText.getHtmlBody(m_html_body);
+			return m_formattedText.getHtmlBody(m_html_body);
 		} // getHtmlBody
 
 		/**
@@ -1145,7 +1143,7 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 			if ( getHtmlBody() != null && getHtmlBody().length() > 0 )
 				return getHtmlBody();
 			else 
-				return formattedText.encodeUrlsAsHtml( formattedText.convertPlaintextToFormattedText(m_body) );
+				return m_formattedText.encodeUrlsAsHtml( m_formattedText.convertPlaintextToFormattedText(m_body) );
 				
 		} // getHtmlBody
 
