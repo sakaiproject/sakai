@@ -261,7 +261,7 @@ document.links[newindex].onclick();
 
 <!-- DONE BUTTON FOR PREVIEW -->
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
-  <div class="previewMessage">
+  <div class="sak-banner-info">
      <h:outputText value="#{deliveryMessages.ass_preview}" />
      <h:commandButton id="done" value="#{deliveryMessages.done}"
         action="#{person.cleanResourceIdListInPreview}"
@@ -586,7 +586,7 @@ document.links[newindex].onclick();
 
 <!-- DONE BUTTON IN PREVIEW -->
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
- <f:verbatim><div class="previewMessage"></f:verbatim>
+ <f:verbatim><div class="sak-banner-info"></f:verbatim>
      <h:outputText value="#{deliveryMessages.ass_preview}" />
      <h:commandButton value="#{deliveryMessages.done}"
         action="#{person.cleanResourceIdListInPreview}"

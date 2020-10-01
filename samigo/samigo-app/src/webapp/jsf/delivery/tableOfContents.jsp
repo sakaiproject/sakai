@@ -89,7 +89,7 @@ function saveTime()
 <h:inputHidden id="showTimer" value="#{delivery.showTimer}"/>
 
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
- <f:verbatim><div class="previewMessage"></f:verbatim>
+ <f:verbatim><div class="sak-banner-info"></f:verbatim>
      <h:outputText value="#{deliveryMessages.ass_preview}" />
      <h:commandButton value="#{deliveryMessages.done}"
         action="#{person.cleanResourceIdListInPreview}"
@@ -238,7 +238,7 @@ function saveTime()
 
 <!-- DONE BUTTON FOR PREVIEW ASSESSMENT ONLY -->
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
- <f:verbatim><div class="previewMessage"></f:verbatim>
+ <f:verbatim><div class="sak-banner-info"></f:verbatim>
      <h:outputText value="#{deliveryMessages.ass_preview}" />
      <h:commandButton value="#{deliveryMessages.done}"
         action="#{person.cleanResourceIdListInPreview}"
