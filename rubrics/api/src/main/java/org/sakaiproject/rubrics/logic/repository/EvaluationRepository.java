@@ -25,10 +25,13 @@ package org.sakaiproject.rubrics.logic.repository;
 import java.util.List;
 import java.util.Optional;
 
+import javax.persistence.QueryHint;
+
 import org.sakaiproject.rubrics.logic.model.Evaluation;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
@@ -60,6 +63,7 @@ public interface EvaluationRepository extends MetadataRepository<Evaluation, Lon
     @PreAuthorize("hasAnyRole('ROLE_EVALUATOR', 'ROLE_EVALUEE')")
     @Query("select resource from Evaluation resource where resource.toolItemRubricAssociation.id = :toolItemRubricAssociationId " +
             "and (" + EVALUATOR_CONSTRAINT + " or " + EVALUEE_CONSTRAINT + ")")
+    @QueryHints(@QueryHint(name="org.hibernate.cacheable", value = "true"))
     List<Evaluation> findByToolItemRubricAssociationId(@Param("toolItemRubricAssociationId") Long toolItemRubricAssociationId);
 
     @RestResource(path = "by-tool-item-and-associated-item-ids", rel = "by-tool-item-and-associated-item-ids")
@@ -75,6 +79,7 @@ public interface EvaluationRepository extends MetadataRepository<Evaluation, Lon
             "and resource.toolItemRubricAssociation.toolId = :toolId " +
             "and resource.toolItemRubricAssociation.itemId = :itemId " +
             "and (" + EVALUATOR_CONSTRAINT + " or " + EVALUEE_CONSTRAINT + ")")
+    @QueryHints(@QueryHint(name="org.hibernate.cacheable", value = "true"))
     List<Evaluation> findByToolIdAndAssociationItemIdAndEvaluatedItemId(@Param("toolId") String toolId,
             @Param("itemId") String itemId, @Param("evaluatedItemId") String evaluatedItemId);
 
@@ -84,5 +89,6 @@ public interface EvaluationRepository extends MetadataRepository<Evaluation, Lon
             " resource.toolItemRubricAssociation.itemId = :associationId " +
             "and resource.evaluatedItemOwnerId = :userId " +
             "and (" + EVALUATOR_CONSTRAINT + " or " + EVALUEE_CONSTRAINT + ")")
+    @QueryHints(@QueryHint(name="org.hibernate.cacheable", value = "true"))
     String findByAssociationIdAndUserId(@Param("associationId") String associationId, @Param("userId") String userId);
 }
