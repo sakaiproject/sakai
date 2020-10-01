@@ -1,14 +1,13 @@
 .#{$namespace}sakai-simple-rss {
     .#{$namespace}toolBody--sakai-simple-rss {
-        padding: 0 #{$standard-spacing} #{$standard-spacing};
+        padding: 0 $standard-spacing $standard-spacing;
     }
     .simple-rss-portlet form p {
-        margin-top: 10px;
+        margin-top: $standard-spacing;
         margin-bottom: 0;
     }
     .news-items ul {
         padding:0;
-        // display: grid;
         display:flex;
         flex-direction: column;
     }
@@ -16,13 +15,13 @@
         list-style-type: none;
         display:flex;
         flex-direction: row;
-        margin-bottom: #{$standard-spacing};
+        margin-bottom: $standard-spacing;
     }
     /** overrides for CSyndFeed **/
     /** Sakai version **/
     .news-item-img {
         flex: 1 0 0 ;
-        margin-right: #{$standard-spacing};
+        margin-right: $standard-spacing;
     }
     .news-item-content {
         flex: 4 0px;
