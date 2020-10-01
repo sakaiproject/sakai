@@ -33,7 +33,6 @@
 <fmt:setLocale value="${language}" />
 <fmt:setBundle basename="au.edu.anu.portal.portlets.rss.utils.messages" />
 
-<link type="text/css" rel="stylesheet"  href="<%=request.getContextPath()%>/css/simple-rss-portlet.css" />
 
 <div class="simple-rss-portlet">
 				
