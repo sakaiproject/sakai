@@ -6,32 +6,6 @@
 <script type="module" src="/webcomponents/grader/grader-toggle.js" />
 
 <script>
-	$(document).ready(function(){
-		$('#submissionList input:checkbox').click(function()
-		{
-			var feedbackPanel = document.getElementById("sendFeedbackPanelContent");
-			var resubPanel = document.getElementById("allowResubmissionPanelContent");
-			var checkedCount = $("#submissionList input:checked").length;
-
-			if ( (checkedCount === 0 && feedbackPanel.style.display !== "none")
-				|| (checkedCount !== 0 && feedbackPanel.style.display === "none") )
-			{
-				ASN.toggleSendFeedbackPanel();
-			}
-
-			if ( resubPanel != null && ((checkedCount === 0 && resubPanel.style.display !== "none")
-				|| (checkedCount !== 0 && resubPanel.style.display === "none") ))
-			{
-				ASN.toggleAllowResubmissionPanel();
-			}
-		});
-
-		ASN.enableLinks();
-	});
-	var escapeList = [ 'toggleModel' ];
-</script>
-
-<script>
 function printView(url) {
     var i = url.indexOf("/site/");
     if (i < 0)
@@ -597,6 +571,7 @@ function printView(url) {
 										$!service.getGradeForSubmitter($submission, $userSubmission.User.Id)
 									#end
 									<sakai-rubric-student-button
+										 dont-check-association
 										 token="$!rbcs-token"
 										 tool-id="sakai.assignment"
 										 evaluated-item-id="$submission.Id"
@@ -787,4 +762,54 @@ function printView(url) {
 	#end
 	</div>	
 </div>
+<script>
+	var escapeList = [ 'toggleModel' ];
+	$(document).ready(function () {
+
+		$('#submissionList input:checkbox').click(function () {
+
+			var feedbackPanel = document.getElementById("sendFeedbackPanelContent");
+			var resubPanel = document.getElementById("allowResubmissionPanelContent");
+			var checkedCount = $("#submissionList input:checked").length;
+
+			if ( (checkedCount === 0 && feedbackPanel.style.display !== "none")
+				|| (checkedCount !== 0 && feedbackPanel.style.display === "none") ) {
+				ASN.toggleSendFeedbackPanel();
+			}
+
+			if ( resubPanel != null && ((checkedCount === 0 && resubPanel.style.display !== "none")
+				|| (checkedCount !== 0 && resubPanel.style.display === "none") )) {
+				ASN.toggleAllowResubmissionPanel();
+			}
+		});
+
+		ASN.enableLinks();
+
+		var assignmentId ="$assignment.Id";
+		var rubricsToken = "$!rbcs-token";
+
+		if (assignmentId && rubricsToken) {
+			const options = {
+				method: "GET",
+				headers: {
+				  "Authorization": `Bearer ${rubricsToken}`,
+				  "Accept": "application/json",
+				  "Content-Type": "application/json"
+				}
+			};
+
+			fetch(`/rubrics-service/rest/rubric-associations/search/by-tool-item-ids?toolId=sakai.assignment&itemId=${assignmentId}`, options)
+			.then(r => r.json())
+			.then(data => {
+
+				const association = data._embedded["rubric-associations"][0];
+
+				if (association) {
+					[...document.getElementsByTagName("sakai-rubric-student-button")].forEach(b => b.hidden = false);
+				}
+			});
+		}
+	}); // document.ready
+</script>
+
 <!-- end: chef_assignments_instructor_list_submissions.vm  -->
