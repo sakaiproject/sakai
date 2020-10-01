@@ -148,6 +148,21 @@
                 <bean parent="org.sakaiproject.ignite.cache.transactional">
                     <property name="name" value="org.sakaiproject.content.hbm.FileConversionQueueItem"/>
                 </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.rubrics.logic.model.Rubric"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.rubrics.logic.model.Criterion"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.rubrics.logic.model.Rating"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.rubrics.logic.model.Evaluation"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation"/>
+                </bean>
             </list>
         </property>
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
