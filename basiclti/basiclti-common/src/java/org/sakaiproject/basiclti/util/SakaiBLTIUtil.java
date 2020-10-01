@@ -77,6 +77,7 @@ import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.lti13.util.SakaiLineItem;
+import org.sakaiproject.lti13.util.SakaiDeepLink;
 import org.tsugi.basiclti.BasicLTIConstants;
 import org.tsugi.basiclti.BasicLTIUtil;
 import org.tsugi.jackson.JacksonUtil;
@@ -1655,6 +1656,8 @@ public class SakaiBLTIUtil {
 				return postError("<p>" + getRB(rb, "error.missing", "Not configured") + "</p>");
 			}
 
+			HttpServletRequest req = ToolUtils.getRequestFromThreadLocal();
+
 			String orig_site_id_null = (String) tool.get("orig_site_id_null");
 			String site_id = null;
 			if ( ! "true".equals(orig_site_id_null) ) {
@@ -1871,7 +1874,7 @@ public class SakaiBLTIUtil {
 			*/
 
 			if ( deepLink ) {
-				DeepLink ci = new DeepLink();
+				SakaiDeepLink ci = new SakaiDeepLink();
 				// accept_copy_advice is not in deep linking - files are to be copied - images maybe
 				String accept_media_types = ltiProps.getProperty("accept_media_types");
 				if ( ContentItem.MEDIA_LTILINKITEM.equals(accept_media_types) ) {
@@ -1890,6 +1893,24 @@ public class SakaiBLTIUtil {
 					String [] pieces = target.split(",");
 					for (String piece : pieces) {
 						ci.accept_presentation_document_targets.add(piece);
+					}
+				}
+
+				String flow = req.getParameter("flow");
+				if ( flow != null ) {
+					ci.sakai_placement = flow;
+					if ( SakaiDeepLink.PLACEMENT_LESSONS.equals(flow) ) {
+						ci.sakai_accept_lineitem = Boolean.TRUE;
+						ci.sakai_accept_available = Boolean.FALSE;
+						ci.sakai_accept_submission = Boolean.FALSE;
+					} else if ( SakaiDeepLink.PLACEMENT_ASSIGNMENT.equals(flow) ) {
+						ci.sakai_accept_lineitem = Boolean.TRUE;
+						ci.sakai_accept_available = Boolean.TRUE;
+						ci.sakai_accept_submission = Boolean.TRUE;
+					} else if ( SakaiDeepLink.PLACEMENT_EDITOR.equals(flow) ) {
+						ci.sakai_accept_lineitem = Boolean.FALSE;
+						ci.sakai_accept_available = Boolean.FALSE;
+						ci.sakai_accept_submission = Boolean.FALSE;
 					}
 				}
 
@@ -1931,7 +1952,6 @@ public class SakaiBLTIUtil {
 			String lti13_oidc_redirect = toNull((String) tool.get(LTIService.LTI13_OIDC_REDIRECT));
 
 			// If we have been told to send this to a redirect_uri instead of a launch...
-			HttpServletRequest req = ToolUtils.getRequestFromThreadLocal();
 			String redirect_uri = req.getParameter("redirect_uri");
 			if ( redirect_uri != null && lti13_oidc_redirect != null ) {
 				if ( lti13_oidc_redirect.indexOf(redirect_uri) >= 0 ) {
