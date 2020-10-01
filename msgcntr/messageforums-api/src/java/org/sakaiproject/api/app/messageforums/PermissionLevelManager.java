@@ -101,8 +101,8 @@ public interface PermissionLevelManager {
     
     public Boolean getCustomPermissionByName(String customPermissionName, PermissionLevel permissionLevel);
     public List getCustomPermissions();
-  	public List getAllMembershipItemsForForumsForSite(final Long areaId);
-  	public List getAllMembershipItemsForTopicsForSite(final Long areaId);
+  	public List<DBMembershipItem> getAllMembershipItemsForForumsForSite(final Long areaId);
+  	public List<DBMembershipItem> getAllMembershipItemsForTopicsForSite(final Long areaId);
   	public void deleteMembershipItems(Set<DBMembershipItem> membershipSet);
   	
 }

@@ -317,7 +317,7 @@ private RequestStorage requestStorage;
 		  //make sure the user has access too this forum and topic and site:
 		  if(dForum.getDraft().equals(Boolean.FALSE) && dTopic.getDraft().equals(Boolean.FALSE) && securityService.unlock(userId, SiteService.SITE_VISIT, "/site/" + siteId)){
 
-			  if (getUiPermissionsManager().isRead(dTopic.getId(), false, false, userId, siteId))
+			  if (getUiPermissionsManager().isRead(dTopic, dForum, userId, siteId))
 			  {
 
 				  messages = filterModeratedMessages(messages, dTopic, dForum, userId, siteId);

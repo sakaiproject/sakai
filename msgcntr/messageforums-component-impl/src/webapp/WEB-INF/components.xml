@@ -111,19 +111,15 @@
     </bean>
      
     <bean id="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager" class="org.sakaiproject.component.app.messageforums.ui.UIPermissionsManagerImpl" init-method="init">
-        <property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager"/>
         <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
-        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
-        <property name="permissionManager" ref="org.sakaiproject.api.app.messageforums.PermissionManager"/>
-        <property name="permissionLevelManager" ref="org.sakaiproject.api.app.messageforums.PermissionLevelManager"/>
-        <property name="typeManager" ref="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
-        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
         <property name="forumManager" ref="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager"/>
-        <property name="areaManager" ref="org.sakaiproject.api.app.messageforums.AreaManager"/>
         <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
-        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+        <property name="permissionLevelManager" ref="org.sakaiproject.api.app.messageforums.PermissionLevelManager"/>
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
-        <property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
+        <property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
      </bean>
     
    
@@ -334,12 +330,11 @@
             <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
         </property>
         <property name="target">
-            <bean class="org.sakaiproject.component.app.messageforums.MembershipManagerImpl" init-method="init">            
+            <bean class="org.sakaiproject.component.app.messageforums.MembershipManagerImpl">
                 <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
                 <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
                 <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
                 <property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager"/>
-                <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
                 <property name="privacyManager" ref="org.sakaiproject.api.privacy.PrivacyManager" />
                 <property name="prtMsgManager" ref="org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager" />
             </bean>
@@ -350,11 +345,6 @@
             </props>
         </property> 
     </bean>
-    
-    <bean id="org.sakaiproject.api.app.messageforums.UserPreferencesManager"
-              class="org.sakaiproject.component.app.messageforums.SakaiUserPreferencesManagerImpl">
-              <property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService" />
-       </bean>
     
     <bean id="org.sakaiproject.api.app.messageforums.ForumTopicEntityProvider" class="org.sakaiproject.component.app.messageforums.entity.ForumTopicEntityProviderImpl">
         <property name="forumManager" ref="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager" />

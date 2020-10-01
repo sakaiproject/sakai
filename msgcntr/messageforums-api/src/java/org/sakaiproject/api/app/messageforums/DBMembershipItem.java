@@ -22,17 +22,7 @@ package org.sakaiproject.api.app.messageforums;
 
 
 public interface DBMembershipItem extends MutableEntity {
-  
-  public static final Integer TYPE_NOT_SPECIFIED = Integer.valueOf(0); 
-  public static final Integer TYPE_ALL_PARTICIPANTS = Integer.valueOf(1);
-  public static final Integer TYPE_ROLE = Integer.valueOf(2);
-  public static final Integer TYPE_GROUP = Integer.valueOf(3);
-  public static final Integer TYPE_USER = Integer.valueOf(4);   
-   
-  public static final String ALL_PARTICIPANTS_DESC = "All Participants";
-  
-  public static final String NOT_SPECIFIED_DESC = "Not Specified";
-  
+
   public String getName();
   
   public void setName(String name);

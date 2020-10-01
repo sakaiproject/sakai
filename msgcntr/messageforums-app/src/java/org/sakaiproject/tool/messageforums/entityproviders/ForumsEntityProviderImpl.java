@@ -305,7 +305,7 @@ public class ForumsEntityProviderImpl extends AbstractEntityProvider implements 
 		// This call gets the attachments for the messages but not the topic. Unexpected, yes. Cool, not.
 		DiscussionTopic fatTopic = (DiscussionTopic)forumManager.getTopicByIdWithMessagesAndAttachments(topicId);
 		
-		if(!uiPermissionsManager.isRead(topicId,fatTopic.getDraft(),false,userId,forumManager.getContextForTopicById(topicId))) {
+		if(!uiPermissionsManager.isRead(fatTopic, (DiscussionForum) fatTopic.getBaseForum(), userId, forumManager.getContextForTopicById(topicId))) {
 			log.error("'" + userId + "' is not authorised to read topic '" + topicId + "'.");
 			throw new EntityException("You are not authorised to read this topic.","",HttpServletResponse.SC_UNAUTHORIZED);
 		}
@@ -358,7 +358,7 @@ public class ForumsEntityProviderImpl extends AbstractEntityProvider implements 
         // getMessageById doesn't populate the attachments.
 		setAttachments(fatMessage,fatTopic.getMessages());
 		
-		if(!uiPermissionsManager.isRead(fatTopic.getId(),((DiscussionTopic)fatTopic).getDraft(),false,userId,forumManager.getContextForTopicById(fatTopic.getId()))) {
+		if(!uiPermissionsManager.isRead((DiscussionTopic) fatTopic, (DiscussionForum) fatTopic.getBaseForum(), userId, forumManager.getContextForTopicById(fatTopic.getId()))) {
 			log.error("'" + userId + "' is not authorised to read message '" + messageId + "'.");
 			throw new EntityException("You are not authorised to read this message.","",HttpServletResponse.SC_UNAUTHORIZED);
 		}
@@ -503,7 +503,7 @@ public class ForumsEntityProviderImpl extends AbstractEntityProvider implements 
 
 			for(Topic topic : (List<Topic>) forum.getTopics()) {
 				//check if user can see this topic
-				if(!uiPermissionsManager.isRead(topic.getId(),((DiscussionTopic)topic).getDraft(),false, userId, siteId)) {
+				if(!uiPermissionsManager.isRead((DiscussionTopic) topic, forum, userId, siteId)) {
 					//user has no permission so skip adding this topicId into the list.
 					continue;
 				}

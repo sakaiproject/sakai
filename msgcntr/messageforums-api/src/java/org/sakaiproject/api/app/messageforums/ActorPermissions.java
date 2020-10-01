@@ -32,19 +32,19 @@ public interface ActorPermissions {
 
     public void setVersion(Integer version);
 
-    public List getAccessors();
+    public List<MessageForumsUser> getAccessors();
 
-    public void setAccessors(List accessors);
+    public void setAccessors(List<MessageForumsUser> accessors);
 
-    public List getContributors();
+    public List<MessageForumsUser> getContributors();
 
-    public void setContributors(java.util.List contributors);
+    public void setContributors(List<MessageForumsUser> contributors);
 
-    public java.util.List getModerators();
+    public List<MessageForumsUser> getModerators();
 
-    public void setModerators(java.util.List moderators);
+    public void setModerators(List<MessageForumsUser> moderators);
     
-    public void addAccesssor(MessageForumsUser user);
+    public void addAccessor(MessageForumsUser user);
     
     public void removeAccessor(MessageForumsUser user);
     

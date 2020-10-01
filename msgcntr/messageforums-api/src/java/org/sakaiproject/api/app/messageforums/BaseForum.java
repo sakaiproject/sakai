@@ -76,9 +76,9 @@ public interface BaseForum extends MutableEntity {
 
     public void removeAttachment(Attachment attachment);
     
-    public Set getMembershipItemSet();
+    public Set<DBMembershipItem> getMembershipItemSet();
 			
-		public void setMembershipItemSet(Set membershipItemSet);		
+		public void setMembershipItemSet(Set<DBMembershipItem> membershipItemSet);
 		
 		public void addMembershipItem(DBMembershipItem item);
 		

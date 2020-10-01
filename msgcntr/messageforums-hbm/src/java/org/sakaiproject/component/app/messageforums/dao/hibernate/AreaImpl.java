@@ -63,7 +63,7 @@ public class AreaImpl extends MutableEntityImpl implements Area
   private Set openForumsSet;// = new HashSet();
   private Set privateForumsSet;// = new HashSet();
   private Set discussionForumsSet;// = new HashSet();
-  private Set membershipItemSet;
+  private Set<DBMembershipItem> membershipItemSet;
   private Set hiddenGroups;
   private Date openDate;
   private Date closeDate;
@@ -225,11 +225,11 @@ public Set getDiscussionForumsSet() {
       this.privateForumsSet = privateForumsSet;            
   }
   
-  public Set getMembershipItemSet() {
+  public Set<DBMembershipItem> getMembershipItemSet() {
 		return membershipItemSet;
 	}
 
-	public void setMembershipItemSet(Set membershipItemSet) {
+	public void setMembershipItemSet(Set<DBMembershipItem> membershipItemSet) {
 		this.membershipItemSet = membershipItemSet;
 	}
 	

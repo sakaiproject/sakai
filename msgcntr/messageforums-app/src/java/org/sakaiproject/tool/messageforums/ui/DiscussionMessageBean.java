@@ -28,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.api.app.messageforums.AnonymousManager;
 import org.sakaiproject.api.app.messageforums.Attachment;
+import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
@@ -557,7 +558,7 @@ log.debug("... before return getAuthorEmail(): userEmail = " + userEmail);
 				// Are we supposed to reveal authors' identities to certain roles in this topic?
 				if (topic.getRevealIDsToRoles())
 				{
-					if (getUIPermissionsManager().isIdentifyAnonAuthors(topic))
+					if (getUIPermissionsManager().isIdentifyAnonAuthors((DiscussionTopic) topic))
 					{
 						// This user has permission to identify authors in this topic
 						useAnonymousId = Boolean.FALSE;

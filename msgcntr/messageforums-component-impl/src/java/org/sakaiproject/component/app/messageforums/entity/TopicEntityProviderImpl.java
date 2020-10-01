@@ -421,13 +421,13 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 						for (DiscussionTopic topic : topics) {
 
 								if (forumManager.isInstructor(userId, siteId) || 
-										getUiPermissionsManager().isRead(topic.getId(), topic.getDraft(), forum.getDraft(), userId, siteId))
+										getUiPermissionsManager().isRead(topic, forum, userId, siteId))
 								{
 									int unreadMessages = 0;
 									int totalMessages = 0;
 									if (!topic.getModerated().booleanValue()
 											|| (topic.getModerated().booleanValue() && 
-													getUiPermissionsManager().isModeratePostings(topic.getId(), forum.getLocked(), forum.getDraft(), topic.getLocked(), topic.getDraft(), userId, siteId))){
+													getUiPermissionsManager().isModeratePostings(topic, forum, userId, siteId))){
 
 										unreadMessages = getMessageManager().findUnreadMessageCountByTopicIdByUserId(topic.getId(), userId);										
 									}

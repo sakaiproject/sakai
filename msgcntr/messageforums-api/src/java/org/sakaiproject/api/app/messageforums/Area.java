@@ -132,9 +132,9 @@ public interface Area extends MutableEntity {
     
     public void setAutoMarkThreadsRead(Boolean autoMarkThreadsRead);
     
-    public Set getMembershipItemSet();
+    public Set<DBMembershipItem> getMembershipItemSet();
 			
-	public void setMembershipItemSet(Set membershipItemSet);
+	public void setMembershipItemSet(Set<DBMembershipItem> membershipItemSet);
     
     public void addMembershipItem(DBMembershipItem item);      
 

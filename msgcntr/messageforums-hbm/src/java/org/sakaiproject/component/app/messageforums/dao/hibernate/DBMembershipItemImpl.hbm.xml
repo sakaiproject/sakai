@@ -53,34 +53,6 @@
         index="MFR_MEMBERSHIP_ITEM_I02_I"/>  
   </class>
     
-   <query name="findAllMembershipItemsForForumsForSite">
-    <![CDATA[select membership from org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl as membership
-		    join membership.forum as forum
-		    join forum.area as area
-		    left join fetch membership.permissionLevel
-		    where
-		    area.id = :areaId
-		]]>
-  </query>
- 
-  <query name="findAllTopicsForSite">
-    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic
-		    join topic.openForum as forum
-		    join forum.area as area
-		    where
-		    area.id = :areaId
-		]]>
-  </query>
-
-   <query name="findAllMembershipItemsForTopicsForSite">
-     <![CDATA[select membership from org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl as membership
-		     join membership.topic as topic
-		     left join fetch membership.permissionLevel
-		     where
-		     topic.id in ( :topicIdList )
-		 ]]>
-  </query>
-  
     <query name="findNumRoleWithPermissionInTopic">
     <![CDATA[select count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl as membership
              where membership.topic.id = :id and membership.name = :roleName and membership.permissionLevelName = :permissionLevelName

@@ -30,13 +30,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.Vector;
+import java.util.function.Predicate;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
-import org.sakaiproject.tool.api.Tool;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
-
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.api.app.messageforums.ActorPermissions;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaControlPermission;
@@ -47,8 +44,8 @@ import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.DummyDataHelperApi;
-import org.sakaiproject.api.app.messageforums.events.ForumsMessageEventParams;
 import org.sakaiproject.api.app.messageforums.ForumControlPermission;
+import org.sakaiproject.api.app.messageforums.MembershipItem;
 import org.sakaiproject.api.app.messageforums.MembershipManager;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
@@ -61,6 +58,7 @@ import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
 import org.sakaiproject.api.app.messageforums.PermissionManager;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.TopicControlPermission;
+import org.sakaiproject.api.app.messageforums.events.ForumsMessageEventParams;
 import org.sakaiproject.api.app.messageforums.events.ForumsTopicEventParams;
 import org.sakaiproject.api.app.messageforums.events.ForumsTopicEventParams.TopicEvent;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
@@ -70,7 +68,6 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.app.messageforums.MembershipItem;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.ActorPermissionsImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl;
@@ -92,10 +89,14 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
@@ -117,11 +118,10 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   private SessionManager sessionManager;
   private PermissionLevelManager permissionLevelManager;
   private AuthzGroupService authzGroupService;
-  private Map courseMemberMap = null;
   private boolean usingHelper = false; // just a flag until moved to database from helper
   private ContentHostingService contentHostingService;
   private MemoryService memoryService;
-  private Cache<String, Set<?>> allowedFunctionsCache;
+  private Cache<String, Set<String>> allowedFunctionsCache;
   private EventTrackingService eventTrackingService;
   private ThreadLocalManager threadLocalManager;
   private ToolManager toolManager;
@@ -1147,7 +1147,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     final DiscussionForum forumReturn = forumManager.saveDiscussionForum(forum, draft, logEvent, currentUser);
     //set flag to false since permissions could have changed.  This will force a clearing and resetting
     //of the permissions cache.
-    threadLocalManager.set("message_center_permission_set", Boolean.FALSE);
+    threadLocalManager.set("message_center_permission_set", null);
     if (saveArea)
     {
       String dfType = typeManager.getDiscussionForumType();
@@ -1785,208 +1785,116 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     return !forumManager.doesRoleHavePermissionInTopic(t.getId(), role, PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE);
   }
 
-  /**
-   * @param accessorList
-   * @return
-   */
-  private List decodeActorPermissionTypeList(List selectedList)
-  {
-    if (log.isDebugEnabled())
-    {
-      log.debug("decodeActorPermissionTypeList(List" + selectedList + ")");
-    }
+  private List<MessageForumsUser> decodeActorPermissionTypeList(List<String> selectedList) {
+    log.debug("decodeActorPermissionTypeList(List{})", selectedList);
+    List<MessageForumsUser> newSelectedMemberList = new ArrayList<>();
 
-    List newSelectedMemberList = new ArrayList();
-
-    for (Iterator i = selectedList.iterator(); i.hasNext();)
-    {
-      String selectedItem = (String) i.next();
+    /** lookup item in map */
+    for (String selectedItem : selectedList) {
       MessageForumsUser user = new MessageForumsUserImpl();
       /** lookup item in map */
-      MembershipItem item = (MembershipItem) getAllCourseMembers().get(
-          selectedItem);
-      if (item == null)
-      {
-        log.warn("decodeActorPermissionTypeList() could not resolve uuid: "
-            + selectedItem);
-      }
-      else
-      {
-        if (MembershipItem.TYPE_ALL_PARTICIPANTS.equals(item.getType()))
-        {
-          user.setTypeUuid(typeManager.getAllParticipantType());
-          user.setUserId(typeManager.getAllParticipantType());
-          newSelectedMemberList.add(user);
-        }
-        else
-          if (MembershipItem.TYPE_NOT_SPECIFIED.equals(item.getType()))
-          {
-            user.setTypeUuid(typeManager.getNotSpecifiedType());
-            user.setUserId(typeManager.getNotSpecifiedType());
-            // if not specified is seleted then only this value remains.
-            newSelectedMemberList = null;
-            newSelectedMemberList = new ArrayList();
+      MembershipItem item = getAllCourseMembers().get(selectedItem);
+      if (item == null) {
+        log.warn("decodeActorPermissionTypeList() could not resolve uuid: {}", selectedItem);
+      } else {
+        switch (item.getType()) {
+          case MembershipItem.TYPE_ALL_PARTICIPANTS:
+            user.setTypeUuid(typeManager.getAllParticipantType());
+            user.setUserId(typeManager.getAllParticipantType());
             newSelectedMemberList.add(user);
             break;
-          }
-          else
-            if (MembershipItem.TYPE_ROLE.equals(item.getType()))
-            {
-              user.setTypeUuid(typeManager.getRoleType());
-              user.setUserId(item.getRole().getId());
-              newSelectedMemberList.add(user);
-
-            }
-            else
-              if (MembershipItem.TYPE_GROUP.equals(item.getType()))
-              {
-                user.setTypeUuid(typeManager.getGroupType());
-                user.setUserId(item.getGroup().getId());
-                newSelectedMemberList.add(user);
-              }
-              else
-                if (MembershipItem.TYPE_USER.equals(item.getType()))
-                {
-                  user.setTypeUuid(typeManager.getUserType());
-                  user.setUserId(item.getUser().getId());
-                  newSelectedMemberList.add(user);
-                }
-                else
-                {
-                  log.warn("getRecipients() could not resolve membership type: "
-                          + item.getType());
-                }
+          case MembershipItem.TYPE_NOT_SPECIFIED:
+            user.setTypeUuid(typeManager.getNotSpecifiedType());
+            user.setUserId(typeManager.getNotSpecifiedType());
+            // if not specified is deleted then only this value remains.
+            newSelectedMemberList = new ArrayList<>();
+            newSelectedMemberList.add(user);
+            break;
+          case MembershipItem.TYPE_ROLE:
+            user.setTypeUuid(typeManager.getRoleType());
+            user.setUserId(item.getRole().getId());
+            newSelectedMemberList.add(user);
+            break;
+          case MembershipItem.TYPE_GROUP:
+            user.setTypeUuid(typeManager.getGroupType());
+            user.setUserId(item.getGroup().getId());
+            newSelectedMemberList.add(user);
+            break;
+          case MembershipItem.TYPE_USER:
+            user.setTypeUuid(typeManager.getUserType());
+            user.setUserId(item.getUser().getId());
+            newSelectedMemberList.add(user);
+            break;
+          default:
+            log.warn("Could not resolve membership type: {}", item.getType());
+            break;
+        }
       }
     }
     return newSelectedMemberList;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#decodeAccessorsList(java.util.List)
-   */
-  public List decodeAccessorsList(ArrayList accessorList)
-  {
-    if (log.isDebugEnabled())
-    {
-      log.debug("decodeAccessorsList(List" + accessorList + ")");
-    }
-    if (accessorList == null || accessorList.size() < 1)
-    {
+  public List<MessageForumsUser> decodeAccessorsList(List<String> accessorList) {
+    log.debug("decodeAccessorsList(List{})", accessorList);
+    if (accessorList == null || accessorList.isEmpty()) {
       return forumManager.createDefaultActorPermissions().getAccessors();
     }
     return decodeActorPermissionTypeList(accessorList);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#decodeContributorsList(java.util.List)
-   */
-  public List decodeContributorsList(ArrayList contributorList)
-  {
-    if (log.isDebugEnabled())
-    {
-      log.debug("decodeContributorsList(List" + contributorList + ")");
-    }
-    if (contributorList == null || contributorList.size() < 1)
-    {
+  public List<MessageForumsUser> decodeContributorsList(List<String> contributorList) {
+    log.debug("decodeContributorsList(List{})", contributorList);
+    if (contributorList == null || contributorList.isEmpty()) {
       return forumManager.createDefaultActorPermissions().getContributors();
     }
     return decodeActorPermissionTypeList(contributorList);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getContributorsList(org.sakaiproject.api.app.messageforums.DiscussionForum)
-   */
-  public List getContributorsList(DiscussionForum forum)
-  {
-    if (log.isDebugEnabled())
-    {
-      log.debug(" getContributorsList(DiscussionForum" + forum + ")");
-    }
-    List contributorList = null;
-    if (forum == null)
-    {
-      return null;
-    }
-    if (forum.getActorPermissions() == null
-        || forum.getActorPermissions().getContributors() == null)
-    {
-      forum.setActorPermissions(forumManager.createDefaultActorPermissions());
-      contributorList = forumManager.createDefaultActorPermissions()
-          .getContributors();
-    }
-    else
-    {
+  public List<String> getContributorsList(DiscussionForum forum) {
+    log.debug(" getContributorsList(DiscussionForum{})", forum);
+    if (forum == null) return null;
+    List<MessageForumsUser> contributorList;
+    if (forum.getActorPermissions() == null || forum.getActorPermissions().getContributors() == null) {
+      ActorPermissions permissions = forumManager.createDefaultActorPermissions();
+      forum.setActorPermissions(permissions);
+      contributorList = permissions.getContributors();
+    } else {
       contributorList = forum.getActorPermissions().getContributors();
     }
-    Iterator iterator = contributorList.iterator();
 
-    return getContributorAccessorList(iterator);
+    return getContributorAccessorList(contributorList.iterator());
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getAccessorsList(org.sakaiproject.api.app.messageforums.DiscussionForum)
-   */
-  public List getAccessorsList(DiscussionForum forum)
-  {
-    if (log.isDebugEnabled())
-    {
-      log.debug("getAccessorsList(DiscussionForum" + forum + ")");
-    }
-    List accessorsList = null;
-    if (forum == null)
-    {
-      return null;
-    }
-    if (forum.getActorPermissions() == null
-        || forum.getActorPermissions().getAccessors() == null)
-    {
+  public List<String> getAccessorsList(DiscussionForum forum) {
+    log.debug("getAccessorsList(DiscussionForum" + forum + ")");
+    if (forum == null) return null;
+    List<MessageForumsUser> accessorsList;
+    if (forum.getActorPermissions() == null || forum.getActorPermissions().getAccessors() == null) {
       forum.setActorPermissions(forumManager.createDefaultActorPermissions());
-      accessorsList = forumManager.createDefaultActorPermissions()
-          .getAccessors();
-    }
-    else
-    {
+      accessorsList = forumManager.createDefaultActorPermissions().getAccessors();
+    } else {
       accessorsList = forum.getActorPermissions().getAccessors();
     }
 
-    Iterator iterator = accessorsList.iterator();
-
-    return getContributorAccessorList(iterator);
+    return getContributorAccessorList(accessorsList.iterator());
   }
 
-  /**
-   * @param iterator
-   * @return
-   */
-  private List getContributorAccessorList(Iterator iterator)
-  {
-    if (log.isDebugEnabled())
-    {
-      log.debug("getContributorAccessorList(Iterator" + iterator + ")");
-    }
-    List modifiedContributorList = new ArrayList();
+  private List<String> getContributorAccessorList(Iterator<MessageForumsUser> iterator) {
+    log.debug("getContributorAccessorList(Iterator{})", iterator);
+    List<String> modifiedContributorList = new ArrayList<>();
     while (iterator.hasNext())
     {
       String selectedId = null;
-      MessageForumsUser user = (MessageForumsUser) iterator.next();
-      List totalmembers = membershipManager
-          .convertMemberMapToList(courseMemberMap);
-      Iterator iter = totalmembers.iterator();
+      MessageForumsUser user = iterator.next();
+      List<MembershipItem> totalmembers = membershipManager.convertMemberMapToList(getAllCourseMembers());
+      Iterator<MembershipItem> iter = totalmembers.iterator();
 
       if (user.getTypeUuid().equals(typeManager.getAllParticipantType()))
       {
         while (iter.hasNext())
         {
-          MembershipItem member = (MembershipItem) iter.next();
-          if (member.getType().equals(MembershipItem.TYPE_ALL_PARTICIPANTS))
+          MembershipItem member = iter.next();
+          if (member.getType() == MembershipItem.TYPE_ALL_PARTICIPANTS)
           {
             selectedId = member.getId();
           }
@@ -1996,8 +1904,8 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       {
         while (iter.hasNext())
         {
-          MembershipItem member = (MembershipItem) iter.next();
-          if (member.getType().equals(MembershipItem.TYPE_NOT_SPECIFIED))
+          MembershipItem member = iter.next();
+          if (member.getType() == MembershipItem.TYPE_NOT_SPECIFIED)
           {
             selectedId = member.getId();
           }
@@ -2008,9 +1916,8 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       {
         while (iter.hasNext())
         {
-          MembershipItem member = (MembershipItem) iter.next();
-          if (member.getType().equals(MembershipItem.TYPE_GROUP)
-              && user.getUserId().equals(member.getGroup().getId()))
+          MembershipItem member = iter.next();
+          if (member.getType() == MembershipItem.TYPE_GROUP && user.getUserId().equals(member.getGroup().getId()))
           {
             selectedId = member.getId();
           }
@@ -2021,9 +1928,8 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       {
         while (iter.hasNext())
         {
-          MembershipItem member = (MembershipItem) iter.next();
-          if (member.getType().equals(MembershipItem.TYPE_ROLE)
-              && user.getUserId().equals(member.getRole().getId()))
+          MembershipItem member = iter.next();
+          if (member.getType() == MembershipItem.TYPE_ROLE && user.getUserId().equals(member.getRole().getId()))
           {
             selectedId = member.getId();
           }
@@ -2033,248 +1939,141 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       {
         while (iter.hasNext())
         {
-          MembershipItem member = (MembershipItem) iter.next();
-          if (member.getType().equals(MembershipItem.TYPE_USER)
-              && user.getUserId().equals(member.getUser().getId()))
+          MembershipItem member = iter.next();
+          if (member.getType() == MembershipItem.TYPE_USER && user.getUserId().equals(member.getUser().getId()))
           {
             selectedId = member.getId();
           }
         }
-
       }
-
       modifiedContributorList.add(selectedId);
     }
     return modifiedContributorList;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getAllCourseMembers()
-   */
-  public Map getAllCourseMembers()
-  {
-    if (log.isDebugEnabled())
-    {
-      log.debug("getAllCourseMembers()");
-    }
-    if (courseMemberMap == null)
-    {
-      courseMemberMap = membershipManager.getAllCourseMembers(true, false, true, null);
-    }
-    return courseMemberMap;
+  @Override
+  public Map<String, MembershipItem> getAllCourseMembers() {
+    // TODO ERN cache this
+    return membershipManager.getAllCourseMembers(true, false, true, null);
   }
 
-  /**
-   * @param courseMemberMap
-   *          The courseMemberMap to set.
-   */
-  public void setCourseMemberMapToNull()
-  {
-    this.courseMemberMap = null;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getContributorsList(org.sakaiproject.api.app.messageforums.DiscussionTopic)
-   */
-  public List getContributorsList(DiscussionTopic topic, DiscussionForum forum)
-  {
-    if (log.isDebugEnabled())
-    {
-      log.debug("getContributorsList(DiscussionTopic " + topic
-          + ", DiscussionForum " + forum + ")");
-    }
-    List contributorList = null;
-    if (topic == null)
-    {
-      return null;
-    }
-    if (topic.getActorPermissions() == null
-        || topic.getActorPermissions().getContributors() == null)
-    {
+  @Override
+  public List<String> getContributorsList(DiscussionTopic topic, DiscussionForum forum) {
+    log.debug("getContributorsList(DiscussionTopic {}, DiscussionForum {})", topic, forum);
+    if (topic == null) return null;
+    if (topic.getActorPermissions() == null || topic.getActorPermissions().getContributors() == null) {
       // hibernate does not permit this b/c saving forum and topics will
       // throw uniqueobjectexception
-      topic.setActorPermissions(getDeepCopyOfParentActorPermissions(forum
-          .getActorPermissions()));
-      contributorList = topic.getActorPermissions().getContributors();
+      topic.setActorPermissions(getDeepCopyOfParentActorPermissions(forum.getActorPermissions()));
     }
-    else
-    {
-      contributorList = topic.getActorPermissions().getContributors();
-    }
-    Iterator iterator = contributorList.iterator();
 
-    return getContributorAccessorList(iterator);
+    return getContributorAccessorList(topic.getActorPermissions().getContributors().iterator());
   }
 
-  private ActorPermissions getDeepCopyOfParentActorPermissions(
-      ActorPermissions actorPermissions)
-  {
+  private ActorPermissions getDeepCopyOfParentActorPermissions(ActorPermissions actorPermissions) {
     ActorPermissions newAP = new ActorPermissionsImpl();
-    List parentAccessors = actorPermissions.getAccessors();
-    List parentContributors = actorPermissions.getContributors();
-    List newAccessors = new ArrayList();
-    List newContributor = new ArrayList();
-    Iterator iter = parentAccessors.iterator();
-    while (iter.hasNext())
-    {
-      MessageForumsUser accessParent = (MessageForumsUser) iter.next();
-      MessageForumsUser newaccessor = new MessageForumsUserImpl();
-      newaccessor.setTypeUuid(accessParent.getTypeUuid());
-      newaccessor.setUserId(accessParent.getUserId());
-      newaccessor.setUuid(accessParent.getUuid());
-      newAccessors.add(newaccessor);
+    List<MessageForumsUser> parentAccessors = actorPermissions.getAccessors();
+    List<MessageForumsUser> parentContributors = actorPermissions.getContributors();
+    List<MessageForumsUser> newAccessors = new ArrayList<>();
+    List<MessageForumsUser> newContributors = new ArrayList<>();
+
+    for (MessageForumsUser accessParent : parentAccessors) {
+      MessageForumsUser newAccessor = new MessageForumsUserImpl();
+      newAccessor.setTypeUuid(accessParent.getTypeUuid());
+      newAccessor.setUserId(accessParent.getUserId());
+      newAccessor.setUuid(accessParent.getUuid());
+      newAccessors.add(newAccessor);
     }
-    Iterator iter1 = parentContributors.iterator();
-    while (iter1.hasNext())
-    {
-      MessageForumsUser contribParent = (MessageForumsUser) iter1.next();
-      MessageForumsUser newcontributor = new MessageForumsUserImpl();
-      newcontributor.setTypeUuid(contribParent.getTypeUuid());
-      newcontributor.setUserId(contribParent.getUserId());
-      newcontributor.setUuid(contribParent.getUuid());
-      newContributor.add(newcontributor);
+
+    for (MessageForumsUser contribParent : parentContributors) {
+      MessageForumsUser newContributor = new MessageForumsUserImpl();
+      newContributor.setTypeUuid(contribParent.getTypeUuid());
+      newContributor.setUserId(contribParent.getUserId());
+      newContributor.setUuid(contribParent.getUuid());
+      newContributors.add(newContributor);
     }
     newAP.setAccessors(newAccessors);
-    newAP.setContributors(newContributor);
+    newAP.setContributors(newContributors);
     return newAP;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getAccessorsList(org.sakaiproject.api.app.messageforums.DiscussionTopic)
-   */
-  public List getAccessorsList(DiscussionTopic topic, DiscussionForum forum)
-  {
-    if (log.isDebugEnabled())
-    {
-      log.debug("getAccessorsList(DiscussionTopic " + topic
-          + ", DiscussionForum " + forum + ")");
-    }
-    List accessorsList = null;
-    if (topic == null)
-    {
-      return null;
-    }
-    if (topic.getActorPermissions() == null
-        || topic.getActorPermissions().getAccessors() == null)
-    {
+  public List<String> getAccessorsList(DiscussionTopic topic, DiscussionForum forum) {
+    log.debug("getAccessorsList(DiscussionTopic {}, DiscussionForum {})", topic, forum);
+    if (topic == null) return null;
+    if (topic.getActorPermissions() == null || topic.getActorPermissions().getAccessors() == null) {
       // hibernate does not permit this b/c saving forum and topics will
       // throw uniqueobjectexception
-      topic.setActorPermissions(getDeepCopyOfParentActorPermissions(forum
-          .getActorPermissions()));
-      accessorsList = topic.getActorPermissions().getAccessors();
+      topic.setActorPermissions(getDeepCopyOfParentActorPermissions(forum.getActorPermissions()));
     }
-    else
-    {
-      accessorsList = topic.getActorPermissions().getAccessors();
-    }
-
-    Iterator iterator = accessorsList.iterator();
-
-    return getContributorAccessorList(iterator);
+    return getContributorAccessorList(topic.getActorPermissions().getAccessors().iterator());
   }
 
-  public DBMembershipItem getAreaDBMember(Set originalSet, String name,
-      Integer type)
-  {
-    DBMembershipItem newItem = getDBMember(originalSet, name, type);
-    return newItem;
+  @Override
+  public DBMembershipItem getAreaDBMember(Set<DBMembershipItem> originalSet, String name, int type) {
+    return getDBMember(originalSet, name, type);
   }
-  
-  public DBMembershipItem getDBMember(Set originalSet, String name,
-			Integer type) {
-	  return getDBMember(originalSet, name, type, getContextSiteId());
-	}
 
-  public DBMembershipItem getDBMember(Set originalSet, String name,
-      Integer type, String contextSiteId)
-  {
-      	
-    DBMembershipItem membershipItem = null;
-    DBMembershipItem membershipItemIter;
-    
-    if (originalSet != null){
-      Iterator iter = originalSet.iterator();
-      while (iter.hasNext())
-      {
-      	membershipItemIter = (DBMembershipItem) iter.next();
-        if (membershipItemIter.getType().equals(type)
-            && membershipItemIter.getName().equals(name))
-        {
-        	membershipItem = membershipItemIter;
-          break;
+  @Override
+  public DBMembershipItem getDBMember(Set<DBMembershipItem> originalSet, String name, int type) {
+	return getDBMember(originalSet, name, type, getContextSiteId());
+  }
+
+  @Override
+  public DBMembershipItem getDBMember(Set<DBMembershipItem> originalSet, String name, int type, String contextSiteId) {
+
+    Predicate<DBMembershipItem> ifTypeAndNameAreEqual = item -> item.getType() == type && item.getName().equals(name);
+    Optional<DBMembershipItem> membershipItem = Optional.empty();
+    if (originalSet != null) membershipItem = originalSet.stream().filter(ifTypeAndNameAreEqual).findAny();
+
+    if (membershipItem.isPresent() && membershipItem.get().getPermissionLevel() != null) return membershipItem.get();
+
+    PermissionLevel level = null;
+    //for groups awareness
+    if (type == MembershipItem.TYPE_ROLE || type == MembershipItem.TYPE_GROUP) {
+
+      String levelName;
+      if (membershipItem.isPresent()) {
+        /** use level from stored item */
+        levelName = membershipItem.get().getPermissionLevelName();
+      } else {
+        /** get level from config file */
+        levelName = ServerConfigurationService.getString(MC_DEFAULT + name);
+      }
+
+      if (StringUtils.isNotBlank(levelName)) {
+        level = permissionLevelManager.getPermissionLevelByName(levelName);
+      } else if (name == null || ".anon".equals(name)) {
+        level = permissionLevelManager.getDefaultNonePermissionLevel();
+      } else {
+        if (type == MembershipItem.TYPE_GROUP) {
+          level = permissionLevelManager.getDefaultNonePermissionLevel();
+        } else {
+          //check cache first:
+          String cacheId = contextSiteId + "/" + name;
+          Set<String> allowedFunctions = allowedFunctionsCache.get(cacheId);
+          if (allowedFunctions == null) {
+            allowedFunctions = authzGroupService.getAllowedFunctions(name, Collections.singletonList(contextSiteId));
+            allowedFunctionsCache.put(cacheId, allowedFunctions);
+          }
+          if (allowedFunctions.contains(SiteService.SECURE_UPDATE_SITE)) {
+            level = permissionLevelManager.getDefaultOwnerPermissionLevel();
+          } else {
+            level = permissionLevelManager.getDefaultContributorPermissionLevel();
+          }
         }
       }
     }
-    
-    if (membershipItem == null || membershipItem.getPermissionLevel() == null){    	
-    	PermissionLevel level = null;
-    	//for groups awareness
-    	if (type.equals(DBMembershipItem.TYPE_ROLE) || type.equals(DBMembershipItem.TYPE_GROUP))
-      { 
-    		
-    		String levelName = null;
-    		
-    		if (membershipItem != null){
-    			/** use level from stored item */
-    			levelName = membershipItem.getPermissionLevelName();
-    		}
-    		else{    	
-    			/** get level from config file */
-    			levelName = ServerConfigurationService.getString(MC_DEFAULT
-              + name);
-    			    			
-    			
-    		}
-      	        	
-        if (levelName != null && levelName.trim().length() > 0)
-        {
-          level = permissionLevelManager.getPermissionLevelByName(levelName);
-        } else if (name == null || ".anon".equals(name)) {
-            level = permissionLevelManager.getDefaultNonePermissionLevel();
-        } else{
-        	Collection siteIds = new Vector();
-        	siteIds.add(contextSiteId);        	
-        	
-        	if(type.equals(DBMembershipItem.TYPE_GROUP))
-        	{
-        	  level = permissionLevelManager.getDefaultNonePermissionLevel();
-        	}else{
-        		//check cache first:
-        		Set allowedFunctions = null;
-        		String cacheId = contextSiteId + "/" + name;
-        		Object el = allowedFunctionsCache.get(cacheId);
-        		if(el == null){
-        			allowedFunctions = authzGroupService.getAllowedFunctions(name, siteIds);
-        			allowedFunctionsCache.put(cacheId, allowedFunctions);
-        		}else{
-        			allowedFunctions = (Set) el;
-        		}
-        		if (allowedFunctions.contains(SiteService.SECURE_UPDATE_SITE)){        			        	        	
-        			level = permissionLevelManager.getDefaultOwnerPermissionLevel();
-        		}else{
-        			level = permissionLevelManager.getDefaultContributorPermissionLevel();
-        		}
-        	}
-        	
-        }
-      }
-    	PermissionLevel noneLevel = permissionLevelManager.getDefaultNonePermissionLevel();
-      membershipItem = new DBMembershipItemImpl();
-      membershipItem.setName(name);
-      membershipItem.setPermissionLevelName((level == null) ? noneLevel.getName() : level.getName() );
-      membershipItem.setType(type);
-      membershipItem.setPermissionLevel((level == null) ? noneLevel : level);      
-    }        
-    return membershipItem;
+    PermissionLevel noneLevel = permissionLevelManager.getDefaultNonePermissionLevel();
+
+    DBMembershipItem item  = new DBMembershipItemImpl();
+    item.setName(name);
+    item.setPermissionLevelName((level == null) ? noneLevel.getName() : level.getName());
+    item.setType(type);
+    item.setPermissionLevel((level == null) ? noneLevel : level);
+    return item;
   }
-  
-//Attachment
+
+  //Attachment
   public Attachment createDFAttachment(String attachId, String name)
   {
     try
@@ -2459,7 +2258,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   	  // we need to get the membership items for the roles separately b/c of default permissions
   	  if (rolesInSite != null) {
   		  for (Role role : rolesInSite) {
-  			  DBMembershipItem roleItem = getDBMember(topicItems, role.getId(), DBMembershipItem.TYPE_ROLE);
+  			  DBMembershipItem roleItem = getDBMember(topicItems, role.getId(), MembershipItem.TYPE_ROLE);
   			  if (roleItem != null) {
   				  revisedMembershipItemSet.add(roleItem);
   			  }
@@ -2467,7 +2266,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   	  }
   	  // now add in the group perms
   	  for (Group group : groupsInSite) {
-  		  DBMembershipItem groupItem = getDBMember(topicItems, group.getTitle(), DBMembershipItem.TYPE_GROUP);
+  		  DBMembershipItem groupItem = getDBMember(topicItems, group.getTitle(), MembershipItem.TYPE_GROUP);
   		  if (groupItem != null) {
   			  revisedMembershipItemSet.add(groupItem);
   		  }
@@ -2478,12 +2277,12 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   		  if ((checkReadPermission && membershipItem.getPermissionLevel().getRead() && !checkModeratePermission) ||
   				  (!checkReadPermission && checkModeratePermission && membershipItem.getPermissionLevel().getModeratePostings()) ||
   				  (checkReadPermission && membershipItem.getPermissionLevel().getRead() && checkModeratePermission && membershipItem.getPermissionLevel().getModeratePostings())) {
-  			  if (membershipItem.getType().equals(DBMembershipItem.TYPE_ROLE)) {
+  			  if (membershipItem.getType() == MembershipItem.TYPE_ROLE) {
   				  // add the users who are a member of this role
   				  log.debug("Adding users in role: " + membershipItem.getName() + " with read: " + membershipItem.getPermissionLevel().getRead());
   				  Set<String> usersInRole = currentSite.getUsersHasRole(membershipItem.getName());
   				  usersAllowed.addAll(usersInRole);
-  			  } else if (membershipItem.getType().equals(DBMembershipItem.TYPE_GROUP)) {
+  			  } else if (membershipItem.getType() == MembershipItem.TYPE_GROUP) {
   				  String groupName = membershipItem.getName();
   				  for (Group group : groupsInSite) {
   					  if (group.getTitle().equals(groupName)) {
