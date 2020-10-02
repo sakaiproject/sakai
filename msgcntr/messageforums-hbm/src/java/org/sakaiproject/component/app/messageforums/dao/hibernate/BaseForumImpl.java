@@ -46,7 +46,7 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
     private String typeUuid;
     private SortedSet attachmentsSet;// = new HashSet();
     private SortedSet topicsSet;// = new HashSet();
-    private Set membershipItemSet;
+    private Set<DBMembershipItem> membershipItemSet;
     private Area area;
     private Integer sortIndex; 
     private Boolean moderated;
@@ -139,11 +139,11 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
         this.topicsSet = topicsSet;
     }
     
-    public Set getMembershipItemSet() {
+    public Set<DBMembershipItem> getMembershipItemSet() {
   		return membershipItemSet;
   	}
 
-  	public void setMembershipItemSet(Set membershipItemSet) {
+  	public void setMembershipItemSet(Set<DBMembershipItem> membershipItemSet) {
   		this.membershipItemSet = membershipItemSet;
   	}
 

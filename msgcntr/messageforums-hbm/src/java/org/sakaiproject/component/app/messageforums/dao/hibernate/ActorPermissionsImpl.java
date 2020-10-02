@@ -31,9 +31,9 @@ import org.sakaiproject.api.app.messageforums.UniqueArrayList;
 @Slf4j
 public class ActorPermissionsImpl implements ActorPermissions {
 
-    private List contributors = new UniqueArrayList();
-    private List accessors = new UniqueArrayList();
-    private List moderators = new UniqueArrayList();
+    private List<MessageForumsUser> contributors = new UniqueArrayList<>();
+    private List<MessageForumsUser> accessors = new UniqueArrayList<>();
+    private List<MessageForumsUser> moderators = new UniqueArrayList<>();
 
     private Long id;
     private Integer version; 
@@ -54,28 +54,28 @@ public class ActorPermissionsImpl implements ActorPermissions {
         this.version = version;
     }
                 
-    public List getAccessors() {
+    public List<MessageForumsUser> getAccessors() {
         return accessors;
     }
 
-    public void setAccessors(List accessors) {
-        this.accessors = accessors;
+    public void setAccessors(List<MessageForumsUser> accessors) {
+        this.accessors = new UniqueArrayList<>(accessors);
     }
 
-    public List getContributors() {
+    public List<MessageForumsUser> getContributors() {
         return contributors;
     }
 
-    public void setContributors(List contributors) {
-        this.contributors = contributors;
+    public void setContributors(List<MessageForumsUser> contributors) {
+        this.contributors = new UniqueArrayList<>(contributors);
     }
 
-    public List getModerators() {
+    public List<MessageForumsUser> getModerators() {
         return moderators;
     }
 
-    public void setModerators(List moderators) {
-        this.moderators = moderators;
+    public void setModerators(List<MessageForumsUser> moderators) {
+        this.moderators = new UniqueArrayList<>(moderators);
     }
 
     
@@ -109,7 +109,7 @@ public class ActorPermissionsImpl implements ActorPermissions {
         contributors.remove(user);
     }
     
-    public void addAccesssor(MessageForumsUser user) {
+    public void addAccessor(MessageForumsUser user) {
         if (log.isDebugEnabled()) {
             log.debug("addAccesssor(MessageForumsUser " + user + ")");
         }

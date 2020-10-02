@@ -26,137 +26,157 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
-public class UniqueArrayList implements List {
-    private List _list = new ArrayList();
-    
+public class UniqueArrayList<T> implements List<T> {
+    private List<T> list;
+
+    public UniqueArrayList() {
+        list = new ArrayList<>();
+    }
+
+    public UniqueArrayList(Collection<? extends T> c) {
+        list = new ArrayList<>(c.size());
+        addAll(c);
+    }
+
+    @Override
     public int size() {
-        return _list.size();
+        return list.size();
     }
 
+    @Override
     public boolean isEmpty() {
-        return _list.isEmpty();
+        return list.isEmpty();
     }
 
+    @Override
     public boolean contains(Object o) {
-        return _list.contains(o);
+        return list.contains(o);
     }
 
-    public Iterator iterator() {
-        return _list.iterator();
+    @Override
+    public Iterator<T> iterator() {
+        return list.iterator();
     }
 
+    @Override
     public Object[] toArray() {
-        return _list.toArray();
+        return list.toArray();
     }
 
-    public Object[] toArray(Object[] arg0) {
-        return _list.toArray(arg0);
+    @Override
+    public <E> E[] toArray(E[] a) {
+        return list.toArray(a);
     }
 
-    public boolean add(Object arg0) {
-        if (_list.contains(arg0)) {
-            return false;
-        }
-        return _list.add(arg0);
+    @Override
+    public boolean add(T a) {
+        if (list.contains(a)) return false;
+        return list.add(a);
     }
 
+    @Override
     public boolean remove(Object o) {
-        return _list.remove(o);
+        return list.remove(o);
     }
 
-    public boolean containsAll(Collection arg0) {
-        return _list.containsAll(arg0);
+    @Override
+    public boolean containsAll(Collection<?> c) {
+        return list.containsAll(c);
     }
 
-    public boolean addAll(Collection arg0) {
-        boolean collectionMutated = false;
-        for (Iterator iter = arg0.iterator(); iter.hasNext();) {
-            Object element = iter.next();
-            if (!_list.contains(element)) {
-                _list.add(element);
-                collectionMutated = true;
-            }
+    @Override
+    public boolean addAll(Collection<? extends T> c) {
+        boolean modified = false;
+        for (T e : c) {
+            if (add(e)) modified = true;
         }
-        return collectionMutated;
+        return modified;
     }
 
-    public boolean retainAll(Collection arg0) {
-        return _list.retainAll(arg0);
+    @Override
+    public boolean retainAll(Collection<?> c) {
+        return list.retainAll(c);
     }
 
-    public boolean removeAll(Collection arg0) {
-        return _list.removeAll(arg0);
+    @Override
+    public boolean removeAll(Collection<?> c) {
+        return list.removeAll(c);
     }
 
+    @Override
     public void clear() {
-        _list.clear();
+        list.clear();
     }
 
+    @Override
     public boolean addAll(int arg0, Collection arg1) {
         throw new UnsupportedOperationException();
     }
 
-    public Object get(int index) {
-        return _list.get(index);
+    @Override
+    public T get(int index) {
+        return list.get(index);
     }
 
-    public Object set(int arg0, Object arg1) {
-        Object o = _list.get(arg0);
-        if (!_list.contains(arg1)) {
-            _list.set(arg0, arg1);
+    @Override
+    public T set(int index, T element) {
+        T o = list.get(index);
+        if (!list.contains(element)) {
+            list.set(index, element);
         }
         return o;
     }
 
-    public void add(int arg0, Object arg1) {
-        if (!_list.contains(arg1)) {
-            _list.add(arg0, arg1);
+    @Override
+    public void add(int index, T element) {
+        if (!list.contains(element)) {
+            list.add(index, element);
         }
     }
 
-    public Object remove(int index) {
-        return _list.remove(index);
+    @Override
+    public T remove(int index) {
+        return list.remove(index);
     }
 
+    @Override
     public int indexOf(Object o) {
-        return _list.indexOf(o);
+        return list.indexOf(o);
     }
 
+    @Override
     public int lastIndexOf(Object o) {
-        return _list.lastIndexOf(o);
+        return list.lastIndexOf(o);
     }
 
-    public ListIterator listIterator() {
-        return _list.listIterator();
+    @Override
+    public ListIterator<T> listIterator() {
+        return list.listIterator();
     }
 
-    public ListIterator listIterator(int index) {
-        return _list.listIterator(index);
+    @Override
+    public ListIterator<T> listIterator(int index) {
+        return list.listIterator(index);
     }
 
-    public List subList(int fromIndex, int toIndex) {
-        return _list.subList(fromIndex, toIndex);
+    @Override
+    public List<T> subList(int fromIndex, int toIndex) {
+        return list.subList(fromIndex, toIndex);
     }
 
-    /**
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
+    @Override
     public boolean equals(Object obj) {
-        return _list.equals(obj);
+        return list.equals(obj);
     }
 
-    /**
-     * @see java.lang.Object#hashCode()
-     */
+    @Override
     public int hashCode() {
-        return _list.hashCode();
+        return list.hashCode();
     }
 
-    /**
-     * @see java.lang.Object#toString()
-     */
+    @Override
     public String toString() {
-        return _list.toString();
+        return list.toString();
     }
 
 }

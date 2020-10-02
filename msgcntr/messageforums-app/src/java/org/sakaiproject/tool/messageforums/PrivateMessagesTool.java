@@ -30,7 +30,6 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Attachment;
-import org.sakaiproject.api.app.messageforums.DefaultPermissionsManager;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.api.app.messageforums.HiddenGroup;
 import org.sakaiproject.api.app.messageforums.MembershipManager;
@@ -44,13 +43,11 @@ import org.sakaiproject.api.app.messageforums.PrivateMessageRecipient;
 import org.sakaiproject.api.app.messageforums.PrivateTopic;
 import org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager;
 import org.sakaiproject.api.app.messageforums.Topic;
-import org.sakaiproject.api.app.messageforums.UserPreferencesManager;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Member;
-import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.app.messageforums.MembershipItem;
+import org.sakaiproject.api.app.messageforums.MembershipItem;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.HiddenGroupImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl;
@@ -98,7 +95,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
+
 import java.text.SimpleDateFormat;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -195,10 +192,6 @@ public class PrivateMessagesTool {
   @Getter @Setter
   @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager\"]}")
   private SynopticMsgcntrManager synopticMsgcntrManager;
-  @Setter
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.UserPreferencesManager\"]}")
-  private UserPreferencesManager userPreferencesManager;
-  
   /** Dependency Injected   */
   @Setter
   @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.MessageForumsTypeManager\"]}")
@@ -861,7 +854,7 @@ public class PrivateMessagesTool {
   }
   
   public TimeZone getUserTimeZone() {
-	  return userPreferencesManager.getTimeZone();
+	  return userTimeService.getLocalTimeZone();
   }
 
 public boolean isFromMain() {
@@ -4026,22 +4019,20 @@ public void processChangeSelectView(ValueChangeEvent eve)
 		  if (item == null){
 			  log.warn("getRecipients() could not resolve uuid: " + selectedItem);
 		  }
-		  else{                              
-			  if (MembershipItem.TYPE_ALL_PARTICIPANTS.equals(item.getType())){
+		  else{
+              if (MembershipItem.TYPE_ALL_PARTICIPANTS == item.getType()) {
 				  for (MembershipItem member : (List<MembershipItem>) allCourseUsers){
 					  returnSet.put(member.getUser(), bcc);
 				  }
 				  //if all users have been selected we may as well return and ignore any other entries
 				  return returnSet;
-			  }
-			  else if (MembershipItem.TYPE_ROLE.equals(item.getType())){
+			  } else if (MembershipItem.TYPE_ROLE == item.getType()) {
 				  for (MembershipItem member : (List<MembershipItem>) allCourseUsers){
 					  if (member.getRole().equals(item.getRole())){
 						  returnSet.put(member.getUser(), bcc);
 					  }
 				  }
-			  }
-			  else if (MembershipItem.TYPE_GROUP.equals(item.getType()) || MembershipItem.TYPE_MYGROUPS.equals(item.getType())){
+			  } else if (MembershipItem.TYPE_GROUP == item.getType() || MembershipItem.TYPE_MYGROUPS == item.getType()) {
 				  for (MembershipItem member : (List<MembershipItem>) allCourseUsers){
 					  Set groupMemberSet = item.getGroup().getMembers();
 					  for (Member m : (Set<Member>) groupMemberSet){
@@ -4050,11 +4041,9 @@ public void processChangeSelectView(ValueChangeEvent eve)
 						  }
 					  }
 				  }
-			  }
-			  else if (MembershipItem.TYPE_USER.equals(item.getType()) || MembershipItem.TYPE_MYGROUPMEMBERS.equals(item.getType())){
+			  } else if (MembershipItem.TYPE_USER == item.getType() || MembershipItem.TYPE_MYGROUPMEMBERS == item.getType()) {
 				  returnSet.put(item.getUser(), bcc);
-			  }
-			  else if (MembershipItem.TYPE_MYGROUPROLES.equals(item.getType())){
+			  } else if (MembershipItem.TYPE_MYGROUPROLES == item.getType()) {
 				  for (MembershipItem member : (List<MembershipItem>) allCourseUsers){
 					  Set groupMemberSet = item.getGroup().getMembers();
 					  for (Member m : (Set<Member>) groupMemberSet){

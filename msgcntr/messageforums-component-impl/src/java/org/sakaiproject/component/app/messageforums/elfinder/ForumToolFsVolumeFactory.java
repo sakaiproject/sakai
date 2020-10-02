@@ -7,6 +7,8 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.api.app.messageforums.BaseForum;
+import org.sakaiproject.api.app.messageforums.DiscussionForum;
+import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
@@ -108,7 +110,7 @@ public class ForumToolFsVolumeFactory implements ToolFsVolumeFactory {
                             Topic topic = messageForumsForumManager.getTopicById(true, Long.valueOf(parts[7]));
                             // In Forums permissions work individually on topics therefore adding checks for topics in el-finder
                             String userId = userDirectoryService.getCurrentUser().getId();
-                            if (uiPermissionsManager.isRead(topic.getId(), false, false, userId, this.siteId)) {
+                            if (uiPermissionsManager.isRead((DiscussionTopic) topic, (DiscussionForum) topic.getBaseForum(), userId, this.siteId)) {
                                 return new SakaiFsItem(topic.getId().toString(), topic.getTitle(), this, FsType.FORUMS_TOPIC);
                             } else {
                                 log.debug("User {} doesn't have access for path [{}]", userId, path);
@@ -228,7 +230,7 @@ public class ForumToolFsVolumeFactory implements ToolFsVolumeFactory {
 
                 for (Topic topic : (List<Topic>) forum.getTopics()) {
                     // In Forums permissions work individually on topics therefore adding checks for topics in el-finder
-                    if (uiPermissionsManager.isRead(topic.getId(), false, false, userId, this.siteId)) {
+                    if (uiPermissionsManager.isRead((DiscussionTopic) topic, (DiscussionForum) forum, userId, this.siteId)) {
                         SakaiFsItem item = new SakaiFsItem(topic.getId().toString(), topic.getTitle(), this, FsType.FORUMS_TOPIC);
                         items.add(item);
                     }

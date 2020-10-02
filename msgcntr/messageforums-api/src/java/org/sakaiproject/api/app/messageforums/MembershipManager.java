@@ -52,7 +52,7 @@ public interface MembershipManager {
    * @param hiddenGroups
    * @return map of members
    */
-  public Map getAllCourseMembers(boolean filterFerpa, boolean includeRoles, boolean includeAllParticipantsMember, List<String> hiddenGroups);
+  public Map<String, MembershipItem> getAllCourseMembers(boolean filterFerpa, boolean includeRoles, boolean includeAllParticipantsMember, List<String> hiddenGroups);
   
   /**
    * get all users for course w/o filtering of FERPA enabled members
@@ -72,6 +72,6 @@ public interface MembershipManager {
    * @param memberMap
    * @return list of members
    */
-  public List convertMemberMapToList(Map memberMap);
+  public List<MembershipItem> convertMemberMapToList(Map<String, MembershipItem> memberMap);
   
 }

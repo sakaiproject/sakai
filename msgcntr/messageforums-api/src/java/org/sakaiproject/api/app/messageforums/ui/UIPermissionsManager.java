@@ -20,10 +20,11 @@
  **********************************************************************************/
 package org.sakaiproject.api.app.messageforums.ui;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.sakaiproject.api.app.messageforums.BulkPermission;
+import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.Area;
@@ -119,9 +120,9 @@ public interface UIPermissionsManager
   public boolean isRead(DiscussionTopic topic, DiscussionForum forum );
   public boolean isRead(DiscussionTopic topic, DiscussionForum forum, String userId);
   public boolean isRead(DiscussionTopic topic, DiscussionForum forum, String userId, String siteContextId);
-  public boolean isRead(Long topicId, Boolean isTopicDraft, Boolean isForumDraft, String userId, String siteContextId);
+  boolean isRead(Long topicId, Boolean isTopicDraft, Boolean isForumDraft, String userId, String siteId);
 
-  /**
+    /**
    * @param topic
    * @return
    */
@@ -205,19 +206,23 @@ public interface UIPermissionsManager
   /**
    * Returns whether current user has perm to identify anonymous users
    */
-  public boolean isIdentifyAnonAuthors(Topic topic);
+  public boolean isIdentifyAnonAuthors(DiscussionTopic topic);
   
   /**
    * Returns list of current user's memberships 
    * (role + groups/sections) 
    * @return
    */
-  public List getCurrentUserMemberships();
-  public List getCurrentUserMemberships(String siteId);
+  public List<String> getCurrentUserMemberships();
+  public List<String> getCurrentUserMemberships(String siteId);
   
-  public Set getAreaItemsSet(Area area);
+  public Set<DBMembershipItem> getAreaItemsSet(Area area);
 
-  public Set getForumItemsSet(DiscussionForum forum);
+  public Set<DBMembershipItem> getForumItemsSet(DiscussionForum forum);
   
-  public Set getTopicItemsSet(DiscussionTopic topic);
+  public Set<DBMembershipItem> getTopicItemsSet(DiscussionTopic topic);
+
+  BulkPermission getBulkPermissions(DiscussionTopic topic, DiscussionForum forum);
+
+  BulkPermission getBulkPermissions(DiscussionForum forum);
 }
