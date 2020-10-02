@@ -32,8 +32,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.hibernate.FetchMode;
+import org.hibernate.criterion.Restrictions;
 import org.hibernate.query.Query;
-import org.hibernate.type.LongType;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
@@ -43,7 +44,9 @@ import org.sakaiproject.api.app.messageforums.PermissionsMask;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.hibernate.HibernateCriterionUtils;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.springframework.orm.hibernate5.HibernateCallback;
@@ -70,16 +73,9 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 	private Map<String, PermissionLevel> defaultPermissionsMap;
 	
 	private static final String QUERY_BY_TYPE_UUID = "findPermissionLevelByTypeUuid";
-	private static final String QUERY_ORDERED_LEVEL_NAMES = "findOrderedPermissionLevelNames";
-	private static final String QUERY_BY_AREA_ALL_FORUMS_MEMBERSHIP = "findAllMembershipItemsForForumsForSite";
-	private static final String QUERY_GET_ALL_TOPICS = "findAllTopicsForSite";
-	private static final String QUERY_BY_TOPIC_IDS_ALL_TOPIC_MEMBERSHIP = "findAllMembershipItemsForTopicsForSite";
-	private static final String QUERY_BY_AREA_ID_ALL_MEMBERSHIP =	"findAllMembershipItemsForSite";
-	
+
 	private Boolean autoDdl;
 	
-	public static final int MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST = 999;
-			
 	public void init(){
 		log.info("init()");
 		Assert.notNull(transactionManager, "The 'transactionManager' argument must not be null.");
@@ -606,84 +602,71 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 	public void setAreaManager(AreaManager areaManager) {
 		this.areaManager = areaManager;
 	}
-	
-	public List getAllMembershipItemsForForumsForSite(final Long areaId)
-	{
-		if (log.isDebugEnabled())
-		{
-			log.debug("getAllMembershipItemsForForumsForSite executing");
-		}
-		
-		HibernateCallback<List> hcb = session -> {
-          Query q = session.getNamedQuery(QUERY_BY_AREA_ALL_FORUMS_MEMBERSHIP);
-          q.setParameter("areaId", areaId, LongType.INSTANCE);
-          return q.list();
-        };
-					
-    return getHibernateTemplate().execute(hcb);
-	}
 
-	private List getAllTopicsForSite(final Long areaId)
-	{
-		if (log.isDebugEnabled())
-		{
-			log.debug("getAllTopicsForSite executing");
-		}
-		
-		HibernateCallback<List> hcb = session -> {
-          Query q = session.getNamedQuery(QUERY_GET_ALL_TOPICS);
-          q.setParameter("areaId", areaId, LongType.INSTANCE);
-          return q.list();
-        };
-    List topicList = getHibernateTemplate().execute(hcb);
-    List ids = new ArrayList();
-    
-    try
-    {
-    	if(topicList != null)
-    	{
-    		for(int i=0; i<topicList.size(); i++)
-    		{
-    			Object[] thisObject =(Object[]) topicList.get(i);
-    			if(thisObject != null)
-    			{
-    				for(int j=0; j<thisObject.length; j++)
-    				{
-    					Object thisTopic = (Object) thisObject[j];
-    					if(thisTopic instanceof Topic)
-    					{
-    						ids.add(((Topic)thisTopic).getId());
-    						break;
-    					}
-    				}
-    			}
-    		}
-    	}
+    public List getAllMembershipItemsForForumsForSite(final Long areaId) {
+        log.debug("getAllMembershipItemsForForumsForSite executing");
+        //     <![CDATA[select membership from org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl as membership
+        // 		    join membership.forum as forum
+        // 		    join forum.area as area
+        // 		    left join fetch membership.permissionLevel
+        // 		    where
+        // 		    area.id = :areaId
+        // 		]]>
+        return getHibernateTemplate().execute(session ->
+                session.createCriteria(DBMembershipItemImpl.class, "m")
+                        .createAlias("m.forum", "f")
+                        .createAlias("f.area", "a")
+                        .setFetchMode("m.permissionLevel", FetchMode.JOIN)
+                        .add(Restrictions.eq("a.id", areaId))
+                        .list()
+        );
     }
-    catch(Exception e)
-    {
-    	log.error("PermissionLevelManagerImpl.getAllTopicsForSite--" + e);
+
+    private List<Long> getAllTopicsForSite(final Long areaId) {
+        log.debug("getAllTopicsForSite executing");
+        //    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic
+        // 		    join topic.openForum as forum
+        // 		    join forum.area as area
+        // 		    where
+        // 		    area.id = :areaId
+        // 		]]>
+        List<Topic> topicList = getHibernateTemplate().execute(session ->
+                session.createCriteria(TopicImpl.class, "t")
+                        .createAlias("t.openForum", "f")
+                        .createAlias("f.area", "a")
+                        .add(Restrictions.eq("a.id", areaId))
+                        .list());
+
+        List<Long> ids = new ArrayList<>();
+
+        if (topicList != null) {
+            for (Topic topic : topicList) {
+                ids.add(topic.getId());
+            }
+        }
+        return ids;
     }
-    
-    return ids;
-	}
-    
-	public List getAllMembershipItemsForTopicsForSite(final Long areaId)
-	{
-		final List topicIds = this.getAllTopicsForSite(areaId);
-		
-		if(topicIds != null && topicIds.size() >0)
-		{
-			HibernateCallback<List> hcb1 = session -> {
-                Query q = session.getNamedQuery(QUERY_BY_TOPIC_IDS_ALL_TOPIC_MEMBERSHIP);
-                return queryWithParameterList(q, "topicIdList", topicIds);
-            };
-			return getHibernateTemplate().execute(hcb1);
-		}
-		else
-			return new ArrayList();
-	}
-	
+
+    public List<DBMembershipItem> getAllMembershipItemsForTopicsForSite(final Long areaId) {
+        final List<Long> topicIds = getAllTopicsForSite(areaId);
+
+        if (!topicIds.isEmpty()) {
+            //      <![CDATA[select membership from org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl as membership
+            // 		     join membership.topic as topic
+            // 		     left join fetch membership.permissionLevel
+            // 		     where
+            // 		     topic.id in ( :topicIdList )
+            // 		 ]]>
+            return getHibernateTemplate().execute(session ->
+                    session.createCriteria(DBMembershipItemImpl.class, "m")
+                            .createAlias("m.topic", "t")
+                            .setFetchMode("m.permissionLevel", FetchMode.JOIN)
+                            .add(HibernateCriterionUtils.CriterionInRestrictionSplitter("t.id", topicIds))
+                            .list());
+        }
+        return new ArrayList<>();
+    }
+
 	private void initializePermissionLevelData()
 	{
 		if (log.isDebugEnabled()){
@@ -935,39 +918,6 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		}
 		
 		return defaultLevels;
-	}
-	
-	private List queryWithParameterList(Query query, String queryParamName, List fullList) {
-	    // sql has a limit for the size of a parameter list, so we may need to cycle
-	    // through with sublists
-	    List queryResultList = new ArrayList();
-
-	    if (fullList.size() < MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
-	        query.setParameterList(queryParamName, fullList);
-	        queryResultList = query.list();
-
-	    } else {
-	        // if there are more than MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST, we need to do multiple queries
-	        int begIndex = 0;
-	        int endIndex = 0;
-
-	        while (begIndex < fullList.size()) {
-	            endIndex = begIndex + MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST;
-	            if (endIndex > fullList.size()) {
-	                endIndex = fullList.size();
-	            }
-	            List tempSubList = new ArrayList();
-	            tempSubList.addAll(fullList.subList(begIndex, endIndex));
-
-	            query.setParameterList(queryParamName, tempSubList);
-
-	            queryResultList.addAll(query.list());
-	            begIndex = endIndex;
-	            
-	        }
-	    }
-
-	    return queryResultList;
 	}
 
 	public void setTransactionManager(PlatformTransactionManager transactionManager) {

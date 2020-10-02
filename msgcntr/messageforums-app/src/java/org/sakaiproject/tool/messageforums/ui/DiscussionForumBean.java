@@ -24,26 +24,24 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
+import java.util.function.Predicate;
 
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
-import lombok.extern.slf4j.Slf4j;
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
-
-import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
-import org.sakaiproject.api.app.messageforums.UserPreferencesManager;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
-import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.util.ResourceLoader;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
@@ -52,25 +50,24 @@ import org.sakaiproject.util.ResourceLoader;
 @Getter @Setter
 public class DiscussionForumBean
 {
-  private static UserPreferencesManager userPreferencesManager = ComponentManager.get(UserPreferencesManager.class);
   private DiscussionForum forum;
   private boolean markForDeletion;
   private boolean markForDuplication;
-  private UIPermissionsManager uiPermissionsManager;
   private DiscussionForumManager forumManager;
   private boolean readFullDesciption; 
-  private ArrayList contributorsList = new ArrayList();
-  private ArrayList accessorList = new ArrayList();
+  private List<String> contributorsList = null;
+  private List<String> accessorList = null;
   private String gradeAssign;
   private Boolean nonePermission = null;
   
-  private Boolean newTopic = null;
-  private Boolean changeSettings = null;
-  private ArrayList decoAttachList = null;
+  private boolean newTopic = false;
+  private boolean changeSettings = false;
+  private List<DecoratedAttachment> decoAttachList = new ArrayList<>();
   private Boolean hasExtendedDescription = null;
   private String locked;
   
-  private SimpleDateFormat datetimeFormat = ourDateFormat();
+  private SimpleDateFormat datetimeFormat;
+  private UserTimeService userTimeService;
   
   private static final String MESSAGECENTER_BUNDLE = "org.sakaiproject.api.app.messagecenter.bundle.Messages";
   private static final ResourceLoader rb = new ResourceLoader(MESSAGECENTER_BUNDLE);    
@@ -79,29 +76,23 @@ public class DiscussionForumBean
 
   private SimpleDateFormat ourDateFormat() {
       SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-      df.setTimeZone(userPreferencesManager.getTimeZone());
+      df.setTimeZone(userTimeService.getLocalTimeZone());
       return df;
   }
 
   private String postFirst = null;
    
-  /**
-   * List of decorated topics
-   */
   private List<DiscussionTopicBean> topics = new ArrayList<>();
 
-  public DiscussionForumBean(DiscussionForum forum, UIPermissionsManager uiPermissionsManager, DiscussionForumManager forumManager)
-  {
-    if(log.isDebugEnabled())
-    {
-      log.debug("DiscussionForumBean(DiscussionForum "+forum+", UIPermissionsManager"  +uiPermissionsManager+ ")");
-    }
+  public DiscussionForumBean(DiscussionForum forum, DiscussionForumManager forumManager, UserTimeService userTimeService) {
+    log.debug("DiscussionForumBean(DiscussionForum {})", forum);
     this.forum = forum;
-    this.uiPermissionsManager=uiPermissionsManager;
-    this.forumManager=forumManager; 
+    this.forumManager = forumManager;
+    this.userTimeService = userTimeService;
+    datetimeFormat = ourDateFormat();
   }
 
-  /**
+    /**
    * @return Returns count of topics in the forum
    */
   public int getTopicCount()
@@ -400,30 +391,6 @@ public class DiscussionForumBean
   }
 
   /**
-   * @return
-   */
-  public boolean getChangeSettings()
-  {
-    log.debug("getChangeSettings()");
-    if (changeSettings == null){
-    	changeSettings = uiPermissionsManager.isChangeSettings(forum);
-    }
-    return changeSettings.booleanValue();
-  }
-   
-  /**
-   * @return
-   */
-  public boolean isNewTopic()
-  {
-    log.debug("isNewTopic()");
-    if (newTopic == null){
-    	newTopic = uiPermissionsManager.isNewTopic(forum);
-    }
-    return newTopic.booleanValue();
-  }
-
-  /**
    * @return Returns the if ExtendedDesciption is available
    */
   public boolean getHasExtendedDesciption()
@@ -450,104 +417,60 @@ public class DiscussionForumBean
     return readFullDesciption;
   }
 
-  /**
-   * @return
-   */
-  public ArrayList getContributorsList()
-  {
-    log.debug("getContributorsList()");
-  
-    Iterator iter= forumManager.getContributorsList(forum).iterator();
-    while (iter.hasNext())
-    { 
-      contributorsList.add((String)iter.next());
-     }
-    return contributorsList; 
-
-  }
-  
-  /**
-   * @return
-   */
-  public ArrayList getAccessorList()
-  {
-    log.debug("getAccessorList()");
-    Iterator iter= forumManager.getAccessorsList(forum).iterator();
-    while (iter.hasNext())
-    { 
-      accessorList.add((String)iter.next());
-     }
-    return accessorList; 
-  }
-
-  /**
-   * @param accessorList The accessorList to set.
-   */
-  public void setAccessorList(ArrayList accessorList)
-  {
-    if(log.isDebugEnabled())
-     {
-        log.debug("setAccessorList(List"+ accessorList+")");
-     }
-     forum.getActorPermissions().setAccessors(forumManager.decodeAccessorsList(accessorList));
-  }
-
-  /**
-   * @param contributorsList The contributorsList to set.
-   */
-  public void setContributorsList(ArrayList contributorsList)
-  {
-    if(log.isDebugEnabled())
-    {
-       log.debug("setContributorsList(List"+ contributorsList+")");
+    public List<String> getContributorsList() {
+        log.debug("getContributorsList()");
+        if (contributorsList == null) {
+            contributorsList = forumManager.getContributorsList(forum);
+        }
+        return contributorsList;
     }
-    forum.getActorPermissions().setContributors(forumManager.decodeContributorsList(contributorsList));
-  }
 
-	public boolean getNonePermission()
-	{
-		if (nonePermission == null){
-			nonePermission = true;
-			if(uiPermissionsManager.isChangeSettings(forum) ||  uiPermissionsManager.isNewTopic(forum))
-			{
-				nonePermission = false;
-				return nonePermission.booleanValue();
-			}
-			
-			if(topics != null)
-			{
-				for(int i=0; i<topics.size(); i++)
-				{
-					DiscussionTopicBean dtb = (DiscussionTopicBean) topics.get(i);
-					if(!dtb.getNonePermission())
-					{
-						nonePermission = false;
-						break;
-					}
-				}
-			}
-		}
-		return nonePermission.booleanValue();
-	}
+    public List<String> getAccessorList() {
+        log.debug("getAccessorList()");
+        if (accessorList == null) {
+            accessorList = forumManager.getAccessorsList(forum);
+        }
+        return accessorList;
+    }
 
-	public ArrayList getAttachList()
-	{
-		if (decoAttachList == null){
-			decoAttachList = new ArrayList();
-			List attachList = forum.getAttachments(); 
-			if(attachList != null)
-			{
-				for(int i=0; i<attachList.size(); i++)
-				{
-					DecoratedAttachment decoAttach = new DecoratedAttachment((Attachment)attachList.get(i));
-					decoAttachList.add(decoAttach);
-				}
-			}
-		}
-		return decoAttachList;
-	}
-	
-	public String getAvailabilityRestricted()
+    public void setAccessorList(List<String> accessorList) {
+        log.debug("setAccessorList(List{})", accessorList);
+        if (!accessorList.equals(this.accessorList)) {
+            forum.getActorPermissions().setAccessors(forumManager.decodeAccessorsList(accessorList));
+            this.accessorList = accessorList;
+        }
+    }
+
+    public void setContributorsList(List<String> contributorsList) {
+        log.debug("setContributorsList(List{})", contributorsList);
+        if (!contributorsList.equals(this.contributorsList)) {
+            forum.getActorPermissions().setContributors(forumManager.decodeContributorsList(contributorsList));
+            this.contributorsList = contributorsList;
+        }
+    }
+
+    public boolean getNonePermission() {
+        if (nonePermission == null) {
+            nonePermission = true;
+            if (changeSettings || newTopic) {
+                nonePermission = false;
+            } else {
+                if (topics != null) {
+                    Predicate<DiscussionTopicBean> ifNonePermission = DiscussionTopicBean::getNonePermission;
+                    if (topics.stream().anyMatch(ifNonePermission.negate())) {
+                        nonePermission = false;
+                    }
+                }
+            }
+        }
+        return nonePermission;
+    }
+
+    public List<DecoratedAttachment> getAttachList() {
+        return decoAttachList;
+    }
+
+    public String getAvailabilityRestricted()
 	  {
 		  log.debug("getAvailabilityRestricted()");
 		  if (forum == null || forum.getAvailabilityRestricted() == null || 
@@ -656,9 +579,8 @@ public class DiscussionForumBean
 			return "";
 		}else{
 			SimpleDateFormat formatter_date = new SimpleDateFormat(rb.getString("date_format"), new ResourceLoader().getLocale());
-			formatter_date.setTimeZone(userPreferencesManager.getTimeZone());
-			String formattedCloseDate = formatter_date.format(forum.getCloseDate());
-			return formattedCloseDate;
+			formatter_date.setTimeZone(userTimeService.getLocalTimeZone());
+            return formatter_date.format(forum.getCloseDate());
 		}
 	}	
 
@@ -667,9 +589,8 @@ public class DiscussionForumBean
 			return "";
 		}else{
 			SimpleDateFormat formatter_date = new SimpleDateFormat(rb.getString("date_format"), new ResourceLoader().getLocale());
-			formatter_date.setTimeZone(userPreferencesManager.getTimeZone());
-			String formattedOpenDate = formatter_date.format(forum.getOpenDate());
-			return formattedOpenDate;
+			formatter_date.setTimeZone(userTimeService.getLocalTimeZone());
+            return formatter_date.format(forum.getOpenDate());
 		}
 	}
 

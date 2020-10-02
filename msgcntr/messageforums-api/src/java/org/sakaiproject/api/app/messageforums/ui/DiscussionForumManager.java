@@ -32,6 +32,8 @@ import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
+import org.sakaiproject.api.app.messageforums.MembershipItem;
+import org.sakaiproject.api.app.messageforums.MessageForumsUser;
 import org.sakaiproject.api.app.messageforums.events.ForumsMessageEventParams;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.Topic;
@@ -451,31 +453,31 @@ public interface DiscussionForumManager
    * @param accessorList
    * @return
    */
-  public List decodeContributorsList(ArrayList contributorList);
+  public List<MessageForumsUser> decodeContributorsList(List<String> contributorList);
 
   /**
    * @param accessorList
    * @return
    */
-  public List decodeAccessorsList(ArrayList accessorList);
+  public List<MessageForumsUser> decodeAccessorsList(List<String> accessorList);
 
   /**
    * @param forum
    * @return
    */
-  public List getContributorsList(DiscussionForum forum);
+  public List<String> getContributorsList(DiscussionForum forum);
   
   
   /**
    * @param forum
    * @return
    */
-  public List getAccessorsList(DiscussionForum forum);
+  public List<String> getAccessorsList(DiscussionForum forum);
 
   /**
    * @return
    */
-  public Map getAllCourseMembers();
+  public Map<String, MembershipItem> getAllCourseMembers();
 
   /**
    * @param topic
@@ -494,12 +496,10 @@ public interface DiscussionForumManager
   /**
    * 
    */
-  public void setCourseMemberMapToNull();
+  public DBMembershipItem getAreaDBMember(Set<DBMembershipItem> originalSet, String name, int type);
 
-  public DBMembershipItem getAreaDBMember(Set originalSet, String name, Integer type);
-
-  public DBMembershipItem getDBMember(Set originalSet, String name, Integer type);
-  public DBMembershipItem getDBMember(Set originalSet, String name, Integer type, String contextSiteId);
+  public DBMembershipItem getDBMember(Set<DBMembershipItem> originalSet, String name, int type);
+  public DBMembershipItem getDBMember(Set<DBMembershipItem> originalSet, String name, int type, String contextSiteId);
   
   /**
    * 

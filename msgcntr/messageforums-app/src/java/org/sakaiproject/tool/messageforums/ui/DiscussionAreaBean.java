@@ -30,8 +30,7 @@ import javax.faces.context.FacesContext;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.api.app.messageforums.Area;
-import org.sakaiproject.api.app.messageforums.UserPreferencesManager;
-import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.time.api.UserTimeService;
 
 /**
  * 
@@ -41,26 +40,22 @@ import org.sakaiproject.component.cover.ComponentManager;
 @Slf4j
 public class DiscussionAreaBean 
 {
-	 private static UserPreferencesManager userPreferencesManager = ComponentManager.get(UserPreferencesManager.class);
-
 	 private Area area;
 	 private int numPendingMsgs;
-	 private SimpleDateFormat datetimeFormat = ourDateFormat();
+	 private SimpleDateFormat datetimeFormat;
+	 private UserTimeService userTimeService;
 
 	 private SimpleDateFormat ourDateFormat() {
 	     SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-	     df.setTimeZone(userPreferencesManager.getTimeZone());
+	     df.setTimeZone(userTimeService.getLocalTimeZone());
 	     return df;
 	 }
 
-	 public DiscussionAreaBean(Area area)
-	 {
-	    if(log.isDebugEnabled())
-	    {
-	      log.debug("DiscussionAreaBean(DiscussionArea " + area + ")");
-	    }
-	    
+	 public DiscussionAreaBean(Area area, UserTimeService userTimeService) {
+	 	log.debug("DiscussionAreaBean(DiscussionArea {})", area);
 		this.area = area;
+		this.userTimeService = userTimeService;
+		datetimeFormat = ourDateFormat();
 	 }
 	 
 	 /**

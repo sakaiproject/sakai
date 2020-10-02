@@ -50,7 +50,9 @@ public interface PrivateMessageManager {
     public static String SORT_DESC = "desc";
     
     public String getContextId();
-    
+
+    boolean isAllowToFieldMyGroupRoles(User user);
+
     public String getContextSiteId();
     
     public PrivateMessage initMessageWithAttachmentsAndRecipients(PrivateMessage msg);
@@ -196,12 +198,33 @@ public interface PrivateMessageManager {
     public boolean isEmailPermit();
     
     public boolean isAllowToFieldGroups();
+
+    boolean isAllowToFieldGroups(User user);
+
     public boolean isAllowToFieldAllParticipants();
+
+    boolean isAllowToFieldAllParticipants(User user);
+
     public boolean isAllowToFieldRoles();
+
+    boolean isAllowToFieldRoles(User user);
+
     public boolean isAllowToViewHiddenGroups();
+
+    boolean isAllowToViewHiddenGroups(User user);
+
     public boolean isAllowToFieldUsers();
-    public boolean isAllowToFieldMyGroups();    
+
+    boolean isAllowToFieldUsers(User user);
+
+    public boolean isAllowToFieldMyGroups();
+
+    boolean isAllowToFieldMyGroups(User user);
+
     public boolean isAllowToFieldMyGroupMembers();
+
+    boolean isAllowToFieldMyGroupMembers(User user);
+
     public boolean isAllowToFieldMyGroupRoles();
 
     public PrivateMessage getNextMessage(PrivateMessage message);
