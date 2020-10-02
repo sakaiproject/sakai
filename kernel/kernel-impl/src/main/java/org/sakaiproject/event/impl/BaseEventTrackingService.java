@@ -378,7 +378,7 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 			}
 		}
 	}
-	
+
 	public void cancelDelays(String resource)
 	{
 		if (delayHandler != null)
