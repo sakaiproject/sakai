@@ -191,8 +191,8 @@ public interface EventTrackingService
 	 * 
 	 * @param handler
 	 */
-	void setEventDelayHandler(EventDelayHandler handler);	
-	
+	void setEventDelayHandler(EventDelayHandler handler);
+
 	/**
 	 * Schedule an event to be fired at a specific time.  If the time is null or already passed, the
 	 * event is fired immediately.
