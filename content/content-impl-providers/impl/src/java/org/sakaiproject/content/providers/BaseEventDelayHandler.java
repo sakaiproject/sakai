@@ -209,20 +209,8 @@ public class BaseEventDelayHandler implements EventDelayHandler, ScheduledInvoca
 		return ids;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.content.providers.EventDelayHandler#createDelay(org.sakaiproject.event.api.Event)
-	 */
-	public String createDelay(Event event, Time fireTime)
-	{
-		return createDelay(event, event.getUserId(), fireTime);
-	}
-
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.content.providers.EventDelayHandler#createDelay(org.sakaiproject.event.api.Event, java.lang.String)
-	 */
-	@SuppressWarnings("unchecked")
-	public String createDelay(Event event, String userId, Time fireTime)
-	{
+	@Override
+	public String createDelay(Event event, String userId, Instant fireTime) {
 		// delete previous like delays
 		deleteDelay(event);
 
@@ -236,10 +224,16 @@ public class BaseEventDelayHandler implements EventDelayHandler, ScheduledInvoca
 
 		// Schedule the new delayed invocation
 		log.info("Creating new delayed event [" + id + "]");
-		Instant fireInstant = Instant.ofEpochMilli(fireTime.getTime());
-		schedInvocMgr.createDelayedInvocation(fireInstant, BaseEventDelayHandler.class.getName(), id);
+		schedInvocMgr.createDelayedInvocation(fireTime, BaseEventDelayHandler.class.getName(), id);
 		return id;
 	}
+
+
+	@Override
+	public String createDelay(Event event, Instant fireTime) {
+		return createDelay(event, event.getUserId(), fireTime);
+	}
+
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.content.providers.EventDelayHandler#deleteDelayById(java.lang.String)

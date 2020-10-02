@@ -21,6 +21,7 @@
 
 package org.sakaiproject.event.impl;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.Observable;
 import java.util.Observer;
@@ -342,10 +343,11 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 			securityService().popAdvisor();
 	}
 
-	public void delay(Event event, Time fireTime)
+	@Override
+	public void delay(Event event, Instant fireTime)
 	{
-		Time now = timeService().newTime();
-		if (fireTime == null || fireTime.before(now))
+		Instant now = Instant.now();
+		if (fireTime == null || fireTime.isBefore(now))
 		{
 			postEvent(event);
 		}

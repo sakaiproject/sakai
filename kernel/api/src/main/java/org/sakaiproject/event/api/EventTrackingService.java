@@ -21,10 +21,10 @@
 
 package org.sakaiproject.event.api;
 
+import java.time.Instant;
 import java.util.Observer;
 
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
-import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
 
 /**
@@ -200,7 +200,7 @@ public interface EventTrackingService
 	 * @param event
 	 * @param fireTime
 	 */
-	void delay(Event event, Time fireTime);
+	void delay(Event event, Instant fireTime);
 
 	/**
 	 * Cancel all delayed events for a resource that haven't yet fired.

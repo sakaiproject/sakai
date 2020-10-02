@@ -21,9 +21,9 @@
 
 package org.sakaiproject.event.api;
 
+import java.time.Instant;
 import java.util.List;
 
-import org.sakaiproject.time.api.Time;
 
 /**
  * Event delayers delay an event for future propagation by the system.
@@ -78,7 +78,7 @@ public interface EventDelayHandler
 	 * @param event
 	 * @return The ID of the delay
 	 */
-	String createDelay(Event event, Time fireTime);
+	String createDelay(Event event, Instant fireTime);
 
 	/**
 	 * Schedules a delayed invocation of this notification to run at the requested time.
@@ -87,7 +87,7 @@ public interface EventDelayHandler
 	 * @param userId
 	 * @return The ID of the delay
 	 */
-	String createDelay(Event event, String userId, Time fireTime);
+	String createDelay(Event event, String userId, Instant fireTime);
 
 	/**
 	 * Delete an event delay by referencing the delay ID.
