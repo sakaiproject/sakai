@@ -1116,7 +1116,8 @@ public class DeliveryBean implements Serializable {
               new SubmitToGradingActionListener();
           TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
           TimedAssessmentGradingModel timedAG = queue.get(adata.getAssessmentGradingId());
-          if (timedAG != null && Integer.parseInt(timeElapse) >= timedAG.getTimeLimit()) {
+          long effectiveTimeLimit = getEffectiveTimeLimit(timedAG);
+          if (timedAG != null && Integer.parseInt(timeElapse) >= effectiveTimeLimit) {
 			  // This is a final save after thread timer expiration
 			  // remove the buffers to speed up the submit.
 			  // setup the confirmation for AJAX request
@@ -1148,6 +1149,30 @@ public class DeliveryBean implements Serializable {
       l2.processAction(null);
       reload = false;
       return "takeAssessment";
+  }
+
+  /**
+   * For a timed assessment returns the smaller of these two:
+   * -The duration from the attempt's start time until the retract date
+   * -The time limit
+   * @param timedAG the TimedAssessmentGradingModel - accepts null if assessment isn't timed
+   * @return the duration in seconds, or 0 if a retract date / time limit is not set
+   */
+  private long getEffectiveTimeLimit(TimedAssessmentGradingModel timedAG)
+  {
+    long startToRetract = 0;
+    if (adata != null)
+    {
+      long attemptStart = adata.getAttemptDate().getTime();
+      Date retractDate = getRetractOrExtendedDate();
+      if (retractDate != null)
+      {
+        long retractTime = retractDate.getTime();
+        startToRetract = (retractTime - attemptStart)/1000;
+      }
+      return timedAG == null ? startToRetract : Math.min(startToRetract, timedAG.getTimeLimit());
+    }
+    return startToRetract;
   }
 
   public String previous() {
@@ -1923,7 +1948,30 @@ public class DeliveryBean implements Serializable {
     log.debug("check 2");
     // check 2: is it still available?
     if (!isFromTimer && isRetracted(isSubmitForGrade) && acceptLateSubmission){
-     return "isRetracted";
+      // Assessment is retracted. If the attempt started at such a time that retraction time elapsed before the timer, we should lead the user to the submission confirmation screen.
+      // Otherwise, show them that the assessment is retracted.
+      if (adata != null) {
+        long attemptStart = adata.getAttemptDate().getTime();
+        Date retractDate =  getRetractOrExtendedDate();
+        if (retractDate != null)
+        {
+          long retractTime = retractDate.getTime();
+
+          TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
+          TimedAssessmentGradingModel timedAG = queue.get(adata.getAssessmentGradingId());
+          // timedAG might no longer be in the queue; fall back to assessment access control as necessary
+          int timeLimit = timedAG == null ? getPublishedAssessment().getAssessmentAccessControl().getTimeLimit() : timedAG.getTimeLimit();
+          // Convert to milliseconds; value is and remains 0 if no time limit is present
+          timeLimit*=1000;
+
+          if (timeLimit != 0 && retractTime - attemptStart <= timeLimit && attemptStart <= retractTime)
+          {
+            // leads to js callback; saves user's response to the current question and sends them to "submitAssessment" face.
+            return "safeToProceed";
+          }
+        }
+      }
+      return "isRetracted";
     }
     
     log.debug("check 3");
@@ -2103,8 +2151,17 @@ public class DeliveryBean implements Serializable {
   }
 
   public boolean isRetracted(boolean isSubmitForGrade){
-    boolean isRetracted = true;
     Date currentDate = new Date();
+    Date retractDate = getRetractOrExtendedDate();
+    return retractDate != null && retractDate.before(currentDate);
+  }
+
+  /**
+   * Gets the retract date.
+   * Returns the retract date provided by the ExtendedTimeDeliveryService when applicable
+   */
+  public Date getRetractOrExtendedDate()
+  {
     Date retractDate = null;
     boolean acceptLateSubmission = AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.equals(publishedAssessment.getAssessmentAccessControl().getLateHandling());
     if (extendedTimeDeliveryService.hasExtendedTime()) {
@@ -2112,10 +2169,7 @@ public class DeliveryBean implements Serializable {
     } else if (acceptLateSubmission) {
     	retractDate = publishedAssessment.getAssessmentAccessControl().getRetractDate();
     }
-    if (retractDate == null || retractDate.after(currentDate)){
-        isRetracted = false;
-    }
-    return isRetracted;
+    return retractDate;
   }
 
   private boolean canAccess(boolean fromUrl) {
