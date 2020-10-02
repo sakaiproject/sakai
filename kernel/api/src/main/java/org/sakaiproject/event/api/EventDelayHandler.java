@@ -80,7 +80,6 @@ public interface EventDelayHandler
 	 */
 	String createDelay(Event event, Instant fireTime);
 
-	
 	/**
 	 * Schedules a delayed invocation of this notification to run at the requested time.
 	 * 
