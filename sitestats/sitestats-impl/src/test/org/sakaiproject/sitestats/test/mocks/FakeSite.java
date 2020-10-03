@@ -75,6 +75,10 @@ public abstract class FakeSite implements Site {
 		return createdTime;
 	}
 	
+	public void setCreatedTime(Date time) {	
+		createdTime = time;	
+	}
+	
 	public SitePage getPage(String id) {
 		return pages.get(id);
 	}
