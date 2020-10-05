@@ -309,6 +309,15 @@ public class AuthorActionListener
 			  f.setActiveStatus(false);
 			  inActiveList.add(f);
 		  }
+
+		  // check pastDue (alters display for instructor)
+		  if (f.getDueDate() != null && (new Date()).after(f.getDueDate())) {
+			  f.setPastDue(true);
+		  }
+		  else {
+			  f.setPastDue(false);
+		  }
+
 		  try {
 			  String lastModifiedDateDisplay = tu.getIsoDateWithLocalTime(f.getLastModifiedDate());
 			  f.setLastModifiedDateForDisplay(lastModifiedDateDisplay);
