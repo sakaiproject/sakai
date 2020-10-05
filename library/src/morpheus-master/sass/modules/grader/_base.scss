@@ -269,12 +269,32 @@ sakai-grader {
       }
     }
 
-    sakai-file-picker {
-      margin-left: 10px;
+    sakai-grader-file-picker {
 
       .sakai-file-picker-list {
-        margin-top: 5px;
-        padding-left: 10px;
+        margin-top: calc(#{$standard-spacing} / 4);
+        padding-left: calc(#{$standard-spacing} / 2);
+        .sakai-file-picker-list-title {
+          margin-bottom: calc(#{$standard-spacing} / 4);
+          font-style: italic;
+        }
+        .file-row {
+          display: flex;
+          width: 100%;
+          padding: calc(#{$standard-spacing} / 4);
+          margin-bottom: calc(#{$standard-spacing} / 4);
+          margin-left: calc(#{$standard-spacing} / 2);
+
+          .file {
+            flex: 2 75%;
+            margin-right: calc(#{$standard-spacing} / 4);
+            overflow-wrap: anywhere;
+          }
+          .file-remove {
+            display: flex;
+            flex: 1 25%;
+          }
+        }
       }
     }
   }
