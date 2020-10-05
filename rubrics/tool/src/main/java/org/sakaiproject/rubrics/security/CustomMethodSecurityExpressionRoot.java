@@ -174,7 +174,7 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
                 result = true; // All evaluators in a context can view all evaluations
                 // NOTE: TBD Peer evaluators will require a more limited access to only their evaluations or a sub-context/group
                 // result = authenticatedRequestContext.getUserId().equalsIgnoreCase(((Evaluation)resource).getEvaluatorId());
-            } else if (authenticatedRequestContext.isEvalueeOnly()) {
+            } else if (authenticatedRequestContext.isEvaluee()) {
                 // Can always see Evaluation that they are evaluatedId on
                 result = authenticatedRequestContext.getUserId().equalsIgnoreCase(((Evaluation) resource).getEvaluatedItemOwnerId());
             }
