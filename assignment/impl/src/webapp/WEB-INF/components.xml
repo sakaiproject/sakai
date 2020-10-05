@@ -298,4 +298,12 @@
         <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService"/>
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
     </bean>
+
+    <bean id="org.sakaiproject.assignment.impl.AssignmentSiteFsVolume"
+          class="org.sakaiproject.assignment.impl.AssignmentToolFsVolumeFactory"
+          init-method="init">
+        <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
+        <property name="sakaiFsService" ref="org.sakaiproject.elfinder.SakaiFsService"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+    </bean>
 </beans>
