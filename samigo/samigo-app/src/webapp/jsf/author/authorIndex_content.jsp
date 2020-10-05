@@ -572,6 +572,9 @@
                         <h:outputText value=" #{selectIndexMessages.late} " styleClass="text-danger" rendered="#{assessment.pastDue}" />
                     </h:panelGroup>
 
+                    <h:outputText value="#{assessment.dueDate}" styleClass="hidden spanValue">
+                        <f:convertDateTime pattern="yyyyMMddHHmmss" />
+                    </h:outputText>
                 </t:column>
 
                 <%/* Last Modified */%>
