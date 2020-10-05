@@ -43,7 +43,7 @@ public interface EvaluationRepository extends MetadataRepository<Evaluation, Lon
     static final String EVALUATOR_CONSTRAINT = "(1 = ?#{principal.isEvaluator() ? 1 : 0} and " +
             QUERY_CONTEXT_CONSTRAINT + ")";
 
-    static final String EVALUEE_CONSTRAINT = "(1 = ?#{principal.isEvalueeOnly() ? 1 : 0} and " +
+    static final String EVALUEE_CONSTRAINT = "(1 = ?#{principal.isEvaluee() ? 1 : 0} and " +
             "resource.evaluatedItemOwnerId = ?#{principal.userId})";
 
     @Override
