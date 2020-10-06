@@ -106,7 +106,7 @@ public class AddAssignmentBullhornHandler extends AbstractBullhornHandler {
         List<BullhornData> bhEvents = new ArrayList<>();
 
         Instant openTime = assignment.getOpenDate();
-        if (openTime == null || openTime.isBefore(Instant.now())) {
+        if (openTime == null || openTime.isBefore(Instant.now()) && !assignment.getDraft()) {
             Site site = siteService.getSite(siteId);
             String title = assignment.getTitle();
             Set<String> groupIds = assignment.getGroups();
