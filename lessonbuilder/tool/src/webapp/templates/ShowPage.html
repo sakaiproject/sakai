@@ -1035,6 +1035,7 @@
 			  <p rsf:id="msg=simplepage.must_be_youtube" id="simplepage.must_be_youtube"></p>
 			  <p rsf:id="msg=simplepage.item_notblank" id="simplepage.item_notblank"></p>
 			  <p rsf:id="msg=simplepage.page_notblank" id="simplepage.page_notblank"></p>
+			  <p rsf:id="msg=simplepage.subpage_invalid_chars" id="simplepage.subpage_invalid_chars"></p>
 			  <p rsf:id="msg=simplepage.tag_iframe" id="simplepage.tag_iframe"></p>
 			  <p rsf:id="msg=simplepage.tag_img" id="simplepage.tag_img"></p>
 			  <p rsf:id="msg=simplepage.edit_quiz" id="simplepage.edit_quiz"></p>
@@ -1094,7 +1095,8 @@
                     <p class="shorttext required">
                         <span class="reqStar">*</span>
                         <label class="pageTitle" rsf:id="subpage-label" for="subpage-title"></label>
-                        <input type="text" name="subpage-title" id="subpage-title" rsf:id="subpage-title" maxlength="255" length="30" /><br />
+                        <input type="text" name="subpage-title" id="subpage-title" rsf:id="subpage-title" maxlength="255" length="30" />
+                        <label>*<span rsf:id="msg=simplepage.subpage_invalid_chars"></span></label><br />
                     </p>
                 
                     <p class="shorttext required" style="margin-top: 1em; margin-bottom:1em">
