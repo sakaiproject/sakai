@@ -3271,6 +3271,10 @@ function checkSubpageForm() {
 		$('#subpage-error').text(msg("simplepage.page_notblank"));
 		$('#subpage-error-container').show();
 		return false;
+	} else if(/[{[}\]|\^\`]/.test($('#subpage-title').val())) {
+		$('#subpage-error').text(msg("simplepage.subpage_invalid_chars"));
+		$('#subpage-error-container').show();
+		return false;
 	}else {
 		$('#subpage-error-container').hide();
 		return true;
