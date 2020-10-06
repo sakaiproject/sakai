@@ -204,16 +204,6 @@
                 updateRemoveButton();
             });
 
-            // Highlight the due date if it is coming up soon
-            $("#authorIndexForm\\:coreAssessments .dueDate").each( function( index, element ) {
-                var dateNow = moment(new Date(), 'YYYYMMDDHHmmss');
-                var dueDate = moment($( this ).find(".hidden").text() || 0, 'YYYYMMDDHHmmss');
-                var dateDiff = dueDate.diff(dateNow, 'days');
-                if (dateDiff > 0 && dateDiff < 14) {
-                  $( this ).addClass("highlight");
-                }
-            });
-
             function updateRemoveButton() {
                 var length = $(".select-checkbox:checked").length;
                 if (length > 0) {
@@ -578,6 +568,9 @@
                     <h:outputText value="#{assessment.dueDate}">
                         <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
                     </h:outputText>
+                    <h:panelGroup rendered="#{assessment['class'].simpleName == 'PublishedAssessmentFacade'}">
+                        <h:outputText value=" #{selectIndexMessages.late} " styleClass="text-danger" rendered="#{assessment.pastDue}" />
+                    </h:panelGroup>
 
                     <h:outputText value="#{assessment.dueDate}" styleClass="hidden spanValue">
                         <f:convertDateTime pattern="yyyyMMddHHmmss" />
