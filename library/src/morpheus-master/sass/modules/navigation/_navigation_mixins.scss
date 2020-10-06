@@ -8,7 +8,7 @@
 	background: var(--sites-nav-menu-item-background);
 	text-align: center;
 	text-decoration: none;
-	color: var(--sakai-sites-nav-menu-item-color);
+	color: var(--sites-nav-menu-item-color);
 	border-radius: $sites-nav-menu-item-border-radius;
 
 	&:hover, &:focus {
@@ -18,8 +18,8 @@
 		border-bottom: $sites-nav-menu-item-hover-border-bottom;
 		border-left: $sites-nav-menu-item-hover-border-left;
 		border-color: var(--sites-nav-menu-item-hover-border-color);
-		background: var(--sakai-sites-nav-menu-item-hover-background);
-		color: var(--sakai-sites-nav-menu-item-hover-color);
+		background: var(--sites-nav-menu-item-hover-background);
+		color: var(--sites-nav-menu-item-hover-color);
 	}
 
 	&:focus {
@@ -28,5 +28,6 @@
 
 	&:active {
 		outline: 0 none;	// hiding on click
+		background: var(--sites-nav-menu-item-active-background)
 	}
 }

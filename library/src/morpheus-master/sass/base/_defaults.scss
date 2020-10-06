@@ -49,8 +49,8 @@ a{
 	&[href]{  // This means a[href]
 		color: var(--link-color);
 		&:focus{
-			outline-color: var(--focus-outline-color);
 			outline: $sakai-focus-outline;
+			outline-color: var(--focus-outline-color);
 			outline-offset: $focus-outline-offset;
 		}
 		&:hover{
