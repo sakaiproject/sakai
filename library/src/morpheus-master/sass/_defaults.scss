@@ -124,7 +124,7 @@ $sites-nav-menu-item-selected-hover-border-bottom:$sites-nav-menu-item-selected-
 $sites-nav-menu-item-selected-hover-border-left:  $sites-nav-menu-item-selected-hover-border-top !default;
 
 /* Favorites - tool submenu */
-$sites-nav-submenu-border: none !default;
+$sites-nav-submenu-border: 1px solid !default;
 $sites-nav-submenu-top: $standard-spacing !default;
 $sites-nav-submenu-padding: $material-menu-padding !default;
 
@@ -245,6 +245,9 @@ $focus-outline-width: 3px !default;
 $focus-outline-style: solid !default;
 $sakai-focus-outline: $focus-outline-width $focus-outline-style !default;
 $focus-outline-offset: 2px !default;
+
+//Used to give round elements an round focus and not square
+$sakai-box-shadow-emulate-focus: 0px 0px 0px $focus-outline-width !default;
 
 $font-family: "Open Sans",sans-serif !default;
 $header-font-family: $font-family !default;

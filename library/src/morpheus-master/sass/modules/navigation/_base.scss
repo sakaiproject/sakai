@@ -833,7 +833,7 @@ body.is-logged-out{
 		font-family: $header-font-family;
 		margin: $standard-spacing 0 0 0;
 		padding: 0;
-		
+
 		li.#{$namespace}sitesNav__menuitem{
 			@include display-flex;
 			@include align-items(center);
@@ -842,14 +842,31 @@ body.is-logged-out{
 			padding: 0;
 			border-radius: $sites-nav-menu-item-border-radius;
 			background: var(--sites-nav-menu-item-background);
+
+			&:hover {
+				box-shadow: var(--elevation-2dp);
+				transition: box-shadow 100ms ease-out;
+			}
+			&:active {
+				box-shadow: var(--elevation-1dp);
+				transition: box-shadow 100ms ease-in;
+			}
+
 			.link-container{
 				@include display-flex;
 				@include align-items( center );
 				@include sitesNavStyling();
 			}
-
+			// This is a rounded element, use a box-shadow to emulate outline styles on :focus
+			// and the shadow will inherit the shape of the element
+			.link-container, .#{$namespace}sitesNav__dropdown, .#{$namespace}sitesNav__favbtn {
+				&:focus {
+					outline:none;
+					box-shadow: $sakai-box-shadow-emulate-focus var(--focus-outline-color);
+				}
+			}
 			&.dropdown-is-visible {
-				background: var(--sites-nav-menu-item-hover-background);
+				background: var(--sites-nav-menu-item-background);
 				border-radius: $sites-nav-menu-item-border-radius $sites-nav-menu-item-border-radius 0 0;
 				box-shadow: 0 5px 5px -3px rgba(0,0,0,.6);
 				&:after {
@@ -864,12 +881,12 @@ body.is-logged-out{
 				}
 				
 				.link-container, .#{$namespace}sitesNav__dropdown, .#{$namespace}sitesNav__favbtn {
-						border-top: $sites-nav-menu-item-hover-border-top;
-						border-right: $sites-nav-menu-item-hover-border-right;
-						border-bottom: $sites-nav-menu-item-hover-border-bottom;
-						border-left: $sites-nav-menu-item-hover-border-left;
-						border-color: var(--sites-nav-menu-item-hover-border-color);
-						background: var(--sites-nav-menu-item-hover-background);
+					border-top: $sites-nav-menu-item-border-top;
+					border-right: $sites-nav-menu-item-border-right;
+					border-bottom: $sites-nav-menu-item-border-bottom;
+					border-left: $sites-nav-menu-item-border-left;
+					border-color: var(--sites-nav-menu-item-border-color);
+					background: var(--sites-nav-menu-item-background);
 				}
 			}
 
@@ -896,8 +913,8 @@ body.is-logged-out{
 					border-right: $sites-nav-menu-item-hover-border-left;	// using the left variable because of the item rotation (right is left)
 					border-bottom: $sites-nav-menu-item-hover-border-top;	// using top variable because of the item rotation (bottom is top)
 					border-left: $sites-nav-menu-item-hover-border-right;	// using the right variable because of the item rotation (left is right)
-					border-color: var(--sites-nav-menu-item-hover-border-color);
-					background: var(--sites-nav-menu-item-hover-background);
+					border-color: var(--sites-nav-menu-item-border-color);
+					background: var(--sites-nav-menu-item-background);
 				}
 			}
 			
@@ -914,20 +931,21 @@ body.is-logged-out{
 			
 			.#{$namespace}sitesNav__submenu {
 				position: absolute;
-				padding: $sites-nav-submenu-padding;
+				padding: $standard-spacing 0;
 				top: $sites-nav-submenu-top;
 				left: 0;
 				z-index: 99;
 				display: none;
-				min-width: 100%;	// at minimum, the menu should be the width of the site title
+				min-width: calc(100% + (#{$standard-spacing} * 2));	// prevent rounded corner visual bugs by forcing submenu to be larger than site title
 				width: max-content; // if the content is wider than the site title, expand to the longest tool name
 				border: $sites-nav-submenu-border;
+				border-color: var(--sites-nav-submenu-border-color);
 				background: var(--sites-nav-menu-item-background);
 				box-shadow: 0 5px 5px -3px rgba(0,0,0,.6);
-				border-radius: 0 0 $sites-nav-menu-item-border-radius $sites-nav-menu-item-border-radius;
+				border-radius: 0 $sites-nav-menu-item-border-radius $sites-nav-menu-item-border-radius $sites-nav-menu-item-border-radius;
 				.#{$namespace}sitesNav__submenuitem {
 					display: block;
-					border: 0px none;
+					// border: 0px none;
 					@include border-radius( 0 );
 					margin: 0 0 0 0;
 					padding: 0 0 0 0;
@@ -944,8 +962,14 @@ body.is-logged-out{
 						background: var(--sites-nav-submenu-background);
 						
 						&:hover, &:active {
-							color: var(--sites-nav-submenu-item-color); /* to override default link hover color */
+							color: var(--sites-nav-submenu-item-color); // to override default link hover color
 							background: var(--sites-nav-submenu-item-hover-background);
+						}
+						&:active {
+							background: var(--sites-nav-submenu-item-active-background);
+						}
+						&:focus {
+							outline-offset: -#{$focus-outline-width};	// to match the width of the default link focus to fit in the tool's link container
 						}
 						.toolMenuIcon{
 							@extend .fa-fw;
@@ -960,6 +984,26 @@ body.is-logged-out{
 					}
 					.#{$namespace}sitesNav__submenuitem-title {
 						display: inline-block;
+					}
+					&.#{$namespace}sitesNav__submenuitem__gotosite {
+						border-top: 1px solid var(--sites-nav-submenu-item-divider-color);
+						a {
+							padding-left:0;
+						}
+						> a:after {
+							font-family: FontAwesome;	
+							content: '\f178';	
+							margin-left: 10px;	
+							color: var(--sites-nav-submenu-item-icon-color);	
+						}	
+	
+						&:hover {	
+							border-top: 1px solid var(--sites-nav-submenu-item-divider-color);	
+	
+							> a:after {	
+								color: var(--sites-nav-submenu-item-hover-icon-color);	
+							}	
+						}
 					}
 				}
 				&.is-visible{
@@ -992,6 +1036,9 @@ body.is-logged-out{
 						border-color: var(--sites-nav-menu-item-selected-hover-border-color);
 						background: var(--sites-nav-menu-item-selected-hover-background);
 					}
+					&:active {
+						background: var(--sites-nav-menu-item-selected-active-background);
+					}
 				}
 
 				&.dropdown-is-visible {
@@ -1005,13 +1052,54 @@ body.is-logged-out{
 						border-right: $sites-nav-menu-item-selected-hover-border-right;
 						border-bottom: $sites-nav-menu-item-selected-hover-border-bottom;
 						border-left: $sites-nav-menu-item-selected-hover-border-left;
-						border-color: var(--sites-nav-menu-item-selected-hover-border-color);
-						background: var(--sites-nav-menu-item-selected-hover-background);
+						border-color: var(--sites-nav-menu-item-selected-border-color);
+						background: var(--sites-nav-menu-item-selected-background);
 					}
 				}
 
 				.#{$namespace}sitesNav__submenu {
-					border-color: var(--sites-nav-selected-submenu-border-color);
+					border: $sites-nav-submenu-border;
+					border-color: var(--sites-nav-submenu-selected-border-color);
+					background: var(--sites-nav-submenu-selected-background);
+					.#{$namespace}sitesNav__submenuitem {
+						.#{$namespace}sitesNav__submenuitem-link, a {
+							position: relative;
+							background: var(--sites-nav-menu-item-selected-background);
+							color: var(--sites-nav-menu-item-selected-color);
+							.toolMenuIcon {
+								color: var(--sites-nav-menu-item-selected-color);
+							}
+							&:hover, &:active, &:focus {
+								background: var(--sites-nav-submenu-item-selected-hover-background);
+								color: var(--sites-nav-submenu-item-selected-hover-color);
+								
+								.toolMenuIcon {
+									color: var(--sites-nav-submenu-item-selected-hover-icon-color);
+								}
+							}
+							&:active {
+								background: var(--sites-nav-submenu-item-selected-active-background);
+							}
+							
+						}
+						&.#{$namespace}sitesNav__submenuitem__gotosite {
+							border-top: 1px solid var(--sites-nav-submenu-item-selected-divider-color);
+							> a:after {
+								font-family: FontAwesome;	
+								content: '\f178';	
+								margin-left: 10px;	
+								color: var(--sites-nav-submenu-item-icon-color);	
+							}	
+	
+							&:hover {	
+								border-top: 1px solid var(--sites-nav-submenu-item-selected-divider-color);	
+	
+								> a:after {	
+									color: var(--sites-nav-submenu-item-hover-icon-color);	
+								}	
+							}
+						}
+					}
 				}
 			}
 
@@ -1024,67 +1112,6 @@ body.is-logged-out{
 				@extend .fa;
 				
 				margin-right: $standard-space;
-			}
-
-			.#{$namespace}sitesNav__submenu {
-				background: var(--sites-nav-submenu-background);
-				
-				.#{$namespace}sitesNav__submenuitem {
-					.#{$namespace}sitesNav__submenuitem-link, a {
-						position: relative;
-						background: var(--sites-nav-submenu-item-background);
-						color: var(--sites-nav-submenu-item-color);
-						
-						.toolMenuIcon {
-							color: var(--sites-nav-submenu-item-icon-color);
-						}
-
-						&:before {
-							content: '';
-							position: absolute;
-							top: 0;
-							left: 0;
-							display: inline-block;
-							height: 100%;
-							border-left: $sites-nav-submenu-item-left-border;
-							border-color: var(--sites-nav-submenu-item-border-color);
-						}
-
-						&:hover, &:active, &:focus {
-							background: var(--sites-nav-submenu-item-hover-background);
-							color: var(--sites-nav-submenu-item-hover-color);
-							
-							.toolMenuIcon {
-								color: var(--sites-nav-submenu-item-hover-icon-color);
-							}
-							&:before{
-								border-left-color: var(--sites-nav-submenu-item-hover-left-border-color);
-							}
-						}
-						
-						&:focus {
-							outline-offset: -#{$focus-outline-width};	// to match the width of the default link focus to fit in the tool's link container
-						}
-					}
-					&.#{$namespace}sitesNav__submenuitem__gotosite {
-						border-top: 1px solid var(--sites-nav-submenu-item-divider-color);
-
-						> a:after {
-							font-family: FontAwesome;
-							content: '\f178';
-							margin-left: 10px;
-							color: var(--sites-nav-submenu-item-icon-color);
-						}
-
-						&:hover {
-							border-top: 1px solid var(--sites-nav-submenu-item-divider-color);
-
-							> a:after {
-								color: var(--sites-nav-submenu-item-hover-icon-color);
-							}
-						}
-					}
-				}
 			}
 		}
 	}
