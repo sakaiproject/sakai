@@ -28,8 +28,8 @@
 		<property name="Uuid" type="string" length="255" not-null="true">
 			<column name="OPTION_UUID" />
 		</property>
-		<property name="deleted" type="java.lang.Boolean">
-			<column name="DELETED" />
+		<property name="deleted" type="java.lang.Boolean" not-null="true">
+			<column name="DELETED" default="0" />
 		</property>
 		<property name="optionOrder" type="int" not-null="true">
 			<column name="OPTION_ORDER" />
