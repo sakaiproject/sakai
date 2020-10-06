@@ -111,6 +111,7 @@ public class PublishedAssessmentFacade
   private int groupCount;
   private boolean selected;
   private Long categoryId;
+  private boolean pastDue;
 
   public PublishedAssessmentFacade() {
   }
@@ -900,4 +901,13 @@ public class PublishedAssessmentFacade
   public void setCategoryId(Long categoryId) {
     this.categoryId = categoryId;
   }
+
+  public boolean getPastDue() {
+    return pastDue;
+  }
+
+  public void setPastDue(boolean pastDue) {
+    this.pastDue = pastDue;
+  }
+
 }
