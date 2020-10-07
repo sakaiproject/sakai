@@ -27,10 +27,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.mockito.Mockito;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.time.api.Time;
 
 public abstract class FakeSite implements Site {
 	private String id;
@@ -38,9 +38,9 @@ public abstract class FakeSite implements Site {
 	private List<String> toolIds = new ArrayList<String>();
 	private Map<String,SitePage> pages = new HashMap<String,SitePage>();
 	
-	private Time createdTime;
+	private Date createdTime;
 	private Set<String> users;
-	private Set members;
+	private Set<Member> members;
 
 	public FakeSite set(String id) {
 		set(id, new ArrayList<String>());
@@ -69,25 +69,22 @@ public abstract class FakeSite implements Site {
 	public void addPage(String toolId) {
 		pages.put(toolId, Mockito.spy(FakeSitePage.class).set(id, toolId));
 	}
-
-	public Time getCreatedTime() {
+	
+	@Override
+	public Date getCreatedDate() {
 		return createdTime;
 	}
 	
-	public Date getCreatedDate() {
-		return new Date(createdTime.getTime());
+	public void setCreatedTime(Date time) {	
+		createdTime = time;	
 	}
 	
-	public void setCreatedTime(Time time) {
-		createdTime = time;
-	}
-
 	public SitePage getPage(String id) {
 		return pages.get(id);
 	}
 
-	public List getPages() {
-		return new ArrayList(pages.values());
+	public List<SitePage> getPages() {
+		return new ArrayList<>(pages.values());
 	}
 
 	public String getTitle() {
@@ -110,7 +107,7 @@ public abstract class FakeSite implements Site {
 		return id;
 	}
 
-	public Set getMembers() {
+	public Set<Member> getMembers() {
 		return members;
 	}
 	public void setMembers(Set members) {
