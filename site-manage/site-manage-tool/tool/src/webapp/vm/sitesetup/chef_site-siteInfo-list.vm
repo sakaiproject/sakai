@@ -12,6 +12,7 @@
 			header: 'h4',
 			active: false,
 			collapsible: true,
+			heightStyle: 'content',
 			change: function(event, ui){
 				utils.resizeFrame();
 			},
