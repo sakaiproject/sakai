@@ -166,6 +166,10 @@ public class RequestFilter implements Filter
 	protected static final String DOT = ".";
 
 	/** The name of the system property that will be used when setting the Sakai server id. */
+	public static final String SAKAI_SERVERURL = "sakai.serverUrl";
+	public static final String SAKAI_SERVERURL_DEFAULT = "http://localhost:8080";
+
+	/** The name of the system property that will be used when setting the Sakai server id. */
 	public static final String SAKAI_SERVERID = "sakai.serverId";
 
 	/** The name of the system property that will be used when setting the name of the session cookie. */
@@ -290,10 +294,9 @@ public class RequestFilter implements Filter
      */
     public static boolean isSecure(HttpServletRequest req)
     {
-       String forceSecure = System.getProperty("sakai.force.url.secure");
-       int forceSecureInt = NumberUtils.toInt(forceSecure);
-       if (forceSecureInt > 0 && forceSecureInt <= 65535) return true;
-       return req.isSecure();
+		String serverUrl = serverUrl(req);
+	   if ( serverUrl != null && serverUrl.startsWith("https:") ) return true;
+	   return false;
     }
 
 	/**
@@ -307,37 +310,8 @@ public class RequestFilter implements Filter
 	 */
 	public static String serverUrl(HttpServletRequest req)
 	{
-		String transport = null;
-		int port = 0;
-		boolean secure;
-
-		// if force.url.secure is set (to a https port number), use https and this port
-		String forceSecure = System.getProperty("sakai.force.url.secure");
-		int forceSecureInt = NumberUtils.toInt(forceSecure);
-		if (forceSecureInt > 0 && forceSecureInt <= 65535) {
-			transport = "https";
-			port = forceSecureInt;
-			secure = true;
-		} else {
-	        // otherwise use the request scheme and port
-			transport = req.getScheme();
-			port = req.getServerPort();
-			secure = req.isSecure();
-		}
-
-		StringBuilder url = new StringBuilder();
-		url.append(transport);
-		url.append("://");
-
-		// TODO: Should the server name come from serverConfigurationService?
-		url.append(req.getServerName());
-		if (((port != 80) && (!secure)) || ((port != 443) && secure))
-		{
-			url.append(":");
-			url.append(port);
-		}
-
-		return url.toString();
+		String serverUrl = System.getProperty(SAKAI_SERVERURL, SAKAI_SERVERURL_DEFAULT);
+		return serverUrl;
 	}
 
 	/**
@@ -1668,36 +1642,13 @@ public class RequestFilter implements Filter
 				String placementId = (String) m_req.getAttribute(Tool.PLACEMENT_ID);
 				if (placementId != null)
 				{
-					String transport = null;
-					int port = 0;
-
-					// compute the URL root "back" to this servlet context (rel and full)
-					String forceSecure = System.getProperty("sakai.force.url.secure");
-					int forceSecureInt = NumberUtils.toInt(forceSecure);
-					if (forceSecureInt > 0 && forceSecureInt <= 65535) {
-						transport = "https";
-						port = forceSecureInt;
-					} else {
-						// otherwise use the request scheme and port
-						transport = m_req.getScheme();
-						port = m_req.getServerPort();
-					}
-
+					String serverUrl = serverUrl(m_req);
 					StringBuilder full = new StringBuilder();
-					full.append(transport);
-					full.append("://");
-
-					// TODO: Should the server name come from serverConfigurationService?
-					full.append(m_req.getServerName());
-					if (((port != 80) && (!isSecure(m_req)))
-							|| ((port != 443) && (isSecure(m_req))))
-					{
-						full.append(":");
-						full.append(port);
-					}
+					full.append(serverUrl);
 
 					StringBuilder rel = new StringBuilder();
-					rel.append(m_req.getContextPath());
+					String contextPath = m_req.getContextPath();
+					if ( contextPath != null ) rel.append(contextPath);
 
 					full.append(rel.toString());
 

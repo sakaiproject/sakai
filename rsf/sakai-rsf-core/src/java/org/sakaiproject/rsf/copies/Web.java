@@ -55,36 +55,8 @@ public class Web {
 	 * @return The URL back to this server based on the current request.
 	 */
 	public static String serverUrl(HttpServletRequest req) {
-		String transport = null;
-		int port = 0;
-		boolean secure = false;
-
-		// if force.url.secure is set (to a https port number), use https and
-		// this port
-		String forceSecure = System.getProperty("sakai.force.url.secure");
-		int forceSecureInt = NumberUtils.toInt(forceSecure);
-		if (forceSecureInt > 0 && forceSecureInt <= 65535) {
-			transport = "https";
-			port = forceSecureInt;
-			secure = true;
-		}
-		// otherwise use the request scheme and port
-		else {
-			transport = req.getScheme();
-			port = req.getServerPort();
-			secure = req.isSecure();
-		}
-
-		StringBuilder url = new StringBuilder();
-		url.append(transport);
-		url.append("://");
-		url.append(req.getServerName());
-		if (((port != 80) && (!secure)) || ((port != 443) && secure)) {
-			url.append(":");
-			url.append(port);
-		}
-
-		return url.toString();
+		String serverUrl = System.getProperty("sakai.serverUrl", "http://localhost:8080");
+		return serverUrl;
 	}
 
 	/**

@@ -267,12 +267,9 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
      */
     public String getServerUrl()
     {
-        // try to get the value pre-computed for this request, to better match the request server naming conventions
-        String rv = (String) threadLocalManager.get(CURRENT_SERVER_URL);
-        if (rv == null)
-        {
-            rv = getConfig("serverUrl", "http://localhost:8080"); //rv = (String) properties.get("serverUrl");
-        }
+		// SAK-44413 undoes the feature added in SAK-21124 
+        // String rv = (String) threadLocalManager.get(CURRENT_SERVER_URL);
+        String rv = getConfig("serverUrl", "http://localhost:8080"); //(String) properties.get("serverName");
         return rv;
     }
 
