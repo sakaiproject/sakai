@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -80,7 +81,6 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.MergedList;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.api.FormattedText;
 
 /**
@@ -103,7 +103,10 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 	public static int DEFAULT_DAYS_IN_PAST = 10;
 	private static final long MILLISECONDS_IN_DAY = (24 * 60 * 60 * 1000);
 	private static ResourceLoader rb = new ResourceLoader("announcement");
-    
+
+	@Setter
+	private ServerConfigurationService serverConfigurationService;
+
 	/**
 	 * Prefix for this provider
 	 */
@@ -227,59 +230,51 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		//get the announcements for each channel
 		List<Message> announcements = new ArrayList<Message>();
 		
-		boolean enableReorder = ComponentManager.get(ServerConfigurationService.class).getBoolean(AnnouncementAction.SAK_PROP_ANNC_REORDER, AnnouncementAction.SAK_PROP_ANNC_REORDER_DEFAULT);
+		boolean enableReorder = serverConfigurationService.getBoolean(AnnouncementAction.SAK_PROP_ANNC_REORDER, AnnouncementAction.SAK_PROP_ANNC_REORDER_DEFAULT);
 		String sortCurrentOrder = AnnouncementAction.SORT_DATE;
 		if (enableReorder){
 			sortCurrentOrder = AnnouncementAction.SORT_MESSAGE_ORDER;
 		}
-		ViewableFilter msgFilter = AnnouncementAction.SORT_MESSAGE_ORDER.equals(sortCurrentOrder) ? null:new ViewableFilter(null, t, numberOfAnnouncements);
+		ViewableFilter msgFilter = AnnouncementAction.SORT_MESSAGE_ORDER.equals(sortCurrentOrder) ? null : new ViewableFilter(null, t, numberOfAnnouncements);
 		
-		//for each channel
-		for(String channel: channels) {
+		if (AnnouncementAction.SORT_MESSAGE_ORDER.equals(sortCurrentOrder)) {
 			try {
-				announcements.addAll(announcementService.getMessages(channel, msgFilter, announcementSortAsc, false));
-			} catch (PermissionException | IdUnusedException | NullPointerException ex) {
-				//user may not have access to view the channel but get all public messages in this channel
-				AnnouncementChannel announcementChannel = (AnnouncementChannel)announcementService.getChannelPublic(channel);
-				if(announcementChannel != null){
-					List<Message> publicMessages = announcementChannel.getMessagesPublic(null, true);
-					for(Message message : publicMessages){
-						//Add message only if it is within the time range
-						if(isMessageWithinPastNDays(message, numberOfDaysInThePast) && announcementService.isMessageViewable((AnnouncementMessage) message)){
-							announcements.add(message);
+				List<AnnouncementWrapper> messageList = new ArrayList<>();
+				final AnnouncementChannel defaultChannel = (AnnouncementChannel) announcementService.getChannel("/announcement/channel/" + siteId + "/main");
+				for (Message msg : announcements) {
+					AnnouncementChannel curChannel = (AnnouncementChannel) announcementService.getChannel(msg.getReference().replace("msg", "channel").replaceAll("main/(.*)", "main"));
+					messageList.add(new AnnouncementWrapper((AnnouncementMessage) msg, curChannel, defaultChannel, null, null));
+				}
+				Comparator<AnnouncementWrapper> sortedAnnouncements = new AnnouncementWrapperComparator(sortCurrentOrder, announcementSortAsc);
+				messageList.sort(sortedAnnouncements);
+				announcements.addAll(messageList);
+			} catch (Exception e) {
+				log.warn("Error sorting announcements by {}, {}", AnnouncementAction.SORT_MESSAGE_ORDER, e.toString());
+			}
+		} else {
+			//for each channel
+			for (String channel : channels) {
+				try {
+					announcements.addAll(announcementService.getMessages(channel, msgFilter, announcementSortAsc, false));
+				} catch (PermissionException | IdUnusedException | NullPointerException ex) {
+					//user may not have access to view the channel but get all public messages in this channel
+					AnnouncementChannel announcementChannel = (AnnouncementChannel) announcementService.getChannelPublic(channel);
+					if (announcementChannel != null) {
+						List<Message> publicMessages = announcementChannel.getMessagesPublic(null, true);
+						for (Message message : publicMessages) {
+							//Add message only if it is within the time range
+							if (isMessageWithinPastNDays(message, numberOfDaysInThePast) && announcementService.isMessageViewable((AnnouncementMessage) message)) {
+								announcements.add(message);
+							}
 						}
 					}
 				}
 			}
 		}
-		
-		if(log.isDebugEnabled()) {
-			log.debug("announcements.size(): {}", announcements.size());
-		}
-		
-		if (AnnouncementAction.SORT_MESSAGE_ORDER.equals(sortCurrentOrder)) {
-			try {
-				List<AnnouncementWrapper> messageList = new ArrayList<>();
-				AnnouncementChannel defaultChannel = (AnnouncementChannel) announcementService.getChannel("/announcement/channel/" + siteId + "/main");
-				for (Message msg : announcements) {
-					AnnouncementChannel curChannel = (AnnouncementChannel) announcementService.getChannel(msg.getReference().replace("msg", "channel").replaceAll("main/(.*)", "main"));
-					messageList.add(new AnnouncementWrapper((AnnouncementMessage) msg, curChannel, defaultChannel, null, null));
-				}
-				SortedIterator<AnnouncementWrapper> rvSorted = new SortedIterator<>(messageList.iterator(), new AnnouncementWrapperComparator(sortCurrentOrder, announcementSortAsc));
-				
-				List<Message> subrv = new ArrayList();
-				for (int index = 0; index < announcements.size(); index++) {
-					subrv.add(rvSorted.next());
-				}
-				announcements = subrv;
-			} catch (Exception e) {
-				if(log.isDebugEnabled()) {
-					log.warn("Error sorting announcements by " + AnnouncementAction.SORT_MESSAGE_ORDER + "." + e.getMessage());
-				}
-			}
 
-		}
-		
+		log.debug("announcements.size(): {}", announcements.size());
+
+
 		//convert raw announcements into decorated announcements
 		List<DecoratedAnnouncement> decoratedAnnouncements = new ArrayList<DecoratedAnnouncement>();
 	
