@@ -104,9 +104,7 @@ public class BeanDateComparator
       if (s2 != "") log.warn("Could not parse date in comparator, s2={}", s2);
     }
 
-   	if (i1 != null && i2 != null) {
-   		return i1.compareTo(i2);
-    }
+    if (i1 != null && i2 != null) return i1.compareTo(i2);
     if (i1 != null && i2 == null) return 1;
     if (i1 == null && i2 != null) return -1;
     return 0;
