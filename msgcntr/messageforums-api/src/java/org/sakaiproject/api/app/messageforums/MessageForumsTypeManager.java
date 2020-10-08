@@ -85,8 +85,6 @@ public interface MessageForumsTypeManager
    * @return
    */
   public String getDraftPrivateMessageType();
-
-  public String getDraftReceivedPrivateMessageType();
   
   /**
    * @return

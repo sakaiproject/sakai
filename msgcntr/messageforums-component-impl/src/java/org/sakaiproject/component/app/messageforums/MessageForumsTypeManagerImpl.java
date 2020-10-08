@@ -59,8 +59,8 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
   private static final String DELETED = "DeletedPrivateMessageType";
 
   private static final String DRAFT = "DraftPrivateMessageType";
-
-  private static final String DRAFT_RECEIVED = "DraftReceivedPrivateMessageType";
+  
+  
   
   // Permission Level Types
   private static final String OWNER = "Owner Permission Level";
@@ -393,20 +393,6 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
       return (typeManager.createType(AUTHORITY, DOMAIN, DRAFT,
           "Draft Private Message Type", "Draft Private Message Type").getUuid());
     }
-  }
-  /* (non-Javadoc)
-   * @see org.sakaiproject.api.app.messageforums.MessageForumsTypeManager#getDraftReceivedPrivateMessageType()
-   */
-  @Override
-  public String getDraftReceivedPrivateMessageType()
-  {
-    Type type = typeManager.getType(AUTHORITY, DOMAIN, DRAFT_RECEIVED);
-    if (type == null)
-    {
-      type = typeManager.createType(AUTHORITY, DOMAIN, DRAFT_RECEIVED, "Draft Received Private Message Type", "Draft Received Private Message Type");
-    }
-
-    return type.getUuid();
   }
 
   /* (non-Javadoc)
