@@ -655,7 +655,10 @@ public class RequestFilter implements Filter
 
 
 		// knl-640
-		appUrl = serverConfigurationService.getString("serverUrl", null);
+		appUrl = serverConfigurationService.getString("serverUrl", SAKAI_SERVERURL_DEFAULT);
+		//  Once system properties have been loaded, re-get the serverUrl from system props for consistency
+		appUrl = System.getProperty(SAKAI_SERVERURL, SAKAI_SERVERURL_DEFAULT);
+
 		chsDomain = serverConfigurationService.getString("content.chs.serverName", null);
 		chsUrl = serverConfigurationService.getString("content.chs.serverUrl", null);
 		useContentHostingDomain = serverConfigurationService.getBoolean("content.separateDomains", false);
