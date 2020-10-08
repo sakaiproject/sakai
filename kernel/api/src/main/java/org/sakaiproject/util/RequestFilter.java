@@ -294,9 +294,8 @@ public class RequestFilter implements Filter
      */
     public static boolean isSecure(HttpServletRequest req)
     {
-		String serverUrl = serverUrl(req);
-	   if ( serverUrl != null && serverUrl.startsWith("https:") ) return true;
-	   return false;
+	   String serverUrl = serverUrl(req);
+	   return serverUrl != null && serverUrl.startsWith("https:") ;
     }
 
 	/**
