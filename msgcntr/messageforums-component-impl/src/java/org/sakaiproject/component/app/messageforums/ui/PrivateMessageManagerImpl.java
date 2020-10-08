@@ -73,7 +73,7 @@ import org.sakaiproject.component.app.messageforums.TestUtil;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageRecipientImpl;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.email.api.EmailService;
@@ -137,7 +137,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   private UserDirectoryService userDirectoryService;
   private LearningResourceStoreService learningResourceStoreService;
   @Setter private PreferencesService preferencesService;
-
+  @Setter private ServerConfigurationService serverConfigurationService;
   private static final String MESSAGES_TITLE = "pvt_message_nav";// Mensajes-->Messages/need to be modified to support internationalization
   
   private static final String PVT_RECEIVED = "pvt_received";     // Recibidos ( 0 mensajes )-->Received ( 8 messages - 8 unread )
@@ -1130,7 +1130,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 		  String mailAFoward = u.getEmail();
 
 		  submitterEmailReceiptPref = 0;
-		  submitterEmailReceiptPref = ServerConfigurationService.getInt("prefs.msg.notification", submitterEmailReceiptPref);
+		  submitterEmailReceiptPref = serverConfigurationService.getInt("prefs.msg.notification", submitterEmailReceiptPref);
 		  Preferences submitterPrefs = preferencesService.getPreferences( userId );
 		  ResourceProperties props = submitterPrefs.getProperties( NotificationService.PREFS_TYPE + "sakai:messageforums" );
 
@@ -1176,17 +1176,17 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   private String getSystemAndReplyEmail(String defaultEmail, User currentUser, Message savedMessage, List replyEmail, String contextId) throws MessagingException{
 	    String systemEmail;
 
-	    if (!ServerConfigurationService.getBoolean("msgcntr.notification.user.real.from", false)) {
-		    systemEmail = ServerConfigurationService.getString(FROM_ADDRESS, defaultEmail);
+	    if (!serverConfigurationService.getBoolean("msgcntr.notification.user.real.from", false)) {
+		    systemEmail = serverConfigurationService.getString(FROM_ADDRESS, defaultEmail);
 	    } else  {
 		    if (currentUser.getEmail() != null)
 			    systemEmail = currentUser.getEmail();
 		    else
-			    systemEmail = ServerConfigurationService.getString(FROM_ADDRESS, defaultEmail);
+			    systemEmail = serverConfigurationService.getString(FROM_ADDRESS, defaultEmail);
 	    }
-		if (ServerConfigurationService.getStrings(REAL_REPLY)!=null && ("all".equals(ServerConfigurationService.getString(REAL_REPLY, "none")) || Arrays.asList(ServerConfigurationService.getStrings(REAL_REPLY)).contains(contextId)) && systemEmail.equalsIgnoreCase(ServerConfigurationService.getString(FROM_ADDRESS, defaultEmail))) {
+		if (serverConfigurationService.getStrings(REAL_REPLY)!=null && ("all".equals(serverConfigurationService.getString(REAL_REPLY, "none")) || Arrays.asList(serverConfigurationService.getStrings(REAL_REPLY)).contains(contextId)) && systemEmail.equalsIgnoreCase(serverConfigurationService.getString(FROM_ADDRESS, defaultEmail))) {
 			replyEmail.add(new InternetAddress(buildMailReply(savedMessage)));
-			systemEmail = ServerConfigurationService.getString("msgcntr.notification.from.address.reply", defaultEmail);
+			systemEmail = serverConfigurationService.getString("msgcntr.notification.from.address.reply", defaultEmail);
 		}
 	    return systemEmail;
   }
@@ -1234,7 +1234,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     
 
     /** determines if default in sakai.properties is set, if not will make a reasonable default */
-    String defaultEmail = ServerConfigurationService.getString("setup.request","postmaster@" + ServerConfigurationService.getServerName());
+    String defaultEmail = serverConfigurationService.getString("setup.request","postmaster@" + serverConfigurationService.getServerName());
     
     Area currentArea = null;
     List<PrivateForum> privateForums = null;
@@ -1315,15 +1315,15 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   }
 
   public boolean isEmailForwardDisabled(){
-	  return ServerConfigurationService.getBoolean("mc.messages.forwardEmailDisabled", false);
+	  return serverConfigurationService.getBoolean("mc.messages.forwardEmailDisabled", false);
   }
   private String buildMailReply(Message message) {
 	  
 	  StringBuilder replyMail = new StringBuilder();
-	  replyMail.append(ServerConfigurationService.getString(FROM_REPLY));
+	  replyMail.append(serverConfigurationService.getString(FROM_REPLY));
 	  replyMail.append(encrypt(message.getId().toString()));
 	  replyMail.append("@");
-	  replyMail.append(ServerConfigurationService.getString("serverName"));
+	  replyMail.append(serverConfigurationService.getString("serverName"));
 	  return replyMail.toString();
   }
 
@@ -1350,7 +1350,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 	  
 	  StringBuilder fromString = new StringBuilder();
 	  fromString.append("<p>");
-	  if (ServerConfigurationService.getBoolean("msg.displayEid", true)) {
+	  if (serverConfigurationService.getBoolean("msg.displayEid", true)) {
 	      fromString.append(getResourceBundleString("pvt_email_from_with_eid", 
                       new Object[] {currentUser.getDisplayName(), currentUser.getEid(), currentUser.getEmail() }));
 	  } else {
@@ -1382,7 +1382,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 	      sendToString += getResourceBundleString("pvt_HiddenRecipients");
 	  } else {
 	      // we may have parens around a list of names with eid in parens
-	      if (ServerConfigurationService.getBoolean("msg.displayEid", true)) {
+	      if (serverConfigurationService.getBoolean("msg.displayEid", true)) {
 	          String originalSendTo = sendToString;
 	          sendToString = sendToString.replaceAll("\\([^)]+\\(.*", "");
 	          
@@ -1449,13 +1449,13 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 	  }
 
 	  String footer = "<p>----------------------<br>" +
-	      getResourceBundleString(EMAIL_FOOTER1) + " " + ServerConfigurationService.getString("ui.service","Sakai") +
+	      getResourceBundleString(EMAIL_FOOTER1) + " " + serverConfigurationService.getString("ui.service","Sakai") +
 	  " " + getResourceBundleString(EMAIL_FOOTER2) + " \"" +
 	  siteTitle + "\" " + getResourceBundleString(EMAIL_FOOTER3) + "\n";
-	  if (ServerConfigurationService.getStrings(REAL_REPLY)!=null && ("all".equals(ServerConfigurationService.getString(REAL_REPLY, "none")) || Arrays.asList(ServerConfigurationService.getStrings(REAL_REPLY)).contains(contextId))){
+	  if (serverConfigurationService.getStrings(REAL_REPLY)!=null && ("all".equals(serverConfigurationService.getString(REAL_REPLY, "none")) || Arrays.asList(serverConfigurationService.getStrings(REAL_REPLY)).contains(contextId))){
 		  footer = footer +  getResourceBundleString(EMAIL_FOOTER4_A) +
 				  " <a href=\"" +
-				  ServerConfigurationService.getPortalUrl() + 
+				  serverConfigurationService.getPortalUrl() + 
 				  "/site/" + contextTool +
 				  "/tool/" + thisToolId+
 				  (message!=null?"/privateMsg/pvtMsgDirectAccess?current_msg_detail="+message.getId():"")+
@@ -1463,7 +1463,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 	  }else {
 		  footer = footer +  getResourceBundleString(EMAIL_FOOTER4_B) +
 				  " <a href=\"" +
-				  ServerConfigurationService.getPortalUrl() + 
+				  serverConfigurationService.getPortalUrl() + 
 				  "/site/" + contextTool +
 				  "/tool/" + thisToolId+
 				  (message!=null?"/privateMsg/pvtMsgDirectAccess?current_msg_detail="+message.getId():"")+
@@ -2188,7 +2188,7 @@ return topicTypeUuid;
   }
 
   private boolean errMaxMessageRespond(PrivateMessage rrepMsg) {
-	  int max = ServerConfigurationService.getInt("msgcntr.no.reply.max.respond", 5);
+	  int max = serverConfigurationService.getInt("msgcntr.no.reply.max.respond", 5);
 	  return getNumMessageRespond(rrepMsg.getCreatedBy(), rrepMsg.getInReplyTo().getId()) > max;
   }
   
@@ -2241,10 +2241,10 @@ return topicTypeUuid;
 	  }
   }
   
-  private static String encrypt(String value) {
+  private String encrypt(String value) {
 	  try {
 		  IvParameterSpec iv = new IvParameterSpec(INIT_VECTOR.getBytes(StandardCharsets.UTF_8));
-		  String key = ServerConfigurationService.getString("msgcntr.no.reply.secret", "1111111111111111");
+		  String key = serverConfigurationService.getString("msgcntr.no.reply.secret", "1111111111111111");
 		  SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "AES");
 
 		  Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
@@ -2261,10 +2261,10 @@ return topicTypeUuid;
 	  return null;
   }
 
-  private static String decrypt(String encrypted) {
+  private String decrypt(String encrypted) {
 	  try {
 		  IvParameterSpec iv = new IvParameterSpec(INIT_VECTOR.getBytes(StandardCharsets.UTF_8));
-		  String key = ServerConfigurationService.getString("msgcntr.no.reply.secret", "1111111111111111");
+		  String key = serverConfigurationService.getString("msgcntr.no.reply.secret", "1111111111111111");
 		  SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "AES");
 
 		  Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
@@ -2282,7 +2282,7 @@ return topicTypeUuid;
   
   private LRS_Statement getStatementForUserSentPvtMsg(String subject, SAKAI_VERB sakaiVerb, PrivateMessage rrepMsg) {
 	  LRS_Actor student = learningResourceStoreService.getActor(rrepMsg.getCreatedBy());
-	  String url = ServerConfigurationService.getPortalUrl();
+	  String url = serverConfigurationService.getPortalUrl();
 	  LRS_Verb verb = new LRS_Verb(sakaiVerb);
 	  LRS_Object lrsObject = new LRS_Object(url + "/privateMessage", "send-private-message");
 	  HashMap<String, String> nameMap = new HashMap<>();
