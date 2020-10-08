@@ -1169,30 +1169,12 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	  setAttachments(attachments);
 	  
 	  setSelectedLabel(draft.getLabel());
-
-	  List<PrivateMessageRecipient> recipients = draft.getRecipients();
-	  String draftReceivedType = typeManager.getDraftReceivedPrivateMessageType();
-	  Map<Boolean, List<PrivateMessageRecipient>> receivers = recipients.stream().filter(r -> draftReceivedType.equals(r.getTypeUuid()))
-			  .collect(Collectors.partitioningBy(r -> r.getBcc()));
-	  if (totalComposeToList == null || totalComposeToBccList == null) {
-		  initializeComposeToLists();
-	  }
-	  selectedComposeToList = recipientsToMembershipIds(receivers.get(Boolean.FALSE), totalComposeToList);
-	  selectedComposeBccList = recipientsToMembershipIds(receivers.get(Boolean.TRUE), totalComposeToBccList);
-
-	  setBooleanEmailOut(draft.getExternalEmail());
-
+	  
 	  //go to compose page
 	  setFromMainOrHp();
 	  fromMain = (StringUtils.isEmpty(msgNavMode)) || ("privateMessages".equals(msgNavMode));
 	  log.debug("processPvtMsgDraft()");
 	  return PVTMSG_COMPOSE;
-  }
-
-  private List<String> recipientsToMembershipIds(List<PrivateMessageRecipient> recipients, List<MembershipItem> memberships) {
-	  List<String> userIds = recipients.stream().map(r -> r.getUserId()).collect(Collectors.toList());
-	  return memberships.stream().filter(m -> m.getUser() != null).filter(m -> userIds.contains(m.getUser().getId()))
-			  .map(m -> m.getId()).collect(Collectors.toList());
   }
 
   /**

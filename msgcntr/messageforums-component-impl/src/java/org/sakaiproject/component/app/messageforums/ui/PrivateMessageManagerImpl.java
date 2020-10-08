@@ -1117,7 +1117,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
       return pmessage;
   }
 
-  private boolean getForwardingEnabled(Map<User, Boolean> recipients, Map<String, PrivateForum> pfMap, String currentUserAsString, String contextId, List recipientList, List<InternetAddress> fAddresses, boolean draft) throws MessagingException{
+  private boolean getForwardingEnabled(Map<User, Boolean> recipients, Map<String, PrivateForum> pfMap, String currentUserAsString, String contextId, List recipientList, List<InternetAddress> fAddresses) throws MessagingException{
 	  boolean forwardingEnabled = false;
 	  //this only needs to be done if the message is not being sent
 	  int submitterEmailReceiptPref;
@@ -1164,10 +1164,13 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 			  fAddresses.add(new InternetAddress(oldPf.getAutoForwardEmail()));
 		  }
 
-		  // if saving a draft, set the recipient type to "draft received" so that the message will not show up for the recipient yet
-		  String type = draft ? typeManager.getDraftReceivedPrivateMessageType() : typeManager.getReceivedPrivateMessageType();
-		  PrivateMessageRecipientImpl receiver = new PrivateMessageRecipientImpl(userId, type, contextId,
-				  currentUserAsString.equals(userId), bcc);
+		  /** determine if current user is equal to recipient */
+		  Boolean isRecipientCurrentUser =
+				  (currentUserAsString.equals(userId) ? Boolean.TRUE : Boolean.FALSE);
+
+		  PrivateMessageRecipientImpl receiver = new PrivateMessageRecipientImpl(
+				  userId, typeManager.getReceivedPrivateMessageType(), contextId,
+				  isRecipientCurrentUser, bcc);
 		  recipientList.add(receiver);
 		  }
 	  return forwardingEnabled;
@@ -1206,8 +1209,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
       throw new IllegalArgumentException("Null Argument");
     }
 
-    final boolean draft = message.getDraft();
-    if (recipients.isEmpty() && !draft)
+    if (recipients.size() == 0 && !message.getDraft().booleanValue())
     {
       /** for no just return out
         throw new IllegalArgumentException("Empty recipient list");
@@ -1227,6 +1229,19 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 
     User currentUser = currentUser(message, isMailArchive);
     List recipientList = new UniqueArrayList();
+
+    /** test for draft message */
+    if (message.getDraft().booleanValue())
+    {
+      PrivateMessageRecipientImpl receiver = new PrivateMessageRecipientImpl(
+      		currentUserAsString, typeManager.getDraftPrivateMessageType(),
+      		contextId, Boolean.TRUE, false);
+
+      recipientList.add(receiver);
+      message.setRecipients(recipientList);
+      saveMessage(message, isMailArchive, contextId, currentUserAsString);
+      return;
+    }
 
     //build the message body
     List additionalHeaders = new ArrayList(1);
@@ -1262,12 +1277,12 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     	}
 
 		List<InternetAddress> fAddresses = new ArrayList();
-		boolean forwardingEnabled = getForwardingEnabled(recipients, pfMap, currentUserAsString, contextId, recipientList, fAddresses, draft);
+		boolean forwardingEnabled = getForwardingEnabled(recipients, pfMap, currentUserAsString, contextId, recipientList, fAddresses);
 		//this only needs to be done if the message is not being sent
     
     /** add sender as a saved recipient */
     PrivateMessageRecipientImpl sender = new PrivateMessageRecipientImpl(
-    		currentUserAsString, draft ? typeManager.getDraftPrivateMessageType() : typeManager.getSentPrivateMessageType(),
+    		currentUserAsString, typeManager.getSentPrivateMessageType(),
     		contextId, Boolean.TRUE, false);
 
     recipientList.add(sender);
@@ -1277,10 +1292,6 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 	Message savedMessage = saveMessage(message, isMailArchive, contextId, currentUserAsString);
 
     message.setId(savedMessage.getId());
-
-    if (draft) {
-    	return;
-    }
 
     String bodyString = buildMessageBody(message);
     List<InternetAddress> replyEmail  = new ArrayList<>();
