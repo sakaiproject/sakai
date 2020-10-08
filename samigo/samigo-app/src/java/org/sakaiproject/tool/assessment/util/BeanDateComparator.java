@@ -23,6 +23,9 @@
 package org.sakaiproject.tool.assessment.util;
 
 import java.util.*;
+
+import lombok.extern.slf4j.Slf4j;
+
 import java.text.*;
 
 
@@ -32,6 +35,7 @@ import java.text.*;
  * @author $author$
  * @version $Id$
  */
+@Slf4j
 public class BeanDateComparator
   extends BeanSortComparator
 {
@@ -76,12 +80,10 @@ public class BeanDateComparator
     if(s1 == null) s1="";
     if(s2 == null) s2="";
 
-    DateFormat dateFormat=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+    // This is the Date string produced: Mon Oct 05 18:48:15 CDT 2020
+    DateFormat dateFormat=new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
     Date i1 = null;
     Date i2 = null;
-
-    boolean firstDateValid = true;
-    boolean secondDateValid = true;
 
     try
     {
@@ -89,28 +91,22 @@ public class BeanDateComparator
     }
     catch (ParseException e)
     {
-      firstDateValid = false;
+      if (s1 != "") log.warn("Could not parse date in comparator, s1={}", s1);
     }
 
     try
     {
+      
       i2 = dateFormat.parse(s2);
     }
     catch (ParseException e)
     {
-      secondDateValid = false;
+      if (s2 != "") log.warn("Could not parse date in comparator, s2={}", s2);
     }
 
-    int returnValue=0;
-   	if (firstDateValid && secondDateValid) {
-   		if (i1 != null) {
-   			returnValue = i1.compareTo(i2);
-   		}
-    }
-    if (firstDateValid && !secondDateValid) returnValue = 1;
-    if (!firstDateValid && secondDateValid) returnValue = -1;
-    if (!firstDateValid && !secondDateValid) returnValue = 0;
-
-    return returnValue;
+    if (i1 != null && i2 != null) return i1.compareTo(i2);
+    if (i1 != null && i2 == null) return 1;
+    if (i1 == null && i2 != null) return -1;
+    return 0;
   }
 }
