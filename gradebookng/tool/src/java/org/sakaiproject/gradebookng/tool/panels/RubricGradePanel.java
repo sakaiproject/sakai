@@ -85,6 +85,7 @@ public class RubricGradePanel extends BasePanel {
                 RubricGradePanel.this.window.close(target);
             }
         };
+        submit.setOutputMarkupId(true).setMarkupId("saverubric");
         form.add(submit);
 
         final GbAjaxButton cancel = new GbAjaxButton("cancel") {
