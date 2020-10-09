@@ -36,6 +36,7 @@ import org.sakaiproject.portal.api.PortalHandler;
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.api.PortalService;
+import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.time.api.TimeService;
@@ -201,10 +202,8 @@ public abstract class BasePortalHandler implements PortalHandler
 
 		Locale locale = setSiteLanguage(site);
 		log.debug("Locale for site {} = {}", site.getId(), locale);
-		String localeString = locale.getLanguage();
-		String country = locale.getCountry();
-		if(country.length() > 0) localeString += "-" + country;
-		rcontext.put("locale", localeString);
+
+		rcontext.put("locale", PortalUtils.getLocaleString(locale));
 		rcontext.put("dir", rl.getOrientation(locale));
 
 		if (prevLocale != null && !prevLocale.equals(locale)) {

@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import org.sakaiproject.component.cover.ComponentManager;
@@ -220,6 +221,14 @@ public class PortalUtils
 		}
 
 		return tabsMoreSortedTermList;
+	}
+
+	public static String getLocaleString(Locale locale) {
+
+		String localeString = locale.getLanguage();
+		String country = locale.getCountry();
+		if (country.length() > 0) localeString += "-" + country;
+		return localeString;
 	}
 }
 
