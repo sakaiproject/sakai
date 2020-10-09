@@ -694,6 +694,7 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
 		  q.setString(CONTEXT_ID, contextId);
 		  q.setString(RECORD_TYPE, recordType);
 		  q.setParameterList("userIds", userIds);
+		  q.setCacheable(true);
 		  return q.list();
 	  };
   	
