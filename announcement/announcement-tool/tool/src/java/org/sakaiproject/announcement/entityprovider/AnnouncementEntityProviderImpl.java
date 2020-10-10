@@ -237,6 +237,25 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		}
 		ViewableFilter msgFilter = AnnouncementAction.SORT_MESSAGE_ORDER.equals(sortCurrentOrder) ? null : new ViewableFilter(null, t, numberOfAnnouncements);
 		
+		//for each channel
+		for (String channel : channels) {
+			try {
+				announcements.addAll(announcementService.getMessages(channel, msgFilter, announcementSortAsc, false));
+			} catch (PermissionException | IdUnusedException | NullPointerException ex) {
+				//user may not have access to view the channel but get all public messages in this channel
+				AnnouncementChannel announcementChannel = (AnnouncementChannel) announcementService.getChannelPublic(channel);
+				if (announcementChannel != null) {
+					List<Message> publicMessages = announcementChannel.getMessagesPublic(null, true);
+					for (Message message : publicMessages) {
+						//Add message only if it is within the time range
+						if (isMessageWithinPastNDays(message, numberOfDaysInThePast) && announcementService.isMessageViewable((AnnouncementMessage) message)) {
+							announcements.add(message);
+						}
+					}
+				}
+			}
+		}
+
 		if (AnnouncementAction.SORT_MESSAGE_ORDER.equals(sortCurrentOrder)) {
 			try {
 				List<AnnouncementWrapper> messageList = new ArrayList<>();
@@ -247,28 +266,10 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 				}
 				Comparator<AnnouncementWrapper> sortedAnnouncements = new AnnouncementWrapperComparator(sortCurrentOrder, announcementSortAsc);
 				messageList.sort(sortedAnnouncements);
+				announcements.removeAll(announcements);
 				announcements.addAll(messageList);
 			} catch (Exception e) {
 				log.warn("Error sorting announcements by {}, {}", AnnouncementAction.SORT_MESSAGE_ORDER, e.toString());
-			}
-		} else {
-			//for each channel
-			for (String channel : channels) {
-				try {
-					announcements.addAll(announcementService.getMessages(channel, msgFilter, announcementSortAsc, false));
-				} catch (PermissionException | IdUnusedException | NullPointerException ex) {
-					//user may not have access to view the channel but get all public messages in this channel
-					AnnouncementChannel announcementChannel = (AnnouncementChannel) announcementService.getChannelPublic(channel);
-					if (announcementChannel != null) {
-						List<Message> publicMessages = announcementChannel.getMessagesPublic(null, true);
-						for (Message message : publicMessages) {
-							//Add message only if it is within the time range
-							if (isMessageWithinPastNDays(message, numberOfDaysInThePast) && announcementService.isMessageViewable((AnnouncementMessage) message)) {
-								announcements.add(message);
-							}
-						}
-					}
-				}
 			}
 		}
 
