@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -126,6 +127,8 @@ public class DeliveryBean implements Serializable {
   private String assessmentTitle;
   @Getter @Setter
   private boolean honorPledge;
+  @Setter
+  private Locale locale;
   @Getter @Setter
   private List markedForReview;
   @Getter @Setter
@@ -503,6 +506,10 @@ public class DeliveryBean implements Serializable {
   public String getCurrentTimeElapse() {
     syncTimeElapsedWithServer();
     return timeElapse;
+  }
+
+  public String getLocale() {
+    return PortalUtils.getLocaleString(locale);
   }
 
   public void setTimeElapse(String timeElapse) {
