@@ -1221,7 +1221,7 @@ $Id$
 
 <p class="act">
    <%-- <h:commandButton value="#{evaluationMessages.save_exit}" action="author"/> --%>
-   <h:commandButton styleClass="active" value="#{evaluationMessages.saver}" action="questionScores" type="submit" >
+   <h:commandButton id="save" styleClass="active" value="#{evaluationMessages.saver}" action="questionScores" type="submit" >
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
       <f:actionListener
