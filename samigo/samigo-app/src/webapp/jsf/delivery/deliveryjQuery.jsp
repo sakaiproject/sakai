@@ -23,6 +23,7 @@
 <script src="/library/webjars/jquery-blockui/2.65/jquery.blockUI.js"></script>
 
 <script>
+     var portal = portal || { locale: "<h:outputText value="#{delivery.locale}"/>" };
      var honorPledgeIsChecked = true;
      var scoringType = <h:outputText value="#{delivery.scoringType}"/>;
      var autoSubmit = <h:outputText value="#{delivery.settings.autoSubmit}"/>;
