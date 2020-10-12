@@ -31,7 +31,8 @@ should be included in file importing DeliveryMessages
   <!-- 1. print out the matching choices -->
   <t:dataList layout="orderedList" styleClass="noListStyle" value="#{question.itemData.itemTextArraySorted[0].answerArrayWithDistractorSorted}" var="answer" rendered="#{question.itemData.itemTextArraySorted[0].sequence==1}">
     <h:outputText escape="false" value="#{answer.label}." styleClass="author_mcLabelText" />
-    <h:outputText escape="false" value="#{answer.text}" styleClass="mcAnswerText" />
+    <h:outputText value="#{evaluationMessages.none_above}" rendered="#{answer.text eq 'none_above'}" styleClass="mcAnswerText" />    
+    <h:outputText value="#{answer.text}" escape="false" rendered="#{answer.text ne 'none_above'}" styleClass="mcAnswerText" />
   </t:dataList>
 
   <!-- 2. print out the matching text -->
