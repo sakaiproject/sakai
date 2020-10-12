@@ -213,7 +213,7 @@
 
             <sakai:button_bar>
                 <% if(isDialogBox){ %>
-                    <h:commandButton action="#{ForumTool.processDfGradeSubmitFromDialog}" value="#{msgs.cdfm_submit_grade}"
+                    <h:commandButton id="save" action="#{ForumTool.processDfGradeSubmitFromDialog}" value="#{msgs.cdfm_submit_grade}"
                         accesskey="s" styleClass="active" disabled="#{!ForumTool.allowedToGradeItem}" onclick="SPNR.disableControlsAndSpin( this, null );" />
                     <h:commandButton action="#{ForumTool.processDfGradeCancelFromDialog}" value="#{msgs.cdfm_cancel}" accesskey="x"
                         onclick="SPNR.disableControlsAndSpin( this, null );closeDialogBoxIfExists();" />

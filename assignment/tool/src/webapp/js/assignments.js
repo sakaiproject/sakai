@@ -970,4 +970,13 @@ $(document).ready(function() {
 			e.preventDefault();			// override # in href from popping to the top of the page
 		});
 	}
+
+	const saveRubric = e => {
+		[...document.getElementsByTagName("sakai-rubric-grading")].forEach(r => r. save());
+	};
+
+	const saveButton = document.getElementById("save");
+	saveButton && saveButton.addEventListener("click", saveRubric);
+	const returnButton = document.getElementById("save-and-return");
+	returnButton && returnButton.addEventListener("click", saveRubric);
 });

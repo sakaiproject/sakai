@@ -149,4 +149,14 @@ $(function () {
   $(window.self).scroll(function () {
     resizeFrame("grow");
   });
+
+  const save = e => {
+    [...document.getElementsByTagName("sakai-rubric-grading")].forEach(srb => srb.save());
+  };
+
+  let saveButton = document.getElementById("editStudentResults:save");
+  saveButton && saveButton.addEventListener("click", save);
+
+  saveButton = document.getElementById("editTotalResults:save");
+  saveButton && saveButton.addEventListener("click", save);
 });

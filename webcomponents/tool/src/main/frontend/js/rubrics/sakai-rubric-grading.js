@@ -126,10 +126,6 @@ export class SakaiRubricGrading extends RubricsElement {
         c.comments = e.detail.value;
       }
     });
-
-    // Dispatch an event for each rating. We have to do this to give tools like
-    // Samigo a chance to build their form inputs properly.
-    this._dispatchRatingChanged(this.criteria);
   }
 
   calculateTotalPointsFromCriteria() {
@@ -144,6 +140,10 @@ export class SakaiRubricGrading extends RubricsElement {
         return a;
       }
     }, 0);
+  }
+
+  save() {
+    this._dispatchRatingChanged(this.criteria);
   }
 
   decorateCriteria() {
@@ -191,14 +191,12 @@ export class SakaiRubricGrading extends RubricsElement {
     var detail = { evaluatedItemId: this.evaluatedItemId, entityId: this.entityId, criterionId: criterion.id, value: criterion.pointoverride };
     this.dispatchEvent(new CustomEvent("rubric-rating-tuned", { detail: detail, bubbles: true, composed: true }));
 
-    this._dispatchRatingChanged(this.criteria);
-
     this.updateTotalPoints();
   }
 
   _dispatchRatingChanged(criteria) {
 
-    let crit = criteria.map(c => {
+    const crit = criteria.map(c => {
 
       return {
         criterionId: c.id,
@@ -209,7 +207,7 @@ export class SakaiRubricGrading extends RubricsElement {
       };
     });
 
-    let evaluation = {
+    const evaluation = {
       evaluatorId: window.top.portal.user.id,
       evaluatedItemId: this.evaluatedItemId,
       evaluatedItemOwnerId: this.evaluatedItemOwnerId,
@@ -282,10 +280,6 @@ export class SakaiRubricGrading extends RubricsElement {
     // Whenever a rating is clicked, either to select or deselect, it cancels out any override so we
     // remove the strike out from the clicked points value
     this.querySelector(`#points-display-${criterionId}`).classList.remove("strike");
-
-    // Dispatch an event for each rating. We have to do this to give tools like
-    // Samigo a chance to build their form inputs properly.
-    this._dispatchRatingChanged(this.criteria);
 
     this.dispatchEvent(new CustomEvent("rubric-ratings-changed", { bubbles: true, composed: true }));
     this.updateTotalPoints();
