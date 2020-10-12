@@ -65,6 +65,7 @@ import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGrading
 import org.sakaiproject.tool.assessment.ui.queue.delivery.TimedAssessmentQueue;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.sakaiproject.tool.assessment.ui.listener.author.RemovePublishedAssessmentThread;
+import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -79,6 +80,7 @@ public class BeginDeliveryActionListener implements ActionListener
 {
   private static final ResourceLoader rl = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
   private RubricsService rubricsService = ComponentManager.get(RubricsService.class);
+  private PreferencesService preferencesService = ComponentManager.get(PreferencesService.class);
 
   /**
    * ACTION.
@@ -96,6 +98,8 @@ public class BeginDeliveryActionListener implements ActionListener
     String actionString = ContextUtil.lookupParam("actionString");
     String publishedId = ContextUtil.lookupParam("publishedId");
     String assessmentId = (String)ContextUtil.lookupParam("assessmentId");
+
+    delivery.setLocale(preferencesService.getLocale(AgentFacade.getAgentString()));
 
     if (StringUtils.isNotBlank(actionString)) {
       // if actionString is null, likely that action & actionString has been set already, 
