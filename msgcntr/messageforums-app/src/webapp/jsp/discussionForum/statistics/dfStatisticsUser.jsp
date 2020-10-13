@@ -188,6 +188,17 @@
 
 	  	<h:outputText rendered="#{ForumTool.anonymousEnabled && ForumTool.siteHasAnonymousTopics && !mfStatisticsBean.pureAnon}" value="#{msgs.stat_forum_anonymous_omitted}" styleClass="instruction" />
 
+        <div>
+            <h:outputFormat value="#{msgs.stat_percent_read}" escape="false">
+                <f:param value="#{mfStatisticsBean.getPercentRead()}" />
+            </h:outputFormat>
+        </div>
+        <div>
+            <h:outputFormat value="#{msgs.stat_num_authored}" escape="false">
+                <f:param value="#{mfStatisticsBean.userAuthoredStatistics.size()}" />
+            </h:outputFormat>
+        </div>
+
 	  	<h:panelGrid columns="2" width="100%" style="margin:0">
    			<h:panelGroup>
     			<f:verbatim><h4 style="margin:0;padding:0"></f:verbatim>
