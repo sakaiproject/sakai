@@ -261,11 +261,7 @@ simplePageBean.addForumSummary
   </bean>
 
   <bean id="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"
-	class="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"
-        init-method="init"
-        destroy-method="destroy">
-
-    <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
+	class="org.sakaiproject.lessonbuildertool.service.AssignmentEntity">
     <property name="messageLocator" ref="messageLocator"/>
     <property name="assignmentSupplementItemService" ref="org.sakaiproject.assignment.api.model.AssignmentSupplementItemService"/>
 	<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
