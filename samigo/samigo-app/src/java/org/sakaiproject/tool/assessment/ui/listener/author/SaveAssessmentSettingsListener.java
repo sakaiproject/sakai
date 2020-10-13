@@ -239,16 +239,18 @@ public class SaveAssessmentSettingsListener
     		String  date_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","date_error");
     		context.addMessage(null,new FacesMessage(date_err));
     	}
-    	else if(!assessmentSettings.getIsValidFeedbackDate()){
+    	else {
+    		if(StringUtils.isNotBlank(assessmentSettings.getFeedbackEndDateString()) && assessmentSettings.getFeedbackDate().after(assessmentSettings.getFeedbackEndDate())){
+                String feedbackDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","invalid_feedback_ranges");
+                context.addMessage(null,new FacesMessage(feedbackDateErr));
+                error=true;
+            }
+    	}
+
+    	if(!assessmentSettings.getIsValidFeedbackDate()){
         	String feedbackDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","invalid_feedback_date");
         	context.addMessage(null,new FacesMessage(feedbackDateErr));
         	error=true;
-        }
-
-        if(StringUtils.isNotBlank(assessmentSettings.getFeedbackEndDateString()) && assessmentSettings.getFeedbackDate().after(assessmentSettings.getFeedbackEndDate())){
-            String feedbackDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","invalid_feedback_ranges");
-            context.addMessage(null,new FacesMessage(feedbackDateErr));
-            error=true;
         }
 
 		boolean scoreThresholdEnabled = assessmentSettings.getFeedbackScoreThresholdEnabled();
