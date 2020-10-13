@@ -33,9 +33,13 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.persistence.Version;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @Entity
 @Table(name = "SAKAI_PRIVACY_RECORD", uniqueConstraints = @UniqueConstraint(name = "uniquePrivacyRecord", columnNames = {"contextId", "recordType", "userId"}))
 @NamedQueries({
