@@ -4,7 +4,7 @@
 $.sakai.tools = [
   'Announcements',
   'Attachments',
-  'Forums',
+  'Discussions',
   'Polls',
 ];
 

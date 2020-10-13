@@ -32,7 +32,7 @@ org.sakaiproject.tool.cover.SessionManager.getCurrentToolSession().
 	<%@ include file="/jsp/discussionForum/menu/forumsMenu.jsp" %>
 	<h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" />
         <div class="page-header">
-            <h1><h:outputText value="#{msgs.cdfm_discussion_forums}" /></h1>
+            <h1><h:outputText value="#{msgs.cdfm_discussions}" /></h1>
         </div>
 	<%@ include file="/jsp/discussionForum/includes/dfAreaInclude.jsp"%>
 	
