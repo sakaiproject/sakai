@@ -40,6 +40,8 @@
     <sakai.httpclient.version>4.5.13</sakai.httpclient.version>
     <sakai.httpcore.version>4.4.13</sakai.httpcore.version>
     <sakai.httpmime.version>4.5.13</sakai.httpmime.version>
+    <sakai.httpclient5.version>5.0.3</sakai.httpclient5.version>
+    <sakai.httpcore5.version>5.0.2</sakai.httpcore5.version>
     <sakai.ignite.version>2.8.1</sakai.ignite.version>
     <sakai.gridgain.version>8.7.18</sakai.gridgain.version>
     <sakai.jackson.version>2.11.2</sakai.jackson.version>
@@ -901,6 +903,19 @@
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>httpclient</artifactId>
         <version>${sakai.httpclient.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <!-- httpcore5 & httpclient5 -->
+      <dependency>
+        <groupId>org.apache.httpcomponents.core5</groupId>
+        <artifactId>httpcore5</artifactId>
+        <version>${sakai.httpcore5.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.httpcomponents.client5</groupId>
+        <artifactId>httpclient5</artifactId>
+        <version>${sakai.httpclient5.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>

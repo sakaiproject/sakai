@@ -30,7 +30,6 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
-            <version>${sakai.jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -40,12 +39,6 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>${sakai.commons.lang3.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>${sakai.httpclient.version}</version>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
