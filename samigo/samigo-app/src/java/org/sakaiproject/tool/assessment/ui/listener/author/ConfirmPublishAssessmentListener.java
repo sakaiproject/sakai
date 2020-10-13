@@ -397,6 +397,7 @@ public class ConfirmPublishAssessmentListener
 				context.addMessage(null,new FacesMessage(date_err));
 			}
 			else {
+				// TODO this logic should be refactored
 				if(StringUtils.isNotBlank(assessmentSettings.getFeedbackEndDateString()) && assessmentSettings.getFeedbackDate().after(assessmentSettings.getFeedbackEndDate())){
 					String feedbackDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","invalid_feedback_ranges");
 					context.addMessage(null,new FacesMessage(feedbackDateErr));
