@@ -155,7 +155,7 @@
 		<!-- Provides mapping to create an LDAP connection pool health check implementation
 			that may be used to check the health of the associated server by verifying that
 			a specified entry can be retrieved in an acceptable period of time
-			Defaults to null (invokes the Unboundid defaut implementation, which may not do any checks) -->
+			Defaults to null (invokes the Unboundid defaut implementation, which does not do any checks) -->
 		<!-- property name="healthCheckMappings">
 			<map>
 				<entry key="maxResponseTime"><value>30000</value></entry>

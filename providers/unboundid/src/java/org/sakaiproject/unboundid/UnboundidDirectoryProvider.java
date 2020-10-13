@@ -1239,31 +1239,19 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 		this.retryFailedOperationsDueToInvalidConnections = retryFailedOperationsDueToInvalidConnections;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public long getHealthCheckIntervalMillis() {
 		return healthCheckIntervalMillis;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public void setHealthCheckIntervalMillis(long healthCheckIntervalMillis) {
 		this.healthCheckIntervalMillis = healthCheckIntervalMillis;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public Map<String, String> getHealthCheckMappings()
 	{
 		return healthCheckMappings;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public void setHealthCheckMappings(Map<String, String> healthCheckMappings)
 	{
 		this.healthCheckMappings = healthCheckMappings;
