@@ -143,7 +143,7 @@ public class ForumToolFsVolumeFactory implements ToolFsVolumeFactory {
         @Override
         public String getName() {
             // TODO i18m
-            return "Forums";
+            return "Discussions";
         }
 
         @Override

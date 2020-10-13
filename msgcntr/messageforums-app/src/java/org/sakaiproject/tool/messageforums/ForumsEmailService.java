@@ -169,7 +169,7 @@ public class ForumsEmailService {
 					+ " <a href=\""
 					+ getRedirectURL(currentSite)
 					+ "\" target=\"_blank\" >" 
-					+ DiscussionForumTool.getResourceBundleString("cdfm_discussion_forums")
+					+ DiscussionForumTool.getResourceBundleString("cdfm_discussions")
 					+ "</a>"
 					+ " " + greaterThanHtml + " "
 					+ forumtitle

@@ -416,8 +416,8 @@ INSERT INTO SAKAI_SITE_PAGE VALUES('!worksite-300', '!worksite', 'Announcements'
 INSERT INTO SAKAI_SITE_TOOL VALUES('!worksite-310', '!worksite-300', '!worksite', 'sakai.announcements', 1, 'Announcements', NULL );
 INSERT INTO SAKAI_SITE_PAGE VALUES('!worksite-400', '!worksite', 'Resources', '0', 4, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!worksite-410', '!worksite-400', '!worksite', 'sakai.resources', 1, 'Resources', NULL );
-INSERT INTO SAKAI_SITE_PAGE VALUES('!worksite-500', '!worksite', 'Forums', '0', 5, '0' );
-INSERT INTO SAKAI_SITE_TOOL VALUES('!worksite-510', '!worksite-500', '!worksite', 'sakai.forums', 1, 'Forums', NULL );
+INSERT INTO SAKAI_SITE_PAGE VALUES('!worksite-500', '!worksite', 'Discussions', '0', 5, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!worksite-510', '!worksite-500', '!worksite', 'sakai.forums', 1, 'Discussions', NULL );
 INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('!worksite', '!worksite-510', 'category', 'false' );
 INSERT INTO SAKAI_SITE_PAGE VALUES('!worksite-600', '!worksite', 'Assignments', '0', 6, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!worksite-610', '!worksite-600', '!worksite', 'sakai.assignment.grades', 1, 'Assignments', NULL );
@@ -456,8 +456,8 @@ INSERT INTO SAKAI_SITE_PAGE VALUES('mercury-350', 'mercury', 'Lessons', '0', 3, 
 INSERT INTO SAKAI_SITE_TOOL VALUES('mercury-360', 'mercury-350', 'mercury', 'sakai.lessonbuildertool', 1, 'Lessons', NULL );
 INSERT INTO SAKAI_SITE_PAGE VALUES('mercury-400', 'mercury', 'Resources', '0', 4, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('mercury-410', 'mercury-400', 'mercury', 'sakai.resources', 1, 'Resources', NULL );
-INSERT INTO SAKAI_SITE_PAGE VALUES('mercury-500', 'mercury', 'Forums', '0', 5, '0' );
-INSERT INTO SAKAI_SITE_TOOL VALUES('mercury-510', 'mercury-500', 'mercury', 'sakai.forums', 1, 'Forums', NULL );
+INSERT INTO SAKAI_SITE_PAGE VALUES('mercury-500', 'mercury', 'Discussions', '0', 5, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('mercury-510', 'mercury-500', 'mercury', 'sakai.forums', 1, 'Discussions', NULL );
 INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('mercury', 'mercury-510', 'category', 'false' );
 INSERT INTO SAKAI_SITE_PAGE VALUES('mercury-600', 'mercury', 'Assignments', '0', 6, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('mercury-610', 'mercury-600', 'mercury', 'sakai.assignment.grades', 1, 'Assignments', NULL );

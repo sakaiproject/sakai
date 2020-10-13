@@ -1346,7 +1346,7 @@
   </bean>
   <bean id="forumsUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
     <property name="name">
-      <value>Forums</value>
+      <value>Discussions</value>
     </property>
     <property name="resources">
       <list>
@@ -1373,7 +1373,7 @@
       <value>whatistheForumstool</value>
     </property>
     <property name="name">
-      <value>What is the Forums tool?</value>
+      <value>What is the Discussions tool?</value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_forumsUserGuide/whatistheForumstool.html</value>
