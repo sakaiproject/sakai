@@ -278,6 +278,6 @@ public interface MessageForumsForumManager {
 	 */
 	public boolean doesRoleHavePermissionInTopic(final Long topicId, final String roleName, final String permissionName);
 
-	public String getAllowedGroupForRestrictedForum(final Long forumId, final String permissionName);
-	public String getAllowedGroupForRestrictedTopic(final Long topicId, final String permissionName);
+	public List<String> getAllowedGroupForRestrictedForum(final Long forumId, final String permissionName);
+	public List<String> getAllowedGroupForRestrictedTopic(final Long topicId, final String permissionName);
 }
