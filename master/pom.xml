@@ -1938,7 +1938,7 @@
       <dependency>
         <groupId>org.mariuszgromada.math</groupId>
         <artifactId>MathParser.org-mXparser</artifactId>
-        <version>4.3.3</version>
+        <version>4.4.2</version>
         <scope>provided</scope>
       </dependency>
     </dependencies>
