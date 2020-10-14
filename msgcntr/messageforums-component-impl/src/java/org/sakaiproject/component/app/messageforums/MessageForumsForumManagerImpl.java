@@ -1519,27 +1519,30 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 			return countRows.intValue() > 0;
 		}
 		
-		public String getAllowedGroupForRestrictedTopic(final Long topicId, final String permissionName) {
+		public List<String> getAllowedGroupForRestrictedTopic(final Long topicId, final String permissionName) {
 			if (topicId == null) {
 				throw new IllegalArgumentException("Null Argument");
 			}
-			HibernateCallback<String> hcb = session -> (String) session
+			HibernateCallback<List<String>> hcb = session -> (List<String>) session
 				.getNamedQuery("findAllowedGroupInTopic")
 				.setLong("id", topicId)
 				.setString("permissionLevelName", permissionName)
-				.uniqueResult();
+                .setCacheable(true)
+				.list();
 			return getHibernateTemplate().execute(hcb);
 		}
 
-		public String getAllowedGroupForRestrictedForum(final Long forumId, final String permissionName) {
+		public List<String> getAllowedGroupForRestrictedForum(final Long forumId, final String permissionName) {
 			if (forumId == null) {
 				throw new IllegalArgumentException("Null Argument");
 			}
-			HibernateCallback<String> hcb = session -> (String) session
+			HibernateCallback<List<String>> hcb = session -> (List<String>) session
 				.getNamedQuery("findAllowedGroupInForum")
 				.setLong("id", forumId)
 				.setString("permissionLevelName", permissionName)
-				.uniqueResult();
+                .setCacheable(true)
+				.list();
+
 			return getHibernateTemplate().execute(hcb);
 		}
 }

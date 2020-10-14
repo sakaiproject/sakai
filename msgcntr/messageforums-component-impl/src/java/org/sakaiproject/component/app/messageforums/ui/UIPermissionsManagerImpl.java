@@ -202,6 +202,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
           return true;
         }
       }
+
     }
     catch (Exception e)
     {
@@ -262,7 +263,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
         return false;
     }
 
-    final String groupTitle;
+        List<String> groupTitle;
     if(isForum){
       groupTitle = forumManager.getAllowedGroupForRestrictedForum(objectId, PermissionLevelManager.PERMISSION_LEVEL_NAME_CONTRIBUTOR);
     } else {
@@ -272,7 +273,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     try {
       Site site = siteService.getSite(toolManager.getCurrentPlacement().getContext());
       Set<String> groups = getGroupsWithMember(site, getCurrentUserId());
-      return groups.stream().map(site::getGroup).anyMatch(g -> g.getTitle().equals(groupTitle));
+            return groups.stream().map(site::getGroup).anyMatch(g -> groupTitle.contains(g.getTitle()));
     } catch(Exception e){
       log.error("isInstructorForAllowedGroup error: exception {} in forum {}", e.getMessage(), objectId);
     }
