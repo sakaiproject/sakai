@@ -249,6 +249,10 @@ public class GradingServiceTest {
         result = gradingService.replaceCalculationsWithValues("four=[[2+2]]", -1);
         Assert.assertNotNull(result);
         Assert.assertEquals("four=4", result);
+        
+        result = gradingService.replaceCalculationsWithValues("fourLOGS=[[2+2]]", 0);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("fourLOGS=4", result);
 
         result = gradingService.replaceCalculationsWithValues("four=[[2+2]], four=[[2*2]], four=[[(10-2)/2]]", 0);
         Assert.assertNotNull(result);
@@ -327,6 +331,9 @@ public class GradingServiceTest {
         result = gradingService.processFormulaIntoValue("cos(PI)", 2);
         Assert.assertNotNull(result);
         Assert.assertEquals("-1", result);
+        result = gradingService.processFormulaIntoValue("COS(pi)", 2);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("-1", result);
         result = gradingService.processFormulaIntoValue("tan(PI)", 2);
         Assert.assertNotNull(result);
         Assert.assertEquals("0", result);
@@ -365,11 +372,16 @@ public class GradingServiceTest {
         result = gradingService.processFormulaIntoValue("ln(1)", 2);
         Assert.assertNotNull(result);
         Assert.assertEquals("0", result);
+        result = gradingService.processFormulaIntoValue("LOG(10.0)", 2);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("2.3", result); 
         result = gradingService.processFormulaIntoValue("log(10.0)", 2);
         Assert.assertNotNull(result);
         Assert.assertEquals("2.3", result); 
 
         result = gradingService.processFormulaIntoValue("log10(1000)", 3);
+        Assert.assertEquals("3", result);
+        result = gradingService.processFormulaIntoValue("LOG10(1000)", 3);
         Assert.assertEquals("3", result);
         result = gradingService.processFormulaIntoValue("6!", 2);
         Assert.assertEquals("720", result);
@@ -382,6 +394,9 @@ public class GradingServiceTest {
         result = gradingService.processFormulaIntoValue("exp(5)", 2);
         Assert.assertNotNull(result);
         Assert.assertEquals("148.41", result);
+        result = gradingService.processFormulaIntoValue("EXP(5)", 2);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("148.41", result);
         result = gradingService.processFormulaIntoValue("exp(10)", 2);
         Assert.assertNotNull(result);
         Assert.assertEquals("22026.47", result); 
@@ -390,6 +405,9 @@ public class GradingServiceTest {
         Assert.assertEquals("1", result);
         
         result = gradingService.processFormulaIntoValue("sqrt(9)", 2);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("3", result);
+        result = gradingService.processFormulaIntoValue("SQRT(9)", 2);
         Assert.assertNotNull(result);
         Assert.assertEquals("3", result);
         result = gradingService.processFormulaIntoValue("sqrt(12)", 2);
@@ -431,7 +449,41 @@ public class GradingServiceTest {
         Assert.assertEquals("1E11", result);                 
         result = gradingService.processFormulaIntoValue("1000000000000.00", 2);
         Assert.assertNotNull(result);
-        Assert.assertEquals("1E12", result);                 
+        Assert.assertEquals("1E12", result);
+
+        // mixed-case functions
+        result = gradingService.processFormulaIntoValue("qNor(0.5, 2, 1)", 2);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("2", result);
+        result = gradingService.processFormulaIntoValue("cNor(0.7, 3, 1)", 2);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("0.01", result);
+        // test lowercasing
+        result = gradingService.processFormulaIntoValue("pi + E", 2);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("5.86", result);
+        // speed of light
+        result = gradingService.processFormulaIntoValue("[c]*3", 2);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("899377374", result);
+        // golden ratio
+        result = gradingService.processFormulaIntoValue("3*[phi]", 2);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("4.85", result);
+        // binomial coefficient
+        result = gradingService.processFormulaIntoValue("C(8,3)", 2);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("56", result);
+        result = gradingService.processFormulaIntoValue("if(1>3, 5, 2)", 2);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("2", result);
+    }
+
+    @Test(expected = SamigoExpressionError.class)
+    public void testBadFunctionResultsInException() throws SamigoExpressionError {
+        String formula = "[phil] * 3"; // mis-spelled the golden ratio formula [phi]
+        gradingService.processFormulaIntoValue(formula, 1);
+
     }
 
     @Test
