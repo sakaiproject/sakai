@@ -130,10 +130,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
         try {
             Site site = siteService.getSite(siteId);
             Set<String> groups = getGroupsWithMember(site, getCurrentUserId());
-            for(String group: groupTitle) {
-          	  if(groups.stream().map(site::getGroup).anyMatch(g -> g.getTitle().equals(group)))
-          		  return true;
-            }
+            return groups.stream().map(site::getGroup).anyMatch(g -> groupTitle.contains(g.getTitle()));
         } catch (IdUnusedException iue) {
             log.warn("Could not fetch site {}, {}", siteId, iue.toString());
         }
