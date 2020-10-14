@@ -128,7 +128,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
         }
         String siteId = toolManager.getCurrentPlacement().getContext();
         try {
-            Site site = siteService.getSite(toolManager.getCurrentPlacement().getContext());
+            Site site = siteService.getSite(siteId);
             Set<String> groups = getGroupsWithMember(site, getCurrentUserId());
             for(String group: groupTitle) {
           	  if(groups.stream().map(site::getGroup).anyMatch(g -> g.getTitle().equals(group)))
