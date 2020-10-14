@@ -803,41 +803,25 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		}
 
 		try {
-			getHibernateTemplate().delete(o);
+			Object p = getDaoHibernateTemplate().merge(o);
+			getHibernateTemplate().delete(p);
+			getHibernateTemplate().flush();
 			return true;
 		} catch (DataAccessException | IllegalArgumentException e) {
-			try {
-				
-				/* If we have multiple objects of the same item, you must merge them
-				 * before deleting.  If the first delete fails, we merge and try again.
-				 */
-				getHibernateTemplate().delete(getHibernateTemplate().merge(o));
-				
-				return true;
-			}catch(DataAccessException | IllegalArgumentException ex) {
-				log.warn("Hibernate could not delete: " + ex.toString());
-				return false;
-			}
+			log.warn("Hibernate could not delete: {}", e.toString());
+			return false;
 		}
 	}
 
 	public boolean quickDelete(Object o) {
 		try {
-			getHibernateTemplate().delete(o);
+			Object p = getHibernateTemplate().merge(o);
+			getHibernateTemplate().delete(p);
+			getHibernateTemplate().flush();
 			return true;
 		} catch (DataAccessException | IllegalArgumentException e) {
-			try {
-				
-				/* If we have multiple objects of the same item, you must merge them
-				 * before deleting.  If the first delete fails, we merge and try again.
-				 */
-				getHibernateTemplate().delete(getHibernateTemplate().merge(o));
-				
-				return true;
-			}catch(DataAccessException ex) {
-				log.warn("Hibernate could not delete: " + e.toString());
-				return false;
-			}
+			log.warn("Hibernate could not delete: {}", e.toString());
+			return false;
 		}
 	}
 
