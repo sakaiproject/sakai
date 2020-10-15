@@ -137,10 +137,7 @@ li.autoSaveOffClass { display: none }
 .editToolBarContainer select { zoom: 1; font-size: .9em; border: 1px solid #efeffe }
 a.editToolBar,a.editToolBar:visited,a.previewToolBar,a.previewToolBar:visited,a.autosaveToolBar,a.autosaveToolBar:visited  {
 	border: 1px solid #efefde;
-	padding-top: 2px;
-	padding-bottom: 3px;
-	padding-left: 8px;
-	padding-right: 8px
+	padding: 2px 13px 3px;
 }
 a.editToolBar:hover,a.editToolBar:active,a.previewToolBar:hover,a.previewToolBar:active,a.autosaveToolBar:hover,a.autosaveToolBar:active {
 	border: 1px solid #316ac5;
