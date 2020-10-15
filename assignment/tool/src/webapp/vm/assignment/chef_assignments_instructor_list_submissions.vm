@@ -412,7 +412,7 @@ function printView(url) {
 							</td>
 							<td headers="attachment" class="attach">
 								#set ($size = $submission.Attachments.size())
-								#if ($size > 0)
+								#if ($size > 0 && $submission.submitted)
 									<img src="#imageLink("sakai/attachments.gif")" border="0" alt="$tlang.getString("gen.att")" width="15" height="15" class="attachmentsIcon" />
 								#end
 							</td>
@@ -422,7 +422,6 @@ function printView(url) {
 										#set($submittedText = $!submission.submittedText)
 										#set($submittedAttachments = $submission.Attachments)
 										#if ($!submittedText.length() > 0 || $!submittedAttachments.size() > 0 )
-										<span class="highlight">$tlang.getString("gen.dra2") </span>
 										#end
 									#end
 									
@@ -471,7 +470,6 @@ function printView(url) {
 												#set($submittedText = $!submission.submittedText)
 												#set($submittedAttachments = $submission.Attachments)
 												#if ($submittedText && !$submittedText.isEmpty() || $!submittedAttachments.size() > 0 )
-												<span class="highlight">$tlang.getString("gen.dra2") </span>
 												#end
 											#end
 											
@@ -503,20 +501,22 @@ function printView(url) {
 							</td>
 							#end
 							<td headers="submitted">
-									#if ($!submission && $submission.DateSubmitted)
+									#if ($!submission && $submission.DateSubmitted && $submission.submitted)
 										#set($submitTime = $submission.DateSubmitted)
 										#if ($!submitTime) $!service.getUsersLocalDateTimeString($submitTime) #end
 										#if ($!submitTime && $submitTime.isAfter($assignment.DueDate))
 											<span class="highlight">$tlang.getString("gen.late2")</span> 
 										#end
 									#end
-									#if ($!submittedBy) 
+									#if ($!submittedBy && $submission.submitted)
 									<br /> $tlang.getString("listsub.submitted.by") $!submittedBy.sortName ($tlang.getString("listsub.submitted.on.behalf") $formattedText.escapeHtml($submitterSortName))
 									#end
 							</td>
 							<td headers="status">
-								#if ($!submission)
+								#if ($!submission && $submission.submitted)
 									$!service.getSubmissionStatus($submission.Id)
+								#elseif (!$!submission.submitted)
+										$tlang.getString("listsub.nosub")
 								#end
 							</td>
 							#if ($assignment.AllowPeerAssessment)
