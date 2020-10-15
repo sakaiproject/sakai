@@ -595,13 +595,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 					data.put(VIEWER_PERMISSIONS, viewerPermissionsOverride);
 				}
 
-				// Check user preference for locale			
-				// If user has no preference set - get the system default
-				Locale locale = Optional.ofNullable(preferencesService.getLocale(userId))
-						.orElse(Locale.getDefault());
-
 				// Set locale, getLanguage removes locale region
-				data.put("locale", locale.getLanguage());
+				data.put("locale", preferencesService.getLocale(userId).getLanguage());
 
 				HashMap<String, Object> response = makeHttpCall("GET",
 						getNormalizedServiceUrl() + "submissions/" + item.getExternalId() + "/viewer-url",

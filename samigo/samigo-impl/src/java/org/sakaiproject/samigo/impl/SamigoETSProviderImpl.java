@@ -169,7 +169,7 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
             // Format dates
             DateFormat dfIn                         = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
             DateFormat dfIn2                        = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
-            DateFormat dfOut                        = new SimpleDateFormat("yyyy-MMM-dd hh:mm a", getUserLocale(user.getId()));
+            DateFormat dfOut                        = new SimpleDateFormat("yyyy-MMM-dd hh:mm a", preferencesService.getLocale(user.getId()));
             String formattedDueDate                 = (pubAssFac.getDueDate() == null) ? "" : dfOut.format(pubAssFac.getDueDate());
             Date submissionDate                     = null;
             String inSubmissionDateStr              = (notificationValues.get("submissionDate") == null) ? "" : notificationValues.get("submissionDate").toString();
@@ -421,16 +421,6 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
         headers.add("Auto-Submitted: auto-generated");
 
         return headers;
-    }
-
-    private     Locale              getUserLocale                       (final String userId) {
-        Locale              locale                  = preferencesService.getLocale(userId);
-
-        if(locale == null) {
-            locale                                  = Locale.getDefault();
-        }
-
-        return locale;
     }
 
     @Setter

@@ -751,14 +751,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 	 * Returns the user locale
 	 */
 	private Locale getSelectedLocale() {
-
-		Locale loc = preferencesService.getLocale(userDirectoryService.getCurrentUser().getId());
-		if (loc != null)
-		{
-			return loc;
-		} else {
-			return Locale.getDefault();
-		}
+		return preferencesService.getLocale(userDirectoryService.getCurrentUser().getId());
 	}
 
 	/**
