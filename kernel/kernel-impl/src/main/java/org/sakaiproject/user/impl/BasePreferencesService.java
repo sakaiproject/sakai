@@ -437,8 +437,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 		
 		return prefs;
 	}
-	
-	
+
 	/**
 	 ** Get user's preferred locale (or null if not set)
 	 ***/
@@ -450,15 +449,17 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 		String localeString = locProps.getProperty(Preferences.FIELD_LOCALE);
 		
 		// Parse user locale preference if set
-		if (localeString != null)
-		{
+		if (localeString != null) {
 			String[] locValues = localeString.split("_");
-			if (locValues.length > 2)
+			if (locValues.length > 2) {
 				loc = new Locale(locValues[0], locValues[1], locValues[2]); // language, country, variant
-			else if (locValues.length == 2)
+			} else if (locValues.length == 2) {
 				loc = new Locale(locValues[0], locValues[1]); // language, country
-			else if (locValues.length == 1) 
+			} else if (locValues.length == 1) {
 				loc = new Locale(locValues[0]); // just language
+			}
+		} else {
+			loc = Locale.getDefault();
 		}
 		
 		return loc;

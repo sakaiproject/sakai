@@ -132,10 +132,9 @@ public interface PreferencesService extends EntityProducer
 	 *        The PreferencesEdit object to remove.
 	 */
 	void remove(PreferencesEdit edit);
-	
-	
+
 	/**
-	 *  Get user's preferred locale (or null if not set)
+	 * Get user's preferred locale (or the default locale if not set)
 	 * @param userId
 	 * @return
 	 */

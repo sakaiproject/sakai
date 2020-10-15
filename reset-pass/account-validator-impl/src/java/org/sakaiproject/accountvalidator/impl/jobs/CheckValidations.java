@@ -183,7 +183,7 @@ public class CheckValidations implements Job {
 			String creatorId = entry.getKey();
 			try {
 				User creator = userDirectoryService.getUser(creatorId);
-				Locale locale = getUserLocale(creatorId);
+				Locale locale = preferencesService.getLocale(creatorId);
 				List<String> users = entry.getValue();
 				StringBuilder userText = new StringBuilder();
 				for (int i = 0; i < users.size(); i++) {
@@ -282,24 +282,4 @@ public class CheckValidations implements Job {
 		
 		return ret;
 	}
-
-	 protected Locale getUserLocale(String userId) {
-		   Locale loc = preferencesService.getLocale(userId);
-		   //the user has no preference set - get the system default
-		   if (loc == null ) {
-			   String lang = System.getProperty("user.language");
-			   String region = System.getProperty("user.region");
-
-			   if (region != null) {
-				   log.debug("getting system locale for: " + lang + "_" + region);
-				   loc = new Locale(lang,region);
-			   } else { 
-				   log.debug("getting system locale for: " + lang );
-				   loc = new Locale(lang);
-			   }
-		   }
-
-		   return loc;
-	   }
-	
 }
