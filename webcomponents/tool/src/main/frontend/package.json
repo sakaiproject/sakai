@@ -14,7 +14,7 @@
     "@fortawesome/fontawesome-free": "^5.9.0",
     "@webcomponents/webcomponentsjs": "^2.2.10",
     "lit-element": "^2.1.0",
-    "sortablejs": "^1.9.0"
+    "sortablejs": "1.10.2"
   },
   "devDependencies": {
     "@adrianfish/empathise": "^0.1.1",
