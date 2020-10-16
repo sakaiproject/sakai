@@ -330,19 +330,24 @@ public class UserAuditEventLog {
 						}
 						
 						if (actionUserId!=null && !"".equals(actionUserId)) {
-							User cachedActionUser;
+							User cachedActionUser = null;
 							if (userMap.containsKey(actionUserId)) {
 								cachedActionUser = userMap.get(actionUserId);
 							} else {
-								cachedActionUser = userDirectoryService.getUserByEid(actionUserId);
-								userMap.put(actionUserId, cachedActionUser);
+								try {
+									cachedActionUser = userDirectoryService.getUserByEid(actionUserId);
+									userMap.put(actionUserId, cachedActionUser);
+								} catch (UserNotDefinedException e) {
+									log.warn("Found removed action user while getting the audit logs: {}", actionUserId);
+									source = "";
+								}
 							}
 							eventLog.add(new EventLog(cachedUser,roleName,actionTaken,auditStamp,source,cachedActionUser));
 						} else {
 							eventLog.add(new EventLog(cachedUser,roleName,actionTaken,auditStamp,source,null));
 						}
 					} catch (UserNotDefinedException e) {
-						log.warn("Skipping removed user while getting the user audit logs: {}", e.getMessage());
+						log.warn("Skipping removed user while getting the user audit logs: {}", userId);
 					}
 				}
 			}
