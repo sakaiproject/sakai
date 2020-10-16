@@ -88,7 +88,7 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
       </div>
       ${!this.preview ? html`
       <div class="rubric-totals" style="margin-bottom: 5px;">
-        <div class="total-points"><sr-lang key="total">Total</sr-lang>: <strong>${this.totalPoints.toLocaleString(this.locale)}</strong></div>
+        <div class="total-points"><sr-lang key="total">Total</sr-lang>: <strong>${this.totalPoints.toLocaleString(this.locale, {maximumFractionDigits:2})}</strong></div>
       </div>
       ` : html``}
     `;

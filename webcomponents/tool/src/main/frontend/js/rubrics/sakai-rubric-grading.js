@@ -110,7 +110,7 @@ export class SakaiRubricGrading extends RubricsElement {
       <div class="rubric-totals" style="margin: 10px 0px 10px 0px;">
         <input type="hidden" aria-labelledby="${tr("total")}" id="rbcs-${this.evaluatedItemId}-${this.entityId}-totalpoints" name="rbcs-${this.evaluatedItemId}-${this.entityId}-totalpoints" .value="${this.totalPoints}">
         <div class="total-points">
-          <sr-lang key="total">Total</sr-lang>: <strong id="sakai-rubrics-total-points">${this.totalPoints.toLocaleString(this.locale)}</strong>
+          <sr-lang key="total">Total</sr-lang>: <strong id="sakai-rubrics-total-points">${this.totalPoints.toLocaleString(this.locale, {maximumFractionDigits: 2})}</strong>
         </div>
       </div>
 
@@ -298,8 +298,12 @@ export class SakaiRubricGrading extends RubricsElement {
   updateTotalPoints(notify = true) {
 
     this.calculateTotalPointsFromCriteria();
+
+    // Make sure total points is not negative
+    if (parseFloat(this.totalPoints) < 0) this.totalPoints = 0;
+
     if (notify) {
-      var detail = { evaluatedItemId: this.evaluatedItemId, entityId: this.entityId, value: this.totalPoints.toLocaleString(this.locale) };
+      var detail = { evaluatedItemId: this.evaluatedItemId, entityId: this.entityId, value: this.totalPoints.toLocaleString(this.locale, { maximumFractionDigits: 2 }) };
       this.dispatchEvent(new CustomEvent('total-points-updated', { detail: detail, bubbles: true, composed: true }));
     }
   }
