@@ -125,6 +125,9 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
     // Enforce a points value. Blank breaks things.
     if (this.rating.points.length === 0) this.rating.points = "0";
 
+    // Round user input to two digits
+    if (this.rating.points.length > 1) this.rating.points = parseFloat(this.rating.points).toFixed(2);
+
     this.rating.description = document.getElementById(`rating-description-${this.rating.id}`).value;
     this.rating.criterionId = this.criterionId;
 
