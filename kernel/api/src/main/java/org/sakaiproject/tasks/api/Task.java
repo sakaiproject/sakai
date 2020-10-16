@@ -26,8 +26,10 @@ import java.time.Instant;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.Type;
@@ -45,7 +47,8 @@ public class Task {
 
     @Id
     @Column(name = "ID")
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "task_id_sequence")
+    @SequenceGenerator(name = "task_id_sequence", sequenceName = "TASKS_S")
     @EqualsAndHashCode.Include
     private Long id;
 

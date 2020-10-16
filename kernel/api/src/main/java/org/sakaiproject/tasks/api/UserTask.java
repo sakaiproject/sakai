@@ -36,7 +36,8 @@ public class UserTask {
 
     @Id
     @Column(name = "ID")
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "user_task_id_sequence")
+    @SequenceGenerator(name = "user_task_id_sequence", sequenceName = "USER_TASKS_S")
     @EqualsAndHashCode.Include
     private Long id;
 
