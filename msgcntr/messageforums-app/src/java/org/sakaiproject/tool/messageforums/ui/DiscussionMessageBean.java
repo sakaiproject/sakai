@@ -37,6 +37,8 @@ import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
 /** 
@@ -502,7 +504,23 @@ log.debug("... before return getAuthorEmail(): userEmail = " + userEmail);
 	 */
 	public String getAnonAwareAuthor()
 	{
-		return isUseAnonymousId() ? getAnonId() : message.getAuthor();
+		if (isUseAnonymousId())
+		{
+			return getAnonId();
+		}
+		else
+		{
+			String authorID = getAuthorEid();
+			try
+			{
+				User author = UserDirectoryService.getUser(authorID);
+				return author.getDisplayName();
+			}
+			catch (UserNotDefinedException e)
+			{
+				return message.getAuthor();
+			}
+		}
 	}
 
 	/**
