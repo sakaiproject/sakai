@@ -1578,7 +1578,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             } else {
                 return resourceLoader.getString("gen.due");
             }
-        } catch (IdUnusedException | PermissionException e) {
+        } catch (NullPointerException | IdUnusedException | PermissionException e) {
             log.warn("Could not determine the status for assignment: {}, {}", assignmentId, e.getMessage());
         }
         return null;

@@ -5,8 +5,10 @@ import java.time.Instant;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -26,7 +28,8 @@ public class BullhornAlert {
 
     @Id
     @Column(name = "ID", nullable = false)
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "bullhorn_alert_id_sequence")
+    @SequenceGenerator(name = "bullhorn_alert_id_sequence", sequenceName = "BULLHORN_ALERTS_S")
     @EqualsAndHashCode.Include
     private Long id;
 
