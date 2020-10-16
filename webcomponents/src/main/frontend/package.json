@@ -18,7 +18,7 @@
   "dependencies": {
     "@webcomponents/webcomponentsjs": "^2.2.7",
     "lit-element": "^2.0.1",
-    "sortablejs": "^1.8.3"
+    "sortablejs": "1.10.2"
   },
   "devDependencies": {
     "@0xcda7a/empathy": "0.0.9",
