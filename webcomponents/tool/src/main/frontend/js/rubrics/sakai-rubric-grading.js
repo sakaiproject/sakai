@@ -321,6 +321,10 @@ export class SakaiRubricGrading extends RubricsElement {
   updateTotalPoints(notify = true) {
 
     this.calculateTotalPointsFromCriteria();
+
+    // Make sure total points is not negative
+    if (parseFloat(this.totalPoints) < 0) this.totalPoints = 0;
+
     if (notify) {
       var detail = { evaluatedItemId: this.evaluatedItemId, entityId: this.entityId, value: this.totalPoints.toLocaleString(this.locale, { maximumFractionDigits: 2 }) };
       this.dispatchEvent(new CustomEvent('total-points-updated', { detail: detail, bubbles: true, composed: true }));
