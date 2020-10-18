@@ -337,6 +337,7 @@
                 <property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager"/>
                 <property name="privacyManager" ref="org.sakaiproject.api.privacy.PrivacyManager" />
                 <property name="prtMsgManager" ref="org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager" />
+                <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
             </bean>
         </property>
          <property name="transactionAttributes">
