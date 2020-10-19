@@ -39,12 +39,10 @@
    <h:inputHidden id="showTimer" value="#{delivery.showTimer}"/>
    <h:inputHidden id="mediaId" value="#{mediaBean.mediaId}"/>
    <h3> <h:outputText  value="#{deliveryMessages.remove_media_conf}" /></h3>
-   <div class="validation tier1">
+   <div class="sak-banner-warn">
           <h:outputText value="#{deliveryMessages.cert_rem_media}" />
    </div>
-   <p>
-     <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-     <h:outputLink title="#{deliveryMessages.t_media}" value="#" onclick="window.open('#{mediaBean.mediaUrl}','new_window');" onkeypress="window.open('#{mediaBean.mediaUrl}','new_window');">
+   <p><h:outputLink title="#{deliveryMessages.t_media}" value="#" onclick="window.open('#{mediaBean.mediaUrl}','new_window');" onkeypress="window.open('#{mediaBean.mediaUrl}','new_window');">
        <h:outputText value="#{mediaBean.filename}" />
      </h:outputLink>
    </p>

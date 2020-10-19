@@ -179,7 +179,7 @@ public class BeginDeliveryActionListener implements ActionListener
     delivery.setProtocol(ContextUtil.getProtocol());
 
     ServerConfigurationService serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
-    Long sizeMax = Long.valueOf(serverConfigurationService.getInt("samigo.sizeMax", 40960));
+    Long sizeMax = Long.valueOf(serverConfigurationService.getInt("samigo.sizeMax", 20480));
     delivery.setFileUploadSizeMax(Math.round(sizeMax.floatValue()/1024));
     delivery.setPublishedAssessment(pub);
 
