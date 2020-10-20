@@ -330,13 +330,14 @@
             <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
         </property>
         <property name="target">
-            <bean class="org.sakaiproject.component.app.messageforums.MembershipManagerImpl">
+            <bean class="org.sakaiproject.component.app.messageforums.MembershipManagerImpl" init-method="init">
                 <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
                 <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
                 <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
                 <property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager"/>
                 <property name="privacyManager" ref="org.sakaiproject.api.privacy.PrivacyManager" />
                 <property name="prtMsgManager" ref="org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager" />
+                <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
             </bean>
         </property>
          <property name="transactionAttributes">
