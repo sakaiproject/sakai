@@ -37,6 +37,10 @@
       </title>
 
       <%@ include file="/jsf/delivery/deliveryjQuery.jsp" %>
+      <script>
+        checkForCurrentAssessmentOpen(<h:outputText value="#{delivery.assessmentId}"/>
+                , "<h:outputText value="#{deliveryMessages.multiple_assessments_open_alert}" />");
+      </script>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>;">
  
