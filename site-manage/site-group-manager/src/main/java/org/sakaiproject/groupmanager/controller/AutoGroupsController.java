@@ -448,7 +448,7 @@ public class AutoGroupsController {
             for (String userId : autoGroup.getValue()) {
                 Member member = site.getMember(userId);
                 if (member != null) {
-                    newGroup.addMember(member.getUserId(), member.getRole().getId(), member.isProvided(), false);
+                    newGroup.addMember(member.getUserId(), member.getRole().getId(), member.isActive(), false);
                     //Post Add and Remove events for each added/removed user.
                     if (sakaiService.getBooleanProperty(SiteHelper.WSETUP_TRACK_USER_MEMBERSHIP_CHANGE, false)) {
                         sakaiService.postEvent(SiteService.EVENT_USER_GROUP_MEMBERSHIP_ADD, member.getUserId());
