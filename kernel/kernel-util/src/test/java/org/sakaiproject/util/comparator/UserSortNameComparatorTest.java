@@ -92,8 +92,8 @@ public class UserSortNameComparatorTest {
 
     @Test
     public void fullnamesWithSpacesCompare() {
-    	// Given two students, whose lastnames are "Martinez Torcal" and "Martin Troncoso", the logical alphabetical order 
-    	// is first "Martin Troncoso" and after "Martinez Torcal", just because the blank space is counted as a character.
+        // Given two students, whose lastnames are "Martinez Torcal" and "Martin Troncoso", the logical alphabetical order 
+        // is first "Martin Troncoso" and after "Martinez Torcal", just because the blank space is counted as a character.
         UserSortNameComparator comparator = new UserSortNameComparator();
         User userA = Mockito.mock(User.class);
         when(userA.getSortName()).thenReturn("Martinez Torcal, Apple");
