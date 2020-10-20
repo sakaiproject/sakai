@@ -4,3 +4,4 @@
 !conf/*.js
 !stories/*.js
 !.storybook/*.js
+!test/*
