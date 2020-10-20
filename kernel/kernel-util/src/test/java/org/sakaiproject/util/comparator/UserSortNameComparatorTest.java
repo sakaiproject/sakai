@@ -53,4 +53,38 @@ public class UserSortNameComparatorTest {
         assertEquals(-1, comparator.compare(userB, userA));
         assertEquals(0, comparator.compare(userB, userB));
     }
+
+    @Test
+    public void namesWithSpacesCompare() {
+        UserSortNameComparator comparator = new UserSortNameComparator();
+        User userA = Mockito.mock(User.class);
+        when(userA.getSortName()).thenReturn("Dekfort, Apple");
+        User userB = Mockito.mock(User.class);
+        when(userB.getSortName()).thenReturn("Del Fintino, Pear");
+        User userC = Mockito.mock(User.class);
+        when(userC.getSortName()).thenReturn("Dekford", "Orange");
+        User userD = Mockito.mock(User.class);
+        when(userD.getSortName()).thenReturn("De'Leon", "Cactus");
+        User userE = Mockito.mock(User.class);
+        when(userE.getSortName()).thenReturn("Deleverde", "Mango");
+
+        assertEquals(-1, comparator.compare(userA, userB));
+        assertEquals(1, comparator.compare(userB, userA));
+        assertEquals(0, comparator.compare(userB, userB));
+        assertEquals(-1, comparator.compare(userD, userC));
+        assertEquals(-1, comparator.compare(userD, userE));
+    }
+
+    @Test
+    public void fullnamesWithSpacesCompare() {
+        // Given two students, whose lastnames are "Martinez Torcal" and "Martin Troncoso", the logical alphabetical order 
+        // is first "Martin Troncoso" and after "Martinez Torcal", just because the blank space is counted as a character.
+        UserSortNameComparator comparator = new UserSortNameComparator();
+        User userA = Mockito.mock(User.class);
+        when(userA.getSortName()).thenReturn("Martinez Torcal, Apple");
+        User userB = Mockito.mock(User.class);
+        when(userB.getSortName()).thenReturn("Martin Troncoso, X");
+
+        assertEquals(1, comparator.compare(userA, userB));
+    }
 }
