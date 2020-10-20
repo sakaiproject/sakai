@@ -39,7 +39,6 @@ $Id: audioRecordingPopup.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
         var deliveryProtocol = <h:outputText value="'#{delivery.protocol}'"/>;
         var messagesSecs = <h:outputText value="'#{deliveryMessages.secs}'"/>;
         var recordedOn = <h:outputText value="'#{deliveryMessages.recorded_on}'"/>;
-        var dateFormat = <h:outputText value="'#{deliveryMessages.delivery_date_format}'"/>;
 
         var $elem = $(".audioRecordingPopup-" + questionId);
         var sakaiRecorder = new SakaiRecorder($elem);
@@ -59,8 +58,7 @@ $Id: audioRecordingPopup.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
             postUrl: postUrl,
             deliveryProtocol: deliveryProtocol,
             messagesSecs: messagesSecs,
-            recordedOn: recordedOn,
-            dateFormat: dateFormat
+            recordedOn: recordedOn
         });
     });
 </script>
