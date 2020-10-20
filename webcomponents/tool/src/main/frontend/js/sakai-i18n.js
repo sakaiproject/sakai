@@ -27,7 +27,7 @@ function loadProperties(options) {
   }
 
   const defaults = {
-    lang: (parent.portal && parent.portal.locale) ? parent.portal.locale : "",
+    lang: (window.portal && window.portal.locale) ? window.portal.locale : "",
     resourceClass: "org.sakaiproject.i18n.InternationalizedMessages",
     cache: true,
   };
@@ -56,11 +56,11 @@ function loadProperties(options) {
   window.sakai.translations[options.bundle] = window.sakai.translations[options.bundle] || {};
 
   var storageKey = options.lang + options.bundle;
-  if (options.cache && sessionStorage.getItem(storageKey) !== null) {
+  if (options.cache && window.sessionStorage.getItem(storageKey) !== null) {
     if (options.debug) {
       console.debug("Returning " + storageKey + " from sessions storage ...");
     }
-    window.sakai.translations[options.bundle] = JSON.parse(sessionStorage[storageKey]);
+    window.sakai.translations[options.bundle] = JSON.parse(window.sessionStorage[storageKey]);
     return Promise.resolve(window.sakai.translations[options.bundle]);
   } else {
     if (options.debug) {
@@ -103,7 +103,10 @@ function loadProperties(options) {
           if (options.debug) {
             console.debug(`Caching translations for ${options.bundle} against key ${storageKey} in sessionStorage ...`);
           }
-          sessionStorage[storageKey] = JSON.stringify(window.sakai.translations[options.bundle]);
+
+          if (options.cache) {
+            window.sessionStorage[storageKey] = JSON.stringify(window.sakai.translations[options.bundle]);
+          }
           resolve(window.sakai.translations[options.bundle]);
         }).catch(error => { console.error(error); resolve(false); } );
       });
