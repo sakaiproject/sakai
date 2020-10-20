@@ -66,6 +66,7 @@ function resizeFrame(){
             nSelectedText: ' $tlang.getString("announcement.edit.groupsselected")',
             filterPlaceholder: '$tlang.getString("announcement.edit.searchgroup")',
             enableFiltering: true,
+            includeSelectAllOption: true,
             enableCaseInsensitiveFiltering: true
         });
     });
