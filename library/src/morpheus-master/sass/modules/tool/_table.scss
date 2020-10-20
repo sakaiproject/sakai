@@ -6,11 +6,12 @@ table{
 		font-size: $default-font-size;
 		border: 1px solid var(--sakai-border-color);
 		background-color: var(--tool-background-color);
-    	margin: 1em 0;
+		margin: 1em 0;
 		@media #{$phone}{
 			display: block;
-    		margin: 3em 0;
-    		overflow: auto;
+			margin: 3em 0;
+			overflow: auto;
+			width: fit-content;
 		}
 		tr{
 			td {

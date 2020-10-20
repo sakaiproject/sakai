@@ -101,7 +101,7 @@ class SakaiPermissions extends SakaiElement {
         <div class="permissions-undo-button"" style="float:left;padding-top:.5em">
           <input type="button" value="${this.i18n["per.lis.restoredef"]}" aria-label="${this.i18n["undo"]}" @click=${this.resetPermissions} />
         </div>
-        <table id="${this.tool}-permissions-table" class="permissions-table listHier checkGrid specialLink" cellspacing="0" summary="${this.i18n["per.lis"]}" border="0" style="width:auto">
+        <table id="${this.tool}-permissions-table" class="permissions-table listHier checkGrid specialLink" cellspacing="0" summary="${this.i18n["per.lis"]}" border="0">
           <tr>
             <th id="permission">
               <a href="#" title="${this.i18n["per.lis.head.title"]}">${this.i18n["per.lis.head"]}</a>
