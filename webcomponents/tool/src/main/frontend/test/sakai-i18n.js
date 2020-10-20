@@ -38,7 +38,7 @@ title=Hello world
 
     it("Expects to work with portal.locale set", async () => {
 
-      window.portal = { locale: "en-G" };
+      window.portal = { locale: "en-GB" };
       const r = await loadProperties("test");
       expect(r["title"]).to.equal("Hello world");
     });
