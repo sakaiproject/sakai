@@ -17,7 +17,7 @@ public class OneDriveItem {
 
     private String name;
     
-    private Integer size;
+    private Long size;
 	
     @JsonProperty(value = "@microsoft.graph.downloadUrl")//this is always public
     //@JsonProperty(value = "webUrl")//this checks against onedrive permissions
