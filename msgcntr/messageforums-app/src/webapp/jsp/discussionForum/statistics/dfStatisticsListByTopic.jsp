@@ -297,7 +297,7 @@
   			<h:column>
   				<f:facet name="header">
   					<h:commandLink action="#{mfStatisticsBean.toggleTopicPercentReadSort}" title="#{msgs.stat_percent_read}">
-					   	<h:outputText value="#{msgs.stat_percent_read}" />
+						<h:outputText value="#{msgs.stat_percent_read_header}" />
 						<h:graphicImage value="/images/sortascending.gif" rendered="#{mfStatisticsBean.percentReadSort && mfStatisticsBean.ascending}" alt="#{msgs.stat_sort_percent_read}"/>
 						<h:graphicImage value="/images/sortdescending.gif" rendered="#{mfStatisticsBean.percentReadSort && !mfStatisticsBean.ascending}" alt="#{msgs.stat_sort_percent_read}"/>
 					</h:commandLink>
