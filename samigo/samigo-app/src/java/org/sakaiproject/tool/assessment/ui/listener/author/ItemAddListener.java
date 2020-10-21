@@ -2021,11 +2021,11 @@ public class ItemAddListener
 			}
 
 			// loop through all variables and formulas to create all answers for the ItemText object
+			String choiceLabel = AnswerBean.getChoiceLabels()[0]; // choice label doesn't matter for calculated questions; use a static value just to make the constructor happy below
 			for (CalculatedQuestionAnswerIfc curVarFormula : list) {
 				String match = curVarFormula.getMatch();
 				Long curSequence = curVarFormula.getSequence();
 				boolean isCorrect = curSequence.equals(sequence);
-				String choiceLabel = AnswerBean.getChoiceLabels()[curSequence.intValue()];
 				boolean foundAnswer = false;
 				for (AnswerIfc curAnswer : answerSet) {
 					if (curAnswer.getSequence().equals(sequence)) {
