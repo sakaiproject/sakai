@@ -189,9 +189,10 @@
 	  	<h:outputText rendered="#{ForumTool.anonymousEnabled && ForumTool.siteHasAnonymousTopics && !mfStatisticsBean.pureAnon}" value="#{msgs.stat_forum_anonymous_omitted}" styleClass="instruction" />
 
         <div>
-            <h:outputFormat value="#{msgs.stat_percent_read_user}" escape="false">
-                <f:param value="#{mfStatisticsBean.getPercentRead()}" />
-            </h:outputFormat>
+            <h:outputText value="#{msgs.stat_percent_read_user}" escape="false" />
+            <h:outputText value="#{mfStatisticsBean.getPercentRead()}">
+                <f:convertNumber type="percent" />
+            </h:outputText>
         </div>
         <div>
             <h:outputFormat value="#{msgs.stat_num_authored_user}" escape="false">

@@ -3114,7 +3114,7 @@ public class MessageForumStatisticsBean {
 		return topic.getPostAnonymous() && (!topic.getRevealIDsToRoles() || !uiPermissionsManager.isIdentifyAnonAuthors((DiscussionTopic) topic));
 	}
 
-	public int getPercentRead()
+	public double getPercentRead()
 	{
 		int totalPosts = 0;
 		List<Object[]> studentAuthoredStats = messageManager.findAuthoredMessageCountForAllStudents();
@@ -3128,6 +3128,6 @@ public class MessageForumStatisticsBean {
 			return 0;
 		}
 		int numRead = getUserReadStatistics().size();
-		return (numRead / totalPosts) * 100;
+		return ((double)numRead / (double)totalPosts);
 	}
 }
