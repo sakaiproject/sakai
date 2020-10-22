@@ -50,6 +50,7 @@ import org.sakaiproject.user.api.UsersShareEmailUDP;
 import com.unboundid.ldap.sdk.BindRequest;
 import com.unboundid.ldap.sdk.BindResult;
 import com.unboundid.ldap.sdk.DereferencePolicy;
+import com.unboundid.ldap.sdk.GetEntryLDAPConnectionPoolHealthCheck;
 import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPConnectionPool;
 import com.unboundid.ldap.sdk.LDAPSearchException;
@@ -103,6 +104,8 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 	
 	public static final boolean DEFAULT_RETRY_FAILED_OPERATIONS_DUE_TO_INVALID_CONNECTIONS = false;
 
+	public static final long DEFAULT_HEALTH_CHECK_INTERVAL_MILLIS = 60000L;
+
 	/** Default LDAP maximum number of objects in a result */
 	public static final int DEFAULT_MAX_RESULT_SIZE = 1000;
 
@@ -152,6 +155,10 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 	private int poolMaxConns = DEFAULT_POOL_MAX_CONNS;
 	
 	private boolean retryFailedOperationsDueToInvalidConnections = DEFAULT_RETRY_FAILED_OPERATIONS_DUE_TO_INVALID_CONNECTIONS;
+
+	private long healthCheckIntervalMillis = DEFAULT_HEALTH_CHECK_INTERVAL_MILLIS;
+
+	private Map<String,String> healthCheckMappings = null;
 
 	/** Maximum number of results from one LDAP query */
 	private int maxResultSize = DEFAULT_MAX_RESULT_SIZE;
@@ -309,6 +316,19 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
                     log.info("Creating LDAP connection pool of size {}", poolMaxConns);
                     connectionPool = new LDAPConnectionPool(serverSet, bindRequest, poolMaxConns);
                     connectionPool.setRetryFailedOperationsDueToInvalidConnections(retryFailedOperationsDueToInvalidConnections);
+                    connectionPool.setHealthCheckIntervalMillis(healthCheckIntervalMillis);
+                    if (healthCheckMappings != null) {
+                        GetEntryLDAPConnectionPoolHealthCheck healthCheck = new GetEntryLDAPConnectionPoolHealthCheck(
+                            ldapUser,
+                            Long.parseLong(healthCheckMappings.get("maxResponseTime")),
+                            Boolean.parseBoolean(healthCheckMappings.get("invokeOnCreate")),
+                            Boolean.parseBoolean(healthCheckMappings.get("invokeAfterAuthentication")),
+                            Boolean.parseBoolean(healthCheckMappings.get("invokeOnCheckout")),
+                            Boolean.parseBoolean(healthCheckMappings.get("invokeOnRelease")),
+                            Boolean.parseBoolean(healthCheckMappings.get("invokeForBackgroundChecks")),
+                            Boolean.parseBoolean(healthCheckMappings.get("invokeOnException")));
+                        connectionPool.setHealthCheck(healthCheck);
+                    }
                } catch (com.unboundid.ldap.sdk.LDAPException e) {
                    log.error("Could not init LDAP pool", e);
                    return false;
@@ -1217,6 +1237,24 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 	 */
 	public void setRetryFailedOperationsDueToInvalidConnections(boolean retryFailedOperationsDueToInvalidConnections) {
 		this.retryFailedOperationsDueToInvalidConnections = retryFailedOperationsDueToInvalidConnections;
+	}
+
+	public long getHealthCheckIntervalMillis() {
+		return healthCheckIntervalMillis;
+	}
+
+	public void setHealthCheckIntervalMillis(long healthCheckIntervalMillis) {
+		this.healthCheckIntervalMillis = healthCheckIntervalMillis;
+	}
+
+	public Map<String, String> getHealthCheckMappings()
+	{
+		return healthCheckMappings;
+	}
+
+	public void setHealthCheckMappings(Map<String, String> healthCheckMappings)
+	{
+		this.healthCheckMappings = healthCheckMappings;
 	}
 
 	/**
