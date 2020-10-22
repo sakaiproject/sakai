@@ -180,6 +180,7 @@
 	max-width: 100%;
 	@include appearance(none);
 	@include border-radius(3px);
+	border: 1px solid var(--sakai-border-color);
 	&::-ms-expand {
 	    display: none;
 	}
