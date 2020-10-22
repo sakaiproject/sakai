@@ -67,4 +67,6 @@ export class SakaiRubricCriteriaReadonly extends RubricsElement {
   }
 }
 
-customElements.define("sakai-rubric-criteria-readonly", SakaiRubricCriteriaReadonly);
+if (!customElements.get("sakai-rubric-criteria-readonly", SakaiRubricCriteriaReadonly)) {
+  customElements.define("sakai-rubric-criteria-readonly", SakaiRubricCriteriaReadonly);
+}
