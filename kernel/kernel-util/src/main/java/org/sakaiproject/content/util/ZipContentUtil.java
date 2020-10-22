@@ -181,13 +181,12 @@ public class ZipContentUtil {
 			String resourceName = extractName(resourceId);			
 			String homeCollectionId = (String) toolSession.getAttribute(STATE_HOME_COLLECTION_ID);
 			if(homeCollectionId != null && homeCollectionId.equals(reference.getId())){
-				//place the zip file into the home folder of the resource tool
-				resourceId = reference.getId() + resourceName;
-				
 				String homeName = (String) toolSession.getAttribute(STATE_HOME_COLLECTION_DISPLAY_NAME);
 				if(homeName != null){
-					resourceName = homeName;
-				}				
+					resourceName = homeName + ZIP_EXTENSION;
+				}
+				//place the zip file into the home folder of the resource tool
+				resourceId = reference.getId() + homeName;
 			}
 			int count = 0;
 			ContentResourceEdit resourceEdit = null;
