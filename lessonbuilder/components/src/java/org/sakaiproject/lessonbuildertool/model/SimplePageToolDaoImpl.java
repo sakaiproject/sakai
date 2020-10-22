@@ -195,9 +195,12 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 
 	public List<SimplePageItem> findItemsOnPage(long pageId) {
-	    DetachedCriteria d = DetachedCriteria.forClass(SimplePageItem.class).add(Restrictions.eq("pageId", pageId));
-		List<SimplePageItem> list = (List<SimplePageItem>) getHibernateTemplate().findByCriteria(d);
-		
+		List<SimplePageItem> list = getHibernateTemplate().execute(session -> session.createCriteria(SimplePageItem.class)
+				.setCacheable(false)
+				.add(Restrictions.eq("pageId", pageId))
+				.list()
+		);
+
 		Collections.sort(list, new Comparator<SimplePageItem>() {
 			public int compare(SimplePageItem a, SimplePageItem b) {
 				return Integer.valueOf(a.getSequence()).compareTo(b.getSequence());
