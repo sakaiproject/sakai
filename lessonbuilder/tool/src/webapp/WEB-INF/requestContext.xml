@@ -279,6 +279,13 @@
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 	</bean>
 
+	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.SubpageBulkEditProducer">
+		<property name="simplePageBean" ref="simplePageBean" />
+		<property name="messageLocator" ref="messageLocator"/>
+		<property name="localeGetter" ref="requestLocaleProxy" />
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+	</bean>
+
 	<!-- backing beans -->
 	<bean name="simplePageBean" class="org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean" init-method="init">
 		<property name="messageLocator" ref="messageLocator"/>

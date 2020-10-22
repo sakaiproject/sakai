@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html rsf:id="html" xmlns="http://www.w3.org/1999/xhtml" xmlns:rsf="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE"/>
+    <style rsf:id="iconstyle" type="text/css">
+    </style>
+    <script rsf:id="scr=portal-matter" type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+    <link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+    <link rsf:id="scr=portal-matter" href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
+    <link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/Simplepagetool.css" type="text/css"/>
+    <link rel="stylesheet" rsf:id="customCSS" type="text/css" />
+
+    <title rsf:id="msg=simplepage.bulk-edit-pages"></title>
+</head>
+<body rsf:id="scr=sakai-body">
+
+<div class="portletBody" id="portletBody">
+    <h2 rsf:id="current-page-title"></h2>
+
+    <div rsf:id="error-div" class="ui-widget sak-banner-error error-spacingabove error-nospcebelow" role="alert">
+        <div>
+            <div rsf:id="error"></div>
+            <div rsf:id="errors:">
+                <p rsf:id="error-message"></p>
+            </div>
+        </div>
+    </div>
+
+    <form class="form" rsf:id="bulk-edit-form" id="bulk-edit-form">
+        <input type="hidden" rsf:id="csrf"/>
+        <input type="hidden" rsf:id="subpage-bulk-edit-json" id="subpage-bulk-edit-json" />
+
+        <p><span rsf:id="msg=simplepage.bulk-edit-pages.instructions"></span></p>
+
+        <div class="row">
+            <div class="col-sm-8">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th rsf:id="msg=simplepage.bulk-edit-pages.table.header.current"></th>
+                        <th rsf:id="msg=simplepage.bulk-edit-pages.table.header.new"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr rsf:id="subpage:">
+                        <td rsf:id="subpage-item-current-title"></td>
+                        <td class="subpage-item form-group">
+                            <input type="hidden" rsf:id="subpage-item-id" class="subpage-item-id" />
+                            <input type="text" name="subpage-item-title" class="subpage-item-title" rsf:id="subpage-item-title" maxlength="255"/>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <p rsf:id="no-pages"></p>
+
+        <p class="act">
+            <input accesskey ="s" rsf:id="save" value="Save" type="submit" class="active" id="save" />
+            <input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit"/>
+        </p>
+    </form>
+
+</div>
+<script>includeLatestJQuery('SubpageBulkEdit.html');</script>
+<script type="text/javascript" language="JavaScript" src="$context/js/subpageBulkEdit.js"></script>
+<script type="text/javascript">
+    subpagebulkedit.init();
+</script>
+</body>
+</html>
