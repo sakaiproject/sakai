@@ -980,7 +980,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		context.put ("id", entityId);
 		String collectionId = (String) state.getAttribute(STATE_MORE_COLLECTION_ID);
 		context.put ("collectionId", collectionId);
-		String homeCollectionId = (String) (String) state.getAttribute (STATE_HOME_COLLECTION_ID);
+		String homeCollectionId = (String) state.getAttribute (STATE_HOME_COLLECTION_ID);
 		context.put("homeCollectionId", homeCollectionId);
 		//List cPath = getCollectionPath(state);
 		//context.put ("collectionPath", cPath);
@@ -8401,11 +8401,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			if ((home == null) || (home.length() == 0))
 			{
 				home = contentHostingService.getSiteCollection(toolManager.getCurrentPlacement().getContext());
-
-				// TODO: what's the 'name' of the context? -ggolden
-				// we'll need this to create the home collection if needed
-				state.setAttribute (STATE_HOME_COLLECTION_DISPLAY_NAME, toolManager.getCurrentPlacement().getContext()
-						/*siteService.getSiteDisplay(toolManager.getCurrentPlacement().getContext()) */);
+				try {
+					state.setAttribute(STATE_HOME_COLLECTION_DISPLAY_NAME, ((Site) siteService.getSite(toolManager.getCurrentPlacement().getContext())).getTitle());
+				} catch (IdUnusedException e) {
+					log.warn("Error while trying to set {} attribute for site {}", STATE_HOME_COLLECTION_DISPLAY_NAME, toolManager.getCurrentPlacement().getContext());
+				}
 			}
 		}
 		state.setAttribute (STATE_HOME_COLLECTION_ID, home);
