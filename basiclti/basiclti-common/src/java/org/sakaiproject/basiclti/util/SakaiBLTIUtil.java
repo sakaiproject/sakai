@@ -796,7 +796,7 @@ public class SakaiBLTIUtil {
 
 	public static void addConsumerData(Properties props, Properties custom) {
 		final String defaultName =  ServerConfigurationService.getString("serverName",
-             ServerConfigurationService.getString("serverUrl","localhost.sakailms"));
+			ServerConfigurationService.getString("serverUrl","localhost.sakailms"));
 
 		// Get the organizational information
 		setProperty(custom, LTICustomVars.TOOLPLATFORMINSTANCE_GUID,
