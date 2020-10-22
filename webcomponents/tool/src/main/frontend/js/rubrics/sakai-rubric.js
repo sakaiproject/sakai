@@ -16,40 +16,39 @@ export class SakaiRubric extends RubricsElement {
 
     super();
 
-    this.rubricExpanded = true;
-
-    this._rubric;
-    this.shareIcon;
-    this.weightedIcon;
-    this.weightLabel;
-    this.totalWeight;
-    this.validWeight;
-
-    this.updateRubricConfig = {
+    this.updateRubricOptions = {
       method: "PATCH",
-      contentType: "application/json-patch+json"
+      headers: {
+        "Content-Type": "application/json-patch+json",
+      },
     };
   }
 
   static get properties() {
-    return { rubric: {type: Object}, token: { type: String }, shareIcon: { type: String }, weightedIcon: String, totalWeight: String, validWeight: Boolean };
+
+    return {
+      rubric: { type: Object},
+      token: { type: String },
+      shareIcon: { type: String },
+      weightedIcon: String,
+      totalWeight: String,
+      validWeight: Boolean
+    };
   }
 
-  attributeChangedCallback(name, oldValue, newValue) {
+  set token(newValue) {
 
-    super.attributeChangedCallback(name, oldValue, newValue);
-
-    if ("token" === name) {
-      this.updateRubricConfig.headers = { "authorization": newValue };
-    }
+    this._token = newValue;
+    this.updateRubricOptions.headers["Authorization"] = newValue;
   }
+
+  get token() { return this._token; }
 
   set rubric(newValue) {
 
     var oldValue = this._rubric;
     this._rubric = newValue;
     if (!this._rubric.criterions) this._rubric.criterions = [];
-    this.updateRubricConfig.url = `/rubrics-service/rest/rubrics/${newValue.id}?projection=inlineRubric`;
     this.handleWeightLink();
     this.handleShareLink();
     this.requestUpdate("rubric", oldValue);
@@ -58,7 +57,7 @@ export class SakaiRubric extends RubricsElement {
   get rubric() { return this._rubric; }
 
   shouldUpdate(changedProperties) {
-    return changedProperties.has("rubric") || changedProperties.has("totalWeight") || changedProperties.has("validWeight");
+    return this.rubric;
   }
 
   render() {
@@ -149,12 +148,6 @@ export class SakaiRubric extends RubricsElement {
     `;
   }
 
-  showToolTip(e) {
-
-    e.stopPropagation();
-    this.querySelector(".rubric-title").classList.add("active");
-  }
-
   toggleRubric(e) {
 
     var titlecontainer = this.querySelector(".rubric-title");
@@ -183,17 +176,21 @@ export class SakaiRubric extends RubricsElement {
     this.dispatchEvent(new CustomEvent("clone-rubric", {detail: this.rubric, bubbles: true, composed: true}));
   }
 
-  deactivate(e, id) {
-
-    if (!document.getElementById(`collapse_${this.rubric.id}`).opened && this.rubric.id !== id) {
-      this.querySelector(".rubric-title").classList.remove("active");
-    };
-  }
-
   updateRubricTitle(e) {
 
-    this.updateRubricConfig.data = JSON.stringify([{"op":"replace","path":"/title","value": e.detail}]);
-    this.updateRubric();
+    this.updateRubricOptions.body = JSON.stringify([{"op":"replace","path":"/title","value": e.detail}]);
+
+    fetch(`/rubrics-service/rest/rubrics/${this.rubric.id}`, this.updateRubricOptions)
+      .then(r => {
+
+        if (r.ok) {
+          this.rubric.title = e.detail;
+          this.rubric.new = false;
+          this.requestUpdate();
+          this.updateItemDelete();
+          this.dispatchEvent(new SharingChangeEvent());
+        }
+      });
   }
 
   handleCriterionCreated(e) {
@@ -274,24 +271,38 @@ export class SakaiRubric extends RubricsElement {
     e.stopPropagation();
     this.rubric.weighted = !this.rubric.weighted;
     if (this.rubric.weighted) {
-      this.rubric.criterions.forEach(cr => {
-        cr.weight = 0;
-      });
+      this.rubric.criterions.forEach(cr => cr.weight = 0);
       this.rubric.criterions[0].weight = 100;
       this.handleSaveWeights(e);
       this.handleRefreshTotalWeight();
     }
-    this.updateRubricConfig.data = JSON.stringify([{ "op": "replace", "path": "/weighted", "value": this.rubric.weighted }]);
-    this.updateRubric();
-    this.requestUpdate();
+
+    this.updateRubricOptions.body = JSON.stringify([{ "op": "replace", "path": "/weighted", "value": this.rubric.weighted }]);
+    fetch(`/rubrics-service/rest/rubrics/${this.rubric.id}`, this.updateRubricOptions)
+      .then(r => {
+
+        if (r.ok) {
+          this.handleWeightLink();
+          this.requestUpdate();
+        }
+      });
   }
 
   sharingChange(e) {
 
     e.stopPropagation();
+
     this.rubric.metadata.public = !this.rubric.metadata.public;
-    this.updateRubricConfig.data = JSON.stringify([{"op":"replace","path":"/metadata/shared","value": this.rubric.metadata.public}]);
-    this.updateRubric();
+
+    this.updateRubricOptions.body = JSON.stringify([{"op":"replace","path":"/metadata/shared","value": this.rubric.metadata.public}]);
+    fetch(`/rubrics-service/rest/rubrics/${this.rubric.id}`, this.updateRubricOptions)
+      .then(r => {
+
+        if (r.ok) {
+          this.dispatchEvent(new SharingChangeEvent());
+          this.handleShareLink();
+        }
+      });
   }
 
   handleWeightLink() {
@@ -317,26 +328,16 @@ export class SakaiRubric extends RubricsElement {
     this.shareValues = this.rubric.title;
   }
 
-  updateRubric() {
+  updateItemDelete() {
 
-    var newRubric = this.rubric.new;
-
-    $.ajax(this.updateRubricConfig).done(data => {
-
-      this.rubric = data;
-      this.dispatchEvent(new SharingChangeEvent());
-      this.handleWeightLink();
-      this.handleShareLink();
-      var sakaiItemDelete = this.querySelector("sakai-item-delete");
-      if (sakaiItemDelete) {
-        sakaiItemDelete.requestUpdate("item", this.rubric);
-        sakaiItemDelete.requestUpdate("rubric", this.rubric);
-      }
-    }).fail((jqXHR, textStatus, errorThrown) => {
-      console.log("Request failed: " + textStatus);
-      console.log("Error: " + errorThrown);
-    });
+    const sakaiItemDelete = this.querySelector("sakai-item-delete");
+    if (sakaiItemDelete) {
+      sakaiItemDelete.requestUpdate("item", this.rubric);
+      sakaiItemDelete.requestUpdate("rubric", this.rubric);
+    }
   }
 }
 
-customElements.define("sakai-rubric", SakaiRubric);
+if (!customElements.get("sakai-rubric")) {
+  customElements.define("sakai-rubric", SakaiRubric);
+}

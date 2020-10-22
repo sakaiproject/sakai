@@ -62,6 +62,7 @@ export class SakaiRubricEdit extends RubricsElement {
   }
 
   firstUpdated(changedProperties) {
+
     $(this).find(".popover.rubric-edit-popover input").on('keydown', function(event) {
       if(event.keyCode == 9){
         event.preventDefault();
@@ -144,7 +145,7 @@ export class SakaiRubricEdit extends RubricsElement {
   saveEdit(e) {
 
     e.stopPropagation();
-    var title = this.querySelector("#rubric_title_edit").value;
+    const title = this.querySelector("#rubric_title_edit").value;
     this.dispatchEvent(new CustomEvent("update-rubric-title", { detail: title }));
     $(`#edit_rubric_${this.rubric.id}`).hide();
     this.hideToolTip();
