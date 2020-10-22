@@ -5135,10 +5135,16 @@ public class SimplePageBean {
 				return false;
 			    break;
 			case SimplePageItem.BLTI:
-			    if (bltiEntity != null)
-				entity = bltiEntity.getEntity(item.getSakaiId());
-			    if (entity == null || entity.notPublished())
-				return false;
+			    if (bltiEntity != null) {
+			      entity = bltiEntity.getEntity(item.getSakaiId());
+			    }
+			    if (entity == null || entity.notPublished()) {
+			      return false;
+			    } else {
+			      // After checking that it exists reset to null so that groups are
+			      // checked internal to Lessons
+			      entity = null;
+			    }
 			}
 		    }
 		} finally {
