@@ -55,7 +55,6 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishRepublishNotificationBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.tool.assessment.util.ExtendedTimeValidator;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.tool.assessment.util.TimeLimitValidator;
 import org.sakaiproject.util.api.FormattedText;
@@ -187,11 +186,6 @@ public class ConfirmPublishAssessmentListener
 		if(!availableLongerThanTimer) {
 			error = true;
 		}
-	}
-
-	boolean extendedTimesValid = new ExtendedTimeValidator().validateEntries( assessmentSettings.getExtendedTimes(), context, assessmentSettings );
-	if(!extendedTimesValid) {
-		error = true;
 	}
 
     // if due date is null we cannot have late submissions

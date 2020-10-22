@@ -74,7 +74,6 @@ import org.sakaiproject.tool.assessment.ui.bean.author.PublishRepublishNotificat
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.tool.assessment.util.ExtendedTimeValidator;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.tool.assessment.util.TimeLimitValidator;
 import org.sakaiproject.util.ResourceLoader;
@@ -317,11 +316,6 @@ implements ActionListener
 			if(!availableLongerThanTimer) {
 				error = true;
 			}
-		}
-
-		boolean extendedTimesValid = new ExtendedTimeValidator().validateEntries( assessmentSettings.getExtendedTimes(), context, assessmentSettings );
-		if(!extendedTimesValid) {
-			error = true;
 		}
 
 	    // SAM-1088
