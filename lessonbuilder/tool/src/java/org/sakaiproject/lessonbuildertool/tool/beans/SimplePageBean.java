@@ -1608,9 +1608,10 @@ public class SimplePageBean {
 			if (itemId != null && itemId != -1)
 				returnMesssage = processSingleResource(refs.get(0), type, isWebSite, isCaption, itemId);
 			else {
-			    for(Reference reference : refs){
-				returnMesssage = processSingleResource(reference, type, isWebSite, isCaption, itemId);
-				name = null;  // only use name for first
+				for(Reference reference : refs){
+					itemsCache.remove(getCurrentPage().getPageId());
+					returnMesssage = processSingleResource(reference, type, isWebSite, isCaption, itemId);
+					name = null;  // only use name for first
 			    }
 			}
 			toolSession.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
