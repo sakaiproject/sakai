@@ -33,6 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.jsf2.util.JsfTool;
 import org.sakaiproject.tool.api.ActiveTool;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
@@ -115,6 +116,10 @@ import org.sakaiproject.tool.assessment.ui.bean.util.EmailBean;
       // build up the target that will be dispatched to
       String target = req.getPathInfo();
       log.debug("***0. dispatch, target ="+target);
+      
+      //To avoid lessons collide url
+      Session ses = SessionManager.getCurrentSession();
+      ses.setAttribute("LESSONBUILDER_RETURNURL_SAMIGO", null);
 
       // see if we need to reset the assessmentBean, such as when returning
 		// from a helper
