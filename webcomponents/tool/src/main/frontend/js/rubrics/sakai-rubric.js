@@ -134,7 +134,6 @@ export class SakaiRubric extends RubricsElement {
                 rubric-id="${this.rubric.id}"
                 criteria="${JSON.stringify(this.rubric.criterions)}"
                 token="${this.token}"
-                @criterion-created="${this.handleCriterionCreated}"
                 @save-weights="${this.handleSaveWeights}"
                 @weight-changed="${this.handleCriterionWeightChange}"
                 @refresh-total-weight="${this.handleRefreshTotalWeight}"
@@ -191,12 +190,6 @@ export class SakaiRubric extends RubricsElement {
           this.dispatchEvent(new SharingChangeEvent());
         }
       });
-  }
-
-  handleCriterionCreated(e) {
-
-    var data = e.detail;
-    this.rubric.criterions.push(data.criterion);
   }
 
   handleSaveWeights(e) {
