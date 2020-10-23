@@ -11,7 +11,8 @@
         $(".subpage-item").each(function () {
             let id = $(this).find(".subpage-item-id").val();
             let title = $.trim($(this).find(".subpage-item-title").val());
-            jsonarr.push(JSON.stringify({"itemId": id, "title": title}));
+            let desc = $.trim($(this).find(".subpage-item-description").val());
+            jsonarr.push(JSON.stringify({"itemId": id, "title": title, "description": desc}));
         });
         $("#subpage-bulk-edit-json").val(JSON.stringify(jsonarr));
     };

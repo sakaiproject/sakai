@@ -34,27 +34,29 @@
 
         <p><span rsf:id="msg=simplepage.bulk-edit-pages.instructions"></span></p>
 
-        <div class="row">
-            <div class="col-sm-8">
-                <table class="table table-striped">
-                    <thead>
-                    <tr>
-                        <th rsf:id="msg=simplepage.bulk-edit-pages.table.header.current"></th>
-                        <th rsf:id="msg=simplepage.bulk-edit-pages.table.header.new"></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr rsf:id="subpage:">
-                        <td rsf:id="subpage-item-current-title"></td>
-                        <td class="subpage-item form-group">
-                            <input type="hidden" rsf:id="subpage-item-id" class="subpage-item-id" />
-                            <input type="text" name="subpage-item-title" class="subpage-item-title" rsf:id="subpage-item-title" maxlength="255"/>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th class="col-sm-2" rsf:id="msg=simplepage.bulk-edit-pages.table.header.current.title"></th>
+                <th class="col-sm-3" rsf:id="msg=simplepage.bulk-edit-pages.table.header.new.title"></th>
+                <th class="col-sm-3" rsf:id="msg=simplepage.bulk-edit-pages.table.header.current.description"></th>
+                <th class="col-sm-4" rsf:id="msg=simplepage.bulk-edit-pages.table.header.new.description"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr rsf:id="subpage:" class="subpage-item">
+                <td rsf:id="subpage-item-current-title"></td>
+                <td>
+                    <input type="hidden" rsf:id="subpage-item-id" class="subpage-item-id" />
+                    <input type="text" name="subpage-item-title" class="subpage-item-title form-control col-sm-10" rsf:id="subpage-item-title" maxlength="255" />
+                </td>
+                <td rsf:id="subpage-item-current-description"></td>
+                <td>
+                    <textarea rsf:id="subpage-item-description" class="subpage-item-description form-control" name="subpage-item-description"></textarea>
+                </td>
+            </tr>
+            </tbody>
+        </table>
 
         <p rsf:id="no-pages"></p>
 

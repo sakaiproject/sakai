@@ -89,6 +89,7 @@ import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
 import org.sakaiproject.lessonbuildertool.service.LessonsAccess;
 import org.sakaiproject.lessonbuildertool.tool.beans.helpers.ResourceHelper;
+import org.sakaiproject.lessonbuildertool.tool.beans.helpers.SubpageBulkEditHelper;
 import org.sakaiproject.lessonbuildertool.tool.producers.PagePickerProducer;
 import org.sakaiproject.lessonbuildertool.tool.producers.ShowItemProducer;
 import org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer;
@@ -236,7 +237,7 @@ public class SimplePageBean {
 
 	public String[] selectedChecklistItems = new String[] {};
 
-	private Map<Long, String> subpageBulkEditTitleMap = new HashMap<>();
+	private Map<Long, SubpageBulkEditHelper> subpageBulkEditTitleMap = new HashMap<>();
 	public String subpageBulkEditJson = null;
 	
 	public long removeId = 0;
@@ -9317,8 +9318,10 @@ public class SimplePageBean {
 				JSONObject subpageTitleInfo = (JSONObject) parser.parse((String) obj);
 				String itemId = (String) subpageTitleInfo.get("itemId");
 				String newTitle = (String) subpageTitleInfo.get("title");
+				String description = (String) subpageTitleInfo.get("description");
 				if (StringUtils.isNotBlank(itemId) && StringUtils.isNotBlank(newTitle)) {
-					subpageBulkEditTitleMap.put(Long.valueOf(itemId), newTitle);
+					SubpageBulkEditHelper subpageHelper = new SubpageBulkEditHelper(newTitle, description);
+					subpageBulkEditTitleMap.put(Long.valueOf(itemId), subpageHelper);
 				} else {
 					throw new RuntimeException("Page id is null or new title is blank");
 				}
@@ -9345,13 +9348,14 @@ public class SimplePageBean {
 				setErrMessage(messageLocator.getMessage("simplepage.bulk-edit-pages.blank"));
 				return "failure";
 			}
-			subpageBulkEditTitleMap.forEach((itemId, newTitle) -> {
+			subpageBulkEditTitleMap.forEach((itemId, subpageHelper) -> {
 				SimplePageItem item = simplePageToolDao.findItem(itemId);
-				if (item != null && !StringUtils.equals(item.getName(), newTitle)) {
+				if (item != null && (!StringUtils.equals(item.getName(), subpageHelper.getTitle()) || !StringUtils.equals(item.getDescription(), subpageHelper.getDescription()))) {
 					SimplePage subpage = getPage(Long.valueOf(item.getSakaiId()));
-					subpage.setTitle(newTitle);
+					subpage.setTitle(subpageHelper.getTitle());
 					update(subpage);
-					item.setName(newTitle);
+					item.setName(subpageHelper.getTitle());
+					item.setDescription(subpageHelper.getDescription());
 					update(item);
 				}
 			});

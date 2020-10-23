@@ -81,6 +81,8 @@ public class SubpageBulkEditProducer implements ViewComponentProducer, Navigatio
                         UIInput.make(pagesContainer, "subpage-item-id", null, String.valueOf(item.getId()));
                         UIOutput.make(pagesContainer, "subpage-item-current-title", item.getName());
                         UIInput.make(pagesContainer, "subpage-item-title", null, item.getName());
+                        UIOutput.make(pagesContainer, "subpage-item-current-description", item.getDescription());
+                        UIInput.make(pagesContainer, "subpage-item-description", null, item.getDescription());
                     }
                 }
             }
