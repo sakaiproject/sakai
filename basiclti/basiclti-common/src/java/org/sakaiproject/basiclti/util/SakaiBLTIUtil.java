@@ -801,16 +801,14 @@ public class SakaiBLTIUtil {
 	}
 
 	public static void addConsumerData(Properties props, Properties custom) {
-		String defaultName =  ServerConfigurationService.getString("serverName",
-             ServerConfigurationService.getString("serverUrl","localhost.sakailms"));
-
-		String defaultGUID = LegacyShaUtil.sha256Hash(defaultName);
+		final String defaultName =  ServerConfigurationService.getString("serverName",
+			ServerConfigurationService.getString("serverUrl","localhost.sakailms"));
 
 		// Get the organizational information
 		setProperty(custom, LTICustomVars.TOOLPLATFORMINSTANCE_GUID,
-				ServerConfigurationService.getString("basiclti.consumer_instance_guid", defaultGUID));
+				ServerConfigurationService.getString("basiclti.consumer_instance_guid", defaultName));
 		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INSTANCE_GUID,
-				ServerConfigurationService.getString("basiclti.consumer_instance_guid", defaultGUID));
+				ServerConfigurationService.getString("basiclti.consumer_instance_guid", defaultName));
 
 		setProperty(custom,  LTICustomVars.TOOLPLATFORMINSTANCE_NAME,
 				ServerConfigurationService.getString("basiclti.consumer_instance_name", defaultName));
