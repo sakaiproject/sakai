@@ -253,7 +253,7 @@ export class SakaiRubricCriteria extends RubricsElement {
   deleteCriterion(e) {
 
     e.stopPropagation();
-    var index = this.criteria.map(c => c.id).indexOf(e.detail.id);
+    const index = this.criteria.findIndex(c => c.id === e.detail.id);
     this.criteria.splice(index,1);
     this.criteriaMap.delete(e.detail.id);
     this.requestUpdate();
@@ -358,14 +358,12 @@ export class SakaiRubricCriteria extends RubricsElement {
     if (!nc.ratings) {
       nc.ratings = [];
     }
-    this.dispatchEvent(new CustomEvent('criterion-created', { detail: { criterion: nc } }));
     this.criteria.push(nc);
     this.criteriaMap.set(nc.id, nc);
 
-    // Add the association to the rubric
+    // Add the criterion to the rubric
     var getUrl = window.location;
     var baseUrl = getUrl.protocol + "//" + getUrl.host + "/rubrics-service/rest/criterions/";
-    var criterionRows = this.querySelectorAll('.criterion-row');
     var urlList = baseUrl + nc.id + '\n';
     this.requestUpdate();
 
