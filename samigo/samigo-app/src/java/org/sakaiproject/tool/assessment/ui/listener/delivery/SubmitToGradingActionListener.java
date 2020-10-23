@@ -728,7 +728,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 						adds.add(itemgrading);
 				    }	
 				}
-				else if (StringUtils.isNotBlank(s)) {
+				else if (s != null) {
 					log.debug("New Itemgrading with AnswerText = {}", s);
 					// Change to allow student submissions in rich-text [SAK-17021]
 					itemgrading.setAnswerText(s);
