@@ -93,8 +93,11 @@
        make them subjectively the same darkness.
     */
 	/* default */
-	.column .commentDiv, .column .studentContentTable, .column .questionDiv .contentCol, .column .forumSummaryHeaderDiv, .column .announcementsHeaderDiv, .column .fc-toolbar {
-		background-color: #ddd;
+	.questionDiv .contentCol, .checklistDiv {
+		background-color: var(--sakai-active-color-1);
+	}
+	.column .commentDiv, .column .studentContentTable, .column .forumSummaryHeaderDiv, .column .announcementsHeaderDiv, .column .fc-toolbar {
+		background-color: var(--sakai-background-color-2);
 	}
 	.column a[href]{
 		color: #004860;
