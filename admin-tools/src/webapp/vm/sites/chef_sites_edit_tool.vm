@@ -65,9 +65,10 @@ button.btn.btn-default.multiselect-clear-filter{
 					</th>
 					<td>
 						<select id="feature" name="feature">
-						#foreach ($reg in $features)
-							<option value="$reg.Id" #if($reg.Id==$tool.Tool.Id) selected #end>$formattedText.escapeHtml($reg.Title) ($reg.Id)</option>
-						#end
+							<option disabled selected value>$tlang.getString("sitact.plesel")</option>
+							#foreach ($reg in $features)
+								<option value="$reg.Id" #if($reg.Id==$tool.Tool.Id) selected #end>$formattedText.escapeHtml($reg.Title) ($reg.Id)</option>
+							#end
 						</select>
 					</td>
 				</tr>
