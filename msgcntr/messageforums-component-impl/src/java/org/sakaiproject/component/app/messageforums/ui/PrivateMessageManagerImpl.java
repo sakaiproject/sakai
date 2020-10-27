@@ -1184,7 +1184,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 		    else
 			    systemEmail = serverConfigurationService.getString(FROM_ADDRESS, defaultEmail);
 	    }
-		if (serverConfigurationService.getStrings(REAL_REPLY)!=null && ("all".equals(serverConfigurationService.getString(REAL_REPLY, "none")) || Arrays.asList(serverConfigurationService.getStrings(REAL_REPLY)).contains(contextId)) && systemEmail.equalsIgnoreCase(serverConfigurationService.getString(FROM_ADDRESS, defaultEmail))) {
+	    String[] realReply = serverConfigurationService.getStrings(REAL_REPLY);
+	    if (realReply!=null && ("all".equals(serverConfigurationService.getString(REAL_REPLY, "none")) || Arrays.asList(realReply).contains(contextId)) && systemEmail.equalsIgnoreCase(serverConfigurationService.getString(FROM_ADDRESS, defaultEmail))) {
 			replyEmail.add(new InternetAddress(buildMailReply(savedMessage)));
 			systemEmail = serverConfigurationService.getString("msgcntr.notification.from.address.reply", defaultEmail);
 		}
@@ -1452,7 +1453,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 	      getResourceBundleString(EMAIL_FOOTER1) + " " + serverConfigurationService.getString("ui.service","Sakai") +
 	  " " + getResourceBundleString(EMAIL_FOOTER2) + " \"" +
 	  siteTitle + "\" " + getResourceBundleString(EMAIL_FOOTER3) + "\n";
-	  if (serverConfigurationService.getStrings(REAL_REPLY)!=null && ("all".equals(serverConfigurationService.getString(REAL_REPLY, "none")) || Arrays.asList(serverConfigurationService.getStrings(REAL_REPLY)).contains(contextId))){
+	  String[] realReply = serverConfigurationService.getStrings(REAL_REPLY);
+	  if (realReply!=null && ("all".equals(serverConfigurationService.getString(REAL_REPLY, "none")) || Arrays.asList(realReply).contains(contextId))){
 		  footer = footer +  getResourceBundleString(EMAIL_FOOTER4_A) +
 				  " <a href=\"" +
 				  serverConfigurationService.getPortalUrl() + 
