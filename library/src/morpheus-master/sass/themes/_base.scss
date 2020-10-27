@@ -33,16 +33,13 @@
 // Returns CSS Custom Properties on :root
 @mixin defineColorHSL($color, $hue, $saturation, $lightness){
 
+  // $j used in the tint/shade functions to lighten or darken the color
   $j: 10;
+  // $i used to append numbers at the end of the color names
   $i: 7;
+
   @while $i > 0 {
     #{$color}--lighter-#{$i}: tint-color(hsl($hue, $saturation, $lightness), $j);
-    // These individual hue, saturation, and lightness values could be used at a later time
-    // to increase flexibility of automating complementary colors programmatically. Not in
-    // use at this time.
-    // #{$color}--lighter-#{$i}-h: hue(tint-color(hsl($hue, $saturation, $lightness), $j));
-    // #{$color}--lighter-#{$i}-s: saturation(tint-color(hsl($hue, $saturation, $lightness), $j));
-    // #{$color}--lighter-#{$i}-l: lightness(tint-color(hsl($hue, $saturation, $lightness), $j));
 
     .sakai-colorize#{$color}--lighter-#{$i} { 
       color: color-contrast( 
@@ -57,9 +54,6 @@
   }
 
   #{$color}: hsl($hue, $saturation, $lightness);
-  // #{$color}-h: hue(hsl($hue, $saturation, $lightness));
-  // #{$color}-s: saturation(hsl($hue, $saturation, $lightness));
-  // #{$color}-l: lightness(hsl($hue, $saturation, $lightness));
 
   .sakai-colorize#{$color} { 
     color: color-contrast( 
@@ -74,9 +68,6 @@
   $i: 1;
   @while $i < 8 {
     #{$color}--darker-#{$i}: shade-color(hsl($hue, $saturation, $lightness), $j);
-    // #{$color}--darker-#{$i}-h: hue(shade-color(hsl($hue, $saturation, $lightness), $j));
-    // #{$color}--darker-#{$i}-s: saturation(shade-color(hsl($hue, $saturation, $lightness), $j));
-    // #{$color}--darker-#{$i}-l: lightness(shade-color(hsl($hue, $saturation, $lightness), $j));
 
     .sakai-colorize#{$color}--darker-#{$i} { 
       color: color-contrast( 

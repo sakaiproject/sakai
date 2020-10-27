@@ -463,11 +463,11 @@ nav#subSites{
 				}
 				&:hover {
 					box-shadow: var(--elevation-2dp);
-					transition: box-shadow 100ms ease-out;
+					transition: $active-transition-hover;
 				}
 				&:active {
 					box-shadow: var(--elevation-1dp);
-					transition: box-shadow 100ms ease-in;
+					transition: $active-transition-active;
 				}
 				&:focus {
 					outline:none;

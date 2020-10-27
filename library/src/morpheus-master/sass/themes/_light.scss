@@ -157,8 +157,8 @@
     --tool-tab-hover-background-color: var(--sakai-background-color-3);
     --tool-tab-hover-highlight-color: var(--sakai-active-color-2);
     --tool-tab-active-text-color: var(--sakai-text-color-3);
-    --tool-tab-active-background-color: var(--sakai-active-color-1);
-    --tool-tab-active-highlight-color:var(--sakai-active-color-2);
+    --tool-tab-active-background-color: var(--sakai-background-color-1);
+    --tool-tab-active-highlight-color:var(--sakai-active-color-3);
 
     --top-header-background: var(--sakai-primary-color-1);
     --top-header-profile-border-color-top: var(--sakai-secondary-color-1);
@@ -177,8 +177,6 @@
     --link-color: var(--sakai-primary-color-1);
     --link-active-color: var(--sakai-primary-color-3);
     --link-hover-color: var(--sakai-primary-color-2);
-    // --link-active-color: var(--sakai-active-color-3);
-    // --link-hover-color: var(--sakai-active-color-2);
     --link-background-color: transparent;
     --link-active-background-color: transparent;
     --link-hover-background-color: transparent;
@@ -224,17 +222,17 @@
     --instruction-color: var(--sakai-text-color-disabled);
 
     // Information (info) banner
-    --infoBanner-bordercolor: var(--sakai-brand--lighter-2);
-    --infoBanner-bgcolor: var(--sakai-brand--lighter-7);
-    --infoBanner-color: var(--sakai-brand--darker-2);
+    --infoBanner-bordercolor: var(--sakai-color-blue--lighter-2);
+    --infoBanner-bgcolor: var(--sakai-color-blue--lighter-7);
+    --infoBanner-color: var(--sakai-color-blue--darker-3);
     // Success banner
     --successBanner-bordercolor: var(--sakai-color-green--lighter-2);
     --successBanner-bgcolor: var(--sakai-color-green--lighter-7);
-    --successBanner-color: var(--sakai-color-green--darker-2);
+    --successBanner-color: var(--sakai-color-green--darker-3);
     // Warning (warn) banner
     --warnBanner-bordercolor: var(--sakai-color-gold--lighter-2);
     --warnBanner-bgcolor: var(--sakai-color-gold--lighter-7);
-    --warnBanner-color: var(--sakai-color-gold--darker-2);
+    --warnBanner-color: var(--sakai-color-gold--darker-4);
     // Error banner
     --errorBanner-bordercolor: var(--sakai-color-red--lighter-2);
     --errorBanner-bgcolor: var(--sakai-color-red--lighter-7);

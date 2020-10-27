@@ -148,7 +148,7 @@
   height: 1.2em;
   width: 1.2em;
   border: 1px solid var(--sakai-border-color);
-  background-color: var(--sakai-color-green);
+  background-color: var(--sakai-color-gray);
   position: absolute;
   right: 0;
   top: 50%;
@@ -321,16 +321,14 @@ div.wicket-modal div.w_caption {
 div.wicket-modal div.w_right > div {
   box-shadow: 0 0 5px 2px #444;
 }
-div.wicket-modal[aria-labelledby="Sort Grade Items"] div.w_caption,
-div.wicket-modal[aria-labelledby="Sort Grade Items"] div.w_content,
-div.wicket-modal[aria-labelledby="Bulk Edit Items"] div.w_caption,
-div.wicket-modal[aria-labelledby="Bulk Edit Items"] div.w_content,
-div.wicket-modal[aria-labelledby="Add Gradebook Item"] div.w_caption,
-div.wicket-modal[aria-labelledby="Add Gradebook Item"] div.w_content
+
+div.wicket-modal .w_blue div.w_caption,
+div.wicket-modal .w_blue div.w_content
 {
   background: var(--sakai-background-color-1);
   color: var(--sakai-text-color-1);
 }
+
 /** temporary override for page width **/
 .Mrphs-pageColumns--single {
 	max-width: none !important;

@@ -146,6 +146,7 @@ input[type="checkbox"], input[type="radio"]{
 	height: 16px;
 	width: 16px;
 	vertical-align: sub;
+	@include appearance(none);
 	&:focus
 	{
 		box-shadow: 0px 0px $focus-outline-width $focus-outline-width var(--focus-outline-color);
@@ -171,7 +172,11 @@ label.disabled{
 input[type="checkbox"]{
 	@include border-radius(3px);
 	&:checked{
-		background-size: 16px;
+		background-image: url("images/check.svg");
+		background-size: 12px;
+		background-color: var(--button-primary-background);
+		background-repeat: no-repeat;
+		background-position: 1px 1px;
 	}
 }
 input[type="radio"]{

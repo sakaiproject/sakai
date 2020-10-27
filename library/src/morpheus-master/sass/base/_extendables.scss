@@ -202,23 +202,42 @@
 		&.active, &.selected, &.activeTab{
 			> a{
 				background: var(--tool-tab-active-background-color);
-				border-top: 1px solid #ddd;
-				border-left: 1px solid #ddd;
-				border-right: 1px solid #ddd;
-				border-bottom: 1px solid var(--tool-tab-active-background-color) !important;
-				color: var(--sakai-primary-color-1);
+				border-top: 1px solid var(--sakai-border-color);
+				border-left: 1px solid var(--sakai-border-color);
+				border-right: 1px solid var(--sakai-border-color);
+				border-bottom: 1px solid var(--tool-tab-active-background-color);
+				color: var(--tool-tab-active-color);
+				&:before {
+					border-top: 4px solid var(--tool-tab-active-highlight-color);
+					border-radius: 4px 4px 0 0 ;
+					content: "";
+					display: block;
+					position: absolute;
+					left: -1px;
+					right: -1px;
+					top: -1px;
+				}
+				&:after{
+					border-bottom: 1px solid var(--tool-tab-active-background-color);
+					content: '';
+					display: block;
+					position: absolute;
+					left: 0;
+					right: 0;
+					bottom: -1px;
+				}
 				&:hover{
 					background: var(--tool-tab-active-background-color);
-					color: var(--sakai-primary-color-1);
+					color: var(--tool-tab-active-color);
 				}
 			}
 		}
 		> a{
 			background: var(--tool-tab-background-color);
-			border: 1px solid #ddd !important;
+			border: 1px solid var(--sakai-border-color);
 			color: var(--sakai-text-color-1);
 			cursor: pointer;
-			margin: 0 0em 0 0.5em;
+			margin: 0 0 0 $standard-space;
 			text-decoration: none;
 		}
 	}

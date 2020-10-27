@@ -1,4 +1,5 @@
-.checkGrid th:hover,.checkGrid td h4:hover {
+.checkGrid th:hover,
+.checkGrid td h4:hover {
   color:var(--sakai-active-color-1) !important;
 }
 .checkGrid a {
@@ -14,6 +15,10 @@
   text-align: center !important;
   color: var(--sakai-text-color-1);
 }
+table.listHier.checkGrid th {
+  padding: calc( #{$standard-spacing} / 2) $standard-spacing; //additional selector needed to override tool_base  
+}
+
 .checkGrid th#permission {
   text-align: left !important;
 }
@@ -23,7 +28,7 @@
   height: 100%;
   margin: 0;
   text-align: center;
-  padding: .3em 0;
+  padding: 0;
 }
 .checkGrid td {
   border: 1px solid var(--sakai-border-color);
@@ -45,7 +50,7 @@
   white-space: nowrap;
 }
 .checkGrid td.permissionDescription a {
-  padding: .3em;
+  padding: calc( #{$standard-spacing} / 2) $standard-spacing;
   display: block;
 }
 .checkGrid tr.evenrow .permissionDescription {
@@ -54,18 +59,17 @@
 .checkGrid tr.evenrow td {
   background: var(--sakai-background-color-1);
 }
-.checkGrid .rowHover {
-  background: var(--sakai-background-color-2);
-}
 .checkGrid td.active {
   background: var(--sakai-active-color-1);
 }
+.checkGrid .rowHover,
 .checkGrid td.active:hover,
 .checkGrid td.permissionDescription:hover,
 .checkGrid td.active.rowHover,
 .checkGrid td:hover,
-.checkGrid tr.evenrow td:hover {
-  background: var(--sakai-background-color-2);
+.checkGrid tr.evenrow td:hover,
+.checkGrid tr.evenrow td.rowHover {
+  background: var(--sakai-active-color-2);
 }
 .checkGrid td.permissionDescription a:hover {
   color: var(--sakai-text-color-2);

@@ -5,7 +5,11 @@ Then type:
 
 `mvn clean install`
 
-If you want to change any configuration in _defaults.scss to easily customize your own skin you just need to point to the file with those changes. It will be copied by maven in the proper place:
+If you want to keep the out of the box look of Sakai and theme it to your institution or organization's brand, uncomment the appropriate lines in `library/src/morpheus-master/sass/themes/_custom.scss` to set the CSS Custom Property values. Then type:
+
+`mvn clean install`
+
+If you want to further change configuration in _defaults.scss to customize your  skin you just need to point to the file with those changes. It will be copied by maven in the proper place:
 
 `mvn clean install -Dsakai.skin.customization.file=/folder/to/your/file.scss`
 
