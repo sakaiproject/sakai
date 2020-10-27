@@ -284,7 +284,7 @@
           elapsedTime = data[1];
           submissionStatus = data[2];
 
-          if (submissionStatus === 0 || totalTime === elapsedTime) {
+          if (submissionStatus == 0 || totalTime === elapsedTime) {
               timerBlock.hide();
               timeoutDialog.dialog("open");
               timeoutDialog.siblings(".ui-dialog-buttonpane").find("button").eq(0).hide();
