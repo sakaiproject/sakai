@@ -413,14 +413,12 @@ public class BaseGroup implements Group, Identifiable
 	{
 		try {
 			insertMember(userId, roleId, active, provided);
-		} catch (IllegalStateException ise) {
-			log.warn(ise.getMessage());
-		} catch (AuthzRealmLockException arle) {
-			log.warn(arle.toString());
+		} catch (AuthzRealmLockException | IllegalStateException e) {
+			log.warn(e.toString());
 		}
 	}
 
-	public void insertMember(String userId, String roleId, boolean active, boolean provided) throws AuthzRealmLockException
+	public void insertMember(String userId, String roleId, boolean active, boolean provided) throws AuthzRealmLockException, IllegalStateException
 	{
 		RealmLockMode lockMode = getRealmLock();
 		if(RealmLockMode.ALL.equals(lockMode) || RealmLockMode.MODIFY.equals(lockMode)) {
