@@ -102,7 +102,7 @@ import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.sakaiproject.tool.assessment.util.MimeTypesLocator;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.api.FormattedText;
 
 import lombok.Getter;
@@ -117,6 +117,7 @@ public class DeliveryBean implements Serializable {
 
   //SAM-2517
   private UserTimeService userTimeService = ComponentManager.get(UserTimeService.class);
+  private PreferencesService preferencesService = ComponentManager.get(PreferencesService.class);
   
   private static final String MATHJAX_SRC_PATH_SAKAI_PROP = "portal.mathjax.src.path";
   private static final String MATHJAX_SRC_PATH = ServerConfigurationService.getString(MATHJAX_SRC_PATH_SAKAI_PROP);
@@ -127,8 +128,9 @@ public class DeliveryBean implements Serializable {
   private String assessmentTitle;
   @Getter @Setter
   private boolean honorPledge;
-  @Setter
   private Locale locale;
+  @Getter
+  private String localeString;
   @Getter @Setter
   private List markedForReview;
   @Getter @Setter
@@ -489,6 +491,8 @@ public class DeliveryBean implements Serializable {
    */
   public DeliveryBean() {
     deliveryAgent = new AgentFacade();
+    locale = preferencesService.getLocale(deliveryAgent.getAgentString());
+    localeString = PortalUtils.getLocaleString(locale);
   }
 
   public TimeZone getUserTimeZone() {
@@ -500,16 +504,12 @@ public class DeliveryBean implements Serializable {
 	      return "";
 	    }
 
-      return userTimeService.dateTimeFormat(beginTime, new ResourceLoader().getLocale(), DateFormat.MEDIUM);
+      return userTimeService.dateTimeFormat(beginTime, locale, DateFormat.MEDIUM);
   }
 
   public String getCurrentTimeElapse() {
     syncTimeElapsedWithServer();
     return timeElapse;
-  }
-
-  public String getLocale() {
-    return PortalUtils.getLocaleString(locale);
   }
 
   public void setTimeElapse(String timeElapse) {
@@ -616,7 +616,7 @@ public class DeliveryBean implements Serializable {
       return "";
     }
 
-    return userTimeService.dateTimeFormat(adjustedTimedAssesmentDueDate, new ResourceLoader().getLocale(), DateFormat.MEDIUM);
+    return userTimeService.dateTimeFormat(adjustedTimedAssesmentDueDate, locale, DateFormat.MEDIUM);
   }
 
   public Date getRetractDate() {
@@ -788,7 +788,7 @@ public class DeliveryBean implements Serializable {
 			  HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
 			  PhaseStatus status = secureDelivery.validatePhase(moduleId, Phase.ASSESSMENT_FINISH, publishedAssessment, request );
 			  	setSecureDeliveryHTMLFragment( 
-			  			secureDelivery.getHTMLFragment(moduleId, publishedAssessment, request, Phase.ASSESSMENT_FINISH, status, new ResourceLoader().getLocale() ) );
+					secureDelivery.getHTMLFragment(moduleId, publishedAssessment, request, Phase.ASSESSMENT_FINISH, status, locale) );
 		  }
 	  }
 	 
@@ -1313,7 +1313,7 @@ public class DeliveryBean implements Serializable {
     		  HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
     		  PhaseStatus status = secureDelivery.validatePhase(moduleId, Phase.ASSESSMENT_START, publishedAssessment, request );
     		  setSecureDeliveryHTMLFragment( 
-    		  			secureDelivery.getHTMLFragment(moduleId, publishedAssessment, request, Phase.ASSESSMENT_START, status, new ResourceLoader().getLocale() ) );
+				secureDelivery.getHTMLFragment(moduleId, publishedAssessment, request, Phase.ASSESSMENT_START, status, locale));
     		  setBlockDelivery( PhaseStatus.FAILURE == status );
     		  if ( PhaseStatus.SUCCESS == status ) {
     			  results = "takeAssessment";
@@ -2352,7 +2352,7 @@ public class DeliveryBean implements Serializable {
 		      return "";
 		    }
 
-		    return userTimeService.dateTimeFormat(deadline, new ResourceLoader().getLocale(), DateFormat.MEDIUM);
+		    return userTimeService.dateTimeFormat(deadline, locale, DateFormat.MEDIUM);
 	  }
 
 	  public void setDeadline() {

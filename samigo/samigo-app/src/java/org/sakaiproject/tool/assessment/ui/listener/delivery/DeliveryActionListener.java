@@ -95,7 +95,6 @@ import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.sakaiproject.tool.assessment.util.FormatException;
 import org.sakaiproject.tool.assessment.util.SamigoLRSStatements;
-import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 
@@ -112,7 +111,6 @@ public class DeliveryActionListener
 {
 
   static String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  //private static ContextUtil cu;
   private boolean resetPageContents = true;
   private long previewGradingId = (long)(Math.random() * 1000);
   private static final ResourceBundle eventLogMessages = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.EventLogMessages");
@@ -120,7 +118,6 @@ public class DeliveryActionListener
   private static final ResourceLoader ra = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
 
   private EventTrackingService eventTrackingService = ComponentManager.get(EventTrackingService.class);
-  protected PreferencesService preferencesService = ComponentManager.get(PreferencesService.class);
 
   /**
    * ACTION.
@@ -137,8 +134,6 @@ public class DeliveryActionListener
       PersonBean person = (PersonBean) ContextUtil.lookupBean("person");
       // 1. get managed bean
       DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
-
-      delivery.setLocale(preferencesService.getLocale(AgentFacade.getAgentString()));
       
       // set publishedId, note that id can be changed by isPreviewingMode()
       String id = getPublishedAssessmentId(delivery);
