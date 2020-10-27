@@ -53,16 +53,16 @@ public interface ToolItemRubricAssociationRepository extends MetadataRepository<
 
     @RestResource(path = "by-tool-item-ids", rel = "by-tool-item-ids")
     @Query("select resource from ToolItemRubricAssociation resource where resource.toolId = :toolId and resource.itemId = :itemId and " + QUERY_CONTEXT_CONSTRAINT)
-    @QueryHints(@QueryHint(name="org.hibernate.cacheable", value = "true"))
+    // @QueryHints(@QueryHint(name="org.hibernate.cacheable", value = "true"))
     List<ToolItemRubricAssociation> findByToolIdAndItemId(@Param("toolId") String toolId, @Param("itemId") String itemId);
 
     @RestResource(path = "by-rubric-id", rel = "by-rubric-id")
     @Query("select resource from ToolItemRubricAssociation resource where resource.rubricId = :rubricId ") //and " + QUERY_CONTEXT_CONSTRAINT)
-    @QueryHints(@QueryHint(name="org.hibernate.cacheable", value = "true"))
+    // @QueryHints(@QueryHint(name="org.hibernate.cacheable", value = "true"))
     List<ToolItemRubricAssociation> findByRubricId(@Param("rubricId") Long rubricId);
 	
     @RestResource(path = "by-item-id-prefix", rel = "by-item-id-prefix")
     @Query("select resource from ToolItemRubricAssociation resource where resource.toolId = :toolId and resource.itemId like CONCAT(:itemId, '%') and " + QUERY_CONTEXT_CONSTRAINT)
-    @QueryHints(@QueryHint(name="org.hibernate.cacheable", value = "true"))
+    // @QueryHints(@QueryHint(name="org.hibernate.cacheable", value = "true"))
     List<ToolItemRubricAssociation> findByItemIdPrefix(@Param("toolId") String toolId, @Param("itemId") String itemId);
 }
