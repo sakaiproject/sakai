@@ -415,16 +415,16 @@ public class BaseGroup implements Group, Identifiable
 	{
 		try {
 			insertMember(userId, roleId, active, provided);
-		} catch (IllegalStateException ise) {
-			log.warn(ise.getMessage());
+		} catch (AuthzRealmLockException | IllegalStateException e) {
+			log.warn(e.toString());
 		}
 	}
 
-	public void insertMember(String userId, String roleId, boolean active, boolean provided) throws IllegalStateException
+	public void insertMember(String userId, String roleId, boolean active, boolean provided) throws AuthzRealmLockException, IllegalStateException
 	{
 		RealmLockMode lockMode = getRealmLock();
 		if(RealmLockMode.ALL.equals(lockMode) || RealmLockMode.MODIFY.equals(lockMode)) {
-			throw new IllegalStateException("Can't add member " + userId + " with role " + roleId + " to a locked group");
+			throw new AuthzRealmLockException("Can't add member " + userId + " with role " + roleId + " to a locked group");
 		}
 		m_azgChanged = true;
 		try
