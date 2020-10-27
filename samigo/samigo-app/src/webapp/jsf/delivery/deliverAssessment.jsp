@@ -434,13 +434,13 @@ document.links[newindex].onclick();
            </f:subview>
            </h:panelGroup>
 
-           <div role="alert" class="sak-banner-error" style="display: none" id="autosave-timeexpired-warning">
+           <div role="alert" class="alert alert-warning clear" style="display: none" id="autosave-timeexpired-warning">
              <h:outputText value="#{deliveryMessages.time_expired2} " />
            </div>
-           <div role="alert" class="sak-banner-error" style="display: none" id="autosave-timeleft-warning">
+           <div role="alert" class="alert alert-warning clear" style="display: none" id="autosave-timeleft-warning">
              <h:outputFormat value="#{deliveryMessages.time_left}"><f:param value="#{delivery.minutesLeft}"/><f:param value="#{delivery.secondsLeft}"/></h:outputFormat>
            </div>
-           <div role="alert" class="sak-banner-error" style="display: none" id="autosave-failed-warning">
+           <div role="alert" class="alert alert-danger clear" style="display: none" id="autosave-failed-warning">
              <p><h:outputText value="#{deliveryMessages.autosaveFailed}" escape="false" /></p>
              <p><h:outputText value="#{deliveryMessages.autosaveFailedDetail}" escape="false" /></p>
            </div>

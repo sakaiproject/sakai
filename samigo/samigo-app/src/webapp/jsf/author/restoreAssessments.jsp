@@ -77,7 +77,7 @@
                             <h:outputText value="#{authorMessages.restore_assessments}" />
                         </h1>
                     </div>
-                    <h:outputText value="#{authorMessages.restore_assessments_empty}" rendered ="#{restoreAssessmentsBean.deletedAssessmentList.isEmpty()}" escape="false" styleClass="sak-banner-info"/>
+                    <h:outputText value="#{authorMessages.restore_assessments_empty}" rendered ="#{restoreAssessmentsBean.deletedAssessmentList.isEmpty()}" escape="false" styleClass="alert alert-warning"/>
                     <h:dataTable cellpadding="0" cellspacing="0" id="deletedAssessmentsTable" value="#{restoreAssessmentsBean.deletedAssessmentList}"
                         var="deletedAssessment" styleClass="table table-bordered table-striped" rendered ="#{!restoreAssessmentsBean.deletedAssessmentList.isEmpty()}">
 
