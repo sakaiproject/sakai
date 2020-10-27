@@ -1142,8 +1142,8 @@ public class DeliveryBean implements Serializable {
 			  setConfirmation(confirmation);
 			  lastSave = true;
 
-              // Make sure that browser save doesn't overwrite forGrade status
-              setForGrade(true);
+			  // Make sure that browser save doesn't overwrite forGrade status
+			  setForGrade(true);
           }
         try {
           listener.processAction(null);
