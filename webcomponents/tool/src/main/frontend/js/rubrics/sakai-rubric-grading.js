@@ -274,43 +274,36 @@ export class SakaiRubricGrading extends RubricsElement {
 
     e.stopPropagation();
 
-    var criterionId = e.currentTarget.dataset.criterionId;
-    var ratingId = e.currentTarget.dataset.ratingId;
+    const criterionId = e.currentTarget.dataset.criterionId;
+    const ratingId = e.currentTarget.dataset.ratingId;
 
     // Look up the criterion and rating objects
-    var criterion = this.criteria.filter(c => c.id == criterionId)[0];
-    var rating = criterion.ratings.filter(r => r.id == ratingId)[0];
+    const criterion = this.criteria.filter(c => c.id == criterionId)[0];
+    const rating = criterion.ratings.filter(r => r.id == ratingId)[0];
 
-    var clickedRatingElement = this.querySelector(`#rating-item-${ratingId}`);
+    const clickedRatingElement = this.querySelector(`#rating-item-${ratingId}`);
     if (clickedRatingElement.classList.contains("selected")) {
       clickedRatingElement.classList.remove("selected");
       criterion.selectedvalue = 0.0;
       criterion.selectedRatingId = 0;
       criterion.pointoverride = 0.0;
     } else {
-      var ratingElements = this.querySelectorAll(`#criterion_row_${criterion.id} .rating-item`);
+      const ratingElements = this.querySelectorAll(`#criterion_row_${criterion.id} .rating-item`);
       ratingElements.forEach(i => i.classList.remove('selected'));
       clickedRatingElement.classList.add("selected");
-      var auxPoints;
-      if (this.rubric.weighted) {
-        auxPoints = (rating.points * (criterion.weight / 100)).toFixed(2);
-      } else {
-        auxPoints = rating.points;
-      }
+      const auxPoints = this.rubric.weighted ?
+        (rating.points * (criterion.weight / 100)).toFixed(2) : rating.points;
       criterion.selectedvalue = auxPoints;
       criterion.selectedRatingId = rating.id;
       criterion.pointoverride = auxPoints;
     }
-
-    var selector = `#rbcs-${this.evaluatedItemId.replace(/./g, "\\.")}-${this.entityId.replace(/./g, "\\.")}-criterion-override-${criterionId}`;
-    var overrideInput = this.querySelector(selector);
-    if (overrideInput) overrideInput.value = rating.points;
 
     // Whenever a rating is clicked, either to select or deselect, it cancels out any override so we
     // remove the strike out from the clicked points value
     this.querySelector(`#points-display-${criterionId}`).classList.remove("strike");
 
     this.dispatchEvent(new CustomEvent("rubric-ratings-changed", { bubbles: true, composed: true }));
+    this.requestUpdate();
     this.updateTotalPoints();
   }
 
