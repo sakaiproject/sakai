@@ -115,7 +115,6 @@ public class BeginDeliveryActionListener implements ActionListener
     	}
     } else {
     	delivery.setFromPrint(false);
-        delivery.calculateMinutesAndSecondsLeft();
     }
 
     int action = delivery.getActionMode();
