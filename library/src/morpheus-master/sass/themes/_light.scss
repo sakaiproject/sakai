@@ -1,14 +1,13 @@
-// Light Theme
-@import "themes/base";
+/* Light Theme */
 
 :root{
-    /***************************************************/
+    /////////////////////////////////////////////////////////////
     // Color palette generation
     // Use defineColorHSL to generate an 11 shade palette for a color.
     // @include defineColorHSL(colorname, hue, saturation, lightness)
     // @param colorname
     //      Type: string
-    //      expects a CSS custom property name
+    //      expects a CSS custom property name starting with --
     // @param hue
     //      Type: integer
     //      expects an integer 0-255
@@ -26,97 +25,110 @@
     // @include defineColorHSL(--myschool-gray, 214, 3%, 55%);
     //      returns --myschool-gray-5: hsl(214, 3%, 55%;
     //
-    // Sakai comes predefined with gray, blue, lightblue, teal, gold,
-    // green, orange, purple, and red palettes available for you to use.
-    /***************************************************/
+    // In addition to the primary branding color defined here, Sakai comes 
+    // predefined with gray, blue, teal, gold, green, orange,
+    // purple, and red palettes available for you to use.
+    // More info about defineColorHSL in sass/themes/_base.scss
+    @include defineColorHSL(--sakai-brand, 203, 76%, 25%);
+    /////////////////////////////////////////////////////////////
 
-    /****************************************************/
+    /////////////////////////////////////////////////////////////
     // Main theme definition
     // Start by defining the variables below to create
     // your theme. If advanced customization is necessary,
     // continue to the remaining variables.
-    /***************************************************/
+    /////////////////////////////////////////////////////////////
+
+    // Logo
+    --logo: url('images/logo-jewel.png');
+    --logo-height: 36px;
+    --logo-width: 126px;
+    --logo-opacity: 1;
 
     // Primary branding color. 
     // Suggested: Your institution's main branding color.
     // Used in the top header, action buttons, etc. Commonly used as the background
     // color with white text color.
-    --sakai-primary-color-1:                 var(--sakai-color-blue-5);
+    --sakai-primary-color-1: var(--sakai-brand);
 
     // Default: A slightly darker shade of --sakai-primary-color-1
     // Used for hover effects and higher contrast with white text color
-    --sakai-primary-color-2:                 var(--sakai-color-blue-6);
+    --sakai-primary-color-2: var(--sakai-brand--darker-2);
 
     // Default: A slightly darker shade of --sakai-primary-color-2
     // Used for active, focus, selected effects
-    --sakai-primary-color-3:                 var(--sakai-color-blue-7);
+    --sakai-primary-color-3: var(--sakai-brand--darker-3);
 
     // Default: A very light tint of --sakai-primary-color-1. 
     // Suggested: A light tint of your institution's main branding color.
     // Used to highlight active/current site in favorites and active/current tool in toolmenu
     // Commonly used with white background color with white text color.
-    --sakai-active-color-1:                 var(--sakai-color-blue-1);
+    --sakai-active-color-1: var(--sakai-brand--lighter-6);
 
     // Default: A slightly darker shade of --sakai-active-color-1
     // Used for hover effects and higher contrast with --sakai-text-color-3
-    --sakai-active-color-2:                 var(--sakai-color-blue-2);
+    --sakai-active-color-2: var(--sakai-brand--lighter-5);
 
     // Default: A slightly darker shade of --sakai-active-color-2
     // Used for active, focus, selected effects with --sakai-text-color-3
-    --sakai-active-color-3:                 var(--sakai-color-blue-3);
+    --sakai-active-color-3: var(--sakai-brand--lighter-4);
 
     // Primary background color. 
     // Suggested: white
     // Used on the body and main content containers
-    --sakai-background-color-1:              var(--sakai-color-white);
+    --sakai-background-color-1: var(--sakai-color-white);
 
     // Default: A slightly darker shade of --sakai-background-color-1
-    // Used in hover effects of white backgrounds, alternating table rows
-    --sakai-background-color-2:              var(--sakai-color-gray-1);
+    // Used in hover effects of --sakai-background-color-1, alternating table rows
+    --sakai-background-color-2: var(--sakai-color-gray--lighter-7);
 
     // Default: A slightly darker shade of --sakai-primary-color-2
-    // Used for active, focus, selected effects of white backgrounds
+    // Used for active, focus, selected effects of --sakai-background-color-1
     // and hover effects of --sakai-background-color-2
-    --sakai-background-color-3:              var(--sakai-color-gray-2);
+    --sakai-background-color-3: var(--sakai-color-gray--lighter-6);
 
     // Default: A slightly darker shade of --sakai-primary-color-2
     // Used for active, focus, selected effects of --sakai-background-color-3
-    --sakai-background-color-4:              var(--sakai-color-gray-3);
+    --sakai-background-color-4: var(--sakai-color-gray--lighter-5);
 
-    // Secondary branding color. 
+    // Secondary color. 
     // Suggested: An alterate branding color distinct from
     // what you select for --sakai-primary-color-1
-    // Used in new user tutorial, user profile image border
-    --sakai-secondary-color-1:                      var(--sakai-color-lightblue-5);
+    // Used in href, new user tutorial, user profile image border
+    --sakai-secondary-color-1: var(--sakai-color-blue--darker-2);
 
     // Tertiary branding color. 
     // Suggested: A third branding color distinct from
     // what you selected for --sakai-primary-color-1 and --sakai-secondary-color-1
-    // Used in user profile image border
-    --sakai-tertiary-color-1:      var(--sakai-color-orange-5);
+    // Used in user profile image border, swapped view
+    --sakai-tertiary-color-1: var(--sakai-color-orange--darker-4);
 
     // Primary border color used across sakai. 
     // Suggested: light gray
-    --sakai-border-color:                    var(--sakai-color-gray-1);
+    --sakai-border-color: var(--sakai-color-gray--lighter-6);
 
     // Primary text color used across sakai. 
     // Suggested: dark gray, near black
     // Most commonly used against --sakai-background-color-1
-    --sakai-text-color-1:                      var(--sakai-color-gray-8);
+    --sakai-text-color-1: var(--sakai-color-gray--darker-5);
 
     // Default: A slightly darker shade of --sakai-text-color-1
     // Used in certain hover effects, but NOT a[href] elements
-    --sakai-text-color-2:                var(--sakai-color-gray-9);
+    --sakai-text-color-2: var(--sakai-color-gray--darker-6);
 
     // Default: A much darker shade of --sakai-primary-color-1
     // Used as text color of active site in favorites, active tool in toolmenu
-    --sakai-text-color-3:                var(--sakai-color-blue-9);
+    --sakai-text-color-3: var(--sakai-brand--darker-3);
 
     // Default: A lighter shade of --sakai-text-color-1
     // Used to make elements appear disabled or "grayed out"
-    --sakai-text-color-disabled:             var(--sakai-color-gray-6);
+    --sakai-text-color-disabled: var(--sakai-color-gray--darker-2);
 
-    /************************End main theme definition***********************/
+    // Default: --sakai-color-white
+    // Used for text color on saturated color backgrounds like primary button, header bar icons
+    --sakai-text-color-inverted: var(--sakai-background-color-1);
+
+    /////////////////////End main theme definition/////////////////////
 
     //Built to be used for box-shadow
     //https://material-components.github.io/material-components-web-catalog/#/component/elevation
@@ -130,7 +142,7 @@
     --elevation-8dp: 0 5px 5px -3px rgba(0,0,0,.2), 0 8px 10px 1px rgba(0,0,0,.14), 0 3px 14px 2px rgba(0,0,0,.12);
 
     --portal-background-color: var(--sakai-background-color-1);
-    --portal-mask-background:  rgba(0,0,0,0.5);
+    --portal-mask-background: rgba(0,0,0,0.5);
 
     /* Tool tabs */
     --tool-background-color: var(--sakai-background-color-1);
@@ -141,32 +153,30 @@
     --tool-tab-text-color: var(--tool-menu-color);
     --tool-tab-background-color: var(--tool-menu-background-color);
     --tool-tab-border-color: var(--sakai-border-color);
-    --tool-tab-hover-text-color: var(--sakai-text-color-2);
+    --tool-tab-hover-text-color: var(--sakai-text-color-3);
     --tool-tab-hover-background-color: var(--sakai-background-color-3);
-    --tool-tab-hover-highlight-color: var(--sakai-color-gray-6);
-    --tool-tab-active-text-color: var(--sakai-primary-color-1);
-    --tool-tab-active-background-color: var(--sakai-color-white);
-    --tool-tab-active-highlight-color:var(--sakai-primary-color-1);
-
-    --tool-nav-link-color: var(--sakai-color-grey-7);
+    --tool-tab-hover-highlight-color: var(--sakai-active-color-2);
+    --tool-tab-active-text-color: var(--sakai-text-color-3);
+    --tool-tab-active-background-color: var(--sakai-background-color-1);
+    --tool-tab-active-highlight-color:var(--sakai-active-color-3);
 
     --top-header-background: var(--sakai-primary-color-1);
     --top-header-profile-border-color-top: var(--sakai-secondary-color-1);
     --top-header-profile-border-color-right: var(--sakai-secondary-color-1);
-    --top-header-profile-border-color-bottom: var(--sakai-primary-color-2);
+    --top-header-profile-border-color-bottom: var(--sakai-tertiary-color-1);
     --top-header-profile-border-color-left: var(--sakai-tertiary-color-1);
-    --top-header-profile-border-color-inner: var(--sakai-color-white);
+    --top-header-profile-border-color-inner: var(--sakai-background-color-1);
 
     --sites-nav-background: var(--sakai-background-color-1);
 
-    --breadcrumbs-color:			var(--sakai-text-color-1);
-    --breadcrumbs-tool-color:	var(--sakai-primary-color-1);
-    --breadcrumbs-hover-color:	var(--sakai-primary-color-1);
+    --breadcrumbs-color: var(--sakai-text-color-1);
+    --breadcrumbs-tool-color: var(--sakai-primary-color-1);
+    --breadcrumbs-hover-color: var(--sakai-primary-color-1);
 
     /* Link colors */
     --link-color: var(--sakai-primary-color-1);
-    --link-active-color: var(--sakai-primary-color-1);
-    --link-hover-color: var(--sakai-primary-color-1);
+    --link-active-color: var(--sakai-primary-color-3);
+    --link-hover-color: var(--sakai-primary-color-2);
     --link-background-color: transparent;
     --link-active-background-color: transparent;
     --link-hover-background-color: transparent;
@@ -178,74 +188,66 @@
     --button-shadow: none;
     // hover and focus states:
     --button-hover-text-color: var(--button-text-color);
-    --button-hover-background: var(--sakai-color-blue-0);
+    --button-hover-background: var(--sakai-background-color-3);
     --button-hover-border-color: var(--button-hover-text-color);
     --button-hover-shadow: none;
     // active state:
     --button-active-text-color:var(--button-text-color);
-    --button-active-background: var(--sakai-color-blue-1);
-    --button-active-border-color:    var(--button-active-text-color);
+    --button-active-background: var(--sakai-background-color-4);
+    --button-active-border-color: var(--button-active-text-color);
     --button-active-shadow-color: rgba(0,0,0,0);
     --button-active-shadow: none;
     // disabled state:
-    --button-disabled-text-color:    var(--sakai-color-gray-6);
-    --button-disabled-background:    var(--sakai-background-color-2);
-    --button-disabled-border-color:  var(--sakai-border-color);
-    --button-disabled-shadow:        none;
+    --button-disabled-text-color: var(--sakai-text-color-disabled);
+    --button-disabled-background: var(--sakai-background-color-2);
+    --button-disabled-border-color: var(--sakai-border-color);
+    --button-disabled-shadow: none;
+
     // Primary action button design:
-    --button-primary-text-color:                var(--sakai-color-white);
-    --button-primary-background:                 var(--sakai-primary-color-1);
-    --button-primary-border-color:               var(--sakai-primary-color-1);
+    --button-primary-text-color: var(--sakai-text-color-inverted);
+    --button-primary-background: var(--sakai-primary-color-1);
+    --button-primary-border-color: var(--sakai-primary-color-1);
     --button-primary-shadow: var(--elevation-2dp);
     // hover and focus states for primary action button:
-    --button-primary-hover-text-color:           var(--button-primary-text-color);
-    --button-primary-hover-background:           var(--sakai-color-blue-4);
-    --button-primary-hover-border-color:         var(--sakai-color-blue-4);
+    --button-primary-hover-text-color: var(--button-primary-text-color);
+    --button-primary-hover-background: var(--sakai-primary-color-2);
+    --button-primary-hover-border-color: var(--sakai-primary-color-2);
     --button-primary-hover-shadow: var(--elevation-4dp);
     // active state for primary action button:
-    --button-primary-active-text-color:          var(--button-primary-text-color);
-    --button-primary-active-background:          var(--sakai-color-blue-3);
-    --button-primary-active-border-color:        var(--button-primary-active-background);
-    --button-primary-active-shadow:              var(--elevation-4dp);
+    --button-primary-active-text-color: var(--button-primary-text-color);
+    --button-primary-active-background: var(--sakai-primary-color-3);
+    --button-primary-active-border-color: var(--sakai-primary-color-3);
+    --button-primary-active-shadow: var(--elevation-4dp);
 
-    --info-color:                var(--sakai-color-blue-8);
-    --info-background-color:     var(--sakai-color-blue-0);
-    --ok-color:                  var(--sakai-color-green-8);
-    --ok-background-color:       var(--sakai-color-green-0);
-    --warn-color:                var(--sakai-color-gold-8);
-    --warn-background-color:     var(--sakai-color-gold-0);
-    --error-color:               var(--sakai-color-red-8);
-    --error-background-color:    var(--sakai-color-red-0);
-    --instruction-color:         var(--sakai-color-gray-7);
-    --instruction-background-color: var(--sakai-color-white); //not used??
+    --instruction-color: var(--sakai-text-color-disabled);
 
     // Information (info) banner
-    --infoBanner-bordercolor: var(--sakai-color-blue-5);
-    --infoBanner-bgcolor: var(--sakai-color-blue-0);
-    --infoBanner-color: var(--sakai-color-blue-8);
+    --infoBanner-bordercolor: var(--sakai-color-blue--lighter-2);
+    --infoBanner-bgcolor: var(--sakai-color-blue--lighter-7);
+    --infoBanner-color: var(--sakai-color-blue--darker-3);
     // Success banner
-    --successBanner-bordercolor: var(--sakai-color-green-5);
-    --successBanner-bgcolor: var(--sakai-color-green-0);
-    --successBanner-color: var(--sakai-color-green-8);
+    --successBanner-bordercolor: var(--sakai-color-green--lighter-2);
+    --successBanner-bgcolor: var(--sakai-color-green--lighter-7);
+    --successBanner-color: var(--sakai-color-green--darker-3);
     // Warning (warn) banner
-    --warnBanner-bordercolor: var(--sakai-color-gold-5);
-    --warnBanner-bgcolor: var(--sakai-color-gold-0);
-    --warnBanner-color: var(--sakai-color-gold-8);
+    --warnBanner-bordercolor: var(--sakai-color-gold--lighter-2);
+    --warnBanner-bgcolor: var(--sakai-color-gold--lighter-7);
+    --warnBanner-color: var(--sakai-color-gold--darker-4);
     // Error banner
-    --errorBanner-bordercolor: var(--sakai-color-red-5);
-    --errorBanner-bgcolor: var(--sakai-color-red-0);
-    --errorBanner-color: var(--sakai-color-red-0);
+    --errorBanner-bordercolor: var(--sakai-color-red--lighter-2);
+    --errorBanner-bgcolor: var(--sakai-color-red--lighter-7);
+    --errorBanner-color: var(--sakai-color-red--darker-2);
 
     /* Swapped 'View As' view */
-    --swapped-view-primary:            var(--sakai-color-orange-6);
+    --swapped-view-primary: var(--warnBanner-bgcolor);
     /* Admin Become User view */
-    --become-user-primary: var(--sakai-color-purple-7);
+    --become-user-primary: var(--sakai-color-purple--darker-1);
 
-    --topNav-text-color:                         var(--sakai-color-white); // used for links and text in the topNav
-    --topNav-border-color:                      var(--sakai-color-gray-4); // used for topNav spacers
+    --topNav-text-color: var(--sakai-text-color-inverted); // used for links and text in the topNav
+    --topNav-border-color: var(--sakai-border-color); // used for topNav spacers
 
     /* Favorites */
-    --sites-nav-background:            var(--sakai-background-color-1);
+    --sites-nav-background: var(--sakai-background-color-1);
 
     /* Default state - not selected */
     --sites-nav-menu-item-background: var(--sakai-background-color-2);
@@ -292,123 +294,145 @@
     /* End Favorites */
 
     /* All Sites */
-    --all-sites-background-color:                             var(--sakai-color-white);
-    --all-sites-drop-shadow:                                  var(--elevation-8dp); //was 5px 0 50px 0px rgba(0,0,0,0.5);
+    --all-sites-background-color: var(--sakai-background-color-1);
+    --all-sites-drop-shadow: var(--elevation-8dp);
 
-    --all-sites-tab-text-color:                               var(--tool-menu-color);
-    --all-sites-tab-background-color:                         var(--tool-tab-background-color);
-    --all-sites-tab-border-color:                             var(--tool-tab-border-color);
+    --all-sites-tab-text-color: var(--tool-menu-color);
+    --all-sites-tab-background-color: var(--tool-tab-background-color);
+    --all-sites-tab-border-color: var(--tool-tab-border-color);
 
-    --all-sites-tab-hover-text-color:                         var(--tool-tab-hover-text-color);
-    --all-sites-tab-hover-background-color:                   var(--tool-tab-hover-background-color);
-    --all-sites-tab-hover-highlight:                           var(--tool-tab-hover-highlight-color);
+    --all-sites-tab-hover-text-color: var(--tool-tab-hover-text-color);
+    --all-sites-tab-hover-background-color: var(--tool-tab-hover-background-color);
+    --all-sites-tab-hover-highlight: var(--tool-tab-hover-highlight-color);
 
-    --all-sites-tab-active-text-color:                         var(--tool-tab-active-text-color);
-    --all-sites-tab-active-background-color:                   var(--tool-tab-active-background-color);
-    --all-sites-tab-active-highlight-color:                    var(--tool-tab-active-highlight-color);
+    --all-sites-tab-active-text-color: var(--tool-tab-active-text-color);
+    --all-sites-tab-active-background-color: var(--tool-tab-active-background-color);
+    --all-sites-tab-active-highlight-color: var(--tool-tab-active-highlight-color);
 
-    --all-sites-title-text-color:                              var(--sakai-text-color-1);
+    --all-sites-title-text-color: var(--sakai-text-color-1);
 
-    --all-sites-button-text-color:                             var(--sakai-text-color-1);
-    --all-sites-button-background-color:                       var(--sakai-background-color-2);
-    --all-sites-button-border-color:                           var(--sakai-border-color);
-    --all-sites-button-dropdown-color:                         var(--sakai-color-gray-6);
-    --all-sites-button-star-full-color:                        var(--sakai-color-gold-2);
-    --all-sites-button-star-empty-color:                       transparent;
+    --all-sites-button-text-color: var(--sakai-text-color-1);
+    --all-sites-button-background-color: var(--sakai-background-color-2);
+    --all-sites-button-border-color: var(--sakai-border-color);
+    --all-sites-button-star-full-color: var(--sakai-color-gold--lighter-5);
+    --all-sites-button-star-empty-color: var(--sakai-text-color-1);
 
-    --all-sites-button-selected-text-color:                    var(--sakai-text-color-1);
-    --all-sites-button-selected-background-color:              var(--sakai-color-white);
-    --all-sites-button-selected-border-color:                  var(--sakai-color-gray-6);
-    --all-sites-button-selected-dropdown-color:                var(--sakai-text-color-1);
-    --all-sites-button-selected-star-full-color:               var(--all-sites-button-star-full-color);
-    --all-sites-button-selected-star-empty-color:              var(--all-sites-button-star-empty-color);
+    --all-sites-button-selected-text-color: var(--sakai-text-color-3);
+    --all-sites-button-selected-background-color: var(--sakai-active-color-1);
+    --all-sites-button-selected-border-color: var(--all-sites-button-selected-background-color);
+    --all-sites-button-selected-dropdown-color: var(--all-sites-button-selected-text-color);
+    --all-sites-button-selected-star-full-color: var(--all-sites-button-star-full-color);
+    --all-sites-button-selected-star-empty-color: var(--all-sites-button-star-empty-color);
 
-    --all-sites-button-hover-text-color:                       var(--sakai-text-color-1);
-    --all-sites-button-hover-background-color:                 var(--sakai-background-color-3);
-    --all-sites-button-hover-border-color:                     var(--sakai-color-gray-6);
-    --all-sites-button-hover-dropdown-color:                   var(--sakai-text-color-1);
-    --all-sites-button-hover-star-full-color:                  var(--all-sites-button-star-full-color);
-    --all-sites-button-hover-star-empty-color:                 var(--all-sites-button-star-empty-color);
+    --all-sites-button-hover-text-color: var(--sakai-text-color-1);
+    --all-sites-button-hover-background-color: var(--sakai-background-color-3);
+    --all-sites-button-hover-border-color: var(--all-sites-button-hover-background-color);
+    --all-sites-button-hover-dropdown-color: var(--all-sites-button-hover-text-color);
+    --all-sites-button-hover-star-full-color: var(--all-sites-button-star-full-color);
+    --all-sites-button-hover-star-empty-color: var(--all-sites-button-star-empty-color);
 
-    --all-sites-button-drag-icon-color:                        var(--sakai-color-gray-4);
-    --all-sites-button-drag-icon-hover-color:                  var(--sakai-color-gray-5);
+    --all-sites-button-drag-icon-color: var(--sakai-text-color-1);
+    --all-sites-button-drag-icon-hover-color: var(--sakai-text-color-1);
 
-    --all-sites-tool-menu-divider-color:                       var(--sakai-border-color);
-    --all-sites-tool-menu-background-color:                    var(--sakai-color-white);
-    --all-sites-tool-menu-text-color:                          var(--sakai-text-color-1);
-    --all-sites-tool-menu-icon-color:                          var(--sakai-color-gray-7);
-    --all-sites-tool-menu-left-border-color:                   transparent;
+    --all-sites-tool-menu-divider-color: var(--sakai-border-color);
+    --all-sites-tool-menu-background-color: var(--all-sites-button-background-color);
+    --all-sites-tool-menu-text-color: var(--all-sites-button-text-color);
+    --all-sites-tool-menu-icon-color: var(--all-sites-button-text-color);
+    --all-sites-tool-menu-left-border-color: var(--all-sites-tool-menu-background-color);
 
-    --all-sites-tool-menu-hover-background-color:              var(--sakai-background-color-3);
-    --all-sites-tool-menu-hover-text-color:                    var(--sakai-text-color-1);
-    --all-sites-tool-menu-hover-icon-color:                    var(--sakai-text-color-1);
-    --all-sites-tool-menu-hover-left-border-color:             var(--sakai-color-gray-6);
+    --all-sites-tool-menu-hover-background-color: var(--all-sites-button-hover-background-color);
+    --all-sites-tool-menu-hover-text-color: var(--all-sites-button-hover-text-color);
+    --all-sites-tool-menu-hover-icon-color: var(--all-sites-button-hover-text-color);
+    --all-sites-tool-menu-hover-left-border-color: var(--all-sites-tool-menu-hover-background-color);
 
-    --all-sites-close-action-color:                            var(--sakai-color-gray-7);
-    --all-sites-close-action-hover-color:                      var(--sakai-text-color-1);
+    --all-sites-close-action-color: var(--button-text-color);
+    --all-sites-close-action-hover-color: var(--button-hover-text-color);
 
-    /* Tool menu */
-    --tool-menu-item-separator-color: var(--sakai-color-white);
-    --tool-menu-item-text-color:                                var(--sakai-text-color-1);
-    --tool-menu-item-icon-color:                                var(--sakai-color-gray-6);
-    --tool-menu-item-background-color: var(--sakai-color-white);
+    //Tool menu
+    --tool-menu-item-separator-color: transparent;
 
-    --tool-menu-item-hover-text-color:                          var(--sakai-text-color-1);
-    --tool-menu-item-hover-icon-color:                           var(--sakai-color-gray-6);
-    --tool-menu-item-hover-background-color:                     var(--sakai-background-color-3);
-
-    --tool-menu-item-hidden-text-color:                         var(--tool-menu-item-text-color);
-    --tool-menu-item-hidden-icon-color:                         var(--tool-menu-item-icon-color);
-    --tool-menu-item-hidden-background-color:                   var(--tool-menu-item-background-color);
-
-    --tool-menu-item-hidden-hover-text-color:                   var(--tool-menu-item-hover-text-color);
-    --tool-menu-item-hidden-hover-icon-color:                   var(--tool-menu-item-hover-icon-color);
-    --tool-menu-item-hidden-hover-background-color:             var(--tool-menu-item-hover-background-color);
-
+    //Normal state
+    --tool-menu-item-text-color: var(--sakai-text-color-2);
+    --tool-menu-item-icon-color: var(--sakai-text-color-1);
+    --tool-menu-item-background-color: var(--sakai-background-color-1);
+    //Hover
+    --tool-menu-item-hover-text-color: var(--tool-menu-item-text-color);
+    --tool-menu-item-hover-icon-color: var(--tool-menu-item-icon-color);
+    --tool-menu-item-hover-background-color: var(--sakai-background-color-2);
+    //Active
+    --tool-menu-item-active-text-color: var(--tool-menu-item-text-color);
+    --tool-menu-item-active-icon-color: var(--tool-menu-item-icon-color);
+    --tool-menu-item-active-background-color: var(--sakai-background-color-3);
+    //Hidden - normal state
+    --tool-menu-item-hidden-text-color: var(--tool-menu-item-text-color);
+    --tool-menu-item-hidden-icon-color: var(--tool-menu-item-icon-color);
+    --tool-menu-item-hidden-background-color: var(--tool-menu-item-background-color);
+    //Hidden - hover
+    --tool-menu-item-hidden-hover-text-color: var(--tool-menu-item-hover-text-color);
+    --tool-menu-item-hidden-hover-icon-color: var(--tool-menu-item-hover-icon-color);
+    --tool-menu-item-hidden-hover-background-color: var(--tool-menu-item-hover-background-color);
+    //Hidden - active
+    --tool-menu-item-hidden-active-text-color: var(--tool-menu-item-active-text-color);
+    --tool-menu-item-hidden-active-icon-color: var(--tool-menu-item-active-icon-color);
+    --tool-menu-item-hidden-active-background-color: var(--tool-menu-item-active-background-color);
+    //Selected - normal state
     --tool-menu-item-selected-text-color: var(--sakai-text-color-3);
     --tool-menu-item-selected-icon-color: var(--sakai-text-color-3);
     --tool-menu-item-selected-background-color: var(--sakai-active-color-1);
-
+    //Selected - hover
     --tool-menu-item-selected-hover-text-color: var(--tool-menu-item-selected-text-color);
     --tool-menu-item-selected-hover-icon-color: var(--tool-menu-item-selected-icon-color);
     --tool-menu-item-selected-hover-background-color: var(--sakai-active-color-2);
+    //Selected - active
+    --tool-menu-item-selected-active-text-color: var(--tool-menu-item-selected-text-color);
+    --tool-menu-item-selected-active-icon-color: var(--tool-menu-item-selected-icon-color);
+    --tool-menu-item-selected-active-background-color: var(--sakai-active-color-3);
+    //Tool menu collapse button - normal state
+    --tool-menu-collapse-text-color: var(--tool-menu-item-text-color);
+    --tool-menu-collapse-icon-color: var(--tool-menu-item-text-color);
+    --tool-menu-collapse-background-color: var(--tool-menu-item-background-color);
+    --tool-menu-collapse-shadow: var(--elevation-4dp);
+    //Tool menu collapse - hover
+    --tool-menu-collapse-hover-text-color: var(--tool-menu-item-hover-text-color);
+    --tool-menu-collapse-hover-background-color: var(--tool-menu-item-hover-background-color);
+    --tool-menu-collapse-hover-shadow: var(--elevation-6dp);
+    //Tool menu collapse - active
+    --tool-menu-collapse-active-text-color: var(--tool-menu-item-active-text-color);
+    --tool-menu-collapse-active-background-color: var(--tool-menu-item-active-background-color);
+    --tool-menu-collapse-active-shadow: var(--elevation-5dp);
+    //Tool menu collapse - minimized
+    --tool-menu-collapse-min-text-color: var(--tool-menu-collapse-text-color);
+    --tool-menu-collapse-min-background-color: var(--tool-menu-collapse-background-color);
+    --tool-menu-collapse-min-shadow: var(--tool-menu-collapse-shadow);
+    //Tool menu collapse - minimized - hover
+    --tool-menu-collapse-min-hover-text-color: var(--tool-menu-collapse-hover-text-color);
+    --tool-menu-collapse-min-hover-background-color: var(--tool-menu-collapse-hover-background-color);
+    --tool-menu-collapse-min-hover-shadow: var(--tool-menu-collapse-hover-shadow);
+    //Tool menu collapse - minimized - active
+    --tool-menu-collapse-min-active-text-color: var(--tool-menu-collapse-active-text-color);
+    --tool-menu-collapse-min-active-background-color: var(--tool-menu-collapse-active-background-color);
+    --tool-menu-collapse-min-active-shadow: var(--tool-menu-collapse-active-shadow);
 
-    --tool-menu-collapse-text-color:                            var(--tool-menu-item-text-color);
-    --tool-menu-collapse-icon-color:                            var(--tool-menu-item-text-color);
-    --tool-menu-collapse-background-color:                      var(--tool-menu-item-background-color);
-    --tool-menu-collapse-shadow:                                var(--elevation-2dp);
+    //Tool menu - sub menu
+    --tool-sub-menu-border-color: var(--sakai-border-color);
+    --tool-sub-menu-background-color: var(--tool-menu-item-background-color);
 
-    --tool-menu-collapse-hover-text-color:                      var(--tool-menu-item-hover-text-color);
-    --tool-menu-collapse-hover-background-color:                var(--tool-menu-item-hover-background-color);
-    --tool-menu-collapse-hover-shadow:                          var(--tool-menu-collapse-shadow);
+    --tool-sub-menu-hover-color: var(--tool-menu-item-hover-text-color);
+    --tool-sub-menu-hover-background-color: var(--tool-menu-item-hover-background-color);
 
-    --tool-menu-collapse-min-text-color:                        var(--tool-menu-collapse-text-color);
-    --tool-menu-collapse-min-icon-color:                        var(--tool-menu-collapse-min-text-color); //not used??
-    --tool-menu-collapse-min-background-color:                  var(--tool-menu-collapse-background-color);
-    --tool-menu-collapse-min-shadow:                            var(--tool-menu-collapse-shadow);
+    --tool-sub-menu-current-color: var(--tool-menu-item-selected-text-color);
+    --tool-sub-menu-current-background-color: var(--tool-menu-item-selected-background-color);
 
-    --tool-menu-collapse-min-hover-text-color:                  var(--tool-menu-collapse-hover-text-color);
-    --tool-menu-collapse-min-hover-background-color:            var(--tool-menu-collapse-hover-background-color);
-    --tool-menu-collapse-min-hover-shadow:                      var(--tool-menu-collapse-shadow);
+    --tool-sub-menu-current-hover-color: var(--tool-menu-item-selected-hover-text-color);
+    --tool-sub-menu-current-hover-background-color: var(--tool-menu-item-selected-hover-background-color);
 
-    /* Tool sub menu */
-    --tool-sub-menu-border-color: var(--sakai-color-gray-2);
-    --tool-sub-menu-background-color: var(--sakai-color-gray-2);
-
-    --tool-sub-menu-hover-background-color: var(--sakai-primary-color-1);
-    --tool-sub-menu-hover-color: var(--sakai-color-white);
-
-    --tool-sub-menu-current-color: var(--sakai-primary-color-1);
-    --tool-sub-menu-current-background-color: var(--sakai-background-color-1);
-
-    --tool-sub-menu-current-hover-color: var(--tool-menu-color);
-    --tool-sub-menu-current-hover-background-color: var(--sakai-background-color-1);
-
+    //Tool menu - lessons subpages enabled
     --tool-lessons-toplevel-menu-selected-background-color: var(--tool-menu-item-background-color); //not used??
 
-    --tool-lessons-toplevel-menu-expanded-background-color: var(--tool-menu-item-selected-background-color);
-    --tool-lessons-toplevel-menu-expanded-hover-background-color: var(--tool-menu-item-selected-background-color);
-    --tool-lessons-toplevel-menu-expanded-selected-background-color:var(--tool-menu-item-selected-background-color);
+    --tool-lessons-toplevel-menu-expanded-background-color: var(--tool-menu-item-background-color);
+    --tool-lessons-toplevel-menu-expanded-hover-background-color: var(--tool-menu-item-hover-background-color);
+    --tool-lessons-toplevel-menu-expanded-selected-background-color: var(--tool-menu-item-selected-background-color);
+    --tool-lessons-toplevel-menu-expanded-selected-color: var(--tool-menu-item-selected-color);
 
     --tool-lessons-toplevel-menu-sliding-background-color: var(--tool-menu-item-background-color);
 
@@ -418,17 +442,17 @@
     --tool-lessons-subpage-menu-expanded-background-color: var(--tool-menu-item-background-color);
 
     --lessons-item-border-top-color: var(--sites-nav-menu-item-background);
-
-    --lessons-item-hover-background: var(--sakai-color-white);
+    --lessons-column-border-color: var(--sakai-border-color);
+    --lessons-item-hover-background: var(--sakai-background-color-2);
     --lessons-item-hover-shadow: var(--elevation-4dp);
 
-    --siteUnpublish-background: var(--warn-background-color);
-    --siteUnpublish-color: var(--sakai-text-color-1);
-    --siteUnpublish-border-color:  var(--warn-color);
+    --siteUnpublish-background: var(--warnBanner-bgcolor);
+    --siteUnpublish-color: var(--warnBanner-color);
+    --siteUnpublish-border-color:  var(--warnBanner-bordercolor);
 
-    --siteDelete-background: var(--info-background-color);
-    --siteDelete-color: var(--sakai-text-color-1);
-    --siteDelete-border-color: var(--info-color);
+    --siteDelete-background: var(--infoBanner-bgcolor);
+    --siteDelete-color: var(--infoBanner-color);
+    --siteDelete-border-color: var(--infoBanner-bordercolor);
 
     --footer-background-color: var(--sakai-background-color-1); //not used??
     --footer-border-color: var(--tool-border-color); //not used??
@@ -442,6 +466,23 @@
     --overview-portlet-shadow: var(--elevation-2dp);
     --overview-portlet-title-background-color: var(--tool-tab-background-color);
 
-    --focus-outline-color: var(--sakai-color-lightblue-4);
+    --focus-outline-color: var(--sakai-color-blue--lighter-3);
+
+    // Dashboard
+    --sakai-dashboard-widget-bg-color: var(--sakai-background-color-1);
+    --sakai-dashboard-widget-border-color: var(--sakai-border-color);
+    --sakai-title-bar-bg-color: var(--sakai-background-color-2);
+    --sakai-close-icon-color: var(--errorBanner-color);
+    --sakai-table-even-color: var(--sakai-background-color-2);
+    --sakai-separator-color: var(--sakai-border-color);
+    --sakai-calendar-button-bg-color: var(--button-background);
+    --sakai-calendar-button-color: var(--button-text-color);
+    --sakai-calendar-button-disabled-bg-color: var(--button-disabled-background);
+
 
 }
+
+// Tables
+$table-bg-accent: var(--sakai-background-color-2);
+$sakai-table-bg-hover: var(--sakai-background-color-2);
+$table-border-color: var(--sakai-border-color);

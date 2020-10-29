@@ -14,7 +14,7 @@ We are going to focus in this document on the `sass` folder, which is where you 
 ​
 ## Starting directory
 ​
- - `_defaults.scss`, having `_` character at the begining, will not compile into a css file. This file is the place where all the default variables used on the skin are placed, i.e.: our logo, background color, link color or typography. If we just want to modify this features but we don't want to lose the content of this file cloned from *git* we just need to create a file named `_customization.scss` which will contain our modified variables. You have some examples in the folder with that name.
+ - `_defaults.scss`, having `_` character at the begining, will not compile into a css file. This file is the place where all the default variables needed to create the UI and not related to your Sakai brand or theme are placed. In previous releases, it was common to edit this file, now it is recommended not to edit and instead edit `sass/themes/_light.scss` or `sass/themes/_custom.scss`. If we just want to modify these features but we don't want to lose the content of this file cloned from *git*, we just need to create a file named `_customization.scss` that will contain our modified variables. You have some examples in the folder with that name.
  - `access.scss` is used on the resources pages which have been shared with users who have no need to login to view them.
  - `portal.scss`, deprecated, it has been deleted from every place where it still appears. It's empty for now and it still remains to avoid 404 errors on Sakai's load.
  - `print.scss` has the default print styles when you try to print from your browser. The content of this file is loaded just when the browser tries to print with a `media="print"` attribute.
@@ -25,8 +25,6 @@ We are going to focus in this document on the `sass` folder, which is where you 
 In the `base` directory you can find the default styles that will be used all along the platform regardless of where we are inside Sakai or, what we decide to load with the `sakai.properties` file. We're going to go explain every file in alphabetical order.
 ​
 - `_bootstrap-defaults.scss`. Since we have added the Bootstrap library, we’ve needed to add this file to make possible to modify the default styles of this library to maintain consistency between Sakai’s typografies and colours although we are using different libraries. If you want to customize your own theme maybe you will need to modify this variables.
-- `_material-defaults.scss`. In Sakai 20.x, the option to enable several design elements from Google's material
-design library were introduced. This file contains several boolean variables that enable the various functionality.
 - `_compass.scss`, Up until recently we were compiling Morpheus with JRuby + Compass. When we deleted that dependency we needed to put into this file the dependencies of the compass mixins that we were using related primarily with CSS3 features and browser differences.
 - `_defaults.scss`, are the styles for default HTML tags (`body`, links, `input`).
 - `_extendables.scss`, this file contains functions and classes created for morpheus that are been used all along the skin. For example, style definition for buttons and form selects (`.btn`, `.select`) that are used after to define `input` and `select` tags into the `_defaults.scss` file in this directory. You can also use those classes to extend / inherit the behaviour of them into another tag or class. For example, making a link look like a button.
@@ -45,3 +43,13 @@ Furthermore, for every tool, it has been necessary to create a namespace to appl
 But, lets be honest, this namespace should not be necessary but, for now, it is really important since the original Sakai structure was using iframes and since its removal for Sakai 11, a lot of tools now share the same class names for different style behaviour so we need to specify the differences.
 ​
 You have more details on how to threat a tool inside the Morpheus folder structure in [this link](customization-tool.md#what-should-i-do-with-a-tool).
+
+## Themes directory
+
+This directory contains the main theme files used to customize the look of Sakai. Sakai comes with the following themes
+
+`_light.scss` the default Light theme
+`_dark.scss` a dark theme enabled via system property `config/configuration/bundles/src/bundle/org/sakaiproject/config/bundle/default.sakai.properties:897` then toggled in the user profile dropdown
+`_custom.scss` this file is available for you to define a custom theme for your instance of Sakai.
+
+You may add additional files here and include them in `tool.scss`. However, more work will be necessary to switch between them. It is recommended to edit these three files unless you are an advanced Sakai developer.

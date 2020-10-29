@@ -1,15 +1,20 @@
 button.switch {
     margin: 0;
     padding: 0;
-    width: 70px;
+    width: 100px;
     height: 26px;
-    border: 2px solid black;
+    border: 2px solid var(--sakai-color-border);
+    background: var(--sakai-background-color-2);
     display: inline-block;
     margin-right: 0.25em;
     line-height: 20px;
     vertical-align: middle;
     text-align: center;
-    font: 12px "Open Sans", "Arial", serif;
+    font: 12px $font-family;
+    &:focus {
+        outline:none;
+        box-shadow: $sakai-box-shadow-emulate-focus var(--focus-outline-color);
+    }
 }
 
 button.switch span {
@@ -19,18 +24,17 @@ button.switch span {
 
 [role="switch"][aria-checked="false"] :first-child,
 [role="switch"][aria-checked="true"] :last-child {
-    background: #262;
-    color: #eef;
+    background: var(--sakai-primary-color-1);
+    color: var(--sakai-text-color-inverted);
 }
 
 [role="switch"][aria-checked="false"] :last-child,
 [role="switch"][aria-checked="true"] :first-child {
-    color: #bbd;
+    color: var(--sakai-text-color-1);
 }
 
 label.switch {
-    font: 16px "Open Sans", "Arial", sans-serif;
-    line-height: 20px;
+    color: var(--sakai-text-color-1);
     user-select: none;
     vertical-align: middle;
     -moz-user-select: none;

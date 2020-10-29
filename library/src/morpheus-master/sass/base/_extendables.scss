@@ -1,6 +1,5 @@
 @import "base/compass";
-@import "themes/base";
-@import "themes/light";
+
 .blurry{
 	@include filter( blur(0.1em) );
 }
@@ -32,18 +31,17 @@
   border: 1px solid;
   border-left-width: 5px;
   border-color: $bordercolor;
-  --switch: calc(color.lightness(#{$color}) - var(--sakai-color-contrast-threshold)) * -100;
-  color: hsl(0, 0%, var(--switch));
+  color: $color;
   background-color: $bgcolor;
   h1, h2, h3, h4, h5, h6 {
-    margin-top: 0;
-    color: $color;
+	margin-top: 0;
+	color: $color;
   }
   p:last-child {
-    margin-bottom: 0;
+	margin-bottom: 0;
   }
   code, .highlight {
-    background-color: var(--sakai-color-white);
+	background-color: var(--sakai-color-white);
   }
 }
 
@@ -75,8 +73,7 @@
 	}
 	border-left: calc( #{$standard-spacing} / 2) solid $bordercolor;
 	background-color: $bgcolor;
-	--switch: calc(color.lightness($color) - var(--sakai-color-contrast-threshold)) * -100;
-	color: hsl(0, 0%, var(--switch));
+	color: $color;
 	
 	// display an icon indicating banner type on the left of the text
 	&:before {
@@ -182,7 +179,7 @@
 	@include border-radius(3px);
 	border: 1px solid var(--sakai-border-color);
 	&::-ms-expand {
-	    display: none;
+		display: none;
 	}
 	
 	&[multiple], &[size]:not([size='1']) {
@@ -206,23 +203,42 @@
 		&.active, &.selected, &.activeTab{
 			> a{
 				background: var(--tool-tab-active-background-color);
-				border-top: 1px solid #ddd;
-				border-left: 1px solid #ddd;
-				border-right: 1px solid #ddd;
-				border-bottom: 1px solid var(--tool-tab-active-background-color) !important;
-				color: var(--sakai-primary-color-1);
+				border-top: 1px solid var(--sakai-border-color);
+				border-left: 1px solid var(--sakai-border-color);
+				border-right: 1px solid var(--sakai-border-color);
+				border-bottom: 1px solid var(--tool-tab-active-background-color);
+				color: var(--tool-tab-active-color);
+				&:before {
+					border-top: 4px solid var(--tool-tab-active-highlight-color);
+					border-radius: 4px 4px 0 0 ;
+					content: "";
+					display: block;
+					position: absolute;
+					left: -1px;
+					right: -1px;
+					top: -1px;
+				}
+				&:after{
+					border-bottom: 1px solid var(--tool-tab-active-background-color);
+					content: '';
+					display: block;
+					position: absolute;
+					left: 0;
+					right: 0;
+					bottom: -1px;
+				}
 				&:hover{
 					background: var(--tool-tab-active-background-color);
-					color: var(--sakai-primary-color-1);
+					color: var(--tool-tab-active-color);
 				}
 			}
 		}
 		> a{
 			background: var(--tool-tab-background-color);
-			border: 1px solid #ddd !important;
+			border: 1px solid var(--sakai-border-color);
 			color: var(--sakai-text-color-1);
 			cursor: pointer;
-			margin: 0 0em 0 0.5em;
+			margin: 0 0 0 $standard-space;
 			text-decoration: none;
 		}
 	}
@@ -263,12 +279,6 @@
 		color: $sb-text-color;
 	}
 
-	&:focus {
-		outline-color: var(--focus-outline-color);
-		outline: $sakai-focus-outline;
-		outline-offset: $focus-outline-offset;
-	}
-
 	&:hover, &:focus {
 		color: $sb-hover-text-color;
 		text-decoration: none;
@@ -278,6 +288,11 @@
 		&:before { // icon
 			color: $sb-hover-text-color;
 		}
+	}
+
+	&:focus {
+		outline:none;
+		box-shadow: $sakai-box-shadow-emulate-focus var(--focus-outline-color);
 	}
 
 	&:active {

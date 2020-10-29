@@ -61,3 +61,7 @@
 	margin-left: 4em;
 	margin-top: 2em;
 }
+
+.gb-category-runningtotal {
+  background-color: var(--sakai-background-color-2);
+}

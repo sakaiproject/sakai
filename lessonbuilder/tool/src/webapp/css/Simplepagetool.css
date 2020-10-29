@@ -410,8 +410,8 @@ span.remove-upload {
     margin: 4px 8px 4px 8px;
     padding: 25px 7px 15px 7px;
     list-style:none;
-    background-color: white;
-    border: 1px solid #ccc;
+    background-color: var(--sakai-background-color-1);
+    border: 1px solid var(--sakai-border-color);
     display:inline-block;
     vertical-align: top;
     border-radius: 2px;

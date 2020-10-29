@@ -228,7 +228,6 @@ ul.attachList li{
 
 /*searchNav panel has a special text input*/
 .searchNav input.searchField{
-	background-color: #fff;
 	padding: 2px;
 }
 
@@ -864,8 +863,21 @@ blockquote p {
 /*jQuery Datepicker button class*/
 .ui-datepicker-trigger{font-size:1em;margin-left: 4px;}
 .ui-datepicker-trigger:hover{font-size:1em;}
-.ui-datepicker-trigger span.fa{color:#000;}
-.ui-datepicker-trigger:hover span.fa{color:#000;}
+.ui-datepicker-trigger span.fa{color: var(--button-text-color);}
+.ui-datepicker-trigger:hover span.fa{color: var(--button-hover-text-color);}
+.ui-datepicker-trigger:active span.fa{color: var(--button-active-text-color);}
+.ui-datepicker.ui-widget-content {
+	background:var(--sakai-background-color-1);
+}
+.ui-datepicker .ui-datepicker-header {
+	background:var(--sakai-background-color-1);
+	border:none;
+}
+.ui-datepicker .ui-state-default,
+.ui-datepicker .ui-datepicker-calendar .ui-state-default {
+	background:var(--sakai-background-color-2);
+	color: var(--sakai-text-color-1);
+}
 
 /* css for duplicate site alert*/
 #flashNotif  a.flashNotifClose {

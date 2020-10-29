@@ -33,14 +33,15 @@ $default-font-size-small: 12px !default;
 $default-font-weight: 400 !default;										// 400 or 700 as you wish
 $default-line-height: 1.42857 !default;											// 20px / 14px = 1.42857
 
-/****************************************************************************************/
-/* SAK-43981 ALL COLOR RELATED VARIABLES HAVE BEEN MOVED TO morpheus-master/sass/themes */
-/* This includes variables related to the following:
-/* 1. background color
-/* 1. border color
-/* 1. box-shadow
-/* 1. color
-/****************************************************************************************/
+////////////////////////////////////////////////////////////////////////////////////////
+// SAK-43981 ALL THEME RELATED VARIABLES HAVE BEEN MOVED TO morpheus-master/sass/themes
+// This includes variables related to the following:
+// 1. background color
+// 2. border color
+// 3. box-shadow
+// 4. color
+// 5. logo
+////////////////////////////////////////////////////////////////////////////////////////
 
 //Built to be used for padding
 //https://material-components.github.io/material-components-web-catalog/#/component/menu
@@ -90,9 +91,6 @@ $errorBanner-icon: ".fa-ban";
 
 /* Swapped 'View As' view */
 $swapped-view-enabled: false !default;
-
-/* topNav Main Menu */
-$header-size: 50px !default;
 
 /* Favorites */
 $sites-nav-menu-item-border-thickness: 1px !default;
@@ -178,9 +176,10 @@ $tool-menu-item-collapsed-margin:                          0 !default;
 $tool-menu-item-collapsed-padding: $tool-menu-item-padding !default;
 $tool-menu-item-hidden-border-left:                        $tool-menu-item-border-left !default;
 $tool-menu-item-hidden-hover-border-left:                  $tool-menu-item-hover-border-left !default;
+$tool-menu-item-hidden-active-border-left: $tool-menu-item-border-left !default;
 $tool-menu-item-selected-border-left: $tool-menu-item-border-left !default;
 $tool-menu-item-selected-hover-border-left: $tool-menu-item-border-left !default;
-
+$tool-menu-item-selected-active-border-left: $tool-menu-item-border-left !default;
 $tool-menu-collapse-border-top:                            none !default;
 $tool-menu-collapse-hover-border-top:                      $tool-menu-collapse-border-top !default;
 $tool-menu-collapse-min-border-top:                        $tool-menu-collapse-border-top !default;
@@ -197,7 +196,7 @@ $tool-lessons-subpage-menu-fontsize: .9em !default;
 $tool-lessons-subpage-menu-border-radius: 0 $button-radius-pill $button-radius-pill 0 !default;
 
 /* Lessons tool */
-$lessons-column-border:none !default;
+$lessons-column-border:1px solid !default;
 $lessons-item-border-top: 1px solid !default;
 $lessons-item-border-right: none !default;
 $lessons-item-border-bottom: none !default;
@@ -212,10 +211,6 @@ $measure: 960px !default;
 
 $banner-height: 52px !default;
 
-/* Logo location */
-$logo: 'images/logo-jewel.png' !default;
-$logo-height: 36px !default;
-$logo-width: 126px !default;
 
 /* Tool icons */
 $skin-with-icons: true !default;
@@ -256,3 +251,17 @@ $header-font-weight: 700 !default;										// 400 or 700 as you wish
 $skin-name : "morpheus-default" !default; // This is used for bootstrap font behaviour.
 
 $sites-nav-submenu-top: -#{$standard-spacing} !default; //fallback to calc( #{$default-font-size} + #{$sites-nav-menu-item-border-thickness})
+
+// Used in toolmenu and favorites to add microtransitions on hover/active
+// Accompanyied with an elevation change
+$active-transition-hover: box-shadow 100ms ease-out !default;
+$active-transition-active: box-shadow 100ms ease-in !default;
+
+:root {
+/* topNav Main Menu */
+--header-size: 50px;
+
+//Dashboard
+--sakai-course-card-border-radius: $button-radius;
+--sakai-title-bar-font-weight: $button-font-weight;
+}

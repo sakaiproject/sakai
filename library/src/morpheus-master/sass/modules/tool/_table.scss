@@ -38,6 +38,14 @@ table{
 	}
 }
 
+.table-hover > tbody > tr:hover {
+	background-color: var(--sakai-background-color-2);
+
+	&:nth-child(odd){
+		background: var(--sakai-background-color-3);
+	}
+}
+
 .sakai-table-noResultsMessage {
 	border: 1px solid #ddd;
 	border-top: 0 none;
