@@ -234,10 +234,13 @@ public class ItemModifyListener implements ActionListener
       bean.setItemDiscount(discount);
 
       // partical credit flag
-      String partialCreditFlag= "FALSE";
+      String partialCreditFlag = "Default";
       Boolean hasPartialCredit = itemfacade.getPartialCreditFlag();
       if (hasPartialCredit != null) {
-    	  partialCreditFlag = hasPartialCredit.toString();
+        partialCreditFlag = hasPartialCredit.toString();
+        if(!itemfacade.getPartialCreditFlag() && itemfacade.getDiscount() == 0) {
+          partialCreditFlag = "Default";
+        }
       } 
       bean.setPartialCreditFlag(partialCreditFlag);
            
