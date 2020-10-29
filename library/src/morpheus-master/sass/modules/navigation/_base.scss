@@ -40,7 +40,7 @@ body.is-logged-out{
 
 		.#{$namespace}headerLogo--institution{
 			background: var(--logo) no-repeat center center;
-			width: 		var(--logo-width);
+			width: var(--logo-width);
 			height: 100%; // align vertically center
 			float: left;
 			background-size: var(--logo-width) var(--logo-height);

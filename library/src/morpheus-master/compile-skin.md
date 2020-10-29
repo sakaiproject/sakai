@@ -9,7 +9,7 @@ If you want to keep the out of the box look of Sakai and theme it to your instit
 
 `mvn clean install`
 
-If you want to further change configuration in _defaults.scss to customize your  skin you just need to point to the file with those changes. It will be copied by maven in the proper place:
+If you want to further change the configuration in _defaults.scss to customize your skin, you need to point to the file with those changes. It will be copied by Maven into the proper place:
 
 `mvn clean install -Dsakai.skin.customization.file=/folder/to/your/file.scss`
 
@@ -28,4 +28,4 @@ We have uploaded a non-icons version compiled by:
 
 `mvn clean install -Dsakai.skin.target=morpheus-default-noicons -Dsakai.skin.customization.file=./src/morpheus-master/sass/examples/_customization_example_withouticons.scss`
 
-Feel free to repeat this commands to generate as many skins as you want.
+Feel free to repeat these commands to generate as many skins as you want.
