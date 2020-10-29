@@ -130,7 +130,7 @@
       var progressbar = timerBlock.find("#progressbar");
       var timeoutWarning = timerBlock.find("#timeoutWarning");
       var showHide = timerBlock.find("#showHide");
-      var totalTime, elapsedTime, remain = 0;
+      var totalTime, elapsedTime, remain, submissionStatus = 0;
       var submitStatus, localCount, ajaxCount = null;
       var indicator = timeoutDialog.find("#indicator");
       var showWarning = true;
@@ -282,7 +282,9 @@
       $.getJSON(routePrefix + "getTimerProgress" + routeSuffix, ajaxQuery, function(data) {
           totalTime = data[0];
           elapsedTime = data[1];
-          if (totalTime === elapsedTime) {
+          submissionStatus = data[2];
+
+          if (submissionStatus == 0 || totalTime === elapsedTime) {
               timerBlock.hide();
               timeoutDialog.dialog("open");
               timeoutDialog.siblings(".ui-dialog-buttonpane").find("button").eq(0).hide();
