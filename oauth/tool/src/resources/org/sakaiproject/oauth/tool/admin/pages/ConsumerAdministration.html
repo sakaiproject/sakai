@@ -32,50 +32,64 @@
     <h3><span wicket:id="consumerName">Consumer name</span></h3>
 
     <form wicket:id="consumerForm" action="post">
-        <h2><wicket:message key="section.settings">Settings</wicket:message></h2>
+      <div class="flex-container">
+        <div class="configuration">
+          <fieldset>
+          <div class="sectionFieldSet">
+            <h2><wicket:message key="section.settings">Settings</wicket:message></h2>
 
-        <div>
-            <label wicket:for="id"><wicket:message key="consumer.id">Unique identifier (consumer's key)</wicket:message></label>
-            <input type="text" id="id" value="consumer's key" wicket:id="id"/>
-        </div>
-        <div>
-            <label wicket:for="name"><wicket:message key="consumer.name">Consumer's name (used for display)</wicket:message></label>
-            <input type="text" id="name" value="consumer's name" wicket:id="name"/>
-        </div>
-        <div>
-            <label wicket:for="description"><wicket:message key="consumer.description">Description</wicket:message></label>
-            <textarea id="description" cols="0" rows="0" wicket:id="description">Consumer's description</textarea>
-        </div>
-        <div>
-            <label wicket:for="url"><wicket:message key="consumer.url">URL (website, homepage)</wicket:message></label>
-            <input type="text" id="url" value="http://www.consumersite.com/" wicket:id="url"/>
-        </div>
-        <div>
-            <label wicket:for="callbackUrl"><wicket:message key="consumer.callbackUrl">Callback URL (used during the authorisation phase)</wicket:message></label>
-            <input type="text" id="callbackUrl" value="http://www.consumersite.com/oauth/callback"
-                   wicket:id="callbackUrl"/>
-        </div>
-        <div>
-            <label wicket:for="secret"><wicket:message key="consumer.secret">Consumer's secret (password), used to sign oauth messages</wicket:message></label>
-            <input type="text" id="secret" value="sEcre7/p@s$W0rd" wicket:id="secret"/>
-        </div>
-        <div>
-            <label wicket:for="accessorSecret"><wicket:message key="consumer.accessorSecret">Accessor's secret</wicket:message></label>
-            <input type="text" id="accessorSecret" value="sEcre7/p@s$W0rd" wicket:id="accessorSecret"/>
-        </div>
-        <div>
-            <label wicket:for="defaultValidity"><wicket:message key="consumer.defaultValidity">Default validity (in minutes)</wicket:message></label>
-            <input type="text" id="defaultValidity" value="42" wicket:id="defaultValidity"/>
+            <div>
+                <label wicket:for="id"><wicket:message key="consumer.id">Unique identifier (consumer's key)</wicket:message></label>
+                <input type="text" id="id" value="consumer's key" wicket:id="id"/>
+            </div>
+            <div>
+                <label wicket:for="name"><wicket:message key="consumer.name">Consumer's name (used for display)</wicket:message></label>
+                <input type="text" id="name" value="consumer's name" wicket:id="name"/>
+            </div>
+            <div>
+                <label wicket:for="description"><wicket:message key="consumer.description">Description</wicket:message></label>
+                <textarea id="description" cols="50" rows="4" wicket:id="description">Consumer's description</textarea>
+            </div>
+            <div>
+                <label wicket:for="url"><wicket:message key="consumer.url">URL (website, homepage)</wicket:message></label>
+                <input type="text" id="url" value="http://www.consumersite.com/" wicket:id="url"/>
+            </div>
+            <div>
+                <label wicket:for="callbackUrl"><wicket:message key="consumer.callbackUrl">Callback URL (used during the authorisation phase)</wicket:message></label>
+                <input type="text" id="callbackUrl" value="http://www.consumersite.com/oauth/callback"
+                       wicket:id="callbackUrl"/>
+            </div>
+            <div>
+                <label wicket:for="secret"><wicket:message key="consumer.secret">Consumer's secret (password), used to sign oauth messages</wicket:message></label>
+                <input type="text" id="secret" value="sEcre7/p@s$W0rd" wicket:id="secret"/>
+            </div>
+            <div>
+                <label wicket:for="accessorSecret"><wicket:message key="consumer.accessorSecret">Accessor's secret</wicket:message></label>
+                <input type="text" id="accessorSecret" value="sEcre7/p@s$W0rd" wicket:id="accessorSecret"/>
+            </div>
+            <div>
+                <label wicket:for="defaultValidity"><wicket:message key="consumer.defaultValidity">Default validity (in minutes)</wicket:message></label>
+                <input type="text" id="defaultValidity" value="42" wicket:id="defaultValidity"/>
+            </div>
+	
+            <input type="submit" value="Save" wicket:message="value:consumer.save"/>
+            </div>
+          </fieldset>
         </div>
 
-        <input type="submit" value="Save" wicket:message="value:consumer.save"/>
-
-        <h2><wicket:message key="section.rights">Rights</wicket:message></h2>
-        <span wicket:id="rights">
-            <input type="checkbox" id="right.name" checked="checked"/><label for="right.name">Right's name</label><br/>
-            <input type="checkbox" id="otherright.name"/><label for="otherright.name">Other right's name</label>
-        </span>
-        <input type="submit" value="Save" wicket:message="value:consumer.save"/>
+        <div class="permissions">
+          <fieldset>
+            <div class="sectionFieldSet">
+              <h2><wicket:message key="section.rights">Rights</wicket:message></h2>
+              <span wicket:id="rights">
+                <input type="checkbox" id="right.name" checked="checked"/><label for="right.name">Right's name</label>
+                <input type="checkbox" id="otherright.name"/><label for="otherright.name">Other right's name</label>
+              </span>
+              <input type="submit" value="Save" wicket:message="value:consumer.save"/>
+           </div>
+          </fieldset>
+        </div>
+      </div>
     </form>
 
 </wicket:extend>
