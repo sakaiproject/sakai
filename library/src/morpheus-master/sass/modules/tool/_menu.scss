@@ -13,8 +13,11 @@
 		display: inline-block;
 		font-size: $default-font-size;
 		margin: 0 -1px 0 0;
+		margin: 0 0 0 $standard-space;
+
 		span{
 			display: inline;
+			
 			a{
 				background: var(--tool-tab-background-color);
 				border-top: 1px solid var(--tool-tab-border-color);
@@ -31,7 +34,7 @@
 				text-decoration: none;
 				text-transform: $tool-tab-text-transform;
 				letter-spacing: $tool-tab-text-letter-spacing;
-
+				border-radius: 4px 4px 0 0;
 				&:hover, &:focus {
 					color: var(--tool-tab-hover-text-color);
 					background: var(--tool-tab-hover-background-color);
@@ -40,6 +43,7 @@
 
 					&:before{
 						border-top: 4px solid var(--tool-tab-hover-highlight-color);
+						border-radius: 4px 4px 0 0;
 						content: "";
 						display: block;
 						position: absolute;
@@ -61,6 +65,7 @@
 				border-top: 1px solid var(--tool-tab-border-color);
 				border-left: 1px solid var(--tool-tab-border-color);
 				border-right: 1px solid var(--tool-tab-border-color);
+				border-radius: 4px 4px 0 0;
 				position: relative;
 				margin: 0;
 				padding: 0 0.6em;
@@ -71,6 +76,7 @@
 
 				&:before {
 					border-top: 4px solid var(--tool-tab-active-highlight-color);
+					border-radius: 4px 4px 0 0;
 					content: "";
 					display: block;
 					position: absolute;

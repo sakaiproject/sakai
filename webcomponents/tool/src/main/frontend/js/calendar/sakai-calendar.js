@@ -135,7 +135,7 @@ export class SakaiCalendar extends LionCalendar {
         margin-bottom: 10px;
       }
         sakai-icon[type="add"] {
-          color: green;
+          color: var(--sakai-color-green);
         }
       #controls {
         display: flex;
@@ -160,8 +160,8 @@ export class SakaiCalendar extends LionCalendar {
         font-size: 14px;
       }
       .has-event {
-        background-color: green;
-        color: white;
+        background-color: var(--sakai-color-green--darker-3);
+        color: var(--sakai-color-green--lighter-7);
         border-radius: 50%;
       }
 
@@ -183,7 +183,25 @@ export class SakaiCalendar extends LionCalendar {
       .calendar__day-button[today] {
         font-weight: bold;
       }
+      .calendar__previous-month-button,
+      .calendar__next-month-button,
+      .calendar__day-button {
+        background-color: var(--sakai-calendar-button-bg-color, #fff);
+      }
 
+      .calendar__day-button[previous-month],
+      .calendar__day-button[next-month] {
+        color: var(--sakai-calendar-button-color, rgb(115, 115, 115));
+      }
+
+      .calendar__day-button:hover {
+        border-color: var(--sakai-color-green);
+      }
+
+      .calendar__day-button[disabled] {
+        background-color: var(--sakai-calendar-button-disabled-bg-color, #fff);
+        color: var(--sakai-text-color-disabled, #eee);
+      }
     `];
   }
 }

@@ -1,13 +1,12 @@
 @import "base/compass";
 
 body{
-	color: 		 var(--sakai-text-color-1);
+	color: var(--sakai-text-color-1);
 	font-family: $font-family;
-	font-size: 	 $default-font-size !important; // Bootstrap Tool error
+	font-size: $default-font-size !important; // Bootstrap Tool error
 	font-weight: $default-font-weight;
 	line-height: $default-line-height;
 	&.#{$namespace}portalBody{
-		background-color: var(--sakai-background-color-1);
 		@media #{$phone}{
 			padding: $banner-height 0 0 0;
 		}
@@ -84,6 +83,9 @@ a{
 
 input, textarea{
 	color: var(--sakai-text-color-1);
+	background: var(--sakai-background-color-1);
+	border: 1px solid var(--sakai-border-color);
+	@include border-radius($button-radius);
 	font-family: $font-family;
 	font-size: 	 $default-font-size;
 	max-width: 100%;
@@ -137,8 +139,9 @@ input[type="submit"],input[type="button"],input[type="reset"] {
 }
 
 input[type="checkbox"], input[type="radio"]{
-	background-color: #FFF;
-	border: 1px solid #A0A0A0;
+	background-color: var(--sakai-background-color-1);
+	border: 1px solid var(--sakai-text-color-1);
+	color: var(--sakai-text-color-1);
 	display: inline-block;
 	height: 16px;
 	width: 16px;
@@ -169,15 +172,18 @@ label.disabled{
 input[type="checkbox"]{
 	@include border-radius(3px);
 	&:checked{
-		background-image: url("images/check.png");
-		background-size: 16px;
+		background-image: url("images/check.svg");
+		background-size: 12px;
+		background-color: var(--button-primary-background);
+		background-repeat: no-repeat;
+		background-position: 1px 1px;
 	}
 }
 input[type="radio"]{
 	@include border-radius(24px);
 	&:checked{
-		background: var(--sakai-text-color-1);                // fallback support
-		background: radial-gradient(circle at center, var(--sakai-text-color-1) 0%, var(--sakai-text-color-1) 48%, var(--sakai-background-color-1) 58%);
+		background: var(--button-primary-background); // fallback support
+		background: radial-gradient(circle at center, var(--button-primary-background) 0%, var(--button-primary-background) 48%, var(--sakai-background-color-1) 58%);
 	}
 }
 

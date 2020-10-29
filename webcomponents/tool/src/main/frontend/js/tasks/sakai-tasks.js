@@ -403,7 +403,7 @@ export class SakaiTasks extends LitElement {
 
       #container {
         font-family: var(--sakai-font-family);
-        background-color: white;
+        background-color: var(--sakai-dashboard-widget-bg-color, white);
         padding: 8px;
       }
 

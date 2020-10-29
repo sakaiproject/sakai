@@ -88,11 +88,11 @@
 	}
 	
 	.feedBackCheck{
-		color: var(--ok-color);
+		color: var(--successBanner-color);
 	}
 	
 	.feedBackCross{
-		color: var(--error-color);
+		color: var(--errorBanner-color);
 	}
 	
 	.feedBackMultipleChoice{
@@ -100,7 +100,7 @@
 	}
 	
 	.disabledField{
-		color: var(--error-color);
+		color: var(--errorBanner-color);
 		text-decoration: line-through;
 	}
 

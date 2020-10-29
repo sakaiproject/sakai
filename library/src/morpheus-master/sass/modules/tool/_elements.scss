@@ -1,7 +1,12 @@
 .sakai-accordion {
+	.panel-default {
+		border-color: var(--sakai-border-color);
+	}
+	.panel-heading {
+		background-color:var(--sakai-background-color-2);
+	}
 	.panel-heading > .panel-title {
 		padding: 0;
-		
 		a {
 			padding: $standard-spacing;
 		}
@@ -21,5 +26,9 @@
 		a[aria-expanded="true"]::before {
 			content: "\f0d7";				// fa-caret-down
 		}
+	}
+	.panel-body {
+		background: var(--sakai-background-color-1);
+		color: var(--sakai-text-color-1);
 	}
 }

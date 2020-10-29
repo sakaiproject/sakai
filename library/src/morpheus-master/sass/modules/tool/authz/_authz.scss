@@ -1,19 +1,24 @@
-.checkGrid th:hover,.checkGrid td h4:hover {
-  color: #369 !important;
+.checkGrid th:hover,
+.checkGrid td h4:hover {
+  color:var(--sakai-active-color-1) !important;
 }
 .checkGrid a {
   text-decoration: none !important;
 }
 .checkGrid {
-  border-top: 1px solid #e5eff8;
-  border-right: 1px solid #e5eff8;
+  border-top: 1px solid var(--sakai-border-color);
+  border-right: 1px solid var(--sakai-border-color);
   border-collapse: collapse;
 }
 .checkGrid th {
-  background: #f4f9fe;
+  background: var(--sakai-background-color-2);
   text-align: center !important;
-  color: #5896C7;
+  color: var(--sakai-text-color-1);
 }
+table.listHier.checkGrid th {
+  padding: calc( #{$standard-spacing} / 2) $standard-spacing; //additional selector needed to override tool_base  
+}
+
 .checkGrid th#permission {
   text-align: left !important;
 }
@@ -23,44 +28,51 @@
   height: 100%;
   margin: 0;
   text-align: center;
-  padding: .3em 0;
+  padding: 0;
 }
 .checkGrid td {
-  border: 1px solid #eee;
+  border: 1px solid var(--sakai-border-color);
   cursor: pointer;
   padding: 0 !important;
   text-align: center;
   vertical-align: middle;
   width: 10em;
 }
+
 .checkGrid td label:hover {
-  background: #C4DFFB;
+  background: var(--sakai-background-color-2);
   cursor: pointer;
 }
 .checkGrid td.permissionDescription {
   width: auto;
-  background: #F9FCFE;
+  background: var(--sakai-background-color-1);
   text-align: left;
   white-space: nowrap;
 }
 .checkGrid td.permissionDescription a {
-  padding: .3em;
+  padding: calc( #{$standard-spacing} / 2) $standard-spacing;
   display: block;
 }
 .checkGrid tr.evenrow .permissionDescription {
-  background: #f4f9fe;
+  background: var(--sakai-background-color-1);
 }
 .checkGrid tr.evenrow td {
-  background: #f7fbff;
-}
-.checkGrid .rowHover {
-  background: #c4dffb !important;
+  background: var(--sakai-background-color-1);
 }
 .checkGrid td.active {
-  background: #DDECFC !important;
+  background: var(--sakai-active-color-1);
 }
-.checkGrid td.active:hover {
-  background: #cde !important;
+.checkGrid .rowHover,
+.checkGrid td.active:hover,
+.checkGrid td.permissionDescription:hover,
+.checkGrid td.active.rowHover,
+.checkGrid td:hover,
+.checkGrid tr.evenrow td:hover,
+.checkGrid tr.evenrow td.rowHover {
+  background: var(--sakai-active-color-2);
+}
+.checkGrid td.permissionDescription a:hover {
+  color: var(--sakai-text-color-2);
 }
 div#groupSelector {
   margin-top: 0.5em;
