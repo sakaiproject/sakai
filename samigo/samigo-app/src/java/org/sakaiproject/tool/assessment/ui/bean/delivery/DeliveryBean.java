@@ -1661,7 +1661,7 @@ public class DeliveryBean implements Serializable {
     FacesContext context = FacesContext.getCurrentInstance();
     ExternalContext external = context.getExternalContext();
     Long fileSize = (Long)((ServletContext)external.getContext()).getAttribute("TEMP_FILEUPLOAD_SIZE");
-    Long maxSize = Long.valueOf(ServerConfigurationService.getInt("samigo.sizeMax", 40960));
+    Long maxSize = Long.valueOf(ServerConfigurationService.getInt("samigo.sizeMax", 20480));
 
     ((ServletContext)external.getContext()).removeAttribute("TEMP_FILEUPLOAD_SIZE");
     if (fileSize!=null){

@@ -117,7 +117,7 @@ public class XMLImportBean implements Serializable {
 	  String uploadFile = (String) e.getNewValue();
 
 	  if (uploadFile!= null && uploadFile.startsWith("SizeTooBig:")) {
-		  Long sizeMax = Long.valueOf(ServerConfigurationService.getString("samigo.sizeMax", "40960"));
+		  Long sizeMax = Long.valueOf(ServerConfigurationService.getString("samigo.sizeMax", "20480"));
 		  String sizeTooBigMessage = MessageFormat.format(rb.getString("import_size_too_big"), uploadFile.substring(11), Math.round(sizeMax.floatValue()/1024));
 	      FacesMessage message = new FacesMessage(sizeTooBigMessage);
 	      FacesContext.getCurrentInstance().addMessage(null, message);
