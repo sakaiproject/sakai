@@ -88,6 +88,16 @@ public class GradingServiceTest {
 		Assert.assertFalse(gradingService.fibmatch("Müsli", "M&Uuml;sli", true, true));
 		// HTML spaces ignored, this non-breaking space is not a simple space
 		Assert.assertTrue(gradingService.fibmatch("Müsli", "&nbsp;M&uuml;sli&nbsp;", true, true));
+		// HTML Ampersand
+		Assert.assertTrue(gradingService.fibmatch("C &amp; D", "C &amp; D", false, false));
+		Assert.assertTrue(gradingService.fibmatch("C &amp; D", "C & D", false, false));
+		Assert.assertTrue(gradingService.fibmatch("C & D", "C & D", false, false));
+		Assert.assertTrue(gradingService.fibmatch("C & D", "C &amp; D", false, false));
+		// HTML Bracket
+		Assert.assertTrue(gradingService.fibmatch("A &gt; ~T", "A &gt; ~T", false, false));
+		Assert.assertTrue(gradingService.fibmatch("A &gt; ~T", "A > ~T", false, false));
+		Assert.assertTrue(gradingService.fibmatch("A > ~T", "A > ~T", false, false));
+		Assert.assertTrue(gradingService.fibmatch("A &gt; ~T", "A &gt; ~T", false, false));
 	}
 
 }
