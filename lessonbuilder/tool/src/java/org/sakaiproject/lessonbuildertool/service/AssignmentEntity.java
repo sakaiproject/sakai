@@ -270,6 +270,16 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	return Date.from(assignment.getDueDate());
     }
 
+	public Date getOpenDate() {
+		if (assignment == null) {
+			assignment = getAssignment(id);
+		}
+		if (assignment == null) {
+			return null;
+		}
+		return Date.from(assignment.getOpenDate());
+	}
+
     // the following methods all take references. So they're in effect static.
     // They ignore the entity from which they're called.
     // The reason for not making them a normal method is that many of the
