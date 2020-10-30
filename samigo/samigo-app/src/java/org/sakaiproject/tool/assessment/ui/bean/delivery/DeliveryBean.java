@@ -305,11 +305,6 @@ public class DeliveryBean implements Serializable {
   @Getter @Setter
   private Map itemContentsMap;
 
-  @Getter @Setter
-  private String minutesLeft;
-  @Getter @Setter
-  private String secondsLeft;
-  
   // For paging
   @Getter @Setter
   private int partIndex;
@@ -2598,15 +2593,6 @@ public class DeliveryBean implements Serializable {
 
     public String getMinReqScale() {
       return ServerConfigurationService.getString("samigo.ajaxTimerMinReqScale","5000");
-    }
-
-    public void calculateMinutesAndSecondsLeft() {
-        int milliseconds = getAutoSaveRepeatMilliseconds();
-        if (milliseconds > 0) {
-            Date d = new Date(milliseconds);
-            this.setMinutesLeft(String.valueOf(d.getMinutes()));
-            this.setSecondsLeft(String.valueOf(d.getSeconds()));
-        }
     }
 
     public String getCDNQuery() {
