@@ -261,6 +261,7 @@
 		        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 		        <property name="learningResourceStoreService" ref="org.sakaiproject.event.api.LearningResourceStoreService"/>
                 <property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService"/>
+                <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
             </bean>           
         </property>
          <property name="transactionAttributes">

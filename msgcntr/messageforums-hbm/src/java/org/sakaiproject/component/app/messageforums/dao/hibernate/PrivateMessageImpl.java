@@ -27,11 +27,12 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.api.app.messageforums.MessageForumsUser;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
+import org.sakaiproject.api.app.messageforums.PrivateMessageRecipient;
 
 @Slf4j
 public class PrivateMessageImpl extends MessageImpl implements PrivateMessage {
 
-    private List recipients = null;//new UniqueArrayList();  addRecipient(MessageForumsUser user)
+    private List<PrivateMessageRecipient> recipients = null;//new UniqueArrayList();  addRecipient(MessageForumsUser user)
     private Boolean externalEmail;
     private String externalEmailAddress;
     private String recipientsAsText;
@@ -59,11 +60,11 @@ public class PrivateMessageImpl extends MessageImpl implements PrivateMessage {
         this.externalEmailAddress = externalEmailAddress;
     }
 
-    public List getRecipients() {
+    public List<PrivateMessageRecipient> getRecipients() {
         return recipients;
     }
 
-    public void setRecipients(List recipients) {
+    public void setRecipients(List<PrivateMessageRecipient> recipients) {
         this.recipients = recipients;
     }
     
@@ -98,32 +99,6 @@ public class PrivateMessageImpl extends MessageImpl implements PrivateMessage {
     ////////////////////////////////////////////////////////////////////////
     // helper methods for collections
     ////////////////////////////////////////////////////////////////////////
-    
-    public void addRecipient(MessageForumsUser user) {
-        if (log.isDebugEnabled()) {
-            log.debug("addRecipient(MessageForumsUser " + user + ")");
-        }
-        
-        if (user == null) {
-            throw new IllegalArgumentException("user == null");
-        }
-        
-        user.setPrivateMessage(this);
-        recipients.add(user);
-    }
-
-    public void removeRecipient(MessageForumsUser user) {
-        if (log.isDebugEnabled()) {
-            log.debug("removeRecipient(MessageForumsUser " + user + ")");
-        }
-        
-        if (user == null) {
-            throw new IllegalArgumentException("Illegal attachment argument passed!");
-        }
-        
-        user.setPrivateMessage(null);
-        recipients.remove(user);
-    }	
     
     // SORT BY RECIPIENT
     static
