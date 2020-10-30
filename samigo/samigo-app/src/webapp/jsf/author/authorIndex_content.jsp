@@ -227,13 +227,15 @@
         function removeSelectedButtonAction() {
             if (!$("#authorIndexForm\\:remove-selected").hasClass("disabled")) {
                 var message = <h:outputText value="'#{authorMessages.cert_rem_assmt}'" />;
+                message += "\n\n";
+                message += <h:outputText value="'#{authorMessages.cert_rem_assmt2}'" />;
                 var elem = document.createElement('div');
                 elem.innerHTML = message;
                 if(!confirm(elem.textContent)) {
                     event.preventDefault();
                     return false;
                 }
-                return true   
+                return true;
             }
         }
     </script>
