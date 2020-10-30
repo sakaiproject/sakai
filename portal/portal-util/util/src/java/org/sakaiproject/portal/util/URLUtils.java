@@ -78,7 +78,7 @@ public class URLUtils
 
 	public static String getSafePathInfo(HttpServletRequest req)
 	{
-		String pathInfo = req.getPathInfo();
+		String pathInfo = req!=null?req.getPathInfo():null;
 		if ( pathInfo == null ) return null;
 		String newPathInfo = pathInfo;
 		for (int i =0; i < pathInfo.length() - 1; i++) {
