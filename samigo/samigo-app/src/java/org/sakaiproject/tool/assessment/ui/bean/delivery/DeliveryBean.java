@@ -207,11 +207,6 @@ public class DeliveryBean
   private int actualNumberRetake;
   private Map itemContentsMap;
 
-  @Getter @Setter
-  private String minutesLeft;
-  @Getter @Setter
-  private String secondsLeft;
-  
   // For paging
   private int partIndex;
   private int questionIndex;
@@ -4189,16 +4184,6 @@ public class DeliveryBean
 
     public String getMinReqScale() {
       return ServerConfigurationService.getString("samigo.ajaxTimerMinReqScale","5000");
-    }
-
-    public void calculateMinutesAndSecondsLeft() {
-        String ms = getAutoSaveRepeatMilliseconds();
-        int milliseconds = Integer.parseInt(ms);
-        if (milliseconds != -1) {
-            Date d = new Date(milliseconds);
-            this.setMinutesLeft(String.valueOf(d.getMinutes()));
-            this.setSecondsLeft(String.valueOf(d.getSeconds()));
-        }
     }
 
     public String getCDNQuery() {

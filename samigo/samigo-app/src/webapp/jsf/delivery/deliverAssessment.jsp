@@ -260,12 +260,6 @@ document.links[newindex].onclick();
 <c:if test="${not empty delivery.retractDate}">
 	<h:inputHidden id="retractDate" value="#{delivery.retractDate.time}"/>
 </c:if>
-<c:if test="${not empty delivery.minutesLeft}">
-	<h:inputHidden id="minutesLeft" value="#{delivery.minutesLeft}"/>
-</c:if>
-<c:if test="${not empty delivery.secondsLeft}">
-	<h:inputHidden id="secondsLeft" value="#{delivery.secondsLeft}"/>
-</c:if>
 
 <!-- DONE BUTTON FOR PREVIEW -->
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
@@ -437,8 +431,12 @@ document.links[newindex].onclick();
            <div role="alert" class="alert alert-warning clear" style="display: none" id="autosave-timeexpired-warning">
              <h:outputText value="#{deliveryMessages.time_expired2} " />
            </div>
-           <div role="alert" class="alert alert-warning clear" style="display: none" id="autosave-timeleft-warning">
-             <h:outputFormat value="#{deliveryMessages.time_left}"><f:param value="#{delivery.minutesLeft}"/><f:param value="#{delivery.secondsLeft}"/></h:outputFormat>
+           <div role="alert" class="alert alert-danger clear" style="display: none" id="autosave-timeleft-warning">
+             <h:panelGroup rendered="#{(delivery.deadlineString != null && delivery.deadlineString ne '')}">
+               <h:outputFormat value="#{deliveryMessages.time_left}" escape="false">
+                 <f:param value="#{delivery.deadlineString}"/>
+               </h:outputFormat>
+             </h:panelGroup>
            </div>
            <div role="alert" class="alert alert-danger clear" style="display: none" id="autosave-failed-warning">
              <p><h:outputText value="#{deliveryMessages.autosaveFailed}" escape="false" /></p>
