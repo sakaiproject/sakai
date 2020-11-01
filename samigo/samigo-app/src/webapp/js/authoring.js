@@ -295,9 +295,17 @@ $( document ).ready( function() {
             }
         }
     });
+                    //document.getElementById("min-points-warning").style.display = "block";
 
     $( function() {
-        // negValue should be 0 and minValue should be empty if using partial credit
+
+        if (document.querySelector("input[name='itemForm:partialCredit_NegativeMarking']:checked")) {
+          // This is the partial credit option
+          let minField = document.getElementById("itemForm:minPoints:answerminptr");
+          minField.value = "";
+        }
+        /*
+        // negValue should be 0 and minValue should be empty if using partial credit or negative marking
         var pcValue = $( "input[name='itemForm\\:partialCredit_NegativeMarking']:checked", "#itemForm" ).val();
         if (pcValue == "true") {
             var negField = $( "#itemForm\\:answerdsc" );
@@ -316,6 +324,7 @@ $( document ).ready( function() {
                 }
             }
         }
+        */
 
     });
 
