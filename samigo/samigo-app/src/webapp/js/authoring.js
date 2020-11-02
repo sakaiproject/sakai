@@ -297,35 +297,13 @@ $( document ).ready( function() {
     });
                     //document.getElementById("min-points-warning").style.display = "block";
 
-    $( function() {
+    $(function() {
 
         if (document.querySelector("input[name='itemForm:partialCredit_NegativeMarking']:checked")) {
           // This is the partial credit option
           let minField = document.getElementById("itemForm:minPoints:answerminptr");
           minField.value = "";
         }
-        /*
-        // negValue should be 0 and minValue should be empty if using partial credit or negative marking
-        var pcValue = $( "input[name='itemForm\\:partialCredit_NegativeMarking']:checked", "#itemForm" ).val();
-        if (pcValue == "true") {
-            var negField = $( "#itemForm\\:answerdsc" );
-            if (negField) {
-                var negValue = parseFloat(negField.val());
-                if (negValue > 0) {
-                    validationWarningSetDefault(negField, "0");
-                }
-            }
-
-            var minField = $( "#itemForm\\:minPoints\\:answerminptr" );
-            if (minField) {
-                var minValue = parseFloat(minField.val());
-                if (minValue > 0) {
-                    validationWarningSetDefault(minField, "");
-                }
-            }
-        }
-        */
-
     });
 
     // Fix the input value and display for the correct answer in Multiple Choice when entering with partial credit enabled.
