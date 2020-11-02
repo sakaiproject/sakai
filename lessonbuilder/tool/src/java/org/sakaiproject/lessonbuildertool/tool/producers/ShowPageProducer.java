@@ -128,6 +128,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.lessonbuildertool.service.AssignmentEntity;
 
 /**
  * This produces the primary view of the page. It also handles the editing of
@@ -3719,7 +3721,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		return makeLink(container, ID, i, simplePageBean, simplePageToolDao, messageLocator, canEditPage, currentPage, notDone, status, forceButtonColor, color);
 	}
 
-	protected static boolean makeLink(UIContainer container, String ID, SimplePageItem i, SimplePageBean simplePageBean, SimplePageToolDao simplePageToolDao, MessageLocator messageLocator,
+	protected boolean makeLink(UIContainer container, String ID, SimplePageItem i, SimplePageBean simplePageBean, SimplePageToolDao simplePageToolDao, MessageLocator messageLocator,
 									  boolean canEditPage, SimplePage currentPage, boolean notDone, Status status) {
 		return makeLink(container, ID, i, simplePageBean, simplePageToolDao, messageLocator, canEditPage, currentPage, notDone, status, false, null);
 	}
@@ -3733,7 +3735,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	 * @param simplePageToolDao
 	 * @return Whether or not this item is available.
 	 */
-	protected static boolean makeLink(UIContainer container, String ID, SimplePageItem i, SimplePageBean simplePageBean, SimplePageToolDao simplePageToolDao, MessageLocator messageLocator,
+	protected boolean makeLink(UIContainer container, String ID, SimplePageItem i, SimplePageBean simplePageBean, SimplePageToolDao simplePageToolDao, MessageLocator messageLocator,
 			boolean canEditPage, SimplePage currentPage, boolean notDone, Status status, boolean forceButtonColor, String color) {
 		String URL = "";
 		boolean available = simplePageBean.isItemAvailable(i);
@@ -4010,7 +4012,19 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		if (fake) {
 			ID = ID + "-fake";
-			UIOutput link = UIOutput.make(container, ID, i.getName());
+			String linkText = i.getName();
+			if (i.getType() == SimplePageItem.ASSIGNMENT) {
+				SecurityAdvisor yesMan = (String arg0, String arg1, String agr2) -> SecurityAdvisor.SecurityAdvice.ALLOWED;
+				securityService.pushAdvisor(yesMan);
+				try {
+					AssignmentEntity assignment = (AssignmentEntity) assignmentEntity.getEntity(i.getSakaiId(), simplePageBean);
+					linkText += " " + messageLocator.getMessage("simplepage.assignment.open_date", new Object[] {assignment.getOpenDate()});
+				} catch (Exception ex) {}
+				finally {
+					securityService.popAdvisor(yesMan);
+				}
+			}
+			UIOutput link = UIOutput.make(container, ID, linkText);
 			link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
 			// fake and available occurs when prerequisites aren't the issue (it's avaiable)
 			// so the item must be nonexistent or otherwise unavalable.
