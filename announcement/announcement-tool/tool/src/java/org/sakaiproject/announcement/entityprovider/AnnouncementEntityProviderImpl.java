@@ -266,7 +266,7 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 				}
 				Comparator<AnnouncementWrapper> sortedAnnouncements = new AnnouncementWrapperComparator(sortCurrentOrder, announcementSortAsc);
 				messageList.sort(sortedAnnouncements);
-				announcements.removeAll(announcements);
+				announcements.clear();
 				announcements.addAll(messageList);
 			} catch (Exception e) {
 				log.warn("Error sorting announcements by {}, {}", AnnouncementAction.SORT_MESSAGE_ORDER, e.toString());
