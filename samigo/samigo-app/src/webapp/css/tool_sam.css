@@ -523,6 +523,42 @@ a.hideDivision {
 	padding: 1px 5px 1px 25px;
 }
 
+.messageSamigo2 {
+	background: #FFEEEE url(../images/error.png) 5px 5px no-repeat;
+	border: 1px solid #b11;
+	display: block;
+	width: 80%;
+	font-size: 1em;
+	clear: both;
+	color: black;
+	margin: 20px 0 10px 0;
+	padding: 5px 5px 5px 25px;
+}
+
+.messageSamigo3 {
+	background: #FFEEEE url(../images/exclamation.png) 5px 2px no-repeat;
+	border: 1px solid #b11;
+	display: block;
+	width: 80%;
+	font-size: 1em;
+	clear: both;
+	color: black;
+	margin: 20px 0 10px 0;
+	padding: 3px 5px 3px 25px;
+}
+
+
+.previewMessage {
+	background: url(../images/info.gif) 5px 5px no-repeat;
+	border: 1px solid grey;
+	display: block;
+	width: 80%;
+	font-size: 1em;
+	clear: both;
+	margin: 5px 0;
+	padding: 5px 5px 5px 25px;
+}
+
 .saCharCount {
     border: 1px solid #bbb;
 }
