@@ -48,7 +48,7 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexFormat;
@@ -2490,13 +2490,20 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	    return typeId;
   }
   
-  public boolean fibmatch(String answer, String input, boolean casesensitive, boolean ignorespaces) {
-
-	  
+	public boolean fibmatch(final String rawAnswer, final String rawInput, final boolean casesensitive, final boolean ignorespaces) {
 		try {
+		 // User on Mac will input &uuml; instead of ü
+		 String answer = StringEscapeUtils.unescapeHtml4(rawAnswer);
+		 String input = StringEscapeUtils.unescapeHtml4(rawInput);
+
+		 // Always trim trailing spaces
+		 answer = answer.trim();
+		 input = input.trim();
+
+		 // Trim interior space including non-breaking spaces if instructor selects option
 		 if (ignorespaces) {
-			 answer = answer.replaceAll(" ", "");
-			 input = input.replaceAll(" ", "");
+			 answer = answer.replaceAll("\\p{javaSpaceChar}", "");
+			 input = input.replaceAll("\\p{javaSpaceChar}", "");
 		 }
  		 StringBuilder regex_quotebuf = new StringBuilder();
 		 
@@ -2522,8 +2529,6 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		 Matcher m = p.matcher(input);
 		 boolean result = m.matches();
  		 return result;
-		  
-		
 		}
 		catch (Exception e){
 			return false;
