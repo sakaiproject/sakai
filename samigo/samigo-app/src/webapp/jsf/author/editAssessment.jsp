@@ -50,9 +50,7 @@ $(window).load( function() {
 
 <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
 
-<script>
-	checkForCurrentAssessmentOpen(<h:outputText value="#{assessmentBean.assessmentId}"/>
-			, "<h:outputText value="#{deliveryMessages.multiple_assessments_open_alert}" />");
+<script type="text/JavaScript">	
 	jQuery(window).load(function(){
 			
 		$('input:hidden[id*=hiddenSerializedCoords_]').each(function(){

@@ -132,35 +132,6 @@ function initRubricDialog(gradingId, saveText, cancelText, titleText) {
   });
 }
 
-/**
- * Use localStorage to set a flag indicating that an assessment is currently being
- * taken, including the current tab and timestamp. If a user tries to start a new
- * assessment on another tab, within 5 minutes, an alert is shown and the user is
- * redirected back to the assessment list.
- */
-function checkForCurrentAssessmentOpen(assessmentId, message) {
-
-  const timestamp = new Date().getTime();
-  const itemString = localStorage.getItem("samigo-current-assessment");
-  if (itemString) {
-    const item = JSON.parse(itemString);
-    const alreadyAssessing = sessionStorage.getItem("alreadyAssessing");
-    if (!alreadyAssessing && item.timestamp > timestamp - 300000 && assessmentId != item.assessmentId) {
-      // If less than five minutes have elapsed since the last assessment start, and the
-      // current assessment is a different one.
-      alert(message);
-      window.location = window.location;
-    } else {
-      // Set a new stamp for this assessment start
-      localStorage.setItem("samigo-current-assessment", JSON.stringify({assessmentId, timestamp}));
-    }
-  } else {
-    // Set a new stamp for this assessment start
-    localStorage.setItem("samigo-current-assessment", JSON.stringify({assessmentId, timestamp}));
-    sessionStorage.setItem("alreadyAssessing", "true");
-  }
-}
-
 $(function () {
 
   $('body').on('total-points-updated', function (e) {
