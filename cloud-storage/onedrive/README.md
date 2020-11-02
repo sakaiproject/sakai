@@ -35,3 +35,4 @@ Once you have your App successfully registered, you can make use of the related 
 	onedrive.client_id=--CLIENT_ID--
 	onedrive.client_secret=--SECRET--
 	onedrive.redirect_uri=${serverUrl}/sakai-onedrive-tool
+	onedrive.endpoint_uri=https://login.microsoftonline.com/{TenantID}/oauth2/v2.0/
