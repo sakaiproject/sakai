@@ -51,6 +51,7 @@ public class OneDriveServiceImpl implements OneDriveService {
 	private String clientId = null;
 	private String clientSecret = null;
 	private String redirectUri = null;
+	private String endpointLogin = null;
 	private static final String state = ONEDRIVE_STATE;
 	private String bearer = null;
 
@@ -61,6 +62,7 @@ public class OneDriveServiceImpl implements OneDriveService {
 		clientId = serverConfigurationService.getString(ONEDRIVE_PREFIX + ONEDRIVE_CLIENT_ID, null);
 		clientSecret = serverConfigurationService.getString(ONEDRIVE_PREFIX + ONEDRIVE_CLIENT_SECRET, null);
 		redirectUri = serverConfigurationService.getString(ONEDRIVE_PREFIX + ONEDRIVE_REDIRECT_URI, "http://localhost:8080/sakai-onedrive-tool");
+		endpointLogin = serverConfigurationService.getString(ONEDRIVE_PREFIX + ONEDRIVE_ENDPOINT_URI, ENDPOINT_COMMON_LOGIN);
 
 		tokenCache = memoryService.<String, String>getCache("org.sakaiproject.onedrive.service.tokenCache");
 		driveRootItemsCache = memoryService.<String, List<OneDriveItem>>getCache("org.sakaiproject.onedrive.service.driveRootItemsCache");
@@ -81,7 +83,7 @@ public class OneDriveServiceImpl implements OneDriveService {
 		params.put(ONEDRIVE_SCOPE, ONEDRIVE_SCOPE_DEFAULT_VALUES);
 		params.put(ONEDRIVE_STATE, state);
 		params.put(ONEDRIVE_REDIRECT_URI, redirectUri);
-		String authUrl = ENDPOINT_LOGIN + ENDPOINT_AUTHORIZE + Q_MARK + HTTPConnectionUtil.formUrlencodedString(params);
+		String authUrl = endpointLogin + ENDPOINT_AUTHORIZE + Q_MARK + HTTPConnectionUtil.formUrlencodedString(params);
 		log.debug("authUrl : {}", authUrl);
 		return authUrl;
 	}
@@ -105,7 +107,7 @@ public class OneDriveServiceImpl implements OneDriveService {
 		params.put(ONEDRIVE_REDIRECT_URI, redirectUri);
 		try {
 			StringEntity entity = new StringEntity(HTTPConnectionUtil.formUrlencodedString(params));
-			String postResponse = HTTPConnectionUtil.makePostCall(ENDPOINT_LOGIN + ENDPOINT_TOKEN, entity);
+			String postResponse = HTTPConnectionUtil.makePostCall(endpointLogin + ENDPOINT_TOKEN, entity);
 			log.debug(postResponse);
 			OneDriveToken ot = OBJECT_MAPPER.readValue(postResponse, OneDriveToken.class);
 			log.debug(ot.toString());
@@ -155,7 +157,7 @@ public class OneDriveServiceImpl implements OneDriveService {
 		params.put(ONEDRIVE_REDIRECT_URI, redirectUri);
 		try {
 			StringEntity entity = new StringEntity(HTTPConnectionUtil.formUrlencodedString(params));
-			String postResponse = HTTPConnectionUtil.makePostCall(ENDPOINT_LOGIN + ENDPOINT_TOKEN, entity);
+			String postResponse = HTTPConnectionUtil.makePostCall(endpointLogin + ENDPOINT_TOKEN, entity);
 			log.debug(postResponse);
 			OneDriveToken ot = OBJECT_MAPPER.readValue(postResponse, OneDriveToken.class);
 			log.debug(ot.toString());
