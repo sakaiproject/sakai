@@ -91,7 +91,7 @@ export class SakaiRubric extends RubricsElement {
                   html`<sr-lang key="standard_label">standard_label</sr-lang>`
                 }
               </span>
-              <span role="button" title="${this.weightLabel}" tabindex="0" class="weighted fa ${this.weightedIcon}" @click="${this.weightedChange}"></span>
+              <a role="button" title="${this.weightLabel}" tabindex="0" class="linkStyle weighted fa ${this.weightedIcon}" @keyup="${this.openEditWithKeyboard}" @click="${this.weightedChange}" href="#"></a>
             </div>`
           : ""
           }
@@ -103,11 +103,11 @@ export class SakaiRubric extends RubricsElement {
                 html`<sr-lang key="share_label">share_label</sr-lang>`
               }
             </span>
-            <span role="button" title="${tr(this.shareTitleKey, [this.rubric.title])}" tabindex="0" class="share fa ${this.shareIcon}" @click="${this.sharingChange}"></span>
+            <a role="button" title="${tr(this.shareTitleKey, [this.rubric.title])}" tabindex="0" class="linkStyle share fa ${this.shareIcon}" @keyup="${this.openEditWithKeyboard}" @click="${this.sharingChange}" href="#"></a>
           </div>
           <div class="action-container">
             <span class="hidden-sm hidden-xs sr-only"><sr-lang key="copy" /></span>
-            <span role="button" title="${tr("copy")} ${this.rubric.title}" tabindex="0" class="clone fa fa-copy" @click="${this.cloneRubric}"></span>
+            <a role="button" title="${tr("copy")} ${this.rubric.title}" tabindex="0" class="linkStyle clone fa fa-copy" @keyup="${this.openEditWithKeyboard}" @click="${this.cloneRubric}" href="#"></a>
           </div>
           ${!this.rubric.metadata.locked ? html`
             <div class="action-container">
@@ -327,6 +327,23 @@ export class SakaiRubric extends RubricsElement {
     if (sakaiItemDelete) {
       sakaiItemDelete.requestUpdate("item", this.rubric);
       sakaiItemDelete.requestUpdate("rubric", this.rubric);
+    }
+  }
+
+  openEditWithKeyboard(e) {
+
+    let spaceBarKeyCode = (e.keyCode == 32);	
+
+    if (spaceBarKeyCode && e.target.classList.contains('weighted')) {
+      this.weightedChange(e);
+    }
+
+    if (spaceBarKeyCode && e.target.classList.contains('share')) {
+      this.sharingChange(e);
+    }
+
+    if (spaceBarKeyCode && e.target.classList.contains('clone')) {
+      this.cloneRubric(e);
     }
   }
 }

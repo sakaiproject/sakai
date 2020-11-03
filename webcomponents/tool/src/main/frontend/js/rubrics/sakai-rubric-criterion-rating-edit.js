@@ -30,7 +30,7 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
   render() {
 
     return html`
-      <span tabindex="0" role="button" class="edit fa fa-edit" @focus="${this.onFocus}" @click="${this.editRating}" title="${tr("edit_rating")} ${this.rating.title}"></span>
+      <a tabindex="0" role="button" class="linkStyle edit fa fa-edit" @focus="${this.onFocus}" @keyup="${this.openEditWithKeyboard}" @click="${this.editRating}" title="${tr("edit_rating")} ${this.rating.title}" href="#"></a>
 
       <div id="edit_criterion_rating_${this.rating.id}" class="popover rating-edit-popover bottom">
         <div class="arrow"></div>
@@ -74,7 +74,7 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
   }
 
   editRating(e) {
-
+    e.preventDefault();
     e.stopPropagation();
 
     if (!this.classList.contains("show-tooltip")) {
@@ -144,6 +144,13 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
     this.rating.criterionId = this.criterionId;
     this.dispatchEvent(new CustomEvent('delete-rating', {detail: this.rating}));
     this.hideToolTip();
+  }
+
+  openEditWithKeyboard(e) {
+	
+    if (e.keyCode == 32) {
+      this.editRating(e)
+    }
   }
 }
 

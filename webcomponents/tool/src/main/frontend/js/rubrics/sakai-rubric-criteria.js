@@ -120,7 +120,7 @@ export class SakaiRubricCriteria extends RubricsElement {
             </div>
           </div>
           <div class="criterion-actions">
-            <span @focus="${this.onFocus}" @focusout="${this.focusOut}" tabindex="0" role="button" data-criterion-id="${c.id}" title="${tr("copy")} ${c.title}" class="clone fa fa-copy" @click="${this.cloneCriterion}"></span>
+            <a @focus="${this.onFocus}" @focusout="${this.focusOut}" tabindex="0" role="button" data-criterion-id="${c.id}" title="${tr("copy")} ${c.title}" class="linkStyle clone fa fa-copy" @keyup="${this.openEditWithKeyboard}" @click="${this.cloneCriterion}" href="#"></a>
             <sakai-item-delete criterion-id="${c.id}" criterion="${JSON.stringify(c)}" rubric-id="${this.rubricId}" @delete-item="${this.deleteCriterion}" token="${this.token}"></sakai-item-delete>
           </div>
         </div>
@@ -338,7 +338,7 @@ export class SakaiRubricCriteria extends RubricsElement {
   }
 
   cloneCriterion(e) {
-
+    e.preventDefault();
     e.stopPropagation();
 
     $.ajax({
@@ -418,6 +418,13 @@ export class SakaiRubricCriteria extends RubricsElement {
     })
     .done(() => this.letShareKnow())
     .fail((jqXHR, error, message) => {console.log(error); console.log(message);});
+  }
+
+  openEditWithKeyboard(e) {
+	
+    if (e.keyCode == 32) {
+      this.cloneCriterion(e)
+    }
   }
 }
 
