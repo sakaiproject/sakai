@@ -466,7 +466,7 @@ public class MessageBundleServiceImpl implements MessageBundleService {
         try {
             query = sessionFactory.getCurrentSession().createQuery(queryString);
             query.setFirstResult(startingIndex);
-            if(pageSize >= 0) {
+            if (pageSize >= 0) {
                 query.setMaxResults(pageSize);
             }
             return query.list();
@@ -548,4 +548,3 @@ public class MessageBundleServiceImpl implements MessageBundleService {
         }
     }
 }
-
