@@ -1968,4 +1968,15 @@ public class ItemBean
 	public List<ItemTagBean> getItemTags() { return itemTags; }
 
 	public void setItemTags(List<ItemTagBean> itemTags) { this.itemTags = itemTags; }
+
+    public boolean getRenderDiscountBlock() {
+
+        return itemType.equals("1") && (partialCreditFlag.equals("false") || !partialCreditEnabled)
+            || itemType.equals("12") || (itemType.equals("2") && mcmsPartialCredit.equals("false"));
+    }
+
+    public boolean getRenderMinPointsWarning() {
+        return itemType.equals("1") && (partialCreditFlag.equals("true")) || getRenderDiscountBlock();
+    }
+
 }
