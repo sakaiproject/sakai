@@ -1262,10 +1262,16 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			String color = null;
 			for (SimplePageItem i : itemList) {
 				
-				//If the content is not released or is hidden will not be rendered on the page
-				boolean isContentAvailable = contentHostingService.isAvailable(String.valueOf(i.getSakaiId()));
-				if(!isContentAvailable) {
-					continue;
+				switch (i.getType())
+				{
+					case SimplePageItem.RESOURCE:
+					case SimplePageItem.RESOURCE_FOLDER:
+						//If the content is not released or is hidden will not be rendered on the page
+						if (!contentHostingService.isAvailable(String.valueOf(i.getSakaiId())))
+						{
+							continue;
+						}
+					default:
 				}
 				
 				// break is not a normal item. handle it first
