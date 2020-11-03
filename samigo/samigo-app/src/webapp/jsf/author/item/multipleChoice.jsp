@@ -104,12 +104,25 @@
   <f:subview id="minPoints" rendered="#{itemauthor.allowMinScore}">
     <div class="form-group row">
         <h:outputLabel for="answerminptr" value="#{authorMessages.answer_min_point_value}" styleClass="col-md-2" />
-        <div  class="col-md-2">          
-            <h:inputText id="answerminptr" value="#{itemauthor.currentItem.itemMinScore}" size="6"  onchange="toggleNegativePointVal(this.value);" styleClass=" form-control  ConvertPoint">
+        <div class="col-md-2">          
+            <h:inputText
+                id="answerminptr"
+                value="#{itemauthor.currentItem.itemMinScore}"
+                size="6"
+                onchange="toggleNegativePointVal(this.value);"
+                styleClass=" form-control ConvertPoint"
+                disabled="#{itemauthor.currentItem.renderMinPointsWarning}">
               <f:validateDoubleRange />
             </h:inputText>
             <small>
-              <h:outputText value="#{authorMessages.answer_min_point_info}" />
+              <h:outputText value="#{authorMessages.answer_min_point_info}" rendered="#{!itemauthor.currentItem.renderMinPointsWarning}" />
+            </small>
+            <small>
+                <div><h:outputText
+                    styleClass="sak-banner-info"
+                    value="#{authorMessages.answer_min_point_value_warning}"
+                    rendered="#{itemauthor.currentItem.renderMinPointsWarning}" />
+                </div>
             </small>
             <h:message for="answerminptr" styleClass="validate"/>
         </div>
@@ -142,13 +155,15 @@
   </div>
 
   <!-- partial credit vs negative marking -->
+  <!--
+                      -->
   <h:panelGroup layout="block" id="partialCredit_toggle" styleClass="tier3" rendered="#{itemauthor.currentItem.itemType == 1 && itemauthor.currentItem.partialCreditEnabled==true}">
     <h:panelGroup id="partialCredit_JSF_toggle">
       <h:selectOneRadio id="partialCredit_NegativeMarking"
 					  layout="pageDirection"
+					  value="#{itemauthor.currentItem.partialCreditFlag}"
 					  onclick="this.form.onsubmit();this.form.submit();"
 					  onkeypress="this.form.onsubmit();this.form.submit();"
-					  value="#{itemauthor.currentItem.partialCreditFlag}"
 					  valueChangeListener="#{itemauthor.currentItem.togglePartialCredit}">
         <f:selectItem itemValue="false" itemLabel="#{authorMessages.enable_nagative_marking}"  />
         <f:selectItem itemValue="true" itemLabel="#{authorMessages.enable_partial_credit}"  />
@@ -181,9 +196,7 @@
 </h:panelGroup>
  
 <h:panelGroup layout="block" id="discountDiv" styleClass="tier3">
-  <h:panelGroup id="discountTable"
-        rendered="#{(itemauthor.currentItem.itemType==1 &&(itemauthor.currentItem.partialCreditFlag=='false'||itemauthor.currentItem.partialCreditEnabled==false))
-        || itemauthor.currentItem.itemType==12 || (itemauthor.currentItem.itemType==2 && itemauthor.currentItem.mcmsPartialCredit=='false')}">
+  <h:panelGroup id="discountTable" rendered="#{itemauthor.currentItem.renderDiscountBlock}">
   <h:outputLabel for="answerdsc" value="#{authorMessages.negative_point_value}"/>
   <h:inputText id="answerdsc" value="#{itemauthor.currentItem.itemDiscount}" required="true" styleClass="ConvertPoint">
     <f:validateDoubleRange/>
