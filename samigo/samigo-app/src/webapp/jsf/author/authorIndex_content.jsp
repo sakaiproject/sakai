@@ -627,8 +627,7 @@
 
             <h:panelGroup rendered="#{author.isAnyAssessmentRetractForEdit == true && author.allAssessments.size() > 0}">
                 <f:verbatim><p></f:verbatim>
-                    <h:outputText styleClass="highlight fa fa-fw fa-exclamation-circle" />
-                    <h:outputText id="assessment-retracted" value="#{authorFrontDoorMessages.retracted_for_edit}" styleClass="highlight" />
+                    <h:outputText id="assessment-retracted" value="#{authorFrontDoorMessages.retracted_for_edit}" styleClass="sak-banner-red-warn" />
                 <f:verbatim></p></f:verbatim>
             </h:panelGroup>
         </div>
