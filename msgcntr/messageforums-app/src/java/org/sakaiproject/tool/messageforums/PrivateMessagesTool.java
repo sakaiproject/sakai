@@ -3466,7 +3466,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
   
   public String processPvtMsgReturnToMainOrHp()
   {
-	  log.debug("processPvtMsgReturnToMainOrHp()");
+	    log.debug("processPvtMsgReturnToMainOrHp()");
 	    if(fromMainOrHp != null && (fromMainOrHp.equals(MESSAGE_HOME_PG) || (fromMainOrHp.equals(MAIN_PG))))
 	    {
 	    	String returnToPage = fromMainOrHp;
@@ -3475,7 +3475,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	    }
 	    else
 	    {
-	    	return MAIN_PG ;
+	    	return MESSAGE_HOME_PG ;
 	    }
   }
   
