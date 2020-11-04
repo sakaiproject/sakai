@@ -612,11 +612,17 @@ public abstract class BaseLTIService implements LTIService {
 
 	@Override
 	public Object insertContent(Properties newProps, String siteId) {
+		if ( newProps.getProperty(LTIService.LTI_PLACEMENTSECRET) == null ) {
+			newProps.setProperty(LTIService.LTI_PLACEMENTSECRET, UUID.randomUUID().toString());
+		}
 		return insertContentDao(newProps, siteId, isAdmin(siteId), isMaintain(siteId));
 	}
 
 	@Override
 	public Object insertContentDao(Properties newProps, String siteId) {
+		if ( newProps.getProperty(LTIService.LTI_PLACEMENTSECRET) == null ) {
+			newProps.setProperty(LTIService.LTI_PLACEMENTSECRET, UUID.randomUUID().toString());
+		}
 		return insertContentDao(newProps, siteId, true, true);
 	}
 
@@ -715,7 +721,7 @@ public abstract class BaseLTIService implements LTIService {
 					updateToolDao(toolKey, toolProps, siteId, isAdminRole, isMaintainRole);
 				}
 			}
-			if ( tool.get(LTIService.LTI_PLACEMENTSECRET) == null ) {
+			if ( reqProps.get(LTIService.LTI_PLACEMENTSECRET) == null ) {
 				reqProps.setProperty(LTIService.LTI_PLACEMENTSECRET, UUID.randomUUID().toString());
 			}
 			retval = updateContentDao(contentKey, reqProps, siteId, isAdminRole, isMaintainRole);
