@@ -509,46 +509,74 @@ public class AssignmentToolUtils {
                     Assignment a = assignmentService.getAssignment(assignmentId);
                     // add an entry into Gradebook for newly created assignment or modified assignment, and there wasn't a correspond record in gradebook yet
                     if ( a.getTypeOfSubmission() == Assignment.SubmissionType.EXTERNAL_TOOL_SUBMISSION ) {
-                        try {
-                            org.sakaiproject.service.gradebook.shared.Assignment gradeBookEntry = new org.sakaiproject.service.gradebook.shared.Assignment();
-                            gradeBookEntry.setExternallyMaintained(false);
-                            gradeBookEntry.setPoints(newAssignment_maxPoints / (double) a.getScaleFactor());
-                            gradeBookEntry.setName(newAssignment_title);
-                            gradeBookEntry.setReleased(true); // default true
-                            gradeBookEntry.setUngraded(false); // default false
+					    if ( addUpdateRemoveAssignment.equals(GRADEBOOK_INTEGRATION_ADD) ) {
+							// Todo check if already exists
+                            try {
+                                org.sakaiproject.service.gradebook.shared.Assignment gradeBookEntry = new org.sakaiproject.service.gradebook.shared.Assignment();
+                                gradeBookEntry.setExternallyMaintained(false);
+                                gradeBookEntry.setPoints(newAssignment_maxPoints / (double) a.getScaleFactor());
+                                gradeBookEntry.setName(newAssignment_title);
+                                gradeBookEntry.setReleased(true); // default true
+                                gradeBookEntry.setUngraded(false); // default false
 
-                            Integer contentInt = a.getContentId();
-                            Long contentKey = new Long(contentInt);
-                            Map<String, Object> content = ltiService.getContentDao(contentKey);
-                            if (content != null) {
-                                String contentItem = (String) content.get(LTIService.LTI_CONTENTITEM);
-                                if ( contentItem != null ) {
-                                    SakaiLineItem lineItem = LineItemUtil.extractLineItem(contentItem);
-                                    if ( lineItem != null ) {
-                                        // SAK-40043
-                                        Boolean releaseToStudent = lineItem.releaseToStudent == null ? Boolean.TRUE : lineItem.releaseToStudent; // Default to true
-                                        Boolean includeInComputation = lineItem.includeInComputation == null ? Boolean.TRUE : lineItem.includeInComputation; // Default true
-                                        gradeBookEntry.setReleased(releaseToStudent); // default true
-                                        gradeBookEntry.setUngraded(! includeInComputation); // default false
-                                    }
-                               }
+                                Integer contentInt = a.getContentId();
+                                Long contentKey = new Long(contentInt);
+                                Map<String, Object> content = ltiService.getContentDao(contentKey);
+                                if (content != null) {
+                                    String contentItem = (String) content.get(LTIService.LTI_CONTENTITEM);
+                                    if ( contentItem != null ) {
+                                        SakaiLineItem lineItem = LineItemUtil.extractLineItem(contentItem);
+                                        if ( lineItem != null ) {
+                                            // SAK-40043
+                                            Boolean releaseToStudent = lineItem.releaseToStudent == null ? Boolean.TRUE : lineItem.releaseToStudent; // Default to true
+                                            Boolean includeInComputation = lineItem.includeInComputation == null ? Boolean.TRUE : lineItem.includeInComputation; // Default true
+                                            gradeBookEntry.setReleased(releaseToStudent); // default true
+                                            gradeBookEntry.setUngraded(! includeInComputation); // default false
+                                        }
+                                   }
+                                }
+
+                                Long gradeBookEntryId = gradebookService.addAssignment(gradebookUid, gradeBookEntry);
+
+                            } catch (ConflictingAssignmentNameException e) {
+                                alerts.add(rb.getFormattedMessage("addtogradebook.nonUniqueTitle", "\"" + newAssignment_title + "\""));
+                                log.warn(this + ":integrateGradebook " + e.getMessage());
+                             } catch (InvalidGradeItemNameException e) {
+                                // add alert prompting for invalid assignment title name
+                                alerts.add(rb.getFormattedMessage("addtogradebook.titleInvalidCharacters", "\"" + newAssignment_title + "\""));
+                                log.warn(this + ":integrateGradebook " + e.getMessage());
+                            } catch (Exception e) {
+                                log.warn(this + ":integrateGradebook " + e.getMessage());
                             }
-
-                            Long gradeBookEntryId = gradebookService.addAssignment(gradebookUid, gradeBookEntry);
-
-                        } catch (ConflictingAssignmentNameException e) {
-                            alerts.add(rb.getFormattedMessage("addtogradebook.nonUniqueTitle", "\"" + newAssignment_title + "\""));
-                            log.warn(this + ":integrateGradebook " + e.getMessage());
-                         } catch (InvalidGradeItemNameException e) {
-                            // add alert prompting for invalid assignment title name
-                            alerts.add(rb.getFormattedMessage("addtogradebook.titleInvalidCharacters", "\"" + newAssignment_title + "\""));
-                            log.warn(this + ":integrateGradebook " + e.getMessage());
-                        } catch (Exception e) {
-                            log.warn(this + ":integrateGradebook " + e.getMessage());
-                        }
-
-                    } else {
-                    if ((addUpdateRemoveAssignment.equals(GRADEBOOK_INTEGRATION_ADD) || ("update".equals(addUpdateRemoveAssignment) && !isExternalAssignmentDefined)) && associateGradebookAssignment == null) {
+                        } else if ( "update".equals(addUpdateRemoveAssignment) ) {
+                            List gradebookAssignments = gradebookService.getAssignments(gradebookUid);
+                            org.sakaiproject.service.gradebook.shared.Assignment assignmentObject = null;
+                            for (Iterator i = gradebookAssignments.iterator(); i.hasNext(); ) {
+                                org.sakaiproject.service.gradebook.shared.Assignment gAssignment = (org.sakaiproject.service.gradebook.shared.Assignment) i.next();
+                                String name = gAssignment.getName();
+                                if (gAssignment.isExternallyMaintained()) {
+                                    continue;
+                                }
+                                if ( newAssignment_title != null && newAssignment_title.equals(name) ) {
+                                    assignmentObject = gAssignment;
+                                    break;
+                                }
+                            }
+                            if ( assignmentObject != null ) {
+                                Long assignmentKey = assignmentObject.getId();
+                                Double newPoints = newAssignment_maxPoints / (double) a.getScaleFactor();
+                                Double oldPoints = assignmentObject.getPoints();
+                                if ( ! newPoints.equals(oldPoints) ) {
+                                    assignmentObject.setPoints(newAssignment_maxPoints / (double) a.getScaleFactor());
+                                    gradebookService.updateAssignment(gradebookUid, assignmentKey, assignmentObject);
+                                }
+                            }
+                        } else {
+                            // Since this is not externally maintained, we don't need to delete the gradebook column
+                            log.warn(this + ":integrateGradebook - No need to delete gradebook managed column");
+						}
+                    } else if ((addUpdateRemoveAssignment.equals(GRADEBOOK_INTEGRATION_ADD) ||
+					     ("update".equals(addUpdateRemoveAssignment) && !isExternalAssignmentDefined)) && associateGradebookAssignment == null) {
                         // add assignment into gradebook
                         try {
                             // add assignment to gradebook
@@ -583,7 +611,6 @@ public class AssignmentToolUtils {
                         // remove assignment and all submission grades
                         removeNonAssociatedExternalGradebookEntry((String) options.get(STATE_CONTEXT_STRING), assignmentRef, associateGradebookAssignment, gradebookUid);
                     }
-                    } // NEW ELSE
                 }
 
                 if (updateRemoveSubmission != null) {
