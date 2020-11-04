@@ -24,6 +24,12 @@ import java.util.List;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.json.simple.JSONObject;
+
+import org.tsugi.basiclti.ContentItem;
+import org.tsugi.lti13.DeepLinkResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -41,6 +47,8 @@ import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameExcept
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.lti13.util.SakaiLineItem;
+
+import static org.tsugi.basiclti.BasicLTIUtil.getObject;
 
 /**
  * Some Sakai Utility code for IMS Basic LTI This is mostly code to support the
@@ -506,6 +514,38 @@ public class LineItemUtil {
 		return null;
 	}
 
+	/**
+	 * Pull a lineitem out of a Deep Link Response, construct a lineitem from a ContentItem response
+	 */
+	public static SakaiLineItem extractLineItem(String response_str) {
+
+		SakaiLineItem sakaiLineItem = null;
+
+		JSONObject response = org.tsugi.basiclti.BasicLTIUtil.parseJSONObject(response_str);
+		if ( response == null ) return null;
+
+		// Check if this a DeepLinkResponse
+		JSONObject lineItem = getObject(response, DeepLinkResponse.LINEITEM);
+		if ( lineItem == null ) lineItem = getObject(response, ContentItem.LINEITEM);
+
+		// Nothing to parse here...
+		if ( lineItem == null ) return null;
+
+		String lineItemStr = lineItem.toString();
+		try {
+			sakaiLineItem = (SakaiLineItem) new ObjectMapper().readValue(lineItemStr, SakaiLineItem.class);
+		} catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
+			log.warn("Could not parse input as SakaiLineItem {}",lineItemStr);
+			return null;
+		}
+
+		// See if we can find the scoreMaximum the old way
+		Double scoreMaximum = ContentItem.getScoreMaximum(lineItem);
+		if ( scoreMaximum != null ) sakaiLineItem.scoreMaximum = scoreMaximum;
+
+		return sakaiLineItem;
+
+	}
 
 	/**
 	 * Setup a security advisor.
