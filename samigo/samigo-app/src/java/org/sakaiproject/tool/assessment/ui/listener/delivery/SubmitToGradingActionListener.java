@@ -451,11 +451,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 		
 		adata.setSubmitFromTimeoutPopup(delivery.isSubmitFromTimeoutPopup());
 		adata.setIsLate(isLate(publishedAssessment, delivery.isSubmitFromTimeoutPopup(), adata.getAgentId()));
-
-		// If this AG record was updated by a background timer, dont overwrite the FORGRADE val with a bad val
-		if (Boolean.FALSE.equals(adata.getForGrade())) {
-			adata.setForGrade(delivery.isForGrade());
-		}
+		adata.setForGrade(delivery.isForGrade());
 		
 		// If this assessment grading data has been updated (comments or adj. score) by grader and then republic and allow student to resubmit
 		// when the student submit his answers, we update the status back to 0 and remove the grading entry/info.
