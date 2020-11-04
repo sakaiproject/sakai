@@ -1401,7 +1401,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			}
 
 			reqProps = extractLTIDeepLink(item, tool, toolKey);
-			reqProps.setProperty(LTIService.LTI_CONTENTITEM, dlr.toString());
 			reqProps.setProperty("returnUrl", returnUrl);
 
 			// Create the gradebook column if we need to do so
@@ -1444,7 +1443,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 			// Prepare data for the next phase
 			reqProps = extractLTIContentItem(item, tool, toolKey);
-			reqProps.setProperty(LTIService.LTI_CONTENTITEM, contentItem.toString());
 			reqProps.setProperty("returnUrl", returnUrl);
 
 			// Extract the lineItem material
@@ -1591,7 +1589,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 				if ( ! (obj instanceof JSONObject) ) continue;
 				JSONObject item = (JSONObject) obj;
 				reqProps = extractLTIDeepLink(item, tool, toolKey);
-				reqProps.setProperty(LTIService.LTI_CONTENTITEM, dlr.toString());
 
 				String type = getString(item, DeepLinkResponse.TYPE);
 				if (!DeepLinkResponse.TYPE_LTILINKITEM.equals(type)) {
@@ -1840,6 +1837,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		// Prepare data for the next phase
 		Properties reqProps = new Properties();
+		reqProps.setProperty(LTIService.LTI_CONTENTITEM, item.toString());
 		reqProps.setProperty("tool_id", toolKey + "");
 		if (url != null) {
 			reqProps.setProperty("launch", url);
@@ -1953,6 +1951,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		// Prepare data for the next phase
 		Properties reqProps = new Properties();
+		reqProps.setProperty(LTIService.LTI_CONTENTITEM, item.toString());
 		reqProps.setProperty("tool_id", toolKey + "");
 		if (url != null) {
 			reqProps.setProperty("launch", url);
