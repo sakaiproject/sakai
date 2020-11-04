@@ -1261,13 +1261,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			boolean forceButtonColor = false;
 			String color = null;
 			for (SimplePageItem i : itemList) {
-				
-				//If the content is not released or is hidden will not be rendered on the page
-				boolean isContentAvailable = contentHostingService.isAvailable(String.valueOf(i.getSakaiId()));
-				if(!isContentAvailable) {
-					continue;
-				}
-				
+
 				// break is not a normal item. handle it first
 			        // this will work whether first item is break or not. Might be a section
 			        // break or a normal item
