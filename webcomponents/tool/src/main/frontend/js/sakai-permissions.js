@@ -98,7 +98,7 @@ class SakaiPermissions extends SakaiElement {
             <sakai-group-picker id="permissions-group-picker" groups="${JSON.stringify(this.groups)}" @group-selected=${this.groupSelected} />
           </div>
         ` : ""}
-        <div class="permissions-undo-button"" style="float:left;padding-top:.5em">
+        <div class="permissions-undo-button">
           <input type="button" value="${this.i18n["per.lis.restoredef"]}" aria-label="${this.i18n["undo"]}" @click=${this.resetPermissions} />
         </div>
         <table id="${this.tool}-permissions-table" class="permissions-table listHier checkGrid specialLink" cellspacing="0" summary="${this.i18n["per.lis"]}" border="0">
