@@ -72,7 +72,7 @@ public class LessonsExport {
                 case SimplePageItem.PAGE:
                     Long pId = Long.valueOf(item.getSakaiId());
                     if (ccConfig.getPagesDone().contains(pId)) {
-                        ccConfig.getResultWriter().println(messageSource.getMessage("simplepage.exportcc-pagealreadydone", null, ccConfig.getLocale()).replace("{1}", title).replace("{2}", item.getName()));
+                        ccConfig.getResults().add(messageSource.getMessage("simplepage.exportcc-pagealreadydone", null, ccConfig.getLocale()).replace("{1}", title).replace("{2}", item.getName()));
                     } else if ((next != null) && (item.getId() == next.getId())) {
                         if (showNext) {
                             SimplePageItem n = outputLessonPage(ccConfig, out, pId, item.getName(), indent + 2, false);
@@ -80,7 +80,7 @@ public class LessonsExport {
                                 n = outputLessonPage(ccConfig, out, pId, n.getName(), indent + 2, false);
                             }
                             if ((n != null) && (ccConfig.getPagesDone().contains(pId))) {
-                                ccConfig.getResultWriter().println(messageSource.getMessage("simplepage.exportcc-pagealreadydone", null, ccConfig.getLocale()).replace("{1}", title).replace("{2}", item.getName()));
+                                ccConfig.getResults().add(messageSource.getMessage("simplepage.exportcc-pagealreadydone", null, ccConfig.getLocale()).replace("{1}", title).replace("{2}", item.getName()));
                             }
                         }
                     } else {
@@ -170,7 +170,7 @@ public class LessonsExport {
                         default:
                             break;
                     }
-                    ccConfig.getResultWriter().println(messageSource.getMessage("simplepage.exportcc-bad-type", null, ccConfig.getLocale()).replace("{1}", title).replace("{2}", item.getName()).replace("{3}", itemString));
+                    ccConfig.getResults().add(messageSource.getMessage("simplepage.exportcc-bad-type", null, ccConfig.getLocale()).replace("{1}", title).replace("{2}", item.getName()).replace("{3}", itemString));
                     break;
                 default:
                     break;

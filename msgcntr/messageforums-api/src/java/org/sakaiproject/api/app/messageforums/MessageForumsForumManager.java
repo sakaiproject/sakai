@@ -42,6 +42,8 @@ public interface MessageForumsForumManager {
    * attachments, and the topics' attachments.
    */
     public List<DiscussionForum> getForumsForMainPage();
+
+    public List<DiscussionForum> getForumsForSite(String siteId);
   
     public Topic getTopicByIdWithMessages(final Long topicId);
     

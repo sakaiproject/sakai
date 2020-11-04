@@ -65,7 +65,7 @@ public class ForumsExport {
             return null;
         }
 
-        for (DiscussionForum forum : forumManager.getForumsForMainPage()) {
+        for (DiscussionForum forum : forumManager.getForumsForSite(siteId)) {
             if (!forum.getDraft()) {
                 for (DiscussionTopic topic : (Set<DiscussionTopic>) forum.getTopicsSet()) {
                     if (topic.getDraft().equals(Boolean.FALSE)) {
