@@ -591,12 +591,18 @@
                             // Likely redundant
                             if ( item && item.lineItem && item.lineItem["https://www.sakailms.org/spec/lti-ags/v2p0/includeInComputation"] ) {
                                 $("#gradeAssignment").prop('checked', true);
+                                $("#assignmentGradingGradebookOptionsPanel").show();
+                                $("#new_assignment_send_to_gradebook").prop('checked', true);
+                                $("#add").prop('checked', true);
                                 $("#assignmentGradingPanel").show();
                             }
                             // Strangely, https://www.sakailms.org/spec/lti-ags/v2p0/releaseToStudent does not have an analog in Assignments
                             // Content Item Variant
                             if ( item && item.lineItem && item.lineItem.scoreConstraints ) {
                                 $("#gradeAssignment").prop('checked', true);
+                                $("#assignmentGradingGradebookOptionsPanel").show();
+                                $("#new_assignment_send_to_gradebook").prop('checked', true);
+                                $("#add").prop('checked', true);
                                 $("#assignmentGradingPanel").show();
                                 var scoreConstraints = item.lineItem.scoreConstraints;
                                 console.log("item.lineItem.scoreConstraints", scoreConstraints);
@@ -611,6 +617,9 @@
                             // Deep Linking variant
                             if ( item && item.lineItem && item.lineItem.scoreMaximum ) {
                                 $("#gradeAssignment").prop('checked', true);
+                                $("#assignmentGradingGradebookOptionsPanel").show();
+                                $("#new_assignment_send_to_gradebook").prop('checked', true);
+                                $("#add").prop('checked', true);
                                 $("#assignmentGradingPanel").show();
                                 $("#new_assignment_grade_points").val(item.lineItem.scoreMaximum);
                             }
