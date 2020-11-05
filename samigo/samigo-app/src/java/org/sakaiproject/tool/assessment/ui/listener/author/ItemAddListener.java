@@ -1123,26 +1123,22 @@ public class ItemAddListener
         	delegate.saveFavoriteColumnChoices(favorite);
         }
 
-        QuestionPoolService qpdelegate = new QuestionPoolService();
-	// removed the old pool-item mappings
-          if ( (bean.getOrigPool() != null) && (!bean.getOrigPool().equals(""))) {
-            qpdelegate.removeQuestionFromPool(item.getItemId(),
-            		Long.valueOf(bean.getOrigPool()));
-          }
-
-        // if assign to pool, add the item to the pool
-        if ( (bean.getSelectedPool() != null) && !bean.getSelectedPool().equals("")) {
-        	// if the item is already in the pool then do not add.
-          // This is a scenario where the item might already be in the pool:
-          // create an item in an assessemnt and assign it to p1
-          // copy item from p1 to p2. 
-          // now the item is already in p2. and if you want to edit the original item in the assessment, and reassign it to p2, you will get a duplicate error. 
-
-          if (!qpdelegate.hasItem(item.getItemIdString(),
-                                 Long.valueOf(bean.getSelectedPool()))) {
-            qpdelegate.addItemToPool(item.getItemId(),
-            					Long.valueOf(bean.getSelectedPool()));
-          }
+        if(assessmentBean.getAssessment() instanceof AssessmentFacade) {
+	        QuestionPoolService qpdelegate = new QuestionPoolService();
+		// removed the old pool-item mappings
+	        if (StringUtils.isNotEmpty(bean.getOrigPool())
+	                && StringUtils.isNotEmpty(bean.getSelectedPool())
+	                && !bean.getSelectedPool().equals(bean.getOrigPool())
+	                && qpdelegate.hasItem(item.getItemIdString(), Long.valueOf(bean.getOrigPool()))) {
+	            qpdelegate.removeQuestionFromPool(item.getItemId(), Long.valueOf(bean.getOrigPool()));
+	        }
+	
+	        // if assign to pool, add the item to the pool
+	        if (StringUtils.isNotEmpty(bean.getSelectedPool())
+	                && !qpdelegate.hasItem(item.getItemIdString(), Long.valueOf(bean.getSelectedPool()))) {
+	            // if the item is already in the pool then do not add.
+	            qpdelegate.addItemToPool(item.getItemId(), Long.valueOf(bean.getSelectedPool()));
+	        }
         }
 
         // #1a - goto editAssessment.jsp, so reset assessmentBean
