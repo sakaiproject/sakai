@@ -17,7 +17,8 @@
     "sortablejs": "1.10.2"
   },
   "devDependencies": {
-    "@adrianfish/empathise": "^0.1.1",
+    "@adrianfish/empathise": "0.1.9",
+    "@babel/core": "7.10.5",
     "@ckeditor/ckeditor5-adapter-ckfinder": "^11.0.5",
     "@ckeditor/ckeditor5-autoformat": "^11.0.5",
     "@ckeditor/ckeditor5-basic-styles": "^11.1.4",
