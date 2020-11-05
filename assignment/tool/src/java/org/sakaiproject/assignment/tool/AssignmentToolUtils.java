@@ -509,12 +509,11 @@ public class AssignmentToolUtils {
                     Assignment a = assignmentService.getAssignment(assignmentId);
                     // add an entry into Gradebook for newly created assignment or modified assignment, and there wasn't a correspond record in gradebook yet
                     if ( a.getTypeOfSubmission() == Assignment.SubmissionType.EXTERNAL_TOOL_SUBMISSION ) {
-						// Lookup the old column
+                        // Lookup the old column
                         org.sakaiproject.service.gradebook.shared.Assignment gradebookColumn = findGradeBookColumn(gradebookUid, newAssignment_title);
-                        if ( gradebookColumn.isExternallyMaintained() ) {
+                        if ( gradebookColumn != null && gradebookColumn.isExternallyMaintained() ) {
                              alerts.add(rb.getFormattedMessage("addtogradebook.nonUniqueTitle", "\"" + newAssignment_title + "\""));
-						} else if ( gradebookColumn == null && addUpdateRemoveAssignment.equals(GRADEBOOK_INTEGRATION_ADD) ) {
-							// Todo check if already exists
+                        } else if ( gradebookColumn == null && addUpdateRemoveAssignment.equals(GRADEBOOK_INTEGRATION_ADD) ) {
                             try {
                                 org.sakaiproject.service.gradebook.shared.Assignment gradeBookEntry = new org.sakaiproject.service.gradebook.shared.Assignment();
                                 gradeBookEntry.setExternallyMaintained(false);
@@ -568,11 +567,11 @@ public class AssignmentToolUtils {
                                 Long assignmentKey = gradebookColumn.getId();
                                 gradebookService.updateAssignment(gradebookUid, assignmentKey, gradebookColumn);
                             }
-						// Remove case
+                        // Remove
                         } else if ( gradebookColumn != null ) {
                             // Since this is not externally maintained, we don't need to delete the gradebook column
                             log.debug(this + ":integrateGradebook - No need to delete gradebook managed column");
-						}
+                        }
                     } else if ((addUpdateRemoveAssignment.equals(GRADEBOOK_INTEGRATION_ADD) ||
 					     ("update".equals(addUpdateRemoveAssignment) && !isExternalAssignmentDefined)) && associateGradebookAssignment == null) {
                         // add assignment into gradebook
