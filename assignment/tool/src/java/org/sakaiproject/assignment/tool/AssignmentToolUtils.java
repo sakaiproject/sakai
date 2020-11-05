@@ -509,7 +509,11 @@ public class AssignmentToolUtils {
                     Assignment a = assignmentService.getAssignment(assignmentId);
                     // add an entry into Gradebook for newly created assignment or modified assignment, and there wasn't a correspond record in gradebook yet
                     if ( a.getTypeOfSubmission() == Assignment.SubmissionType.EXTERNAL_TOOL_SUBMISSION ) {
-					    if ( addUpdateRemoveAssignment.equals(GRADEBOOK_INTEGRATION_ADD) ) {
+						// Lookup the old column
+                        org.sakaiproject.service.gradebook.shared.Assignment gradebookColumn = findGradeBookColumn(gradebookUid, newAssignment_title);
+                        if ( gradebookColumn.isExternallyMaintained() ) {
+                             alerts.add(rb.getFormattedMessage("addtogradebook.nonUniqueTitle", "\"" + newAssignment_title + "\""));
+						} else if ( gradebookColumn == null && addUpdateRemoveAssignment.equals(GRADEBOOK_INTEGRATION_ADD) ) {
 							// Todo check if already exists
                             try {
                                 org.sakaiproject.service.gradebook.shared.Assignment gradeBookEntry = new org.sakaiproject.service.gradebook.shared.Assignment();
@@ -548,32 +552,26 @@ public class AssignmentToolUtils {
                             } catch (Exception e) {
                                 log.warn(this + ":integrateGradebook " + e.getMessage());
                             }
-                        } else if ( "update".equals(addUpdateRemoveAssignment) ) {
-                            List gradebookAssignments = gradebookService.getAssignments(gradebookUid);
-                            org.sakaiproject.service.gradebook.shared.Assignment assignmentObject = null;
-                            for (Iterator i = gradebookAssignments.iterator(); i.hasNext(); ) {
-                                org.sakaiproject.service.gradebook.shared.Assignment gAssignment = (org.sakaiproject.service.gradebook.shared.Assignment) i.next();
-                                String name = gAssignment.getName();
-                                if (gAssignment.isExternallyMaintained()) {
-                                    continue;
-                                }
-                                if ( newAssignment_title != null && newAssignment_title.equals(name) ) {
-                                    assignmentObject = gAssignment;
-                                    break;
-                                }
+                        } else if ( gradebookColumn != null && "update".equals(addUpdateRemoveAssignment) ) {
+                            boolean changed = false;
+                            if ( ! newAssignment_title.equals(gradebookColumn.getName()) ) {
+                                gradebookColumn.setName(newAssignment_title);
+                                changed = true;
                             }
-                            if ( assignmentObject != null ) {
-                                Long assignmentKey = assignmentObject.getId();
-                                Double newPoints = newAssignment_maxPoints / (double) a.getScaleFactor();
-                                Double oldPoints = assignmentObject.getPoints();
-                                if ( ! newPoints.equals(oldPoints) ) {
-                                    assignmentObject.setPoints(newAssignment_maxPoints / (double) a.getScaleFactor());
-                                    gradebookService.updateAssignment(gradebookUid, assignmentKey, assignmentObject);
-                                }
+                            Double newPoints = newAssignment_maxPoints / (double) a.getScaleFactor();
+                            Double oldPoints = gradebookColumn.getPoints();
+                            if ( ! newPoints.equals(oldPoints) ) {
+                                gradebookColumn.setPoints(newAssignment_maxPoints / (double) a.getScaleFactor());
+                                changed = true;
                             }
-                        } else {
+                            if ( changed ) {
+                                Long assignmentKey = gradebookColumn.getId();
+                                gradebookService.updateAssignment(gradebookUid, assignmentKey, gradebookColumn);
+                            }
+						// Remove case
+                        } else if ( gradebookColumn != null ) {
                             // Since this is not externally maintained, we don't need to delete the gradebook column
-                            log.warn(this + ":integrateGradebook - No need to delete gradebook managed column");
+                            log.debug(this + ":integrateGradebook - No need to delete gradebook managed column");
 						}
                     } else if ((addUpdateRemoveAssignment.equals(GRADEBOOK_INTEGRATION_ADD) ||
 					     ("update".equals(addUpdateRemoveAssignment) && !isExternalAssignmentDefined)) && associateGradebookAssignment == null) {
@@ -762,6 +760,21 @@ public class AssignmentToolUtils {
         }
         return alerts;
     } // integrateGradebook
+
+    /**
+     * A utility class to find a gradebook column of a particular name
+     */
+    public org.sakaiproject.service.gradebook.shared.Assignment findGradeBookColumn(String gradebookUid, String assignmentName) {
+        List gradebookAssignments = gradebookService.getAssignments(gradebookUid);
+        for (Iterator i = gradebookAssignments.iterator(); i.hasNext(); ) {
+            org.sakaiproject.service.gradebook.shared.Assignment gradebookColumn = (org.sakaiproject.service.gradebook.shared.Assignment) i.next();
+            String name = gradebookColumn.getName();
+            if ( assignmentName != null && assignmentName.equals(name) ) {
+                return gradebookColumn;
+            }
+        }
+        return null;
+    }
 
     public Stream<User> getSubmitters(AssignmentSubmission aSubmission) {
 
