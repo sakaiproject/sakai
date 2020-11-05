@@ -1223,7 +1223,8 @@ public class GradingService
     		  iter = itemGradingSet.iterator();
     		  while(iter.hasNext()){
     			  ItemGradingData itemGrading = (ItemGradingData) iter.next();
-    			  if(itemGrading.getPublishedItemId().equals(entry.getKey())){
+    			  AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(itemGrading.getPublishedAnswerId());
+    			  if (itemGrading.getPublishedItemId().equals(entry.getKey()) && answer != null) {
     				  itemGrading.setAutoScore(entry.getValue()[1]/entry.getValue()[2]);
     			  }
     		  }
