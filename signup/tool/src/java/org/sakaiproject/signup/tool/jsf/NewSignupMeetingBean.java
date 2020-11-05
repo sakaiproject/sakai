@@ -170,7 +170,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
     }
 
     public List<SelectItem> getSlots() {
-        slots = IntStream.range(0, numberOfSlots).mapToObj(i -> new SelectItem(i, String.valueOf(i))).collect(Collectors.toList());
+        slots = IntStream.range(1, numberOfSlots + 1).mapToObj(i -> new SelectItem(i, String.valueOf(i))).collect(Collectors.toList());
         return slots;
     }
 
