@@ -28,6 +28,7 @@
       };
       var hours, minutes, seconds;
       var minReqScale;
+      var currentAid = parseInt($("#takeAssessmentForm\\:assessmentID").val());
 
       if (isFromLink()) {
           routeSuffix = ".faces";
@@ -130,7 +131,7 @@
       var progressbar = timerBlock.find("#progressbar");
       var timeoutWarning = timerBlock.find("#timeoutWarning");
       var showHide = timerBlock.find("#showHide");
-      var totalTime, elapsedTime, remain = 0;
+      var totalTime, elapsedTime, remain, lastAid = 0;
       var submitStatus, localCount, ajaxCount = null;
       var indicator = timeoutDialog.find("#indicator");
       var showWarning = true;
@@ -282,12 +283,17 @@
       $.getJSON(routePrefix + "getTimerProgress" + routeSuffix, ajaxQuery, function(data) {
           totalTime = data[0];
           elapsedTime = data[1];
+          lastAid = data[2];
+
           if (totalTime === elapsedTime) {
               timerBlock.hide();
               timeoutDialog.dialog("open");
               timeoutDialog.siblings(".ui-dialog-buttonpane").find("button").eq(0).hide();
               startTimeFinish();
               return;
+          }
+          if (currentAid && lastAid && currentAid > 0 && lastAid > 0 && currentAid !== lastAid) {
+              $("#multiple-tabs-warning").show();
           }
           remain = data[0] - data[1];
           setProgressBar();
@@ -299,11 +305,17 @@
           ajaxCount = setInterval(function() {
               $.getJSON(routePrefix + "getTimerProgress" + routeSuffix, ajaxQuery, function(data) {
                   elapsedTime = data[1];
+                  lastAid = data[2];
                   if (totalTime === elapsedTime) {
                       $("[id$=\\:save]")[0].click();
                       clearInterval(localCount);
                       clearInterval(ajaxCount);
+                      $("#timeoutWarning").hide();
+                      leaveAssessment();
                       return;
+                  }
+                  if (currentAid && lastAid && currentAid > 0 && lastAid > 0 && currentAid !== lastAid) {
+                      $("#multiple-tabs-warning").show();
                   }
                   remain = data[0] - data[1];
                   setProgressBar();
