@@ -2322,10 +2322,10 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 
 	private Set<String> getActiveUsersForRole(final String rolePermission, final String siteId) {
 		try {
-			Site site = siteService.getSite(sakaiSiteID);
+			Site site = siteService.getSite(siteId);
 			return getActiveUsersForRole(rolePermission, site);
 		} catch (IdUnusedException e) {
-			log.info("Ignoring site " + sakaiSiteID + " which no longer exists.");
+			log.info("Ignoring site " + siteId + " which no longer exists.");
 		}
 
     return new HashSet<String>();
