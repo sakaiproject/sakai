@@ -80,6 +80,18 @@ public class LineItemUtil {
 	// tool_id|content_id|resourceId|tag|
 	/**
 	 * Construct the GB_EXTERNAL_ID for LTI AGS entries
+	 * @param content - The content item cannot be null
+	 * @param lineItem - The lineItem to insert
+	 * @return The properly formatted external id
+	 */
+	public static String constructExternalId(Map<String, Object> content, SakaiLineItem lineItem)
+	{
+		Long tool_id = SakaiBLTIUtil.getLongKey(content.get(LTIService.LTI_TOOL_ID));
+		return constructExternalId(tool_id, content, lineItem);
+	}
+
+	/**
+	 * Construct the GB_EXTERNAL_ID for LTI AGS entries
 	 * @param tool_id - The key of the owning tool
 	 * @param content - The content item associated with this - likely null.
 	 * @param lineItem - The lineItem to insert
@@ -107,15 +119,17 @@ public class LineItemUtil {
 		} else {
 			retval += ID_SEPARATOR + content.get(LTIService.LTI_ID) + "|";
 		}
-		if ( lineItem.resourceId == null ) {
-			retval += ID_SEPARATOR;
-		} else {
-			retval += URLEncode(lineItem.resourceId.replace("|", "")) + ID_SEPARATOR;
-		}
-		if ( lineItem.tag == null ) {
-			retval += ID_SEPARATOR;
-		} else {
-			retval += URLEncode(lineItem.tag.replace("|", "")) + ID_SEPARATOR;
+		if ( lineItem != null ) {
+			if ( lineItem.resourceId == null ) {
+				retval += ID_SEPARATOR;
+			} else {
+				retval += URLEncode(lineItem.resourceId.replace("|", "")) + ID_SEPARATOR;
+			}
+			if ( lineItem.tag == null ) {
+				retval += ID_SEPARATOR;
+			} else {
+				retval += URLEncode(lineItem.tag.replace("|", "")) + ID_SEPARATOR;
+			}
 		}
 		return retval;
 	}
@@ -179,9 +193,9 @@ public class LineItemUtil {
 					assignmentObject.setReleased(releaseToStudent); // default true
 					assignmentObject.setCounted(includeInComputation); // default true
 					assignmentObject.setUngraded(false);
+					// NOTE: addAssignment does *not* set the external values - Update *does* store them
 					assignmentId = g.addAssignment(context_id, assignmentObject);
 					assignmentObject.setId(assignmentId);
-					// Update sets the external values while add does not.
 					g.updateAssignment(context_id, assignmentId, assignmentObject);
 					log.info("Added assignment: {} with Id: {}", lineItem.label, assignmentId);
 				} catch (ConflictingAssignmentNameException e) {

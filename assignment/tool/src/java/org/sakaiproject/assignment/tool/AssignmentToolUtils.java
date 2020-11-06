@@ -515,31 +515,39 @@ public class AssignmentToolUtils {
                              alerts.add(rb.getFormattedMessage("addtogradebook.nonUniqueTitle", "\"" + newAssignment_title + "\""));
                         } else if ( gradebookColumn == null && addUpdateRemoveAssignment.equals(GRADEBOOK_INTEGRATION_ADD) ) {
                             try {
-                                org.sakaiproject.service.gradebook.shared.Assignment gradeBookEntry = new org.sakaiproject.service.gradebook.shared.Assignment();
-                                gradeBookEntry.setExternallyMaintained(false);
-                                gradeBookEntry.setPoints(newAssignment_maxPoints / (double) a.getScaleFactor());
-                                gradeBookEntry.setName(newAssignment_title);
-                                gradeBookEntry.setReleased(true); // default true
-                                gradeBookEntry.setUngraded(false); // default false
+                                gradebookColumn = new org.sakaiproject.service.gradebook.shared.Assignment();
+                                gradebookColumn.setPoints(newAssignment_maxPoints / (double) a.getScaleFactor());
+                                gradebookColumn.setExternallyMaintained(false);
+                                gradebookColumn.setExternalAppName(LineItemUtil.GB_EXTERNAL_APP_NAME);
+                                gradebookColumn.setName(newAssignment_title);
+                                gradebookColumn.setReleased(true); // default true
+                                gradebookColumn.setUngraded(false); // default false
 
                                 Integer contentInt = a.getContentId();
                                 Long contentKey = new Long(contentInt);
                                 Map<String, Object> content = ltiService.getContentDao(contentKey);
                                 if (content != null) {
                                     String contentItem = (String) content.get(LTIService.LTI_CONTENTITEM);
+                                    SakaiLineItem lineItem = null;
                                     if ( contentItem != null ) {
-                                        SakaiLineItem lineItem = LineItemUtil.extractLineItem(contentItem);
+                                        lineItem = LineItemUtil.extractLineItem(contentItem);
                                         if ( lineItem != null ) {
                                             // SAK-40043
                                             Boolean releaseToStudent = lineItem.releaseToStudent == null ? Boolean.TRUE : lineItem.releaseToStudent; // Default to true
                                             Boolean includeInComputation = lineItem.includeInComputation == null ? Boolean.TRUE : lineItem.includeInComputation; // Default true
-                                            gradeBookEntry.setReleased(releaseToStudent); // default true
-                                            gradeBookEntry.setUngraded(! includeInComputation); // default false
+                                            gradebookColumn.setReleased(releaseToStudent); // default true
+                                            gradebookColumn.setUngraded(! includeInComputation); // default false
                                         }
                                    }
+                                   String external_id = LineItemUtil.constructExternalId(content, lineItem);
+                                   gradebookColumn.setExternalId(external_id);
                                 }
 
-                                Long gradeBookEntryId = gradebookService.addAssignment(gradebookUid, gradeBookEntry);
+                                // NOTE: addAssignment does *not* set the external values - Update *does* store them
+                                Long columnId = gradebookService.addAssignment(gradebookUid, gradebookColumn);
+
+                                gradebookColumn.setId(columnId);
+                                gradebookService.updateAssignment(gradebookUid, columnId, gradebookColumn);
 
                             } catch (ConflictingAssignmentNameException e) {
                                 alerts.add(rb.getFormattedMessage("addtogradebook.nonUniqueTitle", "\"" + newAssignment_title + "\""));
