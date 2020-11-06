@@ -510,11 +510,11 @@ $(document).ready(function() {
 			var groups = row.find(".calendar-item-groups").text();
 			var grouplist = $("#grouplist");
 			if ($('#grouplist input').size() > 0) {
-			    $("#editgroups-student").show();
-			    $("#grouplist").show();
-			    if (groups !== null) {
+				$("#editgroups-student").show();
+				$("#grouplist").show();
+				if (groups !== null) {
 					checkgroups(grouplist, groups);
-			    }
+				}
 			}
 
 			$("#edit-item-error-container").hide();
