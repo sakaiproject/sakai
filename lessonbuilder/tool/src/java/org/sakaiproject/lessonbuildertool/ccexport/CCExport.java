@@ -23,10 +23,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -124,24 +120,9 @@ public class CCExport {
             ccConfig.setDoBank(true);
         }
 
-        Path root;
-        try {
-            root = Files.createTempDirectory(ccConfig.getRoot(), "ccexport");
-            log.debug("Temporary directory created, {}", root);
-        } catch (IOException ioe) {
-            log.warn("Could not create temporary directory ccexport, {}", ioe.toString());
-            return;
-        }
+        ccConfig.setResults(new ArrayList<>());
 
-        Path resultsPath = null;
         try {
-            resultsPath = Files.createFile(root.resolve("export-results.log"));
-            log.debug("File for the results log created, {}", resultsPath);
-        } catch (IOException ioe) {
-            log.warn("Could not create file export-results.log, {}", ioe.toString());
-        }
-        try (PrintWriter writer = new PrintWriter(Files.newBufferedWriter(resultsPath, StandardCharsets.UTF_8))) {
-            ccConfig.setResultWriter(writer);
             if (!addAllFiles(ccConfig)) return;
             if (!addAllSamigo(ccConfig)) return;
             if (!addAllAssignments(ccConfig)) return;
@@ -165,19 +146,14 @@ public class CCExport {
             outputAllTexts(ccConfig, out);
             outputManifest(ccConfig, out);
 
-            ZipEntry zipEntry = new ZipEntry("cc-objects/export-errors");
+            ZipEntry zipEntry = new ZipEntry("cc-objects/export-errors.txt");
             out.putNextEntry(zipEntry);
-            try (InputStream contentStream = new FileInputStream(resultsPath.toFile())) {
-                IOUtils.copy(contentStream, out);
-            } catch (IOException ioe) {
-                log.warn("Could not add results file as a zipentry, {}", ioe.toString());
-            }
+            ccConfig.getResults().forEach(out::println);
         } catch (IOException ioe) {
             log.error("Lessons export error streaming file, {}", ioe.toString());
             setErrKey("simplepage.exportcc-fileerr", ioe.getMessage(), ccConfig.getLocale());
         }
     }
-
 
     public boolean addAllFiles(CCConfig ccConfig) {
         try {
@@ -185,8 +161,7 @@ public class CCExport {
             ContentCollection baseCol = contentHostingService.getCollection(base);
             return addAllFiles(ccConfig, baseCol, base.length());
         } catch (IdUnusedException e) {
-            setErrKey("simplepage.exportcc-noresource", e.getMessage(), ccConfig.getLocale());
-            return false;
+            return true;
         } catch (Exception e) {
             log.error("Lessons export error outputting file, addAllFiles " + e);
             setErrKey("simplepage.exportcc-fileerr", e.getMessage(), ccConfig.getLocale());
@@ -203,7 +178,7 @@ public class CCExport {
 
                 // don't export things we generate. Can lead to collisions
                 String filename = entity.getId().substring(baselen);
-                if ("cc-objects/export-errors".equals(filename) || "cc-objects".equals(filename))
+                if ("cc-objects/export-errors.txt".equals(filename) || "cc-objects".equals(filename))
                     continue;
 
                 if (entity instanceof ContentResource) {
@@ -363,14 +338,14 @@ public class CCExport {
 
                 ZipEntry zipEntry = new ZipEntry(entry.getValue().getLocation());
                 out.putNextEntry(zipEntry);
-                boolean ok = samigoExport.outputEntity(ccConfig, entry.getValue().getSakaiId(), out, ccConfig.getResultWriter(), entry.getValue(), ccConfig.getVersion());
+                boolean ok = samigoExport.outputEntity(ccConfig, entry.getValue().getSakaiId(), out, entry.getValue(), ccConfig.getVersion());
                 if (!ok) return;
             }
             if (!ccConfig.getPoolMap().isEmpty()) {
                 for (Map.Entry<Long, CCResourceItem> entry : ccConfig.getPoolMap().entrySet()) {
                     ZipEntry zipEntry = new ZipEntry(entry.getValue().getLocation());
                     out.putNextEntry(zipEntry);
-                    boolean ok = samigoExport.outputBank(ccConfig, entry.getKey(), out, ccConfig.getResultWriter(), ccConfig.getSamigoBank(), ccConfig.getVersion());
+                    boolean ok = samigoExport.outputBank(ccConfig, entry.getKey(), out, ccConfig.getSamigoBank(), ccConfig.getVersion());
                     if (!ok) return;
                 }
             }
@@ -382,8 +357,9 @@ public class CCExport {
 
     public boolean addAllAssignments(CCConfig ccConfig) {
         List<String> assignments = assignmentExport.getEntitiesInSite(ccConfig);
-        if (assignments == null)
+        if (assignments == null) {
             return true;
+        }
         for (String sakaiId : assignments) {
             int slash = sakaiId.indexOf("/");
             CCResourceItem res = new CCResourceItem(sakaiId, ccConfig.getResourceId(), "attachments/" + sakaiId.substring(slash + 1) + "/assignmentpage.html", null, null, null);
@@ -393,7 +369,7 @@ public class CCExport {
         return true;
     }
 
-    public void outputAllAssignments(CCConfig ccConfig, ZipPrintStream out) {
+    private void outputAllAssignments(CCConfig ccConfig, ZipPrintStream out) {
         try {
             for (Map.Entry<String, CCResourceItem> entry : ccConfig.getAssignmentMap().entrySet()) {
 
@@ -409,7 +385,7 @@ public class CCExport {
                     zipEntry = new ZipEntry(xmlHref);
 
                     out.putNextEntry(zipEntry);
-                    ok = assignmentExport.outputEntity2(ccConfig, entry.getValue().getResourceId(), out, entry.getValue());
+                    ok = assignmentExport.outputEntity2(ccConfig, entry.getValue().getSakaiId(), out, entry.getValue());
                     if (!ok) return;
                 }
             }
@@ -683,7 +659,7 @@ public class CCExport {
             // add error log at the very end
             String errId = ccConfig.getResourceId();
 
-            out.println(("    <resource href=\"cc-objects/export-errors\" identifier=\"" + errId + "\" type=\"webcontent\">\n      <file href=\"cc-objects/export-errors\"/>\n    </resource>"));
+            out.println(("    <resource href=\"cc-objects/export-errors.txt\" identifier=\"" + errId + "\" type=\"webcontent\">\n      <file href=\"cc-objects/export-errors.txt\"/>\n    </resource>"));
             out.println("  </resources>\n</manifest>");
 
             // items with embed code. need to put out the HTML page

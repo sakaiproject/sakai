@@ -274,16 +274,22 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
    * @see org.sakaiproject.api.app.messageforums.MessageForumsForumManager#getForumsForMainPage()
    */
   public List<DiscussionForum> getForumsForMainPage() {
+    return getForumsForSite(getContextId());
+  }
+
+  public List<DiscussionForum> getForumsForSite(String siteId) {
+
     HibernateCallback<List> hcb = session -> {
-        Query q = session.getNamedQuery(QUERY_FORUMS_FOR_MAIN_PAGE);
-        q.setString("typeUuid", typeManager.getDiscussionForumType());
-        q.setString("contextId", getContextId());
-        return q.list();
+      Query q = session.getNamedQuery(QUERY_FORUMS_FOR_MAIN_PAGE);
+      q.setString("typeUuid", typeManager.getDiscussionForumType());
+      q.setString("contextId", siteId);
+      return q.list();
     };
     List returnList = new ArrayList();
     returnList.addAll(new HashSet(getHibernateTemplate().execute(hcb)));
     return returnList;
   }
+
       
   public List getReceivedUuidByContextId(final List siteList) {
       if (siteList == null) {

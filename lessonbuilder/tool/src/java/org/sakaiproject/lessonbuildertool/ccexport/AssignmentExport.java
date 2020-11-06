@@ -290,7 +290,7 @@ public class AssignmentExport {
         out.println("<assignment xmlns=\"http://www.imsglobal.org/xsd/imscc_extensions/assignment\"");
         out.println("     xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"");
         out.println("     xsi:schemaLocation=\"http://www.imsglobal.org/xsd/imscc_extensions/assignment http://www.imsglobal.org/profile/cc/cc_extensions/cc_extresource_assignmentv1p0_v1p0.xsd\"");
-        out.println("  identifier=\"AssigmentId\">");
+        out.println("  identifier=\"" + contents.getId() + "\">");
 
         if (StringUtils.isBlank(title)) title = "Assignment";
         out.println("  <title>" + StringEscapeUtils.escapeXml11(title) + "</title>");

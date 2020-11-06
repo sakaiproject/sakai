@@ -97,7 +97,7 @@ public class SamigoExport {
                 .collect(Collectors.toList());
     }
 
-    public boolean outputEntity(CCConfig ccConfig, String samigoId, ZipPrintStream out, PrintWriter resultsWriter, CCResourceItem CCResourceItem, CCVersion ccVersion) {
+    public boolean outputEntity(CCConfig ccConfig, String samigoId, ZipPrintStream out, CCResourceItem CCResourceItem, CCVersion ccVersion) {
         String publishedAssessmentString = samigoId.substring(samigoId.indexOf("/") + 1);
         PublishedAssessmentFacade assessment = pubService.getPublishedAssessment(publishedAssessmentString, true);
         List<ItemDataIfc> publishedItemList = preparePublishedItemList(assessment);
@@ -123,7 +123,7 @@ public class SamigoExport {
         out.println("  <assessment ident=\"QDB_1\" title=\"" + StringEscapeUtils.escapeXml11(assessmentTitle) + "\">");
         out.println("    <section ident=\"S_1\">");
 
-        outputQuestions(ccConfig, publishedItemList, null, assessmentTitle, out, resultsWriter, CCResourceItem, ccVersion);
+        outputQuestions(ccConfig, publishedItemList, null, assessmentTitle, out, CCResourceItem, ccVersion);
 
         out.println("    </section>");
         out.println("  </assessment>");
@@ -132,7 +132,7 @@ public class SamigoExport {
         return true;
     }
 
-    public boolean outputBank(CCConfig ccConfig, Long poolId, ZipPrintStream out, PrintWriter resultsWriter, CCResourceItem ccResourceItem, CCVersion ccVersion) {
+    public boolean outputBank(CCConfig ccConfig, Long poolId, ZipPrintStream out, CCResourceItem ccResourceItem, CCVersion ccVersion) {
 
         out.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 
@@ -159,7 +159,7 @@ public class SamigoExport {
             if (pool != null) {
                 List<ItemDataIfc> itemList = questionPoolFacadeQueries.getAllItems(poolId);
                 if (itemList != null && itemList.size() > 0)
-                    outputQuestions(ccConfig, itemList, "pool" + poolId, pool.getTitle(), out, resultsWriter, ccResourceItem, ccVersion);
+                    outputQuestions(ccConfig, itemList, "pool" + poolId, pool.getTitle(), out, ccResourceItem, ccVersion);
             }
         } else {
             // older. all pools at once
@@ -172,7 +172,7 @@ public class SamigoExport {
                 for (QuestionPoolDataIfc pool : pools) {
                     List<ItemDataIfc> itemList = questionPoolFacadeQueries.getAllItems(pool.getQuestionPoolId());
                     if (itemList != null && itemList.size() > 0)
-                        outputQuestions(ccConfig, itemList, ("pool" + (poolno++)), pool.getTitle(), out, resultsWriter, ccResourceItem, ccVersion);
+                        outputQuestions(ccConfig, itemList, ("pool" + (poolno++)), pool.getTitle(), out, ccResourceItem, ccVersion);
                 }
             }
         }
@@ -183,7 +183,7 @@ public class SamigoExport {
         return true;
     }
 
-    public void outputQuestions(CCConfig ccConfig, List<ItemDataIfc> itemList, String assessmentSeq, String assessmentTitle, ZipPrintStream out, PrintWriter resultsWriter, CCResourceItem CCResourceItem, CCVersion ccVersion) {
+    private void outputQuestions(CCConfig ccConfig, List<ItemDataIfc> itemList, String assessmentSeq, String assessmentTitle, ZipPrintStream out, CCResourceItem CCResourceItem, CCVersion ccVersion) {
 
         int seq = 1;
 
@@ -266,7 +266,7 @@ public class SamigoExport {
                 type = TypeIfc.FILL_IN_BLANK; // normalize
 
             } else {
-                resultsWriter.println(messageSource.getMessage("simplepage.exportcc-sam-undefinedtype", null, ccConfig.getLocale()).replace("{1}", title).replace("{2}", assessmentTitle));
+                ccConfig.getResults().add(messageSource.getMessage("simplepage.exportcc-sam-undefinedtype", null, ccConfig.getLocale()).replace("{1}", title).replace("{2}", assessmentTitle));
                 continue;
             }
 
@@ -309,7 +309,7 @@ public class SamigoExport {
                 // If there's more than one {} we'll get a weird result, but there's not a lot we can do about that.
                 int blanks = StringUtils.countMatches(text, "{}");
                 if (blanks > 1) {
-                    resultsWriter.println(messageSource.getMessage("simplepage.exportcc-sam-too-many-blanks", null, ccConfig.getLocale()).replace("{1}", title).replace("{2}", assessmentTitle).replace("{3}", "" + blanks));
+                    ccConfig.getResults().add(messageSource.getMessage("simplepage.exportcc-sam-too-many-blanks", null, ccConfig.getLocale()).replace("{1}", title).replace("{2}", assessmentTitle).replace("{3}", "" + blanks));
                 }
 
                 // now we have the whole string with {}. If the {} isn't at the end, replace
@@ -405,7 +405,7 @@ public class SamigoExport {
                     int remaining = -1; // default to allow all correct answers
                     if (correctSet.size() > 1) {
                         if (ccVersion.greaterThan(V12)) {
-                            resultsWriter.println(messageSource.getMessage("simplepage.exportcc-sam-mcss", null, ccConfig.getLocale()).replace("{1}", title).replace("{2}", assessmentTitle));
+                            ccConfig.getResults().add(messageSource.getMessage("simplepage.exportcc-sam-mcss", null, ccConfig.getLocale()).replace("{1}", title).replace("{2}", assessmentTitle));
                             remaining = 1;
                         } else
                             out.println("              <or>");
@@ -428,7 +428,7 @@ public class SamigoExport {
                 } else {
                     // type.equals TypeIfc.MULTIPLE_CORRECT || TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION
                     if (type.equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION)) {
-                        resultsWriter.println(messageSource.getMessage("simplepage.exportcc-sam-mcss", null, ccConfig.getLocale()).replace("{1}", title).replace("{2}", assessmentTitle));
+                        ccConfig.getResults().add(messageSource.getMessage("simplepage.exportcc-sam-mcss", null, ccConfig.getLocale()).replace("{1}", title).replace("{2}", assessmentTitle));
                     }
                     out.println("              <and>");
                     for (AnswerIfc answer : answers) {
@@ -495,7 +495,7 @@ public class SamigoExport {
                     String[] answerArray = answerString.split("\\|");
                     boolean tooManyStars = false;
                     if (answerString.contains("*") && answerString.contains("|")) {
-                        resultsWriter.println(messageSource.getMessage("simplepage.exportcc-sam-fib-too-many-star", null, ccConfig.getLocale()).replace("{1}", title).replace("{2}", assessmentTitle).replace("{3}", answerString));
+                        ccConfig.getResults().add(messageSource.getMessage("simplepage.exportcc-sam-fib-too-many-star", null, ccConfig.getLocale()).replace("{1}", title).replace("{2}", assessmentTitle).replace("{3}", answerString));
                         tooManyStars = true;
                     }
 
@@ -521,9 +521,9 @@ public class SamigoExport {
 
                         if (hasStar) {
                             if (substr) {
-                                resultsWriter.println(messageSource.getMessage("simplepage.exportcc-sam-fib-star", null, ccConfig.getLocale()).replace("{1}", title).replace("{2}", assessmentTitle).replace("{3}", orig).replace("{4}", answer));
+                                ccConfig.getResults().add(messageSource.getMessage("simplepage.exportcc-sam-fib-star", null, ccConfig.getLocale()).replace("{1}", title).replace("{2}", assessmentTitle).replace("{3}", orig).replace("{4}", answer));
                             } else {
-                                resultsWriter.println(messageSource.getMessage("simplepage.exportcc-sam-fib-bad-star", null, ccConfig.getLocale()).replace("{1}", title).replace("{2}", assessmentTitle).replace("{3}", orig));
+                                ccConfig.getResults().add(messageSource.getMessage("simplepage.exportcc-sam-fib-bad-star", null, ccConfig.getLocale()).replace("{1}", title).replace("{2}", assessmentTitle).replace("{3}", orig));
                             }
                         }
 
