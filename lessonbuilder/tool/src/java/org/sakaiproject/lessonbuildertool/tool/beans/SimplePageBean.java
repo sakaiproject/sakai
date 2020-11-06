@@ -3720,7 +3720,7 @@ public class SimplePageBean {
 	       case SimplePageItem.QUESTION:
 	       case SimplePageItem.TWITTER:
 	       case SimplePageItem.STUDENT_CONTENT:
-		   case SimplePageItem.CALENDAR:
+	       case SimplePageItem.CALENDAR:
 		   return getLBItemGroups(i); // for all native LB objects
 	       default:
 	    	   return null;
