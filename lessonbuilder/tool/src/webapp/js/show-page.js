@@ -507,7 +507,7 @@ $(document).ready(function() {
 			$("#customCssClass").val($(".calendar-custom-css-class").text());
 			$("#item-id").val(row.find(".calendar-item-id").text());
 
-			var groups = row.find(".item-groups").text();
+			var groups = row.find(".calendar-item-groups").text();
 			var grouplist = $("#grouplist");
 			if ($('#grouplist input').size() > 0) {
 			    $("#editgroups-student").show();

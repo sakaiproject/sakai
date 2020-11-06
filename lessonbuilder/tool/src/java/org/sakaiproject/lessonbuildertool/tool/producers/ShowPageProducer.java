@@ -3169,7 +3169,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							itemGroupTitles = "[" + itemGroupTitles + "]";
 						}
 						if (canEditPage) {
-							UIOutput.make(tableRow, "item-groups", itemGroupString);
+							UIOutput.make(tableRow, "calendar-item-groups", itemGroupString);
 							String name = i.getName()!= null ? i.getName() : "" ;
 							UIOutput.make(tableRow, "calendar-name", name);
 							String description = i.getDescription()!= null ? i.getDescription() : "" ;
