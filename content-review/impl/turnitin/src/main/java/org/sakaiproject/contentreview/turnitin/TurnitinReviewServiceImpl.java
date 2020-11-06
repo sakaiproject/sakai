@@ -270,7 +270,7 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 		spoilEmailAddresses = serverConfigurationService.getBoolean("turnitin.spoilEmailAddresses", false);
 		preferSystemProfileEmail = serverConfigurationService.getBoolean("turnitin.preferSystemProfileEmail", true);
 		preferGuestEidEmail = serverConfigurationService.getBoolean("turnitin.preferGuestEidEmail", true);
-		enrollAssistantsAsInstructors = serverConfigurationService.getBoolean("turnitin.enrollAssistantsAsInstructors", false);
+		enrollAssistantsAsInstructors = serverConfigurationService.getBoolean("turnitin.enroll_assistants_as_instructors", false);
 
 		enabledSiteTypes = Arrays
 				.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("turnitin.sitetypes")));
@@ -2268,12 +2268,10 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 	 *
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	public Map<String, String> getInstructorInfo(String siteId) {
 		return getInstructorInfo(siteId, false);
 	}
 
-	@SuppressWarnings("unchecked")
 	public Map<String, String> getInstructorInfo(String siteId, boolean ignoreUseSource) {
 
 		log.debug("Getting instructor info for site " + siteId);
@@ -2328,7 +2326,7 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 			log.info("Ignoring site " + siteId + " which no longer exists.");
 		}
 
-    return new HashSet<String>();
+		return new HashSet<String>();
 	}
 
 	private Set<String> getActiveUsersForRole(final String rolePermission, final Site site) {
