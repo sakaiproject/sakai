@@ -1344,7 +1344,7 @@ public class ItemContentsBean implements Serializable {
 			//text = text.replaceAll("<.*?>", " ");
 			//text = FormattedText.convertFormattedTextToPlaintext(text);
 			//text = FormattedText.stripHtmlFromText(text, true); // SAM-2277
-			text = ComponentManager.get(FormattedText.class).stripHtmlFromText( text, false, true ).trim(); // SAM-2499
+			text = ComponentManager.get(FormattedText.class).stripHtmlFromText( text, false, false ).trim(); // We do not want escaped HTML to be un-escaped
 		}
 		return text;
 
