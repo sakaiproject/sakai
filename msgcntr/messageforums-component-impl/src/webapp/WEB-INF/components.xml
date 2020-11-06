@@ -25,6 +25,7 @@
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/Rank.hbm.xml</value>                  
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/RankImage.hbm.xml</value>
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/AnonymousMapping.hbm.xml</value>
+                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/DraftRecipient.hbm.xml</value>
             </list>
         </property>
     </bean>

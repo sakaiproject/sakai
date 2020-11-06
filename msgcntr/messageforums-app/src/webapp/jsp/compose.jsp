@@ -100,6 +100,7 @@
 		  <h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" />
 
 		  <h:outputText styleClass="sak-banner-warn" value="#{msgs.pvt_hiddenGroupsBccMsg}" rendered="#{PrivateMessagesTool.displayHiddenGroupsMsg}" />
+		  <h:outputText styleClass="sak-banner-warn" value="#{msgs.pvt_draftRecipientsNotFoundMsg}" rendered="#{PrivateMessagesTool.displayDraftRecipientsNotFoundMsg}" />
 
 		  <div class="composeForm">
 				<div class="row">
