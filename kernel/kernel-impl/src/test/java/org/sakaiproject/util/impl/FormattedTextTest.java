@@ -1237,4 +1237,25 @@ public class FormattedTextTest {
         Assert.assertTrue(result.contains("src=\"" + url + "\""));
     }
 
+    @Test
+    public void testEscapedHtmlBeingStripped() {
+    	String html = "<pre>\n" + 
+    			"1:  &lt;html&gt;\n" + 
+    			"2:    &lt;head&gt;\n" + 
+    			"3:      &lt;title&gt;Example&lt;/title&gt;\n" + 
+    			"4:    &lt;/head&gt;\n" + 
+    			"5:    &lt;body&gt;\n" + 
+    			"6:      &lt;ul id=&#39;myList&#39;&gt;\n" + 
+    			"7:        &lt;li&gt;Item 1&lt;/li&gt;\n" + 
+    			"8:      &lt;/ul&gt;\n" + 
+    			"9:    &lt;/body&gt;\n" + 
+    			"10: &lt;/html&gt;\n" + 
+    			"</pre>";
+    	
+    	String result = formattedText.stripHtmlFromText( html, false, true ).trim();
+    	Assert.assertTrue(result.contains("<html>"));
+    	result = formattedText.stripHtmlFromText( html, false, false ).trim();
+    	Assert.assertFalse(result.contains("<html>"));
+    }
+
 }
