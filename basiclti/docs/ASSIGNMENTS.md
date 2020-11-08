@@ -31,7 +31,8 @@ down to the Submission Type and change it to "External Tool (LTI)".  Then you wi
 a "Select External Tool (LTI)" button.  Pressing the button will launch a resource picker
 similar to the "Install Learning App" in Lessons.  Choose a tool, and go through the selection
 process.  If you are using something like Tsugi's Trophy just before you will be given an option
-to "Configure the LineItem"  - the LineItem is part of the DeepLink response:
+to "Configure the LineItem" (<a href="images/assignments/01-Tsugi-LineItem.png" target="_blank">image</a>).
+LineItem is part of the DeepLink response:
 
 See http://www.imsglobal.org/spec/lti-dl/v2p0 - search for "lineitem", "available", and "submission".
 
