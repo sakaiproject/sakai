@@ -3073,10 +3073,10 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                     if (assessmentExtended.hasExtendedTime()) {
                         //Continue on and try to submit it but it may be late, just change the due date
                         dueDate = assessmentExtended.getDueDate() != null ? assessmentExtended.getDueDate() : dueDate;
-                        retractDate = assessmentExtended.getRetractDate() != null ? assessmentExtended.getRetractDate() : retractDate;
 
                         // If the extended time student received a retract date
-                        if (retractDate != null) {
+                        if (assessmentExtended.getRetractDate() != null) {
+                        	retractDate =  assessmentExtended.getRetractDate();
                         	acceptLate = true;
                         }
                     }
