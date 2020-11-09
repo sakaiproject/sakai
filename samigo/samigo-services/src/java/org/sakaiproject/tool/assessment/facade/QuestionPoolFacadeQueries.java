@@ -1228,6 +1228,7 @@ public class QuestionPoolFacadeQueries
 	  item.setScore(itemData.getScore());
 	  item.setDiscount(itemData.getDiscount());
       item.setHint(itemData.getHint());
+      item.setMinScore(itemData.getMinScore());
       item.setStatus(itemData.getStatus());
       item.setTypeId(itemData.getTypeId());
       item.setCreatedBy(AgentFacade.getAgentString());
@@ -1241,6 +1242,7 @@ public class QuestionPoolFacadeQueries
       item.setAnswerOptionsSimpleOrRich(itemData.getAnswerOptionsSimpleOrRich());
       item.setDescription(itemData.getDescription());
       item.setIsExtraCredit(itemData.getIsExtraCredit());
+      item.setPartialCreditFlag(itemData.getPartialCreditFlag());
 
       item.setItemTextSet(copyItemText(item.getData(), itemData));
       item.setItemMetaDataSet(copyMetaData(item.getData(), itemData));

@@ -38,7 +38,7 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
   render() {
 
     return html`
-      <span tabindex="0" role="button" class="edit fa fa-edit" @focus="${this.onFocus}" @click="${this.editCriterion}" title="${tr("edit_criterion")} ${this.criterion.title}"></span>
+      <a tabindex="0" role="button" class="linkStyle edit fa fa-edit" @focus="${this.onFocus}" @keyup="${this.openEditWithKeyboard}" @click="${this.editCriterion}" title="${tr("edit_criterion")} ${this.criterion.title}" href="#"></a>
 
       <div id="edit_criterion_${this.criterion.id}" class="popover criterion-edit-popover bottom">
         <div class="arrow"></div>
@@ -79,7 +79,7 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
   }
 
   editCriterion(e) {
-
+    e.preventDefault();
     e.stopPropagation();
 
     this.dispatchEvent(new CustomEvent('show-tooltip', {detail: this.criterion}));
@@ -162,6 +162,13 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
     this.hideToolTip();
     this.dispatchEvent(new CustomEvent('criterion-edited', {detail: {id: data.id, title: data.title, description: data.description}}));
     this.dispatchEvent(new SharingChangeEvent());
+  }
+
+  openEditWithKeyboard(e) {
+	
+    if (e.keyCode == 32) {
+      this.editCriterion(e)
+    }
   }
 }
 

@@ -130,7 +130,6 @@ public abstract class SakaiPage extends WebPage implements IHeaderContributor {
 
         // Tool additions (at end so we can override if required)
         response.render(new MetaDataHeaderItem(MetaDataHeaderItem.META_TAG).addTagAttribute("http-equiv", "Content-Type").addTagAttribute("content", "text/html; charset=UTF-8"));
-        response.render(CssReferenceHeaderItem.forReference(new CssResourceReference(getClass(), "style.css")));
     }
 
     /**

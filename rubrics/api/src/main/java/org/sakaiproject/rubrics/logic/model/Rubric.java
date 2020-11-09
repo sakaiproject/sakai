@@ -39,6 +39,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
 import javax.persistence.PostLoad;
 import javax.persistence.PostUpdate;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -76,7 +78,7 @@ public class Rubric implements Modifiable, Serializable, Cloneable {
     private String title;
     private String description;
 
-    @Column(columnDefinition = "boolean default false", nullable = false)
+    @Column(nullable = false)
     private Boolean weighted = Boolean.FALSE;
 
     @ManyToMany(cascade = CascadeType.ALL)
@@ -166,5 +168,19 @@ public class Rubric implements Modifiable, Serializable, Cloneable {
     @Override
     public void setModified(Metadata metadata) {
         this.metadata = metadata;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        if (this.weighted == null) {
+            this.weighted = Boolean.FALSE;
+        }
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        if (this.weighted == null) {
+            this.weighted = Boolean.FALSE;
+        }
     }
 }

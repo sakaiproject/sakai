@@ -179,8 +179,7 @@ public class Assignment {
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ElementCollection
     @MapKeyColumn(name = "NAME")
-    @Lob
-    @Column(name = "VALUE", length = 65535)
+    @Column(name = "VALUE", length = 4000)
     @CollectionTable(name = "ASN_ASSIGNMENT_PROPERTIES", joinColumns = @JoinColumn(name = "ASSIGNMENT_ID"))
     @Fetch(FetchMode.SUBSELECT)
     private Map<String, String> properties = new HashMap<>();

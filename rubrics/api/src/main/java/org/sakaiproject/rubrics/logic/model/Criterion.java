@@ -78,8 +78,8 @@ public class Criterion implements Modifiable, Serializable, Cloneable {
     @Lob
     private String description;
 
-    @Column(columnDefinition = "double default 0")
-    private Double weight = 0D;
+    @Column(columnDefinition="float default 0")
+    private Float weight = 0F;
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "rbc_criterion_ratings")

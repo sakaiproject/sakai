@@ -321,39 +321,35 @@ public class UserAuditEventLog {
 					String actionUserId = result.getString("action_user_id");
 					
 					User cachedUser;
-					if (userMap.containsKey(userId))
-					{
-						cachedUser = userMap.get(userId);
-					}
-					else
-					{
-						cachedUser = userDirectoryService.getUserByEid(userId);
-						userMap.put(userId, cachedUser);
-					}
-					
-					if (actionUserId!=null && !"".equals(actionUserId))
-					{
-						User cachedActionUser;
-						if (userMap.containsKey(actionUserId))
-						{
-							cachedActionUser = userMap.get(actionUserId);
+					try {
+						if (userMap.containsKey(userId)) {
+							cachedUser = userMap.get(userId);
+						} else {
+							cachedUser = userDirectoryService.getUserByEid(userId);
+							userMap.put(userId, cachedUser);
 						}
-						else
-						{
-							cachedActionUser = userDirectoryService.getUserByEid(actionUserId);
-							userMap.put(actionUserId, cachedActionUser);
+						
+						if (actionUserId!=null && !"".equals(actionUserId)) {
+							User cachedActionUser = null;
+							if (userMap.containsKey(actionUserId)) {
+								cachedActionUser = userMap.get(actionUserId);
+							} else {
+								try {
+									cachedActionUser = userDirectoryService.getUserByEid(actionUserId);
+									userMap.put(actionUserId, cachedActionUser);
+								} catch (UserNotDefinedException e) {
+									log.warn("Found removed action user while getting the audit logs: {}", actionUserId);
+									source = "";
+								}
+							}
+							eventLog.add(new EventLog(cachedUser,roleName,actionTaken,auditStamp,source,cachedActionUser));
+						} else {
+							eventLog.add(new EventLog(cachedUser,roleName,actionTaken,auditStamp,source,null));
 						}
-						eventLog.add(new EventLog(cachedUser,roleName,actionTaken,auditStamp,source,cachedActionUser));
-					}
-					else
-					{
-						eventLog.add(new EventLog(cachedUser,roleName,actionTaken,auditStamp,source,null));
+					} catch (UserNotDefinedException e) {
+						log.warn("Skipping removed user while getting the user audit logs: {}", userId);
 					}
 				}
-			}
-			catch (UserNotDefinedException e)
-			{
-				log.warn("ERROR getting the user audit logs!", e);
 			}
 			catch (SQLException e)
 			{

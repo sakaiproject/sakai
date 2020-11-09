@@ -163,6 +163,9 @@
                 <bean parent="org.sakaiproject.ignite.cache.transactional">
                     <property name="name" value="org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation"/>
                 </bean>
+                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                    <property name="name" value="org.sakaiproject.hbm.privacy.PrivacyRecord"/>
+                </bean>
             </list>
         </property>
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>

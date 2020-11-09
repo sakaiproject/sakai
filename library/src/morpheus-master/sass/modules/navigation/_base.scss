@@ -12,7 +12,7 @@ body.is-logged-out{
 	}
 	.#{$namespace}topHeader{
 		@media #{$phone}{
-			min-height: $header-size;
+			min-height: var(--header-size);
 		}
 		a {
 			&:focus, &:hover, &:active {
@@ -39,11 +39,12 @@ body.is-logged-out{
 
 
 		.#{$namespace}headerLogo--institution{
-			background: url($logo) no-repeat center center;
-			width: 		$logo-width;
+			background: var(--logo) no-repeat center center;
+			width: var(--logo-width);
 			height: 100%; // align vertically center
 			float: left;
-			background-size: $logo-width $logo-height;
+			background-size: var(--logo-width) var(--logo-height);
+			opacity: var(--logo-opacity);
 		}
 	}
 
@@ -373,7 +374,7 @@ body.is-logged-out{
 		width: 100%;
 		top: 0;
 		font-size: 12px;
-		min-height: $header-size;
+		min-height: var(--header-size);
 		box-shadow: none;
 
 		&.moving{
@@ -392,7 +393,7 @@ body.is-logged-out{
 	}
 
 	@media #{$phone}{
-		width: calc(100% - #{$logo-width});
+		width: calc(100% - #{var(--logo-width)});
 	}
 
 	ul{
@@ -845,11 +846,11 @@ body.is-logged-out{
 
 			&:hover {
 				box-shadow: var(--elevation-2dp);
-				transition: box-shadow 100ms ease-out;
+				transition: $active-transition-hover;
 			}
 			&:active {
 				box-shadow: var(--elevation-1dp);
-				transition: box-shadow 100ms ease-in;
+				transition: $active-transition-active;
 			}
 
 			.link-container{

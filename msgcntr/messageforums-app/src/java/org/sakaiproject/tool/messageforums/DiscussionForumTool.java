@@ -158,6 +158,7 @@ import net.sf.json.JSONSerializer;
 import net.sf.json.JsonConfig;
 import org.sakaiproject.api.app.messageforums.events.ForumsMessageEventParams;
 import org.sakaiproject.api.app.messageforums.events.ForumsTopicEventParams;
+import static org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl.DATE_COMPARATOR;
 
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
@@ -1928,7 +1929,7 @@ public class DiscussionForumTool {
     	}
     	
         topic.setBaseForum(selectedForum.getForum());
-        if(selectedForum.getForum().getRestrictPermissionsForGroups()){
+        if(selectedForum.getForum().getRestrictPermissionsForGroups() && ServerConfigurationService.getBoolean("msgcntr.restricted.group.perms", false)){
             topic.setRestrictPermissionsForGroups(true);
         }
         if(topic.getCreatedBy()==null&&this.forumManager.getAnonRole()==true){
@@ -7274,6 +7275,9 @@ public class DiscussionForumTool {
 		 setSelectedForumForCurrentTopic(topic);		
 		 selectedTopic = getDecoratedTopic(topic);
 		 selectedForum = getDecoratedForum(forum);
+		 if (!isInstructor()) {
+			 Collections.sort(selectedTopic.getMessages(), DATE_COMPARATOR);
+		 }
 
 		 if (uiPermissionsManager.isRead((DiscussionTopic)topic, forum)) {
 			 List messageList = messageManager.findMessagesByTopicId(topic.getId());
@@ -8020,7 +8024,9 @@ public class DiscussionForumTool {
             if (currentGroup.getCreateForumForGroup()==true) {
                 groupSelected = true;
                 DiscussionForum forum = forumManager.createForum();
-                forum.setRestrictPermissionsForGroups(forumTemplate.getForum().getRestrictPermissionsForGroups());
+                if (ServerConfigurationService.getBoolean("msgcntr.restricted.group.perms", false)) {
+                    forum.setRestrictPermissionsForGroups(forumTemplate.getForum().getRestrictPermissionsForGroups());
+                }
                 forum.setModerated(forumTemplate.getForum().getModerated());
                 forum.setAutoMarkThreadsRead(forumTemplate.getForum().getAutoMarkThreadsRead());
                 forum.setPostFirst(forumTemplate.getForum().getPostFirst());
@@ -8108,7 +8114,9 @@ public class DiscussionForumTool {
                 selectedTopic = createTopic(topicTempate.getTopic().getBaseForum().getId());
                 selectedTopic.setGradeAssign(topicTempate.getGradeAssign());
                 DiscussionTopic thisTopic = selectedTopic.getTopic();
-                thisTopic.setRestrictPermissionsForGroups(topicTempate.getTopic().getRestrictPermissionsForGroups());
+                if (ServerConfigurationService.getBoolean("msgcntr.restricted.group.perms", false)) {
+                   thisTopic.setRestrictPermissionsForGroups(topicTempate.getTopic().getRestrictPermissionsForGroups());
+                }
                 thisTopic.setTitle(topicTempate.getTopic().getTitle() + " - " + currentGroup.getGroup().getTitle());
                 thisTopic.setShortDescription(topicTempate.getTopic().getShortDescription());
                 thisTopic.setExtendedDescription(topicTempate.getTopic().getExtendedDescription());

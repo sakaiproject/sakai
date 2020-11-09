@@ -426,6 +426,7 @@
 	.portletBody {
 		.column {
 			border: $lessons-column-border;
+			border-color: var(--lessons-column-border-color);
 		}
 		.mainList {
 			div:hover {

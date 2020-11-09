@@ -55,7 +55,6 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishRepublishNotificationBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.tool.assessment.util.ExtendedTimeValidator;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.tool.assessment.util.TimeLimitValidator;
 import org.sakaiproject.util.api.FormattedText;
@@ -143,10 +142,12 @@ public class ConfirmPublishAssessmentListener
     }
     
 
-    Date startDate = assessmentSettings.getStartDate();
-    Date dueDate = assessmentSettings.getDueDate();
-    Date retractDate = assessmentSettings.getRetractDate();
+    final Date startDate = assessmentSettings.getStartDate();
+    final Date dueDate = assessmentSettings.getDueDate();
+    final Date retractDate = assessmentSettings.getRetractDate();
+    final boolean isAcceptingLateSubmissions = assessmentSettings.getLateHandling() != null && AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.toString().equals(assessmentSettings.getLateHandling());
     boolean isRetractEarlierThanAvaliable = false;
+
     if ((dueDate != null && startDate != null && dueDate.before(startDate)) ||
     	(dueDate != null && startDate == null && dueDate.before(new Date()))) {
     	String dateError1 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","due_earlier_than_avaliable");
@@ -154,7 +155,7 @@ public class ConfirmPublishAssessmentListener
     	error=true;
     	assessmentSettings.setStartDate(new Date());
     }
-    if(assessmentSettings.getLateHandling() != null && AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.toString().equals(assessmentSettings.getLateHandling())){
+    if (isAcceptingLateSubmissions) {
 	    if ((retractDate != null && startDate != null && retractDate.before(startDate)) ||
 	        (retractDate != null && startDate == null && retractDate.before(new Date()))) {
 	    	String dateError2 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_earlier_than_avaliable");
@@ -178,18 +179,13 @@ public class ConfirmPublishAssessmentListener
 
 	// if using a time limit, ensure open window is greater than or equal to time limit
 	boolean hasTimer = TimeLimitValidator.hasTimer(assessmentSettings.getTimedHours(), assessmentSettings.getTimedMinutes());
-	if(hasTimer) {
-		Date due = assessmentSettings.getRetractDate() != null ? assessmentSettings.getRetractDate() : assessmentSettings.getDueDate();
+	if (hasTimer) {
+		Date due = retractDate != null && isAcceptingLateSubmissions ? retractDate : dueDate;
 		boolean availableLongerThanTimer = TimeLimitValidator.availableLongerThanTimer(startDate, due, assessmentSettings.getTimedHours(), assessmentSettings.getTimedMinutes(),
 																						"org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "open_window_less_than_time_limit", context);
 		if(!availableLongerThanTimer) {
 			error = true;
 		}
-	}
-
-	boolean extendedTimesValid = new ExtendedTimeValidator().validateEntries( assessmentSettings.getExtendedTimes(), context, assessmentSettings );
-	if(!extendedTimesValid) {
-		error = true;
 	}
 
     // if due date is null we cannot have late submissions
@@ -206,12 +202,11 @@ public class ConfirmPublishAssessmentListener
     if (assessmentSettings.getLateHandling() != null && AssessmentAccessControlIfc.NOT_ACCEPT_LATE_SUBMISSION.toString().equals(assessmentSettings.getLateHandling()) &&
     		retractDate == null && dueDate != null && assessmentSettings.getAutoSubmit()) {
     	if (autoSubmitEnabled) {
-    		retractDate = dueDate;
     		assessmentSettings.setRetractDate(dueDate);
     	}
     }
     // if auto-submit is enabled, make sure late submission date is set
-    if (assessmentSettings.getAutoSubmit() && retractDate == null) {
+    else if (assessmentSettings.getAutoSubmit() && retractDate == null) {
     	if (autoSubmitEnabled) {
     		String dateError4 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_required_with_auto_submit");
     		context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, dateError4, null));
@@ -313,9 +308,17 @@ public class ConfirmPublishAssessmentListener
 				String date_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","date_error");
 				context.addMessage(null,new FacesMessage(date_err));
 			}
+			else {
+				// TODO this logic should be refactored
+				if(StringUtils.isNotBlank(assessmentSettings.getFeedbackEndDateString()) && assessmentSettings.getFeedbackDate().after(assessmentSettings.getFeedbackEndDate())){
+					String feedbackDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","invalid_feedback_ranges");
+					context.addMessage(null,new FacesMessage(feedbackDateErr));
+					error=true;
+				}
+			}
 
-			if(StringUtils.isNotBlank(assessmentSettings.getFeedbackEndDateString()) && assessmentSettings.getFeedbackDate().after(assessmentSettings.getFeedbackEndDate())){
-				String feedbackDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","invalid_feedback_ranges");
+			if(!assessmentSettings.getIsValidFeedbackDate()){
+				String feedbackDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","invalid_feedback_date");
 				context.addMessage(null,new FacesMessage(feedbackDateErr));
 				error=true;
 			}

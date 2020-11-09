@@ -15,11 +15,9 @@
  */
 package org.sakaiproject.lessonbuildertool.ccexport;
 
-import java.io.PrintWriter;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -48,9 +46,7 @@ public class CCConfig {
     private Map<Long, String> embedMap = new HashMap<>();                       // Embed codes with fixups done
     private Set<CCResourceItem> linkSet = new HashSet<>();                          // Links
 
-    private Path root;
-    private Path resultsPath;
-    private PrintWriter resultWriter;
+    private List<String> results;
 
     // the error messages are a problem. They won't show until the next page display
     // however errrors at this level are unusual, and we interrupt the download, so the
@@ -61,9 +57,6 @@ public class CCConfig {
     public CCConfig(String siteId, Locale locale) {
         this.siteId = siteId;
         this.locale = locale;
-
-        String tempDir = System.getProperty("java.io.tmpdir");
-        root = Paths.get(tempDir);
     }
 
     public String getResourceId() {

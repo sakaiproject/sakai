@@ -179,6 +179,7 @@ import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.LinkMigrationHelper;
 import org.sakaiproject.util.comparator.GroupTitleComparator;
 import org.sakaiproject.util.comparator.ToolTitleComparator;
+import org.sakaiproject.site.tool.MathJaxEnabler;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -683,7 +684,7 @@ public class SiteAction extends PagedResourceActionII {
 	private String cmSubjectCategory;
 
 	public static final String STATE_SITE_PARTICIPANT_FILTER = "site_participant_filter";
-
+    
 	private boolean warnedNoSubjectCategory = false;
 	
 	/**
@@ -1803,6 +1804,7 @@ public class SiteAction extends PagedResourceActionII {
 					null, null, null, SortType.TITLE_ASC, null));
 			context.put("import", state.getAttribute(STATE_IMPORT));
 			context.put("importSites", state.getAttribute(STATE_IMPORT_SITES));
+			context.put(MathJaxEnabler.CONTEXT_MATHJAX_HELP_URL, MathJaxEnabler.HELP_URL);
 			if (site != null)
 			{
 				// Add the menus to vm

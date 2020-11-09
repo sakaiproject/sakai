@@ -43,13 +43,9 @@ public interface PrivateMessage extends Message {
 
     public void setExternalEmailAddress(String externalEmailAddress);
 
-    public List getRecipients();
+    public List<PrivateMessageRecipient> getRecipients();
 
-    public void setRecipients(List recipients);
-    
-    public void addRecipient(MessageForumsUser user);
-    
-    public void removeRecipient(MessageForumsUser user);
+    public void setRecipients(List<PrivateMessageRecipient> recipients);
     
     public String getRecipientsAsText() ;
     

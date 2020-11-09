@@ -199,6 +199,7 @@
             $btnStopRecording.removeClass('hidden');
             $prevAudioPlayer.remove();
             $audioPlayer.removeClass('hidden');
+            $audioPlayer.css('pointer-events' , 'none');
 
             var namePronunciationDuration = parseInt($('#namePronunciationDuration').text() + "000");
             timeoutPlayer = setTimeout(function() {
@@ -210,6 +211,7 @@
             this.disabled = true;
             recorder.stopRecording(stopRecordingCallback);
             clearTimeout(timeoutPlayer);
+            $audioPlayer.css('pointer-events' , 'auto');
         });
         $btnReleaseMicrophone.click(function(e) {
             e.preventDefault();

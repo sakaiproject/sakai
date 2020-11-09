@@ -410,8 +410,8 @@ span.remove-upload {
     margin: 4px 8px 4px 8px;
     padding: 25px 7px 15px 7px;
     list-style:none;
-    background-color: white;
-    border: 1px solid #ccc;
+    background-color: var(--sakai-background-color-1);
+    border: 1px solid var(--sakai-border-color);
     display:inline-block;
     vertical-align: top;
     border-radius: 2px;
@@ -1881,7 +1881,7 @@ span.nextprev {
   padding-right: 10px;
 }
 .startupHelp {
-  margin-top: 45px;
+  margin-top: 40px;
 }
 /* this section is to make things work when lessons is in an iframe */
 .contentButton span a {
@@ -2070,7 +2070,6 @@ nav.Mrphs-container--toolTitleNav .Mrphs-directUrl__dropDown .active {
 
 .subpage-breadcrumb-div {
     margin-top: 1.5em;
-    margin-bottom: -1em
 }
 
 /*

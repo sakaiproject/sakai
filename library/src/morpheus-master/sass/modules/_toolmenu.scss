@@ -8,7 +8,7 @@
 //.#{$namespace}
 body.is-logged-out{
 	.#{$namespace}mainHeader.is-maximized ~ #container #toolMenuWrap{
-		top: $header-size;
+		top: var(--header-size);
 	}
 	
 	#toolMenuWrap {
@@ -255,7 +255,7 @@ body.is-logged-out{
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
-		box-shadow: inset 0 0 8px var(--sakai-color-gray-0);
+		box-shadow: inset 0 0 8px var(--sakai-color-gray--lighter-7);
 		@include transition( top 0.25s linear 0s );
 		&.moving{
 			top: -3.3em;
@@ -353,7 +353,9 @@ nav#subSites{
 			
 				&:active 
 				{
-					box-shadow: none;	// to override default button styles
+					box-shadow: var(--tool-menu-collapse-active-shadow);;	// to override default button styles
+					color: var(--tool-menu-collapse-active-text-color);
+					background-color: var(--tool-menu-collapse-active-background-color);
 				}
 			
 				&.min
@@ -375,7 +377,9 @@ nav#subSites{
 			
 					&:active 
 					{
-						box-shadow: none;	// to override default button styles
+						box-shadow: var(--tool-menu-collapse-min-active-shadow);;	// to override default button styles
+						color: var(--tool-menu-collapse-min-active-text-color);
+						background-color: var(--tool-menu-collapse-min-active-background-color);
 					}
 				}
 
@@ -425,7 +429,8 @@ nav#subSites{
 				@if $tool-menu-icon-on-left {
 					text-align: left;
 					border-radius: $tool-menu-item-border-radius;
-					margin-right: $tool-menu-item-margin-right; 
+					margin-right: $tool-menu-item-margin-right;
+					margin-bottom: 2px; //prevent clipping from elevation change
 					padding: $tool-menu-item-padding;
 				} @else {
 					text-align: center;
@@ -456,11 +461,24 @@ nav#subSites{
 						color: var(--tool-menu-item-hover-icon-color);
 					}
 				}
-				
-				&:focus {
-					outline-offset: -#{$focus-outline-width};	// to match the width of the default link focus to fit in the tool's link container
+				&:hover {
+					box-shadow: var(--elevation-2dp);
+					transition: $active-transition-hover;
 				}
-				
+				&:active {
+					box-shadow: var(--elevation-1dp);
+					transition: $active-transition-active;
+				}
+				&:focus {
+					outline:none;
+					box-shadow: $sakai-box-shadow-emulate-focus var(--focus-outline-color);
+					color: var(--tool-menu-item-active-text-color);
+					background: var(--tool-menu-item-active-background-color);
+
+					.#{$namespace}toolsNav__menuitem--icon{
+						color: var(--tool-menu-item-active-icon-color);
+					}
+				}
 				@media #{$phone}{
 					@if $tool-menu-icon-on-left {
 						border: none;
@@ -546,6 +564,18 @@ nav#subSites{
 							color: var(--tool-menu-item-hidden-hover-icon-color);
 						}
 					}
+					&:active{
+						color: var(--tool-menu-item-hidden-active-text-color);
+						background: var(--tool-menu-item-hidden-active-background-color);
+
+						&:before{
+							border-left: $tool-menu-item-hidden-active-border-left;
+						}
+
+						.#{$namespace}toolsNav__menuitem--icon{
+							color: var(--tool-menu-item-hidden-active-icon-color);
+						}
+					}
 					
 					.#{$namespace}toolsNav__menuitem--icon{
 						color: var(--tool-menu-item-hidden-icon-color);
@@ -582,6 +612,18 @@ nav#subSites{
 
 						.#{$namespace}toolsNav__menuitem--icon{
 							color: var(--tool-menu-item-selected-hover-icon-color);
+						}
+					}
+					&:active{
+						color: var(--tool-menu-item-selected-active-text-color);
+						background: var(--tool-menu-item-selected-active-background-color);
+
+						&:before{
+							border-left: $tool-menu-item-selected-active-border-left;
+						}
+
+						.#{$namespace}toolsNav__menuitem--icon{
+							color: var(--tool-menu-item-selected-active-icon-color);
 						}
 					}
 					@media #{$phone}{
@@ -736,6 +778,7 @@ body {
 				&.is-current {
 					> .Mrphs-toolsNav__menuitem--link {
 						background-color: var(--tool-lessons-toplevel-menu-expanded-selected-background-color);
+						color: var(--tool-lessons-toplevel-menu-expanded-selected-color);
 						&:hover {
 							background-color: var(--tool-menu-item-selected-hover-background-color);
 						}
@@ -744,15 +787,16 @@ body {
 				&.is-parent-of-current {
 					> .Mrphs-toolsNav__menuitem--link {
 						background-color: var(--tool-lessons-subpage-menu-selected-parent-background-color);
+						color: var(--tool-lessons-toplevel-menu-expanded-selected-color);
 						.#{$namespace}toolsNav__menuitem--icon {
-							color: var(--tool-menu-item-icon-color) !important;
+							color: var(--tool-lessons-toplevel-menu-expanded-selected-color) !important;
 						}
 						.#{$namespace}toolsNav__menuitem--title {
-							color: var(--tool-menu-item-text-color) !important;
+							color: var(--tool-lessons-toplevel-menu-expanded-selected-color) !important;
 							font-weight: normal !important;
 						}
 						&:hover {
-							color: var(--tool-menu-item-hover-text-color) !important;
+							color: var(--tool-lessons-toplevel-menu-expanded-selected-color) !important;
 							&:before {
 								border-left: $tool-menu-item-hover-border-left !important;
 							}
@@ -766,6 +810,7 @@ body {
 
 				> .Mrphs-toolsNav__menuitem--link {
 					background-color: var(--tool-lessons-subpage-menu-expanded-background-color);
+					color: var(--tool-lessons-toplevel-menu-expanded-selected-color);
 					&:hover {
 						background-color: var(--tool-lessons-toplevel-menu-expanded-hover-background-color);
 					}
@@ -838,7 +883,7 @@ body {
 					max-height: 100px;
 					text-overflow: ellipsis;
 					overflow:hidden;
-					background-color: #FFFFFF;
+					background-color: var(--tool-menu-item-background-color);
 
 					a {
 						@include align-items (center);
@@ -947,11 +992,13 @@ body {
 					}
 				}
 				.lessons-goto-top-page {
-					.Mrphs-toolsNav__menuitem--title {
+					.#{$namespace}toolsNav__menuitem--title,
+					.#{$namespace}toolsNav__menuitem--icon {
 						color: var(--tool-menu-item-selected-text-color) !important;
 					}
 					&:hover {
-						.Mrphs-toolsNav__menuitem--title {
+						.#{$namespace}toolsNav__menuitem--title,
+						.#{$namespace}toolsNav__menuitem--icon {
 							color: var(--tool-menu-item-selected-hover-text-color) !important;
 						}
 					}
@@ -960,12 +1007,14 @@ body {
 
 			&.is-current.is-parent-of-current {
 				.lessons-goto-top-page {
-					.Mrphs-toolsNav__menuitem--title {
+					.#{$namespace}toolsNav__menuitem--title,
+					.#{$namespace}toolsNav__menuitem--icon {
 						color: var(--tool-menu-item-text-color) !important;
 					}
 					&:hover {
-						.Mrphs-toolsNav__menuitem--title {
-							color: var(--tool-menu-item-hover-text-color) !important;
+						.#{$namespace}toolsNav__menuitem--title,
+						.#{$namespace}toolsNav__menuitem--icon  {
+							color: var(--tool-menu-item-selected-hover-text-color) !important;
 						}
 					}
 				}

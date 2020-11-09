@@ -273,16 +273,22 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
    * @see org.sakaiproject.api.app.messageforums.MessageForumsForumManager#getForumsForMainPage()
    */
   public List<DiscussionForum> getForumsForMainPage() {
+    return getForumsForSite(getContextId());
+  }
+
+  public List<DiscussionForum> getForumsForSite(String siteId) {
+
     HibernateCallback<List> hcb = session -> {
-        Query q = session.getNamedQuery(QUERY_FORUMS_FOR_MAIN_PAGE);
-        q.setString("typeUuid", typeManager.getDiscussionForumType());
-        q.setString("contextId", getContextId());
-        return q.list();
+      Query q = session.getNamedQuery(QUERY_FORUMS_FOR_MAIN_PAGE);
+      q.setString("typeUuid", typeManager.getDiscussionForumType());
+      q.setString("contextId", siteId);
+      return q.list();
     };
     List returnList = new ArrayList();
     returnList.addAll(new HashSet(getHibernateTemplate().execute(hcb)));
     return returnList;
   }
+
       
   public List getReceivedUuidByContextId(final List siteList) {
       if (siteList == null) {
@@ -1519,29 +1525,30 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 			return countRows.intValue() > 0;
 		}
 		
-		public String getAllowedGroupForRestrictedTopic(final Long topicId, final String permissionName) {
+		public List<String> getAllowedGroupForRestrictedTopic(final Long topicId, final String permissionName) {
 			if (topicId == null) {
 				throw new IllegalArgumentException("Null Argument");
 			}
-			HibernateCallback<String> hcb = session -> (String) session
+			HibernateCallback<List<String>> hcb = session -> (List<String>) session
 				.getNamedQuery("findAllowedGroupInTopic")
 				.setLong("id", topicId)
 				.setString("permissionLevelName", permissionName)
                 .setCacheable(true)
-				.uniqueResult();
+				.list();
 			return getHibernateTemplate().execute(hcb);
 		}
 
-		public String getAllowedGroupForRestrictedForum(final Long forumId, final String permissionName) {
+		public List<String> getAllowedGroupForRestrictedForum(final Long forumId, final String permissionName) {
 			if (forumId == null) {
 				throw new IllegalArgumentException("Null Argument");
 			}
-			HibernateCallback<String> hcb = session -> (String) session
+			HibernateCallback<List<String>> hcb = session -> (List<String>) session
 				.getNamedQuery("findAllowedGroupInForum")
 				.setLong("id", forumId)
 				.setString("permissionLevelName", permissionName)
                 .setCacheable(true)
-				.uniqueResult();
+				.list();
+
 			return getHibernateTemplate().execute(hcb);
 		}
 }

@@ -133,7 +133,7 @@ export class SakaiRubricGrading extends RubricsElement {
       <div class="rubric-totals" style="margin: 10px 0px 10px 0px;">
         <input type="hidden" aria-labelledby="${tr("total")}" id="rbcs-${this.evaluatedItemId}-${this.entityId}-totalpoints" name="rbcs-${this.evaluatedItemId}-${this.entityId}-totalpoints" .value="${this.totalPoints}">
         <div class="total-points">
-          <sr-lang key="total">Total</sr-lang>: <strong id="sakai-rubrics-total-points">${this.totalPoints.toLocaleString(this.locale)}</strong>
+          <sr-lang key="total">Total</sr-lang>: <strong id="sakai-rubrics-total-points">${this.totalPoints.toLocaleString(this.locale, {maximumFractionDigits: 2})}</strong>
         </div>
       </div>
 
@@ -149,10 +149,6 @@ export class SakaiRubricGrading extends RubricsElement {
         c.comments = e.detail.value;
       }
     });
-
-    // Dispatch an event for each rating. We have to do this to give tools like
-    // Samigo a chance to build their form inputs properly.
-    this._dispatchRatingChanged(this.criteria);
   }
 
   calculateTotalPointsFromCriteria() {
@@ -167,6 +163,10 @@ export class SakaiRubricGrading extends RubricsElement {
         return a;
       }
     }, 0);
+  }
+
+  save() {
+    this._dispatchRatingChanged(this.criteria);
   }
 
   decorateCriteria() {
@@ -214,14 +214,12 @@ export class SakaiRubricGrading extends RubricsElement {
     var detail = { evaluatedItemId: this.evaluatedItemId, entityId: this.entityId, criterionId: criterion.id, value: criterion.pointoverride };
     this.dispatchEvent(new CustomEvent("rubric-rating-tuned", { detail: detail, bubbles: true, composed: true }));
 
-    this._dispatchRatingChanged(this.criteria);
-
     this.updateTotalPoints();
   }
 
   _dispatchRatingChanged(criteria) {
 
-    let crit = criteria.map(c => {
+    const crit = criteria.map(c => {
 
       return {
         criterionId: c.id,
@@ -232,7 +230,7 @@ export class SakaiRubricGrading extends RubricsElement {
       };
     });
 
-    let evaluation = {
+    const evaluation = {
       evaluatorId: window.top.portal.user.id,
       evaluatedItemId: this.evaluatedItemId,
       evaluatedItemOwnerId: this.evaluatedItemOwnerId,
@@ -276,47 +274,36 @@ export class SakaiRubricGrading extends RubricsElement {
 
     e.stopPropagation();
 
-    var criterionId = e.currentTarget.dataset.criterionId;
-    var ratingId = e.currentTarget.dataset.ratingId;
+    const criterionId = e.currentTarget.dataset.criterionId;
+    const ratingId = e.currentTarget.dataset.ratingId;
 
     // Look up the criterion and rating objects
-    var criterion = this.criteria.filter(c => c.id == criterionId)[0];
-    var rating = criterion.ratings.filter(r => r.id == ratingId)[0];
+    const criterion = this.criteria.filter(c => c.id == criterionId)[0];
+    const rating = criterion.ratings.filter(r => r.id == ratingId)[0];
 
-    var clickedRatingElement = this.querySelector(`#rating-item-${ratingId}`);
+    const clickedRatingElement = this.querySelector(`#rating-item-${ratingId}`);
     if (clickedRatingElement.classList.contains("selected")) {
       clickedRatingElement.classList.remove("selected");
       criterion.selectedvalue = 0.0;
       criterion.selectedRatingId = 0;
       criterion.pointoverride = 0.0;
     } else {
-      var ratingElements = this.querySelectorAll(`#criterion_row_${criterion.id} .rating-item`);
+      const ratingElements = this.querySelectorAll(`#criterion_row_${criterion.id} .rating-item`);
       ratingElements.forEach(i => i.classList.remove('selected'));
       clickedRatingElement.classList.add("selected");
-      var auxPoints;
-      if (this.rubric.weighted) {
-        auxPoints = (rating.points * (criterion.weight / 100)).toFixed(2);
-      } else {
-        auxPoints = rating.points;
-      }
+      const auxPoints = this.rubric.weighted ?
+        (rating.points * (criterion.weight / 100)).toFixed(2) : rating.points;
       criterion.selectedvalue = auxPoints;
       criterion.selectedRatingId = rating.id;
       criterion.pointoverride = auxPoints;
     }
 
-    var selector = `#rbcs-${this.evaluatedItemId.replace(/./g, "\\.")}-${this.entityId.replace(/./g, "\\.")}-criterion-override-${criterionId}`;
-    var overrideInput = this.querySelector(selector);
-    if (overrideInput) overrideInput.value = rating.points;
-
     // Whenever a rating is clicked, either to select or deselect, it cancels out any override so we
     // remove the strike out from the clicked points value
     this.querySelector(`#points-display-${criterionId}`).classList.remove("strike");
 
-    // Dispatch an event for each rating. We have to do this to give tools like
-    // Samigo a chance to build their form inputs properly.
-    this._dispatchRatingChanged(this.criteria);
-
     this.dispatchEvent(new CustomEvent("rubric-ratings-changed", { bubbles: true, composed: true }));
+    this.requestUpdate();
     this.updateTotalPoints();
   }
 
@@ -327,8 +314,12 @@ export class SakaiRubricGrading extends RubricsElement {
   updateTotalPoints(notify = true) {
 
     this.calculateTotalPointsFromCriteria();
+
+    // Make sure total points is not negative
+    if (parseFloat(this.totalPoints) < 0) this.totalPoints = 0;
+
     if (notify) {
-      var detail = { evaluatedItemId: this.evaluatedItemId, entityId: this.entityId, value: this.totalPoints.toLocaleString(this.locale) };
+      var detail = { evaluatedItemId: this.evaluatedItemId, entityId: this.entityId, value: this.totalPoints.toLocaleString(this.locale, { maximumFractionDigits: 2 }) };
       this.dispatchEvent(new CustomEvent('total-points-updated', { detail: detail, bubbles: true, composed: true }));
     }
   }

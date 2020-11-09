@@ -2008,14 +2008,16 @@
                             <input type="checkbox" name="comments-anonymous" id="comments-anonymous" rsf:id="comments-anonymous" />
                             <label for="comments-anonymous"><span rsf:id="msg=simplepage.comments-anonymous"></span></label>
                         </p>
-                        <p class="checkbox">
-                            <input type="checkbox" name="comments-graded" id="comments-graded" rsf:id="comments-graded" />
-                            <label for="comments-graded"><span rsf:id="msg=simplepage.comments-graded"></span></label>
-                        </p>
-                        <p class="shorttext">
-                            <label for="comments-max" class="pageTitle indnt2"><span rsf:id="msg=simplepage.comments-max"></span></label>
-                            <input type="text" name="comments-max" id="comments-max" rsf:id="comments-max" size="5" maxlength="5"/>
-                        </p>    
+                        <div rsf:id="gradeBookCommentsDiv">
+                            <p class="checkbox">
+                                <input type="checkbox" name="comments-graded" id="comments-graded" rsf:id="comments-graded" />
+                                <label for="comments-graded"><span rsf:id="msg=simplepage.comments-graded"></span></label>
+                            </p>
+                            <p class="shorttext">
+                                <label for="comments-max" class="pageTitle indnt2"><span rsf:id="msg=simplepage.comments-max"></span></label>
+                                <input type="text" name="comments-max" id="comments-max" rsf:id="comments-max" size="5" maxlength="5"/>
+                            </p>
+                        </div>
                         <p class="checkbox">
                               <input type="checkbox" name="comments-prerequisite" id="comments-prerequisite" rsf:id="comments-prerequisite" />
                               <label for="comments-prerequisite"><span rsf:id="msg=simplepage.prerequisites_label"></span></label>
@@ -2078,43 +2080,45 @@
 	
 			<div id="student-dialog" rsf:id="student-dialog" class="lessonsDialog">
                 <form action="#" rsf:id="student-form" class="controlsPanel">
-                  <input type="hidden" rsf:id="csrf20" />
+                    <input type="hidden" rsf:id="csrf20" />
+                    <input type="hidden" rsf:id="studentEditId" id="studentEditId" />
+                    <p class="checkbox">
+                        <input type="checkbox" name="student-anonymous" id="student-anonymous" rsf:id="student-anonymous" />
+                        <label for="student-anonymous"><span rsf:id="msg=simplepage.student-anonymous"></span></label>
+                    </p>
+                    <div rsf:id="gradeBookStudentsDiv">
+                        <p class="checkbox">
+                            <input type="checkbox" name="student-graded" id="student-graded" rsf:id="student-graded" />
+                            <label for="student-graded"><span rsf:id="msg=simplepage.comments-graded"></span></label>
+                        </p>
+                        <p class="shorttext">
+                            <label for="student-max" class="indnt2 pageTitle"><span rsf:id="msg=simplepage.comments-max"></span></label>
+                            <input type="text" name="student-max" id="student-max" rsf:id="student-max" size="5" maxlenght="5"/>
+                        </p>
+                        <br /><br />
+                    </div>
 
-                        <input type="hidden" rsf:id="studentEditId" id="studentEditId" />
-                            <p class="checkbox">
-                                <input type="checkbox" name="student-anonymous" id="student-anonymous" rsf:id="student-anonymous" />
-                                <label for="student-anonymous"><span rsf:id="msg=simplepage.student-anonymous"></span></label>
-                            </p>
-                            <p class="checkbox">
-                                <input type="checkbox" name="student-graded" id="student-graded" rsf:id="student-graded" />
-                                <label for="student-graded"><span rsf:id="msg=simplepage.comments-graded"></span></label>
-                            </p>
-                            <p class="shorttext">
-                                <label for="student-max" class="indnt2 pageTitle"><span rsf:id="msg=simplepage.comments-max"></span></label>
-                                <input type="text" name="student-max" id="student-max" rsf:id="student-max" size="5" maxlenght="5"/>
-                            </p>
-                            
-                            <br /><br />
-                            <p class="checkbox">
-                            <input type="checkbox" name="student-comments" id="student-comments" rsf:id="student-comments" />
-                            <label for="student-comments"><span rsf:id="msg=simplepage.student-comments"></span></label>
-                            </p>
-                            <p class="checkbox">
-                            <input type="checkbox" name="student-comments-anon" id="student-comments-anon" class="indent" rsf:id="student-comments-anon" />
-                            <label for="student-comments-anon"><span rsf:id="msg=simplepage.student-comments-anon"></span></label>
-                            </p>
-                            <p class="checkbox">
+                    <p class="checkbox">
+                        <input type="checkbox" name="student-comments" id="student-comments" rsf:id="student-comments" />
+                        <label for="student-comments"><span rsf:id="msg=simplepage.student-comments"></span></label>
+                    </p>
+                    <p class="checkbox">
+                        <input type="checkbox" name="student-comments-anon" id="student-comments-anon" class="indent" rsf:id="student-comments-anon" />
+                        <label for="student-comments-anon"><span rsf:id="msg=simplepage.student-comments-anon"></span></label>
+                    </p>
+                    <div rsf:id="gradeBookStudentCommentsDiv">
+                        <p class="checkbox">
                             <input type="checkbox" name="student-comments-graded" id="student-comments-graded" class="indent" rsf:id="student-comments-graded" />
                             <label for="student-comments-graded"><span rsf:id="msg=simplepage.student-comments-graded"></span></label>
-                            </p>
-                            <p class="shorttext">
-                                <label for="student-comments-max" class="indnt3 pageTitle"><span rsf:id="msg=simplepage.comments-max"></span></label>
-                                <input type="text" name="student-comments-max" id="student-comments-max" rsf:id="student-comments-max" size="5" maxlength="5"/>
-                            </p>
+                        </p>
+                        <p class="shorttext">
+                            <label for="student-comments-max" class="indnt3 pageTitle"><span rsf:id="msg=simplepage.comments-max"></span></label>
+                            <input type="text" name="student-comments-max" id="student-comments-max" rsf:id="student-comments-max" size="5" maxlength="5"/>
+                        </p>
+                        <br />
+                    </div>
 
-				
-			    <div rsf:id="peer-evaluation-creation"><br />
-								
+			    <div rsf:id="peer-evaluation-creation">
     			      <input type="checkbox" name="peer-eval-check" id="peer-eval-check" rsf:id="peer-eval-check" />
     			      <label for="peer-eval-check"><span rsf:id="msg=simplepage.student-peer-review-add"></span></label><br />
     			      
@@ -2316,7 +2320,7 @@
                                             <input type="hidden" rsf:id="question-multiplechoice-answer-id" class="question-multiplechoice-answer-id" />
                                             <label for="question-multiplechoice-answer-correct"><span rsf:id="msg=simplepage.question-correct-answer" class="offscreen"></span></label>
                                             <input type="checkbox" name="question-multiplechoice-answer-correct" rsf:id="question-multiplechoice-answer-correct"  class="question-multiplechoice-answer-correct" />
-                                            <label for="question-multiplechoice-answer"><span rsf:id="msg=simplepage.question-possible-answer" class="offscreen"></span></label>
+                                            <label for="question-multiplechoice-answer"><span rsf:id="msg=simplepage.question-possible-answer"></span></label>
                                             <input type="text" rsf:id="question-multiplechoice-answer" name="question-multiplechoice-answer" class="question-multiplechoice-answer" />
                                             <a role="button" href="#" onclick="deleteAnswer($(this)); return false;" style="display:none" class="deleteAnswerLink"><img src="$context/images/delete.png" rsf:id="question-mc-del"></img></a>
                                         </div>
@@ -2330,18 +2334,20 @@
                                     <label for="question-show-poll"><span rsf:id="msg=simplepage.question-show-poll-option"></span></label>
                                 </p>
                             </div>
-                             <p class="checkbox">
-                                <input type="checkbox" name="question-graded" id="question-graded" rsf:id="question-graded" />
-                                <label for="question-graded"><span rsf:id="msg=simplepage.question-graded"></span></label>
-                            </p>
-                            <p class="shorttext indnt2">
-                                <label for="question-gradebook-title"><span rsf:id="msg=simplepage.question-gradebook-title"></span></label>
-                                <input type="text" name="question-gradebook-title" id="question-gradebook-title" rsf:id="question-gradebook-title" />
-                            </p>
-                            <p class="shorttext indnt2">
-                                <label for="question-max"><span rsf:id="msg=simplepage.question-max"></span></label>
-                                <input type="text" name="question-max" id="question-max" rsf:id="question-max" />
-                            </p>
+                            <div rsf:id="gradeBookQuestionsDiv">
+                                <p class="checkbox">
+                                    <input type="checkbox" name="question-graded" id="question-graded" rsf:id="question-graded" />
+                                    <label for="question-graded"><span rsf:id="msg=simplepage.question-graded"></span></label>
+                                </p>
+                                <p class="shorttext indnt2">
+                                    <label for="question-gradebook-title"><span rsf:id="msg=simplepage.question-gradebook-title"></span></label>
+                                    <input type="text" name="question-gradebook-title" id="question-gradebook-title" rsf:id="question-gradebook-title" />
+                                </p>
+                                <p class="shorttext indnt2">
+                                    <label for="question-max"><span rsf:id="msg=simplepage.question-max"></span></label>
+                                    <input type="text" name="question-max" id="question-max" rsf:id="question-max" />
+                                </p>
+                            </div>
                             <div class="longtext">
                             <label for="question-correct-text"><span rsf:id="msg=simplepage.correct-text"></span></label><br />
                             <textarea rsf:id="question-correct-text" name="question-correct-text" id="question-correct-text" rows="3" columns="30"></textarea>

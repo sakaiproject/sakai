@@ -6,7 +6,7 @@
     margin-left: 20px;
   }
 	#req-new_assignment_grade_points{
-		color: var(--error-color);
+		color: var(--errorBanner-color);
 	    margin: 9px 0 0 -13px;
 		position: absolute;
 	}
@@ -28,7 +28,7 @@
 		label{
 			&:after{
 				content: "*";
-				color: var(--error-color);
+				color: var(--errorBanner-color);
 				position: relative;
 				top: 3px;
 			}
@@ -40,7 +40,7 @@
 		width:100%;
 		background-color: var(--tool-background-color);
 		.row-override:nth-child(odd){
-			background: var(--sakai-color-gray-0);
+			background: var(--sakai-color-gray--lighter-7);
 		}
 		.row-override{
 			padding: 0.5em 0 0.5em;

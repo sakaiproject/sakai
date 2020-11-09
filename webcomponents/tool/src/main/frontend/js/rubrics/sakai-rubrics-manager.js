@@ -142,12 +142,15 @@ class SakaiRubricsManager extends RubricsElement {
   }
 
   sortRubrics(event) {
-    const sortInput = event.target.className;
-    const sortInputValue = sortInput.toString().toLowerCase();
-    const rubric = sortInputValue.split('-');
-    const rubricClass = rubric[0];
-    const rubricType = rubric[1];
-    const query = `.${sortInputValue}.sort-element-${rubricClass}`;
+	
+    const sortInput = event.target.className.toLowerCase();
+
+    if (!sortInput) {
+      return;
+    }
+
+    const [rubricClass, rubricType] = sortInput.split("-");
+    const query = `.${sortInput}.sort-element-${rubricClass}`;
     const arrowUpIcon = 'fa-chevron-up';
     const arrowDownIcon = 'fa-chevron-down';
     let ascending = this.querySelector(query).classList.contains(arrowUpIcon);

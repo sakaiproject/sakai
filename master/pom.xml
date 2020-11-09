@@ -30,16 +30,16 @@
     <sakai.commons-validator.version>1.7</sakai.commons-validator.version>
     <sakai.commons-logging.version>1.2</sakai.commons-logging.version>
     <sakai.commons.configuration.version>1.6</sakai.commons.configuration.version>
-    <sakai.commons.net>3.7.1</sakai.commons.net>
+    <sakai.commons.net>3.7.2</sakai.commons.net>
     <sakai.ehcache.groupId>net.sf.ehcache</sakai.ehcache.groupId>
     <sakai.ehcache.artifactId>ehcache-core</sakai.ehcache.artifactId>
     <sakai.ehcache.version>2.6.11</sakai.ehcache.version>
     <sakai.elasticsearch.version>1.7.6</sakai.elasticsearch.version>
     <sakai.hibernate.version>5.3.18.Final</sakai.hibernate.version>
     <sakai.hikaricp.version>3.4.2</sakai.hikaricp.version>
-    <sakai.httpclient.version>4.5.12</sakai.httpclient.version>
+    <sakai.httpclient.version>4.5.13</sakai.httpclient.version>
     <sakai.httpcore.version>4.4.13</sakai.httpcore.version>
-    <sakai.httpmime.version>4.5.10</sakai.httpmime.version>
+    <sakai.httpmime.version>4.5.13</sakai.httpmime.version>
     <sakai.ignite.version>2.8.1</sakai.ignite.version>
     <sakai.gridgain.version>8.7.18</sakai.gridgain.version>
     <sakai.jackson.version>2.11.2</sakai.jackson.version>
@@ -65,7 +65,7 @@
     <sakai.spring.hateoas.version>1.1.2.RELEASE</sakai.spring.hateoas.version>
     <sakai.spring.plugin.version>2.0.0.RELEASE</sakai.spring.plugin.version>
     <sakai.tika.version>1.24.1</sakai.tika.version>
-    <sakai.tomcat.version>9.0.38</sakai.tomcat.version>
+    <sakai.tomcat.version>9.0.39</sakai.tomcat.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.xerces.impl.version>2.12.0</sakai.xerces.impl.version>
     <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
@@ -85,7 +85,7 @@
     <handlebars2.version>2.1.0</handlebars2.version>
     <handlebars4.version>4.0.6</handlebars4.version>
     <hamcrest.all.version>1.3</hamcrest.all.version>
-    <junit.version>4.12</junit.version>
+    <junit.version>4.13.1</junit.version>
 
     <!-- Sakai modules that are versioned separately -->
     <!-- lessonbuilder tool pom depends on msgcntr ver prop. Need to add a profile to the LB tool pom to mark change between 10.x master and earlier versions -->
@@ -1991,7 +1991,7 @@
       <dependency>
         <groupId>org.mariuszgromada.math</groupId>
         <artifactId>MathParser.org-mXparser</artifactId>
-        <version>4.3.3</version>
+        <version>4.4.2</version>
         <scope>provided</scope>
       </dependency>
     </dependencies>

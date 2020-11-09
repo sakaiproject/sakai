@@ -188,8 +188,8 @@ public class ChecklistProgressProducer implements ViewComponentProducer, Navigat
 
                 for (Member member : memberSet) {
 
-                    // Only want to include non-maintainers in the progress table
-                    if (!maintainRole.equals(member.getRole().getId())) {
+                    // Only want to include active non-maintainers in the progress table
+                    if (member.isActive() && !maintainRole.equals(member.getRole().getId())) {
                         User student = null;
                         try {
                             student = userDirectoryService.getUser(member.getUserId());
