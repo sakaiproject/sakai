@@ -114,7 +114,7 @@ public class StudentScoreUpdateListener
     try {
       if (!saveStudentScores(bean, tbean, delivery))
       {
-        throw new RuntimeException("failed to call saveStudentScores");
+        throw new RuntimeException("failed to call saveStudentScores.");
       }
     } catch (GradebookServiceException ge) {
        FacesContext context = FacesContext.getCurrentInstance();
