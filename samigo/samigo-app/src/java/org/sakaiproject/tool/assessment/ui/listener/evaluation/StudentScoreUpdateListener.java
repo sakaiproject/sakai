@@ -100,7 +100,7 @@ public class StudentScoreUpdateListener
     DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
 
     String assessmentGradingIdFromClient = ContextUtil.lookupParam("gradingData");
-    String assessmentGradingIdFromBean = delivery.getAssessmentGradingId() + "";
+    String assessmentGradingIdFromBean = Long.toString(delivery.getAssessmentGradingId());
 
     // The instructor must have navagated away and loaded up a different submission in a different tab!
     if (!StringUtils.equals(assessmentGradingIdFromClient, assessmentGradingIdFromBean)) {
