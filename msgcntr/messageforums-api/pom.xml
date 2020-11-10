@@ -34,6 +34,10 @@
 		  <groupId>com.sun.mail</groupId>
 		  <artifactId>jakarta.mail</artifactId>
 		</dependency>
+		<dependency>
+		  <groupId>org.hibernate</groupId>
+		  <artifactId>hibernate-core</artifactId>
+		</dependency>
 	</dependencies>
 	<build>
 		<resources />

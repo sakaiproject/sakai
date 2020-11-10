@@ -74,7 +74,6 @@ import org.sakaiproject.api.app.messageforums.cover.SynopticMsgcntrManagerCover;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.app.messageforums.TestUtil;
-import org.sakaiproject.component.app.messageforums.dao.hibernate.DraftRecipientImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageRecipientImpl;
@@ -2326,8 +2325,8 @@ return topicTypeUuid;
   }
 
   private List<DraftRecipient> getDraftRecipients(long msgId, List<MembershipItem> recipients, List<MembershipItem> bccRecipients) {
-	  List<DraftRecipient> draftRecipients = recipients.stream().map(mi -> DraftRecipientImpl.from(mi, msgId, false)).collect(Collectors.toList());
-	  draftRecipients.addAll(bccRecipients.stream().map(mi -> DraftRecipientImpl.from(mi, msgId, true)).collect(Collectors.toList()));
+	  List<DraftRecipient> draftRecipients = recipients.stream().map(mi -> DraftRecipient.from(mi, msgId, false)).collect(Collectors.toList());
+	  draftRecipients.addAll(bccRecipients.stream().map(mi -> DraftRecipient.from(mi, msgId, true)).collect(Collectors.toList()));
 
 	  return draftRecipients.stream().filter(dr -> dr.getType() != MembershipItem.TYPE_NOT_SPECIFIED).collect(Collectors.toList());
   }

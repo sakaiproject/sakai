@@ -46,39 +46,39 @@ public class DraftRecipientsDelegate
 
 		for (DraftRecipient dr : draftRecipients)
 		{
-		  int type = dr.getType();
-		  switch (type)
-		  {
-			  case MembershipItem.TYPE_ALL_PARTICIPANTS:
-				  process(memberships.stream().filter(m -> m.getType() == type).findAny(), ids, notFound, dr);
-				  break;
-			  case MembershipItem.TYPE_GROUP:
-			  case MembershipItem.TYPE_MYGROUPS:
-				  process(memberships.stream().filter(m -> m.getType() == type && m.getGroup().getId().equals(dr.getRecipientId())).findAny(),
-						  ids, notFound, dr);
-				  break;
-			  case MembershipItem.TYPE_ROLE:
-				  process(memberships.stream().filter(m -> m.getType() == type && m.getRole().getId().equals(dr.getRecipientId())).findAny(),
-						  ids, notFound, dr);
-				  break;
-			  case MembershipItem.TYPE_USER:
-			  case MembershipItem.TYPE_MYGROUPMEMBERS:
-				  process(memberships.stream().filter(m -> m.getType() == type && m.getUser().getId().equals(dr.getRecipientId())).findAny(),
-						  ids, notFound, dr);
-				  break;
-			  case MembershipItem.TYPE_MYGROUPROLES:
-				  String[] grouproleIds = dr.getRecipientId().split("\\+\\+\\+");
-				  if (grouproleIds.length == 2) {
-					  String groupId = grouproleIds[0];
-					  String roleId = grouproleIds[1];
-					  process(memberships.stream().filter(m -> m.getType() == type && m.getGroup().getId().equals(groupId) && m.getRole().getId().equals(roleId)).findAny(),
-							  ids, notFound, dr);
-				  }
-				  break;
-			  default:
-				  notFound.add(dr);
-				  break;
-		  }
+			int type = dr.getType();
+			switch (type)
+			{
+				case MembershipItem.TYPE_ALL_PARTICIPANTS:
+					process(memberships.stream().filter(m -> m.getType() == type).findAny(), ids, notFound, dr);
+					break;
+				case MembershipItem.TYPE_GROUP:
+				case MembershipItem.TYPE_MYGROUPS:
+					process(memberships.stream().filter(m -> m.getType() == type && m.getGroup().getId().equals(dr.getRecipientId())).findAny(),
+							ids, notFound, dr);
+					break;
+				case MembershipItem.TYPE_ROLE:
+					process(memberships.stream().filter(m -> m.getType() == type && m.getRole().getId().equals(dr.getRecipientId())).findAny(),
+							ids, notFound, dr);
+					break;
+				case MembershipItem.TYPE_USER:
+				case MembershipItem.TYPE_MYGROUPMEMBERS:
+					process(memberships.stream().filter(m -> m.getType() == type && m.getUser().getId().equals(dr.getRecipientId())).findAny(),
+							ids, notFound, dr);
+					break;
+				case MembershipItem.TYPE_MYGROUPROLES:
+					String[] grouproleIds = dr.getRecipientId().split("\\+\\+\\+");
+					if (grouproleIds.length == 2) {
+						String groupId = grouproleIds[0];
+						String roleId = grouproleIds[1];
+						process(memberships.stream().filter(m -> m.getType() == type && m.getGroup().getId().equals(groupId) && m.getRole().getId().equals(roleId)).findAny(),
+								ids, notFound, dr);
+					}
+					break;
+				default:
+					notFound.add(dr);
+					break;
+			}
 		}
 
 		return new ConversionResult(ids, notFound);

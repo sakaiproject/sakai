@@ -2101,13 +2101,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
 	@Override
 	public List<DraftRecipient> findDraftRecipientsByMessageId(long msgId) {
-		HibernateCallback<List> hcb = session -> {
-			Query q = session.getNamedQuery("findDraftRecipientsByMessageId");
-			q.setParameter("id", msgId, LongType.INSTANCE);
-			return q.list();
-		};
-
-		return getHibernateTemplate().execute(hcb);
+		return getHibernateTemplate().execute(session -> session.getNamedQuery("findDraftRecipientsByMessageId"))
+				.setParameter("id", msgId, LongType.INSTANCE).list();
 	}
 
 	@Override
