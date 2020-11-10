@@ -3681,7 +3681,8 @@ public class SimplePageBean {
 		         && i.getType() != SimplePageItem.QUESTION
 		         && i.getType() != SimplePageItem.TWITTER
 			 && i.getType() != SimplePageItem.BREAK
-		         && i.getType() != SimplePageItem.STUDENT_CONTENT) {
+		         && i.getType() != SimplePageItem.STUDENT_CONTENT
+		         && i.getType() != SimplePageItem.CALENDAR) {
 	       Object cached = groupCache.get(i.getSakaiId());
 	       if (cached != null) {
 		   if (cached instanceof String)
@@ -3719,6 +3720,7 @@ public class SimplePageBean {
 	       case SimplePageItem.QUESTION:
 	       case SimplePageItem.TWITTER:
 	       case SimplePageItem.STUDENT_CONTENT:
+	       case SimplePageItem.CALENDAR:
 		   return getLBItemGroups(i); // for all native LB objects
 	       default:
 	    	   return null;
@@ -3950,6 +3952,7 @@ public class SimplePageBean {
 	   case SimplePageItem.TWITTER:
 	   case SimplePageItem.QUESTION:
 	   case SimplePageItem.STUDENT_CONTENT:
+	   case SimplePageItem.CALENDAR:
 	       return setLBItemGroups(i, groups);
 	   case SimplePageItem.BREAK:
 	       return null;  // better not actually happen

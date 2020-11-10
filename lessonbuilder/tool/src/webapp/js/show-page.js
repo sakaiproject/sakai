@@ -506,6 +506,17 @@ $(document).ready(function() {
 			$("select[name=indent-level-selection]").val($(".calendar-indentLevel").text());
 			$("#customCssClass").val($(".calendar-custom-css-class").text());
 			$("#item-id").val(row.find(".calendar-item-id").text());
+
+			var groups = row.find(".calendar-item-groups").text();
+			var grouplist = $("#grouplist");
+			if ($('#grouplist input').size() > 0) {
+				$("#editgroups-student").show();
+				$("#grouplist").show();
+				if (groups !== null) {
+					checkgroups(grouplist, groups);
+				}
+			}
+
 			$("#edit-item-error-container").hide();
 			$("#edit-item-dialog").dialog('open');
 			setupdialog($("#edit-item-dialog"));
