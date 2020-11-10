@@ -98,13 +98,13 @@ public class StudentScoreUpdateListener
     TotalScoresBean tbean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
     tbean.setAssessmentGradingHash(tbean.getPublishedAssessment().getPublishedAssessmentId());
     DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
-    
+
     String assessmentGradingIdFromClient = ContextUtil.lookupParam("gradingData");
     String assessmentGradingIdFromBean = delivery.getAssessmentGradingId() + "";
 
     // The instructor must have navagated away and loaded up a different submission in a different tab!
     if (!StringUtils.equals(assessmentGradingIdFromClient, assessmentGradingIdFromBean)) {
-    	FacesContext context = FacesContext.getCurrentInstance();
+        FacesContext context = FacesContext.getCurrentInstance();
         String err = (String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "data_mismatch_error");
         context.addMessage(null, new FacesMessage(err));
         return;
