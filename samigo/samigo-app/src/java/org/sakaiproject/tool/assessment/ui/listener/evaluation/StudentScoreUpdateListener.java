@@ -107,6 +107,7 @@ public class StudentScoreUpdateListener
         FacesContext context = FacesContext.getCurrentInstance();
         String err = (String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "data_mismatch_error");
         context.addMessage(null, new FacesMessage(err));
+	log.warn("Problem updating in StudentScoreUpdateListener; data_mismatch_error: fromClient={}, fromBean={}", assessmentGradingIdFromClient, assessmentGradingIdFromBean);
         return;
     }
 
