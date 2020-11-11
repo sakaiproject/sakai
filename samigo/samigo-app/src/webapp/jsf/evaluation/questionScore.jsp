@@ -819,9 +819,7 @@ $Id$
         <f:param name="sortAscending" value="true" />
         </h:commandLink>
       </f:facet>
-      <h:inputText value="#{description.roundedTotalAutoScore}" size="5" id="qscore" styleClass="adjustedScore#{description.assessmentGradingId}.#{questionScores.itemId}" required="false" 
-                   onchange="toPoint(this.id);" validatorMessage="#{evaluationMessages.number_format_error_adjusted_score}">>
-        <f:validateDoubleRange/>
+      <h:inputText value="#{description.roundedTotalAutoScore}" size="5" id="qscore" styleClass="adjustedScore#{description.assessmentGradingId}.#{questionScores.itemId}" required="false" onchange="toPoint(this.id);">
       </h:inputText>
       <h:message for="qscore" style="color:red"/>
        <h:outputLink title="#{evaluationMessages.saverubricgrading}" rendered="#{questionScores.hasAssociatedRubric}" value="#" onclick="initRubricDialogWrapper(#{description.assessmentGradingId}); return false;" onkeypress="initRubricDialogWrapper(#{description.assessmentGradingId}); return false;" >
@@ -843,9 +841,7 @@ $Id$
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
           </h:commandLink>    
       </f:facet>
-	  <h:inputText value="#{description.roundedTotalAutoScore}" size="5" id="qscore2" styleClass="adjustedScore#{description.assessmentGradingId}" required="false" onchange="toPoint(this.id);"
-                   validatorMessage="#{evaluationMessages.number_format_error_adjusted_score}">>
-	  	<f:validateDoubleRange/>
+	  <h:inputText value="#{description.roundedTotalAutoScore}" size="5" id="qscore2" styleClass="adjustedScore#{description.assessmentGradingId}" required="false" onchange="toPoint(this.id);">
 	  </h:inputText>
 	  <h:message for="qscore2" style="color:red"/>
 	  <h:outputLink title="#{evaluationMessages.saverubricgrading}" rendered="#{questionScores.hasAssociatedRubric}" value="#" onclick="initRubricDialogWrapper(#{description.assessmentGradingId}); return false;" onkeypress="initRubricDialogWrapper(#{description.assessmentGradingId}); return false;" >
@@ -866,9 +862,7 @@ $Id$
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
           </h:commandLink>    
       </f:facet>
-	  <h:inputText value="#{description.roundedTotalAutoScore}" size="5" id="qscore3" styleClass="adjustedScore#{description.assessmentGradingId}" required="false" onchange="toPoint(this.id);"
-                   validatorMessage="#{evaluationMessages.number_format_error_adjusted_score}">>
-	  	<f:validateDoubleRange/>
+	  <h:inputText value="#{description.roundedTotalAutoScore}" size="5" id="qscore3" styleClass="adjustedScore#{description.assessmentGradingId}" required="false" onchange="toPoint(this.id);">
 	  </h:inputText>
 	  <h:message for="qscore2" style="color:red"/>
 	  <h:outputLink title="#{evaluationMessages.saverubricgrading}" rendered="#{questionScores.hasAssociatedRubric}" value="#" onclick="initRubricDialogWrapper(#{description.assessmentGradingId}); return false;" onkeypress="initRubricDialogWrapper(#{description.assessmentGradingId}); return false;" >

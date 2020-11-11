@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -132,7 +133,6 @@ public class TotalScoreUpdateListener
       Iterator iter = agents.iterator();
       List <AssessmentGradingData> grading = new ArrayList();
       boolean hasNumberFormatException = false;
-      StringBuffer idList = new StringBuffer(" ");
   	  String err = "";
   	  boolean isAnonymousGrading = false;
 
@@ -170,7 +170,7 @@ public class TotalScoreUpdateListener
   	  else {
   		  err = (String) ContextUtil.getLocalizedString(SamigoConstants.EVAL_BUNDLE, "number_format_error_user_id");
   	  }
-  	  List badAdjList = new ArrayList();
+  	  List<String> badAdjList = new ArrayList<>();
   	  
   	  while (iter.hasNext())
   	  {
@@ -185,7 +185,7 @@ public class TotalScoreUpdateListener
   			  update = false;
 
   			  if (isAnonymousGrading) {
-  				  badAdjList.add(agentResults.getAssessmentGradingId());
+  				  badAdjList.add(agentResults.getAssessmentGradingId().toString());
   			  }
   			  else {
   				  badAdjList.add(agentResults.getAgentEid());
@@ -256,25 +256,8 @@ public class TotalScoreUpdateListener
       }
 
       if (hasNumberFormatException) {
-    	  if (bean.getPublishedAssessment() != null 
-    			  && bean.getPublishedAssessment().getEvaluationModel() != null
-    			  && bean.getPublishedAssessment().getEvaluationModel().getAnonymousGrading() != null
-    			  && bean.getPublishedAssessment().getEvaluationModel().getAnonymousGrading().equals(EvaluationModelIfc.ANONYMOUS_GRADING)) {
-    		  err = (String) ContextUtil.getLocalizedString(SamigoConstants.EVAL_BUNDLE, "number_format_error_submission_id");
-    	  }
-    	  else {
-    		  err = (String) ContextUtil.getLocalizedString(SamigoConstants.EVAL_BUNDLE, "number_format_error_user_id");
-    	  }
-    	  for (int i = 0; i < badAdjList.size(); i++) {
-    		  idList.append(badAdjList.get(i));
-    		  if (i != badAdjList.size() - 1) {
-    			  idList.append(", ");
-    		  }
-    	  }
-    	  idList.append(".");
-
     	  FacesContext context = FacesContext.getCurrentInstance();
-    	  context.addMessage(null, new FacesMessage(err + idList.toString()));
+        context.addMessage(null, new FacesMessage(err + " " + badAdjList.stream().collect(Collectors.joining(", ")) + "."));
       }
       
       GradingService delegate = new GradingService();
