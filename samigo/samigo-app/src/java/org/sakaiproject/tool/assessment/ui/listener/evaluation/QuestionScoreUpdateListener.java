@@ -133,7 +133,7 @@ import org.sakaiproject.tool.cover.SessionManager;
   public boolean saveQuestionScores(QuestionScoresBean bean, TotalScoresBean tbean)
   {
     boolean hasNumberFormatException = false;
-    List<String> badAdjList = new ArrayList<String>();
+    List<String> badAdjList = new ArrayList<>();
     boolean isAnonymousGrading = false;
     String numberFormatError = "";
 

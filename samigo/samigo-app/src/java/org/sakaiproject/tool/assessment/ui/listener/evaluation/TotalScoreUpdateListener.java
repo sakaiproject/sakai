@@ -170,7 +170,7 @@ public class TotalScoreUpdateListener
   	  else {
   		  err = (String) ContextUtil.getLocalizedString(SamigoConstants.EVAL_BUNDLE, "number_format_error_user_id");
   	  }
-  	  List<String> badAdjList = new ArrayList<String>();
+  	  List<String> badAdjList = new ArrayList<>();
   	  
   	  while (iter.hasNext())
   	  {
