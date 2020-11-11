@@ -56,6 +56,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.GradebookServiceException;
 import org.sakaiproject.tool.assessment.services.GradingService;
@@ -131,8 +132,24 @@ import org.sakaiproject.tool.cover.SessionManager;
    */
   public boolean saveQuestionScores(QuestionScoresBean bean, TotalScoresBean tbean)
   {
+    boolean hasNumberFormatException = false;
+    List<String> badAdjList = new ArrayList<>();
+    boolean isAnonymousGrading = false;
+    String numberFormatError = "";
+
     try
     {
+      if (bean.getPublishedAssessment() != null
+        && bean.getPublishedAssessment().getEvaluationModel() != null
+        && bean.getPublishedAssessment().getEvaluationModel().getAnonymousGrading() != null
+        && bean.getPublishedAssessment().getEvaluationModel().getAnonymousGrading().equals(EvaluationModelIfc.ANONYMOUS_GRADING)) {
+        numberFormatError = (String) ContextUtil.getLocalizedString(SamigoConstants.EVAL_BUNDLE, "number_format_error_submission_id");
+        isAnonymousGrading = true;
+      }
+      else {
+        numberFormatError = (String) ContextUtil.getLocalizedString(SamigoConstants.EVAL_BUNDLE, "number_format_error_user_id");
+      }
+
       ParameterUtil paramUtil = new ParameterUtil();
       GradingService delegate = new GradingService();
       //String publishedId = ContextUtil.lookupParam("publishedId");
@@ -165,17 +182,30 @@ import org.sakaiproject.tool.cover.SessionManager;
         while (iter2.hasNext()){
           Object obj = iter2.next();
           ItemGradingData data = (ItemGradingData) obj;
+          double newAutoScore = 0;
 
           // check if there is differnce in score, if so, update. Otherwise, do nothing
-          double newAutoScore = 0;
-          if ((bean.getTypeId().equals("8") || bean.getTypeId().equals("11")) && fibFinNumCorrect != 0) {
-        	  if (Boolean.TRUE.equals(data.getIsCorrect())) {
-        		  newAutoScore = (Double.valueOf(ar.getTotalAutoScore())).doubleValue() / (double) fibFinNumCorrect;
-        	  }
+          try {
+            if ((bean.getTypeId().equals("8") || bean.getTypeId().equals("11")) && fibFinNumCorrect != 0) {
+        	    if (Boolean.TRUE.equals(data.getIsCorrect())) {
+        		    newAutoScore = (Double.valueOf(ar.getTotalAutoScore())).doubleValue() / (double) fibFinNumCorrect;
+        	    }
+            }
+            else {
+        	    newAutoScore = (Double.valueOf(ar.getTotalAutoScore())).doubleValue() / (double) datas.size();
+            }
           }
-          else {
-        	  newAutoScore = (Double.valueOf(ar.getTotalAutoScore())).doubleValue() / (double) datas.size();
+          catch (NumberFormatException e) {
+            hasNumberFormatException = true;
+            if (isAnonymousGrading) {
+              badAdjList.add(ar.getAssessmentGradingId().toString());
+            }
+            else {
+              badAdjList.add(ar.getAgentEid());
+            }
+            continue;
           }
+
           String newComments = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(ar.getComments());
           ar.setComments(newComments);
           if (newComments!=null) {
@@ -250,6 +280,11 @@ import org.sakaiproject.tool.cover.SessionManager;
     {
       log.error(e.getMessage(), e);
       return false;
+    }
+
+    if (hasNumberFormatException) {
+      FacesContext context = FacesContext.getCurrentInstance();
+      context.addMessage(null, new FacesMessage(numberFormatError + " " + badAdjList.stream().collect(Collectors.joining(", ")) + "."));
     }
     return true;
   }
