@@ -156,6 +156,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	private ToolManager toolManager;
 	public TextInputEvolver richTextEvolver;
 	private static LessonBuilderAccessService lessonBuilderAccessService;
+	DateFormat df = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, new ResourceLoader().getLocale());;
 	
 	private List<Long> printedSubpages;
 	
@@ -4008,15 +4009,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			ID = ID + "-fake";
 			String linkText = i.getName();
 			if (i.getType() == SimplePageItem.ASSIGNMENT) {
-				SecurityAdvisor yesMan = (String arg0, String arg1, String agr2) -> SecurityAdvisor.SecurityAdvice.ALLOWED;
-				securityService.pushAdvisor(yesMan);
-				try {
-					AssignmentEntity assignment = (AssignmentEntity) assignmentEntity.getEntity(i.getSakaiId(), simplePageBean);
-					linkText += " " + messageLocator.getMessage("simplepage.assignment.open_date", new Object[] {assignment.getOpenDate()});
-				} catch (Exception ex) {}
-				finally {
-					securityService.popAdvisor(yesMan);
-				}
+				linkText = getLinkText(linkText, i.getSakaiId());
 			}
 			UIOutput link = UIOutput.make(container, ID, linkText);
 			link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
@@ -4045,7 +4038,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				link.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.complete_required")));
 			}
 		} else {
-			UIOutput.make(container, ID + "-text", i.getName());
+			String linkText = i.getName();
+			if (i.getType() == SimplePageItem.ASSIGNMENT) {
+				linkText = getLinkText(linkText, i.getSakaiId());
+			}
+			UIOutput.make(container, ID + "-text", linkText);
 		}
 
 		if (note != null) {
@@ -4053,6 +4050,22 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		}
 
 		return available;
+	}
+
+	
+	private String getLinkText(String linkText, String sakaiId ) {
+		//Create a link with open and due dates for assignments links in Lessons
+		SecurityAdvisor yesMan = (String arg0, String arg1, String agr2) -> SecurityAdvisor.SecurityAdvice.ALLOWED;
+		securityService.pushAdvisor(yesMan);
+		try {
+			AssignmentEntity assignment = (AssignmentEntity) assignmentEntity.getEntity(sakaiId, simplePageBean);		
+			linkText += " " + messageLocator.getMessage("simplepage.assignment.open_close_date", 
+					new Object[] {df.format(assignment.getOpenDate()), df.format(assignment.getDueDate())});
+		} catch (Exception ex) {}
+		finally {
+			securityService.popAdvisor(yesMan);
+		}
+		return linkText;
 	}
 
 	private static String getUserDisplayName(String owner) {
