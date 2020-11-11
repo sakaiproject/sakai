@@ -1263,6 +1263,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			String color = null;
 			for (SimplePageItem i : itemList) {
 
+				//If the content MULTIMEDIA, type 7, is not released or is hidden will not be rendered on the view
+				if (i.getType() == SimplePageItem.MULTIMEDIA) {
+				    if (!contentHostingService.isAvailable(String.valueOf(i.getSakaiId()))) {
+				        continue;
+				    }
+				}
+				
 				// break is not a normal item. handle it first
 			        // this will work whether first item is break or not. Might be a section
 			        // break or a normal item
