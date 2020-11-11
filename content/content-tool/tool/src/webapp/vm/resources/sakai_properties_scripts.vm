@@ -64,7 +64,7 @@
 		var hasDisplayNameTag = false;
 		var hasUrlTag = false;
 		var inputTags = document.getElementsByTagName("input");
-		for(var i = 0; i < inputTags.length && ! hasDisplayNameTag; i++)
+		for(var i = 0; i < inputTags.length && (!hasDisplayNameTag || !hasUrlTag); i++)
 		{
 			var tag = inputTags[i];
 			if(tag.id && tag.id.match(/^displayName${DOT}\d+$/))
@@ -84,13 +84,13 @@
 #if("$type.id" != "$TYPE_FOLDER")
 				tag.onkeypress = handleEnterKey;
 #end
-				if(hasDisplayNameTag)
+				if(tag.type === "url")
+				{
+					tag.oninput = checkWebLinksForEnableSubmit;
+				}
+				else if(hasDisplayNameTag)
 				{
 					tag.onchange = seedDisplayNameValue;
-					if(hasUrlTag)
-					{
-						tag.oninput = checkWebLinksForEnableSubmit;
-					}
 				}
 			}
 			else if(tag.id && tag.id.match(/^displayName${DOT}\d+$/) && hasUrlTag)
