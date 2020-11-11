@@ -12,6 +12,11 @@ var fckEditor = false;
 var ckEditor = false;
 var commentsToLoad = 0;
 
+var LSNGRD = LSNGRD || {};
+
+LSNGRD.childClass = ".uuidBox";
+LSNGRD.type = "comment";
+
 $(function() {
 	
 	noEditor = ($(".using-editor").size() === 0);
@@ -95,32 +100,7 @@ function commentsLoaded() {
 	
 	$(".pointsBox").unbind("keyup");
 	
-	$(".pointsBox").each(function(index, value) {
-		$(value).parent().children("img").attr("id", "statusImg" + index);
-		$(value).val($(value).parent().children(".pointsSpan").text());
-	});
-	
-	$(".pointsBox").on('change', function(){
-		var img = $(this).parent().children("img");
-		img.attr("src", getStrippedImgSrc(img.attr("id")) + "no-status.png");
-		$(this).addClass("unsubmitted");
-	});
-	
-	$(".pointsBox").keyup(function(event){
-		if(event.keyCode === 13) {
-			var img = $(this).parent().children("img");
-			
-			$(this).removeClass("unsubmitted");
-			img.attr("src", getStrippedImgSrc(img.attr("id")) + "loading.gif");
-			
-			$(".idField").val($(this).parent().children(".uuidBox").text()).change();
-			$(".jsIdField").val(img.attr("id")).change();
-			$(".typeField").val("comment");
-			
-			// This one triggers the update
-			$(".pointsField").val($(this).val()).change();
-		}
-	});
+	LSNGRD.initPointBoxes();
 }
 
 function loadMore(link) {
