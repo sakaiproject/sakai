@@ -510,7 +510,7 @@ public class AssignmentToolUtils {
                     // add an entry into Gradebook for newly created assignment or modified assignment, and there wasn't a correspond record in gradebook yet
                     if ( a.getTypeOfSubmission() == Assignment.SubmissionType.EXTERNAL_TOOL_SUBMISSION ) {
                         // Lookup the old column
-                        org.sakaiproject.service.gradebook.shared.Assignment gradebookColumn = findGradeBookColumn(gradebookUid, newAssignment_title);
+                        org.sakaiproject.service.gradebook.shared.Assignment gradebookColumn = gradebookService.getAssignmentByNameOrId(gradebookUid, newAssignment_title);
                         if ( gradebookColumn != null && gradebookColumn.isExternallyMaintained() ) {
                              alerts.add(rb.getFormattedMessage("addtogradebook.nonUniqueTitle", "\"" + newAssignment_title + "\""));
                         } else if ( gradebookColumn == null && addUpdateRemoveAssignment.equals(GRADEBOOK_INTEGRATION_ADD) ) {
@@ -767,21 +767,6 @@ public class AssignmentToolUtils {
         }
         return alerts;
     } // integrateGradebook
-
-    /**
-     * A utility class to find a gradebook column of a particular name
-     */
-    public org.sakaiproject.service.gradebook.shared.Assignment findGradeBookColumn(String gradebookUid, String assignmentName) {
-        List gradebookAssignments = gradebookService.getAssignments(gradebookUid);
-        for (Iterator i = gradebookAssignments.iterator(); i.hasNext(); ) {
-            org.sakaiproject.service.gradebook.shared.Assignment gradebookColumn = (org.sakaiproject.service.gradebook.shared.Assignment) i.next();
-            String name = gradebookColumn.getName();
-            if ( assignmentName != null && assignmentName.equals(name) ) {
-                return gradebookColumn;
-            }
-        }
-        return null;
-    }
 
     public Stream<User> getSubmitters(AssignmentSubmission aSubmission) {
 
