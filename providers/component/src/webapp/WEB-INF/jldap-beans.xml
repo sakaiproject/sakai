@@ -9,6 +9,10 @@
 		
 		<!-- Setting a MemoryService in JLDAP is deprecated! 
 			Caching is done centrally in the UserDirectoryService.callCache -->
+
+		<property name="memoryService">
+			<ref bean="org.sakaiproject.memory.api.MemoryService"/>
+		</property>
 		
 		<!-- Required. Host name or address of your LDAP server -->
 		<property name="ldapHost">

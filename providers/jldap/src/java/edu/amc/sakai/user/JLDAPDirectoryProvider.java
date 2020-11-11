@@ -38,6 +38,8 @@ import com.novell.ldap.LDAPSearchResults;
 import com.novell.ldap.LDAPSocketFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.MemoryService;
 
 import org.sakaiproject.user.api.*;
 
@@ -176,6 +178,8 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	 */
 	private Map<String,String> attributeMappings;
 
+	private MemoryService memoryService;
+
 	/** Handles LDAPConnection allocation */
 	private LdapConnectionManager ldapConnectionManager;
 
@@ -206,7 +210,9 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	 * Flag for allowing/disallowing authentication on a global basis
 	 */
 	private boolean allowAuthentication = DEFAULT_ALLOW_AUTHENTICATION;
-	
+
+	private Cache negativeCache;
+
 	/**
 	 * Flag for controlling the return value of 
 	 * {@link #authenticateWithProviderFirst(String)} on a global basis.
@@ -239,6 +245,9 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 			batchSize = maxResultSize;
 			log.warn("JLDAP batchSize is larger than maxResultSize, batchSize has been reduced from: "+ batchSize + " to: "+ maxResultSize);
 		}
+
+		// setup the negative user cache
+		negativeCache = memoryService.getCache(getClass().getName() + ".negativeCache");
 
 		initLdapConnectionManager();
 		initLdapAttributeMapper();
@@ -345,6 +354,18 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 			log.debug("destroy()");
 		}
 
+		clearCache();
+	}
+
+	/**
+	 * Resets the internal {@link LdapUserData} cache
+	 */
+	public void clearCache() {
+		if ( log.isDebugEnabled() ) {
+			log.debug("clearCache()");
+		}
+
+		negativeCache.clear();
 	}
 
 	/**
@@ -584,7 +605,19 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	{
 
 		try {
-			return getUserByEid(edit, edit.getEid(), null);
+			boolean userFound = getUserByEid(edit, edit.getEid(), null);
+
+			// No LDAPException means we have a good connection. Cache a negative result.
+			if (!userFound) {
+				Object o = negativeCache.get(edit.getEid());
+				Integer seenCount = 0;
+				if (o != null) {
+					seenCount = (Integer) o;
+				}
+				negativeCache.put(edit.getEid(), (seenCount + 1));
+			}
+
+			return userFound;
 		} catch ( LDAPException e ) {
 			log.error("getUser() failed [eid: " + edit.getEid() + "]", e);
 			return false;
@@ -698,6 +731,14 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 					log.debug("JLDAP getUsers could not find user: " + userRemove.getEid());
 				}
 				users.remove(userRemove);
+
+				// Add eid to negative cache. We are confident the LDAP conn is alive and well here.
+				Integer seenCount = 0;
+				Object o = negativeCache.get(userRemove.getEid());
+				if (o != null) {
+					seenCount = (Integer) o;
+				}
+				negativeCache.put(userRemove.getEid(), (seenCount + 1));
 			}
 			
 		} catch (LDAPException e)	{
@@ -833,6 +874,18 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	 *   set, or the result of {@link EidValidator#isSearchableEid(String)}
 	 */
 	protected boolean isSearchableEid(String eid) {
+		if (negativeCache == null) {
+			negativeCache = memoryService.getCache(getClass().getName() + ".negativeCache");
+			log.debug("negativeCache initialized in isSearchableEid");
+		}
+		Object o = negativeCache.get(eid);
+		if (o != null) {
+			Integer seenCount = (Integer) o;
+			log.debug("negativeCache count for {}={}", eid, seenCount);
+			if (seenCount > 3) {
+				return false;
+			}
+		}
 		if ( eidValidator == null ) {
 			return true;
 		}
@@ -1617,12 +1670,12 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 		}
 	}
 
-	/**
-	 * User caching is done centrally in the UserDirectoryService.callCache
-	 * @deprecated
-	**/
-	public void setMemoryService(org.sakaiproject.memory.api.MemoryService ignore) {
-		log.warn("DEPRECATION WARNING: memoryService is deprecated. Please remove it from your jldap-beans.xml configuration.");
+	public MemoryService getMemoryService() {
+		return memoryService;
+	}
+
+	public void setMemoryService(MemoryService memoryService) {
+		this.memoryService = memoryService;
 	}
 
 	/** 
