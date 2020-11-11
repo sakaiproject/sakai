@@ -38,6 +38,7 @@ import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.user.api.AuthenticationIdUDP;
 import org.sakaiproject.user.api.DisplayAdvisorUDP;
 import org.sakaiproject.user.api.ExternalUserSearchUDP;
@@ -65,6 +66,7 @@ import com.unboundid.ldap.sdk.migrate.ldapjdk.LDAPConnection;
 import com.unboundid.ldap.sdk.migrate.ldapjdk.LDAPEntry;
 import com.unboundid.ldap.sdk.migrate.ldapjdk.LDAPException;
 import com.unboundid.util.ssl.SSLUtil;
+import org.sakaiproject.memory.api.Cache;
 
 /**
  * <p>
@@ -79,6 +81,9 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 
 	/** Security Service */
 	@Setter private SecurityService securityService;
+
+	/** Memory Service */
+	@Setter private MemoryService memoryService;
 
 	/** Default LDAP connection port */
 	public static final int[] DEFAULT_LDAP_PORT = {389};
@@ -251,6 +256,9 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 	 */
 	private boolean authenticateWithProviderFirst = DEFAULT_AUTHENTICATE_WITH_PROVIDER_FIRST;
 
+	/** Negative cache */
+	private Cache negativeCache;
+
 	public UnboundidDirectoryProvider() {
 		log.debug("instantating UnboundidDirectoryProvider");
 	}
@@ -273,6 +281,9 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 			batchSize = maxResultSize;
 			log.warn("Unboundid batchSize is larger than maxResultSize, batchSize has been reduced from: "+ batchSize + " to: "+ maxResultSize);
 		}
+
+		// setup the negative user cache
+		negativeCache = memoryService.getCache(getClass().getName() + ".negativeCache");
 
 		createConnectionPool();
 		initLdapAttributeMapper();
@@ -379,6 +390,15 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 	 */
 	public void destroy() {
 		log.debug("destroy()");
+		clearCache();
+	}
+
+	/**
+	 * Resets the internal {@link LdapUserData} cache
+	 */
+	public void clearCache() {
+		log.debug("clearCache()");
+		negativeCache.clear();
 	}
 
 	/**
@@ -568,7 +588,19 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 		}
 
 		try {
-			return getUserByEid(edit, edit.getEid());
+			boolean userFound = getUserByEid(edit, edit.getEid());
+
+			// No LDAPException means we have a good connection. Cache a negative result.
+			if (!userFound) {
+				Object o = negativeCache.get(edit.getEid());
+				Integer seenCount = 0;
+				if (o != null) {
+					seenCount = (Integer) o;
+				}
+				negativeCache.put(edit.getEid(), (seenCount + 1));
+			}
+
+			return userFound;
 		} catch ( LDAPException e ) {
 			log.error("getUser() failed [eid: " + edit.getEid() + "]", e);
 			return false;
@@ -673,6 +705,14 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 			for (UserEdit userRemove : usersToRemove) {
 				log.debug("Unboundid getUsers could not find user: {}", userRemove.getEid());
 				users.remove(userRemove);
+
+				// Add eid to negative cache. We are confident the LDAP conn is alive and well here.
+				Integer seenCount = 0;
+				Object o = negativeCache.get(userRemove.getEid());
+				if (o != null) {
+					seenCount = (Integer) o;
+				}
+				negativeCache.put(userRemove.getEid(), (seenCount + 1));
 			}
 			
 		} catch (LDAPException e)	{
@@ -793,6 +833,18 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 	 *   set, or the result of {@link EidValidator#isSearchableEid(String)}
 	 */
 	protected boolean isSearchableEid(String eid) {
+		if (negativeCache == null) {
+			negativeCache = memoryService.getCache(getClass().getName() + ".negativeCache");
+			log.debug("negativeCache initialized in isSearchableEid");
+		}
+		Object o = negativeCache.get(eid);
+		if (o != null) {
+			Integer seenCount = (Integer) o;
+			log.debug("negativeCache count for {}={}", eid, seenCount);
+			if (seenCount > 3) {
+				return false;
+			}
+		}
 		if ( eidValidator == null ) {
 			return true;
 		}
