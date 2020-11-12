@@ -167,6 +167,7 @@ public class EditorServlet extends HttpServlet
 				out.print("sakai.editor.editors.ckeditor.browser = '" + EditorConfiguration.getCKEditorFileBrowser() + "';\n");
 				out.print("sakai.editor.siteToolSkin = '" + CSSUtils.getCssToolSkin(skin) + "';\n");
 				out.print("sakai.editor.sitePrintSkin = '" + CSSUtils.getCssPrintSkin(skin) + "';\n");
+				out.print("sakai.editor.sitePropertiesSkin = '" + CSSUtils.getCssPropertiesSkin(skin) + "';\n");
 
 				out.print(editor.getPreloadScript());
 			}
