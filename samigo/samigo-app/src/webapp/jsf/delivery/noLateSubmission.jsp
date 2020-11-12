@@ -54,9 +54,8 @@
  <h:form id="noLateSubmission">
  <p class="act">
        <h:commandButton value="#{deliveryMessages.button_return}" type="submit"
-         styleClass="active" action="select" rendered="#{delivery.actionString!='takeAssessmentViaUrl'}">
-          <f:actionListener
-            type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
+         onclick="return returnToHostUrl(\"#{delivery.selectURL}\");"
+         styleClass="active" rendered="#{delivery.actionString!='takeAssessmentViaUrl'}">
        </h:commandButton>
  </p>
  </h:form>
