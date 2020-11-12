@@ -164,6 +164,18 @@ assignment.useContentReview=true
 # turnitin.oc.roles.administrator.mapping=Administrator,Admin
 # turnitin.oc.roles.undefined.mapping=""
 
+#turnitin.oc.roles.[TII_ROLE].may_save_report_changes=true/false
+# Allows you to customize the default Turnitin setting for each role controlling whether a report can be saved when modified.
+# If true, any changes to the report, including changes that effect the score, will be saved and persist for all users.
+# Default:
+# turnitin.oc.roles.instructor.may_save_report_changes=true
+# turnitin.oc.roles.learner.may_save_report_changes=false
+# turnitin.oc.roles.editor.may_save_report_changes=false
+# turnitin.oc.roles.user.may_save_report_changes=false
+# turnitin.oc.roles.applicant.may_save_report_changes=false
+# turnitin.oc.roles.administrator.may_save_report_changes=true
+# turnitin.oc.roles.undefined.may_save_report_changes=false
+
 
 # Please make sure the property 'version.sakai' is set correctly
 ```
