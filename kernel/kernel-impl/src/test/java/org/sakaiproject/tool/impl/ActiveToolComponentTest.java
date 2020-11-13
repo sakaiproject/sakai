@@ -22,8 +22,12 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
@@ -35,11 +39,13 @@ import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.impl.BasicConfigurationService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.thread_local.impl.ThreadLocalComponent;
 import org.sakaiproject.tool.api.ActiveToolManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.Tool.AccessSecurity;
 
 // All these tests don't have any i18n on the tool details as we don't call setResourceLoader
@@ -210,4 +216,46 @@ public class ActiveToolComponentTest {
 		}
 	}
 
+	@Test
+	public void testFunctionsRequire() {
+
+		Properties props = new Properties();
+		props.put(ToolManager.TOOLCONFIG_REQUIRED_PERMISSIONS
+			, "asn.new,asn.delete|asn.read,asn.submit|asn.grade");
+
+		ToolConfiguration config = mock(ToolConfiguration.class);
+		when(config.getConfig()).thenReturn(props);
+		List<Set<String>> permissionSets = activeToolManager.getRequiredPermissions(config);
+		permissionSets.forEach(set -> {
+			set.forEach(perm -> assertFalse("Required functions should *not* contains whitespace", perm.matches("\\S*\\s\\S*")));
+		});
+		assertTrue("There should be 3 sets of permissions", permissionSets.size() == 3);
+		assertTrue("The first set should have 2 permissions", permissionSets.get(0).size() == 2);
+		assertTrue("The second set should have 2 permissions", permissionSets.get(1).size() == 2);
+		assertTrue("The third set should have 1 permission", permissionSets.get(2).size() == 1);
+		assertTrue("The first set should contain asn.new", permissionSets.get(0).contains("asn.new"));
+		assertTrue("The first set should contain asn.delete", permissionSets.get(0).contains("asn.delete"));
+		assertTrue("The second set should contain asn.read", permissionSets.get(1).contains("asn.read"));
+		assertTrue("The second set should contain asn.submit", permissionSets.get(1).contains("asn.submit"));
+		assertEquals("The third set should contain asn.grade", permissionSets.get(2).iterator().next(), "asn.grade");
+
+		props.put(ToolManager.TOOLCONFIG_REQUIRED_PERMISSIONS, "asn.new,asn.delete,asn.read");
+		permissionSets.forEach(set -> {
+			set.forEach(perm -> assertFalse("Required functions should *not* contains whitespace", perm.matches("\\S*\\s\\S*")));
+		});
+		permissionSets = activeToolManager.getRequiredPermissions(config);
+		assertTrue("There should be 1 set of permissions", permissionSets.size() == 1);
+		assertTrue("The set should have 3 permissions", permissionSets.get(0).size() == 3);
+
+		props.put(ToolManager.TOOLCONFIG_REQUIRED_PERMISSIONS, "asn.new | asn.delete | asn.read");
+		permissionSets = activeToolManager.getRequiredPermissions(config);
+		permissionSets.forEach(set -> {
+			set.forEach(perm -> assertFalse("Required functions should *not* contains whitespace", perm.matches("\\S*\\s\\S*")));
+		});
+		assertTrue("There should be 3 sets of permissions", permissionSets.size() == 3);
+		assertTrue("The first set should have 1 permission", permissionSets.get(0).size() == 1);
+		assertEquals("The first set should contain asn.new", permissionSets.get(0).iterator().next(), "asn.new");
+		assertEquals("The second set should contain asn.delete", permissionSets.get(1).iterator().next(), "asn.delete");
+		assertEquals("The third set should contain asn.read", permissionSets.get(2).iterator().next(), "asn.read");
+	}
 }
