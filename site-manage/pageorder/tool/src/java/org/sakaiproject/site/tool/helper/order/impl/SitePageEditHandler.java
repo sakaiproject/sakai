@@ -17,6 +17,8 @@ package org.sakaiproject.site.tool.helper.order.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -25,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -81,7 +84,6 @@ public class SitePageEditHandler {
     //This nil is needed for RSF Producers do not remove!
     public String nil = null;
     
-    private final String TOOL_CFG_FUNCTIONS = "functions.require";
     private final String PORTAL_VISIBLE = "sakai-portal:visible";
     private final String TOOL_CFG_MULTI = "allowMultiple";
     private final String SITE_UPD = "site.upd";
@@ -435,13 +437,15 @@ public class SitePageEditHandler {
      * @return true if users with out site.upd can see the page
      */
     public boolean isEnabled(SitePage page) {
+
+        // Grab the non site.upd roles (ie : non maintainer types)
         Set<Role> roles = getRolesWithout(page.getContainingSite(), SITE_UPD);
-        // Should only have non site.upd roles now.
-        // Now check to see if these roles have the permission listed in the functions require for the tool.
-        List<String> permissions = getRequiredPermissions(page);
-        for (String permission : permissions) {
+
+        // Now check to see if these roles have the permission listed
+        // in the functions require for the tool.
+        for (Set<String> permissionSet : getSingleToolPagePermissions(page)) {
             for (Role role : roles) {
-                if (role.isAllowed(permission)) {
+                if (role.getAllowedFunctions().containsAll(permissionSet)) {
                     return true; // If any one of the permissions is allows for any role.
                 }
             }
@@ -512,22 +516,25 @@ public class SitePageEditHandler {
         if (!(serverConfigurationService.getBoolean(DISABLE_ENABLED_CFG, true))) {
             return false;
         }
-        List<String> permissions = getRequiredPermissions(page);
+        List<String> permissions = getSingleToolPagePermissions(page).stream().flatMap(Collection::stream).collect(Collectors.toList());
         return !(permissions.isEmpty() || permissions.contains(SITE_UPD) || permissions.contains(SITE_VISIT));
     }
 
-    private List<String> getRequiredPermissions(SitePage page) {
+    /**
+     * If this page only has a single tool, get the required permissions for that tool, otherwise
+     * return an empty list.
+     *
+     * @param page The SitePage we want to get the required permissions for
+     * @return The set(s) of required permissions for this page's tool.
+     */
+    private List<Set<String>> getSingleToolPagePermissions(SitePage page) {
+
         List<ToolConfiguration> tools = page.getTools();
         if (tools.size() == 1) {
-            // Only if there is one
-            ToolConfiguration toolConfiguration = tools.get(0);
-            String functions = toolConfiguration.getConfig().getProperty(TOOL_CFG_FUNCTIONS);
-            if (functions != null && functions.length() > 0) {
-                return new ArrayList<>(Arrays.asList(StringUtils.split(functions, ',')));
-            }
+            return toolManager.getRequiredPermissions(tools.get(0));
+        } else {
+            return Collections.EMPTY_LIST;
         }
-        // Don't use Collections.EMPTY_LIST as it needs to be mutable.
-        return new ArrayList<>();
     }
  
     /**
@@ -650,7 +657,8 @@ public class SitePageEditHandler {
         }
         try {
             AuthzGroup authzGroup =  authzGroupService.getAuthzGroup(site.getReference());
-            List<String> permissions = getRequiredPermissions(page);
+            List<String> permissions = getSingleToolPagePermissions(page)
+                .stream().flatMap(Collection::stream).collect(Collectors.toList());
             if (!(permissions.isEmpty())) {
                 // We never change SITE_UPD at all.
                 permissions.remove(SITE_UPD);
