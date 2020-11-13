@@ -96,6 +96,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.SortedSet;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.function.Function;
@@ -1857,6 +1858,8 @@ public class AssignmentAction extends PagedResourceActionII {
                 String contentTitle = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_TITLE));
                 String contentDesc = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_DESCRIPTION));
 
+                String placement_secret = StringUtils.trimToNull((String) content.get(LTIService.LTI_PLACEMENTSECRET));
+
                 String content_settings = (String) content.get(LTIService.LTI_SETTINGS);
                 JSONObject content_json = BasicLTIUtil.parseJSONObject(content_settings);
                 String contentVisibleDate = StringUtils.trimToEmpty((String) content_json.get(DeepLinkResponse.RESOURCELINK_AVAILABLE_STARTDATETIME));
@@ -1865,11 +1868,18 @@ public class AssignmentAction extends PagedResourceActionII {
                 String contentCloseDate = StringUtils.trimToEmpty((String) content_json.get(DeepLinkResponse.RESOURCELINK_AVAILABLE_ENDDATETIME));
                 if ( protect < 1 || !assignmentTitle.equals(contentTitle) || !assignmentDesc.equals(contentDesc) ||
                         ! contentVisibleDate.equals(assignmentVisibleDate) || ! contentOpenDate.equals(assignmentOpenDate) ||
-                        ! contentDueDate.equals(assignmentDueDate) || ! contentCloseDate.equals(assignmentCloseDate) ) {
+                        ! contentDueDate.equals(assignmentDueDate) || ! contentCloseDate.equals(assignmentCloseDate) ||
+                        placement_secret == null ) {
                     Map<String, Object> updates = new TreeMap<String, Object>();
                     updates.put(LTIService.LTI_TITLE, assignmentTitle);
                     updates.put(LTIService.LTI_DESCRIPTION, assignmentDesc);
                     updates.put(LTIService.LTI_PROTECT, new Integer(1));
+                    if ( placement_secret == null ) {
+                        placement_secret = UUID.randomUUID().toString();
+                        updates.put(LTIService.LTI_PLACEMENTSECRET, placement_secret);
+                        // Need to update for the protection key computation to work
+                        content.put(LTIService.LTI_PLACEMENTSECRET, placement_secret);
+                    }
 
                     // SAK-43709 - Prior to Sakai-21 - also copy these in the settings area
                     content_json.put(LTIService.LTI_DESCRIPTION, assignmentDesc);
