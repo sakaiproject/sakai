@@ -1952,16 +1952,16 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 					if (mmDisplayType == null && simplePageBean.isImageType(i)) {
 						// a wide default for images would produce completely wrong effect
-					    	if (widthSt != null && !widthSt.equals("")) 
+					    	if (StringUtils.isNotBlank(widthSt))
 						    width = new Length(widthSt);
-					} else if (widthSt == null || widthSt.equals("")) {
+					} else if (StringUtils.isBlank(widthSt)) {
 						width = new Length(DEFAULT_WIDTH);
 					} else {
 						width = new Length(widthSt);
 					}
 
 					Length height = null;
-					if (i.getHeight() != null) {
+					if (StringUtils.isNotBlank(i.getHeight())) {
 						height = new Length(i.getHeight());
 					}
 
