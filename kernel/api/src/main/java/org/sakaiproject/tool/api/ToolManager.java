@@ -23,6 +23,7 @@ package org.sakaiproject.tool.api;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Set;
 
 import org.sakaiproject.site.api.Site;
@@ -36,6 +37,9 @@ import org.w3c.dom.Document;
  */
 public interface ToolManager
 {
+	/** Key in the ToolConfiguration Properties for checking what permissions a tool needs in order to be visible */
+	public static final String TOOLCONFIG_REQUIRED_PERMISSIONS = "functions.require";
+
 	/**
 	 * Add this tool to the registry.
 	 * @param tool The Tool to register.
@@ -102,6 +106,18 @@ public interface ToolManager
 	 * 
 	 */
 	void setResourceBundle (String toolId, String filename);
+
+	/**
+	 * Parses and returns the required permissions for a tool, as declared in the
+	 * tool xml, under the key "functions.require". This returns a list of all the
+	 * sets of required permissions. Each permission in a set is mandatory, but any
+	 * of the sets can be satisfied. Take a look at {@link #isVisible} for more in
+	 * depth information.
+	 *
+	 * @param config The ToolConfiguration for the tool in question
+	 * @return A list of the required sets of permissions.
+	 */
+	public List<Set<String>> getRequiredPermissions(ToolConfiguration config);
 
 	/**
 	 * Check whether a tool is visible to the current user in this site,
