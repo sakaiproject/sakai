@@ -171,7 +171,7 @@ public class JoinableSetController {
             });
         }
 
-        for (int i = 0; i < joinableSetGroupNumber; i++) {
+        for (int i = 1; i <= joinableSetGroupNumber; i++) {
             String groupTitle = String.format("%s %d", joinableSetTitle, i);
 
             // Always look for a new Id if the name is already in use by a group
