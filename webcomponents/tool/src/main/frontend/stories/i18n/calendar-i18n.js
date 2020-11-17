@@ -1,0 +1,541 @@
+export var calendarI18n = `
+java.importcal = Import Events
+java.theend = The end date you have specified on the Frequency page is earlier than the start date. Change it please.
+java.merge = Merge Internal Calendars
+java.merge.title = Display events from sites
+java.byday = Calendar by Day
+java.byweek = Calendar by Week
+java.bymonth = Calendar by Month
+java.byyear = Calendar by Year
+java.listeve = List of Events
+java.fields = Add/Edit Fields
+java.view = View Events
+java.new = Add Event
+java.new.title = Create new event
+java.import = Import Events
+java.import.title = Upload events from a file
+java.export = Publish (public)
+java.export.title = Generate link for sharing with general public
+java.subscriptions = Merge External Calendars
+java.subscriptions.title = Display events from external calendars
+
+java.print = Printable Version
+java.default_view = Set as Default View
+java.permissions = Permissions
+java.set = Set permissions for Calendar in worksite
+java.error = The event doesn't exist any more.
+
+ical.title = Generate a Link to this Calendar for Public Use
+ical.schedname = Calendar Name
+ical.option    = Enable Subscription
+ical.url       = Subscription URL:
+ical.info      = This calendar subscription will display all events occurring up to {0} months in the future and {1} months in the past.
+ical.info.public = Authentication is not required and all events will potentially be visible to the general public. If this is not desirable, then please publish via a private link instead.
+java.alert.aliasreq = An Alias is required to enable iCal exports.
+
+java.alert.youneed = You need to enter the name of the field to be added.
+java.alert.theadd = The add field name is already in use.
+java.alert.areyou = Are you sure you want to update the custom field(s)? The added event type(s) will be saved and the selected event type(s) will be removed.
+java.alert.ifyes = ? If yes, click 'Save Field Changes' to continue.
+java.alert.thereis = There are no activities that exist.
+java.alert.youdont = You do not have permission to add calendar fields
+java.alert.thereisno = There is no activities exist.
+java.alert.youdonthave = You do not have permission to edit this calendar.
+java.alert.someone = Someone else is editing this calendar.
+java.alert.therenoactv = There is no activities exist. If you have permission to add activity, please click on New
+java.alert.younotperm = You do not have permission to add  activities
+java.alert.younotallow = You are not allowed to see activities in the calendar
+java.alert.younotpermadd = You do not have permission to add activities
+java.alert.younotallowsee = You are not allowed to see activities in the calendar
+java.alert.noexist = There is no calendar that exists. If you have permission to create a calendar click on file then new to create a calendar.
+java.alert.youcreate = You do not have permission to create a calendar
+java.alert.event = The event doesn't exist any more.
+java.alert.eventbeing = The event is being edited by another user. Please try again later.
+java.alert.past = Are you sure you want this scheduled event to occur in the past?  If yes, click 'Save Event' to finish.
+java.alert.invalid = Invalid start or end date
+java.alert.start = The start date must be before the end date
+java.alert.youchoosegroup = You need to choose at least a group.
+java.alert.dupalias = This name has already been used
+java.alert.subsnameempty = You need to enter a name for the calendar to be added.
+java.alert.subsurlempty = You need to enter a url for the calendar to be added.
+java.alert.subsurlinvalid = This URL seems to be invalid. Please, enter a valid URL.
+java.alert.invalidname = This is an invalid calendar name -- please try again
+### (moot) java.alert.uknown = An unknown error has occurred.
+java.alert.opendate=This assignment is not yet available.
+java.alert.opendatedescription=Open date for this assignment is: {0}.
+
+java.pleasetitle = Please enter a title.
+java.pleasetime = Please enter a time.
+
+# labels used in date selection widget in VM_chef_library.vm, as well as time selects
+dateselectionwidget.day = Select day
+dateselectionwidget.month = Select month
+dateselectionwidget.year = Select year
+dateselectionwidget.hour = Select hour
+dateselectionwidget.minute = Select minute
+dateselectionwidget.ampm = Select AM or PM
+
+# months (used in chef_dateselectionwidget macro in VM_chef_library.vm)
+jan = JAN
+feb = FEB
+mar = MAR
+apr = APR
+may = MAY
+jun = JUN
+jul = JUL
+aug = AUG
+sep = SEP
+oct = OCT
+nov = NOV
+dec = DEC
+
+java.thismonth = This month is not exist
+
+#General Vm
+gen.alert = Alert: 
+gen.new = New...
+gen.confirm.type = Event types confirmation
+gen.delete = Remove Event
+gen.revise = Edit Event
+gen.site = Site
+gen.from = From
+gen.save = Save
+gen.cancel = Cancel
+gen.file = File
+gen.title = Title
+gen.date = Date
+gen.time = Time
+gen.freq = Frequency
+gen.descr = Description
+gen.attach = Attachments
+gen.noattach = No attachments yet 
+gen.continue = Continue
+gen.back = Back
+gen.backtolist = Back to Calendar
+gen.fromsite = From Site
+gen.owner = Owner
+gen.assatt = Additional attachments from assignment
+gen.assignmentlink = Assignment Link
+
+# note: 'del' prefix comes from Delete.vm originally, but these should be
+#       renamed since they are more widely used...
+del.deleting = Delete calendar event
+del.sure = Are you sure you want to remove this event?
+del.every = Every
+del.number = Number of occurrences:
+del.times = Times
+del.endson = Ends on
+del.one = Activity occurs once.
+del.item = Event type
+
+legend.key1 = Academic Calendar
+legend.key2 = Activity
+legend.key3 = Cancellation
+legend.key4 = Class section - Discussion
+legend.key5 = Class section - Lab
+legend.key6 = Class section - Lecture
+legend.key7 = Class section - Small Group 
+legend.key8 = Class session 
+legend.key9 = Computer Session 
+legend.key10 = Deadline 
+legend.key11 = Exam 
+legend.key12 = Meeting
+legend.key13 = Multidisciplinary Conference 
+legend.key14 = Quiz 
+legend.key15 = Special event 
+legend.key16 = Web Assignment
+legend.key17 = Formative Assessment
+legend.key18 = Submission Date
+legend.key19 = Tutorial
+legend.key20 = Workshop
+
+del.deleteall = Delete all occurrences
+del.deleteonly = Delete only this occurrence
+
+#Import Vm
+imp.step1 = Step 1 of 3: Select  type of calendar to import  from
+imp.step2 =	Step 2 of 3: Reformat data and select the file to import
+imp.step2b = Step 2 of 3: Select the file to import
+imp.step3 =	Step 3 of 3: Review activities and confirm import
+imp.select = Type of calendar to import
+imp.todo = To perform an import of generic calendar data, download the template package below. The package includes a 'Readme' file with instructions, as well as a CSV format example file that can be opened with Microsoft Excel or similar applications. Convert your data into the exact format shown in the CSV file to ensure compatibility.
+imp.mm.outlook = Microsoft Outlook data must be exported into a CSV file (comma separated values); Meeting Maker data must be exported into a text file (tab-delimited).
+imp.ical.todo = iCalendar imports do not currently support re-occuring events
+imp.generic = Generic Import Template
+imp.when =When you have your calendar information in the correct format, browse for the file below and upload it to the system.
+imp.browse = Browse your computer to find your exported calendar data, and upload it below.
+imp.yourcustom =You are importing
+imp.yourcustom2 = activities, listed below. Uncheck the 'Import' box for any activity(s) you do not want to import. 
+imp.micro = Microsoft Outlook
+imp.mmaker = Meeting Maker
+imp.ical = iCalendar
+imp.gcalendar = Generic calendar import (comma-separate values)
+imp.keep = Import?
+imp.markall      = Check All?
+imp.unmarkall      = Uncheck All?
+imp.actvtm = Activity and Time
+imp.addeve = Import Events
+imp.list.summary = List of events being imported. Column 1: date. Column 2: activity and time. Column 3: checkbox - uncheck to exclude from import.
+# properties used for import from Outlook
+import.outlook.subject_header=Subject
+import.outlook.start_date_header=Start Date
+import.outlook.start_time_header=Start Time
+import.outlook.end_date_header=End Date
+import.outlook.end_time_header=End Time
+import.outlook.all_day_event_header=All day event
+import.outlook.description_header=Description
+import.outlook.location_header=Location
+
+import.outlook.charset=ISO-8859-1
+import.outlook.note=Note: The import is language-sensitive, meaning the language you are using with Microsoft Outlook has to be the same you are using here.
+                                                                   
+#New Vm
+new.adding = Add Event
+new.toadd = To add an event to the Calendar, complete the form and choose 'Save Event' at the bottom.
+new.a = Required items marked with
+
+new.title = Title
+new.descr = Message
+new.date = Date
+new.duration = Duration
+new.end = End Time
+new.freq = Frequency
+new.every = Every
+new.number = Number of occurrences:
+new.times = Times
+new.endson = Ends on
+new.oneocc = Activity occurs once
+new.setfreq = Frequency
+new.itemtype = Event Type
+new.location = Event Location
+new.addattach = Add Attachments
+new.adddrop = Add/remove attachments
+new.post = Save Event
+new.hours = Hours
+new.minutes = Minutes
+
+#Revise Vm
+rev.revising = Editing event...
+rev.start= Start Time
+rev.hours = hours
+rev.minutes = minutes
+rev.modify = Modify all occurrences
+rev.modifyonly = Modify only this occurrence
+start.hour = Start hour
+start.minute = Start minute
+start.ampm = Start am or pm
+end.hour = End hour
+end.minute = End minute
+end.ampm = End AM or PM
+
+#SetFreq Vm
+set.setting = Frequency
+set.toset = Required items marked with 
+set.select = Event Frequency
+set.the = the event frequency:
+set.once = once
+set.daily = daily
+set.weekly = weekly
+set.monthly = monthly
+set.yearly = yearly
+
+set.theonly = The only occurrence is on
+set.every = Every:
+
+set.days = day(s)
+set.weeks = week(s)
+set.months = month(s)
+set.years = year(s)
+
+set.ends = Ends:
+set.never = Never
+set.on= On
+set.after = After
+set.times = time(s)
+#ViewDay Vm
+view.goto = Go to Next Day
+view.gotopd = Go to Previous Day
+view.golater = Go later
+view.goearlier = Go earlier
+view.gotoday= Go to Today
+
+view.after = Later
+view.before = Earlier
+view.tomorrow = Next Day
+view.yesterday = Previous Day
+view.view = View
+view.listnavselect = To operate the combo box, first press Alt+Down Arrow to open it, and then use the up and down arrow keys to scroll through the options.
+view.summary = Table represents a day - rows are half hours
+view.calday = Calendar by Day
+view.calweek = Calendar by Week
+view.calmonth = Calendar by Month
+view.calyear = Calendar by Year
+view.calList = List of Events
+view.show = Show
+view.future = Future events
+view.all = All events
+view.activ = Events for today
+view.activw = Events for this week
+view.activm = Events for this month
+view.activy = Events for this year
+view.custom = Custom date range
+view.apply = Filter Events
+view.lasday = &lt; Prev Day
+view.nexday = Next Day &gt;
+view.today= Today
+
+#ViewMonth Vm
+viewm.gotopm = Go to Previous Month
+viewm.gotonm = Go to Next Month
+viewm.lasm = &lt; Prev Month
+vieww.nexm = Next Month &gt;
+viewm.list.summary = Table represents month. Columns are week days.
+viewm.date_format = MMMM yyyy
+
+#ViewList Vm
+viewl.st = Start:
+viewl.ed = End:
+viewl.date = Date
+viewl.time = Time
+viewl.desc = Event
+viewl.folder = folder
+viewl.attach = attachment
+viewl.froms = From Site:
+viewl.update = Update Display
+viewl.list.summary = List of events in calendar. Column 1: date. Column 2: time. Column 3: audience. Column 4: title and description.
+viewl.sortdateasc =	Sort by date ascending
+viewl.sortdatedesc =	Sort by date descending
+viewl.group.list.summary = Table contains list of groups. First will  contain checkboxes, second will contain the group name, third the group description. Header links can be used to sort.
+
+#ViewWeek Vm
+vieww.summary = Table represents week - columns are days - rows are half hours
+vieww.goton = Go to Next Week
+vieww.gotop = Go to previous week 
+vieww.gotoe = Earlier
+vieww.laswk = &lt; Prev Week
+vieww.nexwk = Next Week &gt;
+vieww.gotol = Later
+
+#ViewYear Vm
+viewy.gotop = Go to Previous Year 
+viewy.goton = Go to Next Year
+viewy.lasy = &lt; Prev Year
+viewy.nexy = Next Year &gt;
+viewy.list.summary = Table represents year. Each cell contains a table representing that month.
+viewy.list.summary2 = Table represents the month of
+viewy.list.summary3 = columns represent weekdays
+viewy.date_format = yyyy
+
+#Custom Vm
+cust.addrev = Add/Edit Fields
+cust.toadd = To add fields, enter a field name below and click 'Create Field'.
+cust.fname = Field Name
+cust.true = True
+cust.rem = Remove?
+cust.add = Create Field
+cust.save = Save Field Changes
+cust.list = Table contains list of additional fields. First column contains the fieldname, second column a checkbox to take remove it.
+
+#Subscriptions Vm
+subs.subscriptions = Show Events from an External Calendar
+subs.institutional = Institutional Calendars
+subs.institutional.instruction = This page allows subscription to an external calendar. Unfortunately this feature has some limitations, it
+subs.institutional.instruction.detailed.1 = Does not support all-day events
+subs.institutional.instruction.detailed.2 = Only supports events defined with &lt;VEVENT&gt;
+subs.institutional.instruction.detailed.3 = Does not support re-occurring events
+subs.institutional.instruction.detailed.4 = Does not support events without an end time
+subs.institutional.summary = List of Institutional Calendars
+subs.calendar.name = Calendar Name
+subs.calendar.url = URL
+subs.calendar.sub = Subscribed?
+subs.user.instruction = To subscribe to external calendars (in iCalendar format), enter a calendar name and URL and click 'Subscribe'.
+subs.user.summary = List of User-specified Calendars
+subs.calendar.subscribe = Subscribe
+
+#Merge Vm
+merge.merge = Show Events from Other Sites
+merge.select = Select which calendars you want to merge into this site. This site's users will only see the events they have permission to see from the source site.
+merge.list.summary = List of calendars from sites you can merge into this one. Column 1: site name. Column 2: checkbox - select for merge. 
+merge.showsched = Show Calendar
+
+#detail Vm
+det.lasact = &lt; Last Event
+det.nexact = Next Event &gt;
+
+date.invalid = Invalid setting for date.
+
+#section awareness
+group.list.summary = List of groups in the site. Column 1: group name. Column 2: description. Headers allow sorting on the columns.
+group.list.toggle = Toggle select all
+group.list.title = Title
+group.list.titlesort  = Sort by group title
+group.list.titlesortasc  = Sort by group title ascending
+group.list.titlesortdesc  = Sort by group title descending
+group.list.descr = Description
+group.list.descrsort = Sort by description
+group.list.descrsortasc = Sort by description ascending
+group.list.descrsortdesc = Sort by description descending
+displayto.public = Display to public 
+displayto.site = Display to site
+displayto.selected = Display to selected groups
+displayfrom.site = Display site events
+displayfrom.selected = Display group events
+imp.forsite =Import events for site
+imp.forgroup =Import events for selected groups
+
+
+
+view.for = For
+
+
+group = Group
+
+view.legend = Legend
+view.calevents = List of Events
+gen.eventtype.list.summary = List of event types in the calendar
+
+# Property values used in XSL files to generate schedule PDFs
+
+sched.for = Calendar for
+
+# ImportException error messages
+
+err_no_dur = No duration time specified on line #{0}. Please make the appropriate changes to your template and save it again.
+
+err_no_start = No start date was specified on line #{0}. Please make the appropriate changes to your template and save it again.
+
+err_import = Unable to create importer for {0}
+
+err_import_unknown = Unknown import type
+
+err_no_stime = Unable to determine start times for an event. Please check that this is the correct file format.
+err_no_etime = Unable to determine end times for an event. Please check that this is the correct file format.
+
+err_no_stime_on = No start time specified on line #{0}
+err_no_dtime_on = No duration time specified on line #{0}
+
+err_time = Illegal time format on row: {0}, column: {1}. Please make the appropriate changes to your template and save it again.
+
+err_date = Illegal date format on row: {0}, column: {1}. Please make the appropriate changes to your template and save it again.
+
+err_interval = Illegal interval format on row: {0}, column: {1}. Please make the appropriate changes to your template and save it again.
+
+err_notime = A start, end time or the duration was not specified on line #{0}. Please make the appropriate changes to your template and save it again.
+
+err_datebad = Both a count and end date cannot be specified at the same time, error on line #{0}. Please make the appropriate changes to your template and save it again.
+
+err_freqbad = A frequency was specified, but a recurrence rule could not be created due to missing data on line #{0}. Please make the appropriate changes to your template and save it again.
+
+event.site = Site:
+event.event = Event:
+event.type = Event type:
+event.location = Location:
+event.from = From:
+# Calendar Summary properties
+tool_title=Calendar
+
+# Menu/Title
+menu_calendar=Calendar
+menu_prefs=Options
+
+# Calendar
+today=Today
+next=Next
+previous=Previous
+
+# Views
+selectedDayEvents=Events for
+openInSchedule=Full details...
+event=Event
+date=Date:
+description=Description:
+type=Event Type:
+location=Event Location:
+groups=Groups:
+site=Site:
+attachments=Attachments:
+every=Every
+back=Back
+
+# Preferences
+instructions_preferences=Set calendar preferences.
+prefs_updated=Preferences updated successfuly
+prefs_not_updated=An error occurred while updating preferences
+update=Update
+cancel=Cancel
+# Preferences, section Display
+instructions_display=Change your calendar's view.
+prefs_section_display=Calendar display
+prefs_view_mode=View
+month_view=Calendar by Month
+week_view=Calendar by Week
+# Preferences, section Priority
+prefs_section_priority=Priority events
+instructions_priority=Define event priorities and priority colors. Calendar will color days with the defined priority color for the highest event priority on that day.
+prefs_section_priority_eventypes=Event types  
+prefs_section_priority_color=Colors
+prefs_high_priority=High priority
+prefs_medium_priority=Medium priority
+prefs_low_priority=Low priority
+prefs_move_up=Move up
+prefs_move_down=Move down
+date_format = MMMMM dd, yyyy
+date_link_format =yyyy-MM-dd
+
+java.opaque_subscribe = Publish (private)
+java.opaque_subscribe.title = Generate link for personal use in other calendar applications
+# SAK-21497
+ical_opaqueurl_header=Generate a Link to this Calendar for Personal Use
+ical_opaqueurl_header_existing = Subscribe to this Calendar
+ical_opaqueurl_explanation=Please click the 'Generate' button to create a link to this calendar. The link is for private use only and will allow events from this site to be displayed in other calendaring applications.
+ical_opaqueurl_explanation_existing = The following links are for private use only. If you have accidentally disclosed the URL to others, then please click the 'Regenerate' button below to create a new private link.
+ical_opaqueurl_myworkspace=Note: If you subscribe to the calendar in your 'Home', it will aggregate the events from the calendars of all the sites of which you are a member.
+ical_opaqueurl_generate=Generate
+ical_opaqueurl_webcal=If you click on the link below, your browser should present you with a client (e.g. Outlook) that you can use to subscribe to this calendar:
+ical_opaqueurl_http=Alternatively, copy and paste this link to your web-based or desktop calendar client.
+ical_opaqueurl_regenerate=Regenerate Links
+ical_opaqueurl_delete=Delete Links
+
+# EntityProvider properties
+calendar=Represents calendar events.
+calendar.action.site=Retrieve the calendar events for a site. The request url pattern: /direct/calendar/site/{siteId}.{format} \
+Optional query params: \
+firstDate, ISO-8601 yyyy-MM-dd format. Used for filtering. \
+lastDate, ISO-8601 yyyy-MM-dd format. Used for filtering.
+calendar.action.event=Retrieve a calendar event details specified by the site id and event id. The request url pattern: /direct/calendar/event/{siteId}/{eventId}.{format}
+calendar.action.my=Retrieve all my calendar events for all of my sites. The request url pattern: /direct/calendar/my.{format} \
+Optional query params: \
+firstDate, ISO-8601 yyyy-MM-dd format. Used for filtering. \
+lastDate, ISO-8601 yyyy-MM-dd format. Used for filtering.
+
+# Monday/Wednesday/Friday
+set.MWF.fm= {0}/{1}/{2}
+# Tuesday/Thursday
+set.TTh.fm={0}/{1}
+# Sunday/Monday/Wednesday
+set.SMW.fm={0}/{1}/{2}
+# Sunday/Monday/Tuesday/Wednesday
+set.SMTW.fm={0}/{1}/{2}/{3}
+# Sunday/Tuesday/Thursday
+set.STT.fm={0}/{1}/{2}
+# Monday/Wednesday
+set.MW.fm={0}/{1}
+
+
+## permission descriptions for calendar tool
+perm-calendar.new=Create events
+perm-calendar.delete.own=Delete own events
+perm-calendar.delete.any=Delete any  event
+perm-calendar.revise.own=Edit  own events
+perm-calendar.revise.any=Edit any  event
+perm-calendar.subscribe=Subscribe to calendars
+perm-calendar.import=Import events
+perm-calendar.read=View events
+perm-calendar.all.groups=Access/create group events
+perm-calendar.options=Change calendar options
+perm-calendar.view.audience=View event audience
+
+## Dashboard widget
+widget_title=Calendar
+events_for=Events for
+`;

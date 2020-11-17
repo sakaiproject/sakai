@@ -16,7 +16,6 @@ import { widgetpickerI18n } from "./i18n/widget-picker-i18n.js";
 import { dashboardwidgetI18n } from "./i18n/dashboard-widget-i18n.js";
 import { toolnameMappings } from "./data/toolname-mappings.js";
 import { toolnamesI18n } from "./i18n/toolnames-i18n.js";
-import { statuspanelI18n } from "./i18n/statuspanel-i18n.js";
 import { imageeditorI18n } from "./i18n/image-editor-i18n.js";
 import { dialogcontentI18n } from "./i18n/dialog-content-i18n.js";
 import { dashboardData } from "./data/course-dashboard-data.js";
@@ -25,7 +24,7 @@ import { tasksData } from "./data/tasks-data.js";
 import { forumsData } from "./data/forums-data.js";
 import { announcementsData } from "./data/course-announcements-data.js";
 import { gradesData } from "./data/course-grades-data.js";
-import { siteData } from "./data/site-data.js";
+//import { siteData } from "./data/site-data.js";
 
 import '../js/coursedashboard/sakai-course-dashboard.js';
 
@@ -33,40 +32,22 @@ export default {
   title: 'Sakai Course Dashboard',
   decorators: [withA11y, (storyFn) => {
     parent.portal = {locale: "en-GB"};
-    const baseUrl = "/sakai-ws/rest/i18n/getI18nProperties?locale=en-GB&resourceclass=org.sakaiproject.i18n.InternationalizedMessages&resourcebundle=";
-    const coursecardI18nUrl = `${baseUrl}coursecard`;
-    const courselistI18nUrl = `${baseUrl}courselist`;
-    const dashboardI18nUrl = `${baseUrl}dashboard`;
-    const widgetpanelI18nUrl = `${baseUrl}widgetpanel`;
-    const tasksI18nUrl = `${baseUrl}tasks`;
-    const gradesI18nUrl = `${baseUrl}gradebookng`;
-    const announcementsI18nUrl = `${baseUrl}announcement`;
-    const calendarI18nUrl = `${baseUrl}calendar`;
-    const toolnamesI18nUrl = `${baseUrl}toolnames`;
-    const statuspanelI18nUrl = `${baseUrl}statuspanel`;
-    const imageeditorI18nUrl = `${baseUrl}image-editor`;
-    const dialogcontentI18nUrl = `${baseUrl}dialog-content`;
-    const forumsI18nUrl = `${baseUrl}org.sakaiproject.api.app.messagecenter.bundle.Messages`;
-    const widgetpickerI18nUrl = `${baseUrl}widget-picker`;
-    const dashboardwidgetI18nUrl = `${baseUrl}dashboard-widget`;
-    const toolnameMappingsUrl = `${baseUrl}toolname-mappings`;
     fetchMock
-      .get(coursecardI18nUrl, coursecardI18n, {overwriteRoutes: true})
-      .get(courselistI18nUrl, courselistI18n, {overwriteRoutes: true})
-      .get(dashboardI18nUrl, dashboardI18n, {overwriteRoutes: true})
-      .get(widgetpanelI18nUrl, widgetpanelI18n, {overwriteRoutes: true})
-      .get(tasksI18nUrl, tasksI18n, {overwriteRoutes: true})
-      .get(gradesI18nUrl, gradesI18n, {overwriteRoutes: true})
-      .get(announcementsI18nUrl, announcementsI18n, {overwriteRoutes: true})
-      .get(calendarI18nUrl, calendarI18n, {overwriteRoutes: true})
-      .get(toolnamesI18nUrl, toolnamesI18n, {overwriteRoutes: true})
-      .get(statuspanelI18nUrl, statuspanelI18n, {overwriteRoutes: true})
-      .get(imageeditorI18nUrl, imageeditorI18n, {overwriteRoutes: true})
-      .get(dialogcontentI18nUrl, dialogcontentI18n, {overwriteRoutes: true})
-      .get(forumsI18nUrl, forumsI18n, {overwriteRoutes: true})
-      .get(widgetpickerI18nUrl, widgetpickerI18n, {overwriteRoutes: true})
-      .get(dashboardwidgetI18nUrl, dashboardwidgetI18n, {overwriteRoutes: true})
-      .get(toolnameMappingsUrl, toolnameMappings, {overwriteRoutes: true})
+      .get(/.*i18n.*coursecard/, coursecardI18n, {overwriteRoutes: true})
+      .get(/.*i18n.*courselist/, courselistI18n, {overwriteRoutes: true})
+      .get(/.*i18n.*dashboard/, dashboardI18n, {overwriteRoutes: true})
+      .get(/.*i18n.*widgetpanel/, widgetpanelI18n, {overwriteRoutes: true})
+      .get(/.*i18n.*tasks/, tasksI18n, {overwriteRoutes: true})
+      .get(/.*i18n.*gradebookng/, gradesI18n, {overwriteRoutes: true})
+      .get(/.*i18n.*announcement/, announcementsI18n, {overwriteRoutes: true})
+      .get(/.*i18n.*calendar/, calendarI18n, {overwriteRoutes: true})
+      .get(/.*i18n.*toolnames/, toolnamesI18n, {overwriteRoutes: true})
+      .get(/.*i18n.*messagecenter\.bundle\.Messages/, forumsI18n, {overwriteRoutes: true})
+      .get(/.*i18n.*widget-picker/, widgetpickerI18n, {overwriteRoutes: true})
+      .get(/.*i18n.*dashboard-widget/, dashboardwidgetI18n, {overwriteRoutes: true})
+      .get(/.*i18n.*dialog-content/, dialogcontentI18n, {overwriteRoutes: true})
+      .get(/.*i18n.*toolname-mappings/, toolnameMappings, {overwriteRoutes: true})
+      .get(/.*i18n.*image-editor/, imageeditorI18n, {overwriteRoutes: true})
       .get(/api\/addfavourite/, 200, {overwriteRoutes: true})
       .get(/api\/removefavourite/, 200, {overwriteRoutes: true})
       .get(/api\/sites\/.*\/dashboard/, dashboardData, {overwriteRoutes: true})
@@ -76,7 +57,6 @@ export default {
       .get(/api\/sites\/.*\/calendar/, calendarData, {overwriteRoutes: true})
       .get(/api\/sites\/.*\/forums/, forumsData, {overwriteRoutes: true})
       .get(/api\/sites\/.*\/grades/, gradesData, {overwriteRoutes: true})
-      .get(/api\/sites\/.*/, siteData, {overwriteRoutes: true})
       .put(/userPrefs/, 200, {overwriteRoutes: true})
       .get("*", 500, {overwriteRoutes: true});
     return storyFn();
