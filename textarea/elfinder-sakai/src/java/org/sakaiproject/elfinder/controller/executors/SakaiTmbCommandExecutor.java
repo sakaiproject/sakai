@@ -68,6 +68,10 @@ public class SakaiTmbCommandExecutor extends AbstractCommandExecutor implements 
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ImageIO.write(scaledImage, "png", out);
+
+        originalImage.flush();
+        scaledImage.flush();
+
         return out;
     }
 }
