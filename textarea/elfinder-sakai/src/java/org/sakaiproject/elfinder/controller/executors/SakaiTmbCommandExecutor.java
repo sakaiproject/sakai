@@ -25,16 +25,20 @@ import cn.bluejoe.elfinder.service.FsService;
 
 public class SakaiTmbCommandExecutor extends AbstractCommandExecutor implements CommandExecutor {
 
+    public static final long MAX_TMB_SIZE_BYTES = 20971520;
+
     @Override
     public void execute(FsService fsService, HttpServletRequest request, HttpServletResponse response, ServletContext servletContext) throws Exception {
         String target = request.getParameter("target");
         FsItemEx fsi = super.findItem(fsService, target);
-        int width = fsService.getServiceConfig().getTmbWidth();
-        try (InputStream is = fsi.openInputStream()) {
-            ByteArrayOutputStream baos = resize(is, width);
-            response.setHeader(HttpHeaders.LAST_MODIFIED, DateTimeFormatter.RFC_1123_DATE_TIME.format(ZonedDateTime.now().withZoneSameInstant(ZoneId.of("GMT"))));
-            response.setHeader(HttpHeaders.EXPIRES, DateTimeFormatter.RFC_1123_DATE_TIME.format(ZonedDateTime.now().withZoneSameInstant(ZoneId.of("GMT")).plus(2, ChronoUnit.YEARS)));
-            response.getOutputStream().write(baos.toByteArray());
+        if (fsi.getSize() < MAX_TMB_SIZE_BYTES) { // image must be less than MAX_TMB_SIZE_BYTES
+            int width = fsService.getServiceConfig().getTmbWidth();
+            try (InputStream is = fsi.openInputStream()) {
+                ByteArrayOutputStream baos = resize(is, width);
+                response.setHeader(HttpHeaders.LAST_MODIFIED, DateTimeFormatter.RFC_1123_DATE_TIME.format(ZonedDateTime.now().withZoneSameInstant(ZoneId.of("GMT"))));
+                response.setHeader(HttpHeaders.EXPIRES, DateTimeFormatter.RFC_1123_DATE_TIME.format(ZonedDateTime.now().withZoneSameInstant(ZoneId.of("GMT")).plus(2, ChronoUnit.YEARS)));
+                response.getOutputStream().write(baos.toByteArray());
+            }
         }
     }
 
@@ -68,6 +72,10 @@ public class SakaiTmbCommandExecutor extends AbstractCommandExecutor implements 
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ImageIO.write(scaledImage, "png", out);
+
+        originalImage.flush();
+        scaledImage.flush();
+
         return out;
     }
 }
