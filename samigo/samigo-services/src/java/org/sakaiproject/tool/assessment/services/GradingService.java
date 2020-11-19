@@ -1567,12 +1567,11 @@ public class GradingService
     {
     	// return (double) 0;
     	// Para que descuente (For discount)
-    	double score;
+    	double score = (double) 0;
     	if ((TypeIfc.EXTENDED_MATCHING_ITEMS).equals(itemType)||(TypeIfc.MULTIPLE_CHOICE).equals(itemType)||(TypeIfc.TRUE_FALSE).equals(itemType)||(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION).equals(itemType)){
     		score = Math.abs(answer.getDiscount()) * ((double) -1);
-    	}else{
-    		score = (double) 0;
     	}
+
     	answer.setPartialCredit(score);
     	return score;
     }
