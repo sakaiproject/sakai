@@ -670,25 +670,14 @@ public class SiteHandler extends WorksiteHandler
 
 		if (rcontext.uses(INCLUDE_SITE_NAV))
 		{
-
 			boolean loggedIn = session.getUserId() != null;
 			boolean topLogin = ServerConfigurationService.getBoolean("top.login", true);
-
 
 			String accessibilityURL = ServerConfigurationService
 					.getString("accessibility.url");
 			rcontext.put("siteNavHasAccessibilityURL", Boolean
 					.valueOf((accessibilityURL != null && !accessibilityURL.equals(""))));
 			rcontext.put("siteNavAccessibilityURL", accessibilityURL);
-			// rcontext.put("siteNavSitAccessability",
-			// Web.escapeHtml(rb.getString("sit_accessibility")));
-			// rcontext.put("siteNavSitJumpContent",
-			// Web.escapeHtml(rb.getString("sit_jumpcontent")));
-			// rcontext.put("siteNavSitJumpTools",
-			// Web.escapeHtml(rb.getString("sit_jumptools")));
-			// rcontext.put("siteNavSitJumpWorksite",
-			// Web.escapeHtml(rb.getString("sit_jumpworksite")));
-
 			rcontext.put("siteNavTopLogin", Boolean.valueOf(topLogin));
 			rcontext.put("siteNavLoggedIn", Boolean.valueOf(loggedIn));
 
@@ -741,7 +730,6 @@ public class SiteHandler extends WorksiteHandler
 	{
 		if (rcontext.uses(INCLUDE_LOGO))
 		{
-
 			String skin = getSiteSkin(siteId);
 			String skinRepo = ServerConfigurationService.getString("skin.repo");
 			rcontext.put("logoSkin", skin);
@@ -795,17 +783,14 @@ public class SiteHandler extends WorksiteHandler
 			Session session, String siteId, String prefix, boolean addLogout)
 			throws IOException
 	{
-
 		if (rcontext.uses(INCLUDE_TABS))
 		{
-
 			// for skinning
 			String siteType = portal.calcSiteType(siteId);
 
 			// If we have turned on auto-state reset on navigation, we generate
 			// the "site-reset" "worksite-reset" and "gallery-reset" urls
-            if ("true".equalsIgnoreCase(ServerConfigurationService
-					.getString(Portal.CONFIG_AUTO_RESET)))
+			if ("true".equalsIgnoreCase(ServerConfigurationService.getString(Portal.CONFIG_AUTO_RESET)))
 			{
 				prefix = prefix + "-reset";
 			}
@@ -939,9 +924,7 @@ public class SiteHandler extends WorksiteHandler
 			siteView.setToolContextPath(null);
 			rcontext.put("tabsSites", siteView.getRenderContextObject());
 
-			String cssClass = (siteType != null) ? "siteNavWrap " + siteType
-					: "siteNavWrap";
-
+			String cssClass = (siteType != null) ? "siteNavWrap " + siteType : "siteNavWrap";
 			rcontext.put("tabsCssClass", cssClass);
 
 			rcontext.put("tabsAddLogout", Boolean.valueOf(addLogout));
@@ -951,21 +934,6 @@ public class SiteHandler extends WorksiteHandler
 						+ ServerConfigurationService.getString("portalPath")
 						+ "/logout_gallery";
 				rcontext.put("tabsLogoutUrl", logoutUrl);
-				// rcontext.put("tabsSitLog",
-				// Web.escapeHtml(rb.getString("sit_log")));
-			}
-
-			rcontext.put("tabsCssClass", cssClass);
-
-			rcontext.put("tabsAddLogout", Boolean.valueOf(addLogout));
-			if (addLogout)
-			{
-				String logoutUrl = RequestFilter.serverUrl(req)
-						+ ServerConfigurationService.getString("portalPath")
-						+ "/logout_gallery";
-				rcontext.put("tabsLogoutUrl", logoutUrl);
-				// rcontext.put("tabsSitLog",
-				// Web.escapeHtml(rb.getString("sit_log")));
 			}
 
 			boolean allowAddSite = false;
@@ -1256,6 +1224,5 @@ public class SiteHandler extends WorksiteHandler
 
 		return true;
 	}
-
 
 }
