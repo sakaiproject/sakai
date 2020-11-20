@@ -310,10 +310,10 @@
 			text-align: right;
 
 			> a.paginate_button {
-				@extend input[type="submit"];
+				@extend input, [type="submit"];
 
 				&.disabled {
-					@extend input[type="submit"][disabled="disabled"];
+					@extend input, [type="submit"], [disabled="disabled"];
 				}
 			}
 
@@ -328,7 +328,7 @@
 					}
 
 					&.current {
-						@extend .btn-default:active:hover;
+						@extend .btn-default, :active, :hover;
 					}
 				}
 
@@ -379,7 +379,7 @@
 		@extend button;
 
 		&.disabled {
-			@extend input[type="submit"][disabled="disabled"];
+			@extend input, [type="submit"], [disabled="disabled"];
 			background: #f3f3f3;
 			border-color: #e7e7e7;
 			color: #717171 !important;
