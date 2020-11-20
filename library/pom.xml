@@ -474,9 +474,9 @@
                     </plugin>
 
 					<plugin>
-					   <groupId>com.github.warmuuh</groupId>
+					   <groupId>com.gitlab.haynes</groupId>
 					   <artifactId>libsass-maven-plugin</artifactId>
-					   <version>0.2.10-libsass_3.5.3</version>
+					   <version>0.2.26</version>
 					   <executions>
 					       <execution>
 					           <phase>process-resources</phase>
