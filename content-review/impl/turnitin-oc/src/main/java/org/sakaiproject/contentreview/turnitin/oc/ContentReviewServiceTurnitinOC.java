@@ -782,6 +782,28 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		
 		return response;
 	}
+	
+	private void indexSubmission(String reportId) throws Exception {
+		HashMap<String, Object> response = makeHttpCall("PUT",
+				getNormalizedServiceUrl() + "submissions/" + reportId + "/index",
+				SIMILARITY_REPORT_HEADERS,
+				null,
+				null);
+
+		// Get response:
+		int responseCode = !response.containsKey(RESPONSE_CODE) ? 0 : (int) response.get(RESPONSE_CODE);
+		String responseMessage = !response.containsKey(RESPONSE_MESSAGE) ? "" : (String) response.get(RESPONSE_MESSAGE);
+		String responseBody = !response.containsKey(RESPONSE_BODY) ? "" : (String) response.get(RESPONSE_BODY);
+
+		if ((responseCode >= 200) && (responseCode < 300)) {
+			log.info("Successfully indexed submission: " + reportId);
+		} else if ((responseCode == 400)) {
+			log.info("File must be uploaded to submission before indexing for submission: " + reportId);
+		} else {
+			throw new ContentReviewProviderException("Submission failed to be indexed: " + responseCode + ", " + responseMessage + ", " + responseBody,
+					createLastError(doc -> createFormattedMessageXML(doc, "report.error.unsuccessful", responseMessage, responseCode)));
+		}
+	}
 
 	private void generateSimilarityReport(String reportId, String assignmentRef) throws Exception {
 		
@@ -1180,26 +1202,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				if (!incrementItem(item)) {
 					errors++;
 					continue;
-				}						
-				// Handle items that only generate reports on due date				
-				// Get assignment associated with current item's task Id
-				Assignment assignment = assignmentService.getAssignment(entityManager.newReference(item.getTaskId()));
-				String reportGenSpeed = null;
-				if(assignment != null) {
-					Date assignmentDueDate = Date.from(assignment. getDueDate());					
-					reportGenSpeed = assignment.getProperties().get("report_gen_speed");
-					// If report gen speed is set to due date, and it's before the due date right now, do not process item
-					if (assignmentDueDate != null && GENERATE_REPORTS_ON_DUE_DATE.equals(reportGenSpeed) 
-							&& assignmentDueDate.after(new Date())) {
-						log.info("Report generate speed is 2, skipping for now. ItemID: " + item.getId());
-						// We don't items with gen speed 2 items to exceed retry count maximum
-						// Reset retry count to zero
-						item.setRetryCount(Long.valueOf(0));
-						item.setNextRetryTime(getDueDateRetryTime(assignmentDueDate));
-						crqs.update(item);
-						continue;
-					}
 				}
+				Assignment assignment = assignmentService.getAssignment(entityManager.newReference(item.getTaskId()));
 
 				// EXTERNAL ID DOES NOT EXIST, CREATE SUBMISSION AND UPLOAD CONTENTS TO TCA
 				// (STAGE 1)
@@ -1378,25 +1382,52 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 
 	private void handleSubmissionStatus(JSONObject submissionJSON, ContentReviewItem item, Assignment assignment) {
 		try {
-
-			Date assignmentDueDate = Date.from(assignment.getDueDate());
-			String reportGenSpeed = assignment.getProperties().get("report_gen_speed");
+			Date assignmentDueDate = null;
+			String reportGenSpeed = null;
+			if(assignment != null) {
+				assignmentDueDate = Date.from(assignment.getDueDate());
+				reportGenSpeed = assignment.getProperties().get("report_gen_speed");
+			}
 
 			String submissionStatus = submissionJSON.getString("status");
 
 			switch (submissionStatus) {
 			case "COMPLETE":
-				// If submission status is complete, start similarity report process
-				generateSimilarityReport(item.getExternalId(), item.getTaskId());
-				// Update item status for loop 2
-				item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE);
-				// Reset retry count
-				item.setRetryCount(new Long(0));
 				Calendar cal = Calendar.getInstance();
 				// Reset cal to current time
 				cal.setTime(new Date());
-				// Reset delay time
-				cal.add(Calendar.MINUTE, getDelayTime(item.getRetryCount()));
+				if (assignment != null
+						&& assignmentDueDate != null 
+						&& assignmentDueDate.after(new Date())
+						&& GENERATE_REPORTS_ON_DUE_DATE.equals(reportGenSpeed)) {
+					//for assignments that only generate reports on due date, we want to
+					//index the completed submission before the due date so that all
+					//submissions are indexed before reports are generated (to help
+					//detect collusion between submissions). Report generation
+					//should be delayed until due date as well.
+					try {
+						Map<String, String> assignmentSettings = assignment.getProperties();
+						//set item retryTime to due date
+						cal.setTime(getDueDateRetryTime(assignmentDueDate));
+						if("true".equals(assignmentSettings.get("store_inst_index"))){
+							indexSubmission(item.getExternalId());
+						}
+					}catch (Exception e) {
+						log.error(e.getMessage(), e);
+						//continue with the workflow if this fails as this is only
+						//assisting with collusion check
+					}
+				}else {
+					// For all other assignments (no due date, or generate immeidately, or due date in the past, etc)
+					// If submission status is complete, start similarity report process
+					generateSimilarityReport(item.getExternalId(), item.getTaskId());
+					// Reset delay time
+					cal.add(Calendar.MINUTE, getDelayTime(item.getRetryCount()));
+					// Update item status for loop 2
+					item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE);
+				}
+				// Reset retry count
+				item.setRetryCount(new Long(0));
 				// Schedule next retry time
 				item.setNextRetryTime(cal.getTime());
 				crqs.update(item);
