@@ -190,17 +190,16 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
                     try {
                         currentMessage = synopticMsgcntrManager.getPvtMessageManager().getPrivateMessage(id);
                     } catch (MessagingException me) {
+                    	String mailSupport = StringUtils.trimToNull(serverConfigurationService.getString("mail.support"));
                         if (me.getMessage().startsWith(MESSAGE_ERROR_521)) {
                             // BOUNCE REPLY - send a message back to the user to let them know their email failed
                             String errMsg = rb.getString("mail.support.521") + "\n\n";
-                            String mailSupport = StringUtils.trimToNull(serverConfigurationService.getString("mail.support"));
                             if (StringUtils.isNotBlank(mailSupport)) {
                                 errMsg += rb.getFormattedMessage("err_questions", mailSupport) + "\n";
                             }
                             throw new RejectException(Integer.parseInt(MESSAGE_ERROR_521), errMsg);
                         }
                         String errMsg = rb.getString("mail.support.421") + "\n\n";
-                        String mailSupport = StringUtils.trimToNull(serverConfigurationService.getString("mail.support"));
                         if (StringUtils.isNotBlank(mailSupport)) {
                             errMsg += rb.getFormattedMessage("err_questions", mailSupport) + "\n";
                         }
