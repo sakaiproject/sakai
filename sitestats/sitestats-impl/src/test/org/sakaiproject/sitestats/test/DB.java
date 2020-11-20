@@ -97,6 +97,8 @@ public class DB extends HibernateDaoSupport {
                 session.createCriteria(UserStatImpl.class).list().forEach(session::delete);
                 session.createCriteria(ServerStatImpl.class).list().forEach(session::delete);
                 session.flush();
+                // Were they actually deleted?
+                session.createCriteria(SitePresenceImpl.class).list().forEach(System.out::print);
                 return null;
             });
         } catch(DataAccessException dae){
