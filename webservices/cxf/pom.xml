@@ -142,7 +142,7 @@
         <dependency>
             <groupId>org.jumpmind.symmetric</groupId>
             <artifactId>symmetric-csv</artifactId>
-            <version>3.6.2</version>
+            <version>3.5.19</version>
         </dependency>
         <dependency>
             <groupId>xalan</groupId>
