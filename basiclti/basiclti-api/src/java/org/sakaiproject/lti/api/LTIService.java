@@ -129,10 +129,9 @@ public interface LTIService extends LTISubstitutionsFilter {
             "pl_header:header:fields=pl_launch,pl_linkselection",
             "pl_launch:checkbox:label=bl_pl_launch",
             "pl_linkselection:checkbox:label=bl_pl_linkselection",
-            // SAK-44676 and SAK-44637 - delaying pl_lessonsselection until Sakai 21.1 for conversion staging
-            // "pl_placement:header:fields=pl_lessonsselection,pl_assessmentselection,pl_content_editor,pl_importitem,pl_fileitem",
-            // "pl_lessonsselection:checkbox:label=bl_pl_lessonsselection",
-            "pl_placement:header:fields=pl_assessmentselection,pl_content_editor,pl_importitem,pl_fileitem",
+            // SAK-44637 - re-enable pl_lessonsselection
+            "pl_placement:header:fields=pl_lessonsselection,pl_assessmentselection,pl_content_editor,pl_importitem,pl_fileitem",
+            "pl_lessonsselection:checkbox:label=bl_pl_lessonsselection",
             "pl_assessmentselection:checkbox:label=bl_pl_assessmentselection",
             "pl_contenteditor:checkbox:label=bl_pl_contenteditor",
             "pl_privacy:checkbox:label=bl_pl_privacy:role=admin",
