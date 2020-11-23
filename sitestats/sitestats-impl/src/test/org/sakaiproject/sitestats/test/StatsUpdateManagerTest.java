@@ -73,7 +73,6 @@ import org.sakaiproject.sitestats.test.mocks.FakeEvent;
 import org.sakaiproject.sitestats.test.mocks.FakeSite;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.aop.framework.Advised;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -142,7 +141,6 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 
 	// Basic tests: not much to test, work is on other methods...
 	@SuppressWarnings("unchecked")
-	@DirtiesContext
 	@Test
 	public void testCollectEvent() {
 		FakeEvent e1 = spy(FakeEvent.class).set(FakeData.EVENT_CHATNEW, "/chat/msg/"+FakeData.SITE_A_ID, FakeData.SITE_A_ID, true, 0);
@@ -167,7 +165,6 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 	
 	// Test invalid events
 	@SuppressWarnings("unchecked")
-	@DirtiesContext
 	@Test
 	public void testInvalidEvents() {
 		// #1: send invalid events
@@ -221,7 +218,6 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 	}
 	
 	@SuppressWarnings("unchecked")
-	@DirtiesContext
 	@Test
 	public void testSiteVisitsDifferentUsers() {
 		// #1 Test: 2 site visit (different users)
@@ -262,7 +258,6 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 	}
 
 	@SuppressWarnings("unchecked")
-	@DirtiesContext
 	@Test
 	public void testSiteVisitsSameUsers() {
 		// #2 Test: 2 site visit (same users)
@@ -324,7 +319,6 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 	}
 	
 	@SuppressWarnings("unchecked")
-	@DirtiesContext
 	@Test
 	public void testActivityEventDifferentUsers() {
 		// #1 Test: 2 new chat msg (different users)
@@ -365,7 +359,6 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 	}
 
 	@SuppressWarnings("unchecked")
-	@DirtiesContext
 	@Test
 	public void testActivityEventSameUsers() {
 		// #2 Test: 2 new chat msg (same users)
@@ -423,7 +416,6 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 	}
 
 	@SuppressWarnings("unchecked")
-	@DirtiesContext
 	@Test
 	public void testResourceActivityWithAttachments() {
 		// Test: valid resource events
@@ -446,7 +438,6 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 	}
 	
 	@SuppressWarnings("unchecked")
-	@DirtiesContext
 	@Test
 	public void testSitePresencesDifferentUsers() throws InterruptedException {
 		// #1 Test : 2 site visit (different users)
@@ -502,7 +493,6 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 	}
 
 	@SuppressWarnings("unchecked")
-	@DirtiesContext
 	@Test
 	public void testSitePresencesTwoSitesSameUsers() throws InterruptedException {
 		// #2 Test: 2 site visit (same users)
@@ -549,7 +539,6 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 	}
 
 	@SuppressWarnings("unchecked")
-	@DirtiesContext
 	@Test
 	public void testSitePresencesExistingPresence() throws InterruptedException {
 		// #3 Test: one pres.end (with one pres.begin already on db)
@@ -582,7 +571,6 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 	}
 
 	@SuppressWarnings("unchecked")
-	@DirtiesContext
 	@Test
 	public void testSitePresencesExistingPresenceWithNoDuration() throws InterruptedException {
 		// #4 Test: one pres.end (with one pres.begin already on db, with duration = 0)
@@ -625,7 +613,6 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 	
 	// Basic configuration test
 	@SuppressWarnings("unchecked")
-	@DirtiesContext
 	@Ignore
 	@Test
 	public void testConfigIsCollectThreadEnabled() throws Exception {
@@ -657,7 +644,6 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 	}
 	
 	@SuppressWarnings("unchecked")
-	@DirtiesContext
 	@Test
 	public void testConfigCollectThreadUpdateInterval() throws Exception {
 		// #2: collect thread update interval
@@ -689,7 +675,6 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 	}
 	
 	@SuppressWarnings("unchecked")
-	@DirtiesContext
 	@Test
 	public void testConfigIsCollectAdminEvents() {
 		// #3: collect admin events
@@ -714,7 +699,6 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 	}
 	
 	@SuppressWarnings("unchecked")
-	@DirtiesContext
 	@Test
 	public void testConfigIsCollectEventsForSiteWithToolOnly() {
 		// #4: collect for sites with SiteStats only
@@ -732,7 +716,6 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 	}
 
 	@SuppressWarnings("unchecked")
-	@DirtiesContext
 	@Test
 	public void testConfigIsCollectEventsForAnySite() {
 		// make sure events get processed for any sites
@@ -749,7 +732,6 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 	}
 	
 	@SuppressWarnings("unchecked")
-	@DirtiesContext
 	@Test
 	public void testConfigIsShowAnonymousAccessEvents() throws Exception {
 		// #3: ShowAnonymousAccessEvents
@@ -778,7 +760,6 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 	}
 	
 	@SuppressWarnings("unchecked")
-	@DirtiesContext
 	@Test
 	public void testConfigIsEventContextSupported() throws Exception {
 		// #3: EventContextSupported
