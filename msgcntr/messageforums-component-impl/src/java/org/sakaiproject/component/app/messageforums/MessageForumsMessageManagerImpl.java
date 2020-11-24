@@ -43,6 +43,7 @@ import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
+import org.sakaiproject.api.app.messageforums.DraftRecipient;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
@@ -2091,4 +2092,23 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
 	}
 
+	@Override
+	public void saveDraftRecipients(long msgId, List<DraftRecipient> recipients) {
+		for (DraftRecipient dr : recipients) {
+			getHibernateTemplate().persist(dr);
+		}
+	}
+
+	@Override
+	public List<DraftRecipient> findDraftRecipientsByMessageId(long msgId) {
+		return getHibernateTemplate().execute(session -> session.getNamedQuery("findDraftRecipientsByMessageId"))
+				.setParameter("id", msgId, LongType.INSTANCE).list();
+	}
+
+	@Override
+	public void deleteDraftRecipientsByMessageId(long msgId) {
+		for (DraftRecipient dr : findDraftRecipientsByMessageId(msgId)) {
+			getHibernateTemplate().delete(dr);
+		}
+	}
 }

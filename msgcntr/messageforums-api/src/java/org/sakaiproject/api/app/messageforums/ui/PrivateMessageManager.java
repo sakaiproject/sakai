@@ -29,6 +29,8 @@ import javax.mail.internet.MimeMessage;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Attachment;
+import org.sakaiproject.api.app.messageforums.DraftRecipient;
+import org.sakaiproject.api.app.messageforums.MembershipItem;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.PrivateForum;
@@ -120,6 +122,7 @@ public interface PrivateMessageManager {
      * @param asEmail
      */
     public void sendPrivateMessage(PrivateMessage message, Map<User, Boolean> recipients, boolean asEmail);
+    public void sendPrivateMessage(PrivateMessage message, Map<User, Boolean> recipients, boolean asEmail, List<MembershipItem> draftRecipients, List<MembershipItem> draftBccRecipients);
     
     
     /**
