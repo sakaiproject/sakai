@@ -29,6 +29,8 @@ import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
+import javax.persistence.Enumerated;
+import javax.persistence.EnumType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -95,6 +97,10 @@ public class Evaluation implements Modifiable, Serializable {
     @OneToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "rbc_eval_criterion_outcomes")
     private List<CriterionOutcome> criterionOutcomes;
+
+    @Enumerated
+    @Column(nullable = false)
+    private EvaluationStatus status = EvaluationStatus.DRAFT;
 
     @Embedded
     private Metadata metadata;

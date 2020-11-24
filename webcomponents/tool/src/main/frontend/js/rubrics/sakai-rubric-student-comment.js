@@ -77,4 +77,6 @@ export class SakaiRubricStudentComment extends RubricsElement {
   }
 }
 
-customElements.define("sakai-rubric-student-comment", SakaiRubricStudentComment);
+if (!customElements.get("sakai-rubric-student-comment", SakaiRubricStudentComment)) {
+  customElements.define("sakai-rubric-student-comment", SakaiRubricStudentComment);
+}
