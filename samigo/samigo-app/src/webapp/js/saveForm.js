@@ -163,7 +163,7 @@ function SaveFormContentAsync(toUrl, formId, buttonName, updateVar, updateVar2, 
         }
         if (j >= 0) {
             var dueDateorRetractDate = text.substring(i+7, j);
-            if (dueDateorRetractDate - timeNow <= repeatMilliseconds) {
+            if (document.getElementById("progressbar") === null && dueDateorRetractDate - timeNow <= repeatMilliseconds) {
                 $("#autosave-timeleft-warning").show();
             }
         }
