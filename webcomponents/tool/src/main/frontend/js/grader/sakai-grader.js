@@ -680,6 +680,8 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     if (formData.valid) {
       formData.set("gradeOption", "return");
       this.submitGradingData(formData);
+      const rubricGrading = document.getElementsByTagName("sakai-rubric-grading").item(0);
+      rubricGrading && rubricGrading.save();
     }
   }
 
@@ -698,9 +700,6 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       this.submission = submission;
       this.totalGraded = this.submissions.filter(s => s.graded).length;
       this.saved = true;
-
-      const rubricGrading = document.getElementsByTagName("sakai-rubric-grading").item(0);
-      rubricGrading && rubricGrading.save();
     }).catch(e => console.error(`Failed to save grade for submission ${this.submission.id}: ${e}`));
   }
 
