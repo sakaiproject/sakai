@@ -27,6 +27,11 @@
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/AnonymousMapping.hbm.xml</value>
             </list>
         </property>
+        <property name="annotatedClasses">
+            <list>
+                <value>org.sakaiproject.api.app.messageforums.DraftRecipient</value>
+            </list>
+        </property>
     </bean>
    
 

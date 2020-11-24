@@ -295,4 +295,10 @@ public interface MessageForumsMessageManager {
 	 * @return
 	 */
 	public List getRecentDiscussionForumThreadsByTopicIds(List<Long> topicIds, int numberOfMessages);
+
+	public void saveDraftRecipients(long msgId, List<DraftRecipient> recipients);
+
+	public List<DraftRecipient> findDraftRecipientsByMessageId(long msgId);
+
+	public void deleteDraftRecipientsByMessageId(long msgId);
 }

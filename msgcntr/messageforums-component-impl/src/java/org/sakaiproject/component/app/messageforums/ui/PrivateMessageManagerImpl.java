@@ -23,12 +23,14 @@ package org.sakaiproject.component.app.messageforums.ui;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
@@ -55,6 +57,8 @@ import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.DefaultPermissionsManager;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
+import org.sakaiproject.api.app.messageforums.DraftRecipient;
+import org.sakaiproject.api.app.messageforums.MembershipItem;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
@@ -1199,6 +1203,11 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
    * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#sendPrivateMessage(org.sakaiproject.api.app.messageforums.PrivateMessage, java.util.Set, boolean)
    */
   public void sendPrivateMessage(PrivateMessage message, Map<User, Boolean> recipients, boolean asEmail) {
+    sendPrivateMessage(message, recipients, asEmail, Collections.emptyList(), Collections.emptyList());
+  }
+
+  @Override
+  public void sendPrivateMessage(PrivateMessage message, Map<User, Boolean> recipients, boolean asEmail, List<MembershipItem> draftRecipients, List<MembershipItem> draftBccRecipients) {
 
     try 
     {
@@ -1230,19 +1239,6 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 
     User currentUser = currentUser(message, isMailArchive);
     List recipientList = new UniqueArrayList();
-
-    /** test for draft message */
-    if (message.getDraft().booleanValue())
-    {
-      PrivateMessageRecipientImpl receiver = new PrivateMessageRecipientImpl(
-      		currentUserAsString, typeManager.getDraftPrivateMessageType(),
-      		contextId, Boolean.TRUE, false);
-
-      recipientList.add(receiver);
-      message.setRecipients(recipientList);
-      saveMessage(message, isMailArchive, contextId, currentUserAsString);
-      return;
-    }
 
     //build the message body
     List additionalHeaders = new ArrayList(1);
@@ -1283,7 +1279,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     
     /** add sender as a saved recipient */
     PrivateMessageRecipientImpl sender = new PrivateMessageRecipientImpl(
-    		currentUserAsString, typeManager.getSentPrivateMessageType(),
+    		currentUserAsString, message.getDraft() ? typeManager.getDraftPrivateMessageType() : typeManager.getSentPrivateMessageType(),
     		contextId, Boolean.TRUE, false);
 
     recipientList.add(sender);
@@ -1293,6 +1289,15 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 	Message savedMessage = saveMessage(message, isMailArchive, contextId, currentUserAsString);
 
     message.setId(savedMessage.getId());
+
+    // clean up anything in the draftrecipients table since the message has now been sent/saved again
+    List<DraftRecipient> allDraftRecipients = getDraftRecipients(message.getId(), draftRecipients, draftBccRecipients);
+    messageManager.deleteDraftRecipientsByMessageId(message.getId());
+
+    if (message.getDraft()) {
+        messageManager.saveDraftRecipients(message.getId(), allDraftRecipients);
+        return;
+    }
 
     String bodyString = buildMessageBody(message);
     List<InternetAddress> replyEmail  = new ArrayList<>();
@@ -2317,6 +2322,13 @@ return topicTypeUuid;
 	  descMap.put("en-US", "User sent a private message with subject: " + subject);
 	  lrsObject.setDescription(descMap);
 	  return new LRS_Statement(student, verb, lrsObject);
+  }
+
+  private List<DraftRecipient> getDraftRecipients(long msgId, List<MembershipItem> recipients, List<MembershipItem> bccRecipients) {
+	  List<DraftRecipient> draftRecipients = recipients.stream().map(mi -> DraftRecipient.from(mi, msgId, false)).collect(Collectors.toList());
+	  draftRecipients.addAll(bccRecipients.stream().map(mi -> DraftRecipient.from(mi, msgId, true)).collect(Collectors.toList()));
+
+	  return draftRecipients.stream().filter(dr -> dr.getType() != MembershipItem.TYPE_NOT_SPECIFIED).collect(Collectors.toList());
   }
 
 }

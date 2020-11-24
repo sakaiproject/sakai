@@ -73,6 +73,7 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.messageforums.DraftRecipientsDelegate.SelectedLists;
 import org.sakaiproject.tool.messageforums.ui.DecoratedAttachment;
 import org.sakaiproject.tool.messageforums.ui.PrivateForumDecoratedBean;
 import org.sakaiproject.tool.messageforums.ui.PrivateMessageDecoratedBean;
@@ -414,11 +415,14 @@ public class PrivateMessagesTool {
   private boolean showProfileInfoMsg = false;
   @Getter
   private boolean showProfileLink = false;
+
+  private final DraftRecipientsDelegate drDelegate;
   
   public PrivateMessagesTool()
   {    
 	  showProfileInfoMsg = ServerConfigurationService.getBoolean("msgcntr.messages.showProfileInfo", true);
 	  showProfileLink = showProfileInfoMsg && ServerConfigurationService.getBoolean("profile2.profile.link.enabled", true);
+	  drDelegate = new DraftRecipientsDelegate();
   }
 
   public void initializePrivateMessageArea() {
@@ -1169,7 +1173,17 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	  setAttachments(attachments);
 	  
 	  setSelectedLabel(draft.getLabel());
-	  
+
+	  // get the draft recipients and populate the selected lists
+	  if (totalComposeToList == null || totalComposeToBccList == null) {
+		  initializeComposeToLists();
+	  }
+	  SelectedLists selectedLists = drDelegate.populateDraftRecipients(draft.getId(), messageManager, totalComposeToList, totalComposeToBccList);
+	  selectedComposeToList = selectedLists.to;
+	  selectedComposeBccList = selectedLists.bcc;
+
+	  setBooleanEmailOut(draft.getExternalEmail());
+
 	  //go to compose page
 	  setFromMainOrHp();
 	  fromMain = (StringUtils.isEmpty(msgNavMode)) || ("privateMessages".equals(msgNavMode));
@@ -1841,7 +1855,10 @@ public void processChangeSelectView(ValueChangeEvent eve)
     dMsg.setDeleted(Boolean.FALSE);
     dMsg.setExternalEmail(booleanEmailOut);
 
-    prtMsgManager.sendPrivateMessage(dMsg, getRecipients(), isSendEmail()); 
+    List<MembershipItem> draftRecipients = drDelegate.getDraftRecipients(getSelectedComposeToList(), courseMemberMap);
+    List<MembershipItem> draftBccRecipients = drDelegate.getDraftRecipients(getSelectedComposeBccList(), courseMemberMap);
+
+    prtMsgManager.sendPrivateMessage(dMsg, getRecipients(), isSendEmail(), draftRecipients, draftBccRecipients);
 
     //reset contents
     resetComposeContents();
@@ -4615,4 +4632,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
       return "(" + role + ") " + groups;
     }
 
+    public boolean isDisplayDraftRecipientsNotFoundMsg() {
+        return drDelegate.isDisplayDraftRecipientsNotFoundMsg();
+    }
 }
