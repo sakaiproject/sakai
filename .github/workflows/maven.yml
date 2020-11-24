@@ -32,7 +32,5 @@ jobs:
       env:
         MAVEN_OPTS: -Djava.awt.headless=true -Dorg.slf4j.simpleLogger.defaultLogLevel=info -Dmaven.wagon.http.retryHandler.count=2 -Dmaven.wagon.http.pool=true
       run: mvn test --batch-mode
-    - name: Publish Test Report
-      uses: scacap/action-surefire-report@v1
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Report jUnit Annotations as Github Actions Annotations
+      uses: shyim/junit-report-annotations-action@0.2.0
