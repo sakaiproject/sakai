@@ -104,7 +104,7 @@ public class NumberUtilTest {
 		
 		Assert.assertFalse(NumberUtil.isValidLocaleDouble("A4FC9", arabicLocale));
 		Assert.assertFalse(NumberUtil.isValidLocaleDouble("0x42", arabicLocale));
-		Assert.assertTrue(NumberUtil.isValidLocaleDouble("1.2345678E7", arabicLocale));
+		Assert.assertFalse(NumberUtil.isValidLocaleDouble("1.2345678E7", arabicLocale));
 				
 		
 		// Just tests function call
