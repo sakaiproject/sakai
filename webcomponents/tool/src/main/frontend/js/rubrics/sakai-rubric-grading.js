@@ -64,6 +64,11 @@ export class SakaiRubricGrading extends RubricsElement {
 
     return html`
       <h3 style="margin-bottom: 10px;">${this.rubric.title}</h3>
+      ${this.evaluation.status === "DRAFT" ? html`
+        <div class="sak-banner-warn">
+          <sr-lang key="draft_evaluation">DRAFT</sr-lang>
+        </div>
+      ` : "" }
       <div class="criterion grading style-scope sakai-rubric-criteria-grading" style="margin-bottom: 10px;">
       ${this.criteria.map(c => html`
         <div id="criterion_row_${c.id}" class="criterion-row">
@@ -166,7 +171,7 @@ export class SakaiRubricGrading extends RubricsElement {
   }
 
   save() {
-    this._dispatchRatingChanged(this.criteria);
+    this._dispatchRatingChanged(this.criteria, 2);
   }
 
   decorateCriteria() {
@@ -217,7 +222,7 @@ export class SakaiRubricGrading extends RubricsElement {
     this.updateTotalPoints();
   }
 
-  _dispatchRatingChanged(criteria) {
+  _dispatchRatingChanged(criteria, status) {
 
     const crit = criteria.map(c => {
 
@@ -236,7 +241,8 @@ export class SakaiRubricGrading extends RubricsElement {
       evaluatedItemOwnerId: this.evaluatedItemOwnerId,
       overallComment: "",
       criterionOutcomes: crit,
-      toolItemRubricAssociation: this.association._links.self.href
+      toolItemRubricAssociation: this.association._links.self.href,
+      status: status
     };
 
     if (this.evaluation && this.evaluation.id) {
@@ -305,6 +311,8 @@ export class SakaiRubricGrading extends RubricsElement {
     this.dispatchEvent(new CustomEvent("rubric-ratings-changed", { bubbles: true, composed: true }));
     this.requestUpdate();
     this.updateTotalPoints();
+
+    this._dispatchRatingChanged(this.criteria, 1);
   }
 
   commentShown(e) {
