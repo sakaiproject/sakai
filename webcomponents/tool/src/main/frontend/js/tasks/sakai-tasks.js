@@ -26,7 +26,7 @@ export class SakaiTasks extends LitElement {
     super();
     this.tasks = [];
     this.currentFilter = "none";
-    loadProperties("tasks").then(r => this.i18n = r);;
+    loadProperties("tasks").then(r => this.i18n = r);
   }
 
   set tasks(value) {
@@ -74,7 +74,7 @@ export class SakaiTasks extends LitElement {
         if (r.ok) {
           return r.json();
         } else {
-          throw new Error(`Failed to get tasks.json from ${url}`);
+          throw new Error(`Failed to get tasks from ${url}`);
         }
       })
       .then(data => {
@@ -253,8 +253,6 @@ export class SakaiTasks extends LitElement {
 
   taskCreated(e) {
 
-    //e.detail.task.due = e.detail.task.due * 1000;
-
     let existingIndex = this.tasks.findIndex(t => t.taskId == e.detail.task.taskId);
 
     if (existingIndex === -1) {
@@ -402,7 +400,7 @@ export class SakaiTasks extends LitElement {
     return css`
 
       #container {
-        font-family: var(--sakai-font-family);
+        /*font-family: var(--sakai-font-family);*/
         background-color: var(--sakai-dashboard-widget-bg-color, white);
         padding: 8px;
       }

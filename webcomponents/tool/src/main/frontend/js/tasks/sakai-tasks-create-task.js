@@ -111,7 +111,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
   }
 
   shouldUpdate(changed) {
-    return this.task && this.i18n;
+    return this.task && this.i18n && super.shouldUpdate(changed);
   }
 
   getEditorTag() {
@@ -142,7 +142,6 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
     super.connectedCallback();
 
     if (typeof CKEDITOR !== "undefined") {
-      console.log("hserer");
       return this.getEditorTag().attachEditor();
     }
   }
@@ -212,29 +211,28 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
 
   static get styles() {
 
-    return css`
-      ${SakaiDialogContent.styles}
-
-      #due-and-priority-block {
-        display: flex;
-        justify-content: space-between;
-      }
-        #due-block {
-          flex: 1;
+    return [SakaiDialogContent.styles,
+      css`
+        #due-and-priority-block {
+          display: flex;
+          justify-content: space-between;
         }
-        #spacer {
-          flex: 2;
+          #due-block {
+            flex: 1;
+          }
+          #spacer {
+            flex: 2;
+          }
+          #priority-block {
+            flex: 1;
+          }
+        #complete-block {
+          margin-bottom: 10px;
         }
-        #priority-block {
-          flex: 1;
-        }
-      #complete-block {
-        margin-bottom: 10px;
-      }
-        #complete-block input {
-          margin-left: 10px;
-        }
-    `;
+          #complete-block input {
+            margin-left: 10px;
+          }
+    `];
   }
 }
 
