@@ -31,6 +31,10 @@ export class SakaiCalendar extends LionCalendar {
     loadProperties("calendar").then(r => this.i18n = r);
     this.daysEvents = [];
 
+    this.events = [];
+
+    this.readOnly = true;
+
     this.addEventListener("user-selected-date-changed", e => {
 
       let time = e.detail.selectedDate.getTime();
@@ -73,13 +77,13 @@ export class SakaiCalendar extends LionCalendar {
 
     this.shadowRoot.querySelectorAll(".calendar__day-button").forEach(c => {
 
-      c.classList.remove("has-event");
+      c.classList.remove("has-events");
       c.classList.remove("deadline");
 
       let time = c.date.getTime();
       let e = this.events.find(e => e.start > time && e.start < (time + 24*60*60*1000));
       if (e) {
-        c.classList.add("has-event");
+        c.classList.add("has-events");
         if (e.type === "deadline") {
           c.classList.add("deadline");
         }
@@ -159,11 +163,6 @@ export class SakaiCalendar extends LionCalendar {
       .sakai-event {
         font-size: 14px;
       }
-      .has-event {
-        background-color: var(--sakai-color-green--darker-3);
-        color: var(--sakai-color-green--lighter-7);
-        border-radius: 50%;
-      }
 
       .deadline {
         background-color: var(--sakai-calendar-deadline-bg-color);
@@ -181,12 +180,21 @@ export class SakaiCalendar extends LionCalendar {
       }
 
       .calendar__day-button[today] {
+        background-color: var(--sakai-calendar-today-bg);
+        color: var(--sakai-calendar-today-fg);
         font-weight: bold;
+        border-radius: 50%;
       }
       .calendar__previous-month-button,
       .calendar__next-month-button,
       .calendar__day-button {
         background-color: var(--sakai-calendar-button-bg-color, #fff);
+      }
+
+      .has-events {
+        background-color: var(--sakai-calendar-has-events-bg);
+        color: var(--sakai-calendar-has-events-fg);
+        border-radius: 50%;
       }
 
       .calendar__day-button[previous-month],
