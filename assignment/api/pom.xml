@@ -66,6 +66,12 @@
                     <include>**/*.metaprops</include>
                 </includes>
             </resource>
+            <resource>
+                <directory>${basedir}/src/java</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                </includes>
+            </resource>
         </resources>
     </build>
 </project>
