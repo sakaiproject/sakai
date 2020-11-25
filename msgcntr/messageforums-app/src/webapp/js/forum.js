@@ -877,6 +877,8 @@ $(document).ready(function(){
 
       const rubricGrading = document.getElementsByTagName("sakai-rubric-grading").item(0);
       rubricGrading && rubricGrading.save();
+      $(rubricGrading).find('input').each(function() {
+        $(this).prop('disabled', true);
+      })
     });
 });
-
