@@ -5,9 +5,9 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, 19.x, 20.x, 21.x, 22.x, 23.x ]
   pull_request:
-    branches: [ master ]
+    branches: [ master, 19.x, 20.x, 21.x, 22.x, 23.x ]
 
 jobs:
   build:
@@ -34,3 +34,5 @@ jobs:
       run: mvn test --batch-mode
     - name: Report jUnit Annotations as Github Actions Annotations
       uses: shyim/junit-report-annotations-action@0.2.0
+      with:
+        path: '**/surefire-reports/*.xml'
