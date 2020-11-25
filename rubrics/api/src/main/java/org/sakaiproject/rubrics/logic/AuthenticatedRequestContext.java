@@ -24,6 +24,7 @@ package org.sakaiproject.rubrics.logic;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -39,14 +40,17 @@ public class AuthenticatedRequestContext implements UserDetails {
     private final String toolId;
     private final String contextId;
     private final String contextType;
-    private final Collection<GrantedAuthority> authorities = new ArrayList<>();;
+    private final Collection<GrantedAuthority> authorities = new ArrayList<>();
+    private List<String> groups = new ArrayList<>();;
 
-    public AuthenticatedRequestContext(String userId, String toolId, String contextId, String contextType) {
+    public AuthenticatedRequestContext(String userId, String toolId, String contextId, String contextType, List<String> groups) {
+
         this.userId = userId;
         this.username = userId;
         this.toolId = toolId;
         this.contextId = contextId;
         this.contextType = contextType;
+        this.groups = groups;
     }
 
     @JsonIgnore
@@ -95,6 +99,11 @@ public class AuthenticatedRequestContext implements UserDetails {
     @Override
     public String getPassword() {
         return null;
+    }
+
+    @JsonIgnore
+    public List<String> getGroups(){
+        return groups;
     }
 
     public String getToolId() {

@@ -34,6 +34,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.rubrics.RubricsConfiguration;
 import org.sakaiproject.rubrics.logic.AuthenticatedRequestContext;
@@ -56,6 +57,7 @@ public class JwtTokenUtil implements Serializable {
     private static final String JWT_CUSTOM_CLAIM_TOOL_ID = "toolId";
     private static final String JWT_CUSTOM_CLAIM_SESSION_ID = "sessionId";
     private static final String JWT_CUSTOM_CLAIM_ROLES = "roles";
+    private static final String JWT_CUSTOM_CLAIM_GROUPS = "groups";
     private static final String JWT_CUSTOM_CLAIM_CONTEXT_ID = "contextId";
     private static final String JWT_CUSTOM_CLAIM_CONTEXT_TYPE = "contextType";
 
@@ -64,6 +66,9 @@ public class JwtTokenUtil implements Serializable {
 
     @Autowired
     ServerConfigurationService serverConfigurationService;
+
+    @Autowired
+    AuthzGroupService authzGroupServicee;
 
     private JWT decodeToken(String token) {
 
@@ -106,11 +111,14 @@ public class JwtTokenUtil implements Serializable {
     public AuthenticatedRequestContext getAuthenticatedUser(String token) {
         try {
 
+            //authzGroupService.
+
             JWT jwt = decodeToken(token);
             AuthenticatedRequestContext context = new AuthenticatedRequestContext(jwt.getSubject(),
                     jwt.getClaim(JWT_CUSTOM_CLAIM_TOOL_ID).asString(),
                     jwt.getClaim(JWT_CUSTOM_CLAIM_CONTEXT_ID).asString(),
-                    jwt.getClaim(JWT_CUSTOM_CLAIM_CONTEXT_TYPE).asString());
+                    jwt.getClaim(JWT_CUSTOM_CLAIM_CONTEXT_TYPE).asString(),
+                    jwt.getClaim(JWT_CUSTOM_CLAIM_GROUPS).asList(String.class));
 
             List<String> roles = jwt.getClaim(JWT_CUSTOM_CLAIM_ROLES).asList(String.class);
             for (String role : roles) {

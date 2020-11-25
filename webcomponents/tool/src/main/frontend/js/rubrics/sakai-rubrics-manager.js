@@ -123,8 +123,9 @@ class SakaiRubricsManager extends RubricsElement {
   }
 
   filterRubrics() {
-    var searchInput = document.getElementById('rubrics-search-bar');
-    var searchInputValue = searchInput.value.toLowerCase();
+
+    const searchInput = document.getElementById('rubrics-search-bar');
+    const searchInputValue = searchInput.value.toLowerCase();
 
     this.querySelectorAll('sakai-rubrics-list, sakai-rubrics-shared-list').forEach(rubricList => {
       rubricList.querySelectorAll('.rubric-item').forEach(rubricItem => {
