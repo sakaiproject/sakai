@@ -48,7 +48,7 @@ class SakaiRubricGradingButton extends RubricsElement {
   setHasEvaluation() {
 
     $.ajax({
-      url: `/rubrics-service/rest/evaluations/search/by-tool-item-and-associated-item-and-evaluated-item-ids?toolId=${this.toolId}&itemId=${this.entityId}&evaluatedItemId=${this.evaluatedItemId}`,
+      url: `/rubrics-service/rest/evaluations/search/by-tool-and-assignment-and-submission?toolId=${this.toolId}&itemId=${this.entityId}&evaluatedItemId=${this.evaluatedItemId}`,
       headers: {"authorization": this.token}
     })
     .done(data => this.hasEvaluation = data._embedded.evaluations && data._embedded.evaluations.length > 0)
