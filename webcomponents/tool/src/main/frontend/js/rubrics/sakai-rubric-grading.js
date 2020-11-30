@@ -64,7 +64,7 @@ export class SakaiRubricGrading extends RubricsElement {
 
     return html`
       <h3 style="margin-bottom: 10px;">${this.rubric.title}</h3>
-      ${this.evaluation.status === "DRAFT" ? html`
+      ${this.evaluation && this.evaluation.status === "DRAFT" ? html`
         <div class="sak-banner-warn">
           <sr-lang key="draft_evaluation">DRAFT</sr-lang>
         </div>
