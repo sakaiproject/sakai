@@ -780,9 +780,9 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.z3950.zing</groupId>
+        <groupId>org.dspace</groupId>
         <artifactId>cql-java</artifactId>
-        <version>1.12</version>
+        <version>1.0</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
