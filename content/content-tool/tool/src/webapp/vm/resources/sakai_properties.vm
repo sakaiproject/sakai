@@ -32,7 +32,7 @@
         });
 
         $('#copyToClipboardLink').on('click', function() {
-            const input = document.getElementById('fileURLHodlder');
+            const input = document.getElementById('fileURLHolder');
             if (input !== null) {
                 input.style.overflow = 'auto';
                 input.select();
