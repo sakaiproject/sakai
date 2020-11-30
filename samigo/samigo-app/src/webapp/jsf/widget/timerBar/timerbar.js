@@ -77,7 +77,8 @@
                   viewGap = scrollSep;
                   topWindow = topWindow.parent.self;
               } catch (e) {
-                  window.console && console.log('Timerbar is inside an external iframe');
+                  /* eslint no-console: ["error", { allow: ["warn"] }] */
+                  window.console && console.warn('Timerbar is inside an external iframe');
                   break;
               }
           }
