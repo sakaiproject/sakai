@@ -475,7 +475,7 @@ public class PublishedAssessmentSettingsBean implements Serializable {
       String gradebookUid = toolManager.getCurrentPlacement().getContext();
       categoryDefinitions = gradebookService.getCategoryDefinitions(gradebookUid);
 
-      selectList.add(new SelectItem("-1","Uncategorized")); // -1 for a cat id means unassigned
+      selectList.add(new SelectItem("-1", assessmentSettingMessages.getString("gradebook_uncategorized"))); // -1 for a cat id means unassigned
       for (CategoryDefinition categoryDefinition: categoryDefinitions) {
         selectList.add(new SelectItem(categoryDefinition.getId().toString(), categoryDefinition.getName()));
       }
