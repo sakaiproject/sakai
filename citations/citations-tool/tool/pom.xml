@@ -47,7 +47,7 @@
       <artifactId>sakai-citations-util</artifactId>
       <exclusions>
         <exclusion>
-          <groupId>org.z3950.zing</groupId>
+          <groupId>org.dspace</groupId>
           <artifactId>cql-java</artifactId>
         </exclusion>
       </exclusions>
