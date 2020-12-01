@@ -136,7 +136,7 @@ body.is-logged-out{
 	list-style: none;
 	padding: 0 0 0 0;
 	li{
-		display: block;
+		display: flex;
 		border: 0px none;
 		@include border-radius( 0 );
 		margin: 0 0 0 0;
@@ -199,7 +199,7 @@ body.is-logged-out{
 	.#{$namespace}userNav__submenuitem--profile-and-image{
 		display: inline-block;
 		vertical-align: top;
-		padding: 1em 1em 0 1em;
+		padding: $standard-spacing $standard-spacing 0 $standard-spacing;
 
 		.#{$namespace}userNav__submenuitem--profilepicture{
 			width: 64px;
@@ -209,7 +209,6 @@ body.is-logged-out{
 
 		.#{$namespace}userNav__submenuitem--profile{
 			display: block;
-			margin-left: 0.5em;
 		}
 	}
 }
@@ -673,12 +672,15 @@ body.is-logged-out{
 				margin-bottom: 0.5em; /* to match the top of the dropdown */
 			}
 			.#{$namespace}userNav__submenuitem-indented{
-				padding-left: 1.5em;
+				padding: 0 $standard-spacing;
 
 				@media #{$phone}
 				{
 					padding-left: 2em;
 				}
+			}
+			.#{$namespace}userNav__submenuitem-toggle label {
+				padding-left: 0.65em; // to match 'li a' padding
 			}
 			@media #{$phone}{
 				margin: 3.9em 0 0 -9.8em;
