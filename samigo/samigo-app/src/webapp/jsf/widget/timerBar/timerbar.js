@@ -65,14 +65,22 @@
           headerHeight = $("header").height();
           while (topWindow !== window.top) {
               var frameName = topWindow.name;
-              topWindow = topWindow.parent.self;
-              headerHeight = $("header", topWindow.document).height();
-              if ($(".reload", topWindow.document).length > 0) {
-                  reloadLink = $(".reload", topWindow.document);
-              }
-              scrollSep = scrollSep + topWindow.document.getElementById(frameName).offsetTop;
-              viewGap = scrollSep;
               inFrame = true;
+
+              // If we are inside an external-site iframe, this will throw CORS errors
+              try {
+                  headerHeight = $("header", topWindow.document).height();
+                  if ($(".reload", topWindow.document).length > 0) {
+                      reloadLink = $(".reload", topWindow.document);
+                  }
+                  scrollSep = scrollSep + topWindow.document.getElementById(frameName).offsetTop;
+                  viewGap = scrollSep;
+                  topWindow = topWindow.parent.self;
+              } catch (e) {
+                  /* eslint no-console: ["error", { allow: ["warn"] }] */
+                  window.console && console.warn('Timerbar is inside an external iframe');
+                  break;
+              }
           }
 
           if (inFrame) {
