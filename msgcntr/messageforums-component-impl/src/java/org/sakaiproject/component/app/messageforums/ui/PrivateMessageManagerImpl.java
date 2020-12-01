@@ -2270,7 +2270,7 @@ return topicTypeUuid;
   private String encrypt(String value) {
 	  try {
 		  IvParameterSpec iv = new IvParameterSpec(INIT_VECTOR.getBytes(StandardCharsets.UTF_8));
-		  String key = serverConfigurationService.getString("msgcntr.no.reply.secret", "11111111");
+		  String key = serverConfigurationService.getString("msgcntr.no.reply.secret", serverConfigurationService.getServerName());
 		  SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "DES");
 
 		  Cipher cipher = Cipher.getInstance("DES/CBC/PKCS5PADDING");
@@ -2291,7 +2291,7 @@ return topicTypeUuid;
 	  try {
 		  String hexencrypted = new String(Hex.decodeHex(encrypted.toLowerCase().toCharArray()),StandardCharsets.UTF_8);
 		  IvParameterSpec iv = new IvParameterSpec(INIT_VECTOR.getBytes(StandardCharsets.UTF_8));
-		  String key = serverConfigurationService.getString("msgcntr.no.reply.secret", "11111111");
+		  String key = serverConfigurationService.getString("msgcntr.no.reply.secret", serverConfigurationService.getServerName());
 		  SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "DES");
 
 		  Cipher cipher = Cipher.getInstance("DES/CBC/PKCS5PADDING");
