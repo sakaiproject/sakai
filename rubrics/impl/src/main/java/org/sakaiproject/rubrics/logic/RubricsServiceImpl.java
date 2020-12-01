@@ -492,13 +492,13 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
      * @param associatedToolItemId the id of the associated element within the tool
      * @return
      */
-    protected Optional<EntityModel<ToolItemRubricAssociation>> getRubricAssociationResource(String toolId, String associatedToolItemId, String siteId) throws Exception {
+    private Optional<EntityModel<ToolItemRubricAssociation>> getRubricAssociationResource(String toolId, String associatedToolItemId, String siteId) throws Exception {
 
         URI apiBaseUrl = new URI(serverConfigurationService.getServerUrl() + RBCS_SERVICE_URL_PREFIX);
         Traverson traverson = new Traverson(apiBaseUrl, MediaTypes.HAL_JSON);
 
         Traverson.TraversalBuilder builder = traverson.follow("rubric-associations", "search",
-                "by-tool-item-ids");
+                "by-tool-and-assignment");
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", String.format("Bearer %s", generateJsonWebToken(toolId, siteId)));
@@ -882,69 +882,12 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         }
     }
 
-    /**
-     * Returns the JSON string for the rubric evaluation
-     * @param toolId the tool id, something like "sakai.assignment"
-     * @param associatedToolItemId the id of the tool item which has a rubric associated to it (e.g. assignment ID)
-     * @param evaluatedItemId  the id of the tool item which is being evaluated using a rubric (e.g. assignment submission ID)
-     * @return
-     */
-    public String getRubricEvaluation(String toolId, String associatedToolItemId, String evaluatedItemId) throws IOException {
-
-        HttpURLConnection conn = null;
-        try{
-            URL url = new URL(serverConfigurationService.getServerUrl() + RBCS_SERVICE_URL_PREFIX + "evaluations/search/by-tool-item-and-associated-item-and-evaluated-item-ids?toolId="+toolId+"&itemId="+associatedToolItemId+"&evaluatedItemId="+evaluatedItemId);
-
-            String cookie = buildCookieString();
-
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-            conn.setRequestProperty("Accept", "application/json");
-            conn.setRequestProperty("Cookie", cookie );
-            conn.setRequestProperty("Authorization", "Bearer" + generateJsonWebToken(toolId));
-
-            if (conn.getResponseCode() != 200) {
-                throw new RuntimeException("Failed : HTTP error code : "
-                        + conn.getResponseCode());
-            }
-
-            BufferedReader br = new BufferedReader(new InputStreamReader(
-                    (conn.getInputStream())));
-
-            String output;
-            StringWriter result = new StringWriter();
-            while ((output = br.readLine()) != null) {
-                result.append(output + "\n");
-            }
-
-            return result.toString();
-
-        } catch (MalformedURLException e) {
-
-            log.warn("Error getting a rubric evaluation " + e.getMessage());
-            return null;
-
-        } catch (IOException e) {
-
-            log.warn("Error getting a rubric evaluation" + e.getMessage());
-            return null;
-        } finally {
-            if(conn != null) {
-                try{
-                    conn.disconnect();
-                }catch(Exception e){
-
-                }
-            }
-        }
-    }
-
     protected Collection<EntityModel<Evaluation>> getRubricEvaluationsByAssociation(Long associationId) throws Exception {
         TypeReferences.CollectionModelType<EntityModel<Evaluation>> resourceParameterizedTypeReference = new TypeReferences.CollectionModelType<EntityModel<Evaluation>>() {};
 
         URI apiBaseUrl = new URI(serverConfigurationService.getServerUrl() + RBCS_SERVICE_URL_PREFIX);
         Traverson traverson = new Traverson(apiBaseUrl, MediaTypes.HAL_JSON);
-        Traverson.TraversalBuilder builder = traverson.follow("evaluations", "search", "by-association-id");
+        Traverson.TraversalBuilder builder = traverson.follow("evaluations", "search", "by-association");
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", String.format("Bearer %s", generateJsonWebToken(RubricsConstants.RBCS_TOOL)));
@@ -1196,7 +1139,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         try {
             URI apiBaseUrl = new URI(serverConfigurationService.getServerUrl() + RBCS_SERVICE_URL_PREFIX);
             Traverson traverson = new Traverson(apiBaseUrl, MediaTypes.HAL_JSON);
-            Traverson.TraversalBuilder builder = traverson.follow("rubric-associations", "search", "by-rubric-id");
+            Traverson.TraversalBuilder builder = traverson.follow("rubric-associations", "search", "by-rubric");
 
             HttpHeaders headers = new HttpHeaders();
             headers.add("Authorization", String.format("Bearer %s", generateJsonWebToken(RubricsConstants.RBCS_TOOL, toSite)));
