@@ -162,13 +162,13 @@
 
                                     #if (${tabsSites.themeSwitcher})
 
-                                        <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented">
+                                        <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented Mrphs-userNav__submenuitem-toggle">
+                                            <label for="themeSwitcher" class="sakaiThemeSwitch">${rloader.sit_themeSwitcher}</label>
                                             <button role="switch" aria-checked="true"
                                                 id="themeSwitcher" class="Mrphs-userNav__submenuitem--themeSwitcher switch">
-                                                <span>dark</span>
-                                                <span>light</span>
+                                                <span>${rloader.sit_themeSwitcherOn}</span>
+                                                <span>${rloader.sit_themeSwitcherOff}</span>
                                             </button>
-                                            <label for="themeSwitcher" class="switch">${rloader.sit_themeSwitcher}</label>
                                         </li>
 
                                     #end ## END of IF (${tabsSites.themeSwitcher})
