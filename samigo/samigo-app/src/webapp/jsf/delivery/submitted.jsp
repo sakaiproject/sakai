@@ -160,7 +160,7 @@ function closeWindow() {alert("1"); self.opener=this; self.close(); }
   <h:panelGrid columns="2" cellpadding="3" cellspacing="3">
     <h:commandButton type="submit" value="#{deliveryMessages.button_continue}"
        onclick="return returnToHostUrl(\"#{delivery.selectURL}\");"
-       rendered="#{delivery.actionString=='takeAssessment'}" />
+       rendered="#{delivery.actionString=='takeAssessment' || delivery.actionString=='takeAssessmentViaUrl'}" />
 
     <h:commandButton value="#{deliveryMessages.review_results}" type="button" id="reviewAssessment"
        rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.anonymousLogin && (delivery.feedbackComponent.showImmediate || delivery.feedbackComponent.showOnSubmission || delivery.feedbackOnDate) && delivery.feedbackComponentOption=='2'}" 
