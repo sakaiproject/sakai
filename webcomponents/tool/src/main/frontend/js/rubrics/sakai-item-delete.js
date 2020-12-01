@@ -135,14 +135,14 @@ export class SakaiItemDelete extends RubricsElement {
 
       // SAK-42944 removing the soft-deleted associations
       $.ajax({
-        url: `/rubrics-service/rest/rubric-associations/search/by-rubric-id?rubricId=${this.rubric.id}`,
+        url: `/rubrics-service/rest/rubric-associations/search/by-rubric?rubricId=${this.rubric.id}`,
         headers: {"authorization": this.token},
         async: false
       }).done(data => {
         if (data._embedded['rubric-associations'].length) {
           data._embedded['rubric-associations'].forEach( assoc => {
             $.ajax({
-              url: `/rubrics-service/rest/evaluations/search/by-association-id?toolItemRubricAssociationId=${assoc.id}`,
+              url: `/rubrics-service/rest/evaluations/search/by-association?toolItemRubricAssociationId=${assoc.id}`,
               headers: {"authorization": this.token},
               async: false
             }).done(data => {
