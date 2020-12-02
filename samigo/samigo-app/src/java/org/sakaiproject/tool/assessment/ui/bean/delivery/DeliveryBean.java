@@ -3444,8 +3444,9 @@ public class DeliveryBean
       settingsDeliveryBean.setMaxAttempts(maxSubmissionsAllowed);
       settings = settingsDeliveryBean;
     }
-    log.debug("getHasSubmissionLeft: actualNumberTakes={}, numberRetakeAllowed={}", actualNumberRetake, numberRetake);
-    if (actualNumberRetake <= numberRetake) {
+    log.debug("getHasSubmissionLeft: totalSubmissions={}, maxSubmissionsAllowed={}, actualNumberTakes={}, numberRetakeAllowed={}", 
+    		totalSubmissions, maxSubmissionsAllowed, actualNumberRetake, numberRetake);
+    if (totalSubmissions < maxSubmissionsAllowed + numberRetake){
       hasSubmissionLeft = true;
     } 
     return hasSubmissionLeft;
