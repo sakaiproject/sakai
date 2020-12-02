@@ -160,6 +160,9 @@ public interface LTIService extends LTISubstitutionsFilter {
 
             "lti11_launch_type:radio:label=bl_lti11_launch_type:role=admin:choices=inherit,legacy,lti112",
             "xmlimport:textarea:hidden=true:maxlength=1M",
+            "lti13_auto_token:text:hidden=true:maxlength=1024",
+            "lti13_auto_state:integer:hidden=true",
+            "lti13_auto_registration:textarea:hidden=true:maxlength=1M",
             "created_at:autodate",
             "updated_at:autodate"};
 
@@ -212,6 +215,9 @@ public interface LTIService extends LTISubstitutionsFilter {
     String LTI_CUSTOM = "custom";
     String LTI_ROLEMAP = "rolemap";
     String LTI_SPLASH = "splash";
+    String LTI13_AUTO_TOKEN = "lti13_auto_token";
+    String LTI13_AUTO_STATE = "lti13_auto_state";
+    String LTI13_AUTO_REGISTRATION = "lti13_auto_registration";
     String LTI_XMLIMPORT = "xmlimport";
     String LTI_CREATED_AT = "created_at";
     String LTI_UPDATED_AT = "updated_at";

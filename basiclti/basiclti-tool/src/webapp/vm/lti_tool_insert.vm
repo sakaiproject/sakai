@@ -19,6 +19,48 @@
                  onclick="location = '$sakai_ActionURL.setPanel("ToolSystem")';return false;">
         </p>
     </form>
+
+#if ($isEdit && $isAdmin && $autoConfigUrl )
+    <div id="modal-iframe-div" style="display:none" tabindex="-1" role="dialog">
+        <iframe name="sakai-basiclti-admin-iframe" id="sakai-basiclti-admin-iframe" src="/library/image/sakai/spinner.gif" style="min-height: 80vh;" tabindex="0"></iframe>
+    </div>
+<script>
+//<![CDATA[
+function showIframe(title, doreload) {
+    $("#modal-iframe-div").dialog({
+        title: title,
+        width: modalDialogWidth(),
+        height: modalDialogHeight(),
+        modal: true,
+        draggable: false,
+        open: function() {
+            $("#modal-iframe-div").dialog("option", "width", modalDialogWidth());
+            $("#modal-iframe-div").dialog("option", "height", modalDialogHeight());
+            $('#sakai-basiclti-admin-iframe').attr('width', '100%');
+            $('#sakai-basiclti-admin-iframe').attr('height', '100%');
+            // https://stackoverflow.com/questions/1202079/prevent-jquery-ui-dialog-from-setting-focus-to-first-textbox
+            $(this).parent().focus();
+        },
+        close: function() {
+            if ( doreload ) {
+                location.reload();
+            } else {
+                $('#sakai-basiclti-admin-iframe').attr('src','/library/image/sakai/spinner.gif');
+            }
+        }
+    });
+
+    $(window).resize(function() {
+        $("#modal-iframe-div").dialog("option", "width", modalDialogWidth());
+        $("#modal-iframe-div").dialog("option", "height", modalDialogHeight());
+        $('#sakai-basiclti-admin-iframe').attr('width', '100%');
+        $('#sakai-basiclti-admin-iframe').attr('height', '100%');
+    });
+}
+//]]>
+</script>
+#end
+
 <script type="text/javascript">$(document).ready(function () { fontawesome_icon_picker('#fa_icon'); });</script>
 #if ( ! $isAdmin )
 <script>
@@ -67,7 +109,7 @@ function checkCheckboxCombos() {
    }
 }
 
-function importLTI13Config() {
+function inportSakaiConfig() {
 
     var importUrl = prompt("$tlang.getString("tool.import.prompt")", '');
     importUrl = '$proxyUrl' + '?proxyUrl=' + importUrl;
@@ -132,8 +174,16 @@ $(document).ready( function() {
 
     var issuerURL = '$issuerURL';
 
+    #if ($isEdit && $isAdmin && $autoConfigUrl )
+    $( "#allowtitle-input" ).after(
+    '<a href="$autoConfigUrl" class="btn btn-primary" target="sakai-basiclti-admin-iframe" '+
+    '    title="$tlang.getString("tool.lti13.auto.title")" role="button"' +
+    '    onclick="showIframe(this.title, false);">$tlang.getString("tool.lti13.auto.button")</a><br/>'
+    );
+    #end
+
     $( "#lti13-input" ).after(
-            '<p><input type="submit" onclick="importLTI13Config();return false;" class="btn btn-primary" value="$tlang.getString("tool.import.lti13")"/>' +
+            '<p><input type="submit" onclick="inportSakaiConfig();return false;" class="btn btn-primary" value="$tlang.getString("tool.import.lti13")"/>' +
             '</p>');
 
     $( "#lti13-input" ).after(
@@ -141,6 +191,97 @@ $(document).ready( function() {
             '<b>$tlang.getString('lti13_issuer_url')</b><br/>$issuerURL</p>' +
             '</p>');
 
+});
+
+function importLTI13Config() {
+
+    var importUrl = '$autoRegistrationUrl';
+    console.log(importUrl);
+
+    jQuery.getJSON( importUrl, function(data) {
+        console.log(data);
+        if ( data.initiate_login_uri ) jQuery("#lti13_oidc_endpoint").val(data.initiate_login_uri);
+        if ( data.jwks_uri ) jQuery("#lti13_tool_keyset").val(data.jwks_uri);
+        if ( data.oidcRedirect ) jQuery("#lti13_oidc_redirect").val(data.oidcRedirect);
+        if ( data.redirect_uris && Array.isArray(data.redirect_uris) ) {
+            var uris = '';
+            for(i=0; i<data.redirect_uris.length; i++) {
+                if ( uris.length > 0 ) uris = uris + ',';
+                uris = uris + data.redirect_uris[i];
+            }
+            if ( uris.length > 0 ) jQuery("#lti13_oidc_redirect").val(uris);
+        }
+        if ( data.title ) {
+            let doTitle = confirm("$tlang.getString("tool.import.title") "+data.title);
+            if ( doTitle ) {
+                jQuery("#title").val(data.title);
+                jQuery("#pagetitle").val(data.title);
+            }
+        }
+        if ( data.description ) {
+            let doDescription = confirm("$tlang.getString("tool.import.description") "+data.description);
+            if ( doDescription ) {
+                jQuery("#description").val(data.description);
+            }
+        }
+        if ( data['https://purl.imsglobal.org/spec/lti-tool-configuration'] ) {
+            var tool = data['https://purl.imsglobal.org/spec/lti-tool-configuration'];
+            console.log('tool', tool);
+            var uri_found = false;
+            if ( tool.target_link_uri ) {
+                jQuery("#launch").val(tool.target_link_uri);
+                uri_found = true;
+            }
+            if ( tool.messages ) {
+                for(i=0; i<tool.messages.length; i++) {
+                    var message = tool.messages[i];
+                    console.log('message', message);
+                    if ( message.target_link_uri && ! uri_found ) {
+                        jQuery("#launch").val(tool.target_link_uri);
+                        uri_found = true;
+                    }
+                    if ( message.type == 'LtiDeepLinkingRequest' ) {
+                        jQuery("#lti13_on-input").prop("checked", true);
+                        jQuery("#allowtitle_allow-input").prop("checked", true);
+                        jQuery("#allowlaunch_allow-input").prop("checked", true);
+                        jQuery("#allowconsumerkey_allow-input").prop("checked", true);
+                        jQuery("#pl_lessonsselection").prop("checked", true);
+                        jQuery("#pl_launch").prop("checked", false);
+                    }
+                    if ( message.type == 'DataPrivacyLaunchRequest' ) {
+                        jQuery("#pl_privacy").prop("checked", true);
+                    }
+                    if ( message.placements && Array.isArray(message.placements) ) {
+                        if ( message.placements.includes("link_selection") ) jQuery("#pl_linkselection").prop("checked", true);
+                        if ( message.placements.includes("assignment_selection") ) jQuery("#pl_assessmentselection").prop("checked", true);
+                        if ( message.placements.includes("editor_button") ) jQuery("#pl_contenteditor").prop("checked", true);
+                        if ( message.placements.includes("migration_selection") ) jQuery("#pl_importitem").prop("checked", true);
+                    }
+                }
+            }
+        }
+        console.log("closing the modal");
+        $("#modal-iframe-div").hide();
+        $("#modal-iframe-div").dialog('close');
+        alert("Imported data into the form, please review and save.");
+    })
+    .fail(function() {
+        alert("$tlang.getString("tool.import.error")" );
+    });
+
+}
+
+window.addEventListener('message', function (e) {
+    console.log(window.location.href + " got message");
+    var message = e.data;
+    if ( typeof message == 'string' ) message = JSON.parse(message)
+    console.log(message);
+
+    switch (message.subject) {
+        case 'org.imsglobal.lti.close':
+            importLTI13Config();
+            break;
+    }
 });
 
 </script>

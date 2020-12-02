@@ -584,12 +584,12 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		String id = data.getParameters().getString(LTIService.LTI_ID);
 		if (id == null) {
 			addAlert(state, rb.getString("error.id.not.found"));
-			return "lti_main";
+			return "lti_error";
 		}
 		Long key = new Long(id);
 		Map<String, Object> tool = ltiService.getTool(key, getSiteId(state));
 		if (tool == null) {
-			return "lti_main";
+			return "lti_error";
 		}
 
 		context.put("clientId", tool.get(LTIService.LTI13_CLIENT_ID));
@@ -636,12 +636,12 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		String id = data.getParameters().getString(LTIService.LTI_ID);
 		if (id == null) {
 			addAlert(state, rb.getString("error.id.not.found"));
-			return "lti_main";
+			return "lti_error";
 		}
 		Long key = new Long(id);
 		Map<String, Object> tool = ltiService.getTool(key, getSiteId(state));
 		if (tool == null) {
-			return "lti_main";
+			return "lti_error";
 		}
 
 		tool.put(LTIService.LTI_SECRET, LTIService.SECRET_HIDDEN);
@@ -671,6 +671,116 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		return "lti_tool_view";
 	}
 
+	public String buildToolAutoPanelContext(VelocityPortlet portlet, Context context,
+			RunData data, SessionState state)
+	{
+		context.put("tlang", rb);
+		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
+		if (!ltiService.isMaintain(getSiteId(state))) {
+			addAlert(state, rb.getString("error.maintain.view"));
+			return "lti_error";
+		}
+		context.put("messageSuccess", state.getAttribute(STATE_SUCCESS));
+		String[] mappingForm = ltiService.getToolModel(getSiteId(state));
+		String id = data.getParameters().getString(LTIService.LTI_ID);
+		if (id == null) {
+			addAlert(state, rb.getString("error.id.not.found"));
+			return "lti_error";
+		}
+		Long key = new Long(id);
+		Map<String, Object> tool = ltiService.getTool(key, getSiteId(state));
+		if (tool == null) {
+			return "lti_error";
+		}
+
+		// Make sure this is ready to handle LTI 1.3 launches
+		String clientId = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_CLIENT_ID));
+		String old_lti13_platform_public = StringUtils.trimToNull((String) tool.get("lti13_platform_public"));
+		String old_lti13_platform_private = StringUtils.trimToNull((String) tool.get("lti13_platform_private"));
+
+		boolean needToUpdate = false;
+		if (clientId == null ) {
+			clientId = UUID.randomUUID().toString();
+			tool.put(LTIService.LTI13_CLIENT_ID, clientId);
+			needToUpdate = true;
+		}
+
+		if (old_lti13_platform_public == null || old_lti13_platform_private == null) {
+			KeyPair kp = null;
+			kp = LTI13Util.generateKeyPair();
+			if (kp == null) {
+				addAlert(state, rb.getString("error.keygen.fail"));
+				return "lti_error";
+			}
+			tool.put("lti13_platform_public", LTI13Util.getPublicEncoded(kp));
+			tool.put("lti13_platform_private", LTI13Util.getPrivateEncoded(kp));
+			needToUpdate = true;
+		}
+
+		if ( needToUpdate ) {
+			Object retval = ltiService.updateTool(key, tool, getSiteId(state));
+			if (retval instanceof String) {
+				addAlert(state, (String) retval);
+				return "lti_error";
+			}
+		}
+
+		String site_id = (String) tool.get(LTIService.LTI_SITE_ID);
+		String issuerURL = SakaiBLTIUtil.getIssuer(site_id);
+		String deploymentId = SakaiBLTIUtil.getDeploymentId(site_id);
+
+		String configUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/well_known";
+		configUrl += "?key=" + URLEncoder.encode(key.toString());
+		configUrl += "&clientId=" + URLEncoder.encode(clientId);
+		configUrl += "&issuerURL=" + URLEncoder.encode(issuerURL);
+		configUrl += "&deploymentId=" + URLEncoder.encode(deploymentId);
+		context.put("sakaiConfigUrl", configUrl);
+
+		context.put("tool_id", key);
+
+		context.put("doAction", BUTTON + "doAdvantageAuto");
+
+		state.removeAttribute(STATE_SUCCESS);
+		return "lti_tool_auto";
+	}
+
+	public void doAdvantageAuto(RunData data, Context context)
+	{
+		String peid = ((JetspeedRunData) data).getJs_peid();
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
+
+		String sakaiConfigUrl = data.getParameters().getString("sakaiConfigUrl");
+		String toolConfigUrl = data.getParameters().getString("toolConfigUrl");
+
+		// Retrieve the tool associated with the content item
+		Long toolKey = foorm.getLongNull(data.getParameters().getString(LTIService.LTI_TOOL_ID));
+		if (toolKey == 0 || toolKey < 0) {
+			addAlert(state, rb.getString("error.tool.not.found"));
+			switchPanel(state, "Error");
+			return;
+		}
+
+		Map<String, Object> tool = ltiService.getTool(toolKey, getSiteId(state));
+		if (tool == null) {
+			addAlert(state, rb.getString("error.tool.not.found"));
+			switchPanel(state, "Error");
+			return;
+		}
+
+		String registration_token = "42";
+		String forwardUrl = toolConfigUrl;
+		if (forwardUrl.indexOf("?") > 0) {
+			forwardUrl += "&";
+		} else {
+			forwardUrl += "?";
+		}
+		forwardUrl += "openid_configuration=" + URLEncoder.encode(sakaiConfigUrl);
+		forwardUrl += "&registration_token=" + URLEncoder.encode(registration_token);
+
+		state.setAttribute(STATE_REDIRECT_URL, forwardUrl);
+		switchPanel(state, "Forward");
+	}
+
 	public String buildToolEditPanelContext(VelocityPortlet portlet, Context context,
 			RunData data, SessionState state) {
 		context.put("tlang", rb);
@@ -690,12 +800,12 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 		if (id == null) {
 			addAlert(state, rb.getString("error.id.not.found"));
-			return "lti_main";
+			return "lti_error";
 		}
 		Long key = new Long(id);
 		Map<String, Object> tool = ltiService.getTool(key, getSiteId(state));
 		if (tool == null) {
-			return "lti_main";
+			return "lti_error";
 		}
 
 		// Hide the old tool secret unless it is incomplete
@@ -720,6 +830,18 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		String proxyUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/proxy";
 		context.put("proxyUrl", proxyUrl);
 
+		context.put("isAdmin", new Boolean(ltiService.isAdmin(getSiteId(state))));
+		context.put("isEdit", Boolean.TRUE);
+
+		Placement placement = toolManager.getCurrentPlacement();
+		String autoConfigUrl = serverConfigurationService.getToolUrl() + "/" + placement.getId()
+				+ "?panel=ToolAuto"
+				+ "&id=" + tool.get(LTIService.LTI_ID);
+		context.put("autoConfigUrl", autoConfigUrl);
+
+		String autoRegistrationUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/get_registration?key="+tool.get(LTIService.LTI_ID);
+		context.put("autoRegistrationUrl", autoRegistrationUrl);
+
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_tool_insert";
 	}
@@ -737,7 +859,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		String id = data.getParameters().getString(LTIService.LTI_ID);
 		if (id == null) {
 			addAlert(state, rb.getString("error.id.not.found"));
-			return "lti_main";
+			return "lti_error";
 		}
 		Long key = new Long(id);
 
@@ -745,7 +867,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		List<Map<String, Object>> tools = ltiService.getTools("lti_tools.id = " + key, null, 0, 0, getSiteId(state));
 		if (tools == null || tools.size() < 1) {
 			addAlert(state, rb.getString("error.tool.not.found"));
-			return "lti_main";
+			return "lti_error";
 		}
 
 		Map<String, Object> tool = tools.get(0);
@@ -897,6 +1019,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		String proxyUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/proxy";
 		context.put("proxyUrl", proxyUrl);
+
+		context.put("isAdmin", new Boolean(ltiService.isAdmin(getSiteId(state))));
+		context.put("isEdit", Boolean.FALSE);
 
 		state.removeAttribute(STATE_POST);
 		state.removeAttribute(STATE_SUCCESS);
@@ -1541,7 +1666,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		log.debug("Content Item complete toolKey={}", toolKey);
 		doContentPutInternal(data, context, reqProps);
 
-	        String redirectPanel = "Redirect";
+		String redirectPanel = "Redirect";
 		if (sakaiSession != null) {
 			redirectPanel +=  '&' + RequestFilter.ATTR_SESSION + "=" + sakaiSession;
 		}
@@ -2736,13 +2861,13 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		String id = data.getParameters().getString(LTIService.LTI_ID);
 		if (id == null) {
 			addAlert(state, rb.getString("error.id.not.found"));
-			return "lti_main";
+			return "lti_error";
 		}
 		Long key = new Long(id);
 		Map<String, Object> content = ltiService.getContent(key, getSiteId(state));
 		if (content == null) {
 			addAlert(state, rb.getString("error.content.not.found"));
-			return "lti_main";
+			return "lti_error";
 		}
 		context.put("content", content);
 		state.removeAttribute(STATE_SUCCESS);
