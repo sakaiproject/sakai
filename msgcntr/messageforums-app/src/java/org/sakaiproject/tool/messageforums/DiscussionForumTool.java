@@ -6679,6 +6679,15 @@ public class DiscussionForumTool {
         membershipItemSet.forEach(i -> ((DBMembershipItemImpl) i).setTopic(t));
       }
 
+      // Clear caches first
+      if (area != null) {
+        uiPermissionsManager.clearMembershipItemCaches(area);
+      } else if (forum != null) {
+        uiPermissionsManager.clearMembershipItemCaches(forum.getArea());
+      } else if (topic != null) {
+        uiPermissionsManager.clearMembershipItemCaches(topic.getOpenForum().getArea());
+      }
+
       permissionLevelManager.deleteMembershipItems(oldMembershipItemSet);
     }
     siteMembers = null;
