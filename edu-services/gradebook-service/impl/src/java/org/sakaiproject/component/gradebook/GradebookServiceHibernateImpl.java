@@ -71,6 +71,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
 import org.sakaiproject.service.gradebook.shared.GradebookSecurityException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.GradingEventStatus;
 import org.sakaiproject.service.gradebook.shared.InvalidGradeException;
 import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
@@ -2006,6 +2007,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 						// Add a GradingEvent, which stores the actual input grade rather than the converted one
 						final GradingEvent event = new GradingEvent(assignment, graderId, studentId, newGrade);
+						if(excuse != currentExcuse) {
+							event.setStatus(excuse ?
+									GradingEventStatus.GRADE_EXCLUDED :
+									GradingEventStatus.GRADE_INCLUDED);
+						}
 						eventsToAdd.add(event);
 					}
 				} else {
@@ -2019,6 +2025,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 						// Add a GradingEvent, which stores the actual input grade rather than the converted one
 						final GradingEvent event = new GradingEvent(assignment, graderId, studentId, newGrade);
+						if(excuse != currentExcuse) {
+							event.setStatus(excuse ?
+									GradingEventStatus.GRADE_EXCLUDED:
+									GradingEventStatus.GRADE_INCLUDED);
+						}
 						eventsToAdd.add(event);
 					}
 				}
