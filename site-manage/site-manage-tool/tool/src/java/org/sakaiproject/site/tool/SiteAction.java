@@ -1323,6 +1323,7 @@ public class SiteAction extends PagedResourceActionII {
 			boolean inShortcut) {
 		context.put("tlang", rb);
 		context.put("clang", cfgRb);
+		context.put("userTimeService", userTimeService);
 		// TODO: what is all this doing? if we are in helper mode, we are
 		// already setup and don't get called here now -ggolden
 		/*

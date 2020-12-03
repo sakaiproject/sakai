@@ -248,9 +248,7 @@
 									#end
 								</td>
 								<td headers="createdOn">
-									#set($createdTime="")
-									#set($createdTime = $!site.getCreatedTime())
-									$!createdTime.toStringLocalFull()
+									#if ($site.CreatedDate) $userTimeService.dateTimeFormat($site.CreatedDate, $tlang.Locale, 2) #end
 								</td>
 							</tr>
 						#end
