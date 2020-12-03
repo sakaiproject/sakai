@@ -212,14 +212,7 @@ span.group-name{
     margin: 0;
     padding: 0;
 }
-.controlsPanel .act .deleteButton, .act .deleteButton {
-    background: none !important;
-    border: none !important;
-    box-shadow: none !important;
-    color: #c00 !important;    
-    text-shadow:none !important;
 
-}
 .mainList .narrow-instruction {
     padding-top:5px;
     padding-bottom:5px;
