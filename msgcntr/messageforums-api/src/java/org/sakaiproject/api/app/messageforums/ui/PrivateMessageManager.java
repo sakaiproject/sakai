@@ -234,7 +234,7 @@ public interface PrivateMessageManager {
     public PrivateMessage getPreviousMessage(PrivateMessage message);
     public boolean hasPreviousMessage(PrivateMessage message);
     public boolean hasNextMessage(PrivateMessage message);
-    public PrivateMessage getPrivateMessage(final String id);
+    public PrivateMessage getPrivateMessage(final String id) throws MessagingException;
     public Map<User, Boolean> getRecipients(List recipients);
     public PrivateMessage getPvtMsgReplyMessage(PrivateMessage currentMessage, MimeMessage msg, StringBuilder[] bodyBuf, List<Reference> attachments, String from) throws MessagingException;
     public void processPvtMsgReplySentAction(PrivateMessage currentMessage, PrivateMessage rrepMsg);

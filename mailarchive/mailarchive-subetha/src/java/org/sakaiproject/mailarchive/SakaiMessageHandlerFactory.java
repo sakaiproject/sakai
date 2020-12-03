@@ -97,6 +97,8 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
     public static final String MESSAGE_ERROR_682 = "682";
     public static final String MESSAGE_ERROR_359 = "359";
     public static final String MESSAGE_ERROR_683 = "683";
+    public static final String MESSAGE_ERROR_521 = "521";
+    public static final String MESSAGE_ERROR_421 = "421";
 
     private SMTPServer server;
 
@@ -185,7 +187,24 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
                 if (StringUtils.isNotBlank(fromReply) && to.startsWith(serverConfigurationService.getString(FROM_REPLY, StringUtils.EMPTY))) {
                     isMessageId = true;
                     String id = to.replace(serverConfigurationService.getString(FROM_REPLY), StringUtils.EMPTY).split("@")[0];
-                    currentMessage = synopticMsgcntrManager.getPvtMessageManager().getPrivateMessage(id);
+                    try {
+                        currentMessage = synopticMsgcntrManager.getPvtMessageManager().getPrivateMessage(id);
+                    } catch (MessagingException me) {
+                    	String mailSupport = StringUtils.trimToNull(serverConfigurationService.getString("mail.support"));
+                        if (me.getMessage().startsWith(MESSAGE_ERROR_521)) {
+                            // BOUNCE REPLY - send a message back to the user to let them know their email failed
+                            String errMsg = rb.getString("mail.support.521") + "\n\n";
+                            if (StringUtils.isNotBlank(mailSupport)) {
+                                errMsg += rb.getFormattedMessage("err_questions", mailSupport) + "\n";
+                            }
+                            throw new RejectException(Integer.parseInt(MESSAGE_ERROR_521), errMsg);
+                        }
+                        String errMsg = rb.getString("mail.support.421") + "\n\n";
+                        if (StringUtils.isNotBlank(mailSupport)) {
+                            errMsg += rb.getFormattedMessage("err_questions", mailSupport) + "\n";
+                        }
+                        throw new RejectException(Integer.parseInt(MESSAGE_ERROR_421), errMsg);
+                    }
                 } else if (serverConfigurationService.getServerName().equalsIgnoreCase(address.getDomain())) {
                     isMessageId = false;
                     Recipient recipient = new Recipient();
