@@ -86,13 +86,11 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     @Setter private ToolManager toolManager;
     @Setter private UserDirectoryService userDirectoryService;
 
-    private Cache<String, Set<DBMembershipItem>> membershipItemCache;
     private Cache<String, Set<String>> userGroupMembershipCache;
 
     public void init() {
         log.info("init()");
         userGroupMembershipCache = memoryService.getCache("org.sakaiproject.component.app.messageforums.ui.UIPermissionsManagerImpl.userGroupMembershipCache");
-        membershipItemCache = memoryService.getCache("org.sakaiproject.component.app.messageforums.ui.UIPermissionsManagerImpl.membershipItemCache");
     }
 
     @Override
@@ -679,37 +677,17 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 
     private Set<DBMembershipItem> getTopicMemberships(Area area) {
         if (area == null) return Collections.emptySet();
-        String topicCacheKey = "topic_" + area.getId();
-        Set<DBMembershipItem> cachedTopicMemberships = membershipItemCache.get(topicCacheKey);
-        if (cachedTopicMemberships == null) {
-            cachedTopicMemberships = new HashSet<>(permissionLevelManager.getAllMembershipItemsForTopicsForSite(area.getId()));
-            membershipItemCache.put(topicCacheKey, cachedTopicMemberships);
-        }
-        return cachedTopicMemberships;
+        return new HashSet<>(permissionLevelManager.getAllMembershipItemsForTopicsForSite(area.getId()));
     }
 
     private Set<DBMembershipItem> getForumMemberships(Area area) {
         if (area == null) return Collections.emptySet();
-        String forumCacheKey = "forum_" + area.getId();
-        Set<DBMembershipItem> cachedForumMemberships = membershipItemCache.get(forumCacheKey);
-        if (cachedForumMemberships == null) {
-            cachedForumMemberships = new HashSet<>(permissionLevelManager.getAllMembershipItemsForForumsForSite(area.getId()));
-            membershipItemCache.put(forumCacheKey, cachedForumMemberships);
-        }
-        return cachedForumMemberships;
+        return new HashSet<>(permissionLevelManager.getAllMembershipItemsForForumsForSite(area.getId()));
     }
 
     private Set<DBMembershipItem> getAreaMemberships(String siteId) {
         if (StringUtils.isBlank(siteId)) return Collections.emptySet();
-
-        String areaSiteCacheKey = "area_" + siteId;
-        Set<DBMembershipItem> cachedAreaMemberships = membershipItemCache.get(areaSiteCacheKey);
-        if (cachedAreaMemberships == null) {
-            Area dfa = forumManager.getDiscussionForumArea(siteId);
-            cachedAreaMemberships = dfa.getMembershipItemSet();
-            membershipItemCache.put(areaSiteCacheKey, cachedAreaMemberships);
-        }
-        return cachedAreaMemberships;
+        return forumManager.getDiscussionForumArea(siteId).getMembershipItemSet();
     }
 
     public Set<String> getGroupsWithMember(Site site, String userId) {
