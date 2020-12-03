@@ -690,14 +690,6 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
         return forumManager.getDiscussionForumArea(siteId).getMembershipItemSet();
     }
 
-    public void clearMembershipItemCaches(Area area) {
-        if (area != null) {
-            membershipItemCache.remove("area_" + area.getContextId());
-            membershipItemCache.remove("forum_" + area.getId());
-            membershipItemCache.remove("topic_" + area.getId());
-        }
-    }
-
     public Set<String> getGroupsWithMember(Site site, String userId) {
         Set<String> groupIds = new HashSet<>();
         if (site != null && StringUtils.isNotBlank(userId)) {
