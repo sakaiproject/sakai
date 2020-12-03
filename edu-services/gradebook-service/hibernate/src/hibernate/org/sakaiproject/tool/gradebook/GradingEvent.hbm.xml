@@ -20,7 +20,11 @@
 		<property name="studentId" column="STUDENT_ID" type="string" not-null="true"/>
 		<property name="dateGraded" column="DATE_GRADED" type="timestamp" not-null="true"/>
 		<property name="grade" column="GRADE" type="string" />
-
+		<property name="status" column="IS_EXCLUDED">
+		 	<type name="org.hibernate.type.EnumType">
+		 		<param name="enumClass">org.sakaiproject.service.gradebook.shared.GradingEventStatus</param>
+		 	</type>
+		 </property>
 	</class>
 	
 	<database-object>
