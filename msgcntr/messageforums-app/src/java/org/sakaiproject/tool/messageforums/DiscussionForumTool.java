@@ -6679,16 +6679,6 @@ public class DiscussionForumTool {
       }
 
       permissionLevelManager.deleteMembershipItems(oldMembershipItemSet);
-
-      // Clear caches first
-      if (area != null) {
-        uiPermissionsManager.clearMembershipItemCaches(area);
-      } else if (forum != null) {
-        uiPermissionsManager.clearMembershipItemCaches(forum.getArea());
-      } else if (topic != null) {
-        uiPermissionsManager.clearMembershipItemCaches(topic.getBaseForum() != null ? topic.getBaseForum().getArea() : topic.getOpenForum().getArea());
-      }
-
     }
     siteMembers = null;
   }
