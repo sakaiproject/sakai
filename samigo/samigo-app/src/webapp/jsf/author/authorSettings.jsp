@@ -72,8 +72,6 @@
           $("#jqueryui-accordion-metadata").accordion({ heightStyle: "content",collapsible: true,active: false });
           // This is a sub-accordion inside of the Availability and Submission Panel
           $("#jqueryui-accordion-security").accordion({ heightStyle: "content",collapsible: true,active: false });
-          // adjust the height of the iframe to accomodate the expansion from the accordion
-          $("body").height($("body").outerHeight() + 900);
 
           checkNav = function() {
               QuesFormatRadios = ["assessmentSettingsAction\\:assessmentFormat\\:0", "assessmentSettingsAction\\:assessmentFormat\\:1", "assessmentSettingsAction\\:assessmentFormat\\:2"];
