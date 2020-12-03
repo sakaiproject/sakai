@@ -7381,9 +7381,7 @@ public class DiscussionForumTool {
 				EmailNotification authorNotificationLevel = emailNotificationManager.getEmailNotification(threadauthor);
 				// only add level 1 users , since we've already got level2 users.
 				if (EmailNotification.EMAIL_REPLY_TO_MY_MESSAGE.equalsIgnoreCase(authorNotificationLevel.getNotificationLevel())){
-					if (log.isDebugEnabled()){
-						log.debug("The author: {} wants to be notified", threadauthor);
-					}
+					log.debug("The author: {} wants to be notified", threadauthor);
 					userlist.add(threadauthor);
 				}
 			}
@@ -9254,4 +9252,3 @@ public class DiscussionForumTool {
     }
 
 }
-
