@@ -3664,6 +3664,7 @@ public class DiscussionForumTool {
     	this.composeTitle = null;
 
     	this.attachments.clear();
+    	this.selectedThread.clear();
 
     	// refresh page with unread status     
     	selectedTopic = getDecoratedTopic(selectedTopic.getTopic());
@@ -7375,13 +7376,14 @@ public class DiscussionForumTool {
 		while (iter.hasNext()){
 			DiscussionMessageBean decoMessage = (DiscussionMessageBean) iter.next();
 			String threadauthor = decoMessage.getMessage().getCreatedBy();
-			EmailNotification authorNotificationLevel = emailNotificationManager.getEmailNotification(threadauthor);
-			// only add level 1 users , since we've already got level2 users. 
-			if (EmailNotification.EMAIL_REPLY_TO_MY_MESSAGE.equalsIgnoreCase(authorNotificationLevel.getNotificationLevel())){
-				if (log.isDebugEnabled()){
-					log.debug("The author: " + threadauthor + " wants to be notified");
+			// don't include the reply author
+			if (!threadauthor.equals(reply.getCreatedBy())) {
+				EmailNotification authorNotificationLevel = emailNotificationManager.getEmailNotification(threadauthor);
+				// only add level 1 users , since we've already got level2 users.
+				if (EmailNotification.EMAIL_REPLY_TO_MY_MESSAGE.equalsIgnoreCase(authorNotificationLevel.getNotificationLevel())){
+					log.debug("The author: {} wants to be notified", threadauthor);
+					userlist.add(threadauthor);
 				}
-				userlist.add(threadauthor);
 			}
 		}
 
@@ -9254,4 +9256,3 @@ public class DiscussionForumTool {
     }
 
 }
-
