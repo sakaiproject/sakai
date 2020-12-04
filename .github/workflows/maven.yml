@@ -28,6 +28,8 @@ jobs:
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
           ${{ runner.os }}-maven-
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
     - name: Setup MySQL for the SiteStats Tests
       run: |
         sudo systemctl enable mysql.service
@@ -38,8 +40,6 @@ jobs:
       env:
         MAVEN_OPTS: -Djava.awt.headless=true -Dorg.slf4j.simpleLogger.defaultLogLevel=info -Dmaven.wagon.http.retryHandler.count=2 -Dmaven.wagon.http.pool=true
       run: mvn test --batch-mode
-    - name: Setup tmate session
-      uses: mxschmitt/action-tmate@v3
     - name: Report jUnit Annotations as Github Actions Annotations
       uses: shyim/junit-report-annotations-action@0.2.0
       with:
