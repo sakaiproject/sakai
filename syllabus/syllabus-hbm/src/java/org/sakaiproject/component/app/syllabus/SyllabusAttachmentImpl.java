@@ -27,7 +27,7 @@ import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
 import org.sakaiproject.api.app.syllabus.SyllabusData;
 
 @Data
-@EqualsAndHashCode(of = "syllabusAttachId")
+@EqualsAndHashCode(of = {"syllabusAttachId", "name"})
 @ToString(of = {"syllabusAttachId", "attachmentId", "lockId"})
 public class SyllabusAttachmentImpl implements SyllabusAttachment, Comparable {
     private Long syllabusAttachId;

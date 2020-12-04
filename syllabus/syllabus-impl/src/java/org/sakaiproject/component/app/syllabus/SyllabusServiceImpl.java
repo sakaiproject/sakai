@@ -1166,12 +1166,10 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 												.getStatus(), toSyData
 												.getEmailNotification(), toSyData.getStartDate(), toSyData.getEndDate(), toSyData.getLinkCalendar(),
 												toSyData.getCalendarEventIdStartDate(), toSyData.getCalendarEventIdEndDate());
-						Set attachSet = syllabusManager.getSyllabusAttachmentsForSyllabusData(toSyData);
-						Iterator attachIter = attachSet.iterator();
+						Set<SyllabusAttachment> attachSet = syllabusManager.getSyllabusAttachmentsForSyllabusData(toSyData);
 						Set<SyllabusAttachment> newAttachSet = new TreeSet<SyllabusAttachment>();
-						while(attachIter.hasNext())
+						for (SyllabusAttachment thisAttach : attachSet)
 						{
-							SyllabusAttachment thisAttach = (SyllabusAttachment)attachIter.next();
 							ContentResource oldAttachment = contentHostingService.getResource(thisAttach.getAttachmentId());
 							ContentResource attachment = contentHostingService.addAttachmentResource(
 								oldAttachment.getProperties().getProperty(
