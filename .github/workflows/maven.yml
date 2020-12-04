@@ -28,14 +28,15 @@ jobs:
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
           ${{ runner.os }}-maven-
-    - name: Build with Maven
-      env:
-        MAVEN_OPTS: -Djava.awt.headless=true -Dorg.slf4j.simpleLogger.defaultLogLevel=info -Dmaven.wagon.http.retryHandler.count=2 -Dmaven.wagon.http.pool=true
+    - name: Setup MySQL for the SiteStats Tests
       run:
         sudo systemctl enable mysql.service
         sudo systemctl start mysql.service
         mysql -uroot -h127.0.0.1 -proot -e 'CREATE DATABASE IF NOT EXISTS sakai;'
         mv sitestats/sitestats-impl/src/test/hibernate-github-actions.properties sitestats/sitestats-impl/src/test/hibernate.properties
+    - name: Build with Maven
+      env:
+        MAVEN_OPTS: -Djava.awt.headless=true -Dorg.slf4j.simpleLogger.defaultLogLevel=info -Dmaven.wagon.http.retryHandler.count=2 -Dmaven.wagon.http.pool=true
       run: mvn test --batch-mode
     - name: Setup tmate session
       uses: mxschmitt/action-tmate@v3
