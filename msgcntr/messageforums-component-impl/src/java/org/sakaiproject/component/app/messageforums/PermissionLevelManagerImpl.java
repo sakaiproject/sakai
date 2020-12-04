@@ -759,8 +759,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 							case PermissionLevelManager.PERMISSION_LEVEL_NAME_CONTRIBUTOR:
 							case PermissionLevelManager.PERMISSION_LEVEL_NAME_REVIEWER:
 							case PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE:
-								getHibernateTemplate().merge(managedLevel);
-								permissionLevelsToDelete.add(managedLevel);
+								permissionLevelsToDelete.add(getHibernateTemplate().merge(managedLevel));
 								break;
 						}
 					}
