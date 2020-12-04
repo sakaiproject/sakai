@@ -872,11 +872,11 @@ $(document).ready(function(){
         }
     });
 
-    const saveButton = document.getElementById("msgForum:save");
-    saveButton && saveButton.addEventListener("click", e => {
-
-      const rubricGrading = document.getElementsByTagName("sakai-rubric-grading").item(0);
-      rubricGrading && rubricGrading.save();
-    });
 });
 
+var MFR_RBC = MFR_RBC || {};
+
+MFR_RBC.saveRubric = function() {
+    const rubricGrading = document.getElementsByTagName("sakai-rubric-grading").item(0);
+    rubricGrading && rubricGrading.save();
+};
