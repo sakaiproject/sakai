@@ -29,7 +29,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-maven-
     - name: Setup MySQL for the SiteStats Tests
-      run:
+      run: |
         sudo systemctl enable mysql.service
         sudo systemctl start mysql.service
         mysql -uroot -h127.0.0.1 -proot -e 'CREATE DATABASE IF NOT EXISTS sakai;'
