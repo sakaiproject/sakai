@@ -61,7 +61,6 @@ public class DB extends HibernateDaoSupport {
         List<T> results;
 	    try {
             results = getHibernateTemplate().execute(session -> {
-                session.flush();
                 CriteriaQuery criteriaQuery = session.getCriteriaBuilder().createQuery(classz);
                 Root<T> root = criteriaQuery.from(classz);
                 criteriaQuery.select(root);

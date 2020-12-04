@@ -960,7 +960,6 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
                         }
                         doUpdateUserStatObjects(session, tmp8);
                     }
-                    session.flush();
                     return null;
             	});
 			} catch(DataAccessException dae) {
