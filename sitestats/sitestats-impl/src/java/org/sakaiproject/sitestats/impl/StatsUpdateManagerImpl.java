@@ -420,12 +420,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					//long endTime2 = System.currentTimeMillis();
 					//log.debug("Time spent pre-processing " + eventCount + " event(s): " + (endTime2-startTime2) + " ms");
 				}
-				transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-					@Override
-					protected void doInTransactionWithoutResult(TransactionStatus status) {
-						doUpdateConsolidatedEvents();
-					}
-				});
+				transactionTemplate.execute(status -> doUpdateConsolidatedEvents());
 				isIdle = true;
 				totalTimeInEventProcessing += (System.currentTimeMillis() - startTime);
 
@@ -965,6 +960,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
                         }
                         doUpdateUserStatObjects(session, tmp8);
                     }
+                    session.flush();
                     return null;
             	});
 			} catch(DataAccessException dae) {
