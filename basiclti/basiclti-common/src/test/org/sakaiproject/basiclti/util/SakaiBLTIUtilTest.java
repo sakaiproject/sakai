@@ -146,6 +146,11 @@ System.err.println("encrypt1="+encrypt1);
 
 		content.put(LTIService.LTI_PLACEMENTSECRET, "wrong");
 		assertFalse(SakaiBLTIUtil.checkLaunchCode(content, launch_code));
+
+		// Correct password different id
+		content.put(LTIService.LTI_ID, "43");
+		content.put(LTIService.LTI_PLACEMENTSECRET, "xyzzy");
+		assertFalse(SakaiBLTIUtil.checkLaunchCode(content, launch_code));
 	}
 
 	@Test
