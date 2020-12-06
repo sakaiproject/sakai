@@ -1080,6 +1080,14 @@ public class LTI13Servlet extends HttpServlet {
 		String client_id = (String) tool.get(LTIService.LTI13_CLIENT_ID);
 
 		jso.put("client_id", client_id);
+
+		Object toolConfigurationObj = jso.get("https://purl.imsglobal.org/spec/lti-tool-configuration");
+		if ( toolConfigurationObj instanceof JSONObject ) {
+			JSONObject toolConfiguration = (JSONObject) toolConfigurationObj;
+			String deployment_id = SakaiBLTIUtil.getDeploymentId(null);
+			toolConfiguration.put("deployment_id", deployment_id);
+		}
+
 		String json_out = null;
 		try {
 			json_out = JacksonUtil.prettyPrint(jso);

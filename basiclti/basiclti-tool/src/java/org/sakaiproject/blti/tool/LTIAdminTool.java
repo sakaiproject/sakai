@@ -707,6 +707,15 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		tool.put(LTIService.LTI_LAUNCH, "https://example.com/auto-provision-will-replace");
 		tool.put(LTIService.LTI13_CLIENT_ID, clientId);
 
+		KeyPair kp = null;
+		kp = LTI13Util.generateKeyPair();
+		if (kp == null) {
+			addAlert(state, rb.getString("error.keygen.fail"));
+			switchPanel(state, "Error");
+		}
+		tool.put("lti13_platform_public", LTI13Util.getPublicEncoded(kp));
+		tool.put("lti13_platform_private", LTI13Util.getPrivateEncoded(kp));
+
 		Object retval = ltiService.insertTool(tool, getSiteId(state));
 		if (retval instanceof String) {
 			addAlert(state, rb.getString("tool.lti13.auto.start.insert.fail")+" "+retval);
