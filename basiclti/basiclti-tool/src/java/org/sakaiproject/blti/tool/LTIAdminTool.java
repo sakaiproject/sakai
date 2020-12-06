@@ -671,7 +671,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		return "lti_tool_view";
 	}
 
-	public String buildAutoStartPanelContext(VelocityPortlet portlet, Context context,
+	public String buildAutoInsertPanelContext(VelocityPortlet portlet, Context context,
 			RunData data, SessionState state)
 	{
 		context.put("tlang", rb);
@@ -681,13 +681,39 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			return "lti_error";
 		}
 		context.put("messageSuccess", state.getAttribute(STATE_SUCCESS));
-		context.put("doToolAction", BUTTON + "doAutoStart");
+		context.put("doToolAction", BUTTON + "doAutoInsert");
 
-		return "lti_tool_auto_start";
+		return "lti_tool_auto_insert";
+	}
+
+	// Make sure this is ready to handle LTI 1.3 launches
+	private boolean minimalLTI13(Map<String, Object> tool) {
+		boolean retval = false;
+
+		String clientId = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_CLIENT_ID));
+		String old_lti13_platform_public = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_PLATFORM_PUBLIC));
+		String old_lti13_platform_private = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_PLATFORM_PRIVATE));
+
+		if (clientId == null ) {
+			clientId = UUID.randomUUID().toString();
+			tool.put(LTIService.LTI13_CLIENT_ID, clientId);
+			retval = true;
+		}
+
+		if (old_lti13_platform_public == null || old_lti13_platform_private == null) {
+			KeyPair kp = null;
+			kp = LTI13Util.generateKeyPair();
+			if (kp != null) {
+				tool.put(LTIService.LTI13_PLATFORM_PUBLIC, LTI13Util.getPublicEncoded(kp));
+				tool.put(LTIService.LTI13_PLATFORM_PRIVATE, LTI13Util.getPrivateEncoded(kp));
+				retval = true;
+			}
+		}
+		return retval;
 	}
 
 	// Make a tool with a title and sent to tool_insert (update) to provision
-	public void doAutoStart(RunData data, Context context)
+	public void doAutoInsert(RunData data, Context context)
 	{
 		String peid = ((JetspeedRunData) data).getJs_peid();
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
@@ -707,14 +733,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		tool.put(LTIService.LTI_LAUNCH, "https://example.com/auto-provision-will-replace");
 		tool.put(LTIService.LTI13_CLIENT_ID, clientId);
 
-		KeyPair kp = null;
-		kp = LTI13Util.generateKeyPair();
-		if (kp == null) {
-			addAlert(state, rb.getString("error.keygen.fail"));
-			switchPanel(state, "Error");
-		}
-		tool.put("lti13_platform_public", LTI13Util.getPublicEncoded(kp));
-		tool.put("lti13_platform_private", LTI13Util.getPrivateEncoded(kp));
+		boolean changed = minimalLTI13(tool);
 
 		Object retval = ltiService.insertTool(tool, getSiteId(state));
 		if (retval instanceof String) {
@@ -729,7 +748,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		switchPanel(state, newPanel);
 	}
 
-	public String buildToolAutoPanelContext(VelocityPortlet portlet, Context context,
+	public String buildAutoStartPanelContext(VelocityPortlet portlet, Context context,
 			RunData data, SessionState state)
 	{
 		context.put("tlang", rb);
@@ -751,66 +770,21 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			return "lti_error";
 		}
 
-		// Make sure this is ready to handle LTI 1.3 launches
-		String clientId = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_CLIENT_ID));
-		String old_lti13_platform_public = StringUtils.trimToNull((String) tool.get("lti13_platform_public"));
-		String old_lti13_platform_private = StringUtils.trimToNull((String) tool.get("lti13_platform_private"));
-
-		boolean needToUpdate = false;
-		if (clientId == null ) {
-			clientId = UUID.randomUUID().toString();
-			tool.put(LTIService.LTI13_CLIENT_ID, clientId);
-			needToUpdate = true;
-		}
-
-		if (old_lti13_platform_public == null || old_lti13_platform_private == null) {
-			KeyPair kp = null;
-			kp = LTI13Util.generateKeyPair();
-			if (kp == null) {
-				addAlert(state, rb.getString("error.keygen.fail"));
-				return "lti_error";
-			}
-			tool.put("lti13_platform_public", LTI13Util.getPublicEncoded(kp));
-			tool.put("lti13_platform_private", LTI13Util.getPrivateEncoded(kp));
-			needToUpdate = true;
-		}
-
-		if ( needToUpdate ) {
-			Object retval = ltiService.updateTool(key, tool, getSiteId(state));
-			if (retval instanceof String) {
-				addAlert(state, (String) retval);
-				return "lti_error";
-			}
-		}
-
-		String site_id = (String) tool.get(LTIService.LTI_SITE_ID);
-		String issuerURL = SakaiBLTIUtil.getIssuer(site_id);
-		String deploymentId = SakaiBLTIUtil.getDeploymentId(site_id);
-
-		String configUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/well_known";
-		configUrl += "?key=" + URLEncoder.encode(key.toString());
-		configUrl += "&clientId=" + URLEncoder.encode(clientId);
-		configUrl += "&issuerURL=" + URLEncoder.encode(issuerURL);
-		configUrl += "&deploymentId=" + URLEncoder.encode(deploymentId);
-		context.put("sakaiConfigUrl", configUrl);
-
 		context.put("tool_id", key);
-
-		context.put("doAction", BUTTON + "doAdvantageAuto");
+		context.put("doAction", BUTTON + "doLaunchAdvantageAuto");
 
 		state.removeAttribute(STATE_SUCCESS);
-		return "lti_tool_auto";
+		return "lti_tool_auto_launch";
 	}
 
-	public void doAdvantageAuto(RunData data, Context context)
+	public void doLaunchAdvantageAuto(RunData data, Context context)
 	{
 		String peid = ((JetspeedRunData) data).getJs_peid();
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
 
-		String sakaiConfigUrl = data.getParameters().getString("sakaiConfigUrl");
 		String toolConfigUrl = data.getParameters().getString("toolConfigUrl");
 
-		// Retrieve the tool associated with the content item
+		// Retrieve the tool
 		Long toolKey = foorm.getLongNull(data.getParameters().getString(LTIService.LTI_TOOL_ID));
 		if (toolKey == 0 || toolKey < 0) {
 			addAlert(state, rb.getString("error.tool.not.found"));
@@ -825,16 +799,31 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			return;
 		}
 
+		// Make sure this is ready to handle LTI 1.3 launches
+		boolean changed = minimalLTI13(tool);
+
 		// Construct and time-stamp the one-time registration token and store it
 		String registration_token = LTI13Util.timeStamp(UUID.randomUUID().toString());
 		tool.put(LTIService.LTI13_AUTO_TOKEN, registration_token);
 
+		// Update the tool
 		Object retval = ltiService.updateTool(toolKey, tool, getSiteId(state));
 		if (retval instanceof String) {
 			addAlert(state, (String) retval);
 			switchPanel(state, "Error");
 			return;
 		}
+
+		String site_id = (String) tool.get(LTIService.LTI_SITE_ID);
+		String clientId = (String) tool.get(LTIService.LTI13_CLIENT_ID);
+		String issuerURL = SakaiBLTIUtil.getIssuer(site_id);
+		String deploymentId = SakaiBLTIUtil.getDeploymentId(site_id);
+
+		String sakaiConfigUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/well_known";
+		sakaiConfigUrl += "?key=" + URLEncoder.encode(toolKey.toString());
+		sakaiConfigUrl += "&clientId=" + URLEncoder.encode(clientId);
+		sakaiConfigUrl += "&issuerURL=" + URLEncoder.encode(issuerURL);
+		sakaiConfigUrl += "&deploymentId=" + URLEncoder.encode(deploymentId);
 
 		String forwardUrl = toolConfigUrl;
 		if (forwardUrl.indexOf("?") > 0) {
@@ -902,10 +891,10 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		context.put("isEdit", Boolean.TRUE);
 
 		Placement placement = toolManager.getCurrentPlacement();
-		String autoConfigUrl = serverConfigurationService.getToolUrl() + "/" + placement.getId()
-				+ "?panel=ToolAuto"
+		String autoStartUrl = serverConfigurationService.getToolUrl() + "/" + placement.getId()
+				+ "?panel=AutoStart"
 				+ "&id=" + tool.get(LTIService.LTI_ID);
-		context.put("autoConfigUrl", autoConfigUrl);
+		context.put("autoStartUrl", autoStartUrl);
 
 		String autoRegistrationUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/get_registration?key="+tool.get(LTIService.LTI_ID);
 		context.put("autoRegistrationUrl", autoRegistrationUrl);
@@ -1150,8 +1139,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		String old_lti13_platform_private = null;
 		if (tool != null) {
 			old_lti13_client_id = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_CLIENT_ID));
-			old_lti13_platform_public = StringUtils.trimToNull((String) tool.get("lti13_platform_public"));
-			old_lti13_platform_private = StringUtils.trimToNull((String) tool.get("lti13_platform_private"));
+			old_lti13_platform_public = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_PLATFORM_PUBLIC));
+			old_lti13_platform_private = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_PLATFORM_PRIVATE));
 		}
 
 		boolean displayPostInsert = false;
@@ -1169,17 +1158,18 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 					switchPanel(state, "Error");
 					return;
 				}
-				reqProps.setProperty("lti13_platform_public", LTI13Util.getPublicEncoded(kp));
-				reqProps.setProperty("lti13_platform_private", LTI13Util.getPrivateEncoded(kp));
+				String pub = LTI13Util.getPublicEncoded(kp);
+				String pri = LTI13Util.getPrivateEncoded(kp);
+				reqProps.setProperty(LTIService.LTI13_PLATFORM_PUBLIC, LTI13Util.getPublicEncoded(kp));
+				reqProps.setProperty(LTIService.LTI13_PLATFORM_PRIVATE, LTI13Util.getPrivateEncoded(kp));
 			}
 		}
 
 		// Encrypt secrets - conveniently, encryptSecret won't double encrypt
-		String check_platform_private = reqProps.getProperty("lti13_platform_private");
-		if ( check_platform_private == null ) check_platform_private = old_lti13_platform_private;
+		String check_platform_private = reqProps.getProperty(LTIService.LTI13_PLATFORM_PRIVATE);
 		if ( check_platform_private != null ) {
 			check_platform_private = SakaiBLTIUtil.encryptSecret(check_platform_private);
-			reqProps.setProperty("lti13_platform_private", check_platform_private);
+			reqProps.setProperty(LTIService.LTI13_PLATFORM_PRIVATE, check_platform_private);
 		}
 
 		String success = null;

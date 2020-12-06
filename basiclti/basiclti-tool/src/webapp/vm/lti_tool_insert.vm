@@ -10,7 +10,7 @@
     #if ($messageSuccess)<div class="sak-banner-success">$tlang.getString("gen.success") $formattedText.escapeHtml($messageSuccess)</div>#end
     #if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>#end
     <form action="#toolForm("")" method="post" name="customizeForm" >
-        <div style="float:right" id="lti-advantage-div"><a href="$autoConfigUrl" class="btn btn-primary" target="sakai-basiclti-admin-iframe"
+        <div style="float:right" id="lti-advantage-div"><a href="$autoStartUrl" class="btn btn-primary" target="sakai-basiclti-admin-iframe"
         title="$tlang.getString("tool.lti13.auto.title")" role="button"
         onclick="showIframe(this.title, false);">$tlang.getString("tool.lti13.auto.button")</a></div>
         $formInput
@@ -23,7 +23,7 @@
         </p>
     </form>
 
-#if ($isEdit && $isAdmin && $autoConfigUrl )
+#if ($isEdit && $isAdmin && $autoStartUrl )
     <div id="modal-iframe-div" style="display:none" tabindex="-1" role="dialog">
         <iframe name="sakai-basiclti-admin-iframe" id="sakai-basiclti-admin-iframe" src="/library/image/sakai/spinner.gif" style="min-height: 80vh;" tabindex="0"></iframe>
     </div>
@@ -197,6 +197,7 @@ function importLTI13Config() {
         console.log(data);
         if ( data.initiate_login_uri ) jQuery("#lti13_oidc_endpoint").val(data.initiate_login_uri);
         if ( data.jwks_uri ) jQuery("#lti13_tool_keyset").val(data.jwks_uri);
+        if ( data.client_id ) jQuery("#lti13_client_id").val(data.client_id);
         if ( data.oidcRedirect ) jQuery("#lti13_oidc_redirect").val(data.oidcRedirect);
         if ( data.redirect_uris && Array.isArray(data.redirect_uris) ) {
             var uris = '';

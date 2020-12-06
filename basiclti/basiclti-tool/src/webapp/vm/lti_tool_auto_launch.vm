@@ -5,7 +5,6 @@
 
     <form action="#toolForm("")" method="post" name="AdvantageAutoForm" >
         <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-        <input type="hidden" name="sakaiConfigUrl" value="$sakaiConfigUrl" />
         <input type="hidden" name="tool_id" value="$tool_id" />
 
         <div id="auto-input" class="foorm-text" style="clear:both;">
