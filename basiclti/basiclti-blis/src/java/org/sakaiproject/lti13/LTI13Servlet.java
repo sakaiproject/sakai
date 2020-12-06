@@ -1070,8 +1070,11 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		// TODO: Check if the one time use token is tasty.
-		if ( ! "42".equals(registration_token) ) {
+		// Check if the one time use token meets our requirements.
+		String tool_token = (String) tool.get(LTIService.LTI13_AUTO_TOKEN);
+		int delta = 60*60; // An hour
+		if ( tool_token == null || tool_token.length() < 1 ||
+			! tool_token.equals(registration_token) || ! LTI13Util.timeStampCheck(registration_token, delta) ) {
 			log.error("Bad registration_token");
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 			return;
@@ -1100,7 +1103,7 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		// Store the JSON
-		tool.put(LTIService.LTI13_AUTO_TOKEN, null);
+		tool.put(LTIService.LTI13_AUTO_TOKEN, "Used");
 		tool.put(LTIService.LTI13_AUTO_STATE, new Integer(2));
 		String siteId = null;
 		Object retval = ltiService.updateToolDao(tool_key, tool, siteId);

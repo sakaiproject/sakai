@@ -825,8 +825,17 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			return;
 		}
 
-		// TODO: Make this something other than 42
-		String registration_token = "42";
+		// Construct and time-stamp the one-time registration token and store it
+		String registration_token = LTI13Util.timeStamp(UUID.randomUUID().toString());
+		tool.put(LTIService.LTI13_AUTO_TOKEN, registration_token);
+
+		Object retval = ltiService.updateTool(toolKey, tool, getSiteId(state));
+		if (retval instanceof String) {
+			addAlert(state, (String) retval);
+			switchPanel(state, "Error");
+			return;
+		}
+
 		String forwardUrl = toolConfigUrl;
 		if (forwardUrl.indexOf("?") > 0) {
 			forwardUrl += "&";
