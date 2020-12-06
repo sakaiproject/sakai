@@ -10,6 +10,9 @@
     #if ($messageSuccess)<div class="sak-banner-success">$tlang.getString("gen.success") $formattedText.escapeHtml($messageSuccess)</div>#end
     #if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>#end
     <form action="#toolForm("")" method="post" name="customizeForm" >
+        <div style="float:right" id="lti-advantage-div"><a href="$autoConfigUrl" class="btn btn-primary" target="sakai-basiclti-admin-iframe"
+        title="$tlang.getString("tool.lti13.auto.title")" role="button"
+        onclick="showIframe(this.title, false);">$tlang.getString("tool.lti13.auto.button")</a></div>
         $formInput
                 <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
         <p class="act">
@@ -109,7 +112,7 @@ function checkCheckboxCombos() {
    }
 }
 
-function inportSakaiConfig() {
+function importSakaiConfig() {
 
     var importUrl = prompt("$tlang.getString("tool.import.prompt")", '');
     importUrl = '$proxyUrl' + '?proxyUrl=' + importUrl;
@@ -174,16 +177,8 @@ $(document).ready( function() {
 
     var issuerURL = '$issuerURL';
 
-    #if ($isEdit && $isAdmin && $autoConfigUrl )
-    $( "#allowtitle-input" ).after(
-    '<a href="$autoConfigUrl" class="btn btn-primary" target="sakai-basiclti-admin-iframe" '+
-    '    title="$tlang.getString("tool.lti13.auto.title")" role="button"' +
-    '    onclick="showIframe(this.title, false);">$tlang.getString("tool.lti13.auto.button")</a><br/>'
-    );
-    #end
-
     $( "#lti13-input" ).after(
-            '<p><input type="submit" onclick="inportSakaiConfig();return false;" class="btn btn-primary" value="$tlang.getString("tool.import.lti13")"/>' +
+            '<p><input type="submit" onclick="importSakaiConfig();return false;" class="btn btn-primary" value="$tlang.getString("tool.import.lti13")"/>' +
             '</p>');
 
     $( "#lti13-input" ).after(
@@ -263,7 +258,8 @@ function importLTI13Config() {
         console.log("closing the modal");
         $("#modal-iframe-div").hide();
         $("#modal-iframe-div").dialog('close');
-        alert("Imported data into the form, please review and save.");
+        $("#lti-advantage-div").hide();
+        alert("$tlang.getString("tool.import.success")");
     })
     .fail(function() {
         alert("$tlang.getString("tool.import.error")" );

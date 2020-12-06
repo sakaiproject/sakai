@@ -671,6 +671,55 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		return "lti_tool_view";
 	}
 
+	public String buildAutoStartPanelContext(VelocityPortlet portlet, Context context,
+			RunData data, SessionState state)
+	{
+		context.put("tlang", rb);
+		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
+		if (!ltiService.isMaintain(getSiteId(state))) {
+			addAlert(state, rb.getString("error.maintain.view"));
+			return "lti_error";
+		}
+		context.put("messageSuccess", state.getAttribute(STATE_SUCCESS));
+		context.put("doToolAction", BUTTON + "doAutoStart");
+
+		return "lti_tool_auto_start";
+	}
+
+	// Make a tool with a title and sent to tool_insert (update) to provision
+	public void doAutoStart(RunData data, Context context)
+	{
+		String peid = ((JetspeedRunData) data).getJs_peid();
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
+
+		String title = data.getParameters().getString("title");
+		if (title == null || title.length() < 1) {
+			addAlert(state, rb.getString("tool.lti13.auto.start.title.required"));
+			switchPanel(state, "AutoStart");
+			return;
+		}
+
+		// Build a minimal tool
+		String clientId = UUID.randomUUID().toString();
+		Map<String, Object> tool = new HashMap<String, Object>();
+		tool.put(LTIService.LTI_TITLE, title);
+		tool.put(LTIService.LTI_PAGETITLE, title);
+		tool.put(LTIService.LTI_LAUNCH, "https://example.com/auto-provision-will-replace");
+		tool.put(LTIService.LTI13_CLIENT_ID, clientId);
+
+		Object retval = ltiService.insertTool(tool, getSiteId(state));
+		if (retval instanceof String) {
+			addAlert(state, rb.getString("tool.lti13.auto.start.insert.fail")+" "+retval);
+			switchPanel(state, "Error");
+			return;
+		}
+
+		Long key = new Long(retval.toString());
+
+		String newPanel = "ToolEdit&autoStart=true&id=" + key;
+		switchPanel(state, newPanel);
+	}
+
 	public String buildToolAutoPanelContext(VelocityPortlet portlet, Context context,
 			RunData data, SessionState state)
 	{
@@ -767,6 +816,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			return;
 		}
 
+		// TODO: Make this something other than 42
 		String registration_token = "42";
 		String forwardUrl = toolConfigUrl;
 		if (forwardUrl.indexOf("?") > 0) {
