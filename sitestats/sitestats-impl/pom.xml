@@ -14,7 +14,7 @@
 
     <profiles>
         <profile>
-            <id>skipBrokenTestsOnUbuntu</id>
+            <id>skipBrokenTests</id>
             <build>
                 <plugins>
                     <plugin>
