@@ -41,6 +41,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import lombok.ToString;
 
@@ -65,7 +66,8 @@ import lombok.NoArgsConstructor;
 @JsonPropertyOrder({"id", "toolId", "itemId", "rubricId", "parameters", "metadata"})
 @NoArgsConstructor
 @Table(name = "rbc_tool_item_rbc_assoc",
-  indexes = { @Index(name = "rbc_tool_item_owner",  columnList="toolId, itemId, ownerId") }
+        indexes = {@Index(name = "rbc_tool_item_owner", columnList = "toolId, itemId, ownerId")},
+        uniqueConstraints = @UniqueConstraint(columnNames = {"rubric_id", "toolId", "itemId"})
 )
 @ToString(exclude = {"rubric", "parameters"})
 public class ToolItemRubricAssociation implements Modifiable, Serializable, Cloneable  {
