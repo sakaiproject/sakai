@@ -221,6 +221,20 @@ function importLTI13Config() {
             }
         }
 
+        if ( data.scope && typeof data.scope == "string" ) {
+            var scope = data.scope;
+            if ( scope.includes("https://purl.imsglobal.org/spec/lti-ags/scope/score") ) {
+                jQuery("#allowoutcomes").prop("checked", true);
+            }
+
+            if ( scope.includes("https://purl.imsglobal.org/spec/lti-ags/scope/lineitem") ) {
+                jQuery("#allowlineitems").prop("checked", true);
+            }
+            if ( scope.includes("https://purl.imsglobal.org/spec/lti-nrps/scope/contextmembership.readonly") ) {
+                jQuery("#allowroster").prop("checked", true);
+            }
+        }
+
         if ( data['https://purl.imsglobal.org/spec/lti-tool-configuration'] ) {
             var tool = data['https://purl.imsglobal.org/spec/lti-tool-configuration'];
             console.log('tool', tool);
@@ -235,13 +249,10 @@ function importLTI13Config() {
                     tool.claims.includes('given_name') ) {
                     jQuery("#sendname").prop("checked", true);
                 }
+                if ( tool.claims.includes('email') ) {
+                    jQuery("#sendemailaddr").prop("checked", true);
+                }
             }
-
-            // It would be nice to let the tool ask for these
-            jQuery("#sendemailaddr").prop("checked", true);
-            jQuery("#allowoutcomes").prop("checked", true);
-            jQuery("#allowlineitems").prop("checked", true);
-            jQuery("#allowroster").prop("checked", true);
 
             if ( tool.messages && Array.isArray(tool.messages) ) {
                 for(i=0; i<tool.messages.length; i++) {
