@@ -704,8 +704,11 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			KeyPair kp = null;
 			kp = LTI13Util.generateKeyPair();
 			if (kp != null) {
-				tool.put(LTIService.LTI13_PLATFORM_PUBLIC, LTI13Util.getPublicEncoded(kp));
-				tool.put(LTIService.LTI13_PLATFORM_PRIVATE, LTI13Util.getPrivateEncoded(kp));
+				String pub = LTI13Util.getPublicEncoded(kp);
+				String priv = LTI13Util.getPrivateEncoded(kp);
+				priv = SakaiBLTIUtil.encryptSecret(priv);
+				tool.put(LTIService.LTI13_PLATFORM_PUBLIC, pub);
+				tool.put(LTIService.LTI13_PLATFORM_PRIVATE, priv);
 				retval = true;
 			}
 		}
@@ -1134,6 +1137,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		// Handle the incoming LTI 1.3 data
 		String form_lti13 = reqProps.getProperty("lti13");
+		String form_lti13_client_id = StringUtils.trimToNull(reqProps.getProperty(LTIService.LTI13_CLIENT_ID));
+		String form_lti13_lti13_tool_keyset = StringUtils.trimToNull(reqProps.getProperty(LTIService.LTI13_TOOL_KEYSET));
+
 		String old_lti13_client_id = null;
 		String old_lti13_platform_public = null;
 		String old_lti13_platform_private = null;
@@ -1146,7 +1152,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		boolean displayPostInsert = false;
 		if ("1".equals(form_lti13)) {
 			KeyPair kp = null;
-			if (old_lti13_client_id == null) {
+			if (old_lti13_client_id == null && form_lti13_client_id == null) {
 				reqProps.setProperty(LTIService.LTI13_CLIENT_ID, UUID.randomUUID().toString());
 				displayPostInsert = true;
 			}
