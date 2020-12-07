@@ -239,10 +239,12 @@ function importLTI13Config() {
             var tool = data['https://purl.imsglobal.org/spec/lti-tool-configuration'];
             console.log('tool', tool);
             var uri_found = false;
+/* insist on a message
             if ( tool.target_link_uri ) {
                 jQuery("#launch").val(tool.target_link_uri);
                 uri_found = true;
             }
+*/
             console.log('tool.claims', tool.claims);
             if ( tool.claims && Array.isArray(tool.claims) ) {
                 if ( tool.claims.includes('name') || tool.claims.includes('given_name') ||
@@ -259,7 +261,7 @@ function importLTI13Config() {
                     var message = tool.messages[i];
                     console.log('message', message);
                     if ( message.target_link_uri && ! uri_found ) {
-                        jQuery("#launch").val(tool.target_link_uri);
+                        jQuery("#launch").val(message.target_link_uri);
                         uri_found = true;
                     }
                     if ( message.type == 'LtiDeepLinkingRequest' ) {
@@ -267,14 +269,15 @@ function importLTI13Config() {
                         jQuery("#allowtitle_allow-input").prop("checked", true);
                         jQuery("#allowlaunch_allow-input").prop("checked", true);
                         jQuery("#allowconsumerkey_allow-input").prop("checked", true);
-                        jQuery("#pl_lessonsselection").prop("checked", true);
+                        jQuery("#pl_linkselection").prop("checked", true);
                         jQuery("#pl_launch").prop("checked", false);
+                        jQuery("#pl_lessonsselection").prop("checked", true);
                     }
                     if ( message.type == 'DataPrivacyLaunchRequest' ) {
                         jQuery("#pl_privacy").prop("checked", true);
                     }
                     if ( message.placements && Array.isArray(message.placements) ) {
-                        if ( message.placements.includes("link_selection") ) jQuery("#pl_linkselection").prop("checked", true);
+                        if ( message.placements.includes("link_selection") ) jQuery("#pl_lessonsselection").prop("checked", true);
                         if ( message.placements.includes("assignment_selection") ) jQuery("#pl_assessmentselection").prop("checked", true);
                         if ( message.placements.includes("editor_button") ) jQuery("#pl_contenteditor").prop("checked", true);
                         if ( message.placements.includes("migration_selection") ) jQuery("#pl_importitem").prop("checked", true);

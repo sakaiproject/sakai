@@ -471,7 +471,7 @@ public class LTI13Util {
      * timeStamp - Add a time-stamp to the beginning of a string
      */
     public static String timeStamp(String token) {
-        long now = (new java.util.Date()).getTime();
+        long now = (new java.util.Date()).getTime()/1000;
         String retval = now + ":" + token;
         return retval;
     }
@@ -483,10 +483,10 @@ public class LTI13Util {
         String [] pieces = token.split(":");
         if ( pieces.length < 2 ) return false;
 
-        long now = (new java.util.Date()).getTime();
+        long now = (new java.util.Date()).getTime()/1000;
         long token_now = getLong(pieces[0]);
         long delta = now - token_now;
-        boolean retval = delta >= 0 && delta <= seconds;
+        boolean retval = (delta >= 0) && (delta <= seconds);
         return retval;
     }
 

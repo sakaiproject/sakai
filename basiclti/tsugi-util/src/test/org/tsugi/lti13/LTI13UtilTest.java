@@ -318,11 +318,12 @@ public class LTI13UtilTest {
 		String token = LTI13Util.timeStampSign("xyzzy", "secret");
 		assertTrue(token.contains(":xyzzy:"));
 		assertFalse(token.contains("secret"));
+		System.out.println("token="+token);
 		boolean good = LTI13Util.timeStampCheckSign(token, "secret", 100);
 		assertTrue(good);
 		good = LTI13Util.timeStampCheckSign(token, "xsecret", 100);
 		assertFalse(good);
-		String token_2020 = "1607264710259:xyzzy:qG/59e0tjv7W5ykzfhijCV8KqiehClqcrx9wju6Y+b8=";
+		String token_2020 = "1607379725:xyzzy:CVHUHPEIfW2zTwMAnhxQprbZWvAr58V34NprcdMP4gE=";
 
 		// If this breaks - Hi 2040, 2020 says 'hi' -- Chuck
 		int twenty_years = 20*365*24*60*60;
@@ -332,12 +333,12 @@ public class LTI13UtilTest {
 		assertFalse(good);
 
 		// Bad signature
-		String bad_token_2020 = "1607264710259:xyzzy:qG/----------ykzfhijCV8KqiehClqcrx9wju6Y+b8=";
+		String bad_token_2020 = "1607379725:xyzzy:CVHUHxxxxxxxxxxAnhxQprbZWvAr58V34NprcdMP4gE=";
 		good = LTI13Util.timeStampCheckSign(bad_token_2020, "secret", twenty_years);
 		assertFalse(good);
 
 		// In the past
-		bad_token_2020 = "1507264710259:xyzzy:qG/59e0tjv7W5ykzfhijCV8KqiehClqcrx9wju6Y+b8=";
+		bad_token_2020 = "1507379725:xyzzy:CVHUHPEIfW2zTwMAnhxQprbZWvAr58V34NprcdMP4gE=";
 		good = LTI13Util.timeStampCheckSign(bad_token_2020, "secret", twenty_years);
 		assertFalse(good);
 	}

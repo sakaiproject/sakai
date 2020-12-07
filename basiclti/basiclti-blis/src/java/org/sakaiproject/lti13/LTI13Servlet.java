@@ -1070,12 +1070,19 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		// Check if the one time use token meets our requirements.
+		// Check if the one time use token matching
 		String tool_token = (String) tool.get(LTIService.LTI13_AUTO_TOKEN);
-		int delta = 60*60; // An hour
 		if ( tool_token == null || tool_token.length() < 1 ||
-			! tool_token.equals(registration_token) || ! LTI13Util.timeStampCheck(registration_token, delta) ) {
+			! tool_token.equals(registration_token) ) {
 			log.error("Bad registration_token");
+			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+			return;
+		}
+
+		// Check the one time use token expiration
+		int delta = 60*60; // An hour
+		if ( ! LTI13Util.timeStampCheck(registration_token, delta) ) {
+			log.error("Expired registration_token \n"+registration_token+":\n tool_token=\n"+tool_token+":");
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 			return;
 		}
