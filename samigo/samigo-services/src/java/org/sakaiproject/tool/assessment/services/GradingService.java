@@ -2494,8 +2494,8 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	public boolean fibmatch(final String rawAnswer, final String rawInput, final boolean casesensitive, final boolean ignorespaces) {
 		try {
 		 // User on Mac will input &uuml; instead of ü
-		 String answer = StringEscapeUtils.unescapeHtml3(rawAnswer);
-		 String input = StringEscapeUtils.unescapeHtml3(rawInput);
+		 String answer = StringEscapeUtils.unescapeHtml4(rawAnswer);
+		 String input = StringEscapeUtils.unescapeHtml4(rawInput);
 
 		 // Always trim trailing spaces
 		 answer = answer.trim();
