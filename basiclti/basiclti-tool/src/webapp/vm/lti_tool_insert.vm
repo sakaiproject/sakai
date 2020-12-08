@@ -238,13 +238,6 @@ function importLTI13Config() {
         if ( data['https://purl.imsglobal.org/spec/lti-tool-configuration'] ) {
             var tool = data['https://purl.imsglobal.org/spec/lti-tool-configuration'];
             console.log('tool', tool);
-            var uri_found = false;
-/* insist on a message
-            if ( tool.target_link_uri ) {
-                jQuery("#launch").val(tool.target_link_uri);
-                uri_found = true;
-            }
-*/
             console.log('tool.claims', tool.claims);
             if ( tool.claims && Array.isArray(tool.claims) ) {
                 if ( tool.claims.includes('name') || tool.claims.includes('given_name') ||
@@ -256,6 +249,15 @@ function importLTI13Config() {
                 }
             }
 
+            // TODO: Issue #59 - top level target_link_uri should be removed
+            // Grab top level target_link_uri - The first per message uri will replace this
+            var default_target_link_uri = false;
+            if ( tool.target_link_uri ) {
+                default_target_link_uri = tool.target_link_uri;
+                jQuery("#launch").val(tool.target_link_uri);
+            }
+
+            var uri_found = false;
             if ( tool.messages && Array.isArray(tool.messages) ) {
                 for(i=0; i<tool.messages.length; i++) {
                     var message = tool.messages[i];
