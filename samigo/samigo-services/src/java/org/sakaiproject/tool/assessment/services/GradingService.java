@@ -49,7 +49,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.text.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexFormat;
@@ -2494,8 +2494,8 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	public boolean fibmatch(final String rawAnswer, final String rawInput, final boolean casesensitive, final boolean ignorespaces) {
 		try {
 		 // User on Mac will input &uuml; instead of ü
-		 String answer = StringEscapeUtils.unescapeHtml4(rawAnswer);
-		 String input = StringEscapeUtils.unescapeHtml4(rawInput);
+		 String answer = StringEscapeUtils.unescapeHtml3(rawAnswer);
+		 String input = StringEscapeUtils.unescapeHtml3(rawInput);
 
 		 // Always trim trailing spaces
 		 answer = answer.trim();
