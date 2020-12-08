@@ -21,7 +21,6 @@ package org.sakaiproject.sitestats.test;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
@@ -36,7 +35,6 @@ import org.sakaiproject.sitestats.impl.SitePresenceTotalImpl;
 import org.sakaiproject.sitestats.impl.SiteVisitsImpl;
 import org.sakaiproject.sitestats.impl.UserStatImpl;
 import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
 

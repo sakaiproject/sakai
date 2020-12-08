@@ -51,7 +51,6 @@ import org.sakaiproject.presence.api.PresenceService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.JobRun;
-import org.sakaiproject.sitestats.api.ResourceStat;
 import org.sakaiproject.sitestats.api.SiteActivity;
 import org.sakaiproject.sitestats.api.SitePresence;
 import org.sakaiproject.sitestats.api.SiteVisits;
