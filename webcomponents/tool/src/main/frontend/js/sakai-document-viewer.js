@@ -63,17 +63,31 @@ class SakaiDocumentViewer extends SakaiElement {
     return this.i18n;
   }
 
+  renderWithoutBorders() {
+
+    return html`
+      <div class="preview-inner ${this.nomargins ? "nomargins" : ""}">
+        ${unsafeHTML(this.documentMarkup)}
+      </div>
+    `;
+  }
+
+  renderWithBorders() {
+
+    return html`
+      <div class="preview-outer">
+        <div class="preview-middle">
+          ${this.renderWithoutBorders()}
+        </div>
+      </div>
+    `;
+  }
+
   render() {
 
     return html`
       <div class="document-link">${this.i18n["viewing"]}: <a href="/access${this.content.ref}" target="_blank" rel="noopener">${this.content.name}</a></div>
-      <div class="preview-outer">
-        <div class="preview-middle">
-          <div class="preview-inner ${this.nomargins ? "nomargins" : ""}" >
-            ${unsafeHTML(this.documentMarkup)}
-          </div>
-        </div>
-      </div>
+      ${this.withBorders ? this.renderWithBorders() : this.renderWithoutBorders()}
     `;
   }
 
@@ -83,6 +97,8 @@ class SakaiDocumentViewer extends SakaiElement {
     const type = preview.type;
 
     this.nomargins = false;
+
+    this.withBorders = false;
 
     if (type === "application/pdf") {
       this.nomargins = true;
@@ -94,6 +110,7 @@ class SakaiDocumentViewer extends SakaiElement {
     } else if (type.includes("image/")) {
       this.documentMarkup = `<img src="/access/${ref}" />`;
     } else {
+      this.withBorders = true;
       let contentIndex = ref.indexOf("\/content\/");
       ref = contentIndex >= 0 ? ref.substring(contentIndex + 8) : ref;
 

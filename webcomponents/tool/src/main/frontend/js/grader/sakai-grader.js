@@ -20,7 +20,8 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     this.sumittedTextMode = false;
     this.rubricParams = new Map();
     this.graderOnLeft = this.getSetting("grader", "graderOnLeft");
-    this.saved = false;
+    this.saveSucceeded = false;
+    this.saveFailed = false;
     this.submissions = [];
     this.ungradedOnly = false;
     this.submittedOnly = false;
@@ -53,7 +54,8 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       submission: Object,
       graderOnLeft: Boolean,
       selectedAttachment: { type: Object },
-      saved: Boolean,
+      saveSucceeded: Boolean,
+      saveFailed: Boolean,
       submissions: { type: Array },
       ungradedOnly: Boolean,
       submissionsOnly: Boolean,
@@ -78,7 +80,8 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   set submission(newValue) {
 
     this._submission = newValue;
-    this.saved = false;
+    this.saveSucceeded = false;
+    this.saveFailed = false;
     this.modified = false;
     this.rubricParams = new Map();
     this.showResubmission = this._submission.resubmitsAllowed === -1 || this._submission.resubmitsAllowed > 0;
@@ -194,7 +197,11 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   renderSaved() {
-    return html`<span class="saved fa fa-check-circle" title="${this.i18n["saved_successfully"]}" style="display: ${this.saved ? "inline" : "none"};"></span>`;
+    return html`<span class="saved fa fa-check-circle" title="${this.i18n["saved_successfully"]}" style="display: ${this.saveSucceeded ? "inline" : "none"};"></span>`;
+  }
+
+  renderFailed() {
+    return html`<span class="saved failed fa fa-times-circle" title="${this.i18n["failed_save"]}" style="display: ${this.saveFailed ? "inline" : "none"};"></span>`;
   }
 
   renderGrader() {
@@ -238,6 +245,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
               ${this.letterGradeOptions.map(grade => html`<option value="${grade}" .selected=${this.submission.grade === grade}>${grade}</option>`)}
             </select>
             ${this.renderSaved()}
+            ${this.renderFailed()}
           ` : ""}
           ${this.gradeScale === "SCORE_GRADE_TYPE" ? html`
             <span>${this.assignmentsI18n["gen.assign.gra"]}</span>
@@ -248,6 +256,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
               class="points-input"
               .value=${this.submission.grade} />
             ${this.renderSaved()}
+            ${this.renderFailed()}
             <span>(${this.assignmentsI18n["grade.max"]} ${this.gradable.maxGradePoint})</span>
             ${this.gradable.allowPeerAssessment ? html`
               <a id="peer-info" class="fa fa-info-circle" data-toggle="popover" data-container="body" data-placement="auto" data-content="${this.assignmentsI18n["peerassessment.peerGradeInfo"]}"></a>
@@ -261,10 +270,12 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
               <option value="fail" .selected=${this.submission.grade.match(/^fail$/i)}>${this.assignmentsI18n["fail"]}</option>
             </select>
             ${this.renderSaved()}
+            ${this.renderFailed()}
           ` : ""}
           ${this.gradeScale === "CHECK_GRADE_TYPE" ? html`
             <input aria-label="${this.i18n["checkgrade_label"]}" @click=${this.gradeSelected} type="checkbox" value="Checked" .checked=${this.submission.grade === this.assignmentsI18n["gen.checked"]}></input><span>${this.assignmentsI18n["gen.gra2"]} ${this.assignmentsI18n["gen.checked"]}</span>
             ${this.renderSaved()}
+            ${this.renderFailed()}
           ` : ""}
           <!-- start hasAssociatedRubric -->
           ${this.hasAssociatedRubric === "true" ? html`
@@ -364,6 +375,8 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
           <button accesskey="d" name="return" @click=${this.saveAndRelease}>${this.assignmentsI18n["gen.retustud"]}</button>
           <button accesskey="x" name="cancel" @click=${this.cancel}>${this.assignmentsI18n["gen.can"]}</button>
         </div>
+        ${this.saveSucceeded ? html`<div class="sak-banner-success">${this.i18n["successful_save"]}</div>` : ""}
+        ${this.saveFailed ? html`<div class="sak-banner-error">${this.i18n["failed_save"]}</div>` : ""}
       </div>` : ""}
     `;
   }
@@ -656,7 +669,12 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
   submitGradingData(formData) {
 
-    fetch("/direct/assignment/setGrade.json", { method: "POST", cache: "no-cache", credentials: "same-origin", body: formData }).then(r => r.json()).then(data => {
+    fetch("/direct/assignment/setGrade.json", {
+      method: "POST",
+      cache: "no-cache",
+      credentials: "same-origin",
+      body: formData,
+    }).then(r => r.json()).then(data => {
 
       let submission = new Submission(data, this.groups);
 
@@ -668,8 +686,14 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       this.modified = false;
       this.submission = submission;
       this.totalGraded = this.submissions.filter(s => s.graded).length;
-      this.saved = true;
-    }).catch(e => console.error(`Failed to save grade for submission ${this.submission.id}: ${e}`));
+      this.saveSucceeded = true;
+      setTimeout(() => this.saveSucceeded = false, 2000);
+    }).catch(e => {
+
+      console.error(`Failed to save grade for submission ${this.submission.id}: ${e}`);
+      this.saveFailed = true;
+      setTimeout(() => this.saveFailed = false, 2000);
+    });
   }
 
   resetEditors(cancelling) {
