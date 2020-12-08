@@ -7,7 +7,6 @@ sakai-grader {
     justify-content: space-between;
     border-bottom: 1px solid black;
     padding: 5px;
-    margin-bottom: 5px;
 
     .left-block {
       flex: 0 0 auto;
@@ -84,8 +83,7 @@ sakai-grader {
     }
     .preview {
       padding: 5px;
-      margin-top: 10px;
-      border: solid black 1px;
+      margin-top: 12px;
 
       sakai-document-viewer {
         .document-link { margin-bottom: 8px; font-weight: bold; }
@@ -95,7 +93,7 @@ sakai-grader {
           text-align: center;
           padding: 30px;
           .preview-middle {
-          background: black;
+            background: black;
             background: white;
           }
           .preview-inner {
@@ -123,10 +121,15 @@ sakai-grader {
 
   span.saved {
     color: green;
-    font-size: 1.5em;
+    font-size: 1.8em;
     margin-right: 5px;
     vertical-align: middle;
   }
+
+  span.failed {
+    color: red;
+  }
+
 
   a#peer-info {
     color: lightblue;
@@ -138,14 +141,9 @@ sakai-grader {
 
   .grader {
     flex: 0 0 auto;
-    padding: 5px;
-    width: 380px;
-    border-left: 1px black solid;
-
-    &.on-left {
-      border-left: none;
-      border-right: 1px black solid;
-    }
+    padding: 10px;
+    width: 400px;
+    background-color: var(--sakai-title-bar-bg-color);
 
     .rubric-active {
       color: green;
@@ -174,8 +172,6 @@ sakai-grader {
     }
     .resubmission-block {
 
-      border: black solid 1px;
-      border-radius: 5px;
       padding: 5px;
 
       margin-bottom: 10px;
@@ -228,12 +224,6 @@ sakai-grader {
         }
       }
     }
-  }
-
-  .submitted-block, .feedback-attachments-block {
-    border: black solid 1px;
-    border-radius: 5px;
-    padding: 5px;
   }
 
   .feedback-attachments-block {
@@ -379,12 +369,13 @@ sakai-grader {
   }
 
   .grader-returned {
-    margin-left: 5px;
+    font-size: 24px;
+    font-weight: bold;
+    color: green;
   }
 
   .action-button-block {
     button {
-      //font-size: smaller;
       padding: 7px 9px;
     }
   }
