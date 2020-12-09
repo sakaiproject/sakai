@@ -872,22 +872,11 @@ $(document).ready(function(){
         }
     });
 
-    const saveButton = document.getElementById("msgForum:save");
-    saveButton && saveButton.addEventListener("click", e => {
-
-      const rubricGrading = document.getElementsByTagName("sakai-rubric-grading").item(0);
-      rubricGrading && rubricGrading.save();
-    });
 });
-/*
-rubricsEventHandlers = function () {
 
-  $('body').on('total-points-updated', function (e) {
+var MFR_RBC = MFR_RBC || {};
 
-    var gradeField = document.getElementById("msgForum:dfMsgGradeGradePoint");
-    if (gradeField) {
-      gradeField.value = e.detail.value;
-    }
-  });
-}
-*/
+MFR_RBC.saveRubric = function() {
+    const rubricGrading = document.getElementsByTagName("sakai-rubric-grading").item(0);
+    rubricGrading && rubricGrading.save();
+};
