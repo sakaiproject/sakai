@@ -25,6 +25,7 @@ package org.sakaiproject.lessonbuildertool.service;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -52,6 +53,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
 
 import org.tsugi.basiclti.BasicLTIUtil;
+import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 
 /**
  * Interface to LTI Content Items
@@ -518,29 +520,11 @@ public class BltiEntity implements LessonEntity, BltiInterface {
     {
 	if ( ltiService == null ) return null;
 
-	String toolBaseUrl = launchUrl;
-	int pos = launchUrl.indexOf('?');
-	if ( pos > 1 ) {
-		toolBaseUrl = launchUrl.substring(0,pos);
-	}
+	String toolBaseUrl = SakaiBLTIUtil.stripOffQuery(launchUrl);
 
-	// Look for a tool that is a perfect match, and fall back
-	//
-	Map<String,Object> theTool = null;
-	Map<String,Object> theBaseTool = null;
+	// Lets find the right tool to assiociate with
 	List<Map<String,Object>> tools = ltiService.getTools(null,null,0,0, simplePageBean.getCurrentSiteId());
-	for ( Map<String,Object> tool : tools ) {
-		String toolLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
-		if ( toolLaunch.equals(launchUrl) ) {
-			theTool = tool;
-			break;				
-		}
-		if ( theBaseTool == null && toolLaunch.equals(toolBaseUrl) ) {
-			theBaseTool = tool;
-		}
-	}
-
-	if ( theTool == null && theBaseTool != null ) theTool = theBaseTool;
+	Map<String, Object> theTool = SakaiBLTIUtil.findBestToolMatch(launchUrl, tools);
 
 	if ( theTool == null ) {
 		Properties props = new Properties ();

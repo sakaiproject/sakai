@@ -2725,6 +2725,136 @@ public class SakaiBLTIUtil {
 		return getLong(key);
 	}
 
+	public static URL getUrlOrNull(String urlString) {
+		if ( urlString == null ) return null;
+		try
+		{
+			URL url = new URL(urlString);
+			url.toURI();
+			return url;
+		} catch (Exception exception) {
+			return null;
+		}
+	}
+
+	public static String stripOffQuery(String urlString)
+	{
+		if ( urlString == null ) return null;
+		// Next we snip off the query string
+		String retval = urlString;
+		int pos = retval.indexOf('?');
+		if ( pos > 1 ) {
+			retval = retval.substring(0,pos);
+		}
+		return retval;
+	}
+
+	// TODO: Move this into SakaiBLTIUtil
+	public static Map<String, Object> findBestToolMatch(String launchUrl, List<Map<String,Object>> tools)
+	{
+		// First we look for a local tool with an exact match
+		for ( Map<String,Object> tool : tools ) {
+			String toolLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
+			String toolSite = (String) tool.get(LTIService.LTI_SITE_ID);
+			if ( StringUtils.stripToNull(toolSite) == null ) continue;
+			if ( launchUrl != null && launchUrl.equals(toolLaunch) ) {
+				log.debug("Matched exact local tool {}={}", launchUrl, toolLaunch);
+				return tool;
+			}
+		}
+
+		// Next we look for a global tool with an exact match
+		for ( Map<String,Object> tool : tools ) {
+			String toolLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
+			String toolSite = (String) tool.get(LTIService.LTI_SITE_ID);
+			if ( StringUtils.stripToNull(toolSite) != null ) continue;
+			if ( launchUrl != null && launchUrl.equals(toolLaunch) ) {
+				log.debug("Matched exact global tool {}={}", launchUrl, toolLaunch);
+				return tool;
+			}
+		}
+
+		// Next we snip off the query string and check again
+		String launchUrlBase = stripOffQuery(launchUrl);
+
+		// Look for local tool with an query-less match
+		for ( Map<String,Object> tool : tools ) {
+			String toolLaunchBase = stripOffQuery((String) tool.get(LTIService.LTI_LAUNCH));
+			String toolSite = (String) tool.get(LTIService.LTI_SITE_ID);
+			if ( StringUtils.stripToNull(toolSite) == null ) continue;
+			if ( launchUrlBase != null && launchUrlBase.equals(toolLaunchBase) ) {
+				log.debug("Matched query-free local tool {}={}", launchUrl, toolLaunchBase);
+				return tool;
+			}
+		}
+
+		// Look for global tool with an query-less match
+		for ( Map<String,Object> tool : tools ) {
+			String toolLaunchBase = stripOffQuery((String) tool.get(LTIService.LTI_LAUNCH));
+			String toolSite = (String) tool.get(LTIService.LTI_SITE_ID);
+			if ( StringUtils.stripToNull(toolSite) != null ) continue;
+			if ( launchUrlBase != null && launchUrlBase.equals(toolLaunchBase) ) {
+				log.debug("Matched query-free global tool {}={}", launchUrl, toolLaunchBase);
+				return tool;
+			}
+		}
+
+		// Find the longest prefix (local)
+		String bestPrefix = "";
+		Map<String,Object> bestTool = null;
+		for ( Map<String,Object> tool : tools ) {
+			String toolLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
+			String toolSite = (String) tool.get(LTIService.LTI_SITE_ID);
+			if ( StringUtils.stripToNull(toolSite) != null ) continue;
+			String prefix = StringUtils.getCommonPrefix(launchUrl, toolLaunch);
+			if ( prefix.length() > 0 && prefix.length() > bestPrefix.length() ) {
+				bestTool = tool;
+				bestPrefix = prefix;
+			}
+		}
+
+		// We want at least the scheme and domain to match
+		if ( bestTool != null ) {
+			URL launchUrlObj = getUrlOrNull(launchUrl);
+			URL prefixUrlObj = getUrlOrNull(bestPrefix);
+			if ( launchUrlObj != null && prefixUrlObj != null &&
+				 launchUrlObj.getProtocol().equals(prefixUrlObj.getProtocol()) &&
+				 launchUrlObj.getHost().equals(prefixUrlObj.getHost()) ){
+				log.debug("Matched scheme / server local {}={}", launchUrl, bestPrefix);
+				return bestTool;
+			}
+		}
+
+		// Find the longest prefix (global)
+		bestPrefix = "";
+		bestTool = null;
+		for ( Map<String,Object> tool : tools ) {
+			String toolLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
+			String toolSite = (String) tool.get(LTIService.LTI_SITE_ID);
+			if ( StringUtils.stripToNull(toolSite) == null ) continue;
+			String prefix = StringUtils.getCommonPrefix(launchUrl, toolLaunch);
+			if ( prefix.length() > 0 && prefix.length() > bestPrefix.length() ) {
+				bestTool = tool;
+				bestPrefix = prefix;
+			}
+		}
+
+		// We want at least the scheme and domain to match
+		if ( bestTool != null ) {
+			URL launchUrlObj = getUrlOrNull(launchUrl);
+			URL prefixUrlObj = getUrlOrNull(bestPrefix);
+			if ( launchUrlObj != null && prefixUrlObj != null &&
+				 launchUrlObj.getProtocol().equals(prefixUrlObj.getProtocol()) &&
+				 launchUrlObj.getHost().equals(prefixUrlObj.getHost()) ){
+				log.debug("Matched scheme / server global {}={}", launchUrl, bestPrefix);
+				return bestTool;
+			}
+		}
+
+		// After all that - still nothing
+		return null;
+	}
+
 	public static Long getLong(Object key) {
 		Long retval = getLongNull(key);
 		if (retval != null) {
