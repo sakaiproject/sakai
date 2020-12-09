@@ -24,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.math3.util.Precision;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -313,12 +314,15 @@ public void removeExternalAssessment(String gradebookUId,
 
 	public Long getExternalAssessmentCategoryId(String gradebookUId,
 			String publishedAssessmentId, GradebookExternalAssessmentService g) {
-		Long categoryId = null;
-		if (g.isGradebookDefined(gradebookUId)) 
-		{
-			categoryId = g.getExternalAssessmentCategoryId(gradebookUId, publishedAssessmentId);
+		if (g.isGradebookDefined(gradebookUId)) {
+			try {
+				return g.getExternalAssessmentCategoryId(gradebookUId, publishedAssessmentId);
+			}
+			catch (AssessmentNotFoundException e) {
+				log.info("No category defined for publishedAssessmentId={} in gradebookUid={}", publishedAssessmentId, gradebookUId);
+			}
 		}
-		return categoryId;
+		return null;
 	}
 
 }
