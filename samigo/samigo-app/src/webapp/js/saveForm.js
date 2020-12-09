@@ -8,6 +8,7 @@
 // It doesn't include anything that was already disabled.
 
 var disabledButtons = [];
+var counter = 0;
 
 // confirm box needs to disable autosave temporarily
 
@@ -138,9 +139,7 @@ function SaveFormContentAsync(toUrl, formId, buttonName, updateVar, updateVar2, 
 	window.status = "";
 
     //check noLateSubmission or isRetracted controlled by pastDueDate()
-    var noLateSubmission = text.indexOf("noLateSubmission");
-    var isRetracted = text.indexOf("isRetracted");
-    if (noLateSubmission >= 0 || isRetracted >= 0) {
+    if (text.indexOf("noLateSubmission") >= 0 || text.indexOf("isRetracted") >= 0 || text.indexOf("assessment_has_been_submitted") >= 0) {
         $("#autosave-timeexpired-warning").show();
         $("[id$=\\:submitNoCheck]")[0].click();
     }
@@ -172,6 +171,7 @@ function SaveFormContentAsync(toUrl, formId, buttonName, updateVar, updateVar2, 
         // when the request is done the scope of the function can be garbage collected...
     }
 
+    if (counter > 0) {
       var payload = GetFormContent(formId, buttonName);
 
       $.ajax({ method: "POST", url: toUrl, data: payload }, function () {
@@ -184,8 +184,12 @@ function SaveFormContentAsync(toUrl, formId, buttonName, updateVar, updateVar2, 
           $("#autosave-failed-warning").show();
           onready_callback("");
         });
+    } else {
+	    var onTimeout = TimeOutAction(toUrl, formId, buttonName, updateVar, updateVar2, repeatMilliseconds);
+	    setTimeout(onTimeout, repeatMilliseconds);
+    }
 
-    // onready_callback called on request response.
+    counter += 1;
 }
 
 function TimeOutAction(toUrl, formId, buttonName, updateVar, updateVar2, repeatMilliseconds) {
