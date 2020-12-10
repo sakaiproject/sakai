@@ -2749,27 +2749,21 @@ public class SakaiBLTIUtil {
 		return retval;
 	}
 
-	// TODO: Move this into SakaiBLTIUtil
-	public static Map<String, Object> findBestToolMatch(String launchUrl, List<Map<String,Object>> tools)
+	public static Map<String, Object> findBestToolMatch(boolean global, String launchUrl, List<Map<String,Object>> tools)
 	{
-		// First we look for a local tool with an exact match
-		for ( Map<String,Object> tool : tools ) {
-			String toolLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
-			String toolSite = (String) tool.get(LTIService.LTI_SITE_ID);
-			if ( StringUtils.stripToNull(toolSite) == null ) continue;
-			if ( launchUrl != null && launchUrl.equals(toolLaunch) ) {
-				log.debug("Matched exact local tool {}={}", launchUrl, toolLaunch);
-				return tool;
-			}
-		}
+		boolean local = ! global;  // Makes it easier to read :)
 
-		// Next we look for a global tool with an exact match
+		// First we look for a tool with an exact match
 		for ( Map<String,Object> tool : tools ) {
 			String toolLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
 			String toolSite = (String) tool.get(LTIService.LTI_SITE_ID);
-			if ( StringUtils.stripToNull(toolSite) != null ) continue;
+
+			if ( local && StringUtils.stripToNull(toolSite) == null ) continue;
+			if ( global && StringUtils.stripToNull(toolSite) != null ) continue;
+
 			if ( launchUrl != null && launchUrl.equals(toolLaunch) ) {
-				log.debug("Matched exact global tool {}={}", launchUrl, toolLaunch);
+				log.debug("Matched exact tool {}={}", launchUrl, toolLaunch);
+				// System.out.println("Matched exact tool");
 				return tool;
 			}
 		}
@@ -2777,35 +2771,34 @@ public class SakaiBLTIUtil {
 		// Next we snip off the query string and check again
 		String launchUrlBase = stripOffQuery(launchUrl);
 
-		// Look for local tool with an query-less match
+		// Look for tool with an query-less match
+		// https://www.py4e.com/mod/gift/
 		for ( Map<String,Object> tool : tools ) {
 			String toolLaunchBase = stripOffQuery((String) tool.get(LTIService.LTI_LAUNCH));
 			String toolSite = (String) tool.get(LTIService.LTI_SITE_ID);
-			if ( StringUtils.stripToNull(toolSite) == null ) continue;
+
+			if ( local && StringUtils.stripToNull(toolSite) == null ) continue;
+			if ( global && StringUtils.stripToNull(toolSite) != null ) continue;
+
 			if ( launchUrlBase != null && launchUrlBase.equals(toolLaunchBase) ) {
-				log.debug("Matched query-free local tool {}={}", launchUrl, toolLaunchBase);
+				log.debug("Matched query-free tool {}={}", launchUrl, toolLaunchBase);
+				// System.out.println("Matched query-free tool");
 				return tool;
 			}
 		}
 
-		// Look for global tool with an query-less match
-		for ( Map<String,Object> tool : tools ) {
-			String toolLaunchBase = stripOffQuery((String) tool.get(LTIService.LTI_LAUNCH));
-			String toolSite = (String) tool.get(LTIService.LTI_SITE_ID);
-			if ( StringUtils.stripToNull(toolSite) != null ) continue;
-			if ( launchUrlBase != null && launchUrlBase.equals(toolLaunchBase) ) {
-				log.debug("Matched query-free global tool {}={}", launchUrl, toolLaunchBase);
-				return tool;
-			}
-		}
-
-		// Find the longest prefix (local)
+		// Find the longest prefix
+		// https://www.py4e.com/mod/   <-- Selected
+		// https://www.py4e.com/
 		String bestPrefix = "";
 		Map<String,Object> bestTool = null;
 		for ( Map<String,Object> tool : tools ) {
 			String toolLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
 			String toolSite = (String) tool.get(LTIService.LTI_SITE_ID);
-			if ( StringUtils.stripToNull(toolSite) != null ) continue;
+
+			if ( local && StringUtils.stripToNull(toolSite) == null ) continue;
+			if ( global && StringUtils.stripToNull(toolSite) != null ) continue;
+
 			String prefix = StringUtils.getCommonPrefix(launchUrl, toolLaunch);
 			if ( prefix.length() > 0 && prefix.length() > bestPrefix.length() ) {
 				bestTool = tool;
@@ -2820,39 +2813,30 @@ public class SakaiBLTIUtil {
 			if ( launchUrlObj != null && prefixUrlObj != null &&
 				 launchUrlObj.getProtocol().equals(prefixUrlObj.getProtocol()) &&
 				 launchUrlObj.getHost().equals(prefixUrlObj.getHost()) ){
-				log.debug("Matched scheme / server local {}={}", launchUrl, bestPrefix);
-				return bestTool;
-			}
-		}
-
-		// Find the longest prefix (global)
-		bestPrefix = "";
-		bestTool = null;
-		for ( Map<String,Object> tool : tools ) {
-			String toolLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
-			String toolSite = (String) tool.get(LTIService.LTI_SITE_ID);
-			if ( StringUtils.stripToNull(toolSite) == null ) continue;
-			String prefix = StringUtils.getCommonPrefix(launchUrl, toolLaunch);
-			if ( prefix.length() > 0 && prefix.length() > bestPrefix.length() ) {
-				bestTool = tool;
-				bestPrefix = prefix;
-			}
-		}
-
-		// We want at least the scheme and domain to match
-		if ( bestTool != null ) {
-			URL launchUrlObj = getUrlOrNull(launchUrl);
-			URL prefixUrlObj = getUrlOrNull(bestPrefix);
-			if ( launchUrlObj != null && prefixUrlObj != null &&
-				 launchUrlObj.getProtocol().equals(prefixUrlObj.getProtocol()) &&
-				 launchUrlObj.getHost().equals(prefixUrlObj.getHost()) ){
-				log.debug("Matched scheme / server global {}={}", launchUrl, bestPrefix);
+				log.debug("Matched scheme / server {}={}", launchUrl, bestPrefix);
+				// System.out.println("Matched scheme / server tool");
 				return bestTool;
 			}
 		}
 
 		// After all that - still nothing
 		return null;
+
+	}
+	public static Map<String, Object> findBestToolMatch(String launchUrl, List<Map<String,Object>> tools)
+	{
+		// Example launch URL:
+		// https://www.py4e.com/mod/gift/?quiz=02-Python.txt
+
+		boolean global = true;
+		Map<String,Object> retval = findBestToolMatch(!global, launchUrl, tools);
+
+		// if ( retval != null ) System.out.println("Found local "+retval.get(LTIService.LTI_LAUNCH));
+		if ( retval != null ) return retval;
+
+		retval = findBestToolMatch(global, launchUrl, tools);
+		// if ( retval != null ) System.out.println("Found global "+retval.get(LTIService.LTI_LAUNCH));
+		return retval;
 	}
 
 	public static Long getLong(Object key) {

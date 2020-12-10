@@ -25,7 +25,6 @@ package org.sakaiproject.lessonbuildertool.service;
 
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;

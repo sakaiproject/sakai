@@ -26,6 +26,9 @@ import static org.junit.Assert.assertFalse;
 
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
 
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
@@ -70,7 +73,7 @@ public class SakaiBLTIUtilTest {
 			adj = SakaiBLTIUtil.adjustCustom(s);
 			assertEquals(s, adj);
 		}
-			
+
 		adj = SakaiBLTIUtil.adjustCustom("x=1;y=2;z=3");
 		assertEquals(adj,"x=1;y=2;z=3".replace(';','\n'));
 		adj = SakaiBLTIUtil.adjustCustom("x=1;y=2;z=3;");
@@ -85,7 +88,7 @@ public class SakaiBLTIUtilTest {
 			// TODO Auto-generated catch block
 			log.error(e.getMessage(), e);
 		}
-			
+
 		assertEquals(grade,"57.0");
 
 		try {
@@ -201,6 +204,103 @@ System.err.println("encrypt1="+encrypt1);
 		assertEquals(d, new Double(3.0));
 		d = SakaiBLTIUtil.getDoubleNull(new Integer(3));
 		assertEquals(d, new Double(3.0));
+	}
+
+	@Test
+	public void testFindBestTool() {
+		List<Map<String,Object>> tools = new ArrayList<Map<String,Object>>();
+		Map<String,Object> tool = new HashMap<String,Object>();
+
+		String [] toolUrls = {
+			"https://www.py4e.com/",
+			"https://www.py4e.com/mod/",
+			"https://www.py4e.com/mod/gift/",
+			"https://www.py4e.com/mod/gift/?quiz=123"
+		};
+
+		String siteId = "tsugi-site";
+		String leastSpecific = toolUrls[0];
+		String mostSpecific = toolUrls[3];
+		String bestSite;
+		String bestLaunch;
+
+		Map<String,Object> bestTool = null;
+
+		tools = new ArrayList<Map<String,Object>>();
+		// Lets make some globals in least specific to most specific
+		for(String s: toolUrls) {
+			tool.put(LTIService.LTI_LAUNCH, s);
+			tool.put(LTIService.LTI_SITE_ID, ""); // Global
+			tools.add(tool);
+
+			bestTool = SakaiBLTIUtil.findBestToolMatch(s, tools);
+			bestLaunch = (String) bestTool.get(LTIService.LTI_LAUNCH);
+			bestSite = (String) bestTool.get(LTIService.LTI_SITE_ID);
+			assertEquals(s, bestLaunch);
+			assertEquals("", bestSite);
+
+			bestTool = SakaiBLTIUtil.findBestToolMatch(mostSpecific, tools);
+			bestLaunch = (String) bestTool.get(LTIService.LTI_LAUNCH);
+			bestSite = (String) bestTool.get(LTIService.LTI_SITE_ID);
+			assertEquals(s, bestLaunch);
+			assertEquals("", bestSite);
+		}
+
+
+		tools = new ArrayList<Map<String,Object>>();
+		// Lets make some globals in least specific to most specific
+		for(String s: toolUrls) {
+			tool.put(LTIService.LTI_LAUNCH, s);
+			tool.put(LTIService.LTI_SITE_ID, ""); // Global
+			tools.add(tool);
+
+			bestTool = SakaiBLTIUtil.findBestToolMatch(s, tools);
+			bestLaunch = (String) bestTool.get(LTIService.LTI_LAUNCH);
+			bestSite = (String) bestTool.get(LTIService.LTI_SITE_ID);
+			assertEquals(s, bestLaunch);
+			assertEquals("", bestSite);
+
+			bestTool = SakaiBLTIUtil.findBestToolMatch(mostSpecific, tools);
+			bestLaunch = (String) bestTool.get(LTIService.LTI_LAUNCH);
+			bestSite = (String) bestTool.get(LTIService.LTI_SITE_ID);
+			assertEquals(s, bestLaunch);
+			assertEquals("", bestSite);
+		}
+
+		// Lets add a local low priority - see if it wins
+		tool.put(LTIService.LTI_LAUNCH, leastSpecific);
+		tool.put(LTIService.LTI_SITE_ID, siteId);
+		tools.add(tool);
+
+		bestTool = SakaiBLTIUtil.findBestToolMatch(mostSpecific, tools);
+		bestLaunch = (String) bestTool.get(LTIService.LTI_LAUNCH);
+		bestSite = (String) bestTool.get(LTIService.LTI_SITE_ID);
+		assertEquals(leastSpecific, bestLaunch);
+		assertEquals(siteId, bestSite);
+
+		// Lets make locals and globals, and make sure we never get a global
+		tools = new ArrayList<Map<String,Object>>();
+		for(String s: toolUrls) {
+			tool.put(LTIService.LTI_LAUNCH, s);
+			tool.put(LTIService.LTI_SITE_ID, ""); // Global
+			tools.add(tool);
+			tool.put(LTIService.LTI_LAUNCH, s);
+			tool.put(LTIService.LTI_SITE_ID, siteId); // Local
+			tools.add(tool);
+
+			bestTool = SakaiBLTIUtil.findBestToolMatch(s, tools);
+			bestLaunch = (String) bestTool.get(LTIService.LTI_LAUNCH);
+			bestSite = (String) bestTool.get(LTIService.LTI_SITE_ID);
+			assertEquals(s, bestLaunch);
+			assertEquals(siteId, bestSite);
+
+			bestTool = SakaiBLTIUtil.findBestToolMatch(mostSpecific, tools);
+			bestLaunch = (String) bestTool.get(LTIService.LTI_LAUNCH);
+			bestSite = (String) bestTool.get(LTIService.LTI_SITE_ID);
+			assertEquals(s, bestLaunch);
+			assertEquals(siteId, bestSite);
+		}
+
 	}
 
 }
