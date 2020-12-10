@@ -4877,7 +4877,15 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		makeCsrf(form, "csrf14");
 
 		UIOutput.make(form, "pageTitleLabel", messageLocator.getMessage("simplepage.pageTitle_label"));
-		UIInput.make(form, "pageTitle", "#{simplePageBean.pageTitle}");
+
+		String internalPageTitle = page.getTitle();
+		String externalPageTitle = simplePageBean.getCurrentSite().getPage(page.getToolId()).getTools().stream()
+				.filter(t -> t.getId().equals(toolManager.getCurrentPlacement().getId()))
+				.findFirst()
+				.map(t -> t.getTitle())
+				.orElse("");
+		String effectivePageTitle = (StringUtils.isNotBlank(externalPageTitle) && !externalPageTitle.equals(internalPageTitle)) ? externalPageTitle : internalPageTitle;
+		UIInput.make(form, "pageTitle", "#{simplePageBean.pageTitle}", effectivePageTitle);
 
 		if (!simplePageBean.isStudentPage(page)) {
 			UIOutput.make(tofill, "hideContainer");
