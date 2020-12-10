@@ -20,7 +20,6 @@ public class FileConversionServiceRepositoryImpl extends SpringCrudRepositoryImp
         List<FileConversionQueueItem> items
             = session.createCriteria(FileConversionQueueItem.class)
                 .add(Restrictions.eq("status", status)).list();
-        session.close();
         return items;
     }
 }
