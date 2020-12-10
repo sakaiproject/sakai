@@ -38,6 +38,7 @@
                     <span class="reqStar">*</span>
                     <label for="copyright">$tlang.getString("cright.status.all")</label>
                 </h4>
+                <p class="instruction">$tlang.getString('cright.instructions')</p>
                 <select class="copyrightStatus" name="copyright" id="copyright">
             #foreach ($copyright in $copyrightTypes)
                     <option value="$copyright.getType()" #if($copyright_defaultType == $copyright.getType())selected="selected"#end #if ($!copyright.getLicenseUrl())title="${copyright.getLicenseUrl()}"#end >
