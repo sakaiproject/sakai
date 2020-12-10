@@ -38,6 +38,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -48,8 +49,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.Placement;
@@ -569,6 +572,33 @@ public abstract class ToolComponent implements ToolManager
 			sets.add(new HashSet<>(Arrays.asList(set.split("\\s*\\,\\s*"))));
 		}
 		return sets;
+	}
+
+	public boolean isFirstToolVisibleToAnyNonMaintainerRole(SitePage page) {
+
+		List<ToolConfiguration> tools = page.getTools();
+		List<Set<String>> required
+			= tools.size() == 1 ? getRequiredPermissions(tools.get(0)) : Collections.EMPTY_LIST;
+
+		if (required.isEmpty()) {
+			return true;
+		}
+
+		// Get the non maintainer roles
+		final Set<Role> roles = page.getContainingSite().getRoles().stream()
+			.filter(r -> !r.isAllowed(Site.SITE_UPD)).collect(Collectors.toSet());
+
+		// Now check to see if these roles have the permission listed
+		// in the functions require for the tool.
+		for (Set<String> permissionSet : required) {
+			for (Role role : roles) {
+				if (role.getAllowedFunctions().containsAll(permissionSet)) {
+					return true; // If any one of the permissions is allows for any role.
+				}
+			}
+		}
+
+		return false;
 	}
 
 	public boolean isVisible(Site site, ToolConfiguration config) {
