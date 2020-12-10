@@ -131,6 +131,9 @@
 
     /////////////////////End main theme definition/////////////////////
 
+    // Additional dark mode variables
+    --sakai-image-invert: grayscale(100%) invert(100%);
+
     // Overrides _light.scss variables when necessary
     --top-header-background: var(--sakai-background-color-1);
     --breadcrumbs-tool-color: var(--sakai-text-color-color-3);

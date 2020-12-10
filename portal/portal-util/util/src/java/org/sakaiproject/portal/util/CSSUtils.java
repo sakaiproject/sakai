@@ -99,6 +99,21 @@ public class CSSUtils
 		String cssPrintSkin = skinRepo + "/" + skinFolder + "/print.css";
 		return cssPrintSkin;
 	}
+
+	/**
+	 * Returns a URL for the properties.css suitable for putting in an href= field.
+	 *
+	 * @param <code>skinFolder</code>
+	 *		where the properties.css skin lives for this site.
+	 * @return <code>cssPrintSkin</code> URL for the properties.css
+	 */
+	public static String getCssPropertiesSkin(String skinFolder)
+	{
+		skinFolder = adjustCssSkinFolder(skinFolder);
+		String skinRepo = ServerConfigurationService.getString("skin.repo");
+		String cssPropertiesSkin = skinRepo + "/" + skinFolder + "/properties.css";
+		return cssPropertiesSkin;
+	}
 	
 	/**
 	 * Returns a URL for the portal.css suitable for putting in an href= field.
@@ -163,6 +178,22 @@ public class CSSUtils
 		return cssPrintSkin;
 	}
 
+	/**
+	 * Returns a URL for the properties.css suitable for putting in an href= field
+	 *
+	 * @param <code>skinFolder</code>
+	 *		where the properties.css skin lives for this site.
+	 * @return <code>cssPropertiesSkin</code> URL for the properties.css
+	 */
+	public static String getCssPropertiesSkinCDN(String skinFolder)
+	{
+		String cssPropertiesSkin = getCssPropertiesSkin(skinFolder);
+		if ( cssPropertiesSkin.startsWith("/") ) {
+			cssPropertiesSkin = PortalUtils.getCDNPath() + cssPropertiesSkin + PortalUtils.getCDNQuery();
+		}
+		return cssPropertiesSkin;
+	}
+
 	/** 
 	 * Convenience method to retrieve the skin folder from a site
 	 * @param site
@@ -224,8 +255,12 @@ public class CSSUtils
 		String headCssPrintSkin = "<link href=\"" 
 				+ getCssPrintSkinCDN(skin)
 				+ "\" type=\"text/css\" rel=\"stylesheet\" media=\"print\" />\n";
+
+		String headCssPropertiesSkin = "<link href=\"" 
+				+ getCssPropertiesSkinCDN(skin)
+				+ "\" type=\"text/css\" rel=\"stylesheet\" media=\"screen, tty, tv, handheld, projection\" />\n";
 		
-		return headCssToolSkin + headCssPrintSkin;
+		return headCssToolSkin + headCssPrintSkin + headCssPropertiesSkin;
 	}
 
 	public static String getCssHead(String skin, boolean isInlineRequest) {
