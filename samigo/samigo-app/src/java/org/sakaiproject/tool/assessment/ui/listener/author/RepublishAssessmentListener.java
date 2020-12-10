@@ -54,6 +54,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettin
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.util.ResourceLoader;
 
 @Slf4j
@@ -186,19 +187,19 @@ public class RepublishAssessmentListener implements ActionListener {
 			Integer scoringType = evaluation.getScoringType();
 			if (evaluation.getToGradeBook() != null	&& evaluation.getToGradeBook().equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())) {
 
-				Long categoryId = null;
+				String assessmentName = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(assessment.getTitle().trim());
+				boolean gbItemExists = false;
 				try {
-					log.debug("before gbsHelper.removeGradebook()");
-					categoryId = gbsHelper.getExternalAssessmentCategoryId(GradebookFacade.getGradebookUId(), assessment.getPublishedAssessmentId().toString(), g);
-					gbsHelper.removeExternalAssessment(GradebookFacade.getGradebookUId(), assessment.getPublishedAssessmentId().toString(), g);
+					gbItemExists = gbsHelper.isAssignmentDefined(assessmentName, g);
 				} catch (Exception e1) {
-					// Should be the external assessment doesn't exist in GB. So we quiet swallow the exception. Please check the log for the actual error.
-					log.info("Exception thrown in updateGB():" + e1.getMessage());
+					log.info("assessment does not exist: {}", assessmentName);
 				}
 				
 				try {
-					log.debug("before gbsHelper.addToGradebook()");
-					gbsHelper.addToGradebook((PublishedAssessmentData) assessment.getData(), categoryId, g);
+					if (!gbItemExists) {
+						log.debug("before gbsHelper.addToGradebook()");
+						gbsHelper.addToGradebook((PublishedAssessmentData) assessment.getData(), null, g);
+					}
 					
 					// any score to copy over? get all the assessmentGradingData and copy over
 					GradingService gradingService = new GradingService();
@@ -211,11 +212,11 @@ public class RepublishAssessmentListener implements ActionListener {
 						list = gradingService.getLastSubmittedOrGradedAssessmentGradingList(assessment.getPublishedAssessmentId());
 					}
 					
-					log.debug("list size =" + list.size());
+					log.debug("list size = {}", list.size());
 					for (int i = 0; i < list.size(); i++) {
 						try {
 							AssessmentGradingData ag = (AssessmentGradingData) list.get(i);
-							log.debug("ag.scores " + ag.getTotalAutoScore());
+							log.debug("ag.scores={}", ag.getTotalAutoScore());
 							// Send the average score if average was selected for multiple submissions
 							if (scoringType.equals(EvaluationModelIfc.AVERAGE_SCORE)) {
 								// status = 5: there is no submission but grader update something in the score page
