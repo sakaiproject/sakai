@@ -130,6 +130,7 @@ import java.time.Instant;
 import java.util.*;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.lessonbuildertool.service.AssignmentEntity;
+import org.sakaiproject.site.api.Group;
 
 /**
  * This produces the primary view of the page. It also handles the editing of
@@ -670,20 +671,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		if(pageItem.getType() != SimplePageItem.STUDENT_CONTENT) {
 			title = pageItem.getName();
 		}else {
-			title = currentPage.getTitle();
-			if(!pageItem.isAnonymous() || canEditPage) {
-			    try {
-				String owner = currentPage.getOwner();
-				String group = currentPage.getGroup();
-				if (group != null)
-				    ownerName = simplePageBean.getCurrentSite().getGroup(group).getTitle();
-				else
-				    ownerName = UserDirectoryService.getUser(owner).getDisplayName();
-				
-			    } catch (Exception ignore) {};
-			    if (ownerName != null && !ownerName.equals(title))
-				title += " (" + ownerName + ")";
-			}
+			title = buildStudentPageTitle(pageItem, currentPage.getTitle(), currentPage.getGroup(), currentPage.getOwner(), simplePageBean.isPageOwner(currentPage), canEditPage);
 		}
 		
 		String newPath = null;
@@ -2847,26 +2835,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							GeneralViewParameters eParams = new GeneralViewParameters(ShowPageProducer.VIEW_ID, page.getPageId());
 							eParams.setItemId(i.getId());
 							eParams.setPath("push");
-							
-							String studentTitle = page.getTitle();
-						
-							String sownerName = null;
-							try {
-								if(!i.isAnonymous() || canEditPage) {
-									if (page.getGroup() != null)
-									    sownerName = simplePageBean.getCurrentSite().getGroup(page.getGroup()).getTitle();
-									else
-									    sownerName = UserDirectoryService.getUser(page.getOwner()).getDisplayName();
-									if (sownerName != null && sownerName.equals(studentTitle))
-									    studentTitle = "(" + sownerName + ")";
-									else
-									    studentTitle += " (" + sownerName + ")";
-								}else if (simplePageBean.isPageOwner(page)) {
-									studentTitle += " (" + messageLocator.getMessage("simplepage.comment-you") + ")";
-								}
-							} catch (UserNotDefinedException e) {
-							}
-							
+
+							String studentTitle = buildStudentPageTitle(i, page.getTitle(), page.getGroup(), page.getOwner(), simplePageBean.isPageOwner(page), canEditPage);
+
 							UIInternalLink.make(row, "studentLink", studentTitle, eParams);
 						
 							if(simplePageBean.isPageOwner(page)) {
@@ -5824,5 +5795,30 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 	public void setPrintedSubpages(List<Long> printedSubpages) {
 		this.printedSubpages = printedSubpages;
+	}
+
+	private String buildStudentPageTitle(SimplePageItem item, String pageTitle, String groupId, String ownerId, boolean isOwner, boolean canEditPage) {
+		String title = pageTitle;
+		String ownerName = "";
+		if (!item.isAnonymous() || canEditPage) {
+			if (groupId != null) {
+				Group g = simplePageBean.getCurrentSite().getGroup(groupId);
+				ownerName = g != null ? g.getTitle() : messageLocator.getMessage("simplepage.student-group-deleted");
+			} else {
+				try {
+					ownerName = UserDirectoryService.getUser(ownerId).getDisplayName();
+				} catch (UserNotDefinedException e) {
+					ownerName = messageLocator.getMessage("simplepage.student-user-deleted");
+				}
+			}
+		} else if (isOwner) {
+			ownerName = messageLocator.getMessage("simplepage.comment-you");
+		}
+
+		if (!ownerName.isEmpty() && !ownerName.equals(title)) {
+			title += " (" + ownerName + ")";
+		}
+
+		return title;
 	}
 }
