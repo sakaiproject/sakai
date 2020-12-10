@@ -9511,6 +9511,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 state.setAttribute("selectedAssignments", new ArrayList());
                 state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
                 state.setAttribute(STATE_SELECTED_VIEW, MODE_LIST_ASSIGNMENTS);
+                state.setAttribute(SORTED_BY, SORTED_BY_DEFAULT);
             }
         } else {
             addAlert(state, rb.getString("youmust6"));
@@ -9570,6 +9571,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 state.setAttribute("selectedAssignments", new ArrayList());
                 state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
                 state.setAttribute(STATE_SELECTED_VIEW, MODE_LIST_ASSIGNMENTS);
+                state.setAttribute(SORTED_BY, SORTED_BY_DEFAULT);
             }
         } else {
             addAlert(state, rb.getString("youmust6"));
