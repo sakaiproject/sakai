@@ -134,8 +134,8 @@
         <h:outputLabel for="timeallowed" value="#{authorMessages.time_allowed_seconds}:  #{authorMessages.time_allowed_seconds_indic} " 
                         styleClass="col-md-4 col-lg-2 form-control-label"/>
         <div class="col-md-2">
-            <h:inputText id="timeallowed" value="#{itemauthor.currentItem.timeAllowed}" required="true" styleClass="form-control">
-                <f:validateDoubleRange/>
+            <h:inputText id="timeallowed" value="#{itemauthor.currentItem.timeAllowed}" required="true" styleClass="form-control" validatorMessage="#{authorMessages.submissions_allowed_error}">
+                <f:validateLongRange minimum="1" />
             </h:inputText>
             <h:message for="timeallowed" styleClass="validate"/>
         </div>
