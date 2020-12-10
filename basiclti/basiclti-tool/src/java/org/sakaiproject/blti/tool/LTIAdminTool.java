@@ -706,11 +706,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			tool.put(LTIService.LTI_SECRET, LTIService.SECRET_HIDDEN);
 		}
 
-		// If we are not admin, hide url, key, and secret
-		if (!ltiService.isAdmin(getSiteId(state))) {
-			mappingForm = foorm.filterForm(mappingForm, null, "^launch:.*|^consumerkey:.*|^secret:.*");
-		}
-
 		// Decrypt secrets for display
 		String tool_private = (String) tool.get(LTIService.LTI13_TOOL_PRIVATE);
 		if ( tool_private != null ) {
@@ -820,7 +815,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		context.put("messageSuccess", state.getAttribute(STATE_SUCCESS));
 		String[] mappingForm = ltiService.getToolModel(getSiteId(state));
 
-		mappingForm = foorm.filterForm(mappingForm, null, ".*:only=edit.*|.*:only=lti2.*|.*:hide=insert.*|.*:hideen=insert.*");
+		mappingForm = foorm.filterForm(mappingForm, null, ".*:only=edit.*|.*:hide=insert.*|.*:hidden=insert.*");
 
 		Properties previousPost = (Properties) state.getAttribute(STATE_POST);
 		String formInput = ltiService.formInput(previousPost, mappingForm);
