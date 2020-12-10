@@ -85,7 +85,9 @@
 
 
         function getPreviewContentHTML(contentToPreview) {
-            return editor.config.docType + '<html dir="' + editor.config.contentsLangDirection + '">' +
+            let darkThemeEnabled = document.firstElementChild.classList.contains('sakai-dark-theme') ? 'sakai-dark-theme' : '';
+
+            return editor.config.docType + '<html dir="' + editor.config.contentsLangDirection + '" class="' + darkThemeEnabled + '">' +
                     '<head>' +
                         baseTag +
                         '<title>' + editor.lang.sakaipreview.preview + '</title>' +

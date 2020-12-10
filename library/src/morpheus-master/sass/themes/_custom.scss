@@ -1,4 +1,4 @@
-/* Custom Theme */
+// Custom Theme
 
 :root {
     /////////////////////////////////////////////////////////////
@@ -31,7 +31,7 @@
     // More info about defineColorHSL in sass/themes/_base.scss
 
     // Uncomment below to define a custom color
-    // @include defineColorHSL(--custom, 183, 56%, 25%);
+    // @include defineColorHSL(--custom, 173, 46%, 35%);
 
     /////////////////////////////////////////////////////////////
 
@@ -47,34 +47,34 @@
     // Used in the top header, action buttons, etc. Commonly used as the background
     // color with white text color.
     // Uncomment below to set --sakai-primary-color-1
-    // --sakai-primary-color-1:var(--custom-6);
+    // --sakai-primary-color-1:var(--custom);
 
     // Default: A slightly darker shade of --sakai-primary-color-1
     // Used for hover effects and higher contrast with white text color
     // Uncomment below to set --sakai-primary-color-2
-    // --sakai-primary-color-2: var(--custom-7);
+    // --sakai-primary-color-2: var(--custom--darker-2);
 
     // Default: A slightly darker shade of --sakai-primary-color-2
     // Used for active, focus, selected effects
     // Uncomment below to set --sakai-primary-color-3
-    // --sakai-primary-color-3: var(--custom-8);
+    // --sakai-primary-color-3: var(--custom--darker-3);
 
     // Default: A very light tint of --sakai-primary-color-1. 
     // Suggested: A light tint of your institution's main branding color.
     // Used to highlight active/current site in favorites and active/current tool in toolmenu
     // Commonly used with white background color with white text color.
     // Uncomment below to set --sakai-active-color-1
-    // --sakai-active-color-1: var(--custom-1);
+    // --sakai-active-color-1: var(--custom--lighter-5);
 
     // Default: A slightly darker shade of --sakai-active-color-1
     // Used for hover effects and higher contrast with --sakai-text-color-3
     // Uncomment below to set --sakai-active-color-2
-    // --sakai-active-color-2: var(--custom-2);
+    // --sakai-active-color-2: var(--custom--lighter-5);
 
     // Default: A slightly darker shade of --sakai-active-color-2
     // Used for active, focus, selected effects with --sakai-text-color-3
     // Uncomment below to set --sakai-active-color-3
-    // --sakai-active-color-3: var(--custom-3);
+    // --sakai-active-color-3: var(--custom--lighter-4);
 
     // Primary background color. 
     // Suggested: white
@@ -103,7 +103,7 @@
     // what you select for --sakai-primary-color-1
     // Used in new user tutorial, user profile image border
     // Uncomment below to set --sakai-secondary-color-1
-    // --sakai-secondary-color-1: var(--custom-2);
+    // --sakai-secondary-color-1: var(--custom--darker-2);
 
     // Tertiary branding color. 
     // Suggested: A third branding color distinct from
@@ -131,7 +131,7 @@
     // Default: A much darker shade of --sakai-primary-color-1
     // Used as text color of active site in favorites, active tool in toolmenu
     // Uncomment below to set --sakai-text-color-3
-    // --sakai-text-color-3: var(--custom-9);
+    // --sakai-text-color-3: var(--custom--darker-3);
 
     // Default: A lighter shade of --sakai-text-color-1
     // Used to make elements appear disabled or "grayed out"
