@@ -92,11 +92,11 @@ public interface PortalSiteHelper
 	 * @param resetTools
 	 * @param includeSummary
 	 */
-	Map pageListToMap(HttpServletRequest req, boolean loggedIn, Site site,
+	Map<String, Object> pageListToMap(HttpServletRequest req, boolean loggedIn, Site site,
                         SitePage page, String toolContextPath, String portalPrefix, boolean doPages,
                         boolean resetTools, boolean includeSummary);
 
-	Map convertSiteToMap(HttpServletRequest req, Site s, String prefix,
+	Map<String, Object> convertSiteToMap(HttpServletRequest req, Site s, String prefix,
 			String currentSiteId, String myWorkspaceSiteId, boolean includeSummary,
 			boolean expandSite, boolean resetTools, boolean doPages,
 			String toolContextPath, boolean loggedIn, List<String> siteProviders);
