@@ -25,11 +25,12 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
 import org.sakaiproject.api.app.syllabus.SyllabusData;
+import org.springframework.util.comparator.NullSafeComparator;
 
 @Data
-@EqualsAndHashCode(of = "syllabusAttachId")
+@EqualsAndHashCode(of = {"syllabusAttachId", "attachmentId"})
 @ToString(of = {"syllabusAttachId", "attachmentId", "lockId"})
-public class SyllabusAttachmentImpl implements SyllabusAttachment, Comparable {
+public class SyllabusAttachmentImpl implements SyllabusAttachment, Comparable<SyllabusAttachment> {
     private Long syllabusAttachId;
     private String attachmentId;
     private Integer lockId;
@@ -41,9 +42,10 @@ public class SyllabusAttachmentImpl implements SyllabusAttachment, Comparable {
     private String lastModifiedBy;
     private String url;
 
-    public int compareTo(Object obj) {
-        if (this.equals(obj)) return 0;
-        if (this.syllabusAttachId == null) return -1;
-        return this.syllabusAttachId.compareTo(((SyllabusAttachment) obj).getSyllabusAttachId());
+    public int compareTo(SyllabusAttachment other) {
+        int result = NullSafeComparator.NULLS_LOW.compare(this.syllabusAttachId, other.getSyllabusAttachId());
+        if (result == 0) result = NullSafeComparator.NULLS_LOW.compare(this.attachmentId, other.getAttachmentId());
+        return result;
     }
+
 }
