@@ -159,7 +159,10 @@ ${includeLatestJQuery}
 		                <td headers="action">
 		                	#if ( $isAdmin || ($allowMaintainerAddSystemTool && $getContext == $tool.get("SITE_ID")))
 	                        	<a href="$sakai_ActionURL.setPanel("ToolEdit")&id=$tool.get("id")">$tlang.getString("gen.edit")</a> / 
-	                        	<a href="$sakai_ActionURL.setPanel("ToolDelete")&id=$tool.get("id")">$tlang.getString("gen.delete")</a>
+	                        	<a href="$sakai_ActionURL.setPanel("ToolDelete")&id=$tool.get("id")">$tlang.getString("gen.delete")</a> 
+                                #if ( $tool.get("lti_content_count") > 0 ) 
+                                / <a href="$sakai_ActionURL.setPanel("ToolRedirect")&id=$tool.get("id")">$tlang.getString("gen.redirect")</a>
+                                #end
 	                        #end
 		                </td>
 	                 #end

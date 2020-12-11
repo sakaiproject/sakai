@@ -812,6 +812,34 @@ public abstract class BaseLTIService implements LTIService {
 		return retval;
 	}
 
+    // Redirecting Content Links from one Tool to Another
+	@Override
+    public Object redirectToolContentLinks(Long currentTool, Long newTool, String siteId)
+	{
+        if ( ! isMaintain(siteId) ) {
+			log.error("Must be maintain to redirectToolContentLinks {}", siteId);
+			return new Long(0);
+		}
+
+		// Make sure the current user can retrieve both the source and destination URLs.
+        Map<String, Object> tool = getTool(currentTool, siteId);
+        Map<String, Object> new_tool = getTool(newTool, siteId);
+		if ( tool == null || new_tool == null) {
+			return rb.getString("error.redirect.bad.tools");
+		}
+
+		return redirectToolContentLinksDao(currentTool, newTool, siteId, isAdmin(siteId));
+	}
+
+    public Object redirectToolContentLinksDao(Long currentTool, Long newTool) 
+	{
+		boolean isAdminRole = true;
+		String siteId = null;
+		return redirectToolContentLinksDao(currentTool, newTool, siteId, isAdminRole);
+	}
+
+    protected abstract Object redirectToolContentLinksDao(Long currentTool, Long newTool, String siteId, boolean isAdminRole);
+
 	@Override
 	public String deleteContentLink(Long key, String siteId)
 	{
