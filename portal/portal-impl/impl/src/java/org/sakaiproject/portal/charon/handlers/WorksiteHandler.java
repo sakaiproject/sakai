@@ -188,8 +188,8 @@ public class WorksiteHandler extends PageHandler
 		{
 			if (rcontext.uses(INCLUDE_PAGE_NAV))
 			{
-    				boolean loggedIn = session.getUserId() != null;
-				Map pageMap = portal.getSiteHelper().pageListToMap(req, loggedIn, site, page, toolContextPath, 
+  				boolean loggedIn = session.getUserId() != null;
+				Map<String, Object> pageMap = portal.getSiteHelper().pageListToMap(req, loggedIn, site, page, toolContextPath, 
 					portalPrefix, 
 					/* doPages */true,
 					/* resetTools */"true".equalsIgnoreCase(ServerConfigurationService

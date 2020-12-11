@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.w3c.dom.Document;
 
@@ -118,6 +119,16 @@ public interface ToolManager
 	 * @return A list of the required sets of permissions.
 	 */
 	public List<Set<String>> getRequiredPermissions(ToolConfiguration config);
+
+	/**
+	 * Tests whether the first tool in the supplied page is visible to ANY
+	 * non-maintainer role. By non-maintainer, we mean a role without
+	 * Site.SITE_UPD.
+	 *
+	 * @param page The site page in which to test the first tool
+	 * @return true, if any role in the site fulfils the required functions of the first tool. false otherwise.
+	 */
+ 	public boolean isFirstToolVisibleToAnyNonMaintainerRole(SitePage page);
 
 	/**
 	 * Check whether a tool is visible to the current user in this site,

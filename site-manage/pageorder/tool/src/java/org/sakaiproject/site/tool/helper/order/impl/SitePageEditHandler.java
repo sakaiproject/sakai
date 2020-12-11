@@ -16,10 +16,8 @@
 package org.sakaiproject.site.tool.helper.order.impl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -29,7 +27,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
@@ -437,20 +434,7 @@ public class SitePageEditHandler {
      * @return true if users with out site.upd can see the page
      */
     public boolean isEnabled(SitePage page) {
-
-        // Grab the non site.upd roles (ie : non maintainer types)
-        Set<Role> roles = getRolesWithout(page.getContainingSite(), SITE_UPD);
-
-        // Now check to see if these roles have the permission listed
-        // in the functions require for the tool.
-        for (Set<String> permissionSet : getSingleToolPagePermissions(page)) {
-            for (Role role : roles) {
-                if (role.getAllowedFunctions().containsAll(permissionSet)) {
-                    return true; // If any one of the permissions is allows for any role.
-                }
-            }
-        }
-        return false;
+        return toolManager.isFirstToolVisibleToAnyNonMaintainerRole(page);
     }
     
     /**
