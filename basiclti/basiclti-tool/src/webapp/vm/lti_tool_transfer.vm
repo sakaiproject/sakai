@@ -13,8 +13,8 @@
 <p>
 #if ($tools && $tools.size() > 0)
         <p style="clear:all;">
-            <label for="tool_id" style="display:block;float:none;">
-                <span style="color:#903;font-weight:bold" title="Tool Title">*</span>
+            <label for="new_tool_id" style="display:block;float:none;">
+                <span style="color:#903;font-weight:bold" title="$tlang.getString("tool.transfer.select")">*</span>
         $tlang.getString("tool.transfer.select")
             </label>
    <select id="new_tool_id" name="new_tool_id">
