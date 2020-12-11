@@ -805,7 +805,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 	}
 
-	public String buildToolRedirectPanelContext(VelocityPortlet portlet, Context context,
+	public String buildToolTransferPanelContext(VelocityPortlet portlet, Context context,
 			RunData data, SessionState state) {
 		context.put("tlang", rb);
 		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
@@ -813,7 +813,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			addAlert(state, rb.getString("error.maintain.delete"));
 			return "lti_error";
 		}
-		context.put("doToolAction", BUTTON + "doToolRedirect");
+		context.put("doToolAction", BUTTON + "doToolTransfer");
 		String[] mappingForm = foorm.filterForm(ltiService.getToolModel(getSiteId(state)), "^title:.*|^launch:.*|^id:.*", null);
 		String id = data.getParameters().getString(LTIService.LTI_ID);
 		if (id == null) {
@@ -842,22 +842,22 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		context.put("tools", systemTools);
 
 		state.removeAttribute(STATE_SUCCESS);
-		return "lti_tool_redirect";
+		return "lti_tool_transfer";
 	}
 
-	public void doToolRedirect(RunData data, Context context) {
+	public void doToolTransfer(RunData data, Context context) {
 		String peid = ((JetspeedRunData) data).getJs_peid();
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
 
 		if (!ltiService.isMaintain(getSiteId(state))) {
-			addAlert(state, rb.getString("error.maintain.redirect"));
+			addAlert(state, rb.getString("error.maintain.transfer"));
 			switchPanel(state, "Error");
 			return;
 		}
 		Properties reqProps = data.getParameters().getProperties();
 		String new_tool_id = StringUtils.trimToNull(data.getParameters().getString("new_tool_id"));
 		if (new_tool_id == null) {
-			addAlert(state, rb.getString("error.redirect.missing"));
+			addAlert(state, rb.getString("error.transfer.missing"));
 			switchPanel(state, "ToolSystem");
 			return;
 		}
@@ -871,13 +871,13 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		Long key = new Long(id);
 		Long new_key = new Long(new_tool_id);
 
-		Object retval = ltiService.redirectToolContentLinks(key, new_key, getSiteId(state));
+		Object retval = ltiService.transferToolContentLinks(key, new_key, getSiteId(state));
 		if ( retval instanceof String ) {
 			addAlert(state, (String) retval);
 			switchPanel(state, "ToolSystem");
 			return;
 		}
-		String success = MessageFormat.format(rb.getString("tool.redirect.success"), retval);
+		String success = MessageFormat.format(rb.getString("tool.transfer.success"), retval);
         state.setAttribute(STATE_SUCCESS, success);
 		switchPanel(state, "ToolSystem");
 	}
@@ -1113,27 +1113,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		context.put("isAdmin", new Boolean(ltiService.isAdmin(getSiteId(state))));
 		context.put("doAction", BUTTON + "doContentPut");
 		state.removeAttribute(STATE_SUCCESS);
-
-		/*
-		List<Map<String, Object>> tools = ltiService.getTools(null, null, 0, 0, getSiteId(state));
-		// only list the tools available in the system
-		List<Map<String, Object>> systemTools = new ArrayList<Map<String, Object>>();
-		for (Map<String, Object> tool : tools) {
-			String siteId = !tool.containsKey(ltiService.LTI_SITE_ID) ? null : StringUtils.trimToNull((String) tool.get(ltiService.LTI_SITE_ID));
-			if (siteId == null) {
-				// add tool for whole system
-				systemTools.add(tool);
-			} else if (siteId.equals(contextString)) {
-				// add the tool for current site only
-				systemTools.add(tool);
-			} else if (ltiService.isAdmin(getSiteId(state))) {
-				// if in Admin's my workspace, show all tools
-				systemTools.add(tool);
-			}
-		}
-
-		systemTools = systemTools.stream().sorted((m1, m2) -> String.valueOf(m1.get("title")).compareTo(String.valueOf(m2.get("title")))).collect(Collectors.toList());
-		*/
 
 		List<Map<String, Object>> systemTools = getAvailableTools (getSiteId(state), contextString);
 		context.put("tools", systemTools);

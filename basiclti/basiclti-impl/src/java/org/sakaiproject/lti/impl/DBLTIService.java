@@ -455,7 +455,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
     }
 
 	/**
-	 * Move all of the content links associated with one tool to another tool
+	 * Transfer all of the content links associated with one tool to another tool
 	 *
 	 * @param currentTool
 	 *		The tool that we are transferring the links from
@@ -468,7 +468,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 *		rules about SITE_ID being null in the inserted object.
 	 * @return Returns String (failure) or Long (count of items changed) on success
 	 */
-	protected Object redirectToolContentLinksDao(Long currentTool, Long newTool, String siteId, boolean isAdminRole)
+	protected Object transferToolContentLinksDao(Long currentTool, Long newTool, String siteId, boolean isAdminRole)
 	{
 		if (siteId == null && !isAdminRole ) {
 			throw new IllegalArgumentException("siteId must be non-null for non-admins");

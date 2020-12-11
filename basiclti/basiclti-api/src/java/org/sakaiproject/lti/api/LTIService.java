@@ -362,10 +362,10 @@ public interface LTIService extends LTISubstitutionsFilter {
 
     String getExportUrl(String siteId, String filterId, ExportType exportType);
 
-    // Redirecting Content Links from one Tool to Another
-    Object redirectToolContentLinks(Long currentTool, Long newTool, String siteId);
+    // Transferring content links from one tool to another
+    Object transferToolContentLinks(Long currentTool, Long newTool, String siteId);
 
-    Object redirectToolContentLinksDao(Long currentTool, Long newTool);
+    Object transferToolContentLinksDao(Long currentTool, Long newTool);
 
     // Tool Retrieval
     List<Map<String, Object>> getTools(String search, String order, int first, int last, String siteId);
