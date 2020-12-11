@@ -355,6 +355,7 @@
 							var(--button-shadow),
 							var(--button-hover-shadow),
 							var(--button-active-shadow));
+	margin-right: $standard-space;
 }
 
 button.btn-primary, .act .active {
