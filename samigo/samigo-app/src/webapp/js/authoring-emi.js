@@ -64,7 +64,7 @@ $(document).ready(function(){
 	//----------------------------------------------//
 	$("input[value='Save']").bind('click', function(){
 		updateAnswerPointScore();
-		$errorMessageTable.removeClass('messageSamigo');
+		$errorMessageTable.removeClass('sak-banner-error');
 		$('#emiErrorMessageTable > tr').remove();
 		var errorMessages = new Array();
 		var errorNumber=+0;
@@ -165,7 +165,7 @@ $(document).ready(function(){
 				var row = $tableRowElement.clone().appendTo($errorMessageTable);
 				col.appendTo(row);
 			}
-			$errorMessageTable.addClass('messageSamigo');
+			$errorMessageTable.addClass('sak-banner-error');
 			top.window.scrollTo(0,0);
 			return false;
 		}
