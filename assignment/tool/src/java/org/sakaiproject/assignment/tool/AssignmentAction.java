@@ -2433,6 +2433,15 @@ public class AssignmentAction extends PagedResourceActionII {
             if (realm != null) {
                 context.put("activeUserIds", realm.getUsers());
             }
+
+            // for sorting assignment groups using the standard comparator
+            Map<String, List<String>> groupTitleMap = new HashMap<>(assignments.size());
+            AssignmentComparator groupComparator = new AssignmentComparator(null, SORTED_BY_GROUP_TITLE, Boolean.TRUE.toString());
+            for (Assignment asn : assignments) {
+                groupTitleMap.put(asn.getId(), getSortedAsnGroupTitles(asn, site, groupComparator));
+            }
+            context.put("asnGroupTitleMap", groupTitleMap);
+
         } catch (Exception ignore) {
             log.warn(this + ":build_list_assignments_context " + ignore.getMessage());
             log.warn(this + ignore.getMessage() + " siteId= " + contextString);
@@ -2459,6 +2468,12 @@ public class AssignmentAction extends PagedResourceActionII {
         return template + TEMPLATE_LIST_ASSIGNMENTS;
 
     } // build_list_assignments_context
+
+    private List<String> getSortedAsnGroupTitles(Assignment asn, Site site, AssignmentComparator groupComparator) {
+        List<Group> asnGroups = asn.getGroups().stream().map(id -> site.getGroup(id)).collect(Collectors.toList());
+        asnGroups.sort(groupComparator);
+        return asnGroups.stream().map(Group::getTitle).collect(Collectors.toList());
+    }
 
     private Set<String> getSubmittersIdSet(List<AssignmentSubmission> submissions) {
         return submissions.stream().map(AssignmentSubmission::getSubmitters).flatMap(Set::stream).map(AssignmentSubmissionSubmitter::getSubmitter).collect(Collectors.toSet());
@@ -4415,6 +4430,18 @@ public class AssignmentAction extends PagedResourceActionII {
             context.put("attachmentReferences", attachmentReferences);
 
             supplementItemIntoContext(state, context, assignment, null);
+
+            // for sorting assignment groups using the standard comparator
+            String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
+            try {
+                Site site = siteService.getSite(contextString);
+                AssignmentComparator groupComparator = new AssignmentComparator(null, SORTED_BY_GROUP_TITLE, Boolean.TRUE.toString());
+                String groupTitles = StringUtils.join(getSortedAsnGroupTitles(assignment, site, groupComparator), ", ");
+                context.put("asnGroupTitles", groupTitles.isEmpty() ? rb.getString("gen.viewallgroupssections") : groupTitles);
+            }
+            catch (IdUnusedException e) {
+                // ignore
+            }
         }
 
         if (taggingManager.isTaggable() && assignment != null) {
