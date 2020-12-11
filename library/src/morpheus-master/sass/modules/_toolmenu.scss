@@ -94,10 +94,10 @@ body.is-logged-out{
 								margin: 0;
 							}
 						}
+						.#{$namespace}toolsNav__menuitem--status-block {
+							display: none;
+						}
 						&.is-invisible {
-							&:after {
-								display: none;
-							}
 							&:hover, &:focus {
 								.#{$namespace}toolsNav__menuitem--title{
 									background: $tool-menu-item-hidden-hover-background-color;
@@ -482,7 +482,6 @@ nav#subSites{
 					color: $tool-menu-item-icon-color;
 					
 					@if $tool-menu-icon-on-left {
-						display: inline-block;
 						height: 100%;
 						font-size: 16px;
 					} @else {
@@ -495,43 +494,32 @@ nav#subSites{
 				
 				.#{$namespace}toolsNav__menuitem--title{
 					@if $tool-menu-icon-on-left {
-						display: inline-block;
 						width: calc(#{$tool-menu-width} - #{$tool-menu-width-collapsed} - #{$standard-spacing});
 						vertical-align: middle;
 						margin-left: $standard-spacing;
-						@media #{$phone}{
-							width: 90%;
-						}
-					} @else {
-						display: block;
-						width: 100%;
 					}
 					text-overflow: ellipsis;
 					white-space: pre;
 					overflow: hidden;
 				}
+				.#{$namespace}toolsNav__menuitem--status-block {
+					margin-right: 10px;
+					margin-left: 4px;
+					display: flex;
+					div {
+						margin-right: 10px;
+						&.tool-status-icon {
+							font-size: 16px;
+						}
+					}
+				}
 				&.is-invisible {
-					position: relative;
 					font-style: italic;
 					color: $tool-menu-item-hidden-text-color;
 					background: $tool-menu-item-hidden-background-color;
 
 					&:before{
 						border-left: $tool-menu-item-hidden-border-left;
-					}
-
-					&:after {
-						@extend .fa-lg;
-						@extend .fa;
-						content: '\f070';
-						@if $tool-menu-icon-on-left {
-							margin-right: $standard-spacing;
-						}
-						@else {
-							position: absolute;
-							top: 4px;
-							right: 4px;
-						}
 					}
 
 					&:hover{
@@ -887,15 +875,6 @@ body {
 								.#{$namespace}toolsNav__menuitem--icon {
 									color: $tool-menu-item-hidden-hover-icon-color !important;
 								}
-							}
-
-							&:after {
-								@extend .fa-lg;
-								@extend .fa;
-								content: '\f070';
-								position: absolute;
-								top: 8px;
-								right: 4px;
 							}
 						}
 						&.has-prerequisite {

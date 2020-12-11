@@ -559,10 +559,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			}
 		}
 
-		//List l = siteHelper.convertSitesToMaps(req, mySites, prefix, siteId, myWorkspaceSiteId,
-		//		includeSummary, expandSite, resetTools, doPages, toolContextPath,
-		//		loggedIn);
-
 		SiteView siteView = siteHelper.getSitesView(SiteView.View.ALL_SITES_VIEW, req, session, siteId );
 		siteView.setPrefix(prefix);
 		siteView.setResetTools(resetTools);
