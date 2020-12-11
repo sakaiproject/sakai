@@ -315,11 +315,10 @@
                   elapsedTime = data[1];
                   lastAid = data[2];
                   if (totalTime === elapsedTime) {
-                      $("[id$=\\:save]")[0].click();
                       clearInterval(localCount);
                       clearInterval(ajaxCount);
                       $("#timeoutWarning").hide();
-                      leaveAssessment();
+                      $("[id$=\\:submitNoCheck]")[0].click();
                       return;
                   }
                   if (currentAid && lastAid && currentAid > 0 && lastAid > 0 && currentAid !== lastAid) {
