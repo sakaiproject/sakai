@@ -887,9 +887,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		String issuerURL = SakaiBLTIUtil.getIssuer(site_id);
 		context.put("issuerURL", issuerURL);
 
-		String proxyUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/proxy";
-		context.put("proxyUrl", proxyUrl);
-
 		context.put("isAdmin", new Boolean(ltiService.isAdmin(getSiteId(state))));
 		context.put("isEdit", Boolean.TRUE);
 
@@ -1076,9 +1073,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		String site_id = null;
 		String issuerURL = SakaiBLTIUtil.getIssuer(site_id);
 		context.put("issuerURL", issuerURL);
-
-		String proxyUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/proxy";
-		context.put("proxyUrl", proxyUrl);
 
 		context.put("isAdmin", new Boolean(ltiService.isAdmin(getSiteId(state))));
 		context.put("isEdit", Boolean.FALSE);
