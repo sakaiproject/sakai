@@ -22,151 +22,100 @@ package org.sakaiproject.api.app.syllabus;
 
 import java.util.Date;
 import java.util.Set;
+import java.util.TreeSet;
 
-public interface SyllabusData
-{
- 	public final String ITEM_POSTED="posted";
- 	public final String ITEM_DRAFT= "draft";
-  /**
-   * @return Returns the emailNotification.
-   */
-  public String getEmailNotification();
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
+import javax.persistence.Version;
 
-  /**
-   * @param emailNotification The emailNotification to set.
-   */
-  public void setEmailNotification(String emailNotification);
+import org.hibernate.annotations.BatchSize;
 
-  /**
-   * @return Returns the status.
-   */
-  public String getStatus();
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
-  /**
-   * @param status The status to set.
-   */
-  public void setStatus(String status);
+@Entity
+@Table(name = "SAKAI_SYLLABUS_DATA",
+        indexes = {
+                @Index(name = "syllabus_position", columnList = "position_c"),
+                @Index(name = "SYLLABUS_DATA_SURRO_I", columnList = "surrogateKey")
+        }
+)
 
-  /**
-   * @return Returns the title.
-   */
-  public String getTitle();
+@Data
+@EqualsAndHashCode(of = "syllabusId")
+@ToString(of = {"syllabusId", "syllabusItem", "asset", "position", "title", "view", "status", "emailNotification", "lockId"})
+public class SyllabusData implements Comparable<SyllabusData> {
+    public static final String ITEM_POSTED = "posted";
+    public static final String ITEM_DRAFT = "draft";
 
-  /**
-   * @param title The title to set.
-   */
-  public void setTitle(String title);
+    @Id
+    @Column(name = "ID")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "syllabus_data_sequence")
+    @SequenceGenerator(name = "syllabus_data_sequence", sequenceName = "SyllabusDataImpl_SEQ")
+    private Long syllabusId;
 
-  /**
-   * @return Returns the view.
-   */
-  public String getView();
+    @Version
+    private Integer lockId;
 
-  /**
-   * @param view The view to set.
-   */
-  public void setView(String view);
+    @Lob
+    @Column(length = 16777215)
+    private String asset;
 
-  /**
-   * @return Returns the assetId.
-   */
-  public String getAsset();
+    @Column(length = 128)
+    private String emailNotification;
 
-  /**
-   * @param assetId The assetId to set.
-   */
-  public void setAsset(String assetId);
+    @Column(name = "LINK_CALENDAR")
+    private Boolean linkCalendar = Boolean.FALSE;
 
-  /**
-   * @return Returns the lockId.
-   */
-  public Integer getLockId();
+    @Column(name = "position_c", nullable = false)
+    private Integer position;
 
-  /**
-   * @return Returns the position.
-   */
-  public Integer getPosition();
+    @Column(name = "START_DATE")
+    private Date startDate;
 
-  /**
-   * @param position The position to set.
-   */
-  public void setPosition(Integer position);
+    @Column(name = "END_DATE")
+    private Date endDate;
 
-  /**
-   * @return Returns the syllabusId.
-   */
-  public Long getSyllabusId();
+    @Column(length = 64)
+    private String status;
 
-  /**
-   * @return Returns the syllabusItem.
-   */
-  public SyllabusItem getSyllabusItem();
+    @Column(length = 256)
+    private String title;
 
-  /**
-   * @param syllabusItem The syllabusItem to set.
-   */
-  public void setSyllabusItem(SyllabusItem syllabusItem);
-  
-  public Set<SyllabusAttachment> getAttachments();
-  
-  public void setAttachments(Set<SyllabusAttachment> attachments);
-  
-  /**
-   * @return Returns the syllabus' start time
-   */
-  public Date getStartDate();
-  
-  /**
-   * @param startDate The syllabus' start time
-   */
-  public void setStartDate(Date date);
-  
-  /**
-   * @return end date, the syllabus' end time
-   */
-  public Date getEndDate();
-  
-  /**
-   * @param end date, the syllabus' end time
-   */
-  public void setEndDate(Date dateDuration);
-  
-  /**
-   * flag used to associate date to the calendar tool
-   * @return
-   */
-  public Boolean getLinkCalendar();
-  
-  /**
-   * flag used to associate date to the calendar tool
-   * @param linkCalendar
-   */
-  public void setLinkCalendar(Boolean linkCalendar);
-  
-  /**
-   * keep track of the calendar event ID so you can edit/remove it
-   * @param calendarEventId
-   */
-  public String getCalendarEventIdStartDate();
-  
-  /**
-   * keep track of the calendar event ID so you can edit/remove it
-   * @param calendarEventIdStartDate
-   */
-  public void setCalendarEventIdStartDate(String calendarEventIdStartDate);
-  
-  /**
-   * keep track of the calendar event ID so you can edit/remove it
-   * @return
-   */
-  public String getCalendarEventIdEndDate();
-  
-  /**
-   * keep track of the calendar event ID so you can edit/remove it
-   * @param calendarEventIdEndDate
-   */
-  public void setCalendarEventIdEndDate(String calendarEventIdEndDate);
+    @Column(name = "xview", length = 16)
+    private String view;
+
+    @Column(name = "CALENDAR_EVENT_ID_START", length = 99)
+    private String calendarEventIdStartDate;
+
+    @Column(name = "CALENDAR_EVENT_ID_END", length = 99)
+    private String calendarEventIdEndDate;
+
+    @OneToMany(mappedBy = "syllabusData", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 50)
+    private Set<SyllabusAttachment> attachments = new TreeSet<>();
+
+    @ManyToOne
+    @JoinColumn(name = "surrogateKey")
+    private SyllabusItem syllabusItem;
+
+    public int compareTo(SyllabusData data) {
+        if (this.equals(data)) return 0;
+        if (this.position == null) return -1;
+        return this.position.compareTo(data.getPosition());
+    }
 }
-
-
-

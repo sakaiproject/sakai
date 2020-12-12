@@ -41,19 +41,19 @@ public interface SyllabusManager
   public void addSyllabusToSyllabusItem(final SyllabusItem syllabusItem, final SyllabusData syllabusData, boolean updateCalendar);
   
   public void removeSyllabusFromSyllabusItem(final SyllabusItem syllabusItem, final SyllabusData syllabusData);
-  
-  public SyllabusData createSyllabusDataObject(String title, Integer position,
-      String assetId, String view, String status, String emailNotification, Date startDate, Date endDate, boolean linkCalendar, String calendarEventIdStartDate,
-      String calendarEventIdEndDate);
-  
+
   public void removeSyllabusDataObject(SyllabusData o);
   
   public Set getSyllabiForSyllabusItem(final SyllabusItem syllabusItem);
   
   public void swapSyllabusDataPositions(final SyllabusItem syllabusItem, final SyllabusData d1, final SyllabusData d2);
-  
-  public void saveSyllabus(SyllabusData data);
-  public void saveSyllabus(SyllabusData data, boolean updateCalendar);
+
+  /**
+   * saveSyllabus persists a SyllabusData object
+   * @param data
+   */
+  public SyllabusData saveSyllabus(SyllabusData data);
+  public SyllabusData saveSyllabus(SyllabusData data, boolean updateCalendar);
   
   public Integer findLargestSyllabusPosition(final SyllabusItem syllabusItem);
   
@@ -63,7 +63,7 @@ public interface SyllabusManager
   
   public SyllabusAttachment createSyllabusAttachmentObject(String attachId, String name);      
 
-  public void saveSyllabusAttachment(SyllabusAttachment attach);
+  public SyllabusAttachment saveSyllabusAttachment(SyllabusAttachment attach);
 
   public void addSyllabusAttachToSyllabusData(final SyllabusData syllabusData, final SyllabusAttachment syllabusAttach);
 
