@@ -10,6 +10,7 @@ Documentation:
 * [Setting up Tsugi in Sakai for Testing](TSUGI.md)
 * [Using Tsugi in Sakai with LTI Advantage](https://www.tsugi.org/md/ADVANTAGE.md)
 * [Windows PostMessage Support in Sakai](POSTMESSAGE.md)
+* [Auto Provisioning Support in Sakai](PROVISION.md)
 * [Sakai API Documentation Including Legacy API Extensions](sakai_basiclti_api.md)
 Sakai has API extensions for Membership/Roster, Learning Object Repository Integration, and a Settings service.
 * [Configuring the Sakai External Tools Portlet](sakai_basiclti_portlet.md)

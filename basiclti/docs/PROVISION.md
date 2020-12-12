@@ -75,10 +75,13 @@ It is a good idea to stay logged into Tsugi in another tab so Tsugi knows which 
 Go into Sakai as the `admin` account and go into External Tools in the Adinistration
 Workspace.  There is a new option at the main page titled "LTI Advantage Auto
 Provision" - click it, enter a title and press "Auto Provision".
+(<a href="IMG_PROVISION/01-Auto-Insert.png" target="_blank">Image</a>)
+
 
 Sakai makes a partially complete LTI tool and puts you into the Edit page so
 you can run the auto provisioning process.  Press 'Use LTI Advantage Auto Configuration',
 enter the provisioning URL in the modal, and press "Begin Configuration".
+(<a href="IMG_PROVISION/02-Auto-Update.png" target="_blank">Image</a>)
 
 At this point, unless you need to log in - the protocol just runs.  (a) Tsugi retrieves
 the OpenId configuration from Sakai, (b) Tsugi sends its registration to Sakai,
