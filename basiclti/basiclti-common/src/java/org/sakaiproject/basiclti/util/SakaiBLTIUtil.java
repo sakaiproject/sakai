@@ -1209,9 +1209,8 @@ public class SakaiBLTIUtil {
 			String incoming_kid = (String) jsonHeader.get("kid");
 
 			String tool_keyset = (String) tool.get(LTIService.LTI13_TOOL_KEYSET);
-			String tool_public = (String) tool.get(LTIService.LTI13_TOOL_PUBLIC);
-			if (tool_keyset == null && tool_public == null) {
-				throw new RuntimeException("Could not find tool keyset url or stored public key");
+			if (tool_keyset == null) {
+				throw new RuntimeException("Could not find tool keyset url");
 			}
 
 			Key publicKey = null;
@@ -1228,11 +1227,6 @@ public class SakaiBLTIUtil {
 				}
 				// TODO: Store in Earle's super-cluster-cache one day - SAK-43700
 
-			} else {
-				publicKey = LTI13Util.string2PublicKey(tool_public);
-				if (publicKey == null) {
-					throw new RuntimeException("Could not deserialize tool public key");
-				}
 			}
 			return publicKey;
 		}
