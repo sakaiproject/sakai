@@ -130,12 +130,13 @@ public interface LTIService extends LTISubstitutionsFilter {
             "pl_launch:checkbox:label=bl_pl_launch",
             "pl_linkselection:checkbox:label=bl_pl_linkselection",
             // SAK-44637 - re-enable pl_lessonsselection
-            "pl_placement:header:fields=pl_lessonsselection,pl_assessmentselection,pl_content_editor,pl_importitem,pl_fileitem",
+            "pl_placement:header:fields=pl_lessonsselection,pl_assessmentselection,pl_content_editor,pl_importitem,pl_coursenav,pl_privacy,pl_fileitem,",
             "pl_lessonsselection:checkbox:label=bl_pl_lessonsselection",
             "pl_assessmentselection:checkbox:label=bl_pl_assessmentselection",
             "pl_contenteditor:checkbox:label=bl_pl_contenteditor",
             "pl_privacy:checkbox:label=bl_pl_privacy:role=admin",
             "pl_importitem:checkbox:label=bl_pl_importitem:role=admin",
+            "pl_coursenav:checkbox:label=bl_pl_coursenav:role=admin",
             "pl_fileitem:checkbox:label=bl_pl_fileitem:role=admin",
             "newpage:radio:label=bl_newpage:choices=off,on,content",
             "debug:radio:label=bl_debug:choices=off,on,content",
@@ -250,6 +251,7 @@ public interface LTIService extends LTISubstitutionsFilter {
     String LTI_PL_CONTENTEDITOR = "pl_contenteditor";
     String LTI_PL_ASSESSMENTSELECTION = "pl_assessmentselection";
     String LTI_PL_LESSONSSELECTION = "pl_lessonsselection";
+    String LTI_PL_COURSENAV = "pl_coursenav";
     String LTI_SEARCH_TOKEN_SEPARATOR_AND = "#&#";
     String LTI_SEARCH_TOKEN_SEPARATOR_OR = "#|#";
     String ESCAPED_LTI_SEARCH_TOKEN_SEPARATOR_AND = "\\#\\&\\#";
