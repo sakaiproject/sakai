@@ -199,6 +199,9 @@ public class RepublishAssessmentListener implements ActionListener {
 					if (!gbItemExists) {
 						log.debug("before gbsHelper.addToGradebook()");
 						gbsHelper.addToGradebook((PublishedAssessmentData) assessment.getData(), null, g);
+					} else {
+						log.debug("before gbsHelper.updateGradebook()");
+						gbsHelper.updateGradebook((PublishedAssessmentData) assessment.getData(), g);
 					}
 					
 					// any score to copy over? get all the assessmentGradingData and copy over
