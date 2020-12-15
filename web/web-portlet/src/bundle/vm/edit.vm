@@ -6,7 +6,7 @@ ${includeLatestJQuery}
 	includeLatestJQuery('web-ifp edit.vm');
 	includeWebjarLibrary("fontawesome-iconpicker");
 	//When hiding the iconpicker focus back on the element
-	$( document ).ready(function() {
+	jQuery(document).ready(function() {
 	    jQuery("#fa_icon").on("iconpickerHide", function (event) {
 	        event.target.focus();
 	    });
