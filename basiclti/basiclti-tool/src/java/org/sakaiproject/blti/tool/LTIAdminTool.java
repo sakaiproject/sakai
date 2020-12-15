@@ -1135,6 +1135,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		String form_lti13_lti13_tool_keyset = StringUtils.trimToNull(reqProps.getProperty(LTIService.LTI13_TOOL_KEYSET));
 
 		String old_lti13_client_id = null;
+		String old_lti13_tool_public = null;
 		String old_lti13_platform_public = null;
 		String old_lti13_platform_private = null;
 		if (tool != null) {
@@ -1158,8 +1159,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 					switchPanel(state, "Error");
 					return;
 				}
-				String pub = LTI13Util.getPublicEncoded(kp);
-				String pri = LTI13Util.getPrivateEncoded(kp);
 				reqProps.setProperty(LTIService.LTI13_PLATFORM_PUBLIC, LTI13Util.getPublicEncoded(kp));
 				reqProps.setProperty(LTIService.LTI13_PLATFORM_PRIVATE, LTI13Util.getPrivateEncoded(kp));
 			}
