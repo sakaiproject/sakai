@@ -120,7 +120,7 @@ export class SakaiRubricGrading extends RubricsElement {
               </strong>
             </div>
             ${this.association.parameters.fineTunePoints ? html`
-                <input type="number" step="0.01" min="0" max="${ifDefined(c.pointrange ? c.pointrange.high : undefined)}"
+                <input type="number" step="0.01"
                     title="${tr("point_override_details")}"
                     data-criterion-id="${c.id}"
                     name="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-override-${c.id}"
@@ -372,7 +372,7 @@ export class SakaiRubricGrading extends RubricsElement {
           if (!c.selectedvalue) {
             c.selectedvalue = 0;
           }
-          c.pointrange = this.getHighLow(c.ratings, "points");
+          c.pointrange = this.getHighLow(c.ratings);
         });
 
         this.decorateCriteria();
