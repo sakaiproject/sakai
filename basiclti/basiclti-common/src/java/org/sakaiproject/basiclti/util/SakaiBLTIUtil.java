@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Precision;
+import org.apache.http.client.utils.URIBuilder;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.sakaiproject.api.privacy.PrivacyManager;
@@ -2740,13 +2741,13 @@ public class SakaiBLTIUtil {
 	public static String stripOffQuery(String urlString)
 	{
 		if ( urlString == null ) return null;
-		// Next we snip off the query string
-		String retval = urlString;
-		int pos = retval.indexOf('?');
-		if ( pos > 1 ) {
-			retval = retval.substring(0,pos);
+		try {
+			URIBuilder uriBuilder = new URIBuilder(urlString);
+			uriBuilder.removeQuery();
+			return uriBuilder.build().toString();
+		} catch(java.net.URISyntaxException e) {
+			return null;
 		}
-		return retval;
 	}
 
 	public static Map<String, Object> findBestToolMatch(boolean global, String launchUrl, List<Map<String,Object>> tools)

@@ -303,5 +303,43 @@ System.err.println("encrypt1="+encrypt1);
 
 	}
 
+	/* Quick story.  When reviewing PR#8884 - the collective wisdom was not to 
+	 * just scan for a question mark and chop.  MJ said use the URI builder.
+	 * CS was worried that it would do weird things to the string like add or
+	 * remove a :443 in an attempt to make the URL "better".
+	 * So I wrote a unit test to defend against that eventuality and here it is.
+	 */
+	public String crudeButEffectiveStripOffQuery(String urlString)
+	{
+		if ( urlString == null ) return null;
+        String retval = urlString;
+        int pos = retval.indexOf('?');
+        if ( pos > 1 ) {
+            retval = retval.substring(0,pos);
+        }
+        return retval;
+	}
+
+	@Test
+	public void testStripOffQuery() {
+		String testUrls[] = {
+			"http://localhost:8080",
+			"http://localhost:8080/",
+			"http://localhost:8080/zap",
+			"http://localhost:8080/zap/",
+			"http://localhost:8080/zap/bob.php?x=1234",
+			"https://www.py4e.com",
+			"https://www.py4e.com/",
+			"https://www.py4e.com/zap/",
+			"https://www.py4e.com/zap/bob.php?x=1234",
+			"https://www.py4e.com:443/zap/bob.php?x=1234",
+			"https://www.sakailms.org/"
+		};
+
+		for(String s: testUrls) {
+			assertEquals(SakaiBLTIUtil.stripOffQuery(s), crudeButEffectiveStripOffQuery(s));
+		}
+	}
+
 }
 
