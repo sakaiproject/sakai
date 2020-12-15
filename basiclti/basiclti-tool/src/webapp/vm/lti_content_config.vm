@@ -3,6 +3,7 @@
 <p>$tlang.getString("content.redirecting")</p>
 <script type="text/javascript"><!--
 setTimeout('window.location="$autoLaunch";', 1500);
+setTimeout(function() { alert('$tlang.getString("error.submit.timeout")'); }, 5000);
 // -->
 </script>
 #else
