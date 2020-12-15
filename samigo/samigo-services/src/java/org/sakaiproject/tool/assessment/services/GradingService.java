@@ -3474,13 +3474,13 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * @param input
    * @return list of Maps
    */
-  public List parseFillInBlank(String input, String markers_pair) {
+  public List<Map<String, String>> parseFillInBlank(String input, String markers_pair) {
 	  String marker_left = "" + markers_pair.charAt(0);
 	  String marker_right = "" + markers_pair.charAt(1);
 	  String inputTmp = input;
 	  inputTmp = padFibWithNonbreakSpacesText(inputTmp, marker_left, marker_right);
 
-	  List storeParts = new ArrayList();
+	  List<Map<String, String>> storeParts = new ArrayList<>();
 	  if (inputTmp == null) {
 		  return storeParts;
 	  }
@@ -3491,7 +3491,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 
 	  while (st.hasMoreTokens()){
 		  tempToken = st.nextToken();
-		  Map tempMap = new HashMap();
+		  Map<String, String> tempMap = new HashMap<>();
 
 		  //split out text and answer parts from token
 		  String splitRegEx = Pattern.quote("" + marker_left);
@@ -3589,7 +3589,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		  return 2;
 	  }
 	  // if markers are some forbidden chars
-	  if (containsIllegals(markers_pair)) {
+	  if (fibTextContainsIllegalCharacters(markers_pair)) {
 		  return 3;
 	  }
 
@@ -3600,7 +3600,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * @param toExamine marker_pair to determine if contain illegal chars
    * @return if cotains illegals ["'.,&\s|*]
    */
-  private boolean containsIllegals(String toExamine) {
+  private boolean fibTextContainsIllegalCharacters(String toExamine) {
 	  Pattern pattern = Pattern.compile("[\"\'.,&\\s|*]");
 	  Matcher matcher = pattern.matcher(toExamine);
 	  return matcher.find();

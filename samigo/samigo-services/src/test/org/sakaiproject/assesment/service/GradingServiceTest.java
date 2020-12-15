@@ -122,12 +122,16 @@ public class GradingServiceTest {
 		Assert.assertEquals(2, gradingService.checkMarkersFIB("}}"));
 		Assert.assertEquals(2, gradingService.checkMarkersFIB("[["));
 		Assert.assertEquals(2, gradingService.checkMarkersFIB("]]"));
+		Assert.assertEquals(2, gradingService.checkMarkersFIB("  "));
 		
 		//Invalid lentgh
 		Assert.assertEquals(1, gradingService.checkMarkersFIB(""));
 		Assert.assertEquals(1, gradingService.checkMarkersFIB("{"));
 		Assert.assertEquals(1, gradingService.checkMarkersFIB("{}+"));
 		Assert.assertEquals(1, gradingService.checkMarkersFIB("abcd"));
+		Assert.assertEquals(1, gradingService.checkMarkersFIB("{ }"));
+		Assert.assertEquals(1, gradingService.checkMarkersFIB(" {}"));
+		Assert.assertEquals(1, gradingService.checkMarkersFIB("{} "));
 		
 		//Valid markers
 		Assert.assertEquals(0, gradingService.checkMarkersFIB("{}"));
@@ -135,6 +139,7 @@ public class GradingServiceTest {
 		Assert.assertEquals(0, gradingService.checkMarkersFIB("xw"));
 		Assert.assertEquals(0, gradingService.checkMarkersFIB("[]"));
 		Assert.assertEquals(0, gradingService.checkMarkersFIB("-+"));
+		Assert.assertEquals(0, gradingService.checkMarkersFIB("$%"));
 	}
 	
 	@Test
@@ -194,9 +199,10 @@ public class GradingServiceTest {
 		// markers, no errors or conditions are checked here
 		GradingService gradingService = new GradingService();
 		
-		List answers = gradingService.parseFillInBlank("Roses are {red}", "{}");
-		Assert.assertEquals(1, answers.size());
+		List answers = gradingService.parseFillInBlank("Roses are {red}, violets are {blue}", "{}");
+		Assert.assertEquals(2, answers.size());
 		Assert.assertEquals("red", ((HashMap) answers.get(0)).get("ans"));
+		Assert.assertEquals("blue", ((HashMap) answers.get(1)).get("ans"));
 		
 		answers = gradingService.parseFillInBlank("Roses are +red-, the violet's +blue-", "+-");
 		Assert.assertEquals(2, answers.size());
