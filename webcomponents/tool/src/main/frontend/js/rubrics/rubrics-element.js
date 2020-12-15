@@ -32,15 +32,14 @@ class RubricsElement extends SakaiElement {
     }
   }
 
-  // get high low values from objects in array
-  getHighLow(myArray, property) {
+  getHighLow(myArray) {
 
     var lowest = Number.POSITIVE_INFINITY;
     var highest = Number.NEGATIVE_INFINITY;
     var tmp;
 
     for (var i=myArray.length-1; i>=0; i--) {
-      tmp = myArray[i][property];
+      tmp = myArray[i].points;
       if (tmp < lowest) lowest = tmp;
       if (tmp > highest) highest = tmp;
     }
