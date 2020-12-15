@@ -1834,12 +1834,12 @@ public class ItemAddListener
 	private void preparePublishedTextForFIBFIN(ItemFacade item, ItemBean bean, boolean isFIB) throws FinFormatException {
 		Set<ItemTextIfc> textSet = item.getItemTextSet();
 		String entiretext = bean.getItemText();
-    String processedText[];
-    if (isFIB) {
-      processedText = processFIBFINText(entiretext, bean.getMarkersPair());
-    } else {
-      processedText = processFIBFINText(entiretext, "{}");
-    }
+		String processedText[];
+		if (isFIB) {
+			processedText = processFIBFINText(entiretext, bean.getMarkersPair());
+		} else {
+			processedText = processFIBFINText(entiretext, "{}");
+		}
 		String updatedText = processedText[0];
 		log.debug("New text without answer is = {}", updatedText);
 
@@ -1847,7 +1847,7 @@ public class ItemAddListener
 			text.setText(updatedText);
 			Object[] answers;
 			if (isFIB) {
-        answers = getFIBanswers(entiretext, bean.getMarkersPair()).toArray();
+				answers = getFIBanswers(entiretext, bean.getMarkersPair()).toArray();
 			} else {
 				answers = getFINanswers(entiretext).toArray();
 			}
