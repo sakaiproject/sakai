@@ -2764,7 +2764,6 @@ public class SakaiBLTIUtil {
 
 			if ( launchUrl != null && launchUrl.equals(toolLaunch) ) {
 				log.debug("Matched exact tool {}={}", launchUrl, toolLaunch);
-				// System.out.println("Matched exact tool");
 				return tool;
 			}
 		}
@@ -2783,7 +2782,6 @@ public class SakaiBLTIUtil {
 
 			if ( launchUrlBase != null && launchUrlBase.equals(toolLaunchBase) ) {
 				log.debug("Matched query-free tool {}={}", launchUrl, toolLaunchBase);
-				// System.out.println("Matched query-free tool");
 				return tool;
 			}
 		}
@@ -2815,7 +2813,6 @@ public class SakaiBLTIUtil {
 				 launchUrlObj.getProtocol().equals(prefixUrlObj.getProtocol()) &&
 				 launchUrlObj.getHost().equals(prefixUrlObj.getHost()) ){
 				log.debug("Matched scheme / server {}={}", launchUrl, bestPrefix);
-				// System.out.println("Matched scheme / server tool");
 				return bestTool;
 			}
 		}
@@ -2832,11 +2829,9 @@ public class SakaiBLTIUtil {
 		boolean global = true;
 		Map<String,Object> retval = findBestToolMatch(!global, launchUrl, tools);
 
-		// if ( retval != null ) System.out.println("Found local "+retval.get(LTIService.LTI_LAUNCH));
 		if ( retval != null ) return retval;
 
 		retval = findBestToolMatch(global, launchUrl, tools);
-		// if ( retval != null ) System.out.println("Found global "+retval.get(LTIService.LTI_LAUNCH));
 		return retval;
 	}
 
