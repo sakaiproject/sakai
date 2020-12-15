@@ -1437,7 +1437,8 @@ public class SakaiBLTIUtil {
 			if ( StringUtils.isNotEmpty(relaunch_url) ) setProperty(ltiProps, "relaunch_url", relaunch_url);
 
 			Map<String, String> extra = new HashMap<>();
-			extra.put("error_timeout", rb.getString("error.submit.timeout"));
+			extra.put(BasicLTIUtil.EXTRA_ERROR_TIMEOUT, rb.getString("error.submit.timeout"));
+			extra.put(BasicLTIUtil.EXTRA_HTTP_POPUP, BasicLTIUtil.EXTRA_HTTP_POPUP_FALSE);  // Don't bother oening in new window in protocol mismatch
 			ltiProps = BasicLTIUtil.signProperties(ltiProps, launch_url, "POST",
 					consumerkey, secret, extra);
 
@@ -1547,7 +1548,7 @@ public class SakaiBLTIUtil {
 			addConsumerData(ltiProps, null);
 
 			Map<String, String> extra = new HashMap<>();
-			extra.put("error_timeout", rb.getString("error.submit.timeout"));
+			extra.put(BasicLTIUtil.EXTRA_ERROR_TIMEOUT, rb.getString("error.submit.timeout"));
 			ltiProps = BasicLTIUtil.signProperties(ltiProps, launch_url, "POST", key, secret, extra);
 
 			if (ltiProps == null) {
@@ -1938,8 +1939,8 @@ public class SakaiBLTIUtil {
 			if ( ! dodebug ) {
 				String launch_error = rb.getString("error.submit.timeout")+" "+launch_url;
 				html += "<script>\n";
-				html += "setTimeOut(document.getElementById(\"" + form_id + "\").submit();\n";
-				html += "setTimeOut(function() { alert(\""+BasicLTIUtil.htmlspecialchars(launch_error)+"\"); }, 4000);\n";
+				html += "setTimeout(document.getElementById(\"" + form_id + "\").submit();\n";
+				html += "setTimeout(function() { alert(\""+BasicLTIUtil.htmlspecialchars(launch_error)+"\"); }, 4000);\n";
 				html += "</script>\n";
 			} else {
 				html += "<p>\n--- Unencoded JWT:<br/>"
