@@ -647,11 +647,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		tool.put(LTIService.LTI_SECRET, LTIService.SECRET_HIDDEN);
 		tool.put(LTIService.LTI_CONSUMERKEY, LTIService.SECRET_HIDDEN);
 
-		String tool_private = (String) tool.get(LTIService.LTI13_TOOL_PRIVATE);
-		if ( tool_private != null ) {
-			tool_private = SakaiBLTIUtil.decryptSecret(tool_private);
-			tool.put(LTIService.LTI13_TOOL_PRIVATE, tool_private);
-		}
 		String platform_private = (String) tool.get(LTIService.LTI13_PLATFORM_PRIVATE);
 		if ( platform_private != null ) {
 			platform_private = SakaiBLTIUtil.decryptSecret(platform_private);
@@ -708,12 +703,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			tool.put(LTIService.LTI_SECRET, LTIService.SECRET_HIDDEN);
 		}
 
-		// Decrypt secrets for display
-		String tool_private = (String) tool.get(LTIService.LTI13_TOOL_PRIVATE);
-		if ( tool_private != null ) {
-			tool_private = SakaiBLTIUtil.decryptSecret(tool_private);
-			tool.put(LTIService.LTI13_TOOL_PRIVATE, tool_private);
-		}
 		String platform_private = (String) tool.get(LTIService.LTI13_PLATFORM_PRIVATE);
 		if ( platform_private != null ) {
 			platform_private = SakaiBLTIUtil.decryptSecret(platform_private);
@@ -963,16 +952,11 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		// Handle the incoming LTI 1.3 data
 		String form_lti13 = reqProps.getProperty("lti13");
-		String form_lti13_tool_public = StringUtils.trimToNull(reqProps.getProperty("lti13_tool_public"));
-		String form_lti13_lti13_tool_keyset = StringUtils.trimToNull(reqProps.getProperty("lti13_tool_keyset"));
-
 		String old_lti13_client_id = null;
-		String old_lti13_tool_public = null;
 		String old_lti13_platform_public = null;
 		String old_lti13_platform_private = null;
 		if (tool != null) {
 			old_lti13_client_id = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_CLIENT_ID));
-			old_lti13_tool_public = StringUtils.trimToNull((String) tool.get("lti13_tool_public"));
 			old_lti13_platform_public = StringUtils.trimToNull((String) tool.get("lti13_platform_public"));
 			old_lti13_platform_private = StringUtils.trimToNull((String) tool.get("lti13_platform_private"));
 		}
@@ -995,20 +979,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 				reqProps.setProperty("lti13_platform_public", LTI13Util.getPublicEncoded(kp));
 				reqProps.setProperty("lti13_platform_private", LTI13Util.getPrivateEncoded(kp));
 			}
-
-			// If we do not have a tool keyset we create a public/private key pair for the tool
-			if ( form_lti13_lti13_tool_keyset == null &&
-				form_lti13_tool_public == null && old_lti13_tool_public == null) {
-
-				kp = LTI13Util.generateKeyPair();
-				if (kp == null) {
-					addAlert(state, rb.getString("error.keygen.fail"));
-					switchPanel(state, "Error");
-					return;
-				}
-				reqProps.setProperty("lti13_tool_public", LTI13Util.getPublicEncoded(kp));
-				reqProps.setProperty("lti13_tool_private", LTI13Util.getPrivateEncoded(kp));
-			}
 		}
 
 		// Encrypt secrets - conveniently, encryptSecret won't double encrypt
@@ -1017,11 +987,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		if ( check_platform_private != null ) {
 			check_platform_private = SakaiBLTIUtil.encryptSecret(check_platform_private);
 			reqProps.setProperty("lti13_platform_private", check_platform_private);
-		}
-		String check_tool_private = reqProps.getProperty("lti13_tool_private");
-		if ( check_tool_private != null ) {
-			check_tool_private = SakaiBLTIUtil.encryptSecret(check_tool_private);
-			reqProps.setProperty("lti13_tool_private", check_tool_private);
 		}
 
 		String success = null;
@@ -1461,9 +1426,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		state.removeAttribute(STATE_LINE_ITEM);
 		if ( isDeepLink ) {
 			// Parse and validate the incoming DeepLink
-			String pubkey = (String) tool.get(LTIService.LTI13_TOOL_PUBLIC);
 			String keyset = (String) tool.get(LTIService.LTI13_TOOL_KEYSET);
-			if (keyset == null && pubkey == null) {
+			if (keyset == null) {
 				addAlert(state, rb.getString("error.tool.missing.keyset"));
 				switchPanel(state, errorPanel);
 				return;
@@ -1646,9 +1610,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		state.removeAttribute(STATE_LINE_ITEM);
 		if ( isDeepLink ) {
 			// Parse and validate the incoming DeepLink
-			String pubkey = (String) tool.get(LTIService.LTI13_TOOL_PUBLIC);
 			String keyset = (String) tool.get(LTIService.LTI13_TOOL_KEYSET);
-			if (keyset == null && pubkey == null) {
+			if (keyset == null) {
 				addAlert(state, rb.getString("error.tool.missing.keyset"));
 				switchPanel(state, "Error");
 				return;

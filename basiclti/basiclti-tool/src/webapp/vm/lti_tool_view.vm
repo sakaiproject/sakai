@@ -10,8 +10,6 @@
         <p class="act">
         <input type="submit" accesskey ="x" name="doDone" value="$tlang.getString('gen.done')"
         onclick="location = '$sakai_ActionURL.setPanel("ToolSystem")';return false;" class="active">
-        <input type="submit" id="lti13_tool_toggle" style="display:none;" accesskey ="v" name="doShow" value="$tlang.getString('gen.toggle.priv')"
-        onclick="$('#lti13_tool_private').toggle();return false;"> 
 	</form>
 #if ( ! $isAdmin )
 <script>includeLatestJQuery('lti_tool_view.vm');</script>
@@ -23,14 +21,6 @@ $(document).ready( function() {
                 setMainFrameHeight('sakai-basiclti-admin-iframe');
         });
         $('#lti13_platform_public').hide();
-        $('#lti13_tool_private').hide();
-        $('#lti13_tool_public').hide();
-
-        $('#lti13_tool_public').css('font-family', '"Courier New", monospace');
-        $('#lti13_tool_public').css('white-space', 'pre');
-
-        $('#lti13_tool_private').css('font-family', '"Courier New", monospace');
-        $('#lti13_tool_private').css('white-space', 'pre');
 
         $('#lti13_platform_public').css('font-family', '"Courier New", monospace');
         $('#lti13_platform_public').css('white-space', 'pre');
@@ -63,13 +53,6 @@ $(document).ready( function() {
             '<i class="fa fa-clipboard" aria-hidden="true"></i> $tlang.getString('gen.clipboard')</button>' +
             '</p>');
 
-        // If we have a keyset - it is as if the tool public and private key
-        // don't exist
-        var keyset = '$keySetUrl';
-        if ( keyset.length == 0 ) {
-            $('#lti13_tool_public').show();
-            $('#lti13_tool_toggle').show();
-        }
 });
 </script>
 
