@@ -3040,15 +3040,11 @@ public class ItemAddListener
 
   private String[] processFIBFINText(String entiretext, String markers_pair) {
 	  String[] processedText = new String[2];
-	  Pattern pattern1 =
-		Pattern.compile(
-            "["
-                + Pattern.quote("" + markers_pair.charAt(0))
-                + "][^"
-                + Pattern.quote("" + markers_pair.charAt(1))
-                + "]*["
-                + Pattern.quote("" + markers_pair.charAt(1))
-			+ "]");
+	  Pattern pattern1 = Pattern.compile(
+                "[" + Pattern.quote("" + markers_pair.charAt(0)) + "]" +
+                "[^" + Pattern.quote("" + markers_pair.charAt(1)) + "]" +
+                "*[" + Pattern.quote("" + markers_pair.charAt(1)) + "]"
+	  );
 
 	  Matcher matcher1 = pattern1.matcher(entiretext);
 	  StringBuilder textStringBuilder1 = new StringBuilder(); 
@@ -3077,19 +3073,15 @@ public class ItemAddListener
 		  tmpString2 = modifiedText.substring(index2, matcher2.start());
 		  log.debug("tmpString2" + tmpString2);
 		  if (tmpString2 != null) {
-			  textStringBuilder2.append(
-				tmpString2.replaceAll(
-                "["
-                    + Pattern.quote("" + markers_pair.charAt(0))
-                    + "][^"
-                    + Pattern.quote("" + markers_pair.charAt(1))
-                    + "]*["
-                    + Pattern.quote("" + markers_pair.charAt(1))
-					+ "]",
-					Matcher.quoteReplacement(markers_pair)));
+			  textStringBuilder2.append(tmpString2.replaceAll(
+                		"[" + Pattern.quote("" + markers_pair.charAt(0)) + "]" +
+                    		"[^" + Pattern.quote("" + markers_pair.charAt(1)) + "]" +
+                    		"*[" + Pattern.quote("" + markers_pair.charAt(1)) + "]",
+					Matcher.quoteReplacement(markers_pair)
+			  ));
 			  textStringBuilder3.append(tmpString2);
-			  log.debug("textStringBuilder2=" + textStringBuilder2);
-			  log.debug("textStringBuilder3=" + textStringBuilder3);
+			  log.debug("textStringBuilder2={}", textStringBuilder2);
+			  log.debug("textStringBuilder3={}", textStringBuilder3);
 		  }
 		  textStringBuilder2.append(group);
 		  index2 = matcher2.end();
@@ -3097,19 +3089,15 @@ public class ItemAddListener
 	  }
 	  tmpString2 = modifiedText.substring(index2);
 	  if (tmpString2 != null) {
-		  textStringBuilder2.append(
-			tmpString2.replaceAll(
-              "["
-                  + Pattern.quote("" + markers_pair.charAt(0))
-                  + "][^"
-                  + Pattern.quote("" + markers_pair.charAt(1))
-                  + "]*["
-                  + Pattern.quote("" + markers_pair.charAt(1))
-				+ "]",
-				Matcher.quoteReplacement(markers_pair)));
+		  textStringBuilder2.append(tmpString2.replaceAll(
+              		"[" + Pattern.quote("" + markers_pair.charAt(0)) + "]" + 
+                  	"[^" + Pattern.quote("" + markers_pair.charAt(1)) + "]" + 
+                  	"*[" + Pattern.quote("" + markers_pair.charAt(1)) + "]",
+				Matcher.quoteReplacement(markers_pair)
+		  ));
 		  textStringBuilder3.append(tmpString2);
-		  log.debug("textStringBuilder2=" + textStringBuilder2);
-		  log.debug("textStringBuilder3=" + textStringBuilder3);
+		  log.debug("textStringBuilder2={}", textStringBuilder2);
+		  log.debug("textStringBuilder3={}", textStringBuilder3);
 	  }
 	  processedText[0] = textStringBuilder2.toString();
 	  processedText[1] = textStringBuilder3.toString();
