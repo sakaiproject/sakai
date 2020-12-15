@@ -658,7 +658,15 @@ public class BasicLTIUtil {
 			text.append("').style.display = \"none\";\n");
 			text.append("    document.getElementById('ltiLaunchForm_");
 			text.append(submit_uuid);
-			text.append("').submit(); \n</script> \n");
+			text.append("').submit(); \n");
+			String error_timeout = null;
+			if ( extra != null ) {
+				error_timeout = extra.get("error_timeout");
+			}
+			if ( extra == null ) error_timeout = "Unable to send launch to remote URL: "+endpoint;
+			error_timeout += endpoint;
+			text.append("setTimeOut(function() { alert(\""+BasicLTIUtil.htmlspecialchars(error_timeout)+"\"); }, 4000);\n");
+			text.append("</script> \n");
 		}
 
 		String htmltext = text.toString();

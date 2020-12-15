@@ -1437,6 +1437,7 @@ public class SakaiBLTIUtil {
 			if ( StringUtils.isNotEmpty(relaunch_url) ) setProperty(ltiProps, "relaunch_url", relaunch_url);
 
 			Map<String, String> extra = new HashMap<>();
+			extra.put("error_timeout", rb.getString("error.submit.timeout"));
 			ltiProps = BasicLTIUtil.signProperties(ltiProps, launch_url, "POST",
 					consumerkey, secret, extra);
 
@@ -1546,6 +1547,7 @@ public class SakaiBLTIUtil {
 			addConsumerData(ltiProps, null);
 
 			Map<String, String> extra = new HashMap<>();
+			extra.put("error_timeout", rb.getString("error.submit.timeout"));
 			ltiProps = BasicLTIUtil.signProperties(ltiProps, launch_url, "POST", key, secret, extra);
 
 			if (ltiProps == null) {
@@ -1934,7 +1936,11 @@ public class SakaiBLTIUtil {
 			html += "    </form>\n";
 
 			if ( ! dodebug ) {
-				html += "<script>\n document.getElementById(\"" + form_id + "\").submit();\n</script>\n";
+				String launch_error = rb.getString("error.submit.timeout")+" "+launch_url;
+				html += "<script>\n";
+				html += "setTimeOut(document.getElementById(\"" + form_id + "\").submit();\n";
+				html += "setTimeOut(function() { alert(\""+BasicLTIUtil.htmlspecialchars(launch_error)+"\"); }, 4000);\n";
+				html += "</script>\n";
 			} else {
 				html += "<p>\n--- Unencoded JWT:<br/>"
 						+ BasicLTIUtil.htmlspecialchars(ljs)
