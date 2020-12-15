@@ -34,6 +34,8 @@ import java.util.stream.Collectors;
 
 import java.net.URLEncoder;
 
+import java.text.MessageFormat;
+
 import java.security.*;
 
 import lombok.extern.slf4j.Slf4j;
@@ -396,7 +398,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		context.put("getContext", toolManager.getCurrentPlacement().getContext());
 		context.put("doEndHelper", BUTTON + "doEndHelper");
 		state.removeAttribute(STATE_POST);
-		state.removeAttribute(STATE_SUCCESS);
 
 		String order = (String) state.getAttribute(ATTR_SORT_CRITERIA);
 
@@ -486,6 +487,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 		context.put("contents", contents);
 		context.put("messageSuccess", state.getAttribute(STATE_SUCCESS));
+		state.removeAttribute(STATE_SUCCESS);
 
 		//put velocity date tool in the context
 		DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, rb.getLocale());
@@ -534,13 +536,13 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			context.put("configMessage", rb.getString("error.tool.no.encryption.key"));
 		}
 
-		state.removeAttribute(STATE_POST);
-		state.removeAttribute(STATE_SUCCESS);
-
 		context.put("messageSuccess", state.getAttribute(STATE_SUCCESS));
 		context.put("isAdmin", new Boolean(ltiService.isAdmin(getSiteId(state))));
 		context.put("allowMaintainerAddSystemTool", new Boolean(serverConfigurationService.getBoolean(ALLOW_MAINTAINER_ADD_SYSTEM_TOOL, true)));
 		context.put("getContext", contextString);
+
+		state.removeAttribute(STATE_SUCCESS);
+		state.removeAttribute(STATE_POST);
 
 		// this is for the system tool panel
 		List<Map<String, Object>> tools = ltiService.getTools(null, null, 0, 0, getSiteId(state));
@@ -803,6 +805,83 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 	}
 
+	public String buildToolTransferPanelContext(VelocityPortlet portlet, Context context,
+			RunData data, SessionState state) {
+		context.put("tlang", rb);
+		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
+		if (!ltiService.isMaintain(getSiteId(state))) {
+			addAlert(state, rb.getString("error.maintain.delete"));
+			return "lti_error";
+		}
+		context.put("doToolAction", BUTTON + "doToolTransfer");
+		String[] mappingForm = foorm.filterForm(ltiService.getToolModel(getSiteId(state)), "^title:.*|^launch:.*|^id:.*", null);
+		String id = data.getParameters().getString(LTIService.LTI_ID);
+		if (id == null) {
+			addAlert(state, rb.getString("error.id.not.found"));
+			return "lti_main";
+		}
+		Long key = new Long(id);
+
+		// Retrieve the tool using a WHERE clause so the counts get computed
+		List<Map<String, Object>> tools = ltiService.getTools("lti_tools.id = " + key, null, 0, 0, getSiteId(state));
+		if (tools == null || tools.size() < 1) {
+			addAlert(state, rb.getString("error.tool.not.found"));
+			return "lti_main";
+		}
+
+		Map<String, Object> tool = tools.get(0);
+		String formOutput = ltiService.formOutput(tool, mappingForm);
+		context.put("formOutput", formOutput);
+		context.put("tool", tool);
+		context.put("tool_id", key);
+		context.put("tool_count", tool.get("lti_content_count"));
+		context.put("tool_unique_site_count", tool.get("lti_site_count"));
+
+		String contextString = toolManager.getCurrentPlacement().getContext();
+		List<Map<String, Object>> systemTools = getAvailableTools (getSiteId(state), contextString);
+		context.put("tools", systemTools);
+
+		state.removeAttribute(STATE_SUCCESS);
+		return "lti_tool_transfer";
+	}
+
+	public void doToolTransfer(RunData data, Context context) {
+		String peid = ((JetspeedRunData) data).getJs_peid();
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
+
+		if (!ltiService.isMaintain(getSiteId(state))) {
+			addAlert(state, rb.getString("error.maintain.transfer"));
+			switchPanel(state, "Error");
+			return;
+		}
+		Properties reqProps = data.getParameters().getProperties();
+		String new_tool_id = StringUtils.trimToNull(data.getParameters().getString("new_tool_id"));
+		if (new_tool_id == null) {
+			addAlert(state, rb.getString("error.transfer.missing"));
+			switchPanel(state, "ToolSystem");
+			return;
+		}
+
+		String id = data.getParameters().getString(LTIService.LTI_ID);
+		if (id == null) {
+			addAlert(state, rb.getString("error.id.not.found"));
+			switchPanel(state, "ToolSystem");
+			return;
+		}
+		Long key = new Long(id);
+		Long new_key = new Long(new_tool_id);
+
+		Object retval = ltiService.transferToolContentLinks(key, new_key, getSiteId(state));
+		if ( retval instanceof String ) {
+			addAlert(state, (String) retval);
+			switchPanel(state, "ToolSystem");
+			return;
+		}
+		String success = MessageFormat.format(rb.getString("tool.transfer.success"), retval);
+        state.setAttribute(STATE_SUCCESS, success);
+		switchPanel(state, "ToolSystem");
+	}
+
 	public String buildToolInsertPanelContext(VelocityPortlet portlet, Context context,
 			RunData data, SessionState state) {
 		context.put("tlang", rb);
@@ -998,6 +1077,29 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		return "lti_content";
 	}
 
+	public List<Map<String, Object>> getAvailableTools (String ourSite, String contextString) {
+
+		List<Map<String, Object>> tools = ltiService.getTools(null, null, 0, 0, ourSite);
+		// only list the tools available in the system
+		List<Map<String, Object>> systemTools = new ArrayList<Map<String, Object>>();
+		for (Map<String, Object> tool : tools) {
+			String siteId = !tool.containsKey(ltiService.LTI_SITE_ID) ? null : StringUtils.trimToNull((String) tool.get(ltiService.LTI_SITE_ID));
+			if (siteId == null) {
+				// add tool for whole system
+				systemTools.add(tool);
+			} else if (siteId.equals(contextString)) {
+				// add the tool for current site only
+				systemTools.add(tool);
+			} else if (ltiService.isAdmin(ourSite)) {
+				// if in Admin's my workspace, show all tools
+				systemTools.add(tool);
+			}
+		}
+		systemTools = systemTools.stream().sorted((m1, m2) -> String.valueOf(m1.get("title")).compareTo(String.valueOf(m2.get("title")))).collect(Collectors.toList());
+		return systemTools;
+
+	}
+
 	public String buildContentPutPanelContext(VelocityPortlet portlet, Context context,
 			RunData data, SessionState state) {
 		String contextString = toolManager.getCurrentPlacement().getContext();
@@ -1012,24 +1114,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		context.put("doAction", BUTTON + "doContentPut");
 		state.removeAttribute(STATE_SUCCESS);
 
-		List<Map<String, Object>> tools = ltiService.getTools(null, null, 0, 0, getSiteId(state));
-		// only list the tools available in the system
-		List<Map<String, Object>> systemTools = new ArrayList<Map<String, Object>>();
-		for (Map<String, Object> tool : tools) {
-			String siteId = !tool.containsKey(ltiService.LTI_SITE_ID) ? null : StringUtils.trimToNull((String) tool.get(ltiService.LTI_SITE_ID));
-			if (siteId == null) {
-				// add tool for whole system
-				systemTools.add(tool);
-			} else if (siteId.equals(contextString)) {
-				// add the tool for current site only
-				systemTools.add(tool);
-			} else if (ltiService.isAdmin(getSiteId(state))) {
-				// if in Admin's my workspace, show all tools
-				systemTools.add(tool);
-			}
-		}
-
-		systemTools = systemTools.stream().sorted((m1, m2) -> String.valueOf(m1.get("title")).compareTo(String.valueOf(m2.get("title")))).collect(Collectors.toList());
+		List<Map<String, Object>> systemTools = getAvailableTools (getSiteId(state), contextString);
 		context.put("tools", systemTools);
 
 		Object previousData = null;
