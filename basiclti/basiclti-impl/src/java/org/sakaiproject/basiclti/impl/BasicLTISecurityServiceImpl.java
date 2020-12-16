@@ -22,7 +22,6 @@ package org.sakaiproject.basiclti.impl;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
-import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
