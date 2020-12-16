@@ -22,6 +22,7 @@ package org.sakaiproject.basiclti.impl;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -273,10 +274,10 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 		Integer hash = redirectUrl.hashCode();
 
 		StringBuilder body = new StringBuilder();
-		body.append("<div style=\"padding:.5em;font-family:Verdana,Arial,Helvetica,sans-serif;\">\n");
+		body.append("<div align=\"center\" style=\"text-align:left;width:80%;margin-top:5px;margin-left:auto;margin-right:auto;border-width:1px 1px 1px 1px;border-style:solid;border-color: gray;padding:.5em;font-family:Verdana,Arial,Helvetica,sans-serif;font-size:.8em\">\n");
 		body.append("<form style=\"display:none\" id=\"lti-form-"+hash+"\">\n");
-		body.append("<label for=\"lti-submit-"+hash+"\"><p>"+rb.getString("error.redirect.timeout", "Having problems reaching remote tool")+"</p></label>\n");
-		body.append("<p><input type=\"submit\" id=\"lti-submit-"+hash+"\" ");
+		body.append("<p>"+rb.getString("error.redirect.timeout", "Having problems reaching remote tool")+"</p>\n");
+		body.append("<p><input type=\"submit\" ");
 		body.append("onclick=\"window.location='"+redirectUrl+"';return false;\" value=\"");
 		body.append(rb.getString("launch.button", "Press to continue to proceed to external tool."));
 		body.append("\"></p></form>\n");
