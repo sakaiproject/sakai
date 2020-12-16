@@ -260,8 +260,9 @@ document.links[newindex].onclick();
 <!-- DONE BUTTON FOR PREVIEW -->
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
   <div class="sak-banner-info">
-     <h:outputText value="#{deliveryMessages.ass_preview}" />
-     <h:commandButton id="done" value="#{deliveryMessages.done}"
+     <h:outputText value="#{deliveryMessages.ass_preview}" escape="false" />
+     <h:commandButton value="#{deliveryMessages.exit_preview}"
+        styleClass="exitPreviewButton"
         action="#{person.cleanResourceIdListInPreview}"
         type="submit"
         onclick="return returnToHostUrl(\"#{delivery.selectURL}\");" />
@@ -592,14 +593,12 @@ document.links[newindex].onclick();
 
 <!-- DONE BUTTON IN PREVIEW -->
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
- <f:verbatim><div class="sak-banner-info"></f:verbatim>
-     <h:outputText value="#{deliveryMessages.ass_preview}" />
-     <h:commandButton value="#{deliveryMessages.done}"
-        action="#{person.cleanResourceIdListInPreview}"
-        type="submit"
-        onclick="return returnToHostUrl(\"#{delivery.selectURL}\");" />
- <f:verbatim></div></f:verbatim>
+  <h:commandButton value="#{deliveryMessages.exit_preview}"
+     action="#{person.cleanResourceIdListInPreview}"
+     type="submit"
+     onclick="return returnToHostUrl(\"#{delivery.selectURL}\");" />
 </h:panelGroup>
+
 </h:form>
 <!-- end content -->
 </div>
