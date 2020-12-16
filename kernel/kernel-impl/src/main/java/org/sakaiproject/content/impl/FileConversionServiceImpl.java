@@ -34,32 +34,30 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FileConversionService;
-import org.sakaiproject.content.api.repository.FileConversionQueueItemRepository;
-import org.sakaiproject.content.hbm.FileConversionQueueItem;
+import org.sakaiproject.content.api.persistence.FileConversionQueueItem;
+import org.sakaiproject.content.api.persistence.FileConversionServiceRepository;
 import org.sakaiproject.content.impl.converters.LoolFileConverter;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+
+import javax.annotation.Resource;
 
 @Slf4j
 @Setter
 public class FileConversionServiceImpl implements FileConversionService {
 
     @Autowired private ContentHostingService contentHostingService;
-    @Autowired private FileConversionQueueItemRepository repository;
+    @Autowired private FileConversionServiceRepository repository;
     @Autowired private SecurityService securityService;
     @Autowired private ServerConfigurationService serverConfigurationService;
-    private TransactionTemplate transactionTemplate;
 
     private String converterBaseUrl;
     private boolean enabled;
@@ -106,11 +104,8 @@ public class FileConversionServiceImpl implements FileConversionService {
 
         master.scheduleWithFixedDelay(() -> {
 
-            log.debug("scheduling ...");
-
-            List<FileConversionQueueItem> items = repository.findByStatus(FileConversionQueueItem.Status.NOT_STARTED);
-
-            items.forEach(i -> log.info(i.getReference()));
+            List<FileConversionQueueItem> items
+                = repository.findByStatus(FileConversionQueueItem.Status.NOT_STARTED);
 
             log.debug("Number of unstarted conversion items: {}", items.size());
 
@@ -133,7 +128,7 @@ public class FileConversionServiceImpl implements FileConversionService {
                             item.setAttempts(item.getAttempts() + 1);
                             item.setLastAttemptStarted(Instant.now());
 
-                            FileConversionQueueItem inProgressItem = transactionTemplate.execute(status -> repository.save(item));
+                            FileConversionQueueItem inProgressItem = repository.save(item);
 
                             try {
                                 String sourceFileName = ref.substring(ref.lastIndexOf("/") + 1);
@@ -160,19 +155,12 @@ public class FileConversionServiceImpl implements FileConversionService {
                                 contentHostingService.addProperty(ref, ContentHostingService.PREVIEW, previewResource.getId());
 
                                 log.debug("Deleting item with ref {}. It's been successfully converted.", ref);
-                                transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-                                    public void doInTransactionWithoutResult(TransactionStatus status) {
-                                        repository.delete(inProgressItem);
-                                    }
-                                });
-                            } catch (Exception e) {
-                                item.setStatus(FileConversionQueueItem.Status.NOT_STARTED);
-                                transactionTemplate.execute(new TransactionCallbackWithoutResult() {
 
-                                    public void doInTransactionWithoutResult(TransactionStatus status) {
-                                        repository.save(item);
-                                    }
-                                });
+                                repository.deleteById(inProgressItem.getId());
+                            } catch (Exception e) {
+
+                                inProgressItem.setStatus(FileConversionQueueItem.Status.NOT_STARTED);
+                                repository.save(inProgressItem);
                                 log.error("Call to conversion service failed", e);
                             } finally {
                                 securityService.popAdvisor(securityAdvisor);
