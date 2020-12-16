@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Precision;
+import org.apache.http.client.utils.URIBuilder;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.sakaiproject.api.privacy.PrivacyManager;
@@ -2724,6 +2725,115 @@ public class SakaiBLTIUtil {
 
 	public static Long getLongKey(Object key) {
 		return getLong(key);
+	}
+
+	public static URL getUrlOrNull(String urlString) {
+		if ( urlString == null ) return null;
+		try
+		{
+			URL url = new URL(urlString);
+			url.toURI();
+			return url;
+		} catch (Exception exception) {
+			return null;
+		}
+	}
+
+	public static String stripOffQuery(String urlString)
+	{
+		if ( urlString == null ) return null;
+		try {
+			URIBuilder uriBuilder = new URIBuilder(urlString);
+			uriBuilder.removeQuery();
+			return uriBuilder.build().toString();
+		} catch(java.net.URISyntaxException e) {
+			return null;
+		}
+	}
+
+	public static Map<String, Object> findBestToolMatch(boolean global, String launchUrl, List<Map<String,Object>> tools)
+	{
+		boolean local = ! global;  // Makes it easier to read :)
+
+		// First we look for a tool with an exact match
+		for ( Map<String,Object> tool : tools ) {
+			String toolLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
+			String toolSite = (String) tool.get(LTIService.LTI_SITE_ID);
+
+			if ( local && StringUtils.stripToNull(toolSite) == null ) continue;
+			if ( global && StringUtils.stripToNull(toolSite) != null ) continue;
+
+			if ( launchUrl != null && launchUrl.equals(toolLaunch) ) {
+				log.debug("Matched exact tool {}={}", launchUrl, toolLaunch);
+				return tool;
+			}
+		}
+
+		// Next we snip off the query string and check again
+		String launchUrlBase = stripOffQuery(launchUrl);
+
+		// Look for tool with an query-less match
+		// https://www.py4e.com/mod/gift/
+		for ( Map<String,Object> tool : tools ) {
+			String toolLaunchBase = stripOffQuery((String) tool.get(LTIService.LTI_LAUNCH));
+			String toolSite = (String) tool.get(LTIService.LTI_SITE_ID);
+
+			if ( local && StringUtils.stripToNull(toolSite) == null ) continue;
+			if ( global && StringUtils.stripToNull(toolSite) != null ) continue;
+
+			if ( launchUrlBase != null && launchUrlBase.equals(toolLaunchBase) ) {
+				log.debug("Matched query-free tool {}={}", launchUrl, toolLaunchBase);
+				return tool;
+			}
+		}
+
+		// Find the longest prefix
+		// https://www.py4e.com/mod/   <-- Selected
+		// https://www.py4e.com/
+		String bestPrefix = "";
+		Map<String,Object> bestTool = null;
+		for ( Map<String,Object> tool : tools ) {
+			String toolLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
+			String toolSite = (String) tool.get(LTIService.LTI_SITE_ID);
+
+			if ( local && StringUtils.stripToNull(toolSite) == null ) continue;
+			if ( global && StringUtils.stripToNull(toolSite) != null ) continue;
+
+			String prefix = StringUtils.getCommonPrefix(launchUrl, toolLaunch);
+			if ( prefix.length() > 0 && prefix.length() > bestPrefix.length() ) {
+				bestTool = tool;
+				bestPrefix = prefix;
+			}
+		}
+
+		// We want at least the scheme and domain to match
+		if ( bestTool != null ) {
+			URL launchUrlObj = getUrlOrNull(launchUrl);
+			URL prefixUrlObj = getUrlOrNull(bestPrefix);
+			if ( launchUrlObj != null && prefixUrlObj != null &&
+				 launchUrlObj.getProtocol().equals(prefixUrlObj.getProtocol()) &&
+				 launchUrlObj.getHost().equals(prefixUrlObj.getHost()) ){
+				log.debug("Matched scheme / server {}={}", launchUrl, bestPrefix);
+				return bestTool;
+			}
+		}
+
+		// After all that - still nothing
+		return null;
+
+	}
+	public static Map<String, Object> findBestToolMatch(String launchUrl, List<Map<String,Object>> tools)
+	{
+		// Example launch URL:
+		// https://www.py4e.com/mod/gift/?quiz=02-Python.txt
+
+		boolean global = true;
+		Map<String,Object> retval = findBestToolMatch(!global, launchUrl, tools);
+
+		if ( retval != null ) return retval;
+
+		retval = findBestToolMatch(global, launchUrl, tools);
+		return retval;
 	}
 
 	public static Long getLong(Object key) {
