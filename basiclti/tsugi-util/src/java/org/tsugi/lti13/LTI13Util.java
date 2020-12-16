@@ -467,5 +467,140 @@ public class LTI13Util {
         BasicLTIUtil.setProperty(props, key, value);
     }
 
+    /**
+     * timeStamp - Add a time-stamp to the beginning of a string
+     */
+    public static String timeStamp(String token) {
+        long now = (new java.util.Date()).getTime()/1000;
+        String retval = now + ":" + token;
+        return retval;
+    }
+
+    /**
+     * timeStampCheck - Check a time-stamp at the beginning of a string
+     */
+    public static boolean timeStampCheck(String token, int seconds) {
+        String [] pieces = token.split(":");
+        if ( pieces.length < 2 ) return false;
+
+        long now = (new java.util.Date()).getTime()/1000;
+        long token_now = getLong(pieces[0]);
+        long delta = now - token_now;
+        boolean retval = (delta >= 0) && (delta <= seconds);
+        return retval;
+    }
+
+    /**
+     * timeStampSign - Take a one-time token and add a timestamp
+     *
+     * timestamp:token:signature
+     */
+    public static String timeStampSign(String token, String secret) {
+        String timeStamped = timeStamp(token);
+        String base_string = timeStamped + ":" + secret;
+        String signature = sha256(base_string);
+        String retval = timeStamped + ":" + signature;
+        return retval;
+    }
+
+    /**
+     * timeStampCheckSign - check to see if a token has not expired and is signed
+     */
+    public static boolean timeStampCheckSign(String token, String secret, int seconds) {
+        if ( ! timeStampCheck(token, seconds) ) return false;
+        String [] pieces = token.split(":");
+        if ( pieces.length != 3 ) return false;
+        String token_signature = pieces[2];
+        String base_string = pieces[0] + ":" + pieces[1] + ":" + secret;
+        String signature = sha256(base_string);
+        if ( ! signature.equals(token_signature) ) return false;
+        return true;
+    }
+
+    public static String toNull(String str) {
+        if (str == null) {
+            return null;
+        }
+        if (str.trim().length() < 1) {
+            return null;
+        }
+        return str;
+    }
+
+    public static int getInt(Object o) {
+        if (o instanceof String) {
+            try {
+                return (new Integer((String) o)).intValue();
+            } catch (NumberFormatException e) {
+                return -1;
+            }
+        }
+        if (o instanceof Number) {
+            return ((Number) o).intValue();
+        }
+        return -1;
+    }
+
+    public static Long getLongKey(Object key) {
+        return getLong(key);
+    }
+
+    public static Long getLong(Object key) {
+        Long retval = getLongNull(key);
+        if (retval != null) {
+            return retval;
+        }
+        return new Long(-1);
+    }
+
+    public static Long getLongNull(Object key) {
+        if (key == null) {
+            return null;
+        }
+        if (key instanceof Number) {
+            return new Long(((Number) key).longValue());
+        }
+        if (key instanceof String) {
+            if (((String) key).length() < 1) {
+                return new Long(-1);
+            }
+            try {
+                return new Long((String) key);
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    public static Double getDoubleNull(Object key) {
+        if (key == null) {
+            return null;
+        }
+        if (key instanceof Number) {
+            return ((Number) key).doubleValue();
+        }
+        if (key instanceof String) {
+            if (((String) key).length() < 1) {
+                return null;
+            }
+            try {
+                return new Double((String) key);
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    public static String getStringNull(Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof String) {
+            return (String) value;
+        }
+        return null;
+    }
 
 }

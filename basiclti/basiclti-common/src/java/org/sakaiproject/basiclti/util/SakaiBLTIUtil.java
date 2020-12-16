@@ -2612,12 +2612,17 @@ public class SakaiBLTIUtil {
 	 * getLaunchCode - Return the launch code for a content item
 	 */
 	public static String getLaunchCode(Map<String, Object> content) {
+		/*
 		long now = (new java.util.Date()).getTime();
 		int id = getInt(content.get(LTIService.LTI_ID));
 		String placement_secret = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
 		String base_string = id + ":" + now + ":" + placement_secret;
 		String signature = LegacyShaUtil.sha256Hash(base_string);
 		String retval = id + ":" + now + ":" + signature;
+		*/
+		String content_id = content.get(LTIService.LTI_ID).toString();
+		String placement_secret = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
+		String retval = LTI13Util.timeStampSign(content_id, placement_secret);
 		return retval;
 	}
 
@@ -2625,22 +2630,13 @@ public class SakaiBLTIUtil {
 	 * checkLaunchCode - check to see if a launch code is properly signed and not expired
 	 */
 	public static boolean checkLaunchCode(Map<String, Object> content, String launch_code) {
-		long now = (new java.util.Date()).getTime();
-		int id = getInt(content.get(LTIService.LTI_ID));
+		String content_id = content.get(LTIService.LTI_ID).toString();
+		// Make sure that the token belongs to this content item
+		if ( ! launch_code.contains(":"+content_id+":") ) return false;
 		String placement_secret = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
-		String [] pieces = launch_code.split(":");
-		if ( pieces.length != 3 ) return false;
-		int code_id = getInt(pieces[0]);
-		long code_now = getLong(pieces[1]);
-		String code_sig = pieces[2];
-		long delta = now - code_now;
-		if ( code_id != id ) return false;
-		// Five minutes
-		if ( delta > (5*60*1000) ) return false; // expired
-		String base_string = id + ":" + code_now + ":" + placement_secret;
-		String signature = LegacyShaUtil.sha256Hash(base_string);
-		if ( ! signature.equals(code_sig) ) return false;
-		return true;
+		int delta = 5*60*60; // Five minutes
+		boolean retval = LTI13Util.timeStampCheckSign(launch_code, placement_secret, delta);
+		return retval;
 	}
 
 	public static boolean isPlacement(String placement_id) {
@@ -2679,31 +2675,6 @@ public class SakaiBLTIUtil {
 		return retval;
 	}
 
-	public static String toNull(String str) {
-		if (str == null) {
-			return null;
-		}
-		if (str.trim().length() < 1) {
-			return null;
-		}
-		return str;
-	}
-
-	// Pull in a few things to avoid circular dependency
-	public static int getInt(Object o) {
-		if (o instanceof String) {
-			try {
-				return (new Integer((String) o)).intValue();
-			} catch (NumberFormatException e) {
-				return -1;
-			}
-		}
-		if (o instanceof Number) {
-			return ((Number) o).intValue();
-		}
-		return -1;
-	}
-
 	public static String[] positional = {"field", "type"};
 
 	public static Properties parseFormString(String str) {
@@ -2723,8 +2694,17 @@ public class SakaiBLTIUtil {
 		return op;
 	}
 
+	// Refactored into tsugi-util - mark as legacy later
+	public static String toNull(String str) {
+		return LTI13Util.toNull(str);
+	}
+
+	public static int getInt(Object o) {
+		return LTI13Util.getInt(o);
+	}
+
 	public static Long getLongKey(Object key) {
-		return getLong(key);
+		return LTI13Util.getLongKey(key);
 	}
 
 	public static URL getUrlOrNull(String urlString) {
@@ -2837,61 +2817,19 @@ public class SakaiBLTIUtil {
 	}
 
 	public static Long getLong(Object key) {
-		Long retval = getLongNull(key);
-		if (retval != null) {
-			return retval;
-		}
-		return new Long(-1);
+		return LTI13Util.getLong(key);
 	}
 
 	public static Long getLongNull(Object key) {
-		if (key == null) {
-			return null;
-		}
-		if (key instanceof Number) {
-			return new Long(((Number) key).longValue());
-		}
-		if (key instanceof String) {
-			if (((String) key).length() < 1) {
-				return new Long(-1);
-			}
-			try {
-				return new Long((String) key);
-			} catch (NumberFormatException e) {
-				return null;
-			}
-		}
-		return null;
+		return LTI13Util.getLongNull(key);
 	}
 
 	public static Double getDoubleNull(Object key) {
-		if (key == null) {
-			return null;
-		}
-		if (key instanceof Number) {
-			return ((Number) key).doubleValue();
-		}
-		if (key instanceof String) {
-			if (((String) key).length() < 1) {
-				return null;
-			}
-			try {
-				return new Double((String) key);
-			} catch (NumberFormatException e) {
-				return null;
-			}
-		}
-		return null;
+		return LTI13Util.getDoubleNull(key);
 	}
 
 	public static String getStringNull(Object value) {
-		if (value == null) {
-			return null;
-		}
-		if (value instanceof String) {
-			return (String) value;
-		}
-		return null;
+		return LTI13Util.getStringNull(value);
 	}
 
 	/**
