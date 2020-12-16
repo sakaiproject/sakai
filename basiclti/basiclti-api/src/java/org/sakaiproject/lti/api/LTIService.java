@@ -136,7 +136,7 @@ public interface LTIService extends LTISubstitutionsFilter {
             "pl_contenteditor:checkbox:label=bl_pl_contenteditor",
             "pl_privacy:checkbox:label=bl_pl_privacy:role=admin",
             "pl_importitem:checkbox:label=bl_pl_importitem:role=admin",
-            "pl_coursenav:checkbox:label=bl_pl_coursenav:role=admin",
+            "pl_coursenav:checkbox:label=bl_pl_coursenav:role=admin:hidden=true",
             "pl_fileitem:checkbox:label=bl_pl_fileitem:role=admin",
             "newpage:radio:label=bl_newpage:choices=off,on,content",
             "debug:radio:label=bl_debug:choices=off,on,content",
