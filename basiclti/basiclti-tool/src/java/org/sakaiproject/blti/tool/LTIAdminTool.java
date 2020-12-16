@@ -736,7 +736,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		tool.put(LTIService.LTI_LAUNCH, "https://example.com/auto-provision-will-replace");
 		tool.put(LTIService.LTI13_CLIENT_ID, clientId);
 
-		boolean changed = minimalLTI13(tool);
+		minimalLTI13(tool);
 
 		Object retval = ltiService.insertTool(tool, getSiteId(state));
 		if (retval instanceof String) {
@@ -1132,10 +1132,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		// Handle the incoming LTI 1.3 data
 		String form_lti13 = reqProps.getProperty("lti13");
 		String form_lti13_client_id = StringUtils.trimToNull(reqProps.getProperty(LTIService.LTI13_CLIENT_ID));
-		String form_lti13_lti13_tool_keyset = StringUtils.trimToNull(reqProps.getProperty(LTIService.LTI13_TOOL_KEYSET));
 
 		String old_lti13_client_id = null;
-		String old_lti13_tool_public = null;
 		String old_lti13_platform_public = null;
 		String old_lti13_platform_private = null;
 		if (tool != null) {

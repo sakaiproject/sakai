@@ -91,7 +91,6 @@ import org.tsugi.lti13.objects.LaunchJWT;
 import org.tsugi.lti13.objects.PlatformConfiguration;
 import org.tsugi.lti13.objects.LTIPlatformConfiguration;
 import org.tsugi.lti13.objects.LTIPlatformMessage;
-import org.tsugi.lti13.objects.ToolConfiguration;
 
 import org.sakaiproject.lti13.util.SakaiAccessToken;
 import org.sakaiproject.lti13.util.SakaiLineItem;

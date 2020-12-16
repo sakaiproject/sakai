@@ -2,7 +2,6 @@ package org.tsugi.lti13.objects;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Generated;
 

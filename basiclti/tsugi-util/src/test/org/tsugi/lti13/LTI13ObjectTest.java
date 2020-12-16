@@ -31,8 +31,6 @@ import java.security.Key;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
-import java.util.List;
-import java.util.ArrayList;
 
 public class LTI13ObjectTest {
 
