@@ -317,9 +317,9 @@ public class PrivateMessagesTool {
   private String composeSendAsPvtMsg=SET_AS_YES; // currently set as Default as change by user is allowed
   @Getter @Setter
   private boolean booleanEmailOut = ServerConfigurationService.getBoolean("mc.messages.ccEmailDefault", false);
-  @Getter
-  private String composeSubject;
-  @Getter
+  @Getter @Setter
+  private String composeSubject ;
+  @Getter @Setter
   private String composeBody;
   @Getter @Setter
   private String selectedLabel="pvt_priority_normal" ;   //defautl set
@@ -345,20 +345,20 @@ public class PrivateMessagesTool {
   private List selectedMoveToFolderItems;
   
   //reply to 
-  @Getter
+  @Getter @Setter
   private String replyToBody;
-  @Getter
+  @Getter @Setter
   private String replyToSubject;
 
   //forwarding
-  @Getter
+  @Getter @Setter
   private String forwardBody;
-  @Getter
+  @Getter @Setter
   private String forwardSubject;
 
-  @Getter
+  @Getter @Setter
   private String replyToAllBody;
-  @Getter
+  @Getter @Setter
   private String replyToAllSubject;
   
   //Setting Screen
@@ -1426,12 +1426,10 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	    this.setReplyingMessage(pm);
 	    
 	    String title = pm.getTitle();
-    	if(title != null && !title.startsWith(getResourceBundleString(ReplyAll_SUBJECT_PREFIX))) {
-    		replyToAllSubject = getResourceBundleString(ReplyAll_SUBJECT_PREFIX) + ' ' + title;
-    	}
-    	else {
-    		replyToAllSubject = title;
-    	}
+    	if(title != null && !title.startsWith(getResourceBundleString(ReplyAll_SUBJECT_PREFIX)))
+    		forwardSubject = getResourceBundleString(ReplyAll_SUBJECT_PREFIX) + ' ' + title;
+    	else
+    		forwardSubject = title;//forwardSubject
 
 
     	// format the created date according to the setting in the bundle
@@ -1476,7 +1474,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	    	}
 	    }
 	    
-	    setReplyToAllBody(replyallText.toString());
+	    this.setForwardBody(replyallText.toString());
 	   	    
 	    String msgautherString=getDetailMsg().getAuthor();
 	    String msgCClistString=getDetailMsg().getRecipientsAsText();
@@ -2774,7 +2772,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 
 	  //Select Forward Recipients
 	  
-	  if(StringUtils.isEmpty(getReplyToAllSubject())) {
+	  if(StringUtils.isEmpty(getForwardSubject())) {
 		  if(isDraft){
 			  setErrorMessage(getResourceBundleString(MISSING_SUBJECT_DRAFT));
 		  }else{
@@ -2782,7 +2780,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 		  }
 		  return null ;
 	  }
-	  if(StringUtils.isEmpty(getReplyToAllBody())) {
+	  if(StringUtils.isEmpty(getForwardBody())) {
 		  if(isDraft) {
 			  setErrorMessage(getResourceBundleString(MISSING_BODY_DRAFT));
 		  } else {
@@ -2795,13 +2793,15 @@ public void processChangeSelectView(ValueChangeEvent eve)
 
 
 	  StringBuilder alertMsg = new StringBuilder();
-	  rrepMsg.setTitle(getReplyToAllSubject());
+	  rrepMsg.setTitle(getForwardSubject());
 	  rrepMsg.setDraft(isDraft);
 	  rrepMsg.setDeleted(Boolean.FALSE);
 
 	  rrepMsg.setAuthor(getAuthorString());
 	  rrepMsg.setApproved(Boolean.FALSE);
-	  String replyAllbody=getReplyToAllBody();
+	  //add some emty space to the msg composite, by huxt
+	  String replyAllbody="  ";
+	  replyAllbody=getForwardBody();
 
 
 	  rrepMsg.setBody(formattedText.processFormattedText(replyAllbody, alertMsg));
@@ -4614,41 +4614,5 @@ public void processChangeSelectView(ValueChangeEvent eve)
                     .collect(Collectors.joining(", "));
       return "(" + role + ") " + groups;
     }
-
-    public boolean isDisplayDraftRecipientsNotFoundMsg() {
-        return drDelegate.isDisplayDraftRecipientsNotFoundMsg();
-    }
-
-	public void setComposeSubject(String value) {
-		composeSubject = StringUtils.trimToEmpty(value);
-	}
-
-	public void setComposeBody(String value) {
-		composeBody = StringUtils.trimToEmpty(value);
-	}
-
-	public void setReplyToSubject(String value) {
-		replyToSubject = StringUtils.trimToEmpty(value);
-	}
-
-	public void setReplyToBody(String value) {
-		replyToBody = StringUtils.trimToEmpty(value);
-	}
-
-	public void setForwardSubject(String value) {
-		forwardSubject = StringUtils.trimToEmpty(value);
-	}
-
-	public void setForwardBody(String value) {
-		forwardBody = StringUtils.trimToEmpty(value);
-	}
-
-	public void setReplyToAllSubject(String value) {
-		replyToAllSubject = StringUtils.trimToEmpty(value);
-	}
-
-	public void setReplyToAllBody(String value) {
-		replyToAllBody = StringUtils.trimToEmpty(value);
-	}
 
 }
