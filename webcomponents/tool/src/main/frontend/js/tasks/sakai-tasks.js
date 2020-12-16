@@ -24,8 +24,9 @@ export class SakaiTasks extends LitElement {
   constructor() {
 
     super();
+
     this.tasks = [];
-    this.currentFilter = "none";
+    this.currentFilter = "current";
     loadProperties("tasks").then(r => this.i18n = r);
   }
 
@@ -58,8 +59,7 @@ export class SakaiTasks extends LitElement {
 
     t.visible = true;
     if (t.due) {
-      let now = new Date().getTime();
-      t.dueHuman = moment.duration(t.due - now, "milliseconds").humanize(true);
+      t.dueHuman = moment.duration(t.due - Date.now(), "milliseconds").humanize(true);
     } else {
       t.dueHuman = "No due date";
     }
@@ -82,7 +82,7 @@ export class SakaiTasks extends LitElement {
         this.tasks = data;
 
         //this.tasks.forEach(t => t.due = t.due * 1000);
-        this.filter("none");
+        this.filter("current");
       })
       .catch (error => console.error(error));
   }
@@ -114,22 +114,22 @@ export class SakaiTasks extends LitElement {
 
     switch (f) {
       case "priority_5":
-        this.tasks.forEach(t => t.visible = !t.softDeleted && t.priority === 5 ? true : false);
+        this.tasks.forEach(t => t.visible = !t.softDeleted && !t.complete && t.priority === 5 ? true : false);
         break;
       case "priority_4":
         this.tasks.forEach(t => t.visible = !t.softDeleted && t.priority === 4 ? true : false);
         break;
       case "priority_3":
-        this.tasks.forEach(t => t.visible = !t.softDeleted && t.priority === 3 ? true : false);
+        this.tasks.forEach(t => t.visible = !t.softDeleted && !t.complete && t.priority === 3 ? true : false);
         break;
       case "priority_2":
-        this.tasks.forEach(t => t.visible = !t.softDeleted && t.priority === 2 ? true : false);
+        this.tasks.forEach(t => t.visible = !t.softDeleted && !t.complete && t.priority === 2 ? true : false);
         break;
       case "priority_1":
-        this.tasks.forEach(t => t.visible = !t.softDeleted && t.priority === 1 ? true : false);
+        this.tasks.forEach(t => t.visible = !t.softDeleted && !t.complete && t.priority === 1 ? true : false);
         break;
       case "overdue":
-        this.tasks.forEach(t => t.visible = t.due && t.due < (new Date().getTime()) ? true : false);
+        this.tasks.forEach(t => t.visible =  !t.complete && t.due && (t.due < Date.now() ? true : false));
         break;
       case "trash":
         this.tasks.forEach(t => t.visible = t.softDeleted);
@@ -138,7 +138,7 @@ export class SakaiTasks extends LitElement {
         this.tasks.forEach(t => t.visible = t.complete);
         break;
       default:
-        this.tasks.forEach(t => t.visible = !t.softDeleted);
+        this.tasks.forEach(t => t.visible = !t.softDeleted && !t.complete);
         break;
     }
     this.requestUpdate();
@@ -154,7 +154,7 @@ export class SakaiTasks extends LitElement {
 
   editTask(e) {
 
-    let task = this.tasks.find(t => t.taskId == e.target.dataset.taskId);
+    let task = this.tasks.find(t => t.taskId == e.currentTarget.dataset.taskId);
     this.shadowRoot.getElementById("add-edit-dialog").__toggle();
     this.shadowRoot.getElementById("add-edit-dialog")._overlayContentNode.task = task;
   }
@@ -165,7 +165,8 @@ export class SakaiTasks extends LitElement {
       return false;
     }
 
-    let url = `/api/tasks/${e.target.dataset.taskId}`;
+    const taskId = e.currentTarget.dataset.taskId;
+    let url = `/api/tasks/${taskId}`;
     fetch(url, {
       credentials: "include",
       method: "DELETE",
@@ -173,8 +174,8 @@ export class SakaiTasks extends LitElement {
       .then(r => {
 
         if (r.ok) {
-          this.tasks.splice(this.tasks.findIndex(t => t.taskId == e.target.dataset.taskId), 1);
-          this.requestUpdate();
+          this.tasks.splice(this.tasks.findIndex(t => t.taskId == taskId), 1);
+          this.filter("current");
         } else {
           throw new Error(`Failed to delete task at ${url}`);
         }
@@ -186,14 +187,14 @@ export class SakaiTasks extends LitElement {
 
   softDeleteTask(e) {
 
-    let task = this.tasks.find(t => t.taskId == e.target.dataset.taskId);
+    let task = this.tasks.find(t => t.taskId == e.currentTarget.dataset.taskId);
 
     // We have to do this as Jackson expects seconds to translate into Instants
     task.due = task.due / 1000;
 
     task.softDeleted = true;
     task.visible = false;
-    let url = `/api/tasks/${e.target.dataset.taskId}`;
+    let url = `/api/tasks/${task.taskId}`;
     fetch(url, {
       credentials: "include",
       method: "PUT",
@@ -215,14 +216,14 @@ export class SakaiTasks extends LitElement {
 
   restoreTask(e) {
 
-    let task = this.tasks.find(t => t.taskId == e.target.dataset.taskId);
+    let task = this.tasks.find(t => t.taskId == e.currentTarget.dataset.taskId);
 
     // We have to do this as Jackson expects seconds to translate into Instants
     task.due = task.due / 1000;
 
     task.softDeleted = false;
     task.visible = true;
-    let url = `/api/tasks/${e.target.dataset.taskId}`;
+    let url = `/api/tasks/${task.taskId}`;
     fetch(url, {
       credentials: "include",
       method: "PUT",
@@ -235,7 +236,7 @@ export class SakaiTasks extends LitElement {
           if (this.tasks.filter(t => t.softDeleted).length > 0) {
             this.filter("trash");
           } else {
-            this.filter("none");
+            this.filter("current");
           }
         } else {
           throw new Error(`Failed to soft delete task at ${url}`);
@@ -260,7 +261,8 @@ export class SakaiTasks extends LitElement {
     } else {
       this.tasks.splice(existingIndex, 1, this.decorateTask(e.detail.task));
     }
-    this.requestUpdate();
+
+    this.filter("current");
   }
 
   render() {
@@ -278,7 +280,7 @@ export class SakaiTasks extends LitElement {
             @soft-deleted=${this.softDeleteTask}>
 
             <div slot="task-text">
-              <sakai-editor element-id="task-text-editor" type="classic" toolbar="basic" delay></sakai-editor>
+              <sakai-editor element-id="task-text-editor" toolbar="basic" delay></sakai-editor>
             </div>
 
           </sakai-tasks-create-task>
@@ -290,7 +292,7 @@ export class SakaiTasks extends LitElement {
       <div id="controls">
         <div id="filter">
           <select @change=${this.filterChanged} .value=${this.currentFilter}>
-            <option value="none">${this.i18n["filter_none"]}</option>
+            <option value="current">${this.i18n["filter_current"]}</option>
             <option value="priority_5">${this.i18n["filter_priority_5"]}</option>
             <option value="priority_4">${this.i18n["filter_priority_4"]}</option>
             <option value="priority_3">${this.i18n["filter_priority_3"]}</option>
@@ -340,7 +342,11 @@ export class SakaiTasks extends LitElement {
           </div>
           <div class="link-block cell ${i % 2 === 0 ? "even" : "odd"}">
             <div class="edit">
-              <a href="javascript:;" data-task-id="${t.taskId}" title="${this.i18n["edit"]}" aria-label="${this.i18n["edit"]}" @click=${this.editTask}>
+              <a href="javascript:;"
+                  data-task-id="${t.taskId}"
+                  @click=${this.editTask}
+                  title="${this.i18n["edit"]}"
+                  aria-label="${this.i18n["edit"]}">
                 <sakai-icon type="edit" size="small"></sakai-icon>
               </a>
             </div>
@@ -378,9 +384,8 @@ export class SakaiTasks extends LitElement {
               ${t.url ? html`
                 <div>
                   <a href="${t.url}"
-                    title="${this.i18n["task_url"]}"
-                    aria-label="${this.i18n["task_url"]}"
-                  >
+                      title="${this.i18n["task_url"]}"
+                      aria-label="${this.i18n["task_url"]}">
                     <sakai-icon type="right" size="small"></sakai-icon>
                   </a>
                 </div>
@@ -400,7 +405,6 @@ export class SakaiTasks extends LitElement {
     return css`
 
       #container {
-        /*font-family: var(--sakai-font-family);*/
         background-color: var(--sakai-dashboard-widget-bg-color, white);
         padding: 8px;
       }

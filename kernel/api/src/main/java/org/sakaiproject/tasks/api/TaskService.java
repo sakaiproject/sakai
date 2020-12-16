@@ -16,4 +16,5 @@ public interface TaskService {
     List<UserTask> getCurrentUserTasks(String userId);
     void removeTask(Task task);
     void removeTaskByReference(String reference);
+    void completeUserTaskByReference(String reference, List<String> userIds);
 }

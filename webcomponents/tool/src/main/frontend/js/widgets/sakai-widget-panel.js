@@ -1,6 +1,7 @@
 import { html, css, LitElement } from '../assets/lit-element/lit-element.js';
 import { unsafeHTML } from '../assets/lit-html/directives/unsafe-html.js';
 import { ifDefined } from '../assets/lit-html/directives/if-defined.js';
+import { repeat } from '../assets/lit-html/directives/repeat.js';
 import "./sakai-dashboard-widget.js";
 import "./sakai-calendar-widget.js";
 import "./sakai-tasks-widget.js";
@@ -23,7 +24,7 @@ export class SakaiWidgetPanel extends LitElement {
       layout: { type: Array },
       i18n: Object,
       state: String,
-      movable: { type: Boolean },
+      editing: { type: Boolean },
       widgets: { type: Array },
       columns: { type: Number },
     };
@@ -45,12 +46,26 @@ export class SakaiWidgetPanel extends LitElement {
 
   get widgetIds() { return this._widgetIds; }
 
+  set editing(value) {
+
+    let old = this._editing;
+    this._editing = value;
+    if (!value) this.changeState("view");
+    this.requestUpdate("editing", old);
+  }
+
+  get editing() { return this._editing; }
+
   shouldUpdate(changed) {
     return this.i18n;
   }
 
   fireChanged() {
     this.dispatchEvent(new CustomEvent("changed", { bubbles: true , detail: { layout: this.layout }}));
+  }
+
+  showWidgetPicker(e) {
+    this.changeState("add");
   }
 
   stateSelected(e) {
@@ -165,7 +180,7 @@ export class SakaiWidgetPanel extends LitElement {
               state="${w.state}"
               @remove=${this.removeWidget}
               @move=${this.moveWidget}
-              ?movable=${this.movable}>
+              ?editing=${this.editing}>
           </div>
         `;
       case "grades":
@@ -179,7 +194,7 @@ export class SakaiWidgetPanel extends LitElement {
               state="${w.state}"
               @remove=${this.removeWidget}
               @move=${this.moveWidget}
-              ?movable=${this.movable}>
+              ?editing=${this.editing}>
           </div>
         `;
       case "announcements":
@@ -193,7 +208,7 @@ export class SakaiWidgetPanel extends LitElement {
               state="${w.state}"
               @remove=${this.removeWidget}
               @move=${this.moveWidget}
-              ?movable=${this.movable}>
+              ?editing=${this.editing}>
           </div>
         `;
       case "calendar":
@@ -207,7 +222,7 @@ export class SakaiWidgetPanel extends LitElement {
               state="${w.state}"
               @remove=${this.removeWidget}
               @move=${this.moveWidget}
-              ?movable=${this.movable}>
+              ?editing=${this.editing}>
           </div>
         `;
       case "forums":
@@ -221,11 +236,11 @@ export class SakaiWidgetPanel extends LitElement {
               class="widget"
               @remove=${this.removeWidget}
               @move=${this.moveWidget}
-              ?movable=${this.movable}>
+              ?editing=${this.editing}>
           </div>
         `;
       case "picker":
-        return html`<div><sakai-widget-picker @remove=${this.removeWidget} id="picker" state="remove"></div>`;
+        return this.editing ? html`<div><sakai-widget-picker @remove=${this.removeWidget} id="picker" state="remove"></div>` : "";
       default:
         return ""
     }
@@ -234,16 +249,22 @@ export class SakaiWidgetPanel extends LitElement {
   render() {
 
     return html`
-      <div id="customise-dropdown">
-        <select id="customise" @change=${this.stateSelected} .value=${this.state} ?disabled=${!this.movable}>
-          <option value="view">${this.i18n["customise"]}</option>
-          <option value="add">${this.i18n["add_a_widget"]}</option>
-          <option value="remove">${this.i18n["remove_widgets"]}</option>
-        </select>
-      </div>
+      ${this.editing ? html`
+        <div id="add-button">
+          <div>
+            <a href="javascript:;"
+                @click=${this.showWidgetPicker}
+                title="${this.i18n["add_a_widget"]}"
+                aria-label="${this.i18n["add_a_widget"]}">
+              <sakai-icon type="add" size="small">
+            </a>
+          </div>
+          <div id="add-text">${this.i18n["add_a_widget"]}</div>
+        </div>
+      ` : ""}
 
       <div id="grid" class="col${this.columns}grid">
-        ${this.layout.map(w => html`
+        ${repeat(this.layout, w => w, w => html`
           ${this.getWidget(w)}
         `)}
       </div>
@@ -258,9 +279,21 @@ export class SakaiWidgetPanel extends LitElement {
         width: var(--sakai-widget-panel-width);
         background-color: var(--sakai-tool-bg-color);
       }
-      #customise-dropdown {
+      #add-button {
         text-align: right;
         margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+      }
+      #add-button sakai-icon {
+        color: var(--sakai-widget-panel-add-button-color, green);
+      }
+      #add-text {
+        font-weight: bold;
+        color: var(--sakai-widget-panel-add-text-color);
+        font-size: var(--sakai-widget-panel-add-text-size, 14px);
+        margin-left: 6px;
       }
       .faded {
         opacity: 0.4;

@@ -6,7 +6,9 @@
         <link media="all" href="/library/skin/tool_base.css" rel="stylesheet" type="text/css" />
         <script src="/library/js/headscripts.js"></script>
         <script>includeWebjarLibrary('ckeditor');</script>
+        <script src="/library/editor/ckeditor.launch.js"></script>
         <script type="module" th:src="@{~/webcomponents/coursedashboard/sakai-course-dashboard.js} + ${cdnQuery}"></script>
+        [(${sakaiHtmlHead})]
     </head>
     <body>
         <div class="portletBody">

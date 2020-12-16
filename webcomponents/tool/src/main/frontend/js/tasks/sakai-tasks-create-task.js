@@ -14,13 +14,14 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
       i18n: Object,
       task: {type: Object},
       description: String,
+      error: { type: Boolean }
     };
   }
 
   constructor() {
 
     super();
-    this.defaultTask = { taskId: "", description: "", priority: "3", notes: "" };
+    this.defaultTask = { taskId: "", description: "", priority: "3", notes: "", due: Date.now() };
     this.task = Object.assign({}, this.defaultTask);
     loadProperties("tasks").then(r => this.i18n = r);
   }
@@ -51,22 +52,20 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
       .then(r => {
 
         if (r.ok) {
+          this.error = false;
           return r.json();
         } else {
-          throw new Error(`Failed to save task at ${url}`);
+          this.error = true;
+          throw new Error();
         }
       })
-      .then(task => {
+      .then(taskWithId => {
 
-        this.task = task;
+        this.task = taskWithId;
         this.dispatchEvent(new CustomEvent("task-created", {detail: { task: this.task }, bubbles: true }));
-        this.task = Object.assign({}, this.defaultTask);
-        this.shadowRoot.getElementById("description").value = this.task.description;
         this.close();
       })
-      .catch(error => {
-        console.error(error)
-      });
+      .catch(error => {});
   }
 
   resetDate() {
@@ -82,6 +81,8 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
 
     let old = this._task;
     this._task = value;
+
+    this.error = false;
 
     this.requestUpdate("task", old);
     this.updateComplete.then(() => {
@@ -142,7 +143,10 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
     super.connectedCallback();
 
     if (typeof CKEDITOR !== "undefined") {
-      return this.getEditorTag().attachEditor();
+      let tag = this.getEditorTag();
+      if (tag) {
+        return tag.attachEditor();
+      }
     }
   }
 
@@ -199,6 +203,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
       <div class="input">
         <slot id="task-text" name="task-text"></slot>
       </div>
+      ${this.error ? html`<div id="error">${this.i18n["save_failed"]}</div>` : ""}
     `;
   }
 
@@ -232,6 +237,10 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
           #complete-block input {
             margin-left: 10px;
           }
+      #error {
+        font-weight: bold;
+        color: var(--sakai-tasks-save-failed-color, red)
+      }
     `];
   }
 }

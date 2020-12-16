@@ -15,16 +15,16 @@ class SakaiCourseOverview extends SakaiElement {
   }
 
   shouldUpdate(changed) {
-    return this.overview;
+    return (typeof this.overview) !== "undefined";
   }
 
   render() {
 
     return html`
       ${this.editing && !this.editorShowing ? html`
-        <sakai-editor content="${this.overview}" />
+        <sakai-editor content="${this.overview}" toolbar="basic"/>
       ` : html`
-        <div>${unsafeHTML(this.overview)}</div>
+        <div id="sakai-course-overview-display">${unsafeHTML(this.overview)}</div>
       `}
     `;
   }
