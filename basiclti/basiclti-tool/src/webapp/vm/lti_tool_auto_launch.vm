@@ -1,0 +1,22 @@
+<div class="portletBody">
+	<h3>
+		$tlang.getString("tool.lti13.auto.header")
+	</h3>
+
+    <form action="#toolForm("")" method="post" name="AdvantageAutoForm" >
+        <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+        <input type="hidden" name="tool_id" value="$tool_id" />
+
+        <div id="auto-input" class="foorm-text" style="clear:both;">
+        <label for="toolConfigUrl" style="display:block;float:none;">
+        <span class="foorm-required" style="color:#903;font-weight:bold;" title="$tlang.getString("tool.lti13.auto.config")">*</span>$tlang.getString("tool.lti13.auto.config")</label>
+        <div id="div_auto"><input type="text" id="toolConfigUrl" name="toolConfigUrl" size="40" style="border:1px solid #555;padding:5px;font-size:1em;width:300px"></div>
+        </div>
+
+        <p class="act">
+            <input type="submit" accesskey ="s" class="active" name="$doAction"
+                value="$tlang.getString('tool.lti13.auto.execute')" />
+        </p>
+    </form>
+
+</div>

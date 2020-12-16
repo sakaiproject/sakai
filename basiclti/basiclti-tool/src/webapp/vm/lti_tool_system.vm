@@ -109,7 +109,7 @@ ${includeLatestJQuery}
 	#if ($messageSuccess)<div class="sak-banner-success">$tlang.getString("gen.success") $formattedText.escapeHtml($messageSuccess)</div>#end
 	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>#end
         #if ($configMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $formattedText.escapeHtml($configMessage)</div>#end
-	#if ($isAdmin || $allowMaintainerAddSystemTool)<div align="right"><a href="" title="$tlang.getString("add.to.system")" onclick="location = '$sakai_ActionURL.setPanel("ToolInsert")';return false;"> $tlang.getString("add.to.system")</a></a></div>#end
+	#if ($isAdmin || $allowMaintainerAddSystemTool)<div align="right"><a href="" title="$tlang.getString("add.to.system")" onclick="location = '$sakai_ActionURL.setPanel("ToolInsert")';return false;"> $tlang.getString("add.to.system")</a>#if ($isAdmin )<br/><a href="" title="$tlang.getString("add.auto")" onclick="location = '$sakai_ActionURL.setPanel("AutoInsert")';return false;"> $tlang.getString("add.auto")</a>#end</div>#end
 	<br/>
 	#if ($!ltiTools && $ltiTools.size() > 0 )
 		$tlang.getString("tool.description.system")

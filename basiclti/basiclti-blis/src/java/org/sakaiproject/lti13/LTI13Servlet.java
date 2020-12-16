@@ -77,6 +77,7 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.tsugi.basiclti.BasicLTIUtil;
 import org.tsugi.jackson.JacksonUtil;
+import org.tsugi.lti13.LTICustomVars;
 import org.tsugi.lti13.LTI13KeySetUtil;
 import org.tsugi.lti13.LTI13Util;
 import org.tsugi.lti13.LTI13JwtUtil;
@@ -86,6 +87,10 @@ import org.tsugi.oauth2.objects.AccessToken;
 import org.tsugi.lti13.objects.Endpoint;
 import org.tsugi.lti13.objects.LaunchLIS;
 import org.tsugi.ags2.objects.Result;
+import org.tsugi.lti13.objects.LaunchJWT;
+import org.tsugi.lti13.objects.PlatformConfiguration;
+import org.tsugi.lti13.objects.LTIPlatformConfiguration;
+import org.tsugi.lti13.objects.LTIPlatformMessage;
 
 import org.sakaiproject.lti13.util.SakaiAccessToken;
 import org.sakaiproject.lti13.util.SakaiLineItem;
@@ -190,18 +195,6 @@ public class LTI13Servlet extends HttpServlet {
 
 		SakaiLineItem filter = getLineItemFilter(request);
 
-		// /imsblis/lti13/proxy
-		if (parts.length == 4 && "proxy".equals(parts[3])) {
-			handleProxy(request, response);
-			return;
-		}
-
-		// /imsblis/lti13/sakai-config
-		if (parts.length == 4 && "sakai_config".equals(parts[3])) {
-			handleSakaiConfig(request, response);
-			return;
-		}
-
 		// Get a keys for a client_id
 		// /imsblis/lti13/keyset/{tool-id}
 		if (parts.length == 5 && "keyset".equals(parts[3])) {
@@ -264,6 +257,30 @@ public class LTI13Servlet extends HttpServlet {
 			String signed_placement = parts[4];
 			String lineItem = parts[5];
 			handleLineItemsDetail(signed_placement, lineItem, true /*results */, parts[7], request, response);
+			return;
+		}
+
+		// /imsblis/lti13/proxy
+		if (parts.length == 4 && "proxy".equals(parts[3])) {
+			handleProxy(request, response);
+			return;
+		}
+
+		// /imsblis/lti13/sakai_config
+		if (parts.length == 4 && "sakai_config".equals(parts[3])) {
+			handleSakaiConfig(request, response);
+			return;
+		}
+
+		// /imsblis/lti13/well_known
+		if (parts.length == 4 && "well_known".equals(parts[3])) {
+			handleWellKnown(request, response);
+			return;
+		}
+
+		// /imsblis/lti13/get_registration
+		if (parts.length == 4 && "get_registration".equals(parts[3])) {
+			handleGetRegistration(request, response);
 			return;
 		}
 
@@ -356,6 +373,14 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
+		// Receive a tool configuration
+		// /imsblis/lti13/registration_endpoint/{tool-key}
+		if (parts.length == 5 && "registration_endpoint".equals(parts[3])) {
+			String tool_key = parts[4];
+			handleRegistrationEndpointPost(tool_key, request, response);
+			return;
+		}
+
 		log.error("Unrecognized POST request parts={} request={}", parts.length, uri);
 		LTI13Util.return400(response, "Unrecognized POST request parts="+parts.length+" request="+uri);
 
@@ -371,7 +396,7 @@ public class LTI13Servlet extends HttpServlet {
 
 		Session sess = SessionManager.getCurrentSession();
 		if ( sess == null || sess.getUserId() == null ) {
-			LTI13Util.return400(response, "Must be logged in");
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
 
@@ -415,6 +440,59 @@ public class LTI13Servlet extends HttpServlet {
 		} catch (Exception e) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
+	}
+
+	// Retrieve the registration data for an LTI tool
+	protected void handleGetRegistration(HttpServletRequest request, HttpServletResponse response) {
+		String tool_key_str = request.getParameter("key");
+		if ( tool_key_str == null ) {
+			LTI13Util.return400(response, "Missing key parameter");
+			return;
+		}
+
+		// Make sure the tool_key is a long
+		Long tool_key = null;
+		if ( tool_key_str != null ) {
+			try {
+				tool_key = Long.parseLong(tool_key_str);
+			} catch (NumberFormatException e) {
+				LTI13Util.return400(response, "Bad value for tool_key "+tool_key_str);
+				log.error("Bad value for tool_key "+tool_key_str);
+				return;
+			}
+		}
+
+		Session sess = SessionManager.getCurrentSession();
+		if ( sess == null || sess.getUserId() == null ) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			return;
+		}
+
+		// TODO: A little moar checking on the session.
+		Map<String, Object> tool = ltiService.getToolDao(tool_key, null, true);
+		if (tool == null) {
+			LTI13Util.return400(response, "Could not load tool");
+			log.error("Could not load tool {}", tool_key);
+			return;
+		}
+
+		String json_out = (String) tool.get(LTIService.LTI13_AUTO_REGISTRATION);
+		if ( json_out == null || json_out.length() < 1 ) {
+			LTI13Util.return400(response, "Could not load tool configuration");
+			log.error("Could not load tool configuration {}", tool_key);
+			return;
+		}
+
+		response.setContentType(APPLICATION_JSON);
+		try {
+			PrintWriter out = response.getWriter();
+			out.print(json_out);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			return;
+		}
+
 	}
 
 	// Provide LTI Advantage Sakai parameters through JSON
@@ -470,6 +548,105 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 	}
+
+	/*
+{
+    "issuer": "https://server.example.com",
+    "authorization_endpoint":  "https://server.example.com/connect/authorize",
+    "token_endpoint": "https://server.example.com/connect/token",
+    "token_endpoint_auth_methods_supported": ["private_key_jwt"],
+    "token_endpoint_auth_signing_alg_values_supported": ["RS256"],
+    "jwks_uri": "https://server.example.com/jwks.json",
+    "registration_endpoint": "https://server.example.com/connect/register",
+    "scopes_supported": ["openid", "https://purl.imsglobal.org/spec/lti-gs/scope/contextgroup.readonly",
+       "https://purl.imsglobal.org/spec/lti-ags/scope/lineitem",
+       "https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly",
+       "https://purl.imsglobal.org/spec/lti-ags/scope/score",
+       "https://purl.imsglobal.org/spec/lti-reg/scope/registration"],
+    "response_types_supported": ["id_token"],
+    "subject_types_supported": ["public", "pairwise"],
+    "id_token_signing_alg_values_supported":
+      ["RS256", "ES256"],
+    "claims_supported":
+      ["sub", "iss", "name", "given_name", "family_name", "nickname", "picture", "email", "locale"],
+     "https://purl.imsglobal.org/spec/lti-platform-configuration ": {
+        "product_family_code": "ExampleLMS",
+        "messages_supported": [
+            {"type": "LtiResourceLinkRequest"},
+            {"type": "LtiDeepLinkingRequest"}],
+        "variables": ["CourseSection.timeFrame.end", "CourseSection.timeFrame.begin", "Context.id.history", "ResourceLink.id.history"]
+    }
+}
+	 */
+	// Provide Well Known URL
+	protected void handleWellKnown(HttpServletRequest request, HttpServletResponse response) {
+		String clientId = request.getParameter("clientId");
+		if ( clientId == null ) {
+			LTI13Util.return400(response, "Missing clientId");
+			return;
+		}
+
+		String key = request.getParameter("key");
+		if ( key == null ) {
+			LTI13Util.return400(response, "Missing key");
+			return;
+		}
+
+		String issuerURL = request.getParameter("issuerURL");
+		if ( issuerURL == null ) {
+			LTI13Util.return400(response, "Missing issuerURL");
+			return;
+		}
+
+		String deploymentId = request.getParameter("deploymentId");
+		if ( deploymentId == null ) {
+			LTI13Util.return400(response, "Missing deploymentId");
+			return;
+		}
+
+		String keySetUrl = getOurServerUrl() + "/imsblis/lti13/keyset/" + key;
+		String tokenUrl = getOurServerUrl() + "/imsblis/lti13/token/" + key;
+		String authOIDC = getOurServerUrl() + "/imsoidc/lti13/oidc_auth";
+
+		String sakaiVersion = ServerConfigurationService.getString("version.sakai", "2");
+
+		LTIPlatformConfiguration lpc = new LTIPlatformConfiguration();
+		lpc.product_family_code = "sakailms.org";
+		lpc.version = sakaiVersion;
+
+		LTIPlatformMessage mp = new LTIPlatformMessage();
+		mp.type = LaunchJWT.MESSAGE_TYPE_LAUNCH;
+		lpc.messages_supported.add(mp);
+
+		mp = new LTIPlatformMessage();
+		mp.type = LaunchJWT.MESSAGE_TYPE_DEEP_LINK;
+		lpc.messages_supported.add(mp);
+
+		lpc.variables.add(LTICustomVars.USER_ID);
+		lpc.variables.add(LTICustomVars.PERSON_EMAIL_PRIMARY);
+
+		PlatformConfiguration pc = new PlatformConfiguration();
+		pc.issuer = issuerURL;
+		pc.authorization_endpoint = authOIDC;
+		pc.token_endpoint = tokenUrl;
+		pc.jwks_uri = keySetUrl;
+
+		pc.registration_endpoint = getOurServerUrl() + LTI13_PATH + "registration_endpoint/" + key;
+
+		pc.lti_platform_configuration = lpc;
+
+
+		response.setContentType(APPLICATION_JSON);
+		try {
+			PrintWriter out = response.getWriter();
+			out.print(JacksonUtil.prettyPrint(pc));
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			return;
+		}
+	}
+
 
 	protected void handleKeySet(String tool_id, HttpServletRequest request, HttpServletResponse response) {
 		PrintWriter out = null;
@@ -805,6 +982,154 @@ public class LTI13Servlet extends HttpServlet {
 			}
 			log.debug("Lineitem retval={}",retval);
 		}
+	}
+
+	// Receive a tool configuration
+	// /imsblis/lti13/registration_endpoint/{tool-key}
+	protected void handleRegistrationEndpointPost(String tool_key_str, HttpServletRequest request, HttpServletResponse response) {
+
+		// Make sure the tool_key is a long
+		Long tool_key = null;
+		if ( tool_key_str != null ) {
+			try {
+				tool_key = Long.parseLong(tool_key_str);
+			} catch (NumberFormatException e) {
+				LTI13Util.return400(response, "Bad value for tool_key "+tool_key_str);
+				log.error("Bad value for tool_key "+tool_key_str);
+				return;
+			}
+		}
+
+		// Get the authorization header
+		// Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJ .
+		String authorization = request.getHeader("authorization");
+
+		if (authorization == null || !authorization.startsWith("Bearer")) {
+			log.error("Invalid authorization {}", authorization);
+			LTI13Util.return400(response, "invalid_authorization");
+			return;
+		}
+
+		// https://stackoverflow.com/questions/7899525/how-to-split-a-string-by-space/7899558
+		String[] parts = authorization.split("\\s+");
+		if (parts.length != 2 || parts[1].length() < 1) {
+			log.error("Bad authorization {}", authorization);
+			LTI13Util.return400(response, "invalid_authorization");
+			return;
+		}
+
+		String registration_token = parts[1];
+
+		// TODO: Reject token with incorrect format, or expired
+
+		String jsonString;
+		try {
+			// https://stackoverflow.com/questions/1548782/retrieving-json-object-literal-from-httpservletrequest
+			jsonString = IOUtils.toString(request.getInputStream(), java.nio.charset.StandardCharsets.UTF_8);
+		} catch (IOException ex) {
+			log.error("Could not read POST Data {}", ex.getMessage());
+			LTI13Util.return400(response, "Could not read POST Data");
+			return;
+		}
+
+		// Don't fill my database up.
+		if ( jsonString.length() > 300000 ) {
+			LTI13Util.return400(response, "JSON too long ( > 300K");
+			return;
+		}
+
+		log.debug("jsonString={}", jsonString);
+
+		Object js = JSONValue.parse(jsonString);
+		if (js == null || !(js instanceof JSONObject)) {
+			LTI13Util.return400(response, "Badly formatted JSON");
+			return;
+		}
+		JSONObject jso = (JSONObject) js;
+
+		// Extract the bits
+		String initiate_login_uri = SakaiBLTIUtil.getStringNull(jso.get("initiate_login_uri"));
+		String jwks_uri = SakaiBLTIUtil.getStringNull(jso.get("jwks_uri"));
+		log.debug("initiate_login_uri={} jwks_uri={}", initiate_login_uri, jwks_uri);
+		Object redirect_uris_object = jso.get("redirect_uris");
+		JSONArray redirect_uris = null;
+		if ( redirect_uris_object != null && redirect_uris_object instanceof JSONArray ) {
+			redirect_uris = (JSONArray) redirect_uris_object;
+		}
+
+		if (initiate_login_uri == null || jwks_uri == null || redirect_uris == null ) {
+			LTI13Util.return400(response, "Missing initiate_login_uri, jwks_uri, redirect_uris");
+			return;
+		}
+
+		Map<String, Object> tool = ltiService.getToolDao(tool_key, null, true);
+		if (tool == null) {
+			log.error("Could not load tool={}", tool_key);
+			LTI13Util.return400(response, "Missing tool");
+			return;
+		}
+
+		// Check if the one time use token matching
+		String tool_token = (String) tool.get(LTIService.LTI13_AUTO_TOKEN);
+		if ( tool_token == null || tool_token.length() < 1 ||
+			! tool_token.equals(registration_token) ) {
+			log.error("Bad registration_token");
+			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+			return;
+		}
+
+		// Check the one time use token expiration
+		int delta = 60*60; // An hour
+		if ( ! LTI13Util.timeStampCheck(registration_token, delta) ) {
+			log.error("Expired registration_token \n"+registration_token+":\n tool_token=\n"+tool_token+":");
+			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+			return;
+		}
+
+		String client_id = (String) tool.get(LTIService.LTI13_CLIENT_ID);
+
+		jso.put("client_id", client_id);
+
+		Object toolConfigurationObj = jso.get("https://purl.imsglobal.org/spec/lti-tool-configuration");
+		if ( toolConfigurationObj instanceof JSONObject ) {
+			JSONObject toolConfiguration = (JSONObject) toolConfigurationObj;
+			String deployment_id = SakaiBLTIUtil.getDeploymentId(null);
+			toolConfiguration.put("deployment_id", deployment_id);
+		}
+
+		String json_out = null;
+		try {
+			json_out = JacksonUtil.prettyPrint(jso);
+			tool.put(LTIService.LTI13_AUTO_REGISTRATION, json_out);
+		} catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+			log.error("Could not serialize JSON={}", e.getMessage());
+			LTI13Util.return400(response, "Could not serialize JSON");
+			return;
+
+		}
+
+		// Store the JSON
+		tool.put(LTIService.LTI13_AUTO_TOKEN, "Used");
+		tool.put(LTIService.LTI13_AUTO_STATE, new Integer(2));
+		String siteId = null;
+		Object retval = ltiService.updateToolDao(tool_key, tool, siteId);
+
+		if ( retval instanceof String) {
+			log.error("Could not update tool={} retval={}", tool_key, retval);
+			LTI13Util.return400(response, "Could not update tool");
+			return;
+		}
+
+		response.setContentType(APPLICATION_JSON);
+		try {
+			PrintWriter out = response.getWriter();
+			out.println(json_out);
+			log.debug("Returning ToolConfiguration\n{}", json_out);
+		} catch (IOException e) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			log.error(e.getMessage(), e);
+		}
+
 	}
 
 	// https://github.com/IMSGlobal/LTI-spec-Names-Role-Provisioning/blob/develop/docs/names-role-provisioning-spec.md
