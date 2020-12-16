@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.content.hbm;
+package org.sakaiproject.content.api.persistence;
 
 import java.time.Instant;
 

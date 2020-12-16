@@ -13,12 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.hibernate;
+package org.sakaiproject.springframework.data;
 
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.Criteria;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.TransientObjectException;
 import org.hibernate.criterion.Projections;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,11 +33,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by enietzel on 2/22/17.
- */
 @Transactional(readOnly = true)
-public abstract class HibernateCrudRepository<T, ID extends Serializable> implements CrudRepository<T, ID> {
+public abstract class SpringCrudRepositoryImpl<T, ID extends Serializable> implements SpringCrudRepository<T, ID> {
 
     @Getter
     private final Class<T> domainClass;
@@ -43,65 +43,10 @@ public abstract class HibernateCrudRepository<T, ID extends Serializable> implem
     protected SessionFactory sessionFactory;
 
     @SuppressWarnings("unchecked")
-    public HibernateCrudRepository() {
+    public SpringCrudRepositoryImpl() {
 
         Class<?>[] classes = GenericTypeResolver.resolveTypeArguments(this.getClass(), Repository.class);
         domainClass = (classes != null && classes.length == 2) ? (Class<T>) classes[0] : null;
-    }
-
-    @Override
-    @Transactional
-    public <S extends T> S save(S entity) {
-
-        sessionFactory.getCurrentSession().save(entity);
-        return entity;
-    }
-
-    @Override
-    @Transactional
-    public <S extends T> Iterable<S> save(Iterable<S> entities) {
-
-        List<S> list = new ArrayList<>();
-        if (entities != null) {
-            for (S entity : entities) {
-                list.add(save(entity));
-            }
-        }
-        return list;
-    }
-
-    @Override
-    public T findOne(ID id) {
-        Assert.notNull(id, "The id cannot be null");
-
-        Object entity = sessionFactory.getCurrentSession().get(domainClass, id);
-        return (T) entity;
-    }
-
-    @Override
-    public boolean exists(ID id) {
-        Assert.notNull(id, "The id cannot be null");
-
-        return findOne(id) != null;
-    }
-
-    @Override
-    public Iterable<T> findAll() {
-
-        List<?> list = startCriteriaQuery().list();
-        return (List<T>) list;
-    }
-
-    @Override
-    public Iterable<T> findAll(Iterable<ID> ids) {
-
-        List<T> list = new ArrayList<>();
-        if (ids != null) {
-            for (ID id : ids) {
-                list.add(findOne(id));
-            }
-        }
-        return list;
     }
 
     @Override
@@ -113,59 +58,92 @@ public abstract class HibernateCrudRepository<T, ID extends Serializable> implem
 
     @Override
     @Transactional
-    public void delete(ID id) {
+    public <S extends T> S save(S entity) {
 
-        delete(findOne(id));
+        Session session = sessionFactory.getCurrentSession();
+        S mergedEntity = null;
+        try {
+            mergedEntity = (S) session.merge(entity);
+            return mergedEntity;
+        } catch (TransientObjectException toe) {
+
+            session.persist(entity);
+            return entity;
+        }
+    }
+
+    @Override
+    @Transactional
+    public <S extends T> Iterable<S> saveAll(Iterable<S> entities) {
+
+        List<S> list = new ArrayList<>();
+        if (entities != null) {
+            entities.forEach(entity -> list.add(save(entity)));
+        }
+        return list;
+    }
+
+    @Override
+    public T findById(ID id) {
+
+        Assert.notNull(id, "The id cannot be null");
+        return (T) sessionFactory.getCurrentSession().get(domainClass, id);
+    }
+
+    @Override
+    public boolean existsById(ID id) {
+
+        Assert.notNull(id, "The id cannot be null");
+        return findById(id) != null;
+    }
+
+    @Override
+    public Iterable<T> findAll() {
+        return (List<T>) startCriteriaQuery().list();
+    }
+
+    @Override
+    public Iterable<T> findAllById(Iterable<ID> ids) {
+
+        List<T> list = new ArrayList<>();
+        if (ids != null) {
+            ids.forEach(id -> list.add(findById(id)));
+        }
+        return list;
     }
 
     @Override
     @Transactional
     public void delete(T entity) {
 
-        sessionFactory.getCurrentSession().delete(entity);
-    }
+        Session session = sessionFactory.getCurrentSession();
 
-    @Override
-    @Transactional
-    public void delete(Iterable<? extends T> entities) {
-
-        if (entities != null) {
-            for (T entity : entities) {
-                delete(entity);
-            }
+        try {
+            session.delete(entity);
+        } catch (Exception he) {
+            session.delete(session.merge(entity));
         }
     }
 
     @Override
     @Transactional
     public void deleteAll() {
+        findAll().forEach(this::delete);
+    }
 
-        for (T entity : findAll()) {
-            delete(entity);
+    @Override
+    @Transactional
+    public void deleteAll(Iterable<? extends T> entities) {
+
+        if (entities != null) {
+            entities.forEach(this::delete);
         }
     }
 
     @Override
-    public void refresh(T entity) {
-        sessionFactory.getCurrentSession().refresh(entity);
-    }
-
-    @Override
     @Transactional
-    public void merge(T entity) {
-        sessionFactory.getCurrentSession().merge(entity);
-    }
-
-    @Override
-    @Transactional
-    public void persist(T entity) {
-        sessionFactory.getCurrentSession().persist(entity);
-    }
-
-    @Override
-    @Transactional
-    public void update(T entity) {
-        sessionFactory.getCurrentSession().update(entity);
+    public void deleteById(ID id) {
+        delete(findById(id));
     }
 
     /**
