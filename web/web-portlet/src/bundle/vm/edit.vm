@@ -5,6 +5,12 @@ ${includeLatestJQuery}
 <script>
 	includeLatestJQuery('web-ifp edit.vm');
 	includeWebjarLibrary("fontawesome-iconpicker");
+	//When hiding the iconpicker focus back on the element
+	jQuery(document).ready(function() {
+	    jQuery("#fa_icon").on("iconpickerHide", function (event) {
+	        event.target.focus();
+	    });
+	});
 </script>
 	<h3>
 		$tlang.getString("gen.custom")
