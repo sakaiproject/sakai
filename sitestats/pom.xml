@@ -19,7 +19,7 @@
   <properties>
     <commons-betwixt.version>0.8</commons-betwixt.version>
     <fop.version>1.0</fop.version>
-    <jfreechart.version>1.5.0</jfreechart.version>
+    <jfreechart.version>1.5.1</jfreechart.version>
     <sst.wicket.version>6.30.0</sst.wicket.version>
   </properties>
 
