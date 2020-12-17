@@ -637,9 +637,6 @@ public class BasicLTIUtil {
 			text.append("  }\n");
 			text.append("}\n");
 		}
-		text.append("if ( ! open_in_new_window ) {\n");
-		text.append("   setTimeout(function() { alert(\""+BasicLTIUtil.htmlspecialchars(error_timeout)+"\"); }, 4000);\n");
-		text.append("}\n");
 		text.append("</script>\n");
 
 		// paint debug output
@@ -679,6 +676,9 @@ public class BasicLTIUtil {
 			text.append("    document.getElementById('ltiLaunchForm_");
 			text.append(submit_uuid);
 			text.append("').submit(); \n");
+			text.append("if ( ! open_in_new_window ) {\n");
+			text.append("   setTimeout(function() { alert(\""+BasicLTIUtil.htmlspecialchars(error_timeout)+"\"); }, 4000);\n");
+			text.append("}\n");
 			text.append("</script> \n");
 		}
 
