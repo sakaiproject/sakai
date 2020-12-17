@@ -1918,8 +1918,8 @@ public class SakaiBLTIUtil {
 				}
 			}
 
-			String form_id = java.util.UUID.randomUUID().toString();
-			String html = "<form action=\"" + launch_url + "\" id=\""+ form_id + "\" method=\"POST\">\n"
+			Integer form_id = jws.hashCode();
+			String html = "<form action=\"" + launch_url + "\" id=\"jwt-launch-"+ form_id + "\" method=\"POST\">\n"
 					+ "    <input type=\"hidden\" name=\"id_token\" value=\"" + BasicLTIUtil.htmlspecialchars(jws) + "\" />\n";
 
 			if ( state != null ) {
@@ -1934,7 +1934,7 @@ public class SakaiBLTIUtil {
 			if ( ! dodebug ) {
 				String launch_error = rb.getString("error.submit.timeout")+" "+launch_url;
 				html += "<script>\n";
-				html += "setTimeout(document.getElementById(\"" + form_id + "\").submit();\n";
+				html += "setTimeout(function() { document.getElementById(\"jwt-launch-" + form_id + "\").submit(); }, 200 );\n";
 				html += "setTimeout(function() { alert(\""+BasicLTIUtil.htmlspecialchars(launch_error)+"\"); }, 4000);\n";
 				html += "</script>\n";
 			} else {
