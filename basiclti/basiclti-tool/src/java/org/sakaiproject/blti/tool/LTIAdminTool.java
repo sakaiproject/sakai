@@ -1774,7 +1774,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			importPanel +=  "&" + RequestFilter.ATTR_SESSION + "=" + sakaiSession;
 		}
 		switchPanel(state, importPanel);
-		return;
 	}
 
 	public String buildImportReturnPanelContext(VelocityPortlet portlet, Context context,
