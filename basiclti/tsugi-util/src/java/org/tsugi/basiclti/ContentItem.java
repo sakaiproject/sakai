@@ -100,7 +100,7 @@ public class ContentItem {
 	public static final String MEDIA_CC_1_1 = "application/vnd.ims.imsccv1p1";
 	public static final String MEDIA_CC_1_2 = "application/vnd.ims.imsccv1p2";
 	public static final String MEDIA_CC_1_3 = "application/vnd.ims.imsccv1p3";
-	public static final String MEDIA_CC = MEDIA_CC_1_3+","+MEDIA_CC_1_2+","+MEDIA_CC_1_3;
+	public static final String MEDIA_CC = MEDIA_CC_1_1+","+MEDIA_CC_1_2+","+MEDIA_CC_1_3;
 
 	public static final String TYPE_LTILINKITEM = "LtiLinkItem";
 	public static final String TYPE_CONTENTITEM = "ContentItem";
