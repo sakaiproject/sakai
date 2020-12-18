@@ -70,7 +70,7 @@ If you can't find your  "at institution.edu" on the Apereo signup page then send
 
 ## Community supported versions
 
-Sakai 20.2 ([release](http://source.sakaiproject.org/release/20.2/) | [Features](https://confluence.sakaiproject.org/display/DOC/20.2+Fixes+by+tool) | [Fixes](https://confluence.sakaiproject.org/display/DOC/Sakai+20+Release+Notes))
+Sakai 20.2 ([release](http://source.sakaiproject.org/release/20.2/) | [Fixes](https://confluence.sakaiproject.org/display/DOC/20.2+Fixes+by+tool) | [Notes](https://confluence.sakaiproject.org/display/DOC/Sakai+20+Release+Notes))
 Is the community supported release of Sakai 20.
 
 Sakai 19.5 ([release](http://source.sakaiproject.org/release/19.5/) | [notes](https://confluence.sakaiproject.org/display/DOC/Sakai+19+Release+Notes))
