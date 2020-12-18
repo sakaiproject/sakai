@@ -4960,12 +4960,17 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIOutput.make(form, "pageTitleLabel", messageLocator.getMessage("simplepage.pageTitle_label"));
 
 		String internalPageTitle = page.getTitle();
-		String externalPageTitle = simplePageBean.getCurrentSite().getPage(page.getToolId()).getTools().stream()
+		String effectivePageTitle = internalPageTitle;
+		try {
+			String externalPageTitle = simplePageBean.getCurrentSite().getPage(page.getToolId()).getTools().stream()
 				.filter(t -> t.getId().equals(toolManager.getCurrentPlacement().getId()))
 				.findFirst()
 				.map(t -> t.getTitle())
 				.orElse("");
-		String effectivePageTitle = (StringUtils.isNotBlank(externalPageTitle) && !externalPageTitle.equals(internalPageTitle)) ? externalPageTitle : internalPageTitle;
+			effectivePageTitle = (StringUtils.isNotBlank(externalPageTitle) && !externalPageTitle.equals(internalPageTitle)) ? externalPageTitle : internalPageTitle;
+		} catch(java.lang.NullPointerException e) {
+			log.debug("Exception = {}", e);
+		}
 		UIInput.make(form, "pageTitle", "#{simplePageBean.pageTitle}", effectivePageTitle);
 
 		if (!simplePageBean.isStudentPage(page)) {
