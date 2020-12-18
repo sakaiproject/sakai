@@ -10,7 +10,7 @@ elem.style.height = '40em';
 <form method="POST" action="$returnUrl" style="padding: 5em;">
 <input type="hidden" name="content_item_url" value="$content_item_url">
 <p>
-<img id="import-cartridge-spinner" src="/library/image/sakai/spinner.gif" style="display:none;">
+<img id="import-cartridge-spinner" src="/library/image/sakai/spinner.gif" alt="$tlang.getString("gen.spinner.alt")" style="display:none;">
 </p>
 <p>
 <input type="submit" id="import-cartridge-continue" value="$tlang.getString("import.cartridge.continue")">
