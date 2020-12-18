@@ -110,6 +110,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 	private static String STATE_CONTENT_ITEM_FAILURES = "lti:state_content_item_failures";
 	private static String STATE_CONTENT_ITEM_SUCCESSES = "lti:state_content_item_successes";
 	private static String STATE_LINE_ITEM = "lti:state_line_item";
+	private static String STATE_CONTENT_ITEM_CARTRIDGE_URL = "lti:state_content_item_cartridge_url";
+	private static String STATE_CONTENT_ITEM_IMPORT_RETURN_URL = "lti:state_content_item_import_return_url";
 
 	private static String ALLOW_MAINTAINER_ADD_SYSTEM_TOOL = "lti:allow_maintainer_add_system_tool";
 	private static String ALLOW_MAINTAINER_ADD_TOOL_SITE = "lti:allow_maintainer_add_tool_site";
@@ -146,6 +148,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 	private static String FLOW_PARAMETER_LESSONS = "lessons";
 	private static String FLOW_PARAMETER_EDITOR = "editor";
 	private static String FLOW_PARAMETER_ASSIGNMENT = "assignment";
+	private static String FLOW_PARAMETER_IMPORT = "import";
 
 	/**
 	 * Service Implementations
@@ -1559,6 +1562,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 
 		String flow = data.getParameters().getString(FLOW_PARAMETER);
+		log.debug("doSingleContentItemResponse flow={}", flow);
 
 		// Check for a returned "note" from LTI
 		String lti_msg = data.getParameters().getString("lti_msg");
@@ -1605,6 +1609,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		// doSingleContentItemResponse
 		state.removeAttribute(STATE_LINE_ITEM);
 		if ( isDeepLink ) {
+
 			// Parse and validate the incoming DeepLink
 			String keyset = (String) tool.get(LTIService.LTI13_TOOL_KEYSET);
 			if (keyset == null) {
@@ -1622,27 +1627,39 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 				return;
 			}
 
-			JSONObject item = dlr.getItemOfType(DeepLinkResponse.TYPE_LTILINKITEM);
-			if (item == null) {
-				addAlert(state, rb.getString("error.deeplink.no.ltilink"));
-				switchPanel(state, errorPanel);
+			if ( FLOW_PARAMETER_IMPORT.equals(flow) ) {
+				JSONObject item = dlr.getItemOfType(DeepLinkResponse.TYPE_FILEITEM);
+				if (item == null) {
+					addAlert(state, rb.getString("error.deeplink.no.fileitem"));
+					switchPanel(state, errorPanel);
+					return;
+				}
+				handleImportCartridge(data, context, state, errorPanel, returnUrl, item, sakaiSession);
 				return;
-			}
+			} else {
 
-			reqProps = extractLTIDeepLink(item, tool, toolKey);
-			reqProps.setProperty("returnUrl", returnUrl);
+				JSONObject item = dlr.getItemOfType(DeepLinkResponse.TYPE_LTILINKITEM);
+				if (item == null) {
+					addAlert(state, rb.getString("error.deeplink.no.ltilink"));
+					switchPanel(state, errorPanel);
+					return;
+				}
 
-			// Create the gradebook column if we need to do so
-			JSONObject lineItem = getObject(item, DeepLinkResponse.LINEITEM);
+				reqProps = extractLTIDeepLink(item, tool, toolKey);
+				reqProps.setProperty("returnUrl", returnUrl);
 
-			SakaiLineItem sakaiLineItem = null;
-			if ( lineItem != null ) {
-				String lineItemStr = lineItem.toString();
-				try {
-					sakaiLineItem = (SakaiLineItem) new ObjectMapper().readValue(lineItemStr, SakaiLineItem.class);
-					state.setAttribute(STATE_LINE_ITEM, sakaiLineItem);
-				} catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
-					log.warn("Could not parse input as SakaiLineItem {}",lineItemStr);
+				// Create the gradebook column if we need to do so
+				JSONObject lineItem = getObject(item, DeepLinkResponse.LINEITEM);
+
+				SakaiLineItem sakaiLineItem = null;
+				if ( lineItem != null ) {
+					String lineItemStr = lineItem.toString();
+					try {
+						sakaiLineItem = (SakaiLineItem) new ObjectMapper().readValue(lineItemStr, SakaiLineItem.class);
+						state.setAttribute(STATE_LINE_ITEM, sakaiLineItem);
+					} catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
+						log.warn("Could not parse input as SakaiLineItem {}",lineItemStr);
+					}
 				}
 			}
 
@@ -1662,40 +1679,52 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			// Properties dataProps = contentItem.getDataProperties();
 			// log.debug("dataProps={}", dataProps);
 			// dataProps={remember=always bring a towel}
+
 			// Extract the content item data
-			JSONObject item = contentItem.getItemOfType(ContentItem.TYPE_LTILINKITEM);
-			if (item == null) {
-				addAlert(state, rb.getString("error.contentitem.no.ltilink"));
-				switchPanel(state, errorPanel);
+			if ( FLOW_PARAMETER_IMPORT.equals(flow) ) {
+				JSONObject item = contentItem.getItemOfType(ContentItem.TYPE_FILEITEM);
+				if (item == null) {
+					addAlert(state, rb.getString("error.contentitem.no.fileitem"));
+					switchPanel(state, errorPanel);
+					return;
+				}
+				handleImportCartridge(data, context, state, errorPanel, returnUrl, item, sakaiSession);
 				return;
-			}
+			} else {
 
-			// Prepare data for the next phase
-			reqProps = extractLTIContentItem(item, tool, toolKey);
-			reqProps.setProperty("returnUrl", returnUrl);
+				JSONObject item = contentItem.getItemOfType(ContentItem.TYPE_LTILINKITEM);
+				if (item == null) {
+					addAlert(state, rb.getString("error.contentitem.no.ltilink"));
+					switchPanel(state, errorPanel);
+					return;
+				}
 
-			// Extract the lineItem material
-			String label = reqProps.getProperty(LTIService.LTI_TITLE);
-			JSONObject lineItem = getObject(item, ContentItem.LINEITEM);
-			SakaiLineItem sakaiLineItem = null;
-			if ( lineItem != null ) {
-				String lineItemStr = lineItem.toString();
-				try {
-					sakaiLineItem = (SakaiLineItem) new ObjectMapper().readValue(lineItemStr, SakaiLineItem.class);
+				// Prepare data for the next phase
+				reqProps = extractLTIContentItem(item, tool, toolKey);
+				reqProps.setProperty("returnUrl", returnUrl);
+
+				// Extract the lineItem material
+				String label = reqProps.getProperty(LTIService.LTI_TITLE);
+				JSONObject lineItem = getObject(item, ContentItem.LINEITEM);
+				SakaiLineItem sakaiLineItem = null;
+				if ( lineItem != null ) {
+					String lineItemStr = lineItem.toString();
+					try {
+						sakaiLineItem = (SakaiLineItem) new ObjectMapper().readValue(lineItemStr, SakaiLineItem.class);
+						state.setAttribute(STATE_LINE_ITEM, sakaiLineItem);
+					} catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
+						log.warn("Could not parse input as SakaiLineItem {}",lineItemStr);
+						sakaiLineItem = new SakaiLineItem();
+					}
+				}
+
+				if ( label != null && lineItem != null ) {
+					sakaiLineItem.label = label;
+					Double scoreMaximum = ContentItem.getScoreMaximum(lineItem);
+					if ( scoreMaximum != null ) sakaiLineItem.scoreMaximum = scoreMaximum;
 					state.setAttribute(STATE_LINE_ITEM, sakaiLineItem);
-				} catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
-					log.warn("Could not parse input as SakaiLineItem {}",lineItemStr);
-					sakaiLineItem = new SakaiLineItem();
 				}
 			}
-
-			if ( label != null && lineItem != null ) {
-				sakaiLineItem.label = label;
-				Double scoreMaximum = ContentItem.getScoreMaximum(lineItem);
-				if ( scoreMaximum != null ) sakaiLineItem.scoreMaximum = scoreMaximum;
-				state.setAttribute(STATE_LINE_ITEM, sakaiLineItem);
-			}
-
 		}
 
 		// Prepare to forward
@@ -1727,6 +1756,42 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 		switchPanel(state, redirectPanel);
 	}
+
+	public void handleImportCartridge(RunData data, Context context, SessionState state,
+		String errorPanel, String returnUrl, JSONObject item, String sakaiSession)
+	{
+		String contentItemUrl = (String) item.get("url");
+		if (contentItemUrl == null) {
+			addAlert(state, rb.getString("error.deeplink.no.import.url"));
+			switchPanel(state, errorPanel);
+			return;
+		}
+		state.setAttribute(STATE_CONTENT_ITEM_CARTRIDGE_URL, contentItemUrl);
+		state.setAttribute(STATE_CONTENT_ITEM_IMPORT_RETURN_URL, returnUrl);
+
+		String importPanel = "ImportReturn";
+		if (sakaiSession != null) {
+			importPanel +=  "&" + RequestFilter.ATTR_SESSION + "=" + sakaiSession;
+		}
+		switchPanel(state, importPanel);
+		return;
+	}
+
+	public String buildImportReturnPanelContext(VelocityPortlet portlet, Context context,
+			RunData data, SessionState state) {
+		context.put("tlang", rb);
+		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
+
+		String returnUrl = (String) state.getAttribute(STATE_CONTENT_ITEM_IMPORT_RETURN_URL);
+		String content_item_url = (String) state.getAttribute(STATE_CONTENT_ITEM_CARTRIDGE_URL);
+		state.removeAttribute(STATE_CONTENT_ITEM_CARTRIDGE_URL);
+		state.removeAttribute(STATE_CONTENT_ITEM_IMPORT_RETURN_URL);
+
+		context.put("returnUrl", returnUrl);
+		context.put("content_item_url", content_item_url);
+		return "lti_import_return";
+	}
+
 
 	// This is where we receive a multiple item the Response from the external ContentItem / DeepLink
 	// producer - the producer will post to this URL so we need to carefully re-establish the
@@ -2305,6 +2370,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		if (flow == null && previousPost != null) {
 			flow = previousPost.getProperty(FLOW_PARAMETER);
 		}
+		log.debug("buildContentConfigPanelContext flow={}", flow);
 
 		// TODO: Have Lessons use the normal entry point instead of coming directly here
 		if (flow == null) {
@@ -2383,7 +2449,13 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		// which will come back later.  Be mindful of GET length limitations enroute
 		// to the access servlet.
 		Properties contentData = new Properties();
-		contentData.setProperty(ContentItem.ACCEPT_MEDIA_TYPES, ContentItem.MEDIA_LTILINKITEM);
+		contentData.setProperty(ContentItem.ACCEPT_MULTIPLE, "false");
+		if ( FLOW_PARAMETER_IMPORT.equals(flow) ) {
+			contentData.setProperty(ContentItem.ACCEPT_MEDIA_TYPES, ContentItem.MEDIA_CC);
+		} else {
+			contentData.setProperty(ContentItem.ACCEPT_MEDIA_TYPES, ContentItem.MEDIA_LTILINKITEM);
+		}
+		contentData.setProperty("flow", flow);  // An example
 		contentData.setProperty("remember", "always bring a towel");  // An example
 
 		contentLaunch = ContentItem.buildLaunch(contentLaunch, contentReturn, contentData);

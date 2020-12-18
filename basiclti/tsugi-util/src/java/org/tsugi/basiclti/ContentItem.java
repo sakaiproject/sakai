@@ -74,8 +74,17 @@ import static org.tsugi.basiclti.BasicLTIUtil.getDouble;
           "extraCreditMaximum" : 10,
           "totalMaximum" : 110
         }
+      },
+      { "@type" : "FileItem",
+        "url" : "http://www.imsglobal.org/xsd/qti/qtiv2p1/imsqti_v2p1.xsd",
+        "copyAdvice" : "true",
+        "expiresAt" : "2014-03-05T00:00:00Z",
+        "mediaType" : "application/xml",
+        "title" : "QTI v2.1 Specification Information Model",
+        "placementAdvice" : {
+          "windowTarget" : "_blank"
+        }
       }
-    }
   ]
 } */
 

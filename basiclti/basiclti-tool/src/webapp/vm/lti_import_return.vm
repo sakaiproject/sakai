@@ -1,0 +1,10 @@
+<div class="portletBody">
+#if ( $returnUrl && $content_item_url ) 
+<form method="POST" action="$returnUrl">
+<input type="hidden" name="content_item_url" value="$content_item_url">
+<input type="submit" value="Click Me">
+</form>
+#else
+<h4>$tlang.getString("operation.complete")</h4>
+#end
+</div>
