@@ -133,24 +133,7 @@ public class ConfirmedFriends extends Panel {
 		createWorksitePanel.setVisible(false);
 				
 		confirmedFriendsButtonForm.add(createWorksitePanel);
-		
-		final AjaxButton createWorksiteButton = new AjaxButton("createWorksiteButton", confirmedFriendsButtonForm) {
 
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
-				createWorksitePanel.setVisible(true);
-				target.add(createWorksitePanel);
-				target.appendJavaScript("fixWindowVertical();");
-			}
-
-		};
-		createWorksiteButton.setModel(new ResourceModel("link.worksite.create"));
-		createWorksiteButton.add(new AttributeModifier("title", true, new ResourceModel("link.title.worksite.create")));
-		createWorksiteButton.setVisible(sakaiProxy.isUserAllowedAddSite(userUuid));
-		confirmedFriendsButtonForm.add(createWorksiteButton);
-		
 		//search for connections
 		AjaxButton searchConnectionsButton = new AjaxButton("searchConnectionsButton", confirmedFriendsButtonForm) {
 			private static final long serialVersionUID = 1L;
