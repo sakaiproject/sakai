@@ -183,14 +183,17 @@ public class LtiImportItemProducer implements ViewComponentProducer, NavigationC
 				String contentReturn = ServerConfigurationService.getToolUrl() + "/" + placement.getId() + "/LtiImportItem?" +
 					"back=true" + "&toolId=" + toolId + "&" + URLEncoder.encode(hack) + "=hello" ;
 
-				String contentLaunch  = ltiService.getToolLaunch(tool, placement.getContext());
-				contentLaunch = ContentItem.buildLaunch(contentLaunch , contentReturn, contentData);
+				String siteInfoToolId = simplePageBean.getCurrentTool("sakai.siteinfo");
+
+				String helperUrl = ServerConfigurationService.getToolUrl() + "/" + siteInfoToolId +
+					"/sakai.basiclti.admin.helper.helper?panel=ContentConfig&flow=import&tool_id=" +
+					tool.get(LTIService.LTI_ID) + "&returnUrl=" + URLEncoder.encode(contentReturn);
 
 				String title = (String) tool.get(LTIService.LTI_TITLE);
 				if ( title == null ) title = (String) tool.get(LTIService.LTI_PAGETITLE);
 				if ( title == null ) title = messageLocator.getMessage("simplepage.blti.config");
 				UIBranchContainer link = UIBranchContainer.make(tofill, "blti-launch:");
-				UILink.make(link, "blti-launch-link", title, contentLaunch)
+				UILink.make(link, "blti-launch-link", title, helperUrl)
 					.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.blti.config")));
 				String fa_icon = (String) tool.get(LTIService.LTI_FA_ICON);
 				if ( fa_icon != null ) {
