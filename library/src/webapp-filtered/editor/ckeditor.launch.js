@@ -76,6 +76,40 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
       }
     }
 
+    function addClassOnLoad(){
+        try {
+            if (typeof this.instances !== 'undefined'){
+                //Run on all ckeditor instances on the page
+                for (const instance in this.instances) {
+                    //check for the instance to be an object not a function
+                    if (Object.hasOwnProperty.call(this.instances, instance)) {
+                        const instanceDoc = this.instances[instance];
+                        //Add sakai-dark-theme class to ckeditor iframe
+                        instanceDoc.document.$.documentElement.classList.add('sakaiUserTheme-dark');
+                    }
+                }
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    function addClassOnModeChange(){
+        try {
+            //Only run when switching out of source mode into mysiwyg mode
+            if (this.mode === 'wysiwyg') {
+                //Check for the editor to be an object not a function
+                if (Object.prototype.hasOwnProperty.call(this, 'document')) {
+                    const instanceDoc = this.document.$;
+                    //Add sakai-dark-theme class to ckeditor iframe
+                    instanceDoc.documentElement.classList.add('sakaiUserTheme-dark ');
+                }
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
     var folder = "";
 
     var collectionId = "";
@@ -313,22 +347,18 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             ckconfig.contentsCss.push(sakai.editor.sitePropertiesSkin);
             ckconfig.contentsCss.push('/library/editor/ckeditor.css');
         }
+
         //CKEditor doesn't have a method to add classes to the HTML element
-        //so we manually add the class on load and when exiting source mode
-        CKEDITOR.on('instanceLoaded', function(editor){
-            if (document.firstElementChild.classList.contains('sakai-dark-theme')){
-                if (typeof editor.editor.document.$ !== 'undefined'){
-                    editor.editor.document.$.firstElementChild.classList.add('sakai-dark-theme');
-                }
-                editor.editor.on('afterCommandExec', function(evt){
-                    if (evt.data.name === 'source'
-                        && typeof evt.editor.document !== 'undefined'
-                        && typeof evt.editor.document.$ !== 'undefined') {
-                            evt.editor.document.$.firstElementChild.classList.add('sakai-dark-theme');
-                    }
-                })
-            }
-        });
+        //so we manually add the class on load
+        //should be refactored when ckeditor5 is implemented
+        if (document.firstElementChild.classList.contains('sakai-dark-theme')){
+  
+            CKEDITOR.once('instanceReady', addClassOnLoad);
+            // //and we watch for switching out or source mode
+            CKEDITOR.once('instanceReady', function(editor){
+                editor.editor.on('mode', addClassOnModeChange);
+            });
+        }
 
         //Enable ckeditor to reflect themeswitcher changes. Overrides:
         //https://github.com/ckeditor/ckeditor4/blob/a786d6f43c17ef90c13b1cf001dbd00204a622b1/skins/moono-lisa/skin.js
@@ -523,7 +553,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
                 uiColor = getComputedStyle(document.firstElementChild);
                 templateStyles = {
                 id: '.' + editor.id,
-                invertIfDarkMode: (document.firstElementChild.classList.contains('sakai-dark-theme')) ? uiColor.getPropertyValue("--sakai-image-invert") : '',
+                invertIfDarkMode: (document.firstElementChild.classList.contains('sakaiUserTheme-dark')) ? uiColor.getPropertyValue("--sakai-image-invert") : '',
                 // These styles are used by various UI elements.
                 defaultBorder: uiColor.getPropertyValue("--sakai-border-color"),
                 toolbarElementsBorder: uiColor.getPropertyValue("--sakai-border-color"),
