@@ -74,8 +74,17 @@ import static org.tsugi.basiclti.BasicLTIUtil.getDouble;
           "extraCreditMaximum" : 10,
           "totalMaximum" : 110
         }
+      },
+      { "@type" : "FileItem",
+        "url" : "http://www.imsglobal.org/xsd/qti/qtiv2p1/imsqti_v2p1.xsd",
+        "copyAdvice" : "true",
+        "expiresAt" : "2014-03-05T00:00:00Z",
+        "mediaType" : "application/xml",
+        "title" : "QTI v2.1 Specification Information Model",
+        "placementAdvice" : {
+          "windowTarget" : "_blank"
+        }
       }
-    }
   ]
 } */
 
@@ -91,7 +100,7 @@ public class ContentItem {
 	public static final String MEDIA_CC_1_1 = "application/vnd.ims.imsccv1p1";
 	public static final String MEDIA_CC_1_2 = "application/vnd.ims.imsccv1p2";
 	public static final String MEDIA_CC_1_3 = "application/vnd.ims.imsccv1p3";
-	public static final String MEDIA_CC = MEDIA_CC_1_3+","+MEDIA_CC_1_2+","+MEDIA_CC_1_3;
+	public static final String MEDIA_CC = MEDIA_CC_1_1+","+MEDIA_CC_1_2+","+MEDIA_CC_1_3;
 
 	public static final String TYPE_LTILINKITEM = "LtiLinkItem";
 	public static final String TYPE_CONTENTITEM = "ContentItem";

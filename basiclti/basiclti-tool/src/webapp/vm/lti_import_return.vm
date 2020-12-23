@@ -1,0 +1,32 @@
+<div class="portletBody">
+#if ( $returnUrl && $content_item_url ) 
+<script>includeLatestJQuery('lti_import_return.vm');</script>
+<script>
+// https://stackoverflow.com/questions/2506457/how-to-resize-a-iframe-inside-the-containing-page
+var elem = window.parent.document.getElementById('sakai-basiclti-launch-iframe'); // the id of your iframe of course
+elem.style.height = '40em';
+</script>
+<center>
+<form method="POST" action="$returnUrl" style="padding: 5em;">
+<input type="hidden" name="content_item_url" value="$content_item_url">
+<p>
+<img id="import-cartridge-spinner" src="/library/image/sakai/spinner.gif" alt="$tlang.getString("gen.spinner.alt")" style="display:none;">
+</p>
+<p>
+<input type="submit" id="import-cartridge-continue" value="$tlang.getString("import.cartridge.continue")">
+</p>
+</form>
+</center>
+<script>
+$(document).ready( function() {
+    $('#import-cartridge-continue').on('click', function() {
+        $('#import-cartridge-spinner').show();
+        setTimeout(function () { $('#import-cartridge-continue').prop('disabled', true); }, 500);
+        return true;
+    });
+});
+</script>
+#else
+<h4>$tlang.getString("operation.complete")</h4>
+#end
+</div>

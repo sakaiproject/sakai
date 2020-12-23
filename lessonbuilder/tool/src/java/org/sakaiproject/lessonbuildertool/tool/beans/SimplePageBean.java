@@ -6716,52 +6716,31 @@ public class SimplePageBean {
 	public void handleImportItem() {
 		ToolSession toolSession = sessionManager.getCurrentToolSession();
 		if (toolSession != null) toolSession.setAttribute("lessonbuilder.fileImportDone", "true");
-                String returnedData = ToolUtils.getRequestParameter("data");
-                String contentItems = ToolUtils.getRequestParameter("content_items");
+                String contentItemUrl = ToolUtils.getRequestParameter("content_item_url");
+                log.debug("handleImportItem contentItemUrl={}", contentItemUrl);
 
                 // Retrieve the tool associated with the content item
                 String toolId = ToolUtils.getRequestParameter("toolId");
                 Long toolKey = SakaiBLTIUtil.getLongNull(toolId);
                 if ( toolKey == 0 || toolKey < 0 ) {
-			setErrKey("simplepage.lti-import-error-id", toolId);
+                        setErrKey("simplepage.lti-import-error-id", toolId);
                         return;
                 }
 
                 Map<String, Object> tool = ltiService.getTool(toolKey, getCurrentSiteId());
                 if ( tool == null ) {
-			setErrKey("simplepage.lti-import-error-id", toolId);
+                        setErrKey("simplepage.lti-import-error-id", toolId);
                         return;
                 }
-
-                // Parse, validate and check OAuth signature for the incoming ContentItem
-                ContentItem contentItem;
-                try {
-                        contentItem = SakaiBLTIUtil.getContentItemFromRequest(tool);
-                } catch(Exception e) {
-			setErrKey("simplepage.lti-import-bad-content-item", e.getMessage());
-			log.error(e.getMessage(), e);
-                        return;
-                }
-		// log.info("contentItem="+contentItem);
-
-		// Extract the content item data
-		Map item = (Map) contentItem.getItemOfType(ContentItem.TYPE_FILEITEM);
-		if ( item == null ) {
-			setErrKey("simplepage.lti-import-missing-file-item", null);
-			return;
-		}
-
-		String localUrl = (String) item.get("url");
-		// log.info("localUrl="+localUrl);
 
 		InputStream fis;
-		if ( localUrl != null && localUrl.length() > 1 ) {
+		if ( contentItemUrl != null && contentItemUrl.length() > 1 ) {
 			try {
-				URL parsedUrl = new URL(localUrl);
+				URL parsedUrl = new URL(contentItemUrl);
 				URLConnection yc = parsedUrl.openConnection();
 				fis = yc.getInputStream();
 			} catch ( Exception e ) {
-				setErrKey("simplepage.lti-import-error-reading-url", localUrl);
+				setErrKey("simplepage.lti-import-error-reading-url", contentItemUrl);
 				log.error(e.getMessage(), e);
 				return;
 			}
