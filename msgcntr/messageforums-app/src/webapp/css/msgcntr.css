@@ -2,7 +2,7 @@
 .forumHeader{
 	/*panel holding all forum metadata in forum list view*/
 	width: 100%;
-    background: #F8F8F3;
+    background: var(--sakai-background-color-1);
     border: 1px solid #D9C9A7;
     margin-bottom: 0;
     margin-top: 1em;
@@ -77,7 +77,7 @@
 	color: #000;
 	font: .84em/1em verdana, arial,sans-serif;
 	background: #fe9;
-	outline:1px solid #fff; 
+	outline:1px solid #fff;
 	padding: 1px 2px;
 	margin-right: 5px;
 	/*	display:none; - uncomment to hide the "new" message */
@@ -135,7 +135,7 @@
 	background: #bf9;
 	font: .84em/1em verdana, arial,sans-serif;
 	color: #000;
-	outline:1px solid #fff; 
+	outline:1px solid #fff;
 	padding: 1px 2px;
 	margin-right: 5px;
 }
@@ -143,7 +143,7 @@
 	color: #000;
 	font: .84em/1em verdana, arial,sans-serif;
 	background: #f9a;
-	outline:1px solid #fff; 	
+	outline:1px solid #fff;
 	padding: 1px 2px;
 	margin-right: 5px;
 }
@@ -209,7 +209,7 @@
 .messagesFlat tbody .title,.messagesThreaded tbody .title{
 	font-weight: bold;
 	font-size: 1.1em;
-}	
+}
 
 .allMessages .messageTitle .firstChild{
 	/*first post in a thread in topic listing (no body)*/
@@ -375,7 +375,7 @@ td div.title{
 	width: 1em;
 }
 .permissionTable {
-	width: 675px;	
+	width: 675px;
 }
 .permissionRoleLabel {
 	display:inline-block;
@@ -451,7 +451,7 @@ table.discTria:hover{
 }
 
 .printBlock .textPanel a{
-		
+
 }
 .printBlock .textPanel  a:after{
 	content: " (" attr(href) ")";
@@ -488,7 +488,7 @@ a .textPanelFooter{
 
 .lastRevise{
 	margin:.3em 0;
-	padding:.3em 0;		
+	padding:.3em 0;
 }
 form{margin-bottom:0;}
 
@@ -507,7 +507,7 @@ form{margin-bottom:0;}
 }
 .threadMovedMsg{
     font-size:1em;
-    color:#555555; 
+    color:#555555;
 }
 .calWidget{
     vertical-align:middle;
@@ -523,11 +523,11 @@ form{margin-bottom:0;}
 	padding-right: .25em;
 	padding-bottom: .3em;
 }
-.authorImage img{	
+.authorImage img{
 	max-width: 8em;
 	max-height: 5em;
 }
-.singleMessage .authorImage img{	
+.singleMessage .authorImage img{
 	max-width: 5em;
 	max-height: 4em;
 }
@@ -546,17 +546,17 @@ img.authorImage {
 .moreMenuLink span{
     padding-right:15px;
     background:transparent url(../images/silk/bullet_arrow_down.png) bottom right no-repeat;
-    
-}    
+
+}
 .moreMenu{
-    background:#fff;
+    background:var(--sakai-background-color-1);
     list-style:none;
     margin:0;
     padding:0px;
     border:1px solid #ccc;
 }
 .moreMenu li{
-    
+
 }
 .moreMenu li a{
     display:block;
