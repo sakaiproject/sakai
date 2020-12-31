@@ -107,10 +107,19 @@ $(document).ready(function(){
       $('#prefs_pvt_form\\:pvt_beg_date, #prefs_pvt_form\\:pvt_end_date').toggleClass('showed');
     });
 
+    $('#prefs_pvt_form\\:label').change( function(){
+      $('#prefs_pvt_form\\:pvt_selected_label').toggleClass('showed');
+    });
+
     $('#prefs_pvt_form\\:advanced_search_button').mousedown( function(){
       var searchByDateCheckbox = $('#prefs_pvt_form\\:search_by_date');
       if(searchByDateCheckbox.is(":checked") && !$('#prefs_pvt_form\\:pvt_beg_date').hasClass('showed')){
           $('#prefs_pvt_form\\:pvt_beg_date, #prefs_pvt_form\\:pvt_end_date').toggleClass('showed');
+      }
+
+      var searchByLabelCheckbox = $('#prefs_pvt_form\\:label');
+      if(searchByLabelCheckbox.is(":checked") && !$('#prefs_pvt_form\\:pvt_selected_label').hasClass('showed')){
+          $('#prefs_pvt_form\\:pvt_selected_label').toggleClass('showed');
       }
     });
 

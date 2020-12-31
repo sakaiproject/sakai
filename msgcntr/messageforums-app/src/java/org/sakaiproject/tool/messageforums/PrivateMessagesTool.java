@@ -3828,7 +3828,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     }
 
     tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), 
-          getSearchText(), getSearchFromDate(), getSearchToDate(),
+          getSearchText(), getSearchFromDate(), getSearchToDate(), getSelectedSearchLabel(),
           searchOnSubject, searchOnAuthor, searchOnBody, searchOnLabel, searchOnDate) ;
     
     newls= createDecoratedDisplay(tempPvtMsgLs);
@@ -3884,6 +3884,8 @@ public void processChangeSelectView(ValueChangeEvent eve)
   public Date searchFromDate;
   @Getter @Setter
   public Date searchToDate;
+  @Getter @Setter
+  public String selectedSearchLabel="pvt_priority_normal";
   @Getter @Setter
   public String searchFromDateString;
   @Getter @Setter
