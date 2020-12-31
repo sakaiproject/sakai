@@ -120,7 +120,7 @@ export class SakaiRubricCriteria extends RubricsElement {
             </div>
           </div>
           <div class="criterion-actions">
-            <span @focus="${this.onFocus}" @focusout="${this.focusOut}" tabindex="0" role="button" data-criterion-id="${c.id}" title="${tr("copy")} ${c.title}" class="clone fa fa-copy" @click="${this.cloneCriterion}"></span>
+            <a @focus="${this.onFocus}" @focusout="${this.focusOut}" tabindex="0" role="button" data-criterion-id="${c.id}" title="${tr("copy")} ${c.title}" class="linkStyle clone fa fa-copy" @keyup="${this.openEditWithKeyboard}" @click="${this.cloneCriterion}" href="#"></a>
             <sakai-item-delete criterion-id="${c.id}" criterion="${JSON.stringify(c)}" rubric-id="${this.rubricId}" @delete-item="${this.deleteCriterion}" token="${this.token}"></sakai-item-delete>
           </div>
         </div>
@@ -253,7 +253,7 @@ export class SakaiRubricCriteria extends RubricsElement {
   deleteCriterion(e) {
 
     e.stopPropagation();
-    var index = this.criteria.map(c => c.id).indexOf(e.detail.id);
+    const index = this.criteria.findIndex(c => c.id === e.detail.id);
     this.criteria.splice(index,1);
     this.criteriaMap.delete(e.detail.id);
     this.requestUpdate();
@@ -338,7 +338,7 @@ export class SakaiRubricCriteria extends RubricsElement {
   }
 
   cloneCriterion(e) {
-
+    e.preventDefault();
     e.stopPropagation();
 
     $.ajax({
@@ -358,14 +358,12 @@ export class SakaiRubricCriteria extends RubricsElement {
     if (!nc.ratings) {
       nc.ratings = [];
     }
-    this.dispatchEvent(new CustomEvent('criterion-created', { detail: { criterion: nc } }));
     this.criteria.push(nc);
     this.criteriaMap.set(nc.id, nc);
 
-    // Add the association to the rubric
+    // Add the criterion to the rubric
     var getUrl = window.location;
     var baseUrl = getUrl.protocol + "//" + getUrl.host + "/rubrics-service/rest/criterions/";
-    var criterionRows = this.querySelectorAll('.criterion-row');
     var urlList = baseUrl + nc.id + '\n';
     this.requestUpdate();
 
@@ -420,6 +418,13 @@ export class SakaiRubricCriteria extends RubricsElement {
     })
     .done(() => this.letShareKnow())
     .fail((jqXHR, error, message) => {console.log(error); console.log(message);});
+  }
+
+  openEditWithKeyboard(e) {
+	
+    if (e.keyCode == 32) {
+      this.cloneCriterion(e)
+    }
   }
 }
 

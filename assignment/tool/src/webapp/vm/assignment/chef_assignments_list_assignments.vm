@@ -448,14 +448,7 @@
 								#if($assignment.TypeOfAccess == "SITE")
 									$tlang.getString("gen.viewallgroupssections")
 								#elseif($assignment.TypeOfAccess == "GROUP")
-									#set($groupTitleList = [])
-									#foreach($groupID in $assignment.Groups)
-										#set($group = $!site.getGroup($groupID))
-										#if($!group)
-											#set($success = $groupTitleList.add($formattedText.escapeHtml($group.Title)))
-											#set($group = false)
-										#end
-									#end
+									#set($groupTitleList = $asnGroupTitleMap.get($assignment.Id))
                                     <div class="groupsContainer">
                                         <strong class="collapse" onclick="ASN.toggleGroups( this ); ASN.resizeFrame();">
 											$groupTitleList.size()
@@ -468,8 +461,8 @@
 
                                         <div id="groupsPanel" style="display: none;">
                                             <ul>
-												#foreach( $title in $groupTitleList )
-                                                    <li>$title</li>
+												#foreach($title in $groupTitleList)
+                                                    <li>$formattedText.escapeHtml($title)</li>
 												#end
                                             </ul>
                                         </div>

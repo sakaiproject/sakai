@@ -109,7 +109,7 @@ ${includeLatestJQuery}
 	#if ($messageSuccess)<div class="sak-banner-success">$tlang.getString("gen.success") $formattedText.escapeHtml($messageSuccess)</div>#end
 	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>#end
         #if ($configMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $formattedText.escapeHtml($configMessage)</div>#end
-	#if ($isAdmin || $allowMaintainerAddSystemTool)<div align="right"><a href="" title="$tlang.getString("add.to.system")" onclick="location = '$sakai_ActionURL.setPanel("ToolInsert")';return false;"> $tlang.getString("add.to.system")</a></a></div>#end
+	#if ($isAdmin || $allowMaintainerAddSystemTool)<div align="right"><a href="" title="$tlang.getString("add.to.system")" onclick="location = '$sakai_ActionURL.setPanel("ToolInsert")';return false;"> $tlang.getString("add.to.system")</a>#if ($isAdmin )<br/><a href="" title="$tlang.getString("add.auto")" onclick="location = '$sakai_ActionURL.setPanel("AutoInsert")';return false;"> $tlang.getString("add.auto")</a>#end</div>#end
 	<br/>
 	#if ($!ltiTools && $ltiTools.size() > 0 )
 		$tlang.getString("tool.description.system")
@@ -158,8 +158,13 @@ ${includeLatestJQuery}
 	                #if ( $isAdmin || $allowMaintainerAddSystemTool) 
 		                <td headers="action">
 		                	#if ( $isAdmin || ($allowMaintainerAddSystemTool && $getContext == $tool.get("SITE_ID")))
-	                        	<a href="$sakai_ActionURL.setPanel("ToolEdit")&id=$tool.get("id")">$tlang.getString("gen.edit")</a> / 
-	                        	<a href="$sakai_ActionURL.setPanel("ToolDelete")&id=$tool.get("id")">$tlang.getString("gen.delete")</a>
+                                <ul style="list-style: none;">
+	                        	<li style="display:inline"><a href="$sakai_ActionURL.setPanel("ToolEdit")&id=$tool.get("id")">$tlang.getString("gen.edit")</a></li>
+	                        	<li style="display:inline"><span aria-hidden="true"> / </span> <a href="$sakai_ActionURL.setPanel("ToolDelete")&id=$tool.get("id")">$tlang.getString("gen.delete")</a> </li>
+                                #if ( $tool.get("lti_content_count") > 0 ) 
+                                <li style="display:inline"><span aria-hidden="true"> / </span> <a href="$sakai_ActionURL.setPanel("ToolTransfer")&id=$tool.get("id")">$tlang.getString("gen.transfer")</a></li>
+                                #end
+                                </ul>
 	                        #end
 		                </td>
 	                 #end

@@ -12,11 +12,9 @@ export default {
   title: 'Sakai Tasks',
   decorators: [withA11y, (storyFn) => {
     parent.portal = {locale: "en-GB"};
-    const baseUrl = "/sakai-ws/rest/i18n/getI18nProperties?locale=en-GB&resourceclass=org.sakaiproject.i18n.InternationalizedMessages&resourcebundle=";
-    const tasksI18nUrl = `${baseUrl}tasks`;
     fetchMock
-      .get(tasksI18nUrl, tasksI18n, {overwriteRoutes: true})
-      .get("/api/tasks.json", tasksData, {overwriteRoutes: true})
+      .get(/sakai-ws\/rest\/i18n\/getI18nProperties.*/, tasksI18n, {overwriteRoutes: true})
+      .get("/api/tasks", tasksData, {overwriteRoutes: true})
       .put(/api\/tasks\/add/, () => Math.floor(Math.random() * Math.floor(1000)).toString(), {overwriteRoutes: true})
       .put(/api\/tasks\/.*/, 200, {overwriteRoutes: true})
       .delete(/api\/tasks\/.*/, 200, {overwriteRoutes: true})
@@ -29,6 +27,8 @@ export const BasicDisplay = () => {
 
   return html`
     ${unsafeHTML(styles)}
-    <sakai-tasks load>
+    <div style="width: 400px;">
+      <sakai-tasks user-id="adrian">
+    </div>
   `;
 };

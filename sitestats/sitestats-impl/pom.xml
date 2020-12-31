@@ -12,6 +12,24 @@
         <version>22-SNAPSHOT</version><!-- sitestats.version -->
     </parent>
 
+    <profiles>
+        <profile>
+            <id>skipBrokenTests</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/*StatsUpdateManagerTest.java</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
     <!-- Packaging -->
     <packaging>sakai-component</packaging>
     <properties>

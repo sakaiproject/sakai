@@ -24,6 +24,12 @@ import java.util.List;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.json.simple.JSONObject;
+
+import org.tsugi.basiclti.ContentItem;
+import org.tsugi.lti13.DeepLinkResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -41,6 +47,8 @@ import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameExcept
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.lti13.util.SakaiLineItem;
+
+import static org.tsugi.basiclti.BasicLTIUtil.getObject;
 
 /**
  * Some Sakai Utility code for IMS Basic LTI This is mostly code to support the
@@ -72,6 +80,18 @@ public class LineItemUtil {
 	// tool_id|content_id|resourceId|tag|
 	/**
 	 * Construct the GB_EXTERNAL_ID for LTI AGS entries
+	 * @param content - The content item cannot be null
+	 * @param lineItem - The lineItem to insert
+	 * @return The properly formatted external id
+	 */
+	public static String constructExternalId(Map<String, Object> content, SakaiLineItem lineItem)
+	{
+		Long tool_id = SakaiBLTIUtil.getLongKey(content.get(LTIService.LTI_TOOL_ID));
+		return constructExternalId(tool_id, content, lineItem);
+	}
+
+	/**
+	 * Construct the GB_EXTERNAL_ID for LTI AGS entries
 	 * @param tool_id - The key of the owning tool
 	 * @param content - The content item associated with this - likely null.
 	 * @param lineItem - The lineItem to insert
@@ -99,15 +119,17 @@ public class LineItemUtil {
 		} else {
 			retval += ID_SEPARATOR + content.get(LTIService.LTI_ID) + "|";
 		}
-		if ( lineItem.resourceId == null ) {
-			retval += ID_SEPARATOR;
-		} else {
-			retval += URLEncode(lineItem.resourceId.replace("|", "")) + ID_SEPARATOR;
-		}
-		if ( lineItem.tag == null ) {
-			retval += ID_SEPARATOR;
-		} else {
-			retval += URLEncode(lineItem.tag.replace("|", "")) + ID_SEPARATOR;
+		if ( lineItem != null ) {
+			if ( lineItem.resourceId == null ) {
+				retval += ID_SEPARATOR;
+			} else {
+				retval += URLEncode(lineItem.resourceId.replace("|", "")) + ID_SEPARATOR;
+			}
+			if ( lineItem.tag == null ) {
+				retval += ID_SEPARATOR;
+			} else {
+				retval += URLEncode(lineItem.tag.replace("|", "")) + ID_SEPARATOR;
+			}
 		}
 		return retval;
 	}
@@ -171,9 +193,9 @@ public class LineItemUtil {
 					assignmentObject.setReleased(releaseToStudent); // default true
 					assignmentObject.setCounted(includeInComputation); // default true
 					assignmentObject.setUngraded(false);
+					// NOTE: addAssignment does *not* set the external values - Update *does* store them
 					assignmentId = g.addAssignment(context_id, assignmentObject);
 					assignmentObject.setId(assignmentId);
-					// Update sets the external values while add does not.
 					g.updateAssignment(context_id, assignmentId, assignmentObject);
 					log.info("Added assignment: {} with Id: {}", lineItem.label, assignmentId);
 				} catch (ConflictingAssignmentNameException e) {
@@ -506,6 +528,38 @@ public class LineItemUtil {
 		return null;
 	}
 
+	/**
+	 * Pull a lineitem out of a Deep Link Response, construct a lineitem from a ContentItem response
+	 */
+	public static SakaiLineItem extractLineItem(String response_str) {
+
+		SakaiLineItem sakaiLineItem = null;
+
+		JSONObject response = org.tsugi.basiclti.BasicLTIUtil.parseJSONObject(response_str);
+		if ( response == null ) return null;
+
+		// Check if this a DeepLinkResponse
+		JSONObject lineItem = getObject(response, DeepLinkResponse.LINEITEM);
+		if ( lineItem == null ) lineItem = getObject(response, ContentItem.LINEITEM);
+
+		// Nothing to parse here...
+		if ( lineItem == null ) return null;
+
+		String lineItemStr = lineItem.toString();
+		try {
+			sakaiLineItem = (SakaiLineItem) new ObjectMapper().readValue(lineItemStr, SakaiLineItem.class);
+		} catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
+			log.warn("Could not parse input as SakaiLineItem {}",lineItemStr);
+			return null;
+		}
+
+		// See if we can find the scoreMaximum the old way
+		Double scoreMaximum = ContentItem.getScoreMaximum(lineItem);
+		if ( scoreMaximum != null ) sakaiLineItem.scoreMaximum = scoreMaximum;
+
+		return sakaiLineItem;
+
+	}
 
 	/**
 	 * Setup a security advisor.

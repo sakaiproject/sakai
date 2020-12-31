@@ -600,9 +600,8 @@ public abstract class BaseLTIService implements LTIService {
 
 	@Override
 	public List<Map<String, Object>> getToolsLessonsSelection(String siteId) {
-		// TODO: Once the checkboxes have been around for a while - perhaps as part of Sakai-22
-		// return getTools("lti_tools."+LTIService.LTI_PL_LESSONSSELECTION+" = 1",null,0,0, siteId);
-		return getToolsLaunch(siteId);
+		// SAK-44637 - Make Lessons placement checkbox have an effect
+		return getTools("lti_tools."+LTIService.LTI_PL_LESSONSSELECTION+" = 1",null,0,0, siteId);
 	}
 
 	@Override
@@ -612,11 +611,17 @@ public abstract class BaseLTIService implements LTIService {
 
 	@Override
 	public Object insertContent(Properties newProps, String siteId) {
+		if ( newProps.getProperty(LTIService.LTI_PLACEMENTSECRET) == null ) {
+			newProps.setProperty(LTIService.LTI_PLACEMENTSECRET, UUID.randomUUID().toString());
+		}
 		return insertContentDao(newProps, siteId, isAdmin(siteId), isMaintain(siteId));
 	}
 
 	@Override
 	public Object insertContentDao(Properties newProps, String siteId) {
+		if ( newProps.getProperty(LTIService.LTI_PLACEMENTSECRET) == null ) {
+			newProps.setProperty(LTIService.LTI_PLACEMENTSECRET, UUID.randomUUID().toString());
+		}
 		return insertContentDao(newProps, siteId, true, true);
 	}
 
@@ -715,7 +720,7 @@ public abstract class BaseLTIService implements LTIService {
 					updateToolDao(toolKey, toolProps, siteId, isAdminRole, isMaintainRole);
 				}
 			}
-			if ( tool.get(LTIService.LTI_PLACEMENTSECRET) == null ) {
+			if ( reqProps.get(LTIService.LTI_PLACEMENTSECRET) == null ) {
 				reqProps.setProperty(LTIService.LTI_PLACEMENTSECRET, UUID.randomUUID().toString());
 			}
 			retval = updateContentDao(contentKey, reqProps, siteId, isAdminRole, isMaintainRole);
@@ -806,6 +811,34 @@ public abstract class BaseLTIService implements LTIService {
 				
 		return retval;
 	}
+
+	// Transfer content links from one tool to another
+	@Override
+	public Object transferToolContentLinks(Long currentTool, Long newTool, String siteId)
+	{
+		if ( ! isMaintain(siteId) ) {
+			log.error("Must be maintain to transferToolContentLinks {}", siteId);
+			return new Long(0);
+		}
+
+		// Make sure the current user can retrieve both the source and destination URLs.
+		Map<String, Object> tool = getTool(currentTool, siteId);
+		Map<String, Object> new_tool = getTool(newTool, siteId);
+		if ( tool == null || new_tool == null) {
+			return rb.getString("error.transfer.bad.tools");
+		}
+
+		return transferToolContentLinksDao(currentTool, newTool, siteId, isAdmin(siteId));
+	}
+
+	public Object transferToolContentLinksDao(Long currentTool, Long newTool)
+	{
+		boolean isAdminRole = true;
+		String siteId = null;
+		return transferToolContentLinksDao(currentTool, newTool, siteId, isAdminRole);
+	}
+
+	protected abstract Object transferToolContentLinksDao(Long currentTool, Long newTool, String siteId, boolean isAdminRole);
 
 	@Override
 	public String deleteContentLink(Long key, String siteId)

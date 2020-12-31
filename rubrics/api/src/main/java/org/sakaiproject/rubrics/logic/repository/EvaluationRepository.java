@@ -41,10 +41,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 public interface EvaluationRepository extends MetadataRepository<Evaluation, Long> {
 
     static final String EVALUATOR_CONSTRAINT = "(1 = ?#{principal.isEvaluator() ? 1 : 0} and " +
-            QUERY_CONTEXT_CONSTRAINT + ")";
+        QUERY_CONTEXT_CONSTRAINT + ")";
 
     static final String EVALUEE_CONSTRAINT = "(1 = ?#{principal.isEvaluee() ? 1 : 0} and " +
-            "resource.evaluatedItemOwnerId = ?#{principal.userId})";
+        "resource.evaluatedItemOwnerId = ?#{principal.userId} and status = ?#{ T(org.sakaiproject.rubrics.logic.model.EvaluationStatus).RETURNED })";
 
     @Override
     @PreAuthorize("canRead(#id, 'Evaluation')")
@@ -59,20 +59,14 @@ public interface EvaluationRepository extends MetadataRepository<Evaluation, Lon
     @PreAuthorize("canWrite(#id, 'Evaluation')")
     void deleteById(Long id);
 
-    @RestResource(path = "by-association-id", rel = "by-association-id")
+    @RestResource(path = "by-association", rel = "by-association")
     @PreAuthorize("hasAnyRole('ROLE_EVALUATOR', 'ROLE_EVALUEE')")
     @Query("select resource from Evaluation resource where resource.toolItemRubricAssociation.id = :toolItemRubricAssociationId " +
             "and (" + EVALUATOR_CONSTRAINT + " or " + EVALUEE_CONSTRAINT + ")")
     @QueryHints(@QueryHint(name="org.hibernate.cacheable", value = "true"))
     List<Evaluation> findByToolItemRubricAssociationId(@Param("toolItemRubricAssociationId") Long toolItemRubricAssociationId);
 
-    @RestResource(path = "by-tool-item-and-associated-item-ids", rel = "by-tool-item-and-associated-item-ids")
-    @PreAuthorize("hasRole('ROLE_EVALUATOR')")
-    @Query("select resource from Evaluation resource where resource.toolItemRubricAssociation.toolId = :toolId " +
-            "and resource.toolItemRubricAssociation.itemId = :itemId and " + QUERY_CONTEXT_CONSTRAINT)
-    List<Evaluation> findByToolIdAndAssociationItemId(@Param("toolId") String toolId, @Param("itemId") String itemId);
-
-    @RestResource(path = "by-tool-item-and-associated-item-and-evaluated-item-ids", rel = "by-tool-item-and-associated-item-and-evaluated-item-ids")
+    @RestResource(path = "by-tool-and-assignment-and-submission", rel = "by-tool-and-assignment-and-submission")
     @PreAuthorize("hasAnyRole('ROLE_EVALUATOR', 'ROLE_EVALUEE')")
     @Query("select resource from Evaluation resource where " +
             "resource.evaluatedItemId = :evaluatedItemId " +

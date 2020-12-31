@@ -48,7 +48,7 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexFormat;
@@ -1223,7 +1223,8 @@ public class GradingService
     		  iter = itemGradingSet.iterator();
     		  while(iter.hasNext()){
     			  ItemGradingData itemGrading = (ItemGradingData) iter.next();
-    			  if(itemGrading.getPublishedItemId().equals(entry.getKey())){
+    			  AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(itemGrading.getPublishedAnswerId());
+    			  if (answer != null && itemGrading.getPublishedItemId().equals(entry.getKey())) {
     				  itemGrading.setAutoScore(entry.getValue()[1]/entry.getValue()[2]);
     			  }
     		  }
@@ -1566,11 +1567,13 @@ public class GradingService
     {
     	// return (double) 0;
     	// Para que descuente (For discount)
+    	double score = (double) 0;
     	if ((TypeIfc.EXTENDED_MATCHING_ITEMS).equals(itemType)||(TypeIfc.MULTIPLE_CHOICE).equals(itemType)||(TypeIfc.TRUE_FALSE).equals(itemType)||(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION).equals(itemType)){
-    		return (Math.abs(answer.getDiscount()) * ((double) -1));
-    	}else{
-    		return (double) 0;
+    		score = Math.abs(answer.getDiscount()) * ((double) -1);
     	}
+
+    	answer.setPartialCredit(score);
+    	return score;
     }
     return answer.getScore();
   }
@@ -2490,13 +2493,20 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	    return typeId;
   }
   
-  public boolean fibmatch(String answer, String input, boolean casesensitive, boolean ignorespaces) {
-
-	  
+	public boolean fibmatch(final String rawAnswer, final String rawInput, final boolean casesensitive, final boolean ignorespaces) {
 		try {
+		 // User on Mac will input &uuml; instead of ü
+		 String answer = StringEscapeUtils.unescapeHtml4(rawAnswer);
+		 String input = StringEscapeUtils.unescapeHtml4(rawInput);
+
+		 // Always trim trailing spaces
+		 answer = answer.trim();
+		 input = input.trim();
+
+		 // Trim interior space including non-breaking spaces if instructor selects option
 		 if (ignorespaces) {
-			 answer = answer.replaceAll(" ", "");
-			 input = input.replaceAll(" ", "");
+			 answer = answer.replaceAll("\\p{javaSpaceChar}", "");
+			 input = input.replaceAll("\\p{javaSpaceChar}", "");
 		 }
  		 StringBuilder regex_quotebuf = new StringBuilder();
 		 
@@ -2522,8 +2532,6 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		 Matcher m = p.matcher(input);
 		 boolean result = m.matches();
  		 return result;
-		  
-		
 		}
 		catch (Exception e){
 			return false;

@@ -52,12 +52,12 @@ public interface ToolItemRubricAssociationRepository extends MetadataRepository<
     @PreAuthorize("canWrite(#id, 'ToolItemRubricAssociation')")
     void deleteById(Long id);
 
-    @RestResource(path = "by-tool-item-ids", rel = "by-tool-item-ids")
+    @RestResource(path = "by-tool-and-assignment", rel = "by-tool-and-assignment")
     @Query("select resource from ToolItemRubricAssociation resource where resource.toolId = :toolId and resource.itemId = :itemId and " + QUERY_CONTEXT_CONSTRAINT)
     @QueryHints(@QueryHint(name="org.hibernate.cacheable", value = "true"))
     List<ToolItemRubricAssociation> findByToolIdAndItemId(@Param("toolId") String toolId, @Param("itemId") String itemId);
 
-    @RestResource(path = "by-rubric-id", rel = "by-rubric-id")
+    @RestResource(path = "by-rubric", rel = "by-rubric")
     @Query("select resource from ToolItemRubricAssociation resource where resource.rubricId = :rubricId ") //and " + QUERY_CONTEXT_CONSTRAINT)
     @QueryHints(@QueryHint(name="org.hibernate.cacheable", value = "true"))
     List<ToolItemRubricAssociation> findByRubricId(@Param("rubricId") Long rubricId);

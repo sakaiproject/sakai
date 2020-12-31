@@ -835,20 +835,13 @@ public class BaseSite implements Site
 
 
 	public Date getCreatedDate() {
-		Date date = null;
-		if (m_createdTime != null) {
-			new Date(m_createdTime.toEpochMilli());
-		}
-		return date;
+		return m_createdTime != null ? new Date(m_createdTime.toEpochMilli()) : null;
 	}
 	
 	public Date getModifiedDate() {
-		Date date = null;
-		if (m_lastModifiedTime != null) {
-			date = new Date(m_lastModifiedTime.toEpochMilli());
-		}
-		return date;
+		return m_lastModifiedTime != null ? new Date(m_lastModifiedTime.toEpochMilli()) : null;
 	}
+
 	/**
 	 * @inheritDoc
 	 */

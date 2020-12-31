@@ -1065,7 +1065,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 			BufferedImage bufferedImage = new BufferedImage(ProfileConstants.PROFILE_AVATAR_WIDTH, ProfileConstants.PROFILE_AVATAR_HEIGHT, BufferedImage.TYPE_INT_ARGB);
 
 			String displayName = sakaiProxy.getUserDisplayName(userUuid);
-			String[] names = displayName.split(" ");
+			String[] names = displayName.trim().split("\\s+");
 			String initials = "";
 			int fontSize;
 			int profileInitialsSize = Integer.parseInt(sakaiProxy.getServerConfigurationParameter("profile2.avatar.initials.size", "2"));

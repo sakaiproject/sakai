@@ -27,7 +27,7 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
       if (!c.selectedvalue) {
         c.selectedvalue = 0;
       }
-      c.pointrange = this.getHighLow(c.ratings, "points");
+      c.pointrange = this.getHighLow(c.ratings);
     });
 
     if (this.evaluationDetails) {

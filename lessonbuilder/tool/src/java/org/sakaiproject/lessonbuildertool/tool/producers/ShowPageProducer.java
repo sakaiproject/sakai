@@ -84,6 +84,7 @@ import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.portal.util.CSSUtils;
 import org.sakaiproject.portal.util.PortalUtils;
+import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
@@ -128,6 +129,9 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.lessonbuildertool.service.AssignmentEntity;
+import org.sakaiproject.site.api.Group;
 
 /**
  * This produces the primary view of the page. It also handles the editing of
@@ -154,6 +158,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	private ToolManager toolManager;
 	public TextInputEvolver richTextEvolver;
 	private static LessonBuilderAccessService lessonBuilderAccessService;
+	DateFormat df = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, new ResourceLoader().getLocale());;
 	
 	private List<Long> printedSubpages;
 	
@@ -667,20 +672,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		if(pageItem.getType() != SimplePageItem.STUDENT_CONTENT) {
 			title = pageItem.getName();
 		}else {
-			title = currentPage.getTitle();
-			if(!pageItem.isAnonymous() || canEditPage) {
-			    try {
-				String owner = currentPage.getOwner();
-				String group = currentPage.getGroup();
-				if (group != null)
-				    ownerName = simplePageBean.getCurrentSite().getGroup(group).getTitle();
-				else
-				    ownerName = UserDirectoryService.getUser(owner).getDisplayName();
-				
-			    } catch (Exception ignore) {};
-			    if (ownerName != null && !ownerName.equals(title))
-				title += " (" + ownerName + ")";
-			}
+			title = buildStudentPageTitle(pageItem, currentPage.getTitle(), currentPage.getGroup(), currentPage.getOwner(), simplePageBean.isPageOwner(currentPage), canEditPage);
 		}
 		
 		String newPath = null;
@@ -1260,6 +1252,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			String color = null;
 			for (SimplePageItem i : itemList) {
 
+				// If the content is MULTIMEDIA (type 7) and the sakaiId is populated, then this is
+				// a Sakai content reference. We can then check if it's available to the current user
+				if (i.getType() == SimplePageItem.MULTIMEDIA && StringUtils.isNotBlank(i.getSakaiId())) {
+				    if (!contentHostingService.isAvailable(String.valueOf(i.getSakaiId()))) {
+				        continue;
+				    }
+				}
+				
 				// break is not a normal item. handle it first
 			        // this will work whether first item is break or not. Might be a section
 			        // break or a normal item
@@ -1950,16 +1950,16 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 					if (mmDisplayType == null && simplePageBean.isImageType(i)) {
 						// a wide default for images would produce completely wrong effect
-					    	if (widthSt != null && !widthSt.equals("")) 
+					    	if (StringUtils.isNotBlank(widthSt))
 						    width = new Length(widthSt);
-					} else if (widthSt == null || widthSt.equals("")) {
+					} else if (StringUtils.isBlank(widthSt)) {
 						width = new Length(DEFAULT_WIDTH);
 					} else {
 						width = new Length(widthSt);
 					}
 
 					Length height = null;
-					if (i.getHeight() != null) {
+					if (StringUtils.isNotBlank(i.getHeight())) {
 						height = new Length(i.getHeight());
 					}
 
@@ -2837,26 +2837,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							GeneralViewParameters eParams = new GeneralViewParameters(ShowPageProducer.VIEW_ID, page.getPageId());
 							eParams.setItemId(i.getId());
 							eParams.setPath("push");
-							
-							String studentTitle = page.getTitle();
-						
-							String sownerName = null;
-							try {
-								if(!i.isAnonymous() || canEditPage) {
-									if (page.getGroup() != null)
-									    sownerName = simplePageBean.getCurrentSite().getGroup(page.getGroup()).getTitle();
-									else
-									    sownerName = UserDirectoryService.getUser(page.getOwner()).getDisplayName();
-									if (sownerName != null && sownerName.equals(studentTitle))
-									    studentTitle = "(" + sownerName + ")";
-									else
-									    studentTitle += " (" + sownerName + ")";
-								}else if (simplePageBean.isPageOwner(page)) {
-									studentTitle += " (" + messageLocator.getMessage("simplepage.comment-you") + ")";
-								}
-							} catch (UserNotDefinedException e) {
-							}
-							
+
+							String studentTitle = buildStudentPageTitle(i, page.getTitle(), page.getGroup(), page.getOwner(), simplePageBean.isPageOwner(page), canEditPage);
+
 							UIInternalLink.make(row, "studentLink", studentTitle, eParams);
 						
 							if(simplePageBean.isPageOwner(page)) {
@@ -3167,7 +3150,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							itemGroupTitles = "[" + itemGroupTitles + "]";
 						}
 						if (canEditPage) {
-							UIOutput.make(tableRow, "item-groups", itemGroupString);
+							UIOutput.make(tableRow, "calendar-item-groups", itemGroupString);
 							String name = i.getName()!= null ? i.getName() : "" ;
 							UIOutput.make(tableRow, "calendar-name", name);
 							String description = i.getDescription()!= null ? i.getDescription() : "" ;
@@ -3713,7 +3696,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		return makeLink(container, ID, i, simplePageBean, simplePageToolDao, messageLocator, canEditPage, currentPage, notDone, status, forceButtonColor, color);
 	}
 
-	protected static boolean makeLink(UIContainer container, String ID, SimplePageItem i, SimplePageBean simplePageBean, SimplePageToolDao simplePageToolDao, MessageLocator messageLocator,
+	protected boolean makeLink(UIContainer container, String ID, SimplePageItem i, SimplePageBean simplePageBean, SimplePageToolDao simplePageToolDao, MessageLocator messageLocator,
 									  boolean canEditPage, SimplePage currentPage, boolean notDone, Status status) {
 		return makeLink(container, ID, i, simplePageBean, simplePageToolDao, messageLocator, canEditPage, currentPage, notDone, status, false, null);
 	}
@@ -3727,7 +3710,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	 * @param simplePageToolDao
 	 * @return Whether or not this item is available.
 	 */
-	protected static boolean makeLink(UIContainer container, String ID, SimplePageItem i, SimplePageBean simplePageBean, SimplePageToolDao simplePageToolDao, MessageLocator messageLocator,
+	protected boolean makeLink(UIContainer container, String ID, SimplePageItem i, SimplePageBean simplePageBean, SimplePageToolDao simplePageToolDao, MessageLocator messageLocator,
 			boolean canEditPage, SimplePage currentPage, boolean notDone, Status status, boolean forceButtonColor, String color) {
 		String URL = "";
 		boolean available = simplePageBean.isItemAvailable(i);
@@ -4004,7 +3987,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		if (fake) {
 			ID = ID + "-fake";
-			UIOutput link = UIOutput.make(container, ID, i.getName());
+			String linkText = i.getName();
+			if (i.getType() == SimplePageItem.ASSIGNMENT) {
+				linkText = getLinkText(linkText, i.getSakaiId());
+			}
+			UIOutput link = UIOutput.make(container, ID, linkText);
 			link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
 			// fake and available occurs when prerequisites aren't the issue (it's avaiable)
 			// so the item must be nonexistent or otherwise unavalable.
@@ -4031,7 +4018,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				link.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.complete_required")));
 			}
 		} else {
-			UIOutput.make(container, ID + "-text", i.getName());
+			String linkText = i.getName();
+			if (i.getType() == SimplePageItem.ASSIGNMENT) {
+				linkText = getLinkText(linkText, i.getSakaiId());
+			}
+			UIOutput.make(container, ID + "-text", linkText);
 		}
 
 		if (note != null) {
@@ -4039,6 +4030,22 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		}
 
 		return available;
+	}
+
+	
+	private String getLinkText(String linkText, String sakaiId ) {
+		//Create a link with open and due dates for assignments links in Lessons
+		SecurityAdvisor yesMan = (String arg0, String arg1, String agr2) -> SecurityAdvisor.SecurityAdvice.ALLOWED;
+		securityService.pushAdvisor(yesMan);
+		try {
+			AssignmentEntity assignment = (AssignmentEntity) assignmentEntity.getEntity(sakaiId, simplePageBean);		
+			linkText += " " + messageLocator.getMessage("simplepage.assignment.open_close_date", 
+					new Object[] {df.format(assignment.getOpenDate()), df.format(assignment.getDueDate())});
+		} catch (Exception ex) {}
+		finally {
+			securityService.popAdvisor(yesMan);
+		}
+		return linkText;
 	}
 
 	private static String getUserDisplayName(String owner) {
@@ -4952,7 +4959,19 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		makeCsrf(form, "csrf14");
 
 		UIOutput.make(form, "pageTitleLabel", messageLocator.getMessage("simplepage.pageTitle_label"));
-		UIInput.make(form, "pageTitle", "#{simplePageBean.pageTitle}");
+
+		final String placementId = toolManager.getCurrentPlacement() != null ? toolManager.getCurrentPlacement().getId() : null;
+		final SitePage sitePage = simplePageBean.getCurrentSite() != null ? simplePageBean.getCurrentSite().getPage(page.getToolId()) : null;
+		String externalPageTitle = null;
+		if (sitePage != null && StringUtils.isNotBlank(placementId)) {
+			 externalPageTitle = sitePage.getTools().stream()
+					.filter(t -> t.getId().equals(placementId))
+					.findFirst()
+					.map(Placement::getTitle)
+					.orElse("");
+		}
+		String effectivePageTitle = StringUtils.defaultIfBlank(externalPageTitle, page.getTitle());
+		UIInput.make(form, "pageTitle", "#{simplePageBean.pageTitle}", effectivePageTitle);
 
 		if (!simplePageBean.isStudentPage(page)) {
 			UIOutput.make(tofill, "hideContainer");
@@ -5148,6 +5167,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIInput.make(form, "commentsEditId", "#{simplePageBean.itemId}");
 
 		UIBoundBoolean.make(form, "comments-anonymous", "#{simplePageBean.anonymous}");
+
+		UIOutput gradeBook = UIOutput.make(form, "gradeBookCommentsDiv");
+		if(simplePageBean.getCurrentTool(simplePageBean.GRADEBOOK_TOOL_ID) == null) {
+			gradeBook.decorate(new UIStyleDecorator("noDisplay"));
+		}
 		UIBoundBoolean.make(form, "comments-graded", "#{simplePageBean.graded}");
 		UIInput.make(form, "comments-max", "#{simplePageBean.maxPoints}");
 		
@@ -5192,10 +5216,16 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIOutput.make(form, "due_date_dummy");
         
 		UIBoundBoolean.make(form, "peer-eval-allow-selfgrade", "#{simplePageBean.peerEvalAllowSelfGrade}");
-        
+
 		UIBoundBoolean.make(form, "student-graded", "#{simplePageBean.graded}");
 		UIInput.make(form, "student-max", "#{simplePageBean.maxPoints}");
 
+		UIOutput gradeBook = UIOutput.make(form, "gradeBookStudentsDiv");
+		UIOutput gradeBook2 = UIOutput.make(form, "gradeBookStudentCommentsDiv");
+		if(simplePageBean.getCurrentTool(simplePageBean.GRADEBOOK_TOOL_ID) == null) {
+			gradeBook.decorate(new UIStyleDecorator("noDisplay"));
+			gradeBook2.decorate(new UIStyleDecorator("noDisplay"));
+		}
 		UIBoundBoolean.make(form, "student-comments-graded", "#{simplePageBean.sGraded}");
 		UIInput.make(form, "student-comments-max", "#{simplePageBean.sMaxPoints}");
 
@@ -5231,7 +5261,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIBoundBoolean.make(form, "question-prerequisite", "#{simplePageBean.prerequisite}");
 		UIInput.make(form, "question-text-input", "#{simplePageBean.questionText}");
 		UIInput.make(form, "question-answer-full-shortanswer", "#{simplePageBean.questionAnswer}");
-		
+
+		UIOutput gradeBook = UIOutput.make(form, "gradeBookQuestionsDiv");
+		if(simplePageBean.getCurrentTool(simplePageBean.GRADEBOOK_TOOL_ID) == null) {
+			gradeBook.decorate(new UIStyleDecorator("noDisplay"));
+		}
 		UIBoundBoolean.make(form, "question-graded", "#{simplePageBean.graded}");
 		UIInput.make(form, "question-gradebook-title", "#{simplePageBean.gradebookTitle}");
 		UIInput.make(form, "question-max", "#{simplePageBean.maxPoints}");
@@ -5775,5 +5809,30 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 	public void setPrintedSubpages(List<Long> printedSubpages) {
 		this.printedSubpages = printedSubpages;
+	}
+
+	private String buildStudentPageTitle(SimplePageItem item, String pageTitle, String groupId, String ownerId, boolean isOwner, boolean canEditPage) {
+		String title = pageTitle;
+		String ownerName = "";
+		if (!item.isAnonymous() || canEditPage) {
+			if (groupId != null) {
+				Group g = simplePageBean.getCurrentSite().getGroup(groupId);
+				ownerName = g != null ? g.getTitle() : messageLocator.getMessage("simplepage.student-group-deleted");
+			} else {
+				try {
+					ownerName = UserDirectoryService.getUser(ownerId).getDisplayName();
+				} catch (UserNotDefinedException e) {
+					ownerName = messageLocator.getMessage("simplepage.student-user-deleted");
+				}
+			}
+		} else if (isOwner) {
+			ownerName = messageLocator.getMessage("simplepage.comment-you");
+		}
+
+		if (!ownerName.isEmpty() && !ownerName.equals(title)) {
+			title += " (" + ownerName + ")";
+		}
+
+		return title;
 	}
 }

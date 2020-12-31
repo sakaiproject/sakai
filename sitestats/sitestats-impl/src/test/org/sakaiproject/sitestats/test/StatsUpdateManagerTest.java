@@ -51,7 +51,6 @@ import org.sakaiproject.presence.api.PresenceService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.JobRun;
-import org.sakaiproject.sitestats.api.ResourceStat;
 import org.sakaiproject.sitestats.api.SiteActivity;
 import org.sakaiproject.sitestats.api.SitePresence;
 import org.sakaiproject.sitestats.api.SiteVisits;
@@ -149,7 +148,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		assertTrue(statsUpdateManager.collectEvent(e2));
 		
 		// check results
-		List<EventStat> results = (List<EventStat>) db.getResultsForClass(EventStatImpl.class);
+		List<EventStatImpl> results = db.getResultsForClass(EventStatImpl.class);
 		assertEquals(2, results.size());
 		EventStat es1 = results.get(0);
 		assertEquals(e1.getContext() ,es1.getSiteId());
@@ -204,16 +203,16 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		assertTrue(statsUpdateManager.collectEvent(e15));
 		assertTrue(statsUpdateManager.collectEvent(e16));
 		// #1: SST_EVENTS
-		List<EventStat> r1 = (List<EventStat>) db.getResultsForClass(EventStatImpl.class);
+		List<EventStatImpl> r1 = db.getResultsForClass(EventStatImpl.class);
 		assertEquals(0, r1.size());
 		// #1: SST_SITEVISITS
-		List<SiteVisits> r2 = (List<SiteVisits>) db.getResultsForClass(SiteVisitsImpl.class);
+		List<SiteVisitsImpl> r2 = db.getResultsForClass(SiteVisitsImpl.class);
 		assertEquals(0, r2.size());
 		// #1: SST_SITEACTIVITY
-		List<SiteActivity> r3 = (List<SiteActivity>) db.getResultsForClass(SiteActivityImpl.class);
+		List<SiteActivityImpl> r3 = db.getResultsForClass(SiteActivityImpl.class);
 		assertEquals(0, r3.size());
 		// #1: SST_RESOURCES
-		List<ResourceStat> r4 = (List<ResourceStat>) db.getResultsForClass(ResourceStatImpl.class);
+		List<ResourceStatImpl> r4 = db.getResultsForClass(ResourceStatImpl.class);
 		assertEquals(0, r4.size());
 	}
 	
@@ -225,7 +224,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		Event eSV2 = statsUpdateManager.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_B_ID, "session-id-b");
 		assertTrue(statsUpdateManager.collectEvents(Arrays.asList(eSV1, eSV2)));
 		// #1: SST_EVENTS
-		List<EventStat> r1 = (List<EventStat>) db.getResultsForClass(EventStatImpl.class);
+		List<EventStatImpl> r1 = db.getResultsForClass(EventStatImpl.class);
 		assertEquals(2, r1.size());
 		EventStat es1 = r1.get(0);
 		EventStat es2 = r1.get(1);
@@ -243,17 +242,17 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		assertEquals(1, es1.getCount());
 		assertEquals(1, es2.getCount());
 		// #1: SST_SITEVISITS
-		List<SiteVisits> r2 = (List<SiteVisits>) db.getResultsForClass(SiteVisitsImpl.class);
+		List<SiteVisitsImpl> r2 = db.getResultsForClass(SiteVisitsImpl.class);
 		assertEquals(1, r2.size());
 		SiteVisits sv = r2.get(0);
 		assertEquals(FakeData.SITE_A_ID, sv.getSiteId());
 		assertEquals(2, sv.getTotalVisits());
 		assertEquals(2, sv.getTotalUnique());
 		// #1: SST_SITEACTIVITY
-		List<SiteActivity> r3 = (List<SiteActivity>) db.getResultsForClass(SiteActivityImpl.class);
+		List<SiteActivityImpl> r3 = db.getResultsForClass(SiteActivityImpl.class);
 		assertEquals(0, r3.size());
 		// #1: SST_RESOURCES
-		List<ResourceStat> r4 = (List<ResourceStat>) db.getResultsForClass(ResourceStatImpl.class);
+		List<ResourceStatImpl> r4 = db.getResultsForClass(ResourceStatImpl.class);
 		assertEquals(0, r4.size());
 	}
 
@@ -265,7 +264,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		Event eSV2 = statsUpdateManager.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id-a");
 		assertTrue(statsUpdateManager.collectEvents(Arrays.asList(eSV1, eSV2)));
 		// #2: SST_EVENTS
-		List<EventStat> r1 = (List<EventStat>) db.getResultsForClass(EventStatImpl.class);
+		List<EventStatImpl> r1 = db.getResultsForClass(EventStatImpl.class);
 		assertEquals(1, r1.size());
 		EventStat es1 = r1.get(0);
 		assertEquals(FakeData.SITE_A_ID, es1.getSiteId());
@@ -273,17 +272,17 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		assertEquals(eSV1.getUserId(), es1.getUserId());
 		assertEquals(2, es1.getCount());
 		// #2: SST_SITEVISITS
-		List<SiteVisits> r2 = (List<SiteVisits>) db.getResultsForClass(SiteVisitsImpl.class);
+		List<SiteVisitsImpl> r2 = db.getResultsForClass(SiteVisitsImpl.class);
 		assertEquals(1, r2.size());
 		SiteVisits sv = r2.get(0);
 		assertEquals(FakeData.SITE_A_ID, sv.getSiteId());
 		assertEquals(2, sv.getTotalVisits());
 		assertEquals(1, sv.getTotalUnique());
 		// #2: SST_SITEACTIVITY
-		List<SiteActivity> r3 = (List<SiteActivity>) db.getResultsForClass(SiteActivityImpl.class);
+		List<SiteActivityImpl> r3 = db.getResultsForClass(SiteActivityImpl.class);
 		assertEquals(0, r3.size());
 		// #2: SST_RESOURCES
-		List<ResourceStat> r4 = (List<ResourceStat>) db.getResultsForClass(ResourceStatImpl.class);
+		List<ResourceStatImpl> r4 = db.getResultsForClass(ResourceStatImpl.class);
 		assertEquals(0, r4.size());
 	}
 
@@ -326,7 +325,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		Event eSV2 = statsUpdateManager.buildEvent(new Date(), FakeData.EVENT_CHATNEW, "/chat/msg/" + FakeData.SITE_A_ID, FakeData.SITE_A_ID, FakeData.USER_B_ID, "session-id-a");
 		assertTrue(statsUpdateManager.collectEvents(Arrays.asList(eSV1, eSV2)));
 		// #1: SST_EVENTS
-		List<EventStat> r1 = (List<EventStat>) db.getResultsForClass(EventStatImpl.class);
+		List<EventStatImpl> r1 = db.getResultsForClass(EventStatImpl.class);
 		assertEquals(2, r1.size());
 		EventStat es1 = r1.get(0);
 		EventStat es2 = r1.get(1);
@@ -344,17 +343,17 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 			assertEquals(eSV2.getUserId(), es1.getUserId());
 		}
 		// #1: SST_SITEVISITS
-		List<SiteVisits> r2 = (List<SiteVisits>) db.getResultsForClass(SiteVisitsImpl.class);
+		List<SiteVisitsImpl> r2 = db.getResultsForClass(SiteVisitsImpl.class);
 		assertEquals(0, r2.size());
 		// #1: SST_SITEACTIVITY
-		List<SiteActivity> r3 = (List<SiteActivity>) db.getResultsForClass(SiteActivityImpl.class);
+		List<SiteActivityImpl> r3 = db.getResultsForClass(SiteActivityImpl.class);
 		assertEquals(1, r3.size());
 		SiteActivity sa = r3.get(0);
 		assertEquals(FakeData.SITE_A_ID, sa.getSiteId());
 		assertEquals(FakeData.EVENT_CHATNEW, sa.getEventId());
 		assertEquals(2, sa.getCount());
 		// #1: SST_RESOURCES
-		List<ResourceStat> r4 = (List<ResourceStat>) db.getResultsForClass(ResourceStatImpl.class);
+		List<ResourceStatImpl> r4 = db.getResultsForClass(ResourceStatImpl.class);
 		assertEquals(0, r4.size());
 	}
 
@@ -366,7 +365,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		Event eSV2 = statsUpdateManager.buildEvent(new Date(), FakeData.EVENT_CHATNEW, "/chat/msg/"+FakeData.SITE_A_ID, FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a");
 		assertTrue(statsUpdateManager.collectEvents(Arrays.asList(eSV1, eSV2)));
 		// #2: SST_EVENTS
-		List<EventStat> r1 = (List<EventStat>) db.getResultsForClass(EventStatImpl.class);
+		List<EventStatImpl> r1 = db.getResultsForClass(EventStatImpl.class);
 		assertEquals(1, r1.size());
 		EventStat es1 = r1.get(0);
 		assertEquals(FakeData.SITE_A_ID, es1.getSiteId());
@@ -374,17 +373,17 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		assertEquals(eSV1.getUserId(), es1.getUserId());
 		assertEquals(2, es1.getCount());
 		// #2: SST_SITEVISITS
-		List<SiteVisits> r2 = (List<SiteVisits>) db.getResultsForClass(SiteVisitsImpl.class);
+		List<SiteVisitsImpl> r2 = db.getResultsForClass(SiteVisitsImpl.class);
 		assertEquals(0, r2.size());
 		// #2: SST_SITEACTIVITY
-		List<SiteActivity> r3 = (List<SiteActivity>) db.getResultsForClass(SiteActivityImpl.class);
+		List<SiteActivityImpl> r3 = db.getResultsForClass(SiteActivityImpl.class);
 		assertEquals(1, r3.size());
 		SiteActivity sa = r3.get(0);
 		assertEquals(FakeData.SITE_A_ID, sa.getSiteId());
 		assertEquals(FakeData.EVENT_CHATNEW, sa.getEventId());
 		assertEquals(2, sa.getCount());
 		// #2: SST_RESOURCES
-		List<ResourceStat> r4 = (List<ResourceStat>) db.getResultsForClass(ResourceStatImpl.class);
+		List<ResourceStatImpl> r4 = db.getResultsForClass(ResourceStatImpl.class);
 		assertEquals(0, r4.size());
 	}
 	
@@ -402,16 +401,16 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		Event e5 = statsUpdateManager.buildEvent(new Date(), FakeData.EVENT_CONTENTREV, "/content/group/" + FakeData.SITE_B_ID + "/resource_id", FakeData.SITE_B_ID, FakeData.USER_B_ID, "session-id-b");
 		assertTrue(statsUpdateManager.collectEvents(Arrays.asList(e1, e2, e3, e4, e5)));
 		// #1: SST_EVENTS
-		List<EventStat> r1 = db.getResultsForClass(EventStatImpl.class);
+		List<EventStatImpl> r1 = db.getResultsForClass(EventStatImpl.class);
 		assertEquals(2, r1.size());
 		// #1: SST_SITEVISITS
-		List<SiteVisits> r2 = db.getResultsForClass(SiteVisitsImpl.class);
+		List<SiteVisitsImpl> r2 = db.getResultsForClass(SiteVisitsImpl.class);
 		assertEquals(0, r2.size());
 		// #1: SST_SITEACTIVITY
-		List<SiteActivity> r3 = db.getResultsForClass(SiteActivityImpl.class);
+		List<SiteActivityImpl> r3 = db.getResultsForClass(SiteActivityImpl.class);
 		assertEquals(1, r3.size());
 		// #1: SST_RESOURCES
-		List<ResourceStat> r4 = db.getResultsForClass(ResourceStatImpl.class);
+		List<ResourceStatImpl> r4 = db.getResultsForClass(ResourceStatImpl.class);
 		assertEquals(2, r4.size());
 	}
 
@@ -424,19 +423,19 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		Event e3 = statsUpdateManager.buildEvent(new Date(), FakeData.EVENT_CONTENTNEW, "/content/group-user/something/more/and/more", FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a");
 		assertTrue(statsUpdateManager.collectEvents(Arrays.asList(e1, e2, e3)));
 		// #1: SST_EVENTS
-		List<EventStat> r1 = (List<EventStat>) db.getResultsForClass(EventStatImpl.class);
+		List<EventStatImpl> r1 = db.getResultsForClass(EventStatImpl.class);
 		assertEquals(1, r1.size());
 		// #1: SST_SITEVISITS
-		List<SiteVisits> r2 = (List<SiteVisits>) db.getResultsForClass(SiteVisitsImpl.class);
+		List<SiteVisitsImpl> r2 = db.getResultsForClass(SiteVisitsImpl.class);
 		assertEquals(0, r2.size());
 		// #1: SST_SITEACTIVITY
-		List<SiteActivity> r3 = (List<SiteActivity>) db.getResultsForClass(SiteActivityImpl.class);
+		List<SiteActivityImpl> r3 = db.getResultsForClass(SiteActivityImpl.class);
 		assertEquals(1, r3.size());
 		// #1: SST_RESOURCES
-		List<ResourceStat> r4 = (List<ResourceStat>) db.getResultsForClass(ResourceStatImpl.class);
+		List<ResourceStatImpl> r4 = db.getResultsForClass(ResourceStatImpl.class);
 		assertEquals(3, r4.size());
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testSitePresencesDifferentUsers() throws InterruptedException {
@@ -447,7 +446,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		final Event eSV2 = statsUpdateManager.buildEvent(Date.from(now), StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_B_ID, "session-id-b");
 		assertTrue(statsUpdateManager.collectEvents(Arrays.asList(eSV1, eSV2)));
 		// ... check SST_PRESENCES
-		List<SitePresence> r1 = (List<SitePresence>) db.getResultsForClass(SitePresenceImpl.class);
+		List<SitePresenceImpl> r1 = db.getResultsForClass(SitePresenceImpl.class);
 		assertEquals(2, r1.size());
 		SitePresence es1 = r1.get(0);
 		SitePresence es2 = r1.get(1);
@@ -473,7 +472,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		final Event eSV2e = statsUpdateManager.buildEvent(Date.from(now), StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_B_ID, "session-id-b");
 		assertTrue(statsUpdateManager.collectEvents(Arrays.asList(eSV1e, eSV2e)));
 		// ... check SST_PRESENCES
-		r1 = (List<SitePresence>) db.getResultsForClass(SitePresenceImpl.class);
+		r1 = db.getResultsForClass(SitePresenceImpl.class);
 		assertEquals(2, r1.size());
 		es1 = r1.get(0);
 		es2 = r1.get(1);
@@ -507,7 +506,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		final Event eventEnd1 = statsUpdateManager.buildEvent(Date.from(now2), StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id-a");
 		assertTrue(statsUpdateManager.collectEvents(Arrays.asList(eventEnd1)));
 		// ... check SST_PRESENCES
-		List<SitePresence> results = (List<SitePresence>) db.getResultsForClass(SitePresenceImpl.class);
+		List<SitePresenceImpl> results = db.getResultsForClass(SitePresenceImpl.class);
 		assertEquals(1, results.size());
 		SitePresence es1 = results.get(0);
 		assertEquals(FakeData.SITE_A_ID, es1.getSiteId());
@@ -528,7 +527,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		final Event eventEnd2 = statsUpdateManager.buildEvent(Date.from(now2), StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id-a");
 		assertTrue(statsUpdateManager.collectEvents(Arrays.asList(eventEnd2)));
 		// ... check SST_PRESENCES
-		results = (List<SitePresence>) db.getResultsForClass(SitePresenceImpl.class);
+		results = db.getResultsForClass(SitePresenceImpl.class);
 		assertEquals(1, results.size());
 		es1 = results.get(0);
 		assertEquals(FakeData.SITE_A_ID, es1.getSiteId());
@@ -560,7 +559,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		long secondDuration = now2.toEpochMilli() - now.toEpochMilli();
 		final Event eSV5e = statsUpdateManager.buildEvent(Date.from(now2), StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id-a");
 		assertTrue(statsUpdateManager.collectEvents(Arrays.asList(eSV5e)));
-		List<SitePresence> r1 = (List<SitePresence>) db.getResultsForClass(SitePresenceImpl.class);
+		List<SitePresenceImpl> r1 = db.getResultsForClass(SitePresenceImpl.class);
 		assertEquals(1, r1.size());
 		SitePresence es1 = r1.get(0);
 		assertEquals(FakeData.SITE_A_ID, es1.getSiteId());
@@ -592,7 +591,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		long secondDuration = now2.toEpochMilli() - now.toEpochMilli();
 		final Event eSV6e = statsUpdateManager.buildEvent(Date.from(now2), StatsManager.SITEVISITEND_EVENTID, "/presence/"+FakeData.SITE_A_ID+PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id-a");
 		assertTrue(statsUpdateManager.collectEvents(Arrays.asList(eSV6e)));
-		List<SitePresence> r1 = (List<SitePresence>) db.getResultsForClass(SitePresenceImpl.class);
+		List<SitePresenceImpl> r1 = db.getResultsForClass(SitePresenceImpl.class);
 		assertEquals(1, r1.size());
 		SitePresence es1 = r1.get(0);
 		assertEquals(FakeData.SITE_A_ID, es1.getSiteId());
@@ -628,7 +627,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		Thread.sleep(200);
 		Event e1 = statsUpdateManager.buildEvent(new Date(), FakeData.EVENT_CHATNEW, "/chat/msg/"+FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a");
 		((StatsUpdateManagerImpl) ((Advised) statsUpdateManager).getTargetSource().getTarget()).update(null, e1);
-		List<EventStat> results = db.getResultsForClass(EventStatImpl.class);
+		List<EventStatImpl> results = db.getResultsForClass(EventStatImpl.class);
 		assertEquals(0, results.size());
 		// turn it on again
 		statsUpdateManager.setCollectThreadEnabled(true);
@@ -642,7 +641,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		results = db.getResultsForClass(EventStatImpl.class);
 		assertEquals(1, results.size());
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testConfigCollectThreadUpdateInterval() throws Exception {
@@ -656,7 +655,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		((StatsUpdateManagerImpl) ((Advised) statsUpdateManager).getTargetSource().getTarget()).update(null, e1);
 		Thread.sleep(500);
 
-		List<EventStat> results = db.getResultsForClass(EventStatImpl.class);
+		List<EventStatImpl> results = db.getResultsForClass(EventStatImpl.class);
 		assertEquals(1, results.size());
 		
 		// make sure it doesn't process it
@@ -684,14 +683,14 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		Event e1 = statsUpdateManager.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+PresenceService.PRESENCE_SUFFIX, null, "admin", "session-id-a");
 		Event e2 = statsUpdateManager.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id-a");
 		statsUpdateManager.collectEvents(Arrays.asList(e1, e2));
-		List<SiteVisits> results2 = (List<SiteVisits>) db.getResultsForClass(SiteVisitsImpl.class);
+		List<SiteVisitsImpl> results2 = db.getResultsForClass(SiteVisitsImpl.class);
 		assertEquals(1, results2.size());
 		assertEquals(2, results2.get(0).getCount());
 		// make sure it doesn't processes admin events
 		statsUpdateManager.setCollectAdminEvents(false);
 		assertEquals(false, statsUpdateManager.isCollectAdminEvents());
 		statsUpdateManager.collectEvents(Arrays.asList(e1, e2));
-		results2 = (List<SiteVisits>) db.getResultsForClass(SiteVisitsImpl.class);
+		results2 = db.getResultsForClass(SiteVisitsImpl.class);
 		assertEquals(1, results2.size());
 		assertEquals(3, results2.get(0).getCount());
 		statsUpdateManager.setCollectAdminEvents(true);
@@ -707,11 +706,11 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		assertEquals(true, statsUpdateManager.isCollectEventsForSiteWithToolOnly());
 		Event e1 = statsUpdateManager.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id-a");
 		statsUpdateManager.collectEvent(e1);
-		List<SiteVisits> results2 = (List<SiteVisits>) db.getResultsForClass(SiteVisitsImpl.class);
+		List<SiteVisitsImpl> results2 = db.getResultsForClass(SiteVisitsImpl.class);
 		assertEquals(1, results2.size());
 		Event e2 = statsUpdateManager.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_B_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id-a");
 		statsUpdateManager.collectEvent(e2);
-		results2 = (List<SiteVisits>) db.getResultsForClass(SiteVisitsImpl.class);
+		results2 = db.getResultsForClass(SiteVisitsImpl.class);
 		assertEquals(1, results2.size());
 	}
 
@@ -723,11 +722,11 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		assertFalse(statsUpdateManager.isCollectEventsForSiteWithToolOnly());
 		Event e1 = statsUpdateManager.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id-a");
 		statsUpdateManager.collectEvent(e1);
-		List<SiteVisits> results = (List<SiteVisits>) db.getResultsForClass(SiteVisitsImpl.class);
+		List<SiteVisitsImpl> results = db.getResultsForClass(SiteVisitsImpl.class);
 		assertEquals(1, results.size());
 		Event e2 = statsUpdateManager.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_B_ID+PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id-a");
 		statsUpdateManager.collectEvent(e2);
-		results = (List<SiteVisits>) db.getResultsForClass(SiteVisitsImpl.class);
+		results = db.getResultsForClass(SiteVisitsImpl.class);
 		assertEquals(2, results.size());
 	}
 	
@@ -740,7 +739,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		Event e1 = statsUpdateManager.buildEvent(new Date(), FakeData.EVENT_CONTENTNEW, "/content/group/"+FakeData.SITE_A_ID+"/resource_id", FakeData.SITE_A_ID, EventTrackingService.UNKNOWN_USER, "session-id-a");
 		Event e2 = statsUpdateManager.buildEvent(new Date(), FakeData.EVENT_CONTENTNEW, "/content/group/"+FakeData.SITE_A_ID+"/resource_id", FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a");
 		statsUpdateManager.collectEvents(Arrays.asList(e1, e2));
-		List<ResourceStat> results = (List<ResourceStat>) db.getResultsForClass(ResourceStatImpl.class);
+		List<ResourceStatImpl> results = db.getResultsForClass(ResourceStatImpl.class);
 		assertEquals(2, results.size());
 		// make sure it doesn't processes access events from anonymous
 		StatsManagerImpl smi = (StatsManagerImpl) ((Advised) statsManager).getTargetSource().getTarget();
@@ -752,7 +751,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		assertTrue(statsManager.getEnableSitePresences());
 
 		statsUpdateManager.collectEvents(Arrays.asList(e1, e2));
-		results = (List<ResourceStat>) db.getResultsForClass(ResourceStatImpl.class);
+		results = db.getResultsForClass(ResourceStatImpl.class);
 		assertEquals(2, results.size());
 		// revert setting
 		smi.setShowAnonymousAccessEvents(true);
@@ -769,7 +768,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		Event e1 = statsUpdateManager.buildEvent(new Date(), FakeData.EVENT_CONTENTNEW, "/content/group/non_existent_site/resource_id", FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a");
 		Event e2 = statsUpdateManager.buildEvent(new Date(), FakeData.EVENT_CONTENTNEW, "/content/group/"+FakeData.SITE_A_ID+"/resource_id", null, FakeData.USER_B_ID, "session-id-a");
 		statsUpdateManager.collectEvents(Arrays.asList(e1, e2));
-		List<EventStat> results1 = (List<EventStat>) db.getResultsForClass(EventStatImpl.class);
+		List<EventStatImpl> results1 = db.getResultsForClass(EventStatImpl.class);
 		assertEquals(2, results1.size());
 
 		// none of these events will be picked up
@@ -778,7 +777,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		Event e3 = statsUpdateManager.buildEvent(new Date(), FakeData.EVENT_CONTENTREAD, "/content/group/non_existent_site/resource_id", FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a");
 		Event e4 = statsUpdateManager.buildEvent(new Date(), FakeData.EVENT_CONTENTNEW, "/content/group/"+FakeData.SITE_B_ID+"/resource_id", null, FakeData.USER_B_ID, "session-id-a");
 		statsUpdateManager.collectEvents(Arrays.asList(e3, e4));
-		List<EventStat> results2 = (List<EventStat>) db.getResultsForClass(EventStatImpl.class);
+		List<EventStatImpl> results2 = db.getResultsForClass(EventStatImpl.class);
 		assertEquals(2, results2.size());
 	}
 	

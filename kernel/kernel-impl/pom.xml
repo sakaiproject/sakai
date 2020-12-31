@@ -169,7 +169,6 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.5.12</version>
         </dependency>
         <dependency>
             <groupId>com.opencsv</groupId>
@@ -315,7 +314,7 @@
         <dependency>
             <groupId>org.owasp.antisamy</groupId>
             <artifactId>antisamy</artifactId>
-            <version>1.5.10</version>
+            <version>1.5.11</version>
         </dependency>
         <dependency>
             <groupId>xml-apis</groupId>

@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.hibernate;
 
+import org.sakaiproject.springframework.data.Repository;
+
 import java.io.Serializable;
 
 /**

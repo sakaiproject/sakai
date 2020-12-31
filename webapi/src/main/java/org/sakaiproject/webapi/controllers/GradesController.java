@@ -17,6 +17,7 @@ import org.sakaiproject.webapi.beans.GradeRestBean;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
+import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -70,25 +71,21 @@ public class GradesController extends AbstractSakaiApiController {
                     List<GradeDefinition> grades
                         = gradebookService.getGradesForStudentsForItem(s.getId(), a.getId(), students);
 
-                    int ungraded = students.size() - grades.size();
-                    int count = 0;
                     double total = 0;
-                    double average = 0;
-
                     for (GradeDefinition gd : grades) {
-                        count += 1;
                         if (gd.getGradeEntryType() == GradebookService.GRADE_TYPE_POINTS) {
                             total += Double.parseDouble(gd.getGrade());
                         }
                     }
-                    average = total / count;
-                    gtb.setAverageScore(average);
-                    gtb.setUngraded(ungraded);
+
+                    int count = grades.size();
+                    gtb.setAverageScore(total / count);
+                    gtb.setUngraded(students.size() - count);
                     gtb.setSiteTitle(s.getTitle());
                     gtb.setUrl(url);
                     return gtb;
                 }).collect(Collectors.toList());
-        } catch (GradebookNotFoundException gnfe) {
+        } catch (Exception gnfe) {
             return Collections.<GradeRestBean>emptyList();
         }
     };

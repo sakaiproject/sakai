@@ -1,12 +1,16 @@
 /**********************************************************************************
  *
- * Copyright (c) 2006, 2008, 2013 Sakai Foundation
+ * Copyright (c) 2017 The Sakai Foundation
+ *
+ * Original developers:
+ *
+ *   Unicon
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.opensource.org/licenses/ECL-2.0
+ *      https://opensource.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,16 +20,13 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.content.api.repository;
+package org.sakaiproject.rubrics.logic.model;
 
-import java.util.List;
+public enum EvaluationStatus {
 
-import org.sakaiproject.content.hbm.FileConversionQueueItem;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.repository.NoRepositoryBean;
+    NONE(0),
+    DRAFT(1),
+    RETURNED(2);
 
-@NoRepositoryBean
-public interface FileConversionQueueItemRepository extends JpaRepository<FileConversionQueueItem, Long> {
-
-    List<FileConversionQueueItem> findByStatus(FileConversionQueueItem.Status status);
+    EvaluationStatus(int status) {}
 }

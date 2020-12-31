@@ -120,6 +120,11 @@ public class BasicLTIUtil {
 	// https://stackoverflow.com/questions/2201925/converting-iso-8601-compliant-string-to-java-util-date
 	public static final String ISO_8601_FORMAT = "yyyy-MM-dd'T'HH:mm:ssz";
 
+	public static final String EXTRA_BUTTON_HTML = "button_html";
+	public static final String EXTRA_ERROR_TIMEOUT = "error_timeout";
+	public static final String EXTRA_HTTP_POPUP = "http_popup";
+	public static final String EXTRA_HTTP_POPUP_FALSE = "false";
+
 	/** To turn on really verbose debugging */
 	private static boolean verbosePrint = false;
 
@@ -597,7 +602,7 @@ public class BasicLTIUtil {
 		}
 
 		if ( extra != null ) {
-			String button_html = extra.get("button_html");
+			String button_html = extra.get(EXTRA_BUTTON_HTML);
 			if ( button_html != null ) text.append(button_html);
 		}
 
@@ -606,20 +611,32 @@ public class BasicLTIUtil {
 
 		// Paint the auto-pop up if we are transitioning from https: to http:
 		// and are not already the top frame...
+		String error_timeout = null;
+		String http_popup = null;
+		if ( extra != null ) {
+			error_timeout = extra.get(EXTRA_ERROR_TIMEOUT);
+			http_popup = extra.get(EXTRA_HTTP_POPUP);
+		}
+		if ( extra == null ) error_timeout = "Unable to send launch to remote URL: "+endpoint;
+		error_timeout += endpoint;
 		text.append("<script type=\"text/javascript\">\n");
-		text.append("if (window.top!=window.self) {\n");
-		text.append("  theform = document.getElementById('ltiLaunchForm_");
-		text.append(submit_uuid);
-		text.append("');\n");
-		text.append("  if ( theform && theform.action ) {\n");
-		text.append("   formAction = theform.action;\n");
-		text.append("   ourUrl = window.location.href;\n");
-		text.append("   if ( formAction.indexOf('http://') == 0 && ourUrl.indexOf('https://') == 0 ) {\n");
-		text.append("      theform.target = '_blank';\n");
-		text.append("      window.console && console.log('Launching http from https in new window!');\n");
-		text.append("    }\n");
-		text.append("  }\n");
-		text.append("}\n");
+		text.append("var open_in_new_window = false;\n");
+		if ( ! EXTRA_HTTP_POPUP_FALSE.equals(http_popup) ) {
+			text.append("if (window.top!=window.self) {\n");
+			text.append("  var theform = document.getElementById('ltiLaunchForm_");
+			text.append(submit_uuid);
+			text.append("');\n");
+			text.append("  if ( theform && theform.action ) {\n");
+			text.append("    var formAction = theform.action;\n");
+			text.append("    var ourUrl = window.location.href;\n");
+			text.append("    if ( formAction.indexOf('http://') == 0 && ourUrl.indexOf('https://') == 0 ) {\n");
+			text.append("      theform.target = '_blank';\n");
+			text.append("      window.console && console.log('Launching http from https in new window!');\n");
+			text.append("      open_in_new_window = true;\n");
+			text.append("    }\n");
+			text.append("  }\n");
+			text.append("}\n");
+		}
 		text.append("</script>\n");
 
 		// paint debug output
@@ -658,7 +675,11 @@ public class BasicLTIUtil {
 			text.append("').style.display = \"none\";\n");
 			text.append("    document.getElementById('ltiLaunchForm_");
 			text.append(submit_uuid);
-			text.append("').submit(); \n</script> \n");
+			text.append("').submit(); \n");
+			text.append("if ( ! open_in_new_window ) {\n");
+			text.append("   setTimeout(function() { alert(\""+BasicLTIUtil.htmlspecialchars(error_timeout)+"\"); }, 4000);\n");
+			text.append("}\n");
+			text.append("</script> \n");
 		}
 
 		String htmltext = text.toString();

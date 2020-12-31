@@ -1,5 +1,6 @@
 import { html, css, LitElement } from './assets/lit-element/lit-element.js';
 import { ifDefined } from './assets/lit-html/directives/if-defined.js';
+import { unsafeHTML } from './assets/lit-html/directives/unsafe-html.js';
 import './sakai-icon.js';
 import { loadProperties } from "./sakai-i18n.js";
 import "./sakai-course-list.js";
@@ -136,7 +137,7 @@ export class SakaiHomeDashboard extends LitElement {
                 </a>
               </div>
             </div>
-            <div id="motd-message" style="display: ${this.showMotd ? "block" : "none"}">${this.data.motd}</div>
+            <div id="motd-message" style="display: ${this.showMotd ? "block" : "none"}">${unsafeHTML(this.data.motd)}</div>
           </div>
         ` : ""}
         <div id="courses-and-widgets">

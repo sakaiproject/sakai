@@ -41,7 +41,7 @@
 
 <f:view>
   <sakai:view toolCssHref="/messageforums-tool/css/msgcntr.css">
-  	<h:form id="dfStatisticsForm" rendered="#{ForumTool.instructor}">
+  	<h:form id="dfStatisticsForm">
   	<!-- discussionForum/statistics/dfStatisticsAllAuthoredMsgForOneUser.jsp-->
   		<script>
 			var iframeId = '<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>';
@@ -152,7 +152,7 @@
 					</h:panelGroup>
 				</h:panelGroup>
 			<% }else {%>
-          	 <h:panelGroup layout="block" styleClass="breadCrumb"><h3>
+          	 <h:panelGroup layout="block" styleClass="breadCrumb" rendered="#{ForumTool.instructor}"><h3>
 			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"
 			      		rendered="#{ForumTool.messagesandForums}" />
 			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_discussion_forums}" title=" #{msgs.cdfm_discussion_forums}"
@@ -242,7 +242,7 @@
 						<% if(!isDialogBox){ %>
 						<h:panelGroup style="display:block;float:right;width:25%;text-align:right">
 							<h:outputLink value="/tool/#{ForumTool.currentToolId}/discussionForum/message/dfMsgGrade" target="dialogFrame"
-								onclick="dialogLinkClick(this);">
+								onclick="dialogLinkClick(this);" rendered="#{ForumTool.instructor}">
 								<f:param value="#{stat.forumId}" name="forumId"/>
 								<f:param value="#{stat.topicId}" name="topicId"/>
 								<f:param value="#{stat.msgId}" name="messageId"/>
@@ -253,7 +253,7 @@
 								<h:graphicImage value="/../../library/image/silk/award_star_gold_1.png" alt="#{msgs.cdfm_button_bar_grade}" />
 								<h:outputText value=" #{msgs.cdfm_button_bar_grade}" />
 							</h:outputLink>
-							<h:outputText value=" #{msgs.cdfm_toolbar_separator} " />
+							<h:outputText value=" #{msgs.cdfm_toolbar_separator} " rendered="#{ForumTool.instructor}" />
 							<h:commandLink action="#{ForumTool.processActionDisplayInThread}" title=" #{msgs.stat_display_in_thread}" >
 								<f:param value="#{stat.forumId}" name="forumId"/>
 		  				  		<f:param value="#{stat.topicId}" name="topicId"/>

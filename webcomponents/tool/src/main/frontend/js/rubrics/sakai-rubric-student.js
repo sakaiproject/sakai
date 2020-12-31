@@ -116,7 +116,7 @@ class SakaiRubricStudent extends RubricsElement {
 
     // First, grab the tool association
     $.ajax({
-      url: `/rubrics-service/rest/rubric-associations/search/by-tool-item-ids?toolId=${this.toolId}&itemId=${this.entityId}`,
+      url: `/rubrics-service/rest/rubric-associations/search/by-tool-and-assignment?toolId=${this.toolId}&itemId=${this.entityId}`,
       headers: { "authorization": this.token }
     }).done(data => {
 
@@ -134,7 +134,7 @@ class SakaiRubricStudent extends RubricsElement {
 
           // Now, get the evaluation
           $.ajax({
-            url: `/rubrics-service/rest/evaluations/search/by-tool-item-and-associated-item-and-evaluated-item-ids?toolId=${this.toolId}&itemId=${this.entityId}&evaluatedItemId=${this.evaluatedItemId}`,
+            url: `/rubrics-service/rest/evaluations/search/by-tool-and-assignment-and-submission?toolId=${this.toolId}&itemId=${this.entityId}&evaluatedItemId=${this.evaluatedItemId}`,
             headers: { "authorization": this.token }
           }).done(data => {
 

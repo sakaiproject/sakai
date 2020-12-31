@@ -73,6 +73,7 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.messageforums.DraftRecipientsDelegate.SelectedLists;
 import org.sakaiproject.tool.messageforums.ui.DecoratedAttachment;
 import org.sakaiproject.tool.messageforums.ui.PrivateForumDecoratedBean;
 import org.sakaiproject.tool.messageforums.ui.PrivateMessageDecoratedBean;
@@ -317,9 +318,9 @@ public class PrivateMessagesTool {
   private String composeSendAsPvtMsg=SET_AS_YES; // currently set as Default as change by user is allowed
   @Getter @Setter
   private boolean booleanEmailOut = ServerConfigurationService.getBoolean("mc.messages.ccEmailDefault", false);
-  @Getter @Setter
-  private String composeSubject ;
-  @Getter @Setter
+  @Getter
+  private String composeSubject;
+  @Getter
   private String composeBody;
   @Getter @Setter
   private String selectedLabel="pvt_priority_normal" ;   //defautl set
@@ -345,20 +346,20 @@ public class PrivateMessagesTool {
   private List selectedMoveToFolderItems;
   
   //reply to 
-  @Getter @Setter
+  @Getter
   private String replyToBody;
-  @Getter @Setter
+  @Getter
   private String replyToSubject;
 
   //forwarding
-  @Getter @Setter
+  @Getter
   private String forwardBody;
-  @Getter @Setter
+  @Getter
   private String forwardSubject;
 
-  @Getter @Setter
+  @Getter
   private String replyToAllBody;
-  @Getter @Setter
+  @Getter
   private String replyToAllSubject;
   
   //Setting Screen
@@ -414,11 +415,14 @@ public class PrivateMessagesTool {
   private boolean showProfileInfoMsg = false;
   @Getter
   private boolean showProfileLink = false;
+
+  private final DraftRecipientsDelegate drDelegate;
   
   public PrivateMessagesTool()
   {    
 	  showProfileInfoMsg = ServerConfigurationService.getBoolean("msgcntr.messages.showProfileInfo", true);
 	  showProfileLink = showProfileInfoMsg && ServerConfigurationService.getBoolean("profile2.profile.link.enabled", true);
+	  drDelegate = new DraftRecipientsDelegate();
   }
 
   public void initializePrivateMessageArea() {
@@ -1169,7 +1173,17 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	  setAttachments(attachments);
 	  
 	  setSelectedLabel(draft.getLabel());
-	  
+
+	  // get the draft recipients and populate the selected lists
+	  if (totalComposeToList == null || totalComposeToBccList == null) {
+		  initializeComposeToLists();
+	  }
+	  SelectedLists selectedLists = drDelegate.populateDraftRecipients(draft.getId(), messageManager, totalComposeToList, totalComposeToBccList);
+	  selectedComposeToList = selectedLists.to;
+	  selectedComposeBccList = selectedLists.bcc;
+
+	  setBooleanEmailOut(draft.getExternalEmail());
+
 	  //go to compose page
 	  setFromMainOrHp();
 	  fromMain = (StringUtils.isEmpty(msgNavMode)) || ("privateMessages".equals(msgNavMode));
@@ -1426,10 +1440,12 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	    this.setReplyingMessage(pm);
 	    
 	    String title = pm.getTitle();
-    	if(title != null && !title.startsWith(getResourceBundleString(ReplyAll_SUBJECT_PREFIX)))
-    		forwardSubject = getResourceBundleString(ReplyAll_SUBJECT_PREFIX) + ' ' + title;
-    	else
-    		forwardSubject = title;//forwardSubject
+    	if(title != null && !title.startsWith(getResourceBundleString(ReplyAll_SUBJECT_PREFIX))) {
+    		replyToAllSubject = getResourceBundleString(ReplyAll_SUBJECT_PREFIX) + ' ' + title;
+    	}
+    	else {
+    		replyToAllSubject = title;
+    	}
 
 
     	// format the created date according to the setting in the bundle
@@ -1474,7 +1490,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	    	}
 	    }
 	    
-	    this.setForwardBody(replyallText.toString());
+	    setReplyToAllBody(replyallText.toString());
 	   	    
 	    String msgautherString=getDetailMsg().getAuthor();
 	    String msgCClistString=getDetailMsg().getRecipientsAsText();
@@ -1841,7 +1857,10 @@ public void processChangeSelectView(ValueChangeEvent eve)
     dMsg.setDeleted(Boolean.FALSE);
     dMsg.setExternalEmail(booleanEmailOut);
 
-    prtMsgManager.sendPrivateMessage(dMsg, getRecipients(), isSendEmail()); 
+    List<MembershipItem> draftRecipients = drDelegate.getDraftRecipients(getSelectedComposeToList(), courseMemberMap);
+    List<MembershipItem> draftBccRecipients = drDelegate.getDraftRecipients(getSelectedComposeBccList(), courseMemberMap);
+
+    prtMsgManager.sendPrivateMessage(dMsg, getRecipients(), isSendEmail(), draftRecipients, draftBccRecipients);
 
     //reset contents
     resetComposeContents();
@@ -2772,7 +2791,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 
 	  //Select Forward Recipients
 	  
-	  if(StringUtils.isEmpty(getForwardSubject())) {
+	  if(StringUtils.isEmpty(getReplyToAllSubject())) {
 		  if(isDraft){
 			  setErrorMessage(getResourceBundleString(MISSING_SUBJECT_DRAFT));
 		  }else{
@@ -2780,7 +2799,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 		  }
 		  return null ;
 	  }
-	  if(StringUtils.isEmpty(getForwardBody())) {
+	  if(StringUtils.isEmpty(getReplyToAllBody())) {
 		  if(isDraft) {
 			  setErrorMessage(getResourceBundleString(MISSING_BODY_DRAFT));
 		  } else {
@@ -2793,15 +2812,13 @@ public void processChangeSelectView(ValueChangeEvent eve)
 
 
 	  StringBuilder alertMsg = new StringBuilder();
-	  rrepMsg.setTitle(getForwardSubject());
+	  rrepMsg.setTitle(getReplyToAllSubject());
 	  rrepMsg.setDraft(isDraft);
 	  rrepMsg.setDeleted(Boolean.FALSE);
 
 	  rrepMsg.setAuthor(getAuthorString());
 	  rrepMsg.setApproved(Boolean.FALSE);
-	  //add some emty space to the msg composite, by huxt
-	  String replyAllbody="  ";
-	  replyAllbody=getForwardBody();
+	  String replyAllbody=getReplyToAllBody();
 
 
 	  rrepMsg.setBody(formattedText.processFormattedText(replyAllbody, alertMsg));
@@ -3499,7 +3516,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
   
   public String processPvtMsgReturnToMainOrHp()
   {
-	  log.debug("processPvtMsgReturnToMainOrHp()");
+	    log.debug("processPvtMsgReturnToMainOrHp()");
 	    if(fromMainOrHp != null && (fromMainOrHp.equals(MESSAGE_HOME_PG) || (fromMainOrHp.equals(MAIN_PG))))
 	    {
 	    	String returnToPage = fromMainOrHp;
@@ -3508,7 +3525,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	    }
 	    else
 	    {
-	    	return MAIN_PG ;
+	    	return MESSAGE_HOME_PG ;
 	    }
   }
   
@@ -4616,5 +4633,41 @@ public void processChangeSelectView(ValueChangeEvent eve)
                     .collect(Collectors.joining(", "));
       return "(" + role + ") " + groups;
     }
+
+    public boolean isDisplayDraftRecipientsNotFoundMsg() {
+        return drDelegate.isDisplayDraftRecipientsNotFoundMsg();
+    }
+
+	public void setComposeSubject(String value) {
+		composeSubject = StringUtils.trimToEmpty(value);
+	}
+
+	public void setComposeBody(String value) {
+		composeBody = StringUtils.trimToEmpty(value);
+	}
+
+	public void setReplyToSubject(String value) {
+		replyToSubject = StringUtils.trimToEmpty(value);
+	}
+
+	public void setReplyToBody(String value) {
+		replyToBody = StringUtils.trimToEmpty(value);
+	}
+
+	public void setForwardSubject(String value) {
+		forwardSubject = StringUtils.trimToEmpty(value);
+	}
+
+	public void setForwardBody(String value) {
+		forwardBody = StringUtils.trimToEmpty(value);
+	}
+
+	public void setReplyToAllSubject(String value) {
+		replyToAllSubject = StringUtils.trimToEmpty(value);
+	}
+
+	public void setReplyToAllBody(String value) {
+		replyToAllBody = StringUtils.trimToEmpty(value);
+	}
 
 }

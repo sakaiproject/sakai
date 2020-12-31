@@ -31,6 +31,31 @@ https://github.com/tsugicontrib/lmstest
 And press `Clone Repository` - This works best in FireFox.  Once the repository clone is complete,
 revisit https://sakai.tsugicloud.org/tsugi/admin/ to verify it is installed.
 
+Setup Post SAK-44055
+====================
+
+The Tsugi provisioning / setup has changed dramatically for the better 
+as a result of https://jira.sakaiproject.org/browse/SAK-44055 - while the
+previous manual approach to setup still will work post SAK-44055, it is
+simpler, quicker and preferred to use the auto-provisioning feature instead
+of the manual approach:
+
+* [Auto Provisioning Support in Sakai](PROVISION.md)
+
+This feature will be in Sakai 21.1 and later and Sakai 20.3 and later - if all goes
+well it might be in earlier versions of Sakai by the time you are reading this.
+
+You can tell if your Sakai has SAK-44055 installed by going to Administration Workspace ->
+External Tools and you see thw "LTI Advantage Auto Provision" option underneath "Install LTI 1.x Tool".
+(<a href="IMG_PROVISION/01-Auto-Insert.png" target="_blank">Image</a>)
+
+If you see that link you are in luck and can ignore the rest of this document unless you
+are using it to get clues as to how configure a tool (not Tsugi ) that does not support
+auto provisioning.
+
+Setup Pre SAK-44055
+===================
+
 Setting up the Issuer in Tsugi
 ------------------------------
 

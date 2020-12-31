@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.sakaiproject.service.gradebook.shared.GradingEventStatus;
 import org.sakaiproject.tool.gradebook.GradingEvent;
 
 import lombok.Getter;
@@ -41,11 +42,15 @@ public class GbGradeLog implements Serializable {
 
 	@Getter
 	private final String grade;
-
+	
+	@Getter
+	private final GradingEventStatus status;
+	
 	public GbGradeLog(final GradingEvent ge) {
 		this.dateGraded = ge.getDateGraded();
 		this.graderUuid = ge.getGraderId();
 		this.grade = ge.getGrade();
+		this.status = ge.getStatus();
 	}
 
 	@Override

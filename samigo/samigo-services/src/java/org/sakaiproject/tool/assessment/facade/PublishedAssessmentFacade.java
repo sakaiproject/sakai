@@ -111,7 +111,7 @@ public class PublishedAssessmentFacade
   private int groupCount;
   private boolean selected;
   private Long categoryId;
-  private boolean pastDue;
+  private boolean pastDue = false;
 
   public PublishedAssessmentFacade() {
   }

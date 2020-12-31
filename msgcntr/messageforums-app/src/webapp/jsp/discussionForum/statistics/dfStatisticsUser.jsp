@@ -17,7 +17,7 @@
 
 <f:view>
   <sakai:view>
-  	<h:form id="dfStatisticsForm" rendered="#{ForumTool.instructor}">
+  	<h:form id="dfStatisticsForm">
 		<!--discussionForum/statistics/dfStatisticsUser.jsp-->
 		<script>
 
@@ -128,7 +128,7 @@
 			<iframe id="dialogFrame" name="dialogFrame" width="100%" height="100%" frameborder="0"></iframe>
 		</div>
 
-  		<h:panelGrid columns="2" width="100%" styleClass="navPanel  specialLink">
+  		<h:panelGrid columns="2" width="100%" styleClass="navPanel  specialLink" rendered="#{ForumTool.instructor}">
           <h:panelGroup>
           	 <f:verbatim><h3></f:verbatim>
 			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"
@@ -189,12 +189,13 @@
 	  	<h:outputText rendered="#{ForumTool.anonymousEnabled && ForumTool.siteHasAnonymousTopics && !mfStatisticsBean.pureAnon}" value="#{msgs.stat_forum_anonymous_omitted}" styleClass="instruction" />
 
         <div>
-            <h:outputFormat value="#{msgs.stat_percent_read}" escape="false">
-                <f:param value="#{mfStatisticsBean.getPercentRead()}" />
-            </h:outputFormat>
+            <h:outputText value="#{msgs.stat_percent_read_user}" escape="false" />
+            <h:outputText value="#{mfStatisticsBean.getPercentRead()}">
+                <f:convertNumber type="percent" />
+            </h:outputText>
         </div>
         <div>
-            <h:outputFormat value="#{msgs.stat_num_authored}" escape="false">
+            <h:outputFormat value="#{msgs.stat_num_authored_user}" escape="false">
                 <f:param value="#{mfStatisticsBean.userAuthoredStatistics.size()}" />
             </h:outputFormat>
         </div>
@@ -261,7 +262,7 @@
 
   				 <h:column>
   					<h:outputLink value="/tool/#{ForumTool.currentToolId}/discussionForum/message/dfMsgGrade" target="dialogFrame"
-						onclick="dialogLinkClick(this);">
+						onclick="dialogLinkClick(this);" rendered="#{ForumTool.instructor}">
 						<f:param value="#{stat.forumId}" name="forumId"/>
 						<f:param value="#{stat.topicId}" name="topicId"/>
 						<f:param value="#{stat.msgId}" name="messageId"/>
@@ -272,7 +273,7 @@
 						<h:graphicImage value="/../../library/image/silk/award_star_gold_1.png" alt="#{msgs.cdfm_button_bar_grade}" />
 						<h:outputText value=" #{msgs.cdfm_button_bar_grade}" />
 					</h:outputLink>
-					<h:outputText value=" #{msgs.cdfm_toolbar_separator} " />
+					<h:outputText value=" #{msgs.cdfm_toolbar_separator} " rendered="#{ForumTool.instructor}" />
 					<h:commandLink action="#{ForumTool.processActionDisplayInThread}" value="#{msgs.stat_display_in_thread}" title=" #{msgs.stat_display_in_thread}">	
 		  				  		<f:param value="#{stat.topicId}" name="topicId"/>
 		  				  		<f:param value="#{stat.forumId}" name="forumId"/>

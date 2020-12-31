@@ -18,9 +18,9 @@ package org.sakaiproject.contentreview.turnitin.oc;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -167,23 +167,32 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private static final String VIEWER_PERMISSION_MAY_VIEW_MATCH_SUBMISSION_INFO = "may_view_match_submission_info";
 	private static final String VIEWER_DEFAULT_PERMISSIONS = "viewer_default_permission_set";
 	private enum ROLES{
-		INSTRUCTOR(Arrays.asList("Faculty", "Instructor", "Mentor", "Staff", "maintain", "Teaching Assistant")),
-		LEARNER(Arrays.asList("Learner", "Student", "access")),
-		EDITOR(Arrays.asList()),
-		USER(Arrays.asList("Alumni", "guest", "Member", "Observer", "Other")),
-		APPLICANT(Arrays.asList("ProspectiveStudent")),
-		ADMINISTRATOR(Arrays.asList("Administrator", "Admin")),
-		UNDEFINED(Arrays.asList());
+		INSTRUCTOR(Arrays.asList("Faculty", "Instructor", "Mentor", "Staff", "maintain", "Teaching Assistant"), Boolean.TRUE),
+		LEARNER(Arrays.asList("Learner", "Student", "access"), Boolean.FALSE),
+		EDITOR(Arrays.asList(), Boolean.FALSE),
+		USER(Arrays.asList("Alumni", "guest", "Member", "Observer", "Other"), Boolean.FALSE),
+		APPLICANT(Arrays.asList("ProspectiveStudent"), Boolean.FALSE),
+		ADMINISTRATOR(Arrays.asList("Administrator", "Admin"), Boolean.TRUE),
+		UNDEFINED(Arrays.asList(), Boolean.FALSE);
 		
 		List<String> mappedRoles;
-		private ROLES(List<String> mappedRoles) {
+		Boolean maySaveReportChanges;
+		
+		private ROLES(List<String> mappedRoles, Boolean maySaveReportChanges) {
 			this.mappedRoles = mappedRoles;
+			this.maySaveReportChanges = maySaveReportChanges;
 		}
 		private void setMappedRoles(List<String> mappedRoles) {
 			this.mappedRoles = mappedRoles;
 		}
 		private List<String> getMappedRoles() {
 			return mappedRoles;
+		}
+		public Boolean getMaySaveReportChanges() {
+			return maySaveReportChanges;
+		}
+		public void setMaySaveReportChanges(Boolean maySaveReportChanges) {
+			this.maySaveReportChanges = maySaveReportChanges;
 		}
 	};
 	
@@ -335,7 +344,10 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				
 		// Override default Sakai->Turnitin roles mapping
 		for(ROLES role : ROLES.values()) {
+			//map Sakai roles to Turnitin roles
 			role.setMappedRoles(serverConfigurationService.getStringList("turnitin.oc.roles." + role.name().toLowerCase() + ".mapping", role.getMappedRoles()));
+			//set maySaveReportChanges permission for each role
+			role.setMaySaveReportChanges(serverConfigurationService.getBoolean("turnitin.oc.roles." + role.name().toLowerCase() + ".may_save_report_changes", role.getMaySaveReportChanges()));
 		}
 
 		// Populate base headers that are needed for all calls to TCA
@@ -573,10 +585,11 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				modes.put(ALL_SOURCES, Boolean.TRUE);
 				similarity.put(MODES, modes);
 				Map<String, Object> viewSettings = new HashMap<>();
-				viewSettings.put(SAVE_CHANGES, Boolean.TRUE);
 				similarity.put(VIEW_SETTINGS, viewSettings);
 				data.put(SIMILARITY, similarity);
-				data.put(VIEWER_DEFAULT_PERMISSIONS, mapUserRole(userId, contextId, isInstructor));
+				ROLES userRole = mapUserRole(userId, contextId, isInstructor); 
+				data.put(VIEWER_DEFAULT_PERMISSIONS, userRole.name());
+				viewSettings.put(SAVE_CHANGES, userRole.getMaySaveReportChanges());
 				//Check if there are any sakai.properties overrides for the default permissions
 				Map<String, Object> viewerPermissionsOverride = new HashMap<String, Object>();
 				if(!isInstructor && mayViewSubmissionFullSourceOverrideStudent != null) {
@@ -764,6 +777,28 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		
 		return response;
 	}
+	
+	private void indexSubmission(String reportId) throws Exception {
+		HashMap<String, Object> response = makeHttpCall("PUT",
+				getNormalizedServiceUrl() + "submissions/" + reportId + "/index",
+				SIMILARITY_REPORT_HEADERS,
+				null,
+				null);
+
+		// Get response:
+		int responseCode = !response.containsKey(RESPONSE_CODE) ? 0 : (int) response.get(RESPONSE_CODE);
+		String responseMessage = !response.containsKey(RESPONSE_MESSAGE) ? "" : (String) response.get(RESPONSE_MESSAGE);
+		String responseBody = !response.containsKey(RESPONSE_BODY) ? "" : (String) response.get(RESPONSE_BODY);
+
+		if ((responseCode >= 200) && (responseCode < 300)) {
+			log.info("Successfully indexed submission: " + reportId);
+		} else if ((responseCode == 400)) {
+			log.info("File must be uploaded to submission before indexing for submission: " + reportId);
+		} else {
+			throw new ContentReviewProviderException("Submission failed to be indexed: " + responseCode + ", " + responseMessage + ", " + responseBody,
+					createLastError(doc -> createFormattedMessageXML(doc, "report.error.unsuccessful", responseMessage, responseCode)));
+		}
+	}
 
 	private void generateSimilarityReport(String reportId, String assignmentRef) throws Exception {
 		
@@ -907,12 +942,12 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			Map<String, Object> data = new HashMap<String, Object>();
 			data.put("owner", userID);
 			if(site != null) {
-				data.put("owner_default_permission_set", mapUserRole(userID, site.getId(), false));
+				data.put("owner_default_permission_set", mapUserRole(userID, site.getId(), false).name());
 			}
 			if (StringUtils.isNotBlank(submitterID)) {
 				data.put("submitter", submitterID);
 				if(site != null) {
-					data.put("submitter_default_permission_set", mapUserRole(submitterID, site.getId(), false));
+					data.put("submitter_default_permission_set", mapUserRole(submitterID, site.getId(), false).name());
 				}
 			}
 			data.put("title", fileName);
@@ -1162,26 +1197,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				if (!incrementItem(item)) {
 					errors++;
 					continue;
-				}						
-				// Handle items that only generate reports on due date				
-				// Get assignment associated with current item's task Id
-				Assignment assignment = assignmentService.getAssignment(entityManager.newReference(item.getTaskId()));
-				String reportGenSpeed = null;
-				if(assignment != null) {
-					Date assignmentDueDate = Date.from(assignment. getDueDate());					
-					reportGenSpeed = assignment.getProperties().get("report_gen_speed");
-					// If report gen speed is set to due date, and it's before the due date right now, do not process item
-					if (assignmentDueDate != null && GENERATE_REPORTS_ON_DUE_DATE.equals(reportGenSpeed) 
-							&& assignmentDueDate.after(new Date())) {
-						log.info("Report generate speed is 2, skipping for now. ItemID: " + item.getId());
-						// We don't items with gen speed 2 items to exceed retry count maximum
-						// Reset retry count to zero
-						item.setRetryCount(Long.valueOf(0));
-						item.setNextRetryTime(getDueDateRetryTime(assignmentDueDate));
-						crqs.update(item);
-						continue;
-					}
 				}
+				Assignment assignment = assignmentService.getAssignment(entityManager.newReference(item.getTaskId()));
 
 				// EXTERNAL ID DOES NOT EXIST, CREATE SUBMISSION AND UPLOAD CONTENTS TO TCA
 				// (STAGE 1)
@@ -1360,25 +1377,52 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 
 	private void handleSubmissionStatus(JSONObject submissionJSON, ContentReviewItem item, Assignment assignment) {
 		try {
-
-			Date assignmentDueDate = Date.from(assignment.getDueDate());
-			String reportGenSpeed = assignment.getProperties().get("report_gen_speed");
+			Date assignmentDueDate = null;
+			String reportGenSpeed = null;
+			if(assignment != null) {
+				assignmentDueDate = Date.from(assignment.getDueDate());
+				reportGenSpeed = assignment.getProperties().get("report_gen_speed");
+			}
 
 			String submissionStatus = submissionJSON.getString("status");
 
 			switch (submissionStatus) {
 			case "COMPLETE":
-				// If submission status is complete, start similarity report process
-				generateSimilarityReport(item.getExternalId(), item.getTaskId());
-				// Update item status for loop 2
-				item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE);
-				// Reset retry count
-				item.setRetryCount(new Long(0));
 				Calendar cal = Calendar.getInstance();
 				// Reset cal to current time
 				cal.setTime(new Date());
-				// Reset delay time
-				cal.add(Calendar.MINUTE, getDelayTime(item.getRetryCount()));
+				if (assignment != null
+						&& assignmentDueDate != null 
+						&& assignmentDueDate.after(new Date())
+						&& GENERATE_REPORTS_ON_DUE_DATE.equals(reportGenSpeed)) {
+					//for assignments that only generate reports on due date, we want to
+					//index the completed submission before the due date so that all
+					//submissions are indexed before reports are generated (to help
+					//detect collusion between submissions). Report generation
+					//should be delayed until due date as well.
+					try {
+						Map<String, String> assignmentSettings = assignment.getProperties();
+						//set item retryTime to due date
+						cal.setTime(getDueDateRetryTime(assignmentDueDate));
+						if("true".equals(assignmentSettings.get("store_inst_index"))){
+							indexSubmission(item.getExternalId());
+						}
+					}catch (Exception e) {
+						log.error(e.getMessage(), e);
+						//continue with the workflow if this fails as this is only
+						//assisting with collusion check
+					}
+				}else {
+					// For all other assignments (no due date, or generate immeidately, or due date in the past, etc)
+					// If submission status is complete, start similarity report process
+					generateSimilarityReport(item.getExternalId(), item.getTaskId());
+					// Reset delay time
+					cal.add(Calendar.MINUTE, getDelayTime(item.getRetryCount()));
+					// Update item status for loop 2
+					item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE);
+				}
+				// Reset retry count
+				item.setRetryCount(new Long(0));
 				// Schedule next retry time
 				item.setNextRetryTime(cal.getTime());
 				crqs.update(item);
@@ -1834,15 +1878,14 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		log.info("Turnitin webhook received: " + success + " items processed, " + errors + " errors.");
 	}
 	
-	private String mapUserRole(String userId, String contextId, boolean isInstructor) {
-		String role = isInstructor ? ROLES.INSTRUCTOR.name() : ROLES.UNDEFINED.name();
+	private ROLES mapUserRole(String userId, String contextId, boolean isInstructor) {
+		ROLES role = isInstructor ? ROLES.INSTRUCTOR : ROLES.UNDEFINED;
 		try
 		{
 			//get the user's role for this course
 			String siteRole = securityService.isSuperUser(userId) ? ROLES.ADMINISTRATOR.name() : authzGroupService.getUserRole(userId, siteService.siteReference(contextId));
 			role = Arrays.asList(ROLES.values()).stream()
 				.filter(r -> r.getMappedRoles().stream().anyMatch(siteRole::equalsIgnoreCase))
-				.map(r -> r.name())
 				.findFirst()
 				.orElse(role);
 		}catch(Exception e) {

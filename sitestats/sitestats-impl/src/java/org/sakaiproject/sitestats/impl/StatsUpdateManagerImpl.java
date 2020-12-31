@@ -73,8 +73,6 @@ import org.sakaiproject.sitestats.api.parser.EventParserTip;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.comparator.NullSafeComparator;
 
@@ -420,12 +418,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					//long endTime2 = System.currentTimeMillis();
 					//log.debug("Time spent pre-processing " + eventCount + " event(s): " + (endTime2-startTime2) + " ms");
 				}
-				transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-					@Override
-					protected void doInTransactionWithoutResult(TransactionStatus status) {
-						doUpdateConsolidatedEvents();
-					}
-				});
+				transactionTemplate.execute(status -> doUpdateConsolidatedEvents());
 				isIdle = true;
 				totalTimeInEventProcessing += (System.currentTimeMillis() - startTime);
 

@@ -24,6 +24,8 @@ import org.springframework.core.GenericTypeResolver;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import org.sakaiproject.springframework.data.Repository;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;

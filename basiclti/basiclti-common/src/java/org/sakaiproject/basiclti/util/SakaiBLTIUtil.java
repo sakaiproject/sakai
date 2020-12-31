@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Precision;
+import org.apache.http.client.utils.URIBuilder;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.sakaiproject.api.privacy.PrivacyManager;
@@ -795,16 +796,14 @@ public class SakaiBLTIUtil {
 	}
 
 	public static void addConsumerData(Properties props, Properties custom) {
-		String defaultName =  ServerConfigurationService.getString("serverName",
-             ServerConfigurationService.getString("serverUrl","localhost.sakailms"));
-
-		String defaultGUID = LegacyShaUtil.sha256Hash(defaultName);
+		final String defaultName =  ServerConfigurationService.getString("serverName",
+			ServerConfigurationService.getString("serverUrl","localhost.sakailms"));
 
 		// Get the organizational information
 		setProperty(custom, LTICustomVars.TOOLPLATFORMINSTANCE_GUID,
-				ServerConfigurationService.getString("basiclti.consumer_instance_guid", defaultGUID));
+				ServerConfigurationService.getString("basiclti.consumer_instance_guid", defaultName));
 		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INSTANCE_GUID,
-				ServerConfigurationService.getString("basiclti.consumer_instance_guid", defaultGUID));
+				ServerConfigurationService.getString("basiclti.consumer_instance_guid", defaultName));
 
 		setProperty(custom,  LTICustomVars.TOOLPLATFORMINSTANCE_NAME,
 				ServerConfigurationService.getString("basiclti.consumer_instance_name", defaultName));
@@ -1211,9 +1210,8 @@ public class SakaiBLTIUtil {
 			String incoming_kid = (String) jsonHeader.get("kid");
 
 			String tool_keyset = (String) tool.get(LTIService.LTI13_TOOL_KEYSET);
-			String tool_public = (String) tool.get(LTIService.LTI13_TOOL_PUBLIC);
-			if (tool_keyset == null && tool_public == null) {
-				throw new RuntimeException("Could not find tool keyset url or stored public key");
+			if (tool_keyset == null) {
+				throw new RuntimeException("Could not find tool keyset url");
 			}
 
 			Key publicKey = null;
@@ -1230,11 +1228,6 @@ public class SakaiBLTIUtil {
 				}
 				// TODO: Store in Earle's super-cluster-cache one day - SAK-43700
 
-			} else {
-				publicKey = LTI13Util.string2PublicKey(tool_public);
-				if (publicKey == null) {
-					throw new RuntimeException("Could not deserialize tool public key");
-				}
 			}
 			return publicKey;
 		}
@@ -1439,6 +1432,8 @@ public class SakaiBLTIUtil {
 			if ( StringUtils.isNotEmpty(relaunch_url) ) setProperty(ltiProps, "relaunch_url", relaunch_url);
 
 			Map<String, String> extra = new HashMap<>();
+			extra.put(BasicLTIUtil.EXTRA_ERROR_TIMEOUT, rb.getString("error.submit.timeout"));
+			extra.put(BasicLTIUtil.EXTRA_HTTP_POPUP, BasicLTIUtil.EXTRA_HTTP_POPUP_FALSE);  // Don't bother oening in new window in protocol mismatch
 			ltiProps = BasicLTIUtil.signProperties(ltiProps, launch_url, "POST",
 					consumerkey, secret, extra);
 
@@ -1548,6 +1543,7 @@ public class SakaiBLTIUtil {
 			addConsumerData(ltiProps, null);
 
 			Map<String, String> extra = new HashMap<>();
+			extra.put(BasicLTIUtil.EXTRA_ERROR_TIMEOUT, rb.getString("error.submit.timeout"));
 			ltiProps = BasicLTIUtil.signProperties(ltiProps, launch_url, "POST", key, secret, extra);
 
 			if (ltiProps == null) {
@@ -1922,8 +1918,8 @@ public class SakaiBLTIUtil {
 				}
 			}
 
-			String form_id = java.util.UUID.randomUUID().toString();
-			String html = "<form action=\"" + launch_url + "\" id=\""+ form_id + "\" method=\"POST\">\n"
+			Integer form_id = jws.hashCode();
+			String html = "<form action=\"" + launch_url + "\" id=\"jwt-launch-"+ form_id + "\" method=\"POST\">\n"
 					+ "    <input type=\"hidden\" name=\"id_token\" value=\"" + BasicLTIUtil.htmlspecialchars(jws) + "\" />\n";
 
 			if ( state != null ) {
@@ -1936,7 +1932,11 @@ public class SakaiBLTIUtil {
 			html += "    </form>\n";
 
 			if ( ! dodebug ) {
-				html += "<script>\n document.getElementById(\"" + form_id + "\").submit();\n</script>\n";
+				String launch_error = rb.getString("error.submit.timeout")+" "+launch_url;
+				html += "<script>\n";
+				html += "setTimeout(function() { document.getElementById(\"jwt-launch-" + form_id + "\").submit(); }, 200 );\n";
+				html += "setTimeout(function() { alert(\""+BasicLTIUtil.htmlspecialchars(launch_error)+"\"); }, 4000);\n";
+				html += "</script>\n";
 			} else {
 				html += "<p>\n--- Unencoded JWT:<br/>"
 						+ BasicLTIUtil.htmlspecialchars(ljs)
@@ -2612,12 +2612,17 @@ public class SakaiBLTIUtil {
 	 * getLaunchCode - Return the launch code for a content item
 	 */
 	public static String getLaunchCode(Map<String, Object> content) {
+		/*
 		long now = (new java.util.Date()).getTime();
 		int id = getInt(content.get(LTIService.LTI_ID));
 		String placement_secret = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
 		String base_string = id + ":" + now + ":" + placement_secret;
 		String signature = LegacyShaUtil.sha256Hash(base_string);
 		String retval = id + ":" + now + ":" + signature;
+		*/
+		String content_id = content.get(LTIService.LTI_ID).toString();
+		String placement_secret = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
+		String retval = LTI13Util.timeStampSign(content_id, placement_secret);
 		return retval;
 	}
 
@@ -2625,22 +2630,13 @@ public class SakaiBLTIUtil {
 	 * checkLaunchCode - check to see if a launch code is properly signed and not expired
 	 */
 	public static boolean checkLaunchCode(Map<String, Object> content, String launch_code) {
-		long now = (new java.util.Date()).getTime();
-		int id = getInt(content.get(LTIService.LTI_ID));
+		String content_id = content.get(LTIService.LTI_ID).toString();
+		// Make sure that the token belongs to this content item
+		if ( ! launch_code.contains(":"+content_id+":") ) return false;
 		String placement_secret = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
-		String [] pieces = launch_code.split(":");
-		if ( pieces.length != 3 ) return false;
-		int code_id = getInt(pieces[0]);
-		long code_now = getLong(pieces[1]);
-		String code_sig = pieces[2];
-		long delta = now - code_now;
-		if ( code_id != id ) return false;
-		// Five minutes
-		if ( delta > (5*60*1000) ) return false; // expired
-		String base_string = id + ":" + code_now + ":" + placement_secret;
-		String signature = LegacyShaUtil.sha256Hash(base_string);
-		if ( ! signature.equals(code_sig) ) return false;
-		return true;
+		int delta = 5*60*60; // Five minutes
+		boolean retval = LTI13Util.timeStampCheckSign(launch_code, placement_secret, delta);
+		return retval;
 	}
 
 	public static boolean isPlacement(String placement_id) {
@@ -2679,31 +2675,6 @@ public class SakaiBLTIUtil {
 		return retval;
 	}
 
-	public static String toNull(String str) {
-		if (str == null) {
-			return null;
-		}
-		if (str.trim().length() < 1) {
-			return null;
-		}
-		return str;
-	}
-
-	// Pull in a few things to avoid circular dependency
-	public static int getInt(Object o) {
-		if (o instanceof String) {
-			try {
-				return (new Integer((String) o)).intValue();
-			} catch (NumberFormatException e) {
-				return -1;
-			}
-		}
-		if (o instanceof Number) {
-			return ((Number) o).intValue();
-		}
-		return -1;
-	}
-
 	public static String[] positional = {"field", "type"};
 
 	public static Properties parseFormString(String str) {
@@ -2723,66 +2694,142 @@ public class SakaiBLTIUtil {
 		return op;
 	}
 
+	// Refactored into tsugi-util - mark as legacy later
+	public static String toNull(String str) {
+		return LTI13Util.toNull(str);
+	}
+
+	public static int getInt(Object o) {
+		return LTI13Util.getInt(o);
+	}
+
 	public static Long getLongKey(Object key) {
-		return getLong(key);
+		return LTI13Util.getLongKey(key);
+	}
+
+	public static URL getUrlOrNull(String urlString) {
+		if ( urlString == null ) return null;
+		try
+		{
+			URL url = new URL(urlString);
+			url.toURI();
+			return url;
+		} catch (Exception exception) {
+			return null;
+		}
+	}
+
+	public static String stripOffQuery(String urlString)
+	{
+		if ( urlString == null ) return null;
+		try {
+			URIBuilder uriBuilder = new URIBuilder(urlString);
+			uriBuilder.removeQuery();
+			return uriBuilder.build().toString();
+		} catch(java.net.URISyntaxException e) {
+			return null;
+		}
+	}
+
+	public static Map<String, Object> findBestToolMatch(boolean global, String launchUrl, List<Map<String,Object>> tools)
+	{
+		boolean local = ! global;  // Makes it easier to read :)
+
+		// First we look for a tool with an exact match
+		for ( Map<String,Object> tool : tools ) {
+			String toolLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
+			String toolSite = (String) tool.get(LTIService.LTI_SITE_ID);
+
+			if ( local && StringUtils.stripToNull(toolSite) == null ) continue;
+			if ( global && StringUtils.stripToNull(toolSite) != null ) continue;
+
+			if ( launchUrl != null && launchUrl.equals(toolLaunch) ) {
+				log.debug("Matched exact tool {}={}", launchUrl, toolLaunch);
+				return tool;
+			}
+		}
+
+		// Next we snip off the query string and check again
+		String launchUrlBase = stripOffQuery(launchUrl);
+
+		// Look for tool with an query-less match
+		// https://www.py4e.com/mod/gift/
+		for ( Map<String,Object> tool : tools ) {
+			String toolLaunchBase = stripOffQuery((String) tool.get(LTIService.LTI_LAUNCH));
+			String toolSite = (String) tool.get(LTIService.LTI_SITE_ID);
+
+			if ( local && StringUtils.stripToNull(toolSite) == null ) continue;
+			if ( global && StringUtils.stripToNull(toolSite) != null ) continue;
+
+			if ( launchUrlBase != null && launchUrlBase.equals(toolLaunchBase) ) {
+				log.debug("Matched query-free tool {}={}", launchUrl, toolLaunchBase);
+				return tool;
+			}
+		}
+
+		// Find the longest prefix
+		// https://www.py4e.com/mod/   <-- Selected
+		// https://www.py4e.com/
+		String bestPrefix = "";
+		Map<String,Object> bestTool = null;
+		for ( Map<String,Object> tool : tools ) {
+			String toolLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
+			String toolSite = (String) tool.get(LTIService.LTI_SITE_ID);
+
+			if ( local && StringUtils.stripToNull(toolSite) == null ) continue;
+			if ( global && StringUtils.stripToNull(toolSite) != null ) continue;
+
+			String prefix = StringUtils.getCommonPrefix(launchUrl, toolLaunch);
+			if ( prefix.length() > 0 && prefix.length() > bestPrefix.length() ) {
+				bestTool = tool;
+				bestPrefix = prefix;
+			}
+		}
+
+		// We want at least the scheme and domain to match
+		if ( bestTool != null ) {
+			URL launchUrlObj = getUrlOrNull(launchUrl);
+			URL prefixUrlObj = getUrlOrNull(bestPrefix);
+			if ( launchUrlObj != null && prefixUrlObj != null &&
+				 launchUrlObj.getProtocol().equals(prefixUrlObj.getProtocol()) &&
+				 launchUrlObj.getHost().equals(prefixUrlObj.getHost()) ){
+				log.debug("Matched scheme / server {}={}", launchUrl, bestPrefix);
+				return bestTool;
+			}
+		}
+
+		// After all that - still nothing
+		return null;
+
+	}
+	public static Map<String, Object> findBestToolMatch(String launchUrl, List<Map<String,Object>> tools)
+	{
+		// Example launch URL:
+		// https://www.py4e.com/mod/gift/?quiz=02-Python.txt
+
+		boolean global = true;
+		Map<String,Object> retval = findBestToolMatch(!global, launchUrl, tools);
+
+		if ( retval != null ) return retval;
+
+		retval = findBestToolMatch(global, launchUrl, tools);
+		return retval;
 	}
 
 	public static Long getLong(Object key) {
-		Long retval = getLongNull(key);
-		if (retval != null) {
-			return retval;
-		}
-		return new Long(-1);
+		return LTI13Util.getLong(key);
 	}
 
 	public static Long getLongNull(Object key) {
-		if (key == null) {
-			return null;
-		}
-		if (key instanceof Number) {
-			return new Long(((Number) key).longValue());
-		}
-		if (key instanceof String) {
-			if (((String) key).length() < 1) {
-				return new Long(-1);
-			}
-			try {
-				return new Long((String) key);
-			} catch (NumberFormatException e) {
-				return null;
-			}
-		}
-		return null;
+		return LTI13Util.getLongNull(key);
 	}
 
 	public static Double getDoubleNull(Object key) {
-		if (key == null) {
-			return null;
-		}
-		if (key instanceof Number) {
-			return ((Number) key).doubleValue();
-		}
-		if (key instanceof String) {
-			if (((String) key).length() < 1) {
-				return null;
-			}
-			try {
-				return new Double((String) key);
-			} catch (NumberFormatException e) {
-				return null;
-			}
-		}
-		return null;
+		return LTI13Util.getDoubleNull(key);
 	}
 
 	public static String getStringNull(Object value) {
-		if (value == null) {
-			return null;
-		}
-		if (value instanceof String) {
-			return (String) value;
-		}
-		return null;
+		return LTI13Util.getStringNull(value);
 	}
 
 	/**

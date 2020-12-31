@@ -354,12 +354,12 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 					String varNameNumberChars = parameters.getString("changeChars");
 					if (varNameNumberChars.equals(rb.getString("custom.shofir")))
 					{
-						setNumberOfCharsPerAnnouncement(53);
+						setNumberOfCharsPerAnnouncement(50);
 						setEnforceNumberOfCharsPerAnnouncement(true);
 					}
 					else if (varNameNumberChars.equals(rb.getString("custom.shofirtwo")))
 					{
-						setNumberOfCharsPerAnnouncement(103);
+						setNumberOfCharsPerAnnouncement(100);
 						setEnforceNumberOfCharsPerAnnouncement(true);
 					}
 					else if (varNameNumberChars.equals(rb.getString("custom.shoall")))
@@ -377,12 +377,12 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 				String varNameNumberChars = parameters.getString("changeChars");
 				if (varNameNumberChars.equals(rb.getString("custom.shofir")))
 				{
-					setNumberOfCharsPerAnnouncement(53);
+					setNumberOfCharsPerAnnouncement(50);
 					setEnforceNumberOfCharsPerAnnouncement(true);
 				}
 				else if (varNameNumberChars.equals(rb.getString("custom.shofirtwo")))
 				{
-					setNumberOfCharsPerAnnouncement(103);
+					setNumberOfCharsPerAnnouncement(100);
 					setEnforceNumberOfCharsPerAnnouncement(true);
 				}
 				else if (varNameNumberChars.equals(rb.getString("custom.shoall")))
@@ -404,8 +404,6 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 			setNumberOfAnnouncements(parameters.getInt(varNameNumberOfAnnouncements, DEFAULT_DISPLAY_NUMBER_OPTION));
 			setEnforceNumberOfAnnouncementsLimit(StringUtils.trimToNull(parameters.get(varNameNumberOfAnnouncements)) != null);
 
-			// setNumberOfCharsPerAnnouncement(parameters.getInt(varNameNumberCharsPerAnnouncement, numberOfCharsPerAnnouncement));
-			// setEnforceNumberOfCharsPerAnnouncement(StringUtils.trimToNull(parameters.get(varNameNumberCharsPerAnnouncement)) != null);
 		}
 
 		/**

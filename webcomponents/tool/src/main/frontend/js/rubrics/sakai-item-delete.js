@@ -52,7 +52,7 @@ export class SakaiItemDelete extends RubricsElement {
   render() {
 
     return html`
-      <span @focus="${this.onFocus}" @focusout="${this.focusOut}" role="button" aria-haspopup="true" aria-expanded="${this.popoverOpen}" aria-controls="delete_${this.type}_${this.item.id}" tabindex="0" title="${tr("remove", [this.item.title])}" class="delete fa fa-times" @click="${this.deleteItem}"></span>
+      <a @focus="${this.onFocus}" @focusout="${this.focusOut}" role="button" aria-haspopup="true" aria-expanded="${this.popoverOpen}" aria-controls="delete_${this.type}_${this.item.id}" tabindex="0" title="${tr("remove", [this.item.title])}" class="linkStyle delete fa fa-times" @keyup="${this.openEditWithKeyboard}" @click="${this.deleteItem}" href="#"></a>
       <div id="delete_${this.type}_${this.item.id}" class="popover rubric-delete-popover left">
         <div class="arrow"></div>
         <div class="popover-title" tabindex="0">${tr("confirm_remove")} ${this.item.title}</div>
@@ -85,7 +85,7 @@ export class SakaiItemDelete extends RubricsElement {
   }
 
   deleteItem(e) {
-
+    e.preventDefault();
     e.stopPropagation();
 
     if (!this.classList.contains("show-tooltip")) {
@@ -135,14 +135,14 @@ export class SakaiItemDelete extends RubricsElement {
 
       // SAK-42944 removing the soft-deleted associations
       $.ajax({
-        url: `/rubrics-service/rest/rubric-associations/search/by-rubric-id?rubricId=${this.rubric.id}`,
+        url: `/rubrics-service/rest/rubric-associations/search/by-rubric?rubricId=${this.rubric.id}`,
         headers: {"authorization": this.token},
         async: false
       }).done(data => {
         if (data._embedded['rubric-associations'].length) {
           data._embedded['rubric-associations'].forEach( assoc => {
             $.ajax({
-              url: `/rubrics-service/rest/evaluations/search/by-association-id?toolItemRubricAssociationId=${assoc.id}`,
+              url: `/rubrics-service/rest/evaluations/search/by-association?toolItemRubricAssociationId=${assoc.id}`,
               headers: {"authorization": this.token},
               async: false
             }).done(data => {
@@ -194,6 +194,12 @@ export class SakaiItemDelete extends RubricsElement {
     this.dispatchEvent(new CustomEvent('delete-item', {detail: this.item, bubbles: true, composed: true}));
     this.hideToolTip();
     $(`#delete_${this.type}_${this.item.id}`).hide();
+  }
+
+  openEditWithKeyboard(e) {
+    if(e.keyCode == 32) {
+      this.deleteItem(e)
+    }
   }
 }
 

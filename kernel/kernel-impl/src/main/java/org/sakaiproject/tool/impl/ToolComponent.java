@@ -25,16 +25,20 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -45,8 +49,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.Placement;
@@ -71,9 +77,6 @@ public abstract class ToolComponent implements ToolManager
 
 	/** Key in the ThreadLocalManager for binding our current tool. */
 	protected final static String CURRENT_TOOL = "sakai:ToolComponent:current.tool";
-	
-	/** Key in the ToolConfiguration Properties for checking what permissions a tool needs in order to be visible */
-	protected static final String TOOLCONFIG_REQUIRED_PERMISSIONS = "functions.require";
 
 	//Tool placement property for visibility
 	public static final String PORTAL_VISIBLE = "sakai-portal:visible";
@@ -553,67 +556,85 @@ public abstract class ToolComponent implements ToolManager
 			tool.m_title_bundle.put (locale, props);
 		
 	}
-	
-	/**
-	 * Check whether a tool is visible to the current user in this site,
-	 * depending on permissions required to view the tool.
-	 * 
-	 * The optional tool configuration tag "functions.require" describes a
-	 * set of permission lists which decide the visibility of the tool link
-	 * for this site user. Lists are separated by "|" and permissions within a
-	 * list are separated by ",". Users must have all the permissions included in
-	 * at least one of the permission lists.
-	 *
-	 * For example, a value like "section.role.student,annc.new|section.role.ta"
-	 * would let a user with "section.role.ta" see the tool, and let a user with
-	 * both "section.role.student" AND "annc.new" see the tool, but not let a user
-	 * who only had "section.role.student" see the tool.
-	 *
-	 * If the configuration tag is not set or is null, then all users see the tool.
-	 * 
-	 * Based on: portal/portal-impl/impl/src/java/org/sakaiproject/portal/charon/ToolHelperImpl.java
-	 * 
-	 * @param site		Site this tool is in
-	 * @param config	ToolConfiguration of the tool in the site
-	 * @return
-	 */
-	public boolean isVisible(Site site, ToolConfiguration config) {
-		
-		String toolPermissionsStr = config.getConfig().getProperty(TOOLCONFIG_REQUIRED_PERMISSIONS);
-		if (log.isDebugEnabled()) {
-			log.debug("tool: " + config.getToolId() + ", permissions: " + toolPermissionsStr);
+
+	public List<Set<String>> getRequiredPermissions(ToolConfiguration config) {
+
+		String toolPermissions = config.getConfig().getProperty(TOOLCONFIG_REQUIRED_PERMISSIONS);
+
+		log.debug("tool: {}, permissions: {}", config.getToolId(), toolPermissions);
+
+		if (StringUtils.isBlank(toolPermissions)) {
+			return Collections.EMPTY_LIST;
 		}
 
-		//no special permissions required, it's visible
-		if(StringUtils.isBlank(toolPermissionsStr)) {
+		List<Set<String>> sets = new ArrayList<>();
+		for (String set : toolPermissions.split("\\s*\\|\\s*")) {
+			sets.add(new HashSet<>(Arrays.asList(set.split("\\s*\\,\\s*"))));
+		}
+		return sets;
+	}
+
+	public boolean isFirstToolVisibleToAnyNonMaintainerRole(SitePage page) {
+
+		List<ToolConfiguration> tools = page.getTools();
+		List<Set<String>> required
+			= tools.size() == 1 ? getRequiredPermissions(tools.get(0)) : Collections.EMPTY_LIST;
+
+		if (required.isEmpty()) {
 			return true;
 		}
-		
-		//check each set, if multiple permissions in the set, must have all.
-		String[] toolPermissionsSets = StringUtils.split(toolPermissionsStr, '|');
-		for (int i = 0; i < toolPermissionsSets.length; i++){
-			String[] requiredPermissions = StringUtils.split(toolPermissionsSets[i], ',');
+
+		// Get the non maintainer roles
+		final Set<Role> roles = page.getContainingSite().getRoles().stream()
+			.filter(r -> !r.isAllowed(Site.SITE_UPD)).collect(Collectors.toSet());
+
+		// Now check to see if these roles have the permission listed
+		// in the functions require for the tool.
+		for (Set<String> permissionSet : required) {
+			for (Role role : roles) {
+				if (role.getAllowedFunctions().containsAll(permissionSet)) {
+					return true; // If any one of the permissions is allows for any role.
+				}
+			}
+		}
+
+		return false;
+	}
+
+	public boolean isVisible(Site site, ToolConfiguration config) {
+
+		List<Set<String>> permissionSets = getRequiredPermissions(config);
+
+		// No permissions required for this tool, so it's visible.
+		if (permissionSets.isEmpty()) {
+			return true;
+		}
+
+		// Check each set, if multiple permissions in the set, must have all.
+		for (Set<String> permissionSet : permissionSets) {
 			boolean allowed = true;
-			for (int j = 0; j < requiredPermissions.length; j++) {
-				//since all in a set are required, if we are missing just one permission, set false, break and continue to check next set
-				//as that set may override and allow access
-				if (!securityService().unlock(requiredPermissions[j].trim(), site.getReference())){
+			for (String perm : permissionSet) {
+				// Since all in a set are required, if we are missing just one permission, set
+				// false, break and continue to check next set as that set may override and
+				// allow access.
+				if (!securityService().unlock(perm.trim(), site.getReference())){
 					allowed = false;
 					break;
 				}
 			}
-			//if allowed, we have matched the entire set so are satisfied
-			//otherwise we will check the next set
-			if(allowed) {
+
+			// If allowed, we have matched the entire set so are satisfied, otherwise we
+			// will check the next set
+			if (allowed) {
 				return true;
 			}
 		}
-		
+
 		//no sets were completely matched
 		return false;
 	}
-	
-	
+
+
 	/**
 	 * Get optional Localized Tool Properties (i.e. tool title, description)
 	 **/
@@ -621,9 +642,9 @@ public abstract class ToolComponent implements ToolManager
 		if (m_loader == null) {
 			return null;
 		}
-			
+
 		final String toolProp = m_loader.getString(toolId + "." + key, "");
-		
+
 		if (toolProp.length() < 1 || toolProp.equals("")) {
 			return null;
 		}

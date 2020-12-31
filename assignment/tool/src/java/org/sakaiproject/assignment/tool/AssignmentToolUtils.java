@@ -56,10 +56,15 @@ import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentServ
 import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.InvalidGradeItemNameException;
+import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.lti13.LineItemUtil;
+import org.sakaiproject.lti13.util.SakaiLineItem;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -85,6 +90,7 @@ public class AssignmentToolUtils {
     private RubricsService rubricsService;
     private TimeService timeService;
     private ToolManager toolManager;
+    private LTIService ltiService;
 
     private static ResourceLoader rb = new ResourceLoader("assignment");
 
@@ -503,7 +509,80 @@ public class AssignmentToolUtils {
                 if (addUpdateRemoveAssignment != null) {
                     Assignment a = assignmentService.getAssignment(assignmentId);
                     // add an entry into Gradebook for newly created assignment or modified assignment, and there wasn't a correspond record in gradebook yet
-                    if ((addUpdateRemoveAssignment.equals(GRADEBOOK_INTEGRATION_ADD) || ("update".equals(addUpdateRemoveAssignment) && !isExternalAssignmentDefined)) && associateGradebookAssignment == null) {
+                    if ( a.getTypeOfSubmission() == Assignment.SubmissionType.EXTERNAL_TOOL_SUBMISSION ) {
+                        // Lookup the old column
+                        org.sakaiproject.service.gradebook.shared.Assignment gradebookColumn = findGradeBookColumn(gradebookUid, newAssignment_title);
+                        if ( gradebookColumn != null && gradebookColumn.isExternallyMaintained() ) {
+                             alerts.add(rb.getFormattedMessage("addtogradebook.nonUniqueTitle", "\"" + newAssignment_title + "\""));
+                        } else if ( gradebookColumn == null && addUpdateRemoveAssignment.equals(GRADEBOOK_INTEGRATION_ADD) ) {
+                            try {
+                                gradebookColumn = new org.sakaiproject.service.gradebook.shared.Assignment();
+                                gradebookColumn.setPoints(newAssignment_maxPoints / (double) a.getScaleFactor());
+                                gradebookColumn.setExternallyMaintained(false);
+                                gradebookColumn.setExternalAppName(LineItemUtil.GB_EXTERNAL_APP_NAME);
+                                gradebookColumn.setName(newAssignment_title);
+                                gradebookColumn.setReleased(true); // default true
+                                gradebookColumn.setUngraded(false); // default false
+
+                                Integer contentInt = a.getContentId();
+                                Long contentKey = new Long(contentInt);
+                                Map<String, Object> content = ltiService.getContentDao(contentKey);
+                                if (content != null) {
+                                    String contentItem = (String) content.get(LTIService.LTI_CONTENTITEM);
+                                    SakaiLineItem lineItem = null;
+                                    if ( contentItem != null ) {
+                                        lineItem = LineItemUtil.extractLineItem(contentItem);
+                                        if ( lineItem != null ) {
+                                            // SAK-40043
+                                            Boolean releaseToStudent = lineItem.releaseToStudent == null ? Boolean.TRUE : lineItem.releaseToStudent; // Default to true
+                                            Boolean includeInComputation = lineItem.includeInComputation == null ? Boolean.TRUE : lineItem.includeInComputation; // Default true
+                                            gradebookColumn.setReleased(releaseToStudent); // default true
+                                            gradebookColumn.setUngraded(! includeInComputation); // default false
+                                        }
+                                   }
+                                   String external_id = LineItemUtil.constructExternalId(content, lineItem);
+                                   gradebookColumn.setExternalId(external_id);
+                                }
+
+                                // NOTE: addAssignment does *not* set the external values - Update *does* store them
+                                Long columnId = gradebookService.addAssignment(gradebookUid, gradebookColumn);
+
+                                gradebookColumn.setId(columnId);
+                                gradebookService.updateAssignment(gradebookUid, columnId, gradebookColumn);
+
+                            } catch (ConflictingAssignmentNameException e) {
+                                alerts.add(rb.getFormattedMessage("addtogradebook.nonUniqueTitle", "\"" + newAssignment_title + "\""));
+                                log.warn(this + ":integrateGradebook " + e.getMessage());
+                             } catch (InvalidGradeItemNameException e) {
+                                // add alert prompting for invalid assignment title name
+                                alerts.add(rb.getFormattedMessage("addtogradebook.titleInvalidCharacters", "\"" + newAssignment_title + "\""));
+                                log.warn(this + ":integrateGradebook " + e.getMessage());
+                            } catch (Exception e) {
+                                log.warn(this + ":integrateGradebook " + e.getMessage());
+                            }
+                        } else if ( gradebookColumn != null && "update".equals(addUpdateRemoveAssignment) ) {
+                            boolean changed = false;
+                            if ( ! newAssignment_title.equals(gradebookColumn.getName()) ) {
+                                gradebookColumn.setName(newAssignment_title);
+                                changed = true;
+                            }
+                            Double newPoints = newAssignment_maxPoints / (double) a.getScaleFactor();
+                            Double oldPoints = gradebookColumn.getPoints();
+                            if ( ! newPoints.equals(oldPoints) ) {
+                                gradebookColumn.setPoints(newAssignment_maxPoints / (double) a.getScaleFactor());
+                                changed = true;
+                            }
+                            if ( changed ) {
+                                Long assignmentKey = gradebookColumn.getId();
+                                gradebookService.updateAssignment(gradebookUid, assignmentKey, gradebookColumn);
+                            }
+                        // Remove
+                        } else if ( gradebookColumn != null ) {
+                            // Since this is not externally maintained, we don't need to delete the gradebook column
+                            log.debug(this + ":integrateGradebook - No need to delete gradebook managed column");
+                        }
+                    } else if ((addUpdateRemoveAssignment.equals(GRADEBOOK_INTEGRATION_ADD) ||
+					     ("update".equals(addUpdateRemoveAssignment) && !isExternalAssignmentDefined)) && associateGradebookAssignment == null) {
                         // add assignment into gradebook
                         try {
                             // add assignment to gradebook
@@ -689,6 +768,17 @@ public class AssignmentToolUtils {
         }
         return alerts;
     } // integrateGradebook
+
+    /**
+     * A utility class to find a gradebook column of a particular name
+     */
+    public org.sakaiproject.service.gradebook.shared.Assignment findGradeBookColumn(String gradebookUid, String assignmentName) {
+        try {
+            return gradebookService.getAssignmentByNameOrId(gradebookUid, assignmentName);
+        } catch (AssessmentNotFoundException anfe) {
+            return null;
+        }
+    }
 
     public Stream<User> getSubmitters(AssignmentSubmission aSubmission) {
 

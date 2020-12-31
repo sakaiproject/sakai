@@ -44,8 +44,7 @@
                 postUrl: extraOptions.postUrl,
                 deliveryProtocol: extraOptions.deliveryProtocol,
                 messagesSecs: extraOptions.messagesSecs,
-                recordedOn: extraOptions.recordedOn,
-                dateFormat: extraOptions.dateFormat
+                recordedOn: extraOptions.recordedOn
             }
 
             try {

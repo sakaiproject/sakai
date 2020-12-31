@@ -21,17 +21,22 @@ import static org.mockito.Mockito.when;
 import java.util.Properties;
 
 import javax.sql.DataSource;
+import java.io.IOException;
 
+import org.hibernate.SessionFactory;
+import org.hibernate.boot.registry.StandardServiceRegistry;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.dialect.HSQLDialect;
+
 import org.hsqldb.jdbcDriver;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.FileConversionService;
-import org.sakaiproject.content.api.repository.FileConversionQueueItemRepository;
-import org.sakaiproject.content.hbm.FileConversionQueueItem;
+import org.sakaiproject.content.api.persistence.FileConversionQueueItem;
+import org.sakaiproject.content.api.persistence.FileConversionServiceRepository;
 import org.sakaiproject.content.impl.FileConversionServiceImpl;
-import org.sakaiproject.content.impl.repository.FileConversionQueueItemRepositoryImpl;
+import org.sakaiproject.content.impl.persistence.FileConversionServiceRepositoryImpl;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,15 +45,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.springframework.orm.jpa.JpaTransactionManager;
-import org.springframework.orm.jpa.JpaVendorAdapter;
-import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
-import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.orm.hibernate5.HibernateTransactionManager;
+import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
 
 @Configuration
-@EnableTransactionManagement
 @PropertySource("classpath:/hibernate.properties")
 public class FileConversionServiceTestConfiguration {
 
@@ -64,20 +64,22 @@ public class FileConversionServiceTestConfiguration {
         return mappings;
     }
 
-    @Bean
-   public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
+    @Bean(name = "org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
+    public SessionFactory sessionFactory() throws IOException {
 
-      LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
-      em.setDataSource(dataSource());
-      em.setPackagesToScan(new String[] { "org.sakaiproject.content.hbm" });
-      JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-      em.setJpaVendorAdapter(vendorAdapter);
-      em.setJpaProperties(hibernateProperties());
-      return em;
-   }
+        DataSource dataSource = dataSource();
+        LocalSessionFactoryBuilder sfb = new LocalSessionFactoryBuilder(dataSource);
+        StandardServiceRegistryBuilder srb = sfb.getStandardServiceRegistryBuilder();
+        srb.applySetting(org.hibernate.cfg.Environment.DATASOURCE, dataSource);
+        srb.applySettings(hibernateProperties());
+        StandardServiceRegistry sr = srb.build();
+        hibernateMappings().processAdditionalMappings(sfb);
+        return sfb.buildSessionFactory(sr);
+    }
 
     @Bean(name = "javax.sql.DataSource")
     public DataSource dataSource() {
+
         DriverManagerDataSource db = new DriverManagerDataSource();
         db.setDriverClassName(environment.getProperty(org.hibernate.cfg.Environment.DRIVER, jdbcDriver.class.getName()));
         db.setUrl(environment.getProperty(org.hibernate.cfg.Environment.URL, "jdbc:hsqldb:mem:test"));
@@ -88,22 +90,24 @@ public class FileConversionServiceTestConfiguration {
 
     @Bean
     public Properties hibernateProperties() {
+
         return new Properties() {
             {
                 setProperty(org.hibernate.cfg.Environment.DIALECT, environment.getProperty(org.hibernate.cfg.Environment.DIALECT, HSQLDialect.class.getName()));
                 setProperty(org.hibernate.cfg.Environment.HBM2DDL_AUTO, environment.getProperty(org.hibernate.cfg.Environment.HBM2DDL_AUTO));
                 setProperty(org.hibernate.cfg.Environment.ENABLE_LAZY_LOAD_NO_TRANS, environment.getProperty(org.hibernate.cfg.Environment.ENABLE_LAZY_LOAD_NO_TRANS, "true"));
                 setProperty(org.hibernate.cfg.Environment.USE_SECOND_LEVEL_CACHE, environment.getProperty(org.hibernate.cfg.Environment.USE_SECOND_LEVEL_CACHE));
+                setProperty(org.hibernate.cfg.Environment.CURRENT_SESSION_CONTEXT_CLASS, environment.getProperty(org.hibernate.cfg.Environment.CURRENT_SESSION_CONTEXT_CLASS));
             }
         };
     }
 
-    @Bean
-    public PlatformTransactionManager jpaTransactionManager() {
+    @Bean(name = "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager")
+    public HibernateTransactionManager transactionManager(SessionFactory sessionFactory) {
 
-        JpaTransactionManager transactionManager = new JpaTransactionManager();
-        transactionManager.setEntityManagerFactory(entityManagerFactory().getObject());
-        return transactionManager;
+        HibernateTransactionManager txManager = new HibernateTransactionManager();
+        txManager.setSessionFactory(sessionFactory);
+        return txManager;
     }
 
     @Bean(name = "org.sakaiproject.component.api.ServerConfigurationService")
@@ -121,23 +125,30 @@ public class FileConversionServiceTestConfiguration {
 
     @Bean(name = "org.sakaiproject.content.api.ContentHostingService")
     public ContentHostingService contentHostingService() {
+
         ContentHostingService chs = mock(ContentHostingService.class);
         return chs;
     }
 
     @Bean(name = "org.sakaiproject.authz.api.SecurityService")
     public SecurityService securityService() {
+
         SecurityService ss = mock(SecurityService.class);
         return ss;
     }
 
-    @Bean
-    public FileConversionQueueItemRepository repository() {
-        return new FileConversionQueueItemRepositoryImpl(entityManagerFactory().getObject());
+    @Bean(name = "org.sakaiproject.content.api.persistence.FileConversionServiceRepository")
+    public FileConversionServiceRepository fileConversionServiceRepository(SessionFactory sessionFactory) {
+
+        FileConversionServiceRepositoryImpl repository = new FileConversionServiceRepositoryImpl();
+        repository.setSessionFactory(sessionFactory);
+
+        return repository;
     }
 
     @Bean
-    public FileConversionService fileConversionService(ServerConfigurationService scs, FileConversionQueueItemRepository repository) {
+    public FileConversionService fileConversionService(ServerConfigurationService scs, FileConversionServiceRepository repository) {
+
         FileConversionServiceImpl fcs = new FileConversionServiceImpl();
         fcs.setServerConfigurationService(scs);
         fcs.setRepository(repository);

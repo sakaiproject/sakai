@@ -402,7 +402,7 @@
         
       <h:panelGroup layout="block" styleClass="act">
           <h:commandButton action="#{ForumTool.processActionSaveForumSettings}" actionListener="#{ForumTool.keepStateDetails}" value="#{msgs.cdfm_button_bar_save_setting}"
-          								 rendered="#{!ForumTool.selectedForum.markForDeletion}" accesskey="s" styleClass="blockMeOnClick"> 
+          								 rendered="#{!ForumTool.selectedForum.markForDeletion}" accesskey="s" styleClass="blockMeOnClick active">
     	 	  	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>         
           </h:commandButton>
 				<h:commandButton id="saveandadd" action="#{ForumTool.processActionSaveForumAndAddTopic}" actionListener="#{ForumTool.keepStateDetails}" value="#{msgs.cdfm_button_bar_save_setting_add_topic}" accesskey="t"

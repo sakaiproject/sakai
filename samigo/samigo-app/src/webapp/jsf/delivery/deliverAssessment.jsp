@@ -256,14 +256,13 @@ document.links[newindex].onclick();
 <h:inputHidden id="showTimer" value="#{delivery.showTimer}"/>
 <h:inputHidden id="dueDate" value="#{delivery.dueDate.time}" rendered="#{delivery.dueDate != null}" />
 <h:inputHidden id="retractDate" value="#{delivery.retractDate.time}" rendered="#{delivery.retractDate != null}" />
-<h:inputHidden id="minutesLeft" value="#{delivery.minutesLeft}" rendered="#{delivery.minutesLeft != null}" />
-<h:inputHidden id="secondsLeft" value="#{delivery.secondsLeft}" rendered="#{delivery.secondsLeft != null}" />
 
 <!-- DONE BUTTON FOR PREVIEW -->
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
   <div class="sak-banner-info">
-     <h:outputText value="#{deliveryMessages.ass_preview}" />
-     <h:commandButton id="done" value="#{deliveryMessages.done}"
+     <h:outputText value="#{deliveryMessages.ass_preview}" escape="false" />
+     <h:commandButton value="#{deliveryMessages.exit_preview}"
+        styleClass="exitPreviewButton"
         action="#{person.cleanResourceIdListInPreview}"
         type="submit"
         onclick="return returnToHostUrl(\"#{delivery.selectURL}\");" />
@@ -431,11 +430,19 @@ document.links[newindex].onclick();
              <h:outputText value="#{deliveryMessages.time_expired2} " />
            </div>
            <div role="alert" class="sak-banner-error" style="display: none" id="autosave-timeleft-warning">
-             <h:outputFormat value="#{deliveryMessages.time_left}"><f:param value="#{delivery.minutesLeft}"/><f:param value="#{delivery.secondsLeft}"/></h:outputFormat>
+             <h:panelGroup rendered="#{(delivery.deadlineString != null && delivery.deadlineString ne '')}">
+               <h:outputFormat value="#{deliveryMessages.time_left}" escape="false">
+                 <f:param value="#{delivery.deadlineString}"/>
+               </h:outputFormat>
+             </h:panelGroup>
            </div>
            <div role="alert" class="sak-banner-error" style="display: none" id="autosave-failed-warning">
              <p><h:outputText value="#{deliveryMessages.autosaveFailed}" escape="false" /></p>
              <p><h:outputText value="#{deliveryMessages.autosaveFailedDetail}" escape="false" /></p>
+           </div>
+           <div role="alert" class="sak-banner-error" style="display: none" id="multiple-tabs-warning">
+             <p><h:outputText value="#{deliveryMessages.multipleTabsWarning}" escape="false" /></p>
+             <p><h:outputText value="#{deliveryMessages.multipleTabsWarningDetail}" escape="false" /></p>
            </div>
           
          </div>
@@ -586,14 +593,12 @@ document.links[newindex].onclick();
 
 <!-- DONE BUTTON IN PREVIEW -->
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
- <f:verbatim><div class="sak-banner-info"></f:verbatim>
-     <h:outputText value="#{deliveryMessages.ass_preview}" />
-     <h:commandButton value="#{deliveryMessages.done}"
-        action="#{person.cleanResourceIdListInPreview}"
-        type="submit"
-        onclick="return returnToHostUrl(\"#{delivery.selectURL}\");" />
- <f:verbatim></div></f:verbatim>
+  <h:commandButton value="#{deliveryMessages.exit_preview}"
+     action="#{person.cleanResourceIdListInPreview}"
+     type="submit"
+     onclick="return returnToHostUrl(\"#{delivery.selectURL}\");" />
 </h:panelGroup>
+
 </h:form>
 <!-- end content -->
 </div>

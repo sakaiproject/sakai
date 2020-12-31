@@ -1,0 +1,24 @@
+<div class="portletBody">
+<script type="text/javascript" src="/library/js/headscripts.js"></script>
+<script>
+    includeLatestJQuery('lti_tool_auto_start.vm');
+</script>
+    <h3>
+        $tlang.getString("tool.lti13.auto.start.header")
+    </h3>
+    <p>
+        $tlang.getString("tool.lti13.auto.start.text")
+    </p>
+    #if ($messageSuccess)<div class="sak-banner-success">$tlang.getString("gen.success") $formattedText.escapeHtml($messageSuccess)</div>#end
+    #if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>#end
+    <form action="#toolForm("")" method="post" name="customizeForm" >
+                <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+<div id="title-input" class="foorm-text" style="clear:both;"><label for="title" style="display:block;float:none;"><span class="foorm-required" style="color:#903;font-weight:bold;" title="$tlang.getString('tool.lti13.auto.start.title')">*</span>$tlang.getString('tool.lti13.auto.start.title')</label><div id="div_title"><input type="text" id="title" name="title" size="40" style="border:1px solid #555;padding:5px;font-size:1em;width:300px" value=""/></div></div>
+        <p class="act">
+            <input type="submit" accesskey ="s" class="active" name="$doToolAction"
+                value="$tlang.getString('tool.lti13.auto.start.button')" />
+            <input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')"
+                 onclick="location = '$sakai_ActionURL.setPanel("ToolSystem")';return false;">
+        </p>
+    </form>
+</div>

@@ -62,7 +62,7 @@ class SakaiRubricStudentButton extends RubricsElement {
     if (this.dontCheckAssociation) {
       this.hidden = true;
     } else {
-      SakaiRubricsHelpers.get("/rubrics-service/rest/rubric-associations/search/by-tool-item-ids"
+      SakaiRubricsHelpers.get("/rubrics-service/rest/rubric-associations/search/by-tool-and-assignment"
         , "Bearer " + this.token, { params: { toolId: this.toolId, itemId: this.entityId } }).then(data => {
 
         const association = data._embedded["rubric-associations"][0];

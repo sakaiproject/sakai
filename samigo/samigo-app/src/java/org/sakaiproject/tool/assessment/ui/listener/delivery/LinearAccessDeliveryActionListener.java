@@ -79,8 +79,6 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
       String id = getPublishedAssessmentId(delivery);
       String agent = getAgentString();
 
-      delivery.setLocale(preferencesService.getLocale(agent));
-
       // Clear elapsed time, set not timed out
       clearElapsedTime(delivery);
 

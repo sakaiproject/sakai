@@ -43,7 +43,7 @@
 #gradeTableWrapper .handsontableInputHolder .out-of {
   position: absolute;
   right: 2px;
-  background-color: #FAFAFA;
+  background-color: var(--sakai-background-color-2);
   font-size: 1em;
   color: #666;
   top: 2px;
@@ -56,7 +56,11 @@
   line-height: 30px;
   text-align: center;
 }
-
+#gradeTableWrapper .handsontable tr,
+#gradeTableWrapper .handsontable th,
+#gradeTableWrapper .handsontable td {
+  background: var(--sakai-background-color-1);
+}
 #gradeTableWrapper .handsontable tr > *:nth-child(1){
   text-align: left;
 }
@@ -73,19 +77,19 @@
 #gradeTableWrapper .handsontable.gb-fixed-columns-3 tr > *:nth-child(3),
 #gradeTableWrapper .handsontable.gb-fixed-columns-4 tr > *:nth-child(4),
 #gradeTableWrapper .handsontable.gb-fixed-columns-5 tr > *:nth-child(5) {
-  border-right: 1px solid #BBB;
+  border-right: 1px solid var(--sakai-border-color);
 }
 #gradeTableWrapper .handsontable thead th {
-  color: #666;
-  border-bottom: 1px solid #BBB;
+  color: var(--sakai-text-color-2);
+  border-bottom: 1px solid var(--sakai-border-color);
 }
 #gradeTableWrapper .handsontable tbody tr:nth-child(2n) td,
 #gradeTableWrapper .handsontable tbody tr:nth-child(2n) td .relative {
-    background: #F9F9F9;
+    background: var(--sakai-background-color-2);
 }
 #gradeTableWrapper .handsontable th,
 #gradeTableWrapper .handsontable td {
-  border-color: #EAEAEA;
+  border-color: var(--sakai-border-color);
   padding: 0;
 }
 #gradeTableWrapper .handsontable th > .relative,
@@ -96,7 +100,7 @@
   white-space: normal;
 }
 #gradeTableWrapper .handsontable th {
-  background-color: #F6f6f6;
+  background-color: var(--sakai-background-color-2);
   height: 102px;
 }
 
@@ -290,15 +294,15 @@
 #gradeTableWrapper .gb-extra-credit,
 #gradeTableWrapper .currentRow .gb-extra-credit,
 #gradeTableWrapper .currentCol .gb-extra-credit {
-  background-color: #FCF8E3 !important;
+  background-color: var(--sakai-color-gold--lighter-5) !important;
 }
 .gb-flag-equal-weight:before {
   content: '\2696';
-  color: rgb(200,144,0);
+  color:var(--sakai-color-gold--darker-1);
 }
 .gb-flag-extra-credit:before {
   content: '\f0fe';
-  color: rgb(200,144,0);
+  color:var(--sakai-color-gold--darker-1);
 }
 #gradeTableWrapper .gb-excused {
   text-decoration: line-through;
@@ -412,7 +416,7 @@
   width: 300px;
   padding: 10px;
   font-size: 0.9em;
-  background: #FAFAFA;
+  background: var(--sakai-background-color-2);
   color: #212121;
   z-index: 1000;
   border-radius: 5px;
@@ -434,7 +438,7 @@
 .gb-metadata blockquote {
   font-size: 1em;
   padding: 5px;
-  color: #666;
+  color: var(--sakai-text-color-2);
 }
 .gb-metadata:after, .gb-metadata:before {
   bottom: 100%;
@@ -470,7 +474,7 @@
   padding-left: 0;
 }
 #gradebookGradesToolbar {
-  border-top: 1px solid #F6f6f6;
+  border-top: 1px solid var(--sakai-border-color);
 }
 #gradebookGradesToolbar button {
   margin: 0;
@@ -525,7 +529,7 @@
   position: fixed;
   width: 80%;
   height: 60%;
-  background: #FAFAFA;
+  background: var(--sakai-background-color-2);
   color: #212121;
   z-index: 1000;
   top: 20%;
@@ -559,7 +563,7 @@
 .gb-hidden-column-visual-cue:active,
 .gb-hidden-column-visual-cue:focus {
   text-decoration: none;
-  background-color: #FFF;
+  background-color: var(--sakai-background-color-1);
   background-color: rgba(255,255,255,0.5);
   border-color: #43a7c8;
   border-color: rgba(67, 167, 200, 0.5);
@@ -575,11 +579,11 @@
   float: right;
 }
 .gb-category-average {
-    background-color: #FCFCFC;
+    background-color: var(--sakai-background-color-2);
 }
 .gb-category-average .gb-value {
     font-weight: bold;
-    color: #666;
+    color: var(--sakai-text-color-2);
 }
 
 /* For Webkit browsers, force the scrollbars to be visible
@@ -602,14 +606,14 @@
   height: 10px;
 }
 .wtHolder::-webkit-scrollbar-track {
-  background-color: #EEE;
+  background-color: var(--sakai-background-color-3);
 }
 .wtHolder::-webkit-scrollbar-thumb {
   border-radius: 10px;
-  background-color: rgba(170,170,170,0.5);
+  background-color: var(--sakai-background-color-4);
 }
 .wtHolder::-webkit-scrollbar-thumb:hover {
-  background-color: #AAA;
+  background-color: var(--sakai-background-color-3);
 }
 /* drop z-index so they don't interfere with site menu dropdowns */
 .ht_clone_top {

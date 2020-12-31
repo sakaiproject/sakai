@@ -12,7 +12,7 @@ body.is-logged-out{
 	}
 	.#{$namespace}topHeader{
 		@media #{$phone}{
-			min-height: $header-size;
+			min-height: var(--header-size);
 		}
 		a {
 			&:focus, &:hover, &:active {
@@ -39,11 +39,12 @@ body.is-logged-out{
 
 
 		.#{$namespace}headerLogo--institution{
-			background: url($logo) no-repeat center center;
-			width: 		$logo-width;
+			background: var(--logo) no-repeat center center;
+			width: var(--logo-width);
 			height: 100%; // align vertically center
 			float: left;
-			background-size: $logo-width $logo-height;
+			background-size: var(--logo-width) var(--logo-height);
+			opacity: var(--logo-opacity);
 		}
 	}
 
@@ -135,7 +136,7 @@ body.is-logged-out{
 	list-style: none;
 	padding: 0 0 0 0;
 	li{
-		display: block;
+		display: flex;
 		border: 0px none;
 		@include border-radius( 0 );
 		margin: 0 0 0 0;
@@ -198,7 +199,7 @@ body.is-logged-out{
 	.#{$namespace}userNav__submenuitem--profile-and-image{
 		display: inline-block;
 		vertical-align: top;
-		padding: 1em 1em 0 1em;
+		padding: $standard-spacing $standard-spacing 0 $standard-spacing;
 
 		.#{$namespace}userNav__submenuitem--profilepicture{
 			width: 64px;
@@ -208,7 +209,6 @@ body.is-logged-out{
 
 		.#{$namespace}userNav__submenuitem--profile{
 			display: block;
-			margin-left: 0.5em;
 		}
 	}
 }
@@ -373,7 +373,7 @@ body.is-logged-out{
 		width: 100%;
 		top: 0;
 		font-size: 12px;
-		min-height: $header-size;
+		min-height: var(--header-size);
 		box-shadow: none;
 
 		&.moving{
@@ -392,7 +392,7 @@ body.is-logged-out{
 	}
 
 	@media #{$phone}{
-		width: calc(100% - #{$logo-width});
+		width: calc(100% - #{var(--logo-width)});
 	}
 
 	ul{
@@ -672,12 +672,15 @@ body.is-logged-out{
 				margin-bottom: 0.5em; /* to match the top of the dropdown */
 			}
 			.#{$namespace}userNav__submenuitem-indented{
-				padding-left: 1.5em;
+				padding: 0 $standard-spacing;
 
 				@media #{$phone}
 				{
 					padding-left: 2em;
 				}
+			}
+			.#{$namespace}userNav__submenuitem-toggle label {
+				padding-left: 0.65em; // to match 'li a' padding
 			}
 			@media #{$phone}{
 				margin: 3.9em 0 0 -9.8em;
@@ -845,11 +848,11 @@ body.is-logged-out{
 
 			&:hover {
 				box-shadow: var(--elevation-2dp);
-				transition: box-shadow 100ms ease-out;
+				transition: $active-transition-hover;
 			}
 			&:active {
 				box-shadow: var(--elevation-1dp);
-				transition: box-shadow 100ms ease-in;
+				transition: $active-transition-active;
 			}
 
 			.link-container{

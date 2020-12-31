@@ -19,6 +19,9 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.fileupload.FileItem;
 
 import org.sakaiproject.webapi.beans.DashboardRestBean;
+import org.sakaiproject.announcement.api.AnnouncementChannel;
+import org.sakaiproject.announcement.api.AnnouncementMessage;
+import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -68,6 +71,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RestController
 public class DashboardController extends AbstractSakaiApiController {
+
+	@Resource
+	private AnnouncementService announcementService;
 
 	@Resource
 	private ContentHostingService contentHostingService;
@@ -141,10 +147,20 @@ public class DashboardController extends AbstractSakaiApiController {
         try {
             bean.setGivenName(userDirectoryService.getUser(currentUserId).getFirstName());
         } catch (UserNotDefinedException unde) {
+            log.warn("No user found for id {}", currentUserId);
         }
 
-        // TODO: ADRIAN: where do I get motd?
-        bean.setMotd("Don't forget your free COVID-19 test. Unless you want to spend the first two weeks of term in the oubliette ...");
+        try {
+            AnnouncementChannel motdChannel
+                = announcementService.getAnnouncementChannel("/announcement/channel/!site/motd");
+            List<AnnouncementMessage> motdMessages = motdChannel.getMessages(null, true);
+
+            if (motdMessages.size() > 0) {
+                bean.setMotd(motdMessages.get(motdMessages.size() - 1).getBody());
+            }
+        } catch (Exception e) {
+            log.warn("Failed to set the MOTD for {}", userId, e);
+        }
 
         if (securityService.isSuperUser()) {
             try {
@@ -152,6 +168,7 @@ public class DashboardController extends AbstractSakaiApiController {
                 ToolConfiguration tc = site.getToolForCommonId("sakai.sitesetup");
                 bean.setWorksiteSetupUrl("/portal/directtool/" + tc.getId() + "?panel=Shortcut&sakai_action=doNew_site");
             } catch (IdUnusedException idue) {
+                log.warn("No home site found for user {}", session.getUserId());
             }
         }
 

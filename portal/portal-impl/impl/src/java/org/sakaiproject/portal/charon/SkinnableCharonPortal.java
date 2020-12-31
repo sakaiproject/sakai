@@ -561,10 +561,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			}
 		}
 
-		//List l = siteHelper.convertSitesToMaps(req, mySites, prefix, siteId, myWorkspaceSiteId,
-		//		includeSummary, expandSite, resetTools, doPages, toolContextPath,
-		//		loggedIn);
-
 		SiteView siteView = siteHelper.getSitesView(SiteView.View.ALL_SITES_VIEW, req, session, siteId );
 		siteView.setPrefix(prefix);
 		siteView.setResetTools(resetTools);
@@ -1359,6 +1355,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		}
 		headJs.append("sakai.editor.siteToolSkin = '" + CSSUtils.getCssToolSkin(skin) + "';\n");
 		headJs.append("sakai.editor.sitePrintSkin = '" + CSSUtils.getCssPrintSkin(skin) + "';\n");
+		headJs.append("sakai.editor.sitePropertiesSkin = '" + CSSUtils.getCssPropertiesSkin(skin) + "';\n");
 		headJs.append("sakai.editor.editors.ckeditor.browser = '"+ EditorConfiguration.getCKEditorFileBrowser()+ "';\n");
 		headJs.append("</script>\n");
 		headJs.append(preloadScript);

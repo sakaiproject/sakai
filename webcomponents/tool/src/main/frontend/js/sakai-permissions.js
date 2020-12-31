@@ -98,10 +98,10 @@ class SakaiPermissions extends SakaiElement {
             <sakai-group-picker id="permissions-group-picker" groups="${JSON.stringify(this.groups)}" @group-selected=${this.groupSelected} />
           </div>
         ` : ""}
-        <div class="permissions-undo-button"" style="float:left;padding-top:.5em">
+        <div class="permissions-undo-button">
           <input type="button" value="${this.i18n["per.lis.restoredef"]}" aria-label="${this.i18n["undo"]}" @click=${this.resetPermissions} />
         </div>
-        <table id="${this.tool}-permissions-table" class="permissions-table listHier checkGrid specialLink" cellspacing="0" summary="${this.i18n["per.lis"]}" border="0" style="width:auto">
+        <table id="${this.tool}-permissions-table" class="permissions-table listHier checkGrid specialLink" cellspacing="0" summary="${this.i18n["per.lis"]}" border="0">
           <tr>
             <th id="permission">
               <a href="#" title="${this.i18n["per.lis.head.title"]}">${this.i18n["per.lis.head"]}</a>
@@ -118,7 +118,7 @@ class SakaiPermissions extends SakaiElement {
               </a>
             </td>
             ${this.roles.map(role => html`
-            <td class="${role}-checkbox-cell checkboxCell">
+            <td class="${role.replace(" ", "_")}-checkbox-cell checkboxCell">
               <label for="${role}:${perm}" class="sr-only">
                 <span>${this.i18n["gen.enable"]} ${role}</span>
               </label>
@@ -237,7 +237,7 @@ class SakaiPermissions extends SakaiElement {
 
       if (e.target.dataset.role) {
         const role = e.target.dataset.role.replace("\.", "\\.");
-        $('.' + role + "-checkbox-cell").add(e.target).toggleClass('rowHover', e.type === "mouseenter");
+        $('.' + role.replace(" ", "_") + "-checkbox-cell").add(e.target).toggleClass('rowHover', e.type === "mouseenter");
       }
     });
 
@@ -261,8 +261,8 @@ class SakaiPermissions extends SakaiElement {
       const role = e.target.dataset.role.replace("\.", "\\.");
 
       var col = ($(e.target).parent('th').prevAll().size());
-      var anyChecked = $('.permissions-table .' + role + '-checkbox-cell input:checked').not('[disabled]').length > 0;
-      $('.permissions-table .' + role + '-checkbox-cell input').not('[disabled]').prop('checked', !anyChecked).change();
+      var anyChecked = $('.permissions-table .' + role.replace(" ", "_") + '-checkbox-cell input:checked').not('[disabled]').length > 0;
+      $('.permissions-table .' + role.replace(" ", "_") + '-checkbox-cell input').not('[disabled]').prop('checked', !anyChecked).change();
       e.preventDefault();
     });
 

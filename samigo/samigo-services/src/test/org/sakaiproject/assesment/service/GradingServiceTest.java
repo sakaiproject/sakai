@@ -65,4 +65,39 @@ public class GradingServiceTest {
 			Assert.fail();
 		}
 	}
+
+	@Test
+	public void fibSimpleUnicodeTest() {
+		GradingService gradingService = new GradingService();
+
+		// Ignore case should succeed
+		Assert.assertTrue(gradingService.fibmatch("Müsli", "müsli", false, true));
+		// Case sensitive should fail
+		Assert.assertFalse(gradingService.fibmatch("Müsli", "müsli", true, true));
+		// Ignore spaces should pass
+		Assert.assertTrue(gradingService.fibmatch("müsli", " müsli ", true, true));
+		// Spaces matter should fail
+		Assert.assertFalse(gradingService.fibmatch("Müsli", " müsli ", true, false));
+		// Spaces example from SAK-34144
+		Assert.assertTrue(gradingService.fibmatch("red rust", "redrust", false, true));
+		Assert.assertTrue(gradingService.fibmatch("red rust", "RedRust", false, true));
+		Assert.assertFalse(gradingService.fibmatch("red rust", "RedRust", true, true));
+		// Unicode HTML equivalent mapping SAK-44579
+		Assert.assertTrue(gradingService.fibmatch("Müsli", "M&uuml;sli", false, true));
+		// Uppercase ummlaut does not match when case sensitive
+		Assert.assertFalse(gradingService.fibmatch("Müsli", "M&Uuml;sli", true, true));
+		// HTML spaces ignored, this non-breaking space is not a simple space
+		Assert.assertTrue(gradingService.fibmatch("Müsli", "&nbsp;M&uuml;sli&nbsp;", true, true));
+		// HTML Ampersand
+		Assert.assertTrue(gradingService.fibmatch("C &amp; D", "C &amp; D", false, false));
+		Assert.assertTrue(gradingService.fibmatch("C &amp; D", "C & D", false, false));
+		Assert.assertTrue(gradingService.fibmatch("C & D", "C & D", false, false));
+		Assert.assertTrue(gradingService.fibmatch("C & D", "C &amp; D", false, false));
+		// HTML Bracket
+		Assert.assertTrue(gradingService.fibmatch("A &gt; ~T", "A &gt; ~T", false, false));
+		Assert.assertTrue(gradingService.fibmatch("A &gt; ~T", "A > ~T", false, false));
+		Assert.assertTrue(gradingService.fibmatch("A > ~T", "A > ~T", false, false));
+		Assert.assertTrue(gradingService.fibmatch("A &gt; ~T", "A &gt; ~T", false, false));
+	}
+
 }

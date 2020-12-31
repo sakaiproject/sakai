@@ -1,40 +1,43 @@
-button.switch {
-    margin: 0;
-    padding: 0;
-    width: 70px;
-    height: 26px;
-    border: 2px solid black;
+#themeSwitcher {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 0 0 auto;     // push to far right
+    padding: $standard-space;
+    background: var(--sakai-background-color-1);
+    font-size: $default-font-size-small;
+    line-height: 22px;
+    
+    &:focus {
+        outline:none;
+        box-shadow: $sakai-box-shadow-emulate-focus var(--focus-outline-color);
+    }
+    
+    span {
+        padding: 0 $standard-spacing;
+        pointer-events: none;
+    }
+}
+
+#themeSwitcher[role="switch"][aria-checked="false"] :first-child,
+#themeSwitcher[role="switch"][aria-checked="true"] :last-child {
     display: inline-block;
-    margin-right: 0.25em;
-    line-height: 20px;
-    vertical-align: middle;
-    text-align: center;
-    font: 12px "Open Sans", "Arial", serif;
+    border-radius: $button-radius; 
+    background: var(--sakai-primary-color-1);
+    color: var(--sakai-text-color-inverted);
 }
 
-button.switch span {
-    padding: 0 4px;
-    pointer-events: none;
+#themeSwitcher[role="switch"][aria-checked="false"] :last-child,
+#themeSwitcher[role="switch"][aria-checked="true"] :first-child {
+    color: var(--sakai-text-color-1);
 }
 
-[role="switch"][aria-checked="false"] :first-child,
-[role="switch"][aria-checked="true"] :last-child {
-    background: #262;
-    color: #eef;
-}
-
-[role="switch"][aria-checked="false"] :last-child,
-[role="switch"][aria-checked="true"] :first-child {
-    color: #bbd;
-}
-
-label.switch {
-    font: 16px "Open Sans", "Arial", sans-serif;
-    line-height: 20px;
-    user-select: none;
-    vertical-align: middle;
+.sakaiThemeSwitch {
+    margin-bottom: 0;
+    font-weight: normal;
+    color: var(--sakai-text-color-1);
     -moz-user-select: none;
     -ms-user-select: none;
     -webkit-user-select: none;
-    -o-user-select: none;
+    user-select: none;
 }

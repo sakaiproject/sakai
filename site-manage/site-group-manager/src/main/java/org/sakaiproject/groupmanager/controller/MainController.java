@@ -17,13 +17,16 @@ package org.sakaiproject.groupmanager.controller;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +35,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.support.RequestContextUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.AuthzGroup.RealmLockMode;
 import org.sakaiproject.authz.api.AuthzRealmLockException;
 import org.sakaiproject.groupmanager.constants.GroupManagerConstants;
@@ -40,6 +45,8 @@ import org.sakaiproject.groupmanager.form.MainForm;
 import org.sakaiproject.groupmanager.service.SakaiService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.comparator.GroupTitleComparator;
 import org.sakaiproject.util.comparator.UserSortNameComparator;
@@ -50,10 +57,21 @@ public class MainController {
 
     @Autowired
     private SakaiService sakaiService;
+    
+    @Autowired
+    private SessionManager sessionManager;
+    
+    @Autowired
+    private PreferencesService preferencesService;
 
     @RequestMapping(value = {"/", "/index"})
-    public String showIndex(Model model) {
+    public String showIndex(Model model, HttpServletRequest request, HttpServletResponse response) {
         log.debug("showIndex()");
+        
+        String userId = sessionManager.getCurrentSessionUserId();
+        final Locale locale = StringUtils.isNotBlank(userId) ? preferencesService.getLocale(userId) : Locale.getDefault();
+        LocaleResolver localeResolver = RequestContextUtils.getLocaleResolver(request);
+        localeResolver.setLocale(request, response, locale);
 
         Optional<Site> siteOptional = sakaiService.getCurrentSite();
         if (!siteOptional.isPresent()) {

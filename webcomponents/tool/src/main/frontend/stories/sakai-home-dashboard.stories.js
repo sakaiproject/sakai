@@ -32,36 +32,21 @@ export default {
   title: 'Sakai Home Dashboard',
   decorators: [withA11y, (storyFn) => {
     parent.portal = {locale: "en-GB"};
-    const baseUrl = "/sakai-ws/rest/i18n/getI18nProperties?locale=en-GB&resourceclass=org.sakaiproject.i18n.InternationalizedMessages&resourcebundle=";
-    const coursecardI18nUrl = `${baseUrl}coursecard`;
-    const courselistI18nUrl = `${baseUrl}courselist`;
-    const dashboardI18nUrl = `${baseUrl}dashboard`;
-    const widgetpanelI18nUrl = `${baseUrl}widgetpanel`;
-    const tasksI18nUrl = `${baseUrl}tasks`;
-    const gradesI18nUrl = `${baseUrl}gradebookng`;
-    const announcementsI18nUrl = `${baseUrl}announcement`;
-    const calendarI18nUrl = `${baseUrl}calendar`;
-    const toolnamesI18nUrl = `${baseUrl}toolnames`;
-    const forumsI18nUrl = `${baseUrl}org.sakaiproject.api.app.messagecenter.bundle.Messages`;
-    const widgetpickerI18nUrl = `${baseUrl}widget-picker`;
-    const dialogcontentI18nUrl = `${baseUrl}dialog-content`;
-    const dashboardwidgetI18nUrl = `${baseUrl}dashboard-widget`;
-    const toolnameMappingsUrl = `${baseUrl}toolname-mappings`;
     fetchMock
-      .get(coursecardI18nUrl, coursecardI18n, {overwriteRoutes: true})
-      .get(courselistI18nUrl, courselistI18n, {overwriteRoutes: true})
-      .get(dashboardI18nUrl, dashboardI18n, {overwriteRoutes: true})
-      .get(widgetpanelI18nUrl, widgetpanelI18n, {overwriteRoutes: true})
-      .get(tasksI18nUrl, tasksI18n, {overwriteRoutes: true})
-      .get(gradesI18nUrl, gradesI18n, {overwriteRoutes: true})
-      .get(announcementsI18nUrl, announcementsI18n, {overwriteRoutes: true})
-      .get(calendarI18nUrl, calendarI18n, {overwriteRoutes: true})
-      .get(toolnamesI18nUrl, toolnamesI18n, {overwriteRoutes: true})
-      .get(forumsI18nUrl, forumsI18n, {overwriteRoutes: true})
-      .get(widgetpickerI18nUrl, widgetpickerI18n, {overwriteRoutes: true})
-      .get(dashboardwidgetI18nUrl, dashboardwidgetI18n, {overwriteRoutes: true})
-      .get(dialogcontentI18nUrl, dialogcontentI18n, {overwriteRoutes: true})
-      .get(toolnameMappingsUrl, toolnameMappings, {overwriteRoutes: true})
+      .get(/.*i18n.*coursecard/, coursecardI18n, {overwriteRoutes: true})
+      .get(/.*i18n.*courselist/, courselistI18n, {overwriteRoutes: true})
+      .get(/.*i18n.*dashboard/, dashboardI18n, {overwriteRoutes: true})
+      .get(/.*i18n.*widgetpanel/, widgetpanelI18n, {overwriteRoutes: true})
+      .get(/.*i18n.*tasks/, tasksI18n, {overwriteRoutes: true})
+      .get(/.*i18n.*gradebookng/, gradesI18n, {overwriteRoutes: true})
+      .get(/.*i18n.*announcement/, announcementsI18n, {overwriteRoutes: true})
+      .get(/.*i18n.*calendar/, calendarI18n, {overwriteRoutes: true})
+      .get(/.*i18n.*toolnames/, toolnamesI18n, {overwriteRoutes: true})
+      .get(/.*i18n.*Messages/, forumsI18n, {overwriteRoutes: true})
+      .get(/.*i18n.*widget-picker/, widgetpickerI18n, {overwriteRoutes: true})
+      .get(/.*i18n.*dashboard-widget/, dashboardwidgetI18n, {overwriteRoutes: true})
+      .get(/.*i18n.*dialog-content/, dialogcontentI18n, {overwriteRoutes: true})
+      .get(/.*i18n.*toolname-mappings/, toolnameMappings, {overwriteRoutes: true})
       .get(/api\/addfavourite/, 200, {overwriteRoutes: true})
       .get(/api\/removefavourite/, 200, {overwriteRoutes: true})
       .get(/api\/users\/.*\/dashboard/, dashboardData, {overwriteRoutes: true})

@@ -851,10 +851,10 @@ public class SettingsCategoryPanel extends BasePanel {
 
 		// if comparison passes, we have '1' as the value
 		if (total.compareTo(BigDecimal.ONE) == 0) {
-			runningTotal.add(new AttributeModifier("class", "text-success"));
+			runningTotal.add(new AttributeModifier("class", "sak-banner-success-inline"));
 			runningTotalMessage.setVisible(false);
 		} else {
-			runningTotal.add(new AttributeModifier("class", "text-danger"));
+			runningTotal.add(new AttributeModifier("class", "sak-banner-error-inline"));
 			runningTotalMessage.setVisible(true);
 		}
 

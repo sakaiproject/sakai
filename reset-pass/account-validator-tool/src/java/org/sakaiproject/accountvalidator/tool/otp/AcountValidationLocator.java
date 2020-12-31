@@ -20,9 +20,6 @@
 package org.sakaiproject.accountvalidator.tool.otp;
 
 import lombok.extern.slf4j.Slf4j;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
 
 import org.sakaiproject.accountvalidator.logic.ValidationLogic;
 import org.sakaiproject.accountvalidator.model.ValidationAccount;
@@ -30,7 +27,6 @@ import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
-import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.event.api.UsageSessionService;
@@ -291,11 +287,6 @@ public class AcountValidationLocator implements BeanLocator  {
 					item.setFirstName(formFirstName);
 					item.setSurname(formSurname);
 				}
-				ResourcePropertiesEdit rp = u.getPropertiesEdit();
-				DateTime dt = new DateTime();
-				DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
-				rp.addProperty("AccountValidated", fmt.print(dt));
-				
 				
 				//if this is a new account set the password
 				if (ValidationAccount.ACCOUNT_STATUS_NEW == accountStatus || ValidationAccount.ACCOUNT_STATUS_LEGACY_NOPASS == accountStatus || ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET == accountStatus || ValidationAccount.ACCOUNT_STATUS_REQUEST_ACCOUNT == accountStatus) {

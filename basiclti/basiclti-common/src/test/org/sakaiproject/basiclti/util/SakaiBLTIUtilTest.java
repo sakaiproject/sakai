@@ -26,6 +26,9 @@ import static org.junit.Assert.assertFalse;
 
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
 
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
@@ -70,7 +73,7 @@ public class SakaiBLTIUtilTest {
 			adj = SakaiBLTIUtil.adjustCustom(s);
 			assertEquals(s, adj);
 		}
-			
+
 		adj = SakaiBLTIUtil.adjustCustom("x=1;y=2;z=3");
 		assertEquals(adj,"x=1;y=2;z=3".replace(';','\n'));
 		adj = SakaiBLTIUtil.adjustCustom("x=1;y=2;z=3;");
@@ -85,7 +88,7 @@ public class SakaiBLTIUtilTest {
 			// TODO Auto-generated catch block
 			log.error(e.getMessage(), e);
 		}
-			
+
 		assertEquals(grade,"57.0");
 
 		try {
@@ -142,6 +145,11 @@ System.err.println("encrypt1="+encrypt1);
 		assertTrue(SakaiBLTIUtil.checkLaunchCode(content, launch_code));
 
 		content.put(LTIService.LTI_PLACEMENTSECRET, "wrong");
+		assertFalse(SakaiBLTIUtil.checkLaunchCode(content, launch_code));
+
+		// Correct password different id
+		content.put(LTIService.LTI_ID, "43");
+		content.put(LTIService.LTI_PLACEMENTSECRET, "xyzzy");
 		assertFalse(SakaiBLTIUtil.checkLaunchCode(content, launch_code));
 	}
 
@@ -201,6 +209,141 @@ System.err.println("encrypt1="+encrypt1);
 		assertEquals(d, new Double(3.0));
 		d = SakaiBLTIUtil.getDoubleNull(new Integer(3));
 		assertEquals(d, new Double(3.0));
+	}
+
+	@Test
+	public void testFindBestTool() {
+		List<Map<String,Object>> tools = new ArrayList<Map<String,Object>>();
+		Map<String,Object> tool = new HashMap<String,Object>();
+
+		String [] toolUrls = {
+			"https://www.py4e.com/",
+			"https://www.py4e.com/mod/",
+			"https://www.py4e.com/mod/gift/",
+			"https://www.py4e.com/mod/gift/?quiz=123"
+		};
+
+		String siteId = "tsugi-site";
+		String leastSpecific = toolUrls[0];
+		String mostSpecific = toolUrls[3];
+		String bestSite;
+		String bestLaunch;
+
+		Map<String,Object> bestTool = null;
+
+		tools = new ArrayList<Map<String,Object>>();
+		// Lets make some globals in least specific to most specific
+		for(String s: toolUrls) {
+			tool.put(LTIService.LTI_LAUNCH, s);
+			tool.put(LTIService.LTI_SITE_ID, ""); // Global
+			tools.add(tool);
+
+			bestTool = SakaiBLTIUtil.findBestToolMatch(s, tools);
+			bestLaunch = (String) bestTool.get(LTIService.LTI_LAUNCH);
+			bestSite = (String) bestTool.get(LTIService.LTI_SITE_ID);
+			assertEquals(s, bestLaunch);
+			assertEquals("", bestSite);
+
+			bestTool = SakaiBLTIUtil.findBestToolMatch(mostSpecific, tools);
+			bestLaunch = (String) bestTool.get(LTIService.LTI_LAUNCH);
+			bestSite = (String) bestTool.get(LTIService.LTI_SITE_ID);
+			assertEquals(s, bestLaunch);
+			assertEquals("", bestSite);
+		}
+
+
+		tools = new ArrayList<Map<String,Object>>();
+		// Lets make some globals in least specific to most specific
+		for(String s: toolUrls) {
+			tool.put(LTIService.LTI_LAUNCH, s);
+			tool.put(LTIService.LTI_SITE_ID, ""); // Global
+			tools.add(tool);
+
+			bestTool = SakaiBLTIUtil.findBestToolMatch(s, tools);
+			bestLaunch = (String) bestTool.get(LTIService.LTI_LAUNCH);
+			bestSite = (String) bestTool.get(LTIService.LTI_SITE_ID);
+			assertEquals(s, bestLaunch);
+			assertEquals("", bestSite);
+
+			bestTool = SakaiBLTIUtil.findBestToolMatch(mostSpecific, tools);
+			bestLaunch = (String) bestTool.get(LTIService.LTI_LAUNCH);
+			bestSite = (String) bestTool.get(LTIService.LTI_SITE_ID);
+			assertEquals(s, bestLaunch);
+			assertEquals("", bestSite);
+		}
+
+		// Lets add a local low priority - see if it wins
+		tool.put(LTIService.LTI_LAUNCH, leastSpecific);
+		tool.put(LTIService.LTI_SITE_ID, siteId);
+		tools.add(tool);
+
+		bestTool = SakaiBLTIUtil.findBestToolMatch(mostSpecific, tools);
+		bestLaunch = (String) bestTool.get(LTIService.LTI_LAUNCH);
+		bestSite = (String) bestTool.get(LTIService.LTI_SITE_ID);
+		assertEquals(leastSpecific, bestLaunch);
+		assertEquals(siteId, bestSite);
+
+		// Lets make locals and globals, and make sure we never get a global
+		tools = new ArrayList<Map<String,Object>>();
+		for(String s: toolUrls) {
+			tool.put(LTIService.LTI_LAUNCH, s);
+			tool.put(LTIService.LTI_SITE_ID, ""); // Global
+			tools.add(tool);
+			tool.put(LTIService.LTI_LAUNCH, s);
+			tool.put(LTIService.LTI_SITE_ID, siteId); // Local
+			tools.add(tool);
+
+			bestTool = SakaiBLTIUtil.findBestToolMatch(s, tools);
+			bestLaunch = (String) bestTool.get(LTIService.LTI_LAUNCH);
+			bestSite = (String) bestTool.get(LTIService.LTI_SITE_ID);
+			assertEquals(s, bestLaunch);
+			assertEquals(siteId, bestSite);
+
+			bestTool = SakaiBLTIUtil.findBestToolMatch(mostSpecific, tools);
+			bestLaunch = (String) bestTool.get(LTIService.LTI_LAUNCH);
+			bestSite = (String) bestTool.get(LTIService.LTI_SITE_ID);
+			assertEquals(s, bestLaunch);
+			assertEquals(siteId, bestSite);
+		}
+
+	}
+
+	/* Quick story.  When reviewing PR#8884 - the collective wisdom was not to 
+	 * just scan for a question mark and chop.  MJ said use the URI builder.
+	 * CS was worried that it would do weird things to the string like add or
+	 * remove a :443 in an attempt to make the URL "better".
+	 * So I wrote a unit test to defend against that eventuality and here it is.
+	 */
+	public String crudeButEffectiveStripOffQuery(String urlString)
+	{
+		if ( urlString == null ) return null;
+        String retval = urlString;
+        int pos = retval.indexOf('?');
+        if ( pos > 1 ) {
+            retval = retval.substring(0,pos);
+        }
+        return retval;
+	}
+
+	@Test
+	public void testStripOffQuery() {
+		String testUrls[] = {
+			"http://localhost:8080",
+			"http://localhost:8080/",
+			"http://localhost:8080/zap",
+			"http://localhost:8080/zap/",
+			"http://localhost:8080/zap/bob.php?x=1234",
+			"https://www.py4e.com",
+			"https://www.py4e.com/",
+			"https://www.py4e.com/zap/",
+			"https://www.py4e.com/zap/bob.php?x=1234",
+			"https://www.py4e.com:443/zap/bob.php?x=1234",
+			"https://www.sakailms.org/"
+		};
+
+		for(String s: testUrls) {
+			assertEquals(SakaiBLTIUtil.stripOffQuery(s), crudeButEffectiveStripOffQuery(s));
+		}
 	}
 
 }

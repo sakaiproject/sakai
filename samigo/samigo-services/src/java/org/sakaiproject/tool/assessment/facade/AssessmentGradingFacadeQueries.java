@@ -3065,6 +3065,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                     Date dueDate = assessment.getAssessmentAccessControl().getDueDate();
                     Date retractDate = assessment.getAssessmentAccessControl().getRetractDate();
                     Integer lateHandling = assessment.getAssessmentAccessControl().getLateHandling();
+                    boolean acceptLate = AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.toString().equals(lateHandling);
                     ExtendedTimeDeliveryService assessmentExtended = new ExtendedTimeDeliveryService(assessment,
                             adata.getAgentId());
 
@@ -3072,13 +3073,20 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                     if (assessmentExtended.hasExtendedTime()) {
                         //Continue on and try to submit it but it may be late, just change the due date
                         dueDate = assessmentExtended.getDueDate() != null ? assessmentExtended.getDueDate() : dueDate;
-                        retractDate = assessmentExtended.getRetractDate() != null ? assessmentExtended.getRetractDate() : retractDate;
+
+                        // If the extended time student received a retract date
+                        if (assessmentExtended.getRetractDate() != null) {
+                        	retractDate =  assessmentExtended.getRetractDate();
+                        	acceptLate = true;
+                        }
                     }
 
-                    //If the due date or retract date hasn't passed yet, go on to the next one, don't consider it yet
-                    if ((AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.toString().equals(lateHandling) && retractDate!=null && (currentTime.before(retractDate) || adata.getAttemptDate().after(retractDate)))
-                            || (dueDate != null && currentTime.before(dueDate))) {
+                    // If the due date or retract date hasn't passed yet, go on to the next one, don't consider it yet
+                    if (acceptLate && retractDate != null && (currentTime.before(retractDate) || adata.getAttemptDate().after(retractDate))) {
                         continue;
+                    }
+                    else if ( (!acceptLate || retractDate == null) && dueDate != null && currentTime.before(dueDate)) {
+                    	continue;
                     }
 
                     adata.setForGrade(Boolean.TRUE);
