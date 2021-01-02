@@ -34,6 +34,7 @@ import java.util.TreeMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
@@ -449,17 +450,8 @@ public class GradeSheetExporter {
 
         @Override
         public int compareTo(Submitter o) {
-            int value = Boolean.compare(this.anonymous, o.anonymous);
-            if (value == 0) {
-                if (anonymous) {
-                    // Sort by ID for anonymous ones
-                    value = this.id.compareTo(o.id);
-                } else {
-                    // Sort by sortName for normal ones.
-                    value = this.sortName.compareTo(o.sortName);
-                }
-            }
-            return value;
+            // Sort by sortName for normal ones, but id if they're the same
+            return new CompareToBuilder().append(this.sortName, o.sortName).append(this.id, o.id).toComparison();
         }
 
         void setNotes(Optional<List<String>> notes) {
