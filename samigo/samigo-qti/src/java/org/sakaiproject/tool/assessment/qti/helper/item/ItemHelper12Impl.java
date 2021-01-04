@@ -587,20 +587,31 @@ public class ItemHelper12Impl extends ItemHelperBase
           for (AnswerIfc answer : answers) {
               if (answer.getIsCorrect()) {
                   String text = answer.getText();
-                  String formula = text.substring(0, text.indexOf("|"));
-                  String tolerance = text.substring(text.indexOf("|") + 1, text.indexOf(","));
-                  String decimalPlaces = text.substring(text.indexOf(",") + 1);
-                  
-                  // add nodes
-                  itemXml.add(updatedXpath, "name");
-                  itemXml.update(updatedXpath + "/name", itemText.getText());
-                  itemXml.add(updatedXpath, "formula");
-                  itemXml.update(updatedXpath + "/formula", formula);
-                  itemXml.add(updatedXpath, "tolerance");
-                  itemXml.update(updatedXpath + "/tolerance", tolerance);
-                  itemXml.add(updatedXpath, "decimalPlaces");
-                  itemXml.update(updatedXpath + "/decimalPlaces", decimalPlaces);
-                  break;
+                  String[] partsText = text.split("\\|");
+                  if (partsText != null && partsText.length == 2) {
+                      String formula = partsText[0];
+                      String[] partsTolDp = partsText[1].split(",");
+                      if (partsTolDp != null && partsTolDp.length == 2) {
+                          String tolerance = partsTolDp[0];
+                          String decimalPlaces = partsTolDp[1];
+
+                          // add nodes
+                          itemXml.add(updatedXpath, "name");
+                          itemXml.update(updatedXpath + "/name", itemText.getText());
+                          itemXml.add(updatedXpath, "formula");
+                          itemXml.update(updatedXpath + "/formula", formula);
+                          itemXml.add(updatedXpath, "tolerance");
+                          itemXml.update(updatedXpath + "/tolerance", tolerance);
+                          itemXml.add(updatedXpath, "decimalPlaces");
+                          itemXml.update(updatedXpath + "/decimalPlaces", decimalPlaces);
+                          break;
+                      }
+                      else {
+                          log.error("Calculated question answer text {} is not formatted correctly.", text);
+                      }
+                  } else {
+                      log.error("Calculated question answer text {} is not formatted correctly.", text);
+                  }
               }
           }
       } catch (Exception e) {
