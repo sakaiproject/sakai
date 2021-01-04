@@ -518,14 +518,9 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		if(section == null) {
 			return new ArrayList<ParticipationRecord>();
 		}
-		if(log.isDebugEnabled()) log.debug("Getting section enrollments in " + sectionUuid);
-		String taRole;
-		try {
-			taRole = getSectionTaRole(group);
-		} catch (RoleConfigurationException rce) {
-			return new ArrayList<ParticipationRecord>();
-		}
-		Set sakaiUserUids = group.getUsersHasRole(taRole);
+		log.debug("Getting TA section enrollments in {}", sectionUuid);
+
+		Set<String> sakaiUserUids = group.getUsersIsAllowed(SectionAwareness.TA_MARKER);
 		List sakaiUsers = userDirectoryService.getUsers(sakaiUserUids);
 
 		List<ParticipationRecord> membersList = new ArrayList<ParticipationRecord>();
@@ -546,16 +541,9 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		if(section == null) {
 			return new ArrayList<EnrollmentRecord>();
 		}
-		if(log.isDebugEnabled()) log.debug("Getting section enrollments in " + sectionUuid);
-		String studentRole;
-		try {
-			studentRole = getSectionStudentRole(group);
-		} catch (RoleConfigurationException rce) {
-			log.error(rce.getMessage());
-			return new ArrayList<EnrollmentRecord>();
-		}
-		 
-		Set sakaiUserUids = group.getUsersHasRole(studentRole);
+		log.debug("Getting student section enrollments in {}", sectionUuid);
+
+		Set<String> sakaiUserUids = group.getUsersIsAllowed(SectionAwareness.STUDENT_MARKER);
 		List sakaiUsers = userDirectoryService.getUsers(sakaiUserUids);
 
 		List<EnrollmentRecord> membersList = new ArrayList<EnrollmentRecord>();
