@@ -87,7 +87,7 @@
         var previewHighlightedOnly = false;
         function getEditorContent() {
           //Available since CKEditor 4.5.0 to get selected Html. True to return html.
-          var selectedHtml = editor.getSelectedHtml(true)
+          var selectedHtml = editor.getSelectedHtml(true);
 
           if (selectedHtml) {
             previewHighlightedOnly = true;
