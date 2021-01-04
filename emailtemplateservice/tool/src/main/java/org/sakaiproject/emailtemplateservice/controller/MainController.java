@@ -46,8 +46,8 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
 import org.sakaiproject.emailtemplateservice.constants.EmailTemplateConstants;
-import org.sakaiproject.emailtemplateservice.model.EmailTemplate;
-import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
+import org.sakaiproject.emailtemplateservice.api.EmailTemplateService;
+import org.sakaiproject.emailtemplateservice.api.model.EmailTemplate;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.PreferencesService;
 
@@ -193,7 +193,7 @@ public class MainController {
         //key can't be null
         if (StringUtils.isBlank(emailTemplate.getKey())) {
             errors.add(messageSource.getMessage("error.nokey", null, loc));
-        } else if (emailTemplateService.templateExists(emailTemplate.getKey(), templateLocale, emailTemplate.getId())) {
+        } else if (emailTemplateService.templateExists(emailTemplate.getKey(), templateLocale)) {
             errors.add(messageSource.getMessage("error.duplicatekey", null, loc));
         }
 

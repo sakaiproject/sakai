@@ -44,8 +44,8 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.email.api.EmailService;
-import org.sakaiproject.emailtemplateservice.model.RenderedTemplate;
-import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
+import org.sakaiproject.emailtemplateservice.api.EmailTemplateService;
+import org.sakaiproject.emailtemplateservice.api.RenderedTemplate;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
@@ -385,7 +385,7 @@ public class ExternalLogicImpl implements ExternalLogic {
 		else if (pollQuestion == null)
 			throw new IllegalArgumentException("Poll Question cannot be null");
 		
-		Map<String, String> replacementValues = new HashMap<String, String>();
+		Map<String, Object> replacementValues = new HashMap<>();
 
 		String from = (fromEmailAddress == null || fromEmailAddress.equals("")) ?
 					serverConfigurationService.getString("setup.request", "no-reply@" + serverConfigurationService.getServerName()) : fromEmailAddress;

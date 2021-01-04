@@ -44,13 +44,13 @@ import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.contentreview.service.ContentReviewService;
 import org.sakaiproject.elfinder.SakaiFsService;
 import org.sakaiproject.email.api.DigestService;
-import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.hibernate.AssignableUUIDGenerator;
 import org.sakaiproject.messaging.api.MessagingService;
+import org.sakaiproject.messaging.api.UserMessagingService;
 import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
@@ -196,11 +196,6 @@ public class AssignmentTestConfiguration {
         return mock(DigestService.class);
     }
 
-    @Bean(name = "org.sakaiproject.email.api.EmailService")
-    public EmailService emailService() {
-        return mock(EmailService.class);
-    }
-
     @Bean(name = "org.sakaiproject.util.api.FormattedText")
     public FormattedText formattedText() {
         return mock(FormattedText.class);
@@ -338,5 +333,10 @@ public class AssignmentTestConfiguration {
     @Bean(name = "org.sakaiproject.messaging.api.MessagingService")
     public MessagingService messagingService() {
         return mock(MessagingService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.messaging.api.UserMessagingService")
+    public UserMessagingService userMessagingService() {
+        return mock(UserMessagingService.class);
     }
 }

@@ -37,4 +37,35 @@
 		<property name="testMode"><value>false</value></property>
 	</bean>
 
+	<bean id="emailTemplateServiceHibernateMappings"
+		  class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+		<property name="annotatedClasses">
+			<list>
+				<value>org.sakaiproject.emailtemplateservice.api.model.EmailTemplate</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="org.sakaiproject.emailtemplateservice.api.repository.EmailTemplateRepository"
+		class="org.sakaiproject.emailtemplateservice.impl.repository.EmailTemplateRepositoryImpl">
+		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+	</bean>
+
+	<bean id="org.sakaiproject.emailtemplateservice.api.EmailTemplateService"
+		class="org.sakaiproject.emailtemplateservice.impl.EmailTemplateServiceImpl">
+
+		<property name="repository" ref="org.sakaiproject.emailtemplateservice.api.repository.EmailTemplateRepository" />
+		<property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService" />
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+		<property name="emailService" ref="org.sakaiproject.email.api.EmailService"/>
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+	</bean>
+
+	<bean id="org.sakaiproject.emailtemplateservice.api.external.ExternalLogic"
+		class="org.sakaiproject.emailtemplateservice.impl.external.ExternalLogicImpl">
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+	</bean>
+
 </beans>

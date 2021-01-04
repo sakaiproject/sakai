@@ -15,7 +15,11 @@
  */
 package org.sakaiproject.springframework.data;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.io.Serializable;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -71,7 +75,14 @@ public interface SpringCrudRepository<T extends PersistableEntity<ID>, ID extend
      *
      * @return all entities
      */
-    Iterable<T> findAll();
+    List<T> findAll();
+
+    /**
+     * Returns all instances of the type.
+     *
+     * @return all entities
+     */
+    Page<T> findAll(Pageable pageable);
 
     /**
      * Returns all instances of the type T with the given IDs.

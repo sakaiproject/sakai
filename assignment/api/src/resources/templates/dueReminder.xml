@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<emailTemplates>
+  <emailTemplate>
+    <subject>${bundle["email.reminder.subject"]?replace("{0}", assignmentTitle)?replace("{1}", subjectDate)}</subject>
+    <message>
+${bundle["email.reminder.hello"]?replace("{0}", firstName)}
+
+${bundle["email.reminder.duewithin"]?replace("{0}", timeText)}
+
+${bundle["gen.assig"]} : ${assignmentTitle}
+${bundle["gen.due"]} : ${bodyDate}
+${bundle["email.reminder.site"]} &lt;a href="${siteUrl}"&gt;${siteTitle}&lt;/a&gt;
+
+- ${localSakaiName}
+    </message>
+    <messagehtml>
+${bundle["email.reminder.hello"]?replace("{0}", firstName)}
+&lt;br&gt;
+&lt;br&gt;
+${bundle["email.reminder.duewithin"]?replace("{0}", timeText)}
+&lt;br&gt;
+${bundle["gen.assig"]} : &lt;a href="${assignmentUrl}"&gt;${assignmentTitle}&lt;/a&gt;
+&lt;br&gt;
+${bundle["gen.due"]} : ${bodyDate}
+&lt;br&gt;
+${bundle["email.reminder.site"]} &lt;a href="${siteUrl}"&gt;${siteTitle}&lt;/a&gt;
+&lt;br&gt;
+- ${localSakaiName}
+    </messagehtml>
+    <version>1</version>
+    <owner>admin</owner>
+    <key>sakai.assignment.grades.duereminder</key>
+    <locale></locale>
+    <localeLangTag></localeLangTag>
+  </emailTemplate>
+</emailTemplates>

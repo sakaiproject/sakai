@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<emailTemplates>
+  <emailTemplate>
+    <subject>${senderDisplayName} ${bundle["email.wallnew.subject"]} ${localSakaiName}</subject>
+    <message>${senderDisplayName} ${bundle["email.wallnew.subject"]} ${localSakaiName}
+
+    ${bundle["email.wall.view"]}
+    ${senderWallLink}
+    </message>
+    <messagehtml>${senderDisplayName} ${bundle["email.wallnew.subject"]} ${localSakaiName}
+  &lt;p&gt;
+  ${bundle["email.wall.view"]}
+  &lt;br /&gt;&lt;a href="${senderWallLink}"&gt;${senderWallLink}&lt;/a&gt;
+  &lt;/p&gt;
+    </messagehtml>
+    <version>1</version>
+    <owner>admin</owner>
+    <key>sakai.profile2.wallEventNew</key>
+    <locale></locale>
+    <localeLangTag></localeLangTag>
+  </emailTemplate>
+</emailTemplates>

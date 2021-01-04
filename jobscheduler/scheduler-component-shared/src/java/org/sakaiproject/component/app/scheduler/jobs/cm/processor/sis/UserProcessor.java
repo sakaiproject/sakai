@@ -23,7 +23,7 @@ import java.util.Map;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.app.scheduler.jobs.cm.processor.ProcessorState;
-import org.sakaiproject.emailtemplateservice.model.RenderedTemplate;
+import org.sakaiproject.emailtemplateservice.api.RenderedTemplate;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserAlreadyDefinedException;
 import org.sakaiproject.user.api.UserEdit;
@@ -203,7 +203,7 @@ public class UserProcessor extends AbstractUserProcessor {
         String newUserEmail = user.getEmail();
 
         if (StringUtils.isNotBlank(from) && StringUtils.isNotBlank(newUserEmail)) {
-            Map<String, String> replacementValues = new HashMap<>();
+            Map<String, Object> replacementValues = new HashMap<>();
             replacementValues.put("userName", user.getDisplayName());
             replacementValues.put("userEid", user.getEid());
             replacementValues.put("localSakaiName", serverConfigurationService.getString("ui.service", "Sakai"));

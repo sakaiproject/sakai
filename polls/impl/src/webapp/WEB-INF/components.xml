@@ -38,7 +38,7 @@
 		<property name="learningResourceStoreService" ref="org.sakaiproject.event.api.LearningResourceStoreService"/>
 		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
 		<property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
-		<property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.service.EmailTemplateService" />
+		<property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.api.EmailTemplateService" />
 		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
 		<property name="eventTrackingService"
 			ref="org.sakaiproject.event.api.EventTrackingService" />

@@ -54,6 +54,7 @@ import org.sakaiproject.user.api.User;
  */
 
 public interface AssignmentService extends EntityProducer {
+
     Entity createAssignmentEntity(String assignmentId);
 
     Entity createAssignmentEntity(Assignment assignment);

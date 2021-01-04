@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<emailTemplates>
+  <emailTemplate>
+    <subject>[${localSakaiName}] ${bundle["noti.subject.content"]} </subject>
+    <message>${bundle["noti.site.title"]} ${siteTitle}
+      ${bundle["noti.site.url"]} ${siteUrl}
+      ${bundle["assignment.title"]} ${assignmentTitle}
+
+      &lt;#if !hideDueDate&gt;
+        ${bundle["noti.assignment.duedate"]} ${dueDate}
+      &lt;/#if&gt;
+
+      ${bundle["noti.student"]} ${submitterNames} ${submitterIds}
+
+      ${bundle["submission.id"]} ${submissionId}
+
+      ${bundle["noti.submit.time"]} ${submittedDate}
+
+      ${bundle["gen.submittedtext"]}
+
+
+      ${submittedText!""}
+
+      ${attachmentType!""}
+
+
+      ${attachmentsBlock!""}
+    </message>
+    <messagehtml>
+${bundle["noti.site.title"]} &lt;a href="${siteUrl}"&gt;${siteTitle}&lt;/a&gt;
+&lt;br&gt;
+&lt;br&gt;
+${bundle["assignment.title"]} &lt;a href="${assignmentUrl}"&gt;${assignmentTitle}&lt;/a&gt;
+&lt;br&gt;
+&lt;br&gt;
+
+&lt;#if !hideDueDate&gt;
+  ${bundle["noti.assignment.duedate"]} ${dueDate}
+ &lt;/#if&gt;
+&lt;br&gt;
+
+${bundle["noti.student"]} ${submitterNames} ${submitterIds}
+&lt;br /&gt;
+${bundle["noti.submit.time"]} ${submittedDate}
+&lt;br /&gt;
+
+&lt;h4&gt;${bundle["gen.submittedtext"]}&lt;/h4&gt;
+${submittedText!""}
+&lt;br /&gt;
+
+${attachmentType!""}
+&lt;br /&gt;
+${attachmentsBlock!""}
+    </messagehtml>
+    <version>1</version>
+    <owner>admin</owner>
+    <key>sakai.assignment.grades.submission</key>
+    <locale></locale>
+    <localeLangTag></localeLangTag>
+  </emailTemplate>
+</emailTemplates>
