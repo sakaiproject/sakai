@@ -33,7 +33,7 @@ import org.sakaiproject.entity.api.ResourceProperties;
  */
 public interface Preferences extends Entity, Comparable
 {
-	
+
 	/**
 	 * Field in which the users local preference is stored
 	 */
@@ -48,12 +48,20 @@ public interface Preferences extends Entity, Comparable
 
 	/**
 	 * Access the properties keyed by the specified value.
-	 * 
+	 *
 	 * @param key
 	 *        The key to the properties.
 	 * @return The properties keyed by the specified value (possibly empty)
 	 */
 	ResourceProperties getProperties(String key);
+
+	/**
+	 * Access the properties keyed by the specified value.
+	 * 
+	 * @param commonToolId The tool for which we want the user's preferences
+	 * @return The tool notification properties (possibly empty)
+	 */
+	ResourceProperties getToolNotificationProperties(String commonToolId);
 
 	/**
 	 * Access the keys defined in this Preferences

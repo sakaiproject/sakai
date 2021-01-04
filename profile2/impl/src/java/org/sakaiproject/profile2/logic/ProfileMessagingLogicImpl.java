@@ -338,7 +338,7 @@ public class ProfileMessagingLogicImpl implements ProfileMessagingLogic {
 			String emailTemplateKey = ProfileConstants.EMAIL_TEMPLATE_KEY_MESSAGE_NEW;
 			
 			//create the map of replacement values for this email template
-			Map<String,String> replacementValues = new HashMap<String,String>();
+			Map<String, Object> replacementValues = new HashMap<>();
 			replacementValues.put("senderDisplayName", sakaiProxy.getUserDisplayName(fromUuid));
 			replacementValues.put("localSakaiName", sakaiProxy.getServiceName());
 			replacementValues.put("messageSubject", subject);
@@ -357,7 +357,7 @@ public class ProfileMessagingLogicImpl implements ProfileMessagingLogic {
 			String emailTemplateKey = ProfileConstants.EMAIL_TEMPLATE_KEY_MESSAGE_REPLY;
 			
 			//create the map of replacement values for this email template
-			Map<String,String> replacementValues = new HashMap<String,String>();
+			Map<String, Object> replacementValues = new HashMap<>();
 			replacementValues.put("senderDisplayName", sakaiProxy.getUserDisplayName(fromUuid));
 			replacementValues.put("localSakaiName", sakaiProxy.getServiceName());
 			replacementValues.put("messageSubject", subject);
