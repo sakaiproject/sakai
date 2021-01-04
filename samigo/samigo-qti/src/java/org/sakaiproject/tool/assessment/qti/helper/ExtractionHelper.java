@@ -39,6 +39,7 @@ import java.util.TreeSet;
 
 import javax.activation.MimetypesFileTypeMap;
 import javax.xml.parsers.ParserConfigurationException;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -2219,7 +2220,13 @@ public class ExtractionHelper
       itemTextStringbuf.append(text);
       if (i < answerList.size())
       {
-        itemTextStringbuf.append(FIB_BLANK_INDICATOR);
+    	  String markers_pair = StringEscapeUtils.unescapeHtml4(item.getItemMetaDataByLabel("MARKERS_PAIR"));
+    	  if ((StringUtils.isEmpty(markers_pair)) || markers_pair.length() != 2) {
+    		  markers_pair = FIB_BLANK_INDICATOR;
+    	  } else {
+    		  markers_pair = " " + markers_pair + " ";
+    	  }
+    	  itemTextStringbuf.append(markers_pair);
       }
     }
     String itemTextString = XmlUtil.processFormattedText(itemTextStringbuf.toString());

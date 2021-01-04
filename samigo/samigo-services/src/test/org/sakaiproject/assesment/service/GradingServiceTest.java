@@ -17,6 +17,8 @@
 
 package org.sakaiproject.assesment.service;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Assert;
@@ -99,5 +101,119 @@ public class GradingServiceTest {
 		Assert.assertTrue(gradingService.fibmatch("A > ~T", "A > ~T", false, false));
 		Assert.assertTrue(gradingService.fibmatch("A &gt; ~T", "A &gt; ~T", false, false));
 	}
-
+	
+	@Test
+	public void fibContainsIllegalsTest() {
+		GradingService gradingService = new GradingService();
+		
+		//The forbidden characters "'.,&\s|*	
+		Assert.assertEquals(3, gradingService.checkMarkersFIB("\"}"));
+		Assert.assertEquals(3, gradingService.checkMarkersFIB("'}"));
+		Assert.assertEquals(3, gradingService.checkMarkersFIB(".}"));
+		Assert.assertEquals(3, gradingService.checkMarkersFIB(",}"));
+		Assert.assertEquals(3, gradingService.checkMarkersFIB("&}"));
+		Assert.assertEquals(3, gradingService.checkMarkersFIB(" }"));
+		Assert.assertEquals(3, gradingService.checkMarkersFIB("|}"));
+		Assert.assertEquals(3, gradingService.checkMarkersFIB("*}"));
+		
+		//Same char as marker
+		Assert.assertEquals(2, gradingService.checkMarkersFIB("xx"));
+		Assert.assertEquals(2, gradingService.checkMarkersFIB("{{"));
+		Assert.assertEquals(2, gradingService.checkMarkersFIB("}}"));
+		Assert.assertEquals(2, gradingService.checkMarkersFIB("[["));
+		Assert.assertEquals(2, gradingService.checkMarkersFIB("]]"));
+		Assert.assertEquals(2, gradingService.checkMarkersFIB("  "));
+		
+		//Invalid lentgh
+		Assert.assertEquals(1, gradingService.checkMarkersFIB(""));
+		Assert.assertEquals(1, gradingService.checkMarkersFIB("{"));
+		Assert.assertEquals(1, gradingService.checkMarkersFIB("{}+"));
+		Assert.assertEquals(1, gradingService.checkMarkersFIB("abcd"));
+		Assert.assertEquals(1, gradingService.checkMarkersFIB("{ }"));
+		Assert.assertEquals(1, gradingService.checkMarkersFIB(" {}"));
+		Assert.assertEquals(1, gradingService.checkMarkersFIB("{} "));
+		
+		//Valid markers
+		Assert.assertEquals(0, gradingService.checkMarkersFIB("{}"));
+		Assert.assertEquals(0, gradingService.checkMarkersFIB("ab"));
+		Assert.assertEquals(0, gradingService.checkMarkersFIB("xw"));
+		Assert.assertEquals(0, gradingService.checkMarkersFIB("[]"));
+		Assert.assertEquals(0, gradingService.checkMarkersFIB("-+"));
+		Assert.assertEquals(0, gradingService.checkMarkersFIB("$%"));
+	}
+	
+	@Test
+	public void checkPairErrorsFIBTest() {
+		GradingService gradingService = new GradingService();
+		
+		//Basic correct FIB
+		Assert.assertFalse(gradingService.checkPairErrorsFIB("Roses are {red}", "{}"));
+		//Empty text
+		Assert.assertTrue(gradingService.checkPairErrorsFIB("", "{}"));
+		//Empty text, just open mark
+		Assert.assertTrue(gradingService.checkPairErrorsFIB("{", "{}"));
+		//Empty text, just close mark
+		Assert.assertTrue(gradingService.checkPairErrorsFIB("}", "{}"));
+		//Empty text, valid marks
+		Assert.assertTrue(gradingService.checkPairErrorsFIB("{}", "{}"));
+		//Missing close mark
+		Assert.assertTrue(gradingService.checkPairErrorsFIB("Roses are {red", "{}"));
+		//Missing open mark
+		Assert.assertTrue(gradingService.checkPairErrorsFIB("Roses are red}", "{}"));
+		//two open, one close marks
+		Assert.assertTrue(gradingService.checkPairErrorsFIB("Roses are {{red}", "{}"));
+		//One open, two close marks
+		Assert.assertTrue(gradingService.checkPairErrorsFIB("Roses are {{red}", "{}"));
+		//Swap markers
+		Assert.assertTrue(gradingService.checkPairErrorsFIB("Roses are }red{", "{}"));
+		
+		//Two words correct FIB
+		Assert.assertFalse(gradingService.checkPairErrorsFIB("Roses are +red-, violets are +blue-", "+-"));
+		//Many words in one, correct FIB
+		Assert.assertFalse(gradingService.checkPairErrorsFIB("Roses are +red, violets are blue-", "+-"));
+		//One empty pair
+		Assert.assertTrue(gradingService.checkPairErrorsFIB("Roses are +red-, violets are +-", "+-"));
+		//One empty pair
+		Assert.assertTrue(gradingService.checkPairErrorsFIB("Roses are +-, violets are +blue-", "+-"));
+		//both empty pairs
+		Assert.assertTrue(gradingService.checkPairErrorsFIB("Roses are +-, violets are +-", "+-"));
+		//Missing one marker at the end
+		Assert.assertTrue(gradingService.checkPairErrorsFIB("Roses are +red-, violets are +blue", "+-"));
+		//Missing one open marker
+		Assert.assertTrue(gradingService.checkPairErrorsFIB("Roses are +red-, violets are blue-", "+-"));
+		//Missing all close markers
+		Assert.assertTrue(gradingService.checkPairErrorsFIB("Roses are +red, violets are +blue", "+-"));
+		//Missing all open markers
+		Assert.assertTrue(gradingService.checkPairErrorsFIB("Roses are red-, violets are blue-", "+-"));
+		//Swap markers
+		Assert.assertTrue(gradingService.checkPairErrorsFIB("Roses are +red+, violets are -blue-", "+-"));
+		Assert.assertTrue(gradingService.checkPairErrorsFIB("Roses are +red-, violets are -blue+", "+-"));
+		Assert.assertTrue(gradingService.checkPairErrorsFIB("Roses are -red+, violets are -blue+", "+-"));
+		
+	}
+	
+	@Test
+	public void fibParseTest() {
+		//Get some examples of how fib parsing is working.
+		//The tested method just try to extract words between
+		// markers, no errors or conditions are checked here
+		GradingService gradingService = new GradingService();
+		
+		List answers = gradingService.parseFillInBlank("Roses are {red}, violets are {blue}", "{}");
+		Assert.assertEquals(2, answers.size());
+		Assert.assertEquals("red", ((HashMap) answers.get(0)).get("ans"));
+		Assert.assertEquals("blue", ((HashMap) answers.get(1)).get("ans"));
+		
+		answers = gradingService.parseFillInBlank("Roses are +red-, the violet's +blue-", "+-");
+		Assert.assertEquals(2, answers.size());
+		Assert.assertEquals("red", ((HashMap) answers.get(0)).get("ans"));
+		Assert.assertEquals("blue", ((HashMap) answers.get(1)).get("ans"));
+		
+		answers = gradingService.parseFillInBlank(
+				"Roses are xredn, the violet's xbluen, sugar is xsweetn", "xn");
+		Assert.assertEquals(3, answers.size());
+		Assert.assertEquals("red", ((HashMap) answers.get(0)).get("ans"));
+		Assert.assertEquals("blue", ((HashMap) answers.get(1)).get("ans"));
+		Assert.assertEquals("sweet", ((HashMap) answers.get(2)).get("ans"));
+	}
 }

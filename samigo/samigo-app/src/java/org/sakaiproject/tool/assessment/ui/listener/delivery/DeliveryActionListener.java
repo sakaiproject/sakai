@@ -40,6 +40,7 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.math3.util.Precision;
@@ -1894,9 +1895,10 @@ public class DeliveryActionListener
   {
     // Only one text in FIB
     ItemTextIfc text = (ItemTextIfc) item.getItemTextArraySorted().toArray()[0];
+    String markers_pair = StringEscapeUtils.unescapeHtml4(item.getItemMetaDataByLabel("MARKERS_PAIR"));
     List fibs = new ArrayList();
     String alltext = text.getText();
-    List texts = extractFIBFINTextArray(alltext);
+    List texts = extractFIBFINTextArray(alltext, markers_pair);
     int i = 0;
     Iterator iter = text.getAnswerArraySorted().iterator();
     while (iter.hasNext())
@@ -1961,17 +1963,17 @@ public class DeliveryActionListener
     bean.setFibArray(fibs);
   }
 
-  private static List extractFIBFINTextArray(String alltext)
+  private static List extractFIBFINTextArray(String alltext, String markers_pair)
   {
-    List texts = new ArrayList();
+    ArrayList texts = new ArrayList();
+    String alltextTmp=alltext;
 
-    while (alltext.indexOf("{}") > -1)
-    {
-      int alltextLeftIndex = alltext.indexOf("{}");
+    while (alltextTmp.indexOf(markers_pair) > -1) {
+      int alltextLeftIndex = alltextTmp.indexOf(markers_pair);
       //int alltextRightIndex = alltext.indexOf("}");
 
-      String tmp = alltext.substring(0, alltextLeftIndex);
-      alltext = alltext.substring(alltextLeftIndex + 2);
+      String tmp = alltextTmp.substring(0, alltextLeftIndex);
+      alltextTmp = alltextTmp.substring(alltextLeftIndex + 2);
       texts.add(tmp);
       // there are no more "{}", exit loop. 
       // why do we this check? will it ever come to here?
@@ -1980,7 +1982,7 @@ public class DeliveryActionListener
         break;
       }
     }
-    texts.add(alltext);
+    texts.add(alltextTmp);
     return texts;
   }
 
@@ -2046,7 +2048,7 @@ public class DeliveryActionListener
     ItemTextIfc text = (ItemTextIfc) item.getItemTextArraySorted().toArray()[0];
     List fins = new ArrayList();
     String alltext = text.getText();
-    List texts = extractFIBFINTextArray(alltext);
+    List texts = extractFIBFINTextArray(alltext, "{}");
     int i = 0;
     Iterator iter = text.getAnswerArraySorted().iterator();
     while (iter.hasNext())
