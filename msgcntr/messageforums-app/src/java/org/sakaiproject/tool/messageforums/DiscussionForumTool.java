@@ -1949,9 +1949,10 @@ public class DiscussionForumTool {
         if(!isNew){
         	if(beforeChangeHM != null){
         		if(permissionsUpdated){
-        			//need to reset permissions cache to get the correct counts:
-        			threadLocalManager.set("message_center_permission_set", false);
-        		}
+                    // set flag to true since permissions could have changed.  This will force a clearing and resetting
+                    // of the permissions cache for this area.
+                    threadLocalManager.set("msgcntr_clear_permission_set#" + topic.getBaseForum().getArea().getId(), Boolean.TRUE);
+                }
         		updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), topic.getBaseForum().getId(), topic.getId(), beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
         	}
         }        
@@ -6667,6 +6668,7 @@ public class DiscussionForumTool {
 
       if (forum != null) {
         final DiscussionForum f = forum;
+        area = f.getArea();
         forum.setMembershipItemSet(membershipItemSet);
         membershipItemSet.forEach(i -> ((DBMembershipItemImpl) i).setForum(f));
       } else if (area != null) {
@@ -6675,11 +6677,14 @@ public class DiscussionForumTool {
         membershipItemSet.forEach(i -> ((DBMembershipItemImpl) i).setArea(a));
       } else if (topic != null) {
         final Topic t = topic;
+        area = t.getBaseForum().getArea();
         topic.setMembershipItemSet(membershipItemSet);
         membershipItemSet.forEach(i -> ((DBMembershipItemImpl) i).setTopic(t));
       }
-
       permissionLevelManager.deleteMembershipItems(oldMembershipItemSet);
+      if (area != null) {
+        threadLocalManager.set("msgcntr_clear_permission_set#" + area.getId(), Boolean.TRUE);
+      }
     }
     siteMembers = null;
   }

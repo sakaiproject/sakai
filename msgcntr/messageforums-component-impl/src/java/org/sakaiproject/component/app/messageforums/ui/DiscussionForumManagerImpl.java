@@ -1145,9 +1145,6 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     forum.setDraft(draft);
 
     final DiscussionForum forumReturn = forumManager.saveDiscussionForum(forum, draft, logEvent, currentUser);
-    //set flag to false since permissions could have changed.  This will force a clearing and resetting
-    //of the permissions cache.
-    threadLocalManager.set("message_center_permission_set", null);
     if (saveArea)
     {
       String dfType = typeManager.getDiscussionForumType();
@@ -1157,6 +1154,9 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       area.addDiscussionForum(forumReturn);
       areaManager.saveArea(area, currentUser);
     }
+    // set flag to true since permissions could have changed.  This will force a clearing and resetting
+    // of the permissions cache for this area.
+    threadLocalManager.set("msgcntr_clear_permission_set#" + forumReturn.getArea().getId(), Boolean.TRUE);
     return forumReturn;
   }
 
