@@ -1,4 +1,4 @@
-#themeSwitcher {
+#sakai-darkThemeSwitcher {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -19,16 +19,16 @@
     }
 }
 
-#themeSwitcher[role="switch"][aria-checked="false"] :first-child,
-#themeSwitcher[role="switch"][aria-checked="true"] :last-child {
+#sakai-darkThemeSwitcher[role="switch"][aria-checked="false"] :first-child,
+#sakai-darkThemeSwitcher[role="switch"][aria-checked="true"] :last-child {
     display: inline-block;
     border-radius: $button-radius; 
     background: var(--sakai-primary-color-1);
     color: var(--sakai-text-color-inverted);
 }
 
-#themeSwitcher[role="switch"][aria-checked="false"] :last-child,
-#themeSwitcher[role="switch"][aria-checked="true"] :first-child {
+#sakai-darkThemeSwitcher[role="switch"][aria-checked="false"] :last-child,
+#sakai-darkThemeSwitcher[role="switch"][aria-checked="true"] :first-child {
     color: var(--sakai-text-color-1);
 }
 

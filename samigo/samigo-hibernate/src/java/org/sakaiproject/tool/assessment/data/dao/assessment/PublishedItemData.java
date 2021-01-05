@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -38,6 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
@@ -614,9 +616,13 @@ public class PublishedItemData
 
        if (this.getTypeId().equals(TypeIfc.FILL_IN_BLANK))
        { //e.g. Roses are {}. Violets are {}. replace as
-         // Roses are ____. Violets are ____.
-         text = text.replaceAll("\\{","__");
-         text = text.replaceAll("\\}","__");
+    	   // Roses are ____. Violets are ____.
+    	   String markers_pair = StringEscapeUtils.unescapeHtml4(this.getItemMetaDataByLabel("MARKERS_PAIR"));
+    	   if ((StringUtils.isEmpty(markers_pair)) || markers_pair.length() != 2) {
+    		   markers_pair = "{}";
+    	   }
+        text = text.replaceAll(Pattern.quote("" + markers_pair.charAt(0)), "__");
+        text = text.replaceAll(Pattern.quote("" + markers_pair.charAt(1)), "__");
       }
        if (this.getTypeId().equals(TypeIfc.FILL_IN_NUMERIC))
        { //e.g. Roses are {}. Violets are {}. replace as

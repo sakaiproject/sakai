@@ -160,18 +160,18 @@
 
                                     #end ## END of IF (${tabsSites.tutorial})
 
-                                    #if (${tabsSites.themeSwitcher})
+                                    #if (${themeSwitcher})
 
                                         <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented Mrphs-userNav__submenuitem-toggle">
-                                            <label for="themeSwitcher" class="sakaiThemeSwitch">${rloader.sit_themeSwitcher}</label>
-                                            <button role="switch" aria-checked="true"
-                                                id="themeSwitcher" class="Mrphs-userNav__submenuitem--themeSwitcher switch">
-                                                <span>${rloader.sit_themeSwitcherOn}</span>
+                                            <label for="sakai-darkThemeSwitcher" class="sakaiThemeSwitch">${rloader.sit_themeSwitcher}</label>
+                                            <button role="switch" aria-checked="false"
+                                                id="sakai-darkThemeSwitcher" class="Mrphs-userNav__submenuitem--themeSwitcher switch">
                                                 <span>${rloader.sit_themeSwitcherOff}</span>
+                                                <span>${rloader.sit_themeSwitcherOn}</span>
                                             </button>
                                         </li>
 
-                                    #end ## END of IF (${tabsSites.themeSwitcher})
+                                    #end ## END of IF (${themeSwitcher})
 
                             #end ## END of IF (${site.isMyWorkspace})
 

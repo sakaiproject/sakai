@@ -4,8 +4,11 @@
         <meta charset="utf-8">
         <title>${loginRequired} - ${uiService}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">        
-		<link href="${pageSkinRepo}/${pageSkin}/tool.css" type="text/css" rel="stylesheet" media="all" />
-		<script src="${pageSkinRepo}/${pageSkin}/js/lib/modernizr.js$!{portalCDNQuery}"></script>
+        <link href="${pageSkinRepo}/${pageSkin}/tool.css" type="text/css" rel="stylesheet" media="all" />
+        <script src="${pageSkinRepo}/${pageSkin}/js/lib/modernizr.js$!{portalCDNQuery}"></script>
+    #if (${themeSwitcher})
+        <script src="$!{portalCDNPath}/portal/scripts/themeswitcher.js$!{portalCDNQuery}"></script>
+    #end
     </head>
     <body class="portalBody Mrphs-portalBody">
     	<form id="Mrphs-xlogin" method="post" action="${action}" #if (${notify}) class="with-errors" #end>

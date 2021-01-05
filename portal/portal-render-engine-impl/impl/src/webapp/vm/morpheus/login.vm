@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="$!{locale}">
+<html lang="$!{locale}" class="Mrphs-html $!{userTheme}">
     <head>
         <!-- START VM login.vm -->
         <meta charset="utf-8">
@@ -7,7 +7,6 @@
         <title>${pageTitle}</title>
 
         #parse("/vm/morpheus/snippets/portalCSS-snippet.vm")
-
         #parse("/vm/morpheus/snippets/title-snippet.vm")
 
         <script src="${pageScriptPath}jquery.js$!{portalCDNQuery}"></script>

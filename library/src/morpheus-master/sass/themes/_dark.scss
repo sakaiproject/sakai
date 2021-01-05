@@ -1,6 +1,6 @@
 /* Dark Theme */
 
-:root.sakai-dark-theme {
+:root.sakaiUserTheme-dark {
     /////////////////////////////////////////////////////////////
     // Color palette generation
     // Use defineColorHSL to generate an 11 shade palette for a color.
@@ -131,7 +131,7 @@
 
     /////////////////////End main theme definition/////////////////////
 
-    // Additional dark mode variables
+    // Additional dark theme variables
     --sakai-image-invert: grayscale(100%) invert(100%);
 
     // Overrides _light.scss variables when necessary

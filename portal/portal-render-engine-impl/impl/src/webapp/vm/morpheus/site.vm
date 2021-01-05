@@ -220,9 +220,9 @@
         <script src="${pageScriptPath}caps-lock-checker.js$!{portalCDNQuery}"></script>
 
         <script src="$!{portalCDNPath}/portal/scripts/jumptotop.js$!{portalCDNQuery}"></script>
-        #if (${tabsSites.themeSwitcher})
-            <script src="$!{portalCDNPath}/portal/scripts/themeswitcher.js$!{portalCDNQuery}"></script>
-        #end ## END of IF (${tabsSites.themeSwitcher})
+    #if (${themeSwitcher})
+        <script src="$!{portalCDNPath}/portal/scripts/themeswitcher.js$!{portalCDNQuery}"></script>
+    #end
         #parse("/vm/morpheus/includeAnalytics.vm")
         #parse("/vm/morpheus/includePASystem.vm")
 

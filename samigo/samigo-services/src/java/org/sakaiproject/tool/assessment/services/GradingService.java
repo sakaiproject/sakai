@@ -141,6 +141,8 @@ public class GradingService
   public static final Pattern CALCQ_FORMULA_ALLOW_NUMBER_POINT = Pattern.compile("([\\d])([\\.])([^\\d]|$)");
   
   private static final int WRONG_IMAGE_MAP_ANSWER_NON_PARCIAL = -123456789;
+  
+  private static final String NBSP = "&#160;";
 	  
   /**
    * Get all scores for a published assessment from the back end.
@@ -3443,6 +3445,166 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  return false;
   }
 
+  
+  /**
+   * FIB QUESTIONS
+   * we ensure that answer text between brackets is always nonempty, also that
+   * starting text is nonempty, we use a non-breaking space for this purpose
+   * @param fib
+   * @return
+   */
+  private static String padFibWithNonbreakSpacesText(String fib, String marker_left, String marker_right) {
+	  String fibTmp=fib;
+
+	  if (fibTmp.startsWith(marker_left)){
+		  fibTmp = NBSP + fibTmp;
+	  }
+	  String regExp = Pattern.quote("" + marker_right) + Pattern.quote("" + marker_left);
+	  return fibTmp.replaceAll(regExp, marker_right + NBSP + marker_left);
+  }
+
+  /**
+   * FIB QUESTIONS
+   *  Get list of form:
+   *  {ans=red, text=Roses are},
+   *  {ans=blue, text=and violets are},
+   *  {ans=null, text=.}
+   *  From String of form "Roses are {red} and violets are {blue}."
+   *
+   * @param input
+   * @return list of Maps
+   */
+  public List<Map<String, String>> parseFillInBlank(String input, String markers_pair) {
+	  String marker_left = "" + markers_pair.charAt(0);
+	  String marker_right = "" + markers_pair.charAt(1);
+	  String inputTmp = input;
+	  inputTmp = padFibWithNonbreakSpacesText(inputTmp, marker_left, marker_right);
+
+	  List<Map<String, String>> storeParts = new ArrayList<>();
+	  if (inputTmp == null) {
+		  return storeParts;
+	  }
+
+	  StringTokenizer st = new StringTokenizer(inputTmp, marker_right);
+	  String tempToken = "";
+	  String[] splitArray = null;
+
+	  while (st.hasMoreTokens()){
+		  tempToken = st.nextToken();
+		  Map<String, String> tempMap = new HashMap<>();
+
+		  //split out text and answer parts from token
+		  String splitRegEx = Pattern.quote("" + marker_left);
+		  splitArray = tempToken.trim().split(splitRegEx, 2);
+		  tempMap.put("text", splitArray[0].trim());
+		  if (splitArray.length > 1){
+
+			  tempMap.put("ans", (splitArray[1]));
+		  }
+		  else{
+			  tempMap.put("ans", null);
+		  }
+
+		  storeParts.add(tempMap);
+	  }
+
+	  return storeParts;
+  }
+
+  /**
+   * FIB QUESTIONS
+   * Check if every open marker has one to close the pair
+   * @param text
+   * @param markers_pair
+   * @return true if the text if malformed
+   */
+  public boolean checkPairErrorsFIB(String text, String markers_pair) {
+	  int index=0;
+	  boolean FIBerror=false;
+	  boolean hasOpen=false;
+	  int opencount=0;
+	  int closecount=0;
+	  boolean notEmpty=false;
+	  int indexOfOpen=-1;
+	  while(index<text.length()){
+		  char c=text.charAt(index);
+		  if (c == markers_pair.charAt(0)){
+			  opencount++;
+			  if(hasOpen){
+				  FIBerror=true;
+				  break;
+			  }
+			  else{
+				  hasOpen=true;
+				  indexOfOpen=index;
+			  }
+		  }
+		  else if (c == markers_pair.charAt(1)){
+			  closecount++;
+			  if(!hasOpen){
+				  FIBerror=true;
+				  break;
+			  }
+			  else{
+				  if(notEmpty && (indexOfOpen+1 != index) && (!(text.substring(indexOfOpen+1,index).equals("</p><p>")))){
+					  hasOpen=false;
+					  notEmpty=false;
+				  }
+				  else{
+					  //error for emptyString
+					  FIBerror=true;
+					  break;
+				  }
+			  }
+		  }
+
+		  else{
+			  if(hasOpen && (!Character.isWhitespace(c))){
+				  notEmpty=true;
+			  }
+		  }
+		  index++;
+	  }//end while
+	  if(hasOpen || (opencount<1) || (opencount!=closecount) || FIBerror){
+		  return true;
+	  }
+	  else{
+		  return false;
+	  }
+  }
+
+  /**
+   * FIB QUESTIONS
+   * Check if the markers_pair elected are valid markers.
+   * @param markers_pair
+   * @return an number that tell if markers are valid or which error they have
+   */
+  public int checkMarkersFIB(String markers_pair) {
+	  // if markers length is lower or more than 2
+	  if (markers_pair.length() < 2 || markers_pair.length() > 2) {
+		  return 1;
+	  }
+	  // if both chars are the same
+	  if (markers_pair.charAt(0) == markers_pair.charAt(1)) {
+		  return 2;
+	  }
+	  // if markers are some forbidden chars
+	  if (fibTextContainsIllegalCharacters(markers_pair)) {
+		  return 3;
+	  }
+
+	  return 0;
+  }
+  /**
+   * FIB QUESTIONS
+   * @param toExamine marker_pair to determine if contain illegal chars
+   * @return if cotains illegals ["'.,&\s|*]
+   */
+  private boolean fibTextContainsIllegalCharacters(String toExamine) {
+	  Pattern pattern = Pattern.compile("[\"\'.,&\\s|*]");
+	  Matcher matcher = pattern.matcher(toExamine);
+	  return matcher.find();
+  }
   
   public List<Boolean> getHasGradingDataAndHasSubmission(Long publishedAssessmentId) {
 	    List<Boolean> al = new ArrayList<>();
