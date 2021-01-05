@@ -25,18 +25,15 @@ body.is-logged-out{
 
 .#{$namespace}mainHeader{
 		border-bottom:1px solid var(--sakai-border-color);
-		
 		position: relative;
-	.#{$namespace}headerLogo{
+
+		.#{$namespace}headerLogo{
 		width: 100%;
 		padding: 0 $standard-spacing;
 		height: $banner-height;
 		background: var(--top-header-background);
-
 		text-align: center;
 		@include transition( width 0.5s linear 0s );
-
-
 
 		.#{$namespace}headerLogo--institution{
 			background: var(--logo) no-repeat center center;
@@ -215,7 +212,7 @@ body.is-logged-out{
 
 .#{$namespace}topHeader{
 	background: var(--top-header-background);
-	color: var(--sakai-background-color-1);
+	color: var(--sakai-text-color-inverted);
 	font-size: 1em;
 	height: auto;
 	width: 100%;
@@ -426,7 +423,7 @@ body.is-logged-out{
 		input[type="text"],input[type="password"],input[type="email"]{
 			margin: 0 1em 0 0;
 			padding: 0.25em;
-			border: 0px none;
+
 			@media #{$phone}{
 				width: 40%;
 				margin-right: 0.6em;
@@ -437,7 +434,6 @@ body.is-logged-out{
 			margin: 0;
 			padding: 0.4em 1em;
 			font-size: $default-font-size;
-			color: #333333;
 			position: relative;
 
 			@media #{$phone}
@@ -463,7 +459,6 @@ body.is-logged-out{
 		&.has-avatar:active .#{$namespace}userNav__submenuitem--profilepicture {
 			box-shadow:inset 0 0 0 2px var(--top-header-profile-border-color-inner), 0 0 0 2px rgba(0,0,0,.6);
 		}
-		
 
 		&.has-avatar:hover .#{$namespace}userNav__submenuitem--username,
 			&.has-avatar:hover .has-avatar .#{$namespace}userNav__submenuitem--userid
@@ -477,11 +472,9 @@ body.is-logged-out{
 		}
 	}
 
-
 	.has-avatar, .no-avatar{
 		position: relative;
 		
-
 		.#{$namespace}userNav__submenuitem--username, .#{$namespace}userNav__submenuitem--userid{
 			text-decoration: none;
 
@@ -1113,7 +1106,6 @@ body.is-logged-out{
 			.#{$namespace}sitesNav__gateway {
 				@extend .fa-university;
 				@extend .fa;
-				
 				margin-right: $standard-space;
 			}
 		}

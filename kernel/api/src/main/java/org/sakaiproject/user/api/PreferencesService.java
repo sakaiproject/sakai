@@ -42,13 +42,13 @@ public interface PreferencesService extends EntityProducer
 	/** This string starts the references to resources in this service. */
 	static final String REFERENCE_ROOT = "/prefs";
 
-	/** Securiy / Event for adding a preferences. */
+	/** Security / Event for adding a preferences. */
 	static final String SECURE_ADD_PREFS = "prefs.add";
 
-	/** Securiy / Event for updating a preferences. */
+	/** Security / Event for updating a preferences. */
 	static final String SECURE_EDIT_PREFS = "prefs.upd";
 
-	/** Securiy / Event for removing a preferences. */
+	/** Security / Event for removing a preferences. */
 	static final String SECURE_REMOVE_PREFS = "prefs.del";
 
 	/** Prefs key under which stuff like the site tab order and hiding is stored. */
@@ -57,11 +57,14 @@ public interface PreferencesService extends EntityProducer
 	/** Prefs key under which stuff like the editor preferences stored. */
 	static final String EDITOR_PREFS_KEY = "sakai:portal:editor";
 
-	/** Prefs key under which stuff like the editor typepreferences stored. */
+	/** Prefs key under which stuff like the editor type preferences stored. */
 	static final String EDITOR_PREFS_TYPE = "editor:type";
 
-	/** Prefs key under which stuff like the editor typepreferences stored. */
+	/** Prefs for excluding or hiding sites */
 	public static final String SITENAV_PREFS_EXCLUDE_KEY = "exclude";
+
+	/** Preference key for user-selected UI themes */
+	static final String USER_SELECTED_UI_THEME_PREFS = "sakai:portal:theme";
 
 	/**
 	 * Access a set of preferences associated with this id.
