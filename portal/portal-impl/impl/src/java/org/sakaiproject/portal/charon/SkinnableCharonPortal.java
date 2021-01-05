@@ -1593,7 +1593,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			String thisUser = SessionManager.getCurrentSessionUserId();
 			
 			//Get user preferences
-            Preferences prefs = preferencesService.getPreferences(thisUser);
+			Preferences prefs = preferencesService.getPreferences(thisUser);
 
 			boolean showServerTime = ServerConfigurationService.getBoolean("portal.show.time", true);
 			if (showServerTime) {
@@ -1735,13 +1735,14 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
                         			log.error(e1.getMessage(), e1);
                         		}
                         	}
-						}
+                        }
 
                         if(sakaiThemeSwitcherEnabled) {
                             rcontext.put("themeSwitcher", true);
+                            
+                            String userTheme = StringUtils.defaultIfEmpty(prefs.getProperties(org.sakaiproject.user.api.PreferencesService.USER_SELECTED_UI_THEME_PREFS).getProperty("theme"), "sakaiUserTheme-notSet");
+                            rcontext.put("userTheme", userTheme);
                         }
-			// rcontext.put("bottomNavSitNewWindow",
-			// Web.escapeHtml(rb.getString("site_newwindow")));
 
 			if ((poweredByUrl != null) && (poweredByImage != null)
 					&& (poweredByAltText != null)
@@ -1759,7 +1760,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 						l.add(m);
 					}
 					rcontext.put("bottomNavPoweredBy", l);
-
 				}
 			}
 			else

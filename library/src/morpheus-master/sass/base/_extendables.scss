@@ -192,7 +192,8 @@
 	
 	&[disabled="disabled"],&[disabled],&[disabled="true"] {
 		opacity: 0.7;
-		background-color: #f3f3f3;
+		background-color: var(--sakai-background-color-4);
+		color: var(--sakai-text-color-disabled);
 		cursor: not-allowed;
 	}
 }
@@ -447,7 +448,7 @@ a.noPointers, input.noPointers {
 	margin-left: 5px;
 }
 
-.spinnerBesideContainer { 
+.spinnerBesideContainer {
 	@include display-flex;
 	@include align-items( center );
 	label {
@@ -461,7 +462,7 @@ a.noPointers, input.noPointers {
 /*** End button spinner overlay ***/
 .ui-dialog.ui-widget {
 	@media #{$phone}{
-		width: 95% !important; 
+		width: 95% !important;
 		left: 2.5% !important;
 	}
 }

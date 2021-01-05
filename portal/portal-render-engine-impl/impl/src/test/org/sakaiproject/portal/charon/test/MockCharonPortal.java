@@ -369,11 +369,6 @@ public class MockCharonPortal extends HttpServlet
 	{
 		rcontext.put("siteNavHasAccessibilityURL", Boolean.valueOf((true)));
 		rcontext.put("siteNavAccessibilityURL", "accessibilityURL");
-		// rcontext.put("siteNavSitAccessability", "sit_accessibility");
-		// rcontext.put("siteNavSitJumpContent", "sit_jumpcontent");
-		// rcontext.put("siteNavSitJumpTools", "sit_jumptools");
-		// rcontext.put("siteNavSitJumpWorksite", "sit_jumpworksite");
-
 		rcontext.put("siteNavLoggedIn", Boolean.valueOf(true));
 
 		includeLogo(rcontext);

@@ -316,15 +316,15 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         //CKEditor doesn't have a method to add classes to the HTML element
         //so we manually add the class on load and when exiting source mode
         CKEDITOR.on('instanceLoaded', function(editor){
-            if (document.firstElementChild.classList.contains('sakai-dark-theme')){
+            if (document.firstElementChild.classList.contains('sakaiUserTheme-dark')){
                 if (typeof editor.editor.document.$ !== 'undefined'){
-                    editor.editor.document.$.firstElementChild.classList.add('sakai-dark-theme');
+                    editor.editor.document.$.firstElementChild.classList.add('sakaiUserTheme-dark');
                 }
                 editor.editor.on('afterCommandExec', function(evt){
                     if (evt.data.name === 'source'
                         && typeof evt.editor.document !== 'undefined'
                         && typeof evt.editor.document.$ !== 'undefined') {
-                            evt.editor.document.$.firstElementChild.classList.add('sakai-dark-theme');
+                            evt.editor.document.$.firstElementChild.classList.add('sakaiUserTheme-dark');
                     }
                 })
             }
@@ -523,7 +523,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
                 uiColor = getComputedStyle(document.firstElementChild);
                 templateStyles = {
                 id: '.' + editor.id,
-                invertIfDarkMode: (document.firstElementChild.classList.contains('sakai-dark-theme')) ? uiColor.getPropertyValue("--sakai-image-invert") : '',
+                invertIfDarkMode: (document.firstElementChild.classList.contains('sakaiUserTheme-dark')) ? uiColor.getPropertyValue("--sakai-image-invert") : '',
                 // These styles are used by various UI elements.
                 defaultBorder: uiColor.getPropertyValue("--sakai-border-color"),
                 toolbarElementsBorder: uiColor.getPropertyValue("--sakai-border-color"),

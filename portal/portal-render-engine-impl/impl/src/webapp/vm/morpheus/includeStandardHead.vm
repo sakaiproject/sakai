@@ -2,7 +2,7 @@
 ## Don't put anything before the <!DOCTYPE or it breaks IE9
 ## DOCTYPE detection and puts it in quirks mode.
 <!DOCTYPE html>
-<html lang="$!{locale}" dir="$!{dir}" class="Mrphs-html">
+<html lang="$!{locale}" dir="$!{dir}" class="Mrphs-html $!{userTheme}">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -57,12 +57,12 @@
                 "editor" : {
                     "type": "$!{editorType}",
                 },
-                "portalCDNQuery" : "$!{portalCDNQuery}"
+                "portalCDNQuery" : "$!{portalCDNQuery}",
+                "userTheme" : "$!{userTheme}"
             };
         </script>
 
         #parse("/vm/morpheus/snippets/title-snippet.vm")
-
         #parse("/vm/morpheus/snippets/portalCSS-snippet.vm")
         
         <link href="${pageWebjarsPath}jquery-ui/1.12.1/jquery-ui.min.css$!{portalCDNQuery}" rel="stylesheet" />  
