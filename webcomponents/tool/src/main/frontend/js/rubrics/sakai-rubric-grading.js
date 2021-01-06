@@ -154,6 +154,8 @@ export class SakaiRubricGrading extends RubricsElement {
         c.comments = e.detail.value;
       }
     });
+
+    this._dispatchRatingChanged(this.criteria, 1);
   }
 
   calculateTotalPointsFromCriteria() {
