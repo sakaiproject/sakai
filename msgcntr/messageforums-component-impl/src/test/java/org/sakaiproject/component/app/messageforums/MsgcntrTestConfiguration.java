@@ -16,10 +16,6 @@
 package org.sakaiproject.component.app.messageforums;
 
 import org.hibernate.SessionFactory;
-import org.hibernate.boot.registry.StandardServiceRegistry;
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.hibernate.dialect.HSQLDialect;
-import org.hibernate.id.factory.internal.MutableIdentifierGeneratorFactoryInitiator;
 import org.hsqldb.jdbcDriver;
 import org.mockito.Mockito;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
@@ -41,7 +37,6 @@ import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityBrokerManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.LearningResourceStoreService;
-import org.sakaiproject.hibernate.AssignableUUIDGenerator;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.rubrics.logic.RubricsService;
@@ -79,7 +74,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 import javax.annotation.Resource;
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.util.Properties;
 
 import static org.mockito.Mockito.mock;
 
@@ -98,22 +92,12 @@ public class MsgcntrTestConfiguration {
     @Resource(name = "org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.messageforum")
     private AdditionalHibernateMappings hibernateMappings;
 
-    static {
-        System.setProperty("auto.ddl", "true");
-    }
-
     @Bean(name = "org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
     public SessionFactory sessionFactory() throws IOException {
         DataSource dataSource = dataSource();
         LocalSessionFactoryBuilder sfb = new LocalSessionFactoryBuilder(dataSource);
-        StandardServiceRegistryBuilder srb = sfb.getStandardServiceRegistryBuilder();
-        srb.applySetting(org.hibernate.cfg.Environment.DATASOURCE, dataSource);
-        srb.applySettings(hibernateProperties());
-        StandardServiceRegistry sr = srb.build();
-        sr.getService(MutableIdentifierGeneratorFactoryInitiator.INSTANCE.getServiceInitiated())
-                .register("uuid2", AssignableUUIDGenerator.class);
         hibernateMappings.processAdditionalMappings(sfb);
-        return sfb.buildSessionFactory(sr);
+        return sfb.buildSessionFactory();
     }
 
     @Bean(name = "javax.sql.DataSource")
@@ -124,20 +108,6 @@ public class MsgcntrTestConfiguration {
         db.setUsername(environment.getProperty(org.hibernate.cfg.Environment.USER, "sa"));
         db.setPassword(environment.getProperty(org.hibernate.cfg.Environment.PASS, ""));
         return db;
-    }
-
-    @Bean
-    public Properties hibernateProperties() {
-        return new Properties() {
-            {
-                setProperty(org.hibernate.cfg.Environment.DIALECT, environment.getProperty(org.hibernate.cfg.Environment.DIALECT, HSQLDialect.class.getName()));
-                setProperty(org.hibernate.cfg.Environment.HBM2DDL_AUTO, environment.getProperty(org.hibernate.cfg.Environment.HBM2DDL_AUTO));
-                setProperty(org.hibernate.cfg.Environment.ENABLE_LAZY_LOAD_NO_TRANS, environment.getProperty(org.hibernate.cfg.Environment.ENABLE_LAZY_LOAD_NO_TRANS, "true"));
-                setProperty(org.hibernate.cfg.Environment.USE_SECOND_LEVEL_CACHE, environment.getProperty(org.hibernate.cfg.Environment.USE_SECOND_LEVEL_CACHE));
-                setProperty(org.hibernate.cfg.Environment.CURRENT_SESSION_CONTEXT_CLASS, environment.getProperty(org.hibernate.cfg.Environment.CURRENT_SESSION_CONTEXT_CLASS));
-                setProperty(org.hibernate.cfg.Environment.SHOW_SQL, environment.getProperty(org.hibernate.cfg.Environment.SHOW_SQL));
-            }
-        };
     }
 
     @Bean(name = "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager")
@@ -228,7 +198,6 @@ public class MsgcntrTestConfiguration {
         Mockito.when(scs.getBoolean("content.cleaner.filter.utf8", true)).thenReturn(Boolean.TRUE);
         Mockito.when(scs.getString("content.cleaner.filter.utf8.replacement", "")).thenReturn("");
         Mockito.when(scs.getBoolean("auto.ddl", true)).thenReturn(true);
-//        Mockito.when(scs.getInt("assignment.grading.decimals", AssignmentConstants.DEFAULT_DECIMAL_POINT)).thenReturn(2);
         return scs;
     }
 
