@@ -114,7 +114,7 @@
 
     <div class="longtext">
         <h:outputLabel for="selectscale" value="#{authorMessages.answer} " /> </div>
-        <div class="samigo-radio">
+        <div>
             <h:selectOneRadio layout="pageDirection" value="#{itemauthor.currentItem.scaleName}" id="selectscale">
                 <f:selectItem itemValue="YES" itemLabel="#{authorMessages.yes_no}" />
                 <f:selectItem itemValue="AGREE" itemLabel="#{authorMessages.disagree_agree}" />

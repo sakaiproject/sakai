@@ -21,7 +21,7 @@
                         <f:selectItem itemLabel="#{assessmentSettingsMessages.extendedTimeGroup}" />
                     </h:selectOneRadio>
                 </h:panelGroup>
-                <h:outputLabel styleClass="sr-only" for="newEntry-user" value="#{assessmentSettingsMessages.extendedTimeGroup}"/>
+                <h:outputLabel styleClass="sr-only" for="newEntry-group" value="#{assessmentSettingsMessages.extendedTimeGroup}"/>
                 <h:panelGroup styleClass="col-md-4" layout="block">
                     <h:selectOneMenu id="newEntry-group" value="#{assessmentSettings.extendedTime.group}">
                         <f:selectItems value="#{assessmentSettings.groupsForSiteWithNoGroup}" />
@@ -29,7 +29,7 @@
                 </h:panelGroup>
         </h:panelGroup>
         <h:panelGroup styleClass="form-group row" layout="block">
-                <h:outputLabel styleClass="col-md-2" for="newEntry-due_date" value="#{assessmentSettingsMessages.assessment_available}"/>
+                <h:outputLabel styleClass="col-md-2" for="newEntry-start_date" value="#{assessmentSettingsMessages.assessment_available}"/>
                 <h:panelGroup styleClass="col-md-4" layout="block">
                     <h:inputText id="newEntry-start_date" size="25" value="#{assessmentSettings.extendedTimeStartString}"/>
                 </h:panelGroup>
