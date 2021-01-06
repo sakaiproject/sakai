@@ -1704,10 +1704,10 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   }
     
   
-  public List searchPvtMsgs(String typeUuid, String searchText,Date searchFromDate, Date searchToDate, 
+  public List searchPvtMsgs(String typeUuid, String searchText,Date searchFromDate, Date searchToDate, String selectedLabel,
       boolean searchByText, boolean searchByAuthor, boolean searchByBody, boolean searchByLabel, boolean searchByDate)
   {    
-    return messageManager.findPvtMsgsBySearchText(typeUuid, searchText,searchFromDate, searchToDate, 
+    return messageManager.findPvtMsgsBySearchText(typeUuid, searchText,searchFromDate, searchToDate, selectedLabel,
         searchByText,searchByAuthor,searchByBody,searchByLabel,searchByDate);
   }
 

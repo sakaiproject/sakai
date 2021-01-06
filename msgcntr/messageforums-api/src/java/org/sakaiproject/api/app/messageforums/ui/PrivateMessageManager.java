@@ -239,6 +239,6 @@ public interface PrivateMessageManager {
     public PrivateMessage getPvtMsgReplyMessage(PrivateMessage currentMessage, MimeMessage msg, StringBuilder[] bodyBuf, List<Reference> attachments, String from) throws MessagingException;
     public void processPvtMsgReplySentAction(PrivateMessage currentMessage, PrivateMessage rrepMsg);
     /** advanced search for private messages */ 
-    public List searchPvtMsgs(String typeUuid, String searchText,Date searchFromDate, Date searchToDate, boolean searchByText, boolean searchByAuthor,boolean searchByBody, boolean searchByLabel,boolean searchByDate);
+    public List searchPvtMsgs(String typeUuid, String searchText,Date searchFromDate, Date searchToDate, String selectedLabel, boolean searchByText, boolean searchByAuthor,boolean searchByBody, boolean searchByLabel,boolean searchByDate);
     
 }

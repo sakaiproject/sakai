@@ -1701,7 +1701,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
      */
     
     public List findPvtMsgsBySearchText(final String typeUuid, final String searchText, 
-          final Date searchFromDate, final Date searchToDate, final boolean searchByText,
+          final Date searchFromDate, final Date searchToDate, final String selectedLabel, final boolean searchByText,
           final boolean searchByAuthor, final boolean searchByBody, final boolean searchByLabel, final boolean searchByDate) {
 
       log.debug("findPvtMsgsBySearchText executing with searchText: " + searchText);
@@ -1716,6 +1716,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
           q.setParameter("searchByDate", convertBooleanToInteger(searchByDate));
           q.setParameter("searchFromDate", (searchFromDate == null) ? new Date(0) : searchFromDate);
           q.setParameter("searchToDate", (searchToDate == null) ? new Date(System.currentTimeMillis()) : searchToDate);
+          q.setParameter("searchBySelectedLabel", selectedLabel);
           q.setParameter("userId", getCurrentUser());
           q.setParameter("contextId", toolManager.getCurrentPlacement().getContext());
           q.setParameter("typeUuid", typeUuid);
