@@ -1,6 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h"%>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f"%>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai"%>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai"%>
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t"%>
 <%
 response.setContentType("text/html; charset=UTF-8");
