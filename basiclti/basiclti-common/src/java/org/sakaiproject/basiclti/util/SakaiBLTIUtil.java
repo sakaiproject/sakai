@@ -1024,20 +1024,23 @@ public class SakaiBLTIUtil {
 			// SAK-40044 - If there is no description, we fall back to the pre-21 description in JSON
 			String content_settings = (String) content.get(LTIService.LTI_SETTINGS);
 			JSONObject content_json = org.tsugi.basiclti.BasicLTIUtil.parseJSONObject(content_settings);
-			if (description == null) {
+			if (StringUtils.isBlank(description) ) {
 				description = (String) content_json.get(LTIService.LTI_DESCRIPTION);
 			}
 
 			// All else fails, use pre-SAK-40044 title as description
-			if (description == null) {
+			if (StringUtils.isBlank(description)) {
 				description = title;
 			}
 
-			if (title != null) {
+			if (StringUtils.isNotBlank(title)) {
 				setProperty(ltiProps, BasicLTIConstants.RESOURCE_LINK_TITLE, title);
-				setProperty(ltiProps, BasicLTIConstants.RESOURCE_LINK_DESCRIPTION, description);
 				setProperty(lti13subst, LTICustomVars.RESOURCELINK_TITLE, title);
-				setProperty(lti13subst, LTICustomVars.RESOURCELINK_DESCRIPTION, title);
+			}
+
+			if ( StringUtils.isNotBlank(description) ) {
+				setProperty(ltiProps, BasicLTIConstants.RESOURCE_LINK_DESCRIPTION, description);
+				setProperty(lti13subst, LTICustomVars.RESOURCELINK_DESCRIPTION, description);
 			}
 
 			// Bring in the substitution variables from Assignments via JSON
