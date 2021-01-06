@@ -58,32 +58,6 @@
           baseURL = baseURL + ":" + location.port
         }
 
-        var highlightedText = false;
-        function getHighlightedText() {
-          if (typeof highlightedText == 'string') {
-            return highlightedText;
-          }
-
-          var selection = editor.getSelection();
-          if (selection && selection.getType() == CKEDITOR.SELECTION_TEXT) {
-            if (CKEDITOR.env.ie) {
-              selection.unlock(true);
-              highlightedText = selection.getNative().createRange().text;
-            } else {
-              highlightedText = selection.getNative().toString();
-            }
-          }
-
-          return highlightedText;
-        }
-
-        function isHighlight() {
-          return getHighlightedText().length > 0;
-        }
-        // Content to preview: the entire document or just what is highlighted?
-        var previewHighlightedOnly = isHighlight();
-
-
         function getPreviewContentHTML(contentToPreview) {
             return editor.config.docType + '<html dir="' + editor.config.contentsLangDirection + '">' +
                     '<head>' +
@@ -101,22 +75,24 @@
 
         function getIframe(html) {
             var $iframe = $PBJQ('<iframe>');
-            $iframe.attr('src', 'data:text/html;charset=utf-8,' + encodeURI(html));
+            $iframe.attr('srcdoc', html);
             $iframe.attr('frameborder', '0');
             $iframe.attr('width', '100%');
             $iframe.attr('height', $PBJQ(window).height() - 240 + "px");
             return $iframe;
         }
 
+        var previewHighlightedOnly = false;
         function getEditorContent() {
-          var selectedText = "";
-          var selection = editor.getSelection();
+          //Available since CKEditor 4.5.0 to get selected Html. True to return html.
+          var selectedHtml = editor.getSelectedHtml(true);
 
-          if (previewHighlightedOnly && isHighlight()) {
-            return getHighlightedText();
+          if (selectedHtml) {
+            previewHighlightedOnly = true;
+            return selectedHtml;
           }
 
-          return editor.getData();
+          return editor.editable().getHtml();
         }
 
         sHTML = getPreviewContentHTML(getEditorContent());
