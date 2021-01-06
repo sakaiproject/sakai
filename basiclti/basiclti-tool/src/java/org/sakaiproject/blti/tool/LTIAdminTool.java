@@ -1918,7 +1918,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		*/
 		String title = getString(item, DeepLinkResponse.TITLE);
 
-		// TODO: Check as to why this is missing
 		String text = getString(item, DeepLinkResponse.TEXT);
 		String url = getString(item, DeepLinkResponse.URL);
 		// If the URL is empty, assume it is the same as the launch URL
