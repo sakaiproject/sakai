@@ -58,19 +58,13 @@
 
 	.samigo-inline-radio {
 		label {
-			margin-right: 1em;
+			margin-right: $standard-spacing;
 		}
 	}
 	
 	.samigo-checkbox {
 		label {
-			margin: 0 0 0 0.5em;
-		}
-	}
-
-	.samigo-radio {
-		label {
-			margin: 0 0 0 0.5em;
+			margin: 0 0 0 $standard-space;
 		}
 	}
 	
@@ -172,6 +166,8 @@
 	
 	#assessmentSettingsAction input[type="radio"],
 	#assessmentSettingsAction input[type="checkbox"]{
+		margin-right: $standard-space; 
+		
 		@media #{$tablet}{
 			float:left;
 			& + label {
@@ -186,7 +182,7 @@
 	}
 
 	#assessmentSettingsAction input[name="assessmentSettingsAction\:userOrGroup"] {
-		margin-right: 5px;
+		margin-right: $standard-space;
 	}
 	
 	#assessmentSettingsAction input[type="checkbox"]{
@@ -200,7 +196,7 @@
 	table{
 	   	td{
 	   		input[type="checkbox"],input[type="radio"]{
-	   			margin-right: 5px;
+	   			margin-right: $standard-space;
 	   		}
 	   	}
 	   	&.listHier td:empty{

@@ -292,7 +292,7 @@
         <h:outputLabel styleClass="col-md-2" for="honor_pledge" value="#{assessmentSettingsMessages.honor_pledge}" rendered="#{assessmentSettings.valueMap.honorpledge_isInstructorEditable==true}"/>
         <div class="col-md-10">
             <h:selectBooleanCheckbox id="honor_pledge" value="#{assessmentSettings.honorPledge}" rendered="#{assessmentSettings.valueMap.honorpledge_isInstructorEditable==true}"/>
-            <h:outputText  value="#{assessmentSettingsMessages.honor_pledge_add}" rendered="#{assessmentSettings.valueMap.honorpledge_isInstructorEditable==true}"/>
+            <h:outputLabel for="honor_pledge" value="#{assessmentSettingsMessages.honor_pledge_add}" rendered="#{assessmentSettings.valueMap.honorpledge_isInstructorEditable==true}"/>
         </div>
     </div>
 
@@ -338,10 +338,10 @@
         <div class="samigo-subheading">
             <h:outputLabel value="#{assessmentSettingsMessages.record_metadata}" />
         </div>
-         <div class="samigo-checkbox">
-         <h:selectBooleanCheckbox rendered="#{assessmentSettings.valueMap.metadataQuestions_isInstructorEditable==true}"
+         <div>
+         <h:selectBooleanCheckbox id="metadataQuestions" rendered="#{assessmentSettings.valueMap.metadataQuestions_isInstructorEditable==true}"
             value="#{assessmentSettings.valueMap.hasMetaDataForQuestions}"/>
-         <h:outputLabel value="#{assessmentSettingsMessages.metadata_questions}" rendered="#{assessmentSettings.valueMap.metadataQuestions_isInstructorEditable==true}" />
+         <h:outputLabel for="metadataQuestions" value="#{assessmentSettingsMessages.metadata_questions}" rendered="#{assessmentSettings.valueMap.metadataQuestions_isInstructorEditable==true}" />
        </div>
       </div>
     </h:panelGroup>
@@ -352,7 +352,7 @@
 <samigo:hideDivision title="#{assessmentSettingsMessages.heading_availability}"> 
   <!-- *** RELEASED TO *** -->
   <div class="form-group row">
-      <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.released_to} " />
+      <h:outputLabel for="releaseTo" styleClass="col-md-2" value="#{assessmentSettingsMessages.released_to} " />
       <div class="col-md-10">
           <h:selectOneMenu id="releaseTo" value="#{assessmentSettings.firstTargetSelected}" onclick="setBlockDivs();lockdownAnonyGrading(this.value);lockdownGradebook(this.value);" onchange="showHideReleaseGroups();">
               <f:selectItems value="#{assessmentSettings.publishingTargets}" />
@@ -448,7 +448,7 @@
   <!-- AUTOMATIC SUBMISSION -->
   <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.automaticSubmission_isInstructorEditable==true}">
     <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.auto_submit}" />
-    <div class="col-md-10 samigo-checkbox">
+    <div class="col-md-10">
       <h:selectBooleanCheckbox id="automaticSubmission" value="#{assessmentSettings.autoSubmit}" />
       <h:outputLabel for="automaticSubmission" value="#{assessmentSettingsMessages.auto_submit_help}" />
     </div>
@@ -582,21 +582,21 @@
     <!--  ANONYMOUS OPTION -->
     <h:panelGroup styleClass="row" layout="block" rendered="#{assessmentSettings.valueMap.testeeIdentity_isInstructorEditable==true}">
       <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.student_identity_label}"/>
-      <div class="col-md-10 samigo-checkbox">
+      <div class="col-md-10">
         <h:selectBooleanCheckbox id="anonymousGrading" value="#{assessmentSettings.anonymousGrading}"/>
-        <h:outputLabel value="#{assessmentSettingsMessages.student_identity}" />
+        <h:outputLabel for="anonymousGrading" value="#{assessmentSettingsMessages.student_identity}" />
       </div>
     </h:panelGroup>
     
     <!-- GRADEBOOK OPTION -->
     <h:panelGroup styleClass="row" layout="block" rendered="#{assessmentSettings.valueMap.toGradebook_isInstructorEditable==true && assessmentSettings.gradebookExists==true}">
       <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.gradebook_options}"/>
-      <div class="col-md-10 samigo-checkbox">
+      <div class="col-md-10">
         <h:selectBooleanCheckbox id="toDefaultGradebook" value="#{assessmentSettings.toDefaultGradebook}" onclick="toggleCategories(this);"/>
         <h:outputLabel value="#{assessmentSettingsMessages.gradebook_options_help}" for="toDefaultGradebook"/>
       </div>
       <h:panelGroup layout="block" id="toGradebookCategory" styleClass="col-md-10 col-md-offset-2" rendered="#{assessmentSettings.categoriesEnabled}" style="display:#{(assessmentSettings.toDefaultGradebook)?'block':'none'}">
-        <h:outputLabel value="#{assessmentSettingsMessages.gradebook_category_select}" />
+        <h:outputLabel for="selectCategory" value="#{assessmentSettingsMessages.gradebook_category_select}" />
         <h:selectOneMenu styleClass="categorySelect" id="selectCategory" value="#{assessmentSettings.categorySelected}">
           <f:selectItems value="#{assessmentSettings.categoriesSelectList}" />
         </h:selectOneMenu>
@@ -770,8 +770,7 @@
     <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.mark_for_review}" />
     <div class="col-md-10">
       <h:selectBooleanCheckbox id="markForReview1" value="#{assessmentSettings.isMarkForReview}"/>
-      <h:outputText value="&#160;" escape="false" />
-      <h:outputText value="#{assessmentSettingsMessages.mark_for_review_label}"/>
+      <h:outputLabel for="markForReview1" value="#{assessmentSettingsMessages.mark_for_review_label}"/>
     </div>
   </h:panelGroup>
  
