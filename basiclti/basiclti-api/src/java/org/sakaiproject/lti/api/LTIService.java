@@ -121,11 +121,17 @@ public interface LTIService extends LTISubstitutionsFilter {
             "privacy:header:fields=sendname,sendemailaddr",
             "sendname:checkbox:label=bl_sendname",
             "sendemailaddr:checkbox:label=bl_sendemailaddr",
-            "services:header:fields=allowoutcomes,allowlineitems,allowroster,allowsettings",
+            "services:header:fields=allowoutcomes,allowlineitems,allowroster",
             "allowoutcomes:checkbox:label=bl_allowoutcomes",
-                        "allowlineitems:checkbox:label=bl_allowlineitems",
+            "allowlineitems:checkbox:label=bl_allowlineitems",
             "allowroster:checkbox:label=bl_allowroster",
-            "allowsettings:checkbox:label=bl_allowsettings",
+            // Remove allowsettings because it should really be protecting settings_ext
+            // This is removed as part of SAK-44810 because it needs settings to work
+            // "allowsettings:checkbox:label=bl_allowsettings",
+
+            // TODO: If we ever want to add it back, it needs to be changed
+            // to be "allowsettings_ext" - and needs a data model change
+            // "allowsettings_ext:checkbox:label=bl_allowsettings_ext",
             "pl_header:header:fields=pl_launch,pl_linkselection",
             "pl_launch:checkbox:label=bl_pl_launch",
             "pl_linkselection:checkbox:label=bl_pl_linkselection",
@@ -186,6 +192,7 @@ public interface LTIService extends LTISubstitutionsFilter {
     String LTI_FA_ICON = "fa_icon";
     String LTI_PLACEMENT = "placement";
     String LTI_DESCRIPTION = "description";
+    String LTI_ID_HISTORY = "id_history";
     String LTI_STATUS = "status";
     String LTI_VISIBLE = "visible";
     String LTI_LAUNCH = "launch";

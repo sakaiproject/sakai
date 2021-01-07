@@ -22,6 +22,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.security.Key;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -444,6 +445,9 @@ public class SakaiBLTIUtil {
 			setProperty(props, BasicLTIConstants.CONTEXT_ID, site.getId());
 			setProperty(lti13subst, LTICustomVars.COURSESECTION_SOURCEDID, site.getId());
 			setProperty(lti13subst, LTICustomVars.CONTEXT_ID, site.getId());
+
+			String context_id_history = site.getProperties().getProperty(LTICustomVars.CONTEXT_ID_HISTORY);
+			setProperty(lti13subst, LTICustomVars.CONTEXT_ID_HISTORY, context_id_history);
 
 			setProperty(props, BasicLTIConstants.CONTEXT_LABEL, site.getTitle());
 			setProperty(lti13subst, LTICustomVars.COURSESECTION_LABEL, site.getTitle());
@@ -1041,6 +1045,14 @@ public class SakaiBLTIUtil {
 			if ( StringUtils.isNotBlank(description) ) {
 				setProperty(ltiProps, BasicLTIConstants.RESOURCE_LINK_DESCRIPTION, description);
 				setProperty(lti13subst, LTICustomVars.RESOURCELINK_DESCRIPTION, description);
+			}
+
+			// Pull in the ResouceLink.id.history value from JSON
+			String content_id_history = (String) content_json.get(LTIService.LTI_ID_HISTORY);
+			if ( StringUtils.isNotBlank(content_id_history) ) {
+				// Did not exist in LTI 1.1
+				setProperty(ltiProps, LTICustomVars.RESOURCELINK_ID_HISTORY, content_id_history);
+				setProperty(lti13subst, LTICustomVars.RESOURCELINK_ID_HISTORY, content_id_history);
 			}
 
 			// Bring in the substitution variables from Assignments via JSON
@@ -2001,6 +2013,40 @@ public class SakaiBLTIUtil {
 				signed_placement = getSignedPlacement(context_id, resource_link_id, placement_secret);
 			}
 			return signed_placement;
+		}
+
+		public static String trackResourceLinkID(Map<String, Object> oldContent) {
+			boolean retval = false;
+
+			String old_settings = (String) oldContent.get(LTIService.LTI_SETTINGS);
+			JSONObject old_json = BasicLTIUtil.parseJSONObject(old_settings);
+			String old_id_history = (String) old_json.get(LTIService.LTI_ID_HISTORY);
+
+			String old_resource_link_id = getResourceLinkId(oldContent);
+
+			String id_history = BasicLTIUtil.mergeCSV(old_id_history, null, old_resource_link_id);
+			return id_history;
+		}
+
+		public static boolean trackResourceLinkID(Map<String, Object> newContent, Map<String, Object> oldContent) {
+			boolean retval = false;
+
+			String old_settings = (String) oldContent.get(LTIService.LTI_SETTINGS);
+			JSONObject old_json = BasicLTIUtil.parseJSONObject(old_settings);
+			String old_id_history = (String) old_json.get(LTIService.LTI_ID_HISTORY);
+
+			String new_settings = (String) newContent.get(LTIService.LTI_SETTINGS);
+			JSONObject new_json = BasicLTIUtil.parseJSONObject(new_settings);
+			String new_id_history = (String) new_json.get(LTIService.LTI_ID_HISTORY);
+
+			String old_resource_link_id = getResourceLinkId(oldContent);
+
+			String id_history = BasicLTIUtil.mergeCSV(old_id_history, new_id_history, old_resource_link_id);
+			if ( id_history.equals(new_id_history) ) return false;
+
+			new_json.put(LTIService.LTI_ID_HISTORY, id_history);
+			newContent.put(LTIService.LTI_SETTINGS, new_json.toString());
+			return true;
 		}
 
 		public static String[] postError(String str) {
