@@ -704,7 +704,7 @@ public class SakaiBLTIUtil {
 			}
 
 			String allowRoster = (String) normalProps.get(LTIService.LTI_ALLOWROSTER);
-			String allowSettings = (String) normalProps.get(LTIService.LTI_ALLOWSETTINGS);
+			String allowSettings = (String) normalProps.get(LTIService.LTI_ALLOWSETTINGS_EXT);
 
 			String result_sourcedid = getSourceDID(user, placement, config);
 
@@ -1073,7 +1073,7 @@ public class SakaiBLTIUtil {
 
 			int allowoutcomes = getInt(tool.get(LTIService.LTI_ALLOWOUTCOMES));
 			int allowroster = getInt(tool.get(LTIService.LTI_ALLOWROSTER));
-			int allowsettings = getInt(tool.get(LTIService.LTI_ALLOWSETTINGS));
+			int allowsettings = getInt(tool.get(LTIService.LTI_ALLOWSETTINGS_EXT));
 			String placement_secret = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
 
 			String result_sourcedid = getSourceDID(user, resource_link_id, placement_secret);
@@ -1781,7 +1781,7 @@ public class SakaiBLTIUtil {
 
 			int allowOutcomes = getInt(tool.get(LTIService.LTI_ALLOWOUTCOMES));
 			int allowRoster = getInt(tool.get(LTIService.LTI_ALLOWROSTER));
-			int allowSettings = getInt(tool.get(LTIService.LTI_ALLOWSETTINGS));
+			int allowSettings = getInt(tool.get(LTIService.LTI_ALLOWSETTINGS_EXT));
 			int allowLineItems = getInt(tool.get(LTIService.LTI_ALLOWLINEITEMS));
 
 			String sourcedid = ltiProps.getProperty("lis_result_sourcedid");
@@ -2538,9 +2538,8 @@ public class SakaiBLTIUtil {
 			retval.setProperty(LTIService.LTI_SITE_ID, siteId);
 			for (String field : fieldList) {
 				String value = toNull(getCorrectProperty(config, field, placement));
-				// YYY
 				if (field.equals(BASICLTI_PORTLET_ALLOWSETTINGS)) {
-					field = LTIService.LTI_ALLOWSETTINGS;
+					field = LTIService.LTI_ALLOWSETTINGS_EXT;
 				}
 				if (field.equals(BASICLTI_PORTLET_ALLOWROSTER)) {
 					field = LTIService.LTI_ALLOWROSTER;

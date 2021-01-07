@@ -125,13 +125,9 @@ public interface LTIService extends LTISubstitutionsFilter {
             "allowoutcomes:checkbox:label=bl_allowoutcomes",
             "allowlineitems:checkbox:label=bl_allowlineitems",
             "allowroster:checkbox:label=bl_allowroster",
-            // Remove allowsettings because it should really be protecting settings_ext
-            // This is removed as part of SAK-44810 because it needs settings to work
-            // "allowsettings:checkbox:label=bl_allowsettings",
-
-            // TODO: If we ever want to add it back, it needs to be changed
-            // to be "allowsettings_ext" - and needs a data model change
-            // "allowsettings_ext:checkbox:label=bl_allowsettings_ext",
+            // SAK-44810 changed this from allowsettings to allowsettings_ext
+            // because settings is used internally
+            "allowsettings_ext:checkbox:label=bl_allowsettings_ext",
             "pl_header:header:fields=pl_launch,pl_linkselection",
             "pl_launch:checkbox:label=bl_pl_launch",
             "pl_linkselection:checkbox:label=bl_pl_linkselection",
@@ -211,7 +207,7 @@ public interface LTIService extends LTISubstitutionsFilter {
     String LTI_ALLOWOUTCOMES = "allowoutcomes";
     String LTI_ALLOWLINEITEMS = "allowlineitems";
     String LTI_ALLOWROSTER = "allowroster";
-    String LTI_ALLOWSETTINGS = "allowsettings";
+    String LTI_ALLOWSETTINGS_EXT = "allowsettings_ext";
     String LTI_ALLOWCONTENTITEM = "allowcontentitem";
     String LTI_SETTINGS = "settings";
     String LTI_SETTINGS_EXT = "settings_ext";
