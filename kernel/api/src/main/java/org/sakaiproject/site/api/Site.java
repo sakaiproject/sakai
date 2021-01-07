@@ -75,11 +75,6 @@ public interface Site extends Edit, Comparable, Serializable, AuthzGroup
 	public final static String PROP_CUSTOM_OVERVIEW = "custom_overview";
 
 	/**
-	 * Permission for updating a site
-	 */
-	public final static String SITE_UPD = "site.upd";
-
-	/**
 	 * @return the user who created this.
 	 */
 	User getCreatedBy();

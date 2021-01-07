@@ -68,17 +68,6 @@ public interface PodcastService // extends EntityProducer
 	/** This string is the name of the property for the title of a podcast in the feed **/
 	public static final String DISPLAY_TITLE = "displayTitle";
 	
-	/** This string gives the update function (permission) string for checking permissions
-	public static final String UPDATE_PERMISSIONS = "site.upd";
-	public static final String NEW_PERMISSIONS = "content.new";
-	public static final String READ_PERMISSIONS = "content.read";
-	public static final String REVISE_ANY_PERMISSIONS = "content.revise.any";
-	public static final String REVISE_OWN_PERMISSIONS = "content.revise.own";
-	public static final String DELETE_ANY_PERMISSIONS = "content.delete.any";
-	public static final String DELETE_OWN_PERMISSIONS = "content.delete.own";
-	public static final String ALL_GROUPS_PERMISSIONS = "content.all.groups";
-	public static final String HIDDEN_PERMISSIONS = "content.hidden";
- **/
 	/**
 	 * Determines if podcast folder is part of Resources of site.
 	 * If not, creates it.

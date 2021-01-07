@@ -53,6 +53,7 @@ import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.Placement;
@@ -78,9 +79,6 @@ public abstract class ToolComponent implements ToolManager
 	/** Key in the ThreadLocalManager for binding our current tool. */
 	protected final static String CURRENT_TOOL = "sakai:ToolComponent:current.tool";
 
-	//Tool placement property for visibility
-	public static final String PORTAL_VISIBLE = "sakai-portal:visible";
-	
 	/** The registered tools. */
 	protected Map<String,Tool> m_tools = new ConcurrentHashMap<String,Tool>();
 
@@ -586,7 +584,7 @@ public abstract class ToolComponent implements ToolManager
 
 		// Get the non maintainer roles
 		final Set<Role> roles = page.getContainingSite().getRoles().stream()
-			.filter(r -> !r.isAllowed(Site.SITE_UPD)).collect(Collectors.toSet());
+			.filter(r -> !r.isAllowed(SiteService.SECURE_UPDATE_SITE)).collect(Collectors.toSet());
 
 		// Now check to see if these roles have the permission listed
 		// in the functions require for the tool.

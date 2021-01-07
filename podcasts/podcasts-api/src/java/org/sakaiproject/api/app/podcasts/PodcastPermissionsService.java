@@ -29,7 +29,6 @@ import org.sakaiproject.content.api.GroupAwareEntity;
 
 public interface PodcastPermissionsService {
 	/** This string gives the update function (permission) string for checking permissions **/
-	public static final String UPDATE_PERMISSIONS = "site.upd";
 	public static final String NEW_PERMISSIONS = "content.new";
 	public static final String READ_PERMISSIONS = "content.read";
 	public static final String REVISE_ANY_PERMISSIONS = "content.revise.any";

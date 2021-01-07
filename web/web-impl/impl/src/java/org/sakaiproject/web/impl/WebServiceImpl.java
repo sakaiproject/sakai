@@ -20,6 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.web.impl;
 
+import static org.sakaiproject.tool.api.ToolManager.PORTAL_VISIBLE;
+
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -71,7 +73,6 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 	private static final String WEB_CONTENT_URL_PROP = "source";
 	private static final String HEIGHT_PROP = "height";
 	private static final String CUSTOM_ICON_PROP = "imsti.fa_icon";
-	private static final String PORTAL_VISIBLE_PROP = "sakai-portal:visible";
 	private static final String SPECIAL_PROP = "special";
 	
 	public static final String ATTR_TOP_REFRESH = "sakai.vppa.top.refresh";
@@ -422,7 +423,7 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 							final boolean pagePopup = currPage.isPopUp();
 							final String height = toolConfig.getPlacementConfig().getProperty(HEIGHT_PROP);
 							final String customIcon = toolConfig.getPlacementConfig().getProperty(CUSTOM_ICON_PROP);
-							final String visibility = toolConfig.getPlacementConfig().getProperty(PORTAL_VISIBLE_PROP);
+							final String visibility = toolConfig.getPlacementConfig().getProperty(PORTAL_VISIBLE);
 
 							// in some cases the new site already has all of this. so make
 							// sure we don't make a duplicate
@@ -463,7 +464,7 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 									tool.getPlacementConfig().setProperty(CUSTOM_ICON_PROP, customIcon);
 								}
 								if (visibility != null) {
-									tool.getPlacementConfig().setProperty(PORTAL_VISIBLE_PROP, visibility);
+									tool.getPlacementConfig().setProperty(PORTAL_VISIBLE, visibility);
 								}
 							}
 						}
