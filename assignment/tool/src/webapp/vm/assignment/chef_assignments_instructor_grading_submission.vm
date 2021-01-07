@@ -207,17 +207,16 @@
             #end
 
             ## Submission Log
-## TODO Submission Log
-##            #if ($!submission && $!submission.getSubmissionLog().size() > 0)
-##                <tr>
-##                    <th>$tlang.getString('gen.history')</th>
-##                    <td>
-##                        #foreach ($entry in $submission.getSubmissionLog())
-##                            $formattedText.escapeHtml($entry)<br/>
-##                        #end
-##                    </td>
-##                </tr>
-##            #end
+            #if ($!submissionLog && !$!submissionLog.isEmpty())
+                <tr>
+                    <th>$tlang.getString('gen.history')</th>
+                    <td>
+                        #foreach ($message in $submissionLog)
+                            $message<br/>
+                        #end
+                    </td>
+                </tr>
+            #end
         </table>
 
         ## show or hide assignment instruction and attachment
