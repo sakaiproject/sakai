@@ -102,7 +102,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
                 if (Object.prototype.hasOwnProperty.call(this, 'document')) {
                     const instanceDoc = this.document.$;
                     //Add sakai-dark-theme class to ckeditor iframe
-                    instanceDoc.documentElement.classList.add('sakaiUserTheme-dark ');
+                    instanceDoc.documentElement.classList.add('sakaiUserTheme-dark');
                 }
             }
         } catch (error) {
@@ -351,7 +351,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         //CKEditor doesn't have a method to add classes to the HTML element
         //so we manually add the class on load
         //should be refactored when ckeditor5 is implemented
-        if (document.firstElementChild.classList.contains('sakai-dark-theme')){
+        if (document.firstElementChild.classList.contains('sakaiUserTheme-dark')){
   
             CKEDITOR.once('instanceReady', addClassOnLoad);
             // //and we watch for switching out or source mode
