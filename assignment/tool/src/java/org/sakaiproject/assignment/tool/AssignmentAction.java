@@ -2710,7 +2710,7 @@ public class AssignmentAction extends PagedResourceActionII {
     } // build_list_assignments_context
 
     private List<String> getSortedAsnGroupTitles(Assignment asn, Site site, AssignmentComparator groupComparator) {
-        List<Group> asnGroups = asn.getGroups().stream().map(id -> site.getGroup(id)).collect(Collectors.toList());
+        List<Group> asnGroups = asn.getGroups().stream().map(id -> site.getGroup(id)).filter(Objects::nonNull).collect(Collectors.toList());
         asnGroups.sort(groupComparator);
         return asnGroups.stream().map(Group::getTitle).collect(Collectors.toList());
     }
