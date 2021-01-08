@@ -40,8 +40,6 @@ import org.sakaiproject.user.cover.UserDirectoryService;
  */
 @Slf4j
 public class AuthzSakaiImpl implements Authz {
-	private static final String SITE_UPDATE = "site.upd";
-	private static final String SITE_UPDATE_GROUP_MEMBERSHIP = "site.upd.grp.mbrshp";
 
 	private AuthzGroupService authzGroupService;
 
@@ -55,7 +53,7 @@ public class AuthzSakaiImpl implements Authz {
 	public boolean isSectionManagementAllowed(String userUid, String siteContext) {
 		User sakaiUser = UserDirectoryService.getCurrentUser();
 		String siteRef = SiteService.siteReference(siteContext);
-		boolean canUpdateSite = SecurityService.unlock(sakaiUser, AuthzSakaiImpl.SITE_UPDATE, siteRef);
+		boolean canUpdateSite = SecurityService.unlock(sakaiUser, SiteService.SECURE_UPDATE_SITE, siteRef);
 		
 		return canUpdateSite;
 	}
@@ -82,8 +80,8 @@ public class AuthzSakaiImpl implements Authz {
 	public boolean isSectionEnrollmentMangementAllowed(String userUid, String siteContext) {
 		User sakaiUser = UserDirectoryService.getCurrentUser();
 		String siteRef = SiteService.siteReference(siteContext);
-		boolean canUpdateSite = SecurityService.unlock(sakaiUser, AuthzSakaiImpl.SITE_UPDATE, siteRef);
-		boolean canUpdateGroups = SecurityService.unlock(sakaiUser, AuthzSakaiImpl.SITE_UPDATE_GROUP_MEMBERSHIP, siteRef);
+		boolean canUpdateSite = SecurityService.unlock(sakaiUser, SiteService.SECURE_UPDATE_SITE, siteRef);
+		boolean canUpdateGroups = SecurityService.unlock(sakaiUser, SiteService.SECURE_UPDATE_GROUP_MEMBERSHIP, siteRef);
 		
 		return canUpdateSite || canUpdateGroups;
 	}
@@ -107,8 +105,8 @@ public class AuthzSakaiImpl implements Authz {
 	public boolean isViewAllSectionsAllowed(String userUid, String siteContext) {
 		User sakaiUser = UserDirectoryService.getCurrentUser();
 		String siteRef = SiteService.siteReference(siteContext);
-		 return SecurityService.unlock(sakaiUser, AuthzSakaiImpl.SITE_UPDATE, siteRef) ||
-		 		SecurityService.unlock(sakaiUser, AuthzSakaiImpl.SITE_UPDATE_GROUP_MEMBERSHIP, siteRef) ||
+		 return SecurityService.unlock(sakaiUser, SiteService.SECURE_UPDATE_SITE, siteRef) ||
+                SecurityService.unlock(sakaiUser, SiteService.SECURE_UPDATE_GROUP_MEMBERSHIP, siteRef) ||
 		 		SecurityService.unlock(sakaiUser, SectionAwareness.TA_MARKER, siteRef);
 	}
 

@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.w3c.dom.Document;
@@ -40,6 +41,9 @@ public interface ToolManager
 {
 	/** Key in the ToolConfiguration Properties for checking what permissions a tool needs in order to be visible */
 	public static final String TOOLCONFIG_REQUIRED_PERMISSIONS = "functions.require";
+
+	/** Tool placement property for visibility */
+	public static final String PORTAL_VISIBLE = "sakai-portal:visible";
 
 	/**
 	 * Add this tool to the registry.
@@ -123,7 +127,7 @@ public interface ToolManager
 	/**
 	 * Tests whether the first tool in the supplied page is visible to ANY
 	 * non-maintainer role. By non-maintainer, we mean a role without
-	 * Site.SITE_UPD.
+	 * SiteService.SECURE_UPDATE_SITE.
 	 *
 	 * @param page The site page in which to test the first tool
 	 * @return true, if any role in the site fulfils the required functions of the first tool. false otherwise.

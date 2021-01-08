@@ -72,6 +72,7 @@ import org.sakaiproject.lessonbuildertool.service.LessonsAccess;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.tool.api.ToolManager;
@@ -89,7 +90,6 @@ import org.sakaiproject.tool.cover.SessionManager;
 public class PagePickerProducer implements ViewComponentProducer, NavigationCaseReporter, ViewParamsReporter {
 
     public static final String VIEW_ID = "PagePicker";
-    private static String SITE_UPD = "site.upd";
 
     private SimplePageBean simplePageBean;
     private SimplePageToolDao simplePageToolDao;
@@ -165,11 +165,11 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
                     for (ToolConfiguration placement: tools) {
                         Properties roleConfig = placement.getPlacementConfig();
                         String roleList = roleConfig.getProperty("functions.require");
-                        String visibility = roleConfig.getProperty("sakai-portal:visible");
+                        String visibility = roleConfig.getProperty(ToolManager.PORTAL_VISIBLE);
                         // log.info("roles " + roleList + " visi " + visibility);
                         // doesn't require site update, so visible
                         if ((visibility == null || !visibility.equals("false")) &&
-                                (roleList == null || roleList.indexOf(SITE_UPD) < 0)) {
+                                (roleList == null || roleList.indexOf(SiteService.SECURE_UPDATE_SITE) < 0)) {
                             // only need one tool on the page to be visible
                             visible = true;
                             break;

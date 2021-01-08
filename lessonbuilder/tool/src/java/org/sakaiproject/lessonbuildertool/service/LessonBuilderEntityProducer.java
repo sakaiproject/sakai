@@ -622,7 +622,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 		 Properties props = config.getPlacementConfig();
 		 String roleList = StringUtils.trimToEmpty(props.getProperty("functions.require"));
-		 String pageVisibility = StringUtils.trimToEmpty(props.getProperty("sakai-portal:visible"));
+		 String pageVisibility = StringUtils.trimToEmpty(props.getProperty(ToolManager.PORTAL_VISIBLE));
 
 		 addAttr(doc, element, "functions.require", roleList);
 		 addAttr(doc, element, "pageVisibility" , pageVisibility);
@@ -1273,7 +1273,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				     tool.getPlacementConfig().setProperty("functions.require", rolelist);
 			     }
 			     if (StringUtils.isNotBlank(pageVisibility)) {
-				     tool.getPlacementConfig().setProperty("sakai-portal:visible", pageVisibility);
+				     tool.getPlacementConfig().setProperty(ToolManager.PORTAL_VISIBLE, pageVisibility);
 			     }
 			     tool.setTitle(toolTitle);
 			     page.setTitle(toolTitle);
