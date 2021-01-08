@@ -466,7 +466,9 @@ public class MessageBundleServiceImpl implements MessageBundleService {
         try {
             query = sessionFactory.getCurrentSession().createQuery(queryString);
             query.setFirstResult(startingIndex);
-            query.setMaxResults(pageSize);
+            if (pageSize >= 0) {
+                query.setMaxResults(pageSize);
+            }
             return query.list();
         } catch (HibernateException e) {
             throw new RuntimeException(e.getMessage(), e);
@@ -546,4 +548,3 @@ public class MessageBundleServiceImpl implements MessageBundleService {
         }
     }
 }
-

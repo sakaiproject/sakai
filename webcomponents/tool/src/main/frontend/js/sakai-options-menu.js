@@ -96,7 +96,7 @@ export class SakaiOptionsMenu extends LitElement {
     return css`
       ::slotted(div) {
         visibility: hidden;
-        background-color: var(--sakai-options-menu-background-color, white);
+        background-color: var(--sakai-options-menu-background-color, yellow);
         border-width: var(--sakai-options-menu-border-width, 1px);
         border-style: var(--sakai-options-menu-border-style, solid);
         border-color: var(--sakai-options-menu-border-color, black);
@@ -104,7 +104,7 @@ export class SakaiOptionsMenu extends LitElement {
         padding: 5px;
       }
       #invoker {
-        color: var(--sakai-options-menu-invoker-color, white);
+        color: var(--sakai-options-menu-invoker-color, black);
       }
     `;
   }

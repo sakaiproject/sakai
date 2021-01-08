@@ -1228,6 +1228,7 @@ public class QuestionPoolFacadeQueries
 	  item.setScore(itemData.getScore());
 	  item.setDiscount(itemData.getDiscount());
       item.setHint(itemData.getHint());
+      item.setMinScore(itemData.getMinScore());
       item.setStatus(itemData.getStatus());
       item.setTypeId(itemData.getTypeId());
       item.setCreatedBy(AgentFacade.getAgentString());

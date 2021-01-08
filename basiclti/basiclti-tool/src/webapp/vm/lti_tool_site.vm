@@ -187,8 +187,10 @@ ${includeLatestJQuery}
 				<td headers="attribution"> $formattedText.escapeHtml($!content.get("ATTRIBUTION"))</td>
 				#end
 			#end
-			<td headers="action"><a href="$sakai_ActionURL.setPanel("ContentPut")&id=$content.get("id")">$tlang.getString("gen.edit")</a> / 
-			<a href="$sakai_ActionURL.setPanel("ContentDelete")&id=$content.get("id")">$tlang.getString("gen.delete")</a>
+            <ul style="list-style: none;">
+			<li style="display:inline"><td headers="action"><a href="$sakai_ActionURL.setPanel("ContentPut")&id=$content.get("id")">$tlang.getString("gen.edit")</a></li>
+			<li style="display:inline"><span aria-hidden="true"> / </span> <a href="$sakai_ActionURL.setPanel("ContentDelete")&id=$content.get("id")">$tlang.getString("gen.delete")</a></li>
+            </ul>
 			</td>
 			</tr>
 			#end

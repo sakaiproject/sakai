@@ -420,21 +420,16 @@ public class SiteManageServiceImpl implements SiteManageService {
             }
 
             Map<String, String> transversalMap = new HashMap<>();
+            final String toSiteId = site.getId();
 
             // import resources first
             boolean resourcesImported = false;
             for (int i = 0; i < toolIds.size() && !resourcesImported; i++) {
                 String toolId = toolIds.get(i);
-
                 if (StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.RESOURCES_TOOL_ID) && importTools.containsKey(toolId)) {
-                    List<String> importSiteIds = importTools.get(toolId);
-
-                    for (String fromSiteId : importSiteIds) {
-                        String toSiteId = site.getId();
-
+                    for (String fromSiteId : importTools.get(toolId)) {
                         String fromSiteCollectionId = contentHostingService.getSiteCollection(fromSiteId);
                         String toSiteCollectionId = contentHostingService.getSiteCollection(toSiteId);
-
                         transversalMap.putAll(transferCopyEntities(toolId, fromSiteCollectionId, toSiteCollectionId, toolOptions, cleanup));
                         transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, fromSiteId, toSiteId));
                         resourcesImported = true;
@@ -442,13 +437,35 @@ public class SiteManageServiceImpl implements SiteManageService {
                 }
             }
 
-            // import other tools then
+            // Now gradebook. Several tools depend on gradebook and may well bring in gradebook items. If
+            // the gradebook import happens after that, in replace mode, the gradebook import will clean
+            // out all the items imported by the other tools, like Assignments.
             for (String toolId : toolIds) {
-                if (!StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.RESOURCES_TOOL_ID) && importTools.containsKey(toolId)) {
-                    List<String> importSiteIds = importTools.get(toolId);
+                if (StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.GRADEBOOK_TOOL_ID) && importTools.containsKey(toolId)) {
+                    for (String fromSiteId : importTools.get(toolId)) {
+                        transversalMap.putAll(transferCopyEntities(toolId, fromSiteId, toSiteId, toolOptions, cleanup));
+                        transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, fromSiteId, toSiteId));
+                    }
+                }
+            }
 
-                    for (String fromSiteId : importSiteIds) {
-                        String toSiteId = site.getId();
+            // Now calendar. Same reason as gradebook.
+            for (String toolId : toolIds) {
+                if (StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.CALENDAR_TOOL_ID) && importTools.containsKey(toolId)) {
+                    for (String fromSiteId : importTools.get(toolId)) {
+                        transversalMap.putAll(transferCopyEntities(toolId, fromSiteId, toSiteId, toolOptions, cleanup));
+                        transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, fromSiteId, toSiteId));
+                    }
+                }
+            }
+
+            // Now import the rest of the tools
+            for (String toolId : toolIds) {
+                if (!StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.RESOURCES_TOOL_ID)
+                        && !StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.GRADEBOOK_TOOL_ID)
+                        && !StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.CALENDAR_TOOL_ID)
+                        && importTools.containsKey(toolId)) {
+                    for (String fromSiteId : importTools.get(toolId)) {
                         if (SiteManageConstants.SITE_INFO_TOOL_ID.equals(toolId)) {
                             site = copySiteInformation(fromSiteId, toSiteId);
                         } else {
@@ -459,14 +476,10 @@ public class SiteManageServiceImpl implements SiteManageService {
                 }
             }
 
-            //update entity references
+            // Update entity references
             for (String toolId : toolIds) {
                 if (importTools.containsKey(toolId)) {
-                    List<String> importSiteIds = importTools.get(toolId);
-                    for (int k = 0; k < importSiteIds.size(); k++) {
-                        String toSiteId = site.getId();
-                        updateEntityReferences(toolId, toSiteId, transversalMap, site);
-                    }
+                    updateEntityReferences(toolId, toSiteId, transversalMap, site);
                 }
             }
         }

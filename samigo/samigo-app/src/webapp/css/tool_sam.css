@@ -511,18 +511,6 @@ a.hideDivision {
     COLOR:#860000;
 } 
 
-.messageSamigo {
-	background: #FFEEEE url(../images/exclamation.png) 5px 4px no-repeat;
-	border: 1px solid #b11;
-	display: block;
-	width: 80%;
-	font-size: 1em;
-	clear: both;
-	color: black;
-	margin: 20px 0 10px 0;
-	padding: 1px 5px 1px 25px;
-}
-
 .saCharCount {
     border: 1px solid #bbb;
 }

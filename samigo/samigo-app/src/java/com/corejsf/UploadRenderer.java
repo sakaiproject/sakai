@@ -88,7 +88,7 @@ public class UploadRenderer extends Renderer {
     log.debug("wrappedUpload = {}", item);
 
     ServerConfigurationService serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
-    Long maxSize = Long.valueOf(serverConfigurationService.getString("samigo.sizeMax", "40960"));
+    Long maxSize = Long.valueOf(serverConfigurationService.getString("samigo.sizeMax", "20480"));
 
     // Check if file > maxSize allowed
     if (item != null && item.getSize()/1000 > maxSize.intValue()){

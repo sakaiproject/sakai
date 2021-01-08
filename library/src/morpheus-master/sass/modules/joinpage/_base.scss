@@ -22,10 +22,10 @@
     }
 
     .logo {
-        background: var(--sakai-primary-color-1) url($logo) no-repeat center center;
-        background-size: $logo-width $logo-height;
+        background: var(--sakai-primary-color-1) var(--logo) no-repeat center center;
+        background-size: var(--logo-width) var(--logo-height);
         width: 100%;
-        height: calc(#{$logo-height} * 2);
+        height: calc(#{var(--logo-height)} * 2);
         margin: 0 auto;
         overflow: hidden;
     }

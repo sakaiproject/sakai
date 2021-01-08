@@ -92,9 +92,9 @@ assignment.useContentReview=true
 
 # turnitin.report_gen_speed.setting (Optional)
 # Allows you to customize the list of report generation options when creating an assignment.
-# 0=Immediately
-# 1=Immediately and At Due Date
-# 2=At Due Date
+# 0=Immediately (reports are indexed and generated as soon as they are submitted, this does not re-check for collusion after all submissions are in)
+# 1=Immediately and At Due Date (reports are indexed and generated as soon as they are submitted and reports are regenerated after due date to check for collusion)
+# 2=At Due Date (submissions are indexed immediately to ensure checks for collusion happen when the reports are generated at due date)
 # default: turnitin.report_gen_speed.setting.count=3
 # turnitin.report_gen_speed.setting.1=0
 # turnitin.report_gen_speed.setting.2=1
@@ -163,6 +163,18 @@ assignment.useContentReview=true
 # turnitin.oc.roles.applicant.mapping=ProspectiveStudent
 # turnitin.oc.roles.administrator.mapping=Administrator,Admin
 # turnitin.oc.roles.undefined.mapping=""
+
+#turnitin.oc.roles.[TII_ROLE].may_save_report_changes=true/false
+# Allows you to customize the default Turnitin setting for each role controlling whether a report can be saved when modified.
+# If true, any changes to the report, including changes that effect the score, will be saved and persist for all users.
+# Default:
+# turnitin.oc.roles.instructor.may_save_report_changes=true
+# turnitin.oc.roles.learner.may_save_report_changes=false
+# turnitin.oc.roles.editor.may_save_report_changes=false
+# turnitin.oc.roles.user.may_save_report_changes=false
+# turnitin.oc.roles.applicant.may_save_report_changes=false
+# turnitin.oc.roles.administrator.may_save_report_changes=true
+# turnitin.oc.roles.undefined.may_save_report_changes=false
 
 
 # Please make sure the property 'version.sakai' is set correctly

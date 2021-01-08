@@ -40,8 +40,8 @@
             <artifactId>spring-test</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.jsf</groupId>
-            <artifactId>jsf-tool</artifactId>
+            <groupId>org.sakaiproject.jsf2</groupId>
+            <artifactId>jsf2-tool</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>

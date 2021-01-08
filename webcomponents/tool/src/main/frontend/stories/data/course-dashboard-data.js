@@ -1,0 +1,31 @@
+export let dashboardData = `
+{
+  "givenName":null,
+  "motd":null,
+  "title":"Playpen",
+  "worksiteSetupUrl":null,
+  "widgets":[
+    "tasks",
+    "announcements",
+    "calendar",
+    "forums",
+    "grades"
+  ],
+  "editable":true,
+  "layout":[
+    "calendar",
+    "forums",
+    "grades",
+    "announcements"
+  ],
+  "overview":"",
+  "programme":null,
+  "template":2,
+  "defaultWidgetLayouts":{
+    "1":["calendar","announcements","grades"],
+    "2":["calendar","forums","grades","announcements"],
+    "3":["calendar","announcements","grades","forums"]
+  },
+  "image":"/webcomponents/images/central_park_lamp.jpg"
+}
+`;

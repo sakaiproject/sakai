@@ -43,6 +43,7 @@ import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
+import org.sakaiproject.api.app.messageforums.DraftRecipient;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
@@ -1700,7 +1701,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
      */
     
     public List findPvtMsgsBySearchText(final String typeUuid, final String searchText, 
-          final Date searchFromDate, final Date searchToDate, final boolean searchByText,
+          final Date searchFromDate, final Date searchToDate, final String selectedLabel, final boolean searchByText,
           final boolean searchByAuthor, final boolean searchByBody, final boolean searchByLabel, final boolean searchByDate) {
 
       log.debug("findPvtMsgsBySearchText executing with searchText: " + searchText);
@@ -1715,6 +1716,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
           q.setParameter("searchByDate", convertBooleanToInteger(searchByDate));
           q.setParameter("searchFromDate", (searchFromDate == null) ? new Date(0) : searchFromDate);
           q.setParameter("searchToDate", (searchToDate == null) ? new Date(System.currentTimeMillis()) : searchToDate);
+          q.setParameter("searchBySelectedLabel", selectedLabel);
           q.setParameter("userId", getCurrentUser());
           q.setParameter("contextId", toolManager.getCurrentPlacement().getContext());
           q.setParameter("typeUuid", typeUuid);
@@ -2091,4 +2093,23 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
 	}
 
+	@Override
+	public void saveDraftRecipients(long msgId, List<DraftRecipient> recipients) {
+		for (DraftRecipient dr : recipients) {
+			getHibernateTemplate().persist(dr);
+		}
+	}
+
+	@Override
+	public List<DraftRecipient> findDraftRecipientsByMessageId(long msgId) {
+		return getHibernateTemplate().execute(session -> session.getNamedQuery("findDraftRecipientsByMessageId"))
+				.setParameter("id", msgId, LongType.INSTANCE).list();
+	}
+
+	@Override
+	public void deleteDraftRecipientsByMessageId(long msgId) {
+		for (DraftRecipient dr : findDraftRecipientsByMessageId(msgId)) {
+			getHibernateTemplate().delete(dr);
+		}
+	}
 }

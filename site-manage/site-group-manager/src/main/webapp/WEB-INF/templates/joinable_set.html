@@ -115,7 +115,7 @@
         <div class="act">
           <input th:if="${joinableSetForm.joinableSetId == null}" accesskey="s" disabled="disabled" id="create-joinableset-submit-button" type="submit" class="active" th:value="#{joinableset.button.add}">
           <input th:if="${joinableSetForm.joinableSetId != null}" accesskey="s" id="save-joinableset-submit-button" type="submit" class="active" th:value="#{joinableset.button.save}">
-          <a th:href="@{/deleteJoinableSet(joinableSetId=${joinableSetForm.joinableSetId})}" th:if="${joinableSetForm.joinableSetId != null}" accesskey="d" id="delete-joinableset-submit-button" type="submit" class="active" th:value="#{joinableset.button.delete}">Delete Joinable Set</a>
+          <a th:href="@{/deleteJoinableSet(joinableSetId=${joinableSetForm.joinableSetId})}" th:if="${joinableSetForm.joinableSetId != null}" accesskey="d" id="delete-joinableset-submit-button" type="submit" class="btn btn-default" th:value="#{joinableset.button.delete}">Delete Joinable Set</a>
           <a th:href="@{/}" accesskey="x" id="create-joinableset-cancel-button" class="btn btn-default" th:text="#{joinableset.button.cancel}">Cancel</a>
         </div>
         <div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" id="confirmation-modal">

@@ -39,6 +39,7 @@ import javax.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Precision;
 
 import org.sakaiproject.component.cover.ComponentManager;
@@ -97,7 +98,20 @@ public class StudentScoreUpdateListener
     TotalScoresBean tbean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
     tbean.setAssessmentGradingHash(tbean.getPublishedAssessment().getPublishedAssessmentId());
     DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
-    log.debug("Calling saveStudentScores.");
+
+    String assessmentGradingIdFromClient = ContextUtil.lookupParam("gradingData");
+    String assessmentGradingIdFromBean = Long.toString(delivery.getAssessmentGradingId());
+
+    // The instructor must have navagated away and loaded up a different submission in a different tab!
+    if (!StringUtils.equals(assessmentGradingIdFromClient, assessmentGradingIdFromBean)) {
+        FacesContext context = FacesContext.getCurrentInstance();
+        String err = (String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "data_mismatch_error");
+        context.addMessage(null, new FacesMessage(err));
+        log.warn("Problem updating in StudentScoreUpdateListener; data_mismatch_error: fromClient={}, fromBean={}", assessmentGradingIdFromClient, assessmentGradingIdFromBean);
+        return;
+    }
+
+    log.debug("Calling saveStudentScores for assessmentGradingId={}", assessmentGradingIdFromBean);
     try {
       if (!saveStudentScores(bean, tbean, delivery))
       {

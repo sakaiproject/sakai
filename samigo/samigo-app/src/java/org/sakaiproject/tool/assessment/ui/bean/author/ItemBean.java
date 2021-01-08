@@ -40,7 +40,7 @@ import javax.faces.model.SelectItemGroup;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -153,6 +153,7 @@ public class ItemBean
   private String origSection;  // section id for the item to be added to
   private String selectedSection="0";  // section id for the item to be assigned to
 
+  private String markersPair = "{}";
 
   private boolean caseSensitiveForFib=false;
   private boolean mutuallyExclusiveForFib=false;
@@ -1275,6 +1276,22 @@ public class ItemBean
 	}
 
   /**
+   * ￼ * for fib questions
+   *
+   * @param param the pair of markers
+   */
+  public void setMarkersPair(String param) {
+    String paramTmp = param;
+    if ((paramTmp == null) || (paramTmp.length() < 2)) paramTmp = "{}";
+    this.markersPair = paramTmp;
+  }
+
+  /** for fib questions, the pair of markers ￼ * @return ￼ */
+  public String getMarkersPair() {
+    return markersPair;
+  }
+
+  /**
    * for fib, case sensitive for grading?
    * @return
    */
@@ -1968,4 +1985,15 @@ public class ItemBean
 	public List<ItemTagBean> getItemTags() { return itemTags; }
 
 	public void setItemTags(List<ItemTagBean> itemTags) { this.itemTags = itemTags; }
+
+    public boolean getRenderDiscountBlock() {
+
+        return itemType.equals("1") && (partialCreditFlag.equals("false") || !partialCreditEnabled)
+            || itemType.equals("12") || (itemType.equals("2") && mcmsPartialCredit.equals("false"));
+    }
+
+    public boolean getRenderMinPointsWarning() {
+        return itemType.equals("1") && (partialCreditFlag.equals("true")) || getRenderDiscountBlock();
+    }
+
 }

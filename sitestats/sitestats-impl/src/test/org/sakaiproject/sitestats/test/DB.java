@@ -21,6 +21,9 @@ package org.sakaiproject.sitestats.test;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+
 import org.sakaiproject.sitestats.impl.DetailedEventImpl;
 import org.sakaiproject.sitestats.impl.EventStatImpl;
 import org.sakaiproject.sitestats.impl.LessonBuilderStatImpl;
@@ -32,7 +35,6 @@ import org.sakaiproject.sitestats.impl.SitePresenceTotalImpl;
 import org.sakaiproject.sitestats.impl.SiteVisitsImpl;
 import org.sakaiproject.sitestats.impl.UserStatImpl;
 import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,28 +55,29 @@ public class DB extends HibernateDaoSupport {
         }
 	}
 	
-	@SuppressWarnings("unchecked")
-	public List getResultsForClass(final Class classz) {
-        List results;
+	public <T> List<T> getResultsForClass(final Class<T> classz) {
+        List<T> results;
 	    try {
             results = getHibernateTemplate().execute(session -> {
-                return session.createCriteria(classz).list();
+                CriteriaQuery criteriaQuery = session.getCriteriaBuilder().createQuery(classz);
+                Root<T> root = criteriaQuery.from(classz);
+                criteriaQuery.select(root);
+
+                return session.createQuery(criteriaQuery).getResultList();
             });
         } catch(DataAccessException dae) {
             log.error("Error while retrieving results: {}", dae.getMessage(), dae);
-            results = new ArrayList<>();
+            results = new ArrayList<T>();
         }
         return results;
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void deleteAllForClass(final Class classz) {
+	public <T> void deleteAllForClass(final Class<T> classz) {
         try {
-		    getHibernateTemplate().execute((HibernateCallback) session -> {
-                List all = session.createCriteria(classz).list();
-                for(Object o : all) {
-                    session.delete(o);
-                }
+		    getHibernateTemplate().execute(session -> {
+                List<T> all = session.createCriteria(classz).list();
+                all.forEach(session::delete);
                 return null;
             });
         } catch(DataAccessException dae) {
@@ -85,7 +88,7 @@ public class DB extends HibernateDaoSupport {
 	@SuppressWarnings("unchecked")
 	public void deleteAll() {
         try{
-		    getHibernateTemplate().execute((HibernateCallback) session -> {
+		    getHibernateTemplate().execute(session -> {
                 session.createCriteria(SiteVisitsImpl.class).list().forEach(session::delete);
                 session.createCriteria(SiteActivityImpl.class).list().forEach(session::delete);
                 session.createCriteria(EventStatImpl.class).list().forEach(session::delete);

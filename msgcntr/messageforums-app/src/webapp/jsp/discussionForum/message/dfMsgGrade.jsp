@@ -72,6 +72,7 @@
             if (userId == null) userId = forumTool.getUserId();
 
             String rbcsEvaluationId = entityId + "." + userId;
+            String rbcsEvaluationOwnerId = userId;
             %>
 
             <script>
@@ -202,20 +203,20 @@
                     tool-id="sakai.gradebookng"
                     entity-id='<%= entityId %>'
                     evaluated-item-id='<%= rbcsEvaluationId %>'
-                    evaluated-item-owner-id='<h:outputText value="#{ForumTool.selectedMessage.message.authorId}" />'
+                    evaluated-item-owner-id='<%= rbcsEvaluationOwnerId %>'
                 ></sakai-rubric-grading>
             <%}%>
 
             <sakai:button_bar>
                 <% if(isDialogBox){ %>
                     <h:commandButton id="save" action="#{ForumTool.processDfGradeSubmitFromDialog}" value="#{msgs.cdfm_submit_grade}"
-                        accesskey="s" styleClass="active" disabled="#{!ForumTool.allowedToGradeItem}" onclick="SPNR.disableControlsAndSpin( this, null );" />
+                        accesskey="s" styleClass="active" disabled="#{!ForumTool.allowedToGradeItem}" onclick="SPNR.disableControlsAndSpin( this, null );MFR_RBC.saveRubric();" />
                     <h:commandButton action="#{ForumTool.processDfGradeCancelFromDialog}" value="#{msgs.cdfm_cancel}" accesskey="x"
                         onclick="SPNR.disableControlsAndSpin( this, null );closeDialogBoxIfExists();" />
                 <% }else {%>
                     <h:commandButton action="#{ForumTool.processDfGradeSubmit}" value="#{msgs.cdfm_submit_grade}"
                         accesskey="s" styleClass="active" disabled="#{!ForumTool.allowedToGradeItem}"
-                        onclick="SPNR.disableControlsAndSpin( this, null );" />
+                        onclick="SPNR.disableControlsAndSpin( this, null );MFR_RBC.saveRubric();" />
                     <h:commandButton action="#{ForumTool.processDfGradeCancel}" value="#{msgs.cdfm_cancel}" accesskey="x" onclick="SPNR.disableControlsAndSpin( this, null );closeDialogBoxIfExists();" />
                 <%}%>
 

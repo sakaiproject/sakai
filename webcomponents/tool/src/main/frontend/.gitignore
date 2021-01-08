@@ -3,5 +3,8 @@
 !src/**/*.js
 !conf/*.js
 !stories/*.js
+!stories/i18n/*.js
+!stories/data/*.js
+!stories/styles/*.js
 !.storybook/*.js
 !test/*

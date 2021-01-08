@@ -17,9 +17,8 @@
       <artifactId>sakai-citations-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>zing</groupId>
+      <groupId>org.dspace</groupId>
       <artifactId>cql-java</artifactId>
-      <version>0.7</version>
     </dependency>
   </dependencies>
   <build>

@@ -207,4 +207,140 @@ public class LTI13UtilTest {
 		assertEquals(privateB64, newPrivateB64);
 	}
 
+	@Test
+	public void testToNull() {
+		String d = LTI13Util.toNull("bob");
+		assertEquals(d,"bob");
+		d = LTI13Util.toNull("");
+		assertNull(d);
+		d = LTI13Util.toNull(null);
+		assertNull(d);
+	}
+
+	@Test
+	public void testConvertInt() {
+		Integer d = LTI13Util.getInt(new Integer(2));
+		assertEquals(d, new Integer(2));
+		d = LTI13Util.getInt(new Double(2.5));
+		assertEquals(d, new Integer(2));
+		d = LTI13Util.getInt(null);
+		assertEquals(d, new Integer(-1));
+		d = LTI13Util.getInt("fred");
+		assertEquals(d, new Integer(-1));
+		d = LTI13Util.getInt("null");
+		assertEquals(d, new Integer(-1));
+		d = LTI13Util.getInt("NULL");
+		assertEquals(d, new Integer(-1));
+		d = LTI13Util.getInt("");
+		assertEquals(d, new Integer(-1));
+		d = LTI13Util.getInt("2.0");
+		assertEquals(d, new Integer(-1));
+		d = LTI13Util.getInt("2.5");
+		assertEquals(d, new Integer(-1));
+		d = LTI13Util.getInt("2");
+		assertEquals(d, new Integer(2));
+		d = LTI13Util.getInt(new Long(3));
+		assertEquals(d, new Integer(3));
+		d = LTI13Util.getInt(new Integer(3));
+		assertEquals(d, new Integer(3));
+	}
+
+	@Test
+	public void testConvertLong() {
+		Long l = LTI13Util.getLongNull(new Long(2));
+		assertEquals(l, new Long(2));
+		l = LTI13Util.getLongNull(new Double(2.2));
+		assertEquals(l, new Long(2));
+		l = LTI13Util.getLongNull(null);
+		assertEquals(l, null);
+		l = LTI13Util.getLongNull("fred");
+		assertEquals(l, null);
+		l = LTI13Util.getLongNull("null");
+		assertEquals(l, null);
+		l = LTI13Util.getLongNull("NULL");
+		assertEquals(l, null);
+		// This one is a little weird but it is how it was written - double is different
+		l = LTI13Util.getLongNull("");
+		assertEquals(l, new Long(-1));
+		l = LTI13Util.getLongNull("2");
+		assertEquals(l, new Long(2));
+		l = LTI13Util.getLongNull("2.5");
+		assertEquals(l, null);
+		l = LTI13Util.getLongNull(new Float(3.1));
+		assertEquals(l, new Long(3));
+		// Casting truncates
+		l = LTI13Util.getLongNull(new Float(3.9));
+		assertEquals(l, new Long(3));
+		l = LTI13Util.getLongNull(new Integer(3));
+		assertEquals(l, new Long(3));
+	}
+
+	@Test
+	public void testConvertDouble() {
+		Double d = LTI13Util.getDoubleNull(new Double(2.0));
+		assertEquals(d, new Double(2.0));
+		d = LTI13Util.getDoubleNull(new Double(2.5));
+		assertEquals(d, new Double(2.5));
+		d = LTI13Util.getDoubleNull(null);
+		assertEquals(d, null);
+		d = LTI13Util.getDoubleNull("fred");
+		assertEquals(d, null);
+		d = LTI13Util.getDoubleNull("null");
+		assertEquals(d, null);
+		d = LTI13Util.getDoubleNull("NULL");
+		assertEquals(d, null);
+		d = LTI13Util.getDoubleNull("");
+		assertEquals(d, null);
+		d = LTI13Util.getDoubleNull("2.0");
+		assertEquals(d, new Double(2.0));
+		d = LTI13Util.getDoubleNull("2.5");
+		assertEquals(d, new Double(2.5));
+		d = LTI13Util.getDoubleNull("2");
+		assertEquals(d, new Double(2.0));
+		d = LTI13Util.getDoubleNull(new Long(3));
+		assertEquals(d, new Double(3.0));
+		d = LTI13Util.getDoubleNull(new Integer(3));
+		assertEquals(d, new Double(3.0));
+	}
+
+	@Test
+	public void testTimeStamp() {
+		String token = LTI13Util.timeStamp("xyzz");
+		boolean good = LTI13Util.timeStampCheck(token, 100);
+		assertTrue(good);
+		token = "1"+token;
+		good = LTI13Util.timeStampCheck(token, 100);
+		assertFalse(good);
+	}
+
+	@Test
+	public void testTimeStampSign() {
+		String token = LTI13Util.timeStampSign("xyzzy", "secret");
+		assertTrue(token.contains(":xyzzy:"));
+		assertFalse(token.contains("secret"));
+		System.out.println("token="+token);
+		boolean good = LTI13Util.timeStampCheckSign(token, "secret", 100);
+		assertTrue(good);
+		good = LTI13Util.timeStampCheckSign(token, "xsecret", 100);
+		assertFalse(good);
+		String token_2020 = "1607379725:xyzzy:CVHUHPEIfW2zTwMAnhxQprbZWvAr58V34NprcdMP4gE=";
+
+		// If this breaks - Hi 2040, 2020 says 'hi' -- Chuck
+		int twenty_years = 20*365*24*60*60;
+		good = LTI13Util.timeStampCheckSign(token_2020, "secret", twenty_years);
+		assertTrue(good);
+		good = LTI13Util.timeStampCheckSign(token_2020, "xsecret", twenty_years);
+		assertFalse(good);
+
+		// Bad signature
+		String bad_token_2020 = "1607379725:xyzzy:CVHUHxxxxxxxxxxAnhxQprbZWvAr58V34NprcdMP4gE=";
+		good = LTI13Util.timeStampCheckSign(bad_token_2020, "secret", twenty_years);
+		assertFalse(good);
+
+		// In the past
+		bad_token_2020 = "1507379725:xyzzy:CVHUHPEIfW2zTwMAnhxQprbZWvAr58V34NprcdMP4gE=";
+		good = LTI13Util.timeStampCheckSign(bad_token_2020, "secret", twenty_years);
+		assertFalse(good);
+	}
+
 }

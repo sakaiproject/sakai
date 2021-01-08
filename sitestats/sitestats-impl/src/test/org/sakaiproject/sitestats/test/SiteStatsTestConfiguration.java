@@ -57,6 +57,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -77,35 +78,26 @@ public class SiteStatsTestConfiguration {
     @Resource(name = "org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings.sitestats")
     private AdditionalHibernateMappings hibernateMappings;
 
-    private DataSource dataSource;
-    private PlatformTransactionManager platformTransactionManager;
-    private SessionFactory sessionFactory;
-
     static {
         System.setProperty("sakai.tests.enabled", "true");
     }
 
+    @Primary
     @Bean(name = "org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
-    public SessionFactory sessionFactory() throws IOException {
-        if (sessionFactory == null) {
-            LocalSessionFactoryBuilder sfb = new LocalSessionFactoryBuilder(dataSource());
-            hibernateMappings.processAdditionalMappings(sfb);
-            sfb.addProperties(hibernateProperties());
-            sessionFactory = sfb.buildSessionFactory();
-        }
-        return sessionFactory;
+    public SessionFactory sessionFactory(Properties hibernateProperties) throws IOException {
+        LocalSessionFactoryBuilder sfb = new LocalSessionFactoryBuilder(dataSource());
+        hibernateMappings.processAdditionalMappings(sfb);
+        sfb.addProperties(hibernateProperties);
+        return sfb.buildSessionFactory();
     }
 
     @Bean(name = "javax.sql.DataSource")
     public DataSource dataSource() {
-        if (dataSource == null) {
-            DriverManagerDataSource db = new DriverManagerDataSource();
-            db.setDriverClassName(environment.getProperty(org.hibernate.cfg.Environment.DRIVER, jdbcDriver.class.getName()));
-            db.setUrl(environment.getProperty(org.hibernate.cfg.Environment.URL, "jdbc:hsqldb:mem:test"));
-            db.setUsername(environment.getProperty(org.hibernate.cfg.Environment.USER, "sa"));
-            db.setPassword(environment.getProperty(org.hibernate.cfg.Environment.PASS, ""));
-            dataSource = db;
-        }
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName(environment.getProperty(org.hibernate.cfg.Environment.DRIVER, jdbcDriver.class.getName()));
+        dataSource.setUrl(environment.getProperty(org.hibernate.cfg.Environment.URL, "jdbc:hsqldb:mem:test"));
+        dataSource.setUsername(environment.getProperty(org.hibernate.cfg.Environment.USER, "sa"));
+        dataSource.setPassword(environment.getProperty(org.hibernate.cfg.Environment.PASS, ""));
         return dataSource;
     }
 
@@ -121,16 +113,10 @@ public class SiteStatsTestConfiguration {
     }
 
     @Bean(name = "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager")
-    public PlatformTransactionManager transactionManager() throws IOException {
-        if (platformTransactionManager == null) {
-            if (sessionFactory == null) {
-                sessionFactory();
-            }
-            HibernateTransactionManager txManager = new HibernateTransactionManager();
-            txManager.setSessionFactory(sessionFactory);
-            platformTransactionManager = txManager;
-        }
-        return platformTransactionManager;
+    public PlatformTransactionManager transactionManager(SessionFactory sessionFactory) throws IOException {
+        HibernateTransactionManager txManager = new HibernateTransactionManager();
+        txManager.setSessionFactory(sessionFactory);
+        return txManager;
     }
 
     @Bean(name = "org.sakaiproject.alias.api.AliasService")
@@ -167,11 +153,8 @@ public class SiteStatsTestConfiguration {
     }
 
     @Bean(name = "org.sakaiproject.sitestats.test.DB")
-    public DB db() throws IOException {
+    public DB db(SessionFactory sessionFactory) throws IOException {
         DB db = new DB();
-        if (sessionFactory == null) {
-            sessionFactory();
-        }
         db.setSessionFactory(sessionFactory);
         return db;
     }

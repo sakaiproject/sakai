@@ -28,7 +28,6 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.text.Collator;
 import java.text.DateFormat;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -43,7 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.db.api.SqlService;
-import org.sakaiproject.jsf.util.LocaleUtil;
+import org.sakaiproject.jsf2.util.LocaleUtil;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.userauditservice.api.UserAuditRegistration;
@@ -178,7 +177,6 @@ public class UserAuditEventLog {
 		 * @param auditStamp - will return a String, although a Date object is passed in.  This is the date and time the user was added or dropped from the site
 		 * @param source - interprets the letter key registered from a tool and returns the appropriate text from the bundle
 		 * @param actionUser - User object for who performed the add/drop action
-		 * @param childSiteId - Used for logging something specific with parent/child sites
 		 */
 		public EventLog(User user, String roleName, String actionTaken, Date auditStamp, String source, User actionUser) {
 			this.user = user;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.hibernate;
+package org.sakaiproject.springframework.data;
 
 import java.io.Serializable;
 

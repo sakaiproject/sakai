@@ -52,6 +52,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
 
 import org.tsugi.basiclti.BasicLTIUtil;
+import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 
 /**
  * Interface to LTI Content Items
@@ -424,9 +425,9 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 	if (bltiToolId != null) {
 	    search = "lti_tools.id=" + bltiToolId;
 	} else if (appStoresOnly) {
-		search = LTIService.LTI_PL_LINKSELECTION + "=1";
+		search = LTIService.LTI_PL_LESSONSSELECTION+" = 1 AND "+LTIService.LTI_PL_LINKSELECTION + "=1";
 	} else {
-		search = LTIService.LTI_PL_LINKSELECTION + "=0 OR " + LTIService.LTI_PL_LINKSELECTION + " IS NULL";
+		search = LTIService.LTI_PL_LESSONSSELECTION+" = 1 AND ( "+LTIService.LTI_PL_LINKSELECTION + "=0 OR " + LTIService.LTI_PL_LINKSELECTION + " IS NULL )";
 	}
 	List<Map<String,Object>> tools = ltiService.getTools(search,null,0,0, bean.getCurrentSiteId());
 	for ( Map<String,Object> tool : tools ) {
@@ -518,29 +519,11 @@ public class BltiEntity implements LessonEntity, BltiInterface {
     {
 	if ( ltiService == null ) return null;
 
-	String toolBaseUrl = launchUrl;
-	int pos = launchUrl.indexOf('?');
-	if ( pos > 1 ) {
-		toolBaseUrl = launchUrl.substring(0,pos);
-	}
+	String toolBaseUrl = SakaiBLTIUtil.stripOffQuery(launchUrl);
 
-	// Look for a tool that is a perfect match, and fall back
-	//
-	Map<String,Object> theTool = null;
-	Map<String,Object> theBaseTool = null;
+	// Lets find the right tool to assiociate with
 	List<Map<String,Object>> tools = ltiService.getTools(null,null,0,0, simplePageBean.getCurrentSiteId());
-	for ( Map<String,Object> tool : tools ) {
-		String toolLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
-		if ( toolLaunch.equals(launchUrl) ) {
-			theTool = tool;
-			break;				
-		}
-		if ( theBaseTool == null && toolLaunch.equals(toolBaseUrl) ) {
-			theBaseTool = tool;
-		}
-	}
-
-	if ( theTool == null && theBaseTool != null ) theTool = theBaseTool;
+	Map<String, Object> theTool = SakaiBLTIUtil.findBestToolMatch(launchUrl, tools);
 
 	if ( theTool == null ) {
 		Properties props = new Properties ();

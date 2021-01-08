@@ -29,6 +29,8 @@ import javax.mail.internet.MimeMessage;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Attachment;
+import org.sakaiproject.api.app.messageforums.DraftRecipient;
+import org.sakaiproject.api.app.messageforums.MembershipItem;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.PrivateForum;
@@ -120,6 +122,7 @@ public interface PrivateMessageManager {
      * @param asEmail
      */
     public void sendPrivateMessage(PrivateMessage message, Map<User, Boolean> recipients, boolean asEmail);
+    public void sendPrivateMessage(PrivateMessage message, Map<User, Boolean> recipients, boolean asEmail, List<MembershipItem> draftRecipients, List<MembershipItem> draftBccRecipients);
     
     
     /**
@@ -231,11 +234,11 @@ public interface PrivateMessageManager {
     public PrivateMessage getPreviousMessage(PrivateMessage message);
     public boolean hasPreviousMessage(PrivateMessage message);
     public boolean hasNextMessage(PrivateMessage message);
-    public PrivateMessage getPrivateMessage(final String id);
+    public PrivateMessage getPrivateMessage(final String id) throws MessagingException;
     public Map<User, Boolean> getRecipients(List recipients);
     public PrivateMessage getPvtMsgReplyMessage(PrivateMessage currentMessage, MimeMessage msg, StringBuilder[] bodyBuf, List<Reference> attachments, String from) throws MessagingException;
     public void processPvtMsgReplySentAction(PrivateMessage currentMessage, PrivateMessage rrepMsg);
     /** advanced search for private messages */ 
-    public List searchPvtMsgs(String typeUuid, String searchText,Date searchFromDate, Date searchToDate, boolean searchByText, boolean searchByAuthor,boolean searchByBody, boolean searchByLabel,boolean searchByDate);
+    public List searchPvtMsgs(String typeUuid, String searchText,Date searchFromDate, Date searchToDate, String selectedLabel, boolean searchByText, boolean searchByAuthor,boolean searchByBody, boolean searchByLabel,boolean searchByDate);
     
 }

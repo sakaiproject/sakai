@@ -450,7 +450,7 @@
 				<prop key="hibernate.cache.use_query_cache">true</prop>
 				<prop key="hibernate.use_second_level_cache">true</prop>
 				<prop key="hibernate.cache.region.factory_class">org.apache.ignite.cache.hibernate.HibernateRegionFactory</prop>
-				<prop key="hibernate.generate_statistics">true</prop>
+				<prop key="hibernate.generate_statistics">${hibernate.generate_statistics}</prop>
 				<prop key="hibernate.enable_lazy_load_no_trans">true</prop>
 				<prop key="hibernate.current_session_context_class">org.springframework.orm.hibernate5.SpringSessionContext</prop>
 				<prop key="org.apache.ignite.hibernate.default_access_type">READ_ONLY</prop>

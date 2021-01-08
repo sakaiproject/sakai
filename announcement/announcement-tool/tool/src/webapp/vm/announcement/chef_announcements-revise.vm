@@ -265,7 +265,7 @@ function resizeFrame(){
 						</div>
 
 						<div class="checkbox">
-						  <label for="hidden">
+						  <label for="hidden_true">
 								<input type="radio" class="showHide" name="hidden" id="hidden_true" value="true" #if($hidden)checked="checked" #end/>
 								$tlang.getString("avail.hide.withtips")
 						  </label>

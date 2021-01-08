@@ -41,7 +41,7 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ActiveToolManager;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.jsf.util.JsfTool;
+import org.sakaiproject.jsf2.util.JsfTool;
 import org.sakaiproject.util.Web;
 
 @Slf4j

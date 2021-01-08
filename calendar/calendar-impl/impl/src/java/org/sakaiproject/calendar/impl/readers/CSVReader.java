@@ -36,6 +36,7 @@ import java.util.Map;
 
 import org.sakaiproject.calendar.impl.GenericCalendarImporter;
 import org.sakaiproject.exception.ImportException;
+import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -284,8 +285,9 @@ public class CSVReader extends Reader
 			Duration gapMinutes = Duration.ofMinutes(durationInMinutes);
 			
 			// Time Service will ajust to current user's TZ
-			eventProperties.put(GenericCalendarImporter.ACTUAL_TIMERANGE,
-				getTimeService().newTimeRange(millis, gapMinutes.toMillis()));
+			TimeRange actualTimeRange = getTimeService().newTimeRange(
+					getTimeService().newTime(millis), getTimeService().newTime(millis + gapMinutes.toMillis()), true, false);
+			eventProperties.put(GenericCalendarImporter.ACTUAL_TIMERANGE, actualTimeRange);
 					
 			lineNumber++;
 		}

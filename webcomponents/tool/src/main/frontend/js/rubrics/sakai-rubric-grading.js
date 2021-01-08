@@ -64,6 +64,11 @@ export class SakaiRubricGrading extends RubricsElement {
 
     return html`
       <h3 style="margin-bottom: 10px;">${this.rubric.title}</h3>
+      ${this.evaluation && this.evaluation.status === "DRAFT" ? html`
+        <div class="sak-banner-warn">
+          <sr-lang key="draft_evaluation">DRAFT</sr-lang>
+        </div>
+      ` : "" }
       <div class="criterion grading style-scope sakai-rubric-criteria-grading" style="margin-bottom: 10px;">
       ${this.criteria.map(c => html`
         <div id="criterion_row_${c.id}" class="criterion-row">
@@ -115,7 +120,7 @@ export class SakaiRubricGrading extends RubricsElement {
               </strong>
             </div>
             ${this.association.parameters.fineTunePoints ? html`
-                <input type="number" step="0.01" min="0" max="${ifDefined(c.pointrange ? c.pointrange.high : undefined)}"
+                <input type="number" step="0.01"
                     title="${tr("point_override_details")}"
                     data-criterion-id="${c.id}"
                     name="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-override-${c.id}"
@@ -149,6 +154,8 @@ export class SakaiRubricGrading extends RubricsElement {
         c.comments = e.detail.value;
       }
     });
+
+    this._dispatchRatingChanged(this.criteria, 1);
   }
 
   calculateTotalPointsFromCriteria() {
@@ -166,7 +173,7 @@ export class SakaiRubricGrading extends RubricsElement {
   }
 
   save() {
-    this._dispatchRatingChanged(this.criteria);
+    this._dispatchRatingChanged(this.criteria, 2);
   }
 
   decorateCriteria() {
@@ -217,7 +224,7 @@ export class SakaiRubricGrading extends RubricsElement {
     this.updateTotalPoints();
   }
 
-  _dispatchRatingChanged(criteria) {
+  _dispatchRatingChanged(criteria, status) {
 
     const crit = criteria.map(c => {
 
@@ -236,7 +243,8 @@ export class SakaiRubricGrading extends RubricsElement {
       evaluatedItemOwnerId: this.evaluatedItemOwnerId,
       overallComment: "",
       criterionOutcomes: crit,
-      toolItemRubricAssociation: this.association._links.self.href
+      toolItemRubricAssociation: this.association._links.self.href,
+      status: status
     };
 
     if (this.evaluation && this.evaluation.id) {
@@ -274,44 +282,39 @@ export class SakaiRubricGrading extends RubricsElement {
 
     e.stopPropagation();
 
-    var criterionId = e.currentTarget.dataset.criterionId;
-    var ratingId = e.currentTarget.dataset.ratingId;
+    const criterionId = e.currentTarget.dataset.criterionId;
+    const ratingId = e.currentTarget.dataset.ratingId;
 
     // Look up the criterion and rating objects
-    var criterion = this.criteria.filter(c => c.id == criterionId)[0];
-    var rating = criterion.ratings.filter(r => r.id == ratingId)[0];
+    const criterion = this.criteria.filter(c => c.id == criterionId)[0];
+    const rating = criterion.ratings.filter(r => r.id == ratingId)[0];
 
-    var clickedRatingElement = this.querySelector(`#rating-item-${ratingId}`);
+    const clickedRatingElement = this.querySelector(`#rating-item-${ratingId}`);
     if (clickedRatingElement.classList.contains("selected")) {
       clickedRatingElement.classList.remove("selected");
       criterion.selectedvalue = 0.0;
       criterion.selectedRatingId = 0;
       criterion.pointoverride = 0.0;
     } else {
-      var ratingElements = this.querySelectorAll(`#criterion_row_${criterion.id} .rating-item`);
+      const ratingElements = this.querySelectorAll(`#criterion_row_${criterion.id} .rating-item`);
       ratingElements.forEach(i => i.classList.remove('selected'));
       clickedRatingElement.classList.add("selected");
-      var auxPoints;
-      if (this.rubric.weighted) {
-        auxPoints = (rating.points * (criterion.weight / 100)).toFixed(2);
-      } else {
-        auxPoints = rating.points;
-      }
+      const auxPoints = this.rubric.weighted ?
+        (rating.points * (criterion.weight / 100)).toFixed(2) : rating.points;
       criterion.selectedvalue = auxPoints;
       criterion.selectedRatingId = rating.id;
       criterion.pointoverride = auxPoints;
     }
-
-    var selector = `#rbcs-${this.evaluatedItemId.replace(/./g, "\\.")}-${this.entityId.replace(/./g, "\\.")}-criterion-override-${criterionId}`;
-    var overrideInput = this.querySelector(selector);
-    if (overrideInput) overrideInput.value = rating.points;
 
     // Whenever a rating is clicked, either to select or deselect, it cancels out any override so we
     // remove the strike out from the clicked points value
     this.querySelector(`#points-display-${criterionId}`).classList.remove("strike");
 
     this.dispatchEvent(new CustomEvent("rubric-ratings-changed", { bubbles: true, composed: true }));
+    this.requestUpdate();
     this.updateTotalPoints();
+
+    this._dispatchRatingChanged(this.criteria, 1);
   }
 
   commentShown(e) {
@@ -334,7 +337,7 @@ export class SakaiRubricGrading extends RubricsElement {
   getAssociation() {
 
     $.ajax({
-      url: `/rubrics-service/rest/rubric-associations/search/by-tool-item-ids?toolId=${this.toolId}&itemId=${this.entityId}`,
+      url: `/rubrics-service/rest/rubric-associations/search/by-tool-and-assignment?toolId=${this.toolId}&itemId=${this.entityId}`,
       headers: { "authorization": this.token }
     }).done(data => {
 
@@ -354,7 +357,7 @@ export class SakaiRubricGrading extends RubricsElement {
     }).done(rubric => {
 
       $.ajax({
-        url: `/rubrics-service/rest/evaluations/search/by-tool-item-and-associated-item-and-evaluated-item-ids?toolId=${this.toolId}&itemId=${this.entityId}&evaluatedItemId=${this.evaluatedItemId}`,
+        url: `/rubrics-service/rest/evaluations/search/by-tool-and-assignment-and-submission?toolId=${this.toolId}&itemId=${this.entityId}&evaluatedItemId=${this.evaluatedItemId}`,
         headers: { "authorization": this.token }
       }).done(data => {
 
@@ -371,7 +374,7 @@ export class SakaiRubricGrading extends RubricsElement {
           if (!c.selectedvalue) {
             c.selectedvalue = 0;
           }
-          c.pointrange = this.getHighLow(c.ratings, "points");
+          c.pointrange = this.getHighLow(c.ratings);
         });
 
         this.decorateCriteria();

@@ -193,6 +193,11 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 
 	private final String KEY_FILE_TYPE_PREFIX = "file.type";
 
+  // Sakai Roles
+	private final String INST_ROLE = "section.role.instructor";
+	private final String TA_ROLE = "section.role.ta";
+	private final String STUDENT_ROLE = "section.role.student";
+
 	/**
 	 * If set to true in properties, will result in 3 random digits being
 	 * appended to the email name. In other words, adrian.r.fish@gmail.com will
@@ -205,6 +210,9 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 
 	/** Use guest account eids as email addresses */
 	private boolean preferGuestEidEmail = true;
+
+	/** Enroll a Sakai Teaching Assistant as a Turnitin Instructor */
+	private boolean enrollAssistantsAsInstructors = false;
 
 	@Setter
 	private TurnitinAccountConnection turnitinConn;
@@ -262,6 +270,7 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 		spoilEmailAddresses = serverConfigurationService.getBoolean("turnitin.spoilEmailAddresses", false);
 		preferSystemProfileEmail = serverConfigurationService.getBoolean("turnitin.preferSystemProfileEmail", true);
 		preferGuestEidEmail = serverConfigurationService.getBoolean("turnitin.preferGuestEidEmail", true);
+		enrollAssistantsAsInstructors = serverConfigurationService.getBoolean("turnitin.enroll_assistants_as_instructors", false);
 
 		enabledSiteTypes = Arrays
 				.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("turnitin.sitetypes")));
@@ -545,7 +554,7 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 	public boolean isUserStudent(String siteId, String userId) {
 		boolean isStudent = false;
 		try {
-			Set<String> studentIds = siteService.getSite(siteId).getUsersIsAllowed("section.role.student");
+			Set<String> studentIds = getActiveUsersForRole(STUDENT_ROLE, siteId);
 			List<User> activeUsers = userDirectoryService.getUsers(studentIds);
 			for (int i = 0; i < activeUsers.size(); i++) {
 				User user = activeUsers.get(i);
@@ -2259,24 +2268,21 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 	 *
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
-	public Map getInstructorInfo(String siteId) {
+	public Map<String, String> getInstructorInfo(String siteId) {
 		return getInstructorInfo(siteId, false);
 	}
 
-	@SuppressWarnings("unchecked")
-	public Map getInstructorInfo(String siteId, boolean ignoreUseSource) {
+	public Map<String, String> getInstructorInfo(String siteId, boolean ignoreUseSource) {
 
 		log.debug("Getting instructor info for site " + siteId);
 
-		Map togo = new HashMap();
+		Map<String, String> togo = new HashMap<>();
 		if (!turnitinConn.isUseSourceParameter() && !ignoreUseSource) {
 			togo.put("uem", turnitinConn.getDefaultInstructorEmail());
 			togo.put("ufn", turnitinConn.getDefaultInstructorFName());
 			togo.put("uln", turnitinConn.getDefaultInstructorLName());
 			togo.put("uid", turnitinConn.getDefaultInstructorId());
 		} else {
-			String INST_ROLE = "section.role.instructor";
 			User inst = null;
 			try {
 				Site site = siteService.getSite(siteId);
@@ -2287,7 +2293,7 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 				if (site.isAllowed(user.getId(), INST_ROLE)) {
 					inst = user;
 				} else {
-					Set<String> instIds = getActiveInstructorIds(INST_ROLE, site);
+					Set<String> instIds = getActiveUsersForRole(INST_ROLE, site);
 					if (instIds.size() > 0) {
 						inst = userDirectoryService.getUser((String) instIds.toArray()[0]);
 					}
@@ -2312,14 +2318,24 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 		return togo;
 	}
 
-	private Set<String> getActiveInstructorIds(String INST_ROLE, Site site) {
+	private Set<String> getActiveUsersForRole(final String rolePermission, final String siteId) {
+		try {
+			Site site = siteService.getSite(siteId);
+			return getActiveUsersForRole(rolePermission, site);
+		} catch (IdUnusedException e) {
+			log.info("Ignoring site " + siteId + " which no longer exists.");
+		}
 
-		log.debug("Getting active instructor IDs for permission " + INST_ROLE + " in site " + site.getId());
+		return new HashSet<String>();
+	}
 
-		Set<String> instIds = site.getUsersIsAllowed(INST_ROLE);
+	private Set<String> getActiveUsersForRole(final String rolePermission, final Site site) {
+		log.debug("Getting active IDs for permission {} in site={}", INST_ROLE, site.getId());
+
+		Set<String> userIds = site.getUsersIsAllowed(rolePermission);
 
 		// the site could contain references to deleted users
-		List<User> activeUsers = userDirectoryService.getUsers(instIds);
+		List<User> activeUsers = userDirectoryService.getUsers(userIds);
 		Set<String> ret = new HashSet<String>();
 		for (int i = 0; i < activeUsers.size(); i++) {
 			User user = activeUsers.get(i);
@@ -2751,38 +2767,12 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 	}
 
 	/**
-	 * Return a Map containing all users of x type enrolled on a site
-	 * @param siteId Sakai site ID
-	 * @param role specific user role e.g. 'instructor'
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	private Map getAllUsers(String siteId, String role) {
-		String ROLE = "section.role."+role;
-		Map<String,String> users = new HashMap<>();
-		Site site = null;
-		try {
-			site = siteService.getSite(siteId);
-			Set<String> instIds = site.getUsersIsAllowed(ROLE);
-			List<User> activeUsers = userDirectoryService.getUsers(instIds);
-			for (int i = 0; i < activeUsers.size(); i++) {
-				User user = activeUsers.get(i);
-				users.put(user.getId(),user.getId());
-			}
-		} catch (IdUnusedException e) {
-			log.error("Unable to fetch site in getAllUsers: " + siteId, e);
-		} catch (Exception e) {
-			log.error("Exception in getAllUsers", e);
-		}
-		return users;
-	}
-	/**
 	 * The primary method of this class. Syncs the enrollment between a Sakai
 	 * Site and it's corresponding
 	 *
 	 * @param sakaiSiteID
 	 */
-	private boolean syncSiteWithTurnitin(String sakaiSiteID) {
+	private boolean syncSiteWithTurnitin(final String sakaiSiteID) {
 		boolean success = true;
 
 		Site site = null;
@@ -2802,11 +2792,16 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 		// Only run if using SRC 9
 		if (turnitinConn.isUseSourceParameter()) {
 			// Enroll all instructors
-			log.debug("Enrolling all instructors");
-			Map<String,String> allInstructors = getAllUsers(sakaiSiteID,"instructor");
-			for (String key : allInstructors.keySet()) {
+			log.debug("Enrolling all instructors in site={}", sakaiSiteID);
+			Set<String> instIds = getActiveUsersForRole(INST_ROLE, site);
+
+			if (enrollAssistantsAsInstructors) {
+				instIds.addAll(getActiveUsersForRole(TA_ROLE, site));
+			}
+
+			for (String key : instIds) {
 				try {
-					addInstructor(sakaiSiteID,allInstructors.get(key));
+					addInstructor(sakaiSiteID, key);
 				} catch (SubmissionException e) {
 					log.warn("SubmissionException from syncSiteWithTurnitin", e);
 				} catch(TransientSubmissionException e){
@@ -2816,9 +2811,9 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 				}
 			}
 		} else {
-			log.debug("Checking users with Turnitin student role");
+			log.debug("Checking users with Turnitin student role for site={}", sakaiSiteID);
 			for (String uid: enrollment.get("student")) {
-				if (site.isAllowed(uid, "section.role.instructor")) {
+				if (site.isAllowed(uid, INST_ROLE)) {
 					// User has an instructor role in Sakai - change Turnitin role from student to instructor
 					boolean status = swapTurnitinRoles(sakaiSiteID, getUser(uid), 1);
 					if (status == false) {
@@ -2828,9 +2823,9 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 			}
 		}
 
-		log.debug("Checking users with Turnitin instructor role");
+		log.debug("Checking users with Turnitin instructor role for site={}", sakaiSiteID);
 		for (String uid: enrollment.get("instructor")) {
-			if (!site.isAllowed(uid, "section.role.instructor")) {
+			if (!site.isAllowed(uid, INST_ROLE)) {
 				// User does not have instructor role in Sakai - change Turnitin role from instructor to student
 				boolean status = swapTurnitinRoles(sakaiSiteID, getUser(uid), 2);
 				if (status == false) {

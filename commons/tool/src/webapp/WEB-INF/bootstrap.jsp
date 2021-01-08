@@ -38,9 +38,6 @@
         <div id="Mrphs-sakai-commons" class="portletBody commons-portletBody">
 
             <ul id="commons-toolbar" class="navIntraTool actionToolBar hidden" role="menu"></ul>
-            <div class="page-header">
-                <h1>Commons</h1>
-            </div>
             <div id="commons-main-container">
                 <div id="commons-content"></div>
             </div>

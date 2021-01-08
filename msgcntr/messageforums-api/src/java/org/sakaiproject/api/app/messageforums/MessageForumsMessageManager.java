@@ -239,7 +239,8 @@ public interface MessageForumsMessageManager {
     public List getAllRelatedMsgs(final Long messageId);
     
     public List findPvtMsgsBySearchText(final String typeUuid, final String searchText,final Date searchFromDate, final Date searchToDate,
-        final boolean searchByText, final boolean searchByAuthor,final boolean searchByBody, final boolean searchByLabel,final boolean searchByDate);
+        final String selectedLabel, final boolean searchByText, final boolean searchByAuthor, final boolean searchByBody,
+        final boolean searchByLabel,final boolean searchByDate);
     
     /**
      * Get a fully qualified URl
@@ -295,4 +296,10 @@ public interface MessageForumsMessageManager {
 	 * @return
 	 */
 	public List getRecentDiscussionForumThreadsByTopicIds(List<Long> topicIds, int numberOfMessages);
+
+	public void saveDraftRecipients(long msgId, List<DraftRecipient> recipients);
+
+	public List<DraftRecipient> findDraftRecipientsByMessageId(long msgId);
+
+	public void deleteDraftRecipientsByMessageId(long msgId);
 }

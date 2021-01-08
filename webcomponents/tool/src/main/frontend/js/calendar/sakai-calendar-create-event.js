@@ -10,14 +10,14 @@ class SakaiCalendarCreateEvent extends SakaiDialogContent {
 
   static get styles() {
 
-    return css`
-      ${SakaiDialogContent.styles}
+    return [SakaiDialogContent.styles,
+      css`
 
         .frequency-options {
           margin-top: 10px;
           margin-left: 20px;
         }
-    `;
+    `];
   }
 
   constructor() {
@@ -40,7 +40,7 @@ class SakaiCalendarCreateEvent extends SakaiDialogContent {
   }
 
   shouldUpdate(changed) {
-    return this.i18n;
+    return this.i18n && super.shouldUpdate(changed);
   }
 
   add() {

@@ -35,7 +35,6 @@ body.active-more-sites{
       min-height: 100% !important;
       max-height: none !important;
       position: absolute !important;
-
       .tab-pane {
         height: auto !important;
       }
@@ -62,6 +61,7 @@ body.active-more-sites{
 		max-height: 100%;
 		padding: 0 1em 1em 1em;
 		box-shadow: var(--all-sites-drop-shadow);
+		border-radius: $button-radius;
 		@media #{$phone}{
 			width: 100%;
 			height: 100%;
@@ -99,8 +99,8 @@ body.active-more-sites{
 		}
 	}
 	&:after{
-	        bottom: 100%;
-		left: 95%;
+		bottom: 100%;
+		right: calc(#{$standard-spacing} / 2);
 		border: solid transparent;
 		content: " ";
 		height: 0;
@@ -124,7 +124,7 @@ body.active-more-sites{
 	.tab-box{
 		padding: 5px 5px 5px 1em;
 		height: 100%;
-		background-color: var(--all-sites-tab-active-background-color);
+		background-color: var(--all-sites-background-color);
 		margin: 0 1px 0 0;
 	}
 
@@ -352,7 +352,7 @@ ul.favoriteSiteList{
 
 		.toolMenus {
 			display: inline-block;
-			color: var(--all-sites-button-dropdown-color);
+			color: var(--all-sites-button-text-color);
 			padding: 0 1em 0 0;
 			height: $all-sites-button-height;
 			line-height: $all-sites-button-height;
@@ -478,8 +478,8 @@ ul#otherSiteTools{
 			background: var(--all-sites-tool-menu-background-color);
 			text-decoration: none;
 			font-weight: $all-sites-tool-menu-text-weight;
-			border-color:var(--all-sites-tool-menu-left-border-color);
 			border-left: $all-sites-tool-menu-left-border;
+			border-color:var(--all-sites-tool-menu-left-border-color);
 
 			.otherSiteToolIcon{
 				display: inline-block;
@@ -612,7 +612,7 @@ ul.favoriteSiteList{
 		display: inline-block;
 		position: relative;
 		right: 2px;
-		padding: 0 6px;
+		padding: 0 calc( #{$standard-spacing} / 2 );
 		height: $tool-tab-height;
 		line-height: $tool-tab-height;
 		color: var(--all-sites-button-drag-icon-color);
@@ -620,7 +620,7 @@ ul.favoriteSiteList{
 		cursor: grab;
 		cursor: -moz-grab;
 		cursor: -webkit-grab;
-		border-left: 1px dotted var(--all-sites-button-border-color);
+		border-left: 1px solid var(--all-sites-button-border-color);
 	}
 	> li {
 		&:hover {

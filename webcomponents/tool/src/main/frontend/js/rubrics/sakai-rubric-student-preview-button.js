@@ -59,7 +59,9 @@ export class SakaiRubricStudentPreviewButton extends RubricsElement {
 
   getRubricId() {
 
-    SakaiRubricsHelpers.get("/rubrics-service/rest/rubric-associations/search/by-tool-item-ids", this.token, { params: {toolId: this.toolId, itemId: this.entityId }})
+    SakaiRubricsHelpers.get("/rubrics-service/rest/rubric-associations/search/by-tool-and-assignment",
+      this.token,
+      { params: {toolId: this.toolId, itemId: this.entityId }})
     .then(data => {
 
       const association = data._embedded["rubric-associations"][0];

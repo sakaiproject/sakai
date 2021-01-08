@@ -29,7 +29,7 @@ public class MathJaxEnabler
     private static final String ENABLED_SAKAI_PROP = "portal.mathjax.enabled";
     private static final String ENABLED_SAKAI_PROP_NEW_SITE = "portal.mathjax.newSites.enabled";
     private static final String SRC_PATH_SAKAI_PROP = "portal.mathjax.src.path";
-    private static final String HELP_URL_SAKAI_PROP = "portal.mathjax.help.url";
+    public static final String HELP_URL_SAKAI_PROP = "portal.mathjax.help.url";
     private static final String VERSION_SERVICE_SAKAI_PROP = "version.service";
     private static final String VERSION_SERVICE_DEFAULT = "Sakai";
     private static final boolean ENABLED_SAKAI_PROP_DEFAULT = true;
@@ -41,14 +41,14 @@ public class MathJaxEnabler
     private static final String CONTEXT_DO_ENABLE_MATHJAX_KEY = "doEnableMathJax";
     private static final String CONTEXT_MATHJAX_ENABLED_TOOL_ID_SUFFIX_KEY = "mathJaxToolIdSuffix";
     private static final String CONTEXT_MATHJAX_ENABLED_TOOL_ID_SUFFIX_VALUE = "-jax";
-    private static final String CONTEXT_MATHJAX_HELP_URL = "mathJaxHelpURL";
+    public static final String CONTEXT_MATHJAX_HELP_URL = "mathJaxHelpURL";
     private static final String PARAM_MATHJAX_ENABLED_KEY = "isMathJaxEnabledForSite";
         
     private static final String SRC_PATH = ServerConfigurationService.getString(SRC_PATH_SAKAI_PROP);
     private static final boolean ENABLED_AT_SYSTEM_LEVEL = ServerConfigurationService.getBoolean(ENABLED_SAKAI_PROP, ENABLED_SAKAI_PROP_DEFAULT) && !SRC_PATH.trim().isEmpty();
     private static final boolean ENABLED_AT_NEW_SITE_CREATION_LEVEL = ServerConfigurationService.getBoolean(ENABLED_SAKAI_PROP_NEW_SITE, ENABLED_SAKAI_NEW_SITE_DEFAULT) && ENABLED_AT_SYSTEM_LEVEL;
     private static final String SAKAI_SERVICE = ServerConfigurationService.getString(VERSION_SERVICE_SAKAI_PROP, VERSION_SERVICE_DEFAULT);
-    private static final String HELP_URL = ServerConfigurationService.getString(HELP_URL_SAKAI_PROP, ServerConfigurationService.getPortalUrl() + "/help/TOCDisplay/content.hlp?docId=howdoiaddlatexlanguagetomycoursesite");
+    public static final String HELP_URL = ServerConfigurationService.getString(HELP_URL_SAKAI_PROP, ServerConfigurationService.getPortalUrl() + "/help/TOCDisplay/content.hlp?docId=howdoiaddlatexlanguagetomycoursesite");
     
     /**
      * Add MathJax settings to the context for the edit tools page
@@ -59,8 +59,6 @@ public class MathJaxEnabler
      */
     public static boolean addMathJaxSettingsToEditToolsContext(Context context, Site site, SessionState state)
     {
-        context.put(CONTEXT_MATHJAX_HELP_URL, HELP_URL);
-
         if (!ENABLED_AT_SYSTEM_LEVEL  || context == null || site == null || state == null || !isMathJaxEnabledForSite(site, state))
         {
             return false;

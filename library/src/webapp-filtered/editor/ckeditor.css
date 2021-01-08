@@ -1,0 +1,21 @@
+html,
+body.cke_editable {
+    background: var(--sakai-background-color-1);
+    color: var(--sakai-text-color-1);
+}
+
+caption {
+    color: var(--sakai-text-color-2);
+}
+
+.table th {
+    background-color: var(--sakai-active-color-1);
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) {
+    background-color: var(--sakai-background-color-2);
+}
+
+.table-hover > tbody > tr:hover {
+    background-color: var(--sakai-background-color-3);
+}

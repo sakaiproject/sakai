@@ -258,13 +258,36 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 		// req.getRequestURL()=http://localhost:8080/access/basiclti/site/85fd092b-1755-4aa9-8abc-e6549527dce0/content:0
 		// req.getRequestURI()=/access/basiclti/site/85fd092b-1755-4aa9-8abc-e6549527dce0/content:0
 		String acceptPath = req.getRequestURI().toString() + "?splash=bypass";
-				String body = "<div align=\"center\" style=\"text-align:left;width:80%;margin-top:5px;margin-left:auto;margin-right:auto;border-width:1px 1px 1px 1px;border-style:solid;border-color: gray;padding:.5em;font-family:Verdana,Arial,Helvetica,sans-serif;font-size:.8em\">";
-		body += splash+"</div><p>";
+		String body = "<div align=\"center\" style=\"text-align:left;width:80%;margin-top:5px;margin-left:auto;margin-right:auto;border-width:1px 1px 1px 1px;border-style:solid;border-color: gray;padding:.5em;font-family:Verdana,Arial,Helvetica,sans-serif;font-size:.8em\">";
 		String txt = rb.getString("launch.button", "Press to continue to external tool.");
 		body += "<form><input type=\"submit\" onclick=\"window.location='"+acceptPath+"';return false;\" value=\"";
 		body += rb.getString("launch.button", "Press to continue to proceed to external tool.");
 		body += "\"></form></p>\n";
+		body += splash+"</div><p>";
 		sendHTMLPage(res, body);
+	}
+
+	// Do a redirect in HTML + JavaScript instead of with a 302 so we have some recovery options inside an iframe
+	private void doRedirect(HttpServletRequest req, HttpServletResponse res, String redirectUrl, ResourceLoader rb)
+	{
+		Integer hash = redirectUrl.hashCode();
+
+		StringBuilder body = new StringBuilder();
+		body.append("<div style=\"padding:.5em;font-family:Verdana,Arial,Helvetica,sans-serif;\">\n");
+		body.append("<form style=\"display:none\" id=\"lti-form-"+hash+"\">\n");
+		body.append("<label for=\"lti-submit-"+hash+"\"><p>"+rb.getString("error.redirect.timeout", "Having problems reaching remote tool")+"</p></label>\n");
+		body.append("<p><input type=\"submit\" id=\"lti-submit-"+hash+"\" ");
+		body.append("onclick=\"window.location='"+redirectUrl+"';return false;\" value=\"");
+		body.append(rb.getString("launch.button", "Press to continue to proceed to external tool."));
+		body.append("\"></p></form>\n");
+		body.append("<script>\n");
+		// We give this three chances - try to submit right away - submit 1/2 second from now and show the link 5 seconds from now
+		body.append("setTimeout(function() {document.getElementById('lti-form-"+hash+"').style.display='block';}, 5000);\n");
+		body.append("setTimeout(function() {window.location='"+redirectUrl+"';}, 500);\n");
+		body.append("window.location='"+redirectUrl+"';\n");
+		body.append("</script>\n");
+		body.append("</div>");
+		sendHTMLPage(res, body.toString());
 	}
 
 	/*
@@ -299,9 +322,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 			if (StringUtils.isNotBlank(launch_url)) {
 				redirect.addParameter("target_link_uri", launch_url);
 			}
-			res.sendRedirect(redirect.build().toString());
-		} catch (IOException unlikely) {
-			log.error("failed redirect {}", unlikely.getMessage());
+			doRedirect(req, res, redirect.build().toString(), rb);
 		} catch (URISyntaxException e) {
 			log.error("Syntax exception building the URL with the params: {}.", e.getMessage());
 		}

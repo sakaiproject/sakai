@@ -27,6 +27,7 @@
 
  		<property name="autoDdl"><value>${auto.ddl}</value></property>
  		<property name="promoteUsersToProvided"><value>true</value></property>
+ 		<property name="promoteUsersToProvidedRole"><value>false</value></property>
         <property name="databaseBeans">
            <map>
               <entry key="default"><ref bean="org.sakaiproject.authz.impl.DbAuthzGroupSqlDefault"/></entry>

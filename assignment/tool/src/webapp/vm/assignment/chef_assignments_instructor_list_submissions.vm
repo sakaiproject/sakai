@@ -798,7 +798,7 @@ function printView(url) {
 				}
 			};
 
-			fetch(`/rubrics-service/rest/rubric-associations/search/by-tool-item-ids?toolId=sakai.assignment&itemId=${assignmentId}`, options)
+			fetch(`/rubrics-service/rest/rubric-associations/search/by-tool-and-assignment?toolId=sakai.assignment&itemId=${assignmentId}`, options)
 			.then(r => r.json())
 			.then(data => {
 

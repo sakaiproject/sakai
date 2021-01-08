@@ -1185,6 +1185,7 @@ public class ItemContentsBean implements Serializable {
 			ItemGradingData data = getItemGradingDataArray().get(count - 1);
 			if (data.getRationale() != null) {
 				rationale = ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(data.getRationale()).replaceAll("(\r\n|\r)", "<br/>");
+				rationale = ComponentManager.get(FormattedText.class).escapeHtml(rationale, true);
 			}
 		}
 		return Validator.check(rationale, "");
@@ -1344,7 +1345,7 @@ public class ItemContentsBean implements Serializable {
 			//text = text.replaceAll("<.*?>", " ");
 			//text = FormattedText.convertFormattedTextToPlaintext(text);
 			//text = FormattedText.stripHtmlFromText(text, true); // SAM-2277
-			text = ComponentManager.get(FormattedText.class).stripHtmlFromText( text, false, true ).trim(); // SAM-2499
+			text = ComponentManager.get(FormattedText.class).stripHtmlFromText( text, false, false ).trim(); // We do not want escaped HTML to be un-escaped
 		}
 		return text;
 

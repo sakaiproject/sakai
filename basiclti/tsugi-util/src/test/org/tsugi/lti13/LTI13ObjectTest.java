@@ -12,6 +12,11 @@ import org.tsugi.lti13.objects.LaunchLIS;
 import org.tsugi.lti13.objects.BasicOutcome;
 import org.tsugi.lti13.objects.Endpoint;
 import org.tsugi.lti13.objects.LTI11Transition;
+import org.tsugi.lti13.objects.PlatformConfiguration;
+import org.tsugi.lti13.objects.LTIPlatformConfiguration;
+import org.tsugi.lti13.objects.LTIPlatformMessage;
+
+import org.tsugi.lti13.LTICustomVars;
 
 import org.tsugi.jackson.JacksonUtil;
 
@@ -138,6 +143,32 @@ public class LTI13ObjectTest {
 			System.out.println("Bad header: " + header);
 		}
 		assertTrue(good);
+	}
+
+	@Test
+	public void testTwo() {
+		LTIPlatformConfiguration lpc = new LTIPlatformConfiguration();
+		LTIPlatformMessage mp = new LTIPlatformMessage();
+		mp.type = LaunchJWT.MESSAGE_TYPE_LAUNCH;
+		lpc.messages_supported.add(mp);
+        mp = new LTIPlatformMessage();
+        mp.type = LaunchJWT.MESSAGE_TYPE_DEEP_LINK;
+        lpc.messages_supported.add(mp);
+		lpc.variables.add(LTICustomVars.USER_ID);
+		lpc.variables.add(LTICustomVars.PERSON_EMAIL_PRIMARY);
+
+		PlatformConfiguration pc = new PlatformConfiguration();
+		pc.lti_platform_configuration = lpc;
+
+		String pcs = JacksonUtil.toString(pc);
+
+		String expected =
+"{\"token_endpoint_auth_methods_supported\":[\"private_key_jwt\"],\"token_endpoint_auth_signing_alg_values_supported\":[\"RS256\"],\"scopes_supported\":[\"openid\"],\"response_types_supported\":[\"id_token\"],\"subject_types_supported\":[\"public\",\"pairwise\"],\"id_token_signing_alg_values_supported\":[\"RS256\"],\"claims_supported\":[\"iss\",\"aud\"],\"https://purl.imsglobal.org/spec/lti-platform-configuration\":{\"messages_supported\":[{\"type\":\"LtiResourceLinkRequest\",\"placements\":[]},{\"type\":\"LtiDeepLinkingRequest\",\"placements\":[]}],\"variables\":[\"User.id\",\"Person.email.primary\"]}}";
+
+		if ( ! expected.equals(pcs) ) {
+			System.out.println(pcs);
+		}
+		assertEquals(pcs, expected);
 	}
 
 }

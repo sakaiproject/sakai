@@ -15,7 +15,7 @@ export class SakaiImageEditor extends SakaiDialogContent {
   constructor() {
 
     super();
-    this.loadProperties({bundle: "image-editor", debug: true}).then(r => this.i18n = r);
+    this.loadProperties("image-editor").then(r => this.i18n = r);
   }
 
   title() {

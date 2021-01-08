@@ -12,25 +12,14 @@ export default {
   title: 'Sakai Course Card',
   decorators: [withA11y, (storyFn) => {
     parent.portal = {locale: "en-GB"};
-    const baseUrl = "/sakai-ws/rest/i18n/getI18nProperties?locale=en-GB&resourceclass=org.sakaiproject.i18n.InternationalizedMessages&resourcebundle=";
-    const i18nUrl = `${baseUrl}coursecard`;
-    const toolnameMappingsUrl = `${baseUrl}toolname-mappings`;
     fetchMock
-      .get(i18nUrl, coursecardI18n, {overwriteRoutes: true})
-      .get(toolnameMappingsUrl, toolnameMappings, {overwriteRoutes: true})
+      .get(/sakai-ws\/rest\/i18n\/getI18nProperties.*/, coursecardI18n, {overwriteRoutes: true})
+      .get(/sakai-ws\/rest\/i18n\/getI18nProperties.*toolname-mappings.*/, toolnameMappings, {overwriteRoutes: true})
       .get(/addfavourite/, 200, {overwriteRoutes: true})
       .get(/removefavourite/, 200, {overwriteRoutes: true})
       .get("*", 500, {overwriteRoutes: true});
     return storyFn();
   }],
-};
-
-export const BasicDisplay = () => {
-
-  return html`
-    ${unsafeHTML(styles)}
-    <sakai-course-card />
-  `;
 };
 
 export const WithImage = () => {
@@ -46,6 +35,9 @@ export const WithImage = () => {
 
   return html`
     ${unsafeHTML(styles)}
+    <style>
+      body { background-color: lightgrey; padding: 40px;}
+    </style>
     <sakai-course-card course-data=${JSON.stringify(courseData)} tool-urls='{"assignments": "http://www.gmail.com"}'>
   `;
 };
@@ -71,6 +63,9 @@ export const TwoWithData = () => {
 
   return html`
     ${unsafeHTML(styles)}
+    <style>
+      body { background-color: lightgrey !important; padding: 40px;}
+    </style>
     <sakai-course-card course-data=${JSON.stringify(courseData1)}></sakai-course-card>
     <br />
     <br />

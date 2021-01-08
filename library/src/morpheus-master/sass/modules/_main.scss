@@ -69,6 +69,11 @@
 	transition:var(--sak-theme-switch-ease);
 }
 
+//Allow theme switching to work in iframes
+body.#{$namespace}container {
+	background:var(--tool-background-color);
+}
+
 .#{$namespace}pageColumns--single {
 	margin: 0;
 	clear: both;
