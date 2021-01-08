@@ -30,6 +30,8 @@ class SakaiRubricsManager extends RubricsElement {
     return html`
       <h1>${tr("manage_rubrics")}</h1>
 
+      <div class="sak-banner-info"><sr-lang key="locked_message">locked_message</sr></div>
+
       <div role="tablist">
         <div id="site-rubrics-title" aria-expanded="${this.siteRubricsExpanded}"
             role="tab" aria-multiselectable="true" class="manager-collapse-title"

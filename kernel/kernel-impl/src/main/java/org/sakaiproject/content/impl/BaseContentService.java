@@ -8755,7 +8755,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 	 */
 	protected void enableResources(String context)
 	{
-		unlockCheck(SITE_UPDATE_ACCESS, context);
+		unlockCheck(SiteService.SECURE_UPDATE_SITE, context);
 
 		// it would be called
 		String id = getSiteCollection(context);
@@ -9945,8 +9945,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 	private ResourceLoader rb = null;
 
 	protected static final String DROPBOX_ID = " Drop Box";
-
-	public static final String SITE_UPDATE_ACCESS = "site.upd";
 
 	protected static final String GROUP_LIST = "sakai:authzGroup";
 
