@@ -16,6 +16,8 @@ class SakaiDialogContent extends LitElement {
 
     super();
 
+    this.baseI18n = {close: "eggs", cancel: "chips"};
+
     lp("dialog-content").then(r => this.baseI18n = r);
   }
 

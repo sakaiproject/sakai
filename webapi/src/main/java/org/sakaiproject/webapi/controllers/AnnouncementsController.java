@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -108,11 +109,11 @@ public class AnnouncementsController extends AbstractSakaiApiController {
                     return new AnnouncementRestBean(site, am, optionalUrl.get());
                 }).collect(Collectors.toList());
         } catch (IdUnusedException idue) {
-            log.error("No site for id {}", siteId);
+            log.error("No announcements for id {}", siteId);
         } catch (PermissionException pe) {
             log.warn("The current user does not have permission to get announcements for this site {}", siteId);
         }
 
-        return null;
+        return Collections.EMPTY_LIST;
 	}
 }
