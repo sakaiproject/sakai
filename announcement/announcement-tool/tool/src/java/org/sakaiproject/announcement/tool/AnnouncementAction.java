@@ -222,8 +222,6 @@ public class AnnouncementAction extends PagedResourceActionII
    
    private static final String SYNOPTIC_ANNOUNCEMENT_TOOL = "sakai.synoptic.announcement";
  
-   private static final String UPDATE_PERMISSIONS = "site.upd";
-
    public static final String SAK_PROP_ANNC_REORDER = "sakai.announcement.reorder";
    public static final boolean SAK_PROP_ANNC_REORDER_DEFAULT = true;
 	
@@ -1505,7 +1503,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		}
 
 		boolean b = m_securityService.unlock(AnnouncementService.SECURE_ANNC_READ_DRAFT, msg.getReference())
-							 || m_securityService.unlock(UPDATE_PERMISSIONS, "/site/"+ siteId);
+							 || m_securityService.unlock(SiteService.SECURE_UPDATE_SITE, "/site/"+ siteId);
 		if (roleswap==null)
 		{
 			b = b || msg.getHeader().getFrom().getId().equals(SessionManager.getCurrentSessionUserId()) ; 

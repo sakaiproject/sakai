@@ -25,7 +25,7 @@
 			<div class="Mrphs-toolsNav__menuitem--title">${page.pageTitle}</div>
 			#{end}
 			<div class="Mrphs-toolsNav__menuitem--status-block">
-				#if (${page.hidden})
+				#if (${page.hidden} && !${page.locked})
 				<div class="fa fa-eye-slash tool-status-icon"
                     tabindex="0"
                     title="${rloader.site_tool_hidden_tooltip}"

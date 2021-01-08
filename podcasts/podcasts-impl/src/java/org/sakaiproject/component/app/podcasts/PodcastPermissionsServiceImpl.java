@@ -115,7 +115,7 @@ public class PodcastPermissionsServiceImpl implements PodcastPermissionsService 
 	 * 				True if can update, False otherwise
 	 */
 	public boolean canUpdateSite(String siteId) {
-			return securityService.unlock(UPDATE_PERMISSIONS, "/site/"+ siteId);
+			return securityService.unlock(SiteService.SECURE_UPDATE_SITE, "/site/"+ siteId);
 	}
 	
 	/**

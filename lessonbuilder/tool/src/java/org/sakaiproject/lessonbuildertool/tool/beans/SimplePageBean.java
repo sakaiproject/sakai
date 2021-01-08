@@ -197,7 +197,6 @@ public class SimplePageBean {
 	public static final String GRADEBOOK_TOOL_ID = "sakai.gradebookng";
 
 	private static String PAGE = "simplepage.page";
-	private static String SITE_UPD = "site.upd";
 	private String contents = null;
 	private String pageTitle = null;
 	private String newPageTitle = null;
@@ -2462,7 +2461,7 @@ public class SimplePageBean {
 		// we're only checking when you first go into a tool
 		Properties roleConfig = placement.getPlacementConfig();
 		String roleList = roleConfig.getProperty("functions.require");
-		boolean siteHidden = (roleList != null && roleList.contains(SITE_UPD));
+		boolean siteHidden = (roleList != null && roleList.contains(SiteService.SECURE_UPDATE_SITE));
 
 		// Let's go back to where we were last time.
 		Long l = (Long) sessionManager.getCurrentToolSession().getAttribute("current-pagetool-page");
@@ -4414,7 +4413,7 @@ public class SimplePageBean {
 				// simplepage.upd privileges, but site.save requires site.upd.
 				SecurityAdvisor siteUpdAdvisor = new SecurityAdvisor() {
 					public SecurityAdvice isAllowed(String userId, String function, String reference) {
-						if (function.equals(SITE_UPD) && reference.equals("/site/" + getCurrentSiteId())) {
+						if (function.equals(SiteService.SECURE_UPDATE_SITE) && reference.equals("/site/" + getCurrentSiteId())) {
 							return SecurityAdvice.ALLOWED;
 						} else {
 							return SecurityAdvice.PASS;
@@ -6932,24 +6931,25 @@ public class SimplePageBean {
 			if (roleList == null) {
 				roleList = "";
 			}
-			if (!roleList.contains( SITE_UPD ) && !visible) {
+			if (!roleList.contains(SiteService.SECURE_UPDATE_SITE) && !visible) {
 				if (roleList.length() > 0) {
 					roleList += ",";
 				}
-				roleList += SITE_UPD;
+				roleList += SiteService.SECURE_UPDATE_SITE;
 				saveChanges = true;
-			} else if ((roleList.contains( SITE_UPD )) && visible) {
-				roleList = roleList.replaceAll("," + SITE_UPD, "");
-				roleList = roleList.replaceAll(SITE_UPD, "");
+			} else if ((roleList.contains( SiteService.SECURE_UPDATE_SITE )) && visible) {
+				roleList = roleList.replaceAll("," + SiteService.SECURE_UPDATE_SITE, "");
+				roleList = roleList.replaceAll(SiteService.SECURE_UPDATE_SITE, "");
 				saveChanges = true;
 			}
 
 			if (saveChanges) {
 				roleConfig.setProperty("functions.require", roleList);
-				if (visible)
-				    roleConfig.remove("sakai-portal:visible");
-				else
- 				    roleConfig.setProperty("sakai-portal:visible", "false");
+				if (visible) {
+				    roleConfig.remove(ToolManager.PORTAL_VISIBLE);
+				} else {
+					roleConfig.setProperty(ToolManager.PORTAL_VISIBLE, "false");
+				}
 
 				placement.save();
 
