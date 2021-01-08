@@ -115,7 +115,6 @@ export const BasicDisplay = () => {
           #course-dashboard-l1-overview-block {
             flex: 2;
             margin-right: 16px;
-            margin-top: 24px;
           }
           #course-dashboard-l1-widgets {
             flex: 1;
@@ -123,6 +122,7 @@ export const BasicDisplay = () => {
 
         #course-dashboard-l2-header-and-overview-block {
           display: flex;
+          margin-bottom: 20px;
         }
           #course-dashboard-l2-header-block {
             flex: 1;
@@ -137,11 +137,23 @@ export const BasicDisplay = () => {
           #course-dashboard-l3-overview-block {
             flex: 2;
             margin-right: 16px;
-            margin-top: 24px;
           }
           #course-dashboard-l3-widgets {
             flex: 2;
           }
+
+        #sakai-course-overview-display p:first-of-type {
+          margin-top: 0px;
+        }
+
+        .course-dashboard-container sakai-editor {
+          display: block;
+          margin-top: 28px;
+        }
+
+        #course-dashboard-l2-header-and-overview-block sakai-editor {
+          margin-top: 0px;
+        }
 
     </style>
     <sakai-course-dashboard site-id="python101">

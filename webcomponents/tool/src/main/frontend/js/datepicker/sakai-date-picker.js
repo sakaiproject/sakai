@@ -39,13 +39,21 @@ class SakaiDatePicker extends LitElement {
 
   set epochMillis(newValue) {
 
+    const old = this._epochMillis;
     this._epochMillis = newValue;
 
     if (newValue) {
       this.start = this.getPreferredSakaiDatetime(newValue);
-      this.flatpicker.set("defaultHour", this.start.hours());
-      this.flatpicker.set("defaultMinute", this.start.minutes());
-      this.flatpicker.setDate(this.start.toDate());
+      this.requestUpdate("epochMillis", old);
+
+      this.updateComplete.then(() => {
+
+        if (this.enabled) {
+          this.flatpicker.set("defaultHour", this.start.hours());
+          this.flatpicker.set("defaultMinute", this.start.minutes());
+          this.flatpicker.setDate(this.start.toDate());
+        }
+      });
     }
   }
 
@@ -53,15 +61,23 @@ class SakaiDatePicker extends LitElement {
 
   disable() {
 
+    this.enabled = false;
+
     this.flatpicker.destroy();
-    let el = this.shadowRoot.getElementById("picker").disabled = true;
-    this.shadowRoot.getElementById("picker").value = this.start.format("LLLL");
+    let el = this.shadowRoot.getElementById("picker");
+    el.disabled = true;
+    el.value = this.start.format("LLLL");
   }
 
   enable() {
 
-    this.shadowRoot.getElementById("picker").disabled = false;
-    this.attachPicker();
+    this.enabled = true;
+
+    this.updateComplete.then(() => {
+
+      this.shadowRoot.getElementById("picker").disabled = false;
+      this.attachPicker();
+    });
   }
 
   attachPicker() {
@@ -84,7 +100,6 @@ class SakaiDatePicker extends LitElement {
       onChange(selectedDates, dateStr, instance) {
 
         self.dispatchEvent(new CustomEvent("datetime-selected", { detail: { epochMillis: selectedDates[0].getTime() }, bubbles: true }));
-        //instance.close();
       }
     };
 

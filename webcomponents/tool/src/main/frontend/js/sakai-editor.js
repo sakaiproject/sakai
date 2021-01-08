@@ -9,7 +9,6 @@ class SakaiEditor extends SakaiElement {
 
     return {
       elementId: { attribute: "element-id", type: String },
-      type: String,
       debug: { type: Boolean },
       content: String,
       active: { type: Boolean },
@@ -23,7 +22,6 @@ class SakaiEditor extends SakaiElement {
     super();
     if (this.debug) console.debug("Sakai Editor constructor");
     this.content = "";
-    this.type = "classic";
     this.elementId = "editable";
   }
 
@@ -46,23 +44,18 @@ class SakaiEditor extends SakaiElement {
 
   attachEditor() {
 
-    const element = document.getElementById(`${this.elementId}`);
-
-    if (element) {
-      if (this.type === "inline") {
-        this.editor = CKEDITOR.inline(element, {title: false});
-      } else {
-        if (this.toolbar) {
-          let toolbar = SakaiEditor.toolbars.get(this.toolbar);
-          this.editor = CKEDITOR.replace(element, {toolbar: toolbar});
-        } else {
-          this.editor = CKEDITOR.replace(element);
-        }
-      }
-      this.editor.on("change", (e) => {
-        this.dispatchEvent(new CustomEvent("changed", { detail: { overview: e.editor.getData() }, bubbles: true }));
-      });
+    if (CKEDITOR.instances[this.elementId]) {
+      CKEDITOR.instances[this.elementId].destroy();
     }
+
+    if (sakai?.editor?.launch) {
+      this.editor = sakai.editor.launch(this.elementId);
+    } else {
+      this.editor = CKEDITOR.replace(this.elementId, {toolbar: SakaiEditor.toolbars.get("basic")});
+    }
+    this.editor.on("change", (e) => {
+      this.dispatchEvent(new CustomEvent("changed", { detail: { overview: e.editor.getData() }, bubbles: true }));
+    });
   }
 
   firstUpdated(changed) {
@@ -87,4 +80,4 @@ if (!customElements.get("sakai-editor")) {
 }
 
 SakaiEditor.toolbars = new Map();
-SakaiEditor.toolbars.set("basic", [{ name: 'document', items: ['Bold', 'Italic', 'Underline', 'NumberedList', 'BulletedList', 'Link', 'Source', '-', 'RemoveFormat'] }]);
+SakaiEditor.toolbars.set("basic", [{ name: 'document', items : ['Source', '-', 'Bold', 'Italic', 'Underline', '-', 'Link', 'Unlink', '-', 'NumberedList','BulletedList', 'Blockquote']}]);

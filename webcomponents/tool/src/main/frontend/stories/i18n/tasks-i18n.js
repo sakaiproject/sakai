@@ -1,5 +1,5 @@
 export var tasksI18n = `
-filter_none=Filter: None
+filter_current=All Current
 filter_priority_5=Priority: 5
 filter_priority_4=Priority: 4
 filter_priority_3=Priority: 3

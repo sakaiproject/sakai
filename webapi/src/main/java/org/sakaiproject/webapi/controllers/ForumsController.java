@@ -100,8 +100,11 @@ public class ForumsController extends AbstractSakaiApiController {
 
 		Session session = checkSakaiSession();
 
+        List<String> sites = siteService.getUserSites().stream().map(s -> s.getId()).collect(Collectors.toList());
+
         return msgCenterManager.getWorkspaceSynopticMsgcntrItems(session.getUserId())
-            .stream().map(handler).collect(Collectors.toList());
+            .stream().filter(si -> sites.contains(si.getSiteId())).map(handler).collect(Collectors.toList());
+            //.stream().map(handler).collect(Collectors.toList());
 	}
 
     @ApiOperation(value = "Get a particular site's forums data")
