@@ -81,6 +81,9 @@ import org.tsugi.lti13.LTICustomVars;
 @Slf4j
 public class SiteManageServiceImpl implements SiteManageService {
 
+    // Duplicated from basiclti/tsugi-util/src/java/org/tsugi/lti13/LTICustomVars.java
+    public static final String CONTEXT_ID_HISTORY = "Context.id.history";
+
     @Setter private ContentHostingService contentHostingService;
     @Setter private EntityManager entityManager;
     @Setter private EventTrackingService eventTrackingService;
@@ -424,7 +427,11 @@ public class SiteManageServiceImpl implements SiteManageService {
                 }
             }
 
+<<<<<<< HEAD
             Set<String> siteIds = new LinkedHashSet<String>();
+=======
+            List<String> siteIds = new ArrayList<String>();
+>>>>>>> SAK-44865 - Context.id.history support
             Map<String, String> transversalMap = new HashMap<>();
             final String toSiteId = site.getId();
 
@@ -438,7 +445,11 @@ public class SiteManageServiceImpl implements SiteManageService {
                         String toSiteCollectionId = contentHostingService.getSiteCollection(toSiteId);
                         transversalMap.putAll(transferCopyEntities(toolId, fromSiteCollectionId, toSiteCollectionId, toolOptions, cleanup));
                         transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, fromSiteId, toSiteId));
+<<<<<<< HEAD
                         siteIds.add(fromSiteId);
+=======
+                        if ( ! siteIds.contains(fromSiteId) ) siteIds.add(fromSiteId);
+>>>>>>> SAK-44865 - Context.id.history support
                         resourcesImported = true;
                     }
                 }
@@ -452,7 +463,11 @@ public class SiteManageServiceImpl implements SiteManageService {
                     for (String fromSiteId : importTools.get(toolId)) {
                         transversalMap.putAll(transferCopyEntities(toolId, fromSiteId, toSiteId, toolOptions, cleanup));
                         transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, fromSiteId, toSiteId));
+<<<<<<< HEAD
                         siteIds.add(fromSiteId);
+=======
+                        if ( ! siteIds.contains(fromSiteId) ) siteIds.add(fromSiteId);
+>>>>>>> SAK-44865 - Context.id.history support
                     }
                 }
             }
@@ -463,7 +478,11 @@ public class SiteManageServiceImpl implements SiteManageService {
                     for (String fromSiteId : importTools.get(toolId)) {
                         transversalMap.putAll(transferCopyEntities(toolId, fromSiteId, toSiteId, toolOptions, cleanup));
                         transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, fromSiteId, toSiteId));
+<<<<<<< HEAD
                         siteIds.add(fromSiteId);
+=======
+                        if ( ! siteIds.contains(fromSiteId) ) siteIds.add(fromSiteId);
+>>>>>>> SAK-44865 - Context.id.history support
                     }
                 }
             }
@@ -481,7 +500,11 @@ public class SiteManageServiceImpl implements SiteManageService {
                             transversalMap.putAll(transferCopyEntities(toolId, fromSiteId, toSiteId, toolOptions, cleanup));
                             transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, fromSiteId, toSiteId));
                         }
+<<<<<<< HEAD
                         siteIds.add(fromSiteId);
+=======
+                        if ( ! siteIds.contains(fromSiteId) ) siteIds.add(fromSiteId);
+>>>>>>> SAK-44865 - Context.id.history support
                     }
                 }
             }
@@ -495,7 +518,48 @@ public class SiteManageServiceImpl implements SiteManageService {
 
             // Handle the Context.id.history
             mergeContextIdHistory(siteIds, site);
+<<<<<<< HEAD
+=======
         }
+    }
+
+    /**
+     * Compute the Context.id.history for the new site and insert it
+     *
+     * @param siteIds  a list of site ids to merge into the Context.id.history
+     * @param site       the site to save
+     */
+    private void mergeContextIdHistory(List<String> siteIds, Site site) {
+        List<String> new_list = new ArrayList<String>();
+        for(String fromSiteId : siteIds) {
+            try {
+                Site fromSite = siteService.getSite(fromSiteId);
+                ResourceProperties rp = fromSite.getProperties();
+                String old_id_history = rp.getProperty(CONTEXT_ID_HISTORY);
+                if ( StringUtils.isBlank(old_id_history) ) old_id_history = "";
+                List<String> old_id_list = Arrays.asList(old_id_history.split(","));
+
+                // Pull in the old ids.
+                for ( String old_id : old_id_list ) {
+                    if ( StringUtils.isBlank(old_id) ) continue;
+                    if ( ! new_list.contains(old_id) ) new_list.add(old_id);
+                }
+            } catch (Exception e) {
+                log.warn("Can't get site, {}", e.getMessage());
+                continue;
+            }
+
+            // Add the actual containing site
+            if ( ! new_list.contains(fromSiteId) ) new_list.add(fromSiteId);
+>>>>>>> SAK-44865 - Context.id.history support
+        }
+
+        if ( new_list.size() < 1 ) return;
+
+        String id_history = String.join(",", new_list);
+        ResourcePropertiesEdit rp = site.getPropertiesEdit();
+        rp.addProperty(CONTEXT_ID_HISTORY, id_history);
+        saveSite(site);
     }
 
     /**
