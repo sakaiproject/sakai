@@ -81,9 +81,6 @@ import org.tsugi.lti13.LTICustomVars;
 @Slf4j
 public class SiteManageServiceImpl implements SiteManageService {
 
-    // Duplicated from basiclti/tsugi-util/src/java/org/tsugi/lti13/LTICustomVars.java
-    public static final String CONTEXT_ID_HISTORY = "Context.id.history";
-
     @Setter private ContentHostingService contentHostingService;
     @Setter private EntityManager entityManager;
     @Setter private EventTrackingService eventTrackingService;
@@ -535,7 +532,7 @@ public class SiteManageServiceImpl implements SiteManageService {
             try {
                 Site fromSite = siteService.getSite(fromSiteId);
                 ResourceProperties rp = fromSite.getProperties();
-                String old_id_history = rp.getProperty(CONTEXT_ID_HISTORY);
+                String old_id_history = rp.getProperty(LTICustomVars.CONTEXT_ID_HISTORY);
                 if ( StringUtils.isBlank(old_id_history) ) old_id_history = "";
                 List<String> old_id_list = Arrays.asList(old_id_history.split(","));
 
@@ -558,7 +555,7 @@ public class SiteManageServiceImpl implements SiteManageService {
 
         String id_history = String.join(",", new_list);
         ResourcePropertiesEdit rp = site.getPropertiesEdit();
-        rp.addProperty(CONTEXT_ID_HISTORY, id_history);
+        rp.addProperty(LTICustomVars.CONTEXT_ID_HISTORY, id_history);
         saveSite(site);
     }
 
