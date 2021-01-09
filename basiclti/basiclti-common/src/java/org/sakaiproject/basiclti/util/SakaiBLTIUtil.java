@@ -444,6 +444,9 @@ public class SakaiBLTIUtil {
 			setProperty(lti13subst, LTICustomVars.COURSESECTION_SOURCEDID, site.getId());
 			setProperty(lti13subst, LTICustomVars.CONTEXT_ID, site.getId());
 
+			String context_id_history = site.getProperties().getProperty(LTICustomVars.CONTEXT_ID_HISTORY);
+			setProperty(lti13subst, LTICustomVars.CONTEXT_ID_HISTORY, context_id_history);
+
 			setProperty(props, BasicLTIConstants.CONTEXT_LABEL, site.getTitle());
 			setProperty(lti13subst, LTICustomVars.COURSESECTION_LABEL, site.getTitle());
 			setProperty(lti13subst, LTICustomVars.CONTEXT_LABEL, site.getTitle());

@@ -120,6 +120,11 @@
         	<groupId>org.sakaiproject.entitybroker</groupId>
         	<artifactId>entitybroker-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.basiclti</groupId>
+            <artifactId>basiclti-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         
     </dependencies>
 
