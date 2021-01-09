@@ -794,7 +794,6 @@ public class LTI13Servlet extends HttpServlet {
 
 		int allowOutcomes = getInt(tool.get(LTIService.LTI_ALLOWOUTCOMES));
 		int allowRoster = getInt(tool.get(LTIService.LTI_ALLOWROSTER));
-		int allowSettings = getInt(tool.get(LTIService.LTI_ALLOWSETTINGS));
 		int allowLineItems = getInt(tool.get(LTIService.LTI_ALLOWLINEITEMS));
 
 		SakaiAccessToken sat = new SakaiAccessToken();
