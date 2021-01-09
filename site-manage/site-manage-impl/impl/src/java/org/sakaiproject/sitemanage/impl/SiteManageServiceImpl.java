@@ -18,8 +18,10 @@ package org.sakaiproject.sitemanage.impl;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -44,6 +46,8 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -72,6 +76,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.sakaiproject.event.api.NotificationService;
+import org.tsugi.lti13.LTICustomVars;
 
 @Slf4j
 public class SiteManageServiceImpl implements SiteManageService {
@@ -419,6 +424,7 @@ public class SiteManageServiceImpl implements SiteManageService {
                 }
             }
 
+            Set<String> siteIds = new LinkedHashSet<String>();
             Map<String, String> transversalMap = new HashMap<>();
             final String toSiteId = site.getId();
 
@@ -432,6 +438,7 @@ public class SiteManageServiceImpl implements SiteManageService {
                         String toSiteCollectionId = contentHostingService.getSiteCollection(toSiteId);
                         transversalMap.putAll(transferCopyEntities(toolId, fromSiteCollectionId, toSiteCollectionId, toolOptions, cleanup));
                         transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, fromSiteId, toSiteId));
+                        siteIds.add(fromSiteId);
                         resourcesImported = true;
                     }
                 }
@@ -445,6 +452,7 @@ public class SiteManageServiceImpl implements SiteManageService {
                     for (String fromSiteId : importTools.get(toolId)) {
                         transversalMap.putAll(transferCopyEntities(toolId, fromSiteId, toSiteId, toolOptions, cleanup));
                         transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, fromSiteId, toSiteId));
+                        siteIds.add(fromSiteId);
                     }
                 }
             }
@@ -455,6 +463,7 @@ public class SiteManageServiceImpl implements SiteManageService {
                     for (String fromSiteId : importTools.get(toolId)) {
                         transversalMap.putAll(transferCopyEntities(toolId, fromSiteId, toSiteId, toolOptions, cleanup));
                         transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, fromSiteId, toSiteId));
+                        siteIds.add(fromSiteId);
                     }
                 }
             }
@@ -472,6 +481,7 @@ public class SiteManageServiceImpl implements SiteManageService {
                             transversalMap.putAll(transferCopyEntities(toolId, fromSiteId, toSiteId, toolOptions, cleanup));
                             transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, fromSiteId, toSiteId));
                         }
+                        siteIds.add(fromSiteId);
                     }
                 }
             }
@@ -482,7 +492,47 @@ public class SiteManageServiceImpl implements SiteManageService {
                     updateEntityReferences(toolId, toSiteId, transversalMap, site);
                 }
             }
+
+            // Handle the Context.id.history
+            mergeContextIdHistory(siteIds, site);
         }
+    }
+
+    /**
+     * Compute the Context.id.history for the new site and insert it
+     *
+     * @param siteIds  a set of site ids to merge into the Context.id.history
+     * @param site       the site to save
+     */
+    private void mergeContextIdHistory(Set<String> siteIds, Site site) {
+        Set<String> new_set = new LinkedHashSet<String>();
+        for(String fromSiteId : siteIds) {
+            try {
+                Site fromSite = siteService.getSite(fromSiteId);
+                ResourceProperties rp = fromSite.getProperties();
+                String old_id_history = rp.getProperty(LTICustomVars.CONTEXT_ID_HISTORY);
+                if ( StringUtils.isBlank(old_id_history) ) old_id_history = "";
+                List<String> old_id_list = Arrays.asList(old_id_history.split(","));
+
+                // Pull in the old ids.
+                for ( String old_id : old_id_list ) {
+                    if ( StringUtils.isNotBlank(old_id) ) new_set.add(old_id);
+                }
+            } catch (Exception e) {
+                log.warn("Can't get site, {}", e.getMessage());
+                continue;
+            }
+
+            // Add the actual containing site
+            new_set.add(fromSiteId);
+        }
+
+        if ( new_set.size() < 1 ) return;
+
+        String id_history = String.join(",", new_set);
+        ResourcePropertiesEdit rp = site.getPropertiesEdit();
+        rp.addProperty(LTICustomVars.CONTEXT_ID_HISTORY, id_history);
+        saveSite(site);
     }
 
     /**
