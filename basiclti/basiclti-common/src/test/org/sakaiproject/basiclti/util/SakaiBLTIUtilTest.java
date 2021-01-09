@@ -30,8 +30,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 
+import org.json.simple.JSONObject;
+
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+import org.tsugi.basiclti.BasicLTIUtil;
 
 @Slf4j
 public class SakaiBLTIUtilTest {
@@ -346,5 +349,42 @@ System.err.println("encrypt1="+encrypt1);
 		}
 	}
 
+	@Test
+	public void testTrackResourceLinkID() {
+		Map<String, Object> oldContent = new TreeMap<String, Object> ();
+		JSONObject old_json = BasicLTIUtil.parseJSONObject("");
+		old_json.put(LTIService.LTI_ID_HISTORY,"content:1,content:2");
+		oldContent.put(LTIService.LTI_SETTINGS, old_json.toString());
+		oldContent.put(LTIService.LTI_ID, "4");
+
+		String post = SakaiBLTIUtil.trackResourceLinkID(oldContent);
+		assertEquals(post, "content:1,content:2,content:4");
+
+		Map<String, Object> newContent = new TreeMap<String, Object> ();
+		JSONObject new_json = BasicLTIUtil.parseJSONObject("");
+		new_json.put(LTIService.LTI_ID_HISTORY,"content:2,content:3");
+		newContent.put(LTIService.LTI_SETTINGS, new_json.toString());
+
+		boolean retval = SakaiBLTIUtil.trackResourceLinkID(newContent, oldContent);
+		assertTrue(retval);
+
+		post = (String) newContent.get(LTIService.LTI_SETTINGS);
+		JSONObject post_json = BasicLTIUtil.parseJSONObject(post);
+		String post_history = (String) post_json.get(LTIService.LTI_ID_HISTORY);
+		assertEquals(post_history, "content:1,content:2,content:3,content:4");
+
+		// Verify no double add
+		retval = SakaiBLTIUtil.trackResourceLinkID(newContent, oldContent);
+		assertFalse(retval);
+
+		// Have an empty settings in the newContent item (typical use case);
+		newContent.remove(LTIService.LTI_SETTINGS);
+		retval = SakaiBLTIUtil.trackResourceLinkID(newContent, oldContent);
+
+		post = (String) newContent.get(LTIService.LTI_SETTINGS);
+		post_json = BasicLTIUtil.parseJSONObject(post);
+		post_history = (String) post_json.get(LTIService.LTI_ID_HISTORY);
+		assertEquals(post_history, "content:1,content:2,content:4");
+	}
 }
 
