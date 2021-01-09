@@ -22,6 +22,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.security.Key;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -709,7 +710,7 @@ public class SakaiBLTIUtil {
 			}
 
 			String allowRoster = (String) normalProps.get(LTIService.LTI_ALLOWROSTER);
-			String allowSettings = (String) normalProps.get(LTIService.LTI_ALLOWSETTINGS);
+			String allowSettings = (String) normalProps.get(LTIService.LTI_ALLOWSETTINGS_EXT);
 
 			String result_sourcedid = getSourceDID(user, placement, config);
 
@@ -1058,6 +1059,7 @@ public class SakaiBLTIUtil {
 			// Pull in the ResouceLink.id.history value from JSON
 			String content_id_history = (String) content_json.get(LTIService.LTI_ID_HISTORY);
 			if ( StringUtils.isNotBlank(content_id_history) ) {
+				setProperty(ltiProps, LTICustomVars.RESOURCELINK_ID_HISTORY, content_id_history);
 				setProperty(lti13subst, LTICustomVars.RESOURCELINK_ID_HISTORY, content_id_history);
 			}
 
@@ -1079,7 +1081,7 @@ public class SakaiBLTIUtil {
 
 			int allowoutcomes = getInt(tool.get(LTIService.LTI_ALLOWOUTCOMES));
 			int allowroster = getInt(tool.get(LTIService.LTI_ALLOWROSTER));
-			int allowsettings = getInt(tool.get(LTIService.LTI_ALLOWSETTINGS));
+			int allowsettings = getInt(tool.get(LTIService.LTI_ALLOWSETTINGS_EXT));
 			String placement_secret = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
 
 			String result_sourcedid = getSourceDID(user, resource_link_id, placement_secret);
@@ -1810,7 +1812,7 @@ public class SakaiBLTIUtil {
 
 			int allowOutcomes = getInt(tool.get(LTIService.LTI_ALLOWOUTCOMES));
 			int allowRoster = getInt(tool.get(LTIService.LTI_ALLOWROSTER));
-			int allowSettings = getInt(tool.get(LTIService.LTI_ALLOWSETTINGS));
+			int allowSettings = getInt(tool.get(LTIService.LTI_ALLOWSETTINGS_EXT));
 			int allowLineItems = getInt(tool.get(LTIService.LTI_ALLOWLINEITEMS));
 
 			String sourcedid = ltiProps.getProperty("lis_result_sourcedid");
@@ -2042,6 +2044,40 @@ public class SakaiBLTIUtil {
 				signed_placement = getSignedPlacement(context_id, resource_link_id, placement_secret);
 			}
 			return signed_placement;
+		}
+
+		public static String trackResourceLinkID(Map<String, Object> oldContent) {
+			boolean retval = false;
+
+			String old_settings = (String) oldContent.get(LTIService.LTI_SETTINGS);
+			JSONObject old_json = BasicLTIUtil.parseJSONObject(old_settings);
+			String old_id_history = (String) old_json.get(LTIService.LTI_ID_HISTORY);
+
+			String old_resource_link_id = getResourceLinkId(oldContent);
+
+			String id_history = BasicLTIUtil.mergeCSV(old_id_history, null, old_resource_link_id);
+			return id_history;
+		}
+
+		public static boolean trackResourceLinkID(Map<String, Object> newContent, Map<String, Object> oldContent) {
+			boolean retval = false;
+
+			String old_settings = (String) oldContent.get(LTIService.LTI_SETTINGS);
+			JSONObject old_json = BasicLTIUtil.parseJSONObject(old_settings);
+			String old_id_history = (String) old_json.get(LTIService.LTI_ID_HISTORY);
+
+			String new_settings = (String) newContent.get(LTIService.LTI_SETTINGS);
+			JSONObject new_json = BasicLTIUtil.parseJSONObject(new_settings);
+			String new_id_history = (String) new_json.get(LTIService.LTI_ID_HISTORY);
+
+			String old_resource_link_id = getResourceLinkId(oldContent);
+
+			String id_history = BasicLTIUtil.mergeCSV(old_id_history, new_id_history, old_resource_link_id);
+			if ( id_history.equals(new_id_history) ) return false;
+
+			new_json.put(LTIService.LTI_ID_HISTORY, id_history);
+			newContent.put(LTIService.LTI_SETTINGS, new_json.toString());
+			return true;
 		}
 
 		public static String[] postError(String str) {
@@ -2533,9 +2569,8 @@ public class SakaiBLTIUtil {
 			retval.setProperty(LTIService.LTI_SITE_ID, siteId);
 			for (String field : fieldList) {
 				String value = toNull(getCorrectProperty(config, field, placement));
-				// YYY
 				if (field.equals(BASICLTI_PORTLET_ALLOWSETTINGS)) {
-					field = LTIService.LTI_ALLOWSETTINGS;
+					field = LTIService.LTI_ALLOWSETTINGS_EXT;
 				}
 				if (field.equals(BASICLTI_PORTLET_ALLOWROSTER)) {
 					field = LTIService.LTI_ALLOWROSTER;

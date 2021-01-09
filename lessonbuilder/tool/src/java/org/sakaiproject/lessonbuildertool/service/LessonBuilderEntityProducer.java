@@ -74,6 +74,7 @@ import java.io.FileNotFoundException;
 
 import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.apache.commons.lang3.StringUtils;
+import org.json.simple.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
 import org.sakaiproject.authz.api.AuthzRealmLockException;
@@ -112,6 +113,8 @@ import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.tool.beans.OrphanPageFinder;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lti.api.LTIService;
+import org.tsugi.basiclti.BasicLTIUtil;
+import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.site.api.Group;
@@ -2327,6 +2330,16 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		// Point at the correct (possibly the same) tool id
 		contentProps.put(LTIService.LTI_TOOL_ID, newToolId.toString());
 
+		// Track the resource_link_history
+		Map<String, Object> updates = new HashMap<String, Object> ();
+		String id_history = SakaiBLTIUtil.trackResourceLinkID(ltiContent);
+		if ( StringUtils.isNotBlank(id_history) ) {
+			String new_settings = (String) contentProps.get(LTIService.LTI_SETTINGS);
+			JSONObject new_json = BasicLTIUtil.parseJSONObject(new_settings);
+			new_json.put(LTIService.LTI_ID_HISTORY, id_history);
+			contentProps.put(LTIService.LTI_SETTINGS, new_json.toString());
+		}
+
 		// Remove stuff that will be regenerated
 		contentProps.remove(LTIService.LTI_SITE_ID);
 		contentProps.remove(LTIService.LTI_CREATED_AT);
@@ -2345,6 +2358,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		} else {
 			log.debug("Adding LTI tool "+result);
 		}
+
 		return sakaiId;
 	}
 

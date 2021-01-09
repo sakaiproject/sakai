@@ -33,6 +33,8 @@ import static org.tsugi.basiclti.BasicLTIConstants.TOOL_CONSUMER_INSTANCE_URL;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.Map;
@@ -1012,6 +1014,37 @@ public class BasicLTIUtil {
 		retval = retval.replace(">", "&gt;");
 		retval = retval.replace("=", "&#61;");
 		return retval;
+	}
+
+	/**
+	 * Merge two resource_link_id or context_id history strings and add a new one
+	 */
+	public static String mergeCSV(String old_id_history, String new_id_history, String old_resource_link_id)
+	{
+		if ( isBlank(old_id_history) ) old_id_history = "";
+		if ( isBlank(new_id_history) ) new_id_history = "";
+		List<String> old_id_list = Arrays.asList(old_id_history.split(","));
+		List<String> new_id_list = Arrays.asList(new_id_history.split(","));
+
+		List<String> new_list = new ArrayList<String>();
+
+		// Pull in the old ids.
+		for ( String old_id : old_id_list ) {
+			if ( isBlank(old_id) ) continue;
+			if ( new_list.contains(old_id) ) continue;
+			new_list.add(old_id);
+		}
+
+		// Pull in the new ids
+		for ( String new_id : new_id_list ) {
+			if ( isBlank(new_id) ) continue;
+			if ( new_list.contains(new_id) ) continue;
+			new_list.add(new_id);
+		}
+
+		if ( isNotBlank(old_resource_link_id) && ! new_list.contains(old_resource_link_id) ) new_list.add(old_resource_link_id);
+		String id_history = String.join(",", new_list);
+		return id_history;
 	}
 
 	/**

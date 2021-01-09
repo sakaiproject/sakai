@@ -27,8 +27,11 @@ import static org.junit.Assert.assertFalse;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.json.simple.JSONObject;
+
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+import org.tsugi.basiclti.BasicLTIUtil;
 
 @Slf4j
 public class SakaiBLTIUtilTest {
