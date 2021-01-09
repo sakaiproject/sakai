@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -423,7 +424,7 @@ public class SiteManageServiceImpl implements SiteManageService {
                 }
             }
 
-            List<String> siteIds = new ArrayList<String>();
+            Set<String> siteIds = new LinkedHashSet<String>();
             Map<String, String> transversalMap = new HashMap<>();
             final String toSiteId = site.getId();
 
@@ -437,7 +438,7 @@ public class SiteManageServiceImpl implements SiteManageService {
                         String toSiteCollectionId = contentHostingService.getSiteCollection(toSiteId);
                         transversalMap.putAll(transferCopyEntities(toolId, fromSiteCollectionId, toSiteCollectionId, toolOptions, cleanup));
                         transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, fromSiteId, toSiteId));
-                        if ( ! siteIds.contains(fromSiteId) ) siteIds.add(fromSiteId);
+                        siteIds.add(fromSiteId);
                         resourcesImported = true;
                     }
                 }
@@ -451,7 +452,7 @@ public class SiteManageServiceImpl implements SiteManageService {
                     for (String fromSiteId : importTools.get(toolId)) {
                         transversalMap.putAll(transferCopyEntities(toolId, fromSiteId, toSiteId, toolOptions, cleanup));
                         transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, fromSiteId, toSiteId));
-                        if ( ! siteIds.contains(fromSiteId) ) siteIds.add(fromSiteId);
+                        siteIds.add(fromSiteId);
                     }
                 }
             }
@@ -462,7 +463,7 @@ public class SiteManageServiceImpl implements SiteManageService {
                     for (String fromSiteId : importTools.get(toolId)) {
                         transversalMap.putAll(transferCopyEntities(toolId, fromSiteId, toSiteId, toolOptions, cleanup));
                         transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, fromSiteId, toSiteId));
-                        if ( ! siteIds.contains(fromSiteId) ) siteIds.add(fromSiteId);
+                        siteIds.add(fromSiteId);
                     }
                 }
             }
@@ -480,7 +481,7 @@ public class SiteManageServiceImpl implements SiteManageService {
                             transversalMap.putAll(transferCopyEntities(toolId, fromSiteId, toSiteId, toolOptions, cleanup));
                             transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, fromSiteId, toSiteId));
                         }
-                        if ( ! siteIds.contains(fromSiteId) ) siteIds.add(fromSiteId);
+                        siteIds.add(fromSiteId);
                     }
                 }
             }
@@ -500,11 +501,11 @@ public class SiteManageServiceImpl implements SiteManageService {
     /**
      * Compute the Context.id.history for the new site and insert it
      *
-     * @param siteIds  a list of site ids to merge into the Context.id.history
+     * @param siteIds  a set of site ids to merge into the Context.id.history
      * @param site       the site to save
      */
-    private void mergeContextIdHistory(List<String> siteIds, Site site) {
-        List<String> new_list = new ArrayList<String>();
+    private void mergeContextIdHistory(Set<String> siteIds, Site site) {
+        Set<String> new_set = new LinkedHashSet<String>();
         for(String fromSiteId : siteIds) {
             try {
                 Site fromSite = siteService.getSite(fromSiteId);
@@ -515,8 +516,7 @@ public class SiteManageServiceImpl implements SiteManageService {
 
                 // Pull in the old ids.
                 for ( String old_id : old_id_list ) {
-                    if ( StringUtils.isBlank(old_id) ) continue;
-                    if ( ! new_list.contains(old_id) ) new_list.add(old_id);
+                    if ( StringUtils.isNotBlank(old_id) ) new_set.add(old_id);
                 }
             } catch (Exception e) {
                 log.warn("Can't get site, {}", e.getMessage());
@@ -524,12 +524,12 @@ public class SiteManageServiceImpl implements SiteManageService {
             }
 
             // Add the actual containing site
-            if ( ! new_list.contains(fromSiteId) ) new_list.add(fromSiteId);
+            new_set.add(fromSiteId);
         }
 
-        if ( new_list.size() < 1 ) return;
+        if ( new_set.size() < 1 ) return;
 
-        String id_history = String.join(",", new_list);
+        String id_history = String.join(",", new_set);
         ResourcePropertiesEdit rp = site.getPropertiesEdit();
         rp.addProperty(LTICustomVars.CONTEXT_ID_HISTORY, id_history);
         saveSite(site);
