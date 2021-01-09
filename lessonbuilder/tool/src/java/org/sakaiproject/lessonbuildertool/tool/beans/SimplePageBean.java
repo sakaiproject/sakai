@@ -6823,20 +6823,20 @@ public class SimplePageBean {
 		    CartridgeLoader cartridgeLoader = ZipLoader.getUtilities(cc, root.getCanonicalPath());
 		    Parser parser = Parser.createCartridgeParser(cartridgeLoader);
 
-		    LessonEntity quizobject = null;
+		    LessonEntity quizobject = quizEntity;
 		    for (LessonEntity q = quizEntity; q != null; q = q.getNextEntity()) {
 			if (q.getToolId().equals(quiztool))
 			    quizobject = q;
 		    }
 		    
-		    LessonEntity assignobject = null;
+		    LessonEntity assignobject = assignmentEntity;
 		    for (LessonEntity q = assignmentEntity; q != null; q = q.getNextEntity()) {
 			if (q.getToolId().equals(assigntool))
 			    assignobject = q;
 		    }
 		    
 
-		    LessonEntity topicobject = null;
+		    LessonEntity topicobject = forumEntity;
 		    for (LessonEntity q = forumEntity; q != null; q = q.getNextEntity()) {
 			if (q.getToolId().equals(topictool))
 			    topicobject = q;
