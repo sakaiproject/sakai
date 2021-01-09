@@ -425,10 +425,14 @@ public class SiteManageServiceImpl implements SiteManageService {
             }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
             Set<String> siteIds = new LinkedHashSet<String>();
 =======
             List<String> siteIds = new ArrayList<String>();
 >>>>>>> SAK-44865 - Context.id.history support
+=======
+            Set<String> siteIds = new LinkedHashSet<String>();
+>>>>>>> SAK-44865 - Use Set instead of List
             Map<String, String> transversalMap = new HashMap<>();
             final String toSiteId = site.getId();
 
@@ -443,10 +447,14 @@ public class SiteManageServiceImpl implements SiteManageService {
                         transversalMap.putAll(transferCopyEntities(toolId, fromSiteCollectionId, toSiteCollectionId, toolOptions, cleanup));
                         transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, fromSiteId, toSiteId));
 <<<<<<< HEAD
+<<<<<<< HEAD
                         siteIds.add(fromSiteId);
 =======
                         if ( ! siteIds.contains(fromSiteId) ) siteIds.add(fromSiteId);
 >>>>>>> SAK-44865 - Context.id.history support
+=======
+                        siteIds.add(fromSiteId);
+>>>>>>> SAK-44865 - Use Set instead of List
                         resourcesImported = true;
                     }
                 }
@@ -461,10 +469,14 @@ public class SiteManageServiceImpl implements SiteManageService {
                         transversalMap.putAll(transferCopyEntities(toolId, fromSiteId, toSiteId, toolOptions, cleanup));
                         transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, fromSiteId, toSiteId));
 <<<<<<< HEAD
+<<<<<<< HEAD
                         siteIds.add(fromSiteId);
 =======
                         if ( ! siteIds.contains(fromSiteId) ) siteIds.add(fromSiteId);
 >>>>>>> SAK-44865 - Context.id.history support
+=======
+                        siteIds.add(fromSiteId);
+>>>>>>> SAK-44865 - Use Set instead of List
                     }
                 }
             }
@@ -476,10 +488,14 @@ public class SiteManageServiceImpl implements SiteManageService {
                         transversalMap.putAll(transferCopyEntities(toolId, fromSiteId, toSiteId, toolOptions, cleanup));
                         transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, fromSiteId, toSiteId));
 <<<<<<< HEAD
+<<<<<<< HEAD
                         siteIds.add(fromSiteId);
 =======
                         if ( ! siteIds.contains(fromSiteId) ) siteIds.add(fromSiteId);
 >>>>>>> SAK-44865 - Context.id.history support
+=======
+                        siteIds.add(fromSiteId);
+>>>>>>> SAK-44865 - Use Set instead of List
                     }
                 }
             }
@@ -498,10 +514,14 @@ public class SiteManageServiceImpl implements SiteManageService {
                             transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, fromSiteId, toSiteId));
                         }
 <<<<<<< HEAD
+<<<<<<< HEAD
                         siteIds.add(fromSiteId);
 =======
                         if ( ! siteIds.contains(fromSiteId) ) siteIds.add(fromSiteId);
 >>>>>>> SAK-44865 - Context.id.history support
+=======
+                        siteIds.add(fromSiteId);
+>>>>>>> SAK-44865 - Use Set instead of List
                     }
                 }
             }
@@ -523,11 +543,11 @@ public class SiteManageServiceImpl implements SiteManageService {
     /**
      * Compute the Context.id.history for the new site and insert it
      *
-     * @param siteIds  a list of site ids to merge into the Context.id.history
+     * @param siteIds  a set of site ids to merge into the Context.id.history
      * @param site       the site to save
      */
-    private void mergeContextIdHistory(List<String> siteIds, Site site) {
-        List<String> new_list = new ArrayList<String>();
+    private void mergeContextIdHistory(Set<String> siteIds, Site site) {
+        Set<String> new_set = new LinkedHashSet<String>();
         for(String fromSiteId : siteIds) {
             try {
                 Site fromSite = siteService.getSite(fromSiteId);
@@ -538,8 +558,7 @@ public class SiteManageServiceImpl implements SiteManageService {
 
                 // Pull in the old ids.
                 for ( String old_id : old_id_list ) {
-                    if ( StringUtils.isBlank(old_id) ) continue;
-                    if ( ! new_list.contains(old_id) ) new_list.add(old_id);
+                    if ( StringUtils.isNotBlank(old_id) ) new_set.add(old_id);
                 }
             } catch (Exception e) {
                 log.warn("Can't get site, {}", e.getMessage());
@@ -547,13 +566,17 @@ public class SiteManageServiceImpl implements SiteManageService {
             }
 
             // Add the actual containing site
+<<<<<<< HEAD
             if ( ! new_list.contains(fromSiteId) ) new_list.add(fromSiteId);
 >>>>>>> SAK-44865 - Context.id.history support
+=======
+            new_set.add(fromSiteId);
+>>>>>>> SAK-44865 - Use Set instead of List
         }
 
-        if ( new_list.size() < 1 ) return;
+        if ( new_set.size() < 1 ) return;
 
-        String id_history = String.join(",", new_list);
+        String id_history = String.join(",", new_set);
         ResourcePropertiesEdit rp = site.getPropertiesEdit();
         rp.addProperty(LTICustomVars.CONTEXT_ID_HISTORY, id_history);
         saveSite(site);
