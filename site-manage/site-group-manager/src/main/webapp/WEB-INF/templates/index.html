@@ -30,7 +30,7 @@
             <td class="hidden-xs" th:if="${anyGroupLocked}">
               <div th:if="${lockedGroupsEntityMap.get(group.id) != null }">
                 <div th:if="${!lockedGroupsEntityMap.get(group.id).get('assignments').isEmpty()}">
-                  <span class="group-locked-info-collapsed" data-toggle="collapse" th:data-target="|#lockingassignments-${group.id}|" tabindex="0" role="button" th:text="#{index.table.assignments}"></span>
+                  <span class="group-locked-info collapsed" data-toggle="collapse" th:data-target="|#lockingassignments-${group.id}|" tabindex="0" role="button" th:text="#{index.table.assignments}"></span>
                   <div th:id="|lockingassignments-${group.id}|" class="collapse">
                     <ul th:each=" assigment : ${lockedGroupsEntityMap.get(group.id).get('assignments')}">
                       <li th:text="${assigment}"></li>
@@ -39,7 +39,7 @@
                 </div>
                 <div class="clearfix"></div>
                 <div th:if="${!lockedGroupsEntityMap.get(group.id).get('assessments').isEmpty()}">
-                <span class="group-locked-info-collapsed" data-toggle="collapse" th:data-target="|#lockingassessments-${group.id}|" tabindex="0" role="button" th:text="#{index.table.assessments}"></span>
+                <span class="group-locked-info collapsed" data-toggle="collapse" th:data-target="|#lockingassessments-${group.id}|" tabindex="0" role="button" th:text="#{index.table.assessments}"></span>
                   <div th:id="|lockingassessments-${group.id}|" class="collapse">
                     <ul th:each=" assessment : ${lockedGroupsEntityMap.get(group.id).get('assessments')}">
                       <li th:text="${assessment}"></li>
