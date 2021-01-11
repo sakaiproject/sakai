@@ -48,6 +48,7 @@ import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
@@ -83,14 +84,17 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     @Setter private SecurityService securityService;
     @Setter private SessionManager sessionManager;
     @Setter private SiteService siteService;
+    @Setter private ThreadLocalManager threadLocalManager;
     @Setter private ToolManager toolManager;
     @Setter private UserDirectoryService userDirectoryService;
 
+    private Cache<String, Set<DBMembershipItem>> membershipItemCache;
     private Cache<String, Set<String>> userGroupMembershipCache;
 
     public void init() {
         log.info("init()");
         userGroupMembershipCache = memoryService.getCache("org.sakaiproject.component.app.messageforums.ui.UIPermissionsManagerImpl.userGroupMembershipCache");
+        membershipItemCache = memoryService.getCache("org.sakaiproject.component.app.messageforums.ui.UIPermissionsManagerImpl.membershipItemCache");
     }
 
     @Override
@@ -675,19 +679,60 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
                 || (topic != null && topic.getRestrictPermissionsForGroups() && isInstructorForAllowedGroup(topic.getId(), false));
     }
 
+    private void clearMembershipsFromCacheForArea(Area area) {
+        if (area == null || area.getId() == null) return;
+        String areaId = area.getId().toString();
+        String areaCacheKey = "area_" + areaId;
+        String forumCacheKey = "forum_" + areaId;
+        String topicCacheKey = "topic_" + areaId;
+        Object obj = threadLocalManager.get("msgcntr_clear_permission_set#" + areaId);
+        if (obj instanceof Boolean && (Boolean) obj) {
+            membershipItemCache.remove(areaCacheKey);
+            membershipItemCache.remove(forumCacheKey);
+            membershipItemCache.remove(topicCacheKey);
+            threadLocalManager.set("msgcntr_clear_permission_set#" + areaId, Boolean.FALSE);
+        }
+    }
+
     private Set<DBMembershipItem> getTopicMemberships(Area area) {
         if (area == null) return Collections.emptySet();
-        return new HashSet<>(permissionLevelManager.getAllMembershipItemsForTopicsForSite(area.getId()));
+        clearMembershipsFromCacheForArea(area);
+        String topicCacheKey = "topic_" + area.getId();
+        Set<DBMembershipItem> cachedTopicMemberships = membershipItemCache.get(topicCacheKey);
+        if (cachedTopicMemberships == null) {
+            cachedTopicMemberships = new HashSet<>(permissionLevelManager.getAllMembershipItemsForTopicsForSite(area.getId()));
+            membershipItemCache.put(topicCacheKey, cachedTopicMemberships);
+        }
+        return cachedTopicMemberships;
     }
 
     private Set<DBMembershipItem> getForumMemberships(Area area) {
         if (area == null) return Collections.emptySet();
-        return new HashSet<>(permissionLevelManager.getAllMembershipItemsForForumsForSite(area.getId()));
+        clearMembershipsFromCacheForArea(area);
+        String forumCacheKey = "forum_" + area.getId();
+        Set<DBMembershipItem> cachedForumMemberships = membershipItemCache.get(forumCacheKey);
+        if (cachedForumMemberships == null) {
+            cachedForumMemberships = new HashSet<>(permissionLevelManager.getAllMembershipItemsForForumsForSite(area.getId()));
+            membershipItemCache.put(forumCacheKey, cachedForumMemberships);
+        }
+        return cachedForumMemberships;
     }
 
     private Set<DBMembershipItem> getAreaMemberships(String siteId) {
-        if (StringUtils.isBlank(siteId)) return Collections.emptySet();
-        return forumManager.getDiscussionForumArea(siteId).getMembershipItemSet();
+        if (StringUtils.isNotBlank(siteId)) {
+            Area area = forumManager.getDiscussionForumArea(siteId);
+            if (area != null) {
+                clearMembershipsFromCacheForArea(area);
+                String areaSiteCacheKey = "area_" + area.getId();
+                Set<DBMembershipItem> cachedAreaMemberships = membershipItemCache.get(areaSiteCacheKey);
+                if (cachedAreaMemberships == null) {
+                    cachedAreaMemberships = area.getMembershipItemSet();
+                    membershipItemCache.put(areaSiteCacheKey, cachedAreaMemberships);
+                }
+                return cachedAreaMemberships;
+            }
+        }
+        return Collections.emptySet();
     }
 
     public Set<String> getGroupsWithMember(Site site, String userId) {

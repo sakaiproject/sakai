@@ -747,20 +747,12 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 			Set<DBMembershipItem> membershipItemsToDelete = new HashSet<>();
 			for (DBMembershipItem item : membershipSet) {
 				if (item != null) {
-					DBMembershipItem managedItem = getHibernateTemplate().merge(item);
-					membershipItemsToDelete.add(managedItem);
-					PermissionLevel managedLevel = managedItem.getPermissionLevel();
-					if (managedLevel != null) {
-						switch (managedItem.getPermissionLevelName()) {
-							case PermissionLevelManager.PERMISSION_LEVEL_NAME_CUSTOM:
-							case PermissionLevelManager.PERMISSION_LEVEL_NAME_OWNER:
-							case PermissionLevelManager.PERMISSION_LEVEL_NAME_AUTHOR:
-							case PermissionLevelManager.PERMISSION_LEVEL_NAME_NONEDITING_AUTHOR:
-							case PermissionLevelManager.PERMISSION_LEVEL_NAME_CONTRIBUTOR:
-							case PermissionLevelManager.PERMISSION_LEVEL_NAME_REVIEWER:
-							case PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE:
-								permissionLevelsToDelete.add(getHibernateTemplate().merge(managedLevel));
-								break;
+					DBMembershipItem managedItem = getHibernateTemplate().get(DBMembershipItemImpl.class, item.getId());
+					if (managedItem != null) {
+						membershipItemsToDelete.add(managedItem);
+						PermissionLevel managedLevel = getHibernateTemplate().get(PermissionLevelImpl.class, managedItem.getPermissionLevel().getId());
+						if (managedLevel != null) {
+							permissionLevelsToDelete.add(managedLevel);
 						}
 					}
 				}
