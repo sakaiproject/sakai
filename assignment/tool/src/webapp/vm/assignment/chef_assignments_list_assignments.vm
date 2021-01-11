@@ -447,30 +447,25 @@
 							<td headers="for" class="hidden-xs">
 								#if($assignment.TypeOfAccess == "SITE")
 									$tlang.getString("gen.viewallgroupssections")
-								#elseif($assignment.TypeOfAccess == "GROUP")
-									#set($groupTitleList = $asnGroupTitleMap.get($assignment.Id))
-                                    <div class="groupsContainer">
-                                        <strong class="collapse" onclick="ASN.toggleGroups( this ); ASN.resizeFrame();">
-											$groupTitleList.size()
-											#if($groupTitleList.size() == 1)
-												$tlang.getString( "selected.group" )
-											#else
-												$tlang.getString( "selected.groups" )
-											#end
-                                        </strong>
-
-                                        <div id="groupsPanel" style="display: none;">
-                                            <ul>
-												#foreach($title in $groupTitleList)
-                                                    <li>$formattedText.escapeHtml($title)</li>
-												#end
-                                            </ul>
-                                        </div>
-                                    </div>
 								#else
-                                    <div class="sak-banner-warn">
-										$tlang.getString( "assignment.inaccessible" )
-                                    </div>
+									#set($groupTitleList = $asnGroupTitleMap.get($assignment.Id))
+									#if(!$groupTitleList.isEmpty())
+										<div class="groupsContainer">
+											<strong class="collapse" onclick="ASN.toggleGroups(this);">
+												$groupTitleList.size() #if($groupTitleList.size() == 1) $tlang.getString("selected.group") #else $tlang.getString("selected.groups") #end
+											</strong>
+
+											<div id="groupsPanel" style="display: none;">
+												<ul>
+													#foreach($title in $groupTitleList)
+														<li>$formattedText.escapeHtml($title)</li>
+													#end
+												</ul>
+											</div>
+										</div>
+									#else
+										<div class="sak-banner-warn">$tlang.getString("assignment.inaccessible")</div>
+									#end
 								#end
 							</td>
 							#end
