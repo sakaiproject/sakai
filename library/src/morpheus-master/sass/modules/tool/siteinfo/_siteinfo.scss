@@ -143,7 +143,7 @@
     background: none repeat scroll 0 0 #ccc;
   }
 
-  .group-locked-info-collapsed::before {
+  .group-locked-info.collapsed::before {
     content: '\f0da';
     font-family: 'FontAwesome';
     font-size: 18px;
@@ -151,12 +151,16 @@
     cursor: pointer;
   }
 
-  .group-locked-info-expanded::before {
+  .group-locked-info::before {
     content: '\f0d7';
     font-family: 'FontAwesome';
     font-size: 18px;
     font-weight: bold;
     cursor: pointer;
+  }
+
+  .group-locked-info + .collapsing {
+    transition: none !important;
   }
 
   .selectSectionDiv {
