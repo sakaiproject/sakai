@@ -52,7 +52,7 @@
      <f:subview id="parts">
       <f:verbatim><h4 class="tier1"></f:verbatim>
       <h:outputText value="#{deliveryMessages.p} #{part.number} #{deliveryMessages.of} #{part.numParts}" />
-      <h:outputText value=" #{deliveryMessages.dash} #{part.text} />
+      <h:outputText value=" #{deliveryMessages.dash} #{part.text}" />
       <!-- h:outputText value="#{part.unansweredQuestions}/#{part.questions} " / -->
       <!-- h:outputText value="#{deliveryMessages.ans_q}, " / -->
       <!-- h:outputText value="#{part.points}/#{part.roundedMaxPoints} #{deliveryMessages.pt}" / -->
