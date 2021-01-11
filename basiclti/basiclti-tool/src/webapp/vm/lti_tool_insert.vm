@@ -10,9 +10,11 @@
     #if ($messageSuccess)<div class="sak-banner-success">$tlang.getString("gen.success") $formattedText.escapeHtml($messageSuccess)</div>#end
     #if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>#end
     <form action="#toolForm("")" method="post" name="customizeForm" >
+#if ($isEdit && $isAdmin && $autoStartUrl )
         <div style="float:right" id="lti-advantage-div"><a href="$autoStartUrl" class="btn btn-primary" target="sakai-basiclti-admin-iframe"
         title="$tlang.getString("tool.lti13.auto.title")" role="button"
         onclick="showIframe(this.title, false);">$tlang.getString("tool.lti13.auto.button")</a></div>
+#end
         $formInput
                 <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
         <p class="act">
@@ -138,6 +140,7 @@ $(document).ready( function() {
 
 });
 
+#if ($isEdit && $isAdmin && $autoStartUrl )
 function importLTI13Config() {
 
     var importUrl = '$autoRegistrationUrl';
@@ -261,6 +264,7 @@ window.addEventListener('message', function (e) {
             break;
     }
 });
+#end
 
 </script>
 </div>
