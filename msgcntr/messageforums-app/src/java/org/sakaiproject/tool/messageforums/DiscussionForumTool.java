@@ -384,10 +384,6 @@ public class DiscussionForumTool {
   private boolean gradeByPercent;
   private boolean gradeByLetter;
 
-  private static final String RUBRIC_STATE_DETAILS = "rbcs-state-details";
-  private static final String RUBRIC_TOKEN = "rbcs-token";
-  private String rbcsStateDetails = "";
-
   /**
    * Dependency Injected
    */
@@ -1084,9 +1080,6 @@ public class DiscussionForumTool {
     beforeChangeHM = SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), forumId, null);
 
     forumManager.deleteForum(selectedForum.getForum());
-
-    // remove rubric association if there is one
-    //rubricsService.deleteRubricAssociation(RubricsConstants.RBCS_TOOL_FORUMS, RubricsConstants.RBCS_FORUM_ENTITY_PREFIX + forumId);
 
     if(beforeChangeHM != null){
         updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), forumId, null, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
@@ -2044,9 +2037,6 @@ public class DiscussionForumTool {
     beforeChangeHM = SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), forumId, topicId);
 
     forumManager.deleteTopic(selectedTopic.getTopic());
-
-    // remove rubric association if there is one
-    //rubricsService.deleteRubricAssociation(RubricsConstants.RBCS_TOOL_FORUMS, RubricsConstants.RBCS_TOPIC_ENTITY_PREFIX + topicId);
 
     if(beforeChangeHM != null){
         updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), forumId, topicId, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
@@ -3447,7 +3437,6 @@ public class DiscussionForumTool {
     prepareRemoveAttach.clear();
     assignments.clear();
     refreshPendingMsgs = true;
-    rbcsStateDetails = "";
   }
 
   /**
@@ -5837,7 +5826,6 @@ public class DiscussionForumTool {
   
   public String processDfGradeSubmit() 
   {
-	keepStateDetails(null);
 	GradebookService gradebookService = getGradebookService();
 	if (gradebookService == null) {
 //		Maybe print an error message if it's possible to get into this state
@@ -7885,18 +7873,6 @@ public class DiscussionForumTool {
 
 		forum = saveForumSettings(oldForum.getDraft());
 
-		//copy rubrics
-		/*
-		try {
-			Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_FORUMS, RubricsConstants.RBCS_FORUM_ENTITY_PREFIX + oldForum.getId());
-			if (rubricAssociation.isPresent()) {
-				rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_FORUMS, RubricsConstants.RBCS_FORUM_ENTITY_PREFIX + forum.getId(), rubricAssociation.get().getFormattedAssociation());
-			}
-		} catch(Exception e){
-			log.error("Error while trying to duplicate Rubrics: {} ", e.getMessage());
-		}
-		*/
-
 		forum = forumManager.getForumById(forum.getId());
 		List attachList = forum.getAttachments();
 		if (attachList != null)
@@ -9182,17 +9158,6 @@ public class DiscussionForumTool {
 	public String getRbcsToken() {
 		log.debug("getRbcsToken()");
 		return rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_FORUMS);
-	}
-
-	public void keepStateDetails(ActionEvent e) {//this is currently only used for rubrics, but could be used to avoid repeating code on each submit action
-		List rbcsDetails = getRequestParamArrayValueLike("rbcs-state-details");
-		if(rbcsDetails != null){
-			Iterator iter = rbcsDetails.iterator();
-			if (iter.hasNext()) {
-				rbcsStateDetails = (String)iter.next();
-				log.debug("rbcsStateDetails " + rbcsStateDetails); 
-			}
-		}
 	}
 
 	public boolean hasAssociatedRubric(){

@@ -53,17 +53,30 @@ public interface ToolItemRubricAssociationRepository extends MetadataRepository<
     void deleteById(Long id);
 
     @RestResource(path = "by-tool-and-assignment", rel = "by-tool-and-assignment")
-    @Query("select resource from ToolItemRubricAssociation resource where resource.toolId = :toolId and resource.itemId = :itemId and " + QUERY_CONTEXT_CONSTRAINT)
+    @Query("select resource from ToolItemRubricAssociation resource where " +
+                "resource.toolId = :toolId and " +
+                "resource.itemId = :itemId and " +
+                "active = 1 and " + QUERY_CONTEXT_CONSTRAINT)
     @QueryHints(@QueryHint(name="org.hibernate.cacheable", value = "true"))
     List<ToolItemRubricAssociation> findByToolIdAndItemId(@Param("toolId") String toolId, @Param("itemId") String itemId);
 
+    @RestResource(path = "by-assignment-and-rubric", rel = "by-assignment-and-rubric")
+    @Query("select resource from ToolItemRubricAssociation resource where " +
+                "resource.itemId = :itemId and " +
+                "resource.rubricId = :rubricId and " + QUERY_CONTEXT_CONSTRAINT)
+    @QueryHints(@QueryHint(name="org.hibernate.cacheable", value = "true"))
+    List<ToolItemRubricAssociation> findByToolIdAndItemId(@Param("itemId") String itemId, @Param("rubricId") Long rubricId);
+
     @RestResource(path = "by-rubric", rel = "by-rubric")
-    @Query("select resource from ToolItemRubricAssociation resource where resource.rubricId = :rubricId ") //and " + QUERY_CONTEXT_CONSTRAINT)
+    @Query("select resource from ToolItemRubricAssociation resource where " +
+                "resource.rubricId = :rubricId")
     @QueryHints(@QueryHint(name="org.hibernate.cacheable", value = "true"))
     List<ToolItemRubricAssociation> findByRubricId(@Param("rubricId") Long rubricId);
 	
     @RestResource(path = "by-item-id-prefix", rel = "by-item-id-prefix")
-    @Query("select resource from ToolItemRubricAssociation resource where resource.toolId = :toolId and resource.itemId like CONCAT(:itemId, '%') and " + QUERY_CONTEXT_CONSTRAINT)
+    @Query("select resource from ToolItemRubricAssociation resource where " +
+                "resource.toolId = :toolId and " +
+                "resource.itemId like CONCAT(:itemId, '%') and " + QUERY_CONTEXT_CONSTRAINT)
     @QueryHints(@QueryHint(name="org.hibernate.cacheable", value = "true"))
     List<ToolItemRubricAssociation> findByItemIdPrefix(@Param("toolId") String toolId, @Param("itemId") String itemId);
 }

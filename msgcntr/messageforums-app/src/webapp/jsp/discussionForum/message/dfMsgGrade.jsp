@@ -65,7 +65,6 @@
             <%
             }
 
-            String stateDetails = forumTool.getRbcsStateDetails();
             boolean hasAssociatedRubric = forumTool.hasAssociatedRubric();
             String entityId = forumTool.getRubricAssociationId();
 
