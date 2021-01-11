@@ -2645,7 +2645,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Override
     public boolean assignmentUsesAnonymousGrading(Assignment assignment) {
         if (assignment != null) {
-            return Boolean.valueOf(assignment.getProperties().get(AssignmentServiceConstants.NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
+            return Boolean.parseBoolean(assignment.getProperties().get(AssignmentServiceConstants.NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
         }
         return false;
     }

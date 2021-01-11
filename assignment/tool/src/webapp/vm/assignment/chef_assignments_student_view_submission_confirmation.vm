@@ -110,17 +110,18 @@
                     </td>
                 </tr>
             #end
-##          TODO Submission Log
-##          #if ($!submission && $!submission.getSubmissionLog().size() > 0)
-##              <tr>
-##                  <th>$tlang.getString('gen.history')</th>
-##                  <td>
-##                      #foreach ($entry in $submission.getSubmissionLog())
-##                          $formattedText.escapeHtml($entry)<br>
-##                      #end
-##                  </td>
-##              </tr>
-##          #end
+
+            ## Submission Log
+            #if ($!submissionLog && !$!submissionLog.isEmpty())
+                <tr>
+                    <th>$tlang.getString('gen.history')</th>
+                    <td>
+                        #foreach ($message in $submissionLog)
+                            $message<br/>
+                        #end
+                    </td>
+                </tr>
+            #end
         </table>
         <h4>
             #if ($!submission.Submitted)
