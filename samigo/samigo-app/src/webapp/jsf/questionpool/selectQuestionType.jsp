@@ -36,9 +36,10 @@
 <div class="portletBody">
 <!-- content... -->
 <!-- FORM -->
-<h:form id="selectQuestionType">
+<h:form>
 
 <!-- CHANGE TYPE -->
+ 
 <h:panelGrid columns="2">
 
   <h:outputText styleClass="number" value="1" />
@@ -54,7 +55,7 @@
 </h:panelGrid>
 
 <p class="act">
-<h:commandButton type="submit" action="#{itemauthor.doit}" value="#{commonMessages.action_save}" styleClass="active">
+<h:commandButton type="submit"  action="#{itemauthor.doit}" value="#{commonMessages.action_save}" styleClass="active">
    <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.StartCreateItemListener" />
    <f:param name="poolId" value="#{questionpool.currentPool.id}"/>
@@ -68,12 +69,6 @@
 
 </h:form>
 </div>
-
-<script>
-jQuery(document).ready(function(){//SAK-42873 removing copy from question pool option
-	$('#selectQuestionType\\:selType').find('option:last').remove();
-});
-</script>
 
 <!-- end content -->
     </body>

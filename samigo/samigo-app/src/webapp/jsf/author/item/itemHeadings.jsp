@@ -19,10 +19,6 @@ jQuery(document).ready(function() {
 	if ( itemType == 2 || itemType == 12 ) {
 		$('#itemFormHeading\\:changeQType2').find('option[value=1]').attr('selected', true);
 	}
-	var itemAuthorTarget = "${itemauthor.target}";
-	if(itemAuthorTarget == 'questionpool') {
-		$('#itemFormHeading\\:changeQType2').find('option:last').remove();
-	}
 });
 
 //Display the EMI question example
@@ -183,9 +179,25 @@ function displayEMIHelp(){
 <div class="form-group row">
     <h:outputLabel styleClass="col-md-2" value="#{authorMessages.change_q_type} &#160;" escape="false" rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow || (itemauthor.target == 'questionpool' && itemauthor.itemType == '')}"/>
   <div class="col-md-10">
+<%-- todo:
+listener set selectFromQuestionPool, eliminating the rendered attribute
+--%>
 
-<h:selectOneMenu onchange="changeTypeLink(this);" value="#{itemauthor.currentItem.itemType}" required="true" id="changeQType2">
-  <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.StartCreateItemListener" />
+<%-- from question pool context, do not show question pool as option --%>
+<h:selectOneMenu rendered="#{(itemauthor.target == 'assessment' && questionpool.importToAuthoring == 'true') || (itemauthor.target == 'questionpool' && itemauthor.itemType == '')}" onchange="changeTypeLink(this);"
+  value="#{itemauthor.currentItem.itemType}" required="true" id="changeQType1">
+  <f:valueChangeListener
+           type="org.sakaiproject.tool.assessment.ui.listener.author.StartCreateItemListener" />
+
+  <f:selectItems value="#{itemConfig.itemTypeSelectList}" />
+</h:selectOneMenu>
+
+<%-- not from qpool , show the last option: copy from question pool --%>
+<h:selectOneMenu onchange="changeTypeLink(this);" rendered="#{author.isEditPendingAssessmentFlow && itemauthor.target == 'assessment' && questionpool.importToAuthoring == 'false'}"
+  value="#{itemauthor.currentItem.itemType}" required="true" id="changeQType2">
+  <f:valueChangeListener
+           type="org.sakaiproject.tool.assessment.ui.listener.author.StartCreateItemListener" />
+
   <f:selectItems value="#{itemConfig.itemTypeSelectList}" />
 </h:selectOneMenu>
 
@@ -199,7 +211,8 @@ function displayEMIHelp(){
     <h:outputText  value=" (#{authorMessages.example_emi_question})"/>
 </h:outputLink>
 
-<h:message for="changeQType2" infoClass="messageSamigo" warnClass="messageSamigo" errorClass="messageSamigo" fatalClass="messageSamigo"/>
+<h:message rendered="#{questionpool.importToAuthoring == 'true' && itemauthor.target == 'assessment'}" for="changeQType1" infoClass="messageSamigo" warnClass="validation" errorClass="messageSamigo" fatalClass="messageSamigo"/>
+<h:message rendered="#{questionpool.importToAuthoring == 'false' && itemauthor.target == 'assessment'}" for="changeQType2" infoClass="messageSamigo" warnClass="messageSamigo" errorClass="messageSamigo" fatalClass="messageSamigo"/>
 </div>
 </div>
 </h:form>
