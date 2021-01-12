@@ -185,7 +185,7 @@ import lombok.extern.slf4j.Slf4j;
 				try {
 					img = Image.getInstance(Base64.decode(base64Data));
 				} catch (Exception e) {
-					log.warn("Failed retrieving image", e);
+					log.warn("Failed retrieving image", e.toString());
 				}
 				if (img != null) {
 					try {
