@@ -192,7 +192,7 @@ import lombok.extern.slf4j.Slf4j;
 						document.add(img);
 					}
 					catch (Exception e) {
-						log.warn("Image couldn't be added to the document", e);
+						log.warn("Image couldn't be added to the document", e.toString());
 					}
 				}
 			}
