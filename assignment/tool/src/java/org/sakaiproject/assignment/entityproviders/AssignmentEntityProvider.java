@@ -1243,6 +1243,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                     this.sortName = user.getSortName();
                 } else {
                     this.displayName = ass.getSubmission().getId() + " " + rb.getString("grading.anonymous.title");
+                    this.sortName = this.displayName;
                 }
             } catch (UserNotDefinedException e) {
                 this.displayName = this.id;
