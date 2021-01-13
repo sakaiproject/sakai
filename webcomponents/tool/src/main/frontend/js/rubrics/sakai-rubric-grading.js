@@ -120,7 +120,7 @@ export class SakaiRubricGrading extends RubricsElement {
               </strong>
             </div>
             ${this.association.parameters.fineTunePoints ? html`
-                <input type="number" step="0.01"
+                <input
                     title="${tr("point_override_details")}"
                     data-criterion-id="${c.id}"
                     name="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-override-${c.id}"
@@ -206,11 +206,17 @@ export class SakaiRubricGrading extends RubricsElement {
 
   fineTuneRating(e) {
 
-    var value = e.target.value;
+    const value = e.target.value;
+
+    const parsed = parseFloat(value.replace(/,/g, "."));
+
+    if (isNaN(parsed)) {
+      return;
+    }
 
     var criterion = this.criteria.find(c => c.id == e.target.dataset.criterionId);
 
-    criterion.pointoverride = parseFloat(value);
+    criterion.pointoverride = parsed;
     if (criterion.selectedvalue) {
       this.totalPoints = this.totalPoints - criterion.selectedvalue + criterion.pointoverride;
     } else {
