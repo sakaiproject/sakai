@@ -99,10 +99,28 @@
             <h:outputLabel for="answerminptr" value="#{authorMessages.answer_min_point_value}" 
                            styleClass="col-md-4 form-control-label"/>
             <div class="col-md-2">
-                <h:inputText id="answerminptr" value="#{itemauthor.currentItem.itemMinScore}" styleClass="form-control ConvertPoint">
+                <h:inputText
+                    id="answerminptr"
+                    value="#{itemauthor.currentItem.itemMinScore}"
+                    styleClass="form-control ConvertPoint"
+                    disabled="#{itemauthor.currentItem.renderMinPointsWarning}">
                     <f:validateDoubleRange />
                 </h:inputText>    
-                <h:outputText value="#{authorMessages.answer_min_point_info}"/>
+                <small>
+                    <h:outputText
+                        id="min-point-info"
+                        value="#{authorMessages.answer_min_point_info}"
+                        styleClass="sak-banner-info"
+                        rendered="#{!itemauthor.currentItem.renderMinPointsWarning}" />
+                </small>
+                <small>
+                    <div><h:outputText
+                        id="min-point-warning"
+                        styleClass="sak-banner-info"
+                        style="display:#{(itemauthor.currentItem.renderMinPointsWarning)?'inline-block':'none'}"
+                        value="#{authorMessages.answer_min_point_value_warning}" />
+                    </div>
+                </small>
                 <h:message for="answerminptr" styleClass="validate"/>
             </div>
         </div>
@@ -114,10 +132,14 @@
         <div class="col-md-2">
             <h:inputText id="answerdsc" value="#{itemauthor.currentItem.itemDiscount}" 
                          required="true" styleClass="form-control ConvertPoint">
-                        <f:validateDoubleRange/>
+                <f:validateDoubleRange />
             </h:inputText>
             <h:message for="answerdsc" styleClass="validate"/>
-            <h:outputText value="#{authorMessages.note_negative_point_value_question}" />
+            <small>
+                <h:outputText
+                    styleClass="sak-banner-info"
+                    value="#{authorMessages.note_negative_point_value_question}" />
+            </small>
         </div>
     </div>
 
