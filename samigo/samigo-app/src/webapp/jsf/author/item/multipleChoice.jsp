@@ -115,13 +115,18 @@
               <f:validateDoubleRange />
             </h:inputText>
             <small>
-              <h:outputText value="#{authorMessages.answer_min_point_info}" rendered="#{!itemauthor.currentItem.renderMinPointsWarning}" />
+              <h:outputText
+                id="min-point-info"
+                value="#{authorMessages.answer_min_point_info}"
+                styleClass="sak-banner-info"
+                rendered="#{!itemauthor.currentItem.renderMinPointsWarning}" />
             </small>
             <small>
                 <div><h:outputText
+                    id="min-point-warning"
                     styleClass="sak-banner-info"
-                    value="#{authorMessages.answer_min_point_value_warning}"
-                    rendered="#{itemauthor.currentItem.renderMinPointsWarning}" />
+                    style="display:#{(itemauthor.currentItem.renderMinPointsWarning)?'inline-block':'none'}"
+                    value="#{authorMessages.answer_min_point_value_warning}" />
                 </div>
             </small>
             <h:message for="answerminptr" styleClass="validate"/>
