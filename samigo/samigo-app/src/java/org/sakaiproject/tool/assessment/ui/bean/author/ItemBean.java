@@ -1971,12 +1971,12 @@ public class ItemBean
 
     public boolean getRenderDiscountBlock() {
 
-        return itemType.equals("1") && (partialCreditFlag.equals("false") || !partialCreditEnabled)
-            || itemType.equals("12") || (itemType.equals("2") && mcmsPartialCredit.equals("false"));
+        return itemType.equals("4") || (itemType.equals("1") && (partialCreditFlag.equals("false") || !partialCreditEnabled)
+            || itemType.equals("12") || (itemType.equals("2") && mcmsPartialCredit.equals("false")));
     }
 
     public boolean getRenderMinPointsWarning() {
-        return itemType.equals("1") && (partialCreditFlag.equals("true")) || getRenderDiscountBlock();
+        return (itemType.equals("1") && partialCreditFlag.equals("true")) || (getRenderDiscountBlock() && getItemDiscount() > 0);
     }
 
 }
