@@ -24,13 +24,16 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.lowagie.text.DocListener;
-import com.lowagie.text.html.simpleparser.StyleSheet;
-import lombok.extern.slf4j.Slf4j;
-
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.cover.ContentHostingService;
+
+import com.lowagie.text.DocListener;
+import com.lowagie.text.Image;
+import com.lowagie.text.html.simpleparser.StyleSheet;
+import com.lowagie.text.pdf.codec.Base64;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -174,6 +177,23 @@ import org.sakaiproject.content.cover.ContentHostingService;
 				}
 				catch (Exception e) {
 					log.error(e.getMessage(), e);
+				}
+			}
+			else if (src.startsWith("data:image/")) {
+				Image img = null;
+				final String base64Data = src.substring(src.indexOf(",") + 1);
+				try {
+					img = Image.getInstance(Base64.decode(base64Data));
+				} catch (Exception e) {
+					log.warn("Failed retrieving image", e.toString());
+				}
+				if (img != null) {
+					try {
+						document.add(img);
+					}
+					catch (Exception e) {
+						log.warn("Image couldn't be added to the document", e.toString());
+					}
 				}
 			}
 			//nothing fancy for normal images
