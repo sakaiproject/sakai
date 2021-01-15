@@ -638,7 +638,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
                 UICommand.make(form, "submit", messageLocator.getMessage("simplepage.chooser.select"), "#{simplePageBean.selectPage}");
             } else if (((GeneralViewParameters) viewparams).newTopLevel) {
                 UIInput.make(form, "addBefore", "#{simplePageBean.addBefore}", ((GeneralViewParameters) viewparams).getAddBefore());
-                UICommand.make(form, "submit", messageLocator.getMessage("simplepage.chooser.add.form.select"), "#{simplePageBean.selectPage}");
+                UICommand.make(form, "submit", messageLocator.getMessage("simplepage.chooser.select"), "#{simplePageBean.addOldPage}");
             } else {
                 UIInput.make(form, "addBefore", "#{simplePageBean.addBefore}", ((GeneralViewParameters) viewparams).getAddBefore());
                 UICommand.make(form, "submit", messageLocator.getMessage("simplepage.chooser.select"), "#{simplePageBean.createSubpage}");
