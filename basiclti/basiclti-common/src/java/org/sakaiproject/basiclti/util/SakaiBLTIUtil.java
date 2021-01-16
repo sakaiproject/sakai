@@ -1048,7 +1048,27 @@ public class SakaiBLTIUtil {
 				setProperty(ltiProps, BasicLTIConstants.RESOURCE_LINK_TITLE, title);
 				setProperty(ltiProps, BasicLTIConstants.RESOURCE_LINK_DESCRIPTION, description);
 				setProperty(lti13subst, LTICustomVars.RESOURCELINK_TITLE, title);
-				setProperty(lti13subst, LTICustomVars.RESOURCELINK_DESCRIPTION, title);
+				setProperty(lti13subst, LTICustomVars.RESOURCELINK_DESCRIPTION, description);
+			}
+
+			// Pull in the ResouceLink.id.history value from JSON
+			String content_id_history = (String) content_json.get(LTIService.LTI_ID_HISTORY);
+			if ( StringUtils.isNotBlank(content_id_history) ) {
+				setProperty(lti13subst, LTICustomVars.RESOURCELINK_ID_HISTORY, content_id_history);
+			}
+
+			// Bring in the substitution variables from Assignments via JSON
+			String[] jsonSubst  = {
+				DeepLinkResponse.RESOURCELINK_AVAILABLE_STARTDATETIME,
+				DeepLinkResponse.RESOURCELINK_AVAILABLE_ENDDATETIME,
+				DeepLinkResponse.RESOURCELINK_SUBMISSION_STARTDATETIME,
+				DeepLinkResponse.RESOURCELINK_SUBMISSION_ENDDATETIME
+			};
+
+			for (String subKey : jsonSubst) {
+				String value = StringUtils.trimToNull((String) content_json.get(subKey));
+				if ( value == null ) continue;
+				setProperty(lti13subst, subKey, value);
 			}
 
 			User user = UserDirectoryService.getCurrentUser();
