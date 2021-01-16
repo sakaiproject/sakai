@@ -274,15 +274,13 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 
 		StringBuilder body = new StringBuilder();
 		body.append("<div style=\"padding:.5em;font-family:Verdana,Arial,Helvetica,sans-serif;\">\n");
-		body.append("<form style=\"display:none\" id=\"lti-form-"+hash+"\">\n");
-		body.append("<label for=\"lti-submit-"+hash+"\"><p>"+rb.getString("error.redirect.timeout", "Having problems reaching remote tool")+"</p></label>\n");
-		body.append("<p><input type=\"submit\" id=\"lti-submit-"+hash+"\" ");
-		body.append("onclick=\"window.location='"+redirectUrl+"';return false;\" value=\"");
-		body.append(rb.getString("launch.button", "Press to continue to proceed to external tool."));
-		body.append("\"></p></form>\n");
-		body.append("<script>\n");
+		body.append("<p id=\"lti-message-"+hash+"\" style=\"display: none;\">");
+		body.append(rb.getString("error.redirect.timeout", "Having problems reaching remote tool"));
+		body.append("</p>\n");
+
 		// We give this three chances - try to submit right away - submit 1/2 second from now and show the link 5 seconds from now
-		body.append("setTimeout(function() {document.getElementById('lti-form-"+hash+"').style.display='block';}, 5000);\n");
+		body.append("<script>\n");
+		body.append("setTimeout(function() {document.getElementById('lti-message-"+hash+"').style.display='block';}, 5000);\n");
 		body.append("setTimeout(function() {window.location='"+redirectUrl+"';}, 500);\n");
 		body.append("window.location='"+redirectUrl+"';\n");
 		body.append("</script>\n");
