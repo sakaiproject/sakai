@@ -530,9 +530,17 @@ public class SiteManageServiceImpl implements SiteManageService {
         if ( new_set.size() < 1 ) return;
 
         String id_history = String.join(",", new_set);
-        ResourcePropertiesEdit rp = site.getPropertiesEdit();
-        rp.addProperty(LTICustomVars.CONTEXT_ID_HISTORY, id_history);
-        saveSite(site);
+
+        // Grab our own edit to save the property - if you use the site variable and save it
+        // you will perturb an import in progress when it is running in a background thread
+        try {
+            Site tmpSite = siteService.getSite(site.getId());
+            ResourcePropertiesEdit rp = tmpSite.getPropertiesEdit();
+            rp.addProperty(LTICustomVars.CONTEXT_ID_HISTORY, id_history);
+            saveSite(tmpSite);
+        } catch (IdUnusedException iue) {
+            log.warn("Site not found, {}", iue.getMessage());
+        }
     }
 
     /**
