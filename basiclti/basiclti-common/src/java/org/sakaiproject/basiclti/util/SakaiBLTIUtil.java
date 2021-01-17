@@ -79,9 +79,12 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.lti13.util.SakaiLineItem;
 import org.sakaiproject.lti13.util.SakaiDeepLink;
+import org.sakaiproject.lti13.util.SakaiLaunchJWT;
+import org.sakaiproject.lti13.util.SakaiExtension;
 import org.tsugi.basiclti.BasicLTIConstants;
 import org.tsugi.basiclti.BasicLTIUtil;
 import org.tsugi.jackson.JacksonUtil;
+import org.tsugi.lti13.LTI13ConstantsUtil;
 import org.tsugi.lti13.DeepLinkResponse;
 import org.tsugi.lti13.LTICustomVars;
 import org.tsugi.lti13.LTI13KeySetUtil;
@@ -532,10 +535,39 @@ public class SakaiBLTIUtil {
 		}
 	}
 
+	public static String upgradeRoleString(String roleString)
+	{
+		if ( roleString == null ) return null;
+		if ( roleString.length() < 1 ) return roleString;
+
+		String[] pieces = roleString.split(",");
+		StringBuffer sb = new StringBuffer();
+		for (String s : pieces) {
+			s = s.trim();
+			if ( s.length() == 0 ) continue;
+			if ( sb.length() > 0 ) sb.append(",");
+			if ( s.startsWith("http://") || s.startsWith("https://") ) {
+				sb.append(s);
+				continue;
+			}
+			// http://www.imsglobal.org/spec/lti/v1p3/
+			if ( s.equalsIgnoreCase(BasicLTIConstants.MEMBERSHIP_ROLE_LEARNER) ) sb.append(LTI13ConstantsUtil.ROLE_LEARNER);
+			else if ( s.equalsIgnoreCase(BasicLTIConstants.MEMBERSHIP_ROLE_INSTRUCTOR) ) sb.append(LTI13ConstantsUtil.ROLE_INSTRUCTOR);
+			else if ( s.equalsIgnoreCase(BasicLTIConstants.MEMBERSHIP_ROLE_CONTEXT_ADMIN) ) sb.append(LTI13ConstantsUtil.ROLE_CONTEXT_ADMIN);
+			else if ( s.equalsIgnoreCase(BasicLTIConstants.MEMBERSHIP_ROLE_SYSTEM_ADMIN) ) sb.append(LTI13ConstantsUtil.ROLE_SYSTEM_ADMIN);
+			else if ( s.equalsIgnoreCase(BasicLTIConstants.MEMBERSHIP_ROLE_INSTITUTION_ADMIN) ) sb.append(LTI13ConstantsUtil.ROLE_INSTITUTION_ADMIN);
+			else sb.append(s);
+		}
+		return sb.toString();
+	}
+
 	public static String getRoleString(String context) {
         String theRole = BasicLTIConstants.MEMBERSHIP_ROLE_LEARNER;
 		if (SecurityService.isSuperUser()) {
-			theRole = BasicLTIConstants.MEMBERSHIP_ROLE_INSTRUCTOR + ",Administrator,urn:lti:instrole:ims/lis/Administrator,urn:lti:sysrole:ims/lis/Administrator";
+			theRole = BasicLTIConstants.MEMBERSHIP_ROLE_INSTRUCTOR + 
+				"," + BasicLTIConstants.MEMBERSHIP_ROLE_CONTEXT_ADMIN + 
+				"," + BasicLTIConstants.MEMBERSHIP_ROLE_SYSTEM_ADMIN + 
+				"," + BasicLTIConstants.MEMBERSHIP_ROLE_INSTITUTION_ADMIN;
 		} else if (SiteService.allowUpdateSite(context)) {
 			theRole = BasicLTIConstants.MEMBERSHIP_ROLE_INSTRUCTOR;
 		}
@@ -565,10 +597,11 @@ public class SakaiBLTIUtil {
 				}
 				if (roleId != null && roleId.length() > 0) {
 					setProperty(props, "ext_sakai_role", roleId);
+					setProperty(lti13subst, "Sakai.ext.role", roleId);
 				}
 				if (roleMap.containsKey(roleId)) {
 					setProperty(props, BasicLTIConstants.ROLES, roleMap.get(roleId));
-					setProperty(lti13subst, LTICustomVars.MEMBERSHIP_ROLE, roleMap.get(roleId));
+					setProperty(lti13subst, LTICustomVars.MEMBERSHIP_ROLE, upgradeRoleString(roleMap.get(roleId)));
 				}
 			}
 		} catch (GroupNotDefinedException e) {
@@ -614,7 +647,7 @@ public class SakaiBLTIUtil {
 		addGlobalData(site, props, null, rb);
 		ToolConfiguration placement = SiteService.findTool(placementId);
 		Properties config = placement.getConfig();
-		String roleMapProp = toNull(getCorrectProperty(config, "rolemap", placement));
+		String roleMapProp = toNull(getCorrectProperty(config, LTIService.LTI_ROLEMAP, placement));
 		addRoleInfo(props, null, context, roleMapProp);
 		addSiteInfo(props, null, site);
 
@@ -977,7 +1010,7 @@ public class SakaiBLTIUtil {
 			setProperty(ltiProps, BasicLTIConstants.LTI_VERSION, BasicLTIConstants.LTI_VERSION_1);
 			addGlobalData(site, ltiProps, lti13subst, rb);
 			addSiteInfo(ltiProps, lti13subst, site);
-			addRoleInfo(ltiProps, lti13subst, context, (String) tool.get("rolemap"));
+			addRoleInfo(ltiProps, lti13subst, context, (String) tool.get(LTIService.LTI_ROLEMAP));
 			addUserInfo(ltiProps, lti13subst, tool);
 
 			String resource_link_id = getResourceLinkId(content);
@@ -1385,7 +1418,7 @@ public class SakaiBLTIUtil {
 			Properties lti13subst = new Properties();
 			addGlobalData(site, ltiProps, lti13subst, rb);
 			addSiteInfo(ltiProps, lti13subst, site);
-			addRoleInfo(ltiProps, lti13subst, context, (String) tool.get("rolemap"));
+			addRoleInfo(ltiProps, lti13subst, context, (String) tool.get(LTIService.LTI_ROLEMAP));
 
 			int releasename = getInt(tool.get(LTIService.LTI_SENDNAME));
 			int releaseemail = getInt(tool.get(LTIService.LTI_SENDEMAILADDR));
@@ -1691,7 +1724,7 @@ public class SakaiBLTIUtil {
 
 			// Lets make a JWT from the LTI 1.x data
 			boolean deepLink = false;
-			LaunchJWT lj = new LaunchJWT();
+			SakaiLaunchJWT lj = new SakaiLaunchJWT();
 			if ( BasicLTIConstants.LTI_MESSAGE_TYPE_CONTENTITEMSELECTIONREQUEST.equals(ltiProps.getProperty(BasicLTIConstants.LTI_MESSAGE_TYPE)) ) {
 				lj.message_type = LaunchJWT.MESSAGE_TYPE_DEEP_LINK;
 				deepLink = true;
@@ -1710,10 +1743,12 @@ public class SakaiBLTIUtil {
 			lj.expires = lj.issued + 3600L;
 			lj.deployment_id = getDeploymentId(context_id);
 
-			// TODO: Check through the rolemap logic
-			String lti1_roles = ltiProps.getProperty("roles");
-			if (lti1_roles != null && lti1_roles.contains("Instructor")) {
-				lj.roles.add(LaunchJWT.ROLE_INSTRUCTOR);
+			String lti1_roles = upgradeRoleString(ltiProps.getProperty("roles"));
+			if (lti1_roles != null ) {
+				String[] role_pieces = lti1_roles.split(",");
+				for(String role_piece : role_pieces ) {
+					if ( ! lj.roles.contains(role_piece) ) lj.roles.add(role_piece);
+				}
 			} else {
 				lj.roles.add(LaunchJWT.ROLE_LEARNER);
 			}
@@ -1820,6 +1855,11 @@ public class SakaiBLTIUtil {
 				nar.context_memberships_url = getOurServerUrl() + LTI13_PATH + "namesandroles/" + signed_placement;
 				lj.names_and_roles = nar;
 			}
+
+			// Add Sakai Extensions from ltiProps
+			SakaiExtension se = new SakaiExtension();
+			se.copyFromPost(ltiProps);
+			lj.sakai_extension = se;
 
 			/*
 				Extra fields for DeepLink
@@ -2915,10 +2955,9 @@ public class SakaiBLTIUtil {
 		if( roleMapProp.contains(";") ) delim = ";";
 		String[] roleMapPairs = roleMapProp.split(delim);
 		for (String s : roleMapPairs) {
-			String[] roleMapPair = s.split(":");
-			if (roleMapPair.length != 2) {
-				throw new IllegalArgumentException("Malformed rolemap property. Value must be a comma or semicolon-separated list of values of the form maintain:Learner");
-			}
+			if ( s.trim().length() < 1 ) continue;
+			String[] roleMapPair = s.split(":", 2);
+			if (roleMapPair.length != 2) continue;
 			roleMap.put(roleMapPair[0].trim(), roleMapPair[1].trim());
 		}
 		return roleMap;
