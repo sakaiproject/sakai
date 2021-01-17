@@ -28,6 +28,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import uk.org.ponder.messageutil.MessageLocator;
@@ -44,6 +46,7 @@ import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -68,11 +71,23 @@ public class LessonsAccess {
     static final boolean useCache = true;
 
     // Sakai Service Beans
-    private SimplePageToolDao dao;
-    private AuthzGroupService authzGroupService;
-    private SecurityService securityService;
-    private MemoryService memoryService;
-    private UserDirectoryService userDirectoryService;
+    @Setter private SimplePageToolDao dao;
+    @Setter private MessageLocator messageLocator;
+    @Setter private AuthzGroupService authzGroupService;
+    @Setter private SecurityService securityService;
+    @Setter private MemoryService memoryService;
+    @Setter private SessionManager sessionManager; 
+    @Setter private ToolManager toolManager;
+    @Setter private UserDirectoryService userDirectoryService;
+    @Setter private UserTimeService userTimeService;
+    @Setter private SiteService siteService;
+    @Setter private ContentHostingService contentHostingService;
+    @Setter private GradebookIfc gradebookIfc;
+
+    @Setter LessonEntity forumEntity;
+    @Setter LessonEntity quizEntity;
+    @Setter LessonEntity assignmentEntity;
+    @Setter LessonEntity bltiEntity;
 
     public void init() {
 	if (useCache) {
@@ -469,6 +484,7 @@ public class LessonsAccess {
 	    simplePageBean.setCurrentSiteId(siteId);
 	    simplePageBean.setCurrentPage(currentPage);
 	    simplePageBean.setCurrentPageId(currentPage.getPageId());
+	    simplePageBean.setUserTimeService(userTimeService);
 	    simplePageBean.init();
 	}
 
@@ -557,92 +573,4 @@ public class LessonsAccess {
 	else
 	    return authzGroupService.getUserRole(currentUserId, group) != null;
     }
-
-    public void setAuthzGroupService(AuthzGroupService authzGroupService) {
-        this.authzGroupService = authzGroupService;
-    }
-
-    public AuthzGroupService getAuthzGroupService() {
-        return authzGroupService;
-    }
-
-    public void setSecurityService(SecurityService securityService) {
-        this.securityService = securityService;
-    }
-
-    public SecurityService getSecurityService() {
-        return securityService;
-    }
-
-    public void setSimplePageToolDao(SimplePageToolDao s) {
-        dao = s;
-    }
-
-    public void setMemoryService(MemoryService m) {
-	memoryService = m;
-    }
-
-    public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
-		this.userDirectoryService = userDirectoryService;
-	}
-    
-    public MessageLocator messageLocator;
-
-    public void setMessageLocator(MessageLocator s) {
-	messageLocator = s;
-    }
-
-    private ToolManager toolManager;
-    
-    public void setToolManager(ToolManager s) {
-	toolManager = s;
-    }
-
-    SessionManager sessionManager = null;
-
-    public void setSessionManager(SessionManager s) {
-	sessionManager = s;
-    }
-
-    private SiteService siteService;
-
-    public void setSiteService(SiteService s) {
-	siteService = s;
-    }
-
-    ContentHostingService contentHostingService = null;
-
-    public void setContentHostingService(ContentHostingService s) {
-	contentHostingService = s;
-    }
-
-    LessonEntity forumEntity = null;
-
-    public void setForumEntity(Object e) {
-	forumEntity = (LessonEntity) e;
-    }
-
-    LessonEntity quizEntity = null;
-    
-    public void setQuizEntity(Object e) {
-	quizEntity = (LessonEntity) e;
-    }
-
-    LessonEntity assignmentEntity = null;
-
-    public void setAssignmentEntity(Object e) {
-	assignmentEntity = (LessonEntity) e;
-    }
-    
-    LessonEntity bltiEntity = null;
-    public void setBltiEntity(Object e) {
-	bltiEntity = (LessonEntity)e;
-    }
-
-    private GradebookIfc gradebookIfc = null;
-
-    public void setGradebookIfc(GradebookIfc g) {
-	gradebookIfc = g;
-    }
-
 }
