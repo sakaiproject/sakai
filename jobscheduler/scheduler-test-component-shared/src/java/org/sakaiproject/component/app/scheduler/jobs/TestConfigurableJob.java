@@ -39,7 +39,7 @@ public class TestConfigurableJob extends AbstractConfigurableJob
         throws JobExecutionException
     {
 
-        log.debug ("running TestConfigurableJob");
+        log.info ("running TestConfigurableJob");
 
         readIntegerProperty();
         readStringProperty();
@@ -54,13 +54,13 @@ public class TestConfigurableJob extends AbstractConfigurableJob
 
         if (temp == null)
         {
-            log.debug ("integer property is null");
+            log.info ("integer property is null");
         }
         else
         {
             try
             {
-                log.debug ("integer property is set to integer value: '" + Integer.parseInt(temp) + "'");
+                log.info ("integer property is set to integer value: '" + Integer.parseInt(temp) + "'");
             }
             catch (NumberFormatException nfe)
             {
@@ -76,15 +76,15 @@ public class TestConfigurableJob extends AbstractConfigurableJob
 
         if (temp == null)
         {
-            log.debug ("string property is null");
+            log.info ("string property is null");
         }
         else if (temp.trim().length() == 0)
         {
-            log.debug ("string property is empty");
+            log.info ("string property is empty");
         }
         else
         {
-            log.debug ("string property is set to: '" + temp + "'");
+            log.info ("string property is set to: '" + temp + "'");
         }
     }
 
@@ -95,11 +95,11 @@ public class TestConfigurableJob extends AbstractConfigurableJob
 
         if (temp == null)
         {
-            log.debug ("boolean property is null");
+            log.info ("boolean property is null");
         }
         else
         {
-            log.debug ("boolean property is set to boolean value: '" + Boolean.parseBoolean(temp) + "'");
+            log.info ("boolean property is set to boolean value: '" + Boolean.parseBoolean(temp) + "'");
         }
     }
 }
