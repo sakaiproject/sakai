@@ -28,7 +28,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -84,10 +83,10 @@ public class LessonsAccess {
     @Setter private ContentHostingService contentHostingService;
     @Setter private GradebookIfc gradebookIfc;
 
-    @Setter LessonEntity forumEntity;
-    @Setter LessonEntity quizEntity;
-    @Setter LessonEntity assignmentEntity;
-    @Setter LessonEntity bltiEntity;
+    @Setter private LessonEntity forumEntity;
+    @Setter private LessonEntity quizEntity;
+    @Setter private LessonEntity assignmentEntity;
+    @Setter private LessonEntity bltiEntity;
 
     public void init() {
 	if (useCache) {
