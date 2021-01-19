@@ -28,6 +28,8 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
@@ -1744,10 +1746,9 @@ public class SakaiBLTIUtil {
 
 			String lti1_roles = upgradeRoleString(ltiProps.getProperty("roles"));
 			if (lti1_roles != null ) {
-				String[] role_pieces = lti1_roles.split(",");
-				for(String role_piece : role_pieces ) {
-					if ( ! lj.roles.contains(role_piece) ) lj.roles.add(role_piece);
-				}
+				Set<String> roleSet = new HashSet<String>();
+				roleSet.addAll(Arrays.asList(lti1_roles.split(",")));
+				lj.roles.addAll(roleSet);
 			} else {
 				lj.roles.add(LaunchJWT.ROLE_LEARNER);
 			}
