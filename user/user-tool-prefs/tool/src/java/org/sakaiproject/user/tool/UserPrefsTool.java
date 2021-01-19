@@ -354,7 +354,7 @@ public class UserPrefsTool
 	 */
 	public String getSelectedTheme()
 	{
-		if (m_theme != null) return m_theme;
+		if (m_theme != null) { return m_theme };
 
 		Preferences prefs = (PreferencesEdit) preferencesService.getPreferences(getUserId());
 		String userTheme = StringUtils.defaultIfEmpty(prefs.getProperties(org.sakaiproject.user.api.PreferencesService.USER_SELECTED_UI_THEME_PREFS).getProperty("theme"), "sakaiUserTheme-notSet");
