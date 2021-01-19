@@ -14,7 +14,7 @@
        <property name="jobName">
           <value>Configurable Job Test</value>
        </property>
-       <property name="resourceBundleBase" value="org.sakaiproject.component.app.scheduler.jobs.Messages"/>
+       <property name="resourceBundleBase" value="org.sakaiproject.component.app.scheduler.jobs.test.Messages"/>
        <property name="configurableJobProperties">
            <set>
                <bean id="integer.property" class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
