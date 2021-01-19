@@ -403,9 +403,13 @@ public class UserPrefsTool
 	public void setSelectedTheme(String selectedTheme)
 	{
 		if (selectedTheme != null)
+		{
 			m_theme = selectedTheme;
+		}
 		else
+		{
 			log.warn(this + "setSelectedTheme() has null theme");
+		}
 	}
 
 
