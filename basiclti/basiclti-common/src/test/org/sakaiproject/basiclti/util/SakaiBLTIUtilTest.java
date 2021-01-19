@@ -476,33 +476,57 @@ public class SakaiBLTIUtilTest {
 	public void testConvertRoleMapPropToMap() {
 		String roleMap = "sakairole1:ltirole1,sakairole2:ltirole2";
 		Map retval = SakaiBLTIUtil.convertRoleMapPropToMap(roleMap);
+		assertTrue(retval instanceof Map);
+		assertTrue(retval.size() == 2);
 
         // * Using semicolon as the delimiter allows you to indicate more than one IMS role.
 		roleMap = "sakairole4:ltirole4,ltirole5;sakairole6:ltirole6";
 		retval = SakaiBLTIUtil.convertRoleMapPropToMap(roleMap);
+		assertTrue(retval instanceof Map);
+		assertTrue(retval.size() == 2);
 
 		roleMap = "maintain:"+BasicLTIConstants.MEMBERSHIP_ROLE_CONTEXT_ADMIN +
                 "," + BasicLTIConstants.MEMBERSHIP_ROLE_SYSTEM_ADMIN +
                 "," + BasicLTIConstants.MEMBERSHIP_ROLE_INSTITUTION_ADMIN+ ";sakairole6:ltirole6";
 		retval = SakaiBLTIUtil.convertRoleMapPropToMap(roleMap);
+		assertTrue(retval instanceof Map);
+		assertTrue(retval.size() == 2);
 
 		// Semicolon at end
 		roleMap = "maintain:"+BasicLTIConstants.MEMBERSHIP_ROLE_CONTEXT_ADMIN +
                 "," + BasicLTIConstants.MEMBERSHIP_ROLE_SYSTEM_ADMIN +
                 "," + BasicLTIConstants.MEMBERSHIP_ROLE_INSTITUTION_ADMIN+ ";sakairole6:ltirole6;";
 		retval = SakaiBLTIUtil.convertRoleMapPropToMap(roleMap);
+		assertTrue(retval instanceof Map);
+		assertTrue(retval.size() == 2);
 
 		// Semicolon at beginning
 		roleMap = ";maintain:"+BasicLTIConstants.MEMBERSHIP_ROLE_CONTEXT_ADMIN +
                 "," + BasicLTIConstants.MEMBERSHIP_ROLE_SYSTEM_ADMIN +
                 "," + BasicLTIConstants.MEMBERSHIP_ROLE_INSTITUTION_ADMIN+ ";sakairole6:ltirole6";
 		retval = SakaiBLTIUtil.convertRoleMapPropToMap(roleMap);
+		assertTrue(retval instanceof Map);
+		assertTrue(retval.size() == 2);
 	
 		// Many semicolon in the middle
 		roleMap = "maintain:"+BasicLTIConstants.MEMBERSHIP_ROLE_CONTEXT_ADMIN +
                 "," + BasicLTIConstants.MEMBERSHIP_ROLE_SYSTEM_ADMIN +
                 "," + BasicLTIConstants.MEMBERSHIP_ROLE_INSTITUTION_ADMIN+ ";;;;sakairole6:ltirole6";
 		retval = SakaiBLTIUtil.convertRoleMapPropToMap(roleMap);
+		assertTrue(retval instanceof Map);
+		assertTrue(retval.size() == 2);
+
+		retval = SakaiBLTIUtil.convertRoleMapPropToMap(null);
+		assertTrue(retval instanceof Map);
+		assertTrue(retval.size() == 0);
+
+		retval = SakaiBLTIUtil.convertRoleMapPropToMap("");
+		assertTrue(retval instanceof Map);
+		assertTrue(retval.size() == 0);
+
+		retval = SakaiBLTIUtil.convertRoleMapPropToMap(" ");
+		assertTrue(retval instanceof Map);
+		assertTrue(retval.size() == 0);
 	}
 
 }

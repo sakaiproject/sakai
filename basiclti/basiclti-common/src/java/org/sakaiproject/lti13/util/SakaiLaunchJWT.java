@@ -1,7 +1,5 @@
 package org.sakaiproject.lti13.util;
 
-import java.util.Map;
-
 import javax.annotation.Generated;
 
 import com.fasterxml.jackson.annotation.JsonProperty;

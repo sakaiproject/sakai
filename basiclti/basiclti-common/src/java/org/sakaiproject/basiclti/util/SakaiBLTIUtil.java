@@ -537,8 +537,7 @@ public class SakaiBLTIUtil {
 
 	public static String upgradeRoleString(String roleString)
 	{
-		if ( roleString == null ) return null;
-		if ( roleString.length() < 1 ) return roleString;
+		if ( StringUtils.isEmpty(roleString) ) return roleString;
 
 		String[] pieces = roleString.split(",");
 		StringBuffer sb = new StringBuffer();
