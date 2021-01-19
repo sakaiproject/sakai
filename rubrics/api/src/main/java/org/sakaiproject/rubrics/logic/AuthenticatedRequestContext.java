@@ -39,14 +39,16 @@ public class AuthenticatedRequestContext implements UserDetails {
     private final String toolId;
     private final String contextId;
     private final String contextType;
-    private final Collection<GrantedAuthority> authorities = new ArrayList<>();;
+    private final Collection<GrantedAuthority> authorities = new ArrayList<>();
+    private final String queryMode;
 
-    public AuthenticatedRequestContext(String userId, String toolId, String contextId, String contextType) {
+    public AuthenticatedRequestContext(String userId, String toolId, String contextId, String contextType, String queryMode) {
         this.userId = userId;
         this.username = userId;
         this.toolId = toolId;
         this.contextId = contextId;
         this.contextType = contextType;
+        this.queryMode = queryMode;
     }
 
     @JsonIgnore
@@ -137,5 +139,9 @@ public class AuthenticatedRequestContext implements UserDetails {
     public boolean isSuperUser() {
         return this.getAuthorities().stream().allMatch(authority ->
                 Role.ROLE_SUPERUSER.name().equalsIgnoreCase(authority.getAuthority()));
+    }
+    @JsonIgnore
+    public int isSharedAll() {
+    	return this.queryMode.equals("all") ? 1 : 0;
     }
 }
