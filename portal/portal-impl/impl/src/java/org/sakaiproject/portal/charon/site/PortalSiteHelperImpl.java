@@ -879,7 +879,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		}
 		
 		String presenceUrl
-			= Web.returnUrl(req, "/presence/" + getFormattedText().escapeUrl(site.getId()));
+			= Web.returnUrl(req, "/presence/" + Web.escapeUrl(site.getId()));
 
 		// theMap.put("pageNavSitPresenceTitle",
 		// Web.escapeHtml(rb.getString("sit_presencetitle")));
