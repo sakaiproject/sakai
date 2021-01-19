@@ -16,26 +16,21 @@
 <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
 		<script type="text/javascript" src="/sakai-user-tool-prefs/js/prefs.js">// </script>
 		<script type="text/javascript" src="/library/js/spinner.js"></script>
-		<script type="text/javascript">
-			$(document).ready(function(){
-				setupPrefsGen();
-			});
-		</script>
 
-		
 				<%-- Set current value for template --%> 
 				<c:set var="cTemplate" value = "locale" scope="session"/>
 				
 				<%@ include file="toolbar.jspf"%>
-	
+
+				<div class="page-header">
+					<h1><h:outputText value="#{msgs.prefs_lang_title}"/></h1>
+				</div>
+
 				<sakai:messages rendered="#{!empty facesContext.maximumSeverity}" />
 
 				<t:div rendered="#{UserPrefsTool.locUpdated}">
 					<jsp:include page="prefUpdatedMsg.jsp"/>
 				</t:div>
-				<h3 style="display: inline-block;">
-					<h:outputText value="#{msgs.prefs_lang_title}" />
-				</h3>
 
 				<p class="instruction"><h:outputText value="#{msgs.locale_msg}"/> <h:outputText value="#{UserPrefsTool.selectedLocaleName}"  styleClass="highlight" style="font-weight:bold !important;"/></p>
 				

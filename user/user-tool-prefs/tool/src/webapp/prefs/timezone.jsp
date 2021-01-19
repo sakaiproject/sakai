@@ -16,23 +16,19 @@
 <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
 		<script type="text/javascript" src="/sakai-user-tool-prefs/js/prefs.js">// </script>
 		<script type="text/javascript" src="/library/js/spinner.js"></script>
-		<script type="text/javascript">
-			$(document).ready(function(){
-				setupPrefsGen();
-			})  
-		</script>
 
 				<%-- Set current value for template --%> 
 				<c:set var="cTemplate" value = "timezone" scope = "session" />
 				<%@ include file="toolbar.jspf"%>
-				
+
+				<div class="page-header">
+					<h1><h:outputText value="#{msgs.prefs_timezone_title}"/></h1>
+				</div>
+
 				<sakai:messages rendered="#{!empty facesContext.maximumSeverity}" />
 				<t:div rendered="#{UserPrefsTool.tzUpdated}">
 					<jsp:include page="prefUpdatedMsg.jsp"/>
 				</t:div>
-				<h3 style="display: inline-block;">
-					<h:outputText value="#{msgs.prefs_timezone_title}" />
-				</h3>
 
 				<p class="instruction">
 				<h:outputFormat value="#{msgs.time_inst}">
