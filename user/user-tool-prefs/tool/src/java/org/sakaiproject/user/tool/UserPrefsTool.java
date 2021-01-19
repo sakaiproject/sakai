@@ -360,9 +360,13 @@ public class UserPrefsTool
 		String userTheme = StringUtils.defaultIfEmpty(prefs.getProperties(org.sakaiproject.user.api.PreferencesService.USER_SELECTED_UI_THEME_PREFS).getProperty("theme"), "sakaiUserTheme-notSet");
 
 		if (hasValue(userTheme))
+		{
 			m_theme = userTheme;
+		}
 		else
+		{
 			m_theme = "sakaiUserTheme-notSet";
+		}
 
 		return m_theme;
 	}
