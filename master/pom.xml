@@ -98,7 +98,7 @@
     <sakai.msgcntr.version>${sakai.version}</sakai.msgcntr.version> 
     <!-- Set the source encoding to avoid maven warnings -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <sakai.jdk.version>1.8</sakai.jdk.version>
+    <sakai.jdk.version>11</sakai.jdk.version>
     <sakai.build.directory>target</sakai.build.directory>
     <maven.test.redirectTestOutputToFile>false</maven.test.redirectTestOutputToFile>
     <!-- Default empty unless profile activation -->
@@ -348,6 +348,43 @@
 
   <dependencyManagement>
     <dependencies>
+      <!-- JDK 9+ -->
+      <dependency>
+        <groupId>jakarta.annotation</groupId>
+        <artifactId>jakarta.annotation-api</artifactId>
+        <version>1.3.5</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.activation</groupId>
+        <artifactId>jakarta.activation-api</artifactId>
+        <version>1.2.2</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.xml.soap</groupId>
+        <artifactId>jakarta.xml.soap-api</artifactId>
+        <version>1.4.2</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.xml.bind</groupId>
+        <artifactId>jakarta.xml.bind-api</artifactId>
+        <version>2.3.3</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.glassfish.jaxb</groupId>
+        <artifactId>jaxb-runtime</artifactId>
+        <version>2.3.3</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.sun.istack</groupId>
+        <artifactId>istack-commons-runtime</artifactId>
+        <version>3.0.11</version>
+        <scope>provided</scope>
+      </dependency>
       <!-- provided by the JDK, here to ensure its not packaged in child poms child poms may still override if necessary -->
       <dependency>
         <groupId>xalan</groupId>
@@ -2219,6 +2256,14 @@
   <!-- should never need to override these in your project -->
   <dependencies>
     <dependency>
+      <groupId>jakarta.annotation</groupId>
+      <artifactId>jakarta.annotation-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.activation</groupId>
+      <artifactId>jakarta.activation-api</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
     </dependency>
@@ -2594,6 +2639,7 @@
           <!-- <compilerArguments> <verbose /> </compilerArguments> -->
           <source>${sakai.jdk.version}</source>
           <target>${sakai.jdk.version}</target>
+          <forceJavacCompilerUse>true</forceJavacCompilerUse>
         </configuration>
       </plugin>
       <plugin>
@@ -2619,7 +2665,7 @@
           <!-- This is to stop it stealing focus on developer machines (OSX) -->
           <!-- file.encoding is for windows which was failing tests under maven without this -->
           <!-- The random source it to stop builds stalling on VMs with poor sources of random -->
-          <argLine>-Djava.awt.headless=true -Dfile.encoding=${project.build.sourceEncoding} ${random-source}</argLine>
+          <argLine>--illegal-access=permit -Djava.awt.headless=true -Dfile.encoding=${project.build.sourceEncoding} ${random-source}</argLine>
         </configuration>
       </plugin>
       <plugin>
