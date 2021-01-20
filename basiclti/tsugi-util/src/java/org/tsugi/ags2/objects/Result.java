@@ -28,6 +28,9 @@ public class Result { // This is all output-only
 	public static final String MIME_TYPE = "application/vnd.ims.lis.v2.result+json";
 	public static final String MIME_TYPE_CONTAINER = "application/vnd.ims.lis.v2.resultcontainer+json";
 
+	public static final String CONTENT_TYPE = MIME_TYPE + "; charset=utf-8";
+	public static final String CONTENT_TYPE_CONTAINER = MIME_TYPE_CONTAINER + "; charset=utf-8";
+
 	@JsonProperty("id")
 	public String id;
 	@JsonProperty("scoreOf")
