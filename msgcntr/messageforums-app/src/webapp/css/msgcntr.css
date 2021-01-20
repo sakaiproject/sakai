@@ -499,7 +499,7 @@ form{margin-bottom:0;}
 }
 .threadMovedMsg{
     font-size:1em;
-    color:#555555;
+    color: var(--sakai-text-color-2);
 }
 .calWidget{
     vertical-align:middle;
