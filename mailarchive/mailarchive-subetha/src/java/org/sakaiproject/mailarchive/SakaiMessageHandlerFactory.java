@@ -396,7 +396,7 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
                         throw new RejectException(Integer.parseInt(MESSAGE_ERROR_683), errMsg);
                     } else if (me.getMessage().startsWith(MESSAGE_ERROR_358)) {
                         // BOUNCE REPLY - send a message back to the user to let them know their email failed
-                        errMsg = rb.getString("mail.support.358") + "\n\n";
+                        errMsg = rb.getFormattedMessage("mail.support.358", serverConfigurationService.getString("ui.service", "Sakai")) + "\n\n";
                         if (StringUtils.isNotBlank(mailSupport)) {
                             errMsg += rb.getFormattedMessage("err_questions", mailSupport) + "\n";
                         }

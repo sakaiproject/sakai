@@ -2171,7 +2171,7 @@ return topicTypeUuid;
 	  }
 	  
 	  if(StringUtils.isBlank(cleanBody)) {
-		  log.warn("Exception: Unexpected error processing text of body.");
+		  log.warn("358 - Unexpected error processing text of body.");
 		  throw new MessagingException("358 - Unexpected error processing text of body.");
 	  }else {
 		  rrepMsg.setBody(cleanBody.toString());
