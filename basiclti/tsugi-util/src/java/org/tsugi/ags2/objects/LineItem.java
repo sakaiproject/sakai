@@ -33,6 +33,9 @@ public class LineItem {
 	public static final String MIME_TYPE = "application/vnd.ims.lis.v2.lineitem+json";
 	public static final String MIME_TYPE_CONTAINER = "application/vnd.ims.lis.v2.lineitemcontainer+json";
 
+	public static final String CONTENT_TYPE = MIME_TYPE + "; charset=utf-8";
+	public static final String CONTENT_TYPE_CONTAINER = MIME_TYPE_CONTAINER + "; charset=utf-8";
+
 	@JsonProperty("scoreMaximum")
 	public Double scoreMaximum;
 	@JsonProperty("label")
