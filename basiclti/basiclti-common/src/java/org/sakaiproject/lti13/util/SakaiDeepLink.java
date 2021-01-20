@@ -34,7 +34,7 @@ import org.tsugi.lti13.objects.DeepLink;
 
 public class SakaiDeepLink extends DeepLink {
 
-	// SAK-44380 - Add Sakai extensions around oacement for Deep  Link requests
+	// SAK-44380 - Add Sakai extensions around placement for Deep  Link requests
 
 	// Parameters for Content Item Flows
 	public static String PLACEMENT_LESSONS = "lessons";

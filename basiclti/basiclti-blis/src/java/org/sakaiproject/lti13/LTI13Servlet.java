@@ -1268,11 +1268,9 @@ public class LTI13Servlet extends HttpServlet {
 			List<User> users = UserDirectoryService.getUsers(userIds);
 			boolean first = true;
 
-			// TODO: Use LTISERVICE.LTI_ROLEMAP after SAK-40632 is completed and merged
-			String roleMapProp = (String) tool.get("rolemap");
-			roleMapProp = "maintain:Dude";
-
+			String roleMapProp = (String) tool.get(LTIService.LTI_ROLEMAP);
 			Map<String, String> roleMap = SakaiBLTIUtil.convertRoleMapPropToMap(roleMapProp);
+
 			for (User user : users) {
 				JSONObject jo = new JSONObject();
 				jo.put("status", "Active");
@@ -1299,8 +1297,9 @@ public class LTI13Servlet extends HttpServlet {
 				JSONArray roles = new JSONArray();
 
 				// If there is a role mapping, it has precedence over site.update
-				if ( roleMap.containsKey(role.getId()) ) {
-					roles.add(roleMap.get(role.getId()));
+				String sakai_role = role.getId();
+				if ( roleMap.containsKey(sakai_role) ) {
+					roles.add(SakaiBLTIUtil.upgradeRoleString(roleMap.get(sakai_role)));
 				} else if (ComponentManager.get(AuthzGroupService.class).isAllowed(ims_user_id, SiteService.SECURE_UPDATE_SITE, "/site/" + site.getId())) {
 					roles.add(LTI13ConstantsUtil.ROLE_INSTRUCTOR);
 				} else {
@@ -1315,6 +1314,7 @@ public class LTI13Servlet extends HttpServlet {
 					String result_sourcedid = SakaiBLTIUtil.getSourceDID(user, placement_id, placement_secret);
 					if ( result_sourcedid != null ) sakai_ext.put("lis_result_sourcedid",result_sourcedid);
 				}
+				sakai_ext.put("sakai_role", sakai_role);
 
 				Collection groups = site.getGroupsWithMember(ims_user_id);
 

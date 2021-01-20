@@ -560,6 +560,9 @@ public class BasicLTIConstants {
     public static final String MEMBERSHIP_ROLE = "Membership.role";
     public static final String MEMBERSHIP_ROLE_LEARNER = "Learner";
     public static final String MEMBERSHIP_ROLE_INSTRUCTOR = "Instructor";
+    public static final String MEMBERSHIP_ROLE_CONTEXT_ADMIN = "Administrator";
+    public static final String MEMBERSHIP_ROLE_SYSTEM_ADMIN = "urn:lti:sysrole:ims/lis/Administrator";
+    public static final String MEMBERSHIP_ROLE_INSTITUTION_ADMIN = "urn:lti:instrole:ims/lis/Administrator";
 
    /**
      * MESSAGE_LOCALE

@@ -58,6 +58,9 @@ public class LTI13ConstantsUtil {
 	// Roles
 	public static String ROLE_LEARNER = "http://purl.imsglobal.org/vocab/lis/v2/membership#Learner";
 	public static String ROLE_INSTRUCTOR = "http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor";
+	public static String ROLE_CONTEXT_ADMIN = "http://purl.imsglobal.org/vocab/lis/v2/membership#Administrator";
+	public static String ROLE_SYSTEM_ADMIN = "http://purl.imsglobal.org/vocab/lis/v2/system/person#Administrator";
+	public static String ROLE_INSTITUTION_ADMIN = "http://purl.imsglobal.org/vocab/lis/v2/institution/person#Administrator";
 
 	// Deep Linking types
 	public static final String LTI_DL_TYPE_LTILINK = "ltiResourceLink";
