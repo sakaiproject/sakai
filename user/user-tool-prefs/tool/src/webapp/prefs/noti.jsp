@@ -38,7 +38,6 @@
 		<script type="text/javascript" src="/library/js/spinner.js"></script>
 		<script type="text/javascript">
 			$(document).ready(function(){
-				setupPrefsGen();
 				fixImplicitLabeling();
 			})  
 		</script>
@@ -50,12 +49,11 @@
 				<t:div rendered="#{UserPrefsTool.notiUpdated}">
 					<jsp:include page="prefUpdatedMsg.jsp"/>
 				</t:div>
-				<h3 style="display: inline-block;">
-					<h:outputText value="#{msgs.prefs_noti_title}" />
-				</h3>
+				<div class="page-header">
+					<h1><h:outputText value="#{msgs.prefs_noti_title}"/></h1>
+				</div>
 
 				<sakai:messages rendered="#{!empty facesContext.maximumSeverity}" />
-				
 
 <%--(gsilver) selectOneRadio renders a table but will not accept a summary attribute. Need mechanism to tell screen readers that the table is a layour table.	 --%>
 				<p class="instruction"><h:outputText value="#{msgs.noti_inst_second}"/></p>

@@ -323,3 +323,9 @@
 select.multiLine {
     background: none;
 }
+
+.prefs-themeSelection {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}

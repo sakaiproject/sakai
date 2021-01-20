@@ -20,7 +20,6 @@
                         <script type="text/javascript" src="/library/js/spinner.js"></script>
                         <script type="text/javascript">
                                 $(document).ready(function(){
-                                        setupPrefsGen();
                                         fixImplicitLabeling();
                                 })  
                         </script>

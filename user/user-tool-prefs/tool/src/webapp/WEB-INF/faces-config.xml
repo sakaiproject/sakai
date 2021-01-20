@@ -71,6 +71,11 @@
             <to-view-id>/prefs/editor.jsp</to-view-id>
             <redirect/>
         </navigation-case>
+        <navigation-case>
+            <from-outcome>theme</from-outcome>
+            <to-view-id>/prefs/theme.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
     </navigation-rule>
  	
 	<managed-bean>
