@@ -461,7 +461,7 @@ simplePageBean.addForumSummary
 	class="org.sakaiproject.lessonbuildertool.service.LessonsAccess"
 	init-method="init"
         destroy-method="destroy">
-	  <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+	  <property name="dao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
 	  <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
 	  <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
 	  <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
@@ -476,6 +476,7 @@ simplePageBean.addForumSummary
 	  <property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
 	  <property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
 	  <property name="gradebookIfc" ref="org.sakaiproject.lessonbuildertool.service.GradebookIfc"/>
+	  <property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
 
 	</bean>
 
