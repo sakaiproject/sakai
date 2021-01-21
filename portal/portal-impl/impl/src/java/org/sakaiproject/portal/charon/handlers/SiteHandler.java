@@ -282,7 +282,7 @@ public class SiteHandler extends WorksiteHandler
 			String commonToolId, String [] parts, String toolContextPath) throws ToolException,
 			IOException
 	{		
-				
+		
 		// default site if not set
 		String userId = session.getUserId();
 		if (siteId == null)

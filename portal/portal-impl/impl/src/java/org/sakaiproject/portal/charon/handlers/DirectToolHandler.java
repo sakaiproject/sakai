@@ -60,6 +60,9 @@ public class DirectToolHandler extends BasePortalHandler
 	private static ServerConfigurationService serverConfigurationService = (ServerConfigurationService)ComponentManager.get(ServerConfigurationService.class);
 
 	public static final String URL_FRAGMENT = "directtool";
+	public static final String DIRECT_LINK = "directLink";
+	public static final String DIRECT_LINK_SITE = "directLinkSite";
+	public static final String DIRECT_LINK_PAGE = "directLinkPage";
 
 	public DirectToolHandler()
 	{
@@ -91,6 +94,12 @@ public class DirectToolHandler extends BasePortalHandler
 					return ABORT;
 				}
 				parts[2] = toolPlacement;
+				
+				//To allow direct link to students
+				session.setAttribute(DIRECT_LINK, toolPlacement);
+				ToolConfiguration siteTool = SiteService.findTool(toolPlacement);
+				session.setAttribute(DIRECT_LINK_SITE, siteTool.getSiteId());
+				session.setAttribute(DIRECT_LINK_PAGE, siteTool.getPageId());
 
 				return doDirectTool(req, res, session, parts[2], req.getContextPath()
 						+ req.getServletPath() + Web.makePath(parts, 1, 3), Web.makePath(

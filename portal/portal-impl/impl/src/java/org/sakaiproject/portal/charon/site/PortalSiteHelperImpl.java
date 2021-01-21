@@ -42,7 +42,9 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
+import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -62,6 +64,7 @@ import org.sakaiproject.portal.api.PortalSiteHelper;
 import org.sakaiproject.portal.api.SiteView;
 import org.sakaiproject.portal.api.SiteView.View;
 import org.sakaiproject.portal.charon.PortalStringUtil;
+import org.sakaiproject.portal.charon.handlers.DirectToolHandler;
 import org.sakaiproject.portal.util.ToolUtils;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -112,6 +115,10 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	private static final String OVERVIEW_TOOL_TITLE = "overview";
 	private static final String SAK_PROP_FORCE_OVERVIEW_TO_TOP = "portal.forceOverviewToTop";
 	private static final boolean SAK_PROP_FORCE_OVERVIEW_TO_TOP_DEFAULT = false;
+	
+	private static final String ROLE_STUDENT = "Student";
+	private static final String ROLE_ACCESS = "access";
+	private static final String ADMIN_SITE = "admin";
 
 	private Portal portal;
 
@@ -660,6 +667,21 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			// check if current user has permission to see page
 			// one tool on the page
 			List<ToolConfiguration> pageTools = p.getTools();
+			
+			
+			//To allow direct link to students but delete tool from portal list if role is student
+			Session session = SessionManager.getCurrentSession();
+			String toolToAllow = (String) session.getAttribute(DirectToolHandler.DIRECT_LINK);
+			String userId = SessionManager.getCurrentSessionUserId();
+			String role = "";
+			if (StringUtils.isNotBlank(userId) && !userId.equals(ADMIN_SITE)) {
+				role = getRole(site.getId(), userId);
+			}
+
+			if (null != toolToAllow && null != pageTools.get(0) && toolToAllow.equals(pageTools.get(0).getId()) && (role.contentEquals(ROLE_ACCESS) || role.equals(ROLE_STUDENT))) {
+				continue;
+			}
+			
 			ToolConfiguration firstTool = null;
 			String toolsOnPage = null;
 
@@ -1351,6 +1373,19 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	 */
 	public boolean isHidden(Placement placement)
 	{
+		//To allow direct link to students
+		Session session = SessionManager.getCurrentSession();
+		String toolToAllow = (String) session.getAttribute(DirectToolHandler.DIRECT_LINK);
+		String userId = SessionManager.getCurrentSessionUserId();
+		ToolConfiguration toolConf = (ToolConfiguration) placement;
+		String siteId = toolConf.getSiteId();
+		String role = "";
+		if (null != userId && !userId.equals(ADMIN_SITE)) {
+			role = getRole(siteId, userId);
+		}
+		if (null != role && (role.contentEquals(ROLE_ACCESS) || role.equals(ROLE_STUDENT)) && null != toolToAllow && toolToAllow.equals(placement.getId())) {
+			return false;
+		}
 		return getToolManager().isHidden(placement);
 	}
 	/*
@@ -1417,6 +1452,20 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			}
 			throw e;
 		}
+	}
+	
+	public String getRole(String siteId, String userId) {
+		String role = "";
+		try {
+			if(null != getAuthzGroupService()) {
+				AuthzGroup realm = getAuthzGroupService().getAuthzGroup("/site/" + siteId);
+				role = getAuthzGroupService().getUserRole(userId, realm.getId());
+			}
+		}
+		catch (GroupNotDefinedException e) {
+			log.error("An attempt is made from getRole (PortalSiteHelperImpl) to access an Authz group with an id that is not correct.", e);
+		}
+		return role;
 	}
 
 }
