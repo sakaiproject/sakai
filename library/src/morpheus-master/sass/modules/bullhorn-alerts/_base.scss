@@ -1,5 +1,5 @@
 #bullhorn-counter {
-    color: #fff;
+    color: var(--sakai-text-color-1);
     font-weight: bold;
     font-size: $default-font-size - 4px;
     position: absolute;
@@ -12,8 +12,8 @@
     line-height: 1.5em;
 }
 
-.bullhorn-counter-red {
-    background-color: #a20000;
+#bullhorn-counter.bullhorn-counter-red {
+    @extend .sakai-colorize--sakai-color-red--darker-2;
 }
 
 .portal-bullhorns.qtip {
@@ -64,7 +64,7 @@
 
     .portal-bullhorn-alert {
         display: flex;
-        border: solid #E0E0E0;
+        border: solid var(--sakai-border-color);
         border-width: 0px 0px 1px 0px;
         padding: 5px;
         margin-right: 5px;
