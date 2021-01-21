@@ -14,8 +14,10 @@ $nonPhone:      "only screen and (min-width : #{$break-small-end + 1})" !default
 
 /* The standard spacing for items in Sakai */
 $standard-spacing: 16px !default;
-$standard-space: 4px !default; 		// the width of a keyboard space
-
+$standard-space: 4px !default; // the width of a keyboard space
+$standard-space-2x: 8px !default;
+$standard-space-3x: 12px !default;
+$standard-space-4x: 16px !default;
 // For the "More Sites" drawer, just use one column if there's not
 // enough room to show two side-by-side.
 $break-more-sites-single-column: 1200px !default;
