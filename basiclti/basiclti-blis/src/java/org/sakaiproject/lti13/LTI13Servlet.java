@@ -486,6 +486,7 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
+		response.setContentType(APPLICATION_JSON);
 		try {
 			out = response.getWriter();
 		} catch (Exception e) {
@@ -494,7 +495,6 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		response.setContentType(APPLICATION_JSON);
 		try {
 			out.println(keySetJSON);
 		} catch (Exception e) {
@@ -648,9 +648,9 @@ public class LTI13Servlet extends HttpServlet {
 		AccessToken at = new AccessToken();
 		at.access_token = jws;
 
-		response.setContentType(APPLICATION_JSON);
 		String atsp = JacksonUtil.prettyPrintLog(at);
 
+		response.setContentType(APPLICATION_JSON);
 		try {
 			PrintWriter out = response.getWriter();
 			out.println(atsp);
@@ -872,6 +872,7 @@ public class LTI13Servlet extends HttpServlet {
 
 		String maintainRole = site.getMaintainRole();
 
+ 		response.setContentType(APPLICATION_JSON);
 		PrintWriter out = response.getWriter();
 		out.println("{");
 		out.println(" \"id\" : \"http://TODO.wtf.com/we_eliminated_json_ld_but_forgot_to_remove_this\",");
@@ -1304,7 +1305,7 @@ public class LTI13Servlet extends HttpServlet {
 		item.id = getOurServerUrl() + LTI13_PATH + "lineitems/" + signed_placement + "/" + retval.getId();
 
 		log.debug("Lineitem item={}",item);
-		response.setContentType(SakaiLineItem.MIME_TYPE);
+		response.setContentType(SakaiLineItem.CONTENT_TYPE);
 
 		PrintWriter out = response.getWriter();
 		String json_out = JacksonUtil.prettyPrint(item);
@@ -1384,7 +1385,7 @@ public class LTI13Servlet extends HttpServlet {
 		item.id = getOurServerUrl() + LTI13_PATH + "lineitems/" + signed_placement + "/" + retval.getId();
 
 		log.debug("Lineitem item={}",item);
-		response.setContentType(LineItem.MIME_TYPE);
+		response.setContentType(LineItem.CONTENT_TYPE);
 
 		PrintWriter out = response.getWriter();
 		out.print(JacksonUtil.prettyPrint(item));
@@ -1438,7 +1439,7 @@ public class LTI13Servlet extends HttpServlet {
 
 		// If we are only returning a single line item
 		if ( ! all ) {
-			response.setContentType(SakaiLineItem.MIME_TYPE);
+			response.setContentType(SakaiLineItem.CONTENT_TYPE);
 			SakaiLineItem item = LineItemUtil.getDefaultLineItem(site, content);
 			PrintWriter out = response.getWriter();
 			out.print(JacksonUtil.prettyPrint(item));
@@ -1448,8 +1449,7 @@ public class LTI13Servlet extends HttpServlet {
 		// Find the line items created for this tool
 		List<SakaiLineItem> toolItems = LineItemUtil.getLineItemsForTool(signed_placement, site, sat.tool_id, filter);
 
-		response.setContentType(SakaiLineItem.MIME_TYPE_CONTAINER);
-
+		response.setContentType(SakaiLineItem.CONTENT_TYPE_CONTAINER);
 		PrintWriter out = response.getWriter();
 		out.print("[");
 		boolean first = true;
@@ -1540,9 +1540,10 @@ public class LTI13Servlet extends HttpServlet {
 		if ( ! results ) {
 			SakaiLineItem item = LineItemUtil.getLineItem(signed_placement, a);
 
-			response.setContentType(SakaiLineItem.MIME_TYPE);
 			String json_out = JacksonUtil.prettyPrint(item);
 			log.debug("Returning {}", json_out);
+
+			response.setContentType(SakaiLineItem.CONTENT_TYPE);
 			PrintWriter out = response.getWriter();
 			out.print(json_out);
 			return;
@@ -1567,7 +1568,7 @@ public class LTI13Servlet extends HttpServlet {
 			  "comment": "This is exceptional work."
 			}]
 		*/
-		response.setContentType(Result.MIME_TYPE_CONTAINER);
+		response.setContentType(Result.CONTENT_TYPE_CONTAINER);
 
 		// Look up the assignment so we can find the max points
 		GradebookService g = (GradebookService) ComponentManager
@@ -1604,6 +1605,8 @@ public class LTI13Servlet extends HttpServlet {
 
 			List<User> users = UserDirectoryService.getUsers(userIds);
 			boolean first = true;
+
+			response.setContentType(APPLICATION_JSON);
 			PrintWriter out = response.getWriter();
 
 			if ( user_id == null ) out.println("[");
