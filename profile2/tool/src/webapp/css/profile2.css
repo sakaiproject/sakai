@@ -15,20 +15,6 @@
  */
 /* Profile2 styles */
 
-#pageWrapper { 
-}
-
-#leftPanel {
-}
-
-#mainPanel {
-}
-
-#rightPanel {
-}
-
-#fullWidth {
-}
 
 .profile-twitter-account td.label{
 	text-align: left;
@@ -49,14 +35,10 @@
 	position: relative;	
 	/* centre the image inside this div */
 	text-align:center;
-    margin-top:0;
-    margin-bottom:0;
-    padding:0;
-    /* alternatively, 
-    display:block;
-   	margin:auto;
-   	*/
-    /* end of centreing the image */
+	margin-top:0;
+	margin-bottom:0;
+	padding:0;
+	/* end of centreing the image */
 }
 
 #myPhoto img {
@@ -67,30 +49,16 @@
 }
 
 .edit-image-button {
+	@include sakai_secondary_button();
 	position:absolute;
 	right:0;
 	top:0;
-	/*height:20px;*/
-	background-color: #ffffff;
-	text-decoration: none;
-	font-size: x-small;
-	padding-left: 24px;
-	padding-bottom: 4px;
-	padding-top: 4px;
-	padding-right: 2px;
-	margin-top: 0;
-	margin-right: 0;
-	background-repeat: no-repeat;
-	background-position: 4px center;
-	background-image: url("/library/image/silk/picture_edit.png");
-	border-top: thin solid #09c;
-	border-right: thin solid #09c;
-	border-bottom: thin solid #09c;
-	border-left: thin solid #09c;
-}
 
-.edit-image-button:hover {
-	background-color: #ffff77;
+	&:before {
+		@extend .fa;
+		@extend .fa-pencil;
+		margin-right: $standard-space-2x;
+	}
 }
 
 .sakai-wicket-iconwithtooltip{
@@ -102,37 +70,24 @@
 }
 
 .edit-button {
+	@include sakai_secondary_button();
 	float:right;
 	clear: none;
 	display:block;
-	text-decoration: none;
-	font-size: x-small;
-	padding-left: 24px;
-	padding-bottom: 4px;
-	padding-top: 4px; 
-	padding-right: 2px;
-	margin-top: 0;
-	margin-right: 10px;
-	background-repeat: no-repeat;
-	background-position: 4px center;
-	background-image: url("/library/image/silk/pencil.png");
-	border-left: thin solid #09c;
-	border-right: thin solid #09c;
-	border-bottom: thin solid #09c;
 	position: absolute;
 	right: 15px;
-}
 
-.edit-button:hover {
-	background-color: #ffff77;
+	&:before {
+		@extend .fa;
+		@extend .fa-pencil;
+		margin-right: $standard-space-2x;
+	}
 }
-
 
 .new-items-count {
 	padding-left: 4px !important;
 	font-weight: bold;
 }
-
 
 /* profile heading styles */
 #profileHeading {
@@ -144,121 +99,178 @@
 	font-weight: bold;
 }
 
-
-
-
 /* generic styles */
 .tiny {
 	font-size: 70%;
 }
 
-/*.small {
-	font-size: 90%;
-} */
-
 .right {
 	float:right;
 }
+
 .instruction {
-	color: #777777;
+	color: var(--instruction-color);
 }
+
 .clear {
 	clear:both;
 }
+
 h2 {
 	margin-top: 0;
 }
 
-/* page navigation links */
-#page-links a:link,
-#page-links a:visited {
-}
-
 .icon {
 	background-position: center left;
-    background-repeat: no-repeat;
-    padding-left: 18px;
-    display: inline !important;
+	background-repeat: no-repeat;
+	padding-left: 18px;
+	display: inline;
 }
 
 /* icons */
+.locked:before,
+.unlocked:before,
+.profile:before,
+.picture:before,
+.pictures:before,
+.picture-add:before,
+.connections:before,
+.connection-add:before,
+.connection-delete:before,
+.connection-confirm:before,
+.connection-ignore:before,
+.connection-request:before,
+.connection-confirmed:before,
+.search:before,
+.privacy:before,
+.preferences:before,
+.messages:before,
+.message:before,
+.twitter:before,
+.email-link:before,
+.website-link:before,
+.google:before,
+.facebook:before,
+.linkedin:before,
+.myspace:before {
+	@extend .fa;
+	margin-right: $standard-space-2x;
+}
+@mixin mimic_button() {
+	padding: 7px 16px;
+	justify-content: center;
+	font-weight: 600;
+	display: flex;
+	width: auto;
+	font-size: 13px;
+}
+
 .locked {
-	background-image: url(/library/image/silk/lock.png);
+	@extend .fa-lock;
 }
+
 .unlocked {
-	background-image: url(/library/image/silk/lock_open.png);
+	@extend .fa-unlock;
 }
+
 .profile {
-	background-image: url(/library/image/silk/vcard.png);
+	@extend .fa-address-card;
+	@include mimic_button();
 }
+
 .picture {
-	background-image: url(/library/image/silk/picture.png);
+	@extend .fa-picture-o;
 }
+
 .pictures {
-	background-image: url(/library/image/silk/pictures.png);
+	@extend .fa-picture-o;
 }
+
 .picture-add {
-	background-image: url(/library/image/silk/picture_add.png);
+	@extend .fa-plus-square;
 }
+
 .connections {
-	background-image: url(/library/image/silk/group.png);
+	@extend .fa-eye;
 }
+
 .connection-add {
-	background-image: url(/library/image/silk/user_add.png);
+	@extend .fa-user-plus;
 }
+
 .connection-delete {
-	background-image: url(/library/image/silk/user_delete.png);
+	@extend .fa-user-times;
 }
+
 .connection-confirm {
-	background-image: url(/library/image/silk/accept.png);
+	@extend .fa-check-circle;
 }
+
 .connection-ignore {
-	background-image: url(/library/image/silk/delete.png);
+	@extend .fa-minus-circle;
 }
+
 .connection-request {
-	background-image: url(/library/image/silk/group_gear.png);
+	@extend .fa-hourglass-half;
+	@include mimic_button();
 }
+
 .connection-confirmed {
-	background-image: url(/library/image/silk/group_link.png);
+	@extend .fa-users;
+	@include mimic_button();
 }
+
 .search {
-	background-image: url(/library/image/silk/magnifier.png);
+	@extend .fa-search;
 }
+
 .privacy {
-	background-image: url(/library/image/silk/lock.png);
+	@extend .fa-lock;
 }
+
 .preferences {
-	background-image: url(/library/image/silk/cog.png);
+	@extend .fa-cog;
 }
+
 .messages {
-	background-image: url(/library/image/silk/comments.png);
+	@extend .fa-comments;
 }
+
 .message {
-	background-image: url(/library/image/silk/comment.png);
+	@extend .fa-comment;
 }
+
 .twitter {
-	background-image: url(../images/twitter.png);
+	@extend .fa-twitter;
 }
+
 .email-link {
-	background-image: url(/library/image/silk/email_link.png);
+	@extend .fa-envelope-o;
 }
+
 .website-link {
-	background-image: url(/library/image/silk/world_link.png);
+	@extend .fa-external-link;
 }
+
 .google {
-	background-image: url(../images/google.png);
+	@extend .fa-google;
 }
+
 .facebook {
-	background-image: url(../images/facebook.png);
+	@extend .fa-facebook;
 }
+
 .linkedin {
-	background-image: url(../images/linkedin.png);
+	@extend .fa-linkedin;
 }
+
 .myspace {
-	background-image: url(../images/myspace.png);
+	@extend .fa-user-circle;
 }
+
 .recordIcon {
-	background-image: url(../images/mic.png);
+	@extend .fa;
+	@extend .fa-microphone;
 	width: 11px;
 	height: 15px;
 	display: inline-block;
@@ -267,28 +279,21 @@ h2 {
 }
 
 /* sideLink styles */
-#sideLink ul {
-	list-style-type:none !important;
-}
+#sideLink{
+	list-style-type: none;
+	padding: 0;
+	margin: $standard-space-2x 0;
 
-#sideLink li {
-	border-bottom-style: solid;
-	border-bottom-color: #09c;
-	border-bottom-width: thin;
-	list-style-type: none !important;
-}
+	li {
+		margin-bottom: $standard-space-2x;
 
-#sideLink li a {
-	text-decoration: none !important;
-	display:block; /* makes whole li clickable */
-	padding-top: 2px;
-	padding-bottom: 2px;
-}
-#sideLink li span {
-	padding-top: 2px;
-	padding-bottom: 2px;
-	display:block;
-	margin: 0;
+		a {
+			@include sakai_secondary_button();
+			display: flex;
+			width: auto;
+			justify-content: center;
+		}
+	}
 }
 
 /** workaround for disabled link and extra markup */
@@ -297,46 +302,26 @@ h2 {
 	padding: 0;
 }
 
-
-#sideLink li:hover {
-	background-color: #D1ECF6;
-}
-
-#sideLink li#selected {
-	background-color: #D1ECF6;
-}
-  
-  
-  
-  
-  
-/* side-widget styles */
-.side-widget {
-	
-	
-}
-
 .side-widget-heading {
 	margin-top: 4px;
-	border-right: 1px solid #ddd;
+	border-right: 1px solid var(--sakai-border-color);
 	padding-top: 2px;
 	padding-bottom: 2px;
 	padding-left: 2px;
 	display:block;
 	font-weight: bold;
-	background-color: #F5F5F5;
+	background-color: var(--sakai-background-color-2);
 	word-wrap: break-word;
 }
-	
+
 .side-widget-content {
-	display:block;	
+	display:block;
 	margin-bottom: 4px;
 }
 
 .side-widget-labels {
 	display: block;
 	position: relative;
-	/*border-bottom: thin solid #d0d0df;*/
 	height: 1.0em;
 	padding-top: 2px;
 	margin-bottom: 2px;
@@ -348,9 +333,9 @@ h2 {
 }
 
 .side-widget-item-count {
-   	left: 0;
-   	padding-left: 2px;
-   	width: 40%;
+	   left: 0;
+	   padding-left: 2px;
+	   width: 40%;
 }
 
 .side-widget-more-link {
@@ -359,7 +344,6 @@ h2 {
    padding-right: 2px;
    width: 60%;
 }
-
 
 /* kudos styles */
 .kudos-wrapper {
@@ -373,13 +357,6 @@ h2 {
 	font-weight: bold;
 }
 
-.kudos-icon-left {
-}
-
-.kudos-icon-right {
-}
-
-
 /* mainSection styles */
 .mainSection {
 	padding-bottom: 10px;
@@ -389,9 +366,9 @@ h2 {
 .mainSectionHeading {
 	display:block;
 	font-weight: bold;
-	border-bottom: thin solid #09c;
+	border-bottom: 1px solid var(--sakai-primary-color-1);
 	margin-bottom: 0;
-	margin-top: 8px;
+	margin-top: $standard-space-2x;
 	padding-bottom: 0;
 	width: 100%;
 }
@@ -404,9 +381,8 @@ h2 {
 	padding-top: 5px;
 }
 
-
 /* profile and preferences information sections */
-.profileContent, preferencesContent{
+.profileContent, .preferencesContent{
 	padding-top: 2px;
 	padding-bottom: 2px;
 	font-size: 90%;
@@ -421,14 +397,14 @@ h2 {
 .profileContent td{
 	padding: 0.5em 1em 0.5em 0em !important;
 }
+
 .profileContent td:last-child{
 	padding: 0.5em 0 0.5em 0 !important;
 }
 
 .profileContent .label,
 .preferencesContent .label {
-	color: #000000;
-	/*color: #444444;*/
+	color: var(--sakai-text-color-1);
 	vertical-align: middle;
 	font-weight: normal;
 	padding-top: 4px;
@@ -449,20 +425,19 @@ h2 {
 	padding-left: 2px;
 	/*padding-right: 40px;*/
 	vertical-align: middle;
-	
 	word-wrap: break-word;
-    /* WebKit rule. See http://blog.kenneth.io/blog/2012/03/04/word-wrapping-hypernation-using-css/ */
-    word-break: break-word;
-    /* Split long words with hyphens */
-    hyphens: auto;
-    -moz-hyphens: auto;
-    -webkit-hyphens: auto;
-    /* Only split after 8 characters. Webkit only. */
-    -webkit-hyphenate-limit-before:8;
+	/* WebKit rule. See http://blog.kenneth.io/blog/2012/03/04/word-wrapping-hypernation-using-css/ */
+	word-break: break-word;
+	/* Split long words with hyphens */
+	hyphens: auto;
+	-moz-hyphens: auto;
+	-webkit-hyphens: auto;
+	/* Only split after 8 characters. Webkit only. */
+	-webkit-hyphenate-limit-before:8;
 }
 
 .contentExample {
-	color: #aaa;
+	color: var(--sakai-text-color-2);
 }
 
 .preferencesContent .item  {
@@ -476,34 +451,21 @@ h2 {
 .preferencesContent .toolTip {
 	padding-left: 8px;
 	vertical-align: top;
-	/*padding-right: 40px;*/
 	
 }
 
-
 .disabled {
-	color: #5D5D5D !important;
+	color: var(--sakai-text-color-disabled) !important;
 }
-
 
 .status-msg {
 	word-wrap: break-word;
 }
 
 .statusField {
-	color: #5D5D5D;
-	border: 1px solid #AAAAAA;
+	color: var(--sakai-text-color-2);
+	border: 1px solid var(--sakai-border-color);
 	width: 300px;
-}
-	
-
-.formInputField,
-.formInputArea,
-.profileImageUrlInputField,
-.form-input-small {
-	padding-left: 2px;
-	border: 1px solid #AAAAAA;
-	margin: .2em;
 }
 
 .formInputField {
@@ -522,27 +484,15 @@ h2 {
 	width: 180px;
 }
 
-.formInputField:focus,
-.formInputArea:focus,
-.profileImageUrlInputField:focus {
-	border-color: black;
-	background: #ffc;
-}
-
 .formInputField.invalid,
 .formInputArea.invalid {
-    border: 2px solid red;
-    color: red;
-}
-
-.formInputField.valid
-.formInputArea.valid  {
-    /*color: green;*/
+	border: 2px solid var(--sakai-color-red);
+	color: var(--sakai-color-red);
 }
 
 .feedbackLabel {
 	display:block;
-    font-weight: bold;
+	font-weight: bold;
 }
 
 /* wicket FeedbackPanel but remove the list styles and just make it bold */
@@ -553,13 +503,8 @@ h2 {
 	font-weight: bold;
 }
 
-
 .formSectionHeading {
-	/* PRFL-372 div > h4, added color
-	font-weight: bold;
-	padding-top: 2px;
-	*/
-	color: #333;
+	color: var(--sakai-text-color-1);
 	padding-left: 0;
 }
 
@@ -568,9 +513,8 @@ h2 {
 	font-size: 0.9em;
 	padding-left: 2px;
 	margin-top: 4px;
-	font-style: italic;	
+	font-style: italic;
 }
-
 
 /* Style for wicket's feedback message panel */
 .alertMessage ul {
@@ -580,17 +524,18 @@ h2 {
 	margin-top: 0px;
 }
 
-
 /* friends feed styles */
 #friends-feed-wrapper {
 	display: block;
 	text-align: center;
 }
+
 #friends-feed-wrapper table{
 	border: none;
 	margin: 0 auto;
 	table-layout: fixed;
 }
+
 #friends-feed-wrapper table td {
 	padding-left: 2px;
 	padding-right: 2px;
@@ -598,7 +543,7 @@ h2 {
 	margin-right: 1px;
 	vertical-align: top;
 }
-	
+
 .friends-feed-item {
 	vertical-align: top;
 	width: 55px;
@@ -608,39 +553,35 @@ h2 {
 	word-wrap: break-word;
 	white-space: normal;
 }
-	
+
 .friends-feed-item-photo {
 	max-width: 55px;
 	width: 55px;
 	/* centre the image inside this cell */
 	display:block;
-   	margin:auto;
-   	/* end centreing */
-   	cursor: pointer;
+	margin:auto;
+	/* end centreing */
+	cursor: pointer;
 }
-
 
 .friends-feed-item-caption {
 	max-width: 55px;
 	margin-top: 0;
 	font-size: 70%;
-	color: #3355BB;
+	color: var(--sakai-text-color-1);
 	cursor: pointer;
 }
 
 .friends-feed-item-caption:hover {
-	color: #33f;
+	color: var(--link-hover-color);
 }
-
 
 /* people list styles */
 .connections-wrap, .search-results-wrap {
-	border-bottom: 1px solid #d0d0df;
 	margin-bottom: 12px;
 	max-width: 520px;
 	width: 100%;
 }
-
 
 .connection, .search-result {
 	display:block;
@@ -648,31 +589,20 @@ h2 {
 	left: 0;
 	top: 0;
 	height: 170px;
-	border-left: 1px solid #d0d0df;
-	border-right: 1px solid #d0d0df;
-	border-top: 1px solid #d0d0df;
-	border-collapse: collapse;
-	padding-top: 5px;
-	padding-left: 5px;
-	padding-right: 5px;
-	padding-bottom: 5px;
+	border: 1px solid var(--sakai-border-color);
+	padding: $standard-space-2x;
+	margin: $standard-space-2x 0;
 	overflow: hidden; /* to crop bigger pictures that might overhang */
 }
-
-.connection:hover, .search-result:hover {
-	background-color: #FFFFE6;
-}
-
 
 .connection-img, .search-result-img {
 	position: absolute;
 	top: 5px;
 	left: 5px;
 	max-width: 100px;
-	border: 1px solid #666666;
+	border: 1px solid var(--sakai-border-color);
 	padding: 2px;
 }
-
 
 .connection-info-wrap, .search-result-info-wrap {
 	position: absolute;
@@ -681,19 +611,18 @@ h2 {
 	width: 200px;
 }
 
-
 .connection-info-name, .search-result-info-name, wall-item-name {
 	display: inline;
 	font-weight: bold;
 	word-wrap:break-word;
-    /* WebKit rule. See http://blog.kenneth.io/blog/2012/03/04/word-wrapping-hypernation-using-css/ */
-    word-break: break-word;
-    /* Split long words with hyphens */
-    hyphens: auto;
-    -moz-hyphens: auto;
-    -webkit-hyphens: auto;
-    /* Only split after 8 characters. Webkit only. */
-    -webkit-hyphenate-limit-before:8;
+	/* WebKit rule. See http://blog.kenneth.io/blog/2012/03/04/word-wrapping-hypernation-using-css/ */
+	word-break: break-word;
+	/* Split long words with hyphens */
+	hyphens: auto;
+	-moz-hyphens: auto;
+	-webkit-hyphens: auto;
+	/* Only split after 8 characters. Webkit only. */
+	-webkit-hyphenate-limit-before:8;
 }
 
 .connection-status-msg, .search-result-status-msg {
@@ -704,7 +633,7 @@ h2 {
 .connection-status-date, .search-result-status-date {
 	display: block;
 	font-size: 70%;
-	color: #5D5D5D;
+	color: var(--sakai-text-color-2);
 }
 
 .search-connections {
@@ -726,53 +655,40 @@ h2 {
 @media (max-width: 800px) {
 	.connection-actions-wrap, .search-result-actions-wrap {
 		top: 35px;
-    	width: calc(100% - 114px);
+		width: calc(100% - 114px);
 	}
 }
 
-.connection-actions, .search-result-actions {
-	margin-bottom: 0;
-	margin-top: 0;
-	margin-left: 0;
-	padding-top: 0;
-	list-style-type:none !important;
-}
-
-.connection-actions li, .search-result-actions li {
-	border-bottom-style: solid;
-	border-bottom-color: #09c;
-	border-bottom-width: thin;
-	padding-left: 5px;
-	list-style-type: none !important;
-	vertical-align: top;
-}
-
-.connection-actions li a, .search-result-actions li a {
-	text-decoration: none !important;
-	display:block; /* makes whole li clickable */
-	padding-top: 2px;
-	padding-bottom: 2px;
-}
-
-.connection-actions li span, .search-result-actions li span {
-	padding-top: 2px;
-	padding-bottom: 2px;
-	display:block;
+.connection-actions,
+.search-result-actions {
+	list-style-type: none;
+	padding: 0;
 	margin: 0;
+
+	li {
+		margin-bottom: $standard-space-2x;
+
+		a {
+			@include sakai_secondary_button();
+			display: flex;
+			width: auto;
+			justify-content: center;
+			
+			&:before {
+				@extend .fa;
+				margin-right: $standard-space-2x;
+				line-height:18px;
+			}
+
+
+		}
+	}
 }
 
 /** workaround for disabled link and extra markup */
 .connection-actions li span>span, .search-result-actions li span>span {
 	margin: 0;
 	padding: 0;
-}
-
-.connection-actions li:hover, .search-result-actions li:hover {
-	background-color: #D1ECF6;
-}
-
-.connection-actions li#selected, .search-result-actions li#selected {
-	background-color: #D1ECF6;
 }
 
 .connection-summary-wrap, .search-result-summary-wrap {
@@ -818,9 +734,8 @@ h2 {
 	background-image: url("/library/image/silk/user_delete.png");
 }
 
-
 .connectionStatus {
-	color: #5D5D5D;
+	color: var(--sakai-text-color-2);
 	font-size: 90%;
 }
 
@@ -828,29 +743,23 @@ h2 {
 .rssLink {
 	margin: 0;
 	padding: 0;
-	/*float: right;*/
 	display: inline;
-	/*background: url(/library/image/feed.png) center right no-repeat;*/
 }
 
 .rssLink img {
 	vertical-align: middle;
 }
 
-
 /* heading for pages and items */
 .header {
-	border-bottom: 1px solid #DDD;
+	border-bottom: 1px solid var(--sakai-border-color);
 	line-height: 1.55;
 }
-
-
 
 .results-header, .search-results-header {
 	margin-top: 12px;
 	font-weight: normal;
 }
-
 
 /* modal window styles (also modalWindowButtons above) */
 .modalWindowWrapper {
@@ -861,17 +770,16 @@ h2 {
 	width: 450px; /* must be smaller than the actual modal window */
 	height: 120px;
 }
+
 .modalWindowImage {
 	position: absolute;
 	top: 0;
 	left: 0;
 	max-width: 100px;
 	width: 100px;
-	border: 1px solid #666666;
+	border: 1px solid var(--sakai-border-color);
 	padding: 2px;
 }
-
-
 
 .modalWindowMain {
 	position: relative;
@@ -892,50 +800,29 @@ span.wicket-ajax-indicator img {
 	vertical-align: middle;
 }
 
-/* warning message style for hen editing another person's profile */
+/* warning message style for when editing another person's profile */
 .edit-other-warning {
-	display:block;
-	border: 2px solid #ffcc33;
-	background-color: #fff9e6 !important;
-	background-image: url(/library/image/silk/error.png) !important;
-	padding-top: 2px;
-	padding-bottom: 2px;
-	padding-right: 10px;
-	padding-left: 24px;
-	background-position: 4px center;
-    background-repeat: no-repeat;
-    color: #5D5D5D;
+	@extend .sak-banner-warn-inline;
+	margin: $standard-space-2x 0;
 }
 
-/* warning message style for hen editing another person's profile */
+/* warning message style for when editing another person's profile */
 .save-failed-error {
-	display:block;
-	border: 2px solid #ff0000;
-	background-color: #FFE8E8 !important;
-	background-image: url(/library/image/silk/cancel.png) !important;
-	padding-top: 2px;
-	padding-bottom: 2px;
-	padding-right: 10px;
-	padding-left: 24px;
-	background-position: 4px center;
-    background-repeat: no-repeat;
-    color: #5D5D5D;
+	@extend .sak-banner-error-inline;
+	margin: $standard-space-2x 0;
 }
-
-
-
 
 /* autocomplete styling */
 div.wicket-aa {
 	font-size: 12px;
 	background-color: white;
-	border-color: #cccccc;
 	border-width: 1px;
 	border-style: solid;
+	border-color: var(--sakai-border-color);
 	margin: 1px 0 0 0;
 	text-align:left;
 }
- 
+
 div.wicket-aa ul {
 	list-style:none;
 	margin-top: 0 !important;
@@ -951,23 +838,21 @@ div.wicket-aa li {
 }
 
 div.wicket-aa ul li.selected {
-	background-color: #ffff77;
-}
-	
-	
-/* message threads styles */
-.message-thread-list-wrap {
-	border-top: 1px solid #d0d0df;
-	width: 700px;
+	@extend .sakai-colorize--sakai-color-gold--lighter-6;
 }
 
+/* message threads styles */
+.message-thread-list-wrap {
+	border-top: 1px solid var(--sakai-border-color);
+	width: 700px;
+}
 
 .message-thread-item {
 	display:block;
 	position: relative;
 	left: 0;
 	top: 0;
-	border-bottom: 1px solid #d0d0df;
+	border-bottom: 1px solid var(--sakai-border-color);
 	border-collapse: collapse;
 	/*height: 50px;*/ 
 	min-height: 50px; /*use min-height rather than fixed height as names might be long and spill over */
@@ -978,14 +863,13 @@ div.wicket-aa ul li.selected {
 	overflow: hidden; /* to crop bigger pictures that might overhang */
 }
 
-
 .message-thread-item:hover {
-	background-color: #FFFFE6;
+	@extend .sakai-colorize--sakai-color-gold--lighter-6;
 }
 
 .message-thread-photo-wrap {
 	display:table-cell;
-	vertical-align:top;	
+	vertical-align:top;
 }
 
 .message-thread-photo{
@@ -993,7 +877,6 @@ div.wicket-aa ul li.selected {
 	max-width: 50px;
 	width: 50px;
 }
-
 
 .message-thread-from-wrap, .message-thread-details-wrap {
 	display: table-cell;
@@ -1007,9 +890,6 @@ div.wicket-aa ul li.selected {
 	width: 150px;
 }
 
-.message-thread-details-wrap {
-}
-
 .message-thread-from-name {
 	display: block;
 	font-size: 90%;
@@ -1018,7 +898,7 @@ div.wicket-aa ul li.selected {
 .message-thread-date {
 	display: block;
 	font-size: 70%;
-	color: #5D5D5D;
+	color: var(--sakai-text-color-2);
 }
 
 .message-thread-subject {
@@ -1029,29 +909,26 @@ div.wicket-aa ul li.selected {
 .message-thread-body {
 	display: block;
 	font-size: 90%;
-	color: #5D5D5D;
+	color: var(--sakai-text-color-2);
 }
-
-
-
 
 /* message view styles */
 .message-details-wrap {
 	margin-top: 10px;
 	width: 700px;
 	padding-bottom: 10px;
-	border-bottom: 1px solid #999999;
+	border-bottom: 1px solid var(--sakai-border-color);
 	margin-bottom: 1px;
 }
 
 .message-subject {
 	font-size: 140%;
 	font-weight: bold;
-	color: #5D5D5D;
+	color: var(--sakai-text-color-2);
 }
 
 .message-list-wrap {
-	border-top: 1px solid #d0d0df;
+	border-top: 1px solid var(--sakai-border-color);
 	width: 700px;
 }
 
@@ -1060,16 +937,13 @@ div.wicket-aa ul li.selected {
 	position: relative;
 	left: 0;
 	top: 0;
-	border-bottom: 1px solid #d0d0df;
+	border-bottom: 1px solid var(--sakai-border-color);
 	border-collapse: collapse;
 	padding-top: 5px;
 	padding-left: 5px;
 	padding-right: 5px;
 	padding-bottom: 5px;
 	overflow: hidden; /* to crop bigger pictures that might overhang */
-}
-
-.message-item:hover {
 }
 
 .message-photo-wrap {
@@ -1102,40 +976,34 @@ div.wicket-aa ul li.selected {
 .message-date {
 	display: inline;
 	font-size: 70%;
-	color: #5D5D5D;
+	color: var(--sakai-text-color-2);
 }
-
-
 
 .message-body {
 	display: block;
 	width: 100%;
 	padding-top:5px;
 	font-size: 90%;
-	color: #5D5D5D;
+	color: var(--sakai-text-color-2);
 }
 
 .replyLabel {
 	width: 50px;
 	float: left;
-	color: #5D5D5D;
+	color: var(--sakai-text-color-2);
 	vertical-align: top;
 	font-weight: normal;
 }
 
 .unread-message {
-	background-color: #e9edff;
+	background-color: var(--sakai-active-color-1);
 }
 
 .unread-message:hover {
-	background-color: #e9edff;
-}
-
-.message-panel-buttons {
+	background-color: var(--sakai-active-color-2);
 }
 
 /* gallery-related */
-
 .add-form-item {
 	vertical-align: top;
 }
@@ -1152,10 +1020,6 @@ div.wicket-aa ul li.selected {
 
 .gallery-form {
 	position: relative;
-}
-
-.gallery-item img {
-
 }
 
 .gallery-image-panel {
@@ -1176,9 +1040,8 @@ div.wicket-aa ul li.selected {
 	border-spacing: 5px;
 	padding: 5px;
 }
-	
-/* gallery feed styles */
 
+/* gallery feed styles */
 #gallery-feed {
 	display: block;
 	text-align: center;
@@ -1212,9 +1075,8 @@ div.wicket-aa ul li.selected {
 	max-width: 55px;
 	width: 55px;
 	display:block;
-   	margin:auto;
+	   margin:auto;
 }
-
 
 /* wall-related */
 .wall-wrap {
@@ -1224,7 +1086,7 @@ div.wicket-aa ul li.selected {
 
 .wall-item {
 	clear:left;
-	border-top: 1px solid #d0d0df;
+	border-top: 1px solid var(--sakai-border-color);
 	padding: 5px;
 }
 
@@ -1233,7 +1095,7 @@ div.wicket-aa ul li.selected {
 	max-width: 35px;
 	width: 35px;
 	margin-bottom: 5px;
-   	cursor: pointer;
+	cursor: pointer;
 }
 
 .wall-item-text-wrap {
@@ -1253,7 +1115,7 @@ div.wicket-aa ul li.selected {
 	padding-left: 5px;
 	padding-top: 5px;
 	padding-bottom: 5px;
-	background-color: #F5F4F2;/*#EFEFED;*//*#ECECE9;*/
+	@extend .sakai-colorize--sakai-color-gold--lighter-6;
 }
 
 .wall-item-post-comment {
@@ -1261,7 +1123,7 @@ div.wicket-aa ul li.selected {
 	height: 100px;
 	padding-left: 5px;
 	padding-top: 5px;
-	background-color: #F5F4F2;
+	@extend .sakai-colorize--sakai-color-gold--lighter-6;
 }
 
 .wall-comment-input-area {
@@ -1271,15 +1133,11 @@ div.wicket-aa ul li.selected {
 }
 
 .wallButtons input[type="submit"] {
-	color: rgb(34, 119, 221);
-}
-
-.wall-item-details {
-
+	@include sakai_primary_button();
 }
 
 .wall-item-date {
-	color: #AAADBA;
+	color: var(--sakai-text-color-2);
 }
 
 .wall-item-actions-wrap {
@@ -1328,27 +1186,25 @@ div.wicket-aa ul li.selected {
 	clear: none;
 	text-align: right;
 }
-.closebutton:hover {
-	background-color: #ffcccc;
-}
 
+.closebutton:hover {
+	@extend .sakai-colorize--sakai-color-red--lighter-6;
+}
 
 /* accessibility */
 .accessibility-label {
-    position: absolute; 
-    left: -999em; 
-    width: 1em; 
-    overflow: hidden; 
+	position: absolute;
+	left: -999em;
+	width: 1em;
+	overflow: hidden;
 }
 
 .text-counter {
-	color: #999999;
+	color: var(--sakai-text-color-2);
 	font-size: 1.5em;
 	font-weight: bolder;
 	float:right;
 }
-
-
 
 .pager {
 	margin-top: 10px;
@@ -1370,14 +1226,6 @@ button.ui-datepicker-trigger {
 	margin: 0 0;
 }
 
-button.ui-datepicker-trigger .fa.fa-calendar{
-	color: #212121 !important;
-}
-
 .no-pictures {
 	margin-bottom: 10px;
-}
-
-input[type="submit"].secondary {
-    color: #555 !important
 }

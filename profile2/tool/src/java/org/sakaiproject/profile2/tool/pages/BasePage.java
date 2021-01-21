@@ -295,7 +295,6 @@ public class BasePage extends WebPage implements IHeaderContributor {
 
 		// Tool additions (at end so we can override if required)
 		response.render(StringHeaderItem.forString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />"));
-		response.render(CssHeaderItem.forUrl(String.format("/profile2-tool/css/profile2.css%s", version)));
 		response.render(JavaScriptHeaderItem.forUrl(String.format("/profile2-tool/javascript/profile2.js%s", version)));
 
 	}
