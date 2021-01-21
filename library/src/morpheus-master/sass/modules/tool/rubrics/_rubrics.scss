@@ -428,7 +428,7 @@ sakai-rubric-student-comment {
         text-align: center;
         width: 100%;
         &.active {
-            color: orange;
+            color: var(--sakai-color-orange);
         }
     }
 }

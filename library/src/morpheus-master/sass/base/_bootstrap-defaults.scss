@@ -563,7 +563,7 @@ $nav-tabs-active-link-hover-border-color:   var(--tool-tab-background-color);
 //##
 
 //** Popover body background color
-// $popover-bg:                          #fff
+$popover-bg:                          var(--sakai-background-color-2);
 //** Popover maximum width
 // $popover-max-width:                   276px
 //** Popover border color
@@ -572,7 +572,7 @@ $nav-tabs-active-link-hover-border-color:   var(--tool-tab-background-color);
 // $popover-fallback-border-color:       #ccc
 
 //** Popover title background color
-// $popover-title-bg:                    darken($popover-bg, 3%)
+$popover-title-bg:                   var(--sakai-background-color-3);
 
 //** Popover arrow width
 // $popover-arrow-width:                 10px
