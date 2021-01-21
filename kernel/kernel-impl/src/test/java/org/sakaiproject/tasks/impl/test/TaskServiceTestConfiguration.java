@@ -30,7 +30,11 @@ import org.hsqldb.jdbcDriver;
 import org.sakaiproject.tasks.api.Task;
 import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.tasks.api.UserTask;
+import org.sakaiproject.tasks.api.repository.TaskRepository;
+import org.sakaiproject.tasks.api.repository.UserTaskRepository;
 import org.sakaiproject.tasks.impl.TaskServiceImpl;
+import org.sakaiproject.tasks.impl.repository.TaskRepositoryImpl;
+import org.sakaiproject.tasks.impl.repository.UserTaskRepositoryImpl;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl;
@@ -114,4 +118,20 @@ public class TaskServiceTestConfiguration {
     public TaskService taskService() {
         return new TaskServiceImpl();
     }
+
+    @Bean
+    public TaskRepository taskRepository(SessionFactory sessionFactory) {
+        TaskRepositoryImpl tr = new TaskRepositoryImpl();
+        tr.setSessionFactory(sessionFactory);
+        return tr;
+    }
+
+    @Bean
+    public UserTaskRepository userTaskRepository(SessionFactory sessionFactory) {
+        UserTaskRepositoryImpl utr = new UserTaskRepositoryImpl();
+        utr.setSessionFactory(sessionFactory);
+        return utr;
+    } 
+
+    
 }

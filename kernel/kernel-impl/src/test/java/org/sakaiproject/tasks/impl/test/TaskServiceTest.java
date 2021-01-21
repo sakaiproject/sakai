@@ -38,6 +38,8 @@ import org.springframework.test.context.junit4.AbstractTransactionalJUnit4Spring
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.Assert;
 
+import static org.junit.Assert.assertEquals;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {TaskServiceTestConfiguration.class})
 @FixMethodOrder(NAME_ASCENDING)
@@ -57,7 +59,7 @@ public class TaskServiceTest extends AbstractTransactionalJUnit4SpringContextTes
         Task task = new Task();
         task.setSiteId(siteId);
         task.setReference(reference);
-        task.setSystem(true);
+        task.setSystem(false);
         task.setDescription(description);
         return taskService.createTask(task, userIds, Priorities.HIGH);
     }
@@ -65,7 +67,7 @@ public class TaskServiceTest extends AbstractTransactionalJUnit4SpringContextTes
     @Test
     public void testCanCreateSingleUserTask() {
 
-        String description = "This is my task";
+        String description = "Description about my task";
         String notes = "Notes about my task";
         int priority = Priorities.QUITE_HIGH;
         UserTaskAdapterBean bean = new UserTaskAdapterBean();
@@ -82,8 +84,8 @@ public class TaskServiceTest extends AbstractTransactionalJUnit4SpringContextTes
 
         UserTaskAdapterBean userTask = optionalUserTask.get();
 
-        Assert.isTrue(userTask.getDescription().equals(description), "task.description were not the same");
-        Assert.isTrue(userTask.getNotes().equals(notes), "usertask.notes were not the same");
+        assertEquals("task.description were not the same", description, userTask.getDescription());
+        assertEquals("usertask.notes were not the same", notes, userTask.getNotes());
         Assert.isTrue(userTask.getPriority() == priority, "task.priority were not the same");
     }
 
@@ -122,8 +124,8 @@ public class TaskServiceTest extends AbstractTransactionalJUnit4SpringContextTes
 
         userTask = userTasks.get(0);
 
-        Assert.isTrue(userTask.getNotes().equals(newNotes), "Newly saved notes doesn't match");
-        Assert.isTrue(userTask.getDescription().equals(newDescription), "Newly saved description doesn't match");
+        assertEquals("Newly saved notes doesn't match", newNotes, userTask.getNotes());
+        assertEquals("Newly saved description doesn't match", newDescription, userTask.getDescription());
         Assert.isTrue(userTask.getPriority() == 3, "Newly saved priority doesn't match");
         Assert.isTrue(userTask.getComplete(), "Newly saved task should be complete");
     }

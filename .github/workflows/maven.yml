@@ -15,6 +15,7 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
+    # https://github.com/actions/checkout#checkout-pull-request-head-commit-instead-of-merge-commit
     - uses: actions/checkout@v2
       with:
         fetch-depth: 2
