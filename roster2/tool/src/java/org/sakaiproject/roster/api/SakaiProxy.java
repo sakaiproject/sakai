@@ -279,6 +279,11 @@ public interface SakaiProxy {
     public boolean getShowVisits();
 
     /**
+     * @return the value of the <code>roster.display.pronouns</code> Sakai property.
+     */
+    public Boolean getViewPronouns();
+
+    /**
      * Returns the value of the <code>roster.display.user.name.pronunciation</code> Sakai property.
      *
      * @return the value of the <code>roster.display.user.name.pronunciation</code> Sakai property.

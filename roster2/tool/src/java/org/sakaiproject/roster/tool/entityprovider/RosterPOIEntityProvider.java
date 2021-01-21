@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -81,7 +82,6 @@ import lombok.extern.slf4j.Slf4j;
  *
  * @author d.b.robinson@lancaster.ac.uk
  */
-@Setter
 @Slf4j
 public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 		AutoRegisterEntityProvider, ActionsExecutable, RequestAware {
@@ -136,7 +136,10 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 	public final static String FILENAME_UNGROUPED = "Ungrouped";
 
 	private static final ResourceLoader rl = new ResourceLoader("roster");
+
+	@Resource
 	private SakaiProxy sakaiProxy;
+	@Setter
 	private RequestGetter requestGetter;
 
 	/**

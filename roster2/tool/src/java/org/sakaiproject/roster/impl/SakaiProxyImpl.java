@@ -55,6 +55,10 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import javax.annotation.Resource;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -125,27 +129,35 @@ import lombok.extern.slf4j.Slf4j;
  * @author Daniel Robinson (d.b.robinson@lancaster.ac.uk)
  * @author Adrian Fish (a.fish@lancaster.ac.uk)
  */
-@Setter
 @Slf4j
 public class SakaiProxyImpl implements SakaiProxy, Observer {
 
+	@Resource(name = "org.sakaiproject.coursemanagement.api.CourseManagementService")
 	private CourseManagementService courseManagementService;
-	private EventTrackingService eventTrackingService;
-	private FunctionManager functionManager;
+
+	@Resource private EventTrackingService eventTrackingService;
+	@Resource private FunctionManager functionManager;
+
+	@Resource(name = "org.sakaiproject.authz.api.GroupProvider")
 	private GroupProvider groupProvider;
-	private PrivacyManager privacyManager;
-	private MemoryService memoryService;
-	private ProfileLogic profileLogic;
-	private ProfileConnectionsLogic connectionsLogic;
-	private SakaiPersonManager sakaiPersonManager;
-	private SecurityService securityService;
-	private ServerConfigurationService serverConfigurationService;
-	private SessionManager sessionManager;
-	private SiteService siteService;
-	private StatsManager statsManager;
-	private ToolManager toolManager;
-	private UserDirectoryService userDirectoryService;
-    private RosterMemberComparator memberComparator;
+
+	@Resource private PrivacyManager privacyManager;
+	@Resource private MemoryService memoryService;
+	@Resource private ProfileLogic profileLogic;
+	@Resource private ProfileConnectionsLogic connectionsLogic;
+	@Resource private SakaiPersonManager sakaiPersonManager;
+	@Resource private SecurityService securityService;
+	@Resource private ServerConfigurationService serverConfigurationService;
+	@Resource private SessionManager sessionManager;
+	@Resource private SiteService siteService;
+
+	@Resource(name = "org.sakaiproject.sitestats.api.StatsManager")
+ 	private StatsManager statsManager;
+
+	@Resource private ToolManager toolManager;
+	@Resource private UserDirectoryService userDirectoryService;
+
+	@Setter private RosterMemberComparator memberComparator;
 
     private static final String SAK_PROP_SHOW_PERMS_TO_MAINTAINERS = "roster.showPermsToMaintainers";
     private static final boolean SAK_PROP_SHOW_PERMS_TO_MAINTAINERS_DEFAULT = true;
@@ -471,23 +483,11 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 		
     private Map<String, User> getUserMap(Set<Member> members) {
 
-        Map<String, User> userMap = new HashMap<String, User>();
+        // Build a map of userId to User
+        Set<String> userIds
+            = members.stream().filter(Member::isActive).map(Member::getUserId).collect(Collectors.toSet());
 
-        Set<String> userIds = new HashSet<String>();
-
-        // Build a map of userId to role
-        for (Member member : members) {
-            if (member.isActive()) {
-				userIds.add(member.getUserId());
-	        }
-        }
-
-        // Get the user objects
-        for (User user : userDirectoryService.getUsers(userIds)) {
-            userMap.put(user.getId(), user);
-        }
-
-        return userMap;
+        return userDirectoryService.getUsers(userIds).stream().collect(Collectors.toMap(User::getId, u -> u));
     }
 
     /**
@@ -497,11 +497,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
         Map<String, String> pronunceMap = new HashMap<>();
 
         if ("namecoach".equalsIgnoreCase(serverConfigurationService.getString("roster.pronunciation.provider", ""))) {
-            Set<String> emails = new HashSet<>();
-            for (User u : userMap.values()) {
-                emails.add(u.getEmail());
-            }
-
+            Set<String> emails = userMap.values().stream().map(User::getEmail).collect(Collectors.toSet());
             if (emails.isEmpty()) { return pronunceMap; }
 
             try (CloseableHttpClient client = HttpClients.createDefault()) {
@@ -525,9 +521,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                     JsonNode rootNode = objectMapper.readTree(body);
                     log.debug("JSON returned: {}", rootNode.toString());
                     JsonNode participantsNode = rootNode.path("participants");
-                    Iterator<JsonNode> iterator  = participantsNode.iterator();
-                    while (iterator.hasNext()) {
-                        JsonNode pNode = iterator.next();
+                    for (JsonNode pNode : participantsNode) {
                         JsonNode emailNode = pNode.get("email");
                         JsonNode embedNode = pNode.get("embed_image");
                         String emailText = emailNode.asText();
@@ -627,7 +621,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
     private List<RosterMember> filterMembers(Site site, String currentUserId, List<RosterMember> unfiltered, String groupId) {
 
-        List<RosterMember> filtered = new ArrayList<RosterMember>();
+        List<RosterMember> filtered = new ArrayList<>();
 
 		if (isAllowed(currentUserId, RosterFunctions.ROSTER_FUNCTION_VIEWALL, site.getReference())) {
 			if (groupId == null) {
@@ -669,8 +663,8 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 		log.debug("membership.size(): {}", filtered.size());
 		
 		//remove duplicates. Yes, its a Set but there can be dupes because its storing objects and from multiple groups.
-		Set<String> check = new HashSet<String>();
-		List<RosterMember> cleanedMembers = new ArrayList<RosterMember>();
+		Set<String> check = new HashSet<>();
+		List<RosterMember> cleanedMembers = new ArrayList<>();
 		for (RosterMember m : filtered) {
 			if (check.add(m.getUserId())) {
 				cleanedMembers.add(m);
@@ -707,17 +701,9 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 			viewHidden = true;
 		}
 
-		List<RosterMember> filtered = new ArrayList<RosterMember>();
-		
-		Set<String> userIds = new HashSet<String>();
+		List<RosterMember> filtered = new ArrayList<>();
 
-		for (Iterator<RosterMember> i = members.iterator(); i.hasNext(); ) {
-            RosterMember member = i.next();
-			String userId = member.getUserId();
-
-			userIds.add(userId);
-
-		}
+ 		Set<String> userIds = members.stream().map(RosterMember::getUserId).collect(Collectors.toSet());
 
 		Set<String> hiddenUserIds = privacyManager.findHidden("/site/" + siteId, userIds);
 
@@ -759,7 +745,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 	
 	private Set<Member> getUnfilteredMembers(String groupId, Site site) {
 		
-		Set<Member> membership = new HashSet<Member>();
+		Set<Member> membership = new HashSet<>();
 
 		if (null == groupId) {
 			// get all members
@@ -793,6 +779,11 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 		rosterMember.setDisplayName(user.getDisplayName());
 		rosterMember.setSortName(user.getSortName());
 
+		SakaiPerson sakaiPerson = sakaiPersonManager.getSakaiPerson(userId, sakaiPersonManager.getUserMutableType());
+		if (sakaiPerson != null) {
+			rosterMember.setPronouns(sakaiPerson.getPronouns());
+		}
+
 		// See if there is a pronunciation available for the user
 		String pronunciation = pronunceMap.get(user.getId());
 		//Try by email instead of Id
@@ -816,11 +807,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
 		rosterMember.setUserProperties(userPropertiesMap);
 
-		for (Group group : groups) {
-			if (group.getMember(userId) != null) {
-			    rosterMember.addGroup(group.getId(), group.getTitle());
-		    }
-		}
+		groups.stream().filter(g -> g.getMember(userId) != null).forEach(g -> rosterMember.addGroup(g.getId(), g.getTitle()));
 
         if (connectionsLogic != null) {
             rosterMember.setConnectionStatus(connectionsLogic
@@ -921,15 +908,11 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                 for (Group group : groups) {
                     String gId = group.getId();
                     cache.put(siteId + "#" + gId, new ArrayList<RosterMember>());
-                    for (Role role : roles) {
-                        cache.put(siteId + "#" + gId + "#" + role.getId(), new ArrayList<RosterMember>());
-                    }
+                    roles.forEach(r -> cache.put(siteId + "#" + gId + "#" + r.getId(), new ArrayList<RosterMember>()));
                 }
 
                 // Same for site#role
-                for (Role role : roles) {
-                    cache.put(siteId + "#" + role.getId(), new ArrayList<RosterMember>());
-                }
+                roles.forEach(r -> cache.put(siteId + "#" + r.getId(), new ArrayList<RosterMember>()));
 
                 for (Member member : membership) {
                     try {
@@ -1189,15 +1172,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
 				RosterGroup rosterGroup = new RosterGroup(group.getId());
 				rosterGroup.setTitle(group.getTitle());
-
-				List<String> userIds = new ArrayList<String>();
-
-				for (Member member : group.getMembers()) {
-					userIds.add(member.getUserId());
-				}
-
-				rosterGroup.setUserIds(userIds);
-
+				rosterGroup.setUserIds(group.getMembers().stream().map(Member::getUserId).collect(Collectors.toList()));
 				siteGroups.add(rosterGroup);
 			}
 		}
@@ -1331,8 +1306,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                 cache = memoryService.createCache(SEARCH_INDEX_CACHE, new SimpleConfiguration(0));
             }
 
-            Map<String, String> index
-                = (Map<String, String>) cache.get(siteId+groupId);
+            Map<String, String> index = (Map<String, String>) cache.get(siteId+groupId);
 
             if (MapUtils.isEmpty(index)) {
                 final List<RosterMember> membership = getMembership(userId, siteId, groupId, roleId, enrollmentSetId, enrollmentStatus);
@@ -1353,6 +1327,13 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
     public boolean getShowVisits() {
         return serverConfigurationService.getBoolean("roster.showVisits", false);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Boolean getViewPronouns() {
+        return serverConfigurationService.getBoolean("roster.display.user.pronouns", false);
     }
 
     /**
@@ -1433,13 +1414,10 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
             Site site = getSite(siteId);
             if (site != null) {
                 Set<Role> roles = site.getRoles();
-                for (Group group : site.getGroups()) {
-                    String gId = group.getId();
+                site.getGroups().stream().map(Group::getId).forEach(gId -> {
                     membershipsCache.remove(siteId + "#" + gId);
-                    for (Role role : roles) {
-                        membershipsCache.remove(siteId + "#" + gId + "#" + role.getId());
-                    }
-                }
+                    roles.forEach(r -> membershipsCache.remove(siteId + "#" + gId + "#" + r.getId()));
+                });
             }
         }
     }
