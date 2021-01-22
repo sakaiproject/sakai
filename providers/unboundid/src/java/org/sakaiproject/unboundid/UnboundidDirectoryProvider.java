@@ -109,7 +109,7 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 	
 	public static final boolean DEFAULT_RETRY_FAILED_OPERATIONS_DUE_TO_INVALID_CONNECTIONS = false;
 
-	public static final long DEFAULT_HEALTH_CHECK_INTERVAL_MILLIS = 60000L;
+	public static final long DEFAULT_HEALTH_CHECK_INTERVAL_MILLIS = 180000L;
 
 	/** Default LDAP maximum number of objects in a result */
 	public static final int DEFAULT_MAX_RESULT_SIZE = 1000;
@@ -303,9 +303,10 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 
                 // Set some sane defaults to better handle timeouts. Unboundid will wait 30 seconds by default on a hung connection.
                 LDAPConnectionOptions connectOptions = new LDAPConnectionOptions();
-                connectOptions.setAbandonOnTimeout(true);
+                connectOptions.setAbandonOnTimeout(false); // If no response from server, dont send an abandon request to the server
                 connectOptions.setConnectTimeoutMillis(operationTimeout);
                 connectOptions.setResponseTimeoutMillis(operationTimeout); // Sakai should not be making any giant queries to LDAP
+                connectOptions.setUseSynchronousMode(true); // "operate more efficiently and without requiring a separate reader thread per connection"
 
                 if (isSecureConnection()) {
                         try {
