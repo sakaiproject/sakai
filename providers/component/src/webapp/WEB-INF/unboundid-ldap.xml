@@ -148,9 +148,9 @@
 		<!-- Specifies the length of time in milliseconds between periodic background
 			health checks against the available connections in this pool.
 			Requires healthCheckMappings's invokeForBackgroundChecks to be set to true
-			Defaults to 60000L -->
+			Defaults to 180000 (three minutes) -->
 		<!-- property name="healthCheckIntervalMillis">
-			<value>60000</value>
+			<value>300000</value>
 		</property -->
 
 		<!-- Provides mapping to create an LDAP connection pool health check implementation
@@ -159,7 +159,7 @@
 			Defaults to null (invokes the Unboundid defaut implementation, which does not do any checks) -->
 		<!-- property name="healthCheckMappings">
 			<map>
-				<entry key="maxResponseTime"><value>30000</value></entry>
+				<entry key="maxResponseTime"><value>10000</value></entry>
 				<entry key="invokeOnCreate"><value>false</value></entry>
 				<entry key="invokeAfterAuthentication"><value>false</value></entry>
 				<entry key="invokeOnCheckout"><value>false</value></entry>
