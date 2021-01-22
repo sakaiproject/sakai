@@ -299,14 +299,6 @@
       </snapshots>
     </repository>
     <repository>
-      <id>repository.spring.libs.release</id>
-      <name>Spring Lib Repository</name>
-      <url>https://repo.spring.io/libs-release</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-    <repository>
       <id>sakai-maven2-snapshots</id>
       <name>Sakai Maven Repo</name>
       <layout>default</layout>
