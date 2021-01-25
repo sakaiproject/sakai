@@ -79,7 +79,7 @@
                                     #if (${tabsSites.mrphs_profileToolUrl})
 
                                         <div id="loginUser" class="has-avatar Mrphs-userNav__submenuitem--userlink #if (${site.isCurrentSite}) current-site #end">
-                                            <a href="javascript:void(0);" role="button" aria-haspopup="true" class="Mrphs-userNav__drop-btn Mrphs-userNav__submenuitem--username">
+                                            <a href="javascript:void(0);" role="button" title="${loginUserFirstName} ${rloader.sit_profile_drop_down}" aria-haspopup="true" class="Mrphs-userNav__drop-btn Mrphs-userNav__submenuitem--username">
                                                 <span class="Mrphs-userNav__submenuitem--profilepicture" style="background-image:url(/direct/profile/${loginUserId}/image/thumb)"></span>
                                                 <span class="textlink">${loginUserFirstName}</span>
                                             </a>
@@ -87,7 +87,7 @@
 
                                     #else
 
-                                        <a id="loginUser" href="javascript:void(0);" class="Mrphs-userNav__drop-btn no-avatar Mrphs-userNav__submenuitem--userlink #if (${site.isCurrentSite}) current-site #end">
+                                        <a id="loginUser" href="javascript:void(0);" title="${loginUserFirstName} ${rloader.sit_profile_drop_down}"  aria-haspopup="true" class="Mrphs-userNav__drop-btn no-avatar Mrphs-userNav__submenuitem--userlink #if (${site.isCurrentSite}) current-site #end">
                                             <span class="Mrphs-userNav__submenuitem--username">${loginUserFirstName}</span>
                                             <span class="Mrphs-userNav__submenuitem--userid">${loginUserDispId}</span>
                                         </a>
