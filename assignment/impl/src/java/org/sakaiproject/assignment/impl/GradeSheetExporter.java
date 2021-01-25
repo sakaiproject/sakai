@@ -339,31 +339,30 @@ public class GradeSheetExporter {
                 Collections.sort(submitters, SUBMITTER_NAME_COMPARATOR);
 
                 for (final Submitter submitter : submitters) {
-                    Row sheetRow = sheet.createRow(rowNum++);
                     List<Object> rowValues = results.get(submitter);
                     int column = 0;
-                    if (submitter.anonymous) {
-                        sheetRow.createCell(column++).setCellValue("");
-                        sheetRow.createCell(column++).setCellValue(submitter.id);
-                    } else {
+                    Row sheetRow = null;
+                    if (!submitter.anonymous) {
+                        sheetRow = sheet.createRow(rowNum++);
                         sheetRow.createCell(column++).setCellValue(submitter.sortName);
                         sheetRow.createCell(column++).setCellValue(submitter.id);
-                    }
-                    for (Object rowValue : rowValues) {
-                        if (rowValue instanceof FloatCell) {
-                            FloatCell floatValue = (FloatCell) rowValue;
-                            cell = sheetRow.createCell(column++, CellType.NUMERIC);
-                            cell.setCellValue(floatValue.value);
-                            style = wb.createCellStyle();
-                            style.setDataFormat(wb.createDataFormat().getFormat(floatValue.format));
-                            cell.setCellStyle(style);
-                        } else if (rowValue != null) {
-                            cell = sheetRow.createCell(column++, CellType.STRING);
-                            cell.setCellValue(rowValue.toString());
-                        } else {
-                            cell = sheetRow.createCell(column++, CellType.STRING);
-                            cell.setCellValue(rb.getString("listsub.nosub"));
-                        }
+
+	                    for (Object rowValue : rowValues) {
+	                        if (rowValue instanceof FloatCell) {
+	                            FloatCell floatValue = (FloatCell) rowValue;
+	                            cell = sheetRow.createCell(column++, CellType.NUMERIC);
+	                            cell.setCellValue(floatValue.value);
+	                            style = wb.createCellStyle();
+	                            style.setDataFormat(wb.createDataFormat().getFormat(floatValue.format));
+	                            cell.setCellStyle(style);
+	                        } else if (rowValue != null) {
+	                            cell = sheetRow.createCell(column++, CellType.STRING);
+	                            cell.setCellValue(rowValue.toString());
+	                        } else {
+	                            cell = sheetRow.createCell(column++, CellType.STRING);
+	                            cell.setCellValue(rb.getString("listsub.nosub"));
+	                        }
+	                    }
                     }
                     if (isNotesEnabled) {
                         int col = column;
