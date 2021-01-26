@@ -18,11 +18,11 @@ jobs:
           fetch-depth: 0
       - name: Git Pull
         run: |
+          GIT_MERGE_BASE_SHA=$(git merge-base origin/$GITHUB_BASE_REF $GITHUB_SHA)
           echo "Commits before pull"
-          git log --oneline $GITHUB_SHA~1..HEAD
+          git log --oneline $GIT_MERGE_BASE_SHA~1..HEAD
           echo "Pull with fast forward only"
           git pull --ff-only origin $GITHUB_BASE_REF
-          GIT_MERGE_BASE_SHA=$(git merge-base origin/$GITHUB_BASE_REF $GITHUB_SHA)
           echo "Commits after pull"
           git log --oneline $GIT_MERGE_BASE_SHA~1..HEAD
       - name: JDK 11
