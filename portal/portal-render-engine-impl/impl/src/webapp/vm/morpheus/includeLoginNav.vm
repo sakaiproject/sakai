@@ -87,7 +87,7 @@
 
                                     #else
 
-                                        <a id="loginUser" href="javascript:void(0);" title="${loginUserFirstName} ${rloader.sit_profile_drop_down}"  aria-haspopup="true" class="Mrphs-userNav__drop-btn no-avatar Mrphs-userNav__submenuitem--userlink #if (${site.isCurrentSite}) current-site #end">
+                                        <a id="loginUser" href="javascript:void(0);" role="menuitem" title="${loginUserFirstName} ${rloader.sit_profile_drop_down}"  aria-haspopup="true" class="Mrphs-userNav__drop-btn no-avatar Mrphs-userNav__submenuitem--userlink #if (${site.isCurrentSite}) current-site #end">
                                             <span class="Mrphs-userNav__submenuitem--username">${loginUserFirstName}</span>
                                             <span class="Mrphs-userNav__submenuitem--userid">${loginUserDispId}</span>
                                         </a>
