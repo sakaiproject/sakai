@@ -29,8 +29,7 @@
       &.current {
         padding: 0;
         a {
-          background-color: #FFFFFF !important;
-          color: var(--tool-tab-active-highlight-color) !important;
+          color: var(--tool-tab-active-text-color);
           pointer-events: none;
         }
       }
@@ -60,19 +59,19 @@
       border-width: 0 1px 1px 1px;
       border-style: solid;
       border-radius: 0 0 3px 3px;
-      border-color: #E5E5E5;
-      box-shadow: 0 0 2px 2px rgba(229,229,229,0.7);
+      border-color: var(--sakai-border-color);
+      box-shadow: var(--elevation-2dp);
       padding-left: 20px;
       padding-right: 20px;
-      background-color: #FFFFFF;
+      background-color: var(--sakai-background-color-1);
       z-index: 100;
       #connection-manager-connectionsview-searchresults {
-        background-color: #FFFFFF;
+        background-color: var(--sakai-background-color-1);
 
         .connection-manager-connectionsview-searchresult {
           display: flex;
           align-items: center;
-          border-bottom: 1px solid #E5E5E5;
+          border-bottom: 1px solid var(--sakai-border-color);
           white-space: nowrap;
           padding: 10px 5px 10px 8px;
 
@@ -81,7 +80,7 @@
             width: 40px;
             height: 40px;
             margin: 0;
-            border: 1px solid #666666;
+            border: 1px solid var(--sakai-border-color);
             border-radius: 50%;
             background-size: auto 100%;
             background-position: 50%;
@@ -90,7 +89,7 @@
           .connection-manager-connectionsview-searchresult-name {
             margin-left: 15px;
             font-size: 13px;
-            color: #131313;
+            color: var(--sakai-text-color-1);
             overflow: hidden;
             text-overflow: ellipsis;
             cursor: pointer;
@@ -99,7 +98,7 @@
       }
       #connection-manager-connectionsview-searchresults-more {
         font-size: 12px;
-        color: #347EB2;
+        color: var(--link-color);
         text-align: center;
         padding: 5px;
         a {
@@ -116,34 +115,33 @@
       padding: 0px;
       padding-top: 8px;
       text-align: center;
-      background-color: #ECECEC !important;
+      background-color: var(--sakai-background-color-2);
+      border-bottom: 1px solid var(--sakai-border-color);
 
       #connection-manager-title {
         font-weight: bold;
         font-size: 18px;
-        color: #3B3B3B;
+        color: var(--sakai-text-color-1);
       }
       #connection-manager-close-button {
-        margin-right: 5px;
-        padding: 4px 3px 2px 3px;
-        background-color: #ECECEC;
-        &.close {
-          color: #4C4C4C !important;
-          opacity: 1;
-        }
+        @include sakai_secondary_button();
+        margin-top:-4px;
+        opacity: 1;
       }
     }
     .modal-body {
       padding: 20px;
       border-bottom: none;
       min-height: 67vh;
+      background-color: var(--sakai-background-color-1);
     }
     .modal-footer {
+      background-color: var(--sakai-background-color-1);
       border-top: none;
       button {
         height: 30px;
         font-size: 13px;
-        color: #131313;
+        color: var(--sakai-text-color-1);
       }
     }
   }
@@ -171,7 +169,7 @@
       }
       .connection-manager-no-connections-text {
         font-size: 13px;
-        color: #131313;
+        color: var(--sakai-text-color-1);
         margin-top: 10px;
         font-weight: 550;
       }
@@ -193,8 +191,8 @@
 }
 
 .connection-manager-connection {
-  border: 1px solid #E5E5E5;
-  box-shadow: 0 5 rgba(229,229,229,0.7);
+  border: 1px solid var(--sakai-border-color);
+  box-shadow: var(--elevation-2dp);
   margin-right: 5px;
   margin-bottom: 5px;
   display: inline-block;
@@ -216,7 +214,7 @@
         width: 65px;
         height: 65px;
         margin: 0;
-        border: 1px solid #666666;
+        border: 1px solid var(--sakai-border-color);
         border-radius: 50%;
         background-size: auto 100%;
         background-position: 50%;
@@ -229,7 +227,7 @@
         padding: 2px 0;
         font-weight: 550;
                 font-size: 14px;
-        color: #131313;
+        color: var(--sakai-text-color-1);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -240,10 +238,10 @@
       .connection-manager-social-icon {
         font-size: 20px;
         margin-right: 10px;
-        color: #666666;
+        color: var(--sakai-text-color-2);
       }
       .inactive {
-        color: #A9A9A9 !important;
+        color: var(--sakai-text-color-disabled) !important;
       }
 		}
 	}
@@ -271,14 +269,13 @@
 }
 
 .connection-manager-searchbox {
-  color: #626262;
+  color: var(--sakai-text-color-2);
   font-size: 12px;
   width: 280px;
   height: 28px;
   padding: 4px;
-  border: 1px solid #E5E5E5;
-  border-radius: 3px 3px 0 0;
-  box-shadow: inset 0 0 1px 1px rgba(229,229,229,0.3);
+  border: 1px solid var(--sakai-border-color);
+  border-radius: 0;
 	@media #{$phone} {
     width: 100%;
   }
@@ -290,8 +287,8 @@
   #connection-manager-searchresultsview-topbar {
     overflow: auto;
     padding-bottom: 5px;
-    border-bottom: 1px solid #E5E5E5;
-    paddin-left: 0;
+    border-bottom: 1px solid var(--sakai-border-color);
+    padding-left: 0;
     #connection-manager-searchresultsview-backlinkwrapper {
       float: left;
       display: flex;
@@ -303,13 +300,13 @@
       margin-top: 3px;
       > span {
         font-size: 20px;
-        color: #347EB2;
+        color: var(--link-color);
       }
       #connection-manager-backtoconnections-link {
         font-size: 12px;
         margin-left: 5px;
         font-weight: medium;
-        color: #347EB2;
+        color: var(--link-color);
         text-decoration: none;
         transform: translateY(2px);
       }
@@ -324,7 +321,7 @@
   }
   #connection-manager-searchresultsview-count {
     font-size: 16px;
-    color: #131313;
+    color: var(--sakai-text-color-1);
     font-weight: 550;
     margin-top: 10px;
   }
