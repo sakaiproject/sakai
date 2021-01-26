@@ -2205,13 +2205,12 @@ legend.noBottomSpacing {
     padding-left: 0px !important; /* important needed to override bootstrap grid-layout */
 }
 
-.edit-form-input.description{
-    width: 99%;
+.edit-form-input {
     margin-bottom: 10px;
 }
-.edit-form-input.col-sm-2 {
-    padding-left: 0;
-    padding-right: 0;
+
+textarea.edit-form-input {
+    padding: 8px;
 }
 
 p.checkbox{
