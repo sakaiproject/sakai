@@ -1330,9 +1330,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				    UIOutput.make(columnContainer, "section3").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.columnopen")));
 				    UIOutput.make(columnContainer, "addbottom");
 				    UIOutput.make(columnContainer, "addbottom2").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.add-item-column")));
-				    UILink link = UILink.make(columnContainer, "section-del-link", (String)null, "/" + i.getId());
-				    link.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.join-items")));
-				    link.decorate(new UIStyleDecorator(sectionbreak?"section-merge-link":"column-merge-link"));
+				    UIOutput mergeLink = UIOutput.make(columnContainer, "section-del-link");
+				    mergeLink.decorate(new UIFreeAttributeDecorator("data-merge-id", String.valueOf(i.getId())));
+				    mergeLink.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.join-items")));
+				    mergeLink.decorate(new UIFreeAttributeDecorator("aria-label", messageLocator.getMessage("simplepage.join-items")));
+				    mergeLink.decorate(new UIStyleDecorator(sectionbreak?"section-merge-link":"column-merge-link"));
 				    }
 
 				    UIBranchContainer tableRow = UIBranchContainer.make(tableContainer, "item:");
