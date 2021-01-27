@@ -30,6 +30,7 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSessionService;
@@ -96,6 +97,7 @@ public class AbstractWebService {
     protected QuestionPoolServiceAPI questionPoolServiceImpl;
     protected LessonBuilderAccessAPI lessonBuilderAccessAPI;
     protected FormattedText formattedText;
+    protected SqlService sqlService;
 
     /**
      * Get the Session related to the given sessionid
@@ -289,6 +291,11 @@ public class AbstractWebService {
     @WebMethod(exclude = true)
     public void setFormattedText(FormattedText formattedText) {
         this.formattedText = formattedText;
+    }
+
+    @WebMethod(exclude = true)
+    public void setSqlService(SqlService sqlService) {
+        this.sqlService = sqlService;
     }
 
 }
