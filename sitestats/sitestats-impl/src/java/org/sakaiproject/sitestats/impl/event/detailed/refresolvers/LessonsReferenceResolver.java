@@ -208,10 +208,9 @@ public class LessonsReferenceResolver
 
     /**
      * Accumulates a list representing the hierarchy of pages starting from the given page and traversing upwards.
-	 * @param hierarchy the accumulated list of pages
+     * @param hierarchy the accumulated list of pages
      * @param page the page we want to traverse the hierarchy from
      * @param lsnServ the LessonBuilder service to use for accessing the hierarchy information
-     * @return a List representing the hierarchy in reverse order (bottom to top)
      */
     private static void getPageHierarchyReverse( List<HierarchyPage> hierarchy, SimplePage page, SimplePageToolDao lsnServ)
     {
