@@ -156,6 +156,24 @@
 							#end
 						</a>
 					</th>
+					#if ($!isTimesheet)
+						<th id="timeSheet">
+							<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=timesheet")'; return false;"  title="$tlang.getString("gen.sorbytime")">
+								#if ($!allowGradeSubmission)
+									$tlang.getString("gen.timesheet.instructor")
+								#else
+									$tlang.getString("gen.timesheet.student")
+								#end
+								#if ($sortedBy.equals("timesheet"))
+									#if ($sortedAsc.equals("true"))
+										<img id="sortascendingtimesheet" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
+									#else
+										<img id="sortdescendingtimesheet" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
+									#end
+								#end
+							</a>
+						</th>
+					#end
 					#if ($!allowGradeSubmission)
 						#if ($!view.equals('lisofass1'))
 						#if ($!showNumSubmissionColumn)
@@ -489,7 +507,33 @@
 							#end
 
 							</td>
-
+							#if ($!isTimesheet)
+								#if ($!allowGradeSubmission)
+									<td headers="timeSheet">
+									#if (!$assignment.Estimate || $assignment.Estimate.equals(""))
+										-
+									#else
+										#if (!$!rate.get($assignment.Id) || $!rate.get($assignment.Id).equals(""))
+											-/$!assignment.Estimate
+										#else
+											$!rate.get($assignment.Id)/$!assignment.Estimate
+										#end
+									#end	
+									</td>
+								#else
+									<td headers="timeSheet">
+									#if (!$assignment.Estimate || $assignment.Estimate.equals(""))
+										-
+									#else
+										#if (!$!rateStudent.get($assignment.Id) || $!rateStudent.get($assignment.Id).equals(""))
+											-/$!assignment.Estimate
+										#else
+											$!rateStudent.get($assignment.Id)/$!assignment.Estimate
+										#end
+									#end	
+									</td>
+								#end
+							#end
 							#if ($!allowGradeSubmission)
 								#if ($!view.equals('lisofass1'))
 								#if ($!showNumSubmissionColumn)

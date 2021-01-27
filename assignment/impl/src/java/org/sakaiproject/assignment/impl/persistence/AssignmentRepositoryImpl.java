@@ -42,6 +42,7 @@ import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
+import org.sakaiproject.assignment.api.model.AssignmentTimeSheet;
 import org.sakaiproject.assignment.api.persistence.AssignmentRepository;
 import org.sakaiproject.hibernate.HibernateCriterionUtils;
 import org.sakaiproject.serialization.BasicSerializableRepository;
@@ -97,6 +98,28 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
 
     @Override
     @Transactional
+    public void newAssignmentTimeSheet(AssignmentTimeSheet timeSheet) {
+        if (!existsAssignmentTimeSheet(timeSheet.getId())) {
+            sessionFactory.getCurrentSession().persist(timeSheet);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void deleteAssignmentTimeSheet(AssignmentTimeSheet timeSheet) {
+    	if(timeSheet!= null) {
+            sessionFactory.getCurrentSession().delete(sessionFactory.getCurrentSession().get(AssignmentTimeSheet.class, timeSheet.getId()));
+    	}
+    }
+    
+    @Override
+    @Transactional
+    public boolean existsAssignmentTimeSheet(Long timeSheetId) {
+    	return timeSheetId != null && sessionFactory.getCurrentSession().get(AssignmentTimeSheet.class, timeSheetId) != null;
+    }
+    
+    @Override
+    @Transactional
     public boolean existsAssignment(String assignmentId) {
         if (assignmentId != null && exists(assignmentId)) {
             return true;
@@ -139,6 +162,16 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
         return (AssignmentSubmission) sessionFactory.getCurrentSession().get(AssignmentSubmission.class, submissionId);
     }
 
+    @Override
+    public AssignmentSubmissionSubmitter findSubmissionSubmitter(String submitterId) {
+        return (AssignmentSubmissionSubmitter) sessionFactory.getCurrentSession().get(AssignmentSubmissionSubmitter.class, Long.parseLong(submitterId));
+    }
+    
+    @Override
+    public AssignmentTimeSheet findTimeSheet(String timeSheetId) {
+        return (AssignmentTimeSheet) sessionFactory.getCurrentSession().get(AssignmentTimeSheet.class, Long.parseLong(timeSheetId));
+    }
+    
     @Override
     @Transactional
     public void updateSubmission(AssignmentSubmission submission) {

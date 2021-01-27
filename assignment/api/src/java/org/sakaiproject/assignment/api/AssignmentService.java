@@ -33,6 +33,7 @@ import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.assignment.api.model.AssignmentTimeSheet;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.Reference;
@@ -827,4 +828,14 @@ public interface AssignmentService extends EntityProducer {
      * @return
      */
     public String createContentReviewAssignment(Assignment a, String assignmentRef, Instant openTime, Instant dueTime, Instant closeTime);
+
+    public boolean correctTime(String timeSheet);
+
+	public AssignmentSubmissionSubmitter getSubmissionSubmitter(String submitterId) throws PermissionException;
+
+	public AssignmentTimeSheet getTimeSheet(String timeSheetId) throws PermissionException;
+	
+	public void addAssignmentTimeSheet(AssignmentTimeSheet timeSheet, String context) throws PermissionException;
+
+	public void removeAssignmentTimeSheet(AssignmentTimeSheet timeSheet, String context) throws PermissionException;
 }

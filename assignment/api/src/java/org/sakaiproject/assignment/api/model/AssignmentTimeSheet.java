@@ -17,16 +17,16 @@ package org.sakaiproject.assignment.api.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Index;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+
+import org.hibernate.annotations.Type;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
@@ -37,14 +37,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.persistence.CascadeType;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
-
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import java.time.Instant;
 
 /**
  * Defines a relation between a submission and the submission's submitters.
@@ -59,46 +52,34 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
  * Notice that equals and hashcode also reflect this relationship.
  */
 @Entity
-@Table(name = "ASN_SUBMISSION_SUBMITTER",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"SUBMISSION_ID", "SUBMITTER"}),
-        indexes = @Index(columnList = "SUBMITTER"))
+@Table(name = "ASN_TIMESHEET")
 @Data
 @NoArgsConstructor
-@ToString(exclude = {"submission"})
-@EqualsAndHashCode(of = {"submission", "submitter"})
+@ToString(exclude = {"submitter"})
+@EqualsAndHashCode(of = "id")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class AssignmentSubmissionSubmitter {
+public class AssignmentTimeSheet {
 
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "assignment_submission_submitters_sequence")
-    @SequenceGenerator(name = "assignment_submission_submitters_sequence", sequenceName = "ASN_SUBMISSION_SUBMITTERS_S")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "seq_id_asn_timesheet")
+    @SequenceGenerator(name = "seq_id_asn_timesheet", sequenceName = "SEQ_ID_ASN_TIMESHEET_S")
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "SUBMISSION_ID", nullable = false)
-    @JsonBackReference
-    private AssignmentSubmission submission;
-
-    @Column(name = "SUBMITTER", length = 99, nullable = false)
-    private String submitter;
-
-    @Column(name = "SUBMITTEE", nullable = false)
-    private Boolean submittee = Boolean.FALSE;
-
-    @Column(name = "GRADE", length = 32)
-    private String grade;
-
-    @Lob
-    @Column(name = "FEEDBACK", length = 65535)
-    private String feedback;
     
-    @Column(name = " TIME_SPENT", length = 255)
-    private String timeSpent;
+    @ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "SUBMITTER_ID", nullable = false)
+	@JsonBackReference
+	private AssignmentSubmissionSubmitter submitter;
 
-    @OneToMany(mappedBy = "submitter", cascade = CascadeType.ALL, orphanRemoval = true)
-	@OrderBy("regDate ASC")
-    @JsonManagedReference
-    private Set<AssignmentTimeSheet> timeSheet = new HashSet<>();
-    
+    @Type(type = "org.hibernate.type.InstantType")
+	@Column(name = "REG_DATE", nullable = false)
+    private Instant regDate;
+
+    @Column(name = "REG_TIME", length = 255)
+    private String regTime;
+
+    @Column(name = "ASN_COMMENT", length = 255)
+    private String asnComment;
+
 }

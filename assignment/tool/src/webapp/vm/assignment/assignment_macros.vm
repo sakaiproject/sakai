@@ -187,6 +187,42 @@
     </ul>
 #end
 
+## Macro for Timesheet tabs
+#macro( navBarTimesheet $current )
+    <ul class="navIntraTool actionToolBar">
+    	<li class="firstToolBarItem">
+		#if( $current == "Assignment" )
+			<span id="tabAssignmentCurrent" class="current">$!tlang.getString( "ts.tab.assignment" )</span>
+			<span id="tabAssignmentRef" class="hidden">
+				<a href="javascript:void(0)" title="$!tlang.getString( "ts.tab.assignment" )" onclick="ASN.switchTimesheetTab( 'tabAssignment' ); return false;">
+				$!tlang.getString( "ts.tab.assignment" ) </a>
+			</span>
+		#else
+			<span id="tabAssignmentCurrent" class="current hidden">$!tlang.getString( "ts.tab.assignment" )</span>
+			<span id="tabAssignmentRef" class="">
+				<a href="javascript:void(0)" title="$!tlang.getString( "ts.tab.assignment" )" onclick="ASN.switchTimesheetTab( 'tabAssignment' ); return false;">
+				$!tlang.getString( "ts.tab.assignment" )</a>
+			</span>
+		#end
+		</li>
+		<li class="firstToolBarItem">
+		#if( $current == "timeSheet" )
+			<span id="tabTimeSheetCurrent" class="current">$!tlang.getString( "ts.tab.timesheet" )</span>
+			<span id="tabTimeSheetRef" class="hidden">
+				<a href="javascript:void(0)" title="$!tlang.getString( "ts.tab.timesheet" )" onclick="ASN.switchTimesheetTab( 'tabTimeSheet' ); return false;">
+				$!tlang.getString( "ts.tab.timesheet" )</a>
+			</span>
+		#else
+			<span id="tabTimeSheetCurrent" class="current hidden">$!tlang.getString( "ts.tab.timesheet" )</span>
+			<span id="tabTimeSheetRef" class="">
+				<a href="javascript:void(0)""$!tlang.getString( "ts.tab.timesheet" )" onclick="ASN.switchTimesheetTab( 'tabTimeSheet' ); return false;">
+				$!tlang.getString( "ts.tab.timesheet" )</a>
+			</span>
+		#end
+		</li>
+	</ul>
+#end
+
 ## Macro for the top nav bar using onclick JavaScript
 #macro( navBarOnClick $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view $formID $current )
     <ul class="navIntraTool actionToolBar">

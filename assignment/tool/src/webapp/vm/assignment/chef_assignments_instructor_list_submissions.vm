@@ -365,7 +365,21 @@ function printView(url) {
 								#end 
 							</a>
 						</th>
-					#end	
+					#end
+					#if ($assignment.Estimate && !$assignment.Estimate.equals(""))
+						<th id="estimate">
+							<a href="javascript:void(0)" onclick="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_estimate")'; return false;"  title="$tlang.getString("gen.sorbyspenttime")">
+								$tlang.getString("gen.spenttime")
+								#if ($sortedBy.equals($!sort_estimate)) 
+									#if ($sortedAsc.equals("true")) 
+										<img id="sort_ascending_estimate" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
+									#else 
+										<img id="sort_descending_estimate" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" /> 
+									#end 
+								#end 
+							</a>
+						</th>
+					#end
 					#if ($allowReviewService && $assignment.ContentReview)
 						<th id="reviewService" class="contentReviewColumn">
 							<a href="javascript:void(0)" onclick="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_submitReview")'; return false;" onkeypress="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_submitReview")'; return false;" title="$tlang.getString("gen.sorbyreview")">
@@ -579,6 +593,11 @@ function printView(url) {
 									</sakai-rubric-student-button>
 								</td>
 							#end	
+							#if ($assignment.Estimate && !$assignment.Estimate.equals(""))
+								<td headers="estimate">
+									$!userSubmission.getTimeSpent()
+								</td>
+							#end
 							#if ($allowReviewService && $assignment.ContentReview)
 								<td headers="reviewService">
 									#if ($!service.isContentReviewVisibleForSubmission($!submission))
@@ -611,6 +630,11 @@ function printView(url) {
 							</td>
 							#if ($withGrade)
 								<td headers="grade">
+									&nbsp;
+								</td>
+							#end
+							#if ($assignment.Estimate && !$assignment.Estimate.equals(""))
+								<td headers="estimate">
 									&nbsp;
 								</td>
 							#end
@@ -702,6 +726,16 @@ function printView(url) {
 				#end
 			</td>
 		</tr>
+		#if ($assignment.Estimate && !$assignment.Estimate.equals(""))
+			<tr>
+				<th>
+					$tlang.getString("gen.estimatedselfempl")
+				</th>
+				<td>
+					$formattedText.escapeHtml($!assignment.Estimate)
+				</td>
+			</tr>
+		#end
 		<tr> 
 			<th>
 				$tlang.getString("gen.honple")
