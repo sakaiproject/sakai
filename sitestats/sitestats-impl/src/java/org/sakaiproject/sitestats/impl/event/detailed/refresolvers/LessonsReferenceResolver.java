@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -198,39 +199,40 @@ public class LessonsReferenceResolver
 
     private static List<String> getPageHierarchy( SimplePage page, SimplePageToolDao lsnServ )
     {
-        List<String> hier = getPageHierarchyReverse( page, lsnServ );
+        List<HierarchyPage> hierarchy = new ArrayList<>();
+        getPageHierarchyReverse( hierarchy, page, lsnServ );
+        List<String> hier = hierarchy.stream().map( p -> p.title ).collect( Collectors.toList() );
         Collections.reverse( hier );
         return hier;
     }
 
     /**
-     * Accumulates a list of strings representing the hierarchy of pages starting from the given page and traversing upwards.
+     * Accumulates a list representing the hierarchy of pages starting from the given page and traversing upwards.
+     * @param hierarchy the accumulated list of pages
      * @param page the page we want to traverse the hierarchy from
      * @param lsnServ the LessonBuilder service to use for accessing the hierarchy information
-     * @return a List of strings representing the hierarchy in reverse order (bottom to top)
      */
-    private static List<String> getPageHierarchyReverse( SimplePage page, SimplePageToolDao lsnServ )
+    private static void getPageHierarchyReverse( List<HierarchyPage> hierarchy, SimplePage page, SimplePageToolDao lsnServ)
     {
-        List<String> hierarchy = new ArrayList<>();
-
         if( page != null )
         {
-            hierarchy.add( page.getTitle() );
-            Long parentPageID = page.getParent();
-
-            if( parentPageID != null )
+            if( hierarchy.stream().noneMatch( parent -> parent.id == page.getPageId() ) ) // guard against infinite recursion due to cycles in hierarchy
             {
-                SimplePage parent = lsnServ.getPage( parentPageID );
-                hierarchy.addAll( getPageHierarchyReverse( parent, lsnServ ) );
+                hierarchy.add( new HierarchyPage( page.getPageId(), page.getTitle() ) );
+                Long parentPageID = page.getParent();
+
+                if( parentPageID != null )
+                {
+                    SimplePage parent = lsnServ.getPage( parentPageID );
+                    getPageHierarchyReverse( hierarchy, parent, lsnServ );
+                }
             }
         }
         else
         {
-            hierarchy.add( PageData.DELETED_HIERARCHY_PAGE );
+            hierarchy.add( HierarchyPage.DELETED_PAGE );
         }
-
-        return hierarchy;
-    }
+	}
 
     private static class ParsedLessonsRef
     {
@@ -241,6 +243,19 @@ public class LessonsReferenceResolver
         {
             this.id = id;
             this.type = type;
+        }
+    }
+
+    private static class HierarchyPage
+    {
+        public final long id;
+        public final String title;
+        public static final HierarchyPage DELETED_PAGE = new HierarchyPage( -999L, PageData.DELETED_HIERARCHY_PAGE );
+
+        public HierarchyPage( long id, String title )
+        {
+            this.id = id;
+            this.title = title;
         }
     }
 }
