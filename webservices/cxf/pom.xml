@@ -140,9 +140,8 @@
             <version>${sakai.org.json.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.jumpmind.symmetric</groupId>
-            <artifactId>symmetric-csv</artifactId>
-            <version>3.6.2</version>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
         </dependency>
         <dependency>
             <groupId>xalan</groupId>

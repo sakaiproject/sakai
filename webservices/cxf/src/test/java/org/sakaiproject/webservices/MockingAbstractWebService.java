@@ -31,6 +31,7 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.ActivityService;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -87,6 +88,7 @@ public class MockingAbstractWebService {
 			instance.setActivityService(mock(ActivityService.class));
 			instance.setPreferencesService(mock(PreferencesService.class));
 			instance.setQuestionPoolServiceImpl(mock(QuestionPoolServiceImpl.class));
+			instance.setSqlService(mock(SqlService.class));
 		} catch (InstantiationException | IllegalAccessException e) {
 			log.error(e.getMessage(), e);
 		}
