@@ -32,6 +32,12 @@
 				#searchFilterPanel("$form_search", $searchString, "doView_submission_list_search", "doView_submission_list_search_clear")
 			#end
 			</div>
+			<div class="sakai-table-toolBar-centre">
+				#if ($!isTimesheet)
+					<a href="$accessPointUrl" title="$!tlang.getString('downspr')" id="downloadAll">$!tlang.getString('downspr')</a>
+				#end
+			</div>
+			<div class="sakai-table-pagerContainer"></div>
 		</div>
 
 		<form name="studentAssignmentForm" action="#toolForm("AssignmentAction")" method="post">
@@ -54,6 +60,11 @@
 						<th id="status">
 							$tlang.getString("gen.status")
 						</th>
+						#if ($!isTimesheet)
+						<th id="time">
+							$tlang.getString("gen.spenttime")
+						</th>
+						#end
 						#if ($withGrade)
 							<th id="grade">
 								$tlang.getString("gen.gra")
@@ -85,7 +96,7 @@
 										<div id="$userSpinnerID" class="allocatedSpinPlaceholder"></div>
 									</div>
 							</td>
-							<td colspan="4">
+							<td colspan="5">
 							</td>
 						</tr>
 						#if ($studentListShowSet.contains($member.Id))
@@ -150,6 +161,28 @@
 											#end
 											&nbsp;
 										</td>
+										#if ($!isTimesheet)
+										<td headers="time">
+											#if (!$assignment.Estimate || $assignment.Estimate.equals(""))
+												-
+											#else
+												#if ($!submission.submitted)
+													#set ($submissionSubmitter = $!service.getSubmissionSubmittee($submission))
+													#if ($!submissionSubmitter.isPresent())
+														#set ($timeSp = $!submissionSubmitter.get().getTimeSpent())
+														#if (!$!timeSp || $timeSp.equals(""))
+															-
+														#else
+															$formattedText.escapeHtml($timeSp)
+														#end
+													#else
+														-
+													#end
+												#end
+											#end
+											&nbsp;
+										</td>
+										#end
 										#if ($withGrade)
 											<td headers="grade">
 												#set($grade = $!service.getGradeForSubmitter($submission, $!member.getId()))

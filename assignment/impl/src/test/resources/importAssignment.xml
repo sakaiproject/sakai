@@ -30,6 +30,7 @@
                             <submitter>12345678-abcd-1234-abcd-123456789ab4</submitter>
                             <submittee>true</submittee>
                             <grade>gen.nograd</grade>
+                            <timeSheet/>
                             <feedback/>
                         </submitters>
                     </submitters>

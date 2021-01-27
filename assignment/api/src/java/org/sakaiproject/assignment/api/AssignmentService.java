@@ -32,6 +32,7 @@ import java.util.Set;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
+import org.sakaiproject.assignment.api.model.AssignmentTimeSheet;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.Reference;
@@ -804,4 +805,14 @@ public interface AssignmentService extends EntityProducer {
      * @return list of submission group users with multiple group memberships and the groups they belong to
      */
     public List<MultiGroupRecord> checkSubmissionForUsersInMultipleGroups(String siteId, Group submissionGroup, Collection<Group> asnGroups);
+    public boolean correctTime(String timeSheet);
+
+	public AssignmentSubmissionSubmitter getSubmissionSubmitter(String submitterId) throws PermissionException;
+
+	public AssignmentTimeSheet getTimeSheet(String timeSheetId) throws PermissionException;
+	
+	public void addAssignmentTimeSheet(AssignmentTimeSheet timeSheet, String context) throws PermissionException;
+
+	public void removeAssignmentTimeSheet(AssignmentTimeSheet timeSheet, String context) throws PermissionException;
+
 }

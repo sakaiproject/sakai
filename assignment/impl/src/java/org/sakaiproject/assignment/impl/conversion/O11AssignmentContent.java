@@ -92,6 +92,9 @@ public class O11AssignmentContent {
     private String title;
     // typeofgrade="3"
     private Integer typeofgrade;
+    
+    private String estimate;
+    private Boolean obEstimate;
 
     /**
      * List of name=value where value is enc is the encoding used in value<br/>

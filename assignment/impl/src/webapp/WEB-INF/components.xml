@@ -131,6 +131,7 @@
                 <value>org.sakaiproject.assignment.api.model.Assignment</value>
                 <value>org.sakaiproject.assignment.api.model.AssignmentSubmission</value>
                 <value>org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter</value>
+                <value>org.sakaiproject.assignment.api.model.AssignmentTimeSheet</value>
                 <value>org.sakaiproject.assignment.api.model.AssessorSubmissionId</value>
                 <value>org.sakaiproject.assignment.api.model.AssignmentAllPurposeItem</value>
                 <value>org.sakaiproject.assignment.api.model.AssignmentAllPurposeItemAccess</value>

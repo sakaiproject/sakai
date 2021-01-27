@@ -852,6 +852,24 @@ ASN.toggleAutoAnnounceOptions = function(checked){
     }
 };
 
+ASN.toggleAutoAnnounceEstimate = function(checked){
+    var obEstimate = document.getElementById("checkobestimate");
+    var timeEstimate = document.getElementById("inputtimestimate");
+    var timeEstimateInput = document.getElementById("new_assignment_input_add_time_estimate");
+    var obEstimateCheck = document.getElementById("new_assignment_check_add_ob_estimate");
+    if(checked){
+    	obEstimate.style.display="block";
+    	timeEstimate.style.display="block";
+        ASN.resizeFrame('grow');
+    }else{
+    	obEstimate.style.display="none";
+    	timeEstimate.style.display="none";
+    	timeEstimateInput.value="";
+    	obEstimateCheck.checked="";
+        ASN.resizeFrame('shrink');
+    }
+};
+
 // SAK-30032
 ASN.setupPeerReviewAttachment = function(){
     $('#submissionFileCount').val(1);
@@ -960,10 +978,22 @@ ASN.changeVisibleDate = function()
 	}
 }
 
+ASN.enableTimesheetSetupSection = function()
+{
+	document.getElementById("timesheetsetupsection").style.display="block";
+}
+
+ASN.disableTimesheetSetupSection = function()
+{
+	document.getElementById("timesheetsetupsection").style.display="none";
+	document.getElementById("new_assignment_check_add_is_estimate").checked="";
+	ASN.toggleAutoAnnounceEstimate(false);
+}
+
 $(document).ready(() => {
 
   $("#infoImg").popover({html : true});
-
+  
   const saveRubric = e => {
     [...document.getElementsByTagName("sakai-rubric-grading")].forEach(r => r. save());
   };
