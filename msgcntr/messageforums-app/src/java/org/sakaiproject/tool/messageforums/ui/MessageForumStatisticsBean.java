@@ -2574,6 +2574,7 @@ public class MessageForumStatisticsBean {
 		else 
 		{ 
 			selectedGroup = changeAssign; 
+			FacesContext.getCurrentInstance().renderResponse();
 			return null;
 		} 
 	}
