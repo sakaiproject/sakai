@@ -314,15 +314,15 @@
 		}
 
 		.borderWhiteYear {
-			border: 1px solid #fff;
+			border: 1px solid var(--sakai-background-color-1);
 			text-align: center;
 		}
 
 		.borderWhite {
 			border-bottom: none;
-			border-left: 1px solid #fff;
-			border-right: 1px solid #fff;
-			border-top: 1px solid #fff;
+			border-left: 1px solid var(--sakai-background-color-1);
+			border-right: 1px solid var(--sakai-background-color-1);
+			border-top: 1px solid var(--sakai-background-color-1);
 		}
 
 		.borderGrayTodayCenter, .borderOnlyLeftTodayCenter {
@@ -548,7 +548,7 @@
 		right: 0;
 		overflow-x: hidden;
 		overflow-y: auto;
-		border: 1px solid #fff;
+		border: 1px solid $calendar-event-border-color;
 		background-color: $calendar-event-background-color;
 		font-size: $default-font-size-small;
 		line-height: 1.4;

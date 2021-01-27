@@ -5,29 +5,29 @@
 $calendar-table-background-color: var(--sakai-background-color-1);
 $calendar-table-header-line-height: 2;
 
-$calendar-column-heading-color: #666;
+$calendar-column-heading-color: var(--sakai-text-color-2);
 
 $miniCalendarSize: "only screen and (max-width: 550px)";
 
 // most days in the calendar
-$calendar-day-border-color: #ddd;
+$calendar-day-border-color: var(--sakai-border-color);
 $calendar-day-background-color: transparent;
 $calendar-day-text-color: var(--sakai-primary-color-1);
 
 // day headers for month view
-$calendar-day-header-background-color: #fafafa;
+$calendar-day-header-background-color: var(--sakai-background-color-2);
 $calendar-day-header-text-color: var(--link-color);
 
 // today in the calendar
-$calendar-day-today-border-color: #666;
-$calendar-day-today-background-color: #fffabc;
-$calendar-day-today-text-color: #333;
+$calendar-day-today-border-color: var(--sakai-border-color);
+$calendar-day-today-background-color: var(--sakai-background-color-3);
+$calendar-day-today-text-color: var(--sakai-text-color-1);
 
 // a day with event(s)
 $calendar-event-border-color: var(--sakai-primary-color-1);
-$calendar-event-background-color: #f9f9ff;
+$calendar-event-background-color: var(--sakai-active-color-1);
 $calendar-event-text-color: var(--link-color);
-$calendar-event-indicator-color: #666;
+$calendar-event-indicator-color: var(--sakai-background-color-4);
 
 // today with event(s)
 $calendar-today-event-border-color: 	$calendar-event-border-color;
