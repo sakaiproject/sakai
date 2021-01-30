@@ -4,6 +4,12 @@ import java.time.Instant;
 import org.springframework.beans.BeanUtils;
 import lombok.Data;
 
+import org.sakaiproject.time.api.MillisToInstantJsonDeserializer;
+import org.sakaiproject.time.api.InstantToMillisJsonSerializer;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 @Data
 public class UserTaskAdapterBean {
 
@@ -26,8 +32,15 @@ public class UserTaskAdapterBean {
     private String reference;
     private Boolean system;
     private Boolean complete;
+
+    @JsonSerialize(using = InstantToMillisJsonSerializer.class)
+    @JsonDeserialize(using = MillisToInstantJsonDeserializer.class)
     private Instant starts;
+
+    @JsonSerialize(using = InstantToMillisJsonSerializer.class)
+    @JsonDeserialize(using = MillisToInstantJsonDeserializer.class)
     private Instant due;
+
     private Integer priority;
     private String notes;
     private String url;

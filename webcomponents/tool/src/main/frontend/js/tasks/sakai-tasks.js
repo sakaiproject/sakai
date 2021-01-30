@@ -32,7 +32,7 @@ export class SakaiTasks extends LitElement {
 
   set tasks(value) {
 
-    let old = this._tasks;
+    const old = this._tasks;
     this._tasks = value;
 
     // Show highest priority tasks first
@@ -54,9 +54,6 @@ export class SakaiTasks extends LitElement {
 
   decorateTask(t) {
 
-    // Convert the due date into milliseconds.
-    t.due = t.due * 1000;
-
     t.visible = true;
     if (t.due) {
       t.dueHuman = moment.duration(t.due - Date.now(), "milliseconds").humanize(true);
@@ -68,9 +65,9 @@ export class SakaiTasks extends LitElement {
 
   loadData() {
 
-    let url = `/api/tasks`;
-    fetch(url)
+    fetch("/api/tasks")
       .then(r => {
+
         if (r.ok) {
           return r.json();
         } else {
@@ -80,8 +77,6 @@ export class SakaiTasks extends LitElement {
       .then(data => {
 
         this.tasks = data;
-
-        //this.tasks.forEach(t => t.due = t.due * 1000);
         this.filter("current");
       })
       .catch (error => console.error(error));
@@ -166,16 +161,20 @@ export class SakaiTasks extends LitElement {
     }
 
     const taskId = e.currentTarget.dataset.taskId;
-    let url = `/api/tasks/${taskId}`;
-    fetch(url, {
+
+    fetch(`/api/tasks/${taskId}`, {
       credentials: "include",
       method: "DELETE",
     })
       .then(r => {
 
         if (r.ok) {
-          this.tasks.splice(this.tasks.findIndex(t => t.taskId == taskId), 1);
-          this.filter("current");
+          this.tasks.splice(this.tasks.findIndex(t => t.userTaskId == taskId), 1);
+          if (this.tasks.filter(t => t.softDeleted).length == 0) {
+            this.filter("current");
+          } else {
+            this.requestUpdate();
+          }
         } else {
           throw new Error(`Failed to delete task at ${url}`);
         }
@@ -187,15 +186,11 @@ export class SakaiTasks extends LitElement {
 
   softDeleteTask(e) {
 
-    let task = this.tasks.find(t => t.taskId == e.currentTarget.dataset.taskId);
-
-    // We have to do this as Jackson expects seconds to translate into Instants
-    task.due = task.due / 1000;
+    const task = this.tasks.find(t => t.taskId == e.currentTarget.dataset.taskId);
 
     task.softDeleted = true;
     task.visible = false;
-    let url = `/api/tasks/${task.taskId}`;
-    fetch(url, {
+    fetch(`/api/tasks/${task.taskId}`, {
       credentials: "include",
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -216,15 +211,11 @@ export class SakaiTasks extends LitElement {
 
   restoreTask(e) {
 
-    let task = this.tasks.find(t => t.taskId == e.currentTarget.dataset.taskId);
-
-    // We have to do this as Jackson expects seconds to translate into Instants
-    task.due = task.due / 1000;
+    const task = this.tasks.find(t => t.taskId == e.currentTarget.dataset.taskId);
 
     task.softDeleted = false;
     task.visible = true;
-    let url = `/api/tasks/${task.taskId}`;
-    fetch(url, {
+    fetch(`/api/tasks/${task.taskId}`, {
       credentials: "include",
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -245,7 +236,6 @@ export class SakaiTasks extends LitElement {
       .catch(error => {
         console.error(error)
       });
-
   }
 
   shouldUpdate(changed) {
@@ -450,15 +440,6 @@ export class SakaiTasks extends LitElement {
           background-color: var(--sakai-table-even-color, #f4f4f4);
         }
 
-      .task {
-        display: flex;
-        align-items: center;
-        border: 1px solid;
-        border-width: 0 0 3px 0;
-        border-color: var(--sakai-separator-color, rgb(244,244,244));
-        padding-bottom: 5px;
-        margin-bottom: 5px;
-      }
         .priority-block {
           flex: 1;
           display: flex;
@@ -503,6 +484,9 @@ export class SakaiTasks extends LitElement {
           align-items: center;
           justify-content: flex-end;
         }
+          .link-block div {
+            margin-right: 8px;
+          }
 
         .task-text {
           margin-left: 20px;
@@ -512,9 +496,6 @@ export class SakaiTasks extends LitElement {
           margin-top: 10px;
           margin-bottom: 10px;
         }
-          .link-block div {
-            margin-right: 8px;
-          }
           .edit {
             margin-right: 8px;
           }
