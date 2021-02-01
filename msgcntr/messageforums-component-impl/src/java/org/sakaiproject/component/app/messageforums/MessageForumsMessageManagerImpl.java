@@ -33,6 +33,8 @@ import java.util.Map;
 import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
+
+import org.hibernate.Hibernate;
 import org.hibernate.query.Query;
 import org.hibernate.type.LongType;
 import org.hibernate.type.StringType;
@@ -1480,15 +1482,15 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
        }
 
        log.debug("getMessageByIdWithAttachments executing with messageId: " + messageId);
-        
 
-      HibernateCallback<Message> hcb = session -> {
-        Query q = session.getNamedQuery(QUERY_BY_MESSAGE_ID_WITH_ATTACHMENTS);
-        q.setParameter("id", messageId, LongType.INSTANCE);
-        return (Message) q.uniqueResult();
-      };
-
-      return getHibernateTemplate().execute(hcb);
+        Message message = getHibernateTemplate().execute(session -> {
+            Query q = session.getNamedQuery(QUERY_BY_MESSAGE_ID_WITH_ATTACHMENTS);
+            q.setParameter("id", messageId, LongType.INSTANCE);
+            Message msg = (Message) q.uniqueResult();
+            if (msg != null) msg.setTopic((Topic) Hibernate.unproxy(msg.getTopic()));
+            return msg;
+        });
+        return message;
     }
     
     public Attachment getAttachmentById(final Long attachmentId) {        
