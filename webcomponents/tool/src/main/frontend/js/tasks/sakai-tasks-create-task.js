@@ -38,11 +38,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
     this.task.description = this.shadowRoot.getElementById("description").value;
     this.task.notes = this.getEditor().getData();
 
-    // We use Instant on the server, so we need seconds, not millis
-    this.task.due = this.task.due / 1000;
-
-    let url = `/api/tasks/${this.task.taskId}`;
-    fetch(url, {
+    fetch(`/api/tasks/${this.task.taskId}`, {
       credentials: "include",
       method: "PUT",
       cache: "no-cache",
@@ -59,9 +55,9 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
           throw new Error();
         }
       })
-      .then(taskWithId => {
+      .then(savedTask => {
 
-        this.task = taskWithId;
+        this.task = savedTask;
         this.dispatchEvent(new CustomEvent("task-created", {detail: { task: this.task }, bubbles: true }));
         this.close();
       })
@@ -70,7 +66,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
 
   resetDate() {
 
-    this.task.due = new Date().getTime();
+    this.task.due = Date.now();
     let el = this.shadowRoot.getElementById("due");
     if (el) {
       el.epochMillis = this.task.due;
@@ -131,7 +127,17 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
 
   reset() {
     this.task = Object.assign({}, this.defaultTask);
-    //this.resetEditor();
+  }
+
+  complete(e) {
+
+    this.task.complete = e.target.checked;
+
+    if (e.target.checked) {
+      this.task.softDeleted = false;
+    }
+
+    console.log(this.task);
   }
 
   resetEditor() {
@@ -192,7 +198,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
               id="complete"
               aria-label="${this.i18n["complete_tooltip"]}"
               title="${this.i18n["complete_tooltip"]}"
-              @click=${() => this.task.complete = !this.task.complete}
+              @click=${this.complete}
               ?checked=${this.task.complete}>
           </div>
         </div>

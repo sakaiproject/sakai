@@ -20,7 +20,6 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.tasks.api.UserTaskAdapterBean;
-import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
@@ -38,7 +37,6 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -47,22 +45,22 @@ import java.util.stream.Collectors;
 @RestController
 public class TasksController extends AbstractSakaiApiController {
 
-	@Resource
-	private EntityManager entityManager;
+    @Resource
+    private EntityManager entityManager;
 
-	@Resource
-	private TaskService taskService;
+    @Resource
+    private TaskService taskService;
 
-	@Resource
-	private SiteService siteService;
+    @Resource
+    private SiteService siteService;
 
-	@Resource
-	private UserDirectoryService userDirectoryService;
+    @Resource
+    private UserDirectoryService userDirectoryService;
 
-	@GetMapping(value = "/tasks", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/tasks", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<UserTaskAdapterBean> getTasks() throws UserNotDefinedException {
 
-		Session session = checkSakaiSession();
+        checkSakaiSession();
 
         // Flatten the UserTask objects into a more compact form and return.
         return taskService.getAllTasksForCurrentUser()
@@ -75,26 +73,26 @@ public class TasksController extends AbstractSakaiApiController {
                 }
                 return bean;
             }).collect(Collectors.toList());
-	}
+    }
 
-    @PutMapping(value = "/tasks", produces = "application/json")
+    @PutMapping(value = "/tasks", produces = MediaType.APPLICATION_JSON_VALUE)
     public UserTaskAdapterBean createTask(@RequestBody UserTaskAdapterBean taskTransfer) {
 
-		Session session = checkSakaiSession();
+        checkSakaiSession();
         return UserTaskAdapterBean.from(taskService.createSingleUserTask(taskTransfer));
     }
 
-    @PutMapping(value = "/tasks/{userTaskId}", produces = "application/json")
-    public void updateTask(@RequestBody UserTaskAdapterBean taskTransfer ) {
+    @PutMapping(value = "/tasks/{userTaskId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public UserTaskAdapterBean updateTask(@RequestBody UserTaskAdapterBean taskTransfer ) {
 
-		checkSakaiSession();
-        taskService.saveUserTask(taskTransfer);
+        checkSakaiSession();
+        return UserTaskAdapterBean.from(taskService.saveUserTask(taskTransfer));
     }
 
     @DeleteMapping("/tasks/{userTaskId}")
     public void deleteTask(@PathVariable Long userTaskId) {
 
-		checkSakaiSession();
+        checkSakaiSession();
         taskService.removeUserTask(userTaskId);
     }
 }
