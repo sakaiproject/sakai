@@ -16,7 +16,7 @@
 
             #if (${useBullhornAlerts})
             <div class="Mrphs-sitesNav__menuitem portal-bullhorns-buttons">
-                <a id="Mrphs-bullhorn" href="javascript:void(0);" title="${rloader.sit_academic_bullhorn_title}" aria-haspopup="true">
+                <a id="Mrphs-bullhorn" href="javascript:void(0);" title="${rloader.sit_academic_bullhorn_title}" aria-haspopup="true" aria-expanded="false">
                     <span class="icon-sakai--alerts"></span>
                 </a>
             </div>
@@ -60,7 +60,7 @@
 
         #if (${userIsLoggedIn})
             <div class="Mrphs-sitesNav__menuitem view-all-sites-btn">
-                <a href="javascript:void(0);" title="${rloader.sit_allsites}" aria-haspopup="true">
+                <a href="javascript:void(0);" title="${rloader.sit_allsites}" aria-haspopup="true" aria-expanded="false">
                     <i class="fa fa-th all-sites-icon" aria-hidden="true"></i> <span class="all-sites-label">${rloader.sit_worksites}</span>
                 </a>
             </div>
@@ -78,8 +78,11 @@
 
                                     #if (${tabsSites.mrphs_profileToolUrl})
 
+                                        ## https://www.w3.org/WAI/tutorials/menus/flyout/
+                                        ## https://www.smashingmagazine.com/2017/11/building-accessible-menu-systems/
+                                        ## https://accessibility.oit.ncsu.edu/it-accessibility-at-nc-state/developers/accessibility-handbook/mouse-and-keyboard-events/links/link-behavior/
                                         <div id="loginUser" class="has-avatar Mrphs-userNav__submenuitem--userlink #if (${site.isCurrentSite}) current-site #end">
-                                            <a href="javascript:void(0);" role="button" title="${loginUserFirstName} ${rloader.sit_profile_drop_down}" aria-title="${loginUserFirstName} ${rloader.sit_profile_drop_down}" aria-haspopup="true" class="Mrphs-userNav__drop-btn Mrphs-userNav__submenuitem--username">
+                                            <a href="javascript:void(0);" title="${loginUserFirstName} ${rloader.sit_profile_drop_down}" aria-title="${loginUserFirstName} ${rloader.sit_profile_drop_down}" aria-haspopup="true" aria-expanded="false" class="Mrphs-userNav__drop-btn Mrphs-userNav__submenuitem--username">
                                                 <span class="Mrphs-userNav__submenuitem--profilepicture" style="background-image:url(/direct/profile/${loginUserId}/image/thumb)"></span>
                                                 <span class="textlink">${loginUserFirstName}</span>
                                             </a>
@@ -87,7 +90,7 @@
 
                                     #else
 
-                                        <a id="loginUser" href="javascript:void(0);" role="menuitem" title="${loginUserFirstName} ${rloader.sit_profile_drop_down}" aria-title="${loginUserFirstName} ${rloader.sit_profile_drop_down}" aria-haspopup="true" class="Mrphs-userNav__drop-btn no-avatar Mrphs-userNav__submenuitem--userlink #if (${site.isCurrentSite}) current-site #end">
+                                        <a id="loginUser" href="javascript:void(0);" title="${loginUserFirstName} ${rloader.sit_profile_drop_down}" aria-title="${loginUserFirstName} ${rloader.sit_profile_drop_down}" aria-haspopup="true" aria-expanded="false" class="Mrphs-userNav__drop-btn no-avatar Mrphs-userNav__submenuitem--userlink #if (${site.isCurrentSite}) current-site #end">
                                             <span class="Mrphs-userNav__submenuitem--username">${loginUserFirstName}</span>
                                             <span class="Mrphs-userNav__submenuitem--userid">${loginUserDispId}</span>
                                         </a>
