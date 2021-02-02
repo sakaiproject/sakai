@@ -173,7 +173,7 @@ public class PDFExportService {
             InputStream userConfig = getClass().getClassLoader().getResourceAsStream(FOP_USERCONFIG);
             fopFactory = builder.setConfiguration(new DefaultConfigurationBuilder().build(userConfig)).build();
 
-            } catch (URISyntaxException | ConfigurationException e) {
+        } catch (URISyntaxException | ConfigurationException e) {
             // We won't be able to do anything if we can't create a FopFactory so may as well get caller to handle.
             throw new RuntimeException("Failed to setup Apache FOP for calendar PDF exports.", e);
         }
