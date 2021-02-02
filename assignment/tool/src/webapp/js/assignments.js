@@ -927,18 +927,16 @@ ASN.handleReportsTriangleDisclosure = function (header, icon, content, expandTex
 }
 
 // rubrics-specific code
-ASN.rubricsEventHandlers = function () {
+ASN.rubricsEventHandlers = () => {
 
-  $('body').on('total-points-updated', function (e) {
+  document.body && document.body.addEventListener("total-points-updated", e => {
 
     e.stopPropagation();
 
-    var gradeField = $('#grade');
-    if (gradeField.length) {
-      gradeField.val(e.detail.value);
-    }
+    const gradeField = document.getElementById("grade");
+    gradeField && (gradeField.value = e.detail.value);
   });
-}
+};
 
 ASN.changeVisibleDate = function() 
 {
@@ -962,21 +960,29 @@ ASN.changeVisibleDate = function()
 	}
 }
 
-$(document).ready(function() {
-	var infoIcon = $('#infoImg');
-	if (infoIcon.length === 1) {
-		infoIcon.popover({html : true});
-		infoIcon.click(function (e) {
-			e.preventDefault();			// override # in href from popping to the top of the page
-		});
-	}
+$(document).ready(() => {
 
-	const saveRubric = e => {
-		[...document.getElementsByTagName("sakai-rubric-grading")].forEach(r => r. save());
-	};
+  $("#infoImg").popover({html : true});
 
-	const saveButton = document.getElementById("save");
-	saveButton && saveButton.addEventListener("click", saveRubric);
-	const returnButton = document.getElementById("save-and-return");
-	returnButton && returnButton.addEventListener("click", saveRubric);
+  const saveRubric = e => {
+    [...document.getElementsByTagName("sakai-rubric-grading")].forEach(r => r. save());
+  };
+  const saveButton = document.getElementById("save");
+  saveButton && saveButton.addEventListener("click", saveRubric);
+
+  const releaseRubric = e => {
+    [...document.getElementsByTagName("sakai-rubric-grading")].forEach(r => r. release());
+  };
+  const returnButton = document.getElementById("save-and-return");
+  returnButton && returnButton.addEventListener("click", releaseRubric);
+
+  const releaseGrades = document.getElementById("releaseGrades");
+  releaseGrades && releaseGrades.addEventListener("click", e => {
+
+    e.target.classList.add('noPointers');
+
+    let promises = [];
+    [...document.getElementsByTagName("sakai-rubric-student-button")].forEach(b => promises.push(b.releaseEvaluation()));
+    Promise.all(promises).then(() => ASN.submitForm('viewForm', 'releaseGrades', null, null));
+  });
 });
