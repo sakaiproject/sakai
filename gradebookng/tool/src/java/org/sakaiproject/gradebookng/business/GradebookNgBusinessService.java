@@ -367,7 +367,7 @@ public class GradebookNgBusinessService {
 
 		for (final User u : users) {
 			gbUsers.add(new GbUser(u, getStudentNumber(u, site))
-							.setSections(userSections.getOrDefault(u.getEid(), Collections.emptyList())));
+							.setSections(userSections.getOrDefault(u.getId(), Collections.emptyList())));
 		}
 
 		return gbUsers;
