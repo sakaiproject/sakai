@@ -17,7 +17,6 @@ package org.sakaiproject.groupmanager.controller;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -173,8 +172,7 @@ public class GroupController {
                 joinableSetList.add(joinableSet);
             }
         });
-
-        Collections.sort(joinableSetList, Comparator.naturalOrder());
+        Collections.sort(joinableSetList);
 
         // For every member of the site or the filtered group, add it to the selector except if they were provided by a role.
         for (Member member : filterGroup == null ? site.getMembers() : filterGroup.getMembers()) {
